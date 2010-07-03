@@ -1,0 +1,66 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.63.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 842745cb706f8f2126506f544492f7a80dbe29b3 COPYING
+SHA1 9725a2fbb86199da6a71d4453af463f491c25b18 Changes
+SHA1 e932630f437313f6cf4b3ca1fa30db6575e3510f MANIFEST
+SHA1 c3a7e7e78203889e197eadff76c060f63c2efda4 MANIFEST.SKIP
+SHA1 18c873ef3abf10abc5dfc4f0f089b21e6a23f9d1 META.yml
+SHA1 8b198907c623082beec259d54f6c9e71011dc734 Makefile.PL
+SHA1 8c9f9521ef2d3ff83a4dce175dede2d4aa0629ab debian/changelog
+SHA1 ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4 debian/compat
+SHA1 39e3184ef2a807e88dfc8c5580018d3e528753b2 debian/control
+SHA1 80f687548faf05f8b116b8a25dacf452b1d4a5b6 debian/copyright
+SHA1 c67e52a6472613966eb38e3740992a1540633ef2 debian/rules
+SHA1 61652cd1568dcf2614df833eba241755eee34e89 debian/source/format
+SHA1 273a458118fa59ed61d2af74b48622637cf37cb2 debian/watch
+SHA1 e4df8b08d4dbdfc1f28b3dc2109a33b79b567c55 devel/grid.pl
+SHA1 01a42a4b6486ccff7a2f62d5592a85a50d823ac7 examples/knights-sloane.pl
+SHA1 edad6b44a5a370d6b77ccef681899f270ae9e464 examples/sacks-xpm.pl
+SHA1 ff7fe382d3bd3cab32774dcfa285876c5d460677 examples/square-numbers.pl
+SHA1 ce2c12a8a2f4dc523275fdadf5db22c424b4aa37 examples/ulam-spiral-xpm.pl
+SHA1 18d247411f350cae004d1058ad767b34e152baf7 inc/MyMakeMakerExtras.pm
+SHA1 8aee468fff84b8c8ad2b740ad58ec7e88d948098 inc/my_pod2html
+SHA1 4cec6515cdf73ded3bbda51efde2885ef76e9632 lib/Math/PlanePath.pm
+SHA1 feb8fc4798ce6d12744c71196161343672c118d5 lib/Math/PlanePath/Columns.pm
+SHA1 e38fc642988a05ff1477c6e1dcd32d5b35de6aa3 lib/Math/PlanePath/Corner.pm
+SHA1 7501a33bbee63a1532410f99c7a4ec8c9e633e45 lib/Math/PlanePath/Diagonals.pm
+SHA1 1830dde736cfa47f9bb861cc5584e3c686bd5e09 lib/Math/PlanePath/DiamondSpiral.pm
+SHA1 c02ceae7ba3658c0e1a6caf2fa6b3d050b1471cb lib/Math/PlanePath/HexSpiral.pm
+SHA1 ceae11e2bbcf63b2d9169353575b6544bf856313 lib/Math/PlanePath/HexSpiralSkewed.pm
+SHA1 6bf46de16271af51c42947ef5d08734a090f6f7a lib/Math/PlanePath/KnightSpiral.pm
+SHA1 c43b0e0a413e0f76b7772f00d9b106651dfca650 lib/Math/PlanePath/PyramidRows.pm
+SHA1 6cb31d67a85e8ec48a191742f54e4b43d98eb960 lib/Math/PlanePath/PyramidSides.pm
+SHA1 344974dccc1bcf53961245f6be2c4ecd45d2caa3 lib/Math/PlanePath/Rows.pm
+SHA1 383b918b19b707319377ab7d4e26eb4bb5865d6d lib/Math/PlanePath/SacksSpiral.pm
+SHA1 6150d695c4ada2ea08c2ec1c9a59a564358a5cf5 lib/Math/PlanePath/SquareSpiral.pm
+SHA1 8bb7cce02c71aff712b19b2231cef98e26f4e220 lib/Math/PlanePath/VogelFloret.pm
+SHA1 d5d5c83c83918d8c97ca79e92ea840cdf277f01f t/0-META-read.t
+SHA1 37abd43b41068804ea4bb099fdd89af21be82926 t/0-Test-DistManifest.t
+SHA1 8f93fb4c8f0424a4442cc93c9a2e86342ef55281 t/0-Test-Pod.t
+SHA1 1de8f07883f6bf1a2ef79f2cb8adf1deb3f61cee t/0-Test-Synopsis.t
+SHA1 fb517c2fae5ddac559318bf6a224949115ea3129 t/0-Test-YAML-Meta.t
+SHA1 4722cc6b91988bffd5f3c8dbf731e844dd756ad9 t/KnightSpiral.t
+SHA1 5e54083e240d2796b08d8fad57c8147873142510 t/PlanePath.t
+SHA1 2eefa7424fc0eb9fc5eef63e4522bdc01e349cb7 t/SacksSpiral.t
+SHA1 7d4793d8e6bfce491ccb971a28251d41de6a2809 t/SquareSpiral.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iD8DBQFMLn8CLFMCIV9q3ToRAjnVAJ90a/t5NMqpeZanL2gFgIysc4uDfwCgh1Nr
+OfV1Jq9PAZA4qPg7g2fKiNg=
+=YEQG
+-----END PGP SIGNATURE-----
