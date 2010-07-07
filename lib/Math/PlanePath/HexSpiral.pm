@@ -27,7 +27,7 @@ use POSIX ();
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 1;
+$VERSION = 2;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -236,7 +236,7 @@ position without an N then the return is C<undef>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HexSpiralSkewed>,
+L<Math::PlanePath::HexSpiralSkewed>
 
 =head1 HOME PAGE
 

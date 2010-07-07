@@ -24,7 +24,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 1;
+$VERSION = 2;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -33,33 +33,39 @@ use Math::PlanePath;
 
 use constant y_negative => 0;
 
-# Going 0 based
-#                         20
-#                     19  12  21
-#                 18  11   6  13  22
-#             17  10   5   2   7  14  23
-#         16   9   4   1   0   3   8  15  24     y=0
+#                     21
+#                 20  13  22
+#             19  12   7  14  23
+#         18  11   6   3   8  15  24
+#     17  10   5   2   1   4   9  16  25
 #
-# puts the squares at y=0 going x negative, with length s=floor(sqrt(n)) up
-# to the peak.
-
+# starting each left side at 0.5 before
+#
+# s =   0,   1,   2,   3,    4
+# n = 0.5, 1.5, 4.5, 9.5, 16.5
+# base = $s*$s + 0.5
+# s = sqrt($n - 1/2)
+# peak at +$s+0.5 into the remainder
+# y = $s less the +/- $n from that peak
+# centre n putting 0 as the peak
+#   = n - ($s+0.5) - base
+#   = n - ($s*$s + 0.5 + $s + 0.5)
+#   = n - ($s*($s+1) + 1)
+#
 sub n_to_xy {
   my ($self, $n) = @_;
   ### PyramidSides n_to_xy: $n
   return if $n < 0.5;
 
   my $s = int(sqrt ($n - .5));
+  $n -= $s*($s+1) + 1;   # to n=0 at centre, +/- distance from there
+
   ### s frac: sqrt ($n - .5)
   ### $s
-  $n -= $s*($s+1) + 1;
-  ### rem: $n
-  if ($n < 0) {
-    return ($n,
-            $s + $n);
-  } else {
-    return ($n,
-            $s - $n);
-  }
+  ### remainder: $n
+
+  return ($n,
+          $s - abs($n));
 }
 
 sub xy_to_n {

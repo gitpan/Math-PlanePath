@@ -20,7 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 15761;
+use Test::More tests => 15878;
 
 BEGIN {
  SKIP: { eval 'use Test::NoWarnings; 1'
@@ -50,7 +50,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 1;
+my $want_version = 2;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -129,10 +129,14 @@ foreach my $module (@modules) {
     is ($rev_n, $n, "$module xy_to_n() n=$n k=$k");
   }
 
-  {
-    my @xy = $path->n_to_xy (-1);
-    ok (@xy == 0 || @xy == 2);
+  # various bogus values only have to return 0 or 2 values and not crash
+  foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
+                 0, 0.4, 0.5, 0.6) {
+    my @xy = $path->n_to_xy ($n);
+    ok (@xy == 0 || @xy == 2,
+        "$module no crash on n=$n");
   }
+
   foreach my $x (-100, -99) {
     my @n = $path->xy_to_n ($x,-1);
     is (scalar(@n), 1, "$module xy_to_n() return one value, not an empty list");

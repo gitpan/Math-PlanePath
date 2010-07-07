@@ -34,7 +34,7 @@ require Math::PlanePath::KnightSpiral;
 # VERSION
 
 {
-  my $want_version = 1;
+  my $want_version = 2;
   is ($Math::PlanePath::KnightSpiral::VERSION, $want_version, 'VERSION variable');
   is (Math::PlanePath::KnightSpiral->VERSION,  $want_version, 'VERSION class method');
 

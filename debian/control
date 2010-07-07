@@ -36,9 +36,9 @@ Description: Mathematical paths through the plane.
  Perl code to generate some paths through the 2-D X,Y plane, mainly
  integer oriented, and including
  .
- * the square numbering of Ulam's spiral
- * a hexagonal spiral
- * pyramids
- * an infinite knight's tour
- * Vogel's sunflower floret
- * Sacks quadratic spiral
+  * square numbering of Ulam's spiral
+  * hexagonal spiral
+  * pyramids
+  * an infinite knight's tour
+  * Vogel's sunflower floret
+  * Sacks quadratic spiral

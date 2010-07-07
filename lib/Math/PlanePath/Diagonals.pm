@@ -27,7 +27,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 1;
+$VERSION = 2;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,7 +47,7 @@ use constant y_negative => 0;
 sub n_to_xy {
   my ($self, $n) = @_;
   ### Diagonals n_to_xy: $n
-  return if $n < -.5;
+  return if $n < .5;
 
   # at $n==-.5 have s==0, so int() is as good as floor()
   my $s = int (-.5 + sqrt(2*$n - .75));

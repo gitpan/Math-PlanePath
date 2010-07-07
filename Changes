@@ -17,5 +17,8 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 2, July 2010
+    - in Diagonals don't negative sqrt() if n=0
+
 Version 1, July 2010
     - the first version
