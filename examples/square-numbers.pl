@@ -29,6 +29,7 @@
 #       42  21  22  23  24  25  26
 #       43  44  45  46  47 ...
 #
+# See numbers.pl for a more sophisticated program.
 
 
 use 5.004;

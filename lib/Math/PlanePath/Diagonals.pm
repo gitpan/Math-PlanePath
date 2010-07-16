@@ -27,46 +27,63 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use constant x_negative => 0;
 use constant y_negative => 0;
 
-#   0    1    2    3     4
-#   1    2    4    7   11
-# 0.5  1.5  3.5  6.5  10.5
-#    +1   +2   +3   +4
-#       1    1    1
+# start each diagonal at 0.5 earlier
+#
+# s = [   0,   1,   2,   3,    4 ]
+# n = [ 0.5, 1.5, 3.5, 6.5, 10.5 ]
+#           +1   +2   +3   +4
+#              1    1    1
 #
 # n = 0.5*$s*$s + 0.5*$s + 0.5
 # s = 1/2 * (-1 + sqrt(4*2n + 1 - 4))
 # s = -1/2 + sqrt(2n - 3/4)
+#
+# remainder n - (0.5*$s*$s + 0.5*$s + 0.5)
+# is dist from x=-0.5 and y=$s+0.5
+# work the 0.5 in so
+#     n - (0.5*$s*$s + 0.5*$s + 0.5) - 0.5
+#   = n - (0.5*$s*$s + 0.5*$s + 1)
+#   = n - 0.5*$s*($s+1) + 1
 
 sub n_to_xy {
   my ($self, $n) = @_;
   ### Diagonals n_to_xy: $n
   return if $n < .5;
 
-  # at $n==-.5 have s==0, so int() is as good as floor()
   my $s = int (-.5 + sqrt(2*$n - .75));
-  $n -= 0.5 * ($s*($s+1) + 1);
-  ### sub: 0.5 * ($s*($s+1) + 1)
+  $n -= $s*($s+1)/2 + 1;
+  ### sub: $s*($s+1)/2 + 1
   ### $s
   ### remainder: $n
-  return ($n - 0.5,
-          $s + 0.5 - $n);
+
+  return ($n,
+          $s - $n);
 }
 
+# round y on an 0.5 downwards so that x=-0.5,y=0.5 gives n=1 which is the
+# inverse of n_to_xy() ... or is that inconsistent with other classes doing
+# floor() always?
+#
 sub xy_to_n {
   my ($self, $x, $y) = @_;
+  ### xy_to_n(): $x, $y
   $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
-  if ($x < 0 || $y < 0) {
+  $y = floor (0.5 - $y);
+  ### rounded
+  ### $x
+  ### $y
+  if ($x < 0 || $y > 0) {
     return undef;  # outside 
   }
-  my $s = $x + $y;
+  my $s = $x - $y;
+  ### $s
   return $s*($s+1)/2 + $x + 1;
 }
 
@@ -125,7 +142,7 @@ s*(s+1)/2.
 
 =over 4
 
-=item C<$path = Math::PlanePath::Diagonals-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::Diagonals-E<gt>new ()>
 
 Create and return a new path object.
 
@@ -138,7 +155,7 @@ begins at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  C<$x> and C<$y> are
+Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each
 point C<$n> as a square of side 1, so the quadrant x>=-0.5, y>=-0.5 is
 entirely covered.

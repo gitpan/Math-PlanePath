@@ -73,6 +73,7 @@
 #/[^Z])[^/]+\.c$
 
 # built - configury
+^a\.out$
 ^conftest
 ^config\.h$
 ^myconfig\.h$

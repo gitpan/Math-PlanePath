@@ -20,12 +20,11 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 89;
+use Test::More tests => 88;
 
-BEGIN {
- SKIP: { eval 'use Test::NoWarnings; 1'
-           or skip 'Test::NoWarnings not available', 1; }
-}
+use lib 't';
+use MyTestHelpers;
+MyTestHelpers::nowarnings();
 
 require Math::PlanePath::SquareSpiral;
 
@@ -34,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 2;
+  my $want_version = 3;
   is ($Math::PlanePath::SquareSpiral::VERSION, $want_version, 'VERSION variable');
   is (Math::PlanePath::SquareSpiral->VERSION,  $want_version, 'VERSION class method');
 

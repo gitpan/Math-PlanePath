@@ -20,13 +20,13 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 1006;
+use Test::More tests => 49;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::KnightSpiral;
+require Math::PlanePath::Diagonals;
 
 
 #------------------------------------------------------------------------------
@@ -34,16 +34,16 @@ require Math::PlanePath::KnightSpiral;
 
 {
   my $want_version = 3;
-  is ($Math::PlanePath::KnightSpiral::VERSION, $want_version, 'VERSION variable');
-  is (Math::PlanePath::KnightSpiral->VERSION,  $want_version, 'VERSION class method');
+  is ($Math::PlanePath::Diagonals::VERSION, $want_version, 'VERSION variable');
+  is (Math::PlanePath::Diagonals->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { Math::PlanePath::KnightSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::Diagonals->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::KnightSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::Diagonals->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::KnightSpiral->new;
+  my $path = Math::PlanePath::Diagonals->new;
   is ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -56,17 +56,38 @@ require Math::PlanePath::KnightSpiral;
 # xy_to_n
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new;
-  my ($x, $y) = $path->n_to_xy(1);
-  foreach my $n (2 .. 1000) {
-    my ($nx, $ny) = $path->n_to_xy($n);
-    # diag "n=$n  $nx,$ny";
-    my $dx = abs($nx - $x);
-    my $dy = abs($ny - $y);
-    ok (($dx == 2 && $dy == 1)
-        || ($dx == 1 && $dy == 2),
-        "step n=$n from $x,$y to $nx,$ny   D=$dx,$dy");
-    ($x,$y) = ($nx,$ny);
+  my @data = ([0.5, -0.5,0.5 ],
+              [0.75, -0.25,0.25 ],
+              [1, 0,0 ],
+              [1.25, .25,-.25 ],
+
+              [1.5, -.5,1.5 ],
+              [2, 0,1 ],
+              [3, 1,0 ],
+
+              [4, 0,2 ],
+              [5, 1,1 ],
+              [6, 2,0 ],
+
+              [7,  0,3 ],
+              [8,  1,2 ],
+              [9,  2,1 ],
+              [10, 3,0 ],
+
+             );
+  my $path = Math::PlanePath::Diagonals->new;
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    is ($got_x, $want_x, "x at n=$n");
+    is ($got_y, $want_y, "y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    $want_n = int ($want_n + 0.5);
+    my $got_n = $path->xy_to_n ($x, $y);
+    is ($got_n, $want_n, "n at x=$x,y=$y");
   }
 }
 

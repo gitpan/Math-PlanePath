@@ -27,7 +27,7 @@ use POSIX ();
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -92,7 +92,7 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = POSIX::floor ($x + 0.5);
   $y = POSIX::floor ($y + 0.5);
-  if (($x + $y) & 1) {
+  if (($x ^ $y) & 1) {
     return undef;  # nothing on odd squares
   }
 
@@ -200,18 +200,18 @@ fit on a square grid.
      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
     -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6
 
-Each horizontal gap is 2, so for instance 1 is at x=0,y=0 then 2 is at
-x=2,y=0.  The diagonals are just 1 across, so 3 is at x=1,y=1.  Each
-alternate row is from the other.  The resulting "triangles" between the
-points are flatter than they ought to be.  Drawn on a square grid the angle
-up is 45 degrees making an isosceles right triangle instead of 60 for an
-equilateral triangle.
+Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
+x=2,y=0.  The diagonals are just 1 across, so n=3 is at x=1,y=1.  Each
+alternate row is offset from the one above or below.  The resulting
+"triangles" between the points are flatter than they ought to be.  Drawn on
+a square grid the angle up is 45 degrees making an isosceles right triangle
+instead of 60 for an equilateral triangle.
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<$path = Math::PlanePath::HexSpiral-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::HexSpiral-E<gt>new ()>
 
 Create and return a new HexSpiral path object.
 
@@ -224,11 +224,11 @@ starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  C<$x> and C<$y> are
+Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each
 C<$n> in the path as a square of side 1.
 
-Only every second square in the plane has an N.  If C<$x>,C<$y> is a
+Only every second square in the plane has an N.  If C<$x,$y> is a
 position without an N then the return is C<undef>.
 
 =back
@@ -236,7 +236,8 @@ position without an N then the return is C<undef>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HexSpiralSkewed>
+L<Math::PlanePath::HexSpiralSkewed>,
+L<Math::PlanePath::TriangleSpiral>
 
 =head1 HOME PAGE
 

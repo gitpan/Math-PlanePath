@@ -10,6 +10,7 @@ debian/watch
 devel/grid.pl
 devel/interpolate.pl
 examples/knights-sloane.pl
+examples/numbers.pl
 examples/sacks-xpm.pl
 examples/square-numbers.pl
 examples/ulam-spiral-xpm.pl
@@ -23,11 +24,15 @@ lib/Math/PlanePath/DiamondSpiral.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm
 lib/Math/PlanePath/KnightSpiral.pm
+lib/Math/PlanePath/PentSpiralSkewed.pm
 lib/Math/PlanePath/PyramidRows.pm
 lib/Math/PlanePath/PyramidSides.pm
+lib/Math/PlanePath/PyramidSpiral.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
 lib/Math/PlanePath/SquareSpiral.pm
+lib/Math/PlanePath/TriangleSpiral.pm
+lib/Math/PlanePath/TriangleSpiralSkewed.pm
 lib/Math/PlanePath/VogelFloret.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -38,7 +43,11 @@ t/0-Test-DistManifest.t
 t/0-Test-Pod.t
 t/0-Test-Synopsis.t
 t/0-Test-YAML-Meta.t
+t/Diagonals.t
+t/DiamondSpiral.t
+t/HexSpiralSkewed.t
 t/KnightSpiral.t
+t/MyTestHelpers.pm
 t/PlanePath.t
 t/SacksSpiral.t
 t/SquareSpiral.t

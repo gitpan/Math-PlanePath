@@ -25,7 +25,7 @@ use POSIX ();
 use Math::PlanePath::HexSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -205,7 +205,7 @@ corners.
 
 =over 4
 
-=item C<$path = Math::PlanePath::HexSpiral-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::HexSpiral-E<gt>new ()>
 
 Create and return a new HexSpiral spiral object.
 
@@ -218,7 +218,7 @@ starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  C<$x> and C<$y> are
+Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each
 point in the path as a square of side 1.
 

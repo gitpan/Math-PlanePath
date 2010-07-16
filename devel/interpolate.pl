@@ -25,16 +25,45 @@ use Math::Polynomial 1;
 
 use Smart::Comments;
 
-{
+# # step==0
+# my_interpolate ([  0,   1,   2,   3,   4 ],
+#                 [0.5, 0.5, 0.5, 0.5, 0.5 ]);
+# # step==1
+# #  7 8 9 10
+# #  4 5 6
+# #  2 3
+# #  1
+# my_interpolate ([  0,   1,   2,   3 ],
+#                 [0.5, 1.5, 3.5, 6.5 ]);
+# # step==2
+# my_interpolate ([  0,   1,   2,   3 ],
+#                 [0.5, 1.5, 4.5, 9.5 ]);
+# # step==3
+# my_interpolate ([  0,   1,   2,   3 ],
+#                 [0.5, 1.5, 5.5, 12.5 ]);
+# # step==4
+# my_interpolate ([  0,   1,   2,   3 ],
+#                 [0.5, 1.5, 6.5, 15.5 ]);
+
+
+my_interpolate (
+                [ 1,  2,  3, ],
+[ 3, 12, 28 ]
+               );
+
+sub my_interpolate {
+  my ($xarray, $valarray) = @_;
+
   my $p = Math::Polynomial->new(Math::BigRat->new(0));
-  $p->string_config({ variable => '$s',
+  $p->string_config({ variable => '$d',
                       times => '*',
+                      power => '**',
                     });
-  $p = $p->interpolate([0,1,2,3,4],
-                       [0.5, 1.5, 4.5, 9.5, 16.5 ]);
+  $p = $p->interpolate($xarray, $valarray);
   print 'N = ',$p,"\n";
 
   my $a = $p->coeff(2);
+  return if $a == 0;
   my $b = $p->coeff(1);
   my $c = $p->coeff(0);
 
@@ -42,6 +71,8 @@ use Smart::Comments;
   my $y = 4*$a / ((2*$a) ** 2);
   my $z = ($b*$b-4*$a*$c) / ((2*$a) ** 2);
   print "s = $x + sqrt($y * \$n + $z)\n";
+
+  #   return;
 
   my $s_to_n = sub {
     my ($s) = @_;

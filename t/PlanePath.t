@@ -20,19 +20,21 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 15878;
+use Test::More tests => 27561;
 
-BEGIN {
- SKIP: { eval 'use Test::NoWarnings; 1'
-           or skip 'Test::NoWarnings not available', 1; }
-}
+use lib 't';
+use MyTestHelpers;
+MyTestHelpers::nowarnings();
 
 require Math::PlanePath;
 
-my @modules = qw(SquareSpiral
+my @modules = qw(TriangleSpiral TriangleSpiralSkewed
+
+                 PentSpiralSkewed
+                 PyramidSpiral
+                 SquareSpiral
                  DiamondSpiral
-                 HexSpiral
-                 HexSpiralSkewed
+                 HexSpiral HexSpiralSkewed
 
                  Rows
                  Columns
@@ -50,7 +52,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 2;
+my $want_version = 3;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -123,6 +125,10 @@ foreach my $module (@modules) {
             "$module rect_to_n_range() start n=$n k=$k, got $limit_lo");
     cmp_ok ($limit_hi, '>=', $n,
             "$module rect_to_n_range() stop n=$n k=$k, got $limit_hi");
+    is ($limit_lo, int($limit_lo),
+        "$module rect_to_n_range() start n=$n k=$k, got $limit_lo, integer");
+    is ($limit_hi, int($limit_hi),
+        "$module rect_to_n_range() stop n=$n k=$k, got $limit_hi, integer");
 
     # next if $module eq 'KnightSpiral';
     my $rev_n = $path->xy_to_n ($x,$y);
@@ -139,7 +145,8 @@ foreach my $module (@modules) {
 
   foreach my $x (-100, -99) {
     my @n = $path->xy_to_n ($x,-1);
-    is (scalar(@n), 1, "$module xy_to_n() return one value, not an empty list");
+    is (scalar(@n), 1,
+        "$module xy_to_n() return one value, not an empty list, x=$x,y=-1");
   }
 
   is ($path->x_negative, $got_x_negative,

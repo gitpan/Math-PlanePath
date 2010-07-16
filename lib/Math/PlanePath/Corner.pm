@@ -27,7 +27,7 @@ use POSIX 'floor';
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -135,7 +135,7 @@ single quadrant to two.
 
 =over 4
 
-=item C<$path = Math::PlanePath::Corner-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::Corner-E<gt>new ()>
 
 Create and return a new path object.
 
@@ -148,7 +148,7 @@ no points before 1 in the corner.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  C<$x> and C<$y> are
+Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each
 point as a square of side 1, so the quadrant x>=-0.5 and y>=-0.5 is entirely
 covered.

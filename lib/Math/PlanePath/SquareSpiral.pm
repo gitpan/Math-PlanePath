@@ -24,7 +24,7 @@ use List::Util qw(max);
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -88,7 +88,8 @@ sub xy_to_n {
   if ($y == - $d) {   # bottom
     return $n + 3*$d + $x;
   }
-  if ($x == $d) {     # right
+  if ($x == $d) {   
+    ### right
     return $n - 3*$d + $y;
   }
   # ($x == - $d)    # left
@@ -97,10 +98,8 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $x = max(abs($x1),abs($x2));
-  my $y = max(abs($y1),abs($y2));
-  $x = POSIX::floor($x+0.5);
-  $y = POSIX::floor($y+0.5);
+  my $x = POSIX::floor(0.5 + max(abs($x1),abs($x2)));
+  my $y = POSIX::floor(0.5 + max(abs($y1),abs($y2)));
   my $s = 2 * max(abs($x),abs($y)) + 2;
   ### $x
   ### $y
@@ -147,10 +146,10 @@ This path makes a square spiral.
                  ^
     -3  -2  -1  x=0  1   2   3
 
-This path is quite well known from Stanislaw Ulam finding an interesting
-pattern plotting the prime numbers on it.  See
-F<examples/ulam-spiral-xpm.pl> in the sources for a program generating that,
-or see C<math-image> using this SquareSpiral to draw Ulam's pattern and much
+This is quite well known from Stanislaw Ulam finding interesting straight
+lines plotting the prime numbers on it.  See F<examples/ulam-spiral-xpm.pl>
+in the sources for a program generating that, or see the author's
+C<math-image> program using this SquareSpiral to draw Ulam's pattern and
 more.
 
 The perfect squares 1,4,9,16,25 fall on diagonals to the lower right and
@@ -158,11 +157,29 @@ upper left, one term on each alternately.  The pronic numbers
 2,6,12,20,30,42 etc half way between the squares similarly fall on diagonals
 to the upper right and lower left.
 
+In general straight lines in this SquareSpiral and other stepped spirals
+(meaning everything except the VogelFloret) are quadratics a*k^2+b*k+c, with
+a=step/2 where step is how much longer each loop takes than the preceding,
+which is 8 in the case of the SquareSpiral.  There are various interesting
+properties of primes in quadratic progressions like this and some quadratics
+seem to have more primes than others.
+
+Other spirals can be formed by cutting the corners of the square for faster
+looping.  The current paths doing so include
+
+    corners cut      class
+    -----------      -----
+         2         HexSpiralSkewed
+         3         PentSpiralSkewed
+         4         DiamondSpiral
+
+And see the PyramidSpiral for a re-shaped SquareSpiral.
+
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new ()>
 
 Create and return a new square spiral object.
 
@@ -175,7 +192,7 @@ starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  C<$x> and C<$y> are
+Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each N
 in the path as centred in a square of side 1, so the entire plane is
 covered.
@@ -185,6 +202,7 @@ covered.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::PyramidSpiral>,
 L<Math::PlanePath::DiamondSpiral>,
 L<Math::PlanePath::HexSpiral>
 

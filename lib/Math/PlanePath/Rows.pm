@@ -24,7 +24,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -114,7 +114,7 @@ Return the x,y coordinates of point number C<$n> in the path.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.
+Return the point number for coordinates C<$x,$y>.
 
 C<$x> and C<$y> are rounded to the nearest integers, which has the effect of
 treating each point in the path as a square of side 1, so a column -0.5 <= x

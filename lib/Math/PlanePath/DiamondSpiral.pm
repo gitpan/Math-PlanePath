@@ -24,59 +24,51 @@ use List::Util qw(max);
 use POSIX ();
 
 # uncomment this to run the ### lines
-#use Smart::Comments '####';
+#use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 
-# vertical downwards from x=1,y=0
-# s=0
-# s=1  n=2
-# s=2  n=6
-# s=3  n=14
-# s=4  n=26
+# 
+# start cycle at the vertical downwards from x=1,y=0
+# s = [ 0, 1,  2, 3 ]
+# n = [ 2, 6, 14,26 ]
 # n = 2*$s*$s - 2*$s + 2
 # s = .5 + sqrt(.5*$n-.75)
+#
+# then top of the diamond at 2*$s - 1
+# so n - (2*$s*$s - 2*$s + 2 + 2*$s - 1)
+#    n - (2*$s*$s + 1)
+#
+# gives y=$s - n
+# then x=$s-abs($y) on the right or x=-$s+abs($y) on the left
 #
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
   if ($n < 1) { return; }
-  if ($n < 2) { return (-1+$n, 0); }
+  if ($n < 2) { return ($n-1, 0); }
 
   my $s = int (.5 + sqrt(.5*$n-.75));
   #### $s
   #### s frac: .5 + sqrt(.5*$n-.75)
-  #### sub: 2*$s*$s - 2*$s + 2
-  $n -= 2*$s*($s - 1) + 2;
-  #### rem: $n
-  my ($x, $y);
-  if ($n < $s-1) {
-    #### bottom right: $n
-    return (1 + $n,
-            -$s+1 + $n);
-  }
-  if (($n -= $s-1) < $s) {
-    #### top right: $n
-    return ($s - $n,
-            $n);
-  }
-  if (($n -= $s) < $s) {
-    #### top left: $n
-    return (- $n,
-            $s - $n);
-  }
-  if (($n -= $s) < $s) {
-    #### bottom left: $n
-    return (-$s + $n,
-            -$n);
-  }
-  #### bottom single: $n-$s
-  return ($n - $s,
-          -$s);
+  #### base: 2*$s*$s - 2*$s + 2
+  #### extra: 2*$s - 1
+  #### sub: 2*$s*$s +1
+
+  $n -= 2*$s*$s + 1;
+  ### rem from top: $n
+
+  my $y = $s - abs($n);  # y=+$s at the top, down to y=-$s
+  my $x = abs($y) - $s;  # 0 to $s on the right
+  #### uncapped y: $y
+  #### abs x: $x
+
+  return (($n >= 0 ? $x : -$x),  # negate if on the right
+          max ($y, -$s));        # cap for horiz at 5 to 6, 13 to 14 etc
 }
 
 sub xy_to_n {
@@ -109,8 +101,8 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### DiamondSpiral xy_to_n_range()
 
-  my $x = max(abs($x1),abs($x2));
-  my $y = max(abs($y1),abs($y2));
+  my $x = POSIX::floor (0.5 + max(abs($x1),abs($x2)));
+  my $y = POSIX::floor (0.5 + max(abs($y1),abs($y2)));
   my $s = abs($x) + abs($y) + 1;
   ### gives: "$x, $y  sum $s is " . (2*$s*$s - 2*$s + 1)
 
@@ -183,7 +175,7 @@ HexSpiralSkewed for similar cutting just two of the four corners.
 
 =over 4
 
-=item C<$path = Math::PlanePath::DiamondSpiral-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::DiamondSpiral-E<gt>new ()>
 
 Create and return a new DiamondSpiral spiral object.
 
@@ -196,7 +188,7 @@ starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  C<$x> and C<$y> are
+Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each
 point in the path as a square of side 1, so the entire plane is covered.
 

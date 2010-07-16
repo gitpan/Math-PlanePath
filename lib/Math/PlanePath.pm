@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 2;
+$VERSION = 3;
 
 # defaults
 use constant x_negative => 1;
@@ -51,29 +51,33 @@ Math::PlanePath -- points on a path through a 2-D plane
 =head1 DESCRIPTION
 
 This is a base class for some mathematical paths which turn an integer
-position C<$n> into coordinates C<$x>,C<$y>.  The current classes include
+position C<$n> into coordinates C<$x,$y>.  The current classes include
 
-    SquareSpiral        four-sided spiral
-    DiamondSpiral       four-sided spiral, looping faster
-    HexSpiral           six-sided spiral
-    HexSpiralSkewed     six-sided spiral skewed for compactness
-    SacksSpiral         quadratic on an Archimedean spiral
-    VogelFloret         seeds in a sunflower
-    KnightSpiral        an infinite knight's tour
+    SquareSpiral           four-sided spiral
+    DiamondSpiral          four-sided spiral, looping faster
+    PyramidSpiral          square base pyramid
+    TriangleSpiral         equilateral triangle
+    TriangleSpiralSkewed   equilateral skewed for compactness
+    PentSpiralSkewed       five-sided spiral, compact
+    HexSpiral              six-sided spiral
+    HexSpiralSkewed        six-sided spiral skewed for compactness
+    SacksSpiral            quadratic on an Archimedean spiral
+    VogelFloret            seeds in a sunflower
+    KnightSpiral           an infinite knight's tour
 
-    Rows                fixed-width rows
-    Columns             fixed-height columns
-    Diagonals           diagonals between X and Y axes
-    Corner              expanding stripes around a corner
-    PyramidRows         expanding rows pyramid
-    PyramidSides        along the sides of a 45-degree pyramid
+    Rows                   fixed-width rows
+    Columns                fixed-height columns
+    Diagonals              diagonals between X and Y axes
+    Corner                 expanding stripes around a corner
+    PyramidRows            expanding rows pyramid
+    PyramidSides           along the sides of a 45-degree pyramid
 
 The paths are object oriented to allow parameters, though currently only a
 few subclasses actually have any parameters.
 
 The classes are generally oriented towards integer C<$n> positions and those
-designed for a square grid turn an integer C<$n> into integer C<$x>,C<$y>.
-Usually they can give in-between positions for fractional C<$n> too though.
+designed for a square grid turn an integer C<$n> into integer C<$x,$y>.
+Usually they can give in-between positions for fractional C<$n> too.
 Classes not on a square grid, like SacksSpiral and VogelFloret, are scaled
 for a unit circle at each C<$n> but they too can give in-between positions
 on request.
@@ -83,6 +87,27 @@ origin, or a reflection up or down.  Those things are thought better done by
 a general coordinate transformer if expanding or inverting for display.
 Even clockwise instead of counter-clockwise spiralling can be done just by
 negating C<$x> (or negate C<$y> to stay starting at the right).
+
+=head2 Loop Step
+
+The paths can be characterized by how much longer each spiral or repetition
+is than the preceding one.  For example each loop of the SquareSpiral is 8
+longer than the preceding.
+
+     0     Rows, Columns
+     1     Diagonals
+     2     PyramidRows, PyramidSides, Corner, SacksSpiral
+     4     DiamondSpiral
+     5     PentSpiralSkewed
+     6     HexSpiral, HexSpiralSkewed
+     8     SquareSpiral, PyramidSpiral
+     9     TriangleSpiral, TriangleSpiralSkewed
+    32     KnightSpiral (counting the 2-wide trip as the reps)
+
+The step determines which quadratic number sequences fall on straight lines.
+For example gap between successive perfect squares increases by 2 each time
+(4 to 9 is 5, 9 to 16 is 7, 16 to 25 is 9, etc), so the perfect squares make
+a straight line in the PyramidRows and others of step 2.
 
 =head1 FUNCTIONS
 
@@ -107,8 +132,8 @@ or N=0.5 too.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  If there's nothing at
-C<$x>,C<$y> then return C<undef>.
+Return the point number for coordinates C<$x,$y>.  If there's nothing at
+C<$x,$y> then return C<undef>.
 
     my $n = $path->xy_to_n(20,20);
     if (! defined $n) {
@@ -116,11 +141,11 @@ C<$x>,C<$y> then return C<undef>.
     }
 
 C<$x> and C<$y> can be fractional and the path classes will give an integer
-C<$n> which contains C<$x>,C<$y> within a unit square, circle, or intended
+C<$n> which contains C<$x,$y> within a unit square, circle, or intended
 figure centred on that C<$n>.
 
 For paths which completely tile the plane there's always an C<$n> to return,
-but for the spread-out paths an C<$x>,C<$y> position may fall in between (no
+but for the spread-out paths an C<$x,$y> position may fall in between (no
 C<$n> close enough).
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
@@ -134,23 +159,23 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive, so for instance
          print "$n  $x,$y";
      }
 
-Note the return may be an over-estimate and there may be points between
-C<$n_lo> and C<$n_hi> which are outside the rectangle.  C<$n_hi> is usually
-no more than an extra partial row or revolution.  C<$n_lo> is often just the
-starting point 1, which is correct if you always want the origin 0,0, but a
-rectangle away from the origin could start higher.
+Note the return may be an over-estimate, and of course some of the points
+between C<$n_lo> and C<$n_hi> may go outside the rectangle.  C<$n_hi> is
+usually no more than an extra partial row or revolution.  C<$n_lo> is often
+just the starting point 1, which is correct if you always want the origin
+0,0, but a rectangle away from the origin could start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
-some N figures then those N values are included in the return.  If there's
-no points in the rectangle then the return is a "crossed" range like
-C<$n_lo=1>, C<$n_hi=0> (which can make a C<foreach> do no loops).
+some N figures then those N's are included in the return.  If there's no
+points in the rectangle then the return is a "crossed" range like
+C<$n_lo=1>, C<$n_hi=0> (which makes a C<foreach> do no loops).
 
 =item C<$bool = $path-E<gt>x_negative>
 
 =item C<$bool = $path-E<gt>y_negative>
 
-Return true if the path extends into negative X coordinate and/or negative Y
-coordinates respectively.
+Return true if the path extends into negative X coordinates and/or negative
+Y coordinates respectively.
 
 =item C<$str = $path-E<gt>figure>
 

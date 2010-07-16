@@ -24,7 +24,7 @@ use List::Util qw(max);
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -191,8 +191,8 @@ sub n_to_xy {
   $n -= $p;
 
   ### step outwards, eg 25
-    return ($outer + 2*$n,
-            -$outer - _odd($n));
+  return ($outer + 2*$n,
+          -$outer - _odd($n));
 }
 
 
@@ -327,17 +327,18 @@ This path traverses the plane with an infinite "knight's tour" in the form
 of a square spiral.
 
                             ...
-        21   4   9  14  19              2
+        21   4   9  14  19                 2
                               
-        10  15  20   3   8      28      1
+        10  15  20   3   8      28         1
                               
-         5  22   1  18  13         <- y=0
+         5  22   1  18  13            <- y=0
                               
-        16  11  24   7   2  27          1
+        16  11  24   7   2  27             1
                               
-        23   6  17  12  25              2
+        23   6  17  12  25                 2
       
                                 26
+
                  ^
         -2  -1  x=0  1   2   3
 
@@ -361,7 +362,7 @@ Integer Sequences).
 
 =over 4
 
-=item C<$path = Math::PlanePath::KnightSpiral-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::KnightSpiral-E<gt>new ()>
 
 Create and return a new square spiral object.
 
@@ -374,7 +375,7 @@ starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x>,C<$y>.  C<$x> and C<$y> are
+Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each N
 in the path as centred in a square of side 1, so the entire plane is
 covered.

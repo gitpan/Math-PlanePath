@@ -29,7 +29,7 @@ use POSIX ();
 #use Smart::Comments;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 2;
+$VERSION = 3;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -146,7 +146,7 @@ going clockwise and counter-clockwise.
 
 =over 4
 
-=item C<$path = Math::PlanePath::SacksSpiral-E<gt>new (key=E<gt>value, ...)>
+=item C<$path = Math::PlanePath::SacksSpiral-E<gt>new ()>
 
 Create and return a new path object.
 
@@ -162,12 +162,12 @@ negative points in the spiral.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return an integer point number for coordinates C<$x>,C<$y>.  Each integer N
-is considered the centre of a circle of diameter 1 and an C<$x>,C<$y> within
+Return an integer point number for coordinates C<$x,$y>.  Each integer N
+is considered the centre of a circle of diameter 1 and an C<$x,$y> within
 that circle returns N.
 
 The unit spacing of the spiral means those circles don't overlap, but they
-also don't cover the plane and if C<$x>,C<$y> is not within one then the
+also don't cover the plane and if C<$x,$y> is not within one then the
 return is C<undef>.
 
 =back
