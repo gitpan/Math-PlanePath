@@ -24,13 +24,14 @@ use List::Util qw(min max);
 use Math::Libm 'hypot';
 use Math::Trig 'pi';
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 # n=1   r=sqrt(1) = 1

@@ -23,15 +23,16 @@ use warnings;
 use List::Util qw(min max);
 use Math::Libm 'hypot';
 use Math::Trig 'pi';
-use POSIX ();
+use POSIX 'floor';
+
+use Math::PlanePath;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 4;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
-@ISA = ('Math::PlanePath');
 
 use constant figure => 'circle';
 
@@ -57,10 +58,10 @@ sub xy_to_n {
   if ($theta < 0) { $theta++; }  # 0 <= $theta <= 1 angle around
 
   # the nearest arc
-  my $s = POSIX::floor (hypot($x,$y) - $theta + 0.5);
+  my $s = floor (hypot($x,$y) - $theta + 0.5);
 
   # the nearest point on the arc
-  my $n = POSIX::floor ($s*$s + $theta * (2*$s + 1) + 0.5);
+  my $n = floor ($s*$s + $theta * (2*$s + 1) + 0.5);
 
   # check within 0.5 radius
   my ($nx, $ny) = $self->n_to_xy($n);

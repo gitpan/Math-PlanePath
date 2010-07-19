@@ -23,9 +23,10 @@ use warnings;
 use List::Util qw(max);
 use POSIX 'floor';
 
-use vars '$VERSION', '@ISA';
-$VERSION = 3;
 use Math::PlanePath;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -141,6 +142,14 @@ single quadrant in the Corner becomes a half-plane here.
 The pattern is similar to PyramidRows, just with the columns dropped down
 vertically to start at the X axis.  Any pattern occurring within a column is
 unchanged, but what was a row becomes a diagonal and vice versa.
+
+An interesting sequence for this path is Euler's k^2+k+41.  Low values are
+spread around a bit, but from N=1763 (k=41 ) onwards they're the vertical at
+x=40.  There's relatively many primes in this quadratic and on a plot of the
+primes that vertical stands out a little denser in primes than its surrounds
+(at least for up to the first 1000 or so values).  The line shows in other
+step==2 paths too, but not quite as clearly.  In the PyramidRows the
+beginning is up at y=40, and in the Corner path it's a diagonal.
 
 =head1 FUNCTIONS
 

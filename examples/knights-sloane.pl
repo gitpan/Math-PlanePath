@@ -21,21 +21,20 @@
 # Usage: perl knights-sloane.pl
 #
 # This spot of code prints the infinite knight's tour path from
-# Math::PlanePath::KnightSpiral, but not as X,Y positions, instead by
-# numbering the X,Y positions according to the SquareSpiral and printing the
-# resulting integer sequence.
+# Math::PlanePath::KnightSpiral, but numbering the X,Y positions according
+# to the SquareSpiral and printing the resulting integer sequence.
 #
 #     1, 10, 3, 16, 19, 22, 9, 12, 15, 18, 7, 24, 11, 14, ...
 #
-# All squares are reached so this is a re-ordering or the integers and can
+# All squares are reached, so this is a re-ordering or the integers and can
 # be found as sequence A068608 of Sloane's On-Line Encyclopedia of Integer
-# Sequences,
+# Sequences
 #
 #     http://www.research.att.com/~njas/sequences/A068608
 #
 # There's eight variations on the sequence.  2 directions clockwise or
-# counter-clockwise and the 4 different sides to start from.  (Is that
-# right?)
+# counter-clockwise and 4 sides to start from (relative to whichever the
+# square spiral numbering starts from).  Is that right?
 #
 #     A068608
 #     A068609

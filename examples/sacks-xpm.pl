@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
 # Usage: perl sacks-xpm.pl >/tmp/foo.xpm     # write image file
 #        xgzv /tmp/xpm                       # view file
 #

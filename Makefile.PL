@@ -29,7 +29,7 @@ MyMakeMakerExtras::WriteMakefile
    ABSTRACT     => 'Mathematical paths through the 2-D plane.',
    VERSION_FROM => 'lib/Math/PlanePath.pm',
    PREREQ_PM    => {
-                    'warnings' => 0,
+                    'warnings'   => 0,
                     'Math::Libm' => 0,
                     'List::Util' => 0,
                     'Test::More' => 0,
@@ -45,10 +45,12 @@ MyMakeMakerExtras::WriteMakefile
              => 'http://user42.tuxfamily.org/math-planepath/index.html',
            },
         optional_features
-        => { maximum_tests
-             => { description => 'Have "make test" do as much as possible.',
-                  requires => { 'Test::NoWarnings' => 0,
-                              },
+        => { maximum_devel
+             => { description => 'Stuff used variously for development.',
+                  requires => { 'Smart::Comments'  => 0,
+                                'Math::BigRat'     => 0,
+                                'Math::Polynomial' => 1,
+                              }
                 },
            },
       },

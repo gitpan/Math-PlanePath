@@ -21,11 +21,12 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util qw(max);
-use POSIX ();
+use POSIX 'floor';
+
+use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -78,8 +79,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = POSIX::floor ($x + 0.5);
-  $y = POSIX::floor ($y + 0.5);
+  $x = floor ($x + 0.5);
+  $y = floor ($y + 0.5);
   my $d = max(abs($x),abs($y));
   my $n = 4*$d*$d + 1;
   if ($y == $d) {     # top
@@ -98,8 +99,8 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $x = POSIX::floor(0.5 + max(abs($x1),abs($x2)));
-  my $y = POSIX::floor(0.5 + max(abs($y1),abs($y2)));
+  my $x = floor(0.5 + max(abs($x1),abs($x2)));
+  my $y = floor(0.5 + max(abs($y1),abs($y2)));
   my $s = 2 * max(abs($x),abs($y)) + 2;
   ### $x
   ### $y
@@ -152,28 +153,33 @@ in the sources for a program generating that, or see the author's
 C<math-image> program using this SquareSpiral to draw Ulam's pattern and
 more.
 
-The perfect squares 1,4,9,16,25 fall on diagonals to the lower right and
-upper left, one term on each alternately.  The pronic numbers
-2,6,12,20,30,42 etc half way between the squares similarly fall on diagonals
-to the upper right and lower left.
+The perfect squares 1,4,9,16,25 fall on diagonals with the even perfect
+squares going to the upper left and the odd ones to the lower right.  The
+pronic numbers 2,6,12,20,30,42 etc half way between the squares fall on
+similar diagonals to the upper right and lower left.
 
 In general straight lines in this SquareSpiral and other stepped spirals
 (meaning everything except the VogelFloret) are quadratics a*k^2+b*k+c, with
 a=step/2 where step is how much longer each loop takes than the preceding,
 which is 8 in the case of the SquareSpiral.  There are various interesting
 properties of primes in quadratic progressions like this and some quadratics
-seem to have more primes than others.
+seem to have more primes than others.  For instance see PyramidSides for
+Euler's k^2+k+41.
 
-Other spirals can be formed by cutting the corners of the square for faster
-looping.  The current paths doing so include
+=head2 Corners
 
-    corners cut      class
-    -----------      -----
-         2         HexSpiralSkewed
-         3         PentSpiralSkewed
-         4         DiamondSpiral
+Other spirals can be formed by cutting the corners of the square to loop
+faster.
 
-And see the PyramidSpiral for a re-shaped SquareSpiral.
+    Corners Cut    Class
+    -----------    -----
+         1        HeptSpiralSkewed
+         2        HexSpiralSkewed
+         3        PentSpiralSkewed
+         4        DiamondSpiral
+
+And see the PyramidSpiral for a re-shaped SquareSpiral, looping at the same
+rate.
 
 =head1 FUNCTIONS
 
@@ -202,9 +208,12 @@ covered.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PyramidSpiral>,
+L<Math::PlanePath::PyramidSpiral>
+
 L<Math::PlanePath::DiamondSpiral>,
-L<Math::PlanePath::HexSpiral>
+L<Math::PlanePath::PentSpiralSkewed>,
+L<Math::PlanePath::HexSpiralSkewed>,
+L<Math::PlanePath::HeptSpiralSkewed>
 
 =head1 HOME PAGE
 

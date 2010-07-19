@@ -4,11 +4,14 @@ debian/changelog
 debian/compat
 debian/control
 debian/copyright
+debian/patches/pod-examples-dir.diff
 debian/rules
 debian/source/format
 debian/watch
 devel/grid.pl
 devel/interpolate.pl
+devel/vertical.pl
+devel/vogel.pl
 examples/knights-sloane.pl
 examples/numbers.pl
 examples/sacks-xpm.pl
@@ -21,9 +24,11 @@ lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondSpiral.pm
+lib/Math/PlanePath/HeptSpiralSkewed.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm
 lib/Math/PlanePath/KnightSpiral.pm
+lib/Math/PlanePath/PentSpiral.pm
 lib/Math/PlanePath/PentSpiralSkewed.pm
 lib/Math/PlanePath/PyramidRows.pm
 lib/Math/PlanePath/PyramidSides.pm

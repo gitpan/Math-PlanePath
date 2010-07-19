@@ -21,15 +21,16 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util qw(max);
-use POSIX ();
+use POSIX 'floor';
+
+use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Smart::Comments '###';
 
 sub _odd {
   my ($n) = @_;
@@ -45,51 +46,51 @@ sub n_to_xy {
     return (2*$n, -$n);
   }
 
-  my $s = int (.25 * (7 + sqrt($n - 1)));
-  my $s1 = $s-1;
-  my $outer = 2*$s1;
+  my $d = int (.25 * (7 + sqrt($n - 1)));
+  my $d1 = $d-1;
+  my $outer = 2*$d1;
   my $inner = $outer - 1;
-  my $p = 2*$s1;
+  my $p = 2*$d1;
   my $p1 = $p - 1;
 
   # use Smart::Comments;
 
-  ### s frac: .25 * (7 + sqrt($n - 1))
-  ### $s
-  ### $s1
-  ### $inner
-  ### $outer
-  ### $p
-  ### $p1
+  #### s frac: .25 * (7 + sqrt($n - 1))
+  #### $d
+  #### $d1
+  #### $inner
+  #### $outer
+  #### $p
+  #### $p1
 
-  $n -= $s*(16*$s - 56) + 50;
+  $n -= $d*(16*$d - 56) + 50;
   #### remainder: $n
 
   # one
   #
   if ($n < $p1) {
-    ### right upwards, eg 2
+    #### right upwards, eg 2
     return ($outer - _odd($n),
             -$inner + 2*$n);
   }
   $n -= $p1;
 
   if ($n < $p1) {
-    ### top leftwards, eg 3
+    #### top leftwards, eg 3
     return ($inner - 2*$n,
             $inner + _odd($n));
   }
   $n -= $p1;
 
   if ($n < $p) {
-    ### left downwards
+    #### left downwards
     return (-$inner - _odd($n),
             $outer - 2*$n);
   }
   $n -= $p;
 
   if ($n < $p1) {
-    ### bottom rightwards: $n
+    #### bottom rightwards: $n
     return (-$inner + 2*$n,
             -$outer + _odd($n));
   }
@@ -107,21 +108,21 @@ sub n_to_xy {
   $n -= $p1;
 
   if ($n < $p) {
-    ### top leftwards
+    #### top leftwards
     return ($outer - 2*$n,
             $inner + _odd($n));
   }
   $n -= $p;
 
   if ($n < $p1) {
-    ### left downwards
+    #### left downwards
     return (-$outer + _odd($n),
             $inner - 2*$n);
   }
   $n -= $p1;
 
   if ($n < $p1) {
-    ### bottom rightwards: $n
+    #### bottom rightwards: $n
     return (-$inner + 2*$n,
             -$inner - _odd($n));
   }
@@ -139,21 +140,21 @@ sub n_to_xy {
   $n -= $p;
 
   if ($n < $p1) {
-    ### top leftwards, eg 14
+    #### top leftwards, eg 14
     return ($inner - 2*$n,
             $outer - _odd($n));
   }
   $n -= $p1;
 
   if ($n < $p1) {
-    ### left downwards, eg 15
+    #### left downwards, eg 15
     return (-$inner - _odd($n),
             $inner - 2*$n);
   }
   $n -= $p1;
 
   if ($n < $p1) {
-    ### bottom rightwards, eg 16
+    #### bottom rightwards, eg 16
     return (-$outer + 2*$n,
             -$inner - _odd($n));
   }
@@ -170,27 +171,27 @@ sub n_to_xy {
   $n -= $p;
 
   if ($n < $p) {
-    ### top leftwards, eg 19
+    #### top leftwards, eg 19
     return ($outer - 2*$n,
             $outer - _odd($n));
   }
   $n -= $p;
 
   if ($n < $p) {
-    ### left downwards, eg 21
+    #### left downwards, eg 21
     return (-$outer + _odd($n),
             $outer - 2*$n);
   }
   $n -= $p;
 
   if ($n < $p) {
-    ### bottom rightwards, eg 23
+    #### bottom rightwards, eg 23
     return (-$outer + 2*$n,
             -$outer + _odd($n));
   }
   $n -= $p;
 
-  ### step outwards, eg 25
+  #### step outwards, eg 25
   return ($outer + 2*$n,
           -$outer - _odd($n));
 }
@@ -212,77 +213,142 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = POSIX::floor ($x + 0.5);
-  $y = POSIX::floor ($y + 0.5);
+  $x = floor ($x + 0.5);
+  $y = floor ($y + 0.5);
   if ($x == 0 && $y == 0) { return 1; }
 
-  my $s = max(abs($x),abs($y));
-  $s = int (($s+1)/2);  # ring number, counting first as 1
-  # entry to ring $s
-  # 2, 26, 82, 170  16*$s^2 + -24*$s + 10
-  my $lo = $s*(16*$s - 24) + 10;
-  my $hi = ($s+1)*(16*($s+1) - 24) + 10;
+  my $r = max(abs($x),abs($y));
+  my $d = int (($r+1)/2);  # ring number, counting $x=1,2 as $d==1
+  $r -= (~$r & 1);  # next lower odd number
+  ### $d
+  ### $r
 
-  ### $x
-  ### $y
-  ### $s
-  ### $lo
-  ### $hi
+  if ($y >= $r) {
+    ### top horizontal
+    my $xodd = ($x & 1);
+    $x = ($x - $xodd) / 2;
+    ### $xodd
+    ### $x
 
-  foreach my $n ($lo .. $hi) {
-    my ($nx,$ny) = $self->n_to_xy($n);
-    if ($nx == $x && $ny == $y) {
-      return $n;
+    # x odd
+    # [3,30,89,180,303]         (16*$d**2 + -21*$d + 8)
+    # [14,57,132,239,378,549]   (16*$d**2 + -5*$d + 3)
+    # 
+    # [9,44,111,210,341,504]    (16*$d**2 + -13*$d + 6)
+    # [20,71,154,269,416]       (16*$d**2 + 3*$d + 1)
+
+    my $n = 16*$d*$d - $x;
+    if (($x ^ $y ^ $d) & 1) {
+      if ($xodd) {
+        return $n -5*$d + 3;
+      } else {
+        return $n -13*$d + 6;
+      }
+    } else {
+      if ($xodd) {
+        return $n -21*$d + 8;
+      } else {
+        return $n + 3*$d + 1;
+      }
     }
   }
-  return;
 
-  #   if ($x < 0) {
-  #     if (abs($x) >= abs($y)) {
-  #       my $s = int (($x+1) / 2);
-  #       # 21, 73, 157    16*$s^2 + 4*$s + 1
-  #       # 10, 46, 114    16*$s^2 + -12*$s + 6
-  #       # 15, 59, 135    16*$s^2 + -4*$s + 3
+  # the lower left outer corner 25,81,169,etc belongs on the bottom
+  # horizontal, it's not an extension downwards from the right vertical
+  # (positions N=18,66,146,etc), hence $x!=-$y
   #
-  #       my $base = 16*$s*$s;
-  #       if ($x & 1) {
-  #         if ($y & 1) {
-  #
-  #
-  #           foreach my $n ($base + 4*$s + 1,
-  #                          $base + -20*$s + 8,
-  #                          $base + -12*$s + 6,
-  #                          $base + -4*$s + 3) {
-  #           }
-  #         } else {
-  #         }
-  #       } else {
-  #         if ($y & 1) {
-  #         } else {
-  #           #  5, 75, 95    -20*$s^2 + 120*$s + -85
-  #           return ($base + 120*$s + -85
-  #                   - $y/2);
-  #         }
-  #       }
-  #     }
-  #   }
-  #
-  #   return;
-  #
-  #
-  #   my $d = max(abs($x),abs($y));
-  #   my $n = 4*$d*$d + 1;
-  #   if ($y == $d) {     # top
-  #     return $n - $d - $x;
-  #   }
-  #   if ($y == - $d) {   # bottom
-  #     return $n + 3*$d + $x;
-  #   }
-  #   if ($x == $d) {     # right
-  #     return $n - 3*$d + $y;
-  #   }
-  #   # ($x == - $d)    # left
-  #   return $n + $d - $y;
+  if ($x >= $r && $x != -$y) {
+    ### right vertical
+    my $yodd = ($y & 1);
+    $y = ($y - $yodd) / 2;
+    ### $yodd
+    ### $y
+
+    # y odd
+    # [3, 28,85, 174,295, 448,633]  (16*$d**2 + -23*$d + 10)
+    # [8,41, 106,203, 332,493]      (16*$d**2 + -15*$d + 7)
+    #
+    # y even
+    # [13,54,127,232,369,538]      (16*$d**2 + -7*$d + 4)
+    # [18,67,148,261,406,583,792]  (16*$d**2 + $d + 1)
+    #
+    my $n = 16*$d*$d + $y;
+    if (($x ^ $y ^ $d) & 1) {
+      if ($yodd) {
+        return $n -15*$d + 7;
+      } else {
+        return $n -7*$d + 4;
+      }
+    } else {
+      if ($yodd) {
+        return $n -23*$d + 10;
+      } else {
+        return $n + $d + 1;
+      }
+    }
+  }
+
+  if ($y <= -$r) {
+    ### bottom horizontal
+    my $xodd = ($x & 1);
+    $x = ($x - $xodd) / 2;
+    ### $xodd
+    ### $x
+
+    # x odd
+    # [7,38,101,196,323]         (16*$d**2 + -17*$d + 8)
+    # [12,51,122,225,360,527]    (16*$d**2 + -9*$d + 5)
+    #
+    # x even
+    # [17,64,143,254,397,572]    (16*$d**2 + -1*$d + 2)
+    # [24,79,166,285,436]        (16*$d**2 + 7*$d + 1)
+
+    my $n = 16*$d*$d + $x;
+    if (($x ^ $y ^ $d) & 1) {
+      if ($xodd) {
+        return $n -9*$d + 5;
+      } else {
+        return $n -1*$d + 2;
+      }
+    } else {
+      if ($xodd) {
+        return $n -17*$d + 8;
+      } else {
+        return $n + 7*$d + 1;
+      }
+    }
+  }
+
+  if ($x <= -$r) {
+    ### left vertical
+    my $yodd = ($y & 1);
+    $y = ($y - $yodd) / 2;
+    ### $yodd
+    ### $y
+
+    # y odd
+    # [10,47,116,217,350,515]  (16*$d**2 + -11*$d + 5)
+    # [15,60,137,246,387]      (16*$d**2 + -3*$d + 2)
+    #
+    # y even
+    # [5,34,95,188,313]    (16*$d**2 + -19*$d + 8)
+    # [22,75,160,277,426]  (16*$d**2 + 5*$d + 1)
+    #
+    my $n = 16*$d*$d - $y;
+    if (($x ^ $y ^ $d) & 1) {
+      if ($yodd) {
+        return $n -11*$d + 5;
+      } else {
+        return $n -19*$d + 8;
+      }
+    } else {
+      if ($yodd) {
+        return $n -3*$d + 2;
+      } else {
+        return $n + 5*$d + 1;
+      }
+    }
+  }
 }
 
 sub rect_to_n_range {
@@ -290,20 +356,20 @@ sub rect_to_n_range {
 
   my $x = max(abs($x1),abs($x2));
   my $y = max(abs($y1),abs($y2));
-  $x = POSIX::floor($x+0.5);
-  $y = POSIX::floor($y+0.5);
+  $x = floor($x+0.5);
+  $y = floor($y+0.5);
 
-  my $s = max(abs($x),abs($y));
-  $s += ($s & 1);  # next even number if not already even
+  my $d = max(abs($x),abs($y));
+  $d += ($d & 1);  # next even number if not already even
   ### $x
   ### $y
-  ### $s
-  ### is: $s*$s
+  ### $d
+  ### is: $d*$d
 
-  $s = 2*$s+1;  # width of whole square
+  $d = 2*$d+1;  # width of whole square
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,
-          1 + $s*$s);
+          1 + $d*$d);
 }
 
 1;
@@ -344,19 +410,18 @@ of a square spiral.
 
 Each step is a chess knight's move 1 across and 2 along, or vice versa.  The
 pattern makes 4 cycles on a 2-wide path around a square before stepping
-outwards to do the same again to a then bigger square.  The above sample
+outwards to do the same again to a now bigger square.  The above sample
 shows the first 4-cycle around the central 1 then stepping out at 26 and
 beginning to go around the outside of the now 5x5 square.
 
-A traced out picture of the path can be seen at the following page (quarter
-way down under "Open Knight's Tour"),
+An attractive traced out picture of the path can be seen at the following
+page (quarter way down under "Open Knight's Tour"),
 
     http://www.borderschess.org/KTart.htm
 
-The C<math-image> program can draw the path lines too.  And see
+See the C<math-image> program to draw the path lines too.  Or
 F<examples/knights-sloane.pl> expressing the knight's tour by the numbering
-of the SquareSpiral (sequence A068608 of Sloane's On-Line Encyclopedia of
-Integer Sequences).
+of the SquareSpiral (Sloane's sequence A068608).
 
 =head1 FUNCTIONS
 

@@ -24,9 +24,10 @@ use List::Util qw(max);
 use POSIX ();
 use Math::PlanePath::HexSpiral;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 3;
 use Math::PlanePath;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

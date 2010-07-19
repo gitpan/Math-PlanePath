@@ -21,11 +21,12 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util qw(min max);
-use POSIX ();
+use POSIX 'floor';
+
+use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -85,8 +86,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = POSIX::floor ($x + 0.5);
-  $y = POSIX::floor ($y + 0.5);
+  $x = floor ($x + 0.5);
+  $y = floor ($y + 0.5);
   ### xy_to_n(): "$x,$y"
 
   if ($y < 0 && abs($x) <= 2*-$y) {
@@ -106,9 +107,9 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  my $x = POSIX::floor(max(abs($x1),abs($x2)) + 0.5);
-  $y1 = POSIX::floor($y1+0.5);
-  $y2 = POSIX::floor($y2+0.5);
+  my $x = floor(max(abs($x1),abs($x2)) + 0.5);
+  $y1 = floor($y1+0.5);
+  $y2 = floor($y2+0.5);
 
   my $r = max (map {
     my $y = $_;

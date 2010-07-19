@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 3;
+$VERSION = 4;
 
 # defaults
 use constant x_negative => 1;
@@ -41,7 +41,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath -- points on a path through a 2-D plane
+Math::PlanePath -- points on a path through the 2-D plane
 
 =head1 SYNOPSIS
 
@@ -50,7 +50,7 @@ Math::PlanePath -- points on a path through a 2-D plane
 
 =head1 DESCRIPTION
 
-This is a base class for some mathematical paths which turn an integer
+This is the base class for some mathematical paths which turn an integer
 position C<$n> into coordinates C<$x,$y>.  The current classes include
 
     SquareSpiral           four-sided spiral
@@ -61,6 +61,7 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     PentSpiralSkewed       five-sided spiral, compact
     HexSpiral              six-sided spiral
     HexSpiralSkewed        six-sided spiral skewed for compactness
+    HeptSpiralSkewed       seven-sided spiral, compact
     SacksSpiral            quadratic on an Archimedean spiral
     VogelFloret            seeds in a sunflower
     KnightSpiral           an infinite knight's tour
@@ -72,42 +73,54 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     PyramidRows            expanding rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
 
-The paths are object oriented to allow parameters, though currently only a
-few subclasses actually have any parameters.
+The paths are object oriented to allow parameters, though only a few
+subclasses actually have any parameters.
 
-The classes are generally oriented towards integer C<$n> positions and those
-designed for a square grid turn an integer C<$n> into integer C<$x,$y>.
-Usually they can give in-between positions for fractional C<$n> too.
+The classes are generally oriented towards integer C<$n> positions and the
+classes designed for a square grid turn an integer C<$n> into integer
+C<$x,$y>.  Usually they give in-between positions for fractional C<$n> too.
 Classes not on a square grid, like SacksSpiral and VogelFloret, are scaled
 for a unit circle at each C<$n> but they too can give in-between positions
 on request.
 
 In general there's no parameters for scaling, or an offset for the 0,0
 origin, or a reflection up or down.  Those things are thought better done by
-a general coordinate transformer if expanding or inverting for display.
-Even clockwise instead of counter-clockwise spiralling can be done just by
-negating C<$x> (or negate C<$y> to stay starting at the right).
+a general coordinate transformer that might expand or invert for display.
+Even clockwise instead of counter-clockwise spiralling can be had just by
+negating C<$x> (or negate C<$y> to stay starting at the right), or a quarter
+turn by swapping C<$x> and C<$y>.
 
 =head2 Loop Step
 
-The paths can be characterized by how much longer each spiral or repetition
-is than the preceding one.  For example each loop of the SquareSpiral is 8
+The paths can be characterized by how much longer each loop or repetition is
+than the preceding one.  For example each cycle around the SquareSpiral is 8
 longer than the preceding.
 
-     0     Rows, Columns
-     1     Diagonals
-     2     PyramidRows, PyramidSides, Corner, SacksSpiral
-     4     DiamondSpiral
-     5     PentSpiralSkewed
-     6     HexSpiral, HexSpiralSkewed
-     8     SquareSpiral, PyramidSpiral
-     9     TriangleSpiral, TriangleSpiralSkewed
-    32     KnightSpiral (counting the 2-wide trip as the reps)
+    Step     Path(s)
+    ----     -------
+      0    Rows, Columns (fixed widths)
+      1    Diagonals
+      2    SacksSpiral, PyramidSides, Corner
+      2    PyramidRows (default step parameter)
+      4    DiamondSpiral
+      5    PentSpiralSkewed
+      6    HexSpiral, HexSpiralSkewed
+      7    HeptSpiralSkewed
+      8    SquareSpiral, PyramidSpiral
+      9    TriangleSpiral, TriangleSpiralSkewed
+     32    KnightSpiral (counting the 2-wide trip as the reps)
 
 The step determines which quadratic number sequences fall on straight lines.
-For example gap between successive perfect squares increases by 2 each time
-(4 to 9 is 5, 9 to 16 is 7, 16 to 25 is 9, etc), so the perfect squares make
-a straight line in the PyramidRows and others of step 2.
+For example the gap between successive perfect squares increases by 2 each
+time (4 add 5 to get 9, then add 7 to 16, then add 9 to 25, etc), so the
+perfect squares make a straight line in the paths of step 2.
+
+A factor of 4 splits a straight line into two, so for example on the
+SquareSpiral of step 8 the perfect squares fall on two lines to the lower
+left and upper right.  Effectively it's one line of the even squares (2k)^2
+== 4*k^2 and another of the odd squares (2k+1)^2 == 4*k^2+4*k+1.  The gap
+between successive even squares increases by 8 each time, and likewise the
+odd squares.
 
 =head1 FUNCTIONS
 
@@ -194,8 +207,10 @@ itself.  A figure like a diamond for instance would work well too.
 
 L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::DiamondSpiral>,
+L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
+L<Math::PlanePath::HeptSpiralSkewed>,
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::KnightSpiral>
@@ -206,6 +221,8 @@ L<Math::PlanePath::Diagonals>,
 L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>
+
+F<examples/numbers.pl> in the sources to print all the paths.
 
 =head1 HOME PAGE
 

@@ -21,16 +21,16 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util qw(max);
-use POSIX ();
+use POSIX 'floor';
+
+use Math::PlanePath;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 4;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-
 
 # 
 # start cycle at the vertical downwards from x=1,y=0
@@ -73,8 +73,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = POSIX::floor ($x + 0.5);
-  $y = POSIX::floor ($y + 0.5);
+  $x = floor ($x + 0.5);
+  $y = floor ($y + 0.5);
   my $s = abs($x) + abs($y);
 
   # vertical along the y>=0 axis
@@ -101,8 +101,8 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### DiamondSpiral xy_to_n_range()
 
-  my $x = POSIX::floor (0.5 + max(abs($x1),abs($x2)));
-  my $y = POSIX::floor (0.5 + max(abs($y1),abs($y2)));
+  my $x = floor (0.5 + max(abs($x1),abs($x2)));
+  my $y = floor (0.5 + max(abs($y1),abs($y2)));
   my $s = abs($x) + abs($y) + 1;
   ### gives: "$x, $y  sum $s is " . (2*$s*$s - 2*$s + 1)
 

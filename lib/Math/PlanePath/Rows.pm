@@ -23,9 +23,10 @@ use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 
-use vars '$VERSION', '@ISA';
-$VERSION = 3;
 use Math::PlanePath;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -66,7 +67,7 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $y = POSIX::floor (max($y1,$y2) + 0.5);
+  my $y = floor (max($y1,$y2) + 0.5);
   return (1,
           ($y+1) * $self->{'width'});
 }

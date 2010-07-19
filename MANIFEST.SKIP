@@ -55,6 +55,8 @@
 \.def$
 ^dll\.base$
 ^dll\.exp$
+# msdos compiler stuff using ms c
+\.pdb$
 
 # built - cdbs and debhelper
 ^debian/stamp-

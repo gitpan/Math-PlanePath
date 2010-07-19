@@ -23,7 +23,7 @@
 Source: libmath-planepath-perl
 Section: perl
 Priority: optional
-Build-Depends: cdbs, debhelper (>= 5)
+Build-Depends: libtest-more-perl | perl (>= 5.6.2), cdbs, debhelper (>= 5)
 Maintainer: Kevin Ryde <user42@zip.com.au>
 Standards-Version: 3.9.0
 Homepage: http://user42.tuxfamily.org/math-planepath/index.html
@@ -31,14 +31,14 @@ Bugs: mailto:user42@zip.com.au
 
 Package: libmath-planepath-perl
 Architecture: all
-Depends: perl (>= 5.004), libmath-libm-perl, libscalar-list-utils-perl | perl (>= 5.8), libwarnings-perl | perl (>= 5.6), libtest-more-perl | perl (>= 5.6.2), ${perl:Depends}, ${misc:Depends}
+Depends: perl (>= 5.004), libmath-libm-perl, libscalar-list-utils-perl | perl (>= 5.8), libwarnings-perl | perl (>= 5.6), ${perl:Depends}, ${misc:Depends}
 Description: Mathematical paths through the plane.
  Perl code to generate some paths through the 2-D X,Y plane, mainly
  integer oriented, and including
  .
-  * square numbering of Ulam's spiral
-  * hexagonal spiral
-  * pyramids
-  * an infinite knight's tour
+  * Square numbering of Ulam's spiral
+  * Pentagonal, hexagonal, heptagonal spirals
+  * Pyramid and triangular spirals and rows
+  * An infinite knight's tour
   * Vogel's sunflower floret
-  * Sacks quadratic spiral
+  * Sacks' quadratic spiral

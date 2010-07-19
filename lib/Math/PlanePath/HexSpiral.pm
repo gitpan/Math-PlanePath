@@ -23,13 +23,14 @@ use warnings;
 use List::Util qw(max);
 use POSIX ();
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 # diagonal down and to the left

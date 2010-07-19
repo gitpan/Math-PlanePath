@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use Math::BigRat;
 use Math::Polynomial 1;
+use Math::Polynomial::Horner;
 
 use Smart::Comments;
 
@@ -47,20 +48,61 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [ 1,  2,  3, ],
-[ 3, 12, 28 ]
+                [  4,5,6,7 ],
+                [24,38,55,75]
+  
                );
 
+sub bigrat_to_decimal {
+  my ($rat) = @_;
+  if (is_pow2($rat->denominator)) {
+    return $rat->as_float;
+  } else {
+    return $rat;
+  }
+}
+sub is_pow2 {
+  my ($n) = @_;
+  while ($n > 1) {
+    if ($n & 1) {
+      return 0;
+    }
+    $n >>= 1;
+  }
+  return ($n == 1);
+}
+
+use constant my_string_config => (variable     => '$d',
+                                  times       => '*',
+                                  power       => '**',
+                                  fold_one    => 1,
+                                  fold_sign   => 1,
+                                  fold_sign_swap_end => 1,
+                                  power_by_times     => 1,
+                                 );
+
+#  @string_config = (
+# #                      power       => '**',
+# #                      fold_one    => 1,
+# #                      fold_sign   => 1,
+# #                      fold_sign_swap_end => 1,
+# #                      power_by_times     => 1,
+#                     );
 sub my_interpolate {
   my ($xarray, $valarray) = @_;
 
   my $p = Math::Polynomial->new(Math::BigRat->new(0));
-  $p->string_config({ variable => '$d',
-                      times => '*',
-                      power => '**',
-                    });
   $p = $p->interpolate($xarray, $valarray);
-  print 'N = ',$p,"\n";
+
+  $p->string_config({ fold_sign => 1 });
+  print "N = $p\n";
+
+  $p->string_config({ my_string_config() });
+  print "  = $p\n";
+
+  $p->string_config({ my_string_config(),
+                      convert_coeff  => \&bigrat_to_decimal });
+  print "  = ",Math::Polynomial::Horner::as_string($p),"\n";
 
   my $a = $p->coeff(2);
   return if $a == 0;

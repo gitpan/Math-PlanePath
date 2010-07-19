@@ -23,13 +23,14 @@ use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
+use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 3;
-use Math::PlanePath;
+$VERSION = 4;
 @ISA = ('Math::PlanePath');
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
@@ -132,11 +133,12 @@ axis.
       2  |   4   8  13  19  ...
       1  |   2   5   9  14  20  ...
     y=0  |   1   3   6  10  15  21  ...
-          ----------------------
+          --------------------------
            x=0,  1   2   3   4 ...
 
 The horizontal sequence 1,3,6,10,etc at y=0 is the triangular numbers
-s*(s+1)/2.
+s*(s+1)/2.  (If you plot them on a graph don't confuse that line with the
+axis or a border!)
 
 =head1 FUNCTIONS
 

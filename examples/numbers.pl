@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
+
 # Usage: perl numbers.pl [CLASS]
 #        perl numbers.pl all
 #
@@ -28,8 +29,8 @@
 # the tty.
 #
 # The origin 0,0 is kept in the middle of the display, horizontally, to help
-# see how much is on each side of it, but vertically only as many rows as
-# necessary are printed.
+# see how much is on each side, and to make the "all" line up.  Vertically
+# only as many rows as necessary are printed.
 #
 
 
@@ -52,13 +53,17 @@ if ($class eq 'all') {
   my $separator = '';
   foreach my $class (qw(SquareSpiral
                         DiamondSpiral
+                        PentSpiral
                         PentSpiralSkewed
                         HexSpiral
                         HexSpiralSkewed
+                        HeptSpiralSkewed
 
                         PyramidSpiral
                         PyramidRows
                         PyramidSides
+                        TriangleSpiral
+                        TriangleSpiralSkewed
 
                         Diagonals
                         Corner

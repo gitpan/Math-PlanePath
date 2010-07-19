@@ -23,11 +23,12 @@
 #
 # Optional args: perl ulam-spiral-xpm.pl SIZE
 #                perl ulam-spiral-xpm.pl SIZE SCALE
-# to make the image SIZExSIZE pixels, and SCALE to expand point to a
+#
+# to make the image SIZExSIZE pixels, and SCALE to expand each point to a
 # SCALExSCALE square instead of a single pixel.
 #
 # This is a bit of fun drawing the Ulam spiral of primes in a square
-# pattern.  The output is XPM format, which is plain text, and any good
+# pattern.  The output is XPM format (which is plain text) and any good
 # image viewer program should be able to display it.
 #
 
