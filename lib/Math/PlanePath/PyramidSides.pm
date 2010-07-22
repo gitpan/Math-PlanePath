@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 4;
+$VERSION = 5;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -143,13 +143,15 @@ The pattern is similar to PyramidRows, just with the columns dropped down
 vertically to start at the X axis.  Any pattern occurring within a column is
 unchanged, but what was a row becomes a diagonal and vice versa.
 
+=head2 Lucky Numbers of Euler
+
 An interesting sequence for this path is Euler's k^2+k+41.  Low values are
-spread around a bit, but from N=1763 (k=41 ) onwards they're the vertical at
-x=40.  There's relatively many primes in this quadratic and on a plot of the
+spread around a bit, but from N=1763 (k=41) onwards they're the vertical at
+x=40.  There's quite a few primes in this quadratic and on a plot of the
 primes that vertical stands out a little denser in primes than its surrounds
-(at least for up to the first 1000 or so values).  The line shows in other
-step==2 paths too, but not quite as clearly.  In the PyramidRows the
-beginning is up at y=40, and in the Corner path it's a diagonal.
+(at least for up to the first 2500 or so values).  The line shows in other
+step==2 paths too, but not as clearly.  In the PyramidRows the beginning is
+up at y=40, and in the Corner path it's a diagonal.
 
 =head1 FUNCTIONS
 

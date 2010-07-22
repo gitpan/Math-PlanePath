@@ -27,7 +27,7 @@ use Math::PlanePath::HexSpiral;
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 4;
+$VERSION = 5;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

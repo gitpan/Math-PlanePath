@@ -32,7 +32,7 @@ use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS);
                 nowarnings);
 %EXPORT_TAGS = (all => \@EXPORT_OK);
 
-use constant DEBUG => 0;
+sub DEBUG { 0 }
 
 
 #-----------------------------------------------------------------------------

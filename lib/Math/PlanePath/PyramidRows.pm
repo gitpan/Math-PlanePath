@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 4;
+$VERSION = 5;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -39,7 +39,7 @@ sub x_negative {
 use constant y_negative => 0;
 
 sub new {
-  return shift->SUPER::new (step => 2,
+  return shift->SUPER::new (step => 2, # default
                             @_);
 }
 
@@ -73,9 +73,9 @@ sub new {
 #   = $step/2 *s*s + (-$step+2)/2 * s + 1/2
 #   = ($step * $d*$d - ($step-2)*$d + 1) / 2
 #
-# left at - 0.5 - $d*int($step/2) 
-# so x = $n - (($step * $d*$d - ($step-2)*$d + 1) / 2) - 0.5 - $d*int($step/2) 
-#      = $n - (($step * $d*$d - ($step-2)*$d + 1) / 2 + 0.5 + $d*int($step/2)) 
+# left at - 0.5 - $d*int($step/2)
+# so x = $n - (($step * $d*$d - ($step-2)*$d + 1) / 2) - 0.5 - $d*int($step/2)
+#      = $n - (($step * $d*$d - ($step-2)*$d + 1) / 2 + 0.5 + $d*int($step/2))
 #      = $n - ($step/2 * $d*$d - ($step-2)/2*$d + 1/2 + 0.5 + $d*int($step/2))
 #      = $n - ($step/2 * $d*$d - ($step-2)/2*$d + 1 + $d*int($step/2))
 #      = $n - ($step/2 * $d*$d - ($step-2)/2*$d + int($step/2)*$d + 1)
@@ -110,7 +110,7 @@ sub xy_to_n {
   $x = floor ($x + 0.5);
   $y = floor ($y + 0.5);
   my $step = $self->{'step'};
-  if ($y < 0 
+  if ($y < 0
       || $x < -$y*int($step/2)
       || $x > $y*int(($step+1)/2)) {
     return undef;
@@ -167,44 +167,45 @@ than the preceding, one square each side,
 
     -4  -3  -2  -1  x=0  1   2   3   4 ...
 
-The right edge 1,4,9,16,etc is the perfect squares.  The vertical
+The right end here 1,4,9,16,etc is the perfect squares.  The vertical
 2,6,12,20,etc at x=-1 is the pronic numbers s*(s+1), half way between those
 successive squares.
 
-This stepping is the same as the PyramidSides, Corner and SacksSpiral paths.
+The step 2 is the same as the PyramidSides, Corner and SacksSpiral paths.
 For the SacksSpiral, spiral arms going to the right correspond to diagonals
 in the pyramid, and arms to the left correspond to verticals.
 
 =head2 Step Parameter
 
-A C<step> parameter controls how much wider each row is than the preceding.
-For example step 4
+A C<step> parameter controls how much wider each row is than the preceding,
+to make wider pyramids.  For example step 4
 
     my $path = Math::PlanePath::PyramidRows->new (step => 4);
 
-makes each row 2 wider on each side
+makes each row 2 wider on each side successively
 
-    16 17 18 19 20 21 22 23 24 25 26 27 28            3
-           7  8  9 10 11 12 13 14 15                  2
-                 2  3  4  5  6                        1
-                       1                        <-  y=0
+   29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45        4
+         16 17 18 19 20 21 22 23 24 25 26 27 28              3
+                7  8  9 10 11 12 13 14 15                    2
+                      2  3  4  5  6                          1
+                            1                          <-  y=0
 
-    -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6 ...
+         -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6 ...
 
 If the step is an odd number then the extra is at the right, so step 3 gives
 
-    13  14  15  16  17  18  19  20  21  22        3 
+    13  14  15  16  17  18  19  20  21  22        3
          6   7   8   9  10  11  12                2
              2   3   4   5                        1
                  1                          <-  y=0
 
     -3  -2  -1  x=0  1   2   3   4 ...
 
-Or step of just 1 goes solely to the right.  This is equivalent to the
-Diagonals path, just horizontal instead of diagonal.
+Or step 1 goes solely to the right.  This is equivalent to the Diagonals
+path, but columns shifted up to make horizontal rows.
 
     11  12  13  14  15
-     7   8   9  10                    3 
+     7   8   9  10                    3
      4   5   6                        2
      2   3                            1
      1                          <-  y=0
@@ -215,17 +216,54 @@ Step 0 means simply a vertical, each row 1 wide and not increasing.  This is
 unlikely to be much use.  The Rows path with C<width> 1 does this too.
 
      5        4
-     4        3 
+     4        3
      3        2
      2        1
      1    <-y=0
 
     x=0
 
-Various number sequences fall on interesting positions depending on the
+Various number sequences fall in regular patterns positions depending on the
 step.  Large steps are not particularly interesting and quickly become very
 wide.  A limit might be desirable in a user interface, but there's no limit
-in the class as such.
+in the code as such.
+
+=head2 Step 3 Pentagonals
+
+For step 3 the pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2, are at the
+rightmost end of each row.  The "second pentagonal numbers" 2,7,15,26, S(k)
+= (3k+1)*k/2 are the vertical at x=-1.  (Those second numbers are obtained
+by taking negative k in the plain pentagonal (3k-1)*k/2, and the two
+together are the "generalized pentagonal numbers".)
+
+The second pentagonals are not prime beyond 7 since they're (3k+1)*k/2 with
+the denominator 2 dividing into one or the other part.  Numbers S(k)-1
+immediately to the left are never prime either since S(k)-1 =
+(3*k-2)(k+1)/2.  Likewise S(k)-2 = (3*k+4)(k-1)/2 beyond 13.  If you plot
+the primes on a step 3 PyramidRows then these sequences make a 3-wide
+vertical gap at x=-1,-2,-3 where there's no primes.
+
+               no primes in these three columns
+               except the low values 2,7,13
+               |  |  |
+     52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70
+        36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+           23 24 25 26 27 28 29 30 31 32 33 34 35
+              13 14 15 16 17 18 19 20 21 22
+                  6  7  8  9 10 11 12
+                     2  3  4  5
+                        1
+     -6 -5 -4 -3 -2 -1 x=0 1  2  3  4 ...
+
+In general a constant offset c from S(k) is a column and the simple
+factorization above using the roots of the quadratic S(k)-c = (3/2)*k^2 +
+S<(1/2)*k - c> is possible whenever 24*c+1 is a perfect square.  This means
+the further columns S(k)-5, S(k)-7, S(k)-12, etc have no primes either.  The
+S(k), S(k)-1, S(k)-2 ones are the most prominent because they're adjacent.
+There's no other adjacent columns of this type because the squares become
+too far apart for successive 24*c+1.  Of course there could be many other
+reasons for other columns to be prime-free or nearly so or above a certain
+point, etc.
 
 =head1 FUNCTIONS
 

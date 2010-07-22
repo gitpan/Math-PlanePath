@@ -21,96 +21,226 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util qw(max);
-use POSIX 'floor';
+use POSIX 'floor', 'ceil';
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 4;
+$VERSION = 5;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
-#use Smart::Comments '####';
+#use Smart::Comments '###';
 
+sub new {
+  return shift->SUPER::new (wider => 0, # default
+                            @_);
+}
 
-# 0   1   2   3   4
-# 1   1   3   7  13  21  31
-#   +0  +2  +4  +6  +8  +10
-#      2   2   2   2   2
-# 
-# n = $s*$s - $s + 1
-# s = .5 + sqrt ($n - .75)
+# wider==0
+# base from bottom-right corner
+#   d = [ 1,  2,  3,  4 ]
+#   N = [ 2, 10, 26, 50 ]
+#   N = (4 d^2 - 4 d + 2)
+#   d = 1/2 + sqrt(1/4 * $n + -4/16)
+#
+# wider==1
+# base from bottom-right corner
+#   d = [ 1,  2,  3,  4 ]
+#   N = [ 3, 13, 31, 57 ]
+#   N = (4 d^2 - 2 d + 1)
+#   d = 1/4 + sqrt(1/4 * $n + -3/16)
+#
+# wider==2
+# base from bottom-right corner
+#   d = [ 1,  2,  3, 4 ]
+#   N = [ 4, 16, 36, 64 ]
+#   N = (4 d^2)
+#   d = 0 + sqrt(1/4 * $n + 0)
+#
+# wider==3
+# base from bottom-right corner
+#   d = [ 1,  2,  3 ]
+#   N = [ 5, 19, 41 ]
+#   N = (4 d^2 + 2 d - 1)
+#   d = -1/4 + sqrt(1/4 * $n + 5/16)
+#
+# N = 4*d^2 + (-4+2*w)*d + (2-w)
+#   = 4*$d*$d + (-4+2*$w)*$d + (2-$w)
+# d = 1/2-w/4 + sqrt(1/4*$n + b^2-4ac)
+# (b^2-4ac)/(2a)^2 = [ (2w-4)^2 - 4*4*(2-w) ] / 64
+#                  = [ 4w^2 - 16w + 16 - 32 + 16w ] / 64
+#                  = [ 4w^2 - 16 ] / 64
+#                  = [ w^2 - 4 ] / 16
+# d = 1/2-w/4 + sqrt(1/4*$n + (w^2 - 4) / 16)
+#   = 1/4 * (2-w + sqrt(4*$n + w^2 - 4))
+#   = 0.25 * (2-$w + sqrt(4*$n + $w*$w - 4))
+#
+# then offset the base by +4*$d+$w-1 for top left corner for +/- remainder
+# rem = $n - (4*$d*$d + (-4+2*$w)*$d + (2-$w) + 4*$d + $w - 1)
+#     = $n - (4*$d*$d + (-4+2*$w)*$d + 2 - $w + 4*$d + $w - 1)
+#     = $n - (4*$d*$d + (-4+2*$w)*$d + 1 - $w + 4*$d + $w)
+#     = $n - (4*$d*$d + (-4+2*$w)*$d + 1 + 4*$d)
+#     = $n - (4*$d*$d + (2*$w)*$d + 1)
+#     = $n - ((4*$d + 2*$w)*$d + 1)
+#
 
 sub n_to_xy {
   my ($self, $n) = @_;
   #### SquareSpiral n_to_xy: $n
-  if ($n < 1) { return; }
+  my $w = $self->{'wider'};
+  if ($n < 1) {
+    #### less than one
+    return;
+  }
+  if ($n <= $w+2) {
+    #### centre horizontal
+    # n=1 at w_left
+    # x = $n-1 - int(($w+1)/2)
+    #   = $n - int(1 + ($w+1)/2)
+    #   = $n - int(($w+3)/2)
+    return ($n - int(($w+3)/2),  # n=1 at w_left
+            0);
+  }
 
-  my $s = int (.5 + sqrt ($n - .75));
-  #### s frac: .5 + sqrt ($n - .75)
-  #### $s
+  my $d = int (0.25 * (2-$w + sqrt(4*$n + $w*$w - 4)));
+  #### d frac: (0.25 * (2-$w + sqrt(4*$n + $w*$w - 4)))
+  #### $d
 
-  $n -= $s*($s-1) + 1;
+  #### base: 4*$d*$d + (-4+2*$w)*$d + (2-$w)
+  $n -= ((4*$d + 2*$w)*$d + 1);
   #### remainder: $n
 
-  my $half = int($s*.5);
-  if ($s & 1) {
-    if ($n < $s) {
-      #### bottom
-      return (-$half + $n,
-              -$half);
+  if ($n >= 0) {
+    if ($n <= 2*$d) {
+      ### left vertical
+      return (-$d - ceil($w/2),
+              $d - $n);
     } else {
-      #### right
-      return ($half+1,
-              -$half + ($n-$s));
+      ### bottom horizontal
+      return (- ceil($w/2) + $n - 3*$d,
+              -$d);
     }
   } else {
-    if ($n < $s) {
-      #### top
-      return ($half - $n,
-              $half);
+    if ($n >= -2*$d-$w) {
+      ### top horizontal
+      return (-$d - ceil($w/2) - $n,
+              $d);
     } else {
-      #### left
-      return (-$half,
-              $half - ($n - $s));
+      ### right vertical
+      return ($d + int($w/2),
+              $n + 3*$d + $w);
     }
   }
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
+
+  my $w = $self->{'wider'};
+  my $w_right = int($w/2);
+  my $w_left = $w - $w_right;
   $x = floor ($x + 0.5);
   $y = floor ($y + 0.5);
-  my $d = max(abs($x),abs($y));
-  my $n = 4*$d*$d + 1;
-  if ($y == $d) {     # top
-    return $n - $d - $x;
+  ### xy_to_n: "x=$x, y=$y"
+  ### $w_left
+  ### $w_right
+
+  my $d;
+  if (($d = $x - $w_right) > abs($y)) {
+    ### right vertical
+    ### $d
+    #
+    # base bottom right per above
+    ### BR: 4*$d*$d + (-4+2*$w)*$d + (2-$w)
+    # then +$d-1 for the y=0 point
+    # N_Y0  = 4*$d*$d + (-4+2*$w)*$d + (2-$w) + $d-1
+    #       = 4*$d*$d + (-3+2*$w)*$d + (2-$w) + -1
+    #       = 4*$d*$d + (-3+2*$w)*$d +  1-$w
+    ### N_Y0: (4*$d + -3 + 2*$w)*$d + 1-$w
+    #
+    return (4*$d + -3 + 2*$w)*$d + 1-$w + $y;
   }
-  if ($y == - $d) {   # bottom
-    return $n + 3*$d + $x;
+
+  if (($d = -$x - $w_left) > abs($y)) {
+    ### left vertical
+    ### $d
+    #
+    # top left per above
+    ### TL: 4*$d*$d + (2*$w)*$d + 1
+    # then +$d for the y=0 point
+    # N_Y0  = 4*$d*$d + (2*$w)*$d + 1 + $d
+    #       = 4*$d*$d + (1 + 2*$w)*$d + 1
+    ### N_Y0: (4*$d + 1 + 2*$w)*$d + 1
+    #
+    return (4*$d + 1 + 2*$w)*$d + 1 - $y;
   }
-  if ($x == $d) {   
-    ### right
-    return $n - 3*$d + $y;
+
+  $d = abs($y);
+  if ($y > 0) {
+    ### top horizontal
+    ### $d
+    #
+    # top left per above
+    ### TL: 4*$d*$d + (2*$w)*$d + 1
+    # then -($d+$w_left) for the x=0 point
+    # N_X0  = 4*$d*$d + (2*$w)*$d + 1 + -($d+$w_left)
+    #       = 4*$d*$d + (-1 + 2*$w)*$d + 1 - $w_left
+    ### N_Y0: (4*$d - 1 + 2*$w)*$d + 1 - $w_left
+    #
+    return (4*$d - 1 + 2*$w)*$d + 1 - $w_left - $x;
   }
-  # ($x == - $d)    # left
-  return $n + $d - $y;
+
+  ### bottom horizontal, and centre y=0
+  ### $d
+  #
+  # top left per above
+  ### TL: 4*$d*$d + (2*$w)*$d + 1
+  # then +2*$d to bottom left, +$d+$w_left for the x=0 point
+  # N_X0  = 4*$d*$d + (2*$w)*$d + 1 + 2*$d + $d+$w_left)
+  #       = 4*$d*$d + (3 + 2*$w)*$d + 1 + $w_left
+  ### N_Y0: (4*$d + 3 + 2*$w)*$d + 1 + $w_left
+  #
+  return (4*$d + 3 + 2*$w)*$d + 1 + $w_left + $x;
 }
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $x = floor(0.5 + max(abs($x1),abs($x2)));
-  my $y = floor(0.5 + max(abs($y1),abs($y2)));
-  my $s = 2 * max(abs($x),abs($y)) + 2;
-  ### $x
-  ### $y
+  my $w = $self->{'wider'};
+  my $w_right = int($w/2);
+  my $w_left = $w - $w_right;
+
+  my $d = 1 + max (1,
+                   floor(0.5 + max(abs($y1),abs($y2))),
+                   (map {$_ = floor(0.5 + $_);
+                         max ($_ - $w_right,
+                              -$_ - $w_left)}
+                    ($x1, $x2)));
   ### $s
   ### is: $s*$s
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,
-          1 + $s*$s);
+          (4*$d + -4 + 2*$w)*$d + 2);  # bottom-right
 }
+
+
+# old bit:
+#
+# wider==0
+# base from two-way diagonal top-right and bottom-left
+# s even for top-right diagonal doing top leftwards then left downwards
+# s odd for bottom-left diagonal doing bottom rightwards then right pupwards
+#   s = [ 0,  1,   2,   3,   4,   5,   6 ]
+#   N = [ 1,  1,   3,   7,  13,  21,  31 ]
+#         +0  +2  +4  +6  +8  +10
+#            2   2   2   2   2
+#
+#   n = (($d - 1)*$d + 1)
+#   s = 1/2 + sqrt(1 * $n + -3/4)
+#     = .5 + sqrt ($n - .75)
+#
+#
 
 1;
 __END__
@@ -119,7 +249,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::SquareSpiral -- integer points drawn around a square
+Math::PlanePath::SquareSpiral -- integer points drawn around a square (or rectangle)
 
 =head1 SYNOPSIS
 
@@ -129,7 +259,7 @@ Math::PlanePath::SquareSpiral -- integer points drawn around a square
 
 =head1 DESCRIPTION
 
-This path makes a square spiral.
+This path makes a square spiral,
 
     37--36--35--34--33--32--31         3
      |                       |
@@ -144,32 +274,71 @@ This path makes a square spiral.
     42  21--22--23--24--25--26        -2
      |
     43--44--45--46--47 ...
+
                  ^
     -3  -2  -1  x=0  1   2   3
 
-This is quite well known from Stanislaw Ulam finding interesting straight
-lines plotting the prime numbers on it.  See F<examples/ulam-spiral-xpm.pl>
-in the sources for a program generating that, or see the author's
-C<math-image> program using this SquareSpiral to draw Ulam's pattern and
-more.
-
 The perfect squares 1,4,9,16,25 fall on diagonals with the even perfect
 squares going to the upper left and the odd ones to the lower right.  The
-pronic numbers 2,6,12,20,30,42 etc half way between the squares fall on
-similar diagonals to the upper right and lower left.
+pronic numbers 2,6,12,20,30,42 etc (k^2+k) half way between the squares fall
+on similar diagonals to the upper right and lower left.
 
-In general straight lines in this SquareSpiral and other stepped spirals
-(meaning everything except the VogelFloret) are quadratics a*k^2+b*k+c, with
-a=step/2 where step is how much longer each loop takes than the preceding,
-which is 8 in the case of the SquareSpiral.  There are various interesting
-properties of primes in quadratic progressions like this and some quadratics
-seem to have more primes than others.  For instance see PyramidSides for
-Euler's k^2+k+41.
+This path is well known from Stanislaw Ulam finding interesting straight
+lines plotting the prime numbers on it.  See F<examples/ulam-spiral-xpm.pl>
+in the sources for a program generating that, or the C<math-image> program
+using this SquareSpiral to draw Ulam's pattern and more.
+
+In general straight lines in this spiral and other stepped paths (meaning
+everything except the VogelFloret currently) are quadratics a*k^2+b*k+c,
+with a=step/2 where step is how much longer each loop takes than the
+preceding (8 in the case of the SquareSpiral).  There are various
+interesting properties of primes in quadratic progressions like this.  Some
+seem to have more primes than others, for instance see PyramidSides for
+Euler's k^2+k+41.  Many quadratics have no primes at all, or above a certain
+point, either trivially if always a multiple of 2 or similar, or by a more
+sophisticated reasoning.  See PyramidRows with step 3 for an example of a
+factorization by the roots making a no-primes gap.
+
+=head2 Wider
+
+An optional C<wider> parameter makes the path wider, becoming a rectangle
+instead of a square.  For example
+
+    $path = Math::PlanePath::SquareSpiral->new (wider => 3);
+
+gives
+
+    29--28--27--26--25--24--23--22        2
+     |                           |
+    30  11--10-- 9-- 8-- 7-- 6  21        1
+     |   |                   |   |
+    31  12   1-- 2-- 3-- 4-- 5  20   <- y=0
+     |   |                       |
+    32  13--14--15--16--17--18--19       -1
+     |
+    33--34--35--36-...                   -2
+
+                     ^
+    -4  -3  -2  -1  x=0  1   2   3
+
+The centre horizontal 1 to 2 is extended by C<wider> many further places,
+then the path loops around that shape.  The starting point 1 is shifted to
+the left by wider/2 places (rounded up to an integer) to keep the spiral
+centred on the origin x=0,y=0.
+
+Widening doesn't change the nature of the straight lines which arise, it
+just rotates them around.  For example in this wider=3 example the perfect
+squares are still on diagonals, but the even squares go towards the bottom
+left (instead of top left when wider=0) and the odd squares to the top right
+(instead of the bottom right).
+
+Each loop is still 8 longer than the previous, since the widening is
+basically a constant amount added into each loop.
 
 =head2 Corners
 
-Other spirals can be formed by cutting the corners of the square to loop
-faster.
+Other spirals can be formed by cutting the corners of the square so as to go
+around faster.  See the following module,
 
     Corners Cut    Class
     -----------    -----
@@ -178,8 +347,7 @@ faster.
          3        PentSpiralSkewed
          4        DiamondSpiral
 
-And see the PyramidSpiral for a re-shaped SquareSpiral, looping at the same
-rate.
+The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.
 
 =head1 FUNCTIONS
 
@@ -187,7 +355,10 @@ rate.
 
 =item C<$path = Math::PlanePath::SquareSpiral-E<gt>new ()>
 
-Create and return a new square spiral object.
+=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (wider =E<gt> $w)>
+
+Create and return a new square spiral object.  An optional C<wider>
+parameter widens the spiral path, it defaults to 0 which is no widening.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

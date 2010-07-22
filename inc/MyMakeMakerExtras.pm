@@ -306,8 +306,7 @@ check-debug-constants:
 	if egrep -nH 'DEBUG => [1-9]|^[ \t]*use Smart::Comments' $(EXE_FILES) $(TO_INST_PM); then exit 1; else exit 0; fi
 
 check-spelling:
-	if egrep -nHi '[$][rd]elf|requrie|noticable|continous|existant|explict|agument|destionation|\bthe the\b|\bnote sure\b' -r . \
-	  | egrep -v '(MyMakeMakerExtras|Makefile|dist-deb).*grep -nH'; \
+	if find . -type f | egrep -v '(MyMakeMakerExtras|Makefile|dist-deb)' | xargs egrep --color=always -nHi '[$$][rd]elf|requrie|noticable|continous|existant|explict|agument|destionation|\bthe the\b|\bnote sure\b'; \
 	then false; else true; fi
 
 diff-prev:

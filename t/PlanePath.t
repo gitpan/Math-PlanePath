@@ -20,7 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 38873;
+use Test::More tests => 50171;
 
 use lib 't';
 use MyTestHelpers;
@@ -29,20 +29,20 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  SquareSpiral
+
+                  DiamondSpiral
                   PentSpiral
                   PentSpiralSkewed
-
-                  PyramidRows
-                  PyramidSides
-
-                  PyramidSpiral
-                  SquareSpiral
-                  DiamondSpiral
                   HexSpiral
                   HexSpiralSkewed
                   HeptSpiralSkewed
+                  PyramidSpiral
                   TriangleSpiral
                   TriangleSpiralSkewed
+
+                  PyramidRows
+                  PyramidSides
 
                   Rows
                   Columns
@@ -58,7 +58,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 4;
+my $want_version = 5;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -101,77 +101,88 @@ foreach my $module (@modules) {
     @steps = (0, 1, 2, 3, 4, 5);
   }
 
+  my @wider = (-1);
+  if ($class eq 'Math::PlanePath::SquareSpiral') {
+    @wider = (0, 1, 2, 3, 4, 5, 6, 7);
+  }
+
   foreach my $step (@steps) {
+    foreach my $wider (@wider) {
 
-    my $path = $class->new (width  => 20,
-                            height => 20,
-                            step   => $step);
-    my $name = $module;
-    if ($step >= 0) {
-      $name .= " step=$step";
-    }
-
-    my %saw_n_to_xy;
-    my $got_x_negative = 0;
-    my $got_y_negative = 0;
-    foreach my $n (1 .. 200) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ok (defined $x, "$name n=$n X defined");
-      ok (defined $y, "$name n=$n Y defined");
-
-      if ($x < 0) { $got_x_negative = 1; }
-      if ($y < 0) { $got_y_negative = 1; }
-
-      foreach my $coord ($x, $y) {
-        if (defined $coord) {
-          if (int($coord) != $coord) {
-            $coord = int ($coord * 10 + .5);
-            $coord = $coord.'e-1';
-          }
-        } else {
-          $coord = 'undef';
-        }
+      my $path = $class->new (width  => 20,
+                              height => 20,
+                              step   => $step,
+                              wider  => $wider);
+      my $name = $module;
+      if ($step >= 0) {
+        $name .= " step=$step";
       }
-      my $k = "$x,$y";
-      is ($saw_n_to_xy{$k}, undef, "$name n=$n k=$k");
-      $saw_n_to_xy{$k} = $n;
+      if ($wider >= 0) {
+        $name .= " wider=$wider";
+      }
 
-      my ($limit_lo, $limit_hi) = $path->rect_to_n_range
-        (0,0,
-         $x + ($x >= 0 ? .4 : -.4),
-         $y + ($y >= 0 ? .4 : -.4));
-      cmp_ok ($limit_lo, '<=', $n,
-              "$name rect_to_n_range() start n=$n k=$k, got $limit_lo");
-      cmp_ok ($limit_hi, '>=', $n,
-              "$name rect_to_n_range() stop n=$n k=$k, got $limit_hi");
-      is ($limit_lo, int($limit_lo),
-          "$name rect_to_n_range() start n=$n k=$k, got $limit_lo, integer");
-      is ($limit_hi, int($limit_hi),
-          "$name rect_to_n_range() stop n=$n k=$k, got $limit_hi, integer");
+      my %saw_n_to_xy;
+      my $got_x_negative = 0;
+      my $got_y_negative = 0;
+      foreach my $n (1 .. 200) {
+        my ($x, $y) = $path->n_to_xy ($n);
+        ok (defined $x, "$name n=$n X defined");
+        ok (defined $y, "$name n=$n Y defined");
 
-      # next if $name eq 'KnightSpiral';
-      my $rev_n = $path->xy_to_n ($x,$y);
-      is ($rev_n, $n, "$name xy_to_n() n=$n k=$k");
+        if ($x < 0) { $got_x_negative = 1; }
+        if ($y < 0) { $got_y_negative = 1; }
+
+        foreach my $coord ($x, $y) {
+          if (defined $coord) {
+            if (int($coord) != $coord) {
+              $coord = int ($coord * 10 + .5);
+              $coord = $coord.'e-1';
+            }
+          } else {
+            $coord = 'undef';
+          }
+        }
+        my $k = "$x,$y";
+        is ($saw_n_to_xy{$k}, undef, "$name n=$n k=$k");
+        $saw_n_to_xy{$k} = $n;
+
+        my ($limit_lo, $limit_hi) = $path->rect_to_n_range
+          (0,0,
+           $x + ($x >= 0 ? .4 : -.4),
+           $y + ($y >= 0 ? .4 : -.4));
+        cmp_ok ($limit_lo, '<=', $n,
+                "$name rect_to_n_range() start n=$n k=$k, got $limit_lo");
+        cmp_ok ($limit_hi, '>=', $n,
+                "$name rect_to_n_range() stop n=$n k=$k, got $limit_hi");
+        is ($limit_lo, int($limit_lo),
+            "$name rect_to_n_range() start n=$n k=$k, got $limit_lo, integer");
+        is ($limit_hi, int($limit_hi),
+            "$name rect_to_n_range() stop n=$n k=$k, got $limit_hi, integer");
+
+        # next if $name eq 'KnightSpiral';
+        my $rev_n = $path->xy_to_n ($x,$y);
+        is ($rev_n, $n, "$name xy_to_n() n=$n k=$k");
+      }
+
+      # various bogus values only have to return 0 or 2 values and not crash
+      foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
+                     0, 0.4, 0.5, 0.6) {
+        my @xy = $path->n_to_xy ($n);
+        ok (@xy == 0 || @xy == 2,
+            "$name no crash on n=$n");
+      }
+
+      foreach my $x (-100, -99) {
+        my @n = $path->xy_to_n ($x,-1);
+        is (scalar(@n), 1,
+            "$name xy_to_n() return one value, not an empty list, x=$x,y=-1");
+      }
+
+      is (!!$path->x_negative, !!$got_x_negative,
+          "$name x_negative()");
+      is (!!$path->y_negative, !!$got_y_negative,
+          "$name y_negative()");
     }
-
-    # various bogus values only have to return 0 or 2 values and not crash
-    foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
-                   0, 0.4, 0.5, 0.6) {
-      my @xy = $path->n_to_xy ($n);
-      ok (@xy == 0 || @xy == 2,
-          "$name no crash on n=$n");
-    }
-
-    foreach my $x (-100, -99) {
-      my @n = $path->xy_to_n ($x,-1);
-      is (scalar(@n), 1,
-          "$name xy_to_n() return one value, not an empty list, x=$x,y=-1");
-    }
-
-    is (!!$path->x_negative, !!$got_x_negative,
-        "$name x_negative()");
-    is (!!$path->y_negative, !!$got_y_negative,
-        "$name y_negative()");
   }
 }
 

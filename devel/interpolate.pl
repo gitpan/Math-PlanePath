@@ -48,9 +48,17 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [  4,5,6,7 ],
-                [24,38,55,75]
-  
+#                 [ 1 ,  2,  3 ],
+#                 [ 1, 9, 25 ]
+
+#                 [ 1 ,  2,  3 ],
+#                 [ 3,  15,  35 ]
+
+                # [ 1,   2,   3,   4,   5,   6 ],
+                # [ 1,   3,   9,  15,  25,  35 ]
+
+                [ 1,   2,   3,    ],
+[ 5, 19, 41 ]
                );
 
 sub bigrat_to_decimal {
@@ -94,7 +102,8 @@ sub my_interpolate {
   my $p = Math::Polynomial->new(Math::BigRat->new(0));
   $p = $p->interpolate($xarray, $valarray);
 
-  $p->string_config({ fold_sign => 1 });
+  $p->string_config({ fold_sign => 1,
+                      variable  => 'd' });
   print "N = $p\n";
 
   $p->string_config({ my_string_config() });
@@ -132,7 +141,7 @@ sub my_interpolate {
     }
     return ($x + sqrt($root));
   };
-  for (my $i = 0; $i < 20; $i += 0.5) {
+  for (my $i = 0; $i < 100; $i += 0.5) {
     printf "%4s  s=%s\n", $i, $n_to_s->($i);
   }
   exit 0;
