@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 5;
+$VERSION = 6;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -259,11 +259,49 @@ In general a constant offset c from S(k) is a column and the simple
 factorization above using the roots of the quadratic S(k)-c = (3/2)*k^2 +
 S<(1/2)*k - c> is possible whenever 24*c+1 is a perfect square.  This means
 the further columns S(k)-5, S(k)-7, S(k)-12, etc have no primes either.  The
-S(k), S(k)-1, S(k)-2 ones are the most prominent because they're adjacent.
-There's no other adjacent columns of this type because the squares become
-too far apart for successive 24*c+1.  Of course there could be many other
-reasons for other columns to be prime-free or nearly so or above a certain
-point, etc.
+S(k), S(k)-1, S(k)-2 ones are prominent because they're adjacent.  There's
+no other adjacent columns of this type because the squares become too far
+apart for successive 24*c+1.  Of course there could be lots of other reasons
+for other columns to have many or few primes or above a certain point, etc.
+
+=cut
+
+# (3/2)*k^2 + (1/2)*k - c
+# roots (-1/2 +/- sqrt ((1/2)^2 - 4*(3/2)*-c)) / (2*(3/2))
+#     = (-1/2 +/- sqrt (1/4 + (12/2)*c)) / 3
+#     = -1/6 +/- sqrt (1/4 + (12/2)*c)/3
+#     = -1/6 +/- sqrt (1/4 + 6*c)/3
+#     = -1/6 +/- sqrt (1/4 + 6*c)*2/6
+#     = -1/6 +/- sqrt (4*(1/4 + 6*c))/6
+#     = -1/6 +/- sqrt(1 + 24c)/6
+#     must have 1+24c a perfect square to factorize by roots
+#
+# i   i^2   i^2 mod 24
+#  0    0    0
+#  1    1    1          1+0*24
+#  2    4    4
+#  3    9    9
+#  4   16   16
+#  5   25    1          1+1*24
+#  6   36   12
+#  7   49    1          1+2*24
+#  8   64   16
+#  9   81    9
+# 10  100    4
+# 11  121    1          1+5*24
+# 12  144    0
+# 13  169    1          1+7*24
+# 14  196    4
+# 15  225    9
+# 16  256   16
+# 17  289    1          1+12*24
+# 18  324   12
+# 19  361    1          1+15*24
+# 20  400   16
+# 21  441    9
+# 22  484    4
+# 23  529    1          1+22*24
+#
 
 =head1 FUNCTIONS
 

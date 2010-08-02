@@ -1,19 +1,19 @@
 # Copyright 2010 Kevin Ryde
 
-# This file is part of Math-Image.
+# This file is part of Math-PlanePath.
 #
-# Math-Image is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 3, or (at your option) any later
+# Math-PlanePath is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Math-Image is distributed in the hope that it will be useful, but
+# Math-PlanePath is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 package Math::PlanePath;
@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 5;
+$VERSION = 6;
 
 # defaults
 use constant x_negative => 1;
@@ -64,6 +64,7 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     HeptSpiralSkewed       seven-sided spiral, compact
     SacksSpiral            quadratic on an Archimedean spiral
     VogelFloret            seeds in a sunflower
+    TheodorusSpiral        unit steps at right angles
     KnightSpiral           an infinite knight's tour
 
     Rows                   fixed-width rows
@@ -96,30 +97,31 @@ The paths can be characterized by how much longer each loop or repetition is
 than the preceding one.  For example each cycle around the SquareSpiral is 8
 longer than the preceding.
 
-    Step     Path(s)
-    ----     -------
-      0    Rows, Columns (fixed widths)
-      1    Diagonals
-      2    SacksSpiral, PyramidSides, Corner
-      2    PyramidRows (default step parameter)
-      4    DiamondSpiral
-      5    PentSpiralSkewed
-      6    HexSpiral, HexSpiralSkewed
-      7    HeptSpiralSkewed
-      8    SquareSpiral, PyramidSpiral
-      9    TriangleSpiral, TriangleSpiralSkewed
-     32    KnightSpiral (counting the 2-wide trip as the reps)
+    Step      Path
+    ----      ----
+      0     Rows, Columns (fixed widths)
+      1     Diagonals
+      2     SacksSpiral, PyramidSides, Corner
+      2     PyramidRows (default step parameter)
+      4     DiamondSpiral
+      5     PentSpiralSkewed
+      6     HexSpiral, HexSpiralSkewed
+      7     HeptSpiralSkewed
+      8     SquareSpiral, PyramidSpiral
+      9     TriangleSpiral, TriangleSpiralSkewed
+     19.74  TheodorusSpiral (approaches 2*pi^2)
+     32     KnightSpiral (counting the 2-wide loop)
 
 The step determines which quadratic number sequences fall on straight lines.
 For example the gap between successive perfect squares increases by 2 each
-time (4 add 5 to get 9, then add 7 to 16, then add 9 to 25, etc), so the
-perfect squares make a straight line in the paths of step 2.
+time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
+squares make a straight line in the paths of step 2.
 
 A factor of 4 splits a straight line into two, so for example on the
 SquareSpiral of step 8 the perfect squares fall on two lines to the lower
 left and upper right.  Effectively it's one line of the even squares (2k)^2
 == 4*k^2 and another of the odd squares (2k+1)^2 == 4*k^2+4*k+1.  The gap
-between successive even squares increases by 8 each time, and likewise the
+between successive even squares increases by 8 each time and likewise the
 odd squares.
 
 =head1 FUNCTIONS
@@ -213,6 +215,7 @@ L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>,
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
+L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::KnightSpiral>
 
 L<Math::PlanePath::Rows>,

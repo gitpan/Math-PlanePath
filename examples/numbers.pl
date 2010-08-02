@@ -2,20 +2,20 @@
 
 # Copyright 2010 Kevin Ryde
 
-# This file is part of Math-Image.
+# This file is part of Math-PlanePath.
 #
-# Math-Image is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 3, or (at your option) any later
+# Math-PlanePath is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Math-Image is distributed in the hope that it will be useful, but
+# Math-PlanePath is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # Usage: perl numbers.pl [CLASS]
@@ -126,7 +126,7 @@ sub print_class {
     my ($x, $y) = $path->n_to_xy ($n);
 
     # stretch these out for better resolution
-    if ($class =~ /Vogel|Sacks/) { $y *= 2; }
+    if ($class =~ /Vogel|Sacks|Archimedean/) { $y *= 2; }
 
     # nearest integers
     $x = POSIX::floor ($x + 0.5);

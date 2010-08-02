@@ -26,7 +26,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 5;
+$VERSION = 6;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -285,8 +285,8 @@ on similar diagonals to the upper right and lower left.
 
 This path is well known from Stanislaw Ulam finding interesting straight
 lines plotting the prime numbers on it.  See F<examples/ulam-spiral-xpm.pl>
-in the sources for a program generating that, or the C<math-image> program
-using this SquareSpiral to draw Ulam's pattern and more.
+in the sources for a program generating that, or see L<math-image> using
+this SquareSpiral to draw Ulam's pattern and more.
 
 In general straight lines in this spiral and other stepped paths (meaning
 everything except the VogelFloret currently) are quadratics a*k^2+b*k+c,

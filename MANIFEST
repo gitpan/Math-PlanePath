@@ -10,6 +10,8 @@ debian/source/format
 debian/watch
 devel/grid.pl
 devel/interpolate.pl
+devel/theodorus.pl
+devel/unused.pl
 devel/vertical.pl
 devel/vogel.pl
 examples/knights-sloane.pl
@@ -36,6 +38,7 @@ lib/Math/PlanePath/PyramidSpiral.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
 lib/Math/PlanePath/SquareSpiral.pm
+lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
 lib/Math/PlanePath/VogelFloret.pm

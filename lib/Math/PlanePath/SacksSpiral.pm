@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 5;
+$VERSION = 6;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -109,7 +109,8 @@ right.  Read more at
 
     http://www.numberspiral.com
 
-The polar coordinates are
+An Archimedean spiral means each loop is a constant distance from the
+preceding, in this case 1 unit.  The polar coordinates are
 
     R = sqrt(N)
     theta = sqrt(N) * 2pi
@@ -134,14 +135,19 @@ the right axis at X=0,1,2,3,etc.  Those perfect squares are spaced 1 apart,
 other pointer are a little further apart.
 
 The arms going to the right like 5,10,17,etc or 8,15,24,etc are constant
-offsets from the perfect squares, ie. s**2 + c for a positive or negative
-integer c.  The central arm 2,6,12,20,etc going left is the pronic numbers
-s**2 + s, half way between the successive perfect squares.  Other arms going
-to the left are offsets from that, ie. s**2 + s + c for integer c.
+offsets from the perfect squares, ie. s^2 + c for a positive or negative
+integer c.  To the left the central arm 2,6,12,20,etc is the pronic numbers
+s^2 + s, half way between the successive perfect squares.  Other arms going
+to the left are offsets from that, ie. s^2 + s + c for integer c.
 
-Plotting quadratic sequences in the points can form attractive patterns.
-For example the triangular numbers (s**2 + s)/2 come out as spiral arms
-going clockwise and counter-clockwise.
+Euler's quadratic s^2+s+41 is one such arm going left.  Low values loop
+around a few times before straightening out at about y=-127.  This quadratic
+has relatively many primes and in a plot of the primes on the spiral it can
+be seen standing out from its surrounds.
+
+Plotting various quadratic sequences of points can form attractive patterns.
+For example the triangular numbers s*(s+1)/2 come out as spiral arcs going
+clockwise and counter-clockwise.
 
 =head1 FUNCTIONS
 

@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 5;
+$VERSION = 6;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -419,7 +419,7 @@ page (quarter way down under "Open Knight's Tour"),
 
     http://www.borderschess.org/KTart.htm
 
-See the C<math-image> program to draw the path lines too.  Or
+See L<math-image> to draw the path lines too.  Or
 F<examples/knights-sloane.pl> expressing the knight's tour by the numbering
 of the SquareSpiral (Sloane's sequence A068608).
 
