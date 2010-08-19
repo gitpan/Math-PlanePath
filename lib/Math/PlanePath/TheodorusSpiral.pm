@@ -27,7 +27,7 @@ use Math::Trig 'pi';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 6;
+$VERSION = 7;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -42,8 +42,12 @@ use constant figure => 'circle';
 # 
 # The simplest formulas for the polar angle, possibly with the analytic
 # continuation version don't seem much better, but theta approaches
-# 2*sqrt(N) + const, or 2*sqrt(N)+1/(6*sqrt(N+1))+const+O(n^(3/2)), so more
-# terms of that might have tolerably rapid convergence.
+# 2*sqrt(N) + const, or 2*sqrt(N) + 1/(6*sqrt(N+1)) + const + O(n^(3/2)), so
+# more terms of that might have tolerably rapid convergence.
+#
+# The arctan sums for the polar angle end up as the generalized Riemann
+# zeta, or the generalized minus the plain.  Is there a good formula for
+# that which would converge quickly?
 
 use constant _SAVE => 1000;
 
@@ -151,7 +155,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Theodorus Ryde Math-PlanePath Archimedean ArchimedeanSpiral
+=for stopwords Theodorus Ryde Math-PlanePath Archimedean
 
 =head1 NAME
 
@@ -166,7 +170,7 @@ Math::PlanePath::TheodorusSpiral -- right-angle unit step spiral
 =head1 DESCRIPTION
 
 This path puts points on the spiral of Theodorus, also called the square
-root spiral.  The points are roughly
+root spiral.
 
 
                                    61                 6
@@ -234,6 +238,11 @@ line up but then spiral away.
 
 =head1 FUNCTIONS
 
+The code is currently implemented by adding up unit steps in X,Y
+coordinates, so it's not particularly fast.  The last X,Y is saved in the
+object anticipating successively higher N (not necessarily consecutive),
+plus past positions 1000 apart ready for re-use or to go back to.
+
 =over 4
 
 =item C<$path = Math::PlanePath::TheodorusSpiral-E<gt>new ()>
@@ -268,8 +277,8 @@ one of the unit circles then the return is C<undef>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::ArchimedeanSpiral>,
-L<Math::PlanePath::SacksSpiral>
+L<Math::PlanePath::SacksSpiral>,
+L<Math::PlanePath::MultipleRings>
 
 =head1 HOME PAGE
 

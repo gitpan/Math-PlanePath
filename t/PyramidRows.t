@@ -20,13 +20,13 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 11;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::SacksSpiral;
+require Math::PlanePath::PyramidRows;
 
 
 #------------------------------------------------------------------------------
@@ -34,16 +34,16 @@ require Math::PlanePath::SacksSpiral;
 
 {
   my $want_version = 7;
-  is ($Math::PlanePath::SacksSpiral::VERSION, $want_version, 'VERSION variable');
-  is (Math::PlanePath::SacksSpiral->VERSION,  $want_version, 'VERSION class method');
+  is ($Math::PlanePath::PyramidRows::VERSION, $want_version, 'VERSION variable');
+  is (Math::PlanePath::PyramidRows->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { Math::PlanePath::SacksSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::PyramidRows->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::SacksSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::PyramidRows->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::SacksSpiral->new;
+  my $path = Math::PlanePath::PyramidRows->new;
   is ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -53,20 +53,19 @@ require Math::PlanePath::SacksSpiral;
 }
 
 #------------------------------------------------------------------------------
-# xy_to_n
+# rect_to_n_range()
 
 {
-  my @data = ([ 0,0,  [0] ],
-              [ 0.001,0.001,  [0] ],
-              [ -0.001,0.001,  [0] ],
-              [ 0.001,-0.001,  [0] ],
-              [ -0.001,-0.001,  [0] ],
-             );
-  my $path = Math::PlanePath::SacksSpiral->new;
-  foreach my $elem (@data) {
-    my ($x, $y, $want_n_aref) = @$elem;
-    my @got_n = $path->xy_to_n ($x,$y);
-    is_deeply (\@got_n, $want_n_aref, "xy_to_n x=$x y=$y");
+  foreach my $elem ([2,      0,0, 0,0,  1,1],
+                    [undef,  0,1, 0,1,  2,4],
+                   ) {
+    my ($step, $x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
+    my $path = Math::PlanePath::PyramidRows->new (step => $step);
+    my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    is ($got_lo, $want_lo,
+        "lo on $x1,$y1 $x2,$y2 step=".(defined $step ? $step : 'undef'));
+    is ($got_hi, $want_hi,
+        "hi on $x1,$y1 $x2,$y2 step=".(defined $step ? $step : 'undef'));
   }
 }
 

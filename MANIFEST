@@ -30,6 +30,7 @@ lib/Math/PlanePath/HeptSpiralSkewed.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm
 lib/Math/PlanePath/KnightSpiral.pm
+lib/Math/PlanePath/MultipleRings.pm
 lib/Math/PlanePath/PentSpiral.pm
 lib/Math/PlanePath/PentSpiralSkewed.pm
 lib/Math/PlanePath/PyramidRows.pm
@@ -51,12 +52,15 @@ t/0-Test-DistManifest.t
 t/0-Test-Pod.t
 t/0-Test-Synopsis.t
 t/0-Test-YAML-Meta.t
+t/Columns.t
 t/Diagonals.t
 t/DiamondSpiral.t
 t/HexSpiralSkewed.t
 t/KnightSpiral.t
 t/MyTestHelpers.pm
 t/PlanePath.t
+t/PyramidRows.t
+t/Rows.t
 t/SacksSpiral.t
 t/SquareSpiral.t
 META.yml                                 Module meta-data (added by MakeMaker)

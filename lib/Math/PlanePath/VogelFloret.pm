@@ -27,12 +27,16 @@ use Math::Trig 'pi';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 6;
+$VERSION = 7;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Smart::Comments '####';
 
+
+# http://artemis.wszib.edu.pl/~sloot/2_1.html
+# http://www.csse.monash.edu.au/publications/2003/tr-2003-149-full.pdf
+# 
 
 # n=1   r=sqrt(1) = 1
 #       t=1/phi^2 = 0.38 around
@@ -75,18 +79,30 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   my $r = hypot ($x, $y) * (1 / FACTOR);
 
-  # Slack approach just trying all the N values between r-.5 and r+.5, which
-  # is about 2*$r many.
+  # Slack approach just trying all the N values between r-.5 and r+.5.
   #
   # The target N is a short distance from an integer multiple, less theta,
   # of PHI*PHI.  What's an easy way to find the first integer N >= (r-.5)**2
   # satisfying -small <= N mod 2.618034 <= +small ?
-  # 
-  foreach my $n (reverse POSIX::ceil((max(0,$r-.5))**2)
-                 .. POSIX::floor(($r+.5)**2)) {
+  #
+  # r = sqrt(n)*FACTOR
+  # n = (r*(1/FACTOR))^2
+  #
+  {
+    my $lo = POSIX::floor((max(0,$r-1))**2);
+    my $hi = POSIX::ceil(($r+1)**2);
+    #### xy: "$x,$y"
+    #### $r
+    #### $lo
+    #### $hi
+  }
+
+  foreach my $n (reverse POSIX::floor((max(0,$r-.6))**2)
+                 .. POSIX::ceil(($r+.6)**2)) {
     my ($nx, $ny) = $self->n_to_xy($n);
     ### hypot: "$n ".hypot($nx-$x,$ny-$y)
     if (hypot($nx-$x,$ny-$y) <= 0.5) {
+      #### found: $n
       return $n;
     }
   }

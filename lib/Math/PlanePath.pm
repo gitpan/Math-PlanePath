@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 6;
+$VERSION = 7;
 
 # defaults
 use constant x_negative => 1;
@@ -54,18 +54,20 @@ This is the base class for some mathematical paths which turn an integer
 position C<$n> into coordinates C<$x,$y>.  The current classes include
 
     SquareSpiral           four-sided spiral
-    DiamondSpiral          four-sided spiral, looping faster
     PyramidSpiral          square base pyramid
     TriangleSpiral         equilateral triangle
     TriangleSpiralSkewed   equilateral skewed for compactness
+    DiamondSpiral          four-sided spiral, looping faster
     PentSpiralSkewed       five-sided spiral, compact
     HexSpiral              six-sided spiral
     HexSpiralSkewed        six-sided spiral skewed for compactness
     HeptSpiralSkewed       seven-sided spiral, compact
+    KnightSpiral           an infinite knight's tour
+
     SacksSpiral            quadratic on an Archimedean spiral
     VogelFloret            seeds in a sunflower
     TheodorusSpiral        unit steps at right angles
-    KnightSpiral           an infinite knight's tour
+    MultipleRings          concentric circles
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
@@ -97,20 +99,20 @@ The paths can be characterized by how much longer each loop or repetition is
 than the preceding one.  For example each cycle around the SquareSpiral is 8
 longer than the preceding.
 
-    Step      Path
-    ----      ----
-      0     Rows, Columns (fixed widths)
-      1     Diagonals
-      2     SacksSpiral, PyramidSides, Corner
-      2     PyramidRows (default step parameter)
-      4     DiamondSpiral
-      5     PentSpiralSkewed
-      6     HexSpiral, HexSpiralSkewed
-      7     HeptSpiralSkewed
-      8     SquareSpiral, PyramidSpiral
-      9     TriangleSpiral, TriangleSpiralSkewed
-     19.74  TheodorusSpiral (approaches 2*pi^2)
-     32     KnightSpiral (counting the 2-wide loop)
+    Step       Path
+    ----       ----
+      0      Rows, Columns (fixed widths)
+      1      Diagonals
+      2      SacksSpiral, PyramidSides, Corner, PyramidRows (default)
+      4      DiamondSpiral
+      5      PentSpiralSkewed
+      6      HexSpiral, HexSpiralSkewed
+      7      HeptSpiralSkewed
+      8      SquareSpiral, PyramidSpiral
+      9      TriangleSpiral, TriangleSpiralSkewed
+     19.74   TheodorusSpiral (approaches 2*pi^2)
+     32      KnightSpiral (counting the 2-wide loop)
+     any     MultipleRings, PyramidRows
 
 The step determines which quadratic number sequences fall on straight lines.
 For example the gap between successive perfect squares increases by 2 each
@@ -174,11 +176,11 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive, so for instance
          print "$n  $x,$y";
      }
 
-Note the return may be an over-estimate, and of course some of the points
-between C<$n_lo> and C<$n_hi> may go outside the rectangle.  C<$n_hi> is
-usually no more than an extra partial row or revolution.  C<$n_lo> is often
-just the starting point 1, which is correct if you always want the origin
-0,0, but a rectangle away from the origin could start higher.
+The return may be an over-estimate of the range, and of course some of the
+points between C<$n_lo> and C<$n_hi> may go outside the rectangle.  C<$n_hi>
+is usually no more than an extra partial row or revolution.  C<$n_lo> is
+often just the starting point 1, which is correct if you always want the
+origin 0,0, but a rectangle away from the origin might start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
 some N figures then those N's are included in the return.  If there's no
@@ -195,7 +197,7 @@ Y coordinates respectively.
 =item C<$str = $path-E<gt>figure>
 
 Return the name of the figure (shape) intended to be drawn at each C<$n>
-position.  Currently this is one of
+position.  This is a string name, currently either
 
     square         side 1 centred on $x,$y
     circle         diameter 1 centred on $x,$y
@@ -208,15 +210,20 @@ itself.  A figure like a diamond for instance would work well too.
 =head1 SEE ALSO
 
 L<Math::PlanePath::SquareSpiral>,
+L<Math::PlanePath::PyramidSpiral>,
+L<Math::PlanePath::TriangleSpiral>,
+L<Math::PlanePath::TriangleSpiralSkewed>,
 L<Math::PlanePath::DiamondSpiral>,
 L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>,
+L<Math::PlanePath::KnightSpiral>
+
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
-L<Math::PlanePath::KnightSpiral>
+L<Math::PlanePath::MultipleRings>,
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,

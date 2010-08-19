@@ -20,7 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
-use Test::More tests => 164;
+use Test::More tests => 172;
 
 use lib 't';
 use MyTestHelpers;
@@ -28,37 +28,39 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath;
 
-my @modules = qw(TheodorusSpiral
+my @modules = qw(
+                  MultipleRings
+                  VogelFloret
 
-                 SquareSpiral
-                 DiamondSpiral
-                 PentSpiral
-                 PentSpiralSkewed
-                 HexSpiral
-                 HexSpiralSkewed
-                 HeptSpiralSkewed
-                 PyramidSpiral
-                 TriangleSpiral
-                 TriangleSpiralSkewed
+                  SquareSpiral
+                  DiamondSpiral
+                  PentSpiral
+                  PentSpiralSkewed
+                  HexSpiral
+                  HexSpiralSkewed
+                  HeptSpiralSkewed
+                  PyramidSpiral
+                  TriangleSpiral
+                  TriangleSpiralSkewed
 
-                 PyramidRows
-                 PyramidSides
+                  PyramidRows
+                  PyramidSides
 
-                 Rows
-                 Columns
-                 Diagonals
-                 Corner
+                  Rows
+                  Columns
+                  Diagonals
+                  Corner
 
-                 SacksSpiral
-                 VogelFloret
-                 KnightSpiral
+                  SacksSpiral
+                  TheodorusSpiral
+                  KnightSpiral
                );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 6;
+my $want_version = 7;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -100,6 +102,9 @@ foreach my $module (@modules) {
   if ($class eq 'Math::PlanePath::PyramidRows') {
     @steps = (0, 1, 2, 3, 4, 5);
   }
+  if ($class eq 'Math::PlanePath::MultipleRows') {
+    @steps = (0, 1, 2, 3, 6, 7, 8, 21);
+  }
 
   my @wider = (-1);
   if ($class eq 'Math::PlanePath::SquareSpiral') {
@@ -120,6 +125,8 @@ foreach my $module (@modules) {
     diag $name, ' ', @_;
     $good = 0;
   };
+  my $limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 1000;
+  diag "test limit $limit";
 
   foreach $step (@steps) {
     foreach $wider (@wider) {
@@ -132,7 +139,7 @@ foreach my $module (@modules) {
       my %saw_n_to_xy;
       my $got_x_negative = 0;
       my $got_y_negative = 0;
-      foreach my $n (1 .. 10000) {
+      foreach my $n (1 .. 5000) {
         my ($x, $y) = $path->n_to_xy ($n);
         defined $x or &$report("n_to_xy($n) X undef");
         defined $y or &$report("n_to_xy($n) Y undef");
@@ -140,17 +147,7 @@ foreach my $module (@modules) {
         if ($x < 0) { $got_x_negative = 1; }
         if ($y < 0) { $got_y_negative = 1; }
 
-        foreach my $coord ($x, $y) {
-          if (defined $coord) {
-            if (int($coord) != $coord) {
-              $coord = int ($coord * 10 + .5);
-              $coord = $coord.'e-1';
-            }
-          } else {
-            $coord = 'undef';
-          }
-        }
-        my $k = "$x,$y";
+        my $k = sprintf '%.3f,%.3f', $x,$y;
         if ($saw_n_to_xy{$k}) {
           &$report ("n_to_xy($n) duplicate k=$k");
         }
@@ -170,9 +167,14 @@ foreach my $module (@modules) {
           or &$report ("rect_to_n_range() stop n=$n k=$k, got $limit_hi, integer");
 
         # next if $name eq 'KnightSpiral';
-        my $rev_n = $path->xy_to_n ($x,$y);
-        defined $rev_n && $n == $rev_n
-          or &$report ("xy_to_n() n=$n k=$k got $rev_n");
+
+        foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
+          foreach my $y_offset (0, -0.2) { # bit slow: , 0.2) {
+            my $rev_n = $path->xy_to_n ($x + $x_offset, $y + $y_offset);
+            defined $rev_n && $n == $rev_n
+              or &$report ("xy_to_n() n=$n k=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
+          }
+        }
       }
 
       # various bogus values only have to return 0 or 2 values and not crash
@@ -181,6 +183,14 @@ foreach my $module (@modules) {
         my @xy = $path->n_to_xy ($n);
         (@xy == 0 || @xy == 2)
           or &$report ("n_to_xy() n=$n got ",scalar(@xy)," values");
+      }
+
+      foreach my $elem ([-1,-1, -1,-1],
+                       ) {
+        my ($x1,$y1,$x2,$y2) = @$elem;
+        my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+        (defined $got_lo && defined $got_hi)
+          or &$report ("rect_to_n_range() x1=$x1,y1=$y1, x2=$x2,y2=$y2 undefs");
       }
 
       foreach my $x (-100, -99) {

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Math-PlanePath
-version:            6
+version:            7
 abstract:           Mathematical paths through the 2-D plane.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -37,6 +37,7 @@ optional_features:
             Math::Polynomial:   1
             Pod::Simple::HTML:  0
             Smart::Comments:    0
+            warnings::unused:   0
     maximum_tests:
         description:  Have "make test" do as much as possible.
         requires:

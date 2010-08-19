@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 6;
+$VERSION = 7;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -39,8 +39,16 @@ sub x_negative {
 use constant y_negative => 0;
 
 sub new {
-  return shift->SUPER::new (step => 2, # default
-                            @_);
+  my $class = shift;
+  ### PyramidRows new(): @_
+  my $self = $class->SUPER::new (@_);
+
+  my $step = $self->{'step'};
+  $step = $self->{'step'} =
+    (! defined $step ? 2 # default
+     : $step < 0     ? 0 # minimum
+     : $step);
+  return $self;
 }
 
 # step==2 row line beginning at x=-0.5,
@@ -120,6 +128,7 @@ sub xy_to_n {
 
 # left N   = ($step * $d*$d - ($step-2)*$d + 1) / 2
 # plus .5  = ($step * $d*$d - ($step-2)*$d) / 2 + 1
+#          = (($step * $d - ($step-2))*$d) / 2 + 1
 #
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -133,9 +142,11 @@ sub rect_to_n_range {
   my $step = $self->{'step'};
   my $row_min = max(0, min($y1,$y2));
   my $row_max = max(0, max($y1,$y2)) + 1;
+  ### $row_min
+  ### $row_max
 
-  return ((($step * $row_min - ($step-2))*$row_min) / 2 - 1,
-          (($step * $row_max - ($step-2))*$row_max) / 2 + 1);
+  return ((($step * $row_min - ($step-2))*$row_min) / 2 + 1,
+          (($step * $row_max - ($step-2))*$row_max) / 2);  # -1 end prev
 }
 
 1;
@@ -335,6 +346,7 @@ L<Math::PlanePath>,
 L<Math::PlanePath::PyramidSides>,
 L<Math::PlanePath::Corner>,
 L<Math::PlanePath::SacksSpiral>
+L<Math::PlanePath::MultipleRings>
 
 L<Math::PlanePath::Diagonals>,
 L<Math::PlanePath::Rows>

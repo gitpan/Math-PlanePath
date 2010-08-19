@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 6;
+$VERSION = 7;
 @ISA = ('Math::PlanePath');
 
 use constant x_negative => 0;
@@ -34,6 +34,9 @@ use constant y_negative => 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
+
+  # no division by zero, and negatives not meaningful for now
+  return if $self->{'height'} <= 0;
 
   # column x=0 starts at n=0.5 with y=-0.5
   #
@@ -60,9 +63,27 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $x = floor (max($x1,$x2) + 0.5);
-  return (1,
-          ($x+1) * $self->{'height'});
+  my $height = $self->{'height'};
+
+  $y1 = floor ($y1 + 0.5);
+  $y2 = floor ($y2 + 0.5);
+  if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
+
+  if ($y1 >= $height || $y2 < 0) {
+    ### completely outside 0 to height-1
+    return (1,0);
+  }
+
+  $x1 = floor ($x1 + 0.5);
+  $x2 = floor ($x2 + 0.5);
+  if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
+
+  $y1 = max($y1,0);
+  $y2 = min($y2,$height-1);
+
+  # exact range bottom left to top right
+  return ($self->xy_to_n ($x1,$y1),
+          $self->xy_to_n ($x2,$y2));
 }
 
 1;

@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 6;
+$VERSION = 7;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -67,9 +67,27 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $y = floor (max($y1,$y2) + 0.5);
-  return (1,
-          ($y+1) * $self->{'width'});
+  my $width = $self->{'width'};
+
+  $x1 = floor ($x1 + 0.5);
+  $x2 = floor ($x2 + 0.5);
+  if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
+
+  if ($x1 >= $width || $x2 < 0) {
+    ### completely outside 0 to width-1
+    return (1,0);
+  }
+
+  $y1 = floor ($y1 + 0.5);
+  $y2 = floor ($y2 + 0.5);
+  if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
+
+  $x1 = max($x1,0);
+  $x2 = min($x2,$width-1);
+
+  # exact range bottom left to top right
+  return ($self->xy_to_n ($x1,$y1),
+          $self->xy_to_n ($x2,$y2));
 }
 
 1;
