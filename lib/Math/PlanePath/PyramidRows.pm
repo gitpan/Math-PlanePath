@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 7;
+$VERSION = 8;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -241,22 +241,31 @@ in the code as such.
 
 =head2 Step 3 Pentagonals
 
-For step 3 the pentagonal numbers 1,5,12,22,etc, (3k-1)*k/2, are at the
-rightmost end of each row.  The "second pentagonal numbers" 2,7,15,26, S(k)
-= (3k+1)*k/2 are the vertical at x=-1.  (Those second numbers are obtained
-by taking negative k in the plain pentagonal (3k-1)*k/2, and the two
-together are the "generalized pentagonal numbers".)
+For step 3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are at
+the rightmost end of each row.  The second pentagonal numbers 2,7,15,26,
+S(k) = (3k+1)*k/2 are the vertical at x=-1.  Those second numbers are
+obtained by taking negative k, and the two together are the "generalized
+pentagonal numbers".
 
-The second pentagonals are not prime beyond 7 since they're (3k+1)*k/2 with
-the denominator 2 dividing into one or the other part.  Numbers S(k)-1
-immediately to the left are never prime either since S(k)-1 =
-(3*k-2)(k+1)/2.  Likewise S(k)-2 = (3*k+4)(k-1)/2 beyond 13.  If you plot
-the primes on a step 3 PyramidRows then these sequences make a 3-wide
-vertical gap at x=-1,-2,-3 where there's no primes.
+Both these are composites from 12 and 15 onwards (respectively), as in fact
+are the preceding values P(k)-1, P(k)-2, S(k)-1 and S(k)-2, factorizing
+simply as
 
-               no primes in these three columns
-               except the low values 2,7,13
-               |  |  |
+    P(k)   = (3*k-1)*k/2
+    P(k)-1 = (3*k+2)*(k-1)/2
+    P(k)-2 = (3*k-4)*(k-1)/2
+    S(k)   = (3*k+1)*k/2
+    S(k)-1 = (3*k-2)*(k+1)/2
+    S(k)-2 = (3*k+4)*(k-1)/2
+
+If you plot the primes on a step 3 PyramidRows then theses second pentagonal
+sequences make a 3-wide vertical gap at x=-1,-2,-3 where there's no
+primes. and the plain pentagonal sequences make the endmost three of each
+row non-prime.  The vertical is much more noticeable in the plot.
+
+       no primes these three columns         no primes these end three
+         except the low 2,7,13                     except low 5,11
+               |  |  |                                /  /  /
      52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70
         36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
            23 24 25 26 27 28 29 30 31 32 33 34 35
@@ -266,14 +275,18 @@ vertical gap at x=-1,-2,-3 where there's no primes.
                         1
      -6 -5 -4 -3 -2 -1 x=0 1  2  3  4 ...
 
-In general a constant offset c from S(k) is a column and the simple
-factorization above using the roots of the quadratic S(k)-c = (3/2)*k^2 +
-S<(1/2)*k - c> is possible whenever 24*c+1 is a perfect square.  This means
-the further columns S(k)-5, S(k)-7, S(k)-12, etc have no primes either.  The
-S(k), S(k)-1, S(k)-2 ones are prominent because they're adjacent.  There's
-no other adjacent columns of this type because the squares become too far
-apart for successive 24*c+1.  Of course there could be lots of other reasons
-for other columns to have many or few primes or above a certain point, etc.
+In general an offset P(k)-c or S(k)-c will factorize like above using the
+roots of the quadratic
+
+In general a constant offset c from S(k) is a column and from P(k) a
+diagonal going 2 to the rigth each time.  The simple factorizations above
+using the roots of the quadratic for P(k)-c or S(k)-c is possible whenever
+24*c+1 is a perfect square.  This means the further columns S(k)-5, S(k)-7,
+S(k)-12, etc have no primes either.  The S(k), S(k)-1, S(k)-2 columns are
+prominent because they're adjacent but there's no other adjacent ones of
+this type because the squares become too far apart for successive 24*c+1.
+Of course there could be lots of other reasons for other columns or
+diagonals to have few or many primes or above a certain point, etc.
 
 =cut
 

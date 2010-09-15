@@ -21,7 +21,8 @@
 # Usage: perl numbers.pl [CLASS]
 #        perl numbers.pl all
 #
-# Print the given path class in a grid, or with "all" print all classes.
+# Print the given path class in a grid, or with option "all" print all
+# classes.
 #
 # See square-numbers.pl for a simpler program designed just for the
 # SquareSpiral.  The code here tries to adapt itself to the tty width and
@@ -29,8 +30,8 @@
 # the tty.
 #
 # The origin 0,0 is kept in the middle of the display, horizontally, to help
-# see how much is on each side, and to make the "all" line up.  Vertically
-# only as many rows as necessary are printed.
+# see how much is on each side, and to make the "all" line up.  But
+# vertically only as many rows as necessary are printed.
 #
 
 
@@ -70,6 +71,8 @@ if ($class eq 'all') {
 
                         SacksSpiral
                         VogelFloret
+                        TheodorusSpiral
+                        MultipleRings
                         KnightSpiral
 
                         Rows
@@ -126,7 +129,8 @@ sub print_class {
     my ($x, $y) = $path->n_to_xy ($n);
 
     # stretch these out for better resolution
-    if ($class =~ /Vogel|Sacks|Archimedean/) { $y *= 2; }
+    if ($class =~ /Sacks|Archimedean/) { $x *= 1.5; $y *= 2; }
+    if ($class =~ /Vogel|Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }
 
     # nearest integers
     $x = POSIX::floor ($x + 0.5);

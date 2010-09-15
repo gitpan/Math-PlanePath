@@ -22,12 +22,11 @@ use strict;
 use warnings;
 use List::Util qw(max);
 use POSIX ();
-use Math::PlanePath::HexSpiral;
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 7;
+$VERSION = 8;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -196,11 +195,25 @@ grid and fully cover the plane.
       ^   ^  ^   ^   ^   ^ 
      -2  -1 x=0  1   2   3  ...
 
-The sequence is the same as for the plain HexSpiral, but this arrangement
-fits more points on a square grid.  It's similar to the SquareSpiral but
-cuts two corners so each loop is 6 steps longer than the previous whereas
-for the SquareSpiral it's 8.  See the DiamondSpiral for cutting all 4
-corners.
+The sequence is the same as the plain HexSpiral, but this arrangement fits
+more points on a square grid.  The skew pushes the top horizontal to the
+left, as illustrated by the following portion from the two.  The bottom
+horizontal is similarly skewed but to the right.
+
+    HexSpiralSkewed               HexSpiral
+
+    13--12--11                   13--12--11       
+     |         \                /          \      
+    14          10            14            10    
+     |             \         /                \  
+    15               9     15                  9
+
+=head1 Corners
+
+HexSpiralSkeweed is similar to the SquareSpiral but cuts off the top right
+and bottom left two corners so that each loop is 6 steps longer than the
+previous whereas for the SquareSpiral it's 8.  See
+L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.
 
 =head1 FUNCTIONS
 
@@ -228,7 +241,10 @@ point in the path as a square of side 1.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HexSpiral>
+L<Math::PlanePath::HexSpiral>,
+L<Math::PlanePath::HeptSpiralSkewed>,
+L<Math::PlanePath::PentSpiralSkewed>,
+L<Math::PlanePath::DiamondSpiral>
 
 =head1 HOME PAGE
 

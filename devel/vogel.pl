@@ -17,14 +17,46 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.010;
 use strict;
 use warnings;
 use POSIX 'fmod';
+use Math::Libm 'hypot';
+use Math::Trig 'pi';
 
 use Smart::Comments;
 
 use constant PHI => (1 + sqrt(5)) / 2;
+
+{
+  # 609 631   0.624053229799566 1.60242740883046
+  # 2 7   1.47062247517163 0.679984167849259
+
+  my @x;
+  my @y;
+  foreach my $n (1 .. 10000) {
+    my $r = sqrt($n);
+    # my $theta = 2 * $n;  # radians
+    my $theta = $n * sqrt(2) * 2*pi();  # radians
+    push @x, $r * cos($theta);
+    push @y, $r * sin($theta);
+  }
+  # ### @x
+  my $min_d = 999;
+  my $min_i = 0;
+  my $min_j = 0;
+  foreach my $i (0 .. $#x-1) {
+    foreach my $j ($i+1 .. $#x) {
+      my $d = hypot ($x[$i]-$x[$j], $y[$i]-$y[$j]);
+      if ($d < $min_d) {
+        $min_d = $d;
+        $min_i = $i;
+        $min_j = $j;
+      }
+    }
+  }
+  print "$min_i $min_j   $min_d ", 1/$min_d, "\n";
+  exit 0;
+}
 
 {
   foreach my $n (18239,19459,25271,28465,31282,35552,43249,74592,88622,

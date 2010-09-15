@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.010;
 use strict;
 use warnings;
 use Math::BigRat;
@@ -48,8 +47,9 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [ 1, 2, 3, 4,  5 ],
-                [ 0, 1, 3, 6, 10 ]
+                [ 1, 2, 3 ],
+                # [ 0, 1, 3, 6, 10 ]
+                [ 3,11,25 ]
                );
 
 sub bigrat_to_decimal {

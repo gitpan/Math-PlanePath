@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'asin', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 7;
+$VERSION = 8;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -233,6 +233,25 @@ SquareSpiral.
 The step parameter is similar to the PyramidRows with the rows stretched
 around circles, though PyramidRows starts from a 1-wide initial row and
 increases by the step, whereas for MultipleRings there's no initial.
+
+The starting radial 1,7,19,37 etc for step==6 is S<6*k*(k-1)/2 + 1> (for k=1
+upwards) and in general it's S<step*k*(k-1)/2 + 1> which is basically a step
+multiple of the triangular numbers.  Straight line radials further around
+have arise from adding multiples of k, so for example for step==6 above the
+line 3,11,25 is S<6*k*(k-1)/2 + 1 + 2*k>.  Multiples of k bigger than the
+step give lines in between those of the innermost ring.
+
+=head2 Step 3 Pentagonals
+
+For step==3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are a
+radial going up to the left, and the second pentagonal numbers 2,7,15,26,
+S(k) = (3k+1)*k/2 are a radial going down to the left, respectively 1/3 and
+2/3 the way around the circles.
+
+As described in L<Math::PlanePath::PyramidRows/Step 3 Pentagonals>, those
+numbers and the preceding P(k)-1, P(k)-2, and S(k)-1, S(k)-2 are all
+composites, so plotting the primes on a step==3 MultipleRings has these
+values as two radial gaps where there's no primes.
 
 =head1 FUNCTIONS
 

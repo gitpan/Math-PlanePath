@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.010;
+use 5.004;
 use strict;
 use warnings;
 use Test::More tests => 17;
@@ -33,9 +33,11 @@ require Math::PlanePath::Columns;
 # VERSION
 
 {
-  my $want_version = 7;
-  is ($Math::PlanePath::Columns::VERSION, $want_version, 'VERSION variable');
-  is (Math::PlanePath::Columns->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 8;
+  is ($Math::PlanePath::Columns::VERSION, $want_version,
+      'VERSION variable');
+  is (Math::PlanePath::Columns->VERSION,  $want_version,
+      'VERSION class method');
 
   ok (eval { Math::PlanePath::Columns->VERSION($want_version); 1 },
       "VERSION class check $want_version");

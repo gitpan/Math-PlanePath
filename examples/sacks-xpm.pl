@@ -21,6 +21,10 @@
 # Usage: perl sacks-xpm.pl >/tmp/foo.xpm     # write image file
 #        xgzv /tmp/xpm                       # view file
 #
+# This spot of code generates a big .xpm file showing all the points of the
+# SacksSpiral.  XPM is text format and can be generated quite easily as row
+# strings.
+# 
 
 use 5.004;
 use strict;

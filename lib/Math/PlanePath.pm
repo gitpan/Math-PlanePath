@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 7;
+$VERSION = 8;
 
 # defaults
 use constant x_negative => 1;
@@ -232,6 +232,7 @@ L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>
 
+L<math-image> program to display various sequences on these paths.
 F<examples/numbers.pl> in the sources to print all the paths.
 
 =head1 HOME PAGE
