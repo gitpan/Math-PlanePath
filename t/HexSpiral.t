@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 49;
+use Test::More tests => 31;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::Diagonals;
+require Math::PlanePath::HexSpiral;
 
 
 #------------------------------------------------------------------------------
@@ -34,18 +34,18 @@ require Math::PlanePath::Diagonals;
 
 {
   my $want_version = 9;
-  is ($Math::PlanePath::Diagonals::VERSION, $want_version,
+  is ($Math::PlanePath::HexSpiral::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::Diagonals->VERSION,  $want_version,
+  is (Math::PlanePath::HexSpiral->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::Diagonals->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::HexSpiral->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::Diagonals->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::HexSpiral->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::Diagonals->new;
+  my $path = Math::PlanePath::HexSpiral->new;
   is ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -55,29 +55,39 @@ require Math::PlanePath::Diagonals;
 }
 
 #------------------------------------------------------------------------------
-# xy_to_n
+# n_to_xy
+
+#              28 -- 27 -- 26 -- 25                  3
+#             /                    \
+#           29    13 -- 12 -- 11    24               2
+#          /     /              \     \
+#        30    14     4 --- 3    10    23            1
+#       /     /     /         \     \    \
+#     31    15     5     1 --- 2     9    22    <- y=0
+#       \     \     \              /     /
+#        32    16     6 --- 7 --- 8    21           -1
+#          \     \                    /
+#           33    17 -- 18 -- 19 -- 20              -2
+#             \
+#              34 -- 35 ...                         -3
+# 
+#      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
+#     -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6
 
 {
-  my @data = ([0.5, -0.5,0.5 ],
-              [0.75, -0.25,0.25 ],
-              [1, 0,0 ],
-              [1.25, .25,-.25 ],
+  my @data = ([ 1, 0,0 ],
 
-              [1.5, -.5,1.5 ],
-              [2, 0,1 ],
-              [3, 1,0 ],
+              [ 2, 2,0 ],
+              [ 3, 1,1 ],
 
-              [4, 0,2 ],
-              [5, 1,1 ],
-              [6, 2,0 ],
+              [ 4, -1,1 ],
+              [ 5, -2,0 ],
 
-              [7,  0,3 ],
-              [8,  1,2 ],
-              [9,  2,1 ],
-              [10, 3,0 ],
-
+              [ 6, -1,-1 ],
+              [ 7,  1,-1 ],
+              [ 8,  3,-1 ],
              );
-  my $path = Math::PlanePath::Diagonals->new;
+  my $path = Math::PlanePath::HexSpiral->new;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
@@ -87,10 +97,9 @@ require Math::PlanePath::Diagonals;
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
-    $want_n = int ($want_n + 0.5);
     my $got_n = $path->xy_to_n ($x, $y);
     is ($got_n, $want_n, "n at x=$x,y=$y");
   }
 }
 
-exit 0;
+ 0;

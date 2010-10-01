@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 8;
+$VERSION = 9;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -155,6 +155,57 @@ point as a square of side 1, so the quadrant x>=-0.5 and y>=-0.5 is entirely
 covered.
 
 =back
+
+=head1 FORMULAS
+
+=head2 N to X,Y
+
+Counting d=0 for the first row the N=1,2,5,10,17,etc which is the start of
+each row is
+
+    StartN(d) = d^2 + 1
+
+The current C<n_to_xy> code extends to the left by an extra 0.5 for
+fractional N, so for example N=9.5 is at x=-0.5,y=3.  With this the starting
+N for each d row is
+
+    StartNfrac(d) = d^2 + 0.5
+
+Inverting gives the row for an N,
+
+    d = floor(sqrt(N - 0.5))
+
+And subtracting that start gives an offset into the row
+
+    RemBase = N - StartNfrac(d)
+
+The corner point 1,3,7,13,etc where the row turns down is at d+0.5 into that
+remainder, and it's convenient to subtract that, giving a negative for the
+horizontal or positive for the vertical,
+
+    Rem = N - StartNfrac(d) - (d+0.5)
+        = N - (d*(d+1) + 1)
+
+    if (Rem < 0)  then x=d+Rem, y=d
+    if (Rem >= 0) then x=d, y=d-Rem
+
+=head2 X,Y to N
+
+For a given x,y the bigger of x or y determines the d row.  If y>=x then
+it's the horizontal part with d=y.  StartN(d) above is the N for x=0, and
+the given x can be added to that,
+
+    N = StartN(d) + x
+      = y^2 + 1 + x
+
+If y<x then it's the vertical with d=x.  The y=0 is the last point on the
+row and is one back from the start of the following row,
+
+    LastN(d) = StartN(d+1) - 1
+             = (d+1)^2
+
+    N = LastN(d) - y
+      = (x+1)^2 - y
 
 =head1 SEE ALSO
 

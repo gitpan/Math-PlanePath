@@ -38,6 +38,7 @@
 use 5.004;
 use strict;
 use warnings;
+use POSIX ();
 use List::Util 'min', 'max';
 
 my $width = 79;

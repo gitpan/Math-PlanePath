@@ -47,9 +47,8 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [ 1, 2, 3 ],
-                # [ 0, 1, 3, 6, 10 ]
-                [ 3,11,25 ]
+                [ 0, 1, 2, 3, 4 ],
+[ 1, 10, 25, 46, 73 ]
                );
 
 sub bigrat_to_decimal {
@@ -133,7 +132,7 @@ sub my_interpolate {
     return ($x + sqrt($root));
   };
   for (my $i = 0; $i < 100; $i += 0.5) {
-    printf "%4s  s=%s\n", $i, $n_to_s->($i);
+    printf "%4s  d=%s\n", $i, $n_to_s->($i);
   }
   exit 0;
 }

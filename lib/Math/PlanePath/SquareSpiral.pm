@@ -26,7 +26,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 8;
+$VERSION = 9;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -88,18 +88,20 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   #### SquareSpiral n_to_xy: $n
-  my $w = $self->{'wider'};
   if ($n < 1) {
     #### less than one
     return;
   }
+  my $w = $self->{'wider'};
+  my $w_right = int($w/2);
+  my $w_left = $w - $w_right;
   if ($n <= $w+2) {
     #### centre horizontal
     # n=1 at w_left
     # x = $n-1 - int(($w+1)/2)
     #   = $n - int(1 + ($w+1)/2)
     #   = $n - int(($w+3)/2)
-    return ($n - int(($w+3)/2),  # n=1 at w_left
+    return ($n-1 - $w_left,  # n=1 at w_left
             0);
   }
 
@@ -114,21 +116,21 @@ sub n_to_xy {
   if ($n >= 0) {
     if ($n <= 2*$d) {
       ### left vertical
-      return (-$d - ceil($w/2),
+      return (-$d - $w_left,
               $d - $n);
     } else {
       ### bottom horizontal
-      return (- ceil($w/2) + $n - 3*$d,
+      return ($n - $w_left - 3*$d,
               -$d);
     }
   } else {
     if ($n >= -2*$d-$w) {
       ### top horizontal
-      return (-$d - ceil($w/2) - $n,
+      return (-$d - $w_left - $n,
               $d);
     } else {
       ### right vertical
-      return ($d + int($w/2),
+      return ($d + $w_right,
               $n + 3*$d + $w);
     }
   }

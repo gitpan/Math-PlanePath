@@ -29,6 +29,9 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  HexSpiral
+                  HexSpiralSkewed
+
                   MultipleRings
                   VogelFloret
 
@@ -36,8 +39,6 @@ my @modules = qw(
                   DiamondSpiral
                   PentSpiral
                   PentSpiralSkewed
-                  HexSpiral
-                  HexSpiralSkewed
                   HeptSpiralSkewed
                   PyramidSpiral
                   TriangleSpiral
@@ -60,7 +61,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 8;
+my $want_version = 9;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -106,8 +107,10 @@ foreach my $module (@modules) {
     @steps = (0, 1, 2, 3, 6, 7, 8, 21);
   }
 
-  my @wider = (-1);
-  if ($class eq 'Math::PlanePath::SquareSpiral') {
+  my @wider = (0);
+  if ($class eq 'Math::PlanePath::SquareSpiral'
+      || $class eq 'Math::PlanePath::HexSpiral'
+      || $class eq 'Math::PlanePath::HexSpiralSkewed') {
     @wider = (0, 1, 2, 3, 4, 5, 6, 7);
   }
 
@@ -130,6 +133,10 @@ foreach my $module (@modules) {
 
   foreach $step (@steps) {
     foreach $wider (@wider) {
+      my $rw = '';
+      if (@wider > 1) {
+        $rw = ",wid=$wider ";
+      }
 
       my $path = $class->new (width  => 20,
                               height => 20,
@@ -141,15 +148,17 @@ foreach my $module (@modules) {
       my $got_y_negative = 0;
       foreach my $n (1 .. 5000) {
         my ($x, $y) = $path->n_to_xy ($n);
-        defined $x or &$report("n_to_xy($n) X undef");
-        defined $y or &$report("n_to_xy($n) Y undef");
+        defined $x or &$report("n_to_xy($n)$rw X undef");
+        defined $y or &$report("n_to_xy($n)$rw Y undef");
 
         if ($x < 0) { $got_x_negative = 1; }
         if ($y < 0) { $got_y_negative = 1; }
 
-        my $k = sprintf '%.3f,%.3f', $x,$y;
+        my $k = (int($x) == $x && int($y) == $y
+                 ? sprintf('%d,%d', $x,$y)
+                 : sprintf('%.3f,%.3f', $x,$y));
         if ($saw_n_to_xy{$k}) {
-          &$report ("n_to_xy($n) duplicate k=$k");
+          &$report ("n_to_xy($n)$rw duplicate k=$k");
         }
         $saw_n_to_xy{$k} = $n;
 
@@ -158,13 +167,13 @@ foreach my $module (@modules) {
            $x + ($x >= 0 ? .4 : -.4),
            $y + ($y >= 0 ? .4 : -.4));
         $limit_lo <= $n
-          or &$report ("rect_to_n_range() start n=$n k=$k, got $limit_lo");
+          or &$report ("rect_to_n_range()$rw start n=$n k=$k, got $limit_lo");
         $limit_hi >= $n
-          or &$report ("rect_to_n_range() stop n=$n k=$k, got $limit_hi");
+          or &$report ("rect_to_n_range()$rw stop n=$n k=$k, got $limit_hi");
         $limit_lo == int($limit_lo)
-          or &$report ("rect_to_n_range() start n=$n k=$k, got $limit_lo, integer");
+          or &$report ("rect_to_n_range()$rw start n=$n k=$k, got $limit_lo, integer");
         $limit_hi == int($limit_hi)
-          or &$report ("rect_to_n_range() stop n=$n k=$k, got $limit_hi, integer");
+          or &$report ("rect_to_n_range()$rw stop n=$n k=$k, got $limit_hi, integer");
 
         # next if $name eq 'KnightSpiral';
 
@@ -172,7 +181,7 @@ foreach my $module (@modules) {
           foreach my $y_offset (0, -0.2) { # bit slow: , 0.2) {
             my $rev_n = $path->xy_to_n ($x + $x_offset, $y + $y_offset);
             defined $rev_n && $n == $rev_n
-              or &$report ("xy_to_n() n=$n k=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
+              or &$report ("xy_to_n()$rw n=$n k=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
           }
         }
       }
@@ -182,7 +191,7 @@ foreach my $module (@modules) {
                      0, 0.4, 0.5, 0.6) {
         my @xy = $path->n_to_xy ($n);
         (@xy == 0 || @xy == 2)
-          or &$report ("n_to_xy() n=$n got ",scalar(@xy)," values");
+          or &$report ("n_to_xy()$rw n=$n got ",scalar(@xy)," values");
       }
 
       foreach my $elem ([-1,-1, -1,-1],
@@ -190,19 +199,19 @@ foreach my $module (@modules) {
         my ($x1,$y1,$x2,$y2) = @$elem;
         my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
         (defined $got_lo && defined $got_hi)
-          or &$report ("rect_to_n_range() x1=$x1,y1=$y1, x2=$x2,y2=$y2 undefs");
+          or &$report ("rect_to_n_range()$rw x1=$x1,y1=$y1, x2=$x2,y2=$y2 undefs");
       }
 
       foreach my $x (-100, -99) {
         my @n = $path->xy_to_n ($x,-1);
         (scalar(@n) == 1)
-          or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
+          or &$report ("xy_to_n($x,-1)$rw array context got ",scalar(@n)," values but should be 1, possibly undef");
       }
 
       (!!$path->x_negative == !!$got_x_negative)
-        or &$report ("x_negative()");
+        or &$report ("x_negative()$rw");
       (!!$path->y_negative == !!$got_y_negative)
-        or &$report ("y_negative()");
+        or &$report ("y_negative()$rw");
     }
   }
 

@@ -26,109 +26,124 @@ use POSIX ();
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 8;
+$VERSION = 9;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Smart::Comments '###';
 
 
-# diagonal down and to the left
-# 0 1  2   3   4
-#   1  6  17  34
-#    +5 +11 +17
-#      +6 +6
-# n = 3*s*s - 4*s + 2
-# s = (2 + sqrt(3*$n-2)) / 3
+sub new {
+  return shift->SUPER::new (wider => 0, # default
+                            @_);
+}
+
+# Same as HexSpiral, but diagonal down and to the left is the downwards
+# vertical at x=-$w_left.
 
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
   if ($n < 1) { return; }
-  if ($n == 1) { return (0,0); }
+  my $w = $self->{'wider'};
+  my $w_right = int($w/2);
+  my $w_left = $w - $w_right;
+  #### $w
+  #### $w_left
+  #### $w_right
+  if ($n <= $w+2) {
+    #### centre horizontal
+    return ($n-1 - $w_left,  # n=1 at $w_left
+            0);
+  }
 
-  my $s = int((2 + sqrt(3*$n-2)) / 3);
-  #### s frac: (2 + sqrt(3*$n-2)) / 3
-  #### $s
-  $n -= (3*$s - 4)*$s + 2;
+  my $d = int((sqrt(3*$n + ($w+2)*$w - 2) - 1 - $w) / 3);
+  #### d frac: (sqrt(3*$n + ($w+2)*$w - 2) - 1 - $w) / 3
+  #### $d
+  $n -= (3*$d + 2 + 2*$w)*$d + 1;
   #### remainder: $n
 
-  if ($n < $s) {
-    #### bottom
-    return ($n,
-            -$s+1);
+  $d++;
+  if ($n <= $d+$w) {
+    #### bottom horizontal
+    return ($n - $w_left,
+            -$d+1);
   }
-  $n -= $s;
-  if ($n < $s-1) {
-    #### right lower, being 1 shorter: $n
-    return ($s,
-            -$s+1 + $n);
+  $n -= $d+$w;
+  if ($n <= $d-1) {
+    #### right lower vertical, being 1 shorter: $n
+    return ($d + $w_right,
+            -$d+1 + $n);
   }
-  $n -= $s-1;
-  if ($n < $s) {
-    #### right upper: $n
-    return ($s - $n,
+  $n -= $d-1;
+  if ($n <= $d) {
+    #### right upper diagonal: $n
+    return ($d - $n + $w_right,
             $n);
   }
-  $n -= $s;
-  if ($n < $s) {
-    #### top
-    return (-$n,
-            $s);
+  $n -= $d;
+  if ($n <= $d+$w) {
+    #### top horizontal
+    return (-$n + $w_right,
+            $d);
   }
-  $n -= $s;
-  if ($n < $s) {
-    #### left upper
-    return (-$s,
-            $s - $n);
+  $n -= $d+$w;
+  if ($n <= $d) {
+    #### left upper vertical
+    return (-$d - $w_left,
+            $d - $n);
   }
-  #### left lower
-  $n -= $s;
-  return (-$s + $n,
+  #### left lower diagonal
+  $n -= $d;
+  return (-$d + $n - $w_left,
           -$n);
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
+  ### xy_to_n(): "$x, $y"
 
   $x = POSIX::floor ($x + 0.5);
   $y = POSIX::floor ($y + 0.5);
+  my $w = $self->{'wider'};
+  my $w_right = int($w/2);
+  my $w_left = $w - $w_right;
 
-  my $ay = abs($y);
-  my $ax = abs($x);
-  if ($x >= 0) {
-    if ($x > -$y) {
-      my $s = ($y >= 0
-               ? $x + $y  # upper right diagonal
-               : $x);     # lower right vertical
-      ### upper diagonal and right vertical
-      ### $s
-      return (3*$s*$s + -2*$s + 1  # horizontal to the right 1,2,9,22,41
-              + $y);               # offset up or down
-
+  if ($y > 0) {
+    $x -= $w_right;
+    if ($x < -$y-$w) {
+      ### left upper vertical
+      my $d = -$x - $w;
+      ### $d
+      ### base: (3*$d + 1 + 2*$w)*$d + 1
+      return ((3*$d + 1 + 2*$w)*$d + 1
+              - $y);
     } else {
-      my $s = -$y;
-      ### bottom horizontal
-      ### $s
-      return (3*$s*$s + 2*$s + 1   # vertical downwards 1,6,17,34,57
-              + $x);               # offset rightwards
+      my $d = $y + max($x,0);
+      ### right upper diagonal and top horizontal
+      ### $d
+      ### base: (3*$d - 1 + 2*$w)*$d + 1 - $w
+      return ((3*$d - 1 + 2*$w)*$d + 1 - $w
+              - $x);
     }
 
   } else {
-    if ($x <= -$y) {
-      my $s = ($y >= 0
-               ? -$x         # upper left vertical
-               : -($x+$y));  # lower left diagonal
-      ### upper diagonal and right vertical
-      ### $s
-      return (3*$s*$s + 1*$s + 1   # horizontal to the right 1,5,15,31,53
-              - $y);               # offset up or down
+    # $y < 0
+    $x += $w_left;
+    if ($x-$w <= -$y) {
+      my $d = -$y + max(-$x,0);
+      ### left lower diagonal and bottom horizontal
+      ### $d
+      ### base: (3*$d + 2 + 2*$w)*$d + 1
+      return ((3*$d + 2 + 2*$w)*$d + 1
+              + $x);
     } else {
-      my $s = $y;
-      ### top horizontal
-      ### $s
-      return (3*$s*$s + -1*$s + 1  # vertical upwards 1,3,11,25,44
-              - $x);               # offset leftwards
+      ### right lower vertical
+      my $d = $x - $w;
+      ### $d
+      ### base: (3*$d - 2 + 2*$w)*$d + 1 - $w
+      return ((3*$d - 2 + 2*$w)*$d + 1 - $w
+              + $y);
     }
   }
 }
@@ -137,15 +152,24 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### HexSpiralSkewed xy_to_n_range(): $x1,$y1, $x2,$y2
 
-  my $x = max(abs($x1),abs($x2));
-  my $y = max(abs($y1),abs($y2));
-  my $s = max($x,               # left or right vertical
-              $y,               # top or bottom horizontal
-              abs ($x1 + $y1),  # upper right or lower left diagonals
-              abs ($x1 + $y2),
-              abs ($x2 + $y1),
-              abs ($x2 + $y2));
-  $s = int($s);
+  my $w = $self->{'wider'};
+  my $w_right = int($w/2);
+  my $w_left = $w - $w_right;
+
+  my $d = 0;
+  foreach my $x ($x1, $x2) {
+    $x += $w_left;
+    if ($x >= $w) {
+      $x -= $w;
+    }
+    foreach my $y ($y1, $y2) {
+      $d = max ($d,
+                (($y > 0) == ($x > 0)
+                 ? abs($x) + abs($y)      # top right or bottom left diagonals
+                 : max(abs($x),abs($y)))); # top left or bottom right squares
+    }
+  }
+  $d = int($d) + 1;
 
   # diagonal downwards bottom right being the end of a revolution
   # s=0
@@ -153,19 +177,19 @@ sub rect_to_n_range {
   # s=2  n=19
   # s=3  n=37
   # s=4  n=61
-  # n = 3*$s*$s + 3*$s + 1
+  # n = 3*$d*$d + 3*$d + 1
   #
-  ### gives: "sum $s is " . (3*$s*$s + 3*$s + 1)
+  ### gives: "sum $d is " . (3*$d*$d + 3*$d + 1)
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,
-          1 + 3*$s*$s + 3*$s + 1);
+          (3*$d + 3 + 2*$self->{'wider'})*$d + 1);
 }
 
 1;
 __END__
 
-=for stopwords HexSpiral SquareSpiral DiamondSpiral PlanePath Ryde Math-PlanePath
+=for stopwords HexSpiralSkewed HexSpiral SquareSpiral DiamondSpiral PlanePath Ryde Math-PlanePath
 
 =head1 NAME
 
@@ -192,12 +216,12 @@ grid and fully cover the plane.
           \              |    
             17--18--19--20       -2
 
-      ^   ^  ^   ^   ^   ^ 
-     -2  -1 x=0  1   2   3  ...
+     ^   ^   ^   ^   ^   ^ 
+    -2  -1  x=0  1   2   3  ...
 
 The sequence is the same as the plain HexSpiral, but this arrangement fits
 more points on a square grid.  The skew pushes the top horizontal to the
-left, as illustrated by the following portion from the two.  The bottom
+left, as illustrated by the following parts of the two.  The bottom
 horizontal is similarly skewed but to the right.
 
     HexSpiralSkewed               HexSpiral
@@ -208,10 +232,42 @@ horizontal is similarly skewed but to the right.
      |             \         /                \  
     15               9     15                  9
 
+=head2 Wider
+
+An optional C<wider> parameter makes the path wider, stretched along the top
+and bottom horizontals.  For example
+
+    $path = Math::PlanePath::HexSpiralSkewed->new (wider => 2);
+
+gives
+
+    21--20--19--18--17                    2
+     |                 \    
+    22   8---7---6---5  16                1
+     |   |             \   \    
+    23   9   1---2---3---4  15        <- y=0
+      \   \                  |     
+       24   10--11--12--13--14  ...      -1
+          \                      |    
+            25--26--27--28--29--30       -2
+
+     ^   ^   ^   ^   ^   ^   ^   ^ 
+    -4  -3  -2  -1  x=0  1   2   3  ...
+
+The centre horizontal 1 to 2 is extended by C<wider> many further places,
+then the path loops around that shape.  The starting point 1 is shifted to
+the left by wider/2 places (rounded up to an integer) to keep the spiral
+centred on the origin x=0,y=0.
+
+Each loop is still 6 longer than the previous, since the widening is
+basically a constant amount added into each loop.  The result is the same as
+the plain HexSpiral of the same widening too.  The effect looks better in
+that plain HexSpiral.
+
 =head1 Corners
 
 HexSpiralSkeweed is similar to the SquareSpiral but cuts off the top right
-and bottom left two corners so that each loop is 6 steps longer than the
+and bottom left corners so that each loop is 6 steps longer than the
 previous whereas for the SquareSpiral it's 8.  See
 L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.
 
@@ -219,9 +275,12 @@ L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.
 
 =over 4
 
-=item C<$path = Math::PlanePath::HexSpiral-E<gt>new ()>
+=item C<$path = Math::PlanePath::HexSpiralSkewed-E<gt>new ()>
 
-Create and return a new HexSpiral spiral object.
+=item C<$path = Math::PlanePath::HexSpiralSkewed-E<gt>new (wider =E<gt> $w)>
+
+Create and return a new HexSpiralSkewed spiral object.  An optional C<wider>
+parameter widens the spiral path, it defaults to 0 which is no widening.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

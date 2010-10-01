@@ -10,6 +10,7 @@ debian/source/format
 debian/watch
 devel/grid.pl
 devel/interpolate.pl
+devel/run.pl
 devel/theodorus.pl
 devel/unused.pl
 devel/vertical.pl
@@ -50,6 +51,7 @@ SIGNATURE
 t/Columns.t
 t/Diagonals.t
 t/DiamondSpiral.t
+t/HexSpiral.t
 t/HexSpiralSkewed.t
 t/KnightSpiral.t
 t/MyTestHelpers.pm
