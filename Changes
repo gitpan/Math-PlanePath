@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 10, October 2010
+    - fix MultipleRings xy_to_n()
+
 Version 9, September 2010
     - HexSpiral and HexSpiralSkewed new "wider" parameter
 

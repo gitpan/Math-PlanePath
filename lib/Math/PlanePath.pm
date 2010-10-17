@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 9;
+$VERSION = 10;
 
 # defaults
 use constant x_negative => 1;
@@ -37,7 +37,7 @@ sub new {
 1;
 __END__
 
-=for stopwords SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath
 
 =head1 NAME
 
@@ -76,15 +76,15 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     PyramidRows            expanding rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
 
-The paths are object oriented to allow parameters, though only a few
+The paths are object oriented to allow parameters though only a few
 subclasses actually have any parameters.
 
-The classes are generally oriented towards integer C<$n> positions and the
-classes designed for a square grid turn an integer C<$n> into integer
-C<$x,$y>.  Usually they give in-between positions for fractional C<$n> too.
-Classes not on a square grid, like SacksSpiral and VogelFloret, are scaled
-for a unit circle at each C<$n> but they too can give in-between positions
-on request.
+The classes are generally based on integer C<$n> positions and the classes
+designed for a square grid turn an integer C<$n> into integer C<$x,$y>.
+Usually they give in-between positions for fractional C<$n> too.  Classes
+not on a square grid, like SacksSpiral and VogelFloret, are scaled for a
+unit circle at each C<$n> but they too can give in-between positions on
+request.
 
 In general there's no parameters for scaling, or an offset for the 0,0
 origin, or a reflection up or down.  Those things are thought better done by
@@ -99,30 +99,30 @@ The paths can be characterized by how much longer each loop or repetition is
 than the preceding one.  For example each cycle around the SquareSpiral is 8
 longer than the preceding.
 
-    Step       Path
-    ----       ----
-      0      Rows, Columns (fixed widths)
-      1      Diagonals
-      2      SacksSpiral, PyramidSides, Corner, PyramidRows (default)
-      4      DiamondSpiral
-      5      PentSpiralSkewed
-      6      HexSpiral, HexSpiralSkewed
-      7      HeptSpiralSkewed
-      8      SquareSpiral, PyramidSpiral
-      9      TriangleSpiral, TriangleSpiralSkewed
-     19.74   TheodorusSpiral (approaches 2*pi^2)
-     32      KnightSpiral (counting the 2-wide loop)
-     any     MultipleRings, PyramidRows
+    Step        Path
+    ----        ----
+      0       Rows, Columns (fixed widths)
+      1       Diagonals
+      2       SacksSpiral, PyramidSides, Corner, PyramidRows default
+      4       DiamondSpiral
+      5       PentSpiralSkewed
+      6       HexSpiral, HexSpiralSkewed
+      7       HeptSpiralSkewed
+      8       SquareSpiral, PyramidSpiral
+      9       TriangleSpiral, TriangleSpiralSkewed
+     19.74    TheodorusSpiral (approaches 2*pi^2)
+     32       KnightSpiral (counting the 2-wide loop)
+   variable   MultipleRings, PyramidRows
 
 The step determines which quadratic number sequences fall on straight lines.
 For example the gap between successive perfect squares increases by 2 each
 time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
 squares make a straight line in the paths of step 2.
 
-A factor of 4 splits a straight line into two, so for example on the
-SquareSpiral of step 8 the perfect squares fall on two lines to the lower
-left and upper right.  Effectively it's one line of the even squares (2k)^2
-== 4*k^2 and another of the odd squares (2k+1)^2 == 4*k^2+4*k+1.  The gap
+A factor of 4 on the step splits a straight line into two, so for example on
+the SquareSpiral of step 8 the perfect squares fall on two lines going to
+the lower left and upper right.  Effectively it's one line of the even
+squares (2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap
 between successive even squares increases by 8 each time and likewise the
 odd squares.
 
@@ -168,7 +168,7 @@ C<$n> close enough).
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
 Return a range of N values which occur in a rectangle with corners at
-C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive, so for instance
+C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
 
      my ($n_lo, $n_hi) = $path->rect_to_n_range (-5,-5, 5,5);
      foreach my $n ($n_lo .. $n_hi) {
@@ -176,15 +176,15 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive, so for instance
          print "$n  $x,$y";
      }
 
-The return may be an over-estimate of the range, and of course some of the
-points between C<$n_lo> and C<$n_hi> may go outside the rectangle.  C<$n_hi>
-is usually no more than an extra partial row or revolution.  C<$n_lo> is
-often just the starting point 1, which is correct if you always want the
-origin 0,0, but a rectangle away from the origin might start higher.
+The return may be an over-estimate of the range, and some of the points
+between C<$n_lo> and C<$n_hi> may go outside the rectangle.  C<$n_hi> is
+usually no more than an extra partial row or revolution.  C<$n_lo> is often
+just the starting point 1, which is correct if the origin 0,0 is in the
+rectangle, but something away from the origin might in fact start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
 some N figures then those N's are included in the return.  If there's no
-points in the rectangle then the return is a "crossed" range like
+points in the rectangle then the return may be a "crossed" range like
 C<$n_lo=1>, C<$n_hi=0> (which makes a C<foreach> do no loops).
 
 =item C<$bool = $path-E<gt>x_negative>
@@ -203,7 +203,7 @@ position.  This is a string name, currently either
     circle         diameter 1 centred on $x,$y
 
 Of course this is only a suggestion as PlanePath doesn't draw anything
-itself.  A figure like a diamond for instance would work well too.
+itself.  A figure like a diamond for instance could look good too.
 
 =back
 
@@ -223,7 +223,7 @@ L<Math::PlanePath::KnightSpiral>
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
-L<Math::PlanePath::MultipleRings>,
+L<Math::PlanePath::MultipleRings>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,

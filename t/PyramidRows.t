@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 21;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::PyramidRows;
 # VERSION
 
 {
-  my $want_version = 9;
+  my $want_version = 10;
   is ($Math::PlanePath::PyramidRows::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::PyramidRows->VERSION,  $want_version,
@@ -52,6 +52,34 @@ require Math::PlanePath::PyramidRows;
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# x_negative, y_negative
+
+ok (Math::PlanePath::PyramidRows->x_negative,
+    'x_negative() class method');
+ok (! Math::PlanePath::PyramidRows->y_negative,
+    'y_negative() class method');
+{
+  my $path = Math::PlanePath::PyramidRows->new;
+  ok (  $path->x_negative, 'x_negative() instance method, default');
+  ok (! $path->y_negative, 'y_negative() instance method, default');
+}
+{
+  my $path = Math::PlanePath::PyramidRows->new (step => 0);
+  ok (! $path->x_negative, 'x_negative() instance method, step=0');
+  ok (! $path->y_negative, 'y_negative() instance method, step=0');
+}
+{
+  my $path = Math::PlanePath::PyramidRows->new (step => 1);
+  ok (! $path->x_negative, 'x_negative() instance method, step=1');
+  ok (! $path->y_negative, 'y_negative() instance method, step=1');
+}
+{
+  my $path = Math::PlanePath::PyramidRows->new (step => 3);
+  ok (  $path->x_negative, 'x_negative() instance method, step=3');
+  ok (! $path->y_negative, 'y_negative() instance method, step=3');
 }
 
 #------------------------------------------------------------------------------

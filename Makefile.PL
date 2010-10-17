@@ -50,7 +50,7 @@ MyMakeMakerExtras::WriteMakefile
                   requires => { 'Smart::Comments'  => 0,
                                 'Math::BigRat'     => 0,
                                 'Math::Polynomial' => 1,
-                              }
+                              },
                 },
            },
       },

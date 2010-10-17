@@ -26,14 +26,14 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 9;
+$VERSION = 10;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments '####';
 
 
-# base lower left diagonal 
+# base lower left diagonal
 #   d = [  2,  3, 4 ]
 #   n = [  9, 23, 44 ]
 #
@@ -110,11 +110,11 @@ sub xy_to_n {
     ### top horizontal
     return $n+$d - $x;
   }
-  if ($y == -$d) { 
+  if ($y == -$d) {
     ### bottom horizontal
     return $n + 5*$d + $x;
   }
-  if ($x == $d) {  
+  if ($x == $d) {
     ### right vertical
     return $n + $y;
   }
@@ -164,11 +164,11 @@ Math::PlanePath::HeptSpiralSkewed -- integer points drawn around a skewed seven 
 This path makes a seven-sided spiral by cutting one corner of a square
 
     34-33-32-31                 3
-     |         \        
+     |         \
     35 14-13-12 30              2
-     |  |      \  \     
+     |  |      \  \
     36 15  4--3 11 29           1
-     |  |  |   \  \  \  
+     |  |  |   \  \  \
     47 16  5  1--2 10 28   <- y=0
      |  |  |        |  |
     38 17  6--7--8- 9 27       -1

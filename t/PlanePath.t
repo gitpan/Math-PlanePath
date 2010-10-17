@@ -20,18 +20,18 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 172;
+use Test::More tests => 214;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 require Math::PlanePath;
 
 my @modules = qw(
-                  HexSpiral
-                  HexSpiralSkewed
-
                   MultipleRings
                   VogelFloret
 
@@ -39,6 +39,8 @@ my @modules = qw(
                   DiamondSpiral
                   PentSpiral
                   PentSpiralSkewed
+                  HexSpiral
+                  HexSpiralSkewed
                   HeptSpiralSkewed
                   PyramidSpiral
                   TriangleSpiral
@@ -61,7 +63,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 9;
+my $want_version = 10;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -93,6 +95,20 @@ foreach my $class (@classes) {
 }
 
 #------------------------------------------------------------------------------
+# x_negative, y_negative
+
+foreach my $module (@modules) {
+  my $class = "Math::PlanePath::$module";
+  use_ok ($class);
+  $class->x_negative;
+  $class->y_negative;
+  my $path = $class->new;
+  $path->x_negative;
+  $path->y_negative;
+  ok (1, 'x_negative(),y_negative() methods run');
+}
+
+#------------------------------------------------------------------------------
 # n_to_xy, xy_to_n
 
 foreach my $module (@modules) {
@@ -102,8 +118,7 @@ foreach my $module (@modules) {
   my @steps = (-1);
   if ($class eq 'Math::PlanePath::PyramidRows') {
     @steps = (0, 1, 2, 3, 4, 5);
-  }
-  if ($class eq 'Math::PlanePath::MultipleRows') {
+  } elsif ($class eq 'Math::PlanePath::MultipleRings') {
     @steps = (0, 1, 2, 3, 6, 7, 8, 21);
   }
 
@@ -133,6 +148,8 @@ foreach my $module (@modules) {
 
   foreach $step (@steps) {
     foreach $wider (@wider) {
+      ### $step
+      ### $wider
       my $rw = '';
       if (@wider > 1) {
         $rw = ",wid=$wider ";
@@ -180,8 +197,10 @@ foreach my $module (@modules) {
         foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
           foreach my $y_offset (0, -0.2) { # bit slow: , 0.2) {
             my $rev_n = $path->xy_to_n ($x + $x_offset, $y + $y_offset);
-            defined $rev_n && $n == $rev_n
-              or &$report ("xy_to_n()$rw n=$n k=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
+            ### $rev_n
+            unless (defined $rev_n && $n == $rev_n) {
+              &$report ("xy_to_n()$rw n=$n k=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
+            }
           }
         }
       }

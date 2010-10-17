@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'asin', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 9;
+$VERSION = 10;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -56,11 +56,13 @@ use constant figure => 'circle';
 # step==0 is a straight line y==0 x=0,1,2,..., anything else whole plane
 sub x_negative {
   my ($self) = @_;
-  return ($self->{'step'} > 0);
+  return (! ref $self
+          || $self->{'step'} > 0);
 }
 sub y_negative {
   my ($self) = @_;
-  return ($self->{'step'} > 0);
+  return (! ref $self
+          || $self->{'step'} > 0);
 }
 
 sub new {
@@ -98,7 +100,8 @@ sub n_to_xy {
   ### MultipleRings n_to_xy(): $n
   ### step: $self->{'step'}
 
-  return if --$n < 0;
+  return if $n < 1; # separate test from decrement so as to warn on undef
+  $n--;
   ### decremented n: $n
   my $step;
   if (($step = $self->{'step'}) == 0) {
@@ -145,7 +148,7 @@ sub xy_to_n {
     my $theta_n = floor (0.5 + $theta * $d*$step);
     if ($theta_n >= $d*$step) { $theta_n = 0; }
 
-    my $n = 1 + $theta_n + $step * 0.5*$d*($d-1);
+    $n = 1 + $theta_n + $step * 0.5*$d*($d-1);
     ### $d
     ### d frac asin: M_PI() / ($step * asin(1/(2 * $r)))
     ### d frac base: $r - ($self->{'base_r'}||0)
@@ -158,6 +161,7 @@ sub xy_to_n {
     ### $n
   }
 
+  ### trial n: $n
   my ($nx, $ny);
   if ((($nx, $ny) = $self->n_to_xy($n))
       && hypot($x-$nx, $y-$ny) <= 0.5) {
@@ -184,7 +188,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-Image
+=for stopwords Ryde Math-Image HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings PlanePath
 
 =head1 NAME
 

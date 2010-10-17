@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 1006;
+use Test::More tests => 1010;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::KnightSpiral;
 # VERSION
 
 {
-  my $want_version = 9;
+  my $want_version = 10;
   is ($Math::PlanePath::KnightSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::KnightSpiral->VERSION,  $want_version,
@@ -52,6 +52,17 @@ require Math::PlanePath::KnightSpiral;
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# x_negative, y_negative
+
+{
+  ok (Math::PlanePath::KnightSpiral->x_negative, 'x_negative() class method');
+  ok (Math::PlanePath::KnightSpiral->y_negative, 'y_negative() class method');
+  my $path = Math::PlanePath::KnightSpiral->new (height => 123);
+  ok ($path->x_negative, 'x_negative() instance method');
+  ok ($path->y_negative, 'y_negative() instance method');
 }
 
 #------------------------------------------------------------------------------

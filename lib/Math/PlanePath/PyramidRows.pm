@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 9;
+$VERSION = 10;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -34,7 +34,8 @@ $VERSION = 9;
 
 sub x_negative {
   my ($self) = @_;
-  return ($self->{'step'} >= 2);
+  return (! ref $self
+          || $self->{'step'} >= 2);
 }
 use constant y_negative => 0;
 
@@ -152,7 +153,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PlanePath Ryde Math-PlanePath
+=for stopwords pronic SacksSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows
 
 =head1 NAME
 
@@ -279,7 +280,7 @@ In general an offset P(k)-c or S(k)-c will factorize like above using the
 roots of the quadratic
 
 In general a constant offset c from S(k) is a column and from P(k) a
-diagonal going 2 to the rigth each time.  The simple factorizations above
+diagonal going 2 to the right each time.  The simple factorizations above
 using the roots of the quadratic for P(k)-c or S(k)-c is possible whenever
 24*c+1 is a perfect square.  This means the further columns S(k)-5, S(k)-7,
 S(k)-12, etc have no primes either.  The S(k), S(k)-1, S(k)-2 columns are

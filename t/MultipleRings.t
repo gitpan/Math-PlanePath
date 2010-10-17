@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 23;
+use Test::More tests => 11;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::HexSpiralSkewed;
+require Math::PlanePath::MultipleRings;
 
 
 #------------------------------------------------------------------------------
@@ -34,18 +34,18 @@ require Math::PlanePath::HexSpiralSkewed;
 
 {
   my $want_version = 10;
-  is ($Math::PlanePath::HexSpiralSkewed::VERSION, $want_version,
+  is ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::HexSpiralSkewed->VERSION,  $want_version,
+  is (Math::PlanePath::MultipleRings->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::HexSpiralSkewed->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::MultipleRings->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::HexSpiralSkewed->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::MultipleRings->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::HexSpiralSkewed->new;
+  my $path = Math::PlanePath::MultipleRings->new;
   is ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -58,39 +58,11 @@ require Math::PlanePath::HexSpiralSkewed;
 # x_negative, y_negative
 
 {
-  ok (Math::PlanePath::HexSpiralSkewed->x_negative,
-      'x_negative() class method');
-  ok (Math::PlanePath::HexSpiralSkewed->y_negative,
-      'y_negative() class method');
-  my $path = Math::PlanePath::HexSpiralSkewed->new (height => 123);
+  ok (Math::PlanePath::MultipleRings->x_negative, 'x_negative() class method');
+  ok (Math::PlanePath::MultipleRings->y_negative, 'y_negative() class method');
+  my $path = Math::PlanePath::MultipleRings->new;
   ok ($path->x_negative, 'x_negative() instance method');
   ok ($path->y_negative, 'y_negative() instance method');
-}
-
-#------------------------------------------------------------------------------
-# xy_to_n
-
-{
-  my @data = ([1,    0,0 ],
-              [1.25, .25,0 ],
-              [1.5,  .5,0 ],
-              [1.75, .75,0 ],
-
-             );
-  my $path = Math::PlanePath::HexSpiralSkewed->new;
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    is ($got_x, $want_x, "x at n=$n");
-    is ($got_y, $want_y, "y at n=$n");
-  }
-
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    $want_n = int ($want_n + 0.5);
-    my $got_n = $path->xy_to_n ($x, $y);
-    is ($got_n, $want_n, "n at x=$x,y=$y");
-  }
 }
 
 exit 0;

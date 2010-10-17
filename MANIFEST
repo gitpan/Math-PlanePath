@@ -54,6 +54,7 @@ t/DiamondSpiral.t
 t/HexSpiral.t
 t/HexSpiralSkewed.t
 t/KnightSpiral.t
+t/MultipleRings.t
 t/MyTestHelpers.pm
 t/PlanePath.t
 t/PyramidRows.t

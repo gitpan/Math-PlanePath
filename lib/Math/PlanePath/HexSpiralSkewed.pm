@@ -26,7 +26,7 @@ use POSIX ();
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 9;
+$VERSION = 10;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -266,7 +266,7 @@ that plain HexSpiral.
 
 =head1 Corners
 
-HexSpiralSkeweed is similar to the SquareSpiral but cuts off the top right
+HexSpiralSkewed is similar to the SquareSpiral but cuts off the top right
 and bottom left corners so that each loop is 6 steps longer than the
 previous whereas for the SquareSpiral it's 8.  See
 L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.

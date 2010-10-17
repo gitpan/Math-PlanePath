@@ -26,11 +26,22 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 9;
+$VERSION = 10;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
+
+# http://d4maths.lowtech.org/mirage/ulam.htm
+# http://d4maths.lowtech.org/mirage/img/ulam.gif
+#     sample gif of primes made by APL or something
+#
+# http://www.sciencenews.org/view/generic/id/2696/title/Prime_Spirals
+#     Ulam's sprial of primes
+#
+# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/primeSpiral.htm
+# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
+#     Pulchritudinous Primes of Ulam sprial.
 
 sub new {
   return shift->SUPER::new (wider => 0, # default
@@ -247,7 +258,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath
+=for stopwords Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows Py\ramidSpiral
 
 =head1 NAME
 

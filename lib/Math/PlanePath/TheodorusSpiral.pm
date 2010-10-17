@@ -27,7 +27,7 @@ use Math::Trig 'pi';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 9;
+$VERSION = 10;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -219,7 +219,7 @@ example,
       x=0   x=1
 
 1 to 2 is a unit step at right angles to the 0 to 1 radial.  Then 2 to 3
-steps at a right angle to radial 0 to 2 (menaing 45 degrees up to the left),
+steps at a right angle to radial 0 to 2 (meaning 45 degrees up to the left),
 etc.  The distance 0 to 2 is sqrt(2), the distance 0 to 3 is sqrt(3), and in
 general r(N) = sqrt(N) since each step is a right triangle, r(N+1)^2 =
 S<r(N)^2 + 1>.  The resulting shape is very close to an Archimedean spiral

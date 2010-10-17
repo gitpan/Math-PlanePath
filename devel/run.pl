@@ -37,14 +37,14 @@ use Smart::Comments;
   require Math::PlanePath::MultipleRings;
   require App::MathImage::PlanePath::ReplicatingSquares;
 
-  my $path = Math::PlanePath::HexSpiral->new (wider => 0,
+  my $path = Math::PlanePath::MultipleRings->new (wider => 0,
                                               # step => 0,
                                              );
   foreach my $i (1 .. 500) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
-    my $n = $path->xy_to_n ($x+.0, $y+.0) // 'none';
+    my $n = $path->xy_to_n ($x+.0, $y+.0) // 'norev';
     my ($n_lo, $n_hi) = $path->rect_to_n_range (0,0, $x,$y);
     printf "%3d %8.4f,%8.4f   %3s %s %s\n",
       $i,  $x,$y,  $n,
