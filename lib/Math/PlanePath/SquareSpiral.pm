@@ -26,7 +26,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 10;
+$VERSION = 11;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -44,8 +44,9 @@ $VERSION = 10;
 #     Pulchritudinous Primes of Ulam sprial.
 
 sub new {
-  return shift->SUPER::new (wider => 0, # default
-                            @_);
+  my $self = shift->SUPER::new (@_);
+  $self->{'wider'} ||= 0;  # default
+  return $self;
 }
 
 # wider==0
@@ -258,7 +259,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows Py\ramidSpiral
+=for stopwords Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral
 
 =head1 NAME
 

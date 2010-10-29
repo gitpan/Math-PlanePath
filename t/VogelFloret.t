@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 65;
+use Test::More tests => 20;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::DiamondSpiral;
+require Math::PlanePath::VogelFloret;
 
 
 #------------------------------------------------------------------------------
@@ -34,18 +34,18 @@ require Math::PlanePath::DiamondSpiral;
 
 {
   my $want_version = 11;
-  is ($Math::PlanePath::DiamondSpiral::VERSION, $want_version,
+  is ($Math::PlanePath::VogelFloret::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::DiamondSpiral->VERSION,  $want_version,
+  is (Math::PlanePath::VogelFloret->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::DiamondSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::VogelFloret->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::DiamondSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::VogelFloret->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::DiamondSpiral->new;
+  my $path = Math::PlanePath::VogelFloret->new;
   is ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -54,58 +54,40 @@ require Math::PlanePath::DiamondSpiral;
       "VERSION object check $check_version");
 }
 
-
 #------------------------------------------------------------------------------
 # x_negative, y_negative
 
 {
-  ok (Math::PlanePath::DiamondSpiral->x_negative, 'x_negative() class method');
-  ok (Math::PlanePath::DiamondSpiral->y_negative, 'y_negative() class method');
-  my $path = Math::PlanePath::DiamondSpiral->new (height => 123);
+  ok (Math::PlanePath::VogelFloret->x_negative, 'x_negative() class method');
+  ok (Math::PlanePath::VogelFloret->y_negative, 'y_negative() class method');
+  my $path = Math::PlanePath::VogelFloret->new;
   ok ($path->x_negative, 'x_negative() instance method');
   ok ($path->y_negative, 'y_negative() instance method');
 }
 
 #------------------------------------------------------------------------------
-# xy_to_n
+# parameters
+
+my $pp = Math::PlanePath::VogelFloret->new;
+cmp_ok ($pp->{'rotation_factor'}, '>=', 0);
+cmp_ok ($pp->{'radius_factor'}, '>=', 0);
+
+my $ps2 = Math::PlanePath::VogelFloret->new (rotation_type => 'sqrt2');
+cmp_ok ($ps2->{'rotation_factor'}, '>=', 0);
+cmp_ok ($ps2->{'radius_factor'}, '>=', 0);
+
+isnt ($pp->{'rotation_factor'}, $ps2->{'rotation_factor'});
 
 {
-  my @data = ([1, 0,0 ],
-
-              [2, 1,0 ],
-              [3, 0,1 ],
-              [4, -1,0 ],
-              [5, 0,-1 ],
-              [5.25, 0.25,-1 ],
-              [5.75, 0.75,-1 ],
-
-              [6, 1,-1 ],
-              [7, 2,0 ],
-              [8, 1,1 ],
-              [9, 0,2 ],
-              [10, -1,1 ],
-              [11, -2,0 ],
-              [12, -1,-1 ],
-              [13, 0,-2 ],
-              [13.25, 0.25,-2 ],
-              [13.75, 0.75,-2 ],
-
-              [14, 1,-2 ],
-             );
-  my $path = Math::PlanePath::DiamondSpiral->new;
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    is ($got_x, $want_x, "x at n=$n");
-    is ($got_y, $want_y, "y at n=$n");
-  }
-
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    $want_n = int ($want_n + 0.5);
-    my $got_n = $path->xy_to_n ($x, $y);
-    is ($got_n, $want_n, "n at x=$x,y=$y");
-  }
+  my $path = Math::PlanePath::VogelFloret->new (rotation_factor => 0.5);
+  cmp_ok ($path->{'rotation_factor'}, '=', 0.5);
+  cmp_ok ($path->{'radius_factor'}, '>=', 1.0);
+}
+{
+  my $path = Math::PlanePath::VogelFloret->new (rotation_type => 'sqrt2',
+                                                radius_factor => 2.0);
+  is ($path->{'rotation_factor'}, $ps2->{'rotation_factor'});
+  cmp_ok ($path->{'radius_factor'}, '>=', 2.0);
 }
 
 exit 0;

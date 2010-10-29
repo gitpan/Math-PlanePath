@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'asin', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 10;
+$VERSION = 11;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -188,7 +188,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-Image HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings PlanePath
+=for stopwords Ryde HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings Math-PlanePath
 
 =head1 NAME
 

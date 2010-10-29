@@ -131,7 +131,8 @@ sub print_class {
 
     # stretch these out for better resolution
     if ($class =~ /Sacks|Archimedean/) { $x *= 1.5; $y *= 2; }
-    if ($class =~ /Vogel|Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }
+    if ($class =~ /Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }
+    if ($class =~ /Vogel/) { $x *= 2; $y *= 3.5; }
 
     # nearest integers
     $x = POSIX::floor ($x + 0.5);

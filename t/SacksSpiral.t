@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 16;
+use Test::More tests => 76;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::SacksSpiral;
 # VERSION
 
 {
-  my $want_version = 10;
+  my $want_version = 11;
   is ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -82,6 +82,61 @@ require Math::PlanePath::SacksSpiral;
     my ($x, $y, $want_n_aref) = @$elem;
     my @got_n = $path->xy_to_n ($x,$y);
     is_deeply (\@got_n, $want_n_aref, "xy_to_n x=$x y=$y");
+  }
+}
+
+#------------------------------------------------------------------------------
+# _rect_to_radius_range()
+
+{
+  foreach my $elem (
+                    # single isolated point
+                    [ 0,0, 0,0,  0,0 ],
+                    [ 1,0, 1,0,  1,1 ],
+                    [ -1,0, -1,0,  1,1 ],
+                    [ 0,1, 0,1,  1,1 ],
+                    [ 0,-1, 0,-1,  1,1 ],
+
+                    [ 0,0, 1,0,  0,1 ],  # strip of x axis
+                    [ 1,0, 0,0,  0,1 ],
+                    [ 6,0, 3,0,   3,6 ],
+                    [ -6,0, -3,0, 3,6 ],
+                    [ -6,0, 3,0,  0,6 ],
+                    [ 6,0, -3,0,  0,6 ],
+
+                    [ 0,0, 0,1,  0,1 ],  # strip of y axis
+                    [ 0,1, 0,0,  0,1 ],
+                    [ 0,6, 0,3,   3,6 ],
+                    [ 0,-6, 0,3,  0,6 ],
+                    [ 0,-6, 0,-3, 3,6 ],
+                    [ 0,6, 0,-3,  0,6 ],
+
+
+                    [ 0,0, 3,4, 0,5 ],
+                    [ 0,0, 3,-4, 0,5 ],
+                    [ 0,0, -3,4, 0,5 ],
+                    [ 0,0, -3,-4, 0,5 ],
+
+                    [ 6,8, 3,4, 5,10 ],
+                    [ 6,8, -3,-4, 0,10 ],
+                    [ -6,-8, 3,4, 0,10 ],
+
+                    [ -3,0, 3,4, 0,5 ],
+                    [ 0,-3, 4,3, 0,5 ],
+
+                    [ -6,1, 6,8,   1,10 ],  # x both, y positive
+                    [ -6,-1, 6,-8, 1,10 ],  # x both, y negative
+                    [ 1,-6, 8,6, 1,10 ],    # y both, x positive
+                    [ -1,-6, -8,6, 1,10 ],  # y both, x negative
+                    ,
+                   ) {
+    my ($x1,$y1, $x2,$y2, $want_rlo,$want_rhi) = @$elem;
+    my ($got_rlo,$got_rhi)
+      = Math::PlanePath::SacksSpiral::_rect_to_radius_range ($x1,$y1, $x2,$y2);
+
+    my $name = "_rect_to_radius_range()  $x1,$y1, $x2,$y2";
+    is ($got_rlo, $want_rlo, "$name, r lo");
+    is ($got_rhi, $want_rhi, "$name, r hi");
   }
 }
 

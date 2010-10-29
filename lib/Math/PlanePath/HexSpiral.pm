@@ -26,7 +26,7 @@ use POSIX ();
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 10;
+$VERSION = 11;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -34,8 +34,9 @@ $VERSION = 10;
 
 
 sub new {
-  return shift->SUPER::new (wider => 0, # default
-                            @_);
+  my $self = shift->SUPER::new (@_);
+  $self->{'wider'} ||= 0;  # default
+  return $self;
 }
 
 # wider==0

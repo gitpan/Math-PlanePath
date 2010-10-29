@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 10;
+$VERSION = 11;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -153,7 +153,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows
+=for stopwords pronic SacksSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows ie
 
 =head1 NAME
 

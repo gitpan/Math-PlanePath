@@ -47,8 +47,8 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [ 0, 1, 2, 3, 4 ],
-[ 1, 10, 25, 46, 73 ]
+                [ 0, 1, 2, ],
+[ 1, 7, 20 ]
                );
 
 sub bigrat_to_decimal {

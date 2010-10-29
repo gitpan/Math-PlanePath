@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 11, October 2010
+    - VogelFloret new rotation and radius parameters
+    - SacksSpiral,VogelFloret tighter rect_to_n_range() when away from origin
+
 Version 10, October 2010
     - fix MultipleRings xy_to_n()
 

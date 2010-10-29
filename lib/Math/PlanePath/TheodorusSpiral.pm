@@ -27,7 +27,7 @@ use Math::Trig 'pi';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 10;
+$VERSION = 11;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -204,8 +204,8 @@ root spiral.
                       ^
    -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6  7
 
-Each step is a unit distance at right angles to the previous radial.  So for
-example,
+Each step is a unit distance at right angles to the previous radial spoke.
+So for example,
 
          3        -- y=1+1/sqrt(2)
           \
@@ -219,22 +219,23 @@ example,
       x=0   x=1
 
 1 to 2 is a unit step at right angles to the 0 to 1 radial.  Then 2 to 3
-steps at a right angle to radial 0 to 2 (meaning 45 degrees up to the left),
-etc.  The distance 0 to 2 is sqrt(2), the distance 0 to 3 is sqrt(3), and in
-general r(N) = sqrt(N) since each step is a right triangle, r(N+1)^2 =
-S<r(N)^2 + 1>.  The resulting shape is very close to an Archimedean spiral
-with successive loops increasing in radius by pi (3.14159) or thereabouts
-each time.
+steps at a right angle to radial 0 to 2 (which is 45 degrees up to the
+left), etc.  The distance 0 to 2 is sqrt(2), the distance 0 to 3 is sqrt(3),
+and in general r(N) = sqrt(N) since each step is a right triangle with
+r(N+1)^2 = S<r(N)^2 + 1>.  The resulting shape is very close to an
+Archimedean spiral with successive loops increasing in radius by pi =
+3.14159 or thereabouts each time.
 
 X,Y positions returned are fractional and each integer N position is exactly
-1 away from the previous.  Fractional N gives positions on the straight line
-between the integer points.
+1 away from the previous.  Fractional N values give positions on the
+straight line between the integer points.  (An analytic continuation for a
+rounded curve between points is possible, but not currently implemented.)
 
-Each loop is just under 2*pi^2 (19.7392) longer than the previous.  This
-means quadratic points 9.8696*k^2 for integer k form an almost straight
-line.  Quadratics close to 9.87 or a square multiple of it nearly line up.
-For example the 22-polygonal numbers have 10*k^2 and at low values nearly
-line up but then spiral away.
+Each loop is just under 2*pi^2 = 19.7392 longer than the previous.  This
+means points of the quadratic 9.8696*k^2 for integer k form an almost
+straight line.  Quadratics close to 9.87 or a square multiple of that nearly
+line up.  For example the 22-polygonal numbers have 10*k^2 and at low values
+are nearly straight, but then spiral away.
 
 =head1 FUNCTIONS
 

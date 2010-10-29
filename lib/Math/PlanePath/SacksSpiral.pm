@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 10;
+$VERSION = 11;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -79,11 +79,32 @@ sub xy_to_n {
 }
 
 sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $r = hypot (max(abs($x1),abs($x2)), max(abs($y1),abs($y2)));
-  # ENHANCE-ME: find actual minimum r if rect doesn't cover 0,0
-  return (1,
-          1 + POSIX::ceil (($r+1) ** 2));
+  my $self = shift;
+
+  my ($r_lo, $r_hi) = _rect_to_radius_range(@_);
+  # minimum r_lo=1 for minimum N=1
+  $r_lo = max (1, $r_lo-0.6);
+  $r_hi += 0.6;
+
+  return (int($r_lo*$r_lo),
+          1 + POSIX::ceil($r_hi*$r_hi));
+}
+
+sub _rect_to_radius_range {
+  my ($x1,$y1, $x2,$y2) = @_;
+
+  return (hypot((($x1 > 0) == ($x2 > 0)
+                 # x range doesn't include x=0, so low is min abs value
+                 ? min(abs($x1),abs($x2))
+                 # x range includes x=0, so that's the minimum
+                 : 0),
+
+                (($y1 > 0) == ($y2 > 0)  # same for y
+                 ? min(abs($y1),abs($y2))
+                 : 0)),
+
+          hypot (max(abs($x1),abs($x2)),
+                 max(abs($y1),abs($y2))));
 }
 
 1;
@@ -131,14 +152,14 @@ which comes out roughly as
                22        23
 
 The X,Y positions returned are fractional, except for the perfect squares on
-the right axis at X=0,1,2,3,etc.  Those perfect squares are spaced 1 apart,
-other pointer are a little further apart.
+the right axis at X=0,1,2,3,etc spaced 1 apart.  Other points are a little
+further apart.
 
 The arms going to the right like 5,10,17,etc or 8,15,24,etc are constant
-offsets from the perfect squares, ie. s^2 + c for a positive or negative
+offsets from the perfect squares, ie. S<s^2 + c> for positive or negative
 integer c.  To the left the central arm 2,6,12,20,etc is the pronic numbers
-s^2 + s, half way between the successive perfect squares.  Other arms going
-to the left are offsets from that, ie. s^2 + s + c for integer c.
+S<s^2 + s>, half way between the successive perfect squares.  Other arms
+going to the left are offsets from that, ie. s^2 + s + c for integer c.
 
 Euler's quadratic s^2+s+41 is one such arm going left.  Low values loop
 around a few times before straightening out at about y=-127.  This quadratic

@@ -8,6 +8,7 @@ debian/patches/pod-examples-dir.diff
 debian/rules
 debian/source/format
 debian/watch
+devel/cont-frac.pl
 devel/grid.pl
 devel/interpolate.pl
 devel/run.pl
@@ -61,6 +62,7 @@ t/PyramidRows.t
 t/Rows.t
 t/SacksSpiral.t
 t/SquareSpiral.t
+t/VogelFloret.t
 xt/0-META-read.t
 xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t

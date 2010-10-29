@@ -28,6 +28,30 @@ use Smart::Comments;
 
 
 {
+  require Math::Polynomial;
+
+  my @n;
+  my @theta;
+  my $total = 0;
+  foreach my $n (1 .. 50) {
+    my $total += atan(1/sqrt($n));
+    push @n, $n;
+    push @theta, $total;
+  }
+
+  my $p = Math::Polynomial->new;
+  $p = $p->interpolate(\@n, \@theta);
+
+  foreach my $i (0 .. $p->degree) {
+    print "$i  ",$p->coeff($i),"\n";
+  }
+  # $p->string_config({ fold_sign => 1,
+  #                     variable  => 'n' });
+  # print "theta = $p\n";
+  exit 0;
+}
+
+{
   my $c2 = 2.15778;
   my $t1 = 1.8600250;
   my $t2 = 0.43916457;
