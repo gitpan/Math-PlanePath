@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 11;
+$VERSION = 12;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -198,12 +198,15 @@ sub xy_to_n {
 }
 
 sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
+  my $self = shift;
+  ### VogelFloret rect_to_n_range(): @_
 
   my ($r_lo, $r_hi) = _rect_to_radius_range(@_);
   # minimum r_lo=1 for minimum N=1
   $r_lo = max (1, ($r_lo-0.6) / $self->{'radius_factor'});
   $r_hi = ($r_hi + 0.6) / $self->{'radius_factor'};
+  ### $r_lo
+  ### $r_hi
 
   return (int($r_lo*$r_lo),
           1 + POSIX::ceil($r_hi*$r_hi));

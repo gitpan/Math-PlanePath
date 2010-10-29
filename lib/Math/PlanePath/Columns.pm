@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 11;
+$VERSION = 12;
 @ISA = ('Math::PlanePath');
 
 use constant x_negative => 0;

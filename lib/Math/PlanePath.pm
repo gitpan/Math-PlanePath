@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 11;
+$VERSION = 12;
 
 # defaults
 use constant x_negative => 1;

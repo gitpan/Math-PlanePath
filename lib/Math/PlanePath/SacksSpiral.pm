@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 11;
+$VERSION = 12;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -81,13 +81,13 @@ sub xy_to_n {
 sub rect_to_n_range {
   my $self = shift;
 
-  my ($r_lo, $r_hi) = _rect_to_radius_range(@_);
-  # minimum r_lo=1 for minimum N=1
-  $r_lo = max (1, $r_lo-0.6);
-  $r_hi += 0.6;
+  my ($rlo, $rhi) = _rect_to_radius_range(@_);
+  # minimum rlo=1 for minimum N=1
+  $rlo = max (1, $rlo-0.6);
+  $rhi += 0.6;
 
-  return (int($r_lo*$r_lo),
-          1 + POSIX::ceil($r_hi*$r_hi));
+  return (int($rlo*$rlo),
+          1 + POSIX::ceil($rhi*$rhi));
 }
 
 sub _rect_to_radius_range {
