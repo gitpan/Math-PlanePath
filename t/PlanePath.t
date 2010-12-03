@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 214;
+use Test::More tests => 234;
 
 use lib 't';
 use MyTestHelpers;
@@ -57,13 +57,16 @@ my @modules = qw(
                   SacksSpiral
                   TheodorusSpiral
                   KnightSpiral
+
+                  ZOrderCurve
+                  HilbertCurve
                );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 12;
+my $want_version = 13;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

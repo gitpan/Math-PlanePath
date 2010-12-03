@@ -26,7 +26,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 12;
+$VERSION = 13;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -316,7 +316,7 @@ factorization by the roots making a no-primes gap.
 =head2 Wider
 
 An optional C<wider> parameter makes the path wider, becoming a rectangle
-instead of a square.  For example
+spiral instead of a square.  For example
 
     $path = Math::PlanePath::SquareSpiral->new (wider => 3);
 
@@ -346,13 +346,13 @@ squares are still on diagonals, but the even squares go towards the bottom
 left (instead of top left when wider=0) and the odd squares to the top right
 (instead of the bottom right).
 
-Each loop is still 8 longer than the previous, since the widening is
-basically a constant amount added into each loop.
+Each loop is still 8 longer than the previous, as the widening is basically
+a constant amount added into each loop.
 
 =head2 Corners
 
 Other spirals can be formed by cutting the corners of the square so as to go
-around faster.  See the following module,
+around faster.  See the following modules,
 
     Corners Cut    Class
     -----------    -----

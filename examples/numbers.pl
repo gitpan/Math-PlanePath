@@ -77,7 +77,9 @@ if ($class eq 'all') {
                         KnightSpiral
 
                         Rows
-                        Columns)) {
+                        Columns
+                        HilbertCurve
+                        ZOrderCurve)) {
 
     print $separator; $separator = "\n";
     print "$class\n\n";

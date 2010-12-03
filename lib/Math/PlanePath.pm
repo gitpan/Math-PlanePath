@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 12;
+$VERSION = 13;
 
 # defaults
 use constant x_negative => 1;
@@ -68,6 +68,8 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     VogelFloret            seeds in a sunflower
     TheodorusSpiral        unit steps at right angles
     MultipleRings          concentric circles
+    HilbertCurve           self-similar unit-step traversal
+    ZOrderCurve            replicating Z shapes
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
@@ -79,16 +81,15 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
 The paths are object oriented to allow parameters though only a few
 subclasses actually have any parameters.
 
-The classes are generally based on integer C<$n> positions and the classes
+The classes are generally based on integer C<$n> positions and those
 designed for a square grid turn an integer C<$n> into integer C<$x,$y>.
 Usually they give in-between positions for fractional C<$n> too.  Classes
-not on a square grid, like SacksSpiral and VogelFloret, are scaled for a
-unit circle at each C<$n> but they too can give in-between positions on
-request.
+not on a square grid, like SacksSpiral and VogelFloret, are based on a unit
+circle at each C<$n> but they too can give in-between positions on request.
 
-In general there's no parameters for scaling, or an offset for the 0,0
-origin, or a reflection up or down.  Those things are thought better done by
-a general coordinate transformer that might expand or invert for display.
+In general there's no parameters for scaling or an offset for the 0,0 origin
+or a reflection up or down.  Those things are thought better done by a
+general coordinate transformer that might expand or invert for display.
 Even clockwise instead of counter-clockwise spiralling can be had just by
 negating C<$x> (or negate C<$y> to stay starting at the right), or a quarter
 turn by swapping C<$x> and C<$y>.
@@ -224,6 +225,8 @@ L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::MultipleRings>
+L<Math::PlanePath::HilbertCurve>
+L<Math::PlanePath::ZOrderCurve>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,

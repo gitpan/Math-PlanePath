@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 12;
+$VERSION = 13;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -421,7 +421,7 @@ page (quarter way down under "Open Knight's Tour"),
 
 See L<math-image> to draw the path lines too.  Or
 F<examples/knights-sloane.pl> expressing the knight's tour by the numbering
-of the SquareSpiral (Sloane's sequence A068608).
+of the SquareSpiral (Sloane's OEIS sequence A068608).
 
 =head1 FUNCTIONS
 

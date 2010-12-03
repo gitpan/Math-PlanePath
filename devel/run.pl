@@ -35,12 +35,12 @@ use Smart::Comments;
   require Math::PlanePath::KnightSpiral;
   require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::MultipleRings;
-  require App::MathImage::PlanePath::ReplicatingSquares;
+  require App::MathImage::PlanePath::HilbertCurve;
 
-  my $path = Math::PlanePath::MultipleRings->new (wider => 0,
+  my $path = App::MathImage::PlanePath::HilbertCurve->new (wider => 0,
                                               # step => 0,
                                              );
-  foreach my $i (1 .. 500) {
+  foreach my $i (1 .. 16) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;

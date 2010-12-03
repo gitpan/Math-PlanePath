@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 13, November 2010
+    - new HilbertCurve, ZOrderCurve
+
 Version 12, October 2010
     - oops, VogelFloret botched rect_to_n_range()
 

@@ -10,8 +10,11 @@ debian/source/format
 debian/watch
 devel/cont-frac.pl
 devel/grid.pl
+devel/heighway.pl
 devel/interpolate.pl
+devel/r5.pl
 devel/run.pl
+devel/theodorus.gnuplot
 devel/theodorus.pl
 devel/unused.pl
 devel/vertical.pl
@@ -31,6 +34,7 @@ lib/Math/PlanePath/DiamondSpiral.pm
 lib/Math/PlanePath/HeptSpiralSkewed.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm
+lib/Math/PlanePath/HilbertCurve.pm
 lib/Math/PlanePath/KnightSpiral.pm
 lib/Math/PlanePath/MultipleRings.pm
 lib/Math/PlanePath/PentSpiral.pm
@@ -45,6 +49,7 @@ lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
 lib/Math/PlanePath/VogelFloret.pm
+lib/Math/PlanePath/ZOrderCurve.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP

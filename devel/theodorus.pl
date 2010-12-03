@@ -2,20 +2,20 @@
 
 # Copyright 2010 Kevin Ryde
 
-# This file is part of Math-Image.
+# This file is part of Math-PlanePath.
 #
-# Math-Image is free software; you can redistribute it and/or modify
+# Math-PlanePath is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Math-Image is distributed in the hope that it will be useful, but
+# Math-PlanePath is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 use strict;
 use warnings;
@@ -27,19 +27,70 @@ use Math::Libm 'hypot';
 use Smart::Comments;
 
 
+
+sub integral {
+  my ($x) = @_;
+  print "log ", log(1+$x*$x), "  at x=$x\n";
+  return $x * atan($x) - 0.5 * log (1 + $x*$x);
+}
+print "integral 0 = ", integral(0), "\n";
+print "integral 1 = ", integral(1)/(2*pi()), "\n";
+print "atan 1 = ", atan(1)/(2*pi()), "\n";
+
+sub est {
+  my ($n) = @_;
+  my $k = $n-1;
+  if ($k == 0) { return 0; }
+
+  my $K = 2.1577829966;
+  my $root = sqrt($k);
+  my $a = 2*pi()*pi();
+  my $radians;
+
+  $radians = integral(1/$root); #  - integral(0);
+
+  # $radians = ($k+1)*atan(1/$root) + $root - 1/($root*$k);
+  return $radians / (2*pi());
+
+  $radians = 2*$root;
+  return $radians / (2*pi());
+
+  $radians = $root - atan($root) + $k*atan(1/$root);
+  return $radians / (2*pi());
+
+  return $k / $a;    # revolutions
+  return $k / pi();
+
+  return 2*$root / $a;
+  $radians = 2*sqrt($k+1) + $K + 1/(6*sqrt($k+1)); # plus O(n^(-3/2))
+  return 0.5 * $a * ($k * sqrt(1+$k*$k) + log($k + sqrt(1+$k*$k))) / $k;
+  return $root + ($k+1)*atan(1/$root);
+}
+print "est 1 = ", est(1), "\n";
+print "est 2 = ", est(2), "\n";
+
 {
   require Math::Polynomial;
-
+  open OUT, ">/tmp/theodorus.data" or die;
   my @n;
   my @theta;
   my $total = 0;
-  foreach my $n (1 .. 50) {
-    my $total += atan(1/sqrt($n));
-    push @n, $n;
-    push @theta, $total;
+  foreach my $n (2 .. 150) {
+    my $inc = Math::Trig::atan(1/sqrt($n-1)) / (2*pi());  # revs
+    $total += $inc;
+    my $est = est($n);
+    my $diff = $total - $est;
+    if ($n > 50) {
+      push @n, $n-51;
+      push @theta, $diff;
+      print OUT "$n $diff\n";
+    }
+    print "$n $inc $total $est   $diff\n";
   }
+  print "\n";
 
-  my $p = Math::Polynomial->new;
+  Math::BigFloat->accuracy(200);
+  my $p = Math::Polynomial->new; # (Math::BigFloat->new(0));
   $p = $p->interpolate(\@n, \@theta);
 
   foreach my $i (0 .. $p->degree) {
@@ -48,6 +99,40 @@ use Smart::Comments;
   # $p->string_config({ fold_sign => 1,
   #                     variable  => 'n' });
   # print "theta = $p\n";
+
+  close OUT or die;
+  system "xterm -e 'gnuplot  <devel/theodorus.gnuplot; read'";
+  exit 0;
+}
+
+{
+  my $next = 1;
+  my $total = 0;
+  my $n = 1;
+  my $prev_n = 0;
+  my $prev_diff = 0;
+  my $total_diff_diff;
+  my $count_diff_diff;
+  for (;;) {
+    my $inc = Math::Trig::atan2(1,sqrt($n++)) / (2*pi());
+    $total += $inc;
+    if ($total >= $next) {
+      $next++;
+      my $diff = $n - $prev_n;
+      my $diff_diff = $diff - $prev_diff;
+      $total_diff_diff += $diff_diff;
+      $count_diff_diff++;
+      print "$n +$diff +$diff_diff $total\n";
+      if ($next >= 1000) {
+        last;
+      }
+      $prev_n = $n;
+      $prev_diff = $diff;
+    }
+  }
+  my $avg = $total_diff_diff / $count_diff_diff;
+  print "average $avg\n";
+  print "\n";
   exit 0;
 }
 
