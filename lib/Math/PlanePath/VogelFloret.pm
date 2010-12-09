@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 13;
+$VERSION = 14;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -71,11 +71,12 @@ $VERSION = 13;
 #               2
 #
 #    k       x
-#    1    (1+sqrt(5))/2
-#    2    1+sqrt(2)
-#    3    (3+sqrt(13))/2
+#    1    (1+sqrt(5)) / 2
+#    2    1 + sqrt(2)
+#    3    (3+sqrt(13)) / 2
 #    4    2 + sqrt(5)
-#    6    6 + sqrt(37)
+#    5    (5 + sqrt(29)) / 2
+#    6    3 + sqrt(10)
 #   2e    e + sqrt(1+e^2)  even
 
 

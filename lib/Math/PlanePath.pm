@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 13;
+$VERSION = 14;
 
 # defaults
 use constant x_negative => 1;
@@ -120,12 +120,20 @@ For example the gap between successive perfect squares increases by 2 each
 time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
 squares make a straight line in the paths of step 2.
 
+In general straight lines are quadratics a*k^2+b*k+c, with a=step/2 .  There
+are various interesting properties of primes in quadratic progressions like
+this.  Some seem to have more primes than others, for instance see
+PyramidSides for Euler's k^2+k+41.  Many quadratics have no primes at all,
+or above a certain point, either trivially if always a multiple of 2 etc, or
+by a more sophisticated reasoning.  See PyramidRows with step 3 for an
+example of a factorization by the roots making a no-primes gap.
+
 A factor of 4 on the step splits a straight line into two, so for example on
-the SquareSpiral of step 8 the perfect squares fall on two lines going to
-the lower left and upper right.  Effectively it's one line of the even
-squares (2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap
-between successive even squares increases by 8 each time and likewise the
-odd squares.
+the SquareSpiral (step 8) the perfect squares fall on two lines going to the
+lower left and upper right.  Effectively it's one line of the even squares
+(2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap between
+successive even squares increases by 8 each time and likewise the odd
+squares.
 
 =head1 FUNCTIONS
 

@@ -27,7 +27,7 @@ use Math::Trig 'pi';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 13;
+$VERSION = 14;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

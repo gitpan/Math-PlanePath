@@ -17,7 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-Version 13, November 2010
+Version 14, December 2010
+    - HilbertCurve tighter rect_to_n_range()
+
+Version 13, December 2010
     - new HilbertCurve, ZOrderCurve
 
 Version 12, October 2010

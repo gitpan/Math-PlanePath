@@ -26,7 +26,7 @@ use POSIX ();
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 13;
+$VERSION = 14;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -232,6 +232,10 @@ horizontal is similarly skewed but to the right.
     14          10            14            10    
      |             \         /                \  
     15               9     15                  9
+
+The kinds of 3*k^2 number sequences which fall on straight lines in the
+plain HexSpiral also fall on straight lines when skewed.  See
+L<Math::PlanePath::HexSpiral> for notes on this.
 
 =head2 Wider
 

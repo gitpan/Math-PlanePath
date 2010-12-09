@@ -18,7 +18,7 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Usage: perl knights-sloane.pl
+# Usage: perl knights-oeis.pl
 #
 # This spot of code prints sequence A068608 of Sloane's On-Line Encyclopedia
 # of Integer Sequences

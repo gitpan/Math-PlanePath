@@ -66,7 +66,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 13;
+my $want_version = 14;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

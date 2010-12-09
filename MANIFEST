@@ -11,6 +11,7 @@ debian/watch
 devel/cont-frac.pl
 devel/grid.pl
 devel/heighway.pl
+devel/hilbert.pl
 devel/interpolate.pl
 devel/r5.pl
 devel/run.pl
@@ -19,7 +20,9 @@ devel/theodorus.pl
 devel/unused.pl
 devel/vertical.pl
 devel/vogel.pl
-examples/knights-sloane.pl
+examples/hilbert-oeis.pl
+examples/hilbert-path.pl
+examples/knights-oeis.pl
 examples/numbers.pl
 examples/sacks-xpm.pl
 examples/square-numbers.pl
@@ -59,6 +62,8 @@ t/Diagonals.t
 t/DiamondSpiral.t
 t/HexSpiral.t
 t/HexSpiralSkewed.t
+t/HilbertCurve-oeis.t
+t/HilbertCurve.t
 t/KnightSpiral.t
 t/MultipleRings.t
 t/MyTestHelpers.pm

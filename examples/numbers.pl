@@ -47,7 +47,7 @@ my $height = 23;
 if (eval { require Term::Size }) {
   my ($w, $h) = Term::Size::chars();
   if ($w) { $width = $w - 1; }
-  if ($h) { $width = $h - 1; }
+  if ($h) { $height = $h - 1; }
 }
 
 my $class = $ARGV[0] || 'HexSpiral';

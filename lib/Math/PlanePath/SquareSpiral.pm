@@ -26,7 +26,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 13;
+$VERSION = 14;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -275,43 +275,43 @@ Math::PlanePath::SquareSpiral -- integer points drawn around a square (or rectan
 
 This path makes a square spiral,
 
-    37--36--35--34--33--32--31         3
+    37--36--35--34--33--32--31              3
      |                       |
-    38  17--16--15--14--13  30         2
+    38  17--16--15--14--13  30              2
      |   |               |   |
-    39  18   5---4---3  12  29         1
+    39  18   5---4---3  12  29              1
      |   |   |       |   |   |
-    40  19   6   1---2  11  28    <- y=0
-     |   |   |           |   |
-    41  20   7---8---9--10  27        -1
-     |   |                   |
-    42  21--22--23--24--25--26        -2
-     |
-    43--44--45--46--47 ...
+    40  19   6   1---2  11  28  ...    <- y=0
+     |   |   |           |   |   |
+    41  20   7---8---9--10  27  52         -1
+     |   |                   |   |
+    42  21--22--23--24--25--26  51         -2
+     |                           |
+    43--44--45--46--47--48--49--50
 
                  ^
     -3  -2  -1  x=0  1   2   3
-
-The perfect squares 1,4,9,16,25 fall on diagonals with the even perfect
-squares going to the upper left and the odd ones to the lower right.  The
-pronic numbers 2,6,12,20,30,42 etc (k^2+k) half way between the squares fall
-on similar diagonals to the upper right and lower left.
 
 This path is well known from Stanislaw Ulam finding interesting straight
 lines plotting the prime numbers on it.  See F<examples/ulam-spiral-xpm.pl>
 in the sources for a program generating that, or see L<math-image> using
 this SquareSpiral to draw Ulam's pattern and more.
 
-In general straight lines in this spiral and other stepped paths (meaning
-everything except the VogelFloret currently) are quadratics a*k^2+b*k+c,
-with a=step/2 where step is how much longer each loop takes than the
-preceding (8 in the case of the SquareSpiral).  There are various
-interesting properties of primes in quadratic progressions like this.  Some
-seem to have more primes than others, for instance see PyramidSides for
-Euler's k^2+k+41.  Many quadratics have no primes at all, or above a certain
-point, either trivially if always a multiple of 2 or similar, or by a more
-sophisticated reasoning.  See PyramidRows with step 3 for an example of a
-factorization by the roots making a no-primes gap.
+=head2 Straight Lines
+
+The perfect squares 1,4,9,16,25 fall on diagonals with the even perfect
+squares going to the upper left and the odd ones to the lower right.  The
+pronic numbers 2,6,12,20,30,42 etc k^2+k half way between the squares fall
+on similar diagonals to the upper right and lower left.  The decagonal
+numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right at y=-1.
+
+In general straight lines and diagonals are 4*k^2 + b*k + c.  b=0 is the
+even perfect squares up to the left, then b is an eighth turn
+counter-clockwise, or clockwise if negative.  So b=1 is horizontally to the
+left, b=2 diagonally down to the left, b=3 down vertically, etc.
+
+Honaker's prime-generating polynomial 4*k^2 + 4*k + 59 goes down to the
+right, after the first 30 or so values loop around a bit.
 
 =head2 Wider
 

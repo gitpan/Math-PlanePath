@@ -26,7 +26,7 @@ use POSIX ();
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 13;
+$VERSION = 14;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -245,6 +245,13 @@ alternate row is offset from the one above or below.  The resulting
 "triangles" between the points are flatter than they ought to be.  Drawn on
 a square grid the angle up is 45 degrees making an isosceles right triangle
 instead of 60 for an equilateral triangle.
+
+The octagonal numbers 8,21,40,65, etc 3*k^2-2*k fall on a horizontal
+straight line at y=-1.  In general straight lines are 3*k^2 + b*k + c.  The
+3*k^2 goes diagonally up to the left, then b is a 1/6 turn
+counter-clockwise, or clockwise if negative.  So b=1 goes horizontally to
+the left, b=2 diagonally down to the left, b=3 diagonally down to the right,
+etc.
 
 =head2 Wider
 

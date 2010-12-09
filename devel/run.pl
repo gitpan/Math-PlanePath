@@ -35,17 +35,18 @@ use Smart::Comments;
   require Math::PlanePath::KnightSpiral;
   require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::MultipleRings;
-  require App::MathImage::PlanePath::HilbertCurve;
+  require Math::PlanePath::HilbertCurve;
+  require App::MathImage::PlanePath::Hilbert33;
 
-  my $path = App::MathImage::PlanePath::HilbertCurve->new (wider => 0,
-                                              # step => 0,
-                                             );
-  foreach my $i (1 .. 16) {
+  my $path = App::MathImage::PlanePath::Hilbert33->new (wider => 0,
+                                                        # step => 0,
+                                                       );
+  foreach my $i (1 .. 64) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
     my $n = $path->xy_to_n ($x+.0, $y+.0) // 'norev';
-    my ($n_lo, $n_hi) = $path->rect_to_n_range (0,0, $x,$y);
+    my ($n_lo, $n_hi) = $path->rect_to_n_range (0,$y, $x,$y);
     printf "%3d %8.4f,%8.4f   %3s %s %s\n",
       $i,  $x,$y,  $n,
         "${n_lo}_${n_hi}",
