@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,102 +20,329 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 14;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+use MyOEIS;
 
 use Math::PlanePath::HilbertCurve;
 use Math::PlanePath::Diagonals;
 use Math::PlanePath::ZOrderCurve;
-use POSIX ();
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
 
-use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
-use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
-
-sub read_bfile {
-  my ($filename) = @_;
-  $filename or return undef;
-  require File::Spec;
-  $filename = File::Spec->catfile (File::Spec->updir, 'oeis', $filename);
-  open FH, "<$filename" or return undef;
-  my @array;
-  while (defined (my $line = <FH>)) {
-    chomp $line;
-    next if $line =~ /^\s*$/;   # ignore blank lines
-    my ($i, $n) = split /\s+/, $line;
-    if (! (defined $n && $n =~ /^[0-9]+$/)) {
-      die "oops, bad line in $filename: '$line'";
-    }
-    if ($n > MY_MAX) {
-      ### read_bfile stop bigger than float: $n
-      last;
-    }
-    push @array, $n;
-  }
-  close FH or die;
-  diag "$filename has ",scalar(@array)," values";
-  return \@array;
-}
-
-
-#------------------------------------------------------------------------------
-
 my $hilbert  = Math::PlanePath::HilbertCurve->new;
 my $diagonal = Math::PlanePath::Diagonals->new;
 my $zorder   = Math::PlanePath::ZOrderCurve->new;
 
+#------------------------------------------------------------------------------
+# A163355
+
 SKIP: {
-  my $b55 = read_bfile('b163355.txt')
-    || skip 'b163355.txt not available', 1;
+  my $anum = 'A163355';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
 
   my @got;
-  foreach my $n (0 .. $#$b55) {
+  foreach my $n (0 .. $#$bvalues) {
     my ($x, $y) = $zorder->n_to_xy ($n);
     push @got, $hilbert->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $b55);
+  is_deeply (\@got, $bvalues);
 }
 
+#------------------------------------------------------------------------------
+# A163357
+
 SKIP: {
-  my $b57 = read_bfile('b163357.txt')
-    || skip 'b163357.txt not available', 1;
+  my $anum = 'A163357';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
 
   my @got;
-  foreach my $n (1 .. @$b57) {
+  foreach my $n (1 .. @$bvalues) {
     my ($y, $x) = $diagonal->n_to_xy ($n);     # transposed, same side
     push @got, $hilbert->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $b57);
+  is_deeply (\@got, $bvalues);
 }
 
+#------------------------------------------------------------------------------
 SKIP: {
-  my $b59 = read_bfile('b163359.txt')
-    || skip 'b163359.txt not available', 1;
+  my $anum = 'A163359';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
 
   my @got;
-  foreach my $n (1 .. @$b59) {
+  foreach my $n (1 .. @$bvalues) {
     my ($x, $y) = $diagonal->n_to_xy ($n);     # plain, opposite sides
     push @got, $hilbert->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $b59);
+  is_deeply (\@got, $bvalues);
 }
 
+#------------------------------------------------------------------------------
 SKIP: {
-  my $b61 = read_bfile('b163361.txt')
-    || skip 'b163361.txt not available', 1;
+  my $anum = 'A163361';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
 
   my @got;
-  foreach my $n (1 .. @$b61) {
+  foreach my $n (1 .. @$bvalues) {
     my ($y, $x) = $diagonal->n_to_xy ($n);     # transposed, same side
     push @got, $hilbert->xy_to_n ($x, $y) + 1; # 1-based Hilbert
   }
-  is_deeply (\@got, $b61);
+  is_deeply (\@got, $bvalues);
 }
+
+#------------------------------------------------------------------------------
+# A163365 - diagonal sums
+SKIP: {
+  my $anum = 'A163365';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my @got;
+  foreach my $d (0 .. $#$bvalues) {
+    my $sum = 0;
+    foreach my $x (0 .. $d) {
+      my $y = $d - $x;
+      $sum += $hilbert->xy_to_n ($x, $y);
+    }
+    push @got, int($sum/4);
+  }
+  is_deeply (\@got, $bvalues, "$anum - diagonal sums div 4");
+}
+
+# A163477 - diagonal sums divided by 4
+SKIP: {
+  my $anum = 'A163477';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my @got;
+  foreach my $d (0 .. $#$bvalues) {
+    my $sum = 0;
+    foreach my $x (0 .. $d) {
+      my $y = $d - $x;
+      $sum += $hilbert->xy_to_n ($x, $y);
+    }
+    push @got, int($sum/4);
+  }
+  is_deeply (\@got, $bvalues, "$anum - diagonal sums divided by 4");
+}
+
+#------------------------------------------------------------------------------
+# A163482 -- row at Y=0
+SKIP: {
+  my $anum = 'A163482';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my @got;
+  foreach my $x (0 .. $#$bvalues) {
+    push @got, $hilbert->xy_to_n ($x, 0);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- row at Y=0");
+}
+
+#------------------------------------------------------------------------------
+# A163483 -- column at X=0
+SKIP: {
+  my $anum = 'A163483';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my @got;
+  foreach my $y (0 .. $#$bvalues) {
+    push @got, $hilbert->xy_to_n (0, $y);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- column at X=0");
+}
+
+#------------------------------------------------------------------------------
+# A163538 -- delta X
+# first entry is for N=0 no change
+SKIP: {
+  my $anum = 'A163538';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my ($prev_x, $prev_y) = (0, 0);
+  my @got;
+  foreach my $n (0 .. $#$bvalues) {
+    my ($x, $y) = $hilbert->n_to_xy ($n);
+    my $dx = $x - $prev_x;
+    push @got, $dx;
+    ($prev_x, $prev_y) = ($x, $y);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- delta X (transpose)");
+}
+
+#------------------------------------------------------------------------------
+# A163539 -- delta Y
+# first entry is for N=0 no change
+SKIP: {
+  my $anum = 'A163539';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my ($prev_x, $prev_y) = (0, 0);
+  my @got;
+  foreach my $n (0 .. $#$bvalues) {
+    my ($x, $y) = $hilbert->n_to_xy ($n);
+    my $dy = $y - $prev_y;
+    push @got, $dy;
+    ($prev_x, $prev_y) = ($x, $y);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- delta Y (transpose)");
+}
+
+#------------------------------------------------------------------------------
+# A163540 -- absolute direction 0=east, 1=south, 2=west, 3=north
+# Y coordinates reckoned down the page, so south is Y increasing
+
+SKIP: {
+  my $anum = 'A163540';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
+  my @got;
+  foreach my $n (1 .. @$bvalues) {
+    my ($x, $y) = $hilbert->n_to_xy ($n);
+    my $dx = $x - $prev_x;
+    my $dy = $y - $prev_y;
+    push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
+    ($prev_x,$prev_y) = ($x,$y);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- absolute direction");
+}
+
+#------------------------------------------------------------------------------
+# A163541 -- absolute direction transpose 0=east, 1=south, 2=west, 3=north
+
+SKIP: {
+  my $anum = 'A163541';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
+  my @got;
+  foreach my $n (1 .. @$bvalues) {
+    my ($x, $y) = $hilbert->n_to_xy ($n);
+    my $dx = $x - $prev_x;
+    my $dy = $y - $prev_y;
+    push @got, MyOEIS::dxdy_to_direction ($dy, $dx);
+    ($prev_x,$prev_y) = ($x,$y);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- absolute direction transpose");
+}
+
+#------------------------------------------------------------------------------
+# A163542 -- relative direction 0=ahead, 1=right, 2=left
+# Y coordinates reckoned down the page
+SKIP: {
+  my $anum = 'A163542';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my ($n0_x, $n0_y) = $hilbert->n_to_xy (0);
+  my ($p_x, $p_y) = $hilbert->n_to_xy (1);
+  my ($p_dx, $p_dy) = ($p_x - $n0_x, $p_y - $n0_y);
+  my @got;
+  foreach my $n (2 .. @$bvalues + 1) {
+    my ($x, $y) = $hilbert->n_to_xy ($n);
+    my $dx = ($x - $p_x);
+    my $dy = ($y - $p_y);
+
+    if ($p_dx) {
+      if ($dx) {
+        push @got, 0;  # ahead horizontally
+      } elsif ($dy == $p_dx) {
+        push @got, 1;  # right
+      } else {
+        push @got, 2;  # left
+      }
+    } else {
+      # p_dy
+      if ($dy) {
+        push @got, 0;  # ahead horizontally
+      } elsif ($dx == $p_dy) {
+        push @got, 2;  # left
+      } else {
+        push @got, 1;  # right
+      }
+    }
+    ### $n
+    ### $p_dx
+    ### $p_dy
+    ### $dx
+    ### $dy
+    ### is: "$got[-1]   at idx $#got"
+
+    ($p_dx,$p_dy) = ($dx,$dy);
+    ($p_x,$p_y) = ($x,$y);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- relative direction");
+}
+
+#------------------------------------------------------------------------------
+# A163543 -- relative direction 0=ahead, 1=right, 2=left
+# Y coordinates reckoned down the page
+
+sub transpose {
+  my ($x, $y) = @_;
+  return ($y, $x);
+}
+SKIP: {
+  my $anum = 'A163543';
+  my $bvalues = MyOEIS::read_values($anum)
+    || skip "$anum not available", 1;
+
+  my ($n0_x, $n0_y) = transpose ($hilbert->n_to_xy (0));
+  my ($p_x, $p_y) = transpose ($hilbert->n_to_xy (1));
+  my ($p_dx, $p_dy) = ($p_x - $n0_x, $p_y - $n0_y);
+  my @got;
+  foreach my $n (2 .. @$bvalues + 1) {
+    my ($x, $y) = transpose ($hilbert->n_to_xy ($n));
+    my $dx = ($x - $p_x);
+    my $dy = ($y - $p_y);
+
+    if ($p_dx) {
+      if ($dx) {
+        push @got, 0;  # ahead horizontally
+      } elsif ($dy == $p_dx) {
+        push @got, 1;  # right
+      } else {
+        push @got, 2;  # left
+      }
+    } else {
+      # p_dy
+      if ($dy) {
+        push @got, 0;  # ahead horizontally
+      } elsif ($dx == $p_dy) {
+        push @got, 2;  # left
+      } else {
+        push @got, 1;  # right
+      }
+    }
+    ### $n
+    ### $p_dx
+    ### $p_dy
+    ### $dx
+    ### $dy
+    ### is: "$got[-1]   at idx $#got"
+
+    ($p_dx,$p_dy) = ($dx,$dy);
+    ($p_x,$p_y) = ($x,$y);
+  }
+  is_deeply (\@got, $bvalues, "$anum -- relative direction transposed");
+}
+
 
 exit 0;

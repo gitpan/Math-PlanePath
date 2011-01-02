@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -40,7 +40,6 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### x: $n % $self->{'width'}
   ### y: int ($n / $self->{'width'})
-  $n--;
 
   # row y=0 starts at n=-0.5 with x=-0.5
   #
@@ -48,8 +47,8 @@ sub n_to_xy {
   # towards 0 instead of -infinity (with a view to allowing negatives maybe,
   # perhaps)
   #
-  my $y = floor (($n + 0.5) / $self->{'width'});
-  return ($n - $y * $self->{'width'},
+  my $y = floor (($n - 0.5) / $self->{'width'});
+  return ($n-1 - $y * $self->{'width'},
           $y);
 }
 
@@ -151,7 +150,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

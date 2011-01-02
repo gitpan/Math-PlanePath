@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -100,12 +100,8 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
   # monotonic increasing in $x and $y directions
-  $x1 = max ($x1, 0);
-  $x2 = max ($x2, 0);
-  $y1 = max ($y1, 0);
-  $y2 = max ($y2, 0);
-  return ($self->xy_to_n (min($x1,$x2), min($y1,$y2)),
-          $self->xy_to_n (max($x1,$x2), max($y1,$y2)));
+  return ($self->xy_to_n (max(0,min($x1,$x2)), max(0,min($y1,$y2))),
+          $self->xy_to_n (max(0,$x1,$x2), max(0,$y1,$y2)));
 }
 
 1;
@@ -179,7 +175,7 @@ This path puts points in a repeating Z pattern described by G.M. Morton,
           x=0   1   2   3   4   5   6   7
 
 The first four points make a "Z" shape if written with Y going downwards
-(mirror image if drawn upwards as above),
+(inverted image if drawn upwards as above),
 
      0---1       y=0
         /
@@ -197,17 +193,13 @@ each time.
      8   9 --- 12  13       y=2
     10  11     14  15       y=3
 
-The coordinate calculation is simple.  The bits of X and Y are simply every
-second bit of N.  So if N = binary 101010 then X=000 and Y=111 in binary,
-which is the N=42 shown above at X=0,Y=7.
-
-Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc 2^(2^k), all the N
+Within an even power of 2 square 2x2, 4x4, 8x8, 16x16 etc 2^(2^k), all the N
 values 0 to 2^(2*(2^k))-1 are within the square.  The top right corner 3,
 15, 63, 255 etc of each is the 2^(2*(2^k))-1 maximum.
 
 =head2 Power of 2 Values
 
-Plotting N values related to powers of 2 can come out as interesting
+Plotting N sequences related to powers of 2 can come out as interesting
 patterns.  For example displaying the numbers N which have no digit 3 in
 their base 4 representation gives
 
@@ -228,10 +220,21 @@ their base 4 representation gives
     *   *   *   *   *   *   *   * 
     * * * * * * * * * * * * * * * * 
 
-Drawing 0,1,2 and not 3 makes a little L at the bottom left, then repeated
-at 4x4 with again the "3" position there undrawn, and so on.  The blanks are
-a visual representation of the multiplications saved by recursive use of the
-Karatsuba multiplication algorithm.
+Plotting 0,1,2 and not 3 makes a little L at the bottom left, then repeated
+at 4x4 with again the whole "3" position there undrawn, and so on.  The
+blanks are a visual representation of the multiplications saved by recursive
+use of the Karatsuba multiplication algorithm.
+
+=head1 FORMULAS
+
+The coordinate calculation is simple.  The bits of X and Y are simply every
+second bit of N.  So if N = binary 101010 then X=000 and Y=111 in binary,
+which is the N=42 shown above at X=0,Y=7.
+
+Within each row the N values increase as X increases, and conversely within
+each column N increases with increasing Y.  On that basis for a given
+rectangle the smallest N is the lower left corner (smallest X and smallest
+Y), and the biggest N is at the upper right (biggest X and biggest Y).
 
 =head1 FUNCTIONS
 
@@ -271,7 +274,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

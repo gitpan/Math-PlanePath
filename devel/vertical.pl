@@ -92,7 +92,7 @@ sub is_perfect_square {
   my $c = Math::BigRat->new('-2');
   my $x = -$b;
   my $sq = ($b*$b-4*$a*$c);
-  my $y = $sq; 
+  my $y = $sq;
   $y->bsqrt;
   print "$x $sq $y\n";
   my $r1 = ($x + $y)/(2*$a);

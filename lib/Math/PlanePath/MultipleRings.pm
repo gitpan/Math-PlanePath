@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'asin', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -35,35 +35,20 @@ $VERSION = 14;
 
 use constant figure => 'circle';
 
-# 1/r = 2 * sin(1/2 * 2pi/points)
-# points = d*step, from d=1
-# r = 1 / (2 * sin(pi/(d*step)))
-#   = 0.5 / sin(pi/(d*step))
+# An n-gon of points many vertices has each angle
+#     alpha = 2*pi/points
+# The radius r to a vertex, using a line perpendicular to the line segment
+#     sin(alpha/2) = (1/2)/r
+#     r = 0.5 / sin(pi/points)
+# And with points = d*step, starting from d=1
+#     r = 0.5 / sin(pi/(d*step))
 #
-# 2*sin(pi/(d*step)) = 1/r
-# sin(pi/(d*step)) = 1/(2*r)
-# pi/(d*step) = asin(1/(2*r))
-# d*pi/step = asin(1/(2*r))
-# 1/d * pi/step = asin(1/(2*r))
-# d = pi/(step*asin(1/(2*r)))
-#
-#
-# r1 = 0.5 / sin(pi/(d*step))
-# r2 = 0.5 / sin(pi/((d+1)*step))
-# r2 - r1 = 0.5 / sin(pi/(d*step)) - 0.5 / sin(pi/((d+1)*step))
-# r2-r1 >= 1 when step>=7 ?
-
 # step==0 is a straight line y==0 x=0,1,2,..., anything else whole plane
 sub x_negative {
   my ($self) = @_;
-  return (! ref $self
-          || $self->{'step'} > 0);
+  return ($self->{'step'} > 0);
 }
-sub y_negative {
-  my ($self) = @_;
-  return (! ref $self
-          || $self->{'step'} > 0);
-}
+*y_negative = \&x_negative;
 
 sub new {
   my $class = shift;
@@ -103,8 +88,8 @@ sub n_to_xy {
   return if $n < 1; # separate test from decrement so as to warn on undef
   $n--;
   ### decremented n: $n
-  my $step;
-  if (($step = $self->{'step'}) == 0) {
+  my $step = $self->{'step'};
+  if (! $step) {
     # step==0 goes along X axis
     return ($n, 0);
   }
@@ -127,21 +112,48 @@ sub n_to_xy {
           $r * sin($theta));
 }
 
+# From above
+#     r = 0.5 / sin(pi/(d*step))
+#
+#     sin(pi/(d*step)) = 0.5/r
+#     pi/(d*step) = asin(1/(2*r))
+#     1/d * pi/step = asin(1/(2*r))
+#     d = pi/(step*asin(1/(2*r)))
+#
+# r1 = 0.5 / sin(pi/(d*step))
+# r2 = 0.5 / sin(pi/((d+1)*step))
+# r2 - r1 = 0.5 / sin(pi/(d*step)) - 0.5 / sin(pi/((d+1)*step))
+# r2-r1 >= 1 when step>=7 ?
+
+sub _xy_to_d {
+  my ($self, $x, $y) = @_;
+
+  my $r = hypot ($x, $y);
+  if ($r < 0.5) {
+    ### r smaller than 0.5 ring, treat as d=1
+    # 1/(2*r) could be div-by-zero
+    # or 1/(2*r) > 1 would be asin()==-nan
+    return 1;
+  }
+  ### $r
+  if ((my $step = $self->{'step'}) > 6) {
+    ### d frac by asin: M_PI() / ($step * asin(1/(2*$r)))
+    return M_PI() / ($step * asin(1/(2*$r)));
+  }
+  # $step <= 6
+  ### d frac by base: $r - $self->{'base_r'}
+  return $r - $self->{'base_r'};
+}
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### MultipleRings xy_to_n(): "$x, $y"
+  ### MultipleRings xy_to_n(): "$x, $y  step=$self->{'step'}"
 
   my $n;
   my $step;
-  if (($step = $self->{'step'}) == 0) {
-    $n = floor ($x + 0.5) + 1;
-  } else {
+  if (($step = $self->{'step'})) {
     # formula above with r=hypot(x,y)
-    my $r = hypot ($x, $y);
-    my $d = floor (0.5
-                   + ($step > 6
-                      ? M_PI() / ($step * asin(1/(2 * $r)))
-                      : $r - $self->{'base_r'}));
+    my $d = floor (0.5 + _xy_to_d ($self, $x, $y));
 
     my $theta = atan2($y,$x) / (2*M_PI());
     if ($theta < 0) { $theta++; }  # frac 0 <= $theta < 1
@@ -150,8 +162,6 @@ sub xy_to_n {
 
     $n = 1 + $theta_n + $step * 0.5*$d*($d-1);
     ### $d
-    ### d frac asin: M_PI() / ($step * asin(1/(2 * $r)))
-    ### d frac base: $r - ($self->{'base_r'}||0)
     ### d base: 0.5*$d*($d-1)
     ### d base M: $step * 0.5*$d*($d-1)
     ### theta frac: $theta
@@ -159,6 +169,9 @@ sub xy_to_n {
     ### $theta_n
     ### theta_n frac: $theta * $d*$step
     ### $n
+  } else {
+    # step==0
+    $n = floor ($x + 0.5) + 1;
   }
 
   ### trial n: $n
@@ -171,18 +184,38 @@ sub xy_to_n {
   }
 }
 
+# ENHANCE-ME: step>=3 small rectangles around 0,0 don't cover any pixels
+#
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### MultipleRings rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"
 
-  my $step = $self->{'step'};
-  my $r = hypot (max(abs($x1),abs($x2)), max(abs($y1),abs($y2)));
-  my $d = 1 + int ($step > 6
-                   ? M_PI() / ($step * asin(1/(2 * $r)))
-                   : $r - $self->{'base_r'});
-  return (1,
-          ($step == 0
-           ? $d
-           : 0.5*$d*($d+1) * $step));
+  my $zero = ($x1<0) != ($x2<0) || ($y1<0) != ($y2<0);
+  foreach ($x1,$x2,$y1,$y2) {
+    $_ = abs($_);
+  }
+  # if x1,x2 pos and neg then 0 is covered and it's the minimum
+  # ENHANCE-ME: might be able to be a little tighter on $d_lo
+  my $d_lo = ($zero
+              ? 1
+              : max (1, -2 + int (_xy_to_d ($self,
+                                            min($x1,$x2),
+                                            min($y1,$y2)))));
+  my $d_hi = 1 + int (_xy_to_d ($self,
+                                max($x1,$x2),
+                                max($y1,$y2)));
+  ### $d_lo
+  ### $d_hi
+  if ((my $step = $self->{'step'})) {
+    # start of ring is N= 0.5*$d*($d-1) * $step + 1
+    ### n_lo: 0.5*$d_lo*($d_lo-1) * $step + 1
+    ### n_hi: 0.5*$d_hi*($d_hi+1) * $step
+    return (0.5*$d_lo*($d_lo-1) * $step + 1,
+            0.5*$d_hi*($d_hi+1) * $step);
+  } else {
+    # $step == 0
+    return ($d_lo, $d_hi);
+  }
 }
 
 1;
@@ -305,7 +338,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

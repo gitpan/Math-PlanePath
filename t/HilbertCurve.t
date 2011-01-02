@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util 'min', 'max';
-use Test::More tests => 12;
+use Test::More tests => 9;
 
 use lib 't';
 use MyTestHelpers;
@@ -37,7 +37,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 14;
+  my $want_version = 15;
   is ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::HilbertCurve->VERSION,  $want_version,
@@ -62,61 +62,9 @@ require Math::PlanePath::HilbertCurve;
 # x_negative, y_negative
 
 {
-  ok (!Math::PlanePath::HilbertCurve->x_negative, 'x_negative() class method');
-  ok (!Math::PlanePath::HilbertCurve->y_negative, 'y_negative() class method');
   my $path = Math::PlanePath::HilbertCurve->new (height => 123);
   ok (!$path->x_negative, 'x_negative() instance method');
   ok (!$path->y_negative, 'y_negative() instance method');
-}
-
-#------------------------------------------------------------------------------
-# rect_to_n_range()
-
-{
-  my $path = Math::PlanePath::HilbertCurve->new;
-  my $good = 1;
-
-  my $data;
-  my $limit = 15;
-  foreach my $x (0 .. $limit) {
-    foreach my $y (0 .. $limit) {
-      $data->[$y]->[$x] = $path->xy_to_n ($x, $y);
-    }
-  }
-  #### $data
-
-  my $count = 0;
-  foreach my $y1 (0 .. $limit) {
-    foreach my $y2 ($y1 .. $limit) {
-
-      foreach my $x1 (0 .. $limit) {
-        my $min = ($limit+1)**2;
-        my $max = -1;
-
-        foreach my $x2 ($x1 .. $limit) {
-          my @col = map {$data->[$_]->[$x2]} $y1 .. $y2;
-          $max = max ($max, @col);
-          $min = min ($min, @col);
-          ### @col
-          ### $max
-          ### $min
-
-          my ($got_min, $got_max) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-          if ($got_min != $min) {
-            diag "bad min $x1,$y1 $x2,$y2 got $got_min want $min";
-            $good = 0;
-          }
-          if ($got_max != $max) {
-            diag "bad max $x1,$y1 $x2,$y2 got $got_max want $max";
-            $good = 0;
-          }
-          $count++;
-        }
-      }
-    }
-  }
-
-  ok ($good, "rect_to_n_range(), total $count rects");
 }
 
 exit 0;

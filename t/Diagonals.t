@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 53;
+use Test::More tests => 51;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::Diagonals;
 # VERSION
 
 {
-  my $want_version = 14;
+  my $want_version = 15;
   is ($Math::PlanePath::Diagonals::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::Diagonals->VERSION,  $want_version,
@@ -59,8 +59,6 @@ require Math::PlanePath::Diagonals;
 # x_negative, y_negative
 
 {
-  ok (! Math::PlanePath::Diagonals->x_negative, 'x_negative() class method');
-  ok (! Math::PlanePath::Diagonals->y_negative, 'y_negative() class method');
   my $path = Math::PlanePath::Diagonals->new (height => 123);
   ok (! $path->x_negative, 'x_negative() instance method');
   ok (! $path->y_negative, 'y_negative() instance method');

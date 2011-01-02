@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -220,7 +220,7 @@ use Math::PlanePath::SacksSpiral;
 1;
 __END__
 
-=for stopwords Vogel PlanePaths VogelFloret fibonacci sqrt sqrt2 PlanePath Ryde Math-PlanePath frac repdigits straightish Vogel's builtin
+=for stopwords Vogel PlanePaths VogelFloret fibonacci sqrt sqrt2 PlanePath Ryde Math-PlanePath frac repdigits straightish Vogel's builtin repunit eg phi-ness
 
 =head1 NAME
 
@@ -364,6 +364,8 @@ among all irrationals, the value least well approximated by rationals.
               |   |       ----
               |   |   ^   ...
        terms -+---+---+
+
+sqrt(3) is 1,2 repeating.  sqrt(13) is 3s repeating.
 
 =head2 Fibonacci and Lucas Numbers
 
@@ -530,7 +532,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

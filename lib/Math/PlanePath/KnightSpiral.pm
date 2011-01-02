@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -375,7 +375,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords versa PlanePath Ryde Math-PlanePath SquareSpiral
+=for stopwords versa PlanePath Ryde Math-PlanePath SquareSpiral OEIS
 
 =head1 NAME
 
@@ -412,7 +412,7 @@ Each step is a chess knight's move 1 across and 2 along, or vice versa.  The
 pattern makes 4 cycles on a 2-wide path around a square before stepping
 outwards to do the same again to a now bigger square.  The above sample
 shows the first 4-cycle around the central 1 then stepping out at 26 and
-beginning to go around the outside of the now 5x5 square.
+beginning to go around the outside of the 5x5 square.
 
 An attractive traced out picture of the path can be seen at the following
 page (quarter way down under "Open Knight's Tour"),
@@ -458,7 +458,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

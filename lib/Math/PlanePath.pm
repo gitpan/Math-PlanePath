@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 14;
+$VERSION = 15;
 
 # defaults
 use constant x_negative => 1;
@@ -37,7 +37,7 @@ sub new {
 1;
 __END__
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonals heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows
 
 =head1 NAME
 
@@ -106,7 +106,7 @@ longer than the preceding.
       1       Diagonals
       2       SacksSpiral, PyramidSides, Corner, PyramidRows default
       4       DiamondSpiral
-      5       PentSpiralSkewed
+      5       PentSpiral, PentSpiralSkewed
       6       HexSpiral, HexSpiralSkewed
       7       HeptSpiralSkewed
       8       SquareSpiral, PyramidSpiral
@@ -120,20 +120,28 @@ For example the gap between successive perfect squares increases by 2 each
 time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
 squares make a straight line in the paths of step 2.
 
-In general straight lines are quadratics a*k^2+b*k+c, with a=step/2 .  There
-are various interesting properties of primes in quadratic progressions like
-this.  Some seem to have more primes than others, for instance see
-PyramidSides for Euler's k^2+k+41.  Many quadratics have no primes at all,
-or above a certain point, either trivially if always a multiple of 2 etc, or
-by a more sophisticated reasoning.  See PyramidRows with step 3 for an
-example of a factorization by the roots making a no-primes gap.
+In general straight lines on the stepped paths are quadratics a*k^2+b*k+c
+with a=step/2.  The polygonal numbers have this form.  The (step+2)-gonal
+numbers make a straight line on a "step" path.  For example the 7-gonals
+(heptagonals) are 5/2*k^2-3/2*k and make a straight line on the step=5
+PentSpiral, or the 8-gonal octagonals 6/2*k^2-4/2*k on the step=6 HexSpiral
+paths.
 
-A factor of 4 on the step splits a straight line into two, so for example on
-the SquareSpiral (step 8) the perfect squares fall on two lines going to the
-lower left and upper right.  Effectively it's one line of the even squares
-(2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap between
-successive even squares increases by 8 each time and likewise the odd
-squares.
+There are various interesting properties of primes in quadratic
+progressions.  Some quadratics seem to have more primes than others, for
+instance see PyramidSides for Euler's k^2+k+41.  Many quadratics have no
+primes at all, or above a certain point, either trivially if always a
+multiple of 2 etc, or by a more sophisticated reasoning.  See PyramidRows
+with step 3 for an example of a factorization by the roots giving a
+no-primes gap.
+
+A step factor 4 splits a straight line into two, so for example the perfect
+squares are a straight line on the step=2 "Corner" path, and then on the
+step=8 SquareSpiral they instead fall on two lines (to the lower left and
+upper right).  Effectively in that bigger step it's one line of the even
+squares (2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap
+between successive even squares increases by 8 each time and likewise
+between odd squares.
 
 =head1 FUNCTIONS
 
@@ -252,7 +260,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

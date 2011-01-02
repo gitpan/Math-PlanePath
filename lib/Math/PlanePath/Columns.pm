@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 use constant x_negative => 0;
@@ -44,10 +44,9 @@ sub n_to_xy {
   # towards 0 instead of -infinity (in preparation for negative n one day
   # maybe, perhaps)
   #
-  $n--;
-  my $x = floor (($n + 0.5) / $self->{'height'});
+  my $x = floor (($n - 0.5) / $self->{'height'});
   return ($x,
-          $n - $x * $self->{'height'});
+          $n-1 - $x * $self->{'height'});
 }
 
 sub xy_to_n {
@@ -147,7 +146,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

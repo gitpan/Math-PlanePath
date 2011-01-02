@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,11 +37,14 @@ use Smart::Comments;
   require Math::PlanePath::MultipleRings;
   require Math::PlanePath::HilbertCurve;
   require App::MathImage::PlanePath::Hilbert33;
+  require App::MathImage::PlanePath::OctagramSpiral;
+  require App::MathImage::PlanePath::Staircase;
+  require App::MathImage::PlanePath::PeanoCurve;
 
-  my $path = App::MathImage::PlanePath::Hilbert33->new (wider => 0,
+  my $path = App::MathImage::PlanePath::PeanoCurve->new (wider => 0,
                                                         # step => 0,
                                                        );
-  foreach my $i (1 .. 64) {
+  foreach my $i (1 .. 50) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;

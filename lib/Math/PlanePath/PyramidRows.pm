@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -34,8 +34,7 @@ $VERSION = 14;
 
 sub x_negative {
   my ($self) = @_;
-  return (! ref $self
-          || $self->{'step'} >= 2);
+  return ($self->{'step'} >= 2);
 }
 use constant y_negative => 0;
 
@@ -245,12 +244,12 @@ in the code as such.
 For step 3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are at
 the rightmost end of each row.  The second pentagonal numbers 2,7,15,26,
 S(k) = (3k+1)*k/2 are the vertical at x=-1.  Those second numbers are
-obtained by taking negative k, and the two together are the "generalized
-pentagonal numbers".
+obtained by P(-k), and the two together are the "generalized pentagonal
+numbers".
 
-Both these are composites from 12 and 15 onwards (respectively), as in fact
-are the preceding values P(k)-1, P(k)-2, S(k)-1 and S(k)-2, factorizing
-simply as
+Both these sequences are composites from 12 and 15 onwards, respectively,
+and the preceding values P(k)-1, P(k)-2, S(k)-1 and S(k)-2 are too.  They
+factorize simply as
 
     P(k)   = (3*k-1)*k/2
     P(k)-1 = (3*k+2)*(k-1)/2
@@ -259,10 +258,10 @@ simply as
     S(k)-1 = (3*k-2)*(k+1)/2
     S(k)-2 = (3*k+4)*(k-1)/2
 
-If you plot the primes on a step 3 PyramidRows then theses second pentagonal
-sequences make a 3-wide vertical gap at x=-1,-2,-3 where there's no
-primes. and the plain pentagonal sequences make the endmost three of each
-row non-prime.  The vertical is much more noticeable in the plot.
+If you plot the primes on a step 3 PyramidRows then these second pentagonal
+sequences make a 3-wide vertical gap of no primes at x=-1,-2,-3. and the
+plain pentagonal sequences make the endmost three N of each row non-prime.
+The vertical is much more noticeable in a plot.
 
        no primes these three columns         no primes these end three
          except the low 2,7,13                     except low 5,11
@@ -276,18 +275,17 @@ row non-prime.  The vertical is much more noticeable in the plot.
                         1
      -6 -5 -4 -3 -2 -1 x=0 1  2  3  4 ...
 
-In general an offset P(k)-c or S(k)-c will factorize like above using the
-roots of the quadratic
-
 In general a constant offset c from S(k) is a column and from P(k) a
 diagonal going 2 to the right each time.  The simple factorizations above
-using the roots of the quadratic for P(k)-c or S(k)-c is possible whenever
+using the roots of the quadratic P(k)-c or S(k)-c is possible whenever
 24*c+1 is a perfect square.  This means the further columns S(k)-5, S(k)-7,
-S(k)-12, etc have no primes either.  The S(k), S(k)-1, S(k)-2 columns are
-prominent because they're adjacent but there's no other adjacent ones of
-this type because the squares become too far apart for successive 24*c+1.
-Of course there could be lots of other reasons for other columns or
-diagonals to have few or many primes or above a certain point, etc.
+S(k)-12, etc have no primes either.
+
+The columns S(k), S(k)-1, S(k)-2 are prominent because they're adjacent.
+There's no other adjacent ones of this type because the squares after 49 are
+too far apart for successive 24*c+1.  Of course there could be other reasons
+for other columns or diagonals to have few or many primes, perhaps above a
+certain point, etc.
 
 =cut
 
@@ -371,7 +369,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

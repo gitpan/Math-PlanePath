@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -143,7 +143,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral
+=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal gonal
 
 =head1 NAME
 
@@ -185,9 +185,13 @@ left and right extend out similarly.  The result is a longer loop, and each
 successive cycle is 9 longer than the previous (whereas the HexSpiral takes
 6 more).
 
-In the spiral the triangular numbers 1, 3, 6, 10, 15, 21, 28, 36 etc (begin
-k*(k+1)/2) fall one before the successive corners of the triangle, so when
-plotted make lines going vertically and angled down left and right.
+The triangular numbers 1, 3, 6, 10, 15, 21, 28, 36 etc, k*(k+1)/2, fall one
+before the successive corners of the triangle, so when plotted make three
+lines going vertically and angled down left and right.
+
+The 11-gonal "hendecagonal" numbers 11, 30, 58, etc, k*(9k-7)/2 fall on a
+straight line horizontally to the right.  (As per the general rule that a
+step "s" lines up the (s+2)-gonal numbers.)
 
 =head1 FUNCTIONS
 
@@ -227,7 +231,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+use 5.004;
 use strict;
 use warnings;
 use Math::PlanePath::HilbertCurve;
@@ -33,6 +34,128 @@ sub want {
 }
 
 sub try {
+  my ($n) = @_;
+  ### try(): $n
+
+  while (($n & 15) == 15) {
+    $n >>= 4;
+  }
+
+  my $pos = 0;
+  my $mask = 16;
+  while ($n >= $mask) {
+    $pos += 4;
+    $mask <<= 4;
+  }
+  ### $pos
+
+  my $dx = 1;
+  my $dy = 0;
+  ### d initial: "$dx,$dy"
+
+  while ($pos >= 0) {
+    my $bits = ($n >> $pos) & 15;
+    ### $bits
+
+    if ($bits == 1
+        || $bits == 2
+        || $bits == 3
+        || $bits == 4
+        || $bits == 8
+       ) {
+      ($dx,$dy) = ($dy,$dx);
+      ### d swap to: "$dx,$dy"
+
+    } elsif ($bits == 2
+             || $bits == 12
+            ) {
+      $dx = -$dx;
+      $dy = -$dy;
+      ### d invert: "$dx,$dy"
+
+    } elsif ($bits == 2
+             || $bits == 10
+             || $bits == 11
+             || $bits == 13
+            ) {
+      ($dx,$dy) = ($dy,$dx);
+      $dx = -$dx;
+      $dy = -$dy;
+      ### d swap and invert: "$dx,$dy"
+
+    } elsif ($bits == 0
+             || $bits == 5
+            ) {
+      ### d unchanged
+
+    }
+
+    $pos -= 4;
+  }
+
+  return ($dx,$dy);
+}
+
+sub Wtry {
+  my ($n) = @_;
+  ### try(): $n
+
+  my $pos = 0;
+  my $mask = 16;
+  while ($n >= $mask) {
+    $pos += 4;
+    $mask <<= 4;
+  }
+  ### $pos
+
+  my $dx = 1;
+  my $dy = 0;
+  ### d initial: "$dx,$dy"
+
+  while ($pos >= 0) {
+    my $bits = ($n >> $pos) & 15;
+    ### $bits
+
+    if ($bits == 1
+        || $bits == 3
+        || $bits == 4
+        || $bits == 8
+       ) {
+      ($dx,$dy) = ($dy,$dx);
+      ### d swap to: "$dx,$dy"
+
+    } elsif ($bits == 2
+             || $bits == 12
+            ) {
+      $dx = -$dx;
+      $dy = -$dy;
+      ### d invert: "$dx,$dy"
+
+    } elsif ($bits == 2
+             || $bits == 6
+             || $bits == 10
+             || $bits == 11
+             || $bits == 13
+            ) {
+      ($dx,$dy) = ($dy,$dx);
+      $dx = -$dx;
+      $dy = -$dy;
+      ### d swap and invert: "$dx,$dy"
+
+    } elsif ($bits == 0
+             || $bits == 5
+            ) {
+      ### d unchanged
+
+    }
+
+    $pos -= 4;
+  }
+
+  return ($dx,$dy);
+}
+
+sub ZZtry {
   my ($n) = @_;
   my $dx = 0;
   my $dy = 1;
@@ -165,8 +288,8 @@ sub base4 {
   } while ($n >>= 2);
   return reverse $ret;
 }
-    
-foreach my $n (0 .. 64) {
+
+foreach my $n (0 .. 256) {
   my $n4 = base4($n);
   my ($wdx,$wdy) = want($n);
   my ($tdx,$tdy) = try($n);

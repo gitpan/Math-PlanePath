@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-Image.
 #
@@ -16,6 +16,19 @@
 # with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# http://www.cut-the-knot.org/do_you_know/hilbert.shtml
+#     Java applet
+#
+# http://www.woollythoughts.com/afghans/peano.html
+#     Knitting
+#
+# http://www.geom.uiuc.edu/docs/reference/CRC-formulas/node36.html
+#     Closed path, curved parts
+#
+# http://www.wolframalpha.com/entities/calculators/Peano_curve/jh/4o/im/
+#     Curved corners tilted to a diamond
+#
+
 package Math::PlanePath::HilbertCurve;
 use 5.004;
 use strict;
@@ -26,7 +39,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -198,7 +211,7 @@ sub rect_to_n_range {
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
   if ($x2 < 0 || $y2 < 0) {
-    return (-1, 0);
+    return (1, 0); # rectangle outside first quadrant
   }
 
   my $n_min = my $n_max
@@ -398,7 +411,7 @@ __END__
 #   return ($x, $y);
 # }
 
-=for stopwords Ryde Math-Image
+=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI
 
 =head1 NAME
 
@@ -447,7 +460,7 @@ next to 12.
     0,1   14,15
 
 The process repeats, doubling in size each time and alternately sideways or
-upside-down U at the top level and invert or transponses as necessary in the
+upside-down U at the top level and invert or transposes as necessary in the
 sub-parts.
 
 The pattern is sometimes drawn with the first step 0->1 upwards instead of
@@ -458,26 +471,62 @@ Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc 2^k, all the N values 0
 to 2^(2*k)-1 are within the square.  The maximum 3, 15, 63, 255 etc
 2^(2*k)-1 is alternately at the top left or bottom right corner.
 
-=head2 OEIS
+Because each N step is by 1, the distance along the curve between two X,Y
+points is the difference in their N values (per C<xy_to_n>).
 
-The Hilbert Curve path is in Sloane's OEIS as sequences A163355, A163357,
-A163359 and A163361.
+=head2 Locality
 
-    http://www.research.att.com/~njas/sequences/A163355
+The Hilbert curve is fairly localized, so a small rectangle (or other shape)
+is usually a small range of N.  This property is used in some database
+systems to store X,Y coordinates with an index generated from the Hilbert N.
+A search through an X,Y region is then usually a fairly modest linear N
+search.
 
-They're the Hilbert N value which are found at X,Y positions taken in a
-certain order.  A163355 is X,Y positions in the ZOrderCurve sequence.
-A163357 and A163359 are X,Y positions in diagonals like
-C<Math::PlanePath::Diagonals>.  A163357 has the first Hilbert Curve step
-along the same axis the diagonals start from, or A163359 transposed to start
-along the opposite axis.  A163361 is merely S<A163357 + 1>, numbering the
-Hilbert N's from N=1 instead of N=0.
+The N range can be large when crossing Hilbert sub-parts though.  In the
+sample above it can be seen for instance adjacent points x=0,y=3 and x=0,y=4
+have rather widely spaced N values 5 and 58.
+
+Fractional X,Y values can be indexed by extending the N calculation down
+into the X,Y binary fractions.  The code here is not directly setup to do
+this, except if X,Y fractions are turned into integers by moving the binary
+point an even number of places, the same amount in each, and the resulting
+integer N moved back by a corresponding multiple of 4 places.
+
+=head1 OEIS
+
+The Hilbert Curve path is in Sloane's OEIS in several forms, eg.
+
+    http://oeis.org/A163355
+
+    A163365    diagonals summed
+    A163477    diagonals summed, divided by 4
+    A163482    row at Y=0
+    A163483    column at X=0
+    A163538    X change -1,0,1
+    A163539    Y change -1,0,1
+    A163540    absolute direction of each step (up,down,left,right)
+    A163541    absolute direction, transpose X,Y
+    A163542    relative direction (ahead,left,right)
+    A163543    relative direction, transpose X,Y
+
+And taking squares of the plane in various orders, each value the N of the
+Peano curve at those positions.
+
+    A163355    in the ZOrderCurve sequence
+    A163357    in diagonals like Math::PlanePath::Diagonals with
+               first Hilbert step along same axis the diagonals start
+    A163359    in diagonals, transposed to start along the opposite axis
+    A163361    A163357 + 1, numbering the Hilbert N's from N=1
 
 The sequences are in each case permutations of the integers since all X,Y
-positions are reached eventually.  A163356, A163358, A163360 and A163362 are
-the corresponding inverse sequences.
+positions are reached eventually.  The inverses are
 
-=head2 Algorithms
+    A163356    inverse of A163355
+    A163358    inverse of A163357
+    A163360    inverse of A163359
+    A163362    inverse of A163361
+
+=head1 FORMULAS
 
 Converting N to X,Y coordinates is reasonably straightforward.  The top two
 bits of N is a configuration
@@ -560,17 +609,13 @@ returns N.
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
 Return a range of N values which occur in a rectangle with corners at
-C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
+C<$x1>,C<$y1> and C<$x2>,C<$y2>.  If the X,Y values are not integers then
+the curve is treated as unit squares centred on each integer point and
+squares partly covered by the given rectangle are included.
 
-The Hilbert curve is fairly localized, so a small rectangle (or other shape)
-is usually a small range of N.  This property is used in some database
-systems to record X,Y coordinates with an index using the Hilbert N.
-A search through an X,Y region is then usually a fairly modest linear N
-search.
-
-The N range can be large when crossing Hilbert sub-parts though.  In the
-sample above it can be seen for instance adjacent points x=0,y=3 and x=0,y=4
-have rather widely spaced N values 5 and 58.
+The returned range is exact, meaning C<$n_lo> is the smallest in the
+rectangle and C<$n_hi> is the biggest.  Of course not all the N's in the
+range are necessarily in the rectangle.
 
 =back
 
@@ -581,13 +626,21 @@ L<Math::PlanePath::ZOrderCurve>
 
 L<Math::Curve::Hilbert>
 
+David Hilbert, "Ueber die stetige Abbildung einer Line auf ein
+FlE<228>chenstE<252>ck", Mathematische Annalen, volume 38, number 3,
+p459-460,
+
+    DOI 10.1007/BF01199431
+    http://www.springerlink.com/content/v1u6427kk33k8j56/
+    http://notendur.hi.is/oddur/hilbert/gcs-wrapper-1.pdf
+
 =head1 HOME PAGE
 
 http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

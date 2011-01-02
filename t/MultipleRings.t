@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 76;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require Math::PlanePath::MultipleRings;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 14;
+  my $want_version = 15;
   is ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -55,14 +58,66 @@ require Math::PlanePath::MultipleRings;
 }
 
 #------------------------------------------------------------------------------
-# x_negative, y_negative
+# x_negative(), y_negative()
 
 {
-  ok (Math::PlanePath::MultipleRings->x_negative, 'x_negative() class method');
-  ok (Math::PlanePath::MultipleRings->y_negative, 'y_negative() class method');
   my $path = Math::PlanePath::MultipleRings->new;
   ok ($path->x_negative, 'x_negative() instance method');
   ok ($path->y_negative, 'y_negative() instance method');
+}
+
+#------------------------------------------------------------------------------
+# xy_to_n()
+
+{
+  my $step = 3;
+  my $n = 2;
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  my ($x,$y) = $path->n_to_xy($n);
+  $y -= .1;
+  ### try: "n=$n  x=$x,y=$y"
+  my $got_n = $path->xy_to_n($x,$y);
+  ### $got_n
+  is ($got_n, $n, "xy_to_n() back from n=$n at offset x=$x,y=$y");
+}
+
+# step=0 and step=1 centred on 0,0
+# step=2 two on ring, rounds to the N=1
+foreach my $step (0 .. 2) {
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  is ($path->xy_to_n(0,0), 1, "xy_to_n(0,0) step=$step is 1");
+}
+foreach my $step (3 .. 10) {
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  is ($path->xy_to_n(0,0), undef,
+      "xy_to_n(0,0) step=$step is undef (nothing in centre)");
+}
+
+foreach my $step (0 .. 3) {
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  is ($path->xy_to_n(0.1,0.1), 1, "xy_to_n(0.1,0.1) step=$step is 1");
+}
+foreach my $step (4 .. 10) {
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  is ($path->xy_to_n(0.1,0.1), undef,
+      "xy_to_n(0.1,0.1) step=$step is undef (nothing in centre)");
+}
+
+#------------------------------------------------------------------------------
+# rect_to_n_range()
+
+foreach my $step (0 .. 10) {
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  my ($got_lo, $got_hi) = $path->rect_to_n_range(0,0,0,0);
+  cmp_ok ($got_lo, '>=', 1, "rect_to_n_range(0,0) step=$step is lo=$got_lo");
+  cmp_ok ($got_hi, '>=', $got_lo, "rect_to_n_range(0,0) step=$step want hi=$got_hi >= lo");
+}
+
+foreach my $step (0 .. 10) {
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  my ($got_lo, $got_hi) = $path->rect_to_n_range(-0.1,-0.1, 0.1,0.1);
+  cmp_ok ($got_lo, '>=', 1, "rect_to_n_range(0,0) step=$step is lo=$got_lo");
+  cmp_ok ($got_hi, '>=', $got_lo, "rect_to_n_range(0,0) step=$step want hi=$got_hi >= lo");
 }
 
 exit 0;

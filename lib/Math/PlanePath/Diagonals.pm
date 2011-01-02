@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -91,18 +91,16 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = floor ($x1 + 0.5);
-  $y1 = floor ($y1 + 0.5);
-  $x2 = floor ($x2 + 0.5);
-  $y2 = floor ($y2 + 0.5);
+  $x1 = max (0, $x1);
+  $y1 = max (0, $y1);
+  $x2 = max (0, $x2);
+  $y2 = max (0, $y2);
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
 
-  my $x = max(0, $x1,$x2);
-  my $y = max(0, $y1,$y2);
-  my $row = $x + $y;
-
-  # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
-  return (1,
-          1 + ($row + 1)**2);
+  # exact range bottom left to top right
+  return ($self->xy_to_n ($x1,$y1),
+          $self->xy_to_n ($x2,$y2));
 }
 
 1;
@@ -139,6 +137,12 @@ axis.
 The horizontal sequence 1,3,6,10,etc at y=0 is the triangular numbers
 s*(s+1)/2.  (If you plot them on a graph don't confuse that line with the
 axis or a border!)
+
+=head1 FORMULAS
+
+Within each row increasing X is increasing N, and each column increasing Y
+is increasing N.  On that basis in a rectangle for C<rect_to_n_range> the
+lower left corner is the minimum N and the upper right is the maximum N.
 
 =head1 FUNCTIONS
 
@@ -177,7 +181,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

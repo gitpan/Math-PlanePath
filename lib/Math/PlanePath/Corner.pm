@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,13 +20,13 @@ package Math::PlanePath::Corner;
 use 5.004;
 use strict;
 use warnings;
-use List::Util qw(max);
+use List::Util 'min','max';
 use POSIX 'floor';
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 14;
+$VERSION = 15;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -77,26 +77,30 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = floor ($x1 + 0.5);
-  $y1 = floor ($y1 + 0.5);
-  $x2 = floor ($x2 + 0.5);
-  $y2 = floor ($y2 + 0.5);
+  $x1 = max (0, floor ($x1 + 0.5));
+  $y1 = max (0, floor ($y1 + 0.5));
+  $x2 = max (0, floor ($x2 + 0.5));
+  $y2 = max (0, floor ($y2 + 0.5));
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
+  my $y_min = $y1;
 
-  my $row = max($x1,$x2,$y1,$y2);
-  if ($row < 0) {
-    return (1, 1);
+  if ($y1 <= $x1) {
+    $y1 = min ($y2, $x1);
+  }
+  if ($y2 <= $x2) {
+    $y2 = $y_min;
   }
 
-  # n_max is the perfect square along the y=0 horizontal
-  # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
-  return (1,
-          1 + POSIX::ceil($row + 1)**2);
+  # exact range left column to right column
+  return ($self->xy_to_n ($x1,$y1),
+          $self->xy_to_n ($x2,$y2));
 }
 
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PyramidSides PlanePath Ryde Math-PlanePath
+=for stopwords pronic SacksSpiral PyramidSides PlanePath Ryde Math-PlanePath ie
 
 =head1 NAME
 
@@ -123,14 +127,31 @@ first quadrant.
           ----------------------
            x=0,  1   2   3   4 ...
 
-The horizontal 1,4,9,16,etc at y=0 is the perfect squares.  The diagonal
-2,6,12,20,etc starting x=0,y=1 is the pronic numbers s*(s+1), half way
-between those squares.
+The horizontal 1,4,9,16,etc along y=0 is the perfect squares, because each
+applied row/column stripe makes a one-bigger square,
 
-Each stripe across then down is 2 longer than the previous and in that
-respect the corner is the same as the Pyramid and SacksSpiral paths.  The
-Corner and the PyramidSides are the same thing, just with a stretch from a
-single quadrant to two.
+                            10 11 12 13
+               5  6  7       5  6  7 14
+    2  3       2  3  8       2  3  8 15
+    1  4       1  4  9       1  4  9 16
+
+The diagonal 2,6,12,20,etc upwards from x=0,y=1 is the pronic numbers
+s*(s+1), half way between those squares.
+
+Each row/column stripe is 2 longer than the previous, similar to the Pyramid
+and SacksSpiral paths.  The Corner and the PyramidSides are the same, just
+the PyramidSides stretched out to two quadrants instead of one for the
+Corner.
+
+=head1 FORMULAS
+
+For the C<rect_to_n_range> calculation, within each row increasing X is
+increasing N so the smallest N is in the leftmost column and the biggest in
+the rightmost.  Going up a column N values decrease until reaching the X=Y
+diagonal, and then increase.  So if the bottom left corner is below the
+diagonal, ie. YE<lt>X, then Y=X or the highest Y in the rectangle is the
+smallest N.  Or if the top right corner is YE<lt>X below the diagonal then
+the bottom right corner, ie. minimum Y, is the biggest N.
 
 =head1 FUNCTIONS
 
@@ -160,8 +181,8 @@ covered.
 
 =head2 N to X,Y
 
-Counting d=0 for the first row the N=1,2,5,10,17,etc which is the start of
-each row is
+Counting d=0 for the first row at y=0, then the start of that row
+N=1,2,5,10,17,etc is
 
     StartN(d) = d^2 + 1
 
@@ -177,29 +198,32 @@ Inverting gives the row for an N,
 
 And subtracting that start gives an offset into the row
 
-    RemBase = N - StartNfrac(d)
+    RemStart = N - StartNfrac(d)
 
 The corner point 1,3,7,13,etc where the row turns down is at d+0.5 into that
 remainder, and it's convenient to subtract that, giving a negative for the
 horizontal or positive for the vertical,
 
-    Rem = N - StartNfrac(d) - (d+0.5)
+    Rem = RemStart - (d+0.5)
         = N - (d*(d+1) + 1)
+
+And the x,y coordinates thus
 
     if (Rem < 0)  then x=d+Rem, y=d
     if (Rem >= 0) then x=d, y=d-Rem
 
 =head2 X,Y to N
 
-For a given x,y the bigger of x or y determines the d row.  If y>=x then
-it's the horizontal part with d=y.  StartN(d) above is the N for x=0, and
-the given x can be added to that,
+For a given x,y the bigger of x or y determines the d row.  If y>=x then x,y
+is on the horizontal part with d=y and in that case StartN(d) above is the N
+for x=0, and the given x can be added to that,
 
     N = StartN(d) + x
       = y^2 + 1 + x
 
-If y<x then it's the vertical with d=x.  The y=0 is the last point on the
-row and is one back from the start of the following row,
+Or otherwise if y<x then x,y is on the vertical and d=x.  In that case the
+y=0 is the last point on the row and is one back from the start of the
+following row,
 
     LastN(d) = StartN(d+1) - 1
              = (d+1)^2
@@ -220,7 +244,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

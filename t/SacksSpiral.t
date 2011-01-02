@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 76;
+use Test::More tests => 74;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::SacksSpiral;
 # VERSION
 
 {
-  my $want_version = 14;
+  my $want_version = 15;
   is ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -58,10 +58,6 @@ require Math::PlanePath::SacksSpiral;
 # x_negative, y_negative
 
 {
-  ok (Math::PlanePath::SacksSpiral->x_negative,
-      'x_negative() class method');
-  ok (Math::PlanePath::SacksSpiral->y_negative,
-      'y_negative() class method');
   my $path = Math::PlanePath::SacksSpiral->new (height => 123);
   ok ($path->x_negative, 'x_negative() instance method');
   ok ($path->y_negative, 'y_negative() instance method');
@@ -128,7 +124,7 @@ require Math::PlanePath::SacksSpiral;
                     [ -6,-1, 6,-8, 1,10 ],  # x both, y negative
                     [ 1,-6, 8,6, 1,10 ],    # y both, x positive
                     [ -1,-6, -8,6, 1,10 ],  # y both, x negative
-                    ,
+
                    ) {
     my ($x1,$y1, $x2,$y2, $want_rlo,$want_rhi) = @$elem;
     my ($got_rlo,$got_rhi)

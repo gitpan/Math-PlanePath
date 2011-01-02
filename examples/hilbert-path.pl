@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,8 +33,8 @@
 # The $scale variable spaces out the points.  3 apart is quite good, or
 # tighten it up to 2 to fit more on the screen.
 #
-# The drawing does Y down the screen.  Taking the Y's in reverse order in
-# the final output could show it going up the screen.
+# The output has Y increasing down the screen.  Taking the Y's in reverse
+# order in the final output could show it going up the screen.
 #
 
 use 5.004;
