@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -62,8 +62,8 @@ require Math::PlanePath::MultipleRings;
 
 {
   my $path = Math::PlanePath::MultipleRings->new;
-  ok ($path->x_negative, 'x_negative() instance method');
-  ok ($path->y_negative, 'y_negative() instance method');
+  ok ($path->x_negative, 'x_negative()');
+  ok ($path->y_negative, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------

@@ -33,7 +33,7 @@ require Math::PlanePath::PyramidRows;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($Math::PlanePath::PyramidRows::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::PyramidRows->VERSION,  $want_version,
@@ -59,23 +59,23 @@ require Math::PlanePath::PyramidRows;
 
 {
   my $path = Math::PlanePath::PyramidRows->new;
-  ok (  $path->x_negative, 'x_negative() instance method, default');
-  ok (! $path->y_negative, 'y_negative() instance method, default');
+  ok (  $path->x_negative, 'x_negative() default');
+  ok (! $path->y_negative, 'y_negative() default');
 }
 {
   my $path = Math::PlanePath::PyramidRows->new (step => 0);
-  ok (! $path->x_negative, 'x_negative() instance method, step=0');
-  ok (! $path->y_negative, 'y_negative() instance method, step=0');
+  ok (! $path->x_negative, 'x_negative() step=0');
+  ok (! $path->y_negative, 'y_negative() step=0');
 }
 {
   my $path = Math::PlanePath::PyramidRows->new (step => 1);
-  ok (! $path->x_negative, 'x_negative() instance method, step=1');
-  ok (! $path->y_negative, 'y_negative() instance method, step=1');
+  ok (! $path->x_negative, 'x_negative() step=1');
+  ok (! $path->y_negative, 'y_negative() step=1');
 }
 {
   my $path = Math::PlanePath::PyramidRows->new (step => 3);
-  ok (  $path->x_negative, 'x_negative() instance method, step=3');
-  ok (! $path->y_negative, 'y_negative() instance method, step=3');
+  ok (  $path->x_negative, 'x_negative() step=3');
+  ok (! $path->y_negative, 'y_negative() step=3');
 }
 
 #------------------------------------------------------------------------------

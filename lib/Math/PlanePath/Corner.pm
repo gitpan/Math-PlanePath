@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 15;
+$VERSION = 16;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -143,16 +143,6 @@ and SacksSpiral paths.  The Corner and the PyramidSides are the same, just
 the PyramidSides stretched out to two quadrants instead of one for the
 Corner.
 
-=head1 FORMULAS
-
-For the C<rect_to_n_range> calculation, within each row increasing X is
-increasing N so the smallest N is in the leftmost column and the biggest in
-the rightmost.  Going up a column N values decrease until reaching the X=Y
-diagonal, and then increase.  So if the bottom left corner is below the
-diagonal, ie. YE<lt>X, then Y=X or the highest Y in the rectangle is the
-smallest N.  Or if the top right corner is YE<lt>X below the diagonal then
-the bottom right corner, ie. minimum Y, is the biggest N.
-
 =head1 FUNCTIONS
 
 =over 4
@@ -231,12 +221,23 @@ following row,
     N = LastN(d) - y
       = (x+1)^2 - y
 
+=head2 N Range
+
+For the C<rect_to_n_range> calculation, within each row increasing X is
+increasing N so the smallest N is in the leftmost column and the biggest in
+the rightmost.  Going up a column N values decrease until reaching the X=Y
+diagonal, and then increase.  So if the bottom left corner is below the
+diagonal, ie. YE<lt>X, then Y=X or the highest Y in the rectangle is the
+smallest N.  Or if the top right corner is YE<lt>X below the diagonal then
+the bottom right corner, ie. minimum Y, is the biggest N.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>,
-L<Math::PlanePath::SacksSpiral>
+L<Math::PlanePath::SacksSpiral>,
+L<Math::PlanePath::Diagonals>
 
 =head1 HOME PAGE
 

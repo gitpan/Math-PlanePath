@@ -1,19 +1,19 @@
 # Copyright 2010, 2011 Kevin Ryde
 
-# This file is part of Math-Image.
+# This file is part of Math-PlanePath.
 #
-# Math-Image is free software; you can redistribute it and/or modify
+# Math-PlanePath is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Math-Image is distributed in the hope that it will be useful, but
+# Math-PlanePath is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # http://www.cut-the-knot.org/do_you_know/hilbert.shtml
@@ -26,7 +26,7 @@
 #     Closed path, curved parts
 #
 # http://www.wolframalpha.com/entities/calculators/Peano_curve/jh/4o/im/
-#     Curved corners tilted to a diamond
+#     Curved corners tilted to a diamond, or is it an 8-step pattern?
 #
 
 package Math::PlanePath::HilbertCurve;
@@ -39,7 +39,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 15;
+$VERSION = 16;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -448,27 +448,27 @@ time in a self-similar pattern,
 
             x=0   1   2   3   4   5   6   7
 
-The start is a sideways U shape per 0,1,2,3, and then four of those are put
-together in an upside-down U.  The orientation of the sub parts are chosen
-so the starts and ends are adjacent, so 3 next to 4, 7 next to 8, and 11
-next to 12.
+The start is a sideways U shape per N=0 to N=3, and then four of those are
+put together in an upside-down U as follows,
 
-    5,6___9,10
-    4,7   8,11
-     |     |
-    3,2   13,12__
-    0,1   14,15
+    5,6    9,10
+    4,7--- 8,11
+      |      |
+    3,2   13,12
+    0,1   14,15--
+
+The orientation of the sub parts are chosen so the starts and ends are
+adjacent, so 3 next to 4, 7 next to 8, and 11 next to 12.
 
 The process repeats, doubling in size each time and alternately sideways or
-upside-down U at the top level and invert or transposes as necessary in the
-sub-parts.
+upside-down U with invert or transposes as necessary in the sub-parts.
 
 The pattern is sometimes drawn with the first step 0->1 upwards instead of
 to the right.  Right is used here since that's what most of the other
 PlanePaths do.  Swap X and Y for upwards first instead.
 
-Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc 2^k, all the N values 0
-to 2^(2*k)-1 are within the square.  The maximum 3, 15, 63, 255 etc
+Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k), all the N
+values 0 to 2^(2*k)-1 are within the square.  The maximum 3, 15, 63, 255 etc
 2^(2*k)-1 is alternately at the top left or bottom right corner.
 
 Because each N step is by 1, the distance along the curve between two X,Y
@@ -476,111 +476,21 @@ points is the difference in their N values (per C<xy_to_n>).
 
 =head2 Locality
 
-The Hilbert curve is fairly localized, so a small rectangle (or other shape)
-is usually a small range of N.  This property is used in some database
-systems to store X,Y coordinates with an index generated from the Hilbert N.
+The Hilbert curve is fairly well localized, so a small rectangle (or other
+shape) is usually a small range of N.  This property is used in some
+database systems to store X,Y coordinates with the Hilbert N as an index.
 A search through an X,Y region is then usually a fairly modest linear N
 search.
 
 The N range can be large when crossing Hilbert sub-parts though.  In the
-sample above it can be seen for instance adjacent points x=0,y=3 and x=0,y=4
+sample above it can be seen for instance adjacent points X=0,Y=3 and X=0,Y=4
 have rather widely spaced N values 5 and 58.
 
 Fractional X,Y values can be indexed by extending the N calculation down
-into the X,Y binary fractions.  The code here is not directly setup to do
-this, except if X,Y fractions are turned into integers by moving the binary
-point an even number of places, the same amount in each, and the resulting
-integer N moved back by a corresponding multiple of 4 places.
-
-=head1 OEIS
-
-The Hilbert Curve path is in Sloane's OEIS in several forms, eg.
-
-    http://oeis.org/A163355
-
-    A163365    diagonals summed
-    A163477    diagonals summed, divided by 4
-    A163482    row at Y=0
-    A163483    column at X=0
-    A163538    X change -1,0,1
-    A163539    Y change -1,0,1
-    A163540    absolute direction of each step (up,down,left,right)
-    A163541    absolute direction, transpose X,Y
-    A163542    relative direction (ahead,left,right)
-    A163543    relative direction, transpose X,Y
-
-And taking squares of the plane in various orders, each value the N of the
-Peano curve at those positions.
-
-    A163355    in the ZOrderCurve sequence
-    A163357    in diagonals like Math::PlanePath::Diagonals with
-               first Hilbert step along same axis the diagonals start
-    A163359    in diagonals, transposed to start along the opposite axis
-    A163361    A163357 + 1, numbering the Hilbert N's from N=1
-
-The sequences are in each case permutations of the integers since all X,Y
-positions are reached eventually.  The inverses are
-
-    A163356    inverse of A163355
-    A163358    inverse of A163357
-    A163360    inverse of A163359
-    A163362    inverse of A163361
-
-=head1 FORMULAS
-
-Converting N to X,Y coordinates is reasonably straightforward.  The top two
-bits of N is a configuration
-
-    3--2                    1--2
-       |    or transpose    |  |
-    0--1                    0  3
-
-according to whether it's an odd or even bit-pair position.  Within the "3"
-sub-parts there's also inverted forms
-
-    1--0        3  0
-    |           |  |
-    2--3        2--1
-
-Working N from high to low with a state variable can record whether there's
-a transpose, an invert, or both (four states altogether).  A bit pair
-0,1,2,3 from N then gives a bit each of X,Y according to the configuration,
-and a new state which is the orientation of the sub-part.  Gosper's HAKMEM
-item 115 has this with tables for the state and X,Y bits,
-
-    http://www.inwap.com/pdp10/hbaker/hakmem/topology.html#item115
-
-And C++ code based on that in Jorg Arndt's book,
-
-    http://www.jjj.de/fxt/#fxtbook (section 1.31.1)
-
-It also works to process N from low to high, at each stage applying any
-transpose (swap X,Y) and/or invert (bitwise negate) to the low X,Y bits
-generated so far.  This approach saves locating the top bits of N, but if
-using bignums then the bitwise inverts will be much more work.
-
-The reverse X,Y to N can follow the table approach from high to low taking
-one bit from X and Y each time.  The state table of N-pair -> X-bit,Y-bit is
-reversible, and a new state is based on the N-pair thus obtained (or could
-be based on the X,Y bits if that mapping was combined in the state
-transition table).
-
-The current code is a mixture of the low to high for C<n_to_xy> but the
-table high to low for the reverse C<xy_to_n>.
-
-The range of N occurring in a rectangle (C<rect_to_n_range>) can be found in
-a similar way to converting X,Y coordinates to N.  Start at a bit position
-bigger than the rectangle and look at which of the 4 Hilbert curve sub-parts
-overlap the rectangle, and choose the one with the biggest (or smallest) N
-bits.  The biggest and smallest must be done separately as they track down
-different N bits and thus different state transitions.  The N range for any
-shape can be done this way, it only depends on asking which sub-parts
-overlap or not with the target area.
-
-Each step between successive N values is by 1 up, down, left or right.  The
-next direction can be calculated from the N position with on some base-4
-digit-3s parity of N and -N (twos complement).  C++ code in Jorg Arndt's
-fxtbook per above.
+into the X,Y binary fractions.  The code here is not setup to do this, but
+can be pressed into service by moving the binary point in X,Y an even number
+of places, the same amount in each, and the resulting integer N moved back
+by a corresponding multiple of 4 binary places.
 
 =head1 FUNCTIONS
 
@@ -597,13 +507,13 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional positions give an X,Y position along a straight line between the
 integer positions.  Integer positions are always just 1 apart either
-horizontally or vertically, so the effect is that the fraction part appears
+horizontally or vertically, so the effect is that the fraction part is
 either added to or subtracted from X or Y.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
 Return an integer point number for coordinates C<$x,$y>.  Each integer N is
-considered the centre of a unit square an C<$x,$y> within that square
+considered the centre of a unit square and an C<$x,$y> within that square
 returns N.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
@@ -619,9 +529,121 @@ range are necessarily in the rectangle.
 
 =back
 
+=head1 FORMULAS
+
+=head2 N to X,Y
+
+Converting N to X,Y coordinates is reasonably straightforward.  The top two
+bits of N is a configuration
+
+    3--2                    1--2
+       |    or transpose    |  |
+    0--1                    0  3
+
+according to whether it's an odd or even bit-pair position.  Within each of
+the "3" sub-parts there's also inverted forms
+
+    1--0        3  0
+    |           |  |
+    2--3        2--1
+
+Working N from high to low with a state variable can record whether there's
+a transpose, an invert, or both, being four states altogether.  A bit pair
+0,1,2,3 from N then gives a bit each of X,Y according to the configuration,
+and a new state which is the orientation of the sub-part.  Gosper's HAKMEM
+item 115 has this with tables for the state and X,Y bits,
+
+    http://www.inwap.com/pdp10/hbaker/hakmem/topology.html#item115
+
+And C++ code based on that in Jorg Arndt's book,
+
+    http://www.jjj.de/fxt/#fxtbook (section 1.31.1)
+
+It also works to process N from low to high, at each stage applying any
+transpose (swap X,Y) and/or invert (bitwise NOT) to the low X,Y bits
+generated so far.  This saves locating the top bits of N, but if using
+bignums then bitwise inverts will be much more work.
+
+=head2 X,Y to N
+
+The reverse X,Y to N can follow the table approach from high to low taking
+one bit from X and Y each time.  The state table of N-pair -> X-bit,Y-bit is
+reversible, and a new state is based on the N-pair thus obtained (or could
+be based on the X,Y bits if that mapping is combined into the state
+transition table).
+
+The current code is a mixture of the low to high for C<n_to_xy> but the
+table high to low for the reverse C<xy_to_n>.
+
+=head2 N Range
+
+An easy over-estimate of the maximum N in a region can be had by going to
+the next bigger (2^k)x(2^k) square enclosing the region.  This means the
+biggest X or Y rounded up to the next power of 2, so
+
+    find k with 2^k > max(X,Y)
+    N_max = 2^(2k) - 1
+
+An exact N range can be found by following the high to low N to X,Y
+procedure.  Start at the 2^(2k) bit pair position in N bigger than the
+desired region and choose 2 bits for N to give a bit each of X and Y.  The
+X,Y bits are based on the state table as above and the bits chosen for N are
+those for which the resulting X,Y sub-square overlaps some of the target
+region.  The smallest N similarly, choosing the smallest bit pair.
+
+Biggest and smallest must be calculated separately as they track down
+different N bits and thus different state transitions.  The N range for any
+shape can be done this way, not just a rectangle like C<rect_to_n_range>,
+since it only depends on asking when a sub-square overlaps the target area.
+
+=head2 Direction
+
+Each step between successive N values is by 1 up, down, left or right.  The
+next direction can be calculated from the N position with on some base-4
+digit-3s parity of N and -N (twos complement).  C++ code in Jorg Arndt's
+fxtbook per above.
+
+=head1 OEIS
+
+This Hilbert Curve path is in Sloane's OEIS in several forms,
+
+    http://oeis.org/A059252  (etc)
+
+    A059252    Y coord    \ if first move horizontal
+    A059253    X coord    / per the code here
+    A163365    diagonal sums
+    A163477    diagonal sums, divided by 4
+    A163482    row at Y=0
+    A163483    column at X=0
+    A163538    X change -1,0,1
+    A163539    Y change -1,0,1
+    A163540    absolute direction of each step (up,down,left,right)
+    A163541    absolute direction, transpose X,Y
+    A163542    relative direction (ahead,left,right)
+    A163543    relative direction, transpose X,Y
+
+And taking squares of the plane in various orders, each value the N of the
+Hilbert curve at those positions.
+
+    A163355    in the ZOrderCurve sequence
+    A163357    in diagonals like Math::PlanePath::Diagonals with
+               first Hilbert step along same axis the diagonals start
+    A163359    in diagonals, transposed start along the opposite axis
+    A163361    A163357 + 1, numbering the Hilbert N's from N=1
+    A163363    A163355 + 1, numbering the Hilbert N's from N=1
+
+The sequences are in each case permutations of the integers since all X,Y
+positions are reached eventually.  The inverses are
+
+    A163356    inverse of A163355
+    A163358    inverse of A163357
+    A163360    inverse of A163359
+    A163362    inverse of A163361
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
 L<Math::Curve::Hilbert>
@@ -630,8 +652,8 @@ David Hilbert, "Ueber die stetige Abbildung einer Line auf ein
 FlE<228>chenstE<252>ck", Mathematische Annalen, volume 38, number 3,
 p459-460,
 
-    DOI 10.1007/BF01199431
     http://www.springerlink.com/content/v1u6427kk33k8j56/
+    DOI 10.1007/BF01199431
     http://notendur.hi.is/oddur/hilbert/gcs-wrapper-1.pdf
 
 =head1 HOME PAGE

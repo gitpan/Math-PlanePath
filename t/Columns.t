@@ -33,7 +33,7 @@ require Math::PlanePath::Columns;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($Math::PlanePath::Columns::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::Columns->VERSION,  $want_version,
@@ -59,8 +59,8 @@ require Math::PlanePath::Columns;
 
 {
   my $path = Math::PlanePath::Columns->new (height => 123);
-  ok (! $path->x_negative, 'x_negative() instance method');
-  ok (! $path->y_negative, 'y_negative() instance method');
+  ok (! $path->x_negative, 'x_negative()');
+  ok (! $path->y_negative, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------

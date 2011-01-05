@@ -21,13 +21,13 @@ use 5.004;
 use strict;
 use warnings;
 use Carp;
-use List::Util qw(min max);
+use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 15;
+$VERSION = 16;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

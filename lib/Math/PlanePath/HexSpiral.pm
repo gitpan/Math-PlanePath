@@ -21,12 +21,12 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util qw(max);
-use POSIX ();
+use POSIX 'floor';
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 15;
+$VERSION = 16;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -125,8 +125,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): "$x, $y"
 
-  $x = POSIX::floor ($x + 0.5);
-  $y = POSIX::floor ($y + 0.5);
+  $x = floor ($x + 0.5);
+  $y = floor ($y + 0.5);
   my $w = $self->{'wider'};
   if (($x ^ $y ^ $w) & 1) {
     return undef;  # nothing on odd squares

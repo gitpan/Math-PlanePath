@@ -33,7 +33,7 @@ require Math::PlanePath::SacksSpiral;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::SacksSpiral->VERSION,  $want_version,

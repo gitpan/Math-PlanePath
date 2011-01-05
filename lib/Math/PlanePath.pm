@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 15;
+$VERSION = 16;
 
 # defaults
 use constant x_negative => 1;
@@ -68,18 +68,21 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     VogelFloret            seeds in a sunflower
     TheodorusSpiral        unit steps at right angles
     MultipleRings          concentric circles
-    HilbertCurve           self-similar unit-step traversal
+
+    PeanoCurve             self-similar base-3 quadrant traversal
+    HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
-    Diagonals              diagonals between X and Y axes
+    Diagonals              diagonals down from the Y to X axes
+    Staircase              stairs down from the Y to X axes
     Corner                 expanding stripes around a corner
     PyramidRows            expanding rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
 
-The paths are object oriented to allow parameters though only a few
-subclasses actually have any parameters.
+The paths are object oriented to allow parameters, though only a few
+subclasses have any parameters.
 
 The classes are generally based on integer C<$n> positions and those
 designed for a square grid turn an integer C<$n> into integer C<$x,$y>.
@@ -88,11 +91,11 @@ not on a square grid, like SacksSpiral and VogelFloret, are based on a unit
 circle at each C<$n> but they too can give in-between positions on request.
 
 In general there's no parameters for scaling or an offset for the 0,0 origin
-or a reflection up or down.  Those things are thought better done by a
-general coordinate transformer that might expand or invert for display.
-Even clockwise instead of counter-clockwise spiralling can be had just by
+or reflection up or down.  Those things are thought better done by a general
+coordinate transformer that might expand or invert for display.  Even
+clockwise instead of counter-clockwise spiralling can be had just by
 negating C<$x> (or negate C<$y> to stay starting at the right), or a quarter
-turn by swapping C<$x> and C<$y>.
+turn using C<-$y,$x>.
 
 =head2 Loop Step
 
@@ -105,7 +108,7 @@ longer than the preceding.
       0       Rows, Columns (fixed widths)
       1       Diagonals
       2       SacksSpiral, PyramidSides, Corner, PyramidRows default
-      4       DiamondSpiral
+      4       DiamondSpiral, Staircase
       5       PentSpiral, PentSpiralSkewed
       6       HexSpiral, HexSpiralSkewed
       7       HeptSpiralSkewed
@@ -121,10 +124,10 @@ time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
 squares make a straight line in the paths of step 2.
 
 In general straight lines on the stepped paths are quadratics a*k^2+b*k+c
-with a=step/2.  The polygonal numbers have this form.  The (step+2)-gonal
-numbers make a straight line on a "step" path.  For example the 7-gonals
+with a=step/2.  This includes the polygonal numbers, with the (step+2)-gonal
+numbers making a straight line on a "step" path.  For example the 7-gonals
 (heptagonals) are 5/2*k^2-3/2*k and make a straight line on the step=5
-PentSpiral, or the 8-gonal octagonals 6/2*k^2-4/2*k on the step=6 HexSpiral
+PentSpiral.  Or the 8-gonal octagonals 6/2*k^2-4/2*k on the step=6 HexSpiral
 paths.
 
 There are various interesting properties of primes in quadratic
@@ -137,11 +140,11 @@ no-primes gap.
 
 A step factor 4 splits a straight line into two, so for example the perfect
 squares are a straight line on the step=2 "Corner" path, and then on the
-step=8 SquareSpiral they instead fall on two lines (to the lower left and
-upper right).  Effectively in that bigger step it's one line of the even
-squares (2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap
-between successive even squares increases by 8 each time and likewise
-between odd squares.
+step=8 SquareSpiral they instead fall on two lines (lower left and upper
+right).  Effectively in that bigger step it's one line of the even squares
+(2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap between
+successive even squares increases by 8 each time and likewise between odd
+squares.
 
 =head1 FUNCTIONS
 
@@ -220,7 +223,7 @@ position.  This is a string name, currently either
     circle         diameter 1 centred on $x,$y
 
 Of course this is only a suggestion as PlanePath doesn't draw anything
-itself.  A figure like a diamond for instance could look good too.
+itself.  A figure like a diamond for instance can look good too.
 
 =back
 
@@ -241,17 +244,21 @@ L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::MultipleRings>
+
+L<Math::PlanePath::PeanoCurve>
 L<Math::PlanePath::HilbertCurve>
 L<Math::PlanePath::ZOrderCurve>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
 L<Math::PlanePath::Diagonals>,
+L<Math::PlanePath::Staircase>,
 L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>
 
-L<math-image> program to display various sequences on these paths.
+L<math-image>, displaing various sequences on these paths.
+
 F<examples/numbers.pl> in the sources to print all the paths.
 
 =head1 HOME PAGE

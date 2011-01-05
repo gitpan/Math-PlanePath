@@ -15,16 +15,16 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 842745cb706f8f2126506f544492f7a80dbe29b3 COPYING
-SHA1 881bff4927e5b269340e29c8435f4e7d5634ca46 Changes
-SHA1 e940a3bde722bca755c35f577af0ba6503b5c94d MANIFEST
+SHA1 d9878914da581662e5f71911a716a488ea810b9c Changes
+SHA1 4bf6f43706526ea38f2bce2579b38cb3584b4899 MANIFEST
 SHA1 e6e7c2904ea5d300c0ddf70fc5a80f5005229aa9 MANIFEST.SKIP
-SHA1 1f9e34bf455cd6542715e1223b232260c08b7208 META.yml
+SHA1 9f9d3c040e0b67a4af02512e3187f205fcded203 META.yml
 SHA1 9386b54ec9777bc9ac088d4ffce837a852ae4847 Makefile.PL
-SHA1 a061d4094d2f2188f966544a303da744ab9e163f debian/changelog
+SHA1 e0387a525b9d61d26ecfd845ff1aa8b5cdc55b0d debian/changelog
 SHA1 ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4 debian/compat
 SHA1 8bdde95807aa6313028c097f771d335486ee37c4 debian/control
 SHA1 e2e8d48895fd2b8f2f11973d7b40b6feea2f9242 debian/copyright
-SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 debian/patches/pod-examples-dir.diff
+SHA1 b23372da694f2a4cf905ab8d9f5ba78ae317977f debian/patches/pod-examples-dir.diff
 SHA1 c67e52a6472613966eb38e3740992a1540633ef2 debian/rules
 SHA1 61652cd1568dcf2614df833eba241755eee34e89 debian/source/format
 SHA1 273a458118fa59ed61d2af74b48622637cf37cb2 debian/watch
@@ -36,7 +36,7 @@ SHA1 7be34c189ad828858392d51127695a17e950694c devel/hilbert.pl
 SHA1 4e0a4796c12665c85cdb57bc6414b89334fb8f8a devel/interpolate.pl
 SHA1 69c8a63eaba37b9362983d302d46d06c67688f8e devel/pixelated.pl
 SHA1 3c1b0c1b1b862f86452718535b2569aedb445cf9 devel/r5.pl
-SHA1 af9af4c514cdfece0226e156190a2ce3240cfe3c devel/run.pl
+SHA1 ba73191bb84afc5a945d18aacef536988dc825a0 devel/run.pl
 SHA1 3ec6e5c13f90d48770fc2dc839a5777e0208875a devel/theodorus.gnuplot
 SHA1 543cebcba03df1d631fb1b82674934b83b5b9c30 devel/theodorus.pl
 SHA1 1aecd2121c898ce35b026cc4033f55675bf5f417 devel/unused.pl
@@ -45,55 +45,64 @@ SHA1 93544d0afdf54b76e7a6dbef20120f56aef1e0cf devel/vogel.pl
 SHA1 d4592db3edcc8c00c4ee604b0f3e061b2bd667ab examples/hilbert-oeis.pl
 SHA1 12fcba92cc9be612c3dbc51e98e569abd5b9f913 examples/hilbert-path.pl
 SHA1 b6fd4b9f925a96d1eb697303d374d5462cfc249f examples/knights-oeis.pl
-SHA1 bf59e786b8869c6d0fe43b44d4723cae31cc9905 examples/numbers.pl
+SHA1 935dea3330683081d20d3b10751d55be509dac2c examples/numbers.pl
 SHA1 68ed7d8df1b2a82d44218c8f4eb2c6dadc98f535 examples/sacks-xpm.pl
 SHA1 e0e22844b668ba286ae87a6c14219c4c1c63f41c examples/square-numbers.pl
 SHA1 8f8532615ed3051757f392ded349d1e549146a61 examples/ulam-spiral-xpm.pl
 SHA1 4fb53efe76b3b2264eaa4cf7780cb0c4923e18a5 inc/MyMakeMakerExtras.pm
 SHA1 692a1ddc2ca6b98cac7b48ea40bc1ac1509e8ed9 inc/my_pod2html
-SHA1 a2bf4c769256f11d3ee950d068a9731f8ea38453 lib/Math/PlanePath.pm
-SHA1 f75cd6ace7ea3e57a8674d20a7031346da86095f lib/Math/PlanePath/Columns.pm
-SHA1 4ac9442b87836a7dccc4bfc1b02cb3dcc8c85621 lib/Math/PlanePath/Corner.pm
-SHA1 53db5a87e2ce6bca88838ec15a872084829b40aa lib/Math/PlanePath/Diagonals.pm
-SHA1 b72386508228d48f1811862880fe692c6031e6f9 lib/Math/PlanePath/DiamondSpiral.pm
-SHA1 7c3673467c30dd1fcc9e412107ea6d6d4ba47ae1 lib/Math/PlanePath/HeptSpiralSkewed.pm
-SHA1 151e7966f9df0aebb355ce7409f40a415f9de85a lib/Math/PlanePath/HexSpiral.pm
-SHA1 fa99495ec31a0d0929380b07191687b78d585e6e lib/Math/PlanePath/HexSpiralSkewed.pm
-SHA1 799fed0dc214eb1c9d1e3f037c596bd18cdc9a6a lib/Math/PlanePath/HilbertCurve.pm
-SHA1 37eaa65cc61c4f8c23bd602950bf38ac728414ad lib/Math/PlanePath/KnightSpiral.pm
-SHA1 406a31702490aa65f595ae4854580630cb8e5aab lib/Math/PlanePath/MultipleRings.pm
-SHA1 fecaa02cc8fac37303efe9495f431d08bc6033cb lib/Math/PlanePath/PentSpiral.pm
-SHA1 e53a3a63f1a810b54e6b683b4427608042ee9af5 lib/Math/PlanePath/PentSpiralSkewed.pm
-SHA1 b11322dae9ee8d07b50877004c1332367e23cae8 lib/Math/PlanePath/PyramidRows.pm
-SHA1 9977b40759121b6114dd95cb9b8b0351b9653322 lib/Math/PlanePath/PyramidSides.pm
-SHA1 af4e525418f6e509299d676d5dbff2eb7a5adb6d lib/Math/PlanePath/PyramidSpiral.pm
-SHA1 d5f7bd89613e745e4a4578e10458812aa146e7e0 lib/Math/PlanePath/Rows.pm
-SHA1 f09fb82680d9a8c7dc88702402b0f4efa22ccb86 lib/Math/PlanePath/SacksSpiral.pm
-SHA1 7f9ca03270d44288e349613318ffd5c45bf4319a lib/Math/PlanePath/SquareSpiral.pm
-SHA1 27c0f505be675c4d6920c8a8ccabae18b307c928 lib/Math/PlanePath/TheodorusSpiral.pm
-SHA1 6e579466d7c43dc6d4a6df83053e47cb6e8e4cba lib/Math/PlanePath/TriangleSpiral.pm
-SHA1 6d397f538ec7c8f42f81e246fcb01d9c351ed289 lib/Math/PlanePath/TriangleSpiralSkewed.pm
-SHA1 67452780a34d0b77f3fc57f944c08476bd7cd40c lib/Math/PlanePath/VogelFloret.pm
-SHA1 e73729f51e2c696b0a20427ab48a1051ddb8fe78 lib/Math/PlanePath/ZOrderCurve.pm
+SHA1 31b30f8491f5fc2fdeeddd422315448b8472101a lib/Math/PlanePath.pm
+SHA1 d27f73974390b190028e7e191c8f885a0a564991 lib/Math/PlanePath/Columns.pm
+SHA1 812b133f85b61cba7ec18f6b1b38e1d69cebd37d lib/Math/PlanePath/Corner.pm
+SHA1 7be5f9f68794eddbfea0f0a179eab394104f7e48 lib/Math/PlanePath/Diagonals.pm
+SHA1 325f4ace28e02cadb62159b161a409b9ef8a065e lib/Math/PlanePath/DiamondSpiral.pm
+SHA1 777824fd1c5f732dc8a30e536fa2f525ff6c65b2 lib/Math/PlanePath/HeptSpiralSkewed.pm
+SHA1 95103126383cf5457f13d1d4e010f533daf1647f lib/Math/PlanePath/HexSpiral.pm
+SHA1 2d692c816e71626bdccd64921dea2f364196ebe4 lib/Math/PlanePath/HexSpiralSkewed.pm
+SHA1 0bd0e4981aaa5d8b2d33fd9d6715b8bdc678ffbe lib/Math/PlanePath/HilbertCurve.pm
+SHA1 78430d83913bc93d05e3f6ed44438a14a51c5d34 lib/Math/PlanePath/KnightSpiral.pm
+SHA1 9870fef58d254ef71ae514648717438f08ec34b7 lib/Math/PlanePath/MultipleRings.pm
+SHA1 96357cf7d4133f1413ca1833c4f1861d9b8a44de lib/Math/PlanePath/PeanoCurve.pm
+SHA1 95c2e0182f735d46a967e7f7e84330521a4d5822 lib/Math/PlanePath/PentSpiral.pm
+SHA1 6612960efa24757b69cf9ca550b8908f9ce7c50c lib/Math/PlanePath/PentSpiralSkewed.pm
+SHA1 96869023884c1df6b3e5e2e16ddd4cb2ba8fd278 lib/Math/PlanePath/PyramidRows.pm
+SHA1 c6891f02379b7d60fbbaea583597084561917860 lib/Math/PlanePath/PyramidSides.pm
+SHA1 345d894797f0beceafdccc8e33bb2b28db3e2349 lib/Math/PlanePath/PyramidSpiral.pm
+SHA1 208b177490d8b4a7a43625df9c45940ec4acaab6 lib/Math/PlanePath/Rows.pm
+SHA1 ef38d94b1b95c778cd98a6e9a02f93d3dd55d015 lib/Math/PlanePath/SacksSpiral.pm
+SHA1 f56dd4d2d9ef48429e159f52394a6166acd8f66e lib/Math/PlanePath/SquareSpiral.pm
+SHA1 937010303ba37ca558e9871128d35acfdb21bce0 lib/Math/PlanePath/Staircase.pm
+SHA1 2e719029c90553c2fd6103150664589d63ba07f1 lib/Math/PlanePath/TheodorusSpiral.pm
+SHA1 c90e1ec93edec40cce1d0d8d03a78bd5d0c84549 lib/Math/PlanePath/TriangleSpiral.pm
+SHA1 a949cadea4fd63b163e416c67e866c69afd3b975 lib/Math/PlanePath/TriangleSpiralSkewed.pm
+SHA1 e22645f2e9db8fc39adddae4ae79a5999c57108e lib/Math/PlanePath/VogelFloret.pm
+SHA1 a54f289bc6bc1c9d8adbb762a0aecafdb78e9fa9 lib/Math/PlanePath/ZOrderCurve.pm
 SHA1 bba68603a50b079c88e050bec38cafd65b5a02bd t/Columns-load.t
-SHA1 fca24bea1ed91c12476e7318cb6fc650e19c9a3e t/Columns.t
-SHA1 81300bfec4e55c6487f190f7450bc89f19f43fdf t/Diagonals.t
-SHA1 e502e97a4e480a5fee8f2fafbfe9ae1f9af8b399 t/DiamondSpiral.t
-SHA1 01390e9437fda549c14ca1d27db243e7a1385858 t/HexSpiral.t
-SHA1 d3417578d138fcd92f078ee6b0593607dbcad7ee t/HexSpiralSkewed.t
-SHA1 43bf3862984c77fb82348f9a945bf50dd551efaa t/HilbertCurve-oeis.t
-SHA1 0596297c475d64c0f9ae75f4dd67fd317661d71f t/HilbertCurve.t
-SHA1 9b1b8bff8d5090acb04d1ce49c077cb8d1f40e06 t/KnightSpiral.t
-SHA1 c18020aaf4b00a0f7507bbb886e0bc10256a3176 t/MultipleRings.t
-SHA1 cd35981216fe5f1af6a6b22858d252ff8542fc14 t/MyOEIS.pm
+SHA1 8ad3c7f5b77576f2c94f0a2ffaf8ee90f33caacf t/Columns.t
+SHA1 9bf10d88ca0540188788840d7de34fe9b7f27586 t/Diagonals.t
+SHA1 be327a86450cbfe2ea1db03ab8d437e005ad0b23 t/DiamondSpiral.t
+SHA1 a5f08884443617a72812844e945bfda33ccdf42a t/HexSpiral-load.t
+SHA1 6b64c3ad4c06a20f0de60d475ab9bca0b6eaf7a1 t/HexSpiral.t
+SHA1 cde278f4996d3baedc3430b01bc99d2c61214631 t/HexSpiralSkewed.t
+SHA1 0688a17945b7fbee351d11daf0e2ba57e74bf7a1 t/HilbertCurve-load.t
+SHA1 1509b76f94ce95f953325fa7fe939cfe9018801a t/HilbertCurve-oeis.t
+SHA1 d49f500cd31f56866976f53a7177cf0e9f168687 t/HilbertCurve.t
+SHA1 7139eeed8dca8717887fbe8684c1789c10e93346 t/KnightSpiral-oeis.t
+SHA1 dbe566bf1fa675d4a30ac9548ecd7e66236d066f t/KnightSpiral.t
+SHA1 45c3eb38dd0f8f0e8364cceef37768674c916c4b t/MultipleRings.t
+SHA1 6ec8772ebd12c12858464d893cfb5b82664a2316 t/MyOEIS.pm
 SHA1 d2f58e66e0965c50aefc0479cd5712e8df53336e t/MyTestHelpers.pm
-SHA1 f77cd21a765ee99714f15d7d723f68bc55441617 t/PlanePath.t
-SHA1 f564c0413f16ef4d89a724a90e2a1bf78ed77efc t/PyramidRows.t
+SHA1 feccf92256c40f3110390ad6a4513579dc01d7e3 t/PeanoCurve-load.t
+SHA1 1f495f0190e1a2edb7f143a6f94bf503c7d961cf t/PeanoCurve-oeis.t
+SHA1 6655123a647c8110fec7ad80f12c3c042e4153a1 t/PeanoCurve.t
+SHA1 2b4a6de89a8381e37f54b35703748c66869a3d96 t/PlanePath.t
+SHA1 72c13cf4c47297dd404684260b1ed63342b22ac3 t/PyramidRows.t
 SHA1 4bdee679baf0dfe3a38c7a8d956dd4a4177308fe t/Rows-load.t
-SHA1 de1f804879e59f04ccde1f2f126825a89dd0b3b0 t/Rows.t
-SHA1 347c2588fd7638602eb8018d6c191ad11d02db88 t/SacksSpiral.t
-SHA1 23804ce0fb9077ec22c9bdc4b3b880e6707e61bd t/SquareSpiral.t
-SHA1 d566ff0eead24c9c19ae95d0807b6c450ef89274 t/VogelFloret.t
+SHA1 91e08620f390e896a2db3a202824dcad818cad15 t/Rows.t
+SHA1 e081ad42623665bdbf01f95c79bde009b687eccf t/SacksSpiral.t
+SHA1 a469b60d2e1f3486648a54e73e12ab418ddc7df7 t/SquareSpiral.t
+SHA1 96277252b16d1a4ce877e6304f15045e4773f21b t/VogelFloret.t
+SHA1 8dd17ff86c469656b95d213c1280b7bbd51d9c16 t/ZOrderCurve.t
 SHA1 9127f78a0dfa04976acbb979dd7862ef59a74c58 xt/0-META-read.t
 SHA1 37abd43b41068804ea4bb099fdd89af21be82926 xt/0-Test-DistManifest.t
 SHA1 8f93fb4c8f0424a4442cc93c9a2e86342ef55281 xt/0-Test-Pod.t
@@ -102,7 +111,7 @@ SHA1 fb517c2fae5ddac559318bf6a224949115ea3129 xt/0-Test-YAML-Meta.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iD8DBQFNIQHRLFMCIV9q3ToRAjJVAKCk8KoyXJPZGnBV1jZQtoqX/yTtlQCfU/0e
-ry+z4i3cgLVqmnIJE0vaI8I=
-=BH6x
+iD8DBQFNJOThLFMCIV9q3ToRAk9KAKCh7+y0BwkvakFoALRY+L3SgwOvQgCguF8A
+ZQS9BT8C2Jl5Lgx5QB36Nws=
+=gRgz
 -----END PGP SIGNATURE-----

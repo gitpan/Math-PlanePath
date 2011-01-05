@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 15;
+$VERSION = 16;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -411,7 +411,7 @@ of a square spiral.
 Each step is a chess knight's move 1 across and 2 along, or vice versa.  The
 pattern makes 4 cycles on a 2-wide path around a square before stepping
 outwards to do the same again to a now bigger square.  The above sample
-shows the first 4-cycle around the central 1 then stepping out at 26 and
+shows the first 4-cycle around the central 1, then stepping out at 26 and
 beginning to go around the outside of the 5x5 square.
 
 An attractive traced out picture of the path can be seen at the following
@@ -419,9 +419,7 @@ page (quarter way down under "Open Knight's Tour"),
 
     http://www.borderschess.org/KTart.htm
 
-See L<math-image> to draw the path lines too.  Or
-F<examples/knights-oeis.pl> expressing the knight's tour by the numbering
-of the SquareSpiral (Sloane's OEIS sequence A068608).
+See L<math-image> to draw the path lines too.
 
 =head1 FUNCTIONS
 
@@ -446,6 +444,25 @@ in the path as centred in a square of side 1, so the entire plane is
 covered.
 
 =back
+
+=head1 OEIS
+
+This Knight's tour is in Sloane's OEIS following the Knight spiral and
+giving the resulting X,Y location by the SquareSpiral numbering.  There's
+eight forms for 4 rotations and spiralling the same or opposite directions.
+
+    http://oeis.org/A068608
+
+    A068608  - same knight and square spiral directions
+    A068609  - rotate 90 degrees
+    A068610  - rotate 180 degrees
+    A068611  - rotate 270 degrees
+    A068612  - rotate 180 degrees, spiral opp dir (X negate)
+    A068613  - rotate 270 degrees, spiral opp dir
+    A068614  - spiral opposite direction (Y negate)
+    A068615  - rotate 90 degrees, spiral opp dir (X,Y transpose)
+
+See F<examples/knights-oeis.pl> generating A068608.
 
 =head1 SEE ALSO
 

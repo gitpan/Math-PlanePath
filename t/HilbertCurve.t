@@ -37,7 +37,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::HilbertCurve->VERSION,  $want_version,
@@ -62,7 +62,7 @@ require Math::PlanePath::HilbertCurve;
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::HilbertCurve->new (height => 123);
+  my $path = Math::PlanePath::HilbertCurve->new;
   ok (!$path->x_negative, 'x_negative() instance method');
   ok (!$path->y_negative, 'y_negative() instance method');
 }

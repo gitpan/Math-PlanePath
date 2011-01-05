@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 15;
+$VERSION = 16;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -138,12 +138,6 @@ The horizontal sequence 1,3,6,10,etc at y=0 is the triangular numbers
 s*(s+1)/2.  (If you plot them on a graph don't confuse that line with the
 axis or a border!)
 
-=head1 FORMULAS
-
-Within each row increasing X is increasing N, and each column increasing Y
-is increasing N.  On that basis in a rectangle for C<rect_to_n_range> the
-lower left corner is the minimum N and the upper right is the maximum N.
-
 =head1 FUNCTIONS
 
 =over 4
@@ -168,12 +162,20 @@ entirely covered.
 
 =back
 
+=head1 FORMULAS
+
+=head2 N Range
+
+Within each row increasing X is increasing N, and each column increasing Y
+is increasing N.  On that basis in a rectangle for C<rect_to_n_range> the
+lower left corner is the minimum N and the upper right is the maximum N.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::Corner>,
 L<Math::PlanePath::Rows>,
-L<Math::PlanePath::Columns>,
-L<Math::PlanePath::Corner>
+L<Math::PlanePath::Columns>
 
 =head1 HOME PAGE
 

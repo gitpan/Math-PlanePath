@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondSpiral;
 # VERSION
 
 {
-  my $want_version = 15;
+  my $want_version = 16;
   is ($Math::PlanePath::DiamondSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::DiamondSpiral->VERSION,  $want_version,
@@ -60,8 +60,8 @@ require Math::PlanePath::DiamondSpiral;
 
 {
   my $path = Math::PlanePath::DiamondSpiral->new (height => 123);
-  ok ($path->x_negative, 'x_negative() instance method');
-  ok ($path->y_negative, 'y_negative() instance method');
+  ok ($path->x_negative, 'x_negative()');
+  ok ($path->y_negative, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------

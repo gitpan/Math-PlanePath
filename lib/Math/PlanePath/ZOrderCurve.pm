@@ -26,7 +26,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 15;
+$VERSION = 16;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -161,7 +161,7 @@ Math::PlanePath::ZOrderCurve -- self-similar Z pattern quadrant
 
 =head1 DESCRIPTION
 
-This path puts points in a repeating Z pattern described by G.M. Morton,
+This path puts points in a self-similar Z pattern described by G.M. Morton,
 
       7  |   42  43  46  47  58  59  62  63
       6  |   40  41  44  45  56  57  60  61
@@ -175,15 +175,15 @@ This path puts points in a repeating Z pattern described by G.M. Morton,
           x=0   1   2   3   4   5   6   7
 
 The first four points make a "Z" shape if written with Y going downwards
-(inverted image if drawn upwards as above),
+(inverted if drawn upwards as above),
 
      0---1       y=0
         /
       /
      2---3       y=1
 
-Then groups of those are arranged as a further Z, and so on doubling in size
-each time.
+Then groups of those are arranged as a further Z, etc, doubling in size each
+time.
 
      0   1      4   5       y=0
      2   3 ---  6   7       y=1
@@ -193,15 +193,15 @@ each time.
      8   9 --- 12  13       y=2
     10  11     14  15       y=3
 
-Within an even power of 2 square 2x2, 4x4, 8x8, 16x16 etc 2^(2^k), all the N
-values 0 to 2^(2*(2^k))-1 are within the square.  The top right corner 3,
-15, 63, 255 etc of each is the 2^(2*(2^k))-1 maximum.
+Within an power of 2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k), all the N
+values 0 to 2^(2*k)-1 are within the square.  The top right corner 3, 15,
+63, 255 etc of each is the 2^(2*k)-1 maximum.
 
 =head2 Power of 2 Values
 
-Plotting N sequences related to powers of 2 can come out as interesting
-patterns.  For example displaying the numbers N which have no digit 3 in
-their base 4 representation gives
+Plotting N values related to powers of 2 can come out as interesting
+patterns.  For example displaying the N's which have no digit 3 in their
+base 4 representation gives
 
     * 
     * * 
@@ -220,21 +220,10 @@ their base 4 representation gives
     *   *   *   *   *   *   *   * 
     * * * * * * * * * * * * * * * * 
 
-Plotting 0,1,2 and not 3 makes a little L at the bottom left, then repeated
-at 4x4 with again the whole "3" position there undrawn, and so on.  The
+The 0,1,2 and not 3 makes a little 2x2 "L" at the bottom left, then
+repeating at 4x4 with again the whole "3" position undrawn, and so on.  The
 blanks are a visual representation of the multiplications saved by recursive
 use of the Karatsuba multiplication algorithm.
-
-=head1 FORMULAS
-
-The coordinate calculation is simple.  The bits of X and Y are simply every
-second bit of N.  So if N = binary 101010 then X=000 and Y=111 in binary,
-which is the N=42 shown above at X=0,Y=7.
-
-Within each row the N values increase as X increases, and conversely within
-each column N increases with increasing Y.  On that basis for a given
-rectangle the smallest N is the lower left corner (smallest X and smallest
-Y), and the biggest N is at the upper right (biggest X and biggest Y).
 
 =head1 FUNCTIONS
 
@@ -256,15 +245,31 @@ squares soon become rather long and probably of very limited use.
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
 Return an integer point number for coordinates C<$x,$y>.  Each integer N is
-considered the centre of a unit square an C<$x,$y> within that square
+considered the centre of a unit square and an C<$x,$y> within that square
 returns N.
 
 =back
 
+=head1 FORMULAS
+
+=head2 N to X,Y
+
+The coordinate calculation is simple.  The bits of X and Y are simply every
+second bit of N.  So if N = binary 101010 then X=000 and Y=111 in binary,
+which is the N=42 shown above at X=0,Y=7.
+
+=head2 N Range
+
+Within each row the N values increase as X increases, and conversely within
+each column N increases with increasing Y.  So for a given rectangle the
+smallest N is at the lower left corner (smallest X and smallest Y), and the
+biggest N is at the upper right (biggest X and biggest Y).
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HilbertCurve>
+L<Math::PlanePath::HilbertCurve>,
+L<Math::PlanePath::PeanoCurve>
 
 C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
 

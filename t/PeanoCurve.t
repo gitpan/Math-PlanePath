@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 1008;
+use Test::More tests => 9;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::KnightSpiral;
+require Math::PlanePath::PeanoCurve;
 
 
 #------------------------------------------------------------------------------
@@ -34,18 +34,18 @@ require Math::PlanePath::KnightSpiral;
 
 {
   my $want_version = 16;
-  is ($Math::PlanePath::KnightSpiral::VERSION, $want_version,
+  is ($Math::PlanePath::PeanoCurve::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::KnightSpiral->VERSION,  $want_version,
+  is (Math::PlanePath::PeanoCurve->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::KnightSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::PeanoCurve->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::KnightSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::PeanoCurve->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::KnightSpiral->new;
+  my $path = Math::PlanePath::PeanoCurve->new;
   is ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -58,27 +58,9 @@ require Math::PlanePath::KnightSpiral;
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new (height => 123);
-  ok ($path->x_negative, 'x_negative()');
-  ok ($path->y_negative, 'y_negative()');
-}
-
-#------------------------------------------------------------------------------
-# xy_to_n
-
-{
-  my $path = Math::PlanePath::KnightSpiral->new;
-  my ($x, $y) = $path->n_to_xy(1);
-  foreach my $n (2 .. 1000) {
-    my ($nx, $ny) = $path->n_to_xy($n);
-    # diag "n=$n  $nx,$ny";
-    my $dx = abs($nx - $x);
-    my $dy = abs($ny - $y);
-    ok (($dx == 2 && $dy == 1)
-        || ($dx == 1 && $dy == 2),
-        "step n=$n from $x,$y to $nx,$ny   D=$dx,$dy");
-    ($x,$y) = ($nx,$ny);
-  }
+  my $path = Math::PlanePath::PeanoCurve->new;
+  ok (! $path->x_negative, 'x_negative() instance method');
+  ok (! $path->y_negative, 'y_negative() instance method');
 }
 
 exit 0;
