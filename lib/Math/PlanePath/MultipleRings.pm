@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'asin', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -85,8 +85,15 @@ sub n_to_xy {
   ### MultipleRings n_to_xy(): $n
   ### step: $self->{'step'}
 
-  return if $n < 1; # separate test from decrement so as to warn on undef
+  # "$n<1" separate test from decrement so as to warn on undef
+  # "$n-1 == $n" to notice $n==infinity, don't have anything sensible to
+  # return for that, and M_PI / infinity would throws a div by zero
+  if ($n < 1
+      || $n-1 == $n) {
+    return;
+  }
   $n--;
+
   ### decremented n: $n
   my $step = $self->{'step'};
   if (! $step) {
@@ -97,16 +104,18 @@ sub n_to_xy {
   ### divided n: $n
 
   my $d = int(0.5 + sqrt(2*$n + 0.25));
+  ### d frac: 0.5 + sqrt(2*$n + 0.25)
+  ### d int: $d
+
   my $r = ($step > 6
+           # && $d != 0 # watch out for overflow making d==0
            ? 0.5 / sin(M_PI() / ($d*$step))
            : $d + $self->{'base_r'});
-  ### $d
-  ### d frac: 0.5 + sqrt(2*$n + 0.25)
   ### $r
+  my $theta = ($n - 0.5*$d*($d-1))/$d * (2*M_PI());
   ### base: 0.5*$d*($d-1)
   ### remainder: ($n - 0.5*$d*($d-1))
   ### theta frac: ($n - 0.5*$d*($d-1))/$d
-  my $theta = ($n - 0.5*$d*($d-1))/$d * (2*M_PI());
 
   return ($r * cos($theta),
           $r * sin($theta));
@@ -134,6 +143,10 @@ sub _xy_to_d {
     # 1/(2*r) could be div-by-zero
     # or 1/(2*r) > 1 would be asin()==-nan
     return 1;
+  }
+  if ($r == $r-1) {
+    ### infinity avoid div-by-zero in 1/(2*$r)
+    return $r;
   }
   ### $r
   if ((my $step = $self->{'step'}) > 6) {

@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -91,16 +91,16 @@ sub rect_to_n_range {
   $x2 = floor ($x2 + 0.5);
   $y2 = floor ($y2 + 0.5);
 
-  my $y = max ($y1, $y2);
-  if ($y < 0) {
-    return (1, 1);
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
+  if ($y2 < 0) {
+    return (1, 0); # rect all negative, no N
   }
-  my $x = max (abs($x1),abs($x2));
-  my $s = $x + $y;
 
-  # ENHANCE-ME: actual minimum something at centre if not covering y=0
-  return (1,
-          1 + ($s+1)**2);
+  my ($xlo, $xhi) = (abs($x1) < abs($x2) ? ($x1, $x2) : ($x2, $x1));
+  if ($x2 == -$x1) { $xhi = abs($xhi); }  # +ve bigger if say -5 .. +5
+  if (($x1 >= 0) ^ ($x2 >= 0)) { $xlo = 0; }  # diff signs, x=0 smallest
+  return ($self->xy_to_n ($xlo, max($y1,0)),
+          $self->xy_to_n ($xhi, $y2));
 }
 
 1;
@@ -132,11 +132,11 @@ upwards.
                          ^
     ... -4  -3  -2  -1  x=0  1   2   3   4 ...
 
-The horizontal 1,4,9,16,etc at the bottom going right is the perfect
-squares.  The vertical 2,6,12,20,etc at x=-1 is the pronic numbers s*(s+1),
-half way between those successive squares.
+The 1,4,9,16,etc along the X axis to the right are the perfect squares.  The
+vertical 2,6,12,20,etc at X=-1 are the pronic numbers k*(k+1) half way
+between those successive squares.
 
-The pattern is the same as the Corner path but widened out so that the
+The pattern is the same as the Corner path but turned and widened out so the
 single quadrant in the Corner becomes a half-plane here.
 
 The pattern is similar to PyramidRows, just with the columns dropped down
@@ -145,13 +145,13 @@ unchanged, but what was a row becomes a diagonal and vice versa.
 
 =head2 Lucky Numbers of Euler
 
-An interesting sequence for this path is Euler's k^2+k+41.  Low values are
-spread around a bit, but from N=1763 (k=41) onwards they're the vertical at
-x=40.  There's quite a few primes in this quadratic and on a plot of the
-primes that vertical stands out a little denser in primes than its surrounds
-(at least for up to the first 2500 or so values).  The line shows in other
-step==2 paths too, but not as clearly.  In the PyramidRows the beginning is
-up at y=40, and in the Corner path it's a diagonal.
+An interesting sequence for this path is Euler's k^2+k+41.  The low values
+are spread around a bit, but from N=1763 (k=41) they're the vertical at
+x=40.  There's quite a few primes in this quadratic and when plotting primes
+that vertical stands out a little denser than its surrounds (at least for up
+to the first 2500 or so values).  The line shows in other step==2 paths too,
+but not as clearly.  In the PyramidRows for instance the beginning is up at
+Y=40, and in the Corner path it's a diagonal.
 
 =head1 FUNCTIONS
 
@@ -176,6 +176,19 @@ in the pyramid as a squares of side 1, so the half-plane y>=-0.5 is entirely
 covered.
 
 =back
+
+=head1 FORMULAS
+
+=head2 N Range
+
+For C<rect_to_n_range>, in each column N increases so the biggest N is in
+the topmost row and and smallest N in the bottom row.
+
+In each row N increases along the sequence X=0,-1,1,-2,2,-3,3, etc.  So the
+biggest N is at the X of biggest absolute value and preferring a positive
+X=k over X=-k.  The smallest X conversely is at the X of smallest absolute
+value.  When the rectangle C<$x1> to C<$x2> crosses 0, ie. C<$x1> and C<$x2>
+have different signs, then of course X=0 is the smallest.
 
 =head1 SEE ALSO
 

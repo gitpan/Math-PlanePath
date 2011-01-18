@@ -17,6 +17,11 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 17, January 2011
+    - avoid some inf loops and div by zeros for n=infinity or x,y=infinity
+      handling of infinity is unspecified, but at least don't hang
+    - PyramidRows, PyramidSides exact rect_to_n_range()
+
 Version 16, January 2011
     - new PeanoCurve, Staircase
 
@@ -25,7 +30,7 @@ Version 15, January 2011
     - Corners,Diagonals,MultipleRings tighter rect_to_n_range()
 
 Version 14, December 2010
-    - HilbertCurve tighter rect_to_n_range()
+    - HilbertCurve exact rect_to_n_range()
 
 Version 13, December 2010
     - new HilbertCurve, ZOrderCurve

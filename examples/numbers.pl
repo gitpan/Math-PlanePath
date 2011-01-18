@@ -131,23 +131,6 @@ sub print_class {
   foreach my $n (1 .. 999) {
     my ($x, $y) = $path->n_to_xy ($n);
 
-
-
-
-
-
-
-#    ($x, $y) = (-$y, $x);
-
-
-
-
-
-
-
-
-
-
     # stretch these out for better resolution
     if ($class =~ /Sacks|Archimedean/) { $x *= 1.5; $y *= 2; }
     if ($class =~ /Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }

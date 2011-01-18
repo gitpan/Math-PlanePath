@@ -26,7 +26,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -38,7 +38,10 @@ use constant y_negative => 0;
 sub n_to_xy {
   my ($self, $n) = @_;
   ### ZOrderCurve n_to_xy(): $n
-  return if $n < 0;
+  if ($n < 0
+      || $n-1 == $n) {  # infinity
+    return;
+  }
 
   if (int($n) != $n) {
     my ($x1,$y1) = $self->n_to_xy(floor($n));
@@ -99,9 +102,15 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
+  if ($y2 < 0 || $x2 < 0) {
+    return (1, 0); # rect all negative, no N
+  }
+
   # monotonic increasing in $x and $y directions
   return ($self->xy_to_n (max(0,min($x1,$x2)), max(0,min($y1,$y2))),
-          $self->xy_to_n (max(0,$x1,$x2), max(0,$y1,$y2)));
+          $self->xy_to_n (max($x1,$x2), max($y1,$y2)));
 }
 
 1;

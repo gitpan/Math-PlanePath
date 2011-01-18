@@ -20,6 +20,7 @@
 use 5.004;
 use strict;
 use warnings;
+use List::Util;
 use Test::More tests => 254;
 
 use lib 't';
@@ -32,7 +33,11 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
-                  Staircase
+                  PyramidSides
+                  ZOrderCurve
+                  Corner
+                  Diagonals
+                  PyramidRows
                   MultipleRings
                   VogelFloret
 
@@ -47,13 +52,10 @@ my @modules = qw(
                   TriangleSpiral
                   TriangleSpiralSkewed
 
-                  PyramidRows
-                  PyramidSides
+                  Staircase
 
                   Rows
                   Columns
-                  Diagonals
-                  Corner
 
                   SacksSpiral
                   TheodorusSpiral
@@ -61,14 +63,13 @@ my @modules = qw(
 
                   PeanoCurve
                   HilbertCurve
-                  ZOrderCurve
                );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 16;
+my $want_version = 17;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -118,6 +119,8 @@ foreach my $module (@modules) {
 my %rect_exact = ('Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::Columns' => 1,
                   'Math::PlanePath::Diagonals' => 1,
+                  'Math::PlanePath::PyramidRows' => 1,
+                  'Math::PlanePath::PyramidSides' => 1,
                   'Math::PlanePath::Staircase' => 1,
                   'Math::PlanePath::Corner' => 1,
                   'Math::PlanePath::HilbertCurve' => 1,
@@ -147,6 +150,34 @@ my %class_dxdy_allowed
                                           '-2,-1' => 1,
                                         },
     );
+
+my ($pos_infinity, $neg_infinity, $nan);
+my ($is_infinity, $is_nan);
+if (! eval { require Data::Float; 1 }) {
+  diag "Data::Float not available";
+} elsif (! Data::Float::have_infinite()) {
+  diag "Data::Float have_infinite() is false";
+} else {
+  $is_infinity = sub {
+    my ($x) = @_;
+    return defined($x) && Data::Float::float_is_infinite($x);
+  };
+  $is_nan = sub {
+    my ($x) = @_;
+    return defined($x) && Data::Float::float_is_nan($x);
+  };
+  $pos_infinity = Data::Float::pos_infinity();
+  $neg_infinity = Data::Float::neg_infinity();
+  $nan = Data::Float::nan();
+}
+sub dbl_max {
+  require POSIX;
+  return POSIX::DBL_MAX();
+}
+sub dbl_max_neg {
+  require POSIX;
+  return - POSIX::DBL_MAX();
+}
 
 {
   my $limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 1000;
@@ -180,6 +211,12 @@ my %class_dxdy_allowed
         ### $step
         ### $wider
 
+        if (defined $step) {
+          if ($limit < 6*$step) {
+            $limit = 6*$step; # so goes into x/y negative
+          }
+        }
+
         my $report = sub {
           my $name = $module;
           if (@steps > 1) {
@@ -206,6 +243,55 @@ my %class_dxdy_allowed
           $path->n_to_xy(undef);
           $saw_warning
             or &$report("n_to_xy(undef) doesn't give a warning");
+        }
+
+        # undef ok if nothing sensible
+        # +/-inf ok
+        # nan not intended, but might be ok
+        # finite could be a fixed x==0
+        if (defined $pos_infinity) {
+          my ($x, $y) = $path->n_to_xy($pos_infinity);
+          # defined($x) or &$report("n_to_xy($pos_infinity) x is undef");
+          # defined($y) or &$report("n_to_xy($pos_infinity) y is undef");
+        }
+        if (defined $neg_infinity) {
+          my ($x, $y) = $path->n_to_xy($neg_infinity);
+        }
+        # not sure nan input should be allowed
+        # if (defined $nan) {
+        #   my ($x, $y) = $path->n_to_xy($nan);
+        #   &$is_nan($x) or &$report("n_to_xy($nan) x not nan, got ", $x);
+        #   &$is_nan($y) or &$report("n_to_xy($nan) y not nan, got ", $y);
+        # }
+
+        foreach my $x ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+          next if ! defined $x;
+          foreach my $y ($pos_infinity, $neg_infinity) {
+            next if ! defined $y;
+            my @n = $path->xy_to_n($x,$y);
+            scalar(@n) == 1
+              or &$report("xy_to_n($x,$y) want 1 value, got ",scalar(@n));
+            # my $n = $n[0];
+            # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
+          }
+        }
+
+        foreach my $x1 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+          next if ! defined $x1;
+          foreach my $x2 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+            next if ! defined $x2;
+            foreach my $y1 ($pos_infinity, $neg_infinity) {
+              next if ! defined $y1;
+              foreach my $y2 ($pos_infinity, $neg_infinity) {
+                next if ! defined $y2;
+
+                my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
+                scalar(@nn) == 2
+                  or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));
+                # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
+              }
+            }
+          }
         }
 
         my %saw_n_to_xy;
@@ -301,10 +387,18 @@ my %class_dxdy_allowed
             or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
         }
 
-        (!!$path->x_negative == !!$got_x_negative)
-          or &$report ("x_negative()");
-        (!!$path->y_negative == !!$got_y_negative)
-          or &$report ("y_negative()");
+        {
+          my $path_x_negative = ($path->x_negative ? 1 : 0);
+          $got_x_negative = ($got_x_negative ? 1 : 0);
+          ($path_x_negative == $got_x_negative)
+            or &$report ("x_negative() $path_x_negative but got $got_x_negative");
+        }
+        {
+          my $path_y_negative = ($path->y_negative ? 1 : 0);
+          $got_y_negative = ($got_y_negative ? 1 : 0);
+          ($path_y_negative == $got_y_negative)
+            or &$report ("y_negative() $path_y_negative but got $got_y_negative");
+        }
 
         if ($path->figure ne 'circle') {
           my $x_min = ($path->x_negative ? - int($rect_limit/2) : -2);
@@ -319,7 +413,6 @@ my %class_dxdy_allowed
           }
           #### $data
 
-          require List::Util;
           foreach my $y1 ($y_min .. $y_max) {
             foreach my $y2 ($y1 .. $y_max) {
 
@@ -333,25 +426,48 @@ my %class_dxdy_allowed
                   $min = List::Util::min (grep {defined} $min, @col);
                   my $want_min = (defined $min ? $min : 1);
                   my $want_max = (defined $max ? $max : 0);
-                  ### rect: "$x1,$y1  $x2,$y2  is N=$want_min..$want_max"
+                  ### rect: "$x1,$y1  $x2,$y2  expect N=$want_min..$want_max"
                   # ### @col
 
-                  my ($got_min, $got_max)
-                    = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-                  defined $got_min
-                    or &$report ("rect_to_n_range() got_min undef");
-                  defined $got_max
-                    or &$report ("rect_to_n_range() got_max undef");
+                  foreach my $x_swap (0, 1) {
+                    my ($x1,$x2) = ($x_swap ? ($x1,$x2) : ($x2,$x1));
+                    foreach my $y_swap (0, 1) {
+                      my ($y1,$y2) = ($y_swap ? ($y1,$y2) : ($y2,$y1));
 
-                  next if ! defined $min || ! defined $max; # outside
+                      my ($got_min, $got_max)
+                        = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+                      defined $got_min
+                        or &$report ("rect_to_n_range() got_min undef");
+                      defined $got_max
+                        or &$report ("rect_to_n_range() got_max undef");
 
-                  unless ($rect_exact{$class}
-                          ? $got_min == $want_min : $got_min <= $want_min) {
-                    &$report ("rect_to_n_range() bad min $x1,$y1 $x2,$y2 got $got_min want $want_min");
-                  }
-                  unless ($rect_exact{$class}
-                          ? $got_max == $want_max : $got_max >= $want_max) {
-                    &$report ("rect_to_n_range() bad max $x1,$y1 $x2,$y2 got $got_max want $want_max");
+                      if (! defined $min || ! defined $max) {
+                        if (! $rect_exact{$class}) {
+                          next; # outside
+                        }
+                      }
+
+                      unless ($rect_exact{$class}
+                              ? $got_min == $want_min : $got_min <= $want_min) {
+                        ### $x1
+                        ### $y1
+                        ### $x2
+                        ### $y2
+                        ### got: $path->rect_to_n_range ($x1,$y1, $x2,$y2)
+                        ### $want_min
+                        ### $want_max
+                        ### $got_min
+                        ### $got_max
+                        ### @col
+                        ### $data
+                        &$report ("rect_to_n_range() bad min $x1,$y1 $x2,$y2 got $got_min want $want_min".(defined $min ? '' : '[nomin]')
+                                 );
+                      }
+                      unless ($rect_exact{$class}
+                              ? $got_max == $want_max : $got_max >= $want_max) {
+                        &$report ("rect_to_n_range() bad max $x1,$y1 $x2,$y2 got $got_max want $want_max".(defined $max ? '' : '[nomax]'));
+                      }
+                    }
                   }
                 }
               }

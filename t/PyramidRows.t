@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More tests => 145;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require Math::PlanePath::PyramidRows;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::PyramidRows;
 # VERSION
 
 {
-  my $want_version = 16;
+  my $want_version = 17;
   is ($Math::PlanePath::PyramidRows::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::PyramidRows->VERSION,  $want_version,
@@ -82,16 +85,81 @@ require Math::PlanePath::PyramidRows;
 # rect_to_n_range()
 
 {
-  foreach my $elem ([2,      0,0, 0,0,  1,1],
-                    [undef,  0,1, 0,1,  2,4],
+  foreach my $elem (
+                    # step = 2
+                    # 5 6 7 8 9  y=2
+                    #   2 3 4    y=1
+                    #     1      y=0
+                    #    x=0
+                    [undef,  0,1, 0,1,   3,3],
+                    [undef,  0,2, 0,2,   7,7],
+                    [2,     -2,0, -1,2,  2,6], # part left
+                    [2,      2,0, 1,2,  4,9], # part right
+
+                    # step = 1
+                    #  4 5 6  y=2
+                    #  2 3    y=1
+                    #  1      y=0
+                    # x=0
+                    [1,  0,1, 0,1,  2,2],
+                    [1,  0,2, 0,2,  4,4],
+                    [1,  -1,1, 0,2,  2,4], # part left
+                    [1,  1,0, 2,2,  3,6], # part right
+
+                    # step = 0
+                    #  3   y=2
+                    #  2   y=1
+                    #  1   y=0
+                    # x=0
+                    [0,  0,1, 0,1,  2,2],
+                    [0,  0,2, 0,2,  3,3],
+
+
+                    # step = 4
+                    # 7  8  9 10 11 12 13 14 15  y=2
+                    #       2  3  4  5  6        y=1
+                    #             1              y=0
+                    #            x=0
+                    [4,  -7,-2, -1,1,   2,3],
+
                    ) {
-    my ($step, $x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
+    my ($step, $x1,$y1, $x2,$y2, $want_lo,$want_hi) = @$elem;
+    my $dstep = (defined $step ? $step : 'undef');
+
     my $path = Math::PlanePath::PyramidRows->new (step => $step);
     my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ### $got_lo
+    ### $got_hi
     is ($got_lo, $want_lo,
-        "lo on $x1,$y1 $x2,$y2 step=".(defined $step ? $step : 'undef'));
+        "lo on $x1,$y1 $x2,$y2 step=$dstep");
     is ($got_hi, $want_hi,
-        "hi on $x1,$y1 $x2,$y2 step=".(defined $step ? $step : 'undef'));
+        "hi on $x1,$y1 $x2,$y2 step=$dstep");
+  }
+}
+
+{
+  foreach my $elem (
+                    [0,0, 0,0,   1,1],
+
+                    [-1,0, -1,0, 1,0], # off left
+                    [1,0, 1,0,   1,0], # off right
+
+                    [-999,-5, -500,3, 1,0], # far off left
+                    [ 999,-5,  500,3, 1,0], # far off right
+
+                    [ -10,-1, 10,-6,  1,0], # y negs
+                   ) {
+    foreach my $step (undef, 0, 1, 2, 3, 4, 5, 10, 20) {
+      my ($x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
+      my $dstep = (defined $step ? $step : 'undef');
+
+      my $path = Math::PlanePath::PyramidRows->new (step => $step);
+      my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+      is ($got_lo, $want_lo,
+          "lo on $x1,$y1 $x2,$y2 step=$dstep");
+      is ($got_hi, $want_hi,
+          "hi on $x1,$y1 $x2,$y2 step=$dstep");
+    }
   }
 }
 

@@ -20,13 +20,13 @@ package Math::PlanePath::PyramidRows;
 use 5.004;
 use strict;
 use warnings;
-use List::Util qw(min max);
-use POSIX 'floor';
+use List::Util 'min', 'max';
+use POSIX 'floor', 'ceil';
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -130,23 +130,102 @@ sub xy_to_n {
 # plus .5  = ($step * $d*$d - ($step-2)*$d) / 2 + 1
 #          = (($step * $d - ($step-2))*$d) / 2 + 1
 #
+# left X  = - $d*int($step/2)
+# right X = $d * ceil($step/2)
+#
+# x_bottom_start = - y1 * step_left
+# want x2 >= x_bottom_start
+#      x2 >= - y1 * step_left
+#      x2/step_left >= - y1
+#      - x2/step_left <= y1
+#      y1 >= - x2/step_left
+#      y1 >= ceil(-x2/step_left)
+#
+# x_bottom_end = y1 * step_right
+# want x1 <= x_bottom_end
+#      x1 <= y1 * step_right
+#      y1 * step_right >= x1
+#      y1 >= ceil(x1/step_right)
+#
+# left N = (($step * $y1 - ($step-2))*$y1) / 2 + 1
+# bottom_offset = $x1 - $y1 * $step_left
+# N lo   = leftN + bottom_offset
+#        = ((step * y1 - (step-2))*y1) / 2 + 1 + x1 - y1 * step_left
+#        = ((step * y1 - (step-2)-2*step_left)*y1) / 2 + 1 + x1
+# step_left = floor(step/2)
+# 2*step_left = step - step&1
+# N lo   = ((step * y1 - (step-2)-2*step_left)*y1) / 2 + 1 + x1
+
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### PyramidRows rect_to_n_range()
+  ### PyramidRows rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"
 
   $x1 = floor ($x1 + 0.5);
   $y1 = floor ($y1 + 0.5);
   $x2 = floor ($x2 + 0.5);
   $y2 = floor ($y2 + 0.5);
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
+  if ($y2 < 0) {
+    return (1, 0); # rect all negative, no N
+  }
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
 
   my $step = $self->{'step'};
-  my $row_min = max(0, min($y1,$y2));
-  my $row_max = max(0, max($y1,$y2)) + 1;
-  ### $row_min
-  ### $row_max
+  my $step_right = ceil($step/2);
+  my $x_top_end = $y2 * $step_right;
+  if ($x1 > $x_top_end) {
+    ### rect all off to the right, no N
+    return (1, 0);
+  }
 
-  return ((($step * $row_min - ($step-2))*$row_min) / 2 + 1,
-          (($step * $row_max - ($step-2))*$row_max) / 2);  # -1 end prev
+  my $step_left = int($step/2);
+  if ($x2 < -$y2 * $step_left) {
+    ### rect all off to the left, no N
+    return (1, 0);
+  }
+
+  ### x1 to x2 top row intersects some of the pyramid
+  ### assert: $x2 >= -$y2*$step_left
+  ### assert: $x1 <= $y2*$step_right
+
+  $y1 = max ($y1,
+             0,
+             $step_left && ceil(-$x2/$step_left), # for x2 >= x_bottom_start
+             $step_right && ceil($x1/$step_right), # for x1 <= x_bottom_end
+            );
+  ### y1 for bottom left: $step_left && - ceil($x2/$step_left)
+  ### y1 for bottom right: $step_right && ceil($x1/$step_right)
+  ### $y1
+
+  ### x1 to x2 bottom row now intersects some of the pyramid
+  ### assert: $x2 >= -$y1*$step_left
+  ### assert: $x1 <= $y1*$step_right
+
+
+  my $sub = ($step&1) - 2;
+
+  ### x bottom start: -$y1*$step_left
+  ### x bottom end: $y1*$step_right
+  ### $x1
+  ### $x2
+  ### bottom left x: max ($x1, -$y1*$step_left)
+  ### top right x: min ($x2, $x_top_end)
+  ### $y1
+  ### $y2
+  ### n_lo: (($step * $y1 - $sub)*$y1 + 2)/2 + max ($x1, -$y1*$step_left)
+  ### n_hi: (($step * $y2 - $sub)*$y2 + 2)/2 + min ($x2, $x_top_end)
+
+  ### assert: $y1-1==$y1 || (($step * $y1 - $sub)*$y1 + 2) == int (($step * $y1 - $sub)*$y1 + 2)
+  ### assert: $y2-1==$y2 || (($step * $y2 - $sub)*$y2 + 2) == int (($step * $y2 - $sub)*$y2 + 2)
+
+  return ((($step * $y1 - $sub)*$y1 + 2)/2
+          + max ($x1, -$y1*$step_left),  # x_bottom_start
+
+          (($step * $y2 - $sub)*$y2 + 2)/2
+          + min ($x2, $x_top_end));
+
+  # return ($self->xy_to_n (max ($x1, -$y1*$step_left), $y1),
+  #         $self->xy_to_n (min ($x2, $x_top_end),      $y2));
 }
 
 1;

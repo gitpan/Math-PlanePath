@@ -28,6 +28,8 @@
 # http://www.wolframalpha.com/entities/calculators/Peano_curve/jh/4o/im/
 #     Curved corners tilted to a diamond, or is it an 8-step pattern?
 #
+# http://www.davidsalomon.name/DC2advertis/AppendC.pdf
+#
 
 package Math::PlanePath::HilbertCurve;
 use 5.004;
@@ -39,7 +41,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -90,7 +92,10 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### HilbertCurve n_to_xy(): $n
   ### hex: sprintf "%#X", $n
-  return if $n < 0;
+  if ($n < 0
+      || $n-1 == $n) {  # infinity
+    return;
+  }
 
   if (int($n) != $n) {
     my ($x1,$y1) = $self->n_to_xy(floor($n));
@@ -154,6 +159,11 @@ sub xy_to_n {
   my $pos = 0;
   {
     my $m = max ($x, $y);
+    if ($m-1 == $m) {
+      # infinity
+      return undef;
+    }
+
     my $pow = $n + 2;        # inherit
     while ($m >= $pow) {
       $pow <<= 1;
@@ -223,6 +233,9 @@ sub rect_to_n_range {
   my $bit = $n_min + 2;  # inherit
   {
     my $m = max ($x1, $x2, $y1, $y2);
+    if ($m-1 == $m) {
+      return (0,$m); # infinity
+    }
     while ($m >= $bit) {
       $bit <<= 1;
       $pos++;
@@ -425,8 +438,9 @@ Math::PlanePath::HilbertCurve -- self-similar quadrant traversal
 
 =head1 DESCRIPTION
 
-This path by David Hilbert traverses a quadrant of the plane one step at a
-time in a self-similar pattern,
+This path is an integer version of the curve described by David Hilbert for
+filling a unit square.  It traverses a quadrant of the plane one step at a
+time in a self-similar 2x2 pattern,
 
              ...
               |
@@ -458,10 +472,10 @@ put together in an upside-down U as follows,
     0,1   14,15--
 
 The orientation of the sub parts are chosen so the starts and ends are
-adjacent, so 3 next to 4, 7 next to 8, and 11 next to 12.
+adjacent, 3 next to 4, 7 next to 8, and 11 next to 12.
 
 The process repeats, doubling in size each time and alternately sideways or
-upside-down U with invert or transposes as necessary in the sub-parts.
+upside-down U with invert and/or transpose as necessary in the sub-parts.
 
 The pattern is sometimes drawn with the first step 0->1 upwards instead of
 to the right.  Right is used here since that's what most of the other
@@ -471,8 +485,8 @@ Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k), all the N
 values 0 to 2^(2*k)-1 are within the square.  The maximum 3, 15, 63, 255 etc
 2^(2*k)-1 is alternately at the top left or bottom right corner.
 
-Because each N step is by 1, the distance along the curve between two X,Y
-points is the difference in their N values (per C<xy_to_n>).
+Because each step is by 1, the distance along the curve between two X,Y
+points is the difference in their N values (as given by C<xy_to_n>).
 
 =head2 Locality
 
@@ -480,17 +494,18 @@ The Hilbert curve is fairly well localized, so a small rectangle (or other
 shape) is usually a small range of N.  This property is used in some
 database systems to store X,Y coordinates with the Hilbert N as an index.
 A search through an X,Y region is then usually a fairly modest linear N
-search.
+search.  C<rect_to_n_range> gives N bounds for a rectangle, or see L<N
+Range> below for calculating on any shape.
 
-The N range can be large when crossing Hilbert sub-parts though.  In the
-sample above it can be seen for instance adjacent points X=0,Y=3 and X=0,Y=4
-have rather widely spaced N values 5 and 58.
+The N range can be large when crossing Hilbert sub-parts.  In the sample
+above it can be seen for instance adjacent points X=0,Y=3 and X=0,Y=4 have
+rather widely spaced N values 5 and 58.
 
 Fractional X,Y values can be indexed by extending the N calculation down
-into the X,Y binary fractions.  The code here is not setup to do this, but
-can be pressed into service by moving the binary point in X,Y an even number
-of places, the same amount in each, and the resulting integer N moved back
-by a corresponding multiple of 4 binary places.
+into the X,Y binary fractions.  The code here doesn't do this, but can be
+pressed into service by moving the binary point in X,Y down even number of
+places, the same amount in each, and in the resulting integer N shifting
+back up by a corresponding multiple of 4 binary places.
 
 =head1 FUNCTIONS
 
@@ -507,8 +522,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional positions give an X,Y position along a straight line between the
 integer positions.  Integer positions are always just 1 apart either
-horizontally or vertically, so the effect is that the fraction part is
-either added to or subtracted from X or Y.
+horizontally or vertically, so the effect is that the fraction part is an
+offset along either X or Y.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -521,10 +536,10 @@ returns N.
 Return a range of N values which occur in a rectangle with corners at
 C<$x1>,C<$y1> and C<$x2>,C<$y2>.  If the X,Y values are not integers then
 the curve is treated as unit squares centred on each integer point and
-squares partly covered by the given rectangle are included.
+squares which are partly covered by the given rectangle are included.
 
 The returned range is exact, meaning C<$n_lo> is the smallest in the
-rectangle and C<$n_hi> is the biggest.  Of course not all the N's in the
+rectangle and C<$n_hi> is the biggest.  Of course not all the N's in that
 range are necessarily in the rectangle.
 
 =back
@@ -579,7 +594,8 @@ table high to low for the reverse C<xy_to_n>.
 
 An easy over-estimate of the maximum N in a region can be had by going to
 the next bigger (2^k)x(2^k) square enclosing the region.  This means the
-biggest X or Y rounded up to the next power of 2, so
+biggest X or Y rounded up to the next power of 2 (perhaps by a "count
+leading zeros" CPU instruction), so
 
     find k with 2^k > max(X,Y)
     N_max = 2^(2k) - 1
@@ -591,7 +607,7 @@ X,Y bits are based on the state table as above and the bits chosen for N are
 those for which the resulting X,Y sub-square overlaps some of the target
 region.  The smallest N similarly, choosing the smallest bit pair.
 
-Biggest and smallest must be calculated separately as they track down
+Biggest and smallest N must be calculated separately as they track down
 different N bits and thus different state transitions.  The N range for any
 shape can be done this way, not just a rectangle like C<rect_to_n_range>,
 since it only depends on asking when a sub-square overlaps the target area.

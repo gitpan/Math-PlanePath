@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -77,15 +77,21 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = max (0, floor ($x1 + 0.5));
-  $y1 = max (0, floor ($y1 + 0.5));
-  $x2 = max (0, floor ($x2 + 0.5));
-  $y2 = max (0, floor ($y2 + 0.5));
+  $x1 = floor ($x1 + 0.5);
+  $y1 = floor ($y1 + 0.5);
+  $x2 = floor ($x2 + 0.5);
+  $y2 = floor ($y2 + 0.5);
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-  my $y_min = $y1;
+  if ($y2 < 0 || $x2 < 0) {
+    return (1, 0); # rect all negative, no N
+  }
 
-  if ($y1 <= $x1) {
+  $x1 = max($x1,0);
+  $y1 = max($y1,0);
+
+  my $y_min = $y1;
+  if ($y_min <= $x1) {
     $y1 = min ($y2, $x1);
   }
   if ($y2 <= $x2) {
@@ -117,31 +123,30 @@ Math::PlanePath::Corner -- points shaped in a corner
 This path puts points in layers working outwards from the corner of the
 first quadrant.
 
-    ...
-      5  |  26 ................
-      4  |  17  18  19  20  21 .
-      3  |  10  11  12  13  22 .
-      2  |   5   6   7  14  23 .
-      1  |   2   3   8  15  24 .
-    y=0  |   1   4   9  16  25 .
+      5  |  26 ...
+      4  |  17  18  19  20  21
+      3  |  10  11  12  13  22
+      2  |   5   6   7  14  23
+      1  |   2   3   8  15  24
+    y=0  |   1   4   9  16  25
           ----------------------
-           x=0,  1   2   3   4 ...
+           x=0   1   2   3   4
 
-The horizontal 1,4,9,16,etc along y=0 is the perfect squares, because each
-applied row/column stripe makes a one-bigger square,
+The horizontal 1,4,9,16,etc along Y=0 are the perfect squares, which is
+simply because each further row/column stripe makes a one-bigger square,
 
                             10 11 12 13
                5  6  7       5  6  7 14
     2  3       2  3  8       2  3  8 15
     1  4       1  4  9       1  4  9 16
 
-The diagonal 2,6,12,20,etc upwards from x=0,y=1 is the pronic numbers
-s*(s+1), half way between those squares.
+The diagonal 2,6,12,20,etc upwards from X=0,Y=1 are the pronic numbers
+k*(k+1), half way between those squares.
 
-Each row/column stripe is 2 longer than the previous, similar to the Pyramid
-and SacksSpiral paths.  The Corner and the PyramidSides are the same, just
-the PyramidSides stretched out to two quadrants instead of one for the
-Corner.
+Each row/column stripe is 2 longer than the previous, similar to the
+PyramidRows, PyramidSides and SacksSpiral paths.  The Corner and the
+PyramidSides are the same, just the PyramidSides stretched out to two
+quadrants instead of one for this Corner.
 
 =head1 FUNCTIONS
 
@@ -223,13 +228,19 @@ following row,
 
 =head2 N Range
 
-For the C<rect_to_n_range> calculation, within each row increasing X is
-increasing N so the smallest N is in the leftmost column and the biggest in
-the rightmost.  Going up a column N values decrease until reaching the X=Y
-diagonal, and then increase.  So if the bottom left corner is below the
-diagonal, ie. YE<lt>X, then Y=X or the highest Y in the rectangle is the
-smallest N.  Or if the top right corner is YE<lt>X below the diagonal then
-the bottom right corner, ie. minimum Y, is the biggest N.
+For C<rect_to_n_range>, in each row increasing X is increasing N so the
+smallest N is in the leftmost column and the biggest in the rightmost.
+
+Going up a column, N values decrease until reaching X=Y, and then increase,
+with those values above X=Y all bigger than the ones below.  This means the
+biggest N is the top right corner if it has YE<gt>=X, otherwise the bottom
+right corner.
+
+For the smallest N, if the bottom left corner has YE<gt>X then it's in the
+"increasing" part and that bottom left corner is the smallest N.  Otherwise
+YE<lt>=X means some of the "decreasing" part is covered and the smallest N
+is at Y=min(X,Ymax), ie. either the Y=X diagonal if it's in the rectangle or
+the top right corner otherwise.
 
 =head1 SEE ALSO
 

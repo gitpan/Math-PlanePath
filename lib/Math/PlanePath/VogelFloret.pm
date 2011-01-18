@@ -27,7 +27,7 @@ use Math::Libm 'M_PI', 'hypot';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -155,10 +155,15 @@ sub xy_to_n {
   my $factor = $self->{'radius_factor'};
   my $lo = max(0, POSIX::floor( (($r-.6)/$factor)**2 ));
   my $hi = POSIX::ceil( (($r+.6)/$factor)**2 );
-  #### xy: "$x,$y"
   #### $r
+  #### xy: "$x,$y"
   #### $lo
   #### $hi
+
+  if ($lo == $lo-1 || $hi == $hi-1) {
+    ### infinite range, r inf or too big
+    return undef;
+  }
 
   foreach my $n (reverse $lo .. $hi) {
     my ($nx, $ny) = $self->n_to_xy($n);

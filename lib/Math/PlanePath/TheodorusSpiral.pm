@@ -27,7 +27,7 @@ use Math::Trig 'pi';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 16;
+$VERSION = 17;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -68,7 +68,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy(): $n
 
-  if ($n < 0) {
+  if ($n < 0
+      || $n-1 == $n) {  # infinity
     return;
   }
   if ($n < 1) {
@@ -130,6 +131,11 @@ sub xy_to_n {
   my $n_hi = int (($r + .6) ** 2);
   ### $n_lo
   ### $n_hi
+
+  if ($n_lo == $n_lo-1 || $n_hi == $n_hi-1) {
+    ### infinite range, r inf or too big
+    return undef;
+  }
 
   foreach my $n ($n_lo .. $n_hi) {
     my ($nx,$ny) = $self->n_to_xy($n);

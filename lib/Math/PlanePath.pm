@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 16;
+$VERSION = 17;
 
 # defaults
 use constant x_negative => 1;
@@ -95,7 +95,8 @@ or reflection up or down.  Those things are thought better done by a general
 coordinate transformer that might expand or invert for display.  Even
 clockwise instead of counter-clockwise spiralling can be had just by
 negating C<$x> (or negate C<$y> to stay starting at the right), or a quarter
-turn using C<-$y,$x>.
+turn using C<-$y,$x>.  (Try L<Transform::Canvas> for scaling/shifting, or
+L<Geometry::AffineTransform> for rotating too.)
 
 =head2 Loop Step
 

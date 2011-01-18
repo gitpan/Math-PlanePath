@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -52,19 +52,19 @@ sub est {
   # $radians = ($k+1)*atan(1/$root) + $root - 1/($root*$k);
   return $radians / (2*pi());
 
-  $radians = 2*$root;
-  return $radians / (2*pi());
-
-  $radians = $root - atan($root) + $k*atan(1/$root);
-  return $radians / (2*pi());
-
-  return $k / $a;    # revolutions
-  return $k / pi();
-
-  return 2*$root / $a;
-  $radians = 2*sqrt($k+1) + $K + 1/(6*sqrt($k+1)); # plus O(n^(-3/2))
-  return 0.5 * $a * ($k * sqrt(1+$k*$k) + log($k + sqrt(1+$k*$k))) / $k;
-  return $root + ($k+1)*atan(1/$root);
+  # $radians = 2*$root;
+  # return $radians / (2*pi());
+  # 
+  # $radians = $root - atan($root) + $k*atan(1/$root);
+  # return $radians / (2*pi());
+  # 
+  # return $k / $a;    # revolutions
+  # return $k / pi();
+  # 
+  # return 2*$root / $a;
+  # $radians = 2*sqrt($k+1) + $K + 1/(6*sqrt($k+1)); # plus O(n^(-3/2))
+  # return 0.5 * $a * ($k * sqrt(1+$k*$k) + log($k + sqrt(1+$k*$k))) / $k;
+  # return $root + ($k+1)*atan(1/$root);
 }
 print "est 1 = ", est(1), "\n";
 print "est 2 = ", est(2), "\n";
@@ -75,11 +75,12 @@ print "est 2 = ", est(2), "\n";
   my @n;
   my @theta;
   my $total = 0;
-  foreach my $n (2 .. 150) {
+  foreach my $n (2 .. 250) {
     my $inc = Math::Trig::atan(1/sqrt($n-1)) / (2*pi());  # revs
     $total += $inc;
     my $est = est($n);
     my $diff = $total - $est;
+    # $diff = 1/$diff;
     if ($n > 50) {
       push @n, $n-51;
       push @theta, $diff;

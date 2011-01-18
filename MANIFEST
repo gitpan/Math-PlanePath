@@ -9,6 +9,8 @@ debian/rules
 debian/source/format
 debian/watch
 devel/cont-frac.pl
+devel/flowsnake-levels.pl
+devel/flowsnake.pl
 devel/grid.pl
 devel/heighway.pl
 devel/hilbert-diamond.pl
@@ -17,6 +19,7 @@ devel/interpolate.pl
 devel/pixelated.pl
 devel/r5.pl
 devel/run.pl
+devel/svg.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
 devel/unused.pl
