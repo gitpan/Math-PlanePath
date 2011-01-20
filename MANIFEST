@@ -16,6 +16,7 @@ devel/heighway.pl
 devel/hilbert-diamond.pl
 devel/hilbert.pl
 devel/interpolate.pl
+devel/next.pl
 devel/pixelated.pl
 devel/r5.pl
 devel/run.pl

@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 17;
+$VERSION = 18;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -84,7 +84,7 @@ sub n_to_xy {
   $n -= (3*$d + 2 + 2*$w)*$d + 1;
   #### remainder: $n
 
-  $d++;
+  $d = $d + 1; # no warnings if $d==inf
   if ($n <= $d+$w) {
     #### bottom horizontal
     $d = -$d + 1;

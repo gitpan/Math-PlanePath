@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 17;
+$VERSION = 18;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

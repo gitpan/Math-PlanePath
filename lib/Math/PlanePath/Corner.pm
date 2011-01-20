@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 17;
+$VERSION = 18;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -69,7 +69,7 @@ sub xy_to_n {
     return $y*$y + $x + 1;
   } else {
     # right edge
-    $x++;
+    $x = $x + 1; # no warnings if $d==inf
     return $x*$x - $y;
   }
 }

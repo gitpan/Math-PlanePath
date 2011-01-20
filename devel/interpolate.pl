@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -48,8 +48,8 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [  1,2, 3, 4],
-                [ 2, 7, 16, 29, ]
+                [ 0, 1,2, 3, 4],
+                [ 1,2,4,7,11, ]
                );
 
 sub bigrat_to_decimal {
@@ -112,7 +112,7 @@ sub my_interpolate {
   my $x = -$b/(2*$a);
   my $y = 4*$a / ((2*$a) ** 2);
   my $z = ($b*$b-4*$a*$c) / ((2*$a) ** 2);
-  print "s = $x + sqrt($y * \$n + $z)\n";
+  print "d = $x + sqrt($y * \$n + $z)\n";
 
   #   return;
 
@@ -124,7 +124,7 @@ sub my_interpolate {
   $x = $x->numify;
   $y = $y->numify;
   $z = $z->numify;
-  my $n_to_s = sub {
+  my $n_to_d = sub {
     my ($n) = @_;
     my $root = $y * $n + $z;
     if ($root < 0) {
@@ -133,7 +133,7 @@ sub my_interpolate {
     return ($x + sqrt($root));
   };
   for (my $i = 0; $i < 100; $i += 0.5) {
-    printf "%4s  d=%s\n", $i, $n_to_s->($i);
+    printf "%4s  d=%s\n", $i, $n_to_d->($i);
   }
   exit 0;
 }

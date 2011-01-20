@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 18, January 2011
+    - avoid some 5.12 warnings on infs
+
 Version 17, January 2011
     - avoid some inf loops and div by zeros for n=infinity or x,y=infinity
       handling of infinity is unspecified, but at least don't hang

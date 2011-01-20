@@ -33,7 +33,7 @@ require Math::PlanePath::HexSpiral;
 # VERSION
 
 {
-  my $want_version = 17;
+  my $want_version = 18;
   is ($Math::PlanePath::HexSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::HexSpiral->VERSION,  $want_version,

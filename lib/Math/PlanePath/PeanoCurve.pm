@@ -30,7 +30,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 17;
+$VERSION = 18;
 @ISA = ('Math::PlanePath');
 
 use constant x_negative => 0;
