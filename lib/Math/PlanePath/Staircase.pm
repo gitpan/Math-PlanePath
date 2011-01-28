@@ -1,19 +1,19 @@
 # Copyright 2010, 2011 Kevin Ryde
 
-# This file is part of Math-Image.
+# This file is part of Math-PlanePath.
 #
-# Math-Image is free software; you can redistribute it and/or modify
+# Math-PlanePath is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Math-Image is distributed in the hope that it will be useful, but
+# Math-PlanePath is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 package Math::PlanePath::Staircase;
@@ -23,10 +23,10 @@ use warnings;
 use List::Util 'max';
 use POSIX 'floor';
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 18;
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -120,7 +120,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords SquareSpiral eg Staircase PlanePath Ryde Math-Image HexSpiralSkewed ascii
+=for stopwords SquareSpiral eg Staircase PlanePath Ryde Math-PlanePath HexSpiralSkewed ascii
 
 =head1 NAME
 
@@ -216,19 +216,19 @@ http://user42.tuxfamily.org/math-image/index.html
 
 =head1 LICENSE
 
-Math-Image is Copyright 2010, 2011 Kevin Ryde
+Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
 
-Math-Image is free software; you can redistribute it and/or modify it
+Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
 Software Foundation; either version 3, or (at your option) any later
 version.
 
-Math-Image is distributed in the hope that it will be useful, but
+Math-PlanePath is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 more details.
 
 You should have received a copy of the GNU General Public License along with
-Math-Image.  If not, see <http://www.gnu.org/licenses/>.
+Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut

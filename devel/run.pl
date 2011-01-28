@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+use 5.004;
 use strict;
 use warnings;
 use Smart::Comments;
@@ -35,19 +36,18 @@ use Smart::Comments;
   require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::MultipleRings;
   require Math::PlanePath::HilbertCurve;
-  require App::MathImage::PlanePath::OctagramSpiral;
   require Math::PlanePath::Staircase;
   require Math::PlanePath::PeanoCurve;
-  require App::MathImage::PlanePath::Flowsnake;
   require Math::PlanePath::PyramidRows;
-
-  # App::MathImage::PlanePath::Flowsnake
-  my $path = Math::PlanePath::PyramidRows->new (wider => 0,
-                                                # step => 0,
-                                               );
+  require App::MathImage::PlanePath::OctagramSpiral;
+  require App::MathImage::PlanePath::Flowsnake;
+  require Math::PlanePath::PixelRings;
+  my $path = Math::PlanePath::PixelRings->new (wider => 0,
+                                               # step => 0,
+                                              );
   my ($prev_x, $prev_y);
   my %seen;
-  foreach my $i (0 .. 7*7*7+10) {
+  foreach my $i (6 .. 100) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
@@ -69,7 +69,8 @@ use Smart::Comments;
       $seen{$xy} = $i;
     }
 
-    my $n = $path->xy_to_n ($x+.0, $y+.0) // 'norev';
+    my $n = $path->xy_to_n ($x+.0, $y+.0);
+    if (! defined $n) { $n = 'norev'; }
     my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
 
     my $rev = '';

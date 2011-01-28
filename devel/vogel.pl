@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -44,7 +44,7 @@ sub cont {
   # use constant ROTATION => PHI;
   #use constant ROTATION => sqrt(37);
   use constant ROTATION => cont(1 .. 20);
-  
+
   my $margin = 0.999;
   # use constant K => 6;
   # use constant ROTATION => (K + sqrt(4+K*K)) / 2;
@@ -114,7 +114,7 @@ sub cont {
 # {
 #   # 609 631   0.624053229799566 1.60242740883046
 #   # 2 7   1.47062247517163 0.679984167849259
-# 
+#
 #   use constant ROTATION => M_PI-3;
 #   my @x;
 #   my @y;
@@ -169,7 +169,7 @@ sub cont {
 #     1 / hypot ($c[0]-$c[2], $c[1]-$c[3])
 #   };
 #   ### FACTOR: FACTOR()
-# 
+#
 #   print "FACTOR ", FACTOR(), "\n";
 #   # print "FACTOR ", Math::PlanePath::VogelFloret::FACTOR(), "\n";
 #   exit 0;
@@ -234,12 +234,12 @@ exit 0;
 # #     my $t1 = $n1 * $rot * 2*M_PI();
 # #     my $x1 = cos ($t1);
 # #     my $y1 = sin ($t1);
-# # 
+# #
 # #     my $r2 = sqrt($n2);
 # #     my $t2 = $n2 * $rot * 2*M_PI();
 # #     my $x2 = cos ($t2);
 # #     my $y2 = sin ($t2);
-# # 
+# #
 # #     $info->{'rfactor'} = 1 / hypot ($x1-$x2, $y1-$y2);
 # #   }
 # # }

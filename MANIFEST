@@ -17,7 +17,7 @@ devel/hilbert-diamond.pl
 devel/hilbert.pl
 devel/interpolate.pl
 devel/next.pl
-devel/pixelated.pl
+devel/pixel-rings.pl
 devel/r5.pl
 devel/run.pl
 devel/svg.pl
@@ -49,6 +49,7 @@ lib/Math/PlanePath/MultipleRings.pm
 lib/Math/PlanePath/PeanoCurve.pm
 lib/Math/PlanePath/PentSpiral.pm
 lib/Math/PlanePath/PentSpiralSkewed.pm
+lib/Math/PlanePath/PixelRings.pm
 lib/Math/PlanePath/PyramidRows.pm
 lib/Math/PlanePath/PyramidSides.pm
 lib/Math/PlanePath/PyramidSpiral.pm
@@ -83,6 +84,8 @@ t/MyTestHelpers.pm
 t/PeanoCurve-load.t
 t/PeanoCurve-oeis.t
 t/PeanoCurve.t
+t/PixelRings-image.t
+t/PixelRings.t
 t/PlanePath.t
 t/PyramidRows.t
 t/Rows-load.t

@@ -24,10 +24,10 @@ use List::Util 'max';
 use Math::Libm 'hypot';
 use Math::Trig 'pi';
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 18;
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -81,7 +81,7 @@ sub is_perfect_square {
   exit 0;
 }
 {
-  $,=',';
+  local $, = ',';
   print map {three($_)} 0..20;
   exit 0;
 }

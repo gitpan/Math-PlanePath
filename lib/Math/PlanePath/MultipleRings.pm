@@ -24,10 +24,10 @@ use List::Util qw(min max);
 use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 18;
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -343,7 +343,8 @@ is C<undef>.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::SacksSpiral>,
-L<Math::PlanePath::TheodorusSpiral>
+L<Math::PlanePath::TheodorusSpiral>,
+L<Math::PlanePath::PixelRings>
 
 =head1 HOME PAGE
 

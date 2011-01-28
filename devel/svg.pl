@@ -33,8 +33,8 @@ my $tag = $svg->polyline (
                           id=>'level_1',
                           style=>{
                                   'fill-opacity'=>0,
-                                  'stroke-color'=>'rgb(255,0,0)'
-                                 }
+                                  'stroke-color'=>'rgb(255,0,0)',
+                                 },
                          );
 
 print $svg->xmlify(

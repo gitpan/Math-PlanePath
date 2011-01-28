@@ -42,7 +42,7 @@ my ($prev_rx, $prev_ry) = rotate($prev_x, $prev_y);
 foreach my $n (1 .. 64) {
   my ($x, $y) = $path->n_to_xy($n);
   ### xy: "$x,$y"
-  
+
   my ($rx, $ry) = rotate($x,$y);
   $image->line ($rx,$ry, $prev_rx,$prev_ry, 'white');
   ### line: "$rx,$ry, $prev_rx,$prev_ry"

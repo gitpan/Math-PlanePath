@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+use 5.004;
 use strict;
 use warnings;
 use Smart::Comments;
 use Math::Libm 'M_PI', 'hypot';
+use Math::Trig 'cartesian_to_cylindrical', 'cylindrical_to_cartesian';
 use App::MathImage::PlanePath::Flowsnake;
 
 my $path = App::MathImage::PlanePath::Flowsnake->new;
@@ -64,7 +66,6 @@ foreach my $level (4 .. 4) {
   foreach my $n (0 .. $n_hi) {
     my ($x, $y) = $path->n_to_xy($n);
     $y *= $equilateral;
-    use Math::Trig 'cartesian_to_cylindrical', 'cylindrical_to_cartesian';
 
     # my ($r, $theta) = cartesian_to_cylindrical($x, $y, 0);
     # $r += $angle;

@@ -1,6 +1,6 @@
 diff -Nur -x '*.orig' -x '*~' path//lib/Math/PlanePath/KnightSpiral.pm path.new//lib/Math/PlanePath/KnightSpiral.pm
---- path//lib/Math/PlanePath/KnightSpiral.pm	2011-01-04 10:45:50.000000000 +1100
-+++ path.new//lib/Math/PlanePath/KnightSpiral.pm	2011-01-04 11:54:54.000000000 +1100
+--- path//lib/Math/PlanePath/KnightSpiral.pm	2011-01-27 09:09:46.000000000 +1100
++++ path.new//lib/Math/PlanePath/KnightSpiral.pm	2011-01-27 10:50:43.000000000 +1100
 @@ -462,7 +462,7 @@
      A068614  - spiral opposite direction (Y negate)
      A068615  - rotate 90 degrees, spiral opp dir (X,Y transpose)
@@ -11,8 +11,8 @@ diff -Nur -x '*.orig' -x '*~' path//lib/Math/PlanePath/KnightSpiral.pm path.new/
  =head1 SEE ALSO
  
 diff -Nur -x '*.orig' -x '*~' path//lib/Math/PlanePath/SquareSpiral.pm path.new//lib/Math/PlanePath/SquareSpiral.pm
---- path//lib/Math/PlanePath/SquareSpiral.pm	2011-01-04 10:45:50.000000000 +1100
-+++ path.new//lib/Math/PlanePath/SquareSpiral.pm	2011-01-04 11:54:54.000000000 +1100
+--- path//lib/Math/PlanePath/SquareSpiral.pm	2011-01-27 09:11:22.000000000 +1100
++++ path.new//lib/Math/PlanePath/SquareSpiral.pm	2011-01-27 10:50:43.000000000 +1100
 @@ -293,8 +293,8 @@
      -3  -2  -1  x=0  1   2   3
  
@@ -25,11 +25,20 @@ diff -Nur -x '*.orig' -x '*~' path//lib/Math/PlanePath/SquareSpiral.pm path.new/
  
  =head2 Straight Lines
 diff -Nur -x '*.orig' -x '*~' path//lib/Math/PlanePath.pm path.new//lib/Math/PlanePath.pm
---- path//lib/Math/PlanePath.pm	2011-01-04 11:54:30.000000000 +1100
-+++ path.new//lib/Math/PlanePath.pm	2011-01-04 11:55:23.000000000 +1100
-@@ -257,7 +257,7 @@
+--- path//lib/Math/PlanePath.pm	2011-01-27 10:50:16.000000000 +1100
++++ path.new//lib/Math/PlanePath.pm	2011-01-27 10:51:33.000000000 +1100
+@@ -84,7 +84,7 @@
+     PyramidSides           along the sides of a 45-degree pyramid
  
- L<math-image>, displaing various sequences on these paths.
+ The paths are object oriented to allow parameters, though only a few
+-subclasses have any parameters.  See C<examples/numbers.pl> for a cute way
++subclasses have any parameters.  See F</usr/share/doc/libmath-planepath-perl/examples/numbers.pl.gz> for a cute way
+ to print samples of all the paths.
+ 
+ The classes are generally based on integer C<$n> positions and those
+@@ -269,7 +269,7 @@
+ 
+ L<math-image>, displaying various sequences on these paths.
  
 -F<examples/numbers.pl> in the sources to print all the paths.
 +F</usr/share/doc/libmath-planepath-perl/examples/numbers.pl.gz> to print all the paths.

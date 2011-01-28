@@ -38,10 +38,10 @@ use warnings;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 18;
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -438,9 +438,9 @@ Math::PlanePath::HilbertCurve -- self-similar quadrant traversal
 
 =head1 DESCRIPTION
 
-This path is an integer version of the curve described by David Hilbert for
-filling a unit square.  It traverses a quadrant of the plane one step at a
-time in a self-similar 2x2 pattern,
+This path is an integer version of the curve described by David Hilbert in
+1891 for filling a unit square.  It traverses a quadrant of the plane one
+step at a time in a self-similar 2x2 pattern,
 
              ...
               |

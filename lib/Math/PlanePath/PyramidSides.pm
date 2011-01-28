@@ -23,10 +23,10 @@ use warnings;
 use List::Util qw(max);
 use POSIX 'floor';
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 18;
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -106,7 +106,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic PyramidRows versa PlanePath Ryde Math-PlanePath
+=for stopwords pronic PyramidRows versa PlanePath Ryde Math-PlanePath ie
 
 =head1 NAME
 

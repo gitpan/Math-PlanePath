@@ -48,8 +48,8 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [ 0, 1,2, 3, 4],
-                [ 1,2,4,7,11, ]
+                [ 1,2, 3, 4, 5],
+                [ 1,3,7, 13,21, ],
                );
 
 sub bigrat_to_decimal {
@@ -163,16 +163,16 @@ sub my_interpolate {
   my $subr = sub {
     my ($s) = @_;
      return 3*$s*$s - 4*$s + 2;
-    return 2*$s*$s - 2*$s + 2;
-    return $s*$s + .5;
-    return $s*$s - $s + 1;
-    return $s*($s+1)*.5 + 0.5;
+    # return 2*$s*$s - 2*$s + 2;
+    # return $s*$s + .5;
+    # return $s*$s - $s + 1;
+    # return $s*($s+1)*.5 + 0.5;
   };
   my $back = sub {
     my ($n) = @_;
     return (2 + sqrt(3*$n - 2)) / 3;
-    return .5 + sqrt(.5*$n-.75);
-    return sqrt ($n - .5);
+    # return .5 + sqrt(.5*$n-.75);
+    # return sqrt ($n - .5);
     # return -.5 + sqrt(2*$n - .75);
     #    return int((sqrt(4*$n-1) - 1) / 2);
   };

@@ -74,6 +74,7 @@ if ($class eq 'all') {
                         VogelFloret
                         TheodorusSpiral
                         MultipleRings
+                        PixelRings
                         KnightSpiral
 
                         Rows

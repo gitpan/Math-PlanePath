@@ -22,10 +22,11 @@ use strict;
 use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
-use Math::PlanePath;
-use vars '$VERSION', '@ISA';
 
-$VERSION = 18;
+use vars '$VERSION', '@ISA';
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

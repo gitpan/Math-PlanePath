@@ -27,10 +27,10 @@ use warnings;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 18;
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use constant x_negative => 0;
@@ -315,7 +315,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums
+=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit twidding PeanoCurve Math-PlanePath
 
 =head1 NAME
 
@@ -329,9 +329,9 @@ Math::PlanePath::PeanoCurve -- 3x3 self-similar quadrant traversal
 
 =head1 DESCRIPTION
 
-This path is an integer version of the curve described by Guiseppe Peano for
-filling a unit square.  It traverses a quadrant of the plane one step at a
-time in a self-similar 3x3 pattern,
+This path is an integer version of the curve described by Guiseppe Peano in
+1890 for filling a unit square.  It traverses a quadrant of the plane one
+step at a time in a self-similar 3x3 pattern,
 
       y=8   60--61--62--63--64--65  78--79--80--...
              |                   |   |
@@ -356,7 +356,7 @@ time in a self-similar 3x3 pattern,
 The start is an S shape of the nine points 0 to 8, and then nine of those
 groups are put together in the same configuration.  The sub-parts are
 flipped horizontally and/or vertically to make the starts and ends adjacent,
-so 8 next to 9, 17 next to 18, etc,
+so that 8 is next to 9, 17 next to 18, etc,
 
     60,61,62 --- 63,64,65     78,79,80
     59,58,57     68,67,55     77,76,75

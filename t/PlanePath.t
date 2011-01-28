@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use warnings;
 use List::Util;
-use Test::More tests => 254;
+use Test::More tests => 264;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,13 +33,14 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
-                  PyramidSides
-                  ZOrderCurve
+                  PixelRings
+                  MultipleRings
+
                   Corner
                   Diagonals
                   PyramidRows
-                  MultipleRings
-                  VogelFloret
+                  PyramidSides
+                  Staircase
 
                   SquareSpiral
                   DiamondSpiral
@@ -52,24 +53,24 @@ my @modules = qw(
                   TriangleSpiral
                   TriangleSpiralSkewed
 
-                  Staircase
-
                   Rows
                   Columns
 
                   SacksSpiral
                   TheodorusSpiral
+                  VogelFloret
                   KnightSpiral
 
                   PeanoCurve
                   HilbertCurve
+                  ZOrderCurve
                );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 18;
+my $want_version = 19;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -180,8 +181,8 @@ sub dbl_max_neg {
 }
 
 {
-  my $limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 1000;
-  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 15;
+  my $limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 500;
+  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 12;
   diag "test limit $limit, rect limit $rect_limit";
 
   foreach my $module (@modules) {
@@ -205,7 +206,6 @@ sub dbl_max_neg {
 
     my $good = 1;
 
-    ## no critic (RequireLexicalLoopIterators)
     foreach my $step (@steps) {
       foreach my $wider (@wider) {
         ### $step

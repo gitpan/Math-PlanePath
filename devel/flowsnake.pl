@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+use 5.006;
 use strict;
 use warnings;
 
@@ -25,6 +26,27 @@ sub hij_to_xy {
   my ($h, $i, $j) = @_;
   return ($h*2 + $i - $j,
           $i+$j);
+}
+
+{
+  # y<0 at n=8598  x=-79,y=-1
+  require App::MathImage::PlanePath::Flowsnake;
+  my $path = App::MathImage::PlanePath::Flowsnake->new;
+  for (my $n = 3; ; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    if ($y == 0) {
+      print "zero n=$n  $x,$y\n";
+    }
+    if ($y < 0) {
+      print "yneg n=$n  $x,$y\n";
+      exit 0;
+    }
+    # if ($y < 0 && $x >= 0) {
+    #   print "yneg n=$n  $x,$y\n";
+    #   exit 0;
+    # }
+  }
+  exit 0;
 }
 
 {
@@ -90,7 +112,7 @@ sub forward {
   backward(); $dir += 2;       # 1
   backward(); $dir--;          # 2
   forward(); $dir -= 2;           # 3
-  forward(); ;        # 4
+  forward();                   # 4
   forward();  $dir--;                 # 5
   backward(); $dir++;          # 6
 }
@@ -104,7 +126,7 @@ sub backward {
   print "backward\n";
   local $level = $level-1;
 
-  $dir += 2;;
+  $dir += 2;
   forward();
   forward();
   $dir--;                 # 5

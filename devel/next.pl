@@ -17,14 +17,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+use 5.004;
 use strict;
 use warnings;
 
 
 use Math::PlanePath;
-
-# uncomment this to run the ### lines
-use Smart::Comments;
 
 {
   package Math::PlanePath;
@@ -56,6 +54,32 @@ use Smart::Comments;
     return ($n,$x,$y);
   }
 }
+
+{
+  use Math::PlanePath::ZOrderCurve;
+  package Math::PlanePath::ZOrderCurve;
+  # sub seek_to_n {
+  #   my ($self, $n) = @_;
+  #   ($self->{'x'},$self->{'y'}) = $self->n_to_xy($self->{'n'} = $n);
+  #   $self->{'bx'} = $x;
+  #   $self->{'by'} = $y;
+  #   $self->{'a'} = [ \$self->{'x'}, \$self->{'y'} ];
+  #   $self->{'i'} = 1;
+  #   ### ZOrderCurve seek_to_n(): $self
+  # }
+  # sub next {
+  #   my ($self) = @_;
+  #   $self->{'a'}->[($self->{'i'} ^= 1)]++;
+  #   return (++$self->{'n'}, $self->{'x'}, $self->{'y'});
+  # }
+  # sub peek {
+  #   my ($self) = @_;
+  #   return ($self->{'n'} + 1,
+  #           $self->{'x'} + !$self->{'i'},
+  #           $self->{'y'} + $self->{'i'});
+  # }
+}
+
 {
   use Math::PlanePath::Rows;
   package Math::PlanePath::Rows;
@@ -120,6 +144,7 @@ use Smart::Comments;
     }
   }
 }
+
 {
   use Math::PlanePath::SquareSpiral;
   package Math::PlanePath::SquareSpiral;
@@ -129,53 +154,106 @@ use Smart::Comments;
   # d = -1/2 + sqrt(2 * $n + -7/4)
   sub seek_to_n {
     my ($self, $n) = @_;
+    ### SquareSpiral seek_to_n: $n
     $self->{'n'} = $n;
-    $self->{'side'} = 0;
-    $self->{'grow'} = 1;
-    $self->{'d'} = 1;
-    $self->{'dx'} = 0;
-    $self->{'dy'} = -1;
-    $self->{'x'} = -1;
-    $self->{'y'} = 0;
-    ### Diagonals seek_to_n(): $self
+
+    my $d = $self->{'d'} = int (1/2 + sqrt(1 * $n + -3/4));
+    $n -= (($d - 1)*$d + 1);
+    ### $d
+    ### half d: int($d/2)
+    ### remainder: $n
+
+    my $dx;
+    my $dy;
+    my $y = - int($d/2);
+    my $x = $y + $n;
+    if ($self->{'grow'} = ($n < $d)) {
+      ### horizontal
+      $dx = 1;
+      $dy = 0;
+    } else {
+      ### vertical
+      $n -= $d;
+      $dx = 0;
+      $dy = 1;
+      ($x, $y) = ($y + $d,
+                  $x - $d);
+    }
+
+    if ($d & 1) {
+    } else {
+      ### negate for even d from: "$x,$y"
+      $dx = - $dx;
+      $dy = - $dy;
+      $x = -$x;
+      $y = -$y;
+    }
+
+    $self->{'side'} = $d - $n;
+
+    $self->{'dx'} = $dx;
+    $self->{'dy'} = $dy;
+    $self->{'x'} = $x - $dx;
+    $self->{'y'} = $y - $dy;
+
+
+    # if ($n == 3) {
+    #   $self->{'side'} = 2;
+    #   $self->{'grow'} = 1;
+    #   $self->{'d'} = 2;
+    #   $self->{'dx'} = -1;
+    #   $self->{'dy'} = 0;
+    #   $self->{'x'} = 2;
+    #   $self->{'y'} = 1;
+    #   return;
+    # }
+    #
+    # $self->{'n'} = $n;
+    # $self->{'side'} = 1;
+    # $self->{'grow'} = 0;
+    # $self->{'d'} = 0;
+    # $self->{'dx'} = 1;
+    # $self->{'dy'} = 0;
+    # $self->{'x'} = -1;
+    # $self->{'y'} = 0;
+    ### SquareSpiral seek_to_n(): $self
   }
   sub next {
     my ($self) = @_;
     ### next(): $self
+    my $x = ($self->{'x'} += $self->{'dx'});
+    my $y = ($self->{'y'} += $self->{'dy'});
+
     unless ($self->{'side'}--) {
-      ### turn grow: $self->{'grow'}
-      $self->{'side'} = ($self->{'d'} += ($self->{'grow'} ^= 1));
+      ### turn
+      $self->{'side'} = ($self->{'d'} += ($self->{'grow'} ^= 1)) - 1;
       ($self->{'dx'},$self->{'dy'}) = (-$self->{'dy'},$self->{'dx'});
+      ### grow applied: $self->{'grow'}
+      ### d now: $self->{'d'}
       ### side now: $self->{'side'}
       ### dx,dy now: "$self->{'dx'},$self->{'dy'}"
-      ### grow now: $self->{'grow'}
     }
+
     ### return: 'n='.$self->{'n'}.' '.($self->{'x'} + $self->{'dx'}).','.($self->{'y'} + $self->{'dy'})
-    return ($self->{'n'}++,
-            ($self->{'x'} += $self->{'dx'}),
-            ($self->{'y'} += $self->{'dy'}));
+    return ($self->{'n'}++, $x, $y);
   }
   sub peek {
     my ($self) = @_;
     # ### peek(): $self
-    my $dx = $self->{'dx'};
-    my $dy = $self->{'dy'};
-    unless ($self->{'side'}) {
-      # ### turn
-      ($dx,$dy) = (-$dy,$dx);
-    }
     return ($self->{'n'},
-            $self->{'x'} + $dx,
-            $self->{'y'} + $dy);
+            $self->{'x'} + $self->{'dx'},
+            $self->{'y'} + $self->{'dy'});
   }
 }
 
+use Smart::Comments;
+
 foreach my $class ('Math::PlanePath::SquareSpiral',
-                   # 'Math::PlanePath::Diagonals',
-                   # 'Math::PlanePath::Rows',
+                   'Math::PlanePath::Diagonals',
+                   'Math::PlanePath::Rows',
                   ) {
   my $path = $class->new (width => 5);
-  foreach my $n_start_offset (0 .. 0) {
+  foreach my $n_start_offset (0 .. 30) {
     my $want_n = $path->n_start;
     if ($n_start_offset) {
       $want_n += $n_start_offset;

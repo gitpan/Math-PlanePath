@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use vars '$VERSION';
-$VERSION = 18;
+$VERSION = 19;
 
 # defaults
 use constant x_negative => 1;
@@ -37,7 +37,7 @@ sub new {
 1;
 __END__
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonals heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonals (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows
 
 =head1 NAME
 
@@ -51,7 +51,8 @@ Math::PlanePath -- points on a path through the 2-D plane
 =head1 DESCRIPTION
 
 This is the base class for some mathematical paths which turn an integer
-position C<$n> into coordinates C<$x,$y>.  The current classes include
+position C<$n> into coordinates C<$x,$y> in the plane.  The current classes
+include
 
     SquareSpiral           four-sided spiral
     PyramidSpiral          square base pyramid
@@ -68,6 +69,7 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     VogelFloret            seeds in a sunflower
     TheodorusSpiral        unit steps at right angles
     MultipleRings          concentric circles
+    PixelRings             concentric circles by pixels
 
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
@@ -82,21 +84,23 @@ position C<$n> into coordinates C<$x,$y>.  The current classes include
     PyramidSides           along the sides of a 45-degree pyramid
 
 The paths are object oriented to allow parameters, though only a few
-subclasses have any parameters.
+subclasses have any parameters.  See C<examples/numbers.pl> for a cute way
+to print samples of all the paths.
 
 The classes are generally based on integer C<$n> positions and those
 designed for a square grid turn an integer C<$n> into integer C<$x,$y>.
 Usually they give in-between positions for fractional C<$n> too.  Classes
-not on a square grid, like SacksSpiral and VogelFloret, are based on a unit
-circle at each C<$n> but they too can give in-between positions on request.
+not on a square grid, like SacksSpiral and VogelFloret, are designed for a
+unit circle at each C<$n> but they too can give in-between positions on
+request.
 
-In general there's no parameters for scaling or an offset for the 0,0 origin
-or reflection up or down.  Those things are thought better done by a general
-coordinate transformer that might expand or invert for display.  Even
-clockwise instead of counter-clockwise spiralling can be had just by
+In general there's no parameters for scaling, or an offset for the 0,0
+origin, or reflection up or down.  Those things are thought better done by a
+general coordinate transformer that might expand or invert for display.
+Even clockwise instead of counter-clockwise spiralling can be had just by
 negating C<$x> (or negate C<$y> to stay starting at the right), or a quarter
-turn using C<-$y,$x>.  (Try L<Transform::Canvas> for scaling/shifting, or
-L<Geometry::AffineTransform> for rotating too.)
+turn with C<-$y,$x>.  Try L<Transform::Canvas> for scaling/shifting, and
+L<Geometry::AffineTransform> for rotating too.
 
 =head2 Loop Step
 
@@ -111,11 +115,12 @@ longer than the preceding.
       2       SacksSpiral, PyramidSides, Corner, PyramidRows default
       4       DiamondSpiral, Staircase
       5       PentSpiral, PentSpiralSkewed
+     5.65     PixelRings (averaging about 4*sqrt(2))
       6       HexSpiral, HexSpiralSkewed
       7       HeptSpiralSkewed
       8       SquareSpiral, PyramidSpiral
       9       TriangleSpiral, TriangleSpiralSkewed
-     19.74    TheodorusSpiral (approaches 2*pi^2)
+    19.74     TheodorusSpiral (approaches 2*pi^2)
      32       KnightSpiral (counting the 2-wide loop)
    variable   MultipleRings, PyramidRows
 
@@ -125,11 +130,11 @@ time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
 squares make a straight line in the paths of step 2.
 
 In general straight lines on the stepped paths are quadratics a*k^2+b*k+c
-with a=step/2.  This includes the polygonal numbers, with the (step+2)-gonal
+with a=step/2.  The polygonal numbers are like this, with the (step+2)-gonal
 numbers making a straight line on a "step" path.  For example the 7-gonals
 (heptagonals) are 5/2*k^2-3/2*k and make a straight line on the step=5
-PentSpiral.  Or the 8-gonal octagonals 6/2*k^2-4/2*k on the step=6 HexSpiral
-paths.
+PentSpiral.  Or the 8-gonal octagonals 6/2*k^2-4/2*k on the step=6
+HexSpiral.
 
 There are various interesting properties of primes in quadratic
 progressions.  Some quadratics seem to have more primes than others, for
@@ -197,11 +202,14 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
          print "$n  $x,$y";
      }
 
-The return may be an over-estimate of the range, and some of the points
-between C<$n_lo> and C<$n_hi> may go outside the rectangle.  C<$n_hi> is
-usually no more than an extra partial row or revolution.  C<$n_lo> is often
-just the starting point 1, which is correct if the origin 0,0 is in the
-rectangle, but something away from the origin might in fact start higher.
+The return may be an over-estimate of the range, and many of the points
+between C<$n_lo> and C<$n_hi> may go outside the rectangle, but the range is
+at least bounds for N.
+
+C<$n_hi> is usually no more than an extra partial row or revolution.
+C<$n_lo> is often merely the starting point 1, which is correct if the
+origin 0,0 is in the rectangle, but something away from the origin might in
+fact start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
 some N figures then those N's are included in the return.  If there's no
@@ -245,6 +253,7 @@ L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::MultipleRings>
+L<Math::PlanePath::PixelRings>
 
 L<Math::PlanePath::PeanoCurve>
 L<Math::PlanePath::HilbertCurve>
@@ -258,7 +267,7 @@ L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>
 
-L<math-image>, displaing various sequences on these paths.
+L<math-image>, displaying various sequences on these paths.
 
 F<examples/numbers.pl> in the sources to print all the paths.
 

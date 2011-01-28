@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use warnings;
-use Test::More tests => 1008;
+use Test::More tests => 9;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::KnightSpiral;
+require Math::PlanePath::PixelRings;
 
 
 #------------------------------------------------------------------------------
@@ -34,18 +34,18 @@ require Math::PlanePath::KnightSpiral;
 
 {
   my $want_version = 19;
-  is ($Math::PlanePath::KnightSpiral::VERSION, $want_version,
+  is ($Math::PlanePath::PixelRings::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::KnightSpiral->VERSION,  $want_version,
+  is (Math::PlanePath::PixelRings->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::KnightSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::PixelRings->VERSION($want_version); 1 },
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::KnightSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::PixelRings->VERSION($check_version); 1 },
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::KnightSpiral->new;
+  my $path = Math::PlanePath::PixelRings->new;
   is ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -54,31 +54,14 @@ require Math::PlanePath::KnightSpiral;
       "VERSION object check $check_version");
 }
 
+
 #------------------------------------------------------------------------------
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new (height => 123);
+  my $path = Math::PlanePath::PixelRings->new (height => 123);
   ok ($path->x_negative, 'x_negative()');
   ok ($path->y_negative, 'y_negative()');
-}
-
-#------------------------------------------------------------------------------
-# xy_to_n
-
-{
-  my $path = Math::PlanePath::KnightSpiral->new;
-  my ($x, $y) = $path->n_to_xy(1);
-  foreach my $n (2 .. 1000) {
-    my ($nx, $ny) = $path->n_to_xy($n);
-    # diag "n=$n  $nx,$ny";
-    my $dx = abs($nx - $x);
-    my $dy = abs($ny - $y);
-    ok (($dx == 2 && $dy == 1)
-        || ($dx == 1 && $dy == 2),
-        "step n=$n from $x,$y to $nx,$ny   D=$dx,$dy");
-    ($x,$y) = ($nx,$ny);
-  }
 }
 
 exit 0;

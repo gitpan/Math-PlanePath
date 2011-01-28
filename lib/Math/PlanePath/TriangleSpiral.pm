@@ -23,10 +23,10 @@ use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 18;
+$VERSION = 19;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -143,7 +143,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal gonal
+=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal 11-gonal (s+2)-gonal
 
 =head1 NAME
 
