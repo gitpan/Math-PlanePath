@@ -76,7 +76,7 @@ print "est 2 = ", est(2), "\n";
   my @n;
   my @theta;
   my $total = 0;
-  foreach my $n (2 .. 250) {
+  foreach my $n (2 .. 120) {
     my $inc = Math::Trig::atan(1/sqrt($n-1)) / (2*pi());  # revs
     $total += $inc;
     my $est = est($n);
@@ -91,7 +91,7 @@ print "est 2 = ", est(2), "\n";
   }
   print "\n";
 
-  Math::BigFloat->accuracy(200);
+  Math::BigFloat->accuracy(500);
   my $p = Math::Polynomial->new; # (Math::BigFloat->new(0));
   $p = $p->interpolate(\@n, \@theta);
 

@@ -127,6 +127,15 @@ my $path = Math::PlanePath::PixelRings->new;
     my %path_coords;
     while ($image_count--) {
       my ($x,$y) = $path->n_to_xy($n++);
+
+      # perl 5.6.0 through 5.6.2 ends up giving "-0" when stringizing (as of
+      # the code in PixelRings version 19), avoid that so the hash keys
+      # compare with "eq" successfully
+      $x = "$x";
+      $y = "$y";
+      if ($x eq '-0') { $x = '0'; }
+      if ($y eq '-0') { $y = '0'; }
+
       ### path_coords: "$x,$y"
       $path_coords{"$x,$y"} = 1;
     }
@@ -135,6 +144,8 @@ my $path = Math::PlanePath::PixelRings->new;
     ### %path_coords
     if (! eq_hash (\%path_coords, \%image_coords)) {
       diag "Wrong coords at r=$r";
+      diag "image: ", join(',', sort keys %image_coords);
+      diag "path:  ", join(',', sort keys %path_coords);
       dump_coords (\%image_coords);
       dump_coords (\%path_coords);
       $good = 0;

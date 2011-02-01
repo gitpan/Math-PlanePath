@@ -25,7 +25,7 @@ use Math::Libm 'hypot';
 use Math::Trig 'pi';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 19;
+$VERSION = 20;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

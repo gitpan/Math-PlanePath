@@ -25,7 +25,7 @@ use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 19;
+$VERSION = 20;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

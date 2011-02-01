@@ -36,7 +36,7 @@ require Math::PlanePath::PyramidRows;
 # VERSION
 
 {
-  my $want_version = 19;
+  my $want_version = 20;
   is ($Math::PlanePath::PyramidRows::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::PyramidRows->VERSION,  $want_version,
