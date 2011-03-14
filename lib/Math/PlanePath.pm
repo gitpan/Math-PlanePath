@@ -19,10 +19,9 @@
 package Math::PlanePath;
 use 5.004;
 use strict;
-use warnings;
 
 use vars '$VERSION';
-$VERSION = 20;
+$VERSION = 21;
 
 # defaults
 use constant x_negative => 1;
@@ -37,7 +36,7 @@ sub new {
 1;
 __END__
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonals (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows
 
 =head1 NAME
 
@@ -63,6 +62,7 @@ include
     HexSpiral              six-sided spiral
     HexSpiralSkewed        six-sided spiral skewed for compactness
     HeptSpiralSkewed       seven-sided spiral, compact
+    OctagramSpiral         eight pointed star
     KnightSpiral           an infinite knight's tour
 
     SacksSpiral            quadratic on an Archimedean spiral
@@ -70,6 +70,8 @@ include
     TheodorusSpiral        unit steps at right angles
     MultipleRings          concentric circles
     PixelRings             concentric circles by pixels
+    Hypot                  points by distance
+    HypotOctant            first octant points by distance
 
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
@@ -115,12 +117,13 @@ longer than the preceding.
       2       SacksSpiral, PyramidSides, Corner, PyramidRows default
       4       DiamondSpiral, Staircase
       5       PentSpiral, PentSpiralSkewed
-     5.65     PixelRings (averaging about 4*sqrt(2))
-      6       HexSpiral, HexSpiralSkewed
+      5.65    PixelRings (average about 4*sqrt(2))
+      6       HexSpiral, HexSpiralSkewed, MultipleRings default
       7       HeptSpiralSkewed
       8       SquareSpiral, PyramidSpiral
       9       TriangleSpiral, TriangleSpiralSkewed
-    19.74     TheodorusSpiral (approaches 2*pi^2)
+     16       OctagramSpiral
+     19.74    TheodorusSpiral (approaches 2*pi^2)
      32       KnightSpiral (counting the 2-wide loop)
    variable   MultipleRings, PyramidRows
 
@@ -198,8 +201,8 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
 
      my ($n_lo, $n_hi) = $path->rect_to_n_range (-5,-5, 5,5);
      foreach my $n ($n_lo .. $n_hi) {
-         my ($x, $y) = $path->n_to_xy ($n) or next;
-         print "$n  $x,$y";
+       my ($x, $y) = $path->n_to_xy ($n) or next;
+       print "$n  $x,$y";
      }
 
 The return may be an over-estimate of the range, and many of the points
@@ -247,13 +250,16 @@ L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>,
+L<Math::PlanePath::OctagramSpiral>,
 L<Math::PlanePath::KnightSpiral>
 
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::MultipleRings>
-L<Math::PlanePath::PixelRings>
+L<Math::PlanePath::PixelRings>,
+L<Math::PlanePath::Hypot>,
+L<Math::PlanePath::HypotOctant>
 
 L<Math::PlanePath::PeanoCurve>
 L<Math::PlanePath::HilbertCurve>

@@ -19,8 +19,8 @@
 
 use 5.004;
 use strict;
-use warnings;
-use Test::More tests => 1008;
+use Test;
+BEGIN { plan tests => 1008; }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,24 +33,30 @@ require Math::PlanePath::KnightSpiral;
 # VERSION
 
 {
-  my $want_version = 20;
-  is ($Math::PlanePath::KnightSpiral::VERSION, $want_version,
+  my $want_version = 21;
+  ok ($Math::PlanePath::KnightSpiral::VERSION,
+      $want_version,
       'VERSION variable');
-  is (Math::PlanePath::KnightSpiral->VERSION,  $want_version,
+  ok (Math::PlanePath::KnightSpiral->VERSION,
+      $want_version,
       'VERSION class method');
 
   ok (eval { Math::PlanePath::KnightSpiral->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::PlanePath::KnightSpiral->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = Math::PlanePath::KnightSpiral->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
@@ -58,9 +64,9 @@ require Math::PlanePath::KnightSpiral;
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new (height => 123);
-  ok ($path->x_negative, 'x_negative()');
-  ok ($path->y_negative, 'y_negative()');
+  my $path = Math::PlanePath::KnightSpiral->new;
+  ok (!! $path->x_negative, 1, 'x_negative()');
+  ok (!! $path->y_negative, 1, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------
@@ -76,6 +82,7 @@ require Math::PlanePath::KnightSpiral;
     my $dy = abs($ny - $y);
     ok (($dx == 2 && $dy == 1)
         || ($dx == 1 && $dy == 2),
+        1,
         "step n=$n from $x,$y to $nx,$ny   D=$dx,$dy");
     ($x,$y) = ($nx,$ny);
   }

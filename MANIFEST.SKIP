@@ -94,7 +94,7 @@
 ^diff\.tmp
 # inc/MyMakefileExtras.pm "lintian-source"
 ^temp-lintian
-# some of my image module testing
+# some of my im module testing
 ^tempfile\.png$
 
 
@@ -103,7 +103,7 @@
 ^up$
 ^c$
 
-# special case pulp test build stuff
+# special case p..ulp test build stuff
 devel/h2xs/TestConstFoo/
 
 # special case mall executables

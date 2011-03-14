@@ -23,12 +23,11 @@
 package Math::PlanePath::PeanoCurve;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -315,7 +314,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit twidding PeanoCurve Math-PlanePath
+=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit PeanoCurve Math-PlanePath
 
 =head1 NAME
 
@@ -472,7 +471,7 @@ complement as necessary.  For the low to high approach it's not easy to
 complement just the X digits in the N constructed so far, but it works to
 build and complement the X and Y digits separately then at the end
 interleave to make the final N.  Complementing is the equivalent of an XOR
-in binary.  On a ternary machine some trit-twidding could no doubt do it.
+in binary.  On a ternary machine some trit-twiddling could no doubt do it.
 
 In the current code C<n_to_xy> and C<xy_to_n> both go low to high as that
 seems a bit easier than finding the high ternary digits of the inputs.
@@ -504,7 +503,7 @@ Y overlaps the target area.
 
 This path is in Sloane's OEIS in several forms,
 
-    http://www.oeis.org/A163528  (etc)
+    http://oeis.org/A163528  (etc)
 
     A163528    X coordinate
     A163529    Y coordinate

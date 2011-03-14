@@ -19,12 +19,11 @@
 package Math::PlanePath::DiamondSpiral;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -177,7 +176,7 @@ HexSpiralSkewed for similar cutting just two of the four corners.
 
 =item C<$path = Math::PlanePath::DiamondSpiral-E<gt>new ()>
 
-Create and return a new DiamondSpiral spiral object.
+Create and return a new diamond spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

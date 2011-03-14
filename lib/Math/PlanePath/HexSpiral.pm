@@ -19,12 +19,11 @@
 package Math::PlanePath::HexSpiral;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -293,8 +292,8 @@ basically a constant amount added into each loop.
 
 =item C<$path = Math::PlanePath::HexSpiral-E<gt>new (wider =E<gt> $w)>
 
-Create and return a new HexSpiral path object.  An optional C<wider>
-parameter widens the spiral path, it defaults to 0 which is no widening.
+Create and return a new hex spiral object.  An optional C<wider> parameter
+widens the path, it defaults to 0 which is no widening.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

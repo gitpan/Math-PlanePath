@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 74;
 
 use lib 't';
@@ -33,7 +32,7 @@ require Math::PlanePath::SacksSpiral;
 # VERSION
 
 {
-  my $want_version = 20;
+  my $want_version = 21;
   is ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -58,7 +57,7 @@ require Math::PlanePath::SacksSpiral;
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::SacksSpiral->new (height => 123);
+  my $path = Math::PlanePath::SacksSpiral->new;
   ok ($path->x_negative, 'x_negative() instance method');
   ok ($path->y_negative, 'y_negative() instance method');
 }
@@ -126,6 +125,8 @@ require Math::PlanePath::SacksSpiral;
                     [ -1,-6, -8,6, 1,10 ],  # y both, x negative
 
                    ) {
+    ### no critic (ProtectPrivateSubs)
+
     my ($x1,$y1, $x2,$y2, $want_rlo,$want_rhi) = @$elem;
     my ($got_rlo,$got_rhi)
       = Math::PlanePath::SacksSpiral::_rect_to_radius_range ($x1,$y1, $x2,$y2);

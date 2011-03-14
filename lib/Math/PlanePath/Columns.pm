@@ -19,18 +19,25 @@
 package Math::PlanePath::Columns;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use constant x_negative => 0;
 use constant y_negative => 0;
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  if (! exists $self->{'height'}) {
+    $self->{'height'} = 1;
+  }
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;

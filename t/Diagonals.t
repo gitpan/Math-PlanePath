@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 51;
 
 use lib 't';
@@ -33,7 +32,7 @@ require Math::PlanePath::Diagonals;
 # VERSION
 
 {
-  my $want_version = 20;
+  my $want_version = 21;
   is ($Math::PlanePath::Diagonals::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::Diagonals->VERSION,  $want_version,
@@ -59,7 +58,7 @@ require Math::PlanePath::Diagonals;
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::Diagonals->new (height => 123);
+  my $path = Math::PlanePath::Diagonals->new;
   ok (! $path->x_negative, 'x_negative()');
   ok (! $path->y_negative, 'y_negative()');
 }

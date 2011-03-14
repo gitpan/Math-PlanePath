@@ -34,12 +34,11 @@
 package Math::PlanePath::HilbertCurve;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -662,7 +661,8 @@ L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
-L<Math::Curve::Hilbert>
+L<Math::Curve::Hilbert>,
+L<Algorithm::QuadTree>
 
 David Hilbert, "Ueber die stetige Abbildung einer Line auf ein
 FlE<228>chenstE<252>ck", Mathematische Annalen, volume 38, number 3,

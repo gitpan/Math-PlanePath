@@ -19,13 +19,12 @@
 package Math::PlanePath::TheodorusSpiral;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
 use Math::Libm 'hypot';
 use Math::Trig 'pi';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -137,7 +136,8 @@ sub xy_to_n {
     return undef;
   }
 
-  foreach my $n ($n_lo .. $n_hi) {
+  # for(;;) loop since $n_lo..$n_hi limited to IV range
+  for (my $n = $n_lo; $n <= $n_hi; $n++) {
     my ($nx,$ny) = $self->n_to_xy($n);
     #### $n
     #### $nx
@@ -161,7 +161,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Theodorus Ryde Math-PlanePath Archimedean
+=for stopwords Theodorus theodorus Ryde Math-PlanePath Archimedean
 
 =head1 NAME
 
@@ -254,7 +254,7 @@ plus past positions 1000 apart ready for re-use or to go back to.
 
 =item C<$path = Math::PlanePath::TheodorusSpiral-E<gt>new ()>
 
-Create and return a new path object.
+Create and return a new theodorus spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

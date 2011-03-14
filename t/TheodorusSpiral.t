@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -19,13 +19,14 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 9;
+use Test;
+BEGIN { plan tests => 9; }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::PixelRings;
+require Math::PlanePath::TheodorusSpiral;
 
 
 #------------------------------------------------------------------------------
@@ -33,34 +34,37 @@ require Math::PlanePath::PixelRings;
 
 {
   my $want_version = 21;
-  is ($Math::PlanePath::PixelRings::VERSION, $want_version,
+  ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::PixelRings->VERSION,  $want_version,
+  ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::PixelRings->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::TheodorusSpiral->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::PixelRings->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::TheodorusSpiral->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::PixelRings->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  my $path = Math::PlanePath::TheodorusSpiral->new;
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
-
 
 #------------------------------------------------------------------------------
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::PixelRings->new;
-  is (!! $path->x_negative, 1, 'x_negative()');
-  is (!! $path->y_negative, 1, 'y_negative()');
+  my $path = Math::PlanePath::TheodorusSpiral->new;
+  ok (!! $path->x_negative, 1, 'x_negative()');
+  ok (!! $path->y_negative, 1, 'y_negative()');
 }
 
 exit 0;

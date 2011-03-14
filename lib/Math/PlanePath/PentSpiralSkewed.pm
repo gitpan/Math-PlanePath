@@ -19,12 +19,11 @@
 package Math::PlanePath::PentSpiralSkewed;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -169,7 +168,7 @@ previous (where it's 8 for a SquareSpiral).
 
 =item C<$path = Math::PlanePath::PentSpiral-E<gt>new ()>
 
-Create and return a new PentSpiral spiral object.
+Create and return a new pentagon spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

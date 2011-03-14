@@ -19,16 +19,17 @@
 package Math::PlanePath::VogelFloret;
 use 5.004;
 use strict;
-use warnings;
 use Carp;
 use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::SacksSpiral;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -153,19 +154,20 @@ sub xy_to_n {
   #
   my $r = hypot ($x, $y);
   my $factor = $self->{'radius_factor'};
-  my $lo = max(0, POSIX::floor( (($r-.6)/$factor)**2 ));
-  my $hi = POSIX::ceil( (($r+.6)/$factor)**2 );
+  my $n_lo = max(0, POSIX::floor( (($r-.6)/$factor)**2 ));
+  my $n_hi = POSIX::ceil( (($r+.6)/$factor)**2 );
   #### $r
   #### xy: "$x,$y"
-  #### $lo
-  #### $hi
+  #### $n_lo
+  #### $n_hi
 
-  if ($lo == $lo-1 || $hi == $hi-1) {
+  if ($n_lo == $n_lo-1 || $n_hi == $n_hi-1) {
     ### infinite range, r inf or too big
     return undef;
   }
 
-  foreach my $n (reverse $lo .. $hi) {
+  # for(;;) loop since "reverse $n_lo..$n_hi" limited to IV range
+  for (my $n = $n_hi; $n >= $n_lo; $n--) {
     my ($nx, $ny) = $self->n_to_xy($n);
     ### hypot: "$n ".hypot($nx-$x,$ny-$y)
     if (hypot($nx-$x,$ny-$y) <= 0.5) {
@@ -207,7 +209,7 @@ sub rect_to_n_range {
   my $self = shift;
   ### VogelFloret rect_to_n_range(): @_
 
-  my ($r_lo, $r_hi) = _rect_to_radius_range(@_);
+  my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range(@_);
   # minimum r_lo=1 for minimum N=1
   $r_lo = max (1, ($r_lo-0.6) / $self->{'radius_factor'});
   $r_hi = ($r_hi + 0.6) / $self->{'radius_factor'};
@@ -217,10 +219,6 @@ sub rect_to_n_range {
   return (int($r_lo*$r_lo),
           1 + POSIX::ceil($r_hi*$r_hi));
 }
-
-use Math::PlanePath::SacksSpiral;
-*_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
-
 
 1;
 __END__

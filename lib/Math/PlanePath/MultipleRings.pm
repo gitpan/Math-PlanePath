@@ -19,13 +19,12 @@
 package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

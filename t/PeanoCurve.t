@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 9;
 
 use lib 't';
@@ -33,7 +32,7 @@ require Math::PlanePath::PeanoCurve;
 # VERSION
 
 {
-  my $want_version = 20;
+  my $want_version = 21;
   is ($Math::PlanePath::PeanoCurve::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::PeanoCurve->VERSION,  $want_version,

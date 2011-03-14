@@ -19,12 +19,11 @@
 package Math::PlanePath::PyramidSpiral;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -179,7 +178,7 @@ it by 2, for the same rate.
 
 =item C<$path = Math::PlanePath::PyramidSpiral-E<gt>new ()>
 
-Create and return a new square spiral object.
+Create and return a new pyramid spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

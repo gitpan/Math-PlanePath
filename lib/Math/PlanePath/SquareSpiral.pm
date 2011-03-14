@@ -19,12 +19,11 @@
 package Math::PlanePath::SquareSpiral;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -293,9 +292,10 @@ This path makes a square spiral,
     -3  -2  -1  x=0  1   2   3
 
 This path is well known from Stanislaw Ulam finding interesting straight
-lines plotting the prime numbers on it.  See F<examples/ulam-spiral-xpm.pl>
-in the sources for a program generating that, or see L<math-image> using
-this SquareSpiral to draw Ulam's pattern and more.
+lines when plotting the prime numbers on it.  See
+F<examples/ulam-spiral-xpm.pl> in the sources for a program generating that,
+or see L<math-image> using this SquareSpiral to draw Ulam's pattern and
+more.
 
 =head2 Straight Lines
 
@@ -347,7 +347,7 @@ left (instead of top left when wider=0) and the odd squares to the top right
 (instead of the bottom right).
 
 Each loop is still 8 longer than the previous, as the widening is basically
-a constant amount added into each loop.
+a constant amount in each loop.
 
 =head2 Corners
 

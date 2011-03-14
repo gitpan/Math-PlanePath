@@ -19,12 +19,11 @@
 package Math::PlanePath::Staircase;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'max';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -173,7 +172,7 @@ for 1 across, but only 2 of each 3 drawn.
 
 =item C<$path = Math::PlanePath::Staircase-E<gt>new ()>
 
-Create and return a new Staircase spiral object.
+Create and return a new staircase path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -212,7 +211,7 @@ L<Math::PlanePath::Corner>
 
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/math-image/index.html
+http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 

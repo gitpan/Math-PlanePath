@@ -19,12 +19,11 @@
 package Math::PlanePath::Corner;
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min','max';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -106,7 +105,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PyramidSides PlanePath Ryde Math-PlanePath ie
+=for stopwords pronic SacksSpiral PyramidSides PyramidRows PlanePath Ryde Math-PlanePath ie
 
 =head1 NAME
 

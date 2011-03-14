@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use ExtUtils::MakeMaker;
 use lib 'inc';
 use MyMakeMakerExtras;
@@ -29,9 +28,11 @@ MyMakeMakerExtras::WriteMakefile
    ABSTRACT     => 'Mathematical paths through the 2-D plane.',
    VERSION_FROM => 'lib/Math/PlanePath.pm',
    PREREQ_PM    => {
-                    'warnings'   => 0,
                     'Math::Libm' => 0,
                     'List::Util' => 0,
+
+                    # only for testing
+                    'Test' => 0,
                     'Test::More' => 0,
                    },
    AUTHOR       => 'Kevin Ryde <user42@zip.com.au>',

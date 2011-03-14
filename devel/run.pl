@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.004;
+use 5.006;
 use strict;
 use warnings;
 use Smart::Comments;
@@ -39,15 +39,19 @@ use Smart::Comments;
   require Math::PlanePath::Staircase;
   require Math::PlanePath::PeanoCurve;
   require Math::PlanePath::PyramidRows;
-  require App::MathImage::PlanePath::OctagramSpiral;
-  require App::MathImage::PlanePath::Flowsnake;
   require Math::PlanePath::PixelRings;
-  my $path = Math::PlanePath::PixelRings->new (wider => 0,
-                                               # step => 0,
-                                              );
+  require Math::PlanePath::OctagramSpiral;
+  require Math::PlanePath::MathImageFlowsnake;
+  require Math::PlanePath::MathImageArchimedeanChords;
+  require Math::PlanePath::Hypot;
+  require Math::PlanePath::HypotOctant;
+  my $path = Math::PlanePath::HypotOctant->new (wider => 0,
+                                                   # step => 0,
+                                                  );
   my ($prev_x, $prev_y);
   my %seen;
-  foreach my $i (6 .. 100) {
+  my $start = 0;
+  foreach my $i ($start .. $start + 50) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
@@ -56,7 +60,8 @@ use Smart::Comments;
     if (defined $prev_x) {
       my $dx = $x - $prev_x;
       my $dy = $y - $prev_y;
-      $dxdy = "$dx,$dy";
+      my $d = Math::Libm::hypot($dx,$dy);
+      $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
     }
     $prev_x = $x;
     $prev_y = $y;

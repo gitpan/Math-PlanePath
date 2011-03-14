@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Math-PlanePath
-version:            20
+version:            21
 abstract:           Mathematical paths through the 2-D plane.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -14,8 +14,8 @@ requires:
     List::Util:  0
     Math::Libm:  0
     perl:        5.004
+    Test:        0
     Test::More:  0
-    warnings:    0
 resources:
     homepage:  http://user42.tuxfamily.org/math-planepath/index.html
     license:   http://www.gnu.org/licenses/gpl.html

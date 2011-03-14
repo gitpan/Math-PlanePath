@@ -1,4 +1,4 @@
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -31,8 +31,8 @@ Bugs: mailto:user42@zip.com.au
 
 Package: libmath-planepath-perl
 Architecture: all
-Depends: perl (>= 5.004), libmath-libm-perl, libscalar-list-utils-perl | perl (>= 5.8), libwarnings-perl | perl (>= 5.6), ${perl:Depends}, ${misc:Depends}
-Description: Mathematical paths through the plane.
+Depends: perl (>= 5.004), libmath-libm-perl, libscalar-list-utils-perl | perl (>= 5.8), ${perl:Depends}, ${misc:Depends}
+Description: Mathematical paths through the plane
  Perl code to generate some paths through the 2-D X,Y plane, mainly
  integer oriented, and including
  .
@@ -43,3 +43,4 @@ Description: Mathematical paths through the plane.
   * Vogel's sunflower floret (and variations)
   * Sacks' quadratic spiral
   * Spiral of Theodorus
+  * Pixellated rings, and by hypotenuse distance

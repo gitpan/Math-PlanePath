@@ -19,12 +19,11 @@
 package Math::PlanePath::KnightSpiral;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -427,7 +426,7 @@ See L<math-image> to draw the path lines too.
 
 =item C<$path = Math::PlanePath::KnightSpiral-E<gt>new ()>
 
-Create and return a new square spiral object.
+Create and return a new knight spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -462,7 +461,9 @@ eight forms for 4 rotations and spiralling the same or opposite directions.
     A068614  - spiral opposite direction (Y negate)
     A068615  - rotate 90 degrees, spiral opp dir (X,Y transpose)
 
-See F<examples/knights-oeis.pl> generating A068608.
+See F<examples/knights-oeis.pl> generating A068608.  (As of March 2011
+there's a typo in the A068609 sample numbers, the second "37" should be
+"39".)
 
 =head1 SEE ALSO
 

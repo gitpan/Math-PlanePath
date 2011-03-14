@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 76;
 
 use lib 't';
@@ -36,7 +35,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 20;
+  my $want_version = 21;
   is ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::MultipleRings->VERSION,  $want_version,

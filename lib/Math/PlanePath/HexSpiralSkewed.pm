@@ -19,12 +19,11 @@
 package Math::PlanePath::HexSpiralSkewed;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(max);
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -284,7 +283,7 @@ L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.
 
 =item C<$path = Math::PlanePath::HexSpiralSkewed-E<gt>new (wider =E<gt> $w)>
 
-Create and return a new HexSpiralSkewed spiral object.  An optional C<wider>
+Create and return a new hexagon spiral object.  An optional C<wider>
 parameter widens the spiral path, it defaults to 0 which is no widening.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>

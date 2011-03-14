@@ -19,12 +19,11 @@
 package Math::PlanePath::ZOrderCurve;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -281,6 +280,8 @@ L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::PeanoCurve>
 
 C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
+
+L<Algorithm::QuadTree>
 
 =head1 HOME PAGE
 

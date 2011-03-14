@@ -19,13 +19,12 @@
 package Math::PlanePath::PixelRings;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use Math::Libm 'hypot';
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -263,7 +262,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde pixellated DiamondSpiral SquareSpiral
+=for stopwords Ryde pixellated DiamondSpiral SquareSpiral Math-PlanePath
 
 =head1 NAME
 
@@ -347,6 +346,7 @@ sample above).  If C<$x,$y> is not reached then the return is C<undef>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::MultipleRings>
 
 =head1 HOME PAGE

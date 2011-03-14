@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 21;
 
 use lib 't';
@@ -33,7 +32,7 @@ require Math::PlanePath::HexSpiralSkewed;
 # VERSION
 
 {
-  my $want_version = 20;
+  my $want_version = 21;
   is ($Math::PlanePath::HexSpiralSkewed::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::HexSpiralSkewed->VERSION,  $want_version,
@@ -58,7 +57,7 @@ require Math::PlanePath::HexSpiralSkewed;
 # x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::HexSpiralSkewed->new (height => 123);
+  my $path = Math::PlanePath::HexSpiralSkewed->new;
   ok ($path->x_negative, 'x_negative()');
   ok ($path->y_negative, 'y_negative()');
 }

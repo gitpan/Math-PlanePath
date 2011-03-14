@@ -19,12 +19,11 @@
 package Math::PlanePath::TriangleSpiralSkewed;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -186,7 +185,7 @@ right downwards are different angles plotted (but are symmetric by N count).
 
 =item C<$path = Math::PlanePath::TriangleSpiralSkewed-E<gt>new ()>
 
-Create and return a new square spiral object.
+Create and return a new triangle spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

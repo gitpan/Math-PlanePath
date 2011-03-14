@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use List::Util 'min', 'max';
 use Test::More tests => 9;
 
@@ -37,7 +36,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 20;
+  my $want_version = 21;
   is ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::HilbertCurve->VERSION,  $want_version,

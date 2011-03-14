@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.004;
+use 5.006;
 use strict;
 use warnings;
 use POSIX 'floor', 'fmod';
@@ -72,7 +72,7 @@ print "est 2 = ", est(2), "\n";
 
 {
   require Math::Polynomial;
-  open OUT, ">/tmp/theodorus.data" or die;
+  open OUT, '>', '/tmp/theodorus.data' or die;
   my @n;
   my @theta;
   my $total = 0;

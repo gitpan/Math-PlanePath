@@ -37,9 +37,11 @@
 
 use 5.004;
 use strict;
-use warnings;
 use POSIX ();
 use List::Util 'min', 'max';
+
+# uncomment this to run the ### lines
+use Smart::Comments;
 
 my $width = 79;
 my $height = 23;
@@ -60,6 +62,7 @@ if ($class eq 'all') {
                         HexSpiral
                         HexSpiralSkewed
                         HeptSpiralSkewed
+                        OctagramSpiral
 
                         PyramidSpiral
                         PyramidRows
@@ -69,13 +72,15 @@ if ($class eq 'all') {
 
                         Diagonals
                         Corner
+                        KnightSpiral
 
                         SacksSpiral
                         VogelFloret
                         TheodorusSpiral
                         MultipleRings
                         PixelRings
-                        KnightSpiral
+                        Hypot
+                        HypotOctant
 
                         Rows
                         Columns
@@ -129,11 +134,14 @@ sub print_class {
     $y_limit_hi = +$half;
   }
 
-  foreach my $n (1 .. 999) {
+  my ($n_lo, undef) = $path->rect_to_n_range(0,0, 100,100);
+
+  foreach my $n ($n_lo .. 999) {
     my ($x, $y) = $path->n_to_xy ($n);
 
     # stretch these out for better resolution
-    if ($class =~ /Sacks|Archimedean/) { $x *= 1.5; $y *= 2; }
+    if ($class =~ /Sacks/) { $x *= 1.5; $y *= 2; }
+    if ($class =~ /Archimedean/) { $x *= 2.5; $y *= 2.5; }
     if ($class =~ /Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }
     if ($class =~ /Vogel/) { $x *= 2; $y *= 3.5; }
 
@@ -182,7 +190,9 @@ sub print_class {
 
   foreach my $y (reverse $y_min .. $y_max) {
     foreach my $x ($x_limit_lo .. $x_limit_hi) {
-      printf ('%*s', $cellwidth, $rows{$x}{$y} || '');
+      my $cell = $rows{$x}{$y};
+      if (! defined $cell) { $cell = ''; }
+      printf ('%*s', $cellwidth, $cell);
     }
     print "\n";
   }

@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More;
 
 use lib 't';
@@ -99,6 +98,7 @@ my $path = Math::PlanePath::PixelRings->new;
     $image->ellipse (-$r+$offset,-$r+$offset, $r+$offset,$r+$offset, 'white');
     my $image_count = scalar(@{[keys %image_coords]});
 
+    ### no critic (ProtectPrivateSubs, ProtectPrivateVars)
     Math::PlanePath::PixelRings::_cumul_extend();
     my $got = $Math::PlanePath::PixelRings::_cumul[$r+1];
     my $want = $Math::PlanePath::PixelRings::_cumul[$r]+$image_count;

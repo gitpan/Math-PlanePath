@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -47,10 +47,11 @@
 #     A068614
 #     A068615
 #
+# As of Jan 2011 there was a typo in the A068609 sample.  "37" was
+# duplicated, the second one should be "39".
 
 use 5.004;
 use strict;
-use warnings;
 use Math::PlanePath::KnightSpiral;
 use Math::PlanePath::SquareSpiral;
 

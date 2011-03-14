@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Test::More tests => 8;
 
 use lib 't';
@@ -33,6 +32,8 @@ use Math::PlanePath::SquareSpiral;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+diag "OEIS dir ",MyOEIS::oeis_dir();
 
 my $knight = Math::PlanePath::KnightSpiral->new;
 my $square = Math::PlanePath::SquareSpiral->new;
@@ -59,7 +60,7 @@ SKIP: {
   my $bvalues = MyOEIS::read_values($anum)
     || skip "$anum not available", 1;
 
-  # typo duplicated 37 in A068609.html in Jan 2011
+  # typo duplicated 37 in A068609.html as of March 2011
   if (scalar(grep {$_==37} @$bvalues) > 1) {
     skip "$anum has duplicate 37", 1;
   }

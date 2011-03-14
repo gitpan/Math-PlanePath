@@ -19,9 +19,8 @@
 
 use 5.004;
 use strict;
-use warnings;
 use List::Util;
-use Test::More tests => 264;
+use Test::More tests => 294;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,6 +32,9 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  OctagramSpiral
+                  Hypot
+                  HypotOctant
                   PixelRings
                   MultipleRings
 
@@ -70,7 +72,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 20;
+my $want_version = 21;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -129,18 +131,73 @@ my %rect_exact = ('Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::ZOrderCurve' => 1,
                  );
 
-# modules for which rect_to_n_range() is exact
+# possible X,Y deltas
+my $dxdy_square = {
+                   # "square" steps
+                   '1,0'  => 1,  # N
+                   '-1,0' => 1,  # S
+                   '0,1'  => 1,  # E
+                   '0,-1' => 1,  # W
+                  };
+my $dxdy_diagonal = {
+                     # "diagonal" steps
+                     '1,1'   => 1, # NE
+                     '1,-1'  => 1, # NW
+                     '-1,1'  => 1, # SE
+                     '-1,-1' => 1, # SW
+                    };
+my $dxdy_one = {
+                # by one diagonal or square
+                %$dxdy_square,
+                %$dxdy_diagonal,
+               };
+my $dxdy_hex = {
+                # hexagon steps X=+/-2, or diagonally
+                '2,0'   => 1,  # Ex2
+                '-2,0'  => 1,  # Wx2
+                %$dxdy_diagonal,
+               };
 my %class_dxdy_allowed
-  = ('Math::PlanePath::HilbertCurve' => { '1,0'  => 1,
-                                          '-1,0' => 1,
-                                          '0,1'  => 1,
-                                          '0,-1' => 1,
-                                        },
-     'Math::PlanePath::PeanoCurve' => { '1,0'  => 1,
-                                        '-1,0' => 1,
-                                        '0,1'  => 1,
-                                        '0,-1' => 1,
-                                      },
+  = (
+     'Math::PlanePath::SquareSpiral' => $dxdy_square,
+
+     'Math::PlanePath::PyramidSpiral' => { '-1,1' => 1,  # NE
+                                           '-1,-1' => 1, # SW
+                                           '1,0' => 1,   # E
+                                         },
+     'Math::PlanePath::TriangleSpiral' => { '-1,1' => 1,  # NE
+                                            '-1,-1' => 1, # SW
+                                            '2,0' => 1,   # Ex2
+                                          },
+     'Math::PlanePath::TriangleSpiralSkewed' => { '-1,1' => 1, # NE
+                                                  '0,-1' => 1, # S
+                                                  '1,0'  => 1, # E
+                                                },
+
+     'Math::PlanePath::DiamondSpiral' => { '1,0' => 1,   # E at bottom
+                                           %$dxdy_diagonal,
+                                         },
+     'Math::PlanePath::PentSpiralSkewed' => {
+                                             '-1,1'  => 1, # NW
+                                             '-1,-1' => 1, # SW
+                                             '1,-1'  => 1, # SE
+                                             '1,0'   => 1, # E
+                                             '0,1'   => 1, # N
+                                            },
+
+     'Math::PlanePath::HexSpiral'    => $dxdy_hex,
+
+     'Math::PlanePath::HexSpiralSkewed'    => {
+                                               '-1,1' => 1, # NW
+                                               '1,-1' => 1, # SE
+                                               %$dxdy_square,
+                                              },
+     'Math::PlanePath::HeptSpiralSkewed' => {
+                                             '-1,1' => 1,  # NW
+                                             %$dxdy_square,
+                                            },
+     'Math::PlanePath::OctagramSpiral' => $dxdy_one,
+
      'Math::PlanePath::KnightSpiral' => { '1,2'   => 1,
                                           '-1,2'  => 1,
                                           '1,-2'  => 1,
@@ -150,6 +207,14 @@ my %class_dxdy_allowed
                                           '2,-1'  => 1,
                                           '-2,-1' => 1,
                                         },
+     'Math::PlanePath::PixelRings' => {
+                                       %$dxdy_one,
+                                       '2,1' => 1, # from N=5 to N=6
+                                      },
+
+     'Math::PlanePath::HilbertCurve' => $dxdy_square,
+     'Math::PlanePath::PeanoCurve'   => $dxdy_square,
+
     );
 
 my ($pos_infinity, $neg_infinity, $nan);
@@ -250,11 +315,13 @@ sub dbl_max_neg {
         # nan not intended, but might be ok
         # finite could be a fixed x==0
         if (defined $pos_infinity) {
+          ### n_to_xy pos_infinity
           my ($x, $y) = $path->n_to_xy($pos_infinity);
           # defined($x) or &$report("n_to_xy($pos_infinity) x is undef");
           # defined($y) or &$report("n_to_xy($pos_infinity) y is undef");
         }
         if (defined $neg_infinity) {
+          ### n_to_xy neg_infinity
           my ($x, $y) = $path->n_to_xy($neg_infinity);
         }
         # not sure nan input should be allowed
@@ -268,6 +335,7 @@ sub dbl_max_neg {
           next if ! defined $x;
           foreach my $y ($pos_infinity, $neg_infinity) {
             next if ! defined $y;
+            ### xy_to_n: $x, $y
             my @n = $path->xy_to_n($x,$y);
             scalar(@n) == 1
               or &$report("xy_to_n($x,$y) want 1 value, got ",scalar(@n));

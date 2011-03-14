@@ -19,14 +19,13 @@
 package Math::PlanePath::SacksSpiral;
 use 5.004;
 use strict;
-use warnings;
 use List::Util qw(min max);
 use Math::Libm 'hypot';
 use Math::Trig 'pi';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 20;
+$VERSION = 21;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

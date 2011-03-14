@@ -15,6 +15,7 @@ devel/grid.pl
 devel/heighway.pl
 devel/hilbert-diamond.pl
 devel/hilbert.pl
+devel/hypot.pl
 devel/interpolate.pl
 devel/next.pl
 devel/pixel-rings.pl
@@ -44,8 +45,11 @@ lib/Math/PlanePath/HeptSpiralSkewed.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm
 lib/Math/PlanePath/HilbertCurve.pm
+lib/Math/PlanePath/Hypot.pm
+lib/Math/PlanePath/HypotOctant.pm
 lib/Math/PlanePath/KnightSpiral.pm
 lib/Math/PlanePath/MultipleRings.pm
+lib/Math/PlanePath/OctagramSpiral.pm
 lib/Math/PlanePath/PeanoCurve.pm
 lib/Math/PlanePath/PentSpiral.pm
 lib/Math/PlanePath/PentSpiralSkewed.pm
@@ -92,9 +96,11 @@ t/Rows-load.t
 t/Rows.t
 t/SacksSpiral.t
 t/SquareSpiral.t
+t/TheodorusSpiral.t
 t/VogelFloret.t
 t/ZOrderCurve.t
 xt/0-META-read.t
+xt/0-Test-ConsistentVersion.t
 xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
