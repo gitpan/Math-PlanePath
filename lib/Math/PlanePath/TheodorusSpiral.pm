@@ -24,7 +24,7 @@ use Math::Libm 'hypot';
 use Math::Trig 'pi';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -32,6 +32,7 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+use constant n_start => 0;
 use constant figure => 'circle';
 
 

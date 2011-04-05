@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -378,7 +378,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::KnightSpiral -- integer points drawn around a square
+Math::PlanePath::KnightSpiral -- integer points around a square, by chess knight moves
 
 =head1 SYNOPSIS
 

@@ -24,7 +24,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -80,6 +80,9 @@ use Math::PlanePath::SacksSpiral;
 #    6    3 + sqrt(10)
 #   2e    e + sqrt(1+e^2)  even
 
+
+# is N=1 the proper start?
+# use constant n_start => 0;
 
 use constant figure => 'circle';
 use constant _PHI => (1 + sqrt(5)) / 2;

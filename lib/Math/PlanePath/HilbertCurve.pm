@@ -38,7 +38,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -46,6 +46,7 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
@@ -427,7 +428,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::HilbertCurve -- self-similar quadrant traversal
+Math::PlanePath::HilbertCurve -- 2x2 self-similar quadrant traversal
 
 =head1 SYNOPSIS
 
@@ -480,21 +481,22 @@ The pattern is sometimes drawn with the first step 0->1 upwards instead of
 to the right.  Right is used here since that's what most of the other
 PlanePaths do.  Swap X and Y for upwards first instead.
 
-Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k), all the N
-values 0 to 2^(2*k)-1 are within the square.  The maximum 3, 15, 63, 255 etc
-2^(2*k)-1 is alternately at the top left or bottom right corner.
+Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k) at the
+origin, all the N values 0 to 2^(2*k)-1 are within the square.  The maximum
+3, 15, 63, 255 etc 2^(2*k)-1 is alternately at the top left or bottom right
+corner.
 
 Because each step is by 1, the distance along the curve between two X,Y
 points is the difference in their N values (as given by C<xy_to_n>).
 
 =head2 Locality
 
-The Hilbert curve is fairly well localized, so a small rectangle (or other
-shape) is usually a small range of N.  This property is used in some
-database systems to store X,Y coordinates with the Hilbert N as an index.
-A search through an X,Y region is then usually a fairly modest linear N
-search.  C<rect_to_n_range> gives N bounds for a rectangle, or see L<N
-Range> below for calculating on any shape.
+The Hilbert curve is fairly well localized in the sense that a small
+rectangle (or other shape) is usually a small range of N.  This property is
+used in some database systems to store X,Y coordinates with the Hilbert N as
+an index.  A search through an 2-D region is then usually a fairly modest
+linear search through N values.  C<rect_to_n_range> gives N bounds for a
+rectangle, or see L<N Range> below for calculating on any shape.
 
 The N range can be large when crossing Hilbert sub-parts.  In the sample
 above it can be seen for instance adjacent points X=0,Y=3 and X=0,Y=4 have
@@ -502,9 +504,9 @@ rather widely spaced N values 5 and 58.
 
 Fractional X,Y values can be indexed by extending the N calculation down
 into the X,Y binary fractions.  The code here doesn't do this, but can be
-pressed into service by moving the binary point in X,Y down even number of
-places, the same amount in each, and in the resulting integer N shifting
-back up by a corresponding multiple of 4 binary places.
+pressed into service by moving the binary point in X and Y up an even number
+of places, the same amount in each, and shifting the resulting integer N
+back down by a corresponding multiple of 4 binary places.
 
 =head1 FUNCTIONS
 
@@ -593,23 +595,25 @@ table high to low for the reverse C<xy_to_n>.
 
 An easy over-estimate of the maximum N in a region can be had by going to
 the next bigger (2^k)x(2^k) square enclosing the region.  This means the
-biggest X or Y rounded up to the next power of 2 (perhaps by a "count
+biggest X or Y rounded up to the next power of 2 (perhaps with a "count
 leading zeros" CPU instruction), so
 
     find k with 2^k > max(X,Y)
     N_max = 2^(2k) - 1
 
-An exact N range can be found by following the high to low N to X,Y
-procedure.  Start at the 2^(2k) bit pair position in N bigger than the
-desired region and choose 2 bits for N to give a bit each of X and Y.  The
-X,Y bits are based on the state table as above and the bits chosen for N are
-those for which the resulting X,Y sub-square overlaps some of the target
-region.  The smallest N similarly, choosing the smallest bit pair.
+An exact N range can be found by following the high to low N-to-X,Y
+procedure above.  Start at the 2^(2k) bit pair position in an N bigger than
+the desired region and choose 2 bits for N to give a bit each of X and Y.
+The X,Y bits are based on the state table as above and the bits chosen for N
+are those for which the resulting X,Y sub-square overlaps some of the target
+region.  The smallest N similarly, choosing the smallest bit pair which
+overlaps.
 
 Biggest and smallest N must be calculated separately as they track down
 different N bits and thus different state transitions.  The N range for any
 shape can be done this way, not just a rectangle like C<rect_to_n_range>,
-since it only depends on asking when a sub-square overlaps the target area.
+since it only depends on asking when a sub-square for two bits of N overlaps
+the target area.
 
 =head2 Direction
 
@@ -637,8 +641,8 @@ This Hilbert Curve path is in Sloane's OEIS in several forms,
     A163542    relative direction (ahead,left,right)
     A163543    relative direction, transpose X,Y
 
-And taking squares of the plane in various orders, each value the N of the
-Hilbert curve at those positions.
+And taking squares of the plane in various orders, each value in the
+sequence being the N of the Hilbert curve at those positions.
 
     A163355    in the ZOrderCurve sequence
     A163357    in diagonals like Math::PlanePath::Diagonals with
@@ -648,7 +652,9 @@ Hilbert curve at those positions.
     A163363    A163355 + 1, numbering the Hilbert N's from N=1
 
 The sequences are in each case permutations of the integers since all X,Y
-positions are reached eventually.  The inverses are
+positions of the first quadrant are reached eventually.  The inverses are as
+follows.  They can be thought of taking X,Y positions in the Hilbert order
+and asking what N the ZOrderCurve or Diagonals path would put there.
 
     A163356    inverse of A163355
     A163358    inverse of A163357

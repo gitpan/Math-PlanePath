@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 19;
+use Test;
+BEGIN { plan tests => 20 }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,32 +33,37 @@ require Math::PlanePath::Rows;
 # VERSION
 
 {
-  my $want_version = 21;
-  is ($Math::PlanePath::Rows::VERSION, $want_version, 'VERSION variable');
-  is (Math::PlanePath::Rows->VERSION,  $want_version, 'VERSION class method');
+  my $want_version = 22;
+  ok ($Math::PlanePath::Rows::VERSION, $want_version, 'VERSION variable');
+  ok (Math::PlanePath::Rows->VERSION,  $want_version, 'VERSION class method');
 
   ok (eval { Math::PlanePath::Rows->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::PlanePath::Rows->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = Math::PlanePath::Rows->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
 #------------------------------------------------------------------------------
-# x_negative, y_negative
+# n_start, x_negative, y_negative
 
 {
   my $path = Math::PlanePath::Rows->new (height => 123);
-  ok (! $path->x_negative, 'x_negative() instance method');
-  ok (! $path->y_negative, 'y_negative() instance method');
+  ok ($path->n_start, 1, 'n_start()');
+  ok ($path->x_negative, 0, 'x_negative() instance method');
+  ok ($path->y_negative, 0, 'y_negative() instance method');
 }
 
 #------------------------------------------------------------------------------
@@ -73,8 +79,8 @@ require Math::PlanePath::Rows;
     my ($width, $x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
     my $path = Math::PlanePath::Rows->new (width => $width);
     my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-    is ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2 width=$width");
-    is ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2 width=$width");
+    ok ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2 width=$width");
+    ok ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2 width=$width");
   }
 }
 

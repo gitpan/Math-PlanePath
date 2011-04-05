@@ -72,7 +72,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 21;
+my $want_version = 22;
 
 is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -130,6 +130,9 @@ my %rect_exact = ('Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::PeanoCurve' => 1,
                   'Math::PlanePath::ZOrderCurve' => 1,
                  );
+my %rect_before_n_start = ('Math::PlanePath::Rows' => 1,
+                           'Math::PlanePath::Columns' => 1,
+                          );
 
 # possible X,Y deltas
 my $dxdy_square = {
@@ -299,15 +302,39 @@ sub dbl_max_neg {
                                 height => 20,
                                 step   => $step,
                                 wider  => $wider);
+        my $n_start = $path->n_start;
+
+        {
+          my $n_start = $path->n_start;
+          { my ($x,$y) = $path->n_to_xy($n_start);
+            if (! defined $x) {
+              &$report("n_start()==$n_start doesn't have an n_to_xy()");
+            } else {
+              my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+              if ($n_lo > $n_start || $n_hi < $n_start) {
+                &$report("n_start()==$n_start outside rect_to_n_range() $n_lo..$n_hi");
+              }
+            }
+          }
+          if ($n_start != 0
+              # VogelFloret has a secret undocumented return for N=0
+              && ! $path->isa('Math::PlanePath::VogelFloret')
+              # Rows/Columns secret undocumented extend into negatives ...
+              && ! $path->isa('Math::PlanePath::Rows')
+              && ! $path->isa('Math::PlanePath::Columns')) {
+            my $n = $n_start - 1;
+            my ($x,$y) = $path->n_to_xy($n);
+            if (defined $x) {
+              &$report("n_start()-1==$n has an n_to_xy() but should not");
+            }
+          }
+        }
 
         {
           my $saw_warning = 0;
-          local $SIG{'__WARN__'} = sub {
-            $saw_warning = 1;
-          };
+          local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
           $path->n_to_xy(undef);
-          $saw_warning
-            or &$report("n_to_xy(undef) doesn't give a warning");
+          $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
         }
 
         # undef ok if nothing sensible
@@ -406,6 +433,8 @@ sub dbl_max_neg {
               or &$report ("rect_to_n_range() lo n=$n k=$k, got $n_lo, integer");
             $n_hi == int($n_hi)
               or &$report ("rect_to_n_range() hi n=$n k=$k, got $n_hi, integer");
+            $n_lo >= $n_start
+              or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
           }
           {
             my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
@@ -417,6 +446,8 @@ sub dbl_max_neg {
               or &$report ("rect_to_n_range() lo n=$n k=$k, got $n_lo, integer");
             $n_hi == int($n_hi)
               or &$report ("rect_to_n_range() hi n=$n k=$k, got $n_hi, integer");
+            $n_lo >= $n_start
+              or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
           }
 
           # next if $name eq 'KnightSpiral';
@@ -447,6 +478,8 @@ sub dbl_max_neg {
           my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
           (defined $got_lo && defined $got_hi)
             or &$report ("rect_to_n_range() x1=$x1,y1=$y1, x2=$x2,y2=$y2 undefs");
+          $got_lo >= $n_start
+            or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
         }
 
         foreach my $x (-100, -99) {
@@ -508,6 +541,9 @@ sub dbl_max_neg {
                         or &$report ("rect_to_n_range() got_min undef");
                       defined $got_max
                         or &$report ("rect_to_n_range() got_max undef");
+                      $got_min >= $n_start
+                        or $rect_before_n_start{$class}
+                        or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
 
                       if (! defined $min || ! defined $max) {
                         if (! $rect_exact{$class}) {

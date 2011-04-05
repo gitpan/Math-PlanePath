@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1008; }
+BEGIN { plan tests => 1009; }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::KnightSpiral;
 # VERSION
 
 {
-  my $want_version = 21;
+  my $want_version = 22;
   ok ($Math::PlanePath::KnightSpiral::VERSION,
       $want_version,
       'VERSION variable');
@@ -61,10 +61,11 @@ require Math::PlanePath::KnightSpiral;
 }
 
 #------------------------------------------------------------------------------
-# x_negative, y_negative
+# n_start, x_negative, y_negative
 
 {
   my $path = Math::PlanePath::KnightSpiral->new;
+  ok ($path->n_start, 1, 'n_start()');
   ok (!! $path->x_negative, 1, 'x_negative()');
   ok (!! $path->y_negative, 1, 'y_negative()');
 }

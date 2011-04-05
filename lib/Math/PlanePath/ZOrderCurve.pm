@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -31,6 +31,7 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
@@ -159,7 +160,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::ZOrderCurve -- self-similar Z pattern quadrant traversal
+Math::PlanePath::ZOrderCurve -- 2x2 self-similar Z shape quadrant traversal
 
 =head1 SYNOPSIS
 

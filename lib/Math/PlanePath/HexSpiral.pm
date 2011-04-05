@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -208,7 +208,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::HexSpiral -- integer points in a diamond shape
+Math::PlanePath::HexSpiral -- integer points around a hexagonal spiral
 
 =head1 SYNOPSIS
 

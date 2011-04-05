@@ -25,7 +25,7 @@ use Math::Trig 'pi';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -33,11 +33,14 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant n_start => 0;
 use constant figure => 'circle';
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  return if $n < 0;
+  if ($n < 0) {
+    return ();
+  }
   my $r = sqrt($n);
   my $theta = 2 * pi() * ($r - int($r));  # radians 0 to 2*pi
   return ($r * cos($theta),
@@ -81,8 +84,8 @@ sub rect_to_n_range {
   my $self = shift;
 
   my ($rlo, $rhi) = _rect_to_radius_range(@_);
-  # minimum rlo=1 for minimum N=1
-  $rlo = max (1, $rlo-0.6);
+  # minimum rlo=0 for minimum N=1
+  $rlo = max (0, $rlo-0.6);
   $rhi += 0.6;
 
   return (int($rlo*$rlo),
@@ -113,7 +116,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::SacksSpiral -- circular spiral squaring each revolution
+Math::PlanePath::SacksSpiral -- circular spiral, squaring each revolution
 
 =head1 SYNOPSIS
 

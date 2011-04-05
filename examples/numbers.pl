@@ -30,8 +30,9 @@
 # the tty.
 #
 # The origin 0,0 is kept in the middle of the display, horizontally, to help
-# see how much is on each side, and to make the "all" line up.  But
-# vertically only as many rows as necessary are printed.
+# see how much is on each side, and to make multiple paths printed line up,
+# such as the "all" option.  Vertically only as many rows as necessary are
+# printed.
 #
 
 
@@ -46,52 +47,63 @@ use Smart::Comments;
 my $width = 79;
 my $height = 23;
 
+# use Term::Size for tty size, if available
+# chars() can return 0 for unknown size
 if (eval { require Term::Size }) {
-  my ($w, $h) = Term::Size::chars();
-  if ($w) { $width = $w - 1; }
-  if ($h) { $height = $h - 1; }
+  my ($ttywidth, $ttyheight) = Term::Size::chars();
+  if ($ttywidth)  { $width = $ttywidth - 1; }
+  if ($ttyheight) { $height = $ttyheight - 1; }
 }
 
-my $class = $ARGV[0] || 'HexSpiral';
-if ($class eq 'all') {
-  my $separator = '';
-  foreach my $class (qw(SquareSpiral
-                        DiamondSpiral
-                        PentSpiral
-                        PentSpiralSkewed
-                        HexSpiral
-                        HexSpiralSkewed
-                        HeptSpiralSkewed
-                        OctagramSpiral
+if (! @ARGV) {
+  push @ARGV, 'HexSpiral';  # default class to print if no args
+}
 
-                        PyramidSpiral
-                        PyramidRows
-                        PyramidSides
-                        TriangleSpiral
-                        TriangleSpiralSkewed
+my @all_classes = (qw(SquareSpiral
+                      DiamondSpiral
+                      PentSpiral
+                      PentSpiralSkewed
+                      HexSpiral
+                      HexSpiralSkewed
+                      HeptSpiralSkewed
+                      OctagramSpiral
 
-                        Diagonals
-                        Corner
-                        KnightSpiral
+                      PyramidSpiral
+                      PyramidRows
+                      PyramidSides
+                      TriangleSpiral
+                      TriangleSpiralSkewed
 
-                        SacksSpiral
-                        VogelFloret
-                        TheodorusSpiral
-                        MultipleRings
-                        PixelRings
-                        Hypot
-                        HypotOctant
+                      Diagonals
+                      Staircase
+                      Corner
+                      KnightSpiral
 
-                        Rows
-                        Columns
-                        HilbertCurve
-                        ZOrderCurve)) {
+                      SacksSpiral
+                      VogelFloret
+                      TheodorusSpiral
+                      MultipleRings
+                      PixelRings
+                      Hypot
+                      HypotOctant
 
-    print $separator; $separator = "\n";
+                      Rows
+                      Columns
+                      HilbertCurve
+                      PeanoCurve
+                      ZOrderCurve));
+# expand arg "all" to full list
+@ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;
+
+my $separator = '';
+foreach my $class (@ARGV) {
+  print $separator;
+  $separator = "\n";
+
+  if (@ARGV > 1) {
+    # title if more than one class requested, including "all" option
     print "$class\n\n";
-    print_class ($class);
   }
-} else {
   print_class ($class);
 }
 
@@ -134,9 +146,7 @@ sub print_class {
     $y_limit_hi = +$half;
   }
 
-  my ($n_lo, undef) = $path->rect_to_n_range(0,0, 100,100);
-
-  foreach my $n ($n_lo .. 999) {
+  foreach my $n ($path->n_start .. 999) {
     my ($x, $y) = $path->n_to_xy ($n);
 
     # stretch these out for better resolution

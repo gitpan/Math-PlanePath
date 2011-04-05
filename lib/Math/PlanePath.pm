@@ -21,9 +21,10 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 21;
+$VERSION = 22;
 
 # defaults
+use constant n_start => 1;
 use constant x_negative => 1;
 use constant y_negative => 1;
 use constant figure => 'square';
@@ -219,20 +220,28 @@ some N figures then those N's are included in the return.  If there's no
 points in the rectangle then the return may be a "crossed" range like
 C<$n_lo=1>, C<$n_hi=0> (which makes a C<foreach> do no loops).
 
-=item C<$bool = $path-E<gt>x_negative>
+=item C<$bool = $path-E<gt>x_negative()>
 
-=item C<$bool = $path-E<gt>y_negative>
+=item C<$bool = $path-E<gt>y_negative()>
 
 Return true if the path extends into negative X coordinates and/or negative
 Y coordinates respectively.
 
-=item C<$str = $path-E<gt>figure>
+=item C<$n = $path-E<gt>n_start()>
 
-Return the name of the figure (shape) intended to be drawn at each C<$n>
-position.  This is a string name, currently either
+Return the first N in the path.  In the current classes this is either 0
+or 1.
 
-    square         side 1 centred on $x,$y
-    circle         diameter 1 centred on $x,$y
+Some classes have secret dubious undocumented support for N values below
+this (zero or negative), but C<n_start> is the intended starting point.
+
+=item C<$str = $path-E<gt>figure()>
+
+Return a string name of the figure (shape) intended to be drawn at each
+C<$n> position.  This is currently either
+
+    "square"     side 1 centred on $x,$y
+    "circle"     diameter 1 centred on $x,$y
 
 Of course this is only a suggestion as PlanePath doesn't draw anything
 itself.  A figure like a diamond for instance can look good too.
@@ -246,6 +255,7 @@ L<Math::PlanePath::PyramidSpiral>,
 L<Math::PlanePath::TriangleSpiral>,
 L<Math::PlanePath::TriangleSpiralSkewed>,
 L<Math::PlanePath::DiamondSpiral>,
+L<Math::PlanePath::PentSpiral>,
 L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,

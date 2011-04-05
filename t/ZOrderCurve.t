@@ -19,8 +19,8 @@
 
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
-use Test::More tests => 9;
+use Test;
+BEGIN { plan tests => 10 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,34 +36,39 @@ require Math::PlanePath::ZOrderCurve;
 # VERSION
 
 {
-  my $want_version = 21;
-  is ($Math::PlanePath::ZOrderCurve::VERSION, $want_version,
+  my $want_version = 22;
+  ok ($Math::PlanePath::ZOrderCurve::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::ZOrderCurve->VERSION,  $want_version,
+  ok (Math::PlanePath::ZOrderCurve->VERSION,  $want_version,
       'VERSION class method');
 
   ok (eval { Math::PlanePath::ZOrderCurve->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::PlanePath::ZOrderCurve->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = Math::PlanePath::ZOrderCurve->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
 #------------------------------------------------------------------------------
-# x_negative, y_negative
+# n_start, x_negative, y_negative
 
 {
   my $path = Math::PlanePath::ZOrderCurve->new;
-  ok (!$path->x_negative, 'x_negative() instance method');
-  ok (!$path->y_negative, 'y_negative() instance method');
+  ok ($path->n_start, 0, 'n_start()');
+  ok ($path->x_negative, 0, 'x_negative() instance method');
+  ok ($path->y_negative, 0, 'y_negative() instance method');
 }
 
 exit 0;

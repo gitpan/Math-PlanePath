@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 9; }
+BEGIN { plan tests => 10; }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::TheodorusSpiral;
 # VERSION
 
 {
-  my $want_version = 21;
+  my $want_version = 22;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
@@ -59,12 +59,13 @@ require Math::PlanePath::TheodorusSpiral;
 }
 
 #------------------------------------------------------------------------------
-# x_negative, y_negative
+# n_start, x_negative, y_negative
 
 {
   my $path = Math::PlanePath::TheodorusSpiral->new;
-  ok (!! $path->x_negative, 1, 'x_negative()');
-  ok (!! $path->y_negative, 1, 'y_negative()');
+  ok ($path->n_start, 0, 'n_start()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 1, 'y_negative()');
 }
 
 exit 0;

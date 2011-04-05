@@ -23,7 +23,7 @@ use List::Util 'max';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -123,7 +123,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::Staircase -- integer points in a diamond shape
+Math::PlanePath::Staircase -- integer points in stair-step diagonal stripes
 
 =head1 SYNOPSIS
 

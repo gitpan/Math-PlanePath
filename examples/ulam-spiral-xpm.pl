@@ -19,7 +19,7 @@
 
 
 # Usage: perl ulam-spiral-xpm.pl >/tmp/foo.xpm     # write image file
-#        xgzv /tmp/xpm                             # view file
+#        xzgv /tmp/foo.xpm                         # view file
 #
 # This is a bit of fun drawing the Ulam spiral of primes in a square
 # pattern.  The output is XPM format (which is plain text) and any good
@@ -34,7 +34,6 @@
 
 use 5.004;
 use strict;
-use POSIX ();
 use Math::PlanePath::SquareSpiral;
 
 my $size = 200;

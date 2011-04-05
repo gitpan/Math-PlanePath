@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 74;
+use Test::More tests => 75;
 
 use lib 't';
 use MyTestHelpers;
@@ -32,7 +32,7 @@ require Math::PlanePath::SacksSpiral;
 # VERSION
 
 {
-  my $want_version = 21;
+  my $want_version = 22;
   is ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -54,10 +54,11 @@ require Math::PlanePath::SacksSpiral;
 }
 
 #------------------------------------------------------------------------------
-# x_negative, y_negative
+# n_start, x_negative, y_negative
 
 {
   my $path = Math::PlanePath::SacksSpiral->new;
+  is ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 'x_negative() instance method');
   ok ($path->y_negative, 'y_negative() instance method');
 }

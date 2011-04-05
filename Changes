@@ -17,9 +17,11 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Version 22, March 2011
-    - new Hypot, HypotOctant, OctagramSpiral
+    - new n_start() method
+    - SacksSpiral rect_to_n_range() include N=0
 
 Version 21, February 2011
+    - new Hypot, HypotOctant, OctagramSpiral
     - TheodorusSpiral, VogelFloret allow for xy_to_n() result bigger than IV
       (though that big is probably extremely slow)
 

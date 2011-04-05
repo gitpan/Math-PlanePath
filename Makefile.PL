@@ -28,7 +28,7 @@ MyMakeMakerExtras::WriteMakefile
    ABSTRACT     => 'Mathematical paths through the 2-D plane.',
    VERSION_FROM => 'lib/Math/PlanePath.pm',
    PREREQ_PM    => {
-                    'Math::Libm' => 0,
+                    'Math::Libm' => 0, # for hypot() mainly
                     'List::Util' => 0,
 
                     # only for testing

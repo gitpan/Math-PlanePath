@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -211,7 +211,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::Hypot -- points by hypotenuse distance
+Math::PlanePath::Hypot -- points in order of hypotenuse distance
 
 =head1 SYNOPSIS
 

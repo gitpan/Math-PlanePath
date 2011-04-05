@@ -23,8 +23,9 @@
 # This is a bit of fun printing the HilbertCurve path in ascii.  It follows
 # the terminal width if you've got Term::Size, otherwise 79x23.
 #
-# Enough of the curve is drawn to fill the whole output size.  You could
-# instead stop at say
+# Enough of the curve is drawn to fill the whole output size, chopped off
+# when the path goes outside the output bounds.  You could instead stop at
+# say
 #
 #     $n_hi = 2**6;
 #
@@ -39,7 +40,6 @@
 
 use 5.004;
 use strict;
-use POSIX ();
 use Math::PlanePath::HilbertCurve;
 
 # uncomment this to run the ### lines
@@ -58,18 +58,22 @@ if (eval { require Term::Size }) {
 my $x = 0;
 my $y = 0;
 my %grid;
+
+# write $char at $x,$y in %grid
 sub plot {
   my ($char) = @_;
   if ($x < $width && $y < $height) {
     $grid{$x}{$y} = $char;
   }
 }
+
+# at the origin 0,0
 plot('+');
 
 my $path = Math::PlanePath::HilbertCurve->new;
-my $pwidth = int($width / $scale) + 1;
-my $pheight = int($height / $scale) + 1;
-my ($n_lo, $n_hi) = $path->rect_to_n_range (0,0, $pwidth,$pheight);
+my $path_width = int($width / $scale) + 1;
+my $path_height = int($height / $scale) + 1;
+my ($n_lo, $n_hi) = $path->rect_to_n_range (0,0, $path_width,$path_height);
 
 foreach my $n (1 .. $n_hi) {
 

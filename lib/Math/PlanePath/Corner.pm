@@ -23,7 +23,7 @@ use List::Util 'min','max';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -109,7 +109,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::Corner -- points shaped in a corner
+Math::PlanePath::Corner -- points shaped around in a corner
 
 =head1 SYNOPSIS
 

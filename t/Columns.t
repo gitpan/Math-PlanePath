@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 use lib 't';
 use MyTestHelpers;
@@ -32,7 +32,7 @@ require Math::PlanePath::Columns;
 # VERSION
 
 {
-  my $want_version = 21;
+  my $want_version = 22;
   is ($Math::PlanePath::Columns::VERSION, $want_version,
       'VERSION variable');
   is (Math::PlanePath::Columns->VERSION,  $want_version,
@@ -54,10 +54,11 @@ require Math::PlanePath::Columns;
 }
 
 #------------------------------------------------------------------------------
-# x_negative, y_negative
+# n_start, x_negative, y_negative
 
 {
   my $path = Math::PlanePath::Columns->new (height => 123);
+  is ($path->n_start, 1, 'n_start()');
   ok (! $path->x_negative, 'x_negative()');
   ok (! $path->y_negative, 'y_negative()');
 }

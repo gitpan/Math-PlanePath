@@ -24,6 +24,42 @@ use POSIX ();
 use Math::PlanePath::Hypot;
 
 {
+  my %comb;
+  my $limit = 1000;
+  my $xlimit = int(sqrt($limit / 2));
+  foreach my $x (1 .. $xlimit) {
+    foreach my $y (1 .. $x) {
+      my $h = $x*$x+$y*$y;
+      if ($h <= $limit) {
+        $comb{$h} = 1;
+      }
+    }
+  }
+  my @all = sort {$a<=>$b} keys %comb;
+  print join(',',@all),"\n";
+  print "all ",scalar(@all),"\n";
+  foreach my $h (keys %comb) {
+    foreach my $j (keys %comb) {
+      if ($j < $h
+          && ($h % $j) == 0
+          && is_int(sqrt($h / $j))) {
+        delete $comb{$h};
+        last;
+      }
+    }
+  }
+  my @comb = sort {$a<=>$b} keys %comb;
+  print join(',',@comb),"\n";
+  print "count ",scalar(@comb),"\n";
+  exit 0;
+
+  sub is_int {
+    return $_[0] == int $_[0];
+  }
+}
+
+
+{
   my @seen_ways;
   for (my $s = 1; $s < 1000; $s++) {
     my $h = $s * $s;

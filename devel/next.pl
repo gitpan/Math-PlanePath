@@ -22,11 +22,26 @@ use strict;
 use warnings;
 
 
+=head2 C<$n = $path-E<gt>n_start()>
+
+Return the first N in the path, meaning the first for which C<n_to_xy> will
+return a coordinate pair..  In the current classes this is either 0 or 1.
+
+=head2 C<($n, $x, $y) = $path-E<gt>next_nxy()>
+
+=head2 C<$path-E<gt>rewind()>
+
+=head2 C<$path-E<gt>seek_to_n($n)>
+
+=head2 C<$n = $path-E<gt>tell_n($n)>
+
+=cut
+
+
 use Math::PlanePath;
 
 {
   package Math::PlanePath;
-  use constant n_start => 1;
   no warnings 'redefine';
   sub new {
     my $class = shift;
@@ -42,16 +57,19 @@ use Math::PlanePath;
     my ($self, $n) = @_;
     $self->{'n'} = $n;
   }
-  sub next {
+  sub tell_n {
+    my ($self, $n) = @_;
+    return $self->{'n'};
+  }
+  sub next_nxy {
     my ($self) = @_;
     my $n = $self->{'n'}++;
     return ($n, $self->n_to_xy($n));
   }
-  sub peek {
+  sub peek_nxy {
     my ($self) = @_;
-    my ($n,$x,$y) = $self->next;
-    $self->seek_to_n($n);
-    return ($n,$x,$y);
+    my $n = $self->{'n'};
+    return ($n, $self->n_to_xy($n));
   }
 }
 
@@ -67,12 +85,12 @@ use Math::PlanePath;
   #   $self->{'i'} = 1;
   #   ### ZOrderCurve seek_to_n(): $self
   # }
-  # sub next {
+  # sub next_nxy {
   #   my ($self) = @_;
   #   $self->{'a'}->[($self->{'i'} ^= 1)]++;
   #   return (++$self->{'n'}, $self->{'x'}, $self->{'y'});
   # }
-  # sub peek {
+  # sub peek_nxy {
   #   my ($self) = @_;
   #   return ($self->{'n'} + 1,
   #           $self->{'x'} + !$self->{'i'},
@@ -91,7 +109,7 @@ use Math::PlanePath;
     $self->{'py'} = int ($n / $width);
     ### seek_to_n: $self
   }
-  sub next {
+  sub next_nxy {
     my ($self) = @_;
     my $x = ++$self->{'px'};
     if ($x >= $self->{'width'}) {
@@ -100,7 +118,7 @@ use Math::PlanePath;
     }
     return (++$self->{'n'}, $x, $self->{'py'});
   }
-  sub peek {
+  sub peek_nxy {
     my ($self) = @_;
     if ((my $x = $self->{'px'} + 1) < $self->{'width'}) {
       return ($self->{'n'}+1, $x, $self->{'py'});
@@ -125,7 +143,7 @@ use Math::PlanePath;
     $self->{'py'} = $d - $n + 1;
     ### Diagonals seek_to_n(): $self
   }
-  sub next {
+  sub next_nxy {
     my ($self) = @_;
     my $x = ++$self->{'px'};
     my $y = --$self->{'py'};
@@ -135,7 +153,7 @@ use Math::PlanePath;
     }
     return ($self->{'n'}++, $x, $y);
   }
-  sub peek {
+  sub peek_nxy {
     my ($self) = @_;
     if (my $y = $self->{'py'}) {
       return ($self->{'n'}, $self->{'px'}+1, $y-1);
@@ -148,6 +166,35 @@ use Math::PlanePath;
 {
   use Math::PlanePath::SquareSpiral;
   package Math::PlanePath::SquareSpiral;
+
+  sub next_nxy {
+    my ($self) = @_;
+    ### next(): $self
+    my $x = ($self->{'x'} += $self->{'dx'});
+    my $y = ($self->{'y'} += $self->{'dy'});
+
+    unless ($self->{'side'}--) {
+      ### turn
+      ($self->{'dx'},$self->{'dy'}) = (-$self->{'dy'},$self->{'dx'}); # left
+      $self->{'side'} = (($self->{'d'} += ($self->{'grow'} ^= 1)) - 1)
+        + ($self->{'dx'} && $self->{'wider'});
+      ### grow applied: $self->{'grow'}
+      ### d now: $self->{'d'}
+      ### side now: $self->{'side'}
+      ### dx,dy now: "$self->{'dx'},$self->{'dy'}"
+    }
+
+    ### return: 'n='.$self->{'n'}.' '.($self->{'x'} + $self->{'dx'}).','.($self->{'y'} + $self->{'dy'})
+    return ($self->{'n'}++, $x, $y);
+  }
+  sub peek_nxy {
+    my ($self) = @_;
+    # ### peek(): $self
+    return ($self->{'n'},
+            $self->{'x'} + $self->{'dx'},
+            $self->{'y'} + $self->{'dy'});
+  }
+
   # N = (1/2 d^2 + 1/2 d + 1)
   #   = (1/2*$d**2 + 1/2*$d + 1)
   #   = ((0.5*$d + 0.5)*$d + 1)
@@ -217,32 +264,6 @@ use Math::PlanePath;
     # $self->{'x'} = -1;
     # $self->{'y'} = 0;
     ### SquareSpiral seek_to_n(): $self
-  }
-  sub next {
-    my ($self) = @_;
-    ### next(): $self
-    my $x = ($self->{'x'} += $self->{'dx'});
-    my $y = ($self->{'y'} += $self->{'dy'});
-
-    unless ($self->{'side'}--) {
-      ### turn
-      $self->{'side'} = ($self->{'d'} += ($self->{'grow'} ^= 1)) - 1;
-      ($self->{'dx'},$self->{'dy'}) = (-$self->{'dy'},$self->{'dx'});
-      ### grow applied: $self->{'grow'}
-      ### d now: $self->{'d'}
-      ### side now: $self->{'side'}
-      ### dx,dy now: "$self->{'dx'},$self->{'dy'}"
-    }
-
-    ### return: 'n='.$self->{'n'}.' '.($self->{'x'} + $self->{'dx'}).','.($self->{'y'} + $self->{'dy'})
-    return ($self->{'n'}++, $x, $y);
-  }
-  sub peek {
-    my ($self) = @_;
-    # ### peek(): $self
-    return ($self->{'n'},
-            $self->{'x'} + $self->{'dx'},
-            $self->{'y'} + $self->{'dy'});
   }
 }
 

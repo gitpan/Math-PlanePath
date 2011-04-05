@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -150,7 +150,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::HeptSpiralSkewed -- integer points drawn around a skewed seven sides
+Math::PlanePath::HeptSpiralSkewed -- integer points around a skewed seven sided spiral
 
 =head1 SYNOPSIS
 

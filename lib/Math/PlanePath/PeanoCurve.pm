@@ -27,11 +27,12 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 21;
+$VERSION = 22;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
@@ -373,9 +374,9 @@ so that 8 is next to 9, 17 next to 18, etc,
 
 The process repeats, tripling in size each time.
 
-Within a power-of-3 square 3x3, 9x9, 27x27, 81x81 etc (3^k)x(3^k), all the N
-values 0 to 3^(2*k)-1 are within the square.  The top right corner 8, 80,
-728, etc is the 3^(2*k)-1 maximum in each.
+Within a power-of-3 square 3x3, 9x9, 27x27, 81x81 etc (3^k)x(3^k) at the
+origin, all the N values 0 to 3^(2*k)-1 are within the square.  The top
+right corner 8, 80, 728, etc is the 3^(2*k)-1 maximum in each.
 
 Because each step is by 1, the distance along the curve between two X,Y
 points is the difference in their N values (as given by C<xy_to_n>).
@@ -391,10 +392,10 @@ a surface, Peano's mapping is a continuous way to do that.
 
 The code here could be pressed into service for a fractional T to X,Y by
 multiplying up by a power of 9 to desired precision then dividing X,Y back
-by the same power of 3 (perhaps swapping X,Y for which one you want the
-first ternary digit).  If T is floating point then a power of 3 division
-will round off in general since 1/3 is not exactly representable in binary.
-See HilbertCurve or ZOrderCurve for binary based mappings.
+by the same power of 3 (perhaps swapping X,Y for which one should be the
+first ternary digit).  If T is a binary floating point then a power of 3
+division will round off in general since 1/3 is not exactly representable in
+binary.  See HilbertCurve or ZOrderCurve for binary based mappings.
 
 =head1 FUNCTIONS
 
@@ -508,7 +509,7 @@ This path is in Sloane's OEIS in several forms,
     A163528    X coordinate
     A163529    Y coordinate
     A163530    coordinate sum X+Y
-    A163531    square of distance from origin (X^2+Y^2)
+    A163531    square of distance from origin X^2+Y^2
     A163532    X change -1,0,1
     A163533    Y change -1,0,1
     A163534    absolute direction of each step (up,down,left,right)
@@ -527,8 +528,8 @@ the following sequences is the N of the Peano curve at those positions.
 
     A163334    numbering by diagonals, from same axis as first step
     A163336    numbering by diagonals, from opposite axis
-    A163338    one-based, ie. A163334 + 1
-    A163340    one-based, ie. A163336 + 1
+    A163338    A163334 + 1, Peano starting from N=1
+    A163340    A163336 + 1, Peano starting from N=1
 
 C<Math::PlanePath::Diagonals> numbers from the Y axis down, which is the
 opposite axis to the Peano curve first step along the X axis, so a plain
