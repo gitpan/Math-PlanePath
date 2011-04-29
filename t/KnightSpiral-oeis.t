@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 8;
+use Test;
+BEGIN { plan tests => 8 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,10 +34,22 @@ use Math::PlanePath::SquareSpiral;
 #use Smart::Comments '###';
 
 
-diag "OEIS dir ",MyOEIS::oeis_dir();
+MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
 
 my $knight = Math::PlanePath::KnightSpiral->new;
 my $square = Math::PlanePath::SquareSpiral->new;
+
+sub numeq_array {
+  my ($a1, $a2) = @_;
+  while (@$a1 && @$a2) {
+    if ($a1->[0] ne $a2->[0]) {
+      return 0;
+    }
+    shift @$a1;
+    shift @$a2;
+  }
+  return (@$a1 == @$a2);
+}
 
 #------------------------------------------------------------------------------
 
@@ -51,7 +64,8 @@ SKIP: {
     my ($x, $y) = $knight->n_to_xy ($n);
     push @got, $square->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum");
 }
 
 # A068609 - rotate 90 degrees
@@ -59,11 +73,6 @@ SKIP: {
   my $anum = 'A068609';
   my $bvalues = MyOEIS::read_values($anum)
     || skip "$anum not available", 1;
-
-  # typo duplicated 37 in A068609.html as of March 2011
-  if (scalar(grep {$_==37} @$bvalues) > 1) {
-    skip "$anum has duplicate 37", 1;
-  }
 
   my @got;
   foreach my $n (1 .. @$bvalues) {
@@ -74,7 +83,16 @@ SKIP: {
     ### rotated: "$x,$y"
     ### is: "got[$#got] = $got[-1]"
   }
-  is_deeply (\@got, $bvalues, "$anum");
+
+  # typo duplicated 37 in A068609.html as of March 2011
+  my $duplicate_37_typo = (scalar(grep {$_==37} @$bvalues) > 1);
+  if ($duplicate_37_typo) {
+    MyTestHelpers::diag ("$anum has duplicate 37");
+  }
+
+  skip ($duplicate_37_typo,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 # A068610 - rotate 180 degrees
@@ -89,7 +107,8 @@ SKIP: {
     ($x, $y) = (-$x, -$y);
     push @got, $square->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum");
 }
 
 # A068611 - rotate 270 degrees
@@ -104,7 +123,8 @@ SKIP: {
     ($x, $y) = ($y, -$x);
     push @got, $square->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum");
 }
 
 # A068612 - rotate 180 degrees, opp direction, being X negated
@@ -119,7 +139,8 @@ SKIP: {
     $x = -$x;
     push @got, $square->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum");
 }
 
 # A068613 -
@@ -134,7 +155,8 @@ SKIP: {
     ($x, $y) = (-$y, -$x);
     push @got, $square->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum");
 }
 
 # A068614 - clockwise, Y negated
@@ -149,7 +171,8 @@ SKIP: {
     $y = -$y;
     push @got, $square->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum");
 }
 
 # A068615 - transpose
@@ -164,7 +187,8 @@ SKIP: {
     ($y, $x) = ($x, $y);
     push @got, $square->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum");
 }
 
 exit 0;

@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -130,7 +130,7 @@ Create and return a new path object.  A C<height> parameter must be supplied.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> in the path.
+Return the X,Y coordinates of point number C<$n> in the path.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

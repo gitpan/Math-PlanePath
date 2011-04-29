@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 10; }
+BEGIN { plan tests => 44; }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::TheodorusSpiral;
 # VERSION
 
 {
-  my $want_version = 22;
+  my $want_version = 23;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
@@ -66,6 +66,39 @@ require Math::PlanePath::TheodorusSpiral;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+}
+
+#------------------------------------------------------------------------------
+# _rect_r_range()
+
+foreach my $elem ([ 0,0, 0,0,   0,0 ],
+
+                  [ 1,0, 0,0,   0,1 ],
+                  [ 0,1, 0,0,   0,1 ],
+                  [ 0,0, 1,0,   0,1 ],
+                  [ 0,0, 0,1,   0,1 ],
+
+                  [ 3,1, -3,4,   1,5 ],
+                  [ -3,1, 3,4,   1,5 ],
+                  [ -3,4, 3,1,   1,5 ],
+                  [ 3,4, -3,1,   1,5 ],
+
+                  [ 1,3, 4,-3,   1,5 ],
+                  [ 1,-3, 4,3,   1,5 ],
+                  [ 4,-3, 1,3,   1,5 ],
+                  [ 4,3, 1,-3,   1,5 ],
+
+                  [ -3,-4, 3,4,  0,5 ],
+                  [ 3,-4, -3,4,  0,5 ],
+                  [ 3,4, -3,-4,  0,5 ],
+                  [ -3,4, 3,-4,  0,5 ],
+
+                 ) {
+  my ($x1,$y1, $x2,$y2, $want_rlo,$want_rhi) = @$elem;
+  my ($got_rlo,$got_rhi)
+    = Math::PlanePath::TheodorusSpiral::_rect_r_range ($x1,$y1, $x2,$y2);
+  ok ($got_rlo, $want_rlo, '_rect_r_range() rlo');
+  ok ($got_rhi, $want_rhi, '_rect_r_range() rhi');
 }
 
 exit 0;

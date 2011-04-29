@@ -42,16 +42,18 @@ use Smart::Comments;
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::OctagramSpiral;
   require Math::PlanePath::MathImageFlowsnake;
-  require Math::PlanePath::MathImageArchimedeanChords;
+  require Math::PlanePath::ArchimedeanChords;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::HypotOctant;
-  my $path = Math::PlanePath::HypotOctant->new (wider => 0,
+  require Math::PlanePath::MathImagePythagoreanUAD;
+  my $path = Math::PlanePath::ArchimedeanChords->new (wider => 0,
                                                    # step => 0,
                                                   );
   my ($prev_x, $prev_y);
   my %seen;
-  my $start = 0;
-  foreach my $i ($start .. $start + 50) {
+  my $start = $path->n_start;
+  for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+  # for (my $i = 9650; $i <= 9999; $i++) {
     # $i -= 0.5;
     my ($x, $y) = $path->n_to_xy ($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
@@ -74,10 +76,10 @@ use Smart::Comments;
       $seen{$xy} = $i;
     }
 
-    my $n = $path->xy_to_n ($x+.0, $y+.0);
+    my $n = $path->xy_to_n ($x+.0, $y-.2);
     if (! defined $n) { $n = 'norev'; }
-    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
 
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
     my $rev = '';
     if ($i ne $n) {
       $rev = 'Rev';

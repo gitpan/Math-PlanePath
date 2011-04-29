@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010 Kevin Ryde
+# Copyright 2010, 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,6 +24,7 @@ $path->n_to_xy(123);
 $path->xy_to_n(0,0);
 $path->rect_to_n_range(0,0, 1,1);
 
-use Test::More tests => 1;
-ok (1, 'Math::PlanePath::Rows load as first thing');
+use Test;
+plan tests => 1;
+ok (1,1, 'Math::PlanePath::Rows load as first thing');
 exit 0;

@@ -20,7 +20,8 @@
 use 5.004;
 use strict;
 use List::Util;
-use Test::More tests => 294;
+use Test;
+BEGIN { plan tests => 214 }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,6 +33,8 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  ArchimedeanChords
+
                   OctagramSpiral
                   Hypot
                   HypotOctant
@@ -72,34 +75,40 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 22;
+my $want_version = 23;
 
-is ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
-is (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
+ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
+ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
 
 ok (eval { Math::PlanePath->VERSION($want_version); 1 },
+    1,
     "VERSION class check $want_version");
 my $check_version = $want_version + 1000;
 ok (! eval { Math::PlanePath->VERSION($check_version); 1 },
+    1,
     "VERSION class check $check_version");
 
 #------------------------------------------------------------------------------
 # new and VERSION
 
 foreach my $class (@classes) {
-  use_ok ($class);
+  eval "require $class" or die;
 
   ok (eval { $class->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   ok (! eval { $class->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = $class->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
@@ -108,11 +117,12 @@ foreach my $class (@classes) {
 
 foreach my $module (@modules) {
   my $class = "Math::PlanePath::$module";
-  use_ok ($class);
+  eval "require $class" or die;
+
   my $path = $class->new;
   $path->x_negative;
   $path->y_negative;
-  ok (1, 'x_negative(),y_negative() methods run');
+  ok (1,1, 'x_negative(),y_negative() methods run');
 }
 
 #------------------------------------------------------------------------------
@@ -223,9 +233,9 @@ my %class_dxdy_allowed
 my ($pos_infinity, $neg_infinity, $nan);
 my ($is_infinity, $is_nan);
 if (! eval { require Data::Float; 1 }) {
-  diag "Data::Float not available";
+  MyTestHelpers::diag ("Data::Float not available");
 } elsif (! Data::Float::have_infinite()) {
-  diag "Data::Float have_infinite() is false";
+  MyTestHelpers::diag ("Data::Float have_infinite() is false");
 } else {
   $is_infinity = sub {
     my ($x) = @_;
@@ -249,13 +259,14 @@ sub dbl_max_neg {
 }
 
 {
-  my $limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 500;
+  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 500;
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 12;
-  diag "test limit $limit, rect limit $rect_limit";
+  MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
 
   foreach my $module (@modules) {
     my $class = "Math::PlanePath::$module";
-    use_ok ($class);
+    eval "require $class" or die;
+
     my $dxdy_allowed = $class_dxdy_allowed{$class};
 
     my @steps = (-1);
@@ -279,9 +290,15 @@ sub dbl_max_neg {
         ### $step
         ### $wider
 
+        my $limit = $default_limit;
         if (defined $step) {
           if ($limit < 6*$step) {
             $limit = 6*$step; # so goes into x/y negative
+          }
+        }
+        if ($module eq 'ArchimedeanChords') {
+          if ($limit > 1100) {
+            $limit = 1100;  # bit slow otherwise
           }
         }
 
@@ -293,7 +310,7 @@ sub dbl_max_neg {
           if (@wider > 1) {
             $name .= ' wider='.(defined $wider ? $wider : 'undef');
           }
-          diag $name, ' ', @_;
+          MyTestHelpers::diag ($name, ' ', @_);
           $good = 0;
           # exit 1;
         };
@@ -543,7 +560,7 @@ sub dbl_max_neg {
                         or &$report ("rect_to_n_range() got_max undef");
                       $got_min >= $n_start
                         or $rect_before_n_start{$class}
-                        or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
+                          or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
 
                       if (! defined $min || ! defined $max) {
                         if (! $rect_exact{$class}) {
@@ -581,7 +598,7 @@ sub dbl_max_neg {
       }
     }
 
-    ok ($good);
+    ok ($good, 1);
   }
 }
 

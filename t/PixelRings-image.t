@@ -19,7 +19,7 @@
 
 use 5.004;
 use strict;
-use Test::More;
+use Test;
 
 use lib 't';
 use MyTestHelpers;
@@ -27,11 +27,16 @@ MyTestHelpers::nowarnings();
 
 use Math::PlanePath::PixelRings;
 
-BEGIN {
-  eval 'use Image::Base 1.09; 1' # version 1.09 for ellipse fixes
-    or plan skip_all => "due to no Image::Base 1.09 -- $@";
+my $test_count = 2;
+plan tests => $test_count;
+
+if (! eval 'use Image::Base 1.09; 1') { # version 1.09 for ellipse fixes
+  MyTestHelpers::diag ('Image::Base 1.09 not available -- ',$@);
+  foreach (1 .. $test_count) {
+    skip ('due to no Image::Base 1.09', 1, 1);
+  }
+  exit 0;
 }
-plan tests => 2;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -61,7 +66,7 @@ sub dump_coords {
         }
       }
     }
-    diag $str;
+    MyTestHelpers::diag ($str);
   }
 }
 
@@ -104,10 +109,10 @@ my $path = Math::PlanePath::PixelRings->new;
     my $want = $Math::PlanePath::PixelRings::_cumul[$r]+$image_count;
     if ($got != $want) {
       $good = 0;
-      diag "_cumul_extend() r=$r wrong: want=$want got=$got";
+      MyTestHelpers::diag ("_cumul_extend() r=$r wrong: want=$want got=$got");
     }
   }
-  ok ($good, "_cumul_extend() to $limit");
+  ok ($good, 1, "_cumul_extend() to $limit");
 }
 
 #------------------------------------------------------------------------------
@@ -143,15 +148,31 @@ my $path = Math::PlanePath::PixelRings->new;
     ### %image_coords
     ### %path_coords
     if (! eq_hash (\%path_coords, \%image_coords)) {
-      diag "Wrong coords at r=$r";
-      diag "image: ", join(',', sort keys %image_coords);
-      diag "path:  ", join(',', sort keys %path_coords);
+      MyTestHelpers::diag ("Wrong coords at r=$r");
+      MyTestHelpers::diag ("image: ", join(',', sort keys %image_coords));
+      MyTestHelpers::diag ("path:  ", join(',', sort keys %path_coords));
       dump_coords (\%image_coords);
       dump_coords (\%path_coords);
       $good = 0;
     }
   }
-  ok ($good, 'n_to_xy() compared to image->ellipse()');
+  ok ($good, 1, 'n_to_xy() compared to image->ellipse()');
+}
+
+
+sub eq_hash {
+  my ($x, $y) = @_;
+  foreach my $key (keys %$x) {
+    if (! exists $y->{$key}) {
+      return 0;
+    }
+  }
+  foreach my $key (keys %$y) {
+    if (! exists $x->{$key}) {
+      return 0;
+    }
+  }
+  return 1;
 }
 
 exit 0;

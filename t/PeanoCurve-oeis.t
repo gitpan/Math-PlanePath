@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 24;
+use Test;
+BEGIN { plan tests => 24 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,6 +37,18 @@ use Math::PlanePath::Diagonals;
 my $peano  = Math::PlanePath::PeanoCurve->new;
 my $diagonal = Math::PlanePath::Diagonals->new;
 
+sub numeq_array {
+  my ($a1, $a2) = @_;
+  while (@$a1 && @$a2) {
+    if ($a1->[0] ne $a2->[0]) {
+      return 0;
+    }
+    shift @$a1;
+    shift @$a2;
+  }
+  return (@$a1 == @$a2);
+}
+
 #------------------------------------------------------------------------------
 # A163334 -- diagonals same axis
 SKIP: {
@@ -51,7 +64,8 @@ SKIP: {
     ### diagonals same: "$x,$y is $n"
     push @got, $n;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163335 -- diagonals same axis, inverse
@@ -67,7 +81,8 @@ SKIP: {
     my $n = $diagonal->xy_to_n ($x, $y);
     push @got, $n - 1;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -83,7 +98,8 @@ SKIP: {
     my $n = $peano->xy_to_n ($x, $y);
     push @got, $n;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163337 -- diagonals opposite axis, inverse
@@ -98,7 +114,8 @@ SKIP: {
     my $n = $diagonal->xy_to_n ($x, $y);
     push @got, $n - 1;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -114,7 +131,8 @@ SKIP: {
     ($x, $y) = ($y, $x);   # transpose for same side
     push @got, $peano->xy_to_n ($x, $y) + 1;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163339 -- diagonals same axis, 1-based, inverse
@@ -129,7 +147,8 @@ SKIP: {
     ($x, $y) = ($y, $x);   # transpose for same side
     push @got, $diagonal->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -145,7 +164,8 @@ SKIP: {
     my $n = $peano->xy_to_n ($x, $y) + 1;
     push @got, $n;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163341 -- diagonals same axis, 1-based, inverse
@@ -160,7 +180,8 @@ SKIP: {
     my $n = $diagonal->xy_to_n ($x, $y);
     push @got, $n;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -180,7 +201,8 @@ SKIP: {
     }
     push @got, $sum;
   }
-  is_deeply (\@got, $bvalues, 'A163342 -- diagonal sums');
+  ok (numeq_array(\@got, $bvalues),
+      1, 'A163342 -- diagonal sums');
 }
 
 # A163479 -- diagonal sums div 6
@@ -198,7 +220,8 @@ SKIP: {
     }
     push @got, int($sum/6);
   }
-  is_deeply (\@got, $bvalues, 'A163479 -- diagonal sums');
+  ok (numeq_array(\@got, $bvalues),
+      1, 'A163479 -- diagonal sums');
 }
 
 #------------------------------------------------------------------------------
@@ -213,7 +236,8 @@ SKIP: {
     my $n = $peano->xy_to_n ($x, $x);
     push @got, $n;
   }
-  is_deeply (\@got, $bvalues, 'A163343 -- central diagonal');
+  ok (numeq_array(\@got, $bvalues),
+      1, 'A163343 -- central diagonal');
 }
 
 # A163344 -- central diagonal div 4
@@ -227,7 +251,8 @@ SKIP: {
     my $n = $peano->xy_to_n ($x, $x);
     push @got, int($n/4);
   }
-  is_deeply (\@got, $bvalues, "$anum -- central diagonal div 4");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- central diagonal div 4");
 }
 
 #------------------------------------------------------------------------------
@@ -242,7 +267,8 @@ SKIP: {
     my ($x, $y) = $peano->n_to_xy ($n);
     push @got, $x;
   }
-  is_deeply (\@got, $bvalues, "$anum -- X coordinate");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- X coordinate");
 }
 
 #------------------------------------------------------------------------------
@@ -257,7 +283,8 @@ SKIP: {
     my ($x, $y) = $peano->n_to_xy ($n);
     push @got, $y;
   }
-  is_deeply (\@got, $bvalues, "$anum -- Y coordinate");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- Y coordinate");
 }
 
 #------------------------------------------------------------------------------
@@ -273,7 +300,8 @@ SKIP: {
     my $sum = $x + $y;
     push @got, $sum;
   }
-  is_deeply (\@got, $bvalues, "$anum -- sum coords X+Y");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- sum coords X+Y");
 }
 
 #------------------------------------------------------------------------------
@@ -289,7 +317,8 @@ SKIP: {
     my $sqr = $x*$x + $y*$y;
     push @got, $sqr;
   }
-  is_deeply (\@got, $bvalues, "$anum -- square of distance");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- square of distance");
 }
 
 #------------------------------------------------------------------------------
@@ -308,7 +337,8 @@ SKIP: {
     push @got, $dx;
     ($prev_x, $prev_y) = ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- delta X (transpose)");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- delta X (transpose)");
 }
 
 #------------------------------------------------------------------------------
@@ -327,7 +357,8 @@ SKIP: {
     push @got, $dy;
     ($prev_x, $prev_y) = ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- delta Y (transpose)");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- delta Y (transpose)");
 }
 
 #------------------------------------------------------------------------------
@@ -348,7 +379,8 @@ SKIP: {
     push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
     ($prev_x,$prev_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- absolute direction");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- absolute direction");
 }
 
 #------------------------------------------------------------------------------
@@ -368,7 +400,8 @@ SKIP: {
     push @got, MyOEIS::dxdy_to_direction ($dy, $dx);
     ($prev_x,$prev_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- absolute direction transpose");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- absolute direction transpose");
 }
 
 #------------------------------------------------------------------------------
@@ -416,7 +449,8 @@ SKIP: {
     ($p_dx,$p_dy) = ($dx,$dy);
     ($p_x,$p_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- relative direction");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- relative direction");
 }
 
 #------------------------------------------------------------------------------
@@ -469,7 +503,8 @@ SKIP: {
     ($p_dx,$p_dy) = ($dx,$dy);
     ($p_x,$p_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- relative direction tranposed");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- relative direction tranposed");
 }
 
 #------------------------------------------------------------------------------
@@ -483,7 +518,8 @@ SKIP: {
   foreach my $x (0 .. $#$bvalues) {
     push @got, $peano->xy_to_n ($x, 0);
   }
-  is_deeply (\@got, $bvalues, "$anum -- row at Y=0");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- row at Y=0");
 }
 
 #------------------------------------------------------------------------------
@@ -497,7 +533,8 @@ SKIP: {
   foreach my $y (0 .. $#$bvalues) {
     push @got, $peano->xy_to_n (0, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- column X=0");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- column X=0");
 }
 
 exit 0;

@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -207,7 +207,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath ie HypotOctant
+=for stopwords Ryde Math-PlanePath ie HypotOctant hypot
 
 =head1 NAME
 
@@ -304,7 +304,7 @@ Create and return a new hypot path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> on the path.
+Return the X,Y coordinates of point number C<$n> on the path.
 
 For C<$n E<lt> 1> the return is an empty list, it being considered the first
 point at X=0,Y=0 is N=1.

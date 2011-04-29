@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 22;
+use Test;
+BEGIN { plan tests => 22 }
 
 use lib 't';
 use MyTestHelpers;
@@ -38,6 +39,18 @@ my $hilbert  = Math::PlanePath::HilbertCurve->new;
 my $diagonal = Math::PlanePath::Diagonals->new;
 my $zorder   = Math::PlanePath::ZOrderCurve->new;
 
+sub numeq_array {
+  my ($a1, $a2) = @_;
+  while (@$a1 && @$a2) {
+    if ($a1->[0] ne $a2->[0]) {
+      return 0;
+    }
+    shift @$a1;
+    shift @$a2;
+  }
+  return (@$a1 == @$a2);
+}
+
 #------------------------------------------------------------------------------
 # A059252 - Y coord
 
@@ -51,7 +64,8 @@ SKIP: {
     my ($x, $y) = $hilbert->n_to_xy ($n);
     push @got, $y;
   }
-  is_deeply (\@got, $bvalues, "$anum - Y coord");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum - Y coord");
 }
 
 # A059253 - X coord
@@ -65,7 +79,8 @@ SKIP: {
     my ($x, $y) = $hilbert->n_to_xy ($n);
     push @got, $x;
   }
-  is_deeply (\@got, $bvalues, "$anum - X coord");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum - X coord");
 }
 
 #------------------------------------------------------------------------------
@@ -81,7 +96,8 @@ SKIP: {
     my ($x, $y) = $zorder->n_to_xy ($n);
     push @got, $hilbert->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum - ZOrder");
 }
 
 # A163356 - inverse
@@ -95,7 +111,8 @@ SKIP: {
     my ($x, $y) = $hilbert->n_to_xy ($n);
     push @got, $zorder->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -111,7 +128,8 @@ SKIP: {
     my ($y, $x) = $diagonal->n_to_xy ($n);     # transposed, same side
     push @got, $hilbert->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163358 - inverse
@@ -125,7 +143,8 @@ SKIP: {
     my ($y, $x) = $hilbert->n_to_xy ($n);        # transposed, same side
     push @got, $diagonal->xy_to_n ($x, $y) - 1;  # 0-based diagonals
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -141,7 +160,8 @@ SKIP: {
     my ($x, $y) = $diagonal->n_to_xy ($n);     # plain, opposite sides
     push @got, $hilbert->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163360 - inverse
@@ -155,7 +175,8 @@ SKIP: {
     my ($x, $y) = $hilbert->n_to_xy ($n);     # plain, opposite sides
     push @got, $diagonal->xy_to_n ($x, $y) - 1;  # 0-based diagonals
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -172,7 +193,8 @@ SKIP: {
     ($x, $y) = ($y, $x);                    # transpose for same side
     push @got, $hilbert->xy_to_n ($x, $y) + 1; # 1-based Hilbert
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163362 - inverse
@@ -187,7 +209,8 @@ SKIP: {
     ($x, $y) = ($y, $x);                    # transpose for same side
     push @got, $diagonal->xy_to_n ($x, $y); # 1-based Hilbert
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -203,7 +226,8 @@ SKIP: {
     my ($x, $y) = $diagonal->n_to_xy ($n);  # no transpose for opp side
     push @got, $hilbert->xy_to_n ($x, $y) + 1;
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 # A163364 - inverse
@@ -217,7 +241,8 @@ SKIP: {
     my ($x, $y) = $hilbert->n_to_xy ($n);  # no transpose for opp side
     push @got, $diagonal->xy_to_n ($x, $y);
   }
-  is_deeply (\@got, $bvalues);
+  ok (numeq_array(\@got, $bvalues),
+      1);
 }
 
 #------------------------------------------------------------------------------
@@ -236,7 +261,8 @@ SKIP: {
     }
     push @got, $sum;
   }
-  is_deeply (\@got, $bvalues, "$anum - diagonal sums");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum - diagonal sums");
 }
 
 # A163477 - diagonal sums divided by 4
@@ -254,7 +280,8 @@ SKIP: {
     }
     push @got, int($sum/4);
   }
-  is_deeply (\@got, $bvalues, "$anum - diagonal sums divided by 4");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum - diagonal sums divided by 4");
 }
 
 #------------------------------------------------------------------------------
@@ -268,7 +295,8 @@ SKIP: {
   foreach my $x (0 .. $#$bvalues) {
     push @got, $hilbert->xy_to_n ($x, 0);
   }
-  is_deeply (\@got, $bvalues, "$anum -- row at Y=0");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- row at Y=0");
 }
 
 #------------------------------------------------------------------------------
@@ -282,7 +310,8 @@ SKIP: {
   foreach my $y (0 .. $#$bvalues) {
     push @got, $hilbert->xy_to_n (0, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- column at X=0");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- column at X=0");
 }
 
 #------------------------------------------------------------------------------
@@ -301,7 +330,8 @@ SKIP: {
     push @got, $dx;
     ($prev_x, $prev_y) = ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- delta X (transpose)");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- delta X (transpose)");
 }
 
 #------------------------------------------------------------------------------
@@ -320,7 +350,8 @@ SKIP: {
     push @got, $dy;
     ($prev_x, $prev_y) = ($x, $y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- delta Y (transpose)");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- delta Y (transpose)");
 }
 
 #------------------------------------------------------------------------------
@@ -341,7 +372,8 @@ SKIP: {
     push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
     ($prev_x,$prev_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- absolute direction");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- absolute direction");
 }
 
 #------------------------------------------------------------------------------
@@ -361,7 +393,8 @@ SKIP: {
     push @got, MyOEIS::dxdy_to_direction ($dy, $dx);
     ($prev_x,$prev_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- absolute direction transpose");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- absolute direction transpose");
 }
 
 #------------------------------------------------------------------------------
@@ -409,7 +442,8 @@ SKIP: {
     ($p_dx,$p_dy) = ($dx,$dy);
     ($p_x,$p_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- relative direction");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- relative direction");
 }
 
 #------------------------------------------------------------------------------
@@ -462,7 +496,8 @@ SKIP: {
     ($p_dx,$p_dy) = ($dx,$dy);
     ($p_x,$p_y) = ($x,$y);
   }
-  is_deeply (\@got, $bvalues, "$anum -- relative direction transposed");
+  ok (numeq_array(\@got, $bvalues),
+      1, "$anum -- relative direction transposed");
 }
 
 

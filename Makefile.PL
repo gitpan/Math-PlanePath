@@ -30,10 +30,10 @@ MyMakeMakerExtras::WriteMakefile
    PREREQ_PM    => {
                     'Math::Libm' => 0, # for hypot() mainly
                     'List::Util' => 0,
+                    'constant' => 1.02,
 
                     # only for testing
                     'Test' => 0,
-                    'Test::More' => 0,
                    },
    AUTHOR       => 'Kevin Ryde <user42@zip.com.au>',
    LICENSE      => 'gpl',

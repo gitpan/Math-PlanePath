@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -288,7 +288,7 @@ parameter widens the spiral path, it defaults to 0 which is no widening.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> on the path.
+Return the X,Y coordinates of point number C<$n> on the path.
 
 For C<$n < 1> the return is an empty list, it being considered the path
 starts at 1.

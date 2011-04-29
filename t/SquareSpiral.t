@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 91;
+use Test;
+BEGIN { plan tests => 91 }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,24 +33,28 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 22;
-  is ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
+  my $want_version = 23;
+  ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
+  ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
       'VERSION class method');
 
   ok (eval { Math::PlanePath::SquareSpiral->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::PlanePath::SquareSpiral->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = Math::PlanePath::SquareSpiral->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
@@ -58,9 +63,9 @@ require Math::PlanePath::SquareSpiral;
 
 {
   my $path = Math::PlanePath::SquareSpiral->new;
-  is ($path->n_start, 1, 'n_start()');
-  ok ($path->x_negative, 'x_negative() instance method');
-  ok ($path->y_negative, 'y_negative() instance method');
+  ok ($path->n_start, 1, 'n_start()');
+  ok (!!$path->x_negative, 1, 'x_negative() instance method');
+  ok (!!$path->y_negative, 1, 'y_negative() instance method');
 }
 
 #------------------------------------------------------------------------------
@@ -112,14 +117,14 @@ require Math::PlanePath::SquareSpiral;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
-    is ($got_x, $want_x, "x at n=$n");
-    is ($got_y, $want_y, "y at n=$n");
+    ok ($got_x, $want_x, "x at n=$n");
+    ok ($got_y, $want_y, "y at n=$n");
   }
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
     my $got_n = $path->xy_to_n ($x, $y);
-    is ($got_n, $want_n, "n at x=$x,y=$y");
+    ok ($got_n, $want_n, "n at x=$x,y=$y");
   }
 }
 

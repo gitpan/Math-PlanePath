@@ -22,18 +22,17 @@ use strict;
 use warnings;
 
 
-=head2 C<$n = $path-E<gt>n_start()>
+=over
 
-Return the first N in the path, meaning the first for which C<n_to_xy> will
-return a coordinate pair..  In the current classes this is either 0 or 1.
+=item C<($n, $x, $y) = $path-E<gt>next_nxy()>
 
-=head2 C<($n, $x, $y) = $path-E<gt>next_nxy()>
+=item C<$path-E<gt>rewind()>
 
-=head2 C<$path-E<gt>rewind()>
+=item C<$path-E<gt>seek_to_n($n)>
 
-=head2 C<$path-E<gt>seek_to_n($n)>
+=item C<$n = $path-E<gt>tell_n($n)>
 
-=head2 C<$n = $path-E<gt>tell_n($n)>
+=back
 
 =cut
 

@@ -48,6 +48,11 @@ use Smart::Comments;
 
 
 my_interpolate (
+                [ 1,  2,    3,       4, 5],
+                [ map {3*$_} 1,1+4,1+4+9,1+4+9+16,1+4+9+16+25 ],
+               );
+
+my_interpolate (
                 [ 1,2, 3],
                 [ 2,19,52, ],
                );

@@ -41,9 +41,6 @@ use strict;
 use POSIX ();
 use List::Util 'min', 'max';
 
-# uncomment this to run the ### lines
-use Smart::Comments;
-
 my $width = 79;
 my $height = 23;
 
@@ -151,7 +148,7 @@ sub print_class {
 
     # stretch these out for better resolution
     if ($class =~ /Sacks/) { $x *= 1.5; $y *= 2; }
-    if ($class =~ /Archimedean/) { $x *= 2.5; $y *= 2.5; }
+    if ($class =~ /Archimedean/) { $x *= 2; $y *= 3; }
     if ($class =~ /Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }
     if ($class =~ /Vogel/) { $x *= 2; $y *= 3.5; }
 

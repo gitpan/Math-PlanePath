@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 75;
+use Test;
+BEGIN { plan tests => 75 }
 
 use lib 't';
 use MyTestHelpers;
@@ -28,28 +29,44 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath::SacksSpiral;
 
 
+sub numeq_array {
+  my ($a1, $a2) = @_;
+  while (@$a1 && @$a2) {
+    if ($a1->[0] ne $a2->[0]) {
+      return 0;
+    }
+    shift @$a1;
+    shift @$a2;
+  }
+  return (@$a1 == @$a2);
+}
+
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 22;
-  is ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
+  my $want_version = 23;
+  ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
+  ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
       'VERSION class method');
 
   ok (eval { Math::PlanePath::SacksSpiral->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::PlanePath::SacksSpiral->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = Math::PlanePath::SacksSpiral->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
@@ -58,9 +75,9 @@ require Math::PlanePath::SacksSpiral;
 
 {
   my $path = Math::PlanePath::SacksSpiral->new;
-  is ($path->n_start, 0, 'n_start()');
-  ok ($path->x_negative, 'x_negative() instance method');
-  ok ($path->y_negative, 'y_negative() instance method');
+  ok ($path->n_start, 0, 'n_start()');
+  ok (!! $path->x_negative, 1, 'x_negative() instance method');
+  ok (!! $path->y_negative, 1, 'y_negative() instance method');
 }
 
 #------------------------------------------------------------------------------
@@ -77,7 +94,8 @@ require Math::PlanePath::SacksSpiral;
   foreach my $elem (@data) {
     my ($x, $y, $want_n_aref) = @$elem;
     my @got_n = $path->xy_to_n ($x,$y);
-    is_deeply (\@got_n, $want_n_aref, "xy_to_n x=$x y=$y");
+    ok (numeq_array (\@got_n, $want_n_aref),
+        1, "xy_to_n x=$x y=$y");
   }
 }
 
@@ -133,8 +151,8 @@ require Math::PlanePath::SacksSpiral;
       = Math::PlanePath::SacksSpiral::_rect_to_radius_range ($x1,$y1, $x2,$y2);
 
     my $name = "_rect_to_radius_range()  $x1,$y1, $x2,$y2";
-    is ($got_rlo, $want_rlo, "$name, r lo");
-    is ($got_rhi, $want_rhi, "$name, r hi");
+    ok ($got_rlo, $want_rlo, "$name, r lo");
+    ok ($got_rhi, $want_rhi, "$name, r hi");
   }
 }
 

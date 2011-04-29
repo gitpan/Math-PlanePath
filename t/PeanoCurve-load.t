@@ -24,6 +24,7 @@ $path->n_to_xy(123);
 $path->xy_to_n(0,0);
 $path->rect_to_n_range(0,0, 1,1);
 
-use Test::More tests => 1;
-ok (1, 'Math::PlanePath::PeanoCurve load as first thing');
+use Test;
+plan tests => 1;
+ok (1,1, 'Math::PlanePath::PeanoCurve load as first thing');
 exit 0;

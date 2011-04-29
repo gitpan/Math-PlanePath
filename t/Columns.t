@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 20;
+use Test;
+BEGIN { plan tests => 20; }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,24 +33,28 @@ require Math::PlanePath::Columns;
 # VERSION
 
 {
-  my $want_version = 22;
-  is ($Math::PlanePath::Columns::VERSION, $want_version,
+  my $want_version = 23;
+  ok ($Math::PlanePath::Columns::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::Columns->VERSION,  $want_version,
+  ok (Math::PlanePath::Columns->VERSION,  $want_version,
       'VERSION class method');
 
   ok (eval { Math::PlanePath::Columns->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::PlanePath::Columns->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = Math::PlanePath::Columns->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
@@ -58,9 +63,9 @@ require Math::PlanePath::Columns;
 
 {
   my $path = Math::PlanePath::Columns->new (height => 123);
-  is ($path->n_start, 1, 'n_start()');
-  ok (! $path->x_negative, 'x_negative()');
-  ok (! $path->y_negative, 'y_negative()');
+  ok ($path->n_start, 1, 'n_start()');
+  ok (! $path->x_negative, 1, 'x_negative()');
+  ok (! $path->y_negative, 1, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------
@@ -76,8 +81,8 @@ require Math::PlanePath::Columns;
     my ($height, $x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
     my $path = Math::PlanePath::Columns->new (height => $height);
     my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-    is ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2 height=$height");
-    is ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2 height=$height");
+    ok ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2 height=$height");
+    ok ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2 height=$height");
   }
 }
 

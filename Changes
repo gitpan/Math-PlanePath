@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+Version 23, April 2011
+    - new ArchimedeanChords
+    - TheodorusSpiral rect_to_n_range() tighter $n_lo
+
 Version 22, March 2011
     - new n_start() method
     - SacksSpiral rect_to_n_range() include N=0

@@ -20,12 +20,11 @@ package Math::PlanePath::SacksSpiral;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use Math::Libm 'hypot';
-use Math::Trig 'pi';
+use Math::Libm 'hypot', 'M_PI';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -42,7 +41,7 @@ sub n_to_xy {
     return ();
   }
   my $r = sqrt($n);
-  my $theta = 2 * pi() * ($r - int($r));  # radians 0 to 2*pi
+  my $theta = 2 * M_PI() * ($r - int($r));  # radians 0 to 2*pi
   return ($r * cos($theta),
           $r * sin($theta));
 
@@ -56,7 +55,7 @@ sub xy_to_n {
   if ($x == 0 && $y == 0) {
     return 0;
   }
-  my $theta = atan2($y,$x) * (1 / (2 * pi()));
+  my $theta = atan2($y,$x) * (1 / (2 * M_PI()));
   if ($theta < 0) { $theta++; }  # 0 <= $theta <= 1 angle around
 
   # the nearest arc
@@ -182,7 +181,7 @@ Create and return a new path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> on the path.
+Return the X,Y coordinates of point number C<$n> on the path.
 
 C<$n> can be any value C<$n E<gt>= 0> and fractions give positions on the
 spiral in between the integer points.
@@ -205,7 +204,9 @@ return is C<undef>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PyramidRows>
+L<Math::PlanePath::PyramidRows>,
+L<Math::PlanePath::ArchimedeanChords>,
+L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::VogelFloret>
 
 =head1 HOME PAGE

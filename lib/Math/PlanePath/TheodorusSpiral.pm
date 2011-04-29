@@ -19,12 +19,11 @@
 package Math::PlanePath::TheodorusSpiral;
 use 5.004;
 use strict;
-use List::Util 'max';
+use List::Util 'min', 'max';
 use Math::Libm 'hypot';
-use Math::Trig 'pi';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -49,6 +48,7 @@ use constant figure => 'circle';
 # zeta, or the generalized minus the plain.  Is there a good formula for
 # that which would converge quickly?
 
+use constant 1.02; # for leading underscore
 use constant _SAVE => 1000;
 
 my @save_n = (1);
@@ -127,8 +127,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### TheodorusSpiral xy_to_n(): "$x, $y"
   my $r = hypot ($x,$y);
-  my $n_lo = int (max (0, $r - .6) ** 2);
-  my $n_hi = int (($r + .6) ** 2);
+  my $n_lo = int (max (0, $r - .51) ** 2);
+  my $n_hi = int (($r + .51) ** 2);
   ### $n_lo
   ### $n_hi
 
@@ -153,10 +153,29 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  my $r = 2 + int (hypot (max(abs($x1),abs($x2)),
-                          max(abs($y1),abs($y2))));
-  return (0,
-          $r*$r);
+
+  my ($rlo, $rhi) = _rect_r_range ($x1,$y1, $x2,$y2);
+  $rlo = max (0, $rlo-.51);
+  $rhi += .51;
+  return (int($rlo*$rlo),       # round down
+          int($rhi*$rhi + 1));  # round up
+}
+
+# return ($rlo,$rhi) which is the radial distance range found in the rectangle
+sub _rect_r_range {
+  my ($x1,$y1, $x2,$y2) = @_;
+
+  # if opposite sign then origin x=0 covered, similarly y=0
+  my $x_origin_covered = ($x1<0) != ($x2<0);
+  my $y_origin_covered = ($y1<0) != ($y2<0);
+
+  foreach ($x1,$x2,$y1,$y2) {
+    $_ = abs($_);
+  }
+  return (hypot ($x_origin_covered ? 0 : min($x1,$x2),
+                 $y_origin_covered ? 0 : min($y1,$y2)),
+          hypot (max($x1,$x2),
+                 max($y1,$y2)));
 }
 
 1;
@@ -259,7 +278,7 @@ Create and return a new theodorus spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> on the path.
+Return the X,Y coordinates of point number C<$n> on the path.
 
 C<$n> can be any value C<$n E<gt>= 0> and fractions give positions on the
 spiral in between the integer points.
@@ -280,11 +299,58 @@ The unit steps of the spiral means those unit circles don't overlap, but the
 loops are 3.14 apart so there's gaps in between.  If C<$x,$y> is not within
 one of the unit circles then the return is C<undef>.
 
+=item C<$n = $path-E<gt>figure ()>
+
+Return "circle".
+
 =back
+
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+For a given x,y the radius r=hypot(x,y) determines the N position as N=r^2.
+An N point as much as 0.5 away radially might above cover x,y, so the range
+of N to consider is
+
+    Nlo = (r-.5)^2
+    Nhi = (r+.5)^2
+
+A simple search through those N's checking for which, if any, covers x,y is
+then done.  The number of N's there is Nhi-Nlo = 2*r+1 which is about 1/3 of
+a loop around the spiral (2*r/2*pi*r ~= 1/3).  Actually 0.51 is used to
+guard against floating point round-off, which is then about 4*.51 = 2.04*r.
+
+The angle of the x,y position determines which part of the spiral is
+intersected, but using that doesn't seem particularly easy.  The angle for a
+given N is an arctan sum and don't yet have a good closed-form for that to
+invert, or some Newton's method, or at least allow a binary search.
+
+=head2 N Range
+
+For C<rect_to_n_range> the corner furthest from the origin determines the
+high N, from it radial distance rhi=hypot(xhi,yhi),
+
+    Nhi = (rhi+.5)^2
+
+The extra .5 is since a unit circle figure centred as much as .5 further out
+might intersect the xhi,yhi.  The worst case for this estimate is when Nhi
+doesn't intersect the xhi,yhi corner but is just before it,
+counter-clockwise.  It's then a full revolution bigger than it need be
+(depending where the other corners fall).
+
+Similarly for the corner nearest the origin, rlo = hypot(xlo,ylo)
+
+    Nlo = (rlo-.5)^2, or 0 if origin covered by rectangle
+
+The worst case is when this Nlo doesn't intersect the xlo,ylo corner but is
+just after it counter-clockwise, so Nlo is a full revolution smaller than it
+need be (depending where the other corners fall).
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::ArchimedeanChords>,
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::MultipleRings>
 

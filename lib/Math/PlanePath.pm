@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 22;
+$VERSION = 23;
 
 # defaults
 use constant n_start => 1;
@@ -37,7 +37,7 @@ sub new {
 1;
 __END__
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords
 
 =head1 NAME
 
@@ -120,6 +120,7 @@ longer than the preceding.
       5       PentSpiral, PentSpiralSkewed
       5.65    PixelRings (average about 4*sqrt(2))
       6       HexSpiral, HexSpiralSkewed, MultipleRings default
+      6.28    ArchimedeanChords (approaches 2*pi)
       7       HeptSpiralSkewed
       8       SquareSpiral, PyramidSpiral
       9       TriangleSpiral, TriangleSpiralSkewed
@@ -266,13 +267,13 @@ L<Math::PlanePath::KnightSpiral>
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
-L<Math::PlanePath::MultipleRings>
+L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>
 
-L<Math::PlanePath::PeanoCurve>
-L<Math::PlanePath::HilbertCurve>
+L<Math::PlanePath::PeanoCurve>,
+L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
 L<Math::PlanePath::Rows>,

@@ -24,7 +24,7 @@ use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -316,7 +316,7 @@ pass in a desired count.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> on the path.
+Return the X,Y coordinates of point number C<$n> on the path.
 
 C<$n> can be any value C<$n E<gt>= 0> and fractions give positions on the
 rings in between the integer points.  For C<$n < 1> the return is an empty

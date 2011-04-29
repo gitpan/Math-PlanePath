@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -416,7 +416,7 @@ Create and return a new path object.  The default step is 2.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> on the path.
+Return the X,Y coordinates of point number C<$n> on the path.
 
 For C<$n < 0> the return is an empty list, it being considered there are no
 negative points in the pyramid.
@@ -435,7 +435,7 @@ pyramid the return is C<undef>.
 L<Math::PlanePath>,
 L<Math::PlanePath::PyramidSides>,
 L<Math::PlanePath::Corner>,
-L<Math::PlanePath::SacksSpiral>
+L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::MultipleRings>
 
 L<Math::PlanePath::Diagonals>,

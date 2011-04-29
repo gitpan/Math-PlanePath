@@ -19,7 +19,8 @@
 
 use 5.004;
 use strict;
-use Test::More tests => 22;
+use Test;
+BEGIN { plan tests => 22 }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,24 +33,28 @@ require Math::PlanePath::VogelFloret;
 # VERSION
 
 {
-  my $want_version = 22;
-  is ($Math::PlanePath::VogelFloret::VERSION, $want_version,
+  my $want_version = 23;
+  ok ($Math::PlanePath::VogelFloret::VERSION, $want_version,
       'VERSION variable');
-  is (Math::PlanePath::VogelFloret->VERSION,  $want_version,
+  ok (Math::PlanePath::VogelFloret->VERSION,  $want_version,
       'VERSION class method');
 
   ok (eval { Math::PlanePath::VogelFloret->VERSION($want_version); 1 },
+      1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
   ok (! eval { Math::PlanePath::VogelFloret->VERSION($check_version); 1 },
+      1,
       "VERSION class check $check_version");
 
   my $path = Math::PlanePath::VogelFloret->new;
-  is ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
+      1,
       "VERSION object check $want_version");
   ok (! eval { $path->VERSION($check_version); 1 },
+      1,
       "VERSION object check $check_version");
 }
 
@@ -58,9 +63,9 @@ require Math::PlanePath::VogelFloret;
 
 {
   my $path = Math::PlanePath::VogelFloret->new;
-  is ($path->n_start, 1, 'n_start()');
-  ok ($path->x_negative, 'x_negative() instance method');
-  ok ($path->y_negative, 'y_negative() instance method');
+  ok ($path->n_start, 1, 'n_start()');
+  ok (!! $path->x_negative, 1, 'x_negative() instance method');
+  ok (!! $path->y_negative, 1, 'y_negative() instance method');
 }
 
 #------------------------------------------------------------------------------
@@ -68,25 +73,33 @@ require Math::PlanePath::VogelFloret;
 
 {
   my $pp = Math::PlanePath::VogelFloret->new;
-  cmp_ok ($pp->{'rotation_factor'}, '>=', 0);
-  cmp_ok ($pp->{'radius_factor'}, '>=', 0);
+  ok ($pp->{'rotation_factor'} >= 0,
+      1);
+  ok ($pp->{'radius_factor'} >= 0,
+      1);
 
   my $ps2 = Math::PlanePath::VogelFloret->new (rotation_type => 'sqrt2');
-  cmp_ok ($ps2->{'rotation_factor'}, '>=', 0);
-  cmp_ok ($ps2->{'radius_factor'}, '>=', 0);
+  ok ($ps2->{'rotation_factor'} >= 0,
+      1,);
+  ok ($ps2->{'radius_factor'} >= 0,
+      1);
 
-  isnt ($pp->{'rotation_factor'}, $ps2->{'rotation_factor'});
+  ok ($pp->{'rotation_factor'} != $ps2->{'rotation_factor'},
+     1);
 
   {
     my $path = Math::PlanePath::VogelFloret->new (rotation_factor => 0.5);
-    cmp_ok ($path->{'rotation_factor'}, '=', 0.5);
-    cmp_ok ($path->{'radius_factor'}, '>=', 1.0);
+    ok ($path->{'rotation_factor'} == 0.5,
+        1);
+    ok ($path->{'radius_factor'} >= 1.0,
+        1);
   }
   {
     my $path = Math::PlanePath::VogelFloret->new (rotation_type => 'sqrt2',
                                                   radius_factor => 2.0);
-    is ($path->{'rotation_factor'}, $ps2->{'rotation_factor'});
-    cmp_ok ($path->{'radius_factor'}, '>=', 2.0);
+    ok ($path->{'rotation_factor'}, $ps2->{'rotation_factor'});
+    ok ($path->{'radius_factor'} >= 2.0,
+        1);
   }
 }
 
@@ -96,9 +109,11 @@ require Math::PlanePath::VogelFloret;
 {
   my $path = Math::PlanePath::VogelFloret->new;
   my ($n_lo, $n_hi) = $path->rect_to_n_range (-100,-100, 100,100);
-  is ($n_lo, 1);
-  cmp_ok ($n_hi, '>', 1);
-  cmp_ok ($n_hi, '<', 10*100*100);
+  ok ($n_lo, 1);
+  ok ($n_hi > 1,
+      1);
+  ok ($n_hi < 10*100*100,
+      1);
 }
 
 exit 0;

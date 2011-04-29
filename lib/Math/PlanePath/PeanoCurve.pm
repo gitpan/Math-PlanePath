@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -548,7 +548,7 @@ then asking what N the Diagonals would put there.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HilbertCurve>
+L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
 Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",

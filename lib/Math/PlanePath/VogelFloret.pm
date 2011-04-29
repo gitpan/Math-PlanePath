@@ -24,7 +24,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 22;
+$VERSION = 23;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -85,6 +85,7 @@ use Math::PlanePath::SacksSpiral;
 # use constant n_start => 0;
 
 use constant figure => 'circle';
+use constant 1.02; # for leading underscore
 use constant _PHI => (1 + sqrt(5)) / 2;
 
 # not documented yet ...
@@ -500,7 +501,7 @@ least the first few N positions would be better.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return the x,y coordinates of point number C<$n> on the path.
+Return the X,Y coordinates of point number C<$n> on the path.
 
 C<$n> can be any value C<$n E<gt>= 0> and fractions give positions on the
 spiral in between the integer points, though the principle interest for the
@@ -529,7 +530,7 @@ covering C<$x,$y>, but perhaps that will change.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::SacksSpiral>
+L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::TheodorusSpiral>
 
 =head1 HOME PAGE

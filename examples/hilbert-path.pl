@@ -42,9 +42,6 @@ use 5.004;
 use strict;
 use Math::PlanePath::HilbertCurve;
 
-# uncomment this to run the ### lines
-use Smart::Comments;
-
 my $width = 79;
 my $height = 23;
 my $scale = 3;
