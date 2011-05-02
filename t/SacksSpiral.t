@@ -31,6 +31,9 @@ require Math::PlanePath::SacksSpiral;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
+  if (! ref $a1 || ! ref $a2) {
+    return 0;
+  }
   while (@$a1 && @$a2) {
     if ($a1->[0] ne $a2->[0]) {
       return 0;
@@ -45,7 +48,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 23;
+  my $want_version = 24;
   ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,

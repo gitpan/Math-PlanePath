@@ -33,7 +33,7 @@ require Math::PlanePath::TheodorusSpiral;
 # VERSION
 
 {
-  my $want_version = 23;
+  my $want_version = 24;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,

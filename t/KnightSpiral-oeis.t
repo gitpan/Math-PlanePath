@@ -41,6 +41,9 @@ my $square = Math::PlanePath::SquareSpiral->new;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
+  if (! ref $a1 || ! ref $a2) {
+    return 0;
+  }
   while (@$a1 && @$a2) {
     if ($a1->[0] ne $a2->[0]) {
       return 0;
@@ -54,141 +57,167 @@ sub numeq_array {
 #------------------------------------------------------------------------------
 
 # A068608 - same first step
-SKIP: {
+{
   my $anum = 'A068608';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    push @got, $square->xy_to_n ($x, $y);
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      push @got, $square->xy_to_n ($x, $y);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
-  ok (numeq_array(\@got, $bvalues),
-      1, "$anum");
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 # A068609 - rotate 90 degrees
-SKIP: {
+{
   my $anum = 'A068609';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    ### knight: "$n  $x,$y"
-    ($x, $y) = (-$y, $x);
-    push @got, $square->xy_to_n ($x, $y);
-    ### rotated: "$x,$y"
-    ### is: "got[$#got] = $got[-1]"
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      ### knight: "$n  $x,$y"
+      ($x, $y) = (-$y, $x);
+      push @got, $square->xy_to_n ($x, $y);
+      ### rotated: "$x,$y"
+      ### is: "got[$#got] = $got[-1]"
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
 
-  # typo duplicated 37 in A068609.html as of March 2011
-  my $duplicate_37_typo = (scalar(grep {$_==37} @$bvalues) > 1);
-  if ($duplicate_37_typo) {
-    MyTestHelpers::diag ("$anum has duplicate 37");
+  my $duplicate_37_typo;
+  if ($bvalues) {
+    # typo duplicated 37 in A068609.html as of March 2011
+    $duplicate_37_typo = (scalar(grep {$_==37} @$bvalues) > 1);
+    if ($duplicate_37_typo) {
+      MyTestHelpers::diag ("$anum has duplicate 37");
+    }
   }
 
-  skip ($duplicate_37_typo,
+  skip (! $bvalues || $duplicate_37_typo,
         numeq_array(\@got, $bvalues),
         1, "$anum");
 }
 
 # A068610 - rotate 180 degrees
-SKIP: {
+{
   my $anum = 'A068610';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    ($x, $y) = (-$x, -$y);
-    push @got, $square->xy_to_n ($x, $y);
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      ($x, $y) = (-$x, -$y);
+      push @got, $square->xy_to_n ($x, $y);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
-  ok (numeq_array(\@got, $bvalues),
-      1, "$anum");
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 # A068611 - rotate 270 degrees
-SKIP: {
+{
   my $anum = 'A068611';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    ($x, $y) = ($y, -$x);
-    push @got, $square->xy_to_n ($x, $y);
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      ($x, $y) = ($y, -$x);
+      push @got, $square->xy_to_n ($x, $y);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
-  ok (numeq_array(\@got, $bvalues),
-      1, "$anum");
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 # A068612 - rotate 180 degrees, opp direction, being X negated
-SKIP: {
+{
   my $anum = 'A068612';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    $x = -$x;
-    push @got, $square->xy_to_n ($x, $y);
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      $x = -$x;
+      push @got, $square->xy_to_n ($x, $y);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
-  ok (numeq_array(\@got, $bvalues),
-      1, "$anum");
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 # A068613 -
-SKIP: {
+{
   my $anum = 'A068613';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    ($x, $y) = (-$y, -$x);
-    push @got, $square->xy_to_n ($x, $y);
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      ($x, $y) = (-$y, -$x);
+      push @got, $square->xy_to_n ($x, $y);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
-  ok (numeq_array(\@got, $bvalues),
-      1, "$anum");
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 # A068614 - clockwise, Y negated
-SKIP: {
+{
   my $anum = 'A068614';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    $y = -$y;
-    push @got, $square->xy_to_n ($x, $y);
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      $y = -$y;
+      push @got, $square->xy_to_n ($x, $y);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
-  ok (numeq_array(\@got, $bvalues),
-      1, "$anum");
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 # A068615 - transpose
-SKIP: {
+{
   my $anum = 'A068615';
-  my $bvalues = MyOEIS::read_values($anum)
-    || skip "$anum not available", 1;
-
+  my $bvalues = MyOEIS::read_values($anum);
   my @got;
-  foreach my $n (1 .. @$bvalues) {
-    my ($x, $y) = $knight->n_to_xy ($n);
-    ($y, $x) = ($x, $y);
-    push @got, $square->xy_to_n ($x, $y);
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $knight->n_to_xy ($n);
+      ($y, $x) = ($x, $y);
+      push @got, $square->xy_to_n ($x, $y);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
   }
-  ok (numeq_array(\@got, $bvalues),
-      1, "$anum");
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 exit 0;

@@ -28,6 +28,82 @@ use Math::Libm 'hypot';
 use Smart::Comments;
 
 
+{
+  {
+    package Math::Symbolic::Custom::MySimplification;
+    use base 'Math::Symbolic::Custom::Simplification';
+
+    # use Math::Symbolic::Custom::Pattern;
+    # my $formula = Math::Symbolic->parse_from_string("TREE_a * (TREE_b / TREE_c)");
+    # my $pattern = Math::Symbolic::Custom::Pattern->new($formula);
+
+    use Math::Symbolic::Custom::Transformation;
+    my $trafo = Math::Symbolic::Custom::Transformation::Group->new
+      (',',
+       'TREE_a * (TREE_b / TREE_c)' => '(TREE_a * TREE_b) / TREE_c',
+       'TREE_a * (TREE_b + TREE_c)' => 'TREE_a * TREE_b + TREE_a * TREE_c',
+       '(TREE_b + TREE_c) * TREE_a' => 'TREE_b * TREE_a + TREE_c * TREE_a',
+
+       # '(TREE_a / TREE_b) / TREE_c' => 'TREE_a / (TREE_b * TREE_c)',
+
+       '(TREE_a / TREE_b) / (TREE_c / TREE_d)'
+       => '(TREE_a * TREE_d) / (TREE_b * TREE_c)',
+
+       '1 - TREE_a / TREE_b' => '(TREE_b - TREE_a) / TREE_b',
+
+       'TREE_a / TREE_b + TREE_c' => '(TREE_a + TREE_b * TREE_c) / TREE_b',
+
+       '(TREE_a / TREE_b) * TREE_c' => '(TREE_a * TREE_c) / TREE_b',
+
+       'TREE_a - (TREE_b + TREE_c)' => 'TREE_a - TREE_b - TREE_c',
+       '(TREE_a - TREE_b) - TREE_c' => 'TREE_a - TREE_b - TREE_c',
+
+      );
+
+    sub simplify {
+      my $tree = shift;
+      ### simplify(): "$tree"
+      ### traf: $trafo->apply_recursive($tree).''
+      return $trafo->apply_recursive($tree) || $tree;
+
+
+      # if (my $m = $pattern->match($tree)) {
+      #   $m = $m->{'trees'};
+      #   ### trees: $m
+      #   ### return: ($m->{'a'} * $m->{'b'}) / $m->{'c'}
+      #   return ($m->{'a'} * $m->{'b'}) / $m->{'c'};
+      # } else {
+      #   ### no match
+      #   return $tree;
+      # }
+    }
+    __PACKAGE__->register();
+  }
+
+  require Math::Symbolic;
+  use Math::Symbolic::Derivative;
+  # {
+  #   my $t = Math::Symbolic->parse_from_string('a * (b/c)');
+  #   $t = $t->simplify;
+  #   print "$t\n";
+  #   exit 0;
+  # }
+
+  my $a = Math::Symbolic->parse_from_string(
+                                            '(x+y)/(1-x*y)'
+                                           );
+  my $z = Math::Symbolic->parse_from_string(
+                                            'z'
+                                           );
+
+  my $t = ($a + $z) / (1 - $a*$z);
+  $t = $t->simplify;
+
+  print $t;
+
+  exit 0;
+}
+
 
 sub integral {
   my ($x) = @_;

@@ -75,7 +75,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 23;
+my $want_version = 24;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -259,8 +259,8 @@ sub dbl_max_neg {
 }
 
 {
-  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 500;
-  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 12;
+  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 300;
+  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 11;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
 
   foreach my $module (@modules) {

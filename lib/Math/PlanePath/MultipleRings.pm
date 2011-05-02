@@ -24,7 +24,7 @@ use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 23;
+$VERSION = 24;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -33,6 +33,15 @@ use Math::PlanePath;
 #use Smart::Comments;
 
 use constant figure => 'circle';
+
+
+# Electricity transmission cable in sixes, with one at centre ?
+#    7 poppy
+#    19 hyacinth
+#    37 marigold
+#    61 cowslip
+#    127 bluebonnet
+
 
 # An n-gon of points many vertices has each angle
 #     alpha = 2*pi/points
@@ -167,19 +176,20 @@ sub xy_to_n {
     # formula above with r=hypot(x,y)
     my $d = floor (0.5 + _xy_to_d ($self, $x, $y));
 
-    my $theta = atan2($y,$x) / (2*M_PI());
-    if ($theta < 0) { $theta++; }  # frac 0 <= $theta < 1
-    my $theta_n = floor (0.5 + $theta * $d*$step);
+    my $theta_frac = _xy_to_angle_frac($x,$y);
+    ### assert: 0 <= $theta_frac && $theta_frac < 1
+
+    my $theta_n = floor (0.5 + $theta_frac * $d*$step);
     if ($theta_n >= $d*$step) { $theta_n = 0; }
 
     $n = 1 + $theta_n + $step * 0.5*$d*($d-1);
     ### $d
     ### d base: 0.5*$d*($d-1)
     ### d base M: $step * 0.5*$d*($d-1)
-    ### theta frac: $theta
-    ### theta offset: $theta*$d
+    ### $theta_frac
+    ### theta offset: $theta_frac*$d
     ### $theta_n
-    ### theta_n frac: $theta * $d*$step
+    ### theta_n frac: $theta_frac * $d*$step
     ### $n
   } else {
     # step==0
@@ -229,6 +239,22 @@ sub rect_to_n_range {
     return ($d_lo, $d_hi);
   }
 }
+
+#------------------------------------------------------------------------------
+# generic
+
+# perlfunc.pod warns atan2(0,0) is implementation dependent.
+# The c99 spec is atan2(+/-0, -0) returns +/-pi, which would come out 0.5 here
+# Prefer 0 for any +/-0,+/-0.
+sub _xy_to_angle_frac {
+  my ($x, $y) = @_;
+  if ($x == 0 && $y == 0) {
+    return 0;
+  }
+  my $frac = atan2($y,$x) * (1 / (2 * M_PI()));
+  return ($frac + ($frac < 0));
+}
+
 
 1;
 __END__

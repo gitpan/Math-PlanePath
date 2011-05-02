@@ -24,7 +24,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 23;
+$VERSION = 24;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -181,8 +181,8 @@ sub xy_to_n {
   }
   return undef;
 
-  #   my $theta = atan2 ($y, $x) * (1 / (2*M_PI()));  # -0.5 to +0.5
-  #   if ($theta < 0) { $theta++; }   # 0 to 1
+  # my $theta_frac = Math::PlanePath::MultipleRings::_xy_to_angle_frac($x,$y);
+  # ### assert: 0 <= $frac && $frac < 1
   #
   #   # seeking integer k where (k+theta)*PHIPHI == $r*$r == $n or nearby
   #   my $k = $r*$r / (PHI*PHI) - $theta;

@@ -20,17 +20,23 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 20 }
+BEGIN { plan tests => 64 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require Math::PlanePath::ArchimedeanChords;
 
 
 sub numeq_array {
   my ($a1, $a2) = @_;
+  if (! ref $a1 || ! ref $a2) {
+    return 0;
+  }
   while (@$a1 && @$a2) {
     if ($a1->[0] ne $a2->[0]) {
       return 0;
@@ -45,7 +51,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 23;
+  my $want_version = 24;
   ok ($Math::PlanePath::ArchimedeanChords::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ArchimedeanChords->VERSION,  $want_version,
@@ -70,6 +76,8 @@ sub numeq_array {
       "VERSION object check $check_version");
 }
 
+
+
 #------------------------------------------------------------------------------
 # n_start, x_negative, y_negative
 
@@ -79,6 +87,90 @@ sub numeq_array {
   ok (!! $path->x_negative, 1, 'x_negative() instance method');
   ok (!! $path->y_negative, 1, 'y_negative() instance method');
 }
+
+#------------------------------------------------------------------------------
+# _xy_to_nearest_r()
+
+{
+  require POSIX;
+  my $negone = -1;
+  my $zero = 0;
+  my $dbl_max = POSIX::DBL_MAX();
+  my $negzero = $negone / $dbl_max / $dbl_max;
+
+  my @data = (
+              [ 0,0,  0 ],
+              [ $negzero,$negzero,  0 ],
+              [ $negzero,0,  0 ],
+              [ 0,$negzero,  0 ],
+
+              # positive X axis
+              [ .1,0,  0 ],
+              [ .4,0,  0 ],
+
+              [ .6,0,  1 ],
+              [ .9,0,  1 ],
+              [ 1,0,   1 ],
+              [ 1.1,0, 1 ],
+              [ 1.4,0, 1 ],
+
+              [ 1.6,0,  2 ],
+              [ 1.9,0,  2 ],
+              [ 2,0,    2 ],
+              [ 2.1,0,  2 ],
+              [ 2.4,0,  2 ],
+
+              # positive Y axis
+              [ 0,.1,  .25 ],
+              [ 0,.2,  .25 ],
+              [ 0,.25, .25 ],
+              [ 0,.7,  .25 ],
+
+              [ 0,.8,   1.25 ],
+              [ 0,1.25, 1.25 ],
+              [ 0,1.7,  1.25 ],
+
+              [ 0,1.8,  2.25 ],
+              [ 0,2.25, 2.25 ],
+              [ 0,2.7,  2.25 ],
+
+              # negative X axis
+              [ -.1,0, .5 ],
+              [ -.5,0, .5 ],
+              [ -.9,0, .5 ],
+
+              [ -1.1,0, 1.5 ],
+              [ -1.5,0, 1.5 ],
+              [ -1.9,0, 1.5 ],
+
+              [ -2.1,0, 2.5 ],
+              [ -2.5,0, 2.5 ],
+              [ -2.9,0, 2.5 ],
+
+              # negative Y axis
+              [ 0,-.1, .75 ],
+              [ 0,-.75, .75 ],
+              [ 0,-1.2, .75 ],
+
+              [ 0,-1.3,  1.75 ],
+              [ 0,-1.75, 1.75 ],
+              [ 0,-2.2,  1.75 ],
+
+              [ 0,-2.3,  2.75 ],
+              [ 0,-2.75, 2.75 ],
+              [ 0,-3.2,  2.75 ],
+
+             );
+  foreach my $elem (@data) {
+    my ($x, $y, $want) = @$elem;
+
+    my $got = Math::PlanePath::ArchimedeanChords::_xy_to_nearest_r($x,$y);
+    ok (abs ($got - $want) < 0.001,
+        1,
+        "_xy_to_nearest_r() on x=$x,y=$y got $got want $want");
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # xy_to_n
@@ -99,5 +191,6 @@ sub numeq_array {
     ok ($got_n, $want_n, "xy_to_n x=$x y=$y -- n value");
   }
 }
+
 
 exit 0;

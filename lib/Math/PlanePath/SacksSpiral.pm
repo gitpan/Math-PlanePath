@@ -22,9 +22,10 @@ use strict;
 use List::Util qw(min max);
 use Math::Libm 'hypot', 'M_PI';
 use POSIX 'floor';
+use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 23;
+$VERSION = 24;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -51,23 +52,19 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### SacksSpiral xy_to_n(): "$x, $y"
 
-  # avoid atan2(0,0)
-  if ($x == 0 && $y == 0) {
-    return 0;
-  }
-  my $theta = atan2($y,$x) * (1 / (2 * M_PI()));
-  if ($theta < 0) { $theta++; }  # 0 <= $theta <= 1 angle around
+  my $theta_frac = Math::PlanePath::MultipleRings::_xy_to_angle_frac($x,$y);
+  ### assert: 0 <= $theta_frac && $theta_frac < 1
 
-  # the nearest arc
-  my $s = floor (hypot($x,$y) - $theta + 0.5);
+  # the nearest arc, integer
+  my $s = floor (hypot($x,$y) - $theta_frac + 0.5);
 
-  # the nearest point on the arc
-  my $n = floor ($s*$s + $theta * (2*$s + 1) + 0.5);
+  # the nearest N on the arc
+  my $n = floor ($s*$s + $theta_frac * (2*$s + 1) + 0.5);
 
   # check within 0.5 radius
   my ($nx, $ny) = $self->n_to_xy($n);
 
-  ### $theta
+  ### $theta_frac
   ### raw hypot: hypot($x,$y)
   ### $s
   ### $n

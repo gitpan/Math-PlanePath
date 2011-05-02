@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 77 }
+BEGIN { plan tests => 118 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 23;
+  my $want_version = 24;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -62,6 +62,35 @@ require Math::PlanePath::MultipleRings;
 }
 
 #------------------------------------------------------------------------------
+# _xy_to_angle_frac()
+
+{
+  require POSIX;
+  my $negone = -1;
+  my $zero = 0;
+  my $dbl_max = POSIX::DBL_MAX();
+  my $negzero = $negone / $dbl_max / $dbl_max;
+
+  my @data = ([ 1,0,  0 ],
+              [ 0,1,  .25 ],
+              [ -1,0, .5 ],
+              [ 0,-1, .75 ],
+              [ 0,0,  0 ],
+              [ $negzero,$negzero,  0 ],
+              [ $negzero,0,  0 ],
+              [ 0,$negzero,  0 ],
+             );
+  foreach my $elem (@data) {
+    my ($x, $y, $want) = @$elem;
+
+    my $got = Math::PlanePath::MultipleRings::_xy_to_angle_frac($x,$y);
+    ok (abs ($got - $want) < 0.001,
+        1,
+        "_xy_to_angle_frac() on x=$x,y=$y got $got want $want");
+  }
+}
+
+#------------------------------------------------------------------------------
 # n_start, x_negative(), y_negative()
 
 {
@@ -73,6 +102,12 @@ require Math::PlanePath::MultipleRings;
 
 #------------------------------------------------------------------------------
 # xy_to_n()
+
+require POSIX;
+my $negone = -1;
+my $zero = 0;
+my $dbl_max = POSIX::DBL_MAX();
+my $negzero = $negone / $dbl_max / $dbl_max;
 
 {
   my $step = 3;
@@ -91,11 +126,20 @@ require Math::PlanePath::MultipleRings;
 foreach my $step (0 .. 2) {
   my $path = Math::PlanePath::MultipleRings->new (step => $step);
   ok ($path->xy_to_n(0,0), 1, "xy_to_n(0,0) step=$step is 1");
+  ok ($path->xy_to_n($negzero,0), 1, "xy_to_n(-0,0) step=$step is 1");
+  ok ($path->xy_to_n(0,$negzero), 1, "xy_to_n(0,-0) step=$step is 1");
+  ok ($path->xy_to_n($negzero,$negzero), 1, "xy_to_n(-0,-0) step=$step is 1");
 }
 foreach my $step (3 .. 10) {
   my $path = Math::PlanePath::MultipleRings->new (step => $step);
   ok ($path->xy_to_n(0,0), undef,
       "xy_to_n(0,0) step=$step is undef (nothing in centre)");
+  ok ($path->xy_to_n($negzero,0), undef,
+      "xy_to_n(-0,0) step=$step is undef (nothing in centre)");
+  ok ($path->xy_to_n(0,$negzero), undef,
+      "xy_to_n(0,-0) step=$step is undef (nothing in centre)");
+  ok ($path->xy_to_n($negzero,$negzero), undef,
+      "xy_to_n(-0,-0) step=$step is undef (nothing in centre)");
 }
 
 foreach my $step (0 .. 3) {

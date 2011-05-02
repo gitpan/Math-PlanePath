@@ -10,6 +10,7 @@ debian/source/format
 debian/watch
 devel/archimedean.pl
 devel/cont-frac.pl
+devel/exe-atan2.c
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
 devel/grid.pl
@@ -18,6 +19,7 @@ devel/hilbert-diamond.pl
 devel/hilbert.pl
 devel/hypot.pl
 devel/interpolate.pl
+devel/Makefile
 devel/next.pl
 devel/pixel-rings.pl
 devel/r5.pl

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 23;
+$VERSION = 24;
 
 # defaults
 use constant n_start => 1;

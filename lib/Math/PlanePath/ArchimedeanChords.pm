@@ -19,11 +19,12 @@ use strict;
 use List::Util 'min', 'max';
 use Math::Libm 'hypot', 'asinh', 'M_PI';
 use POSIX 'floor', 'ceil';
+use Math::PlanePath::MultipleRings;
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 23;
+$VERSION = 24;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -173,19 +174,25 @@ sub n_to_xy {
           $r*sin($t));
 }
 
+sub _xy_to_nearest_r {
+  my ($x, $y) = @_;
+  my $frac = Math::PlanePath::MultipleRings::_xy_to_angle_frac($x,$y);
+  ### assert: 0 <= $frac && $frac < 1
+
+  # if $frac > 0.5 then 0.5-$frac is negative and int() rounds towards zero
+  # giving $r==$frac
+  return int(hypot($x,$y) + 0.5 - $frac) + $frac;
+}
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ArchimedeanChords xy_to_n(): "$x, $y"
 
-  my $r = hypot ($x,$y);
-  my $t = atan2($y,$x) / (2*M_PI) + 1;       # .5 <= $t <= 1.5
-  if ($t > 1) { $t -= 1; }  # 0 <= $t < 1
-  $r = int ($r + 0.5 - $t) + $t;
-
+  my $r = _xy_to_nearest_r($x,$y);
   my $r_limit = 1.001 * $r;
 
   ### hypot: hypot($x,$y)
-  ### $t
+  ### $frac
   ### $r
   ### $r_limit
 
@@ -194,10 +201,10 @@ sub xy_to_n {
     return undef;
   }
 
-  $t = 0.999 * 2*M_PI()*$r;
+  my $theta = 0.999 * 2*M_PI()*$r;
   my $n_lo = 0;
   foreach my $i (1 .. $#save_t) {
-    if ($save_t[$i] > $t) {
+    if ($save_t[$i] > $theta) {
       $n_lo = $save_n[$i-1];
       last;
     }
@@ -275,8 +282,8 @@ sub rect_to_n_range {
   my $rhi = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      my $frac = (atan2 ($y,$x) + M_PI()) / (2*M_PI);  # 0 <= $frac <= 1
-      if ($frac >= 1) { $frac -= 1; }                  # 0 <= $frac < 1
+      my $frac = atan2($y,$x) / (2*M_PI);  # -0.5 <= $frac <= 0.5
+      $frac += ($frac < 0);                #    0 <= $frac < 1
       $rhi = max ($rhi, ceil(hypot($x,$y)+0.5 - $frac) + $frac);
     }
   }
@@ -523,25 +530,39 @@ And again switching from cos to sin in case u is small,
 
 =head2 X,Y to N
 
-For a given x,y point the nearest spiral position (the nearest radially)
-which might have an N covering that x,y is easily calculated from hypot(x,y)
-and the angle atan2(y,x).  What's not so easily calculated is how many N
-chords it takes to get around to that point.
+A given x,y point is at a fraction of a revolution
+
+    frac = atan2(y,x) / 2pi     # -.5 <= frac <= .5
+    frac += (frac < 0)          # 0 <= frac < 1
+
+And the nearest spiral arm measured radially from x,y is then
+
+    r = int(hypot(x,y) + .5 - frac) + frac
+
+Perl's C<atan2> is the same as the C library and gives -pi E<lt>= angle
+E<lt>= pi, hence allowing for fracE<lt>0.  It may also be "unspecified" for
+x=0,y=0, and give +/-pi for x=negzero, which has to be a special case so 0,0
+gives r=0.  The C<int> rounds towards zero, so frac>.5 ends up as r=0.
+
+So the N point just before or after that spiral position may cover the x,y,
+but how many N chords it takes to get around to there is 's not so easily
+calculated.
 
 The current code looks in saved C<n_to_xy> positions for an N below the
-target, and searches up from there until past the point and thus not
-overlapping x,y.  With N saved 500 apart this means somewhere between 1 and
-500 points.
+target, and searches up from there until past the target and thus not
+covering x,y.  With C<n_to_xy> points saved 500 apart this means searching
+somewhere between 1 and 500 points.
 
-One possibility for calculating a lower bound for N both for C<xy_to_n> and
-C<rect_to_n_range> would be to add up the chords in circles.  A circle of
-radius k fits pi/arcsin(1/2k) many unit chords, so
+One possibility for calculating a lower bound for N, instead of the saved
+positions, and both for C<xy_to_n> and C<rect_to_n_range>, would be to add
+up chords in circles.  A circle of radius k fits pi/arcsin(1/2k) many unit
+chords, so
 
              k=floor(r)     pi
     total = sum         ------------
              k=0        arcsin(1/2k)
 
-would be less than the chords along the spiral its radius r.  What's a good
+and this is less than the chords along the spiral.  Is there a good
 polynomial over-estimate of arcsin, to become an under-estimate total,
 without giving away so much?
 

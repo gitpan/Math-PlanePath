@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondSpiral;
 # VERSION
 
 {
-  my $want_version = 23;
+  my $want_version = 24;
   ok ($Math::PlanePath::DiamondSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiamondSpiral->VERSION,  $want_version,
