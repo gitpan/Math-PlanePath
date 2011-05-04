@@ -51,7 +51,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 24;
+  my $want_version = 25;
   ok ($Math::PlanePath::ArchimedeanChords::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ArchimedeanChords->VERSION,  $want_version,
@@ -92,17 +92,11 @@ sub numeq_array {
 # _xy_to_nearest_r()
 
 {
-  require POSIX;
-  my $negone = -1;
-  my $zero = 0;
-  my $dbl_max = POSIX::DBL_MAX();
-  my $negzero = $negone / $dbl_max / $dbl_max;
-
   my @data = (
-              [ 0,0,  0 ],
-              [ $negzero,$negzero,  0 ],
-              [ $negzero,0,  0 ],
-              [ 0,$negzero,  0 ],
+              [    0,    0,  0 ],
+              [ -0.0, -0.0,  0 ],
+              [ -0.0,    0,  0 ],
+              [    0, -0.0,  0 ],
 
               # positive X axis
               [ .1,0,  0 ],

@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+Version 25, May 2011
+    - tests fix neg zero for long double NV
+
 Version 24, May 2011
     - tests fix OEIS file comparisons
     - MultipleRings xy_to_n() fix for x=-0,y=0
