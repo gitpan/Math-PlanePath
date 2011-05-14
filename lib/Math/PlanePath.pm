@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 25;
+$VERSION = 26;
 
 # defaults
 use constant n_start => 1;
@@ -73,6 +73,7 @@ include
     PixelRings             concentric circles by pixels
     Hypot                  points by distance
     HypotOctant            first octant points by distance
+    PythagoreanTree        primitive triples by tree
 
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
@@ -271,6 +272,7 @@ L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>
+L<Math::PlanePath::PythagoreanTree>
 
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,

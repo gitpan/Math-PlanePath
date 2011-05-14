@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 26, May 2011
+    - new PythagoreanTree
+    - Rows,Columns more care against width<=0 or height<=0
+
 Version 25, May 2011
     - tests fix neg zero for long double NV
 

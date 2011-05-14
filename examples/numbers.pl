@@ -83,6 +83,7 @@ my @all_classes = (qw(SquareSpiral
                       PixelRings
                       Hypot
                       HypotOctant
+                      PythagoreanTree
 
                       Rows
                       Columns

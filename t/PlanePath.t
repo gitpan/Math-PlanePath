@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 214 }
+BEGIN { plan tests => 221 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,6 +33,7 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  PythagoreanTree
                   ArchimedeanChords
 
                   OctagramSpiral
@@ -75,7 +76,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 25;
+my $want_version = 26;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

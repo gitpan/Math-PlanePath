@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 # Copyright 2010, 2011 Kevin Ryde
 
 # MyOEIS.pm is shared by several distributions.
@@ -77,7 +75,7 @@ sub read_values {
 
   my ($aref, $filename) = _read_values($anum);
   if (defined $aref) {
-    MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
+    # MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
   }
   return $aref;
 }

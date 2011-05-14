@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 25;
+$VERSION = 26;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -43,7 +43,11 @@ sub n_to_xy {
   my ($self, $n) = @_;
 
   # no division by zero, and negatives not meaningful for now
-  return if $self->{'height'} <= 0;
+  my $height;
+  if (($height = $self->{'height'}) <= 0) {
+    ### no points for height<=0
+    return;
+  };
 
   # column x=0 starts at n=0.5 with y=-0.5
   #
@@ -51,9 +55,9 @@ sub n_to_xy {
   # towards 0 instead of -infinity (in preparation for negative n one day
   # maybe, perhaps)
   #
-  my $x = floor (($n - 0.5) / $self->{'height'});
+  my $x = floor (($n - 0.5) / $height);
   return ($x,
-          $n-1 - $x * $self->{'height'});
+          $n-1 - $x * $height);
 }
 
 sub xy_to_n {
@@ -74,15 +78,17 @@ sub rect_to_n_range {
   $y1 = floor ($y1 + 0.5);
   $y2 = floor ($y2 + 0.5);
   if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
+  ### assert: $y1<=$y2
 
-  if ($y1 >= $height || $y2 < 0) {
-    ### completely outside 0 to height-1
+  if ($height<=0 || $y1 >= $height || $y2 < 0) {
+    ### completely outside 0 to height-1, or height<=0
     return (1,0);
   }
 
   $x1 = floor ($x1 + 0.5);
   $x2 = floor ($x2 + 0.5);
   if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
+  ### assert: $x1<=$x2
 
   $y1 = max($y1,0);
   $y2 = min($y2,$height-1);

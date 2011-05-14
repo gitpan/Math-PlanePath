@@ -46,16 +46,21 @@ use Smart::Comments;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::HypotOctant;
   require Math::PlanePath::MathImagePythagoreanUAD;
-  my $path = Math::PlanePath::ArchimedeanChords->new (wider => 0,
-                                                   # step => 0,
-                                                  );
+  require Math::PlanePath::MathImagePythagoreanTree;
+  my $path = Math::PlanePath::MathImagePythagoreanTree->new
+    (wider => 0,
+     # step => 0,
+     #tree_type => 'UAD',
+     #coordinates => 'PQ',
+    );
   my ($prev_x, $prev_y);
   my %seen;
   my $start = $path->n_start;
+  #for (my $i = 1; $i <= 20; $i++) {
   for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
-  # for (my $i = 9650; $i <= 9999; $i++) {
+    # for (my $i = 9650; $i <= 9999; $i++) {
     # $i -= 0.5;
-    my ($x, $y) = $path->n_to_xy ($i) or next;
+    my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
     my $dxdy = '';

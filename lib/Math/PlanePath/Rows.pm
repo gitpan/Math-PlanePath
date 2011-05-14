@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 25;
+$VERSION = 26;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,22 +40,30 @@ sub new {
   if (! exists $self->{'width'}) {
     $self->{'width'} = 1;
   }
+  ### width: $self->{'width'}
   return $self;
 }
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### x: $n % $self->{'width'}
-  ### y: int ($n / $self->{'width'})
+
+  # no division by zero, and negatives not meaningful for now
+  my $width;
+  if (($width = $self->{'width'}) <= 0) {
+    ### no points for width<=0
+    return;
+  };
+  ### x: $n % $width
+  ### y: int ($n / $width)
 
   # row y=0 starts at n=-0.5 with x=-0.5
   #
   # subtract back from $n instead of POSIX::fmod() because the latter rounds
-  # towards 0 instead of -infinity (with a view to allowing negatives maybe,
-  # perhaps)
+  # towards 0 instead of -infinity (and this with a view to allowing
+  # negatives maybe, perhaps)
   #
-  my $y = floor (($n - 0.5) / $self->{'width'});
-  return ($n-1 - $y * $self->{'width'},
+  my $y = floor (($n - 0.5) / $width);
+  return ($n-1 - $y * $width,
           $y);
 }
 
@@ -73,23 +81,28 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### rect_to_n_range: "$x1,$y1  $x2,$y2"
   my $width = $self->{'width'};
 
   $x1 = floor ($x1 + 0.5);
   $x2 = floor ($x2 + 0.5);
   if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
 
-  if ($x1 >= $width || $x2 < 0) {
-    ### completely outside 0 to width-1
+  ### x range: "$x1 to $x2"
+  ### assert: $x1<=$x2
+  if ($width <= 0 || $x1 >= $width || $x2 < 0) {
+    ### completely outside 0 to width, or width<=0
     return (1,0);
   }
 
   $y1 = floor ($y1 + 0.5);
   $y2 = floor ($y2 + 0.5);
   if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
+  ### assert: $y1<=$y2
 
   $x1 = max($x1,0);
   $x2 = min($x2,$width-1);
+  ### rect exact on: "$x1,$y1  $x2,$y2"
 
   # exact range bottom left to top right
   return ($self->xy_to_n ($x1,$y1),

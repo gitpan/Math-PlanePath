@@ -24,7 +24,7 @@ use Math::PlanePath::MultipleRings;
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 25;
+$VERSION = 26;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -49,11 +49,15 @@ use constant n_start => 0;
 #           = [  (t+u)^2*cos^2(t+u) - 2*(t+u)*t*cos(t+u)*cos(t) + t^2*cos^2(t)
 #              + (t+u)^2*sin^2(t+u) - 2*(t+u)*t*sin(t+u)*sin(t) + t^2*sin^2(t)
 #             ] / (4*pi^2)
+#
+# and from sin^2 + cos^2 = 1
+# and addition cosA*cosB + sinA*sinB = cos(A-B)
+#
 #           = [  (t+u)^2            - 2*(t+u)*t*cos((t+u)-t)    + t^2 ] /4pi^2
 #           = [ (t+u)^2 + t^2 - 2*t*(t+u)*cos(u) ] / (4*pi^2)
 #
-# and substitute cos(u) = 1 - 2*sin^2(u/2) to go to the sine since if u is
-# small then cos(u) near 1.0 might lose accuracy
+# then double angle cos(u) = 1 - 2*sin^2(u/2) to go to the sine since if u
+# is small then cos(u) near 1.0 might lose accuracy
 #
 #     dist(u) = [(t+u)^2 + t^2 - 2*t*(t+u)*(1 - 2*sin^2(u/2))] / (4*pi^2)
 #             = [(t+u)^2 + t^2 - 2*t*(t+u) + 2*t*(t+u)*2*sin^2(u/2)] / (4*pi^2)
@@ -73,6 +77,17 @@ use constant n_start => 0;
 #           = 2*t + 2*u - 2*t + 2*t*2*sin^2(u/2) + 2*t*(t+u)*sin(u)
 #           = 2*[ u + 2*t*sin^2(u/2) + t*(t+u)*sin(u) ]
 #           = 2*[ u + t * [2*sin^2(u/2) + (t+u)*sin(u) ] ]
+#
+# Newton's method
+#                           */    <- f(x) high
+#                          */|
+#                        * / | 
+#                      *  /  |
+#          ---------*------------------
+#                        +---+  <- subtract
+#
+#      f(x) / sub = f'(x)
+#      sub = f'(x) / f(x)
 #
 #
 # _chord_angle_inc() takes $t is a polar angle around the Archimedean spiral.
