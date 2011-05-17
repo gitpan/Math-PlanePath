@@ -13,6 +13,7 @@ devel/cont-frac.pl
 devel/exe-atan2.c
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
+devel/gallery.pl
 devel/grid.pl
 devel/heighway.pl
 devel/hilbert-diamond.pl
@@ -46,6 +47,7 @@ lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondSpiral.pm
+lib/Math/PlanePath/GreekKeySpiral.pm
 lib/Math/PlanePath/HeptSpiralSkewed.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm

@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -260,7 +260,8 @@ more than one X,Y of that hypot.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::Hypot>,
-L<Math::PlanePath::PixelRings>
+L<Math::PlanePath::PixelRings>,
+L<Math::PlanePath::PythagoreanTree>
 
 =head1 HOME PAGE
 

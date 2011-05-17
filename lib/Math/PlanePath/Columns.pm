@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -47,7 +47,7 @@ sub n_to_xy {
   if (($height = $self->{'height'}) <= 0) {
     ### no points for height<=0
     return;
-  };
+  }
 
   # column x=0 starts at n=0.5 with y=-0.5
   #

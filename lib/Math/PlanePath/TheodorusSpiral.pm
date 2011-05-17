@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -181,7 +181,7 @@ sub _rect_r_range {
 1;
 __END__
 
-=for stopwords Theodorus theodorus Ryde Math-PlanePath Archimedean
+=for stopwords Theodorus theodorus Ryde Math-PlanePath Archimedean Nhi Nlo arctan xhi yhi rlo xlo ylo
 
 =head1 NAME
 

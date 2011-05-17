@@ -62,7 +62,7 @@ use POSIX qw(floor ceil);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -431,11 +431,11 @@ __END__
 
 
 
-=for stopwords eg Ryde OEIS
+=for stopwords eg Ryde OEIS UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath
 
 =head1 NAME
 
-Math::PlanePath::PythagoreanTree -- primitive pythagorean triples by tree
+Math::PlanePath::PythagoreanTree -- primitive Pythagorean triples by tree
 
 =head1 SYNOPSIS
 
@@ -590,7 +590,7 @@ And conversely,
 The first P=2,Q=1 is the triple A=3,B=4,C=5.  The C<coordinates> option on
 the path gives these P,Q values as the returned X,Y coordinates,
 
-    my $path = Math::PlanePath::PythagoreanTree-E<gt>new
+    my $path = Math::PlanePath::PythagoreanTree->new
                   (tree_type   => 'UAD',    # or 'FB'
                    coordinates => 'PQ');
     my ($p,$q) = $path->n_to_xy(1);  # P=2,Q=1
@@ -648,6 +648,144 @@ with the PQ option if if C<$x,$y> doesn't satisfy the PQ constraints
 described above (L</PQ Coordinates>).
 
 =back
+
+=head1 FORMULAS
+
+=head2 UAD Matrices
+
+The three UAD matrices are as follows
+
+        /  1   2   2  \
+    U = | -2  -1  -2  |
+        \  2   2   3  /
+
+        /  1   2   2  \
+    A = |  2   1   2  |
+        \  2   3   3  /
+
+        / -1  -2  -2  \
+    D = |  2   1   2  |
+        \  2   2   3  /
+
+They're multiplied on the right of an (A,B,C) vector, for example
+
+    (3, 4, 5) * U = (5, 12, 13)
+
+But internally the code uses P,Q and calculates an A,B at the end as
+necessary.  The transformations in P,Q coordinates are
+
+    U     P -> 2P-Q
+          Q -> P
+
+    A     P -> 2P+Q
+          Q -> P
+
+    D     P -> P+2Q
+          Q -> unchanged
+
+The advantage of P,Q for the calculation is that it's 2 values instead of 3.
+The transformations could be written as 2x2 matrix multiplications if
+desired, but explicit steps are enough for the code.
+
+=head2 FB Transformations
+
+The FB tree is calculated in P,Q and an A,B calculated at the end.  The
+three transformation are
+
+    K1     P -> P+Q
+           Q -> 2Q
+
+    K2     P -> 2P
+           Q -> P-Q
+
+    K3     P -> 2P
+           Q -> P+Q
+
+Price's paper shows rearrangements of four values q',q,p,p', but just the p
+and q are enough for a calculation.
+
+=head2 X,Y to N for UAD
+
+An A,B or P,Q point can be reversed up the tree to its parent as follows,
+
+    if P > 3Q    reverse "D"   P -> P-2Q
+                               Q -> unchanged
+    if P > 2Q    reverse "A"   P -> Q
+                               Q -> P-2Q
+    otherwise    reverse "U"   P -> Q
+                               Q -> 2Q-P
+
+This gives a ternary digit 2, 1, 0 respectively for N and the number of
+steps is the level and a starting N for the digits.  If at any stage the P,Q
+aren't one odd the other even and PE<gt>Q then it means the original point,
+either an A,B or a P,Q, was not a primitive triple.  For a primitive triple
+the endpoint is always P=2,Q=1.
+
+=head2 X,Y to N for FB
+
+An A,B or P,Q point can be reversed up the tree to its parent as follows,
+
+    if P odd     reverse K1    P -> P-Q
+     (so Q even)               Q -> Q/2
+
+    if Q < P/2   reverse K2    P -> P/2
+                               Q -> P/2 - Q
+
+    otherwise    reverse K3    P -> P/2
+                               Q -> Q - P/2
+
+This is rather similar to the binary greatest common divisor algorithm, but
+designed for one value odd and the other even.  As for the UAD ascent above
+if that opposite parity doesn't hold at any stage then the initial point
+wasn't a primitive triple.
+
+=head2 N Range for UAD
+
+For the UAD tree, the smallest A,B within each level is found at the topmost
+"U" steps for the smallest A or the bottommost "D" steps for the smallest
+B.  For example in the table above of level 2, N=5..13, the smallest A is in
+the top A=7,B=24, and the smallest B is in the bottom A=35,B=12.  In general
+
+    Amin = 2*level + 1
+    Bmin = 4*level
+
+In P,Q coordinates the same topmost line is the smallest P and bottommost
+the smallest Q.  The values are
+
+    Pmin = level+1
+    Qmin = 1
+
+The fixed Q=1 arises from the way the "D" transformation sends Q-E<gt>Q
+unchanged, so every level includes a Q=1.  This means if you ask what range
+of N is needed to cover all Q E<lt> someQ then there isn't one, only a P
+E<lt> someP has an N to go up to.
+
+=head2 N Range, FB
+
+For the FB tree, the smallest A,B within each level is found in the topmost
+two final positions.  For example in the table above of level 2, N=5..13,
+the smallest A is in the top A=9,B=40, and the smallest B is in the next row
+A=35,B=12.  In general,
+
+    Amin = 2^level + 1
+    Bmin = 2^level + 4
+
+In P,Q coordinates a Q=1 is found in that second row which is the minimum B,
+and the smallest P is found by taking K1 steps half-way then a K2 step, then
+K1 steps for the balance.  This is a slightly complicated
+
+    Pmin = /  3*2^(k-1) + 1    if even level = 2*k
+           \  2^(k+1) + 1      if odd level = 2*k+1
+    Q = 1
+
+The fixed Q=1 arises from the K1 steps giving
+
+    P=2 + 1+2+4+8+...+2^(level-2) = 2 + 2^(level-1) - 1
+    Q=2^(level-1)
+
+and then the K2 step Q -E<gt> P-Q = 1.  As for the UAD above this means
+small Q's always remain no matter how big N gets, only a P range determines
+an N range.
 
 =head1 SEE ALSO
 

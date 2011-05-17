@@ -45,9 +45,9 @@ use Smart::Comments;
   require Math::PlanePath::ArchimedeanChords;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::HypotOctant;
-  require Math::PlanePath::MathImagePythagoreanUAD;
-  require Math::PlanePath::MathImagePythagoreanTree;
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new
+  require Math::PlanePath::PythagoreanTree;
+  require Math::PlanePath::GreekKeySpiral;
+  my $path = Math::PlanePath::GreekKeySpiral->new
     (wider => 0,
      # step => 0,
      #tree_type => 'UAD',
@@ -56,10 +56,10 @@ use Smart::Comments;
   my ($prev_x, $prev_y);
   my %seen;
   my $start = $path->n_start;
-  #for (my $i = 1; $i <= 20; $i++) {
-  for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
-    # for (my $i = 9650; $i <= 9999; $i++) {
-    # $i -= 0.5;
+  #for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+  # for (my $i = 9650; $i <= 9999; $i++) {
+  # $i -= 0.5;
+  for (my $i = 1; $i <= 200; $i++) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

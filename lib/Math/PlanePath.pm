@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 26;
+$VERSION = 27;
 
 # defaults
 use constant n_start => 1;
@@ -65,6 +65,7 @@ include
     HeptSpiralSkewed       seven-sided spiral, compact
     OctagramSpiral         eight pointed star
     KnightSpiral           an infinite knight's tour
+    GreekKeySpiral         spiral with Greek key motif
 
     SacksSpiral            quadratic on an Archimedean spiral
     VogelFloret            seeds in a sunflower
@@ -128,6 +129,7 @@ longer than the preceding.
      16       OctagramSpiral
      19.74    TheodorusSpiral (approaches 2*pi^2)
      32       KnightSpiral (counting the 2-wide loop)
+     72       GreekKeySpiral
    variable   MultipleRings, PyramidRows
 
 The step determines which quadratic number sequences fall on straight lines.
@@ -264,6 +266,7 @@ L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>,
 L<Math::PlanePath::OctagramSpiral>,
 L<Math::PlanePath::KnightSpiral>
+L<Math::PlanePath::GreekKeySpiral>
 
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
@@ -271,7 +274,7 @@ L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
-L<Math::PlanePath::HypotOctant>
+L<Math::PlanePath::HypotOctant>,
 L<Math::PlanePath::PythagoreanTree>
 
 L<Math::PlanePath::PeanoCurve>,
@@ -293,6 +296,8 @@ F<examples/numbers.pl> in the sources to print all the paths.
 =head1 HOME PAGE
 
 http://user42.tuxfamily.org/math-planepath/index.html
+
+http://user42.tuxfamily.org/math-planepath/gallery.html
 
 =head1 LICENSE
 

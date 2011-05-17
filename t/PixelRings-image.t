@@ -31,7 +31,7 @@ my $test_count = 2;
 plan tests => $test_count;
 
 if (! eval 'use Image::Base 1.09; 1') { # version 1.09 for ellipse fixes
-  MyTestHelpers::diag ('Image::Base 1.09 not available -- ',$@);
+  MyTestHelpers::diag ('skip due to Image::Base 1.09 not available -- ',$@);
   foreach (1 .. $test_count) {
     skip ('due to no Image::Base 1.09', 1, 1);
   }

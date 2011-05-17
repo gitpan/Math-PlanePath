@@ -33,7 +33,7 @@ require Math::PlanePath::PixelRings;
 # VERSION
 
 {
-  my $want_version = 26;
+  my $want_version = 27;
   ok ($Math::PlanePath::PixelRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PixelRings->VERSION,  $want_version,

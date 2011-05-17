@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -331,7 +331,8 @@ for negative and swapped X,Y.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::HypotOctant>,
-L<Math::PlanePath::PixelRings>
+L<Math::PlanePath::PixelRings>,
+L<Math::PlanePath::PythagoreanTree>
 
 =head1 HOME PAGE
 

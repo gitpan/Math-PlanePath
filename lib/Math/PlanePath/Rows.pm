@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -52,7 +52,7 @@ sub n_to_xy {
   if (($width = $self->{'width'}) <= 0) {
     ### no points for width<=0
     return;
-  };
+  }
   ### x: $n % $width
   ### y: int ($n / $width)
 

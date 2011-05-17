@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 221 }
+BEGIN { plan tests => 228 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,8 +33,8 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  GreekKeySpiral
                   PythagoreanTree
-                  ArchimedeanChords
 
                   OctagramSpiral
                   Hypot
@@ -64,6 +64,7 @@ my @modules = qw(
 
                   SacksSpiral
                   TheodorusSpiral
+                  ArchimedeanChords
                   VogelFloret
                   KnightSpiral
 
@@ -76,7 +77,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 26;
+my $want_version = 27;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

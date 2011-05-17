@@ -23,38 +23,25 @@ use warnings;
 use Math::Matrix;
 use List::Util 'min', 'max';
 use Math::Libm 'hypot';
-use Math::PlanePath::MathImagePythagoreanTree;
+use Math::PlanePath::PythagoreanTree;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
 
 {
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new
-    (tree_type => 'UAD');
-  foreach my $level (1 .. 20) {
-    # my $n = 3 ** $level;
-    my $n = (3 ** $level - 1) / 2;
-    my ($x,$y) = $path->n_to_xy($n);
-    print "$x, $y\n";
-  }
-  exit 0;
-}
-
-
-{
-  require Math::PlanePath::MathImagePythagoreanTree;
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new
-    (
-     tree_type => 'FB',
-     # tree_type => 'UAD',
-     coordinates => 'AB',
-    );
-  my ($x,$y) = $path->n_to_xy(1121);
-#  exit 0;
-  foreach (1 .. 10) {
-    print 3*2**(2*$_-1)+2,"\n";
-    print 3*2**(2*$_)+2,"\n";
+  require Math::PlanePath::PythagoreanTree;
+#   my $path = Math::PlanePath::PythagoreanTree->new
+#     (
+#      # tree_type => 'FB',
+#      tree_type => 'UAD',
+#      coordinates => 'AB',
+#     );
+#   my ($x,$y) = $path->n_to_xy(1121);
+# #  exit 0;
+  foreach my $k (1 .. 10) {
+    print 3 * 2**$k + 1,"\n";
+    print 2**($k+2)+1,"\n";
   }
 
   sub minpos {
@@ -70,16 +57,16 @@ use Smart::Comments;
   }
 
   require Math::BaseCnv;
-  require Math::PlanePath::MathImagePythagoreanUAD;
-  require Math::PlanePath::MathImagePythagoreanTree;
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
     (
      # tree_type => 'UAD',
      tree_type => 'FB',
-     coordinates => 'UV',
+     # coordinates => 'AB',
+     coordinates => 'PQ',
     );
   my $n = 1;
-  foreach my $level (0 .. 100) {
+  foreach my $level (1 .. 100) {
     my @x;
     my @y;
     print "level $level  base n=$n\n";
@@ -88,7 +75,7 @@ use Smart::Comments;
     my ($min_x, $min_y) = $path->n_to_xy($n);
     my $min_x_n = $n;
     my $min_y_n = $n;
-    foreach my $rem (0 .. 3**$level-1) {
+    foreach my $rem (0 .. 3**($level-1)-1) {
       my ($x,$y) = $path->n_to_xy($n);
       if ($x < $min_x) {
         $min_x = $x;
@@ -102,12 +89,25 @@ use Smart::Comments;
     }
     my $min_x_rem = $min_x_n - $base;
     my $min_y_rem = $min_y_n - $base;
-    my $min_x_rem_t = sprintf '%0*s', $level, Math::BaseCnv::cnv($min_x_rem,10,3);
-    my $min_y_rem_t = sprintf '%0*s', $level, Math::BaseCnv::cnv($min_y_rem,10,3);
+    my $min_x_rem_t = sprintf '%0*s', $level-1, Math::BaseCnv::cnv($min_x_rem,10,3);
+    my $min_y_rem_t = sprintf '%0*s', $level-1, Math::BaseCnv::cnv($min_y_rem,10,3);
     print "  minx=$min_x at n=$min_x_n rem=$min_x_rem [$min_x_rem_t]\n";
     print "  miny=$min_y at n=$min_y_n rem=$min_y_rem [$min_y_rem_t]\n";
     local $,='..';
     print $path->rect_to_n_range(0,0, $min_x,$min_y),"\n";
+  }
+  exit 0;
+}
+
+
+{
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (tree_type => 'UAD');
+  foreach my $level (1 .. 20) {
+    # my $n = 3 ** $level;
+    my $n = (3 ** $level - 1) / 2;
+    my ($x,$y) = $path->n_to_xy($n);
+    print "$x, $y\n";
   }
   exit 0;
 }
@@ -140,8 +140,8 @@ use Smart::Comments;
 }
 
 {
-  require Math::PlanePath::MathImagePythagoreanTree;
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
     (
      # tree_type => 'FB',
       tree_type => 'UAD',
@@ -166,8 +166,8 @@ use Smart::Comments;
 
 
 {
-  require Math::PlanePath::MathImagePythagoreanTree;
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new;
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new;
   my (undef, $n_hi) = $path->rect_to_n_range(0,0, 1000,1000);
   ### $n_hi
   my @count;
@@ -190,8 +190,8 @@ use Smart::Comments;
 
 
 {
-  require Math::PlanePath::MathImagePythagoreanTree;
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new;
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new;
   my $n = 1;
   foreach my $x (0 .. 10000) {
     foreach my $y (0 .. $x) {
@@ -222,8 +222,8 @@ use Smart::Comments;
 
     {
       require Math::BaseCnv;
-      require Math::PlanePath::MathImagePythagoreanTree;
-      my $path = Math::PlanePath::MathImagePythagoreanTree->new;
+      require Math::PlanePath::PythagoreanTree;
+      my $path = Math::PlanePath::PythagoreanTree->new;
       my $n = 1;
       for ( ; $n < 3**11; $n++) {
         my ($x,$y) = $path->n_to_xy($n);
@@ -309,9 +309,8 @@ use Smart::Comments;
 }
 
 {
-  require Math::PlanePath::MathImagePythagoreanUAD;
-  require Math::PlanePath::MathImagePythagoreanTree;
-  my $path = Math::PlanePath::MathImagePythagoreanTree->new;
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new;
   my $n = 1;
   foreach my $i (1 .. 100) {
     my ($x,$y) = $path->n_to_xy($n);

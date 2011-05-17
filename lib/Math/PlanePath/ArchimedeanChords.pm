@@ -24,7 +24,7 @@ use Math::PlanePath::MultipleRings;
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 26;
+$VERSION = 27;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -409,7 +409,7 @@ __END__
 # }
 
 
-=for stopwords Archimedean Ryde Math-Image TheodorusSpiral ArchimedeanChords ie cartesian Math-PlanePath
+=for stopwords Archimedean Ryde TheodorusSpiral ArchimedeanChords ie cartesian Math-PlanePath arcsin
 
 =head1 NAME
 

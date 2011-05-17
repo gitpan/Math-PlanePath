@@ -75,6 +75,7 @@ my @all_classes = (qw(SquareSpiral
                       Staircase
                       Corner
                       KnightSpiral
+                      GreekKeySpiral
 
                       SacksSpiral
                       VogelFloret
