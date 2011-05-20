@@ -39,7 +39,6 @@ use Smart::Comments;
   require Math::PlanePath::Staircase;
   require Math::PlanePath::PeanoCurve;
   require Math::PlanePath::PyramidRows;
-  require Math::PlanePath::PixelRings;
   require Math::PlanePath::OctagramSpiral;
   require Math::PlanePath::MathImageFlowsnake;
   require Math::PlanePath::ArchimedeanChords;
@@ -47,7 +46,9 @@ use Smart::Comments;
   require Math::PlanePath::HypotOctant;
   require Math::PlanePath::PythagoreanTree;
   require Math::PlanePath::GreekKeySpiral;
-  my $path = Math::PlanePath::GreekKeySpiral->new
+  require Math::PlanePath::PixelRings;
+  require Math::PlanePath::MathImageCoprimeColumns;
+  my $path = Math::PlanePath::MathImageCoprimeColumns->new
     (wider => 0,
      # step => 0,
      #tree_type => 'UAD',
@@ -56,10 +57,10 @@ use Smart::Comments;
   my ($prev_x, $prev_y);
   my %seen;
   my $start = $path->n_start;
-  #for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+   for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
   # for (my $i = 9650; $i <= 9999; $i++) {
   # $i -= 0.5;
-  for (my $i = 1; $i <= 200; $i++) {
+  #for (my $i = 0; $i <= 1000; $i++) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
@@ -111,6 +112,18 @@ use Smart::Comments;
             " $rep",
               $flag;
   }
+  exit 0;
+}
+{
+  require Math::PlanePath::PixelRings;
+  my $path = Math::PlanePath::PixelRings->new
+    (wider => 0,
+     # step => 0,
+     #tree_type => 'UAD',
+     #coordinates => 'PQ',
+    );
+  ### xy: $path->n_to_xy(500)
+  ### n: $path->xy_to_n(3,3)
   exit 0;
 }
 

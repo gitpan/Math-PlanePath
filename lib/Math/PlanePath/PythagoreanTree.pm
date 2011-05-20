@@ -62,7 +62,7 @@ use POSIX qw(floor ceil);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 27;
+$VERSION = 28;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

@@ -10,6 +10,7 @@ debian/source/format
 debian/watch
 devel/archimedean.pl
 devel/cont-frac.pl
+devel/coprime.pl
 devel/exe-atan2.c
 devel/flowsnake-levels.pl
 devel/flowsnake.pl

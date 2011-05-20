@@ -24,7 +24,7 @@ use Math::PlanePath::MultipleRings;
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 27;
+$VERSION = 28;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

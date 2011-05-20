@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 28, May 2011
+    - PixelRings xy_to_n() fix some X==Y points should be undef
+
 Version 27, May 2011
     - new GreekKeySpiral
 

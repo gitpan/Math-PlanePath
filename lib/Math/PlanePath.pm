@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 27;
+$VERSION = 28;
 
 # defaults
 use constant n_start => 1;
@@ -70,6 +70,7 @@ include
     SacksSpiral            quadratic on an Archimedean spiral
     VogelFloret            seeds in a sunflower
     TheodorusSpiral        unit steps at right angles
+    ArchimedeanChords      chords on an Archimedean spiral
     MultipleRings          concentric circles
     PixelRings             concentric circles by pixels
     Hypot                  points by distance

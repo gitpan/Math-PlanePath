@@ -25,8 +25,6 @@ use Math::Libm 'hypot', 'asinh', 'M_PI', 'asin';
 use POSIX ();
 use Math::PlanePath::ArchimedeanChords;
 
-use lib "$ENV{HOME}/p/path/lib";
-
 # uncomment this to run the ### lines
 use Smart::Comments;
 

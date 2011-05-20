@@ -24,7 +24,7 @@ use Math::Libm 'hypot';
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 27;
+$VERSION = 28;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -153,6 +153,7 @@ sub n_to_xy {
   return ($x, $y);
 }
 
+#use Smart::Comments;
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PixelRings xy_to_n(): "$x, $y"
@@ -164,21 +165,27 @@ sub xy_to_n {
   }
 
   my $r;
-  if (abs($x) > abs($y)) {
-    $r = floor (hypot (abs($x)+.5,$y));
+  {
+    my $xa = abs($x);
+    my $ya = abs($y);
+    if ($xa < $ya) {
+      ($xa,$ya) = ($ya,$xa);
+    }
+    $r = floor (hypot ($xa+.5,$ya));
+    ### r frac: hypot ($xa+.5,$ya)
     ### $r
-    ### r frac: hypot (abs($x)+.5,$y)
-    if ($r == floor (hypot (abs($x)-.5,$y))) {
-      ### circle instead at: $x-1
+    ### r < inside frac: hypot ($xa-.5,$ya)
+    if ($r < hypot ($xa-.5,$ya)) {
+      ### pixel not crossed
       return undef;
     }
-  } else {
-    $r = floor (hypot ($x,abs($y)+.5));
-    ### $r
-    ### r frac: hypot ($x,abs($y)-.5)
-    if ($r == floor (hypot ($x,abs($y)-.5))) {
-      ### circle instead at: $y-1
-      return undef;
+    if ($xa == $ya) {
+      ### and pixel below for diagonal
+      ### r < below frac: $r . " < " . hypot ($xa+.5,$ya-1)
+      if ($r < hypot ($xa+.5,$ya-1)) {
+        ### same loop, no sharp corner
+        return undef;
+      }
     }
   }
   if ($r-1 == $r) {
@@ -194,8 +201,10 @@ sub xy_to_n {
   my $len = $_cumul[$r+1] - $n;
   ### $r
   ### n base: $n
-  ### len: $len
+  ### $len
+  ### len/4: $len/4
   if ($y < 0) {
+    ### y neg, rotate 180
     $y = -$y;
     $x = -$x;
     $n += $len/2;
@@ -203,7 +212,7 @@ sub xy_to_n {
   if ($x < 0) {
     $n += $len/4;
     ($x,$y) = ($y,-$x);
-    ### neg x, quad 2 or 4, add: $len/4
+    ### neg x, rotate 90
     ### n base now: $n + $len/4
     ### transpose: "$x,$y"
   }

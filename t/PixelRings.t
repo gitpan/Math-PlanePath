@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 10 }
+BEGIN { plan tests => 11 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require Math::PlanePath::PixelRings;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::PixelRings;
 # VERSION
 
 {
-  my $want_version = 27;
+  my $want_version = 28;
   ok ($Math::PlanePath::PixelRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PixelRings->VERSION,  $want_version,
@@ -68,5 +71,50 @@ require Math::PlanePath::PixelRings;
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
+
+#------------------------------------------------------------------------------
+# xy_to_n() diagonals
+
+{
+  my $path = Math::PlanePath::PixelRings->new;
+  my $bad = 0;
+  for (my $i = 0; $i < 3000; $i++) {
+    my $n = $path->xy_to_n ($i, $i)
+      or next;
+    my ($x,$y) = $path->n_to_xy ($n);
+    my $got = "$x,$y";
+    my $want = "$i,$i";
+    if ($got ne $want) {
+      MyTestHelpers::diag ("xy_to_n() wrong on diagonal $i,$i n=$n vs $x,$y");
+      if ($bad++ > 10) {
+        last;
+      }
+    }
+  }
+  ok ($bad, 0);
+}
+
+# {
+#   my $path = Math::PlanePath::PixelRings->new;
+#   my %xy_to_n;
+#   ### n range: $path->rect_to_n_range (-60,-60, 60,60)
+#   my ($n_lo, $n_hi) = $path->rect_to_n_range (-60,-60, 60,60);
+#   foreach my $n ($n_lo .. $n_hi) {
+#     my ($x,$y) = $path->n_to_xy($n);
+#     my $key = "$x,$y";
+#     if ($xy_to_n{$key}) {
+#       die "Oops, n_to_xy repeat $x,$y: was $xy_to_n{$key} now $n too";
+#     }
+#     $xy_to_n{$key} = $n;
+#     ### n_to_xy gives: "$x,$y -> $n"
+#   }
+#   ### total: scalar(%xy_to_n)
+#   foreach my $x (0 .. 60, -60 .. -1) {
+#     foreach my $y (0 .. 60, -60 .. -1) {
+#       ok ($path->xy_to_n($x,$y), $xy_to_n{"$x,$y"},
+#           "xy_to_n($x,$y)");
+#     }
+#   }
+# }
 
 exit 0;
