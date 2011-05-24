@@ -30,7 +30,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 28;
+$VERSION = 29;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -146,26 +146,50 @@ sub xy_to_n {
   return $n;
 }
 
+#use Smart::Comments;
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = floor (($x1+0.5)/3);
-  $y1 = floor (($y1+0.5)/3);
-  $x2 = floor (($x2+0.5)/3);
-  $y2 = floor (($y2+0.5)/3);
-  ### $x1
-  ### $y1
-  ### $x2
-  ### $y2
-  my $d =  max(1,
-               abs($y1),
-               abs($y2),
-               abs($x1),
-               abs($x2));
+  # coords -1 to centre around the origin 0,0
+  my ($dlo, $dhi) = _rect_square_range ($x1-1, $y1-1,
+                                        $x2-1, $y2-1);
+  ### d range: "$dlo, $dhi"
 
-  return (1,
-          # bottom horizontal end
-          9*((4*$d + 4)*$d + 1));
+  # now d=0,1 is the inner thirds=0, and d=2,3,4 is the next ring thirds=1
+  $dlo = int (($dlo+1) / 3);
+  $dhi = int (($dhi+1) / 3);
+
+  ### d range thirds: "$dlo, $dhi"
+  ### right start: ((36*$dlo - 36)*$dlo + 10)
+
+  return ($dlo == 0 ? 1  # special case for innermost 3x3
+          : ((36*$dlo - 36)*$dlo + 10), # right vertical start
+
+          (36*$dhi + 36)*$dhi + 9);     # bottom horizontal end
+}
+
+
+sub _rect_square_range {
+  my ($x1,$y1, $x2,$y2) = @_;
+  ### _rect_square_range(): "$x1,$y1  $x2,$y2"
+
+  # if x1,x2 opposite signs then origin x=0 covered, similarly y
+  my $x_origin_covered = ($x1<0) != ($x2<0);
+  my $y_origin_covered = ($y1<0) != ($y2<0);
+
+  foreach ($x1,$y1, $x2,$y2) {
+    $_ = abs(floor($_+0.5));
+  }
+  ### abs rect: "x=$x1 to $x2,  y=$y1 to $y2"
+
+  if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
+  if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
+
+  return (max (0, # if both $x_origin_covered and $y_origin_covered
+               $x_origin_covered ? () : ($x1),
+               $y_origin_covered ? () : ($y1)),
+          max ($x2, $y2));
 }
 
 1;

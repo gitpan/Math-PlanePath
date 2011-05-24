@@ -26,7 +26,7 @@ use POSIX 'floor';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 28;
+$VERSION = 29;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -48,6 +48,8 @@ my @y_next_hypot = (1, 2);
 sub _extend {
   ### _extend() n: scalar(@n_to_x)
 
+  # set @y to the Y with the smallest $y_next_hypot[$y], and if there's some
+  # Y's with equal smallest hypot then all those Y's
   my @y = (0);
   my $hypot = $y_next_hypot[0];
   for (my $i = 1; $i < @y_next_x; $i++) {
@@ -59,6 +61,8 @@ sub _extend {
     }
   }
 
+  # if the endmost of the @y_next_x, @y_next_hypot arrays are used then
+  # extend them by one
   if ($y[-1] == $#y_next_x) {
     my $y = scalar(@y_next_x);
     $y_next_x[$y] = $y;
@@ -66,6 +70,8 @@ sub _extend {
     ### assert: $y_next_hypot[$y] == $y**2 + $y_next_x[$y]**2
   }
 
+  # @x is the $y_next_x[$y] for each of the @y smallests, and step those
+  # selected elements next X and hypot for that new X,Y
   my @x = map {
     my $x = $y_next_x[$_]++;
     $y_next_hypot[$_] += 2*$x+1;

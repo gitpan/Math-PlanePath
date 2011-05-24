@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 270 }
+BEGIN { plan tests => 293 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 28;
+  my $want_version = 29;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -67,6 +67,84 @@ require Math::PlanePath::PythagoreanTree;
   ok (! $path->x_negative, 1, 'x_negative()');
   ok (! $path->y_negative, 1, 'y_negative()');
 }
+
+#------------------------------------------------------------------------------
+# _round_down_pow3()
+
+foreach my $elem ([ 1, 1,0 ],
+                  [ 2, 1,0 ],
+                  [ 3, 3,1 ],
+                  [ 4, 3,1 ],
+                  [ 5, 3,1 ],
+
+                  [ 8, 3,1 ],
+                  [ 9, 9,2 ],
+                  [ 10, 9,2 ],
+
+                  [ 26, 9,2 ],
+                  [ 27, 27,3 ],
+                  [ 28, 27,3 ],
+                 ) {
+  my ($n, $want_pow, $want_exp) = @$elem;
+  my ($got_pow, $got_exp)
+    = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
+  ok ($got_pow, $want_pow);
+  ok ($got_exp, $want_exp);
+}
+
+{
+  my $bad = 0;
+  foreach my $i (2 .. 200) {
+    my $p = 3**$i;
+    if ($p+1 <= $p
+        || $p-1 >= $p
+        || ($p % 3) != 0
+        || (($p+1) % 3) != 1
+        || (($p-1) % 3) != 2) {
+      MyTestHelpers::diag ("_round_down_pow3() stop for round-off at i=$i");
+      last;
+    }
+
+    {
+      my $n = $p-1;
+      my $want_pow = $p/3;
+      my $want_exp = $i-1;
+      my ($got_pow, $got_exp)
+        = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
+      if ($got_pow != $want_pow
+          || $got_exp != $want_exp) {
+        MyTestHelpers::diag ("_round_down_pow3($n) got $got_pow,$want_pow want $got_exp,$want_exp");
+        $bad++;
+      }
+    }
+    {
+      my $n = $p;
+      my $want_pow = $p;
+      my $want_exp = $i;
+      my ($got_pow, $got_exp)
+        = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
+      if ($got_pow != $want_pow
+          || $got_exp != $want_exp) {
+        MyTestHelpers::diag ("_round_down_pow3($n) got $got_pow,$want_pow want $got_exp,$want_exp");
+        $bad++;
+      }
+    }
+    {
+      my $n = $p+1;
+      my $want_pow = $p;
+      my $want_exp = $i;
+      my ($got_pow, $got_exp)
+        = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
+      if ($got_pow != $want_pow
+          || $got_exp != $want_exp) {
+        MyTestHelpers::diag ("_round_down_pow3($n) got $got_pow,$want_pow want $got_exp,$want_exp");
+        $bad++;
+      }
+    }
+  }
+  ok ($bad,0);
+}
+
 
 #------------------------------------------------------------------------------
 # n_to_xy(),  xy_to_n()

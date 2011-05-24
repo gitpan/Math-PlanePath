@@ -23,22 +23,16 @@ use warnings;
 use Smart::Comments;
 
 {
-  require Math::PlanePath::SacksSpiral;
-  require Math::PlanePath::VogelFloret;
-  require Math::PlanePath::PyramidRows;
-  require Math::PlanePath::Diagonals;
-  require Math::PlanePath::Corner;
-  require Math::PlanePath::DiamondSpiral;
-  require Math::PlanePath::PyramidSides;
-  require Math::PlanePath::HexSpiral;
-  require Math::PlanePath::HexSpiralSkewed;
-  require Math::PlanePath::KnightSpiral;
-  require Math::PlanePath::SquareSpiral;
-  require Math::PlanePath::MultipleRings;
+  require Math::PlanePath::MathImageKochSnowflakes;
+  my $path = Math::PlanePath::MathImageKochSnowflakes->new;
+  my @range = $path->rect_to_n_range (0,0, 0,2);
+  ### @range
+  exit 0;
+}
+{
   require Math::PlanePath::HilbertCurve;
   require Math::PlanePath::Staircase;
   require Math::PlanePath::PeanoCurve;
-  require Math::PlanePath::PyramidRows;
   require Math::PlanePath::OctagramSpiral;
   require Math::PlanePath::MathImageFlowsnake;
   require Math::PlanePath::ArchimedeanChords;
@@ -48,7 +42,9 @@ use Smart::Comments;
   require Math::PlanePath::GreekKeySpiral;
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::MathImageCoprimeColumns;
-  my $path = Math::PlanePath::MathImageCoprimeColumns->new
+  require Math::PlanePath::MathImageHexHypot;
+  require Math::PlanePath::MathImageKochSnowflakes;
+  my $path = Math::PlanePath::MathImageKochSnowflakes->new
     (wider => 0,
      # step => 0,
      #tree_type => 'UAD',
@@ -57,10 +53,12 @@ use Smart::Comments;
   my ($prev_x, $prev_y);
   my %seen;
   my $start = $path->n_start;
-   for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+
+  #for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+  for (my $i = 0; $i <= 13; $i++) {
+
   # for (my $i = 9650; $i <= 9999; $i++) {
   # $i -= 0.5;
-  #for (my $i = 0; $i <= 1000; $i++) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
@@ -92,7 +90,7 @@ use Smart::Comments;
     }
 
     my $range = '';
-    if ($n_hi < $i) {
+    if ($n_hi < $i || $n_lo > $i) {
       $range = 'Range';
     }
 

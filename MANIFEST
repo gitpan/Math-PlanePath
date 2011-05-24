@@ -17,6 +17,7 @@ devel/flowsnake.pl
 devel/gallery.pl
 devel/grid.pl
 devel/heighway.pl
+devel/hexhypot.pl
 devel/hilbert-diamond.pl
 devel/hilbert.pl
 devel/hypot.pl
@@ -84,6 +85,7 @@ t/Columns-load.t
 t/Columns.t
 t/Diagonals.t
 t/DiamondSpiral.t
+t/GreekKeySpiral.t
 t/HexSpiral-load.t
 t/HexSpiral.t
 t/HexSpiralSkewed.t

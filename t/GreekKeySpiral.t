@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1009; }
+BEGIN { plan tests => 3316 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::KnightSpiral;
+require Math::PlanePath::GreekKeySpiral;
 
 
 #------------------------------------------------------------------------------
@@ -34,22 +34,20 @@ require Math::PlanePath::KnightSpiral;
 
 {
   my $want_version = 29;
-  ok ($Math::PlanePath::KnightSpiral::VERSION,
-      $want_version,
+  ok ($Math::PlanePath::GreekKeySpiral::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::KnightSpiral->VERSION,
-      $want_version,
+  ok (Math::PlanePath::GreekKeySpiral->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::KnightSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::GreekKeySpiral->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::KnightSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::GreekKeySpiral->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::KnightSpiral->new;
+  my $path = Math::PlanePath::GreekKeySpiral->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -64,28 +62,50 @@ require Math::PlanePath::KnightSpiral;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new;
+  my $path = Math::PlanePath::GreekKeySpiral->new;
   ok ($path->n_start, 1, 'n_start()');
   ok (!! $path->x_negative, 1, 'x_negative()');
   ok (!! $path->y_negative, 1, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------
-# xy_to_n
+# n_to_xy() fractions part way between integer points
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new;
-  my ($x, $y) = $path->n_to_xy(1);
-  foreach my $n (2 .. 1000) {
-    my ($nx, $ny) = $path->n_to_xy($n);
-    # diag "n=$n  $nx,$ny";
-    my $dx = abs($nx - $x);
-    my $dy = abs($ny - $y);
-    ok (($dx == 2 && $dy == 1)
-        || ($dx == 1 && $dy == 2),
-        1,
-        "step n=$n from $x,$y to $nx,$ny   D=$dx,$dy");
-    ($x,$y) = ($nx,$ny);
+  my $path = Math::PlanePath::GreekKeySpiral->new;
+  foreach my $n ($path->n_start .. $path->n_start + 500) {
+    my ($x,$y) = $path->n_to_xy ($n);
+    my ($x2,$y2) = $path->n_to_xy ($n+1);
+
+    foreach my $frac (0.25, 0.5, 0.75) {
+      my $nfrac = $n + $frac;
+      my ($got_xfrac,$got_yfrac) = $path->n_to_xy ($nfrac);
+      my $want_xfrac = $x + $frac*($x2-$x);
+      my $want_yfrac = $y + $frac*($y2-$y);
+      ok ($got_xfrac, $want_xfrac, "x frac at n=$nfrac");
+      ok ($got_yfrac, $want_yfrac, "y frac at n=$nfrac");
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
+# rect_to_n_range() first and last
+
+{
+  my $path = Math::PlanePath::GreekKeySpiral->new;
+  foreach my $t (1 .. 100) {
+
+    my $x = 3*$t + 2;
+    my $y = -3*$t;
+    my $n = $path->xy_to_n ($x,$y);
+    my ($n_lo, $n_hi) = $path->rect_to_n_range (0,0, $x,$y);
+    ok ($n_hi, $n, "rect_to_n_range t=$t hi last x=$x,y=$y  n=$n");
+
+    $x++;
+    $n++;
+    ok ($path->xy_to_n($x,$y), $n);
+    ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+    ok ($n_lo, $n, "rect_to_n_range t=$t lo first x=$x,y=$y  n=$n");
   }
 }
 

@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 28;
+$VERSION = 29;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -240,10 +240,11 @@ fit on a square grid.
 
 Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
 x=2,y=0.  The diagonals are just 1 across, so n=3 is at x=1,y=1.  Each
-alternate row is offset from the one above or below.  The resulting
-"triangles" between the points are flatter than they ought to be.  Drawn on
-a square grid the angle up is 45 degrees making an isosceles right triangle
-instead of 60 for an equilateral triangle.
+alternate row is offset from the one above or below.  The result is a
+triangular lattice, but the triangles between the points are flatter than
+they ought to be.  Drawn on a square grid the angle up is 45 degrees making
+an isosceles right triangle instead of an equilateral triangle of 60
+degrees.
 
 The octagonal numbers 8,21,40,65, etc 3*k^2-2*k fall on a horizontal
 straight line at y=-1.  In general straight lines are 3*k^2 + b*k + c.  The
@@ -276,10 +277,10 @@ gives
            ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
           -7 -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6  7
 
-The centre horizontal 1 to 2 is extended by C<wider> many further places,
-then the path loops around that shape.  The starting point 1 is shifted to
-the left by wider places to keep the spiral centred on the origin x=0,y=0.
-Each horizontal gap is still 2.
+The centre horizontal from N=1 is extended by C<wider> many extra places,
+then the path loops around that shape.  The starting point N=1 is shifted to
+the left by wider many places to keep the spiral centred on the origin
+x=0,y=0.  Each horizontal gap is still 2.
 
 Each loop is still 6 longer than the previous, since the widening is
 basically a constant amount added into each loop.

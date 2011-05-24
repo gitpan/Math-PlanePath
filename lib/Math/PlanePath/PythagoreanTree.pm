@@ -62,7 +62,7 @@ use POSIX qw(floor ceil);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 28;
+$VERSION = 29;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -72,19 +72,6 @@ use Math::PlanePath;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
-
-use constant x_parameter_list => ({
-                                   name    => 'wider',
-                                   type    => 'integer',
-                                   minimum => 0,
-                                   default => 0,
-                                  },
-                                  {
-                                   name    => 'step',
-                                   type    => 'integer',
-                                   minimum => 0,
-                                   default => 2,
-                                  });
 
 sub new {
   my $class = shift;
@@ -110,21 +97,9 @@ sub n_to_xy {
   }
 
   my $h = 2*($n-1)+1;
-  my $level = int(log($h)/log(3));
-  my $range = 3**$level;
+  my ($range, $level) = _round_down_pow3 ($h);
   my $base = ($range - 1)/2 + 1;
   my $rem = $n - $base;
-
-  if ($rem < 0) {
-    $rem += $range/3;
-    $level--;
-    $range /= 3;
-  }
-  if ($rem >= $range) {
-    $rem -= $range;
-    $level++;
-    $range *= 3;
-  }
 
   ### $n
   ### $h
@@ -381,7 +356,7 @@ sub rect_to_n_range {
                     int (($y2+31) / 4));
     }
   } else {
-    # FB
+    ### FB
     if ($self->{'coordinates'} eq 'PQ') {
       $x2 *= 3;
     }
@@ -399,6 +374,27 @@ sub rect_to_n_range {
   }
   ### $level
   return (1, (3**$level - 1) / 2);
+}
+
+# return ($pow, $exp) with $pow = 3**$exp <= $n, the next power of 3 at or
+# below $n
+sub _round_down_pow3 {
+  my ($n) = @_;
+  my $exp = int(log($n)/log(3));
+  my $pow = 3**$exp;
+
+  # check how $pow actually falls against $n, not sure should trust float
+  # rounding in log()/log(3)
+  if ($pow > $n) {
+    ### hmm, int(log) too big, decrease
+    $exp--;
+    $pow = 3**$exp;
+  } elsif (3*$pow <= $n) {
+    ### hmm, int(log) too small, increase
+    $exp++;
+    $pow *= 3;
+  }
+  return ($pow, $exp);
 }
 
 1;
@@ -646,6 +642,16 @@ C<$x,$y> then return C<undef>.
 The return is C<undef> if C<$x,$y> is not a primitive Pythagorean triple, or
 with the PQ option if if C<$x,$y> doesn't satisfy the PQ constraints
 described above (L</PQ Coordinates>).
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+Return a range of N values which occur in a rectangle with corners at
+C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
+
+Both trees visit large X,Y coordinates while yet to finish values closer to
+the origin which means the N range for a rectangle can be quite large.  For
+UAD C<$n_hi> is roughly C<3**max(x/2)>, or for FB smaller at roughly
+C<3**log2(x)>.
 
 =back
 

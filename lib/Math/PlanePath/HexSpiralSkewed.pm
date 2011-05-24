@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 28;
+$VERSION = 29;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -258,7 +258,7 @@ gives
      ^   ^   ^   ^   ^   ^   ^   ^ 
     -4  -3  -2  -1  x=0  1   2   3  ...
 
-The centre horizontal 1 to 2 is extended by C<wider> many further places,
+The centre horizontal from N=1 is extended by C<wider> many further places,
 then the path loops around that shape.  The starting point 1 is shifted to
 the left by wider/2 places (rounded up to an integer) to keep the spiral
 centred on the origin x=0,y=0.
@@ -266,13 +266,13 @@ centred on the origin x=0,y=0.
 Each loop is still 6 longer than the previous, since the widening is
 basically a constant amount added into each loop.  The result is the same as
 the plain HexSpiral of the same widening too.  The effect looks better in
-that plain HexSpiral.
+the plain HexSpiral.
 
 =head1 Corners
 
-HexSpiralSkewed is similar to the SquareSpiral but cuts off the top right
-and bottom left corners so that each loop is 6 steps longer than the
-previous whereas for the SquareSpiral it's 8.  See
+HexSpiralSkewed is similar to the SquareSpiral but cuts off the top-right
+and bottom-left corners so that each loop is 6 steps longer than the
+previous, whereas for the SquareSpiral it's 8.  See
 L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.
 
 =head1 FUNCTIONS

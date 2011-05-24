@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 29, May 2011
+    - GreekKeySpiral rect_to_n_range() tighter $n_lo
+    - tests more diagnostics on PythagoreanTree
+
 Version 28, May 2011
     - PixelRings xy_to_n() fix some X==Y points should be undef
 

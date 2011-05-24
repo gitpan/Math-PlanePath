@@ -49,8 +49,8 @@ use Smart::Comments;
 
 
 my_interpolate (
-                [ 1,  2, 3, ],
-                [ 8,24,48 ],
+                [ 1,  2, 3, 4,],
+                [ 10,82, 226,442 ],
                );
 exit 0;
 
