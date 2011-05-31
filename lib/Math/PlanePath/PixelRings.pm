@@ -24,10 +24,11 @@ use Math::Libm 'hypot';
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -82,8 +83,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### PixelRings n_to_xy(): $n
 
-  if ($n < 1
-      || $n-1 == $n) {  # infinity
+  if ($n < 1 || _is_infinite($n)) {
     return;
   }
 
@@ -188,8 +188,8 @@ sub xy_to_n {
       }
     }
   }
-  if ($r-1 == $r) {
-    return undef;  # infinity
+  if (_is_infinite($r)) {
+    return undef;
   }
 
   while ($#_cumul <= $r) {
@@ -245,12 +245,12 @@ sub rect_to_n_range {
   ### $r_min
   ### $r_max
 
-  if ($r_min-1 == $r_min) {  # infinity
+  if (_is_infinite($r_min)) {
     return ($r_min, $r_min);
   }
 
   my ($n_max, $r_target);
-  if ($r_max-1 == $r_max) {
+  if (_is_infinite($r_max)) {
     $n_max = $r_max;  # infinity
     $r_target = $r_min;
   } else {
@@ -364,7 +364,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -400,13 +400,18 @@ L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>
 
+X11 cursor font "box spiral" cursor which is this style (but going
+clockwise).
+
 =head1 HOME PAGE
 
 http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

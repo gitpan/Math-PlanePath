@@ -37,6 +37,7 @@ devel/vogel.pl
 examples/hilbert-oeis.pl
 examples/hilbert-path.pl
 examples/knights-oeis.pl
+examples/koch-svg.pl
 examples/numbers.pl
 examples/sacks-xpm.pl
 examples/square-numbers.pl
@@ -57,6 +58,9 @@ lib/Math/PlanePath/HilbertCurve.pm
 lib/Math/PlanePath/Hypot.pm
 lib/Math/PlanePath/HypotOctant.pm
 lib/Math/PlanePath/KnightSpiral.pm
+lib/Math/PlanePath/KochCurve.pm
+lib/Math/PlanePath/KochPeaks.pm
+lib/Math/PlanePath/KochSnowflakes.pm
 lib/Math/PlanePath/MultipleRings.pm
 lib/Math/PlanePath/OctagramSpiral.pm
 lib/Math/PlanePath/PeanoCurve.pm
@@ -74,6 +78,7 @@ lib/Math/PlanePath/Staircase.pm
 lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
+lib/Math/PlanePath/TriangularHypot.pm
 lib/Math/PlanePath/VogelFloret.pm
 lib/Math/PlanePath/ZOrderCurve.pm
 Makefile.PL
@@ -94,6 +99,9 @@ t/HilbertCurve-oeis.t
 t/HilbertCurve.t
 t/KnightSpiral-oeis.t
 t/KnightSpiral.t
+t/KochCurve.t
+t/KochPeaks.t
+t/KochSnowflakes.t
 t/MultipleRings.t
 t/MyOEIS.pm
 t/MyTestHelpers.pm
@@ -110,6 +118,7 @@ t/Rows.t
 t/SacksSpiral.t
 t/SquareSpiral.t
 t/TheodorusSpiral.t
+t/TriangularHypot.t
 t/VogelFloret.t
 t/ZOrderCurve.t
 xt/0-META-read.t

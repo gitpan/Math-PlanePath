@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 293 }
+BEGIN { plan tests => 274 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require Math::PlanePath::PythagoreanTree;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 29;
+  my $want_version = 30;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -64,87 +67,9 @@ require Math::PlanePath::PythagoreanTree;
 {
   my $path = Math::PlanePath::PythagoreanTree->new;
   ok ($path->n_start, 1, 'n_start()');
-  ok (! $path->x_negative, 1, 'x_negative()');
-  ok (! $path->y_negative, 1, 'y_negative()');
+  ok ($path->x_negative, 0, 'x_negative()');
+  ok ($path->y_negative, 0, 'y_negative()');
 }
-
-#------------------------------------------------------------------------------
-# _round_down_pow3()
-
-foreach my $elem ([ 1, 1,0 ],
-                  [ 2, 1,0 ],
-                  [ 3, 3,1 ],
-                  [ 4, 3,1 ],
-                  [ 5, 3,1 ],
-
-                  [ 8, 3,1 ],
-                  [ 9, 9,2 ],
-                  [ 10, 9,2 ],
-
-                  [ 26, 9,2 ],
-                  [ 27, 27,3 ],
-                  [ 28, 27,3 ],
-                 ) {
-  my ($n, $want_pow, $want_exp) = @$elem;
-  my ($got_pow, $got_exp)
-    = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
-  ok ($got_pow, $want_pow);
-  ok ($got_exp, $want_exp);
-}
-
-{
-  my $bad = 0;
-  foreach my $i (2 .. 200) {
-    my $p = 3**$i;
-    if ($p+1 <= $p
-        || $p-1 >= $p
-        || ($p % 3) != 0
-        || (($p+1) % 3) != 1
-        || (($p-1) % 3) != 2) {
-      MyTestHelpers::diag ("_round_down_pow3() stop for round-off at i=$i");
-      last;
-    }
-
-    {
-      my $n = $p-1;
-      my $want_pow = $p/3;
-      my $want_exp = $i-1;
-      my ($got_pow, $got_exp)
-        = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
-      if ($got_pow != $want_pow
-          || $got_exp != $want_exp) {
-        MyTestHelpers::diag ("_round_down_pow3($n) got $got_pow,$want_pow want $got_exp,$want_exp");
-        $bad++;
-      }
-    }
-    {
-      my $n = $p;
-      my $want_pow = $p;
-      my $want_exp = $i;
-      my ($got_pow, $got_exp)
-        = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
-      if ($got_pow != $want_pow
-          || $got_exp != $want_exp) {
-        MyTestHelpers::diag ("_round_down_pow3($n) got $got_pow,$want_pow want $got_exp,$want_exp");
-        $bad++;
-      }
-    }
-    {
-      my $n = $p+1;
-      my $want_pow = $p;
-      my $want_exp = $i;
-      my ($got_pow, $got_exp)
-        = Math::PlanePath::PythagoreanTree::_round_down_pow3($n);
-      if ($got_pow != $want_pow
-          || $got_exp != $want_exp) {
-        MyTestHelpers::diag ("_round_down_pow3($n) got $got_pow,$want_pow want $got_exp,$want_exp");
-        $bad++;
-      }
-    }
-  }
-  ok ($bad,0);
-}
-
 
 #------------------------------------------------------------------------------
 # n_to_xy(),  xy_to_n()
@@ -311,6 +236,54 @@ foreach my $elem ([ 1, 1,0 ],
     ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
     ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
   }
+}
+
+
+#------------------------------------------------------------------------------
+# xy_to_n() distinct n
+
+foreach my $options ([tree_type => 'UAD', coordinates => 'AB'],
+                     [tree_type => 'UAD', coordinates => 'PQ'],
+                     [tree_type => 'FB', coordinates => 'AB'],
+                     [tree_type => 'FB', coordinates => 'PQ']) {
+  my $path = Math::PlanePath::PythagoreanTree->new (@$options);
+  my $bad = 0;
+  my %seen;
+  my $xlo = -2;
+  my $xhi = 25;
+  my $ylo = -2;
+  my $yhi = 20;
+  my ($nlo, $nhi) = $path->rect_to_n_range($xlo,$ylo, $xhi,$yhi);
+  my $count = 0;
+ OUTER: for (my $x = $xlo; $x <= $xhi; $x++) {
+    for (my $y = $ylo; $y <= $yhi; $y++) {
+      my $n = $path->xy_to_n ($x,$y);
+      next if ! defined $n;  # sparse
+
+      # avoid overflow when N becomes big
+      if ($n >= 2**32) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n, oops, meant to keep below 2^32");
+        last if $bad++ > 10;
+        next;
+      }
+
+      if ($seen{$n}) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n seen before at $seen{$n}");
+        last if $bad++ > 10;
+      }
+      if ($n < $nlo) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n below nlo=$nlo");
+        last OUTER if $bad++ > 10;
+      }
+      if ($n > $nhi) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n above nhi=$nhi");
+        last OUTER if $bad++ > 10;
+      }
+      $seen{$n} = "$x,$y";
+      $count++;
+    }
+  }
+  ok ($bad, 0, "xy_to_n() coverage and distinct, $count points");
 }
 
 exit 0;

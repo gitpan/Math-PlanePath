@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 29;
+$VERSION = 30;
 
 # defaults
 use constant n_start => 1;
@@ -32,6 +32,11 @@ use constant figure => 'square';
 sub new {
   my $class = shift;
   return bless { @_ }, $class;
+}
+
+sub _is_infinite {
+  my ($x) = @_;
+  return ($x-1 == $x);
 }
 
 1;
@@ -75,11 +80,15 @@ include
     PixelRings             concentric circles by pixels
     Hypot                  points by distance
     HypotOctant            first octant points by distance
+    TriangularHypot        points by triangular lattice distance
     PythagoreanTree        primitive triples by tree
 
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
+    KochCurve              replicating triangular notches
+    KochPeaks              stacked replicating notches
+    KochSnowflakes         concentric snowflake rings
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
@@ -276,11 +285,15 @@ L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>,
+L<Math::PlanePath::TriangularHypot>,
 L<Math::PlanePath::PythagoreanTree>
 
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
-L<Math::PlanePath::ZOrderCurve>
+L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::KochCurve>,
+L<Math::PlanePath::KochPeaks>,
+L<Math::PlanePath::KochSnowflakes>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
@@ -302,7 +315,9 @@ http://user42.tuxfamily.org/math-planepath/gallery.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

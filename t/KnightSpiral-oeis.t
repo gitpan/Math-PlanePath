@@ -101,7 +101,9 @@ sub numeq_array {
     }
   }
 
-  skip (! $bvalues || $duplicate_37_typo,
+  skip (! $bvalues ? "no B file"
+        : $duplicate_37_typo ? "duplicate 37 typo"
+        : 0,
         numeq_array(\@got, $bvalues),
         1, "$anum");
 }

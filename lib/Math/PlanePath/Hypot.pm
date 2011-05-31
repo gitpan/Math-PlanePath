@@ -24,9 +24,10 @@ use Math::Libm 'hypot';
 use POSIX 'floor';
 
 use Math::PlanePath;
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -132,8 +133,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### Hypot n_to_xy(): $n
 
-  if ($n < 1
-      || $n-1 == $n) {  # infinity
+  if ($n < 1 || _is_infinite($n)) {
     return;
   }
 
@@ -163,7 +163,7 @@ sub xy_to_n {
   $y = floor($y + 0.5);
 
   my $hypot = $x*$x + $y*$y;
-  if ($hypot-1 == $hypot) {
+  if (_is_infinite($hypot)) {
     ### infinity
     return undef;
   }
@@ -346,7 +346,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2011 Kevin Ryde
+Copyright 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

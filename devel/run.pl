@@ -23,13 +23,6 @@ use warnings;
 use Smart::Comments;
 
 {
-  require Math::PlanePath::MathImageKochSnowflakes;
-  my $path = Math::PlanePath::MathImageKochSnowflakes->new;
-  my @range = $path->rect_to_n_range (0,0, 0,2);
-  ### @range
-  exit 0;
-}
-{
   require Math::PlanePath::HilbertCurve;
   require Math::PlanePath::Staircase;
   require Math::PlanePath::PeanoCurve;
@@ -42,9 +35,11 @@ use Smart::Comments;
   require Math::PlanePath::GreekKeySpiral;
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::MathImageCoprimeColumns;
-  require Math::PlanePath::MathImageHexHypot;
-  require Math::PlanePath::MathImageKochSnowflakes;
-  my $path = Math::PlanePath::MathImageKochSnowflakes->new
+  require Math::PlanePath::TriangularHypot;
+  require Math::PlanePath::KochSnowflakes;
+  require Math::PlanePath::KochPeaks;
+  require Math::PlanePath::KochCurve;
+  my $path = Math::PlanePath::MathImageKochCurve->new
     (wider => 0,
      # step => 0,
      #tree_type => 'UAD',
@@ -55,7 +50,7 @@ use Smart::Comments;
   my $start = $path->n_start;
 
   #for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
-  for (my $i = 0; $i <= 13; $i++) {
+  for (my $i = 0; $i <= 50; $i++) {
 
   # for (my $i = 9650; $i <= 9999; $i++) {
   # $i -= 0.5;
@@ -73,14 +68,14 @@ use Smart::Comments;
     $prev_y = $y;
 
     my $rep = '';
-    my $xy = "$x,$y";
+    my $xy = (defined $x ? $x : 'undef').','.(defined $y ? $y : 'undef');
     if (defined $seen{$xy}) {
       $rep = "rep$seen{$xy}";
     } else {
       $seen{$xy} = $i;
     }
 
-    my $n = $path->xy_to_n ($x+.0, $y-.2);
+    my $n = $path->xy_to_n ($x+.0, $y-.0);
     if (! defined $n) { $n = 'norev'; }
 
     my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
@@ -110,6 +105,13 @@ use Smart::Comments;
             " $rep",
               $flag;
   }
+  exit 0;
+}
+{
+  require Math::PlanePath::MathImageKochSnowflakes;
+  my $path = Math::PlanePath::MathImageKochSnowflakes->new;
+  my @range = $path->rect_to_n_range (0,0, 0,2);
+  ### @range
   exit 0;
 }
 {

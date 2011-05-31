@@ -24,10 +24,11 @@ use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -94,10 +95,9 @@ sub n_to_xy {
   ### step: $self->{'step'}
 
   # "$n<1" separate test from decrement so as to warn on undef
-  # "$n-1 == $n" to notice $n==infinity, don't have anything sensible to
-  # return for that, and M_PI / infinity would throws a div by zero
-  if ($n < 1
-      || $n-1 == $n) {
+  # don't have anything sensible for infinity, and M_PI / infinity would
+  # throw a div by zero
+  if ($n < 1 || _is_infinite($n)) {
     return;
   }
   $n--;
@@ -152,7 +152,7 @@ sub _xy_to_d {
     # or 1/(2*r) > 1 would be asin()==-nan
     return 1;
   }
-  if ($r == $r-1) {
+  if (_is_infinite($r)) {
     ### infinity avoid div-by-zero in 1/(2*$r)
     return $r;
   }
@@ -377,7 +377,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

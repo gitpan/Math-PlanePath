@@ -84,13 +84,18 @@ my @all_classes = (qw(SquareSpiral
                       PixelRings
                       Hypot
                       HypotOctant
+                      TriangularHypot
                       PythagoreanTree
 
                       Rows
                       Columns
-                      HilbertCurve
                       PeanoCurve
-                      ZOrderCurve));
+                      HilbertCurve
+                      ZOrderCurve
+                      KochCurve
+                      KochPeaks
+                      KochSnowflakes
+                    ));
 # expand arg "all" to full list
 @ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;
 

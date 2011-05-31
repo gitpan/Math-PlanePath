@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 228 }
+BEGIN { plan tests => 256 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,6 +33,10 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  KochCurve
+                  KochPeaks
+                  KochSnowflakes
+                  TriangularHypot
                   PythagoreanTree
                   GreekKeySpiral
 
@@ -77,7 +81,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 29;
+my $want_version = 30;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -320,6 +324,7 @@ sub pythagorean_diag {
       foreach my $coordinates (@coordinates_list) {
         foreach my $step (@steps) {
           foreach my $wider (@wider) {
+            ### $class
             ### $step
             ### $wider
 
@@ -513,7 +518,7 @@ sub pythagorean_diag {
               # next if $name eq 'KnightSpiral';
 
               foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
-                foreach my $y_offset (0, -0.2) { # bit slow: , 0.2) {
+                foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {
                   my $rev_n = $path->xy_to_n ($x + $x_offset, $y + $y_offset);
                   ### try xy_to_n from: "step=$step n=$n  xy=$x,$y k=$k  x_offset=$x_offset y_offset=$y_offset"
                   ### $rev_n
@@ -643,7 +648,7 @@ sub pythagorean_diag {
         }
       }
     }
-    ok ($good, 1);
+    ok ($good, 1, "exercise $class");
   }
 }
 

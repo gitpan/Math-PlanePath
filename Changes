@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 30, May 2011
+    - new TriangularHypot, KochCurve, KochPeaks, KochSnowflakes
+
 Version 29, May 2011
     - GreekKeySpiral rect_to_n_range() tighter $n_lo
     - tests more diagnostics on PythagoreanTree

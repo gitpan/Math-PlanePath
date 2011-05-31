@@ -27,10 +27,11 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -40,7 +41,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### PeanoCurve n_to_xy(): $n
   if ($n < 0            # negative
-      || $n-1 == $n) {  # or infinity
+      || _is_infinite($n)) {
     return;
   }
 
@@ -116,8 +117,7 @@ sub xy_to_n {
     return undef;
   }
 
-  if ($x-1 == $x || $y-1 == $y) {
-    # infinity
+  if (_is_infinite($x) || _is_infinite($y)) {
     return undef;
   }
 
@@ -549,7 +549,8 @@ then asking what N the Diagonals would put there.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::HilbertCurve>,
-L<Math::PlanePath::ZOrderCurve>
+L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::KochCurve>
 
 Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",
 Mathematische Annalen, volume 36, number 1, 1890, p157-160
@@ -563,7 +564,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

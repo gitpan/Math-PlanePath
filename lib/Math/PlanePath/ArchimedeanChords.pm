@@ -21,11 +21,12 @@ use Math::Libm 'hypot', 'asinh', 'M_PI';
 use POSIX 'floor', 'ceil';
 use Math::PlanePath::MultipleRings;
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -143,8 +144,7 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
 
-  if ($n < 0
-      || $n-1 == $n) {  # infinity
+  if ($n < 0 || _is_infinite($n)) {
     return;
   }
 
@@ -211,7 +211,7 @@ sub xy_to_n {
   ### $r
   ### $r_limit
 
-  if ($r_limit == $r_limit-1) {
+  if (_is_infinite($r_limit)) {
     ### infinite range, r inf or too big
     return undef;
   }
@@ -623,7 +623,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -309,8 +309,9 @@ Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each
 C<$n> in the path as a square of side 1.
 
-Only every second square in the plane has an N.  If C<$x,$y> is a
-position without an N then the return is C<undef>.
+Only every second square in the plane has an N, being those where X,Y both
+odd or both even.  If C<$x,$y> is a position without an N, ie. one of X,Y
+odd the other even, then the return is C<undef>.
 
 =back
 
@@ -318,7 +319,8 @@ position without an N then the return is C<undef>.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::HexSpiralSkewed>,
-L<Math::PlanePath::TriangleSpiral>
+L<Math::PlanePath::TriangleSpiral>,
+L<Math::PlanePath::TriangularHypot>
 
 =head1 HOME PAGE
 
@@ -326,7 +328,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -62,10 +62,12 @@ use POSIX qw(floor ceil);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
+use Math::PlanePath::KochCurve;
 @ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -85,8 +87,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### PythagoreanTree n_to_xy(): $n
 
-  if ($n < 1            # start at N=1
-      || $n-1 == $n) {  # infinity
+  if ($n < 1 || _is_infinite($n)) {
     return;
   }
 
@@ -97,7 +98,7 @@ sub n_to_xy {
   }
 
   my $h = 2*($n-1)+1;
-  my ($range, $level) = _round_down_pow3 ($h);
+  my ($range, $level) = Math::PlanePath::KochCurve::_round_down_pow3 ($h);
   my $base = ($range - 1)/2 + 1;
   my $rem = $n - $base;
 
@@ -232,7 +233,7 @@ sub xy_to_n {
     }
   }
 
-  if ($p-1 == $p || $q-1 == $q  # infinity
+  if (_is_infinite($p) || _is_infinite($q)  # infinity
       || $p < 1 || $q < 1       # negatives
       || ! (($p ^ $q) & 1)      # must be oppostite parity
      ) {
@@ -374,27 +375,6 @@ sub rect_to_n_range {
   }
   ### $level
   return (1, (3**$level - 1) / 2);
-}
-
-# return ($pow, $exp) with $pow = 3**$exp <= $n, the next power of 3 at or
-# below $n
-sub _round_down_pow3 {
-  my ($n) = @_;
-  my $exp = int(log($n)/log(3));
-  my $pow = 3**$exp;
-
-  # check how $pow actually falls against $n, not sure should trust float
-  # rounding in log()/log(3)
-  if ($pow > $n) {
-    ### hmm, int(log) too big, decrease
-    $exp--;
-    $pow = 3**$exp;
-  } elsif (3*$pow <= $n) {
-    ### hmm, int(log) too small, increase
-    $exp++;
-    $pow *= 3;
-  }
-  return ($pow, $exp);
 }
 
 1;
@@ -807,7 +787,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2011 Kevin Ryde
+Copyright 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

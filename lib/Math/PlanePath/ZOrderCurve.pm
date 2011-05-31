@@ -23,10 +23,11 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -38,8 +39,7 @@ use constant y_negative => 0;
 sub n_to_xy {
   my ($self, $n) = @_;
   ### ZOrderCurve n_to_xy(): $n
-  if ($n < 0
-      || $n-1 == $n) {  # infinity
+  if ($n < 0 || _is_infinite($n)) {
     return;
   }
 
@@ -277,8 +277,8 @@ biggest N is at the upper right (biggest X and biggest Y).
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HilbertCurve>,
-L<Math::PlanePath::PeanoCurve>
+L<Math::PlanePath::PeanoCurve>,
+L<Math::PlanePath::HilbertCurve>
 
 C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
 
@@ -290,7 +290,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

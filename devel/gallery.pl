@@ -21,9 +21,6 @@
 use 5.004;
 use strict;
 use warnings;
-use Math::Libm 'hypot', 'asinh', 'M_PI', 'asin';
-use POSIX ();
-use Math::PlanePath::ArchimedeanChords;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
@@ -31,6 +28,21 @@ use Smart::Comments;
 chdir "$ENV{HOME}/tux/web/math-planepath" or die;
 foreach my $elem
   (
+   ['koch-snowflakes-small.png',
+    'math-image --path=KochSnowflakes --lines --scale=2 --size=32 --png'],
+   ['koch-snowflakes-big.png',
+    'math-image --path=KochSnowflakes --lines --scale=3 --size=200x150 --png'],
+
+   ['koch-peaks-small.png',
+    'math-image --path=KochPeaks --lines --scale=2 --size=32 --png'],
+   ['koch-peaks-big.png',
+    'math-image --path=KochPeaks --lines --scale=3 --size=200x100 --png'],
+
+   ['koch-curve-small.png',
+    'math-image --path=KochCurve --lines --scale=2 --size=32 --png'],
+   ['koch-curve-big.png',
+    'math-image --path=KochCurve --lines --scale=5 --size=250x75 --png'],
+
    ['pythagorean-small.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32 --png'],
    ['pythagorean-points-big.png',

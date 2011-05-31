@@ -38,10 +38,11 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 29;
+$VERSION = 30;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -92,8 +93,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### HilbertCurve n_to_xy(): $n
   ### hex: sprintf "%#X", $n
-  if ($n < 0
-      || $n-1 == $n) {  # infinity
+  if ($n < 0 || _is_infinite($n)) {
     return;
   }
 
@@ -159,8 +159,7 @@ sub xy_to_n {
   my $pos = 0;
   {
     my $m = max ($x, $y);
-    if ($m-1 == $m) {
-      # infinity
+    if (_is_infinite($m)) {
       return undef;
     }
 
@@ -665,7 +664,8 @@ and asking what N the ZOrderCurve or Diagonals path would put there.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>,
-L<Math::PlanePath::ZOrderCurve>
+L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::KochCurve>
 
 L<Math::Curve::Hilbert>,
 L<Algorithm::QuadTree>
@@ -684,7 +684,9 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Math-PlanePath is Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011 Kevin Ryde
+
+This file is part of Math-PlanePath.
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
