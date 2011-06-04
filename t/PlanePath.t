@@ -33,11 +33,11 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  PythagoreanTree
                   KochCurve
                   KochPeaks
                   KochSnowflakes
                   TriangularHypot
-                  PythagoreanTree
                   GreekKeySpiral
 
                   OctagramSpiral
@@ -81,7 +81,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 30;
+my $want_version = 31;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

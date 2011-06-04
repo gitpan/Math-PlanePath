@@ -25,7 +25,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 30;
+$VERSION = 31;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -167,6 +167,9 @@ be seen standing out from its surrounds.
 Plotting various quadratic sequences of points can form attractive patterns.
 For example the triangular numbers s*(s+1)/2 come out as spiral arcs going
 clockwise and counter-clockwise.
+
+See F<examples/sacks-xpm.pl> in the Math-PlanePath sources for a complete
+program plotting the spiral points to an XPM image file.
 
 =head1 FUNCTIONS
 

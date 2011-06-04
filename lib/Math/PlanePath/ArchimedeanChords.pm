@@ -22,7 +22,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 30;
+$VERSION = 31;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -523,7 +523,7 @@ which simplifies to
 
     dist^2(u) = [ (t+u)^2 + t^2 - 2*t*(t+u)*cos(u) ] / (4*pi^2)
 
-Switch from cos to sin using the half angle cos(u) = 1 - 2*sin^2(u/2)) in
+Switch from cos to sin using the half angle cos(u) = 1 - 2*sin^2(u/2) in
 case if u is small then the cos(u) near 1.0 might lose floating point
 accuracy, and also as a slight simplification,
 

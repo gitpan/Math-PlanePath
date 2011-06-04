@@ -25,6 +25,8 @@ devel/interpolate.pl
 devel/Makefile
 devel/next.pl
 devel/pixel-rings.pl
+devel/plus-similar.pl
+devel/pythagorean-area.pl
 devel/pythagorean.pl
 devel/r5.pl
 devel/run.pl
@@ -121,6 +123,7 @@ t/TheodorusSpiral.t
 t/TriangularHypot.t
 t/VogelFloret.t
 t/ZOrderCurve.t
+xt/0-examples-xrefs.t
 xt/0-META-read.t
 xt/0-no-debug-left-on.t
 xt/0-Test-ConsistentVersion.t

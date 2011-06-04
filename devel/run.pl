@@ -34,12 +34,13 @@ use Smart::Comments;
   require Math::PlanePath::PythagoreanTree;
   require Math::PlanePath::GreekKeySpiral;
   require Math::PlanePath::PixelRings;
-  require Math::PlanePath::MathImageCoprimeColumns;
   require Math::PlanePath::TriangularHypot;
   require Math::PlanePath::KochSnowflakes;
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::KochCurve;
-  my $path = Math::PlanePath::MathImageKochCurve->new
+  require Math::PlanePath::MathImageCoprimeColumns;
+  require Math::PlanePath::MathImagePlusSimilar;
+  my $path = Math::PlanePath::MathImagePlusSimilar->new
     (wider => 0,
      # step => 0,
      #tree_type => 'UAD',

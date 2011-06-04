@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 30;
+$VERSION = 31;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -290,6 +290,9 @@ This path makes a square spiral,
 
                  ^
     -3  -2  -1  x=0  1   2   3
+
+See F<examples/square-numbers.pl> in the sources for a simple program
+printing these numbers.
 
 This path is well known from Stanislaw Ulam finding interesting straight
 lines when plotting the prime numbers on it.  See

@@ -59,10 +59,9 @@ use 5.004;
 use strict;
 use List::Util qw(min max);
 use POSIX qw(floor ceil);
-use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 30;
+$VERSION = 31;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -157,33 +156,15 @@ sub n_to_xy {
     return ($p,$q);
   }
 
-  my $a = $p*$p-$q*$q;
-  my $b = 2*$p*$q;
+  my ($a,$b) = _pq_to_ab($p,$q);
   if ($self->{'coordinates'} eq 'BA'
-      || ($self->{'coordinates'} eq 'Octant'
-          && $a < $b)) {
+      || ($self->{'coordinates'} eq 'Octant' && $a < $b)) {
     return ($b,$a);
   } else {
     return ($a,$b);
   }
 }
 
-# a = p^2 - q^2
-# b = 2pq
-# q = b/2p
-# a = p^2 - (b/2p)^2
-#   = p^2 - b^2/4p^2
-# 4ap^2 = 4p^4 - b^2
-# 4(p^2)^2 - 4a(p^2) - b^2 = 0
-# p^2 = [ 4a +/- sqrt(16a^2 + 16*b^2) ] / 2*4
-#     = [ a +/- sqrt(a^2 - b^2) ] / 2
-#     = (a +/- c) / 2
-# p = sqrt((a+c)/2)    since c>a
-# a = (a+c)/2 - q^2
-# q^2 = (a+c)/2 - a
-#     = (c-a)/2
-# q = sqrt((c-a)/2)
-#
 # (3*pow+1)/2 - (pow+1)/2
 #     = (3*pow + 1 - pow - 1)/2
 #     = (2*pow)/2
@@ -208,34 +189,13 @@ sub xy_to_n {
       ($x,$y) = ($y,$x);
     }
 
-    if (! ($x & 1) || ($y & 1)) {
-      ### don't have A odd, B even: "$x, $y"
-      return undef;
-    }
-
-    my $z = hypot ($x, $y);
-    ### $z
-    if (int($z) != $z || ! ($z & 1)) {
-      return undef;
-    }
-
-    $p = sqrt(($z+$x)/2);
-    ### p^2: ($z+$x)/2
-    ### $p
-    if ($p != int($p)) {
-      return undef;
-    }
-
-    $q = sqrt(($z-$x)/2);
-    ### $q
-    if ($q != int($q)) {
-      return undef;
-    }
+    ($p,$q) = _ab_to_pq($x,$y)
+      or return undef;    # if not a pythagorean A,B
   }
 
   if (_is_infinite($p) || _is_infinite($q)  # infinity
       || $p < 1 || $q < 1       # negatives
-      || ! (($p ^ $q) & 1)      # must be oppostite parity
+      || ! (($p ^ $q) & 1)      # must be opposite parity
      ) {
     return undef;
   }
@@ -303,6 +263,72 @@ sub xy_to_n {
   ### $n
   return $n;
 }
+
+sub _pq_to_ab {
+  my ($p, $q) = @_;
+  return ($p*$p-$q*$q, 2*$p*$q);
+}
+
+# a = p^2 - q^2
+# b = 2pq
+# q = b/2p
+# a = p^2 - (b/2p)^2
+#   = p^2 - b^2/4p^2
+# 4ap^2 = 4p^4 - b^2
+# 4(p^2)^2 - 4a(p^2) - b^2 = 0
+# p^2 = [ 4a +/- sqrt(16a^2 + 16*b^2) ] / 2*4
+#     = [ a +/- sqrt(a^2 - b^2) ] / 2
+#     = (a +/- c) / 2
+# p = sqrt((a+c)/2)    since c>a
+# a = (a+c)/2 - q^2
+# q^2 = (a+c)/2 - a
+#     = (c-a)/2
+# q = sqrt((c-a)/2)
+#
+sub _ab_to_pq {
+  my ($x, $y) = @_;
+  ### _ab_to_pq(): "$x, $y"
+
+  unless (($x & 1) && !($y & 1)) {
+    ### don't have A odd, B even
+    return;
+  }
+
+  # This used to be $z=hypot($x,$y) and check $z==int($z), but libm hypot()
+  # on Darwin 8.11.0 is somehow a couple of bits off being an integer, for
+  # example hypot(57,176)==185 but a couple of bits extra so $z!=int($z).
+  # Would have thought hypot() ought to be exact on integer inputs and a
+  # perfect square sum :-(.  Check for a perfect square by multiplying back
+  # instead.
+  #
+  my $zsquared = $x*$x + $y*$y;
+  my $z = int(sqrt($zsquared)+.5);
+  ### $zsquared
+  ### $z
+  unless ($z*$z == $zsquared) {
+    return;
+  }
+
+  # x odd and y even means z^2 is odd and so z is odd
+  ### assert: $z&1
+  ### assert: $z > $x
+
+  my $p = sqrt(($z+$x)/2);
+  ### p^2: ($z+$x)/2
+  ### $p
+  if ($p != int($p)) {
+    return;
+  }
+
+  my $q = sqrt(($z-$x)/2);
+  ### $q
+  if ($q != int($q)) {
+    return;
+  }
+
+  return ($p, $q);
+}
+
 
 
 # numprims(H) = how many with hypot < H

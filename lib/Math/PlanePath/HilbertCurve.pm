@@ -38,7 +38,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 30;
+$VERSION = 31;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -488,6 +488,9 @@ corner.
 Because each step is by 1, the distance along the curve between two X,Y
 points is the difference in their N values (as given by C<xy_to_n>).
 
+See F<examples/hilbert-path.pl> in the Math-PlanePath sources for a sample
+program printing the path pattern in ascii.
+
 =head2 Locality
 
 The Hilbert curve is fairly well localized in the sense that a small
@@ -659,6 +662,9 @@ and asking what N the ZOrderCurve or Diagonals path would put there.
     A163358    inverse of A163357
     A163360    inverse of A163359
     A163362    inverse of A163361
+
+See F<examples/hilbert-oeis.pl> in the Math-PlanePath sources for a sample
+program printing A163359 values.
 
 =head1 SEE ALSO
 

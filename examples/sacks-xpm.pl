@@ -18,8 +18,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Usage: perl sacks-xpm.pl >/tmp/foo.xpm     # write image file
-#        xgzv /tmp/xpm                       # view file
+# Usage: perl sacks-xpm.pl >/tmp/foo.xpm
+#        xgzv /tmp/foo.xpm
 #
 # This spot of code generates a big .xpm file showing all the points of the
 # SacksSpiral.  XPM is text format and can be generated quite easily as row

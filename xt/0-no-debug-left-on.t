@@ -54,9 +54,10 @@ sub check {
 
   @files = grep {m{
                     ^lib/
-                  |^examples/.*\.pl$
+                  |^examples/.*\.p[lm]$
                   |^Makefile.PL$
-                  |t/.*\.t$
+                  |^t/     # .pm's under t too
+                  |^xt/    # though only author tests
                 }x
               } @files;
 
@@ -75,7 +76,9 @@ sub check {
       # only a DEBUG=> a non-zero number is bad, so an expression can copy a
       # debug from another package
       if (/(DEBUG\s*=>\s*[1-9][0-9]*)/
-          || /^[ \t]*((use|no) Smart::Comments)/) {
+          || /^[ \t]*((use|no) Smart::Comments)/
+          || /^[ \t]*(use lib\b.*devel.*)/
+         ) {
         print STDERR "\n$filename:$.: leftover: $_\n";
         $good = 0;
       }

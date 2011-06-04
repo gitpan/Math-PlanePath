@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 30;
+$VERSION = 31;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -375,7 +375,8 @@ more than that.
 The snowflake is an example of a fractal curve with ever finer structure.
 The code here can be used for that by going from N=Nstart to
 N=Nstart+length-1 and scaling X/3^level Y/3^level for a 2-wide 1-high figure
-of desired fineness level.  See F<examples/koch-svg.pl> 
+of desired fineness level.  See F<examples/koch-svg.pl> for an complete
+program doing that as an SVG image file.
 
 =head1 FUNCTIONS
 
