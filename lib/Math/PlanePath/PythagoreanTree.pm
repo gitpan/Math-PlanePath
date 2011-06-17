@@ -61,7 +61,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -802,7 +802,8 @@ an N range.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::Hypot>
+L<Math::PlanePath::Hypot>,
+L<Math::PlanePath::CoprimeColumns>
 
 H. Lee Price, "The Pythagorean Tree: A New Species", 2008,
 <http://arxiv.org/abs/0809.4324>.

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 256 }
+BEGIN { plan tests => 270 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,12 +33,14 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
-                  PythagoreanTree
+                  CoprimeColumns
+                  SierpinskiArrowhead
+                  KochSnowflakes
                   KochCurve
                   KochPeaks
-                  KochSnowflakes
                   TriangularHypot
                   GreekKeySpiral
+                  PythagoreanTree
 
                   OctagramSpiral
                   Hypot
@@ -81,7 +83,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 31;
+my $want_version = 32;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -204,7 +206,12 @@ my %class_dxdy_allowed
                                              '0,1'   => 1, # N
                                             },
 
-     'Math::PlanePath::HexSpiral'    => $dxdy_hex,
+     'Math::PlanePath::HexSpiral'      => $dxdy_hex,
+     'Math::PlanePath::KochCurve'      => $dxdy_hex,
+
+     # also jumps at ends
+     # 'Math::PlanePath::KochPeaks'      => $dxdy_hex,
+     # 'Math::PlanePath::KochSnowflakes' => $dxdy_hex,
 
      'Math::PlanePath::HexSpiralSkewed'    => {
                                                '-1,1' => 1, # NW
@@ -335,6 +342,11 @@ sub pythagorean_diag {
               }
             }
             if ($module eq 'ArchimedeanChords') {
+              if ($limit > 1100) {
+                $limit = 1100;  # bit slow otherwise
+              }
+            }
+            if ($module eq 'CoprimeColumns') {
               if ($limit > 1100) {
                 $limit = 1100;  # bit slow otherwise
               }

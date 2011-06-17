@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -241,10 +241,7 @@ fit on a square grid.
 Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
 x=2,y=0.  The diagonals are just 1 across, so n=3 is at x=1,y=1.  Each
 alternate row is offset from the one above or below.  The result is a
-triangular lattice, but the triangles between the points are flatter than
-they ought to be.  Drawn on a square grid the angle up is 45 degrees making
-an isosceles right triangle instead of an equilateral triangle of 60
-degrees.
+triangular lattice per L<Math::PlanePath/Triangular Lattice>.
 
 The octagonal numbers 8,21,40,65, etc 3*k^2-2*k fall on a horizontal
 straight line at y=-1.  In general straight lines are 3*k^2 + b*k + c.  The

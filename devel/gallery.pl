@@ -28,6 +28,16 @@ use Smart::Comments;
 chdir "$ENV{HOME}/tux/web/math-planepath" or die;
 foreach my $elem
   (
+   ['coprime-columns-small.png',
+    'math-image --path=CoprimeColumns --all --scale=3 --size=32 --png'],
+   ['coprime-columns-big.png',
+    'math-image --path=CoprimeColumns --all --scale=3 --size=200x200 --png'],
+
+   ['sierpinski-arrowhead-small.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=1 --size=32 --png'],
+   ['sierpinski-arrowhead-big.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200 --png'],
+
    ['koch-snowflakes-small.png',
     'math-image --path=KochSnowflakes --lines --scale=2 --size=32 --png'],
    ['koch-snowflakes-big.png',

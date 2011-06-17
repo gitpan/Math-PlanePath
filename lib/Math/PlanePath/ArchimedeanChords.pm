@@ -22,7 +22,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

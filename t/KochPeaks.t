@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 76 }
+BEGIN { plan tests => 88 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::KochPeaks;
 # VERSION
 
 {
-  my $want_version = 31;
+  my $want_version = 32;
   ok ($Math::PlanePath::KochPeaks::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochPeaks->VERSION,  $want_version,
@@ -73,7 +73,11 @@ require Math::PlanePath::KochPeaks;
 # first few points
 
 {
-  my @data = ([ 1, -1,0 ],
+  my @data = ([ .5,  -1.5, -.5 ],
+              [ 3.25,  1.25, -.25 ],
+              [ 3.75,  -3.25, -.25 ],
+
+              [ 1, -1,0 ],
               [ 2, 0,1 ],
               [ 3, 1,0 ],
 
@@ -100,12 +104,14 @@ require Math::PlanePath::KochPeaks;
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
+    next unless $want_n==int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
     ok ($got_n, $want_n, "n at x=$x,y=$y");
   }
 
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
+    $n = int($n+.5);
     my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
     ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
     ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");

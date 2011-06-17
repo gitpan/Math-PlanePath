@@ -1,0 +1,453 @@
+# Copyright 2011 Kevin Ryde
+
+# This file is part of Math-PlanePath.
+#
+# Math-PlanePath is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3, or (at your option) any later
+# version.
+#
+# Math-PlanePath is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# math-image --path=SierpinskiArrowhead --lines --scale=10
+# math-image --path=SierpinskiArrowhead --output=numbers
+
+
+package Math::PlanePath::SierpinskiArrowhead;
+use 5.004;
+use strict;
+use List::Util qw(min max);
+use POSIX qw(floor ceil);
+
+use vars '$VERSION', '@ISA';
+$VERSION = 32;
+
+use Math::PlanePath;
+@ISA = ('Math::PlanePath');
+*_is_infinite = \&Math::PlanePath::_is_infinite;
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
+use constant n_start => 0;
+use constant y_negative => 0;
+
+sub n_to_xy {
+  my ($self, $n) = @_;
+  ### SierpinskiArrowhead n_to_xy(): $n
+  if ($n < 0) {
+    return;
+  }
+  if (_is_infinite($n)) {
+    return ($n,$n);
+  }
+
+  my ($x, $y);
+  {
+    my $whole = int($n);
+    $x = $y = $n - $whole;  # fraction part
+    $n = $whole;
+  }
+  my $len = 1;
+  while ($n) {
+    my $digit = ($n % 3);
+
+    ### odd right: "$x,$y  len=$len"
+    ### $digit
+    if ($digit == 0) {
+
+    } elsif ($digit == 1) {
+      $x = $len - $x;  # mirror and offset
+      $y += $len;
+
+    } else {
+      ($x,$y) = (($x+3*$y)/-2,             # rotate +120
+                 ($x-$y)/2    + 2*$len);
+    }
+    $len *= 2;
+
+    $n = int($n/3) || last;
+    $digit = ($n % 3);
+    $n = int($n/3);
+
+    ### odd left: "$x,$y  len=$len"
+    ### $digit
+    if ($digit == 0) {
+
+    } elsif ($digit == 1) {
+      $x = - $x - $len;  # mirror and offset
+      $y += $len;
+
+    } else {
+      ($x,$y) = ((3*$y-$x)/2,              # rotate -120
+                 ($x+$y)/-2  + 2*$len)
+    }
+    $len *= 2;
+  }
+
+  ### final: "$x,$y"
+  return ($x, $y);
+}
+
+sub xy_to_n {
+  my ($self, $x, $y) = @_;
+  $x = floor($x + 0.5);
+  $y = floor($y + 0.5);
+  ### SierpinskiArrowhead xy_to_n(): "$x, $y"
+
+  if ($y < 0 || (($x^$y) & 1)) {
+    return undef;
+  }
+
+  my ($len, $level) = _round_up_pow2 ($y + ($y==$x || $y==-$x));
+  ### pow2 round up: ($y + ($y==$x || $y==-$x))
+  ### $len
+  ### $level
+
+  if (_is_infinite($level)) {
+    return $level;
+  }
+
+  my $n = 0;
+  while ($level) {
+    $n *= 3;
+    ### at: "$x,$y  level=$level"
+    ### full len: $len
+    $len /= 2;
+    ### half len: $len
+
+    if ($y < 0 || $x < -$y || $x > $y) {
+      ### out of range
+      return undef;
+    }
+    if ($y < $len + !($x==$y||$x==-$y)) {
+      ### digit 0, first triangle, no change
+
+    } else {
+      if ($level & 1) {
+        ### odd level
+        if ($x > 0) {
+          ### digit 1, right triangle
+          $n += 1;
+          $y -= $len;
+          $x = - ($x-$len);
+          ### shift right and mirror to: "$x,$y"
+        } else {
+          ### digit 2, left triangle
+          $n += 2;
+          $y -= 2*$len;
+          ### shift down to: "$x,$y"
+          ($x,$y) = ((3*$y-$x)/2,   # rotate -120
+                     ($x+$y)/-2);
+          ### rotate to: "$x,$y"
+        }
+      } else {
+        ### even level
+        if ($x < 0) {
+          ### digit 1, left triangle
+          $n += 1;
+          $y -= $len;
+          $x = - ($x+$len);
+          ### shift right and mirror to: "$x,$y"
+        } else {
+          ### digit 2, right triangle
+          $n += 2;
+          $y -= 2*$len;
+          ### shift down to: "$x,$y"
+          ($x,$y) = (($x+3*$y)/-2,             # rotate +120
+                     ($x-$y)/2);
+          ### now: "$x,$y"
+        }
+      }
+    }
+
+    $level--;
+  }
+
+  if ($x == 0 && $y == 0) {
+    return $n;
+  } else {
+    return undef;
+  }
+}
+
+sub _round_up_pow2 {
+  my ($x) = @_;
+  my $exp = ceil (log(max(1, $x)) / log(2));
+  my $pow = 2 ** $exp;
+  if ($pow < $x) {
+    return (2*$pow, $exp+1)
+  } else {
+    return ($pow, $exp);
+  }
+}
+
+sub rect_to_n_range {
+  my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### SierpinskiArrowhead rect_to_n_range() ...
+
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
+  $y2 = floor($y2 + 0.5);
+  if ($y2 < 0) {
+    return (1,0);
+  }
+
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
+  $x1 = floor($x1 + 0.5);
+  $x2 = floor($x2 + 0.5);
+
+  if ($x2 < -$y2 || $x1 > $y2) {
+    return (1,0);  # outside diagonals X=Y, X=-Y
+  }
+  my $level = _log2_ceil ($y2+1);
+  ### $y2
+  ### $level
+  return (0, 3 ** $level - 1);
+}
+
+sub _log2_ceil {
+  my ($x) = @_;
+  my $exp = ceil (log(max(1, $x)) / log(2));
+  return $exp + (2 ** ($exp+1) <= $x);
+}
+
+1;
+__END__
+
+=for stopwords eg Ryde Sierpinski Nlevel ie
+
+=head1 NAME
+
+Math::PlanePath::SierpinskiArrowhead -- self-similar triangular path traversal
+
+=head1 SYNOPSIS
+
+ use Math::PlanePath::SierpinskiArrowhead;
+ my $path = Math::PlanePath::SierpinskiArrowhead->new;
+ my ($x, $y) = $path->n_to_xy (123);
+
+=head1 DESCRIPTION
+
+I<In progress.>
+
+This is an integer version of the Sierpinski arrowhead path.  It follows a
+self-similar triangular shape leaving middle triangle gaps.
+
+    \
+     27----26          19----18          15----14              8
+             \        /        \        /        \
+              25    20          17----16          13           7
+             /        \                          /
+           24          21                11----12              6
+             \        /                 /
+              23----22                10                       5
+                                        \
+                        5---- 6           9                    4
+                      /        \        /
+                     4           7---- 8                       3
+                      \
+                        3---- 2                                2
+                               \
+                                 1                             1
+                               /
+                              0                            <- Y=0
+
+     -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
+
+The base figure is the N=0 to N=3 shape.  It's repeated up in mirror image
+as N=3 to N=6 then across as N=6 to N=9.  At the next level the same is done
+with the N=0 to N=9 shape, up as N=9 to N=18 and across as N=18 to N=27,
+etc.
+
+The X,Y coordinates are on a triangular lattice done in integers by using
+every second X, per L<Math::PlanePath/Triangular Lattice>.
+
+The pattern is a triangle like
+
+    3---------2 - - - - .
+     \         \
+         C  /   \  B  /
+       \      D  \
+          /       \ /
+         . - - - - 1
+          \       /
+              A  /
+            \   /
+               /
+              0
+
+Higher levels go into the triangles A,B,C.  The middle triangle D is not
+traversed.  It's hard to see that middle in the initial N=0 to N=27 above,
+but the following is more of the visited points, making it clearer
+
+        *   * *   * *   *                 * *   * *   * *
+         * *   * *   * *                 *   * *   * *
+            * *   * *                     * *     *   *
+           *         *                       *     * *
+            * *   * *                       *   * *
+               * *                           * *   *
+              *   *                             * *
+               * *                             *
+                  * *   * *   * *   * *   * *   *
+                 *   * *   * *   * *   * *   * *
+                  * *     *   *     * *   * *
+                     *     * *     *         *
+                    *   * *         * *   * *
+                     * *   *           * *
+                        * *           *   *
+                       *               * *
+                        * *   * *   * *
+                           * *   * *   *
+                          *   *     * *
+                           * *     *
+                              * *   *
+                             *   * *
+                              * *
+                                 *
+                                *
+
+=head2 Sierpinski Triangle
+
+The path is related to the Sierpinski triangle or "gasket" by treating each
+line segment as the side of a little triangle.  The N=0 to N=1 segment has
+it on the left, N=1 to N=2 on the right, and N=2 to N=3 underneath, which is
+per the A,B,C parts shown above.  Notice there's no middle little triangle
+"D" in each triplet of line segments.  In general segment N to N+1 has a
+little triangle to the left if N even and to the right if N odd.
+
+This pattern of little triangles is why the segment N=4 to N=5 looks like it
+hasn't visited the vertex of the triangular N=0 to N=9 -- the 4 to 5 segment
+is standing in for a little triangle to the left of that segment.  Similarly
+N=13 to N=14 and each alternate side in the middle of replication levels.
+
+There's easier ways to generate the Sierpinski triangle though.  One of the
+simplest is to take X,Y coordinates which have no 1 bit on common, ie. a
+bitwise-AND
+
+    ($x & $y) == 0
+
+giving the shape in the first quadrant (X>=0, Y=>0).  The same effect is had
+in the ZOrderCurve path by plotting all numbers N which have no digit 3 in
+their base-4 representation (see L<Math::PlanePath::ZOrderCurve/Power of 2
+Values>).
+
+The attraction of this Arrowhead path is that it makes a connected stepwise
+traversal through the pattern.
+
+=head2 Level Sizes
+
+Treating the N=0,1,2 segment as level 1, each level goes from N=0 to
+
+    Nlevel = 3^level
+
+inclusive of the final triangle corner position.  For example level 2 is
+from N=0 to N=3^2=9.  Each level doubles in size,
+
+    0 <= Y <= 2^level
+    - 2^level <= X <= + 2^level
+
+The final Nlevel position is alternately on the right or left,
+
+    X = /  2^level      if level even
+        \  - 2^level    if level odd
+
+The centre X=0 crossing N=2,6,18,etc is 2/3 through the level, ie. after two
+replications of the previous level,
+
+    Ncross = 2/3 * 3^level
+           = 2 * 3^(level-1)
+
+=head2 Sideways
+
+The arrowhead is sometimes drawn on its side instead, with a base along the
+X axis.  That can be had with a -60 degree rotation (see
+L<Math::PlanePath/Triangular Lattice>),
+
+    (3Y+X)/2, (Y-X)/2       rotate -60
+
+The first point N=1 is then along the X axis to X=2,Y=0.  Or apply a
+mirroring -X first then rotate to have it go diagonally upwards first.
+
+    (3Y-X)/2, (Y+X)/2       mirror X and rotate -60
+
+The plain -60 rotate puts the Nlevel=3^level of each level on the X axis for
+even level, and at the top peak for odd level.  With the extra mirroring
+it's the other way around.  If drawing successive levels then the two can be
+alternated to have the endpoint on the X axis each time if desired.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<$path = Math::PlanePath::SierpinskiArrowhead-E<gt>new ()>
+
+Create and return a new path object.
+
+=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
+
+Return the X,Y coordinates of point number C<$n> on the path.  Points begin
+at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+If C<$n> is not an integer then the return is on a straight line between the
+integer points.
+
+=back
+
+=head1 SEE ALSO
+
+L<Math::PlanePath>,
+L<Math::PlanePath::KochCurve>
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-planepath/index.html
+
+=head1 LICENSE
+
+Copyright 2011 Kevin Ryde
+
+Math-PlanePath is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-PlanePath is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut
+
+
+
+
+    #                         27 ...                           8
+    #                           \
+    #                       .    26                            7
+    #                           /
+    #                   24----25     .                         6
+    #                  /
+    #                23     .    20----19                      5
+    #                  \        /        \
+    #              .    22----21    .     18                   4
+    #                                    /
+    #           4---- 5     .     .    17    .                 3
+    #         /        \                 \
+    #        3     .     6     .     .    16----15             2
+    #         \         /                         \
+    #     .     2     7     .    10----11     .    14          1
+    #         /        \        /        \        /
+    #  0---- 1     .     8---- 9     .    12----13    .    <- Y=0
+    #
+    # X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 ...
+

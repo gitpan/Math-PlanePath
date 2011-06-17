@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -36,7 +36,7 @@ use Math::PlanePath::KochCurve;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 
 sub _prevpow4 {
@@ -47,10 +47,12 @@ sub _prevpow4 {
   }
   return $pow;
 }
-### _prevpow4(3): _prevpow4(3)
-### _prevpow4(4): _prevpow4(4)
-### _prevpow4(15): _prevpow4(15)
-### _prevpow4(16): _prevpow4(16)
+### assert: _prevpow4(3) == 0
+### assert: _prevpow4(4) == 1
+### assert: _prevpow4(5) == 1
+### assert: _prevpow4(15) == 1
+### assert: _prevpow4(16) == 2
+### assert: _prevpow4(17) == 2
 
 
 # N=1 to 3      3 of, level=1
@@ -64,6 +66,11 @@ sub _prevpow4 {
 #            = 1 + 3*[ (4^level - 1)/3 ]
 #            = 1 + (4^level - 1)
 #            = 4^level
+#
+# each side = loop/3
+#           = 3*4^level / 3
+#           = 4^level
+#
 
 ### loop 1: 3* 4**1
 ### loop 2: 3* 4**2
@@ -84,66 +91,42 @@ sub n_to_xy {
     return;
   }
 
-  if (int($n) != $n) {
-    my ($x1,$y1) = $self->n_to_xy(floor($n));
-    my ($x2,$y2) = $self->n_to_xy(ceil($n));
-    return (($x1+$x2)/2, ($y1+$y2)/2);
-  }
-
   my $level = _prevpow4($n);
   my $base = 1 << (2*$level);  # 4**$level
+
   ### $level
   ### $base
   ### next base would be: 4**($level+1)
-  ### assert: $n >= $base
-  ### assert: $n < 4**($level+1)
 
   my $rem = $n - $base;
+  ### $rem
+
+  ### assert: $n >= $base
+  ### assert: $n < 4**($level+1)
   ### assert: $rem>=0
   ### assert: $rem < 3 * 4 ** $level
 
-  my $x = 0;
-  my $y = 0;
-  my $dx = 2;
-  my $dy = 0;
-  my $len = 1;
-  foreach (1 .. $level) {
-    my $digit = $rem & 3;
-    $rem >>= 2;
-    ### at: "$x,$y"
-    ### $digit
-
-    if ($digit == 0) {
-
-    } elsif ($digit == 1) {
-      ($x,$y) = (($x+3*$y)/2 + 2*$len,   # rotate -60
-                 ($y-$x)/2);
-
-    } elsif ($digit == 2) {
-      ($x,$y) = (($x-3*$y)/2 + 3*$len,     # rotate +60
-                 ($x+$y)/2   - $len);
-
-    } else {
-      $x += 4*$len;
-    }
-    $len *= 3;
-  }
-
-  ### final: "$x,$y"
-  ### $len
+  my $side = int($rem / $base);
+  ### $side
   ### $rem
-  if ($rem == 1) {
-    ($x,$y) = (($x+3*$y)/-2 + 2*$len,  # rotate +120
-               ($x-$y)/2)
+  $rem -= $side*$base;
+  ### assert: $side >= 0 && $side < 3
+  my ($x, $y) = Math::PlanePath::KochCurve->n_to_xy ($rem);
 
-  } elsif ($rem == 2) {
-    ($x,$y) = ((3*$y-$x)/2 + $len,   # rotate +2*120
-               ($x+$y)/-2  + $len)
+  my $len = 3**($level-1);
+  if ($side < 1) {
+    ### horizontal rightwards
+    return ($x - 3*$len,
+            -$len - $y);
+  } elsif ($side < 2) {
+    ### right slope upwards
+    return (($x-3*$y)/-2 + 3*$len,  # flip vert and rotate +120
+            ($x+$y)/2 - $len)
+  } else {
+    ### left slope downwards
+    ($x,$y) = ((-3*$y-$x)/2,  # flip vert and rotate -120
+               ($y-$x)/2 + 2*$len);
   }
-
-  $x -= $len;
-  $y -= $len/3;
-  return ($x,$y);
 }
 
 sub xy_to_n {
@@ -169,69 +152,89 @@ sub xy_to_n {
     return undef;
   }
 
-  my $n;
-  if ($x <= 0 && 3*$y > $x) {
-    ### upper left third n=3 ...
-    ($x,$y) = (($x+3*$y)/-2,  # rotate +120
-               ($x-$y)/2);
-    $n = 3;
-  } elsif ($x > 0 && $x >= -3*$y) {
-    ### upper right third n=2 ...
-    ($x,$y) = ((3*$y-$x)/2,  # rotate -120
-               ($x+$y)/-2);
-    $n = 2;
+  my $high;
+  if ($x > 0 && $x >= -3*$y) {
+    ### right upper third n=2 ...
+    ($x,$y) = ((3*$y-$x)/2,   # rotate -120 and flip vert
+               ($x+$y)/2);
+    $high = 2;
+  } elsif ($x <= 0 && 3*$y > $x) {
+    ### left upper third n=3 ...
+    ($x,$y) = (($x+3*$y)/-2,             # rotate +120 and flip vert
+               ($y-$x)/2);
+    $high = 3;
   } else {
     ### lower third n=1 ...
-    $n = 1;
+    $y = -$y;  # flip vert
+    $high = 1;
   }
-  if ($y >= 0) {
+  ### rotate/flip to: "$x,$y"
+  if ($y <= 0) {
     return undef;
   }
 
-  my ($len,$level) = Math::PlanePath::KochCurve::_round_down_pow3(-$y);
+  my ($len,$level) = Math::PlanePath::KochCurve::_round_down_pow3($y);
+  $level += 1;
+  ### $level
+  ### $len
   if (_is_infinite($level)) {
     return $level;
   }
-
-  ### assert: 3*$y <= $x && 3*$y < -$x
-  $y += $len;
-  ### add ylen: "$len to $x,$y"
-  ### $level
-
-  while ($level-- >= 0) {
-    $n *= 4;
-    ### at: "level=$level len=$len   x=$x,y=$y  n=$n"
-    if ($x < 0) {
-      if ($x < -$len) {
-        ### digit 0, x add: 2*$len
-        $x += 2*$len;
-      } else {
-        ### digit 1...
-        $x += $len;
-        ($x,$y) = (($x-3*$y)/2 - $len,     # rotate +60
-                   ($x+$y)/2);
-        $n++;
-      }
-    } else {
-      if ($x <= $len && $y != 0) {
-        ### digit 2...
-        $y += $len;
-        ($x,$y) = (($x+3*$y)/2 - $len,   # rotate -60
-                   ($y-$x)/2);
-        $n += 2;
-      } else {
-        #### digit 3...
-        $x -= 2*$len;
-        $n += 3;
-      }
-    }
-    $len /= 3;
-  }
-  ### end at: "x=$x,y=$y"
-  if ($x != -1 || $y != 0) {
+  my $n = Math::PlanePath::KochCurve->xy_to_n($x+3*$len, $y-$len);
+  ### plain curve on: ($x+3*$len).",".($y-$len)."  n=".(defined $n && $n)
+  ### $high
+  ### high: (4**$level)*$high
+  if (defined $n) {
+    return (4**$level)*$high + $n;
+  } else {
     return undef;
   }
-  return $n;
+
+
+
+
+  # if ($y < 0) {
+  #   return undef;
+  # }
+  #
+  # ### assert: 3*$y <= $x && 3*$y < -$x
+  # ### add ylen: "$len to $x,$y"
+  # ### $level
+  #
+  # while ($level-- >= 0) {
+  #   $n *= 4;
+  #   ### at: "level=$level len=$len   x=$x,y=$y  n=$n"
+  #   if ($x < 0) {
+  #     if ($x < -$len) {
+  #       ### digit 0, x add: 2*$len
+  #       $x += 2*$len;
+  #     } else {
+  #       ### digit 1...
+  #       $x += $len;
+  #       ($x,$y) = (($x-3*$y)/2 - $len,     # rotate +60
+  #                  ($x+$y)/2);
+  #       $n++;
+  #     }
+  #   } else {
+  #     if ($x <= $len && $y != 0) {
+  #       ### digit 2...
+  #       $y += $len;
+  #       ($x,$y) = (($x+3*$y)/2 - $len,   # rotate -60
+  #                  ($y-$x)/2);
+  #       $n += 2;
+  #     } else {
+  #       #### digit 3...
+  #       $x -= 2*$len;
+  #       $n += 3;
+  #     }
+  #   }
+  #   $len /= 3;
+  # }
+  # ### end at: "x=$x,y=$y"
+  # if ($x != -1 || $y != 0) {
+  #   return undef;
+  # }
+  # return $n;
 }
 
 # level extends to x= +/- 3^level
@@ -262,7 +265,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS
+=for stopwords eg Ryde ie SVG Math-PlanePath
 
 =head1 NAME
 
@@ -322,8 +325,9 @@ N=6 becomes N=20 to N=24 at the next level.
 
 =head2 Triangular Coordinates
 
-The X,Y coordinates are arranged as integers on a square grid, except for
-the Y coordinates of the innermost triangle which is
+The X,Y coordinates are arranged as integers on a square grid per
+L<Math::PlanePath/Triangular Lattice>, except for the Y coordinates of the
+innermost triangle which is
 
                     N=3
                 X=0, Y=+0.666
@@ -335,12 +339,6 @@ These values are consistent with the centring and scaling of the higher
 levels.  Rounding to an integer gives Y=0 or Y=1 and doesn't overlap the
 subsequent points if all-integer is desired.
 
-For level 1 and higher each horizontal segment is X=+/-2 apart and the
-diagonals X=+/-1,Y=+/-1, in a similar style to the HexSpiral path.  The
-result is flattened triangular segments with diagonals at a 45 degree angle.
-To get 60 degree equilateral triangles of side length 1 use X/2 and
-Y*sqrt(3)/2 for side length 1, or for side length 2 just Y*sqrt(3).
-
 =head2 Level Ranges
 
 Counting the innermost triangle as level 0, each ring is
@@ -351,7 +349,7 @@ Counting the innermost triangle as level 0, each ring is
 For example the outer ring shown above is level 2 starting N=4^2=16 and
 having length=3*4^2=48 points (through to N=63 inclusive).
 
-The X range at a given level is the initial triangle baseline interated out.
+The X range at a given level is the initial triangle baseline iterated out.
 Each level expands the sides by a factor of 3 so
 
      Xlo = -(3^level)
@@ -367,7 +365,7 @@ except for the initial triangle which doesn't have a downward notch and is
 only Y=-1/3 not Y=-2/3.
 
 Notice that for each level the extents grow by a factor of 3 but the notch
-introduced into each segment is not big enough to go past the corner
+introduced in each segment is not big enough to go past the corner
 positions.  At level 1 they equal the corners horizontally, ie. N=14 is at
 X=-3 the same as N=4, and on the right N=10 at X=+3 the same as N=8, but no
 more than that.
@@ -375,8 +373,8 @@ more than that.
 The snowflake is an example of a fractal curve with ever finer structure.
 The code here can be used for that by going from N=Nstart to
 N=Nstart+length-1 and scaling X/3^level Y/3^level for a 2-wide 1-high figure
-of desired fineness level.  See F<examples/koch-svg.pl> for an complete
-program doing that as an SVG image file.
+of desired fineness.  See F<examples/koch-svg.pl> for an complete program
+doing that as an SVG image file.
 
 =head1 FUNCTIONS
 

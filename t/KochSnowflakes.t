@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 10 }
+BEGIN { plan tests => 33 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::KochSnowflakes;
 # VERSION
 
 {
-  my $want_version = 31;
+  my $want_version = 32;
   ok ($Math::PlanePath::KochSnowflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSnowflakes->VERSION,  $want_version,
@@ -64,9 +64,43 @@ require Math::PlanePath::KochSnowflakes;
 {
   my $path = Math::PlanePath::KochSnowflakes->new;
   ok ($path->n_start, 1, 'n_start()');
-  ok (!! $path->x_negative, 1, 'x_negative()');
-  ok (!! $path->y_negative, 1, 'y_negative()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 1, 'y_negative()');
 }
 
+#------------------------------------------------------------------------------
+# first few points
 
+{
+  my @data = (
+              [ 4.5, -2,-1 ],
+              [ 5.5, -.5,-1.5 ],
+
+              [ 4, -3,-1 ],
+              [ 5, -1,-1 ],
+              [ 6, 0,-2 ],
+             );
+  my $path = Math::PlanePath::KochSnowflakes->new;
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    ok ($got_x, $want_x, "n_to_xy() x at n=$n");
+    ok ($got_y, $want_y, "n_to_xy() y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    next unless $want_n==int($want_n);
+    my $got_n = $path->xy_to_n ($x, $y);
+    ok ($got_n, $want_n, "xy_to_n() n at x=$x,y=$y");
+  }
+
+  foreach my $elem (@data) {
+    my ($n, $x, $y) = @$elem;
+    $n = int($n+.5);
+    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+  }
+}
 exit 0;

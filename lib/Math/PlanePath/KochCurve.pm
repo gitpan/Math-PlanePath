@@ -39,14 +39,14 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -54,7 +54,7 @@ use constant y_negative => 0;
 
 # return ($pow, $exp) with $pow = 3**$exp <= $n, the next power of 3 at or
 # below $n
-# share with PythagoreanTree ...
+# shared with PythagoreanTree ...
 sub _round_down_pow3 {
   my ($n) = @_;
   my $exp = int(log($n)/log(3));
@@ -74,31 +74,22 @@ sub _round_down_pow3 {
   return ($pow, $exp);
 }
 
-sub _prevpow4 {
-  my ($n) = @_;
-  my $pow = 0;
-  while (($n /= 4) >= 1) {
-    $pow++;
-  }
-  return $pow;
-}
-### _prevpow4(3): _prevpow4(3)
-### _prevpow4(4): _prevpow4(4)
-### _prevpow4(15): _prevpow4(15)
-### _prevpow4(16): _prevpow4(16)
-
-
 sub n_to_xy {
   my ($self, $n) = @_;
   ### KochCurve n_to_xy(): $n
-  if ($n < 0 || _is_infinite($n)) {
+
+  # secret negatives to -.5
+  if ($n < -.5 || _is_infinite($n)) {
     return;
   }
 
-  my $x = 0;
+  my $x;
+  {
+    my $whole = int($n);
+    $x = 2 * ($n - $whole);
+    $n = $whole;
+  }
   my $y = 0;
-  my $dx = 2;
-  my $dy = 0;
   my $len = 1;
   while ($n) {
     my $digit = $n % 4;
@@ -207,7 +198,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS
+=for stopwords eg Ryde Helge von Koch Math-PlanePath
 
 =head1 NAME
 
@@ -245,11 +236,9 @@ to N=8, N=8 to N=12, and N=12 to N=16.  Then that N=0 to N=16 is itself
 replicated three times at the angles of the -side pattern, and so on
 infinitely.
 
-The X,Y coordinates are arranged on a square grid using every second point.
-Each horizontal segment is X=+/-2 apart and the diagonals are X=+/-1,Y=+/-1.
-The result is flattened triangular segments with diagonals at a 45 degree
-angle.  To get 60 degree equilateral triangles of side length 1 use X/2 and
-Y*sqrt(3)/2, or for side length 2 just multiply Y by sqrt(3).
+The X,Y coordinates are arranged on a square grid using every second point,
+see L<Math::PlanePath/Triangular Lattice>.  The result is flattened
+triangular segments with diagonals at a 45 degree angle.
 
 =head2 Level Ranges
 

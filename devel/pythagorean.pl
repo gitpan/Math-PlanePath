@@ -385,8 +385,8 @@ use Smart::Comments;
 
 
 {
-  require Math::PlanePath::MathImagePythagoreanUAD;
-  my $path = Math::PlanePath::MathImagePythagoreanUAD->new;
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new;
   my $x_limit = 500;
   my @max_n;
   foreach my $n (0 .. 500000) {
@@ -403,8 +403,8 @@ use Smart::Comments;
   exit 0;
 }
 {
-  require Math::PlanePath::MathImagePythagoreanUAD;
-  my $path = Math::PlanePath::MathImagePythagoreanUAD->new;
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new;
   my $x_limit = 500;
   my @max_n;
   foreach my $n (0 .. 500000) {

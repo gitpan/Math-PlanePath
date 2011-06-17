@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 79;
+plan tests => 87;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 require Math::PlanePath::KochCurve;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 31;
+  my $want_version = 32;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -150,7 +153,11 @@ foreach my $elem ([ 1, 1,0 ],
 # first few points
 
 {
-  my @data = ([ 0, 0,0 ],
+  my @data = ([ 0.5, 1,0 ],
+              [ 3.5, 5,0 ],
+              
+
+              [ 0, 0,0 ],
               [ 1, 2,0 ],
               [ 2, 3,1 ],
               [ 3, 4,0 ],
@@ -172,6 +179,7 @@ foreach my $elem ([ 1, 1,0 ],
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
+    next unless $want_n==int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
     ok ($got_n, $want_n, "n at x=$x,y=$y");
   }

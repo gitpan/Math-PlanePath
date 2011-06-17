@@ -30,7 +30,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -146,7 +146,6 @@ sub xy_to_n {
   return $n;
 }
 
-#use Smart::Comments;
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
@@ -241,15 +240,16 @@ The repeating figure is a 3x3 pattern
        *---*---*
        |
 
-The turn excursion part is to the outside of the 3-wide channel and forward
-in the direction of the spiral.  The overall spiraling is the same as the
+The turn excursion is to the outside of the 3-wide channel and forward in
+the direction of the spiral.  The overall spiraling is the same as the
 SquareSpiral, but composed of 3x3 sub-parts.
 
 =head2 Sub-Part Joining
 
 The verticals have the "entry" to each figure on the inside edge, as for
 example N=90 to N=91 above.  The horizontals instead have it on the outside
-edge, such as N=63 to N=64 along the bottom.
+edge, such as N=63 to N=64 along the bottom.  The innermost N=1 to N=9 is a
+bottom horizontal going right.
 
       *---*---*     
       |       |        bottom horizontal
@@ -291,7 +291,7 @@ covered.
 L<Math::PlanePath>,
 L<Math::PlanePath::SquareSpiral>
 
-Jo Edkins Greek Key pages http://gwydir.demon.co.uk/jo/greekkey/index.htm
+Jo Edkins Greek Key pages C<http://gwydir.demon.co.uk/jo/greekkey/index.htm>
 
 =head1 HOME PAGE
 

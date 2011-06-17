@@ -38,9 +38,12 @@ use Smart::Comments;
   require Math::PlanePath::KochSnowflakes;
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::KochCurve;
-  require Math::PlanePath::MathImageCoprimeColumns;
   require Math::PlanePath::MathImagePlusSimilar;
-  my $path = Math::PlanePath::MathImagePlusSimilar->new
+  require Math::PlanePath::MathImageGosperSide;
+  require Math::PlanePath::MathImageGosperIslands;
+  require Math::PlanePath::SierpinskiArrowhead;
+  require Math::PlanePath::CoprimeColumns;
+  my $path = Math::PlanePath::CoprimeColumns->new
     (wider => 0,
      # step => 0,
      #tree_type => 'UAD',
@@ -48,13 +51,14 @@ use Smart::Comments;
     );
   my ($prev_x, $prev_y);
   my %seen;
-  my $start = $path->n_start;
+  my $n_start = $path->n_start;
 
-  #for (my $i = $start; $i <= $start + 500000; $i=POSIX::ceil($i*1.1+1)) {
-  for (my $i = 0; $i <= 50; $i++) {
-
+  #for (my $i = $n_start; $i <= $n_start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+  # for (my $i = 0.75; $i <= 50; $i += .5) {
   # for (my $i = 9650; $i <= 9999; $i++) {
   # $i -= 0.5;
+
+  for (my $i = $n_start; $i <= 50; $i++) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

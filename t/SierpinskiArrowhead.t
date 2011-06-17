@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-require Math::PlanePath::PixelRings;
+require Math::PlanePath::SierpinskiArrowhead;
 
 
 #------------------------------------------------------------------------------
@@ -37,20 +37,20 @@ require Math::PlanePath::PixelRings;
 
 {
   my $want_version = 32;
-  ok ($Math::PlanePath::PixelRings::VERSION, $want_version,
+  ok ($Math::PlanePath::SierpinskiArrowhead::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::PixelRings->VERSION,  $want_version,
+  ok (Math::PlanePath::SierpinskiArrowhead->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::PixelRings->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::SierpinskiArrowhead->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::PixelRings->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::SierpinskiArrowhead->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::PixelRings->new;
+  my $path = Math::PlanePath::SierpinskiArrowhead->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -61,60 +61,64 @@ require Math::PlanePath::PixelRings;
       "VERSION object check $check_version");
 }
 
-
 #------------------------------------------------------------------------------
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::PixelRings->new;
-  ok ($path->n_start, 1, 'n_start()');
+  my $path = Math::PlanePath::SierpinskiArrowhead->new;
+  ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
-  ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->y_negative, 0, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------
-# xy_to_n() diagonals
+# xy_to_n() distinct n and all n
 
 {
-  my $path = Math::PlanePath::PixelRings->new;
+  my $path = Math::PlanePath::SierpinskiArrowhead->new;
   my $bad = 0;
-  for (my $i = 0; $i < 3000; $i++) {
-    my $n = $path->xy_to_n ($i, $i)
-      or next;
-    my ($x,$y) = $path->n_to_xy ($n);
-    my $got = "$x,$y";
-    my $want = "$i,$i";
-    if ($got ne $want) {
-      MyTestHelpers::diag ("xy_to_n() wrong on diagonal $i,$i n=$n vs $x,$y");
-      if ($bad++ > 10) {
-        last;
+  my @seen;
+  my $xlo = -16;
+  my $xhi = 16;
+  my $ylo = 0;
+  my $yhi = 16;
+  my $count = 0;
+  my ($nlo, $nhi) = $path->rect_to_n_range($xlo,$ylo, $xhi,$yhi);
+
+ OUTER: for (my $x = $xlo; $x <= $xhi; $x++) {
+    for (my $y = $ylo; $y <= $yhi; $y++) {
+      my $n = $path->xy_to_n ($x,$y);
+      if (! defined $n) {
+        next;
       }
+      if ($seen[$n]) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n seen before at $seen[$n]");
+        last if $bad++ > 10;
+      }
+      my ($rx,$ry) = $path->n_to_xy ($n);
+      if ($rx != $x || $ry != $y) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n goes back to rx=$rx ry=$ry");
+        last OUTER if $bad++ > 10;
+      }
+      if ($n < $nlo) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n below nlo=$nlo");
+        last OUTER if $bad++ > 10;
+      }
+      if ($n > $nhi) {
+        MyTestHelpers::diag ("x=$x,y=$y n=$n above nhi=$nhi");
+        last OUTER if $bad++ > 10;
+      }
+      $seen[$n] = "$x,$y";
+      $count++;
     }
   }
-  ok ($bad, 0);
+  foreach my $n (0 .. $#seen) {
+    if (! defined $seen[$n]) {
+      MyTestHelpers::diag ("n=$n not seen");
+      last if $bad++ > 10;
+    }
+  }
+  ok ($bad, 0, "xy_to_n() coverage, $count points");
 }
-
-# {
-#   my $path = Math::PlanePath::PixelRings->new;
-#   my %xy_to_n;
-#   ### n range: $path->rect_to_n_range (-60,-60, 60,60)
-#   my ($n_lo, $n_hi) = $path->rect_to_n_range (-60,-60, 60,60);
-#   foreach my $n ($n_lo .. $n_hi) {
-#     my ($x,$y) = $path->n_to_xy($n);
-#     my $key = "$x,$y";
-#     if ($xy_to_n{$key}) {
-#       die "Oops, n_to_xy repeat $x,$y: was $xy_to_n{$key} now $n too";
-#     }
-#     $xy_to_n{$key} = $n;
-#     ### n_to_xy gives: "$x,$y -> $n"
-#   }
-#   ### total: scalar(%xy_to_n)
-#   foreach my $x (0 .. 60, -60 .. -1) {
-#     foreach my $y (0 .. 60, -60 .. -1) {
-#       ok ($path->xy_to_n($x,$y), $xy_to_n{"$x,$y"},
-#           "xy_to_n($x,$y)");
-#     }
-#   }
-# }
 
 exit 0;

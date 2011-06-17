@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 31;
+$VERSION = 32;
 
 # defaults
 use constant n_start => 1;
@@ -55,13 +55,13 @@ Math::PlanePath -- points on a path through the 2-D plane
 
 =head1 DESCRIPTION
 
-This is the base class for some mathematical paths which turn an integer
+This is the base class for some mathematical paths which map an integer
 position C<$n> into coordinates C<$x,$y> in the plane.  The current classes
 include
 
     SquareSpiral           four-sided spiral
-    PyramidSpiral          square base pyramid
-    TriangleSpiral         equilateral triangle
+    PyramidSpiral          square based pyramid
+    TriangleSpiral         equilateral triangle spiral
     TriangleSpiralSkewed   equilateral skewed for compactness
     DiamondSpiral          four-sided spiral, looping faster
     PentSpiralSkewed       five-sided spiral, compact
@@ -77,7 +77,7 @@ include
     TheodorusSpiral        unit steps at right angles
     ArchimedeanChords      chords on an Archimedean spiral
     MultipleRings          concentric circles
-    PixelRings             concentric circles by pixels
+    PixelRings             concentric circles of pixels
     Hypot                  points by distance
     HypotOctant            first octant points by distance
     TriangularHypot        points by triangular lattice distance
@@ -87,35 +87,161 @@ include
     HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
     KochCurve              replicating triangular notches
-    KochPeaks              stacked replicating notches
-    KochSnowflakes         concentric snowflake rings
+    KochPeaks              two replicating notches
+    KochSnowflakes         concentric notched snowflake rings
+    SierpinskiArrowhead    self-similar triangle traversal
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
     Diagonals              diagonals down from the Y to X axes
     Staircase              stairs down from the Y to X axes
     Corner                 expanding stripes around a corner
-    PyramidRows            expanding rows pyramid
+    PyramidRows            expanding stacked rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
+    CoprimeColumns         coprime X,Y
 
-The paths are object oriented to allow parameters, though only a few
-subclasses have any parameters.  See C<examples/numbers.pl> for a cute way
-to print samples of all the paths.
+The paths are object oriented to allow parameters, though many have none as
+yet.  See C<examples/numbers.pl> for a cute way to print samples of all the
+paths.
 
-The classes are generally based on integer C<$n> positions and those
-designed for a square grid turn an integer C<$n> into integer C<$x,$y>.
-Usually they give in-between positions for fractional C<$n> too.  Classes
-not on a square grid, like SacksSpiral and VogelFloret, are designed for a
-unit circle at each C<$n> but they too can give in-between positions on
-request.
+=head1 FUNCTIONS
 
-In general there's no parameters for scaling, or an offset for the 0,0
-origin, or reflection up or down.  Those things are thought better done by a
-general coordinate transformer that might expand or invert for display.
-Even clockwise instead of counter-clockwise spiralling can be had just by
-negating C<$x> (or negate C<$y> to stay starting at the right), or a quarter
-turn with C<-$y,$x>.  Try L<Transform::Canvas> for scaling/shifting, and
-L<Geometry::AffineTransform> for rotating too.
+=over 4
+
+=item C<$path = Math::PlanePath::Foo-E<gt>new (key=E<gt>value, ...)>
+
+Create and return a new path object.  Optional key/value parameters may
+control aspects of the object.
+
+C<Foo> here is one of the various subclasses, see the list above and under
+L</SEE ALSO>.
+
+=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
+
+Return x,y coordinates of point C<$n> on the path.  If there's no point
+C<$n> then the return is an empty list, so for example
+
+    my ($x,$y) = $path->n_to_xy (-123)
+      or next;   # usually no negatives in $path
+
+Paths start from C<$path-E<gt>n_start> below, though some will give a
+position for N=0 or N=-0.5 too.
+
+=item C<$n = $path-E<gt>xy_to_n ($x,$y)>
+
+Return the point number for coordinates C<$x,$y>.  If there's nothing at
+C<$x,$y> then return C<undef>.
+
+    my $n = $path->xy_to_n(20,20);
+    if (! defined $n) {
+      next;   # nothing at this x,y
+    }
+
+C<$x> and C<$y> can be fractional and the path classes will give an integer
+C<$n> which contains C<$x,$y> within a unit square, circle, or intended
+figure centred on the integer C<$n>.
+
+For paths which completely tile the plane there's always an C<$n> to return,
+but for the spread-out paths an C<$x,$y> position may fall in between (no
+C<$n> close enough).
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+Return a range of N values which occur in a rectangle with corners at
+C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
+
+     my ($n_lo, $n_hi) = $path->rect_to_n_range (-5,-5, 5,5);
+     foreach my $n ($n_lo .. $n_hi) {
+       my ($x, $y) = $path->n_to_xy ($n) or next;
+       print "$n  $x,$y";
+     }
+
+The return may be an over-estimate of the range, and many of the points
+between C<$n_lo> and C<$n_hi> may go outside the rectangle, but the range is
+some bounds for N.
+
+C<$n_hi> is usually no more than an extra partial row, revolution, or
+self-similar level.  C<$n_lo> is often merely the starting point
+C<$path-E<gt>n_start> below, which is correct if the origin 0,0 is in the
+rectangle, but something away from the origin might actually start higher.
+
+C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
+some N figures then those N's are included in the return.  If there's no
+points in the rectangle then the return may be a "crossed" range like
+C<$n_lo=1>, C<$n_hi=0> (and which makes a C<foreach> do no loops).
+
+=item C<$bool = $path-E<gt>x_negative()>
+
+=item C<$bool = $path-E<gt>y_negative()>
+
+Return true if the path extends into negative X coordinates and/or negative
+Y coordinates respectively.
+
+=item C<$n = $path-E<gt>n_start()>
+
+Return the first N in the path.  In the current classes this is either 0
+or 1.
+
+Some classes have secret dubious undocumented support for N values below
+this (zero or negative), but C<n_start> is the intended starting point.
+
+=item C<$str = $path-E<gt>figure()>
+
+Return a string name of the figure (shape) intended to be drawn at each
+C<$n> position.  This is currently either
+
+    "square"     side 1 centred on $x,$y
+    "circle"     diameter 1 centred on $x,$y
+
+Of course this is only a suggestion since PlanePath doesn't draw anything
+itself.  A figure like a diamond for instance can look good too.
+
+=back
+
+=head1 GENERAL CHARACTERISTICS
+
+The classes are mostly based on integer C<$n> positions and those designed
+for a square grid turn an integer C<$n> into integer C<$x,$y>.  Usually they
+give in-between positions for fractional C<$n> too.  Classes not on a square
+grid but instead giving fractional X,Y, such as SacksSpiral and VogelFloret,
+are designed for a unit circle at each C<$n> but they too can give
+in-between positions on request.
+
+All X,Y positions are calculated by separate C<n_to_xy()> calls.  To follow
+a path use successive C<$n> values starting from C<$path-E<gt>n_start>.
+
+This separate C<n_to_xy()> calls were motivated by plotting just some points
+on a path, such as just the primes or the perfect squares.  Perhaps
+successive positions in some paths could be followed in an iterator style
+more efficiently.  The quadratic "step" based paths are not much more than a
+C<sqrt()> to break N into a segment and offset, but the self-similar paths
+chop into base 2 or base 3 digits which might be incremented instead of
+recalculated.
+
+=head2 Scaling and Orientation
+
+The paths generally start horizontally to the right or from the X axis on
+the right unless there's some more natural orientation.  There's no
+parameters for scaling, offset or reflection.  Those things are thought
+better left to a general coordinate transformer to expand or invert for
+display.  Some easy transformations can be had just from the X,Y with
+
+    -x,y        flip horizontally (mirror image)
+    x,-y        flip vertically
+
+    -y,x        rotate +90 degrees
+    y,-x        rotate -90 degrees
+    -x,-y       rotate 180 degrees
+
+A vertical flip makes the spirals go clockwise instead of anti-clockwise, or
+a horizontal flip likewise but starting on the left at the negative X axis.
+
+The Rows and Columns paths are slight exceptions to the rule of not having
+rotated versions of paths.  They started as ways to pass in width and height
+as generic parameters, and use the one or the other.
+
+See L<Transform::Canvas> and L<Geometry::AffineTransform> for scaling and
+shifting.  C<AffineTransform> can rotate too.
 
 =head2 Loop Step
 
@@ -141,6 +267,8 @@ longer than the preceding.
      32       KnightSpiral (counting the 2-wide loop)
      72       GreekKeySpiral
    variable   MultipleRings, PyramidRows
+    phi(n)    CoprimeColumns
+
 
 The step determines which quadratic number sequences fall on straight lines.
 For example the gap between successive perfect squares increases by 2 each
@@ -170,97 +298,73 @@ right).  Effectively in that bigger step it's one line of the even squares
 successive even squares increases by 8 each time and likewise between odd
 squares.
 
-=head1 FUNCTIONS
+=head2 Self-Similar Powers
 
-=over 4
+The self-similar patterns such as PeanoCurve generally have a base pattern
+which repeats at powers N=base^level (or a multiple of that for things like
+KochPeaks).
 
-=item C<$path = Math::PlanePath::Foo-E<gt>new (key=E<gt>value, ...)>
+    Base        Path
+    ----        ----
+      2       HilbertCurve, ZOrderCurve
+      3       PeanoCurve, SierpinskiArrowhead
+      4       KochCurve, KochPeaks, KochSnowflakes
 
-Create and return a new path object.  Optional key/value parameters may
-control aspects of the object.  C<Foo> here is one of the various
-subclasses, see the list under L</SEE ALSO>.
+=head2 Triangular Lattice
 
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
+Some paths are on triangular or "A2" lattice points like
 
-Return x,y coordinates of point C<$n> on the path.  If there's no point
-C<$n> then the return is an empty list, so for example
+      *   *   *   *   *   *
+    *   *   *   *   *   *
+      *   *   *   *   *   *
+    *   *   *   *   *   *
+      *   *   *   *   *   *
+    *   *   *   *   *   *
 
-    my ($x,$y) = $path->n_to_xy (-123)
-      or next;   # likely no negatives in $path
+These are done in integer X,Y on a square grid using every second square,
 
-Currently all paths start from N=1, though some will give a position for N=0
-or N=0.5 too.
+    . * . * . * . * . * . *
+    * . * . * . * . * . * .
+    . * . * . * . * . * . *
+    * . * . * . * . * . * .
+    . * . * . * . * . * . *
+    * . * . * . * . * . * .
 
-=item C<$n = $path-E<gt>xy_to_n ($x,$y)>
+In these coordinates X,Y are either both even or both odd.  The X axis and
+the diagonals X=Y and X=-Y divide the plane into six parts.  The diagonal
+X=3*Y is the midpoint of the first sixth, representing a twelfth of the
+plane.
 
-Return the point number for coordinates C<$x,$y>.  If there's nothing at
-C<$x,$y> then return C<undef>.
+The resulting triangles are a little flatter than they should be.  The base
+is width=2 and peak is height=1, whereas height=sqrt(3) would be equilateral
+triangle.  That factor can be applied if desired,
 
-    my $n = $path->xy_to_n(20,20);
-    if (! defined $n) {
-      next;   # nothing at this x,y
-    }
+    X, Y*sqrt(3)          side length 2
+    X/2, Y*sqrt(3)/2      side length 1
 
-C<$x> and C<$y> can be fractional and the path classes will give an integer
-C<$n> which contains C<$x,$y> within a unit square, circle, or intended
-figure centred on that C<$n>.
+The integer Y values have the advantage of fitting on pixels of a rasterized
+display, and not losing precision in floating point.
 
-For paths which completely tile the plane there's always an C<$n> to return,
-but for the spread-out paths an C<$x,$y> position may fall in between (no
-C<$n> close enough).
+If using a general-purpose coordinate rotation then be sure to apply the
+above sqrt(3) scale factor first, or the rotation is wrong.  Rotations can
+be made in the integer X,Y coordinates directly as follows (all resulting in
+integers too),
 
-=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+    (X-3Y)/2, (X+Y)/2       rotate +60
+    (X+3Y)/2, (Y-X)/2       rotate -60
+    -(X+3Y), (X-Y)/2        rotate +120
+    (3Y-X), -(X+Y)/2        rotate -120
+    -X,-Y                   rotate 180
 
-Return a range of N values which occur in a rectangle with corners at
-C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
+    (X+3Y)/2, (X-Y)/2       flip across the X=3*Y twelfth line
 
-     my ($n_lo, $n_hi) = $path->rect_to_n_range (-5,-5, 5,5);
-     foreach my $n ($n_lo .. $n_hi) {
-       my ($x, $y) = $path->n_to_xy ($n) or next;
-       print "$n  $x,$y";
-     }
+The sqrt(3) factor can be worked into a hypotenuse radial distance
+calculation as
 
-The return may be an over-estimate of the range, and many of the points
-between C<$n_lo> and C<$n_hi> may go outside the rectangle, but the range is
-at least bounds for N.
+    hypot = sqrt(X*X + 3*Y*Y)
 
-C<$n_hi> is usually no more than an extra partial row or revolution.
-C<$n_lo> is often merely the starting point 1, which is correct if the
-origin 0,0 is in the rectangle, but something away from the origin might in
-fact start higher.
-
-C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
-some N figures then those N's are included in the return.  If there's no
-points in the rectangle then the return may be a "crossed" range like
-C<$n_lo=1>, C<$n_hi=0> (which makes a C<foreach> do no loops).
-
-=item C<$bool = $path-E<gt>x_negative()>
-
-=item C<$bool = $path-E<gt>y_negative()>
-
-Return true if the path extends into negative X coordinates and/or negative
-Y coordinates respectively.
-
-=item C<$n = $path-E<gt>n_start()>
-
-Return the first N in the path.  In the current classes this is either 0
-or 1.
-
-Some classes have secret dubious undocumented support for N values below
-this (zero or negative), but C<n_start> is the intended starting point.
-
-=item C<$str = $path-E<gt>figure()>
-
-Return a string name of the figure (shape) intended to be drawn at each
-C<$n> position.  This is currently either
-
-    "square"     side 1 centred on $x,$y
-    "circle"     diameter 1 centred on $x,$y
-
-Of course this is only a suggestion as PlanePath doesn't draw anything
-itself.  A figure like a diamond for instance can look good too.
-
-=back
+if comparing distances from the origin of points at different angles.  See
+for instance TriangularHypot taking triangular points by radial distance.
 
 =head1 SEE ALSO
 
@@ -286,14 +390,16 @@ L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>,
 L<Math::PlanePath::TriangularHypot>,
-L<Math::PlanePath::PythagoreanTree>
+L<Math::PlanePath::PythagoreanTree>,
+L<Math::PlanePath::CoprimeColumns>
 
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,
-L<Math::PlanePath::KochSnowflakes>
+L<Math::PlanePath::KochSnowflakes>,
+L<Math::PlanePath::SierpinskiArrowhead>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
@@ -306,6 +412,8 @@ L<Math::PlanePath::PyramidSides>
 L<math-image>, displaying various sequences on these paths.
 
 F<examples/numbers.pl> in the sources to print all the paths.
+
+L<Math::Fractal::Curve>
 
 =head1 HOME PAGE
 

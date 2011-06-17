@@ -15,6 +15,7 @@ devel/exe-atan2.c
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
 devel/gallery.pl
+devel/gosper-islands-stars.pl
 devel/grid.pl
 devel/heighway.pl
 devel/hexhypot.pl
@@ -30,6 +31,7 @@ devel/pythagorean-area.pl
 devel/pythagorean.pl
 devel/r5.pl
 devel/run.pl
+devel/sierpinski-arrowhead-stars.pl
 devel/svg.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
@@ -49,6 +51,7 @@ inc/MyMakeMakerExtras.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/Columns.pm
+lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondSpiral.pm
@@ -75,6 +78,7 @@ lib/Math/PlanePath/PyramidSpiral.pm
 lib/Math/PlanePath/PythagoreanTree.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
+lib/Math/PlanePath/SierpinskiArrowhead.pm
 lib/Math/PlanePath/SquareSpiral.pm
 lib/Math/PlanePath/Staircase.pm
 lib/Math/PlanePath/TheodorusSpiral.pm
@@ -90,6 +94,7 @@ SIGNATURE
 t/ArchimedeanSpiral.t
 t/Columns-load.t
 t/Columns.t
+t/CoprimeColumns.t
 t/Diagonals.t
 t/DiamondSpiral.t
 t/GreekKeySpiral.t
@@ -97,18 +102,14 @@ t/HexSpiral-load.t
 t/HexSpiral.t
 t/HexSpiralSkewed.t
 t/HilbertCurve-load.t
-t/HilbertCurve-oeis.t
 t/HilbertCurve.t
-t/KnightSpiral-oeis.t
 t/KnightSpiral.t
 t/KochCurve.t
 t/KochPeaks.t
 t/KochSnowflakes.t
 t/MultipleRings.t
-t/MyOEIS.pm
 t/MyTestHelpers.pm
 t/PeanoCurve-load.t
-t/PeanoCurve-oeis.t
 t/PeanoCurve.t
 t/PixelRings-image.t
 t/PixelRings.t
@@ -118,6 +119,7 @@ t/PythagoreanTree.t
 t/Rows-load.t
 t/Rows.t
 t/SacksSpiral.t
+t/SierpinskiArrowhead.t
 t/SquareSpiral.t
 t/TheodorusSpiral.t
 t/TriangularHypot.t
@@ -131,4 +133,9 @@ xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
+xt/CoprimeColumns-oeis.t
+xt/HilbertCurve-oeis.t
+xt/KnightSpiral-oeis.t
+xt/MyOEIS.pm
+xt/PeanoCurve-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

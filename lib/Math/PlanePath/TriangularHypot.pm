@@ -41,7 +41,7 @@ use Math::Libm 'hypot';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -272,8 +272,8 @@ Math::PlanePath::TriangularHypot -- points of triangular lattice in order of hyp
 =head1 DESCRIPTION
 
 This path visits X,Y points on a triangular "A2" lattice in order of their
-distance from the origin 0,0, and anti-clockwise around from the X axis among
-those of equal distance,
+distance from the origin 0,0, and anti-clockwise around from the X axis
+among those of equal distance,
 
 
              58    47    39    46    57                 4
@@ -297,11 +297,12 @@ those of equal distance,
                           ^
     -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
-The lattice is put on a square X,Y grid using every second point, similar to
-the HexSpiral.  This means a scaling X/2, Y*sqrt(3)/2 gives equilateral
-triangles with side length 1.  The X,Y distance from the origin is then
+The lattice is put on a square X,Y grid using every second point per
+L<Math::PlanePath/Triangular Lattice>.  With a scaling X/2, Y*sqrt(3)/2 to
+give equilateral triangles with side length 1 the X,Y distance from the
+origin is
 
-    H^2 = (X/2^2 + (Y*sqrt(3)/2)^2  =  (X^2 + 3*Y^2) / 4
+    dist^2 = (X/2^2 + (Y*sqrt(3)/2)^2  =  (X^2 + 3*Y^2) / 4
 
 For example N=19 at X=2,Y=-2 is sqrt((2**2+3*-2**2)/4) = sqrt(4) from the
 origin.  The next smallest after that is X=5,Y=1 at sqrt(7).  The key part

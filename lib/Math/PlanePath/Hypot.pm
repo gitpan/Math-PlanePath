@@ -27,7 +27,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

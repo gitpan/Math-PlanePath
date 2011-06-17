@@ -17,6 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 32, June 2011
+    - new SierpinskiArrowhead, CoprimeColumns
+
+Version 31, June 2011
+    - KochCurve fix for fractional N
+
 Version 31, June 2011
     - PythagoreanTree avoid dubious hypot() on darwin 8.11.0
 

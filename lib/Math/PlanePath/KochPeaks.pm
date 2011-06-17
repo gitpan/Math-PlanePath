@@ -26,40 +26,45 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
-use Math::PlanePath::KochCurve;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+
+use Math::PlanePath::KochCurve;
 
 use constant y_negative => 0;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 
-sub _prevpow4 {
+sub _round_down_pow4 {
   my ($n) = @_;
-  my $pow = 0;
+  my $exp = 0;
   while (($n /= 4) >= 1) {
-    $pow++;
+    $exp++;
   }
-  return $pow;
+  return $exp;
 }
-### _prevpow4(3): _prevpow4(3)
-### _prevpow4(4): _prevpow4(4)
-### _prevpow4(15): _prevpow4(15)
-### _prevpow4(16): _prevpow4(16)
+### _round_down_pow4(3): _round_down_pow4(3)
+### _round_down_pow4(4): _round_down_pow4(4)
+### _round_down_pow4(15): _round_down_pow4(15)
+### _round_down_pow4(16): _round_down_pow4(16)
 
 
-# N=1 to 2      2 of, level=0
-# N=3 to 10     8 of, level=2
-# N=11 to ..   32 of, level=3
+# N=1 to 3      3 of, level=0
+# N=4 to 12     9 of, level=1
+# N=13 to 45   33 of, level=2
 #
-# each loop = 2*4^level + 1
+# N=0.5 to 3.49     diff=3
+# N=3.39 to 12.49   diff=9
+# N=12.5 to 45.5    diff=33
 #
-#     n_base = 1 + 2*4^0 + 1 + 2*4^1 + 1 + ... + 2*4^(level-1) + 1
+# each length = 2*4^level + 1
+#
+#     Nstart = 1 + 2*4^0 + 1 + 2*4^1 + 1 + ... + 2*4^(level-1) + 1
 #            = 1 + level + 2*[ 4^0 + 4^1 + ... + 4^(level-1) ]
 #            = level+1 + 2*[ (4^level - 1)/3 ]
 #            = level+1 + (2*4^level - 2)/3
@@ -70,9 +75,43 @@ sub _prevpow4 {
 #     3*n-1 = 2*4^level
 #     (3*n-1)/2 = 4^level
 #
+# Nbase = 0.5 + 2*4^0 + 1 + 2*4^1 + 1 + ... + 2*4^(level-1) + 1
+#       = level + (2*4^level + 1)/3 - 1/2
+#       = level + 2/3*4^level + 1/3 - 1/2
+#       = level + 2/3*4^level - 1/6
+#       = level + 4/6*4^level - 1/6
+#       = level + (4*4^level - 1)/6
+#       = level + (4^(level+1) - 1)/6
+#
+#     6*N = 4^(level+1) - 1
+#     6*N + 1 = 4^(level+1)
+#     level+1 = log4(6*N + 1)
+#     level = log4(6*N + 1) - 1
+#
 ### loop 1: (2*4**1 + 1)/3
 ### loop 2: (2*4**2 + 1)/3
 ### loop 3: (2*4**3 + 1)/3
+
+# sub _n_to_level {
+#   my ($n) = @_;
+#   my $level = _round_down_pow4(6*$n + 1);
+#   my $side = 4**$level;
+#   my $base = $level + (2*$side + 1)/3 - .5;
+#   ### $level
+#   ### $base
+#   if ($base > $n) {
+#     $level--;
+#     $side /= 4;
+#     $base = $level + (2*$side + 1)/3 - .5;
+#     ### $level
+#     ### $base
+#   }
+#   return ($level, $base, $side + .5);
+# }
+# sub _level_to_base {
+#   my ($level) = @_;
+#   return $level + (2*$side + 1)/3 - .5;
+# }
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -81,78 +120,59 @@ sub n_to_xy {
     return;
   }
 
-  my $frac = max (1, int ($n));
-  ($n,$frac) = ($frac, $n-$frac);
-
-  my $level = _prevpow4((3*$n-1)/2);
-  my $base = $level + (2*4**$level + 1)/3;
+  my $level = _round_down_pow4((3*$n-1)/2);
+  my $side = 4**$level;
+  my $base = $level + (2*$side + 1)/3;
   ### $level
   ### $base
-  if ($base > $n) {
+  if ($n+.5 < $base) {
     $level--;
-    $base = $level + (2*4**$level + 1)/3;
+    $side /= 4;
+    $base = $level + (2*$side + 1)/3;
     ### $level
     ### $base
   }
-  ### next base would be: ($level+1) + (2*4**($level+1) + 1)/3
-  ### assert: $n >= $base
-  ### assert: $n < ($level+1) + (2*4**($level+1) + 1)/3
-
   my $rem = $n - $base;
+  my $frac;
+  if ($rem < 0) {
+    ### neg frac
+    $frac = $rem;
+    $rem = 0;
+  } elsif ($rem > 2*$side) {
+    ### excess frac
+    $frac = $rem - 2*$side;
+    $rem -= $frac;
+  } else {
+    ### no frac
+    $frac = 0;
+  }
+  ### $frac
+  ### $rem
+  ### $n
+
+  ### next base would be: ($level+1) + (2*4**($level+1) + 1)/3
+  ### assert: $n-$frac >= $base
+  ### assert: $n-$frac < ($level+1) + (2*4**($level+1) + 1)/3
+
   ### assert: $rem>=0
   ### assert: $rem < 2 * 4 ** $level + 1
+  ### assert: $rem <= 2*$side+1
 
-  my $x = 2*$frac;
-  my $y = 0;
-  my $dx = 2;
-  my $dy = 0;
-  my $len = 1;
-  foreach (1 .. $level) {
-    my $digit = $rem & 3;
-    $rem >>= 2;
-    ### at: "$x,$y"
-    ### $digit
-
-    if ($digit == 0) {
-
-    } elsif ($digit == 1) {
-      ($x,$y) = (($x-3*$y)/2 + 2*$len,   # rotate +60
-                 ($x+$y)/2);
-
-    } elsif ($digit == 2) {
-      ($x,$y) = (($x+3*$y)/2 + 3*$len,   # rotate -60
-                 ($y-$x)/2   + $len);
-
-    } else {
-      $x += 4*$len;
-    }
-    $len *= 3;
-  }
-
-  ### final: "$x,$y"
-  ### $len
-  ### $rem
-  if ($rem == 2) {
-    if ($x < 1) {
-      $x += 2*$len;
-    } else {
-      $rem = 0;
-      $x -= 2;
-      $len *= 3;
-    }
-  }
-
-  if ($rem == 0) {
-    ### left ...
-    return (($x-3*$y)/2 - $len,    # rotate +60
+  my $pos = 3**$level;
+  if ($rem < $side) {
+    my ($x, $y) = Math::PlanePath::KochCurve->n_to_xy($rem);
+    ### left side: $rem
+    ### flat: "$x,$y"
+    $x += 2*$frac;
+    return (($x-3*$y)/2 - $pos,    # rotate +60
             ($x+$y)/2);
-
   } else {
-    ### right ...
-    ### assert: $rem == 1 || $rem == 2
-    ### with rem: "$x,$y"
+    my ($x, $y) = Math::PlanePath::KochCurve->n_to_xy($rem-$side);
+    ### right side: $rem-$side
+    ### flat: "$x,$y"
+    $x += 2*$frac;
     return (($x+3*$y)/2,           # rotate -60
-            ($y-$x)/2 + $len);
+            ($y-$x)/2 + $pos);
   }
 }
 
@@ -253,22 +273,25 @@ sub rect_to_n_range {
   $y1 = floor($y1 + 0.5);
   $x2 = floor($x2 + 0.5);
   $y2 = floor($y2 + 0.5);
+  ### rounded: "$x1,$y1  $x2,$y2"
+
   if ($y1 < 0 && $y2 < 0) {
     return (1,0);
   }
 
-  my $level = ceil (log (max(1,
-                             abs($x1), abs($x2),
-                             $y1, $y2))
+  my $level = ceil (.1 + log (max(1,
+                                  abs($x1), abs($x2),
+                                  $y1, $y2))
                     / log(3));
   ### $level
+
   return (1, $level + (8 * 4**$level + 1)/3);
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde OEIS
+=for stopwords eg Ryde Math-PlanePath Nlast
 
 =head1 NAME
 
@@ -328,13 +351,12 @@ The angle is maintained in each replacement,
 So the segment N=1 to N=2 becomes N=4 to N=8, or in the next level N=5 to
 N=6 becomes N=17 to N=21.
 
-=head2 Triangular Coordinates
+The X,Y coordinates are arranged as integers on a square grid.  The result
+is flattened triangular segments with diagonals at a 45 degree angle.
 
-The X,Y coordinates are arranged as integers on a square grid.  Each
-horizontal segment is X=+/-2 apart and the diagonals are X=+/-1,Y=+/-1.  The
-result is flattened triangular segments with diagonals at a 45 degree angle.
-To get 60 degree equilateral triangles of side length 1 use X/2 and
-Y*sqrt(3)/2, or just Y*sqrt(3) for side length 2.
+Unlike other triangular grid paths KochPeaks uses the "odd" squares, with
+one of X,Y odd and the other even.  This means the rotation formulas etc
+described in L<Math::PlanePath/Triangular Lattice> don't apply directly.
 
 =head2 Level Ranges
 

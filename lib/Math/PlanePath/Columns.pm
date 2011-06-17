@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 31;
+$VERSION = 32;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -151,7 +151,8 @@ treating each point in the path as a square of side 1, so a rectangle $x >=
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::Rows>
+L<Math::PlanePath::Rows>,
+L<Math::PlanePath::CoprimeColumns>
 
 =head1 HOME PAGE
 
