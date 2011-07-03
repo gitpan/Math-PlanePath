@@ -17,6 +17,7 @@
 
 
 # math-image --path=KochCurve --lines --scale=10
+# math-image --path=KochCurve --all --scale=10
 
 # continuous but nowhere differentiable
 #
@@ -39,7 +40,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 32;
+$VERSION = 33;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

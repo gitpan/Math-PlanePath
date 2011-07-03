@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 88 }
+BEGIN { plan tests => 596 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::KochPeaks;
+require Math::PlanePath::GosperIslands;
 
 
 #------------------------------------------------------------------------------
@@ -34,20 +34,20 @@ require Math::PlanePath::KochPeaks;
 
 {
   my $want_version = 33;
-  ok ($Math::PlanePath::KochPeaks::VERSION, $want_version,
+  ok ($Math::PlanePath::GosperIslands::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::KochPeaks->VERSION,  $want_version,
+  ok (Math::PlanePath::GosperIslands->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::KochPeaks->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::GosperIslands->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::KochPeaks->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::GosperIslands->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::KochPeaks->new;
+  my $path = Math::PlanePath::GosperIslands->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,10 +62,10 @@ require Math::PlanePath::KochPeaks;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::KochPeaks->new;
+  my $path = Math::PlanePath::GosperIslands->new;
   ok ($path->n_start, 1, 'n_start()');
-  ok (!! $path->x_negative, 1, 'x_negative()');
-  ok (! $path->y_negative, 1, 'y_negative()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 1, 'y_negative()');
 }
 
 
@@ -73,48 +73,74 @@ require Math::PlanePath::KochPeaks;
 # first few points
 
 {
-  my @data = ([ .5,  -1.5, -.5 ],
-              [ 3.25,  1.25, -.25 ],
-              [ 3.75,  -3.25, -.25 ],
+  my @data = (
+              # [ .5,  -1.5, -.5 ],
+              # [ 3.25,  1.25, -.25 ],
+              # [ 3.75,  -3.25, -.25 ],
+              #
+              [ 1, 2,0 ],
+              [ 2, 1,1 ],
+              [ 3, -1,1 ],
+              [ 4, -2,0 ],
+              [ 5, -1,-1 ],
+              [ 6, 1,-1 ],
 
-              [ 1, -1,0 ],
-              [ 2, 0,1 ],
-              [ 3, 1,0 ],
+              [  7, 5,1 ],
+              [  8,  4,2 ],
+              [  9,  2,2 ],
+              [ 10, 1,3 ],
+              [ 11,  -1,3 ],
+              [ 12,  -2,2 ],
+              [ 13, -4,2 ],
+              [ 14,  -5,1 ],
+              [ 15,  -4,0 ],
 
-              [ 4, -3,0 ],
-              [ 5, -2,1 ],
-              [ 6, -3,2 ],
-              [ 7, -1,2 ],
-              [ 8, 0,3 ],
+              [ 25, 11,5 ],
 
-              [ 9, 1,2 ],
-              [ 10, 3,2 ],
-              [ 11, 2,1 ],
-              [ 12, 3,0 ],
-
-              [ 13, -9,0 ],
+              # [ 9, 1,2 ],
+              # [ 10, 3,2 ],
+              # [ 11, 2,1 ],
+              # [ 12, 3,0 ],
+              #
+              [ 33, -1,7 ],
              );
-  my $path = Math::PlanePath::KochPeaks->new;
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "x at n=$n");
-    ok ($got_y, $want_y, "y at n=$n");
-  }
-
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    next unless $want_n==int($want_n);
-    my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
-  }
-
+  my $path = Math::PlanePath::GosperIslands->new;
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
-    $n = int($n+.5);
-    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+    {
+      # n_to_xy()
+      my ($got_x, $got_y) = $path->n_to_xy ($n);
+      if ($got_x == 0) { $got_x = 0 }  # avoid "-0" on perl 5.6.0
+      if ($got_y == 0) { $got_y = 0 }
+      ok ($got_x, $x, "n_to_xy() x at n=$n");
+      ok ($got_y, $y, "n_to_xy() y at n=$n");
+    }
+    if ($n==int($n)) {
+      # xy_to_n()
+      my $got_n = $path->xy_to_n ($x, $y);
+      ok ($got_n, $n, "xy_to_n() n at x=$x,y=$y");
+    }
+    {
+      $n = int($n);
+      my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+      ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+    }
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# xy_to_n() reverse n_to_xy()
+
+{
+  my $path = Math::PlanePath::GosperIslands->new;
+  for (1 .. 500) {
+    my $bits = int(rand(25));         # 0 to 25, inclusive
+    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+    my ($x,$y) = $path->n_to_xy ($n);
+    my $rev_n = $path->xy_to_n ($x,$y);
+    ok ($rev_n, $n, "xy_to_n() reverse n=$n");
   }
 }
 
@@ -123,18 +149,18 @@ require Math::PlanePath::KochPeaks;
 # xy_to_n() distinct n
 
 {
-  my $path = Math::PlanePath::KochPeaks->new;
+  my $path = Math::PlanePath::GosperIslands->new;
   my $bad = 0;
   my %seen;
-  my $xlo = -5;
-  my $xhi = 100;
-  my $ylo = -5;
-  my $yhi = 100;
+  my $xlo = -50;
+  my $xhi = 50;
+  my $ylo = -50;
+  my $yhi = 50;
   my ($nlo, $nhi) = $path->rect_to_n_range($xlo,$ylo, $xhi,$yhi);
   my $count = 0;
  OUTER: for (my $x = $xlo; $x <= $xhi; $x++) {
     for (my $y = $ylo; $y <= $yhi; $y++) {
-      next unless ($x ^ $y) & 1;
+      next if ($x ^ $y) & 1;
       my $n = $path->xy_to_n ($x,$y);
       next if ! defined $n;  # sparse
 
@@ -156,5 +182,6 @@ require Math::PlanePath::KochPeaks;
   }
   ok ($bad, 0, "xy_to_n() coverage and distinct, $count points");
 }
+
 
 exit 0;

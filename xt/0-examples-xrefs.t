@@ -50,9 +50,11 @@ sub any_file_contains_example {
 sub pod_contains_example {
   my ($filename, $example) = @_;
   open FH, "< $filename" or die "Cannot open $filename: $!";
-  my $ret = scalar (grep /F<\Q$example\E>/, <FH>);
+  my $content = do { local $/; <FH> }; # slurp
   close FH or die "Error closing $filename: $!";
-  return $ret > 0;
+  return scalar ($content =~ /F<\Q$example\E>
+                            |F<examples>\s+directory
+                             /xs);
 }
 sub raw_contains_example {
   my ($filename, $example) = @_;

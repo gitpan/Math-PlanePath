@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 32;
+$VERSION = 33;
 
 # defaults
 use constant n_start => 1;
@@ -86,6 +86,8 @@ include
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
+
+    GosperIslands          concentric island rings
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
     KochSnowflakes         concentric notched snowflake rings
@@ -301,13 +303,13 @@ squares.
 =head2 Self-Similar Powers
 
 The self-similar patterns such as PeanoCurve generally have a base pattern
-which repeats at powers N=base^level (or a multiple of that for things like
-KochPeaks).
+which repeats at powers N=base^level (or some relation to that for things
+like KochPeaks and GosperIslands).
 
     Base        Path
     ----        ----
       2       HilbertCurve, ZOrderCurve
-      3       PeanoCurve, SierpinskiArrowhead
+      3       PeanoCurve, SierpinskiArrowhead, GosperIslands
       4       KochCurve, KochPeaks, KochSnowflakes
 
 =head2 Triangular Lattice
@@ -396,6 +398,7 @@ L<Math::PlanePath::CoprimeColumns>
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::GosperIslands>,
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,
 L<Math::PlanePath::KochSnowflakes>,

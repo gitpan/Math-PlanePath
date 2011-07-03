@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 32;
+$VERSION = 33;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -149,26 +149,27 @@ This path makes a diamond shaped spiral.
              19 ..
           20  9 18 ..
        21 10  3  8 17 ..
-    22 11  4  1  2  7 16 ..  <- y=0
+    22 11  4  1  2  7 16 ..  <- Y=0
        23 12  5  6 15 ..
           24 13 14 ..
              25 26 
 
               ^
-             x=0
+             X=0
 
 This is not simply the SquareSpiral rotated, it spirals around faster, with
-side lengths following a pattern 1,1,1,1, 2,2,2,2, 3,3,3,3, if the flat kink
-at the bottom (like 13 to 14) is treated as part of the lower right
+side lengths following a pattern 1,1,1,1, 2,2,2,2, 3,3,3,3, etc if the flat
+kink at the bottom (like 13 to 14) is treated as part of the lower right
 diagonal.
 
-The triangular number 3,6,10,15,21,etc fall alternately on the horizontal to
-the left at y=1 and the right at y=-1 (one term to the left then one term to
+The triangular number 3,6,10,15,21,etc fall on the horizontal alternately to
+the left at Y=1 and the right at Y=-1 (one term to the left then one term to
 the right).
 
-Going diagonal on the sides is like cutting the corners going around a
-SquareSpiral, which is how it gets around in fewer steps.  See the
-HexSpiralSkewed for similar cutting just two of the four corners.
+Going diagonally on the sides as done here is like cutting the corners of
+the SquareSpiral, and that's how it gets around in fewer steps than the
+SquareSpiral.  See the HexSpiralSkewed for similar cutting just two of the
+four corners.
 
 =head1 FUNCTIONS
 

@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 use warnings;
 use POSIX ();
-use Math::PlanePath::MathImageGosperIslands;
+use Math::PlanePath::GosperIslands;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
 {
-  my $path = Math::PlanePath::MathImageGosperIslands->new;
+  my $path = Math::PlanePath::GosperIslands->new;
   my @rows = ((' ' x 32) x 78);
 
   my $level = 3;

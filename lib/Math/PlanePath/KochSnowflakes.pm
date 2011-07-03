@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 32;
+$VERSION = 33;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -278,8 +278,6 @@ Math::PlanePath::KochSnowflakes -- Koch snowflakes as concentric rings
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
-
-I<In progress.>
 
 This path traces out concentric integer versions of the Koch snowflake at
 successively greater iteration levels.

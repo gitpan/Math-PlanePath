@@ -18,16 +18,32 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Generate the .png image files shown at
+#   http://user42.tuxfamily.org/math-planepath/gallery.html
+#
+
+
 use 5.004;
 use strict;
 use warnings;
+use File::Compare ();
+use File::Copy;
+use File::Temp;
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+#use Devel::Comments;
 
-chdir "$ENV{HOME}/tux/web/math-planepath" or die;
+my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
+my $tempfh = File::Temp->new (SUFFIX => '.png');
+my $tempfile = $tempfh->filename;
+
 foreach my $elem
   (
+   ['gosper-islands-small.png',
+    'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
+   ['gosper-islands-big.png',
+    'math-image --path=GosperIslands --lines --scale=2 --size=250x200 --png'],
+
    ['coprime-columns-small.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=32 --png'],
    ['coprime-columns-big.png',
@@ -147,11 +163,20 @@ foreach my $elem
 
   ) {
   my ($filename, $command) = @$elem;
-  $command .= " >$filename";
+
+  $command .= " >$tempfile";
   ### $command
   my $status = system $command;
   if ($status) {
     die "Exit $status";
+  }
+
+  my $targetfile = "$target_dir/$filename";
+  if (File::Compare::compare($tempfile,$targetfile) == 0) {
+    print "Unchanged $filename\n";
+  } else {
+    print "Update $filename\n";
+    File::Copy::move($tempfile,$targetfile);
   }
 }
 

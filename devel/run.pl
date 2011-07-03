@@ -40,10 +40,10 @@ use Smart::Comments;
   require Math::PlanePath::KochCurve;
   require Math::PlanePath::MathImagePlusSimilar;
   require Math::PlanePath::MathImageGosperSide;
-  require Math::PlanePath::MathImageGosperIslands;
+  require Math::PlanePath::GosperIslands;
   require Math::PlanePath::SierpinskiArrowhead;
   require Math::PlanePath::CoprimeColumns;
-  my $path = Math::PlanePath::CoprimeColumns->new
+  my $path = Math::PlanePath::GosperIslands->new
     (wider => 0,
      # step => 0,
      #tree_type => 'UAD',

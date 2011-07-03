@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 32;
+$VERSION = 33;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -222,8 +222,6 @@ Math::PlanePath::CoprimeColumns -- coprime x,y by columns
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
-
-I<In progress.>
 
 This path visits points X,Y which are coprime, meaning gcd(X,Y)=1, in
 columns from Y=0 to YE<lt>=X.

@@ -55,6 +55,7 @@ lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondSpiral.pm
+lib/Math/PlanePath/GosperIslands.pm
 lib/Math/PlanePath/GreekKeySpiral.pm
 lib/Math/PlanePath/HeptSpiralSkewed.pm
 lib/Math/PlanePath/HexSpiral.pm
@@ -97,6 +98,7 @@ t/Columns.t
 t/CoprimeColumns.t
 t/Diagonals.t
 t/DiamondSpiral.t
+t/GosperIslands.t
 t/GreekKeySpiral.t
 t/HexSpiral-load.t
 t/HexSpiral.t
@@ -126,6 +128,7 @@ t/TriangularHypot.t
 t/VogelFloret.t
 t/ZOrderCurve.t
 xt/0-examples-xrefs.t
+xt/0-file-is-part-of.t
 xt/0-META-read.t
 xt/0-no-debug-left-on.t
 xt/0-Test-ConsistentVersion.t

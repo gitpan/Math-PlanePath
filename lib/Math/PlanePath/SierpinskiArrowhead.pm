@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 32;
+$VERSION = 33;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -235,8 +235,6 @@ Math::PlanePath::SierpinskiArrowhead -- self-similar triangular path traversal
 
 =head1 DESCRIPTION
 
-I<In progress.>
-
 This is an integer version of the Sierpinski arrowhead path.  It follows a
 self-similar triangular shape leaving middle triangle gaps.
 
@@ -269,7 +267,7 @@ etc.
 The X,Y coordinates are on a triangular lattice done in integers by using
 every second X, per L<Math::PlanePath/Triangular Lattice>.
 
-The pattern is a triangle like
+The base pattern is a triangle like
 
     3---------2 - - - - .
      \         \
@@ -283,9 +281,9 @@ The pattern is a triangle like
                /
               0
 
-Higher levels go into the triangles A,B,C.  The middle triangle D is not
-traversed.  It's hard to see that middle in the initial N=0 to N=27 above,
-but the following is more of the visited points, making it clearer
+Higher levels go into the triangles A,B,C but the middle triangle D is not
+traversed.  It's hard to see that omitted middle in the initial N=0 to N=27
+above.  The following is more of the visited points, making it clearer
 
         *   * *   * *   *                 * *   * *   * *
          * *   * *   * *                 *   * *   * *
@@ -316,71 +314,73 @@ but the following is more of the visited points, making it clearer
 =head2 Sierpinski Triangle
 
 The path is related to the Sierpinski triangle or "gasket" by treating each
-line segment as the side of a little triangle.  The N=0 to N=1 segment has
-it on the left, N=1 to N=2 on the right, and N=2 to N=3 underneath, which is
-per the A,B,C parts shown above.  Notice there's no middle little triangle
-"D" in each triplet of line segments.  In general segment N to N+1 has a
-little triangle to the left if N even and to the right if N odd.
+line segment as the side of a little triangle.  The N=0 to N=1 segment has a
+triangle on the left, N=1 to N=2 on the right, and N=2 to N=3 underneath,
+which are per the A,B,C parts shown above.  Notice there's no middle little
+triangle "D" in the triplets of line segments.  In general a segment N to
+N+1 has its little triangle to the left if N even or to the right if N odd.
 
-This pattern of little triangles is why the segment N=4 to N=5 looks like it
-hasn't visited the vertex of the triangular N=0 to N=9 -- the 4 to 5 segment
-is standing in for a little triangle to the left of that segment.  Similarly
-N=13 to N=14 and each alternate side in the middle of replication levels.
+This pattern of little triangles is why the N=4 to N=5 looks like it hasn't
+visited the vertex of the triangular N=0 to N=9 -- the 4 to 5 segment is
+standing in for a little triangle to the left of that segment.  Similarly
+N=13 to N=14 and each alternate side midway through replication levels.
 
 There's easier ways to generate the Sierpinski triangle though.  One of the
 simplest is to take X,Y coordinates which have no 1 bit on common, ie. a
-bitwise-AND
+bitwise-AND,
 
     ($x & $y) == 0
 
-giving the shape in the first quadrant (X>=0, Y=>0).  The same effect is had
-in the ZOrderCurve path by plotting all numbers N which have no digit 3 in
-their base-4 representation (see L<Math::PlanePath::ZOrderCurve/Power of 2
-Values>).
+which gives the shape in the first quadrant XE<gt>=0,YE<gt>=0.  The can also
+be had with the ZOrderCurve path by plotting all numbers N which have no
+digit 3 in their base-4 representation (see
+L<Math::PlanePath::ZOrderCurve/Power of 2 Values>), as digit 3s in that case
+are X,Y points with a 1 bit in common.
 
 The attraction of this Arrowhead path is that it makes a connected stepwise
 traversal through the pattern.
 
 =head2 Level Sizes
 
-Treating the N=0,1,2 segment as level 1, each level goes from N=0 to
+Counting the N=0,1,2,3 part as level 1, each level goes from
 
+    Nstart = 0
     Nlevel = 3^level
 
 inclusive of the final triangle corner position.  For example level 2 is
 from N=0 to N=3^2=9.  Each level doubles in size,
 
-    0 <= Y <= 2^level
-    - 2^level <= X <= + 2^level
+           0  <= Y <= 2^level
+    - 2^level <= X <= 2^level
 
 The final Nlevel position is alternately on the right or left,
 
-    X = /  2^level      if level even
-        \  - 2^level    if level odd
+    Xlevel = /  2^level      if level even
+             \  - 2^level    if level odd
 
-The centre X=0 crossing N=2,6,18,etc is 2/3 through the level, ie. after two
-replications of the previous level,
+The Y axis is crossed, ie. X=0, at N=2,6,18,etc which is is 2/3 through the
+level, ie. after two replications of the previous level,
 
     Ncross = 2/3 * 3^level
            = 2 * 3^(level-1)
 
 =head2 Sideways
 
-The arrowhead is sometimes drawn on its side instead, with a base along the
-X axis.  That can be had with a -60 degree rotation (see
-L<Math::PlanePath/Triangular Lattice>),
+The arrowhead is sometimes drawn on its side, with a base along the X axis.
+That can be had with a -60 degree rotation (see L<Math::PlanePath/Triangular
+Lattice>),
 
     (3Y+X)/2, (Y-X)/2       rotate -60
 
-The first point N=1 is then along the X axis to X=2,Y=0.  Or apply a
-mirroring -X first then rotate to have it go diagonally upwards first.
+The first point N=1 is then along the X axis at X=2,Y=0.  Or first apply a
+mirroring -X then rotate to have it go diagonally upwards first.
 
     (3Y-X)/2, (Y+X)/2       mirror X and rotate -60
 
-The plain -60 rotate puts the Nlevel=3^level of each level on the X axis for
-even level, and at the top peak for odd level.  With the extra mirroring
-it's the other way around.  If drawing successive levels then the two can be
-alternated to have the endpoint on the X axis each time if desired.
+The plain -60 rotate puts the Nlevel=3^level point on the X axis for even
+number level, and at the top peak for odd level.  With the extra mirroring
+it's the other way around.  If drawing successive levels then the two ways
+could be alternated to have the endpoint on the X axis each time if desired.
 
 =head1 FUNCTIONS
 

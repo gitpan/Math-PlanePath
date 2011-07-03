@@ -25,6 +25,30 @@ use Math::Libm 'M_PI', 'hypot';
 
 
 {
+  require Math::PlanePath::GosperIslands;
+  my $path = Math::PlanePath::GosperIslands->new;
+  foreach my $level (0 .. 20) {
+    my $n_start = 3**($level+1) - 2;
+    my $n_end = 3**($level+2) - 2 - 1;
+    my ($prev_x) = $path->n_to_xy($n_start);
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+
+      # if ($y == 0 && $x > 0) {
+      #   print "level $level  x=$x y=$y n=$n\n";
+      # }
+
+      if (($prev_x>0) != ($x>0) && $y > 0) {
+        print "level $level  x=$x y=$y n=$n\n";
+      }
+      $prev_x = $x;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   require Math::PlanePath::MathImageGosperIslandSide;
   my $path = Math::PlanePath::MathImageGosperIslandSide->new;
   my $prev_angle = 0;

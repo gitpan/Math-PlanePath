@@ -21,18 +21,19 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 270 }
+BEGIN { plan tests => 277 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 require Math::PlanePath;
 
 my @modules = qw(
+                  GosperIslands
                   CoprimeColumns
                   SierpinskiArrowhead
                   KochSnowflakes
@@ -83,7 +84,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 32;
+my $want_version = 33;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -209,9 +210,10 @@ my %class_dxdy_allowed
      'Math::PlanePath::HexSpiral'      => $dxdy_hex,
      'Math::PlanePath::KochCurve'      => $dxdy_hex,
 
-     # also jumps at ends
+     # also jumps at ends/rings
      # 'Math::PlanePath::KochPeaks'      => $dxdy_hex,
      # 'Math::PlanePath::KochSnowflakes' => $dxdy_hex,
+     # 'Math::PlanePath::GosperIslands'  => $dxdy_hex,
 
      'Math::PlanePath::HexSpiralSkewed'    => {
                                                '-1,1' => 1, # NW
@@ -630,7 +632,8 @@ sub pythagorean_diag {
                           }
 
                           unless ($rect_exact{$class}
-                                  ? $got_min == $want_min : $got_min <= $want_min) {
+                                  ? $got_min == $want_min
+                                  : $got_min <= $want_min) {
                             ### $x1
                             ### $y1
                             ### $x2
