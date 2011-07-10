@@ -24,13 +24,17 @@ use warnings;
 
 =over
 
+=item C<($n, $x, $y) = $path-E<gt>next()>
 =item C<($n, $x, $y) = $path-E<gt>next_nxy()>
+
+=item C<($n, $x, $y) = $path-E<gt>peek()>
 
 =item C<$path-E<gt>rewind()>
 
 =item C<$path-E<gt>seek_to_n($n)>
 
 =item C<$n = $path-E<gt>tell_n($n)>
+=item C<($n,$x,$y) = $path-E<gt>tell_nxy($n)>
 
 =back
 

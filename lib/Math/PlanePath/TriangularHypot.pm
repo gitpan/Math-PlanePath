@@ -41,7 +41,7 @@ use Math::Libm 'hypot';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -178,14 +178,16 @@ sub n_to_xy {
     return;
   }
 
-  if ($n != int($n)) {
-    my $frac = $n;
-    $n = int($n);
-    $frac -= $n;
-    my ($x1, $y1) = $self->n_to_xy($n);
-    my ($x2, $y2) = $self->n_to_xy($n+1);
-    return ($x2*$frac + $x1*(1-$frac),
-            $y2*$frac + $y1*(1-$frac));
+  {
+    my $int = int($n);
+    if ($n != $int) {
+      my $frac = $n - $int;  # inherit possible BigFloat/BigRat
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
   }
 
   while ($n > $#n_to_x) {

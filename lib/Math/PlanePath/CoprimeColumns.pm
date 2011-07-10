@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -74,16 +74,23 @@ sub n_to_xy {
   }
 
   my $frac;
-  if ($n == int($n)) {
-    $frac = 0;
-  } else {
-    my $whole = int($n+.5);
-    ### assert: $n - $whole >= -.5
-    ### assert: $n - $whole < .5
-    $frac = $n - $whole;    # -.5 <= frac < .5
-    $n = $whole;
-    ### $whole
-    ### $frac
+  {
+    my $int = int($n);
+    if ($n == $int) {
+      $frac = 0;
+    } else {
+      $frac = $n - $int; # -.5 <= $frac < 1
+      $n = $int;
+      if ($frac > .5) {
+        $frac--;
+        $n++;
+        # now -.5 <= $frac < .5
+      }
+      ### $n
+      ### $frac
+      ### assert: $frac >= -.5
+      ### assert: $frac < .5
+    }
   }
 
   my $x = 1;

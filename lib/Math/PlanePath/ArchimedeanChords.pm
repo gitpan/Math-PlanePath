@@ -22,7 +22,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -152,14 +152,18 @@ sub n_to_xy {
     return ($n, 0);
   }
 
-  if ($n != int($n)) {
-    my $frac = $n;
-    $n = int($n);
-    $frac -= $n;
-    my ($x1, $y1) = $self->n_to_xy($n);
-    my ($x2, $y2) = $self->n_to_xy($n+1);
-    return ($x2*$frac + $x1*(1-$frac),
-            $y2*$frac + $y1*(1-$frac));
+  {
+    # ENHANCE-ME: look at the N+1 position for the frac directly, without
+    # the full call for N+1
+    my $int = int($n);
+    if ($n != $int) {
+      my $frac = $n - $int;  # inherit possible BigFloat/BigRat
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
   }
 
   my $i = $self->{'i'};

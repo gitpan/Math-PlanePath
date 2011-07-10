@@ -23,6 +23,126 @@ use warnings;
 use Math::Libm 'M_PI', 'hypot';
 
 
+{
+  # radius
+  require Math::PlanePath::MathImageFlowsnake;
+  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  my $prev_max = 1;
+  for (my $level = 1; $level < 10; $level++) {
+    print "level $level\n";
+
+    my ($x2,$y2) = $path->n_to_xy(2 * 7**($level-1));
+    my ($x3,$y3) = $path->n_to_xy(3 * 7**($level-1));
+    my $cx = ($x2+$x3)/2;
+    my $cy = ($y2+$y3)/2;
+    my $max_hypot = 0;
+    my $max_pos = '';
+    foreach my $n (0 .. 7**$level - 1) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $h = ($x-$cx)**2 + 3*($y-$cy);
+      if ($h > $max_hypot) {
+        $max_hypot = $h;
+        $max_pos = "$x,$y";
+      }
+    }
+    my $factor = $max_hypot / $prev_max;
+    $prev_max = $max_hypot;
+    print "  cx=$cx,cy=$cy  max $max_hypot   at $max_pos  factor $factor\n";
+  }
+  exit 0;
+}
+
+
+{
+  require Math::PlanePath::MathImageFlowsnake;
+  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  my $prev_max = 1;
+  for (my $level = 1; $level < 10; $level++) {
+    my $n_start = 0;
+    my $n_end = 7**$level - 1;
+    my $min_hypot = $n_end;
+    my $min_x = 0;
+    my $min_y = 0;
+    my $max_hypot = 0;
+    my $max_pos = '';
+    print "level $level\n";
+    my ($xend,$yend) = $path->n_to_xy(7**($level-1));
+    print "   end $xend,$yend\n";
+    $yend *= sqrt(3);
+    my $cx = -$yend;  # rotate +90
+    my $cy = $xend;
+    print "   rot90  $cx, $cy\n";
+    # $cx *= sqrt(3/4) * .5;
+    # $cy *= sqrt(3/4) * .5;
+    $cx *= 1.5;
+    $cy *= 1.5;
+    print "   scale  $cx, $cy\n";
+    $cx += $xend;
+    $cy += $yend;
+    print "   offset to  $cx, $cy\n";
+    $cy /= sqrt(3);
+    printf "  centre %.1f, %.1f\n", $cx,$cy;
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $h = ($cx-$x)**2 + 3*($cy-$y)**2;
+
+      if ($h > $max_hypot) {
+        $max_hypot = $h;
+        $max_pos = "$x,$y";
+      }
+      # if ($h < $min_hypot) {
+      #   $min_hypot = $h;
+      #   $min_x = $x;
+      #   $min_y = $y;
+      # }
+    }
+    # print "  min $min_hypot   at $min_x,$min_y\n";
+    my $factor = $max_hypot / $prev_max;
+    print "  max $max_hypot   at $max_pos  factor $factor\n";
+    $prev_max = $max_hypot;
+  }
+  exit 0;
+}
+
+{
+  # diameter
+  require Math::PlanePath::MathImageFlowsnake;
+  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  my $prev_max = 1;
+  for (my $level = 1; $level < 10; $level++) {
+    print "level $level\n";
+    my $n_start = 0;
+    my $n_end = 7**$level - 1;
+    my ($xend,$yend) = $path->n_to_xy($n_end);
+    print "   end $xend,$yend\n";
+    my @x;
+    my @y;
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @x, $x;
+      push @y, $y;
+    }
+    my $max_hypot = 0;
+    my $max_pos = '';
+    my ($cx,$cy);
+    foreach my $i (0 .. $#x-1) {
+      foreach my $j (1 .. $#x) {
+        my $h = ($x[$i]-$x[$j])**2 + 3*($y[$i]-$y[$j]);
+        if ($h > $max_hypot) {
+          $max_hypot = $h;
+          $max_pos = "$x[$i],$y[$i], $x[$j],$y[$j]";
+          $cx = ($x[$i] + $x[$j]) / 2;
+          $cy = ($y[$i] + $y[$j]) / 2;
+        }
+      }
+    }
+    my $factor = $max_hypot / $prev_max;
+    print "  max $max_hypot   at $max_pos  factor $factor\n";
+    $prev_max = $max_hypot;
+  }
+
+  exit 0;
+}
 
 {
   require Math::PlanePath::GosperIslands;

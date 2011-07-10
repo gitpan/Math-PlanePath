@@ -33,7 +33,7 @@ require Math::PlanePath::GosperIslands;
 # VERSION
 
 {
-  my $want_version = 33;
+  my $want_version = 34;
   ok ($Math::PlanePath::GosperIslands::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GosperIslands->VERSION,  $want_version,
@@ -110,7 +110,7 @@ require Math::PlanePath::GosperIslands;
     {
       # n_to_xy()
       my ($got_x, $got_y) = $path->n_to_xy ($n);
-      if ($got_x == 0) { $got_x = 0 }  # avoid "-0" on perl 5.6.0
+      if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
       if ($got_y == 0) { $got_y = 0 }
       ok ($got_x, $x, "n_to_xy() x at n=$n");
       ok ($got_y, $y, "n_to_xy() y at n=$n");

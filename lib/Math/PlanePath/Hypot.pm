@@ -27,7 +27,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -137,14 +137,16 @@ sub n_to_xy {
     return;
   }
 
-  if ($n != int($n)) {
-    my $frac = $n;
-    $n = int($n);
-    $frac -= $n;
-    my ($x1, $y1) = $self->n_to_xy($n);
-    my ($x2, $y2) = $self->n_to_xy($n+1);
-    return ($x2*$frac + $x1*(1-$frac),
-            $y2*$frac + $y1*(1-$frac));
+  {
+    my $int = int($n);
+    if ($n != $int) {
+      my $frac = $n - $int;
+      $n = $int;
+      my ($x1, $y1) = $self->n_to_xy($n);
+      my ($x2, $y2) = $self->n_to_xy($n+1);
+      return ($x2*$frac + $x1*(1-$frac),
+              $y2*$frac + $y1*(1-$frac));
+    }
   }
 
   while ($n > $#n_to_x) {

@@ -18,13 +18,14 @@ devel/gallery.pl
 devel/gosper-islands-stars.pl
 devel/grid.pl
 devel/heighway.pl
+devel/hex-arms.pl
 devel/hexhypot.pl
 devel/hilbert-diamond.pl
 devel/hilbert.pl
 devel/hypot.pl
 devel/interpolate.pl
+devel/iterator.pl
 devel/Makefile
-devel/next.pl
 devel/pixel-rings.pl
 devel/plus-similar.pl
 devel/pythagorean-area.pl
@@ -93,6 +94,9 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 SIGNATURE
 t/ArchimedeanSpiral.t
+t/bigfloat.t
+t/bigint.t
+t/bigrat.t
 t/Columns-load.t
 t/Columns.t
 t/CoprimeColumns.t

@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -227,7 +227,7 @@ fit on a square grid.
          /     /              \     \
        30    14     4 --- 3    10    23            1
       /     /     /         \     \    \
-    31    15     5     1 --- 2     9    22    <- y=0
+    31    15     5     1 --- 2     9    22    <- Y=0
       \     \     \              /     /
        32    16     6 --- 7 --- 8    21           -1
          \     \                    /
@@ -236,7 +236,7 @@ fit on a square grid.
              34 -- 35 ...                         -3
 
      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
-    -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6
+    -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
 Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
 x=2,y=0.  The diagonals are just 1 across, so n=3 is at x=1,y=1.  Each
@@ -265,14 +265,14 @@ gives
                /                          \     \
              22     8---- 7---- 6---- 5    16    33            1
             /     /                    \     \    \
-          23     9     1---- 2---- 3---- 4    15    32    <- y=0
+          23     9     1---- 2---- 3---- 4    15    32    <- Y=0
             \     \                          /     /
              24    10----11----12----13----14    31           -1
                \                               /
                 25----26----27----28---29----30               -2
              
            ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
-          -7 -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6  7
+          -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
 The centre horizontal from N=1 is extended by C<wider> many extra places,
 then the path loops around that shape.  The starting point N=1 is shifted to

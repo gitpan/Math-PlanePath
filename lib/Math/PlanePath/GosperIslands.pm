@@ -33,7 +33,7 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -139,9 +139,9 @@ sub _side_n_to_xy {
   my $x;
   my $y = 0;
   {
-    my $whole = int($n);
-    $x = 2*($n - $whole);
-    $n = $whole;
+    my $int = int($n);
+    $x = 2*($n - $int);
+    $n = $int;
   }
   my $xend = 2;
   my $yend = 0;

@@ -40,14 +40,11 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -86,9 +83,9 @@ sub n_to_xy {
 
   my $x;
   {
-    my $whole = int($n);
-    $x = 2 * ($n - $whole);
-    $n = $whole;
+    my $int = int($n);
+    $x = 2 * ($n - $int);
+    $n = $int;
   }
   my $y = 0;
   my $len = 1;
@@ -245,23 +242,44 @@ triangular segments with diagonals at a 45 degree angle.
 
 Each replication in adds 3 times the existing points and is thus 4 times
 bigger, so if N=0 to N=4 is reckoned as level 1 then a given replication
-level goes from N=0 to N=4^level inclusive.
+level goes from
+
+    Nstart = 0
+    Nlevel = 4^level   (inclusive)
 
 Each replication is 3 times the width.  The initial N=0 to N=4 figure is 6
-wide, so in general a level runs from X=0 to X=2*3^level inclusive.  The
-highest Y is 3 times greater at each level similarly, for peak Y=3^level in
-the middle of the level at X=3^level and N=(4^level)/2.
+wide, so in general a level runs from
+
+    Xstart = 0
+    Xlevel = 2*3^level   (at Nlevel)
+
+The highest Y is 3 times greater at each level similarly, for peak
+
+    X=3^level
+    Y=3^level
+    at N=(4^level)/2
 
 It can be seen that the N=6 point backtracks horizontally to the same X as
 the start of its section N=4 to N=8.  This happens in the replications too
 and is the maximum extent of the backtracking.
 
-Koch conceived the curve as having infinitely fine structure making it
-everywhere continuous but nowhere differentiable.  The code here can be
-pressed into service for that sort of construction at a given level by
-scaling X/3^level and Y/3^level to make it a fixed 2 wide by 1 high (and
-perhaps factors 1/2 and sqrt(3)/2 as above for unit-side equilateral
-triangles).
+The Nlevel value is multiplied by 4 to get the end of the next higher level.
+The same 4*N can be applied to all points N=0 to N=Nlevel to get the same
+shape but a factor of 3 on the X,Y coordinates.  The in-between points
+4*N+1, 4*N+2 and 4*N+3 are the new finer structure in the higher level.
+
+=head2 Fractal
+
+Koch conceived the curve as having a fixed length and infinitely fine
+structure, so it's continuous everywhere but differentiable nowhere.  The
+code here can be pressed into service for that sort of construction of a
+given level by scaling
+
+    X/3^level
+    Y/3^level
+
+to make it a fixed 2 wide by 1 high.  Or apply factors 1/2 and sqrt(3)/2 as
+above for unit-side equilateral triangles.
 
 =head1 FUNCTIONS
 

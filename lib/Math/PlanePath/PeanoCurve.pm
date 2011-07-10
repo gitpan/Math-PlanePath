@@ -16,9 +16,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# cf
+#
 # http://www.cut-the-knot.org/Curriculum/Geometry/PeanoComplete.shtml
 #     Java applet, directions in 9 sub-parts
 #
+
 
 package Math::PlanePath::PeanoCurve;
 use 5.004;
@@ -27,55 +30,79 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
 use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  if (! $self->{'radix'} || $self->{'radix'} < 2) {
+    $self->{'radix'} = 3;
+  }
+  return $self;
+}
+
 sub n_to_xy {
   my ($self, $n) = @_;
   ### PeanoCurve n_to_xy(): $n
-  if ($n < 0            # negative
-      || _is_infinite($n)) {
+  if ($n < 0) {            # negative
     return;
   }
-
-  if (int($n) != $n) {
-    my ($x1,$y1) = $self->n_to_xy(floor($n));
-    my ($x2,$y2) = $self->n_to_xy(ceil($n));
-    return (($x1+$x2)/2, ($y1+$y2)/2);
+  if (_is_infinite($n)) {
+    return ($n,$n);
   }
 
-  my $x = 0;
-  my $y = 0;
-  my $comp = 0;
-  my $power = 1;
+  {
+    # ENHANCE-ME: for odd radix the ends join and the direction can be had
+    # without a full N+1 calculation
+    my $int = int($n);
+    ### $int
+    ### $n
+    if ($n != $int) {
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my $frac = $n - $int;  # inherit possible BigFloat
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
+  }
+
+  my $x = my $y = my $comp = $n & 0;  # inherit bignum 0
+  my $power = $x + 1;                 # inherit bignum 1
+  my $radix = $self->{'radix'};
   for (;;) {
     ### $n
     ### $power
+    ### $comp
     {
-      my $digit = $n % 3;
+      my $digit = $n % $radix;
       if ($digit & 1) {
         $y = $comp - $y;
       }
       $x += $power * $digit;
     }
-    $n = int($n/3) || last;
-    $comp = (3*$comp + 2);
+    $n = int($n/$radix) || last;
+    $comp = $radix*($comp+1) - 1;  # comp*R + R-1 extra digit R-1
     {
-      my $digit = $n % 3;
+      my $digit = $n % $radix;
       if ($digit & 1) {
         $x = $comp - $x;
       }
       $y += $power * $digit;
     }
-    $n = int($n/3) || last;
-    $power *= 3;
+    $n = int($n/$radix) || last;
+    $power *= $radix;
   }
   return ($x, $y);
 
@@ -107,53 +134,67 @@ sub n_to_xy {
   # return ($x, $y);
 }
 
+sub _floor {
+  my ($x) = @_;
+  my $int = int($x);
+  if ($x == $int) {
+    return $x;
+  }
+  $x -= $int;
+  if ($x >= .5) {
+    $int -= 1;
+  } elsif ($x < -.5) {
+    $int += 1;
+  }
+  return $int;
+}
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PeanoCurve xy_to_n(): "$x, $y"
 
   $x = floor($x + 0.5);
   $y = floor($y + 0.5);
-  if ($x < 0 || $y < 0) {
+  if ($x < 0 || $y < 0
+      || _is_infinite($x)
+      || _is_infinite($y)) {
     return undef;
   }
 
-  if (_is_infinite($x) || _is_infinite($y)) {
-    return undef;
-  }
-
+  my $radix = $self->{'radix'};
   my $power = 1;
   my $comp = 0;
   my $xn = my $yn = ($x & 0); # inherit
   while ($x || $y) {
     {
-      my $digit = $x % 3;
+      my $digit = $x % $radix;
       if ($digit & 1) {
         $yn = $comp - $yn;
       }
       $xn += $power * $digit;
-      $x = int($x/3);
+      $x = int($x/$radix);
     }
-    $comp = (3*$comp + 2);
+    $comp = $radix*($comp+1) - 1;  # comp*R + R-1 extra digit R-1
     {
-      my $digit = $y % 3;
+      my $digit = $y % $radix;
       if ($digit & 1) {
         $xn = $comp - $xn;
       }
       $yn += $power * $digit;
-      $y = int($y/3);
+      $y = int($y/$radix);
     }
-    $power *= 3;
+    $power *= $radix;
   }
 
   my $n = ($x & 0); # inherit
   $power = 1;
   while ($xn || $yn) {
-    $n += ($xn % 3) * $power;
-    $power *= 3;
-    $n += ($yn % 3) * $power;
-    $power *= 3;
-    $xn = int($xn/3);
-    $yn = int($yn/3);
+    $n += ($xn % $radix) * $power;
+    $power *= $radix;
+    $n += ($yn % $radix) * $power;
+    $power *= $radix;
+    $xn = int($xn/$radix);
+    $yn = int($yn/$radix);
   }
   return $n;
 
@@ -167,7 +208,7 @@ sub xy_to_n {
   #   push @x, $x % 3; $x = int($x/3);
   #   push @y, $y % 3; $y = int($y/3);
   # }
-  # 
+  #
   # my $i = 0;
   # my $xk = 0;
   # my $yk = 0;
@@ -189,7 +230,7 @@ sub xy_to_n {
   #     $n = ($n * 3) + $digit;
   #   }
   # }
-  # 
+  #
   # return $n;
 }
 
@@ -208,7 +249,7 @@ sub rect_to_n_range {
     return (1, 0);
   }
 
-
+  my $radix = $self->{'radix'};
   my $power = 1;
   {
     my $max = max($x2,$y2);
@@ -216,7 +257,7 @@ sub rect_to_n_range {
       return (0,$max);  # infinity
     }
     until ($power > $max) {
-      $power *= 3;
+      $power *= $radix;
     }
   }
 
@@ -239,10 +280,11 @@ sub rect_to_n_range {
   # so does overlap if
   #     l<=c2 and h>c1
   #
+  my $radix_minus_1 = $radix - 1;
   my $overlap = sub {
     my ($c,$ck,$digit, $c1,$c2) = @_;
     if ($ck & 1) {
-      $digit = 2 - $digit;
+      $digit = $radix_minus_1 - $digit;
     }
     ### overlap consider: "inv@{[$ck&1]}digit=$digit ".($c+$digit*$power)."<=c<".($c+($digit+1)*$power)." cf $c1 to $c2 incl"
     return ($c + $digit*$power <= $c2
@@ -250,19 +292,20 @@ sub rect_to_n_range {
   };
 
   while ($power > 1) {
-    $power = int($power/3);
-    $n_power = int($n_power/3);
+    $power = int($power/$radix);
+    $n_power = int($n_power/$radix);
 
     ### $power
     ### $n_power
     ### $max_n
     ### $min_n
     {
-      my $digit = (&$overlap   ($max_y,$max_yk,2, $y1,$y2) ? 2
-                   : &$overlap ($max_y,$max_yk,1, $y1,$y2) ? 1
-                   : 0);
+      my $digit;
+      for ($digit = $radix_minus_1; $digit > 0; $digit--) {
+        last if &$overlap ($max_y,$max_yk,$digit, $y1,$y2);
+      }
       $max_n += $n_power * $digit;
-      if ($max_yk&1) { $digit = 2 - $digit; }
+      if ($max_yk&1) { $digit = $radix_minus_1 - $digit; }
       $max_y += $power * $digit;
       $max_xk ^= $digit;
       ### max y digit: $digit
@@ -270,11 +313,12 @@ sub rect_to_n_range {
       ### $max_n
     }
     {
-      my $digit = (&$overlap   ($min_y,$min_yk,0, $y1,$y2) ? 0
-                   : &$overlap ($min_y,$min_yk,1, $y1,$y2) ? 1
-                   : 2);
+      my $digit;
+      for ($digit = 0; $digit < $radix_minus_1; $digit++) {
+        last if &$overlap ($min_y,$min_yk,$digit, $y1,$y2);
+      }
       $min_n += $n_power * $digit;
-      if ($min_yk&1) { $digit = 2 - $digit; }
+      if ($min_yk&1) { $digit = $radix_minus_1 - $digit; }
       $min_y += $power * $digit;
       $min_xk ^= $digit;
       ### min y digit: $digit
@@ -282,13 +326,14 @@ sub rect_to_n_range {
       ### $min_n
     }
 
-    $n_power = int($n_power/3);
+    $n_power = int($n_power/$radix);
     {
-      my $digit = (&$overlap   ($max_x,$max_xk,2, $x1,$x2) ? 2
-                   : &$overlap ($max_x,$max_xk,1, $x1,$x2) ? 1
-                   : 0);
+      my $digit;
+      for ($digit = $radix_minus_1; $digit > 0; $digit--) {
+        last if &$overlap ($max_x,$max_xk,$digit, $x1,$x2);
+      }
       $max_n += $n_power * $digit;
-      if ($max_xk&1) { $digit = 2 - $digit; }
+      if ($max_xk&1) { $digit = $radix_minus_1 - $digit; }
       $max_x += $power * $digit;
       $max_yk ^= $digit;
       ### max x digit: $digit
@@ -296,11 +341,12 @@ sub rect_to_n_range {
       ### $max_n
     }
     {
-      my $digit = (&$overlap   ($min_x,$min_xk,0, $x1,$x2) ? 0
-                   : &$overlap ($min_x,$min_xk,1, $x1,$x2) ? 1
-                   : 2);
+      my $digit;
+      for ($digit = 0; $digit < $radix_minus_1; $digit++) {
+        last if &$overlap ($min_x,$min_xk,$digit, $x1,$x2);
+      }
       $min_n += $n_power * $digit;
-      if ($min_xk&1) { $digit = 2 - $digit; }
+      if ($min_xk&1) { $digit = $radix_minus_1 - $digit; }
       $min_x += $power * $digit;
       $min_yk ^= $digit;
       ### min x digit: $digit

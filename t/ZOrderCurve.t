@@ -36,7 +36,7 @@ require Math::PlanePath::ZOrderCurve;
 # VERSION
 
 {
-  my $want_version = 33;
+  my $want_version = 34;
   ok ($Math::PlanePath::ZOrderCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ZOrderCurve->VERSION,  $want_version,
@@ -70,5 +70,6 @@ require Math::PlanePath::ZOrderCurve;
   ok ($path->x_negative, 0, 'x_negative() instance method');
   ok ($path->y_negative, 0, 'y_negative() instance method');
 }
+
 
 exit 0;

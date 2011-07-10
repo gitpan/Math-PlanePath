@@ -38,7 +38,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -97,12 +97,19 @@ sub n_to_xy {
     return;
   }
 
-  if (int($n) != $n) {
-    my ($x1,$y1) = $self->n_to_xy(floor($n));
-    my ($x2,$y2) = $self->n_to_xy(ceil($n));
-    return (($x1+$x2)/2, ($y1+$y2)/2);
+  {
+    # ENHANCE-ME: determine dx/dy direction from N bits, not full
+    # calculation of N+1
+    my $int = int($n);
+    if ($n != $int) {
+      my $frac = $n - $int;  # inherit possible BigFloat/BigRat
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
   }
-  # $n = floor ($n - 0.5);
 
   my $x = my $y = ($n & 0); # inherit
 

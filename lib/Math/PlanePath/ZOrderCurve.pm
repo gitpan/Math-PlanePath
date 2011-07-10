@@ -16,6 +16,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=ZOrderCurve,radix=3 --all --output=numbers
+
 package Math::PlanePath::ZOrderCurve;
 use 5.004;
 use strict;
@@ -23,7 +25,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -36,34 +38,70 @@ use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  if (! $self->{'radix'} || $self->{'radix'} < 2) {
+    $self->{'radix'} = 2;
+  }
+  return $self;
+}
+
 sub n_to_xy {
   my ($self, $n) = @_;
   ### ZOrderCurve n_to_xy(): $n
-  if ($n < 0 || _is_infinite($n)) {
+  if ($n < 0) {
     return;
   }
+  if (_is_infinite($n)) {
+    return ($n,$n);
+  }
 
-  if (int($n) != $n) {
-    my ($x1,$y1) = $self->n_to_xy(floor($n));
-    my ($x2,$y2) = $self->n_to_xy(ceil($n));
-    return (($x1+$x2)/2, ($y1+$y2)/2);
+  {
+    # ENHANCE-ME: N and N+1 are either adjacent X or on a slope Y to Y+1 for
+    # the base X, don't need the full calculation for N+1
+    my $int = int($n);
+    if ($n != $int) {
+      my $frac = $n - $int;  # inherit possible BigFloat/BigRat
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
   }
 
   my $x = my $y = ($n&0); # inherit
-  my $bit = $x|1;  # inherit
-  while ($n) {
-    ### $x
-    ### $y
-    ### $n
-    ### $bit
-    if ($n & 1) {
-      $x += $bit;
+  my $radix = $self->{'radix'};
+  if ($radix == 2) {
+    my $bit = $x|1;  # inherit
+    while ($n) {
+      ### $x
+      ### $y
+      ### $n
+      ### $bit
+      if ($n & 1) {
+        $x += $bit;
+      }
+      if ($n & 2) {
+        $y += $bit;
+      }
+      $n >>= 2;
+      $bit <<= 1;
     }
-    if ($n & 2) {
-      $y += $bit;
+  } else {
+    my $power = $x+1;  # inherit
+    while ($n) {
+      ### $x
+      ### $y
+      ### $n
+      ### $bit
+      $x += ($n % $radix) * $power;
+      $n = int ($n / $radix);
+      $y += ($n % $radix) * $power;
+      $n = int ($n / $radix);
+      $power *= $radix;
     }
-    $n >>= 2;
-    $bit <<= 1;
   }
 
   ### is: "$x,$y"
@@ -76,25 +114,40 @@ sub xy_to_n {
 
   $x = floor($x + 0.5);
   $y = floor($y + 0.5);
-  if ($x < 0 || $y < 0) {
+  if ($x < 0 || $y < 0
+      || _is_infinite($x)
+      || _is_infinite($y)) {
     return undef;
   }
-  my $xmod = 2 + ($self->{'wider'} || 0);
 
   my $n = ($x & 0); # inherit
-  my $nbit = 1;
-  while ($x || $y) {
-    if ($x & 1) {
-      $n |= $nbit;
-    }
-    $x >>= 1;
-    $nbit <<= 1;
+  my $radix = $self->{'radix'};
+  if ($radix == 2) {
+    my $nbit = $n|1; # inherit
+    while ($x || $y) {
+      if ($x & 1) {
+        $n |= $nbit;
+      }
+      $x >>= 1;
+      $nbit <<= 1;
 
-    if ($y & 1) {
-      $n |= $nbit;
+      if ($y & 1) {
+        $n |= $nbit;
+      }
+      $y >>= 1;
+      $nbit <<= 1;
     }
-    $y >>= 1;
-    $nbit <<= 1;
+  } else {
+    my $power = $n+1; # inherit
+    while ($x || $y) {
+      $n += ($x % $radix) * $power;
+      $x = int ($x / $radix);
+      $power *= $radix;
+
+      $n += ($y % $radix) * $power;
+      $y = int ($y / $radix);
+      $power *= $radix;
+    }
   }
   return $n;
 }
@@ -116,6 +169,7 @@ sub rect_to_n_range {
 1;
 __END__
 
+  # my $xmod = 2 + ($self->{'wider'} || 0);
   # if (my $xmod = $self->{'wider'}) {
   # 
   #   $xmod += 2;
@@ -160,13 +214,17 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::ZOrderCurve -- 2x2 self-similar Z shape quadrant traversal
+Math::PlanePath::ZOrderCurve -- 2x2 self-similar Z shape digits
 
 =head1 SYNOPSIS
 
  use Math::PlanePath::ZOrderCurve;
+
  my $path = Math::PlanePath::ZOrderCurve->new;
  my ($x, $y) = $path->n_to_xy (123);
+
+ # or another radix digits ...
+ my $path3 = Math::PlanePath::ZOrderCurve->new (radix => 3);
 
 =head1 DESCRIPTION
 
@@ -179,28 +237,28 @@ This path puts points in a self-similar Z pattern described by G.M. Morton,
       3  |   10  11  14  15  26  27  30  31
       2  |    8   9  12  13  24  25  28  29
       1  |    2   3   6   7  18  19  22  23
-     y=0 |    0   1   4   5  16  17  20  21  64  ...
+     Y=0 |    0   1   4   5  16  17  20  21  64  ...
          +--------------------------------
-          x=0   1   2   3   4   5   6   7
+          X=0   1   2   3   4   5   6   7
 
 The first four points make a "Z" shape if written with Y going downwards
 (inverted if drawn upwards as above),
 
-     0---1       y=0
+     0---1       Y=0
         /
       /
-     2---3       y=1
+     2---3       Y=1
 
 Then groups of those are arranged as a further Z, etc, doubling in size each
 time.
 
-     0   1      4   5       y=0
-     2   3 ---  6   7       y=1
+     0   1      4   5       Y=0
+     2   3 ---  6   7       Y=1
              /
             /
            /
-     8   9 --- 12  13       y=2
-    10  11     14  15       y=3
+     8   9 --- 12  13       Y=2
+    10  11     14  15       Y=3
 
 Within an power of 2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k), all the N
 values 0 to 2^(2*k)-1 are within the square.  The top right corner 3, 15,
@@ -234,13 +292,30 @@ repeating at 4x4 with again the whole "3" position undrawn, and so on.  The
 blanks are a visual representation of the multiplications saved by recursive
 use of the Karatsuba multiplication algorithm.
 
+=head2 Radix
+
+The radix option can do the same sort of N -> X/Y digit splitting in a
+higher base.  For example radix 3 makes 3x3 groupings,
+
+      5  |  33  34  35  42  43  44
+      4  |  30  31  32  39  40  41
+      3  |  27  28  29  36  37  38  45  ...
+      2  |   6   7   8  15  16  17  24  25  26
+      1  |   3   4   5  12  13  14  21  22  23
+     Y=0 |   0   1   2   9  10  11  18  19  20
+         +--------------------------------------
+           X=0   1   2   3   4   5   6   7   8
+
 =head1 FUNCTIONS
 
 =over 4
 
 =item C<$path = Math::PlanePath::ZOrderCurve-E<gt>new ()>
 
-Create and return a new path object.
+=item C<$path = Math::PlanePath::ZOrderCurve-E<gt>new (radix =E<gt> $r)>
+
+Create and return a new path object.  The optional C<radix> parameter gives
+the base for digit splitting (the default is binary, radix 2).
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

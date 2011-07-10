@@ -39,6 +39,36 @@ my $tempfile = $tempfh->filename;
 
 foreach my $elem
   (
+   ['pent-small.png',
+    'math-image --path=PentSpiral --lines --scale=4 --size=32x32 --png'],
+   ['pent-big.png',
+    'math-image --path=PentSpiral --lines --scale=13 --size=200x200 --png'],
+
+   ['hept-skewed-small.png',
+    'math-image --path=HeptSpiralSkewed --lines --scale=4 --size=32x32 --png'],
+   ['hept-skewed-big.png',
+    'math-image --path=HeptSpiralSkewed --lines --scale=13 --size=200x200 --png'],
+
+   ['hex-small.png',
+    'math-image --path=HexSpiral --lines --scale=3 --size=32x32 --png'],
+   ['hex-big.png',
+    'math-image --path=HexSpiral --lines --scale=13 --size=200x200 --png'],
+
+   ['triangular-hypot-small.png',
+    'math-image --path=TriangularHypot --lines --scale=4 --size=32 --png'],
+   ['triangular-hypot-big.png',
+    'math-image --path=TriangularHypot --lines --scale=15 --size=200x150 --png'],
+
+   ['hypot-octant-small.png',
+    'math-image --path=HypotOctant --lines --scale=5 --size=32 --png'],
+   ['hypot-octant-big.png',
+    'math-image --path=HypotOctant --lines --scale=15 --size=200x150 --png'],
+
+   ['hypot-small.png',
+    'math-image --path=Hypot --lines --scale=6 --size=32 --png'],
+   ['hypot-big.png',
+    'math-image --path=Hypot --lines --scale=15 --size=200x150 --png'],
+
    ['gosper-islands-small.png',
     'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
    ['gosper-islands-big.png',
@@ -95,16 +125,6 @@ foreach my $elem
     'math-image --path=SquareSpiral --lines --scale=4 --size=32x32 --png'],
    ['square-big.png',
     'math-image --path=SquareSpiral --lines --scale=13 --size=200x200 --png'],
-
-   ['pent-small.png',
-    'math-image --path=PentSpiral --lines --scale=4 --size=32x32 --png'],
-   ['pent-big.png',
-    'math-image --path=PentSpiral --lines --scale=13 --size=300x180 --png'],
-
-   ['hex-small.png',
-    'math-image --path=HexSpiral --lines --scale=3 --size=32x32 --png'],
-   ['hex-big.png',
-    'math-image --path=HexSpiral --lines --scale=13 --size=200x200 --png'],
 
    ['pyramid-rows-small.png',
     'math-image --path=PyramidRows --lines --scale=5 --size=32x32 --png'],

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 37 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiArrowhead;
 # VERSION
 
 {
-  my $want_version = 33;
+  my $want_version = 34;
   ok ($Math::PlanePath::SierpinskiArrowhead::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiArrowhead->VERSION,  $want_version,
@@ -70,6 +70,47 @@ require Math::PlanePath::SierpinskiArrowhead;
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 0, 'y_negative()');
 }
+
+
+#------------------------------------------------------------------------------
+# first few points
+
+{
+  my @data = ([ 0,  0,0 ],
+              [ 1,  1,1 ],
+              [ 2,  0,2 ],
+              [ 3,  -2,2 ],
+
+              [ .25,   .25, .25 ],
+              [ 1.25,   .75, 1.25 ],
+              [ 2.5,   -1, 2 ],
+             );
+  my $path = Math::PlanePath::SierpinskiArrowhead->new;
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
+    if ($got_y == 0) { $got_y = 0 }
+    ok ($got_x, $want_x, "n_to_xy() x at n=$n");
+    ok ($got_y, $want_y, "n_to_xy() y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    next unless $want_n==int($want_n);
+    my $got_n = $path->xy_to_n ($x, $y);
+    ok ($got_n, $want_n, "n at x=$x,y=$y");
+  }
+
+  foreach my $elem (@data) {
+    my ($n, $x, $y) = @$elem;
+    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+    next unless $n==int($n);
+    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # xy_to_n() distinct n and all n

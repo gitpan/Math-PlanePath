@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 33;
+$VERSION = 34;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -49,12 +49,11 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my ($x, $y);
-  {
-    my $whole = int($n);
-    $x = $y = $n - $whole;  # fraction part
-    $n = $whole;
-  }
+  my $x = int($n);
+  my $y = $n - $x;  # fraction part
+  $n = $x;
+  $x = $y;
+
   my $len = 1;
   while ($n) {
     my $digit = ($n % 3);
@@ -220,6 +219,40 @@ sub _log2_ceil {
 
 1;
 __END__
+
+
+rows
+         *           1 \
+        * *          2 |
+       *   *         2 |
+      * * * *        4 /
+     *       *       2 \
+    * *     * *      4 | 2x prev 4
+   *   *   *   *     4 |
+  * * * * * * * *    8 /
+ *               *   2 \
+* *             * *  4 | 2x prev 8
+
+cumulative
+
+1
+3
+5
+9
+11 \
+15 | *2+9
+19 |
+27 /
+29 \
+33 | *2+27
+37
+45
+49
+57
+65
+81
+
+
 
 =for stopwords eg Ryde Sierpinski Nlevel ie
 

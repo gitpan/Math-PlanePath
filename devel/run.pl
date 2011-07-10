@@ -20,7 +20,213 @@
 use 5.006;
 use strict;
 use warnings;
-use Smart::Comments;
+use POSIX qw(floor ceil);
+use List::Util qw(min max);
+
+{
+  use Math::PlanePath::KochCurve;
+  package Math::PlanePath::KochCurve;
+  sub rect_to_n_range {
+    my ($self, $x1,$y1, $x2,$y2) = @_;
+
+    $y1 = floor($y1 + 0.5);
+    $y2 = floor($y2 + 0.5);
+    if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
+    if ($y1 < 0 && $y2 < 0) {
+      return (1,0);
+    }
+
+    $x1 = floor($x1 + 0.5);
+    $x2 = floor($x2 + 0.5);
+    if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
+    ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
+
+    my (undef, $top_level) = _round_down_pow3 (max(2, abs($x1), abs($x2)));
+    $top_level += 2;
+    ### $top_level
+
+    my ($tx,$ty, $dir, $len);
+    my $intersect_rect_p = sub {
+      if ($dir < 0) {
+        $dir += 6;
+      } elsif ($dir > 5) {
+        $dir -= 6;
+      }
+      my $left_x = $tx;
+      my $peak_y = $ty;
+      my $offset;
+      if ($dir & 1) {
+        # pointing downwards
+        if ($dir == 1) {
+          $left_x -= $len-1;  # +1 to exclude left edge
+          $peak_y += $len;
+        } elsif ($dir == 3) {
+          $left_x -= 2*$len;
+        } else {
+          $peak_y++;  # exclude top edge
+        }
+        if ($peak_y < $y1) {
+          ### all below ...
+          return 0;
+        }
+        $offset = $y2 - $peak_y;
+
+      } else {
+        # pointing upwards
+        if ($dir == 2) {
+          $left_x -= 2*$len;
+        } elsif ($dir == 4) {
+          $left_x -= $len;
+          $peak_y -= $len-1;  # +1 exclude bottom edge
+        }
+        if ($peak_y > $y2) {
+          ### all above ...
+          return 0;
+        }
+        $offset = $peak_y - $y1;
+      }
+      my $right_x = $left_x + 2*($len-1);
+      if ($offset > 0) {
+        $left_x += $offset;
+        $right_x -= $offset;
+      }
+      ### $offset
+      ### $left_x
+      ### $right_x
+      ### result: ($left_x <= $x2 && $right_x >= $x1)
+      return ($left_x <= $x2 && $right_x >= $x1);
+    };
+
+    my @pending_tx = (0);
+    my @pending_ty = (0);
+    my @pending_dir = (0);
+    my @pending_level = ($top_level);
+    my @pending_n = (0);
+
+    my $n_lo;
+    for (;;) {
+      if (! @pending_tx) {
+        ### nothing in rectangle for low ...
+        return (1,0);
+      }
+      $tx = pop @pending_tx;
+      $ty = pop @pending_ty;
+      $dir = pop @pending_dir;
+      my $level = pop @pending_level;
+      my $n = pop @pending_n;
+      $len = 3**$level;
+
+      ### pop for low ...
+      ### n: sprintf('0x%X',$n)
+      ### $level
+      ### $len
+      ### $tx
+      ### $ty
+      ### $dir
+
+      unless (&$intersect_rect_p()) {
+        next;
+      }
+      $level--;
+      if ($level < 0) {
+        $n_lo = $n;
+        last;
+      }
+      $n *= 4;
+      $len = 3**$level;
+
+      ### descend: "len=$len"
+      push @pending_tx, $tx+4*$len;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir;
+      push @pending_level, $level;
+      push @pending_n, $n+3;
+
+      push @pending_tx, $tx+3*$len;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir-1;
+      push @pending_level, $level;
+      push @pending_n, $n+2;
+
+      push @pending_tx, $tx+2*$len;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir+1;
+      push @pending_level, $level;
+      push @pending_n, $n+1;
+
+      push @pending_tx, $tx;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir;
+      push @pending_level, $level;
+      push @pending_n, $n;
+    }
+
+    ### high ...
+
+    @pending_tx = (0);
+    @pending_ty = (0);
+    @pending_dir = (0);
+    @pending_level = ($top_level);
+    @pending_n = (0);
+
+    for (;;) {
+      if (! @pending_tx) {
+        ### nothing in rectangle for high ...
+        return (1,0);
+      }
+      $tx = pop @pending_tx;
+      $ty = pop @pending_ty;
+      $dir = pop @pending_dir;
+      my $level = pop @pending_level;
+      my $n = pop @pending_n;
+
+      ### pop for high ...
+      ### n: sprintf('0x%X',$n)
+      ### $level
+      ### $len
+      ### $tx
+      ### $ty
+      ### $dir
+
+      $len = 3**$level;
+      unless (&$intersect_rect_p()) {
+        next;
+      }
+      $level--;
+      if ($level < 0) {
+        return ($n_lo, $n);
+      }
+      $n *= 4;
+      $len = 3**$level;
+
+      ### descend
+      push @pending_tx, $tx;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir;
+      push @pending_level, $level;
+      push @pending_n, $n;
+
+      push @pending_tx, $tx+2*$len;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir+1;
+      push @pending_level, $level;
+      push @pending_n, $n+1;
+
+      push @pending_tx, $tx+3*$len;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir-1;
+      push @pending_level, $level;
+      push @pending_n, $n+2;
+
+      push @pending_tx, $tx+4*$len;
+      push @pending_ty, $ty;
+      push @pending_dir, $dir;
+      push @pending_level, $level;
+      push @pending_n, $n+3;
+    }
+  }
+}
+
 
 {
   require Math::PlanePath::HilbertCurve;
@@ -43,8 +249,11 @@ use Smart::Comments;
   require Math::PlanePath::GosperIslands;
   require Math::PlanePath::SierpinskiArrowhead;
   require Math::PlanePath::CoprimeColumns;
-  my $path = Math::PlanePath::GosperIslands->new
-    (wider => 0,
+  require Math::PlanePath::MathImageHexArms;
+  require Math::PlanePath::MathImageCrossSide;
+  my $path = Math::PlanePath::MathImageCrossSide->new
+    (radix => 7,
+     wider => 0,
      # step => 0,
      #tree_type => 'UAD',
      #coordinates => 'PQ',
@@ -57,8 +266,12 @@ use Smart::Comments;
   # for (my $i = 0.75; $i <= 50; $i += .5) {
   # for (my $i = 9650; $i <= 9999; $i++) {
   # $i -= 0.5;
-
-  for (my $i = $n_start; $i <= 50; $i++) {
+  #for (my $i = $n_start; $i <= 30; $i++) {
+  # for (my $i = 2; $i <= 90; $i+=6) {
+  #for (my $i = 1; $i <= 500; $i++) {
+  for (my $i = 1; $i <= 3**15; $i*=3) {
+  #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
+  #for (my $i=4; $i < 500; $i++) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
