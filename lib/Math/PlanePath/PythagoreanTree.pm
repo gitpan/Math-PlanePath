@@ -61,7 +61,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 34;
+$VERSION = 35;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;

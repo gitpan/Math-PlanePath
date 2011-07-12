@@ -23,11 +23,11 @@ use strict;
 use warnings;
 
 {
-  require Math::PlanePath::MathImageCoprimeColumns;
+  require Math::PlanePath::CoprimeColumns;
   my $n = 0;
   foreach my $x (3 .. 1000) {
     foreach my $y (1 .. $x-1) {
-      $n += Math::PlanePath::MathImageCoprimeColumns::_coprime($x,$y);
+      $n += Math::PlanePath::CoprimeColumns::_coprime($x,$y);
     }
     my $square = $x*$x;
     my $frac = $n / $square;
@@ -36,17 +36,17 @@ use warnings;
   exit 0;
 }
 {
-  require Math::PlanePath::MathImageCoprimeColumns;
+  require Math::PlanePath::CoprimeColumns;
   foreach my $x (2 .. 100) {
     my $n = 0;
     my @list;
     foreach my $y (1 .. $x-1) {
-      if (Math::PlanePath::MathImageCoprimeColumns::_coprime($x,$y)) {
+      if (Math::PlanePath::CoprimeColumns::_coprime($x,$y)) {
         $n++;
         push @list, $y;
       }
     }
-    my $c = Math::PlanePath::MathImageCoprimeColumns::_totient_count($x);
+    my $c = Math::PlanePath::CoprimeColumns::_totient_count($x);
     if ($c != $n) {
       die "x=$x  tot $c step $n\n";
     }

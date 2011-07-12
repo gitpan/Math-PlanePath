@@ -51,7 +51,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 34;
+  my $want_version = 35;
   ok ($Math::PlanePath::ArchimedeanChords::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ArchimedeanChords->VERSION,  $want_version,

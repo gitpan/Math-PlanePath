@@ -168,29 +168,7 @@ use Math::Libm 'M_PI', 'hypot';
   exit 0;
 }
 
-{
-  require Math::PlanePath::MathImageGosperIslandSide;
-  my $path = Math::PlanePath::MathImageGosperIslandSide->new;
-  my $prev_angle = 0;
-  my $prev_dist = 0;
-  foreach my $level (0 .. 20) {
-    my ($x,$y) = $path->n_to_xy(3**$level);
-    $y *= sqrt(3);
-    my $angle = atan2($y,$x);
-    $angle *= 180/M_PI();
-    if ($angle < 0) { $angle += 360; }
-    my $delta_angle = $angle - $prev_angle;
-    my $dist = log(hypot($x,$y));
-    my $delta_dist = $dist - $prev_dist;
-    printf "%d  %d,%d   %.1f  %+.3f   %.3f %+.5f\n",
-      $level, $x, $y, $angle, $delta_angle,
-        $dist, $delta_dist;
 
-    $prev_angle = $angle;
-    $prev_dist = $dist;
-  }
-  exit 0;
-}
 
 sub hij_to_xy {
   my ($h, $i, $j) = @_;

@@ -33,7 +33,7 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 34;
+$VERSION = 35;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -606,7 +606,8 @@ at 1 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::KochSnowflakes>
+L<Math::PlanePath::KochSnowflakes>,
+L<Math::PlanePath::GosperSide>
 
 =head1 HOME PAGE
 

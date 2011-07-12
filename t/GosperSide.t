@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 596 }
+BEGIN { plan tests => 1574 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::GosperIslands;
+require Math::PlanePath::GosperSide;
 
 
 #------------------------------------------------------------------------------
@@ -34,20 +34,20 @@ require Math::PlanePath::GosperIslands;
 
 {
   my $want_version = 35;
-  ok ($Math::PlanePath::GosperIslands::VERSION, $want_version,
+  ok ($Math::PlanePath::GosperSide::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::GosperIslands->VERSION,  $want_version,
+  ok (Math::PlanePath::GosperSide->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::GosperIslands->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::GosperSide->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::GosperIslands->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::GosperSide->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::GosperIslands->new;
+  my $path = Math::PlanePath::GosperSide->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,8 +62,8 @@ require Math::PlanePath::GosperIslands;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::GosperIslands->new;
-  ok ($path->n_start, 1, 'n_start()');
+  my $path = Math::PlanePath::GosperSide->new;
+  ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
@@ -74,37 +74,25 @@ require Math::PlanePath::GosperIslands;
 
 {
   my @data = (
-              # [ .5,  -1.5, -.5 ],
-              # [ 3.25,  1.25, -.25 ],
-              # [ 3.75,  -3.25, -.25 ],
-              #
+              [ .25,  .5, 0 ],
+              [ .5,    1, 0 ],
+              [ 1.75,  2.75, .75 ],
+
+              [ 0, 0,0 ],
               [ 1, 2,0 ],
-              [ 2, 1,1 ],
-              [ 3, -1,1 ],
-              [ 4, -2,0 ],
-              [ 5, -1,-1 ],
-              [ 6, 1,-1 ],
+              [ 2, 3,1 ],
 
-              [  7, 5,1 ],
-              [  8,  4,2 ],
-              [  9,  2,2 ],
-              [ 10, 1,3 ],
-              [ 11,  -1,3 ],
-              [ 12,  -2,2 ],
-              [ 13, -4,2 ],
-              [ 14,  -5,1 ],
-              [ 15,  -4,0 ],
+              [ 3, 5,1 ],
+              [ 4, 6,2 ],
+              [ 5, 5,3 ],
 
-              [ 25, 11,5 ],
+              [ 6, 6,4 ],
+              [ 7, 8,4 ],
+              [ 8, 9,5 ],
 
-              # [ 9, 1,2 ],
-              # [ 10, 3,2 ],
-              # [ 11, 2,1 ],
-              # [ 12, 3,0 ],
-              #
-              [ 33, -1,7 ],
+              [ 9, 11,5 ],
              );
-  my $path = Math::PlanePath::GosperIslands->new;
+  my $path = Math::PlanePath::GosperSide->new;
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
     {
@@ -131,57 +119,34 @@ require Math::PlanePath::GosperIslands;
 
 
 #------------------------------------------------------------------------------
-# xy_to_n() reverse n_to_xy()
+# rect_to_n_range()
 
 {
-  my $path = Math::PlanePath::GosperIslands->new;
-  for (1 .. 500) {
-    my $bits = int(rand(25));         # 0 to 25, inclusive
-    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
-    my ($x,$y) = $path->n_to_xy ($n);
-    my $rev_n = $path->xy_to_n ($x,$y);
-    ok ($rev_n, $n, "xy_to_n() reverse n=$n");
-  }
+  my $path = Math::PlanePath::GosperSide->new;
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0, 0,0);
+  ok ($n_lo == 0, 1, "rect_to_n_range() 0,0  n_lo=$n_lo");
+  ok ($n_hi >= 0, 1, "rect_to_n_range() 0,0  n_hi=$n_hi");
 }
 
 
 #------------------------------------------------------------------------------
-# xy_to_n() distinct n
+# random points
 
 {
-  my $path = Math::PlanePath::GosperIslands->new;
-  my $bad = 0;
-  my %seen;
-  my $xlo = -50;
-  my $xhi = 50;
-  my $ylo = -50;
-  my $yhi = 50;
-  my ($nlo, $nhi) = $path->rect_to_n_range($xlo,$ylo, $xhi,$yhi);
-  my $count = 0;
- OUTER: for (my $x = $xlo; $x <= $xhi; $x++) {
-    for (my $y = $ylo; $y <= $yhi; $y++) {
-      next if ($x ^ $y) & 1;
-      my $n = $path->xy_to_n ($x,$y);
-      next if ! defined $n;  # sparse
+  my $path = Math::PlanePath::GosperSide->new;
+  for (1 .. 500) {
+    my $bits = int(rand(25));         # 0 to 25, inclusive
+    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
-      if ($seen{$n}) {
-        MyTestHelpers::diag ("x=$x,y=$y n=$n seen before at $seen{$n}");
-        last if $bad++ > 10;
-      }
-      if ($n < $nlo) {
-        MyTestHelpers::diag ("x=$x,y=$y n=$n below nlo=$nlo");
-        last OUTER if $bad++ > 10;
-      }
-      if ($n > $nhi) {
-        MyTestHelpers::diag ("x=$x,y=$y n=$n above nhi=$nhi");
-        last OUTER if $bad++ > 10;
-      }
-      $seen{$n} = "$x,$y";
-      $count++;
-    }
+    my ($x,$y) = $path->n_to_xy ($n);
+    my $rev_n = $path->xy_to_n ($x,$y);
+    if (! defined $rev_n) { $rev_n = 'undef'; }
+    ok ($rev_n, $n, "xy_to_n($x,$y) reverse to expect n=$n, got $rev_n");
+
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+    ok ($n_lo <= $n, 1, "rect_to_n_range() reverse n=$n cf n_lo=$n_lo");
+    ok ($n_hi >= $n, 1, "rect_to_n_range() reverse n=$n cf n_hi=$n_hi");
   }
-  ok ($bad, 0, "xy_to_n() coverage and distinct, $count points");
 }
-
 
 exit 0;

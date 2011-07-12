@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 277 }
+BEGIN { plan tests => 284 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,11 +33,13 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  GosperSide
+                  GosperIslands
+
                   PeanoCurve
                   ZOrderCurve
                   HilbertCurve
 
-                  GosperIslands
                   CoprimeColumns
                   SierpinskiArrowhead
                   KochSnowflakes
@@ -97,7 +99,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 34;
+my $want_version = 35;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -220,10 +222,11 @@ my %class_dxdy_allowed
                                              '0,1'   => 1, # N
                                             },
 
-     'Math::PlanePath::HexSpiral'      => $dxdy_hex,
-     'Math::PlanePath::KochCurve'      => $dxdy_hex,
+     'Math::PlanePath::HexSpiral'   => $dxdy_hex,
+     'Math::PlanePath::KochCurve'   => $dxdy_hex,
+     'Math::PlanePath::GosperSide'  => $dxdy_hex,
 
-     # also jumps at ends/rings
+     # except for jumps at ends/rings
      # 'Math::PlanePath::KochPeaks'      => $dxdy_hex,
      # 'Math::PlanePath::KochSnowflakes' => $dxdy_hex,
      # 'Math::PlanePath::GosperIslands'  => $dxdy_hex,
@@ -600,13 +603,20 @@ sub pythagorean_diag {
                 my $path_x_negative = ($path->x_negative ? 1 : 0);
                 $got_x_negative = ($got_x_negative ? 1 : 0);
                 ($path_x_negative == $got_x_negative)
-                  or &$report ("x_negative() $path_x_negative but got $got_x_negative");
+                  or &$report ("x_negative() $path_x_negative but in rect got $got_x_negative");
               }
               {
                 my $path_y_negative = ($path->y_negative ? 1 : 0);
                 $got_y_negative = ($got_y_negative ? 1 : 0);
+
+                if ($path->isa('Math::PlanePath::GosperSide')) {
+                  # GosperSide takes a long time to get to Y negative, not
+                  # reached by the rectangle considered here
+                  $got_y_negative = 1;
+                }
+
                 ($path_y_negative == $got_y_negative)
-                  or &$report ("y_negative() $path_y_negative but got $got_y_negative");
+                  or &$report ("y_negative() $path_y_negative but in rect got $got_y_negative");
               }
 
               if ($path->figure ne 'circle') {

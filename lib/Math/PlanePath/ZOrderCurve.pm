@@ -18,6 +18,7 @@
 
 # math-image --path=ZOrderCurve,radix=3 --all --output=numbers
 
+
 package Math::PlanePath::ZOrderCurve;
 use 5.004;
 use strict;
@@ -25,14 +26,14 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 34;
+$VERSION = 35;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -61,14 +62,17 @@ sub n_to_xy {
     # ENHANCE-ME: N and N+1 are either adjacent X or on a slope Y to Y+1 for
     # the base X, don't need the full calculation for N+1
     my $int = int($n);
+    ### $int
     if ($n != $int) {
       my $frac = $n - $int;  # inherit possible BigFloat/BigRat
+      ### $frac
       my ($x1,$y1) = $self->n_to_xy($int);
       my ($x2,$y2) = $self->n_to_xy($int+1);
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
       return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
+    $n = $int;  # BigInt instead of BigFloat
   }
 
   my $x = my $y = ($n&0); # inherit
@@ -95,7 +99,6 @@ sub n_to_xy {
       ### $x
       ### $y
       ### $n
-      ### $bit
       $x += ($n % $radix) * $power;
       $n = int ($n / $radix);
       $y += ($n % $radix) * $power;

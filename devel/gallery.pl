@@ -39,6 +39,17 @@ my $tempfile = $tempfh->filename;
 
 foreach my $elem
   (
+   ['gosper-side-small.png',
+    'math-image --path=GosperSide --lines --scale=3 --size=32 --png'],
+   ['gosper-side-big.png',
+    'math-image --path=GosperSide --lines --scale=1 --size=250x200 --png'],
+
+   ['gosper-islands-small.png',
+    'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
+   ['gosper-islands-big.png',
+    'math-image --path=GosperIslands --lines --scale=2 --size=250x200 --png'],
+
+
    ['pent-small.png',
     'math-image --path=PentSpiral --lines --scale=4 --size=32x32 --png'],
    ['pent-big.png',
@@ -68,11 +79,6 @@ foreach my $elem
     'math-image --path=Hypot --lines --scale=6 --size=32 --png'],
    ['hypot-big.png',
     'math-image --path=Hypot --lines --scale=15 --size=200x150 --png'],
-
-   ['gosper-islands-small.png',
-    'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
-   ['gosper-islands-big.png',
-    'math-image --path=GosperIslands --lines --scale=2 --size=250x200 --png'],
 
    ['coprime-columns-small.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=32 --png'],

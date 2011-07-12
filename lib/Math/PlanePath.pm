@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 34;
+$VERSION = 35;
 
 # defaults
 use constant n_start => 1;
@@ -88,6 +88,7 @@ include
     ZOrderCurve            replicating Z shapes
 
     GosperIslands          concentric island rings
+    GosperSide             single side/radial
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
     KochSnowflakes         concentric notched snowflake rings
@@ -309,7 +310,8 @@ like KochPeaks and GosperIslands).
     Base        Path
     ----        ----
       2       HilbertCurve, ZOrderCurve
-      3       PeanoCurve, SierpinskiArrowhead, GosperIslands
+      3       PeanoCurve, SierpinskiArrowhead,
+                GosperIslands, GosperSide
       4       KochCurve, KochPeaks, KochSnowflakes
 
 =head2 Triangular Lattice
@@ -399,6 +401,7 @@ L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
 L<Math::PlanePath::GosperIslands>,
+L<Math::PlanePath::GosperSide>,
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,
 L<Math::PlanePath::KochSnowflakes>,

@@ -16,6 +16,7 @@ devel/flowsnake-levels.pl
 devel/flowsnake.pl
 devel/gallery.pl
 devel/gosper-islands-stars.pl
+devel/gosper-side.pl
 devel/grid.pl
 devel/heighway.pl
 devel/hex-arms.pl
@@ -57,6 +58,7 @@ lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondSpiral.pm
 lib/Math/PlanePath/GosperIslands.pm
+lib/Math/PlanePath/GosperSide.pm
 lib/Math/PlanePath/GreekKeySpiral.pm
 lib/Math/PlanePath/HeptSpiralSkewed.pm
 lib/Math/PlanePath/HexSpiral.pm
@@ -103,6 +105,7 @@ t/CoprimeColumns.t
 t/Diagonals.t
 t/DiamondSpiral.t
 t/GosperIslands.t
+t/GosperSide.t
 t/GreekKeySpiral.t
 t/HexSpiral-load.t
 t/HexSpiral.t

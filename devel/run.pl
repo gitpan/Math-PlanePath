@@ -245,7 +245,7 @@ use List::Util qw(min max);
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::KochCurve;
   require Math::PlanePath::MathImagePlusSimilar;
-  require Math::PlanePath::MathImageGosperSide;
+  require Math::PlanePath::GosperSide;
   require Math::PlanePath::GosperIslands;
   require Math::PlanePath::SierpinskiArrowhead;
   require Math::PlanePath::CoprimeColumns;
@@ -326,8 +326,8 @@ use List::Util qw(min max);
   exit 0;
 }
 {
-  require Math::PlanePath::MathImageKochSnowflakes;
-  my $path = Math::PlanePath::MathImageKochSnowflakes->new;
+  require Math::PlanePath::KochSnowflakes;
+  my $path = Math::PlanePath::KochSnowflakes->new;
   my @range = $path->rect_to_n_range (0,0, 0,2);
   ### @range
   exit 0;

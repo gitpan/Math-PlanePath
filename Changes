@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 35, July 2011
+    - new GosperSide
+    - fixes for experimental BigFloat support
+
 Version 34, July 2011
     - ZOrderCurve new radix parameter
 

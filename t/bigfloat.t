@@ -45,6 +45,7 @@ plan tests => $test_count;
 
 MyTestHelpers::nowarnings();
 
+Math::BigFloat->precision(256);  # digits
 
 #------------------------------------------------------------------------------
 # PeanoCurve

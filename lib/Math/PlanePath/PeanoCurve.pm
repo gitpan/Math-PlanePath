@@ -30,7 +30,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 34;
+$VERSION = 35;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -76,6 +76,7 @@ sub n_to_xy {
       my $dy = $y2-$y1;
       return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
+    $n = $int;  # BigInt instead of BigFloat
   }
 
   my $x = my $y = my $comp = $n & 0;  # inherit bignum 0
