@@ -23,16 +23,15 @@
 # This is a bit of fun printing the HilbertCurve path in ascii.  It follows
 # the terminal width if you've got Term::Size, otherwise 79x23.
 #
-# Enough of the curve is drawn to fill the whole output size, chopped off
-# when the path goes outside the output bounds.  You could instead stop at
-# say
+# Enough of the curve is drawn to fill the whole output size, clipped when
+# the path goes outside the output bounds.  You could instead stop at say
 #
 #     $n_hi = 2**6;
 #
-# to see just one square portion of the curve.
+# to see just a square portion of the curve.
 #
-# The $scale variable spaces out the points.  3 apart is quite good, or
-# tighten it up to 2 to fit more on the screen.
+# The $scale variable spaces out the points.  3 apart is good, or tighten it
+# up to 2 to fit more on the screen.
 #
 # The output has Y increasing down the screen.  Taking the Y's in reverse
 # order in the final output could show it going up the screen.

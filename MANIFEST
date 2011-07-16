@@ -61,6 +61,7 @@ lib/Math/PlanePath/GosperIslands.pm
 lib/Math/PlanePath/GosperSide.pm
 lib/Math/PlanePath/GreekKeySpiral.pm
 lib/Math/PlanePath/HeptSpiralSkewed.pm
+lib/Math/PlanePath/HexArms.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm
 lib/Math/PlanePath/HilbertCurve.pm
@@ -107,8 +108,10 @@ t/DiamondSpiral.t
 t/GosperIslands.t
 t/GosperSide.t
 t/GreekKeySpiral.t
+t/HexArms.t
 t/HexSpiral-load.t
 t/HexSpiral.t
+t/HexSpiralSkewed-unskew.t
 t/HexSpiralSkewed.t
 t/HilbertCurve-load.t
 t/HilbertCurve.t

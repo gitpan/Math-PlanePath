@@ -41,7 +41,7 @@ use Math::Libm 'hypot';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 35;
+$VERSION = 36;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

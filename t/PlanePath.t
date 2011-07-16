@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 284 }
+BEGIN { plan tests => 291 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,12 +33,14 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
-                  GosperSide
-                  GosperIslands
+                  HexArms
 
                   PeanoCurve
                   ZOrderCurve
                   HilbertCurve
+
+                  GosperSide
+                  GosperIslands
 
                   CoprimeColumns
                   SierpinskiArrowhead
@@ -99,7 +101,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 35;
+my $want_version = 36;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -321,8 +323,6 @@ sub pythagorean_diag {
     my $class = "Math::PlanePath::$module";
     eval "require $class" or die;
 
-    my $dxdy_allowed = $class_dxdy_allowed{$class};
-
     my @steps = (-1);
     if ($class eq 'Math::PlanePath::PyramidRows') {
       @steps = (0, 1, 2, 3, 4, 5);
@@ -339,9 +339,9 @@ sub pythagorean_diag {
 
     my @radix = (0);
     if ($class eq 'Math::PlanePath::PeanoCurve') {
-      @radix = (3, 5, 67);
+      @radix = (2, 3, 4, 5, 17);
     } elsif ($class eq 'Math::PlanePath::ZOrderCurve') {
-      @radix = (2, 3, 9, 67);
+      @radix = (2, 3, 9, 37);
     }
 
     my @tree_type_list = ('');
@@ -361,6 +361,12 @@ sub pythagorean_diag {
               ### $step
               ### $wider
               ### $radix
+
+              my $dxdy_allowed = $class_dxdy_allowed{$class};
+              if ($class eq 'Math::PlanePath::PeanoCurve'
+                  && ($radix % 2) == 0) {
+                undef $dxdy_allowed;  # even radix doesn't join up
+              }
 
               # MyTestHelpers::diag ($module);
 

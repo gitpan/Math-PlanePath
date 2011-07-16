@@ -140,9 +140,9 @@ use Devel::Comments;
 }
 
 {
-  require Math::PlanePath::MathImageHexArms;
+  require Math::PlanePath::HexArms;
   my @max;
-  my $path = Math::PlanePath::MathImageHexArms->new;
+  my $path = Math::PlanePath::HexArms->new;
   foreach my $n (2 .. 10000) {
     my ($x,$y) = $path->n_to_xy($n);
     $x = abs($x);

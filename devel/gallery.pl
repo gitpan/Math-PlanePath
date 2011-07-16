@@ -36,9 +36,45 @@ use File::Temp;
 my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
 my $tempfh = File::Temp->new (SUFFIX => '.png');
 my $tempfile = $tempfh->filename;
+my $bytes = 0;
 
 foreach my $elem
   (
+   ['zorder-small.png',
+    'math-image --path=ZOrderCurve --lines --scale=6 --size=32 --png'],
+   ['zorder-big.png',
+    'math-image --path=ZOrderCurve --lines --scale=14 --size=226 --png'],
+   ['zorder-radix5-big.png',
+    'math-image --path=ZOrderCurve,radix=5 --lines --scale=14 --size=226 --png'],
+
+   ['peano-small.png',
+    'math-image --path=PeanoCurve --lines --scale=3 --size=32 --png'],
+   ['peano-big.png',
+    'math-image --path=PeanoCurve --lines --scale=7 --size=192 --png'],
+   ['peano-radix7-big.png',
+    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=7 --size=192 --png'],
+
+   ['hex-arms-small.png',
+    'math-image --path=HexArms --lines --scale=3 --size=32x32 --png'],
+   ['hex-arms-big.png',
+    'math-image --path=HexArms --lines --scale=10 --size=300x150 --png'],
+
+   ['hex-small.png',
+    'math-image --path=HexSpiral --lines --scale=3 --size=32x32 --png'],
+   ['hex-big.png',
+    'math-image --path=HexSpiral --lines --scale=13 --size=300x150 --png'],
+
+   ['hex-skewed-small.png',
+    'math-image --path=HexSpiralSkewed --lines --scale=3 --size=32x32 --png'],
+   ['hex-skewed-big.png',
+    'math-image --path=HexSpiralSkewed --lines --scale=13 --size=150 --png'],
+
+   ['hept-skewed-small.png',
+    'math-image --path=HeptSpiralSkewed --lines --scale=4 --size=32x32 --png'],
+   ['hept-skewed-big.png',
+    'math-image --path=HeptSpiralSkewed --lines --scale=13 --size=200x200 --png'],
+
+
    ['gosper-side-small.png',
     'math-image --path=GosperSide --lines --scale=3 --size=32 --png'],
    ['gosper-side-big.png',
@@ -54,16 +90,6 @@ foreach my $elem
     'math-image --path=PentSpiral --lines --scale=4 --size=32x32 --png'],
    ['pent-big.png',
     'math-image --path=PentSpiral --lines --scale=13 --size=200x200 --png'],
-
-   ['hept-skewed-small.png',
-    'math-image --path=HeptSpiralSkewed --lines --scale=4 --size=32x32 --png'],
-   ['hept-skewed-big.png',
-    'math-image --path=HeptSpiralSkewed --lines --scale=13 --size=200x200 --png'],
-
-   ['hex-small.png',
-    'math-image --path=HexSpiral --lines --scale=3 --size=32x32 --png'],
-   ['hex-big.png',
-    'math-image --path=HexSpiral --lines --scale=13 --size=200x200 --png'],
 
    ['triangular-hypot-small.png',
     'math-image --path=TriangularHypot --lines --scale=4 --size=32 --png'],
@@ -162,20 +188,10 @@ foreach my $elem
    ['vogel-big.png',
     'math-image --vogel --all --scale=4 --size=200 --png'],
 
-   ['zorder-small.png',
-    'math-image --path=ZOrderCurve --lines --scale=6 --size=32 --png'],
-   ['zorder-big.png',
-    'math-image --path=ZOrderCurve --lines --scale=14 --size=226 --png'],
-
    ['sacks-small.png',
     'math-image --path=SacksSpiral --lines --scale=5 --size=32x32 --png'],
    ['sacks-big.png',
     'math-image --path=SacksSpiral --lines --scale=10 --size=200x200 --png'],
-
-   ['peano-small.png',
-    'math-image --path=PeanoCurve --lines --scale=3 --size=32 --png'],
-   ['peano-big.png',
-    'math-image --path=PeanoCurve --lines --scale=7 --size=192 --png'],
 
    ['hilbert-small.png',
     'math-image --path=HilbertCurve --lines --scale=3 --size=32 --png'],
@@ -197,6 +213,11 @@ foreach my $elem
     die "Exit $status";
   }
 
+  system('pngtextadd','--keyword=Author','--text=Kevin Ryde',$tempfile) == 0
+    or die "system()";
+  system('pngtextadd','--keyword=Generator','--text=gallery.pl and math-image',$tempfile) == 0
+    or die "system()";
+
   my $targetfile = "$target_dir/$filename";
   if (File::Compare::compare($tempfile,$targetfile) == 0) {
     print "Unchanged $filename\n";
@@ -204,6 +225,10 @@ foreach my $elem
     print "Update $filename\n";
     File::Copy::move($tempfile,$targetfile);
   }
+  if ($filename =~ /big/) {
+    $bytes += -s $targetfile;
+  }
 }
+print "total big bytes $bytes\n";
 
 exit 0;

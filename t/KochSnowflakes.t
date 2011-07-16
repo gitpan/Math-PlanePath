@@ -33,7 +33,7 @@ require Math::PlanePath::KochSnowflakes;
 # VERSION
 
 {
-  my $want_version = 35;
+  my $want_version = 36;
   ok ($Math::PlanePath::KochSnowflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSnowflakes->VERSION,  $want_version,

@@ -17,6 +17,12 @@
 
 
 # math-image --path=ZOrderCurve,radix=3 --all --output=numbers
+#
+# increment N+1 changes low 1111 to 10000
+# X bits change 011 to 000, no carry, decreasing by number of low 1s
+# Y bits change 011 to 100, plain +1
+
+
 
 
 package Math::PlanePath::ZOrderCurve;
@@ -26,7 +32,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 35;
+$VERSION = 36;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -297,7 +303,7 @@ use of the Karatsuba multiplication algorithm.
 
 =head2 Radix
 
-The radix option can do the same sort of N -> X/Y digit splitting in a
+The radix parameter can do the same sort of N -> X/Y digit splitting in a
 higher base.  For example radix 3 makes 3x3 groupings,
 
       5  |  33  34  35  42  43  44
@@ -339,18 +345,23 @@ returns N.
 
 =head1 FORMULAS
 
-=head2 N to X,Y
+=head2 N and X,Y
 
-The coordinate calculation is simple.  The bits of X and Y are simply every
-second bit of N.  So if N = binary 101010 then X=000 and Y=111 in binary,
-which is the N=42 shown above at X=0,Y=7.
+The coordinate calculation is simple.  The bits of X and Y are every second
+bit of N.  So if N = binary 101010 then X=000 and Y=111 in binary, which is
+the N=42 shown above at X=0,Y=7.
+
+With the C<radix> parameter the digits are treated likewise, in the given
+radix rather than binary.
 
 =head2 N Range
 
-Within each row the N values increase as X increases, and conversely within
-each column N increases with increasing Y.  So for a given rectangle the
-smallest N is at the lower left corner (smallest X and smallest Y), and the
-biggest N is at the upper right (biggest X and biggest Y).
+Within each row the N values increase as X increases, and within each column
+N increases with increasing Y (for all C<radix> parameters).
+
+So for a given rectangle the smallest N is at the lower left corner
+(smallest X and smallest Y), and the biggest N is at the upper right
+(biggest X and biggest Y).
 
 =head1 SEE ALSO
 

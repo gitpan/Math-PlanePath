@@ -24,6 +24,106 @@ use POSIX qw(floor ceil);
 use List::Util qw(min max);
 
 {
+  require Math::PlanePath::HilbertCurve;
+  require Math::PlanePath::Staircase;
+  require Math::PlanePath::PeanoCurve;
+  require Math::PlanePath::OctagramSpiral;
+  require Math::PlanePath::MathImageFlowsnake;
+  require Math::PlanePath::ArchimedeanChords;
+  require Math::PlanePath::Hypot;
+  require Math::PlanePath::HypotOctant;
+  require Math::PlanePath::PythagoreanTree;
+  require Math::PlanePath::GreekKeySpiral;
+  require Math::PlanePath::PixelRings;
+  require Math::PlanePath::TriangularHypot;
+  require Math::PlanePath::KochSnowflakes;
+  require Math::PlanePath::KochPeaks;
+  require Math::PlanePath::KochCurve;
+  require Math::PlanePath::MathImagePlusSimilar;
+  require Math::PlanePath::GosperSide;
+  require Math::PlanePath::GosperIslands;
+  require Math::PlanePath::SierpinskiArrowhead;
+  require Math::PlanePath::CoprimeColumns;
+  require Math::PlanePath::HexArms;
+  require Math::PlanePath::MathImageCrossSide;
+  my $path = Math::PlanePath::PeanoCurve->new
+    (radix => 4,
+     wider => 0,
+     # step => 0,
+     #tree_type => 'UAD',
+     #coordinates => 'PQ',
+    );
+  my ($prev_x, $prev_y);
+  my %seen;
+  my $n_start = $path->n_start;
+
+  #for (my $i = $n_start; $i <= $n_start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+  # for (my $i = 0.75; $i <= 50; $i += .5) {
+  # for (my $i = 9650; $i <= 9999; $i++) {
+  # $i -= 0.5;
+  #for (my $i = $n_start; $i <= 30; $i++) {
+  #for (my $i = 1; $i <= 500; $i++) {
+  #for (my $i = 1; $i <= 3**15; $i*=3) {
+  #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
+  #for (my $i=4; $i < 500; $i++) {
+
+  for (my $i = 0; $i <= 32; $i++) {
+    my ($x, $y) = $path->n_to_xy($i) or next;
+    # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
+
+    my $dxdy = '';
+    if (defined $prev_x) {
+      my $dx = $x - $prev_x;
+      my $dy = $y - $prev_y;
+      my $d = Math::Libm::hypot($dx,$dy);
+      $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
+    }
+    $prev_x = $x;
+    $prev_y = $y;
+
+    my $rep = '';
+    my $xy = (defined $x ? $x : 'undef').','.(defined $y ? $y : 'undef');
+    if (defined $seen{$xy}) {
+      $rep = "rep$seen{$xy}";
+    } else {
+      $seen{$xy} = $i;
+    }
+
+    my $n = $path->xy_to_n ($x+.0, $y-.0);
+    if (! defined $n) { $n = 'norev'; }
+
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+    my $rev = '';
+    if ($i ne $n) {
+      $rev = 'Rev';
+    }
+
+    my $range = '';
+    if ($n_hi < $i || $n_lo > $i) {
+      $range = 'Range';
+    }
+
+    my $flag = '';
+    if ($rev || $range) {
+      $flag = "  ***$rev$range";
+    }
+
+    if (! defined $n_lo) { $n_lo = 'undef'; }
+    if (! defined $n_hi) { $n_hi = 'undef'; }
+
+
+    printf "%3d %8.4f,%8.4f   %3s %s %s %s %s\n",
+      $i,  $x,$y,  $n,
+        "${n_lo}_${n_hi}",
+          " $dxdy",
+            " $rep",
+              $flag;
+  }
+  exit 0;
+}
+
+
+{
   use Math::PlanePath::KochCurve;
   package Math::PlanePath::KochCurve;
   sub rect_to_n_range {
@@ -225,105 +325,6 @@ use List::Util qw(min max);
       push @pending_n, $n+3;
     }
   }
-}
-
-
-{
-  require Math::PlanePath::HilbertCurve;
-  require Math::PlanePath::Staircase;
-  require Math::PlanePath::PeanoCurve;
-  require Math::PlanePath::OctagramSpiral;
-  require Math::PlanePath::MathImageFlowsnake;
-  require Math::PlanePath::ArchimedeanChords;
-  require Math::PlanePath::Hypot;
-  require Math::PlanePath::HypotOctant;
-  require Math::PlanePath::PythagoreanTree;
-  require Math::PlanePath::GreekKeySpiral;
-  require Math::PlanePath::PixelRings;
-  require Math::PlanePath::TriangularHypot;
-  require Math::PlanePath::KochSnowflakes;
-  require Math::PlanePath::KochPeaks;
-  require Math::PlanePath::KochCurve;
-  require Math::PlanePath::MathImagePlusSimilar;
-  require Math::PlanePath::GosperSide;
-  require Math::PlanePath::GosperIslands;
-  require Math::PlanePath::SierpinskiArrowhead;
-  require Math::PlanePath::CoprimeColumns;
-  require Math::PlanePath::MathImageHexArms;
-  require Math::PlanePath::MathImageCrossSide;
-  my $path = Math::PlanePath::MathImageCrossSide->new
-    (radix => 7,
-     wider => 0,
-     # step => 0,
-     #tree_type => 'UAD',
-     #coordinates => 'PQ',
-    );
-  my ($prev_x, $prev_y);
-  my %seen;
-  my $n_start = $path->n_start;
-
-  #for (my $i = $n_start; $i <= $n_start + 500000; $i=POSIX::ceil($i*1.1+1)) {
-  # for (my $i = 0.75; $i <= 50; $i += .5) {
-  # for (my $i = 9650; $i <= 9999; $i++) {
-  # $i -= 0.5;
-  #for (my $i = $n_start; $i <= 30; $i++) {
-  # for (my $i = 2; $i <= 90; $i+=6) {
-  #for (my $i = 1; $i <= 500; $i++) {
-  for (my $i = 1; $i <= 3**15; $i*=3) {
-  #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
-  #for (my $i=4; $i < 500; $i++) {
-    my ($x, $y) = $path->n_to_xy($i) or next;
-    # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
-
-    my $dxdy = '';
-    if (defined $prev_x) {
-      my $dx = $x - $prev_x;
-      my $dy = $y - $prev_y;
-      my $d = Math::Libm::hypot($dx,$dy);
-      $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
-    }
-    $prev_x = $x;
-    $prev_y = $y;
-
-    my $rep = '';
-    my $xy = (defined $x ? $x : 'undef').','.(defined $y ? $y : 'undef');
-    if (defined $seen{$xy}) {
-      $rep = "rep$seen{$xy}";
-    } else {
-      $seen{$xy} = $i;
-    }
-
-    my $n = $path->xy_to_n ($x+.0, $y-.0);
-    if (! defined $n) { $n = 'norev'; }
-
-    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-    my $rev = '';
-    if ($i ne $n) {
-      $rev = 'Rev';
-    }
-
-    my $range = '';
-    if ($n_hi < $i || $n_lo > $i) {
-      $range = 'Range';
-    }
-
-    my $flag = '';
-    if ($rev || $range) {
-      $flag = "  ***$rev$range";
-    }
-
-    if (! defined $n_lo) { $n_lo = 'undef'; }
-    if (! defined $n_hi) { $n_hi = 'undef'; }
-
-
-    printf "%3d %8.4f,%8.4f   %3s %s %s %s %s\n",
-      $i,  $x,$y,  $n,
-        "${n_lo}_${n_hi}",
-          " $dxdy",
-            " $rep",
-              $flag;
-  }
-  exit 0;
 }
 {
   require Math::PlanePath::KochSnowflakes;

@@ -33,6 +33,7 @@ use MyTestHelpers;
 my $test_count = 4;
 plan tests => $test_count;
 
+MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
 {
   my $n = Math::BigInt->new(2) ** 256;
   my $int = int($n);

@@ -31,12 +31,12 @@
 #
 #     1, 10, 3, 16, 19, 22, 9, 12, 15, 18, 7, 24, 11, 14, ...
 #
-# All squares are reached by the Knight's tour, so this is a re-ordering or
-# the integers.
+# All squares are reached by both paths, so this is a re-ordering or the
+# integers.
 #
 # There's eight variations on the sequence.  2 directions clockwise and
 # counter-clockwise and 4 sides to start from relative to whichever side the
-# square spiral numbering starts from.  (Is that right?)
+# square spiral numbering starts from.
 #
 #     A068608
 #     A068609
@@ -47,8 +47,8 @@
 #     A068614
 #     A068615
 #
-# As of Jan 2011 there was a typo in the A068609 sample.  "37" was
-# duplicated, the second one should be "39".
+# As of Jan 2011 there's a typo in the A068609 sample.  "37" is duplicated,
+# the second one should be "39".
 
 use 5.004;
 use strict;
@@ -65,4 +65,3 @@ foreach my $n (1 .. 20) {
 }
 print "...\n";
 exit 0;
-

@@ -16,6 +16,34 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# Kanga "Number Mosaics" has rotated to
+#
+#                ...-16---15
+#                           \
+#                  6----5   14
+#                 /      \    \
+#                7   1    4   13
+#               /   /    /    /
+#              8   2----3   12
+#               \           /
+#                9---10---11
+#
+#
+# Could go pointy end with same loop/step, or point to the right
+#                                                  
+#                    13--12--11                    
+#                   /         |                    
+#                 14  4---3  10                    
+#                /  /     |   |    
+#              15  5  1---2   9    
+#                \  \         |    
+#                 16  6---7---8    
+#                   \             |
+#                    17--18--19--20
+#
+
+
 package Math::PlanePath::HexSpiral;
 use 5.004;
 use strict;
@@ -23,7 +51,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 35;
+$VERSION = 36;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -154,15 +182,13 @@ sub xy_to_n {
       ### top horizontal
       ### $d
       return ((3*$d + 2*$w)*$d + 1  # diagonal up to the left
-              + (-$d - $x-$w) / 2   # negative offset rightwards
-             );
+              + (-$d - $x-$w) / 2); # negative offset rightwards
     } else {
       ### bottom horizontal, and centre horizontal
       ### $d
       ### offset: $d
       return ((3*$d + 2 + 2*$w)*$d + 1  # diagonal down to the left
-              + ($x + $w + $d)/2        # offset rightwards
-             );
+              + ($x + $w + $d)/2);      # offset rightwards
     }
   }
 }
@@ -204,7 +230,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords HexSpiral PlanePath Ryde Math-PlanePath
+=for stopwords HexSpiral PlanePath Ryde Math-PlanePath ie
 
 =head1 NAME
 
@@ -270,7 +296,7 @@ gives
              24    10----11----12----13----14    31           -1
                \                               /
                 25----26----27----28---29----30               -2
-             
+
            ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
           -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
@@ -316,6 +342,7 @@ odd the other even, then the return is C<undef>.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::HexSpiralSkewed>,
+L<Math::PlanePath::HexArms>,
 L<Math::PlanePath::TriangleSpiral>,
 L<Math::PlanePath::TriangularHypot>
 

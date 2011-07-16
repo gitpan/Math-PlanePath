@@ -19,7 +19,7 @@
 
 # Usage: perl square-numbers.pl
 #
-# Print the square spiral numbers in a grid like
+# Print the SquareSpiral numbers in a grid like
 #
 #       37  36  35  34  33  32  31
 #       38  17  16  15  14  13  30

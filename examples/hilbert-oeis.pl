@@ -25,20 +25,20 @@
 #
 #     http://www.research.att.com/~njas/sequences/A163359
 #
-# which is the sequence of Hilbert curve N values which occur on the squares
-# numbered diagonally per Math::PlanePath::Diagonals,
+# which is the Hilbert curve N values which occur on squares numbered
+# diagonally per Math::PlanePath::Diagonals,
 #
 #     0, 3, 1, 4, 2, 14, 5, 7, 13, 15, 58, 6, 8, 12, 16, 59, ...
 #
-# All squares are reached the HilbertCurve, so this is a re-ordering or the
+# All squares are reached by both paths, so this is a re-ordering or the
 # integers.
 #
-# Actually there's a double-transpose going on in the code.  A163359 is
+# In the code there's a kind of double transpose going on.  A163359 is
 # conceived as the Hilbert starting downwards and the diagonals numbered
-# from the X axis, but the HilbertCurve module goes right first and
-# Diagonals numbers from the Y axis.  The effect is the same, ie. that the
-# first Hilbert step is the opposite axis as the diagonals are numbered
-# from.
+# from the X axis, but the HilbertCurve module code goes right first and the
+# Diagonals module numbers from the Y axis.  The effect is the same,
+# ie. that the first Hilbert step is the opposite axis as the diagonals are
+# numbered from.
 #
 # Swapping the $x,$y in the code transposes the diagonals to make the first
 # Hilbert step the same axis as the diagonal numbering, and that gives
@@ -61,4 +61,3 @@ foreach my $n (1 .. 19) {  # Diagonals starts at N=1
 }
 print "...\n";
 exit 0;
-

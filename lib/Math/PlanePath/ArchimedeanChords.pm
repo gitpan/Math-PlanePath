@@ -13,6 +13,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Also possible would be circle involute spiral, unrolling string around
+# centre of circumference 1, but is only very slightly different radius from
+# an Archimedean spiral.
+
+
 package Math::PlanePath::ArchimedeanChords;
 use 5.004;
 use strict;
@@ -22,7 +28,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 35;
+$VERSION = 36;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

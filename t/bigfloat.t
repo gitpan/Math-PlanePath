@@ -33,6 +33,7 @@ use MyTestHelpers;
 my $test_count = 4;
 plan tests => $test_count;
 
+MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
 {
   if (! eval { Math::BigFloat->new(2) ** 3 }) {
     MyTestHelpers::diag ('skip due to Math::BigFloat no "**" operator -- ',$@);

@@ -62,6 +62,22 @@ my_interpolate (
                );
 exit 0;
 
+# N = a*s^2 + b*s + c
+#   = a * (s^2 + b/a s + c/a)
+#
+# N/a = (s + b/2a)^2 - b^2/4a^2 + c/a
+# (s + b/2a)^2 = N/a + b^2/4a^2 - c/a
+# s+ b/2a = sqrt(4aN/4a^2 + b^2/4a^2 - 4ac/4a^2)
+#         = 1/2a * sqrt(4aN + b^2 - 4ac)
+#
+#      -b + sqrt(4aN + b2 - 4ac)
+# s =  ------------------------
+#               2a
+#
+
+
+
+
 my_interpolate (
                 [ 1,  2,    3,       4, 5],
                 [ map {3*$_} 1,1+4,1+4+9,1+4+9+16,1+4+9+16+25 ],

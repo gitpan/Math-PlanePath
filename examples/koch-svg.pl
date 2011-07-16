@@ -24,9 +24,11 @@
 # Print SVG format graphics to standard output which is a Koch snowflake
 # curve of given LEVEL fineness.  The default level is 4.
 #
-# The range of N values used follows the formulas in the KochSnowflakes POD
-# documentation.
+# The range of N values used follows the formulas in the KochSnowflakes
+# module docs.
 #
+# The svg size is a fixed 300x300, but of course the point of svg is that it
+# can be resized by a graphics viewer program.
 
 use 5.006;
 use strict;

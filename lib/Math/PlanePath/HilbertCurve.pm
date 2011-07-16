@@ -38,7 +38,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 35;
+$VERSION = 36;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -430,7 +430,7 @@ __END__
 #   return ($x, $y);
 # }
 
-=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI
+=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI ascii
 
 =head1 NAME
 
@@ -681,7 +681,7 @@ L<Math::PlanePath::ZOrderCurve>,
 L<Math::PlanePath::KochCurve>
 
 L<Math::Curve::Hilbert>,
-L<Algorithm::QuadTree>
+L<Algorithm::SpatialIndex::Strategy::QuadTree>
 
 David Hilbert, "Ueber die stetige Abbildung einer Line auf ein
 FlE<228>chenstE<252>ck", Mathematische Annalen, volume 38, number 3,

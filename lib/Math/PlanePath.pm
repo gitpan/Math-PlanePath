@@ -17,11 +17,11 @@
 
 
 package Math::PlanePath;
-use 5.004;
+require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 35;
+$VERSION = 36;
 
 # defaults
 use constant n_start => 1;
@@ -34,6 +34,7 @@ sub new {
   return bless { @_ }, $class;
 }
 
+# shared
 sub _is_infinite {
   my ($x) = @_;
   return ($x-1 == $x);
@@ -42,7 +43,7 @@ sub _is_infinite {
 1;
 __END__
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot
 
 =head1 NAME
 
@@ -67,6 +68,7 @@ include
     PentSpiralSkewed       five-sided spiral, compact
     HexSpiral              six-sided spiral
     HexSpiralSkewed        six-sided spiral skewed for compactness
+    HexArms                six-arms hexagonal spiral
     HeptSpiralSkewed       seven-sided spiral, compact
     OctagramSpiral         eight pointed star
     KnightSpiral           an infinite knight's tour
@@ -206,45 +208,45 @@ itself.  A figure like a diamond for instance can look good too.
 The classes are mostly based on integer C<$n> positions and those designed
 for a square grid turn an integer C<$n> into integer C<$x,$y>.  Usually they
 give in-between positions for fractional C<$n> too.  Classes not on a square
-grid but instead giving fractional X,Y, such as SacksSpiral and VogelFloret,
+grid but instead giving fractional X,Y such as SacksSpiral and VogelFloret
 are designed for a unit circle at each C<$n> but they too can give
 in-between positions on request.
 
 All X,Y positions are calculated by separate C<n_to_xy()> calls.  To follow
 a path use successive C<$n> values starting from C<$path-E<gt>n_start>.
 
-This separate C<n_to_xy()> calls were motivated by plotting just some points
+The separate C<n_to_xy()> calls were motivated by plotting just some points
 on a path, such as just the primes or the perfect squares.  Perhaps
-successive positions in some paths could be followed in an iterator style
-more efficiently.  The quadratic "step" based paths are not much more than a
+successive positions in some paths could be done in an iterator style more
+efficiently.  The paths with a quadratic "step" are not much more than a
 C<sqrt()> to break N into a segment and offset, but the self-similar paths
-chop into base 2 or base 3 digits which might be incremented instead of
+chop into digits of some radix and they might be incremented instead of
 recalculated.
 
 =head2 Scaling and Orientation
 
 The paths generally start horizontally to the right or from the X axis on
 the right unless there's some more natural orientation.  There's no
-parameters for scaling, offset or reflection.  Those things are thought
+parameters for scaling, offset or reflection as those things are thought
 better left to a general coordinate transformer to expand or invert for
-display.  Some easy transformations can be had just from the X,Y with
+display.  But some easy transformations can be had just from the X,Y with
 
-    -x,y        flip horizontally (mirror image)
-    x,-y        flip vertically
+    -X,Y        flip horizontally (mirror image)
+    X,-Y        flip vertically
 
-    -y,x        rotate +90 degrees
-    y,-x        rotate -90 degrees
-    -x,-y       rotate 180 degrees
+    -Y,X        rotate +90 degrees
+    Y,-X        rotate -90 degrees
+    -X,-Y       rotate 180 degrees
 
 A vertical flip makes the spirals go clockwise instead of anti-clockwise, or
-a horizontal flip likewise but starting on the left at the negative X axis.
+a horizontal flip the same but starting on the left at the negative X axis.
 
 The Rows and Columns paths are slight exceptions to the rule of not having
-rotated versions of paths.  They started as ways to pass in width and height
-as generic parameters, and use the one or the other.
+rotated versions.  They started as ways to pass in width and height as
+generic parameters, and have the path use the one or the other.
 
-See L<Transform::Canvas> and L<Geometry::AffineTransform> for scaling and
-shifting.  C<AffineTransform> can rotate too.
+See L<Transform::Canvas> for scaling and shifting, or
+L<Geometry::AffineTransform> for rotating as well.
 
 =head2 Loop Step
 
@@ -269,6 +271,7 @@ longer than the preceding.
      19.74    TheodorusSpiral (approaches 2*pi^2)
      32       KnightSpiral (counting the 2-wide loop)
      72       GreekKeySpiral
+    216       HexArms (each arm)
    variable   MultipleRings, PyramidRows
     phi(n)    CoprimeColumns
 
@@ -336,23 +339,23 @@ These are done in integer X,Y on a square grid using every second square,
 
 In these coordinates X,Y are either both even or both odd.  The X axis and
 the diagonals X=Y and X=-Y divide the plane into six parts.  The diagonal
-X=3*Y is the midpoint of the first sixth, representing a twelfth of the
-plane.
+X=3*Y is the middle of the first sixth, representing a twelfth of the plane.
 
 The resulting triangles are a little flatter than they should be.  The base
-is width=2 and peak is height=1, whereas height=sqrt(3) would be equilateral
-triangle.  That factor can be applied if desired,
+is width=2 and peak is height=1, where height=sqrt(3) would be equilateral
+triangles.  That sqrt(3) factor can be applied if desired,
 
     X, Y*sqrt(3)          side length 2
+      or
     X/2, Y*sqrt(3)/2      side length 1
 
-The integer Y values have the advantage of fitting on pixels of a rasterized
-display, and not losing precision in floating point.
+The integer Y values have the advantage of fitting pixels of the usual kind
+of raster screen, and not losing precision in floating point results.
 
-If using a general-purpose coordinate rotation then be sure to apply the
-above sqrt(3) scale factor first, or the rotation is wrong.  Rotations can
-be made in the integer X,Y coordinates directly as follows (all resulting in
-integers too),
+If doing a general-purpose coordinate rotation then be sure to apply the
+sqrt(3) scale factor first, or the rotation is wrong.  Rotations can be made
+within the integer X,Y coordinates directly as follows (all resulting in
+integers),
 
     (X-3Y)/2, (X+Y)/2       rotate +60
     (X+3Y)/2, (Y-X)/2       rotate -60
@@ -360,15 +363,14 @@ integers too),
     (3Y-X), -(X+Y)/2        rotate -120
     -X,-Y                   rotate 180
 
-    (X+3Y)/2, (X-Y)/2       flip across the X=3*Y twelfth line
+    (X+3Y)/2, (X-Y)/2       mirror across the X=3*Y twelfth line
 
 The sqrt(3) factor can be worked into a hypotenuse radial distance
-calculation as
+calculation as follows if comparing distances from the origin of points at
+different angles.  See for instance TriangularHypot taking triangular points
+by radial distance.
 
     hypot = sqrt(X*X + 3*Y*Y)
-
-if comparing distances from the origin of points at different angles.  See
-for instance TriangularHypot taking triangular points by radial distance.
 
 =head1 SEE ALSO
 
@@ -381,9 +383,10 @@ L<Math::PlanePath::PentSpiral>,
 L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
+L<Math::PlanePath::HexArms>,
 L<Math::PlanePath::HeptSpiralSkewed>,
 L<Math::PlanePath::OctagramSpiral>,
-L<Math::PlanePath::KnightSpiral>
+L<Math::PlanePath::KnightSpiral>,
 L<Math::PlanePath::GreekKeySpiral>
 
 L<Math::PlanePath::SacksSpiral>,
@@ -417,9 +420,12 @@ L<Math::PlanePath::PyramidSides>
 
 L<math-image>, displaying various sequences on these paths.
 
-F<examples/numbers.pl> in the sources to print all the paths.
+F<examples/numbers.pl> in the Math-PlanePath source code to print all the
+paths.
 
-L<Math::Fractal::Curve>
+L<Math::Fractal::Curve>,
+L<Math::Curve::Hilbert>,
+L<Algorithm::SpatialIndex::Strategy::QuadTree>
 
 =head1 HOME PAGE
 

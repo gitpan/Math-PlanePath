@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 36, July 2011
+    - new HexArms
+    - PeanoCurve new radix parameter
+
 Version 35, July 2011
     - new GosperSide
     - fixes for experimental BigFloat support

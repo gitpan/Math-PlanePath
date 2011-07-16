@@ -21,20 +21,19 @@
 # Usage: perl numbers.pl [CLASS]
 #        perl numbers.pl all
 #
-# Print the given path class in a grid, or with option "all" print all
-# classes.
+# Print the given path CLASS as numbers in a grid.  With option "all" print
+# all classes.
 #
 # See square-numbers.pl for a simpler program designed just for the
 # SquareSpiral.  The code here tries to adapt itself to the tty width and
 # stops when the width of the numbers to be displayed would be wider than
 # the tty.
 #
-# The origin 0,0 is kept in the middle of the display, horizontally, to help
+# The origin 0,0 is kept in the middle of the output, horizontally, to help
 # see how much is on each side, and to make multiple paths printed line up,
 # such as the "all" option.  Vertically only as many rows as necessary are
 # printed.
 #
-
 
 use 5.004;
 use strict;
@@ -62,6 +61,7 @@ my @all_classes = (qw(SquareSpiral
                       PentSpiralSkewed
                       HexSpiral
                       HexSpiralSkewed
+                      HexArms
                       HeptSpiralSkewed
                       OctagramSpiral
 

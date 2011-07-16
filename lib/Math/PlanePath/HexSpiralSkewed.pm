@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 35;
+$VERSION = 36;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -219,21 +219,8 @@ grid and fully cover the plane.
      ^   ^   ^   ^   ^   ^ 
     -2  -1  x=0  1   2   3  ...
 
-The sequence is the same as the plain HexSpiral, but this arrangement fits
-more points on a square grid.  The skew pushes the top horizontal to the
-left, as illustrated by the following parts of the two.  The bottom
-horizontal is similarly skewed but to the right.
-
-    HexSpiralSkewed               HexSpiral
-
-    13--12--11                   13--12--11       
-     |         \                /          \      
-    14          10            14            10    
-     |             \         /                \  
-    15               9     15                  9
-
-The kinds of 3*k^2 number sequences which fall on straight lines in the
-plain HexSpiral also fall on straight lines when skewed.  See
+The kinds of N=3*k^2 numbers which fall on straight lines in the plain
+HexSpiral also fall on straight lines when skewed.  See
 L<Math::PlanePath::HexSpiral> for notes on this.
 
 =head2 Wider
@@ -274,6 +261,29 @@ HexSpiralSkewed is similar to the SquareSpiral but cuts off the top-right
 and bottom-left corners so that each loop is 6 steps longer than the
 previous, whereas for the SquareSpiral it's 8.  See
 L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.
+
+=head2 Skew
+
+The skewed path is the same shape as the plain HexSpiral, but fits more
+points on a square grid.  The skew pushes the top horizontal to the left, as
+shown by the following parts, and the bottom horizontal is similarly skewed
+but to the right.
+
+    HexSpiralSkewed               HexSpiral
+
+    13--12--11                   13--12--11       
+     |         \                /          \      
+    14          10            14            10    
+     |             \         /                \  
+    15               9     15                   9
+
+    -2  -1  X=0  1   2     -4 -3 -2  X=0  2  3  4
+
+In general the coordinates can be converted each way by
+
+    plain X,Y -> skewed (X-Y)/2, Y
+
+    skewed X,Y -> plain 2*X+Y, Y
 
 =head1 FUNCTIONS
 

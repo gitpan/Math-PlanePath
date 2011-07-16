@@ -34,6 +34,7 @@ MyTestHelpers::nowarnings();
 my $test_count = 4;
 plan tests => $test_count;
 
+MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
 if (! eval { require Math::BigRat; 1 }) {
   MyTestHelpers::diag ('skip due to Math::BigRat not available -- ',$@);
   foreach (1 .. $test_count) {

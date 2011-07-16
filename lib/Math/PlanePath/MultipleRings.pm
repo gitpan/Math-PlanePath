@@ -24,7 +24,7 @@ use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 35;
+$VERSION = 36;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -88,6 +88,13 @@ sub new {
 # d = 1/2 + sqrt(2 * $n + 1/4)
 #   = 0.5 + sqrt(2*$n + 0.25)
 #
+# radius
+#    step > 6     1 / (2 * sin(pi / ($d*$step))
+#    step <= 6    Rbase + d
+#
+# usual polygon formula R = a / 2*sin(pi/n)
+# cf inner radius  r = a / 2*tan(pi/n)
+# along chord
 
 sub n_to_xy {
   my ($self, $n) = @_;
