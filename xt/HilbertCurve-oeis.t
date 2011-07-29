@@ -59,7 +59,7 @@ sub numeq_array {
 
 {
   my $anum = 'A059252';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -77,7 +77,7 @@ sub numeq_array {
 # A059253 - X coord
 {
   my $anum = 'A059253';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -97,7 +97,7 @@ sub numeq_array {
 
 {
   my $anum = 'A163355';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -115,7 +115,7 @@ sub numeq_array {
 # A163356 - inverse
 {
   my $anum = 'A163356';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -135,7 +135,7 @@ sub numeq_array {
 
 {
   my $anum = 'A163357';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -153,7 +153,7 @@ sub numeq_array {
 # A163358 - inverse
 {
   my $anum = 'A163358';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -173,7 +173,7 @@ sub numeq_array {
 
 {
   my $anum = 'A163359';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -191,7 +191,7 @@ sub numeq_array {
 # A163360 - inverse
 {
   my $anum = 'A163360';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -211,7 +211,7 @@ sub numeq_array {
 
 {
   my $anum = 'A163361';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
   foreach my $n (1 .. @$bvalues) {
@@ -230,7 +230,7 @@ numeq_array(\@got, $bvalues),
 # A163362 - inverse
 {
   my $anum = 'A163362';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -251,7 +251,7 @@ numeq_array(\@got, $bvalues),
 
 {
   my $anum = 'A163363';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -269,7 +269,7 @@ numeq_array(\@got, $bvalues),
 # A163364 - inverse
 {
   my $anum = 'A163364';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (0 .. $#$bvalues) {
@@ -288,7 +288,7 @@ numeq_array(\@got, $bvalues),
 # A163365 - diagonal sums
 {
   my $anum = 'A163365';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $d (0 .. $#$bvalues) {
@@ -310,7 +310,7 @@ numeq_array(\@got, $bvalues),
 # A163477 - diagonal sums divided by 4
 {
   my $anum = 'A163477';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $d (0 .. $#$bvalues) {
@@ -333,7 +333,7 @@ numeq_array(\@got, $bvalues),
 # A163482 -- row at Y=0
 {
   my $anum = 'A163482';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $x (0 .. $#$bvalues) {
@@ -351,7 +351,7 @@ numeq_array(\@got, $bvalues),
 # A163483 -- column at X=0
 {
   my $anum = 'A163483';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $y (0 .. $#$bvalues) {
@@ -370,7 +370,7 @@ numeq_array(\@got, $bvalues),
 # first entry is for N=0 no change
 {
   my $anum = 'A163538';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     my ($prev_x, $prev_y) = (0, 0);
@@ -393,7 +393,7 @@ numeq_array(\@got, $bvalues),
 # first entry is for N=0 no change
 {
   my $anum = 'A163539';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     my ($prev_x, $prev_y) = (0, 0);
@@ -417,7 +417,7 @@ numeq_array(\@got, $bvalues),
 
 {
   my $anum = 'A163540';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
@@ -441,7 +441,7 @@ numeq_array(\@got, $bvalues),
 
 {
   my $anum = 'A163541';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
@@ -465,7 +465,7 @@ numeq_array(\@got, $bvalues),
 # Y coordinates reckoned down the page
 {
   my $anum = 'A163542';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     my ($n0_x, $n0_y) = $hilbert->n_to_xy (0);
@@ -522,7 +522,7 @@ sub transpose {
 }
 {
   my $anum = 'A163543';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     my ($n0_x, $n0_y) = transpose ($hilbert->n_to_xy (0));

@@ -23,10 +23,11 @@ use List::Util qw(min max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -70,12 +71,12 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = floor ($x + 0.5);
+  $x = _round_nearest ($x);
   if ($x < 0 || $x >= $self->{'width'}) {
     return undef;  # outside the column
   }
 
-  $y = floor ($y + 0.5);
+  $y = _round_nearest ($y);
   return $x + $y * $self->{'width'} + 1;
 }
 
@@ -84,8 +85,8 @@ sub rect_to_n_range {
   ### rect_to_n_range: "$x1,$y1  $x2,$y2"
   my $width = $self->{'width'};
 
-  $x1 = floor ($x1 + 0.5);
-  $x2 = floor ($x2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $x2 = _round_nearest ($x2);
   if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
 
   ### x range: "$x1 to $x2"
@@ -95,8 +96,8 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  $y1 = floor ($y1 + 0.5);
-  $y2 = floor ($y2 + 0.5);
+  $y1 = _round_nearest ($y1);
+  $y2 = _round_nearest ($y2);
   if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
   ### assert: $y1<=$y2
 

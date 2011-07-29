@@ -40,6 +40,16 @@ my $bytes = 0;
 
 foreach my $elem
   (
+   ['diamond-arms-small.png',
+    'math-image --path=DiamondArms --lines --scale=5 --size=32x32 --png'],
+   ['diamond-arms-big.png',
+    'math-image --path=DiamondArms --lines --scale=15 --size=150x150 --png'],
+
+   ['square-arms-small.png',
+    'math-image --path=SquareArms --lines --scale=3 --size=32x32 --png'],
+   ['square-arms-big.png',
+    'math-image --path=SquareArms --lines --scale=10 --size=150x150 --png'],
+
    ['zorder-small.png',
     'math-image --path=ZOrderCurve --lines --scale=6 --size=32 --png'],
    ['zorder-big.png',

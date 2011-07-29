@@ -31,7 +31,7 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments '###';
 
 
-my $test_count = 4;
+my $test_count = 27;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
@@ -43,13 +43,57 @@ if (! eval { require Math::BigRat; 1 }) {
   exit 0;
 }
 
-
 # Crib notes:
 #
 # In perl 5.8.4 "BigInt != BigRat" doesn't work, must have it other way
 # around as "BigRat != BigInt".  Symptom is "uninitialized" warnings.
 #
 
+
+{
+  my $f = Math::BigRat->new('-1/2');
+  my $int = int($f);
+  if ($int == 0) {
+    MyTestHelpers::diag ('BigRat has int(-1/2) == 0 correctly');
+  } else {
+    MyTestHelpers::diag ('BigRat has int(-1/2) != 0 dodginess: ',"$int");
+  }
+}
+
+#------------------------------------------------------------------------------
+# _round_nearest()
+
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-7/4')) == -2, 1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-3/2')) == -1,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-5/4')) == -1,  1);
+
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-3/4')) == -1, 1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-1/2')) == 0,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-1/4')) == 0,  1);
+
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('1/4')) == 0,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('5/4')) == 1,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('3/2')) == 2,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('7/4')) == 2,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigRat->new('2'))   == 2,  1);
+
+#------------------------------------------------------------------------------
+# _floor()
+
+ok (Math::PlanePath::_floor(Math::BigRat->new('-7/4')) == -2,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('-3/2')) == -2,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('-5/4')) == -2,  1);
+
+ok (Math::PlanePath::_floor(Math::BigRat->new('-3/4')) == -1,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('-1/2')) == -1,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('-1/4')) == -1,  1);
+
+ok (Math::PlanePath::_floor(Math::BigRat->new('1/4')) == 0,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('3/4')) == 0,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('5/4')) == 1,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('3/2')) == 1,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('7/4')) == 1,  1);
+ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
 
 #------------------------------------------------------------------------------
 # PeanoCurve

@@ -26,18 +26,19 @@
 package Math::PlanePath::GosperIslands;
 use 5.004;
 use strict;
-use List::Util qw(min max);
-use POSIX qw(floor ceil);
+use List::Util 'max';
+use POSIX 'ceil';
 use Math::PlanePath::KochCurve;
 use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use constant n_start => 1;
 
@@ -189,8 +190,8 @@ sub _side_n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x_full, $y_full) = @_;
-  $x_full = floor($x_full + 0.5);
-  $y_full = floor($y_full + 0.5);
+  $x_full = _round_nearest($x_full);
+  $y_full = _round_nearest($y_full);
   ### GosperIslands xy_to_n(): "$x_full,$y_full"
 
   if (($x_full ^ $y_full) & 1) {
@@ -318,6 +319,14 @@ sub _xy_to_n_in_level {
 #     level-1 = log(radius/4) / log(sqrt(7))
 #     level = log(radius/4) / log(sqrt(7)) + 1
 #
+# Or
+#     level=1   n=9,x=2,y=2  is h=2*2+3*2*2 = 16
+#     level=2   n=31,x=2,y=6 is h=2*2+3*6*6 = 112 = 7*16
+#     h = 16 * 7^(level-1)
+#     h/16 = 7^(level-1)
+#     level-1 = log(h/16) / log(7)
+#     level = log(h/16) / log(7) + 1
+#
 # is the next outer level, so high covering is the end of the previous
 # level,
 #
@@ -338,7 +347,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde
+=for stopwords eg Ryde Gosper Nstart wiggliness versa PlanePath
 
 =head1 NAME
 
@@ -544,7 +553,7 @@ angle.  For example N=25 at X=11,Y=5 is 2*angle, or N=79 at X=20,Y=18 at
 3*angle.
 
 The N=7 which is the first radial replication at X=5,Y=1, scaled to unit
-sided equilater triangles, has distance from the origin
+sided equilateral triangles, has distance from the origin
 
     d1 = hypot(5, 1*sqrt(3)) / 2
        = sqrt(7)

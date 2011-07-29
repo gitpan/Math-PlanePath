@@ -20,13 +20,13 @@ package Math::PlanePath::Diagonals;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -74,8 +74,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
-  $x = floor ($x + 0.5);
-  $y = floor (0.5 - $y);
+  $x = _round_nearest ($x);
+  $y = _round_nearest (- $y);
   ### rounded
   ### $x
   ### $y
@@ -162,11 +162,11 @@ entirely covered.
 
 =head1 FORMULAS
 
-=head2 N Range
+=head2 Rectangle to N Range
 
-Within each row increasing X is increasing N, and each column increasing Y
-is increasing N.  On that basis in a rectangle for C<rect_to_n_range> the
-lower left corner is the minimum N and the upper right is the maximum N.
+Within each row increasing X is increasing N, and in each column increasing
+Y is increasing N.  On that basis in a rectangle the lower left corner is
+the minimum N and the upper right is the maximum N.
 
 =head1 SEE ALSO
 

@@ -41,14 +41,14 @@ package Math::PlanePath::PeanoCurve;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -112,7 +112,7 @@ sub n_to_xy {
       my $digit = $n % $radix;
       $y += $power * $digit;
       $power *= $radix;
-  
+
       if ($digit & 1) {
         $x = $power-1 - $x;
       }
@@ -152,27 +152,12 @@ sub n_to_xy {
   # return ($x, $y);
 }
 
-sub _floor {
-  my ($x) = @_;
-  my $int = int($x);
-  if ($x == $int) {
-    return $x;
-  }
-  $x -= $int;
-  if ($x >= .5) {
-    $int -= 1;
-  } elsif ($x < -.5) {
-    $int += 1;
-  }
-  return $int;
-}
-
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PeanoCurve xy_to_n(): "$x, $y"
 
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   if ($x < 0 || $y < 0
       || _is_infinite($x)
       || _is_infinite($y)) {
@@ -252,10 +237,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = floor($x1 + 0.5);
-  $y1 = floor($y1 + 0.5);
-  $x2 = floor($x2 + 0.5);
-  $y2 = floor($y2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
   ### rect_to_n_range(): "$x1,$y1 to $x2,$y2"
@@ -376,7 +361,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit PeanoCurve Math-PlanePath
+=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit PeanoCurve Math-PlanePath versa Online
 
 =head1 NAME
 
@@ -595,7 +580,7 @@ versa.  What's the rule?  Is it alternate digits which end up complemented?
 In any case the current C<xy_to_n()> code goes high to low which is easier,
 but means breaking the X,Y inputs into arrays of digits.
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 An easy over-estimate of the maximum N in a region can be had by going to
 the next bigger (3^k)x(3^k) square enclosing the region.  This means the

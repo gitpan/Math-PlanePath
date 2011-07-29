@@ -23,7 +23,7 @@ use List::Util 'max';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -191,7 +191,7 @@ C<$n> as a square of side 1, so the quadrant x>=-0.5, y>=-0.5 is covered.
 
 =head1 FORMULAS
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 Within each row increasing X is increasing N, and in each column increasing
 Y is increasing pairs of N.  Thus for C<rect_to_n_range> the lower left

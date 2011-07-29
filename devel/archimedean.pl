@@ -88,7 +88,7 @@ use Smart::Comments;
   print "a=$a\n";
   print "r=",(2*M_PI)*$a,"\n";
   for (my $r = 1; $r < 1e38; $r *= 1.5) {
-    
+
     my $theta = $r * 2*M_PI();
     my $arc = spiral_arc_length($theta);
     my $circle = r_to_circles_arclength($r);
@@ -377,8 +377,8 @@ sub next_t {
     $y = $y_origin - $y;  # inverted
 
     $x -= length($n) / 2;
-    $x = POSIX::floor ($x + 0.5); # round
-    $y = POSIX::floor ($y + 0.5);
+    $x = _round_nearest ($x);
+    $y = _round_nearest ($y);
 
     if ($x >= 0 && $x < $width && $y >= 0 && $y < $height) {
       substr ($rows[$y], $x,length($n)) = $n;

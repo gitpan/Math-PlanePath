@@ -40,7 +40,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -196,7 +196,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Helge von Koch Math-PlanePath
+=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel
 
 =head1 NAME
 

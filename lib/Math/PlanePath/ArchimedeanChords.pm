@@ -28,7 +28,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -591,7 +591,7 @@ and this is less than the chords along the spiral.  Is there a good
 polynomial over-estimate of arcsin, to become an under-estimate total,
 without giving away so much?
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 For the C<rect_to_n_range> upper bound, the current code takes the arc
 length along with spiral with the usual formula

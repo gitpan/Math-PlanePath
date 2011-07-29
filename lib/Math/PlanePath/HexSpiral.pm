@@ -48,13 +48,13 @@ package Math::PlanePath::HexSpiral;
 use 5.004;
 use strict;
 use List::Util qw(max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
@@ -152,8 +152,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): "$x, $y"
 
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   my $w = $self->{'wider'};
   if (($x ^ $y ^ $w) & 1) {
     return undef;  # nothing on odd squares

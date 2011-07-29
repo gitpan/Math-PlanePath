@@ -38,7 +38,7 @@ use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -304,6 +304,8 @@ limited use, but arises fairly naturally from the calculation.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::SquareArms>,
+L<Math::PlanePath::DiamondArms>,
 L<Math::PlanePath::HexSpiral>
 
 =head1 HOME PAGE

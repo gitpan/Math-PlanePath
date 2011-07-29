@@ -18,9 +18,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-use 5.004;
+use 5.005;
 use strict;
-use warnings;
 use POSIX ();
 use Math::PlanePath::GosperIslands;
 

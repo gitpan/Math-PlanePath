@@ -20,13 +20,13 @@ package Math::PlanePath::DiamondSpiral;
 use 5.004;
 use strict;
 use List::Util qw(max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -72,8 +72,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   my $s = abs($x) + abs($y);
 
   # vertical along the y>=0 axis
@@ -100,8 +100,13 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### DiamondSpiral xy_to_n_range()
 
-  my $x = floor (0.5 + max(abs($x1),abs($x2)));
-  my $y = floor (0.5 + max(abs($y1),abs($y2)));
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
+
+  my $x = max(abs($x1),abs($x2));
+  my $y = max(abs($y1),abs($y2));
   my $s = abs($x) + abs($y) + 1;
   ### gives: "$x, $y  sum $s is " . (2*$s*$s - 2*$s + 1)
 
@@ -197,6 +202,7 @@ point in the path as a square of side 1, so the entire plane is covered.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::DiamonArms>,
 L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::PyramidSides>

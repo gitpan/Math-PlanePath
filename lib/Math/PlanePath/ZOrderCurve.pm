@@ -29,14 +29,14 @@ package Math::PlanePath::ZOrderCurve;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -121,8 +121,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ZOrderCurve xy_to_n(): "$x, $y"
 
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   if ($x < 0 || $y < 0
       || _is_infinite($x)
       || _is_infinite($y)) {
@@ -354,7 +354,7 @@ the N=42 shown above at X=0,Y=7.
 With the C<radix> parameter the digits are treated likewise, in the given
 radix rather than binary.
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 Within each row the N values increase as X increases, and within each column
 N increases with increasing Y (for all C<radix> parameters).

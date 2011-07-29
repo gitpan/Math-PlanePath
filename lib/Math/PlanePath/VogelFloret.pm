@@ -16,6 +16,10 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# http://algorithmicbotany.org/papers/#abop
+#
+
 package Math::PlanePath::VogelFloret;
 use 5.004;
 use strict;
@@ -24,7 +28,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

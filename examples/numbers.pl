@@ -61,7 +61,6 @@ my @all_classes = (qw(SquareSpiral
                       PentSpiralSkewed
                       HexSpiral
                       HexSpiralSkewed
-                      HexArms
                       HeptSpiralSkewed
                       OctagramSpiral
 
@@ -75,6 +74,10 @@ my @all_classes = (qw(SquareSpiral
                       Staircase
                       Corner
                       KnightSpiral
+
+                      SquareArms
+                      DiamondArms
+                      HexArms
                       GreekKeySpiral
 
                       SacksSpiral

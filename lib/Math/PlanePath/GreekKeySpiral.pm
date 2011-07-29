@@ -27,11 +27,14 @@ use strict;
 use List::Util 'min', 'max';
 use POSIX 'floor', 'ceil';
 
-use Math::PlanePath;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::SquareArms;
+*_rect_square_range = \&Math::PlanePath::SquareArms::_rect_square_range;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -168,33 +171,10 @@ sub rect_to_n_range {
           (36*$dhi + 36)*$dhi + 9);     # bottom horizontal end
 }
 
-
-sub _rect_square_range {
-  my ($x1,$y1, $x2,$y2) = @_;
-  ### _rect_square_range(): "$x1,$y1  $x2,$y2"
-
-  # if x1,x2 opposite signs then origin x=0 covered, similarly y
-  my $x_origin_covered = ($x1<0) != ($x2<0);
-  my $y_origin_covered = ($y1<0) != ($y2<0);
-
-  foreach ($x1,$y1, $x2,$y2) {
-    $_ = abs(floor($_+0.5));
-  }
-  ### abs rect: "x=$x1 to $x2,  y=$y1 to $y2"
-
-  if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
-  if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
-
-  return (max (0, # if both $x_origin_covered and $y_origin_covered
-               $x_origin_covered ? () : ($x1),
-               $y_origin_covered ? () : ($y1)),
-          max ($x2, $y2));
-}
-
 1;
 __END__
 
-=for stopwords GreekKeySpiral PlanePath Ryde Math-PlanePath SquareSpiral 18-gonal
+=for stopwords GreekKeySpiral PlanePath Ryde Math-PlanePath SquareSpiral 18-gonal Edkins
 
 =head1 NAME
 

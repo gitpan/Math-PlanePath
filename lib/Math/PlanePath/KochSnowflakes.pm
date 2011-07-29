@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -386,7 +386,7 @@ Create and return a new path object.
 
 =head1 FORMULAS
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 As noted in L</Level Ranges> above, for a given level
 

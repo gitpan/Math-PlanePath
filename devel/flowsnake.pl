@@ -17,12 +17,51 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.006;
+use 5.010;
 use strict;
 use warnings;
 use Math::Libm 'M_PI', 'hypot';
 
 
+{
+  # xy_to_n
+  require Math::PlanePath::MathImageFlowsnake;
+  require Math::PlanePath::MathImageFlowsnakeCentres;
+  my $path = Math::PlanePath::MathImageFlowsnakeCentres->new;
+  my $y = 0;
+  for (my $x = 6; $x >= -5; $x-=2) {
+    $x -= ($x^$y)&1;
+    my $n = $path->xy_to_n($x,$y);
+    print "$x,$y   ",($n//'undef'),"\n";
+  }
+  exit 0;
+}
+
+{
+  # modulo
+  require Math::PlanePath::MathImageFlowsnake;
+  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  for (my $n = 0; $n <= 49; $n++) {
+    if (($n % 7) == 0) { print "\n"; }
+    my ($x,$y) = $path->n_to_xy($n);
+    my $c = $x + 2*$y;
+    my $m = $c % 7;
+    print "$n  $x,$y  $c  $m\n";
+  }
+  exit 0;
+}
+{
+  require Math::PlanePath::MathImageFlowsnake;
+  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  for (my $n = 0; $n <= 49; $n+=7) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($rx,$ry) = ((3*$y + 5*$x) / 14,
+                    (5*$y - $x) / 14);
+    print "$n  $x,$y  $rx,$ry\n";
+  }
+  exit 0;
+}
+  
 {
   # radius
   require Math::PlanePath::MathImageFlowsnake;

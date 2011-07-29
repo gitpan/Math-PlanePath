@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 37, July 2011
+    - new SquareArms, DiamondArms, File
+
 Version 36, July 2011
     - new HexArms
     - PeanoCurve new radix parameter

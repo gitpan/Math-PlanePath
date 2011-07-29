@@ -38,7 +38,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -505,7 +505,7 @@ rectangle (or other shape) is usually a small range of N.  This property is
 used in some database systems to store X,Y coordinates with the Hilbert N as
 an index.  A search through an 2-D region is then usually a fairly modest
 linear search through N values.  C<rect_to_n_range> gives N bounds for a
-rectangle, or see L<N Range> below for calculating on any shape.
+rectangle, or see L<Rectangle to N Range> below for calculating on any shape.
 
 The N range can be large when crossing Hilbert sub-parts.  In the sample
 above it can be seen for instance adjacent points X=0,Y=3 and X=0,Y=4 have
@@ -600,7 +600,7 @@ transition table).
 The current code is a mixture of the low to high for C<n_to_xy> but the
 table high to low for the reverse C<xy_to_n>.
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 An easy over-estimate of the maximum N in a region can be had by going to
 the next bigger (2^k)x(2^k) square enclosing the region.  This means the

@@ -25,7 +25,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -108,7 +108,7 @@ sub _rect_to_radius_range {
 1;
 __END__
 
-=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath
+=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM
 
 =head1 NAME
 

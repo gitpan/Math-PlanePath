@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -181,7 +181,7 @@ sub _rect_r_range {
 1;
 __END__
 
-=for stopwords Theodorus theodorus Ryde Math-PlanePath Archimedean Nhi Nlo arctan xhi yhi rlo xlo ylo
+=for stopwords Theodorus theodorus Ryde Math-PlanePath Archimedean Nhi Nlo arctan xlo,ylo xhi,yhi rlo Nlo Nhi Nhi-Nlo
 
 =head1 NAME
 
@@ -326,7 +326,7 @@ intersected, but using that doesn't seem particularly easy.  The angle for a
 given N is an arctan sum and don't yet have a good closed-form for that to
 invert, or some Newton's method, or at least allow a binary search.
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 For C<rect_to_n_range> the corner furthest from the origin determines the
 high N, from it radial distance rhi=hypot(xhi,yhi),

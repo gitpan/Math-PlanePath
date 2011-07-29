@@ -61,7 +61,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -439,7 +439,7 @@ __END__
 
 
 
-=for stopwords eg Ryde OEIS UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath
+=for stopwords eg Ryde OEIS UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ
 
 =head1 NAME
 
@@ -757,7 +757,7 @@ designed for one value odd and the other even.  As for the UAD ascent above
 if that opposite parity doesn't hold at any stage then the initial point
 wasn't a primitive triple.
 
-=head2 N Range for UAD
+=head2 Rectangle to N Range for UAD
 
 For the UAD tree, the smallest A,B within each level is found at the topmost
 "U" steps for the smallest A or the bottommost "D" steps for the smallest
@@ -778,7 +778,7 @@ unchanged, so every level includes a Q=1.  This means if you ask what range
 of N is needed to cover all Q E<lt> someQ then there isn't one, only a P
 E<lt> someP has an N to go up to.
 
-=head2 N Range, FB
+=head2 Rectangle to N Range, FB
 
 For the FB tree, the smallest A,B within each level is found in the topmost
 two final positions.  For example in the table above of level 2, N=5..13,

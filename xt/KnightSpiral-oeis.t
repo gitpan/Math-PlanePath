@@ -59,7 +59,7 @@ sub numeq_array {
 # A068608 - same first step
 {
   my $anum = 'A068608';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -77,7 +77,7 @@ sub numeq_array {
 # A068609 - rotate 90 degrees
 {
   my $anum = 'A068609';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -111,7 +111,7 @@ sub numeq_array {
 # A068610 - rotate 180 degrees
 {
   my $anum = 'A068610';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -130,7 +130,7 @@ sub numeq_array {
 # A068611 - rotate 270 degrees
 {
   my $anum = 'A068611';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -149,7 +149,7 @@ sub numeq_array {
 # A068612 - rotate 180 degrees, opp direction, being X negated
 {
   my $anum = 'A068612';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -168,7 +168,7 @@ sub numeq_array {
 # A068613 -
 {
   my $anum = 'A068613';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -187,7 +187,7 @@ sub numeq_array {
 # A068614 - clockwise, Y negated
 {
   my $anum = 'A068614';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
@@ -206,7 +206,7 @@ sub numeq_array {
 # A068615 - transpose
 {
   my $anum = 'A068615';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {

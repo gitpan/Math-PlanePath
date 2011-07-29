@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -291,7 +291,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Nlast
+=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks
 
 =head1 NAME
 
@@ -403,7 +403,7 @@ integer positions.
 
 =head1 FORMULAS
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 As noted above (L</Level Ranges>), for a given level
 

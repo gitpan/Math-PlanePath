@@ -20,7 +20,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use POSIX ();
 use Math::PlanePath::SierpinskiArrowhead;
 

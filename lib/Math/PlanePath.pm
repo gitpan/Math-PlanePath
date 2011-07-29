@@ -21,7 +21,10 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 36;
+$VERSION = 37;
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 # defaults
 use constant n_start => 1;
@@ -38,6 +41,53 @@ sub new {
 sub _is_infinite {
   my ($x) = @_;
   return ($x-1 == $x);
+}
+
+# with a view to being friendly to BigRat/BigFloat
+sub _floor {
+  my ($x) = @_;
+  ### _floor(): "$x", $x
+  my $int = int($x);
+  if ($x == $int) {
+    ### is an integer ...
+    return $x;
+  }
+  $x -= $int;
+  ### frac: "$x"
+  if ($x >= 0) {
+    ### frac is non-negative ...
+    return $int;
+  } else {
+    ### frac is negative ...
+    return $int-1;
+  }
+}
+
+# with a view to being friendly to BigRat/BigFloat
+sub _round_nearest {
+  my ($x) = @_;
+  ### _round_nearest(): "$x", $x
+
+  # BigRat through to perl 5.12.4 has some dodginess giving a bigint -0
+  # which is considered !=0.  Adding +0 to numify seems to avoid the problem.
+  my $int = int($x) + 0;
+  if ($x == $int) {
+    ### is an integer ...
+    return $x;
+  }
+  $x -= $int;
+  ### int:  "$int"
+  ### frac: "$x"
+  if ($x >= .5) {
+    ### round up ...
+    return $int + 1;
+  }
+  if ($x < -.5) {
+    ### round down ...
+    return $int - 1;
+  }
+  ### within +/- .5 ...
+  return $int;
 }
 
 1;
@@ -68,10 +118,13 @@ include
     PentSpiralSkewed       five-sided spiral, compact
     HexSpiral              six-sided spiral
     HexSpiralSkewed        six-sided spiral skewed for compactness
-    HexArms                six-arms hexagonal spiral
     HeptSpiralSkewed       seven-sided spiral, compact
     OctagramSpiral         eight pointed star
     KnightSpiral           an infinite knight's tour
+
+    HexArms                six-arm hexagonal spiral
+    SquareArms             four-arm square spiral
+    DiamondArms            four-arm diamond spiral
     GreekKeySpiral         spiral with Greek key motif
 
     SacksSpiral            quadratic on an Archimedean spiral
@@ -104,6 +157,7 @@ include
     PyramidRows            expanding stacked rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
     CoprimeColumns         coprime X,Y
+    File                   points from a disk file
 
 The paths are object oriented to allow parameters, though many have none as
 yet.  See C<examples/numbers.pl> for a cute way to print samples of all the
@@ -234,7 +288,7 @@ display.  But some easy transformations can be had just from the X,Y with
     -X,Y        flip horizontally (mirror image)
     X,-Y        flip vertically
 
-    -Y,X        rotate +90 degrees
+    -Y,X        rotate +90 degrees  (anti-clockwise)
     Y,-X        rotate -90 degrees
     -X,-Y       rotate 180 degrees
 
@@ -270,7 +324,9 @@ longer than the preceding.
      16       OctagramSpiral
      19.74    TheodorusSpiral (approaches 2*pi^2)
      32       KnightSpiral (counting the 2-wide loop)
+     64       DiamondArms (each arm)
      72       GreekKeySpiral
+    128       SquareArms (each arm)
     216       HexArms (each arm)
    variable   MultipleRings, PyramidRows
     phi(n)    CoprimeColumns
@@ -357,10 +413,10 @@ sqrt(3) scale factor first, or the rotation is wrong.  Rotations can be made
 within the integer X,Y coordinates directly as follows (all resulting in
 integers),
 
-    (X-3Y)/2, (X+Y)/2       rotate +60
+    (X-3Y)/2, (X+Y)/2       rotate +60   (anti-clockwise)
     (X+3Y)/2, (Y-X)/2       rotate -60
-    -(X+3Y), (X-Y)/2        rotate +120
-    (3Y-X), -(X+Y)/2        rotate -120
+    -(X+3Y)/2, (X-Y)/2      rotate +120
+    (3Y-X)/2, -(X+Y)/2      rotate -120
     -X,-Y                   rotate 180
 
     (X+3Y)/2, (X-Y)/2       mirror across the X=3*Y twelfth line
@@ -383,10 +439,13 @@ L<Math::PlanePath::PentSpiral>,
 L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
-L<Math::PlanePath::HexArms>,
 L<Math::PlanePath::HeptSpiralSkewed>,
 L<Math::PlanePath::OctagramSpiral>,
-L<Math::PlanePath::KnightSpiral>,
+L<Math::PlanePath::KnightSpiral>
+
+L<Math::PlanePath::HexArms>,
+L<Math::PlanePath::SquareArms>,
+L<Math::PlanePath::DiamondArms>,
 L<Math::PlanePath::GreekKeySpiral>
 
 L<Math::PlanePath::SacksSpiral>,
@@ -417,6 +476,8 @@ L<Math::PlanePath::Staircase>,
 L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>
+
+L<Math::PlanePath::File>
 
 L<math-image>, displaying various sequences on these paths.
 

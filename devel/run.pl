@@ -28,7 +28,6 @@ use List::Util qw(min max);
   require Math::PlanePath::Staircase;
   require Math::PlanePath::PeanoCurve;
   require Math::PlanePath::OctagramSpiral;
-  require Math::PlanePath::MathImageFlowsnake;
   require Math::PlanePath::ArchimedeanChords;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::HypotOctant;
@@ -39,14 +38,21 @@ use List::Util qw(min max);
   require Math::PlanePath::KochSnowflakes;
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::KochCurve;
-  require Math::PlanePath::MathImagePlusSimilar;
   require Math::PlanePath::GosperSide;
   require Math::PlanePath::GosperIslands;
   require Math::PlanePath::SierpinskiArrowhead;
-  require Math::PlanePath::CoprimeColumns;
-  require Math::PlanePath::HexArms;
-  require Math::PlanePath::MathImageCrossSide;
-  my $path = Math::PlanePath::PeanoCurve->new
+  require Math::PlanePath::Diagonals;
+  require Math::PlanePath::SquareArms;
+  require Math::PlanePath::MathImageGosperIslandsTree;
+  require Math::PlanePath::MathImageSierpinskiCurve;
+  require Math::PlanePath::MathImageQuintetCurve;
+  require Math::PlanePath::MathImageFlowsnake;
+  require Math::PlanePath::MathImageFlowsnakeCentres;
+  require Math::PlanePath::MathImageDragonCurve;
+  require Math::PlanePath::MathImageDragonArms;
+  require Math::PlanePath::MathImageDragonMedian;
+  require Math::PlanePath::MathImageDragonMedianArms;
+  my $path = Math::PlanePath::MathImageFlowsnakeCentres->new
     (radix => 4,
      wider => 0,
      # step => 0,
@@ -63,11 +69,11 @@ use List::Util qw(min max);
   # $i -= 0.5;
   #for (my $i = $n_start; $i <= 30; $i++) {
   #for (my $i = 1; $i <= 500; $i++) {
-  #for (my $i = 1; $i <= 3**15; $i*=3) {
+  for (my $i = 1; $i <= 2**40; $i*=2) {
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 500; $i++) {
 
-  for (my $i = 0; $i <= 32; $i++) {
+  # for (my $i = 0; $i <= 30; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
@@ -122,22 +128,22 @@ use List::Util qw(min max);
   exit 0;
 }
 
-
+__END__
 {
   use Math::PlanePath::KochCurve;
   package Math::PlanePath::KochCurve;
   sub rect_to_n_range {
     my ($self, $x1,$y1, $x2,$y2) = @_;
 
-    $y1 = floor($y1 + 0.5);
-    $y2 = floor($y2 + 0.5);
+    $y1 = _round_nearest ($y1);
+    $y2 = _round_nearest ($y2);
     if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
     if ($y1 < 0 && $y2 < 0) {
       return (1,0);
     }
 
-    $x1 = floor($x1 + 0.5);
-    $x2 = floor($x2 + 0.5);
+    $x1 = _round_nearest ($x1);
+    $x2 = _round_nearest ($x2);
     if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
     ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
 

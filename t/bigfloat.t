@@ -28,9 +28,9 @@ use lib 't';
 use MyTestHelpers;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Devel::Comments '###';
 
-my $test_count = 4;
+my $test_count = 21;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
@@ -43,10 +43,46 @@ MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
     exit 0;
   }
 }
+{
+  if ($] < 5.008) {
+    MyTestHelpers::diag ('skip due to pre 5.8 doubtful, maybe');
+    foreach (1 .. $test_count) {
+      skip ('skip due to pre 5.8', 1, 1);
+    }
+    exit 0;
+  }
+}
 
 MyTestHelpers::nowarnings();
 
-Math::BigFloat->precision(256);  # digits
+Math::BigFloat->precision(-10);  # digits right of decimal point
+
+#------------------------------------------------------------------------------
+# _round_nearest()
+
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.75')) == -1,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.5'))  == 0,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.25')) == 0,  1);
+
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('.25'))  == 0,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('1.25')) == 1,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('1.5'))  == 2,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('1.75')) == 2,  1);
+ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('2'))    == 2,  1);
+
+#------------------------------------------------------------------------------
+# _floor()
+
+ok (Math::PlanePath::_floor(Math::BigFloat->new('-.75')) == -1,  1);
+ok (Math::PlanePath::_floor(Math::BigFloat->new('-.5'))  == -1,  1);
+ok (Math::PlanePath::_floor(Math::BigFloat->new('-.25')) == -1,  1);
+
+ok (Math::PlanePath::_floor(Math::BigFloat->new('.25'))  == 0,  1);
+ok (Math::PlanePath::_floor(Math::BigFloat->new('.75'))  == 0,  1);
+ok (Math::PlanePath::_floor(Math::BigFloat->new('1.25')) == 1,  1);
+ok (Math::PlanePath::_floor(Math::BigFloat->new('1.5'))  == 1,  1);
+ok (Math::PlanePath::_floor(Math::BigFloat->new('1.75')) == 1,  1);
+ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
 
 #------------------------------------------------------------------------------
 # PeanoCurve
@@ -60,8 +96,8 @@ Math::BigFloat->precision(256);  # digits
   my $want_y = Math::BigFloat->new(3) ** 128 - 1;
 
   my ($got_x,$got_y) = $path->n_to_xy($n);
-  ok ($got_x, $want_x);
-  ok ($got_y, $want_y);
+  ok ($got_x == $want_x, 1);
+  ok ($got_y == $want_y, 1);
 }
 
 #------------------------------------------------------------------------------
@@ -76,8 +112,8 @@ Math::BigFloat->precision(256);  # digits
   my $want_y = 0;
 
   my ($got_x,$got_y) = $path->n_to_xy($n);
-  ok ($got_x, $want_x);
-  ok ($got_y, $want_y);
+  ok ($got_x == $want_x, 1);
+  ok ($got_y == $want_y, 1);
 }
 
 exit 0;

@@ -33,7 +33,7 @@ require Math::PlanePath::VogelFloret;
 # VERSION
 
 {
-  my $want_version = 36;
+  my $want_version = 37;
   ok ($Math::PlanePath::VogelFloret::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::VogelFloret->VERSION,  $want_version,

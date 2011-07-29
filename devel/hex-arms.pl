@@ -24,6 +24,38 @@ use List::Util qw(max);
 use Devel::Comments;
 
 {
+  require Math::PlanePath::MathImageDiamondArms;
+  my @max;
+  my $path = Math::PlanePath::MathImageDiamondArms->new;
+  foreach my $n (2 .. 10000) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $x = abs($x);
+    $y = abs($y);
+    my $d = abs($x)+abs($y);
+    $max[$d] ||= 0;
+    $max[$d] = max($max[$d], $n);
+  }
+  ### @max
+  exit 0;
+}
+{
+  require Math::PlanePath::HexArms;
+  my @max;
+  my $path = Math::PlanePath::HexArms->new;
+  foreach my $n (2 .. 10000) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $x = abs($x);
+    $y = abs($y);
+    my $d = ($y >= $x
+             ? $y                 # middle
+             : ($x + $y)/2);  # end
+    $max[$d] ||= 0;
+    $max[$d] = max($max[$d], $n);
+  }
+  ### @max
+  exit 0;
+}
+{
   # cf A094268 smallest of N consecutive abundants
   # 5775 pair (3,4 mod 6)
   # 171078830 triplet (2,3,4 mod 6)
@@ -139,23 +171,7 @@ use Devel::Comments;
   exit 0;
 }
 
-{
-  require Math::PlanePath::HexArms;
-  my @max;
-  my $path = Math::PlanePath::HexArms->new;
-  foreach my $n (2 .. 10000) {
-    my ($x,$y) = $path->n_to_xy($n);
-    $x = abs($x);
-    $y = abs($y);
-    my $d = ($y >= $x
-             ? $y                 # middle
-             : ($x + $y)/2);  # end
-    $max[$d] ||= 0;
-    $max[$d] = max($max[$d], $n);
-  }
-  ### @max
-  exit 0;
-}
+
 
 
 {

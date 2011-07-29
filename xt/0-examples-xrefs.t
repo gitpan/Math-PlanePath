@@ -66,11 +66,12 @@ sub raw_contains_example {
 }
 
 
-plan tests => scalar(@example_files);
+plan tests => scalar(@example_files) + 1;
 my $example;
 foreach $example (@example_files) {
   is (any_file_contains_example($example), 1,
       "$example mentioned in some lib/ file");
 }
+ok(1);
 
 exit 0;

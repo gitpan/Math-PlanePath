@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -178,7 +178,7 @@ covered.
 
 =head1 FORMULAS
 
-=head2 N Range
+=head2 Rectangle to N Range
 
 For C<rect_to_n_range>, in each column N increases so the biggest N is in
 the topmost row and and smallest N in the bottom row.

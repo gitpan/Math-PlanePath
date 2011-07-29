@@ -36,7 +36,7 @@ require Math::PlanePath::CoprimeColumns;
 # VERSION
 
 {
-  my $want_version = 36;
+  my $want_version = 37;
   ok ($Math::PlanePath::CoprimeColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CoprimeColumns->VERSION,  $want_version,
@@ -119,7 +119,7 @@ foreach my $x (1 .. 100) {
 {
   my @data = ([ 0,  1,1 ],
               [ 1,  2,1 ],
-              
+
               [ 2,  3,1 ],
               [ 3,  3,2 ],
 

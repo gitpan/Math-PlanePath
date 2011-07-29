@@ -29,7 +29,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 36;
+$VERSION = 37;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -134,11 +134,11 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde
+=for stopwords eg Ryde GosperIslands Math-PlanePath
 
 =head1 NAME
 
-Math::PlanePath::GosperSide -- one side of the gosper island
+Math::PlanePath::GosperSide -- one side of the Gosper island
 
 =head1 SYNOPSIS
 
@@ -148,7 +148,7 @@ Math::PlanePath::GosperSide -- one side of the gosper island
 
 =head1 DESCRIPTION
 
-This path is a single side of the GosperIsland, in integers
+This path is a single side of the Gosper island, in integers
 (L<Math::PlanePath/Triangular Lattice>).
 
                                         20-...        14

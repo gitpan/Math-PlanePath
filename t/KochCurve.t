@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 36;
+  my $want_version = 37;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -155,7 +155,7 @@ foreach my $elem ([ 1, 1,0 ],
 {
   my @data = ([ 0.5, 1,0 ],
               [ 3.5, 5,0 ],
-              
+
 
               [ 0, 0,0 ],
               [ 1, 2,0 ],

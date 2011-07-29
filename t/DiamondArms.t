@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1574 }
+BEGIN { plan tests => 1566 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::GosperSide;
+require Math::PlanePath::DiamondArms;
 
 
 #------------------------------------------------------------------------------
@@ -34,20 +34,20 @@ require Math::PlanePath::GosperSide;
 
 {
   my $want_version = 37;
-  ok ($Math::PlanePath::GosperSide::VERSION, $want_version,
+  ok ($Math::PlanePath::DiamondArms::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::GosperSide->VERSION,  $want_version,
+  ok (Math::PlanePath::DiamondArms->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::GosperSide->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::DiamondArms->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::GosperSide->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::DiamondArms->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::DiamondArms->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,8 +62,8 @@ require Math::PlanePath::GosperSide;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::GosperSide->new;
-  ok ($path->n_start, 0, 'n_start()');
+  my $path = Math::PlanePath::DiamondArms->new;
+  ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
@@ -74,25 +74,24 @@ require Math::PlanePath::GosperSide;
 
 {
   my @data = (
-              [ .25,  .5, 0 ],
-              [ .5,    1, 0 ],
-              [ 1.75,  2.75, .75 ],
+              [ 1, 0,0 ],
+              [ 1.25, 0.25,-0.25 ],
+              [ 5, 1,-1 ],
 
-              [ 0, 0,0 ],
-              [ 1, 2,0 ],
-              [ 2, 3,1 ],
+              [ 2, 1,0 ],
+              [ 2.25, 1.25,0.25 ],
+              [ 6, 2,1 ],
 
-              [ 3, 5,1 ],
-              [ 4, 6,2 ],
-              [ 5, 5,3 ],
+              [ 3, 1,1 ],
+              [ 3.75, 0.25,1.75 ],
+              [ 7, 0,2 ],
 
-              [ 6, 6,4 ],
-              [ 7, 8,4 ],
-              [ 8, 9,5 ],
+              [ 4, 0,1 ],
+              [ 4.75, -.75,0.25 ],
+              [ 8, -1,0 ],
 
-              [ 9, 11,5 ],
              );
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::DiamondArms->new;
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
     {
@@ -117,36 +116,27 @@ require Math::PlanePath::GosperSide;
   }
 }
 
-
 #------------------------------------------------------------------------------
-# rect_to_n_range()
+# xy_to_n() reverse n_to_xy() and rect_to_n_range()
 
 {
-  my $path = Math::PlanePath::GosperSide->new;
-  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0, 0,0);
-  ok ($n_lo == 0, 1, "rect_to_n_range() 0,0  n_lo=$n_lo");
-  ok ($n_hi >= 0, 1, "rect_to_n_range() 0,0  n_hi=$n_hi");
-}
-
-
-#------------------------------------------------------------------------------
-# random points
-
-{
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::DiamondArms->new;
   for (1 .. 500) {
     my $bits = int(rand(25));         # 0 to 25, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
-
     my ($x,$y) = $path->n_to_xy ($n);
-    my $rev_n = $path->xy_to_n ($x,$y);
-    if (! defined $rev_n) { $rev_n = 'undef'; }
-    ok ($rev_n, $n, "xy_to_n($x,$y) reverse to expect n=$n, got $rev_n");
 
-    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-    ok ($n_lo <= $n, 1, "rect_to_n_range() reverse n=$n cf n_lo=$n_lo");
-    ok ($n_hi >= $n, 1, "rect_to_n_range() reverse n=$n cf n_hi=$n_hi");
+    {
+      my $rev_n = $path->xy_to_n ($x,$y);
+      ok ($rev_n, $n, "xy_to_n() reverse n=$n");
+    }
+    {
+      my ($n_lo,$n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+      ok ($n_lo <= $n, 1, "rect_to_n_range() on $x,$y = $n n_lo $n_lo");
+      ok ($n_hi >= $n, 1, "rect_to_n_range() on $x,$y = $n n_hi $n_hi");
+    }
   }
 }
+
 
 exit 0;
