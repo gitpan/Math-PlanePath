@@ -40,6 +40,50 @@ my $bytes = 0;
 
 foreach my $elem
   (
+   ['flowsnake-centres-small.png',
+    'math-image --path=FlowsnakeCentres --lines --scale=4 --size=32x32 --offset=-5,-13 --png'],
+   ['flowsnake-centres-big.png',
+    'math-image --path=FlowsnakeCentres --lines --scale=8 --size=200x200 --offset=-20,-90 --png'],
+
+   ['flowsnake-small.png',
+    'math-image --path=Flowsnake --lines --scale=4 --size=32x32 --offset=-5,-13 --png'],
+   ['flowsnake-big.png',
+    'math-image --path=Flowsnake --lines --scale=8 --size=200x200 --offset=-20,-90 --png'],
+
+
+   ['koch-curve-small.png',
+    'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8 --png'],
+   ['koch-curve-big.png',
+    'math-image --path=KochCurve --lines --scale=5 --size=250x100 --offset=0,20 --png'],
+
+   ['koch-snowflakes-small.png',
+    'math-image --path=KochSnowflakes --lines --scale=2 --size=32 --png'],
+   ['koch-snowflakes-big.png',
+    'math-image --path=KochSnowflakes --lines --scale=3 --size=200x150 --png'],
+
+   ['koch-peaks-small.png',
+    'math-image --path=KochPeaks --lines --scale=2 --size=32 --png'],
+   ['koch-peaks-big.png',
+    'math-image --path=KochPeaks --lines --scale=3 --size=200x100 --png'],
+
+
+   ['sierpinski-arrowhead-small.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=1 --size=32 --offset=0,3 --png'],
+   ['sierpinski-arrowhead-big.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200 --png'],
+
+
+   ['gosper-side-small.png',
+    'math-image --path=GosperSide --lines --scale=3 --size=32 --offset=-13,-7 --png'],
+   ['gosper-side-big.png',
+    'math-image --path=GosperSide --lines --scale=1 --size=250x200 --offset=95,-95 --png'],
+
+   ['gosper-islands-small.png',
+    'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
+   ['gosper-islands-big.png',
+    'math-image --path=GosperIslands --lines --scale=2 --size=250x200 --png'],
+
+
    ['diamond-arms-small.png',
     'math-image --path=DiamondArms --lines --scale=5 --size=32x32 --png'],
    ['diamond-arms-big.png',
@@ -85,17 +129,6 @@ foreach my $elem
     'math-image --path=HeptSpiralSkewed --lines --scale=13 --size=200x200 --png'],
 
 
-   ['gosper-side-small.png',
-    'math-image --path=GosperSide --lines --scale=3 --size=32 --png'],
-   ['gosper-side-big.png',
-    'math-image --path=GosperSide --lines --scale=1 --size=250x200 --png'],
-
-   ['gosper-islands-small.png',
-    'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
-   ['gosper-islands-big.png',
-    'math-image --path=GosperIslands --lines --scale=2 --size=250x200 --png'],
-
-
    ['pent-small.png',
     'math-image --path=PentSpiral --lines --scale=4 --size=32x32 --png'],
    ['pent-big.png',
@@ -120,26 +153,6 @@ foreach my $elem
     'math-image --path=CoprimeColumns --all --scale=3 --size=32 --png'],
    ['coprime-columns-big.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=200x200 --png'],
-
-   ['sierpinski-arrowhead-small.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=1 --size=32 --png'],
-   ['sierpinski-arrowhead-big.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200 --png'],
-
-   ['koch-snowflakes-small.png',
-    'math-image --path=KochSnowflakes --lines --scale=2 --size=32 --png'],
-   ['koch-snowflakes-big.png',
-    'math-image --path=KochSnowflakes --lines --scale=3 --size=200x150 --png'],
-
-   ['koch-peaks-small.png',
-    'math-image --path=KochPeaks --lines --scale=2 --size=32 --png'],
-   ['koch-peaks-big.png',
-    'math-image --path=KochPeaks --lines --scale=3 --size=200x100 --png'],
-
-   ['koch-curve-small.png',
-    'math-image --path=KochCurve --lines --scale=2 --size=32 --png'],
-   ['koch-curve-big.png',
-    'math-image --path=KochCurve --lines --scale=5 --size=250x75 --png'],
 
    ['pythagorean-small.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32 --png'],

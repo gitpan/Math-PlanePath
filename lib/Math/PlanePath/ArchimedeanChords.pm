@@ -28,7 +28,7 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -150,9 +150,8 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
 
-  if ($n < 0 || _is_infinite($n)) {
-    return;
-  }
+  if ($n < 0) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
 
   if ($n < 1) {
     return ($n, 0);

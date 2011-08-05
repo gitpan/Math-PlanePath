@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -80,7 +80,7 @@ sub n_to_xy {
       $frac = 0;
     } else {
       $frac = $n - $int; # -.5 <= $frac < 1
-      $n = $int;
+      $n = $int;  # BigFloat int() gives BigInt, use that
       if ($frac > .5) {
         $frac--;
         $n++;

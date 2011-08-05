@@ -33,7 +33,7 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -142,7 +142,7 @@ sub _side_n_to_xy {
   {
     my $int = int($n);
     $x = 2*($n - $int);
-    $n = $int;
+    $n = $int;  # BigFloat int() gives BigInt, use that
   }
   my $xend = 2;
   my $yend = 0;

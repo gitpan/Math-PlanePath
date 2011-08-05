@@ -60,6 +60,8 @@ lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondArms.pm
 lib/Math/PlanePath/DiamondSpiral.pm
 lib/Math/PlanePath/File.pm
+lib/Math/PlanePath/Flowsnake.pm
+lib/Math/PlanePath/FlowsnakeCentres.pm
 lib/Math/PlanePath/GosperIslands.pm
 lib/Math/PlanePath/GosperSide.pm
 lib/Math/PlanePath/GreekKeySpiral.pm
@@ -111,6 +113,8 @@ t/Diagonals.t
 t/DiamondArms.t
 t/DiamondSpiral.t
 t/File.t
+t/Flowsnake.t
+t/FlowsnakeCentres.t
 t/GosperIslands.t
 t/GosperSide.t
 t/GreekKeySpiral.t

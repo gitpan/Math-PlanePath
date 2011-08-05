@@ -31,7 +31,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -78,7 +78,7 @@ sub n_to_xy {
       my $dy = $y2-$y1;
       return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
-    $n = $int;  # BigInt instead of BigFloat
+    $n = $int; # BigFloat int() gives BigInt, use that
   }
 
   my $x = my $y = ($n&0); # inherit

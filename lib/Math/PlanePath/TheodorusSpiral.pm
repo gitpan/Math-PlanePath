@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -69,9 +69,9 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy(): $n
 
-  if ($n < 0 || _is_infinite($n)) {
-    return;
-  }
+  if ($n < 0) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
+
   if ($n < 1) {
     return ($n, 0);
   }

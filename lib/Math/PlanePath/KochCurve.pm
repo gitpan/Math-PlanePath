@@ -36,15 +36,16 @@
 package Math::PlanePath::KochCurve;
 use 5.004;
 use strict;
-use List::Util qw(min max);
-use POSIX qw(floor ceil);
+use List::Util 'max';
+use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -77,15 +78,14 @@ sub n_to_xy {
   ### KochCurve n_to_xy(): $n
 
   # secret negatives to -.5
-  if ($n < -.5 || _is_infinite($n)) {
-    return;
-  }
+  if ($n < -.5) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
 
   my $x;
   {
     my $int = int($n);
     $x = 2 * ($n - $int);
-    $n = $int;
+    $n = $int;  # BigFloat int() gives BigInt, use that
   }
   my $y = 0;
   my $len = 1;
@@ -120,8 +120,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### KochPeaks xy_to_n(): "$x, $y"
 
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   if ($y < 0 || $x < 0 || (($x ^ $y) & 1)) {
     ### neg y or parity different ...
     return undef;
@@ -178,14 +178,16 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $y1 = floor($y1 + 0.5);
-  $y2 = floor($y2 + 0.5);
+  $y1 = _round_nearest ($y1);
+  $y2 = _round_nearest ($y2);
   if ($y1 < 0 && $y2 < 0) {
     return (1,0);
   }
-
-  $x1 = floor($x1 + 0.5);
-  $x2 = floor($x2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $x2 = _round_nearest ($x2);
+  if ($x1 < 0 && $x2 < 0) {
+    return (1,0);
+  }
 
   my $level = ceil (log ((max(2, abs($x1), abs($x2)) + 1) / 2)
                     / log(3));

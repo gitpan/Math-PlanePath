@@ -20,13 +20,16 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1574 }
+BEGIN { plan tests => 2164 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::GosperSide;
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
+require Math::PlanePath::FlowsnakeCentres;
 
 
 #------------------------------------------------------------------------------
@@ -34,20 +37,20 @@ require Math::PlanePath::GosperSide;
 
 {
   my $want_version = 38;
-  ok ($Math::PlanePath::GosperSide::VERSION, $want_version,
+  ok ($Math::PlanePath::FlowsnakeCentres::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::GosperSide->VERSION,  $want_version,
+  ok (Math::PlanePath::FlowsnakeCentres->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::GosperSide->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::FlowsnakeCentres->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::GosperSide->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::FlowsnakeCentres->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,7 +65,7 @@ require Math::PlanePath::GosperSide;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
@@ -76,23 +79,20 @@ require Math::PlanePath::GosperSide;
   my @data = (
               [ .25,  .5, 0 ],
               [ .5,    1, 0 ],
-              [ 1.75,  2.75, .75 ],
+              [ 1.75,  1.25, .75 ],
 
               [ 0, 0,0 ],
               [ 1, 2,0 ],
-              [ 2, 3,1 ],
+              [ 2, 1,1 ],
+              [ 3, -1,1 ],
+              [ 4, 0,2 ],
+              [ 5, 2,2 ],
+              [ 6, 3,1 ],
 
-              [ 3, 5,1 ],
-              [ 4, 6,2 ],
-              [ 5, 5,3 ],
+              [ 7, 5,1 ],
 
-              [ 6, 6,4 ],
-              [ 7, 8,4 ],
-              [ 8, 9,5 ],
-
-              [ 9, 11,5 ],
              );
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
     {
@@ -122,7 +122,7 @@ require Math::PlanePath::GosperSide;
 # rect_to_n_range()
 
 {
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
   my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0, 0,0);
   ok ($n_lo == 0, 1, "rect_to_n_range() 0,0  n_lo=$n_lo");
   ok ($n_hi >= 0, 1, "rect_to_n_range() 0,0  n_hi=$n_hi");
@@ -130,10 +130,35 @@ require Math::PlanePath::GosperSide;
 
 
 #------------------------------------------------------------------------------
+# random fracs
+
+{
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
+  for (1 .. 100) {
+    my $bits = int(rand(25));         # 0 to 25, inclusive
+    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+
+    my ($x1,$y1) = $path->n_to_xy ($n);
+    my ($x2,$y2) = $path->n_to_xy ($n+1);
+
+    foreach my $frac (0.25, 0.5, 0.75) {
+      my $want_xf = $x1 + ($x2-$x1)*$frac;
+      my $want_yf = $y1 + ($y2-$y1)*$frac;
+
+      my $nf = $n + $frac;
+      my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
+
+      ok ($got_xf, $want_xf, "n_to_xy($n) frac $frac, x");
+      ok ($got_yf, $want_yf, "n_to_xy($n) frac $frac, y");
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
 # random points
 
 {
-  my $path = Math::PlanePath::GosperSide->new;
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
   for (1 .. 500) {
     my $bits = int(rand(25));         # 0 to 25, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
@@ -144,8 +169,8 @@ require Math::PlanePath::GosperSide;
     ok ($rev_n, $n, "xy_to_n($x,$y) reverse to expect n=$n, got $rev_n");
 
     my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-    ok ($n_lo <= $n, 1, "rect_to_n_range() reverse n=$n cf n_lo=$n_lo");
-    ok ($n_hi >= $n, 1, "rect_to_n_range() reverse n=$n cf n_hi=$n_hi");
+    ok ($n_lo <= $n, 1, "rect_to_n_range() reverse n=$n cf got n_lo=$n_lo");
+    ok ($n_hi >= $n, 1, "rect_to_n_range() reverse n=$n cf got n_hi=$n_hi");
   }
 }
 

@@ -36,7 +36,7 @@ require Math::PlanePath::CoprimeColumns;
 # VERSION
 
 {
-  my $want_version = 37;
+  my $want_version = 38;
   ok ($Math::PlanePath::CoprimeColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CoprimeColumns->VERSION,  $want_version,

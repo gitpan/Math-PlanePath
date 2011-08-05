@@ -23,6 +23,9 @@ use warnings;
 use POSIX qw(floor ceil);
 use List::Util qw(min max);
 
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
 {
   require Math::PlanePath::HilbertCurve;
   require Math::PlanePath::Staircase;
@@ -46,18 +49,19 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImageGosperIslandsTree;
   require Math::PlanePath::MathImageSierpinskiCurve;
   require Math::PlanePath::MathImageQuintetCurve;
-  require Math::PlanePath::MathImageFlowsnake;
-  require Math::PlanePath::MathImageFlowsnakeCentres;
+  require Math::PlanePath::Flowsnake;
   require Math::PlanePath::MathImageDragonCurve;
   require Math::PlanePath::MathImageDragonArms;
-  require Math::PlanePath::MathImageDragonMedian;
-  require Math::PlanePath::MathImageDragonMedianArms;
-  my $path = Math::PlanePath::MathImageFlowsnakeCentres->new
+  require Math::PlanePath::MathImageDragonMidpoint;
+  require Math::PlanePath::MathImageDragonRounded;
+  require Math::PlanePath::MathImageMinkowskiSausage;
+  my $path = Math::PlanePath::MathImageDragonMidpoint->new
     (radix => 4,
      wider => 0,
      # step => 0,
      #tree_type => 'UAD',
      #coordinates => 'PQ',
+     # arms => 4,
     );
   my ($prev_x, $prev_y);
   my %seen;
@@ -66,14 +70,13 @@ use List::Util qw(min max);
   #for (my $i = $n_start; $i <= $n_start + 500000; $i=POSIX::ceil($i*1.1+1)) {
   # for (my $i = 0.75; $i <= 50; $i += .5) {
   # for (my $i = 9650; $i <= 9999; $i++) {
-  # $i -= 0.5;
   #for (my $i = $n_start; $i <= 30; $i++) {
   #for (my $i = 1; $i <= 500; $i++) {
-  for (my $i = 1; $i <= 2**40; $i*=2) {
+  # for (my $i = 1; $i <= 2**40; $i*=2) {
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 500; $i++) {
 
-  # for (my $i = 0; $i <= 30; $i+=1) {
+  for (my $i = .05; $i <= 20; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
@@ -117,9 +120,9 @@ use List::Util qw(min max);
     if (! defined $n_lo) { $n_lo = 'undef'; }
     if (! defined $n_hi) { $n_hi = 'undef'; }
 
-
-    printf "%3d %8.4f,%8.4f   %3s %s %s %s %s\n",
-      $i,  $x,$y,  $n,
+    my $idec = ($i == int($i) ? 0 : 2);
+    printf "%.*f %8.4f,%8.4f   %3s %s %s %s %s\n",
+      $idec, $i,  $x,$y,  $n,
         "${n_lo}_${n_hi}",
           " $dxdy",
             " $rep",

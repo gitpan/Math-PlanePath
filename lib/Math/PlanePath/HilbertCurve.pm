@@ -38,7 +38,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -93,9 +93,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### HilbertCurve n_to_xy(): $n
   ### hex: sprintf "%#X", $n
-  if ($n < 0 || _is_infinite($n)) {
-    return;
-  }
+  if ($n < 0) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
 
   {
     # ENHANCE-ME: determine dx/dy direction from N bits, not full

@@ -41,7 +41,7 @@ use Math::Libm 'hypot';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -174,9 +174,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### Hypot n_to_xy(): $n
 
-  if ($n < 1 || _is_infinite($n)) {
-    return;
-  }
+  if ($n < 1) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);

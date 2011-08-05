@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 37;
+$VERSION = 38;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -40,7 +40,8 @@ sub new {
 # shared
 sub _is_infinite {
   my ($x) = @_;
-  return ($x-1 == $x);
+  return ($x != $x         # nan
+          || $x-1 == $x);  # inf
 }
 
 # with a view to being friendly to BigRat/BigFloat
@@ -142,8 +143,11 @@ include
     HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
 
+    Flowsnake              self-similar hexagonal tiling traversal
+    FlowsnakeCentres        likewise, but centres of hexagons
     GosperIslands          concentric island rings
     GosperSide             single side/radial
+
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
     KochSnowflakes         concentric notched snowflake rings
@@ -162,6 +166,30 @@ include
 The paths are object oriented to allow parameters, though many have none as
 yet.  See C<examples/numbers.pl> for a cute way to print samples of all the
 paths.
+
+=head2 Number Types
+
+The C<$n> and C<$x,$y> parameters can be either integers or floating point.
+The paths are meant to do something sensible with floating point fractions.
+Expect rounding-off for big exponents.
+
+Floating point infinities (when available on the system) are meant to give
+nan or infinite returns of some kind (some unspecified kind as yet).
+C<n_to_xy()> on negative infinity C<$n> is generally an empty return, the
+same as other negative C<$n>.  Calculations which break an input into digits
+of some base are designed not to loop infinitely on nans or infinities.
+
+Floating point nans (when available on the system) are meant to give nan,
+infinite, or empty/undef returns, but again of some unspecified kind as yet
+and again not going into infinite loops.
+
+A few of the classes can operate on C<Math::BigInt>, C<Math::BigRat> and
+C<Math::BigFloat> inputs and give corresponding outputs, but this is
+experimental and many classes alas truncate a bignum to a float as yet.  In
+general the intention is to keep the code generic enough that it can act on
+overloaded number types.  In any case new enough versions of the bignum
+modules might be required, perhaps Perl 5.8 and up, so for instance the
+C<**> exponentiation operator is available.
 
 =head1 FUNCTIONS
 
@@ -462,6 +490,8 @@ L<Math::PlanePath::CoprimeColumns>
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::Flowsnake>,
+L<Math::PlanePath::FlowsnakeCentres>,
 L<Math::PlanePath::GosperIslands>,
 L<Math::PlanePath::GosperSide>,
 L<Math::PlanePath::KochCurve>,

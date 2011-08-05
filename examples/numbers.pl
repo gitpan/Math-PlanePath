@@ -97,8 +97,12 @@ my @all_classes = (qw(SquareSpiral
                       PeanoCurve
                       HilbertCurve
                       ZOrderCurve
+
+                      Flowsnake
+                      FlowsnakeCentres
                       GosperIslands
                       GosperSide
+
                       KochCurve
                       KochPeaks
                       KochSnowflakes

@@ -24,9 +24,36 @@ use Math::Libm 'M_PI', 'hypot';
 
 
 {
-  require Math::PlanePath::MathImageDragonCurve;
-  my $path = Math::PlanePath::MathImageDragonCurve->new;
+  # Midpoint fracs
+  require Math::PlanePath::MathImageDragonMidpoint;
+  my $path = Math::PlanePath::MathImageDragonMidpoint->new;
+  for my $n (0 .. 64) {
+    my $frac = .125;
+    my ($x1,$y1) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+1);
+    my ($x,$y) = $path->n_to_xy($n+$frac);
+    my $dx = $x2-$x1;
+    my $dy = $y2-$y1;
+    my $xm = $x1 + $frac*$dx;
+    my $ym = $y1 + $frac*$dy;
+    my $wrong = '';
+    if ($x != $xm) {
+      $wrong .= " X";
+    }
+    if ($y != $ym) {
+      $wrong .= " Y";
+    }
+    print "$n   $dx,$dy    $x, $y  want $xm, $ym     $wrong\n"
+  }
+  exit 0;
+}
+
+{
+  # min/max for level
+  require Math::PlanePath::MathImageDragonRounded;
+  my $path = Math::PlanePath::MathImageDragonRounded->new;
   my $prev_min = 1;
+  my $prev_max = 1;
   for (my $level = 1; $level < 25; $level++) {
     my $n_start = 2**($level-1);
     my $n_end = 2**$level;
@@ -35,37 +62,81 @@ use Math::Libm 'M_PI', 'hypot';
     my $min_x = 0;
     my $min_y = 0;
     my $min_pos = '';
+
+    my $max_hypot = 0;
+    my $max_x = 0;
+    my $max_y = 0;
+    my $max_pos = '';
+
     print "level $level  n=$n_start .. $n_end\n";
-
-    # my ($xend,$yend) = $path->n_to_xy($n_end);
-    # print "   end $xend,$yend\n";
-
-    my $cx = 0;
-    my $cy = 0;
-    # my $cx = -$yend;  # rotate +90
-    # my $cy = $xend;
-    # print "   rot90  $cx, $cy\n";
-    # $cx *= 1.5;
-    # $cy *= 1.5;
-    # print "   scale  $cx, $cy\n";
-    # $cx += $xend;
-    # $cy += $yend;
-    # print "   offset to  $cx, $cy\n";
-    # printf "  centre %.1f, %.1f\n", $cx,$cy;
 
     foreach my $n ($n_start .. $n_end) {
       my ($x,$y) = $path->n_to_xy($n);
-      my $h = ($cx-$x)**2 + ($cy-$y)**2;
+      my $h = $x*$x + $y*$y;
 
       if ($h < $min_hypot) {
         $min_hypot = $h;
         $min_pos = "$x,$y";
       }
+      if ($h > $max_hypot) {
+        $max_hypot = $h;
+        $max_pos = "$x,$y";
+      }
     }
     # print "  min $min_hypot   at $min_x,$min_y\n";
-    my $factor = $min_hypot / $prev_min;
-    print "  min $min_hypot 0b".sprintf('%b',$min_hypot)."   at $min_pos  factor $factor\n";
+    # print "  max $max_hypot   at $max_x,$max_y\n";
+    {
+      my $factor = $min_hypot / $prev_min;
+      print "  min r^2 $min_hypot 0b".sprintf('%b',$min_hypot)."   at $min_pos  factor $factor\n";
+    }
+    {
+      my $factor = $max_hypot / $prev_max;
+      print "  max r^2 $max_hypot 0b".sprintf('%b',$max_hypot)."   at $max_pos  factor $factor\n";
+    }
     $prev_min = $min_hypot;
+    $prev_max = $max_hypot;
+  }
+  exit 0;
+}
+
+{
+  # points N=2^level
+  require Math::PlanePath::MathImageDragonRounded;
+  my $path = Math::PlanePath::MathImageDragonRounded->new;
+  for my $n (0 .. 50) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+1);
+    my $dx = $x2 - $x;
+    my $dy = $y2 - $y;
+
+    my ($xm,$ym) = $path->n_to_xy($n+.5);
+
+    # my $dir = 0;
+    # for (my $bit = 1; ; ) {
+    #   $dir += ((($n ^ ($n>>1)) & $bit) != 0);
+    #   $bit <<= 1;
+    #   last if $bit > $n;
+    #   # $dir += 1;
+    # }
+    # $dir %= 4;
+    $x += $dx/2;
+    $y += $dy/2;
+    print "$n  $x,$y   $xm,$ym\n";
+  }
+  exit 0;
+}
+
+{
+  # reverse checking
+  require Math::PlanePath::MathImageDragonRounded;
+  my $path = Math::PlanePath::MathImageDragonRounded->new;
+  for my $n (1 .. 50000) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $rev = $path->xy_to_n($x,$y);
+    if (! defined $rev || $rev != $n) {
+      if (! defined $rev) { $rev = 'undef'; }
+      print "$n  $x,$y   $rev\n";
+    }
   }
   exit 0;
 }

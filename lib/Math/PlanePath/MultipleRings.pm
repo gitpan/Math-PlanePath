@@ -24,7 +24,7 @@ use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -104,10 +104,9 @@ sub n_to_xy {
   # "$n<1" separate test from decrement so as to warn on undef
   # don't have anything sensible for infinity, and M_PI / infinity would
   # throw a div by zero
-  if ($n < 1 || _is_infinite($n)) {
-    return;
-  }
-  $n--;
+  if ($n < 1) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
+  $n -= 1;
 
   ### decremented n: $n
   my $step = $self->{'step'};

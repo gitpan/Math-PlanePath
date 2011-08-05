@@ -50,7 +50,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

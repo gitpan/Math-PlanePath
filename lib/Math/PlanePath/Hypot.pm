@@ -27,7 +27,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -133,15 +133,14 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### Hypot n_to_xy(): $n
 
-  if ($n < 1 || _is_infinite($n)) {
-    return;
-  }
+  if ($n < 1) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);
     if ($n != $int) {
       my $frac = $n - $int;
-      $n = $int;
+      $n = $int; # BigFloat int() gives BigInt, use that
       my ($x1, $y1) = $self->n_to_xy($n);
       my ($x2, $y2) = $self->n_to_xy($n+1);
       return ($x2*$frac + $x1*(1-$frac),

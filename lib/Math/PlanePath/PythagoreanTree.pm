@@ -61,7 +61,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -86,9 +86,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### PythagoreanTree n_to_xy(): $n
 
-  if ($n < 1 || _is_infinite($n)) {
-    return;
-  }
+  if ($n < 1) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);

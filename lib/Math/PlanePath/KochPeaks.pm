@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -116,9 +116,9 @@ sub _round_down_pow4 {
 sub n_to_xy {
   my ($self, $n) = @_;
   ### KochPeaks n_to_xy(): $n
-  if ($n < 0.5 || _is_infinite($n)) {
-    return;
-  }
+
+  if ($n < 0.5) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
 
   my $level = _round_down_pow4((3*$n-1)/2);
   my $side = 4**$level;

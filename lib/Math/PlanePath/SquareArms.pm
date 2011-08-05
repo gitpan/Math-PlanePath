@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 37;
+$VERSION = 38;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -65,7 +65,7 @@ sub n_to_xy {
   my $frac;
   { my $int = int($n);
     $frac = $n - $int;
-    $n = $int;
+    $n = $int;  # BigFloat int() gives BigInt, use that
   }
   my $rot = $n % 4;
   $n = int($n/4);
