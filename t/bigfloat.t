@@ -21,6 +21,7 @@ use 5.004;
 use strict;
 use Test;
 use Math::BigFloat;
+use Math::PlanePath::KochCurve;
 use Math::PlanePath::PeanoCurve;
 use Math::PlanePath::ZOrderCurve;
 
@@ -30,7 +31,7 @@ use MyTestHelpers;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-my $test_count = 21;
+my $test_count = 24;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
@@ -55,7 +56,7 @@ MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
 
 MyTestHelpers::nowarnings();
 
-Math::BigFloat->precision(-10);  # digits right of decimal point
+Math::BigFloat->precision(-20);  # digits right of decimal point
 
 #------------------------------------------------------------------------------
 # _round_nearest()
@@ -96,8 +97,8 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
   my $want_y = Math::BigFloat->new(3) ** 128 - 1;
 
   my ($got_x,$got_y) = $path->n_to_xy($n);
-  ok ($got_x == $want_x, 1);
-  ok ($got_y == $want_y, 1);
+  ok ($got_x == $want_x, 1, "PeanoCurve 9^128 + 1.5 X got $got_x want $want_x");
+  ok ($got_y == $want_y, 1, "PeanoCurve 9^128 + 1.5 Y got $got_y want $want_y");
 }
 
 #------------------------------------------------------------------------------
@@ -112,8 +113,24 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
   my $want_y = 0;
 
   my ($got_x,$got_y) = $path->n_to_xy($n);
-  ok ($got_x == $want_x, 1);
-  ok ($got_y == $want_y, 1);
+  ok ($got_x == $want_x, 1,
+      "ZOrderCurve 4^128 + 0.5 X got $got_x want $want_x");
+  ok ($got_y == $want_y, 1,
+      "ZOrderCurve 4^128 + 0.5 Y got $got_y want $want_y");
+}
+
+#------------------------------------------------------------------------------
+# KochCurve
+
+{
+  my $orig = Math::BigFloat->new(3) ** 64 + 1.25;
+  my $n    = Math::BigFloat->new(3) ** 64 + 1.25;
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow3($n);
+
+  ok ($n, $orig, "_round_down_pow3() unmodified input");
+  ok ($pow == Math::BigFloat->new(3.0) ** 64, 1,
+      "_round_down_pow3() 3^64 + 1.25 power");
+  ok ($exp, 64, "_round_down_pow3() 3^64 + 1.25 exp");
 }
 
 exit 0;

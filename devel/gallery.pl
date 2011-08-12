@@ -40,6 +40,23 @@ my $bytes = 0;
 
 foreach my $elem
   (
+   # ['zigzag-oct-small.png',
+   #  'math-image --path=ZigzagOct --lines --scale=4 --size=32x32 --offset=1,0 --png'],
+   # ['zigzag-oct-big.png',
+   #  'math-image --path=ZigzagOct --lines --scale=3 --size=250x200 --png'],
+
+   ['dragon-midpoint-small.png',
+    'math-image --path=DragonMidpoint --lines --scale=3 --size=32x32 --offset=7,-6 --png'],
+   ['dragon-midpoint-big.png',
+    'math-image --path=DragonMidpoint --lines --figure=point --scale=8 --size=200x200 --offset=-10,50 --png'],
+   ['dragon-midpoint-4arm-big.png',
+    'math-image --path=DragonMidpoint,arms=4 --lines --figure=point --scale=8 --size=200x200 --png'],
+
+   ['dragon-small.png',
+    'math-image --path=DragonCurve --lines --scale=4 --size=32x32 --offset=6,0 --png'],
+   ['dragon-big.png',
+    'math-image --path=DragonCurve --lines --figure=point --scale=8 --size=250x200 --offset=-55,0 --png'],
+
    ['flowsnake-centres-small.png',
     'math-image --path=FlowsnakeCentres --lines --scale=4 --size=32x32 --offset=-5,-13 --png'],
    ['flowsnake-centres-big.png',

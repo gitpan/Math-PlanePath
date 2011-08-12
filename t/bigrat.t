@@ -20,6 +20,7 @@
 use 5.004;
 use strict;
 use Test;
+use Math::PlanePath::KochCurve;
 use Math::PlanePath::PeanoCurve;
 use Math::PlanePath::ZOrderCurve;
 
@@ -31,7 +32,7 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments '###';
 
 
-my $test_count = 27;
+my $test_count = 30;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
@@ -126,6 +127,19 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
   my ($got_x,$got_y) = $path->n_to_xy($n);
   ok ($got_x, $want_x);
   ok ($got_y, $want_y);
+}
+
+#------------------------------------------------------------------------------
+# KochCurve
+
+{
+  my $orig = Math::BigRat->new(3) ** 128 + Math::BigRat->new('1/7');
+  my $n    = Math::BigRat->new(3) ** 128 + Math::BigRat->new('1/7');
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow3($n);
+
+  ok ($n, $orig);
+  ok ($pow, Math::BigRat->new(3) ** 128);
+  ok ($exp, 128);
 }
 
 exit 0;

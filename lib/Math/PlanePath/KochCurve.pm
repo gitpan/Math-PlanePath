@@ -40,12 +40,15 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 38;
+$VERSION = 39;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -53,22 +56,33 @@ use constant y_negative => 0;
 
 # return ($pow, $exp) with $pow = 3**$exp <= $n, the next power of 3 at or
 # below $n
-# shared with PythagoreanTree ...
+# shared with KochPeaks,KochSnowflakes,PythagoreanTree,GosperIslands,...
+#
 sub _round_down_pow3 {
   my ($n) = @_;
-  my $exp = int(log($n)/log(3));
+  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
+  # based blog()
+  my $exp = (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))
+             ? $n->copy->blog(3)
+             : int(log($n)/log(3)));
   my $pow = 3**$exp;
+  ### n:   ref($n)."  $n"
+  ### exp: ref($exp)."  $exp"
+  ### pow: ref($pow)."  $pow"
 
   # check how $pow actually falls against $n, not sure should trust float
   # rounding in log()/log(3)
-  if ($pow > $n) {
+  # Crib: $n as first arg in case $n==BigFloat and $pow==BigInt
+  if ($n < $pow) {
     ### hmm, int(log) too big, decrease...
     $exp -= 1;
-    $pow = 3**$exp;
-  } elsif (3*$pow <= $n) {
+    $pow /= 3;
+  } elsif ($n >= 3*$pow) {
     ### hmm, int(log) too small, increase...
     $exp += 1;
     $pow *= 3;
+  } else {
+    ### int(log) ok ...
   }
   return ($pow, $exp);
 }

@@ -28,16 +28,21 @@ devel/hypot.pl
 devel/interpolate.pl
 devel/iterator.pl
 devel/Makefile
+devel/old/DragonArms.pm
+devel/old/DragonMidpointArms.pm
+devel/old/PythagoreanUAD.pm
 devel/pixel-rings.pl
 devel/plus-similar.pl
 devel/pythagorean-area.pl
 devel/pythagorean.pl
 devel/r5.pl
 devel/run.pl
+devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
 devel/svg.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
+devel/ulam-warburton.pl
 devel/unused.pl
 devel/vertical.pl
 devel/vogel.pl
@@ -59,6 +64,8 @@ lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondArms.pm
 lib/Math/PlanePath/DiamondSpiral.pm
+lib/Math/PlanePath/DragonCurve.pm
+lib/Math/PlanePath/DragonMidpoint.pm
 lib/Math/PlanePath/File.pm
 lib/Math/PlanePath/Flowsnake.pm
 lib/Math/PlanePath/FlowsnakeCentres.pm
@@ -112,6 +119,8 @@ t/CoprimeColumns.t
 t/Diagonals.t
 t/DiamondArms.t
 t/DiamondSpiral.t
+t/DragonCurve.t
+t/DragonMidpoint.t
 t/File.t
 t/Flowsnake.t
 t/FlowsnakeCentres.t
@@ -158,6 +167,7 @@ xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
 xt/CoprimeColumns-oeis.t
+xt/Dragon-oeis.t
 xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm

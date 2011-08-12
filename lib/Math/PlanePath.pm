@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 38;
+$VERSION = 39;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -152,6 +152,8 @@ include
     KochPeaks              two replicating notches
     KochSnowflakes         concentric notched snowflake rings
     SierpinskiArrowhead    self-similar triangle traversal
+    DragonCurve            paper folding
+    DragonMidpoint         paper folding midpoints
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
@@ -396,7 +398,8 @@ like KochPeaks and GosperIslands).
 
     Base        Path
     ----        ----
-      2       HilbertCurve, ZOrderCurve
+      2       HilbertCurve, ZOrderCurve,
+                DragonCurve, DragonMidpoint
       3       PeanoCurve, SierpinskiArrowhead,
                 GosperIslands, GosperSide
       4       KochCurve, KochPeaks, KochSnowflakes
@@ -497,7 +500,9 @@ L<Math::PlanePath::GosperSide>,
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,
 L<Math::PlanePath::KochSnowflakes>,
-L<Math::PlanePath::SierpinskiArrowhead>
+L<Math::PlanePath::SierpinskiArrowhead>,
+L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::DragonMidpoint>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
@@ -511,12 +516,14 @@ L<Math::PlanePath::File>
 
 L<math-image>, displaying various sequences on these paths.
 
-F<examples/numbers.pl> in the Math-PlanePath source code to print all the
+F<examples/numbers.pl> in the Math-PlanePath source code, to print all the
 paths.
 
 L<Math::Fractal::Curve>,
 L<Math::Curve::Hilbert>,
 L<Algorithm::SpatialIndex::Strategy::QuadTree>
+
+PerlMagick (L<Image::Magick>) demo scripts F<lsys.pl> and C<tree.pl>
 
 =head1 HOME PAGE
 
@@ -544,3 +551,9 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+
+#     ZigzagOct              zig-zag of eight segments
+#       8       ZigzagOct
+# L<Math::PlanePath::ZigzagOct>

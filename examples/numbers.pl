@@ -22,8 +22,14 @@
 #        perl numbers.pl all
 #
 # Print the given path CLASS as numbers in a grid.  With option "all" print
-# all classes.
+# all classes.  Eg.
 #
+#     perl numbers.pl SquareSpiral
+#
+# Parameters to the class can be given as
+#
+#     perl numbers.pl SquareSpiral,wider=4
+##
 # See square-numbers.pl for a simpler program designed just for the
 # SquareSpiral.  The code here tries to adapt itself to the tty width and
 # stops when the width of the numbers to be displayed would be wider than
@@ -43,71 +49,86 @@ use List::Util 'min', 'max';
 my $width = 79;
 my $height = 23;
 
-# use Term::Size for tty size, if available
+# use Term::Size if available
 # chars() can return 0 for unknown size
 if (eval { require Term::Size }) {
-  my ($ttywidth, $ttyheight) = Term::Size::chars();
-  if ($ttywidth)  { $width = $ttywidth - 1; }
-  if ($ttyheight) { $height = $ttyheight - 1; }
+  my ($term_width, $term_height) = Term::Size::chars();
+  if ($term_width)  { $width = $term_width - 1; }
+  if ($term_height) { $height = $term_height - 1; }
 }
 
 if (! @ARGV) {
   push @ARGV, 'HexSpiral';  # default class to print if no args
 }
 
-my @all_classes = (qw(SquareSpiral
-                      DiamondSpiral
-                      PentSpiral
-                      PentSpiralSkewed
-                      HexSpiral
-                      HexSpiralSkewed
-                      HeptSpiralSkewed
-                      OctagramSpiral
+my @all_classes = ('SquareSpiral',
+                   'SquareSpiral,wider=9',
+                   'DiamondSpiral',
+                   'PentSpiral',
+                   'PentSpiralSkewed',
+                   'HexSpiral',
+                   'HexSpiral,wider=3',
+                   'HexSpiralSkewed',
+                   'HexSpiralSkewed,wider=5',
+                   'HeptSpiralSkewed',
+                   'OctagramSpiral',
 
-                      PyramidSpiral
-                      PyramidRows
-                      PyramidSides
-                      TriangleSpiral
-                      TriangleSpiralSkewed
+                   'PyramidSpiral',
+                   'PyramidRows',
+                   'PyramidRows,step=5',
+                   'PyramidSides',
+                   'TriangleSpiral',
+                   'TriangleSpiralSkewed',
 
-                      Diagonals
-                      Staircase
-                      Corner
-                      KnightSpiral
+                   'Diagonals',
+                   'Staircase',
+                   'Corner',
+                   'KnightSpiral',
 
-                      SquareArms
-                      DiamondArms
-                      HexArms
-                      GreekKeySpiral
+                   'SquareArms',
+                   'DiamondArms',
+                   'HexArms',
+                   'GreekKeySpiral',
 
-                      SacksSpiral
-                      VogelFloret
-                      TheodorusSpiral
-                      MultipleRings
-                      PixelRings
-                      Hypot
-                      HypotOctant
-                      TriangularHypot
-                      PythagoreanTree
-                      CoprimeColumns
+                   'SacksSpiral',
+                   'VogelFloret',
+                   'TheodorusSpiral',
+                   'MultipleRings',
+                   'PixelRings',
+                   'Hypot',
+                   'HypotOctant',
+                   'TriangularHypot',
 
-                      Rows
-                      Columns
+                   'Rows',
+                   'Columns',
 
-                      PeanoCurve
-                      HilbertCurve
-                      ZOrderCurve
+                   'PeanoCurve',
+                   'PeanoCurve,radix=5',
+                   'HilbertCurve',
+                   'ZOrderCurve',
+                   'ZOrderCurve,radix=5',
 
-                      Flowsnake
-                      FlowsnakeCentres
-                      GosperIslands
-                      GosperSide
+                   'Flowsnake',
+                   'FlowsnakeCentres',
+                   'GosperIslands',
+                   'GosperSide',
 
-                      KochCurve
-                      KochPeaks
-                      KochSnowflakes
-                      SierpinskiArrowhead
-                    ));
+                   'KochCurve',
+                   'KochPeaks',
+                   'KochSnowflakes',
+                   'SierpinskiArrowhead',
+                   'DragonCurve',
+                   'DragonCurve,arms=4',
+                   'DragonMidpoint',
+                   'DragonMidpoint,arms=2',
+                   'DragonMidpoint,arms=3',
+                   'DragonMidpoint,arms=4',
+                   # 'ZigzagOct',
+
+                   'PythagoreanTree',
+                   'PythagoreanTree,coordinates=PQ',
+                   'CoprimeColumns',
+                  );
 # expand arg "all" to full list
 @ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;
 
@@ -129,8 +150,13 @@ sub print_class {
   unless ($class =~ /::/) {
     $class = "Math::PlanePath::$class";
   }
+  ($class, my @parameters) = split /\s*,\s*/, $class;
+
   $class =~ /^[a-z_][:a-z_0-9]*$/i or die "Bad class name: $class";
   eval "require $class" or die $@;
+
+  @parameters = map { /(.*?)=(.*)/ or die "Missing value for parameter \"$_\"";
+                      $1,$2 } @parameters;
 
   my %rows;
   my $x_min = 0;
@@ -140,7 +166,8 @@ sub print_class {
   my $cellwidth = 1;
 
   my $path = $class->new (width  => POSIX::ceil ($width / 4),
-                          height => POSIX::ceil ($height / 2));
+                          height => POSIX::ceil ($height / 2),
+                          @parameters);
   my $x_limit_lo;
   my $x_limit_hi;
   if ($path->x_negative) {
@@ -176,7 +203,7 @@ sub print_class {
     $y = POSIX::floor ($y + 0.5);
 
     my $cell = $rows{$x}{$y};
-    if ($cell) { $cell .= '/'; }
+    if ($cell) { $cell .= ','; }
     $cell .= $n;
     my $new_cellwidth = max ($cellwidth, length($cell) + 1);
 

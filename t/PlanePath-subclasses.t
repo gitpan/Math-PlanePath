@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 326 }
+BEGIN { plan tests => 340 }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,7 +32,10 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath;
 
+                  # ZigzagOct
 my @modules = qw(
+                  DragonMidpoint
+                  DragonCurve
                   FlowsnakeCentres
                   Flowsnake
 
@@ -107,7 +110,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 38;
+my $want_version = 39;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -125,17 +128,17 @@ ok (! eval { Math::PlanePath->VERSION($check_version); 1 },
 
 foreach my $class (@classes) {
   eval "require $class" or die;
-
+  
   ok (eval { $class->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   ok (! eval { $class->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
-
+  
   my $path = $class->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
-
+  
   ok (eval { $path->VERSION($want_version); 1 },
       1,
       "VERSION object check $want_version");
@@ -150,7 +153,7 @@ foreach my $class (@classes) {
 foreach my $module (@modules) {
   my $class = "Math::PlanePath::$module";
   eval "require $class" or die;
-
+  
   my $path = $class->new;
   $path->x_negative;
   $path->y_negative;
@@ -160,6 +163,10 @@ foreach my $module (@modules) {
 
 #------------------------------------------------------------------------------
 # n_to_xy, xy_to_n
+
+my %xy_maximum_duplication =
+  ('Math::PlanePath::DragonCurve' => 2,
+  );
 
 # modules for which rect_to_n_range() is exact
 my %rect_exact = ('Math::PlanePath::Rows' => 1,
@@ -211,7 +218,7 @@ my $dxdy_hex = {
 my %class_dxdy_allowed
   = (
      'Math::PlanePath::SquareSpiral' => $dxdy_square,
-
+     
      'Math::PlanePath::PyramidSpiral' => { '-1,1' => 1,  # NE
                                            '-1,-1' => 1, # SW
                                            '1,0' => 1,   # E
@@ -224,7 +231,7 @@ my %class_dxdy_allowed
                                                   '0,-1' => 1, # S
                                                   '1,0'  => 1, # E
                                                 },
-
+     
      'Math::PlanePath::DiamondSpiral' => { '1,0' => 1,   # E at bottom
                                            %$dxdy_diagonal,
                                          },
@@ -271,9 +278,10 @@ my %class_dxdy_allowed
                                        '2,1' => 1, # from N=5 to N=6
                                       },
 
-     'Math::PlanePath::HilbertCurve' => $dxdy_square,
-     'Math::PlanePath::PeanoCurve'   => $dxdy_square,
-
+     'Math::PlanePath::HilbertCurve'   => $dxdy_square,
+     'Math::PlanePath::PeanoCurve'     => $dxdy_square,
+     'Math::PlanePath::DragonCurve'    => $dxdy_square,
+     'Math::PlanePath::DragonMidpoint' => $dxdy_square,
     );
 
 my ($pos_infinity, $neg_infinity, $nan);
@@ -328,35 +336,43 @@ sub pythagorean_diag {
 }
 
 {
-  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 200;
-  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 7;
+  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 150;
+  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 6;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
-  
+
   foreach my $module (@modules) {
     my $class = "Math::PlanePath::$module";
     eval "require $class" or die;
-    
+
+    my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
+
     my @steps = (-1);
     if ($class eq 'Math::PlanePath::PyramidRows') {
       @steps = (0, 1, 2, 3, 4, 5);
     } elsif ($class eq 'Math::PlanePath::MultipleRings') {
       @steps = (0, 1, 2, 3, 6, 7, 8, 21);
     }
-    
+
     my @wider = (0);
     if ($class eq 'Math::PlanePath::SquareSpiral'
         || $class eq 'Math::PlanePath::HexSpiral'
         || $class eq 'Math::PlanePath::HexSpiralSkewed') {
       @wider = (0, 1, 2, 3, 4, 5, 6, 7);
     }
-    
+
     my @radix = (0);
     if ($class eq 'Math::PlanePath::PeanoCurve') {
       @radix = (2, 3, 4, 5, 17);
     } elsif ($class eq 'Math::PlanePath::ZOrderCurve') {
       @radix = (2, 3, 9, 37);
     }
-    
+
+    my @arms = (0);
+    if ($class eq 'Math::PlanePath::DragonCurve'
+        || $class eq 'Math::PlanePath::DragonMidpoint') {
+      @arms = (1,2,3,4);
+    }
+
     my @tree_type_list = ('');
     my @coordinates_list = ('');
     if ($class eq 'Math::PlanePath::PythagoreanTree') {
@@ -364,389 +380,404 @@ sub pythagorean_diag {
       @coordinates_list = ('AB','PQ');
     }
     my $good = 1;
-    
+
     foreach my $tree_type (@tree_type_list) {
       foreach my $coordinates (@coordinates_list) {
         foreach my $step (@steps) {
-          foreach my $wider (@wider) {
-            foreach my $radix (@radix) {
-              ### $class
-              ### $step
-              ### $wider
-              ### $radix
-              
-              my $dxdy_allowed = $class_dxdy_allowed{$class};
-              if ($class eq 'Math::PlanePath::PeanoCurve'
-                  && ($radix % 2) == 0) {
-                undef $dxdy_allowed;  # even radix doesn't join up
-              }
-              
-              # MyTestHelpers::diag ($module);
-              
-              my $limit = $default_limit;
-              if (defined $step) {
-                if ($limit < 6*$step) {
-                  $limit = 6*$step; # so goes into x/y negative
+          foreach my $arms (@arms) {
+            foreach my $wider (@wider) {
+              foreach my $radix (@radix) {
+                ### $class
+                ### $step
+                ### $wider
+                ### $radix
+
+                my $dxdy_allowed = $class_dxdy_allowed{$class};
+                if ($class eq 'Math::PlanePath::PeanoCurve'
+                    && ($radix % 2) == 0) {
+                  undef $dxdy_allowed;  # even radix doesn't join up
                 }
-              }
-              if ($module eq 'ArchimedeanChords') {
-                if ($limit > 1100) {
-                  $limit = 1100;  # bit slow otherwise
+                if ($arms > 1) {
+                  # ENHANCE-ME: watch for dxdy within each arm
+                  undef $dxdy_allowed;
                 }
-              }
-              if ($module eq 'CoprimeColumns') {
-                if ($limit > 1100) {
-                  $limit = 1100;  # bit slow otherwise
+
+                # MyTestHelpers::diag ($module);
+
+                my $limit = $default_limit;
+                if (defined $step) {
+                  if ($limit < 6*$step) {
+                    $limit = 6*$step; # so goes into x/y negative
+                  }
                 }
-              }
-              
-              my $report = sub {
-                my $name = $module;
-                if (@steps > 1) {
-                  $name .= ' step='.(defined $step ? $step : 'undef');
+                if ($module eq 'ArchimedeanChords') {
+                  if ($limit > 1100) {
+                    $limit = 1100;  # bit slow otherwise
+                  }
                 }
-                if (@wider > 1) {
-                  $name .= ' wider='.(defined $wider ? $wider : 'undef');
+                if ($module eq 'CoprimeColumns') {
+                  if ($limit > 1100) {
+                    $limit = 1100;  # bit slow otherwise
+                  }
                 }
-                if (@radix > 1) {
-                  $name .= ' radix='.(defined $radix ? $radix : 'undef');
-                }
-                if (@tree_type_list > 1) {
-                  $name .= ' tree_type='.(defined $tree_type
-                                          ? $tree_type : 'undef');
-                }
-                if (@coordinates_list > 1) {
-                  $name .= ' coordinates='.(defined $coordinates
-                                            ? $coordinates : 'undef');
-                }
-                MyTestHelpers::diag ($name, ' ', @_);
-                $good = 0;
-                # exit 1;
-              };
-              
-              my $path = $class->new (width  => 20,
-                                      height => 20,
-                                      step   => $step,
-                                      wider  => $wider,
-                                      radix  => $radix,
-                                      tree_type => $tree_type,
-                                      coordinate => $coordinates);
-              my $n_start = $path->n_start;
-              
-              {
+
+                my $report = sub {
+                  my $name = $module;
+                  if (@arms > 1) {
+                    $name .= ' arms='.(defined $arms ? $arms : 'undef');
+                  }
+                  if (@steps > 1) {
+                    $name .= ' step='.(defined $step ? $step : 'undef');
+                  }
+                  if (@wider > 1) {
+                    $name .= ' wider='.(defined $wider ? $wider : 'undef');
+                  }
+                  if (@radix > 1) {
+                    $name .= ' radix='.(defined $radix ? $radix : 'undef');
+                  }
+                  if (@tree_type_list > 1) {
+                    $name .= ' tree_type='.(defined $tree_type
+                                            ? $tree_type : 'undef');
+                  }
+                  if (@coordinates_list > 1) {
+                    $name .= ' coordinates='.(defined $coordinates
+                                              ? $coordinates : 'undef');
+                  }
+                  MyTestHelpers::diag ($name, ' ', @_);
+                  $good = 0;
+                  # exit 1;
+                };
+
+                my $path = $class->new (width  => 20,
+                                        height => 20,
+                                        step   => $step,
+                                        arms   => $arms,
+                                        wider  => $wider,
+                                        radix  => $radix,
+                                        tree_type => $tree_type,
+                                        coordinate => $coordinates);
                 my $n_start = $path->n_start;
-                { my ($x,$y) = $path->n_to_xy($n_start);
-                  if (! defined $x) {
-                    unless ($path->isa('Math::PlanePath::File')) {
-                      &$report("n_start()==$n_start doesn't have an n_to_xy()");
-                    }
-                  } else {
-                    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-                    if ($n_lo > $n_start || $n_hi < $n_start) {
-                      &$report("n_start()==$n_start outside rect_to_n_range() $n_lo..$n_hi");
-                    }
-                  }
-                }
-                if ($n_start != 0
-                    # VogelFloret has a secret undocumented return for N=0
-                    && ! $path->isa('Math::PlanePath::VogelFloret')
-                    # Rows/Columns secret undocumented extend into negatives ...
-                    && ! $path->isa('Math::PlanePath::Rows')
-                    && ! $path->isa('Math::PlanePath::Columns')) {
-                  my $n = $n_start - 1;
-                  my ($x,$y) = $path->n_to_xy($n);
-                  if (defined $x) {
-                    &$report("n_start()-1==$n has an n_to_xy() but should not");
-                  }
-                }
-              }
-              
-              {
-                my $saw_warning = 0;
-                local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
-                $path->n_to_xy(undef);
-                $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
-              }
-              
-              # undef ok if nothing sensible
-              # +/-inf ok
-              # nan not intended, but might be ok
-              # finite could be a fixed x==0
-              if (defined $pos_infinity) {
-                ### n_to_xy pos_infinity
-                my ($x, $y) = $path->n_to_xy($pos_infinity);
-                if ($path->isa('Math::PlanePath::File')) {
-                  # all undefs for File
-                  if (! defined $x) { $x = $pos_infinity }
-                  if (! defined $y) { $y = $pos_infinity }
-                } elsif ($path->isa('Math::PlanePath::PyramidRows')
-                         && $step == 0) {
-                  # x==0 normal from step==0, fake it up to pass test
-                  if (defined $x && $x == 0) { $x = $pos_infinity }
-                }
-                ($x==$pos_infinity || $x==$neg_infinity || &$is_nan($x))
-                  or &$report("n_to_xy($pos_infinity) x is $x");
-                ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
-                  or &$report("n_to_xy($pos_infinity) y is $y");
-              }
 
-              if (defined $neg_infinity) {
-                ### n_to_xy neg_infinity
-                my @xy = $path->n_to_xy($neg_infinity);
-                if ($path->isa('Math::PlanePath::Rows')
-                    || $path->isa('Math::PlanePath::Columns')) {
-                  # secret negative n for Rows/Columns
-                  my ($x, $y) = @xy;
+                {
+                  my $n_start = $path->n_start;
+                  { my ($x,$y) = $path->n_to_xy($n_start);
+                    if (! defined $x) {
+                      unless ($path->isa('Math::PlanePath::File')) {
+                        &$report("n_start()==$n_start doesn't have an n_to_xy()");
+                      }
+                    } else {
+                      my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+                      if ($n_lo > $n_start || $n_hi < $n_start) {
+                        &$report("n_start()==$n_start outside rect_to_n_range() $n_lo..$n_hi");
+                      }
+                    }
+                  }
+                  if ($n_start != 0
+                      # VogelFloret has a secret undocumented return for N=0
+                      && ! $path->isa('Math::PlanePath::VogelFloret')
+                      # Rows/Columns secret undocumented extend into negatives ...
+                      && ! $path->isa('Math::PlanePath::Rows')
+                      && ! $path->isa('Math::PlanePath::Columns')) {
+                    my $n = $n_start - 1;
+                    my ($x,$y) = $path->n_to_xy($n);
+                    if (defined $x) {
+                      &$report("n_start()-1==$n has an n_to_xy() but should not");
+                    }
+                  }
+                }
+
+                {
+                  my $saw_warning = 0;
+                  local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
+                  $path->n_to_xy(undef);
+                  $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
+                }
+
+                # undef ok if nothing sensible
+                # +/-inf ok
+                # nan not intended, but might be ok
+                # finite could be a fixed x==0
+                if (defined $pos_infinity) {
+                  ### n_to_xy pos_infinity
+                  my ($x, $y) = $path->n_to_xy($pos_infinity);
+                  if ($path->isa('Math::PlanePath::File')) {
+                    # all undefs for File
+                    if (! defined $x) { $x = $pos_infinity }
+                    if (! defined $y) { $y = $pos_infinity }
+                  } elsif ($path->isa('Math::PlanePath::PyramidRows')
+                           && $step == 0) {
+                    # x==0 normal from step==0, fake it up to pass test
+                    if (defined $x && $x == 0) { $x = $pos_infinity }
+                  }
                   ($x==$pos_infinity || $x==$neg_infinity || &$is_nan($x))
-                    or &$report("n_to_xy($neg_infinity) x is $x");
+                    or &$report("n_to_xy($pos_infinity) x is $x");
                   ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
-                    or &$report("n_to_xy($neg_infinity) y is $y");
-                } else {
-                  scalar(@xy) == 0
-                    or &$report("n_to_xy($neg_infinity) xy is ",join(',',@xy));
+                    or &$report("n_to_xy($pos_infinity) y is $y");
                 }
-              }
 
-              # nan input documented loosely as yet ...
-              if (defined $nan) {
-                my @xy = $path->n_to_xy($nan);
-                if ($path->isa('Math::PlanePath::File')) {
-                  # allow empty from File without filename
-                  if (! @xy) { @xy = ($nan, $nan); }
-                } elsif ($path->isa('Math::PlanePath::PyramidRows')
-                         && $step == 0) {
-                  # x==0 normal from step==0, fake it up to pass test
-                  if (defined $xy[0] && $xy[0] == 0) { $xy[0] = $nan }
+                if (defined $neg_infinity) {
+                  ### n_to_xy neg_infinity
+                  my @xy = $path->n_to_xy($neg_infinity);
+                  if ($path->isa('Math::PlanePath::Rows')
+                      || $path->isa('Math::PlanePath::Columns')) {
+                    # secret negative n for Rows/Columns
+                    my ($x, $y) = @xy;
+                    ($x==$pos_infinity || $x==$neg_infinity || &$is_nan($x))
+                      or &$report("n_to_xy($neg_infinity) x is $x");
+                    ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
+                      or &$report("n_to_xy($neg_infinity) y is $y");
+                  } else {
+                    scalar(@xy) == 0
+                      or &$report("n_to_xy($neg_infinity) xy is ",join(',',@xy));
+                  }
                 }
-                my ($x, $y) = @xy;
-                &$is_nan($x) or &$report("n_to_xy($nan) x not nan, got ", $x);
-                &$is_nan($y) or &$report("n_to_xy($nan) y not nan, got ", $y);
-              }
-              
-              foreach my $x ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
-                next if ! defined $x;
-                foreach my $y ($pos_infinity, $neg_infinity) {
-                  next if ! defined $y;
-                  ### xy_to_n: $x, $y
-                  my @n = $path->xy_to_n($x,$y);
-                  scalar(@n) == 1
-                    or &$report("xy_to_n($x,$y) want 1 value, got ",scalar(@n));
-                  # my $n = $n[0];
-                  # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
+
+                # nan input documented loosely as yet ...
+                if (defined $nan) {
+                  my @xy = $path->n_to_xy($nan);
+                  if ($path->isa('Math::PlanePath::File')) {
+                    # allow empty from File without filename
+                    if (! @xy) { @xy = ($nan, $nan); }
+                  } elsif ($path->isa('Math::PlanePath::PyramidRows')
+                           && $step == 0) {
+                    # x==0 normal from step==0, fake it up to pass test
+                    if (defined $xy[0] && $xy[0] == 0) { $xy[0] = $nan }
+                  }
+                  my ($x, $y) = @xy;
+                  &$is_nan($x) or &$report("n_to_xy($nan) x not nan, got ", $x);
+                  &$is_nan($y) or &$report("n_to_xy($nan) y not nan, got ", $y);
                 }
-              }
-              
-              foreach my $x1 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
-                next if ! defined $x1;
-                foreach my $x2 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
-                  next if ! defined $x2;
-                  foreach my $y1 ($pos_infinity, $neg_infinity) {
-                    next if ! defined $y1;
-                    foreach my $y2 ($pos_infinity, $neg_infinity) {
-                      next if ! defined $y2;
-                      
-                      my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
-                      scalar(@nn) == 2
-                        or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));
-                      # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
+
+                foreach my $x ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+                  next if ! defined $x;
+                  foreach my $y ($pos_infinity, $neg_infinity) {
+                    next if ! defined $y;
+                    ### xy_to_n: $x, $y
+                    my @n = $path->xy_to_n($x,$y);
+                    scalar(@n) == 1
+                      or &$report("xy_to_n($x,$y) want 1 value, got ",scalar(@n));
+                    # my $n = $n[0];
+                    # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
+                  }
+                }
+
+                foreach my $x1 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+                  next if ! defined $x1;
+                  foreach my $x2 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+                    next if ! defined $x2;
+                    foreach my $y1 ($pos_infinity, $neg_infinity) {
+                      next if ! defined $y1;
+                      foreach my $y2 ($pos_infinity, $neg_infinity) {
+                        next if ! defined $y2;
+
+                        my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
+                        scalar(@nn) == 2
+                          or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));
+                        # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
+                      }
                     }
                   }
                 }
-              }
-              
-              my %saw_n_to_xy;
-              my $got_x_negative = 0;
-              my $got_y_negative = 0;
-              my ($prev_x, $prev_y);
-              foreach my $n (1 .. $limit) {
-                my ($x, $y) = $path->n_to_xy ($n)
-                  or next;
-                defined $x or &$report("n_to_xy($n) X undef");
-                defined $y or &$report("n_to_xy($n) Y undef");
-                
-                if ($x < 0) { $got_x_negative = 1; }
-                if ($y < 0) { $got_y_negative = 1; }
-                
-                my $k = (int($x) == $x && int($y) == $y
-                         ? sprintf('%d,%d', $x,$y)
-                         : sprintf('%.3f,%.3f', $x,$y));
-                if ($saw_n_to_xy{$k}) {
-                  &$report ("n_to_xy($n) duplicate xy=$k");
-                }
-                $saw_n_to_xy{$k} = $n;
-                
-                if ($dxdy_allowed) {
-                  if (defined $prev_x) {
-                    my $dx = $x - $prev_x;
-                    my $dy = $y - $prev_y;
-                    my $dxdy = "$dx,$dy";
-                    $dxdy_allowed->{$dxdy}
-                      or &$report ("n=$n dxdy=$dxdy not allowed");
+                ### infinities done ...
+
+                my %saw_n_to_xy;
+                my %count_n_to_xy;
+                my $got_x_negative = 0;
+                my $got_y_negative = 0;
+                my ($prev_x, $prev_y);
+                foreach my $n (1 .. $limit) {
+                  my ($x, $y) = $path->n_to_xy ($n)
+                    or next;
+                  defined $x or &$report("n_to_xy($n) X undef");
+                  defined $y or &$report("n_to_xy($n) Y undef");
+
+                  if ($x < 0) { $got_x_negative = 1; }
+                  if ($y < 0) { $got_y_negative = 1; }
+
+                  my $k = (int($x) == $x && int($y) == $y
+                           ? sprintf('%d,%d', $x,$y)
+                           : sprintf('%.3f,%.3f', $x,$y));
+                  if ($count_n_to_xy{$k}++ > $xy_maximum_duplication) {
+                    &$report ("n_to_xy($n) duplicate$count_n_to_xy{$k} xy=$k prev n=$saw_n_to_xy{$k}");
                   }
-                  ($prev_x, $prev_y) = ($x, $y);
-                }
-                
-                {
-                  my ($n_lo, $n_hi) = $path->rect_to_n_range
-                    (0,0,
-                     $x + ($x >= 0 ? .4 : -.4),
-                     $y + ($y >= 0 ? .4 : -.4));
-                  $n_lo <= $n
-                    or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo");
-                  $n_hi >= $n
-                    or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi");
-                  $n_lo == int($n_lo)
-                    or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo, integer");
-                  $n_hi == int($n_hi)
-                    or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi, integer");
-                  $n_lo >= $n_start
-                    or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
-                }
-                {
-                  my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-                  ($rect_exact{$class} ? $n_lo == $n : $n_lo <= $n)
-                    or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo");
-                  ($rect_exact_hi{$class} ? $n_hi == $n : $n_hi >= $n)
-                    or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi");
-                  $n_lo == int($n_lo)
-                    or &$report ("rect_to_n_range() lo n=$n xy=$k, got n_lo=$n_lo, should be an integer");
-                  $n_hi == int($n_hi)
-                    or &$report ("rect_to_n_range() hi n=$n xy=$k, got n_hi=$n_hi, should be an integer");
-                  $n_lo >= $n_start
-                    or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
-                }
-                
-                # next if $name eq 'KnightSpiral';
-                
-                foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
-                  foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {
-                    my $rev_n = $path->xy_to_n ($x + $x_offset, $y + $y_offset);
-                    ### try xy_to_n from: "step=$step n=$n  xy=$x,$y xy=$k  x_offset=$x_offset y_offset=$y_offset"
-                    ### $rev_n
-                    unless (defined $rev_n && $n == $rev_n) {
-                      &$report ("xy_to_n() n=$n xy=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
-                      pythagorean_diag($path,$x,$y);
+                  $saw_n_to_xy{$k} = $n;
+
+                  if ($dxdy_allowed) {
+                    if (defined $prev_x) {
+                      my $dx = $x - $prev_x;
+                      my $dy = $y - $prev_y;
+                      my $dxdy = "$dx,$dy";
+                      $dxdy_allowed->{$dxdy}
+                        or &$report ("n=$n dxdy=$dxdy not allowed");
+                    }
+                    ($prev_x, $prev_y) = ($x, $y);
+                  }
+
+                  {
+                    my ($n_lo, $n_hi) = $path->rect_to_n_range
+                      (0,0,
+                       $x + ($x >= 0 ? .4 : -.4),
+                       $y + ($y >= 0 ? .4 : -.4));
+                    $n_lo <= $n
+                      or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo");
+                    $n_hi >= $n
+                      or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi");
+                    $n_lo == int($n_lo)
+                      or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo, integer");
+                    $n_hi == int($n_hi)
+                      or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi, integer");
+                    $n_lo >= $n_start
+                      or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
+                  }
+                  {
+                    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+                    ($rect_exact{$class} ? $n_lo == $n : $n_lo <= $n)
+                      or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo");
+                    ($rect_exact_hi{$class} ? $n_hi == $n : $n_hi >= $n)
+                      or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi");
+                    $n_lo == int($n_lo)
+                      or &$report ("rect_to_n_range() lo n=$n xy=$k, got n_lo=$n_lo, should be an integer");
+                    $n_hi == int($n_hi)
+                      or &$report ("rect_to_n_range() hi n=$n xy=$k, got n_hi=$n_hi, should be an integer");
+                    $n_lo >= $n_start
+                      or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
+                  }
+
+                  unless ($xy_maximum_duplication > 0) {
+                    foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
+                      foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {
+                        my $rev_n = $path->xy_to_n ($x + $x_offset, $y + $y_offset);
+                        ### try xy_to_n from: "step=$step n=$n  xy=$x,$y xy=$k  x_offset=$x_offset y_offset=$y_offset"
+                        ### $rev_n
+                        unless (defined $rev_n && $n == $rev_n) {
+                          &$report ("xy_to_n() rev n=$n xy=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
+                          pythagorean_diag($path,$x,$y);
+                        }
+                      }
                     }
                   }
                 }
-              }
-              
-              # various bogus values only have to return 0 or 2 values and not crash
-              foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
-                             0, 0.4, 0.5, 0.6) {
-                my @xy = $path->n_to_xy ($n);
-                (@xy == 0 || @xy == 2)
-                  or &$report ("n_to_xy() n=$n got ",scalar(@xy)," values");
-              }
-              
-              foreach my $elem ([-1,-1, -1,-1],
-                               ) {
-                my ($x1,$y1,$x2,$y2) = @$elem;
-                my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-                (defined $got_lo && defined $got_hi)
-                  or &$report ("rect_to_n_range() x1=$x1,y1=$y1, x2=$x2,y2=$y2 undefs");
-                $got_lo >= $n_start
-                  or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
-              }
-              
-              foreach my $x (-100, -99) {
-                my @n = $path->xy_to_n ($x,-1);
-                (scalar(@n) == 1)
-                  or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
-              }
-              
-              {
-                my $path_x_negative = ($path->x_negative ? 1 : 0);
-                $got_x_negative = ($got_x_negative ? 1 : 0);
-                ($path_x_negative == $got_x_negative)
-                  or &$report ("x_negative() $path_x_negative but in rect got $got_x_negative");
-              }
-              {
-                my $path_y_negative = ($path->y_negative ? 1 : 0);
-                $got_y_negative = ($got_y_negative ? 1 : 0);
-                
-                if ($path->isa('Math::PlanePath::GosperSide')
-                    || $path->isa('Math::PlanePath::Flowsnake')) {
-                  # GosperSide and Flowsnake take a long time to get to Y
-                  # negative, not reached by the rectangle considered here
-                  $got_y_negative = 1;
+
+                ### various bogus values only have to return 0 or 2 values and not crash ...
+                foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
+                               0, 0.4, 0.5, 0.6) {
+                  my @xy = $path->n_to_xy ($n);
+                  (@xy == 0 || @xy == 2)
+                    or &$report ("n_to_xy() n=$n got ",scalar(@xy)," values");
                 }
-                
-                ($path_y_negative == $got_y_negative)
-                  or &$report ("y_negative() $path_y_negative but in rect got $got_y_negative");
-              }
-              
-              if ($path->figure ne 'circle') {
-                my $x_min = ($path->x_negative ? - int($rect_limit/2) : -2);
-                my $y_min = ($path->y_negative ? - int($rect_limit/2) : -2);
-                my $x_max = $x_min + $rect_limit;
-                my $y_max = $y_min + $rect_limit;
-                my $data;
-                foreach my $x ($x_min .. $x_max) {
-                  foreach my $y ($y_min .. $y_max) {
-                    $data->{$y}->{$x} = $path->xy_to_n ($x, $y);
+
+                foreach my $elem ([-1,-1, -1,-1],
+                                 ) {
+                  my ($x1,$y1,$x2,$y2) = @$elem;
+                  my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+                  (defined $got_lo && defined $got_hi)
+                    or &$report ("rect_to_n_range() x1=$x1,y1=$y1, x2=$x2,y2=$y2 undefs");
+                  $got_lo >= $n_start
+                    or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
+                }
+
+                ### x negative xy_to_n() ...
+                foreach my $x (-100, -99) {
+                  ### $x
+                  my @n = $path->xy_to_n ($x,-1);
+                  ### @n
+                  (scalar(@n) == 1)
+                    or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
+                }
+
+                {
+                  my $path_x_negative = ($path->x_negative ? 1 : 0);
+                  $got_x_negative = ($got_x_negative ? 1 : 0);
+                  ($path_x_negative == $got_x_negative)
+                    or &$report ("x_negative() $path_x_negative but in rect got $got_x_negative");
+                }
+                {
+                  my $path_y_negative = ($path->y_negative ? 1 : 0);
+                  $got_y_negative = ($got_y_negative ? 1 : 0);
+
+                  if ($path->isa('Math::PlanePath::GosperSide')
+                      || $path->isa('Math::PlanePath::Flowsnake')) {
+                    # GosperSide and Flowsnake take a long time to get to Y
+                    # negative, not reached by the rectangle considered here
+                    $got_y_negative = 1;
                   }
+
+                  ($path_y_negative == $got_y_negative)
+                    or &$report ("y_negative() $path_y_negative but in rect got $got_y_negative");
                 }
-                #### $data
 
-                foreach my $y1 ($y_min .. $y_max) {
-                  foreach my $y2 ($y1 .. $y_max) {
+                if ($path->figure ne 'circle') {
+                  my $x_min = ($path->x_negative ? - int($rect_limit/2) : -2);
+                  my $y_min = ($path->y_negative ? - int($rect_limit/2) : -2);
+                  my $x_max = $x_min + $rect_limit;
+                  my $y_max = $y_min + $rect_limit;
+                  my $data;
+                  foreach my $x ($x_min .. $x_max) {
+                    foreach my $y ($y_min .. $y_max) {
+                      $data->{$y}->{$x} = $path->xy_to_n ($x, $y);
+                    }
+                  }
+                  #### $data
 
-                    foreach my $x1 ($x_min .. $x_max) {
-                      my $min;
-                      my $max;
+                  foreach my $y1 ($y_min .. $y_max) {
+                    foreach my $y2 ($y1 .. $y_max) {
 
-                      foreach my $x2 ($x1 .. $x_max) {
-                        my @col = map {$data->{$_}->{$x2}} $y1 .. $y2;
-                        $max = List::Util::max (grep {defined} $max, @col);
-                        $min = List::Util::min (grep {defined} $min, @col);
-                        my $want_min = (defined $min ? $min : 1);
-                        my $want_max = (defined $max ? $max : 0);
-                        ### rect: "$x1,$y1  $x2,$y2  expect N=$want_min..$want_max"
-                        # ### @col
+                      foreach my $x1 ($x_min .. $x_max) {
+                        my $min;
+                        my $max;
 
-                        foreach my $x_swap (0, 1) {
-                          my ($x1,$x2) = ($x_swap ? ($x1,$x2) : ($x2,$x1));
-                          foreach my $y_swap (0, 1) {
-                            my ($y1,$y2) = ($y_swap ? ($y1,$y2) : ($y2,$y1));
+                        foreach my $x2 ($x1 .. $x_max) {
+                          my @col = map {$data->{$_}->{$x2}} $y1 .. $y2;
+                          $max = List::Util::max (grep {defined} $max, @col);
+                          $min = List::Util::min (grep {defined} $min, @col);
+                          my $want_min = (defined $min ? $min : 1);
+                          my $want_max = (defined $max ? $max : 0);
+                          ### rect: "$x1,$y1  $x2,$y2  expect N=$want_min..$want_max"
+                          # ### @col
 
-                            my ($got_min, $got_max)
-                              = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-                            defined $got_min
-                              or &$report ("rect_to_n_range() got_min undef");
-                            defined $got_max
-                              or &$report ("rect_to_n_range() got_max undef");
-                            $got_min >= $n_start
-                              or $rect_before_n_start{$class}
-                                or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
+                          foreach my $x_swap (0, 1) {
+                            my ($x1,$x2) = ($x_swap ? ($x1,$x2) : ($x2,$x1));
+                            foreach my $y_swap (0, 1) {
+                              my ($y1,$y2) = ($y_swap ? ($y1,$y2) : ($y2,$y1));
 
-                            if (! defined $min || ! defined $max) {
-                              if (! $rect_exact_hi{$class}) {
-                                next; # outside
+                              my ($got_min, $got_max)
+                                = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+                              defined $got_min
+                                or &$report ("rect_to_n_range() got_min undef");
+                              defined $got_max
+                                or &$report ("rect_to_n_range() got_max undef");
+                              $got_min >= $n_start
+                                or $rect_before_n_start{$class}
+                                  or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
+
+                              if (! defined $min || ! defined $max) {
+                                if (! $rect_exact_hi{$class}) {
+                                  next; # outside
+                                }
                               }
-                            }
 
-                            unless ($rect_exact{$class}
-                                    ? $got_min == $want_min
-                                    : $got_min <= $want_min) {
-                              ### $x1
-                              ### $y1
-                              ### $x2
-                              ### $y2
-                              ### got: $path->rect_to_n_range ($x1,$y1, $x2,$y2)
-                              ### $want_min
-                              ### $want_max
-                              ### $got_min
-                              ### $got_max
-                              ### @col
-                              ### $data
-                              &$report ("rect_to_n_range() bad min $x1,$y1 $x2,$y2 got $got_min want $want_min".(defined $min ? '' : '[nomin]')
-                                       );
-                            }
-                            unless ($rect_exact_hi{$class}
-                                    ? $got_max == $want_max
-                                    : $got_max >= $want_max) {
-                              &$report ("rect_to_n_range() bad max $x1,$y1 $x2,$y2 got $got_max want $want_max".(defined $max ? '' : '[nomax]'));
+                              unless ($rect_exact{$class}
+                                      ? $got_min == $want_min
+                                      : $got_min <= $want_min) {
+                                ### $x1
+                                ### $y1
+                                ### $x2
+                                ### $y2
+                                ### got: $path->rect_to_n_range ($x1,$y1, $x2,$y2)
+                                ### $want_min
+                                ### $want_max
+                                ### $got_min
+                                ### $got_max
+                                ### @col
+                                ### $data
+                                &$report ("rect_to_n_range() bad min $x1,$y1 $x2,$y2 got $got_min want $want_min".(defined $min ? '' : '[nomin]')
+                                         );
+                              }
+                              unless ($rect_exact_hi{$class}
+                                      ? $got_max == $want_max
+                                      : $got_max >= $want_max) {
+                                &$report ("rect_to_n_range() bad max $x1,$y1 $x2,$y2 got $got_max want $want_max".(defined $max ? '' : '[nomax]'));
+                              }
                             }
                           }
                         }

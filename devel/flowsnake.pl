@@ -25,9 +25,9 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # xy_to_n
-  require Math::PlanePath::MathImageFlowsnake;
-  require Math::PlanePath::MathImageFlowsnakeCentres;
-  my $path = Math::PlanePath::MathImageFlowsnakeCentres->new;
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
   my $y = 0;
   for (my $x = 6; $x >= -5; $x-=2) {
     $x -= ($x^$y)&1;
@@ -39,8 +39,8 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # modulo
-  require Math::PlanePath::MathImageFlowsnake;
-  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  require Math::PlanePath::Flowsnake;
+  my $path = Math::PlanePath::Flowsnake->new;
   for (my $n = 0; $n <= 49; $n++) {
     if (($n % 7) == 0) { print "\n"; }
     my ($x,$y) = $path->n_to_xy($n);
@@ -51,8 +51,8 @@ use Math::Libm 'M_PI', 'hypot';
   exit 0;
 }
 {
-  require Math::PlanePath::MathImageFlowsnake;
-  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  require Math::PlanePath::Flowsnake;
+  my $path = Math::PlanePath::Flowsnake->new;
   for (my $n = 0; $n <= 49; $n+=7) {
     my ($x,$y) = $path->n_to_xy($n);
     my ($rx,$ry) = ((3*$y + 5*$x) / 14,
@@ -64,8 +64,8 @@ use Math::Libm 'M_PI', 'hypot';
   
 {
   # radius
-  require Math::PlanePath::MathImageFlowsnake;
-  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  require Math::PlanePath::Flowsnake;
+  my $path = Math::PlanePath::Flowsnake->new;
   my $prev_max = 1;
   for (my $level = 1; $level < 10; $level++) {
     print "level $level\n";
@@ -93,8 +93,8 @@ use Math::Libm 'M_PI', 'hypot';
 
 
 {
-  require Math::PlanePath::MathImageFlowsnake;
-  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  require Math::PlanePath::Flowsnake;
+  my $path = Math::PlanePath::Flowsnake->new;
   my $prev_max = 1;
   for (my $level = 1; $level < 10; $level++) {
     my $n_start = 0;
@@ -145,8 +145,8 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # diameter
-  require Math::PlanePath::MathImageFlowsnake;
-  my $path = Math::PlanePath::MathImageFlowsnake->new;
+  require Math::PlanePath::Flowsnake;
+  my $path = Math::PlanePath::Flowsnake->new;
   my $prev_max = 1;
   for (my $level = 1; $level < 10; $level++) {
     print "level $level\n";
@@ -217,8 +217,8 @@ sub hij_to_xy {
 
 {
   # y<0 at n=8598  x=-79,y=-1
-  require App::MathImage::PlanePath::Flowsnake;
-  my $path = App::MathImage::PlanePath::Flowsnake->new;
+  require Math::PlanePath::Flowsnake;
+  my $path = Math::PlanePath::Flowsnake->new;
   for (my $n = 3; ; $n++) {
     my ($x,$y) = $path->n_to_xy($n);
     if ($y == 0) {

@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 38;
+$VERSION = 39;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -93,6 +93,20 @@ sub n_to_xy {
 
   ### final: "$x,$y"
   return ($x, $y);
+}
+
+# FIXME: Math::BigInt log() returns nan
+#
+sub _round_up_pow2 {
+  my ($x) = @_;
+  if ($x < 1) { $x = 1; }
+  my $exp = ceil (log($x) / log(2));
+  my $pow = 2 ** $exp;
+  if ($pow < $x) {
+    return (2*$pow, $exp+1)
+  } else {
+    return ($pow, $exp);
+  }
 }
 
 sub xy_to_n {
@@ -174,17 +188,6 @@ sub xy_to_n {
     return $n;
   } else {
     return undef;
-  }
-}
-
-sub _round_up_pow2 {
-  my ($x) = @_;
-  my $exp = ceil (log(max(1, $x)) / log(2));
-  my $pow = 2 ** $exp;
-  if ($pow < $x) {
-    return (2*$pow, $exp+1)
-  } else {
-    return ($pow, $exp);
   }
 }
 

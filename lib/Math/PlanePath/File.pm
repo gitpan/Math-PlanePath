@@ -23,7 +23,7 @@ use Carp;
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 38;
+$VERSION = 39;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

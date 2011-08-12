@@ -24,9 +24,141 @@ use Math::Libm 'M_PI', 'hypot';
 
 
 {
+  # BigFloat log()
+  require Math::BigFloat;
+  my $b = Math::BigFloat->new(3)**64;
+  my $log = log($b);
+  my $log3 = $log/log(3);
+  # $b->blog(undef,100);
+  print "$b\n$log\n$log3\n";
+  exit 0;
+}
+{
+  # BigInt log()
+  require Math::BigInt;
+  require Math::BigFloat;
+  my $b = Math::BigInt->new(1025);
+  my $log = log($b);
+  $b->blog(undef,100);
+  print "$b $log\n";
+  exit 0;
+}
+
+{
+  # turn
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+
+  my $n = 0;
+  my ($n0_x, $n0_y) = $path->n_to_xy ($n);
+  $n++;
+  my ($prev_x, $prev_y) = $path->n_to_xy ($n);
+  my ($prev_dx, $prev_dy) = ($prev_x - $n0_x, $prev_y - $n0_y);
+  $n++;
+
+  for ( ; $n < 40; $n++) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my $dx = ($x - $prev_x);
+    my $dy = ($y - $prev_y);
+
+    my $turn;
+    if ($prev_dx) {
+      if ($dy == $prev_dx) {
+        $turn = 0;  # left
+      } else {
+        $turn = 1;  # right
+      }
+    } else {
+      if ($dx == $prev_dy) {
+        $turn = 1;  # right
+      } else {
+        $turn = 0;  # left
+      }
+    }
+    ### $n
+    ### $prev_dx
+    ### $prev_dy
+    ### $dx
+    ### $dy
+    ### is: "$got[-1]   at idx $#got"
+
+    ($prev_dx,$prev_dy) = ($dx,$dy);
+    ($prev_x,$prev_y) = ($x,$y);
+
+    my $zero = bit_above_lowest_zero($n-1);
+    my $one  = bit_above_lowest_one($n-1);
+    print "$n $turn   $one $zero\n";
+    # if ($turn != $bit) {
+    #   die "n=$n got $turn bit $bit\n";
+    # }
+  }
+  print "n=$n ok\n";
+
+  sub bit_above_lowest_zero {
+    my ($n) = @_;
+    for (;;) {
+      if (($n % 2) == 0) {
+        last;
+      }
+    $n = int($n/2);
+    }
+    $n = int($n/2);
+    return ($n % 2);
+  }
+  sub bit_above_lowest_one {
+    my ($n) = @_;
+    for (;;) {
+      if (! $n || ($n % 2) != 0) {
+        last;
+      }
+      $n = int($n/2);
+    }
+    $n = int($n/2);
+    return ($n % 2);
+  }
+
+  exit 0;
+}
+{
+  require Image::Base::Text;
+  my $width = 132;
+  my $height = 50;
+  my $ox = $width/2;
+  my $oy = $height/2;
+  my $image = Image::Base::Text->new (-width => $width, -height => $height);
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $store = sub {
+    my ($x,$y,$c) = @_;
+    $x *= 2;
+    $x += $ox;
+    $y += $oy;
+    if ($x >= 0 && $y >= 0 && $x < $width && $y < $height) {
+      my $o = $image->xy($x,$y);
+      # if (defined $o && $o ne ' ' && $o ne $c) {
+      #   $c = '*';
+      # }
+      $image->xy($x,$y,$c);
+    } else {
+      die "$x,$y";
+    }
+  };
+  my ($x,$y);
+  for my $n (0 .. 2**9) {
+    ($x,$y) = $path->n_to_xy($n);
+    $y = -$y;
+    $store->($x,$y,'*');
+  }
+  $store->($x,$y,'+');
+  $store->(0,0,'+');
+  $image->save('/dev/stdout');
+  exit 0;
+}
+
+{
   # Midpoint fracs
-  require Math::PlanePath::MathImageDragonMidpoint;
-  my $path = Math::PlanePath::MathImageDragonMidpoint->new;
+  require Math::PlanePath::DragonMidpoint;
+  my $path = Math::PlanePath::DragonMidpoint->new;
   for my $n (0 .. 64) {
     my $frac = .125;
     my ($x1,$y1) = $path->n_to_xy($n);
@@ -148,8 +280,8 @@ use Math::Libm 'M_PI', 'hypot';
   my $ox = $width/2;
   my $oy = $height/2;
   my $image = Image::Base::Text->new (-width => $width, -height => $height);
-  require Math::PlanePath::MathImageDragonCurve;
-  my $path = Math::PlanePath::MathImageDragonCurve->new;
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
   my $store = sub {
     my ($x,$y,$c) = @_;
     $x *= 2;
@@ -186,8 +318,8 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # points N=2^level
-  require Math::PlanePath::MathImageDragonCurve;
-  my $path = Math::PlanePath::MathImageDragonCurve->new;
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
   for my $level (0 .. 50) {
     my $n = 2**$level;
     my ($x,$y) = $path->n_to_xy($n);

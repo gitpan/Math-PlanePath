@@ -24,9 +24,9 @@ use List::Util qw(max);
 use Devel::Comments;
 
 {
-  require Math::PlanePath::MathImageDiamondArms;
+  require Math::PlanePath::DiamondArms;
   my @max;
-  my $path = Math::PlanePath::MathImageDiamondArms->new;
+  my $path = Math::PlanePath::DiamondArms->new;
   foreach my $n (2 .. 10000) {
     my ($x,$y) = $path->n_to_xy($n);
     $x = abs($x);
@@ -198,8 +198,8 @@ use Devel::Comments;
 
 
 {
-  require App::MathImage::Values::Sequence::Abundant;
-  my $seq = App::MathImage::Values::Sequence::Abundant->new (hi => 5_000_000);
+  require App::MathImage::NumSeq::Abundant;
+  my $seq = App::MathImage::NumSeq::Abundant->new (hi => 5_000_000);
   my ($max_i, $max_value);
   while (my ($i, $value) = $seq->next) {
     # my $m = ($value % 6);

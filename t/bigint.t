@@ -21,6 +21,7 @@ use 5.004;
 use strict;
 use Test;
 use Math::BigInt;
+use Math::PlanePath::KochCurve;
 use Math::PlanePath::PeanoCurve;
 use Math::PlanePath::ZOrderCurve;
 
@@ -30,7 +31,7 @@ use Math::PlanePath::ZOrderCurve;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = 4;
+my $test_count = 7;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
@@ -79,6 +80,19 @@ MyTestHelpers::nowarnings();
   my ($got_x,$got_y) = $path->n_to_xy($n);
   ok ($got_x, $want_x);
   ok ($got_y, $want_y);
+}
+
+#------------------------------------------------------------------------------
+# KochCurve
+
+{
+  my $orig = Math::BigInt->new(3) ** 128 + 2;
+  my $n    = Math::BigInt->new(3) ** 128 + 2;
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow3($n);
+
+  ok ($n, $orig);
+  ok ($pow, Math::BigInt->new(3) ** 128);
+  ok ($exp, 128);
 }
 
 exit 0;

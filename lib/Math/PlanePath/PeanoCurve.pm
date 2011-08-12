@@ -43,7 +43,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 38;
+$VERSION = 39;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -94,8 +94,8 @@ sub n_to_xy {
   }
 
   # low to high
-  my $x = my $y = $n & 0;  # inherit bignum 0
-  my $power = $x + 1;                 # inherit bignum 1
+  my $x = my $y = $n & 0;  # inherit BigInt 0
+  my $power = $x + 1;      # inherit BigInt 1
   my $radix = $self->{'radix'};
   for (;;) {
     ### $n
@@ -449,7 +449,7 @@ same kind of direction reversals.  For example radix 5 gives 5x5 groups,
            X=0   1   2   3   4   5   6   7   8   9  10
 
 If the radix is even then the ends of each group don't join up.  For example
-in radix 4 the N=15 isn't next to N=16, nor N=31 to N=32, etc.
+in radix 4 N=15 isn't next to N=16, nor N=31 to N=32, etc.
 
          |
       3  |  15--14--13--12  16--17--18--19
@@ -464,8 +464,8 @@ in radix 4 the N=15 isn't next to N=16, nor N=31 to N=32, etc.
            X=0   1   2   4   5   6   7   8   9  10
 
 Even sizes can be made to join using other patterns, but this module is just
-Peano's digit construction.  For 2x2 groupings see HilbertCurve which is
-essentially the only way to join up in 2x2.  For bigger groupings there's
+Peano's digit construction.  For 2x2 groupings see HilbertCurve (which is
+essentially the only way to join up in 2x2).  For bigger groupings there's
 various ways.
 
 =head2 Unit Square
@@ -496,8 +496,7 @@ representable.  See HilbertCurve or ZOrderCurve for binary mappings.
 Create and return a new path object.
 
 The optional C<radix> parameter gives the base for digit splitting.  The
-default is ternary, radix 3.  The radix should be an odd number, 3, 5, 7, 9
-etc.
+default is ternary, C<radix =E<gt> 3>.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

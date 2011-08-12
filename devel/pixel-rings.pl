@@ -29,6 +29,56 @@ use Smart::Comments;
 
 
 {
+  # wider ellipse() overlaps, near centre mostly
+  my %image_coords;
+  my $offset = 100;
+  my $i;
+  {
+    package MyImageCoords;
+    require Image::Base;
+    use vars '@ISA';
+    @ISA = ('Image::Base');
+    sub new {
+      my $class = shift;
+      return bless {@_}, $class;
+    }
+    sub xy {
+      my ($self, $x, $y, $colour) = @_;
+      my $key = "$x,$y";
+      if ($image_coords{$key}) {
+        $image_coords{$key} .= ',';
+      }
+      $image_coords{$key} .= $i;
+    }
+  }
+  my $width = 500;
+  my $height = 494;
+  my $image = MyImageCoords->new (-width => $width, -height => $height);
+  for ($i = 0; $i < min($width,$height)/2; $i++) {
+    $image->ellipse ($i,$i, $width-1-$i,$height-1-$i, $i % 10);
+  }
+  foreach my $coord (keys %image_coords) {
+    if ($image_coords{$coord} =~ /,/) {
+      print "$coord  i=$image_coords{$coord}\n";
+    }
+  }
+  exit 0;
+}
+{
+  # wider ellipse()
+  require Image::Base::Text;
+  my $width = 40;
+  my $height = 10;
+  my $image = Image::Base::Text->new (-width => $width, -height => $height);
+  for (my $i = 0; $i < min($width,$height)/2; $i++) {
+    $image->ellipse ($i,$i, $width-1-$i,$height-1-$i, $i % 10);
+  }
+  $image->save('/dev/stdout');
+  exit 0;
+}
+
+
+{
   # average diff step 4*sqrt(2)
   require Image::Base::Text;
   my $prev = 0;
