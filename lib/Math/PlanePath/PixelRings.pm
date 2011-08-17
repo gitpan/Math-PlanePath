@@ -21,14 +21,15 @@ use 5.004;
 use strict;
 use List::Util qw(min max);
 use Math::Libm 'hypot';
-use POSIX 'floor', 'ceil';
+use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -156,8 +157,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PixelRings xy_to_n(): "$x, $y"
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
 
   if ($x == 0 && $y == 0) {
     return 1;
@@ -170,7 +171,7 @@ sub xy_to_n {
     if ($xa < $ya) {
       ($xa,$ya) = ($ya,$xa);
     }
-    $r = floor (hypot ($xa+.5,$ya));
+    $r = int (hypot ($xa+.5,$ya));
     ### r frac: hypot ($xa+.5,$ya)
     ### $r
     ### r < inside frac: hypot ($xa-.5,$ya)
@@ -229,10 +230,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PixelRings rect_to_n_range(): "$x1,$y1 $x2,$y2"
 
-  $x1 = floor($x1 + 0.5);
-  $y1 = floor($y1 + 0.5);
-  $x2 = floor($x2 + 0.5);
-  $y2 = floor($y2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
 
   my $r_min
     = ((($x1<0) ^ ($x2<0)) || (($y1<0) ^ ($y2<0))

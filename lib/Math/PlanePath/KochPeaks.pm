@@ -23,14 +23,15 @@ package Math::PlanePath::KochPeaks;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX qw(floor ceil);
+use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve;
 
@@ -180,8 +181,9 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### KochPeaks xy_to_n(): "$x, $y"
 
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
+
   if ($y < 0 || ! (($x ^ $y) & 1)) {
     ### neg y or parity...
     return undef;
@@ -269,10 +271,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochPeaks rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = floor($x1 + 0.5);
-  $y1 = floor($y1 + 0.5);
-  $x2 = floor($x2 + 0.5);
-  $y2 = floor($y2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
   ### rounded: "$x1,$y1  $x2,$y2"
 
   if ($y1 < 0 && $y2 < 0) {

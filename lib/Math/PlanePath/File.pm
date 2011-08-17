@@ -20,10 +20,9 @@ package Math::PlanePath::File;
 use 5.004;
 use strict;
 use Carp;
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

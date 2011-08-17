@@ -24,11 +24,11 @@ use 5.004;
 use strict;
 use List::Util 'min', 'max';
 use Math::Libm 'hypot', 'asinh', 'M_PI';
-use POSIX 'floor', 'ceil';
+use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

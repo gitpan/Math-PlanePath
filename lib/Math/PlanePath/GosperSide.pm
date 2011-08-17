@@ -24,16 +24,17 @@ package Math::PlanePath::GosperSide;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX qw(floor ceil);
+use POSIX qw(ceil);
 use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -94,8 +95,8 @@ sub n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   ### GosperSide xy_to_n(): "$x, $y"
 
   if (($x ^ $y) & 1) {

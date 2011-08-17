@@ -182,8 +182,8 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # min/max for level
-  require Math::PlanePath::MathImageDragonRounded;
-  my $path = Math::PlanePath::MathImageDragonRounded->new;
+  require Math::PlanePath::DragonRounded;
+  my $path = Math::PlanePath::DragonRounded->new;
   my $prev_min = 1;
   my $prev_max = 1;
   for (my $level = 1; $level < 25; $level++) {
@@ -233,8 +233,8 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # points N=2^level
-  require Math::PlanePath::MathImageDragonRounded;
-  my $path = Math::PlanePath::MathImageDragonRounded->new;
+  require Math::PlanePath::DragonRounded;
+  my $path = Math::PlanePath::DragonRounded->new;
   for my $n (0 .. 50) {
     my ($x,$y) = $path->n_to_xy($n);
     my ($x2,$y2) = $path->n_to_xy($n+1);
@@ -260,8 +260,8 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # reverse checking
-  require Math::PlanePath::MathImageDragonRounded;
-  my $path = Math::PlanePath::MathImageDragonRounded->new;
+  require Math::PlanePath::DragonRounded;
+  my $path = Math::PlanePath::DragonRounded->new;
   for my $n (1 .. 50000) {
     my ($x,$y) = $path->n_to_xy($n);
     my $rev = $path->xy_to_n($x,$y);

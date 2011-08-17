@@ -26,11 +26,12 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
@@ -154,8 +155,8 @@ sub _coprime {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### CoprimeColumns xy_to_n(): "$x,$y"
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   if ($x < 1
       || $y < 1
       || $y >= $x+($x==1)

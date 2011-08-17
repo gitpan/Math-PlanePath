@@ -36,7 +36,7 @@ use File::Temp;
 my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
 my $tempfh = File::Temp->new (SUFFIX => '.png');
 my $tempfile = $tempfh->filename;
-my $bytes = 0;
+my $big_bytes = 0;
 
 foreach my $elem
   (
@@ -44,6 +44,38 @@ foreach my $elem
    #  'math-image --path=ZigzagOct --lines --scale=4 --size=32x32 --offset=1,0 --png'],
    # ['zigzag-oct-big.png',
    #  'math-image --path=ZigzagOct --lines --scale=3 --size=250x200 --png'],
+
+   ['triangle-spiral-small.png',
+    'math-image --path=TriangleSpiral --lines --scale=3 --size=32x32 --png'],
+   ['triangle-spiral-big.png',
+    'math-image --path=TriangleSpiral --lines --scale=13 --size=300x150 --png'],
+
+   ['triangle-spiral-skewed-small.png',
+    'math-image --path=TriangleSpiralSkewed --lines --scale=3 --size=32x32 --png'],
+   ['triangle-spiral-skewed-big.png',
+    'math-image --path=TriangleSpiralSkewed --lines --scale=13 --size=150 --png'],
+
+   ['cellular-rule54-small.png',
+    'math-image --path=CellularRule54 --all --scale=4 --size=32x32 --png'],
+   ['cellular-rule54-big.png',
+    'math-image --path=CellularRule54 --all --scale=4 --size=300x150 --png'],
+
+   ['pyramid-rows-small.png',
+    'math-image --path=PyramidRows --lines --scale=5 --size=32x32 --png'],
+   ['pyramid-rows-big.png',
+    'math-image --path=PyramidRows --lines --scale=15 --size=300x150 --png'],
+
+   ['pyramid-sides-small.png',
+    'math-image --path=PyramidSides --lines --scale=5 --size=32x32 --png'],
+   ['pyramid-sides-big.png',
+    'math-image --path=PyramidSides --lines --scale=15 --size=300x150 --png'],
+
+   ['dragon-rounded-small.png',
+    'math-image --path=DragonRounded --lines --scale=2 --size=32x32 --offset=6,-3 --png'],
+   ['dragon-rounded-big.png',
+    'math-image --path=DragonRounded --lines --figure=point --scale=3 --size=200x200 --offset=-20,0 --png'],
+   ['dragon-rounded-3arm-big.png',
+    'math-image --path=DragonRounded,arms=3 --lines --figure=point --scale=3 --size=200x200 --png'],
 
    ['dragon-midpoint-small.png',
     'math-image --path=DragonMidpoint --lines --scale=3 --size=32x32 --offset=7,-6 --png'],
@@ -198,16 +230,6 @@ foreach my $elem
    ['square-big.png',
     'math-image --path=SquareSpiral --lines --scale=13 --size=200x200 --png'],
 
-   ['pyramid-rows-small.png',
-    'math-image --path=PyramidRows --lines --scale=5 --size=32x32 --png'],
-   ['pyramid-rows-big.png',
-    'math-image --path=PyramidRows --lines --scale=15 --size=300x150 --png'],
-
-   ['pyramid-sides-small.png',
-    'math-image --path=PyramidSides --lines --scale=5 --size=32x32 --png'],
-   ['pyramid-sides-big.png',
-    'math-image --path=PyramidSides --lines --scale=15 --size=300x150 --png'],
-
    ['knight-small.png',
     'math-image --path=KnightSpiral --lines --scale=7 --size=32x32 --png'],
    ['knight-big.png',
@@ -266,9 +288,14 @@ foreach my $elem
     File::Copy::move($tempfile,$targetfile);
   }
   if ($filename =~ /big/) {
-    $bytes += -s $targetfile;
+    $big_bytes += -s $targetfile;
   }
 }
-print "total big bytes $bytes\n";
+
+my $gallery_html_filename = "$target_dir/gallery.html";
+my $gallery_html_bytes = -s $gallery_html_filename;
+my $total_gallery_bytes = $big_bytes + $gallery_html_bytes;
+
+print "total gallery bytes $total_gallery_bytes ($gallery_html_bytes html, $big_bytes \"big\" images)\n";
 
 exit 0;

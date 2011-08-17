@@ -20,13 +20,13 @@ package Math::PlanePath::PentSpiralSkewed;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -73,8 +73,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
 
   if ($x > 0 && $y < 0) {
     # vertical downwards at x=0
@@ -107,9 +107,9 @@ sub rect_to_n_range {
 
   my $d = 0;
   foreach my $x ($x1, $x2) {
-    $x = floor(0.5 + $x);
+    $x = _round_nearest ($x);
     foreach my $y ($y1, $y2) {
-      $y = floor(0.5 + $y);
+      $y = _round_nearest ($y);
 
       my $this_d = 1 + ($x > 0 && $y < 0
                         ? max($x,-$y)

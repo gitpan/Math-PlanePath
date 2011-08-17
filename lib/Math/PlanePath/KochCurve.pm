@@ -21,16 +21,15 @@
 
 # continuous but nowhere differentiable
 #
-
+# Sur une courbe continue sans tangente, obtenue par une construction
+# géométrique élémentaire
+#
 # Cesàro, E. "Remarques sur la courbe de von Koch." Atti della
 # R. Accad. della Scienze fisiche e matem. Napoli 12, No. 15, 1-12,
 # 1905. Reprinted as §228 in Opere scelte, a cura dell'Unione matematica
 # italiana e col contributo del Consiglio nazionale delle ricerche, Vol. 2:
 # Geometria, analisi, fisica matematica. Rome: Edizioni Cremonese,
 # pp. 464-479, 1964.
-
-# Sur une courbe continue sans tangente, obtenue par une construction
-# géométrique élémentaire
 
 
 package Math::PlanePath::KochCurve;
@@ -40,7 +39,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

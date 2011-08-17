@@ -124,10 +124,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### rect_to_n_range()
 
-  $x1 = floor($x1 + 0.5);
-  $y1 = floor($y1 + 0.5);
-  $x2 = floor($x2 + 0.5);
-  $y2 = floor($y2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;

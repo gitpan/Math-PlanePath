@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 39;
+$VERSION = 40;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -31,6 +31,7 @@ use constant n_start => 1;
 use constant x_negative => 1;
 use constant y_negative => 1;
 use constant figure => 'square';
+use constant arms_count => 1;
 
 sub new {
   my $class = shift;
@@ -123,9 +124,9 @@ include
     OctagramSpiral         eight pointed star
     KnightSpiral           an infinite knight's tour
 
-    HexArms                six-arm hexagonal spiral
     SquareArms             four-arm square spiral
     DiamondArms            four-arm diamond spiral
+    HexArms                six-arm hexagonal spiral
     GreekKeySpiral         spiral with Greek key motif
 
     SacksSpiral            quadratic on an Archimedean spiral
@@ -144,7 +145,7 @@ include
     ZOrderCurve            replicating Z shapes
 
     Flowsnake              self-similar hexagonal tiling traversal
-    FlowsnakeCentres        likewise, but centres of hexagons
+    FlowsnakeCentres         likewise, but centres of hexagons
     GosperIslands          concentric island rings
     GosperSide             single side/radial
 
@@ -153,6 +154,7 @@ include
     KochSnowflakes         concentric notched snowflake rings
     SierpinskiArrowhead    self-similar triangle traversal
     DragonCurve            paper folding
+    DragonRounded            same but rounding-off vertices
     DragonMidpoint         paper folding midpoints
 
     Rows                   fixed-width rows
@@ -162,6 +164,8 @@ include
     Corner                 expanding stripes around a corner
     PyramidRows            expanding stacked rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
+    CellularRule54         cellular automaton rows pattern
+
     CoprimeColumns         coprime X,Y
     File                   points from a disk file
 
@@ -274,6 +278,13 @@ or 1.
 Some classes have secret dubious undocumented support for N values below
 this (zero or negative), but C<n_start> is the intended starting point.
 
+=item C<$arms = $path-E<gt>arms_count()>
+
+Return the number of arms in a "multi-arm" path.
+
+For example in SquareArms this is 4 and each arm increments in turn, so the
+first arm is N=1,5,9,13, etc, incrementing by 4 each time.
+
 =item C<$str = $path-E<gt>figure()>
 
 Return a string name of the figure (shape) intended to be drawn at each
@@ -343,7 +354,7 @@ longer than the preceding.
       0       Rows, Columns (fixed widths)
       1       Diagonals
       2       SacksSpiral, PyramidSides, Corner, PyramidRows default
-      4       DiamondSpiral, Staircase
+      4       DiamondSpiral, Staircase, CellularRule54 (two rows)
       5       PentSpiral, PentSpiralSkewed
       5.65    PixelRings (average about 4*sqrt(2))
       6       HexSpiral, HexSpiralSkewed, MultipleRings default
@@ -399,7 +410,7 @@ like KochPeaks and GosperIslands).
     Base        Path
     ----        ----
       2       HilbertCurve, ZOrderCurve,
-                DragonCurve, DragonMidpoint
+                DragonCurve, DragonRounded, DragonMidpoint
       3       PeanoCurve, SierpinskiArrowhead,
                 GosperIslands, GosperSide
       4       KochCurve, KochPeaks, KochSnowflakes
@@ -487,8 +498,6 @@ L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>,
 L<Math::PlanePath::TriangularHypot>,
-L<Math::PlanePath::PythagoreanTree>,
-L<Math::PlanePath::CoprimeColumns>
 
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
@@ -502,6 +511,7 @@ L<Math::PlanePath::KochPeaks>,
 L<Math::PlanePath::KochSnowflakes>,
 L<Math::PlanePath::SierpinskiArrowhead>,
 L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::DragonRounded>,
 L<Math::PlanePath::DragonMidpoint>
 
 L<Math::PlanePath::Rows>,
@@ -511,7 +521,10 @@ L<Math::PlanePath::Staircase>,
 L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>
+L<Math::PlanePath::CellularRule54>
 
+L<Math::PlanePath::PythagoreanTree>,
+L<Math::PlanePath::CoprimeColumns>
 L<Math::PlanePath::File>
 
 L<math-image>, displaying various sequences on these paths.

@@ -16,6 +16,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# ENHANCE-ME: n_to_xy() might be done with some rotates etc around its
+# symmetry instead of 8 or 16 cases.
+#
+
+
 package Math::PlanePath::OctagramSpiral;
 use 5.004;
 use strict;
@@ -25,8 +30,9 @@ use POSIX 'floor', 'ceil';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -96,8 +102,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   ### xy_to_n: "x=$x, y=$y"
 
   my $n;
@@ -198,8 +204,8 @@ This path makes a spiral around an octagram (8-pointed star),
                  ^
     -4 -3 -2 -1 X=0 1  2  3  4  5 ...
 
-Each loop is 16 longer than the previous.  The 18-gonal numbers fall on the
-horizontal 18,51,100,etc at Y=-1.
+Each loop is 16 longer than the previous.  The 18-gonal numbers
+18,51,100,etc fall on the horizontal at Y=-1.
 
 The inner corners like 23, 31, 39, 47 are similar to the SquareSpiral path,
 but instead of going directly between them the octagram takes a detour out

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 125;
+plan tests => 126;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::HexArms;
 # VERSION
 
 {
-  my $want_version = 39;
+  my $want_version = 40;
   ok ($Math::PlanePath::HexArms::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexArms->VERSION,  $want_version,
@@ -62,13 +62,14 @@ require Math::PlanePath::HexArms;
 }
 
 #------------------------------------------------------------------------------
-# n_start, x_negative, y_negative
+# n_start, x_negative, y_negative, arms_count
 
 {
   my $path = Math::PlanePath::HexArms->new;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->arms_count, 6, 'arms_count()');
 }
 
 

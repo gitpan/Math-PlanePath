@@ -25,15 +25,16 @@ package Math::PlanePath::KochSnowflakes;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX qw(floor ceil);
+use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -132,7 +133,7 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### KochSnowflakes xy_to_n(): "$x, $y"
 
-  $x = floor($x + 0.5);
+  $x = _round_nearest ($x);
   if (abs($x) <= 1) {
     if ($x == 0) {
       if ($y >= 1/6 && $y < 1.5) {  # up to 1+1/2, not just 1+1/6
@@ -145,7 +146,7 @@ sub xy_to_n {
     }
   }
 
-  $y = floor($y + 0.5);
+  $y = _round_nearest ($y);
   if (($x ^ $y) & 1) {
     ### diff parity...
     return undef;
@@ -245,10 +246,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochSnowflakes rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = floor($x1 + 0.5);
-  $y1 = floor($y1 + 0.5);
-  $x2 = floor($x2 + 0.5);
-  $y2 = floor($y2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
 
   ### ymul: max(1,abs($y1)*1.5,abs($y2)*1.5)
   ### ylog: log(max(1,abs($y1)*1.5,abs($y2)*1.5))/log(3)

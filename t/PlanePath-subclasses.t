@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 340 }
+BEGIN { plan tests => 354 }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,12 +32,15 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath;
 
-                  # ZigzagOct
+                  # OctzagCurve
 my @modules = qw(
+                  Flowsnake
+                  FlowsnakeCentres
+
+                  DragonRounded
                   DragonMidpoint
                   DragonCurve
-                  FlowsnakeCentres
-                  Flowsnake
+                  CellularRule54
 
                   DiamondArms
                   SquareArms
@@ -110,7 +113,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 39;
+my $want_version = 40;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -128,17 +131,17 @@ ok (! eval { Math::PlanePath->VERSION($check_version); 1 },
 
 foreach my $class (@classes) {
   eval "require $class" or die;
-  
+
   ok (eval { $class->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   ok (! eval { $class->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
-  
+
   my $path = $class->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
-  
+
   ok (eval { $path->VERSION($want_version); 1 },
       1,
       "VERSION object check $want_version");
@@ -153,7 +156,7 @@ foreach my $class (@classes) {
 foreach my $module (@modules) {
   my $class = "Math::PlanePath::$module";
   eval "require $class" or die;
-  
+
   my $path = $class->new;
   $path->x_negative;
   $path->y_negative;
@@ -218,7 +221,7 @@ my $dxdy_hex = {
 my %class_dxdy_allowed
   = (
      'Math::PlanePath::SquareSpiral' => $dxdy_square,
-     
+
      'Math::PlanePath::PyramidSpiral' => { '-1,1' => 1,  # NE
                                            '-1,-1' => 1, # SW
                                            '1,0' => 1,   # E
@@ -231,7 +234,7 @@ my %class_dxdy_allowed
                                                   '0,-1' => 1, # S
                                                   '1,0'  => 1, # E
                                                 },
-     
+
      'Math::PlanePath::DiamondSpiral' => { '1,0' => 1,   # E at bottom
                                            %$dxdy_diagonal,
                                          },
@@ -367,10 +370,13 @@ sub pythagorean_diag {
       @radix = (2, 3, 9, 37);
     }
 
-    my @arms = (0);
+    my @arms = (-1);
     if ($class eq 'Math::PlanePath::DragonCurve'
         || $class eq 'Math::PlanePath::DragonMidpoint') {
       @arms = (1,2,3,4);
+    } elsif ($class eq 'Math::PlanePath::Flowsnake'
+        || $class eq 'Math::PlanePath::FlowsnakeCentres') {
+      @arms = (1,2,3);
     }
 
     my @tree_type_list = ('');
@@ -457,6 +463,14 @@ sub pythagorean_diag {
                                         tree_type => $tree_type,
                                         coordinate => $coordinates);
                 my $n_start = $path->n_start;
+                my $got_arms = $path->arms_count;
+
+                if ($arms > 0 && $got_arms != $arms) {
+                  &$report("arms_count()==$got_arms expect $arms");
+                }
+                unless ($got_arms >= 1) {
+                  &$report("arms_count()==$got_arms should be >=1");
+                }
 
                 {
                   my $n_start = $path->n_start;

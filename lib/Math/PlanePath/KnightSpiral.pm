@@ -20,20 +20,20 @@ package Math::PlanePath::KnightSpiral;
 use 5.004;
 use strict;
 use List::Util qw(max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
 sub _odd {
   my ($n) = @_;
-  return abs (POSIX::fmod($n+1,2) - 1);
+  return int($n) % 2;
 }
 
 sub n_to_xy {
@@ -212,8 +212,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   if ($x == 0 && $y == 0) { return 1; }
 
   my $r = max(abs($x),abs($y));
@@ -355,8 +355,8 @@ sub rect_to_n_range {
 
   my $x = max(abs($x1),abs($x2));
   my $y = max(abs($y1),abs($y2));
-  $x = floor($x+0.5);
-  $y = floor($y+0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
 
   my $d = max(abs($x),abs($y));
   $d += ($d & 1);  # next even number if not already even
@@ -461,8 +461,8 @@ eight forms for 4 rotations and spiralling the same or opposite directions.
     A068614  - spiral opposite direction (Y negate)
     A068615  - rotate 90 degrees, spiral opp dir (X,Y transpose)
 
-(As of March 2011 there's a typo in the A068609 sample numbers in the OEIS,
-the second "37" should be "39".)
+(As of March 2011 there was a typo in the A068609 sample numbers, the second
+"37" should be "39".)
 
 See F<examples/knights-oeis.pl> for a sample program printing the values of
 A068608.

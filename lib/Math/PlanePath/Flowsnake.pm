@@ -17,10 +17,7 @@
 
 
 # math-image --path=Flowsnake --lines --scale=10
-#
-# http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
-# http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
-#     Variations.
+# math-image --path=Flowsnake,arms=3 --all --output=numbers_dash
 #
 # Martin Gardner, In which "monster" curves force redefinition of the word
 # "curve", Scientific American 235 (December issue), 1976, 124-133.
@@ -38,7 +35,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -47,10 +44,11 @@ use Math::PlanePath;
 
 use Math::PlanePath::SacksSpiral;
 
-# uncomment this to run the ### lines
-#use Devel::Comments;
-
 use constant n_start => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
 
 #         *
 #        / \
@@ -63,6 +61,16 @@ use constant n_start => 0;
 # h = sqrt(3)/2 = 0.866
 #
 
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 3) { $arms = 3; }
+  $self->{'arms'} = $arms;
+  return $self;
+}
+
 
 # my @L = (1,1,2,-1,-2,0,-1);
 # my @R = (0,1,1,0,0,0,1);
@@ -73,7 +81,7 @@ use constant n_start => 0;
 #
 #     j     i
 #     ^     ^
-#      \   / 
+#      \   /
 #       \ /
 #        *-----> h
 
@@ -117,24 +125,33 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  # return if $n > 7**3 + 10;
-
   my $frac;
   {
     my $int = int($n);
     $frac = $n - $int;  # inherit possible BigFloat
     $n = $int;          # BigFloat int() gives BigInt, use that
   }
+  ### $frac
+  ### n int: $n
+
+  my $arms = $self->{'arms'};
+  my $rot = 2 * ($n % $arms);
+  $n = int(($n+$arms-1) / $arms);
+  ### $arms
+  ### $rot
+  ### arms inc: $arms-1
+  ### n inc: ($n+$arms-1)
+  ### n div arm: $n
 
   # ENHANCE-ME: The s[] vectors here are constants and could be kept up to
   # the level used thusfar
-  my (@n, @sh, @si, @sj);
+  my (@digits, @sh, @si, @sj);
   {
     my $sh = 1;
     my $si = 0;
     my $sj = 0;
     while ($n) {
-      push @n, $n % 7;
+      push @digits, $n % 7;
       $n = int($n/7);
       push @sh, $sh;
       push @si, $si;
@@ -143,14 +160,13 @@ sub n_to_xy {
                          2*$si + $sh,
                          2*$sj + $si);
     }
-    ### @n
+    ### @digits
   }
 
   my $h = my $i = my $j = 0;
   my $rev = 0;
-  my $rot = 0;
-  while (@n) {
-    my $digit = pop @n;  # high to low
+  while (@digits) {
+    my $digit = pop @digits;  # high to low
     my $sh = pop @sh;
     my $si = pop @si;
     my $sj = pop @sj;
@@ -258,54 +274,60 @@ sub xy_to_n {
   # hypot 5*5+3*1*1 = 28
   #       11*11+3*5*5 = 196 is *7
   #
-  my $top = 0;
-  my $i = 0;
-  my @digits = (0);
+  my $arms = $self->{'arms'};
   my @sx = (2);
   my @sy = (0);
   my @hypot = (6);
+  my $top = 0;
+
   for (;;) {
-    my $n = 0;
-    foreach my $digit (reverse @digits) { # high to low
-      $n = 7*$n + $digit;
-    }
-    ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-    my ($nx,$ny) = $self->n_to_xy($n);
+  ARM: foreach my $arm (0 .. $arms-1) {
+      my $i = 0;
+      my @digits = (0);
+      for (;;) {
+        my $n = 0;
+        foreach my $digit (reverse @digits) { # high to low
+          $n = 7*$n + $digit;
+        }
+        $n = $n*$arms + $arm;
+        ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
 
-    if ($i == 0 && $x == $nx && $y == $ny) {
-      ### found
-      return $n;
-    }
+        my ($nx,$ny) = $self->n_to_xy($n);
+        if ($i == 0 && $x == $nx && $y == $ny) {
+          ### found
+          return $n;
+        }
 
-    if ($i == 0
-        || ($x - $nx) ** 2 + 3 * ($y - $ny) ** 2 > $hypot[$i]) {
-      ### too far away: "$nx,$ny target $x,$y    ".(($x - $nx) ** 2 + 3 * ($y - $ny) ** 2).' vs '.$hypot[$i]
+        if ($i == 0
+            || ($x - $nx) ** 2 + 3 * ($y - $ny) ** 2 > $hypot[$i]) {
+          ### too far away: "$nx,$ny target $x,$y    ".(($x - $nx) ** 2 + 3 * ($y - $ny) ** 2).' vs '.$hypot[$i]
 
-      while (++$digits[$i] > 6) {
-        $digits[$i] = 0;
-        if (++$i <= $top) {
-          ### backtrack up
+          while (++$digits[$i] > 6) {
+            $digits[$i] = 0;
+            if (++$i <= $top) {
+              ### backtrack up ...
+            } else {
+              ### not found within this arm and top ...
+              next ARM;
+            }
+          }
 
         } else {
-          ### backtrack extend top
-          if ($i > $level_limit) {
-            ### oops, not found below level limit
-            return;
-          }
+          ### descend
+          ### assert: $i > 0
+          $i--;
           $digits[$i] = 0;
-          $sx[$i] = (5 * $sx[$top] - 3 * $sy[$top]) / 2;
-          $sy[$i] = ($sx[$top] + 5 * $sy[$top]) / 2;
-          $hypot[$i] = 7 * $hypot[$top];
-          $top++;
         }
       }
-
-    } else {
-      ### descend
-      ### assert: $i > 0
-      $i--;
-      $digits[$i] = 0;
     }
+
+    if (++$top > $level_limit) {
+      ### oops, not found below level limit
+      return;
+    }
+    $sx[$top] = (5 * $sx[$top-1] - 3 * $sy[$top-1]) / 2;
+    $sy[$top] = ($sx[$top-1] + 5 * $sy[$top-1]) / 2;
+    $hypot[$top] = 7 * $hypot[$top-1];
   }
 }
 
@@ -321,6 +343,7 @@ sub rect_to_n_range {
 
 
   my $level_limit = $level_plus_1;
+  ### $level_limit
   if (_is_infinite($level_limit)) { return ($level_limit,$level_limit); }
 
   $x1 = _round_nearest ($x1);
@@ -342,97 +365,122 @@ sub rect_to_n_range {
     return ($xd*$xd + 3*$yd*$yd);
   };
 
+  my $arms = $self->{'arms'};
+  ### $arms
   my $n_lo;
   {
-
-    my $top = 0;
-    my $i = 0;
-    my @digits = (0);
     my @hypot = (6);
+    my $top = 0;
     for (;;) {
-      my $n = 0;
-      foreach my $digit (reverse @digits) { # high to low
-        $n = 7*$n + $digit;
+    ARM_LO: foreach my $arm (0 .. $arms-1) {
+        my $i = 0;
+        my @digits;
+        if ($top > 0) {
+          @digits = ((0)x($top-1), 1);
+        } else {
+          @digits = (0);
+        }
+
+        for (;;) {
+          my $n = 0;
+          foreach my $digit (reverse @digits) { # high to low
+            $n = 7*$n + $digit;
+          }
+          $n = $n*$arms + $arm;
+          ### lo consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+
+          my ($nx,$ny) = $self->n_to_xy($n);
+          my $nh = &$rect_dist ($nx,$ny);
+          if ($i == 0 && $nh == 0) {
+            ### lo found inside: $n
+            if (! defined $n_lo || $n < $n_lo) {
+              $n_lo = $n;
+            }
+            next ARM_LO;
+          }
+
+          if ($i == 0 || $nh > $hypot[$i]) {
+            ### too far away: "nxy=$nx,$ny   nh=$nh vs ".$hypot[$i]
+
+            while (++$digits[$i] > 6) {
+              $digits[$i] = 0;
+              if (++$i <= $top) {
+                ### backtrack up ...
+              } else {
+                ### not found within this top and arm, next arm ...
+                next ARM_LO;
+              }
+            }
+          } else {
+            ### lo descend ...
+            ### assert: $i > 0
+            $i--;
+            $digits[$i] = 0;
+          }
+        }
       }
-      ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-      my ($nx,$ny) = $self->n_to_xy($n);
-      my $nh = &$rect_dist ($nx,$ny);
-      if ($i == 0 && $nh == 0) {
-        ### found inside: $n
-        $n_lo = $n;
+
+      # if an $n_lo was found on any arm within this $top then done
+      if (defined $n_lo) {
         last;
       }
 
-      if ($i == 0 || $nh > $hypot[$i]) {
-        ### too far away: "$nx,$ny   nh=$nh vs ".$hypot[$i]
-
-        while (++$digits[$i] > 6) {
-          $digits[$i] = 0;
-          if (++$i <= $top) {
-            ### backtrack up
-
-          } else {
-            ### backtrack extend top
-            if ($i > $level_limit) {
-              ### oops, not found below level limit
-              return (1,0);
-            }
-            $digits[$i] = 0;
-            $hypot[$i] = 7 * $hypot[$top];
-            $top++;
-          }
-        }
-
-      } else {
-        ### descend
-        ### assert: $i > 0
-        $i--;
-        $digits[$i] = 0;
+      ### lo extend top ...
+      if (++$top > $level_limit) {
+        ### nothing below level limit ...
+        return (1,0);
       }
+      $hypot[$top] = 7 * $hypot[$top-1];
     }
   }
 
-  my $n_hi;
-  {
-    my $i = 0;
+  my $n_hi = 0;
+ ARM_HI: foreach my $arm (reverse 0 .. $arms-1) {
     my @digits = ((6) x $level_limit);
-    my @hypot = (6);
+    my $i = $#digits;
     for (;;) {
       my $n = 0;
       foreach my $digit (reverse @digits) { # high to low
         $n = 7*$n + $digit;
       }
-      ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+      $n = $n*$arms + $arm;
+      ### hi consider: "arm=$arm  i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+
       my ($nx,$ny) = $self->n_to_xy($n);
       my $nh = &$rect_dist ($nx,$ny);
       if ($i == 0 && $nh == 0) {
-        ### found inside: $n
-        $n_hi = $n;
-        last;
+        ### hi found inside: $n
+        if ($n > $n_hi) {
+          $n_hi = $n;
+          next ARM_HI;
+        }
       }
 
-      if ($i == 0 || $nh > 6 * 7**$i) {
+      if ($i == 0 || $nh > (6 * 7**$i)) {
         ### too far away: "$nx,$ny   nh=$nh vs ".(6 * 7**$i)
 
         while (--$digits[$i] < 0) {
           $digits[$i] = 6;
           if (++$i < $level_limit) {
-            ### backtrack up
-
+            ### hi backtrack up ...
           } else {
-            ### backtrack past top
-            ### oops, not found below level limit
-            return (1,0);
+            ### hi nothing within level limit for this arm ...
+            next ARM_HI;
           }
         }
 
       } else {
-        ### descend
+        ### hi descend
         ### assert: $i > 0
         $i--;
         $digits[$i] = 6;
       }
     }
+  }
+
+  if ($n_hi == 0) {
+    ### oops, lo found but hi not found
+    $n_hi = $n_lo;
   }
 
   return ($n_lo, $n_hi);
@@ -509,18 +557,18 @@ next level can be seen at the multiple of 7 points N=0,7,14,21,28,35,42,49.
                    -----
               0 ---
 
-Notice this is the same shape as the 0 to 6, but rotated atan(1/sqrt(7)) =
-20.68 degrees anti-clockwise.  Each level rotates further and for example
-after 18 levels it goes all the way around and back to the first quadrant.
+Notice this is the same shape as the 0 to 6, but rotated by atan(1/sqrt(7))
+= 20.68 degrees anti-clockwise.  Each level rotates further and for example
+after about 18 levels it goes all the way around and back to the first
+quadrant.
 
-The rotation doesn't mean it covers the plane.  The shape fattens as it
-curls around counter-clockwise, but leaves a spiral gap below (which
-corresponds to three unfilled hexagonal areas of tiling).
+The rotation doesn't mean it fills the plane though.  The shape fattens as
+it curls around, but leaves a spiral gap beneath it (see L</Arms> below).
 
 =head2 Tiling
 
-The base pattern corresponds to hexagons as follows, with the "***" lines
-being the base figure.
+The base pattern corresponds to a tiling by hexagons as follows, with the
+"***" lines being the base figure.
 
                         .     .
                        / \   / \
@@ -546,8 +594,62 @@ being the base figure.
                         .     .
 
 In the next level the parts corresponding to 1, 2 and 6 are mirrored because
-they correspond to a hexagon to the right of the line segment, rather than
-to the left.
+they have their hexagon to the right of the line segment, rather than to the
+left.
+
+=head2 Arms
+
+The optional C<arms> parameter can give up to three copies of the flowsnake,
+each advancing successively.  For example C<arms=E<gt>3> is as follows.
+Notice the N=3*k points are the plain curve, and N=3*k+1 and N=3*k+2 are
+rotated copies of it.
+
+                                     51----48----45                 5
+                                       \           \
+                      ...   69----66    54----57    42              4
+                        \     \     \        /     /
+       28----25----22    78    72    63----60    39    33----30     3
+         \           \     \  /                    \  /     /
+          31----34    19    75    12----15----18    36    27        2
+               /     /              \           \        /
+       40----37    16     4---- 1     9---- 6    21----24           1
+      /              \     \              /
+    43    55----58    13     7     0---- 3    74----77---...    <- Y=0
+      \     \     \     \  /                    \
+       46    52    61    10     2     8----11    71----68          -1
+         \  /     /              \  /     /           /
+          49    64    70----73     5    14    62----65             -2
+                  \  /     /           /     /
+                   67    76    20----17    59    53----50          -3
+                        /     /              \  /     /
+                      ...   23    35----38    56    47             -4
+                              \     \     \        /
+                               26    32    41----44                -5
+                                 \  /
+                                  29                               -6
+
+                                   ^
+       -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
+
+Essentially the flowsnake fills an ever expanding hexagon with one corner at
+the origin.  In the following picture the plain curve fills "A" and there's
+room for two more arms to fill B and C, rotated 120 and 240 degrees
+respectively.
+
+            *---*         
+           /     \       
+      *---*   A   *
+     /     \     / 
+    *   B   O---*  
+     \     /     \ 
+      *---*   C   *
+           \     /
+            *---*
+
+But the sides of these "hexagons" are not straight lines, they're more like
+wild wiggly spiralling S shapes, and the endpoints rotate around (by the
+angle described above) at each level.  But the opposite sides are symmetric,
+so they mesh perfectly and with three arms fill the plane.
 
 =head2 Fractal
 
@@ -566,7 +668,12 @@ fractal boundary.
 
 =item C<$path = Math::PlanePath::Flowsnake-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::Flowsnake-E<gt>new (arms =E<gt> $a)>
+
 Create and return a new path object.
+
+The optional C<arms> parameter gives between 1 and 3 copies of the curve
+successively advancing.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -580,38 +687,62 @@ integer positions.
 
 =head1 FORMULAS
 
+=head2 X,Y to N
+
+The current approach is a slightly crude search for digits of N which will,
+or might come out as the target X,Y.
+
+Starting at a high digit bigger than a bounding radius for the X,Y values
+are considered for that digit and those below it.  When a digit gives a
+prospective X,Y further away than the bounding radius for the digits below
+then that digit can be rejected.
+
+The bounding radius calculation is a bit of an over-estimate when ends up
+making it examine more points than strictly necessary.  Oh, can the current
+code also does a full C<n_to_xy()> for each prospective point, rather than
+taking a shortcut by adding-up or stepping through the "side"s represented
+by a digit at a given level.
+
 =head2 Rectangle to N Range
 
 The current code calculates an exact C<rect_to_n_range()> by searching for
-the highest and lowest N which is in the rectangle.
+the highest and lowest N which are in the rectangle.
 
-The curve at a given level is bounded by the Gosper island shape, but the
+The curve at a given level is bounded by the Gosper island shape but the
 wiggly sides make it difficult to calculate, so a bounding radius
-sqrt(7)^level, plus a bit, is used.  The portion of the curve comprising
-some high digits of N can be excluded if the N point is too far away from
-the rectangle, ie. further than that radius.
+sqrt(7)^level, plus a bit, is used.  The portion of the curve comprising a
+given set of high digits of N can be excluded if the N point is more than
+that radius away from the rectangle.
 
-When a part of the curve is excluded this way it prunes a whole branch of
-the digits tree.  When the lowest digit is reached then an exact test for
-that point being actually within the rectangle is made.  The radius
-calculation is a bit rough, and since it doesn't even take into account the
-direction of the curve it's a rather large over-estimate, but it works.
+When a part of the curve is excluded it prunes a whole branch of the digits
+tree.  When the lowest digit is reached then a check for that point being
+actually within the rectangle is made.  The radius calculation is a bit
+rough, and since it doesn't even take into account the direction of the
+curve it's a rather large over-estimate, but it works.
 
-The same sort of search could be applied for non-rectangular shapes,
-calculating a radial distance from the shape.  The distance doesn't have to
-be exact, something bounding the shape is good enough until the lowest digit
-is reached and an X,Y is being considered as an actual high or low N bound.
+The same sort of search can be applied to non-rectangular shapes,
+calculating a radial distance from the shape.  The distance calculation
+doesn't have to be exact, it can work on something bounding the shape until
+the lowest digit is reached and an individual X,Y is being considered as an
+candidate high or low N bound.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::Flowsnake>,
+L<Math::PlanePath::FlowsnakeCentres>,
 L<Math::PlanePath::GosperIslands>
 
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
+
+"New Gosper Space Filling Curves" by Fukuda, Shimizu and Nakamura, on
+flowsnake variations in bigger hexagons (with wiggly sides too).
+
+    http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
+      or if down then at archive.org
+    http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
 
 =head1 LICENSE
 
@@ -676,4 +807,19 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+       B
+      / \   / \  
+     /   \ /   \ 
+    .  ^  .     .
+    |   | |     |
+    |    ||     |
+    .     O-->  A
+     \   / \   / 
+      \ / | \ /  
+       . |   .   
+       | v   |   
+       |     |   
+       C     .   
+        \   / 
+         \ /  
 

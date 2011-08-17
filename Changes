@@ -17,6 +17,11 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 40, August 2011
+    - new DragonRounded, CellularRule54
+    - new arms_count() method
+    - Flowsnake, FlowsnakeCentres new "arms" parameter
+
 Version 39, August 2011
     - new DragonCurve, DragonMidpoint
 

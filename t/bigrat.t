@@ -55,9 +55,9 @@ if (! eval { require Math::BigRat; 1 }) {
   my $f = Math::BigRat->new('-1/2');
   my $int = int($f);
   if ($int == 0) {
-    MyTestHelpers::diag ('BigRat has int(-1/2) == 0 correctly');
+    MyTestHelpers::diag ('BigRat int(-1/2)==0, good');
   } else {
-    MyTestHelpers::diag ('BigRat has int(-1/2) != 0 dodginess: ',"$int");
+    MyTestHelpers::diag ("BigRat has int(-1/2) != 0 dodginess: value is '$int'");
   }
 }
 

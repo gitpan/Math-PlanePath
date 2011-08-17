@@ -21,6 +21,9 @@
 #
 # Harter first to show copies of the dragon fit together ...
 #
+# cf
+#    A175337 r5 dragon turns
+#    A176405 r7 dragon turns
 
 package Math::PlanePath::DragonCurve;
 use 5.004;
@@ -29,7 +32,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,6 +43,10 @@ use Math::PlanePath;
 #use Devel::Comments;
 
 use constant n_start => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
 
 sub new {
   my $class = shift;

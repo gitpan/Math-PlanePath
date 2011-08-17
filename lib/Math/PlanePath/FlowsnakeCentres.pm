@@ -17,7 +17,7 @@
 
 
 # math-image --path=FlowsnakeCentres --lines --scale=10
-# math-image --path=FlowsnakeCentres --all --output=numbers_dash
+# math-image --path=FlowsnakeCentres,arms=3 --all --output=numbers_dash
 #
 # http://80386.nl/projects/flowsnake/
 #
@@ -28,10 +28,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
+# inherit new(), rect_to_n_range(), arms_count()
 use Math::PlanePath::Flowsnake;
 @ISA = ('Math::PlanePath::Flowsnake');
+
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -80,6 +82,10 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
+  my $arms = $self->{'arms'};
+  my $rot = ($n % $arms);
+  $n = int($n/$arms);
+
   my @n;
   my $x = 0;
   my $y = 0;
@@ -125,10 +131,23 @@ sub n_to_xy {
     ### reversed n: @n
   }
 
-  my $ox = 0;
-  my $oy = 0;
-  my $sx = 2;
-  my $sy = 0;
+  my ($ox,$oy,$sx,$sy);
+  if ($rot == 0) {
+    $ox = 0;
+    $oy = 0;
+    $sx = 2;
+    $sy = 0;
+  } elsif ($rot == 1) {
+    $ox = -1;  # at +120
+    $oy = 1;
+    $sx = -1;  # rot to +120
+    $sy = 1;
+  } else {
+    $ox = -2;   # at 180
+    $oy = 0;
+    $sx = -1;  # rot to +240
+    $sy = -1;
+  }
 
   while (@n) {
     my $digit = shift @n;  # low to high
@@ -205,12 +224,12 @@ sub n_to_xy {
 #
 
 my @modulus_to_digit
-  = (0,3,1,2,4,6,5,   0,42,14,28,0,56,0,      # 0   right forw 0
-     0,5,1,4,6,2,3,   0,42,14,70,14,14,28,    # 14  +120 rev   1
-     6,3,5,4,2,0,1,   28,56,70,0,28,42,28,    # 28  left rev   2
+  = (0,3,1,2,4,6,5,    0,42,14,28, 0,56, 0,      # 0   right forw 0
+     0,5,1,4,6,2,3,    0,42,14,70,14,14,28,    # 14  +120 rev   1
+     6,3,5,4,2,0,1,   28,56,70, 0,28,42,28,    # 28  left rev   2
      4,5,3,2,6,0,1,   42,42,70,56,14,42,28,   # 42  +60 forw   3
-     2,1,3,4,0,6,5,   56,56,14,42,70,56,0,    # 56  -60 rev    6
-     6,1,5,2,0,4,3,   28,56,70,14,70,70,0,    # 70      forw
+     2,1,3,4,0,6,5,   56,56,14,42,70,56, 0,    # 56  -60 rev    6
+     6,1,5,2,0,4,3,   28,56,70,14,70,70, 0,    # 70      forw
     );
 sub xy_to_n {
   my ($self, $x, $y) = @_;
@@ -231,20 +250,36 @@ sub xy_to_n {
 
   my @digits;
   my $power = 1;
+  my $arm;
+  my $state;
   for (;;) {
     if ($level_limit-- < 0) {
       ### oops, level limit ...
       return undef;
     }
     if ($x == 0 && $y == 0) {
-      ### found 0,0 ...
+      ### found first arm 0,0 ...
+      $arm = 0;
+      $state = 0;
       last;
     }
-    if ((($x == -1 || $x == 1) && $y == -1)
-        || ($x == 0 && $y == -2)) {
-      ### below island ...
-      return undef;
+    if ($x == -2 && $y == 0) {
+      ### found second arm -2,0 ...
+      $arm = 1;
+      $state = 42;
+      last;
     }
+    if ($x == -1 && $y == -1) {
+      ### found third arm -1,-1 ...
+      $arm = 2;
+      $state = 70;
+      last;
+    }
+    # if ((($x == -1 || $x == 1) && $y == -1)
+    #     || ($x == 0 && $y == -2)) {
+    #   ### below island ...
+    #   return undef;
+    # }
     my $m = ($x + 2*$y) % 7;
     ### at: "$x,$y   digits=".join(',',@digits)
     ### mod remainder: $m
@@ -280,9 +315,12 @@ sub xy_to_n {
   }
 
   ### @digits
+  my $arms = $self->{'arms'};
+  if ($arm >= $arms) {
+    return undef;
+  }
 
   my $n = 0;
-  my $state = 0;
   foreach my $m (reverse @digits) {  # high to low
     ### $m
     ### digit: $modulus_to_digit[$state + $m]
@@ -292,9 +330,9 @@ sub xy_to_n {
     $n = 7*$n + $modulus_to_digit[$state + $m];
     $state = $modulus_to_digit[$state+7 + $m];
   }
+  ### final n along arm: $n
 
-  ### final n: $n
-  return $n;
+  return $n*$arms + $arm;
 }
 
 1;
@@ -453,19 +491,74 @@ the end points towards the "2".
 The next level can be seen at the midpoints of each such group, being
 N=2,11,18,23,30,37,46.
 
-                 ---- 37                 
-             ----       ---    
-       30----              ---           
-       |                      ---       
-      |                           46     
-      |                              
-      |        ----18                    
-     |    -----      ---        
-    23---               ---              
-                           ---        
-                           --- 11        
-                      -----          
-                 2 ---                   
+                 ---- 37
+             ----       ---
+       30----              ---
+       |                      ---
+      |                           46
+      |
+      |        ----18
+     |    -----      ---
+    23---               ---
+                           ---
+                           --- 11
+                      -----
+                 2 ---
+
+=head2 Arms
+
+The optional C<arms> parameter can give up to three copies of the curve,
+each advancing successively.  For example C<arms=E<gt>3> is as follows.
+Notice the N=3*k points are the plain curve, and N=3*k+1 and N=3*k+2 are
+rotated copies of it.
+
+                            84---...    48----45                   5
+                           /           /        \
+                         81    66    51----54    42                4
+                        /     /  \           \     \
+          28----25    78    69    63----60----57    39    30       3
+         /        \     \     \                    /     /  \
+       31----34    22    75----72    12----15    36----33    27    2
+               \     \              /        \              /
+          40----37    19     4     9---- 6    18----21----24       1
+         /           /     /  \           \
+       43    58    16     7     1     0---- 3    77----80      <- Y=0
+      /     /  \     \     \                    /        \
+    46    55    61    13----10     2    11    74----71    83      -1
+      \     \     \              /     /  \           \     \
+       49----52    64    73     5---- 8    14    65----68    86   -2
+                  /     /  \              /     /           /
+          ...   67----70    76    20----17    62    53   ...      -3
+            \              /     /           /     /  \
+             85----82----79    23    38    59----56    50         -4
+                              /     /  \              /
+                            26    35    41----44----47            -5
+                              \     \
+                               29----32                           -6
+
+                                      ^
+          -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
+
+As described in L<Math::PlanePath::Flowsnake/Arms> the flowsnake essentially
+fills a hexagonal shape.  For this Centres variation the start of each arm
+corresponds to a little hexagon with the N=0 one at the origin, and the 1
+and 2 beside and below,
+        
+    ^ / \   / \  
+     \   \ /   \ 
+    | \   |     |
+    |  1  |  0--->
+    |     |     |
+     \   / \   / 
+      \ /   \ /  
+       |     |   
+       |  2  |   
+       | /   |   
+        /   / 
+      v  \ /  
+
+Like the main Flowsnake the sides of the arms mesh perfectly and three arms
+fill the plane.
 
 =head1 FUNCTIONS
 
@@ -505,11 +598,11 @@ N-2*7^21 and suitable X,Y offset can be applied to get the same result.
 
 The C<xy_to_n()> calculation also follows Ed Schouten's method which is
 based on a nice observation that the seven cells of the base figure can be
-identified from their coordinates, and the centres of those figures then
-shrunk down to unit coordinates, thus generating digits of N from low to
+identified from their coordinates and the centres of those figures then
+shrunk down to unit separation, thus generating digits of N from low to
 high.
 
-In triangular grid style X,Y a remainder can be formed as
+In triangular grid style X,Y a remainder is formed
 
     m = (x + 2*y) mod 7
 
@@ -521,8 +614,8 @@ With the base figure 0 at 0,0 the remainders are
              \
         0---- 2
 
-The remainders are the same when the shape is moved by some multiple of the
-next level X=5,Y=1 or its rotated forms X=1,Y=3 and X=-4,Y=1 etc.  Those
+The remainders are unchanged when the shape is shifted by some multiple of
+the next level X=5,Y=1 or its rotated forms X=1,Y=3 and X=-4,Y=1 etc.  Those
 vectors all have X+2*Y==0 mod 7.
 
 From the m remainder an offset can be applied to move X,Y to the 0 position,
@@ -532,19 +625,27 @@ can then be shrunk down with
     Xshrunk = (3*Y + 5*X) / 14
     Yshrunk = (5*Y - X) / 14
 
-These are integers as 3*Y+5*X and 5*Y-X are always multiples of 14.  For
+This gives integers as 3*Y+5*X and 5*Y-X are always multiples of 14.  For
 example the N=35 point at X=2,Y=6 reduces to X = (3*6+5*2)/14 = 2 and Y =
 (5*6-2)/14 = 2, which is then the "5" part of the base figure.
 
-The remainders can be mapped to digits then reversals and rotations applied,
-from high to low, according to the edge orientation.  These steps can be
-combined in a single lookup table with 6 states (three rotations and forward
-or reverse).
+The remainders can be mapped to digits and then reversals and rotations
+applied, from high to low, according to the edge orientation.  These steps
+can also be combined in a single lookup table with 6 states (three rotations
+and forward or reverse).
+
+For the main curve the reduction ends at 0,0.  For the multi-arm form the
+second arm ends at -2,0 and the third at -1,-1.  (The modulo and shrink
+procedure maps those points to themselves.)  The calculation can be done
+without paying attention to how many arms are supposed to be in use.  On
+reaching one of the three ends the "arm" is determined and the original X,Y
+rejected or accepted accordingly.
 
 The key to this approach is that the base figure is symmetric around a
 central point, so the rotations or reversals in the path can be applied
-after breaking down the tiling.  Can it be made to work on non-symmetric
-like the "across" style C<Math::PlanePath::Flowsnake>?
+after breaking down the tiling.  Could it work on a non-symmetric base
+figure like the "across" style of the main Flowsnake, or of something like
+the DragonCurve for that matter?
 
 =head1 SEE ALSO
 
@@ -557,7 +658,7 @@ L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
-http://80386.nl/projects/flowsnake/
+http://80386.nl/projects/flowsnake/ -- Ed Schouten's code
 
 =head1 LICENSE
 

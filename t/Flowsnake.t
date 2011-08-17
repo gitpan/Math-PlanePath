@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 2164 }
+BEGIN { plan tests => 688 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 require Math::PlanePath::Flowsnake;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::Flowsnake;
 # VERSION
 
 {
-  my $want_version = 39;
+  my $want_version = 40;
   ok ($Math::PlanePath::Flowsnake::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Flowsnake->VERSION,  $want_version,
@@ -74,24 +77,28 @@ require Math::PlanePath::Flowsnake;
 
 {
   my @data = (
-              [ .25,  .5, 0 ],
-              [ .5,    1, 0 ],
-              [ 1.75,  2.75, .75 ],
+              # arms=2
+              [ 2,  46,    -2,4 ],
+              [ 2,   1,    -1,1 ],
 
-              [ 0, 0,0 ],
-              [ 1, 2,0 ],
-              [ 2, 3,1 ],
-              [ 3, 1,1 ],
-              [ 4, 0,2 ],
-              [ 5, 2,2 ],
-              [ 6, 4,2 ],
+              # arms=1
+              [ 1,   0,    0,0 ],
+              [ 1,   1,    2,0 ],
+              [ 1,   2,    3,1 ],
+              [ 1,   3,    1,1 ],
+              [ 1,   4,    0,2 ],
+              [ 1,   5,    2,2 ],
+              [ 1,   6,    4,2 ],
 
-              [ 7, 5,1 ],
+              [ 1,   7,    5,1 ],
 
+              [ 1,   .25,   .5, 0 ],
+              [ 1,   .5,     1, 0 ],
+              [ 1,   1.75,   2.75, .75 ],
              );
-  my $path = Math::PlanePath::Flowsnake->new;
   foreach my $elem (@data) {
-    my ($n, $x, $y) = @$elem;
+    my ($arms, $n, $x, $y) = @$elem;
+    my $path = Math::PlanePath::Flowsnake->new (arms => $arms);
     {
       # n_to_xy()
       my ($got_x, $got_y) = $path->n_to_xy ($n);
@@ -105,11 +112,19 @@ require Math::PlanePath::Flowsnake;
       my $got_n = $path->xy_to_n ($x, $y);
       ok ($got_n, $n, "xy_to_n() n at x=$x,y=$y");
     }
-    {
-      $n = int($n);
-      my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-      ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+
+    if ($n == int($n)) {
+      {
+        my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+        ok ($got_nlo <= $n, 1, "rect_to_n_range(0,0,$x,$y) arms=$arms for n=$n, got_nlo=$got_nlo");
+        ok ($got_nhi >= $n, 1, "rect_to_n_range(0,0,$x,$y) arms=$arms for n=$n, got_nhi=$got_nhi");
+      }
+      {
+        $n = int($n);
+        my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x,$y, $x,$y);
+        ok ($got_nlo <= $n, 1, "rect_to_n_range($x,$y,$x,$y) arms=$arms for n=$n, got_nlo=$got_nlo");
+        ok ($got_nhi >= $n, 1, "rect_to_n_range($x,$y,$x,$y) arms=$arms for n=$n, got_nhi=$got_nhi");
+      }
     }
   }
 }
@@ -131,8 +146,8 @@ require Math::PlanePath::Flowsnake;
 
 {
   my $path = Math::PlanePath::Flowsnake->new;
-  for (1 .. 100) {
-    my $bits = int(rand(25));         # 0 to 25, inclusive
+  for (1 .. 50) {
+    my $bits = int(rand(20));         # 0 to 20, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
     my ($x1,$y1) = $path->n_to_xy ($n);
@@ -156,8 +171,8 @@ require Math::PlanePath::Flowsnake;
 
 {
   my $path = Math::PlanePath::Flowsnake->new;
-  for (1 .. 500) {
-    my $bits = int(rand(25));         # 0 to 25, inclusive
+  for (1 .. 100) {
+    my $bits = int(rand(20));         # 0 to 20, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
     my ($x,$y) = $path->n_to_xy ($n);

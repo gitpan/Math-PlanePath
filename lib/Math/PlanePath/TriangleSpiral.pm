@@ -20,13 +20,13 @@ package Math::PlanePath::TriangleSpiral;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -85,8 +85,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   ### xy_to_n(): "$x,$y"
 
   if (($x ^ $y) & 1) {
@@ -122,10 +122,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = floor($x1+0.5);
-  $x2 = floor($x2+0.5);
-  $y1 = floor($y1+0.5);
-  $y2 = floor($y2+0.5);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {

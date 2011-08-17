@@ -20,15 +20,14 @@ package Math::PlanePath::Hypot;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use Math::Libm 'hypot';
-use POSIX 'floor';
 
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -160,8 +159,8 @@ sub xy_to_n {
   ### Hypot xy_to_n(): "$x, $y"
   ### hypot_to_n last: $#hypot_to_n
 
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
 
   my $hypot = $x*$x + $y*$y;
   if (_is_infinite($hypot)) {
@@ -199,10 +198,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = abs (floor($x1 + 0.5));
-  $y1 = abs (floor($y1 + 0.5));
-  $x2 = abs (floor($x2 + 0.5));
-  $y2 = abs (floor($y2 + 0.5));
+  $x1 = abs (_round_nearest ($x1));
+  $y1 = abs (_round_nearest ($y1));
+  $x2 = abs (_round_nearest ($x2));
+  $y2 = abs (_round_nearest ($y2));
 
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }

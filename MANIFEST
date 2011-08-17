@@ -58,6 +58,7 @@ inc/my_pod2html
 inc/MyMakeMakerExtras.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
+lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
@@ -66,6 +67,7 @@ lib/Math/PlanePath/DiamondArms.pm
 lib/Math/PlanePath/DiamondSpiral.pm
 lib/Math/PlanePath/DragonCurve.pm
 lib/Math/PlanePath/DragonMidpoint.pm
+lib/Math/PlanePath/DragonRounded.pm
 lib/Math/PlanePath/File.pm
 lib/Math/PlanePath/Flowsnake.pm
 lib/Math/PlanePath/FlowsnakeCentres.pm
@@ -121,6 +123,7 @@ t/DiamondArms.t
 t/DiamondSpiral.t
 t/DragonCurve.t
 t/DragonMidpoint.t
+t/DragonRounded.t
 t/File.t
 t/Flowsnake.t
 t/FlowsnakeCentres.t
@@ -166,6 +169,7 @@ xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
+xt/CellularRule54-oeis.t
 xt/CoprimeColumns-oeis.t
 xt/Dragon-oeis.t
 xt/HilbertCurve-oeis.t

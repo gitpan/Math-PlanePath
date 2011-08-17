@@ -20,13 +20,13 @@ package Math::PlanePath::PentSpiral;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -75,8 +75,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
 
   # nothing on odd squares, odd x when y>=0 and alternate rows when y<0
   if (($x ^ ($y & ($y<0))) & 1) {
@@ -134,9 +134,9 @@ sub rect_to_n_range {
 
   my $d = 0;
   foreach my $x ($x1, $x2) {
-    $x = floor(0.5 + $x);
+    $x = _round_nearest ($x);
     foreach my $y ($y1, $y2) {
-      $y = floor(0.5 + $y);
+      $y = _round_nearest ($y);
 
       my $this_d = 1 + ($y >= 0   ? abs($x) + $y
                         : $x < $y   ? -($x+$y)/2

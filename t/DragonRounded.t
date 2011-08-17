@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 2164 }
+BEGIN { plan tests => 538 }
 
 use lib 't';
 use MyTestHelpers;
@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-require Math::PlanePath::FlowsnakeCentres;
+require Math::PlanePath::DragonRounded;
 
 
 #------------------------------------------------------------------------------
@@ -37,20 +37,20 @@ require Math::PlanePath::FlowsnakeCentres;
 
 {
   my $want_version = 40;
-  ok ($Math::PlanePath::FlowsnakeCentres::VERSION, $want_version,
+  ok ($Math::PlanePath::DragonRounded::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::FlowsnakeCentres->VERSION,  $want_version,
+  ok (Math::PlanePath::DragonRounded->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::FlowsnakeCentres->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::DragonRounded->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::FlowsnakeCentres->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::DragonRounded->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::FlowsnakeCentres->new;
+  my $path = Math::PlanePath::DragonRounded->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -65,7 +65,7 @@ require Math::PlanePath::FlowsnakeCentres;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::FlowsnakeCentres->new;
+  my $path = Math::PlanePath::DragonRounded->new;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
@@ -77,22 +77,37 @@ require Math::PlanePath::FlowsnakeCentres;
 
 {
   my @data = (
-              [ .25,  .5, 0 ],
-              [ .5,    1, 0 ],
-              [ 1.75,  1.25, .75 ],
-
-              [ 0, 0,0 ],
+              [ 0, 1,0 ],
               [ 1, 2,0 ],
-              [ 2, 1,1 ],
-              [ 3, -1,1 ],
-              [ 4, 0,2 ],
-              [ 5, 2,2 ],
-              [ 6, 3,1 ],
+              [ 2, 3,1 ],
+              [ 3, 3,2 ],
 
-              [ 7, 5,1 ],
+              [ 4, 2,3 ],
+              [ 5, 1,3 ],
+              [ 6, 0,4 ],
+              [ 7, 0,5 ],
 
+              [ 8, -1,6 ],
+              [ 9, -2,6 ],
+              [ 10, -3,5 ],
+              [ 11, -3,4 ],
+
+              [ 0.25,  1.25, 0 ],
+              [ 1.25,  2.25, 0.25 ],
+              [ 2.25,  3, 1.25 ],
+              [ 3.25,  2.75, 2.25 ],
+
+              [ 4.25,  1.75, 3 ],
+              [ 5.25,  0.75, 3.25 ],
+              [ 6.25,  0, 4.25 ],
+              [ 7.25,  -.25, 5.25 ],
+
+              [ 8.25, -1.25, 6 ],
+              [ 9.25, -2.25, 5.75 ],
+              [ 10.25, -3, 4.75 ],
+              [ 11.25, -3.25, 3.75 ],
              );
-  my $path = Math::PlanePath::FlowsnakeCentres->new;
+  my $path = Math::PlanePath::DragonRounded->new;
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
     {
@@ -119,22 +134,11 @@ require Math::PlanePath::FlowsnakeCentres;
 
 
 #------------------------------------------------------------------------------
-# rect_to_n_range()
-
-{
-  my $path = Math::PlanePath::FlowsnakeCentres->new;
-  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0, 0,0);
-  ok ($n_lo == 0, 1, "rect_to_n_range() 0,0  n_lo=$n_lo");
-  ok ($n_hi >= 0, 1, "rect_to_n_range() 0,0  n_hi=$n_hi");
-}
-
-
-#------------------------------------------------------------------------------
 # random fracs
 
 {
-  my $path = Math::PlanePath::FlowsnakeCentres->new;
-  for (1 .. 100) {
+  my $path = Math::PlanePath::DragonRounded->new;
+  for (1 .. 20) {
     my $bits = int(rand(25));         # 0 to 25, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
@@ -148,8 +152,8 @@ require Math::PlanePath::FlowsnakeCentres;
       my $nf = $n + $frac;
       my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
 
-      ok ($got_xf, $want_xf, "n_to_xy($n) frac $frac, x");
-      ok ($got_yf, $want_yf, "n_to_xy($n) frac $frac, y");
+      ok ($got_xf, $want_xf, "n_to_xy($nf) frac $frac, x");
+      ok ($got_yf, $want_yf, "n_to_xy($nf) frac $frac, y");
     }
   }
 }
@@ -158,8 +162,8 @@ require Math::PlanePath::FlowsnakeCentres;
 # random points
 
 {
-  my $path = Math::PlanePath::FlowsnakeCentres->new;
-  for (1 .. 500) {
+  my $path = Math::PlanePath::DragonRounded->new;
+  for (1 .. 100) {
     my $bits = int(rand(25));         # 0 to 25, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 

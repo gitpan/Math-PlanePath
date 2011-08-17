@@ -35,6 +35,7 @@ my $test_count = 24;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
+
 {
   if (! eval { Math::BigFloat->new(2) ** 3 }) {
     MyTestHelpers::diag ('skip due to Math::BigFloat no "**" operator -- ',$@);
@@ -44,14 +45,13 @@ MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
     exit 0;
   }
 }
-{
-  if ($] < 5.008) {
-    MyTestHelpers::diag ('skip due to pre 5.8 doubtful, maybe');
-    foreach (1 .. $test_count) {
-      skip ('skip due to pre 5.8', 1, 1);
-    }
-    exit 0;
+unless (eval { Math::BigFloat->VERSION(1.993); 1 }) {
+  # something fishy for PeanoCurve and ZOrderCurve fraction n_to_xy()
+  MyTestHelpers::diag ('skip due to doubtful oldish Math::BigFloat, maybe');
+  foreach (1 .. $test_count) {
+    skip ('due to oldish Math::BigFloat', 1, 1);
   }
+  exit 0;
 }
 
 MyTestHelpers::nowarnings();

@@ -20,13 +20,14 @@ package Math::PlanePath::PyramidRows;
 use 5.004;
 use strict;
 use List::Util 'min', 'max';
-use POSIX 'floor', 'ceil';
+use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -114,8 +115,8 @@ sub n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   my $step = $self->{'step'};
   if ($y < 0
       || $x < -$y*int($step/2)
@@ -159,10 +160,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PyramidRows rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"
 
-  $x1 = floor ($x1 + 0.5);
-  $y1 = floor ($y1 + 0.5);
-  $x2 = floor ($x2 + 0.5);
-  $y2 = floor ($y2 + 0.5);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
   if ($y2 < 0) {
     return (1, 0); # rect all negative, no N
@@ -418,8 +419,7 @@ Create and return a new path object.  The default step is 2.
 
 Return the X,Y coordinates of point number C<$n> on the path.
 
-For C<$n < 0> the return is an empty list, it being considered there are no
-negative points in the pyramid.
+For C<$n <= 0> the return is an empty list since the path starts at N=1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

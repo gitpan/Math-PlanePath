@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -38,6 +38,8 @@ use Math::PlanePath;
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
+
+use constant arms_count => 4;
 
 # 28
 # 172 +144
@@ -97,8 +99,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _floor ($x + 0.5);
-  $y = _floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   ### SquareArms xy_to_n: "$x,$y"
 
   if ($x == 0 && $y == 0) {

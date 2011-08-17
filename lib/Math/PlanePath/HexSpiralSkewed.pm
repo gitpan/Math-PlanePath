@@ -20,13 +20,13 @@ package Math::PlanePath::HexSpiralSkewed;
 use 5.004;
 use strict;
 use List::Util qw(max);
-use POSIX ();
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -103,8 +103,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): "$x, $y"
 
-  $x = POSIX::floor ($x + 0.5);
-  $y = POSIX::floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;

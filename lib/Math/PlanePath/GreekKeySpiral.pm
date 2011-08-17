@@ -28,10 +28,11 @@ use List::Util 'min', 'max';
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::SquareArms;
 *_rect_square_range = \&Math::PlanePath::SquareArms::_rect_square_range;
@@ -118,8 +119,8 @@ my @inverse_left = ([5,6,9],
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   ### xy_to_n: "x=$x, y=$y"
 
   my $x3 = floor($x/3);

@@ -24,7 +24,15 @@ use Math::BigRat;
 use Math::Polynomial 1;
 use Math::Polynomial::Horner;
 
-use Smart::Comments;
+#use Devel::Comments;
+
+my_interpolate ([ 0, 1,  2,  3 ],
+                [ 0.5, 4.5, 12.5, 24.5 ]);
+exit 0;
+
+my_interpolate ([ 1,3,5,7 ],
+                [ 2,7,16,29 ]);
+
 
 # # step==0
 # my_interpolate ([  0,   1,   2,   3,   4 ],
@@ -47,17 +55,6 @@ use Smart::Comments;
 #                 [0.5, 1.5, 6.5, 15.5 ]);
 
 
-my_interpolate ([ 2, 3,  4,  5],
-                [12,23,38, 57,,, ]
-               );
-
-exit 0;
-
-my_interpolate ([ 0, -4, -8, -12],
-                [ 1,41,145,313 ]);
-my_interpolate ([ 1,5,9,13 ],
-                [ 2,82,290,626 ]
-               );
 # my_interpolate ([ 2,   3,  4,  5,   6,   7,   8,   9, 10 ],
 #                 [ 9, 25, 49, 81, 121, 169, 225, 289, 361 ]
 #                );
@@ -122,7 +119,13 @@ use constant my_string_config => (variable     => '$d',
 sub my_interpolate {
   my ($xarray, $valarray) = @_;
 
-  my $p = Math::Polynomial->new(Math::BigRat->new(0));
+  my $zero = 0;
+
+  $zero = Math::BigRat->new(0);
+  $xarray   = [ map {Math::BigRat->new($_)} @$xarray ];
+  $valarray = [ map {Math::BigRat->new($_)} @$valarray ];
+
+  my $p = Math::Polynomial->new($zero);
   $p = $p->interpolate($xarray, $valarray);
 
   $p->string_config({ fold_sign => 1,
@@ -133,7 +136,8 @@ sub my_interpolate {
   print "  = $p\n";
 
   $p->string_config({ my_string_config(),
-                      convert_coeff  => \&bigrat_to_decimal });
+                      #  convert_coeff  => \&bigrat_to_decimal,
+                    });
   print "  = ",Math::Polynomial::Horner::as_string($p),"\n";
 
   my $a = $p->coeff(2);
@@ -153,9 +157,11 @@ sub my_interpolate {
     return $p->evaluate($s);
   };
 
-  $x = $x->numify;
-  $y = $y->numify;
-  $z = $z->numify;
+  if (ref $x) {
+    $x = $x->numify;
+    $y = $y->numify;
+    $z = $z->numify;
+  }
   my $n_to_d = sub {
     my ($n) = @_;
     my $root = $y * $n + $z;
@@ -169,6 +175,37 @@ sub my_interpolate {
   }
   exit 0;
 }
+# {
+#   package Math::Polynomial;
+#   sub interpolate {
+#     my ($this, $xvalues, $yvalues) = @_;
+#     if (
+#         !ref($xvalues) || !ref($yvalues) || @{$xvalues} != @{$yvalues}
+#        ) {
+#       croak 'usage: $q = $p->interpolate([$x1, $x2, ...], [$y1, $y2, ...])';
+#     }
+#     return $this->new if !@{$xvalues};
+#     my @alpha  = @{$yvalues};
+#     my $result = $this->new($alpha[0]);
+#     my $aux    = $result->monomial(0);
+#     my $zero   = $result->coeff_zero;
+#     for (my $k=1; $k<=$#alpha; ++$k) {
+#       for (my $j=$#alpha; $j>=$k; --$j) {
+#         my $dx = $xvalues->[$j] - $xvalues->[$j-$k];
+#         croak 'x values not disjoint' if $zero == $dx;
+#         ### dx: "$dx",ref $dx
+#         $alpha[$j] = ($alpha[$j] - $alpha[$j-1]) / $dx;
+#       }
+#       $aux = $aux->mul_root($xvalues->[$k-1]);
+#       $result += $aux->mul_const($alpha[$k]);
+#     ### alpha: join(' ',map{"$_"}@alpha)
+#     }
+#     return $result;
+#   }
+# }
+
+
+
 {
   my $f1 = 1.5;
   my $f2 = 4.5;

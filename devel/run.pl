@@ -27,11 +27,6 @@ use List::Util qw(min max);
 #use Devel::Comments;
 
 {
-  require Math::PlanePath::HilbertCurve;
-  require Math::PlanePath::Staircase;
-  require Math::PlanePath::PeanoCurve;
-  require Math::PlanePath::OctagramSpiral;
-  require Math::PlanePath::ArchimedeanChords;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::HypotOctant;
   require Math::PlanePath::PythagoreanTree;
@@ -39,34 +34,36 @@ use List::Util qw(min max);
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::TriangularHypot;
   require Math::PlanePath::KochSnowflakes;
-  require Math::PlanePath::KochPeaks;
   require Math::PlanePath::KochCurve;
-  require Math::PlanePath::GosperSide;
-  require Math::PlanePath::GosperIslands;
   require Math::PlanePath::SierpinskiArrowhead;
   require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::MathImageGosperIslandsTree;
   require Math::PlanePath::MathImageSierpinskiCurve;
   require Math::PlanePath::MathImageQuintetCurve;
-  require Math::PlanePath::Flowsnake;
   require Math::PlanePath::DragonCurve;
   require Math::PlanePath::DragonMidpoint;
-  require Math::PlanePath::MathImageDragonRounded;
+  require Math::PlanePath::DragonRounded;
   require Math::PlanePath::MathImageSquareReplicate;
   require Math::PlanePath::MathImageWunderlichCurve;
-  require Math::PlanePath::MathImageSquareflakes;
-  my $path = Math::PlanePath::MathImageSquareflakes->new
+  require Math::PlanePath::MathImageOctzagCurve;
+  require Math::PlanePath::CellularRule54;
+  require Math::PlanePath::MathImageQuintetCentres;
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  my $path = Math::PlanePath::Flowsnake->new
     (radix => 4,
      wider => 0,
      # step => 0,
      #tree_type => 'UAD',
      #coordinates => 'PQ',
-      arms => 2,
+     arms => 2,
     );
   my ($prev_x, $prev_y);
   my %seen;
   my $n_start = $path->n_start;
+  my $arms_count = $path->arms_count;
+  print "n_start $n_start arms_count $arms_count\n";
 
   #for (my $i = $n_start; $i <= $n_start + 500000; $i=POSIX::ceil($i*1.1+1)) {
   # for (my $i = 0.75; $i <= 50; $i += .5) {
@@ -77,7 +74,7 @@ use List::Util qw(min max);
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 500; $i++) {
 
-  for (my $i = 0; $i <= 20; $i+=1) {
+  for (my $i = 0; $i <= 200; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
@@ -101,7 +98,7 @@ use List::Util qw(min max);
 
     my $n = $path->xy_to_n ($x+.0, $y-.0);
     if (! defined $n) { $n = 'norev'; }
-
+    #    next;
     my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
     my $rev = '';
     if ($i ne $n) {

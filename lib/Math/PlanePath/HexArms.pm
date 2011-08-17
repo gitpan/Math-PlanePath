@@ -35,16 +35,18 @@ package Math::PlanePath::HexArms;
 use 5.004;
 use strict;
 use List::Util qw(max);
-use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 39;
+$VERSION = 40;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
+
+use constant arms_count => 6;
 
 # [ 0, 1, 2, 3,],
 # [ 0, 1, 3, 6 ],
@@ -107,8 +109,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = floor ($x + 0.5);
-  $y = floor ($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   ### HexArms xy_to_n: "x=$x, y=$y"
   if (($x ^ $y) & 1) {
     return undef;  # nothing on odd squares
