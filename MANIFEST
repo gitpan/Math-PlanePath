@@ -27,14 +27,19 @@ devel/hilbert.pl
 devel/hypot.pl
 devel/interpolate.pl
 devel/iterator.pl
+devel/koch-quad.pl
 devel/Makefile
 devel/old/DragonArms.pm
 devel/old/DragonMidpointArms.pm
+devel/old/FlowsnakeArms.pm
 devel/old/PythagoreanUAD.pm
+devel/old/SierpinskiArrowheadSkewed.pm
+devel/old/SierpinskiHoriz.pm
 devel/pixel-rings.pl
 devel/plus-similar.pl
 devel/pythagorean-area.pl
 devel/pythagorean.pl
+devel/quadric.pl
 devel/r5.pl
 devel/run.pl
 devel/sacks.pl
@@ -42,6 +47,7 @@ devel/sierpinski-arrowhead-stars.pl
 devel/svg.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
+devel/twindragon.pl
 devel/ulam-warburton.pl
 devel/unused.pl
 devel/vertical.pl
@@ -81,6 +87,7 @@ lib/Math/PlanePath/HexSpiralSkewed.pm
 lib/Math/PlanePath/HilbertCurve.pm
 lib/Math/PlanePath/Hypot.pm
 lib/Math/PlanePath/HypotOctant.pm
+lib/Math/PlanePath/ImaginaryBase.pm
 lib/Math/PlanePath/KnightSpiral.pm
 lib/Math/PlanePath/KochCurve.pm
 lib/Math/PlanePath/KochPeaks.pm
@@ -95,6 +102,8 @@ lib/Math/PlanePath/PyramidRows.pm
 lib/Math/PlanePath/PyramidSides.pm
 lib/Math/PlanePath/PyramidSpiral.pm
 lib/Math/PlanePath/PythagoreanTree.pm
+lib/Math/PlanePath/QuadricCurve.pm
+lib/Math/PlanePath/QuadricIslands.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
 lib/Math/PlanePath/SierpinskiArrowhead.pm
@@ -137,6 +146,7 @@ t/HexSpiralSkewed-unskew.t
 t/HexSpiralSkewed.t
 t/HilbertCurve-load.t
 t/HilbertCurve.t
+t/ImaginaryBase.t
 t/KnightSpiral.t
 t/KochCurve.t
 t/KochPeaks.t

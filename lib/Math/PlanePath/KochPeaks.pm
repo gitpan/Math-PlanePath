@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -34,25 +34,15 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve;
+*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
+
+use Math::PlanePath::KochSnowflakes;
+*_log4_floor = \&Math::PlanePath::KochSnowflakes::_log4_floor;
 
 use constant y_negative => 0;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
-
-
-sub _round_down_pow4 {
-  my ($n) = @_;
-  my $exp = 0;
-  while (($n /= 4) >= 1) {
-    $exp++;
-  }
-  return $exp;
-}
-### _round_down_pow4(3): _round_down_pow4(3)
-### _round_down_pow4(4): _round_down_pow4(4)
-### _round_down_pow4(15): _round_down_pow4(15)
-### _round_down_pow4(16): _round_down_pow4(16)
 
 
 # N=1 to 3      3 of, level=0
@@ -95,7 +85,7 @@ sub _round_down_pow4 {
 
 # sub _n_to_level {
 #   my ($n) = @_;
-#   my $level = _round_down_pow4(6*$n + 1);
+#   my $level = _log4_floor(6*$n + 1);
 #   my $side = 4**$level;
 #   my $base = $level + (2*$side + 1)/3 - .5;
 #   ### $level
@@ -121,7 +111,7 @@ sub n_to_xy {
   if ($n < 0.5) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  my $level = _round_down_pow4((3*$n-1)/2);
+  my $level = _log4_floor((3*$n-1)/2);
   my $side = 4**$level;
   my $base = $level + (2*$side + 1)/3;
   ### $level
@@ -188,7 +178,7 @@ sub xy_to_n {
     ### neg y or parity...
     return undef;
   }
-  my ($len,$level) = Math::PlanePath::KochCurve::_round_down_pow3($y+abs($x));
+  my ($len,$level) = _round_down_pow3($y+abs($x));
   ### $level
   ### $len
   if (_is_infinite($level)) {

@@ -29,7 +29,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -167,32 +167,6 @@ sub rect_to_n_range {
                $self->xy_to_n($x1,$y2),
                $self->xy_to_n($x2,$y1),
                $self->xy_to_n($x2,$y2)));
-}
-
-sub _rect_square_range {
-  my ($x1,$y1, $x2,$y2) = @_;
-  ### _rect_square_range(): "$x1,$y1  $x2,$y2"
-
-  foreach ($x1,$y1, $x2,$y2) {
-    $_ = _round_nearest($_);
-  }
-  # if x1,x2 opposite signs then origin x=0 covered, similarly y
-  my $x_zero_uncovered = ($x1<0) == ($x2<0);
-  my $y_zero_uncovered = ($y1<0) == ($y2<0);
-
-  foreach ($x1,$y1, $x2,$y2) {
-    $_ = abs($_);
-  }
-  ### abs rect: "x=$x1 to $x2,  y=$y1 to $y2"
-
-  if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
-  if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
-
-  my $dlo = ($x_zero_uncovered ? $x1 : 0);
-  if ($y_zero_uncovered && $dlo < $y1) { $dlo = $y1 }
-
-  return ($dlo,
-          ($x2 > $y2 ? $x2 : $y2));
 }
 
 1;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,13 +20,16 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1009; }
+BEGIN { plan tests => 310 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::KnightSpiral;
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
+require Math::PlanePath::ImaginaryBase;
 
 
 #------------------------------------------------------------------------------
@@ -34,22 +37,20 @@ require Math::PlanePath::KnightSpiral;
 
 {
   my $want_version = 41;
-  ok ($Math::PlanePath::KnightSpiral::VERSION,
-      $want_version,
+  ok ($Math::PlanePath::ImaginaryBase::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::KnightSpiral->VERSION,
-      $want_version,
+  ok (Math::PlanePath::ImaginaryBase->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::KnightSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::ImaginaryBase->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::KnightSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::ImaginaryBase->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::KnightSpiral->new;
+  my $path = Math::PlanePath::ImaginaryBase->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -64,28 +65,34 @@ require Math::PlanePath::KnightSpiral;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new;
-  ok ($path->n_start, 1, 'n_start()');
-  ok (!! $path->x_negative, 1, 'x_negative()');
-  ok (!! $path->y_negative, 1, 'y_negative()');
+  my $path = Math::PlanePath::ImaginaryBase->new;
+  ok ($path->n_start, 0, 'n_start()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 1, 'y_negative()');
 }
 
+
 #------------------------------------------------------------------------------
-# xy_to_n
+# random points
 
 {
-  my $path = Math::PlanePath::KnightSpiral->new;
-  my ($x, $y) = $path->n_to_xy(1);
-  foreach my $n (2 .. 1000) {
-    my ($nx, $ny) = $path->n_to_xy($n);
-    # diag "n=$n  $nx,$ny";
-    my $dx = abs($nx - $x);
-    my $dy = abs($ny - $y);
-    ok (($dx == 2 && $dy == 1)
-        || ($dx == 1 && $dy == 2),
-        1,
-        "step n=$n from $x,$y to $nx,$ny   D=$dx,$dy");
-    ($x,$y) = ($nx,$ny);
+  my $radix = 2 + int(rand(20));
+  my $path = Math::PlanePath::ImaginaryBase->new (radix => $radix);
+  for (1 .. 100) {
+    my $bits = int(rand(25));         # 0 to 25, inclusive
+    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+
+    my ($x,$y) = $path->n_to_xy ($n);
+    my $rev_n = $path->xy_to_n ($x,$y);
+    if (! defined $rev_n) { $rev_n = 'undef'; }
+    ok ($rev_n, $n,
+        "xy_to_n($x,$y) radix=$radix reverse to expect n=$n, got $rev_n");
+
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+    ok ($n_lo <= $n, 1,
+        "rect_to_n_range() radix=$radix reverse n=$n cf got n_lo=$n_lo");
+    ok ($n_hi >= $n, 1,
+        "rect_to_n_range() radix=$radix reverse n=$n cf got n_hi=$n_hi");
   }
 }
 

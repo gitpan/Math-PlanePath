@@ -22,6 +22,7 @@ use strict;
 use Test;
 use Math::BigFloat;
 use Math::PlanePath::KochCurve;
+use Math::PlanePath::KochSnowflakes;
 use Math::PlanePath::PeanoCurve;
 use Math::PlanePath::ZOrderCurve;
 
@@ -31,7 +32,7 @@ use MyTestHelpers;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-my $test_count = 24;
+my $test_count = 26;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
@@ -120,7 +121,7 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
 }
 
 #------------------------------------------------------------------------------
-# KochCurve
+# KochCurve _round_down_pow3()
 
 {
   my $orig = Math::BigFloat->new(3) ** 64 + 1.25;
@@ -131,6 +132,20 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
   ok ($pow == Math::BigFloat->new(3.0) ** 64, 1,
       "_round_down_pow3() 3^64 + 1.25 power");
   ok ($exp, 64, "_round_down_pow3() 3^64 + 1.25 exp");
+}
+
+#------------------------------------------------------------------------------
+# KochSnowflakes _log4_floor()
+
+{
+  my $orig = Math::BigFloat->new(4) ** 64 + 1.25;
+  my $n    = Math::BigFloat->new(4) ** 64 + 1.25;
+  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
+
+  ok ($n, $orig, "_log4_floor() unmodified input");
+  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
+  #     "_log4_floor() 4^64 + 1.25 power");
+  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
 }
 
 exit 0;

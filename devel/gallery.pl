@@ -38,8 +38,56 @@ my $tempfh = File::Temp->new (SUFFIX => '.png');
 my $tempfile = $tempfh->filename;
 my $big_bytes = 0;
 
+my $tempfh_31 = File::Temp->new;
+my $tempfilename_31 = $tempfh_31->filename;
+foreach (0 .. 31) { print $tempfh_31 "$_\n"; }
+close $tempfh_31;
+
+my $tempfh_1023 = File::Temp->new;
+my $tempfilename_1023 = $tempfh_1023->filename;
+foreach (0 .. 1023) { print $tempfh_1023 "$_\n"; }
+close $tempfh_1023;
+
 foreach my $elem
   (
+   ['imaginarybase-small.png',
+    'math-image --path=ImaginaryBase --lines --scale=6 --size=32 --png'],
+   ['imaginarybase-big.png',
+    'math-image --path=ImaginaryBase --lines --scale=16 --size=200 --png'],
+   ['imaginarybase-radix5-big.png',
+    'math-image --path=ImaginaryBase,radix=5 --lines --scale=16 --size=200 --png'],
+
+
+   ['quadric-islands-small.png',
+    'math-image --path=QuadricIslands --lines --scale=4 --size=32 --png'],
+   ['quadric-islands-big.png',
+    'math-image --path=QuadricIslands --lines --scale=2 --size=200x200 --png'],
+
+   ['quadric-curve-small.png',
+    'math-image --path=QuadricCurve --lines --scale=2 --size=32 --offset=3,0 --png'],
+   ['quadric-curve-big.png',
+    'math-image --path=QuadricCurve --lines --scale=4 --size=300x200 --offset=3,0 --png'],
+
+
+   ['flowsnake-3arm-big.png',
+    'math-image --path=Flowsnake,arms=4 --lines --scale=6 --size=200x200 --png'],
+   ['flowsnake-small.png',
+    'math-image --path=Flowsnake --lines --scale=4 --size=32x32 --offset=-5,-13 --png'],
+   ['flowsnake-big.png',
+    'math-image --path=Flowsnake --lines --scale=8 --size=200x200 --offset=-20,-90 --png'],
+
+   ['flowsnake-centres-small.png',
+    'math-image --path=FlowsnakeCentres --lines --scale=4 --size=32x32 --offset=-5,-13 --png'],
+   ['flowsnake-centres-big.png',
+    'math-image --path=FlowsnakeCentres --lines --scale=8 --size=200x200 --offset=-20,-90 --png'],
+
+
+   # ['twindragon-small.png',
+   #  "math-image --path=TwinDragon --values=File,filename=$tempfilename_31 --scale=2 --size=32x32 --png"],
+   # ['twindragon-big.png',
+   #  "math-image --path=TwinDragon --values=File,filename=$tempfilename_1023 --scale=2 --size=200x200 --png"],
+
+
    # ['zigzag-oct-small.png',
    #  'math-image --path=ZigzagOct --lines --scale=4 --size=32x32 --offset=1,0 --png'],
    # ['zigzag-oct-big.png',
@@ -88,16 +136,6 @@ foreach my $elem
     'math-image --path=DragonCurve --lines --scale=4 --size=32x32 --offset=6,0 --png'],
    ['dragon-big.png',
     'math-image --path=DragonCurve --lines --figure=point --scale=8 --size=250x200 --offset=-55,0 --png'],
-
-   ['flowsnake-centres-small.png',
-    'math-image --path=FlowsnakeCentres --lines --scale=4 --size=32x32 --offset=-5,-13 --png'],
-   ['flowsnake-centres-big.png',
-    'math-image --path=FlowsnakeCentres --lines --scale=8 --size=200x200 --offset=-20,-90 --png'],
-
-   ['flowsnake-small.png',
-    'math-image --path=Flowsnake --lines --scale=4 --size=32x32 --offset=-5,-13 --png'],
-   ['flowsnake-big.png',
-    'math-image --path=Flowsnake --lines --scale=8 --size=200x200 --offset=-20,-90 --png'],
 
 
    ['koch-curve-small.png',

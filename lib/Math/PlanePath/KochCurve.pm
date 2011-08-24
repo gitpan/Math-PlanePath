@@ -39,7 +39,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -59,6 +59,7 @@ use constant y_negative => 0;
 #
 sub _round_down_pow3 {
   my ($n) = @_;
+
   # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
   # based blog()
   my $exp = (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))
@@ -91,14 +92,14 @@ sub n_to_xy {
   ### KochCurve n_to_xy(): $n
 
   # secret negatives to -.5
-  if ($n < -.5) { return; }
+  if (2*$n < -1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $x;
   {
     my $int = int($n);
-    $x = 2 * ($n - $int);
-    $n = $int;  # BigFloat int() gives BigInt, use that
+    $x = 2 * ($n - $int);  # usually positive, but n=-0.5 gives x=-0.5
+    $n = $int;             # BigFloat int() gives BigInt, use that
   }
   my $y = 0;
   my $len = 1;

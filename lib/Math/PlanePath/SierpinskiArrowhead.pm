@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -96,8 +96,9 @@ sub n_to_xy {
   return ($x, $y);
 }
 
+# return ($pow, $exp) where $pow = 2**$exp >= $x
 # FIXME: Math::BigInt log() returns nan
-#
+# for some places an estimate is enough here
 sub _round_up_pow2 {
   my ($x) = @_;
   if ($x < 1) { $x = 1; }

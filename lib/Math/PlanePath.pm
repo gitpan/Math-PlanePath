@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 40;
+$VERSION = 41;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -143,8 +143,9 @@ include
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
+    ImaginaryBase          replicating in four directions
 
-    Flowsnake              self-similar hexagonal tiling traversal
+    Flowsnake              self-similar hexagonal tile traversal
     FlowsnakeCentres         likewise, but centres of hexagons
     GosperIslands          concentric island rings
     GosperSide             single side/radial
@@ -152,6 +153,8 @@ include
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
     KochSnowflakes         concentric notched snowflake rings
+    QuadricCurve           eight segment zig-zag
+    QuadricIslands         rings of those zig-zags
     SierpinskiArrowhead    self-similar triangle traversal
     DragonCurve            paper folding
     DragonRounded            same but rounding-off vertices
@@ -407,13 +410,16 @@ The self-similar patterns such as PeanoCurve generally have a base pattern
 which repeats at powers N=base^level (or some relation to that for things
 like KochPeaks and GosperIslands).
 
-    Base        Path
-    ----        ----
-      2       HilbertCurve, ZOrderCurve,
-                DragonCurve, DragonRounded, DragonMidpoint
-      3       PeanoCurve, SierpinskiArrowhead,
-                GosperIslands, GosperSide
-      4       KochCurve, KochPeaks, KochSnowflakes
+    Base         Path
+    ----         ----
+      2        HilbertCurve, ZOrderCurve (default),
+                 ImaginaryBase (default),
+                 DragonCurve, DragonRounded, DragonMidpoint,
+      3        PeanoCurve (default), SierpinskiArrowhead,
+                 GosperIslands, GosperSide
+      4        KochCurve, KochPeaks, KochSnowflakes
+      8        QuadricCurve, QuadricIslands
+    variable   PeanoCurve, ZOrderCurve, ImaginaryBase
 
 =head2 Triangular Lattice
 
@@ -502,13 +508,18 @@ L<Math::PlanePath::TriangularHypot>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::Flowsnake>,
 L<Math::PlanePath::FlowsnakeCentres>,
 L<Math::PlanePath::GosperIslands>,
 L<Math::PlanePath::GosperSide>,
+
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,
 L<Math::PlanePath::KochSnowflakes>,
+L<Math::PlanePath::QuadricCurve>,
+L<Math::PlanePath::QuadricIslands>
+
 L<Math::PlanePath::SierpinskiArrowhead>,
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::DragonRounded>,

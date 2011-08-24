@@ -27,12 +27,15 @@ use List::Util qw( max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::SierpinskiArrowhead;
+*_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -190,21 +193,6 @@ sub n_to_xy {
 
   ### rotated offset: "$x_offset,$y_offset   return $x,$y"
   return ($x,$y);
-}
-
-# FIXME: Math::BigInt log() returns nan
-# ENHANCE-ME: this is only for the level limit, so a log() estimate is
-# enough, don't have to be exact
-sub _round_up_pow2 {
-  my ($x) = @_;
-  if ($x < 1) { $x = 1; }
-  my $exp = ceil (log($x) / log(2));
-  my $pow = 2 ** $exp;
-  if ($pow < $x) {
-    return (2*$pow, $exp+1)
-  } else {
-    return ($pow, $exp);
-  }
 }
 
 sub xy_to_n {

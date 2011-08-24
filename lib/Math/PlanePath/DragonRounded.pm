@@ -28,13 +28,16 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_floor = \&Math::PlanePath::_floor;
+
+use Math::PlanePath::SierpinskiArrowhead;
+*_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
 
 use constant n_start => 0;
 sub arms_count {
@@ -269,17 +272,6 @@ sub rect_to_n_range {
   #   ($x1/3,$y1/3, $x2/3,$y2/3);
   # my $level_hi = ceil (log($r_hi+.1) * (3 * 1/log(2))) + 1;
   # return (1, (2**$level_hi + 2));
-}
-
-sub _round_up_pow2 {
-  my ($x) = @_;
-  my $exp = ceil (log(max(1, $x)) / log(2));
-  my $pow = 2 ** $exp;
-  if ($pow < $x) {
-    return (2*$pow, $exp+1)
-  } else {
-    return ($pow, $exp);
-  }
 }
 
 1;

@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 # inherit new(), rect_to_n_range(), arms_count()
 use Math::PlanePath::Flowsnake;

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 538 }
+BEGIN { plan tests => 328 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::DragonRounded;
 # VERSION
 
 {
-  my $want_version = 40;
+  my $want_version = 41;
   ok ($Math::PlanePath::DragonRounded::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonRounded->VERSION,  $want_version,
@@ -138,7 +138,7 @@ require Math::PlanePath::DragonRounded;
 
 {
   my $path = Math::PlanePath::DragonRounded->new;
-  for (1 .. 20) {
+  for (1 .. 10) {
     my $bits = int(rand(25));         # 0 to 25, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
@@ -163,7 +163,7 @@ require Math::PlanePath::DragonRounded;
 
 {
   my $path = Math::PlanePath::DragonRounded->new;
-  for (1 .. 100) {
+  for (1 .. 50) {
     my $bits = int(rand(25));         # 0 to 25, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 

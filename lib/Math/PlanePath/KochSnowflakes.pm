@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
@@ -36,24 +36,27 @@ use Math::PlanePath::KochCurve;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::KochCurve;
+*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
+
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 
-sub _prevpow4 {
+sub _log4_floor {
   my ($n) = @_;
-  my $pow = 0;
+  my $exp = 0;
   while (($n /= 4) >= 1) {
-    $pow++;
+    $exp++;
   }
-  return $pow;
+  return $exp;
 }
-### assert: _prevpow4(3) == 0
-### assert: _prevpow4(4) == 1
-### assert: _prevpow4(5) == 1
-### assert: _prevpow4(15) == 1
-### assert: _prevpow4(16) == 2
-### assert: _prevpow4(17) == 2
+### assert: _log4_floor(3) == 0
+### assert: _log4_floor(4) == 1
+### assert: _log4_floor(5) == 1
+### assert: _log4_floor(15) == 1
+### assert: _log4_floor(16) == 2
+### assert: _log4_floor(17) == 2
 
 
 # N=1 to 3      3 of, level=1
@@ -91,7 +94,7 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  my $level = _prevpow4($n);
+  my $level = _log4_floor($n);
   my $base = 1 << (2*$level);  # 4**$level
 
   ### $level
@@ -173,7 +176,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my ($len,$level) = Math::PlanePath::KochCurve::_round_down_pow3($y);
+  my ($len,$level) = _round_down_pow3($y);
   $level += 1;
   ### $level
   ### $len

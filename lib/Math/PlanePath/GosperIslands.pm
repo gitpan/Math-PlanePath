@@ -28,17 +28,19 @@ use 5.004;
 use strict;
 use List::Util 'max';
 use POSIX 'ceil';
-use Math::PlanePath::KochCurve;
 use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::KochCurve;
+*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
 
 use constant n_start => 1;
 
@@ -92,7 +94,7 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my ($pow, $level) = Math::PlanePath::KochCurve::_round_down_pow3($n+2);
+  my ($pow, $level) = _round_down_pow3($n+2);
   ### $level
   ### base: $pow - 2
   ### $sidelen

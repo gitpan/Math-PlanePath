@@ -60,13 +60,16 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 use Math::PlanePath::KochCurve;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::KochCurve;
+*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -101,13 +104,13 @@ sub n_to_xy {
     }
   }
 
-  my $h = 2*($n-1)+1;
-  my ($range, $level) = Math::PlanePath::KochCurve::_round_down_pow3 ($h);
+  # h = 2*(n-1)+1 = 2*n-2+1 = 2*n-1
+  my ($range, $level) = _round_down_pow3 (2*$n-1);
   my $base = ($range - 1)/2 + 1;
   my $rem = $n - $base;
 
   ### $n
-  ### $h
+  ### h: 2*$n-1
   ### $level
   ### $range
   ### $base

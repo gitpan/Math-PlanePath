@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 41, August 2011
+    - new QuadricCurve, QuadricIslands, ImaginaryBase
+
 Version 40, August 2011
     - new DragonRounded, CellularRule54
     - new arms_count() method

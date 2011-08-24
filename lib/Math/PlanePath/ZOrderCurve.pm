@@ -31,7 +31,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -367,7 +367,8 @@ So for a given rectangle the smallest N is at the lower left corner
 
 L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>,
-L<Math::PlanePath::HilbertCurve>
+L<Math::PlanePath::HilbertCurve>,
+L<Math::PlanePath::ImaginaryBase>
 
 C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
 

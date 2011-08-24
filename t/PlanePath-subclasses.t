@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 354 }
+BEGIN { plan tests => 375 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,11 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
                   # OctzagCurve
+                  # TwinDragon
 my @modules = qw(
+                  ImaginaryBase
+                  QuadricCurve
+                  QuadricIslands
                   Flowsnake
                   FlowsnakeCentres
 
@@ -113,7 +117,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 40;
+my $want_version = 41;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -339,8 +343,8 @@ sub pythagorean_diag {
 }
 
 {
-  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 150;
-  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 6;
+  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 50;
+  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 5;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
 
   foreach my $module (@modules) {
@@ -702,6 +706,12 @@ sub pythagorean_diag {
                 {
                   my $path_x_negative = ($path->x_negative ? 1 : 0);
                   $got_x_negative = ($got_x_negative ? 1 : 0);
+
+                  if ($path->isa('Math::PlanePath::GosperSide')) {
+                    # GosperSide doesn't get to X negative in small rectangle
+                    $got_x_negative = 1;
+                  }
+
                   ($path_x_negative == $got_x_negative)
                     or &$report ("x_negative() $path_x_negative but in rect got $got_x_negative");
                 }
@@ -710,7 +720,8 @@ sub pythagorean_diag {
                   $got_y_negative = ($got_y_negative ? 1 : 0);
 
                   if ($path->isa('Math::PlanePath::GosperSide')
-                      || $path->isa('Math::PlanePath::Flowsnake')) {
+                      || $path->isa('Math::PlanePath::Flowsnake')
+                      || $path->isa('Math::PlanePath::GreekKeySpiral')) {
                     # GosperSide and Flowsnake take a long time to get to Y
                     # negative, not reached by the rectangle considered here
                     $got_y_negative = 1;

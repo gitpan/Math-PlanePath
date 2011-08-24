@@ -40,7 +40,7 @@ use List::Util qw(min max);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 40;
+$VERSION = 41;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

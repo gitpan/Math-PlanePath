@@ -48,7 +48,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 40;
+  my $want_version = 41;
   ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
