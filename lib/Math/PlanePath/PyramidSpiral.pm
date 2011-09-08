@@ -16,13 +16,16 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=PyramidSpiral --all --output=numbers_dash
+
+
 package Math::PlanePath::PyramidSpiral;
 use 5.004;
 use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -76,12 +79,12 @@ sub n_to_xy {
 #   [ 1,  2,  3 ]
 #   [ 7, 21, 43 ]
 #   n = (4*$y*$y + 2*abs($y) + 1)
-# 
+#
 # positive y, x=0 centres
 #   [ 1,  2,  3 ]
 #   [ 3, 13, 31 ]
 #   n = (4*$r*$r + -2*$r + 1)
-# 
+#
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
@@ -154,16 +157,22 @@ Math::PlanePath::PyramidSpiral -- integer points drawn around a pyramid
 
 This path makes a pyramid shaped spiral,
 
-                     31                            3
-                  32 13 30                         2
-               33 14  3 12 29                      1
-            34 15  4  1  2 11 28              <- y=0
-         35 16  5  6  7  8  9 10 27 ...           -1
-      36 17 18 19 20 21 22 23 24 25 26 51         -2
-   37 38 39 40 41 42 43 44 45 46 47 48 49 50      -3
+                      31                         3
+                     /  \
+                   32 13 30                      2
+                  /  /  \  \
+                33 14  3 12 29                   1
+               /  /  /  \  \  \
+             34 15  4  1--2 11 28 ...        <- Y=0
+            /  /  /           \  \  \
+          35 16  5--6--7--8--9-10 27 52         -1
+         /  /                       \  \
+       36 17-18-19-20-21-22-23-24-25-26 51      -2
+      /                                   \
+    37-38-39-40-41-42-43-44-45-46-47-48-49-50   -3
 
-                      ^
-   -5 -4 -3  -2  -1  x=0  1   2   3  4  5  6 
+                       ^
+    -5 -4 -3  -2  -1  X=0 1  2  3  4  5  6  7
 
 The perfect squares 1,4,9,16 fall one before the bottom left corner of each
 loop, and the pronic numbers 2,6,12,20,30,etc are the vertical upwards from
@@ -176,6 +185,9 @@ Cutting the corners shortens the loop by 2 and extending the base lengthens
 it by 2, for the same rate.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

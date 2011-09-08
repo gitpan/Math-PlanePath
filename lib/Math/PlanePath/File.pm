@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -166,7 +166,7 @@ sub _read {
 1;
 __END__
 
-=for stopwords Ryde
+=for stopwords Ryde Math-PlanePath
 
 =head1 NAME
 
@@ -197,6 +197,9 @@ be integers, but the X,Y values can be fractions like 1.5 too, including
 exponential floating point 1500.5e-1 etc.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

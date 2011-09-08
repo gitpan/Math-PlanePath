@@ -29,7 +29,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -205,7 +205,7 @@ __END__
       #                   27                        -3
 
 
-=for stopwords DiamondArms Math-PlanePath Ryde
+=for stopwords DiamondArms Math-PlanePath Ryde ie
 
 =head1 NAME
 
@@ -278,6 +278,9 @@ N=1 would be at -1/2,-1/2.  But the it's done as N=1 at 0,0 to stay in
 integers.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

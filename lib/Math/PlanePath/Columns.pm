@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -128,6 +128,9 @@ This path is columns of a given fixed height.  For example height 5 would be
            x=0   1   2   3   4  ...
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

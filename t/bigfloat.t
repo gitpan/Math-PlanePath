@@ -21,10 +21,6 @@ use 5.004;
 use strict;
 use Test;
 use Math::BigFloat;
-use Math::PlanePath::KochCurve;
-use Math::PlanePath::KochSnowflakes;
-use Math::PlanePath::PeanoCurve;
-use Math::PlanePath::ZOrderCurve;
 
 use lib 't';
 use MyTestHelpers;
@@ -32,7 +28,7 @@ use MyTestHelpers;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-my $test_count = 26;
+my $test_count = 31;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
@@ -62,6 +58,7 @@ Math::BigFloat->precision(-20);  # digits right of decimal point
 #------------------------------------------------------------------------------
 # _round_nearest()
 
+require Math::PlanePath;
 ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.75')) == -1,  1);
 ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.5'))  == 0,  1);
 ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.25')) == 0,  1);
@@ -75,6 +72,7 @@ ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('2'))    == 2,  1);
 #------------------------------------------------------------------------------
 # _floor()
 
+require Math::PlanePath;
 ok (Math::PlanePath::_floor(Math::BigFloat->new('-.75')) == -1,  1);
 ok (Math::PlanePath::_floor(Math::BigFloat->new('-.5'))  == -1,  1);
 ok (Math::PlanePath::_floor(Math::BigFloat->new('-.25')) == -1,  1);
@@ -89,6 +87,7 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
 #------------------------------------------------------------------------------
 # PeanoCurve
 
+require Math::PlanePath::PeanoCurve;
 {
   my $path = Math::PlanePath::PeanoCurve->new;
 
@@ -105,6 +104,7 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
 #------------------------------------------------------------------------------
 # ZOrderCurve
 
+require Math::PlanePath::ZOrderCurve;
 {
   my $path = Math::PlanePath::ZOrderCurve->new;
 
@@ -121,22 +121,46 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
 }
 
 #------------------------------------------------------------------------------
-# KochCurve _round_down_pow3()
+# KochCurve _round_down_pow()
 
+require Math::PlanePath::KochCurve;
+{
+  my $orig = Math::BigFloat->new(3) ** 64;
+  my $n    = Math::BigFloat->new(3) ** 64;
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+
+  ok ($n, $orig, "_round_down_pow(3) unmodified input");
+  ok ($pow == Math::BigFloat->new(3.0) ** 64, 1,
+      "_round_down_pow(3) 3^64 + 1.25 power");
+  ok ($exp, 64, "_round_down_pow(3) 3^64 + 1.25 exp");
+}
 {
   my $orig = Math::BigFloat->new(3) ** 64 + 1.25;
   my $n    = Math::BigFloat->new(3) ** 64 + 1.25;
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow3($n);
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+  ### pow: "$pow"
+  ### exp: "$exp"
 
-  ok ($n, $orig, "_round_down_pow3() unmodified input");
+  ok ($n, $orig, "_round_down_pow(3) unmodified input");
   ok ($pow == Math::BigFloat->new(3.0) ** 64, 1,
-      "_round_down_pow3() 3^64 + 1.25 power");
-  ok ($exp, 64, "_round_down_pow3() 3^64 + 1.25 exp");
+      "_round_down_pow(3) 3^64 + 1.25 power");
+  ok ($exp, 64, "_round_down_pow(3) 3^64 + 1.25 exp");
 }
 
 #------------------------------------------------------------------------------
 # KochSnowflakes _log4_floor()
 
+require Math::PlanePath::KochSnowflakes;
+{
+  my $orig = Math::BigFloat->new(4) ** 64;
+  my $n    = Math::BigFloat->new(4) ** 64;
+  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
+
+  ok ($n, $orig, "_log4_floor() unmodified input");
+  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
+  #     "_log4_floor() 4^64 + 1.25 power");
+  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
+}
 {
   my $orig = Math::BigFloat->new(4) ** 64 + 1.25;
   my $n    = Math::BigFloat->new(4) ** 64 + 1.25;

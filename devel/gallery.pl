@@ -50,6 +50,28 @@ close $tempfh_1023;
 
 foreach my $elem
   (
+   ['cellular-rule54-small.png',
+    'math-image --path=CellularRule54 --all --scale=3 --size=32x32 --png'],
+   ['cellular-rule54-big.png',
+    'math-image --path=CellularRule54 --all --scale=4 --size=300x150 --png'],
+
+   ['sierpinski-arrowhead-centres-small.png',
+    'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32 --offset=0,1 --png'],
+   ['sierpinski-arrowhead-centres-big.png',
+    'math-image --path=SierpinskiArrowheadCentres --lines --scale=3 --size=400x200 --png'],
+
+   ['sierpinski-arrowhead-small.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=2 --size=32 --offset=0,1 --png'],
+   ['sierpinski-arrowhead-big.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200 --png'],
+
+   ['sierpinski-triangle-small.png',
+    'math-image --path=SierpinskiTriangle --all --scale=2 --size=32 --offset=0,1 --png'],
+   ['sierpinski-triangle-big.png',
+    'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200 --png'],
+
+
+
    ['imaginarybase-small.png',
     'math-image --path=ImaginaryBase --lines --scale=6 --size=32 --png'],
    ['imaginarybase-big.png',
@@ -103,11 +125,6 @@ foreach my $elem
    ['triangle-spiral-skewed-big.png',
     'math-image --path=TriangleSpiralSkewed --lines --scale=13 --size=150 --png'],
 
-   ['cellular-rule54-small.png',
-    'math-image --path=CellularRule54 --all --scale=4 --size=32x32 --png'],
-   ['cellular-rule54-big.png',
-    'math-image --path=CellularRule54 --all --scale=4 --size=300x150 --png'],
-
    ['pyramid-rows-small.png',
     'math-image --path=PyramidRows --lines --scale=5 --size=32x32 --png'],
    ['pyramid-rows-big.png',
@@ -152,12 +169,6 @@ foreach my $elem
     'math-image --path=KochPeaks --lines --scale=2 --size=32 --png'],
    ['koch-peaks-big.png',
     'math-image --path=KochPeaks --lines --scale=3 --size=200x100 --png'],
-
-
-   ['sierpinski-arrowhead-small.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=1 --size=32 --offset=0,3 --png'],
-   ['sierpinski-arrowhead-big.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200 --png'],
 
 
    ['gosper-side-small.png',

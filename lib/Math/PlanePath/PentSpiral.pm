@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -202,6 +202,9 @@ half (y>=0) those squares line up, in the lower half (y<0) they're offset on
 alternate rows.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

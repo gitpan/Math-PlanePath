@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -108,7 +108,6 @@ use constant n_start => 0;
 sub _chord_angle_inc {
   my ($t) = @_;
 
-  my $tsq = $t*$t;
   my $u = 2*M_PI()/$t; # estimate
 
   foreach (0 .. 10) {
@@ -236,7 +235,7 @@ sub xy_to_n {
   ### $n_lo
 
   # loop with for(;;) since $n_lo..$n_hi limited to IV range
-  for (my $n = $n_lo; ; $n++) {
+  for (my $n = $n_lo; ; $n += 1) {
     my ($nx,$ny) = $self->n_to_xy($n);
     # #### $n
     # #### $nx
@@ -477,6 +476,9 @@ ArchimedeanChords is an actual Archimedean spiral (of radial spacing 1),
 with unit steps angling along that.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

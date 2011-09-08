@@ -24,14 +24,13 @@
 package Math::PlanePath::GreekKeySpiral;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
-use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_floor = \&Math::PlanePath::_floor;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::SquareArms;
@@ -123,8 +122,8 @@ sub xy_to_n {
   $y = _round_nearest ($y);
   ### xy_to_n: "x=$x, y=$y"
 
-  my $x3 = floor($x/3);
-  my $y3 = floor($y/3);
+  my $x3 = _floor($x/3);
+  my $y3 = _floor($y/3);
   $x %= 3;
   $y %= 3;
   my $n;
@@ -244,6 +243,9 @@ is alternately on the inside and outside for the vertical and horizontal is
 necessary to make the corners join.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

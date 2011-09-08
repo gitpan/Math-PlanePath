@@ -26,15 +26,15 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve;
-*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use Math::PlanePath::KochSnowflakes;
 *_log4_floor = \&Math::PlanePath::KochSnowflakes::_log4_floor;
@@ -178,7 +178,7 @@ sub xy_to_n {
     ### neg y or parity...
     return undef;
   }
-  my ($len,$level) = _round_down_pow3($y+abs($x));
+  my ($len,$level) = _round_down_pow ($y+abs($x), 3);
   ### $level
   ### $len
   if (_is_infinite($level)) {
@@ -213,7 +213,7 @@ sub xy_to_n {
         $x -= $rel;
         ($x,$y) = (($x+3*$y)/2,   # rotate -60
                    ($y-$x)/2);
-        $n++;
+        $n += 1;
       }
     } else {
       $len /= 3;
@@ -232,7 +232,7 @@ sub xy_to_n {
   ### end at: "x=$x,y=$y   n=$n"
   if ($x) {
     ### endmost point
-    $n++;
+    $n += 1;
     $x -= 2;
   }
   if ($x != 0 || $y != 0) {
@@ -376,6 +376,9 @@ and end points.  They can equal the ends, such as N=6 or N=19, but not
 beyond.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -198,14 +198,14 @@ sub rect_to_n_range {
   ### SierpinskiArrowhead rect_to_n_range() ...
 
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
-  $y2 = floor($y2 + 0.5);
+  $y2 = _round_nearest ($y2);
   if ($y2 < 0) {
     return (1,0);
   }
 
+  $x1 = _round_nearest ($x1);
+  $x2 = _round_nearest ($x2);
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
-  $x1 = floor($x1 + 0.5);
-  $x2 = floor($x2 + 0.5);
 
   if ($x2 < -$y2 || $x1 > $y2) {
     return (1,0);  # outside diagonals X=Y, X=-Y
@@ -259,7 +259,7 @@ cumulative
 
 
 
-=for stopwords eg Ryde Sierpinski Nlevel ie
+=for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND ZOrderCurve Math-PlanePath
 
 =head1 NAME
 
@@ -422,11 +422,14 @@ could be alternated to have the endpoint on the X axis each time if desired.
 
 =head1 FUNCTIONS
 
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
+
 =over 4
 
 =item C<$path = Math::PlanePath::SierpinskiArrowhead-E<gt>new ()>
 
-Create and return a new path object.
+Create and return a new arrowhead path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -441,6 +444,8 @@ integer points.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::SierpinskiArrowheadCentres>,
+L<Math::PlanePath::SierpinskiTriangle>,
 L<Math::PlanePath::KochCurve>
 
 =head1 HOME PAGE

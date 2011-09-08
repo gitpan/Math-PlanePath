@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -193,7 +193,7 @@ sub _rect_square_range {
 1;
 __END__
 
-=for stopwords SquareArms Math-PlanePath Ryde
+=for stopwords SquareArms Math-PlanePath Ryde repdigit dlo Nlo Nhi
 
 =head1 NAME
 
@@ -206,8 +206,6 @@ Math::PlanePath::SquareArms -- four spiral arms
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
-
-B<In progress ...>
 
 This path follows four spiral arms, each advancing successively,
 
@@ -242,6 +240,9 @@ Each arm is N=4*k+rem for a remainder rem=0,1,2,3, so sequences related to
 multiples of 4 or with a modulo 4 pattern may fall on particular arms.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

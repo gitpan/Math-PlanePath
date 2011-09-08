@@ -24,7 +24,7 @@
 # Sur une courbe continue sans tangente, obtenue par une construction
 # géométrique élémentaire
 #
-# Cesàro, E. "Remarques sur la courbe de von Koch." Atti della
+# Cesàro, "Remarques sur la courbe de von Koch." Atti della
 # R. Accad. della Scienze fisiche e matem. Napoli 12, No. 15, 1-12,
 # 1905. Reprinted as §228 in Opere scelte, a cura dell'Unione matematica
 # italiana e col contributo del Consiglio nazionale delle ricerche, Vol. 2:
@@ -39,7 +39,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -52,40 +52,6 @@ use Math::PlanePath;
 use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
-
-# return ($pow, $exp) with $pow = 3**$exp <= $n, the next power of 3 at or
-# below $n
-# shared with KochPeaks,KochSnowflakes,PythagoreanTree,GosperIslands,...
-#
-sub _round_down_pow3 {
-  my ($n) = @_;
-
-  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
-  # based blog()
-  my $exp = (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))
-             ? $n->copy->blog(3)
-             : int(log($n)/log(3)));
-  my $pow = 3**$exp;
-  ### n:   ref($n)."  $n"
-  ### exp: ref($exp)."  $exp"
-  ### pow: ref($pow)."  $pow"
-
-  # check how $pow actually falls against $n, not sure should trust float
-  # rounding in log()/log(3)
-  # Crib: $n as first arg in case $n==BigFloat and $pow==BigInt
-  if ($n < $pow) {
-    ### hmm, int(log) too big, decrease...
-    $exp -= 1;
-    $pow /= 3;
-  } elsif ($n >= 3*$pow) {
-    ### hmm, int(log) too small, increase...
-    $exp += 1;
-    $pow *= 3;
-  } else {
-    ### int(log) ok ...
-  }
-  return ($pow, $exp);
-}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -140,7 +106,7 @@ sub xy_to_n {
     ### neg y or parity different ...
     return undef;
   }
-  my ($len,$level) = _round_down_pow3(($x/2)||1);
+  my ($len,$level) = _round_down_pow(($x/2)||1, 3);
   ### $level
   ### $len
   if (_is_infinite($level)) {
@@ -159,7 +125,7 @@ sub xy_to_n {
         $x -= 2*$len;
         ($x,$y) = (($x+3*$y)/2,   # rotate -60
                    ($y-$x)/2);
-        $n++;
+        $n += 1;
       }
     } else {
       $x -= 4*$len;
@@ -209,6 +175,50 @@ sub rect_to_n_range {
   return (0, 4**$level);
 }
 
+#------------------------------------------------------------------------------
+# generic, shared
+
+# return ($pow, $exp) with $pow = $base**$exp <= $n,
+# the next power of $base at or below $n
+#
+sub _round_down_pow {
+  my ($n, $base) = @_;
+  ### _round_down_pow(): "$n base $base"
+
+  if ($n < $base) {
+    return (1, 0);
+  }
+
+  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
+  # based blog()
+  if (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))) {
+    my $exp = $n->copy->blog($base);
+    return (Math::BigInt->new(1)->blsft($exp,$base),
+            $exp);
+  }
+
+  my $exp = int(log($n)/log($base));
+  my $pow = $base**$exp;
+  ### n:   ref($n)."  $n"
+  ### exp: ref($exp)."  $exp"
+  ### pow: ref($pow)."  $pow"
+
+  # check how $pow actually falls against $n, not sure should trust float
+  # rounding in log()/log($base)
+  # Crib: $n as first arg in case $n==BigFloat and $pow==BigInt
+  if ($n < $pow) {
+    ### hmm, int(log) too big, decrease...
+    $exp -= 1;
+    $pow = $base**$exp;
+  } elsif ($n >= $base*$pow) {
+    ### hmm, int(log) too small, increase...
+    $exp += 1;
+    $pow *= $base;
+  }
+  return ($pow, $exp);
+}
+
+
 1;
 __END__
 
@@ -229,17 +239,17 @@ Math::PlanePath::KochCurve -- horizontal Koch curve
 This path is an integer version of the self-similar curve by Helge von Koch
 going along the X axis and making triangular excursions.
 
-                              8
-                            /  \
-                     6---- 7     9----10                19-...
-                      \              /                    \
-            2           5          11          14          18
-          /  \        /              \        /  \        /
-    0----1     3---- 4                12----13    15----16
-    ^
-    X=0  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
+                               8                                   3
+                             /  \
+                      6---- 7     9----10                19-...    2
+                       \              /                    \
+             2           5          11          14          18     1
+           /  \        /              \        /  \        /
+     0----1     3---- 4                12----13    15----16    <- Y=0
+     ^
+    X=0   2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
 
-The replicating shape is the initial section N=0 to N=4,
+The replicating shape is the initial N=0 to N=4,
 
             *
            / \
@@ -247,16 +257,16 @@ The replicating shape is the initial section N=0 to N=4,
 
 which is rotated and repeated 3 times in the same shape to give sections N=4
 to N=8, N=8 to N=12, and N=12 to N=16.  Then that N=0 to N=16 is itself
-replicated three times at the angles of the -side pattern, and so on
+replicated three times at the angles of the base pattern, and so on
 infinitely.
 
 The X,Y coordinates are arranged on a square grid using every second point,
-see L<Math::PlanePath/Triangular Lattice>.  The result is flattened
+per L<Math::PlanePath/Triangular Lattice>.  The result is flattened
 triangular segments with diagonals at a 45 degree angle.
 
 =head2 Level Ranges
 
-Each replication in adds 3 times the existing points and is thus 4 times
+Each replication adds 3 copies of the existing points and is thus 4 times
 bigger, so if N=0 to N=4 is reckoned as level 1 then a given replication
 level goes from
 
@@ -269,35 +279,43 @@ wide, so in general a level runs from
     Xstart = 0
     Xlevel = 2*3^level   (at Nlevel)
 
-The highest Y is 3 times greater at each level similarly, for peak
+The highest Y is 3 times greater at each level similarly.  The peak is at
+the midpoint of each level,
 
-    X=3^level
-    Y=3^level
-    at N=(4^level)/2
+    Npeak = (4^level)/2
+    Ypeak = 3^level
+    Xpeak = 3^level
 
 It can be seen that the N=6 point backtracks horizontally to the same X as
-the start of its section N=4 to N=8.  This happens in the replications too
-and is the maximum extent of the backtracking.
+the start of its section N=4 to N=8.  This happens in the further
+replications too and is the maximum extent of the backtracking.
 
-The Nlevel value is multiplied by 4 to get the end of the next higher level.
-The same 4*N can be applied to all points N=0 to N=Nlevel to get the same
-shape but a factor of 3 on the X,Y coordinates.  The in-between points
-4*N+1, 4*N+2 and 4*N+3 are the new finer structure in the higher level.
+The Nlevel is multiplied by 4 to get the end of the next higher level.  The
+same 4*N can be applied to all points N=0 to N=Nlevel to get the same shape
+but a factor of 3 bigger X,Y coordinates.  The in-between points 4*N+1,
+4*N+2 and 4*N+3 are then new finer structure in the higher level.
 
 =head2 Fractal
 
 Koch conceived the curve as having a fixed length and infinitely fine
-structure, so it's continuous everywhere but differentiable nowhere.  The
-code here can be pressed into service for that sort of construction of a
-given level by scaling
+structure, making it continuous everywhere but differentiable nowhere.  The
+code here can be pressed into use for that sort of construction to a given
+level of granularity by scaling
 
     X/3^level
     Y/3^level
 
-to make it a fixed 2 wide by 1 high.  Or apply factors 1/2 and sqrt(3)/2 as
-above for unit-side equilateral triangles.
+to make it a fixed 2 wide by 1 high.  Or for unit-side equilateral triangles
+then further factors 1/2 and sqrt(3)/2, as noted in
+L<Math::PlanePath/Triangular Lattice>.
+
+    (X/2) / 3^level
+    (Y*sqrt(3)/2) / 3^level
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

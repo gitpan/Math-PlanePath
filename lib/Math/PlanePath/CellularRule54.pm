@@ -26,11 +26,9 @@
 package Math::PlanePath::CellularRule54;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
-use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -235,7 +233,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals
+=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax Xmin
 
 =head1 NAME
 
@@ -276,12 +274,33 @@ k*(k+1)/2.
 The 18-gonal numbers 18,51,100,etc are a vertical line at X=-3 and every
 fourth row (Y=5,9,13,etc).
 
+=head2 Row Ranges
+
 The left end of each row is
 
-    N =  Y*(Y+2)/2 + 1     if Y even
-         Y*(Y+1)/2 + 1     if Y odd
+    Nleft = Y*(Y+2)/2 + 1     if Y even
+            Y*(Y+1)/2 + 1     if Y odd
+
+The right end is
+
+    Nright = (Y+1)*(Y+2)/2    if Y even
+             (Y+1)*(Y+3)/2    if Y odd
+
+           = Nleft(Y+1) - 1     ie. 1 before next Nleft
+
+The row width Xmax-Xmin is 2*Y but with the gaps the number of visited
+points in a row is
+
+    rowpoints = Y/2 + 1        if Y even
+                3*(Y+1)/2      if Y odd
+
+              = Nright - Nleft + 1
+
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

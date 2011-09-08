@@ -25,47 +25,21 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 use constant n_start => 0;
 use constant x_negative => 0;
-
-# return ($pow, $exp) with $pow = 4**$exp <= $n, the next power of 4 at or
-# below $n
-sub _round_down_pow4 {
-  my ($n) = @_;
-
-  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
-  # based blog()
-  my $exp = (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))
-             ? $n->copy->blog(4)
-             : int(log($n)/log(4)));
-  my $pow = 4**$exp;
-  ### n:   ref($n)."  $n"
-  ### exp: ref($exp)."  $exp"
-  ### pow: ref($pow)."  $pow"
-
-  # check how $pow actually falls against $n, not sure should trust float
-  # rounding in log()/log(4)
-  if ($pow > $n) {
-    ### hmm, int(log) too big, decrease...
-    $exp -= 1;
-    $pow = 4**$exp;
-  } elsif (4*$pow <= $n) {
-    ### hmm, int(log) too small, increase...
-    $exp += 1;
-    $pow *= 4;
-  }
-  return ($pow, $exp);
-}
 
 #     2---3
 #     |   |
@@ -164,7 +138,7 @@ sub xy_to_n {
     ### neg x ...
     return undef;
   }
-  my ($len,$level) = _round_down_pow4(($x+abs($y)) || 1);
+  my ($len,$level) = _round_down_pow (($x+abs($y)) || 1, 4);
   ### $level
   ### $len
   if (_is_infinite($level)) {
@@ -277,7 +251,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath zig-zag
 
 =head1 NAME
 
@@ -332,6 +306,8 @@ etc.
 The result is the base at ever greater scale extending to the right and with
 wiggly lines making up the segments.  The wiggles don't overlap.
 
+=head2 Level Ranges
+
 A given replication extends to
 
     Nlevel = 8^level
@@ -343,6 +319,9 @@ A given replication extends to
     Ymin = - Ymax
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

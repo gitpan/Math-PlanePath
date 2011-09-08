@@ -32,15 +32,15 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve;
-*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use constant n_start => 1;
 
@@ -94,7 +94,7 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my ($pow, $level) = _round_down_pow3($n+2);
+  my ($pow, $level) = _round_down_pow ($n+2, 3);
   ### $level
   ### base: $pow - 2
   ### $sidelen
@@ -349,7 +349,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Gosper Nstart wiggliness versa PlanePath
+=for stopwords eg Ryde Gosper Nstart wiggliness versa PlanePath Math-PlanePath
 
 =head1 NAME
 
@@ -600,6 +600,9 @@ So the area lost below is gained above (or vice versa).  The result is a
 line of ever greater length enclosing an unchanging area.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

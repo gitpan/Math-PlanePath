@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -138,7 +138,7 @@ sub xy_to_n {
   }
 
   # for(;;) loop since $n_lo..$n_hi limited to IV range
-  for (my $n = $n_lo; $n <= $n_hi; $n++) {
+  for (my $n = $n_lo; $n <= $n_hi; $n += 1) {
     my ($nx,$ny) = $self->n_to_xy($n);
     #### $n
     #### $nx
@@ -264,6 +264,9 @@ line up.  For example the 22-polygonal numbers have 10*k^2 and at low values
 are nearly straight, but then spiral away.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 The code is currently implemented by adding up unit steps in X,Y
 coordinates, so it's not particularly fast.  The last X,Y is saved in the

@@ -37,7 +37,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -284,6 +284,9 @@ abundant until some fairly big values.  The first abundant 6*k+1 might be
 5,391,411,025, and the first 6*k-1 might be 26,957,055,125.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

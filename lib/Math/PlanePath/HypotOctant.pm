@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -135,7 +135,7 @@ sub xy_to_n {
     if ($x == $n_to_x[$n] && $y == $n_to_y[$n]) {
       return $n;
     }
-    $n++;
+    $n += 1;
 
     if ($n_to_x[$n]**2 + $n_to_y[$n]**2 != $hypot) {
       ### oops, hypot_to_n no good ...
@@ -218,6 +218,9 @@ Combinations like 20^2 + 15^2 == 24^2 + 7^2 occur too, and also with three
 or more different ways to have the same sum distance.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

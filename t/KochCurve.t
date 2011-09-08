@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 41;
+  my $want_version = 42;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -72,7 +72,7 @@ require Math::PlanePath::KochCurve;
 }
 
 #------------------------------------------------------------------------------
-# _round_down_pow3()
+# _round_down_pow()
 
 foreach my $elem ([ 1, 1,0 ],
                   [ 2, 1,0 ],
@@ -90,7 +90,7 @@ foreach my $elem ([ 1, 1,0 ],
                  ) {
   my ($n, $want_pow, $want_exp) = @$elem;
   my ($got_pow, $got_exp)
-    = Math::PlanePath::KochCurve::_round_down_pow3($n);
+    = Math::PlanePath::KochCurve::_round_down_pow($n,3);
   ok ($got_pow, $want_pow);
   ok ($got_exp, $want_exp);
 }
@@ -104,7 +104,7 @@ foreach my $elem ([ 1, 1,0 ],
         || ($p % 3) != 0
         || (($p+1) % 3) != 1
         || (($p-1) % 3) != 2) {
-      MyTestHelpers::diag ("_round_down_pow3() tests stop for round-off at i=$i");
+      MyTestHelpers::diag ("_round_down_pow(3) tests stop for round-off at i=$i");
       last;
     }
 
@@ -113,10 +113,10 @@ foreach my $elem ([ 1, 1,0 ],
       my $want_pow = $p/3;
       my $want_exp = $i-1;
       my ($got_pow, $got_exp)
-        = Math::PlanePath::KochCurve::_round_down_pow3($n);
+        = Math::PlanePath::KochCurve::_round_down_pow($n,3);
       if ($got_pow != $want_pow
           || $got_exp != $want_exp) {
-        MyTestHelpers::diag ("_round_down_pow3($n) i=$i prev got $got_pow,$want_pow want $got_exp,$want_exp");
+        MyTestHelpers::diag ("_round_down_pow($n,3) i=$i prev got $got_pow,$want_pow want $got_exp,$want_exp");
         $bad++;
       }
     }
@@ -125,10 +125,10 @@ foreach my $elem ([ 1, 1,0 ],
       my $want_pow = $p;
       my $want_exp = $i;
       my ($got_pow, $got_exp)
-        = Math::PlanePath::KochCurve::_round_down_pow3($n);
+        = Math::PlanePath::KochCurve::_round_down_pow($n,3);
       if ($got_pow != $want_pow
           || $got_exp != $want_exp) {
-        MyTestHelpers::diag ("_round_down_pow3($n) i=$i exact got $got_pow,$want_pow want $got_exp,$want_exp");
+        MyTestHelpers::diag ("_round_down_pow($n,3) i=$i exact got $got_pow,$want_pow want $got_exp,$want_exp");
         $bad++;
       }
     }
@@ -137,10 +137,10 @@ foreach my $elem ([ 1, 1,0 ],
       my $want_pow = $p;
       my $want_exp = $i;
       my ($got_pow, $got_exp)
-        = Math::PlanePath::KochCurve::_round_down_pow3($n);
+        = Math::PlanePath::KochCurve::_round_down_pow($n,3);
       if ($got_pow != $want_pow
           || $got_exp != $want_exp) {
-        MyTestHelpers::diag ("_round_down_pow3($n) i=$i post $got_pow,$want_pow want $got_exp,$want_exp");
+        MyTestHelpers::diag ("_round_down_pow($n,3) i=$i post $got_pow,$want_pow want $got_exp,$want_exp");
         $bad++;
       }
     }

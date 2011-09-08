@@ -21,9 +21,6 @@ use 5.004;
 use strict;
 use Test;
 use Math::BigInt;
-use Math::PlanePath::KochCurve;
-use Math::PlanePath::PeanoCurve;
-use Math::PlanePath::ZOrderCurve;
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
@@ -31,7 +28,7 @@ use Math::PlanePath::ZOrderCurve;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = 7;
+my $test_count = 10;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
@@ -53,6 +50,7 @@ MyTestHelpers::nowarnings();
 #------------------------------------------------------------------------------
 # PeanoCurve
 
+require Math::PlanePath::PeanoCurve;
 {
   my $path = Math::PlanePath::PeanoCurve->new;
 
@@ -69,6 +67,7 @@ MyTestHelpers::nowarnings();
 #------------------------------------------------------------------------------
 # ZOrderCurve
 
+require Math::PlanePath::ZOrderCurve;
 {
   my $path = Math::PlanePath::ZOrderCurve->new;
 
@@ -85,10 +84,20 @@ MyTestHelpers::nowarnings();
 #------------------------------------------------------------------------------
 # KochCurve
 
+require Math::PlanePath::KochCurve;
 {
   my $orig = Math::BigInt->new(3) ** 128 + 2;
   my $n    = Math::BigInt->new(3) ** 128 + 2;
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow3($n);
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+
+  ok ($n, $orig);
+  ok ($pow, Math::BigInt->new(3) ** 128);
+  ok ($exp, 128);
+}
+{
+  my $orig = Math::BigInt->new(3) ** 128;
+  my $n    = Math::BigInt->new(3) ** 128;
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
 
   ok ($n, $orig);
   ok ($pow, Math::BigInt->new(3) ** 128);

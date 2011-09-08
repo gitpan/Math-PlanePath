@@ -27,7 +27,7 @@ use List::Util qw( max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -283,7 +283,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al DragonCurve DragonMidpoint
 
 =head1 NAME
 
@@ -336,7 +336,8 @@ Harter, et al, following the midpoint of each edge of the curve segments.
      ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
     -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1
 
-The dragon curve itself begins as follows, with the midpoints marked as "*"s
+The dragon curve itself begins as follows, with the edge midpoints at each
+"*",
 
                 --*--       --*--
                |     |     |     |
@@ -351,9 +352,9 @@ The dragon curve itself begins as follows, with the midpoints marked as "*"s
               ...
 
 The midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  Those positions
-can be had from the DragonCurve module by asking for N=0.5, 1.5, 2.5, etc.
-But for this DragonMidpoint curve they're turned clockwise 45 degrees and
-shrunk by sqrt(2) to be integer X,Y values stepping by 1.
+can in fact be had from the DragonCurve module by asking for N=0.5, 1.5,
+2.5, etc.  But for this DragonMidpoint curve they're turned clockwise 45
+degrees and shrunk by sqrt(2) to be integer X,Y values stepping by 1.
 
 Because the dragon curve only traverses each edge once the midpoints are all
 distinct X,Y positions.
@@ -368,34 +369,38 @@ For example C<arms =E<gt> 4> begins as follows, with N=0,4,8,12,etc being
 one arm, N=1,5,9,13 the second, N=2,6,10,14 the third and N=3,7,11,15 the
 fourth.
 
-                             ...-107-103  83--79--75--71
-                                       |   |           |
-              68--64          36--32  99  87  59--63--67
-               |   |           |   |   |   |   |
-              72  60          40  28  95--91  55
-               |   |           |   |           |
-              76  56--52--48--44  24--20--16  51
-               |                           |   |
-              80--84--88  17--13---9---5  12  47--43--39 ...
-                       |   |           |   |           |  |
-             100--96--92  21   6---2   1   8  27--31--35 106
-               |           |   |           |   |          |
-             104  33--29--25  10   3   0---4  23  94--98-102
-               |   |           |   |           |   |
-             ...  37--41--45  14   7--11--15--19  90--86--82
-                           |   |                           |
-                          49  18--22--26  46--50--54--58  78
-                           |           |   |           |   |
-                          53  89--93  30  42          62  74
-                           |   |   |   |   |           |   |
-                  65--61--57  85  97  34--38          66--70
-                   |           |   |
-                  69--73--77--81 101-105-...
+                    ...-107-103  83--79--75--71
+                              |   |           |
+     68--64          36--32  99  87  59--63--67
+      |   |           |   |   |   |   |
+     72  60          40  28  95--91  55
+      |   |           |   |           |
+     76  56--52--48--44  24--20--16  51
+      |                           |   |
+     80--84--88  17--13---9---5  12  47--43--39 ...
+              |   |           |   |           |  |
+    100--96--92  21   6---2   1   8  27--31--35 106
+      |           |   |           |   |          |
+    104  33--29--25  10   3   0---4  23  94--98-102
+      |   |           |   |           |   |
+    ...  37--41--45  14   7--11--15--19  90--86--82
+                  |   |                           |
+                 49  18--22--26  46--50--54--58  78
+                  |           |   |           |   |
+                 53  89--93  30  42          62  74
+                  |   |   |   |   |           |   |
+         65--61--57  85  97  34--38          66--70
+          |           |   |
+         69--73--77--81 101-105-...
 
-With four arms every X,Y point is visited exactly once, corresponding to the
-way four copies of the dragon curve traverse each edge exactly once.
+With four arms like this every X,Y point is visited exactly once,
+corresponding to the way four copies of the dragon curve traversing each
+edge exactly once.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

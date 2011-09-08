@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 375 }
+BEGIN { plan tests => 389 }
 
 use lib 't';
 use MyTestHelpers;
@@ -32,9 +32,11 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath;
 
-                  # OctzagCurve
                   # TwinDragon
 my @modules = qw(
+                  SierpinskiArrowheadCentres
+                  SierpinskiArrowhead
+                  SierpinskiTriangle
                   ImaginaryBase
                   QuadricCurve
                   QuadricIslands
@@ -66,7 +68,6 @@ my @modules = qw(
                   GosperIslands
 
                   CoprimeColumns
-                  SierpinskiArrowhead
                   KochSnowflakes
                   KochCurve
                   KochPeaks
@@ -117,7 +118,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 41;
+my $want_version = 42;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

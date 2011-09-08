@@ -22,6 +22,51 @@ use strict;
 use warnings;
 
 {
+  my $count = 0;
+  my $realpart = 5;
+  my $norm = $realpart*$realpart+1;
+  foreach my $x (-200 .. 200) {
+    foreach my $y (-200 .. 200) {
+      my $new_x = $x;
+      my $neg_y = $x - $y*$realpart;
+      my $digit = $neg_y % $norm;
+      $new_x -= $digit;
+      $neg_y -= $digit;
+
+      next unless ($new_x*$realpart+$y)/$norm == $x;
+      next unless -$neg_y/$norm == $y;
+
+      print "$x,$y  digit=$digit\n";
+      $count++;
+    }
+  }
+  print "count $count\n";
+  exit 0;
+}
+
+{
+  require Math::PlanePath::MathImageComplexIplus1;
+  my $path = Math::PlanePath::MathImageComplexIplus1->new (realpart=>2);
+  foreach my $i (0 .. 10) {
+    {
+      my $x = $i;
+      my $y = 1;
+      my $n = $path->xy_to_n($x,$y);
+      if (! defined $n) { $n = 'undef'; }
+      print "xy_to_n($x,$y) = $n\n";
+    }
+  }
+  foreach my $i (0 .. 10) {
+    {
+      my $n = $i;
+      my ($x,$y) = $path->n_to_xy($n);
+      print "n_to_xy($n) = $x,$y\n";
+    }
+  }
+  exit 0;
+}
+
+{
   # min/max for level
   $|=1;
   require Math::PlanePath::MathImageTwinDragon;

@@ -43,7 +43,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -209,7 +209,6 @@ sub xy_to_n {
     push @y, $y % $radix; $y = int($y/$radix);
   }
 
-  my $i = 0;
   my $xk = 0;
   my $yk = 0;
   my $n = 0;
@@ -486,6 +485,9 @@ power of 3 division will round off in general as 1/3 is not exactly
 representable.  See HilbertCurve or ZOrderCurve for binary mappings.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

@@ -28,16 +28,15 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
-use Math::PlanePath::KochCurve;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve;
-*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -176,7 +175,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my ($len,$level) = _round_down_pow3($y);
+  my ($len,$level) = _round_down_pow($y, 3);
   $level += 1;
   ### $level
   ### $len
@@ -378,6 +377,9 @@ of desired fineness.  See F<examples/koch-svg.pl> for an complete program
 doing that as an SVG image file.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

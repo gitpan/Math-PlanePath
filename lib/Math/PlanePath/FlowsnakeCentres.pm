@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 # inherit new(), rect_to_n_range(), arms_count()
 use Math::PlanePath::Flowsnake;
@@ -249,7 +249,6 @@ sub xy_to_n {
   # my $sy = -1;
 
   my @digits;
-  my $power = 1;
   my $arm;
   my $state;
   for (;;) {
@@ -432,7 +431,7 @@ __END__
 
 
 
-=for stopwords eg Ryde flowsnake Gosper Schouten's lookup
+=for stopwords eg Ryde flowsnake Gosper Schouten's lookup Math-PlanePath DragonCurve multi-arm
 
 =head1 NAME
 
@@ -562,6 +561,9 @@ fill the plane.
 
 =head1 FUNCTIONS
 
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
+
 =over 4
 
 =item C<$path = Math::PlanePath::FlowsnakeCentres-E<gt>new ()>
@@ -596,17 +598,17 @@ N-2*7^21 and suitable X,Y offset can be applied to get the same result.
 
 =head2 X,Y to N
 
-The C<xy_to_n()> calculation also follows Ed Schouten's method which is
-based on a nice observation that the seven cells of the base figure can be
-identified from their coordinates and the centres of those figures then
-shrunk down to unit separation, thus generating digits of N from low to
-high.
+The C<xy_to_n()> calculation also follows Ed Schouten's method.  It's based
+on a nice observation that the seven cells of the base figure can be
+identified from their X,Y coordinates, and the centre of those seven cell
+figures then shrunk down a level to be a unit apart, thus generating digits
+of N from low to high.
 
-In triangular grid style X,Y a remainder is formed
+In triangular grid X,Y a remainder is formed
 
     m = (x + 2*y) mod 7
 
-With the base figure 0 at 0,0 the remainders are
+Taking the base figure's N=0 at 0,0 the remainders are
 
         4---- 6
       /        \
@@ -614,37 +616,37 @@ With the base figure 0 at 0,0 the remainders are
              \
         0---- 2
 
-The remainders are unchanged when the shape is shifted by some multiple of
-the next level X=5,Y=1 or its rotated forms X=1,Y=3 and X=-4,Y=1 etc.  Those
-vectors all have X+2*Y==0 mod 7.
+The remainders are unchanged when the shape is moved by some multiple of the
+next level X=5,Y=1 or the same at 120 degrees X=1,Y=3 or 240 degrees
+X=-4,Y=1.  Those vectors all have X+2*Y==0 mod 7.
 
 From the m remainder an offset can be applied to move X,Y to the 0 position,
-leaving X,Y a multiple of the next level vector X=5,Y=1 etc.  That vector
+leaving X,Y a multiple of the next level vectors X=5,Y=1 etc.  Those vectors
 can then be shrunk down with
 
     Xshrunk = (3*Y + 5*X) / 14
     Yshrunk = (5*Y - X) / 14
 
-This gives integers as 3*Y+5*X and 5*Y-X are always multiples of 14.  For
+This gives integers since 3*Y+5*X and 5*Y-X are always multiples of 14.  For
 example the N=35 point at X=2,Y=6 reduces to X = (3*6+5*2)/14 = 2 and Y =
 (5*6-2)/14 = 2, which is then the "5" part of the base figure.
 
 The remainders can be mapped to digits and then reversals and rotations
-applied, from high to low, according to the edge orientation.  These steps
-can also be combined in a single lookup table with 6 states (three rotations
-and forward or reverse).
+applied, from high to low, according to the edge orientation.  Those steps
+can be combined in a single lookup table with 6 states (three rotations, and
+each one forward or reverse).
 
 For the main curve the reduction ends at 0,0.  For the multi-arm form the
-second arm ends at -2,0 and the third at -1,-1.  (The modulo and shrink
-procedure maps those points to themselves.)  The calculation can be done
-without paying attention to how many arms are supposed to be in use.  On
-reaching one of the three ends the "arm" is determined and the original X,Y
-rejected or accepted accordingly.
+second arm ends to the right at -2,0 and the third below at -1,-1.  Notice
+the modulo and shrink procedure maps those three points back to themselves
+unchanged.  The calculation can be done without paying attention to which
+arms are supposed to be in use.  On reaching one of the three ends the "arm"
+is determined and the original X,Y can be rejected or accepted accordingly.
 
 The key to this approach is that the base figure is symmetric around a
-central point, so the rotations or reversals in the path can be applied
-after breaking down the tiling.  Could it work on a non-symmetric base
-figure like the "across" style of the main Flowsnake, or of something like
+central point, so the tiling can be broken down first, and the rotations or
+reversals in the path applied afterwards.  Can it work on a non-symmetric
+base figure like the "across" style of the main Flowsnake, or something like
 the DragonCurve for that matter?
 
 =head1 SEE ALSO

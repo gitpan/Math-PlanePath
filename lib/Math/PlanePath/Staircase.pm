@@ -23,7 +23,7 @@ use List::Util 'max';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -169,6 +169,9 @@ values then makes a steep diagonal upwards from x=19,y=1, at a slope 3 up
 for 1 across, but only 2 of each 3 drawn.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -119,7 +119,7 @@ sub xy_to_n {
 
 # left xmax = (r-1) + (r^2 -r) + (r^3-r^2) + ... + (r^k - r^(k-1))
 #           = r^(k-1) - 1
-# 
+#
 # right xmin = - (r + r^3 + ... + r^(2k+1))
 #            = -r * (1 + r^2 + ... + r^2k)
 #            = -r * ((r^2)^(k+1) -1) / (r^2 - 1)
@@ -133,21 +133,16 @@ sub rect_to_n_range {
   # the given rectangle.
   # ENHANCE-ME: Explicit formula for x/y min/max.
 
-  my $radix = $self->{'radix'};
-  $x1 = _round_nearest($x1);
-  $y1 = _round_nearest($y1);
-  $x2 = _round_nearest($x2);
-  $y2 = _round_nearest($y2);
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-
   foreach my $c ($x1,$y1, $x2,$y2) {
     if (_is_infinite($c)) {
       return (0, $c);
     }
     $c = _round_nearest($c);
   }
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
 
+  my $radix = $self->{'radix'};
   my $xmin = 0;
   my $xmax = 0;
   my $ymin = 0;
@@ -198,12 +193,12 @@ sub rect_to_n_range {
   # my $xm = ($x1 > $x2 ? $x1 : $x2);
   # my $ym = ($y1 > $y2 ? $y1 : $y2);
   # my $max = ($xm > $ym ? $xm : $ym);
-  # 
+  #
   # my $level = 0;
-  # 
+  #
   # # cf $level = 2*ceil(log($max || 1) / log($radix)) + 3;
   # # $radix**$level - 1
-  # 
+  #
   # return (0, $max*$max * $radix**5);
 
 
@@ -211,7 +206,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve
 
 =head1 NAME
 
@@ -246,34 +241,53 @@ again as N=16 to N=31.  Each repeat is 90 degrees further around each time,
 and just a simple offset so the same orientation and relative layout within
 the repetition.
 
+    +---------------------------------------+
+    | 38   39   34   35   54   55   50   51 |
+    |                                       |
+    | 36   37   32   33   52   53   48   49 |
+    |                                       |
+    | 46   47   42   43   62   63   58   59 |
+    |                                       |
+    | 44   45   40   41   60   61   56   57 |
+    +---------+---------+-------------------+
+    |  6    7 |  2    3 | 22   23   18   19 |
+    |         +----+----+                   |
+    |  4    5 |  0 |  1 | 20   21   16   17 |
+    +---------+----+----+                   |
+    | 14   15   10   11 | 30   31   26   27 |
+    |                   |                   |
+    | 12   13    8    9 | 28   29   24   25 |
+    +-------------------+-------------------+
+
 This arises from representing a complex number in "base" b=i*sqrt(r) with
 digits a[i] in the range 0 to r-1.  For integer X,Y,
 
     X+Y*i*sqrt(r) = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-with N then a base-r integer
+and N is a base-r integer
 
     N = a[n]*r^n + ... + a[2]*r^2 + a[1]*r + a[0]
 
 The factor sqrt(r) makes the generated Y an integer.  In actual use that
-factor can be omitted and fraction digits a[-1]*r^-1 etc used to reach
-smaller Y values, such as in Knuth's "quater-imaginary" system of base 2*i
-(which is i*sqrt(4)) with digits 0,1,2,3.
+factor can be omitted and fractional digits a[-1]*r^-1 etc used to reach
+smaller Y values, as for example Knuth's "quater-imaginary" system of base
+2*i (which is i*sqrt(4)) and digits 0,1,2,3.
 
-The powers of b=i give the replication direction, so i^0=1 right, i^1=i up,
-i^2=-1 right, i^3=-i down, etc.  The b=sqrt(r) part then spreads the
+The powers of i in the base give the replication direction, so i^0=1 right,
+i^1=i up, i^2=-1 right, i^3=-i down, etc.  The sqrt(r) part then spreads the
 replication in the respective direction.  It takes two steps to repeat
-horiziontally and sqrt(r)^2=r hence the doubling 1x1 to the right, 2x2 to
+horizontally and sqrt(r)^2=r hence the doubling of 1x1 to the right, 2x2 to
 the left, 4x4 to the left, etc, and similarly vertically.
 
 The pattern can be compared to the ZOrderCurve.  In Z-Order the replications
-are alternately to the left and above, and here they progress through four
-directions left, above, right, below.
+are alternately right and above, but here they progress through four
+directions right, above, left, below.
 
 =head2 Radix
 
 The C<radix> parameter controls the "r" used to break N into X,Y.  For
-example C<radix =E<gt> 3> gives 3x3 blocks,
+example C<radix =E<gt> 3> gives 3x3 blocks, with r-1 copies of the preceding
+level at each stage,
 
     24  25  26  15  16  17   6   7   8      2
     21  22  23  12  13  14   3   4   5      1
@@ -285,9 +299,13 @@ example C<radix =E<gt> 3> gives 3x3 blocks,
     75  76  77  66  67  68  57  58  59     -5
     72  73  74  63  64  65  54  55  56     -6
 
+                             ^
     -6  -5  -4  -3  -2  -1  X=0  1   2
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 
@@ -338,7 +356,7 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # x
-
+#
 #      60  61  62  63  44  45  46  47  28  29  30  31  12  13  14  15    6
 #                                                                        5
 #      56  57  58  59  40  41  42  43  24  25  26  27   8   9  10  11    4
@@ -354,7 +372,7 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 #     116 117 118 119 100 101 102 103  84  85  86  87  68  69  70  71   -6
 #                                                                       -7
 #     112 113 114 115  96  97  98  99  80  81  82  83  64  65  66  67   -8
-# 
+#
 #                                                       ^
 #     -12 -11 -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3
-# 
+#

@@ -19,13 +19,12 @@
 package Math::PlanePath::Hypot;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -176,7 +175,7 @@ sub xy_to_n {
     if ($x == $n_to_x[$n] && $y == $n_to_y[$n]) {
       return $n;
     }
-    $n++;
+    $n += 1;
 
     if ($n_to_x[$n]**2 + $n_to_y[$n]**2 != $hypot) {
       ### oops, hypot_to_n no good ...
@@ -301,6 +300,9 @@ X=4*k,Y=-3*k.  Sometimes the multiple is not the last among those of that
 the last since 24,-7 is also 25 away from the origin.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

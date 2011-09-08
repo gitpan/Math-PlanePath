@@ -30,45 +30,18 @@ use POSIX qw(floor ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
 # uncomment this to run the ### lines
 #use Devel::Comments;
-
-
-# return ($pow, $exp) with $pow = 8**$exp <= $n, the next power of 8 at or
-# below $n
-sub _round_down_pow8 {
-  my ($n) = @_;
-
-  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
-  # based blog()
-  my $exp = (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))
-             ? $n->copy->blog(8)
-             : int(log($n)/log(8)));
-  my $pow = 8**$exp;
-  ### n:   ref($n)."  $n"
-  ### exp: ref($exp)."  $exp"
-  ### pow: ref($pow)."  $pow"
-
-  # check how $pow actually falls against $n, not sure should trust float
-  # rounding in log()/log(8)
-  if ($pow > $n) {
-    ### hmm, int(log) too big, decrease...
-    $exp -= 1;
-    $pow = 8**$exp;
-  } elsif (8*$pow <= $n) {
-    ### hmm, int(log) too small, increase...
-    $exp += 1;
-    $pow *= 8;
-  }
-  return ($pow, $exp);
-}
 
 
 # N=1 to 4      4 of, level=0
@@ -117,7 +90,7 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  my ($base,$level) = _round_down_pow8((7*$n - 3) / 4);
+  my ($base,$level) = _round_down_pow ((7*$n - 3)/4, 8);
   $base = (4*$base + 3)/7;  # (4 * 8**$level + 3)/7
 
   ### $level
@@ -236,8 +209,7 @@ sub xy_to_n {
   #
   # line slope y/x = 1/2 as an index
   my $z = -$y-$x/2;
-  my ($len,$level) = Math::PlanePath::QuadricCurve::_round_down_pow4
-    ($z);
+  my ($len,$level) = _round_down_pow ($z, 4);
   ### $z
   ### amin: 2*4**($level-1)
   ### $level
@@ -305,7 +277,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie Math-PlanePath
+=for stopwords eg Ryde ie Math-PlanePath quadric QuadricCurve
 
 =head1 NAME
 
@@ -318,8 +290,6 @@ Math::PlanePath::QuadricIslands -- quadric curve rings
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
-
-I<In progress.>
 
 This is concentric islands made from four sides of the QuadricCurve,
 
@@ -387,6 +357,9 @@ X=-0.5,Y=-0.5.  This is centred on the origin and consistent with the
 (4^level)/2.  Points from N=5 onwards are have integer X,Y.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

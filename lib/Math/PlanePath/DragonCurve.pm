@@ -32,7 +32,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -311,7 +311,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices doublings OEIS Online
 
 =head1 NAME
 
@@ -473,6 +473,9 @@ With four arms every X,Y point is visited twice (except the origin 0,0 where
 all four begin) and every edge between the points is traversed once.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

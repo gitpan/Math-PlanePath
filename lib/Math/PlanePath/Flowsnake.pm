@@ -35,7 +35,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -489,7 +489,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde flowsnake Gosper ie
+=for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath
 
 =head1 NAME
 
@@ -664,13 +664,16 @@ fractal boundary.
 
 =head1 FUNCTIONS
 
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
+
 =over 4
 
 =item C<$path = Math::PlanePath::Flowsnake-E<gt>new ()>
 
 =item C<$path = Math::PlanePath::Flowsnake-E<gt>new (arms =E<gt> $a)>
 
-Create and return a new path object.
+Create and return a new flowsnake path object.
 
 The optional C<arms> parameter gives between 1 and 3 copies of the curve
 successively advancing.

@@ -50,8 +50,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = floor($x + 0.5);
-  $y = floor($y + 0.5);
+  $x = _round_nearest ($x);
+  $y = _round_nearest ($y);
   return Math::PlanePath::SierpinskiArrowhead->xy_to_n
     ($y-$x, $y+$x);
 }

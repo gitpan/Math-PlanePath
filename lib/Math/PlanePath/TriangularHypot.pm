@@ -40,7 +40,7 @@ use List::Util qw(min max);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -227,7 +227,7 @@ sub xy_to_n {
     if ($x == $n_to_x[$n] && $y == $n_to_y[$n]) {
       return $n;
     }
-    $n++;
+    $n += 1;
 
     if ($n_to_x[$n]**2 + 3*$n_to_y[$n]**2 != $hypot4) {
       ### oops, hypot_to_n no good ...
@@ -327,6 +327,9 @@ There can also be multiple ways for the same distance to arise, but the
 6-way or 12-way symmetry means always a multiple of 6 or 12.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

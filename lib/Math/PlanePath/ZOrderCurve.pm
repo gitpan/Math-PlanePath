@@ -28,10 +28,9 @@
 package Math::PlanePath::ZOrderCurve;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -164,15 +163,19 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x1 smaller
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y1 smaller
+
   if ($y2 < 0 || $x2 < 0) {
     return (1, 0); # rect all negative, no N
   }
 
-  # monotonic increasing in $x and $y directions
-  return ($self->xy_to_n (max(0,min($x1,$x2)), max(0,min($y1,$y2))),
-          $self->xy_to_n (max($x1,$x2), max($y1,$y2)));
+  if ($x1 < 0) { $x1 = 0; }
+  if ($y1 < 0) { $y1 = 0; }
+
+  # monotonic increasing in $x and $y directions, so this is exact
+  return ($self->xy_to_n ($x1, $y1),
+          $self->xy_to_n ($x2, $y2));
 }
 
 1;
@@ -297,9 +300,11 @@ base 4 representation gives
     * * * * * * * * * * * * * * * * 
 
 The 0,1,2 and not 3 makes a little 2x2 "L" at the bottom left, then
-repeating at 4x4 with again the whole "3" position undrawn, and so on.  The
-blanks are a visual representation of the multiplications saved by recursive
-use of the Karatsuba multiplication algorithm.
+repeating at 4x4 with again the whole "3" position undrawn, and so on.  This
+is the Sierpinski triangle (a rotated version of
+L<Math::PlanePath::SierpinskiTriangle>).  The blanks are also a visual
+representation of 1-in-4 cross-products saved by recursive use of the
+Karatsuba multiplication algorithm.
 
 =head2 Radix
 
@@ -316,6 +321,9 @@ higher base.  For example radix 3 makes 3x3 groupings,
            X=0   1   2   3   4   5   6   7   8
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 
@@ -345,7 +353,7 @@ returns N.
 
 =head1 FORMULAS
 
-=head2 N and X,Y
+=head2 N to X,Y
 
 The coordinate calculation is simple.  The bits of X and Y are every second
 bit of N.  So if N = binary 101010 then X=000 and Y=111 in binary, which is

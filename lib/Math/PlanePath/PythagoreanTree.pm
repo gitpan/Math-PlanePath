@@ -60,16 +60,15 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
-use Math::PlanePath::KochCurve;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve;
-*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -105,7 +104,7 @@ sub n_to_xy {
   }
 
   # h = 2*(n-1)+1 = 2*n-2+1 = 2*n-1
-  my ($range, $level) = _round_down_pow3 (2*$n-1);
+  my ($range, $level) = _round_down_pow (2*$n-1, 3);
   my $base = ($range - 1)/2 + 1;
   my $rem = $n - $base;
 
@@ -272,9 +271,10 @@ sub xy_to_n {
   return $n;
 }
 
+# p^2-q^2 = (p-q)*(p+q), the latter needing only one multiplication
 sub _pq_to_ab {
   my ($p, $q) = @_;
-  return ($p*$p-$q*$q, 2*$p*$q);
+  return (($p-$q)*($p+$q), 2*$p*$q);
 }
 
 # a = p^2 - q^2
@@ -304,7 +304,7 @@ sub _ab_to_pq {
 
   # This used to be $z=hypot($x,$y) and check $z==int($z), but libm hypot()
   # on Darwin 8.11.0 is somehow a couple of bits off being an integer, for
-  # example hypot(57,176)==185 but a couple of bits extra so $z!=int($z).
+  # example hypot(57,176)==185 but a couple of bits out so $z!=int($z).
   # Would have thought hypot() ought to be exact on integer inputs and a
   # perfect square sum :-(.  Check for a perfect square by multiplying back
   # instead.
@@ -631,6 +631,9 @@ parameterization is often found as m,n or u,v, but don't want to confuse
 that with the N numbered points or the U matrix in UAD.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

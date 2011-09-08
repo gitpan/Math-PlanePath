@@ -27,7 +27,7 @@ devel/hilbert.pl
 devel/hypot.pl
 devel/interpolate.pl
 devel/iterator.pl
-devel/koch-quad.pl
+devel/koch-square.pl
 devel/Makefile
 devel/old/DragonArms.pm
 devel/old/DragonMidpointArms.pm
@@ -107,6 +107,8 @@ lib/Math/PlanePath/QuadricIslands.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
 lib/Math/PlanePath/SierpinskiArrowhead.pm
+lib/Math/PlanePath/SierpinskiArrowheadCentres.pm
+lib/Math/PlanePath/SierpinskiTriangle.pm
 lib/Math/PlanePath/SquareArms.pm
 lib/Math/PlanePath/SquareSpiral.pm
 lib/Math/PlanePath/Staircase.pm
@@ -186,4 +188,5 @@ xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm
 xt/PeanoCurve-oeis.t
+xt/SierpinskiTriangle-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

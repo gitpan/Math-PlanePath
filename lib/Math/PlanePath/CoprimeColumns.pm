@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -84,7 +84,7 @@ sub n_to_xy {
       $n = $int;  # BigFloat int() gives BigInt, use that
       if ($frac > .5) {
         $frac--;
-        $n++;
+        $n += 1;
         # now -.5 <= $frac < .5
       }
       ### $n
@@ -173,7 +173,7 @@ sub xy_to_n {
   if ($y != 1) {
     foreach my $i (1 .. $y-1) {
       if (_coprime($x,$i)) {
-        $n++;
+        $n += 1;
       }
     }
   }
@@ -274,6 +274,9 @@ straight line etc in the path will probably have to be related to phi sums
 in some way.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

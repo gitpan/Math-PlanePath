@@ -29,7 +29,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 41;
+$VERSION = 42;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -135,7 +135,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde GosperIslands Math-PlanePath
+=for stopwords eg Ryde GosperIslands Math-PlanePath Gosper
 
 =head1 NAME
 
@@ -198,11 +198,14 @@ N=1,162,000,000.
 
 Both ends of such levels are in fact sub-spirals, like an "S" shape.
 
-The path is both the sides and the radial spokes of the GosperIsland path,
+The path is both the sides and the radial spokes of the GosperIslands path,
 as described in L<Math::PlanePath::GosperIslands/Side and Radial Lines>.
 Each N=3^level point is the start of a GosperIslands ring.
 
 =head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
 
 =over 4
 

@@ -34,8 +34,8 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve;
-*_round_down_pow3 = \&Math::PlanePath::KochCurve::_round_down_pow3;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -114,7 +114,7 @@ sub xy_to_n {
     ### neg y or parity different ...
     return undef;
   }
-  my ($len,$level) = _round_down_pow3(($x/2)||1);
+  my ($len,$level) = _round_down_pow(($x/2)||1, 3);
   ### $level
   ### $len
   if (_is_infinite($level)) {

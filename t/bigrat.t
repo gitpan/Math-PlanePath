@@ -20,10 +20,6 @@
 use 5.004;
 use strict;
 use Test;
-use Math::PlanePath::KochCurve;
-use Math::PlanePath::KochSnowflakes;
-use Math::PlanePath::PeanoCurve;
-use Math::PlanePath::ZOrderCurve;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments '###';
 
 
-my $test_count = 32;
+my $test_count = 37;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
@@ -65,6 +61,7 @@ if (! eval { require Math::BigRat; 1 }) {
 #------------------------------------------------------------------------------
 # _round_nearest()
 
+require Math::PlanePath;
 ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-7/4')) == -2, 1);
 ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-3/2')) == -1,  1);
 ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-5/4')) == -1,  1);
@@ -82,6 +79,7 @@ ok (Math::PlanePath::_round_nearest(Math::BigRat->new('2'))   == 2,  1);
 #------------------------------------------------------------------------------
 # _floor()
 
+require Math::PlanePath;
 ok (Math::PlanePath::_floor(Math::BigRat->new('-7/4')) == -2,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('-3/2')) == -2,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('-5/4')) == -2,  1);
@@ -100,6 +98,7 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
 #------------------------------------------------------------------------------
 # PeanoCurve
 
+require Math::PlanePath::PeanoCurve;
 {
   my $path = Math::PlanePath::PeanoCurve->new;
 
@@ -116,6 +115,7 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
 #------------------------------------------------------------------------------
 # ZOrderCurve
 
+require Math::PlanePath::ZOrderCurve;
 {
   my $path = Math::PlanePath::ZOrderCurve->new;
 
@@ -131,12 +131,22 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
 }
 
 #------------------------------------------------------------------------------
-# KochCurve _round_down_pow3()
+# KochCurve _round_down_pow()
 
+require Math::PlanePath::KochCurve;
 {
   my $orig = Math::BigRat->new(3) ** 128 + Math::BigRat->new('1/7');
   my $n    = Math::BigRat->new(3) ** 128 + Math::BigRat->new('1/7');
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow3($n);
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+
+  ok ($n, $orig);
+  ok ($pow, Math::BigRat->new(3) ** 128);
+  ok ($exp, 128);
+}
+{
+  my $orig = Math::BigRat->new(3) ** 128;
+  my $n    = Math::BigRat->new(3) ** 128;
+  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
 
   ok ($n, $orig);
   ok ($pow, Math::BigRat->new(3) ** 128);
@@ -146,6 +156,17 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
 #------------------------------------------------------------------------------
 # KochSnowflakes _log4_floor()
 
+require Math::PlanePath::KochSnowflakes;
+{
+  my $orig = Math::BigRat->new(4) ** 64;
+  my $n    = Math::BigRat->new(4) ** 64;
+  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
+
+  ok ($n, $orig, "_log4_floor() unmodified input");
+  # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
+  #     "_log4_floor() 4^64 + 1/3 power");
+  ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
+}
 {
   my $orig = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
   my $n    = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
