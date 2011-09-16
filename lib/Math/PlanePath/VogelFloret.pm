@@ -28,7 +28,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -90,6 +90,7 @@ use Math::PlanePath::SacksSpiral;
 # use constant n_start => 0;
 
 use constant figure => 'circle';
+
 use constant 1.02; # for leading underscore
 use constant _PHI => (1 + sqrt(5)) / 2;
 
@@ -116,6 +117,38 @@ use constant rotation_types =>
                # continued_frac  => [ 4,4,4,4,4,4,... ],
              },
   };
+
+use constant parameter_info_array =>
+  [
+   {
+    name      => 'rotation_type',
+    type      => 'enum',
+    share_key => 'vogel_rotation_type',
+    choices   => ['phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom'],
+    default   => 'phi',
+   },
+   {
+    name => 'rotation_factor',
+    type => 'float',
+    type_hint => 'expression',
+    description => 'Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.',
+    default => - (1 + sqrt(5)) / 2,
+    default_expression => '-phi',
+    width => 10,
+    when_name  => 'rotation_type',
+    when_value => 'custom',
+   },
+   { name           => 'radius_factor',
+     description    => 'Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.',
+     type           => 'float',
+     minimum        => 0,
+     maximum        => 999,
+     page_increment => 1,
+     step_increment => .1,
+     decimals       => 2,
+     default        => 1,
+   },
+  ];
 
 sub new {
   my $self = shift->SUPER::new (@_);

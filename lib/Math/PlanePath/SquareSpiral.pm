@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -42,6 +42,14 @@ use Math::PlanePath;
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/primeSpiral.htm
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
 #     Pulchritudinous Primes of Ulam sprial.
+
+use constant parameter_info_array => [ { name => 'wider',
+                                         type => 'integer',
+                                         description => 'Wider path.',
+                                         minimum => 0,
+                                         default => 0,
+                                         width => 3,
+                                       } ];
 
 sub new {
   my $self = shift->SUPER::new (@_);

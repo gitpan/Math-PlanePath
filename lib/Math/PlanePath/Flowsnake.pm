@@ -35,7 +35,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -49,6 +49,16 @@ sub arms_count {
   my ($self) = @_;
   return $self->{'arms'} || 1;
 }
+
+use constant parameter_info_array => [ { name      => 'arms',
+                                         share_key => 'arms_3',
+                                         type      => 'integer',
+                                         minimum   => 1,
+                                         maximum   => 3,
+                                         default   => 1,
+                                         width     => 1,
+                                       } ];
+
 
 #         *
 #        / \

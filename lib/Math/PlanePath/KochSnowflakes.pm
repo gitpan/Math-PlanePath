@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -331,9 +331,9 @@ innermost triangle which is
 
                     N=3
                 X=0, Y=+0.666
-
+              /                \
          N=1                     N=2    
-    X=-1, Y=-0.333           X=1, Y=-0.333
+    X=-1, Y=-0.333  ------   X=1, Y=-0.333
 
 These values are consistent with the centring and scaling of the higher
 levels.  Rounding to an integer gives Y=0 or Y=1 and doesn't overlap the

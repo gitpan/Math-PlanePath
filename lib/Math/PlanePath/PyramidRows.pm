@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -37,6 +37,14 @@ sub x_negative {
   return ($self->{'step'} >= 2);
 }
 use constant y_negative => 0;
+
+use constant parameter_info_array => [{ name      => 'step',
+                                        share_key => 'pyramid_step',
+                                        type      => 'integer',
+                                        minimum   => 0,
+                                        default   => 2,
+                                        width     => 2,
+                                      }];
 
 sub new {
   my $class = shift;

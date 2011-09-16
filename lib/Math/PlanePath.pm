@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 42;
+$VERSION = 43;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -38,7 +38,31 @@ sub new {
   return bless { @_ }, $class;
 }
 
-# shared
+use constant parameter_info_array => [];
+sub parameter_info_list {
+  return @{$_[0]->parameter_info_array};
+}
+
+# not documented yet
+my %parameter_info_hash;
+sub parameter_info_hash {
+  my ($class_or_self) = @_;
+  my $class = (ref $class_or_self || $class_or_self);
+  return ($parameter_info_hash{$class}
+          ||= { map { $_->{'name'} => $_ }
+                $class_or_self->parameter_info_list });
+}
+
+# sub parameter_info_hash {
+#   my ($class) = @_;
+#   return { map { $_->{'name'}, $_ }
+#            @{$class->parameter_info_array} };
+# }
+
+
+#------------------------------------------------------------------------------
+# shared internals
+
 sub _is_infinite {
   my ($x) = @_;
   return ($x != $x         # nan
@@ -139,6 +163,7 @@ include
     HypotOctant            first octant points by distance
     TriangularHypot        points by triangular lattice distance
     PythagoreanTree        primitive triples by tree
+    RationalsTree          rationals X/Y by tree
 
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
@@ -153,6 +178,7 @@ include
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
     KochSnowflakes         concentric notched snowflake rings
+    KochSquareflakes       concentric notched 4-sided rings
     QuadricCurve           eight segment zig-zag
     QuadricIslands         rings of those zig-zags
     SierpinskiTriangle     self-similar triangle by rows
@@ -304,6 +330,47 @@ C<$n> position.  This is currently either
 Of course this is only a suggestion since PlanePath doesn't draw anything
 itself.  A figure like a diamond for instance can look good too.
 
+=item C<$aref = Math::PlanePath::Foo-E<gt>parameter_info_array()>
+
+=item C<@list = Math::PlanePath::Foo-E<gt>parameter_info_list()>
+
+Return an arrayref of list describing the parameters taken by a given class.
+This meant to help making widgets etc for user interaction in a GUI.  Each
+element is a hashref
+
+    {
+      name        =>    parameter key arg for new()
+      description =>    human readable string
+      type        =>    string "integer","boolean","enum" etc
+      default     =>    value
+      minimum     =>    number, or undef
+      maximum     =>    number, or undef
+      width       =>    integer, suggested display size
+      choices     =>    for enum, an arrayref     
+    }
+
+C<type> is a string, one of
+
+    "integer"
+    "enum"
+    "boolean"
+    "string"
+    "filename"
+
+"filename" is separate from "string" since it might require subtly different
+handling to ensure it reaches Perl as a byte string, whereas a "string" type
+might in principle take Perl wide chars.
+
+For "enum" the C<choices> field is the possible values, such as
+
+    { name => "flavour",
+      type => "enum",
+      choices => ["strawberry","chocolate"],
+    }
+
+C<minimum> and C<maximum> are omitted if there's no hard limit on the
+parameter.
+
 =back
 
 =head1 GENERAL CHARACTERISTICS
@@ -423,7 +490,7 @@ for things like KochPeaks and GosperIslands).
       3         PeanoCurve (default), GosperIslands, GosperSide
                   SierpinskiTriangle,
                   SierpinskiArrowhead, SierpinskiArrowheadCentres,
-      4         KochCurve, KochPeaks, KochSnowflakes
+      4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes
       8         QuadricCurve, QuadricIslands
     parameter   PeanoCurve, ZOrderCurve, ImaginaryBase
 
@@ -530,6 +597,7 @@ L<Math::PlanePath::GosperSide>,
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,
 L<Math::PlanePath::KochSnowflakes>,
+L<Math::PlanePath::KochSquareflakes>,
 L<Math::PlanePath::QuadricCurve>,
 L<Math::PlanePath::QuadricIslands>
 
@@ -549,6 +617,7 @@ L<Math::PlanePath::PyramidSides>,
 L<Math::PlanePath::CellularRule54>
 
 L<Math::PlanePath::PythagoreanTree>,
+L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::File>
 

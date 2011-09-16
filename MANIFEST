@@ -27,7 +27,7 @@ devel/hilbert.pl
 devel/hypot.pl
 devel/interpolate.pl
 devel/iterator.pl
-devel/koch-square.pl
+devel/koch-squareflakes.pl
 devel/Makefile
 devel/old/DragonArms.pm
 devel/old/DragonMidpointArms.pm
@@ -41,6 +41,7 @@ devel/pythagorean-area.pl
 devel/pythagorean.pl
 devel/quadric.pl
 devel/r5.pl
+devel/rationals.pl
 devel/run.pl
 devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
@@ -57,6 +58,7 @@ examples/hilbert-path.pl
 examples/knights-oeis.pl
 examples/koch-svg.pl
 examples/numbers.pl
+examples/rationals-tree.pl
 examples/sacks-xpm.pl
 examples/square-numbers.pl
 examples/ulam-spiral-xpm.pl
@@ -92,6 +94,7 @@ lib/Math/PlanePath/KnightSpiral.pm
 lib/Math/PlanePath/KochCurve.pm
 lib/Math/PlanePath/KochPeaks.pm
 lib/Math/PlanePath/KochSnowflakes.pm
+lib/Math/PlanePath/KochSquareflakes.pm
 lib/Math/PlanePath/MultipleRings.pm
 lib/Math/PlanePath/OctagramSpiral.pm
 lib/Math/PlanePath/PeanoCurve.pm
@@ -104,6 +107,7 @@ lib/Math/PlanePath/PyramidSpiral.pm
 lib/Math/PlanePath/PythagoreanTree.pm
 lib/Math/PlanePath/QuadricCurve.pm
 lib/Math/PlanePath/QuadricIslands.pm
+lib/Math/PlanePath/RationalsTree.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
 lib/Math/PlanePath/SierpinskiArrowhead.pm
@@ -153,6 +157,7 @@ t/KnightSpiral.t
 t/KochCurve.t
 t/KochPeaks.t
 t/KochSnowflakes.t
+t/KochSquareflakes.t
 t/MultipleRings.t
 t/MyTestHelpers.pm
 t/PeanoCurve-load.t
@@ -163,6 +168,7 @@ t/PlanePath-subclasses.t
 t/PlanePath.t
 t/PyramidRows.t
 t/PythagoreanTree.t
+t/RationalsTree.t
 t/Rows-load.t
 t/Rows.t
 t/SacksSpiral.t

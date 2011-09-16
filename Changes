@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 43, September 2011
+    - new KochSquareflakes, RationalsTree
+    - new parameter_info_array(), parameter_info_list()
+
 Version 42, September 2011
     - new SierpinskiArrowheadCentres, SierpinskiTriangle
 

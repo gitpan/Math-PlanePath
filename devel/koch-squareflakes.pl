@@ -20,11 +20,23 @@
 use 5.010;
 use strict;
 use warnings;
-use Math::PlanePath::MathImageKochSquareflakes;
+use Math::PlanePath::KochSquareflakes;
 
 
 {
-  my $path = Math::PlanePath::MathImageKochSquareflakes->new;
+  my $path = Math::PlanePath::KochSquareflakes->new;
+  foreach my $level (1 .. 12) {
+    my $nstart = (4**($level+1) - 1) / 3;
+    my ($xstart,$ystart) = $path->n_to_xy($nstart);
+    $xstart = -$xstart;
+    print "$xstart,";
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  my $path = Math::PlanePath::KochSquareflakes->new;
   foreach my $level (1 .. 8) {
     my $nstart = (4**($level+1) - 1) / 3;
     my $nend = $nstart + 4**$level;

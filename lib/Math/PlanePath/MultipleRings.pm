@@ -24,7 +24,7 @@ use POSIX 'floor';
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -34,6 +34,15 @@ use Math::PlanePath;
 #use Smart::Comments;
 
 use constant figure => 'circle';
+
+use constant parameter_info_array =>
+  [{ name      => 'step',
+     share_key => 'rings_step',
+     type      => 'integer',
+     minimum   => 0,
+     default   => 6,
+     width     => 3,
+   }];
 
 
 # Electricity transmission cable in sixes, with one at centre ?

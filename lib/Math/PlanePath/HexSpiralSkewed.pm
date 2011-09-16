@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -31,6 +31,13 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+use constant parameter_info_array => [ { name => 'wider',
+                                         type => 'integer',
+                                         description => 'Wider path.',
+                                         minimum => 0,
+                                         default => 0,
+                                         width => 3,
+                                       } ];
 
 sub new {
   my $self = shift->SUPER::new (@_);

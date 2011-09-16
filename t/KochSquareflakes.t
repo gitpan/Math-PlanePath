@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,13 +20,17 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 44; }
+BEGIN { plan tests => 330 }
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
-require Math::PlanePath::TheodorusSpiral;
+use Math::PlanePath::KochSquareflakes;
+
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 
 #------------------------------------------------------------------------------
@@ -34,20 +38,20 @@ require Math::PlanePath::TheodorusSpiral;
 
 {
   my $want_version = 43;
-  ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
+  ok ($Math::PlanePath::KochSquareflakes::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
+  ok (Math::PlanePath::KochSquareflakes->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::TheodorusSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::KochSquareflakes->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::TheodorusSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::KochSquareflakes->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::TheodorusSpiral->new;
+  my $path = Math::PlanePath::KochSquareflakes->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,43 +66,28 @@ require Math::PlanePath::TheodorusSpiral;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::TheodorusSpiral->new;
-  ok ($path->n_start, 0, 'n_start()');
+  my $path = Math::PlanePath::KochSquareflakes->new;
+  ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
 
 #------------------------------------------------------------------------------
-# _rect_r_range()
+# xy_to_n() coverage
 
-foreach my $elem ([ 0,0, 0,0,   0,0 ],
-
-                  [ 1,0, 0,0,   0,1 ],
-                  [ 0,1, 0,0,   0,1 ],
-                  [ 0,0, 1,0,   0,1 ],
-                  [ 0,0, 0,1,   0,1 ],
-
-                  [ 3,1, -3,4,   1,5 ],
-                  [ -3,1, 3,4,   1,5 ],
-                  [ -3,4, 3,1,   1,5 ],
-                  [ 3,4, -3,1,   1,5 ],
-
-                  [ 1,3, 4,-3,   1,5 ],
-                  [ 1,-3, 4,3,   1,5 ],
-                  [ 4,-3, 1,3,   1,5 ],
-                  [ 4,3, 1,-3,   1,5 ],
-
-                  [ -3,-4, 3,4,  0,5 ],
-                  [ 3,-4, -3,4,  0,5 ],
-                  [ 3,4, -3,-4,  0,5 ],
-                  [ -3,4, 3,-4,  0,5 ],
-
-                 ) {
-  my ($x1,$y1, $x2,$y2, $want_rlo,$want_rhi) = @$elem;
-  my ($got_rlo,$got_rhi)
-    = Math::PlanePath::TheodorusSpiral::_rect_r_range ($x1,$y1, $x2,$y2);
-  ok ($got_rlo, $want_rlo, '_rect_r_range() rlo');
-  ok ($got_rhi, $want_rhi, '_rect_r_range() rhi');
+foreach my $inward (0, 1) {
+  my $path = Math::PlanePath::KochSquareflakes->new (inward => $inward);
+  foreach my $x (-10 .. 10) {
+    foreach my $y (-10 .. 10) {
+      next if $x == 0 && $y == 0;
+      my $n = $path->xy_to_n ($x, $y);
+      next if ! defined $n;
+      ### $n
+      my ($nx,$ny) = $path->n_to_xy ($n);
+      ok ($nx,$x, "x=$x,y=$y  n=$n  nxy=$nx,$ny");
+      ok ($ny,$y);
+    }
+  }
 }
 
 exit 0;

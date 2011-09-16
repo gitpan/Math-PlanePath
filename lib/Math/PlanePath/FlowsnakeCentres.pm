@@ -28,9 +28,10 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
-# inherit new(), rect_to_n_range(), arms_count()
+# inherit new(), rect_to_n_range(), arms_count(), n_start(),
+# parameter_info_array()
 use Math::PlanePath::Flowsnake;
 @ISA = ('Math::PlanePath::Flowsnake');
 
@@ -245,9 +246,6 @@ sub xy_to_n {
   my $level_limit = log($x*$x + 3*$y*$y + 1) * 0.835 * 2;
   if (_is_infinite($x)) { return $level_limit; }
 
-  # my $sx = 1;
-  # my $sy = -1;
-
   my @digits;
   my $arm;
   my $state;
@@ -274,11 +272,13 @@ sub xy_to_n {
       $state = 70;
       last;
     }
+
     # if ((($x == -1 || $x == 1) && $y == -1)
     #     || ($x == 0 && $y == -2)) {
     #   ### below island ...
     #   return undef;
     # }
+
     my $m = ($x + 2*$y) % 7;
     ### at: "$x,$y   digits=".join(',',@digits)
     ### mod remainder: $m

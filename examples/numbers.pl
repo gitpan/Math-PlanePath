@@ -119,6 +119,7 @@ my @all_classes = ('SquareSpiral',
                    'KochCurve',
                    'KochPeaks',
                    'KochSnowflakes',
+                   'KochSquareflakes',
                    'QuadricCurve',
                    'QuadricIslands',
 
@@ -138,6 +139,10 @@ my @all_classes = ('SquareSpiral',
 
                    'PythagoreanTree',
                    'PythagoreanTree,coordinates=PQ',
+                   'RationalsTree,tree_type=SB',
+                   'RationalsTree,tree_type=CW',
+                   'RationalsTree,tree_type=AYT',
+                   'RationalsTree,tree_type=Bird',
                    'CoprimeColumns',
                   );
 # expand arg "all" to full list

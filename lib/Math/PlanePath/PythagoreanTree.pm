@@ -22,7 +22,7 @@
 # 141, 1993.
 #     http://books.google.com.au/books?id=KjhM9pZEGCkC&lpg=PR1&dq=Solved%20and%20Unsolved%20Problems%20in%20Number%20Theory&pg=PA122#v=onepage&q&f=false
 #
-# Euclid Book X prop 28,29 that u,v makes a triple, maybe Babylonians 
+# Euclid Book X prop 28,29 that u,v makes a triple, maybe Babylonians
 #
 
 # http://www.math.uconn.edu/~kconrad/blurbs/ugradnumthy/pythagtriple.pdf
@@ -60,7 +60,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -75,6 +75,21 @@ use Math::PlanePath::KochCurve 42;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
+
+use constant parameter_info_array =>
+  [ { name       => 'tree_type',
+      share_key  => 'tree_type_pythagorean',
+      type       => 'enum',
+      choices    => ['UAD','FB'],
+      default    => 'UAD',
+    },
+    { name       => 'coordinates',
+      share_key  => 'coordinates_pythagorean',
+      type       => 'enum',
+      choices    => ['AB','PQ'], # 'Octant'
+      default    => 'AB',
+    },
+  ];
 
 sub new {
   my $class = shift;
@@ -814,6 +829,7 @@ an N range.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::Hypot>,
+L<Math::PlanePath::RationalsTree>
 L<Math::PlanePath::CoprimeColumns>
 
 H. Lee Price, "The Pythagorean Tree: A New Species", 2008,

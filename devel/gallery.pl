@@ -50,6 +50,52 @@ close $tempfh_1023;
 
 foreach my $elem
   (
+   ['rationals-tree-lines-sb.png',
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200x200 --png'],
+   ['rationals-tree-lines-cw.png',
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200x200 --png'],
+   ['rationals-tree-lines-ayt.png',
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200x200 --png'],
+   ['rationals-tree-lines-bird.png',
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200x200 --png'],
+   ['rationals-tree-small.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=32 --png'],
+   ['rationals-tree-big.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=200x200 --png'],
+
+   ['pythagorean-small.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32 --png'],
+   ['pythagorean-points-big.png',
+    'math-image --path=PythagoreanTree --all --scale=1 --size=200 --png'],
+   ['pythagorean-tree-big.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200 --png'],
+
+   ['koch-squareflakes-inward-small.png',
+    'math-image --path=KochSquareflakes,inward=1 --lines --scale=2 --size=32 --png'],
+   ['koch-squareflakes-inward-big.png',
+    'math-image --path=KochSquareflakes,inward=1 --lines --scale=2 --size=150x150 --png'],
+
+   ['koch-squareflakes-small.png',
+    'math-image --path=KochSquareflakes --lines --scale=1 --size=32 --png'],
+   ['koch-squareflakes-big.png',
+    'math-image --path=KochSquareflakes --lines --scale=2 --size=150x150 --png'],
+
+   ['koch-curve-small.png',
+    'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8 --png'],
+   ['koch-curve-big.png',
+    'math-image --path=KochCurve --lines --scale=5 --size=250x100 --offset=0,20 --png'],
+
+   ['koch-snowflakes-small.png',
+    'math-image --path=KochSnowflakes --lines --scale=2 --size=32 --png'],
+   ['koch-snowflakes-big.png',
+    'math-image --path=KochSnowflakes --lines --scale=3 --size=200x150 --png'],
+
+   ['koch-peaks-small.png',
+    'math-image --path=KochPeaks --lines --scale=2 --size=32 --png'],
+   ['koch-peaks-big.png',
+    'math-image --path=KochPeaks --lines --scale=3 --size=200x100 --png'],
+
+
    ['cellular-rule54-small.png',
     'math-image --path=CellularRule54 --all --scale=3 --size=32x32 --png'],
    ['cellular-rule54-big.png',
@@ -155,22 +201,6 @@ foreach my $elem
     'math-image --path=DragonCurve --lines --figure=point --scale=8 --size=250x200 --offset=-55,0 --png'],
 
 
-   ['koch-curve-small.png',
-    'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8 --png'],
-   ['koch-curve-big.png',
-    'math-image --path=KochCurve --lines --scale=5 --size=250x100 --offset=0,20 --png'],
-
-   ['koch-snowflakes-small.png',
-    'math-image --path=KochSnowflakes --lines --scale=2 --size=32 --png'],
-   ['koch-snowflakes-big.png',
-    'math-image --path=KochSnowflakes --lines --scale=3 --size=200x150 --png'],
-
-   ['koch-peaks-small.png',
-    'math-image --path=KochPeaks --lines --scale=2 --size=32 --png'],
-   ['koch-peaks-big.png',
-    'math-image --path=KochPeaks --lines --scale=3 --size=200x100 --png'],
-
-
    ['gosper-side-small.png',
     'math-image --path=GosperSide --lines --scale=3 --size=32 --offset=-13,-7 --png'],
    ['gosper-side-big.png',
@@ -251,13 +281,6 @@ foreach my $elem
     'math-image --path=CoprimeColumns --all --scale=3 --size=32 --png'],
    ['coprime-columns-big.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=200x200 --png'],
-
-   ['pythagorean-small.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32 --png'],
-   ['pythagorean-points-big.png',
-    'math-image --path=PythagoreanTree --all --scale=1 --size=200 --png'],
-   ['pythagorean-tree-big.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200 --png'],
 
    ['pixel-small.png',
     'math-image --path=PixelRings --lines --scale=4 --size=32 --png'],

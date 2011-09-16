@@ -28,7 +28,7 @@ use Math::BigInt;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = 10;
+my $test_count = 16;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
@@ -103,5 +103,50 @@ require Math::PlanePath::KochCurve;
   ok ($pow, Math::BigInt->new(3) ** 128);
   ok ($exp, 128);
 }
+
+#------------------------------------------------------------------------------
+# RationalsTree
+
+require Math::PlanePath::RationalsTree;
+{
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+
+  require Math::BigInt;
+  my $n = Math::BigInt->new(2) ** 256 - 1;
+  my $want_x = 256;
+  my $want_y = 1;
+
+  my ($got_x,$got_y) = $path->n_to_xy($n);
+  ok ($got_x, $want_x);
+  ok ($got_y, $want_y);
+}
+
+{
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+
+  require Math::BigInt;
+  my $n = Math::BigInt->new(2) ** 256 - 1;
+  my $want_x = 256;
+  my $want_y = 1;
+
+  my ($got_x,$got_y) = $path->n_to_xy($n);
+  ok ($got_x, $want_x);
+  ok ($got_y, $want_y);
+}
+
+{
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+
+  # cf 2^256 - 1 gives fibonacci F[k]/F[k+1]
+  require Math::BigInt;
+  my $n = Math::BigInt->new(2) ** 256 + 1;
+  my $want_x = 1;
+  my $want_y = 257;
+
+  my ($got_x,$got_y) = $path->n_to_xy($n);
+  ok ($got_x, $want_x);
+  ok ($got_y, $want_y);
+}
+
 
 exit 0;

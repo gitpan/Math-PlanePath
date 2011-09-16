@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -43,6 +43,14 @@ use Math::PlanePath;
 use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
+
+use constant parameter_info_array => [{ name      => 'radix',
+                                        share_key => 'radix_2',
+                                        type      => 'integer',
+                                        minimum   => 2,
+                                        default   => 2,
+                                        width     => 3,
+                                      }];
 
 sub new {
   my $class = shift;

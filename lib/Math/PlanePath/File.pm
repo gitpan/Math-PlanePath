@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -35,6 +35,13 @@ sub n_start    { return _read($_[0])->{'n_start'} }
 sub x_negative { return _read($_[0])->{'x_negative'} }
 sub y_negative { return _read($_[0])->{'y_negative'} }
 sub figure     { return _read($_[0])->{'figure'} }
+
+use constant parameter_info_array =>
+  [ { name    => 'filename',
+      type    => 'filename',
+      width   => 40,
+      default => '',
+    } ];
 
 sub n_to_xy {
   my ($self, $n) = @_;

@@ -50,7 +50,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 42;
+$VERSION = 43;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -59,6 +59,13 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
+use constant parameter_info_array => [ { name => 'wider',
+                                         type => 'integer',
+                                         description => 'Wider path.',
+                                         minimum => 0,
+                                         default => 0,
+                                         width => 3,
+                                       } ];
 
 sub new {
   my $self = shift->SUPER::new (@_);
@@ -203,7 +210,9 @@ sub rect_to_n_range {
 
   # symmetric in +/-x, and biggest x
   my $x = max (abs($x1), abs($x2));
-  $x = max (0, $x-$w);
+  if ($x >= $w) {
+    $x -= $w;
+  }
 
   # in the middle horizontal path parts y determines the loop number
   # in the end parts diagonal distance, 2 apart
