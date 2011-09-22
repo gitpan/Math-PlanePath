@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -108,7 +108,9 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### KochPeaks n_to_xy(): $n
 
-  if ($n < 0.5) { return; }
+  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
+  return if 2*$n < 1;
+
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $level = _log4_floor((3*$n-1)/2);

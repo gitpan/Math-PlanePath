@@ -60,7 +60,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -552,7 +552,11 @@ last of each level, so N=(3^(level+1)-1)/2.
 
 =head2 FB Tree
 
-The FB tree by H. Lee Price is based on expressing triples in certain
+The FB tree by H. Lee Price,
+
+    http://arxiv.org/abs/0809.4324
+
+is based on expressing triples in certain
 "Fibonacci boxes" with q',q,p,p' having p=q+q' and p'=p+q, each the sum of
 the preceding two in a fashion similar to the Fibonacci sequence.  Any box
 where p and q have no common factor corresponds to a primitive triple (see

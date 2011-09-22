@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1567 }
+BEGIN { plan tests => 1568 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondArms;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::DiamondArms::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiamondArms->VERSION,  $want_version,
@@ -67,6 +67,11 @@ require Math::PlanePath::DiamondArms;
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
   ok ($path->arms_count, 4, 'arms_count()');
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::DiamondArms->parameter_info_list;
+  ok (join(',',@pnames), '');
 }
 
 

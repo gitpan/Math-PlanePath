@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 149 }
+BEGIN { plan tests => 150 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::PyramidRows;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::PyramidRows::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PyramidRows->VERSION,  $want_version,
@@ -67,8 +67,11 @@ require Math::PlanePath::PyramidRows;
 {
   my $path = Math::PlanePath::PyramidRows->new;
   ok ($path->n_start, 1, 'n_start()');
-  ok (!! $path->x_negative, 1, 'x_negative() default');
-  ok (!  $path->y_negative, 1, 'y_negative() default');
+  ok ($path->x_negative, 1, 'x_negative() default');
+  ok ($path->y_negative, 0, 'y_negative() default');
+
+  my @pnames = map {$_->{'name'}} $path->parameter_info_list;
+  ok (join(',',@pnames), 'step');
 }
 {
   my $path = Math::PlanePath::PyramidRows->new (step => 0);
@@ -85,8 +88,8 @@ require Math::PlanePath::PyramidRows;
 {
   my $path = Math::PlanePath::PyramidRows->new (step => 3);
   ok ($path->n_start, 1, 'n_start()');
-  ok (!! $path->x_negative, 1, 'x_negative() step=3');
-  ok (!  $path->y_negative, 1, 'y_negative() step=3');
+  ok ($path->x_negative, 1, 'x_negative() step=3');
+  ok ($path->y_negative, 0, 'y_negative() step=3');
 }
 
 #------------------------------------------------------------------------------

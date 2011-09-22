@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 20 }
+BEGIN { plan tests => 21 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::Rows;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::Rows::VERSION, $want_version, 'VERSION variable');
   ok (Math::PlanePath::Rows->VERSION,  $want_version, 'VERSION class method');
 
@@ -65,6 +65,13 @@ require Math::PlanePath::Rows;
   ok ($path->x_negative, 0, 'x_negative() instance method');
   ok ($path->y_negative, 0, 'y_negative() instance method');
 }
+{
+  # width not a parameter as such ...
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::Rows->parameter_info_list;
+  ok (join(',',@pnames), '');
+}
+
 
 #------------------------------------------------------------------------------
 # rect_to_n_range()

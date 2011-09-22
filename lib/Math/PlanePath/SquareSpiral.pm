@@ -23,7 +23,7 @@ use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

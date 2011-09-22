@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -261,18 +261,18 @@ arranged as rows.
 
     -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6   7
 
-The initial figure N=1,2,3,4 repeats in two-row groups with a 1 cell gap
-between figures.  There's one extra figure in each two-row group, for a step
-of 4 more points than the previous two-row.
+The initial figure N=1,2,3,4 repeats in two-row groups with 1 cell gap
+between figures.  Each two-row group has one extra figure, for a step of 4
+more points than the previous two-row.
 
 The rightmost N on the even rows Y=0,2,4,6 etc is the hexagonal numbers
 N=1,6,15,28, etc k*(2k-1).  The hexagonal numbers of the "second kind" 1, 3,
-10, 21, 36, etc j*(2j+1) are a straight-ish line upwards in the middle too.
+10, 21, 36, etc j*(2j+1) are a steep sloping line upwards in the middle too.
 Those two taken together are the triangular numbers 1,3,6,10,15 etc,
 k*(k+1)/2.
 
-The 18-gonal numbers 18,51,100,etc are a vertical line at X=-3 and every
-fourth row (Y=5,9,13,etc).
+The 18-gonal numbers 18,51,100,etc are the vertical line at X=-3 on every
+fourth row Y=5,9,13,etc.
 
 =head2 Row Ranges
 
@@ -286,16 +286,19 @@ The right end is
     Nright = (Y+1)*(Y+2)/2    if Y even
              (Y+1)*(Y+3)/2    if Y odd
 
-           = Nleft(Y+1) - 1     ie. 1 before next Nleft
+           = Nleft(Y+1) - 1   ie. 1 before next Nleft
 
 The row width Xmax-Xmin is 2*Y but with the gaps the number of visited
-points in a row is
+points in a row is less than that, being either about 1/4 or 3/4 of the
+width on even or odd rows.
 
     rowpoints = Y/2 + 1        if Y even
                 3*(Y+1)/2      if Y odd
 
-              = Nright - Nleft + 1
+For any Y of course the Nleft to Nright difference is the number of points
+in the row too
 
+    rowpoints = Nright - Nleft + 1
 
 =head1 FUNCTIONS
 
@@ -334,7 +337,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2011 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -9,6 +9,7 @@ debian/rules
 debian/source/format
 debian/watch
 devel/archimedean.pl
+devel/complex-minus.pl
 devel/cont-frac.pl
 devel/coprime.pl
 devel/dragon.pl
@@ -30,7 +31,6 @@ devel/iterator.pl
 devel/koch-squareflakes.pl
 devel/Makefile
 devel/old/DragonArms.pm
-devel/old/DragonMidpointArms.pm
 devel/old/FlowsnakeArms.pm
 devel/old/PythagoreanUAD.pm
 devel/old/SierpinskiArrowheadSkewed.pm
@@ -45,10 +45,10 @@ devel/rationals.pl
 devel/run.pl
 devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
+devel/sierpinski-curve.pl
 devel/svg.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
-devel/twindragon.pl
 devel/ulam-warburton.pl
 devel/unused.pl
 devel/vertical.pl
@@ -68,6 +68,7 @@ lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/Columns.pm
+lib/Math/PlanePath/ComplexMinus.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
@@ -132,7 +133,9 @@ t/bigint.t
 t/bigrat.t
 t/Columns-load.t
 t/Columns.t
+t/ComplexMinus.t
 t/CoprimeColumns.t
+t/Corner.t
 t/Diagonals.t
 t/DiamondArms.t
 t/DiamondSpiral.t
@@ -194,5 +197,6 @@ xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm
 xt/PeanoCurve-oeis.t
+xt/RationalsTree-oeis.t
 xt/SierpinskiTriangle-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

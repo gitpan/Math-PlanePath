@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -67,7 +67,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### CoprimeColumns n_to_xy(): $n
 
-  if ($n < -.5) {
+  # $n<-0.5 is ok for Math::BigInt circa Perl 5.12, it seems
+  if ($n < -0.5) {
     return;
   }
   if (_is_infinite($n)) {
@@ -294,6 +295,7 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::PythagoreanTree>
 
 =head1 HOME PAGE

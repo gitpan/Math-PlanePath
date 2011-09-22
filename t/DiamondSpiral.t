@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 64 }
+BEGIN { plan tests => 65 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondSpiral;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::DiamondSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiamondSpiral->VERSION,  $want_version,
@@ -65,9 +65,15 @@ require Math::PlanePath::DiamondSpiral;
 {
   my $path = Math::PlanePath::DiamondSpiral->new (height => 123);
   ok ($path->n_start, 1, 'n_start()');
-  ok (!!$path->x_negative, 1, 'x_negative()');
-  ok (!!$path->y_negative, 1, 'y_negative()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 1, 'y_negative()');
 }
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::DiamondSpiral->parameter_info_list;
+  ok (join(',',@pnames), '');
+}
+
 
 #------------------------------------------------------------------------------
 # xy_to_n

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 398 }
+BEGIN { plan tests => 476 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::RationalsTree;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::RationalsTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::RationalsTree->VERSION,  $want_version,
@@ -69,6 +69,11 @@ require Math::PlanePath::RationalsTree;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 0, 'x_negative()');
   ok ($path->y_negative, 0, 'y_negative()');
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::RationalsTree->parameter_info_list;
+  ok (join(',',@pnames), 'tree_type');
 }
 
 #------------------------------------------------------------------------------
@@ -201,6 +206,8 @@ foreach my $topelem ([ 'SB',
 foreach my $options ([tree_type => 'SB'],
                      [tree_type => 'CW'],
                      [tree_type => 'AYT'],
+                     [tree_type => 'Bird'],
+                     [tree_type => 'Drib'],
                     ) {
   my $path = Math::PlanePath::RationalsTree->new (@$options);
   my $bad = 0;
@@ -240,6 +247,50 @@ foreach my $options ([tree_type => 'SB'],
     }
   }
   ok ($bad, 0, "xy_to_n() coverage and distinct, $count points");
+}
+
+#------------------------------------------------------------------------------
+# sum of terms in row is numerator 3*2^level-1, per A052940
+
+foreach my $tree_type ('SB',
+                       'CW',
+                       'AYT',
+                       'Bird',
+                       'Drib',
+                      ) {
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => $tree_type);
+  for my $level (1 .. 5) {  # 7
+    {
+      my $num = 0;
+      my $den = 1;
+      for my $n (2**$level .. 2**($level+1) - 1) {
+        my ($x,$y) = $path->n_to_xy ($n);
+        ($num, $den) = ($num*$y + $x*$den,
+                        $den * $y);
+        foreach my $k (2 .. $y) {
+          while (($num % $k) == 0 && ($den % $k) == 0) {
+            $num /= $k;
+            $den /= $k;
+          }
+        }
+      }
+      # MyTestHelpers::diag ("sum $num/$den");
+      ok ($num, 3*2**$level - 1,
+          "tree_type $tree_type level $level sum num");
+      ok ($den, 2,
+          "tree_type $tree_type level $level sum den");
+    }
+    {
+      my $sum = 0;
+      for my $n (2**$level .. 2**($level+1) - 1) {
+        my ($x,$y) = $path->n_to_xy ($n);
+        $sum += $x;
+      }
+      ### $sum
+      ok ($sum, 3**$level,
+          "tree_type $tree_type level $level numerator sum");
+    }
+  }
 }
 
 exit 0;

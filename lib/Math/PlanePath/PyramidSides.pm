@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -55,7 +55,9 @@ use constant y_negative => 0;
 sub n_to_xy {
   my ($self, $n) = @_;
   ### PyramidSides n_to_xy: $n
-  return if $n < 0.5;
+
+  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
+  return if 2*$n < 1;
 
   my $s = int(sqrt ($n - .5));
   $n -= $s*($s+1) + 1;   # to n=0 at centre, +/- distance from there

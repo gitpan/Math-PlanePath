@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 34 }
+BEGIN { plan tests => 35 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::HexSpiral;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::HexSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexSpiral->VERSION,  $want_version,
@@ -64,8 +64,13 @@ require Math::PlanePath::HexSpiral;
 {
   my $path = Math::PlanePath::HexSpiral->new;
   ok ($path->n_start, 1, 'n_start()');
-  ok (!! $path->x_negative, 1, 'x_negative()');
-  ok (!! $path->y_negative, 1, 'y_negative()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 1, 'y_negative()');
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::HexSpiral->parameter_info_list;
+  ok (join(',',@pnames), 'wider');
 }
 
 #------------------------------------------------------------------------------

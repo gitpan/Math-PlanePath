@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 328 }
+BEGIN { plan tests => 329 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::DragonRounded;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::DragonRounded::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonRounded->VERSION,  $want_version,
@@ -70,7 +70,11 @@ require Math::PlanePath::DragonRounded;
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
-
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::DragonRounded->parameter_info_list;
+  ok (join(',',@pnames), 'arms');
+}
 
 #------------------------------------------------------------------------------
 # first few points

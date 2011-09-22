@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -208,6 +208,44 @@ sub n_to_xy {
     }
     return ($x,$y);
 
+  } elsif ($tree_type eq 'Drib') {
+    ### Drib tree ...
+
+    #       X/Y
+    #     /     \
+    # (X+Y)/X  Y/(X+Y)
+    #
+    # (1 1) (x) = (x+y)     (a b) (1 1) = (a+b a)   digit 0
+    # (1 0) (y)   ( x )     (c d) (1 0)   (c+d c)
+    #
+    # (0 1) (x) = ( y )     (a b) (0 1) = (b a+b)   digit 1
+    # (1 1) (y)   (x+y)     (c d) (1 1)   (d c+d)
+
+    my $a = $one;     # initial  (1 0)
+    my $b = $zero;    #          (0 1)
+    my $c = $zero;
+    my $d = $one;
+    while ($n > 1) {
+      ### digit: ($n % 2).''
+      ### at: "($a $b)"
+      ### at: "($c $d)"
+      if ($n % 2) {      # low to high
+        ($a,$b) = ($a+$b, $a);
+        ($c,$d) = ($c+$d, $c);
+      } else {
+        ($a,$b) = ($b, $a+$b);
+        ($c,$d) = ($d, $c+$d);
+      }
+      $n = int($n/2);
+    }
+    ### final: "($a $b)"
+    ### final: "($c $d)"
+
+    # (a b) (1) = (a+b)
+    # (c d) (1)   (c+d)
+    return ($a+$b, $c+$d);
+
+
   } else {
     ### SB tree ...
     my $x = $one;
@@ -295,6 +333,33 @@ sub xy_to_n {
         $n += $power;
       } else {
         $y -= $x;   # (x,y) <- (x, y-x)
+      }
+      $power *= 2;
+    }
+    return $n + $power;  # plus high bit
+
+  } elsif ($self->{'tree_type'} eq 'Drib') {
+
+    my $n = $zero;
+    my $power = $one;   # bits generated low to high
+    for (;;) {
+      ### at: "$x,$y n=$n"
+      if ($x <= 1 && $y <= 1) {
+        last;
+      }
+      if ($x == $y) {
+        return undef;
+      }
+
+      #       X/Y
+      #     /     \
+      # (X+Y)/X  Y/(X+Y)
+      #
+      if ($x > $y) {
+        ($x,$y) = ($y, $x-$y);    # (x,y) <- (y, x-y)  digit 1
+        $n += $power;
+      } else {
+        ($x,$y) = ($y-$x, $x);    # (x,y) <- (y-x, x)  digit 0
       }
       $power *= 2;
     }
@@ -392,16 +457,16 @@ Math::PlanePath::RationalsTree -- rationals by tree
 
 =head1 DESCRIPTION
 
-I<In progress.>
-
 This path enumerates reduced rational fractions X/Y with no common factor
-between X and Y by one of four different types of binary trees.
+between X and Y by one of five different types of binary trees.
 
 The trees effectively represent a coprime pair X,Y by the steps of the
 binary greatest common divisor algorithm which would prove X,Y coprime.  The
-different encoding of those steps gives a different order for the X/Y values
-in the tree types.  See F<examples/rationals-tree.pl> in the PlanePath
-sources to print all four trees.
+different encoding of those steps in N gives a different order for the X/Y
+values in the tree types.
+
+See F<examples/rationals-tree.pl> in the PlanePath sources for a simple
+print of all the trees.
 
 =head2 Stern-Brocot Tree
 
@@ -424,7 +489,7 @@ given depth gives values in increasing order too,
      1/3  |  2/3  |  3/2  |  3/1
       |   |   |   |   |   |   |
 
-     1/2 1/2 2/3 1/1 3/2 2/1 3/1
+     1/3 1/2 2/3 1/1 3/2 2/1 3/1
                     ^
                    4/3
 
@@ -473,8 +538,10 @@ in a different order.
 
 Going across by rows the denominator of one value becomes the numerator of
 the next.  So at 4/3 the denominator 3 becomes the numerator of 3/5 to its
-right.  Each row is symmetric too, reading from right to left is the
-reciprocals of left to right.
+right.  These values are Stern's diatomic sequence.
+
+Each row is symmetric, reading from right to left is the reciprocals of left
+to right.
 
 A node descends as
 
@@ -523,6 +590,7 @@ C<tree_type=E<gt>"AYT"> selects the tree described (independently is it?)
 by D. N. Andreev and Shen Yu-Ting.
 
    http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf
+   http://www.jstor.org/stable/2320374
 
 Their constructions are a one-to-one mapping between integer N and rational
 X/Y as a way of enumerating the rationals, not a tree as such, but the
@@ -547,7 +615,7 @@ its reciprocal (the reciprocal of the increment).
 which means
 
           X/Y
-        /     \          applied N bits high to low
+        /     \           (N bits high to low)
     (X+Y)/Y  Y/(X+Y)
 
 The (X+Y)/Y is the same as in the CW (on the right instead of left), but
@@ -599,15 +667,9 @@ It's expressed recursively (illustrating Haskell features) and ends up as
 The descendants of each node are plus one and reciprocal, or reciprocal and
 plus one (the other way around),
 
-                X/Y
-             /       \
-    1/(tree + 1)     (1/tree) + 1
+    1/(tree + 1)  and  (1/tree) + 1
 
-which ends up meaning
-
-          X/Y
-        /     \        applied N bits low to high
-    (X+Y)/X  Y/(X+Y)
+which ends up meaning Y/(X+Y) and (X+Y)/X taking N bits low to high.
 
 Plotting the N values by X,Y gives,
 
@@ -631,6 +693,73 @@ N=1010...etc of alternate 1 and 0 bits.  The integers X/1 in the Y=1
 vertical are similar, but N=11010...etc starting the alternation from a 1 in
 the second highest bit, since those integers are in the right hand half of
 the tree.
+
+The Bird tree N values are related to the SB tree by inverting every second
+bit, starting from the second after the highest 1, ie. "001010...".  So if
+N=1abcdefg binary then b,d,f are inverted, ie. an xored with binary
+00101010.  For example 3/4 in the SB tree is at N=11 = binary 1011.  Xor
+with 0010 for binary 1001 N=9 which is the 3/4 in the Bird tree.  The same
+xor goes back the other way the Bird tree to the SB tree.
+
+This xoring reflects the way the tree is mirrored, swapping left and right
+at each level.  Only every second bit is inverted because mirroring twice
+(or any even number of times) puts it back to the ordinary way.
+
+=head2 Drib Tree
+
+C<tree_type=E<gt>"Drib"> selects the Drib tree by Ralf Hinze.  It reverses
+the bits of N in the Bird tree.
+
+    N=1                             1/1
+                              ------   ------
+    N=2 to N=3             1/2               2/1
+                          /    \            /    \
+    N=4 to N=7         2/3      3/1      1/3      3/2
+                       | |      | |      | |      | |
+    N=8 to N=15     3/5  5/2  1/4 4/3  3/4 4/1  2/5 5/3
+
+The descendants of each node are 
+
+          X/Y
+        /     \
+    Y/(X+Y)  (X+Y)/X
+
+Both ends are Fibonacci numbers F(k)/F(k+1) on the left and F(k+1)/F(k) on
+the right.
+
+The bit reversal between the Bird and Drib trees is the same as between the
+SB and CW trees.  This means the N xor described above which relates Bird
+and SB applies similarly to Drib and CW, but starting from the second lowest
+instead of the second highest bits, ie. binary "0..01010".  For example 4/1
+is at N=15 binary 1111 in the CW tree.  Xor with 0010 for 1101 N=13 which is
+4/1 in the Drib tree.
+
+=head2 Common Characteristics
+
+In all the trees the rows are permutations of the fractions arising from the
+SB tree and Stern diatomic sequence.  The properties of the diatomic
+sequence mean that within a level Nstart=2^level to Nend=2^(level+1)-1 the
+fractions have totals
+
+    sum fractions = (3 * 2^level - 1) / 2
+
+    sum numerators = 3^level
+
+For example at level=2, N=4 to N=7, the fractions are 1/3, 2/3, 3/2, 3/1.
+The numerators 1+2+3+3=9 is 3^2.  The sum as fractions 1/3+2/3+3/2+3/1 =
+11/2 which is 3*2^2-1=11, over 2.
+
+=head1 OEIS
+
+Some of the trees are in Sloane's Online Encyclopedia of Integer Sequences.
+
+    http://oeis.org/A002487
+
+    A002487  - Stern's diatomic sequence, num/den of CW tree
+    A162909  - Bird tree numerators
+    A162910  - Bird tree denominators
+    A068611  - Drib tree numerators
+    A068612  - Drib tree denominators
 
 =head1 FUNCTIONS
 
@@ -659,6 +788,7 @@ C<$n_hi = 2**max(x,y)>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::PythagoreanTree>
 
 =head1 HOME PAGE

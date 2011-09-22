@@ -21,44 +21,45 @@ use 5.004;
 use strict;
 use Math::PlanePath::RationalsTree;
 
-foreach my $tree_type ('SB', 'CW', 'AYT', 'Bird') {
+foreach my $tree_type ('SB', 'CW', 'AYT', 'Bird','Drib') {
   print "$tree_type tree\n";
 
   my $path = Math::PlanePath::RationalsTree->new
     (tree_type => $tree_type);
 
-  printf "%20s", '';
+  printf "%31s", '';
   foreach my $n (1) {
     my ($x,$y) = $path->n_to_xy($n);
-    printf "%-5s", "$x/$y";
+    print "$x/$y";
   }
   print "\n";
 
-  printf "%10s", '';
+  printf "%15s", '';
   foreach my $n (2 .. 3) {
     my ($x,$y) = $path->n_to_xy($n);
-    printf "%-20s", "$x/$y";
+    printf "%-32s", "$x/$y";
   }
   print "\n";
 
-  printf "%5s", '';
+  printf "%7s", '';
   foreach my $n (4 .. 7) {
     my ($x,$y) = $path->n_to_xy($n);
-    printf "%-10s", "$x/$y";
+    printf "%-16s", "$x/$y";
   }
   print "\n";
 
+  printf "%3s", '';
   foreach my $n (8 .. 15) {
     my ($x,$y) = $path->n_to_xy($n);
-    printf "%5s", "$x/$y";
+    printf "%-8s", "$x/$y";
   }
   print "\n";
 
-  # foreach my $n (16 .. 31) {
-  #   my ($x,$y) = $path->n_to_xy($n);
-  #   printf "%4s", "$x/$y";
-  # }
-  # print "\n";
+  foreach my $n (16 .. 31) {
+    my ($x,$y) = $path->n_to_xy($n);
+    printf "%4s", "$x/$y";
+  }
+  print "\n";
 
   print "\n";
 }

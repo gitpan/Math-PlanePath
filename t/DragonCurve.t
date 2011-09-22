@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 591 }
+BEGIN { plan tests => 596 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::DragonCurve;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::DragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonCurve->VERSION,  $want_version,
@@ -69,6 +69,11 @@ require Math::PlanePath::DragonCurve;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::DragonCurve->parameter_info_list;
+  ok (join(',',@pnames), 'arms');
 }
 
 
@@ -119,6 +124,8 @@ require Math::PlanePath::DragonCurve;
 
 foreach my $arms (1 .. 4) {
   my $path = Math::PlanePath::DragonCurve->new (arms => $arms);
+  ok ($path->arms_count, $arms, 'arms_count()');
+
   for (1 .. 5) {
     my $bits = int(rand(25));     # 0 to 25, inclusive
     my $n = int(rand(2**$bits));  # 0 to 2^bits, inclusive

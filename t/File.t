@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 12; }
+BEGIN { plan tests => 13; }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::File;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::File::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::File->VERSION,  $want_version,
@@ -69,6 +69,11 @@ require Math::PlanePath::File;
   my ($got_lo, $got_hi) = $path->rect_to_n_range (-1,-1, 1,1);
   ok ($got_lo, 1, "lo on empty");
   ok ($got_hi, 0, "hi on empty");
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::File->parameter_info_list;
+  ok (join(',',@pnames), 'filename');
 }
 
 exit 0;

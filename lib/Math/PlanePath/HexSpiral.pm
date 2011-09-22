@@ -50,7 +50,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -59,13 +59,9 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-use constant parameter_info_array => [ { name => 'wider',
-                                         type => 'integer',
-                                         description => 'Wider path.',
-                                         minimum => 0,
-                                         default => 0,
-                                         width => 3,
-                                       } ];
+use Math::PlanePath::SquareSpiral;
+*parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
+
 
 sub new {
   my $self = shift->SUPER::new (@_);

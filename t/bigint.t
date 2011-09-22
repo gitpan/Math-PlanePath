@@ -28,7 +28,7 @@ use Math::BigInt;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = 16;
+my $test_count = 30;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
@@ -46,6 +46,71 @@ MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
 
 MyTestHelpers::nowarnings();
 
+
+#------------------------------------------------------------------------------
+# CoprimeColumns
+
+require Math::PlanePath::CoprimeColumns;
+require Math::BigInt;
+{
+  my $path = Math::PlanePath::CoprimeColumns->new;
+  {
+    my $n = Math::BigInt->new(-1);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, undef);
+    ok ($got_y, undef);
+  }
+  {
+    my $n = Math::BigInt->new(-99);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, undef);
+    ok ($got_y, undef);
+  }
+  {
+    my $n = Math::BigInt->new(0);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, 1);
+    ok ($got_y, 1);
+  }
+}
+
+#------------------------------------------------------------------------------
+# Corner
+
+require Math::PlanePath::Corner;
+  require Math::BigInt;
+{
+  my $path = Math::PlanePath::Corner->new;
+  {
+    my $y = Math::BigInt->new(2) ** 128 - 1;
+    {
+      my $n = $y*($y+1) + 1;  # on the diagonal
+
+      my ($got_x,$got_y) = $path->n_to_xy($n);
+      ok ($got_x, $y);
+      ok ($got_y, $y);
+
+      my $got_n = $path->xy_to_n($y,$y);
+      ok ($got_n, $n);
+    }
+    {
+      my $n = $y*$y+1;  # left X=1 vertical
+
+      my ($got_x,$got_y) = $path->n_to_xy($n);
+      ok ($got_x, 0);
+      ok ($got_y, $y);
+
+      my $got_n = $path->xy_to_n(0,$y);
+      ok ($got_n, $n);
+    }
+  }
+  {
+    my $n = Math::BigInt->new(0);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, undef);
+    ok ($got_y, undef);
+  }
+}
 
 #------------------------------------------------------------------------------
 # PeanoCurve

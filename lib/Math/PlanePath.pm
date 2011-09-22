@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 43;
+$VERSION = 44;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -187,6 +187,7 @@ include
     DragonCurve            paper folding
     DragonRounded            same but rounding-off vertices
     DragonMidpoint         paper folding midpoints
+    ComplexMinus           twindragon and other base i-r
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
@@ -424,28 +425,28 @@ The paths can be characterized by how much longer each loop or repetition is
 than the preceding one.  For example each cycle around the SquareSpiral is 8
 more N points than the preceding.
 
-    Step        Path
-    ----        ----
-      0       Rows, Columns (fixed widths)
-      1       Diagonals
-      2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
-      4       DiamondSpiral, Staircase, CellularRule54 (two rows)
-      5       PentSpiral, PentSpiralSkewed
-      5.65    PixelRings (average about 4*sqrt(2))
-      6       HexSpiral, HexSpiralSkewed, MultipleRings (default)
-      6.28    ArchimedeanChords (approaching 2*pi)
-      7       HeptSpiralSkewed
-      8       SquareSpiral, PyramidSpiral
-      9       TriangleSpiral, TriangleSpiralSkewed
-     16       OctagramSpiral
-     19.74    TheodorusSpiral (approaching 2*pi^2)
-     32       KnightSpiral (counting the 2-wide loop)
-     64       DiamondArms (each arm)
-     72       GreekKeySpiral
-    128       SquareArms (each arm)
-    216       HexArms (each arm)
-   parameter  MultipleRings, PyramidRows
-    totient   CoprimeColumns
+      Step        Path
+      ----        ----
+        0       Rows, Columns (fixed widths)
+        1       Diagonals
+        2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
+        4       DiamondSpiral, Staircase, CellularRule54 (two rows)
+        5       PentSpiral, PentSpiralSkewed
+        5.65    PixelRings (average about 4*sqrt(2))
+        6       HexSpiral, HexSpiralSkewed, MultipleRings (default)
+        6.28    ArchimedeanChords (approaching 2*pi)
+        7       HeptSpiralSkewed
+        8       SquareSpiral, PyramidSpiral
+        9       TriangleSpiral, TriangleSpiralSkewed
+       16       OctagramSpiral
+       19.74    TheodorusSpiral (approaching 2*pi^2)
+       32       KnightSpiral (counting the 2-wide loop)
+       64       DiamondArms (each arm)
+       72       GreekKeySpiral
+      128       SquareArms (each arm)
+      216       HexArms (each arm)
+    parameter   MultipleRings, PyramidRows
+     totient    CoprimeColumns
 
 
 The step determines which quadratic number sequences fall on straight lines.

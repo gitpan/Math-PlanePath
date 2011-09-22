@@ -37,6 +37,12 @@ my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
 my $tempfh = File::Temp->new (SUFFIX => '.png');
 my $tempfile = $tempfh->filename;
 my $big_bytes = 0;
+my %seen_filename;
+
+my $tempfh_124 = File::Temp->new;
+my $tempfilename_124 = $tempfh_124->filename;
+foreach (0 .. 124) { print $tempfh_124 "$_\n"; }
+close $tempfh_124;
 
 my $tempfh_31 = File::Temp->new;
 my $tempfilename_31 = $tempfh_31->filename;
@@ -48,8 +54,16 @@ my $tempfilename_1023 = $tempfh_1023->filename;
 foreach (0 .. 1023) { print $tempfh_1023 "$_\n"; }
 close $tempfh_1023;
 
+# 5^5-1=3124
+my $tempfh_3124 = File::Temp->new;
+my $tempfilename_3124 = $tempfh_3124->filename;
+foreach (0 .. 3124) { print $tempfh_3124 "$_\n"; }
+close $tempfh_3124;
+
 foreach my $elem
   (
+   ['rationals-tree-lines-drib.png',
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200x200 --png'],
    ['rationals-tree-lines-sb.png',
     'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200x200 --png'],
    ['rationals-tree-lines-cw.png',
@@ -62,6 +76,16 @@ foreach my $elem
     'math-image --path=RationalsTree --all --scale=3 --size=32 --png'],
    ['rationals-tree-big.png',
     'math-image --path=RationalsTree --all --scale=3 --size=200x200 --png'],
+
+   ['complexminus-small.png',
+    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_31 --scale=2 --size=32x32 --png"],
+   ['complexminus-big.png',
+    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_1023 --scale=3 --size=200x200 --png"],
+
+   ['complexminus-r2-small.png',
+    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_124 --scale=2 --size=32x32 --png"],
+   ['complexminus-r2-big.png',
+    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_3124 --scale=3 --size=200x200 --png"],
 
    ['pythagorean-small.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32 --png'],
@@ -149,17 +173,6 @@ foreach my $elem
    ['flowsnake-centres-big.png',
     'math-image --path=FlowsnakeCentres --lines --scale=8 --size=200x200 --offset=-20,-90 --png'],
 
-
-   # ['twindragon-small.png',
-   #  "math-image --path=TwinDragon --values=File,filename=$tempfilename_31 --scale=2 --size=32x32 --png"],
-   # ['twindragon-big.png',
-   #  "math-image --path=TwinDragon --values=File,filename=$tempfilename_1023 --scale=2 --size=200x200 --png"],
-
-
-   # ['zigzag-oct-small.png',
-   #  'math-image --path=ZigzagOct --lines --scale=4 --size=32x32 --offset=1,0 --png'],
-   # ['zigzag-oct-big.png',
-   #  'math-image --path=ZigzagOct --lines --scale=3 --size=250x200 --png'],
 
    ['triangle-spiral-small.png',
     'math-image --path=TriangleSpiral --lines --scale=3 --size=32x32 --png'],
@@ -339,6 +352,10 @@ foreach my $elem
 
   ) {
   my ($filename, $command) = @$elem;
+
+  if ($seen_filename{$filename}++) {
+    die "Duplicate filename $filename";
+  }
 
   $command .= " >$tempfile";
   ### $command

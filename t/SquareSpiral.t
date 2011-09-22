@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 91 }
+BEGIN { plan tests => 92 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
@@ -64,8 +64,13 @@ require Math::PlanePath::SquareSpiral;
 {
   my $path = Math::PlanePath::SquareSpiral->new;
   ok ($path->n_start, 1, 'n_start()');
-  ok (!!$path->x_negative, 1, 'x_negative() instance method');
-  ok (!!$path->y_negative, 1, 'y_negative() instance method');
+  ok ($path->x_negative, 1, 'x_negative() instance method');
+  ok ($path->y_negative, 1, 'y_negative() instance method');
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::SquareSpiral->parameter_info_list;
+  ok (join(',',@pnames), 'wider');
 }
 
 #------------------------------------------------------------------------------

@@ -52,17 +52,19 @@ use List::Util qw(min max);
   require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::MathImageSquareReplicate;
   require Math::PlanePath::MathImageCornerReplicate;
-  require Math::PlanePath::MathImageComplexMinus;
+  require Math::PlanePath::MathImageQuintetReplicate;
+  require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::MathImageComplexPlus;
   require Math::PlanePath::RationalsTree;
   require Math::PlanePath::KochSquareflakes;
-  my $path = Math::PlanePath::RationalsTree->new
+  require Math::PlanePath::Corner;
+  my $path = Math::PlanePath::MathImageQuintetReplicate->new
     (inward => 0,
      radix => 3,
-     realpart => 2,
-     wider => 0,
+     realpart => 1,
+     wider => 3,
      # step => 0,
-     tree_type => 'Bird',
+     tree_type => 'Drib',
      #coordinates => 'PQ',
      arms => 3,
     );
@@ -72,7 +74,7 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  #for (my $i = $n_start; $i <= $n_start + 500000; $i=POSIX::ceil($i*1.1+1)) {
+  #for (my $i = $n_start; $i <= $n_start + 8; $i=POSIX::ceil($i*1.1+1)) {
   # for (my $i = 0.75; $i <= 50; $i += .5) {
   # for (my $i = 9650; $i <= 9999; $i++) {
   #for (my $i = $n_start; $i <= 30; $i++) {
@@ -81,7 +83,7 @@ use List::Util qw(min max);
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 5000; $i++) {
 
-  for (my $i = $n_start; $i <= 100; $i+=1) {
+  for (my $i = $n_start; $i <= 40; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

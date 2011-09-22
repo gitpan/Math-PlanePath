@@ -27,21 +27,72 @@ use POSIX ();
 
 {
   require Math::PlanePath::RationalsTree;
-  my $ayt = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my $bird = Math::PlanePath::RationalsTree->new(tree_type => 'Bird');
+  my $cw = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+  my $drib = Math::PlanePath::RationalsTree->new(tree_type => 'Drib');
 
   my $level = 5;
   foreach my $an (2**$level .. 2**($level+1)-1) {
-    my ($ax,$ay) = $ayt->n_to_xy($an);
-    my $bn = $bird->xy_to_n($ax,$ay);
-    my ($z,$c) = ayt_to_bird($an);
-    my ($t,$u) = bird_to_ayt($bn);
+    my ($ax,$ay) = $cw->n_to_xy($an);
+    my $bn = $drib->xy_to_n($ax,$ay);
+    my ($z,$c) = cw_to_drib($an);
+    my ($t,$u) = drib_to_cw($bn);
     printf "%5s  %b %b   %b(%b)%s    %b(%b)%s\n",
       "$ax/$ay", $an, $bn,
       $z, $c, ($z == $bn ? " eq" : ""),
       $t, $u, ($t == $an ? " eq" : "");
   }
   exit 0;
+
+  sub cw_to_drib {
+    my ($n) = @_;
+    for (my $bit = 2; $bit <= (1 << ($level-1)); $bit <<= 2) {  # low to high
+      $n ^= $bit;
+    }
+    return $n,0;
+  }
+  sub drib_to_cw {
+    my ($n) = @_;
+    for (my $bit = 2; $bit <= (1 << ($level-1)); $bit <<= 2) {  # low to high
+      $n ^= $bit;
+    }
+    return $n,0;
+  }
+}
+
+{
+  require Math::PlanePath::RationalsTree;
+  my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+  my $bird = Math::PlanePath::RationalsTree->new(tree_type => 'Bird');
+
+  my $level = 5;
+  foreach my $an (2**$level .. 2**($level+1)-1) {
+    my ($ax,$ay) = $sb->n_to_xy($an);
+    my $bn = $bird->xy_to_n($ax,$ay);
+    my ($z,$c) = sb_to_bird($an);
+    my ($t,$u) = bird_to_sb($bn);
+    printf "%5s  %b %b   %b(%b)%s    %b(%b)%s\n",
+      "$ax/$ay", $an, $bn,
+      $z, $c, ($z == $bn ? " eq" : ""),
+      $t, $u, ($t == $an ? " eq" : "");
+  }
+  exit 0;
+
+  sub sb_to_bird {
+    my ($n) = @_;
+    for (my $bit = (1 << ($level-1)); $bit > 0; $bit >>= 1) {   # high to low
+      $bit >>= 1;
+      $n ^= $bit;
+    }
+    return $n,0;
+  }
+  sub bird_to_sb {
+    my ($n) = @_;
+    for (my $bit = (1 << ($level-1)); $bit > 0; $bit >>= 1) {   # high to low
+      $bit >>= 1;
+      $n ^= $bit;
+    }
+    return $n,0;
+  }
 
   sub ayt_to_bird {
     my ($a) = @_;

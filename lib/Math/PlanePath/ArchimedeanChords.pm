@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 88 }
+BEGIN { plan tests => 89 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::KochPeaks;
 # VERSION
 
 {
-  my $want_version = 43;
+  my $want_version = 44;
   ok ($Math::PlanePath::KochPeaks::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochPeaks->VERSION,  $want_version,
@@ -64,8 +64,11 @@ require Math::PlanePath::KochPeaks;
 {
   my $path = Math::PlanePath::KochPeaks->new;
   ok ($path->n_start, 1, 'n_start()');
-  ok (!! $path->x_negative, 1, 'x_negative()');
-  ok (! $path->y_negative, 1, 'y_negative()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 0, 'y_negative()');
+
+  my @pnames = map {$_->{'name'}} $path->parameter_info_list;
+  ok (join(',',@pnames), '');
 }
 
 

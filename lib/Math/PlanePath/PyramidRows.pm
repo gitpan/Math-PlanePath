@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 43;
+$VERSION = 44;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -103,7 +103,9 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   ### PyramidRows n_to_xy(): $n
-  return if $n < 0.5;
+
+  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
+  return if 2*$n < 1;
 
   my $step = $self->{'step'};
   if ($step == 0) {
