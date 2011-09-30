@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 44;
+$VERSION = 45;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -259,9 +259,10 @@ rather than rows jumping across gaps.
 
 =head2 Row Ranges
 
-The number of points in each row is always a power of 2, given by the number
-of 1 bits in Y.  For example Y=13 is binary 1101 which has three 1 bits so
-2^3=8 points in that row.  This is known as Gould's sequence.
+The number of points in each row is always a power of 2 by the number of 1
+bits in Y.  For example Y=13 is binary 1101 which has three 1 bits so in row
+Y=13 there are 2^3=8 points.  (These powers-of-2 are known as Gould's
+sequence.)
 
     rowpoints(Y) = 2^(count of 1 bits in Y)
 
@@ -269,6 +270,12 @@ Because the first point is N=0, the N at the left of each row is the
 cumulative count of preceding points,
 
     Nleft(Y) = rowpoints(0) + ... + rowpoints(Y-1)
+
+Since the powers of 2 are always even after the 2^0=1 in row Y=0, the
+leftmost N is always odd, and the self-similar nature of the triangle means
+the same is true of the sub-triangles, like N=31,35,41,47,etc on the left of
+the X=8,Y=8 triangle.  This means in particular the primes fall
+predominately on the left side of the triangles.
 
 =head2 Level Sizes
 

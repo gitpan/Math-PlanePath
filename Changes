@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 45, September 2011
+    - new QuintetCurve, QuintetCentres, QuintetReplicate
+
 Version 44, September 2011
     - new ComplexMinus
     - RationalsTree new Drib tree

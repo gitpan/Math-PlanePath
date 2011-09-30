@@ -33,6 +33,8 @@ devel/Makefile
 devel/old/DragonArms.pm
 devel/old/FlowsnakeArms.pm
 devel/old/PythagoreanUAD.pm
+devel/old/QuintetArms.pm
+devel/old/RationalsTree-bigint.t
 devel/old/SierpinskiArrowheadSkewed.pm
 devel/old/SierpinskiHoriz.pm
 devel/pixel-rings.pl
@@ -40,6 +42,7 @@ devel/plus-similar.pl
 devel/pythagorean-area.pl
 devel/pythagorean.pl
 devel/quadric.pl
+devel/quintet.pl
 devel/r5.pl
 devel/rationals.pl
 devel/run.pl
@@ -49,6 +52,7 @@ devel/sierpinski-curve.pl
 devel/svg.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
+devel/tiling.pl
 devel/ulam-warburton.pl
 devel/unused.pl
 devel/vertical.pl
@@ -108,6 +112,9 @@ lib/Math/PlanePath/PyramidSpiral.pm
 lib/Math/PlanePath/PythagoreanTree.pm
 lib/Math/PlanePath/QuadricCurve.pm
 lib/Math/PlanePath/QuadricIslands.pm
+lib/Math/PlanePath/QuintetCentres.pm
+lib/Math/PlanePath/QuintetCurve.pm
+lib/Math/PlanePath/QuintetReplicate.pm
 lib/Math/PlanePath/RationalsTree.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm

@@ -38,13 +38,13 @@ use List::Util qw(min max);
   require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::MathImageSierpinskiCurve;
-  require Math::PlanePath::MathImageQuintetCurve;
+  require Math::PlanePath::QuintetCurve;
   require Math::PlanePath::DragonCurve;
   require Math::PlanePath::DragonMidpoint;
   require Math::PlanePath::DragonRounded;
   require Math::PlanePath::MathImageWunderlichCurve;
   require Math::PlanePath::CellularRule54;
-  require Math::PlanePath::MathImageQuintetCentres;
+  require Math::PlanePath::QuintetCentres;
   require Math::PlanePath::Flowsnake;
   require Math::PlanePath::FlowsnakeCentres;
   require Math::PlanePath::ImaginaryBase;
@@ -52,13 +52,14 @@ use List::Util qw(min max);
   require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::MathImageSquareReplicate;
   require Math::PlanePath::MathImageCornerReplicate;
-  require Math::PlanePath::MathImageQuintetReplicate;
+  require Math::PlanePath::QuintetReplicate;
   require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::MathImageComplexPlus;
   require Math::PlanePath::RationalsTree;
   require Math::PlanePath::KochSquareflakes;
   require Math::PlanePath::Corner;
-  my $path = Math::PlanePath::MathImageQuintetReplicate->new
+  require Math::PlanePath::MathImageGosperReplicate;
+  my $path = Math::PlanePath::MathImageGosperReplicate->new
     (inward => 0,
      radix => 3,
      realpart => 1,
@@ -83,7 +84,7 @@ use List::Util qw(min max);
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 5000; $i++) {
 
-  for (my $i = $n_start; $i <= 40; $i+=1) {
+  for (my $i = $n_start; $i <= 700; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

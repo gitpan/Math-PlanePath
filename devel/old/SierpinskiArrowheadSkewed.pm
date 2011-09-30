@@ -92,7 +92,7 @@ Math::PlanePath::SierpinskiArrowheadSkewed -- self-similar triangular path trave
 
 =head1 DESCRIPTION
 
-I<In progress.>
+I<Old ...>
 
 =head1 FUNCTIONS
 

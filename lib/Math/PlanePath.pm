@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 44;
+$VERSION = 45;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -69,7 +69,13 @@ sub _is_infinite {
           || $x-1 == $x);  # inf
 }
 
-# with a view to being friendly to BigRat/BigFloat
+# With a view to being friendly to BigRat/BigFloat.
+#
+# For reference, POSIX::floor() in perl 5.12.4 is a bit bizarre on UV=64bit
+# and NV=53bit double.  UV=2^64-1 rounds up to NV=2^64 which floor() then
+# returns, so floor() in fact increases the value of what was an integer
+# already.
+#
 sub _floor {
   my ($x) = @_;
   ### _floor(): "$x", $x
@@ -119,7 +125,7 @@ sub _round_nearest {
 1;
 __END__
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix MERCHANTABILITY
 
 =head1 NAME
 
@@ -175,6 +181,15 @@ include
     GosperIslands          concentric island rings
     GosperSide             single side/radial
 
+    QuintetCurve           self-similar "+" shape
+    QuintetCentres           likewise, but centres of squares
+    QuintetReplicate       self-similar "+" tiling
+
+    DragonCurve            paper folding
+    DragonRounded            same but rounding-off vertices
+    DragonMidpoint         paper folding midpoints
+    ComplexMinus           twindragon and other base i-r
+
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
     KochSnowflakes         concentric notched snowflake rings
@@ -184,10 +199,6 @@ include
     SierpinskiTriangle     self-similar triangle by rows
     SierpinskiArrowhead    self-similar triangle connectedly
     SierpinskiArrowheadCentres  likewise, but centres of triangles
-    DragonCurve            paper folding
-    DragonRounded            same but rounding-off vertices
-    DragonMidpoint         paper folding midpoints
-    ComplexMinus           twindragon and other base i-r
 
     Rows                   fixed-width rows
     Columns                fixed-height columns
@@ -584,7 +595,7 @@ L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>,
-L<Math::PlanePath::TriangularHypot>,
+L<Math::PlanePath::TriangularHypot>
 
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
@@ -593,7 +604,11 @@ L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::Flowsnake>,
 L<Math::PlanePath::FlowsnakeCentres>,
 L<Math::PlanePath::GosperIslands>,
-L<Math::PlanePath::GosperSide>,
+L<Math::PlanePath::GosperSide>
+
+L<Math::PlanePath::QuintetCurve>,
+L<Math::PlanePath::QuintetCentres>,
+L<Math::PlanePath::QuintetReplicate>
 
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,

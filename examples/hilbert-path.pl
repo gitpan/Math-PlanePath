@@ -34,7 +34,8 @@
 # up to 2 to fit more on the screen.
 #
 # The output has Y increasing down the screen.  Taking the Y's in reverse
-# order in the final output could show it going up the screen.
+# order in the final output (ie. $height-1 down to 0) would show it going up
+# the screen.
 #
 
 use 5.004;
@@ -77,20 +78,20 @@ foreach my $n (1 .. $n_hi) {
   $next_x *= $scale;
   $next_y *= $scale;
 
-  while ($x > $next_x) {  # left
+  while ($x > $next_x) {  # draw to left
     $x--;
     plot ('-');
   }
-  while ($x < $next_x) {  # right
+  while ($x < $next_x) {  # draw to right
     $x++;
     plot ('-');
   }
 
-  while ($y > $next_y) {  # up
+  while ($y > $next_y) {  # draw up
     $y--;
     plot ('|');
   }
-  while ($y < $next_y) {  # down
+  while ($y < $next_y) {  # draw down
     $y++;
     plot ('|');
   }

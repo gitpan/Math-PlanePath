@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 44;
+$VERSION = 45;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -53,7 +53,7 @@ use Math::PlanePath::KochCurve 42;
 
 use constant parameter_info_array =>
   [ { name      => 'inward',
-      
+      display   => 'Inward',
       type      => 'boolean',
       default   => 0,
     } ];

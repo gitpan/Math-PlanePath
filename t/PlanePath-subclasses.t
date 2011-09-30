@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 410 }
+BEGIN { plan tests => 431 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,6 +33,10 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  QuintetCurve
+                  QuintetCentres
+                  QuintetReplicate
+
                   ComplexMinus
                   RationalsTree
 
@@ -122,7 +126,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 44;
+my $want_version = 45;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -192,9 +196,12 @@ my %rect_exact = ('Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::PeanoCurve' => 1,
                   'Math::PlanePath::ZOrderCurve' => 1,
                   'Math::PlanePath::Flowsnake' => 1,
+                  'Math::PlanePath::FlowsnakeCentres' => 1,
+                  'Math::PlanePath::QuintetCurve' => 1,
+                  'Math::PlanePath::QuintetCentres' => 1,
                  );
 my %rect_exact_hi = (%rect_exact,
-                     # high is exact but high is not
+                     # high is exact but low is not
                      'Math::PlanePath::SquareArms' => 1,
                     );
 my %rect_before_n_start = ('Math::PlanePath::Rows' => 1,
@@ -229,7 +236,8 @@ my $dxdy_hex = {
                };
 my %class_dxdy_allowed
   = (
-     'Math::PlanePath::SquareSpiral' => $dxdy_square,
+     'Math::PlanePath::SquareSpiral'   => $dxdy_square,
+     'Math::PlanePath::GreekKeySpiral' => $dxdy_square,
 
      'Math::PlanePath::PyramidSpiral' => { '-1,1' => 1,  # NE
                                            '-1,-1' => 1, # SW
@@ -255,15 +263,20 @@ my %class_dxdy_allowed
                                              '0,1'   => 1, # N
                                             },
 
-     'Math::PlanePath::HexSpiral'   => $dxdy_hex,
-     'Math::PlanePath::Flowsnake'   => $dxdy_hex,
-     'Math::PlanePath::GosperSide'  => $dxdy_hex,
-     'Math::PlanePath::KochCurve'   => $dxdy_hex,
+     'Math::PlanePath::HexSpiral'        => $dxdy_hex,
+     'Math::PlanePath::Flowsnake'        => $dxdy_hex,
+     'Math::PlanePath::FlowsnakeCentres' => $dxdy_hex,
+     'Math::PlanePath::GosperSide'       => $dxdy_hex,
 
+     'Math::PlanePath::KochCurve'   => $dxdy_hex,
      # except for jumps at ends/rings
      # 'Math::PlanePath::KochPeaks'      => $dxdy_hex,
      # 'Math::PlanePath::KochSnowflakes' => $dxdy_hex,
      # 'Math::PlanePath::GosperIslands'  => $dxdy_hex,
+
+     'Math::PlanePath::QuintetCurve'   => $dxdy_square,
+     'Math::PlanePath::QuintetCentres' => $dxdy_one,
+     # Math::PlanePath::QuintetReplicate -- mucho distance
 
      'Math::PlanePath::HexSpiralSkewed'    => {
                                                '-1,1' => 1, # NW
@@ -294,6 +307,7 @@ my %class_dxdy_allowed
      'Math::PlanePath::PeanoCurve'     => $dxdy_square,
      'Math::PlanePath::DragonCurve'    => $dxdy_square,
      'Math::PlanePath::DragonMidpoint' => $dxdy_square,
+     'Math::PlanePath::DragonRounded'  => $dxdy_one,
     );
 
 my ($pos_infinity, $neg_infinity, $nan);
@@ -351,34 +365,34 @@ sub pythagorean_diag {
   my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 50;
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 5;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
-
+  
   foreach my $module (@modules) {
     my $class = "Math::PlanePath::$module";
     eval "require $class" or die;
-
+    
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-
+    
     my @steps = (-1);
     if ($class eq 'Math::PlanePath::PyramidRows') {
       @steps = (0, 1, 2, 3, 4, 5);
     } elsif ($class eq 'Math::PlanePath::MultipleRings') {
       @steps = (0, 1, 2, 3, 6, 7, 8, 21);
     }
-
+    
     my @wider = (0);
     if ($class eq 'Math::PlanePath::SquareSpiral'
         || $class eq 'Math::PlanePath::HexSpiral'
         || $class eq 'Math::PlanePath::HexSpiralSkewed') {
       @wider = (0, 1, 2, 3, 4, 5, 6, 7);
     }
-
+    
     my @radix = (0);
     if ($class eq 'Math::PlanePath::PeanoCurve') {
       @radix = (2, 3, 4, 5, 17);
     } elsif ($class eq 'Math::PlanePath::ZOrderCurve') {
       @radix = (2, 3, 9, 37);
     }
-
+    
     my @arms = (-1);
     if ($class eq 'Math::PlanePath::DragonCurve'
         || $class eq 'Math::PlanePath::DragonMidpoint') {
@@ -387,26 +401,26 @@ sub pythagorean_diag {
              || $class eq 'Math::PlanePath::FlowsnakeCentres') {
       @arms = (1,2,3);
     }
-
+    
     my @tree_type_list = ('');
     my @coordinates_list = ('');
     if ($class eq 'Math::PlanePath::PythagoreanTree') {
       @tree_type_list = ('UAD','FB');
       @coordinates_list = ('AB','PQ');
     }
-
+    
     my @inward = (0);
     if ($class eq 'Math::PlanePath::KochSquareflakes') {
       @inward = (0, 1);
     }
-
+    
     my @realpart = (1);
     if ($class eq 'Math::PlanePath::ComplexMinus') {
       @realpart = (1, 2, 3, 4, 5);
     }
-
+    
     my $good = 1;
-
+    
     foreach my $tree_type (@tree_type_list) {
       foreach my $coordinates (@coordinates_list) {
         foreach my $step (@steps) {
@@ -421,7 +435,7 @@ sub pythagorean_diag {
                     ### $radix
                     ### $inward
                     ### $realpart
-
+                    
                     my $dxdy_allowed = $class_dxdy_allowed{$class};
                     if ($class eq 'Math::PlanePath::PeanoCurve'
                         && ($radix % 2) == 0) {
@@ -431,9 +445,9 @@ sub pythagorean_diag {
                       # ENHANCE-ME: watch for dxdy within each arm
                       undef $dxdy_allowed;
                     }
-
+                    
                     # MyTestHelpers::diag ($module);
-
+                    
                     my $limit = $default_limit;
                     if (defined $step) {
                       if ($limit < 6*$step) {
@@ -450,7 +464,7 @@ sub pythagorean_diag {
                         $limit = 1100;  # bit slow otherwise
                       }
                     }
-
+                    
                     my $report = sub {
                       my $name = $module;
                       if (@arms > 1) {
@@ -483,7 +497,7 @@ sub pythagorean_diag {
                       $good = 0;
                       # exit 1;
                     };
-
+                    
                     my $path = $class->new (width  => 20,
                                             height => 20,
                                             step   => $step,
@@ -496,14 +510,14 @@ sub pythagorean_diag {
                                             coordinate => $coordinates);
                     my $n_start = $path->n_start;
                     my $got_arms = $path->arms_count;
-
+                    
                     if ($arms > 0 && $got_arms != $arms) {
                       &$report("arms_count()==$got_arms expect $arms");
                     }
                     unless ($got_arms >= 1) {
                       &$report("arms_count()==$got_arms should be >=1");
                     }
-
+                    
                     {
                       my $n_start = $path->n_start;
                       { my ($x,$y) = $path->n_to_xy($n_start);
@@ -531,14 +545,14 @@ sub pythagorean_diag {
                         }
                       }
                     }
-
+                    
                     {
                       my $saw_warning = 0;
                       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
                       $path->n_to_xy(undef);
                       $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
                     }
-
+                    
                     # undef ok if nothing sensible
                     # +/-inf ok
                     # nan not intended, but might be ok
@@ -735,8 +749,9 @@ sub pythagorean_diag {
                       my $path_x_negative = ($path->x_negative ? 1 : 0);
                       $got_x_negative = ($got_x_negative ? 1 : 0);
 
-                      if ($path->isa('Math::PlanePath::GosperSide')) {
-                        # GosperSide doesn't get to X negative in small rectangle
+                      if ($path->isa('Math::PlanePath::GosperSide')
+                          || $path->isa('Math::PlanePath::QuintetCurve')) {
+                        # these don't get to X negative in small rectangle
                         $got_x_negative = 1;
                       }
 

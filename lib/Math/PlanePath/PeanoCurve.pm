@@ -22,6 +22,7 @@
 #     Java applet, directions in 9 sub-parts
 #
 # math-image --path=PeanoCurve,radix=5 --all --output=numbers
+# math-image --path=PeanoCurve,radix=5 --lines
 #
 # T = 0.a1 a2 ...
 # X = 0.b1 b2 ...
@@ -43,7 +44,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 44;
+$VERSION = 45;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

@@ -33,12 +33,6 @@ use File::Temp;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
-my $tempfh = File::Temp->new (SUFFIX => '.png');
-my $tempfile = $tempfh->filename;
-my $big_bytes = 0;
-my %seen_filename;
-
 my $tempfh_124 = File::Temp->new;
 my $tempfilename_124 = $tempfh_124->filename;
 foreach (0 .. 124) { print $tempfh_124 "$_\n"; }
@@ -60,8 +54,66 @@ my $tempfilename_3124 = $tempfh_3124->filename;
 foreach (0 .. 3124) { print $tempfh_3124 "$_\n"; }
 close $tempfh_3124;
 
+my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
+my $tempfh = File::Temp->new (SUFFIX => '.png');
+my $tempfile = $tempfh->filename;
+my $big_bytes = 0;
+my %seen_filename;
+
 foreach my $elem
   (
+   ['vogel-small.png',
+    'math-image --vogel --all --scale=3 --size=32x32 --png'],
+   ['vogel-big.png',
+    'math-image --vogel --all --scale=4 --size=200 --png'],
+   ['vogel-sqrt5-big.png',
+    'math-image --path=VogelFloret,rotation_type=sqrt5 --all --scale=4 --size=200 --png'],
+
+
+   ['square-small.png',
+    'math-image --path=SquareSpiral --lines --scale=4 --size=32x32 --png'],
+   ['square-big.png',
+    'math-image --path=SquareSpiral --lines --scale=13 --size=200x200 --png'],
+   ['square-wider4-big.png',
+    'math-image --path=SquareSpiral,wider=4 --lines --scale=13 --size=253x200 --png'],
+
+
+   ['complexminus-small.png',
+    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_31 --scale=2 --size=32x32 --png"],
+   ['complexminus-big.png',
+    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_1023 --scale=3 --size=200x200 --png"],
+
+   ['complexminus-r2-small.png',
+    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_124 --scale=2 --size=32x32 --png"],
+   ['complexminus-r2-big.png',
+    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_3124 --scale=1 --size=200x200 --png"],
+
+
+   ['pixel-small.png',
+    'math-image --path=PixelRings --lines --scale=4 --size=32 --png'],
+   ['pixel-big.png',
+    'math-image --path=PixelRings --all --figure=circle --scale=10 --size=200 --png'],
+   ['pixel-lines-big.png',
+    'math-image --path=PixelRings --lines --scale=10 --size=200 --png'],
+
+   ['quintet-replicate-small.png',
+    "math-image --path=QuintetReplicate --values=File,filename=$tempfilename_124 --scale=2 --size=32x32 --png"],
+   ['quintet-replicate-big.png',
+    "math-image --path=QuintetReplicate --values=File,filename=$tempfilename_3124 --scale=2 --size=200x200 --png"],
+
+   ['quintet-curve-small.png',
+    'math-image --path=QuintetCurve --lines --scale=4 --size=32x32 --offset=-10,0 --png'],
+   ['quintet-curve-big.png',
+    'math-image --path=QuintetCurve --lines --scale=7 --size=200x200 --offset=-20,-70 --png'],
+   ['quintet-curve-4arm-big.png',
+    'math-image --path=QuintetCurve,arms=4 --lines --scale=7 --size=200x200 --png'],
+
+   ['quintet-centres-small.png',
+    'math-image --path=QuintetCentres --lines --scale=4 --size=32x32 --offset=-10,0 --png'],
+   ['quintet-centres-big.png',
+    'math-image --path=QuintetCentres --lines --scale=7 --size=200x200 --offset=-20,-70 --png'],
+
+
    ['rationals-tree-lines-drib.png',
     'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200x200 --png'],
    ['rationals-tree-lines-sb.png',
@@ -76,16 +128,6 @@ foreach my $elem
     'math-image --path=RationalsTree --all --scale=3 --size=32 --png'],
    ['rationals-tree-big.png',
     'math-image --path=RationalsTree --all --scale=3 --size=200x200 --png'],
-
-   ['complexminus-small.png',
-    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_31 --scale=2 --size=32x32 --png"],
-   ['complexminus-big.png',
-    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_1023 --scale=3 --size=200x200 --png"],
-
-   ['complexminus-r2-small.png',
-    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_124 --scale=2 --size=32x32 --png"],
-   ['complexminus-r2-big.png',
-    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_3124 --scale=3 --size=200x200 --png"],
 
    ['pythagorean-small.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32 --png'],
@@ -295,11 +337,6 @@ foreach my $elem
    ['coprime-columns-big.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=200x200 --png'],
 
-   ['pixel-small.png',
-    'math-image --path=PixelRings --lines --scale=4 --size=32 --png'],
-   ['pixel-big.png',
-    'math-image --path=PixelRings --all --figure=circle --scale=10 --size=200 --png'],
-
    ['theodorus-small.png',
     'math-image --path=TheodorusSpiral --lines --scale=3 --size=32 --png'],
    ['theodorus-big.png',
@@ -309,11 +346,6 @@ foreach my $elem
     'math-image --path=GreekKeySpiral --lines --scale=4 --size=32x32 --png'],
    ['greek-key-big.png',
     'math-image --path=GreekKeySpiral --lines --scale=13 --size=200x200 --png'],
-
-   ['square-small.png',
-    'math-image --path=SquareSpiral --lines --scale=4 --size=32x32 --png'],
-   ['square-big.png',
-    'math-image --path=SquareSpiral --lines --scale=13 --size=200x200 --png'],
 
    ['knight-small.png',
     'math-image --path=KnightSpiral --lines --scale=7 --size=32x32 --png'],
@@ -329,11 +361,6 @@ foreach my $elem
     'math-image --path=MultipleRings --lines --scale=4 --size=32 --png'],
    ['multiple-big.png',
     'math-image --path=MultipleRings --lines --scale=10 --size=200 --png'],
-
-   ['vogel-small.png',
-    'math-image --vogel --all --scale=3 --size=32x32 --png'],
-   ['vogel-big.png',
-    'math-image --vogel --all --scale=4 --size=200 --png'],
 
    ['sacks-small.png',
     'math-image --path=SacksSpiral --lines --scale=5 --size=32x32 --png'],

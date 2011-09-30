@@ -23,7 +23,7 @@
 # This spot of code prints sequence A068608 of Sloane's On-Line Encyclopedia
 # of Integer Sequences
 #
-#     http://www.research.att.com/~njas/sequences/A068608
+#     http://oeis.org/A068608
 #
 # which is the infinite knight's tour path of Math::PlanePath::KnightSpiral
 # with the X,Y positions numbered according to the SquareSpiral and thus
@@ -31,11 +31,11 @@
 #
 #     1, 10, 3, 16, 19, 22, 9, 12, 15, 18, 7, 24, 11, 14, ...
 #
-# All squares are reached by both paths, so this is a re-ordering or the
-# integers.
+# All points in the first quadrant are reached by both paths, so this is a
+# permutation of the integers.
 #
 # There's eight variations on the sequence.  2 directions clockwise and
-# counter-clockwise and 4 sides to start from relative to whichever side the
+# counter-clockwise and 4 sides to start from relative to the side the
 # square spiral numbering starts from.
 #
 #     A068608
@@ -47,8 +47,9 @@
 #     A068614
 #     A068615
 #
-# As of Jan 2011 there's a typo in the A068609 sample.  "37" is duplicated,
+# As of Jan 2011 there's a typo in the A068609 sample.  "37" is duplicated -
 # the second one should be "39".
+#
 
 use 5.004;
 use strict;

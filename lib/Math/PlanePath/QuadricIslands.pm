@@ -30,7 +30,7 @@ use POSIX qw(floor ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 44;
+$VERSION = 45;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

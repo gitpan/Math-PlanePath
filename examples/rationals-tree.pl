@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Usage: perl rationals-tree.pl
+#
+# Print the RationalsTree paths in tree form.
+#
+
 use 5.004;
 use strict;
 use Math::PlanePath::RationalsTree;

@@ -21,14 +21,17 @@
 # Usage: perl ulam-spiral-xpm.pl >/tmp/foo.xpm     # write image file
 #        xzgv /tmp/foo.xpm                         # view file
 #
-# This is a bit of fun drawing the Ulam spiral of primes in a square
-# pattern.  The output is XPM format (which is plain text) and any good
-# image viewer program should be able to display it.
+# This is a bit of fun drawing Ulam's spiral of primes in the SquareSpiral
+# path.  The output is XPM format (which is plain text) and any good image
+# viewer program should display it.
 #
-# Optional args: perl ulam-spiral-xpm.pl SIZE
-#                perl ulam-spiral-xpm.pl SIZE SCALE
+# Optional args
 #
-# makes the image SIZExSIZE pixels, and SCALE to expand each point to a
+#     perl ulam-spiral-xpm.pl SIZE
+# or
+#     perl ulam-spiral-xpm.pl SIZE SCALE
+#
+# make the image SIZExSIZE pixels, and SCALE to expand each point to a
 # SCALExSCALE square instead of a single pixel.
 #
 
@@ -50,8 +53,9 @@ my $path = Math::PlanePath::SquareSpiral->new;
 my $x_origin = int($size / 2);
 my $y_origin = int($size / 2);
 
-my ($n_lo, $n_hi) = $path->rect_to_n_range (-$x_origin, -$y_origin,
-                                            -$x_origin+$size, -$y_origin+$size);
+my ($n_lo, $n_hi)
+  = $path->rect_to_n_range (-$x_origin, -$y_origin,
+                            -$x_origin+$size, -$y_origin+$size);
 
 # Find the prime numbers 2 to $n_hi by sieve of Eratosthenes.
 # Could also use Math::Prime::TiedArray or Math::Prime::XS.
@@ -60,7 +64,7 @@ my @primes = (0,    # 0
               0,    # 1
               1,    # 2  prime
               1,    # 3  prime
-              (0,1) x ($n_hi/2));  # rest even/odd
+              (0,1) x ($n_hi/2));  # rest alternately even/odd
 my $i = 3;
 foreach my $i (3 .. int(sqrt($n_hi)) + 1) {
   next unless $primes[$i];
@@ -87,7 +91,7 @@ foreach my $n ($n_lo .. $n_hi) {
   }
 }
 
-# Expand @rows by $scale.
+# Expand @rows points by $scale, horizontally and vertically.
 #
 if ($scale > 1) {
   foreach (@rows) {
@@ -98,7 +102,8 @@ if ($scale > 1) {
   $size *= $scale;
 }
 
-# XPM format is easy to print.  Comes out about 1 byte per pixel.
+# XPM format is easy to print.
+# Output is about 1 byte per pixel.
 #
 print <<"HERE";
 /* XPM */

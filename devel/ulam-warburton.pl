@@ -23,7 +23,7 @@ use strict;
 use warnings;
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+#use Devel::Comments;
 
 # turn on u(0) = 1
 #         u(1) = 1
@@ -34,22 +34,24 @@ use Smart::Comments;
   my @yx;
   sub count_around {
     my ($x,$y) = @_;
-    return (($yx[$y+1][$x] || 0)
-            + ($yx[$y][$x+1] || 0)
-            + ($x > 0 && ($yx[$y][$x-1] || 0))
-            + ($y > 0 && ($yx[$y-1][$x] || 0)));
+    return ((!! $yx[$y+1][$x])
+            + (!! $yx[$y][$x+1])
+            + ($x > 0 && (!! $yx[$y][$x-1]))
+            + ($y > 0 && (!! $yx[$y-1][$x])));
   }
   my (@turn_x,@turn_y);
   sub turn_on {
     my ($x,$y) = @_;
+    ### turn_on(): "$x,$y"
     if (! $yx[$y][$x] && count_around($x,$y) == 1) {
       push @turn_x, $x;
       push @turn_y, $y;
     }
   }
 
-  $yx[0][0] = 1;
-  for (1 .. 20) {
+  my @lchar = ('a' .. 'z');
+  $yx[0][0] = $lchar[0];
+  for my $level (1 .. 20) {
     foreach my $row (reverse @yx) {
       foreach my $cell (@$row) {
         print ' ', ($cell||' ');
@@ -62,6 +64,7 @@ use Smart::Comments;
       my $row = $yx[$y];
       foreach my $x (0 .. $#$row) {
         $yx[$y][$x] or next;
+        ### cell: $yx[$y][$x]
 
         turn_on ($x, $y+1);
         turn_on ($x+1, $y);
@@ -73,7 +76,7 @@ use Smart::Comments;
         }
       }
     }
-    # print "extra ",scalar(@turn_x),"\n";
+    print "extra ",scalar(@turn_x),"\n";
 
     my %seen_turn;
     for (my $i = 0; $i < @turn_x; ) {
@@ -88,9 +91,12 @@ use Smart::Comments;
     }
 
     print "extra ",4*(scalar(@turn_x)-2)+4,"\n";
+    ### @turn_x
+    ### @turn_y
     while (@turn_x) {
-      $yx[pop @turn_y][pop @turn_x] = 1;
+      $yx[pop @turn_y][pop @turn_x] = ($lchar[$level]||'z');
     }
+    ### @yx
   }
   exit 0;
 }

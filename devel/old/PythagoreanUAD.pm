@@ -179,7 +179,7 @@ Math::PlanePath::PythagoreanUAD -- primitive pythagorean triples by U,A,D
 
 =head1 DESCRIPTION
 
-I<In progress.>
+I<Old ...>
 
 This path is the x,y coordinates of primitive Pythagorean triples taken as a
 breadth-first traversal of Barning's U/A/D generators.

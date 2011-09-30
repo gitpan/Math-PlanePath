@@ -22,8 +22,8 @@
 #        xgzv /tmp/foo.xpm
 #
 # This spot of code generates a big .xpm file showing all the points of the
-# SacksSpiral.  XPM is text format and can be generated quite easily as row
-# strings, but use a graphics viewer program to look at it.
+# SacksSpiral.  XPM is a text format and can be generated quite easily as
+# row strings, but use a graphics viewer program to look at it.
 # 
 
 use 5.004;

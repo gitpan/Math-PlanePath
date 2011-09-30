@@ -23,15 +23,15 @@
 # This spot of code prints sequence A163359 of Sloane's On-Line Encyclopedia
 # of Integer Sequences
 #
-#     http://www.research.att.com/~njas/sequences/A163359
+#     http://oeis.org/A163359
 #
 # which is the Hilbert curve N values which occur on squares numbered
-# diagonally per Math::PlanePath::Diagonals,
+# diagonally in the style of Math::PlanePath::Diagonals,
 #
 #     0, 3, 1, 4, 2, 14, 5, 7, 13, 15, 58, 6, 8, 12, 16, 59, ...
 #
-# All squares are reached by both paths, so this is a re-ordering or the
-# integers.
+# All points in the first quadrant are reached by both paths, so this is a
+# re-ordering or the integers.
 #
 # In the code there's a kind of double transpose going on.  A163359 is
 # conceived as the Hilbert starting downwards and the diagonals numbered

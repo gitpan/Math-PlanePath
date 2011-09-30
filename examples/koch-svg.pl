@@ -42,9 +42,9 @@ my $level = $ARGV[0] || 4;
 my $width = 300;
 my $height = 300;
 
-# use the svg translate() to centre the origin in the viewport, but don't
-# use its scale() to shrink the path X,Y coordinates, just in case the
-# factor 1/4^level becomes very small
+# use the svg transform="translate()" to centre the origin in the viewport,
+# but don't use its scale() to shrink the path X,Y coordinates, just in case
+# the factor 1/4^level becomes very small
 my $xcentre = $width / 2;
 my $ycentre = $height / 2;
 
@@ -59,15 +59,18 @@ print <<"HERE";
 HERE
 
 
+# factor to make equilateral triangles from the integer Y out of KochSnowflakes
 my $y_equilateral = sqrt(3);
+
 my $path_width = 2 * 3**$level;
 my $path_height = 2 * (2/3) * 3**$level * $y_equilateral;
+
 my $scale = 0.9 * min ($width / $path_width,
                        $height / $path_height);
 
 my $linewidth = 1/$level;
 
-# N range for $level
+# N range for $level, per KochSnowflakes POD
 my $n_lo = 4**$level;
 my $n_hi = 4**($level+1) - 1;
 

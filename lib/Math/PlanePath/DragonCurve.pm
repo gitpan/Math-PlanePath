@@ -32,7 +32,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 44;
+$VERSION = 45;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -526,15 +526,15 @@ turns or a total rotation at each line segment,
 
     http://oeis.org/A005811  (etc)
 
-    A005811 -- total rotation, 0 up
+    A005811 -- total rotation, from 0 upwards
     A014577 -- turn, 0=left, 1=right
     A014707 -- turn, 1=left, 0=right
     A014709 -- turn, 2=left, 1=right
     A014710 -- turn, 1=left, 2=right
-    A082410 -- turn, same as A014577 plus leading 0
+    A082410 -- turn, 0=left, 1=right with leading 0
 
-The four turn sequences differ only in being 0 and 1 or 1 and 2, and which
-is treated as left or right.
+The four turn sequences differ only in left or right represented as 0 and 1
+or 1 and 2.
 
 For reference, A059125 is almost the same as A014577, but differs at some
 positions.
