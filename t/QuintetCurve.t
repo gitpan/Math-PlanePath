@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 329 }
+BEGIN { plan tests => 344 }
 
 use lib 't';
 use MyTestHelpers;
@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-require Math::PlanePath::DragonRounded;
+require Math::PlanePath::QuintetCurve;
 
 
 #------------------------------------------------------------------------------
@@ -37,20 +37,20 @@ require Math::PlanePath::DragonRounded;
 
 {
   my $want_version = 46;
-  ok ($Math::PlanePath::DragonRounded::VERSION, $want_version,
+  ok ($Math::PlanePath::QuintetCurve::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::DragonRounded->VERSION,  $want_version,
+  ok (Math::PlanePath::QuintetCurve->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::DragonRounded->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::QuintetCurve->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::DragonRounded->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::QuintetCurve->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::DragonRounded->new;
+  my $path = Math::PlanePath::QuintetCurve->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -65,55 +65,40 @@ require Math::PlanePath::DragonRounded;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::DragonRounded->new;
+  my $path = Math::PlanePath::QuintetCurve->new;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
-{
-  my @pnames = map {$_->{'name'}}
-    Math::PlanePath::DragonRounded->parameter_info_list;
-  ok (join(',',@pnames), 'arms');
-}
+
 
 #------------------------------------------------------------------------------
 # first few points
 
 {
   my @data = (
-              [ 0, 1,0 ],
-              [ 1, 2,0 ],
-              [ 2, 3,1 ],
-              [ 3, 3,2 ],
+              # arms=2
+              # [ 2,  46,    -2,4 ],
+              # [ 2,   1,    -1,1 ],
 
-              [ 4, 2,3 ],
-              [ 5, 1,3 ],
-              [ 6, 0,4 ],
-              [ 7, 0,5 ],
+              # arms=1
+              [ 1,   0,    0,0 ],
+              [ 1,   1,    1,0 ],
+              [ 1,   2,    1,-1 ],
+              [ 1,   3,    2,-1 ],
+              [ 1,   4,    2,0 ],
 
-              [ 8, -1,6 ],
-              [ 9, -2,6 ],
-              [ 10, -3,5 ],
-              [ 11, -3,4 ],
+              [ 1,   5,    2,1 ],
+              [ 1,   6,    3,1 ],
+              [ 1,   7,    4,1 ],
 
-              [ 0.25,  1.25, 0 ],
-              [ 1.25,  2.25, 0.25 ],
-              [ 2.25,  3, 1.25 ],
-              [ 3.25,  2.75, 2.25 ],
-
-              [ 4.25,  1.75, 3 ],
-              [ 5.25,  0.75, 3.25 ],
-              [ 6.25,  0, 4.25 ],
-              [ 7.25,  -.25, 5.25 ],
-
-              [ 8.25, -1.25, 6 ],
-              [ 9.25, -2.25, 5.75 ],
-              [ 10.25, -3, 4.75 ],
-              [ 11.25, -3.25, 3.75 ],
+              [ 1,   .25,   .25, 0 ],
+              [ 1,   .5,    .5, 0 ],
+              [ 1,   1.75,  1, -.75 ],
              );
-  my $path = Math::PlanePath::DragonRounded->new;
   foreach my $elem (@data) {
-    my ($n, $x, $y) = @$elem;
+    my ($arms, $n, $x, $y) = @$elem;
+    my $path = Math::PlanePath::QuintetCurve->new (arms => $arms);
     {
       # n_to_xy()
       my ($got_x, $got_y) = $path->n_to_xy ($n);
@@ -127,13 +112,32 @@ require Math::PlanePath::DragonRounded;
       my $got_n = $path->xy_to_n ($x, $y);
       ok ($got_n, $n, "xy_to_n() n at x=$x,y=$y");
     }
-    {
-      $n = int($n);
-      my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-      ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+
+    if ($n == int($n)) {
+      {
+        my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+        ok ($got_nlo <= $n, 1, "rect_to_n_range(0,0,$x,$y) arms=$arms for n=$n, got_nlo=$got_nlo");
+        ok ($got_nhi >= $n, 1, "rect_to_n_range(0,0,$x,$y) arms=$arms for n=$n, got_nhi=$got_nhi");
+      }
+      {
+        $n = int($n);
+        my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x,$y, $x,$y);
+        ok ($got_nlo <= $n, 1, "rect_to_n_range($x,$y,$x,$y) arms=$arms for n=$n, got_nlo=$got_nlo");
+        ok ($got_nhi >= $n, 1, "rect_to_n_range($x,$y,$x,$y) arms=$arms for n=$n, got_nhi=$got_nhi");
+      }
     }
   }
+}
+
+
+#------------------------------------------------------------------------------
+# rect_to_n_range()
+
+{
+  my $path = Math::PlanePath::QuintetCurve->new;
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0, 0,0);
+  ok ($n_lo == 0, 1, "rect_to_n_range() 0,0  n_lo=$n_lo");
+  ok ($n_hi >= 0, 1, "rect_to_n_range() 0,0  n_hi=$n_hi");
 }
 
 
@@ -141,9 +145,9 @@ require Math::PlanePath::DragonRounded;
 # random fracs
 
 {
-  my $path = Math::PlanePath::DragonRounded->new;
-  for (1 .. 10) {
-    my $bits = int(rand(25));         # 0 to 25, inclusive
+  my $path = Math::PlanePath::QuintetCurve->new;
+  for (1 .. 20) {
+    my $bits = int(rand(20));         # 0 to 20, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
     my ($x1,$y1) = $path->n_to_xy ($n);
@@ -156,8 +160,8 @@ require Math::PlanePath::DragonRounded;
       my $nf = $n + $frac;
       my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
 
-      ok ($got_xf, $want_xf, "n_to_xy($nf) frac $frac, x");
-      ok ($got_yf, $want_yf, "n_to_xy($nf) frac $frac, y");
+      ok ($got_xf, $want_xf, "n_to_xy($n) frac $frac, x");
+      ok ($got_yf, $want_yf, "n_to_xy($n) frac $frac, y");
     }
   }
 }
@@ -166,9 +170,9 @@ require Math::PlanePath::DragonRounded;
 # random points
 
 {
-  my $path = Math::PlanePath::DragonRounded->new;
+  my $path = Math::PlanePath::QuintetCurve->new;
   for (1 .. 50) {
-    my $bits = int(rand(25));         # 0 to 25, inclusive
+    my $bits = int(rand(20));         # 0 to 20, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
     my ($x,$y) = $path->n_to_xy ($n);
@@ -177,9 +181,30 @@ require Math::PlanePath::DragonRounded;
     ok ($rev_n, $n, "xy_to_n($x,$y) reverse to expect n=$n, got $rev_n");
 
     my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-    ok ($n_lo <= $n, 1, "rect_to_n_range() reverse n=$n cf got n_lo=$n_lo");
-    ok ($n_hi >= $n, 1, "rect_to_n_range() reverse n=$n cf got n_hi=$n_hi");
+    ok ($n_lo, $n, "rect_to_n_range() reverse n=$n cf got n_lo=$n_lo");
+    ok ($n_hi, $n, "rect_to_n_range() reverse n=$n cf got n_hi=$n_hi");
   }
+}
+
+#------------------------------------------------------------------------------
+# reversible
+
+# bit slow ...
+if (0) {
+  my $good = 1;
+  foreach my $arms (1 .. 4) {
+    my $path = Math::PlanePath::QuintetCurve->new (arms => $arms);
+    for my $n (0 .. 5**5) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      my $rev_n = $path->xy_to_n ($x,$y);
+      if (! defined $rev_n) { $rev_n = 'undef'; }
+      if (! defined $rev_n || $rev_n != $n) {
+        $good = 0;
+        MyTestHelpers::diag ("xy_to_n($x,$y) reverse to expect n=$n, got $rev_n");
+      }
+    }
+  }
+  ok ($good, 1);
 }
 
 exit 0;

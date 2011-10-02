@@ -28,7 +28,7 @@ use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 45;
+$VERSION = 46;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

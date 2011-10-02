@@ -42,8 +42,8 @@ use Math::Libm 'M_PI', 'hypot';
 {
   # min/max for level
   require Math::BaseCnv;
-  require Math::PlanePath::MathImageQuintetReplicate;
-  my $path = Math::PlanePath::MathImageQuintetReplicate->new;
+  require Math::PlanePath::QuintetReplicate;
+  my $path = Math::PlanePath::QuintetReplicate->new;
   my $prev_min = 1;
   my $prev_max = 1;
   my @mins;

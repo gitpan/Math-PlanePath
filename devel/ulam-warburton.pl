@@ -22,6 +22,9 @@ use 5.004;
 use strict;
 use warnings;
 
+# A147562 - total number of on cells at level n
+
+
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
@@ -54,7 +57,8 @@ use warnings;
   for my $level (1 .. 20) {
     foreach my $row (reverse @yx) {
       foreach my $cell (@$row) {
-        print ' ', ($cell||' ');
+        print ' ', (defined $cell #&& ($cell eq 'p' || $cell eq 'o')
+                    ? $cell : ' ');
       }
       print "\n";
     }

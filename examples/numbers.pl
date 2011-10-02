@@ -122,7 +122,10 @@ my @all_classes = ('SquareSpiral',
                    'ImaginaryBase,radix=5',
 
                    'Flowsnake',
+                   'Flowsnake,arms=3',
                    'FlowsnakeCentres',
+                   'FlowsnakeCentres,arms=3',
+                   'GosperReplicate',
                    'GosperIslands',
                    'GosperSide',
 

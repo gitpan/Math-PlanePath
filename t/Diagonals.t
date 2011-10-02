@@ -33,7 +33,7 @@ require Math::PlanePath::Diagonals;
 # VERSION
 
 {
-  my $want_version = 45;
+  my $want_version = 46;
   ok ($Math::PlanePath::Diagonals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Diagonals->VERSION,  $want_version,

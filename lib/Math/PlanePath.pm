@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 45;
+$VERSION = 46;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -178,6 +178,7 @@ include
 
     Flowsnake              self-similar hexagonal tile traversal
     FlowsnakeCentres         likewise, but centres of hexagons
+    GosperReplicate        self-similar hexagonal tiling
     GosperIslands          concentric island rings
     GosperSide             single side/radial
 
@@ -500,9 +501,11 @@ for things like KochPeaks and GosperIslands).
                   ImaginaryBase (default),
                   DragonCurve, DragonRounded, DragonMidpoint,
       3         PeanoCurve (default), GosperIslands, GosperSide
-                  SierpinskiTriangle,
-                  SierpinskiArrowhead, SierpinskiArrowheadCentres,
+                  SierpinskiTriangle, SierpinskiArrowhead,
+                  SierpinskiArrowheadCentres,
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes
+      5         QuintetCurve, QuintetCentres, QuintetReplicate
+      7         GosperReplicate
       8         QuadricCurve, QuadricIslands
     parameter   PeanoCurve, ZOrderCurve, ImaginaryBase
 
@@ -600,9 +603,11 @@ L<Math::PlanePath::TriangularHypot>
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
-L<Math::PlanePath::ImaginaryBase>,
+L<Math::PlanePath::ImaginaryBase>
+
 L<Math::PlanePath::Flowsnake>,
 L<Math::PlanePath::FlowsnakeCentres>,
+L<Math::PlanePath::GosperReplicate>,
 L<Math::PlanePath::GosperIslands>,
 L<Math::PlanePath::GosperSide>
 

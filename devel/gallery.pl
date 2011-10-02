@@ -54,6 +54,18 @@ my $tempfilename_3124 = $tempfh_3124->filename;
 foreach (0 .. 3124) { print $tempfh_3124 "$_\n"; }
 close $tempfh_3124;
 
+# 7^2-1=48
+my $tempfh_48 = File::Temp->new;
+my $tempfilename_48 = $tempfh_48->filename;
+foreach (0 .. 48) { print $tempfh_48 "$_\n"; }
+close $tempfh_48;
+
+# 7^4-1=16806
+my $tempfh_16806 = File::Temp->new;
+my $tempfilename_16806 = $tempfh_16806->filename;
+foreach (0 .. 16806) { print $tempfh_16806 "$_\n"; }
+close $tempfh_16806;
+
 my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
 my $tempfh = File::Temp->new (SUFFIX => '.png');
 my $tempfile = $tempfh->filename;
@@ -62,6 +74,22 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['gosper-replicate-small.png',
+    "math-image --path=GosperReplicate --values=File,filename=$tempfilename_48 --scale=2 --size=32 --png"],
+   ['gosper-replicate-big.png',
+    "math-image --path=GosperReplicate --values=File,filename=$tempfilename_16806 --scale=1 --size=320x200 --png"],
+
+   ['gosper-side-small.png',
+    'math-image --path=GosperSide --lines --scale=3 --size=32 --offset=-13,-7 --png'],
+   ['gosper-side-big.png',
+    'math-image --path=GosperSide --lines --scale=1 --size=250x200 --offset=95,-95 --png'],
+
+   ['gosper-islands-small.png',
+    'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
+   ['gosper-islands-big.png',
+    'math-image --path=GosperIslands --lines --scale=2 --size=250x200 --png'],
+
+
    ['vogel-small.png',
     'math-image --vogel --all --scale=3 --size=32x32 --png'],
    ['vogel-big.png',
@@ -254,17 +282,6 @@ foreach my $elem
     'math-image --path=DragonCurve --lines --scale=4 --size=32x32 --offset=6,0 --png'],
    ['dragon-big.png',
     'math-image --path=DragonCurve --lines --figure=point --scale=8 --size=250x200 --offset=-55,0 --png'],
-
-
-   ['gosper-side-small.png',
-    'math-image --path=GosperSide --lines --scale=3 --size=32 --offset=-13,-7 --png'],
-   ['gosper-side-big.png',
-    'math-image --path=GosperSide --lines --scale=1 --size=250x200 --offset=95,-95 --png'],
-
-   ['gosper-islands-small.png',
-    'math-image --path=GosperIslands --lines --scale=3 --size=32 --png'],
-   ['gosper-islands-big.png',
-    'math-image --path=GosperIslands --lines --scale=2 --size=250x200 --png'],
 
 
    ['diamond-arms-small.png',

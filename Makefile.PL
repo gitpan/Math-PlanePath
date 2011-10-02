@@ -44,11 +44,18 @@ MyMakeMakerExtras::WriteMakefile
    { resources =>
      { homepage => 'http://user42.tuxfamily.org/math-planepath/index.html',
      },
+     maximum_tests =>
+     { description => 'Have "make test" do as much as possible.',
+       requires => { 'Data::Float'  => 0,
+                     'Math::BigRat' => 0,
+                     'Math::BigInt' => 0,
+                     'Math::BigFloat' => '1.993',
+                   },
+     },
      optional_features =>
      { maximum_devel =>
-       { description => 'Stuff used variously for development.',
-         requires => { 'Smart::Comments'  => 0,
-                       'Math::BigRat'     => 0,
+       { description => 'Stuff used variously in development.',
+         requires => { 'Math::BigRat'     => 0,
                        'Math::Polynomial' => 1,
                      },
        },

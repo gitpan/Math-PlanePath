@@ -85,6 +85,7 @@ lib/Math/PlanePath/File.pm
 lib/Math/PlanePath/Flowsnake.pm
 lib/Math/PlanePath/FlowsnakeCentres.pm
 lib/Math/PlanePath/GosperIslands.pm
+lib/Math/PlanePath/GosperReplicate.pm
 lib/Math/PlanePath/GosperSide.pm
 lib/Math/PlanePath/GreekKeySpiral.pm
 lib/Math/PlanePath/HeptSpiralSkewed.pm
@@ -178,6 +179,8 @@ t/PlanePath-subclasses.t
 t/PlanePath.t
 t/PyramidRows.t
 t/PythagoreanTree.t
+t/QuintetCentres.t
+t/QuintetCurve.t
 t/RationalsTree.t
 t/Rows-load.t
 t/Rows.t

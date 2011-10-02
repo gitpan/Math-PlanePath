@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 431 }
+BEGIN { plan tests => 438 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,6 +33,12 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  GosperReplicate
+                  GosperSide
+                  GosperIslands
+                  Flowsnake
+                  FlowsnakeCentres
+
                   QuintetCurve
                   QuintetCentres
                   QuintetReplicate
@@ -51,8 +57,6 @@ my @modules = qw(
                   ImaginaryBase
                   QuadricCurve
                   QuadricIslands
-                  Flowsnake
-                  FlowsnakeCentres
 
                   DragonRounded
                   DragonMidpoint
@@ -74,9 +78,6 @@ my @modules = qw(
                   PeanoCurve
                   ZOrderCurve
                   HilbertCurve
-
-                  GosperSide
-                  GosperIslands
 
                   CoprimeColumns
                   TriangularHypot
@@ -126,7 +127,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 45;
+my $want_version = 46;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -153,7 +154,7 @@ foreach my $class (@classes) {
       "VERSION class check $check_version");
 
   my $path = $class->new;
-  ok ($path->VERSION,  $want_version, 'VERSION object method');
+  ok ($path->VERSION, $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
       1,
@@ -310,6 +311,7 @@ my %class_dxdy_allowed
      'Math::PlanePath::DragonRounded'  => $dxdy_one,
     );
 
+#------------------------------------------------------------------------------
 my ($pos_infinity, $neg_infinity, $nan);
 my ($is_infinity, $is_nan);
 if (! eval { require Data::Float; 1 }) {
