@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 46;
+$VERSION = 47;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -136,7 +136,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my $n = ($x & 0); # inherit
+  my $n = ($x & 0 & $y); # inherit bignum 0
   my $radix = $self->{'radix'};
   if ($radix == 2) {
     my $nbit = $n|1; # inherit
@@ -154,7 +154,7 @@ sub xy_to_n {
       $nbit <<= 1;
     }
   } else {
-    my $power = $n+1; # inherit
+    my $power = $n+1; # inherit bignum 1
     while ($x || $y) {
       $n += ($x % $radix) * $power;
       $x = int ($x / $radix);

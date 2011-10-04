@@ -39,7 +39,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 46;
+$VERSION = 47;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -217,7 +217,6 @@ sub _round_down_pow {
   }
   return ($pow, $exp);
 }
-
 
 1;
 __END__

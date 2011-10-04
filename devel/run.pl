@@ -49,7 +49,6 @@ use List::Util qw(min max);
   require Math::PlanePath::FlowsnakeCentres;
   require Math::PlanePath::ImaginaryBase;
   require Math::PlanePath::SierpinskiArrowheadCentres;
-  require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::MathImageSquareReplicate;
   require Math::PlanePath::MathImageCornerReplicate;
   require Math::PlanePath::QuintetReplicate;
@@ -58,8 +57,10 @@ use List::Util qw(min max);
   require Math::PlanePath::RationalsTree;
   require Math::PlanePath::KochSquareflakes;
   require Math::PlanePath::Corner;
-  require Math::PlanePath::MathImageGosperReplicate;
-  my $path = Math::PlanePath::MathImageGosperReplicate->new
+  require Math::PlanePath::GosperReplicate;
+  require Math::PlanePath::MathImageDigitGroups;
+  require Math::PlanePath::SierpinskiTriangle;
+  my $path = Math::PlanePath::MathImageSquareReplicate->new
     (inward => 0,
      radix => 3,
      realpart => 1,
@@ -68,6 +69,8 @@ use List::Util qw(min max);
      tree_type => 'Drib',
      #coordinates => 'PQ',
      arms => 3,
+     straight_spacing => 0,
+     diagonal_spacing => 0,
     );
   my ($prev_x, $prev_y);
   my %seen;
@@ -84,7 +87,7 @@ use List::Util qw(min max);
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 5000; $i++) {
 
-  for (my $i = $n_start; $i <= 700; $i+=1) {
+  for (my $i = $n_start; $i <= 100; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

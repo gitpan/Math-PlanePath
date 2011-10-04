@@ -28,7 +28,7 @@ use Math::BigInt;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = 30;
+my $test_count = 32;
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
@@ -120,13 +120,31 @@ require Math::PlanePath::PeanoCurve;
   my $path = Math::PlanePath::PeanoCurve->new;
 
   require Math::BigInt;
-  my $n = Math::BigInt->new(9) ** 128 + 2;
-  my $want_x = Math::BigInt->new(3) ** 128 + 2;
-  my $want_y = Math::BigInt->new(3) ** 128 - 1;
+  {
+    my $n = Math::BigInt->new(9) ** 128 + 2;
+    my $want_x = Math::BigInt->new(3) ** 128 + 2;
+    my $want_y = Math::BigInt->new(3) ** 128 - 1;
 
-  my ($got_x,$got_y) = $path->n_to_xy($n);
-  ok ($got_x, $want_x);
-  ok ($got_y, $want_y);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, $want_x);
+    ok ($got_y, $want_y);
+  }
+
+  # 2020202...
+  # {
+  #   my $x = Math::BigInt->new(3) ** 128 + 1;
+  #   my $y = 2;
+  #   my $want_n = Math::BigInt->new(9) ** 127 * 15;
+  #   my $got_n = $path->xy_to_n($x,$y);
+  #   ok ($got_n, $want_n);
+  # }
+  # {
+  #   my $x = 2;
+  #   my $y = Math::BigInt->new(3) ** 128 + 1;
+  #   my $want_n = Math::BigInt->new(9) ** 128 + 6;
+  #   my $got_n = $path->xy_to_n($x,$y);
+  #   ok ($got_n, $want_n);
+  # }
 }
 
 #------------------------------------------------------------------------------
@@ -137,13 +155,28 @@ require Math::PlanePath::ZOrderCurve;
   my $path = Math::PlanePath::ZOrderCurve->new;
 
   require Math::BigInt;
-  my $n = Math::BigInt->new(4) ** 128 + 9;
-  my $want_x = Math::BigInt->new(2) ** 128 + 1;
-  my $want_y = 2;
-
-  my ($got_x,$got_y) = $path->n_to_xy($n);
-  ok ($got_x, $want_x);
-  ok ($got_y, $want_y);
+  {
+    my $n = Math::BigInt->new(4) ** 128 + 9;
+    my $want_x = Math::BigInt->new(2) ** 128 + 1;
+    my $want_y = 2;
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, $want_x);
+    ok ($got_y, $want_y);
+  }
+  {
+    my $x = Math::BigInt->new(2) ** 128 + 1;
+    my $y = 2;
+    my $want_n = Math::BigInt->new(4) ** 128 + 9;
+    my $got_n = $path->xy_to_n($x,$y);
+    ok ($got_n, $want_n);
+  }
+  {
+    my $x = 2;
+    my $y = Math::BigInt->new(2) ** 128 + 1;
+    my $want_n = Math::BigInt->new(4) ** 128 * 2 + 6;
+    my $got_n = $path->xy_to_n($x,$y);
+    ok ($got_n, $want_n);
+  }
 }
 
 #------------------------------------------------------------------------------

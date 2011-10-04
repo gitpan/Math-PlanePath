@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 46;
+$VERSION = 47;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -175,6 +175,7 @@ include
     HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
     ImaginaryBase          replicating in four directions
+    SquareReplicate        replicating squares 3x3
 
     Flowsnake              self-similar hexagonal tile traversal
     FlowsnakeCentres         likewise, but centres of hexagons
@@ -507,6 +508,7 @@ for things like KochPeaks and GosperIslands).
       5         QuintetCurve, QuintetCentres, QuintetReplicate
       7         GosperReplicate
       8         QuadricCurve, QuadricIslands
+      9         SquareReplicate
     parameter   PeanoCurve, ZOrderCurve, ImaginaryBase
 
 Many number sequences on these paths tend to come out fairly random, or
@@ -603,7 +605,8 @@ L<Math::PlanePath::TriangularHypot>
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
-L<Math::PlanePath::ImaginaryBase>
+L<Math::PlanePath::ImaginaryBase>,
+L<Math::PlanePath::SquareReplicate>
 
 L<Math::PlanePath::Flowsnake>,
 L<Math::PlanePath::FlowsnakeCentres>,

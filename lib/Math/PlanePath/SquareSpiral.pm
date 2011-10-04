@@ -23,14 +23,14 @@ use List::Util qw(max);
 use POSIX 'floor', 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 46;
+$VERSION = 47;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Devel::Comments '###';
 
 # http://d4maths.lowtech.org/mirage/ulam.htm
 # http://d4maths.lowtech.org/mirage/img/ulam.gif
@@ -108,10 +108,12 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   #### SquareSpiral n_to_xy: $n
+
   if ($n < 1) {
     #### less than one
     return;
   }
+
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
@@ -125,8 +127,8 @@ sub n_to_xy {
             0);
   }
 
-  my $d = int (0.25 * (2-$w + sqrt(4*$n + $w*$w - 4)));
-  #### d frac: (0.25 * (2-$w + sqrt(4*$n + $w*$w - 4)))
+  my $d = int ((2-$w + sqrt(4*$n + $w*$w - 4)) / 4);
+  #### d frac: ((2-$w + sqrt(4*$n + $w*$w - 4)) / 4)
   #### $d
 
   #### base: 4*$d*$d + (-4+2*$w)*$d + (2-$w)
@@ -238,8 +240,8 @@ sub rect_to_n_range {
                          max ($_ - $w_right,
                               -$_ - $w_left)}
                     ($x1, $x2)));
-  ### $s
-  ### is: $s*$s
+  ### $d
+  ### is: $d*$d
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,

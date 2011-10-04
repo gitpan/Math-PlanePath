@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 438 }
+BEGIN { plan tests => 445 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,6 +33,8 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
+                  SquareReplicate
+
                   GosperReplicate
                   GosperSide
                   GosperIslands
@@ -127,7 +129,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 46;
+my $want_version = 47;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

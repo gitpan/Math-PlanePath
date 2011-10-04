@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 46;
+$VERSION = 47;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -790,6 +790,8 @@ C<$n_hi = 2**max(x,y)>.
 L<Math::PlanePath>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::PythagoreanTree>
+
+L<Math::NumSeq::SternDiatomic>
 
 =head1 HOME PAGE
 

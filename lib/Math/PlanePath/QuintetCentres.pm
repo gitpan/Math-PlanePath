@@ -27,7 +27,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 46;
+$VERSION = 47;
 
 # inherit new(), rect_to_n_range(), arms_count(), n_start(),
 # parameter_info_array()

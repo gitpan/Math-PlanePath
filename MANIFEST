@@ -123,6 +123,7 @@ lib/Math/PlanePath/SierpinskiArrowhead.pm
 lib/Math/PlanePath/SierpinskiArrowheadCentres.pm
 lib/Math/PlanePath/SierpinskiTriangle.pm
 lib/Math/PlanePath/SquareArms.pm
+lib/Math/PlanePath/SquareReplicate.pm
 lib/Math/PlanePath/SquareSpiral.pm
 lib/Math/PlanePath/Staircase.pm
 lib/Math/PlanePath/TheodorusSpiral.pm

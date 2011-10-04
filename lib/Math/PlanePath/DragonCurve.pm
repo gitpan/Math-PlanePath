@@ -32,7 +32,7 @@ use List::Util qw(min max);
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 46;
+$VERSION = 47;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -526,7 +526,7 @@ turns or a total rotation at each line segment,
 
     http://oeis.org/A005811  (etc)
 
-    A005811 -- total rotation, from 0 upwards
+    A005811 -- total rotation, from 0
     A014577 -- turn, 0=left, 1=right
     A014707 -- turn, 1=left, 0=right
     A014709 -- turn, 2=left, 1=right

@@ -60,7 +60,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 46;
+$VERSION = 47;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -456,7 +456,7 @@ __END__
 
 
 
-=for stopwords eg Ryde OEIS UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ
+=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ
 
 =head1 NAME
 

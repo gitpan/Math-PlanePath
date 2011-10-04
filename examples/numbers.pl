@@ -120,6 +120,7 @@ my @all_classes = ('SquareSpiral',
                    'ZOrderCurve,radix=5',
                    'ImaginaryBase',
                    'ImaginaryBase,radix=5',
+                   'SquareReplicate',
 
                    'Flowsnake',
                    'Flowsnake,arms=3',

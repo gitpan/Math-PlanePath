@@ -74,6 +74,19 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['square-replicate-small.png',
+    'math-image --path=SquareReplicate --lines --scale=4 --size=32 --png'],
+   ['square-replicate-big.png',
+    'math-image --path=SquareReplicate --lines --scale=10 --size=215 --png'],
+
+   ['imaginarybase-small.png',
+    'math-image --path=ImaginaryBase --lines --scale=6 --size=32 --png'],
+   ['imaginarybase-big.png',
+    'math-image --path=ImaginaryBase --lines --scale=16 --size=200 --png'],
+   ['imaginarybase-radix5-big.png',
+    'math-image --path=ImaginaryBase,radix=5 --lines --scale=16 --size=200 --png'],
+
+
    ['gosper-replicate-small.png',
     "math-image --path=GosperReplicate --values=File,filename=$tempfilename_48 --scale=2 --size=32 --png"],
    ['gosper-replicate-big.png',
@@ -210,14 +223,6 @@ foreach my $elem
    ['sierpinski-triangle-big.png',
     'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200 --png'],
 
-
-
-   ['imaginarybase-small.png',
-    'math-image --path=ImaginaryBase --lines --scale=6 --size=32 --png'],
-   ['imaginarybase-big.png',
-    'math-image --path=ImaginaryBase --lines --scale=16 --size=200 --png'],
-   ['imaginarybase-radix5-big.png',
-    'math-image --path=ImaginaryBase,radix=5 --lines --scale=16 --size=200 --png'],
 
 
    ['quadric-islands-small.png',
