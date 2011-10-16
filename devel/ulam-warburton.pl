@@ -22,9 +22,6 @@ use 5.004;
 use strict;
 use warnings;
 
-# A147562 - total number of on cells at level n
-
-
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
@@ -52,17 +49,37 @@ use warnings;
     }
   }
 
+  my $print_grid = 1;
+  my $cumulative = 1;
+
+
   my @lchar = ('a' .. 'z');
   $yx[0][0] = $lchar[0];
   for my $level (1 .. 20) {
-    foreach my $row (reverse @yx) {
-      foreach my $cell (@$row) {
-        print ' ', (defined $cell #&& ($cell eq 'p' || $cell eq 'o')
-                    ? $cell : ' ');
+    print "\n";
+
+    printf "level %d  %b\n", $level, $level;
+    if ($print_grid) {
+      foreach my $row (reverse @yx) {
+        foreach my $cell (@$row) {
+          print ' ', (defined $cell #&& ($cell eq 'p' || $cell eq 'o')
+                      ? $cell : ' ');
+        }
+        print "\n";
       }
       print "\n";
     }
-    print "\n";
+
+    {
+      my $count = 0;
+      foreach my $row (reverse @yx) {
+        foreach my $cell (@$row) {
+          $count += defined $cell;
+        }
+      }
+      print "total $count\n";
+    }
+
 
     foreach my $y (0 .. $#yx) {
       my $row = $yx[$y];
@@ -94,7 +111,9 @@ use warnings;
       }
     }
 
-    print "extra ",4*(scalar(@turn_x)-2)+4,"\n";
+    my $e = 4*(scalar(@turn_x)-2)+4;
+    $cumulative += $e;
+    print "extra $e  cumulative $cumulative\n";
     ### @turn_x
     ### @turn_y
     while (@turn_x) {

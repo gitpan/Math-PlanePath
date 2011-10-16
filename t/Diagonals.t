@@ -33,7 +33,7 @@ require Math::PlanePath::Diagonals;
 # VERSION
 
 {
-  my $want_version = 47;
+  my $want_version = 48;
   ok ($Math::PlanePath::Diagonals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Diagonals->VERSION,  $want_version,
@@ -76,12 +76,12 @@ require Math::PlanePath::Diagonals;
 
 
 #------------------------------------------------------------------------------
-# xy_to_n
+# n_to_xy(), xy_to_n()
 
 {
-  my @data = ([0.5, -0.5,0.5 ],
+  my @data = ([0.5,  -0.5,0.5 ],
               [0.75, -0.25,0.25 ],
-              [1, 0,0 ],
+              [1,    0,0 ],
               [1.25, .25,-.25 ],
 
               [1.5, -.5,1.5 ],

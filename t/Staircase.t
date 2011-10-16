@@ -20,13 +20,13 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 92 }
+BEGIN { plan tests => 76 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::SquareSpiral;
+require Math::PlanePath::Staircase;
 
 
 #------------------------------------------------------------------------------
@@ -34,20 +34,18 @@ require Math::PlanePath::SquareSpiral;
 
 {
   my $want_version = 48;
-  ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
-      'VERSION variable');
-  ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
-      'VERSION class method');
+  ok ($Math::PlanePath::Staircase::VERSION, $want_version, 'VERSION variable');
+  ok (Math::PlanePath::Staircase->VERSION,  $want_version, 'VERSION class method');
 
-  ok (eval { Math::PlanePath::SquareSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::Staircase->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::SquareSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::Staircase->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::SquareSpiral->new;
+  my $path = Math::PlanePath::Staircase->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,63 +60,55 @@ require Math::PlanePath::SquareSpiral;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::SquareSpiral->new;
+  my $path = Math::PlanePath::Staircase->new (height => 123);
   ok ($path->n_start, 1, 'n_start()');
-  ok ($path->x_negative, 1, 'x_negative() instance method');
-  ok ($path->y_negative, 1, 'y_negative() instance method');
+  ok ($path->x_negative, 0, 'x_negative() instance method');
+  ok ($path->y_negative, 0, 'y_negative() instance method');
 }
 {
+  # width not a parameter as such ...
   my @pnames = map {$_->{'name'}}
-    Math::PlanePath::SquareSpiral->parameter_info_list;
-  ok (join(',',@pnames), 'wider');
+    Math::PlanePath::Staircase->parameter_info_list;
+  ok (join(',',@pnames), '');
 }
+
 
 #------------------------------------------------------------------------------
 # n_to_xy
 
-#   17 16 15 14 13
-#   18  5  4  3 12
-#   19  6  1  2 11
-#   20  7  8  9 10
-#   21 22 23 24 25 26
 {
-  my @data = ([ 1, 0,0 ],
-              [ 2, 1,0 ],
+  my @data = ([ 0.75, -0.25,0 ],
+              [ 1, 0,0 ],
+              [ 1.25, 0,-0.25 ],
 
-              [ 3, 1,1 ], # top
-              [ 4, 0,1 ],
+              [ 1.75,  -0.25, 2 ],
+              [ 2, 0,2 ],
+              [ 2.25,  0, 1.75 ],
 
-              [ 5, -1,1 ],  # left
-              [ 6, -1,0 ],
+              [ 2.75,  0, 1.25 ],
+              [ 3, 0,1 ],
+              [ 3.25,  0.25, 1 ],
 
-              [ 7, -1,-1 ], # bottom
-              [ 8,  0,-1 ],
-              [ 9,  1,-1 ],
+              [ 4, 1,1 ],
+              [ 4.25,  1,0.75 ],
+              [ 5, 1,0 ],
+              [ 5.25,  1.25, 0 ],
+              [ 6, 2,0 ],
+              [ 6.25,  2, -0.25 ],
 
-              [ 10,  2,-1 ], # right
-              [ 11,  2, 0 ],
-              [ 12,  2, 1 ],
+              [ 6.75,  -0.25, 4 ],
+              [ 7,  0,4 ],
 
-              [ 13,   2,2 ], # top
-              [ 14,   1,2 ],
-              [ 15,   0,2 ],
-              [ 16,  -1,2 ],
-
-              [ 17,  -2, 2 ], # left
-              [ 18,  -2, 1 ],
-              [ 19,  -2, 0 ],
-              [ 20,  -2,-1 ],
-
-              [ 21,  -2,-2 ], # bottom
-              [ 22,  -1,-2 ],
-              [ 23,   0,-2 ],
-              [ 24,   1,-2 ],
-              [ 25,   2,-2 ],
-
-              [ 26,   3,-2 ], # right
-              [ 27,   3,-1 ],
+              [ 8,  0,3 ],
+              [ 9,  1,3 ],
+              [ 10, 1,2 ],
+              [ 11, 2,2 ],
+              [ 12, 2,1 ],
+              [ 13, 3,1 ],
+              [ 14, 3,0 ],
+              [ 15, 4,0 ],
              );
-  my $path = Math::PlanePath::SquareSpiral->new;
+  my $path = Math::PlanePath::Staircase->new;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
@@ -128,6 +118,7 @@ require Math::PlanePath::SquareSpiral;
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
+    next unless $want_n == int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
     ok ($got_n, $want_n, "n at x=$x,y=$y");
   }

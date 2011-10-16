@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments '###';
 
 
-my $test_count = 37;
+my $test_count = (tests => 61)[1];
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
@@ -57,6 +57,12 @@ if (! eval { require Math::BigRat; 1 }) {
     MyTestHelpers::diag ("BigRat has int(-1/2) != 0 dodginess: value is '$int'");
   }
 }
+
+# doesn't help sqrt(), slows down blog()
+#
+# require Math::BigFloat;
+# Math::BigFloat->precision(-2000);  # digits right of decimal point
+
 
 #------------------------------------------------------------------------------
 # _round_nearest()
@@ -96,6 +102,103 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('7/4')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
 
 #------------------------------------------------------------------------------
+# Rows
+
+{
+  require Math::PlanePath::Rows;
+  my $width = 5;
+  my $path = Math::PlanePath::Rows->new (width => $width);
+
+  {
+    my $y = Math::BigRat->new(2) ** 128;
+    my $x = 4;
+    my $n = $y*$width + $x + 1;
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $x, 1, "got $got_x want $x");
+    ok ($got_y == $y);
+  
+    my $got_n = $path->xy_to_n($x,$y);
+    ok ($got_n == $n, 1);
+  }
+  {
+    my $n = Math::BigRat->new('4/3');
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ("$got_x", '1/3');
+    ok ($got_y == 0, 1);
+  }
+  {
+    my $n = Math::BigRat->new('4/3') + 15;
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ("$got_x", '1/3');
+    ok ($got_y == 3, 1);
+  }
+  {
+    my $n = Math::BigRat->new('4/3') - 15;
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ("$got_x", '1/3');
+    ok ($got_y == -3, 1);
+  }
+}
+
+#------------------------------------------------------------------------------
+# Diagonals
+
+{
+  require Math::PlanePath::Diagonals;
+  my $path = Math::PlanePath::Diagonals->new;
+
+  {
+    my $x = Math::BigRat->new(2) ** 128 - 1;
+    my $n = ($x+1)*($x+2)/2;  # triangular numbers on Y=0 horizontal
+  
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $x, 1, "got $got_x want $x");
+    ok ($got_y == 0);
+  
+    my $got_n = $path->xy_to_n($x,0);
+    ok ($got_n == $n, 1);
+  }
+  {
+    my $x = Math::BigRat->new(2) ** 128 - 1;
+    my $n = ($x+1)*($x+2)/2;  # Y=0 horizontal
+  
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $x, 1);
+    ok ($got_y == 0, 1);
+  
+    my $got_n = $path->xy_to_n($x,0);
+    ok ($got_n == $n, 1);
+  }
+  {
+    my $y = Math::BigRat->new(2) ** 128 - 1;
+    my $n = $y*($y+1)/2 + 1;  # X=0 vertical
+  
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == 0, 1);
+    ok ($got_y == $y, 1);
+  
+    my $got_n = $path->xy_to_n(0,$y);
+    ok ($got_n, $n);
+  }
+
+  {
+    my $n = Math::BigRat->new(-1);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, undef);
+    ok ($got_y, undef);
+  }
+  {
+    my $n = Math::BigRat->new(0.5);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok (!! $got_x->isa('Math::BigRat'), 1);
+    ok (!! $got_y->isa('Math::BigRat'), 1);
+    ok ($got_x == -0.5, 1);
+    ok ($got_y == 0.5, 1);
+  }
+}
+
+#------------------------------------------------------------------------------
 # PeanoCurve
 
 require Math::PlanePath::PeanoCurve;
@@ -133,6 +236,7 @@ require Math::PlanePath::ZOrderCurve;
 #------------------------------------------------------------------------------
 # KochCurve _round_down_pow()
 
+### KochCurve ...
 require Math::PlanePath::KochCurve;
 {
   my $orig = Math::BigRat->new(3) ** 128 + Math::BigRat->new('1/7');

@@ -57,10 +57,9 @@
 package Math::PlanePath::PythagoreanTree;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -71,7 +70,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
@@ -359,33 +358,42 @@ sub _ab_to_pq {
 #
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### rect_to_n_range()
+  ### PythagoreanTree rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = _round_nearest ($x1);
   $y1 = _round_nearest ($y1);
   $x2 = _round_nearest ($x2);
   $y2 = _round_nearest ($y2);
 
+  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-  ### $x2
-  ### $y2
+  ### x2: "$x2"
+  ### y2: "$y2"
 
   if ($self->{'coordinates'} eq 'BA') {
     ($x2,$y2) = ($y2,$x2);
   }
   if ($self->{'coordinates'} eq 'Octant') {
-    $x2 = $y2 = max($x2,$y2);
+    if ($x2 > $y2) {   # both max
+      $y2 = $x2;
+    } else {
+      $x2 = $y2;
+    }
   }
 
   if ($self->{'coordinates'} eq 'PQ') {
     if ($x2 < 2 || $y2 < 1) {
       return (1,0);
     }
-    # P > Q so drop y2
-    $y2 = min ($y2, $x2-1);
+    # P > Q so reduce y2 to at most x2-1
+    if ($y2 >= $x2) {
+      $y2 = $x2-1;    # $y2 = min ($y2, $x2-1);
+    }
+
     if ($y2 < $y1) {
-      ### PQ y range all above X=Y diagonal
+      ### PQ y range all above X=Y diagonal ...
       return (1,0);
     }
   } else {
@@ -402,8 +410,9 @@ sub rect_to_n_range {
       ### PQ
       $level = $x2+1;
     } else {
-      $level = min (int (($x2+1) / 2),
-                    int (($y2+31) / 4));
+      my $xlevel = int (($x2+1) / 2);
+      my $ylevel = int (($y2+31) / 4);
+      $level = ($xlevel < $ylevel ? $xlevel : $ylevel);  # min(xlevel,ylevel)
     }
   } else {
     ### FB
@@ -422,8 +431,8 @@ sub rect_to_n_range {
       }
     }
   }
-  ### $level
-  return (1, (3**$level - 1) / 2);
+  ### level: "$level"
+  return (1, ((3+$zero)**$level - 1) / 2);
 }
 
 1;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,13 +20,16 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 44; }
+BEGIN { plan tests => 754 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::TheodorusSpiral;
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
+require Math::PlanePath::UlamWarburton;
 
 
 #------------------------------------------------------------------------------
@@ -34,20 +37,20 @@ require Math::PlanePath::TheodorusSpiral;
 
 {
   my $want_version = 48;
-  ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
+  ok ($Math::PlanePath::UlamWarburton::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
+  ok (Math::PlanePath::UlamWarburton->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::TheodorusSpiral->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::UlamWarburton->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::TheodorusSpiral->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::UlamWarburton->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::TheodorusSpiral->new;
+  my $path = Math::PlanePath::UlamWarburton->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,43 +65,49 @@ require Math::PlanePath::TheodorusSpiral;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::TheodorusSpiral->new;
-  ok ($path->n_start, 0, 'n_start()');
+  my $path = Math::PlanePath::UlamWarburton->new;
+  ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
 
+
 #------------------------------------------------------------------------------
-# _rect_r_range()
+# random points
 
-foreach my $elem ([ 0,0, 0,0,   0,0 ],
+{
+  my $path = Math::PlanePath::UlamWarburton->new;
+  for (1 .. 50) {
+    my $bits = int(rand(20));         # 0 to 20, inclusive
+    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
 
-                  [ 1,0, 0,0,   0,1 ],
-                  [ 0,1, 0,0,   0,1 ],
-                  [ 0,0, 1,0,   0,1 ],
-                  [ 0,0, 0,1,   0,1 ],
+    my ($x,$y) = $path->n_to_xy ($n);
+    my $rev_n = $path->xy_to_n ($x,$y);
+    if (! defined $rev_n) { $rev_n = 'undef'; }
+    ok ($rev_n, $n, "xy_to_n($x,$y) reverse to expect n=$n, got $rev_n");
 
-                  [ 3,1, -3,4,   1,5 ],
-                  [ -3,1, 3,4,   1,5 ],
-                  [ -3,4, 3,1,   1,5 ],
-                  [ 3,4, -3,1,   1,5 ],
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+    ok ($n_lo <= $n, 1, "rect_to_n_range() reverse n=$n cf got n_lo=$n_lo");
+    ok ($n_hi >= $n, 1, "rect_to_n_range() reverse n=$n cf got n_hi=$n_hi");
+  }
+}
 
-                  [ 1,3, 4,-3,   1,5 ],
-                  [ 1,-3, 4,3,   1,5 ],
-                  [ 4,-3, 1,3,   1,5 ],
-                  [ 4,3, 1,-3,   1,5 ],
 
-                  [ -3,-4, 3,4,  0,5 ],
-                  [ 3,-4, -3,4,  0,5 ],
-                  [ 3,4, -3,-4,  0,5 ],
-                  [ -3,4, 3,-4,  0,5 ],
+#------------------------------------------------------------------------------
+# x,y coverage
 
-                 ) {
-  my ($x1,$y1, $x2,$y2, $want_rlo,$want_rhi) = @$elem;
-  my ($got_rlo,$got_rhi)
-    = Math::PlanePath::TheodorusSpiral::_rect_r_range ($x1,$y1, $x2,$y2);
-  ok ($got_rlo, $want_rlo, '_rect_r_range() rlo');
-  ok ($got_rhi, $want_rhi, '_rect_r_range() rhi');
+{
+  my $path = Math::PlanePath::UlamWarburton->new;
+  foreach my $x (-10 .. 10) {
+    foreach my $y (-10 .. 10) {
+      my $n = $path->xy_to_n ($x,$y);
+      next if ! defined $n;
+      my ($nx,$ny) = $path->n_to_xy ($n);
+
+      ok ($nx, $x, "xy_to_n($x,$y)=$n then n_to_xy() reverse");
+      ok ($ny, $y, "xy_to_n($x,$y)=$n then n_to_xy() reverse");
+    }
+  }
 }
 
 exit 0;

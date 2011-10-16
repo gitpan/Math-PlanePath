@@ -27,15 +27,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-# uncomment this to run the ### lines
-#use Devel::Comments;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 
 use constant x_negative => 0;
@@ -272,11 +272,14 @@ sub n_to_xy {
 #   return $rev;
 # }
 
+# uncomment this to run the ### lines
+#use Devel::Comments;
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
-  ### RationalsTree xy_to_n(): "$x, $y"
+  ### RationalsTree xy_to_n(): "$x,$y   $self->{'tree_type'}"
 
   if (_is_infinite($x)) {  # ($x == 0 && $y == 0)
     return $x;
@@ -391,8 +394,7 @@ sub xy_to_n {
     }
     return $n;
 
-  } else {
-    # SB
+  } else { # SB
 
     my $n = $one;  # bits generated high to low, this is the high bit
     for (;;) {
@@ -411,9 +413,11 @@ sub xy_to_n {
         $y -= $x;   # (x,y) <- (x, y-x)
       }
     }
+    ### xy_to_n() result: $n
     return $n;
   }
 }
+
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -434,11 +438,56 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  # ENHANCE-ME: If X=1 and Y=1 are not included then smaller N range.
+  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+  ### $zero
 
-  my $max = ($x2 > $y2 ? $x2 : $y2);
-  return (1, 2 ** ($max + 1));
+  if ($x1 < 1) { $x1 = 1; }
+  if ($y1 < 1) { $y1 = 1; }
+
+  # big x2, small y1
+  # big y2, small x1
+  my $level = _bingcd_max ($y2,$x1);
+  ### $level
+  {
+    my $l2 = _bingcd_max ($x2,$y1);
+    ### $l2
+    if ($l2 > $level) { $level = $l2; }
+  }
+
+  return (1, ($zero+2) ** ($level + 3));
 }
+
+sub _bingcd_max {
+  my ($x,$y) = @_;
+  ### _bingcd_max(): "$x,$y"
+
+  if ($x < $y) { ($x,$y) = ($y,$x) }
+
+  ### div: int($x/$y)
+  ### bingcd: int($x/$y) + $y
+
+  return int($x/$y) + $y + 1;
+}
+
+#   ### fib: _fib_log($y)
+# # ENHANCE-ME: log base PHI, or something close for BigInt
+# # 2*log2() means log base sqrt(2)=1.4 instead of PHI=1.6
+# #
+# # use constant 1.02; # for leading underscore
+# # use constant _PHI => (1 + sqrt(5)) / 2;
+# #
+# sub _fib_log {
+#   my ($x) = @_;
+#   ### _fib_log(): $x
+#   my $f0 = ($x&0);
+#   my $f1 = $f0 + 1;
+#   my $count = 0;
+#   while ($x > $f0) {
+#     $count++;
+#     ($f0,$f1) = ($f1,$f0+$f1);
+#   }
+#   return $count;
+# }
 
 1;
 __END__
@@ -779,9 +828,10 @@ Create and return a new path object.
 Return a range of N values which occur in a rectangle with corners at
 C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
 
-For reference, C<$n_hi> can be quite large because there's only one new X/1
-integer and the same 1/Y fractions within each row, which means more or less
-C<$n_hi = 2**max(x,y)>.
+For reference, C<$n_hi> can be quite large because within each row there's
+only one new X/1 integer and 1/Y fraction.  So if X=1 or Y=1 is included
+then roughly C<$n_hi = 2**max(x,y)>.  If min(x,y) is bigger than 1 then
+roughly 2**(max/min + min).
 
 =back
 

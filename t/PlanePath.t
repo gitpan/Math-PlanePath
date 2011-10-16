@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 17 }
+BEGIN { plan tests => 22 }
 
 use lib 't';
 use MyTestHelpers;
@@ -31,6 +31,49 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments;
 
 require Math::PlanePath;
+
+#------------------------------------------------------------------------------
+# _is_infinite()
+
+{
+  my $pos_infinity = 0;
+  my $neg_infinity = 0;
+  my $nan = 0;
+
+  my $skip_inf;
+  my $skip_nan;
+  if (! eval { require Data::Float; 1 }) {
+    MyTestHelpers::diag ("Data::Float not available");
+    $skip_inf = 'due to Data::Float not available';
+    $skip_nan = 'due to Data::Float not available';
+  } else {
+    if (Data::Float::have_infinite()) {
+      $pos_infinity = Data::Float::pos_infinity();
+      $neg_infinity = Data::Float::neg_infinity();
+    } else {
+      $skip_inf = 'due to Data::Float no infinite';
+    }
+
+    if (Data::Float::have_nan()) {
+      $nan = Data::Float::nan();
+      MyTestHelpers::diag ("nan is ",$nan);
+    } else {
+      $skip_nan = 'due to Data::Float no nan';
+    }
+  }
+
+  skip ($skip_inf,
+        !! Math::PlanePath::_is_infinite($pos_infinity), 1, '_is_infinte() +inf');
+  skip ($skip_inf,
+        !! Math::PlanePath::_is_infinite($neg_infinity), 1, '_is_infinte() -inf');
+  skip ($skip_nan,
+        !! Math::PlanePath::_is_infinite($nan), 1, '_is_infinte() nan');
+}
+{
+  require POSIX;
+  ok (! Math::PlanePath::_is_infinite(POSIX::DBL_MAX()), 1, '_is_infinte() DBL_MAX');
+  ok (! Math::PlanePath::_is_infinite(- POSIX::DBL_MAX()), 1, '_is_infinte() neg DBL_MAX');
+}
 
 #------------------------------------------------------------------------------
 # _round_nearest()

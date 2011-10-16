@@ -28,6 +28,16 @@ use Math::PlanePath::PythagoreanTree;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+{
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');
+  require Math::BigInt;
+  # my ($n_lo,$n_hi) = $path->rect_to_n_range (1000,0, 1500,200);
+  my ($n_lo,$n_hi) = $path->rect_to_n_range (Math::BigInt->new(1000),0, 1500,200);
+  ### $n_hi
+  ### n_hi: "$n_hi"
+  exit 0;
+}
 
 {
   require Math::PlanePath::PythagoreanTree;

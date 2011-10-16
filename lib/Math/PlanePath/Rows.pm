@@ -19,18 +19,17 @@
 package Math::PlanePath::Rows;
 use 5.004;
 use strict;
-use List::Util qw(min max);
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_floor = \&Math::PlanePath::_floor;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
@@ -47,6 +46,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
+  ### Rows n_to_xy(): $n
 
   # no division by zero, and negatives not meaningful for now
   my $width;
@@ -54,17 +54,28 @@ sub n_to_xy {
     ### no points for width<=0
     return;
   }
-  ### x: $n % $width
-  ### y: int ($n / $width)
 
-  # row y=0 starts at n=-0.5 with x=-0.5
-  #
-  # subtract back from $n instead of POSIX::fmod() because the latter rounds
-  # towards 0 instead of -infinity (and this with a view to allowing
-  # negatives maybe, perhaps)
-  #
-  my $y = floor (($n - 0.5) / $width);
-  return ($n-1 - $y * $width,
+  my $int = int($n);  # BigFloat int() gives BigInt, use that
+  $n -= $int;         # preserve any BigFloat
+
+  if (2*$n >= 1) {  # if $n >= 0.5
+    $n -= 1;
+  } else {
+    $int -= 1;    # int-1 so zero based
+  }
+  ### $n
+  ### $int
+
+  my $y = int ($int / $width);
+  $int -= $y*$width;
+  if ($int < 0) {
+    $int += $width;    # int($int/$width) rounds up when $int negative
+    $y -= 1;
+  }
+  ### floor y: $y
+  ### remainder: $int
+
+  return ($n + $int,
           $y);
 }
 
@@ -75,7 +86,6 @@ sub xy_to_n {
   if ($x < 0 || $x >= $self->{'width'}) {
     return undef;  # outside the column
   }
-
   $y = _round_nearest ($y);
   return $x + $y * $self->{'width'} + 1;
 }
@@ -101,13 +111,14 @@ sub rect_to_n_range {
   if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
   ### assert: $y1<=$y2
 
-  $x1 = max($x1,0);
-  $x2 = min($x2,$width-1);
+  if ($x1 < 0) { $x1 &= 0; }                        # preserve bigint
+  if ($x2 >= $width) { $x2 = ($x2&0) + $width-1; }  # preserve bigint
+
   ### rect exact on: "$x1,$y1  $x2,$y2"
 
   # exact range bottom left to top right
-  return ($self->xy_to_n ($x1,$y1),
-          $self->xy_to_n ($x2,$y2));
+  return ($x1 + $y1 * $width + 1,
+          $x2 + $y2 * $width + 1);
 }
 
 1;

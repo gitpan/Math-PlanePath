@@ -17,6 +17,7 @@
 
 
 # math-image --path=ZOrderCurve,radix=3 --all --output=numbers
+# math-image --path=ZOrderCurve --values=Fibbinary --text
 #
 # increment N+1 changes low 1111 to 10000
 # X bits change 011 to 000, no carry, decreasing by number of low 1s
@@ -30,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -313,6 +314,47 @@ is the Sierpinski triangle (a rotated version of
 L<Math::PlanePath::SierpinskiTriangle>).  The blanks are also a visual
 representation of 1-in-4 cross-products saved by recursive use of the
 Karatsuba multiplication algorithm.
+
+Plotting the fibbinary numbers (eg. L<Math::NumSeq::Fibbinary>) which are N
+values with no adjacent 1 bits in binary makes an attractive tree-like
+pattern,
+
+    *                                                               
+    **                                                              
+    *                                                               
+    ****                                                            
+    *                                                               
+    **                                                              
+    *   *                                                           
+    ********                                                        
+    *                                                               
+    **                                                              
+    *                                                               
+    ****                                                            
+    *       *                                                       
+    **      **                                                      
+    *   *   *   *                                                   
+    ****************                                                
+    *                               *                               
+    **                              **                              
+    *                               *                               
+    ****                            ****                            
+    *                               *                               
+    **                              **                              
+    *   *                           *   *                           
+    ********                        ********                        
+    *               *               *               *               
+    **              **              **              **              
+    *               *               *               *               
+    ****            ****            ****            ****            
+    *       *       *       *       *       *       *       *       
+    **      **      **      **      **      **      **      **      
+    *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   
+    ****************************************************************
+
+The horizontals arise from N=...0a0b0c for bits a,b,c so Y=...000 and
+X=...abc, making those N values adjacent.  Similarly N=...a0b0c0 for a
+vertical.
 
 =head2 Radix
 

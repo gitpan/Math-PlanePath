@@ -9,6 +9,7 @@ debian/rules
 debian/source/format
 debian/watch
 devel/archimedean.pl
+devel/bignums.pl
 devel/complex-minus.pl
 devel/cont-frac.pl
 devel/coprime.pl
@@ -45,6 +46,9 @@ devel/quadric.pl
 devel/quintet.pl
 devel/r5.pl
 devel/rationals.pl
+devel/rows.pl
+devel/rule-xpm.pl
+devel/rule62.pl
 devel/run.pl
 devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
@@ -130,6 +134,7 @@ lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
 lib/Math/PlanePath/TriangularHypot.pm
+lib/Math/PlanePath/UlamWarburton.pm
 lib/Math/PlanePath/VogelFloret.pm
 lib/Math/PlanePath/ZOrderCurve.pm
 Makefile.PL
@@ -188,8 +193,10 @@ t/Rows.t
 t/SacksSpiral.t
 t/SierpinskiArrowhead.t
 t/SquareSpiral.t
+t/Staircase.t
 t/TheodorusSpiral.t
 t/TriangularHypot.t
+t/UlamWarburton.t
 t/VogelFloret.t
 t/ZOrderCurve.t
 xt/0-examples-xrefs.t

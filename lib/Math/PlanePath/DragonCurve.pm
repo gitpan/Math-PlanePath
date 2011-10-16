@@ -28,11 +28,9 @@
 package Math::PlanePath::DragonCurve;
 use 5.004;
 use strict;
-use List::Util qw(min max);
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -58,6 +56,7 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          maximum   => 4,
                                          default   => 1,
                                          width     => 1,
+                                         description => 'Arms',
                                        } ];
 sub new {
   my $class = shift;
@@ -164,7 +163,6 @@ sub n_to_xy {
 #             = sqrt(2^level) * (1 - 1/sqrt(2))
 # about 0.29289
 #
-
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### DragonMidpoint xy_to_n(): "$x, $y"
@@ -172,7 +170,8 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  my ($pow,$exp) = _round_up_pow2(max(abs($x),abs($y)));
+  # max(|x|,|y|), or maybe hypot, or ...
+  my ($pow,$exp) = _round_up_pow2(abs($x)+abs($y));
   my $level_limit = 2*$exp + 5;
   if (_is_infinite($level_limit)) {
     return $level_limit;  # infinity

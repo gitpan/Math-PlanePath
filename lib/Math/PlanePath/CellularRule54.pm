@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -198,6 +198,8 @@ sub rect_to_n_range {
   ### assert: $x2 >= -$y2
   ### assert: $x1 <= $y2
 
+  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+
   #     \       | /
   #      \      |/
   #       \    /|       |
@@ -226,8 +228,8 @@ sub rect_to_n_range {
   # y odd end  (y+1)*(y+3)/2
 
   $y2 += 1;
-  return ($y1*($y1 + 1 + ! ($y1 % 2))/2 + 1,   # even/odd left end
-          $y2*($y2 + 1 + ! ($y2 % 2))/2);      # even/odd right end
+  return ($zero + $y1*($y1 + 1 + ! ($y1 % 2))/2 + 1,  # even/odd left end
+          $zero + $y2*($y2 + 1 + ! ($y2 % 2))/2);     # even/odd right end
 }
 
 1;
@@ -237,7 +239,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::CellularRule54 -- points stacked up in a pyramid
+Math::PlanePath::CellularRule54 -- cellular automaton points
 
 =head1 SYNOPSIS
 

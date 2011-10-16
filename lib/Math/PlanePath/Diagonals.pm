@@ -19,52 +19,76 @@
 package Math::PlanePath::Diagonals;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
 
 # start each diagonal at 0.5 earlier
 #
-# s = [   0,   1,   2,   3,    4 ]
-# n = [ 0.5, 1.5, 3.5, 6.5, 10.5 ]
-#           +1   +2   +3   +4
-#              1    1    1
+#     s = [   0,   1,   2,   3,    4 ]
+#     n = [ 0.5, 1.5, 3.5, 6.5, 10.5 ]
+#               +1   +2   +3   +4
+#                  1    1    1
 #
-# n = 0.5*$s*$s + 0.5*$s + 0.5
-# s = 1/2 * (-1 + sqrt(4*2n + 1 - 4))
-# s = -1/2 + sqrt(2n - 3/4)
+#     n = 0.5*$s*$s + 0.5*$s + 0.5
+#     s = 1/2 * (-1 + sqrt(4*2n + 1 - 4))
+#     s = -1/2 + sqrt(2n - 3/4)
+#       = [ -1 + sqrt(8n - 3) ] / 2
 #
-# remainder n - (0.5*$s*$s + 0.5*$s + 0.5)
-# is dist from x=-0.5 and y=$s+0.5
-# work the 0.5 in so
-#     n - (0.5*$s*$s + 0.5*$s + 0.5) - 0.5
-#   = n - (0.5*$s*$s + 0.5*$s + 1)
-#   = n - 0.5*$s*($s+1) + 1
-
+#     remainder n - (0.5*$s*$s + 0.5*$s + 0.5)
+#     is dist from x=-0.5 and y=$s+0.5
+#     work the 0.5 in so
+#         n - (0.5*$s*$s + 0.5*$s + 0.5) - 0.5
+#       = n - (0.5*$s*$s + 0.5*$s + 1)
+#       = n - 0.5*$s*($s+1) + 1
+#
+# starting on the integers vertical at X=0
+#
+#     s = [   0,  1, 2, 3,  4 ]
+#     n = [   1,  2, 4, 7, 11 ]
+#
+#     N = (1/2 d^2 + 1/2 d + 1)
+#       = ((1/2*$d + 1/2)*$d + 1)
+#       = (d+1)*d/2 + 1     one past triangular
+#     d = -1/2 + sqrt(2 * $n -7/4)
+#       = [-1 + sqrt(8*$n - 7)] / 2
+#
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### Diagonals n_to_xy: $n
-  return if $n < .5;
+  ### Diagonals n_to_xy: "$n   ".(ref $n || '')
 
-  my $s = int (-.5 + sqrt(2*$n - .75));
-  $n -= $s*($s+1)/2 + 1;
-  ### sub: $s*($s+1)/2 + 1
-  ### $s
-  ### remainder: $n
+  my $int = int($n);  # BigFloat int() gives BigInt, use that
+  $n -= $int;         # frac, preserving any BigFloat
 
-  return ($n,
-          $s - $n);
+  if (2*$n >= 1) {  # $frac >= 0.5
+    $n -= 1;
+    $int += 1;
+  }
+  ### $int
+  ### $n
+  return if $int < 1;
+
+  ### sqrt of: (8*$int - 7).''
+  my $s = int((sqrt(8*$int-7) - 1) / 2);
+
+  $int -= $s*($s+1)/2 + 1;
+
+  ### s: "$s"
+  ### sub: ($s*($s+1)/2 + 1).''
+  ### remainder: "$int"
+
+  return ($n + $int,
+          -$n - $int + $s);   # $n first so BigFloat not BigInt from $s
 }
 
 # round y on an 0.5 downwards so that x=-0.5,y=0.5 gives n=1 which is the
@@ -96,9 +120,14 @@ sub rect_to_n_range {
     return (1, 0); # rect all negative, no N
   }
 
+  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+
+  if ($x1 < 0) { $x1 = 0; }
+  if ($y1 < 0) { $y1 = 0; }
+
   # exact range bottom left to top right
-  return ($self->xy_to_n (max($x1,0),max($y1,0)),
-          $self->xy_to_n ($x2,$y2));
+  return ($self->xy_to_n ($zero+$x1,$y1),
+          $self->xy_to_n ($zero+$x2,$y2));
 }
 
 1;

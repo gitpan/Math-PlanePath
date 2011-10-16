@@ -23,8 +23,6 @@
 package Math::PlanePath::QuintetArms;
 use 5.004;
 use strict;
-use List::Util qw(min max);
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
 $VERSION = 67;

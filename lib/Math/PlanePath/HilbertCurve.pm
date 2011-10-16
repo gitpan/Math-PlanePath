@@ -37,7 +37,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -648,7 +648,7 @@ This Hilbert Curve path is in Sloane's OEIS in several forms,
     A163483    column at X=0
     A163538    X change -1,0,1
     A163539    Y change -1,0,1
-    A163540    absolute direction of each step (up,down,left,right)
+    A163540    absolute direction of each step (0=right,1=down,2=left,3=up)
     A163541    absolute direction, transpose X,Y
     A163542    relative direction (ahead=0,right=1,left=2)
     A163543    relative direction, transpose X,Y

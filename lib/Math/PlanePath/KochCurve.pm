@@ -39,7 +39,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -192,7 +192,9 @@ sub _round_down_pow {
   # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
   # based blog()
   if (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))) {
+    ### use blog() ...
     my $exp = $n->copy->blog($base);
+    ### exp: "$exp"
     return (Math::BigInt->new(1)->blsft($exp,$base),
             $exp);
   }

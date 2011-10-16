@@ -24,13 +24,12 @@
 package Math::PlanePath::OctagramSpiral;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
-use POSIX 'floor', 'ceil';
+use List::Util 'max';
 
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -62,17 +61,30 @@ sub n_to_xy {
   }
   $n -= 2*$d;
   if ($n < $d) {
-    return ($d - min(0,$n), $d + max(0,$n));
+    if ($n < 0) {
+      return ($d - $n,
+              $d);
+    } else {
+      return ($d,
+              $d + $n);
+    }
   }
   $n -= 2*$d;
 
   if ($n < $d) {
-    return (-$n, $d+abs($n));
+    return (-$n,
+            $d+abs($n));
   }
   $n -= 2*$d;
 
   if ($n < $d) {
-    return (-$d - max(0,$n), $d - min(0,$n));
+    if ($n < 0) {
+      return (-$d,
+              $d - $n);
+    } else {
+      return (-$d - $n,
+              $d);
+    }
   }
   $n -= 2*$d;
 
@@ -82,7 +94,13 @@ sub n_to_xy {
   $n -= 2*$d;
 
   if ($n < $d) {
-    return (-$d + min(0,$n), -$d - max(0,$n));
+    if ($n < 0) {
+      return (-$d + $n,
+              -$d);
+    } else {
+      return (-$d,
+              -$d - $n);
+    }
   }
   $n -= 2*$d;
 
@@ -92,7 +110,13 @@ sub n_to_xy {
   $n -= 2*$d;
 
   if ($n < $d+1) {
-    return ($d + max(0,$n), -$d + min(0,$n));
+    if ($n < 0) {
+      return ($d,
+              -$d + $n);
+    } else {
+      return ($d + $n,
+              -$d);
+    }
   }
 
   # $n >= $d+1 through to 2*$d+1
@@ -156,7 +180,7 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  my $d = max (1, map {abs(floor($_+0.5))} $x1,$y1,$x2,$y2);
+  my $d = max (1, map {abs(_round_nearest($_))} $x1,$y1,$x2,$y2);
   ### $d
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0

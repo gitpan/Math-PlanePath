@@ -23,13 +23,13 @@
 package Math::PlanePath::GosperReplicate;
 use 5.004;
 use strict;
-use List::Util qw(min max);
+use List::Util qw(max);
 use POSIX 'ceil';
 use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

@@ -22,19 +22,14 @@
 package Math::PlanePath::CoprimeColumns;
 use 5.004;
 use strict;
-use List::Util qw(min max);
-use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-
-# uncomment this to run the ### lines
-#use Devel::Comments '###';
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -116,7 +111,7 @@ sub n_to_xy {
   for (;;) {
     if (_coprime($x,$y)) {
       if (--$n < 0) {
-        return ($x, $y + $frac);
+        return ($x, $frac + $y);
       }
     }
     if (++$y >= $x) {
@@ -158,14 +153,15 @@ sub xy_to_n {
   ### CoprimeColumns xy_to_n(): "$x,$y"
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
+  if (_is_infinite($x)) { return $x; }
+  if (_is_infinite($y)) { return $y; }
   if ($x < 1
       || $y < 1
       || $y >= $x+($x==1)
-      || _is_infinite($x)
-      || _is_infinite($y)
       || ! _coprime($x,$y)) {
     return undef;
   }
+
   while ($#x_to_n < $x) {
     _extend();
   }
@@ -192,11 +188,12 @@ sub xy_to_n {
 #
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### CoprimeColumns rect_to_n_range(): "$x1,$y1 $x2,$y2"
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-  $x2 = floor($x2 + 0.5);
-  $y2 = floor($y2 + 0.5);
+  $x2 = _round_nearest($x2);
+  $y2 = _round_nearest($y2);
   ### rounded ...
   ### $x2
   ### $y2
@@ -204,13 +201,20 @@ sub rect_to_n_range {
   if ($x2 < 1 || $y2 < 1
       # bottom right corner above X=Y diagonal, except X=1,Y=1 included
       || ($y1 >= $x2 + ($x2 == 1))) {
-    ### outside
+    ### outside ...
     return (1, 0);
   }
   if (_is_infinite($x2)) {
-    return ($x2,1);
+    return (1, $x2);
   }
-  return (0, $self->xy_to_n($x2+1,1) - 1);
+
+  while ($#x_to_n <= $x2) {
+    _extend();
+  }
+
+  ### rect use xy_to_n at: "x=".($x2+1)." y=1"
+  if ($x1 < 0) { $x1 = 0; }
+  return ($x_to_n[$x1], $x_to_n[$x2+1]-1);
 
   # return (1, .304*$x2*$x2 + 20);   # asympototically ?
 }
@@ -235,44 +239,45 @@ Math::PlanePath::CoprimeColumns -- coprime x,y by columns
 This path visits points X,Y which are coprime, meaning gcd(X,Y)=1, in
 columns from Y=0 to YE<lt>=X.
 
-    13                                            63
-    12                                         57
-    11                                      45 56 62
-    10                                   41    55
-     9                                31 40    54 61
-     8                             27    39    53
-     7                          21 26 30 38 44 52
-     6                       17          37    51
-     5                    11 16 20 25    36 43 50 60
-     4                  9    15    24    35    49
-     3               5  8    14 19    29 34    48 59
-     2            3     7    13    23    33    47
-     1      0  1  2  4  6 10 12 18 22 28 32 42 46 58
-    Y=0
-       X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    13 |                                          63
+    12 |                                       57
+    11 |                                    45 56 62
+    10 |                                 41    55
+     9 |                              31 40    54 61
+     8 |                           27    39    53
+     7 |                        21 26 30 38 44 52
+     6 |                     17          37    51
+     5 |                  11 16 20 25    36 43 50 60
+     4 |                9    15    24    35    49
+     3 |             5  8    14 19    29 34    48 59
+     2 |          3     7    13    23    33    47
+     1 |    0  1  2  4  6 10 12 18 22 28 32 42 46 58
+    Y=0|
+       +---------------------------------------------
+       X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
 Since gcd(0,K)=0 the X axis itself X=0 is never visited, and since
 gcd(K,K)=K the leading diagonal X=Y is not visited except X=1,Y=1.
 
 The number of coprime pairs in each column is Euler's totient function
 phi(X), and starting N=0 at X=1,Y=1 means the values 0,1,2,4,6,10,etc
-horizontally along X=1 are the totient sums
+horizontally along Y=1 are the totient sums
 
      i=K
     sum   phi(i)
      i=1
 
-The pattern of coprimes or not is the same going up a column as going down,
-since X,X-Y has the same coprimeness as X,Y.  This means coprimes occur in
-pairs from X=3 onwards.  (In X even the middle point Y=X/2 is not coprime
-since they have common factor 2, from X=4 onwards.)  So there's an even
-number of points in each column from X=2 onwards and the totals horizontally
-along X=1 are even likewise.
+The pattern of coprimes or not within a column is the same read going up as
+going down, since X,X-Y has the same coprimeness as X,Y.  This means
+coprimes occur in pairs from X=3 onwards.  (When X is even the middle point
+Y=X/2 is not coprime since it has common factor 2 from X=4 onwards.)  So
+there's an even number of points in each column from X=2 onwards and the
+totals horizontally along X=1 are even likewise.
 
 The current implementation is pretty slack and is fairly slow on medium to
 large N, but the resulting pattern is interesting.  Anything making a
-straight line etc in the path will probably have to be related to phi sums
-in some way.
+straight line etc in the path will probably be related to totient sums in
+some way.
 
 =head1 FUNCTIONS
 

@@ -20,13 +20,16 @@
 
 # http://gwydir.demon.co.uk/jo/greekkey/corners.htm
 
+# turns parameter
+# 0 for no turns squarespiral style, default 2
+
 
 package Math::PlanePath::GreekKeySpiral;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

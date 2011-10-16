@@ -28,7 +28,7 @@ use Math::BigInt;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = 32;
+my $test_count = (tests => 43)[1];
 plan tests => $test_count;
 
 MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
@@ -46,12 +46,12 @@ MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
 
 MyTestHelpers::nowarnings();
 
+require Math::BigInt;
 
 #------------------------------------------------------------------------------
 # CoprimeColumns
 
 require Math::PlanePath::CoprimeColumns;
-require Math::BigInt;
 {
   my $path = Math::PlanePath::CoprimeColumns->new;
   {
@@ -78,7 +78,6 @@ require Math::BigInt;
 # Corner
 
 require Math::PlanePath::Corner;
-  require Math::BigInt;
 {
   my $path = Math::PlanePath::Corner->new;
   {
@@ -106,6 +105,53 @@ require Math::PlanePath::Corner;
   }
   {
     my $n = Math::BigInt->new(0);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, undef);
+    ok ($got_y, undef);
+  }
+}
+
+#------------------------------------------------------------------------------
+# Diagonals
+
+{
+  require Math::PlanePath::Diagonals;
+  my $path = Math::PlanePath::Diagonals->new;
+  {
+    my $x = Math::BigInt->new(2) ** 128 - 1;
+    my $n = ($x+1)*($x+2)/2;  # triangular numbers on Y=0 horizontal
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, $x);
+    ok ($got_y, 0);
+
+    my $got_n = $path->xy_to_n($x,0);
+    ok ($got_n, $n);
+  }
+  {
+    my $x = Math::BigInt->new(2) ** 128 - 1;
+    my $n = ($x+1)*($x+2)/2;  # Y=0 horizontal
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, $x);
+    ok ($got_y, 0);
+
+    my $got_n = $path->xy_to_n($x,0);
+    ok ($got_n, $n);
+  }
+  {
+    my $y = Math::BigInt->new(2) ** 128 - 1;
+    my $n = $y*($y+1)/2 + 1;  # X=0 vertical
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, 0);
+    ok ($got_y, $y);
+
+    my $got_n = $path->xy_to_n(0,$y);
+    ok ($got_n, $n);
+  }
+  {
+    my $n = Math::BigInt->new(-1);
     my ($got_x,$got_y) = $path->n_to_xy($n);
     ok ($got_x, undef);
     ok ($got_y, undef);

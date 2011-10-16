@@ -19,15 +19,17 @@
 package Math::PlanePath::Columns;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_floor = \&Math::PlanePath::_floor;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
@@ -50,15 +52,27 @@ sub n_to_xy {
     return;
   }
 
+  my $frac;
+  {
+    my $int = int($n);
+    $frac = $n - $int;   # inherit possible BigFloat
+    if (2*$frac >= 1) {  # $frac >= 0.5
+      $frac -= 1;
+    $n = $int; # n-1, BigFloat int() gives BigInt, use that
+    } else {
+      $n = $int-1;
+    }
+  }
+
   # column x=0 starts at n=0.5 with y=-0.5
   #
   # subtract back from $n instead of using POSIX::fmod() because fmod rounds
   # towards 0 instead of -infinity (in preparation for negative n one day
   # maybe, perhaps)
   #
-  my $x = _floor (($n - 0.5) / $height);
+  my $x = _floor ($n / $height);
   return ($x,
-          $n-1 - $x * $height);
+          $frac + $n - $x*$height);
 }
 
 sub xy_to_n {
@@ -91,12 +105,12 @@ sub rect_to_n_range {
   if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
   ### assert: $x1<=$x2
 
-  $y1 = max($y1,0);
-  $y2 = min($y2,$height-1);
+  if ($y1 < 0) { $y1 &= 0; }                          # preserve bigint
+  if ($y2 >= $height) { $y2 = ($y2&0) + $height-1; }  # preserve bigint
 
   # exact range bottom left to top right
-  return ($self->xy_to_n ($x1,$y1),
-          $self->xy_to_n ($x2,$y2));
+  return ($x1*$height + $y1 + 1,
+          $x2*$height + $y2 + 1);
 }
 
 1;

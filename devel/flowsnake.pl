@@ -28,6 +28,17 @@ use Math::Libm 'M_PI', 'hypot';
   require Math::PlanePath::Flowsnake;
   require Math::PlanePath::FlowsnakeCentres;
   my $path = Math::PlanePath::FlowsnakeCentres->new;
+  my $k = 4000;
+  my ($n_lo,$n_hi) = $path->rect_to_n_range(-$k,-$k, $k,$k);
+  print "$n_lo, $n_hi\n";
+  exit 0;
+}
+
+{
+  # xy_to_n
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  my $path = Math::PlanePath::FlowsnakeCentres->new;
   my $y = 0;
   for (my $x = 6; $x >= -5; $x-=2) {
     $x -= ($x^$y)&1;

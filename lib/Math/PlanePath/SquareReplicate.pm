@@ -22,10 +22,9 @@
 package Math::PlanePath::SquareReplicate;
 use 5.004;
 use strict;
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

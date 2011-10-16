@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 476 }
+BEGIN { plan tests => 604 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::RationalsTree;
 # VERSION
 
 {
-  my $want_version = 47;
+  my $want_version = 48;
   ok ($Math::PlanePath::RationalsTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::RationalsTree->VERSION,  $want_version,
@@ -75,6 +75,7 @@ require Math::PlanePath::RationalsTree;
     Math::PlanePath::RationalsTree->parameter_info_list;
   ok (join(',',@pnames), 'tree_type');
 }
+
 
 #------------------------------------------------------------------------------
 # n_to_xy(),  xy_to_n()
@@ -115,6 +116,8 @@ foreach my $topelem ([ 'SB',
                        [ 29, 8,3 ],
                        [ 30, 7,2 ],
                        [ 31, 5,1 ],
+
+                       [ 95, 6,7 ],
                      ],
                      [ 'CW',
                        [ 1, 1,1 ],
@@ -292,5 +295,37 @@ foreach my $tree_type ('SB',
     }
   }
 }
+
+
+#------------------------------------------------------------------------------
+# rect_to_n_range()
+
+{
+  my $path = Math::PlanePath::RationalsTree->new;
+
+  require Math::BigInt;
+  foreach my $i (2 .. 100) {
+    my $x = Math::BigInt->new($i);
+    my $y = Math::BigInt->new($i-1);
+    my $n = $path->xy_to_n ($x,$y) || next;
+    my ($n_lo,$n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+    ok ($n < $n_hi, 1, "rect_to_n_range() on near diagonal $x,$y, n=$n nhi=$n_hi");
+    # MyTestHelpers::diag ("n=$n  xy=$x,$y   nhi=$n_hi");
+  }
+
+  foreach my $y (1 .. 3) {
+    foreach my $x (30 .. 40) {
+      my ($n_lo,$n_hi) = $path->rect_to_n_range (0,0, $x,$y);
+      my $n = $path->xy_to_n ($x,$y) || next;
+      ok ($n < $n_hi, 1, "rect_to_n_range() on $x,$y");
+    }
+  }
+
+  {
+    my ($n_lo,$n_hi) = $path->rect_to_n_range (9,8, 2,2);
+    ok ($n_hi >= 384, 1);
+  }
+}
+
 
 exit 0;

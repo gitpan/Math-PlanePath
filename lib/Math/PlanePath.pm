@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 47;
+$VERSION = 48;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -66,7 +66,7 @@ sub parameter_info_hash {
 sub _is_infinite {
   my ($x) = @_;
   return ($x != $x         # nan
-          || $x-1 == $x);  # inf
+          || ($x != 0 && $x == 2*$x));  # inf
 }
 
 # With a view to being friendly to BigRat/BigFloat.
@@ -210,6 +210,7 @@ include
     PyramidRows            expanding stacked rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
     CellularRule54         cellular automaton rows pattern
+    UlamWarburton          cellular automaton diamonds
 
     CoprimeColumns         coprime X,Y
     File                   points from a disk file
@@ -224,23 +225,28 @@ The C<$n> and C<$x,$y> parameters can be either integers or floating point.
 The paths are meant to do something sensible with floating point fractions.
 Expect rounding-off for big exponents.
 
-Floating point infinities (when available on the system) are meant to give
-nan or infinite returns of some kind (some unspecified kind as yet).
-C<n_to_xy()> on negative infinity C<$n> is generally an empty return, the
-same as other negative C<$n>.  Calculations which break an input into digits
-of some base are meant not to loop infinitely on infinities.
+Floating point infinities (when available system) are meant to give nan or
+infinite returns of some kind (some unspecified kind as yet).  C<n_to_xy()>
+on negative infinity C<$n> is generally an empty return, the same as other
+negative C<$n>.  Calculations which break an input into digits of some base
+are meant not to loop infinitely on infinities.
 
-Floating point nans (when available on the system) are meant to give nan,
-infinite, or empty/undef returns, but again of some unspecified kind as yet
-and again not going into infinite loops.
+Floating point nans (when available) are meant to give nan, infinite, or
+empty/undef returns, but again of some unspecified kind as yet but in any
+case again not going into infinite loops.
 
-One or two of the classes can operate on C<Math::BigInt>, C<Math::BigRat>
-and C<Math::BigFloat> inputs and give corresponding outputs, but this is
+A few of the classes can operate on C<Math::BigInt>, C<Math::BigRat> and
+C<Math::BigFloat> inputs and give corresponding outputs, but this is
 experimental and many classes might truncate a bignum to a float as yet.  In
 general the intention is to make the code generic enough that it can act on
 overloaded number types.  Note that new enough versions of the bignum
 modules might be required, perhaps Perl 5.8 and up so for instance the C<**>
 exponentiation operator is available.
+
+Also, for reference, an C<undef> input C<$n>, C<$x,$y>, etc, is meant to
+provoke an uninitialized value warning (when warnings are enabled), but
+doesn't croak etc.  Perhaps that will change, but the warning at least
+prevents bad inputs going unnoticed.
 
 =head1 FUNCTIONS
 
@@ -360,7 +366,7 @@ element is a hashref
       minimum     =>    number, or undef
       maximum     =>    number, or undef
       width       =>    integer, suggested display size
-      choices     =>    for enum, an arrayref     
+      choices     =>    for enum, an arrayref
     }
 
 C<type> is a string, one of
@@ -443,7 +449,8 @@ more N points than the preceding.
         0       Rows, Columns (fixed widths)
         1       Diagonals
         2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
-        4       DiamondSpiral, Staircase, CellularRule54 (two rows)
+        4       DiamondSpiral, Staircase
+        4/2     CellularRule54 (2 rows for +4)
         5       PentSpiral, PentSpiralSkewed
         5.65    PixelRings (average about 4*sqrt(2))
         6       HexSpiral, HexSpiralSkewed, MultipleRings (default)
@@ -453,7 +460,7 @@ more N points than the preceding.
         9       TriangleSpiral, TriangleSpiralSkewed
        16       OctagramSpiral
        19.74    TheodorusSpiral (approaching 2*pi^2)
-       32       KnightSpiral (counting the 2-wide loop)
+       32/4     KnightSpiral (4 loops 2-wide for +32)
        64       DiamondArms (each arm)
        72       GreekKeySpiral
       128       SquareArms (each arm)
@@ -461,8 +468,7 @@ more N points than the preceding.
     parameter   MultipleRings, PyramidRows
      totient    CoprimeColumns
 
-
-The step determines which quadratic number sequences fall on straight lines.
+The step determines which quadratic number sequences make straight lines.
 For example the gap between successive perfect squares increases by 2 each
 time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
 squares make a straight line in the paths of step 2.
@@ -475,12 +481,12 @@ PentSpiral.  Or the 8-gonal octagonal numbers 6/2*k^2-4/2*k on the step=6
 HexSpiral.
 
 There are various interesting properties of primes in quadratic
-progressions.  Some quadratics seem to have more primes than others,
-eg. L<Math::PlanePath::PyramidSides/Lucky Numbers of Euler>.  Many
+progressions.  Some quadratics seem to have more primes than others, see for
+example L<Math::PlanePath::PyramidSides/Lucky Numbers of Euler>.  Many
 quadratics have no primes at all, or none above a certain point, either
 trivially if always a multiple of 2 etc, or by a more sophisticated
 reasoning.  See L<Math::PlanePath::PyramidRows/Step 3 Pentagonals> for a
-factorization by the roots making a no-primes gap.
+factorization on the roots making a no-primes gap.
 
 A step factor 4 splits a straight line in two, so for example the perfect
 squares are a straight line on the step=2 "Corner" path, and then on the
@@ -493,8 +499,8 @@ squares.
 =head2 Self-Similar Powers
 
 The self-similar patterns such as PeanoCurve generally have a base pattern
-which repeats at powers N=base^level (or some multiple or relation to that
-for things like KochPeaks and GosperIslands).
+which repeats at powers N=base^level, or some multiple or relation to such a
+power for things like KochPeaks and GosperIslands.
 
     Base          Path
     ----          ----
@@ -506,7 +512,7 @@ for things like KochPeaks and GosperIslands).
                   SierpinskiArrowheadCentres,
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes
       5         QuintetCurve, QuintetCentres, QuintetReplicate
-      7         GosperReplicate
+      7         Flowsnake, FlowsnakeCentres, GosperReplicate
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
     parameter   PeanoCurve, ZOrderCurve, ImaginaryBase
@@ -538,20 +544,32 @@ These are done in integer X,Y on a square grid using every second square,
     . * . * . * . * . * . *
     * . * . * . * . * . * .
 
-In these coordinates X,Y are either both even or both odd.  The X axis and
-the diagonals X=Y and X=-Y divide the plane into six parts.  The diagonal
-X=3*Y is the middle of the first sixth, representing a twelfth of the plane.
+In these coordinates X and Y are either both even or both odd.  The X axis
+and the diagonals X=Y and X=-Y divide the plane into six parts.
+
+       X=-Y     X=Y
+         \     /
+          \   /
+           \ /
+    ----------------- X=0
+           / \
+          /   \
+         /     \
+
+
+The diagonal X=3*Y is the middle of the first sixth, representing a twelfth
+of the plane.
 
 The resulting triangles are a little flatter than they should be.  The base
-is width=2 and peak is height=1, where height=sqrt(3) would be equilateral
+is width=2 and top height=1, whereas height=sqrt(3) would be equilateral
 triangles.  That sqrt(3) factor can be applied if desired,
 
     X, Y*sqrt(3)          side length 2
       or
     X/2, Y*sqrt(3)/2      side length 1
 
-The integer Y values have the advantage of fitting pixels of the usual kind
-of raster screen, and not losing precision in floating point results.
+Integer Y values have the advantage of fitting pixels of the usual kind of
+raster screen, and not losing precision in floating point results.
 
 If doing a general-purpose coordinate rotation then be sure to apply the
 sqrt(3) scale factor first, or the rotation is wrong.  Rotations can be made
@@ -567,11 +585,12 @@ integers),
     (X+3Y)/2, (X-Y)/2       mirror across the X=3*Y twelfth line
 
 The sqrt(3) factor can be worked into a hypotenuse radial distance
-calculation as follows if comparing distances from the origin of points at
-different angles.  See for instance TriangularHypot taking triangular points
-by radial distance.
+calculation as follows if comparing distances from the origin.
 
     hypot = sqrt(X*X + 3*Y*Y)
+
+See for instance TriangularHypot taking triangular points in order of this
+radial distance.
 
 =head1 SEE ALSO
 
@@ -638,7 +657,8 @@ L<Math::PlanePath::Staircase>,
 L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>,
-L<Math::PlanePath::CellularRule54>
+L<Math::PlanePath::CellularRule54>,
+L<Math::PlanePath::UlamWarburton>
 
 L<Math::PlanePath::PythagoreanTree>,
 L<Math::PlanePath::RationalsTree>,

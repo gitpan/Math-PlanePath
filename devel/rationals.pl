@@ -18,12 +18,40 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-use 5.004;
+use 5.010;
 use strict;
 use POSIX ();
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+use Devel::Comments;
+
+{
+  require Math::PlanePath::RationalsTree;
+  my $path = Math::PlanePath::RationalsTree->new;
+  $, = ' ';
+  say $path->xy_to_n (9,8);
+  say $path->xy_to_n (2,3);
+  say $path->rect_to_n_range (9,8, 2,3);
+
+  exit 0;
+}
+
+{
+  require Math::PlanePath::RationalsTree;
+  my $path = Math::PlanePath::RationalsTree->new;
+  require Math::BigInt;
+  # my ($n_lo,$n_hi) = $path->xy_to_n (1000,0, 1500,200);
+  my $n = $path->xy_to_n (Math::BigInt->new(1000),1);
+  ### $n
+  ### n: "$n"
+
+  require Math::NumSeq::All;
+  my $seq = Math::NumSeq::All->new;
+  my $pred = $seq->pred($n);
+  ### $pred
+
+  exit 0;
+}
 
 {
   require Math::PlanePath::RationalsTree;

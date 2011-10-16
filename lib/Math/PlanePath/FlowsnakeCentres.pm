@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 # inherit new(), rect_to_n_range(), arms_count(), n_start(),
 # parameter_info_array()
@@ -244,7 +244,7 @@ sub xy_to_n {
   }
 
   my $level_limit = log($x*$x + 3*$y*$y + 1) * 0.835 * 2;
-  if (_is_infinite($x)) { return $level_limit; }
+  if (_is_infinite($level_limit)) { return $level_limit; }
 
   my @digits;
   my $arm;

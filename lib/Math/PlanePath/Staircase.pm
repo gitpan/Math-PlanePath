@@ -23,27 +23,35 @@ use List::Util 'max';
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
 
 # start from 0.5 back
-# d = [ 0, 1,  2, 3 ]
-# n = [ 1.5, 6.5, 15.5 ]
-# n = ((2*$d - 1)*$d + 0.5)
-# d = 1/4 + sqrt(1/2 * $n + -3/16)
+#     d = [ 0, 1,  2, 3 ]
+#     n = [ 1.5, 6.5, 15.5 ]
+#     n = ((2*$d - 1)*$d + 0.5)
+#     d = 1/4 + sqrt(1/2 * $n + -3/16)
+#
+# start from integer vertical
+#     d = [ 0, 1,  2, 3, 4 ]
+#     n = [ 1, 2, 7, 16, 29 ]
+#     n = ((2*$d - 1)*$d + 1)
+#     d = 1/4 + sqrt(1/2 * $n + -7/16)
+#       = [1 + sqrt(8*$n-7) ] / 4
 #
 sub n_to_xy {
   my ($self, $n) = @_;
   #### Staircase n_to_xy: $n
+
   if ($n < .5) { return; }
 
   my $d = int ((1 + sqrt(8*$n -3)) * .25);
@@ -64,6 +72,37 @@ sub n_to_xy {
     ### across
     return ($r-1+$if, 2*$d - $r);
   }
+
+
+
+
+
+  # my $int = int($n);  # BigFloat int() gives BigInt, use that
+  # $n -= $int;         # frac, preserving any BigFloat
+  # 
+  # if (2*$n >= 1) {  # $frac >= 0.5
+  #   $n -= 1;
+  #   $int += 1;
+  # }
+  # return if $int < 0;
+  # 
+  # my $d = int((sqrt(8*$int-7) + 1) / 4);
+  # #### $d
+  # #### d frac: ((sqrt(8*$int-7) + 1) / 4)
+  # #### base: ((2*$d - 1)*$d + 1)
+  # 
+  # $int -= ((2*$d - 1)*$d + 1);
+  # ### rem: $int
+  # 
+  # my $r = int($int/2);
+  # ### $r
+  # if ($int & 1) {
+  #   ### down: ($r,  -$n + 2*$d - $r)
+  #   return ($r,  -$n + 2*$d - $r);
+  # } else {
+  #   ### across: ($n + ($r-1),  2*$d - $r)
+  #   return ($n + ($r-1),  2*$d - $r);
+  # }
 }
 
 # d = [ 1  2, 3, 4 ]

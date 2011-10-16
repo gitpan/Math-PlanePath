@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 21 }
+BEGIN { plan tests => 36 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::Rows;
 # VERSION
 
 {
-  my $want_version = 47;
+  my $want_version = 48;
   ok ($Math::PlanePath::Rows::VERSION, $want_version, 'VERSION variable');
   ok (Math::PlanePath::Rows->VERSION,  $want_version, 'VERSION class method');
 
@@ -72,6 +72,33 @@ require Math::PlanePath::Rows;
   ok (join(',',@pnames), '');
 }
 
+
+#------------------------------------------------------------------------------
+# n_to_xy
+
+{
+  my @data = ([ 1, 0,0 ],
+              [ 2, 1,0 ],
+
+              [ 5, 4,0 ],
+              [ 6, 0,1 ],
+              [ 7, 1,1 ],
+
+             );
+  my $path = Math::PlanePath::Rows->new (width => 5);
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    ok ($got_x, $want_x, "x at n=$n");
+    ok ($got_y, $want_y, "y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    my $got_n = $path->xy_to_n ($x, $y);
+    ok ($got_n, $want_n, "n at x=$x,y=$y");
+  }
+}
 
 #------------------------------------------------------------------------------
 # rect_to_n_range()

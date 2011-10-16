@@ -20,11 +20,13 @@ package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use POSIX 'floor';
+
+# Math::Trig has asin_real() too, but it just runs the blob of code in
+# Math::Complex -- prefer libm
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -32,6 +34,7 @@ use Math::PlanePath;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant figure => 'circle';
 
@@ -168,7 +171,7 @@ sub _xy_to_d {
     return 1;
   }
   if (_is_infinite($r)) {
-    ### infinity avoid div-by-zero in 1/(2*$r)
+    ### avoid div-by-zero in 1/(2*$r) ...
     return $r;
   }
   ### $r
@@ -189,12 +192,12 @@ sub xy_to_n {
   my $step;
   if (($step = $self->{'step'})) {
     # formula above with r=hypot(x,y)
-    my $d = floor (0.5 + _xy_to_d ($self, $x, $y));
+    my $d = int (0.5 + _xy_to_d ($self, $x, $y));
 
     my $theta_frac = _xy_to_angle_frac($x,$y);
     ### assert: 0 <= $theta_frac && $theta_frac < 1
 
-    my $theta_n = floor (0.5 + $theta_frac * $d*$step);
+    my $theta_n = int (0.5 + $theta_frac * $d*$step);
     if ($theta_n >= $d*$step) { $theta_n = 0; }
 
     $n = 1 + $theta_n + $step * 0.5*$d*($d-1);
@@ -208,7 +211,7 @@ sub xy_to_n {
     ### $n
   } else {
     # step==0
-    $n = floor ($x + 0.5) + 1;
+    $n = int ($x + 1.5);
   }
 
   ### trial n: $n

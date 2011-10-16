@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -51,6 +51,7 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          maximum   => 4,
                                          default   => 1,
                                          width     => 1,
+                                         description => 'Arms',
                                        } ];
 sub new {
   my $class = shift;

@@ -2,20 +2,20 @@
 
 # Copyright 2011 Kevin Ryde
 
-# This file is part of Math-Planepath.
+# This file is part of Math-PlanePath.
 #
-# Math-Planepath is free software; you can redistribute it and/or modify
+# Math-PlanePath is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
 # version.
 #
-# Math-Planepath is distributed in the hope that it will be useful, but
+# Math-PlanePath is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
-# with Math-Planepath.  If not, see <http://www.gnu.org/licenses/>.
+# with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 use 5.004;
 use strict;
@@ -36,7 +36,7 @@ require Math::PlanePath::CoprimeColumns;
 # VERSION
 
 {
-  my $want_version = 47;
+  my $want_version = 48;
   ok ($Math::PlanePath::CoprimeColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CoprimeColumns->VERSION,  $want_version,
@@ -94,7 +94,7 @@ foreach my $elem ([ 1,1,  1 ],
 }
 
 #------------------------------------------------------------------------------
-# _totient_count()
+# _totient()
 
 foreach my $elem (
                   [ 1, 1 ], # 1 itself only
@@ -115,7 +115,7 @@ foreach my $x (1 .. 100) {
     $want += Math::PlanePath::CoprimeColumns::_coprime($x,$y);
   }
   my $got = Math::PlanePath::CoprimeColumns::_totient($x);
-  ok ($got, $want, "_totient_count($x) vs _coprime()");
+  ok ($got, $want, "_totient($x) vs _coprime()");
 }
 
 

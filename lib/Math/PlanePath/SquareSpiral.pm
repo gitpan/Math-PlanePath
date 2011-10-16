@@ -20,10 +20,10 @@ package Math::PlanePath::SquareSpiral;
 use 5.004;
 use strict;
 use List::Util qw(max);
-use POSIX 'floor', 'ceil';
+use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

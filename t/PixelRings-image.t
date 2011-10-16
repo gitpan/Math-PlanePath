@@ -27,7 +27,7 @@ MyTestHelpers::nowarnings();
 
 use Math::PlanePath::PixelRings;
 
-my $test_count = 2;
+my $test_count = (tests => 2)[1];
 plan tests => $test_count;
 
 if (! eval 'use Image::Base 1.09; 1') { # version 1.09 for ellipse fixes

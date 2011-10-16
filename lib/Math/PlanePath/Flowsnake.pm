@@ -35,7 +35,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 47;
+$VERSION = 48;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -57,6 +57,7 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          maximum   => 3,
                                          default   => 1,
                                          width     => 1,
+                                         description => 'Arms',
                                        } ];
 
 

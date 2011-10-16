@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 445 }
+BEGIN { plan tests => 452 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,20 +33,30 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
-                  SquareReplicate
+                  UlamWarburton
+                  CellularRule54
 
+                  RationalsTree
+                  CoprimeColumns
+                  TriangularHypot
+                  PythagoreanTree
+
+                  Rows
+                  Columns
+
+                  QuintetCentres
+                  QuintetCurve
+                  QuintetReplicate
+
+                  FlowsnakeCentres
                   GosperReplicate
                   GosperSide
                   GosperIslands
                   Flowsnake
-                  FlowsnakeCentres
 
-                  QuintetCurve
-                  QuintetCentres
-                  QuintetReplicate
-
+                  SquareReplicate
                   ComplexMinus
-                  RationalsTree
+                  ImaginaryBase
 
                   KochSquareflakes
                   KochSnowflakes
@@ -56,14 +66,12 @@ my @modules = qw(
                   SierpinskiArrowheadCentres
                   SierpinskiArrowhead
                   SierpinskiTriangle
-                  ImaginaryBase
                   QuadricCurve
                   QuadricIslands
 
                   DragonRounded
                   DragonMidpoint
                   DragonCurve
-                  CellularRule54
 
                   DiamondArms
                   SquareArms
@@ -81,10 +89,6 @@ my @modules = qw(
                   ZOrderCurve
                   HilbertCurve
 
-                  CoprimeColumns
-                  TriangularHypot
-                  PythagoreanTree
-
                   OctagramSpiral
                   Hypot
                   HypotOctant
@@ -101,9 +105,6 @@ my @modules = qw(
                   PyramidSpiral
                   TriangleSpiral
                   TriangleSpiralSkewed
-
-                  Rows
-                  Columns
 
                   SacksSpiral
                   TheodorusSpiral
@@ -129,7 +130,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 47;
+my $want_version = 48;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -450,7 +451,9 @@ sub pythagorean_diag {
                       undef $dxdy_allowed;
                     }
                     
-                    # MyTestHelpers::diag ($module);
+                    #
+                     MyTestHelpers::diag ($module);
+                    #
                     
                     my $limit = $default_limit;
                     if (defined $step) {
@@ -578,7 +581,7 @@ sub pythagorean_diag {
                       ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
                         or &$report("n_to_xy($pos_infinity) y is $y");
                     }
-
+                    
                     if (defined $neg_infinity) {
                       ### n_to_xy neg_infinity
                       my @xy = $path->n_to_xy($neg_infinity);
@@ -595,7 +598,7 @@ sub pythagorean_diag {
                           or &$report("n_to_xy($neg_infinity) xy is ",join(',',@xy));
                       }
                     }
-
+                    
                     # nan input documented loosely as yet ...
                     if (defined $nan) {
                       my @xy = $path->n_to_xy($nan);
@@ -611,8 +614,14 @@ sub pythagorean_diag {
                       &$is_nan($x) or &$report("n_to_xy($nan) x not nan, got ", $x);
                       &$is_nan($y) or &$report("n_to_xy($nan) y not nan, got ", $y);
                     }
-
-                    foreach my $x ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+                    
+                    foreach my $x
+                      ($pos_infinity, $neg_infinity,
+                       
+                       ($path->isa('Math::PlanePath::CoprimeColumns')
+                        ? ()
+                        : (dbl_max(), dbl_max_neg()))) {
+                      
                       next if ! defined $x;
                       foreach my $y ($pos_infinity, $neg_infinity) {
                         next if ! defined $y;
@@ -624,16 +633,27 @@ sub pythagorean_diag {
                         # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
                       }
                     }
-
-                    foreach my $x1 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+                    
+                    foreach my $x1
+                      ($pos_infinity, $neg_infinity,
+                       ($path->isa('Math::PlanePath::CoprimeColumns')
+                        ? ()
+                        : (dbl_max(), dbl_max_neg()))) {
                       next if ! defined $x1;
-                      foreach my $x2 ($pos_infinity, $neg_infinity, dbl_max(), dbl_max_neg()) {
+
+                      foreach my $x2 
+                        ($pos_infinity, $neg_infinity,
+                         ($path->isa('Math::PlanePath::CoprimeColumns')
+                          ? ()
+                          : (dbl_max(), dbl_max_neg()))) {
                         next if ! defined $x2;
+
                         foreach my $y1 ($pos_infinity, $neg_infinity) {
                           next if ! defined $y1;
+                        
                           foreach my $y2 ($pos_infinity, $neg_infinity) {
                             next if ! defined $y2;
-
+                            
                             my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
                             scalar(@nn) == 2
                               or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));

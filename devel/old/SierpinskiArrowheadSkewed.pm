@@ -23,7 +23,7 @@
 package Math::PlanePath::SierpinskiArrowheadSkewed;
 use 5.004;
 use strict;
-use POSIX qw(floor ceil);
+use POSIX qw(floor);
 
 use vars '$VERSION', '@ISA';
 $VERSION = 67;

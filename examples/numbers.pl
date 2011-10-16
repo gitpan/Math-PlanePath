@@ -112,6 +112,7 @@ my @all_classes = ('SquareSpiral',
 
                    'Rows',
                    'Columns',
+                   'UlamWarburton',
 
                    'PeanoCurve',
                    'PeanoCurve,radix=5',
