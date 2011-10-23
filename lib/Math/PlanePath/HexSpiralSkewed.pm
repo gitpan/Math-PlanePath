@@ -22,14 +22,14 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Devel::Comments;
 
 use Math::PlanePath::SquareSpiral;
 *parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
@@ -46,7 +46,8 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  #### n_to_xy: $n
+  ### HexSpiralSkewed n_to_xy(): $n
+
   if ($n < 1) { return; }
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
@@ -60,8 +61,8 @@ sub n_to_xy {
             0);
   }
 
-  my $d = int((sqrt(3*$n + ($w+2)*$w - 2) - 1 - $w) / 3);
-  #### d frac: (sqrt(3*$n + ($w+2)*$w - 2) - 1 - $w) / 3
+  my $d = int((sqrt(int(3*$n) + ($w+2)*$w - 2) - 1 - $w) / 3);
+  #### d frac: (sqrt(int(3*$n) + ($w+2)*$w - 2) - 1 - $w) / 3
   #### $d
   $n -= (3*$d + 2 + 2*$w)*$d + 1;
   #### remainder: $n
@@ -76,12 +77,12 @@ sub n_to_xy {
   if ($n <= $d-1) {
     #### right lower vertical, being 1 shorter: $n
     return ($d + $w_right,
-            -$d+1 + $n);
+            $n - $d + 1);
   }
   $n -= $d-1;
   if ($n <= $d) {
     #### right upper diagonal: $n
-    return ($d - $n + $w_right,
+    return (-$n + $d + $w_right,
             $n);
   }
   $n -= $d;
@@ -94,11 +95,11 @@ sub n_to_xy {
   if ($n <= $d) {
     #### left upper vertical
     return (-$d - $w_left,
-            $d - $n);
+            -$n + $d);
   }
   #### left lower diagonal
   $n -= $d;
-  return (-$d + $n - $w_left,
+  return ($n - $d - $w_left,
           -$n);
 }
 
@@ -153,7 +154,7 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### HexSpiralSkewed xy_to_n_range(): $x1,$y1, $x2,$y2
+  ### HexSpiralSkewed rect_to_n_range(): $x1,$y1, $x2,$y2
 
   my $w = $self->{'wider'};
   my $w_right = int($w/2);

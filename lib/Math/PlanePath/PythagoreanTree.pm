@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -365,7 +365,7 @@ sub rect_to_n_range {
   $x2 = _round_nearest ($x2);
   $y2 = _round_nearest ($y2);
 
-  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
@@ -465,7 +465,7 @@ __END__
 
 
 
-=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ
+=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's
 
 =head1 NAME
 
@@ -793,7 +793,7 @@ wasn't a primitive triple.
 =head2 Rectangle to N Range for UAD
 
 For the UAD tree, the smallest A,B within each level is found at the topmost
-"U" steps for the smallest A or the bottommost "D" steps for the smallest
+"U" steps for the smallest A or the bottom-most "D" steps for the smallest
 B.  For example in the table above of level 2, N=5..13, the smallest A is in
 the top A=7,B=24, and the smallest B is in the bottom A=35,B=12.  In general
 
@@ -842,7 +842,7 @@ an N range.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::Hypot>,
-L<Math::PlanePath::RationalsTree>
+L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>
 
 H. Lee Price, "The Pythagorean Tree: A New Species", 2008,

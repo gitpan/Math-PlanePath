@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 # inherit new(), rect_to_n_range(), arms_count(), n_start(),
 # parameter_info_array()
@@ -542,19 +542,19 @@ As described in L<Math::PlanePath::Flowsnake/Arms> the flowsnake essentially
 fills a hexagonal shape.  For this Centres variation the start of each arm
 corresponds to a little hexagon with the N=0 one at the origin, and the 1
 and 2 beside and below,
-        
-    ^ / \   / \  
-     \   \ /   \ 
+
+    ^ / \   / \
+     \   \ /   \
     | \   |     |
     |  1  |  0--->
     |     |     |
-     \   / \   / 
-      \ /   \ /  
-       |     |   
-       |  2  |   
-       | /   |   
-        /   / 
-      v  \ /  
+     \   / \   /
+      \ /   \ /
+       |     |
+       |  2  |
+       | /   |
+        /   /
+      v  \ /
 
 Like the main Flowsnake the sides of the arms mesh perfectly and three arms
 fill the plane.

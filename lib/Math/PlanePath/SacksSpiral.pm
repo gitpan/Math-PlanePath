@@ -16,6 +16,9 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# could loop by more or less, eg. 4*n^2 each time like a square spiral
+# (Kevin Vicklund at the_surprises_never_eend_the_u.php)
+
 package Math::PlanePath::SacksSpiral;
 use 5.004;
 use strict;
@@ -25,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

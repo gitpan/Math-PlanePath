@@ -29,7 +29,7 @@ use List::Util 'max';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -48,8 +48,10 @@ sub n_to_xy {
     }
   }
 
-  my $d = int (sqrt((1/8)*$n + (17/256)) + (7/16));
-  #### d frac: (sqrt(.125 * $n + 0.06640625) + 0.4375)
+  # sqrt() done in integers to avoid limited precision from Math::BigRat sqrt()
+  #
+  my $d = int ((sqrt(int(32*$n) + 17) + 7) / 16);
+  #### d frac: ((sqrt(int(32*$n) + 17) + 7) / 16)
   #### $d
 
   #### base: ((8*$d - 7)*$d + 1)
@@ -62,27 +64,27 @@ sub n_to_xy {
   $n -= 2*$d;
   if ($n < $d) {
     if ($n < 0) {
-      return ($d - $n,
+      return (- $n + $d,
               $d);
     } else {
       return ($d,
-              $d + $n);
+              $n + $d);
     }
   }
   $n -= 2*$d;
 
   if ($n < $d) {
     return (-$n,
-            $d+abs($n));
+            abs($n) + $d);
   }
   $n -= 2*$d;
 
   if ($n < $d) {
     if ($n < 0) {
       return (-$d,
-              $d - $n);
+              -$n + $d);
     } else {
-      return (-$d - $n,
+      return (-$n - $d,
               $d);
     }
   }
@@ -105,22 +107,23 @@ sub n_to_xy {
   $n -= 2*$d;
 
   if ($n < $d) {
-    return ($n, -$d - abs($n));
+    return ($n,
+            - abs($n) - $d);
   }
   $n -= 2*$d;
 
   if ($n < $d+1) {
     if ($n < 0) {
       return ($d,
-              -$d + $n);
+              $n - $d);
     } else {
-      return ($d + $n,
+      return ($n + $d,
               -$d);
     }
   }
 
   # $n >= $d+1 through to 2*$d+1
-  return (3*$d+2 - $n, -2*$d-1 + $n);
+  return (-$n + 3*$d+2, $n - 2*$d-1);
 }
 
 sub xy_to_n {

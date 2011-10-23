@@ -44,7 +44,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -104,7 +104,7 @@ sub n_to_xy {
   }
 
   # low to high
-  my $x = my $y = $n & 0;  # inherit BigInt 0
+  my $x = my $y = $n * 0;  # inherit BigInt 0
   my $power = $x + 1;      # inherit BigInt 1
   my $radix = $self->{'radix'};
   for (;;) {
@@ -176,7 +176,7 @@ sub xy_to_n {
 
   # my $radix = $self->{'radix'};
   # my $power = 1;
-  # my $xn = my $yn = ($x & 0); # inherit
+  # my $xn = my $yn = ($x * 0); # inherit
   # while ($x || $y) {
   #   {
   #     my $digit = $x % $radix;
@@ -197,7 +197,7 @@ sub xy_to_n {
   #   }
   # }
   #
-  # my $n = ($x & 0); # inherit
+  # my $n = ($x * 0); # inherit
   # $power = 1;
   # while ($xn || $yn) {
   #   $n += ($xn % $radix) * $power;
@@ -493,6 +493,49 @@ back by the same power of 3 (perhaps swapping X,Y for which one should be
 the first ternary digit).  Note that if T is a binary floating point then a
 power of 3 division will round off in general as 1/3 is not exactly
 representable.  See HilbertCurve or ZOrderCurve for binary mappings.
+
+=head2 Diagonal Lines
+
+The Peano curve is sometimes shown as
+
+         +-----+
+         |     |
+    -----+-----+-----
+         |     |
+         +-----+
+
+This is the same "S" pattern as above, but turned 45 degrees and with line
+segments on the diagonal through the squares, per the ".." lines in the
+following.
+
+    +--------+--------+--------+        +--------+--------+--------+
+    |     .. | ..     |     .. |        |        |        |        |
+    |6  ..   |7  ..   |8  ..   |        |    6--------7--------8   |
+    | ..     |     .. | ..     |        |    |   |        |        |
+    +--------+--------+--------+        +----|---+--------+--------+
+    | ..     |     .. | ..     |        |    |   |        |        |
+    |   ..  5|   ..  4|   ..  3|        |    5--------4--------3   |
+    |     .. | ..     |     .. |        |        |        |    |   |
+    +--------+--------+--------+        +--------+--------+----|---+
+    |     .. | ..     |     .. |        |        |        |    |   |
+    |0  ..   |1  ..   |2  ..   |        |    0--------1--------2   |
+    | ..     |     .. | ..     |        |        |        |        |
+    +--------+--------+--------+        +--------+--------+--------+
+
+Rounding off the corners of the diagonal form so they don't touch can help
+show the equivalence,
+
+      -----7        /
+     /      \      /
+    6        -----8
+    |
+    |        4-----
+     \      /      \
+      5-----        3
+                    |
+      -----1        |
+     /      \      /
+    0        -----2
 
 =head1 FUNCTIONS
 

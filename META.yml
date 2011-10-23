@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Math-PlanePath
-version:            48
+version:            49
 abstract:           Mathematical paths through the 2-D plane.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -33,10 +33,11 @@ meta-spec:
 maximum_tests:
     description:  Have "make test" do as much as possible.
     requires:
-        Data::Float:     0
-        Math::BigFloat:  1.993
-        Math::BigInt:    0
-        Math::BigRat:    0
+        Data::Float:         0
+        Math::BigFloat:      1.993
+        Math::BigInt:        0
+        Math::BigInt::Lite:  0
+        Math::BigRat:        0
 optional_features:
     maximum_devel:
         description:  Stuff used variously in development.

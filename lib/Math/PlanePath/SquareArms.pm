@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -83,7 +83,7 @@ sub n_to_xy {
 
   $rot += ($d % 4);
   my $x = $d + 1;
-  my $y = $n - $d + $frac;
+  my $y = $frac + $n - $d;
 
   $rot %= 4;
   if ($rot & 2) {
@@ -261,7 +261,7 @@ of limited use, but arises fairly naturally from the calculation.
 
 =back
 
-=head2 FORMULAS
+=head1 FORMULAS
 
 =head2 Rectangle N Range
 

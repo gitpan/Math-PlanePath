@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -112,8 +112,8 @@ sub n_to_xy {
     return (0, $n-1);
   }
   my $neg_b = ($step-2) * 0.5;
-  my $d = int (($neg_b + sqrt(2*$step*$n + $neg_b*$neg_b - $step)) / $step);
-  ### s frac: (($neg_b + sqrt(2*$step*$n + $neg_b*$neg_b - $step)) / $step)
+  my $d = int (($neg_b + sqrt(int(2*$step*$n) + $neg_b*$neg_b - $step)) / $step);
+  ### s frac: (($neg_b + sqrt(int(2*$step*$n) + $neg_b*$neg_b - $step)) / $step)
   ### $d
   ### rem: $n - (($step * $d*$d - ($step-2)*$d + 1) / 2)
 

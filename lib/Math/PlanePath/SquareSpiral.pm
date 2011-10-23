@@ -16,6 +16,15 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# http://mathworld.wolfram.com/PrimeSpiral.html
+#
+# Mark C. Chu-Carroll "The Surprises Never Eend: The Ulam Spiral of Primes"
+# http://scienceblogs.com/goodmath/2010/06/the_surprises_never_eend_the_u.php
+#
+# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/index.html
+# including image highlighting the lines
+
 package Math::PlanePath::SquareSpiral;
 use 5.004;
 use strict;
@@ -23,7 +32,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -127,8 +136,8 @@ sub n_to_xy {
             0);
   }
 
-  my $d = int ((2-$w + sqrt(4*$n + $w*$w - 4)) / 4);
-  #### d frac: ((2-$w + sqrt(4*$n + $w*$w - 4)) / 4)
+  my $d = int ((2-$w + sqrt(int(4*$n) + $w*$w - 4)) / 4);
+  #### d frac: ((2-$w + sqrt(int(4*$n) + $w*$w - 4)) / 4)
   #### $d
 
   #### base: 4*$d*$d + (-4+2*$w)*$d + (2-$w)
@@ -139,7 +148,7 @@ sub n_to_xy {
     if ($n <= 2*$d) {
       ### left vertical
       return (-$d - $w_left,
-              $d - $n);
+              -$n + $d);
     } else {
       ### bottom horizontal
       return ($n - $w_left - 3*$d,
@@ -148,7 +157,7 @@ sub n_to_xy {
   } else {
     if ($n >= -2*$d-$w) {
       ### top horizontal
-      return (-$d - $w_left - $n,
+      return (-$n - $d - $w_left,
               $d);
     } else {
       ### right vertical
@@ -269,7 +278,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal
+=for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal
 
 =head1 NAME
 
@@ -291,16 +300,16 @@ This path makes a square spiral,
      |   |               |   |
     39  18   5---4---3  12  29              1
      |   |   |       |   |   |
-    40  19   6   1---2  11  28  ...    <- y=0
+    40  19   6   1---2  11  28  ...    <- Y=0
      |   |   |           |   |   |
     41  20   7---8---9--10  27  52         -1
      |   |                   |   |
     42  21--22--23--24--25--26  51         -2
      |                           |
-    43--44--45--46--47--48--49--50
+    43--44--45--46--47--48--49--50         -3
 
                  ^
-    -3  -2  -1  x=0  1   2   3
+    -3  -2  -1  X=0  1   2   3   4
 
 See F<examples/square-numbers.pl> in the sources for a simple program
 printing these numbers.
@@ -340,19 +349,19 @@ gives
      |                           |
     30  11--10-- 9-- 8-- 7-- 6  21        1
      |   |                   |   |
-    31  12   1-- 2-- 3-- 4-- 5  20   <- y=0
+    31  12   1-- 2-- 3-- 4-- 5  20   <- Y=0
      |   |                       |
     32  13--14--15--16--17--18--19       -1
      |
     33--34--35--36-...                   -2
 
                      ^
-    -4  -3  -2  -1  x=0  1   2   3
+    -4  -3  -2  -1  X=0  1   2   3
 
 The centre horizontal 1 to 2 is extended by C<wider> many further places,
 then the path loops around that shape.  The starting point 1 is shifted to
-the left by wider/2 places (rounded up to an integer) to keep the spiral
-centred on the origin x=0,y=0.
+the left by ceil(wider/2) places to keep the spiral centred on the origin
+x=0,y=0.
 
 Widening doesn't change the nature of the straight lines which arise, it
 just rotates them around.  For example in this wider=3 example the perfect
@@ -405,6 +414,137 @@ in the path as centred in a square of side 1, so the entire plane is
 covered.
 
 =back
+
+=head1 FORMULAS
+
+=head2 N to X,Y
+
+There's a few ways to break an N into a side and offset into the side.  One
+convenient way is to treat a loop as starting at the bottom right corner, so
+N=2,10,26,50,etc,  If the first at N=2 is reckoned loop number d=1 then
+
+    Nbase = 4*d^2 - 4*d + 2
+
+For example d=3 is Nbase=4*3^2-4*3+2=26 at X=3,Y=-2.  The biggest d with
+Nbase E<lt>= N can be found by inverting with the usual quadratic formula
+
+    d = floor (1/2 + sqrt(N/4 - 1/4))
+
+For Perl it's good to keep the sqrt argument an integer (when a UV integer
+is bigger than an NV float, and for BigRat accuracy), so rearranging
+
+    d = floor ((1+sqrt(N-1)) / 2)
+
+So Nbase from this d leaves a remainder which is an offset into the loop
+
+    Nrem = N - Nbase
+         = N - (4*d^2 - 4*d + 2)
+
+The loop starts at X=d,Y=d-1 and has sides length 2d, 2d+1, 2d+1 and 2d+2,
+
+             2d      
+         +------------+        <- Y=d
+         |            |
+    2d   |            |  2d-1
+         |     .      |
+         |            |
+         |            + X=d,Y=-d+1
+         |
+         +---------------+     <- Y=-d
+             2d+1
+
+         ^
+       X=-d
+
+The X,Y for an Nrem is then
+
+     side      Nrem range            X,Y result
+     ----      ----------            ----------
+    right           Nrem <= 2d-1     X = d
+                                     Y = -d+1+Nrem
+    top     2d-1 <= Nrem <= 4d-1     X = d-(Nrem-(2d-1)) = 3d-1-Nrem
+                                     Y = d
+    left    4d-1 <= Nrem <= 6d-1     X = -d
+                                     Y = d-(Nrem-(4d-1)) = 5d-1-Nrem
+    bottom  6d-1 <= Nrem             X = -d+(Nrem-(6d-1)) = -7d+1+Nrem
+                                     Y = -d
+
+The corners Nrem=2d-1, Nrem=4d-1 and Nrem=6d-1 get the same result from the
+two sides that meet so it doesn't matter if the high comparison is "E<lt>"
+or "E<lt>=".
+
+The bottom edge runs through to Nrem E<lt> 8d, but there's no need to
+check that since d=floor(sqrt()) above ensures Nrem is within the loop.
+
+A small simplification can be had by subtracting an extra 4d-1 from Nrem to
+make negatives for the right and top sides and positives for the left and
+bottom.
+
+    Nsig = N - Nbase - (4d-1)
+         = N - (4*d^2 - 4*d + 2) - (4d-1)
+         = N - (4*d^2 + 1)
+
+     side      Nsig range            X,Y result
+     ----      ----------            ----------
+    right           Nsig <= -2d      X = d
+                                     Y = d+(Nsig+2d) = 3d+Nsig
+    top      -2d <= Nsig <= 0        X = -d-Nsig
+                                     Y = d
+    left       0 <= Nsig <= 2d       X = -d
+                                     Y = d-Nsig
+    bottom    2d <= Nsig             X = -d+1+(Nsig-(2d+1)) = Nsig-3d
+                                     Y = -d
+
+=head2 N to X,Y with Wider
+
+With the C<wider> parameter stretching the spiral loops the formulas above
+become
+
+    Nbase = 4*d^2 + (-4+2w)*d + 2-w
+
+    d = floor ((2-w + sqrt(4N + w^2 - 4)) / 4)
+
+Notice for Nbase the w is a term 2*w*d, being an extra 2*w for each loop.
+
+The left offset ceil(w/2) described above (L</Wider>) for the N=1 starting
+position is written here as wl, and the other half wr arises too,
+
+    wl = ceil(w/2)
+    wr = floor(w/2) = w - wl
+
+The horizontal lengths increase by w, and positions shift by wl or wr, but
+the verticals are unchanged.
+
+             2d+w      
+         +------------+        <- Y=d
+         |            |
+    2d   |            |  2d-1
+         |     .      |
+         |            |
+         |            + X=d+wr,Y=-d+1
+         |
+         +---------------+     <- Y=-d
+             2d+1+w
+
+         ^
+       X=-d-wl
+
+The Nsig formulas then have w, wl or wr variously inserted.  In all cases if
+w=wl=wr=0 then they simplify to the plain versions.
+
+    Nsig = N - Nbase - (4d-1+w)
+         = N - ((4d + 2w)*d + 1)
+
+     side      Nsig range            X,Y result
+     ----      ----------            ----------
+    right         Nsig <= -(2d+w)    X = d+wr
+                                     Y = d+(Nsig+2d+w) = 3d+w+Nsig
+    top      -(2d+w) <= Nsig <= 0    X = -d-wl-Nsig
+                                     Y = d
+    left       0 <= Nsig <= 2d       X = -d-wl
+                                     Y = d-Nsig
+    bottom    2d <= Nsig             X = -d+1-wl+(Nsig-(2d+1)) = Nsig-wl-3d
+                                     Y = -d
 
 =head1 SEE ALSO
 

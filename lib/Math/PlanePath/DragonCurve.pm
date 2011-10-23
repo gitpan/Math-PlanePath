@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -85,6 +85,8 @@ sub n_to_xy {
     $n = $int;          # BigFloat int() gives BigInt, use that
   }
 
+  my $zero = ($n * 0);  # inherit bignum 0
+
   # initial rotation from arm number $n mod $arms
   my $arms = $self->{'arms'};
   my $rot = $n % $arms;
@@ -94,7 +96,7 @@ sub n_to_xy {
   my @sx;
   my @sy;
   {
-    my $sy = ($n&0);  # inherit BigInt
+    my $sy = $zero;   # inherit BigInt
     my $sx = $sy + 1; # inherit BigInt
     ### $sx
     ### $sy
@@ -113,8 +115,8 @@ sub n_to_xy {
 
   ### @digits
   my $rev = 0;
-  my $x = 0;
-  my $y = 0;
+  my $x = $zero;
+  my $y = $zero;
   while (defined (my $digit = pop @digits)) {
     my $sx = pop @sx;
     my $sy = pop @sy;
@@ -149,8 +151,8 @@ sub n_to_xy {
   }
 
   $rot &= 3;
-  $x += $frac * $rot_to_sx[$rot];
-  $y += $frac * $rot_to_sy[$rot];
+  $x = $frac * $rot_to_sx[$rot] + $x;
+  $y = $frac * $rot_to_sy[$rot] + $y;
 
   ### final: "$x,$y"
   return ($x,$y);

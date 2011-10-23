@@ -20,10 +20,9 @@ package Math::PlanePath::Staircase;
 use 5.004;
 use strict;
 use List::Util 'max';
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -54,23 +53,25 @@ sub n_to_xy {
 
   if ($n < .5) { return; }
 
-  my $d = int ((1 + sqrt(8*$n -3)) * .25);
+  my $d = int ((1 + sqrt(8*$n-3)) / 4);
   #### $d
-  #### d frac: ((1 + sqrt(8*$n -3)) * .25)
+  #### d frac: ((1 + sqrt(8*$n-3)) / 4)
   #### base: ((2*$d - 1)*$d + 0.5)
 
   $n -= (2*$d - 1)*$d;
   ### rem: $n
 
-  my $i = floor($n);
-  my $if = $n - $i;
-  my $r = int($i/2);
-  if ($i & 1) {
+  my $int = int($n);
+  my $frac = $n - $int;
+  my $r = int($int/2);
+  if ($int & 1) {
     ### down
-    return ($r, 2*$d - $r - $if);
+    return ($r,
+            -$frac + 2*$d - $r);
   } else {
     ### across
-    return ($r-1+$if, 2*$d - $r);
+    return ($frac + $r-1,
+            2*$d - $r);
   }
 
 
@@ -127,23 +128,21 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### Staircase xy_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### Staircase rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = _round_nearest ($x1);
   $y1 = _round_nearest ($y1);
   $x2 = _round_nearest ($x2);
   $y2 = _round_nearest ($y2);
 
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x2 > x1
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y2 > y1
   if ($x2 < 0 || $y2 < 0) {
     return (1, 0);   # nothing in first quadrant
   }
 
-  $x1 = max (0, $x1);
-  $y1 = max (0, $y1);
-  $x2 = max (0, $x2);
-  $y2 = max (0, $y2);
+  if ($x1 < 0) { $x1 &= 0; }
+  if ($y1 < 0) { $y1 &= 0; }
   my $y_min = $y1;
 
   if ((($x1 ^ $y1) & 1) && $y1 < $y2) {  # y2==y_max
@@ -154,13 +153,14 @@ sub rect_to_n_range {
     $y2--;
     ### y2 dec: $y2
   }
-  return ($self->xy_to_n($x1,$y1), $self->xy_to_n($x2,$y2));
+  return ($self->xy_to_n($x1,$y1),
+          $self->xy_to_n($x2,$y2));
 }
 
 1;
 __END__
 
-=for stopwords SquareSpiral eg Staircase PlanePath Ryde Math-PlanePath HexSpiralSkewed ascii
+=for stopwords SquareSpiral eg Staircase PlanePath Ryde Math-PlanePath HexSpiralSkewed ascii Legendre's
 
 =head1 NAME
 

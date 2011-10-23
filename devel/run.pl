@@ -37,7 +37,6 @@ use List::Util qw(min max);
   require Math::PlanePath::KochCurve;
   require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
-  require Math::PlanePath::MathImageSierpinskiCurve;
   require Math::PlanePath::QuintetCurve;
   require Math::PlanePath::DragonCurve;
   require Math::PlanePath::DragonMidpoint;
@@ -57,13 +56,16 @@ use List::Util qw(min max);
   require Math::PlanePath::KochSquareflakes;
   require Math::PlanePath::Corner;
   require Math::PlanePath::GosperReplicate;
-  require Math::PlanePath::MathImageDigitGroups;
   require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::RationalsTree;
-  require Math::PlanePath::UlamWarburton;
   require Math::PlanePath::MathImageCellularRule246;
   require Math::PlanePath::MathImageDivisibleColumns;
-  my $path = Math::PlanePath::MathImageDivisibleColumns->new
+  require Math::PlanePath::AztecDiamondRings;
+  require Math::PlanePath::DiamondSpiral;
+  require Math::PlanePath::UlamWarburtonQuarter;
+  require Math::PlanePath::SierpinskiCurve;
+  require Math::PlanePath::MathImageDigitGroups;
+  my $path = Math::PlanePath::MathImageDigitGroups->new
     (divisor_type => 'proper',
      inward => 0,
      radix => 3,
@@ -72,9 +74,9 @@ use List::Util qw(min max);
      # step => 0,
      tree_type => 'Drib',
      #coordinates => 'PQ',
-     arms => 3,
-     straight_spacing => 0,
-     diagonal_spacing => 0,
+     # arms => 3,
+     straight_spacing => 1,
+     diagonal_spacing => 5,
     );
   my ($prev_x, $prev_y);
   my %seen;
@@ -91,7 +93,7 @@ use List::Util qw(min max);
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 5000; $i++) {
 
-  for (my $i = $n_start+0; $i <= 20; $i+=1) {
+  for (my $i = $n_start+0; $i <= 10; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

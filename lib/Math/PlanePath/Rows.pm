@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -68,8 +68,8 @@ sub n_to_xy {
 
   my $y = int ($int / $width);
   $int -= $y*$width;
-  if ($int < 0) {
-    $int += $width;    # int($int/$width) rounds up when $int negative
+  if ($int < 0) {    # ensure round down when $int negative
+    $int += $width;
     $y -= 1;
   }
   ### floor y: $y
@@ -112,7 +112,7 @@ sub rect_to_n_range {
   ### assert: $y1<=$y2
 
   if ($x1 < 0) { $x1 &= 0; }                        # preserve bigint
-  if ($x2 >= $width) { $x2 = ($x2&0) + $width-1; }  # preserve bigint
+  if ($x2 >= $width) { $x2 = ($x2 * 0) + $width-1; }  # preserve bigint
 
   ### rect exact on: "$x1,$y1  $x2,$y2"
 

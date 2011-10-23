@@ -26,7 +26,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -108,6 +108,8 @@ sub n_to_xy {
     $n = $int;          # BigFloat int() gives BigInt, use that
   }
 
+  my $zero = ($n * 0);  # inherit bignum 0
+
   my $arms = $self->{'arms'};
   my $rot = $n % $arms;
   $n = int($n/$arms);
@@ -117,8 +119,8 @@ sub n_to_xy {
   my @sx;
   my @sy;
   {
-    my $sx = 1;
-    my $sy = -1;
+    my $sx = $zero + 1;
+    my $sy = -$sx;
     while ($n) {
       push @digits, ($n % 2);
       push @sx, $sx;
@@ -133,8 +135,8 @@ sub n_to_xy {
 
   ### @digits
   my $rev = 0;
-  my $x = 0;
-  my $y = 0;
+  my $x = $zero;
+  my $y = $zero;
   my $above_low_zero = 0;
 
   for (my $i = $#digits; $i >= 0; $i--) {     # high to low
@@ -195,9 +197,9 @@ sub n_to_xy {
   }
   $above_low_zero ^= ($rot & 1);
   if ($above_low_zero) {
-    $y += $frac;
+    $y = $frac + $y;
   } else {
-    $x += $frac;
+    $x = $frac + $x;
   }
 
   ### rotated offset: "$x_offset,$y_offset   return $x,$y"

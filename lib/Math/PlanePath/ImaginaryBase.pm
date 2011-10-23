@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -214,7 +214,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix
 
 =head1 NAME
 
@@ -229,7 +229,7 @@ Math::PlanePath::ImaginaryBase -- replications in four directions
 =head1 DESCRIPTION
 
 This is a simple pattern arising from complex numbers expressed in a base
-i*sqrt(2) and other i*sqrt(r) bases.  The default r=2 gives
+i*sqrt(2) or other i*sqrt(r) bases.  The default r=2 gives
 
     38   39   34   35   54   55   50   51        5
     36   37   32   33   52   53   48   49        4
@@ -242,12 +242,7 @@ i*sqrt(2) and other i*sqrt(r) bases.  The default r=2 gives
                ^
     -2   -1   X=0   1    2    3    4    5
 
-After N=0 at the origin, N=1 is to the right.  Then that little 2x1 block is
-repeated above as N=2 and N=3.  Then that 2x2 pattern repeated to the right
-as N=4 to N=7, 4x2 repeated below N=8 to N=16, and 4x4 block to the right
-again as N=16 to N=31.  Each repeat is 90 degrees further around each time,
-and just a simple offset so the same orientation and relative layout within
-the repetition.
+The pattern can be seen by dividing into blocks as follows,
 
     +---------------------------------------+
     | 38   39   34   35   54   55   50   51 |
@@ -267,8 +262,16 @@ the repetition.
     | 12   13    8    9 | 28   29   24   25 |
     +-------------------+-------------------+
 
-This arises from representing a complex number in "base" b=i*sqrt(r) with
-digits a[i] in the range 0 to r-1.  For integer X,Y,
+After N=0 at the origin, N=1 is to the right.  Then that little 2x1 block is
+repeated above as N=2 and N=3.  Then that 2x2 repeated to the right as N=4
+to N=7, then 4x2 repeated below N=8 to N=16, and 4x4 to the right as N=16 to
+N=31, etc.  Each repeat is 90 degrees further around, and just at an offset
+so the same orientation and relative layout within the repetition.
+
+=head2 Complex Base
+
+This pattern arises from representing a complex number in "base" b=i*sqrt(r)
+with digits a[i] in the range 0 to r-1.  For integer X,Y,
 
     X+Y*i*sqrt(r) = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
@@ -276,16 +279,16 @@ and N is a base-r integer
 
     N = a[n]*r^n + ... + a[2]*r^2 + a[1]*r + a[0]
 
-The factor sqrt(r) makes the generated Y an integer.  In actual use that
-factor can be omitted and fractional digits a[-1]*r^-1 etc used to reach
-smaller Y values, as for example Knuth's "quater-imaginary" system of base
-2*i (which is i*sqrt(4)) and digits 0,1,2,3.
+The factor sqrt(r) makes the generated Y an integer.  For actual use as a
+number base that factor can be omitted and instead fractional digits
+a[-1]*r^-1 etc used to reach smaller Y values, as for example in Knuth's
+"quater-imaginary" system of base 2*i, ie. i*sqrt(4), with digits 0,1,2,3.
 
 The powers of i in the base give the replication direction, so i^0=1 right,
 i^1=i up, i^2=-1 right, i^3=-i down, etc.  The sqrt(r) part then spreads the
 replication in the respective direction.  It takes two steps to repeat
 horizontally and sqrt(r)^2=r hence the doubling of 1x1 to the right, 2x2 to
-the left, 4x4 to the left, etc, and similarly vertically.
+the left, 4x4 to the right, etc, and similarly vertically.
 
 The pattern can be compared to the ZOrderCurve.  In Z-Order the replications
 are alternately right and above, but here they progress through four

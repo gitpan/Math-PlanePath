@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 37 }
+BEGIN { plan tests => 157 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiArrowhead;
 # VERSION
 
 {
-  my $want_version = 48;
+  my $want_version = 49;
   ok ($Math::PlanePath::SierpinskiArrowhead::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiArrowhead->VERSION,  $want_version,
@@ -160,6 +160,31 @@ require Math::PlanePath::SierpinskiArrowhead;
     }
   }
   ok ($bad, 0, "xy_to_n() coverage, $count points");
+}
+
+#------------------------------------------------------------------------------
+# random fracs
+
+{
+  my $path = Math::PlanePath::SierpinskiArrowhead->new;
+  for (1 .. 20) {
+    my $bits = int(rand(20));         # 0 to 20, inclusive
+    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+
+    my ($x1,$y1) = $path->n_to_xy ($n);
+    my ($x2,$y2) = $path->n_to_xy ($n+1);
+
+    foreach my $frac (0.25, 0.5, 0.75) {
+      my $want_xf = $x1 + ($x2-$x1)*$frac;
+      my $want_yf = $y1 + ($y2-$y1)*$frac;
+
+      my $nf = $n + $frac;
+      my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
+
+      ok ($got_xf, $want_xf, "n_to_xy($n) frac $frac, x");
+      ok ($got_yf, $want_yf, "n_to_xy($n) frac $frac, y");
+    }
+  }
 }
 
 exit 0;

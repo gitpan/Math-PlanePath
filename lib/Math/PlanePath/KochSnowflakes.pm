@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -93,9 +93,7 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  my $level = _log4_floor($n);
-  my $base = 1 << (2*$level);  # 4**$level
-
+  my ($base, $level) = _round_down_pow ($n, 4);
   ### $level
   ### $base
   ### next base would be: 4**($level+1)
@@ -112,14 +110,18 @@ sub n_to_xy {
   ### $side
   ### $rem
   $rem -= $side*$base;
+
   ### assert: $side >= 0 && $side < 3
+
   my ($x, $y) = Math::PlanePath::KochCurve->n_to_xy ($rem);
+  ### $x
+  ### $y
 
   my $len = 3**($level-1);
   if ($side < 1) {
     ### horizontal rightwards
     return ($x - 3*$len,
-            -$len - $y);
+            -$y - $len);
   } elsif ($side < 2) {
     ### right slope upwards
     return (($x-3*$y)/-2 + 3*$len,  # flip vert and rotate +120

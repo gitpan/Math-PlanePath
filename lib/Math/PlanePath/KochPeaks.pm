@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -118,7 +118,7 @@ sub n_to_xy {
   my $base = $level + (2*$side + 1)/3;
   ### $level
   ### $base
-  if ($n+.5 < $base) {
+  if (2*$n+1 < 2*$base) {
     $level--;
     $side /= 4;
     $base = $level + (2*$side + 1)/3;

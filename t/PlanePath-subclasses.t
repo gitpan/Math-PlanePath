@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 452 }
+BEGIN { plan tests => 480 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,13 +33,40 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = qw(
-                  UlamWarburton
-                  CellularRule54
-
+                  DivisibleColumns
                   RationalsTree
                   CoprimeColumns
                   TriangularHypot
                   PythagoreanTree
+
+                  SquareSpiral
+                  DiamondSpiral
+                  PentSpiral
+                  PentSpiralSkewed
+                  HexSpiral
+                  HexSpiralSkewed
+                  HeptSpiralSkewed
+                  PyramidSpiral
+                  TriangleSpiral
+                  TriangleSpiralSkewed
+
+                  Corner
+                  Diagonals
+                  PyramidRows
+                  PyramidSides
+                  Staircase
+                  File
+
+                  SierpinskiCurve
+                  UlamWarburton
+                  UlamWarburtonQuarter
+                  CellularRule54
+
+                  AztecDiamondRings
+                  DiamondArms
+                  SquareArms
+                  HexArms
+                  GreekKeySpiral
 
                   Rows
                   Columns
@@ -73,18 +100,6 @@ my @modules = qw(
                   DragonMidpoint
                   DragonCurve
 
-                  DiamondArms
-                  SquareArms
-                  HexArms
-                  GreekKeySpiral
-
-                  File
-                  Diagonals
-                  Corner
-                  PyramidRows
-                  PyramidSides
-                  Staircase
-
                   PeanoCurve
                   ZOrderCurve
                   HilbertCurve
@@ -94,17 +109,6 @@ my @modules = qw(
                   HypotOctant
                   PixelRings
                   MultipleRings
-
-                  SquareSpiral
-                  DiamondSpiral
-                  PentSpiral
-                  PentSpiralSkewed
-                  HexSpiral
-                  HexSpiralSkewed
-                  HeptSpiralSkewed
-                  PyramidSpiral
-                  TriangleSpiral
-                  TriangleSpiralSkewed
 
                   SacksSpiral
                   TheodorusSpiral
@@ -130,7 +134,7 @@ my @classes = map {"Math::PlanePath::$_"} @modules;
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 48;
+my $want_version = 49;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -203,6 +207,7 @@ my %rect_exact = ('Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::FlowsnakeCentres' => 1,
                   'Math::PlanePath::QuintetCurve' => 1,
                   'Math::PlanePath::QuintetCentres' => 1,
+                  'Math::PlanePath::AztecDiamondRings' => 1,
                  );
 my %rect_exact_hi = (%rect_exact,
                      # high is exact but low is not
@@ -452,7 +457,7 @@ sub pythagorean_diag {
                     }
                     
                     #
-                     MyTestHelpers::diag ($module);
+                    # MyTestHelpers::diag ($module);
                     #
                     
                     my $limit = $default_limit;
@@ -619,6 +624,7 @@ sub pythagorean_diag {
                       ($pos_infinity, $neg_infinity,
                        
                        ($path->isa('Math::PlanePath::CoprimeColumns')
+                        || $path->isa('Math::PlanePath::DivisibleColumns')
                         ? ()
                         : (dbl_max(), dbl_max_neg()))) {
                       
@@ -637,20 +643,22 @@ sub pythagorean_diag {
                     foreach my $x1
                       ($pos_infinity, $neg_infinity,
                        ($path->isa('Math::PlanePath::CoprimeColumns')
+                        || $path->isa('Math::PlanePath::DivisibleColumns')
                         ? ()
                         : (dbl_max(), dbl_max_neg()))) {
                       next if ! defined $x1;
-
-                      foreach my $x2 
+                      
+                      foreach my $x2
                         ($pos_infinity, $neg_infinity,
                          ($path->isa('Math::PlanePath::CoprimeColumns')
+                          || $path->isa('Math::PlanePath::DivisibleColumns')
                           ? ()
                           : (dbl_max(), dbl_max_neg()))) {
                         next if ! defined $x2;
-
+                        
                         foreach my $y1 ($pos_infinity, $neg_infinity) {
                           next if ! defined $y1;
-                        
+                          
                           foreach my $y2 ($pos_infinity, $neg_infinity) {
                             next if ! defined $y2;
                             
@@ -662,7 +670,7 @@ sub pythagorean_diag {
                         }
                       }
                     }
-
+                    
                     my %saw_n_to_xy;
                     my %count_n_to_xy;
                     my $got_x_negative = 0;
@@ -673,10 +681,10 @@ sub pythagorean_diag {
                         or next;
                       defined $x or &$report("n_to_xy($n) X undef");
                       defined $y or &$report("n_to_xy($n) Y undef");
-
+                      
                       if ($x < 0) { $got_x_negative = 1; }
                       if ($y < 0) { $got_y_negative = 1; }
-
+                      
                       my $k = (int($x) == $x && int($y) == $y
                                ? sprintf('%d,%d', $x,$y)
                                : sprintf('%.3f,%.3f', $x,$y));
@@ -684,7 +692,7 @@ sub pythagorean_diag {
                         &$report ("n_to_xy($n) duplicate$count_n_to_xy{$k} xy=$k prev n=$saw_n_to_xy{$k}");
                       }
                       $saw_n_to_xy{$k} = $n;
-
+                      
                       if ($dxdy_allowed) {
                         if (defined $prev_x) {
                           my $dx = $x - $prev_x;
@@ -695,7 +703,7 @@ sub pythagorean_diag {
                         }
                         ($prev_x, $prev_y) = ($x, $y);
                       }
-
+                      
                       {
                         my ($n_lo, $n_hi) = $path->rect_to_n_range
                           (0,0,
@@ -710,7 +718,7 @@ sub pythagorean_diag {
                         $n_hi == int($n_hi)
                           or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi, integer");
                         $n_lo >= $n_start
-                          or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
+                          or &$report ("rect_to_n_range(0,0,$x,$y)+.4 n_lo=$n_lo is before n_start=$n_start");
                       }
                       {
                         my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
@@ -725,7 +733,7 @@ sub pythagorean_diag {
                         $n_lo >= $n_start
                           or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
                       }
-
+                      
                       unless ($xy_maximum_duplication > 0) {
                         foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
                           foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {

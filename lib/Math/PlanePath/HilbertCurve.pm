@@ -37,7 +37,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -45,7 +45,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -93,6 +93,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### HilbertCurve n_to_xy(): $n
   ### hex: sprintf "%#X", $n
+
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
@@ -108,9 +109,10 @@ sub n_to_xy {
       my $dy = $y2-$y1;
       return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
+    $n = $int;
   }
 
-  my $x = my $y = ($n & 0); # inherit
+  my $x = my $y = ($n * 0); # inherit
 
   my $invert = $x; # inherit
   my $add = 1;
@@ -161,7 +163,7 @@ sub xy_to_n {
   if ($x < 0 || $y < 0) {
     return undef;
   }
-  my $n = ($x & 0); # inherit
+  my $n = ($x * 0); # inherit
 
   my $pos = 0;
   {
@@ -233,7 +235,7 @@ sub rect_to_n_range {
   my $n_min = my $n_max
     = my $x_min = my $y_min
       = my $x_max = my $y_max
-        = ($x1 & 0); # 0 inherit
+        = ($x1 * 0); # 0 inherit
 
   my $pos = 0;
   my $bit = $n_min + 2;  # inherit
@@ -397,7 +399,7 @@ __END__
 #   }
 #   # $n = floor ($n - 0.5);
 # 
-#   my $x = my $y = ($n & 0); # inherit
+#   my $x = my $y = ($n * 0); # inherit
 #   my $pos = 0;
 #   {
 #     my $pow = $x + 4;        # inherit

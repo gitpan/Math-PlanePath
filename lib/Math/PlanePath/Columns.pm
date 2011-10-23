@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -58,7 +58,7 @@ sub n_to_xy {
     $frac = $n - $int;   # inherit possible BigFloat
     if (2*$frac >= 1) {  # $frac >= 0.5
       $frac -= 1;
-    $n = $int; # n-1, BigFloat int() gives BigInt, use that
+      $n = $int; # n-1, BigFloat int() gives BigInt, use that
     } else {
       $n = $int-1;
     }
@@ -106,7 +106,7 @@ sub rect_to_n_range {
   ### assert: $x1<=$x2
 
   if ($y1 < 0) { $y1 &= 0; }                          # preserve bigint
-  if ($y2 >= $height) { $y2 = ($y2&0) + $height-1; }  # preserve bigint
+  if ($y2 >= $height) { $y2 = ($y2 * 0) + $height-1; }  # preserve bigint
 
   # exact range bottom left to top right
   return ($x1*$height + $y1 + 1,

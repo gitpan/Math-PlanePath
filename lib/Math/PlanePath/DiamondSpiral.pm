@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -31,7 +31,7 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-# 
+#
 # start cycle at the vertical downwards from x=1,y=0
 # s = [ 0, 1,  2, 3 ]
 # n = [ 2, 6, 14,26 ]
@@ -51,9 +51,9 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if ($n < 2) { return ($n-1, 0); }
 
-  my $s = int (.5 + sqrt(.5*$n-.75));
+  my $s = int ((1 + sqrt(int(2*$n)-3)) / 2);
   #### $s
-  #### s frac: .5 + sqrt(.5*$n-.75)
+  #### s frac: ((1 + sqrt(int(2*$n)-3)) / 2)
   #### base: 2*$s*$s - 2*$s + 2
   #### extra: 2*$s - 1
   #### sub: 2*$s*$s +1
@@ -61,13 +61,17 @@ sub n_to_xy {
   $n -= 2*$s*$s + 1;
   ### rem from top: $n
 
-  my $y = $s - abs($n);  # y=+$s at the top, down to y=-$s
+  my $y = -abs($n) + $s;  # y=+$s at the top, down to y=-$s
   my $x = abs($y) - $s;  # 0 to $s on the right
   #### uncapped y: $y
   #### abs x: $x
 
+  # cap for horiz at 5 to 6, 13 to 14 etc
+  $s = -$s;
+  if ($y < $s) { $y = $s; }
+
   return (($n >= 0 ? $x : -$x),  # negate if on the right
-          max ($y, -$s));        # cap for horiz at 5 to 6, 13 to 14 etc
+          $y);
 }
 
 sub xy_to_n {
@@ -98,21 +102,22 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### DiamondSpiral xy_to_n_range()
+  ### DiamondSpiral rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = abs (_round_nearest ($x1));
+  $y1 = abs (_round_nearest ($y1));
+  $x2 = abs (_round_nearest ($x2));
+  $y2 = abs (_round_nearest ($y2));
 
-  my $x = max(abs($x1),abs($x2));
-  my $y = max(abs($y1),abs($y2));
-  my $s = abs($x) + abs($y) + 1;
+  my $x = ($x1 > $x2 ? $x1 : $x2);
+  my $y = ($y1 > $y2 ? $y1 : $y2);
+  my $s = $x + $y + 1;
   ### gives: "$x, $y  sum $s is " . (2*$s*$s - 2*$s + 1)
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
+  # ENHANCE-ME: cf UlamWarburton _rect_to_diamond_range()
   return (1,
-          1 + 2*$s*$s - 2*$s + 1);
+          1 + 2*$s*($s-1));
 }
 
 1;
@@ -130,12 +135,12 @@ __END__
 #           \   \        /   /
 #             24  13--14  27
 #               \        /
-#                 25--26 
-# 
+#                 25--26
+#
 #                  ^
 #                 x=0
 
-=for stopwords SquareSpiral eg DiamondSpiral PlanePath Ryde Math-PlanePath HexSpiralSkewed ascii
+=for stopwords SquareSpiral eg DiamondSpiral PlanePath Ryde Math-PlanePath HexSpiralSkewed PentSpiralSkewed HeptSpiralSkewed 
 
 =head1 NAME
 
@@ -151,30 +156,38 @@ Math::PlanePath::DiamondSpiral -- integer points around a diamond shaped spiral
 
 This path makes a diamond shaped spiral.
 
-             19 ..
-          20  9 18 ..
-       21 10  3  8 17 ..
-    22 11  4  1  2  7 16 ..  <- Y=0
-       23 12  5  6 15 ..
-          24 13 14 ..
-             25 26 
+                            73                               6
+                        74  51  72                           5
+                    75  52  33  50  71                       4
+                76  53  34  19  32  49  70                   3
+            77  54  35  20   9  18  31  48  69               2
+        78  55  36  21  10   3   8  17  30  47  68           1
+    79  56  37  22  11   4   1   2   7  16  29  46  67   <- Y=0
+        80  57  38  23  12   5   6  15  28  45  66          -1
+            81  58  39  24  13  14  27  44  65  ...         -2
+                82  59  40  25  26  43  64  89              -3
+                    83  60  41  42  63  88                  -4
+                        84  61  62  87                      -5
+                            85  86                          -6
 
-              ^
-             X=0
+                             ^
+    -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6
 
 This is not simply the SquareSpiral rotated, it spirals around faster, with
-side lengths following a pattern 1,1,1,1, 2,2,2,2, 3,3,3,3, etc if the flat
-kink at the bottom (like 13 to 14) is treated as part of the lower right
+side lengths following a pattern 1,1,1,1, 2,2,2,2, 3,3,3,3, etc, if the flat
+kink at the bottom (like N=13 to N=14) is treated as part of the lower right
 diagonal.
 
-The triangular number 3,6,10,15,21,etc fall on the horizontal alternately to
-the left at Y=1 and the right at Y=-1 (one term to the left then one term to
-the right).
+The hexagonal numbers 6,15,28,45,66,etc, k*(2k-1) from k=2 up, are the
+horizontal line at Y=-1 going to the right.  The hexagonal numbers of the
+"second kind" 3,10,21,36,55,78, etc k*(2k+1), are the horizontal line at Y=1
+going to the left.  Combining those two is the triangular numbers
+3,6,10,15,21,etc, k*(k+1)/2, alternately on one line and the other.
 
 Going diagonally on the sides as done here is like cutting the corners of
-the SquareSpiral, and that's how it gets around in fewer steps than the
-SquareSpiral.  See the HexSpiralSkewed for similar cutting just two of the
-four corners.
+the SquareSpiral, which is how it gets around in fewer steps than the
+SquareSpiral.  See PentSpiralSkewed, HexSpiralSkewed and HeptSpiralSkewed
+for similar cutting just 3, 2 or 1 of the corners.
 
 =head1 FUNCTIONS
 
@@ -205,7 +218,7 @@ point in the path as a square of side 1, so the entire plane is covered.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::DiamonArms>,
+L<Math::PlanePath::DiamondArms>,
 L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::PyramidSides>
@@ -234,3 +247,9 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=DiamondSpiral --lines --scale=10"
+# End:
+#
+# math-image --path=DiamondSpiral --all --output=numbers --size=60x14

@@ -35,7 +35,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -174,8 +174,11 @@ sub n_to_xy {
     ### @digits
   }
 
-  my $h = my $i = my $j = 0;
+  my $h =
+    my $i =
+      my $j = ($n * 0);  # inherit BigInt 0
   my $rev = 0;
+
   while (@digits) {
     my $digit = pop @digits;  # high to low
     my $sh = pop @sh;
@@ -210,9 +213,9 @@ sub n_to_xy {
   # fraction in final rotation direction
   if ($frac) {
     ### apply: "frac=$frac  rot=$rot"
-    $h += $rot_h[$rot] * $frac;
-    $i += $rot_i[$rot] * $frac;
-    $j += $rot_j[$rot] * $frac;
+    $h = $frac * $rot_h[$rot] + $h;
+    $i = $frac * $rot_i[$rot] + $i;
+    $j = $frac * $rot_j[$rot] + $j;
   }
 
   ### ret: "$h, $i, $j  x=".($h*2 + $i - $j)." y=".($i+$j)

@@ -20,7 +20,6 @@
 
 use 5.004;
 use strict;
-use warnings;
 use Math::Libm 'hypot', 'asinh', 'M_PI', 'asin';
 use POSIX ();
 use Math::PlanePath::ArchimedeanChords;

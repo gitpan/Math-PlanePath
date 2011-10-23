@@ -47,9 +47,10 @@ MyMakeMakerExtras::WriteMakefile
      maximum_tests =>
      { description => 'Have "make test" do as much as possible.',
        requires => { 'Data::Float'  => 0,
-                     'Math::BigRat' => 0,
                      'Math::BigInt' => 0,
+                     'Math::BigInt::Lite' => 0,
                      'Math::BigFloat' => '1.993',
+                     'Math::BigRat' => 0,
                    },
      },
      optional_features =>

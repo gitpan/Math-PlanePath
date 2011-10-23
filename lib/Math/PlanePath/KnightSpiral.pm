@@ -22,18 +22,27 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Devel::Comments '###';
+
 
 sub _odd {
   my ($n) = @_;
-  return int($n) % 2;
+  ### _odd(): $n
+  $n -= 2*int($n/2);
+  ### rem: "$n"
+  if ($n > 1) {
+    return 2-$n;
+  } else {
+    return $n;
+  }
+  # return (int($n) % 2);
 }
 
 sub n_to_xy {
@@ -45,7 +54,7 @@ sub n_to_xy {
     return (2*$n, -$n);
   }
 
-  my $d = int (.25 * (7 + sqrt($n - 1)));
+  my $d = int ((7 + sqrt(int($n) - 1)) / 4);
   my $d1 = $d-1;
   my $outer = 2*$d1;
   my $inner = $outer - 1;
@@ -69,29 +78,29 @@ sub n_to_xy {
   #
   if ($n < $p1) {
     #### right upwards, eg 2
-    return ($outer - _odd($n),
-            -$inner + 2*$n);
+    return (- _odd($n) + $outer,
+            2*$n - $inner);
   }
   $n -= $p1;
 
   if ($n < $p1) {
     #### top leftwards, eg 3
-    return ($inner - 2*$n,
-            $inner + _odd($n));
+    return (-2*$n + $inner,
+            _odd($n) + $inner);
   }
   $n -= $p1;
 
   if ($n < $p) {
     #### left downwards
-    return (-$inner - _odd($n),
-            $outer - 2*$n);
+    return ( - _odd($n) - $inner,
+             -2*$n + $outer);
   }
   $n -= $p;
 
   if ($n < $p1) {
     #### bottom rightwards: $n
-    return (-$inner + 2*$n,
-            -$outer + _odd($n));
+    return (2*$n - $inner,
+            _odd($n) - $outer);
   }
   $n -= $p1;
 
@@ -101,98 +110,98 @@ sub n_to_xy {
   #
   if ($n < $p1) {
     # right upwards
-    return ($inner + _odd($n),
-            -$inner + 2*$n);
+    return (_odd($n) + $inner,
+            2*$n - $inner);
   }
   $n -= $p1;
 
   if ($n < $p) {
     #### top leftwards
-    return ($outer - 2*$n,
-            $inner + _odd($n));
+    return (-2*$n + $outer,
+            _odd($n) + $inner);
   }
   $n -= $p;
 
   if ($n < $p1) {
     #### left downwards
-    return (-$outer + _odd($n),
-            $inner - 2*$n);
+    return (_odd($n) - $outer,
+            -2*$n + $inner);
   }
   $n -= $p1;
 
   if ($n < $p1) {
     #### bottom rightwards: $n
-    return (-$inner + 2*$n,
-            -$inner - _odd($n));
+    return (2*$n - $inner,
+            - _odd($n) - $inner);
   }
   $n -= $p1;
 
 
 
-  # three
+  ### three ...
   #
   if ($n < $p) {
-    # right upwards, eg 12
-    return ($inner + _odd($n),
-            -$outer + 2*$n);
+    ### right upwards, eg 12 ...
+    return (_odd($n) + $inner,
+            2*$n - $outer);
   }
   $n -= $p;
 
   if ($n < $p1) {
-    #### top leftwards, eg 14
-    return ($inner - 2*$n,
-            $outer - _odd($n));
+    ### top leftwards, eg 14 ...
+    return (-2*$n + $inner,
+            - _odd($n) + $outer);
   }
   $n -= $p1;
 
   if ($n < $p1) {
-    #### left downwards, eg 15
-    return (-$inner - _odd($n),
-            $inner - 2*$n);
+    ### left downwards, eg 15 ...
+    return (- _odd($n) - $inner,
+            -2*$n + $inner);
   }
   $n -= $p1;
 
   if ($n < $p1) {
-    #### bottom rightwards, eg 16
-    return (-$outer + 2*$n,
-            -$inner - _odd($n));
+    ### bottom rightwards, eg 16 ...
+    return (2*$n - $outer,
+            - _odd($n) - $inner);
   }
   $n -= $p1;
 
 
-  # four
+  ### four ...
   #
   if ($n < $p) {
-    # right upwards, eg 17 special cross
-    return ($outer - _odd($n) - 2*($n == 0),
-            -$outer + 2*$n);
+    ### right upwards, eg 17 special cross ...
+    return (- _odd($n) + $outer - 2*($n == 0),
+            2*$n - $outer);
   }
   $n -= $p;
 
   if ($n < $p) {
-    #### top leftwards, eg 19
-    return ($outer - 2*$n,
-            $outer - _odd($n));
+    ### top leftwards, eg 19 ...
+    return (-2*$n + $outer,
+            - _odd($n) + $outer);
   }
   $n -= $p;
 
   if ($n < $p) {
-    #### left downwards, eg 21
-    return (-$outer + _odd($n),
-            $outer - 2*$n);
+    ### left downwards, eg 21 ...
+    return (_odd($n) - $outer,
+            -2*$n + $outer);
   }
   $n -= $p;
 
   if ($n < $p) {
-    #### bottom rightwards, eg 23
-    return (-$outer + 2*$n,
-            -$outer + _odd($n));
+    ### bottom rightwards, eg 23 ...
+    return (2*$n - $outer,
+            _odd($n) - $outer);
   }
   $n -= $p;
 
-  #### step outwards, eg 25
-  return ($outer + 2*$n,
-          -$outer - _odd($n));
+  ### step outwards, eg 25 ...
+  return (2*$n + $outer,
+          - _odd($n) - $outer);
 }
 
 

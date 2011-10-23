@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -65,14 +65,14 @@ sub n_to_xy {
   {
     my $int = int($n);
     $frac = $n - $int;
-    $n = $int;
     if ($frac >= 0.5) {
       $frac -= 1;
-      $n += 1;
+      $int += 1;
     } elsif ($frac < -0.5) {
       $frac += 1;
-      $n -= 1;
+      $int -= 1;
     }
+    $n = $int;
   }
 
   if ($n < 0) {
@@ -151,7 +151,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my $n = my $nx = ($y & 0);                 # inherit bignum 0
+  my $n = my $nx = ($y * 0);                 # inherit bignum 0
   my $ybit = my $npower = my $nbit = $n+1;   # inherit bignum 1
   while ($y) {
     if ($y % 2) {
@@ -335,7 +335,7 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
 
-=head2 FORMULAS
+=head1 FORMULAS
 
 =head2 N to X,Y
 
@@ -359,7 +359,7 @@ Ymax,
     Nmax = N at Ymax,Ymax
 
 Or for less work but a bigger over-estimate, invert the Nlevel formulas
-given in L</Level Ranges> above.
+given in L</Row Ranges> above.
 
     level = floor(log2(Ymax)) + 1
     Nmax = 3^level - 1

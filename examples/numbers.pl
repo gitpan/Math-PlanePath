@@ -18,18 +18,19 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Usage: perl numbers.pl [CLASS]
+# Usage: perl numbers.pl CLASS...
 #        perl numbers.pl all
 #
-# Print the given path CLASS as N numbers in a grid.  Eg.
+# Print the given path CLASS or CLASSes as N numbers in a grid.  Eg.
 #
-#     perl numbers.pl SquareSpiral
+#     perl numbers.pl SquareSpiral DiamondSpiral
 #
 # Parameters to the class can be given as
 #
 #     perl numbers.pl SquareSpiral,wider=4
 #
-# With option "all" print all classes and a selection of their parameters,
+# With option "all" print all classes and a selection of their parameters
+# (per the table in the code below),
 #
 #     perl numbers.pl all
 #
@@ -38,15 +39,23 @@
 # stops when the width of the numbers to be displayed would be wider than
 # the tty.
 #
-# Note that stopping at an N means just the first say 99 or so N values will
-# be shown.  There's quite likely other bigger N values within the X,Y grid
-# region, but these first few N show how the path begins, without clogging
-# up the output.
+# Stopping when N goes outside the tty width means that just the first say
+# 99 or so N values will be shown.  There's quite likely other bigger N
+# within the X,Y grid region, but these first few N show how the path
+# begins, without clogging up the output.
 #
 # The origin 0,0 is kept in the middle of the output, horizontally, to help
-# see how much is on each side, and to make multiple paths printed line up,
+# see how much is on each side and to make multiple paths printed line up
 # such as the "all" option.  Vertically only as many rows as necessary are
 # printed.
+#
+# Paths with fractional X,Y positions like SacksSpiral or VogelFloret get
+# rounded to character positions.  There's some hard-coded fudge factors to
+# try to make them come out nicely.
+#
+# When an X,Y position is visited more than once, such as the DragonCurve or
+# when rounding means that happens for a few initial points such as
+# KochSquareflakes, the two N's are shown with a comma like "9,24".
 #
 
 use 5.004;
@@ -99,6 +108,7 @@ my @all_classes = ('SquareSpiral',
                    'DiamondArms',
                    'HexArms',
                    'GreekKeySpiral',
+                   'AztecDiamondRings',
 
                    'SacksSpiral',
                    'VogelFloret',
@@ -113,6 +123,7 @@ my @all_classes = ('SquareSpiral',
                    'Rows',
                    'Columns',
                    'UlamWarburton',
+                   'UlamWarburtonQuarter',
 
                    'PeanoCurve',
                    'PeanoCurve,radix=5',
@@ -144,7 +155,8 @@ my @all_classes = ('SquareSpiral',
                    'QuadricCurve',
                    'QuadricIslands',
 
-                   'SierpinskiTriangle',,
+                   'SierpinskiCurve',
+                   'SierpinskiTriangle',
                    'SierpinskiArrowhead',
                    'SierpinskiArrowheadCentres',
                    'DragonCurve',
@@ -168,6 +180,8 @@ my @all_classes = ('SquareSpiral',
                    'RationalsTree,tree_type=Bird',
                    'RationalsTree,tree_type=Drib',
                    'CoprimeColumns',
+                   'DivisibleColumns',
+                   'DivisibleColumns,divisor_type=proper',
                   );
 # expand arg "all" to full list
 @ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;

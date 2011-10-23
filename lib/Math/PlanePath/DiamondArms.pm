@@ -29,7 +29,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -84,8 +84,8 @@ sub n_to_xy {
   ### remainder: $n
   ### assert: $n <= $d
 
-  my $x = ($n + $frac) - $d;
-  my $y = - ($n + $frac);
+  my $x = ($frac + $n) - $d;
+  my $y = - ($frac + $n);
   ### unrot: "$x,$y"
 
   $rot = ($rot + $d) % 4;

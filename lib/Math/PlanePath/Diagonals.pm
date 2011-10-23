@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -120,7 +120,7 @@ sub rect_to_n_range {
     return (1, 0); # rect all negative, no N
   }
 
-  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
 
   if ($x1 < 0) { $x1 = 0; }
   if ($y1 < 0) { $y1 = 0; }

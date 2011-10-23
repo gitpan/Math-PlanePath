@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -69,7 +69,7 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
-  my $x = my $y = ($n & 0);  # inherit bignum 0
+  my $x = my $y = ($n * 0);  # inherit bignum 0
   my $len = ($x + 1);        # inherit bignum 1
 
   while ($n) {
@@ -114,7 +114,7 @@ sub xy_to_n {
     return $level_limit;
   }
 
-  my $n = ($x & 0 & $y);  # inherit bignum 0
+  my $n = ($x * 0 * $y);  # inherit bignum 0
   my $power = ($n + 1);   # inherit bignum 1
   while ($x || $y) {
     if ($level_limit-- < 0) {
@@ -274,7 +274,7 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PeanoCurve>
+L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::QuintetReplicate>
 
 =head1 HOME PAGE

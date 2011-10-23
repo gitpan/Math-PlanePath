@@ -9,10 +9,13 @@ debian/rules
 debian/source/format
 debian/watch
 devel/archimedean.pl
+devel/bigint-lite.pl
 devel/bignums.pl
+devel/c-curve.pl
 devel/complex-minus.pl
 devel/cont-frac.pl
 devel/coprime.pl
+devel/divisible.pl
 devel/dragon.pl
 devel/exe-atan2.c
 devel/flowsnake-levels.pl
@@ -74,6 +77,7 @@ inc/my_pod2html
 inc/MyMakeMakerExtras.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
+lib/Math/PlanePath/AztecDiamondRings.pm
 lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm
@@ -82,6 +86,7 @@ lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondArms.pm
 lib/Math/PlanePath/DiamondSpiral.pm
+lib/Math/PlanePath/DivisibleColumns.pm
 lib/Math/PlanePath/DragonCurve.pm
 lib/Math/PlanePath/DragonMidpoint.pm
 lib/Math/PlanePath/DragonRounded.pm
@@ -125,6 +130,7 @@ lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
 lib/Math/PlanePath/SierpinskiArrowhead.pm
 lib/Math/PlanePath/SierpinskiArrowheadCentres.pm
+lib/Math/PlanePath/SierpinskiCurve.pm
 lib/Math/PlanePath/SierpinskiTriangle.pm
 lib/Math/PlanePath/SquareArms.pm
 lib/Math/PlanePath/SquareReplicate.pm
@@ -135,6 +141,7 @@ lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
 lib/Math/PlanePath/TriangularHypot.pm
 lib/Math/PlanePath/UlamWarburton.pm
+lib/Math/PlanePath/UlamWarburtonQuarter.pm
 lib/Math/PlanePath/VogelFloret.pm
 lib/Math/PlanePath/ZOrderCurve.pm
 Makefile.PL
@@ -142,8 +149,11 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 SIGNATURE
 t/ArchimedeanSpiral.t
+t/AztecDiamondRings.t
 t/bigfloat.t
+t/bigint-lite.t
 t/bigint.t
+t/bigint_common.pm
 t/bigrat.t
 t/Columns-load.t
 t/Columns.t
@@ -153,6 +163,7 @@ t/Corner.t
 t/Diagonals.t
 t/DiamondArms.t
 t/DiamondSpiral.t
+t/DivisibleColumns.t
 t/DragonCurve.t
 t/DragonMidpoint.t
 t/DragonRounded.t
@@ -192,6 +203,8 @@ t/Rows-load.t
 t/Rows.t
 t/SacksSpiral.t
 t/SierpinskiArrowhead.t
+t/SierpinskiArrowheadCentres.t
+t/SierpinskiCurve.t
 t/SquareSpiral.t
 t/Staircase.t
 t/TheodorusSpiral.t
@@ -210,6 +223,7 @@ xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
 xt/CellularRule54-oeis.t
 xt/CoprimeColumns-oeis.t
+xt/DivisibleColumns-oeis.t
 xt/Dragon-oeis.t
 xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
@@ -217,4 +231,5 @@ xt/MyOEIS.pm
 xt/PeanoCurve-oeis.t
 xt/RationalsTree-oeis.t
 xt/SierpinskiTriangle-oeis.t
+xt/UlamWarburton-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

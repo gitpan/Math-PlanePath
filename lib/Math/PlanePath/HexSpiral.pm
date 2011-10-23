@@ -50,7 +50,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -108,9 +108,10 @@ sub n_to_xy {
     return ($n-1-$w, 0);   # n=1 at -$w
   }
 
-  my $d = int((sqrt(3*$n + ($w+2)*$w - 2) - 1 - $w) / 3);
-  #### d frac: (sqrt(3*$n + ($w+2)*$w - 2) - 1 - $w) / 3
+  my $d = int((sqrt(int(3*$n) + ($w+2)*$w - 2) - 1 - $w) / 3);
+  #### d frac: (sqrt(int(3*$n) + ($w+2)*$w - 2) - 1 - $w) / 3
   #### $d
+
   $n -= (3*$d + 2 + 2*$w)*$d + 1;
   #### remainder: $n
 
@@ -118,36 +119,36 @@ sub n_to_xy {
   if ($n <= $d+$w) {
     #### bottom horizontal
     $d = -$d + 1;
-    return ($d + 2*$n - $w,
+    return (2*$n + $d - $w,
             $d);
   }
   $n -= $d+$w;
   if ($n <= $d-1) {
     #### right lower diagonal, being 1 shorter: $n
-    return (1+$d + $n + $w,
-            -$d+1 + $n);
+    return ($n + $d + 1 + $w,
+            $n - $d + 1);
   }
   $n -= $d-1;
   if ($n <= $d) {
     #### right upper diagonal: $n
-    return (2*$d - $n + $w,
+    return (-$n + 2*$d + $w,
             $n);
   }
   $n -= $d;
   if ($n <= $d+$w) {
     #### top horizontal
-    return ($d - 2*$n + $w,
+    return (-2*$n + $d + $w,
             $d);
   }
   $n -= $d+$w;
   if ($n <= $d) {
     #### left upper diagonal
-    return (-$d - $n - $w,
-            $d - $n);
+    return (-$n - $d - $w,
+            -$n + $d );
   }
   #### left lower diagonal
   $n -= $d;
-  return (-2*$d + $n - $w,
+  return ($n - 2*$d - $w,
           -$n);
 }
 
@@ -198,7 +199,7 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### HexSpiral xy_to_n_range(): $x1,$y1, $x2,$y2
+  ### HexSpiral rect_to_n_range(): $x1,$y1, $x2,$y2
   my $w = $self->{'wider'};
 
   # symmetric in +/-y, and biggest y is biggest n

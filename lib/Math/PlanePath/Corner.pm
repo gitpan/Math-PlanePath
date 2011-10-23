@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -53,7 +53,9 @@ sub n_to_xy {
   ### Corner n_to_xy: $n
 
   # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
-  return if 2*$n < 1;
+  if (2*$n < 1) {
+    return;
+  }
 
   my $wider = $self->{'wider'};
 
@@ -83,11 +85,11 @@ sub n_to_xy {
   #     = floor (-3 + sqrt(4*N + 7))/2
   #
   # 0,1,4,9
-  #
-  my $y = int((sqrt(4*$n + $wider*$wider - 2) - $wider) / 2);
-  ### y frac: (sqrt(4*$n + $wider*$wider - 2) - $wider) / 2
   # my $y = int((sqrt(4*$n + -1) - $wider) / 2);
   # ### y frac: (sqrt(4*$n + -1) - $wider) / 2
+
+  my $y = int((sqrt(int(4*$n) + $wider*$wider - 2) - $wider) / 2);
+  ### y frac: (sqrt(int(4*$n) + $wider*$wider - 2) - $wider) / 2
   ### $y
 
   # diagonal at X=Y has N=1, 3, 7, 13, 21
@@ -99,17 +101,17 @@ sub n_to_xy {
   $n -= $y*($y+1+$wider) + $wider + 1;
   ### corner n: $y*($y+1+$wider) + $wider + 1
   ### rem: $n
-  ### assert: $n >= -($y+$wider+0.5)
+  ### assert: $n!=$n || $n >= -($y+$wider+0.5)
   # ### assert: $n <= ($y+0.5)
 
   if ($n < 0) {
     # top horizontal
-    return ($y+$wider + $n,
+    return ($n + $y+$wider,
             $y);
   } else {
     # right vertical
     return ($y+$wider,
-            $y - $n);
+            -$n + $y);
   }
 }
 

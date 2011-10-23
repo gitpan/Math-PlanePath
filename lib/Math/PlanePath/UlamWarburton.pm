@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -63,9 +63,9 @@ use Math::PlanePath::KochCurve 42;
 # 357
 # 369
 
-# 1+3 = 4  level 2
-# 1+3+3+9 = 16    level 3
-# 1+3+3+9+3+9+9+27 = 64    level 4
+# 1+3 = 4  power 2
+# 1+3+3+9 = 16    power 3
+# 1+3+3+9+3+9+9+27 = 64    power 4
 #
 # 4*(1+4+...+4^(l-1)) = 4*(4^l-1)/3
 #    l=1 total=4*(4-1)/3 = 4
@@ -246,7 +246,10 @@ sub xy_to_n {
   if (_is_infinite($exp)) { return ($exp); }
 
 
-  my $level = my $ndigits = my $n = my $zero = ($x&0&$y);  # possible bignum 0
+  my $level =
+    my $ndigits =
+      my $n =
+        my $zero = ($x * 0 * $y);  # possible bignum 0
 
   while ($exp-- >= 0) {
     ### at: "$x,$y  n=$n len=$len"
@@ -256,12 +259,13 @@ sub xy_to_n {
       return undef;
     }
 
-    # right quarter
+    # right quarter diamond
     ### assert: $x >= 0
     ### assert: $x >= abs($y)
     ### assert: $x+abs($y) < 2*$len || $x==abs($y)
 
     if ($x + $abs_y >= $len) {
+      # one of the three quarter diamonds away from the origin
       $x -= $len;
       ### shift to: "$x,$y"
 
@@ -313,7 +317,7 @@ sub rect_to_n_range {
   if ($dlo) {
     ($dlo) = _round_down_pow ($dlo,2);
   }
-  ($dhi) = _round_down_pow ($dhi,2);  # round up ...
+  ($dhi) = _round_down_pow ($dhi,2);
 
   ### rounded to pow2: "$dlo  ".(2*$dhi)
 
@@ -381,7 +385,6 @@ sub _n_start {
   ### n_level: $n
   return $n;
 }
-
 ### assert: _n_start(1) == 2
 ### assert: _n_start(2) == 6
 ### assert: _n_start(3) == 10
@@ -395,11 +398,11 @@ sub _n_start {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart OEIS 
 
 =head1 NAME
 
-Math::PlanePath::UlamWarburton -- points in quater-imaginary base 2i
+Math::PlanePath::UlamWarburton -- growth of a 2-D cellular automaton
 
 =head1 SYNOPSIS
 
@@ -631,4 +634,3 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 # End:
 #
 # math-image --path=UlamWarburton --all --output=numbers --size=80x50
-

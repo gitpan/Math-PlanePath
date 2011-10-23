@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 48;
+$VERSION = 49;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -157,6 +157,7 @@ include
     SquareArms             four-arm square spiral
     DiamondArms            four-arm diamond spiral
     HexArms                six-arm hexagonal spiral
+    AztecDiamondRings      four-sided rings
     GreekKeySpiral         spiral with Greek key motif
 
     SacksSpiral            quadratic on an Archimedean spiral
@@ -301,14 +302,14 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
      }
 
 The return may be an over-estimate of the range, and many of the points
-between C<$n_lo> and C<$n_hi> may go outside the rectangle, but the range at
-least bounds N.
+between C<$n_lo> and C<$n_hi> might be outside the rectangle, but the range
+at least bounds N in the rectangle.  Classes which can guarantee an exact
+range say so in their docs.
 
 C<$n_hi> is usually no more than an extra partial row, revolution, or
 self-similar level.  C<$n_lo> is often merely the starting point
-C<$path-E<gt>n_start()> below, which is correct enough if the origin is in
-the rectangle, but something away from the origin might actually start
-higher.
+C<$path-E<gt>n_start()> below, which is fine if the origin is in the
+rectangle, but something away from the origin might actually start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
 some N figures then those N's are included in the return.  If there's no
@@ -412,6 +413,10 @@ efficiently.  The paths with a quadratic "step" are not much worse than a
 C<sqrt()> to break N into a segment and offset, but the self-similar paths
 which chop into digits of some radix might increment instead of recalculate.
 
+But when interested in a particular region an iterator will often stray
+outside for a long time, and going by X,Y in rows or similar may be better,
+for the square-grid paths.
+
 =head2 Scaling and Orientation
 
 The paths generally make a first move horizontally to the right, or from the
@@ -449,7 +454,7 @@ more N points than the preceding.
         0       Rows, Columns (fixed widths)
         1       Diagonals
         2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
-        4       DiamondSpiral, Staircase
+        4       DiamondSpiral, AztecDiamondRings, Staircase
         4/2     CellularRule54 (2 rows for +4)
         5       PentSpiral, PentSpiralSkewed
         5.65    PixelRings (average about 4*sqrt(2))
@@ -466,7 +471,9 @@ more N points than the preceding.
       128       SquareArms (each arm)
       216       HexArms (each arm)
     parameter   MultipleRings, PyramidRows
+
      totient    CoprimeColumns
+     divcount   DivisibleColumns
 
 The step determines which quadratic number sequences make straight lines.
 For example the gap between successive perfect squares increases by 2 each
@@ -610,6 +617,7 @@ L<Math::PlanePath::KnightSpiral>
 L<Math::PlanePath::HexArms>,
 L<Math::PlanePath::SquareArms>,
 L<Math::PlanePath::DiamondArms>,
+L<Math::PlanePath::AztecDiamondRings>,
 L<Math::PlanePath::GreekKeySpiral>
 
 L<Math::PlanePath::SacksSpiral>,
@@ -663,6 +671,7 @@ L<Math::PlanePath::UlamWarburton>
 L<Math::PlanePath::PythagoreanTree>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>,
+L<Math::PlanePath::DivisibleColumns>,
 L<Math::PlanePath::File>
 
 L<math-image>, displaying various sequences on these paths.

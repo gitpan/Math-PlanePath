@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -89,7 +89,7 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $x = my $y = ($n&0); # inherit
+  my $x = my $y = ($n * 0); # inherit
   my $radix = $self->{'radix'};
   if ($radix == 2) {
     my $bit = $x|1;  # inherit
@@ -137,7 +137,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my $n = ($x & 0 & $y); # inherit bignum 0
+  my $n = ($x * 0 * $y); # inherit bignum 0
   my $radix = $self->{'radix'};
   if ($radix == 2) {
     my $nbit = $n|1; # inherit
@@ -231,7 +231,7 @@ __END__
   #   $x = int ($x / $xmod);
   #   $npos *= $xmod;
 
-=for stopwords Ryde Math-PlanePath Karatsuba undrawn
+=for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix
 
 =head1 NAME
 
@@ -398,6 +398,15 @@ squares soon become rather long and probably of very limited use.
 Return an integer point number for coordinates C<$x,$y>.  Each integer N is
 considered the centre of a unit square and an C<$x,$y> within that square
 returns N.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+Return a range of N values which occur in a rectangle with corners at
+C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
+
+In general the range is allowed to be an over-estimate, but in the current
+code it's exact, so C<$n_lo> and C<$n_hi> are the smallest and biggest N in
+the rectangle.
 
 =back
 

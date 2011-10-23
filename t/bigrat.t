@@ -29,10 +29,9 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments '###';
 
 
-my $test_count = (tests => 61)[1];
+my $test_count = (tests => 167)[1];
 plan tests => $test_count;
 
-MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
 if (! eval { require Math::BigRat; 1 }) {
   MyTestHelpers::diag ('skip due to Math::BigRat not available -- ',$@);
   foreach (1 .. $test_count) {
@@ -40,6 +39,7 @@ if (! eval { require Math::BigRat; 1 }) {
   }
   exit 0;
 }
+MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
 
 # Crib notes:
 #
@@ -117,7 +117,7 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
     my ($got_x,$got_y) = $path->n_to_xy($n);
     ok ($got_x == $x, 1, "got $got_x want $x");
     ok ($got_y == $y);
-  
+
     my $got_n = $path->xy_to_n($x,$y);
     ok ($got_n == $n, 1);
   }
@@ -151,33 +151,33 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
   {
     my $x = Math::BigRat->new(2) ** 128 - 1;
     my $n = ($x+1)*($x+2)/2;  # triangular numbers on Y=0 horizontal
-  
+
     my ($got_x,$got_y) = $path->n_to_xy($n);
     ok ($got_x == $x, 1, "got $got_x want $x");
     ok ($got_y == 0);
-  
+
     my $got_n = $path->xy_to_n($x,0);
     ok ($got_n == $n, 1);
   }
   {
     my $x = Math::BigRat->new(2) ** 128 - 1;
     my $n = ($x+1)*($x+2)/2;  # Y=0 horizontal
-  
+
     my ($got_x,$got_y) = $path->n_to_xy($n);
     ok ($got_x == $x, 1);
     ok ($got_y == 0, 1);
-  
+
     my $got_n = $path->xy_to_n($x,0);
     ok ($got_n == $n, 1);
   }
   {
     my $y = Math::BigRat->new(2) ** 128 - 1;
     my $n = $y*($y+1)/2 + 1;  # X=0 vertical
-  
+
     my ($got_x,$got_y) = $path->n_to_xy($n);
     ok ($got_x == 0, 1);
     ok ($got_y == $y, 1);
-  
+ 
     my $got_n = $path->xy_to_n(0,$y);
     ok ($got_n, $n);
   }
@@ -280,6 +280,129 @@ require Math::PlanePath::KochSnowflakes;
   # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
   #     "_log4_floor() 4^64 + 1/3 power");
   ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
+}
+
+
+#------------------------------------------------------------------------------
+
+my @modules = (
+               'SierpinskiCurve',
+               'AztecDiamondRings',     # but not across ring end
+               'DiamondArms',
+               'SquareArms',
+               'HexArms',
+               'GreekKeySpiral',
+
+               # 'UlamWarburton',         # not really defined yet
+               # 'UlamWarburtonQuarter',  # not really defined yet
+               'CellularRule54',      # but not across gap
+
+               'Rows',
+               'Columns',
+
+               'SquareSpiral',
+               'DiamondSpiral',
+               'PentSpiral',
+               'PentSpiralSkewed',
+               'HexSpiral',
+               'HexSpiralSkewed',
+               'HeptSpiralSkewed',
+               'PyramidSpiral',
+               'TriangleSpiral',
+               'TriangleSpiralSkewed',
+
+               # 'SacksSpiral',         # sin/cos
+               # 'TheodorusSpiral',     # counting by N
+               # 'ArchimedeanChords',   # counting by N
+               # 'VogelFloret',         # sin/cos
+               'KnightSpiral',
+
+               'SierpinskiArrowheadCentres',
+               'SierpinskiArrowhead',
+               # 'SierpinskiTriangle',  # not really defined yet
+               'QuadricCurve',
+               'QuadricIslands',
+
+               'DragonRounded',
+               'DragonMidpoint',
+               'DragonCurve',
+
+               'KochSquareflakes',
+               'KochSnowflakes',
+               'KochCurve',
+               'KochPeaks',
+
+               'FlowsnakeCentres',
+               'GosperReplicate',
+               'GosperSide',
+               'GosperIslands',
+               'Flowsnake',
+
+               'RationalsTree',
+               # 'DivisibleColumns', # counting by N
+               # 'CoprimeColumns',   # counting by N
+               # 'TriangularHypot',  # counting by N
+               'PythagoreanTree',
+
+               'OctagramSpiral',
+               # 'Hypot',            # searching by N
+               # 'HypotOctant',      # searching by N
+               # 'PixelRings',       # searching by N
+               # 'MultipleRings',    # sin/cos, maybe
+
+               'QuintetCentres',
+               'QuintetCurve',
+               'QuintetReplicate',
+
+               'SquareReplicate',
+               'ComplexMinus',
+               'ImaginaryBase',
+
+               # 'File',  # not applicable
+               'Diagonals',
+               'Corner',
+               'PyramidRows',
+               'PyramidSides',
+               'Staircase',
+
+               'PeanoCurve',
+               'ZOrderCurve',
+               'HilbertCurve',
+              );
+my @classes = map {"Math::PlanePath::$_"} @modules;
+
+require Math::BigInt;
+foreach my $module (@modules) {
+  ### $module
+  my $class = "Math::PlanePath::$module";
+  eval "require $class" or die;
+
+  my $path = $class->new (width => 23,
+                          height => 17);
+  my $arms = $path->arms_count;
+
+  my $n    = Math::BigRat->new(2) ** 256 + 3;
+  my $frac = Math::BigRat->new('1/3');
+  my $n_frac = $frac + $n;
+  my $orig = $n_frac->copy;
+
+  my ($x1,$y1) = $path->n_to_xy($n);
+  ### xy1: "$x1,$y1"
+  my ($x2,$y2) = $path->n_to_xy($n+$arms);
+  ### xy2: "$x2,$y2"
+
+  my $dx = $x2 - $x1;
+  my $dy = $y2 - $y1;
+  ### dxy: "$dx, $dy"
+
+  my $want_x = $frac * Math::BigRat->new ($dx) + $x1;
+  my $want_y = $frac * Math::BigRat->new ($dy) + $y1;
+
+  my ($x_frac,$y_frac) = $path->n_to_xy($n_frac);
+  ### xy frac: "$x_frac,$y_frac"
+
+  ok ("$x_frac", "$want_x", "$module   arms=$arms");
+  ok ("$y_frac", "$want_y", "$module   arms=$arms");
 }
 
 exit 0;

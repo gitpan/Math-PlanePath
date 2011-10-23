@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -153,7 +153,7 @@ sub xy_to_n {
   #        / \
   #       4   6
 
-  my $n = ($x & 0 & $y);   # inherit bignum 0
+  my $n = ($x * 0 * $y);   # inherit bignum 0
   my $power = $n+1;        # inherit bignum 1
 
   while ($level-- >= 0 && ($x || $y)) {
@@ -252,7 +252,7 @@ sub _xy_to_level_ceil {
 1;
 __END__
 
-=for stopwords eg Ryde Gosper
+=for stopwords eg Ryde Gosper FlowsnakeCentres Flowsnake Math-PlanePath
 
 =head1 NAME
 

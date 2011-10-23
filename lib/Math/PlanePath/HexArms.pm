@@ -37,7 +37,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -86,8 +86,8 @@ sub n_to_xy {
   ### assert: $n <= $d
 
   $rot += ($d % 6);
-  my $x = 2 + $d + $n + $frac;
-  my $y = -$d    + $n + $frac;
+  my $x = $frac + 2 + $d + $n;
+  my $y = $frac     - $d + $n;
 
   $rot %= 6;
   if ($rot >= 3) {

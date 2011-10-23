@@ -30,7 +30,7 @@ use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -86,15 +86,18 @@ use Math::PlanePath::KochCurve 42;
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### QuadricIslands n_to_xy(): $n
+  ### QuadricIslands n_to_xy(): "$n"
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  my ($base,$level) = _round_down_pow ((7*$n - 3)/4, 8);
+  my ($base,$level) = _round_down_pow ((7*$n - 3)*2, 8);
+  $base /= 8;
+  $level -= 1;
   $base = (4*$base + 3)/7;  # (4 * 8**$level + 3)/7
 
   ### $level
   ### $base
+  ### level: "$level"
   ### next base would be: (4 * 8**($level+1) + 3)/7
 
   my $rem = $n - $base;
@@ -116,6 +119,8 @@ sub n_to_xy {
 
   my $pos = 4**$level / 2;
   ### side calc: "$x,$y   for pos $pos"
+  ### $x
+  ### $y
 
   if ($side < 1) {
     ### horizontal rightwards
@@ -123,16 +128,16 @@ sub n_to_xy {
             $y - $pos);
   } elsif ($side < 2) {
     ### right vertical upwards
-    return ($pos - $y,     # rotate +90, offset
+    return (-$y + $pos,     # rotate +90, offset
             $x - $pos);
   } elsif ($side < 3) {
     ### horizontal leftwards
-    return ($pos - $x,     # rotate 180, offset
-            $pos - $y)
+    return (-$x + $pos,     # rotate 180, offset
+            -$y + $pos)
   } else {
     ### left vertical downwards
     return ($y - $pos,     # rotate -90, offset
-            $pos - $x);
+            -$x + $pos );
   }
 }
 

@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,7 +40,7 @@ use Math::PlanePath::SquareArms;
 *_rect_square_range = \&Math::PlanePath::SquareArms::_rect_square_range;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 my @shape_x    = (3,4,5,5, 5, 4, 4, 3, 3,    5, 4, 4, 5, 5, 4, 3,3, 3);
 my @shape_y    = (0,0,0,1, 2, 2, 1, 1, 2,    2, 2, 1, 1, 0, 0, 0,1, 2);
@@ -59,14 +59,22 @@ sub n_to_xy {
   if ($n < 1) {
     return;
   }
+
+  my $frac;
+  {
+    my $int = int($n);
+    $frac = $n - $int;
+    $n = $int;
+  }
+
+  # sqrt() done in integers to avoid limited precision from Math::BigRat sqrt()
+  #
   my $d = int (sqrt(($n-1)/9));
   #### d frac: (sqrt(($n-1)/9))
   #### $d
 
   $n -= 9*$d*$d + 1;
-  my $frac = int($n);
-  my $mod = $frac % 9;
-  $frac = $n - $frac;
+  my $mod = $n % 9;
   my $nines = int($n/9);
   ### base: 9*$d*$d
   ### remainder: $n
@@ -93,16 +101,22 @@ sub n_to_xy {
     $y = 3*($nines - $dh);
     ### vertical: "$x,$y"
   }
+  ### $x
+  ### $y
 
   ### shape: $shape_x[$mod].','.$shape_y[$mod]
-  $x += ($shape_x[$mod] + $frac * $shape_xdir[$mod]);
-  $y += ($shape_y[$mod] + $frac * $shape_ydir[$mod]);
+  # $frac first arg so as to get BigRat from it instead of BigInt from $x,$y
+  $x = ($frac * $shape_xdir[$mod] + $shape_x[$mod]) + $x;
+  $y = ($frac * $shape_ydir[$mod] + $shape_y[$mod]) + $y;
 
   unless ($d & 1) {
     $x = 5 - $x;
     $y = 2 - $y;
     ### flip for left and bottom: "$x,$y"
   }
+
+  ### $x
+  ### $y
   return ($x, $y);
 }
 

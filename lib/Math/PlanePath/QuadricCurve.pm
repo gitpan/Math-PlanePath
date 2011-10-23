@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -54,14 +54,15 @@ sub n_to_xy {
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $x;
-  my $y = 0;
+  my $len;
   {
     my $int = int($n);
     $x = $n - $int;  # frac
-    $n = $int;       # BigFloat int() gives BigInt, use that
+    $n = $int;       # BigFloat/BigRat int() gives BigInt, use that
+    $len = ($int * 0) + 1;   # inherit bigint one
   }
+  my $y = $x * 0;   # inherit big zero
 
-  my $len = 1;
   while ($n) {
     my $digit = $n % 8;
     $n = int($n/8);

@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -73,7 +73,7 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $x = my $y = my $by = ($n & 0); # inherit bignum 0
+  my $x = my $y = my $by = ($n * 0); # inherit bignum 0
   my $bx = $x+1; # inherit bignum 1
   do {
     my $digit = ($n % 5);
@@ -122,7 +122,7 @@ sub xy_to_n {
   if (_is_infinite($x)) { return ($x); }
   if (_is_infinite($y)) { return ($y); }
 
-  my $n = ($x & 0 & $y);  # inherit bignum 0
+  my $n = ($x * 0 * $y);  # inherit bignum 0
   my $power = $n + 1;     # inherit bignum 1
 
   while ($x || $y) {
@@ -245,11 +245,11 @@ The base pattern is a "+" shape
         +---+
 
 which is then replicated
-                  
-         +--+     
-         |  |     
-      +--+  +--+  +--+ 
-      |   10   |  |  | 
+
+         +--+
+         |  |
+      +--+  +--+  +--+
+      |   10   |  |  |
       +--+  +--+--+  +--+
          |  |  |   5    |
       +--+--+  +--+  +--+

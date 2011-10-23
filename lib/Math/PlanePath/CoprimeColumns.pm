@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -222,7 +222,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde coprime coprimes coprimeness totient Math-PlanePath
+=for stopwords Ryde coprime coprimes coprimeness totient Math-PlanePath Euler's onwards
 
 =head1 NAME
 
@@ -301,7 +301,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::RationalsTree>,
-L<Math::PlanePath::PythagoreanTree>
+L<Math::PlanePath::PythagoreanTree>,
+L<Math::PlanePath::DivisibleColumns>
 
 =head1 HOME PAGE
 

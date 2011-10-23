@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -59,15 +59,15 @@ sub n_to_xy {
   # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
   return if 2*$n < 1;
 
-  my $s = int(sqrt ($n - .5));
+  my $s = int(sqrt (int(4*$n) - 2) / 2);
   $n -= $s*($s+1) + 1;   # to n=0 at centre, +/- distance from there
 
-  ### s frac: sqrt ($n - .5)
+  ### s frac: (sqrt (int(4*$n) - 2) / 2)
   ### $s
   ### remainder: $n
 
   return ($n,
-          $s - abs($n));
+          - abs($n) + $s);
 }
 
 sub xy_to_n {
@@ -107,7 +107,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic PyramidRows versa PlanePath Ryde Math-PlanePath ie
+=for stopwords pronic PyramidRows versa PlanePath Ryde Math-PlanePath ie Euler's
 
 =head1 NAME
 

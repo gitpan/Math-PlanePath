@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -130,7 +130,7 @@ sub xy_to_n {
 
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### PentSpiral xy_to_n_range(): $x1,$y1, $x2,$y2
+  ### PentSpiral rect_to_n_range(): $x1,$y1, $x2,$y2
 
   my $d = 0;
   foreach my $x ($x1, $x2) {

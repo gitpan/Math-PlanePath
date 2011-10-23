@@ -16,17 +16,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=SierpinskiArrowheadCentres --lines --scale=10
-# math-image --path=SierpinskiArrowheadCentres --all --output=numbers_dash
-# math-image --path=SierpinskiArrowheadCentres --all --text --size=80
-
-
 package Math::PlanePath::SierpinskiArrowheadCentres;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -52,50 +47,66 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my $x = int($n);
-  my $y = $n - $x;  # fraction part
-  $n = $x;
-  $x = $y;
+  my $frac;
+  {
+    my $int = int($n);
+    $frac = $n - $int;
+    $n = $int;
+  }
 
-  my $len = 1;
-  while ($n) {
+  my $x = my $y = ($n * 0); # inherit bignum 0
+  my $len = $x + 1; # inherit bignum 1
+
+  for (;;) {
+    unless ($n) {
+      return ($frac + $x,
+              $frac + $y);
+    }
     my $digit = ($n % 3);
 
-    ### odd right: "$x,$y  len=$len"
+    ### odd right: "$x, $y  len=$len  frac=$frac"
     ### $digit
     if ($digit == 0) {
+      $x = $frac + $x;
+      $y = $frac + $y;
+      $frac = 0;
 
     } elsif ($digit == 1) {
-      $x = $len - $x;  # mirror and offset
+      $x = -2*$frac -$x + $len;  # mirror and offset
       $y += $len;
+      $frac = 0;
 
     } else {
       ($x,$y) = (($x+3*$y)/-2 - 1,             # rotate +120
                  ($x-$y)/2    + 2*$len-1);
     }
-    $len *= 2;
 
-    $n = int($n/3) || last;
+    unless ($n = int($n/3)) {
+      return (-$frac + $x,
+              $frac + $y);
+    }
+    $len *= 2;
     $digit = ($n % 3);
     $n = int($n/3);
 
-    ### odd left: "$x,$y  len=$len"
+    ### odd left: "$x, $y  len=$len  frac=$frac"
     ### $digit
     if ($digit == 0) {
+      $x = -$frac + $x;
+      $y = $frac + $y;
+      $frac = 0;
 
     } elsif ($digit == 1) {
-      $x = - $x - $len;  # mirror and offset
+      $x = 2*$frac + -$x - $len;  # mirror and offset
       $y += $len;
+      $frac = 0;
 
     } else {
       ($x,$y) = ((3*$y-$x)/2 + 1,              # rotate -120
-                 ($x+$y)/-2  + 2*$len-1)
+                 ($x+$y)/-2  + 2*$len-1);
     }
     $len *= 2;
   }
-
-  ### final: "$x,$y"
-  return ($x, $y);
 }
 
 sub xy_to_n {
@@ -261,26 +272,26 @@ traverse the Sierpinski triangle.
 
               ...                                 ...
                /                                   /
-        .    30     .     .     .     .     .    65     .   ...  
+        .    30     .     .     .     .     .    65     .   ...
             /                                      \        /
     28----29     .     .     .     .     .     .    66    68     9
       \                                               \  /
-       27     .     .     .     .     .     .     .    67        8 
-         \                                                         
-          26----25    19----18----17    15----14----13           7 
-               /        \           \  /           /               
-             24     .    20     .    16     .    12              6 
-               \        /                       /                  
-                23    21     .     .    10----11                 5 
-                  \  /                    \                        
-                   22     .     .     .     9                    4 
-                                          /                        
-                       4---- 5---- 6     8                       3 
-                        \           \  /                           
-                          3     .     7                          2 
-                           \                                       
-                             2---- 1                             1 
-                                 /                                 
+       27     .     .     .     .     .     .     .    67        8
+         \
+          26----25    19----18----17    15----14----13           7
+               /        \           \  /           /
+             24     .    20     .    16     .    12              6
+               \        /                       /
+                23    21     .     .    10----11                 5
+                  \  /                    \
+                   22     .     .     .     9                    4
+                                          /
+                       4---- 5---- 6     8                       3
+                        \           \  /
+                          3     .     7                          2
+                           \
+                             2---- 1                             1
+                                 /
                                 0                            <- Y=0
 
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
@@ -303,27 +314,28 @@ The base pattern is a triangle like
            \     /
             \ 0 /
              \ /
-              
+              .
+
 Higher levels replicate this within the triangles 0,1,2 but the middle "m"
 is not traversed.  The result is the familiar Sierpinski triangle by
 connected steps 2 across or 1 diagonal.
 
-    * * * * * * * * * * * * * * * *                        
-     *   *   *   *   *   *   *   *                         
-      * *     * *     * *     * *                          
-       *       *       *       *                           
-        * * * *         * * * *                            
-         *   *           *   *                             
-          * *             * *                              
-           *               *                               
-            * * * * * * * *                                
-             *   *   *   *                                 
-              * *     * *                                  
-               *       *                                   
-                * * * *                                    
-                 *   *                                     
-                  * *                                      
-                   *                                       
+    * * * * * * * * * * * * * * * *
+     *   *   *   *   *   *   *   *
+      * *     * *     * *     * *
+       *       *       *       *
+        * * * *         * * * *
+         *   *           *   *
+          * *             * *
+           *               *
+            * * * * * * * *
+             *   *   *   *
+              * *     * *
+               *       *
+                * * * *
+                 *   *
+                  * *
+                   *
 
 See the SierpinskiTriangle path to traverse by rows instead.
 
@@ -371,7 +383,7 @@ integer points.
 
 =back
 
-=head2 FORMULAS
+=head1 FORMULAS
 
 =head2 Rectangle to N Range
 
@@ -413,3 +425,11 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=SierpinskiArrowheadCentres --lines --scale=10"
+# End:
+# 
+# math-image --path=SierpinskiArrowheadCentres --all --output=numbers_dash
+# math-image --path=SierpinskiArrowheadCentres --all --text --size=80
+

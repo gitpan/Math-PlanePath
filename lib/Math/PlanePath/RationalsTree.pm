@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -36,6 +36,9 @@ use Math::PlanePath;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+# uncomment this to run the ### lines
+#use Devel::Comments;
 
 
 use constant x_negative => 0;
@@ -60,25 +63,31 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### RationalsTree n_to_xy(): $n
+  ### RationalsTree n_to_xy(): "$n"
 
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  # FIXME: what to do with fractional $n?
+  # FIXME: what to do for fractional $n?
   {
     my $int = int($n);
     if ($n != $int) {
+      ### frac ...
       my $frac = $n - $int;  # inherit possible BigFloat/BigRat
       my ($x1,$y1) = $self->n_to_xy($int);
       my ($x2,$y2) = $self->n_to_xy($int+1);
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
+      ### x1,y1: "$x1, $y1"
+      ### x2,y2: "$x2, $y2"
+      ### dx,dy: "$dx, $dy"
+      ### result: ($frac*$dx + $x1).', '.($frac*$dy + $y1)
       return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
+    $n = $int;
   }
 
-  my $zero = ($n & 0);  # inherit bignum 0
+  my $zero = ($n * 0);  # inherit bignum 0
   my $one = $zero + 1;  # inherit bignum 1
 
   my $tree_type = $self->{'tree_type'};
@@ -272,9 +281,6 @@ sub n_to_xy {
 #   return $rev;
 # }
 
-# uncomment this to run the ### lines
-#use Devel::Comments;
-
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = _round_nearest ($x);
@@ -293,8 +299,8 @@ sub xy_to_n {
 
   # ($x,$y) = ($y,$x);
 
-  my $zero = ($x & 0) & $y;  # inherit bignum 0
-  my $one = ($zero + 1);     # inherit bignum 1
+  my $zero = $x * 0 * $y;   # inherit bignum 0
+  my $one = ($zero + 1);    # inherit bignum 1
 
   if ($self->{'tree_type'} eq 'AYT') {
 
@@ -438,7 +444,7 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  my $zero = ($x1 & 0 & $y1 & $x2 & $y2);  # inherit bignum
+  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
   ### $zero
 
   if ($x1 < 1) { $x1 = 1; }
@@ -479,7 +485,7 @@ sub _bingcd_max {
 # sub _fib_log {
 #   my ($x) = @_;
 #   ### _fib_log(): $x
-#   my $f0 = ($x&0);
+#   my $f0 = ($x * 0);
 #   my $f1 = $f0 + 1;
 #   my $count = 0;
 #   while ($x > $f0) {

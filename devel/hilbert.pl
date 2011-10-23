@@ -234,7 +234,7 @@ sub Xtry {
   ### hex: sprintf "%#X", $n
   return if $n < 0;
 
-  my $x = my $y = ($n & 0); # inherit
+  my $x = my $y = ($n * 0); # inherit
   my $pos = 0;
   {
     my $pow = $x + 4;        # inherit

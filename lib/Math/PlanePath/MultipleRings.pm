@@ -26,14 +26,14 @@ use List::Util qw(min max);
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+#use Devel::Comments;
 
 
 use constant figure => 'circle';
@@ -99,6 +99,13 @@ sub new {
 #
 # d = 1/2 + sqrt(2 * $n + 1/4)
 #   = 0.5 + sqrt(2*$n + 0.25)
+#   = [ 1 + 2*sqrt(2n + 1/4) ] / 2
+#   = [ 1 + sqrt(8n + 1) ] / 2
+#
+# (d+1)d/2 - d(d-1)/2
+#     = [ (d^2 + d) - (d^2-d) ] / 2
+#     = [ d^2 + d - d^2 + d ] / 2
+#     = 2d/2 = d
 #
 # radius
 #    step > 6     1 / (2 * sin(pi / ($d*$step))
@@ -110,7 +117,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MultipleRings n_to_xy(): $n
+  ### MultipleRings n_to_xy(): "$n"
   ### step: $self->{'step'}
 
   # "$n<1" separate test from decrement so as to warn on undef
@@ -127,21 +134,40 @@ sub n_to_xy {
     return ($n, 0);
   }
   $n /= $step;
-  ### divided n: $n
+  ### divided n: "$n"
+  ### divided n int: int($n).''
 
-  my $d = int(0.5 + sqrt(2*$n + 0.25));
-  ### d frac: 0.5 + sqrt(2*$n + 0.25)
-  ### d int: $d
+  my $d = int((1 + sqrt(int(8*$n) + 1)) / 2);
+
+  ### d frac: (1 + sqrt(int(8*$n) + 1)) / 2
+  ### d int: "$d"
+  ### base: ($d*($d-1)/2).''
+  ### next base: (($d+1)*$d/2).''
+  ### assert: $n >= ($d*($d-1)/2)
+  ### assert: $n < (($d+1)*$d/2)
+
+  $n -= $d*($d-1)/2;
+  ### remainder: "$n"
+  ### assert: $n >= 0
+  ### assert: $n < $d
 
   my $r = ($step > 6
            # && $d != 0 # watch out for overflow making d==0
            ? 0.5 / sin(M_PI() / ($d*$step))
            : $d + $self->{'base_r'});
-  ### $r
-  my $theta = ($n - 0.5*$d*($d-1))/$d * (2*M_PI());
-  ### base: 0.5*$d*($d-1)
-  ### remainder: ($n - 0.5*$d*($d-1))
-  ### theta frac: ($n - 0.5*$d*($d-1))/$d
+  ### r: "$r"
+
+  my $theta = $n/$d * (2*M_PI());
+
+  ### theta frac: (($n - $d*($d-1)/2)/$d).''
+  ### theta: "$theta"
+  ### theta float: (ref $theta && $theta->as_float.'')
+
+  # BigFloat sin()/cos() are very slow, is plain cos/sin enough accuracy ?
+  if (ref $theta
+      && ($theta->isa('Math::BigRat') || $theta->isa('Math::BigFloat'))) {
+    $theta = $theta->numify;
+  }
 
   return ($r * cos($theta),
           $r * sin($theta));
@@ -277,7 +303,7 @@ sub _xy_to_angle_frac {
 1;
 __END__
 
-=for stopwords Ryde HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings Math-PlanePath
+=for stopwords Ryde HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings Math-PlanePath Pentagonals
 
 =head1 NAME
 
@@ -416,3 +442,9 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=MultipleRings --lines"
+# End:
+#
+# math-image --path=UlamWarburton --all --output=numbers --size=80x50

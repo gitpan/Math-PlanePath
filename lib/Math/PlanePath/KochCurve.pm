@@ -39,7 +39,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -62,13 +62,15 @@ sub n_to_xy {
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $x;
+  my $y;
   {
     my $int = int($n);
     $x = 2 * ($n - $int);  # usually positive, but n=-0.5 gives x=-0.5
+    $y = $x * 0;           # inherit possible bigrat 0
     $n = $int;             # BigFloat int() gives BigInt, use that
   }
-  my $y = 0;
-  my $len = 1;
+
+  my $len = $y+1;  # inherit bignum 1
   while ($n) {
     my $digit = $n % 4;
     $n = int($n/4);
@@ -191,12 +193,17 @@ sub _round_down_pow {
 
   # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
   # based blog()
-  if (ref $n && ($n->isa('Math::BigInt') || $n->isa('Math::BigRat'))) {
-    ### use blog() ...
-    my $exp = $n->copy->blog($base);
-    ### exp: "$exp"
-    return (Math::BigInt->new(1)->blsft($exp,$base),
-            $exp);
+  if (ref $n) {
+    if ($n->isa('Math::BigRat')) {
+      $n = int($n);
+    }
+    if ($n->isa('Math::BigInt')) {
+      ### use blog() ...
+      my $exp = $n->copy->blog($base);
+      ### exp: "$exp"
+      return (Math::BigInt->new(1)->blsft($exp,$base),
+              $exp);
+    }
   }
 
   my $exp = int(log($n)/log($base));
@@ -223,7 +230,7 @@ sub _round_down_pow {
 1;
 __END__
 
-=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel
+=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable
 
 =head1 NAME
 

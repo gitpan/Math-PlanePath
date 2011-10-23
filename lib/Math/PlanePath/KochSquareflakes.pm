@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -132,7 +132,8 @@ sub n_to_xy {
 
   ### horiz: join(', ',@horiz)
   ### $i
-  my $x = my $y = $horiz[$i]/-2;
+  my $x =
+    my $y = ($n * 0) + $horiz[$i]/-2;  # inherit bignum
   if ($rot & 1) {
     ($x,$y) = (-$y,$x)
   }
@@ -210,8 +211,8 @@ sub n_to_xy {
       $dx = -$dx;
       $dy = -$dy;
     }
-    $x += $dx;
-    $y += $dy;
+    $x = $dx + $x;
+    $y = $dy + $y;
   }
 
   return ($x,$y);
@@ -418,7 +419,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie Math-PlanePath Koch
+=for stopwords eg Ryde ie Math-PlanePath Koch Nstart Xstart Ystart
 
 =head1 NAME
 

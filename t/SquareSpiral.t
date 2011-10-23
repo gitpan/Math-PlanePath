@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 92 }
+BEGIN { plan tests => 154 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 48;
+  my $want_version = 49;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
@@ -57,6 +57,216 @@ require Math::PlanePath::SquareSpiral;
       1,
       "VERSION object check $check_version");
 }
+
+#------------------------------------------------------------------------------
+# formulas in pod
+
+{
+  my $path = Math::PlanePath::SquareSpiral->new;
+
+  my $d = 3;
+  my $Nbase = 4*$d**2 - 4*$d + 2;
+  ok ($Nbase, 26);
+
+  { my $N = $Nbase;
+    my $dd = int (1/2 + sqrt($N/4 - 1/4));
+    ok ($dd, $d, 'd');
+    $dd = int ((1+sqrt($N-1)) / 2);
+    ok ($dd, $d, 'd');
+  }
+  { my $N = $Nbase + 8*$d-1;
+    my $dd = int (1/2 + sqrt($N/4 - 1/4));
+    ok ($dd, $d, 'd');
+    $dd = int ((1+sqrt($N-1)) / 2);
+    ok ($dd, $d, 'd');
+  }
+  { my $N = $Nbase + 8*$d-1 + 1;
+    my $dd = int (1/2 + sqrt($N/4 - 1/4));
+    ok ($dd, $d+1, 'd');
+    $dd = int ((1+sqrt($N-1)) / 2);
+    ok ($dd, $d+1, 'd');
+  }
+
+  # right upwards
+  { my $Nrem = 0;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok ($d,          $want_x, 'X');
+    ok (-$d+1+$Nrem, $want_y, 'Y');
+  }
+  { my $Nrem = 2*$d-1;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok ($d,          $want_x, 'X');
+    ok (-$d+1+$Nrem, $want_y, 'Y');
+  }
+
+  # top
+  { my $Nrem = 2*$d-1;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok (3*$d-1-$Nrem, $want_x, 'X');
+    ok ($d,           $want_y, 'Y');
+  }
+  { my $Nrem = 4*$d-1;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok (3*$d-1-$Nrem, $want_x, 'X');
+    ok ($d,           $want_y, 'Y');
+  }
+
+  # left downwards
+  { my $Nrem = 4*$d-1;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok (-$d,          $want_x, 'X');
+    ok (5*$d-1-$Nrem, $want_y, 'Y');
+  }
+  { my $Nrem = 6*$d-1;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok (-$d,          $want_x, 'X');
+    ok (5*$d-1-$Nrem, $want_y, 'Y');
+  }
+
+  # bottom
+  { my $Nrem = 6*$d-1;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok (-7*$d+1+$Nrem, $want_x, 'X');
+    ok (-$d,           $want_y, 'Y');
+  }
+  { my $Nrem = 8*$d;
+    my ($want_x,$want_y) = $path->n_to_xy($Nbase+$Nrem);
+    ok (-7*$d+1+$Nrem, $want_x, 'X');
+    ok (-$d,           $want_y, 'Y');
+  }
+
+
+  # right upwards
+  my $Nzero = $Nbase + 4*$d-1;
+  { my $Nsig = -(4*$d-1);
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($d,         $want_x, 'X');
+    ok (3*$d+$Nsig, $want_y, 'Y');
+  }
+  { my $Nsig = -2*$d;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($d,         $want_x, 'X');
+    ok (3*$d+$Nsig, $want_y, 'Y');
+  }
+
+  # top
+  { my $Nsig = -2*$d;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d-$Nsig, $want_x, 'X');
+    ok ($d,        $want_y, 'Y');
+  }
+  { my $Nsig = 0;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d-$Nsig, $want_x, 'X');
+    ok ($d,           $want_y, 'Y');
+  }
+
+  # left downwards
+  { my $Nsig = 0;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d,      $want_x, 'X');
+    ok ($d-$Nsig, $want_y, 'Y');
+  }
+  { my $Nsig = 2*$d;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d,      $want_x, 'X');
+    ok ($d-$Nsig, $want_y, 'Y');
+  }
+
+  # bottom
+  { my $Nsig = 2*$d;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($Nsig-3*$d, $want_x, 'X');
+    ok (-$d,        $want_y, 'Y');
+  }
+  { my $Nsig = 4*$d+1;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($Nsig-3*$d, $want_x, 'X');
+    ok (-$d,        $want_y, 'Y');
+  }
+}
+
+#------------------------------------------------------------------------------
+# formulas in pod -- wider
+
+{
+  my $path = Math::PlanePath::SquareSpiral->new (wider => 7);
+
+  my $d = 3;
+  my $w = 7;
+  my $Nbase = 4*$d**2 + (-4+2*$w)*$d + 2-$w;
+  ok ($Nbase, 61);
+  my $wl = int(($w+1)/2); # ceil
+  my $wr = int($w/2);     # floor
+  ok ($wl, 4);
+  ok ($wr, 3);
+
+  { my $N = $Nbase;
+    my $dd = int ((2-$w + sqrt(4*$N + $w**2 - 4)) / 4);
+    ok ($dd, $d, 'd');
+  }
+  { my $N = $Nbase + 8*$d+2*$w-1;
+    my $dd = int ((2-$w + sqrt(4*$N + $w**2 - 4)) / 4);
+    ok ($dd, $d, 'd');
+  }
+  { my $N = $Nbase + 8*$d+2*$w-1 + 1;
+    my $dd = int ((2-$w + sqrt(4*$N + $w**2 - 4)) / 4);
+    ok ($dd, $d+1, 'd');
+  }
+
+  # right upwards
+  my $Nzero = $Nbase + 4*$d-1+$w;
+  { my $Nsig = -(4*$d-1+$w);
+    ok ($Nzero+$Nsig, $Nbase);
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($d+$wr,        $want_x, 'X');
+    ok (3*$d+$w+$Nsig, $want_y, 'Y');
+  }
+  { my $Nsig = -(2*$d+$w);
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($d+$wr,        $want_x, 'X');
+    ok (3*$d+$w+$Nsig, $want_y, 'Y');
+  }
+  
+  # top
+  { my $Nsig = -(2*$d+$w);
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d-$wl-$Nsig, $want_x, 'X');
+    ok ($d,            $want_y, 'Y');
+  }
+  { my $Nsig = 0;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d-$wl-$Nsig, $want_x, 'X');
+    ok ($d,            $want_y, 'Y');
+  }
+  
+  # left downwards
+  { my $Nsig = 0;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d-$wl,  $want_x, 'X');
+    ok ($d-$Nsig, $want_y, 'Y');
+  }
+  { my $Nsig = 2*$d;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok (-$d-$wl,  $want_x, 'X');
+    ok ($d-$Nsig, $want_y, 'Y');
+  }
+  
+  # bottom
+  { my $Nsig = 2*$d;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($Nsig-$wl-3*$d, $want_x, 'X');
+    ok (-$d,            $want_y, 'Y');
+  }
+  { my $Nsig = 4*$d+1+$w;
+    my ($want_x,$want_y) = $path->n_to_xy($Nzero+$Nsig);
+    ok ($Nsig-$wl-3*$d, $want_x, 'X');
+    ok (-$d,            $want_y, 'Y');
+  }
+}
+
+
+
 
 #------------------------------------------------------------------------------
 # n_start, x_negative, y_negative

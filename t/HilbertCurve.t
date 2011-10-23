@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
 use Test;
 BEGIN { plan tests => 10 }
 
@@ -37,7 +36,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 48;
+  my $want_version = 49;
   ok ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HilbertCurve->VERSION,  $want_version,

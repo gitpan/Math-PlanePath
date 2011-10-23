@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 # inherit new(), rect_to_n_range(), arms_count(), n_start(),
 # parameter_info_array()
@@ -44,7 +44,7 @@ my @digit_reverse = (0,1,0,0,1);
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### QuintetCentres n_to_xy(): $n
+  ### QuintetCentres n_to_xy(): "arms=$self->{'arms'}   $n"
 
   if ($n < 0) {
     return;
@@ -67,6 +67,7 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
+  my $zero = ($n * 0);   # inherit BigInt 0
   my $rot = $n % $arms;
   $n = int($n/$arms);
 
@@ -74,8 +75,8 @@ sub n_to_xy {
   my @sx;
   my @sy;
   {
-    my $sx = $rot_to_sx[$rot];
-    my $sy = $rot_to_sy[$rot];
+    my $sx = $zero + $rot_to_sx[$rot];
+    my $sy = $zero + $rot_to_sy[$rot];
     while ($n) {
       push @digits, ($n % 5);
       push @sx, $sx;
@@ -101,11 +102,10 @@ sub n_to_xy {
   ### reversed n: @digits
 
 
-  my $x = 0;
-  my $y = 0;
-  my $ox = 0;
-  my $oy = 0;
-  # my $rot = 0;
+  my $x =
+    my $y =
+      my $ox =
+        my $oy = $zero;
 
   while (defined (my $digit = shift @digits)) {  # low to high
     my $sx = shift @sx;
@@ -155,10 +155,6 @@ sub n_to_xy {
   return ($x + $ox + $rot_to_x[$rot],
           $y + $oy + $rot_to_y[$rot]);
 }
-
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
 
 
 # modulus 2*X+Y

@@ -27,7 +27,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -79,6 +79,8 @@ sub n_to_xy {
   }
   ### $frac
 
+  my $zero = ($n * 0);  # inherit bignum 0
+
   my $arms = $self->{'arms'};
   my $rot = $n % $arms;
   $n = int($n/$arms);
@@ -91,8 +93,8 @@ sub n_to_xy {
   my @sx;
   my @sy;
   {
-    my $sx = 3;
-    my $sy = 0;
+    my $sx = $zero + 3;
+    my $sy = $zero;
     while ($n) {
       push @digits, ($n % 2);
       push @sx, $sx;
@@ -107,8 +109,8 @@ sub n_to_xy {
 
   ### @digits
   my $rev = 0;
-  my $x = 0;
-  my $y = 0;
+  my $x = $zero;
+  my $y = $zero;
   my $above_low_zero = 0;
 
   for (my $i = $#digits; $i >= 0; $i--) {     # high to low
@@ -158,7 +160,7 @@ sub n_to_xy {
   #
   my $y_offset = ($x_offset ? ($above_low_zero ? -$frac : $frac)
                   : 0);
-  $x_offset += $frac + 1;
+  $x_offset = $frac + 1 + $x_offset;
 
   ### final: "$x,$y  rot=$rot  above_low_zero=$above_low_zero   offset=$x_offset,$y_offset"
   if ($rot & 2) {
@@ -167,8 +169,8 @@ sub n_to_xy {
   if ($rot & 1) {
     ($x_offset,$y_offset) = (-$y_offset,$x_offset);  # rotate +90
   }
-  $x += $x_offset;
-  $y += $y_offset;
+  $x = $x_offset + $x;
+  $y = $y_offset + $y;
   ### rotated offset: "$x_offset,$y_offset   return $x,$y"
   return ($x,$y);
 }

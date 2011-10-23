@@ -25,7 +25,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 48;
+$VERSION = 49;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -117,7 +117,7 @@ sub xy_to_n {
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
 
-  my $n = ($x & 0 & $y);  # inherit bignum 0
+  my $n = ($x * 0 * $y);  # inherit bignum 0
   my $power = $n + 1;     # inherit bignum 1
 
   while ($x || $y) {
@@ -168,7 +168,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath abcde ie
+=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie
 
 =head1 NAME
 

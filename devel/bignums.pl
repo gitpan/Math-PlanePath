@@ -26,6 +26,17 @@ use POSIX ();
 use Devel::Comments;
 
 {
+  require Math::Complex;
+  my $c = Math::Complex->new(123);
+  ### $c
+  print $c,"\n";
+  print $c * 0,"\n";;
+### int: int($c)
+  print int($c),"\n";;
+  exit 0;
+}
+
+{
   require Math::BigRat;
 
   require Math::BigFloat;
@@ -55,7 +66,7 @@ use Devel::Comments;
     print "$x\n";
     my $r = sqrt($x);
     print "$r\n";
-    my $r = int($r);
+     $r = int($r);
     print "$r\n";
   }
 }

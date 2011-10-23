@@ -17,6 +17,11 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 49, October 2011
+    - new AztecDiamondRings, DivisibleColumns, SierpinskiCurve,
+      UlamWarburtonQuarter
+    - SierpinskiArrowheadCentres fix for n_to_xy() on fractional $n
+
 Version 48, October 2011
     - new UlamWarburton
 
