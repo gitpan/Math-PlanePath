@@ -32,6 +32,7 @@ devel/hilbert.pl
 devel/hypot.pl
 devel/interpolate.pl
 devel/iterator.pl
+devel/koch-curve.pl
 devel/koch-squareflakes.pl
 devel/Makefile
 devel/old/DragonArms.pm
@@ -78,6 +79,7 @@ inc/MyMakeMakerExtras.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
+lib/Math/PlanePath/CellularRule190.pm
 lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm
@@ -155,6 +157,7 @@ t/bigint-lite.t
 t/bigint.t
 t/bigint_common.pm
 t/bigrat.t
+t/CellularRule190.t
 t/Columns-load.t
 t/Columns.t
 t/ComplexMinus.t

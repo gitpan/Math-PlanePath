@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -398,6 +398,22 @@ Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
+
+=head1 FORMULAS
+
+=head2 Rectangle to N Range
+
+The cumulative divisor count up to and including a given X column can be
+calculated from the fairly well-known sqrt formula,
+
+    S = floor(sqrt(X))
+                           /   i=S             \
+    divs cumulative = 2 * |   sum  floor(X/i)   |  - S^2
+                           \   i=1             /
+
+This means the N range for 0 to X can be calculated without needing to work
+out individual columns counts up to X.  In the current code if column counts
+have been worked out then they're used, otherwise this formula.
 
 =head1 SEE ALSO
 

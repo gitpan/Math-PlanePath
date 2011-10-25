@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 50, October 2011
+    - DragonRounded fix xy_to_n() with arms=2,3,4 on innermost XY=0,1
+    - SierpinskiCurve fixes for rect_to_n_range()
+
 Version 49, October 2011
     - new AztecDiamondRings, DivisibleColumns, SierpinskiCurve,
       UlamWarburtonQuarter

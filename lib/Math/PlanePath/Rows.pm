@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -29,7 +29,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;
@@ -46,7 +46,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### Rows n_to_xy(): $n
+  ### Rows n_to_xy(): "$n"
 
   # no division by zero, and negatives not meaningful for now
   my $width;

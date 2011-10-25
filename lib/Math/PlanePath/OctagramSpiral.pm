@@ -29,7 +29,7 @@ use List::Util 'max';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 

@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -33,7 +33,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -365,8 +365,10 @@ sub rect_to_n_range {
        : ($y2 < 0
           && (($arms == 5 && $x1 >= $y2)
               || ($arms == 6 && $x1 >= 0)
-              || ($arms == 7 && $x1 > 2-$y2))))) {
-    ### rect outside octants ...
+              || ($arms == 7 && $x1 > 3-$y2))))) {
+    ### rect outside octants, for arms: $arms
+    ### $x1
+    ### $y2
     return (1,0);
   }
 
@@ -398,7 +400,7 @@ sub rect_to_n_range {
   #   Nlevel = 4^level-1
 
   my $base = 2 * $self->{'diagonal_spacing'} + $self->{'straight_spacing'};
-  my ($power) = _round_down_pow ($max / $base || 1,
+  my ($power) = _round_down_pow ((($max+$base) / $base) || 1,
                                  2);
   return (0, 4*$power*$power * $arms - 1);
 }

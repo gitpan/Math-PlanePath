@@ -44,7 +44,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -536,6 +536,50 @@ show the equivalence,
       -----1        |
      /      \      /
     0        -----2
+
+=head2 Power of 3 Patterns
+
+Plotting sequences of values with some connection to ternary digits or
+powers of 3 generally give the most interesting patterns on the Peano curve.
+For example the Mephisto waltz sequence (eg. L<Math::NumSeq::MephistoWaltz>)
+makes diamond shapes,
+
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
+      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
+      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
+      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
+      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+
+This arises from each 3x3 block being one of two shapes (then flipped by the
+Peano pattern)
+
+    * * _                     _ _ *
+    * _ _           or        _ * *    (inverse)
+    _ _ *                     * * _
+
+    0,0,1, 0,0,1, 1,1,0       1,1,0, 1,1,0, 0,0,1
 
 =head1 FUNCTIONS
 

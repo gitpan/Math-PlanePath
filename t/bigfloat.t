@@ -34,8 +34,10 @@ plan tests => $test_count;
 MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
 
 {
-  if (! eval { Math::BigFloat->new(2) ** 3 }) {
+  my $f;
+  if (! eval { $f = Math::BigFloat->new(2) ** 3; 1 }) {
     MyTestHelpers::diag ('skip due to Math::BigFloat no "**" operator -- ',$@);
+    MyTestHelpers::diag ('value ',$f);
     foreach (1 .. $test_count) {
       skip ('due to no Math::BigFloat "**" operator', 1, 1);
     }
@@ -47,6 +49,14 @@ unless (eval { Math::BigFloat->VERSION(1.993); 1 }) {
   MyTestHelpers::diag ('skip due to doubtful oldish Math::BigFloat, maybe');
   foreach (1 .. $test_count) {
     skip ('due to oldish Math::BigFloat', 1, 1);
+  }
+  exit 0;
+}
+unless ($] > 5.008) {
+  # something fishy for BigFloat on 5.6.2, worry about it later
+  MyTestHelpers::diag ('skip due to doubtful Math::BigFloat on 5.6.x, maybe');
+  foreach (1 .. $test_count) {
+    skip ('due to Perl 5.6', 1, 1);
   }
   exit 0;
 }
@@ -170,11 +180,11 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
     my $n = $y*($y+1)/2 + 1;  # X=0 vertical
 
     my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x == 0, 1);
-    ok ($got_y == $y, 1);
+    ok ($got_x == 0, 1, "Diagonals x of n_to_xy for x=0 y=2^128-1");
+    ok ($got_y == $y, 1, "Diagonals x of n_to_xy for x=0 y=2^128-1");
 
     my $got_n = $path->xy_to_n(0,$y);
-    ok ($got_n, $n);
+    ok ($got_n, $n, "Diagonals xy_to_n() at x=0 y=2^128-1");
   }
   {
     my $n = Math::BigFloat->new(-1);

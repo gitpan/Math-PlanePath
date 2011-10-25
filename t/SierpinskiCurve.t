@@ -20,14 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1150 }
+BEGIN { plan tests => 1151 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 require Math::PlanePath::SierpinskiCurve;
 
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurve;
 # VERSION
 
 {
-  my $want_version = 49;
+  my $want_version = 50;
   ok ($Math::PlanePath::SierpinskiCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurve->VERSION,  $want_version,
@@ -86,6 +86,22 @@ require Math::PlanePath::SierpinskiCurve;
     ok ($path->x_negative, $want_x_negative, 'x_negative()');
     ok ($path->y_negative, $want_y_negative, 'y_negative()');
   }
+}
+
+
+#------------------------------------------------------------------------------
+# rect_to_n_range() near origin
+
+{
+  my $path = Math::PlanePath::SierpinskiCurve->new (arms => 7);
+  my $n = 55;
+  my ($x,$y) = $path->n_to_xy (55);
+  my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,,-1, $x,$y);
+  ### $x
+  ### $y
+  ### $n_lo
+  ### $n_hi
+  ok ($n_hi >= 55, 1, "got n_hi $n_hi");
 }
 
 
@@ -184,7 +200,7 @@ foreach my $arms (1 .. 8) {
 }
 
 
-# ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # xy_to_n() near origin
 
 {

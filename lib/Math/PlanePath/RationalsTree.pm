@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -512,13 +512,15 @@ Math::PlanePath::RationalsTree -- rationals by tree
 
 =head1 DESCRIPTION
 
-This path enumerates reduced rational fractions X/Y with no common factor
-between X and Y by one of five different types of binary trees.
+This path enumerates rational fractions X/Y in reduced form, ie. having no
+common factor between X and Y, by one of five different binary trees.
 
 The trees effectively represent a coprime pair X,Y by the steps of the
 binary greatest common divisor algorithm which would prove X,Y coprime.  The
 different encoding of those steps in N gives a different order for the X/Y
-values in the tree types.
+values in the tree types.  In the current tree types the set of X/Y values
+in a tree row is the same in all cases, just the order within the row
+varies.
 
 See F<examples/rationals-tree.pl> in the PlanePath sources for a simple
 print of all the trees.
@@ -536,8 +538,8 @@ Brocot.  The rows are fractions of increasing value.
                        | |      | |      | |      | |
     N=8 to N=15     1/4  2/4  3/5 3/4  4/3 5/3  5/2 4/1
 
-Writing the parents in between the children as an "in-order" traversal to
-given depth gives values in increasing order too,
+Writing the parents in between the children as an "in-order" traversal of
+given depth has the values in increasing order too,
 
                  1/1
          1/2      |      2/1
@@ -548,13 +550,13 @@ given depth gives values in increasing order too,
                     ^
                    4/3
 
-New values are formed by a "mediant" (x1+x2)/(y1+y2) of left and right
-parents based on this flattening.  The 4/3 above is formed from left parent
-1/1 and right parent 3/2 for mediant (1+3)/(1+2)=4/3.
+New values are a "mediant" value (x1+x2)/(y1+y2) of the left and right
+parents in this flattening.  The 4/3 above is formed from left parent 1/1
+and right parent 3/2 as mediant (1+3)/(1+2)=4/3.
 
 Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
-so is excluded.
+so is never reached.
 
     10  |  512        35                  44       767
      9  |  256   33        39   40        46  383       768
@@ -570,9 +572,9 @@ so is excluded.
          -------------------------------------------------------------
            X=1    2    3    4    5    6    7    8    9   10
 
-The X=1 vertical is the 1/Y fractions at the start of each tree row
+The X=1 vertical is the 1/Y fractions at the left of each tree row, being
 Nstart=2^level.  The Y=1 horizontal is the Y/1 integers at the end each row
-Nend=2^(level+1)-1.
+which is Nend=2^(level+1)-1.
 
 =head2 Calkin-Wilf Tree
 
@@ -580,8 +582,8 @@ C<tree_type=E<gt>"CW"> selects the tree of Neil Calkin and Herbert Wilf.
 
     http://www.math.upenn.edu/%7Ewilf/website/recounting.pdf
 
-The values within each row of the tree are the same as the Stern-Brocot, but
-in a different order.
+The values within each row are the same as the Stern-Brocot, but in a
+different order.
 
     N=1                             1/1
                               ------   ------
@@ -592,16 +594,16 @@ in a different order.
     N=8 to N=15     1/4  4/3  3/5 5/2  2/5 5/3  3/4 4/1
 
 Going across by rows the denominator of one value becomes the numerator of
-the next.  So at 4/3 the denominator 3 becomes the numerator of 3/5 to its
-right.  These values are Stern's diatomic sequence.
+the next.  So at 4/3 the denominator 3 becomes the numerator of the 3/5 to
+the right.  These values are Stern's diatomic sequence.
 
-Each row is symmetric, reading from right to left is the reciprocals of left
-to right.
+Each row is symmetric in reciprocals, ie. reading from right to left is the
+reciprocals of reading left to right.
 
 A node descends as
 
           X/Y
-        /     \         applied N bits high to low
+        /     \             (N bits high to low)
     X/(X+Y)  (X+Y)/Y
 
 This can can be viewed in reverse to see how it relates to the binary
@@ -613,7 +615,7 @@ the bigger,
     P/Q                    P/Q
 
 Plotting the N values by X,Y has the same X=1 vertical and Y=1 horizontal as
-the SB above, but the values in the middle differ.
+the SB above, but the values in between are re-ordered.
 
     10  |  512        56                  38      1022
      9  |  256   48        60   34        46  510       513
@@ -629,10 +631,11 @@ the SB above, but the values in the middle differ.
          -------------------------------------------------------------
            X=1    2    3    4    5    6    7    8    9   10
 
-N values for the SB and CW trees are converted by reversing bits.  If N =
-binary "1abcde" in the SB tree then the same X/Y is at N = binary "1edcba"
-in the CW.  For example at X=3,Y=4 the SB tree has N=11=0b1011 and the CW
-has N=14=0b1110, a reversal of the bits below the high 1.
+N values for the SB and CW trees are converted by reversing bits.  If N is
+binary "1abcde" is at a particular X,Y in the SB tree then at that X,Y in
+the CW the N value is "1edcba".  For example at X=3,Y=4 the SB tree has
+N=11=0b1011 and the CW has N=14=0b1110, a reversal of the bits below the
+high 1.
 
 N to X/Y in the CW tree can be calculated keeping track of just an X,Y pair
 and descending to X/(X+Y) or (X+Y)/Y using the bits of N from high to low.
@@ -648,9 +651,10 @@ by D. N. Andreev and Shen Yu-Ting.
    http://www.jstor.org/stable/2320374
 
 Their constructions are a one-to-one mapping between integer N and rational
-X/Y as a way of enumerating the rationals, not a tree as such, but the
-result is the same sort of 2^level rows as the above trees.  The X/Y values
-within each row are the same as SB and CW, but in a different order.
+X/Y as a way of enumerating the rationals.  It's not designed to be a tree
+as such, but the result is the same sort of 2^level rows as the above trees.
+The X/Y values within each row are the same as SB and CW, but in a further
+different order.
 
     N=1                             1/1
                               ------   ------
@@ -660,8 +664,8 @@ within each row are the same as SB and CW, but in a different order.
                        | |      | |      | |      | |
     N=8 to N=15     4/1  1/4  4/3 3/4  5/2 2/5  5/3 3/5
 
-Each fraction descends as follows.  The left is an increment and the right
-its reciprocal (the reciprocal of the increment).
+Each fraction descends as follows.  The left increments and the right is
+increment then reciprocal.
 
             X/Y
           /     \
@@ -670,15 +674,15 @@ its reciprocal (the reciprocal of the increment).
 which means
 
           X/Y
-        /     \           (N bits high to low)
+        /     \               (N bits high to low)
     (X+Y)/Y  Y/(X+Y)
 
-The (X+Y)/Y is the same as in the CW (on the right instead of left), but
-Y/(X+Y) is not the same as X/(X+Y) of the CW.
+The (X+Y)/Y leg is the same as in the CW (on the right instead of left).
+But Y/(X+Y) is not the same as X/(X+Y) of the CW.
 
 The Y/(X+Y) right leg forms the Fibonacci numbers F(k)/F(k+1) at the end of
-each row, at Nend=2^(level+1)-1.  And as noted by Andreev successive right
-legs at N=4k+1 and N=4k+3 points add up to 1,
+each row, ie. at Nend=2^(level+1)-1.  And as noted by Andreev successive
+right legs at points N=4k+1 and N=4k+3 add up to 1, ie.
 
     X/Y at N=4k+1   +   X/Y at N=4k+3   =  1
     Eg. 2/5 at N=13 and 3/5 at N=15 add up to 1
@@ -719,8 +723,8 @@ It's expressed recursively (illustrating Haskell features) and ends up as
                        | |      | |      | |      | |
     N=8 to N=15     3/5  3/4  1/4 2/5  5/2 4/1  4/3 5/3
 
-The descendants of each node are plus one and reciprocal, or reciprocal and
-plus one (the other way around),
+The subtrees are plus one and reciprocal, or reciprocal and plus one
+(ie. the other way around),
 
     1/(tree + 1)  and  (1/tree) + 1
 
@@ -750,11 +754,11 @@ the second highest bit, since those integers are in the right hand half of
 the tree.
 
 The Bird tree N values are related to the SB tree by inverting every second
-bit, starting from the second after the highest 1, ie. "001010...".  So if
-N=1abcdefg binary then b,d,f are inverted, ie. an xored with binary
+bit, starting from the second after the highest 1, ie. xor "001010...".  So
+if N=1abcdefg binary then b,d,f are inverted, ie. an xored with binary
 00101010.  For example 3/4 in the SB tree is at N=11 = binary 1011.  Xor
 with 0010 for binary 1001 N=9 which is the 3/4 in the Bird tree.  The same
-xor goes back the other way the Bird tree to the SB tree.
+xor goes back the other way Bird tree to SB tree.
 
 This xoring reflects the way the tree is mirrored, swapping left and right
 at each level.  Only every second bit is inverted because mirroring twice
@@ -763,7 +767,8 @@ at each level.  Only every second bit is inverted because mirroring twice
 =head2 Drib Tree
 
 C<tree_type=E<gt>"Drib"> selects the Drib tree by Ralf Hinze.  It reverses
-the bits of N in the Bird tree.
+the bits of N in the Bird tree (in a similar way that the SB and CW are bit
+reversals).
 
     N=1                             1/1
                               ------   ------
@@ -779,36 +784,35 @@ The descendants of each node are
         /     \
     Y/(X+Y)  (X+Y)/X
 
-Both ends are Fibonacci numbers F(k)/F(k+1) on the left and F(k+1)/F(k) on
-the right.
+Both ends have Fibonacci numbers, being F(k)/F(k+1) on the left and
+F(k+1)/F(k) on the right.
 
-The bit reversal between the Bird and Drib trees is the same as between the
-SB and CW trees.  This means the N xor described above which relates Bird
-and SB applies similarly to Drib and CW, but starting from the second lowest
-instead of the second highest bits, ie. binary "0..01010".  For example 4/1
-is at N=15 binary 1111 in the CW tree.  Xor with 0010 for 1101 N=13 which is
-4/1 in the Drib tree.
+Because Drib/Bird are bit reversals like CW/SB are bit reversals, the xor
+procedure described above for BirdE<lt>-E<gt>SB applies to
+DribE<lt>-E<gt>CW, but working from the second lowest bit upwards, ie. xor
+binary "0..01010".  For example 4/1 is at N=15 binary 1111 in the CW tree.
+Xor with 0010 for 1101 N=13 which is 4/1 in the Drib tree.
 
 =head2 Common Characteristics
 
 In all the trees the rows are permutations of the fractions arising from the
 SB tree and Stern diatomic sequence.  The properties of the diatomic
-sequence mean that within a level Nstart=2^level to Nend=2^(level+1)-1 the
-fractions have totals
+sequence mean that within a level from Nstart=2^level to Nend=2^(level+1)-1
+the fractions have totals
 
     sum fractions = (3 * 2^level - 1) / 2
 
     sum numerators = 3^level
 
 For example at level=2, N=4 to N=7, the fractions are 1/3, 2/3, 3/2, 3/1.
-The numerators 1+2+3+3=9 is 3^2.  The sum as fractions 1/3+2/3+3/2+3/1 =
-11/2 which is 3*2^2-1=11, over 2.
+The numerators 1+2+3+3 = 9 is 3^2.  The sum as fractions 1/3+2/3+3/2+3/1 =
+11/2 is (3*2^2-1)/2=11/2.
 
 =head1 OEIS
 
 Some of the trees are in Sloane's Online Encyclopedia of Integer Sequences.
 
-    http://oeis.org/A002487
+    http://oeis.org/A002487  (etc)
 
     A002487  - Stern's diatomic sequence, num/den of CW tree
     A162909  - Bird tree numerators
@@ -836,8 +840,8 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
 
 For reference, C<$n_hi> can be quite large because within each row there's
 only one new X/1 integer and 1/Y fraction.  So if X=1 or Y=1 is included
-then roughly C<$n_hi = 2**max(x,y)>.  If min(x,y) is bigger than 1 then
-roughly 2**(max/min + min).
+then roughly C<$n_hi = 2**max(x,y)>.  If min(x,y) is bigger than 1 then it
+reduces a little to roughly 2**(max/min + min).
 
 =back
 

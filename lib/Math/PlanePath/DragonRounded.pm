@@ -27,7 +27,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -37,6 +37,9 @@ use Math::PlanePath;
 
 use Math::PlanePath::SierpinskiArrowhead;
 *_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant n_start => 0;
 sub arms_count {
@@ -205,15 +208,29 @@ sub xy_to_n {
     }
   }
 
+  my $arms = $self->{'arms'};
+
+  # n=0 not covered by @digits starting from 1 ...
+  # {
+  #   my $ax = $x;
+  #   my $ay = $y;
+  #   foreach my $arm (0 .. $arms-1) {
+  #     if ($ax == 1 && $ay == 0) {
+  #       return $arm;
+  #     }
+  #     ($ax,$ay) = ($ay, -$ax);  # rotate -90
+  #   }
+  # }
+
   my ($pow,$exp) = _round_up_pow2(max(abs($x/3),abs($y/3)));
   my $level_limit = 2*$exp + 5;
   if (_is_infinite($level_limit)) {
     return $level_limit;
   }
 
-  my $arms = $self->{'arms'};
   my @hypot = (10);
   for (my $top = 0; $top < $level_limit; $top++) {
+    ### $top
     push @hypot, ($top % 4 ? 2 : 3) * $hypot[$top];  # little faster than 2^lev
 
   ARM: foreach my $arm (0 .. $arms-1) {
@@ -224,14 +241,14 @@ sub xy_to_n {
         foreach my $digit (reverse @digits) { # high to low
           $n = 2*$n + $digit;
         }
-        $n = $arms*$n + $arm - 1;   # -1 to include N=0
+        $n = $arms*($n-1) + $arm;   # n-1 to include N=0
         ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
 
         my ($nx,$ny) = $self->n_to_xy($n);
-        ### at: "n $nx,$ny  cf hypot ".$hypot[$i]
+        ### xy_to_n at: "nxy=$nx,$ny  cf hypot ".$hypot[$i]
 
         if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found
+          ### found ...
           return $n;
         }
 
@@ -244,11 +261,11 @@ sub xy_to_n {
               ### backtrack past top ...
               next ARM;
             }
-            ### backtrack up
+            ### backtrack up ...
           }
 
         } else {
-          ### descend
+          ### descend ...
           ### assert: $i > 0
           $i--;
           $digits[$i] = 0;

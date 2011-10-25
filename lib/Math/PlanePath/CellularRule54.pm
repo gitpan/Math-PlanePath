@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 49;
+$VERSION = 50;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -250,18 +250,21 @@ Math::PlanePath::CellularRule54 -- cellular automaton points
 =head1 DESCRIPTION
 
 This is the pattern of Stephen Wolfram's "rule 54" cellular automaton
-arranged as rows.
 
-    29  30  31   .  32  33 34    .  35  36  37   .  38  39  40     7
-        25   .   .   .  26   .   .   .  27   .   .   .  28         6
-            16  17  18   .  19  20  21   .  22  23  24             5
-                13   .   .   .  14   .   .   .  15                 4
-                     7   8   9   .  10  11  12                     3
-                         5   .   .   .   6                         2
-                             2   3   4                             1
-                                 1                            <-  Y=0
+    http://mathworld.wolfram.com/Rule54.html
 
-    -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6   7
+arranged as rows,
+
+    29 30 31  . 32 33 34  . 35 36 37  . 38 39 40     7
+       25  .  .  . 26  .  .  . 27  .  .  . 28        6
+          16 17 18  . 19 20 21  . 22 23 24           5
+             13  .  .  . 14  .  .  . 15              4
+                 7  8  9  . 10 11 12                 3
+                    5  .  .  .  6                    2
+                       2  3  4                       1
+                          1                      <- Y=0
+
+    -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
 The initial figure N=1,2,3,4 repeats in two-row groups with 1 cell gap
 between figures.  Each two-row group has one extra figure, for a step of 4
@@ -329,6 +332,7 @@ cell the return is C<undef>.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::PyramidRows>
 
 http://mathworld.wolfram.com/Rule54.html

@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 49;
+$VERSION = 50;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

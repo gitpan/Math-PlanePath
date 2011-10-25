@@ -36,7 +36,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 49;
+  my $want_version = 50;
   ok ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HilbertCurve->VERSION,  $want_version,
