@@ -33,6 +33,8 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = (
+               'HilbertCurve',
+
                'SierpinskiCurve,diagonal_spacing=5',
                'SierpinskiCurve,straight_spacing=5',
                'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
@@ -187,8 +189,6 @@ my @modules = (
                'ZOrderCurve,radix=9',
                'ZOrderCurve,radix=37',
 
-               'HilbertCurve',
-
                'OctagramSpiral',
                'Hypot',
                'HypotOctant',
@@ -244,7 +244,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 50;
+my $want_version = 51;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

@@ -79,6 +79,20 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['cellular-rule190-small.png',
+    'math-image --path=CellularRule190 --all --scale=3 --size=32'],
+   ['cellular-rule190-big.png',
+    'math-image --path=CellularRule190 --all --scale=4 --size=300x150'],
+   ['cellular-rule190-mirror-big.png',
+    'math-image --path=CellularRule190,mirror=1 --all --scale=4 --size=300x150'],
+
+   ['cellular-rule54-small.png',
+    'math-image --path=CellularRule54 --all --scale=3 --size=32'],
+   ['cellular-rule54-big.png',
+    'math-image --path=CellularRule54 --all --scale=4 --size=300x150'],
+
+
+
    ['divisible-columns-small.png',
     'math-image --path=DivisibleColumns --all --scale=3 --size=32'],
    ['divisible-columns-big.png',
@@ -264,12 +278,6 @@ foreach my $elem
     'math-image --path=KochPeaks --lines --scale=2 --size=32'],
    ['koch-peaks-big.png',
     'math-image --path=KochPeaks --lines --scale=3 --size=200x100'],
-
-
-   ['cellular-rule54-small.png',
-    'math-image --path=CellularRule54 --all --scale=3 --size=32'],
-   ['cellular-rule54-big.png',
-    'math-image --path=CellularRule54 --all --scale=4 --size=300x150'],
 
 
    ['quadric-islands-small.png',

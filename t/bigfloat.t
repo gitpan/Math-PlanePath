@@ -20,7 +20,6 @@
 use 5.004;
 use strict;
 use Test;
-use Math::BigFloat;
 
 use lib 't';
 use MyTestHelpers;
@@ -31,8 +30,8 @@ use MyTestHelpers;
 my $test_count = (tests => 56)[1];
 plan tests => $test_count;
 
+require Math::BigFloat;
 MyTestHelpers::diag ('Math::BigFloat version ', Math::BigFloat->VERSION);
-
 {
   my $f;
   if (! eval { $f = Math::BigFloat->new(2) ** 3; 1 }) {
@@ -52,17 +51,30 @@ unless (eval { Math::BigFloat->VERSION(1.993); 1 }) {
   }
   exit 0;
 }
-unless ($] > 5.008) {
-  # something fishy for BigFloat on 5.6.2, worry about it later
-  MyTestHelpers::diag ('skip due to doubtful Math::BigFloat on 5.6.x, maybe');
-  foreach (1 .. $test_count) {
-    skip ('due to Perl 5.6', 1, 1);
+# unless ($] > 5.008) {
+#   # something fishy for BigFloat on 5.6.2, worry about it later
+#   MyTestHelpers::diag ('skip due to doubtful Math::BigFloat on 5.6.x, maybe');
+#   foreach (1 .. $test_count) {
+#     skip ('due to Perl 5.6', 1, 1);
+#   }
+#   exit 0;
+# }
+
+require Math::BigInt;
+MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
+{
+  my $n = Math::BigInt->new(2) ** 256;
+  my $int = int($n);
+  if (! ref $int) {
+    MyTestHelpers::diag ('skip due to Math::BigInt no "int" operator');
+    foreach (1 .. $test_count) {
+      skip ('due to no Math::BigInt int() operator', 1, 1);
+    }
+    exit 0;
   }
-  exit 0;
 }
 
 MyTestHelpers::nowarnings();
-
 Math::BigFloat->precision(-20);  # digits right of decimal point
 
 #------------------------------------------------------------------------------

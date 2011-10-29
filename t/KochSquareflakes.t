@@ -37,7 +37,7 @@ use Math::PlanePath::KochSquareflakes;
 # VERSION
 
 {
-  my $want_version = 50;
+  my $want_version = 51;
   ok ($Math::PlanePath::KochSquareflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSquareflakes->VERSION,  $want_version,

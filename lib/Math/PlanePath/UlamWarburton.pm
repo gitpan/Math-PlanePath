@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 50;
+$VERSION = 51;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -599,7 +599,8 @@ at 1 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::CellularRule54>
+L<Math::PlanePath::CellularRule54>,
+L<Math::PlanePath::CellularRule190>
 
 L<Math::PlanePath::SierpinskiTriangle> (a similar binary ones-count related
 level calculation)

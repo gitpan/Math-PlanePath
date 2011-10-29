@@ -95,6 +95,8 @@ my @all_classes = ('SquareSpiral',
                    'PyramidRows,step=5',
                    'PyramidSides',
                    'CellularRule54',
+                   'CellularRule190',
+                   'CellularRule190,mirror=1',
                    'TriangleSpiral',
                    'TriangleSpiralSkewed',
 

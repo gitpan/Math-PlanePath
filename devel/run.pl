@@ -63,9 +63,11 @@ use List::Util qw(min max);
   require Math::PlanePath::UlamWarburtonQuarter;
   require Math::PlanePath::SierpinskiCurve;
   require Math::PlanePath::MathImageDigitGroups;
+  require Math::PlanePath::MathImageHIndexing;
   require Math::PlanePath::CellularRule190;
   require Math::PlanePath::DragonRounded;
-  my $path = Math::PlanePath::SierpinskiCurve->new
+  require Math::PlanePath::MathImageBetaOmega;
+  my $path = Math::PlanePath::MathImageHIndexing->new
     (mirror => 1,
      divisor_type => 'proper',
      inward => 0,
@@ -94,7 +96,7 @@ use List::Util qw(min max);
   #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
   #for (my $i=4; $i < 5000; $i++) {
 
-  for (my $i = $n_start+0; $i <= 100; $i+=1) {
+  for (my $i = $n_start+0; $i <= 1024; $i+=1) {
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

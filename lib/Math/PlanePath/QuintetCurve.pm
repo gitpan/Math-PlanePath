@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 50;
+$VERSION = 51;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

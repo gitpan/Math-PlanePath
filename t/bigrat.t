@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Crib notes:
+#
+# In perl 5.8.4 "BigInt != BigRat" doesn't work, must have it other way
+# around as "BigRat != BigInt".  Symptom is "uninitialized" warnings.
+#
+
+
 use 5.004;
 use strict;
 use Test;
@@ -29,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments '###';
 
 
-my $test_count = (tests => 167)[1];
+my $test_count = (tests => 169)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -40,14 +48,6 @@ if (! eval { require Math::BigRat; 1 }) {
   exit 0;
 }
 MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
-
-# Crib notes:
-#
-# In perl 5.8.4 "BigInt != BigRat" doesn't work, must have it other way
-# around as "BigRat != BigInt".  Symptom is "uninitialized" warnings.
-#
-
-
 {
   my $f = Math::BigRat->new('-1/2');
   my $int = int($f);
@@ -55,6 +55,20 @@ MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
     MyTestHelpers::diag ('BigRat int(-1/2)==0, good');
   } else {
     MyTestHelpers::diag ("BigRat has int(-1/2) != 0 dodginess: value is '$int'");
+  }
+}
+
+require Math::BigInt;
+MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
+{
+  my $n = Math::BigInt->new(2) ** 256;
+  my $int = int($n);
+  if (! ref $int) {
+    MyTestHelpers::diag ('skip due to Math::BigInt no "int" operator');
+    foreach (1 .. $test_count) {
+      skip ('due to no Math::BigInt int() operator', 1, 1);
+    }
+    exit 0;
   }
 }
 
@@ -296,6 +310,7 @@ my @modules = (
                # 'UlamWarburton',         # not really defined yet
                # 'UlamWarburtonQuarter',  # not really defined yet
                'CellularRule54',      # but not across gap
+               'CellularRule190',     # but not across gap
 
                'Rows',
                'Columns',
@@ -382,6 +397,9 @@ foreach my $module (@modules) {
   my $arms = $path->arms_count;
 
   my $n    = Math::BigRat->new(2) ** 256 + 3;
+  if ($path->isa('Math::PlanePath::CellularRule190')) {
+    $n += 1; # not across gap
+  }
   my $frac = Math::BigRat->new('1/3');
   my $n_frac = $frac + $n;
   my $orig = $n_frac->copy;

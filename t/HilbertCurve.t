@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 10 }
+BEGIN { plan tests => 22 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 50;
+  my $want_version = 51;
   ok ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HilbertCurve->VERSION,  $want_version,
@@ -69,6 +69,31 @@ require Math::PlanePath::HilbertCurve;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 0, 'x_negative() instance method');
   ok ($path->y_negative, 0, 'y_negative() instance method');
+}
+
+#------------------------------------------------------------------------------
+# xy_to_n
+
+{
+  my @data = ([0, 0,0 ],
+              [1, 1,0 ],
+              [2, 1,1 ],
+              [3, 0,1 ],
+             );
+  my $path = Math::PlanePath::HilbertCurve->new;
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    ok ($got_x, $want_x, "x at n=$n");
+    ok ($got_y, $want_y, "y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    $want_n = int ($want_n + 0.5);
+    my $got_n = $path->xy_to_n ($x, $y);
+    ok ($got_n, $want_n, "n at x=$x,y=$y");
+  }
 }
 
 exit 0;

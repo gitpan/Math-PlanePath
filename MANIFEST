@@ -9,12 +9,14 @@ debian/rules
 debian/source/format
 debian/watch
 devel/archimedean.pl
+devel/beta-omega.pl
 devel/bigint-lite.pl
 devel/bignums.pl
 devel/c-curve.pl
 devel/complex-minus.pl
 devel/cont-frac.pl
 devel/coprime.pl
+devel/digit-groups.pl
 devel/divisible.pl
 devel/dragon.pl
 devel/exe-atan2.c

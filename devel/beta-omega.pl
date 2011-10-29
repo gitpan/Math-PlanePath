@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -19,33 +19,24 @@
 
 use 5.004;
 use strict;
-use Test;
 
-# uncomment this to run the ### lines
-#use Devel::Comments '###';
-
-use lib 't';
-use MyTestHelpers;
-
-my $test_count = (tests => 43)[1];
-plan tests => $test_count;
-
-require Math::BigInt;
-MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
 {
-  my $n = Math::BigInt->new(2) ** 256;
-  my $int = int($n);
-  if (! ref $int) {
-    MyTestHelpers::diag ('skip due to Math::BigInt no "int" operator');
-    foreach (1 .. $test_count) {
-      skip ('due to no Math::BigInt int() operator', 1, 1);
+  require Math::PlanePath::KochCurve;
+  foreach my $y (-32 .. 32) {
+    my $y1 = $y;
+    my $y2 = $y;
+    {
+      if ($y2 > 0) {
+        # eg y=5 gives 3*5 = 15
+        $y2 *= 3;
+      } else {
+        # eg y=-2 gives 1-3*-2 = 7
+        $y2 = 3-6*$y1;
+      }
+
+      my ($ylen, $ylevel) = Math::PlanePath::KochCurve::_round_down_pow($y2,4);
+      print "$y   $y2   $ylevel $ylen\n";
     }
-    exit 0;
   }
+  exit 0;
 }
-
-MyTestHelpers::nowarnings();
-
-require bigint_common;
-bigint_common::bigint_checks ('Math::BigInt');
-exit 0;

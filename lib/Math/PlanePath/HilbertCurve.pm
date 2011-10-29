@@ -34,18 +34,22 @@
 package Math::PlanePath::HilbertCurve;
 use 5.004;
 use strict;
-use List::Util qw(min max);
+use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 50;
+$VERSION = 51;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -163,27 +167,26 @@ sub xy_to_n {
   if ($x < 0 || $y < 0) {
     return undef;
   }
-  my $n = ($x * 0); # inherit
-
-  my $pos = 0;
-  {
-    my $m = max ($x, $y);
-    if (_is_infinite($m)) {
-      return undef;
-    }
-
-    my $pow = $n + 2;        # inherit
-    while ($m >= $pow) {
-      $pow <<= 1;
-      $pos++;
-    }
+  if (_is_infinite($x)) {
+    return $x;
   }
+  if (_is_infinite($y)) {
+    return $y;
+  }
+
+  (undef, my $pos) = _round_down_pow (($x > $y ? $x : $y),
+                                      2);
   ### $pos
+  ### assert: (1 << ($pos+1)) > $x
+  ### assert: (1 << ($pos+1)) > $y
+
+  my $n = ($x * 0 * $y); # inherit bignum 0
 
   my $i = ($pos & 1) << 2;
   while ($pos >= 0) {
     my $nbits = $yx_to_n[$i + (($x >> $pos) & 1) + ((($y >> $pos) & 1) << 1)];
     $n = ($n << 2) | $nbits;
+
     ### $pos
     ### $i
     ### x bit: ($x >> ($pos)) & 1
@@ -192,6 +195,7 @@ sub xy_to_n {
     ### yx_to_n: $yx_to_n[$i + (($x >> $pos) & 1) + ((($y >> $pos) & 1) << 1)]
     ### next_i: $n_to_next_i[$i+$nbits]
     ### n: sprintf "%#X", $n
+
     $i = $n_to_next_i[$i + $nbits];
     $pos--;
   }
@@ -235,7 +239,7 @@ sub rect_to_n_range {
   my $n_min = my $n_max
     = my $x_min = my $y_min
       = my $x_max = my $y_max
-        = ($x1 * 0); # 0 inherit
+        = ($x1 * 0); # inherit bignum 0
 
   my $pos = 0;
   my $bit = $n_min + 2;  # inherit

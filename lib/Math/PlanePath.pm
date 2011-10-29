@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 50;
+$VERSION = 51;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -211,6 +211,7 @@ include
     PyramidRows            expanding stacked rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
     CellularRule54         cellular automaton rows pattern
+    CellularRule190        cellular automaton rows pattern
     UlamWarburton          cellular automaton diamonds
 
     CoprimeColumns         coprime X,Y
@@ -459,6 +460,7 @@ more N points than the preceding.
         5       PentSpiral, PentSpiralSkewed
         5.65    PixelRings (average about 4*sqrt(2))
         6       HexSpiral, HexSpiralSkewed, MultipleRings (default)
+        6/2     CellularRule190 (2 rows for +6)
         6.28    ArchimedeanChords (approaching 2*pi)
         7       HeptSpiralSkewed
         8       SquareSpiral, PyramidSpiral
@@ -599,6 +601,59 @@ calculation as follows if comparing distances from the origin.
 See for instance TriangularHypot taking triangular points in order of this
 radial distance.
 
+=head1 FORMULAS
+
+=head2 Triangular Calculations
+
+For a triangular lattice the rotation formulas above allow calculations to
+be done in the rectangular X,Y which are the inputs and outputs of the
+PlanePath functions.  But an alternative is to number vertically on an angle
+with coordinates i,j
+
+          ...
+          *   *   *      2
+        *   *   *       1
+      *   *   *      j=0
+    i=0  1   2 
+
+This is usual for hex grid games, and using this internally can simplify the
+rotations a little,
+
+    -j, i+j         rotate +60   (anti-clockwise)
+    i+j, -i         rotate -60
+    -i-j, i         rotate +120
+    j, -i-j         rotate -120
+    -i, -j          rotate 180
+
+The conversions between i,j and the rectangular X,Y are
+
+    X = 2*i + j         i = (X-Y)/2
+    Y = j               j = Y
+
+A third coordinate k at a +120 angle can be used too,
+
+     k=0  k=1 k=2   
+        *   *   *   
+          *   *   * 
+            *   *   *   
+             0   1   2 
+
+This is redundant, but has the advantage of making rotations just sign
+changes and swaps,
+
+    -k, i, j        rotate +60
+    j, k, -i        rotate -60
+    -j, -k, i       rotate +120
+    k, -i, -j       rotate -120
+    -i, -j, -k      rotate 180
+
+The conversions between i,j and the rectangular X,Y are as above with k
+worked into the X,Y.
+
+    X = 2i + j - k        i = (X-Y)/2        i = (X+Y)/2
+    Y = j + k             j = Y         or   j = 0
+                          k = 0              k = Y
+
 =head1 SEE ALSO
 
 L<Math::PlanePath::SquareSpiral>,
@@ -666,7 +721,9 @@ L<Math::PlanePath::Corner>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>,
 L<Math::PlanePath::CellularRule54>,
-L<Math::PlanePath::UlamWarburton>
+L<Math::PlanePath::CellularRule190>,
+L<Math::PlanePath::UlamWarburton>,
+L<Math::PlanePath::UlamWarburtonQuarter>
 
 L<Math::PlanePath::PythagoreanTree>,
 L<Math::PlanePath::RationalsTree>,
