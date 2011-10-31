@@ -33,44 +33,6 @@ use File::Temp;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-my $tempfh_124 = File::Temp->new;
-my $tempfilename_124 = $tempfh_124->filename;
-foreach (0 .. 124) { print $tempfh_124 "$_\n"; }
-close $tempfh_124;
-
-my $tempfh_31 = File::Temp->new;
-my $tempfilename_31 = $tempfh_31->filename;
-foreach (0 .. 31) { print $tempfh_31 "$_\n"; }
-close $tempfh_31;
-
-my $tempfh_1023 = File::Temp->new;
-my $tempfilename_1023 = $tempfh_1023->filename;
-foreach (0 .. 1023) { print $tempfh_1023 "$_\n"; }
-close $tempfh_1023;
-
-# 5^5-1=3124
-my $tempfh_3124 = File::Temp->new;
-my $tempfilename_3124 = $tempfh_3124->filename;
-foreach (0 .. 3124) { print $tempfh_3124 "$_\n"; }
-close $tempfh_3124;
-
-# 7^2-1=48
-my $tempfh_48 = File::Temp->new;
-my $tempfilename_48 = $tempfh_48->filename;
-foreach (0 .. 48) { print $tempfh_48 "$_\n"; }
-close $tempfh_48;
-
-# 7^4-1=16806
-my $tempfh_16806 = File::Temp->new;
-my $tempfilename_16806 = $tempfh_16806->filename;
-foreach (0 .. 16806) { print $tempfh_16806 "$_\n"; }
-close $tempfh_16806;
-
-my $tempfh_233 = File::Temp->new;
-my $tempfilename_233 = $tempfh_233->filename;
-foreach (0 .. 233) { print $tempfh_233 "$_\n"; }
-close $tempfh_233;
-
 my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
 my $tempfh = File::Temp->new (SUFFIX => '.png');
 my $tempfile = $tempfh->filename;
@@ -79,6 +41,36 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['corner-replicate-small.png',
+    'math-image --path=CornerReplicate --lines --scale=4 --size=32'],
+   ['corner-replicate-big.png',
+    'math-image --path=CornerReplicate --lines --scale=10 --size=200'],
+
+   ['digit-groups-small.png',
+    "math-image --path=DigitGroups --expression='i<255?i:0' --scale=2 --size=32"],
+   ['digit-groups-big.png',
+    "math-image --path=DigitGroups --expression='i<2047?i:0' --scale=3 --size=200"],
+   ['digit-groups-radix5-big.png',
+    "math-image --path=DigitGroups,radix=5 --expression='i<15624?i:0' --scale=3 --size=200"],
+
+   ['h-indexing-small.png',
+    'math-image --path=HIndexing --scale=3 --size=32 --lines --offset=2,2'],
+   ['h-indexing-big.png',
+    'math-image --path=HIndexing --lines --scale=3 --size=200 --offset=2,2'],
+
+   ['sierpinski-curve-small.png',
+    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --offset=2,2'],
+   ['sierpinski-curve-big.png',
+    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200'],
+   ['sierpinski-curve-8arm-big.png',
+    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
+
+
+   ['beta-omega-small.png',
+    'math-image --path=BetaOmega --lines --scale=3 --size=32'],
+   ['beta-omega-big.png',
+    'math-image --path=BetaOmega --lines --scale=7 --size=226'],
+
    ['cellular-rule190-small.png',
     'math-image --path=CellularRule190 --all --scale=3 --size=32'],
    ['cellular-rule190-big.png',
@@ -105,13 +97,6 @@ foreach my $elem
    ['coprime-columns-big.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=200'],
 
-
-   ['sierpinski-curve-small.png',
-    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --offset=2,2'],
-   ['sierpinski-curve-big.png',
-    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200'],
-   ['sierpinski-curve-8arm-big.png',
-    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
 
    ['sierpinski-arrowhead-centres-small.png',
     'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32 --offset=0,1'],
@@ -164,10 +149,10 @@ foreach my $elem
     'math-image --path=ImaginaryBase,radix=5 --lines --scale=16 --size=200'],
 
 
-   ['gosper-replicate-small.png',
-    "math-image --path=GosperReplicate --values=File,filename=$tempfilename_48 --scale=2 --size=32"],
-   ['gosper-replicate-big.png',
-    "math-image --path=GosperReplicate --values=File,filename=$tempfilename_16806 --scale=1 --size=320x200"],
+   ['gosper-replicate-small.png',  # 7^2-1=48
+    "math-image --path=GosperReplicate --expression='i<48?i:0' --scale=2 --size=32"],
+   ['gosper-replicate-big.png',  # 7^4-1=16806
+    "math-image --path=GosperReplicate --expression='i<16806?i:0' --scale=1 --size=320x200"],
 
    ['gosper-side-small.png',
     'math-image --path=GosperSide --lines --scale=3 --size=32 --offset=-13,-7'],
@@ -197,14 +182,14 @@ foreach my $elem
 
 
    ['complexminus-small.png',
-    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_31 --scale=2 --size=32"],
+    "math-image --path=ComplexMinus --expression='i<31?i:0' --scale=2 --size=32"],
    ['complexminus-big.png',
-    "math-image --path=ComplexMinus --values=File,filename=$tempfilename_1023 --scale=3 --size=200"],
+    "math-image --path=ComplexMinus --expression='i<1023?i:0' --scale=3 --size=200"],
 
    ['complexminus-r2-small.png',
-    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_124 --scale=2 --size=32"],
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<124?i:0' --scale=2 --size=32"],
    ['complexminus-r2-big.png',
-    "math-image --path=ComplexMinus,realpart=2 --values=File,filename=$tempfilename_3124 --scale=1 --size=200"],
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<3124?i:0' --scale=1 --size=200"],
 
 
    ['pixel-small.png',
@@ -215,9 +200,9 @@ foreach my $elem
     'math-image --path=PixelRings --lines --scale=10 --size=200'],
 
    ['quintet-replicate-small.png',
-    "math-image --path=QuintetReplicate --values=File,filename=$tempfilename_124 --scale=2 --size=32"],
+    "math-image --path=QuintetReplicate --expression='i<124?i:0' --scale=2 --size=32"],
    ['quintet-replicate-big.png',
-    "math-image --path=QuintetReplicate --values=File,filename=$tempfilename_3124 --scale=2 --size=200"],
+    "math-image --path=QuintetReplicate --expression='i<3124?i:0' --scale=2 --size=200"],
 
    ['quintet-curve-small.png',
     'math-image --path=QuintetCurve --lines --scale=4 --size=32 --offset=-10,0'],
@@ -438,11 +423,6 @@ foreach my $elem
     'math-image --path=SacksSpiral --lines --scale=5 --size=32'],
    ['sacks-big.png',
     'math-image --path=SacksSpiral --lines --scale=10 --size=200'],
-
-   ['hilbert-small.png',
-    'math-image --path=HilbertCurve --lines --scale=3 --size=32'],
-   ['hilbert-big.png',
-    'math-image --path=HilbertCurve --lines --scale=7 --size=226'],
 
    ['archimedean-small.png',
     'math-image --path=ArchimedeanChords --lines --scale=5 --size=32'],

@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 51;
+$VERSION = 52;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -142,11 +142,14 @@ This is the base class for some mathematical paths which map an integer
 position C<$n> into coordinates C<$x,$y> in the plane.  The current classes
 include
 
+=for my_pod list begin
+
     SquareSpiral           four-sided spiral
     PyramidSpiral          square based pyramid
     TriangleSpiral         equilateral triangle spiral
     TriangleSpiralSkewed   equilateral skewed for compactness
     DiamondSpiral          four-sided spiral, looping faster
+    PentSpiral             five-sided spiral
     PentSpiralSkewed       five-sided spiral, compact
     HexSpiral              six-sided spiral
     HexSpiralSkewed        six-sided spiral skewed for compactness
@@ -175,8 +178,11 @@ include
     PeanoCurve             self-similar base-3 quadrant traversal
     HilbertCurve           self-similar base-2 quadrant traversal
     ZOrderCurve            replicating Z shapes
+    BetaOmega              self-similar half-plane traversal
     ImaginaryBase          replicating in four directions
     SquareReplicate        replicating squares 3x3
+    CornerReplicate        replicating squares 2x2
+    DigitGroups            digit groups with high zero
 
     Flowsnake              self-similar hexagonal tile traversal
     FlowsnakeCentres         likewise, but centres of hexagons
@@ -192,6 +198,9 @@ include
     DragonRounded            same but rounding-off vertices
     DragonMidpoint         paper folding midpoints
     ComplexMinus           twindragon and other base i-r
+
+    SierpinskiCurve        self-similar pattern by right-triangles
+    HIndexing              self-similar right-triangle pairs
 
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
@@ -213,9 +222,13 @@ include
     CellularRule54         cellular automaton rows pattern
     CellularRule190        cellular automaton rows pattern
     UlamWarburton          cellular automaton diamonds
+    UlamWarburtonQuarter   cellular automaton quarter-plane
 
     CoprimeColumns         coprime X,Y
+    DivisibleColumns       X divisible by Y
     File                   points from a disk file
+
+=for my_pod list end
 
 The paths are object oriented to allow parameters, though many have none as
 yet.  See C<examples/numbers.pl> in the Math-PlanePath sources for a cute
@@ -450,6 +463,8 @@ The paths can be characterized by how much longer each loop or repetition is
 than the preceding one.  For example each cycle around the SquareSpiral is 8
 more N points than the preceding.
 
+=for my_pod step begin
+
       Step        Path
       ----        ----
         0       Rows, Columns (fixed widths)
@@ -476,6 +491,8 @@ more N points than the preceding.
 
      totient    CoprimeColumns
      divcount   DivisibleColumns
+
+=for my_pod step end
 
 The step determines which quadratic number sequences make straight lines.
 For example the gap between successive perfect squares increases by 2 each
@@ -511,20 +528,27 @@ The self-similar patterns such as PeanoCurve generally have a base pattern
 which repeats at powers N=base^level, or some multiple or relation to such a
 power for things like KochPeaks and GosperIslands.
 
+=for my_pod base begin
+
     Base          Path
     ----          ----
       2         HilbertCurve, ZOrderCurve (default),
-                  ImaginaryBase (default),
+                  BetaOmega, SierpinskiCurve, HIndexing
+                  ImaginaryBase (default), ComplexMinus (default)
                   DragonCurve, DragonRounded, DragonMidpoint,
+                  DigitGroups (default), CornerReplicate
       3         PeanoCurve (default), GosperIslands, GosperSide
                   SierpinskiTriangle, SierpinskiArrowhead,
                   SierpinskiArrowheadCentres,
+                  UlamWarburton, UlamWarburtonQuarter (per level)
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes
       5         QuintetCurve, QuintetCentres, QuintetReplicate
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
-    parameter   PeanoCurve, ZOrderCurve, ImaginaryBase
+    parameter   PeanoCurve, ZOrderCurve, ImaginaryBase, DigitGroups
+
+=for my_pod base end
 
 Many number sequences on these paths tend to come out fairly random, or
 merely show the tiling or nature of the path layout rather than much about
@@ -656,6 +680,8 @@ worked into the X,Y.
 
 =head1 SEE ALSO
 
+=for my_pod see_also begin
+
 L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::PyramidSpiral>,
 L<Math::PlanePath::TriangleSpiral>,
@@ -678,6 +704,7 @@ L<Math::PlanePath::GreekKeySpiral>
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
 L<Math::PlanePath::TheodorusSpiral>,
+L<Math::PlanePath::ArchimedeanChords>,
 L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
@@ -687,8 +714,11 @@ L<Math::PlanePath::TriangularHypot>
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::ImaginaryBase>,
-L<Math::PlanePath::SquareReplicate>
+L<Math::PlanePath::SquareReplicate>,
+L<Math::PlanePath::CornerReplicate>,
+L<Math::PlanePath::DigitGroups>
 
 L<Math::PlanePath::Flowsnake>,
 L<Math::PlanePath::FlowsnakeCentres>,
@@ -703,21 +733,29 @@ L<Math::PlanePath::QuintetReplicate>
 L<Math::PlanePath::KochCurve>,
 L<Math::PlanePath::KochPeaks>,
 L<Math::PlanePath::KochSnowflakes>,
-L<Math::PlanePath::KochSquareflakes>,
+L<Math::PlanePath::KochSquareflakes>
+
 L<Math::PlanePath::QuadricCurve>,
 L<Math::PlanePath::QuadricIslands>
 
+L<Math::PlanePath::SierpinskiCurve>,
+L<Math::PlanePath::HIndexing>
+
+L<Math::PlanePath::SierpinskiTriangle>,
 L<Math::PlanePath::SierpinskiArrowhead>,
-L<Math::PlanePath::SierpinskiArrowheadCentres>,
+L<Math::PlanePath::SierpinskiArrowheadCentres>
+
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::DragonRounded>,
-L<Math::PlanePath::DragonMidpoint>
+L<Math::PlanePath::DragonMidpoint>,
+L<Math::PlanePath::ComplexMinus>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
 L<Math::PlanePath::Diagonals>,
 L<Math::PlanePath::Staircase>,
-L<Math::PlanePath::Corner>,
+L<Math::PlanePath::Corner>
+
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>,
 L<Math::PlanePath::CellularRule54>,
@@ -730,6 +768,8 @@ L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::DivisibleColumns>,
 L<Math::PlanePath::File>
+
+=for my_pod see_also end
 
 L<math-image>, displaying various sequences on these paths.
 

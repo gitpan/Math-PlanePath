@@ -19,17 +19,16 @@
 package Math::PlanePath::Staircase;
 use 5.004;
 use strict;
-use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
-
+$VERSION = 52;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
 
 use constant x_negative => 0;
 use constant y_negative => 0;
@@ -126,6 +125,7 @@ sub xy_to_n {
   return (2*$d + 1)*$d + 1 - $y + $x;
 }
 
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### Staircase rect_to_n_range(): "$x1,$y1  $x2,$y2"

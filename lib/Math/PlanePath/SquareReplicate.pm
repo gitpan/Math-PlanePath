@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -155,6 +155,7 @@ sub xy_to_n {
 # 3^level - 1 > 2*X-2
 # 3^level > 2*X-1
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SquareReplicate rect_to_n_range(): "$x1,$y1  $x2,$y2"
@@ -274,6 +275,7 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::CornerReplicate>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::QuintetReplicate>
 

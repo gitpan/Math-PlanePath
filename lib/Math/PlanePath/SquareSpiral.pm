@@ -32,7 +32,7 @@ use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -237,6 +237,7 @@ sub xy_to_n {
   return (4*$d + 3 + 2*$w)*$d + 1 + $w_left + $x;
 }
 
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   my $w = $self->{'wider'};

@@ -44,7 +44,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -243,6 +243,7 @@ sub xy_to_n {
   return $n;
 }
 
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 

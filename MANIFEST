@@ -20,6 +20,7 @@ devel/digit-groups.pl
 devel/divisible.pl
 devel/dragon.pl
 devel/exe-atan2.c
+devel/fibonacci-word.pl
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
 devel/gallery.pl
@@ -81,15 +82,18 @@ inc/MyMakeMakerExtras.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
+lib/Math/PlanePath/BetaOmega.pm
 lib/Math/PlanePath/CellularRule190.pm
 lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
+lib/Math/PlanePath/CornerReplicate.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiamondArms.pm
 lib/Math/PlanePath/DiamondSpiral.pm
+lib/Math/PlanePath/DigitGroups.pm
 lib/Math/PlanePath/DivisibleColumns.pm
 lib/Math/PlanePath/DragonCurve.pm
 lib/Math/PlanePath/DragonMidpoint.pm
@@ -106,6 +110,7 @@ lib/Math/PlanePath/HexArms.pm
 lib/Math/PlanePath/HexSpiral.pm
 lib/Math/PlanePath/HexSpiralSkewed.pm
 lib/Math/PlanePath/HilbertCurve.pm
+lib/Math/PlanePath/HIndexing.pm
 lib/Math/PlanePath/Hypot.pm
 lib/Math/PlanePath/HypotOctant.pm
 lib/Math/PlanePath/ImaginaryBase.pm
@@ -165,6 +170,7 @@ t/Columns.t
 t/ComplexMinus.t
 t/CoprimeColumns.t
 t/Corner.t
+t/CornerReplicate.t
 t/Diagonals.t
 t/DiamondArms.t
 t/DiamondSpiral.t
@@ -185,6 +191,7 @@ t/HexSpiralSkewed-unskew.t
 t/HexSpiralSkewed.t
 t/HilbertCurve-load.t
 t/HilbertCurve.t
+t/HIndexing.t
 t/ImaginaryBase.t
 t/KnightSpiral.t
 t/KochCurve.t
@@ -234,6 +241,7 @@ xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm
 xt/PeanoCurve-oeis.t
+xt/pod_lists.t
 xt/RationalsTree-oeis.t
 xt/SierpinskiTriangle-oeis.t
 xt/UlamWarburton-oeis.t

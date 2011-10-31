@@ -26,6 +26,9 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 require Math::PlanePath::SacksSpiral;
 
 
@@ -35,7 +38,9 @@ sub numeq_array {
     return 0;
   }
   while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
+    if (! defined $a1->[0]
+        || ! defined $a2->[0]
+        || $a1->[0] != $a2->[0]) {
       return 0;
     }
     shift @$a1;
@@ -48,7 +53,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 51;
+  my $want_version = 52;
   ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -103,6 +108,7 @@ sub numeq_array {
   foreach my $elem (@data) {
     my ($x, $y, $want_n_aref) = @$elem;
     my @got_n = $path->xy_to_n ($x,$y);
+    ### @got_n
     ok (numeq_array (\@got_n, $want_n_aref),
         1, "xy_to_n x=$x y=$y");
   }
@@ -153,7 +159,7 @@ sub numeq_array {
                     [ -1,-6, -8,6, 1,10 ],  # y both, x negative
 
                    ) {
-    ### no critic (ProtectPrivateSubs)
+    ## no critic (ProtectPrivateSubs)
 
     my ($x1,$y1, $x2,$y2, $want_rlo,$want_rhi) = @$elem;
     my ($got_rlo,$got_rhi)

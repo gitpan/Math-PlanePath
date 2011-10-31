@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -304,6 +304,7 @@ sub xy_to_n {
   return $n + $quad*3**$ndigits + _n_start($level);
 }
 
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### UlamWarburton rect_to_n_range(): "$x1,$y1  $x2,$y2"
@@ -520,7 +521,7 @@ For example level 3 ends at N=(1+4+4)=9.
       8         86         4          89   
       9         90        12         101   
 
-For a power-of-2 level the Nstart sum is
+For a power-of-2 level the Nstart is
 
     Nstart(2^a) = 2 + 4*(4^a-1)/3
 

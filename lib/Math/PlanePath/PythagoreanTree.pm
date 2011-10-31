@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -356,6 +356,7 @@ sub _ab_to_pq {
 # numprims(H) = how many with hypot < H
 # limit H->inf  numprims(H) / H -> 1/2pi
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PythagoreanTree rect_to_n_range(): "$x1,$y1  $x2,$y2"

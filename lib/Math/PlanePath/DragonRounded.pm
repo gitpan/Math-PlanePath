@@ -27,7 +27,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -282,6 +282,7 @@ sub xy_to_n {
 #   n=2^20 min r^2=2^20 plus a bit
 #   maybe ...
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### DragonRounded rect_to_n_range(): "$x1,$y1  $x2,$y2  arms=$self->{'arms'}"

@@ -37,7 +37,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -222,6 +222,7 @@ sub xy_to_n {
 # the rectangle, but the max might only skip low 1-bits of the target
 # rectangle, which usually won't be many.
 #
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
@@ -687,6 +688,7 @@ program printing A163359 values.
 L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::KochCurve>
 
 L<Math::Curve::Hilbert>,

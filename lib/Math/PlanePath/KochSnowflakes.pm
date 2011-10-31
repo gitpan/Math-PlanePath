@@ -28,7 +28,7 @@ use List::Util qw(min max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -246,6 +246,7 @@ sub xy_to_n {
 #                   =     2/3 * 3^level
 #                  1.5*y = 3^level
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochSnowflakes rect_to_n_range(): "$x1,$y1  $x2,$y2"

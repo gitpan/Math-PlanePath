@@ -24,11 +24,10 @@ package Math::PlanePath::VogelFloret;
 use 5.004;
 use strict;
 use Carp;
-use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -194,10 +193,11 @@ sub xy_to_n {
   # easy way to find the first integer N >= (r-.5)**2 satisfying -small <= N
   # mod .318 <= +small ?
   #
-  my $r = hypot ($x, $y);
+  my $r = sqrt($x*$x + $y*$y);  # hypot
   my $factor = $self->{'radius_factor'};
-  my $n_lo = max(0, POSIX::floor( (($r-.6)/$factor)**2 ));
-  my $n_hi = POSIX::ceil( (($r+.6)/$factor)**2 );
+  my $n_lo = int( (($r-.6)/$factor)**2 );
+  if ($n_lo < 0) { $n_lo = 0; }
+  my $n_hi = int( (($r+.6)/$factor)**2 + 1 );
   #### $r
   #### xy: "$x,$y"
   #### $n_lo
@@ -247,19 +247,23 @@ sub xy_to_n {
   #   return;
 }
 
+# not exact
 sub rect_to_n_range {
   my $self = shift;
   ### VogelFloret rect_to_n_range(): @_
 
   my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range(@_);
   # minimum r_lo=1 for minimum N=1
-  $r_lo = max (1, ($r_lo-0.6) / $self->{'radius_factor'});
-  $r_hi = ($r_hi + 0.6) / $self->{'radius_factor'};
+
+  my $radius_factor = $self->{'radius_factor'};
+  $r_lo = ($r_lo-0.6) / $radius_factor;
+  if ($r_lo < 1) { $r_lo = 1; }
+  $r_hi = ($r_hi + 0.6) / $radius_factor;
   ### $r_lo
   ### $r_hi
 
   return (int($r_lo*$r_lo),
-          1 + POSIX::ceil($r_hi*$r_hi));
+          int($r_hi*$r_hi + 2));
 }
 
 1;

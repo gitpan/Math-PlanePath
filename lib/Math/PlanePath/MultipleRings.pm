@@ -26,7 +26,7 @@ use List::Util qw(min max);
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -252,6 +252,7 @@ sub xy_to_n {
 
 # ENHANCE-ME: step>=3 small rectangles around 0,0 don't cover any pixels
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### MultipleRings rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"
@@ -276,8 +277,8 @@ sub rect_to_n_range {
     # start of ring is N= 0.5*$d*($d-1) * $step + 1
     ### n_lo: 0.5*$d_lo*($d_lo-1) * $step + 1
     ### n_hi: 0.5*$d_hi*($d_hi+1) * $step
-    return (0.5*$d_lo*($d_lo-1) * $step + 1,
-            0.5*$d_hi*($d_hi+1) * $step);
+    return ($d_lo*($d_lo-1)/2 * $step + 1,
+            $d_hi*($d_hi+1)/2 * $step);
   } else {
     # $step == 0
     return ($d_lo, $d_hi);

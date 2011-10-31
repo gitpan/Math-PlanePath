@@ -32,7 +32,7 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -335,6 +335,7 @@ sub _xy_to_n_in_level {
 # Nstart(level) - 1 = 3^(level+2) - 2 - 1
 #                   = 3^(level+2) - 3
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   $y1 *= sqrt(3);

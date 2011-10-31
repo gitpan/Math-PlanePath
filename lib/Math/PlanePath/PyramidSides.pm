@@ -19,11 +19,9 @@
 package Math::PlanePath::PyramidSides;
 use 5.004;
 use strict;
-use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
-
+$VERSION = 52;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -84,6 +82,7 @@ sub xy_to_n {
   return $s*$s + $x+$s + 1;
 }
 
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
@@ -100,7 +99,8 @@ sub rect_to_n_range {
   my ($xlo, $xhi) = (abs($x1) < abs($x2) ? ($x1, $x2) : ($x2, $x1));
   if ($x2 == -$x1) { $xhi = abs($xhi); }  # +ve bigger if say -5 .. +5
   if (($x1 >= 0) ^ ($x2 >= 0)) { $xlo = 0; }  # diff signs, x=0 smallest
-  return ($self->xy_to_n ($xlo, max($y1,0)),
+  if ($y1 < 0) { $y1 = 0; }
+  return ($self->xy_to_n ($xlo, $y1),
           $self->xy_to_n ($xhi, $y2));
 }
 

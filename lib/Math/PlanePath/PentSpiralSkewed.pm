@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -101,6 +101,7 @@ sub xy_to_n {
           + ($y < 0 ? 2*($d+$x) : 0));
 }
 
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PentSpiralSkewed rect_to_n_range(): $x1,$y1, $x2,$y2

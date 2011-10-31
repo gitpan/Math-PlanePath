@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 657 }
+BEGIN { plan tests => 693 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,8 +33,18 @@ MyTestHelpers::nowarnings();
 require Math::PlanePath;
 
 my @modules = (
+               # module list begin
+
+               'CornerReplicate',
+               'DigitGroups',
+               'DigitGroups,radix=3',
+               'DigitGroups,radix=4',
+               'DigitGroups,radix=5',
+               'DigitGroups,radix=37',
+               'BetaOmega',
                'HilbertCurve',
 
+               'HIndexing',
                'SierpinskiCurve,diagonal_spacing=5',
                'SierpinskiCurve,straight_spacing=5',
                'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
@@ -209,6 +219,8 @@ my @modules = (
                'ArchimedeanChords',
                'VogelFloret',
                'KnightSpiral',
+
+               # module list end
               );
 my @classes = map {(module_parse($_))[0]} @modules;
 { my %seen; @classes = grep {!$seen{$_}++} @classes } # uniq
@@ -244,7 +256,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 51;
+my $want_version = 52;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -300,7 +312,10 @@ my %xy_maximum_duplication =
   );
 
 # modules for which rect_to_n_range() is exact
-my %rect_exact = ('Math::PlanePath::Rows' => 1,
+my %rect_exact = (
+                  # rect_to_n_range exact begin
+                  'Math::PlanePath::CornerReplicate' => 1,
+                  'Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::Columns' => 1,
                   'Math::PlanePath::Diagonals' => 1,
                   'Math::PlanePath::PyramidRows' => 1,
@@ -315,6 +330,8 @@ my %rect_exact = ('Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::QuintetCurve' => 1,
                   'Math::PlanePath::QuintetCentres' => 1,
                   'Math::PlanePath::AztecDiamondRings' => 1,
+                  'Math::PlanePath::File' => 1,
+                  # rect_to_n_range exact end
                  );
 my %rect_exact_hi = (%rect_exact,
                      # high is exact but low is not
@@ -394,6 +411,9 @@ my %class_dxdy_allowed
      'Math::PlanePath::QuintetCentres' => $dxdy_one,
      # Math::PlanePath::QuintetReplicate -- mucho distance
 
+     # 'Math::PlanePath::SierpinskiCurve' => $dxdy_one, # only spacing==1
+     'Math::PlanePath::HIndexing'       => $dxdy_square,
+
      'Math::PlanePath::HexSpiralSkewed'    => {
                                                '-1,1' => 1, # NW
                                                '1,-1' => 1, # SE
@@ -421,6 +441,7 @@ my %class_dxdy_allowed
 
      'Math::PlanePath::HilbertCurve'   => $dxdy_square,
      'Math::PlanePath::PeanoCurve'     => $dxdy_square,
+     'Math::PlanePath::BetaOmega'      => $dxdy_square,
      'Math::PlanePath::DragonCurve'    => $dxdy_square,
      'Math::PlanePath::DragonMidpoint' => $dxdy_square,
      'Math::PlanePath::DragonRounded'  => $dxdy_one,

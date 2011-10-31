@@ -29,7 +29,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -121,6 +121,7 @@ sub xy_to_n {
 #     level = log(hypot / (2*.99)) / log(sqrt(7))
 #           = (log(hypot) + log(2*.99)) * 1/log(sqrt(7))
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   $y1 *= sqrt(3);

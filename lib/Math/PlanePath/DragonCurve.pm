@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -304,6 +304,7 @@ sub xy_to_n {
 # Rmin^2 = (2^level)/4
 # N = 4 * Rmin^2
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"

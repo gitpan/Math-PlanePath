@@ -29,7 +29,7 @@ use List::Util 'max';
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -180,6 +180,7 @@ sub xy_to_n {
   return $n + (8*$d - 7 + $d_offset)*$d + 1;
 }
 
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 

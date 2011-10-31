@@ -23,7 +23,7 @@ use List::Util 'min', 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -166,6 +166,7 @@ sub xy_to_n {
 # 2*step_left = step - step&1
 # N lo   = ((step * y1 - (step-2)-2*step_left)*y1) / 2 + 1 + x1
 
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PyramidRows rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"

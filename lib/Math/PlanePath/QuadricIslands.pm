@@ -30,7 +30,7 @@ use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -262,6 +262,7 @@ sub xy_to_n {
 #    2*4^(l-1) = 3*z-1
 #    4^(l-1) = (3*z-1)/2
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### QuadricIslands rect_to_n_range(): "$x1,$y1  $x2,$y2"

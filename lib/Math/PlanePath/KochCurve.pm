@@ -39,7 +39,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -156,6 +156,7 @@ sub xy_to_n {
 # level extends to x= 2*3^level
 #                  level = log3(x/2)
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"

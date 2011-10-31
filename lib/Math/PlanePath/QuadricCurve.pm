@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -225,6 +225,7 @@ sub xy_to_n {
 # level extends to x= 4^level
 #                  level = log4(x)
 #
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### QuadricCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"

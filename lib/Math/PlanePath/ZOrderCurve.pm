@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -169,6 +169,7 @@ sub xy_to_n {
   return $n;
 }
 
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
@@ -435,7 +436,9 @@ So for a given rectangle the smallest N is at the lower left corner
 L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
-L<Math::PlanePath::ImaginaryBase>
+L<Math::PlanePath::ImaginaryBase>,
+L<Math::PlanePath::CornerReplicate>,
+L<Math::PlanePath::DigitGroups>
 
 C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
 

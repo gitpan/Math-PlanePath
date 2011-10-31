@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -79,16 +79,17 @@ sub xy_to_n {
   }
 }
 
+# not exact
 sub rect_to_n_range {
   my $self = shift;
 
   my ($rlo, $rhi) = _rect_to_radius_range(@_);
   # minimum rlo=0 for minimum N=1
-  $rlo = max (0, $rlo-0.6);
+  $rlo -= 0.6; if ($rlo < 0) { $rlo = 0; }
   $rhi += 0.6;
 
   return (int($rlo*$rlo),
-          1 + POSIX::ceil($rhi*$rhi));
+          int($rhi*$rhi + 2));
 }
 
 sub _rect_to_radius_range {
@@ -239,3 +240,7 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=SacksSpiral"
+# End:

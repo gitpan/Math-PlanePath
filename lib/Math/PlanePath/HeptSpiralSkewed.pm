@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 51;
+$VERSION = 52;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -122,6 +122,7 @@ sub xy_to_n {
   return $n + 3*$d - $y;
 }
 
+# not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
@@ -140,7 +141,7 @@ sub rect_to_n_range {
   }
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,
-          (3.5*$d - 2.5)*$d + 1);
+          (7*$d - 5)*$d/2 + 1);
 }
 
 1;
