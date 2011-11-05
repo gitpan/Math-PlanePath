@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -510,6 +510,12 @@ The points are on a square grid with integer X,Y.  4 points are used in each
 
     which means
     ((X%3)+(Y%3)) % 2 == 1
+
+The N values along the X axis 0,3,12,15,48,etc are all the numbers which use
+only digits 0 and 3 in base 4.  For example N=51 is 303 in base 4.  Or
+equivalently the values all have doubled bits in binary, for example N=48 is
+110000 binary.  (Compare the CornerReplicate which has these along the X
+axis.)
 
 =head2 Level Ranges
 

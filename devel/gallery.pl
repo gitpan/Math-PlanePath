@@ -41,6 +41,11 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['fibonacci-word-fractal-small.png',
+    'math-image --path=FibonacciWordFractal --lines --scale=2 --size=32 --offset=2,2'],
+   ['fibonacci-word-fractal-big.png',
+    'math-image --path=FibonacciWordFractal --lines --scale=2 --size=345x170 --offset=2,2'],
+
    ['corner-replicate-small.png',
     'math-image --path=CornerReplicate --lines --scale=4 --size=32'],
    ['corner-replicate-big.png',

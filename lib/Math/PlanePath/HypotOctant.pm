@@ -22,7 +22,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -118,12 +118,14 @@ sub xy_to_n {
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
-  my $hypot = $x*$x + $y*$y;
 
-  if ($x < 0 || $y < 0
-      || $y > $x
-      || _is_infinite($hypot)) {
-    ### outside first octant, or infinity
+  my $hypot = $x*$x + $y*$y;
+  if (_is_infinite($hypot)) {
+    return $hypot;
+  }
+
+  if ($x < 0 || $y < 0 || $y > $x) {
+    ### outside first octant ...
     return undef;
   }
 

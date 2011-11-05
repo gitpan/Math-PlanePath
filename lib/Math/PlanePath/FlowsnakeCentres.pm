@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 # inherit new(), rect_to_n_range(), arms_count(), n_start(),
 # parameter_info_array()

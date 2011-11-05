@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments '###';
 
 
-my $test_count = (tests => 175)[1];
+my $test_count = (tests => 177)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -300,6 +300,7 @@ require Math::PlanePath::KochSnowflakes;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'FibonacciWordFractal',
                # 'CornerReplicate',    # not defined yet
                'DigitGroups',
                'PeanoCurve',

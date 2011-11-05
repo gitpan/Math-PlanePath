@@ -30,7 +30,8 @@ MyMakeMakerExtras::WriteMakefile
    PREREQ_PM    => {
                     'Math::Libm' => 0, # for hypot() mainly
                     'List::Util' => 0,
-                    'constant' => '1.02', # for leading underscore
+                    'constant' => '1.02', # 1.02 for leading underscore
+                    'constant::defer' => 0,
 
                     # only for testing
                     'Test' => 0,

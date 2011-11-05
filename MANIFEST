@@ -26,6 +26,7 @@ devel/flowsnake.pl
 devel/gallery.pl
 devel/gosper-islands-stars.pl
 devel/gosper-side.pl
+devel/gray.pl
 devel/grid.pl
 devel/heighway.pl
 devel/hex-arms.pl
@@ -79,6 +80,8 @@ examples/square-numbers.pl
 examples/ulam-spiral-xpm.pl
 inc/my_pod2html
 inc/MyMakeMakerExtras.pm
+lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm
+lib/Math/NumSeq/PlanePathCoord.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
@@ -98,6 +101,7 @@ lib/Math/PlanePath/DivisibleColumns.pm
 lib/Math/PlanePath/DragonCurve.pm
 lib/Math/PlanePath/DragonMidpoint.pm
 lib/Math/PlanePath/DragonRounded.pm
+lib/Math/PlanePath/FibonacciWordFractal.pm
 lib/Math/PlanePath/File.pm
 lib/Math/PlanePath/Flowsnake.pm
 lib/Math/PlanePath/FlowsnakeCentres.pm
@@ -178,6 +182,7 @@ t/DivisibleColumns.t
 t/DragonCurve.t
 t/DragonMidpoint.t
 t/DragonRounded.t
+t/FibonacciWordFractal.t
 t/File.t
 t/Flowsnake.t
 t/FlowsnakeCentres.t
@@ -206,6 +211,7 @@ t/PixelRings-image.t
 t/PixelRings.t
 t/PlanePath-subclasses.t
 t/PlanePath.t
+t/PlanePathCoord.t
 t/PyramidRows.t
 t/PythagoreanTree.t
 t/QuintetCentres.t
@@ -237,9 +243,11 @@ xt/CellularRule54-oeis.t
 xt/CoprimeColumns-oeis.t
 xt/DivisibleColumns-oeis.t
 xt/Dragon-oeis.t
+xt/FibonacciWordFractal-oeis.t
 xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm
+xt/NumSeq-PlanePath-oeis.t
 xt/PeanoCurve-oeis.t
 xt/pod_lists.t
 xt/RationalsTree-oeis.t

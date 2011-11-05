@@ -127,6 +127,7 @@ diag "module count ",scalar(@lib_modules);
       next if $elem eq 'Base';
       next if $elem eq 'Path';
       next if $elem eq 'Step';
+      next if $elem eq 'Fibonacci';
       $elem =~ s/,//;
       next if $seen{$elem}++;
       push @list, $elem;
@@ -135,7 +136,7 @@ diag "module count ",scalar(@lib_modules);
 
     my $s = join(', ',@list);
     my $l = join(', ',@lib_modules);
-    is ($s, $l);
+    is ($s, $l, 'step/base pod lists');
 
     my $j = "$s\n$l";
     $j =~ /^(.*)(.*)\n\1(.*)/ or die;

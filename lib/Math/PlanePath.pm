@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 52;
+$VERSION = 53;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -183,6 +183,7 @@ include
     SquareReplicate        replicating squares 3x3
     CornerReplicate        replicating squares 2x2
     DigitGroups            digit groups with high zero
+    FibonacciWordFractal   turns by Fibonacci word bits
 
     Flowsnake              self-similar hexagonal tile traversal
     FlowsnakeCentres         likewise, but centres of hexagons
@@ -546,6 +547,7 @@ power for things like KochPeaks and GosperIslands.
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
+    Fibonacci   FibonacciWordFractal
     parameter   PeanoCurve, ZOrderCurve, ImaginaryBase, DigitGroups
 
 =for my_pod base end
@@ -718,7 +720,8 @@ L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::SquareReplicate>,
 L<Math::PlanePath::CornerReplicate>,
-L<Math::PlanePath::DigitGroups>
+L<Math::PlanePath::DigitGroups>,
+L<Math::PlanePath::FibonacciWordFractal>
 
 L<Math::PlanePath::Flowsnake>,
 L<Math::PlanePath::FlowsnakeCentres>,

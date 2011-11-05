@@ -44,7 +44,7 @@ use strict;
 use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -168,9 +168,14 @@ sub xy_to_n {
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
-  if ($x < 0 || $y < 0
-      || _is_infinite($x)
-      || _is_infinite($y)) {
+
+  if (_is_infinite($x)) {
+    return $x;
+  }
+  if (_is_infinite($y)) {
+    return $y;
+  }
+  if ($x < 0 || $y < 0) {
     return undef;
   }
 
@@ -713,7 +718,7 @@ forms,
 
     A163528    X coordinate
     A163529    Y coordinate
-    A163530    coordinate sum X+Y
+    A163530    X+Y
     A163531    square of distance from origin X^2+Y^2
     A163532    X change -1,0,1
     A163533    Y change -1,0,1

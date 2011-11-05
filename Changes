@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 53, November 2011
+    - new FibonacciWordFractal, Math::NumSeq::PlanePathCoord
+
 Version 52, November 2011
     - new BetaOmega, CornerReplicate, DigitGroups, HIndexing
 

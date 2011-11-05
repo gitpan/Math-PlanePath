@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -114,9 +114,14 @@ sub xy_to_n {
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
-  if ($x < 0 || $y < 0
-      || _is_infinite($x)
-      || _is_infinite($y)) {
+
+  if (_is_infinite($x)) {
+    return $x;
+  }
+  if (_is_infinite($y)) {
+    return $y;
+  }
+  if ($x < 0 || $y < 0) {
     return undef;
   }
 

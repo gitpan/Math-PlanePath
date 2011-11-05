@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -292,6 +292,12 @@ The pattern is the initial N=0 to N=3 section,
 
 It then repeats as 2x2 blocks arranged in the same pattern, then 4x4 blocks,
 etc.
+
+The N values along the Y axis 0,3,12,15,48,etc are all the numbers which use
+only digits 0 and 3 in base 4.  For example N=51 is 303 in base 4.  Or
+equivalently the values all have repeating bit pairs in binary, for example
+N=48 is 110000 binary.  (Compare the SierpinskiCurve which has these along
+the X axis.)
 
 =head2 Level Ranges
 

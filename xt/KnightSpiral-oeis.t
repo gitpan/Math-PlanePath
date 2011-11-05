@@ -55,8 +55,7 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
-
-# A068608 - same first step
+# A068608 - N values in square spiral order, same first step
 {
   my $anum = 'A068608';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);

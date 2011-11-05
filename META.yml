@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Math-PlanePath
-version:            52
+version:            53
 abstract:           Mathematical paths through the 2-D plane.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -11,11 +11,12 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    constant:    1.02
-    List::Util:  0
-    Math::Libm:  0
-    perl:        5.004
-    Test:        0
+    constant:         1.02
+    constant::defer:  0
+    List::Util:       0
+    Math::Libm:       0
+    perl:             5.004
+    Test:             0
 resources:
     homepage:  http://user42.tuxfamily.org/math-planepath/index.html
     license:   http://www.gnu.org/licenses/gpl.html

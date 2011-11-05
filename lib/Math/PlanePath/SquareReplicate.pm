@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -225,6 +225,16 @@ blocks, etc.
      |              
      |              
     54 --- 63 --- 72
+
+The replication means that the values on the X axis are those using only
+digits 0,1,5 in base 9.  Those to the right have a high 1 digit and those to
+the left a high 5 digit.  These digits are the values in the initial N=0 to
+N=8 figure which fall on the X axis.
+
+Similarly on the Y axis digits 0,3,7 in base 9, or the leading diagonal X=Y
+0,2,6 and opposite diagonal 0,4,8.  The opposite diagonal digits 0,4,8 are
+00,11,22 in base 3, so is all the values in base 3 with doubled digits
+aabbccdd, etc.
 
 =head2 Level Ranges
 

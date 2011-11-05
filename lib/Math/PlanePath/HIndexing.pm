@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -357,8 +357,8 @@ For example level=3 is N through to Nlevel=2*4^3-1=127 and X,Y ranging up to
 Xmax=2*2^3-2=14 and Xmax=2*2^3-1=15.
 
 On even Y rows, the N on the X=Y diagonal is found by duplicating each bit
-in Y except the low zero (which is unchanged).  For example Y=10 is binary
-1010, duplicate to binary 1100110 is N=102.
+in Y except the low zero (which is unchanged).  For example Y=10 decimal is
+1010 binary, duplicate to binary 1100110 is N=102.
 
 =head1 FUNCTIONS
 

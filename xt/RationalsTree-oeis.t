@@ -60,7 +60,7 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    shift @$bvalues; # beginning at N=1
+    shift @$bvalues; # drop initial value=0 from oeis
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x;
@@ -77,7 +77,7 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
-# A002487 -- CW denominators are Stern diatomic, with extra 1
+# A002487 -- CW denominators are Stern diatomic
 
 {
   my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
@@ -85,7 +85,7 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    splice @$bvalues, 0,2;   # beginning at N=2
+    splice @$bvalues, 0,2;   # drop initial value=0,value=1 from oeis
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y;

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 22 }
+BEGIN { plan tests => 25 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -45,7 +45,7 @@ sub numeq_array {
     return 0;
   }
   while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
+    if ($a1->[0] != $a2->[0]) {
       return 0;
     }
     shift @$a1;
@@ -90,6 +90,60 @@ sub numeq_array {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum - X coord");
+}
+
+# A059261 - X+Y
+{
+  my $anum = 'A059261';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (0 .. $#$bvalues) {
+      my ($x, $y) = $hilbert->n_to_xy ($n);
+      push @got, $x+$y;
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - X+Y");
+}
+
+# A059285 - X-Y
+{
+  my $anum = 'A059285';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (0 .. $#$bvalues) {
+      my ($x, $y) = $hilbert->n_to_xy ($n);
+      push @got, $x-$y;
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - X-Y");
+}
+
+# A163547 - X^2+Y^2
+{
+  my $anum = 'A163547';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (0 .. $#$bvalues) {
+      my ($x, $y) = $hilbert->n_to_xy ($n);
+      push @got, $x*$x+$y*$y;
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - X^2+Y^2");
 }
 
 #------------------------------------------------------------------------------

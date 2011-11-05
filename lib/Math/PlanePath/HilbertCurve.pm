@@ -37,7 +37,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -649,6 +649,9 @@ This Hilbert Curve path is in Sloane's OEIS in several forms,
 
     A059252    Y coord    \ if first move horizontal
     A059253    X coord    / per the code here
+    A059261    X+Y
+    A059285    X-Y
+    A163547    X^2+Y^2
     A163365    diagonal sums
     A163477    diagonal sums, divided by 4
     A163482    row at Y=0

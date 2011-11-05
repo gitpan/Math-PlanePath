@@ -353,7 +353,7 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
-# A163531 -- square of distance, ie. x^2+y^2
+# A163531 -- x^2+y^2 square of distance
 {
   my $anum = 'A163531';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
@@ -369,7 +369,7 @@ sub numeq_array {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum -- square of distance");
+        1, "$anum -- x^2+y^2 square of distance");
 }
 
 #------------------------------------------------------------------------------

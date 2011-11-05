@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 693 }
+BEGIN { plan tests => 700 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,8 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'FibonacciWordFractal',
 
                'CornerReplicate',
                'DigitGroups',
@@ -256,7 +258,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 52;
+my $want_version = 53;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

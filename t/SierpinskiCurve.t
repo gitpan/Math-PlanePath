@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1151 }
+BEGIN { plan tests => 1202 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurve;
 # VERSION
 
 {
-  my $want_version = 52;
+  my $want_version = 53;
   ok ($Math::PlanePath::SierpinskiCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurve->VERSION,  $want_version,
@@ -231,5 +231,24 @@ foreach my $arms (1 .. 8) {
   ok ($bad, 0);
 }
 
+#------------------------------------------------------------------------------
+# X axis base 4 digits 0 and 3 only
+
+{
+  my $path = Math::PlanePath::SierpinskiCurve->new;
+
+  foreach my $i (0 .. 50) {
+    my $x = 3*$i + 1;
+    my $want_n = duplicate_bits($i);
+    my $got_n = $path->xy_to_n ($x,0);
+    ok ($got_n, $want_n, "i=$i N at X=$x,Y=0");
+  }
+}
+sub duplicate_bits {
+  my ($n) = @_;
+  my $bits = sprintf '%b',$n;
+  $bits =~ s/(.)/$1$1/g;
+  return oct("0b$bits");
+}
 
 exit 0;

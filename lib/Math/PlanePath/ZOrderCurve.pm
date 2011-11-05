@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 52;
+$VERSION = 53;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -236,7 +236,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::ZOrderCurve -- 2x2 self-similar Z shape digits
+Math::PlanePath::ZOrderCurve -- alternate digits to X and Y
 
 =head1 SYNOPSIS
 

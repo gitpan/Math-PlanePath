@@ -138,6 +138,7 @@ my @all_classes = ('SquareSpiral',
                    'SquareReplicate',
                    'CornerReplicate',
                    'DigitGroups',
+                   'FibonacciWordFractal',
 
                    'Flowsnake',
                    'Flowsnake,arms=3',
