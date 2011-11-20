@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -47,7 +47,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -95,7 +95,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### DivisibleColumns n_to_xy(): $n
+  ### DivisibleColumns n_to_xy(): "$n"
 
   # $n<-0.5 works with Math::BigInt circa Perl 5.12, it seems
   if ($n < -0.5) {
@@ -118,13 +118,15 @@ sub n_to_xy {
         $n += 1;
         # now -.5 <= $frac < .5
       }
-      ### $n
-      ### $frac
-      ### assert: $frac >= -.5
-      ### assert: $frac < .5
     }
+    ### $n
+    ### n: "$n"
+    ### $frac
+    ### assert: $frac >= -.5
+    ### assert: $frac < .5
   }
-  my $proper = $self->{'proper'};
+  my $proper = $self->{'proper'} || 0;  # cannot add false '' to BigInt
+  ### $proper
 
   my $x;
   if ($proper) {
@@ -289,7 +291,7 @@ sub rect_to_n_range {
   }
   $n_hi -= 1;
 
-  ### rect at: "x=".($x2+1)." x_to_n=".$x_to_n[$x2+1]
+  ### rect at: "x=".($x2+1)." x_to_n=".($x_to_n[$x2+1]||'none')
 
   if ($self->{'proper'}) {
     $n_lo -= $x1-1;

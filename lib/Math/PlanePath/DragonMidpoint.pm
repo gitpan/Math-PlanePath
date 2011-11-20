@@ -23,13 +23,13 @@
 package Math::PlanePath::DragonMidpoint;
 use 5.004;
 use strict;
-use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -213,7 +213,7 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  my ($pow,$exp) = _round_up_pow2(max(abs($x),abs($y)));
+  my ($pow,$exp) = _round_up_pow2(_max(abs($x),abs($y)));
   my $level_limit = 2*$exp + 5;
   if (_is_infinite($level_limit)) {
     return $level_limit;  # infinity
@@ -278,8 +278,8 @@ sub rect_to_n_range {
   $x2 = abs($x2);
   $y1 = abs($y1);
   $y2 = abs($y2);
-  my $xmax = int($x1 > $x2 ? $x1 : $x2);
-  my $ymax = int($y1 > $y2 ? $y1 : $y2);
+  my $xmax = int(_max($x1,$x2));
+  my $ymax = int(_max($y1,$y2));
   return (0,
           ($xmax*$xmax + $ymax*$ymax + 1) * $self->{'arms'} * 5);
 }

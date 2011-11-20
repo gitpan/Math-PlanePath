@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -402,12 +402,8 @@ returns N.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
-Return a range of N values which occur in a rectangle with corners at
-C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
-
-In general the range is allowed to be an over-estimate, but in the current
-code it's exact, so C<$n_lo> and C<$n_hi> are the smallest and biggest N in
-the rectangle.
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
 
 =back
 

@@ -24,6 +24,195 @@ use Math::Libm 'M_PI', 'hypot';
 
 
 {
+  require Math::BaseCnv;
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  my $f = Math::PlanePath::Flowsnake->new (arms => 3);
+  my $c = Math::PlanePath::FlowsnakeCentres->new (arms => 3);
+  my $width = 5;
+  my %saw;
+  foreach my $n (0 .. 7**($width-1)) {
+    my ($x,$y) = $f->n_to_xy($n);
+
+    my $cn = $c->xy_to_n($x,$y) // -1;
+
+    my $cr = $c->xy_to_n($x+2, $y) // -1;
+    my $ch = $c->xy_to_n($x+1,$y+1) // -1;
+    my $cw = $c->xy_to_n($x-1,$y+1) // -1;
+    my $cl = $c->xy_to_n($x-2,$y) // -1;       # <------
+    my $cu = $c->xy_to_n($x-1,$y-1) // -1;     # <------3
+    my $cz = $c->xy_to_n($x+1,$y-1) // -1;
+
+    if ($n == $cn) { $saw{'n'} = 0; }
+    if ($n == $cr) { $saw{'r'} = 1; }
+    if ($n == $ch) { $saw{'h'} = 2; }
+    if ($n == $cw) { $saw{'w'} = 3; }
+    if ($n == $cl) { $saw{'l'} = 4; }
+    if ($n == $cu) { $saw{'u'} = 5; }
+    if ($n == $cz) { $saw{'z'} = 6; }
+
+    unless (($n == $cn)
+            || ($n == $cr)
+            || ($n == $ch)
+            || ($n == $cw)
+            || ($n == $cl)
+            || ($n == $cu)
+            || ($n == $cz)) {
+      die "no match $n: $cn,$cr,$ch,$cw,$cl,$cu,$cz";
+    }
+  }
+  my $saw = join(',', sort {$saw{$a}<=>$saw{$b}} keys %saw);
+  print "$saw\n";
+  exit 0;
+}
+
+{
+  require Math::BaseCnv;
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  my $c = Math::PlanePath::Flowsnake->new;
+  my $f = Math::PlanePath::FlowsnakeCentres->new;
+  my $width = 5;
+  my %saw;
+  foreach my $n (0 .. 7**($width-1)) {
+    my $n7 = sprintf '%*s', $width, Math::BaseCnv::cnv($n,10,7);
+    my ($x,$y) = $f->n_to_xy($n);
+
+    my $cn = $c->xy_to_n($x,$y) || -1;
+    my $cn7 = sprintf '%*s', $width, Math::BaseCnv::cnv($cn,10,7);
+
+    my $rx = $x + 1;
+    my $ry = $y + 1;
+    my $cr = $c->xy_to_n($rx,$ry) || -1;
+    my $cr7 = sprintf '%*s', $width, Math::BaseCnv::cnv($cr,10,7);
+
+    my $hx = $x + 1;
+    my $hy = $y + 1;
+    my $ch = $c->xy_to_n($hx,$hy) || -1;
+    my $ch7 = sprintf '%*s', $width, Math::BaseCnv::cnv($ch,10,7);
+
+    my $wx = $x - 1;
+    my $wy = $y + 1;
+    my $cw = $c->xy_to_n($wx,$wy) || -1;
+    my $cw7 = sprintf '%*s', $width, Math::BaseCnv::cnv($cw,10,7);
+
+    my $lx = $x - 2;
+    my $ly = $y;
+    my $cl = $c->xy_to_n($lx,$ly) || -1;
+    my $cl7 = sprintf '%*s', $width, Math::BaseCnv::cnv($cl,10,7);
+
+    my $ux = $x - 1;
+    my $uy = $y - 1;
+    my $cu = $c->xy_to_n($ux,$uy) || -1;
+    my $cu7 = sprintf '%*s', $width, Math::BaseCnv::cnv($cu,10,7);
+
+    my $zx = $x + 1;
+    my $zy = $y - 1;
+    my $cz = $c->xy_to_n($zx,$zy) || -1;
+    my $cz7 = sprintf '%*s', $width, Math::BaseCnv::cnv($cz,10,7);
+
+    if ($n == $cn) { $saw{'n'} = 0; }
+    if ($n == $cr) { $saw{'r'} = 1; }
+    if ($n == $ch) { $saw{'h'} = 2; }
+    if ($n == $cw) { $saw{'w'} = 3; }
+    if ($n == $cl) { $saw{'l'} = 4; }
+    if ($n == $cu) { $saw{'u'} = 5; }
+    if ($n == $cz) { $saw{'z'} = 6; }
+    my $bad = ($n == $cn
+               || $n == $cr
+               || $n == $ch
+               || $n == $cw
+               || $n == $cl
+               || $n == $cu
+               || $n == $cz
+               ? ''
+               : '  ******');
+
+    # print "$n7 $cn7 $ch7 $cw7 $cu7   $bad\n";
+  }
+  my $saw = join(',', sort {$saw{$a}<=>$saw{$b}} keys %saw);
+  print "$saw\n";
+  exit 0;
+}
+
+{
+  require Math::BaseCnv;
+  require Math::PlanePath::Flowsnake;
+  my $path = Math::PlanePath::Flowsnake->new;
+
+  foreach my $y (reverse -5 .. 40) {
+    printf "%3d ", $y;
+    foreach my $x (-20 .. 15) {
+      my $n = $path->xy_to_n($x,$y);
+      if (! defined $n) {
+        print "  ";
+        next;
+      }
+
+      my $nh = $n - ($n%7);
+      my ($hx,$hy) = $path->n_to_xy($nh);
+      my $pos = '?';
+      if ($hy > $y) {
+        $pos = 'T';
+      } if ($hx > $x) {
+        $pos = '.';
+      } else {
+        $pos = '*';
+        $pos = $n%7;
+      }
+
+      print "$pos ";
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
+  require Math::BaseCnv;
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  my $f = Math::PlanePath::Flowsnake->new;
+  my $c = Math::PlanePath::FlowsnakeCentres->new;
+  my $width = 5;
+  foreach my $n (0 .. 7**($width-1)) {
+    my $n7 = sprintf '%*s', $width, Math::BaseCnv::cnv($n,10,7);
+    my ($x,$y) = $f->n_to_xy($n);
+
+    my $cn = $c->xy_to_n($x,$y) || 0;
+    my $cn7 = sprintf '%*s', $width, Math::BaseCnv::cnv($cn,10,7);
+
+    my $m = ($x + 2*$y) % 7;
+    if ($m == 2) {  # 2,0  = 2
+      $x -= 2;
+    } elsif ($m == 5) {  # 3,1 = 3+2*1 = 5
+      $x -= 3;
+      $y -= 1;
+    } elsif ($m == 3) {  # 1,1 = 1+2 = 3
+      $x -= 1;
+      $y -= 1;
+    } elsif ($m == 4) {  # 0,2 = 0+2*2 = 4
+      $y -= 2;
+    } elsif ($m == 6) {  # 2,2 = 2+2*2 = 6
+      $x -= 2;
+      $y -= 2;
+    } elsif ($m == 1) {  # 4,2 = 4+2*2 = 8 = 1
+      $x -= 4;
+      $y -= 2;
+    }
+    my $mn = $c->xy_to_n($x,$y) || 0;
+    my $mn7 = sprintf '%*s', $width, Math::BaseCnv::cnv($mn,10,7);
+
+    my $nh = $n - ($n%7);
+    my $mh = $mn - ($mn%7);
+
+    my $diff = ($nh == $mh ? "" : "   **");
+    print "$n7 $mn7   $cn7$diff\n";
+  }
+  exit 0;
+}
+
+{
   # xy_to_n
   require Math::PlanePath::Flowsnake;
   require Math::PlanePath::FlowsnakeCentres;

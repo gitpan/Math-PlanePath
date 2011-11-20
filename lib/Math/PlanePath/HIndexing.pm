@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -313,7 +313,7 @@ and repeating above it.
         +-------------------------------------------------------------
            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-The tiling is similar to the Sierpinski curve (per
+The tiling essentially the same as the Sierpinski curve (see
 L<Math::PlanePath::SierpinskiCurve>).  The following is with two points per
 triangle.  Or equally well it could be thought of with those triangles
 further divided to have one point each, a little skewed.
@@ -343,6 +343,20 @@ further divided to have one point each, a little skewed.
     | 0  /
     |  /
     +/
+
+The correspondence to the SierpinskiCurve is as follows.  The 4-point
+verticals like N=0 to N=3 are a Sierpinski horizontal, and the 4-point "U"
+parts like N=4 to N=7 are a Sierpinski vertical.  In both cases there's an
+X,Y transpose and bit of stretching.
+
+
+    3                                       7
+    |                                      /
+    2         1--2             5--6       6
+    |  <=>   /    \            |  |  <=>  |
+    1       0      3           4  7       5
+    |                                      \
+    0                                       4
 
 =head2 Level Ranges
 

@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -376,7 +376,7 @@ replication is N=2^level which is level*45 degrees around,
    ...
 
 Here's points N=0 to N=2^9=512 with the N=512 end at the "+" mark.  It's
-gone full-circle around to to 45 degrees up again like the initial N=2.
+gone full-circle around to 45 degrees up again like the initial N=2.
 
                                     * *     * *
                                   * * *   * * *
@@ -503,8 +503,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
 
-The optional C<arms> parameter can 1 to 4 copies of the curve, each arm
-successively advancing.
+The optional C<arms> parameter can trace 1 to 4 copies of the curve, each
+arm successively advancing.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

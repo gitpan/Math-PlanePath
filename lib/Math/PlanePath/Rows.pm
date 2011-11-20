@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -173,6 +173,11 @@ Return the point number for coordinates C<$x,$y>.
 C<$x> and C<$y> are rounded to the nearest integers, which has the effect of
 treating each point in the path as a square of side 1, so a column -0.5 <= x
 < width+0.5 and y>=-0.5 is covered.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
 
 =back
 

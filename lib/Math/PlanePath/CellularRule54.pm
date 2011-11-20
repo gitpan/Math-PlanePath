@@ -17,25 +17,21 @@
 
 # math-image --path=CellularRule54 --all --scale=10
 # math-image --path=CellularRule54 --all --output=numbers --size=132x50
-#
-# http://mathworld.wolfram.com/Rule54.html
-# A118108
-# A118109
-#
 
 package Math::PlanePath::CellularRule54;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
 
 use constant y_negative => 0;
 
@@ -165,16 +161,45 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### CellularRule54 rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
+  ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
+    or return (1,0); # rect outside pyramid
+
+  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
+
+  # nbase y even y*(y+2)/2
+  # nbase y odd  y*(y+1)/2
+  # y even end (y+1)*(y+2)/2
+  # y odd end  (y+1)*(y+3)/2
+
+  $y2 += 1;
+  return ($zero + $y1*($y1 + 1 + ! ($y1 % 2))/2 + 1,  # even/odd left end
+          $zero + $y2*($y2 + 1 + ! ($y2 % 2))/2);     # even/odd right end
+}
+
+# Return ($x1,$y1, $x2,$y2) which is the rectangle part chopped to the top
+# row entirely within the pyramid V and the bottom row partly within.
+#
+sub _rect_for_V {
+  my ($x1,$y1, $x2,$y2) = @_;
+  ### _rect_for_V(): "$x1,$y1, $x2,$y2"
+
   $y1 = _round_nearest ($y1);
   $y2 = _round_nearest ($y2);
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
-  if ($y2 < 0) {
-    return (1, 0); # rect all negative, no N
+
+  unless ($y2 >= 0) {
+    ### rect all negative, no N ...
+    return;
+  }
+  unless ($y1 >= 0) {
+    # increase y1 to zero, including negative infinity discarded
+    $y1 = 0;
   }
 
   $x1 = _round_nearest ($x1);
   $x2 = _round_nearest ($x2);
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
+  my $neg_y2 = -$y2;
 
   #     \        /
   #   y2 \      / +-----
@@ -188,18 +213,34 @@ sub rect_to_n_range {
   #           \  /
   #       x2   \/
   #
-  my $nx2 = -$x2;
-  if ($x1 > $y2
-      || $nx2 > $y2) {  # x2 < -y2, done as -x2 > y2
+  if ($x1 > $y2            # off to the right
+      || $x2 < $neg_y2) {  # off to the left
     ### rect all off to the left or right, no N
-    return (1, 0);
+    return;
   }
 
-  ### x1 to x2 top row intersects some of the pyramid
-  ### assert: $x2 >= -$y2
-  ### assert: $x1 <= $y2
+  #     \        /  x2
+  #      \   +------+ y2
+  #       \  | /    |
+  #        \ +------+
+  #         \/
+  #
+  if ($x2 > $y2) {
+    ### top-right beyond pyramid, reduce ...
+    $x2 = $y2;
+  }
 
-  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
+  #
+  #    x1  \        /
+  # y2 +--------+  /  y2
+  #    |     \  | /
+  #    +--------+/
+  #            \/
+  #
+  if ($x1 < $neg_y2) {
+    ### top-left beyond pyramid, increase ...
+    $x1 = $neg_y2;
+  }
 
   #     \       | /
   #      \      |/
@@ -207,30 +248,37 @@ sub rect_to_n_range {
   #    y1  \  / +-------+
   #         \/  x1
   #
-  if ($x1 > $y1) {
-    ### x1 off to the right, y1 row is outside, increase y1
-    $y1 = $x1;
-  }
-
   #        \|       /
   #         \      /
   #         |\    /
   #  -------+ \  /   y1
   #        x2  \/
-  if ($nx2 > $y1) {
-    ### x2 off to the right, y1 row is outside, increase y1
-    $y1 = $nx2;
+  #
+  # in both of the following y1=x2 or y1=-x2 leaves y1<=y2 because have
+  # already established some part of the rectangle is in the V shape
+  #
+  if ($x1 > $y1) {
+    ### x1 off to the right, so y1 row is outside, increase y1 ...
+    $y1 = $x1;
+
+  } elsif ((my $neg_x2 = -$x2) > $y1) {
+    ### x2 off to the left, so y1 row is outside, increase y1 ...
+    $y1 = $neg_x2;
   }
-  ### new y1: "$y1"
 
-  # nbase y even y*(y+2)/2
-  # nbase y odd  y*(y+1)/2
-  # y even end (y+1)*(y+2)/2
-  # y odd end  (y+1)*(y+3)/2
+  # values ordered
+  ### assert: $x1 <= $x2
+  ### assert: $y1 <= $y2
 
-  $y2 += 1;
-  return ($zero + $y1*($y1 + 1 + ! ($y1 % 2))/2 + 1,  # even/odd left end
-          $zero + $y2*($y2 + 1 + ! ($y2 % 2))/2);     # even/odd right end
+  # top row x1..x2 entirely within pyramid
+  ### assert: $x1 >= -$y2
+  ### assert: $x2 <= $y2
+
+  # bottom row x1..x2 some part within pyramid
+  ### assert: $x1 <= $y1
+  ### assert: $x2 >= -$y1
+
+  return ($x1,$y1, $x2,$y2);
 }
 
 1;
@@ -305,6 +353,15 @@ For any Y of course the Nleft to Nright difference is the number of points
 in the row too
 
     rowpoints = Nright - Nleft + 1
+
+=head1 OEIS
+
+This pattern is in Sloane's OEIS in a couple of forms,
+
+    http://oeis.org/A118108  (etc)
+
+    A118108    whole-row used cells as bits
+    A118109    1/0 used and unused cells across rows
 
 =head1 FUNCTIONS
 

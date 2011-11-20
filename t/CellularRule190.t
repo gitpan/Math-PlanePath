@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 443 }
+BEGIN { plan tests => 503 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule190;
 # VERSION
 
 {
-  my $want_version = 53;
+  my $want_version = 54;
   ok ($Math::PlanePath::CellularRule190::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule190->VERSION,  $want_version,
@@ -153,9 +153,19 @@ require Math::PlanePath::CellularRule190;
       }
       {
         $n = int($n);
+        my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x,$y, $x,$y);
+        ok ($got_nlo == $n, 1,
+            "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y single");
+        ok ($got_nhi == $n, 1,
+            "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y single");
+      }
+      {
+        $n = int($n);
         my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-        ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-        ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+        ok ($got_nlo <= $n, 1,
+            "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+        ok ($got_nhi >= $n, 1,
+            "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
       }
     }
   }

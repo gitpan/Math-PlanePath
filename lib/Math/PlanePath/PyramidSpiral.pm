@@ -22,13 +22,14 @@
 package Math::PlanePath::PyramidSpiral;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_min = \&Math::PlanePath::_min;
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -118,7 +119,7 @@ sub rect_to_n_range {
   $y1 = _round_nearest ($y1);
   $y2 = _round_nearest ($y2);
 
-  my $r = max (map {
+  my $r = _max (map {
     my $y = $_;
     my $r;
     if ($y < 0 && $x <= 2*-$y) {
@@ -132,7 +133,7 @@ sub rect_to_n_range {
     ### $y
     ### $r
     $r
-  } max($y1,$y2), min($y1,$y2));
+  } _max($y1,$y2), _min($y1,$y2));
   ### $r
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0

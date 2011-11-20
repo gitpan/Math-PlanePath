@@ -27,19 +27,20 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-*_floor = \&Math::PlanePath::_floor;
 
 use Math::PlanePath::SierpinskiArrowhead;
 *_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant n_start => 0;
 sub arms_count {
@@ -222,7 +223,7 @@ sub xy_to_n {
   #   }
   # }
 
-  my ($pow,$exp) = _round_up_pow2(max(abs($x/3),abs($y/3)));
+  my ($pow,$exp) = _round_up_pow2(_max(abs($x/3),abs($y/3)));
   my $level_limit = 2*$exp + 5;
   if (_is_infinite($level_limit)) {
     return $level_limit;
@@ -291,8 +292,8 @@ sub rect_to_n_range {
   $x2 = abs($x2);
   $y1 = abs($y1);
   $y2 = abs($y2);
-  my $xmax = int(($x1 > $x2 ? $x1 : $x2) / 3);
-  my $ymax = int(($y1 > $y2 ? $y1 : $y2) / 3);
+  my $xmax = int(_max($x1,$x2) / 3);
+  my $ymax = int(_max($y1,$y2) / 3);
   return (0,
           ($xmax*$xmax + $ymax*$ymax + 1) * $self->{'arms'} * 16);
 

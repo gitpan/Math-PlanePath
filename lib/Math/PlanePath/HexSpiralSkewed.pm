@@ -19,13 +19,13 @@
 package Math::PlanePath::HexSpiralSkewed;
 use 5.004;
 use strict;
-use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -109,6 +109,7 @@ sub xy_to_n {
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
+
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
@@ -123,7 +124,7 @@ sub xy_to_n {
       return ((3*$d + 1 + 2*$w)*$d + 1
               - $y);
     } else {
-      my $d = $y + max($x,0);
+      my $d = $y + _max($x,0);
       ### right upper diagonal and top horizontal
       ### $d
       ### base: (3*$d - 1 + 2*$w)*$d + 1 - $w
@@ -135,7 +136,7 @@ sub xy_to_n {
     # $y < 0
     $x += $w_left;
     if ($x-$w <= -$y) {
-      my $d = -$y + max(-$x,0);
+      my $d = -$y + _max(-$x,0);
       ### left lower diagonal and bottom horizontal
       ### $d
       ### base: (3*$d + 2 + 2*$w)*$d + 1
@@ -157,6 +158,11 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### HexSpiralSkewed rect_to_n_range(): $x1,$y1, $x2,$y2
 
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
+
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
@@ -168,13 +174,13 @@ sub rect_to_n_range {
       $x -= $w;
     }
     foreach my $y ($y1, $y2) {
-      $d = max ($d,
+      $d = _max ($d,
                 (($y > 0) == ($x > 0)
                  ? abs($x) + abs($y)      # top right or bottom left diagonals
-                 : max(abs($x),abs($y)))); # top left or bottom right squares
+                 : _max(abs($x),abs($y)))); # top left or bottom right squares
     }
   }
-  $d = int($d) + 1;
+  $d += 1;
 
   # diagonal downwards bottom right being the end of a revolution
   # s=0

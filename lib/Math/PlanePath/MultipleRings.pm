@@ -19,21 +19,22 @@
 package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 # Math::Trig has asin_real() too, but it just runs the blob of code in
 # Math::Complex -- prefer libm
 use Math::Libm 'M_PI', 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_min = \&Math::PlanePath::_min;
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant figure => 'circle';
@@ -133,41 +134,49 @@ sub n_to_xy {
     # step==0 goes along X axis
     return ($n, 0);
   }
-  $n /= $step;
-  ### divided n: "$n"
-  ### divided n int: int($n).''
 
-  my $d = int((1 + sqrt(int(8*$n) + 1)) / 2);
+  my $d = int((1 + sqrt(int(8*$n/$step) + 1)) / 2);
 
   ### d frac: (1 + sqrt(int(8*$n) + 1)) / 2
   ### d int: "$d"
   ### base: ($d*($d-1)/2).''
   ### next base: (($d+1)*$d/2).''
   ### assert: $n >= ($d*($d-1)/2)
-  ### assert: $n < (($d+1)*$d/2)
+  ### assert: $n < ($step * ($d+1) * $d / 2)
 
-  $n -= $d*($d-1)/2;
+  $n -= $d*($d-1)/2 * $step;
   ### remainder: "$n"
   ### assert: $n >= 0
-  ### assert: $n < $d
+  ### assert: $n < $d*$step
 
+  my $pi = M_PI();
+  my $base_r = $self->{'base_r'};
+  if (ref $n) {
+    if ($n->isa('Math::BigInt')) {
+      require Math::BigFloat;
+      $n = Math::BigFloat->new($n);
+    }
+    if ($n->isa('Math::BigRat')) {
+      $n = $n->as_float;
+    }
+    if ($n->isa('Math::BigFloat')) {
+      $d = Math::BigFloat->new($d);
+      $pi = Math::BigFloat->bpi;
+      $base_r = Math::BigFloat->new($base_r);
+    }
+  }
+
+  # && $d != 0 # watch out for overflow making d==0 ??
+  #
   my $r = ($step > 6
-           # && $d != 0 # watch out for overflow making d==0
-           ? 0.5 / sin(M_PI() / ($d*$step))
-           : $d + $self->{'base_r'});
+           ? 0.5 / sin($pi / ($d*$step))
+           : $base_r + $d);
   ### r: "$r"
 
-  my $theta = $n/$d * (2*M_PI());
+  my $theta = $n*2*$pi/($d*$step);
 
   ### theta frac: (($n - $d*($d-1)/2)/$d).''
   ### theta: "$theta"
-  ### theta float: (ref $theta && $theta->as_float.'')
-
-  # BigFloat sin()/cos() are very slow, is plain cos/sin enough accuracy ?
-  if (ref $theta
-      && ($theta->isa('Math::BigRat') || $theta->isa('Math::BigFloat'))) {
-    $theta = $theta->numify;
-  }
 
   return ($r * cos($theta),
           $r * sin($theta));
@@ -258,19 +267,22 @@ sub rect_to_n_range {
   ### MultipleRings rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"
 
   my $zero = ($x1<0) != ($x2<0) || ($y1<0) != ($y2<0);
-  foreach ($x1,$x2,$y1,$y2) {
-    $_ = abs($_);
-  }
+
+  $x1 = abs($x1);
+  $x2 = abs($x2);
+  $y1 = abs($y1);
+  $y2 = abs($y2);
+
   # if x1,x2 pos and neg then 0 is covered and it's the minimum
   # ENHANCE-ME: might be able to be a little tighter on $d_lo
   my $d_lo = ($zero
               ? 1
-              : max (1, -2 + int (_xy_to_d ($self,
-                                            min($x1,$x2),
-                                            min($y1,$y2)))));
+              : _max (1, -2 + int (_xy_to_d ($self,
+                                             _min($x1,$x2),
+                                             _min($y1,$y2)))));
   my $d_hi = 1 + int (_xy_to_d ($self,
-                                max($x1,$x2),
-                                max($y1,$y2)));
+                                _max($x1,$x2),
+                                _max($y1,$y2)));
   ### $d_lo
   ### $d_hi
   if ((my $step = $self->{'step'})) {

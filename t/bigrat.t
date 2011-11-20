@@ -34,10 +34,10 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 
-my $test_count = (tests => 177)[1];
+my $test_count = (tests => 179)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -300,6 +300,7 @@ require Math::PlanePath::KochSnowflakes;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'WunderlichMeander',
                'FibonacciWordFractal',
                # 'CornerReplicate',    # not defined yet
                'DigitGroups',
@@ -422,10 +423,10 @@ foreach my $module (@modules) {
   my $want_y = $frac * Math::BigRat->new ($dy) + $y1;
 
   my ($x_frac,$y_frac) = $path->n_to_xy($n_frac);
-  ### xy frac: "$x_frac,$y_frac"
+  ### xy frac: "$x_frac, $y_frac"
 
-  ok ("$x_frac", "$want_x", "$module   arms=$arms");
-  ok ("$y_frac", "$want_y", "$module   arms=$arms");
+  ok ("$x_frac", "$want_x", "$module arms=$arms X frac");
+  ok ("$y_frac", "$want_y", "$module arms=$arms Y frac");
 }
 
 exit 0;

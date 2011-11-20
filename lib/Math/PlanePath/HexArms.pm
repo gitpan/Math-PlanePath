@@ -37,10 +37,11 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -183,16 +184,20 @@ sub rect_to_n_range {
 sub _rect_to_hex_radius {
   my ($x1,$y1, $x2,$y2) = @_;
 
+  $x1 = abs (_round_nearest ($x1));
+  $y1 = abs (_round_nearest ($y1));
+  $x2 = abs (_round_nearest ($x2));
+  $y2 = abs (_round_nearest ($y2));
+
   # radial symmetric in +/-y
-  my $y = max (abs($y1), abs($y2));
+  my $y = _max (abs($y1), abs($y2));
 
   # radial symmetric in +/-x
-  my $x = max (abs($x1), abs($x2));
+  my $x = _max (abs($x1), abs($x2));
 
-  return int(($y >= $x
-              ? $y                 # middle
-              : ($x + $y + 1)/2)   # end, round up
-             + .5);
+  return ($y >= $x
+          ? $y                      # middle
+          : int(($x + $y + 1)/2));  # end, round up
 }
 
 1;

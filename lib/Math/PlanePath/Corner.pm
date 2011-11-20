@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -331,19 +331,24 @@ each rounded to the nearest integer, which has the effect of treating each
 point as a square of side 1, so the quadrant x>=-0.5 and y>=-0.5 is entirely
 covered.
 
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
+
 =back
 
 =head1 FORMULAS
 
 =head2 N to X,Y
 
-Counting d=0 for the first row at y=0, then the start of that row
+Counting d=0 for the first row at Y=0, then the start of that row
 N=1,2,5,10,17,etc is
 
     StartN(d) = d^2 + 1
 
-The current C<n_to_xy> code extends to the left by an extra 0.5 for
-fractional N, so for example N=9.5 is at x=-0.5,y=3.  With this the starting
+The current C<n_to_xy()> code extends to the left by an extra 0.5 for
+fractional N, so for example N=9.5 is at X=-0.5,Y=3.  With this the starting
 N for each d row is
 
     StartNfrac(d) = d^2 + 0.5
@@ -363,37 +368,37 @@ horizontal or positive for the vertical,
     Rem = RemStart - (d+0.5)
         = N - (d*(d+1) + 1)
 
-And the x,y coordinates thus
+And the X,Y coordinates thus
 
-    if (Rem < 0)  then x=d+Rem, y=d
-    if (Rem >= 0) then x=d, y=d-Rem
+    if (Rem < 0)  then X=d+Rem, Y=d
+    if (Rem >= 0) then X=d, Y=d-Rem
 
 =head2 X,Y to N
 
-For a given x,y the bigger of x or y determines the d row.  If y>=x then x,y
-is on the horizontal part with d=y and in that case StartN(d) above is the N
-for x=0, and the given x can be added to that,
+For a given X,Y the bigger of X or Y determines the d row.  If YE<gt>=X then
+X,Y is on the horizontal part with d=Y and in that case StartN(d) above is
+the N for X=0, and the given X can be added to that,
 
-    N = StartN(d) + x
-      = y^2 + 1 + x
+    N = StartN(d) + X
+      = Y^2 + 1 + X
 
-Or otherwise if y<x then x,y is on the vertical and d=x.  In that case the
-y=0 is the last point on the row and is one back from the start of the
+Or otherwise if YE<lt>X then X,Y is on the vertical and d=X.  In that case
+the Y=0 is the last point on the row and is one back from the start of the
 following row,
 
     LastN(d) = StartN(d+1) - 1
              = (d+1)^2
 
-    N = LastN(d) - y
-      = (x+1)^2 - y
+    N = LastN(d) - Y
+      = (X+1)^2 - Y
 
 =head2 Rectangle N Range
 
-For C<rect_to_n_range>, in each row increasing X is increasing N so the
+For C<rect_to_n_range()>, in each row X increasing is N increasing so the
 smallest N is in the leftmost column and the biggest in the rightmost.
 
 Going up a column, N values decrease until reaching X=Y, and then increase,
-with those values above X=Y all bigger than the ones below.  This means the
+with the values above X=Y all bigger than the ones below.  This means the
 biggest N is the top right corner if it has YE<gt>=X, otherwise the bottom
 right corner.
 
@@ -435,3 +440,7 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=Corner,wider=1 --all --output=numbers"
+# End:

@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -39,13 +39,41 @@ use Math::PlanePath;
 use constant n_start => 0;
 use constant figure => 'circle';
 
+# sub _as_float {
+#   my ($x) = @_;
+#   if (ref $x) {
+#     if ($x->isa('Math::BigInt')) {
+#       return Math::BigFloat->new($x);
+#     }
+#     if ($x->isa('Math::BigRat')) {
+#       return $x->as_float;
+#     }
+#   }
+#   return $x;
+# }
+
 sub n_to_xy {
   my ($self, $n) = @_;
   if ($n < 0) {
-    return ();
+    return;
   }
+  my $two_pi = 2 * M_PI();
+
+  if (ref $n) {
+    if ($n->isa('Math::BigInt')) {
+      require Math::BigFloat;
+      $n = Math::BigFloat->new($n);
+    }
+    if ($n->isa('Math::BigRat')) {
+      $n = $n->as_float;
+    }
+    if ($n->isa('Math::BigFloat')) {
+      $two_pi = 2 * Math::BigFloat->bpi;
+    }
+  }
+
   my $r = sqrt($n);
-  my $theta = 2 * M_PI() * ($r - int($r));  # radians 0 to 2*pi
+  my $theta = $two_pi * ($r - int($r));  # 0 <= $theta < 2*pi
   return ($r * cos($theta),
           $r * sin($theta));
 
@@ -92,21 +120,23 @@ sub rect_to_n_range {
           int($rhi*$rhi + 2));
 }
 
+# return ($rlo,$rhi) which is the radial distance range found in the rectangle
 sub _rect_to_radius_range {
   my ($x1,$y1, $x2,$y2) = @_;
 
-  return (hypot((($x1 > 0) == ($x2 > 0)
-                 # x range doesn't include x=0, so low is min abs value
-                 ? min(abs($x1),abs($x2))
-                 # x range includes x=0, so that's the minimum
-                 : 0),
+  # if opposite sign then origin x=0 covered, similarly y=0
+  my $x_origin_covered = ($x1<0) != ($x2<0);
+  my $y_origin_covered = ($y1<0) != ($y2<0);
 
-                (($y1 > 0) == ($y2 > 0)  # same for y
-                 ? min(abs($y1),abs($y2))
-                 : 0)),
+  $x1 = abs($x1);
+  $x2 = abs($x2);
+  $y1 = abs($y1);
+  $y2 = abs($y2);
 
-          hypot (max(abs($x1),abs($x2)),
-                 max(abs($y1),abs($y2))));
+  return (hypot ($x_origin_covered ? 0 : min($x1,$x2),
+                 $y_origin_covered ? 0 : min($y1,$y2)),
+          hypot (max($x1,$x2),
+                 max($y1,$y2)));
 }
 
 1;

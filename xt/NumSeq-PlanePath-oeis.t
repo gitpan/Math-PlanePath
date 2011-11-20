@@ -77,6 +77,16 @@ sub _min {
   }
   return $ret;
 }
+sub _max {
+  my $ret = shift;
+  while (@_) {
+    my $next = shift;
+    if ($next > $ret) {
+      $ret = $next;
+    }
+  }
+  return $ret;
+}
 
 my %duplicate_anum = (A021015 => 'A010680',
                      );
@@ -161,6 +171,17 @@ sub check_class {
     # UlamSequence shortened for now
     if ($#$want > 1000) {
       $#$want = 1000;
+    }
+
+  } elsif ($anum eq 'A038567'
+           || $anum eq 'A038566'
+           || $anum eq ''
+           || $anum eq ''
+           || $anum eq ''
+           || $anum eq '') {
+    # CoprimeColumns shortened for now
+    if ($#$want > 10000) {
+      $#$want = 10000;
     }
 
   } elsif ($anum eq 'A005101' || $anum eq 'A133122'
@@ -332,6 +353,23 @@ sub check_class {
       MyTestHelpers::diag ("got  ". join(',', map {defined() ? $_ : 'undef'} @$got));
       MyTestHelpers::diag ("want ". join(',', map {defined() ? $_ : 'undef'} @$want));
     }
+
+    {
+      my $data_min = _min(@$want);
+      my $values_min = $seq->values_min;
+      if (defined $values_min && $values_min != $data_min) {
+        $good = 0;
+        MyTestHelpers::diag ("bad: $name values_min $values_min but data min $data_min");
+      }
+    }
+    {
+      my $data_max = _max(@$want);
+      my $values_max = $seq->values_max;
+      if (defined $values_max && $values_max != $data_max) {
+        $good = 0;
+        MyTestHelpers::diag ("bad: $name values_max $values_max not seen in data, only $data_max");
+      }
+    }
   }
 
   $total_checks++;
@@ -340,72 +378,51 @@ sub check_class {
 #------------------------------------------------------------------------------
 # extras
 
-check_class ('A196199', # -n to n
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'PyramidSides',
-               coordinate_type => 'X' ]);
-
-check_class ('A002262', # 0, 0,1, 0,1,2, 0,1,2,3, etc
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'Diagonals',
-               coordinate_type => 'X' ]);
-check_class ('A025581', # 0, 1,0, 2,1,0, 3,2,1,0, etc
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'Diagonals',
-               coordinate_type => 'Y' ]);
-check_class ('A003056', # 0, 1,1, 2,2,2, 3,3,3,3, etc
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'Diagonals',
-               coordinate_type => 'Sum' ]);
-
-check_class ('A059906', # ZOrderCurve second bit
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'CornerReplicate',
-               coordinate_type => 'Y' ]);
-
-check_class ('A001477',
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'TheodorusSpiral',
-               coordinate_type => 'RSquared' ]);
-
-check_class ('A000004',  # all zeros
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'PyramidRows,step=0',
-               coordinate_type => 'X' ]);
-check_class ('A001477',  # integers 0,1,2,3,etc
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'PyramidRows,step=0',
-               coordinate_type => 'Radius' ]);
-check_class ('A000290',  # squares 0,1,4,9,etc
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'PyramidRows,step=0',
-               coordinate_type => 'RSquared' ]);
-
-check_class ('A002262', # 0, 0,1, 0,1,2, 0,1,2,3, etc
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'PyramidRows,step=1',
-               coordinate_type => 'X' ]);
-check_class ('A003056', # 0, 1,1, 2,2,2, 3,3,3,3, etc
-             'Math::NumSeq::PlanePathCoord',
-             [ planepath => 'PyramidRows,step=1',
-               coordinate_type => 'Y' ]);
+# check_class ('A059906', # ZOrderCurve second bit
+#              'Math::NumSeq::PlanePathCoord',
+#              [ planepath => 'CornerReplicate',
+#                coordinate_type => 'Y' ]);
 
 # exit 0;
 
 
 #------------------------------------------------------------------------------
-# OEIS-Catalogue generated vs files
+# OEIS-Other vs files
 
-require 'lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm';
-my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath::info_arrayref();
-foreach my $info (@$aref) {
-  ### $info
-  check_class ($info->{'anum'},
-               $info->{'class'},
-               $info->{'parameters'});
+MyTestHelpers::diag ("\"Other\" uncatalogued sequences:");
+{
+  system("perl ../ns/tools/make-oeis-catalogue.pl --module=TempOther --other=only") == 0
+    or die;
+  require 'lib/Math/NumSeq/OEIS/Catalogue/Plugin/TempOther.pm';
+  unlink  'lib/Math/NumSeq/OEIS/Catalogue/Plugin/TempOther.pm' or die;
+
+  my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::TempOther::info_arrayref();
+  foreach my $info (@$aref) {
+    ### $info
+    check_class ($info->{'anum'},
+                 $info->{'class'},
+                 $info->{'parameters'});
+  }
+  MyTestHelpers::diag ("");
 }
 
+#------------------------------------------------------------------------------
+# OEIS-Catalogue generated vs files
+
+MyTestHelpers::diag ("Catalogue sequences:");
+{
+  require 'lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm';
+  my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath::info_arrayref();
+  foreach my $info (@$aref) {
+    ### $info
+    check_class ($info->{'anum'},
+                 $info->{'class'},
+                 $info->{'parameters'});
+  }
+}
+
+
 MyTestHelpers::diag ("total checks $total_checks");
-$good = 1;
 ok ($good);
+
 exit 0;

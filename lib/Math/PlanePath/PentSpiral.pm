@@ -19,13 +19,13 @@
 package Math::PlanePath::PentSpiral;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
-use Math::PlanePath;
+use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -38,13 +38,18 @@ use Math::PlanePath;
 #
 #   n = (5/2*$d**2 + -5/2*$d + 2)
 #   d = 1/2 + sqrt(2/5 * $n + -11/20)
-#     =  .5 + sqrt((8*$n-11)/20)
+#     = 1/2 + sqrt((8*$n-11)/20)
+#     = (1 + sqrt((8*$n-11)/5)) / 2
+#     = (5 + sqrt(5*(8*$n-11))) / 10
+#     = (5 + sqrt(40*$n-55)) / 10
 #
 #   remainder from base $n - (5/2*$d**2 + -5/2*$d + 2)
 #   then step to vertical x=0 is (2*$d-1) so
 #   rem = $n - (5/2*$d**2 + -5/2*$d + 2) - (2*$d-1)
 #       = $n - (5/2*$d**2 - 1/2*$d + 1)
 #       = $n - (2.5*$d*$d - 0.5*$d + 1)
+#       = $n - (5*$d*$d - $d + 1)/2
+#       = $n - ((5*$d - 1)*$d+ 1)/2
 #
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -52,23 +57,36 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if ($n < 2) { return ($n-1,0); }
 
-  my $d = int (.5 + sqrt((8*$n-11)/20));
+  my $d = int( (sqrt(40*$n-55)+5) / 10 );
   #### d frac: .5 + sqrt((8*$n-11)/20)
+  #### d frac: (sqrt(40*$n-55)+5) / 10
   #### $d
+
   #### remainder from base: $n - (5/2*$d**2 + -5/2*$d + 2)
   #### remainder from vertical: $n - (2.5*$d*$d - 0.5*$d + 1)
-  $n -= (2.5*$d*$d - 0.5*$d + 1);
+  ### assert: (((5*$d - 5)*$d + 4) % 2) == 0
+  ### assert: (((5*$d - 1)*$d + 2) % 2) == 0
+  #
+  $n -= (5*$d - 1)*$d/2 + 1;
 
   if ($n < $d) {
     #### upper diagonals and right vertical
-    return (-2*$n + 3*min($n+$d, 0),
-            $d - abs($n));
+    my $nd = $n + $d;
+    return (-2*$n + ($nd < 0 ? 3*$nd : 0),
+            - abs($n) + $d );
   } else {
-    #### lower left and bottom horizontal
-    $n -= 2*$d;  # 
-    #### relative to bottom left corner: $n
-    return (-$d + $n + max($n,0),
-            -$d - min($n,0));
+    #### lower left, and bottom horizontal ...
+    $n -= 2*$d;
+    #### relative to bottom left corner: "$n"
+    if ($n <= 0) {
+      ### lower left ...
+      return ($n - $d,
+              -$n - $d);
+    } else {
+      ### bottom horizontal: 2*$n - $d
+      return (2*$n - $d,
+              -$d);
+    }
   }
 }
 
@@ -78,8 +96,11 @@ sub xy_to_n {
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
 
-  # nothing on odd squares, odd x when y>=0 and alternate rows when y<0
-  if (($x ^ ($y & ($y<0))) & 1) {
+  # nothing on odd squares
+  # when y>=0 any odd x is not covered
+  # when y<0 the uncovered alternates, x even on y=-1, x odd on y=-2, x even
+  # y=-3 etc
+  if (($x%2) ^ ($y < 0 ? $y%2 : 0)) {
     return undef;
   }
 
@@ -93,7 +114,7 @@ sub xy_to_n {
     ### assert: ($x%2)==0
     $x /= 2;
     my $d = abs($x) + $y;
-    return (2.5*$d - 0.5)*$d + 1 - $x;
+    return (5*$d - 1)*$d/2 + 1 - $x;
   }
 
   if ($x < $y) {
@@ -104,7 +125,7 @@ sub xy_to_n {
     #   n = (5/2*$d**2 + 1/2*$d + 1)
     #     = (2.5*$d + 0.5)*$d + 1
     my $d = -($x+$y)/2;
-    return (2.5*$d + 0.5)*$d + 1 - $y;
+    return (5*$d + 1)*$d/2 + 1 - $y;
   }
 
   if ($x > -$y) {
@@ -115,17 +136,20 @@ sub xy_to_n {
     #   n = (5/2*$d**2 + -3/2*$d + 1)
     #     = (2.5*$d - 1.5)*$d + 1
     my $d = ($x-$y)/2;
-    return (2.5*$d - 1.5)*$d + 1 + $y;
+    return (5*$d - 3)*$d/2 + 1 + $y;
   }
 
   ### bottom horizontal
-  # vertical downwards at x=0
+  # vertical downwards at x=0 is
   #   y = [  -1, -2,   -3 ]
   #   n = [ 5.5, 15, 29.5 ]
   #   n = (5/2*$y**2 + -2*$y + 1)
   #     = (2.5*$y - 2)*$y + 1
+  # so
+  #   N = (2.5*$y - 2)*$y + 1  +  $x/2
+  #     = ((5*$y - 4)*$y + $x)/2 + 1
   #
-  return (2.5*$y - 2)*$y + 1 + $x/2;
+  return ((5*$y-4)*$y + $x)/2 + 1;
 }
 
 # not exact
@@ -139,14 +163,14 @@ sub rect_to_n_range {
     foreach my $y ($y1, $y2) {
       $y = _round_nearest ($y);
 
-      my $this_d = 1 + ($y >= 0   ? abs($x) + $y
+      my $this_d = 1 + ($y >= 0     ? abs($x) + $y
                         : $x < $y   ? -($x+$y)/2
                         : $x > -$y  ? ($x-$y)/2
                         : -$y);
       ### $x
       ### $y
       ### $this_d
-      $d = max($d, $this_d);
+      $d = _max($d, $this_d);
     }
   }
   ### $d
@@ -258,3 +282,9 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=PentSpiral --lines --scale=20"
+# End:
+#
+# math-image --path=PentSpiral --all --output=numbers_dash

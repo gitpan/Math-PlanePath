@@ -20,9 +20,30 @@
 use 5.004;
 use strict;
 
+# uncomment this to run the ### lines
+use Smart::Comments;
+
+use Math::PlanePath::BetaOmega;
+use Math::PlanePath::KochCurve;
+
+{
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::BetaOmega->new;
+  foreach my $n (0 .. 64) {
+    my $n4 = sprintf '%3s', Math::BaseCnv::cnv($n,10,4);
+
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+1);
+    my $dx = $x2-$x;
+    my $dy = $y2-$y;
+    print "$n4   $dx,$dy\n";
+  }
+  exit 0;
+}
+
 {
   require Math::PlanePath::KochCurve;
-  foreach my $y (-32 .. 32) {
+  foreach my $y (reverse -16 .. 22) {
     my $y1 = $y;
     my $y2 = $y;
     {
@@ -31,10 +52,11 @@ use strict;
         $y2 *= 3;
       } else {
         # eg y=-2 gives 1-3*-2 = 7
-        $y2 = 3-6*$y1;
+        $y2 = 1-3*$y1;
       }
 
-      my ($ylen, $ylevel) = Math::PlanePath::KochCurve::_round_down_pow($y2,4);
+      my ($ylen, $ylevel) = Math::PlanePath::KochCurve::_round_down_pow($y2,2);
+      ($ylen, $ylevel) = Math::PlanePath::BetaOmega::_y_round_down_len_level($y);
       print "$y   $y2   $ylevel $ylen\n";
     }
   }

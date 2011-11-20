@@ -19,14 +19,15 @@
 package Math::PlanePath::PyramidRows;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_min = \&Math::PlanePath::_min;
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -199,11 +200,11 @@ sub rect_to_n_range {
   ### assert: $x2 >= -$y2*$step_left
   ### assert: $x1 <= $y2*$step_right
 
-  $y1 = max ($y1,
-             0,
-             $step_left && ceil(-$x2/$step_left), # for x2 >= x_bottom_start
-             $step_right && ceil($x1/$step_right), # for x1 <= x_bottom_end
-            );
+  $y1 = _max ($y1,
+              0,
+              $step_left && ceil(-$x2/$step_left), # for x2 >= x_bottom_start
+              $step_right && ceil($x1/$step_right), # for x1 <= x_bottom_end
+             );
   ### y1 for bottom left: $step_left && - ceil($x2/$step_left)
   ### y1 for bottom right: $step_right && ceil($x1/$step_right)
   ### $y1
@@ -219,24 +220,24 @@ sub rect_to_n_range {
   ### x bottom end: $y1*$step_right
   ### $x1
   ### $x2
-  ### bottom left x: max ($x1, -$y1*$step_left)
+  ### bottom left x: _max ($x1, -$y1*$step_left)
   ### top right x: min ($x2, $x_top_end)
   ### $y1
   ### $y2
-  ### n_lo: (($step * $y1 - $sub)*$y1 + 2)/2 + max ($x1, -$y1*$step_left)
-  ### n_hi: (($step * $y2 - $sub)*$y2 + 2)/2 + min ($x2, $x_top_end)
+  ### n_lo: (($step * $y1 - $sub)*$y1 + 2)/2 + _max ($x1, -$y1*$step_left)
+  ### n_hi: (($step * $y2 - $sub)*$y2 + 2)/2 + _min ($x2, $x_top_end)
 
   ### assert: $y1-1==$y1 || (($step * $y1 - $sub)*$y1 + 2) == int (($step * $y1 - $sub)*$y1 + 2)
   ### assert: $y2-1==$y2 || (($step * $y2 - $sub)*$y2 + 2) == int (($step * $y2 - $sub)*$y2 + 2)
 
   return ((($step * $y1 - $sub)*$y1 + 2)/2
-          + max ($x1, -$y1*$step_left),  # x_bottom_start
+          + _max ($x1, -$y1*$step_left),  # x_bottom_start
 
           (($step * $y2 - $sub)*$y2 + 2)/2
-          + min ($x2, $x_top_end));
+          + _min ($x2, $x_top_end));
 
-  # return ($self->xy_to_n (max ($x1, -$y1*$step_left), $y1),
-  #         $self->xy_to_n (min ($x2, $x_top_end),      $y2));
+  # return ($self->xy_to_n (_max ($x1, -$y1*$step_left), $y1),
+  #         $self->xy_to_n (_min ($x2, $x_top_end),      $y2));
 }
 
 1;
@@ -441,6 +442,11 @@ Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 each rounded to the nearest integer, which has the effect of treating each
 point in the pyramid as a square of side 1.  If C<$x,$y> is outside the
 pyramid the return is C<undef>.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
 
 =back
 

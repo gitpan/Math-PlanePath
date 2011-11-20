@@ -25,15 +25,15 @@
 package Math::PlanePath::QuadricIslands;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -257,28 +257,54 @@ sub xy_to_n {
 #         = 4^(l-1) * (2 - 1 - 1/3) + 1/3
 #         = (2*4^(l-1) + 1) / 3
 #
-#    (2*4^(l-1) + 1) / 3 = z
-#    2*4^(l-1) + 1 = 3*z
-#    2*4^(l-1) = 3*z-1
-#    4^(l-1) = (3*z-1)/2
+#    (2*4^(l-1) + 1) / 3 = y
+#    2*4^(l-1) + 1 = 3*y
+#    2*4^(l-1) = 3*y-1
+#    4^(l-1) = (3*y-1)/2
+#
+# ENHANCE-ME: slope Y=X/2+1 or thereabouts for sides
 #
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### QuadricIslands rect_to_n_range(): "$x1,$y1  $x2,$y2"
-
+  
   # $x1 = _round_nearest ($x1);
   # $y1 = _round_nearest ($y1);
   # $x2 = _round_nearest ($x2);
   # $y2 = _round_nearest ($y2);
-
-  my $m = max(1,
-              abs($x1), abs($x2),
-              abs($y1), abs($y2));
-  my $level = ceil (log((3*$m+5)/2) / log(4));
+  
+  my $m = _max(abs($x1), abs($x2),
+               abs($y1), abs($y2));
+  
+  my ($power,$level) = _round_down_pow (6*$m-2, 4);
+  ### $power
   ### $level
-  return (1, 4 * 8**($level+1) - 1);
+  return (1,
+          (32*8**$level - 4)/7);
+  
+  
 }
+
+#    ymax = ypos(l) + 4^(l-1) + width(l-1)
+#         = 4^l / 2  + 4^(l-1) + (4^(l-1) - 1)/3
+#         = 4^(l-1) * (4/2 + 1 + 1/3) - 1/3
+#         = 4^(l-1) * (2 + 1 + 1/3) - 1/3
+#         = 4^(l-1) * 10/3 - 1/3
+#         = (10*4^(l-1) - 1) / 3
+#
+#    (10*4^(l-1) - 1) / 3 = y
+#    10*4^(l-1) - 1 = 3*y
+#    10*4^(l-1) = 3*y+1
+#    4^(l-1) = (3*y+1)/10
+#
+# based on max ??? ...
+#
+# my ($power,$level) = _round_down_pow ((3*$m+1-3)/10, 4);
+# ### $power
+# ### $level
+# return (1,
+#         (4*8**($level+3) + 3)/7 - 1);
 
 1;
 __END__

@@ -156,6 +156,7 @@ lib/Math/PlanePath/TriangularHypot.pm
 lib/Math/PlanePath/UlamWarburton.pm
 lib/Math/PlanePath/UlamWarburtonQuarter.pm
 lib/Math/PlanePath/VogelFloret.pm
+lib/Math/PlanePath/WunderlichMeander.pm
 lib/Math/PlanePath/ZOrderCurve.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -163,6 +164,7 @@ MANIFEST.SKIP
 SIGNATURE
 t/ArchimedeanSpiral.t
 t/AztecDiamondRings.t
+t/BetaOmeta.t
 t/bigfloat.t
 t/bigint-lite.t
 t/bigint.t
@@ -205,15 +207,16 @@ t/KochSnowflakes.t
 t/KochSquareflakes.t
 t/MultipleRings.t
 t/MyTestHelpers.pm
+t/NumSeq-PlanePathCoord.t
 t/PeanoCurve-load.t
 t/PeanoCurve.t
 t/PixelRings-image.t
 t/PixelRings.t
 t/PlanePath-subclasses.t
 t/PlanePath.t
-t/PlanePathCoord.t
 t/PyramidRows.t
 t/PythagoreanTree.t
+t/QuadricCurve.t
 t/QuintetCentres.t
 t/QuintetCurve.t
 t/RationalsTree.t
@@ -230,6 +233,14 @@ t/TriangularHypot.t
 t/UlamWarburton.t
 t/VogelFloret.t
 t/ZOrderCurve.t
+tools/ar2w2-curve-table.pl
+tools/beta-omega-table.pl
+tools/corner-replicate-table.pl
+tools/dekking-curve-table.pl
+tools/dekking-straight-table.pl
+tools/hilbert-curve-table.pl
+tools/kochel-curve-table.pl
+tools/wunderlich-meander-table.pl
 xt/0-examples-xrefs.t
 xt/0-file-is-part-of.t
 xt/0-META-read.t
@@ -239,6 +250,7 @@ xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
+xt/CellularRule190-oeis.t
 xt/CellularRule54-oeis.t
 xt/CoprimeColumns-oeis.t
 xt/DivisibleColumns-oeis.t

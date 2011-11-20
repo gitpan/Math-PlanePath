@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -636,19 +636,20 @@ the path gives these P,Q values as the returned X,Y coordinates,
 
 Since P>Q>=1, the values fall in an octant below the X=Y diagonal,
 
-    11 |                      *
-    10 |                    *  
-     9 |                  *    
-     8 |                *   *  
-     7 |              *   *   *
-     6 |            *       *  
-     5 |          *   *       *
-     4 |        *   *   *   *  
-     3 |      *       *   *    
-     2 |    *   *   *   *   *  
-     1 |  *   *   *   *   *   *
+    11 |                         *
+    10 |                       *  
+     9 |                     *    
+     8 |                   *   *  
+     7 |                 *   *   *
+     6 |               *       *  
+     5 |             *   *       *
+     4 |           *   *   *   *  
+     3 |         *       *   *    
+     2 |       *   *   *   *   *  
+     1 |     *   *   *   *   *   *
+     0 |
        +------------------------
-          2 3 4 5 6 7 8 9 ...
+         0 1 2 3 4 5 6 7 8 9 ...
 
 The correspondence between P,Q and A,B means the trees visit all P,Q pairs
 with no common factor and one of them even.  Of course there's other ways to

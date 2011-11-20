@@ -23,12 +23,12 @@
 package Math::PlanePath::QuintetCurve;
 use 5.004;
 use strict;
-use List::Util qw(min max);
+use List::Util qw( max);
 use POSIX 'ceil';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -594,6 +594,14 @@ integer positions.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+In the current code the returned range is exact, meaning C<$n_lo> and
+C<$n_hi> are the smallest and biggest in the rectangle, but don't rely on
+that yet since finding the exact range is a touch on the slow side.  (The
+advantage of which though is that it helps avoid very big ranges from a
+simple over-estimate.)
 
 =back
 

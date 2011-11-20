@@ -41,18 +41,22 @@
 package Math::PlanePath::PeanoCurve;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
 
 use constant n_start => 0;
 use constant x_negative => 0;
@@ -265,18 +269,13 @@ sub rect_to_n_range {
   }
 
   my $radix = $self->{'radix'};
-  my $power = 1;
-  {
-    my $max = max($x2,$y2);
-    if ($max-1 == $max) {
-      return (0,$max);  # infinity
-    }
-    until ($power > $max) {
-      $power *= $radix;
-    }
+  
+  my ($power, $level) = _round_down_pow (_max($x2,$y2), $radix);
+  if (_is_infinite($level)) {
+    return (0, $level);
   }
 
-  my $n_power = $power * $power;
+  my $n_power = $power * $power * $radix;
   my $max_x = 0;
   my $max_y = 0;
   my $max_n = 0;
@@ -301,15 +300,12 @@ sub rect_to_n_range {
     if ($ck & 1) {
       $digit = $radix_minus_1 - $digit;
     }
-    ### overlap consider: "inv@{[$ck&1]}digit=$digit ".($c+$digit*$power)."<=c<".($c+($digit+1)*$power)." cf $c1 to $c2 incl"
+    ### overlap consider: "inv".($ck&1)."digit=$digit ".($c+$digit*$power)."<=c<".($c+($digit+1)*$power)." cf $c1 to $c2 incl"
     return ($c + $digit*$power <= $c2
             && $c + ($digit+1)*$power > $c1);
   };
 
-  while ($power > 1) {
-    $power = int($power/$radix);
-    $n_power = int($n_power/$radix);
-
+  while ($level-- >= 0) {
     ### $power
     ### $n_power
     ### $max_n
@@ -368,6 +364,9 @@ sub rect_to_n_range {
       ### $min_x
       ### $min_n
     }
+
+    $power = int($power/$radix);
+    $n_power = int($n_power/$radix);
   }
   ### is: "$min_n at $min_x,$min_y  to  $max_n at $max_x,$max_y"
   return ($min_n, $max_n);
@@ -510,9 +509,17 @@ The Peano curve is sometimes shown as
          |     |
          +-----+
 
-This is the same "S" pattern as above, but turned 45 degrees and with line
-segments on the diagonal through the squares, per the ".." lines in the
-following.
+For example E. H. Moore "On Certain Crinkly Curves",
+
+    http://www.ams.org/journals/tran/1900-001-01/S0002-9947-1900-1500526-4/
+    http://www.ams.org/tran/1900-001-01/S0002-9947-1900-1500526-4/S0002-9947-1900-1500526-4.pdf
+
+    and errata
+    http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/
+    http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/S0002-9947-1900-1500428-3.pdf
+
+The "S" pattern is the same, but turned 45 degrees and line segments on the
+diagonal through the squares, per the ".." lines in the following
 
     +--------+--------+--------+        +--------+--------+--------+
     |     .. | ..     |     .. |        |        |        |        |
@@ -546,9 +553,9 @@ show the equivalence,
 =head2 Power of 3 Patterns
 
 Plotting sequences of values with some connection to ternary digits or
-powers of 3 generally give the most interesting patterns on the Peano curve.
-For example the Mephisto waltz sequence (eg. L<Math::NumSeq::MephistoWaltz>)
-makes diamond shapes,
+powers of 3 will usually give the most interesting patterns on the Peano
+curve.  For example the Mephisto waltz sequence
+(eg. L<Math::NumSeq::MephistoWaltz>) makes diamond shapes,
 
     **   *  ***   *  *  *** **   *** **   *** ** **   *  *
     *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
@@ -578,8 +585,8 @@ makes diamond shapes,
     *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
       *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
 
-This arises from each 3x3 block being one of two shapes (then flipped by the
-Peano pattern)
+This arises from each 3x3 block being one of two shapes which are then
+flipped by the Peano pattern
 
     * * _                     _ _ *
     * _ _           or        _ * *    (inverse)
@@ -626,9 +633,8 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  If the X,Y values are not integers then
 the curve is treated as unit squares centred on each integer point and
 squares which are partly covered by the given rectangle are included.
 
-The returned range is exact, meaning C<$n_lo> is the smallest in the
-rectangle and C<$n_hi> is the biggest.  Of course not all the N's in that
-range are necessarily in the rectangle.
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
 
 =back
 

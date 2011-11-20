@@ -19,13 +19,13 @@
 package Math::PlanePath::TriangleSpiralSkewed;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -36,14 +36,17 @@ use Math::PlanePath;
 #   r = [ 1,  2,  3 ]
 #   n = [ 2,  11, 29 ]
 #   $d = 1/2 + sqrt(2/9 * $n + -7/36)
-#      = 1/2 + sqrt(8/36 * $n + -7/36)
-#      = 0.5 + sqrt(8*$n + -7)/6
+#      = ( 3 + 6*sqrt(8/36 * $n + -7/36) ) / 6
+#      = ( 3 + sqrt(8 * $n + -7) ) / 6
+#      = (3 + sqrt(8*$n - 7)) / 6
 #
 #   $n = (9/2*$d**2 + -9/2*$d + 2)
 #
 # top corner is further 3*$d-1 along, so
 #   rem = $n - (9/2*$d**2 + -9/2*$d + 2) - (3*$d - 1)
 #       = $n - (9/2*$d**2 + -3/2*$d + 1)
+#       = $n - (9/2*$d + -3/2)*$d + 1
+#       = $n - (9*$d - 3)*$d/2 + 1
 #   so go rem-2*$r rightwards from x=-2*$r, is x = rem - 4*$r
 #
 sub n_to_xy {
@@ -52,17 +55,17 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if ($n < 2) { return ($n - 1, 0); }
 
-  my $d = int (0.5 + sqrt(8*$n + -7)/6);
+  my $d = int ((3 + sqrt(8*$n - 7)) / 6);
   #### d frac: (0.5 + sqrt(8*$n + -7)/6)
   #### $d
 
-  $n -= (4.5*$d**2 + -1.5*$d + 1);
+  $n -= (9*$d - 3)*$d/2 + 1;
   #### remainder: $n
 
   if ($n <= 3*$d) {
     ### right slope and left vertical
     my $x = - ($d + $n);
-    return (max($x,-$d),
+    return (_max($x,-$d),
             2*$d - abs($n));
   } else {
     ### bottom horizontal
@@ -96,7 +99,7 @@ sub xy_to_n {
     #   [  8, 24, 49, 83 ]
     #   n = (9/2*$d**2 + -5/2*$d + 1)
     #
-    return ((4.5*$y - 2.5)*$y + 1) + $x;
+    return ((9*$y - 5)*$y/2 + 1) + $x;
   }
   if ($x < 0 && $x <= $y && $y <= 2*-$x) {
     ### left vertical
@@ -106,7 +109,7 @@ sub xy_to_n {
     #   [  6, 20, 43, 75 ]
     #   n = (9/2*$d**2 + -1/2*$d + 1)
     #
-    return ((4.5*$x - 0.5)*$x + 1) - $y;
+    return ((9*$x - 1)*$x/2 + 1) - $y;
   }
 
   my $d = $x + $y;
@@ -118,7 +121,7 @@ sub xy_to_n {
   #   [ 3, 14, 34, 63 ]
   #   n = (9/2*$d**2 + -5/2*$d + 1)
   #
-  return ((4.5*$d - 2.5)*$d + 1) - $x;
+  return ((9*$d - 5)*$d/2 + 1) - $x;
 }
 
 # not exact
@@ -132,12 +135,12 @@ sub rect_to_n_range {
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      $d = max ($d,
-                1 + ($y < 0 && $y <= $x && $x <= -2*$y
-                     ? -$y                          # bottom horizontal
-                     : $x < 0 && $x <= $y && $y <= 2*-$x
-                     ? -$x              # left vertical
-                     : abs($x) + $y));  # right slope
+      $d = _max ($d,
+                 1 + ($y < 0 && $y <= $x && $x <= -2*$y
+                      ? -$y                          # bottom horizontal
+                      : $x < 0 && $x <= $y && $y <= 2*-$x
+                      ? -$x              # left vertical
+                      : abs($x) + $y));  # right slope
     }
   }
   return (1,

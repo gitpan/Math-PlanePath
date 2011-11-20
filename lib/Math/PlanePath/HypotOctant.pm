@@ -19,10 +19,9 @@
 package Math::PlanePath::HypotOctant;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -257,8 +256,8 @@ X and the corresponding hypotenuse X^2+Y^2 are maintained.  To find the next
 furthest a search through those hypotenuses is made seeking the smallest,
 including equal smallest, which then become the next N points.
 
-For C<n_to_xy> an array is built and re-used for repeat calculations.  For
-C<xy_to_n> an array of hypot to N gives a the first N of given X^2+Y^2
+For C<n_to_xy()> an array is built and re-used for repeat calculations.  For
+C<xy_to_n()> an array of hypot to N gives a the first N of given X^2+Y^2
 distance.  A search is then made through the next few N for the case there's
 more than one X,Y of that hypot.
 

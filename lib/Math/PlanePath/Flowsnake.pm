@@ -19,8 +19,8 @@
 # math-image --path=Flowsnake --lines --scale=10
 # math-image --path=Flowsnake,arms=3 --all --output=numbers_dash
 #
-# Martin Gardner, In which "monster" curves force redefinition of the word
-# "curve", Scientific American 235 (December issue), 1976, 124-133.
+# Martin Gardner, "In which `monster' curves force redefinition of the word
+# `curve'", Scientific American 235 (December issue), 1976, 124-133.
 #
 # http://80386.nl/pub/gosper-level21.png
 #
@@ -35,7 +35,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -192,8 +192,7 @@ sub n_to_xy {
     ### $rev
     ### $o
 
-    if ($rot == 0)    { ($sh,$si,$sj) = ($sh,$si,$sj); }
-    elsif ($rot == 1) { ($sh,$si,$sj) = (-$sj,$sh,$si); }
+    if ($rot == 1)    { ($sh,$si,$sj) = (-$sj,$sh,$si); }
     elsif ($rot == 2) { ($sh,$si,$sj) = (-$si,-$sj,$sh); }
     elsif ($rot == 3) { ($sh,$si,$sj) = (-$sh,-$si,-$sj); }
     elsif ($rot == 4) { ($sh,$si,$sj) = ($sj,-$sh,-$si); }
@@ -700,6 +699,14 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+In the current code the returned range is exact, meaning C<$n_lo> and
+C<$n_hi> are the smallest and biggest in the rectangle, but don't rely on
+that yet since finding the exact range is a touch on the slow side.  (The
+advantage of which though is that it helps avoid very big ranges from a
+simple over-estimate.)
 
 =back
 

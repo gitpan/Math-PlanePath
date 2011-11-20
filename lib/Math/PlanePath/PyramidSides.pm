@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -124,20 +124,20 @@ Math::PlanePath::PyramidSides -- points along the sides of pyramid
 This path puts points in layers along the sides of a pyramid growing
 upwards.
 
-                        21                          4
-                    20  13  22                      3
-                19  12   7  14  23                  2
-            18  11   6   3   8  15  24              1
-        17  10   5   2   1   4   9  16  25    <-  y=0
+                        21                        4
+                    20  13  22                    3
+                19  12   7  14  23                2
+            18  11   6   3   8  15  24            1
+        17  10   5   2   1   4   9  16  25    <- Y=0
 
                          ^
-    ... -4  -3  -2  -1  x=0  1   2   3   4 ...
+    ... -4  -3  -2  -1  X=0  1   2   3   4 ...
 
 The 1,4,9,16,etc along the X axis to the right are the perfect squares.  The
-vertical 2,6,12,20,etc at X=-1 are the pronic numbers k*(k+1) half way
+vertical 2,6,12,20,etc at X=-1 is the pronic numbers k*(k+1) half way
 between those successive squares.
 
-The pattern is the same as the Corner path but turned and widened out so the
+The pattern is the same as the Corner path but turned and spread so the
 single quadrant in the Corner becomes a half-plane here.
 
 The pattern is similar to PyramidRows, just with the columns dropped down
@@ -148,7 +148,7 @@ unchanged, but what was a row becomes a diagonal and vice versa.
 
 An interesting sequence for this path is Euler's k^2+k+41.  The low values
 are spread around a bit, but from N=1763 (k=41) they're the vertical at
-x=40.  There's quite a few primes in this quadratic and when plotting primes
+X=40.  There's quite a few primes in this quadratic and when plotting primes
 that vertical stands out a little denser than its surrounds (at least for up
 to the first 2500 or so values).  The line shows in other step==2 paths too,
 but not as clearly.  In the PyramidRows for instance the beginning is up at
@@ -179,18 +179,23 @@ each rounded to the nearest integer which has the effect of treating points
 in the pyramid as a squares of side 1, so the half-plane y>=-0.5 is entirely
 covered.
 
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
+
 =back
 
 =head1 FORMULAS
 
 =head2 Rectangle to N Range
 
-For C<rect_to_n_range>, in each column N increases so the biggest N is in
+For C<rect_to_n_range()>, in each column N increases so the biggest N is in
 the topmost row and and smallest N in the bottom row.
 
 In each row N increases along the sequence X=0,-1,1,-2,2,-3,3, etc.  So the
-biggest N is at the X of biggest absolute value and preferring a positive
-X=k over X=-k.  The smallest X conversely is at the X of smallest absolute
+biggest N is at the X of biggest absolute value and preferring positive X=k
+over X=-k.  The smallest X conversely is at the X of smallest absolute
 value.  When the rectangle C<$x1> to C<$x2> crosses 0, ie. C<$x1> and C<$x2>
 have different signs, then of course X=0 is the smallest.
 

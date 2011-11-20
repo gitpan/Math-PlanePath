@@ -35,14 +35,14 @@
 package Math::PlanePath::KochCurve;
 use 5.004;
 use strict;
-use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -161,37 +161,41 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
-  if ($y1 < 0 && $y2 < 0) {
-    return (1,0);
-  }
   $x1 = _round_nearest ($x1);
   $x2 = _round_nearest ($x2);
-  if ($x1 < 0 && $x2 < 0) {
+  $y1 = _round_nearest ($y1);
+  $y2 = _round_nearest ($y2);
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
+
+  if ($x2 < 0 || $y2 < 0
+      || 3*$y1 > $x2 ) {   # above line Y=X/3
     return (1,0);
   }
 
-  my $level = ceil (log ((max(2, abs($x1), abs($x2)) + 1) / 2)
-                    / log(3));
+  (undef, my $level) = _round_down_pow ($x2/2, 3);
   ### $level
-  return (0, 4**$level);
+  return (0, 4**($level+1)-1);
 }
 
 #------------------------------------------------------------------------------
 # generic, shared
 
-# return ($pow, $exp) with $pow = $base**$exp <= $n,
-# the next power of $base at or below $n
+# Return ($pow, $exp) with $pow = $base**$exp <= $n,
+# the next power of $base at or below $n.
+#
+# (ENHANCE-ME: Occasionally the $pow value is not wanted,
+# eg. SierpinskiArrowhead, though that tends to be approximation code rather
+# than exact range calculations etc.)
 #
 sub _round_down_pow {
   my ($n, $base) = @_;
   ### _round_down_pow(): "$n base $base"
-
+  
   if ($n < $base) {
     return (1, 0);
   }
-
+  
   # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
   # based blog()
   if (ref $n) {
@@ -206,13 +210,13 @@ sub _round_down_pow {
               $exp);
     }
   }
-
+  
   my $exp = int(log($n)/log($base));
   my $pow = $base**$exp;
   ### n:   ref($n)."  $n"
   ### exp: ref($exp)."  $exp"
   ### pow: ref($pow)."  $pow"
-
+  
   # check how $pow actually falls against $n, not sure should trust float
   # rounding in log()/log($base)
   # Crib: $n as first arg in case $n==BigFloat and $pow==BigInt
@@ -245,8 +249,8 @@ Math::PlanePath::KochCurve -- horizontal Koch curve
 
 =head1 DESCRIPTION
 
-This path is an integer version of the self-similar curve by Helge von Koch
-going along the X axis and making triangular excursions.
+This is an integer version of the self-similar curve by Helge von Koch going
+along the X axis and making triangular excursions upwards.
 
                                8                                   3
                              /  \
@@ -264,8 +268,8 @@ The replicating shape is the initial N=0 to N=4,
            / \
       *---*   *---*
 
-which is rotated and repeated 3 times in the same shape to give sections N=4
-to N=8, N=8 to N=12, and N=12 to N=16.  Then that N=0 to N=16 is itself
+which is rotated and repeated 3 times in the same pattern to give sections
+N=4 to N=8, N=8 to N=12, and N=12 to N=16.  Then that N=0 to N=16 is itself
 replicated three times at the angles of the base pattern, and so on
 infinitely.
 
@@ -283,10 +287,10 @@ level goes from
     Nlevel = 4^level   (inclusive)
 
 Each replication is 3 times the width.  The initial N=0 to N=4 figure is 6
-wide, so in general a level runs from
+wide and in general a level runs from
 
     Xstart = 0
-    Xlevel = 2*3^level   (at Nlevel)
+    Xlevel = 2*3^level   (at N=Nlevel)
 
 The highest Y is 3 times greater at each level similarly.  The peak is at
 the midpoint of each level,
@@ -308,18 +312,35 @@ but a factor of 3 bigger X,Y coordinates.  The in-between points 4*N+1,
 
 Koch conceived the curve as having a fixed length and infinitely fine
 structure, making it continuous everywhere but differentiable nowhere.  The
-code here can be pressed into use for that sort of construction to a given
+code here can be pressed into use for that sort of construction for a given
 level of granularity by scaling
 
     X/3^level
     Y/3^level
 
-to make it a fixed 2 wide by 1 high.  Or for unit-side equilateral triangles
-then further factors 1/2 and sqrt(3)/2, as noted in
+which makes it a fixed 2 wide by 1 high.  Or for unit-side equilateral
+triangles then apply further factors 1/2 and sqrt(3)/2, as noted in
 L<Math::PlanePath/Triangular Lattice>.
 
     (X/2) / 3^level
     (Y*sqrt(3)/2) / 3^level
+
+=head2 Turn Sequence
+
+The sequence of turns made by the curve is straightforward.  In the base 4
+representation of N, the lowest non-zero digit gives the turn
+
+   low digit       turn
+   ---------   ------------
+      1         +60 degrees
+      2        -120 degrees
+      3         +60 degrees
+
+When the least significant digit is non-zero it determines the turn, to make
+the base N=0 to N=4 shape.  When the low digit is zero it's instead the next
+level up, the N=0,4,8,12,16 shape which is in control, applying a turn for
+the subsequent base shape.  So for example at N=8 = 20 base4 is a turn -120
+degrees.
 
 =head1 FUNCTIONS
 

@@ -41,6 +41,62 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['hex-small.png',
+    'math-image --path=HexSpiral --lines --scale=3 --size=32'],
+   ['hex-big.png',
+    'math-image --path=HexSpiral --lines --scale=13 --size=300x150'],
+   ['hex-wider4-big.png',
+    'math-image --path=HexSpiral,wider=4 --lines --scale=13 --size=300x150'],
+
+   ['hex-arms-small.png',
+    'math-image --path=HexArms --lines --scale=3 --size=32'],
+   ['hex-arms-big.png',
+    'math-image --path=HexArms --lines --scale=10 --size=300x150'],
+
+   ['hex-skewed-small.png',
+    'math-image --path=HexSpiralSkewed --lines --scale=3 --size=32'],
+   ['hex-skewed-big.png',
+    'math-image --path=HexSpiralSkewed --lines --scale=13 --size=150'],
+   ['hex-skewed-wider4-big.png',
+    'math-image --path=HexSpiralSkewed,wider=4 --lines --scale=13 --size=150'],
+
+
+   ['corner-small.png',
+    'math-image --path=Corner --lines --scale=4 --size=32'],
+   ['corner-big.png',
+    'math-image --path=Corner --lines --scale=12 --size=200'],
+   ['corner-wider4-big.png',
+    'math-image --path=Corner,wider=4 --lines --scale=12 --size=200'],
+
+   ['diagonals-small.png',
+    'math-image --path=Diagonals --lines --scale=5 --size=32'],
+   ['diagonals-big.png',
+    'math-image --path=Diagonals --lines --scale=15 --size=200'],
+
+
+   ['zorder-small.png',
+    'math-image --path=ZOrderCurve --lines --scale=6 --size=32'],
+   ['zorder-big.png',
+    'math-image --path=ZOrderCurve --lines --scale=14 --size=226'],
+   ['zorder-radix5-big.png',
+    'math-image --path=ZOrderCurve,radix=5 --lines --scale=14 --size=226'],
+   ['zorder-fibbinary.png',
+    'math-image --path=ZOrderCurve --values=Fibbinary --scale=1 --size=704x320'],
+
+
+   ['wunderlich-meander-small.png',
+    'math-image --path=WunderlichMeander --lines --scale=3 --size=32'],
+   ['wunderlich-meander-big.png',
+    'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
+
+   ['peano-small.png',
+    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
+   ['peano-big.png',
+    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
+   ['peano-radix7-big.png',
+    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=7 --size=192'],
+
+
    ['fibonacci-word-fractal-small.png',
     'math-image --path=FibonacciWordFractal --lines --scale=2 --size=32 --offset=2,2'],
    ['fibonacci-word-fractal-big.png',
@@ -53,6 +109,7 @@ foreach my $elem
 
    ['digit-groups-small.png',
     "math-image --path=DigitGroups --expression='i<255?i:0' --scale=2 --size=32"],
+   #  --foreground=red
    ['digit-groups-big.png',
     "math-image --path=DigitGroups --expression='i<2047?i:0' --scale=3 --size=200"],
    ['digit-groups-radix5-big.png',
@@ -343,35 +400,6 @@ foreach my $elem
     'math-image --path=SquareArms --lines --scale=3 --size=32'],
    ['square-arms-big.png',
     'math-image --path=SquareArms --lines --scale=10 --size=150x150'],
-
-   ['zorder-small.png',
-    'math-image --path=ZOrderCurve --lines --scale=6 --size=32'],
-   ['zorder-big.png',
-    'math-image --path=ZOrderCurve --lines --scale=14 --size=226'],
-   ['zorder-radix5-big.png',
-    'math-image --path=ZOrderCurve,radix=5 --lines --scale=14 --size=226'],
-
-   ['peano-small.png',
-    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
-   ['peano-big.png',
-    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
-   ['peano-radix7-big.png',
-    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=7 --size=192'],
-
-   ['hex-arms-small.png',
-    'math-image --path=HexArms --lines --scale=3 --size=32'],
-   ['hex-arms-big.png',
-    'math-image --path=HexArms --lines --scale=10 --size=300x150'],
-
-   ['hex-small.png',
-    'math-image --path=HexSpiral --lines --scale=3 --size=32'],
-   ['hex-big.png',
-    'math-image --path=HexSpiral --lines --scale=13 --size=300x150'],
-
-   ['hex-skewed-small.png',
-    'math-image --path=HexSpiralSkewed --lines --scale=3 --size=32'],
-   ['hex-skewed-big.png',
-    'math-image --path=HexSpiralSkewed --lines --scale=13 --size=150'],
 
    ['hept-skewed-small.png',
     'math-image --path=HeptSpiralSkewed --lines --scale=4 --size=32'],

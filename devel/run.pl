@@ -34,25 +34,21 @@ use List::Util qw(min max);
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::TriangularHypot;
   require Math::PlanePath::KochSnowflakes;
-  require Math::PlanePath::KochCurve;
   require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::QuintetCurve;
   require Math::PlanePath::DragonCurve;
   require Math::PlanePath::DragonMidpoint;
-  require Math::PlanePath::MathImageWunderlichCurve;
   require Math::PlanePath::CellularRule54;
   require Math::PlanePath::QuintetCentres;
   require Math::PlanePath::Flowsnake;
   require Math::PlanePath::FlowsnakeCentres;
   require Math::PlanePath::ImaginaryBase;
-  require Math::PlanePath::SierpinskiArrowheadCentres;
   require Math::PlanePath::SquareReplicate;
   require Math::PlanePath::QuintetReplicate;
   require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::MathImageComplexPlus;
   require Math::PlanePath::KochSquareflakes;
-  require Math::PlanePath::Corner;
   require Math::PlanePath::GosperReplicate;
   require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::RationalsTree;
@@ -65,19 +61,39 @@ use List::Util qw(min max);
   require Math::PlanePath::HIndexing;
   require Math::PlanePath::CellularRule190;
   require Math::PlanePath::DragonRounded;
-  require Math::PlanePath::BetaOmega;
   require Math::PlanePath::MathImageGrayCurve;
-  my $path = Math::PlanePath::MathImageGrayCurve->new
+  require Math::PlanePath::MathImageTerdragonCurve;
+  require Math::PlanePath::MathImageWunderlichSerpentine;
+  require Math::PlanePath::MathImageDekkingCurve;
+  require Math::PlanePath::MathImageDekkingStraight;
+  require Math::PlanePath::MathImageAR2W2Curve;
+  require Math::PlanePath::HilbertCurve;
+  require Math::PlanePath::BetaOmega;
+  require Math::PlanePath::SierpinskiArrowheadCentres;
+  require Math::PlanePath::SierpinskiArrowhead;
+  require Math::PlanePath::Corner;
+  require Math::PlanePath::CornerReplicate;
+  require Math::PlanePath::WunderlichMeander;
+  require Math::PlanePath::SquareSpiral;
+  require Math::PlanePath::PentSpiral;
+  require Math::PlanePath::PentSpiralSkewed;
+  require Math::PlanePath::PeanoCurve;
+  require Math::PlanePath::KochCurve;
+  require Math::PlanePath::HexArms;
+  require Math::PlanePath::QuadricIslands;
+  require Math::PlanePath::TriangleSpiral;
+  require Math::PlanePath::TriangleSpiralSkewed;
+  my $path = Math::PlanePath::TriangleSpiralSkewed->new
     (mirror => 1,
      divisor_type => 'proper',
      inward => 0,
-     radix => 2,
+     radix => 5,
      realpart => 1,
      wider => 3,
      # step => 0,
      tree_type => 'Drib',
      #coordinates => 'PQ',
-     arms => 7,
+     arms => 1,
      straight_spacing => 1,
      diagonal_spacing => 5,
     );
@@ -87,16 +103,17 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  #for (my $i = $n_start; $i <= $n_start + 8; $i=POSIX::ceil($i*1.1+1)) {
-  # for (my $i = 0.75; $i <= 50; $i += .5) {
-  # for (my $i = 9650; $i <= 9999; $i++) {
-  #for (my $i = $n_start; $i <= 30; $i++) {
-  #for (my $i = 1; $i <= 500; $i++) {
-  # for (my $i = 1; $i <= 2**40; $i*=2) {
-  #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
-  #for (my $i=4; $i < 5000; $i++) {
+  for (my $i = $n_start+0; $i <= 100; $i+=1) {
 
-  for (my $i = $n_start+0; $i <= 50; $i+=1) {
+    #for (my $i = $n_start; $i <= $n_start + 8; $i=POSIX::ceil($i*1.1+1)) {
+    # for (my $i = 0.75; $i <= 50; $i += .5) {
+    # for (my $i = 9650; $i <= 9999; $i++) {
+    #for (my $i = $n_start; $i <= 30; $i++) {
+    #for (my $i = 1; $i <= 500; $i++) {
+    # for (my $i = 1; $i <= 2**40; $i*=2) {
+    #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
+    #for (my $i=4; $i < 5000; $i++) {
+
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 

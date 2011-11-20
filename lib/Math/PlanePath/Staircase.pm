@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -231,6 +231,11 @@ Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
 rounded to the nearest integers, which has the effect of treating each point
 C<$n> as a square of side 1, so the quadrant x>=-0.5, y>=-0.5 is covered.
 
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
+
 =back
 
 =head1 FORMULAS
@@ -238,14 +243,15 @@ C<$n> as a square of side 1, so the quadrant x>=-0.5, y>=-0.5 is covered.
 =head2 Rectangle to N Range
 
 Within each row increasing X is increasing N, and in each column increasing
-Y is increasing pairs of N.  Thus for C<rect_to_n_range> the lower left
+Y is increasing pairs of N.  Thus for C<rect_to_n_range()> the lower left
 corner vertical pair is the minimum N and the upper right vertical pair is
 the maximum N.
 
 A given X,Y is the larger of a vertical pair when ((X^Y)&1)==1.  If that
-happens at the lower left corner then it's X,Y+1 which is the smaller N, if
-Y+1 is in the rectangle.  Conversely at the top right if ((X^Y)&1)==0 then
-it's X,Y-1 which is the bigger N, if Y-1 is in the rectangle.
+happens at the lower left corner then it's X,Y+1 which is the smaller N, as
+long as Y+1 is in the rectangle.  Conversely at the top right if
+((X^Y)&1)==0 then it's X,Y-1 which is the bigger N, again as long as Y-1 is
+in the rectangle.
 
 =head1 SEE ALSO
 

@@ -573,7 +573,7 @@ sub transpose {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum -- relative direction tranposed");
+        1, "$anum -- relative direction transposed");
 }
 
 #------------------------------------------------------------------------------

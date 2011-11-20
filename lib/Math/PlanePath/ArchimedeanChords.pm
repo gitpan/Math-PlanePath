@@ -28,7 +28,7 @@ use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -575,15 +575,15 @@ So the N point just before or after that spiral position may cover the x,y,
 but how many N chords it takes to get around to there is 's not so easily
 calculated.
 
-The current code looks in saved C<n_to_xy> positions for an N below the
+The current code looks in saved C<n_to_xy()> positions for an N below the
 target, and searches up from there until past the target and thus not
-covering x,y.  With C<n_to_xy> points saved 500 apart this means searching
+covering x,y.  With C<n_to_xy()> points saved 500 apart this means searching
 somewhere between 1 and 500 points.
 
 One possibility for calculating a lower bound for N, instead of the saved
-positions, and both for C<xy_to_n> and C<rect_to_n_range>, would be to add
-up chords in circles.  A circle of radius k fits pi/arcsin(1/2k) many unit
-chords, so
+positions, and both for C<xy_to_n()> and C<rect_to_n_range()>, would be to
+add up chords in circles.  A circle of radius k fits pi/arcsin(1/2k) many
+unit chords, so
 
              k=floor(r)     pi
     total = sum         ------------
@@ -595,7 +595,7 @@ without giving away so much?
 
 =head2 Rectangle to N Range
 
-For the C<rect_to_n_range> upper bound, the current code takes the arc
+For the C<rect_to_n_range()> upper bound, the current code takes the arc
 length along with spiral with the usual formula
 
     arc = 1/4pi * (theta*sqrt(1+theta^2) + asinh(theta))

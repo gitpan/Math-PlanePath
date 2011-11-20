@@ -28,14 +28,14 @@
 package Math::PlanePath::SquareSpiral;
 use 5.004;
 use strict;
-use List::Util qw(max);
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -240,22 +240,27 @@ sub xy_to_n {
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
+
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
 
-  my $d = 1 + max (1,
-                   floor(0.5 + max(abs($y1),abs($y2))),
-                   (map {$_ = floor(0.5 + $_);
-                         max ($_ - $w_right,
-                              -$_ - $w_left)}
-                    ($x1, $x2)));
+  my $d = 1 + _max (1,
+                    abs($y1),
+                    abs($y2),
+                    $x1 - $w_right, -$x1 - $w_left,
+                    $x2 - $w_right, -$x2 - $w_left);
   ### $d
   ### is: $d*$d
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,
-          (4*$d + -4 + 2*$w)*$d + 2);  # bottom-right
+          (4*$d - 4 + 2*$w)*$d + 2);  # bottom-right
 }
 
 
@@ -386,6 +391,14 @@ around faster.  See the following modules,
          4        DiamondSpiral
 
 The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.
+
+=head1 OEIS
+
+This path is in Sloane's Online Encyclopedia of Integer Sequences as
+
+    http://oeis.org/A180714  (etc)
+
+    A180714    X+Y coordinate sum
 
 =head1 FUNCTIONS
 

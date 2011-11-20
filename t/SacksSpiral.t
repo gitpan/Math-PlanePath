@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 76 }
+BEGIN { plan tests => 100 }
 
 use lib 't';
 use MyTestHelpers;
@@ -53,7 +53,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 53;
+  my $want_version = 54;
   ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -139,6 +139,22 @@ sub numeq_array {
                     [ 0,-6, 0,3,  0,6 ],
                     [ 0,-6, 0,-3, 3,6 ],
                     [ 0,6, 0,-3,  0,6 ],
+
+
+                    [ 3,1, -3,4,   1,5 ],
+                    [ -3,1, 3,4,   1,5 ],
+                    [ -3,4, 3,1,   1,5 ],
+                    [ 3,4, -3,1,   1,5 ],
+
+                    [ 1,3, 4,-3,   1,5 ],
+                    [ 1,-3, 4,3,   1,5 ],
+                    [ 4,-3, 1,3,   1,5 ],
+                    [ 4,3, 1,-3,   1,5 ],
+
+                    [ -3,-4, 3,4,  0,5 ],
+                    [ 3,-4, -3,4,  0,5 ],
+                    [ 3,4, -3,-4,  0,5 ],
+                    [ -3,4, 3,-4,  0,5 ],
 
 
                     [ 0,0, 3,4, 0,5 ],

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -31,8 +31,12 @@ use Math::PlanePath 37; # v.37 for _round_nearest()
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
+use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
+*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
 
 use constant n_start => 0;
 use constant y_negative => 0;
@@ -199,55 +203,13 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiArrowheadCentres rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
-  $y2 = _round_nearest ($y2);
-  if ($y2 < 0) {
-    return (1,0);
-  }
+  ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
+    or return (1,0); # rect outside pyramid
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
-
-  if ($x1 > $y2 || $x2 < -$y2) {
-    return (1,0);  # outside diagonals X=Y, X=-Y
-  }
-
-  my $level = _log2_floor ($y2);
+  my (undef,$level) = _round_down_pow ($y2, 2);
   ### $y2
   ### $level
   return (0, 3**($level+1) - 1);
-}
-
-sub _log2_floor {
-  my ($x) = @_;
-  if ($x <= 1) { return 0; }
-
-  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
-  # based blog()
-  if (ref $x && ($x->isa('Math::BigInt') || $x->isa('Math::BigRat'))) {
-    return $x->copy->blog(2);
-  }
-
-  my $exp = int(log($x)/log(2));
-  my $pow = 2**$exp;
-  ### x:   ref($x)."  $x"
-  ### exp: ref($exp)."  $exp"
-  ### pow: ref($pow)."  $pow"
-
-  # check how $pow actually falls against $x, not sure should trust float
-  # rounding in log()/log(3)
-  # Crib: $x as first arg in case $x==BigFloat and $pow==BigInt
-  if ($x < $pow) {
-    ### hmm, int(log) too big, decrease...
-    $exp -= 1;
-  } elsif ($x >= 2*$pow) {
-    ### hmm, int(log) too small, increase...
-    $exp += 1;
-  } else {
-    ### int(log) ok ...
-  }
-  return ($exp);
 }
 
 1;

@@ -19,13 +19,13 @@
 package Math::PlanePath::TriangleSpiral;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -38,6 +38,9 @@ use Math::PlanePath;
 #   $d = 1/2 + sqrt(2/9 * $n + -7/36)
 #      = 1/2 + sqrt(8/36 * $n + -7/36)
 #      = 0.5 + sqrt(8*$n + -7)/6
+#      = (1 + 2*sqrt(8*$n + -7)/6) / 2
+#      = (1 + sqrt(8*$n + -7)/3) / 2
+#      = (3 + sqrt(8*$n - 7)) / 6
 #
 #   $n = (9/2*$d**2 + -9/2*$d + 2)
 #      = (4.5*$d - 4.5)*$d + 2
@@ -58,12 +61,12 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if ($n < 2) { return ($n - 1, 0); }
 
-  my $d = int (0.5 + sqrt(8*$n + -7)/6);
+  my $d = int ((3 + sqrt(8*$n - 7)) / 6);
   #### d frac: (0.5 + sqrt(8*$n + -7)/6)
   #### $d
   #### base: 4*$d*$d + -4*$d + 2
 
-  $n -= ((4.5*$d - 1.5)*$d + 1);
+  $n -= ((9*$d - 3)*$d/2 + 1);
   #### remainder: $n
 
   if ($n <= 3*$d) {
@@ -103,7 +106,7 @@ sub xy_to_n {
     #      = ((4.5*$y -3)*$y + 1)
     # from which $x/2
     #
-    return ((4.5*$y -3)*$y + 1) + $x/2;
+    return ((9*$y - 6)*$y/2 + 1) + $x/2;
 
   } else {
     ### sides diagonal
@@ -112,10 +115,12 @@ sub xy_to_n {
     #   [ 2,  4,  6,  8 ]
     #   [ 4, 16,  37, 67 ]
     #   n = (9/8*$d**2 + -3/4*$d + 1)
+    #     = (9/8*$d + -3/4)*$d + 1
+    #     = (9*$d + - 6)*$d/8 + 1
     # from which -$x offset
     #
-    my $k = abs($x) + $y;
-    return (9/8*$k**2 + -3/4*$k + 1) - $x;
+    my $d = abs($x) + $y;
+    return ((9*$d - 6)*$d/8 + 1) - $x;
   }
 }
 
@@ -130,7 +135,7 @@ sub rect_to_n_range {
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      $d = max ($d,
+      $d = _max ($d,
                 1 + ($y < 0 && 3*$y <= $x && $x <= -3*$y
                      ? -$y                          # bottom horizontal
                      : int ((abs($x) + $y) / 2)));  # sides

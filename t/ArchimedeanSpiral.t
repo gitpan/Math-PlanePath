@@ -51,7 +51,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 53;
+  my $want_version = 54;
   ok ($Math::PlanePath::ArchimedeanChords::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ArchimedeanChords->VERSION,  $want_version,
@@ -86,7 +86,6 @@ sub numeq_array {
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative() instance method');
   ok ($path->y_negative, 1, 'y_negative() instance method');
-
 
   my @pnames = map {$_->{'name'}} $path->parameter_info_list;
   ok (join(',',@pnames), '');

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1574 }
+BEGIN { plan tests => 1575 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::GosperSide;
 # VERSION
 
 {
-  my $want_version = 53;
+  my $want_version = 54;
   ok ($Math::PlanePath::GosperSide::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GosperSide->VERSION,  $want_version,
@@ -147,6 +147,73 @@ require Math::PlanePath::GosperSide;
     ok ($n_lo <= $n, 1, "rect_to_n_range() reverse n=$n cf n_lo=$n_lo");
     ok ($n_hi >= $n, 1, "rect_to_n_range() reverse n=$n cf n_hi=$n_hi");
   }
+}
+
+#------------------------------------------------------------------------------
+# turn sequence
+
+{
+  sub n_to_turn {
+    my ($n) = @_;
+    for (;;) {
+      if ($n == 0) { die "oops n=0"; }
+      my $mod = $n % 3;
+      if ($mod == 1) { return 1; }
+      if ($mod == 2) { return -1; }
+      $n = int($n/3);
+    }
+  }
+
+  sub dxdy_to_dir {
+    my ($dx,$dy) = @_;
+    if ($dy == 0) {
+      if ($dx == 2) { return 0; }
+      if ($dx == -2) { return 3; }
+    }
+    if ($dy == 1) {
+      if ($dx == 1) { return 1; }
+      if ($dx == -1) { return 2; }
+    }
+    if ($dy == -1) {
+      if ($dx == 1) { return 5; }
+      if ($dx == -1) { return 4; }
+    }
+    die "unrecognised $dx,$dy";
+  }
+
+  my $path = Math::PlanePath::GosperSide->new;
+  my $n = $path->n_start;
+  my $bad = 0;
+
+  my ($prev_x, $prev_y) = $path->n_to_xy($n++);
+
+  my ($x, $y) = $path->n_to_xy($n++);
+  my $dx = $x - $prev_x;
+  my $dy = $y - $prev_y;
+  my $prev_dir = dxdy_to_dir($dx,$dy);
+
+  while ($n < 1000) {
+    $prev_x = $x;
+    $prev_y = $y;
+
+    ($x,$y) = $path->n_to_xy($n);
+    $dx = $x - $prev_x;
+    $dy = $y - $prev_y;
+    my $dir = dxdy_to_dir($dx,$dy);
+
+    my $got_turn = ($dir - $prev_dir) % 6;
+    my $want_turn = n_to_turn($n-1) % 6;
+
+    if ($got_turn != $want_turn) {
+      MyTestHelpers::diag ("n=$n turn got=$got_turn want=$want_turn");
+      MyTestHelpers::diag ("  dir=$dir prev_dir=$prev_dir");
+      last if $bad++ > 10;
+    }
+
+    $n++;
+    $prev_dir = $dir;
+  }
+  ok ($bad, 0, "turn sequence");
 }
 
 exit 0;

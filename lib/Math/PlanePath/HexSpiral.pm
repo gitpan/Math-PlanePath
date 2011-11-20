@@ -47,13 +47,13 @@
 package Math::PlanePath::HexSpiral;
 use 5.004;
 use strict;
-use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -204,10 +204,10 @@ sub rect_to_n_range {
   my $w = $self->{'wider'};
 
   # symmetric in +/-y, and biggest y is biggest n
-  my $y = max (abs($y1), abs($y2));
+  my $y = _max (abs($y1), abs($y2));
 
   # symmetric in +/-x, and biggest x
-  my $x = max (abs($x1), abs($x2));
+  my $x = _max (abs($x1), abs($x2));
   if ($x >= $w) {
     $x -= $w;
   }

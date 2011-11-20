@@ -23,19 +23,25 @@
 package Math::PlanePath::SierpinskiArrowhead;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
+*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
 
 use constant n_start => 0;
 use constant y_negative => 0;
@@ -198,66 +204,49 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiArrowhead rect_to_n_range() ...
 
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
-  $y2 = _round_nearest ($y2);
-  if ($y2 < 0) {
-    return (1,0);
-  }
+  ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
+    or return (1,0); # rect outside pyramid
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
-
-  if ($x2 < -$y2 || $x1 > $y2) {
-    return (1,0);  # outside diagonals X=Y, X=-Y
-  }
-  my $level = _log2_ceil ($y2+1);
+  my (undef,$level) = _round_down_pow ($y2-1, 2);
   ### $y2
   ### $level
-  return (0, 3 ** $level - 1);
-}
-
-sub _log2_ceil {
-  my ($x) = @_;
-  my $exp = ceil (log(max(1, $x)) / log(2));
-  return $exp + (2 ** ($exp+1) <= $x);
+  return (0, 3**($level+1));
 }
 
 1;
 __END__
 
 
-rows
-         *           1 \
-        * *          2 |
-       *   *         2 |
-      * * * *        4 /
-     *       *       2 \
-    * *     * *      4 | 2x prev 4
-   *   *   *   *     4 |
-  * * * * * * * *    8 /
- *               *   2 \
-* *             * *  4 | 2x prev 8
-
-cumulative
-
-1
-3
-5
-9
-11 \
-15 | *2+9
-19 |
-27 /
-29 \
-33 | *2+27
-37
-45
-49
-57
-65
-81
-
+# rows
+#          *           1 \
+#         * *          2 |
+#        *   *         2 |
+#       * * * *        4 /
+#      *       *       2 \
+#     * *     * *      4 | 2x prev 4
+#    *   *   *   *     4 |
+#   * * * * * * * *    8 /
+#  *               *   2 \
+# * *             * *  4 | 2x prev 8
+# 
+# cumulative
+# 
+# 1
+# 3
+# 5
+# 9
+# 11 \
+# 15 | *2+9
+# 19 |
+# 27 /
+# 29 \
+# 33 | *2+27
+# 37
+# 45
+# 49
+# 57
+# 65
+# 81
 
 
 =for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND ZOrderCurve Math-PlanePath
@@ -370,14 +359,14 @@ bitwise-AND,
 
     ($x & $y) == 0
 
-which gives the shape in the first quadrant XE<gt>=0,YE<gt>=0.  The can also
+which gives the shape in the first quadrant XE<gt>=0,YE<gt>=0.  The same can
 be had with the ZOrderCurve path by plotting all numbers N which have no
 digit 3 in their base-4 representation (see
-L<Math::PlanePath::ZOrderCurve/Power of 2 Values>), as digit 3s in that case
-are X,Y points with a 1 bit in common.
+L<Math::PlanePath::ZOrderCurve/Power of 2 Values>), since digit 3s in that
+case are X,Y points with a 1 bit in common.
 
-The attraction of this Arrowhead path is that it makes a connected stepwise
-traversal through the pattern.
+The attraction of this Arrowhead path is that it makes a connected traversal
+through the Sierpinski triangle pattern.
 
 =head2 Level Sizes
 
@@ -411,15 +400,15 @@ Lattice>),
 
     (3Y+X)/2, (Y-X)/2       rotate -60
 
-The first point N=1 is then along the X axis at X=2,Y=0.  Or first apply a
-mirroring -X then rotate to have it go diagonally upwards first.
+The first point N=1 is then along the X axis at X=2,Y=0.  Or to have it
+diagonally upwards first then apply a mirroring -X before rotating
 
     (3Y-X)/2, (Y+X)/2       mirror X and rotate -60
 
 The plain -60 rotate puts the Nlevel=3^level point on the X axis for even
 number level, and at the top peak for odd level.  With the extra mirroring
 it's the other way around.  If drawing successive levels then the two ways
-could be alternated to have the endpoint on the X axis each time if desired.
+could be alternated to have the endpoint on the X axis each time.
 
 =head1 FUNCTIONS
 

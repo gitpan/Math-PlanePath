@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 53;
+$VERSION = 54;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -122,6 +122,25 @@ sub _round_nearest {
   return $int;
 }
 
+sub _max {
+  my $max = 0;
+  foreach my $i (1 .. $#_) {
+    if ($_[$i] > $_[$max]) {
+      $max = $i;
+    }
+  }
+  return $_[$max];
+}
+sub _min {
+  my $min = 0;
+  foreach my $i (1 .. $#_) {
+    if ($_[$i] < $_[$min]) {
+      $min = $i;
+    }
+  }
+  return $_[$min];
+}
+
 1;
 __END__
 
@@ -175,13 +194,14 @@ include
     PythagoreanTree        primitive triples by tree
     RationalsTree          rationals X/Y by tree
 
-    PeanoCurve             self-similar base-3 quadrant traversal
-    HilbertCurve           self-similar base-2 quadrant traversal
+    PeanoCurve             3x3 self-similar quadrant traversal
+    HilbertCurve           2x2 self-similar quadrant traversal
     ZOrderCurve            replicating Z shapes
-    BetaOmega              self-similar half-plane traversal
+    WunderlichMeander      3x3 "R" pattern quadrant traversal
+    BetaOmega              2x2 self-similar half-plane traversal
     ImaginaryBase          replicating in four directions
-    SquareReplicate        replicating squares 3x3
-    CornerReplicate        replicating squares 2x2
+    SquareReplicate        3x3 replicating squares
+    CornerReplicate        2x2 replicating squares
     DigitGroups            digit groups with high zero
     FibonacciWordFractal   turns by Fibonacci word bits
 
@@ -243,21 +263,21 @@ Expect rounding-off for big exponents.
 
 Floating point infinities (when available system) are meant to give nan or
 infinite returns of some kind (some unspecified kind as yet).  C<n_to_xy()>
-on negative infinity C<$n> is generally an empty return, the same as other
-negative C<$n>.  Calculations which break an input into digits of some base
-are meant not to loop infinitely on infinities.
+on negative infinity C<$n> is an empty return, the same as other negative
+C<$n>.  Calculations which break an input into digits of some base are meant
+not to loop infinitely on infinities.
 
 Floating point nans (when available) are meant to give nan, infinite, or
 empty/undef returns, but again of some unspecified kind as yet but in any
-case again not going into infinite loops.
+case not going into infinite loops.
 
-A few of the classes can operate on C<Math::BigInt>, C<Math::BigRat> and
+Many of the classes can operate on C<Math::BigInt>, C<Math::BigRat> and
 C<Math::BigFloat> inputs and give corresponding outputs, but this is
-experimental and many classes might truncate a bignum to a float as yet.  In
+experimental and some classes might truncate a bignum to a float as yet.  In
 general the intention is to make the code generic enough that it can act on
-overloaded number types.  Note that new enough versions of the bignum
-modules might be required, perhaps Perl 5.8 and up so for instance the C<**>
-exponentiation operator is available.
+overloaded number types.  Recent versions of the bignum modules might be
+required, perhaps Perl 5.8 and up so for instance the C<**> exponentiation
+operator is available.
 
 Also, for reference, an C<undef> input C<$n>, C<$x,$y>, etc, is meant to
 provoke an uninitialized value warning (when warnings are enabled), but
@@ -266,15 +286,15 @@ prevents bad inputs going unnoticed.
 
 =head1 FUNCTIONS
 
+In the following C<Foo> is one of the various subclasses, see the list above
+and under L</SEE ALSO>.
+
 =over 4
 
 =item C<$path = Math::PlanePath::Foo-E<gt>new (key=E<gt>value, ...)>
 
 Create and return a new path object.  Optional key/value parameters may
 control aspects of the object.
-
-C<Foo> here is one of the various subclasses, see the list above and under
-L</SEE ALSO>.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -289,12 +309,12 @@ position for N=0 or N=-0.5 too.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x,$y>.  If there's nothing at
+Return the N point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
     my $n = $path->xy_to_n(20,20);
     if (! defined $n) {
-      next;   # nothing at this x,y
+      next;   # nothing at this X,Y
     }
 
 C<$x> and C<$y> can be fractional and the path classes will give an integer
@@ -307,7 +327,7 @@ C<$n> close enough).
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
-Return a range of N values which occur in a rectangle with corners at
+Return a range of N values covering or exceeding a rectangle with corners at
 C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
 
      my ($n_lo, $n_hi) = $path->rect_to_n_range (-5,-5, 5,5);
@@ -316,22 +336,23 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
        print "$n  $x,$y";
      }
 
-The return may be an over-estimate of the range, and many of the points
-between C<$n_lo> and C<$n_hi> might be outside the rectangle, but the range
-at least bounds N in the rectangle.  Classes which can guarantee an exact
-range say so in their docs.
+The return may be an over-estimate of the range, and in all cases many of
+the points between C<$n_lo> and C<$n_hi> might be outside the rectangle.
+But the range at least bounds the N values which occur in the rectangle.
+Classes which guarantee an exact lo/hi range say so in their docs.
 
 C<$n_hi> is usually no more than an extra partial row, revolution, or
 self-similar level.  C<$n_lo> is often merely the starting point
-C<$path-E<gt>n_start()> below, which is fine if the origin is in the
-rectangle, but something away from the origin might actually start higher.
+C<$path-E<gt>n_start()>, which is fine if the origin is in the rectangle but
+something away from the origin might actually start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
-some N figures then those N's are included in the return.  If there's no
-points in the rectangle then the return may be a "crossed" range like
-C<$n_lo=1>, C<$n_hi=0> (and which makes a C<foreach> do no loops).  But
-C<rect_to_n_range()> might not notice there's no points in the rectangle and
-instead over-estimate the range.
+some N figures then those N's are included in the return.
+
+If there's no points in the rectangle then the return can be a "crossed"
+range like C<$n_lo=1>, C<$n_hi=0> (and which makes a C<foreach> do no
+loops).  But C<rect_to_n_range()> might not notice there's no points in the
+rectangle and instead over-estimate the range.
 
 =item C<$bool = $path-E<gt>x_negative()>
 
@@ -346,7 +367,7 @@ Return the first N in the path.  In the current classes this is either 0
 or 1.
 
 Some classes have secret dubious undocumented support for N values below
-this (zero or negative), but C<n_start> is the intended starting point.
+this (zero or negative), but C<n_start()> is the intended starting point.
 
 =item C<$arms = $path-E<gt>arms_count()>
 
@@ -404,7 +425,7 @@ For "enum" the C<choices> field is the possible values, such as
       choices => ["strawberry","chocolate"],
     }
 
-C<minimum> and C<maximum> are omitted if there's no hard limit on the
+C<minimum> and/or C<maximum> are omitted if there's no hard limit on the
 parameter.
 
 =back
@@ -419,41 +440,50 @@ are designed for a unit circle at each C<$n> but they too can give
 in-between positions on request.
 
 All X,Y positions are calculated by separate C<n_to_xy()> calls.  To follow
-a path use successive C<$n> values starting from C<$path-E<gt>n_start>.
+a path use successive C<$n> values starting from C<$path-E<gt>n_start()>.
+
+    foreach my $n ($path->n_start .. 100) {
+      my ($x,$y) = $path->n_to_xy($n);
+      print "$n  $x,$y\n";
+    }
 
 The separate C<n_to_xy()> calls were motivated by plotting just some points
-on a path, such as just the primes or the perfect squares.  Perhaps
-successive positions in some paths could be done in an iterator style more
-efficiently.  The paths with a quadratic "step" are not much worse than a
-C<sqrt()> to break N into a segment and offset, but the self-similar paths
-which chop into digits of some radix might increment instead of recalculate.
+of a path, such as just the primes or the perfect squares.  Successive
+positions in paths could be done in an iterator style more efficiently.  The
+paths with a quadratic "step" are not much worse than a C<sqrt()> to break N
+into a segment and offset, but the self-similar paths which chop into digits
+of some radix might increment instead of recalculate.
 
-But when interested in a particular region an iterator will often stray
-outside for a long time, and going by X,Y in rows or similar may be better,
-for the square-grid paths.
+When interested in a particular rectangular or similar region an iterator
+will often stray outside for a long time, so is less useful than it seems.
+For wild paths it can be better to go by X,Y in rows or similar, for the
+square-grid paths at least.
 
 =head2 Scaling and Orientation
 
-The paths generally make a first move horizontally to the right, or from the
+The paths generally make a first move horizontally to the right or from the
 X axis anti-clockwise, unless there's some more natural orientation.
+
 There's no parameters for scaling, offset or reflection as those things are
-thought better left to a general coordinate transformer to expand or invert
-for display.  But some easy transformations can be had just from the X,Y
-with
+thought better left to a general coordinate transformer, for example to
+expand or invert for display.  Some easy transformations can be had just
+from the X,Y with
 
     -X,Y        flip horizontally (mirror image)
     X,-Y        flip vertically (across the X axis)
 
     -Y,X        rotate +90 degrees  (anti-clockwise)
-    Y,-X        rotate -90 degrees
+    Y,-X        rotate -90 degrees  (clockwise)
     -X,-Y       rotate 180 degrees
 
-A vertical flip makes the spirals go clockwise instead of anti-clockwise, or
-a horizontal flip the same but starting on the left at the negative X axis.
+Flip vertically makes the spirals go clockwise instead of anti-clockwise, or
+a flip horizontally the same but starting on the left at the negative X
+axis.  See L</Triangular Lattice> below for 60 degree rotations on the
+triangular grid paths.
 
 The Rows and Columns paths are slight exceptions to the rule of not having
 rotated versions of paths.  They started as ways to pass in width and height
-as generic parameters, and have the path use the one or the other.
+as generic parameters and the path use the one or the other.
 
 For scaling and shifting see for example L<Transform::Canvas>, or for
 rotating as well see L<Geometry::AffineTransform>.
@@ -472,26 +502,26 @@ more N points than the preceding.
         1       Diagonals
         2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
         4       DiamondSpiral, AztecDiamondRings, Staircase
-        4/2     CellularRule54 (2 rows for +4)
+       4/2      CellularRule54 (2 rows for +4)
         5       PentSpiral, PentSpiralSkewed
         5.65    PixelRings (average about 4*sqrt(2))
         6       HexSpiral, HexSpiralSkewed, MultipleRings (default)
-        6/2     CellularRule190 (2 rows for +6)
+       6/2      CellularRule190 (2 rows for +6)
         6.28    ArchimedeanChords (approaching 2*pi)
         7       HeptSpiralSkewed
         8       SquareSpiral, PyramidSpiral
         9       TriangleSpiral, TriangleSpiralSkewed
        16       OctagramSpiral
        19.74    TheodorusSpiral (approaching 2*pi^2)
-       32/4     KnightSpiral (4 loops 2-wide for +32)
+      32/4      KnightSpiral (4 loops 2-wide for +32)
        64       DiamondArms (each arm)
        72       GreekKeySpiral
       128       SquareArms (each arm)
       216       HexArms (each arm)
     parameter   MultipleRings, PyramidRows
 
-     totient    CoprimeColumns
-     divcount   DivisibleColumns
+    totient     CoprimeColumns
+    divcount    DivisibleColumns
 
 =for my_pod step end
 
@@ -500,34 +530,37 @@ For example the gap between successive perfect squares increases by 2 each
 time (4 to 9 is +5, 9 to 16 is +7, 16 to 25 is +9, etc), so the perfect
 squares make a straight line in the paths of step 2.
 
-In general straight lines on the stepped paths are quadratics a*k^2+b*k+c
-with a=step/2.  The polygonal numbers are like this, with the (step+2)-gonal
-numbers making a straight line on a "step" path.  For example the 7-gonals
-(heptagonals) are 5/2*k^2-3/2*k and make a straight line on the step=5
-PentSpiral.  Or the 8-gonal octagonal numbers 6/2*k^2-4/2*k on the step=6
-HexSpiral.
+In general straight lines on stepped paths are quadratics
+
+   N = a*k^2 + b*k + c
+   where a=step/2
+
+The polygonal numbers are like this, with the (step+2)-gonal numbers making
+a straight line on a "step" path.  For example the 7-gonals (heptagonals)
+are 5/2*k^2-3/2*k and make a straight line on the step=5 PentSpiral.  Or the
+8-gonal octagonal numbers 6/2*k^2-4/2*k on the step=6 HexSpiral.
 
 There are various interesting properties of primes in quadratic
-progressions.  Some quadratics seem to have more primes than others, see for
-example L<Math::PlanePath::PyramidSides/Lucky Numbers of Euler>.  Many
+progressions.  Some quadratics seem to have more primes than others.  For
+example see L<Math::PlanePath::PyramidSides/Lucky Numbers of Euler>.  Many
 quadratics have no primes at all, or none above a certain point, either
 trivially if always a multiple of 2 etc, or by a more sophisticated
 reasoning.  See L<Math::PlanePath::PyramidRows/Step 3 Pentagonals> for a
 factorization on the roots making a no-primes gap.
 
-A step factor 4 splits a straight line in two, so for example the perfect
-squares are a straight line on the step=2 "Corner" path, and then on the
-step=8 SquareSpiral they instead fall on two lines (lower left and upper
-right).  Effectively in that bigger step it's one line of the even squares
-(2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap between
-successive even squares increases by 8 each time and likewise between odd
-squares.
+Multiplying the step by 4 splits a straight line in two, so for example the
+perfect squares are a straight line on the step=2 "Corner" path, and then on
+the step=8 SquareSpiral they instead fall on two lines (lower left and upper
+right).  Effectively in that bigger step there's one line of the even
+squares (2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap
+between successive even squares increases by 8 each time and likewise
+between odd squares.
 
 =head2 Self-Similar Powers
 
 The self-similar patterns such as PeanoCurve generally have a base pattern
-which repeats at powers N=base^level, or some multiple or relation to such a
-power for things like KochPeaks and GosperIslands.
+which repeats at powers N=base^level.  Or some multiple or relationship to
+such a power for things like KochPeaks and GosperIslands.
 
 =for my_pod base begin
 
@@ -540,8 +573,8 @@ power for things like KochPeaks and GosperIslands.
                   DigitGroups (default), CornerReplicate
       3         PeanoCurve (default), GosperIslands, GosperSide
                   SierpinskiTriangle, SierpinskiArrowhead,
-                  SierpinskiArrowheadCentres,
-                  UlamWarburton, UlamWarburtonQuarter (per level)
+                  SierpinskiArrowheadCentres, WunderlichMeander,
+                  UlamWarburton, UlamWarburtonQuarter (each level)
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes
       5         QuintetCurve, QuintetCentres, QuintetReplicate
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
@@ -552,12 +585,12 @@ power for things like KochPeaks and GosperIslands.
 
 =for my_pod base end
 
-Many number sequences on these paths tend to come out fairly random, or
-merely show the tiling or nature of the path layout rather than much about
-the number sequence.  Number sequences related to the base can make holes or
-patterns picking out parts of the path.  For example numbers without a
-particular digit (or digits) in the relevant base show up as holes,
-eg. L<Math::PlanePath::ZOrderCurve/Power of 2 Values>.
+Many number sequences on these paths tend to be fairly random, or merely
+show the tiling or path layout rather than much about the number sequence.
+Sequences related to the base can make holes or patterns picking out parts
+of the path.  For example numbers without a particular digit (or digits) in
+the relevant base show up as holes, eg. L<Math::PlanePath::ZOrderCurve/Power
+of 2 Values>.
 
 =head2 Triangular Lattice
 
@@ -570,7 +603,8 @@ Some paths are on triangular or "A2" lattice points like
       *   *   *   *   *   *
     *   *   *   *   *   *
 
-These are done in integer X,Y on a square grid using every second square,
+These are done in integer X,Y on a square grid using every second square and
+offset on alternate rows so X and Y are either both even or both odd.
 
     . * . * . * . * . * . *
     * . * . * . * . * . * .
@@ -579,8 +613,8 @@ These are done in integer X,Y on a square grid using every second square,
     . * . * . * . * . * . *
     * . * . * . * . * . * .
 
-In these coordinates X and Y are either both even or both odd.  The X axis
-and the diagonals X=Y and X=-Y divide the plane into six parts.
+The X axis and the diagonals X=Y
+and X=-Y divide the plane into six parts.
 
        X=-Y     X=Y
          \     /
@@ -595,24 +629,24 @@ and the diagonals X=Y and X=-Y divide the plane into six parts.
 The diagonal X=3*Y is the middle of the first sixth, representing a twelfth
 of the plane.
 
-The resulting triangles are a little flatter than they should be.  The base
-is width=2 and top height=1, whereas height=sqrt(3) would be equilateral
-triangles.  That sqrt(3) factor can be applied if desired,
+The resulting triangles are a little flatter than they should be.  The
+triangle base is width=2 and top is height=1, whereas height=sqrt(3) would
+be equilateral triangles.  That sqrt(3) factor can be applied if desired,
 
     X, Y*sqrt(3)          side length 2
-      or
+
     X/2, Y*sqrt(3)/2      side length 1
 
-Integer Y values have the advantage of fitting pixels of the usual kind of
-raster screen, and not losing precision in floating point results.
+Integer Y values have the advantage of fitting pixels on the usual kind of
+raster computer screen, and not losing precision in floating point results.
 
 If doing a general-purpose coordinate rotation then be sure to apply the
 sqrt(3) scale factor first, or the rotation is wrong.  Rotations can be made
-within the integer X,Y coordinates directly as follows (all resulting in
+within the integer X,Y coordinates directly as follows (all giving
 integers),
 
     (X-3Y)/2, (X+Y)/2       rotate +60   (anti-clockwise)
-    (X+3Y)/2, (Y-X)/2       rotate -60
+    (X+3Y)/2, (Y-X)/2       rotate -60   (clockwise)
     -(X+3Y)/2, (X-Y)/2      rotate +120
     (3Y-X)/2, -(X+Y)/2      rotate -120
     -X,-Y                   rotate 180
@@ -624,7 +658,7 @@ calculation as follows if comparing distances from the origin.
 
     hypot = sqrt(X*X + 3*Y*Y)
 
-See for instance TriangularHypot taking triangular points in order of this
+See for instance TriangularHypot which is triangular points ordered by this
 radial distance.
 
 =head1 FORMULAS
@@ -632,9 +666,9 @@ radial distance.
 =head2 Triangular Calculations
 
 For a triangular lattice the rotation formulas above allow calculations to
-be done in the rectangular X,Y which are the inputs and outputs of the
-PlanePath functions.  But an alternative is to number vertically on an angle
-with coordinates i,j
+be done in the rectangular X,Y coordinates which are the inputs and outputs
+of the PlanePath functions.  But an alternative is to number vertically on
+an angle with coordinates i,j
 
           ...
           *   *   *      2
@@ -642,16 +676,16 @@ with coordinates i,j
       *   *   *      j=0
     i=0  1   2 
 
-This is usual for hex grid games, and using this internally can simplify the
-rotations a little,
+Such coordinates are usual for hexagonal grid board games etc, and using
+this internally can simplify the rotations a little,
 
     -j, i+j         rotate +60   (anti-clockwise)
-    i+j, -i         rotate -60
+    i+j, -i         rotate -60   (clockwise)
     -i-j, i         rotate +120
     j, -i-j         rotate -120
     -i, -j          rotate 180
 
-The conversions between i,j and the rectangular X,Y are
+Conversions between i,j and the rectangular X,Y are
 
     X = 2*i + j         i = (X-Y)/2
     Y = j               j = Y
@@ -664,8 +698,9 @@ A third coordinate k at a +120 angle can be used too,
             *   *   *   
              0   1   2 
 
-This is redundant, but has the advantage of making rotations just sign
-changes and swaps,
+This is redundant, in that it doesn't express anything the i,j combination
+can't already, but it the advantage of making rotations just sign changes
+and swaps,
 
     -k, i, j        rotate +60
     j, k, -i        rotate -60
@@ -673,7 +708,7 @@ changes and swaps,
     k, -i, -j       rotate -120
     -i, -j, -k      rotate 180
 
-The conversions between i,j and the rectangular X,Y are as above with k
+The conversions between i,j,k and the rectangular X,Y are as above with k
 worked into the X,Y.
 
     X = 2i + j - k        i = (X-Y)/2        i = (X+Y)/2
@@ -716,6 +751,7 @@ L<Math::PlanePath::TriangularHypot>
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::WunderlichMeander>,
 L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::SquareReplicate>,
@@ -773,6 +809,8 @@ L<Math::PlanePath::DivisibleColumns>,
 L<Math::PlanePath::File>
 
 =for my_pod see_also end
+
+L<Math::NumSeq::PlanePathCoord>
 
 L<math-image>, displaying various sequences on these paths.
 

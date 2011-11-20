@@ -50,6 +50,33 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
+# return true if the three X,Y's are on a straight line ... but assumed to
+# be equal distance steps
+sub xy_is_straight {
+  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
+  return (($x - $prev_x) == ($next_x - $x)
+          && ($y - $prev_y) == ($next_y - $y));
+}
+
+# return 0 if X,Y's are straight, 2 if left, 1 if right
+sub xy_turn_021 {
+  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
+  my $prev_dx = $x - $prev_x;
+  my $prev_dy = $y - $prev_y;
+  my $dx = $next_x - $x;
+  my $dy = $next_y - $y;
+  if ($dx == $prev_dx && $dy == $prev_dy) {
+    return 0;
+  }
+  # dy/dx > pdy/pdx is turn left
+  # dy*pdx > pdy*dx
+  if ($dy*$prev_dx > $prev_dy*$dx) {
+    return 2;
+  } else {
+    return 1;
+  }
+}
+
 #------------------------------------------------------------------------------
 # A003849 - Fibonacci word 0/1
 {
@@ -57,23 +84,13 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    $#$bvalues = 50;
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    # $#$bvalues = 50; # shorten for testing ...
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my ($prev_x,$prev_y) = $path->n_to_xy ($n-1);
-      my ($x,$y) = $path->n_to_xy ($n);
-      my ($next_x,$next_y) = $path->n_to_xy ($n+1);
-      my $prev_dx = $x - $prev_x;
-      my $prev_dy = $y - $prev_y;
-      my $dx = $next_x - $x;
-      my $dy = $next_y - $y;
-      ### at: "n=$n  $prev_dx,$prev_dy  $dx,$dy"
-      my $turn_zero;
-      if ($dx == $prev_dx && $dy == $prev_dy) {
-        $turn_zero = 1;
-      } else {
-        $turn_zero = 0;
-      }
-      push @got, $turn_zero;
+      push @got, (xy_is_straight($path->n_to_xy($n-1),
+                                 $path->n_to_xy($n),
+                                 $path->n_to_xy($n+1))
+                  ? 1 : 0);
     }
   } else {
     MyTestHelpers::diag ("$anum not available");
@@ -92,29 +109,12 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    $#$bvalues = 50;
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    # $#$bvalues = 50; # shorten for testing ...
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my ($prev_x,$prev_y) = $path->n_to_xy ($n-1);
-      my ($x,$y) = $path->n_to_xy ($n);
-      my ($next_x,$next_y) = $path->n_to_xy ($n+1);
-      my $prev_dx = $x - $prev_x;
-      my $prev_dy = $y - $prev_y;
-      my $dx = $next_x - $x;
-      my $dy = $next_y - $y;
-      ### at: "n=$n  $prev_dx,$prev_dy  $dx,$dy"
-      my $turn;
-      if ($dx == $prev_dx && $dy == $prev_dy) {
-        $turn = 0;
-      } else {
-        # dy/dx > pdy/pdx is turn left
-        # dy*pdx > pdy*dx
-        if ($dy*$prev_dx > $prev_dy*$dx) {
-          $turn = 2;
-        } else {
-          $turn = 1;
-        }
-      }
-      push @got, $turn;
+      push @got, xy_turn_021($path->n_to_xy($n-1),
+                             $path->n_to_xy($n),
+                             $path->n_to_xy($n+1));
     }
   } else {
     MyTestHelpers::diag ("$anum not available");

@@ -23,6 +23,62 @@ use warnings;
 
 {
   # min/max for level
+  require Math::PlanePath::QuadricIslands;
+  my $path = Math::PlanePath::QuadricIslands->new;
+  my $prev_min = 1;
+  my $prev_max = 1;
+  for (my $level = 1; $level < 25; $level++) {
+    my $n_start = (4*8**$level + 3)/7;
+    my $n_end = (4*8**($level+1) + 3)/7 - 1;
+    $n_end = $n_start + 8**$level;
+
+    my $min_width = $n_start ** 2;
+    my $min_pos = '';
+
+    my $max_width = 0;
+    my $max_pos = '';
+
+    print "level $level  n=$n_start .. $n_end\n";
+
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+
+      #my $w = -$y-$x/2;
+      my $w = abs($y);
+
+      if ($w > $max_width) {
+        $max_width = $w;
+        $max_pos = "$x,$y n=$n (oct ".sprintf('%o',$n).")";
+      }
+      if ($w < $min_width) {
+        $min_width = $w;
+        $min_pos = "$x,$y n=$n (oct ".sprintf('%o',$n).")";
+      }
+    }
+    {
+      my $factor = $max_width / $prev_max;
+      print "  max width $max_width oct ".sprintf('%o',$max_width)."   at $max_pos  factor $factor\n";
+    }
+    {
+      my $factor = $min_width / ($prev_min||1);
+      print "  min width $min_width oct ".sprintf('%o',$min_width)."   at $min_pos  factor $factor\n";
+    }
+    {
+      my $formula = (2*4**($level-1) + 1) / 3;
+      print "  cf min formula $formula\n";
+    }
+    {
+      my $formula = (10*4**($level-1) - 1) / 3;
+      print "  cf max formula $formula\n";
+    }
+    $prev_max = $max_width;
+    $prev_min = $min_width;
+  }
+  exit 0;
+}
+
+{
+  # min/max for level
   require Math::PlanePath::QuadricCurve;
   my $path = Math::PlanePath::QuadricCurve->new;
   my $prev_min = 1;

@@ -26,14 +26,13 @@
 package Math::PlanePath::SquareArms;
 use 5.004;
 use strict;
-use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_floor = \&Math::PlanePath::_floor;
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -159,19 +158,21 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   my ($d_lo, $d_hi) = _rect_square_range ($x1,$y1, $x2,$y2);
   return (((4*$d_lo - 4)*$d_lo + 1),
-          max ($self->xy_to_n($x1,$y1),
-               $self->xy_to_n($x1,$y2),
-               $self->xy_to_n($x2,$y1),
-               $self->xy_to_n($x2,$y2)));
+          _max ($self->xy_to_n($x1,$y1),
+                $self->xy_to_n($x1,$y2),
+                $self->xy_to_n($x2,$y1),
+                $self->xy_to_n($x2,$y2)));
 }
 
 sub _rect_square_range {
   my ($x1,$y1, $x2,$y2) = @_;
   ### _rect_square_range(): "$x1,$y1  $x2,$y2"
 
-  foreach ($x1,$y1, $x2,$y2) {
-    $_ = _round_nearest($_);
-  }
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
+
   # if x1,x2 opposite signs then origin x=0 covered, similarly y
   my $x_zero_uncovered = ($x1<0) == ($x2<0);
   my $y_zero_uncovered = ($y1<0) == ($y2<0);

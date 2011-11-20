@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -318,6 +318,27 @@ A given replication extends to
     Ymax = 4^0 + 4^1 + ... + 4^level   # 11...11 in base 4
          = (4^(level+1) - 1) / 3
     Ymin = - Ymax
+
+=head2 Turn Sequence
+
+The sequence of turns made by the curve is straightforward.  In the base 8
+(octal) representation of N, the lowest non-zero digit gives the turn
+
+   low digit   turn (degrees)
+   ---------   --------------
+      1            +90
+      2            -90
+      3            -90
+      4              0
+      5            +90
+      6            +90
+      7            -90
+
+When the least significant digit is non-zero it determines the turn, to make
+the base N=0 to N=8 shape.  When the low digit is zero it's instead the next
+level up, the N=0,8,16,24,etc shape which is in control, applying a turn for
+the subsequent base part.  So for example at N=16 = 20 octal 20 is a turn
+-90 degrees.
 
 =head1 FUNCTIONS
 

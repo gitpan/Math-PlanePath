@@ -19,13 +19,14 @@
 package Math::PlanePath::PentSpiralSkewed;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_min = \&Math::PlanePath::_min;
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -52,21 +53,22 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if ($n < 2) { return ($n-1,0); }
 
-  my $d = int (.5 + sqrt((8*$n-11)/20));
+  my $d = int( (sqrt(40*$n-55)+5) / 10 );
   #### d frac: .5 + sqrt((8*$n-11)/20)
   #### $d
+
   #### remainder from base: $n - (5/2*$d**2 + -5/2*$d + 2)
   #### remainder from vertical: $n - (2.5*$d*$d - 0.5*$d + 1)
-  $n -= (2.5*$d*$d - 0.5*$d + 1);
+  $n -= (5*$d - 1)*$d/2 + 1;
 
   if ($n < $d) {
     #### upper diagonals and right vertical
-    return (min(-$n, $d),
-            $d - abs($n));
+    return (_min(-$n, $d),
+            - abs($n) + $d);
   } else {
     #### lower left and bottom horizontal
-    return (-2*$d + $n,
-            max ($d-$n, -$d));
+    return ($n - 2*$d,
+            _max ($d-$n, -$d));
   }
 }
 
@@ -82,10 +84,10 @@ sub xy_to_n {
     #   n = [ 5, 14, 28 ]
     #   n = (5/2*$d**2 + 3/2*$d + 1)
     # so
-    my $d = max($x-1, -$y);
+    my $d = _max($x-1, -$y);
     ### lower right square part
     ### $d
-    return ((5/2*$d**2 + 3/2*$d + 1)
+    return ((5*$d + 3)*$d/2 + 1
             + $x
             + ($x > $d ? $y+$d : 0));
   }
@@ -96,7 +98,7 @@ sub xy_to_n {
   #   n = (5/2*$d**2 + -1/2*$d + 1)
   #
   my $d = abs($x)+abs($y);
-  return ((5/2*$d**2 + -1/2*$d + 1)
+  return ((5*$d - 1)*$d/2 + 1
           - $x
           + ($y < 0 ? 2*($d+$x) : 0));
 }
@@ -113,17 +115,17 @@ sub rect_to_n_range {
       $y = _round_nearest ($y);
 
       my $this_d = 1 + ($x > 0 && $y < 0
-                        ? max($x,-$y)
+                        ? _max($x,-$y)
                         : abs($x)+abs($y));
       ### $x
       ### $y
       ### $this_d
-      $d = max($d, $this_d);
+      $d = _max($d, $this_d);
     }
   }
   ### $d
   return (1,
-          2.5*$d*($d-1) + 2);
+          5*$d*($d-1)/2 + 2);
 }
 
 1;

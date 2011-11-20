@@ -19,13 +19,13 @@
 package Math::PlanePath::KnightSpiral;
 use 5.004;
 use strict;
-use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -225,7 +225,7 @@ sub xy_to_n {
   $y = _round_nearest ($y);
   if ($x == 0 && $y == 0) { return 1; }
 
-  my $r = max(abs($x),abs($y));
+  my $r = _max(abs($x),abs($y));
   my $d = int (($r+1)/2);  # ring number, counting $x=1,2 as $d==1
   $r -= (~$r & 1);  # next lower odd number
   ### $d
@@ -363,12 +363,15 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  my $x = max(abs($x1),abs($x2));
-  my $y = max(abs($y1),abs($y2));
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
 
-  my $d = max(abs($x),abs($y));
+  my $x = _max(abs($x1),abs($x2));
+  my $y = _max(abs($y1),abs($y2));
+
+  my $d = _max(abs($x),abs($y));
   $d += ($d & 1);  # next even number if not already even
   ### $x
   ### $y

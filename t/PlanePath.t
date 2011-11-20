@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use List::Util;
 use Test;
 BEGIN { plan tests => 22 }
 

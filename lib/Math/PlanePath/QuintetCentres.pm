@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 # inherit new(), rect_to_n_range(), arms_count(), n_start(),
 # parameter_info_array()
@@ -160,8 +160,9 @@ sub n_to_xy {
 # modulus 2*X+Y
 #              3
 #          0   2   4
-#         /    1
-#   X=0,Y=0
+#              1
+#
+#   0 is X=0,Y=0
 #
 my @modulus_to_x = (0,1,1,1,2);
 my @modulus_to_y = (0,-1,0,1,0);
@@ -414,6 +415,14 @@ integer positions.
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+In the current code the returned range is exact, meaning C<$n_lo> and
+C<$n_hi> are the smallest and biggest in the rectangle, but don't rely on
+that yet since finding the exact range is a touch on the slow side.  (The
+advantage of which though is that it helps avoid very big ranges from a
+simple over-estimate.)
 
 =back
 

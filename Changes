@@ -17,6 +17,11 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 54, November 2011
+    - new WunderlichMeander
+    - PlanePathCoord new coordinate_type Product,DiffXY,DiffYX,AbsDiff
+    - BetaOmega,CellularRule190 exact rect_to_n_range()
+
 Version 53, November 2011
     - new FibonacciWordFractal, Math::NumSeq::PlanePathCoord
 

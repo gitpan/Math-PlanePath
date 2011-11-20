@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 22 }
+BEGIN { plan tests => 122 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 53;
+  my $want_version = 54;
   ok ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HilbertCurve->VERSION,  $want_version,
@@ -93,6 +93,51 @@ require Math::PlanePath::HilbertCurve;
     $want_n = int ($want_n + 0.5);
     my $got_n = $path->xy_to_n ($x, $y);
     ok ($got_n, $want_n, "n at x=$x,y=$y");
+  }
+}
+
+#------------------------------------------------------------------------------
+# rect_to_n_range() random
+
+{
+  my $path = Math::PlanePath::HilbertCurve->new;
+  for (1 .. 50) {
+    my $bits = int(rand(14));         # 0 to 14 inclusive (to fit 32-bit N)
+    my $x = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+    my $y = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+
+    my $xcount = int(rand(3));  # 0,1,2
+    my $ycount = int(rand(3));  # 0,1,2
+    # $xcount = $ycount = 2;
+
+    my $n_min = my $n_max = $path->xy_to_n($x,$y);
+    my $n_min_pos = my $n_max_pos = "$x,$y";
+    foreach my $xc (0 .. $xcount) {
+      foreach my $yc (0 .. $ycount) {
+        my $xp = $x+$xc;
+        my $yp = $y+$yc;
+        ### $xp
+        ### $yp
+        my $n = $path->xy_to_n($xp,$yp);
+        if ($n < $n_min) {
+          $n_min = $n;
+          $n_min_pos = "$xp,$yp";
+        }
+        if ($n > $n_max) {
+          $n_max = $n;
+          $n_max_pos = "$xp,$yp";
+        }
+      }
+    }
+    ### $n_min_pos
+    ### $n_max_pos
+
+    my ($got_n_min,$got_n_max) = $path->rect_to_n_range ($x+$xcount,$y+$ycount,
+                                                         $x,$y);
+    ok ($got_n_min == $n_min, 1,
+        "rect_to_n_range() on $x,$y rect $xcount,$ycount   n_min_pos=$n_min_pos");
+    ok ($got_n_max == $n_max, 1,
+        "rect_to_n_range() on $x,$y rect $xcount,$ycount   n_max_pos=$n_max_pos");
   }
 }
 

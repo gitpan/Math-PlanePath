@@ -23,13 +23,13 @@
 package Math::PlanePath::GosperSide;
 use 5.004;
 use strict;
-use List::Util qw(min max);
+use List::Util qw(max);
 use POSIX qw(ceil);
 use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -202,6 +202,21 @@ Both ends of such levels are in fact sub-spirals, like an "S" shape.
 The path is both the sides and the radial spokes of the GosperIslands path,
 as described in L<Math::PlanePath::GosperIslands/Side and Radial Lines>.
 Each N=3^level point is the start of a GosperIslands ring.
+
+=head2 Turn Sequence
+
+The sequence of turns made by the curve is straightforward.  In the base 3
+representation of N, the lowest non-zero digit gives the turn
+
+   low digit      turn
+   ---------   -----------
+      1        +60 degrees
+      2        -60 degrees
+
+When the least significant digit is non-zero it determines the turn, to make
+the base N=0 to N=3 shape.  When the low digit is zero it's instead the next
+level up, the N=0,3,6,9 shape which is in control, applying a turn for the
+base which follows.  So for example at N=6 = 20 base3 is a turn -60 degrees.
 
 =head1 FUNCTIONS
 

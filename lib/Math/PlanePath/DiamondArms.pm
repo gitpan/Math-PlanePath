@@ -26,14 +26,14 @@
 package Math::PlanePath::DiamondArms;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_floor = \&Math::PlanePath::_floor;
+*_min = \&Math::PlanePath::_min;
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -160,14 +160,14 @@ sub rect_to_n_range {
   $y1 = _round_nearest ($y1);
   $x2 = _round_nearest ($x2);
   $y2 = _round_nearest ($y2);
-  my $x = (($x1<0) == ($x2<0) ? min(abs($x1),abs($x2)) : 0);
-  my $y = (($y1<0) == ($y2<0) ? min(abs($y1),abs($y2)) : 0);
-  my $d = max(0, $x + $y - 2);
+  my $x = (($x1<0) == ($x2<0) ? _min(abs($x1),abs($x2)) : 0);
+  my $y = (($y1<0) == ($y2<0) ? _min(abs($y1),abs($y2)) : 0);
+  my $d = _max(0, $x + $y - 2);
   return (((2*$d + 2)*$d + 1),
-          max ($self->xy_to_n($x1,$y1),
-               $self->xy_to_n($x1,$y2),
-               $self->xy_to_n($x2,$y1),
-               $self->xy_to_n($x2,$y2)));
+          _max ($self->xy_to_n($x1,$y1),
+                $self->xy_to_n($x1,$y2),
+                $self->xy_to_n($x2,$y1),
+                $self->xy_to_n($x2,$y2)));
 }
 
 1;

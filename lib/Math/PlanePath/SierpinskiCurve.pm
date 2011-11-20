@@ -19,10 +19,9 @@
 package Math::PlanePath::SierpinskiCurve;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -375,13 +374,13 @@ sub rect_to_n_range {
 
   my $max = ($x2 + $y2);
   if ($arms >= 3) {
-    _max ($max, -1-$x1 + $y2);
+    _apply_max ($max, -1-$x1 + $y2);
 
     if ($arms >= 5) {
-      _max ($max, -1-$x1 - $y1-1);
+      _apply_max ($max, -1-$x1 - $y1-1);
 
       if ($arms >= 7) {
-        _max ($max, $x2 - $y1-1);
+        _apply_max ($max, $x2 - $y1-1);
       }
     }
   }
@@ -406,8 +405,8 @@ sub rect_to_n_range {
   return (0, 4*$power*$power * $arms - 1);
 }
 
-sub _max {
-  ### _max(): "$_[0] cf $_[1]"
+sub _apply_max {
+  ### _apply_max(): "$_[0] cf $_[1]"
   unless ($_[0] > $_[1]) {
     $_[0] = $_[1];
   }

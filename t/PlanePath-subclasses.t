@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 700 }
+BEGIN { plan tests => 707 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,9 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'WunderlichMeander',
+               'BetaOmega',
+               'HilbertCurve',
                'FibonacciWordFractal',
 
                'CornerReplicate',
@@ -43,8 +46,6 @@ my @modules = (
                'DigitGroups,radix=4',
                'DigitGroups,radix=5',
                'DigitGroups,radix=37',
-               'BetaOmega',
-               'HilbertCurve',
 
                'HIndexing',
                'SierpinskiCurve,diagonal_spacing=5',
@@ -258,7 +259,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 53;
+my $want_version = 54;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -322,6 +323,7 @@ my %rect_exact = (
                   'Math::PlanePath::Diagonals' => 1,
                   'Math::PlanePath::PyramidRows' => 1,
                   'Math::PlanePath::PyramidSides' => 1,
+                  'Math::PlanePath::CellularRule190' => 1,
                   'Math::PlanePath::Staircase' => 1,
                   'Math::PlanePath::Corner' => 1,
                   'Math::PlanePath::HilbertCurve' => 1,
@@ -332,6 +334,8 @@ my %rect_exact = (
                   'Math::PlanePath::QuintetCurve' => 1,
                   'Math::PlanePath::QuintetCentres' => 1,
                   'Math::PlanePath::AztecDiamondRings' => 1,
+                  'Math::PlanePath::BetaOmega' => 1,
+                  'Math::PlanePath::WunderlichMeander' => 1,
                   'Math::PlanePath::File' => 1,
                   # rect_to_n_range exact end
                  );
@@ -625,13 +629,19 @@ sub pythagorean_diag {
     }
 
     if (defined $neg_infinity) {
-      ### n_to_xy neg_infinity
+      ### n_to_xy() on $neg_infinity
       my @xy = $path->n_to_xy($neg_infinity);
-      if ($path->isa('Math::PlanePath::Rows')
-          || $path->isa('Math::PlanePath::Columns')) {
-        # secret negative n for Rows/Columns
+      if ($path->isa('Math::PlanePath::Rows')) {
+        # secret negative n for Rows
         my ($x, $y) = @xy;
         ($x==$pos_infinity || $x==$neg_infinity || &$is_nan($x))
+          or &$report("n_to_xy($neg_infinity) x is $x");
+        ($y==$neg_infinity)
+          or &$report("n_to_xy($neg_infinity) y is $y");
+      } elsif ($path->isa('Math::PlanePath::Columns')) {
+        # secret negative n for Columns
+        my ($x, $y) = @xy;
+        ($x==$neg_infinity)
           or &$report("n_to_xy($neg_infinity) x is $x");
         ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
           or &$report("n_to_xy($neg_infinity) y is $y");

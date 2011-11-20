@@ -27,7 +27,7 @@ use Carp;
 use Math::Libm 'M_PI', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -154,7 +154,7 @@ sub new {
 
   my $rotation_type = $self->{'rotation_type'} || 'phi';
   my $defaults = rotation_types()->{$rotation_type}
-    || croak 'Unrecognised rotation_type';
+    || croak 'Unrecognised rotation_type: "',$rotation_type,'"';
 
   $self->{'rotation_factor'} ||= $defaults->{'rotation_factor'};
   $self->{'radius_factor'}  ||= ($self->{'rotation_type'}
@@ -166,13 +166,29 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   return if $n < 0;
+
+  my $two_pi = 2 * M_PI();
+
+  if (ref $n) {
+    if ($n->isa('Math::BigInt')) {
+      require Math::BigFloat;
+      $n = Math::BigFloat->new($n);
+    }
+    if ($n->isa('Math::BigRat')) {
+      $n = $n->as_float;
+    }
+    if ($n->isa('Math::BigFloat')) {
+      $two_pi = 2 * Math::BigFloat->bpi;
+    }
+  }
+
   my $r = sqrt($n) * $self->{'radius_factor'};
 
   # take the frac part of 1==circle and then convert to radians, so as not
   # to lose precision in an fmod(...,2*pi)
   #
   my $theta = $n * $self->{'rotation_factor'};    # 1==full circle
-  $theta = 2 * M_PI() * ($theta - int($theta));  # radians 0 to 2*pi
+  $theta = $two_pi * ($theta - int($theta));  # radians 0 to 2*pi
   return ($r * cos($theta),
           $r * sin($theta));
 

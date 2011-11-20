@@ -19,13 +19,13 @@
 package Math::PlanePath::HeptSpiralSkewed;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
@@ -41,6 +41,8 @@ use Math::PlanePath;
 #   d = 1/2 + sqrt(2/7 * $n + -9/28)
 #     = 0.5 + sqrt(49*2/7 * $n - 49*9/28)/7
 #     = 0.5 + sqrt(14 * $n - 15.75)/7
+#     = (1 + sqrt(14 * $n - 15.75)*2/7) / 2
+#     = (1 + sqrt(56*$n - 63)/7) / 2
 #
 # initial remainder relative to rightwards horizontal y=0
 #   d = [ 1,  2,  3,  4 ]
@@ -54,22 +56,29 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if ($n < 2) { return ($n-1,0); }
 
-  my $d = int (0.5 + sqrt(14 * $n - 15.75)/7);
+  my $d = int ((1 + sqrt(56*$n - 63)/7) / 2);
   #### d frac: (0.5 + sqrt(14 * $n - 15.75)/7)
   #### $d
 
   # from -$d up to 6*$d-1, inclusive
-  $n -= (3.5*$d - 2.5)*$d + 1;
+  $n -= (7*$d - 5)*$d/2 + 1;
   #### remainder: $n
 
   if ($n <= 2*$d) {
     if ($n <= $d) {
-      #### right slope and vertical
-      return ($d - max($n,0),
-              $n);
+      #### right vertical and slope ...
+      if ($n <= 0) {
+        #### right vertical ...
+        return ($d,
+                $n);
+      } else {
+        #### right slope ...
+        return (-$n + $d,
+                $n);
+      }
     } else {
       #### top horizontal of length d
-      return ($d - $n,
+      return (-$n + $d,
               $d);
     }
   } else {
@@ -77,7 +86,7 @@ sub n_to_xy {
     if ($n <= 4*$d) {
       #### left vertical
       return (-$d,
-              3*$d - $n);
+              -$n + 3*$d);
     } else {
       #### bottom horizontal
       return ($n - 5*$d,
@@ -100,11 +109,11 @@ sub xy_to_n {
     #     = (3.5*$d - 2.5)*$d + 1
     #
     my $d = $x + $y;
-    return (3.5*$d - 2.5)*$d + 1 + $y;
+    return (7*$d - 5)*$d/2 + 1 + $y;
   }
 
-  my $d = max(abs($x),abs($y));
-  my $n = (3.5*$d - 2.5)*$d + 1;
+  my $d = _max(abs($x),abs($y));
+  my $n = (7*$d - 5)*$d/2 + 1;
   if ($y == $d) {
     ### top horizontal
     return $n+$d - $x;
@@ -133,10 +142,10 @@ sub rect_to_n_range {
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      $d = max ($d,
+      $d = _max ($d,
                 1 + ($x > 0 && $y > 0
                      ? $x+$y                    # slope
-                     : max(abs($x),abs($y))));  # square corners
+                     : _max(abs($x),abs($y))));  # square corners
     }
   }
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0

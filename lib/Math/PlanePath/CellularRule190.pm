@@ -20,17 +20,25 @@
 #
 # Loeschian numbers strips on the right ...
 #
+# A071039 claims to be something rule 190, and A071041 rule 246, but how?
 
 package Math::PlanePath::CellularRule190;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
+*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 
 use constant y_negative => 0;
 
@@ -147,104 +155,109 @@ sub xy_to_n {
   }
 }
 
-# not exact
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### CellularRule190 rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
+  ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
+    or return (1,0); # rect outside pyramid
 
-  if ($y2 < 0) {
-    ### rect all negative, no N ...
-    return (1, 0);
-  }
-  if ($y1 < 0) {
-    $y1 = 0;
-  }
+  # inherit bignum (before collapsing some y1 to x1 etc)
+  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
+  my $mirror = $self->{'mirror'};
+  my $unincremented_x1 = $x1;
 
-  #     \        /
-  #   y2 \      / +-----
-  #       \    /  |
-  #        \  /
-  #         \/    x1
+  #    \+------+
+  #     |      |     /
+  #     |\     |    /
+  #     | \    |   /
+  #     |  \   |  /
+  #  y1 +------+ /
+  #    x1    \  /
+  #           \/
   #
-  #        \        /
-  #   ----+ \      /  y2
-  #       |  \    /
-  #           \  /
-  #       x2   \/
-  #
-  my $nx2 = -$x2;
-  if ($x1 > $y2
-      || $nx2 > $y2) {  # x2 < -y2, done as -x2 > y2
-    ### rect all off to the left or right, no N
-    return (1, 0);
-  }
+  if ($x1 < (my $neg_y1 = -$y1)) {
+    ### bottom-left outside, move across to: "$neg_y1,$y1"
+    $x1 = $neg_y1;
 
-  ### x1 to x2 top row intersects some of the pyramid
-  ### assert: $x2 >= -$y2
-  ### assert: $x1 <= $y2
-
-  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
-
-  #     \       | /
-  #      \      |/
-  #       \    /|       |
-  #    y1  \  / +-------+
-  #         \/  x1
-  #
-  if ($x1 > $y1) {
-    ### x1 off to the right, y1 row is outside, increase y1 ...
-    $y1 = $x1;
-    ### new y1: "$y1"
+    # For the following blank checks a blank doesn't occur at the ends of a
+    # row, so when on a blank it's always possible to increment or decrement
+    # X to go to a non-blank -- as long as that adjacent space is within the
+    # rectangle.
+    #
+  } elsif ((($mirror ? $y1-$x1 : $x1+$y1) % 4) == 3) {
+    ### x1,y1 bottom left is on a blank: "x1+y1=".($x1+$y1)
+    if ($x1 < $x2) {
+      ### rect width >= 2, so increase x1 ...
+      $x1 += 1;
+    } else {
+      ### rect is a single column width==1, increase y1 ...
+      if (($y1 += 1) > $y2) {
+        ### rect was a single blank square, contains no N ...
+        return (1,0);
+      }
+    }
   }
 
-  #        \|       /
-  #         \      /
-  #         |\    /
-  #  -------+ \  /   y1
-  #        x2  \/
-  if ($nx2 > $y1) {
-    ### x2 off to the right, y1 row is outside, increase y1 ...
-    $y1 = $nx2;
-    ### new y1: "$y1"
+  if ((($mirror ? $y2-$x2 : $x2+$y2) % 4) == 3) {
+    ### x2,y2 top right is on a blank, decrement ...
+    if ($x2 > $unincremented_x1) {
+      ### rect width >= 2, so decrease x2 ...
+      $x2 -= 1;
+    } else {
+      ### rect is a single column width==1, decrease y2 ...
+      $y2 -= 1;
+
+      # Can decrement without checking whether the rect is a single square.
+      # If the rect was a single blank square then the x1+y1 bottom left
+      # above detects and returns.  And the bottom left blank check
+      # incremented y1 to leave a single square then that's a non-blank
+      # because there's no vertical blank pairs (they go on the diagonal).
+      ### assert $y2 >= $y1
+    }
   }
 
-  # even right  y = [ 0, 2, 4, 6 ]
-  #             N = [ 1,8,21,40 ]
-  # Nright = (3/4 y^2 + 2 y + 1)
-  #        = (3 y^2 + 8 y + 4) / 4
-  #        = ((3y + 8)y + 4) / 4
-  #
-  # odd right  y = [ 1, 3, 5, 7 ]
-  #            N = [ 4,14,30, 52 ]
-  # Nright = (3/4 y^2 + 2 y + 5/4)
-  #        = (3 y^2 + 8 y + 5) / 4
-  #        = ((3y + 8)y + 5) / 4
-  #
-  # Nleft y even ((3y+2)*y + 4)/4
-  # Nleft y odd  ((3y+2)*y + 3)/4
-  # Nright even ((3(y+1)+2)*(y+1) + 3)/4 - 1
-  #          = ((3y+3+2)*(y+1) + 3 - 4)/4
-  #          = ((3y+5)*(y+1) - 1)/4
-  #          = ((3y^2 + 8y + 5 - 1)/4
-  #          = ((3y^2 + 8y + 4)/4
-  #          = ((3y+8)y + 4)/4
-  #          = ((3y+2)(y+2)/4
-  #
-  ### $y1
-  ### $y2
-  $y2 += $zero;
-  $y1 += $zero;
-  return (((3*$y1 + 2)*$y1 + 4 - ($y1%2)) / 4,    # even/odd Nleft
-          ((3*$y2 + 8)*$y2 + 4 + ($y2%2)) / 4);   # even/odd Nright
+  # At this point $x1,$y1 is a non-blank bottom left corner, and $x2,$y2
+  # is a non-blank top right corner, being the N lo to hi range.
+
+  ### range: "bottom-right $x1,$y1  top-left $x2,$y2"
+  return ($self->xy_to_n ($x1,$y1),
+          $self->xy_to_n ($x2,$y2));
 }
+
+
+# old rect_to_n_range() of row endpoints
+#
+# # even right  y = [ 0, 2, 4, 6 ]
+# #             N = [ 1,8,21,40 ]
+# # Nright = (3/4 y^2 + 2 y + 1)
+# #        = (3 y^2 + 8 y + 4) / 4
+# #        = ((3y + 8)y + 4) / 4
+# #
+# # odd right  y = [ 1, 3, 5, 7 ]
+# #            N = [ 4,14,30, 52 ]
+# # Nright = (3/4 y^2 + 2 y + 5/4)
+# #        = (3 y^2 + 8 y + 5) / 4
+# #        = ((3y + 8)y + 5) / 4
+# #
+# # Nleft y even ((3y+2)*y + 4)/4
+# # Nleft y odd  ((3y+2)*y + 3)/4
+# # Nright even ((3(y+1)+2)*(y+1) + 3)/4 - 1
+# #          = ((3y+3+2)*(y+1) + 3 - 4)/4
+# #          = ((3y+5)*(y+1) - 1)/4
+# #          = ((3y^2 + 8y + 5 - 1)/4
+# #          = ((3y^2 + 8y + 4)/4
+# #          = ((3y+8)y + 4)/4
+# #          = ((3y+2)(y+2)/4
+# #
+# ### $y1
+# ### $y2
+# $y2 += $zero;
+# $y1 += $zero;
+# return (((3*$y1 + 2)*$y1 + 4 - ($y1%2)) / 4,    # even/odd Nleft
+#         ((3*$y2 + 8)*$y2 + 4 + ($y2%2)) / 4);   # even/odd Nright
 
 1;
 __END__
@@ -269,15 +282,15 @@ This is the pattern of Stephen Wolfram's "rule 190" cellular automaton
 
 arranged as rows,
 
-    66 67 68    69 70 71    72 73 74    75 76 77    78 79 80      9 
-       53 54 55    56 57 58    59 60 61    62 63 64    65         8 
-          41 42 43    44 45 46    47 48 49    50 51 52            7 
-             31 32 33    34 35 36    37 38 39    40               6 
-                22 23 24    25 26 27    28 29 30                  5 
-                   15 16 17    18 19 20    21                     4 
-                       9 10 11    12 13 14                        3 
-                          5  6  7     8                           2 
-                             2  3  4                              1 
+    66 67 68    69 70 71    72 73 74    75 76 77    78 79 80      9
+       53 54 55    56 57 58    59 60 61    62 63 64    65         8
+          41 42 43    44 45 46    47 48 49    50 51 52            7
+             31 32 33    34 35 36    37 38 39    40               6
+                22 23 24    25 26 27    28 29 30                  5
+                   15 16 17    18 19 20    21                     4
+                       9 10 11    12 13 14                        3
+                          5  6  7     8                           2
+                             2  3  4                              1
                                 1                             <- Y=0
 
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
@@ -381,6 +394,11 @@ Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are each
 rounded to the nearest integer, which has the effect of treating each cell
 as a square of side 1.  If C<$x,$y> is outside the pyramid or on a skipped
 cell the return is C<undef>.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
 
 =back
 

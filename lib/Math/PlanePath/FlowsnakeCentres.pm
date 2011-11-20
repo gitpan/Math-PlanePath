@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 # inherit new(), rect_to_n_range(), arms_count(), n_start(),
 # parameter_info_array()
@@ -446,9 +446,9 @@ Math::PlanePath::FlowsnakeCentres -- self-similar path of hexagon centres
 =head1 DESCRIPTION
 
 This path is a variation of the flowsnake curve by William Gosper which
-follows the flowsnake tiling the same way but follows the centres of
-hexagons instead of corners and across.  The result is the same overall
-shape, but a symmetric base figure.
+follows the flowsnake tiling the same way but the centres of the hexagons
+instead of corners across.  The result is the same overall shape, but a
+symmetric base figure.
 
                          39----40                          8
                         /        \
@@ -474,7 +474,7 @@ The points are spread out on every second X coordinate to make little
 triangles with integer coordinates, per L<Math::PlanePath/Triangular
 Lattice>.
 
-The basic pattern is the seven points 0 to 6,
+The base pattern is the seven points 0 to 6,
 
         4---- 5
       /        \
@@ -484,8 +484,8 @@ The basic pattern is the seven points 0 to 6,
 
 This repeats at 7-fold increasing scale, with sub-sections rotated according
 to the edge direction, and the 1, 2 and 6 sub-sections in reverse.  Eg. N=7
-to N=13 is the "1" part, taking the base figure in reverse, and rotated so
-the end points towards the "2".
+to N=13 is the "1" part taking the base figure in reverse and rotated so the
+end points towards the "2".
 
 The next level can be seen at the midpoints of each such group, being
 N=2,11,18,23,30,37,46.
@@ -539,9 +539,9 @@ rotated copies of it.
           -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
 As described in L<Math::PlanePath::Flowsnake/Arms> the flowsnake essentially
-fills a hexagonal shape.  For this Centres variation the start of each arm
-corresponds to a little hexagon with the N=0 one at the origin, and the 1
-and 2 beside and below,
+fills a hexagonal shape with wiggly sides.  For this Centres variation the
+start of each arm corresponds to the centre of a little hexagon.  The N=0
+little hexagon is at the origin, and the 1 and 2 beside and below,
 
     ^ / \   / \
      \   \ /   \
@@ -577,6 +577,14 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+In the current code the returned range is exact, meaning C<$n_lo> and
+C<$n_hi> are the smallest and biggest in the rectangle, but don't rely on
+that yet since finding the exact range is a touch on the slow side.  (The
+advantage of which though is that it helps avoid very big ranges from a
+simple over-estimate.)
 
 =back
 

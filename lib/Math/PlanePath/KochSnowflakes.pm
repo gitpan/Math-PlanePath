@@ -24,11 +24,11 @@
 package Math::PlanePath::KochSnowflakes;
 use 5.004;
 use strict;
-use List::Util qw(min max);
+use List::Util qw(max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 53;
+$VERSION = 54;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
