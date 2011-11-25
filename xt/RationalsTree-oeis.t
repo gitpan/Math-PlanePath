@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 7 }
+BEGIN { plan tests => 14 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -30,7 +30,7 @@ use MyOEIS;
 use Math::PlanePath::RationalsTree;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 # A059893 - bit reverse all but the high 1
 # A162911 - drib tree numerators
@@ -49,6 +49,80 @@ sub numeq_array {
     shift @$a2;
   }
   return (@$a1 == @$a2);
+}
+
+#------------------------------------------------------------------------------
+# A007305 -- SB numerators
+
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+  my $anum = 'A007305';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    splice @$bvalues,0,2; # drop initial value=0,value=1 from oeis
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $x;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- SB tree numerators");
+}
+
+#------------------------------------------------------------------------------
+# A047679 -- SB denominators
+
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+  my $anum = 'A047679';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $y;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- SB tree denominators");
+}
+
+#------------------------------------------------------------------------------
+# A007306 -- SB num+den
+
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+  my $anum = 'A007306';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    splice @$bvalues,0,2; # drop initial value=1,value=1 from oeis
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $x+$y;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- SB tree num+den");
 }
 
 #------------------------------------------------------------------------------
@@ -99,6 +173,103 @@ sub numeq_array {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- CW tree denominators as Stern diatomic");
+}
+
+#------------------------------------------------------------------------------
+# A070990 -- CW Y-X is Stern diatomic first diffs
+
+{
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+  my $anum = 'A070990';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    unshift @$bvalues, 0;   # extra 0 in RationalsTree
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $y - $x;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- CW tree Y-X as Stern diatomic first diffs");
+}
+
+#------------------------------------------------------------------------------
+# A020650 -- AYT tree numerators
+
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+  my $anum = 'A020650';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $x;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- AYT tree numerators");
+}
+
+#------------------------------------------------------------------------------
+# A162910 -- AYT tree denominators
+
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+  my $anum = 'A020651';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $y;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- AYT tree denominators");
+}
+
+#------------------------------------------------------------------------------
+# A086592 -- AYT num+den
+
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+  my $anum = 'A086592';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $x+$y;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- AYT tree num+den");
 }
 
 #------------------------------------------------------------------------------

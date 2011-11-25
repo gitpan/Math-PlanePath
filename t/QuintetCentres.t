@@ -36,7 +36,7 @@ require Math::PlanePath::QuintetCentres;
 # VERSION
 
 {
-  my $want_version = 54;
+  my $want_version = 55;
   ok ($Math::PlanePath::QuintetCentres::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::QuintetCentres->VERSION,  $want_version,

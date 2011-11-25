@@ -220,8 +220,8 @@ require Math::PlanePath::PeanoCurve;
   my $path = Math::PlanePath::PeanoCurve->new;
 
   require Math::BigRat;
-  my $n = Math::BigRat->new(9) ** 128 + Math::BigRat->new(4/3);
-  my $want_x = Math::BigRat->new(3) ** 128 + Math::BigRat->new(4/3);
+  my $n = Math::BigRat->new(9) ** 128 + Math::BigRat->new('4/3');
+  my $want_x = Math::BigRat->new(3) ** 128 + Math::BigRat->new('4/3');
   my $want_y = Math::BigRat->new(3) ** 128 - 1;
 
   my ($got_x,$got_y) = $path->n_to_xy($n);
@@ -237,9 +237,9 @@ require Math::PlanePath::ZOrderCurve;
   my $path = Math::PlanePath::ZOrderCurve->new;
 
   require Math::BigRat;
-  my $n = Math::BigRat->new(4) ** 128 + Math::BigRat->new(1/3);
+  my $n = Math::BigRat->new(4) ** 128 + Math::BigRat->new('1/3');
   $n->isa('Math::BigRat') || die "Oops, n not a BigRat";
-  my $want_x = Math::BigRat->new(2) ** 128 + Math::BigRat->new(1/3);
+  my $want_x = Math::BigRat->new(2) ** 128 + Math::BigRat->new('1/3');
   my $want_y = 0;
 
   my ($got_x,$got_y) = $path->n_to_xy($n);
@@ -265,41 +265,17 @@ require Math::PlanePath::KochCurve;
   my $orig = Math::BigRat->new(3) ** 128;
   my $n    = Math::BigRat->new(3) ** 128;
   my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
-
+  
   ok ($n, $orig);
   ok ($pow, Math::BigRat->new(3) ** 128);
   ok ($exp, 128);
 }
 
 #------------------------------------------------------------------------------
-# KochSnowflakes _log4_floor()
-
-require Math::PlanePath::KochSnowflakes;
-{
-  my $orig = Math::BigRat->new(4) ** 64;
-  my $n    = Math::BigRat->new(4) ** 64;
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1/3 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
-}
-{
-  my $orig = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
-  my $n    = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1/3 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
-}
-
-
-#------------------------------------------------------------------------------
 
 my @modules = (
+               'KochelCurve',
+               'MPeaks',   # but not across gap
                'WunderlichMeander',
                'FibonacciWordFractal',
                # 'CornerReplicate',    # not defined yet
@@ -308,7 +284,7 @@ my @modules = (
                'ZOrderCurve',
                'HilbertCurve',
                'BetaOmega',
-
+               
                'HIndexing',
                'SierpinskiCurve',
                'AztecDiamondRings',     # but not across ring end
@@ -316,15 +292,15 @@ my @modules = (
                'SquareArms',
                'HexArms',
                'GreekKeySpiral',
-
+               
                # 'UlamWarburton',         # not really defined yet
                # 'UlamWarburtonQuarter',  # not really defined yet
                'CellularRule54',      # but not across gap
                'CellularRule190',     # but not across gap
-
+               
                'Rows',
                'Columns',
-
+               
                'SquareSpiral',
                'DiamondSpiral',
                'PentSpiral',
@@ -335,54 +311,54 @@ my @modules = (
                'PyramidSpiral',
                'TriangleSpiral',
                'TriangleSpiralSkewed',
-
+               
                # 'SacksSpiral',         # sin/cos
                # 'TheodorusSpiral',     # counting by N
                # 'ArchimedeanChords',   # counting by N
                # 'VogelFloret',         # sin/cos
                'KnightSpiral',
-
+               
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowhead',
                # 'SierpinskiTriangle',  # not really defined yet
                'QuadricCurve',
                'QuadricIslands',
-
+               
                'DragonRounded',
                'DragonMidpoint',
                'DragonCurve',
-
+               
                'KochSquareflakes',
                'KochSnowflakes',
                'KochCurve',
                'KochPeaks',
-
+               
                'FlowsnakeCentres',
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
                'Flowsnake',
-
+               
                'RationalsTree',
                # 'DivisibleColumns', # counting by N
                # 'CoprimeColumns',   # counting by N
                # 'TriangularHypot',  # counting by N
                'PythagoreanTree',
-
+               
                'OctagramSpiral',
                # 'Hypot',            # searching by N
                # 'HypotOctant',      # searching by N
                # 'PixelRings',       # searching by N
                # 'MultipleRings',    # sin/cos, maybe
-
+               
                'QuintetCentres',
                'QuintetCurve',
                'QuintetReplicate',
-
+               
                'SquareReplicate',
                'ComplexMinus',
                'ImaginaryBase',
-
+               
                # 'File',  # not applicable
                'Diagonals',
                'Corner',
@@ -397,11 +373,11 @@ foreach my $module (@modules) {
   ### $module
   my $class = "Math::PlanePath::$module";
   eval "require $class" or die;
-
+  
   my $path = $class->new (width => 23,
                           height => 17);
   my $arms = $path->arms_count;
-
+  
   my $n    = Math::BigRat->new(2) ** 256 + 3;
   if ($path->isa('Math::PlanePath::CellularRule190')) {
     $n += 1; # not across gap
@@ -409,12 +385,12 @@ foreach my $module (@modules) {
   my $frac = Math::BigRat->new('1/3');
   my $n_frac = $frac + $n;
   my $orig = $n_frac->copy;
-
+  
   my ($x1,$y1) = $path->n_to_xy($n);
   ### xy1: "$x1,$y1"
   my ($x2,$y2) = $path->n_to_xy($n+$arms);
   ### xy2: "$x2,$y2"
-
+  
   my $dx = $x2 - $x1;
   my $dy = $y2 - $y1;
   ### dxy: "$dx, $dy"

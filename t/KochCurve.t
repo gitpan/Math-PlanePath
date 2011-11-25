@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 54;
+  my $want_version = 55;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -233,18 +233,33 @@ foreach my $elem ([ 1, 1,0 ],
   ok ($bad, 0, "xy_to_n() coverage and distinct, $count points");
 }
 
+
 #------------------------------------------------------------------------------
 # turn sequence
 
 {
+  # total 1s left 2s right base 4 digits
+  sub n_to_dir {
+    my ($n) = @_;
+    my $dir = 0;
+    while ($n) {
+      my $digit = $n % 4;
+      if ($digit == 1) { $dir++; }
+      if ($digit == 2) { $dir--; }
+      $n = int($n/4);
+    }
+    return $dir;
+  }
+
+  # lowest non-zero base 4 digit
   sub n_to_turn {
     my ($n) = @_;
     for (;;) {
       if ($n == 0) { die "oops n=0"; }
-      my $mod = $n % 4;
-      if ($mod == 1) { return 1; }
-      if ($mod == 2) { return -2; }
-      if ($mod == 3) { return 1; }
+      my $digit = $n % 4;
+      if ($digit == 1) { return 1; }
+      if ($digit == 2) { return -2; }
+      if ($digit == 3) { return 1; }
       $n = int($n/4);
     }
   }
@@ -272,33 +287,40 @@ foreach my $elem ([ 1, 1,0 ],
 
   my ($prev_x, $prev_y) = $path->n_to_xy($n++);
 
-  my ($x, $y) = $path->n_to_xy($n++);
-  my $dx = $x - $prev_x;
-  my $dy = $y - $prev_y;
-  my $prev_dir = dxdy_to_dir($dx,$dy);
+  my ($x, $y) = $path->n_to_xy($n);
+  my $prev_dx = $x - $prev_x;
+  my $prev_dy = $y - $prev_y;
+  my $prev_dir = dxdy_to_dir($prev_dx,$prev_dy);
 
   while ($n < 1000) {
-    $prev_x = $x;
-    $prev_y = $y;
-
-    ($x,$y) = $path->n_to_xy($n);
-    $dx = $x - $prev_x;
-    $dy = $y - $prev_y;
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    my $dx = $next_x - $x;
+    my $dy = $next_y - $y;
     my $dir = dxdy_to_dir($dx,$dy);
 
     my $got_turn = ($dir - $prev_dir) % 6;
-    my $want_turn = n_to_turn($n-1) % 6;
-
+    my $want_turn = n_to_turn($n) % 6;
     if ($got_turn != $want_turn) {
       MyTestHelpers::diag ("n=$n turn got=$got_turn want=$want_turn");
       MyTestHelpers::diag ("  dir=$dir prev_dir=$prev_dir");
       last if $bad++ > 10;
     }
 
+    my $got_dir = $dir % 6;
+    my $want_dir = n_to_dir($n) % 6;
+    if ($got_dir != $want_dir) {
+      MyTestHelpers::diag ("n=$n dir got=$got_dir want=$want_dir");
+      last if $bad++ > 10;
+    }
+
     $n++;
     $prev_dir = $dir;
+    $x = $next_x;
+    $y = $next_y;
+
   }
-  ok ($bad, 0, "turn sequence");
+  ok ($bad, 0, "turn/dir sequence");
 }
+
 
 exit 0;

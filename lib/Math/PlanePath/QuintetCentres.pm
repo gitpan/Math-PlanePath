@@ -23,18 +23,44 @@
 package Math::PlanePath::QuintetCentres;
 use 5.004;
 use strict;
+use List::Util 'max';
+use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
-
-# inherit new(), rect_to_n_range(), arms_count(), n_start(),
-# parameter_info_array()
-use Math::PlanePath::QuintetCurve;
-@ISA = ('Math::PlanePath::QuintetCurve');
+$VERSION = 55;
 
 use Math::PlanePath;
+@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::SacksSpiral;
+*_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
+
+use constant n_start => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
+
+use constant parameter_info_array => [ { name      => 'arms',
+                                         share_key => 'arms_4',
+                                         type      => 'integer',
+                                         minimum   => 1,
+                                         maximum   => 4,
+                                         default   => 1,
+                                         width     => 1,
+                                         description => 'Arms',
+                                       } ];
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 4) { $arms = 4; }
+  $self->{'arms'} = $arms;
+  return $self;
+}
 
 my @rot_to_x = (0,0,-1,-1);
 my @rot_to_y = (0,1,1,0);
@@ -264,6 +290,161 @@ sub xy_to_n {
   return $n*$arms + $arm;
 }
 
+# exact
+sub rect_to_n_range {
+  my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### QuintetCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
+
+  my ($r_lo, $r_hi) = _rect_to_radius_range($x1,$y1, $x2,$y2);
+  $r_hi *= 2;
+  my $level_plus_1 = ceil( log(max(1,$r_hi/4)) / log(sqrt(5)) ) + 2;
+
+  # Simple over-estimate would be: return (0, 5**$level_plus_1);
+
+  my $level_limit = $level_plus_1;
+  ### $level_limit
+  if (_is_infinite($level_limit)) { return ($level_limit,$level_limit); }
+
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+  ### sorted range: "$x1,$y1  $x2,$y2"
+
+  my $rect_dist = sub {
+    my ($x,$y) = @_;
+    my $xd = ($x < $x1 ? $x1 - $x
+              : $x > $x2 ? $x - $x2
+              : 0);
+    my $yd = ($y < $y1 ? $y1 - $y
+              : $y > $y2 ? $y - $y2
+              : 0);
+    return ($xd*$xd + $yd*$yd);
+  };
+
+  my $arms = $self->{'arms'};
+  ### $arms
+  my $n_lo;
+  {
+    my @hypot = (4);
+    my $top = 0;
+    for (;;) {
+    ARM_LO: foreach my $arm (0 .. $arms-1) {
+        my $i = 0;
+        my @digits;
+        if ($top > 0) {
+          @digits = ((0)x($top-1), 1);
+        } else {
+          @digits = (0);
+        }
+
+        for (;;) {
+          my $n = 0;
+          foreach my $digit (reverse @digits) { # high to low
+            $n = 5*$n + $digit;
+          }
+          $n = $n*$arms + $arm;
+          ### lo consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+
+          my ($nx,$ny) = $self->n_to_xy($n);
+          my $nh = &$rect_dist ($nx,$ny);
+          if ($i == 0 && $nh == 0) {
+            ### lo found inside: $n
+            if (! defined $n_lo || $n < $n_lo) {
+              $n_lo = $n;
+            }
+            next ARM_LO;
+          }
+
+          if ($i == 0 || $nh > $hypot[$i]) {
+            ### too far away: "nxy=$nx,$ny   nh=$nh vs ".$hypot[$i]
+
+            while (++$digits[$i] > 4) {
+              $digits[$i] = 0;
+              if (++$i <= $top) {
+                ### backtrack up ...
+              } else {
+                ### not found within this top and arm, next arm ...
+                next ARM_LO;
+              }
+            }
+          } else {
+            ### lo descend ...
+            ### assert: $i > 0
+            $i--;
+            $digits[$i] = 0;
+          }
+        }
+      }
+
+      # if an $n_lo was found on any arm within this $top then done
+      if (defined $n_lo) {
+        last;
+      }
+
+      ### lo extend top ...
+      if (++$top > $level_limit) {
+        ### nothing below level limit ...
+        return (1,0);
+      }
+      $hypot[$top] = 5 * $hypot[$top-1];
+    }
+  }
+
+  my $n_hi = 0;
+ ARM_HI: foreach my $arm (reverse 0 .. $arms-1) {
+    my @digits = ((4) x $level_limit);
+    my $i = $#digits;
+    for (;;) {
+      my $n = 0;
+      foreach my $digit (reverse @digits) { # high to low
+        $n = 5*$n + $digit;
+      }
+      $n = $n*$arms + $arm;
+      ### hi consider: "arm=$arm  i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+
+      my ($nx,$ny) = $self->n_to_xy($n);
+      my $nh = &$rect_dist ($nx,$ny);
+      if ($i == 0 && $nh == 0) {
+        ### hi found inside: $n
+        if ($n > $n_hi) {
+          $n_hi = $n;
+          next ARM_HI;
+        }
+      }
+
+      if ($i == 0 || $nh > (4 * 5**$i)) {
+        ### too far away: "$nx,$ny   nh=$nh vs ".(4 * 5**$i)
+
+        while (--$digits[$i] < 0) {
+          $digits[$i] = 4;
+          if (++$i < $level_limit) {
+            ### hi backtrack up ...
+          } else {
+            ### hi nothing within level limit for this arm ...
+            next ARM_HI;
+          }
+        }
+
+      } else {
+        ### hi descend
+        ### assert: $i > 0
+        $i--;
+        $digits[$i] = 4;
+      }
+    }
+  }
+
+  if ($n_hi == 0) {
+    ### oops, lo found but hi not found
+    $n_hi = $n_lo;
+  }
+
+  return ($n_lo, $n_hi);
+}
+
 1;
 __END__
 
@@ -317,16 +498,17 @@ taking the centre of each square visited by that curve.
           ^
      -1  X=0  1   2   3   4   5   6   7   8   9  10  11  12  13
 
-The base figure is "+" shape of the initial N=0 to N=4,
+The base figure is the initial the initial N=0 to N=4.  It fills a "+" shape
+as
 
            .....
            .   .
            . 4 .
            .  \.
        ........\....
-       .   |   .\  .
+       .   .   .\  .
        . 0---1 . 3 .
-       .   | | ./  .
+       .   . | ./  .
        ......|./....
            . |/.
            . 2 .
@@ -337,7 +519,7 @@ The base figure is "+" shape of the initial N=0 to N=4,
 
 The optional C<arms> parameter can give up to four copies of the curve, each
 advancing successively.  For example C<arms=E<gt>4> is as follows.  Notice
-the N=4*k points are the plain curve, and N=4*k+1, N=3*k+2 and N=3*k+3 are
+the N=4*k points are the plain curve, and N=4*k+1, N=4*k+2 and N=4*k+3 are
 rotated copies of it.
 
                          69                     ...              7
@@ -425,6 +607,44 @@ advantage of which though is that it helps avoid very big ranges from a
 simple over-estimate.)
 
 =back
+
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+The C<xy_to_n()> calculation is similar to the FlowsnakeCentres.  For a
+given X,Y a modulo 5 remainder is formed
+
+    m = (2*X + Y) mod 5
+
+This distinguishes the five squares making up the base figure.  For example
+in the base N=0 to N=4 part the m values are
+
+          +-----+
+          | m=3 |           1
+    +-----+-----+-----+
+    | m=0 | m=2 | m=4 |   <- Y=0
+    +-----+-----+-----+
+          | m=1 |          -1
+          +-----+
+     X=0     1      2
+
+From this remainder X,Y can be shifted down to the 0 position.  That
+position corresponds to a vector multiple of X=2,Y=1 and 90-degree rotated
+forms of that vector.  That vector can be divided out and X,Y shrunk with
+
+    Xshrunk = (Y + 2*X) / 5
+    Yshrunk = (2*Y - X) / 5
+
+If X,Y are considered a complex integer X+iY the effect is a remainder
+modulo 2+i, subtract that to give a multiple of 2+i, then divide by 2+i.
+The vector X=2,Y=1 or 2+i is because that's the N=5 position after the base
+shape.
+
+The remainders can then be mapped to base 5 digits of N going from high to
+low and making suitable rotations for the sub-part orientation of the curve.
+The remainders alone give a traversal in the style of QuintetReplicate.
+Applying suitable rotations produces the connected path of QuintetCentres.
 
 =head1 SEE ALSO
 

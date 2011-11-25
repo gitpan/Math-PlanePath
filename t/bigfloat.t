@@ -27,7 +27,7 @@ use MyTestHelpers;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-my $test_count = (tests => 56)[1];
+my $test_count = (tests => 52)[1];
 plan tests => $test_count;
 
 require Math::BigFloat;
@@ -277,31 +277,6 @@ require Math::PlanePath::KochCurve;
   ok ($pow == Math::BigFloat->new(3.0) ** 64, 1,
       "_round_down_pow(3) 3^64 + 1.25 power");
   ok ($exp, 64, "_round_down_pow(3) 3^64 + 1.25 exp");
-}
-
-#------------------------------------------------------------------------------
-# KochSnowflakes _log4_floor()
-
-require Math::PlanePath::KochSnowflakes;
-{
-  my $orig = Math::BigFloat->new(4) ** 64;
-  my $n    = Math::BigFloat->new(4) ** 64;
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1.25 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
-}
-{
-  my $orig = Math::BigFloat->new(4) ** 64 + 1.25;
-  my $n    = Math::BigFloat->new(4) ** 64 + 1.25;
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1.25 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
 }
 
 exit 0;

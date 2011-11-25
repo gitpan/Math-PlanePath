@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -84,13 +84,8 @@ sub n_to_xy {
   return ($x,$y);
 }
 
-# (x mod 2) + 2*(y mod 2)
-#
-#  2 3    3 2
-#  0 1    0 1
-#
-my @mod_to_digit = (0,3,1,2);
-
+my @yx_to_digit = ([0,1],
+                   [3,2]);
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### CornerReplicate xy_to_n(): "$x, $y"
@@ -100,43 +95,22 @@ sub xy_to_n {
   if ($x < 0 || $y < 0) {
     return undef;
   }
-
-  my ($len, $level) = _round_down_pow (_max($x,$y) || 1,
-                                       2);
-  if (_is_infinite($level)) {
-    return $level;
+  if (_is_infinite($x)) {
+    return $x;
+  }
+  if (_is_infinite($y)) {
+    return $y;
   }
 
-  my $n = ($x * 0 * $y);  # inherit bignum 0
-  while ($level-- >= 0) {
-    ### $level
-    ### $len
-    ### n: sprintf '0x%X', $n
-    ### $x
-    ### $y
-    ### assert: $x >= 0
-    ### assert: $y >= 0
-    ### assert: $x < 2*$len
-    ### assert: $x < 2*$len
+  my $power = ($x * 0 * $y) + 1;  # inherit bignum 0
+  my $n = 0;
+  while ($x || $y) {
+    ### digit: $yx_to_digit[$y % 2]->[$x % 2]
 
-    $n *= 4;
-    if ($x < $len) {
-      # left
-      if ($y >= $len) {
-        $n += 3;  # top left
-        $y -= $len;
-      }
-    } else {
-      # right
-      $x -= $len;
-      if ($y < $len) {
-        $n += 1;  # bottom right
-      } else {
-        $n += 2;  # top right
-        $y -= $len;
-      }
-    }
-    $len /= 2;
+    $n = $n + $power * $yx_to_digit[$y % 2]->[$x % 2];
+    $x = int($x/2);
+    $y = int($y/2);
+    $power *= 4;
   }
   return $n;
 }
@@ -227,9 +201,61 @@ sub rect_to_n_range {
   return ($n_min, $n_max);
 }
 
-
 1;
 __END__
+
+# This version going top down.
+#
+# sub xy_to_n {
+#   my ($self, $x, $y) = @_;
+#   ### CornerReplicate xy_to_n(): "$x, $y"
+# 
+#   $x = _round_nearest ($x);
+#   $y = _round_nearest ($y);
+#   if ($x < 0 || $y < 0) {
+#     return undef;
+#   }
+# 
+#   my ($len, $level) = _round_down_pow (_max($x,$y),
+#                                        2);
+#   if (_is_infinite($level)) {
+#     return $level;
+#   }
+# 
+#   my $n = ($x * 0 * $y);  # inherit bignum 0
+#   while ($level-- >= 0) {
+#     ### $level
+#     ### $len
+#     ### n: sprintf '0x%X', $n
+#     ### $x
+#     ### $y
+#     ### assert: $x >= 0
+#     ### assert: $y >= 0
+#     ### assert: $x < 2*$len
+#     ### assert: $x < 2*$len
+# 
+#     $n *= 4;
+#     if ($x < $len) {
+#       # left
+#       if ($y >= $len) {
+#         $n += 3;  # top left
+#         $y -= $len;
+#       }
+#     } else {
+#       # right
+#       $x -= $len;
+#       if ($y < $len) {
+#         $n += 1;  # bottom right
+#       } else {
+#         $n += 2;  # top right
+#         $y -= $len;
+#       }
+#     }
+#     $len /= 2;
+#   }
+#   return $n;
+# }
+
 
 =for stopwords eg Ryde Math-PlanePath
 

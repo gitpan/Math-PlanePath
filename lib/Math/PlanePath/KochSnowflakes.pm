@@ -28,7 +28,7 @@ use List::Util qw(max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,22 +40,6 @@ use Math::PlanePath::KochCurve 42;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
-
-
-sub _log4_floor {
-  my ($n) = @_;
-  my $exp = 0;
-  while (($n /= 4) >= 1) {
-    $exp++;
-  }
-  return $exp;
-}
-### assert: _log4_floor(3) == 0
-### assert: _log4_floor(4) == 1
-### assert: _log4_floor(5) == 1
-### assert: _log4_floor(15) == 1
-### assert: _log4_floor(16) == 2
-### assert: _log4_floor(17) == 2
 
 
 # N=1 to 3      3 of, level=1

@@ -33,7 +33,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 54;
+$VERSION = 55;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -155,8 +155,8 @@ my %oeis_anum =
     Y => 'A047679', # SB denominator
     # OEIS-Catalogue: A047679 planepath=RationalsTree coordinate_type=Y
     #
-    # X is A007305 but starting extra 0,1
-    # Sum is A007306 Farey, but starting extra 1,1
+    # X is A007305 SB numerators but starting extra 0,1
+    # Sum is A007306 Farey/SB denominators, but starting extra 1,1
     # Product is A119272 num*den, but starting extra 1,1
     # cf A054424 permutation
    },
@@ -166,10 +166,10 @@ my %oeis_anum =
     Product => 'A070871',
     # OEIS-Catalogue: A070871 planepath=RationalsTree,tree_type=CW coordinate_type=Product
     #
-    # CW X,Y is Stern diatomic A002487, but RationalsTree starts N=0 X=1,1,2
-    # or Y=1,2 rather than from 0
-    # CW DiffYX is A070990 stern diatomic first diffs, but RationalsTree starts
-    # N=0 diff=0, whereas A070990 starts n=0 diff=1 one less term
+    # CW X and Y is Stern diatomic A002487, but RationalsTree starts N=0
+    #    X=1,1,2 or Y=1,2 rather than from 0
+    # CW DiffYX is A070990 stern diatomic first diffs, but RationalsTree
+    #    starts N=0 diff=0, whereas A070990 starts n=0 diff=1 one less term
     #
    },
    'Math::PlanePath::RationalsTree,tree_type=AYT' =>
@@ -1042,7 +1042,9 @@ Math::NumSeq::PlanePathCoord -- sequence of coordinate values from a PlanePath m
 =head1 DESCRIPTION
 
 This is a tie-in to present coordinates from a C<Math::PlanePath> module as
-a NumSeq sequence.  The C<coordinate_type> choices are
+a NumSeq sequence.  The NumSeq "i" index is the PlanePath "N" value.
+
+The C<coordinate_type> choices are
 
     "X"          X coordinate
     "Y"          Y coordinate
@@ -1054,8 +1056,8 @@ a NumSeq sequence.  The C<coordinate_type> choices are
     "Radius"     sqrt(X^2+Y^2) radius
     "RSquared"   X^2+Y^2 radius squared
 
-"Sum" can be interpreted geometrically as a projection of X,Y onto the X=Y
-leading diagonal, or equivalently as a measure of which anti-diagonal stripe
+"Sum" can be interpreted geometrically as a projection onto the X=Y leading
+diagonal, or equivalently as a measure of which anti-diagonal stripe
 contains the X,Y.
 
     \
@@ -1080,16 +1082,16 @@ measure of which leading diagonal stripe has the X,Y.
 Some path coordinates are in Sloane's Online Encyclopedia of Integer
 Sequences.  See each PlanePath module for details.
 
-C<$seq-E<gt>oeis_anum()> returns the A-number in the usual way, if there is
-one and is known.  This includes things like A000004 all-zeros for cases
-where a coordinate is simple or even trivial.
+C<$seq-E<gt>oeis_anum()> returns the A-number in the usual way, if there's
+one known.  This includes things like A000004 all-zeros for cases where a
+coordinate is simple or even trivial.
 
-Known A-numbers are presented through C<Math::NumSeq::OEIS::Catalogue>, so a
-sequence for something path related can be created with
-C<Math::NumSeq::OEIS> in the usual way.  A-numbers specific to the paths are
-catalogued, plus a few of the simpler things not otherwise covered by NumSeq
-modules yet (such as A002262 successive 0 to k runs 0, 0,1, 0,1,2, 0,1,2,3,
-which arises in the Diagonals).
+Known A-numbers are presented through C<Math::NumSeq::OEIS::Catalogue> so
+path related sequences can be created with C<Math::NumSeq::OEIS> in the
+usual way.  A-numbers specific to the paths are catalogued, plus a few of
+the simpler things not otherwise covered by NumSeq modules yet (such as
+A002262 successive 0 to k runs 0, 0,1, 0,1,2, 0,1,2,3, which arises in the
+Diagonals).
 
 =head1 FUNCTIONS
 
@@ -1109,12 +1111,24 @@ per the choices above.
 
 Return the coordinate at N=$i in the PlanePath.
 
+=item C<$i = $seq-E<gt>i_start()>
+
+Return the first index C<$i> in the sequence.  This is the position
+C<rewind()> returns to.
+
+This is C<$path-E<gt>n_start()> from the PlanePath, since the i numbering is
+the N numbering of the underlying path.  For some of the OEIS generated
+sequences there may be a higher C<i_start()> corresponding to a higher
+starting point in the OEIS, though this is slightly experimental.
+
 =back
 
 =head1 SEE ALSO
 
 L<Math::NumSeq>,
 L<Math::NumSeq::OEIS>
+
+L<Math::PlanePath>
 
 =head1 HOME PAGE
 

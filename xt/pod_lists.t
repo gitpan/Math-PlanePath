@@ -196,8 +196,8 @@ diag "module count ",scalar(@lib_modules);
 
     my $good = 1;
     foreach my $module (@lib_modules) {
-      next if $module eq 'FlowsnakeCentres'; # inherited
-      next if $module eq 'QuintetCentres'; # inherited
+      next if $module eq 'Flowsnake'; # inherited
+      next if $module eq 'QuintetCurve'; # inherited
 
       my $file = module_exact($module);
       my $t = $exact{$module} || 0;
@@ -207,7 +207,8 @@ diag "module count ",scalar(@lib_modules);
         $good = 0;
       }
     }
-    ok ($good);
+    ok ($good,
+       'PlanePath-subclasses.t rect exact matches file comments');
 
     sub module_exact {
       my ($module) = @_;

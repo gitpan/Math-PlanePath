@@ -38,9 +38,9 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
-use Math::PlanePath;
+use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -336,11 +336,28 @@ representation of N, the lowest non-zero digit gives the turn
       2        -120 degrees
       3         +60 degrees
 
-When the least significant digit is non-zero it determines the turn, to make
+For example N=8 is 20 base 4, so turn -120 degrees for the next segment,
+ie. for N=8 to N=9.
+
+When the least significant digit is non-zero it determines the turn, making
 the base N=0 to N=4 shape.  When the low digit is zero it's instead the next
-level up, the N=0,4,8,12,16 shape which is in control, applying a turn for
-the subsequent base shape.  So for example at N=8 = 20 base4 is a turn -120
-degrees.
+level up which is in control, eg. N=0,4,8,12,16, making a turn where the
+base shape repeats.
+
+=head2 Net Direction
+
+The cumulative turn at a given N can be found by counting digits 1 and 2 in
+base 4.
+
+    direction = 60 * ((count of digit 1s in base 4)
+                      - (count of digit 2s in base 4))  degrees
+
+For example N=11 is 23 in base 4, so 60*(0-1) = -60 degrees.
+
+In this formula the count of 1s and 2s can go past 360 degrees, representing
+a spiralling around which occurs at progressively higher replication levels.
+The direction can be taken mod 360 degrees, or the count mod 6, for a
+direction 0 to 5 or as desired.
 
 =head1 FUNCTIONS
 

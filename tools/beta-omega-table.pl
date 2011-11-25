@@ -251,7 +251,7 @@ sub print_table {
               $new_omega = 0;
               if ($digit == 0) {
                 if ($rev) {
-                  $dir = 2;
+                  $dir = 0; # not used
                 } else {
                   $dir = 1;
                 }
@@ -265,7 +265,7 @@ sub print_table {
                 if ($rev) {
                   $dir = 3;
                 } else {
-                  $dir = 4;
+                  $dir = 0;
                 }
                 $yo = 1;
                 if ($transpose) {
@@ -287,7 +287,7 @@ sub print_table {
                 if ($rev) {
                   $dir = 1;
                 } else {
-                  $dir = 4;
+                  $dir = 0; # not used
                 }
                 $xo = 1;
                 $new_rot = $rot + 2;
@@ -301,7 +301,7 @@ sub print_table {
               #       |
               if ($digit == 0) {
                 if ($rev) {
-                  $dir = 3;
+                  $dir = 3; # not used
                 } else {
                   $dir = 1;
                 }
@@ -315,7 +315,7 @@ sub print_table {
                 if ($rev) {
                   $dir = 3;
                 } else {
-                  $dir = 4;
+                  $dir = 0;
                 }
                 $yo = 1;
                 if ($transpose) {
@@ -337,7 +337,7 @@ sub print_table {
                 if ($rev) {
                   $dir = 1;
                 } else {
-                  $dir = 3;
+                  $dir = 3; # not used
                 }
                 $xo = 1;
                 if ($transpose) {
@@ -352,10 +352,11 @@ sub print_table {
 
             if ($transpose) {
               ($xo,$yo) = ($yo,$xo);
-              if ($dir == 1) { $dir = 4; }
+              if ($dir == 0) { $dir = 1; }
+              elsif ($dir == 1) { $dir = 0; }
               elsif ($dir == 2) { $dir = 3; }
               elsif ($dir == 3) { $dir = 2; }
-              elsif ($dir == 4) { $dir = 1; }
+              else { die "oops, unrecognised dir"; }
             }
             ### transp to: "$xo, $yo"
 
@@ -370,10 +371,8 @@ sub print_table {
             }
             ### rot to: "$xo, $yo"
 
-            $dir = (($dir-1) % 4) + 1; # 1 to 4
-
             if ($orig_digit != 3) {
-              $digit_to_dir[$state+$orig_digit] = $dir;
+              $digit_to_dir[$state+$orig_digit] = $dir % 4;
             }
             $digit_to_x[$state+$orig_digit] = $xo;
             $digit_to_y[$state+$orig_digit] = $yo;

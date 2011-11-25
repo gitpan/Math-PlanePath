@@ -49,7 +49,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -271,14 +271,14 @@ fit on a square grid.
      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
-Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
-x=2,y=0.  The diagonals are just 1 across, so n=3 is at x=1,y=1.  Each
+Each horizontal gap is 2, so for instance n=1 is at X=0,Y=0 then n=2 is at
+X=2,Y=0.  The diagonals are just 1 across, so n=3 is at X=1,Y=1.  Each
 alternate row is offset from the one above or below.  The result is a
 triangular lattice per L<Math::PlanePath/Triangular Lattice>.
 
 The octagonal numbers 8,21,40,65, etc 3*k^2-2*k fall on a horizontal
-straight line at y=-1.  In general straight lines are 3*k^2 + b*k + c.  The
-3*k^2 goes diagonally up to the left, then b is a 1/6 turn
+straight line at Y=-1.  In general straight lines are 3*k^2 + b*k + c.
+A plain 3*k^2 goes diagonally up to the left, then b is a 1/6 turn
 counter-clockwise, or clockwise if negative.  So b=1 goes horizontally to
 the left, b=2 diagonally down to the left, b=3 diagonally down to the right,
 etc.
@@ -310,7 +310,7 @@ gives
 The centre horizontal from N=1 is extended by C<wider> many extra places,
 then the path loops around that shape.  The starting point N=1 is shifted to
 the left by wider many places to keep the spiral centred on the origin
-x=0,y=0.  Each horizontal gap is still 2.
+X=0,Y=0.  Each horizontal gap is still 2.
 
 Each loop is still 6 longer than the previous, since the widening is
 basically a constant amount added into each loop.

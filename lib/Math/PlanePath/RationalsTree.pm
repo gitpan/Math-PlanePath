@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -516,14 +516,14 @@ Math::PlanePath::RationalsTree -- rationals by tree
 This path enumerates rational fractions X/Y in reduced form, ie. X and Y
 having no common factor.
 
-Fractions are traversed by rows of a binary tree which effectively represent
-a coprime pair X,Y by the steps of the binary greatest common divisor
-algorithm which would prove X,Y coprime.  The steps left or right are
-encoded/decoded as an N value.
+Fractions are traversed by rows of a binary tree which effectively
+represents a coprime pair X,Y by the steps of the binary greatest common
+divisor algorithm which would prove X,Y coprime.  The steps left or right
+are encoded/decoded as an N value.
 
 There's five different types of tree.  In a given tree row they all have the
 same set of X/Y fractions, but in a different order reflecting different
-encoding methods for the N value.
+encodings of the N value.
 
 See F<examples/rationals-tree.pl> in the PlanePath sources for a simple
 print of all the trees.
@@ -825,25 +825,22 @@ following forms
 
     http://oeis.org/A002487   (etc)
 
-    A007305  - SB tree numerators (extra 0)
-    A047679  - SB tree denominators
-    A007306  - SB tree num+den sum (Farey 0 to 1 part)
-    A002487  - Stern diatomic sequence, CW nums and dens (extra 0)
-    A020650  - AYT tree numerators
-    A020651  - AYT tree denominators
-    A086592  - AYT tree num+den sum (half of Kepler's tree)
-    A070990  - Stern diatomic first diffs, AYT den-num diff
-    A162909  - Bird tree numerators
-    A162910  - Bird tree denominators
-    A068611  - Drib tree numerators
-    A068612  - Drib tree denominators
+    A007305  - SB numerators, Farey fractions (extra 0,1)
+    A047679  - SB denominators
+    A007306  - SB num+den sum, Farey 0 to 1 part (extra 1,1)
+    A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
+    A070990  - CW den-num, Stern diatomic first differences (less 0)
+    A020650  - AYT numerators
+    A020651  - AYT denominators
+    A086592  - AYT num+den sum, Kepler's left denominators
+    A162909  - Bird numerators
+    A162910  - Bird denominators
+    A068611  - Drib numerators
+    A068612  - Drib denominators
 
-A007305 SB numerators and A002487 Stern diatomic have an extra initial 0,
-whereas the RationalsTree values here begin at 1.
-
-Conversely A070990 Stern diatomic first differences is the AYT tree
-differences "den-num" except it doesn't have the den-num=0 arising at N=1
-here.
+The sequences "extra ..." have one or two extra initial values over what the
+RationalsTree here gives, but are the same after that.  The "less ..." Stern
+first differences has one less term.
 
 =head1 FUNCTIONS
 

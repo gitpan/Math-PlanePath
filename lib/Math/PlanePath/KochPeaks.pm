@@ -22,27 +22,24 @@
 package Math::PlanePath::KochPeaks;
 use 5.004;
 use strict;
-use List::Util qw(max);
-use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
-use Math::PlanePath;
+use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
-use Math::PlanePath::KochSnowflakes;
-*_log4_floor = \&Math::PlanePath::KochSnowflakes::_log4_floor;
-
-use constant y_negative => 0;
-
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
+
+use constant y_negative => 0;
 
 
 # N=1 to 3      3 of, level=0
@@ -85,8 +82,7 @@ use constant y_negative => 0;
 
 # sub _n_to_level {
 #   my ($n) = @_;
-#   my $level = _log4_floor(6*$n + 1);
-#   my $side = 4**$level;
+#   my ($side, $level) = _round_down_pow(6*$n + 1, 4);
 #   my $base = $level + (2*$side + 1)/3 - .5;
 #   ### $level
 #   ### $base
@@ -113,8 +109,7 @@ sub n_to_xy {
 
   if (_is_infinite($n)) { return ($n,$n); }
 
-  my $level = _log4_floor((3*$n-1)/2);
-  my $side = 4**$level;
+  my ($side, $level) = _round_down_pow((3*$n-1)/2, 4);
   my $base = $level + (2*$side + 1)/3;
   ### $level
   ### $base
@@ -247,18 +242,13 @@ sub xy_to_n {
 # level extends to x= +/- 3^level
 #                  y= 0 to 3^level
 #
+# diagonal X=Y or Y=-X is lowest in a level, so round down abs(X)+Y to pow 3
+#
 # end of level is 1 before base of level+1
 #     basenext = (level+1) + (2*4^(level+1) + 1)/3
 #     basenext-1 = level + (2*4^(level+1) + 1)/3
 #                = level + (8*4^level + 1)/3
-#
-# peak Y is at N = Nstart + (count-1)/2
-#                = level + (2*4^level + 1)/3 + (2*4^level + 1 - 1)/2
-#                = level + (2*4^level + 1)/3 + (2*4^level)/2
-#                = level + (2*4^level + 1)/3 + 4^level
-#                = level + (2*4^level + 1 + 3*4^level)/3
-#                = level + (5*4^level + 1)/3
-#
+
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -274,14 +264,20 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  my $level = ceil (.1 + log (max(1,
-                                  abs($x1), abs($x2),
-                                  $y1, $y2))
-                    / log(3));
+  # can't make use of the len=3**$level returned by _round_down_pow()
+  my (undef, $level) = _round_down_pow (_max(abs($x1),abs($x2))
+                                        + _max($y1, $y2),
+                                        3);
   ### $level
-
   return (1, $level + (8 * 4**$level + 1)/3);
 }
+
+# peak Y is at N = Nstart + (count-1)/2
+#                = level + (2*4^level + 1)/3 + (2*4^level + 1 - 1)/2
+#                = level + (2*4^level + 1)/3 + (2*4^level)/2
+#                = level + (2*4^level + 1)/3 + 4^level
+#                = level + (2*4^level + 1 + 3*4^level)/3
+#                = level + (5*4^level + 1)/3
 
 1;
 __END__
@@ -301,7 +297,7 @@ Math::PlanePath::KochPeaks -- Koch curve peaks
 =head1 DESCRIPTION
 
 This path traces out concentric peaks made from integer versions of the
-self-similar Koch curve at successively greater iteration levels.
+self-similar Koch curve at successively greater replication levels.
 
                                29                                 9
                               /  \
@@ -327,13 +323,13 @@ self-similar Koch curve at successively greater iteration levels.
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 ...
 
 The initial figure is the peak N=1,2,3 then for the next level each straight
-side expands to 3x longer with a notch like N=4 through N=8,
+side expands to 3x longer with a notch in the middle like N=4 through N=8,
 
                                   *
                                  / \
       *---*     becomes     *---*   *---*
 
-The angle is maintained in each replacement,
+The angle is maintained in each replacement so
 
                                   *
                                  /
@@ -343,8 +339,8 @@ The angle is maintained in each replacement,
        /        becomes      /
       *                     *
 
-So the segment N=1 to N=2 becomes N=4 to N=8, or in the next level N=5 to
-N=6 becomes N=17 to N=21.
+For example the segment N=1 to N=2 becomes N=4 to N=8, or in the next level
+N=5 to N=6 becomes N=17 to N=21.
 
 The X,Y coordinates are arranged as integers on a square grid.  The result
 is flattened triangular segments with diagonals at a 45 degree angle.
@@ -355,28 +351,39 @@ described in L<Math::PlanePath/Triangular Lattice> don't apply directly.
 
 =head2 Level Ranges
 
-Counting the innermost peak as level 0, each peak is
+Counting the innermost N=1 to N=3 peak as level 0, each peak is
 
     Nstart = level + (2*4^level + 1)/3
     length = 2*4^level + 1       including endpoints
 
-For example the outer ring shown above is level 2 starting at
-N=2+(2*4^2+1)/3=13 and having length=2*4^2+1=9 many points through to N=12
-(inclusive).  The X range at a given level is the endpoints at
+For example the outer peak shown above is level 2 starting at
+N=2+(2*4^2+1)/3=13 and having length=2*4^2+1=33 many points through to N=45
+(inclusive, 45-13+1=33).  The X width at a given level is the endpoints at
 
     Xlo = -(3^level)
     Xhi = +(3^level)
 
-For example the level 2 above runs from X=-9 to X=+9.  The highest Y is the
-centre peak at
+For example the level 2 above runs from Xlo=-9 to Xhi=+9.  The highest Y is
+the centre peak half-way through the level at
 
     Ypeak = 3^level
     Npeak = level + (5*4^level + 1)/3
 
-Notice that for each level the extents grow by a factor of 3.  But the new
-triangular notch in each segment is not big enough to go past the X start
-and end points.  They can equal the ends, such as N=6 or N=19, but not
-beyond.
+For example the level 2 outer peak above is Ypeak=3^2=9 at
+N=2+(5*4^2+1)/3=29.  For each level the Xlo,Xhi and Ypeak extents grow by a
+factor of 3.
+
+The triangular notches in each segment are not big enough to go past the Xlo
+and Xhi end points.  The new triangular part can equal the ends, such as N=6
+or N=19, but not go beyond.
+
+In general a segment like N=5 to N=6 which is at the Xlo end will expand to
+give two such segments and two points at the limit in the next level, as for
+example N=5 to N=6 expands to N=19,20 and N=20,21.  So the count of points
+at Xlo doubles each time,
+
+    CountLo = 2^level
+    CountHi = 2^level      same at Xhi
 
 =head1 FUNCTIONS
 
@@ -403,31 +410,34 @@ integer positions.
 
 =head2 Rectangle to N Range
 
-As noted above (L</Level Ranges>), for a given level
+The baseline for a given level is along a diagonal X+Y=3^level or
+-X+Y=3^level.  The containing level can thus be found as
 
-    -(3^level) <= X <= 3^level
+    level = floor(log3( Xmax + Ymax ))
+    with Xmax as maximum absolute value, max(abs(X))
 
-So the maximum X in a rectangle gives a level,
-
-    level = ceil (log3 (max(x1,x2)))
-
-and the endpoint in that level is simply 1 before the start of the next, so
+The endpoint in a level is simply 1 before the start of the next, so
 
      Nlast = Nstart(level+1) - 1
            = (level+1) + (2*4^(level+1) + 1)/3 - 1
            = level + (8*4^level + 1)/3
 
 Using this Nlast is an over-estimate of the N range needed, but an easy
-calculation.  It's not too difficult to work down for an exact range.
+calculation.
+
+It's not too difficult to work down for an exact range, by considering which
+parts of the curve might intersect a rectangle.  But some backtracking and
+level descending is necessary because a rectangle might extend into the
+empty part of a notch and so be past its baseline but not intersect any.
+There's plenty of room for a rectangle to intersect nothing at all too.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::KochCurve>,
+L<Math::PlanePath::KochSnowflakes>,
 L<Math::PlanePath::PeanoCurve>,
-L<Math::PlanePath::HilbertCurve>,
-L<Math::PlanePath::KochCurve>,
-L<Math::PlanePath::KochSnowflakes>
+L<Math::PlanePath::HilbertCurve>
 
 =head1 HOME PAGE
 
@@ -451,3 +461,10 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+# Local variables:
+# compile-command: "math-image --path=KochPeaks --lines --scale=20"
+# End:
+#
+# math-image --path=KochPeaks --all --output=numbers_dash

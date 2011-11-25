@@ -27,8 +27,8 @@ use Math::Libm 'M_PI', 'hypot';
   require Math::BaseCnv;
   require Math::PlanePath::Flowsnake;
   require Math::PlanePath::FlowsnakeCentres;
-  my $f = Math::PlanePath::Flowsnake->new (arms => 3);
-  my $c = Math::PlanePath::FlowsnakeCentres->new (arms => 3);
+  my $f = Math::PlanePath::Flowsnake->new (arms => 2);
+  my $c = Math::PlanePath::FlowsnakeCentres->new (arms => 2);
   my $width = 5;
   my %saw;
   foreach my $n (0 .. 7**($width-1)) {
@@ -63,6 +63,15 @@ use Math::Libm 'M_PI', 'hypot';
   }
   my $saw = join(',', sort {$saw{$a}<=>$saw{$b}} keys %saw);
   print "$saw\n";
+  exit 0;
+}
+{
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  say Math::PlanePath::Flowsnake->isa('Math::PlanePath::FlowsnakeCentres');
+  say Math::PlanePath::FlowsnakeCentres->isa('Math::PlanePath::Flowsnake');
+  say Math::PlanePath::Flowsnake->can('xy_to_n');
+  say Math::PlanePath::FlowsnakeCentres->can('xy_to_n');
   exit 0;
 }
 

@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 55, November 2011
+    - new KochelCurve, MPeaks
+    - Flowsnake,QuintetCurve faster xy_to_n()
+
 Version 54, November 2011
     - new WunderlichMeander
     - PlanePathCoord new coordinate_type Product,DiffXY,DiffYX,AbsDiff

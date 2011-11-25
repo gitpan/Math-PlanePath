@@ -23,45 +23,22 @@
 package Math::PlanePath::QuintetCurve;
 use 5.004;
 use strict;
-use List::Util qw( max);
-use POSIX 'ceil';
-use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
+
+# inherit: new(), rect_to_n_range(), arms_count(), n_start(),
+#          parameter_info_array()
+use Math::PlanePath::QuintetCentres;
+@ISA = ('Math::PlanePath::QuintetCentres');
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
-use constant parameter_info_array => [ { name      => 'arms',
-                                         share_key => 'arms_4',
-                                         type      => 'integer',
-                                         minimum   => 1,
-                                         maximum   => 4,
-                                         default   => 1,
-                                         width     => 1,
-                                         description => 'Arms',
-                                       } ];
-sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 4) { $arms = 4; }
-  $self->{'arms'} = $arms;
-  return $self;
-}
 
 my @rot_to_sx = (1,0,-1,0);
 my @rot_to_sy = (0,1,0,-1);
@@ -199,6 +176,9 @@ sub n_to_xy {
   return ($x,$y);
 }
 
+#                  up  upl left
+my @attempt_x = (0, 0, -1, -1);
+my @attempt_y = (0, 1,  1, 0);
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### QuintetCurve xy_to_n(): "$x, $y"
@@ -206,223 +186,17 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  my $level_limit = log($x*$x + $y*$y + 1) * 1 * 2;
-  if (_is_infinite($level_limit)) { return $level_limit; }
-
-  my $arms = $self->{'arms'};
-  my @sx = (1);
-  my @sy = (0);
-  my @hypot = (5);
-  my $top = 0;
-
-  for (;;) {
-  ARM: foreach my $arm (0 .. $arms-1) {
-      my $i = 0;
-      my @digits = (0);
-      for (;;) {
-        my $n = 0;
-        foreach my $digit (reverse @digits) { # high to low
-          $n = 5*$n + $digit;
-        }
-        $n = $n*$arms + $arm;
-        ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-        my ($nx,$ny) = $self->n_to_xy($n);
-        if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found
-          return $n;
-        }
-
-        if ($i == 0
-            || ($x-$nx) ** 2 + ($y-$ny) ** 2 > $hypot[$i]) {
-          ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx) ** 2 + * ($y-$ny) ** 2).' vs '.$hypot[$i]
-
-          while (++$digits[$i] > 6) {
-            $digits[$i] = 0;
-            if (++$i <= $top) {
-              ### backtrack up ...
-            } else {
-              ### not found within this arm and top ...
-              next ARM;
-            }
-          }
-
-        } else {
-          ### descend
-          ### assert: $i > 0
-          $i--;
-          $digits[$i] = 0;
-        }
-      }
-    }
-
-    if (++$top > $level_limit) {
-      ### oops, not found below level limit
-      return undef;
-    }
-
-    # 2*(sx,sy) + rot+90(sx,sy)
-    #
-    $sx[$top] = 2 * $sx[$top-1] - $sy[$top-1];
-    $sy[$top] = 2 * $sy[$top-1] + $sx[$top-1];
-    $hypot[$top] = 5 * $hypot[$top-1];
-  }
-}
-
-# exact
-sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### QuintetCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
-
-  my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range
-    ($x1,$y1*sqrt(3), $x2,$y2*sqrt(3));
-  $r_hi *= 2;
-  my $level_plus_1 = ceil( log(max(1,$r_hi/4)) / log(sqrt(5)) ) + 2;
-  # return (0, 5**$level_plus_1);
-
-
-  my $level_limit = $level_plus_1;
-  ### $level_limit
-  if (_is_infinite($level_limit)) { return ($level_limit,$level_limit); }
-
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
-  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
-  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-  ### sorted range: "$x1,$y1  $x2,$y2"
-
-  my $rect_dist = sub {
-    my ($x,$y) = @_;
-    my $xd = ($x < $x1 ? $x1 - $x
-              : $x > $x2 ? $x - $x2
-              : 0);
-    my $yd = ($y < $y1 ? $y1 - $y
-              : $y > $y2 ? $y - $y2
-              : 0);
-    return ($xd*$xd + $yd*$yd);
-  };
-
-  my $arms = $self->{'arms'};
-  ### $arms
-  my $n_lo;
-  {
-    my @hypot = (4);
-    my $top = 0;
-    for (;;) {
-    ARM_LO: foreach my $arm (0 .. $arms-1) {
-        my $i = 0;
-        my @digits;
-        if ($top > 0) {
-          @digits = ((0)x($top-1), 1);
-        } else {
-          @digits = (0);
-        }
-
-        for (;;) {
-          my $n = 0;
-          foreach my $digit (reverse @digits) { # high to low
-            $n = 5*$n + $digit;
-          }
-          $n = $n*$arms + $arm;
-          ### lo consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-          my ($nx,$ny) = $self->n_to_xy($n);
-          my $nh = &$rect_dist ($nx,$ny);
-          if ($i == 0 && $nh == 0) {
-            ### lo found inside: $n
-            if (! defined $n_lo || $n < $n_lo) {
-              $n_lo = $n;
-            }
-            next ARM_LO;
-          }
-
-          if ($i == 0 || $nh > $hypot[$i]) {
-            ### too far away: "nxy=$nx,$ny   nh=$nh vs ".$hypot[$i]
-
-            while (++$digits[$i] > 4) {
-              $digits[$i] = 0;
-              if (++$i <= $top) {
-                ### backtrack up ...
-              } else {
-                ### not found within this top and arm, next arm ...
-                next ARM_LO;
-              }
-            }
-          } else {
-            ### lo descend ...
-            ### assert: $i > 0
-            $i--;
-            $digits[$i] = 0;
-          }
-        }
-      }
-
-      # if an $n_lo was found on any arm within this $top then done
-      if (defined $n_lo) {
-        last;
-      }
-
-      ### lo extend top ...
-      if (++$top > $level_limit) {
-        ### nothing below level limit ...
-        return (1,0);
-      }
-      $hypot[$top] = 5 * $hypot[$top-1];
+  my ($n, $cx, $cy);
+  foreach my $i (0, 1, 2, 3) {
+    if (defined ($n = $self->SUPER::xy_to_n($x + $attempt_x[$i],
+                                            $y + $attempt_y[$i]))
+        && (($cx,$cy) = $self->n_to_xy($n))
+        && $x == $cx
+        && $y == $cy) {
+      return $n;
     }
   }
-
-  my $n_hi = 0;
- ARM_HI: foreach my $arm (reverse 0 .. $arms-1) {
-    my @digits = ((4) x $level_limit);
-    my $i = $#digits;
-    for (;;) {
-      my $n = 0;
-      foreach my $digit (reverse @digits) { # high to low
-        $n = 5*$n + $digit;
-      }
-      $n = $n*$arms + $arm;
-      ### hi consider: "arm=$arm  i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-      my ($nx,$ny) = $self->n_to_xy($n);
-      my $nh = &$rect_dist ($nx,$ny);
-      if ($i == 0 && $nh == 0) {
-        ### hi found inside: $n
-        if ($n > $n_hi) {
-          $n_hi = $n;
-          next ARM_HI;
-        }
-      }
-
-      if ($i == 0 || $nh > (4 * 5**$i)) {
-        ### too far away: "$nx,$ny   nh=$nh vs ".(4 * 5**$i)
-
-        while (--$digits[$i] < 0) {
-          $digits[$i] = 4;
-          if (++$i < $level_limit) {
-            ### hi backtrack up ...
-          } else {
-            ### hi nothing within level limit for this arm ...
-            next ARM_HI;
-          }
-        }
-
-      } else {
-        ### hi descend
-        ### assert: $i > 0
-        $i--;
-        $digits[$i] = 4;
-      }
-    }
-  }
-
-  if ($n_hi == 0) {
-    ### oops, lo found but hi not found
-    $n_hi = $n_lo;
-  }
-
-  return ($n_lo, $n_hi);
+  return undef;
 }
 
 1;
@@ -442,8 +216,7 @@ Math::PlanePath::QuintetCurve -- self-similar  "plus" shaped curve
 
 =head1 DESCRIPTION
 
-This path is a self-similar curve tracing out a spiralling self-similar "+"
-shape,
+This path is traces out a spiralling self-similar "+" shape,
 
              ...                     93--92                      11
               |                       |   |
@@ -521,8 +294,8 @@ N=10.
 
 The optional C<arms =E<gt> $a> parameter can give 1 to 4 copies of the
 curve, each advancing successively.  For example C<arms=E<gt>4> is as
-follows.  Notice the N=4*k points are the plain curve, and N=4*k+1, N=3*k+2
-and N=3*k+3 are rotated copies of it.
+follows.  Notice the N=4*k points are the plain curve, and N=4*k+1, N=4*k+2
+and N=4*k+3 are rotated copies of it.
 
                     69--65                      ...
                      |   |                       |
@@ -551,7 +324,7 @@ and N=3*k+3 are rotated copies of it.
         ...                     67--71
 
 Essentially the curve is an ever expanding "+" shape with one corner at the
-origin so four of them back be packed as follows,
+origin.  This means four of them back be packed as follows,
 
                 +---+
                 |   |
@@ -604,6 +377,30 @@ advantage of which though is that it helps avoid very big ranges from a
 simple over-estimate.)
 
 =back
+
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+The current approach uses the QuintetCentres C<xy_to_n()>.  Because the
+tiling in QuintetCurve and QuintetCentres is the same, the X,Y coordinates
+for a given N are no more than 1 away in the grid.
+
+The way the two lowest shapes are arranged in fact means that for a
+QuintetCurve N at X,Y then the same N on the QuintetCentres is at one of
+three locations
+
+    X, Y          same
+    X, Y+1        up
+    X-1, Y+1      up and left
+    X-1, Y        left
+
+This is so even when the "arms" multiple paths are in use (the same arms in
+both coordinates).
+
+Is there an easy way to know which of the four offsets is right?  The
+current approach is to give each to QuintetCentres to make an N, put that N
+back through C<n_to_xy()> to see if it's the target C<$n>.
 
 =head1 SEE ALSO
 

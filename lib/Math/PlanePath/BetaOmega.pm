@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -66,12 +66,12 @@ my @digit_to_y = (0,1,1,0, 0,0,1,1, 0,0,1,1, 0,1,1,0,
                   1,0,0,1, 0,0,1,1, 0,0,1,1, 1,0,0,1,
                   0,1,1,0, 0,0,1,1, 0,0,1,1, 0,1,1,0,
                   1,0,0,1, 1,1,0,0, 1,1,0,0, 1,0,0,1);
-my @digit_to_dir = (1,4,3,undef, 4,1,2,undef, 2,1,4,undef, 1,2,3,undef,
-                    3,2,1,undef, 2,3,4,undef, 4,3,2,undef, 3,4,1,undef,
-                    1,2,3,undef, 4,3,2,undef, 2,3,4,undef, 1,4,3,undef,
-                    3,4,1,undef, 2,1,4,undef, 4,1,2,undef, 3,2,1,undef,
-                    1,4,3,undef, 4,1,2,undef, 2,1,4,undef, 1,2,3,undef,
-                    3,2,1,undef, 2,3,4,undef, 4,3,2,undef, 3,4,1);
+my @digit_to_dir = (1,0,3,undef, 0,1,2,undef, 2,1,0,undef, 1,2,3,undef,
+                    3,2,1,undef, 2,3,0,undef, 0,3,2,undef, 3,0,1,undef,
+                    1,2,3,undef, 0,3,2,undef, 2,3,0,undef, 1,0,3,undef,
+                    3,0,1,undef, 2,1,0,undef, 0,1,2,undef, 3,2,1,undef,
+                    1,0,3,undef, 0,1,2,undef, 2,1,0,undef, 1,2,3,undef,
+                    3,2,1,undef, 2,3,0,undef, 0,3,2,undef, 3,0,1);
 my @xy_to_digit = (0,1,3,2, 0,3,1,2, 1,2,0,3, 3,2,0,1,
                    2,3,1,0, 2,1,3,0, 3,0,2,1, 1,0,2,3,
                    3,2,0,1, 3,0,2,1, 2,1,3,0, 0,1,3,2,
@@ -127,9 +127,9 @@ my @max_digit = (0,3,3,1, 3,3,1,2, 2,undef,undef,undef,
                  3,3,2,3, 3,2,0,1, 1,undef,undef,undef,
                  1,2,2,1, 3,3,0,3, 3);
 
-#                       N W  S  E
-my @dir_to_dx = (undef, 0,-1,0, 1);
-my @dir_to_dy = (undef, 1,0, -1,0);
+#                E  N  W    S
+my @dir_to_dx = (1, 0, -1,  0);
+my @dir_to_dy = (0, 1,  0, -1);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -139,36 +139,32 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;  # inherit possible BigFloat/BigRat
-    $n = $int;
-  }
+  my $int = int($n);
+  $n -= $int;  # remaining fraction, preserve possible BigFloat/BigRat
 
   my @digits;
-  my $len = $n*0 + 1;   # inherit bignum 1
+  my $len = $int*0 + 1;   # inherit bigint 1
   do {
-    push @digits, $n % 4;
+    push @digits, $int % 4;
     $len *= 2;
-  } while ($n = int($n/4));
+  } while ($int = int($int/4));
 
   ### digits: join(', ',@digits)."   count ".scalar(@digits)
   ### $len
 
   my $state = ($#digits & 1 ? 28 : 0);
+  my $dir = ($#digits & 1 ? 0 : 28); # default if all $digit==3
   my $x = 0;
   my $y = 0;
 
-  # direction 1=up,2=left,3=down,4=right
-  # in @digit_to_dir table 0=undetermined at the digit=3 positions
-  #
-  my $dir = ($#digits & 1 ? 1 : 3);  # up/down if all digits == 3
-
   while (@digits) {
     $len /= 2;
-    $state += pop @digits;
+    $state += (my $digit = pop @digits);
+    if ($digit != 3) {
+      $dir = $state;  # lowest non-3 digit
+    }
 
+    ### $digit
     ### $state
     ### $dir
     ### digit_to_x: $digit_to_x[$state]
@@ -177,14 +173,15 @@ sub n_to_xy {
 
     $x += $len * $digit_to_x[$state];
     $y += $len * ($digit_to_y[$state] - (scalar(@digits)&1));
-    $dir = $digit_to_dir[$state] || $dir;  # lowest non-3 digit
     $state = $next_state[$state];
   }
 
   ### $dir
-  ### $frac
-  $x = $frac * $dir_to_dx[$dir] + $x;
-  $y = $frac * $dir_to_dy[$dir] + $y;
+  ### frac: $n
+  ### digit_to_dir: $digit_to_dir[$dir]
+  $dir = $digit_to_dir[$dir];
+  $x = $n * $dir_to_dx[$dir] + $x;
+  $y = $n * $dir_to_dy[$dir] + $y;
 
   ### final: "$x,$y"
   return ($x, $y);
@@ -202,7 +199,7 @@ sub _y_round_down_len_level {
     # eg. -2 becomes 7, or -10 becomes 31, 2^k-1
     $y = 1 - 3*$y;
   }
-  my ($len, $level) = Math::PlanePath::KochCurve::_round_down_pow($y,2);
+  my ($len, $level) = _round_down_pow($y,2);
 
   # Make positive y give even level, and negative y give odd level.
   # If positive and odd then reduce, or if negative and even then reduce.
@@ -223,12 +220,6 @@ sub xy_to_n {
   if ($x < 0) {
     return undef;
   }
-  if (_is_infinite($x)) {
-    return $x;
-  }
-  if (_is_infinite($y)) {
-    return abs($y);
-  }
 
   my $n = ($x * 0 * $y);
 
@@ -236,15 +227,17 @@ sub xy_to_n {
   ### y len/level: "$len  $level"
   {
     my ($xlen, $xlevel) = _round_down_pow ($x, 2);
-  ### x len/level: "$xlen  $xlevel"
+    ### x len/level: "$xlen  $xlevel"
     if ($xlevel > $level) {
       $level = $xlevel;
       $len = $xlen;
     }
   }
-
   ### $len
   ### $level
+  if (_is_infinite($len)) {
+    return $len;
+  }
 
   my $state;
   {
@@ -259,7 +252,7 @@ sub xy_to_n {
     $y += ($offset - 2) / 3;
     # $y now relative to Ymin(level), so in range 0 <= $y < 2*len
   }
-  ### offset y to: "$x, $y"
+  ### offset x,y to: "$x, $y"
 
   for (;;) {
     ### at: "$x,$y  len=$len"

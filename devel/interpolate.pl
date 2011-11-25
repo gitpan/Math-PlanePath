@@ -26,8 +26,9 @@ use Math::Polynomial::Horner;
 
 #use Devel::Comments;
 
-my_interpolate ([ 1,2,3,4,5 ],
-                [ 0,1,3,6,10 ]);
+  
+my_interpolate ([ 0,1,2 ],
+                [ 3,11,25 ]);
 exit 0;
 
 my_interpolate ([ 1,3,5,7 ],

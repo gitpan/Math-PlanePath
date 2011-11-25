@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.004;
+use 5.010;
 use strict;
 use List::Util 'max';
 
@@ -28,10 +28,10 @@ use List::Util 'max';
 sub print_table {
   my ($name, $aref) = @_;
   print "my \@$name\n  = (";
-  my $entry_width = max (map {length} @$aref);
+  my $entry_width = max (map {defined $_ ? length : 0} @$aref);
 
   foreach my $i (0 .. $#$aref) {
-    printf "%*d", $entry_width, $aref->[$i];
+    printf "%*s", $entry_width, $aref->[$i]//'undef';
     if ($i == $#$aref) {
       print ");\n";
     } else {
@@ -62,14 +62,27 @@ sub print_table {
   use constant D1 => 6;
   use constant D2 => 7;
 
+  sub dxdy_to_dir {
+    my ($dx,$dy) = @_;
+    if ($dx == 1) { return 0; }
+    if ($dy == 1) { return 1; }
+    if ($dx == -1) { return 2; }
+    if ($dy == -1) { return 3; }
+    warn "Unrecognised dxdy: $dx, $dy";
+    return undef;
+  }
+
   my @next_state;
   my @digit_to_x;
   my @digit_to_y;
   my @xy_to_digit;
+  my @digit_to_dir;
 
   foreach my $part (A1, A2, B1, B2, C1, C2, D1, D2) {
     foreach my $rev (0, 1) {
       foreach my $rot (0, 1, 2, 3) {
+        my $state = make_state ($part, $rev, $rot);
+
         foreach my $orig_digit (0, 1, 2, 3) {
           my $digit = $orig_digit;
 
@@ -252,7 +265,6 @@ sub print_table {
           }
           ### rot to: "$xo, $yo"
 
-          my $state = make_state ($part, $rev, $rot);
           $digit_to_x[$state+$orig_digit] = $xo;
           $digit_to_y[$state+$orig_digit] = $yo;
           $xy_to_digit[$state + $xo*2+$yo] = $orig_digit;
@@ -260,6 +272,20 @@ sub print_table {
           my $next_state = make_state
             ($new_part, $new_rev, $new_rot);
           $next_state[$state+$orig_digit] = $next_state;
+        }
+
+        foreach my $digit (0, 1, 2) {
+          my $this_digit = $digit;
+          my $next_digit = $digit + 1;
+          if ($rev) {
+            ($this_digit,$next_digit) = ($next_digit,$this_digit);
+          }
+          my $dx = $digit_to_x[$state+$next_digit]
+            - $digit_to_x[$state+$this_digit];
+          my $dy = $digit_to_y[$state+$next_digit]
+            - $digit_to_y[$state+$this_digit];
+          my $dir = dxdy_to_dir($dx,$dy);
+          $digit_to_dir[$state+$digit+$rev] = $dir;
         }
       }
     }
@@ -274,6 +300,7 @@ sub print_table {
   print_table ("next_state", \@next_state);
   print_table ("digit_to_x", \@digit_to_x);
   print_table ("digit_to_y", \@digit_to_y);
+  print_table ("digit_to_dir", \@digit_to_dir);
   print_table ("xy_to_digit", \@xy_to_digit);
 
   my $invert_state = make_state (D2,  # part

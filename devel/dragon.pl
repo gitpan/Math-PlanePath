@@ -23,24 +23,48 @@ use warnings;
 use Math::Libm 'M_PI', 'hypot';
 
 
+
 {
-  # BigFloat log()
-  require Math::BigFloat;
-  my $b = Math::BigFloat->new(3)**64;
-  my $log = log($b);
-  my $log3 = $log/log(3);
-  # $b->blog(undef,100);
-  print "$b\n$log\n$log3\n";
-  exit 0;
-}
-{
-  # BigInt log()
-  require Math::BigInt;
-  require Math::BigFloat;
-  my $b = Math::BigInt->new(1025);
-  my $log = log($b);
-  $b->blog(undef,100);
-  print "$b $log\n";
+  # turn
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+
+   my $n = $path->n_start;
+  my ($n0_x, $n0_y) = $path->n_to_xy ($n);
+  $n++;
+  my ($prev_x, $prev_y) = $path->n_to_xy ($n);
+  my ($prev_dx, $prev_dy) = ($prev_x - $n0_x, $prev_y - $n0_y);
+  $n++;
+
+  my $pow = 4;
+  for ( ; $n < 128; $n++) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my $dx = ($x - $prev_x);
+    my $dy = ($y - $prev_y);
+    my $turn;
+    if ($prev_dx) {
+      if ($dy == $prev_dx) {
+        $turn = 0;  # left
+      } else {
+        $turn = 1;  # right
+      }
+    } else {
+      if ($dx == $prev_dy) {
+        $turn = 1;  # right
+      } else {
+        $turn = 0;  # left
+      }
+    }
+    ($prev_dx,$prev_dy) = ($dx,$dy);
+    ($prev_x,$prev_y) = ($x,$y);
+
+    print "$turn";
+    if ($n-1 == $pow) {
+      $pow *= 2;
+      print "\n";
+    }
+  }
+  print "\n";
   exit 0;
 }
 
@@ -119,6 +143,28 @@ use Math::Libm 'M_PI', 'hypot';
 
   exit 0;
 }
+
+{
+  # BigFloat log()
+  require Math::BigFloat;
+  my $b = Math::BigFloat->new(3)**64;
+  my $log = log($b);
+  my $log3 = $log/log(3);
+  # $b->blog(undef,100);
+  print "$b\n$log\n$log3\n";
+  exit 0;
+}
+{
+  # BigInt log()
+  require Math::BigInt;
+  require Math::BigFloat;
+  my $b = Math::BigInt->new(1025);
+  my $log = log($b);
+  $b->blog(undef,100);
+  print "$b $log\n";
+  exit 0;
+}
+
 {
   require Image::Base::Text;
   my $width = 132;

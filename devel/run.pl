@@ -41,8 +41,6 @@ use List::Util qw(min max);
   require Math::PlanePath::DragonMidpoint;
   require Math::PlanePath::CellularRule54;
   require Math::PlanePath::QuintetCentres;
-  require Math::PlanePath::Flowsnake;
-  require Math::PlanePath::FlowsnakeCentres;
   require Math::PlanePath::ImaginaryBase;
   require Math::PlanePath::SquareReplicate;
   require Math::PlanePath::QuintetReplicate;
@@ -72,7 +70,6 @@ use List::Util qw(min max);
   require Math::PlanePath::SierpinskiArrowheadCentres;
   require Math::PlanePath::SierpinskiArrowhead;
   require Math::PlanePath::Corner;
-  require Math::PlanePath::CornerReplicate;
   require Math::PlanePath::WunderlichMeander;
   require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::PentSpiral;
@@ -83,7 +80,16 @@ use List::Util qw(min max);
   require Math::PlanePath::QuadricIslands;
   require Math::PlanePath::TriangleSpiral;
   require Math::PlanePath::TriangleSpiralSkewed;
-  my $path = Math::PlanePath::TriangleSpiralSkewed->new
+  require Math::PlanePath::Flowsnake;
+  require Math::PlanePath::FlowsnakeCentres;
+  require Math::PlanePath::MathImageHilbertSpiral;
+  require Math::PlanePath::KochelCurve;
+  require Math::PlanePath::KochPeaks;
+  require Math::PlanePath::MPeaks;
+  require Math::PlanePath::MathImageLReplicate;
+  require Math::PlanePath::CornerReplicate;
+  require Math::PlanePath::MathImageCellularRule;
+  my $path = Math::PlanePath::MathImageCellularRule->new
     (mirror => 1,
      divisor_type => 'proper',
      inward => 0,
@@ -103,7 +109,7 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0; $i <= 100; $i+=1) {
+  for (my $i = $n_start+0; $i <= 81; $i+=1) {
 
     #for (my $i = $n_start; $i <= $n_start + 8; $i=POSIX::ceil($i*1.1+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {

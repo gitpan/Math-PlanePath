@@ -26,21 +26,61 @@
 package Math::PlanePath::FlowsnakeCentres;
 use 5.004;
 use strict;
+use List::Util 'max';
+use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
-
-# inherit new(), rect_to_n_range(), arms_count(), n_start(),
-# parameter_info_array()
-use Math::PlanePath::Flowsnake;
-@ISA = ('Math::PlanePath::Flowsnake');
+$VERSION = 55;
 
 use Math::PlanePath;
+@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::SacksSpiral;
+*_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
+
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
+
+use constant n_start => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
+
+use constant parameter_info_array => [ { name      => 'arms',
+                                         share_key => 'arms_3',
+                                         type      => 'integer',
+                                         minimum   => 1,
+                                         maximum   => 3,
+                                         default   => 1,
+                                         width     => 1,
+                                         description => 'Arms',
+                                       } ];
+
+
+#         *
+#        / \
+#       /   \
+#      *-----*
+#
+# (b/2)^2 + h^2 = s
+# (1/2)^2 + h^2 = 1
+# h^2 = 1 - 1/4
+# h = sqrt(3)/2 = 0.866
+#
+
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 3) { $arms = 3; }
+  $self->{'arms'} = $arms;
+  return $self;
+}
 
 
 #       4-->5
@@ -332,6 +372,161 @@ sub xy_to_n {
   ### final n along arm: $n
 
   return $n*$arms + $arm;
+}
+
+# exact
+sub rect_to_n_range {
+  my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### FlowsnakeCentres rect_to_n_range(): "$x1,$y1  $x2,$y2"
+
+  my ($r_lo, $r_hi) = _rect_to_radius_range ($x1,$y1*sqrt(3), $x2,$y2*sqrt(3));
+  $r_hi *= 2;
+  my $level_plus_1 = ceil( log(max(1,$r_hi/4)) / log(sqrt(7)) ) + 2;
+  # return (0, 7**$level_plus_1);
+
+
+  my $level_limit = $level_plus_1;
+  ### $level_limit
+  if (_is_infinite($level_limit)) { return ($level_limit,$level_limit); }
+
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+  ### sorted range: "$x1,$y1  $x2,$y2"
+
+  my $rect_dist = sub {
+    my ($x,$y) = @_;
+    my $xd = ($x < $x1 ? $x1 - $x
+              : $x > $x2 ? $x - $x2
+              : 0);
+    my $yd = ($y < $y1 ? $y1 - $y
+              : $y > $y2 ? $y - $y2
+              : 0);
+    return ($xd*$xd + 3*$yd*$yd);
+  };
+
+  my $arms = $self->{'arms'};
+  ### $arms
+  my $n_lo;
+  {
+    my @hypot = (6);
+    my $top = 0;
+    for (;;) {
+    ARM_LO: foreach my $arm (0 .. $arms-1) {
+        my $i = 0;
+        my @digits;
+        if ($top > 0) {
+          @digits = ((0)x($top-1), 1);
+        } else {
+          @digits = (0);
+        }
+
+        for (;;) {
+          my $n = 0;
+          foreach my $digit (reverse @digits) { # high to low
+            $n = 7*$n + $digit;
+          }
+          $n = $n*$arms + $arm;
+          ### lo consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+
+          my ($nx,$ny) = $self->n_to_xy($n);
+          my $nh = &$rect_dist ($nx,$ny);
+          if ($i == 0 && $nh == 0) {
+            ### lo found inside: $n
+            if (! defined $n_lo || $n < $n_lo) {
+              $n_lo = $n;
+            }
+            next ARM_LO;
+          }
+
+          if ($i == 0 || $nh > $hypot[$i]) {
+            ### too far away: "nxy=$nx,$ny   nh=$nh vs ".$hypot[$i]
+
+            while (++$digits[$i] > 6) {
+              $digits[$i] = 0;
+              if (++$i <= $top) {
+                ### backtrack up ...
+              } else {
+                ### not found within this top and arm, next arm ...
+                next ARM_LO;
+              }
+            }
+          } else {
+            ### lo descend ...
+            ### assert: $i > 0
+            $i--;
+            $digits[$i] = 0;
+          }
+        }
+      }
+
+      # if an $n_lo was found on any arm within this $top then done
+      if (defined $n_lo) {
+        last;
+      }
+
+      ### lo extend top ...
+      if (++$top > $level_limit) {
+        ### nothing below level limit ...
+        return (1,0);
+      }
+      $hypot[$top] = 7 * $hypot[$top-1];
+    }
+  }
+
+  my $n_hi = 0;
+ ARM_HI: foreach my $arm (reverse 0 .. $arms-1) {
+    my @digits = ((6) x $level_limit);
+    my $i = $#digits;
+    for (;;) {
+      my $n = 0;
+      foreach my $digit (reverse @digits) { # high to low
+        $n = 7*$n + $digit;
+      }
+      $n = $n*$arms + $arm;
+      ### hi consider: "arm=$arm  i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+
+      my ($nx,$ny) = $self->n_to_xy($n);
+      my $nh = &$rect_dist ($nx,$ny);
+      if ($i == 0 && $nh == 0) {
+        ### hi found inside: $n
+        if ($n > $n_hi) {
+          $n_hi = $n;
+          next ARM_HI;
+        }
+      }
+
+      if ($i == 0 || $nh > (6 * 7**$i)) {
+        ### too far away: "$nx,$ny   nh=$nh vs ".(6 * 7**$i)
+
+        while (--$digits[$i] < 0) {
+          $digits[$i] = 6;
+          if (++$i < $level_limit) {
+            ### hi backtrack up ...
+          } else {
+            ### hi nothing within level limit for this arm ...
+            next ARM_HI;
+          }
+        }
+
+      } else {
+        ### hi descend
+        ### assert: $i > 0
+        $i--;
+        $digits[$i] = 6;
+      }
+    }
+  }
+
+  if ($n_hi == 0) {
+    ### oops, lo found but hi not found
+    $n_hi = $n_lo;
+  }
+
+  return ($n_lo, $n_hi);
 }
 
 1;

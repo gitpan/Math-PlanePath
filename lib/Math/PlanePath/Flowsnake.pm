@@ -31,60 +31,22 @@
 package Math::PlanePath::Flowsnake;
 use 5.004;
 use strict;
-use List::Util 'max';
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
+
+# inherit: new(), rect_to_n_range(), arms_count(), n_start(),
+#          parameter_info_array()
+use Math::PlanePath::FlowsnakeCentres 55; # v.55 inheritance switch-around
+@ISA = ('Math::PlanePath::FlowsnakeCentres');
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::SacksSpiral;
 
-use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
-use constant parameter_info_array => [ { name      => 'arms',
-                                         share_key => 'arms_3',
-                                         type      => 'integer',
-                                         minimum   => 1,
-                                         maximum   => 3,
-                                         default   => 1,
-                                         width     => 1,
-                                         description => 'Arms',
-                                       } ];
-
-
-#         *
-#        / \
-#       /   \
-#      *-----*
-#
-# (b/2)^2 + h^2 = s
-# (1/2)^2 + h^2 = 1
-# h^2 = 1 - 1/4
-# h = sqrt(3)/2 = 0.866
-#
-
-sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 3) { $arms = 3; }
-  $self->{'arms'} = $arms;
-  return $self;
-}
-
-
-# my @L = (1,1,2,-1,-2,0,-1);
-# my @R = (0,1,1,0,0,0,1);
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 # Triplet h,i,j coordinates are redundant, just the h,i is enough, though
 # two instead of three requires some additions in the rotation calculations,
@@ -123,7 +85,6 @@ my @rev   = (0,  7, 7, 0, 0, 0, 7,
              7,  0, 0, 0, 7, 7, 0);
 my @dir   = (0,  1, 3, 2, 0, 0, 5,
              5,  0, 0, 2, 3, 1, 0);
-
 
 my @rot_h = (1, 0, 0, -1, 0, 0);
 my @rot_i = (0, 1, 0,  0,-1, 0);
@@ -222,6 +183,32 @@ sub n_to_xy {
           $i+$j);
 }
 
+my @attempt_x = (0, -2, -1);
+my @attempt_y = (0, 0, -1);
+sub xy_to_n {
+  my ($self, $x, $y) = @_;
+  ### Flowsnake xy_to_n(): "$x, $y"
+
+  $x = _round_nearest($x);
+  $y = _round_nearest($y);
+  if (($x + $y) % 2) { return undef; }
+  ### round to: "$x,$y"
+
+  my ($n, $cx, $cy);
+  foreach my $i (0, 1, 2) {
+    if (defined ($n = $self->SUPER::xy_to_n($x + $attempt_x[$i],
+                                            $y + $attempt_y[$i]))
+        && (($cx,$cy) = $self->n_to_xy($n))
+        && $x == $cx
+        && $y == $cy) {
+      return $n;
+    }
+  }
+  return undef;
+}
+
+1;
+__END__
 
 #       4-->5-->6
 #       ^       ^
@@ -273,235 +260,6 @@ sub n_to_xy {
 # k < log((x^2 + 3*y^2) * 1.62/log(7)
 # k < log((x^2 + 3*y^2) * 0.8345
 
-sub xy_to_n {
-  my ($self, $x, $y) = @_;
-  ### Flowsnake xy_to_n(): "$x, $y"
-
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
-  if (($x + $y) % 2) { return undef; }
-
-  my $level_limit = log($x*$x + 3*$y*$y + 1) * 0.835 * 2;
-  if (_is_infinite($level_limit)) { return $level_limit; }
-
-  # hypot 5*5+3*1*1 = 28
-  #       11*11+3*5*5 = 196 is *7
-  #
-  my $arms = $self->{'arms'};
-  my @sx = (2);
-  my @sy = (0);
-  my @hypot = (6);
-  my $top = 0;
-
-  for (;;) {
-  ARM: foreach my $arm (0 .. $arms-1) {
-      my $i = 0;
-      my @digits = (0);
-      for (;;) {
-        my $n = 0;
-        foreach my $digit (reverse @digits) { # high to low
-          $n = 7*$n + $digit;
-        }
-        $n = $n*$arms + $arm;
-        ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-        my ($nx,$ny) = $self->n_to_xy($n);
-        if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found
-          return $n;
-        }
-
-        if ($i == 0
-            || ($x - $nx) ** 2 + 3 * ($y - $ny) ** 2 > $hypot[$i]) {
-          ### too far away: "$nx,$ny target $x,$y    ".(($x - $nx) ** 2 + 3 * ($y - $ny) ** 2).' vs '.$hypot[$i]
-
-          while (++$digits[$i] > 6) {
-            $digits[$i] = 0;
-            if (++$i <= $top) {
-              ### backtrack up ...
-            } else {
-              ### not found within this arm and top ...
-              next ARM;
-            }
-          }
-
-        } else {
-          ### descend
-          ### assert: $i > 0
-          $i--;
-          $digits[$i] = 0;
-        }
-      }
-    }
-
-    if (++$top > $level_limit) {
-      ### oops, not found below level limit
-      return;
-    }
-    $sx[$top] = (5 * $sx[$top-1] - 3 * $sy[$top-1]) / 2;
-    $sy[$top] = ($sx[$top-1] + 5 * $sy[$top-1]) / 2;
-    $hypot[$top] = 7 * $hypot[$top-1];
-  }
-}
-
-# exact
-sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### Flowsnake rect_to_n_range(): "$x1,$y1  $x2,$y2"
-
-  my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range
-    ($x1,$y1*sqrt(3), $x2,$y2*sqrt(3));
-  $r_hi *= 2;
-  my $level_plus_1 = ceil( log(max(1,$r_hi/4)) / log(sqrt(7)) ) + 2;
-  # return (0, 7**$level_plus_1);
-
-
-  my $level_limit = $level_plus_1;
-  ### $level_limit
-  if (_is_infinite($level_limit)) { return ($level_limit,$level_limit); }
-
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
-  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
-  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-  ### sorted range: "$x1,$y1  $x2,$y2"
-
-  my $rect_dist = sub {
-    my ($x,$y) = @_;
-    my $xd = ($x < $x1 ? $x1 - $x
-              : $x > $x2 ? $x - $x2
-              : 0);
-    my $yd = ($y < $y1 ? $y1 - $y
-              : $y > $y2 ? $y - $y2
-              : 0);
-    return ($xd*$xd + 3*$yd*$yd);
-  };
-
-  my $arms = $self->{'arms'};
-  ### $arms
-  my $n_lo;
-  {
-    my @hypot = (6);
-    my $top = 0;
-    for (;;) {
-    ARM_LO: foreach my $arm (0 .. $arms-1) {
-        my $i = 0;
-        my @digits;
-        if ($top > 0) {
-          @digits = ((0)x($top-1), 1);
-        } else {
-          @digits = (0);
-        }
-
-        for (;;) {
-          my $n = 0;
-          foreach my $digit (reverse @digits) { # high to low
-            $n = 7*$n + $digit;
-          }
-          $n = $n*$arms + $arm;
-          ### lo consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-          my ($nx,$ny) = $self->n_to_xy($n);
-          my $nh = &$rect_dist ($nx,$ny);
-          if ($i == 0 && $nh == 0) {
-            ### lo found inside: $n
-            if (! defined $n_lo || $n < $n_lo) {
-              $n_lo = $n;
-            }
-            next ARM_LO;
-          }
-
-          if ($i == 0 || $nh > $hypot[$i]) {
-            ### too far away: "nxy=$nx,$ny   nh=$nh vs ".$hypot[$i]
-
-            while (++$digits[$i] > 6) {
-              $digits[$i] = 0;
-              if (++$i <= $top) {
-                ### backtrack up ...
-              } else {
-                ### not found within this top and arm, next arm ...
-                next ARM_LO;
-              }
-            }
-          } else {
-            ### lo descend ...
-            ### assert: $i > 0
-            $i--;
-            $digits[$i] = 0;
-          }
-        }
-      }
-
-      # if an $n_lo was found on any arm within this $top then done
-      if (defined $n_lo) {
-        last;
-      }
-
-      ### lo extend top ...
-      if (++$top > $level_limit) {
-        ### nothing below level limit ...
-        return (1,0);
-      }
-      $hypot[$top] = 7 * $hypot[$top-1];
-    }
-  }
-
-  my $n_hi = 0;
- ARM_HI: foreach my $arm (reverse 0 .. $arms-1) {
-    my @digits = ((6) x $level_limit);
-    my $i = $#digits;
-    for (;;) {
-      my $n = 0;
-      foreach my $digit (reverse @digits) { # high to low
-        $n = 7*$n + $digit;
-      }
-      $n = $n*$arms + $arm;
-      ### hi consider: "arm=$arm  i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-      my ($nx,$ny) = $self->n_to_xy($n);
-      my $nh = &$rect_dist ($nx,$ny);
-      if ($i == 0 && $nh == 0) {
-        ### hi found inside: $n
-        if ($n > $n_hi) {
-          $n_hi = $n;
-          next ARM_HI;
-        }
-      }
-
-      if ($i == 0 || $nh > (6 * 7**$i)) {
-        ### too far away: "$nx,$ny   nh=$nh vs ".(6 * 7**$i)
-
-        while (--$digits[$i] < 0) {
-          $digits[$i] = 6;
-          if (++$i < $level_limit) {
-            ### hi backtrack up ...
-          } else {
-            ### hi nothing within level limit for this arm ...
-            next ARM_HI;
-          }
-        }
-
-      } else {
-        ### hi descend
-        ### assert: $i > 0
-        $i--;
-        $digits[$i] = 6;
-      }
-    }
-  }
-
-  if ($n_hi == 0) {
-    ### oops, lo found but hi not found
-    $n_hi = $n_lo;
-  }
-
-  return ($n_lo, $n_hi);
-}
-
-1;
-__END__
 
 =for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath
 
@@ -714,19 +472,24 @@ simple over-estimate.)
 
 =head2 X,Y to N
 
-The current approach is a slightly crude search for digits of N which will,
-or might come out as the target X,Y.
+The current approach presses the FlowsnakeCentres code into use.  Because
+the tiling in Flowsnake and FlowsnakeCentres is the same, the X,Y
+coordinates for a given N are no more than 1 away in the grid.
 
-Starting at a high digit bigger than a bounding radius for the X,Y values
-are considered for that digit and those below it.  When a digit gives a
-prospective X,Y further away than the bounding radius for the digits below
-then that digit can be rejected.
+The way the two lowest shapes are arranged in fact means that if the
+Flowsnake N is at X,Y then the same N in FlowsnakeCentres is at one of three
+locations
 
-The bounding radius calculation is a bit of an over-estimate when ends up
-making it examine more points than strictly necessary.  Oh, can the current
-code also does a full C<n_to_xy()> for each prospective point, rather than
-taking a shortcut by adding-up or stepping through the "side"s represented
-by a digit at a given level.
+    X, Y         same
+    X-2, Y       left
+    X-1, Y-1     left down
+
+This is so even when the "arms" multiple paths are in use (the same arms in
+both coordinates).
+
+Is there an easy way to know which of the three offsets is right?  The
+current approach is to give each to FlowsnakeCentres to make an N, and put
+that N back through C<n_to_xy()> to see if it's the target C<$n>.
 
 =head2 Rectangle to N Range
 
@@ -743,13 +506,13 @@ When a part of the curve is excluded it prunes a whole branch of the digits
 tree.  When the lowest digit is reached then a check for that point being
 actually within the rectangle is made.  The radius calculation is a bit
 rough, and since it doesn't even take into account the direction of the
-curve it's a rather large over-estimate, but it works.
+curve so it's a rather large over-estimate, but it works.
 
 The same sort of search can be applied to non-rectangular shapes,
-calculating a radial distance from the shape.  The distance calculation
-doesn't have to be exact, it can work on something bounding the shape until
-the lowest digit is reached and an individual X,Y is being considered as an
-candidate high or low N bound.
+calculating a radial distance away from the shape.  The distance calculation
+doesn't have to be exact either, it can go from something bounding the shape
+until the lowest digit is reached and an individual X,Y is being considered
+as an candidate high or low N bound.
 
 =head1 SEE ALSO
 

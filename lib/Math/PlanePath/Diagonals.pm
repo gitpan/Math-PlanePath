@@ -21,14 +21,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use constant x_negative => 0;
 use constant y_negative => 0;

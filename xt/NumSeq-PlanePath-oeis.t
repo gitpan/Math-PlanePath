@@ -38,7 +38,7 @@ sub diff_nums {
   my ($gotaref, $wantaref) = @_;
   for (my $i = 0; $i < @$gotaref; $i++) {
     if ($i > @$wantaref) {
-      return "want ends prematurely i=$i";
+      return "want ends prematurely pos=$i";
     }
     my $got = $gotaref->[$i];
     my $want = $wantaref->[$i];
@@ -46,15 +46,15 @@ sub diff_nums {
       next;
     }
     if (! defined $got || ! defined $want) {
-      return "different i=$i got=".(defined $got ? $got : '[undef]')
+      return "different pos=$i got=".(defined $got ? $got : '[undef]')
         ." want=".(defined $want ? $want : '[undef]');
     }
     $got =~ /^[0-9.-]+$/
-      or return "not a number i=$i got='$got'";
+      or return "not a number pos=$i got='$got'";
     $want =~ /^[0-9.-]+$/
-      or return "not a number i=$i want='$want'";
+      or return "not a number pos=$i want='$want'";
     if ($got != $want) {
-      return "different i=$i numbers got=$got want=$want";
+      return "different pos=$i numbers got=$got want=$want";
     }
   }
   return undef;

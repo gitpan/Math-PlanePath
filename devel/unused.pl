@@ -104,3 +104,70 @@ my @y = (0, 0);
   #       }
   #     }
   #   }
+
+#------------------------------------------------------------------------------
+
+sub _log4_floor {
+  my ($n) = @_;
+  my $exp = 0;
+  while (($n /= 4) >= 1) {
+    $exp++;
+  }
+  return $exp;
+}
+### assert: _log4_floor(3) == 0
+### assert: _log4_floor(4) == 1
+### assert: _log4_floor(5) == 1
+### assert: _log4_floor(15) == 1
+### assert: _log4_floor(16) == 2
+### assert: _log4_floor(17) == 2
+
+# KochSnowflakes _log4_floor()
+
+require Math::PlanePath::KochSnowflakes;
+{
+  my $orig = Math::BigRat->new(4) ** 64;
+  my $n    = Math::BigRat->new(4) ** 64;
+  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
+
+  ok ($n, $orig, "_log4_floor() unmodified input");
+  # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
+  #     "_log4_floor() 4^64 + 1/3 power");
+  ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
+}
+{
+  my $orig = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
+  my $n    = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
+  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
+
+  ok ($n, $orig, "_log4_floor() unmodified input");
+  # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
+  #     "_log4_floor() 4^64 + 1/3 power");
+  ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
+}
+
+
+# KochSnowflakes _log4_floor()
+
+require Math::PlanePath::KochSnowflakes;
+{
+  my $orig = Math::BigFloat->new(4) ** 64;
+  my $n    = Math::BigFloat->new(4) ** 64;
+  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
+
+  ok ($n, $orig, "_log4_floor() unmodified input");
+  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
+  #     "_log4_floor() 4^64 + 1.25 power");
+  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
+}
+{
+  my $orig = Math::BigFloat->new(4) ** 64 + 1.25;
+  my $n    = Math::BigFloat->new(4) ** 64 + 1.25;
+  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
+
+  ok ($n, $orig, "_log4_floor() unmodified input");
+  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
+  #     "_log4_floor() 4^64 + 1.25 power");
+  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
+}
+

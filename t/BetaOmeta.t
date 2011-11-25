@@ -52,7 +52,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 54;
+  my $want_version = 55;
   ok ($Math::PlanePath::BetaOmega::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::BetaOmega->VERSION,  $want_version,
@@ -151,7 +151,6 @@ sub numeq_array {
 #------------------------------------------------------------------------------
 # _y_round_down_len_level()
 
-require Math::PlanePath::KochCurve;
 foreach my $elem ([0, 1,0],
                   [1, 1,0],
 
@@ -188,6 +187,7 @@ foreach my $elem ([0, 1,0],
 # No it's not simply from y_min.  The alternate up and down means it's a
 # round towards y_max or y_min at alternate levels ...
 #
+# require Math::PlanePath::KochCurve;
 # my $want_y_min = Y_min_pow($want_level);
 # my ($based_len, $based_level)
 #   = Math::PlanePath::KochCurve::_round_down_pow ($y - $want_y_min, 2);
@@ -303,7 +303,7 @@ foreach my $elem ([0, 1,0],
     my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
 
     if ($got_xf != $want_xf || $got_yf != $want_yf) {
-      MyTestHelpers::diag ("wrong at n=$n");
+      MyTestHelpers::diag ("wrong at n=$n  got $got_xf,$got_yf want $want_xf,$want_yf");
       if ($bad++ > 10) { last; }
     }
     ($x,$y) = ($x2,$y2);

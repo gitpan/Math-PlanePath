@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 89 }
+BEGIN { plan tests => 94 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require Math::PlanePath::KochPeaks;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::KochPeaks;
 # VERSION
 
 {
-  my $want_version = 54;
+  my $want_version = 55;
   ok ($Math::PlanePath::KochPeaks::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochPeaks->VERSION,  $want_version,
@@ -158,6 +161,27 @@ require Math::PlanePath::KochPeaks;
     }
   }
   ok ($bad, 0, "xy_to_n() coverage and distinct, $count points");
+}
+
+#------------------------------------------------------------------------------
+# Xlo occurances
+
+{
+  my $path = Math::PlanePath::KochPeaks->new;
+  foreach my $level (0 .. 4) {
+    my $n_start = $level + (2*4**$level + 1)/3;
+    my $n_peak = $level + (5*4**$level + 1)/3;
+    my ($x_lo,undef) = $path->n_to_xy($n_start);
+    my $x_lo_count = 0;
+    foreach my $n ($n_start .. $n_peak) {
+      my ($x,undef) = $path->n_to_xy($n);
+      if ($x == $x_lo) {
+        ### found at: "level=$level x=$x n=$n"
+        $x_lo_count++;
+      }
+    }
+    ok ($x_lo_count, 2**$level);
+  }
 }
 
 exit 0;

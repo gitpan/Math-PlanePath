@@ -31,7 +31,7 @@ use strict;
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -46,11 +46,11 @@ use Math::PlanePath;
 #     sample gif of primes made by APL or something
 #
 # http://www.sciencenews.org/view/generic/id/2696/title/Prime_Spirals
-#     Ulam's sprial of primes
+#     Ulam's spiral of primes
 #
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/primeSpiral.htm
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
-#     Pulchritudinous Primes of Ulam sprial.
+#     Pulchritudinous Primes of Ulam spiral.
 
 use constant parameter_info_array => [ { name => 'wider',
                                          type => 'integer',

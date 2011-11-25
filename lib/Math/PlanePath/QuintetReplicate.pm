@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -216,7 +216,7 @@ Math::PlanePath::QuintetReplicate -- self-similar "+" tiling
 
 This is a self-similar tiling of the plane with "+" shapes.  It's the same
 kind of tiling as the QuintetCurve (and QuintetCentres), but with the middle
-square of the "+" centred on the origin.
+square of the "+" shape centred on the origin.
 
             12                         3
 
@@ -263,21 +263,26 @@ which is then replicated
                |  |
                +--+
 
-Notice the centres 0,5,10,15,20 are the base "+" arrangement, rotated around
-a bit.  The effect is to tile the whole plane.
+The effect is to tile the whole plane.
+Notice the centres 0,5,10,15,20 are a "+" shape but rotated around by an
+angle atan(1/2)=26.565 degrees, as noted below.
 
 =head2 Complex Base
 
-This tiling corresponds to expressing a complex integer X+i*Y in base b=i+2
+This tiling corresponds to expressing a complex integer X+i*Y in base b=2+i
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
 where each digit a[i] is 0, 1, i, -1, or -i, and those digits are then
 represented in integer N by base 5 digits 0,1,2,3,4.
 
-The base b=i+2 is at an angle atan(1/2) = 26.56 degrees as seen at N=5
+The base b=2+i is at an angle atan(1/2) = 26.56 degrees as seen at N=5
 above.  Successive powers b^2, b^3, b^4 etc at N=5^level rotate around by
 that much each time.
+
+    Npow = 5^level
+    angle = level*26.56 degrees
+    radius = sqrt(5) ^ level
 
 =head1 FUNCTIONS
 
@@ -325,3 +330,8 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+# Local variables:
+# compile-command: "math-image --path=QuintetReplicate --expression='5**i'"
+# End:

@@ -18,10 +18,13 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Generate the .png image files shown at
+# Usage: perl gallery.pl
+#
+# Creates .png files in $target_dir = "$ENV{HOME}/tux/web/math-planepath"
+# which are as shown at
+#
 #   http://user42.tuxfamily.org/math-planepath/gallery.html
 #
-
 
 use 5.004;
 use strict;
@@ -41,6 +44,21 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['kochel-small.png',
+    'math-image --path=KochelCurve --lines --scale=3 --size=32'],
+   ['kochel-big.png',
+    'math-image --path=KochelCurve --lines --scale=7 --size=192'],
+
+   ['wunderlich-meander-small.png',
+    'math-image --path=WunderlichMeander --lines --scale=3 --size=32'],
+   ['wunderlich-meander-big.png',
+    'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
+
+   ['mpeaks-small.png',
+    'math-image --path=MPeaks --lines --scale=4 --size=32'],
+   ['mpeaks-big.png',
+    'math-image --path=MPeaks --lines --scale=13 --size=200x180'],
+
    ['hex-small.png',
     'math-image --path=HexSpiral --lines --scale=3 --size=32'],
    ['hex-big.png',
@@ -83,11 +101,6 @@ foreach my $elem
    ['zorder-fibbinary.png',
     'math-image --path=ZOrderCurve --values=Fibbinary --scale=1 --size=704x320'],
 
-
-   ['wunderlich-meander-small.png',
-    'math-image --path=WunderlichMeander --lines --scale=3 --size=32'],
-   ['wunderlich-meander-big.png',
-    'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
 
    ['peano-small.png',
     'math-image --path=PeanoCurve --lines --scale=3 --size=32'],

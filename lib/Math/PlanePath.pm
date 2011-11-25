@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 54;
+$VERSION = 55;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -181,6 +181,7 @@ include
     HexArms                six-arm hexagonal spiral
     AztecDiamondRings      four-sided rings
     GreekKeySpiral         spiral with Greek key motif
+    MPeaks                 "M" shape layers
 
     SacksSpiral            quadratic on an Archimedean spiral
     VogelFloret            seeds in a sunflower
@@ -199,6 +200,7 @@ include
     ZOrderCurve            replicating Z shapes
     WunderlichMeander      3x3 "R" pattern quadrant traversal
     BetaOmega              2x2 self-similar half-plane traversal
+    KochelCurve            3x3 self-similar two base shapes
     ImaginaryBase          replicating in four directions
     SquareReplicate        3x3 replicating squares
     CornerReplicate        2x2 replicating squares
@@ -504,15 +506,16 @@ more N points than the preceding.
         4       DiamondSpiral, AztecDiamondRings, Staircase
        4/2      CellularRule54 (2 rows for +4)
         5       PentSpiral, PentSpiralSkewed
-        5.65    PixelRings (average about 4*sqrt(2))
-        6       HexSpiral, HexSpiralSkewed, MultipleRings (default)
+       5.65     PixelRings (average about 4*sqrt(2))
+        6       HexSpiral, HexSpiralSkewed, MPeaks
+                  MultipleRings (default),
        6/2      CellularRule190 (2 rows for +6)
-        6.28    ArchimedeanChords (approaching 2*pi)
+       6.28     ArchimedeanChords (approaching 2*pi)
         7       HeptSpiralSkewed
         8       SquareSpiral, PyramidSpiral
         9       TriangleSpiral, TriangleSpiralSkewed
        16       OctagramSpiral
-       19.74    TheodorusSpiral (approaching 2*pi^2)
+      19.74     TheodorusSpiral (approaching 2*pi^2)
       32/4      KnightSpiral (4 loops 2-wide for +32)
        64       DiamondArms (each arm)
        72       GreekKeySpiral
@@ -572,8 +575,9 @@ such a power for things like KochPeaks and GosperIslands.
                   DragonCurve, DragonRounded, DragonMidpoint,
                   DigitGroups (default), CornerReplicate
       3         PeanoCurve (default), GosperIslands, GosperSide
+                  WunderlichMeander, KochelCurve,
                   SierpinskiTriangle, SierpinskiArrowhead,
-                  SierpinskiArrowheadCentres, WunderlichMeander,
+                  SierpinskiArrowheadCentres,
                   UlamWarburton, UlamWarburtonQuarter (each level)
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes
       5         QuintetCurve, QuintetCentres, QuintetReplicate
@@ -736,7 +740,8 @@ L<Math::PlanePath::HexArms>,
 L<Math::PlanePath::SquareArms>,
 L<Math::PlanePath::DiamondArms>,
 L<Math::PlanePath::AztecDiamondRings>,
-L<Math::PlanePath::GreekKeySpiral>
+L<Math::PlanePath::GreekKeySpiral>,
+L<Math::PlanePath::MPeaks>
 
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::VogelFloret>,
@@ -753,6 +758,7 @@ L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
 L<Math::PlanePath::WunderlichMeander>,
 L<Math::PlanePath::BetaOmega>,
+L<Math::PlanePath::KochelCurve>,
 L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::SquareReplicate>,
 L<Math::PlanePath::CornerReplicate>,

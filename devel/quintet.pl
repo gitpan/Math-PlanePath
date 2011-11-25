@@ -26,11 +26,12 @@ use Math::Libm 'M_PI', 'hypot';
 {
   require Math::PlanePath::QuintetCurve;
   require Math::PlanePath::QuintetCentres;
-  my $f = Math::PlanePath::QuintetCurve->new;
-  my $c = Math::PlanePath::QuintetCentres->new;
-  my $width = 4;
+  my $f = Math::PlanePath::QuintetCurve->new (arms=>4);
+  my $c = Math::PlanePath::QuintetCentres->new (arms=>4);
+  my $width = 5;
   my %saw;
-  foreach my $n (0 .. 5**($width-1)) {
+  my $n_end = 5**($width-1) * $f->arms_count;
+  foreach my $n (0 .. $n_end) {
     my ($x,$y) = $f->n_to_xy($n);
 
     my $cn = $c->xy_to_n($x,$y) // -1;
@@ -69,7 +70,7 @@ use Math::Libm 'M_PI', 'hypot';
     # print "$n5 $cn5 $ch5 $cw5 $cu5   $bad\n";
   }
   my $saw = join(',', sort {$saw{$a}<=>$saw{$b}} keys %saw);
-  print "$saw\n";
+  print "$saw     to n_end=$n_end\n";
   exit 0;
 }
 

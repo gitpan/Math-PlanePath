@@ -25,7 +25,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 54;
+$VERSION = 55;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -183,8 +183,8 @@ Math::PlanePath::ComplexMinus -- twindragon and other complex number base i-r
 
 =head1 DESCRIPTION
 
-This path traverses points by complex number base i-r.  The default is base
-i-1 giving an integer version of the "twindragon".
+This path traverses points by a complex number base i-r for integer r.  The
+default is base i-1 giving the "twindragon" shape.
 
            26  27          10  11                             3
                24  25           8   9                         2
@@ -200,24 +200,31 @@ i-1 giving an integer version of the "twindragon".
                         ^
     -5  -4  -3  -2 -1  X=0  1   2   3   4   5   6   7
 
-With base b=i-1, a complex integer can be represented
+In base b=i-1 a complex integer can be represented
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-The digits a[n] to a[0] are all either 0 or 1.  N is those a[i] as bits, the
+The digits a[n] to a[0] are all either 0 or 1.  N is those a[i] as bits and
 X,Y is the resulting complex number.  It can be shown that this is a
 one-to-one transformation so every integer point of the plane is visited.
 
-The shape of a given N=0 to N=2^level-1 range is repeated in the next
-N=2^level to N=(2*2^level)-1.  For example the N=0 to N=7 is repeated as N=8
-to N=15, starting at X=2,Y=2 instead of the origin.  That 2,2 is because b^3
-= 2+2i.  There's no rotations or mirroring etc in this replication, just the
+The shape of an N=0 to N=2^level-1 range is repeated in the next N=2^level
+to N=(2*2^level)-1.  For example N=0 to N=7 is repeated as N=8 to N=15,
+starting at X=2,Y=2 instead of the origin.  That 2,2 is because b^3 = 2+2i.
+There's no rotations or mirroring etc in this replication, just the
 position.
 
-For i-1 each N=2^level point starts at b^level.  The powering of that b
-means the start rotates around by +135 degrees each time, and outward by a
-factor sqrt(2) on the radius.  So for example b^3 = 2+2i is followed by b^4
-= -4, which is 135 degrees around, and radius |b^3|=sqrt(8) becomes
+    N=0 to N=7          N=8 to N=15 repeat shape
+
+    2   3                    10  11    
+        0   1                     8   9
+    6   7                    14  15                       
+        4   5                    12  13
+
+For b=i-1 each N=2^level point starts at b^level.  The powering of that b
+means the start rotates around by +135 degrees each time and outward by a
+radius factor sqrt(2) each time.  So for example b^3 = 2+2i is followed by
+b^4 = -4, which is 135 degrees around, and radius |b^3|=sqrt(8) becomes
 |b^4|=sqrt(16).
 
 =head2 Real Part
@@ -241,31 +248,36 @@ rE<gt>=1.  For example C<realpart =E<gt> 2> is
                              ^
     -8 -7  -6 -5-4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10
 
-N is broken into digits of base norm=r*r+1, so 0 to r*r inclusive.  This
-makes horizontal runs of r*r+1 many points, for example N=0 to N=4 then N=5
-to N=9, etc.  In the default r=1 these are 2 long, whereas for r=2 they're
-2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
+N is broken into digits of base norm=r*r+1, ie. digits 0 to r*r inclusive.
+This makes horizontal runs of r*r+1 many points, such as N=0 to N=4 then N=5
+to N=9 etc above.  In the default r=1 these runs are 2 long, whereas for r=2
+they're 2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
 
 The offset back for each run like N=5 shown is the r in i-r, then the next
-level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at X=-2*2=-4,Y=2*2-1=3.
+level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at X=-2*2=-4, Y=2*2-1=3.
 
-The successive replications end up tiling the plane for any r, though the N
-values needed to come around and do so might become large if the norm=r*r+1
-is large.
+The successive replications tile the plane for any r, though the N values
+needed to rotate around and do so might become large if the norm=r*r+1 is
+large.
 
 =head2 Fractal
 
 The i-1 twindragon is generally conceived as taking fractional N like
-0.abcde in binary and giving fractional complex components X,Y.  The
-twindragon is then all the points of the complex plane reached by such N.
-Those points can be shown to be connected and cover a certain radius around
-the origin which is completely covered.
+0.abcde in binary and giving fractional complex X+iY.  The twindragon is
+then all the points of the complex plane reached by such fractional N.
+Those points can be shown to be connected and completely cover a certain
+radius around the origin.
 
-The code here might be pressed into use for that for finite bits of N by
-taking a suitable power N*256^k to get an integer then use X/16^k, Y/16^k
-for fractional coordinates.  256 is a good base because b^8=16 so there's no
-rotations to apply to the X,Y, just a division.  b^4=-4 for multiplier 16^k
-and divisor (-4)^k would be almost as easy too.
+The code here might be pressed into use for that for a finite number of bits
+of N by multiplying up to an integer
+
+    Nint = Nfrac * 256^k
+    Xfrac = Xint / 16^k
+    Yfrac = Yint / 16^k
+
+256 is a good base because b^8=16 is a positive real and means there's no
+rotations to apply to the X,Y, just a division by (b^8)^k.  b^4=-4 for
+multiplier 16^k and divisor (-4)^k would be almost as easy.
 
 =head1 FUNCTIONS
 

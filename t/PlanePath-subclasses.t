@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 707 }
+BEGIN { plan tests => 721 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,8 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'KochelCurve',
+               'MPeaks',
                'WunderlichMeander',
                'BetaOmega',
                'HilbertCurve',
@@ -259,7 +261,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 54;
+my $want_version = 55;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -335,6 +337,7 @@ my %rect_exact = (
                   'Math::PlanePath::QuintetCentres' => 1,
                   'Math::PlanePath::AztecDiamondRings' => 1,
                   'Math::PlanePath::BetaOmega' => 1,
+                  'Math::PlanePath::KochelCurve' => 1,
                   'Math::PlanePath::WunderlichMeander' => 1,
                   'Math::PlanePath::File' => 1,
                   # rect_to_n_range exact end
@@ -829,9 +832,11 @@ sub pythagorean_diag {
       $got_x_negative = ($got_x_negative ? 1 : 0);
 
       if ($path->isa('Math::PlanePath::GosperSide')
-          || $path->isa('Math::PlanePath::QuintetCurve')
+          || $path->isa('Math::PlanePath::FlowsnakeCentres')
+          || $path->isa('Math::PlanePath::QuintetCentres')
           || $mod eq 'ImaginaryBase,radix=37'
-          || $mod eq 'GreekKeySpiral') {
+          || $mod eq 'GreekKeySpiral',
+         ) {
         # these don't get to X negative in small rectangle
         $got_x_negative = 1;
       }
@@ -844,7 +849,7 @@ sub pythagorean_diag {
       $got_y_negative = ($got_y_negative ? 1 : 0);
 
       if ($path->isa('Math::PlanePath::GosperSide')
-          || $path->isa('Math::PlanePath::Flowsnake')
+          || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || $path->isa('Math::PlanePath::GreekKeySpiral')
           || $path->isa('Math::PlanePath::ComplexMinus')
           || $mod eq 'SquareSpiral,wider=37'
