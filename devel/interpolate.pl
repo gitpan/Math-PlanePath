@@ -27,8 +27,8 @@ use Math::Polynomial::Horner;
 #use Devel::Comments;
 
   
-my_interpolate ([ 0,1,2 ],
-                [ 3,11,25 ]);
+my_interpolate ([ 0,1,2,3,4 ],
+                [ 0, 5-1, 9-2, 12-3, 14-4 ]);
 exit 0;
 
 my_interpolate ([ 1,3,5,7 ],
@@ -171,9 +171,9 @@ sub my_interpolate {
     }
     return ($x + sqrt($root));
   };
-  for (my $i = 0; $i < 100; $i += 0.5) {
-    printf "%4s  d=%s\n", $i, $n_to_d->($i);
-  }
+  # for (my $i = 0; $i < 100; $i += 0.5) {
+  #   printf "%4s  d=%s\n", $i, $n_to_d->($i);
+  # }
   exit 0;
 }
 # {
@@ -246,6 +246,7 @@ sub my_interpolate {
     # return -.5 + sqrt(2*$n - .75);
     #    return int((sqrt(4*$n-1) - 1) / 2);
   };
+
   my $prev = 0;
   foreach (1..15) {
     my $this = $subr->($_);

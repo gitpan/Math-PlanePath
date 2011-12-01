@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 55;
+  my $want_version = 56;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,

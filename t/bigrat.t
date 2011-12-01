@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 179)[1];
+my $test_count = (tests => 185)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -274,6 +274,9 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'LTiling',
+               'DiagonalsAlternating',
+               'CincoCurve',
                'KochelCurve',
                'MPeaks',   # but not across gap
                'WunderlichMeander',

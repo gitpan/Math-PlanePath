@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -66,12 +66,6 @@ my @digit_to_y = (0,1,1,0, 0,0,1,1, 0,0,1,1, 0,1,1,0,
                   1,0,0,1, 0,0,1,1, 0,0,1,1, 1,0,0,1,
                   0,1,1,0, 0,0,1,1, 0,0,1,1, 0,1,1,0,
                   1,0,0,1, 1,1,0,0, 1,1,0,0, 1,0,0,1);
-my @digit_to_dir = (1,0,3,undef, 0,1,2,undef, 2,1,0,undef, 1,2,3,undef,
-                    3,2,1,undef, 2,3,0,undef, 0,3,2,undef, 3,0,1,undef,
-                    1,2,3,undef, 0,3,2,undef, 2,3,0,undef, 1,0,3,undef,
-                    3,0,1,undef, 2,1,0,undef, 0,1,2,undef, 3,2,1,undef,
-                    1,0,3,undef, 0,1,2,undef, 2,1,0,undef, 1,2,3,undef,
-                    3,2,1,undef, 2,3,0,undef, 0,3,2,undef, 3,0,1);
 my @xy_to_digit = (0,1,3,2, 0,3,1,2, 1,2,0,3, 3,2,0,1,
                    2,3,1,0, 2,1,3,0, 3,0,2,1, 1,0,2,3,
                    3,2,0,1, 3,0,2,1, 2,1,3,0, 0,1,3,2,
@@ -127,10 +121,6 @@ my @max_digit = (0,3,3,1, 3,3,1,2, 2,undef,undef,undef,
                  3,3,2,3, 3,2,0,1, 1,undef,undef,undef,
                  1,2,2,1, 3,3,0,3, 3);
 
-#                E  N  W    S
-my @dir_to_dx = (1, 0, -1,  0);
-my @dir_to_dy = (0, 1,  0, -1);
-
 sub n_to_xy {
   my ($self, $n) = @_;
   ### BetaOmega n_to_xy(): $n
@@ -178,13 +168,10 @@ sub n_to_xy {
 
   ### $dir
   ### frac: $n
-  ### digit_to_dir: $digit_to_dir[$dir]
-  $dir = $digit_to_dir[$dir];
-  $x = $n * $dir_to_dx[$dir] + $x;
-  $y = $n * $dir_to_dy[$dir] + $y;
 
-  ### final: "$x,$y"
-  return ($x, $y);
+  # with $n fractional part
+  return ($n * ($digit_to_x[$dir+1] - $digit_to_x[$dir]) + $x,
+          $n * ($digit_to_y[$dir+1] - $digit_to_y[$dir]) + $y);
 }
 
 

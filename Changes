@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 56, December 2011
+    - new CincoCurve, DiagonalsAlternating, LTiling
+
 Version 55, November 2011
     - new KochelCurve, MPeaks
     - Flowsnake,QuintetCurve faster xy_to_n()

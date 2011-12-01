@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -438,7 +438,7 @@ L<Math::PlanePath::DigitGroups>
 
 C<http://www.jjj.de/fxt/#fxtbook> (section 1.31.2)
 
-L<Algorithm::QuadTree>
+L<Algorithm::QuadTree>, L<DBIx::SpatialKeys>
 
 =head1 HOME PAGE
 

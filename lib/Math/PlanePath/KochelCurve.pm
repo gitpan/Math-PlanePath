@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -89,18 +89,6 @@ my @xy_to_digit = (0,1,2, 7,6,3, 8,5,4,    # 0
                    2,3,8, 1,4,7, 0,5,6,    # 81
                    8,7,6, 3,4,5, 2,1,0,    # 90
                    6,5,0, 7,4,1, 8,3,2);   # 99
-my @digit_to_dir = (1,1,0, 0,3,2, 3,0,undef,    # 0
-                    2,2,1, 1,0,3, 0,1,undef,    # 9
-                    3,3,2, 2,1,0, 1,2,undef,    # 18
-                    0,0,3, 3,2,1, 2,3,undef,    # 27
-                    2,1,0, 1,2,2, 3,3,undef,    # 36
-                    3,2,1, 2,3,3, 0,0,undef,    # 45
-                    0,3,2, 3,0,0, 1,1,undef,    # 54
-                    1,0,3, 0,1,1, 2,2,undef,    # 63
-                    1,1,0, 3,3,0, 1,1,undef,    # 72
-                    2,2,1, 0,0,1, 2,2,undef,    # 81
-                    3,3,2, 1,1,2, 3,3,undef,    # 90
-                    0,0,3, 2,2,3, 0,0);   # 98
 my @min_digit = (0,0,0,7,8,7,    # 0
                  0,0,0,5,5,6,
                  0,0,0,3,4,3,
@@ -247,10 +235,6 @@ my @max_digit = (0,7,8,8,8,7,    # 0
                  5,5,5,4,3,4);
 # state length 108 in each of 4 tables
 
-#                E  N  W    S
-my @dir_to_dx = (1, 0, -1,  0);
-my @dir_to_dy = (0, 1,  0, -1);
-
 sub n_to_xy {
   my ($self, $n) = @_;
   ### KochelCurve n_to_xy(): $n
@@ -296,13 +280,10 @@ sub n_to_xy {
 
   ### $dir
   ### frac: $n
-  ### dir to digit: $digit_to_dir[$dir]
-  $dir = $digit_to_dir[$dir];
-  $x = $n * $dir_to_dx[$dir] + $x;  # frac
-  $y = $n * $dir_to_dy[$dir] + $y;
 
-  ### final: "$x,$y"
-  return ($x, $y);
+  # with $n fractional part
+  return ($n * ($digit_to_x[$dir+1] - $digit_to_x[$dir]) + $x,
+          $n * ($digit_to_y[$dir+1] - $digit_to_y[$dir]) + $y);
 }
 
 sub xy_to_n {

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2011 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-
-package Math::PlanePath::Diagonals;
+package Math::PlanePath::DiagonalsAlternating;
 use 5.004;
 use strict;
 
@@ -30,85 +29,95 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
 use constant x_negative => 0;
 use constant y_negative => 0;
 
-# start each diagonal at 0.5 earlier
+# d= [ 1,2,3 ]
+# N= [ 1,6,15 ]
+# N = (2 d^2 - d)
+#   = (2*$d**2 - $d)
+#   = ((2*$d - 1)*$d)
+# d = 1/4 + sqrt(1/2 * $n + 1/16)
+#   = (1 + sqrt(8*$n + 1)) / 4
 #
-#     s = [   0,   1,   2,   3,    4 ]
-#     n = [ 0.5, 1.5, 3.5, 6.5, 10.5 ]
-#               +1   +2   +3   +4
-#                  1    1    1
-#
-#     n = 0.5*$s*$s + 0.5*$s + 0.5
-#     s = 1/2 * (-1 + sqrt(4*2n + 1 - 4))
-#     s = -1/2 + sqrt(2n - 3/4)
-#       = [ -1 + sqrt(8n - 3) ] / 2
-#
-#     remainder n - (0.5*$s*$s + 0.5*$s + 0.5)
-#     is dist from x=-0.5 and y=$s+0.5
-#     work the 0.5 in so
-#         n - (0.5*$s*$s + 0.5*$s + 0.5) - 0.5
-#       = n - (0.5*$s*$s + 0.5*$s + 1)
-#       = n - 0.5*$s*($s+1) + 1
-#
-# starting on the integers vertical at X=0
-#
-#     s = [   0,  1, 2, 3,  4 ]
-#     n = [   1,  2, 4, 7, 11 ]
-#
-#     N = (1/2 d^2 + 1/2 d + 1)
-#       = ((1/2*$d + 1/2)*$d + 1)
-#       = (d+1)*d/2 + 1     one past triangular
-#     d = -1/2 + sqrt(2 * $n -7/4)
-#       = [-1 + sqrt(8*$n - 7)] / 2
+# relative to midpoint
+# d= [ 1,2,3 ]
+# N= [ 3,10,21 ]
+# N = ((2*$d + 1)*$d)
 #
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### Diagonals n_to_xy(): "$n   ".(ref $n || '')
+  ### DiagonalsAlternating n_to_xy(): "$n   ".(ref $n || '')
 
+  if ($n < 1) {
+    return;
+  }
   my $int = int($n);  # BigFloat int() gives BigInt, use that
   $n -= $int;         # frac, preserving any BigFloat
 
-  if (2*$n >= 1) {  # $frac >= 0.5
-    $n -= 1;
-    $int += 1;
-  }
-  ### $int
-  ### $n
-  return if $int < 1;
+  my $d = int((sqrt(8*$int+7) + 1) / 4);
+  $int -= ((2*$d + 1)*$d);
 
-  ### sqrt of: (8*$int - 7).''
-  my $s = int((sqrt(8*$int-7) - 1) / 2);
-
-  $int -= $s*($s+1)/2 + 1;
-
-  ### s: "$s"
-  ### sub: ($s*($s+1)/2 + 1).''
+  ### $d
   ### remainder: "$int"
 
+  if ($int >= 0) {
+    ### positive, upwards ...
+    if ($int == 0) {
+      ### horizontal X axis ...
+      return ($n + 2*$d-1,
+              0);
+    } else {
+      $n += $int;
+      return (-$n + 2*$d + 1,
+              $n - 1);
+    }
+  } else {
+    ### negative remainder, downwards ...
+    if ($int == -2*$d) {
+      ### vertical Y axis ...
+      return (0,
+              $n + 2*$d - 2);
+    } else {
+      $n += $int;
+      return ($n + 2*$d - 1,
+              -$n);
+    }
+  }
   return ($n + $int,
-          -$n - $int + $s);   # $n first so BigFloat not BigInt from $s
+          -$n - $int + $d);   # $n first so BigFloat not BigInt from $d
 }
 
-# round y on an 0.5 downwards so that x=-0.5,y=0.5 gives n=1 which is the
-# inverse of n_to_xy() ... or is that inconsistent with other classes doing
-# floor() always?
-#
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
+
   $x = _round_nearest ($x);
-  $y = _round_nearest (- $y);
-  ### rounded
-  ### $x
-  ### $y
-  if ($x < 0 || $y > 0) {
-    return undef;  # outside 
+  $y = _round_nearest ($y);
+  if ($x < 0 || $y < 0) {
+    return undef;  # outside first quadrant
   }
-  my $s = $x - $y;
-  ### $s
-  return $s*($s+1)/2 + $x + 1;
+
+  my $d = $x + $y;
+
+  # odd, downwards ...
+  # d= [ 1,3,5 ]
+  # N= [ 2,7,16 ]
+  # N = ((1/2*$d + 1/2)*$d + 1)
+  #
+  # even, upwards
+  # d= [ 0,2,4 ]
+  # N= [ 1,4,11 ]
+  # N = ((1/2*$d + 1/2)*$d + 1)
+  #   = ($d + 1)*$d/2 + 1
+
+  my $n = ($d + 1)*$d/2 + 1;
+  if ($d % 2) {
+    return $n + $x;
+  } else {
+    return $n + $y;
+  }
 }
 
 # exact
@@ -121,7 +130,7 @@ sub rect_to_n_range {
     return (1, 0); # rect all negative, no N
   }
 
-  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
+  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum 0
 
   if ($x1 < 0) { $x1 = 0; }
   if ($y1 < 0) { $y1 = 0; }
@@ -138,32 +147,34 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::Diagonals -- points in diagonal stripes
+Math::PlanePath::DiagonalsAlternating -- points in diagonal stripes of alternating directions
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::Diagonals;
- my $path = Math::PlanePath::Diagonals->new;
+ use Math::PlanePath::DiagonalsAlternating;
+ my $path = Math::PlanePath::DiagonalsAlternating->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
 This path follows successive diagonals going from the Y axis down to the X
-axis.
+axis and then back again,
 
-      6  |  22
-      5  |  16  23
-      4  |  11  17  24
-      3  |   7  12  18  ...
-      2  |   4   8  13  19
-      1  |   2   5   9  14  20
-    Y=0  |   1   3   6  10  15  21
-         + ------------------------
-           X=0   1   2   3   4   5
+      7  |  29 
+      6  |  28  30
+      5  |  16  27  31
+      4  |  15  17  26  ...
+      3  |   7  14  18  25 
+      2  |   6   8  13  19  24 
+      1  |   2   5   9  12  20  23
+    Y=0  |   1   3   4  10  11  21  22
+         +----------------------------
+           X=0   1   2   3   4   5   6
 
-The horizontal sequence 1,3,6,10,etc at Y=0 is the triangular numbers
-s*(s+1)/2.  If you plot them on a graph don't confuse that line with the
-axis or border!
+The triangular numbers 1,3,6,10,etc, k*(k+1)/2, fall alternately on the X
+axis and Y axis.  So 1,6,15,28,etc on the Y axis, and 3,10,21,36,etc on the
+X axis.  Those on the Y axis are the hexagonal numbers j*(2j-1) and those on
+the X axis are the hexagonals of the second kind j*(2j+1).
 
 =head1 FUNCTIONS
 
@@ -172,7 +183,7 @@ classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::Diagonals-E<gt>new ()>
+=item C<$path = Math::PlanePath::DiagonalsAlternating-E<gt>new ()>
 
 Create and return a new path object.
 
@@ -180,20 +191,8 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.
 
-For C<$n E<lt> 0.5> the return is an empty list, it being considered the
-path begins at 1.
-
-=item C<$n = $path-E<gt>xy_to_n ($x,$y)>
-
-Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
-each rounded to the nearest integer, which has the effect of treating each
-point C<$n> as a square of side 1, so the quadrant x>=-0.5, y>=-0.5 is
-entirely covered.
-
-=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
-
-The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
-and biggest in the rectangle.
+For C<$n E<lt> 1> the return is an empty list, it being considered the path
+begins at 1.
 
 =back
 
@@ -208,9 +207,7 @@ and the upper right is the maximum N.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::Corner>,
-L<Math::PlanePath::Rows>,
-L<Math::PlanePath::Columns>
+L<Math::PlanePath::Diagonals>
 
 =head1 HOME PAGE
 
@@ -236,3 +233,10 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+# Local variables:
+# compile-command: "math-image --path=DiagonalsAlternating --lines --scale=20"
+# End:
+#
+# math-image --path=DiagonalsAlternating --all --output=numbers_dash

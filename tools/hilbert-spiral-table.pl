@@ -82,7 +82,7 @@ sub print_table {
     my @min_digit;
     my @max_digit;
 
-    foreach my $spiral (0, 1) {
+    foreach my $spiral (0,1) {
       foreach my $rot (0, 1) {
         foreach my $transpose (0, ($spiral ? () : (1))) {
           my $state = make_state ($rot, $transpose, $spiral);
@@ -252,7 +252,7 @@ sub print_table {
     print_table ("next_state", \@next_state);
     print_table ("digit_to_x", \@digit_to_x);
     print_table ("digit_to_y", \@digit_to_y);
-    print_table ("digit_to_dir", \@digit_to_dir);
+    # print_table ("digit_to_dir", \@digit_to_dir);  # not used
     print_table ("xy_to_digit", \@xy_to_digit);
     print_table12 ("min_digit", \@min_digit);
     print_table12 ("max_digit", \@max_digit);

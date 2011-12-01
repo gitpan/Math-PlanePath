@@ -24,6 +24,7 @@ devel/exe-atan2.c
 devel/fibonacci-word.pl
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
+devel/fractions-tree.pl
 devel/gosper-islands-stars.pl
 devel/gosper-side.pl
 devel/gray.pl
@@ -89,12 +90,14 @@ lib/Math/PlanePath/AztecDiamondRings.pm
 lib/Math/PlanePath/BetaOmega.pm
 lib/Math/PlanePath/CellularRule190.pm
 lib/Math/PlanePath/CellularRule54.pm
+lib/Math/PlanePath/CincoCurve.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/CornerReplicate.pm
 lib/Math/PlanePath/Diagonals.pm
+lib/Math/PlanePath/DiagonalsAlternating.pm
 lib/Math/PlanePath/DiamondArms.pm
 lib/Math/PlanePath/DiamondSpiral.pm
 lib/Math/PlanePath/DigitGroups.pm
@@ -125,6 +128,7 @@ lib/Math/PlanePath/KochelCurve.pm
 lib/Math/PlanePath/KochPeaks.pm
 lib/Math/PlanePath/KochSnowflakes.pm
 lib/Math/PlanePath/KochSquareflakes.pm
+lib/Math/PlanePath/LTiling.pm
 lib/Math/PlanePath/MPeaks.pm
 lib/Math/PlanePath/MultipleRings.pm
 lib/Math/PlanePath/OctagramSpiral.pm
@@ -174,6 +178,7 @@ t/bigint.t
 t/bigint_common.pm
 t/bigrat.t
 t/CellularRule190.t
+t/CincoCurve.t
 t/Columns-load.t
 t/Columns.t
 t/ComplexMinus.t
@@ -209,6 +214,7 @@ t/KochelCurve.t
 t/KochPeaks.t
 t/KochSnowflakes.t
 t/KochSquareflakes.t
+t/LTiling.t
 t/MultipleRings.t
 t/MyTestHelpers.pm
 t/NumSeq-PlanePathCoord.t

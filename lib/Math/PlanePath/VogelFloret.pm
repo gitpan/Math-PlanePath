@@ -24,10 +24,10 @@ package Math::PlanePath::VogelFloret;
 use 5.004;
 use strict;
 use Carp;
-use Math::Libm 'M_PI', 'hypot';
+use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -55,9 +55,9 @@ use Math::PlanePath::SacksSpiral;
 #           x=-1.97 y=-.337
 #     diff angle=4/phi^2 - 1/phi^2 = 3/phi^2 = 3*(2-phi) = 1.14 = .14
 #     diff dx=1.25 dy=1.017  hypot=1.61
-#     dang = 2*M_PI()*(5-3*phi)
+#     dang = 2*PI()*(5-3*phi)
 #     y = sin()
-#     x = sin(2*M_PI()*(5-3*phi))
+#     x = sin(2*PI()*(5-3*phi))
 
 # Continued fraction
 #               1
@@ -92,6 +92,7 @@ use constant figure => 'circle';
 
 use constant 1.02; # for leading underscore
 use constant _PHI => (1 + sqrt(5)) / 2;
+use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
 
 # not documented yet ...
 use constant rotation_types =>
@@ -167,7 +168,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   return if $n < 0;
 
-  my $two_pi = 2 * M_PI();
+  my $two_pi = _TWO_PI();
 
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {

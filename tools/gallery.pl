@@ -44,15 +44,52 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['l-tiling-small.png',
+    'math-image --path=LTiling --all --scale=2 --size=32'],
+   ['l-tiling-big.png',
+    'math-image --path=LTiling --all --scale=10 --size=200'],
+   ['l-tiling-ends-big.png',
+    'math-image --path=LTiling,L_fill=ends --all --scale=10 --size=200'],
+   ['l-tiling-all-big.png',
+    'math-image --path=LTiling,L_fill=all --lines --scale=10 --size=200'],
+
+   ['diagonals-alternating-small.png',
+    'math-image --path=DiagonalsAlternating --lines --scale=6 --size=32'],
+   ['diagonals-alternating-big.png',
+    'math-image --path=DiagonalsAlternating --lines --scale=15 --size=200'],
+
+   ['diagonals-small.png',
+    'math-image --path=Diagonals --lines --scale=6 --size=32'],
+   ['diagonals-big.png',
+    'math-image --path=Diagonals --lines --scale=15 --size=200'],
+
+   ['corner-small.png',
+    'math-image --path=Corner --lines --scale=4 --size=32'],
+   ['corner-big.png',
+    'math-image --path=Corner --lines --scale=12 --size=200'],
+   ['corner-wider4-big.png',
+    'math-image --path=Corner,wider=4 --lines --scale=12 --size=200'],
+
+
+   ['cinco-small.png',
+    'math-image --path=CincoCurve --lines --scale=4 --size=32'],
+   ['cinco-big.png',
+    'math-image --path=CincoCurve --lines --scale=7 --size=192'],
+
    ['kochel-small.png',
-    'math-image --path=KochelCurve --lines --scale=3 --size=32'],
+    'math-image --path=KochelCurve --lines --scale=4 --size=32'],
    ['kochel-big.png',
     'math-image --path=KochelCurve --lines --scale=7 --size=192'],
 
    ['wunderlich-meander-small.png',
-    'math-image --path=WunderlichMeander --lines --scale=3 --size=32'],
+    'math-image --path=WunderlichMeander --lines --scale=4 --size=32'],
    ['wunderlich-meander-big.png',
     'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
+
+   ['beta-omega-small.png',
+    'math-image --path=BetaOmega --lines --scale=4 --size=32'],
+   ['beta-omega-big.png',
+    'math-image --path=BetaOmega --lines --scale=7 --size=226'],
 
    ['mpeaks-small.png',
     'math-image --path=MPeaks --lines --scale=4 --size=32'],
@@ -77,19 +114,6 @@ foreach my $elem
     'math-image --path=HexSpiralSkewed --lines --scale=13 --size=150'],
    ['hex-skewed-wider4-big.png',
     'math-image --path=HexSpiralSkewed,wider=4 --lines --scale=13 --size=150'],
-
-
-   ['corner-small.png',
-    'math-image --path=Corner --lines --scale=4 --size=32'],
-   ['corner-big.png',
-    'math-image --path=Corner --lines --scale=12 --size=200'],
-   ['corner-wider4-big.png',
-    'math-image --path=Corner,wider=4 --lines --scale=12 --size=200'],
-
-   ['diagonals-small.png',
-    'math-image --path=Diagonals --lines --scale=5 --size=32'],
-   ['diagonals-big.png',
-    'math-image --path=Diagonals --lines --scale=15 --size=200'],
 
 
    ['zorder-small.png',
@@ -140,11 +164,6 @@ foreach my $elem
    ['sierpinski-curve-8arm-big.png',
     'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
 
-
-   ['beta-omega-small.png',
-    'math-image --path=BetaOmega --lines --scale=3 --size=32'],
-   ['beta-omega-big.png',
-    'math-image --path=BetaOmega --lines --scale=7 --size=226'],
 
    ['cellular-rule190-small.png',
     'math-image --path=CellularRule190 --all --scale=3 --size=32'],

@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -286,7 +286,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::CornerReplicate>,
-L<Math::PlanePath::PeanoCurve>,
+L<Math::PlanePath::LTiling>,
+L<Math::PlanePath::GosperReplicate>,
 L<Math::PlanePath::QuintetReplicate>
 
 =head1 HOME PAGE

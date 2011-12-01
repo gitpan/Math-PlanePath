@@ -398,7 +398,7 @@ sub print_table {
   print_table ("next_state", \@next_state);
   print_table ("digit_to_x", \@digit_to_x);
   print_table ("digit_to_y", \@digit_to_y);
-  print_table ("digit_to_dir", \@digit_to_dir);
+  # print_table ("digit_to_dir", \@digit_to_dir);  # not used
   print_table ("xy_to_digit", \@xy_to_digit);
   print_table12 ("min_digit", \@min_digit);
   print_table12 ("max_digit", \@max_digit);

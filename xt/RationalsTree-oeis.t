@@ -33,8 +33,6 @@ use Math::PlanePath::RationalsTree;
 #use Smart::Comments '###';
 
 # A059893 - bit reverse all but the high 1
-# A162911 - drib tree numerators
-# A162912 - drib tree denominators
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -249,7 +247,7 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
-# A086592 -- AYT num+den
+# A086592 -- AYT num+den is Kepler denominators
 
 {
   my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
@@ -269,7 +267,7 @@ sub numeq_array {
   ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum -- AYT tree num+den");
+        1, "$anum -- AYT tree num+den, is Kepler denominators");
 }
 
 #------------------------------------------------------------------------------
@@ -401,6 +399,7 @@ sub _reverse {
         numeq_array(\@got, $bvalues),
         1, "$anum -- Drib tree denominators by bit reversal");
 }
+
 
 #------------------------------------------------------------------------------
 exit 0;

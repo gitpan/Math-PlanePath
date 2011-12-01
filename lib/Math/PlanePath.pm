@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 55;
+$VERSION = 56;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -164,7 +164,7 @@ include
 =for my_pod list begin
 
     SquareSpiral           four-sided spiral
-    PyramidSpiral          square based pyramid
+    PyramidSpiral          square base pyramid
     TriangleSpiral         equilateral triangle spiral
     TriangleSpiralSkewed   equilateral skewed for compactness
     DiamondSpiral          four-sided spiral, looping faster
@@ -178,8 +178,8 @@ include
 
     SquareArms             four-arm square spiral
     DiamondArms            four-arm diamond spiral
-    HexArms                six-arm hexagonal spiral
     AztecDiamondRings      four-sided rings
+    HexArms                six-arm hexagonal spiral
     GreekKeySpiral         spiral with Greek key motif
     MPeaks                 "M" shape layers
 
@@ -200,18 +200,20 @@ include
     ZOrderCurve            replicating Z shapes
     WunderlichMeander      3x3 "R" pattern quadrant traversal
     BetaOmega              2x2 self-similar half-plane traversal
-    KochelCurve            3x3 self-similar two base shapes
+    KochelCurve            3x3 self-similar two shapes
+    CincoCurve             5x5 self-similar
     ImaginaryBase          replicating in four directions
     SquareReplicate        3x3 replicating squares
     CornerReplicate        2x2 replicating squares
-    DigitGroups            digit groups with high zero
+    LTiling                self-simlar L shapes
+    DigitGroups            digit groups of high zero
     FibonacciWordFractal   turns by Fibonacci word bits
 
     Flowsnake              self-similar hexagonal tile traversal
     FlowsnakeCentres         likewise, but centres of hexagons
     GosperReplicate        self-similar hexagonal tiling
     GosperIslands          concentric island rings
-    GosperSide             single side/radial
+    GosperSide             single side or radial
 
     QuintetCurve           self-similar "+" shape
     QuintetCentres           likewise, but centres of squares
@@ -222,15 +224,15 @@ include
     DragonMidpoint         paper folding midpoints
     ComplexMinus           twindragon and other base i-r
 
-    SierpinskiCurve        self-similar pattern by right-triangles
-    HIndexing              self-similar right-triangle pairs
+    SierpinskiCurve        self-similar right-triangles
+    HIndexing              self-similar right-triangles, squared up
 
     KochCurve              replicating triangular notches
     KochPeaks              two replicating notches
-    KochSnowflakes         concentric notched snowflake rings
+    KochSnowflakes         concentric notched 3-sided rings
     KochSquareflakes       concentric notched 4-sided rings
     QuadricCurve           eight segment zig-zag
-    QuadricIslands         rings of those zig-zags
+    QuadricIslands           rings of those zig-zags
     SierpinskiTriangle     self-similar triangle by rows
     SierpinskiArrowhead    self-similar triangle connectedly
     SierpinskiArrowheadCentres  likewise, but centres of triangles
@@ -238,6 +240,7 @@ include
     Rows                   fixed-width rows
     Columns                fixed-height columns
     Diagonals              diagonals down from the Y to X axes
+    DiagonalsAlternating   diagonals Y to X and back again
     Staircase              stairs down from the Y to X axes
     Corner                 expanding stripes around a corner
     PyramidRows            expanding stacked rows pyramid
@@ -253,9 +256,9 @@ include
 
 =for my_pod list end
 
-The paths are object oriented to allow parameters, though many have none as
-yet.  See C<examples/numbers.pl> in the Math-PlanePath sources for a cute
-sample printout of selected paths or all paths.
+The paths are object oriented to allow parameters, though many have none.
+See C<examples/numbers.pl> in the Math-PlanePath sources for a cute sample
+printout of the numbering of selected paths or all paths.
 
 =head2 Number Types
 
@@ -263,9 +266,9 @@ The C<$n> and C<$x,$y> parameters can be either integers or floating point.
 The paths are meant to do something sensible with floating point fractions.
 Expect rounding-off for big exponents.
 
-Floating point infinities (when available system) are meant to give nan or
-infinite returns of some kind (some unspecified kind as yet).  C<n_to_xy()>
-on negative infinity C<$n> is an empty return, the same as other negative
+Floating point infinities (when available) are meant to give nan or infinite
+returns of some kind (some unspecified kind as yet).  C<n_to_xy()> on
+negative infinity C<$n> is an empty return, the same as other negative
 C<$n>.  Calculations which break an input into digits of some base are meant
 not to loop infinitely on infinities.
 
@@ -273,18 +276,24 @@ Floating point nans (when available) are meant to give nan, infinite, or
 empty/undef returns, but again of some unspecified kind as yet but in any
 case not going into infinite loops.
 
-Many of the classes can operate on C<Math::BigInt>, C<Math::BigRat> and
-C<Math::BigFloat> inputs and give corresponding outputs, but this is
-experimental and some classes might truncate a bignum to a float as yet.  In
-general the intention is to make the code generic enough that it can act on
-overloaded number types.  Recent versions of the bignum modules might be
-required, perhaps Perl 5.8 and up so for instance the C<**> exponentiation
-operator is available.
+Many of the classes can operate on overloaded number classes as inputs and
+give corresponding outputs.
 
-Also, for reference, an C<undef> input C<$n>, C<$x,$y>, etc, is meant to
+    Math::BigInt        maybe perl 5.8 up, for ** operator
+    Math::BigRat
+    Math::BigFloat
+    Number::Fraction    1.14 or higher (for abs())
+
+This is experimental and some classes might truncate a bignum or a fraction
+to a float as yet.  In general the intention is to make the code generic
+enough that it can act on good number types.  Recent versions of the bignum
+modules might be required, perhaps Perl 5.8 and up so for instance the C<**>
+exponentiation operator is available.
+
+For reference, an C<undef> input to C<$n>, C<$x,$y>, etc, is meant to
 provoke an uninitialized value warning (when warnings are enabled), but
-doesn't croak etc.  Perhaps that will change, but the warning at least
-prevents bad inputs going unnoticed.
+currently doesn't croak etc.  Perhaps that will change, but the warning at
+least prevents bad inputs going unnoticed.
 
 =head1 FUNCTIONS
 
@@ -453,12 +462,13 @@ The separate C<n_to_xy()> calls were motivated by plotting just some points
 of a path, such as just the primes or the perfect squares.  Successive
 positions in paths could be done in an iterator style more efficiently.  The
 paths with a quadratic "step" are not much worse than a C<sqrt()> to break N
-into a segment and offset, but the self-similar paths which chop into digits
-of some radix might increment instead of recalculate.
+into a segment and offset, but the self-similar paths which chop N into
+digits of some radix might increment instead of recalculate.
 
-When interested in a particular rectangular or similar region an iterator
-will often stray outside for a long time, so is less useful than it seems.
-For wild paths it can be better to go by X,Y in rows or similar, for the
+A disadvantage of an iterator is that if you're only interested in a
+particular rectangular or similar region then the iteration will often stray
+outside for a long time, making it much less useful than it seems.  For wild
+paths it can be better to use C<xy_to_n()> by rows or similar, on the
 square-grid paths at least.
 
 =head2 Scaling and Orientation
@@ -467,8 +477,8 @@ The paths generally make a first move horizontally to the right or from the
 X axis anti-clockwise, unless there's some more natural orientation.
 
 There's no parameters for scaling, offset or reflection as those things are
-thought better left to a general coordinate transformer, for example to
-expand or invert for display.  Some easy transformations can be had just
+thought better left to a general coordinate transformer for example to
+expand or invert for display.  But some easy transformations can be had just
 from the X,Y with
 
     -X,Y        flip horizontally (mirror image)
@@ -480,15 +490,15 @@ from the X,Y with
 
 Flip vertically makes the spirals go clockwise instead of anti-clockwise, or
 a flip horizontally the same but starting on the left at the negative X
-axis.  See L</Triangular Lattice> below for 60 degree rotations on the
+axis.  See L</Triangular Lattice> below for 60 degree rotations of the
 triangular grid paths.
 
 The Rows and Columns paths are slight exceptions to the rule of not having
-rotated versions of paths.  They started as ways to pass in width and height
-as generic parameters and the path use the one or the other.
+rotated versions of paths.  They began as ways to pass in width and height
+as generic parameters and let the path use the one or the other.
 
-For scaling and shifting see for example L<Transform::Canvas>, or for
-rotating as well see L<Geometry::AffineTransform>.
+For scaling and shifting see L<Transform::Canvas>, and to rotate as well see
+L<Geometry::AffineTransform>.
 
 =head2 Loop Step
 
@@ -504,7 +514,7 @@ more N points than the preceding.
         1       Diagonals
         2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
         4       DiamondSpiral, AztecDiamondRings, Staircase
-       4/2      CellularRule54 (2 rows for +4)
+       4/2      CellularRule54, DiagonalsAlternating (2 rows for +4)
         5       PentSpiral, PentSpiralSkewed
        5.65     PixelRings (average about 4*sqrt(2))
         6       HexSpiral, HexSpiralSkewed, MPeaks
@@ -579,8 +589,10 @@ such a power for things like KochPeaks and GosperIslands.
                   SierpinskiTriangle, SierpinskiArrowhead,
                   SierpinskiArrowheadCentres,
                   UlamWarburton, UlamWarburtonQuarter (each level)
-      4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes
-      5         QuintetCurve, QuintetCentres, QuintetReplicate
+      4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes,
+                  LTiling
+      5         QuintetCurve, QuintetCentres, QuintetReplicate,
+                  CincoCurve
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
@@ -593,8 +605,8 @@ Many number sequences on these paths tend to be fairly random, or merely
 show the tiling or path layout rather than much about the number sequence.
 Sequences related to the base can make holes or patterns picking out parts
 of the path.  For example numbers without a particular digit (or digits) in
-the relevant base show up as holes, eg. L<Math::PlanePath::ZOrderCurve/Power
-of 2 Values>.
+the relevant base show up as holes.  See
+L<Math::PlanePath::ZOrderCurve/Power of 2 Values> for example.
 
 =head2 Triangular Lattice
 
@@ -759,9 +771,11 @@ L<Math::PlanePath::ZOrderCurve>,
 L<Math::PlanePath::WunderlichMeander>,
 L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::KochelCurve>,
+L<Math::PlanePath::CincoCurve>,
 L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::SquareReplicate>,
 L<Math::PlanePath::CornerReplicate>,
+L<Math::PlanePath::LTiling>,
 L<Math::PlanePath::DigitGroups>,
 L<Math::PlanePath::FibonacciWordFractal>
 
@@ -798,6 +812,7 @@ L<Math::PlanePath::ComplexMinus>
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
 L<Math::PlanePath::Diagonals>,
+L<Math::PlanePath::DiagonalsAlternating>,
 L<Math::PlanePath::Staircase>,
 L<Math::PlanePath::Corner>
 

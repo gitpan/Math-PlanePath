@@ -23,12 +23,12 @@ package Math::PlanePath::ArchimedeanChords;
 use 5.004;
 use strict;
 use List::Util 'min', 'max';
-use Math::Libm 'hypot', 'asinh', 'M_PI';
+use Math::Libm 'hypot', 'asinh';
 use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -39,6 +39,9 @@ use Math::PlanePath;
 
 use constant figure => 'circle';
 use constant n_start => 0;
+
+use constant 1.02; # for leading underscore
+use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 
 # Starting at polar angle position t in radians,
@@ -108,17 +111,17 @@ use constant n_start => 0;
 sub _chord_angle_inc {
   my ($t) = @_;
 
-  my $u = 2*M_PI()/$t; # estimate
+  my $u = 2*_PI/$t; # estimate
 
   foreach (0 .. 10) {
     my $shu = sin($u/2); $shu *= $shu;   # sin^2(u/2)
     my $tu = ($t+$u);
 
-    my $f = $u*$u + 4*$t*$tu*$shu - 4*M_PI()*M_PI();
+    my $f = $u*$u + 4*$t*$tu*$shu - 4*_PI*_PI;
     my $slope = 2 * ( $u + $t*(2*$shu + $tu*sin($u)));
 
     # unsimplified versions ...
-    # $f = ($t+$u)**2 + $t**2 - 2*$t*($t+$u)*cos($u) - 4*M_PI()*M_PI();
+    # $f = ($t+$u)**2 + $t**2 - 2*$t*($t+$u)*cos($u) - 4*_PI*_PI;
     # $slope = 2*($t+$u) - 2*$t*( cos($u) - ($t+$u)*sin($u) );
 
     my $sub = $f/$slope;
@@ -135,7 +138,7 @@ use constant 1.02; # for leading underscore
 use constant _SAVE => 500;
 
 my @save_n = (1);
-my @save_t = (2*M_PI());
+my @save_t = (2*_PI);
 my $next_save = $save_n[0] + _SAVE;
 
 sub new {
@@ -192,7 +195,7 @@ sub n_to_xy {
   $self->{'i'} = $i;
   $self->{'t'} = $t;
 
-  my $r = $t * (1 / (2*M_PI()));
+  my $r = $t * (1 / (2*_PI));
   return ($r*cos($t),
           $r*sin($t));
 }
@@ -224,7 +227,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my $theta = 0.999 * 2*M_PI()*$r;
+  my $theta = 0.999 * 2*_PI*$r;
   my $n_lo = 0;
   foreach my $i (1 .. $#save_t) {
     if ($save_t[$i] > $theta) {
@@ -250,10 +253,10 @@ sub xy_to_n {
   }
   return undef;
 }
-  # int (max (0, int(M_PI()*$r2) - 4*$r));
+  # int (max (0, int(_PI*$r2) - 4*$r));
   #
   #  my $r2 = $r * $r;
-  #  my $n_lo =  int (max (0, int(M_PI()*$r2) - 4*$r));
+  #  my $n_lo =  int (max (0, int(_PI*$r2) - 4*$r));
   #  my $n_hi = $n_lo + 7*$r + 2;
   # ### $r2
   # $n_lo == $n_lo-1 ||
@@ -306,7 +309,7 @@ sub rect_to_n_range {
   my $rhi = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      my $frac = atan2($y,$x) / (2*M_PI);  # -0.5 <= $frac <= 0.5
+      my $frac = atan2($y,$x) / (2*_PI);  # -0.5 <= $frac <= 0.5
       $frac += ($frac < 0);                #    0 <= $frac < 1
       $rhi = max ($rhi, ceil(hypot($x,$y)+0.5 - $frac) + $frac);
     }
@@ -317,13 +320,13 @@ sub rect_to_n_range {
   #          = pi*r^2*sqrt(1+1/r^2) + asinh(theta)/4pi
   my $rhi2 = $rhi*$rhi;
   return (0,
-          ceil (M_PI() * $rhi2 * sqrt(1+1/$rhi2)
-                + asinh(2*M_PI()*$rhi) / (4*M_PI)));
+          ceil (_PI * $rhi2 * sqrt(1+1/$rhi2)
+                + asinh(2*_PI*$rhi) / (4*_PI)));
 
 
   # # each loop begins at N = pi*k^2 - 2 or thereabouts
   # return (0,
-  #         int(M_PI()*$rhi*($rhi+1) + 1));
+  #         int(_PI*$rhi*($rhi+1) + 1));
 }
 
 1;
@@ -332,14 +335,14 @@ __END__
     # my $slope = 2*($t + (-$c1-$s1*$t)*cos($t) + ($c1*$t-$s1)*sin($t));
     # my $dist = ( ($t*cos($t) - $c1) ** 2
     #           + ($t*sin($t) - $s1) ** 2
-    #           - 4*M_PI()*M_PI() );
+    #           - 4*_PI*_PI );
     # my $slope = (2*($t*cos($t)-$c1)*(cos($t) - $t*sin($t))
     #          + 2*($t*sin($t)-$s1)*(sin($t) + $t*cos($t)));
     # my $c1 = $t1 * cos($t1);
     # my $s1 = $t1 * sin($t1);
     # my $c1_2 = $c1*2;
     # my $s1_2 = $s1*2;
-    # my $t = $t1 + 2*M_PI()/$t1; # estimate
+    # my $t = $t1 + 2*_PI/$t1; # estimate
     # my $ct = cos($t);
     # my $st = sin($t);
     # my $dist = (($t - $ct*$c1_2 - $st*$s1_2) * $t + $t1sqm);
@@ -349,7 +352,7 @@ __END__
     # my $sub = $dist/$slope;
     # $t -= $sub;
 
-# use constant _A => 1 / (2*M_PI());
+# use constant _A => 1 / (2*_PI);
 
 
 # my @radius = (0, 1);

@@ -23,12 +23,12 @@ package Math::PlanePath::SacksSpiral;
 use 5.004;
 use strict;
 use List::Util qw(min max);
-use Math::Libm 'hypot', 'M_PI';
+use Math::Libm 'hypot';
 use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -52,12 +52,15 @@ use constant figure => 'circle';
 #   return $x;
 # }
 
+use constant 1.02; # for leading underscore
+use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
+
 sub n_to_xy {
   my ($self, $n) = @_;
   if ($n < 0) {
     return;
   }
-  my $two_pi = 2 * M_PI();
+  my $two_pi = _TWO_PI();
 
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {

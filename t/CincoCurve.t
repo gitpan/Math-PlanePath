@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 193 }
+BEGIN { plan tests => 132 }
 
 use lib 't';
 use MyTestHelpers;
@@ -29,28 +29,43 @@ MyTestHelpers::nowarnings();
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-require Math::PlanePath::SierpinskiArrowheadCentres;
+require Math::PlanePath::CincoCurve;
+my $path = Math::PlanePath::CincoCurve->new;
 
+
+sub numeq_array {
+  my ($a1, $a2) = @_;
+  if (! ref $a1 || ! ref $a2) {
+    return 0;
+  }
+  while (@$a1 && @$a2) {
+    if ($a1->[0] ne $a2->[0]) {
+      return 0;
+    }
+    shift @$a1;
+    shift @$a2;
+  }
+  return (@$a1 == @$a2);
+}
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
   my $want_version = 56;
-  ok ($Math::PlanePath::SierpinskiArrowheadCentres::VERSION, $want_version,
+  ok ($Math::PlanePath::CincoCurve::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::SierpinskiArrowheadCentres->VERSION,  $want_version,
+  ok (Math::PlanePath::CincoCurve->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::SierpinskiArrowheadCentres->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::CincoCurve->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::SierpinskiArrowheadCentres->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::CincoCurve->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::SierpinskiArrowheadCentres->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -61,71 +76,25 @@ require Math::PlanePath::SierpinskiArrowheadCentres;
       "VERSION object check $check_version");
 }
 
+
 #------------------------------------------------------------------------------
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::SierpinskiArrowheadCentres->new;
   ok ($path->n_start, 0, 'n_start()');
-  ok ($path->x_negative, 1, 'x_negative()');
-  ok ($path->y_negative, 0, 'y_negative()');
+  ok ($path->x_negative, 0, 'x_negative() instance method');
+  ok ($path->y_negative, 0, 'y_negative() instance method');
+
+  my @pnames = map {$_->{'name'}} $path->parameter_info_list;
+  ok (join(',',@pnames), '', 'parameter_info_list() keys');
 }
 
-#------------------------------------------------------------------------------
-# first few points
-
-{
-  my @data = ([ 0,  0,0 ],
-              [ 1,  1,1 ],
-              [ 2,  -1,1 ],
-              [ 3,  -2,2 ],
-              [ 4,  -3,3 ],
-              [ 5,  -1,3 ],
-              [ 6,  1,3 ],
-              [ 7,  2,2 ],
-              [ 8,  3,3 ],
-
-              [ .25,   .25, .25 ],
-              [ 1.25,   0.5, 1 ],
-              [ 2.25,   -1.25, 1.25 ],
-              [ 3.25,   -2.25, 2.25 ],
-              [ 4.25,   -2.5, 3 ],
-              [ 5.25,   -.5, 3 ],
-              [ 6.25,   1.25, 2.75 ],
-              [ 7.25,   2.25, 2.25 ],
-              [ 8.25,   3.25, 3.25 ],
-             );
-  my $path = Math::PlanePath::SierpinskiArrowheadCentres->new;
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
-    if ($got_y == 0) { $got_y = 0 }
-    ok ($got_x, $want_x, "n_to_xy() x at n=$n");
-    ok ($got_y, $want_y, "n_to_xy() y at n=$n");
-  }
-
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    next unless $want_n==int($want_n);
-    my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
-  }
-
-  foreach my $elem (@data) {
-    my ($n, $x, $y) = @$elem;
-    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-    next unless $n==int($n);
-    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
-  }
-}
 
 #------------------------------------------------------------------------------
 # random fracs
 
 {
-  my $path = Math::PlanePath::SierpinskiArrowheadCentres->new;
+  my $path = Math::PlanePath::CincoCurve->new;
   for (1 .. 20) {
     my $bits = int(rand(20));         # 0 to 20, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
@@ -146,4 +115,34 @@ require Math::PlanePath::SierpinskiArrowheadCentres;
   }
 }
 
-exit 0;
+#------------------------------------------------------------------------------
+# many fracs
+
+{
+  my $path = Math::PlanePath::CincoCurve->new;
+  my ($x,$y) = $path->n_to_xy (0);
+  my $bad = 0;
+  my $pow = 3;
+  for my $n (0 .. 25**$pow + 5) {
+    my ($x2,$y2) = $path->n_to_xy ($n+1);
+
+    my $frac = 0.25;
+    my $want_xf = $x + ($x2-$x)*$frac;
+    my $want_yf = $y + ($y2-$y)*$frac;
+
+    my $nf = $n + $frac;
+    my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
+
+    if ($got_xf != $want_xf || $got_yf != $want_yf) {
+      MyTestHelpers::diag ("wrong at n=$n  got $got_xf,$got_yf want $want_xf,$want_yf");
+      if ($bad++ > 10) { last; }
+    }
+    ($x,$y) = ($x2,$y2);
+  }
+  ok ($bad, 0);
+}
+
+
+
+exit 0
+;

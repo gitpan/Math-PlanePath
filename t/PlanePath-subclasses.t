@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 721 }
+BEGIN { plan tests => 742 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,9 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'LTiling',
+               'DiagonalsAlternating',
+               'CincoCurve',
                'KochelCurve',
                'MPeaks',
                'WunderlichMeander',
@@ -261,7 +264,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 55;
+my $want_version = 56;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -319,6 +322,8 @@ my %xy_maximum_duplication =
 # modules for which rect_to_n_range() is exact
 my %rect_exact = (
                   # rect_to_n_range exact begin
+                  'Math::PlanePath::CincoCurve' => 1,
+                  'Math::PlanePath::DiagonalsAlternating' => 1,
                   'Math::PlanePath::CornerReplicate' => 1,
                   'Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::Columns' => 1,

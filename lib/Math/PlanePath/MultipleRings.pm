@@ -22,10 +22,10 @@ use strict;
 
 # Math::Trig has asin_real() too, but it just runs the blob of code in
 # Math::Complex -- prefer libm
-use Math::Libm 'M_PI', 'asin', 'hypot';
+use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -72,6 +72,9 @@ sub x_negative {
 }
 *y_negative = \&x_negative;
 
+use constant 1.02; # for leading underscore
+use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
+
 sub new {
   my $class = shift;
   ### MultipleRings new(): @_
@@ -83,7 +86,7 @@ sub new {
                              : $step);
 
   if ($step <= 6) {
-    $self->{'base_r'} = ($step > 1 && 0.5/sin(M_PI()/$step)) - 1;
+    $self->{'base_r'} = ($step > 1 && 0.5/sin(_PI/$step)) - 1;
     ### base r: $self->{'base_r'}
   }
   return $self;
@@ -122,7 +125,7 @@ sub n_to_xy {
   ### step: $self->{'step'}
 
   # "$n<1" separate test from decrement so as to warn on undef
-  # don't have anything sensible for infinity, and M_PI / infinity would
+  # don't have anything sensible for infinity, and _PI / infinity would
   # throw a div by zero
   if ($n < 1) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
@@ -149,7 +152,7 @@ sub n_to_xy {
   ### assert: $n >= 0
   ### assert: $n < $d*$step
 
-  my $pi = M_PI();
+  my $pi = _PI;
   my $base_r = $self->{'base_r'};
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {
@@ -211,8 +214,8 @@ sub _xy_to_d {
   }
   ### $r
   if ((my $step = $self->{'step'}) > 6) {
-    ### d frac by asin: M_PI() / ($step * asin(1/(2*$r)))
-    return M_PI() / ($step * asin(1/(2*$r)));
+    ### d frac by asin: _PI / ($step * asin(1/(2*$r)))
+    return _PI / ($step * asin(1/(2*$r)));
   }
   # $step <= 6
   ### d frac by base: $r - $self->{'base_r'}
@@ -308,7 +311,7 @@ sub _xy_to_angle_frac {
   if ($x == 0 && $y == 0) {
     return 0;
   }
-  my $frac = atan2($y,$x) * (1 / (2 * M_PI()));
+  my $frac = atan2($y,$x) * (1 / (2 * _PI));
   return ($frac + ($frac < 0));
 }
 

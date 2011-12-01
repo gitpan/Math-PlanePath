@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -346,6 +346,9 @@ and biggest in the rectangle.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::LTiling>,
+L<Math::PlanePath::SquareReplicate>,
+L<Math::PlanePath::GosperReplicate>,
 L<Math::PlanePath::ZOrderCurve>
 
 =head1 HOME PAGE

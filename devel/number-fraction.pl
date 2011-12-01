@@ -29,6 +29,14 @@ print Number::Fraction->VERSION,"\n";
 use Smart::Comments;
 
 {
+  my $x = Number::Fraction->new('4/3');
+  my $y = Number::Fraction->new('2/1');
+  my $pow = $x ** $y;
+  print "pow: $pow\n";
+  exit 0;
+}
+
+{
   my $x = Number::Fraction->new('0/2');
   my $y = Number::Fraction->new('0/1');
   my $eq = ($x == $y);

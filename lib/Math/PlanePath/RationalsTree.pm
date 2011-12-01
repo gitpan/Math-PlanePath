@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 55;
+$VERSION = 56;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -314,7 +314,6 @@ sub xy_to_n {
       if ($x == $y) {
         return undef;
       }
-      $n *= 1;
       if ($x > $y) {
         $x -= $y;               # (x-y,y)   inverse of (x+y,y)
       } else {
@@ -561,19 +560,19 @@ Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
 so is never reached.
 
-    10  |  512        35                  44       767
-     9  |  256   33        39   40        46  383       768
-     8  |  128        18        21       191       384
-     7  |   64   17   19   20   22   95       192   49   51
-     6  |   32                  47        96
-     5  |   16    9   10   23        48   25   26   55
-     4  |    8        11        24        27        56
-     3  |    4    5        12   13        28   29        60
-     2  |    2         6        14        30        62
-    Y=1 |    1    3    7   15   31   63  127  255  511 1023
-        |
+    10  |     512        35                  44       767
+     9  |     256   33        39   40        46  383       768
+     8  |     128        18        21       191       384
+     7  |      64   17   19   20   22   95       192   49   51
+     6  |      32                  47        96
+     5  |      16    9   10   23        48   25   26   55
+     4  |       8        11        24        27        56
+     3  |       4    5        12   13        28   29        60
+     2  |       2         6        14        30        62
+     1  |       1    3    7   15   31   63  127  255  511 1023
+    Y=0 |
          ----------------------------------------------------
-           X=1    2    3    4    5    6    7    8    9   10
+          X=0   1    2    3    4    5    6    7    8    9   10
 
 The X=1 vertical is the fractions 1/Y at the left of each tree row, which is
 at N value
@@ -626,19 +625,19 @@ P,Q is subtracted from the bigger,
 Plotting the N values by X,Y has the same X=1 vertical and Y=1 horizontal as
 the SB above, but the values in between are re-ordered.
 
-    10  |  512        56                  38      1022
-     9  |  256   48        60   34        46  510       513
-     8  |  128        20        26       254       257
-     7  |   64   24   28   18   22  126       129   49   57
-     6  |   32                  62        65
-     5  |   16   12   10   30        33   25   21   61
-     4  |    8        14        17        29        35
-     3  |    4    6         9   13        19   27        39
-     2  |    2         5        11        23        47
-    Y=1 |    1    3    7   15   31   63  127  255  511 1023
-        |
+    10  |      512        56                  38      1022
+     9  |      256   48        60   34        46  510       513
+     8  |      128        20        26       254       257
+     7  |       64   24   28   18   22  126       129   49   57
+     6  |       32                  62        65
+     5  |       16   12   10   30        33   25   21   61
+     4  |        8        14        17        29        35
+     3  |        4    6         9   13        19   27        39
+     2  |        2         5        11        23        47
+     1  |        1    3    7   15   31   63  127  255  511 1023
+    Y=0 |
          -------------------------------------------------------------
-           X=1    2    3    4    5    6    7    8    9   10
+           X=0   1    2    3    4    5    6    7    8    9   10
 
 N values for the SB and CW trees are converted by reversing bits.  At a
 given X,Y position if N = binary "1abcde" in the SB tree then at that same
@@ -687,7 +686,7 @@ which means
     (X+Y)/Y  Y/(X+Y)
 
 The (X+Y)/Y leg is the same as in the CW (on the right instead of the left).
-But Y/(X+Y) is not the same as X/(X+Y) of the CW.
+But Y/(X+Y) is not the same as the CW (which is X/(X+Y)).
 
 The Y/(X+Y) right leg forms the Fibonacci numbers F(k)/F(k+1) at the end of
 each row, ie. at Nend=2^(level+1)-1.  And as noted by Andreev successive two
@@ -698,28 +697,38 @@ right legs at points N=4k+1 and N=4k+3 add up to 1, ie.
 
 Plotting the N values by X,Y gives
 
-    10  |  513        41                  43       515
-     9  |  257   49        37   39        51  259       514
-     8  |  129        29        31       131       258
-     7  |   65   25   21   23   27   67       130   50   42
-     6  |   33                  35        66
-     5  |   17   13   15   19        34   26   30   38
-     4  |    9        11        18        22        36
-     3  |    5    7        10   14        20   28        40
-     2  |    3         6        12        24        48
-    Y=1 |    1    2    4    8   16   32   64  128  256  512
-        |
+    10  |     513        41                  43       515
+     9  |     257   49        37   39        51  259       514
+     8  |     129        29        31       131       258
+     7  |      65   25   21   23   27   67       130   50   42
+     6  |      33                  35        66
+     5  |      17   13   15   19        34   26   30   38
+     4  |       9        11        18        22        36
+     3  |       5    7        10   14        20   28        40
+     2  |       3         6        12        24        48
+     1  |       1    2    4    8   16   32   64  128  256  512
+    Y=0 |
          ----------------------------------------------------
-           X=1    2    3    4    5    6    7    8    9   10
+          X=0   1    2    3    4    5    6    7    8    9   10
 
 The Y=1 horizontal is the X/1 integers at Nstart=2^level.  The X=1 vertical
 is the 1/Y fractions.  Those fractions always immediately follow the
 corresponding integer, thus N=Nstart+1 in that column.
 
+The tree structure corresponds to Johannes Kepler's tree of fractions.  It
+starts from 1/2 and makes fractions A/B with AE<lt>B by descending to
+A/(A+B) and B/(A+B).  This is the same as the AYT tree with
+
+    A = Y      or conversely    X = B-A
+    B = X+Y                     Y = A
+
+So the AYT denominator is the Kepler numerator, and the AYT sum num+den is
+the Kepler denominator.
+
 =head2 Bird Tree
 
-C<tree_type=E<gt>"Bird"> selects the Bird tree by Ralf Hinze, "Functional
-Pearls: The Bird tree",
+C<tree_type=E<gt>"Bird"> selects the Bird tree by Ralf Hinze, per
+"Functional Pearls: The Bird tree",
 
     http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf
 
@@ -742,18 +751,19 @@ which ends up meaning Y/(X+Y) and (X+Y)/X taking N bits low to high.
 
 Plotting the N values by X,Y gives,
 
-    10  |  682        41                  38       597      
-     9  |  341   43        45   34        36  298       938 
-     8  |  170        23        16       149       469      
-     7  |   85   20   22   17   19   74       234   59   57 
-     6  |   42                  37       117                
-     5  |   21   11    8   18        58   28   31   61      
-     4  |   10         9        29        30        50      
-     3  |    5    4        14   15        25   24        54 
-     2  |    2         7        12        27        52      
-    Y=1 |    1    3    6   13   26   53  106  213  426  853 
+    10  |     682        41                  38       597      
+     9  |     341   43        45   34        36  298       938 
+     8  |     170        23        16       149       469      
+     7  |      85   20   22   17   19   74       234   59   57 
+     6  |      42                  37       117                
+     5  |      21   11    8   18        58   28   31   61      
+     4  |      10         9        29        30        50      
+     3  |       5    4        14   15        25   24        54 
+     2  |       2         7        12        27        52      
+     1  |       1    3    6   13   26   53  106  213  426  853 
+    Y=0 |
          ----------------------------------------------------
-           X=1    2    3    4    5    6    7    8    9   10
+          X=0   1    2    3    4    5    6    7    8    9   10
 
 Notice that unlike the other trees the X=1 vertical of fractions 1/Y are not
 at the Nstart=2^level or Nend=2^(level+1)-1 row endpoints.  Those 1/Y
@@ -831,8 +841,8 @@ following forms
     A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
     A070990  - CW den-num, Stern diatomic first differences (less 0)
     A020650  - AYT numerators
-    A020651  - AYT denominators
-    A086592  - AYT num+den sum, Kepler's left denominators
+    A020651  - AYT denominators, also being Kepler half numerators
+    A086592  - AYT num+den sum, being Kepler half denominators
     A162909  - Bird numerators
     A162910  - Bird denominators
     A068611  - Drib numerators
@@ -911,4 +921,3 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 #            15                        15
 #
 # Stern-Brocot              Calkin-Wilf
-
