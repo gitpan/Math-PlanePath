@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 742 }
+BEGIN { plan tests => 749 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,7 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'HilbertSpiral',
                'LTiling',
                'DiagonalsAlternating',
                'CincoCurve',
@@ -264,7 +265,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 56;
+my $want_version = 57;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -334,6 +335,7 @@ my %rect_exact = (
                   'Math::PlanePath::Staircase' => 1,
                   'Math::PlanePath::Corner' => 1,
                   'Math::PlanePath::HilbertCurve' => 1,
+                  'Math::PlanePath::HilbertSpiral' => 1,
                   'Math::PlanePath::PeanoCurve' => 1,
                   'Math::PlanePath::ZOrderCurve' => 1,
                   'Math::PlanePath::Flowsnake' => 1,

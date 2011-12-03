@@ -44,6 +44,25 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['hilbert-small.png',
+    'math-image --path=HilbertCurve --lines --scale=3 --size=32'],
+   ['hilbert-big.png',
+    'math-image --path=HilbertCurve --lines --scale=7 --size=225'],
+
+   ['hilbert-spiral-small.png',
+    'math-image --path=HilbertSpiral --lines --scale=3 --size=32'],
+   ['hilbert-spiral-big.png',
+    'math-image --path=HilbertSpiral --lines --scale=7 --size=230'],
+
+   ['peano-small.png',
+    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
+   ['peano-big.png',
+    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
+   ['peano-radix7-big.png',
+    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=7 --size=192'],
+
+
+
    ['l-tiling-small.png',
     'math-image --path=LTiling --all --scale=2 --size=32'],
    ['l-tiling-big.png',
@@ -124,14 +143,6 @@ foreach my $elem
     'math-image --path=ZOrderCurve,radix=5 --lines --scale=14 --size=226'],
    ['zorder-fibbinary.png',
     'math-image --path=ZOrderCurve --values=Fibbinary --scale=1 --size=704x320'],
-
-
-   ['peano-small.png',
-    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
-   ['peano-big.png',
-    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
-   ['peano-radix7-big.png',
-    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=7 --size=192'],
 
 
    ['fibonacci-word-fractal-small.png',

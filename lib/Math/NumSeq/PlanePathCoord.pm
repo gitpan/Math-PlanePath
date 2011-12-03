@@ -33,7 +33,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 56;
+$VERSION = 57;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -841,6 +841,8 @@ sub values_max {
 # { package Math::PlanePath::PeanoCurve;
 # }
 # { package Math::PlanePath::HilbertCurve;
+# }
+# { package Math::PlanePath::HilbertSpiral;
 # }
 # { package Math::PlanePath::ZOrderCurve;
 # }

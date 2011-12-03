@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 342 }
+BEGIN { plan tests => 212 }
 
 use lib 't';
 use MyTestHelpers;
@@ -29,8 +29,8 @@ MyTestHelpers::nowarnings();
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-require Math::PlanePath::BetaOmega;
-my $path = Math::PlanePath::BetaOmega->new;
+require Math::PlanePath::HilbertSpiral;
+my $path = Math::PlanePath::HilbertSpiral->new;
 
 
 sub numeq_array {
@@ -53,16 +53,16 @@ sub numeq_array {
 
 {
   my $want_version = 57;
-  ok ($Math::PlanePath::BetaOmega::VERSION, $want_version,
+  ok ($Math::PlanePath::HilbertSpiral::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::BetaOmega->VERSION,  $want_version,
+  ok (Math::PlanePath::HilbertSpiral->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::BetaOmega->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::HilbertSpiral->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::BetaOmega->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::HilbertSpiral->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
@@ -82,7 +82,7 @@ sub numeq_array {
 
 {
   ok ($path->n_start, 0, 'n_start()');
-  ok ($path->x_negative, 0, 'x_negative() instance method');
+  ok ($path->x_negative, 1, 'x_negative() instance method');
   ok ($path->y_negative, 1, 'y_negative() instance method');
 
   my @pnames = map {$_->{'name'}} $path->parameter_info_list;
@@ -93,110 +93,64 @@ sub numeq_array {
 #------------------------------------------------------------------------------
 # first few points
 
-{
-  my @data = ([ 0.25,   0, .25 ],
-              [ 1.25,   .25, 1 ],
-              [ 2.25,   1, .75 ],
-              [ 3.25,   1, -.25 ],
-
-              [ 4.25,   .75, -1 ],
-              [ 5.25,   0, -1.25 ],
-              [ 6.25,   .25, -2 ],
-              [ 7.25,   1.25, -2 ],
-
-
-              [ 0,  0,0 ],
-              [ 1,  0,1 ],
-              [ 2,  1,1 ],
-              [ 3,  1,0 ],
-
-              [ 4,  1,-1 ],
-              [ 5,  0,-1 ],
-              [ 6,  0,-2 ],
-              [ 7,  1,-2 ],
-
-              [ 32, 4,4 ],
-              [ 33, 4,5 ],
-              [ 34, 5,5 ],
-              [ 35, 5,4 ],
-
-              [ 96, 1,-7 ],
-              [ 97, 0,-7 ],
-              [ 98, 0,-8 ],
-              [ 99, 1,-8 ],
-             );
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "n_to_xy() x at n=$n");
-    ok ($got_y, $want_y, "n_to_xy() y at n=$n");
-  }
-
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    next unless $want_n==int($want_n);
-    my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
-  }
-
-  foreach my $elem (@data) {
-    my ($n, $x, $y) = @$elem;
-    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-    next unless $n==int($n);
-    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
-  }
-}
-
-#------------------------------------------------------------------------------
-# _y_round_down_len_level()
-
-foreach my $elem ([0, 1,0],
-                  [1, 1,0],
-
-                  [2, 4,2],
-                  [3, 4,2],
-                  [5, 4,2],
-
-                  [6, 16,4],
-                  [7, 16,4],
-                  [21, 16,4],
-
-                  [22, 64,6],
-                  [23, 64,6],
-
-                  [-1, 2,1],
-                  [-2, 2,1],
-
-                  [-3, 8,3],
-                  [-4, 8,3],
-                  [-10, 8,3],
-
-                  [-11, 32,5],
-                  [-12, 32,5],
-                 ) {
-  my ($y, $want_len, $want_level) = @$elem;
-
-  my ($got_len, $got_level)
-    = Math::PlanePath::BetaOmega::_y_round_down_len_level($y);
-  ok ($got_len, $want_len, "len at y=$y");
-  ok ($got_level, $want_level, "level at y=$y");
-}
-
-
-# No it's not simply from y_min.  The alternate up and down means it's a
-# round towards y_max or y_min at alternate levels ...
-#
-# require Math::PlanePath::KochCurve;
-# my $want_y_min = Y_min_pow($want_level);
-# my ($based_len, $based_level)
-#   = Math::PlanePath::KochCurve::_round_down_pow ($y - $want_y_min, 2);
-# ok ($based_len, $want_len);
-# ok ($based_level, $want_level);
+# {
+#   my @data = ([ 0.25,   0, .25 ],
+#               [ 1.25,   .25, 1 ],
+#               [ 2.25,   1, .75 ],
+#               [ 3.25,   1, -.25 ],
+# 
+#               [ 4.25,   .75, -1 ],
+#               [ 5.25,   0, -1.25 ],
+#               [ 6.25,   .25, -2 ],
+#               [ 7.25,   1.25, -2 ],
+# 
+# 
+#               [ 0,  0,0 ],
+#               [ 1,  0,1 ],
+#               [ 2,  1,1 ],
+#               [ 3,  1,0 ],
+# 
+#               [ 4,  1,-1 ],
+#               [ 5,  0,-1 ],
+#               [ 6,  0,-2 ],
+#               [ 7,  1,-2 ],
+# 
+#               [ 32, 4,4 ],
+#               [ 33, 4,5 ],
+#               [ 34, 5,5 ],
+#               [ 35, 5,4 ],
+# 
+#               [ 96, 1,-7 ],
+#               [ 97, 0,-7 ],
+#               [ 98, 0,-8 ],
+#               [ 99, 1,-8 ],
+#              );
+#   foreach my $elem (@data) {
+#     my ($n, $want_x, $want_y) = @$elem;
+#     my ($got_x, $got_y) = $path->n_to_xy ($n);
+#     ok ($got_x, $want_x, "n_to_xy() x at n=$n");
+#     ok ($got_y, $want_y, "n_to_xy() y at n=$n");
+#   }
+# 
+#   foreach my $elem (@data) {
+#     my ($want_n, $x, $y) = @$elem;
+#     next unless $want_n==int($want_n);
+#     my $got_n = $path->xy_to_n ($x, $y);
+#     ok ($got_n, $want_n, "n at x=$x,y=$y");
+#   }
+# 
+#   foreach my $elem (@data) {
+#     my ($n, $x, $y) = @$elem;
+#     my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+#     next unless $n==int($n);
+#     ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+#     ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+#   }
+# }
 
 
 #------------------------------------------------------------------------------
-# Ymin / Ymax per docs
+# XYmin / XYmax per docs
 
 {
   sub floor {
@@ -263,7 +217,7 @@ foreach my $elem ([0, 1,0],
 # random fracs
 
 {
-  my $path = Math::PlanePath::BetaOmega->new;
+  my $path = Math::PlanePath::HilbertSpiral->new;
   for (1 .. 20) {
     my $bits = int(rand(20));         # 0 to 20, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
@@ -288,7 +242,7 @@ foreach my $elem ([0, 1,0],
 # many fracs
 
 {
-  my $path = Math::PlanePath::BetaOmega->new;
+  my $path = Math::PlanePath::HilbertSpiral->new;
   my ($x,$y) = $path->n_to_xy (0);
   my $bad = 0;
   my $pow = 5;

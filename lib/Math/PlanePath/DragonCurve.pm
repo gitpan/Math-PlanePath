@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 56;
+$VERSION = 57;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -446,18 +446,32 @@ may touch, such as at the X=-2,Y=1 etc noted above.
 
 At each point N the curve always turns either to the left or right, it never
 goes straight ahead.  The bit above the lowest 1 bit in N gives the turn
-direction.  For example at N=11 shown above the curve has just gone
-downwards from N=11.  N=12 is binary 0b1100, the lowest 1 bit is the
-0b.1.. and the bit above that is a 1, which means turn to the right.
-Whereas later at N=18 which has gone downwards from N=17 it's N=18 in binary
-0b10010, the lowest 1 is 0b...1., and the bit above that is 0, so turn left.
+direction.
 
-The bits also give turn after the next by taking the bit above the lowest 0.
-For example at N=12 the lowest 0 is the least significant bit, and above
-that is a 0 too, so after going to N=13 the next turn is then to the left to
-go to N=14.  Or for N=18 the lowest 0 is again the least significant bit,
-but above that is a 1 too, so after going to N=19 the next turn is to the
-right to go to N=20.
+    Nbit    Turn
+    ----    ----
+      0     left
+      1     right
+
+For example at N=11 shown above the curve has gone downwards to reach N=12.
+N=12 is binary 0b1100, the lowest 1 bit is the 0b.1.. and the bit above that
+is a 1, which means turn to the right.  Whereas later at N=18 which has come
+downwards from N=17 it's N=18 in binary 0b10010, the lowest 1 is 0b...1.,
+and the bit above that is 0, so turn left.
+
+The bits also give the turn after the next by taking the bit above the
+lowest 0.
+
+    Nbit    Next Turn
+    ----    ---------
+      0      left
+      1      right
+
+For example at N=12=0b1100 the lowest 0 is the least significant bit, and
+above that is a 0 too, so after going to N=13 the next turn there is to the
+left to go to N=14.  Or for N=18 the lowest 0 is again the least significant
+bit, but above that is a 1, so after going to N=19 the next turn is right to
+go to N=20.
 
 =head2 Arms
 

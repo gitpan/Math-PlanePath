@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 56;
+$VERSION = 57;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -45,7 +45,7 @@ use constant parameter_info_array =>
   [ { name    => 'L_fill',
       type    => 'enum',
       default => 'middle',
-      choices => ['middle','ends','all'],
+      choices => ['middle','left','upper','ends','all'],
       # description => Math::NumSeq::__(''),
     },
   ];
@@ -82,14 +82,19 @@ sub n_to_xy {
   my $x = my $y = ($n * 0);  # inherit bignum 0
   my $len = $x + 1;          # inherit bignum 1
 
-  if ($self->{'L_fill'} eq 'ends') {
+  my $L_fill = $self->{'L_fill'};
+  if ($L_fill eq 'left') {
+    $x += 1;
+  } elsif ($L_fill eq 'upper') {
+    $y += 1;
+  } elsif ($L_fill eq 'ends') {
     if ($n % 2) { # low digit==1
       $y = $len;  # 1
     } else { # low digit==0
       $x = $len;  # 1
     }
     $n = int($n/2);
-  } elsif ($self->{'L_fill'} eq 'all') {
+  } elsif ($L_fill eq 'all') {
     my $digit = $n % 3;
     $n = int($n/3);
     if ($digit == 1) {
@@ -125,9 +130,14 @@ my @yx_to_digit = ([0,0,1,1],
                    [3,2],
                    [3,3]);
 my %fill_factor = (middle => 1,
+                   left   => 1,
+                   upper  => 1,
                    ends   => 2,
                    all    => 3);
 my %yx_to_fill = (middle => [[0]],
+                  left   => [[undef,0]],
+                  upper   => [[],
+                              [0]],
                   ends   => [[undef,0],
                              [1]],
                   all    => [[0,1],
@@ -185,6 +195,8 @@ sub xy_to_n {
 }
 
 my %range_factor = (middle => 3,
+                    left   => 3,
+                    upper  => 3,
                     ends   => 6,
                     all    => 8);
 # not exact
@@ -235,65 +247,108 @@ Math::PlanePath::LTiling -- 2x2 self-similar of four pattern parts
 
 =head1 DESCRIPTION
 
-This is a self-similar tiling by "L" shapes where a base L is replicated
-four times with the ends turned +90 and -90 degrees to make a larger L,
+This is a self-similar tiling by "L" shapes.  A base "L" is replicated four
+times with end parts turned +90 and -90 degrees to make a larger L,
 
-                              +-----+-----+
-                              |12   |   15|
-                              |  +--+--+  |
-                              |  |14   |  |
-                              +--+  +--+--+
-                              |  |  |11   |
-                              |  +--+  +--+
-                              |13   |  |  |
-    +-----+                   +-----+--+  +--+--+-----+
-    | 3   |                   | 3   |  |10   |  |    5|
-    |  +--+          -->      |  +--+  +--+--+  +--+  |
-    |  |  |                   |  |  | 8   |   9 |  |  |
-    +--+  +--+--+             +--+  +--+--+--+--+  +--+
-    |  | 2   |  |             |  | 2   |  |  |   6 |  |
-    |  +--+--+  |             |  +--+--+  |  +--+--+  |
-    | 0   |   1 |             | 0   |   1 | 7   |   4 |
-    +-----+-----+             +-----+-----+-----+-----+
+                                        +-----+-----+
+                                        |12   |   15|
+                                        |  +--+--+  |
+                                        |  |14   |  |
+                                        +--+  +--+--+
+                                        |  |  |11   |
+                                        |  +--+  +--+
+                                        |13   |  |  |
+                   +-----+              +-----+--+  +--+--+-----+
+                   | 3   |              | 3   |  |10   |  |    5|
+                   |  +--+        -->   |  +--+  +--+--+  +--+  |
+                   |  |  |              |  |  | 8   |   9 |  |  |
+    +--+           +--+  +--+--+        +--+  +--+--+--+--+  +--+
+    |  |     -->   |  | 2   |  |        |  | 2   |  |  |   6 |  |
+    |  +--+        |  +--+--+  |        |  +--+--+  |  +--+--+  |
+    | 0   |        | 0   |   1 |        | 0   |   1 | 7   |   4 |
+    +-----+        +-----+-----+        +-----+-----+-----+-----+
 
-The parts are numbered to the left then middle then upper, and this relative
-layout is maintained when turned for the end parts in the next replication
-level.
+The parts are numbered to the left then middle then upper.  This relative
+numbering is maintained in the rotated end parts of the next replication
+level, as for example N=4 to N=7.
 
 The result is to visit 1 of every 3 points in the first quadrant with a
-subtle layout of the points and spaces making diagonal lines and little 2x2
+subtle layout of points and spaces which make diagonal lines and little 2x2
 blocks.
 
-     15  |  48          51  61          60 140         143 163
-     14  |      50                  62         142                 168
-     13  |          56          59                 139         162
-     12  |  49          58              63 141             160
-     11  |  55              44          47 131         138
-     10  |          57          46                 136         137
-      9  |      54                  43         130                 134
-      8  |  52          53  45             128         129 135
-      7  |  12          15  35          42              37  21
-      6  |      14                  40          41                  22
-      5  |          11          34                  38          25
-      4  |  13              32          33  39          36
-      3  |   3          10               5  31              26
-      2  |           8           9                  27          24
-      1  |       2                   6          30                  18
-     Y=0 |   0           1   7           4  28          29  19
-         +------------------------------------------------------------
-            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
+    15  |  48          51  61          60 140         143 163
+    14  |      50                  62         142                 168
+    13  |          56          59                 139         162
+    12  |  49          58              63 141             160
+    11  |  55              44          47 131         138
+    10  |          57          46                 136         137
+     9  |      54                  43         130                 134
+     8  |  52          53  45             128         129 135
+     7  |  12          15  35          42              37  21
+     6  |      14                  40          41                  22
+     5  |          11          34                  38          25
+     4  |  13              32          33  39          36
+     3  |   3          10               5  31              26
+     2  |           8           9                  27          24
+     1  |       2                   6          30                  18
+    Y=0 |   0           1   7           4  28          29  19
+        +------------------------------------------------------------
+           X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-The N values 0,2,8,10,32,etc on the X=Y leading diagonal are all the
-integers made from only digits 0 and 2 in base 4.  Or equivalently all
-integers which have zero bits at all even numbered positions (and either 0
-or 1 at odd positions).
+The X=Y leading diagonal 0,2,8,10,32,etc is the integers made from only
+digits 0 and 2 in base 4.  Or equivalently integers which have zero bits at
+all even numbered positions and either 0 or 1 at odd positions, so binary
+a0b0c0d0.
+
+=head2 Left or Upper
+
+Option C<L_fill =E<gt> "left"> or C<L_fill =E<gt> "upper"> numbers the tiles
+at their left end or upper end respectively.
+
+    L_fill => 'left'           8  |      52              45  43        
+                               7  |          15                      42
+    +-----+                    6  |  12              35          40    
+    |     |                    5  |      14                  34  33    
+    |  +--+                    4  |      13  11          32            
+    | 3|  |                    3  |                  10   9   5        
+    +--+  +--+--+              2  |   3           8           6      31
+    |  |    2| 1|              1  |           2   1               4    
+    |  +--+--+  |             Y=0 |       0               7            
+    |    0|     |                 +------------------------------------
+    +-----+-----+                    X=0  1   2   3   4   5   6   7   8
+
+
+    L_fill => 'upper'          8  |          53                  42
+                               7  |      12              35  40
+    +-----+                    6  |          14  15      34          41
+    |    3|                    5  |  13          11  32              39
+    |  +--+                    4  |              10          33
+    |  | 2|                    3  |       3   8
+    +--+  +--+--+              2  |       2           9           5
+    | 0|     |  |              1  |   0               7   6          28
+    |  +--+--+  |             Y=0 |           1               4
+    |     | 1   |                 +------------------------------------
+    +-----+-----+                    X=0  1   2   3   4   5   6   7   8
+
+The effect is to disrupt the pattern a bit though the overall structure of
+the "L" replications is unchanged.
 
 =head2 Ends
 
-Option C<L_fill =E<gt> "all"> numbers the endpoints within each "L", the
-left then upper.  This is the inverse of the default middle shown above and
-visits all the points the middle option doesn't, and on that basis 2 of
-every 3 points in the first quadrant.
+Option C<L_fill =E<gt> "all"> numbers the endpoints within each "L", first
+left then upper.  This is the inverse of the default middle shown above in
+that it visits all the points the middle option doesn't, and so 2 of every 3
+points in the first quadrant.
+
+    +-----+
+    |    7|
+    |  +--+
+    | 6| 5|
+    +--+  +--+--+
+    | 1|    4| 2|
+    |  +--+--+  |
+    |    0| 3   |
+    +-----+-----+
 
      15  |      97 102         123 120         281 286         327 337
      14  |  96     101 103 122 124     121 280     285 287 326 325
@@ -314,58 +369,39 @@ every 3 points in the first quadrant.
          +------------------------------------------------------------
             X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-    +-----+
-    |    7|
-    |  +--+
-    | 6| 5|
-    +--+  +--+--+
-    | 1|    4| 2|
-    |  +--+--+  |
-    |    0| 3   |
-    +-----+-----+
-
 =head2 All
 
 Option C<L_fill =E<gt> "all"> numbers all three points of each "L", as
 middle, left then right.  With this the path visits all points of the first
 quadrant.
 
-     7  |  36  38  46  45 105 107 122 126
-     6  |  37  42  44  47 106 104 120 121
-     5  |  41  43  33  35  98 102 103 100
-     4  |  39  40  34  32  96  97 101  99
-     3  |   9  11  26  30  31  28  16  15
-     2  |  10   8  24  25  29  27  19  17
-     1  |   2   6   7   4  23  20  18  13
-    Y=0 |   0   1   5   3  21  22  14  12
-        +---------------------------------
-           X=0  1   2   3   4   5   6   7
-
-    +-----+
-    | 9 11|
-    |  +--+
-    |10| 8|
-    +--+  +--+--+
-    | 2| 6  7| 4|
-    |  +--+--+  |
-    | 0  1| 5  3|
-    +-----+-----+
+                           7  |  36  38  46  45 105 107 122 126
+    +-----+                6  |  37  42  44  47 106 104 120 121
+    | 9 11|                5  |  41  43  33  35  98 102 103 100
+    |  +--+                4  |  39  40  34  32  96  97 101  99
+    |10| 8|                3  |   9  11  26  30  31  28  16  15
+    +--+  +--+--+          2  |  10   8  24  25  29  27  19  17
+    | 2| 6  7| 4|          1  |   2   6   7   4  23  20  18  13
+    |  +--+--+  |         Y=0 |   0   1   5   3  21  22  14  12
+    | 0  1| 5  3|             +--------------------------------
+    +-----+-----+                X=0  1   2   3   4   5   6   7
 
 =head2 Level Ranges
 
-For the default "middles" numbering, and taking the initial N=0 tile as
-level 0, a replication level is
+For the "middles", "left" or "upper" numbering of 1 per tile, and taking the
+initial N=0 tile as level 0, a replication level is
 
     Nstart = 0
+     to
     Nlevel = 4^level - 1      inclusive
 
     Xmax = Ymax = 2 * 2^level - 1
 
-For example level 2 which is the right hand tiling shown above is N=0 to
+For example level 2 which is the large tiling shown above is N=0 to
 N=4^2-1=15 and extends to Xmax=Ymax=2*2^2-1=7.
 
-For the "ends" variation there's two per tile, or for "all" there's three,
-in which case the Nlevel becomes
+For the "ends" variation there's two points per tile, or for "all" there's
+three, in which case the Nlevel increases to
 
     Nlevel_ends = 2 * 4^level - 1
     Nlevel_all  = 3 * 4^level - 1

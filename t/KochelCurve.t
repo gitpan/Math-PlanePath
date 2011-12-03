@@ -52,7 +52,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 56;
+  my $want_version = 57;
   ok ($Math::PlanePath::KochelCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochelCurve->VERSION,  $want_version,

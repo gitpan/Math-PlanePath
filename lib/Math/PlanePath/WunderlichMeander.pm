@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 56;
+$VERSION = 57;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 
@@ -386,9 +386,10 @@ Wunderlich,
 
             X=0  1   2   3   4   5   6   7   8
 
-The base pattern is the N=0 to N=8 section.  It works as a traversal from
-one corner of a 3x3 square to another along one side.  The base figure goes
-up and it's used rotated by 180 and/or transposed to go across another side,
+The base pattern is the N=0 to N=8 section.  It works as a traversal of a
+3x3 square going from one corner along one side.  The base figure goes
+upwards and it's then used rotated by 180 degrees and/or transposed to go in
+other directions,
 
     +----------------+----------------+---------------+
     | ^              |              * | ^             |
@@ -410,15 +411,17 @@ up and it's used rotated by 180 and/or transposed to go across another side,
     | *----------->  | *------------> | *             |
     +----------------+----------------+---------------+
 
-N=0 to N=8 goes upwards, so the across parts are an X,Y transpose.  The
-transpose in the 0 part means the higher levels go alternately up or across.
-So N=0 to N=8 goes up, then the next level N=0,9,18,.,72 goes right at N=72,
-then N=81,162,..,648 up again, etc.
+The base 0 to 8 goes upwards, so the across sub-parts are an X,Y transpose.
+The transpose in the 0 part means the higher levels go alternately up or
+across.  So N=0 to N=8 goes up, then the next level N=0,9,18,.,72 goes
+right, then N=81,162,..,648 up again, etc.
 
 Wunderlich's conception is successive lower levels of detail as a
 space-filling curve and the transposing in that case applies to ever smaller
-parts.  But for the integer version here the start direction is kept fixed.
-The first move N=0 to N=1 is rightwards similar to the PeanoCurve.
+parts.  But for the integer version here the start direction is fixed and
+the successively higher levels alternate.  The first move N=0 to N=1 is
+rightwards per the "Schema" shown in Wunderlich's paper (and which is
+similar to the PeanoCurve and various other PlanePath curves).
 
 =head1 FUNCTIONS
 

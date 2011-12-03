@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 57, December 2011
+    - new HilbertSpiral
+    - LTiling new L_fill "left" and "upper"
+
 Version 56, December 2011
     - new CincoCurve, DiagonalsAlternating, LTiling
 

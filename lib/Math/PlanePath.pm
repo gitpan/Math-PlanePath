@@ -21,7 +21,7 @@ require 5;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 56;
+$VERSION = 57;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -197,6 +197,7 @@ include
 
     PeanoCurve             3x3 self-similar quadrant traversal
     HilbertCurve           2x2 self-similar quadrant traversal
+    HilbertSpiral          2x2 self-similar whole-plane traversal
     ZOrderCurve            replicating Z shapes
     WunderlichMeander      3x3 "R" pattern quadrant traversal
     BetaOmega              2x2 self-similar half-plane traversal
@@ -579,7 +580,7 @@ such a power for things like KochPeaks and GosperIslands.
 
     Base          Path
     ----          ----
-      2         HilbertCurve, ZOrderCurve (default),
+      2         HilbertCurve, HilbertSpiral, ZOrderCurve (default),
                   BetaOmega, SierpinskiCurve, HIndexing
                   ImaginaryBase (default), ComplexMinus (default)
                   DragonCurve, DragonRounded, DragonMidpoint,
@@ -767,6 +768,7 @@ L<Math::PlanePath::TriangularHypot>
 
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
+L<Math::PlanePath::HilbertSpiral>,
 L<Math::PlanePath::ZOrderCurve>,
 L<Math::PlanePath::WunderlichMeander>,
 L<Math::PlanePath::BetaOmega>,
