@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -157,32 +157,32 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### DigitGroups rect_to_n_range() ...
-  
+
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x1 smaller
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y1 smaller
-  
+
   if ($y2 < 0 || $x2 < 0) {
     return (1, 0); # rect all negative, no N
   }
-  
+
   my $radix = $self->{'radix'};
 
-  my (undef, $x2_level) = _round_down_pow ($x2, $radix);
+  my ($power, $x2_level) = _round_down_pow ($x2, $radix);
   if (_is_infinite($x2_level)) {
     return (0,$x2_level);
   }
 
-  my (undef, $y2_level) = _round_down_pow ($y2, $radix);
+  ($power, my $y2_level) = _round_down_pow ($y2, $radix);
   if (_is_infinite($y2_level)) {
     return (0,$y2_level);
   }
 
-  my (undef, $x1_level) = _round_down_pow ($x1, $radix);
+  ($power, my $x1_level) = _round_down_pow ($x1, $radix);
   if (_is_infinite($x1_level)) {
     return (0,$x1_level);
   }
 
-  my (undef, $y1_level) = _round_down_pow ($y1, $radix);
+  ($power, my $y1_level) = _round_down_pow ($y1, $radix);
   if (_is_infinite($y1_level)) {
     return (0,$y1_level);
   }
@@ -191,7 +191,7 @@ sub rect_to_n_range {
   ### $y1_level
   ### $x2_level
   ### $y2_level
-  
+
   my $lo_level = ($x1_level < $y1_level ? $x1_level : $y1_level);
   my $hi_level = ($x2_level > $y2_level ? $x2_level : $y2_level);
   return ($lo_level == 0 ? 0 : ($radix*$radix + 1) * $radix ** (2*$lo_level),
@@ -201,7 +201,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath undrawn
+=for stopwords Ryde Math-PlanePath undrawn Radix cardinality bijection radix
 
 =head1 NAME
 
@@ -254,19 +254,19 @@ The default binary is
 The C<radix =E<gt> $r> option selects a different base for the digit split.
 For example C<radix =E<gt> 5> gives
 
-   12  |  60  301  302  303  304  685 1506 1507 1508 1509 1310 1511 
-   11  |  55  276  277  278  279  680 1381 1382 1383 1384 1305 1386 
-   10  | 250 1251 1252 1253 1254 1275 6256 6257 6258 6259 1300 6261 
-    9  |  45  226  227  228  229  670 1131 1132 1133 1134 1295 1136 
-    8  |  40  201  202  203  204  665 1006 1007 1008 1009 1290 1011 
-    7  |  35  176  177  178  179  660  881  882  883  884 1285  886 
-    6  |  30  151  152  153  154  655  756  757  758  759 1280  761 
-    5  | 125  626  627  628  629  650 3131 3132 3133 3134  675 3136 
-    4  |  20  101  102  103  104  145  506  507  508  509  270  511 
-    3  |  15   76   77   78   79  140  381  382  383  384  265  386 
-    2  |  10   51   52   53   54  135  256  257  258  259  260  261 
-    1  |   5   26   27   28   29  130  131  132  133  134  255  136 
-   Y=0 |   0    1    2    3    4   25    6    7    8    9   50   11 
+   12  |  60  301  302  303  304  685 1506 1507 1508 1509 1310 1511
+   11  |  55  276  277  278  279  680 1381 1382 1383 1384 1305 1386
+   10  | 250 1251 1252 1253 1254 1275 6256 6257 6258 6259 1300 6261
+    9  |  45  226  227  228  229  670 1131 1132 1133 1134 1295 1136
+    8  |  40  201  202  203  204  665 1006 1007 1008 1009 1290 1011
+    7  |  35  176  177  178  179  660  881  882  883  884 1285  886
+    6  |  30  151  152  153  154  655  756  757  758  759 1280  761
+    5  | 125  626  627  628  629  650 3131 3132 3133 3134  675 3136
+    4  |  20  101  102  103  104  145  506  507  508  509  270  511
+    3  |  15   76   77   78   79  140  381  382  383  384  265  386
+    2  |  10   51   52   53   54  135  256  257  258  259  260  261
+    1  |   5   26   27   28   29  130  131  132  133  134  255  136
+   Y=0 |   0    1    2    3    4   25    6    7    8    9   50   11
        +-----------------------------------------------------------
          X=0    1    2    3    4    5    6    7    8    9   10   11
 

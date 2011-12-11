@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -106,8 +106,8 @@ sub rect_to_n_range {
   if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
   ### assert: $x1<=$x2
 
-  if ($y1 < 0) { $y1 &= 0; }                          # preserve bigint
-  if ($y2 >= $height) { $y2 = ($y2 * 0) + $height-1; }  # preserve bigint
+  if ($y1 < 0) { $y1 *= 0; }                            # preserve bignum
+  if ($y2 >= $height) { $y2 = ($y2 * 0) + $height-1; }  # preserve bignum
 
   # exact range bottom left to top right
   return ($x1*$height + $y1 + 1,

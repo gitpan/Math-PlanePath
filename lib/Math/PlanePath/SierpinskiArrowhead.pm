@@ -26,7 +26,7 @@ use strict;
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -102,21 +102,6 @@ sub n_to_xy {
   return ($x, $y);
 }
 
-# return ($pow, $exp) where $pow = 2**$exp >= $x
-# FIXME: Math::BigInt log() returns nan
-# for some places an estimate is enough here
-sub _round_up_pow2 {
-  my ($x) = @_;
-  if ($x < 1) { $x = 1; }
-  my $exp = ceil (log($x) / log(2));
-  my $pow = 2 ** $exp;
-  if ($pow < $x) {
-    return (2*$pow, $exp+1)
-  } else {
-    return ($pow, $exp);
-  }
-}
-
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = _round_nearest ($x);
@@ -127,8 +112,15 @@ sub xy_to_n {
     return undef;
   }
 
-  my ($len, $level) = _round_up_pow2 ($y + ($y==$x || $y==-$x));
-  ### pow2 round up: ($y + ($y==$x || $y==-$x))
+  # On row Y=2^k the points belong to belong in the level below except for
+  # the endmost X=Y or X=-Y.  For example Y=4 has N=6 which is in the level
+  # below, but at the end has N=9 belongs to the level above.  So $y-1 puts
+  # Y=2^k into the level below and +($y==abs($x)) pushes the end back up to
+  # the next.
+  #
+  my ($len, $level) = _round_down_pow ($y-1 + ($y==abs($x)),
+                                       2);
+  ### pow2 round down: $y-1+($y==abs($x))
   ### $len
   ### $level
 
@@ -137,12 +129,9 @@ sub xy_to_n {
   }
 
   my $n = 0;
-  while ($level) {
+  while ($level-- >= 0) {
+    ### at: "$x,$y  level=$level  len=$len"
     $n *= 3;
-    ### at: "$x,$y  level=$level"
-    ### full len: $len
-    $len /= 2;
-    ### half len: $len
 
     if ($y < 0 || $x < -$y || $x > $y) {
       ### out of range
@@ -189,7 +178,7 @@ sub xy_to_n {
       }
     }
 
-    $level--;
+    $len /= 2;
   }
 
   if ($x == 0 && $y == 0) {
@@ -207,7 +196,7 @@ sub rect_to_n_range {
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
 
-  my (undef,$level) = _round_down_pow ($y2-1, 2);
+  my ($power,$level) = _round_down_pow ($y2-1, 2);
   ### $y2
   ### $level
   return (0, 3**($level+1));

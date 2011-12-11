@@ -31,7 +31,7 @@ use strict;
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -284,7 +284,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal
+=for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal OEIS Nbase sqrt BigRat Nrem wl wr Nsig
 
 =head1 NAME
 
@@ -396,7 +396,7 @@ The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
-    http://oeis.org/A180714  (etc)
+    http://oeis.org/A180714
 
     A180714    X+Y coordinate sum
 

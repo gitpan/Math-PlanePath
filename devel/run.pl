@@ -24,7 +24,7 @@ use POSIX qw(floor ceil);
 use List::Util qw(min max);
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 {
   require Math::PlanePath::Hypot;
@@ -45,7 +45,6 @@ use List::Util qw(min max);
   require Math::PlanePath::SquareReplicate;
   require Math::PlanePath::QuintetReplicate;
   require Math::PlanePath::ComplexMinus;
-  require Math::PlanePath::MathImageComplexPlus;
   require Math::PlanePath::KochSquareflakes;
   require Math::PlanePath::GosperReplicate;
   require Math::PlanePath::SierpinskiTriangle;
@@ -64,7 +63,6 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImageWunderlichSerpentine;
   require Math::PlanePath::MathImageDekkingCurve;
   require Math::PlanePath::MathImageDekkingStraight;
-  require Math::PlanePath::MathImageAR2W2Curve;
   require Math::PlanePath::HilbertCurve;
   require Math::PlanePath::BetaOmega;
   require Math::PlanePath::SierpinskiArrowheadCentres;
@@ -87,25 +85,31 @@ use List::Util qw(min max);
   require Math::PlanePath::MPeaks;
   require Math::PlanePath::LTiling;
   require Math::PlanePath::CornerReplicate;
-  require Math::PlanePath::MathImageCellularRule;
-  require Math::PlanePath::MathImageHilbertMidpoint;
   require Math::PlanePath::MathImageFractionsTree;
   require Math::PlanePath::CincoCurve;
-  require Math::PlanePath::MathImageHilbertSpiral;
-  my $path = Math::PlanePath::MathImageHilbertSpiral->new
+  require Math::PlanePath::HilbertSpiral;
+  require Math::PlanePath::MathImageAR2W2Curve;
+  require Math::PlanePath::MathImageComplexPlus;
+  require Math::PlanePath::MathImageCellularRule;
+  require Math::PlanePath::MathImagePeanoRounded;
+  require Math::PlanePath::DiagonalRationals;
+  require Math::PlanePath::MathImageSagherRationals;
+  my $path = Math::PlanePath::MathImageComplexPlus->new
     (
+     start_shape => 'B1rev',
+     rule => 135,
+     realpart => 1,
+     arms => 1,
      L_fill => 'all',
      mirror => 1,
      divisor_type => 'proper',
      inward => 0,
-     radix => 5,
-     realpart => 1,
+     radix => 3,
      wider => 3,
      # step => 0,
      # tree_type => 'Drib',
      tree_type => 'Kepler',
      #coordinates => 'PQ',
-     arms => 1,
      straight_spacing => 1,
      diagonal_spacing => 5,
     );
@@ -115,9 +119,9 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0.5; $i <= 7; $i+=1) {
+  for (my $i = $n_start+0; $i <= 30; $i+=1) {
 
-    #for (my $i = $n_start; $i <= $n_start + 8; $i=POSIX::ceil($i*1.1+1)) {
+    # for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {
     # for (my $i = 9650; $i <= 9999; $i++) {
     #for (my $i = $n_start; $i <= 30; $i++) {

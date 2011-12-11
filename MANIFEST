@@ -33,6 +33,7 @@ devel/hex-arms.pl
 devel/hexhypot.pl
 devel/hilbert-diamond.pl
 devel/hilbert.pl
+devel/HilbertMidpoint.pm
 devel/hypot.pl
 devel/interpolate.pl
 devel/iterator.pl
@@ -41,6 +42,7 @@ devel/koch-squareflakes.pl
 devel/Makefile
 devel/number-fraction.pl
 devel/number-fraction.t
+devel/numseq.pl
 devel/old/DragonArms.pm
 devel/old/FlowsnakeArms.pm
 devel/old/PythagoreanUAD.pm
@@ -63,6 +65,7 @@ devel/run.pl
 devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
 devel/sierpinski-curve.pl
+devel/StaircaseAlternatingContinuous.pm
 devel/svg.pl
 devel/terdragon.pl
 devel/theodorus.gnuplot
@@ -85,6 +88,7 @@ inc/my_pod2html
 inc/MyMakeMakerExtras.pm
 lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm
 lib/Math/NumSeq/PlanePathCoord.pm
+lib/Math/NumSeq/PlanePathDelta.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
@@ -97,6 +101,7 @@ lib/Math/PlanePath/ComplexMinus.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/CornerReplicate.pm
+lib/Math/PlanePath/DiagonalRationals.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiagonalsAlternating.pm
 lib/Math/PlanePath/DiamondArms.pm
@@ -158,6 +163,7 @@ lib/Math/PlanePath/SquareArms.pm
 lib/Math/PlanePath/SquareReplicate.pm
 lib/Math/PlanePath/SquareSpiral.pm
 lib/Math/PlanePath/Staircase.pm
+lib/Math/PlanePath/StaircaseAlternating.pm
 lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
@@ -187,6 +193,7 @@ t/ComplexMinus.t
 t/CoprimeColumns.t
 t/Corner.t
 t/CornerReplicate.t
+t/DiagonalRationals.t
 t/Diagonals.t
 t/DiamondArms.t
 t/DiamondSpiral.t
@@ -221,9 +228,9 @@ t/LTiling.t
 t/MultipleRings.t
 t/MyTestHelpers.pm
 t/NumSeq-PlanePathCoord.t
+t/NumSeq-PlanePathDelta.t
 t/PeanoCurve-load.t
 t/PeanoCurve.t
-t/PixelRings-image.t
 t/PixelRings.t
 t/PlanePath-subclasses.t
 t/PlanePath.t
@@ -269,6 +276,7 @@ xt/0-Test-YAML-Meta.t
 xt/CellularRule190-oeis.t
 xt/CellularRule54-oeis.t
 xt/CoprimeColumns-oeis.t
+xt/DiagonalRationals-oeis.t
 xt/DivisibleColumns-oeis.t
 xt/Dragon-oeis.t
 xt/FibonacciWordFractal-oeis.t
@@ -277,6 +285,7 @@ xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm
 xt/NumSeq-PlanePath-oeis.t
 xt/PeanoCurve-oeis.t
+xt/PixelRings-image.t
 xt/pod_lists.t
 xt/RationalsTree-oeis.t
 xt/SierpinskiTriangle-oeis.t

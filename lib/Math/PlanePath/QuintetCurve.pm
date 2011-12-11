@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -202,7 +202,7 @@ sub xy_to_n {
 1;
 __END__
 
-=for stopwords eg Ryde Mandelbrot Math-PlanePath Nlevel
+=for stopwords eg Ryde Mandelbrot Math-PlanePath Nlevel QuintetCurve QuintetCentres
 
 =head1 NAME
 

@@ -46,11 +46,11 @@ require Math::NumSeq::PlanePathCoord;
 # characteristic()
 
 foreach my $elem
-  (['monotonic',undef ], # default SquareSpiral X not monotonic
-   ['monotonic', 1, planepath => 'Hypot', coordinate_type => 'Radius' ],
-   ['monotonic', 1, planepath => 'Hypot', coordinate_type => 'Radius' ],
-   ['monotonic', 1, planepath => 'HypotOctant', coordinate_type => 'Radius' ],
-   ['monotonic', 1, planepath => 'HypotOctant', coordinate_type => 'RSquared' ],
+  (['increasing',undef ], # default SquareSpiral X not monotonic
+   ['non_decreasing', 1, planepath => 'Hypot', coordinate_type => 'Radius' ],
+   ['non_decreasing', 1, planepath => 'Hypot', coordinate_type => 'Radius' ],
+   ['non_decreasing', 1, planepath => 'HypotOctant', coordinate_type => 'Radius' ],
+   ['non_decreasing', 1, planepath => 'HypotOctant', coordinate_type => 'RSquared' ],
   ) {
   my ($key, $want, @parameters) = @$elem;
 

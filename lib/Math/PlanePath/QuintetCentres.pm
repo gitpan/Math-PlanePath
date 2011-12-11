@@ -27,7 +27,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -448,7 +448,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Mandelbrot Math-PlanePath
+=for stopwords eg Ryde Mandelbrot Math-PlanePath QuintetCurve FlowsnakeCentres QuintetReplicate QuintetCentres
 
 =head1 NAME
 

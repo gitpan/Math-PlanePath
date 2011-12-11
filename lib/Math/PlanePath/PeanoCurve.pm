@@ -43,7 +43,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -173,14 +173,14 @@ sub xy_to_n {
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
 
+  if ($x < 0 || $y < 0) {
+    return undef;
+  }
   if (_is_infinite($x)) {
     return $x;
   }
   if (_is_infinite($y)) {
     return $y;
-  }
-  if ($x < 0 || $y < 0) {
-    return undef;
   }
 
   # my $radix = $self->{'radix'};
@@ -269,7 +269,7 @@ sub rect_to_n_range {
   }
 
   my $radix = $self->{'radix'};
-  
+
   my ($power, $level) = _round_down_pow (_max($x2,$y2), $radix);
   if (_is_infinite($level)) {
     return (0, $level);
@@ -375,7 +375,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit PeanoCurve Math-PlanePath versa Online
+=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit PeanoCurve Math-PlanePath versa Online Radix radix Georg representable Mephisto
 
 =head1 NAME
 
@@ -558,32 +558,32 @@ curve.  For example the Mephisto waltz sequence
 (eg. L<Math::NumSeq::MephistoWaltz>) makes diamond shapes,
 
     **   *  ***   *  *  *** **   *** **   *** ** **   *  *
-    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
-      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
+      *** **   *** ** **   *  ***   *  ***   *  *  *** **
      ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
-      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
-    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
-      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
-     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
-    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
-    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
-    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
-     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
-      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+      *** **   *** ** **   *  ***   *  ***   *  *  *** **
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
+      *** **   *** ** **   *  ***   *  ***   *  *  *** **
      ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
     **   *  ***   *  *  *** **   *** **   *** ** **   *  *
-     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
-      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
-    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
-      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
-     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
-    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
-    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
     **   *  ***   *  *  *** **   *** **   *** ** **   *  *
      ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+      *** **   *** ** **   *  ***   *  ***   *  *  *** **
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
     **   *  ***   *  *  *** **   *** **   *** ** **   *  *
-    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***  
-      *** **   *** ** **   *  ***   *  ***   *  *  *** ** 
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+      *** **   *** ** **   *  ***   *  ***   *  *  *** **
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
+      *** **   *** ** **   *  ***   *  ***   *  *  *** **
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+     ** ***  *  *   ***  *   ** ** ***  *  *   ***  *   **
+    **   *  ***   *  *  *** **   *** **   *** ** **   *  *
+    *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
+      *** **   *** ** **   *  ***   *  ***   *  *  *** **
 
 This arises from each 3x3 block being one of two shapes which are then
 flipped by the Peano pattern

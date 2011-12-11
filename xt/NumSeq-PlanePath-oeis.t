@@ -101,6 +101,10 @@ sub check_class {
   ### $class
   ### $parameters
 
+  # return unless $class =~ /Delta/;
+  #  return unless $anum eq 'A163540';
+
+
   eval "require $class" or die;
 
   my $name = join(',',
@@ -125,76 +129,22 @@ sub check_class {
     #  Happy bit slow, only first few values for now, not B-file 140,000 ...
     splice @$want, 20000;
   } elsif ($anum eq 'A030547') {
-    # sample values start from i=1 but OFFSET=0
+    # fix sample values start from i=1 but OFFSET=0
     if ($want->[9] == 2) {
       unshift @$want, 1;
-    }
-  } elsif ($anum eq 'A082897') {
-    # full B-file goes to 2^32 which is too much to sieve
-    @$want = grep {$_ < 200_000} @$want;
-
-  } elsif ($anum eq 'A001359'
-           || $anum eq 'A006512'
-           || $anum eq 'A014574'
-           || $anum eq 'A001097') {
-    # twin primes shorten for now
-    @$want = grep {$_ < 1_000_000} @$want;
-
-  } elsif ($anum eq 'A005384') {
-    # sophie germain shorten for now
-    @$want = grep {$_ < 1_000_000} @$want;
-
-  } elsif ($anum eq 'A006567') {
-    # emirps shorten for now
-    @$want = grep {$_ < 100_000} @$want;
-
-  } elsif ($anum eq 'A004542') {  # sqrt(2) in base 5
-    MyTestHelpers::diag ("skip doubtful $anum $name");
-    return;
-  } elsif ($anum eq 'A022000') {  # FIXME: not 1/996 ???
-    MyTestHelpers::diag ("skip doubtful $anum $name");
-    return;
-  } elsif ($anum eq 'A007700'
-           || $anum eq 'A023272'
-           || $anum eq 'A023302'
-           || $anum eq 'A023330') {
-    # Cunningham shortened for now
-    @$want = grep {$_ < 100_000} @$want;
-
-  } elsif ($anum eq 'A002858'
-           || $anum eq 'A002859'
-           || $anum eq 'A003666'
-           || $anum eq 'A003667'
-           || $anum eq 'A001857'
-           || $anum eq 'A048951'
-           || $anum eq 'A007300') {
-    # UlamSequence shortened for now
-    if ($#$want > 1000) {
-      $#$want = 1000;
     }
 
   } elsif ($anum eq 'A038567'
            || $anum eq 'A038566'
-           || $anum eq ''
-           || $anum eq ''
+           || $anum eq 'A020652'
+           || $anum eq 'A020653'
            || $anum eq ''
            || $anum eq '') {
-    # CoprimeColumns shortened for now
+    # CoprimeColumns, DiagonalRationals  shortened for now
     if ($#$want > 10000) {
       $#$want = 10000;
     }
-
-  } elsif ($anum eq 'A005101' || $anum eq 'A133122'
-           || $anum eq 'A001358'
-           || $anum eq 'A006450') {
-    MyTestHelpers::diag ("skip primes stuff $anum");
-    return;
   }
-
-  # return unless $class =~ /Mephisto/;
-  # return unless $class =~ /Almost/;
-  #  return unless $anum eq 'A163540';
-
 
   my $want_count = scalar(@$want);
   MyTestHelpers::diag ("$anum $name  ($want_count values to $want->[-1])");
@@ -227,15 +177,18 @@ sub check_class {
     }
   }
 
-  # {
-  #   my $got_i_start = $seq->i_start;
-  #   if ($got_i_start != $want_i_start) {
-  #     diag "note: $name";
-  #     diag ref $seq;
-  #     diag "got  i_start  $got_i_start";
-  #     diag "want i_start  $want_i_start";
-  #   }
-  # }
+  {
+    my $got_i_start = $seq->i_start;
+    if ($got_i_start != $want_i_start
+        && $anum ne 'A000004' # offset=0, but allow other i_start here
+        && $anum ne 'A000012' # offset=0, but allow other i_start here
+       ) {
+      $good = 0;
+      MyTestHelpers::diag ("bad: $name");
+      MyTestHelpers::diag ("got  i_start  $got_i_start");
+      MyTestHelpers::diag ("want i_start  $want_i_start");
+    }
+  }
 
   {
     ### by next() ...
@@ -302,8 +255,8 @@ sub check_class {
       ### no pred on characteristic(count) ..
       next;
     }
-    if (! $seq->characteristic('monotonic')) {
-      ### no pred on not characteristic(monotonic) ..
+    if (! $seq->characteristic('increasing')) {
+      ### no pred on not characteristic(increasing) ..
       next;
     }
     if ($seq->characteristic('digits')) {

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -412,32 +412,10 @@ sub _apply_max {
   }
 }
 
-sub _round_up_pow2 {
-  my ($x) = @_;
-  ### _round_up_pow2(): $x
-  if ($x < 1) {
-    return (1,0);
-  }
-  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
-  # based blog()
-  my $exp = (ref $x && ($x->isa('Math::BigInt') || $x->isa('Math::BigRat'))
-             ? $x->copy->blog(2)
-             : int(log($x)/log(2)));
-  my $pow = 2 ** $exp;
-  ### $exp
-  ### $pow
-  if ($pow < $x) {
-    return (2*$pow, $exp+1)
-  } else {
-    return ($pow, $exp);
-  }
-}
-
-
 1;
 __END__
 
-=for stopwords eg Ryde Sierpinski Sierpinski's Math-PlanePath Nlevel
+=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel
 
 =head1 NAME
 
@@ -645,7 +623,7 @@ d+s+d.
 
 =head2 Closed Curve
 
-Sierpinki's original conception was a closed curve filling a unit square by
+Sierpinski's original conception was a closed curve filling a unit square by
 ever greater self-similar detail,
 
     /\_/\ /\_/\ /\_/\ /\_/\
@@ -712,6 +690,27 @@ Return 0, the first N in the path.
 L<Math::PlanePath>,
 L<Math::PlanePath::SierpinskiArrowhead>,
 L<Math::PlanePath::KochCurve>
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-planepath/index.html
+
+=head1 LICENSE
+
+Copyright 2011 Kevin Ryde
+
+Math-PlanePath is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-PlanePath is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
 

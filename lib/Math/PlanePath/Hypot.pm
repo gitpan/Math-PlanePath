@@ -24,7 +24,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -213,7 +213,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant
+=for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant onwards
 
 =head1 NAME
 

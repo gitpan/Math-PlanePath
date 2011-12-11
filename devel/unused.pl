@@ -171,3 +171,40 @@ require Math::PlanePath::KochSnowflakes;
   ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
 }
 
+
+sub _round_up_pow2 {
+  my ($x) = @_;
+  ### _round_up_pow2(): $x
+  if ($x < 1) {
+    return (1,0);
+  }
+  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
+  # based blog()
+  my $exp = (ref $x && ($x->isa('Math::BigInt') || $x->isa('Math::BigRat'))
+             ? $x->copy->blog(2)
+             : int(log($x)/log(2)));
+  my $pow = 2 ** $exp;
+  ### $exp
+  ### $pow
+  if ($pow < $x) {
+    return (2*$pow, $exp+1)
+  } else {
+    return ($pow, $exp);
+  }
+}
+
+# return ($pow, $exp) where $pow = 2**$exp >= $x
+# FIXME: Math::BigInt log() returns nan
+# for some places an estimate is enough here
+sub _round_up_pow2 {
+  my ($x) = @_;
+  if ($x < 1) { $x = 1; }
+  my $exp = ceil (log($x) / log(2));
+  my $pow = 2 ** $exp;
+  if ($pow < $x) {
+    return (2*$pow, $exp+1)
+  } else {
+    return ($pow, $exp);
+  }
+}
+

@@ -39,7 +39,7 @@ use Devel::Comments;
 {
   require Math::BigRat;
 
-  require Math::BigFloat;
+  use Math::BigFloat;
   Math::BigFloat->precision(2000);  # digits right of decimal point
   Math::BigFloat->accuracy(2000);
 

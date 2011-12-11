@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 749 }
+BEGIN { plan tests => 763 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,15 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'DiagonalRationals',
+               'CoprimeColumns',
+               'DivisibleColumns',
+
+               'Staircase',
+               'StaircaseAlternating',
                'HilbertSpiral',
+               'HilbertCurve',
+
                'LTiling',
                'DiagonalsAlternating',
                'CincoCurve',
@@ -43,7 +51,6 @@ my @modules = (
                'MPeaks',
                'WunderlichMeander',
                'BetaOmega',
-               'HilbertCurve',
                'FibonacciWordFractal',
 
                'CornerReplicate',
@@ -75,8 +82,6 @@ my @modules = (
                'RationalsTree,tree_type=Bird',
                'RationalsTree,tree_type=Drib',
 
-               'DivisibleColumns',
-               'CoprimeColumns',
                'TriangularHypot',
                'PythagoreanTree',
                'PythagoreanTree,coordinates=PQ',
@@ -125,7 +130,6 @@ my @modules = (
                'PyramidRows,step=5',
                'PyramidRows,step=37',
                'PyramidSides',
-               'Staircase',
                'File',
 
                'UlamWarburton',
@@ -265,7 +269,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 57;
+my $want_version = 58;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -456,11 +460,18 @@ my %class_dxdy_allowed
                                       },
 
      'Math::PlanePath::HilbertCurve'   => $dxdy_square,
+     'Math::PlanePath::HilbertSpiral'  => $dxdy_square,
      'Math::PlanePath::PeanoCurve'     => $dxdy_square,
      'Math::PlanePath::BetaOmega'      => $dxdy_square,
      'Math::PlanePath::DragonCurve'    => $dxdy_square,
      'Math::PlanePath::DragonMidpoint' => $dxdy_square,
      'Math::PlanePath::DragonRounded'  => $dxdy_one,
+     'Math::PlanePath::HilbertMidpoint' => { %$dxdy_diagonal,
+                                             '2,0'   => 1,
+                                             '0,2'   => 1,
+                                             '-2,0'   => 1,
+                                             '0,-2'   => 1,
+                                           },
     );
 
 #------------------------------------------------------------------------------
@@ -516,8 +527,8 @@ sub pythagorean_diag {
 }
 
 {
-  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 35;
-  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 5;
+  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 30;
+  my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
 
   foreach my $mod (@modules) {
@@ -555,7 +566,7 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-    if ($mod =~ /^CoprimeColumns/) {
+    if ($mod =~ /^CoprimeColumns|^DiagonalRationals/) {
       if ($limit > 1100) {
         $limit = 1100;  # bit slow otherwise
       }
@@ -680,9 +691,11 @@ sub pythagorean_diag {
     foreach my $x
       ($pos_infinity, $neg_infinity,
 
+       # no DBL_MAX on these
        ($path->isa('Math::PlanePath::CoprimeColumns')
+        || $path->isa('Math::PlanePath::DiagonalRationals')
         || $path->isa('Math::PlanePath::DivisibleColumns')
-        ? ()
+        ? (dbl_max_neg())
         : (dbl_max(), dbl_max_neg()))) {
 
       next if ! defined $x;
@@ -699,17 +712,23 @@ sub pythagorean_diag {
 
     foreach my $x1
       ($pos_infinity, $neg_infinity,
+
+       # no DBL_MAX on these
        ($path->isa('Math::PlanePath::CoprimeColumns')
+        || $path->isa('Math::PlanePath::DiagonalRationals')
         || $path->isa('Math::PlanePath::DivisibleColumns')
-        ? ()
+        ? (dbl_max_neg())
         : (dbl_max(), dbl_max_neg()))) {
       next if ! defined $x1;
 
       foreach my $x2
         ($pos_infinity, $neg_infinity,
+
+         # no DBL_MAX on these
          ($path->isa('Math::PlanePath::CoprimeColumns')
+          || $path->isa('Math::PlanePath::DiagonalRationals')
           || $path->isa('Math::PlanePath::DivisibleColumns')
-          ? ()
+          ? (dbl_max_neg())
           : (dbl_max(), dbl_max_neg()))) {
         next if ! defined $x2;
 
@@ -902,8 +921,8 @@ sub pythagorean_diag {
 
             foreach my $x2 ($x1 .. $x_max) {
               my @col = map {$data->{$_}->{$x2}} $y1 .. $y2;
-              $max = List::Util::max (grep {defined} $max, @col);
               $min = List::Util::min (grep {defined} $min, @col);
+              $max = List::Util::max (grep {defined} $max, @col);
               my $want_min = (defined $min ? $min : 1);
               my $want_max = (defined $max ? $max : 0);
               ### @col

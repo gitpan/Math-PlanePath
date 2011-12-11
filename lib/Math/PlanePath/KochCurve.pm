@@ -38,7 +38,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -191,11 +191,11 @@ sub rect_to_n_range {
 sub _round_down_pow {
   my ($n, $base) = @_;
   ### _round_down_pow(): "$n base $base"
-  
+
   if ($n < $base) {
     return (1, 0);
   }
-  
+
   # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
   # based blog()
   if (ref $n) {
@@ -210,13 +210,13 @@ sub _round_down_pow {
               $exp);
     }
   }
-  
+
   my $exp = int(log($n)/log($base));
   my $pow = $base**$exp;
   ### n:   ref($n)."  $n"
   ### exp: ref($exp)."  $exp"
   ### pow: ref($pow)."  $pow"
-  
+
   # check how $pow actually falls against $n, not sure should trust float
   # rounding in log()/log($base)
   # Crib: $n as first arg in case $n==BigFloat and $pow==BigInt
@@ -235,7 +235,7 @@ sub _round_down_pow {
 1;
 __END__
 
-=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable
+=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie
 
 =head1 NAME
 

@@ -27,7 +27,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -172,8 +172,7 @@ sub n_to_xy {
 
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {
-      require Math::BigFloat;
-      $n = Math::BigFloat->new($n);
+      $n = Math::PlanePath::SacksSpiral::_bigfloat()->new($n);
     }
     if ($n->isa('Math::BigRat')) {
       $n = $n->as_float;

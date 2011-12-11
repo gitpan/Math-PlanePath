@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -466,7 +466,7 @@ __END__
 
 
 
-=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's
+=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's octant
 
 =head1 NAME
 
@@ -802,7 +802,7 @@ the top A=7,B=24, and the smallest B is in the bottom A=35,B=12.  In general
     Amin = 2*level + 1
     Bmin = 4*level
 
-In P,Q coordinates the same topmost line is the smallest P and bottommost
+In P,Q coordinates the same topmost line is the smallest P and bottom-most
 the smallest Q.  The values are
 
     Pmin = level+1

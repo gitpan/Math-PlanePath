@@ -25,7 +25,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -246,7 +246,7 @@ rE<gt>=1.  For example C<realpart =E<gt> 2> is
                                         55 56 57 58 59          -7
                                               50 51 52 53 54    -8
                              ^
-    -8 -7  -6 -5-4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10
+    -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10
 
 N is broken into digits of base norm=r*r+1, ie. digits 0 to r*r inclusive.
 This makes horizontal runs of r*r+1 many points, such as N=0 to N=4 then N=5
@@ -254,7 +254,7 @@ to N=9 etc above.  In the default r=1 these runs are 2 long, whereas for r=2
 they're 2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
 
 The offset back for each run like N=5 shown is the r in i-r, then the next
-level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at X=-2*2=-4, Y=2*2-1=3.
+level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at Y=-2*2=-4, X=2*2-1=3.
 
 The successive replications tile the plane for any r, though the N values
 needed to rotate around and do so might become large if the norm=r*r+1 is

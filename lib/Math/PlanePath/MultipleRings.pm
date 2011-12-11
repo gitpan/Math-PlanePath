@@ -25,13 +25,15 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_min = \&Math::PlanePath::_min;
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+
+use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -156,8 +158,7 @@ sub n_to_xy {
   my $base_r = $self->{'base_r'};
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {
-      require Math::BigFloat;
-      $n = Math::BigFloat->new($n);
+      $n = Math::PlanePath::SacksSpiral::_bigfloat()->new($n);
     }
     if ($n->isa('Math::BigRat')) {
       $n = $n->as_float;

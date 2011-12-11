@@ -146,7 +146,7 @@ use Math::Libm 'M_PI', 'hypot';
 
 {
   # BigFloat log()
-  require Math::BigFloat;
+  use Math::BigFloat;
   my $b = Math::BigFloat->new(3)**64;
   my $log = log($b);
   my $log3 = $log/log(3);
@@ -156,8 +156,8 @@ use Math::Libm 'M_PI', 'hypot';
 }
 {
   # BigInt log()
-  require Math::BigInt;
-  require Math::BigFloat;
+  use Math::BigInt;
+  use Math::BigFloat;
   my $b = Math::BigInt->new(1025);
   my $log = log($b);
   $b->blog(undef,100);

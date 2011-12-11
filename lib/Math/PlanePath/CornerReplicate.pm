@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -257,7 +257,7 @@ __END__
 # }
 
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath SierpinskiCurve
 
 =head1 NAME
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -233,7 +233,7 @@ sub rect_to_n_range {
 __END__
 
 
-=for stopwords eg Ryde ie LTiling Math-PlanePath Asano Ranjan Roos Welzl Widmayer HilbertCurve ZOrderCurve Informatics
+=for stopwords eg Ryde ie LTiling Math-PlanePath Asano Ranjan Roos Welzl Widmayer HilbertCurve ZOrderCurve Informatics Nlevel
 
 =head1 NAME
 

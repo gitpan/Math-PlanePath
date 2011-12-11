@@ -102,7 +102,6 @@ sub print_table36 {
   my @digit_to_x;
   my @digit_to_y;
   my @xy_to_digit;
-  my @digit_to_dir;
 
   foreach my $f (0, 1) {
     foreach my $rot (0, 1, 2, 3) {
@@ -121,7 +120,6 @@ sub print_table36 {
           my $new_rot = $rot;
           my $new_rev = $rev;
           my $new_f;
-          my $dir;
 
           if ($f) {
             if ($digit == 0) {
@@ -130,91 +128,45 @@ sub print_table36 {
               $new_f = 0;
               $new_rev ^= 1;
               $new_rot = $rot - 1;
-              if ($rev) {
-                $dir = 0; # unused
-              } else {
-                $dir = 1;
-              }
             } elsif ($digit == 1) {
               $xo = 0;
               $yo = 1;
               $new_f = 1;
-              if ($rev) {
-                $dir = 3;
-              } else {
-                $dir = 1;
-              }
             } elsif ($digit == 2) {
               $xo = 0;
               $yo = 2;
               $new_f = 0;
               $new_rot = $rot + 1;
-              if ($rev) {
-                $dir = 3;
-              } else {
-                $dir = 0;
-              }
             } elsif ($digit == 3) {
               $xo = 1;
               $yo = 2;
               $new_rot = $rot - 1;
               $new_f = 1;
-              $dir = 0;
-              if ($rev) {
-                $dir = 2;
-              } else {
-                $dir = 3;
-              }
             } elsif ($digit == 4) {
               $xo = 1;
               $yo = 1;
               $new_f = 1;
               $new_rot = $rot + 2;
-              if ($rev) {
-                $dir = 1;
-              } else {
-                $dir = 3;
-              }
             } elsif ($digit == 5) {
               $xo = 1;
               $yo = 0;
               $new_f = 1;
               $new_rot = $rot - 1;
-              if ($rev) {
-                $dir = 1;
-              } else {
-                $dir = 0;
-              }
             } elsif ($digit == 6) {
               $xo = 2;
               $yo = 0;
               $new_f = 0;
               $new_rot = $rot - 1;
               $new_rev ^= 1;
-              if ($rev) {
-                $dir = 2;
-              } else {
-                $dir = 1;
-              }
             } elsif ($digit == 7) {
               $xo = 2;
               $yo = 1;
               $new_f = 1;
-              if ($rev) {
-                $dir = 3;
-              } else {
-                $dir = 1;
-              }
             } elsif ($digit == 8) {
               $xo = 2;
               $yo = 2;
               $new_f = 0;
               $new_rot = $rot + 1;
-              if ($rev) {
-                $dir = 3;
-              } else {
-                $dir = 0; # not used
-              }
             } else {
               die;
             }
@@ -225,88 +177,43 @@ sub print_table36 {
               $new_rev ^= 1;
               $new_f = 0;
               $new_rot = $rot - 1;
-              if ($rev) {
-                $dir = 0; # not used
-              } else {
-                $dir = 1;
-              }
             } elsif ($digit == 1) {
               $xo = 0;
               $yo = 1;
               $new_f = 1;
-              if ($rev) {
-                $dir = 3;
-              } else {
-                $dir = 1;
-              }
             } elsif ($digit == 2) {
               $xo = 0;
               $yo = 2;
               $new_f = 0;
               $new_rot = $rot + 1;
-              if ($rev) {
-                $dir = 3;
-              } else {
-                $dir = 0;
-              }
             } elsif ($digit == 3) {
               $xo = 1;
               $yo = 2;
               $new_rot = $rot - 1;
               $new_f = 1;
-              if ($rev) {
-                $dir = 2;
-              } else {
-                $dir = 0;
-              }
             } elsif ($digit == 4) {
               $xo = 2;
               $yo = 2;
               $new_f = 0;
-              if ($rev) {
-                $dir = 2;
-              } else {
-                $dir = 3;
-              }
             } elsif ($digit == 5) {
               $xo = 2;
               $yo = 1;
               $new_f = 1;
               $new_rot = $rot + 2;
-              if ($rev) {
-                $dir = 1;
-              } else {
-                $dir = 2;
-              }
             } elsif ($digit == 6) {
               $xo = 1;
               $yo = 1;
               $new_f = 0;
               $new_rev ^= 1;
-              if ($rev) {
-                $dir = 0;
-              } else {
-                $dir = 3;
-              }
             } elsif ($digit == 7) {
               $xo = 1;
               $yo = 0;
               $new_f = 1;
               $new_rot = $rot - 1;
-              if ($rev) {
-                $dir = 1;
-              } else {
-                $dir = 0;
-              }
             } elsif ($digit == 8) {
               $xo = 2;
               $yo = 0;
               $new_f = 0;
-              if ($rev) {
-                $dir = 2;
-              } else {
-                $dir = 0; # not used
-              }
             } else {
               die;
             }
@@ -316,17 +223,12 @@ sub print_table36 {
           if ($rot & 2) {
             $xo = 2 - $xo;
             $yo = 2 - $yo;
-            $dir += 2;
           }
           if ($rot & 1) {
             ($xo,$yo) = (2-$yo,$xo);
-            $dir++;
           }
           ### rot to: "$xo, $yo"
 
-          if ($orig_digit != 8) {
-            $digit_to_dir[$state+$orig_digit] = $dir % 4;
-          }
           $digit_to_x[$state+$orig_digit] = $xo;
           $digit_to_y[$state+$orig_digit] = $yo;
           $xy_to_digit[$state + 3*$xo + $yo] = $orig_digit;
@@ -372,7 +274,6 @@ sub print_table36 {
   print_table ("digit_to_x", \@digit_to_x);
   print_table ("digit_to_y", \@digit_to_y);
   print_table ("xy_to_digit", \@xy_to_digit);
-  print_table ("digit_to_dir", \@digit_to_dir);
   print_table36 ("min_digit", \@min_digit);
   print_table36 ("max_digit", \@max_digit);
   print "# state length ",scalar(@next_state)," in each of 4 tables\n\n";

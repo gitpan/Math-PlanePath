@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 122 }
+BEGIN { plan tests => 296 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::HilbertCurve;
 # VERSION
 
 {
-  my $want_version = 57;
+  my $want_version = 58;
   ok ($Math::PlanePath::HilbertCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HilbertCurve->VERSION,  $want_version,
@@ -72,29 +72,70 @@ require Math::PlanePath::HilbertCurve;
 }
 
 #------------------------------------------------------------------------------
-# xy_to_n
+# first few points
 
 {
-  my @data = ([0, 0,0 ],
-              [1, 1,0 ],
-              [2, 1,1 ],
-              [3, 0,1 ],
+  my @data = ([ 0, 0,0 ],
+              [ 1, 1,0 ],
+              [ 2, 1,1 ],
+              [ 3, 0,1 ],
+
+              [ .25,   .25, 0 ],
+              [ 1.25,  1, .25 ],
+              [ 2.25,  0.75, 1 ],
+              [ 3.25,  0, 1.25 ],
+
+              [ 4.25,  0, 2.25 ],
+              [ 5.25,  .25, 3 ],
+              [ 6.25,  1, 2.75 ],
+              [ 7.25,  1.25, 2 ],
+
+              [ 8.25,  2, 2.25 ],
+              [ 9.25,  2.25, 3 ],
+              [ 10.25,  3, 2.75 ],
+              [ 11.25,  3, 1.75 ],
+
+              [ 12.25,  2.75, 1 ],
+              [ 13.25,  2, .75 ],
+              [ 14.25,  2.25, 0 ],
+              [ 15.25,  3.25, 0 ],
+
+              [   19.25,  5.25, 0 ],
+              [   37.25,  7, 4.25 ],
+
+              [   31.25,  4, 3.25 ],
+              [  127.25,  7.25, 8 ],
+
+              [   63.25,  0, 7.25 ],
+              [  255.25,  15.25, 0 ],
+              [ 1023.25,  0, 31.25 ],
              );
   my $path = Math::PlanePath::HilbertCurve->new;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "x at n=$n");
-    ok ($got_y, $want_y, "y at n=$n");
+    if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
+    if ($got_y == 0) { $got_y = 0 }
+    ok ($got_x, $want_x, "n_to_xy() x at n=$n");
+    ok ($got_y, $want_y, "n_to_xy() y at n=$n");
   }
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
-    $want_n = int ($want_n + 0.5);
+    next unless $want_n==int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
     ok ($got_n, $want_n, "n at x=$x,y=$y");
   }
+
+  foreach my $elem (@data) {
+    my ($n, $x, $y) = @$elem;
+    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+    next unless $n==int($n);
+    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+  }
 }
+
 
 #------------------------------------------------------------------------------
 # rect_to_n_range() random
@@ -138,6 +179,31 @@ require Math::PlanePath::HilbertCurve;
         "rect_to_n_range() on $x,$y rect $xcount,$ycount   n_min_pos=$n_min_pos");
     ok ($got_n_max == $n_max, 1,
         "rect_to_n_range() on $x,$y rect $xcount,$ycount   n_max_pos=$n_max_pos");
+  }
+}
+
+#------------------------------------------------------------------------------
+# random fracs
+
+{
+  my $path = Math::PlanePath::HilbertCurve->new;
+  for (1 .. 20) {
+    my $bits = int(rand(20));         # 0 to 20, inclusive
+    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+
+    my ($x1,$y1) = $path->n_to_xy ($n);
+    my ($x2,$y2) = $path->n_to_xy ($n+1);
+
+    foreach my $frac (0.25, 0.5, 0.75) {
+      my $want_xf = $x1 + ($x2-$x1)*$frac;
+      my $want_yf = $y1 + ($y2-$y1)*$frac;
+
+      my $nf = $n + $frac;
+      my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
+
+      ok ($got_xf, $want_xf, "n_to_xy($n) frac $frac, x");
+      ok ($got_yf, $want_yf, "n_to_xy($n) frac $frac, y");
+    }
   }
 }
 

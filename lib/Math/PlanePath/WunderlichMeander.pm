@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 
@@ -349,7 +349,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie WunderlichMeander Math-PlanePath Wunderlich PeanoCurve Wunderlich's Uber Peano Kurven Elemente der Mathematik
+=for stopwords eg Ryde ie WunderlichMeander Math-PlanePath Wunderlich PeanoCurve Wunderlich's Uber Peano-Kurven Elemente der Mathematik PlanePath
 
 =head1 NAME
 

@@ -30,15 +30,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::SierpinskiArrowhead;
-*_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -173,8 +173,8 @@ sub xy_to_n {
   $y = _round_nearest($y);
 
   # max(|x|,|y|), or maybe hypot, or ...
-  my ($pow,$exp) = _round_up_pow2(abs($x)+abs($y));
-  my $level_limit = 2*$exp + 5;
+  my ($pow,$exp) = _round_down_pow(abs($x)+abs($y), 2);
+  my $level_limit = 2*$exp + 6;
   if (_is_infinite($level_limit)) {
     return $level_limit;  # infinity
   }
@@ -229,72 +229,6 @@ sub xy_to_n {
   ### not found below level limit
   return undef;
 }
-
-# sub xy_to_n {
-#   my ($self, $x, $y) = @_;
-#   ### DragonCurve xy_to_n(): "$x, $y"
-#
-#   $x = _round_nearest($x);
-#   $y = _round_nearest($y);
-#
-#   my ($pow,$exp) = _round_up_pow2(max(abs($x),abs($y)));
-#   my $level_limit = 2*$exp+5;
-#   if (_is_infinite($level_limit)) {
-#     return $level_limit;
-#   }
-#   ### $level_limit
-#
-#   my $top = 0;
-#   my $i = 0;
-#   my @digits = (0);
-#   my @sx = (1);
-#   my @sy = (0);
-#   my @hypot = (3);
-#   for (;;) {
-#     my $n = 0;
-#     foreach my $digit (reverse @digits) { # high to low
-#       $n = 2*$n + $digit;
-#     }
-#     ### consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-#     my ($nx,$ny) = $self->n_to_xy($n);
-#
-#     if ($i == 0 && $x == $nx && $y == $ny) {
-#       ### found
-#       return $n;
-#     }
-#
-#     if ($i == 0
-#         || ($x-$nx)**2 + ($y-$ny)**2 > $hypot[$i]) {
-#       ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + ($y-$ny)**2).' vs '.$hypot[$i]
-#
-#       while (++$digits[$i] > 1) {
-#         $digits[$i] = 0;
-#         if (++$i <= $top) {
-#           ### backtrack up
-#
-#         } else {
-#           ### backtrack extend top
-#           if ($i > $level_limit) {
-#             ### not found below level limit, outside curve ...
-#             return undef;
-#           }
-#           $digits[$i] = 0;
-#           $sx[$i] = ($sx[$top] - $sy[$top]);
-#           $sy[$i] = ($sx[$top] + $sy[$top]);
-#           $hypot[$i] = ($i % 4 ? 2 : 3) * $hypot[$top];
-#           ### assert: $hypot[$i]**2 >= $sx[$i]**2 + $sy[$i]**2
-#           $top++;
-#         }
-#       }
-#
-#     } else {
-#       ### descend
-#       ### assert: $i > 0
-#       $i--;
-#       $digits[$i] = 0;
-#     }
-#   }
-# }
 
 # f = (1 - 1/sqrt(2) = .292
 # 1/f = 3.41

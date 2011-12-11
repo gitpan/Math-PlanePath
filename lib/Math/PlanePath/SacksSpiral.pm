@@ -28,13 +28,14 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant n_start => 0;
 use constant figure => 'circle';
@@ -52,6 +53,13 @@ use constant figure => 'circle';
 #   return $x;
 # }
 
+# Note: this is "use Math::BigFloat" not "require Math::BigFloat" because
+# BigFloat 1.997 does some setups in its import() needed to tie-in to the
+# BigInt back-end, or something.
+use constant::defer _bigfloat => sub {
+  eval "use Math::BigFloat; 1" or die $@;
+};
+
 use constant 1.02; # for leading underscore
 use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
 
@@ -64,8 +72,7 @@ sub n_to_xy {
 
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {
-      require Math::BigFloat;
-      $n = Math::BigFloat->new($n);
+      $n = _bigfloat()->new($n);
     }
     if ($n->isa('Math::BigRat')) {
       $n = $n->as_float;
@@ -145,7 +152,7 @@ sub _rect_to_radius_range {
 1;
 __END__
 
-=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM
+=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM Euler's
 
 =head1 NAME
 

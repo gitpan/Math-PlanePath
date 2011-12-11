@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Math-PlanePath
-version:            57
+version:            58
 abstract:           Mathematical paths through the 2-D plane.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -12,7 +12,7 @@ build_requires:
     ExtUtils::MakeMaker:  0
 requires:
     constant:         1.02
-    constant::defer:  0
+    constant::defer:  5
     List::Util:       0
     Math::Libm:       0
     perl:             5.004

@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 187)[1];
+my $test_count = (tests => 203)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -114,6 +114,97 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('5/4')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('3/2')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('7/4')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
+
+
+#------------------------------------------------------------------------------
+# CoprimeColumns
+
+{
+  require Math::PlanePath::CoprimeColumns;
+  my $path = Math::PlanePath::CoprimeColumns->new;
+
+  {
+    my $n = Math::BigRat->new('-2/3');
+    my @ret = $path->n_to_xy($n);
+    ok (scalar(@ret), 0);
+  }
+  {
+    my $n = Math::BigRat->new(0);
+    my $want_x = 1;
+    my $want_y = 1;
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $want_x, 1, "got $got_x want $want_x");
+    ok ($got_y == $want_y);
+
+    my $got_n = $path->xy_to_n($want_x,$want_y);
+    ok ($got_n == 0, 1);
+  }
+  # pending int(-1/2)==0 dodginess
+  # {
+  #   my $n = Math::BigRat->new('-1/3');
+  #   my $want_x = 1;
+  #   my $want_y = Math::BigRat->new('1/3');
+  # 
+  #   my ($got_x,$got_y) = $path->n_to_xy($n);
+  #   ok ($got_x == $want_x, 1, "got $got_x want $want_x");
+  #   ok ($got_y == $want_y);
+  # 
+  #   my $got_n = $path->xy_to_n($want_x,$want_y);
+  #   ok ($got_n == 0, 1);
+  # }
+  {
+    my $n = Math::BigRat->new('1/2');
+    my $want_x = 2;
+    my $want_y = Math::BigRat->new('1/2');
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $want_x, 1, "got $got_x want $want_x");
+    ok ($got_y == $want_y);
+
+    my $got_n = $path->xy_to_n($want_x,$want_y);
+    ok ($got_n == 1, 1);
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# DiagonalRationals
+
+{
+  require Math::PlanePath::DiagonalRationals;
+  my $path = Math::PlanePath::DiagonalRationals->new;
+
+  {
+    my $n = Math::BigRat->new('1/3');
+    my @ret = $path->n_to_xy($n);
+    ok (scalar(@ret), 0);
+  }
+  {
+    my $n = Math::BigRat->new('1/2');
+    my $want_x = Math::BigRat->new('1/2');
+    my $want_y = Math::BigRat->new('3/2');
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $want_x, 1, "got $got_x want $want_x");
+    ok ($got_y == $want_y, 1, "got $got_y want $want_y");
+
+    my $got_n = $path->xy_to_n($want_x,$want_y);
+    ok ($got_n == 1, 1);
+  }
+  {
+    my $n = Math::BigRat->new('4/3');
+    my $want_x = Math::BigRat->new('4/3');
+    my $want_y = Math::BigRat->new('2/3');
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $want_x, 1, "got $got_x want $want_x");
+    ok ($got_y == $want_y, 1, "got $got_y want $want_y");
+
+    my $got_n = $path->xy_to_n($want_x,$want_y);
+    ok ($got_n == 1, 1);
+  }
+}
 
 #------------------------------------------------------------------------------
 # Rows
@@ -275,6 +366,8 @@ require Math::PlanePath::KochCurve;
 
 my @modules = (
                'HilbertSpiral',
+               'HilbertCurve',
+
                'LTiling',
                'DiagonalsAlternating',
                'CincoCurve',
@@ -286,7 +379,6 @@ my @modules = (
                'DigitGroups',
                'PeanoCurve',
                'ZOrderCurve',
-               'HilbertCurve',
                'BetaOmega',
                
                'HIndexing',
@@ -346,6 +438,7 @@ my @modules = (
                'RationalsTree',
                # 'DivisibleColumns', # counting by N
                # 'CoprimeColumns',   # counting by N
+               # 'DiagonalRationals',# counting by N
                # 'TriangularHypot',  # counting by N
                'PythagoreanTree',
                
@@ -369,6 +462,7 @@ my @modules = (
                'PyramidRows',
                'PyramidSides',
                'Staircase',
+               'StaircaseAlternating',
               );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 

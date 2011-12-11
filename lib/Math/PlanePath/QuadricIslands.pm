@@ -29,7 +29,7 @@ use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -268,22 +268,22 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### QuadricIslands rect_to_n_range(): "$x1,$y1  $x2,$y2"
-  
+
   # $x1 = _round_nearest ($x1);
   # $y1 = _round_nearest ($y1);
   # $x2 = _round_nearest ($x2);
   # $y2 = _round_nearest ($y2);
-  
+
   my $m = _max(abs($x1), abs($x2),
                abs($y1), abs($y2));
-  
+
   my ($power,$level) = _round_down_pow (6*$m-2, 4);
   ### $power
   ### $level
   return (1,
           (32*8**$level - 4)/7);
-  
-  
+
+
 }
 
 #    ymax = ypos(l) + 4^(l-1) + width(l-1)
@@ -325,39 +325,39 @@ Math::PlanePath::QuadricIslands -- quadric curve rings
 
 This is concentric islands made from four sides of the QuadricCurve,
 
-                                  27--26                     3               
-                                   |   |                                     
-                              29--28  25  22--21             2               
-                               |       |   |   |                             
+                                  27--26                     3
+                                   |   |
+                              29--28  25  22--21             2
+                               |       |   |   |
                               30--31  24--23  20--19         1
-                                   | 4--3          | 
+                                   | 4--3          |
                           34--33--32    | 16--17--18     <- Y=0
-                           |         1--2  |         
+                           |         1--2  |
                           35--36   7---8  15--14            -1
-                                   |   |       | 
+                                   |   |       |
                                5---6   9  12--13            -2
-                                       |   |     
+                                       |   |
                           55--56      10--11                -3
-                           |   |               
+                           |   |
       ...             53--54  57  60--61                    -4
-                       |       |   |   |       
+                       |       |   |   |
                       52--51  58--59  62--63                -5
-                           |               |                      
-                  48--49--50      66--65--64                -6    
-                   |               |                              
+                           |               |
+                  48--49--50      66--65--64                -6
+                   |               |
           39--40  47--46          67--68                    -7
-           |   |       |               |                
+           |   |       |               |
       37--38  41  44--45              69                    -8
-               |   |                   |              
+               |   |                   |
               42--43                  70--71                -9
-                                           |                                 
+                                           |
                                   74--73--72               -10
-                                   |                       
-                                  75--76  79--80      ...  -11               
-                                       |   |   |       |                     
-                                      77--78  81  84--85   -12               
-                                               |   |                         
-                                              82--83       -13               
+                                   |
+                                  75--76  79--80      ...  -11
+                                       |   |   |       |
+                                      77--78  81  84--85   -12
+                                               |   |
+                                              82--83       -13
 
                                        ^
       -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3   4

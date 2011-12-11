@@ -27,7 +27,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -35,8 +35,8 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::SierpinskiArrowhead;
-*_round_up_pow2 = \&Math::PlanePath::SierpinskiArrowhead::_round_up_pow2;
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -223,8 +223,9 @@ sub xy_to_n {
   #   }
   # }
 
-  my ($pow,$exp) = _round_up_pow2(_max(abs($x/3),abs($y/3)));
-  my $level_limit = 2*$exp + 5;
+  my ($power,$level_limit) = _round_down_pow (_max(abs($x),abs($y))/3,
+                                             2);
+  $level_limit = 2*$level_limit + 6;
   if (_is_infinite($level_limit)) {
     return $level_limit;
   }

@@ -28,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -381,7 +381,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords HilbertCurve eg Ryde OEIS ZOrderCurve ie bignums prepending BetaOmega Math-PlanePath
+=for stopwords HilbertCurve eg Ryde OEIS ZOrderCurve ie bignums prepending BetaOmega Math-PlanePath Jens-Michael Wierum Ymin Ymax Wierum's PlanePath Paderborn CCCG'02 MERCHANTABILITY 14th
 
 =head1 NAME
 

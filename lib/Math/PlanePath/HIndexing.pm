@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -257,11 +257,11 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie HIndexing Math-PlanePath
+=for stopwords eg Ryde ie HIndexing Math-PlanePath Rolf Niedermeier octant SierpinskiCurve Indexings
 
 =head1 NAME
 
-Math::PlanePath::HIndexing -- self-similar right-triangule traversal
+Math::PlanePath::HIndexing -- self-similar right-triangle traversal
 
 =head1 SYNOPSIS
 

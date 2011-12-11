@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -206,7 +206,7 @@ sub rect_to_n_range {
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
 
-  my (undef,$level) = _round_down_pow ($y2, 2);
+  my ($power,$level) = _round_down_pow ($y2, 2);
   ### $y2
   ### $level
   return (0, 3**($level+1) - 1);

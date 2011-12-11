@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 58, December 2011
+    - new DiagonalRationals, StaircaseAlternating,
+      Math::NumSeq::PlanePathDelta
+
 Version 57, December 2011
     - new HilbertSpiral
     - LTiling new L_fill "left" and "upper"

@@ -29,6 +29,53 @@ use Smart::Comments;
 
 
 {
+  # vs spectrum
+  require Image::Base::Text;
+  my $prev = 0;
+  my $diff_total = 0;
+  my $diff_count = 0;
+  my $prev_count = 0;
+  my $prev_sq = 0;
+  foreach my $r (1 .. 6000) {
+    my $count = image_count($r) / 4;
+    my $dcount = $count - $prev_count - 1;
+    my $xfrac = (1 + sqrt(8*($r+0)**2-1))/4;
+    # my $x = (2 + sqrt(8*($r+0)**2-4))/4;
+    my $y = int($xfrac+.5);
+    my $x = int($xfrac);
+    my $extra = (($y-1)**2 + ($y+.5)**2) < $r*$r;
+    $extra = ($x==$y); # && (($x^$y^1)&1);
+    my $sq = $y + $y-1 + $extra;
+    my $dsq = $sq - $prev_sq;
+    my $star = ($dsq != $dcount ? "***" : "");
+    # printf "%2d dc=%3d dsq=%4.2f  %s\n", $r, $dcount,$dsq, $star;
+
+    $star = (int($sq) != $count ? "***" : "");
+    printf "%2d c=%3d sq=%4.2f x=%4.2f,y=$y  %s\n", $r, $count,$sq,$x, $star;
+
+    $prev_count = $count;
+    $prev_sq = $sq;
+  }
+  exit 0;
+
+  sub floor_half {
+    my ($n) = @_;
+    return int(2*$n)/2;
+  }
+}
+
+{
+  my $r = 5;
+  my $w = 2*$r+1;
+  require Image::Base::Text;
+  my $image = Image::Base::Text->new (-width => $w,
+                                      -height => $w);
+  $image->ellipse (0,0, $w-1,$w-1, 'x');
+  my $str = $image->save_string;
+  print $str;
+  exit 0;
+}
+{
   # wider ellipse() overlaps, near centre mostly
   my %image_coords;
   my $offset = 100;
@@ -120,7 +167,6 @@ use Smart::Comments;
 
 {
   # vs int(sqrt(2))
-  require Image::Base::Text;
   my $prev = 0;
   my $diff_total = 0;
   my $diff_count = 0;
@@ -229,6 +275,7 @@ foreach my $row (reverse @rows) {
 sub image_count {
   my ($r) = @_;
   my $w = 2*$r+1;
+  require Image::Base::Text;
   my $image = Image::Base::Text->new (-width => $w,
                                       -height => $w);
   $image->ellipse (0,0, $w-1,$w-1, 'x');

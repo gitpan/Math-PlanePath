@@ -44,6 +44,45 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['diagonal-rationals-small.png',
+    'math-image --path=DiagonalRationals --lines --scale=4 --size=32'],
+   ['diagonal-rationals-big.png',
+    'math-image --path=DiagonalRationals --lines --scale=10 --size=200'],
+
+   ['rationals-tree-small.png',
+    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
+   ['rationals-tree-big.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=200'],
+   ['rationals-tree-lines-drib.png',
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-sb.png',
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-cw.png',
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-ayt.png',
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-bird.png',
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
+
+
+   ['divisible-columns-small.png',
+    'math-image --path=DivisibleColumns --all --scale=3 --size=32'],
+   ['divisible-columns-big.png',
+    'math-image --path=DivisibleColumns --all --scale=3 --size=200'],
+   ['divisible-columns-proper-big.png',
+    'math-image --path=DivisibleColumns,divisor_type=proper --all --scale=3 --size=200'],
+
+   ['coprime-columns-small.png',
+    'math-image --path=CoprimeColumns --all --scale=3 --size=32'],
+   ['coprime-columns-big.png',
+    'math-image --path=CoprimeColumns --all --scale=3 --size=200'],
+
+
+   # ['hilbert-midpoint-small.png',
+   #  'math-image --path=HilbertMidpoint --lines --scale=2 --size=32'],
+   # ['hilbert-midpoint-big.png',
+   #  'math-image --path=HilbertMidpoint --lines --scale=3 --size=190'],
+
    ['hilbert-small.png',
     'math-image --path=HilbertCurve --lines --scale=3 --size=32'],
    ['hilbert-big.png',
@@ -190,19 +229,6 @@ foreach my $elem
 
 
 
-   ['divisible-columns-small.png',
-    'math-image --path=DivisibleColumns --all --scale=3 --size=32'],
-   ['divisible-columns-big.png',
-    'math-image --path=DivisibleColumns --all --scale=3 --size=200'],
-   ['divisible-columns-proper-big.png',
-    'math-image --path=DivisibleColumns,divisor_type=proper --all --scale=3 --size=200'],
-
-   ['coprime-columns-small.png',
-    'math-image --path=CoprimeColumns --all --scale=3 --size=32'],
-   ['coprime-columns-big.png',
-    'math-image --path=CoprimeColumns --all --scale=3 --size=200'],
-
-
    ['sierpinski-arrowhead-centres-small.png',
     'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32 --offset=0,1'],
    ['sierpinski-arrowhead-centres-big.png',
@@ -321,21 +347,6 @@ foreach my $elem
    ['quintet-centres-big.png',
     'math-image --path=QuintetCentres --lines --scale=7 --size=200 --offset=-20,-70'],
 
-
-   ['rationals-tree-lines-drib.png',
-    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-sb.png',
-    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-cw.png',
-    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-ayt.png',
-    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-bird.png',
-    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-small.png',
-    'math-image --path=RationalsTree --all --scale=3 --size=32'],
-   ['rationals-tree-big.png',
-    'math-image --path=RationalsTree --all --scale=3 --size=200'],
 
    ['pythagorean-small.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32'],
@@ -520,9 +531,9 @@ foreach my $elem
   }
 
   system('pngtextadd','--keyword=Author','--text=Kevin Ryde',$tempfile) == 0
-    or die "system()";
+    or die "system(pngtextadd)";
   system('pngtextadd','--keyword=Generator','--text=gallery.pl and math-image',$tempfile) == 0
-    or die "system()";
+    or die "system(pngtextadd)";
 
   my $targetfile = "$target_dir/$filename";
   if (File::Compare::compare($tempfile,$targetfile) == 0) {

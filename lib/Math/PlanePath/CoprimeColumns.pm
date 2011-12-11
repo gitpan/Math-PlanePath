@@ -23,39 +23,44 @@ package Math::PlanePath::CoprimeColumns;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 57;
+use vars '$VERSION', '@ISA', '@_x_to_n';
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
-my @x_to_n = (0,0,1);
+
+# shared with DiagonalRationals
+@_x_to_n = (0,0,1);
 sub _extend {
-  ### _extend(): $#x_to_n
-  my $x = $#x_to_n;
-  push @x_to_n, $x_to_n[$x] + _totient($x);
+  ### _extend(): $#_x_to_n
+  my $x = $#_x_to_n;
+  push @_x_to_n, $_x_to_n[$x] + _totient($x);
 
   # if ($x > 2) {
   #   if (($x & 3) == 2) {
   #     $x >>= 1;
-  #     $next_n += $x_to_n[$x] - $x_to_n[$x-1];
+  #     $next_n += $_x_to_n[$x] - $_x_to_n[$x-1];
   #   } else {
   #     $next_n +=
   #   }
   # }
-  ### last x: $#x_to_n
-  ### second last: $x_to_n[$#x_to_n-2]
-  ### last: $x_to_n[$#x_to_n-1]
-  ### diff: $x_to_n[$#x_to_n-1] - $x_to_n[$#x_to_n-2]
-  ### totient of: $#x_to_n - 2
-  ### totient: _totient($#x_to_n-2)
-  ### assert: $x_to_n[$#x_to_n-1] - $x_to_n[$#x_to_n-2] == _totient($#x_to_n-2)
+  ### last x: $#_x_to_n
+  ### second last: $_x_to_n[$#_x_to_n-2]
+  ### last: $_x_to_n[$#_x_to_n-1]
+  ### diff: $_x_to_n[$#_x_to_n-1] - $_x_to_n[$#_x_to_n-2]
+  ### totient of: $#_x_to_n - 2
+  ### totient: _totient($#_x_to_n-2)
+  ### assert: $_x_to_n[$#_x_to_n-1] - $_x_to_n[$#_x_to_n-2] == _totient($#_x_to_n-2)
 }
 
 sub n_to_xy {
@@ -63,7 +68,7 @@ sub n_to_xy {
   ### CoprimeColumns n_to_xy(): $n
 
   # $n<-0.5 is ok for Math::BigInt circa Perl 5.12, it seems
-  if ($n < -0.5) {
+  if (2*$n < -1) {
     return;
   }
   if (_is_infinite($n)) {
@@ -73,38 +78,35 @@ sub n_to_xy {
   my $frac;
   {
     my $int = int($n);
-    if ($n == $int) {
-      $frac = 0;
-    } else {
-      $frac = $n - $int; # -.5 <= $frac < 1
-      $n = $int;  # BigFloat int() gives BigInt, use that
-      if ($frac > .5) {
-        $frac--;
-        $n += 1;
-        # now -.5 <= $frac < .5
-      }
-      ### $n
-      ### $frac
-      ### assert: $frac >= -.5
-      ### assert: $frac < .5
+    $frac = $n - $int; # -.5 <= $frac < 1
+    $n = $int;  # BigFloat int() gives BigInt, use that
+
+    if (2*$frac >= 1) {
+      $frac--;
+      $n += 1;
+      # now -.5 <= $frac < .5
     }
+    ### $n
+    ### $frac
+    ### assert: 2*$frac >= -1
+    ### assert: 2*$frac < 1
   }
 
   my $x = 1;
   for (;;) {
-    while ($x > $#x_to_n) {
+    while ($x > $#_x_to_n) {
       _extend();
     }
-    if ($x_to_n[$x] > $n) {
+    if ($_x_to_n[$x] > $n) {
       $x--;
       last;
     }
     $x++;
   }
-  $n -= $x_to_n[$x];
+  $n -= $_x_to_n[$x];
   ### $x
-  ### n base: $x_to_n[$x]
-  ### n next: $x_to_n[$x+1]
+  ### n base: $_x_to_n[$x]
+  ### n next: $_x_to_n[$x+1]
   ### remainder: $n
 
   my $y = 1;
@@ -115,7 +117,7 @@ sub n_to_xy {
       }
     }
     if (++$y >= $x) {
-      ### oops, not enough in this column
+      ### oops, not enough in this column ...
       return;
     }
   }
@@ -162,10 +164,10 @@ sub xy_to_n {
     return undef;
   }
 
-  while ($#x_to_n < $x) {
+  while ($#_x_to_n < $x) {
     _extend();
   }
-  my $n = $x_to_n[$x];
+  my $n = $_x_to_n[$x];
   ### base n: $n
   if ($y != 1) {
     foreach my $i (1 .. $y-1) {
@@ -186,6 +188,7 @@ sub xy_to_n {
 # but want an upper bound, so that for a given X at least enough N is
 # covered ...
 #
+# Note: DiagonalRationals depends on this working only to column resolution.
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -209,13 +212,13 @@ sub rect_to_n_range {
     return (1, $x2);
   }
 
-  while ($#x_to_n <= $x2) {
+  while ($#_x_to_n <= $x2) {
     _extend();
   }
 
   ### rect use xy_to_n at: "x=".($x2+1)." y=1"
   if ($x1 < 0) { $x1 = 0; }
-  return ($x_to_n[$x1], $x_to_n[$x2+1]-1);
+  return ($_x_to_n[$x1], $_x_to_n[$x2+1]-1);
 
   # return (1, .304*$x2*$x2 + 20);   # asympototically ?
 }
@@ -223,7 +226,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde coprime coprimes coprimeness totient Math-PlanePath Euler's onwards
+=for stopwords Ryde coprime coprimes coprimeness totient totients Math-PlanePath Euler's onwards
 
 =head1 NAME
 
@@ -268,17 +271,15 @@ horizontally along Y=1 are the totient sums
     sum   phi(i)
      i=1
 
+Anything making a straight line etc in the path will probably be related to
+totient sums in some way.
+
 The pattern of coprimes or not within a column is the same read going up as
 going down, since X,X-Y has the same coprimeness as X,Y.  This means
 coprimes occur in pairs from X=3 onwards.  (When X is even the middle point
 Y=X/2 is not coprime since it has common factor 2 from X=4 onwards.)  So
 there's an even number of points in each column from X=2 onwards and the
 totals horizontally along X=1 are even likewise.
-
-The current implementation is pretty slack and is fairly slow on medium to
-large N, but the resulting pattern is interesting.  Anything making a
-straight line etc in the path will probably be related to totient sums in
-some way.
 
 =head1 FUNCTIONS
 
@@ -298,9 +299,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
 
+=head1 BUGS
+
+The current implementation is fairly slack and is slow on medium to large N.
+A table of cumulative totients is built and retained for the X column number
+used.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::DiagonalRationals>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::PythagoreanTree>,
 L<Math::PlanePath::DivisibleColumns>

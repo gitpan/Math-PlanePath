@@ -33,7 +33,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 57;
+$VERSION = 58;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -41,6 +41,7 @@ use Math::NumSeq;
 #use Smart::Comments;
 
 
+use constant 1.02; # various underscore constants below
 use constant description => Math::NumSeq::__('Coordinate values from a PlanePath');
 use constant characteristic_smaller => 1;
 
@@ -110,15 +111,27 @@ my %oeis_anum =
    # ENHANCE-ME: Rows/Columns runs of 0,0,0,1,1,1, etc in other coord
    #
 
-   'Math::PlanePath::SquareSpiral,wider=0' =>
-   { Sum     => 'A180714', # X+Y of square spiral
-     AbsDiff => 'A053615', # 0..n..0, distance to pronic
-     # OEIS-Catalogue: A180714 planepath=SquareSpiral coordinate_type=Sum
-     # OEIS-Other: A053615 planepath=SquareSpiral coordinate_type=AbsDiff
+   # 'Math::PlanePath::SquareSpiral,wider=0' =>
+   # {
+   #  # OFFSET n=0 not N=1
+   #  # Sum     => 'A180714', # X+Y of square spiral
+   #  # # OEIS-Catalogue: A180714 planepath=SquareSpiral coordinate_type=Sum
+   #
+   #   # Not quite, A053615 starts n=0 but SquareSpiral starts N=1
+   #   # AbsDiff => 'A053615', # 0..n..0, distance to pronic
+   #   #
+   #   # cf A053615 also Math::PlanePath::PyramidSpiral abs(X),
+   #   # coordinate going up and down ...
+   # },
 
-     # cf A053615 also Math::PlanePath::PyramidSpiral abs(X),
-     # coordinate going up and down ...
-   },
+   # 'Math::PlanePath::Corner,wider=0' =>
+   # {
+   #  # Not quite, A196199 starts n=0 but Corner starts N=1
+   #  # DiffXY  => 'A196199', # -n to +n
+   #
+   #  # Not quite, A053615 starts n=0 but Corner starts N=1
+   #  # AbsDiff => 'A053615', # 0..n..0
+   # },
 
    # 'Math::PlanePath::Corner,wider=1' =>
    # AbsDiff almost A053188 because the perfect squares occur on the leading
@@ -150,16 +163,18 @@ my %oeis_anum =
      # OEIS-Catalogue: A163531 planepath=PeanoCurve coordinate_type=RSquared
    },
 
-   'Math::PlanePath::RationalsTree,tree_type=SB' =>
-   {
-    Y => 'A047679', # SB denominator
-    # OEIS-Catalogue: A047679 planepath=RationalsTree coordinate_type=Y
-    #
-    # X is A007305 SB numerators but starting extra 0,1
-    # Sum is A007306 Farey/SB denominators, but starting extra 1,1
-    # Product is A119272 num*den, but starting extra 1,1
-    # cf A054424 permutation
-   },
+   # 'Math::PlanePath::RationalsTree,tree_type=SB' =>
+   # {
+   #  # OFFSET n=0 cf N=1
+   #  # Y => 'A047679', # SB denominator
+   #  # # OEIS-Catalogue: A047679 planepath=RationalsTree coordinate_type=Y
+   #  #
+   #  # X is A007305 SB numerators but starting extra 0,1
+   #  # Sum is A007306 Farey/SB denominators, but starting extra 1,1
+   #  # Product is A119272 num*den, but starting extra 1,1
+   #  # cf A054424 permutation
+   # },
+
    'Math::PlanePath::RationalsTree,tree_type=CW' =>
    {
     # stern diatomic adjacent S(n)*S(n+1), or Conway's alimentary function
@@ -203,97 +218,112 @@ my %oeis_anum =
      # OEIS-Other: A001477 planepath=TheodorusSpiral coordinate_type=RSquared
    },
 
-   'Math::PlanePath::Diagonals' =>
-   { X        => 'A002262',  # 0, 0,1, 0,1,2, etc
-     Y        => 'A025581',  # 0, 1,0, 2,1,0, 3,2,1,0 descending
-     Sum      => 'A003056',  # 0, 1,1, 2,2,2, 3,3,3,3
-     DiffYX   => 'A114327',  # Y-X by anti-diagonals
-     AbsDiff  => 'A049581',  # abs(Y-X) by anti-diagonals
-     RSquared => 'A048147',  # x^2+y^2 by diagonals
-     # X,Y,Sum catalogued pending perhaps better implementation
-     # OEIS-Catalogue: A002262 planepath=Diagonals coordinate_type=X
-     # OEIS-Catalogue: A025581 planepath=Diagonals coordinate_type=Y
-     # OEIS-Catalogue: A003056 planepath=Diagonals coordinate_type=Sum
-     # OEIS-Catalogue: A114327 planepath=Diagonals coordinate_type=DiffYX
-     # OEIS-Catalogue: A049581 planepath=Diagonals coordinate_type=AbsDiff
-     # OEIS-Catalogue: A048147 planepath=Diagonals coordinate_type=RSquared
-   },
+   # OFFSET
+   # 'Math::PlanePath::Diagonals' =>
+   # { X        => 'A002262',  # 0, 0,1, 0,1,2, etc
+   #   Y        => 'A025581',  # 0, 1,0, 2,1,0, 3,2,1,0 descending
+   #   Sum      => 'A003056',  # 0, 1,1, 2,2,2, 3,3,3,3
+   #   DiffYX   => 'A114327',  # Y-X by anti-diagonals
+   #   AbsDiff  => 'A049581',  # abs(Y-X) by anti-diagonals
+   #   RSquared => 'A048147',  # x^2+y^2 by diagonals
+   #   # OEIS-Catalogue: A002262 planepath=Diagonals coordinate_type=X
+   #   # OEIS-Catalogue: A025581 planepath=Diagonals coordinate_type=Y
+   #   # OEIS-Catalogue: A003056 planepath=Diagonals coordinate_type=Sum
+   #   # OEIS-Catalogue: A114327 planepath=Diagonals coordinate_type=DiffYX
+   #   # OEIS-Catalogue: A049581 planepath=Diagonals coordinate_type=AbsDiff
+   #   # OEIS-Catalogue: A048147 planepath=Diagonals coordinate_type=RSquared
+   # },
 
    # PyramidRows step=0 is trivial X=0,Y=N
    'Math::PlanePath::PyramidRows,step=0' =>
    { X        => 'A000004',  # all-zeros
-     Y        => 'A001477',  # integers 0 upwards
-     Sum      => 'A001477',  # integers 0 upwards
      Product  => 'A000004',  # all-zeros
-     DiffXY   => 'A001489',  # negative integers 0 downwards
-     DiffYX   => 'A001477',  # integers 0 upwards
-     AbsDiff  => 'A001477',  # integers 0 upwards
-     Radius   => 'A001477',  # integers 0 upwards
-     RSquared => 'A000290',  # squares 0 upwards
      # OEIS-Other: A000004 planepath=PyramidRows,step=0 coordinate_type=X
-     # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Y
-     # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Sum
      # OEIS-Other: A000004 planepath=PyramidRows,step=0 coordinate_type=Product
-     # OEIS-Other: A001489 planepath=PyramidRows,step=0 coordinate_type=DiffXY
-     # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=DiffYX
-     # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=AbsDiff
-     # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Radius
-     # OEIS-Other: A000290 planepath=PyramidRows,step=0 coordinate_type=RSquared
-   },
-   # PyramidRows step=1
-   'Math::PlanePath::PyramidRows,step=1' =>
-   { X        => 'A002262',  # 0, 0,1, 0,1,2, etc (Diagonals)
-     Y        => 'A003056',  # 0, 1,1, 2,2,2, 3,3,3,3 (Diagonals)
-     Sum      => 'A051162',  # triangle X+Y for X=0 to Y inclusive
-     DiffYX   => 'A025581',  # descending N to 0 (Diagonals)
-     RSquared => 'A069011',  # triangle X^2+Y^2 for X=0 to Y inclusive
-     # OEIS-Other: A002262 planepath=PyramidRows,step=1 coordinate_type=X
-     # OEIS-Other: A003056 planepath=PyramidRows,step=1 coordinate_type=Y
-     # OEIS-Catalogue: A051162 planepath=PyramidRows,step=1 coordinate_type=Sum
-     # OEIS-Other: A025581 planepath=PyramidRows,step=1 coordinate_type=DiffYX
-     # OEIS-Catalogue: A069011 planepath=PyramidRows,step=1 coordinate_type=RSquared
-   },
-   # PyramidRows step=2
-   'Math::PlanePath::PyramidRows,step=2' =>
-   { X   => 'A196199',  # -n to n
-     Y   => 'A000196',  # n appears 2n+1 times, starting 0
-     Sum => 'A053186',  # square excess of n, ie. n-sqrt(n)^2
-     # OEIS-Catalogue: A196199 planepath=PyramidRows coordinate_type=X
-     # OEIS-Catalogue: A000196 planepath=PyramidRows coordinate_type=Y
-     # OEIS-Catalogue: A053186 planepath=PyramidRows coordinate_type=Sum
-   },
-   # PyramidRows step=3
-   'Math::PlanePath::PyramidRows,step=3' =>
-   { Y   => 'A180447',  # n appears 3n+1 times, starting 0
-     # OEIS-Catalogue: A180447 planepath=PyramidRows,step=3 coordinate_type=Y
+
+     # but starts N=1
+     # RSquared => 'A000290',  # squares 0 upwards
+     # # OEIS-Other: A000290 planepath=PyramidRows,step=0 coordinate_type=RSquared
+
+     # But A001477 offset=0 where PyramidRows starts N=1
+     # Y        => 'A001477',  # integers 0 upwards
+     # Sum      => 'A001477',  # integers 0 upwards
+     # DiffYX   => 'A001477',  # integers 0 upwards
+     # AbsDiff  => 'A001477',  # integers 0 upwards
+     # Radius   => 'A001477',  # integers 0 upwards
+     # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Y
+     # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Sum
+     # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=DiffYX
+     # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=AbsDiff
+     # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Radius
+
+     # # But A001489 offset=0 where PyramidRows starts N=1
+     # DiffXY   => 'A001489',  # negative integers 0 downwards
+     # # OEIS-Other: A001489 planepath=PyramidRows,step=0 coordinate_type=DiffXY
    },
 
+   # OFFSET
+   # 'Math::PlanePath::PyramidRows,step=1' =>
+   # { Sum      => 'A051162',  # triangle X+Y for X=0 to Y inclusive
+   #   RSquared => 'A069011',  # triangle X^2+Y^2 for X=0 to Y inclusive
+   #   # OEIS-Catalogue: A051162 planepath=PyramidRows,step=1 coordinate_type=Sum
+   #   # OEIS-Catalogue: A069011 planepath=PyramidRows,step=1 coordinate_type=RSquared
+   #
+   #   # X        => 'A002262',  # 0, 0,1, 0,1,2, etc (Diagonals)
+   #   # Y        => 'A003056',  # 0, 1,1, 2,2,2, 3,3,3,3 (Diagonals)
+   #   # DiffYX   => 'A025581',  # descending N to 0 (Diagonals)
+   #   # # OEIS-Other: A002262 planepath=PyramidRows,step=1 coordinate_type=X
+   #   # # OEIS-Other: A003056 planepath=PyramidRows,step=1 coordinate_type=Y
+   #   # # OEIS-Other: A025581 planepath=PyramidRows,step=1 coordinate_type=DiffYX
+   # },
+
+   # OFFSET
+   # # PyramidRows step=2
+   # 'Math::PlanePath::PyramidRows,step=2' =>
+   # { X   => 'A196199',  # -n to n
+   #   Y   => 'A000196',  # n appears 2n+1 times, starting 0
+   #   Sum => 'A053186',  # square excess of n, ie. n-sqrt(n)^2
+   #   # OEIS-Catalogue: A196199 planepath=PyramidRows coordinate_type=X
+   #   # OEIS-Catalogue: A000196 planepath=PyramidRows coordinate_type=Y
+   #   # OEIS-Catalogue: A053186 planepath=PyramidRows coordinate_type=Sum
+   # },
+
+   # OFFSET
+   # # PyramidRows step=3
+   # 'Math::PlanePath::PyramidRows,step=3' =>
+   # { Y   => 'A180447',  # n appears 3n+1 times, starting 0
+   #   # OEIS-Catalogue: A180447 planepath=PyramidRows,step=3 coordinate_type=Y
+   # },
+
    # PyramidSides
-   'Math::PlanePath::PyramidSides' =>
-   { X => 'A196199',  # -n to n
-     # OEIS-Other: A196199 planepath=PyramidSides coordinate_type=X
-   },
+   # OFFSET
+   # 'Math::PlanePath::PyramidSides' =>
+   # { X => 'A196199',  # -n to n
+   #   # OEIS-Other: A196199 planepath=PyramidSides coordinate_type=X
+   # },
 
    # MultipleRings step=0 is trivial X=N,Y=0
    'Math::PlanePath::MultipleRings,step=0' =>
-   { X        => 'A001477',  # integers 0 upwards
-     Y        => 'A000004',  # all-zeros
-     Sum      => 'A001477',  # integers 0 upwards
+   { Y        => 'A000004',  # all-zeros
      Product  => 'A000004',  # all-zeros
-     DiffXY   => 'A001477',  # integers 0 upwards
-     DiffYX   => 'A001489',  # negative integers 0 downwards
-     AbsDiff  => 'A001477',  # integers 0 upwards
-     Radius   => 'A001477',  # integers 0 upwards
-     RSquared => 'A000290',  # squares 0 upwards
-     # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=X
      # OEIS-Other: A000004 planepath=MultipleRings,step=0 coordinate_type=Y
-     # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=Sum
      # OEIS-Other: A000004 planepath=MultipleRings,step=0 coordinate_type=Product
-     # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=DiffXY
-     # OEIS-Other: A001489 planepath=MultipleRings,step=0 coordinate_type=DiffYX
-     # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=AbsDiff
-     # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=Radius
-     # OEIS-Other: A000290 planepath=MultipleRings,step=0 coordinate_type=RSquared
+
+     # OFFSET
+     # X        => 'A001477',  # integers 0 upwards
+     # Sum      => 'A001477',  # integers 0 upwards
+     # AbsDiff  => 'A001477',  # integers 0 upwards
+     # Radius   => 'A001477',  # integers 0 upwards
+     # DiffXY   => 'A001477',  # integers 0 upwards
+     # DiffYX   => 'A001489',  # negative integers 0 downwards
+     # RSquared => 'A000290',  # squares 0 upwards
+     # # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=X
+     # # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=Sum
+     # # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=AbsDiff
+     # # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=Radius
+     # # OEIS-Other: A001477 planepath=MultipleRings,step=0 coordinate_type=DiffXY
+     # # OEIS-Other: A001489 planepath=MultipleRings,step=0 coordinate_type=DiffYX
+     # # OEIS-Other: A000290 planepath=MultipleRings,step=0 coordinate_type=RSquared
    },
 
    'Math::PlanePath::ZOrderCurve,radix=2' =>
@@ -328,13 +358,14 @@ my %oeis_anum =
      # OEIS-Other: A059906 planepath=CornerReplicate coordinate_type=Y
    },
 
-   'Math::PlanePath::DivisibleColumns' =>
-   { X => 'A061017',  # n appears divisors(n) times
-     Y => 'A027750',  # triangle divisors of n
-     # OEIS-Catalogue: A061017 planepath=DivisibleColumns coordinate_type=X
-     # OEIS-Catalogue: A027750 planepath=DivisibleColumns coordinate_type=Y
-   },
-   #
+   # OFFSET
+   # 'Math::PlanePath::DivisibleColumns' =>
+   # { X => 'A061017',  # n appears divisors(n) times
+   #   Y => 'A027750',  # triangle divisors of n
+   #   # OEIS-Catalogue: A061017 planepath=DivisibleColumns coordinate_type=X
+   #   # OEIS-Catalogue: A027750 planepath=DivisibleColumns coordinate_type=Y
+   # },
+
    # A027751 is almost proper divisor Y values, but has an extra 1 at the
    # start from reckoning by convention 1 as a proper divisor of 1 -- though
    # that's inconsistent with A032741 count of proper divisors being 0.
@@ -344,57 +375,90 @@ my %oeis_anum =
    #   # OEIS-Catalogue: A027751 planepath=DivisibleColumns,divisor_type=proper coordinate_type=Y
    # },
 
-   'Math::PlanePath::CoprimeColumns' =>
-   { X => 'A038567',  # canonical int->rat, denominator
-     Y => 'A038566',  # canonical int->rat, numerator
-     # OEIS-Catalogue: A038567 planepath=CoprimeColumns coordinate_type=X
-     # OEIS-Catalogue: A038566 planepath=CoprimeColumns coordinate_type=Y
-   },
+   # Not quite, A038566/A038567 starts n=1 for 1/1, but CoprimeColumns N=0
+   # 'Math::PlanePath::CoprimeColumns' =>
+   # { X => 'A038567',  # fractions denominator
+   #   Y => 'A038566',  # fractions numerator
+   #   # OEIS-Catalogue: A038567 planepath=CoprimeColumns coordinate_type=X
+   #   # OEIS-Catalogue: A038566 planepath=CoprimeColumns coordinate_type=Y
+   # },
+   #
    'Math::PlanePath::CoprimeColumns,i_start=1' =>
    {
-    # i_start=1 since A020653 starts n=1
-    DiffXY => 'A020653', # canonical bijection denominators
-    # OEIS-Catalogue: A020653 planepath=CoprimeColumns coordinate_type=DiffXY i_start=1
+    DiffXY => 'A020653', # diagonals denominators, starting n=1
    },
 
-  );
+   'Math::PlanePath::DiagonalRationals' =>
+   { X => 'A020652',  # numerators
+     Y => 'A020653',  # denominators
+     # OEIS-Catalogue: A020652 planepath=DiagonalRationals coordinate_type=X
+     # OEIS-Catalogue: A020653 planepath=DiagonalRationals coordinate_type=Y
+   },
 
-my %oeis_anum_Rows_1
-  = (Y        => 'A001477', # integers 0 upwards
-     Sum      => 'A001477', # integers 0 upwards
-     Product  => 'A000004', # all zeros
-     DiffXY   => 'A001489', # negative integers 0 downwards
-     DiffYX   => 'A001477', # integers 0 upwards
-     AbsDiff  => 'A001477', # integers 0 upwards
-     Radius   => 'A001477', # integers 0 upwards
-     RSquared => 'A000290', # squares 0 upwards
-     # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=Y
-     # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=Sum
+   'Math::PlanePath::Rows,width=1' =>
+   { Product  => 'A000004', # all zeros
      # OEIS-Other: A000004 planepath=Rows,width=1 coordinate_type=Product
-     # OEIS-Other: A001489 planepath=Rows,width=1 coordinate_type=DiffXY
-     # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=DiffYX
-     # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=AbsDiff
-     # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=Radius
-     # OEIS-Other: A000290 planepath=Rows,width=1 coordinate_type=RSquared
-    );
-my %oeis_anum_Columns_1
-  = (X        => 'A001477', # integers 0 upwards
-     Sum      => 'A001477', # integers 0 upwards
-     Product  => 'A000004', # all zeros
-     DiffXY   => 'A001477', # integers 0 upwards
-     DiffYX   => 'A001489', # negative integers 0 downwards
-     AbsDiff  => 'A001477', # integers 0 upwards
-     Radius   => 'A001477', # integers 0 upwards
-     RSquared => 'A000290', # squares 0 upwards
-     # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=X
-     # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=Sum
+
+     # OFFSET
+     # Y        => 'A001477', # integers 0 upwards
+     # Sum      => 'A001477', # integers 0 upwards
+     # # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=Y
+     # DiffXY   => 'A001489', # negative integers 0 downwards
+     # DiffYX   => 'A001477', # integers 0 upwards
+     # AbsDiff  => 'A001477', # integers 0 upwards
+     # Radius   => 'A001477', # integers 0 upwards
+     # RSquared => 'A000290', # squares 0 upwards
+     # # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=Sum
+     # # OEIS-Other: A001489 planepath=Rows,width=1 coordinate_type=DiffXY
+     # # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=DiffYX
+     # # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=AbsDiff
+     # # OEIS-Other: A001477 planepath=Rows,width=1 coordinate_type=Radius
+     # # OEIS-Other: A000290 planepath=Rows,width=1 coordinate_type=RSquared
+   },
+
+   'Math::PlanePath::Columns,height=1' =>
+   { Product  => 'A000004', # all zeros
      # OEIS-Other: A000004 planepath=Columns,height=1 coordinate_type=Product
-     # OEIS-Other: A001489 planepath=Columns,height=1 coordinate_type=DiffYX
-     # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=DiffXY
-     # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=AbsDiff
-     # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=Radius
-     # OEIS-Other: A000290 planepath=Columns,height=1 coordinate_type=RSquared
-    );
+
+     # OFFSET
+     # X        => 'A001477', # integers 0 upwards
+     # Sum      => 'A001477', # integers 0 upwards
+     # DiffXY   => 'A001477', # integers 0 upwards
+     # DiffYX   => 'A001489', # negative integers 0 downwards
+     # AbsDiff  => 'A001477', # integers 0 upwards
+     # Radius   => 'A001477', # integers 0 upwards
+     # RSquared => 'A000290', # squares 0 upwards
+     # # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=X
+     # # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=Sum
+     # # OEIS-Other: A001489 planepath=Columns,height=1 coordinate_type=DiffYX
+     # # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=DiffXY
+     # # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=AbsDiff
+     # # OEIS-Other: A001477 planepath=Columns,height=1 coordinate_type=Radius
+     # # OEIS-Other: A000290 planepath=Columns,height=1 coordinate_type=RSquared
+   },
+
+   'Math::PlanePath::Rows,width=2' =>
+   {
+    # OFFSET
+    # X       => 'A000035', # 0,1 repeating
+    # # OEIS-Other: A000035 planepath=Rows,width=2 coordinate_type=X
+
+    # not quite, Rows starts N=1 but A004525 starts n=0
+    # Y       => 'A004525', # 0,0,1,1,2,2,etc
+    #
+    # almost Product => 'A142150', but it's "0,0,1,0,2" whereas product has
+    # extra 0 "0,0,0,1,0,2,0"
+   },
+   'Math::PlanePath::Columns,height=2' =>
+   {
+    # OFFSET
+    # Y   => 'A000035', # 0,1 repeating
+    # # OEIS-Other: A000035 planepath=Columns,height=2 coordinate_type=Y
+
+    # not quite, Columns starts N=1 but A004525 starts n=0
+    # X   => 'A004525', # 0,0,1,1,2,2,etc
+   },
+  );
 
 sub oeis_anum {
   my ($self) = @_;
@@ -408,17 +472,11 @@ sub oeis_anum {
     if ($coordinate_type eq 'X') {
       return _oeis_modulo($width);
     }
-    if ($width == 1) {
-      return $oeis_anum_Rows_1{$coordinate_type};
-    }
   }
   if ($planepath_object->isa('Math::PlanePath::Columns')) {
     my $height = $planepath_object->{'height'};
     if ($coordinate_type eq 'Y') {
       return _oeis_modulo($height);
-    }
-    if ($height == 1) {
-      return $oeis_anum_Columns_1{$coordinate_type};
     }
   }
 
@@ -446,13 +504,17 @@ sub _planepath_oeis_key {
   my ($path) = @_;
   return join(',',
               ref($path),
-              map {
+              (map {
                 my $value = $path->{$_->{'name'}};
                 ### $_
                 ### $value
                 ### gives: "$_->{'name'}=$value"
                 (defined $value ? "$_->{'name'}=$value" : ())
-              } $path->parameter_info_list);
+              }
+               $path->parameter_info_list,
+               ($path->isa('Math::PlanePath::Rows') ? ({name=>'width'}) : ()),
+               ($path->isa('Math::PlanePath::Columns')? ({name=>'height'}) : ())
+             ));
 }
 
 sub new {
@@ -574,14 +636,26 @@ sub _coordinate_func_RSquared {
 
 #------------------------------------------------------------------------------
 
-sub characteristic_monotonic {
+sub characteristic_increasing {
   my ($self) = @_;
   my $planepath_object = $self->{'planepath_object'};
   my $func;
   return
-    (($func = ($planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_monotonic")
+    (($func = ($planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_increasing")
                || ($self->{'coordinate_type'} eq 'RSquared'
-                   && $planepath_object->can("_NumSeq_Coord_Radius_monotonic"))))
+                   && $planepath_object->can("_NumSeq_Coord_Radius_increasing"))))
+     ? $planepath_object->$func()
+     : undef); # unknown
+}
+
+sub characteristic_non_decreasing {
+  my ($self) = @_;
+  my $planepath_object = $self->{'planepath_object'};
+  my $func;
+  return
+    (($func = ($planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_non_decreasing")
+               || ($self->{'coordinate_type'} eq 'RSquared'
+                   && $planepath_object->can("_NumSeq_Coord_Radius_non_decreasing"))))
      ? $planepath_object->$func()
      : undef); # unknown
 }
@@ -791,17 +865,27 @@ sub values_max {
 }
 # { package Math::PlanePath::ArchimedeanChords;
 # }
-# { package Math::PlanePath::MultipleRings;
-# }
+{ package Math::PlanePath::MultipleRings;
+  sub _NumSeq_Coord_X_increasing {
+    my ($self) = @_;
+    # step==0 trivial on X axis
+    return ($self->{'step'} == 0 ? 1 : 0);
+  }
+  sub _NumSeq_Coord_Radius_increasing {
+    my ($self) = @_;
+    # step==0 trivial on X axis
+    return ($self->{'step'} == 0 ? 1 : 0);
+  }
+}
 # { package Math::PlanePath::PixelRings;
 # }
 { package Math::PlanePath::Hypot;
-  # in order of increasing radius, so monotonic
-  use constant _NumSeq_Coord_Radius_monotonic => 1;
+  # in order of radius, so monotonic
+  use constant _NumSeq_Coord_Radius_non_decreasing => 1;
 }
 { package Math::PlanePath::HypotOctant;
-  # in order of increasing radius, so monotonic
-  use constant _NumSeq_Coord_Radius_monotonic => 1;
+  # in order of radius, so monotonic
+  use constant _NumSeq_Coord_Radius_non_decreasing => 1;
   use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
 }
 { package Math::PlanePath::PythagoreanTree;
@@ -902,6 +986,8 @@ sub values_max {
 # }
 # { package Math::PlanePath::Staircase;
 # }
+# { package Math::PlanePath::StaircaseAlternating;
+# }
 # { package Math::PlanePath::Corner;
 # }
 { package Math::PlanePath::PyramidRows;
@@ -947,6 +1033,10 @@ sub values_max {
   use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
 }
+{ package Math::PlanePath::DiagonalRationals;
+  use constant _NumSeq_Coord_X_min => 1;
+  use constant _NumSeq_Coord_Y_min => 1;
+}
 { package Math::PlanePath::DivisibleColumns;
   # X=2,Y=1 when proper
   # X=1,Y=1 when not
@@ -966,9 +1056,9 @@ sub values_max {
 #   # FIXME: analyze points for min/max maybe
 # }
 # { package Math::PlanePath::QuintetCurve;
+#   # inherit from QuintetCentres
 # }
 # { package Math::PlanePath::QuintetCentres;
-#   # inherit QuintetCurve
 # }
 { package Math::PlanePath::HIndexing;
   use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
@@ -1028,7 +1118,7 @@ __END__
 # }
 
 
-=for stopwords Ryde PlanePath
+=for stopwords Ryde PlanePath Math-NumSeq DiffXY OEIS PlanePath
 
 =head1 NAME
 
@@ -1128,6 +1218,7 @@ starting point in the OEIS, though this is slightly experimental.
 =head1 SEE ALSO
 
 L<Math::NumSeq>,
+L<Math::NumSeq::PlanePathDelta>,
 L<Math::NumSeq::OEIS>
 
 L<Math::PlanePath>

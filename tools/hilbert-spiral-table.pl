@@ -77,7 +77,6 @@ sub print_table {
     my @next_state;
     my @digit_to_x;
     my @digit_to_y;
-    my @digit_to_dir;
     my @xy_to_digit;
     my @min_digit;
     my @max_digit;
@@ -177,14 +176,12 @@ sub print_table {
             my $new_transpose = $transpose;
             my $new_rot = $rot;
             my $new_spiral;
-            my $dir;
 
             # 3--2
             #    |
             # 0--1
 
             if ($digit == 0) {
-              $dir = 0;
               if ($spiral) {
                 $new_spiral = 1;
                 $new_rot ^= 1;
@@ -193,16 +190,13 @@ sub print_table {
                 $new_spiral = 0;
               }
             } elsif ($digit == 1) {
-              $dir = 1;
               $xo = 1;
               $new_spiral = 0;
             } elsif ($digit == 2) {
-              $dir = 2;
               $xo = 1;
               $yo = 1;
               $new_spiral = 0;
             } elsif ($digit == 3) {
-              $dir = 0;
               $yo = 1;
               $new_transpose ^= 1;
               $new_rot ^= 1;
@@ -212,25 +206,15 @@ sub print_table {
 
             if ($transpose) {
               ($xo,$yo) = ($yo,$xo);
-              if ($dir == 0) { $dir = 1; }
-              elsif ($dir == 1) { $dir = 0; }
-              elsif ($dir == 2) { $dir = 3; }
-              elsif ($dir == 3) { $dir = 2; }
-              else { die "oops, unrecognised dir"; }
             }
             ### transp to: "$xo, $yo"
 
             if ($rot) {
               $xo ^= 1;
               $yo ^= 1;
-              $dir += 2;
             }
             ### rot to: "$xo, $yo"
 
-            $dir = (($dir-1) % 4) + 1; # 1 to 4
-            if ($orig_digit != 3) {
-              $digit_to_dir[$state+$orig_digit] = $dir % 4;
-            }
             $digit_to_x[$state+$orig_digit] = $xo;
             $digit_to_y[$state+$orig_digit] = $yo;
             $xy_to_digit[$state + $xo*2+$yo] = $orig_digit;
@@ -252,7 +236,6 @@ sub print_table {
     print_table ("next_state", \@next_state);
     print_table ("digit_to_x", \@digit_to_x);
     print_table ("digit_to_y", \@digit_to_y);
-    # print_table ("digit_to_dir", \@digit_to_dir);  # not used
     print_table ("xy_to_digit", \@xy_to_digit);
     print_table12 ("min_digit", \@min_digit);
     print_table12 ("max_digit", \@max_digit);

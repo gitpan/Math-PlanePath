@@ -24,7 +24,7 @@ use Math::Libm 'hypot';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -316,14 +316,27 @@ ellipse drawing algorithm.
 The way the algorithm works means the rings don't overlap.  Each is 4 or 8
 pixels longer than the preceding.  If the ring follows the preceding tightly
 then it's 4 longer, like the 18 to 33 ring.  If it goes wider then it's 8
-longer, like the 54 to 80 ring.  The average extra is 4*sqrt(2).
+longer, like the 54 to 80 ring.  The average extra is 4*sqrt(2) or
+thereabouts.
 
-The rings are effectively part-way between the diagonal like the
-DiamondSpiral and the corner like SquareSpiral.  For example the 54 to 80
-has a vertical part 54,55,56 then diagonal part 56,57,58,59.  In bigger
-rings the verticals are intermingled with the diagonals.  The number of
-vertical steps determine where it crosses the 45-degree line, at r*sqrt(2)
-or thereabouts.
+The rings can be thought of as part-way between the diagonals of the
+DiamondSpiral and the corners of the SquareSpiral.
+
+
+     *           **           *****
+      *            *              *
+       *            *             *
+        *            *            *
+         *           *            *
+   
+    diagonal     ring         corner
+    5 points    6 points     9 points
+
+For example the 54 to 80 has a vertical corner-type part 54,55,56 then a
+diagonal part 56,57,58,59.  In bigger rings the verticals are intermingled
+with the diagonals but the principle is the same.  The number of vertical
+steps determine where it crosses the 45-degree line, at R*sqrt(2) but
+rounded according to the midpoint algorithm.
 
 =head1 FUNCTIONS
 
@@ -386,3 +399,93 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+
+# =head1 FORMULAS
+
+# =head2 Pixel Ring Length
+
+When the algorithm crosses the X=Y central diagonal it might include an X=Y
+point or it might not.  The case where it doesn't looks like
+
+          +-------+       X=Y line
+          |       |      .
+          |       |     .
+          |   *   |   ..
+          |       | ..
+          |       |.
+          +-------.-------+
+                 .|       |
+                . |       |
+              ..  %   *   |  <- Y=k-1
+            ..    |       |
+           .      |       |
+                  +-------+
+                  ^   ^   ^
+                  |  X=k  |
+              X=k-.5     X=k+.5
+
+The algorithm draws a pixel when the exact circle line X^2+Y^2=R^2 passes is
+within that pixel, ie. on its side of the midpoint between adjacent pixels.
+This means to the right of the X=k-0.5, Y=k-1 point marked "%" above.  So
+
+    X^2 + Y^2 < R^2
+    (k-.5)^2 + (k-1)^2 < R^2
+    2*k^2 - 3k + 5/4 < R^2
+    k = floor (3 + sqrt(3*3 - 4*2*(5/4 - R^2)))
+      = floor (3 + sqrt(8*R^2 - 1))
+
+The circle line is never precisely on such a "%" point, as can be seen from
+the formula since 8*R^2-1 is never a perfect square (squares are 0,1,4
+mod 8).
+
+Now in the first octant, up to this k pixel, there's one pixel per row, and
+likewise symmetrically above the line, so the total in a ring passing the
+X=Y this way is
+
+    ringlength = 8*k-4
+
+The second case is when the ring includes an X=Y point,
+
+          +-------+
+          |       |
+          |       |            ..
+          |   *   |          ..
+          |       |         .
+          |       |       |.
+          +-------+-------+-
+                  |      .|
+                  |  X=Y. |
+                  |   *   |
+                  | ..    |
+                  |.      |
+                 -+-------+-------+
+                 .|       |       |
+               .. |       |       |
+              .   %       @   *   |   <- Y=k-1
+            ..    |       |       |
+                  |       |       |
+                  +-------+-------+
+                  |  X=k  |
+              X=k-.5     X=k+.5
+
+The two cases are distinguished by which side of the X=k+.5 midpoint "@" the
+circle line passes.  If the circle is outside the "@" then the outer pixel
+is drawn, thus giving this X=Y included case.  The test is
+
+    X^2 + Y^2 < R^2
+    (k+.5)^2 + (k-1)^2 < R^2
+    2*k^2 - k + 5/4 < R^2
+
+The extra X=Y pixel adds 4 to the ringlength above, one on the diagonal in
+each of the four quadrants, so
+
+    ringlength = 8*k     if X=Y pixel included
+                 8*k-4   if X=Y pixel not included
+
+The k calculation above is effectively asking where the circle line
+intersects a diagonal X=Y+.5 and rounding down to integer Y on that
+diagonal.  The test at X=k+.5 is asking about a different diagonal X=Y+1.5
+and it doesn't seem there's a particularly easy relation between where the
+circle falls on the first diagonal and where on the second.

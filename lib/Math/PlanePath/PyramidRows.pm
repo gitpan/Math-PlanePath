@@ -22,7 +22,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -243,7 +243,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows ie
+=for stopwords pronic SacksSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows ie Pentagonals onwards factorizations
 
 =head1 NAME
 

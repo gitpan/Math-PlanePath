@@ -28,7 +28,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -667,7 +667,7 @@ sub _rect_key {
 1;
 __END__
 
-=for stopwords eg Ryde ie CincoCurve Math-PlanePath Cinco
+=for stopwords eg Ryde ie CincoCurve Math-PlanePath Cinco COSIM
 
 =head1 NAME
 
@@ -767,6 +767,28 @@ And source code from COSIM
 
     http://oceans11.lanl.gov/trac/POP/browser/trunk/pop/source/spacecurve_mod.F90
     http://oceans11.lanl.gov/svn/POP/trunk/pop/source/spacecurve_mod.F90
+
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-planepath/index.html
+
+=head1 LICENSE
+
+Copyright 2011 Kevin Ryde
+
+Math-PlanePath is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+Math-PlanePath is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
 

@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -498,7 +498,7 @@ sub _bingcd_max {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree
 
 =head1 NAME
 
@@ -538,7 +538,7 @@ Brocot.  The rows are fractions of increasing value.
                           /    \            /   \
     N=4 to N=7         1/3      2/3      3/2      3/1
                        | |      | |      | |      | |
-    N=8 to N=15     1/4  2/4  3/5 3/4  4/3 5/3  5/2 4/1
+    N=8 to N=15     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1
 
 Writing the parents in between the children as an "in-order" traversal to
 given depth has the values in increasing order too,
@@ -841,12 +841,17 @@ following forms
     A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
     A070990  - CW den-num, Stern diatomic first differences (less 0)
     A020650  - AYT numerators
-    A020651  - AYT denominators, also being Kepler half numerators
+    A020651  - AYT denominators, being Kepler half numerators
     A086592  - AYT num+den sum, being Kepler half denominators
     A162909  - Bird numerators
     A162910  - Bird denominators
     A068611  - Drib numerators
     A068612  - Drib denominators
+
+    A054424  - permutation DiagonalRationals to SB
+    A054425  -   DiagonalRationals to SB with 0s at non-coprimes
+    A054426  -   inverse SB to DiagonalRationals
+    A054427  - permutation coprimes to SB right hand X/Y>1
 
 The sequences "extra ..." have one or two extra initial values over what the
 RationalsTree here gives, but are the same after that.  The "less ..." Stern

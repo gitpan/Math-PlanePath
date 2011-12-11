@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -265,7 +265,7 @@ sub rect_to_n_range {
   }
 
   # can't make use of the len=3**$level returned by _round_down_pow()
-  my (undef, $level) = _round_down_pow (_max(abs($x1),abs($x2))
+  my ($power, $level) = _round_down_pow (_max(abs($x1),abs($x2))
                                         + _max($y1, $y2),
                                         3);
   ### $level
@@ -282,7 +282,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks
+=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks Xlo=-9 Xhi=+9 Ypeak
 
 =head1 NAME
 

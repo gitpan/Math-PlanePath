@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -54,6 +54,67 @@ use constant n_start => 0;
 use constant x_negative => 0;
 use constant y_negative => 0;
 
+sub n_to_xy {
+  my ($self, $n) = @_;
+  ### HilbertCurve n_to_xy(): $n
+  ### hex: sprintf "%#X", $n
+
+  if ($n < 0) { return; }
+  if (_is_infinite($n)) { return ($n,$n); }
+
+  my $int = int($n);
+  my $frac = $n - $int;
+  my $x = my $y = ($int * 0);  # inherit bignum 0
+
+  my $len = $y + 1;    # inherit bignum 1
+  my $digit;
+  for (;;) {
+    ### bits: $int % 4
+    my $digit = $int % 4;
+    if ($digit == 0) {
+      $x = $frac + $x;
+      $frac = 0;
+    } elsif ($digit == 1) {
+      ($x,$y) = ($y+$len,$frac+$x);   # transpose and offset
+      $frac = 0;
+    } elsif ($digit == 2) {
+      ($x,$y) = (-$frac+$y+$len,$x+$len);   # transpose and offset
+      $frac = 0;
+    } else {
+      $x = $len-1 - $x;  # rot 180 and offset
+      $y = 2*$len-1 - $y;
+    }
+    unless ($int >>= 2) {
+      $y = $frac + $y;
+      last;
+    }
+    $len *= 2;
+
+    $digit = $int % 4;
+    if ($digit == 0) {
+      $y = $frac + $y;
+      $frac = 0;
+    } elsif ($digit == 1) {
+      ($x,$y) = ($frac+$y,$x+$len);   # transpose and offset
+      $frac = 0;
+    } elsif ($digit == 2) {
+      ($x,$y) = ($y+$len,-$frac+$x+$len);   # transpose and offset
+      $frac = 0;
+    } else {
+      $x = 2*$len-1 - $x;  # rot 180
+      $y = $len-1 - $y;
+    }
+    unless ($int >>= 2) {
+      $x = $frac + $x;
+      last;
+    }
+    $len *= 2;
+  }
+
+  ### is: "$x,$y"
+  return ($x, $y);
+}
+
 #        3--2
 # i=0       |
 #        0--1
@@ -70,11 +131,6 @@ use constant y_negative => 0;
 # i=12   |
 #        2--3
 #
-my @n_to_next_i = (4,   0,  0,  8,  # i=0
-                   0,   4,  4, 12,  # i=4
-                   12,  8,  8,  0,  # i=8
-                   8,  12, 12,  4,  # i=12
-                  );
 # my @n_to_x = (0, 1, 1, 0,   # i=0
 #               0, 0, 1, 1,   # i=4
 #               1, 1, 0, 0,   # i=8
@@ -85,76 +141,16 @@ my @n_to_next_i = (4,   0,  0,  8,  # i=0
 #               1, 0, 0, 1,   # i=8
 #               1, 1, 0, 0,   # i=12
 #              );
-
+my @n_to_next_i = (4,   0,  0,  8,  # i=0
+                   0,   4,  4, 12,  # i=4
+                   12,  8,  8,  0,  # i=8
+                   8,  12, 12,  4,  # i=12
+                  );
 my @yx_to_n = (0, 1, 3, 2,   # i=0
                0, 3, 1, 2,   # i=4
                2, 1, 3, 0,   # i=8
                2, 3, 1, 0,   # i=12
               );
-
-sub n_to_xy {
-  my ($self, $n) = @_;
-  ### HilbertCurve n_to_xy(): $n
-  ### hex: sprintf "%#X", $n
-
-  if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
-
-  {
-    # ENHANCE-ME: determine dx/dy direction from N bits, not full
-    # calculation of N+1
-    my $int = int($n);
-    if ($n != $int) {
-      my $frac = $n - $int;  # inherit possible BigFloat/BigRat
-      my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
-      my $dx = $x2-$x1;
-      my $dy = $y2-$y1;
-      return ($frac*$dx + $x1, $frac*$dy + $y1);
-    }
-    $n = $int;
-  }
-
-  my $x = my $y = ($n * 0); # inherit
-
-  my $invert = $x; # inherit
-  my $add = 1;
-  my $bits;
-  for (;;) {
-    ### bits: $n & 3
-    if (($bits = ($n & 3)) == 3) {
-      $x ^= $invert;
-      $y ^= $invert;
-    } elsif ($bits) {      # 1,2
-      ($x,$y) = ($y,$x);
-      $x += $add;
-    }
-    if ($bits & 2) {       # 2,3
-      $y += $add;
-    }
-    last unless $n >>= 2;
-    ($invert <<= 1)++;
-    $add <<= 1;
-
-    ### bits: $n & 3
-    if (($bits = ($n & 3)) == 3) {
-      $x ^= $invert;
-      $y ^= $invert;
-    } elsif ($bits) {      # 1,2
-      ($x,$y) = ($y,$x);
-      $y += $add;
-    }
-    if ($bits & 2) {       # 2,3
-      $x += $add;
-    }
-    last unless $n >>= 2;
-    ($invert <<= 1)++;
-    $add <<= 1;
-  }
-
-  ### is: "$x,$y"
-  return ($x, $y);
-}
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
@@ -300,7 +296,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI ascii
+=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI ascii lookup
 
 =head1 NAME
 
@@ -522,8 +518,8 @@ This Hilbert Curve path is in Sloane's OEIS in several forms,
     A059261    X+Y
     A059285    X-Y
     A163547    X^2+Y^2 radius squared
-    A163365    sum N along diagonal
-    A163477    sum N along diagonal, divided by 4
+    A163365    sum N on diagonal
+    A163477    sum N on diagonal, divided by 4
     A163482    row at Y=0
     A163483    column at X=0
     A163538    X change -1,0,1
@@ -601,3 +597,10 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+# Local variables:
+# compile-command: "math-image --path=HilbertCurve --lines --scale=20"
+# End:
+
+# math-image --path=HilbertCurve --all --output=numbers_dash --size=70x30

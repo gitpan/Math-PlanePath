@@ -17,11 +17,11 @@
 
 
 package Math::PlanePath;
-require 5;
+use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 57;
+$VERSION = 58;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -141,6 +141,21 @@ sub _min {
   return $_[$min];
 }
 
+sub _rect_for_first_quadrant {
+  my ($self, $x1,$y1, $x2,$y2) = @_;
+  $x1 = _round_nearest($x1);
+  $y1 = _round_nearest($y1);
+  $x2 = _round_nearest($x2);
+  $y2 = _round_nearest($y2);
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+  if ($x2 < 0 || $y2 < 0) {
+    return;
+  }
+  return ($x1,$y1, $x2,$y2);
+}
+
+
 1;
 __END__
 
@@ -193,7 +208,6 @@ include
     HypotOctant            first octant points by distance
     TriangularHypot        points by triangular lattice distance
     PythagoreanTree        primitive triples by tree
-    RationalsTree          rationals X/Y by tree
 
     PeanoCurve             3x3 self-similar quadrant traversal
     HilbertCurve           2x2 self-similar quadrant traversal
@@ -243,6 +257,7 @@ include
     Diagonals              diagonals down from the Y to X axes
     DiagonalsAlternating   diagonals Y to X and back again
     Staircase              stairs down from the Y to X axes
+    StaircaseAlternating   stairs Y to X and back again
     Corner                 expanding stripes around a corner
     PyramidRows            expanding stacked rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
@@ -251,6 +266,8 @@ include
     UlamWarburton          cellular automaton diamonds
     UlamWarburtonQuarter   cellular automaton quarter-plane
 
+    DiagonalRationals      rationals X/Y by diagonals
+    RationalsTree          rationals X/Y by tree
     CoprimeColumns         coprime X,Y
     DivisibleColumns       X divisible by Y
     File                   points from a disk file
@@ -524,6 +541,7 @@ more N points than the preceding.
        6.28     ArchimedeanChords (approaching 2*pi)
         7       HeptSpiralSkewed
         8       SquareSpiral, PyramidSpiral
+      16/2      StaircaseAlternating (up and back for +16)
         9       TriangleSpiral, TriangleSpiralSkewed
        16       OctagramSpiral
       19.74     TheodorusSpiral (approaching 2*pi^2)
@@ -535,6 +553,7 @@ more N points than the preceding.
     parameter   MultipleRings, PyramidRows
 
     totient     CoprimeColumns
+    totient     DiagonalRationals
     divcount    DivisibleColumns
 
 =for my_pod step end
@@ -764,7 +783,8 @@ L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>,
-L<Math::PlanePath::TriangularHypot>
+L<Math::PlanePath::TriangularHypot>,
+L<Math::PlanePath::PythagoreanTree>
 
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
@@ -816,6 +836,7 @@ L<Math::PlanePath::Columns>,
 L<Math::PlanePath::Diagonals>,
 L<Math::PlanePath::DiagonalsAlternating>,
 L<Math::PlanePath::Staircase>,
+L<Math::PlanePath::StaircaseAlternating>,
 L<Math::PlanePath::Corner>
 
 L<Math::PlanePath::PyramidRows>,
@@ -825,7 +846,7 @@ L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::UlamWarburton>,
 L<Math::PlanePath::UlamWarburtonQuarter>
 
-L<Math::PlanePath::PythagoreanTree>,
+L<Math::PlanePath::DiagonalRationals>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::DivisibleColumns>,

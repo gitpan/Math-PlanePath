@@ -31,7 +31,7 @@ MyMakeMakerExtras::WriteMakefile
                     'Math::Libm' => 0, # for hypot() mainly
                     'List::Util' => 0,
                     'constant' => '1.02', # 1.02 for leading underscore
-                    'constant::defer' => 0,
+                    'constant::defer' => 5, # v.5 for 5.6 fixes
 
                     # only for testing
                     'Test' => 0,

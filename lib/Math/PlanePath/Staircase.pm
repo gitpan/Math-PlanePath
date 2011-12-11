@@ -21,13 +21,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 57;
+$VERSION = 58;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant x_negative => 0;
@@ -50,12 +50,12 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### Staircase n_to_xy: $n
 
-  if ($n < .5) { return; }
+  if (2*$n < 1) { return; }
 
-  my $d = int ((1 + sqrt(8*$n-3)) / 4);
-  #### $d
-  #### d frac: ((1 + sqrt(8*$n-3)) / 4)
-  #### base: ((2*$d - 1)*$d + 0.5)
+  my $d = int ((1 + sqrt(int(8*$n-3))) / 4);
+  ### $d
+  ### d frac: ((1 + sqrt(8*$n-3)) / 4)
+  ### base: ((2*$d - 1)*$d + 0.5)
 
   $n -= (2*$d - 1)*$d;
   ### rem: $n
@@ -63,12 +63,12 @@ sub n_to_xy {
   my $int = int($n);
   my $frac = $n - $int;
   my $r = int($int/2);
-  if ($int & 1) {
-    ### down
+  if ($int % 2) {
+    ### down ...
     return ($r,
             -$frac + 2*$d - $r);
   } else {
-    ### across
+    ### across ...
     return ($frac + $r-1,
             2*$d - $r);
   }
@@ -141,8 +141,8 @@ sub rect_to_n_range {
     return (1, 0);   # nothing in first quadrant
   }
 
-  if ($x1 < 0) { $x1 &= 0; }
-  if ($y1 < 0) { $y1 &= 0; }
+  if ($x1 < 0) { $x1 *= 0; }
+  if ($y1 < 0) { $y1 *= 0; }
   my $y_min = $y1;
 
   if ((($x1 ^ $y1) & 1) && $y1 < $y2) {  # y2==y_max
@@ -192,19 +192,19 @@ This path makes a staircase pattern down from the Y axis to the X,
              |         |         |
      1       3--- 4   12---13   25---26
                   |         |         |
-    y=0 ->   1    5--- 6   14---15   27---28
+    Y=0 ->   1    5--- 6   14---15   27---28
 
              ^   
-            x=0   1    2    3    4    5    6
+            X=0   1    2    3    4    5    6
 
 The 1,6,15,28,etc along the X axis at the end of each run are the hexagonal
-numbers k*(2*k-1).  The diagonal 3,10,21,36,etc up from x=0,y=1 is the
+numbers k*(2*k-1).  The diagonal 3,10,21,36,etc up from X=0,Y=1 is the
 second hexagonal numbers k*(2*k+1), formed by extending the hexagonal
 numbers to negative k.  The two together are the triangular numbers
 k*(k+1)/2.
 
 Legendre's prime generating polynomial 2*k^2+29 bounces around for some low
-values then makes a steep diagonal upwards from x=19,y=1, at a slope 3 up
+values then makes a steep diagonal upwards from X=19,Y=1, at a slope 3 up
 for 1 across, but only 2 of each 3 drawn.
 
 =head1 FUNCTIONS
@@ -283,3 +283,10 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+# Local variables:
+# compile-command: "math-image --path=Staircase --lines --scale=20"
+# End:
+#
+# math-image --path=Staircase --all --output=numbers_dash --size=70x30
