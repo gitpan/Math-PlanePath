@@ -22,7 +22,68 @@ use strict;
 use warnings;
 use Math::Libm 'M_PI', 'hypot';
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
+
+
+{
+  # doublings
+  require Math::PlanePath::DragonCurve;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my %seen;
+  for (my $n = 0; $n < 2000; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $key = "$x,$y";
+    push @{$seen{$key}}, $n;
+    if (@{$seen{$key}} == 2) {
+      my @v2;
+      my $aref = delete $seen{$key};
+      foreach my $v (@$aref) {
+        my $v2 = Math::BaseCnv::cnv($v,10,2);
+        push @v2, $v2;
+        printf "%4s %12s\n", $v, $v2;
+      }
+      my $lenmatch = 0;
+      foreach my $i (1 .. length($v2[0])) {
+        my $want = substr ($v2[0], -$i);
+        if ($v2[1] =~ /$want$/) {
+          next;
+        } else {
+          $lenmatch = $i-1;
+          last;
+          last;
+        }
+      }
+      my $zeros = ($v2[0] =~ /(0*)$/ && $1);
+      my $lenzeros = length($zeros);
+      my $same = ($lenmatch == $lenzeros+2 ? "same" : "diff");
+      print "low same $lenmatch zeros $lenzeros   $same\n";
+
+      my $new = $aref->[0];
+      my $first_bit = my $bit = 2 * 2**$lenzeros;
+      my $change = 0;
+      while ($bit <= 2*$aref->[0]) {
+        ### $bit
+        ### $change
+        if ($change) {
+          $new ^= $bit;
+          $change = ! ($aref->[0] & $bit);
+        } else {
+          $change = ($aref->[0] & $bit);
+        }
+        $bit *= 2;
+      }
+      my $new2 = Math::BaseCnv::cnv($new,10,2);
+      if ($new != $aref->[1]) {
+        print "flip wrong first $first_bit last $bit to $new $new2\n";
+      }
+      print "\n";
+    }
+  }
+  exit 0;
+}
 
 {
   # turn
@@ -104,7 +165,7 @@ use Math::Libm 'M_PI', 'hypot';
     ### $prev_dy
     ### $dx
     ### $dy
-    ### is: "$got[-1]   at idx $#got"
+    # ### is: "$got[-1]   at idx $#got"
 
     ($prev_dx,$prev_dy) = ($dx,$dy);
     ($prev_x,$prev_y) = ($x,$y);

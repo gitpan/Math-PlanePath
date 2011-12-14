@@ -26,93 +26,62 @@ use POSIX ();
 use Devel::Comments;
 
 {
-  # diatomic 0,1,1,2,1,3,2,3, 1,4,3,5,2,5,3,4, 1,5,4,7,3,8,5,7,2,7,5,8,3,7,4,5,1,6,5,9,4,11,7,10,3,11,8,13,5,12,7,9,2,9,7,12,5,13,8,11,3,10,7,11,4,9,5,6,1,7,6,11,5,14,9,13,4,15,11,18,7,17,
   require Math::PlanePath::RationalsTree;
-  my $ayt = Math::PlanePath::RationalsTree->new(tree_type => 'AYT');
+  my $cw = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+  my $ayt = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
 
-  foreach my $level (0 .. 3) {
-    foreach my $n (2**$level .. 2**($level+1)-1) {
-      my ($x,$y) = $ayt->n_to_xy($n);
-      print "$x,";
-    }
-  }
-  print "\n";
-
-  my $prev_y = 1;
-  foreach my $level (0 .. 5) {
-    foreach my $n (reverse 2**$level .. 2**($level+1)-1) {
-      my ($x,$y) = $ayt->n_to_xy($n);
-      print "$n  $x $y\n";
-      if ($x != $prev_y) {
-        print "diff\n";
-      }
-      $prev_y = $y;
-    }
-  }
-  exit 0;
-}
-
-{
-  require Math::PlanePath::RationalsTree;
-  my $path = Math::PlanePath::RationalsTree->new;
-  $, = ' ';
-  say $path->xy_to_n (9,8);
-  say $path->xy_to_n (2,3);
-  say $path->rect_to_n_range (9,8, 2,3);
-
-  exit 0;
-}
-
-{
-  require Math::PlanePath::RationalsTree;
-  my $path = Math::PlanePath::RationalsTree->new;
-  require Math::BigInt;
-  # my ($n_lo,$n_hi) = $path->xy_to_n (1000,0, 1500,200);
-  my $n = $path->xy_to_n (Math::BigInt->new(1000),1);
-  ### $n
-  ### n: "$n"
-
-  require Math::NumSeq::All;
-  my $seq = Math::NumSeq::All->new;
-  my $pred = $seq->pred($n);
-  ### $pred
-
-  exit 0;
-}
-
-{
-  require Math::PlanePath::RationalsTree;
-  my $cw = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-  my $drib = Math::PlanePath::RationalsTree->new(tree_type => 'Drib');
-
-  my $level = 5;
-  foreach my $an (2**$level .. 2**($level+1)-1) {
-    my ($ax,$ay) = $cw->n_to_xy($an);
-    my $bn = $drib->xy_to_n($ax,$ay);
-    my ($z,$c) = cw_to_drib($an);
-    my ($t,$u) = drib_to_cw($bn);
+  my $level = 6;
+  foreach my $cn (2**$level .. 2**($level+1)-1) {
+    my ($cx,$cy) = $cw->n_to_xy($cn);
+    my $an = $ayt->xy_to_n($cx,$cy);
+    my ($z,$c) = cw_to_ayt($cn);
+    my ($t,$u) = ayt_to_cw($an);
     printf "%5s  %b %b   %b(%b)%s    %b(%b)%s\n",
-      "$ax/$ay", $an, $bn,
-      $z, $c, ($z == $bn ? " eq" : ""),
-      $t, $u, ($t == $an ? " eq" : "");
+      "$cx/$cy", $cn, $an,
+        $z, $c, ($z == $an ? " eq" : ""),
+          $t, $u, ($t == $cn ? " eq" : "");
   }
   exit 0;
 
-  sub cw_to_drib {
-    my ($n) = @_;
-    for (my $bit = 2; $bit <= (1 << ($level-1)); $bit <<= 2) {  # low to high
-      $n ^= $bit;
+  sub cw_to_ayt {
+    my ($c) = @_;
+    my $z = 0;
+    my $flip = 0;
+    for (my $bit = 1; $bit <= (1 << ($level-1)); $bit <<= 1) {  # low to high
+      if ($flip) { $c ^= $bit; }
+      if ($c & $bit) {
+
+      } else {
+        $z |= $bit;
+        $flip ^= 1;
+      }
     }
-    return $n,0;
+    $z += (1 << $level);
+    $c &= (1 << $level) - 1;
+    return $z,0;
   }
-  sub drib_to_cw {
-    my ($n) = @_;
-    for (my $bit = 2; $bit <= (1 << ($level-1)); $bit <<= 2) {  # low to high
-      $n ^= $bit;
+
+  sub ayt_to_cw {
+    my ($a) = @_;
+    $a &= (1 << $level) - 1;
+    my $t = 0;
+    my $flip = 0;
+    for (my $bit = (1 << ($level-1)); $bit > 0; $bit >>= 1) {   # high to low
+      if ($a & $bit) {
+        $a ^= $bit;
+        $t |= $bit;
+        $flip ^= 1;
+      } else {
+      }
+      if ($flip) { $t ^= $bit; }
     }
-    return $n,0;
+    if (!$flip) { $t = ~$t; }
+    $t &= (1 << $level) - 1;
+    $t += (1 << $level);
+    return ($t,$a);
   }
 }
+
 
 {
   require Math::PlanePath::RationalsTree;
@@ -214,62 +183,99 @@ use Devel::Comments;
   }
 }
 
+
+{
+  # diatomic 0,1,1,2,1,3,2,3, 1,4,3,5,2,5,3,4, 1,5,4,7,3,8,5,7,2,7,5,8,3,7,4,5,1,6,5,9,4,11,7,10,3,11,8,13,5,12,7,9,2,9,7,12,5,13,8,11,3,10,7,11,4,9,5,6,1,7,6,11,5,14,9,13,4,15,11,18,7,17,
+  require Math::PlanePath::RationalsTree;
+  my $ayt = Math::PlanePath::RationalsTree->new(tree_type => 'AYT');
+
+  foreach my $level (0 .. 3) {
+    foreach my $n (2**$level .. 2**($level+1)-1) {
+      my ($x,$y) = $ayt->n_to_xy($n);
+      print "$x,";
+    }
+  }
+  print "\n";
+
+  my $prev_y = 1;
+  foreach my $level (0 .. 5) {
+    foreach my $n (reverse 2**$level .. 2**($level+1)-1) {
+      my ($x,$y) = $ayt->n_to_xy($n);
+      print "$n  $x $y\n";
+      if ($x != $prev_y) {
+        print "diff\n";
+      }
+      $prev_y = $y;
+    }
+  }
+  exit 0;
+}
+
 {
   require Math::PlanePath::RationalsTree;
-  my $cw = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
-  my $ayt = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+  my $path = Math::PlanePath::RationalsTree->new;
+  $, = ' ';
+  say $path->xy_to_n (9,8);
+  say $path->xy_to_n (2,3);
+  say $path->rect_to_n_range (9,8, 2,3);
 
-  my $level = 6;
-  foreach my $cn (2**$level .. 2**($level+1)-1) {
-    my ($cx,$cy) = $cw->n_to_xy($cn);
-    my $an = $ayt->xy_to_n($cx,$cy);
-    my ($z,$c) = cw_to_ayt($cn);
-    my ($t,$u) = ayt_to_cw($an);
+  exit 0;
+}
+
+{
+  require Math::PlanePath::RationalsTree;
+  my $path = Math::PlanePath::RationalsTree->new;
+  require Math::BigInt;
+  # my ($n_lo,$n_hi) = $path->xy_to_n (1000,0, 1500,200);
+  my $n = $path->xy_to_n (Math::BigInt->new(1000),1);
+  ### $n
+  ### n: "$n"
+
+  require Math::NumSeq::All;
+  my $seq = Math::NumSeq::All->new;
+  my $pred = $seq->pred($n);
+  ### $pred
+
+  exit 0;
+}
+
+{
+  require Math::PlanePath::RationalsTree;
+  my $cw = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+  my $drib = Math::PlanePath::RationalsTree->new(tree_type => 'Drib');
+
+  my $level = 5;
+  foreach my $an (2**$level .. 2**($level+1)-1) {
+    my ($ax,$ay) = $cw->n_to_xy($an);
+    my $bn = $drib->xy_to_n($ax,$ay);
+    my ($z,$c) = cw_to_drib($an);
+    my ($t,$u) = drib_to_cw($bn);
     printf "%5s  %b %b   %b(%b)%s    %b(%b)%s\n",
-      "$cx/$cy", $cn, $an,
-        $z, $c, ($z == $an ? " eq" : ""),
-          $t, $u, ($t == $cn ? " eq" : "");
+      "$ax/$ay", $an, $bn,
+      $z, $c, ($z == $bn ? " eq" : ""),
+      $t, $u, ($t == $an ? " eq" : "");
   }
   exit 0;
 
-  sub cw_to_ayt {
-    my ($c) = @_;
-    my $z = 0;
-    my $flip = 0;
-    for (my $bit = 1; $bit <= (1 << ($level-1)); $bit <<= 1) {  # low to high
-      if ($flip) { $c ^= $bit; }
-      if ($c & $bit) {
-
-      } else {
-        $z |= $bit;
-        $flip ^= 1;
-      }
+  sub cw_to_drib {
+    my ($n) = @_;
+    for (my $bit = 2; $bit <= (1 << ($level-1)); $bit <<= 2) {  # low to high
+      $n ^= $bit;
     }
-    $z += (1 << $level);
-    $c &= (1 << $level) - 1;
-    return $z,0;
+    return $n,0;
   }
-
-  sub ayt_to_cw {
-    my ($a) = @_;
-    $a &= (1 << $level) - 1;
-    my $t = 0;
-    my $flip = 0;
-    for (my $bit = (1 << ($level-1)); $bit > 0; $bit >>= 1) {   # high to low
-      if ($a & $bit) {
-        $a ^= $bit;
-        $t |= $bit;
-        $flip ^= 1;
-      } else {
-      }
-      if ($flip) { $t ^= $bit; }
+  sub drib_to_cw {
+    my ($n) = @_;
+    for (my $bit = 2; $bit <= (1 << ($level-1)); $bit <<= 2) {  # low to high
+      $n ^= $bit;
     }
-    if (!$flip) { $t = ~$t; }
-    $t &= (1 << $level) - 1;
-    $t += (1 << $level);
-    return ($t,$a);
+    return $n,0;
   }
 }
+
+
+
+
 
 {
   require Math::PlanePath::RationalsTree;

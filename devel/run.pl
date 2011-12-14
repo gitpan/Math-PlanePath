@@ -88,13 +88,15 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImageFractionsTree;
   require Math::PlanePath::CincoCurve;
   require Math::PlanePath::HilbertSpiral;
-  require Math::PlanePath::MathImageAR2W2Curve;
+  require Math::PlanePath::AR2W2Curve;
   require Math::PlanePath::MathImageComplexPlus;
   require Math::PlanePath::MathImageCellularRule;
   require Math::PlanePath::MathImagePeanoRounded;
   require Math::PlanePath::DiagonalRationals;
-  require Math::PlanePath::MathImageSagherRationals;
-  my $path = Math::PlanePath::MathImageComplexPlus->new
+  require Math::PlanePath::MathImagePowerRationals;
+  require Math::PlanePath::MathImageGcdRationals;
+  require Math::PlanePath::MathImageTerdragonMidpoint;
+  my $path = Math::PlanePath::MathImagePowerRationals->new
     (
      start_shape => 'B1rev',
      rule => 135,
@@ -119,7 +121,7 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0; $i <= 30; $i+=1) {
+  for (my $i = $n_start+0; $i <= 50; $i+=1) {
 
     # for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {

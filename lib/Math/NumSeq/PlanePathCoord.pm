@@ -33,7 +33,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 58;
+$VERSION = 59;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1064,6 +1064,8 @@ sub values_max {
   use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
 }
 # { package Math::PlanePath::BetaOmega;
+# }
+# { package Math::PlanePath::AR2W2Curve;
 # }
 # { package Math::PlanePath::CornerReplicate;
 # }

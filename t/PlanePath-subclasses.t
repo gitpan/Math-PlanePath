@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 763 }
+BEGIN { plan tests => 780 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,16 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'AR2W2Curve',
+               'AR2W2Curve,start_shape=D2',
+               'AR2W2Curve,start_shape=B2',
+               'AR2W2Curve,start_shape=B1rev',
+               'AR2W2Curve,start_shape=D1rev',
+               'AR2W2Curve,start_shape=A2rev',
+               'BetaOmega',
+               'KochelCurve',
+               'CincoCurve',
+
                'DiagonalRationals',
                'CoprimeColumns',
                'DivisibleColumns',
@@ -46,11 +56,8 @@ my @modules = (
 
                'LTiling',
                'DiagonalsAlternating',
-               'CincoCurve',
-               'KochelCurve',
                'MPeaks',
                'WunderlichMeander',
-               'BetaOmega',
                'FibonacciWordFractal',
 
                'CornerReplicate',
@@ -269,7 +276,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 58;
+my $want_version = 59;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -348,6 +355,7 @@ my %rect_exact = (
                   'Math::PlanePath::QuintetCentres' => 1,
                   'Math::PlanePath::AztecDiamondRings' => 1,
                   'Math::PlanePath::BetaOmega' => 1,
+                  'Math::PlanePath::AR2W2Curve' => 1,
                   'Math::PlanePath::KochelCurve' => 1,
                   'Math::PlanePath::WunderlichMeander' => 1,
                   'Math::PlanePath::File' => 1,
@@ -463,6 +471,7 @@ my %class_dxdy_allowed
      'Math::PlanePath::HilbertSpiral'  => $dxdy_square,
      'Math::PlanePath::PeanoCurve'     => $dxdy_square,
      'Math::PlanePath::BetaOmega'      => $dxdy_square,
+     'Math::PlanePath::AR2W2Curve'     => $dxdy_one,
      'Math::PlanePath::DragonCurve'    => $dxdy_square,
      'Math::PlanePath::DragonMidpoint' => $dxdy_square,
      'Math::PlanePath::DragonRounded'  => $dxdy_one,

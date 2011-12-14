@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 58;
+$VERSION = 59;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -215,8 +215,10 @@ include
     ZOrderCurve            replicating Z shapes
     WunderlichMeander      3x3 "R" pattern quadrant traversal
     BetaOmega              2x2 self-similar half-plane traversal
+    AR2W2Curve             2x2 self-similar of four shapes
     KochelCurve            3x3 self-similar two shapes
     CincoCurve             5x5 self-similar
+
     ImaginaryBase          replicating in four directions
     SquareReplicate        3x3 replicating squares
     CornerReplicate        2x2 replicating squares
@@ -600,7 +602,7 @@ such a power for things like KochPeaks and GosperIslands.
     Base          Path
     ----          ----
       2         HilbertCurve, HilbertSpiral, ZOrderCurve (default),
-                  BetaOmega, SierpinskiCurve, HIndexing
+                  BetaOmega, AR2W2Curve, SierpinskiCurve, HIndexing
                   ImaginaryBase (default), ComplexMinus (default)
                   DragonCurve, DragonRounded, DragonMidpoint,
                   DigitGroups (default), CornerReplicate
@@ -791,9 +793,11 @@ L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::HilbertSpiral>,
 L<Math::PlanePath::ZOrderCurve>,
 L<Math::PlanePath::WunderlichMeander>,
+L<Math::PlanePath::AR2W2Curve>,
 L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::KochelCurve>,
 L<Math::PlanePath::CincoCurve>,
+
 L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::SquareReplicate>,
 L<Math::PlanePath::CornerReplicate>,

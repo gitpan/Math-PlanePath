@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 58;
+$VERSION = 59;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -58,6 +58,7 @@ use constant figure => 'circle';
 # BigInt back-end, or something.
 use constant::defer _bigfloat => sub {
   eval "use Math::BigFloat; 1" or die $@;
+  return "Math::BigFloat";
 };
 
 use constant 1.02; # for leading underscore

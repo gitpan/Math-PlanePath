@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 203)[1];
+my $test_count = (tests => 215)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -365,13 +365,21 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'AR2W2Curve',
+               'AR2W2Curve,start_shape=D2',
+               'AR2W2Curve,start_shape=B2',
+               'AR2W2Curve,start_shape=B1rev',
+               'AR2W2Curve,start_shape=D1rev',
+               'AR2W2Curve,start_shape=A2rev',
+               'BetaOmega',
+               'KochelCurve',
+               'CincoCurve',
+
                'HilbertSpiral',
                'HilbertCurve',
 
                'LTiling',
                'DiagonalsAlternating',
-               'CincoCurve',
-               'KochelCurve',
                'MPeaks',   # but not across gap
                'WunderlichMeander',
                'FibonacciWordFractal',
@@ -379,7 +387,6 @@ my @modules = (
                'DigitGroups',
                'PeanoCurve',
                'ZOrderCurve',
-               'BetaOmega',
                
                'HIndexing',
                'SierpinskiCurve',
@@ -466,10 +473,16 @@ my @modules = (
               );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 
-require Math::BigInt;
+sub module_parse {
+  my ($mod) = @_;
+  my ($class, @parameters) = split /,/, $mod;
+  return ("Math::PlanePath::$class",
+          map {/(.*?)=(.*)/ or die; ($1 => $2)} @parameters);
+}
+
 foreach my $module (@modules) {
   ### $module
-  my $class = "Math::PlanePath::$module";
+  my ($class, %parameters) = module_parse($module);
   eval "require $class" or die;
   
   my $path = $class->new (width => 23,

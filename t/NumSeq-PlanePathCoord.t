@@ -63,9 +63,9 @@ foreach my $elem
 # values_min(), values_max()
 
 foreach my $elem
-  ([undef, undef ], # default undef for SquareSpiral X
-   [0,undef, coordinate_type => 'Radius' ],
-   [0,undef, coordinate_type => 'RSquared' ],
+  ([undef,undef, planepath => 'SquareSpiral' ], # default coordinate_type=>X
+   [0,undef, planepath => 'SquareSpiral', coordinate_type => 'Radius' ],
+   [0,undef, planepath => 'SquareSpiral', coordinate_type => 'RSquared' ],
 
    [0,undef, planepath => 'HilbertCurve', coordinate_type => 'X' ],
    [0,undef, planepath => 'HilbertCurve', coordinate_type => 'Y' ],
@@ -266,8 +266,10 @@ foreach my $elem
   ### $want_max
 
   my $seq = Math::NumSeq::PlanePathCoord->new (@parameters);
-  ok ($seq->values_min, $want_min, "values_min() ".join(',',@parameters));
-  ok ($seq->values_max, $want_max, "values_max() ".join(',',@parameters));
+  ok ($seq->values_min, $want_min,
+      "values_min() ".join(',',@parameters));
+  ok ($seq->values_max, $want_max,
+      "values_max() ".join(',',@parameters));
 }
 
 

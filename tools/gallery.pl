@@ -44,6 +44,22 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['ar2w2-small.png',
+    'math-image --path=AR2W2Curve --lines --scale=4 --size=32'],
+   ['ar2w2-big.png',
+    'math-image --path=AR2W2Curve --lines --scale=7 --size=225'],
+   ['ar2w2-d2-big.png',
+    'math-image --path=AR2W2Curve,start_shape=D2 --lines --scale=7 --size=113'],
+   ['ar2w2-b2-big.png',
+    'math-image --path=AR2W2Curve,start_shape=B2 --lines --scale=7 --size=113'],
+   ['ar2w2-b1rev-big.png',
+    'math-image --path=AR2W2Curve,start_shape=B1rev --lines --scale=7 --size=113'],
+   ['ar2w2-d1rev-big.png',
+    'math-image --path=AR2W2Curve,start_shape=D1rev --lines --scale=7 --size=113'],
+   ['ar2w2-a2rev-big.png',
+    'math-image --path=AR2W2Curve,start_shape=A2rev --lines --scale=7 --size=113'],
+
+
    ['diagonal-rationals-small.png',
     'math-image --path=DiagonalRationals --lines --scale=4 --size=32'],
    ['diagonal-rationals-big.png',

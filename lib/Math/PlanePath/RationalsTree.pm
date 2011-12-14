@@ -21,13 +21,19 @@
 #
 # A002487 - stern diatomic
 
+#                    high-to-low   low-to-high
+# (X+Y)/Y  Y/(X+Y)     AYT
+# X/(X+Y)  (X+Y)/Y      CW            SB    \ alt bit flips
+# Y/(X+Y)  (X+Y)/X     Drib          Bird   /
+
+
 
 package Math::PlanePath::RationalsTree;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 58;
+$VERSION = 59;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -715,12 +721,12 @@ The Y=1 horizontal is the X/1 integers at Nstart=2^level.  The X=1 vertical
 is the 1/Y fractions.  Those fractions always immediately follow the
 corresponding integer, thus N=Nstart+1 in that column.
 
-The tree structure corresponds to Johannes Kepler's tree of fractions.  It
-starts from 1/2 and makes fractions A/B with AE<lt>B by descending to
+The tree structure corresponds to Johannes Kepler's tree of fractions.  That
+tree starts from 1/2 and makes fractions A/B with AE<lt>B by descending to
 A/(A+B) and B/(A+B).  This is the same as the AYT tree with
 
-    A = Y      or conversely    X = B-A
-    B = X+Y                     Y = A
+    A = Y          X = B-A
+    B = X+Y        Y = A
 
 So the AYT denominator is the Kepler numerator, and the AYT sum num+den is
 the Kepler denominator.
@@ -817,16 +823,23 @@ Xor with 0010 for 1101 N=13 which is 4/1 in the Drib tree.
 
 In all the trees the rows are permutations of the fractions arising from the
 SB tree and Stern diatomic sequence.  The properties of the diatomic
-sequence mean that within a level Nstart=2^level to Nend=2^(level+1)-1 the
-fractions have totals
+sequence mean that within a row from Nstart=2^level to Nend=2^(level+1)-1
+the fractions have totals
 
     sum fractions = (3 * 2^level - 1) / 2
 
     sum numerators = 3^level
 
 For example at level=2, N=4 to N=7, the fractions are 1/3, 2/3, 3/2, 3/1.
-The numerators 1+2+3+3 = 9 is 3^2.  The sum as fractions 1/3+2/3+3/2+3/1 =
-11/2 which is (3*2^2-1)/2=11/2.
+The sum fractions 1/3+2/3+3/2+3/1 = 11/2 which is (3*2^2-1)/2=11/2.  The sum
+numerators 1+2+3+3 = 9 is 3^2.
+
+All sorts of permutations are conceivable within a row, but the ones here
+have some relationship to X/Y descendants or tree sub-forms.  There's 2
+choices high to low or low to high N bits, and then 3 bit flip forms:
+unflipped, flip starting from bit 0, flip starting bit 1.  Only 5 of the 6
+are implemented currently, the missing one being the AYT formulas done low
+to high.  Does that have a name, or any particular significance?
 
 =head1 OEIS
 
@@ -839,7 +852,7 @@ following forms
     A047679  - SB denominators
     A007306  - SB num+den sum, Farey 0 to 1 part (extra 1,1)
     A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
-    A070990  - CW den-num, Stern diatomic first differences (less 0)
+    A070990  - CW den-num diff, Stern diatomic first diffs (less 0)
     A020650  - AYT numerators
     A020651  - AYT denominators, being Kepler half numerators
     A086592  - AYT num+den sum, being Kepler half denominators
@@ -850,12 +863,13 @@ following forms
 
     A054424  - permutation DiagonalRationals to SB
     A054425  -   DiagonalRationals to SB with 0s at non-coprimes
-    A054426  -   inverse SB to DiagonalRationals
+    A054426  -   inverse, SB to DiagonalRationals
     A054427  - permutation coprimes to SB right hand X/Y>1
 
-The sequences "extra ..." have one or two extra initial values over what the
-RationalsTree here gives, but are the same after that.  The "less ..." Stern
-first differences has one less term.
+The sequences marked "extra ..." have one or two extra initial values over
+what the RationalsTree here gives, but are the same after that.  The Stern
+first differences "less ..." means it has one less term than what the code
+here gives.
 
 =head1 FUNCTIONS
 

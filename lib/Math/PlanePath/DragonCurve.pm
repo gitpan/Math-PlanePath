@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 58;
+$VERSION = 59;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -186,7 +186,7 @@ sub xy_to_n {
 
     # start from digits=1 but subtract 1 so that n=0,1,...,$arms-1 are tried
     # too
-  ARM: foreach my $arm (-$arms .. 0) {
+  ARM: foreach my $arm (-$arms .. -1) {
       my @digits = (((0) x $top), 1);
       my $i = $top;
       for (;;) {
@@ -210,7 +210,7 @@ sub xy_to_n {
 
           while (++$digits[$i] > 1) {
             $digits[$i] = 0;
-            if (++$i >= $top) {
+            if (++$i > $top) {
               ### backtrack past top ...
               next ARM;
             }
@@ -439,9 +439,12 @@ classes.
 
 =item C<$path = Math::PlanePath::DragonCurve-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::DragonCurve-E<gt>new (arms =E<gt> 2)>
+=item C<$path = Math::PlanePath::DragonCurve-E<gt>new (arms =E<gt> 4)>
 
 Create and return a new path object.
+
+The optional C<arms> parameter can make 1 to 4 copies of the curve, each arm
+successively advancing.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -450,9 +453,6 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
-
-The optional C<arms> parameter can trace 1 to 4 copies of the curve, each
-arm successively advancing.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -477,17 +477,21 @@ turns or a total rotation at each line segment,
     http://oeis.org/A005811  (etc)
 
     A005811 -- total rotation, from 0
-    A014577 -- turn, 0=left, 1=right
-    A014707 -- turn, 1=left, 0=right
-    A014709 -- turn, 2=left, 1=right
-    A014710 -- turn, 1=left, 2=right
-    A082410 -- turn, 0=left, 1=right with leading 0
+    A014577 -- turn, 0=left,1=right
+    A014707 -- turn, 1=left,0=right
+    A014709 -- turn, 2=left,1=right
+    A014710 -- turn, 1=left,2=right
+    A082410 -- turn, 0=left,1=right with extra leading 0
 
 The four turn sequences differ only in left or right represented as 0 and 1
 or 1 and 2.
 
-For reference, A059125 is almost the same as A014577, but differs at some
-positions.
+For reference, "dragon-like" A059125 is almost the same as the A014577
+turns, but differs at some positions.
+
+=head1 BUGS
+
+C<xy_to_n()> is a bit slow due to doing a crude backtracking digits search.
 
 =head1 SEE ALSO
 

@@ -25,6 +25,7 @@ devel/fibonacci-word.pl
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
 devel/fractions-tree.pl
+devel/gcd-rationals.pl
 devel/gosper-islands-stars.pl
 devel/gosper-side.pl
 devel/gray.pl
@@ -40,6 +41,7 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-squareflakes.pl
 devel/Makefile
+devel/math-factor.pl
 devel/number-fraction.pl
 devel/number-fraction.t
 devel/numseq.pl
@@ -90,6 +92,7 @@ lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm
 lib/Math/NumSeq/PlanePathCoord.pm
 lib/Math/NumSeq/PlanePathDelta.pm
 lib/Math/PlanePath.pm
+lib/Math/PlanePath/AR2W2Curve.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
 lib/Math/PlanePath/BetaOmega.pm

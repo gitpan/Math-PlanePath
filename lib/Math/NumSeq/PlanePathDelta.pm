@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 58;
+$VERSION = 59;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1017,6 +1017,14 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_max => 1;
 }
 { package Math::PlanePath::QuintetCentres;  # NSEW+diag
+  use constant _NumSeq_Delta_dX_min => -1;
+  use constant _NumSeq_Delta_dX_max => 1;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Delta_DistSquared_max => 2;
+}
+{ package Math::PlanePath::AR2W2Curve;     # NSEW+diag
   use constant _NumSeq_Delta_dX_min => -1;
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_min => -1;

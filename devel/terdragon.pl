@@ -25,6 +25,100 @@ use Math::Libm 'M_PI', 'hypot';
 
 
 {
+  # triplications
+  require Math::PlanePath::MathImageTerdragonCurve;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::MathImageTerdragonCurve->new;
+  my %seen;
+  for (my $n = 0; $n < 2000; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $key = "$x,$y";
+    push @{$seen{$key}}, $n;
+    if (@{$seen{$key}} == 3) {
+      my @v3;
+      foreach my $v (@{delete $seen{$key}}) {
+        my $v3 = Math::BaseCnv::cnv($v,10,3);
+        push @v3, $v3;
+        printf "%4s %7s\n", $v, $v3;
+      }
+      my $lenmatch = 0;
+      foreach my $i (1 .. length($v3[0])) {
+        my $want = substr ($v3[0], -$i);
+        if ($v3[1] =~ /$want$/ && $v3[2] =~ /$want$/) {
+          next;
+        } else {
+         $lenmatch = $i-1;
+          last;
+          last;
+        }
+      }
+      my $zeros = ($v3[0] =~ /(0*)$/ && $1);
+      my $lenzeros = length($zeros);
+      my $same = ($lenmatch == $lenzeros+1 ? "same" : "diff");
+      print "low same $lenmatch zeros $lenzeros   $same\n";
+      print "\n";
+    }
+  }
+  exit 0;
+}
+
+{
+  # min/max for level
+  require Math::PlanePath::MathImageTerdragonCurve;
+  my $path = Math::PlanePath::MathImageTerdragonCurve->new;
+  my $prev_min = 1;
+  my $prev_max = 1;
+  for (my $level = 1; $level < 25; $level++) {
+    my $n_start = 3**($level-1);
+    my $n_end = 3**$level;
+
+    my $min_hypot = 128*$n_end*$n_end;
+    my $min_x = 0;
+    my $min_y = 0;
+    my $min_pos = '';
+
+    my $max_hypot = 0;
+    my $max_x = 0;
+    my $max_y = 0;
+    my $max_pos = '';
+
+    print "level $level  n=$n_start .. $n_end\n";
+
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $h = $x*$x + 3*$y*$y;
+
+      if ($h < $min_hypot) {
+        $min_hypot = $h;
+        $min_pos = "$x,$y";
+      }
+      if ($h > $max_hypot) {
+        $max_hypot = $h;
+        $max_pos = "$x,$y";
+      }
+    }
+    # print "  min $min_hypot   at $min_x,$min_y\n";
+    # print "  max $max_hypot   at $max_x,$max_y\n";
+    {
+      my $factor = $min_hypot / $prev_min;
+      print "  min h= $min_hypot 0b".sprintf('%b',$min_hypot)."   at $min_pos  factor $factor\n";
+      my $calc = (4/3/3) * 2.9**$level;
+      print "    cf $calc\n";
+    }
+    # {
+    #   my $factor = $max_hypot / $prev_max;
+    #   print "  max h= $max_hypot 0b".sprintf('%b',$max_hypot)."   at $max_pos  factor $factor\n";
+    #   # my $calc = 4 * 3**($level*.9) * 4**($level*.1);
+    #   # print "    cf $calc\n";
+    # }
+    $prev_min = $min_hypot;
+    $prev_max = $max_hypot;
+  }
+  exit 0;
+}
+
+
+{
   # turn
   require Math::PlanePath::MathImageTerdragonCurve;
   my $path = Math::PlanePath::MathImageTerdragonCurve->new;

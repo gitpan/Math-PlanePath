@@ -26,13 +26,13 @@ use Math::Polynomial::Horner;
 
 #use Devel::Comments;
 
+my_interpolate ([ 1,2,3,4,5 ],
+                [ 1,2,4,7,11 ]);
+exit 0;
+
   
 my_interpolate ([ 0,2,4,6 ],
 [ 0,5,25,61]);
-exit 0;
-
-my_interpolate ([ 0,1,2,3,4 ],
-                [ 1,4,11,22,37 ]);
 
 
 # # step==0

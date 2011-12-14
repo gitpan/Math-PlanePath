@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 58;
+$VERSION = 59;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -123,33 +123,6 @@ sub n_to_xy {
   }
 }
 
-# A000010
-sub _totient {
-  my ($x) = @_;
-  my $count = (1                            # y=1 always
-               + ($x > 2 && ($x&1))         # y=2 if $x odd
-               + ($x > 3 && ($x % 3) != 0)  # y=3
-               + ($x > 4 && ($x&1))         # y=4 if $x odd
-              );
-  for (my $y = 5; $y < $x; $y++) {
-    $count += _coprime($x,$y);
-  }
-  return $count;
-}
-sub _coprime {
-  my ($x, $y) = @_;
-  #### _coprime(): "$x,$y"
-  if ($y > $x) {
-    return 0;  # only interested in X>=Y for now
-  }
-  for (;;) {
-    if ($y <= 1) {
-      return ($y == 1);
-    }
-    ($x,$y) = ($y, $x % $y);
-  }
-}
-
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### CoprimeColumns xy_to_n(): "$x,$y"
@@ -221,6 +194,33 @@ sub rect_to_n_range {
   return ($_x_to_n[$x1], $_x_to_n[$x2+1]-1);
 
   # return (1, .304*$x2*$x2 + 20);   # asympototically ?
+}
+
+# A000010
+sub _totient {
+  my ($x) = @_;
+  my $count = (1                            # y=1 always
+               + ($x > 2 && ($x&1))         # y=2 if $x odd
+               + ($x > 3 && ($x % 3) != 0)  # y=3
+               + ($x > 4 && ($x&1))         # y=4 if $x odd
+              );
+  for (my $y = 5; $y < $x; $y++) {
+    $count += _coprime($x,$y);
+  }
+  return $count;
+}
+sub _coprime {
+  my ($x, $y) = @_;
+  #### _coprime(): "$x,$y"
+  if ($y > $x) {
+    return 0;  # only interested in X>=Y for now
+  }
+  for (;;) {
+    if ($y <= 1) {
+      return ($y == 1);
+    }
+    ($x,$y) = ($y, $x % $y);
+  }
 }
 
 1;
