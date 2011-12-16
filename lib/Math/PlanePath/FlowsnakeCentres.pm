@@ -30,7 +30,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 59;
+$VERSION = 60;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

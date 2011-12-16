@@ -202,6 +202,7 @@ my @all_classes = ('SquareSpiral',
 
                    'DiagonalRationals',
                    'CoprimeColumns',
+                   'GcdRationals',
                    'RationalsTree,tree_type=SB',
                    'RationalsTree,tree_type=CW',
                    'RationalsTree,tree_type=AYT',
@@ -219,16 +220,13 @@ foreach my $class (@ARGV) {
   print $separator;
   $separator = "\n";
 
-  if (@ARGV > 1) {
-    # title if more than one class requested, including "all" option
-    print "$class\n\n";
-  }
   print_class ($class);
 }
 
 sub print_class {
-  my ($class) = @_;
+  my ($name) = @_;
 
+  my $class = $name;
   unless ($class =~ /::/) {
     $class = "Math::PlanePath::$class";
   }
@@ -271,7 +269,9 @@ sub print_class {
     $y_limit_hi = +$half;
   }
 
-  foreach my $n ($path->n_start .. 999) {
+  my $n_start = $path->n_start;
+  my $n = $n_start;
+  for ($n = $n_start; $n <= 999; $n++) {
     my ($x, $y) = $path->n_to_xy ($n);
 
     # stretch these out for better resolution
@@ -322,7 +322,9 @@ sub print_class {
     $y_min = $new_y_min;
     $y_max = $new_y_max;
   }
+  $n--; # the last N actually plotted
 
+  print "$name   N=$n_start to N=$n\n\n";
   foreach my $y (reverse $y_min .. $y_max) {
     foreach my $x ($x_limit_lo .. $x_limit_hi) {
       my $cell = $rows{$x}{$y};

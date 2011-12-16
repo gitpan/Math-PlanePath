@@ -58,23 +58,38 @@ sub xy_is_straight {
           && ($y - $prev_y) == ($next_y - $y));
 }
 
+# with Y reckoned increasing upwards
+sub dxdy_to_direction {
+  my ($dx, $dy) = @_;
+  if ($dx > 0) { return 0; }  # east
+  if ($dx < 0) { return 2; }  # west
+  if ($dy > 0) { return 1; }  # north
+  if ($dy < 0) { return 3; }  # south
+}
+
 # return 0 if X,Y's are straight, 2 if left, 1 if right
 sub xy_turn_021 {
   my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
+
   my $prev_dx = $x - $prev_x;
   my $prev_dy = $y - $prev_y;
   my $dx = $next_x - $x;
   my $dy = $next_y - $y;
-  if ($dx == $prev_dx && $dy == $prev_dy) {
-    return 0;
+
+  my $prev_dir = dxdy_to_direction ($prev_dx, $prev_dy);
+  my $dir = dxdy_to_direction ($dx, $dy);
+  my $turn = ($dir - $prev_dir) % 4;
+
+  if ($turn == 0) {
+    return 0;  # straight
   }
-  # dy/dx > pdy/pdx is turn left
-  # dy*pdx > pdy*dx
-  if ($dy*$prev_dx > $prev_dy*$dx) {
-    return 2;
-  } else {
-    return 1;
+  if ($turn == 1) {
+    return 2;  # left (anti-clockwise)
   }
+  if ($turn == 3) {
+    return 1;  # right (clockwise)
+  }
+  die "Oops, unrecognised turn $turn";
 }
 
 #------------------------------------------------------------------------------

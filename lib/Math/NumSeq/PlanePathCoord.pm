@@ -33,7 +33,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 59;
+$VERSION = 60;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1034,6 +1034,10 @@ sub values_max {
   use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
 }
 { package Math::PlanePath::DiagonalRationals;
+  use constant _NumSeq_Coord_X_min => 1;
+  use constant _NumSeq_Coord_Y_min => 1;
+}
+{ package Math::PlanePath::GcdRationals;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
 }

@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 59;
+$VERSION = 60;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -679,6 +679,10 @@ sub values_max {
 # { package Math::PlanePath::PythagoreanTree;
 # }
 # { package Math::PlanePath::RationalsTree;
+# }
+# { package Math::PlanePath::DiagonalRationals;
+# }
+# { package Math::PlanePath::GcdRationals;
 # }
 { package Math::PlanePath::PeanoCurve;
   sub _NumSeq_Delta_dX_min {

@@ -118,6 +118,7 @@ lib/Math/PlanePath/FibonacciWordFractal.pm
 lib/Math/PlanePath/File.pm
 lib/Math/PlanePath/Flowsnake.pm
 lib/Math/PlanePath/FlowsnakeCentres.pm
+lib/Math/PlanePath/GcdRationals.pm
 lib/Math/PlanePath/GosperIslands.pm
 lib/Math/PlanePath/GosperReplicate.pm
 lib/Math/PlanePath/GosperSide.pm
@@ -208,6 +209,7 @@ t/FibonacciWordFractal.t
 t/File.t
 t/Flowsnake.t
 t/FlowsnakeCentres.t
+t/GcdRationals.t
 t/GosperIslands.t
 t/GosperSide.t
 t/GreekKeySpiral.t

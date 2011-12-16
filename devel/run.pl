@@ -58,7 +58,6 @@ use List::Util qw(min max);
   require Math::PlanePath::HIndexing;
   require Math::PlanePath::CellularRule190;
   require Math::PlanePath::DragonRounded;
-  require Math::PlanePath::MathImageGrayCurve;
   require Math::PlanePath::MathImageTerdragonCurve;
   require Math::PlanePath::MathImageWunderlichSerpentine;
   require Math::PlanePath::MathImageDekkingCurve;
@@ -94,12 +93,12 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImagePeanoRounded;
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::MathImagePowerRationals;
-  require Math::PlanePath::MathImageGcdRationals;
+  require Math::PlanePath::GcdRationals;
   require Math::PlanePath::MathImageTerdragonMidpoint;
-  my $path = Math::PlanePath::MathImagePowerRationals->new
+  my $path = Math::PlanePath::GcdRationals->new
     (
      start_shape => 'B1rev',
-     rule => 135,
+     rule => 220,
      realpart => 1,
      arms => 1,
      L_fill => 'all',
@@ -121,7 +120,7 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0; $i <= 50; $i+=1) {
+  for (my $i = $n_start+0; $i <= 500; $i+=1) {
 
     # for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {

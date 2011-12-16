@@ -28,7 +28,7 @@ use List::Util qw(max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 59;
+$VERSION = 60;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

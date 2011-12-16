@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 59;
+$VERSION = 60;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -269,6 +269,7 @@ include
     UlamWarburtonQuarter   cellular automaton quarter-plane
 
     DiagonalRationals      rationals X/Y by diagonals
+    GcdRationals           rationals X/Y by rows with GCD integer
     RationalsTree          rationals X/Y by tree
     CoprimeColumns         coprime X,Y
     DivisibleColumns       X divisible by Y
@@ -329,7 +330,7 @@ control aspects of the object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
-Return x,y coordinates of point C<$n> on the path.  If there's no point
+Return X,Y coordinates of point C<$n> on the path.  If there's no point
 C<$n> then the return is an empty list, so for example
 
     my ($x,$y) = $path->n_to_xy (-123)
@@ -554,8 +555,7 @@ more N points than the preceding.
       216       HexArms (each arm)
     parameter   MultipleRings, PyramidRows
 
-    totient     CoprimeColumns
-    totient     DiagonalRationals
+    totient     CoprimeColumns, DiagonalRationals
     divcount    DivisibleColumns
 
 =for my_pod step end
@@ -851,6 +851,7 @@ L<Math::PlanePath::UlamWarburton>,
 L<Math::PlanePath::UlamWarburtonQuarter>
 
 L<Math::PlanePath::DiagonalRationals>,
+L<Math::PlanePath::GcdRationals>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::DivisibleColumns>,

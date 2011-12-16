@@ -29,7 +29,7 @@ use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 59;
+$VERSION = 60;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

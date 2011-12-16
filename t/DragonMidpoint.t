@@ -36,7 +36,7 @@ require Math::PlanePath::DragonMidpoint;
 # VERSION
 
 {
-  my $want_version = 59;
+  my $want_version = 60;
   ok ($Math::PlanePath::DragonMidpoint::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonMidpoint->VERSION,  $want_version,

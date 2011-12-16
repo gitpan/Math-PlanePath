@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 60, December 2011
+    - new GcdRationals
+
 Version 59, December 2011
     - new AR2W2Curve
 

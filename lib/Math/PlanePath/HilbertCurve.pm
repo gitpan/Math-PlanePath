@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 59;
+$VERSION = 60;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -525,9 +525,9 @@ This Hilbert Curve path is in Sloane's OEIS in several forms,
     A163538    X change -1,0,1
     A163539    Y change -1,0,1
     A163540    absolute direction of each step (0=right,1=down,2=left,3=up)
-    A163541    absolute direction, transpose X,Y
+    A163541    absolute direction, swapped X,Y
     A163542    relative direction (ahead=0,right=1,left=2)
-    A163543    relative direction, transpose X,Y
+    A163543    relative direction, swapped X,Y
 
 And taking points of the plane in various orders, each value in the sequence
 being the N of the Hilbert curve at those positions.

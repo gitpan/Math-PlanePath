@@ -26,6 +26,14 @@ use Math::Factor::XS 'factors','matches';
 use Smart::Comments;
 
 {
+  print join(', ', factors(30)),"\n";
+  ### factors(): factors(12345)
+  ### factors(): factors(65536)
+  ### factors(): factors(2*3*5*7)
+  exit 0;
+}
+
+{
   foreach my $i (1 .. 32) {
     my $sign = 1;
     my $t = 0;
@@ -65,12 +73,7 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  ### factors(): factors(12345)
-  ### factors(): factors(65536)
-  ### factors(): factors(2*3*5*7)
-  exit 0;
-}
+
 
 {
   for (;;) {

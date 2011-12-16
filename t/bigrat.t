@@ -446,6 +446,7 @@ my @modules = (
                # 'DivisibleColumns', # counting by N
                # 'CoprimeColumns',   # counting by N
                # 'DiagonalRationals',# counting by N
+               # 'GcdRationals',     # counting by N
                # 'TriangularHypot',  # counting by N
                'PythagoreanTree',
                

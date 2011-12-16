@@ -79,7 +79,7 @@ sub streq_array {
 }
 
 #------------------------------------------------------------------------------
-# A118108 - rows as binary bignums
+# A118108 - rows as bignum bits
 {
   my $anum = 'A118108';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);

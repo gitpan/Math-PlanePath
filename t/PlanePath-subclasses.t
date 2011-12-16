@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 780 }
+BEGIN { plan tests => 787 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,9 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'GcdRationals',
+               'DiagonalRationals',
+
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
                'AR2W2Curve,start_shape=B2',
@@ -45,7 +48,6 @@ my @modules = (
                'KochelCurve',
                'CincoCurve',
 
-               'DiagonalRationals',
                'CoprimeColumns',
                'DivisibleColumns',
 
@@ -276,7 +278,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 59;
+my $want_version = 60;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

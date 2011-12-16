@@ -35,20 +35,16 @@ use Math::PlanePath::CellularRule190;
 
 MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
 
-my $path = Math::PlanePath::CellularRule190->new;
-
 sub streq_array {
   my ($a1, $a2) = @_;
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
-      MyTestHelpers::diag ("differ: ", $a1->[0], ' ', $a2->[0]);
+  for (my $i = 0; $i < @$a1 && $i < @$a2; $i++) {
+    if ($a1->[$i] ne $a2->[$i]) {
+      MyTestHelpers::diag ("differ: $a1->[$i] $a2->[$i] at $i");
       return 0;
     }
-    shift @$a1;
-    shift @$a2;
   }
   return (@$a1 == @$a2);
 }
@@ -57,6 +53,7 @@ sub streq_array {
 # A118111 - 0/1 by rows rule 190
 {
   my $anum = 'A118111';
+  my $path = Math::PlanePath::CellularRule190->new;
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
@@ -82,6 +79,7 @@ sub streq_array {
 # A037576 - rows as rule 190 binary bignums (base 4 periodic ...)
 {
   my $anum = 'A037576';
+  my $path = Math::PlanePath::CellularRule190->new;
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
@@ -109,16 +107,16 @@ sub streq_array {
 #------------------------------------------------------------------------------
 # A071041 - 0/1 something rule 246, but what ?
 
-# my $path_246 = Math::PlanePath::CellularRule190->new (mirror => 1);
 # {
 #   my $anum = 'A071041';
+#   my $path = Math::PlanePath::CellularRule190->new (mirror => 1);
 #   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
 #   my @got;
 #   if ($bvalues) {
 #     my $x = 0;
 #     my $y = 0;
 #     foreach my $n (1 .. @$bvalues) {
-#       push @got, ($path_246->xy_to_n ($x, $y) ? 1 : 0);
+#       push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
 #       $x++;
 #       if ($x > $y) {
 #         $y++;
@@ -134,5 +132,6 @@ sub streq_array {
 #         streq_array(\@got, $bvalues),
 #         1, "$anum");
 # }
+
 
 exit 0;
