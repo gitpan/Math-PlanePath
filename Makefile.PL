@@ -54,14 +54,5 @@ MyMakeMakerExtras::WriteMakefile
                      'Math::BigRat' => 0,
                    },
      },
-     optional_features =>
-     { maximum_devel =>
-       { description => 'Stuff used variously in development.',
-         requires => { 'Math::BigInt'     => 0,
-                       'Math::BigRat'     => 0,
-                       'Math::Polynomial' => 1,
-                     },
-       },
-     },
    },
   );

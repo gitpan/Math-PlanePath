@@ -20,16 +20,19 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 197;
+plan tests => 105;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
-require Math::PlanePath::CoprimeColumns;
+require Math::PlanePath::FactorRationals;
+
+my $path = Math::PlanePath::FactorRationals->new;
+my $n_start = $path->n_start;
 
 
 #------------------------------------------------------------------------------
@@ -37,20 +40,19 @@ require Math::PlanePath::CoprimeColumns;
 
 {
   my $want_version = 61;
-  ok ($Math::PlanePath::CoprimeColumns::VERSION, $want_version,
+  ok ($Math::PlanePath::FactorRationals::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::CoprimeColumns->VERSION,  $want_version,
+  ok (Math::PlanePath::FactorRationals->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::CoprimeColumns->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::FactorRationals->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::CoprimeColumns->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::FactorRationals->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::CoprimeColumns->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -65,57 +67,14 @@ require Math::PlanePath::CoprimeColumns;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::CoprimeColumns->new;
-  ok ($path->n_start, 0, 'n_start()');
+  ok ($n_start, 1, 'n_start()');
   ok ($path->x_negative, 0, 'x_negative()');
   ok ($path->y_negative, 0, 'y_negative()');
 }
 {
   my @pnames = map {$_->{'name'}}
-    Math::PlanePath::CoprimeColumns->parameter_info_list;
+    Math::PlanePath::FactorRationals->parameter_info_list;
   ok (join(',',@pnames), '');
-}
-
-
-#------------------------------------------------------------------------------
-# _coprime()
-
-foreach my $elem ([ 1,1,  1 ],
-                  [ 6,1,  1 ],
-                  [ 6,2,  0 ],
-                  [ 6,3,  0 ],
-                  [ 6,4,  0 ],
-                  [ 6,5,  1 ],
-                 ) {
-  my ($x,$y, $want) = @$elem;
-  my $got = Math::PlanePath::CoprimeColumns::_coprime($x,$y);
-  $got = $got-0;
-  ok ($got, $want, "_coprime($x,$y)");
-}
-
-#------------------------------------------------------------------------------
-# _totient()
-
-foreach my $elem (
-                  [ 1, 1 ], # 1 itself only
-                  [ 2, 1 ], # 1 only
-                  [ 3, 2 ], # 1,2
-                  [ 4, 2 ], # 1,3
-                  [ 5, 4 ], # 1,2,3,4
-                  [ 6, 2 ], # 1,5
-                 ) {
-  my ($x, $want) = @$elem;
-  my $got = Math::PlanePath::CoprimeColumns::_totient($x);
-  ok ($got, $want, "_totient($x)");
-}
-
-foreach my $x (1 .. 100) {
-  my $want = 0;
-  foreach my $y (1 .. $x) {
-    $want += Math::PlanePath::CoprimeColumns::_coprime($x,$y);
-  }
-  my $got = Math::PlanePath::CoprimeColumns::_totient($x);
-  ok ($got, $want, "_totient($x) vs _coprime()");
 }
 
 
@@ -123,32 +82,38 @@ foreach my $x (1 .. 100) {
 # first few points
 
 {
-  my @data = ([ 0,  1,1 ],
-              [ 1,  2,1 ],
+  my @data = (
+              [ 2**31, 1, 2**16 ],
+              [ 2**200, 2**100, 1 ],
 
-              [ 2,  3,1 ],
-              [ 3,  3,2 ],
+              [ undef,  0,0 ],
+              [ undef,  1,0 ],
+              [ undef,  2,0 ],
+              [ undef,  3,0 ],
 
-              [ 4,  4,1 ],
-              [ 5,  4,3 ],
+              [ undef,  0,1 ],
+              [ undef,  0,2 ],
+              [ undef,  0,3 ],
 
-              [ 6,  5,1 ],
-              [ 7,  5,2 ],
-              [ 8,  5,3 ],
-              [ 9,  5,4 ],
+              [ 1,  1,1 ],
 
-              [ 10,  6,1 ],
-              [ 11,  6,5 ],
+              [ 2,  1,2 ],
+              [ 4,  2,1 ],
+              [ 8,  1,4 ],
+              [ 16,  4,1 ],
+              [ 32,  1,8 ],
+              [ 64,  8,1 ],
 
-              [ 12,  7,1 ],
+              [ 3,  1,3 ],
+              [ 9,  3,1 ],
+              [ 27,  1,9 ],
+              [ 81,  9,1 ],
 
-              [ -0.5,   1,  .5 ],
-              [ -0.25,  1,  .75 ],
-              [ .25,    1, 1.25 ],
+              [ 45,  3,5 ], # 3^2*5
              );
-  my $path = Math::PlanePath::CoprimeColumns->new;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
+    next if ! defined $n;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
     ok ($got_x, $want_x, "n_to_xy() x at n=$n");
     ok ($got_y, $want_y, "n_to_xy() y at n=$n");
@@ -156,15 +121,16 @@ foreach my $x (1 .. 100) {
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
-    next unless $want_n==int($want_n);
+    next if defined $want_n && $want_n!=int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
+    ok ($got_n, $want_n, "xy_to_n() at x=$x,y=$y");
   }
 
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
+    next unless defined $n && $n==int($n);
     my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-    next unless $n==int($n);
+    ok ($got_nlo >= $n_start, 1, "rect_to_n_range() nlo=$got_nlo < n_start at n=$n,x=$x,y=$y");
     ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
     ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
   }
@@ -175,7 +141,6 @@ foreach my $x (1 .. 100) {
 # xy_to_n() distinct n
 
 {
-  my $path = Math::PlanePath::CoprimeColumns->new;
   my $bad = 0;
   my %seen;
   my $xlo = -5;
@@ -213,10 +178,11 @@ foreach my $x (1 .. 100) {
 # rect_to_n_range()
 
 {
-  my $path = Math::PlanePath::CoprimeColumns->new;
   my ($nlo, $nhi) = $path->rect_to_n_range(1,1, -2,1);
-  ok ($nlo <= 0, 1, "nlo $nlo");
-  ok ($nhi >= 0, 1, "nhi $nhi");
+  ### $nlo
+  ### $nhi
+  ok ($nlo <= 1, 1, "nlo $nlo");
+  ok ($nhi >= 1, 1, "nhi $nhi");
 }
 
 exit 0;

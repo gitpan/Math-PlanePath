@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 60;
+$VERSION = 61;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 26 A-numbers in 2 modules
+# total 30 A-numbers in 2 modules
 
 use constant info_arrayref =>
 [
@@ -294,6 +294,46 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'DiagonalRationals',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A071974',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'FactorRationals',
+      'coordinate_type',
+      'X'
+    ]
+  },
+  {
+    'anum' => 'A071975',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'FactorRationals',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A019554',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'FactorRationals',
+      'coordinate_type',
+      'Product'
+    ]
+  },
+  {
+    'anum' => 'A054531',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'GcdRationals',
       'coordinate_type',
       'Y'
     ]

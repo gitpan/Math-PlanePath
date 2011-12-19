@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 60;
+$VERSION = 61;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -78,6 +78,7 @@ sub n_to_xy {
     push @digits, $int % 4;
     $len *= 2;
   } while ($int = int($int/4));
+
   my $state = ($#digits & 1 ? 4 : 0);
   my $dir = $state + 2; # default if all $digit==3
   ### @digits

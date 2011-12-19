@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 787 }
+BEGIN { plan tests => 794 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,7 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'FactorRationals',
                'GcdRationals',
                'DiagonalRationals',
 
@@ -278,7 +279,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 60;
+my $want_version = 61;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

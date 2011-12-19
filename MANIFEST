@@ -43,7 +43,6 @@ devel/koch-squareflakes.pl
 devel/Makefile
 devel/math-factor.pl
 devel/number-fraction.pl
-devel/number-fraction.t
 devel/numseq.pl
 devel/old/DragonArms.pm
 devel/old/FlowsnakeArms.pm
@@ -114,6 +113,7 @@ lib/Math/PlanePath/DivisibleColumns.pm
 lib/Math/PlanePath/DragonCurve.pm
 lib/Math/PlanePath/DragonMidpoint.pm
 lib/Math/PlanePath/DragonRounded.pm
+lib/Math/PlanePath/FactorRationals.pm
 lib/Math/PlanePath/FibonacciWordFractal.pm
 lib/Math/PlanePath/File.pm
 lib/Math/PlanePath/Flowsnake.pm
@@ -205,6 +205,7 @@ t/DivisibleColumns.t
 t/DragonCurve.t
 t/DragonMidpoint.t
 t/DragonRounded.t
+t/FactorRationals.t
 t/FibonacciWordFractal.t
 t/File.t
 t/Flowsnake.t
@@ -232,6 +233,7 @@ t/KochSquareflakes.t
 t/LTiling.t
 t/MultipleRings.t
 t/MyTestHelpers.pm
+t/number-fraction.t
 t/NumSeq-PlanePathCoord.t
 t/NumSeq-PlanePathDelta.t
 t/PeanoCurve-load.t
@@ -284,7 +286,9 @@ xt/CoprimeColumns-oeis.t
 xt/DiagonalRationals-oeis.t
 xt/DivisibleColumns-oeis.t
 xt/Dragon-oeis.t
+xt/FactorRationals-oeis.t
 xt/FibonacciWordFractal-oeis.t
+xt/GcdRationals-oeis.t
 xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm

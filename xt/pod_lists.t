@@ -122,7 +122,7 @@ diag "module count ",scalar(@lib_modules);
                 'Hypot', 'HypotOctant',
                 'TriangularHypot', 'VogelFloret',
                 'PythagoreanTree', 'RationalsTree',
-                'GcdRationals');
+                'FactorRationals', 'GcdRationals');
     my %seen;
     while ($list =~ /([A-Z]\S+)/g) {
       my $elem = $1;

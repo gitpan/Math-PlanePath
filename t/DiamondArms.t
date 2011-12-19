@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondArms;
 # VERSION
 
 {
-  my $want_version = 60;
+  my $want_version = 61;
   ok ($Math::PlanePath::DiamondArms::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiamondArms->VERSION,  $want_version,

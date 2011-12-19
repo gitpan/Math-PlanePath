@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 60;
+$VERSION = 61;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -173,8 +173,8 @@ Math::PlanePath -- points on a path through the 2-D plane
 =head1 DESCRIPTION
 
 This is the base class for some mathematical paths which map an integer
-position C<$n> into coordinates C<$x,$y> in the plane.  The current classes
-include
+position C<$n> to and from coordinates C<$x,$y> in the plane.  The current
+classes include
 
 =for my_pod list begin
 
@@ -269,6 +269,7 @@ include
     UlamWarburtonQuarter   cellular automaton quarter-plane
 
     DiagonalRationals      rationals X/Y by diagonals
+    FactorRationals        rationals X/Y by prime factorization
     GcdRationals           rationals X/Y by rows with GCD integer
     RationalsTree          rationals X/Y by tree
     CoprimeColumns         coprime X,Y
@@ -279,7 +280,7 @@ include
 
 The paths are object oriented to allow parameters, though many have none.
 See C<examples/numbers.pl> in the Math-PlanePath sources for a cute sample
-printout of the numbering of selected paths or all paths.
+printout of the numbering for selected paths or all paths.
 
 =head2 Number Types
 
@@ -297,7 +298,7 @@ Floating point nans (when available) are meant to give nan, infinite, or
 empty/undef returns, but again of some unspecified kind as yet but in any
 case not going into infinite loops.
 
-Many of the classes can operate on overloaded number classes as inputs and
+Many of the classes can operate on overloaded number types as inputs and
 give corresponding outputs.
 
     Math::BigInt        maybe perl 5.8 up, for ** operator
@@ -305,14 +306,14 @@ give corresponding outputs.
     Math::BigFloat
     Number::Fraction    1.14 or higher (for abs())
 
-This is experimental and some classes might truncate a bignum or a fraction
-to a float as yet.  In general the intention is to make the code generic
-enough that it can act on good number types.  Recent versions of the bignum
-modules might be required, perhaps Perl 5.8 and up so for instance the C<**>
-exponentiation operator is available.
+This is slightly experimental and some classes might truncate a bignum or a
+fraction to a float as yet.  In general the intention is to make the code
+generic enough that it can act on sensible number types.  Recent versions of
+the bignum modules might be required, perhaps Perl 5.8 and up for the C<**>
+exponentiation operator in particular.
 
 For reference, an C<undef> input to C<$n>, C<$x,$y>, etc, is meant to
-provoke an uninitialized value warning (when warnings are enabled), but
+provoke an uninitialized value warnings (when warnings are enabled), but
 currently doesn't croak etc.  Perhaps that will change, but the warning at
 least prevents bad inputs going unnoticed.
 
@@ -374,7 +375,7 @@ But the range at least bounds the N values which occur in the rectangle.
 Classes which guarantee an exact lo/hi range say so in their docs.
 
 C<$n_hi> is usually no more than an extra partial row, revolution, or
-self-similar level.  C<$n_lo> is often merely the starting point
+self-similar level.  C<$n_lo> is often merely the starting
 C<$path-E<gt>n_start()>, which is fine if the origin is in the rectangle but
 something away from the origin might actually start higher.
 
@@ -383,8 +384,8 @@ some N figures then those N's are included in the return.
 
 If there's no points in the rectangle then the return can be a "crossed"
 range like C<$n_lo=1>, C<$n_hi=0> (and which makes a C<foreach> do no
-loops).  But C<rect_to_n_range()> might not notice there's no points in the
-rectangle and instead over-estimate the range.
+loops).  Though C<rect_to_n_range()> might not notice there's no points in
+the rectangle and instead over-estimate the range.
 
 =item C<$bool = $path-E<gt>x_negative()>
 
@@ -487,9 +488,9 @@ into a segment and offset, but the self-similar paths which chop N into
 digits of some radix might increment instead of recalculate.
 
 A disadvantage of an iterator is that if you're only interested in a
-particular rectangular or similar region then the iteration will often stray
+particular rectangular or similar region then the iteration may stray
 outside for a long time, making it much less useful than it seems.  For wild
-paths it can be better to use C<xy_to_n()> by rows or similar, on the
+paths it can be better to apply C<xy_to_n()> by rows or similar, on the
 square-grid paths at least.
 
 =head2 Scaling and Orientation
@@ -498,7 +499,7 @@ The paths generally make a first move horizontally to the right or from the
 X axis anti-clockwise, unless there's some more natural orientation.
 
 There's no parameters for scaling, offset or reflection as those things are
-thought better left to a general coordinate transformer for example to
+thought better left to a general coordinate transformer, for example to
 expand or invert for display.  But some easy transformations can be had just
 from the X,Y with
 
@@ -518,7 +519,7 @@ The Rows and Columns paths are slight exceptions to the rule of not having
 rotated versions of paths.  They began as ways to pass in width and height
 as generic parameters and let the path use the one or the other.
 
-For scaling and shifting see L<Transform::Canvas>, and to rotate as well see
+For scaling and shifting see L<Transform::Canvas> or to rotate as well see
 L<Geometry::AffineTransform>.
 
 =head2 Loop Step
@@ -538,8 +539,8 @@ more N points than the preceding.
        4/2      CellularRule54, DiagonalsAlternating (2 rows for +4)
         5       PentSpiral, PentSpiralSkewed
        5.65     PixelRings (average about 4*sqrt(2))
-        6       HexSpiral, HexSpiralSkewed, MPeaks
-                  MultipleRings (default),
+        6       HexSpiral, HexSpiralSkewed, MPeaks,
+                  MultipleRings (default)
        6/2      CellularRule190 (2 rows for +6)
        6.28     ArchimedeanChords (approaching 2*pi)
         7       HeptSpiralSkewed
@@ -567,8 +568,7 @@ squares make a straight line in the paths of step 2.
 
 In general straight lines on stepped paths are quadratics
 
-   N = a*k^2 + b*k + c
-   where a=step/2
+   N = a*k^2 + b*k + c    where a=step/2
 
 The polygonal numbers are like this, with the (step+2)-gonal numbers making
 a straight line on a "step" path.  For example the 7-gonals (heptagonals)
@@ -583,18 +583,17 @@ trivially if always a multiple of 2 etc, or by a more sophisticated
 reasoning.  See L<Math::PlanePath::PyramidRows/Step 3 Pentagonals> for a
 factorization on the roots making a no-primes gap.
 
-Multiplying the step by 4 splits a straight line in two, so for example the
-perfect squares are a straight line on the step=2 "Corner" path, and then on
-the step=8 SquareSpiral they instead fall on two lines (lower left and upper
-right).  Effectively in that bigger step there's one line of the even
-squares (2k)^2 == 4*k^2 and another of the odd squares (2k+1)^2.  The gap
-between successive even squares increases by 8 each time and likewise
-between odd squares.
+A 4*step path splits a straight line in two, so for example the perfect
+squares are a straight line on the step=2 "Corner" path, and then on the
+step=8 SquareSpiral they instead fall on two lines (lower left and upper
+right).  In that bigger step there's one line of the even squares (2k)^2 ==
+4*k^2 and another of the odd squares (2k+1)^2.  The gap between successive
+even squares increases by 8 each time and likewise between odd squares.
 
 =head2 Self-Similar Powers
 
 The self-similar patterns such as PeanoCurve generally have a base pattern
-which repeats at powers N=base^level.  Or some multiple or relationship to
+which repeats at powers N=base^level, or some multiple or relationship to
 such a power for things like KochPeaks and GosperIslands.
 
 =for my_pod base begin
@@ -623,12 +622,12 @@ such a power for things like KochPeaks and GosperIslands.
 
 =for my_pod base end
 
-Many number sequences on these paths tend to be fairly random, or merely
-show the tiling or path layout rather than much about the number sequence.
-Sequences related to the base can make holes or patterns picking out parts
-of the path.  For example numbers without a particular digit (or digits) in
-the relevant base show up as holes.  See
-L<Math::PlanePath::ZOrderCurve/Power of 2 Values> for example.
+Many number sequences plotted on these paths tend to be fairly random, or
+merely show the tiling or path layout rather than much about the number
+sequence.  Sequences related to the base can make holes or patterns picking
+out parts of the path.  For example numbers without a particular digit (or
+digits) in the relevant base show up as holes.  See for example
+L<Math::PlanePath::ZOrderCurve/Power of 2 Values>.
 
 =head2 Triangular Lattice
 
@@ -651,8 +650,7 @@ offset on alternate rows so X and Y are either both even or both odd.
     . * . * . * . * . * . *
     * . * . * . * . * . * .
 
-The X axis and the diagonals X=Y
-and X=-Y divide the plane into six parts.
+The X axis and the diagonals X=Y and X=-Y divide the plane into six parts.
 
        X=-Y     X=Y
          \     /
@@ -662,7 +660,6 @@ and X=-Y divide the plane into six parts.
            / \
           /   \
          /     \
-
 
 The diagonal X=3*Y is the middle of the first sixth, representing a twelfth
 of the plane.
@@ -679,9 +676,9 @@ Integer Y values have the advantage of fitting pixels on the usual kind of
 raster computer screen, and not losing precision in floating point results.
 
 If doing a general-purpose coordinate rotation then be sure to apply the
-sqrt(3) scale factor first, or the rotation is wrong.  Rotations can be made
-within the integer X,Y coordinates directly as follows (all giving
-integers),
+sqrt(3) scale factor first or the rotation will be wrong.  60 degree
+rotations can be made within the integer X,Y coordinates directly as follows
+(all giving integer results),
 
     (X-3Y)/2, (X+Y)/2       rotate +60   (anti-clockwise)
     (X+3Y)/2, (Y-X)/2       rotate -60   (clockwise)
@@ -705,17 +702,17 @@ radial distance.
 
 For a triangular lattice the rotation formulas above allow calculations to
 be done in the rectangular X,Y coordinates which are the inputs and outputs
-of the PlanePath functions.  But an alternative is to number vertically on
-an angle with coordinates i,j
+of the PlanePath functions.  An alternative is to number vertically on a 60
+degree angle with coordinates i,j,
 
           ...
           *   *   *      2
         *   *   *       1
       *   *   *      j=0
-    i=0  1   2 
+    i=0  1   2
 
-Such coordinates are usual for hexagonal grid board games etc, and using
-this internally can simplify the rotations a little,
+Such coordinates are sometimes used for hexagonal grid board games etc, and
+using this internally can simplify rotations a little,
 
     -j, i+j         rotate +60   (anti-clockwise)
     i+j, -i         rotate -60   (clockwise)
@@ -728,17 +725,16 @@ Conversions between i,j and the rectangular X,Y are
     X = 2*i + j         i = (X-Y)/2
     Y = j               j = Y
 
-A third coordinate k at a +120 angle can be used too,
+A third coordinate k at a +120 degrees angle can be used too,
 
-     k=0  k=1 k=2   
-        *   *   *   
-          *   *   * 
-            *   *   *   
-             0   1   2 
+     k=0  k=1 k=2
+        *   *   *
+          *   *   *
+            *   *   *
+             0   1   2
 
-This is redundant, in that it doesn't express anything the i,j combination
-can't already, but it the advantage of making rotations just sign changes
-and swaps,
+This is redundant since it doesn't number anything i,j alone can't already,
+but it the advantage of turning rotations into just sign changes and swaps,
 
     -k, i, j        rotate +60
     j, k, -i        rotate -60
@@ -746,8 +742,8 @@ and swaps,
     k, -i, -j       rotate -120
     -i, -j, -k      rotate 180
 
-The conversions between i,j,k and the rectangular X,Y are as above with k
-worked into the X,Y.
+The conversions between i,j,k and the rectangular X,Y are similar to the i,j
+above with k worked into the X,Y.
 
     X = 2i + j - k        i = (X-Y)/2        i = (X+Y)/2
     Y = j + k             j = Y         or   j = 0
@@ -851,6 +847,7 @@ L<Math::PlanePath::UlamWarburton>,
 L<Math::PlanePath::UlamWarburtonQuarter>
 
 L<Math::PlanePath::DiagonalRationals>,
+L<Math::PlanePath::FactorRationals>,
 L<Math::PlanePath::GcdRationals>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>,
@@ -859,7 +856,8 @@ L<Math::PlanePath::File>
 
 =for my_pod see_also end
 
-L<Math::NumSeq::PlanePathCoord>
+L<Math::NumSeq::PlanePathCoord>,
+L<Math::NumSeq::PlanePathDelta>
 
 L<math-image>, displaying various sequences on these paths.
 

@@ -28,6 +28,25 @@ use Smart::Comments;
 
 {
   my $path = Math::PlanePath::GcdRationals->new;
+  require Math::Prime::XS;
+  my @primes = Math::Prime::XS::sieve_primes(10000);
+  my $fmax = 0;
+  foreach my $y (1 .. 5000) {
+    foreach my $x (1 .. 5000) {
+      my $n = $path->xy_to_n($x+1,$y+1) // next;
+      my $est = ($x+$y)**2 + $x;
+      my $f = $est / $n;
+      if ($f > $fmax + .5) {
+        print "$f\n";
+        $fmax = $f;
+      }
+    }
+  }
+  exit 0;
+}
+
+{
+  my $path = Math::PlanePath::GcdRationals->new;
   foreach my $y (3 .. 50) {
     foreach my $x (3 .. 50) {
       my $n = $path->xy_to_n($x,$y) // next;
@@ -51,8 +70,6 @@ use Smart::Comments;
         }
         $int++;
         $i *= $int;
-        $j *= $int;
-
       }
     }
   }

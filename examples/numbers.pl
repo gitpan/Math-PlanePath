@@ -202,6 +202,7 @@ my @all_classes = ('SquareSpiral',
 
                    'DiagonalRationals',
                    'CoprimeColumns',
+                   'FactorRationals',
                    'GcdRationals',
                    'RationalsTree,tree_type=SB',
                    'RationalsTree,tree_type=CW',

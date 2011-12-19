@@ -33,7 +33,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 60;
+$VERSION = 61;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -218,10 +218,11 @@ my %oeis_anum =
      # OEIS-Other: A001477 planepath=TheodorusSpiral coordinate_type=RSquared
    },
 
-   # OFFSET
+   # OFFSET n=0 whereas Diagonals starts from N=1
    # 'Math::PlanePath::Diagonals' =>
    # { X        => 'A002262',  # 0, 0,1, 0,1,2, etc
    #   Y        => 'A025581',  # 0, 1,0, 2,1,0, 3,2,1,0 descending
+   #   Product  => 'A004247',  # 0, 0,0,0, 1, 0,0, 2,2, 0,0, 3,4,5, 0,0
    #   Sum      => 'A003056',  # 0, 1,1, 2,2,2, 3,3,3,3
    #   DiffYX   => 'A114327',  # Y-X by anti-diagonals
    #   AbsDiff  => 'A049581',  # abs(Y-X) by anti-diagonals
@@ -389,10 +390,28 @@ my %oeis_anum =
    },
 
    'Math::PlanePath::DiagonalRationals' =>
-   { X => 'A020652',  # numerators
-     Y => 'A020653',  # denominators
+   { X       => 'A020652',  # numerators
+     Y       => 'A020653',  # denominators
      # OEIS-Catalogue: A020652 planepath=DiagonalRationals coordinate_type=X
      # OEIS-Catalogue: A020653 planepath=DiagonalRationals coordinate_type=Y
+
+     # but it has OFFSET=0 unlike num,den which are OFFSET=1 as per N=1
+     # DiagonalRationals
+     # AbsDiff => 'A157806', # abs(num-den)
+   },
+
+   'Math::PlanePath::FactorRationals' =>
+   { X       => 'A071974',  # numerators
+     Y       => 'A071975',  # denominators
+     Product => 'A019554',  # replace squares by their root
+     # OEIS-Catalogue: A071974 planepath=FactorRationals coordinate_type=X
+     # OEIS-Catalogue: A071975 planepath=FactorRationals coordinate_type=Y
+     # OEIS-Catalogue: A019554 planepath=FactorRationals coordinate_type=Product
+   },
+
+   'Math::PlanePath::GcdRationals' =>
+   { Y => 'A054531',  # T(n,k) = n/GCD(n,k), being denominators
+     # OEIS-Catalogue: A054531 planepath=GcdRationals coordinate_type=Y
    },
 
    'Math::PlanePath::Rows,width=1' =>
@@ -1034,6 +1053,10 @@ sub values_max {
   use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
 }
 { package Math::PlanePath::DiagonalRationals;
+  use constant _NumSeq_Coord_X_min => 1;
+  use constant _NumSeq_Coord_Y_min => 1;
+}
+{ package Math::PlanePath::FactorRationals;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
 }

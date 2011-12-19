@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 60;
+$VERSION = 61;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -230,8 +230,9 @@ Sequences in the following forms
 
     http://oeis.org/A020652   (etc)
 
-    A020652  - numerators (X)
-    A020653  - denominators (Y)
+    A020652  - numerators, X
+    A020653  - denominators, Y
+    A157806  - abs difference, abs(X-Y)
 
     A054424  - permutation DiagonalRationals -> RationalsTree SB
     A054425  -   padded with 0s at non-coprimes

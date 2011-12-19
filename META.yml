@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Math-PlanePath
-version:            60
+version:            61
 abstract:           Mathematical paths through the 2-D plane.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -39,24 +39,4 @@ maximum_tests:
         Math::BigInt:        0
         Math::BigInt::Lite:  0
         Math::BigRat:        0
-optional_features:
-    maximum_devel:
-        description:  Stuff used variously in development.
-        requires:
-            Devel::Comments:     0
-            File::Spec:          0
-            Math::BigInt:        0
-            Math::BigRat:        0
-            Math::Polynomial:    1
-            Parse::CPAN::Meta:   0
-            Pod::Simple::HTML:   0
-            Smart::Comments:     0
-            Test::DistManifest:  0
-            Test::Pod:           1.00
-            Test::Synopsis:      0
-            Test::YAML::Meta:    0.15
-            warnings::unused:    0
-            YAML:                0
-            YAML::Syck:          0
-            YAML::Tiny:          0
-            YAML::XS:            0
+optional_features:  {}

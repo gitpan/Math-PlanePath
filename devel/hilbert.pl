@@ -17,11 +17,263 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.004;
+use 5.010;
 use strict;
 use Math::PlanePath::HilbertCurve;
 
-use Smart::Comments;
+#use Smart::Comments;
+
+{
+  require Math::BaseCnv;
+  require Math::NumSeq::PlanePathDelta;
+  my $seq = Math::NumSeq::PlanePathDelta->new (delta_type => 'Dir4',
+                                               planepath => 'HilbertCurve');
+  foreach my $n (0 .. 256) {
+    my $n4 = Math::BaseCnv::cnv($n,10,4);
+    my $want = $seq->ith($n);
+    my $got = dir_try($n);
+    my $str = ($want == $got ? '' : '   ***');
+    printf "%2d %3s  %d %d%s\n", $n, $n4, $want, $got, $str;
+  }
+  exit 0;
+
+
+# my @next_state = (4,0,0,12, 0,4,4,8, 12,8,8,4, 8,12,12,0);
+# my @digit_to_x = (0,1,1,0, 0,0,1,1, 1,0,0,1, 1,1,0,0);
+# my @digit_to_y = (0,0,1,1, 0,1,1,0, 1,1,0,0, 1,0,0,1);
+
+#     dx  dy  dir
+# 0   +1   0   0,1,2     4,0,0,12    0=XYswap dir^1   3 y=-x  dir^3  low^1 or ^3
+# 4    0  +1   1,0,3     0,4,4,8                      3 x=-y
+# 8   -1   0   2,3,0    12,8,8,4,
+# 12   0  -1   3,2,1    8,12,12,0    0=XYswap dir^1
+
+#  [012]3333
+#  [123]0000
+
+# p = count 3s   0 if dx+dy=-1 so dx=-1 or dy=-1 SW,  1 if dx+dy=1 NE
+# m = count 3s in -n    0 if dx-dy=-1 NW, 1 if dx-dy=1 SE
+# 1023200 neg = 2310133+1 = 2310200  count 0s except trailing 0s
+
+
+  sub dir_try {
+    my ($n) = @_;
+    ### dir_try(): $n
+
+
+    my $state = 0;
+    my @digits = digits($n);
+    if (@digits & 1) {
+      #      $state ^= 1;
+    }
+    # unshift @digits, 0;
+    ### @digits
+
+    my $flip = 0;
+    my $dir = 0;
+    for (;;) {
+      if (! @digits) {
+        return $flip;
+      }
+      $dir = pop @digits;
+      if ($dir == 3) {
+        $flip ^= 1;
+      } else {
+        last;
+      }
+    }
+    if ($flip) {
+      $dir = 1-$dir;
+    }
+
+    while (@digits) {
+      my $digit = pop @digits;
+      ### at: "state=$state  digit=$digit  dir=$dir"
+
+      if ($digit == 0) {
+      }
+      if ($digit == 1) {
+        $dir = 1-$dir;
+      }
+      if ($digit == 2) {
+        $dir = 1-$dir;
+      }
+      if ($digit == 3) {
+        $dir = $dir+2;
+      }
+    }
+
+    ### $dir
+    return $dir % 4;
+
+
+
+
+
+    # works ...
+    #
+    # while (@digits && $digits[-1] == 3) {
+    #   $state ^= 1;
+    #   pop @digits;
+    # }
+    # # if (@digits) {
+    # #   push @digits, $digits[-1];
+    # # }
+    #
+    # while (@digits > 1) {
+    #   my $digit = shift @digits;
+    #   ### at: "state=$state  digit=$digit  dir=$dir"
+    #
+    #   if ($digit == 0) {
+    #   }
+    #   if ($digit == 1) {
+    #     $state ^= 1;
+    #   }
+    #   if ($digit == 2) {
+    #     $state ^= 1;
+    #   }
+    #   if ($digit == 3) {
+    #     $state ^= 2;
+    #   }
+    # }
+    #
+    # ### $state
+    # ### $digit
+    # my $dir = $digits[0] // return $state^1;
+    # if ($state & 1) {
+    #   $dir = 1-$dir;
+    # }
+    # if ($state & 2) {
+    #   $dir = $dir+2;
+    # }
+    # ### $dir
+    #
+    #
+    # ### $dir
+    # return $dir % 4;
+
+
+
+
+
+
+    # my $digit = $digits[-1];
+    # if ($digit == 0) {
+    #   $dir = 0;
+    # }
+    # if ($digit == 1) {
+    #   $dir = 2;
+    # }
+    # if ($digit == 2) {
+    #   $dir = 1;
+    # }
+    # if ($digit == 3) {
+    #   $dir = 1;
+    # }
+    # if (@digits & 1) {
+    #   $dir = 1-$dir;
+    # }
+    # my $ret = $dir;
+    #
+    # while (@digits) {
+    #   my $digit = shift @digits;
+    #   if ($digit == 0) {
+    #     $dir = 1-$dir;
+    #     $ret = $dir;
+    #   }
+    #   if ($digit == 1) {
+    #     $ret = $dir;
+    #   }
+    #   if ($digit == 2) {
+    #     $ret = $dir;
+    #   }
+    #   if ($digit == 3) {
+    #     $dir = $dir + 2;
+    #   }
+    # }
+    # return $ret % 4;
+
+
+    # $ret = 0;
+    # while (($n & 3) == 3) {
+    #   $n >>= 2;
+    #   $ret ^= 1;
+    # }
+    #
+    # my $digit = ($n & 3);
+    # $n >>= 2;
+    # if ($digit == 0) {
+    # }
+    # if ($digit == 1) {
+    #   $ret++;
+    # }
+    # if ($digit == 2) {
+    #   $ret += 2;
+    # }
+    # if ($digit == 3) {
+    # }
+    #
+    # while ($n) {
+    #   my $digit = ($n & 3);
+    #   $n >>= 2;
+    #
+    #   if ($digit == 0) {
+    #     $ret = 1-$ret;
+    #   }
+    #   if ($digit == 1) {
+    #     $ret = -$ret;
+    #     #        $ret = 1-$ret;
+    #   }
+    #   if ($digit == 2) {
+    #     $ret = 1-$ret;
+    #   }
+    #   if ($digit == 3) {
+    #     $ret = $ret + 2;
+    #   }
+    # }
+    # return $ret % 4;
+    #
+    #
+    #
+    # if (($n & 3) == 3) {
+    #   while (($n & 15) == 15) {
+    #     $n >>= 4;
+    #   }
+    #   if (($n & 3) == 3) {
+    #     $ret = 1;
+    #   }
+    #   $n >>= 2;
+    # } elsif (($n & 3) == 1) {
+    #   $ret = 0;
+    #   $n >>= 2;
+    # } elsif (($n & 3) == 2) {
+    #   $ret = 2;
+    #   $n >>= 2;
+    # }
+    #
+    # while ($n) {
+    #   if (($n & 3) == 0) {
+    #     $ret ^= 1;
+    #   }
+    #   if (($n & 3) == 3) {
+    #     $ret ^= 2;
+    #   }
+    #   $n >>= 2;
+    # }
+    # return $ret;
+  }
+
+  sub digits {
+    my ($n) = @_;
+    my @ret;
+    while ($n) {
+      unshift @ret, $n & 3;
+      $n >>= 2;
+    } ;  #  || @ret&1
+    return @ret;
+  }
+}
+
 
 {
   my $path = Math::PlanePath::HilbertCurve->new;

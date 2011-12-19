@@ -44,6 +44,11 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['factor-rationals-small.png',
+    'math-image --path=FactorRationals --lines --scale=6 --size=32 --offset=-4,-4'],
+   ['factor-rationals-big.png',
+    'math-image --path=FactorRationals --lines --scale=15 --size=200'],
+
    ['gcd-rationals-small.png',
     'math-image --path=GcdRationals --lines --scale=6 --size=32 --offset=-4,-4'],
    ['gcd-rationals-big.png',

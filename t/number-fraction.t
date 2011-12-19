@@ -17,13 +17,6 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-
-use lib '/so/perl/number-fraction/number-fraction/lib';
-
-
-
-
-
 use 5.004;
 use strict;
 use Test;
@@ -36,11 +29,11 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 179)[1];
+my $test_count = (tests => 201)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
-if (! eval { use Number::Fraction 1.14; 1 }) {
+if (! eval 'use Number::Fraction 1.14; 1') {
   MyTestHelpers::diag ('skip due to Number::Fraction 1.14 not available -- ',$@);
   foreach (1 .. $test_count) {
     skip ('due to no Number::Fraction', 1, 1);
@@ -247,7 +240,21 @@ require Math::PlanePath::KochCurve;
 ### Modules ...
 
 my @modules = (
+               'AR2W2Curve',
+               'AR2W2Curve,start_shape=D2',
+               'AR2W2Curve,start_shape=B2',
+               'AR2W2Curve,start_shape=B1rev',
+               'AR2W2Curve,start_shape=D1rev',
+               'AR2W2Curve,start_shape=A2rev',
+               'BetaOmega',
                'KochelCurve',
+               'CincoCurve',
+
+               'HilbertSpiral',
+               'HilbertCurve',
+
+               'LTiling',
+               'DiagonalsAlternating',
                'MPeaks',   # but not across gap
                'WunderlichMeander',
                'FibonacciWordFractal',
@@ -255,9 +262,7 @@ my @modules = (
                'DigitGroups',
                'PeanoCurve',
                'ZOrderCurve',
-               'HilbertCurve',
-               'BetaOmega',
-
+               
                'HIndexing',
                'SierpinskiCurve',
                'AztecDiamondRings',     # but not across ring end
@@ -265,15 +270,15 @@ my @modules = (
                'SquareArms',
                'HexArms',
                'GreekKeySpiral',
-
+               
                # 'UlamWarburton',         # not really defined yet
                # 'UlamWarburtonQuarter',  # not really defined yet
                'CellularRule54',      # but not across gap
                'CellularRule190',     # but not across gap
-
+               
                'Rows',
                'Columns',
-
+               
                'SquareSpiral',
                'DiamondSpiral',
                'PentSpiral',
@@ -284,67 +289,77 @@ my @modules = (
                'PyramidSpiral',
                'TriangleSpiral',
                'TriangleSpiralSkewed',
-
+               
                # 'SacksSpiral',         # sin/cos
                # 'TheodorusSpiral',     # counting by N
                # 'ArchimedeanChords',   # counting by N
                # 'VogelFloret',         # sin/cos
                'KnightSpiral',
-
+               
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowhead',
                # 'SierpinskiTriangle',  # not really defined yet
                'QuadricCurve',
                'QuadricIslands',
-
+               
                'DragonRounded',
                'DragonMidpoint',
                'DragonCurve',
-
+               
                'KochSquareflakes',
                'KochSnowflakes',
                'KochCurve',
                'KochPeaks',
-
+               
                'FlowsnakeCentres',
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
                'Flowsnake',
-
+               
                'RationalsTree',
                # 'DivisibleColumns', # counting by N
                # 'CoprimeColumns',   # counting by N
+               # 'DiagonalRationals',# counting by N
+               # 'GcdRationals',     # counting by N
+               # 'FactorRationals',  # counting by N
                # 'TriangularHypot',  # counting by N
                'PythagoreanTree',
-
+               
                'OctagramSpiral',
                # 'Hypot',            # searching by N
                # 'HypotOctant',      # searching by N
                # 'PixelRings',       # searching by N
                # 'MultipleRings',    # sin/cos, maybe
-
+               
                'QuintetCentres',
                'QuintetCurve',
                'QuintetReplicate',
-
+               
                'SquareReplicate',
                'ComplexMinus',
                'ImaginaryBase',
-
+               
                # 'File',  # not applicable
                'Diagonals',
                'Corner',
                'PyramidRows',
                'PyramidSides',
                'Staircase',
+               'StaircaseAlternating',
               );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 
-require Math::BigInt;
+sub module_parse {
+  my ($mod) = @_;
+  my ($class, @parameters) = split /,/, $mod;
+  return ("Math::PlanePath::$class",
+          map {/(.*?)=(.*)/ or die; ($1 => $2)} @parameters);
+}
+
 foreach my $module (@modules) {
   ### $module
-  my $class = "Math::PlanePath::$module";
+  my ($class, %parameters) = module_parse($module);
   eval "require $class" or die;
 
   my $path = $class->new (width => 23,

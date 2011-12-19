@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 60;
+$VERSION = 61;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -56,7 +56,11 @@ use constant::defer parameter_info_array =>
 
 # SquareSpiral dX maybe A118175 signed version of Rule 220 in binary ??
 #              dY maybe A079813 signed version of n 0s then n 1s
-#
+
+# DragonMidpoint maybe abs(dY)
+# A073089 (1/2)*(4n - 3 - Sum (k=1,n, A007400(k)))
+# A007400 Continued fraction for Sum[ 1/2^(2^n),{n,0,Infinity} ] = 0.8164215090218931... 
+
 my %oeis_anum
   = (
      # 'Math::PlanePath::HilbertCurve' =>
@@ -681,6 +685,8 @@ sub values_max {
 # { package Math::PlanePath::RationalsTree;
 # }
 # { package Math::PlanePath::DiagonalRationals;
+# }
+# { package Math::PlanePath::FactorRationals;
 # }
 # { package Math::PlanePath::GcdRationals;
 # }

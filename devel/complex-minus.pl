@@ -21,6 +21,54 @@ use 5.006;
 use strict;
 use warnings;
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
+{
+  require Math::PlanePath::MathImageComplexPlus;
+  require Math::BigInt;
+  my $realpart = 10;
+  my $norm = $realpart*$realpart + 1;
+  ### $norm
+  my $path = Math::PlanePath::MathImageComplexPlus->new (realpart=>$realpart);
+  my $prev_dist = 1;
+  print sqrt($norm),"\n";
+  foreach my $level (1 .. 10) {
+    my $n = Math::BigInt->new($norm) ** $level - 1;
+    my ($x,$y) = $path->n_to_xy($n);
+    my $radians = atan2($y,$x);
+    my $degrees = $radians / 3.141592 * 180;
+    my $dist = sqrt($x*$x+$y*$y);
+    my $f = $dist / $prev_dist;
+    printf "%2d %.2f %.4f  %.2f\n",
+      $level, $dist, $f, $degrees;
+    $prev_dist = $dist;
+  }
+  exit 0;
+}
+
+{
+  require Math::PlanePath::MathImageComplexPlus;
+  my $path = Math::PlanePath::MathImageComplexPlus->new (realpart=>2);
+  foreach my $i (0 .. 10) {
+    {
+      my $x = $i;
+      my $y = 1;
+      my $n = $path->xy_to_n($x,$y);
+      if (! defined $n) { $n = 'undef'; }
+      print "xy_to_n($x,$y) = $n\n";
+    }
+  }
+  foreach my $i (0 .. 10) {
+    {
+      my $n = $i;
+      my ($x,$y) = $path->n_to_xy($n);
+      print "n_to_xy($n) = $x,$y\n";
+    }
+  }
+  exit 0;
+}
+
 {
   my $count = 0;
   my $realpart = 5;
@@ -41,28 +89,6 @@ use warnings;
     }
   }
   print "count $count\n";
-  exit 0;
-}
-
-{
-  require Math::PlanePath::MathImageComplexIplus1;
-  my $path = Math::PlanePath::MathImageComplexIplus1->new (realpart=>2);
-  foreach my $i (0 .. 10) {
-    {
-      my $x = $i;
-      my $y = 1;
-      my $n = $path->xy_to_n($x,$y);
-      if (! defined $n) { $n = 'undef'; }
-      print "xy_to_n($x,$y) = $n\n";
-    }
-  }
-  foreach my $i (0 .. 10) {
-    {
-      my $n = $i;
-      my ($x,$y) = $path->n_to_xy($n);
-      print "n_to_xy($n) = $x,$y\n";
-    }
-  }
   exit 0;
 }
 

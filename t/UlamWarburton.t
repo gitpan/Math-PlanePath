@@ -36,7 +36,7 @@ require Math::PlanePath::UlamWarburton;
 # VERSION
 
 {
-  my $want_version = 60;
+  my $want_version = 61;
   ok ($Math::PlanePath::UlamWarburton::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::UlamWarburton->VERSION,  $want_version,

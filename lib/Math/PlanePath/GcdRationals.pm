@@ -45,7 +45,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 60;
+$VERSION = 61;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -453,9 +453,9 @@ is in the left column and the maximum in the right column.
 
 Within a column N values increase until reaching the end of a "g" wedge,
 then drop down a bit.  So the maximum is either the top-right corner or the
-top of the next lower wedge, ie. higher g.  And conversely the minimum is
-either the bottom right, or the start of the next higher wedge, ie. lower g.
-(That's right is it?)
+top of the next lower wedge, ie. smaller y but bigger g.  And conversely the
+minimum is either the bottom right, or the start of the next higher wedge,
+ie. smaller g but bigger y.  (That's right is it?)
 
 =head1 SEE ALSO
 
