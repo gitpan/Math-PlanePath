@@ -31,7 +31,7 @@ use strict;
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -399,6 +399,29 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
     http://oeis.org/A180714
 
     A180714    X+Y coordinate sum
+    A054552    N values on X axis
+    A054554    N values on X=Y diagonal
+    A054556    N values on Y axis
+    A054567    N values on negative X axis
+    A054569    N values on negative X=Y diagonal
+
+    A054551    smallest prime in each loop
+    A054553    another prime in loop ...
+    A054555    another prime in loop ...
+
+    A068225    permutation N -> N at its right (X+1,Y)
+    A121496       run lengths in that permutation
+    A068226    permutation N -> N at its left (X-1,Y)
+
+    A033952    digits on negative Y axis
+    A033953    digits on negative Y axis, starting 0
+    A033988    digits on negative X axis, starting 0
+    A033989    digits on Y axis, starting 0
+    A033990    digits on X axis, starting 0
+
+See summary at
+
+    http://oeis.org/A068225/a068225.html
 
 =head1 FUNCTIONS
 
@@ -597,3 +620,7 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+# Local variables:
+# compile-command: "math-image --path=SquareSpiral --lines --scale=20"
+# End:

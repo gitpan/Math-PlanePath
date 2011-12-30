@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -31,9 +31,9 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
+
 use Math::PlanePath::SquareSpiral;
 *parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
-
 
 sub new {
   my $self = shift->SUPER::new (@_);
@@ -221,14 +221,14 @@ grid and fully cover the plane.
      |         \   \
     14   4---3  10  23            1
      |   |     \   \   \
-    15   5   1---2   9  22    <- y=0
+    15   5   1---2   9  22    <- Y=0
       \   \          |   | 
         16   6---7---8  21       -1
           \              |    
             17--18--19--20       -2
 
      ^   ^   ^   ^   ^   ^ 
-    -2  -1  x=0  1   2   3  ...
+    -2  -1  X=0  1   2   3  ...
 
 The kinds of N=3*k^2 numbers which fall on straight lines in the plain
 HexSpiral also fall on straight lines when skewed.  See
@@ -247,19 +247,19 @@ gives
      |                 \    
     22   8---7---6---5  16                1
      |   |             \   \    
-    23   9   1---2---3---4  15        <- y=0
+    23   9   1---2---3---4  15        <- Y=0
       \   \                  |     
        24   10--11--12--13--14  ...      -1
           \                      |    
             25--26--27--28--29--30       -2
 
      ^   ^   ^   ^   ^   ^   ^   ^ 
-    -4  -3  -2  -1  x=0  1   2   3  ...
+    -4  -3  -2  -1  X=0  1   2   3  ...
 
 The centre horizontal from N=1 is extended by C<wider> many further places,
 then the path loops around that shape.  The starting point 1 is shifted to
 the left by wider/2 places (rounded up to an integer) to keep the spiral
-centred on the origin x=0,y=0.
+centred on the origin X=0,Y=0.
 
 Each loop is still 6 longer than the previous, since the widening is
 basically a constant amount added into each loop.  The result is the same as

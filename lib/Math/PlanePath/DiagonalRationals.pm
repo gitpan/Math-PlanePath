@@ -16,12 +16,20 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# cf
+# A038566   fractions numerators  by ascending den
+# A038567   fractions denominators
+# A038568   rationals numerators   X/Y followed by Y/X by ascending Y
+# A038569   rationals denominators
+
+
+
 package Math::PlanePath::DiagonalRationals;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 25 }
+BEGIN { plan tests => 26 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -52,6 +52,24 @@ sub numeq_array {
     shift @$a2;
   }
   return (@$a1 == @$a2);
+}
+
+#------------------------------------------------------------------------------
+# A062880 -- diagonal X=Y, base 4 digits 0,2 only
+{
+  my $anum = 'A062880';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $i = 0; @got < @$bvalues; $i++) {
+      push @got, $hilbert->xy_to_n ($i,$i);
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- column at X=0");
 }
 
 #------------------------------------------------------------------------------

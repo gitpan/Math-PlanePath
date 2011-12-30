@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 14 }
+BEGIN { plan tests => 19 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,7 +32,8 @@ use Math::PlanePath::RationalsTree;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-# A059893 - bit reverse all but the high 1
+
+# cf A059893 - bit reverse all but the high 1
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -48,6 +49,128 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+
+
+#------------------------------------------------------------------------------
+# A000975 -- without consecutive equal bits
+
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+  my $anum = 'A000975';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    push @got, 0;  # extra initial 0 in A000975
+    for (my $y = 1; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n (1, $y);
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A086893 -- pos of F(n+1)/F(n) in Stern diatomic
+
+# F(n+1)/F(n) in CW
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+  my $anum = 'A086893';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $f1 = 1;
+    my $f0 = 1;
+    while (@got < @$bvalues) {
+      push @got, $path->xy_to_n ($f1, $f0);
+      ($f1,$f0) = ($f1+$f0,$f1);
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+# 1/X in Drib
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+  my $anum = 'A086893';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $x = 1; @got < @$bvalues; $x++) {
+      push @got, $path->xy_to_n ($x, 1);
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+
+#------------------------------------------------------------------------------
+# A061547 -- pos of F(n)/F(n+1) in Stern diatomic
+
+# F(n)/F(n+1) in CW
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+  my $anum = 'A061547';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    push @got, 0;  # extra initial 0 in A061547
+    my $f1 = 1;
+    my $f0 = 1;
+    while (@got < @$bvalues) {
+      push @got, $path->xy_to_n ($f0, $f1);
+      ($f1,$f0) = ($f1+$f0,$f1);
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    ### bvalues: join(',',@{$bvalues}[0..20])
+    ### got: '    '.join(',',@got[0..20])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+# Y/1 in Drib
+{
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+  my $anum = 'A061547';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    push @got, 0;  # extra initial 0 in A061547
+    for (my $y = 1; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n (1, $y);
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    ### bvalues: join(',',@{$bvalues}[0..20])
+    ### got: '    '.join(',',@got[0..20])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+
 
 #------------------------------------------------------------------------------
 # A007305 -- SB numerators

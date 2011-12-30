@@ -20,11 +20,17 @@
 # math-image --path=RationalsTree --all --output=numbers_xy --size=60x40
 #
 # A002487 - stern diatomic
-
+#
 #                    high-to-low   low-to-high
-# (X+Y)/Y  Y/(X+Y)     AYT
+# (X+Y)/Y  Y/(X+Y)     AYT          not-impl
 # X/(X+Y)  (X+Y)/Y      CW            SB    \ alt bit flips
 # Y/(X+Y)  (X+Y)/X     Drib          Bird   /
+#
+# cf
+# A065249 - permutation SB X -> X/2
+# A065250 - permutation SB X -> 2X
+# A057114 - permutation SB X -> X+1
+# A057115 - permutation SB X -> X-1
 
 
 
@@ -33,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -810,8 +816,22 @@ The descendants of each node are
         /     \
     Y/(X+Y)  (X+Y)/X
 
-Both ends have Fibonacci numbers, being F(k)/F(k+1) on the left and
-F(k+1)/F(k) on the right.
+The endmost fractions of each row are Fibonacci numbers, F(k)/F(k+1) on the
+left and F(k+1)/F(k) on the right.
+
+    10  |     682        50                  44       852     
+     9  |     426   58        54   40        36  340       683
+     8  |     170        30        16       212       427     
+     7  |     106   18   22   24   28   84       171   59   51
+     6  |      42                  52       107               
+     5  |      26   14    8   20        43   19   31   55     
+     4  |      10        12        27        23        41     
+     3  |       6    4        11   15        25   17        45
+     2  |       2         7         9        29        37     
+     1  |       1    3    5   13   21   53   85  213  341  853
+    Y=0 | 
+         -------------------------------------------------------
+         X=0    1    2    3    4    5    6    7    8    9   10
 
 Because Drib/Bird are bit reversals like CW/SB are bit reversals, the xor
 procedure described above which relates BirdE<lt>-E<gt>SB applies to
@@ -860,6 +880,13 @@ following forms
     A162910  - Bird denominators
     A068611  - Drib numerators
     A068612  - Drib denominators
+
+    A086893  - position of Fibonacci F(n+1)/F(n) in Stern diatomic,
+                 N of F(n+1)/F(n) in CW
+                 N of X/1 in Drib, ie. N values in row at Y=1
+    A061547  - position of Fibonacci F(n)/F(n+1) in Stern diatomic,
+                 N of F(n)/F(n+1) in CW
+                 N of 1/Y in Drib, ie. N values in column at X=1
 
     A054424  - permutation DiagonalRationals to SB
     A054425  -   DiagonalRationals to SB with 0s at non-coprimes
@@ -940,3 +967,12 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 #            15                        15
 #
 # Stern-Brocot              Calkin-Wilf
+
+
+
+
+# Local variables:
+# compile-command: "math-image --path=RationalsTree --lines --scale=20"
+# End:
+#
+# math-image --path=RationalsTree,tree_type=Drib --all --output=numbers_xy

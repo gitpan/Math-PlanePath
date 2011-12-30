@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 5 }
+BEGIN { plan tests => 6 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -112,6 +112,29 @@ sub numeq_array {
     foreach my $n (1 .. @$bvalues) {
       my ($x,$y) = $path->n_to_xy ($n);
       push @got, $x * $y;
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+
+#------------------------------------------------------------------------------
+# A102631 - n^2/squarefreekernel(n) column at X=1
+
+{
+  my $anum = 'A102631';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $y = 1; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n (1, $y);
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])

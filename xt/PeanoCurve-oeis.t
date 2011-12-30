@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 24 }
+BEGIN { plan tests => 26 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -51,6 +51,48 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+
+#------------------------------------------------------------------------------
+# A163480 -- X axis
+{
+  my $anum = 'A163480';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $x (0 .. $#$bvalues) {
+      my $n = $peano->xy_to_n ($x, 0);
+      push @got, $n;
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- X axis");
+}
+
+# A163481 -- Y axis
+{
+  my $anum = 'A163481';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $y (0 .. $#$bvalues) {
+      my $n = $peano->xy_to_n (0, $y);
+      push @got, $n;
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- Y axis");
+}
+
 
 #------------------------------------------------------------------------------
 # A163334 -- diagonals same axis

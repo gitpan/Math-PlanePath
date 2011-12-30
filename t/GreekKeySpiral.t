@@ -33,7 +33,7 @@ require Math::PlanePath::GreekKeySpiral;
 # VERSION
 
 {
-  my $want_version = 61;
+  my $want_version = 62;
   ok ($Math::PlanePath::GreekKeySpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GreekKeySpiral->VERSION,  $want_version,

@@ -121,7 +121,7 @@ diag "module count ",scalar(@lib_modules);
     my @list = ('File',
                 'Hypot', 'HypotOctant',
                 'TriangularHypot', 'VogelFloret',
-                'PythagoreanTree', 'RationalsTree',
+                'PythagoreanTree', 'RationalsTree', 'FractionsTree',
                 'FactorRationals', 'GcdRationals');
     my %seen;
     while ($list =~ /([A-Z]\S+)/g) {

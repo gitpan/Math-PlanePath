@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -354,15 +354,6 @@ in the row too
 
     rowpoints = Nright - Nleft + 1
 
-=head1 OEIS
-
-This pattern is in Sloane's OEIS in a couple of forms,
-
-    http://oeis.org/A118108  (etc)
-
-    A118108    whole-row used cells as bits
-    A118109    1/0 used and unused cells across rows
-
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
@@ -386,6 +377,16 @@ as a square of side 1.  If C<$x,$y> is outside the pyramid or on a skipped
 cell the return is C<undef>.
 
 =back
+
+=head1 OEIS
+
+This pattern is in Sloane's Online Encyclopedia of Integer Sequences in a
+couple of forms,
+
+    http://oeis.org/A118108  (etc)
+
+    A118108    whole-row used cells as bits
+    A118109    1/0 used and unused cells across rows
 
 =head1 SEE ALSO
 

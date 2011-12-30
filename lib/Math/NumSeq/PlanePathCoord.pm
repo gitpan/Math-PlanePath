@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-# math-image --values=PlanePath
+
 
 # Taxi = abs(X)+abs(Y)   AbsSum SumAbs
 # TRadius
@@ -26,14 +26,13 @@
 # Tk = (Y-X)/2
 
 
-
 package Math::NumSeq::PlanePathCoord;
 use 5.004;
 use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 61;
+$VERSION = 62;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -43,7 +42,6 @@ use Math::NumSeq;
 
 use constant 1.02; # various underscore constants below
 use constant description => Math::NumSeq::__('Coordinate values from a PlanePath');
-use constant characteristic_smaller => 1;
 
 use constant::defer parameter_info_array =>
   sub {
@@ -105,6 +103,8 @@ use constant::defer _parameter_info_planepath => sub {
            # description => Math::NumSeq::__(''),
          };
 };
+
+#------------------------------------------------------------------------------
 
 my %oeis_anum =
   (
@@ -174,7 +174,6 @@ my %oeis_anum =
    #  # Product is A119272 num*den, but starting extra 1,1
    #  # cf A054424 permutation
    # },
-
    'Math::PlanePath::RationalsTree,tree_type=CW' =>
    {
     # stern diatomic adjacent S(n)*S(n+1), or Conway's alimentary function
@@ -193,12 +192,10 @@ my %oeis_anum =
      Sum    => 'A086592', # Kepler's tree denominators
      # OEIS-Catalogue: A020650 planepath=RationalsTree,tree_type=AYT coordinate_type=X
      # OEIS-Catalogue: A020651 planepath=RationalsTree,tree_type=AYT coordinate_type=Y
-     # OEIS-Catalogue: A086592 planepath=RationalsTree,tree_type=AYT coordinate_type=Sum
+     # OEIS-Other: A086592 planepath=RationalsTree,tree_type=AYT coordinate_type=Sum
      #
      # DiffYX almost A070990 Stern diatomic first differences, but we have
      # an extra 0 at the start, and we start i=1 rather than n=0 too
-     #
-     # cf A086592 Kepler left half denominators
    },
    'Math::PlanePath::RationalsTree,tree_type=Bird' =>
    { X   => 'A162909', # Bird tree numerators
@@ -212,6 +209,14 @@ my %oeis_anum =
      # OEIS-Catalogue: A162911 planepath=RationalsTree,tree_type=Drib coordinate_type=X
      # OEIS-Catalogue: A162912 planepath=RationalsTree,tree_type=Drib coordinate_type=Y
    },
+
+   'Math::PlanePath::FractionsTree,tree_type=Kepler' =>
+   { X => 'A020651', # numerators, same as AYT numerators
+     Y => 'A086592', # Kepler half-tree denominators
+     # OEIS-Other: A020651 planepath=FractionsTree coordinate_type=X
+     # OEIS-Catalogue: A086592 planepath=FractionsTree coordinate_type=Y
+   },
+
 
    'Math::PlanePath::TheodorusSpiral' =>
    { RSquared => 'A001477',  # integers 0,1,2,3,etc
@@ -536,6 +541,8 @@ sub _planepath_oeis_key {
              ));
 }
 
+#------------------------------------------------------------------------------
+
 sub new {
   my $class = shift;
   ### NumSeq-PlanePathCoord new(): @_
@@ -654,6 +661,17 @@ sub _coordinate_func_RSquared {
 
 
 #------------------------------------------------------------------------------
+
+sub characteristic_smaller {
+  my ($self) = @_;
+  ### characteristic_smaller() ...
+  my $planepath_object = $self->{'planepath_object'};
+  my $func;
+  return
+    (($func = ($planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_smaller")))
+     ? $planepath_object->$func()
+     : 1); # default is smaller
+}
 
 sub characteristic_increasing {
   my ($self) = @_;
@@ -872,18 +890,34 @@ sub values_max {
 # }
 # { package Math::PlanePath::SacksSpiral;
 # }
-# { package Math::PlanePath::VogelFloret;
-# }
-{ package Math::PlanePath::TheodorusSpiral;
-  # exact value RSquare==$n, not through sqrts and sums in the main n_to_xy()
-  sub _NumSeq_Coord_RSquared_func {
-    my ($self, $n) = @_;
-    ### TheodorusSpiral special RSquared: $n
-    return $n;
+{ package Math::PlanePath::VogelFloret;
+  sub _NumSeq_Coord_RSquared_min {
+    my ($self) = @_;
+    # starting N=1 at X=1,Y=0
+    return $self->{'radius_factor'};
   }
+  sub _NumSeq_Coord_RSquared_func {
+    my ($seq, $i) = @_;
+    ### VogelFloret RSquared: $i, $seq->{'planepath_object'}
+    # exact value RSquared==$i, so as not to lose precision through sqrts
+    # and sums in the main n_to_xy()
+    return $i * $seq->{'planepath_object'}->{'radius_factor'};
+  }
+  use constant _NumSeq_Coord_Radius_increasing => 1; # sqrt(i)
 }
-# { package Math::PlanePath::ArchimedeanChords;
-# }
+{ package Math::PlanePath::TheodorusSpiral;
+  sub _NumSeq_Coord_RSquared_func {
+    my ($seq, $i) = @_;
+    ### TheodorusSpiral RSquared: $i
+    # exact value RSquared==$i, so as not to lose precision through sqrts
+    # and sums in the main n_to_xy()
+    return $i;
+  }
+  use constant _NumSeq_Coord_Radius_increasing => 1; # sqrt(i)
+}
+{ package Math::PlanePath::ArchimedeanChords;
+  use constant _NumSeq_Coord_Radius_increasing => 1; # spiralling outwards
+}
 { package Math::PlanePath::MultipleRings;
   sub _NumSeq_Coord_X_increasing {
     my ($self) = @_;
@@ -894,6 +928,17 @@ sub values_max {
     my ($self) = @_;
     # step==0 trivial on X axis
     return ($self->{'step'} == 0 ? 1 : 0);
+  }
+  use constant _NumSeq_Coord_Radius_non_decreasing => 1;
+
+  sub _NumSeq_Coord_RSquared_smaller {
+    my ($self) = @_;
+    ### MultipleRings characteristic_smaller(): $self->{'step'}
+
+    # step==0 on X axis RSquared is i^2, bigger than i.
+    # step=1 is 0,1,1,4,4,4,9,9,9,9,16,16,16,16,16 etc k+1 repeats of k^2,
+    # bigger than i from i=5 onwards
+    return ($self->{'step'} <= 1 ? 0 : 1);
   }
 }
 # { package Math::PlanePath::PixelRings;
@@ -941,6 +986,11 @@ sub values_max {
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
 }
+{ package Math::PlanePath::FractionsTree;
+  use constant _NumSeq_Coord_X_min => 1;
+  use constant _NumSeq_Coord_Y_min => 2;
+  use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
+}
 # { package Math::PlanePath::PeanoCurve;
 # }
 # { package Math::PlanePath::HilbertCurve;
@@ -980,6 +1030,12 @@ sub values_max {
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+}
+{ package Math::PlanePath::SierpinskiCurve;
+  use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
+}
+{ package Math::PlanePath::HIndexing;
+  use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
 }
 # { package Math::PlanePath::DragonCurve;
 # }
@@ -1087,9 +1143,6 @@ sub values_max {
 # }
 # { package Math::PlanePath::QuintetCentres;
 # }
-{ package Math::PlanePath::HIndexing;
-  use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
-}
 # { package Math::PlanePath::BetaOmega;
 # }
 # { package Math::PlanePath::AR2W2Curve;

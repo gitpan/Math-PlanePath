@@ -44,6 +44,13 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['fractions-tree-small.png',
+    'math-image --path=FractionsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-12'],
+   ['fractions-tree-big.png',
+    'math-image --path=FractionsTree --all --scale=3 --size=200'],
+   ['fractions-tree-lines-kepler.png',
+    'math-image --path=FractionsTree,tree_type=Kepler --values=LinesTree,branches=2 --scale=20 --size=200'],
+
    ['factor-rationals-small.png',
     'math-image --path=FactorRationals --lines --scale=6 --size=32 --offset=-4,-4'],
    ['factor-rationals-big.png',

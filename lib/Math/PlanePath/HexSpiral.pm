@@ -49,7 +49,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -59,9 +59,9 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
+
 use Math::PlanePath::SquareSpiral;
 *parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
-
 
 sub new {
   my $self = shift->SUPER::new (@_);

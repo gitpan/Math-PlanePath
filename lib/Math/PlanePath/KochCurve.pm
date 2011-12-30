@@ -38,7 +38,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -325,6 +325,33 @@ L<Math::PlanePath/Triangular Lattice>.
     (X/2) / 3^level
     (Y*sqrt(3)/2) / 3^level
 
+=head1 FUNCTIONS
+
+See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
+classes.
+
+=over 4
+
+=item C<$path = Math::PlanePath::KochCurve-E<gt>new ()>
+
+Create and return a new path object.
+
+=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
+
+Return the X,Y coordinates of point number C<$n> on the path.  Points begin
+at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+Fractional positions give an X,Y position along a straight line between the
+integer positions.
+
+=item C<$n = $path-E<gt>n_start()>
+
+Return 0, the first N in the path.
+
+=back
+
+=head1 FORMULAS
+
 =head2 Turn Sequence
 
 The sequence of turns made by the curve is straightforward.  In the base 4
@@ -358,31 +385,6 @@ In this formula the count of 1s and 2s can go past 360 degrees, representing
 a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
 direction 0 to 5 or as desired.
-
-=head1 FUNCTIONS
-
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
-
-=over 4
-
-=item C<$path = Math::PlanePath::KochCurve-E<gt>new ()>
-
-Create and return a new path object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.  Points begin
-at 0 and if C<$n E<lt> 0> then the return is an empty list.
-
-Fractional positions give an X,Y position along a straight line between the
-integer positions.
-
-=item C<$n = $path-E<gt>n_start()>
-
-Return 0, the first N in the path.
-
-=back
 
 =head1 SEE ALSO
 

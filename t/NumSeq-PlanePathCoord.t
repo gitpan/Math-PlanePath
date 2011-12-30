@@ -28,7 +28,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-my $test_count = (tests => 333)[1];
+my $test_count = (tests => 344)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -51,11 +51,20 @@ foreach my $elem
    ['non_decreasing', 1, planepath => 'Hypot', coordinate_type => 'Radius' ],
    ['non_decreasing', 1, planepath => 'HypotOctant', coordinate_type => 'Radius' ],
    ['non_decreasing', 1, planepath => 'HypotOctant', coordinate_type => 'RSquared' ],
+
+   ['smaller', 1, planepath => 'SquareSpiral', coordinate_type => 'X' ],
+   ['smaller', 1, planepath => 'SquareSpiral', coordinate_type => 'RSquared' ],
+
+   ['smaller', 0, planepath => 'MultipleRings,step=0', coordinate_type => 'RSquared' ],
+   ['smaller', 0, planepath => 'MultipleRings,step=1', coordinate_type => 'RSquared' ],
+   ['smaller', 1, planepath => 'MultipleRings,step=2', coordinate_type => 'RSquared' ],
+
   ) {
   my ($key, $want, @parameters) = @$elem;
 
   my $seq = Math::NumSeq::PlanePathCoord->new (@parameters);
-  ok ($seq->characteristic($key), $want);
+  ok ($seq->characteristic($key), $want,
+      "characteristic($key) on ".join(', ',@parameters));
 }
 
 
@@ -249,6 +258,11 @@ foreach my $elem
    [undef,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'DiffYX' ],
    [0,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'AbsDiff' ],
 
+   # Y <= X, so X-Y >= 0
+   #            Y-X < 0
+   [0,undef, planepath => 'SierpinskiCurve', coordinate_type => 'DiffXY' ],
+   [undef,0, planepath => 'SierpinskiCurve', coordinate_type => 'DiffYX' ],
+   [0,undef, planepath => 'SierpinskiCurve', coordinate_type => 'AbsDiff' ],
 
    [0,undef, planepath => 'HIndexing', coordinate_type => 'X' ],
    [0,undef, planepath => 'HIndexing', coordinate_type => 'Y' ],

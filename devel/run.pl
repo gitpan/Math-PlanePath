@@ -56,7 +56,6 @@ use List::Util qw(min max);
   require Math::PlanePath::SierpinskiCurve;
   require Math::PlanePath::DigitGroups;
   require Math::PlanePath::HIndexing;
-  require Math::PlanePath::CellularRule190;
   require Math::PlanePath::DragonRounded;
   require Math::PlanePath::MathImageTerdragonCurve;
   require Math::PlanePath::MathImageWunderlichSerpentine;
@@ -92,35 +91,39 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImageCellularRule;
   require Math::PlanePath::MathImagePeanoRounded;
   require Math::PlanePath::DiagonalRationals;
-  require Math::PlanePath::MathImagePowerRationals;
+  require Math::PlanePath::FactorRationals;
   require Math::PlanePath::GcdRationals;
   require Math::PlanePath::MathImageTerdragonMidpoint;
-  my $path = Math::PlanePath::GcdRationals->new
+  require Math::PlanePath::VogelFloret;
+  require Math::PlanePath::MathImageCellularRule57;
+  require Math::PlanePath::MathImageAnvilSpiral;
+  my $path = Math::PlanePath::MathImageAnvilSpiral->new
     (
-     start_shape => 'B1rev',
-     rule => 220,
-     realpart => 1,
-     arms => 1,
-     L_fill => 'all',
-     mirror => 1,
-     divisor_type => 'proper',
-     inward => 0,
-     radix => 3,
-     wider => 3,
-     # step => 0,
-     # tree_type => 'Drib',
-     tree_type => 'Kepler',
-     #coordinates => 'PQ',
-     straight_spacing => 1,
-     diagonal_spacing => 5,
+     # start_shape => 'B1rev',
+     # rule => 220,
+     # realpart => 1,
+     # arms => 1,
+     # L_fill => 'all',
+     # mirror => 1,
+     # divisor_type => 'proper',
+     # inward => 0,
+     # radix => 3,
+     # wider => 3,
+     # # step => 0,
+     # # tree_type => 'Drib',
+     # tree_type => 'Kepler',
+     # #coordinates => 'PQ',
+     # straight_spacing => 1,
+     # diagonal_spacing => 5,
     );
+  ### $path
   my ($prev_x, $prev_y);
   my %seen;
   my $n_start = $path->n_start;
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0; $i <= 500; $i+=1) {
+  for (my $i = $n_start+0; $i <= 40; $i+=1) {
 
     # for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {
@@ -174,13 +177,15 @@ use List::Util qw(min max);
     if (! defined $n_lo) { $n_lo = 'undef'; }
     if (! defined $n_hi) { $n_hi = 'undef'; }
 
-    my $idec = ($i == int($i) ? 0 : 2);
+    my $iwidth = ($i == int($i) ? 0 : 2);
     printf "%.*f %8.4f,%8.4f   %3s %s %s %s %s\n",
-      $idec, $i,  $x,$y,  $n,
+      $iwidth,$i,  $x,$y,  $n,
         "${n_lo}_${n_hi}",
-          " $dxdy",
+          $dxdy,
             " $rep",
               $flag;
+
+    # %.2f ($x*$x+$y*$y),
   }
   exit 0;
 }

@@ -43,7 +43,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -733,8 +733,10 @@ forms,
     A163536    relative direction (ahead, left, or right)
     A163537    relative direction, swapped X,Y
     A163342    diagonal sums
-    A163343    central diagonal 0,4,8,44,40,36,etc
-    A163344    central diagonal divided by 4
+    A163480    N on X axis
+    A163481    N on Y axis
+    A163343    N on X=Y diagonal, 0,4,8,44,40,36,etc
+    A163344    N on X=Y diagonal divided by 4
     A163479    diagonal sums divided by 6
     A163480    row at Y=0
     A163481    column at X=0

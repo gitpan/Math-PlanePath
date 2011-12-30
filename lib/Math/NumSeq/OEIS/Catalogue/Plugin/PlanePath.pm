@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
@@ -153,16 +153,6 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A086592',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'RationalsTree,tree_type=AYT',
-      'coordinate_type',
-      'Sum'
-    ]
-  },
-  {
     'anum' => 'A162909',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
@@ -198,6 +188,16 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'RationalsTree,tree_type=Drib',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A086592',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'FractionsTree',
       'coordinate_type',
       'Y'
     ]

@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -209,14 +209,23 @@ sub _totient {
   }
   return $count;
 }
+
+# code here only uses X>=Y but allow for any X,Y>=0 for elsewhere
 sub _coprime {
   my ($x, $y) = @_;
   #### _coprime(): "$x,$y"
+
   if ($y > $x) {
-    return 0;  # only interested in X>=Y for now
+    if ($x == 1) {
+      ### result yes ...
+      return 1;
+    }
+    $y %= $x;
   }
+
   for (;;) {
     if ($y <= 1) {
+      ### result: ($y == 1)
       return ($y == 1);
     }
     ($x,$y) = ($y, $x % $y);

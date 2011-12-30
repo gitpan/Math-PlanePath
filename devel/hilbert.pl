@@ -19,7 +19,7 @@
 
 use 5.010;
 use strict;
-use Math::PlanePath::HilbertCurve;
+# use Math::PlanePath::HilbertCurve;
 
 #use Smart::Comments;
 
@@ -61,50 +61,78 @@ use Math::PlanePath::HilbertCurve;
     ### dir_try(): $n
 
 
-    my $state = 0;
-    my @digits = digits($n);
-    if (@digits & 1) {
-      #      $state ^= 1;
-    }
-    # unshift @digits, 0;
-    ### @digits
 
-    my $flip = 0;
-    my $dir = 0;
-    for (;;) {
-      if (! @digits) {
-        return $flip;
-      }
-      $dir = pop @digits;
-      if ($dir == 3) {
-        $flip ^= 1;
+    # p = count 3s   0 if dx+dy=-1 so dx=-1 or dy=-1 SW,  1 if dx+dy=1 NE
+    # m = count 3s in -n    0 if dx-dy=-1 NW, 1 if dx-dy=1 SE
+    # 1023200 neg = 2310133+1 = 2310200  count 0s except trailing 0s
+
+    $n++;
+    my $p = count_3s($n) & 1;
+    my $m = count_3s((-$n) & 0xFF) & 1;
+    ### n  : sprintf "%8b", $n
+    ### neg: sprintf "%8b", (-$n) & 0xFF
+    ### $p
+    ### $m
+    if ($p == 0) {
+      if ($m == 0) {
+        return 0; # E
       } else {
-        last;
+        return 1; # S
       }
-    }
-    if ($flip) {
-      $dir = 1-$dir;
-    }
-
-    while (@digits) {
-      my $digit = pop @digits;
-      ### at: "state=$state  digit=$digit  dir=$dir"
-
-      if ($digit == 0) {
-      }
-      if ($digit == 1) {
-        $dir = 1-$dir;
-      }
-      if ($digit == 2) {
-        $dir = 1-$dir;
-      }
-      if ($digit == 3) {
-        $dir = $dir+2;
+    } else {
+      if ($m == 0) {
+        return 3; # N
+      } else {
+        return 2; # W
       }
     }
 
-    ### $dir
-    return $dir % 4;
+
+
+    # my $state = 0;
+    # my @digits = digits($n);
+    # if (@digits & 1) {
+    #   #      $state ^= 1;
+    # }
+    # # unshift @digits, 0;
+    # ### @digits
+    #
+    # my $flip = 0;
+    # my $dir = 0;
+    # for (;;) {
+    #   if (! @digits) {
+    #     return $flip;
+    #   }
+    #   $dir = pop @digits;
+    #   if ($dir == 3) {
+    #     $flip ^= 1;
+    #   } else {
+    #     last;
+    #   }
+    # }
+    # if ($flip) {
+    #   $dir = 1-$dir;
+    # }
+    #
+    # while (@digits) {
+    #   my $digit = pop @digits;
+    #   ### at: "state=$state  digit=$digit  dir=$dir"
+    #
+    #   if ($digit == 0) {
+    #   }
+    #   if ($digit == 1) {
+    #     $dir = 1-$dir;
+    #   }
+    #   if ($digit == 2) {
+    #     $dir = 1-$dir;
+    #   }
+    #   if ($digit == 3) {
+    #     $dir = $dir+2;
+    #   }
+    # }
+    #
+    # ### $dir
+    # return $dir % 4;
 
 
 
@@ -271,6 +299,18 @@ use Math::PlanePath::HilbertCurve;
       $n >>= 2;
     } ;  #  || @ret&1
     return @ret;
+  }
+
+  sub count_3s {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += (($n & 3) == 3);
+      $n >>= 2;
+      $count += (($n & 3) == 3);
+      $n >>= 2;
+    }
+    return $count;
   }
 }
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;

@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 215)[1];
+my $test_count = (tests => 217)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -186,11 +186,13 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
     my $want_y = Math::BigRat->new('3/2');
 
     my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x == $want_x, 1, "got $got_x want $want_x");
-    ok ($got_y == $want_y, 1, "got $got_y want $want_y");
+    ok ($got_x == $want_x, 1,
+        "DiagonalRationals n_to_xy() from 4/3, X got $got_x want $want_x");
+    ok ($got_y == $want_y, 1,
+        "DiagonalRationals n_to_xy() from 4/3, Y got $got_y want $want_y");
 
     my $got_n = $path->xy_to_n($want_x,$want_y);
-    ok ($got_n == 1, 1);
+    ok ($got_n == 1, 1, 'DiagonalRationals xy_to_n($want_x,$want_y) from 1/2');
   }
   {
     my $n = Math::BigRat->new('4/3');
@@ -198,11 +200,13 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
     my $want_y = Math::BigRat->new('2/3');
 
     my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x == $want_x, 1, "got $got_x want $want_x");
-    ok ($got_y == $want_y, 1, "got $got_y want $want_y");
+    ok ($got_x == $want_x, 1,
+        "DiagonalRationals n_to_xy() from 4/3, X got $got_x want $want_x");
+    ok ($got_y == $want_y, 1,
+        "DiagonalRationals n_to_xy() from 4/3, Y got $got_y want $want_y");
 
     my $got_n = $path->xy_to_n($want_x,$want_y);
-    ok ($got_n == 1, 1);
+    ok ($got_n == 1, 1, 'DiagonalRationals xy_to_n($want_x,$want_y) from 4/3');
   }
 }
 
@@ -443,6 +447,7 @@ my @modules = (
                'Flowsnake',
                
                'RationalsTree',
+               'FractionsTree',
                # 'DivisibleColumns', # counting by N
                # 'CoprimeColumns',   # counting by N
                # 'DiagonalRationals',# counting by N

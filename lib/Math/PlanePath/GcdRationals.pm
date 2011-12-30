@@ -45,7 +45,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -53,6 +53,9 @@ use Math::PlanePath 54; # v.54 for _max()
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::CoprimeColumns;
+*_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -241,24 +244,6 @@ sub _gcd {
   for (;;) {
     if ($y <= 1) {
       return ($y == 0 ? $x : 1);
-    }
-    ($x,$y) = ($y, $x % $y);
-  }
-}
-sub _coprime {
-  my ($x, $y) = @_;
-  #### _coprime(): "$x,$y"
-  if ($y > $x) {
-    if ($x == 1) {
-      ### result yes ...
-      return 1;
-    }
-    $y %= $x;
-  }
-  for (;;) {
-    if ($y <= 1) {
-      ### result: ($y == 1)
-      return ($y == 1);
     }
     ($x,$y) = ($y, $x % $y);
   }

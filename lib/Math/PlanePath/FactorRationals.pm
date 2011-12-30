@@ -34,13 +34,17 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::CoprimeColumns;
+*_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -188,30 +192,6 @@ sub rect_to_n_range {
           $x2*$x2 * $y2*$y2);
 }
 
-#------------------------------------------------------------------------------
-# shared
-
-# use Math::PlanePath::CoprimeColumns;
-# *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
-
-sub _coprime {
-  my ($x, $y) = @_;
-  #### _coprime(): "$x,$y"
-  if ($y > $x) {
-    if ($x == 1) {
-      ### result yes ...
-      return 1;
-    }
-    $y %= $x;
-  }
-  for (;;) {
-    if ($y <= 1) {
-      ### result: ($y == 1)
-      return ($y == 1);
-    }
-    ($x,$y) = ($y, $x % $y);
-  }
-}
 
 1;
 __END__
@@ -293,9 +273,9 @@ it appears in.
 
 =head2 Various Values
 
-The leftmost column at X=1 is the square-free integers N.  That column is
-the fractions 1/Y so the s exponents of the primes there are all negative
-and thus all exponents in N are odd, so N is square-free.
+The leftmost column at X=1 is integers with odd powers of prime factors.
+That column is the fractions 1/Y so the s exponents of the primes there are
+all negative and thus all exponents in N are odd.
 
 The bottom row at Y=1 is the perfect squares.  That row is the integers X/1
 so the s exponents there are all positive and thus in N become 2*s, giving
@@ -328,6 +308,7 @@ Integer Sequences in the following forms
     A071974 - numerators, X
     A071975 - denominators, Y
     A019554 - product num*den, ie. X*Y
+    A102631 - n^2/squarefreekernel(n), left column at X=1
     A060837 - permutation DiagonalRationals -> FactorRationals
     A071970 - permutation Stern/CW -> FactorRationals
 

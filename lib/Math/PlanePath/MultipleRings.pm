@@ -25,7 +25,7 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -464,4 +464,4 @@ Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 # compile-command: "math-image --path=MultipleRings --lines"
 # End:
 #
-# math-image --path=UlamWarburton --all --output=numbers --size=80x50
+# math-image --path=MultipleRings,step=1 --all --output=numbers --size=80x50

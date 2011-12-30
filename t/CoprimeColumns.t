@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 197;
+plan tests => 203;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::CoprimeColumns;
 # VERSION
 
 {
-  my $want_version = 61;
+  my $want_version = 62;
   ok ($Math::PlanePath::CoprimeColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CoprimeColumns->VERSION,  $want_version,
@@ -88,9 +88,16 @@ foreach my $elem ([ 1,1,  1 ],
                   [ 6,5,  1 ],
                  ) {
   my ($x,$y, $want) = @$elem;
-  my $got = Math::PlanePath::CoprimeColumns::_coprime($x,$y);
-  $got = $got-0;
-  ok ($got, $want, "_coprime($x,$y)");
+  {
+    my $got = Math::PlanePath::CoprimeColumns::_coprime($x,$y);
+    $got = $got-0;
+    ok ($got, $want, "_coprime($x,$y)");
+  }
+  {
+    my $got = Math::PlanePath::CoprimeColumns::_coprime($y,$x);
+    $got = $got-0;
+    ok ($got, $want, "_coprime($x,$y)");
+  }
 }
 
 #------------------------------------------------------------------------------

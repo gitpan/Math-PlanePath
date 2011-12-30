@@ -38,7 +38,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 61;
+  my $want_version = 62;
   ok ($Math::PlanePath::GcdRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GcdRationals->VERSION,  $want_version,

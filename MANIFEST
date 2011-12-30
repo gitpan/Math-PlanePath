@@ -41,7 +41,6 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-squareflakes.pl
 devel/Makefile
-devel/math-factor.pl
 devel/number-fraction.pl
 devel/numseq.pl
 devel/old/DragonArms.pm
@@ -61,6 +60,7 @@ devel/r5.pl
 devel/rationals.pl
 devel/rows.pl
 devel/rule-xpm.pl
+devel/rule.pl
 devel/rule62.pl
 devel/run.pl
 devel/sacks.pl
@@ -118,6 +118,7 @@ lib/Math/PlanePath/FibonacciWordFractal.pm
 lib/Math/PlanePath/File.pm
 lib/Math/PlanePath/Flowsnake.pm
 lib/Math/PlanePath/FlowsnakeCentres.pm
+lib/Math/PlanePath/FractionsTree.pm
 lib/Math/PlanePath/GcdRationals.pm
 lib/Math/PlanePath/GosperIslands.pm
 lib/Math/PlanePath/GosperReplicate.pm
@@ -288,6 +289,7 @@ xt/DivisibleColumns-oeis.t
 xt/Dragon-oeis.t
 xt/FactorRationals-oeis.t
 xt/FibonacciWordFractal-oeis.t
+xt/FractionsTree-oeis.t
 xt/GcdRationals-oeis.t
 xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
@@ -298,5 +300,6 @@ xt/PixelRings-image.t
 xt/pod_lists.t
 xt/RationalsTree-oeis.t
 xt/SierpinskiTriangle-oeis.t
+xt/SquareSpiral-oeis.t
 xt/UlamWarburton-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

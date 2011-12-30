@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -353,6 +353,11 @@ The pattern is sometimes drawn with the first step 0->1 upwards instead of
 to the right.  Right is used here since that's what most of the other
 PlanePaths do.  Swap X and Y for upwards first instead.
 
+See F<examples/hilbert-path.pl> in the Math-PlanePath sources for a sample
+program printing the path pattern in ascii.
+
+=head2 Level Ranges
+
 Within a power-of-2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k) at the
 origin, all the N values 0 to 2^(2*k)-1 are within the square.  The maximum
 3, 15, 63, 255 etc 2^(2*k)-1 is alternately at the top left or bottom right
@@ -361,8 +366,9 @@ corner.
 Because each step is by 1, the distance along the curve between two X,Y
 points is the difference in their N values (as from C<xy_to_n()>).
 
-See F<examples/hilbert-path.pl> in the Math-PlanePath sources for a sample
-program printing the path pattern in ascii.
+The N values 0,2,8,10,32,etc on the diagonal X=Y are the integers using only
+digits 0 and 2 in base 4, or equivalently have even-numbered bits 0, like
+x0y0...z0.
 
 =head2 Locality
 
@@ -379,12 +385,12 @@ can be seen for instance adjacent points X=0,Y=3 and X=0,Y=4 have rather
 widely spaced N values 5 and 58.
 
 Fractional X,Y values can be indexed by extending the N calculation down
-into X,Y binary fractions.  The code here doesn't do this, but can be
+into X,Y binary fractions.  The code here doesn't do this, but could be
 pressed into service by moving the binary point in X and Y an even number of
 places, the same amount in each.  (An odd number of bits would require
-swapping X,Y so the alternating transpose ends up with the original integer
-part at the same orientation as normal.)  The resulting integer N is then
-divided down by a corresponding multiple of 4 binary places.
+swapping X,Y to compensate for the alternating transpose in part 0.)  The
+resulting integer N is then divided down by a corresponding multiple of 4
+binary places.
 
 =head1 FUNCTIONS
 
@@ -431,8 +437,8 @@ bits of N is a configuration
        |    or transpose    |  |
     0--1                    0  3
 
-according to whether it's an odd or even bit-pair position.  Within each of
-the "3" sub-parts there's also inverted forms
+according to whether it's an odd or even bit-pair position.  Then within
+each of the "3" sub-parts there's also inverted forms
 
     1--0        3  0
     |           |  |
@@ -452,9 +458,10 @@ And C++ code based on that in Jorg Arndt's book,
 
 It also works to process N from low to high, at each stage applying any
 transpose (swap X,Y) and/or invert (bitwise NOT) to the low X,Y bits
-generated so far.  This works because the curve is symmetric.  Low to high
-saves locating the top bits of N, but if using bignums then the bitwise
-inverts of the X,Y values will be much more work.
+generated so far.  This works because there's no "reverse" sections, or
+since the curve is the same forward and reverse.  Low to high saves locating
+the top bits of N, but if using bignums then the bitwise inverts of the full
+X,Y values will be much more work.
 
 =head2 X,Y to N
 
@@ -465,9 +472,9 @@ the X,Y bits if that mapping is combined into the state transition table).
 
 =head2 Rectangle to N Range
 
-An easy over-estimate of the maximum N in a region can be had by the next
-bigger (2^k)x(2^k) square enclosing the region.  This means the biggest X or
-Y rounded up to the next power of 2, so
+An easy over-estimate of the maximum N in a region can be had by finding the
+next bigger (2^k)x(2^k) square enclosing the region.  This means the biggest
+X or Y rounded up to the next power of 2, so
 
     find lowest k with 2^k > max(X,Y)
     N_max = 2^(2k) - 1
@@ -477,35 +484,79 @@ Or equivalently rounding down to the next lower power of 2,
     find highest k with 2^k <= max(X,Y)
     N_max = 2^(2*(k+1)) - 1
 
-An exact N range can be found by following the high to low N-to-X,Y
+An exact N range can be found by following the high to low N to X,Y
 procedure above.  Start at the 2^(2k) bit pair position in an N bigger than
 the desired region and choose 2 bits for N to give a bit each of X and Y.
 The X,Y bits are based on the state table as above and the bits chosen for N
 are those for which the resulting X,Y sub-square overlaps some of the target
-region.  The smallest N similarly, choosing the smallest bit pair which
-overlaps.
+region.  The smallest N similarly, choosing the smallest bit pair for N
+which overlaps.
 
-The biggest N in a sub-part can be found with a lookup table.  The X range
-might cover one or both sub-parts, and the Y range similarly, for a total 9
-possible configurations.  Then table of state+coverage -E<gt> digit gives
-the maximum N bit-pair, and state+digit gives a new state the same as X,Y
-to N.
+The biggest and smallest N digit for a sub-part can be found with a lookup
+table.  The X range might cover one or both sub-parts, and the Y range
+similarly, for a total 9 possible configurations.  Then a table of
+state+coverage -E<gt> digit gives the minimum and maximum N bit-pair, and
+state+digit gives a new state the same as X,Y to N.
 
-Biggest and smallest N must be calculated separately as they track down
-different N bits and thus different state transitions.  But they take the
-same number of steps from an enclosing level down to level 0 and can thus be
-done in a single loop.
+Biggest and smallest N must be calculated with separate state and X,Y values
+sicne they track down different N bits and thus different states.  But they
+take the same number of steps from an enclosing level down to level 0 and
+can thus be done in a single loop.
 
 The N range for any shape can be found this way, not just a rectangle like
-C<rect_to_n_range()>, since at each level it only depends on asking which
-combination of the four sub-parts overlaps the target area.
+C<rect_to_n_range()>.  At each level the procedure only depends on asking
+which combination of the four sub-parts overlaps some of the target area.
 
 =head2 Direction
 
-Each step between successive N values is by 1 up, down, left or right.  The
-next direction can be calculated from the N position with on some base-4
-digit-3s parity of N and -N (twos complement).  C++ code in Jorg Arndt's
-fxtbook per above.
+Each step between successive N values is always 1 up, down, left or right.
+The next direction can be calculated from N in the high-to-low procedure
+above by watching for the lowest non-3 digit and noting the direction from
+that digit towards digit+1.  That can be had from the state+digit -E<gt> X,Y
+table looking up digit and digit+1, or alternatively a further table
+encoding state+digit -E<gt> direction.
+
+The reason for taking only the lowest non-3 digit is that in a 3 sub-part
+the direction it goes is determined by the next higher level.  For example
+at N=11 the direction is down for the inverted-U of the next higher level
+N=0,4,8,12.
+
+This non-3 (or non whatever highest digit) is a general procedure and can be
+used on any state-based high-to-low procedure of self-similar curves.  In
+the current code it's used to apply a fractional part of N in the correct
+direction but is not otherwise made directly available.
+
+Because the Hilbert curve has no "reversal" sections it also works to build
+a direction from low to high N digits.  1 and 2 digits make no change to the
+orientation, 0 digit is a transpose, and a 3 digit is a rotate and
+transpose, except that low 3s are transpose-only (no rotate) for the same
+reason as taking the lowest non-3 above.
+
+Jorg Arndt in the fxtbook above notes the direction can be obtained just by
+counting 3s in n and twos-complement -n.  The only thing to note is that the
+numbering there starts n=1, unlike the PlanePath starting N=0, so it becomes
+
+    N+1 count 3s  / 0 mod 2   S or E
+                  \ 1 mod 2   N or W
+
+    -(N+1) count 3s  / 0 mod 2   N or E
+                     \ 1 mod 2   S or W
+
+For the twos-complement negation an even number of base-4 digits of N must
+be taken.  Because -(N+1) = ~N, ie. a ones-complement, the second part is
+also
+
+    N count 0s         / 0 mod 2   N or E
+    [even num digits]  \ 1 mod 2   S or W
+
+Putting the two together then
+
+    N count 0s   N+1 count 3s    direction (0=E,1=N,etc)
+     
+      0 mod 2      0 mod 2          0
+      1 mod 2      0 mod 2          3
+      0 mod 2      1 mod 2          1
+      1 mod 2      1 mod 2          2
 
 =head1 OEIS
 
@@ -513,24 +564,25 @@ This Hilbert Curve path is in Sloane's OEIS in several forms,
 
     http://oeis.org/A059252  (etc)
 
-    A059252    Y coord    \ reckoning first move horizontal
+    A059252    Y coord    \ reckoning first move along X
     A059253    X coord    / per the code here
     A059261    X+Y
     A059285    X-Y
     A163547    X^2+Y^2 radius squared
     A163365    sum N on diagonal
     A163477    sum N on diagonal, divided by 4
-    A163482    row at Y=0
-    A163483    column at X=0
+    A163482    N values on X axis
+    A163483    N values on Y axis
+    A062880    N values on diagonal X=Y (digits 0,2 in base 4)
     A163538    X change -1,0,1
     A163539    Y change -1,0,1
-    A163540    absolute direction of each step (0=right,1=down,2=left,3=up)
+    A163540    absolute direction of each step (0=E,1=S,2=W,3=N)
     A163541    absolute direction, swapped X,Y
     A163542    relative direction (ahead=0,right=1,left=2)
     A163543    relative direction, swapped X,Y
 
-And taking points of the plane in various orders, each value in the sequence
-being the N of the Hilbert curve at those positions.
+And the following taking points of the plane in various orders, each value
+in the sequence being the N of the Hilbert curve at those positions.
 
     A163355    in the ZOrderCurve sequence
     A163357    in diagonals like Math::PlanePath::Diagonals with
@@ -552,7 +604,7 @@ put there.
     A163364    inverse of A163363  (Diagonals N=1 opposite)
 
 See F<examples/hilbert-oeis.pl> in the Math-PlanePath sources for a sample
-program printing the A163359 values.
+program printing the A163359 permutation values.
 
 =head1 SEE ALSO
 

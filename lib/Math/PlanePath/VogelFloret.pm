@@ -27,7 +27,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 61;
+$VERSION = 62;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -147,20 +147,23 @@ use constant parameter_info_array =>
      step_increment => .1,
      decimals       => 2,
      default        => 1,
+     when_name  => 'rotation_type',
+     when_value => 'custom',
    },
   ];
 
 sub new {
   my $self = shift->SUPER::new (@_);
+  ### $self
 
-  my $rotation_type = $self->{'rotation_type'} || 'phi';
+  my $rotation_type = ($self->{'rotation_type'} ||= 'phi');
   my $defaults = rotation_types()->{$rotation_type}
     || croak 'Unrecognised rotation_type: "',$rotation_type,'"';
 
+  $self->{'radius_factor'} ||= ($self->{'rotation_factor'}
+                                ? 1.0
+                                : $defaults->{'radius_factor'});
   $self->{'rotation_factor'} ||= $defaults->{'rotation_factor'};
-  $self->{'radius_factor'}  ||= ($self->{'rotation_type'}
-                                 ? $defaults->{'radius_factor'}
-                                 : 1.0);
   return $self;
 }
 
@@ -341,10 +344,10 @@ The polar coordinates for a point N are
           = N * -phi            modulo 1 and since 1/phi^2 = 2-phi
     theta = 2*pi * angle        in radians
 
-Each point N+1 is at an angle 0.382 counter-clockwise around from the
-preceding point N, which is just over 1/3 of a circle.  Or equivalently it's
-0.618 back clockwise which is phi=1.618 ignoring the integer part since
-that's a full circle, only the fractional part determines the position.
+Each point N+1 is at an angle 0.382 revolutions counter-clockwise from the
+preceding N, which is just over 1/3 of a circle.  Or equivalently it's 0.618
+back clockwise which is phi=1.618 ignoring the integer part since that's a
+full circle, only the fractional part determines the position.
 
 C<radius_factor> is a scaling 0.6242 designed to put the closest points 1
 apart.  The closest are N=1 and N=4.  See L</Packing> below.
@@ -444,17 +447,17 @@ Both F(k) and L(k) grow exponentially (as phi^k) which soon outstrips the
 sqrt in the R radial distance so they become widely spaced apart along the X
 axis.
 
-For interest or for reference, the angle calculation F(k)*phi is in fact the
+For interest or for reference, the angle F(k)*phi is in fact roughly the
 next Fibonacci number F(k+1), per the well-known limit F(k+1)/F(k) -> phi as
 k->infinity,
 
     angle = F(k)*-phi
           = -F(k+1) + epsilon
 
-The Lucas numbers similarly with L(k)*phi close to L(k+1).  Epsilon
+The Lucas numbers similarly with L(k)*phi close to L(k+1).  The "epsilon"
 approaches zero quickly enough in both cases that the resulting Y coordinate
 approaches zero.  This can be calculated as follows, writing beta = -1/phi =
--0.618 and since abs(beta)<1 the powers beta^k go to zero.
+-0.618 and because abs(beta)<1 the powers beta^k go to zero.
 
     F(k) = (phi^k - beta^k) / (phi - beta)
 
@@ -513,7 +516,7 @@ when added.  Similarly 66 to 333 difference 267 has 267*phi = 432.015, or
 number, the 123 between 99 and 222 is a Lucas number, and 267 = 144+123 =
 F(12)+L(10).
 
-The 55 and 555 differences apply to between pairs 22 to 77, 33 to 88, 666 to
+The differences 55 and 555 apply to between pairs 22 to 77, 33 to 88, 666 to
 1111, etc, making four straightish arms.  55 and 555 themselves are near the
 X axis.
 
@@ -526,11 +529,11 @@ going about a quarter turn (9*0.024 = 0.219) upwards.
 
 By choosing a radix so that "11" (or similar repunit) is close to the X
 axis, spirals like the decimal 11111 above can be created.  This includes
-when "11" is a Fibonacci number or Lucas number, such as base 12 making "11"
-equal to 13.  If "11" is near the negative X axis then there's two spiral
-arms, one going out on the X negative side and one X positive, eg. base 16
-has "11"=17 which is near the negative X axis.  A four-arm shape can be
-formed similarly if "11" is near the Y axis, eg. base 107.
+when "11" in the base is a Fibonacci number or Lucas number, such as base 12
+making "11" equal to 13.  If "11" is near the negative X axis then there's
+two spiral arms, one going out on the X negative side and one X positive,
+eg. base 16 has "11"=17 which is near the negative X axis.  A four-arm shape
+can be formed similarly if "11" is near the Y axis, eg. base 107.
 
 =head1 FUNCTIONS
 
