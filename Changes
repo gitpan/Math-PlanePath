@@ -1,4 +1,4 @@
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+Version 63, January 2012
+    - new class_x_negative() and class_y_negative() methods
+    - new CellularRule, ComplexRevolving, Math::NumSeq::PlanePathN
+    - Math::NumSeq::PlanePath* new planepath_object option
 
 Version 62, December 2011
     - new FractionsTree

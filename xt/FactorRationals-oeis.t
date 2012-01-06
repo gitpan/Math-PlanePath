@@ -54,6 +54,31 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
+# A019554 - product
+
+{
+  my $anum = 'A019554';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      push @got, $x * $y;
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+
+#------------------------------------------------------------------------------
 # A071974 - numerators
 
 {
@@ -61,7 +86,8 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy ($n);
       push @got, $x;
     }
@@ -84,8 +110,8 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    splice @$bvalues, 10000; # trim down
-    foreach my $n (1 .. @$bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy ($n);
       push @got, $y;
     }
@@ -102,37 +128,14 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A019554 - product
-
-{
-  my $anum = 'A019554';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $x * $y;
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-
-#------------------------------------------------------------------------------
-# A102631 - n^2/squarefreekernel(n) column at X=1
+# A102631 - n^2/squarefreekernel(n), is column at X=1
 
 {
   my $anum = 'A102631';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
     for (my $y = 1; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n (1, $y);
     }
@@ -149,18 +152,18 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A060837 - permutation diagonals N -> power N
+# A060837 - permutation DiagonalRationals N -> FactorRationals N
 
 {
   my $anum = 'A060837';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
     require Math::PlanePath::DiagonalRationals;
     my $columns = Math::PlanePath::DiagonalRationals->new;
-    my $n = 1;
-    while (@got < @$bvalues) {
-      my ($x,$y) = $columns->n_to_xy ($n++);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x,$y) = $columns->n_to_xy ($n);
       push @got, $path->xy_to_n($x,$y);
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
@@ -183,11 +186,11 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
     require Math::PlanePath::RationalsTree;
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-    my $n = 1;
-    while (@got < @$bvalues) {
-      my ($x,$y) = $sb->n_to_xy ($n++);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x,$y) = $sb->n_to_xy ($n);
       push @got, $path->xy_to_n($x,$y);
     }
     ### bvalues: join(',',@{$bvalues}[0..40])

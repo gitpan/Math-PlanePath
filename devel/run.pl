@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -83,12 +83,11 @@ use List::Util qw(min max);
   require Math::PlanePath::MPeaks;
   require Math::PlanePath::LTiling;
   require Math::PlanePath::CornerReplicate;
-  require Math::PlanePath::MathImageFractionsTree;
+  require Math::PlanePath::FractionsTree;
   require Math::PlanePath::CincoCurve;
   require Math::PlanePath::HilbertSpiral;
   require Math::PlanePath::AR2W2Curve;
   require Math::PlanePath::MathImageComplexPlus;
-  require Math::PlanePath::MathImageCellularRule;
   require Math::PlanePath::MathImagePeanoRounded;
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::FactorRationals;
@@ -97,10 +96,15 @@ use List::Util qw(min max);
   require Math::PlanePath::VogelFloret;
   require Math::PlanePath::MathImageCellularRule57;
   require Math::PlanePath::MathImageAnvilSpiral;
-  my $path = Math::PlanePath::MathImageAnvilSpiral->new
+  require Math::PlanePath::CellularRule;
+  require Math::PlanePath::MathImageAlternatePaper;
+  require Math::PlanePath::ComplexRevolving;
+  require Math::PlanePath::MultipleRings;
+  my $path = Math::PlanePath::MultipleRings->new
     (
+     step => 0,
      # start_shape => 'B1rev',
-     # rule => 220,
+     # rule => 8,
      # realpart => 1,
      # arms => 1,
      # L_fill => 'all',
@@ -125,7 +129,7 @@ use List::Util qw(min max);
 
   for (my $i = $n_start+0; $i <= 40; $i+=1) {
 
-    # for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*1.01+1)) {
+  #for (my $i = $n_start; $i <= $n_start + 80000000000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {
     # for (my $i = 9650; $i <= 9999; $i++) {
     #for (my $i = $n_start; $i <= 30; $i++) {

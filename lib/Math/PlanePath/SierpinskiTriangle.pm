@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -57,12 +57,26 @@ use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 #use Devel::Comments;
 
 
-use constant n_start => 0;
-use constant y_negative => 0;
+use constant class_y_negative => 0;
+sub n_start {
+  my ($self) = @_;
+  return $self->{'n_start'};
+}
+
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  $self->{'n_start'} ||= 0;
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
   ### SierpinskiTriangle n_to_xy(): $n
+
+  # written as $n-n_start() rather than "-=" so as to provoke an
+  # uninitialized value warning if $n==undef
+  $n = $n - $self->{'n_start'};
 
   # this frac behaviour slightly unspecified yet
   my $frac;
@@ -183,7 +197,7 @@ sub xy_to_n {
     return undef;
   }
 
-  return $n + $nx;
+  return $n + $nx + $self->{'n_start'};
 }
 
 # not exact
@@ -290,26 +304,6 @@ are on, which is a mod 2 sum giving Pascal's triangle mod 2.
 
     http://mathworld.wolfram.com/Rule90.html
 
-=head2 OEIS
-
-The Sierpinski Triangle is in Sloane's Online Encyclopedia of Integer
-Sequences in various forms,
-
-    http://oeis.org/A047999    etc
-
-    A001316 - number of cells in each row
-    A001317 - row 0 or 1 as binary number
-    A006046 - cumulative number of cells up to row N
-    A047999 - rows of 0 or 1
-
-A001316 is the "rowpoints" Gould's sequence noted above.  A006046 is the
-cumulative which is the Nleft above.
-
-The path uses every second point to make a triangular lattice (see
-L<Math::PlanePath/Triangular Lattice>).  The 0/1 pattern in A047999 of a row
-Y=k is therefore every second point X=-k, X=-k+2, X=-k+4, etc for k+1 many
-points through to X=k.
-
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
@@ -361,6 +355,26 @@ For example Y=11, level=floor(log2(11))+1=4, so Nmax=3^4-1=80, which is the
 end of the Y=15 row, ie. rounded up to the top of the Y=8 to Y=15
 replication.
 
+=head2 OEIS
+
+The Sierpinski Triangle is in Sloane's Online Encyclopedia of Integer
+Sequences in various forms,
+
+    http://oeis.org/A047999    etc
+
+    A001316 - number of cells in each row
+    A001317 - row 0 or 1 as binary number
+    A006046 - cumulative number of cells up to row N
+    A047999 - rows of 0 or 1
+
+A001316 is the "rowpoints" Gould's sequence noted above.  A006046 is the
+cumulative which is the Nleft above.
+
+The path uses every second point to make a triangular lattice (see
+L<Math::PlanePath/Triangular Lattice>).  The 0/1 pattern in A047999 of a row
+Y=k is therefore every second point X=-k, X=-k+2, X=-k+4, etc for k+1 many
+points through to X=k.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -373,7 +387,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

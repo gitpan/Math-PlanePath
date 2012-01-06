@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -38,7 +38,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -50,8 +50,8 @@ use Math::PlanePath 54; # v.54 for _max()
 #use Devel::Comments;
 
 use constant n_start => 0;
-use constant x_negative => 0;
-use constant y_negative => 0;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -402,7 +402,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

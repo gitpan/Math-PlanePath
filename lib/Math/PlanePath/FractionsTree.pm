@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -32,9 +32,8 @@ use Math::PlanePath;
 #use Smart::Comments;
 
 
-use constant x_negative => 0;
-use constant y_negative => 0;
-use constant n_start => 1;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [
@@ -304,21 +303,6 @@ those below that line are odd.  This arises since XE<lt>Y so the left leg
 X/(X+Y) E<lt> 1/2 and the right leg Y/(X+Y) E<gt> 1/2.  The left is an even
 N and the right an odd N.
 
-=head1 OEIS
-
-The trees are in Sloane's Online Encyclopedia of Integer Sequences in the
-following forms
-
-    http://oeis.org/A002487   (etc)
-
-    A020651  - Kepler numerators (same as AYT RationalsTree)
-    A086592  - Kepler half-tree denominators
-    A086593  - Kepler half-tree denominators, every second value
-
-Because the tree descends as X/(X+Y) and Y/(X+Y) the denominators are in
-pairs after the initial 1/2.  A086593 is every second value, starting at 2,
-which eliminates the duplication.
-
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
@@ -341,6 +325,24 @@ only one new 1/Y fraction.  So if X=1 is included then roughly C<$n_hi =
 
 =back
 
+=head1 OEIS
+
+The trees are in Sloane's Online Encyclopedia of Integer Sequences in the
+following forms
+
+    http://oeis.org/A002487   (etc)
+
+    A020651  - Kepler numerators (RationalsTree AYT denominators)
+    A086592  - Kepler denominators
+    A086593  - Kepler denominators every second value, and sum X+Y
+    A020650  - difference Y-X (RationalsTree AYT numerators)
+
+The tree descends as X/(X+Y) and Y/(X+Y) so the denominators are in pairs of
+two X+Y each time, after the initial 1/2.  A086593 is every second value,
+starting at 2, eliminating the duplication.  This is also the sum X+Y (from
+value 3 onwards), as can be seen by thinking of writing a node as the X+Y
+which would be the denominators it descends to.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -361,7 +363,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

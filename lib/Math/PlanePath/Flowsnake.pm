@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -19,8 +19,8 @@
 # math-image --path=Flowsnake --lines --scale=10
 # math-image --path=Flowsnake,arms=3 --all --output=numbers_dash
 #
-# Martin Gardner, "In which `monster' curves force redefinition of the word
-# `curve'", Scientific American 235 (December issue), 1976, 124-133.
+# Martin Gardner, "In which `Monster' Curves Force Redefinition of the Word
+# `Curve'", Scientific American 235, December 1976, pages 124-133.
 #
 # http://80386.nl/pub/gosper-level21.png
 #
@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()

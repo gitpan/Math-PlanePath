@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -31,7 +31,7 @@ use Math::PlanePath 54; # v.54 for _max()
 #use Smart::Comments;
 
 
-use constant y_negative => 0;
+use constant class_y_negative => 0;
 
 # starting each left side at 0.5 before
 # [ 1,2,3 ],
@@ -243,7 +243,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

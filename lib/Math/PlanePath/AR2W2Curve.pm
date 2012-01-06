@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -39,8 +39,8 @@ use Math::PlanePath::KochCurve 42;
 
 
 use constant n_start => 0;
-use constant x_negative => 0;
-use constant y_negative => 0;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [

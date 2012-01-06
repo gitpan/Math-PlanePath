@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use strict;
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -44,7 +44,7 @@ use Math::PlanePath::KochCurve 42;
 
 
 use constant n_start => 0;
-use constant y_negative => 0;
+use constant class_y_negative => 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -192,10 +192,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiArrowhead rect_to_n_range() ...
-
+  
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
-
+  
   my ($power,$level) = _round_down_pow ($y2-1, 2);
   ### $y2
   ### $level
@@ -204,6 +204,31 @@ sub rect_to_n_range {
 
 1;
 __END__
+
+
+
+
+# sideways ...
+#
+#                         27 ...                           8
+#                           \
+#                       .    26                            7
+#                           /
+#                   24----25     .                         6
+#                  /
+#                23     .    20----19                      5
+#                  \        /        \
+#              .    22----21    .     18                   4
+#                                    /
+#           4---- 5     .     .    17    .                 3
+#         /        \                 \
+#        3     .     6     .     .    16----15             2
+#         \         /                         \
+#     .     2     7     .    10----11     .    14          1
+#         /        \        /        \        /
+#  0---- 1     .     8---- 9     .    12----13    .    <- Y=0
+#
+# X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 ...
 
 
 # rows
@@ -433,7 +458,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -449,27 +474,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-    #                         27 ...                           8
-    #                           \
-    #                       .    26                            7
-    #                           /
-    #                   24----25     .                         6
-    #                  /
-    #                23     .    20----19                      5
-    #                  \        /        \
-    #              .    22----21    .     18                   4
-    #                                    /
-    #           4---- 5     .     .    17    .                 3
-    #         /        \                 \
-    #        3     .     6     .     .    16----15             2
-    #         \         /                         \
-    #     .     2     7     .    10----11     .    14          1
-    #         /        \        /        \        /
-    #  0---- 1     .     8---- 9     .    12----13    .    <- Y=0
-    #
-    # X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 ...
-

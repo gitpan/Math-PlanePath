@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -38,8 +38,8 @@ $VERSION = 39;
 #use Smart::Comments;
 
 use constant n_start => 0;
-use constant x_negative => 0;
-use constant y_negative => 0;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 my @uad = (
            [ 1,-2,2,   2,-1,2,   2,-2,3],  # U
@@ -222,7 +222,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

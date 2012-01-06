@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -94,6 +94,8 @@ my @all_classes = ('SquareSpiral',
                    'PyramidRows',
                    'PyramidRows,step=5',
                    'PyramidSides',
+                   'CellularRule,rule=30',
+                   'CellularRule,rule=73',
                    'CellularRule54',
                    'CellularRule190',
                    'CellularRule190,mirror=1',
@@ -194,6 +196,7 @@ my @all_classes = ('SquareSpiral',
                    'DragonMidpoint,arms=4',
                    'ComplexMinus',
                    'ComplexMinus,realpart=2',
+                   'ComplexRevolving',
 
                    'PythagoreanTree,tree_type=UAD',
                    'PythagoreanTree,tree_type=UAD,coordinates=PQ',

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,17 +21,20 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 62;
+$VERSION = 63;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 # defaults
 use constant n_start => 1;
-use constant x_negative => 1;
-use constant y_negative => 1;
 use constant figure => 'square';
 use constant arms_count => 1;
+
+use constant class_x_negative => 1;
+use constant class_y_negative => 1;
+sub x_negative { $_[0]->class_x_negative }
+sub y_negative { $_[0]->class_y_negative }
 
 sub new {
   my $class = shift;
@@ -240,6 +243,7 @@ classes include
     DragonRounded            same but rounding-off vertices
     DragonMidpoint         paper folding midpoints
     ComplexMinus           twindragon and other base i-r
+    ComplexRevolving       revolving base i+1
 
     SierpinskiCurve        self-similar right-triangles
     HIndexing              self-similar right-triangles, squared up
@@ -263,6 +267,7 @@ classes include
     Corner                 expanding stripes around a corner
     PyramidRows            expanding stacked rows pyramid
     PyramidSides           along the sides of a 45-degree pyramid
+    CellularRule           cellular automaton by rule number
     CellularRule54         cellular automaton rows pattern
     CellularRule190        cellular automaton rows pattern
     UlamWarburton          cellular automaton diamonds
@@ -388,13 +393,6 @@ range like C<$n_lo=1>, C<$n_hi=0> (and which makes a C<foreach> do no
 loops).  Though C<rect_to_n_range()> might not notice there's no points in
 the rectangle and instead over-estimate the range.
 
-=item C<$bool = $path-E<gt>x_negative()>
-
-=item C<$bool = $path-E<gt>y_negative()>
-
-Return true if the path extends into negative X coordinates and/or negative
-Y coordinates respectively.
-
 =item C<$n = $path-E<gt>n_start()>
 
 Return the first N in the path.  In the current classes this is either 0
@@ -402,6 +400,26 @@ or 1.
 
 Some classes have secret dubious undocumented support for N values below
 this (zero or negative), but C<n_start()> is the intended starting point.
+
+=item C<$bool = $path-E<gt>x_negative()>
+
+=item C<$bool = $path-E<gt>y_negative()>
+
+Return true if the path extends into negative X coordinates and/or negative
+Y coordinates respectively.
+
+=item C<$bool = Math::PlanePath::Foo-E<gt>class_x_negative()>
+
+=item C<$bool = Math::PlanePath::Foo-E<gt>class_y_negative()>
+
+=item C<$bool = $path-E<gt>class_x_negative()>
+
+=item C<$bool = $path-E<gt>class_y_negative()>
+
+Return true if any paths made by this class extends into negative X
+coordinates and/or negative Y coordinates, respectively.
+
+For some classes the X or Y extent may depend on parameter values.
 
 =item C<$arms = $path-E<gt>arms_count()>
 
@@ -565,6 +583,7 @@ more N points than the preceding.
 
     totient     CoprimeColumns, DiagonalRationals
     divcount    DivisibleColumns
+    various     CellularRule
 
 =for my_pod step end
 
@@ -609,9 +628,10 @@ such a power for things like KochPeaks and GosperIslands.
     ----          ----
       2         HilbertCurve, HilbertSpiral, ZOrderCurve (default),
                   BetaOmega, AR2W2Curve, SierpinskiCurve, HIndexing
-                  ImaginaryBase (default), ComplexMinus (default)
+                  ImaginaryBase (default), CornerReplicate,
+                  ComplexMinus (default), ComplexRevolving,
                   DragonCurve, DragonRounded, DragonMidpoint,
-                  DigitGroups (default), CornerReplicate
+                  DigitGroups (default)
       3         PeanoCurve (default), GosperIslands, GosperSide
                   WunderlichMeander, KochelCurve,
                   SierpinskiTriangle, SierpinskiArrowhead,
@@ -836,7 +856,8 @@ L<Math::PlanePath::SierpinskiArrowheadCentres>
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::DragonRounded>,
 L<Math::PlanePath::DragonMidpoint>,
-L<Math::PlanePath::ComplexMinus>
+L<Math::PlanePath::ComplexMinus>,
+L<Math::PlanePath::ComplexRevolving>
 
 L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
@@ -848,6 +869,7 @@ L<Math::PlanePath::Corner>
 
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>,
+L<Math::PlanePath::CellularRule>,
 L<Math::PlanePath::CellularRule54>,
 L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::UlamWarburton>,
@@ -886,7 +908,7 @@ http://user42.tuxfamily.org/math-planepath/gallery.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

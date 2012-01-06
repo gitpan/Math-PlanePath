@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -50,9 +50,8 @@ use Math::PlanePath::CoprimeColumns;
 #use Smart::Comments;
 
 
-use constant x_negative => 0;
-use constant y_negative => 0;
-use constant n_start => 1;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -216,23 +215,23 @@ Kevin McCrimmon then independently (was it?) by Gerald Freilich in reverse,
 and again by Yoram Sagher.
 
     15  |      15   60       240            735  960           1815      
-    14  |      14       126       350                1134      1694      
-    13  |      13   52  117  208  325  468  637  832 1053 1300 1573 1872 
-    12  |      24                 600      1176                2904      
-    11  |      11   44   99  176  275  396  539  704  891 1100      1584 
-    10  |      10        90                 490       810      1210      
-     9  |      27  108       432  675      1323 1728      2700 3267      
+    14  |      14       126       350                1134      1694
+    13  |      13   52  117  208  325  468  637  832 1053 1300 1573
+    12  |      24                 600      1176                2904
+    11  |      11   44   99  176  275  396  539  704  891 1100     
+    10  |      10        90                 490       810      1210
+     9  |      27  108       432  675      1323 1728      2700 3267
      8  |      32       288       800      1568      2592      3872
-     7  |       7   28   63  112  175  252       448  567  700  847 1008 
-     6  |       6                 150       294                 726      
-     5  |       5   20   45   80       180  245  320  405       605  720 
-     4  |       8        72       200       392       648       968      
-     3  |       3   12        48   75       147  192       300  363      
-     2  |       2        18        50        98       162       242      
-     1  |       1    4    9   16   25   36   49   64   81  100  121  144 
+     7  |       7   28   63  112  175  252       448  567  700  847
+     6  |       6                 150       294                 726
+     5  |       5   20   45   80       180  245  320  405       605
+     4  |       8        72       200       392       648       968
+     3  |       3   12        48   75       147  192       300  363
+     2  |       2        18        50        98       162       242
+     1  |       1    4    9   16   25   36   49   64   81  100  121
     Y=0 |
-         ---------------------------------------------------------------
-          X=0   1    2    3    4    5    6    7    8    9   10   11   12
+         ----------------------------------------------------------
+          X=0   1    2    3    4    5    6    7    8    9   10   11
 
 An X,Y is mapped to N by
 
@@ -243,20 +242,20 @@ An X,Y is mapped to N by
 The effect is to distinguish prime factors coming from the numerator or
 denominator by making odd or even powers of those primes in N.
 
-A rational X/Y has prime p with exponent p^s for either positive or
+A rational X/Y has prime factor p with exponent p^s for either positive or
 negative s.  Positive is in the numerator X, negative in the denominator Y.
 This is turned into a power p^k in N,
 
     k = /  2*s      if s >= 0
         \  1-2*s    if s < 0
 
-The effect is to map a signed exponent s to a positive exponent k,
+The effect is to map a signed s to positive k,
 
-     s          k
-    -1    ->    1
-     1    ->    2
-    -2    ->    3
-     2    ->    4
+     s           k
+    -1    <->    1
+     1    <->    2
+    -2    <->    3
+     2    <->    4
     etc
 
 For example (and other primes multiply in similarly),
@@ -266,7 +265,7 @@ For example (and other primes multiply in similarly),
    N=27  ->  3^-2 = 1/9
    N=81  ->  3^2  = 9/1
 
-Thinking in terms of X and Y values the key is that since X and Y have no
+Thinking in terms of X and Y values, the key is that since X and Y have no
 common factor a prime p appears in one of X or Y but not both.  The
 oddness/evenness of the p^k exponent in N can then encode which of the two
 it appears in.
@@ -282,8 +281,10 @@ so the s exponents there are all positive and thus in N become 2*s, giving
 simply N=X^2.
 
 As noted by David M. Bradley, other mappings of signed E<lt>-E<gt> unsigned
-powers could give other enumerations.  The alternate + and - as done here
-keeps the growth of N down to roughly X^2*Y^2, as per the first N formula.
+powers could give other enumerations.  The "negabinary" a[k]*(-2)^k is one
+possibility, or the "reversing binary representation" (-1)^k*2^ek of Knuth
+vol 2 section 4.1 exercise 27.  But the alternating + and - here keeps the
+growth of N down to roughly X^2*Y^2, per the N=X^2*Y^2/Yprimes above.
 
 =head1 FUNCTIONS
 
@@ -296,7 +297,32 @@ classes.
 
 Create and return a new path object.
 
+=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
+
+Return X,Y coordinates of point C<$n> on the path.  If there's no point
+C<$n> then the return is an empty list.
+
+This depends on factorizing C<$n> and in the current code there's a hard
+limit on the amount of factorizing attempted.  If C<$n> is too big then the
+return is an empty list.
+
+=item C<$n = $path-E<gt>xy_to_n ($x,$y)>
+
+Return the N point number for coordinates C<$x,$y>.  If there's nothing at
+C<$x,$y>, such as when they have a common factor, then return C<undef>.
+
+This depends on factorizing C<$y> and in the current code there's a hard
+limit on the amount of factorizing attempted.  If C<$y> is too big then the
+return is C<undef>.
+
 =back
+
+The current factorizing limits handle anything up to 2^32, and above that
+numbers comprised of small factors, but big numbers with big factors are not
+handled.  Is this a good idea?  For large inputs there's no merit in
+disappearing into a nearly-infinite loop.  But perhaps the limits could be
+configurable and/or some advanced factoring modules tried for a while
+if/when available.
 
 =head1 OEIS
 
@@ -308,26 +334,13 @@ Integer Sequences in the following forms
     A071974 - numerators, X
     A071975 - denominators, Y
     A019554 - product num*den, ie. X*Y
-    A102631 - n^2/squarefreekernel(n), left column at X=1
+    A102631 - n^2/squarefreekernel(n), column at X=1
     A060837 - permutation DiagonalRationals -> FactorRationals
     A071970 - permutation Stern/CW -> FactorRationals
 
 The last A071970 is rationals taken in order of the Stern diatomic sequence
-stern[i]/stern[i+1], which is the order of the Calkin-Wilf tree rows (see
-L<Math::PlanePath::RationalsTree/Calkin-Wilf Tree>).
-
-=head1 BUGS
-
-C<n_to_xy()> depends on factorizing C<$n> and C<xy_to_n()> depends on
-factorizing C<$y>.  In the current code there's a limit on the amount of
-factorizing attempted and above that the return is empty or C<undef>
-respectively.  The present limits handle anything up to 2^32, and above that
-numbers comprised of small factors, but big numbers with big factors are not
-handled.
-
-Is this a good idea?  For large inputs there's no merit in disappearing into
-a nearly-infinite loop.  But perhaps the limits could be configurable and/or
-some factoring modules tried for a while if/when available.
+stern[i]/stern[i+1], which is also the order of the Calkin-Wilf tree rows
+(L<Math::PlanePath::RationalsTree/Calkin-Wilf Tree>).
 
 =head1 SEE ALSO
 
@@ -346,7 +359,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

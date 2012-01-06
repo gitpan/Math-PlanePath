@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -53,9 +53,8 @@ use Math::PlanePath::KochCurve 42;
 #use Devel::Comments;
 
 
-use constant x_negative => 0;
-use constant y_negative => 0;
-use constant n_start => 1;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ { name       => 'tree_type',
@@ -651,6 +650,9 @@ the SB above, but the values in between are re-ordered.
          -------------------------------------------------------------
            X=0   1    2    3    4    5    6    7    8    9   10
 
+In each node descent the left X/(X+Y) E<lt> 1 and the right (X+Y)/Y E<gt> 1,
+which means even N is above the X=Y diagonal and odd N is below.
+
 N values for the SB and CW trees are converted by reversing bits.  At a
 given X,Y position if N = binary "1abcde" in the SB tree then at that same
 X,Y in the CW the N value is "1edcba".  For example at X=3,Y=4 the SB tree
@@ -726,6 +728,9 @@ Plotting the N values by X,Y gives
 The Y=1 horizontal is the X/1 integers at Nstart=2^level.  The X=1 vertical
 is the 1/Y fractions.  Those fractions always immediately follow the
 corresponding integer, thus N=Nstart+1 in that column.
+
+In each node descent the left (X+Y)/Y E<gt> 1 and the right Y/(X+Y) E<lt> 1,
+which means odd N is above the X=Y diagonal and even N is below.
 
 The tree structure corresponds to Johannes Kepler's tree of fractions.  That
 tree starts from 1/2 and makes fractions A/B with AE<lt>B by descending to
@@ -833,6 +838,9 @@ left and F(k+1)/F(k) on the right.
          -------------------------------------------------------
          X=0    1    2    3    4    5    6    7    8    9   10
 
+In each node descent the left Y/(X+Y) E<lt> 1 and the right (X+Y)/X E<gt> 1,
+which means even N is above the X=Y diagonal and odd N is below.
+
 Because Drib/Bird are bit reversals like CW/SB are bit reversals, the xor
 procedure described above which relates BirdE<lt>-E<gt>SB applies to
 DribE<lt>-E<gt>CW, but working from the second lowest bit upwards, ie. xor
@@ -937,7 +945,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

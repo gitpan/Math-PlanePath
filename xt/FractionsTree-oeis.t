@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 3 }
+BEGIN { plan tests => 5 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -110,7 +110,31 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A020651 -- Kepler half-tree numerators
+# A020650 -- Kepler den-num, being AYT numerators
+
+{
+  my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
+  my $anum = 'A020650';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $y - $x;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A020651 -- Kepler half-tree numerators / AYT denominators
 
 {
   my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
@@ -130,7 +154,7 @@ sub numeq_array {
   ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum -- Kepler half-tree numerators");
+        1, "$anum -- Kepler numerators");
 }
 
 #------------------------------------------------------------------------------
@@ -179,6 +203,29 @@ sub numeq_array {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- Kepler half-tree denominators every second value");
+}
+
+# is also the sum X+Y, skipping initial 2
+{
+  my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
+  my $anum = 'A086593';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    push @got, 2;
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $x+$y;
+    }
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..20])
+  ### got: '    '.join(',',@got[0..20])
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- as sum X+Y");
 }
 
 #------------------------------------------------------------------------------

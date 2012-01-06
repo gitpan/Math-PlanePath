@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -28,7 +28,7 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-my $test_count = (tests => 344)[1];
+my $test_count = (tests => 434)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -198,55 +198,56 @@ foreach my $elem
    [undef,0, planepath => 'QuadricCurve', coordinate_type => 'DiffYX' ],
    [0,undef, planepath => 'QuadricCurve', coordinate_type => 'AbsDiff' ],
 
-   [0,5, planepath => 'Rows,width=6', coordinate_type => 'X' ],
-   [0,undef, planepath => 'Rows,width=6', coordinate_type => 'Y' ],
-   [0,undef, planepath => 'Rows,width=6', coordinate_type => 'Sum' ],
-   [0,undef, planepath => 'Rows,width=6', coordinate_type => 'Product' ],
-   [0,undef, planepath => 'Rows,width=6', coordinate_type => 'Radius' ],
-   [0,undef, planepath => 'Rows,width=6', coordinate_type => 'RSquared' ],
-   [undef,5, planepath => 'Rows,width=6', coordinate_type => 'DiffXY' ],
+   [0,5,      planepath => 'Rows,width=6', coordinate_type => 'X' ],
+   [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'Y' ],
+   [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'Sum' ],
+   [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'Product' ],
+   [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'Radius' ],
+   [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'RSquared' ],
+   [undef,5,  planepath => 'Rows,width=6', coordinate_type => 'DiffXY' ],
    [-5,undef, planepath => 'Rows,width=6', coordinate_type => 'DiffYX' ],
-   [0,undef, planepath => 'Rows,width=6', coordinate_type => 'AbsDiff' ],
+   [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'AbsDiff' ],
 
-   [0,undef, planepath => 'Columns,height=6', coordinate_type => 'X' ],
-   [0,5,     planepath => 'Columns,height=6', coordinate_type => 'Y' ],
-   [0,undef, planepath => 'Columns,height=6', coordinate_type => 'Sum' ],
-   [0,undef, planepath => 'Columns,height=6', coordinate_type => 'Product' ],
-   [0,undef, planepath => 'Columns,height=6', coordinate_type => 'Radius' ],
-   [0,undef, planepath => 'Columns,height=6', coordinate_type => 'RSquared' ],
+   [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'X' ],
+   [0,5,      planepath => 'Columns,height=6', coordinate_type => 'Y' ],
+   [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'Sum' ],
+   [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'Product' ],
+   [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'Radius' ],
+   [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'RSquared' ],
    [-5,undef, planepath => 'Columns,height=6', coordinate_type => 'DiffXY' ],
-   [undef,5, planepath => 'Columns,height=6', coordinate_type => 'DiffYX' ],
-   [0,undef, planepath => 'Columns,height=6', coordinate_type => 'AbsDiff' ],
+   [undef,5,  planepath => 'Columns,height=6', coordinate_type => 'DiffYX' ],
+   [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'AbsDiff' ],
 
-   [0,0, planepath => 'PyramidRows,step=0', coordinate_type => 'X' ],
-   [0,undef,     planepath => 'PyramidRows,step=0', coordinate_type => 'Y' ],
-   [0,undef, planepath => 'PyramidRows,step=0', coordinate_type => 'Sum' ],
-   [0,undef, planepath => 'PyramidRows,step=0', coordinate_type => 'Product' ],
-   [0,undef, planepath => 'PyramidRows,step=0', coordinate_type => 'Radius' ],
-   [0,undef, planepath => 'PyramidRows,step=0', coordinate_type => 'RSquared' ],
-   [undef,0, planepath => 'PyramidRows,step=0', coordinate_type => 'DiffXY' ],
-   [0,undef, planepath => 'PyramidRows,step=0', coordinate_type => 'DiffYX' ],
-   [0,undef, planepath => 'PyramidRows,step=0', coordinate_type => 'AbsDiff' ],
+   # step=0 vertical on Y axis only
+   [0,0,     planepath=>'PyramidRows,step=0', coordinate_type => 'X' ],
+   [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'Y' ],
+   [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'Sum' ],
+   [0,0,     planepath=>'PyramidRows,step=0', coordinate_type => 'Product' ],
+   [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'Radius' ],
+   [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'RSquared' ],
+   [undef,0, planepath=>'PyramidRows,step=0', coordinate_type => 'DiffXY' ],
+   [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'DiffYX' ],
+   [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'AbsDiff' ],
 
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'X' ],
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'Y' ],
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'Sum' ],
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'Product' ],
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'Radius' ],
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'RSquared' ],
-   [undef,0, planepath => 'PyramidRows,step=1', coordinate_type => 'DiffXY' ],
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'DiffYX' ],
-   [0,undef, planepath => 'PyramidRows,step=1', coordinate_type => 'AbsDiff' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'X' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'Y' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'Sum' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'Product' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'Radius' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'RSquared' ],
+   [undef,0, planepath=>'PyramidRows,step=1', coordinate_type => 'DiffXY' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'DiffYX' ],
+   [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'AbsDiff' ],
 
-   [undef,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'X' ],
-   [0,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'Y' ],
-   [0,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'Sum' ],
-   [undef,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'Product' ],
-   [0,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'Radius' ],
-   [0,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'RSquared' ],
-   [undef,0, planepath => 'PyramidRows,step=2', coordinate_type => 'DiffXY' ],
-   [0,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'DiffYX' ],
-   [0,undef, planepath => 'PyramidRows,step=2', coordinate_type => 'AbsDiff' ],
+   [undef,undef, planepath=>'PyramidRows,step=2', coordinate_type=>'X' ],
+   [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'Y' ],
+   [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'Sum' ],
+   [undef,undef, planepath=>'PyramidRows,step=2', coordinate_type=>'Product' ],
+   [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'Radius' ],
+   [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'RSquared'],
+   [undef,0,     planepath=>'PyramidRows,step=2', coordinate_type=>'DiffXY' ],
+   [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'DiffYX' ],
+   [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'AbsDiff' ],
 
    [undef,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'X' ],
    [0,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'Y' ],
@@ -273,6 +274,61 @@ foreach my $elem
    [undef,0, planepath => 'HIndexing', coordinate_type => 'DiffXY' ],
    [0,undef, planepath => 'HIndexing', coordinate_type => 'DiffYX' ],
    [0,undef, planepath => 'HIndexing', coordinate_type => 'AbsDiff' ],
+
+   # right line
+   [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'X' ],
+   [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'Y' ],
+   [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'Sum' ],
+   [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'Product' ],
+   [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'Radius' ],
+   [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'RSquared' ],
+   [0,0,     planepath=>'CellularRule,rule=16', coordinate_type=>'DiffXY' ],
+   [0,0,     planepath=>'CellularRule,rule=16', coordinate_type=>'DiffYX' ],
+   [0,0,     planepath=>'CellularRule,rule=16', coordinate_type=>'AbsDiff' ],
+
+   # centre line Y axis only
+   [0,0,     planepath=>'CellularRule,rule=4', coordinate_type => 'X' ],
+   [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'Y' ],
+   [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'Sum' ],
+   [0,0,     planepath=>'CellularRule,rule=4', coordinate_type => 'Product' ],
+   [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'Radius' ],
+   [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'RSquared' ],
+   [undef,0, planepath=>'CellularRule,rule=4', coordinate_type => 'DiffXY' ],
+   [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'DiffYX' ],
+   [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'AbsDiff' ],
+
+   # left line
+   [undef,0, planepath=>'CellularRule,rule=2', coordinate_type=>'X' ],
+   [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'Y' ],
+   [0,0,     planepath=>'CellularRule,rule=2', coordinate_type=>'Sum' ],
+   [undef,0, planepath=>'CellularRule,rule=2', coordinate_type=>'Product' ],
+   [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'Radius' ],
+   [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'RSquared' ],
+   [undef,0, planepath=>'CellularRule,rule=2', coordinate_type=>'DiffXY' ],
+   [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'DiffYX' ],
+   [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'AbsDiff' ],
+
+   # left solid
+   [undef,0, planepath=>'CellularRule,rule=206', coordinate_type=>'X' ],
+   [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'Y' ],
+   [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'Sum' ],
+   [undef,0, planepath=>'CellularRule,rule=206', coordinate_type=>'Product' ],
+   [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'Radius' ],
+   [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'RSquared' ],
+   [undef,0, planepath=>'CellularRule,rule=206', coordinate_type=>'DiffXY' ],
+   [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'DiffYX' ],
+   [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'AbsDiff' ],
+
+   # odd solid
+   [undef,undef, planepath=>'CellularRule,rule=50',coordinate_type=>'X' ],
+   [0,undef,     planepath=>'CellularRule,rule=50',coordinate_type=>'Y' ],
+   [0,undef,     planepath=>'CellularRule,rule=50',coordinate_type=>'Sum' ],
+   [undef,undef, planepath=>'CellularRule,rule=50',coordinate_type=>'Product'],
+   [0,undef,    planepath=>'CellularRule,rule=50',coordinate_type=>'Radius' ],
+   [0,undef,    planepath=>'CellularRule,rule=50',coordinate_type=>'RSquared'],
+   [undef,0,    planepath=>'CellularRule,rule=50',coordinate_type=>'DiffXY' ],
+   [0,undef,    planepath=>'CellularRule,rule=50',coordinate_type=>'DiffYX' ],
+   [0,undef,    planepath=>'CellularRule,rule=50',coordinate_type=>'AbsDiff' ],
   ) {
   my ($want_min,$want_max, @parameters) = @$elem;
   ### @parameters

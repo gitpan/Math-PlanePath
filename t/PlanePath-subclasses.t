@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 801 }
+BEGIN { plan tests => 827 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,17 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'CellularRule',
+               'CellularRule,rule=0',   # blank
+               'CellularRule,rule=57',
+               'CellularRule,rule=60',
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=222', # solid
+               'CellularRule54',
+               'CellularRule190',
+               'CellularRule190,mirror=1',
 
                'FractionsTree',
                'FactorRationals',
@@ -83,9 +94,6 @@ my @modules = (
                'SierpinskiCurve,arms=6',
                'SierpinskiCurve,arms=7',
                'SierpinskiCurve,arms=8',
-
-               'CellularRule190',
-               'CellularRule190,mirror=1',
 
                'RationalsTree',
                'RationalsTree,tree_type=CW',
@@ -145,7 +153,6 @@ my @modules = (
 
                'UlamWarburton',
                'UlamWarburtonQuarter',
-               'CellularRule54',
 
                'AztecDiamondRings',
                'DiamondArms',
@@ -183,6 +190,7 @@ my @modules = (
                'ComplexMinus,realpart=3',
                'ComplexMinus,realpart=4',
                'ComplexMinus,realpart=5',
+               'ComplexRevolving',
                'ImaginaryBase',
                'ImaginaryBase,radix=3',
                'ImaginaryBase,radix=37',
@@ -280,7 +288,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 62;
+my $want_version = 63;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

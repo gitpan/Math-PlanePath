@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -167,7 +167,7 @@ sub n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### DragonMidpoint xy_to_n(): "$x, $y"
+  ### DragonCurve xy_to_n(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
@@ -463,6 +463,9 @@ The curve visits an C<$x,$y> twice for various points (all the "inside"
 points).  In the current code the smaller of the two N values is returned.
 Is that the best way?
 
+The current implementation is a bit slow due to a crude backtracking digits
+search.
+
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
@@ -471,8 +474,8 @@ Return 0, the first N in the path.
 
 =head1 OEIS
 
-The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences as
-turns or a total rotation at each line segment,
+The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences in
+various forms,
 
     http://oeis.org/A005811  (etc)
 
@@ -482,16 +485,22 @@ turns or a total rotation at each line segment,
     A014709 -- turn, 2=left,1=right
     A014710 -- turn, 1=left,2=right
     A082410 -- turn, 0=left,1=right with extra leading 0
+    A126937 -- points numbered like SquareSpiral (N-1, neg Y)
 
-The four turn sequences differ only in left or right represented as 0 and 1
-or 1 and 2.
+The four turn sequences differ only in having left or right represented as 0
+and 1, or 1 and 2.
 
-For reference, "dragon-like" A059125 is almost the same as the A014577
-turns, but differs at some positions.
+The square numbering A126937 is a Dragon curve going downwards, ie. to
+negative Y, and the spiral numbering starting from N=0 and spiralling
+towards positive Y.  So that sequence starting i=0 is
 
-=head1 BUGS
+      my $dragon = Math::PlanePath::DragonCurve->new;
+      my $square = Math::PlanePath::SquareSpiral->new;
+      my ($x, $y) = $dragon->n_to_xy ($i);
+      my $A126937_of_i = $square->xy_to_n ($x, -$y) - 1;
 
-C<xy_to_n()> is a bit slow due to doing a crude backtracking digits search.
+For reference, "dragon-like" A059125 is almost the same as the turn sequence
+A014577, but differs at some positions.
 
 =head1 SEE ALSO
 
@@ -506,7 +515,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

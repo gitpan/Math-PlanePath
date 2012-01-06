@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 62;
+$VERSION = 63;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -858,6 +858,9 @@ sub values_max {
 { package Math::PlanePath::ComplexMinus;
   use constant _NumSeq_Delta_DistSquared_min => 1;
 }
+{ package Math::PlanePath::ComplexRevolving;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+}
 { package Math::PlanePath::Rows;
   sub _NumSeq_Delta_dX_min {
     my ($self) = @_;
@@ -990,6 +993,48 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => -1;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_DistSquared_min => 2;
+}
+{ package Math::PlanePath::CellularRule;
+  # ENHANCE-ME: more restrictive than this for many rules
+  use constant _NumSeq_Delta_Dir4_max => 2; # E to NW
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+}
+{ package Math::PlanePath::CellularRule::Line;
+  sub _NumSeq_Delta_dX_min {
+    my ($path) = @_;
+    return $path->{'sign'};
+  }
+  *_NumSeq_Delta_dX_max = \&_NumSeq_Delta_dX_min;
+  use constant _NumSeq_Coord_dX_non_decreasing => 1;
+
+  use constant _NumSeq_Delta_dY_min => 1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+
+  # sub _NumSeq_Delta_Dir4_min {
+  #   my ($path) = @_;
+  #   return $path->{'sign'}+1; ...
+  # }
+  # *_NumSeq_Delta_Dir4_max = \&_NumSeq_Delta_Dir4_min;
+
+  sub _NumSeq_Delta_DistSquared_min {
+    my ($path) = @_;
+    return abs($path->{'sign'}) + 1;
+  }
+  use constant _NumSeq_Delta_DistSquared_max => 1;
+}
+{ package Math::PlanePath::CellularRule::OddSolid;
+  use constant _NumSeq_Delta_dX_max => 2;
+  use constant _NumSeq_Delta_dY_min => 0;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 2;
+}
+{ package Math::PlanePath::CellularRule::LeftSolid;
+  use constant _NumSeq_Delta_dX_max => 1;
+  use constant _NumSeq_Delta_dY_min => 0;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
 }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Delta_dX_max => 4;
@@ -1178,7 +1223,14 @@ degrees, etc, and fractional values in between those.
 
 =item C<$seq = Math::NumSeq::PlanePathDelta-E<gt>new (key=E<gt>value,...)>
 
-Create and return a new sequence object.
+Create and return a new sequence object.  The options are
+
+    planepath          string, name of a PlanePath module
+    planepath_object   PlanePath object
+    line_type          string, as described above
+
+C<planepath> can be just the module part such as "SquareSpiral" or a full
+class name "Math::PlanePath::SquareSpiral".
 
 =item C<$value = $seq-E<gt>ith($i)>
 
@@ -1206,7 +1258,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

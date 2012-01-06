@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,7 +40,7 @@ use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 #use Smart::Comments;
 
 
-use constant y_negative => 0;
+use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ { name        => 'mirror',
@@ -408,6 +408,8 @@ L<Math::PlanePath>,
 L<Math::PlanePath::CellularRule54>,
 L<Math::PlanePath::PyramidRows>
 
+L<Cellular::Automata::Wolfram>
+
 http://mathworld.wolfram.com/Rule190.html
 
 =head1 HOME PAGE
@@ -416,7 +418,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

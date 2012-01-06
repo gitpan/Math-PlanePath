@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 5 }
+BEGIN { plan tests => 6 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -30,7 +30,7 @@ use MyOEIS;
 use Math::PlanePath::DragonCurve;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 
 my $dragon  = Math::PlanePath::DragonCurve->new;
@@ -55,6 +55,34 @@ sub xy_is_straight {
   return (($x - $prev_x) == ($next_x - $x)
           && ($y - $prev_y) == ($next_y - $y));
 }
+
+#------------------------------------------------------------------------------
+# A126937 -- points numbered as SquareSpiral
+
+{
+  my $anum = 'A126937';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    require Math::PlanePath::SquareSpiral;
+    my $square  = Math::PlanePath::SquareSpiral->new;
+
+    for (my $n = $dragon->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $dragon->n_to_xy ($n);
+      my $square_n = $square->xy_to_n ($x, -$y) - 1;
+      push @got, $square_n;
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- relative direction");
+}
+
 
 #------------------------------------------------------------------------------
 # A005811 -- total rotation
@@ -89,11 +117,11 @@ sub dxdy_to_direction {
       ($prev_x,$prev_y) = ($x,$y);
     }
     MyTestHelpers::diag ("$anum has $#$bvalues values");
+    ### bvalues: @$bvalues
+    ### @got
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
-  ### bvalues: @$bvalues
-  ### @got
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- total rotation");

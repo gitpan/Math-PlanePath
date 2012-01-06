@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 62;
+$VERSION = 63;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -211,10 +211,17 @@ my %oeis_anum =
    },
 
    'Math::PlanePath::FractionsTree,tree_type=Kepler' =>
-   { X => 'A020651', # numerators, same as AYT numerators
-     Y => 'A086592', # Kepler half-tree denominators
+   { X       => 'A020651', # numerators, same as AYT denominators
+     Y       => 'A086592', # Kepler half-tree denominators
+     DiffYX  => 'A020650', # AYT numerators
+     AbsDiff => 'A020650', # AYT numerators
      # OEIS-Other: A020651 planepath=FractionsTree coordinate_type=X
      # OEIS-Catalogue: A086592 planepath=FractionsTree coordinate_type=Y
+     # OEIS-Other: A020650 planepath=FractionsTree coordinate_type=DiffYX
+     # OEIS-Other: A020650 planepath=FractionsTree coordinate_type=AbsDiff
+     #
+     # cf Sum A086593 every second denominator, but Sum from 1/2 value=3
+     # skipping the initial value=2 in A086593
    },
 
 
@@ -745,10 +752,24 @@ sub values_max {
     my ($self) = @_;
     my ($x_min, $y_min);
     if (defined ($x_min = $self->_NumSeq_Coord_X_min)
-        && $x_min >= 0
         && defined ($y_min = $self->_NumSeq_Coord_Y_min)
+        && $x_min >= 0
         && $y_min >= 0) {
       return $x_min * $y_min;
+    }
+    return undef;
+  }
+  sub _NumSeq_Coord_Product_max {
+    my ($self) = @_;
+    my ($x_max, $y_min);
+    ### X_max: $self->_NumSeq_Coord_X_max
+    ### Y_min: $self->_NumSeq_Coord_Y_min
+    if (defined ($x_max = $self->_NumSeq_Coord_X_max)
+        && defined ($y_min = $self->_NumSeq_Coord_Y_min)
+        && $x_max <= 0
+        && $y_min >= 0) {
+      # X all negative, Y all positive
+      return $y_min * $x_max;
     }
     return undef;
   }
@@ -1045,6 +1066,8 @@ sub values_max {
 # }
 # { package Math::PlanePath::ComplexMinus;
 # }
+# { package Math::PlanePath::ComplexRevolving;
+# }
 { package Math::PlanePath::Rows;
   sub _NumSeq_Coord_X_max {
     my ($self) = @_;
@@ -1089,6 +1112,38 @@ sub values_max {
 }
 # { package Math::PlanePath::PyramidSides;
 # }
+{ package Math::PlanePath::CellularRule;
+  # ENHANCE-ME: more restrictive than this for many rules
+  use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
+  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+}
+{ package Math::PlanePath::CellularRule::Line;
+  sub _NumSeq_Coord_X_max {  # cf X_min from x_negative()
+    my ($path) = @_;
+    return ($path->{'sign'} <= 0 ? 0 : undef);
+  }
+
+  use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
+  sub _NumSeq_Coord_Sum_max {
+    my ($path) = @_;
+    return ($path->{'sign'} == -1 ? 0 : undef);
+  }
+
+  sub _NumSeq_Coord_DiffXY_min {
+    my ($path) = @_;
+    return ($path->{'sign'} == 1 ? 0 : undef);
+  }
+  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+}
+{ package Math::PlanePath::CellularRule::OddSolid;
+  use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
+  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+}
+{ package Math::PlanePath::CellularRule::LeftSolid;
+  use constant _NumSeq_Coord_X_max => 0; # X<=0
+  use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
+  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+}
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
@@ -1275,11 +1330,14 @@ See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
 
 =item C<$seq = Math::NumSeq::PlanePathCoord-E<gt>new (planepath =E<gt> $name, coordinate_type =E<gt> 'X')>
 
-Create and return a new sequence object.  The C<planepath> option is the
-name of one of the C<Math::PlanePath> modules.
+Create and return a new sequence object.  The options are
 
-C<coordinate_type> (a string) is what coordinate from the path is wanted,
-per the choices above.
+    planepath          string, name of a PlanePath module
+    planepath_object   PlanePath object
+    coordinate_type    string, as described above
+
+C<planepath> can be just the module part such as "SquareSpiral" or a full
+class name "Math::PlanePath::SquareSpiral".
 
 =item C<$value = $seq-E<gt>ith($i)>
 
@@ -1311,7 +1369,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -25,7 +25,7 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

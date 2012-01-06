@@ -36,7 +36,7 @@ require Math::PlanePath::HexArms;
 # VERSION
 
 {
-  my $want_version = 62;
+  my $want_version = 63;
   ok ($Math::PlanePath::HexArms::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexArms->VERSION,  $want_version,

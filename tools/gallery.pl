@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -44,6 +44,43 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['complexminus-small.png',
+    "math-image --path=ComplexMinus --expression='i<32?i:0' --scale=2 --size=32"],
+   ['complexminus-big.png',
+    "math-image --path=ComplexMinus --expression='i<1024?i:0' --scale=3 --size=200"],
+
+   ['complexminus-r2-small.png',
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<125?i:0' --scale=2 --size=32"],
+   ['complexminus-r2-big.png',
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
+
+
+   ['complexrevolving-small.png',
+    "math-image --path=ComplexRevolving --expression='i<64?i:0' --scale=2 --size=32"],
+   ['complexrevolving-big.png',
+    "math-image --path=ComplexRevolving --expression='i<4096?i:0' --scale=2 --size=200"],
+
+   ['cellular-rule-30-small.png',
+    'math-image --path=CellularRule,rule=30 --all --scale=2 --size=32'],
+   ['cellular-rule-30-big.png',
+    'math-image --path=CellularRule,rule=30 --all --scale=4 --size=300x150'],
+   ['cellular-rule-73-big.png',
+    'math-image --path=CellularRule,rule=73 --all --scale=4 --size=300x150'],
+
+   ['cellular-rule190-small.png',
+    'math-image --path=CellularRule190 --all --scale=3 --size=32'],
+   ['cellular-rule190-big.png',
+    'math-image --path=CellularRule190 --all --scale=4 --size=300x150'],
+   ['cellular-rule190-mirror-big.png',
+    'math-image --path=CellularRule190,mirror=1 --all --scale=4 --size=300x150'],
+
+   ['cellular-rule54-small.png',
+    'math-image --path=CellularRule54 --all --scale=3 --size=32'],
+   ['cellular-rule54-big.png',
+    'math-image --path=CellularRule54 --all --scale=4 --size=300x150'],
+
+
+
    ['fractions-tree-small.png',
     'math-image --path=FractionsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-12'],
    ['fractions-tree-big.png',
@@ -229,12 +266,12 @@ foreach my $elem
     'math-image --path=CornerReplicate --lines --scale=10 --size=200'],
 
    ['digit-groups-small.png',
-    "math-image --path=DigitGroups --expression='i<255?i:0' --scale=2 --size=32"],
+    "math-image --path=DigitGroups --expression='i<256?i:0' --scale=2 --size=32"],
    #  --foreground=red
    ['digit-groups-big.png',
-    "math-image --path=DigitGroups --expression='i<2047?i:0' --scale=3 --size=200"],
+    "math-image --path=DigitGroups --expression='i<2048?i:0' --scale=3 --size=200"],
    ['digit-groups-radix5-big.png',
-    "math-image --path=DigitGroups,radix=5 --expression='i<15624?i:0' --scale=3 --size=200"],
+    "math-image --path=DigitGroups,radix=5 --expression='i<15625?i:0' --scale=3 --size=200"],
 
    ['h-indexing-small.png',
     'math-image --path=HIndexing --scale=3 --size=32 --lines --offset=2,2'],
@@ -247,20 +284,6 @@ foreach my $elem
     'math-image --path=SierpinskiCurve --lines --scale=3 --size=200'],
    ['sierpinski-curve-8arm-big.png',
     'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
-
-
-   ['cellular-rule190-small.png',
-    'math-image --path=CellularRule190 --all --scale=3 --size=32'],
-   ['cellular-rule190-big.png',
-    'math-image --path=CellularRule190 --all --scale=4 --size=300x150'],
-   ['cellular-rule190-mirror-big.png',
-    'math-image --path=CellularRule190,mirror=1 --all --scale=4 --size=300x150'],
-
-   ['cellular-rule54-small.png',
-    'math-image --path=CellularRule54 --all --scale=3 --size=32'],
-   ['cellular-rule54-big.png',
-    'math-image --path=CellularRule54 --all --scale=4 --size=300x150'],
-
 
 
    ['sierpinski-arrowhead-centres-small.png',
@@ -346,17 +369,6 @@ foreach my $elem
     'math-image --path=SquareSpiral,wider=4 --lines --scale=13 --size=253x200'],
 
 
-   ['complexminus-small.png',
-    "math-image --path=ComplexMinus --expression='i<31?i:0' --scale=2 --size=32"],
-   ['complexminus-big.png',
-    "math-image --path=ComplexMinus --expression='i<1023?i:0' --scale=3 --size=200"],
-
-   ['complexminus-r2-small.png',
-    "math-image --path=ComplexMinus,realpart=2 --expression='i<124?i:0' --scale=2 --size=32"],
-   ['complexminus-r2-big.png',
-    "math-image --path=ComplexMinus,realpart=2 --expression='i<3124?i:0' --scale=1 --size=200"],
-
-
    ['pixel-small.png',
     'math-image --path=PixelRings --lines --scale=4 --size=32'],
    ['pixel-big.png',
@@ -365,9 +377,9 @@ foreach my $elem
     'math-image --path=PixelRings --lines --scale=10 --size=200'],
 
    ['quintet-replicate-small.png',
-    "math-image --path=QuintetReplicate --expression='i<124?i:0' --scale=2 --size=32"],
+    "math-image --path=QuintetReplicate --expression='i<125?i:0' --scale=2 --size=32"],
    ['quintet-replicate-big.png',
-    "math-image --path=QuintetReplicate --expression='i<3124?i:0' --scale=2 --size=200"],
+    "math-image --path=QuintetReplicate --expression='i<3125?i:0' --scale=2 --size=200"],
 
    ['quintet-curve-small.png',
     'math-image --path=QuintetCurve --lines --scale=4 --size=32 --offset=-10,0'],

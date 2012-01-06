@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 371 }
+BEGIN { plan tests => 373 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::ComplexMinus;
 # VERSION
 
 {
-  my $want_version = 62;
+  my $want_version = 63;
   ok ($Math::PlanePath::ComplexMinus::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ComplexMinus->VERSION,  $want_version,
@@ -69,6 +69,8 @@ require Math::PlanePath::ComplexMinus;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->class_x_negative, 1, 'class_x_negative() instance method');
+  ok ($path->class_y_negative, 1, 'class_y_negative() instance method');
 }
 {
   my @pnames = map {$_->{'name'}}

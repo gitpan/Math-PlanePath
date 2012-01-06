@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -31,8 +31,8 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
-use constant x_negative => 0;
-use constant y_negative => 0;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 sub new {
   my $self = shift->SUPER::new (@_);
@@ -184,7 +184,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 217)[1];
+my $test_count = (tests => 219)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -468,6 +468,7 @@ my @modules = (
                
                'SquareReplicate',
                'ComplexMinus',
+               'ComplexRevolving',
                'ImaginaryBase',
                
                # 'File',  # not applicable

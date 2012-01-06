@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -16,4 +16,5 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+CFLAGS = -Wall -O2
 LOADLIBES = -lm

@@ -14,6 +14,7 @@ devel/bigint-lite.pl
 devel/bignums.pl
 devel/c-curve.pl
 devel/complex-minus.pl
+devel/complex-revolving.pl
 devel/cont-frac.pl
 devel/coprime.pl
 devel/digit-groups.pl
@@ -21,6 +22,8 @@ devel/divisible.pl
 devel/dragon-numbers.pl
 devel/dragon.pl
 devel/exe-atan2.c
+devel/exe-complex-minus.c
+devel/factor-rationals.pl
 devel/fibonacci-word.pl
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
@@ -57,7 +60,7 @@ devel/pythagorean.pl
 devel/quadric.pl
 devel/quintet.pl
 devel/r5.pl
-devel/rationals.pl
+devel/rationals-tree.pl
 devel/rows.pl
 devel/rule-xpm.pl
 devel/rule.pl
@@ -66,6 +69,7 @@ devel/run.pl
 devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
 devel/sierpinski-curve.pl
+devel/sierpinski-triangle.pl
 devel/StaircaseAlternatingContinuous.pm
 devel/svg.pl
 devel/terdragon.pl
@@ -76,6 +80,7 @@ devel/ulam-warburton.pl
 devel/unused.pl
 devel/vertical.pl
 devel/vogel.pl
+examples/cellular-rules.pl
 examples/hilbert-oeis.pl
 examples/hilbert-path.pl
 examples/knights-oeis.pl
@@ -90,16 +95,19 @@ inc/MyMakeMakerExtras.pm
 lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm
 lib/Math/NumSeq/PlanePathCoord.pm
 lib/Math/NumSeq/PlanePathDelta.pm
+lib/Math/NumSeq/PlanePathN.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/AR2W2Curve.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
 lib/Math/PlanePath/BetaOmega.pm
+lib/Math/PlanePath/CellularRule.pm
 lib/Math/PlanePath/CellularRule190.pm
 lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/CincoCurve.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm
+lib/Math/PlanePath/ComplexRevolving.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/CornerReplicate.pm
@@ -190,6 +198,7 @@ t/bigint-lite.t
 t/bigint.t
 t/bigint_common.pm
 t/bigrat.t
+t/CellularRule.t
 t/CellularRule190.t
 t/CincoCurve.t
 t/Columns-load.t
@@ -281,6 +290,7 @@ xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
+xt/CellularRule-oeis.t
 xt/CellularRule190-oeis.t
 xt/CellularRule54-oeis.t
 xt/CoprimeColumns-oeis.t

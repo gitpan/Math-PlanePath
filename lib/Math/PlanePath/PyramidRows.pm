@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,7 +22,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 62;
+$VERSION = 63;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -33,11 +33,12 @@ use Math::PlanePath;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
 sub x_negative {
   my ($self) = @_;
   return ($self->{'step'} >= 2);
 }
-use constant y_negative => 0;
+use constant class_y_negative => 0;
 
 use constant parameter_info_array => [{ name      => 'step',
                                         share_key => 'pyramid_step',
@@ -57,6 +58,7 @@ sub new {
     (! defined $step ? 2 # default
      : $step < 0     ? 0 # minimum
      : $step);
+  ### $step
   return $self;
 }
 
@@ -467,7 +469,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
