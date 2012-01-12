@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -282,7 +282,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks Xlo=-9 Xhi=+9 Ypeak
+=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks Xlo=-9 Xhi=+9 Ypeak Xlo,Xhi
 
 =head1 NAME
 

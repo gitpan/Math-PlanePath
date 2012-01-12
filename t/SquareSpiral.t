@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 154 }
+BEGIN { plan tests => 156 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 63;
+  my $want_version = 64;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
@@ -266,8 +266,6 @@ require Math::PlanePath::SquareSpiral;
 }
 
 
-
-
 #------------------------------------------------------------------------------
 # n_start, x_negative, y_negative
 
@@ -276,6 +274,8 @@ require Math::PlanePath::SquareSpiral;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative() instance method');
   ok ($path->y_negative, 1, 'y_negative() instance method');
+  ok ($path->class_x_negative, 1, 'class_x_negative()');
+  ok ($path->class_y_negative, 1, 'class_y_negative()');
 }
 {
   my @pnames = map {$_->{'name'}}

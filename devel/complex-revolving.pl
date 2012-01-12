@@ -27,8 +27,8 @@ use Smart::Comments;
 {
   # min/max for level
   $|=1;
-  require Math::PlanePath::MathImageComplexRevolving;
-  my $path = Math::PlanePath::MathImageComplexRevolving->new;
+  require Math::PlanePath::ComplexRevolving;
+  my $path = Math::PlanePath::ComplexRevolving->new;
   my $prev_max = 1;
   my @min = (1);
   for (my $level = 1; $level < 25; $level++) {
@@ -88,7 +88,7 @@ use Smart::Comments;
 }
 
 {
-  require Math::PlanePath::MathImageComplexRevolving;
+  require Math::PlanePath::ComplexRevolving;
   require Image::Base::Text;
   my $realpart = 2;
   my $radix = $realpart*$realpart + 1;

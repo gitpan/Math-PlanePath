@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 596 }
+BEGIN { plan tests => 599 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::DragonCurve;
 # VERSION
 
 {
-  my $want_version = 63;
+  my $want_version = 64;
   ok ($Math::PlanePath::DragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonCurve->VERSION,  $want_version,
@@ -62,6 +62,88 @@ require Math::PlanePath::DragonCurve;
 }
 
 #------------------------------------------------------------------------------
+# turn sequence claimed in the pod
+
+{
+  # with Y reckoned increasing upwards
+  sub dxdy_to_dir {
+    my ($dx, $dy) = @_;
+    if ($dx > 0) { return 0; }  # east
+    if ($dx < 0) { return 2; }  # west
+    if ($dy > 0) { return 1; }  # north
+    if ($dy < 0) { return 3; }  # south
+  }
+
+  sub path_n_dir {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    return dxdy_to_dir ($next_x - $x,
+                        $next_y - $y);
+  }
+
+  # return 0 for left, 1 for right
+  sub path_n_turn {
+    my ($path, $n) = @_;
+    my $prev_dir = path_n_dir ($path, $n-1);
+    my $dir = path_n_dir ($path, $n);
+    my $turn = ($dir - $prev_dir) % 4;
+    if ($turn == 1) { return 0; }
+    if ($turn == 3) { return 1; }
+    die "Oops, unrecognised turn";
+  }
+
+  # return 0 for left, 1 for right
+  sub calc_n_turn {
+    my ($n) = @_;
+
+    my $mask = $n & -$n;      # 000100..00
+    my $z = $n & ($mask << 1);
+    my $turn = ($z == 0 ? 0 : 1);
+    # printf "%b   %b  %b  %d\n", $n,$mask, $z, $turn;
+    return $turn;
+
+    die if $n == 0;
+    while (($n % 2) == 0) {
+      $n = int($n/2); # skip low 0s
+    }
+    $n = int($n/2);   # skip lowest 1
+    return ($n % 2);  # next bit is the turn
+  }
+
+  # return 0 for left, 1 for right
+  sub calc_n_next_turn {
+    my ($n) = @_;
+    my $mask = $n ^ ($n+1);      # low bits 000111..11
+    my $z = $n & ($mask + 1);    # the solitary bit above it
+    my $turn = ($z == 0 ? 0 : 1);
+    return $turn;
+  }
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $bad = 0;
+  foreach my $n ($path->n_start + 1 .. 500) {
+    {
+      my $path_turn = path_n_turn ($path, $n);
+      my $calc_turn = calc_n_turn ($n);
+      if ($path_turn != $calc_turn) {
+        MyTestHelpers::diag ("turn n=$n  path $path_turn calc $calc_turn");
+        last if $bad++ > 10;
+      }
+    }
+    {
+      my $path_turn = path_n_turn ($path, $n+1);
+      my $calc_turn = calc_n_next_turn ($n);
+      if ($path_turn != $calc_turn) {
+        MyTestHelpers::diag ("next turn n=$n  path $path_turn calc $calc_turn");
+        last if $bad++ > 10;
+      }
+    }
+  }
+  ok ($bad, 0, "turn sequence");
+}
+
+#------------------------------------------------------------------------------
 # n_start, x_negative, y_negative
 
 {
@@ -69,6 +151,8 @@ require Math::PlanePath::DragonCurve;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->class_x_negative, 1, 'class_x_negative()');
+  ok ($path->class_y_negative, 1, 'class_y_negative()');
 }
 {
   my @pnames = map {$_->{'name'}}

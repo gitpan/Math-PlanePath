@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 219)[1];
+my $test_count = (tests => 241)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -369,6 +369,18 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'TerdragonCurve',
+               'TerdragonCurve,arms=1',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=6',
+
+               'OctagramSpiral',
+               'AnvilSpiral',
+               'AnvilSpiral,wider=1',
+               'AnvilSpiral,wider=2',
+               'AnvilSpiral,wider=9',
+               'AnvilSpiral,wider=17',
+
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
                'AR2W2Curve,start_shape=B2',
@@ -431,6 +443,7 @@ my @modules = (
                'QuadricCurve',
                'QuadricIslands',
                
+               'AlternatePaper',
                'DragonRounded',
                'DragonMidpoint',
                'DragonCurve',
@@ -456,7 +469,6 @@ my @modules = (
                # 'TriangularHypot',  # counting by N
                'PythagoreanTree',
                
-               'OctagramSpiral',
                # 'Hypot',            # searching by N
                # 'HypotOctant',      # searching by N
                # 'PixelRings',       # searching by N
@@ -467,6 +479,7 @@ my @modules = (
                'QuintetReplicate',
                
                'SquareReplicate',
+               'ComplexPlus',
                'ComplexMinus',
                'ComplexRevolving',
                'ImaginaryBase',

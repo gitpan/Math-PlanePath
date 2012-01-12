@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 827 }
+BEGIN { plan tests => 877 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,33 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'ComplexPlus',
+               'ComplexPlus,realpart=2',
+               'ComplexPlus,realpart=3',
+               'ComplexPlus,realpart=4',
+               'ComplexPlus,realpart=5',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=1',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=6',
+
+               'AlternatePaper',
+
+               'ComplexMinus',
+               'ComplexMinus,realpart=2',
+               'ComplexMinus,realpart=3',
+               'ComplexMinus,realpart=4',
+               'ComplexMinus,realpart=5',
+               'ComplexRevolving',
+
+               'OctagramSpiral',
+               'AnvilSpiral',
+               'AnvilSpiral,wider=1',
+               'AnvilSpiral,wider=2',
+               'AnvilSpiral,wider=9',
+               'AnvilSpiral,wider=17',
 
                'CellularRule',
                'CellularRule,rule=0',   # blank
@@ -185,12 +212,6 @@ my @modules = (
                'GosperIslands',
 
                'SquareReplicate',
-               'ComplexMinus',
-               'ComplexMinus,realpart=2',
-               'ComplexMinus,realpart=3',
-               'ComplexMinus,realpart=4',
-               'ComplexMinus,realpart=5',
-               'ComplexRevolving',
                'ImaginaryBase',
                'ImaginaryBase,radix=3',
                'ImaginaryBase,radix=37',
@@ -231,7 +252,6 @@ my @modules = (
                'ZOrderCurve,radix=9',
                'ZOrderCurve,radix=37',
 
-               'OctagramSpiral',
                'Hypot',
                'HypotOctant',
                'PixelRings',
@@ -288,7 +308,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 63;
+my $want_version = 64;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -341,6 +361,12 @@ foreach my $mod (@modules) {
 
 my %xy_maximum_duplication =
   ('Math::PlanePath::DragonCurve' => 2,
+   'Math::PlanePath::AlternatePaper' => 2,
+   'Math::PlanePath::TerdragonCurve' => 3,
+  );
+my %xy_maximum_duplication_at_origin =
+  ('Math::PlanePath::DragonCurve' => 4,
+   'Math::PlanePath::TerdragonCurve' => 6,
   );
 
 # modules for which rect_to_n_range() is exact
@@ -440,8 +466,9 @@ my %class_dxdy_allowed
      'Math::PlanePath::Flowsnake'        => $dxdy_hex,
      'Math::PlanePath::FlowsnakeCentres' => $dxdy_hex,
      'Math::PlanePath::GosperSide'       => $dxdy_hex,
+     'Math::PlanePath::TerdragonCurve'   => $dxdy_hex,
 
-     'Math::PlanePath::KochCurve'   => $dxdy_hex,
+     'Math::PlanePath::KochCurve'        => $dxdy_hex,
      # except for jumps at ends/rings
      # 'Math::PlanePath::KochPeaks'      => $dxdy_hex,
      # 'Math::PlanePath::KochSnowflakes' => $dxdy_hex,
@@ -786,7 +813,10 @@ sub pythagorean_diag {
                ? sprintf('%d,%d', $x,$y)
                : sprintf('%.3f,%.3f', $x,$y));
       if ($count_n_to_xy{$k}++ > $xy_maximum_duplication) {
+        unless ($x == 0 && $y == 0
+                && $count_n_to_xy{$k} <= $xy_maximum_duplication_at_origin{$class}) {
         &$report ("n_to_xy($n) duplicate$count_n_to_xy{$k} xy=$k prev n=$saw_n_to_xy{$k}");
+      }
       }
       $saw_n_to_xy{$k} = $n;
 
@@ -882,7 +912,11 @@ sub pythagorean_diag {
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || $path->isa('Math::PlanePath::QuintetCentres')
           || $mod eq 'ImaginaryBase,radix=37'
-          || $mod eq 'GreekKeySpiral',
+          || $mod eq 'GreekKeySpiral'
+          || $mod eq 'ComplexPlus,realpart=2'
+          || $mod eq 'ComplexPlus,realpart=3'
+          || $mod eq 'ComplexPlus,realpart=4'
+          || $mod eq 'ComplexPlus,realpart=5'
          ) {
         # these don't get to X negative in small rectangle
         $got_x_negative = 1;
@@ -898,12 +932,22 @@ sub pythagorean_diag {
       if ($path->isa('Math::PlanePath::GosperSide')
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || $path->isa('Math::PlanePath::GreekKeySpiral')
-          || $path->isa('Math::PlanePath::ComplexMinus')
           || $mod eq 'SquareSpiral,wider=37'
           || $mod eq 'HexSpiral,wider=37'
           || $mod eq 'HexSpiralSkewed,wider=37'
           || $mod eq 'ImaginaryBase,radix=37'
+          || $mod eq 'ComplexPlus'
+          || $mod eq 'ComplexPlus,realpart=2'
+          || $mod eq 'ComplexPlus,realpart=3'
+          || $mod eq 'ComplexPlus,realpart=4'
+          || $mod eq 'ComplexPlus,realpart=5'
+          || $mod eq 'ComplexMinus,realpart=3'
+          || $mod eq 'ComplexMinus,realpart=4'
           || $mod eq 'ComplexMinus,realpart=5'
+          || $mod eq 'AnvilSpiral,wider=17'
+          || $mod eq 'TerdragonCurve'
+          || $mod eq 'TerdragonCurve,arms=1'
+          || $mod eq 'TerdragonCurve,arms=2'
          ) {
         # GosperSide and Flowsnake take a long time to get
         # to Y negative, not reached by the rectangle

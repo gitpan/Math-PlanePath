@@ -22,10 +22,11 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 63;
+$VERSION = 64;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
+use constant 1.02;
 use Math::NumSeq::PlanePathCoord;
 
 # uncomment this to run the ### lines
@@ -171,6 +172,13 @@ my %oeis_anum
      # # Diagonal => 'A054554', # spoke NE
      # # # OEIS-Catalogue: A054556 planepath=SquareSpiral line_type=Y_axis
      # # # OEIS-Catalogue: A054554 planepath=SquareSpiral line_type=Diagonal
+
+     'Math::PlanePath::AlternatePaper' =>
+     { X_axis   => 'A000695',  # base 4 digits 0,1 only
+       Diagonal => 'A062880',  # base 4 digits 0,2 only
+       # OEIS-Other: A000695 planepath=AlternatePaper
+       # OEIS-Other: A062880 planepath=AlternatePaper line_type=Diagonal
+     },
 
      # TriangleSpiral - cf A062728 SE diagonal offset 1 but it starts n=0
      #
@@ -431,6 +439,11 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
+{ package Math::PlanePath::AnvilSpiral;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
 # { package Math::PlanePath::KnightSpiral;
 # }
 # { package Math::PlanePath::SquareArms;
@@ -568,6 +581,12 @@ sub values_max {
 # }
 # { package Math::PlanePath::DragonMidpoint;
 # }
+# { package Math::PlanePath::AlternatePaper;
+# }
+# { package Math::PlanePath::TerdragonCurve;
+# }
+# { package Math::PlanePath::ComplexPlus;
+# }
 # { package Math::PlanePath::ComplexMinus;
 # }
 # { package Math::PlanePath::ComplexRevolving;
@@ -683,7 +702,7 @@ sub pred {
   return &{$self->{'pred_handler'} || return undef} ($value);
 }
 
-=for stopwords Ryde  PlanePath
+=for stopwords Ryde PlanePath SquareSpiral
 
 =head1 NAME
 
@@ -734,7 +753,6 @@ class name "Math::PlanePath::SquareSpiral".
 L<Math::NumSeq>,
 L<Math::NumSeq::PlanePathCoord>,
 L<Math::NumSeq::PlanePathDelta>
-
 
 =head1 HOME PAGE
 

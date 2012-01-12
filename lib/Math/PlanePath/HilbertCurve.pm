@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -296,7 +296,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI ascii lookup
+=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
 
 =head1 NAME
 
@@ -499,7 +499,7 @@ state+coverage -E<gt> digit gives the minimum and maximum N bit-pair, and
 state+digit gives a new state the same as X,Y to N.
 
 Biggest and smallest N must be calculated with separate state and X,Y values
-sicne they track down different N bits and thus different states.  But they
+since they track down different N bits and thus different states.  But they
 take the same number of steps from an enclosing level down to level 0 and
 can thus be done in a single loop.
 

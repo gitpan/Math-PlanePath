@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -39,7 +39,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 # new in 5.6, so unless got it separately with 5.005
 eval { require Pod::Parser }
   or plan skip_all => "Pod::Parser not available -- $@";
-plan tests => 5;
+plan tests => 6;
 
 my $toplevel_dir = File::Spec->catdir ($FindBin::Bin, File::Spec->updir);
 my $manifest_file = File::Spec->catfile ($toplevel_dir, 'MANIFEST');
@@ -71,7 +71,7 @@ diag "module count ",scalar(@lib_modules);
 
     my $s = join(', ',@see_also);
     my $l = join(', ',@lib_modules);
-    is ($s, $l);
+    is ($s, $l, 'PlanePath.pm pod SEE ALSO');
 
     my $j = "$s\n$l";
     $j =~ /^(.*)(.*)\n\1(.*)/ or die;
@@ -96,7 +96,7 @@ diag "module count ",scalar(@lib_modules);
 
     my $s = join(', ',@list);
     my $l = join(', ',@lib_modules);
-    is ($s, $l);
+    is ($s, $l, 'PlanePath.pm pod class list');
 
     my $j = "$s\n$l";
     $j =~ /^(.*)(.*)\n\1(.*)/ or die;
@@ -138,7 +138,7 @@ diag "module count ",scalar(@lib_modules);
 
     my $s = join(', ',@list);
     my $l = join(', ',@lib_modules);
-    is ($s, $l, 'step/base pod lists');
+    is ($s, $l, 'PlanePath.pm step/base pod lists');
 
     my $j = "$s\n$l";
     $j =~ /^(.*)(.*)\n\1(.*)/ or die;
@@ -174,7 +174,7 @@ diag "module count ",scalar(@lib_modules);
 
     my $s = join(', ',@list);
     my $l = join(', ',@lib_modules);
-    is ($s, $l);
+    is ($s, $l, 't/PlanePath-subclasses.t');
 
     my $j = "$s\n$l";
     $j =~ /^(.*)(.*)\n\1(.*)/ or die;
@@ -224,6 +224,43 @@ diag "module count ",scalar(@lib_modules);
       $content =~ /^# (not )?exact\nsub rect_to_n_range /m
         or die "$filename no exact comment";
       return $1 ? 0 : 1;
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
+# numbers.pl
+
+{
+  open FH, 'examples/numbers.pl' or die $!;
+  my $content = do { local $/; <FH> }; # slurp
+  close FH or die;
+  ### $content
+
+  {
+    $content =~ /my \@all_classes = \((.*)# expand arg "all"/s
+      or die "module list not matched";
+    my $list = $1;
+
+    my @list = ('File');
+    my %seen;
+    while ($list =~ /'([A-Z][^',]+)/ig) {
+      next if $seen{$1}++;
+      push @list, $1;
+    }
+    @list = sort @list;
+
+    my $s = join(', ',@list);
+    my $l = join(', ',@lib_modules);
+    is ($s, $l, 'numbers.pl all_classes');
+
+    my $j = "$s\n$l";
+    $j =~ /^(.*)(.*)\n\1(.*)/ or die;
+    my $sd = $2;
+    my $ld = $3;
+    if ($sd) {
+      diag "numbers.pl list:  ",$sd;
+      diag "library: ",$ld;
     }
   }
 }

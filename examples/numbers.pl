@@ -88,6 +88,8 @@ my @all_classes = ('SquareSpiral',
                    'HexSpiralSkewed',
                    'HexSpiralSkewed,wider=5',
                    'HeptSpiralSkewed',
+                   'AnvilSpiral',
+                   'AnvilSpiral,wider=3',
                    'OctagramSpiral',
 
                    'PyramidSpiral',
@@ -119,6 +121,7 @@ my @all_classes = ('SquareSpiral',
 
                    'SacksSpiral',
                    'VogelFloret',
+                   'ArchimedeanChords',
                    'TheodorusSpiral',
                    'MultipleRings',
                    'MultipleRings,step=14',
@@ -194,6 +197,11 @@ my @all_classes = ('SquareSpiral',
                    'DragonMidpoint,arms=2',
                    'DragonMidpoint,arms=3',
                    'DragonMidpoint,arms=4',
+                   'AlternatePaper',
+                   'TerdragonCurve',
+                   'TerdragonCurve,arms=6',
+                   'ComplexPlus',
+                   'ComplexPlus,realpart=2',
                    'ComplexMinus',
                    'ComplexMinus,realpart=2',
                    'ComplexRevolving',
@@ -290,7 +298,7 @@ sub print_class {
     $y = POSIX::floor ($y + 0.5);
 
     my $cell = $rows{$x}{$y};
-    if ($cell) { $cell .= ','; }
+    if (defined $cell) { $cell .= ','; }
     $cell .= $n;
     my $new_cellwidth = max ($cellwidth, length($cell) + 1);
 

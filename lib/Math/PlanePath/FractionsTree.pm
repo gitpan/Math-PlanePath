@@ -16,12 +16,18 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# PowerPart has mostly square-free for X/Y > 1/2, then wedge of mostly
+# multiple of 4, then mostly multiple of 16, then wedge of higher powers
+# of 2.  Similar in AYT.
+
+
+
 package Math::PlanePath::FractionsTree;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -224,7 +230,7 @@ sub _bingcd_max {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime RationalsTree Harmonices Mundi
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime RationalsTree Harmonices Mundi octant onwards Aiton
 
 =head1 NAME
 

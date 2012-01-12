@@ -16,6 +16,9 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=GcdRationals --expression='i<30*31/2?i:0' --text --size=40
+# 
+
 # Y = v = j/g
 # X = (g-1)*v + u
 #   = (g-1)*j/g + i/g
@@ -45,7 +48,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -251,7 +254,7 @@ sub _gcd {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd  PyramidRows
+=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd PyramidRows Fortnow
 
 =head1 NAME
 

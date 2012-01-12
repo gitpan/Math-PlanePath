@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,8 +26,7 @@ use Math::Polynomial::Horner;
 
 #use Devel::Comments;
 
-my_interpolate ([0,1,2,3,4],[0,2,6,12,20]
-);
+my_interpolate ([1,2,3,4],[1+4,12+4+8,35+4+8+8,70+4+8+8+8]);
 exit 0;
 
   

@@ -26,7 +26,7 @@ use strict;
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -192,10 +192,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiArrowhead rect_to_n_range() ...
-  
+
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
-  
+
   my ($power,$level) = _round_down_pow ($y2-1, 2);
   ### $y2
   ### $level
@@ -242,9 +242,9 @@ __END__
 #   * * * * * * * *    8 /
 #  *               *   2 \
 # * *             * *  4 | 2x prev 8
-# 
+#
 # cumulative
-# 
+#
 # 1
 # 3
 # 5

@@ -44,15 +44,59 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['complexplus-small.png',
+    "math-image --path=ComplexPlus --all --scale=2 --size=32"],
+   ['complexplus-big.png',
+    "math-image --path=ComplexPlus --all --scale=3 --size=200"],
+   ['complexplus-r2-small.png',
+    "math-image --path=ComplexPlus,realpart=2 --all --scale=2 --size=32"],
+   ['complexplus-r2-big.png',
+    "math-image --path=ComplexPlus,realpart=2 --all --scale=1 --size=200"],
+
+
    ['complexminus-small.png',
     "math-image --path=ComplexMinus --expression='i<32?i:0' --scale=2 --size=32"],
    ['complexminus-big.png',
     "math-image --path=ComplexMinus --expression='i<1024?i:0' --scale=3 --size=200"],
-
    ['complexminus-r2-small.png',
     "math-image --path=ComplexMinus,realpart=2 --expression='i<125?i:0' --scale=2 --size=32"],
    ['complexminus-r2-big.png',
     "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
+
+
+   ['terdragon-small.png',
+    'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
+   ['terdragon-big.png',
+    'math-image --path=TerdragonCurve --lines --figure=point --scale=8 --size=200 --offset=70,0'],
+
+
+   ['alternate-paper-small.png',
+    'math-image --path=AlternatePaper --lines --scale=4 --size=32 --offset=2,2'],
+   ['alternate-paper-big.png',
+    'math-image --path=AlternatePaper --lines --figure=point --scale=8 --size=200 --offset=4,4'],
+
+
+   ['vogel-small.png',
+    'math-image --path=VogelFloret --all --scale=3 --size=32'],
+   ['vogel-big.png',
+    'math-image --path=VogelFloret --all --scale=4 --size=200'],
+   ['vogel-sqrt2-big.png',
+    'math-image --path=VogelFloret,rotation_type=sqrt2 --all --scale=4 --size=200'],
+   ['vogel-sqrt5-big.png',
+    'math-image --path=VogelFloret,rotation_type=sqrt5 --all --scale=4 --size=200'],
+
+
+   ['anvil-small.png',
+    'math-image --path=AnvilSpiral --lines --scale=4 --size=32'],
+   ['anvil-big.png',
+    'math-image --path=AnvilSpiral --lines --scale=13 --size=200'],
+   ['anvil-wider4-big.png',
+    'math-image --path=AnvilSpiral,wider=4 --lines --scale=13 --size=200'],
+
+   ['octagram-small.png',
+    'math-image --path=OctagramSpiral --lines --scale=4 --size=32'],
+   ['octagram-big.png',
+    'math-image --path=OctagramSpiral --lines --scale=13 --size=200'],
 
 
    ['complexrevolving-small.png',
@@ -353,14 +397,6 @@ foreach my $elem
     'math-image --path=GosperIslands --lines --scale=2 --size=250x200'],
 
 
-   ['vogel-small.png',
-    'math-image --vogel --all --scale=3 --size=32'],
-   ['vogel-big.png',
-    'math-image --vogel --all --scale=4 --size=200'],
-   ['vogel-sqrt5-big.png',
-    'math-image --path=VogelFloret,rotation_type=sqrt5 --all --scale=4 --size=200'],
-
-
    ['square-small.png',
     'math-image --path=SquareSpiral --lines --scale=4 --size=32'],
    ['square-big.png',
@@ -542,11 +578,6 @@ foreach my $elem
    ['knight-big.png',
     'math-image --path=KnightSpiral --lines --scale=11 --size=197'],
 
-   ['octagram-small.png',
-    'math-image --path=OctagramSpiral --lines --scale=4 --size=32'],
-   ['octagram-big.png',
-    'math-image --path=OctagramSpiral --lines --scale=13 --size=200'],
-
    ['multiple-small.png',
     'math-image --path=MultipleRings --lines --scale=4 --size=32'],
    ['multiple-big.png',
@@ -581,17 +612,33 @@ foreach my $elem
   system('pngtextadd','--keyword=Generator','--text=gallery.pl and math-image',$tempfile) == 0
     or die "system(pngtextadd)";
 
+  $command =~ /--path=([^ ]+)/ or die "Oops no --path in command: $command";
+  my $title = $1;
+  if ($command =~ /--values=(Fibbinary)/) {
+    $title .= " $1";
+  }
+  system('pngtextadd','--keyword=Title',"--text=$title",$tempfile) == 0
+    or die "system(pngtextadd)";
+
   my $targetfile = "$target_dir/$filename";
   if (File::Compare::compare($tempfile,$targetfile) == 0) {
     print "Unchanged $filename\n";
   } else {
     print "Update $filename\n";
-    File::Copy::move($tempfile,$targetfile);
+    File::Copy::copy($tempfile,$targetfile);
   }
-  if ($filename =~ /big/) {
+  if ($filename !~ /small/) {
     $big_bytes += -s $targetfile;
   }
 }
+
+foreach my $filename (<*.png>) {
+  $filename =~ s{.*/}{};
+  if (! $seen_filename{$filename}) {
+    print "leftover file: $filename\n";
+  }
+}
+
 
 my $gallery_html_filename = "$target_dir/gallery.html";
 my $gallery_html_bytes = -s $gallery_html_filename;

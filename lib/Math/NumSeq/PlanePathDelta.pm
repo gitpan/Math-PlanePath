@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 63;
+$VERSION = 64;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -589,6 +589,14 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_min => 1;
   use constant _NumSeq_Delta_DistSquared_max => 2;
 }
+{ package Math::PlanePath::AnvilSpiral;
+  use constant _NumSeq_Delta_dX_min => -1;
+  use constant _NumSeq_Delta_dX_max => 1;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Delta_DistSquared_max => 2;
+}
 { package Math::PlanePath::KnightSpiral;
   use constant _NumSeq_Delta_dX_min => -2;
   use constant _NumSeq_Delta_dX_max => 2;
@@ -855,6 +863,25 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_min => 1;
   use constant _NumSeq_Delta_DistSquared_max => 1;
 }
+{ package Math::PlanePath::AlternatePaper;
+  use constant _NumSeq_Delta_dX_min => -1;
+  use constant _NumSeq_Delta_dX_max => 1;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Delta_DistSquared_max => 1;
+}
+{ package Math::PlanePath::TerdragonCurve;
+  use constant _NumSeq_Delta_dX_min => -2;
+  use constant _NumSeq_Delta_dX_max => 2;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 2;
+  use constant _NumSeq_Delta_DistSquared_max => 4;
+}
+{ package Math::PlanePath::ComplexPlus;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+}
 { package Math::PlanePath::ComplexMinus;
   use constant _NumSeq_Delta_DistSquared_min => 1;
 }
@@ -870,13 +897,13 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'width'} == 1
             ? 1   # north only
-            : 0)  # E to NW
+            : 0); # E to NW
   }
   sub _NumSeq_Delta_Dir4_max {
     my ($self) = @_;
     return ($self->{'width'} == 1
             ? 1   # north only
-            : 2)  # E to NW only, not South
+            : 2); # E to NW only, not South
   }
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_min => 0;
@@ -906,13 +933,13 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'width'} == 1
             ? 0   # east only
-            : 3)  # N to SE
+            : 3); # N to SE
   }
   sub _NumSeq_Delta_Dir4_max {
     my ($self) = @_;
     return ($self->{'width'} == 1
             ? 0   # east only
-            : 3)  # N to SE
+            : 3); # N to SE
   }
   use constant _NumSeq_Delta_DistSquared_min => 1;
 
@@ -1181,7 +1208,7 @@ __END__
 # }
 
 
-=for stopwords Ryde TDir6 Math-NumSeq
+=for stopwords Ryde TDir6 Math-NumSeq PlanePath NumSeq SquareSpiral
 
 =head1 NAME
 

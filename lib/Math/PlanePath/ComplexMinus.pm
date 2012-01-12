@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,10 +25,11 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -98,8 +99,9 @@ sub n_to_xy {
 
     # (dx,dy) = (dx + i*dy)*(i-$realpart)
     $dy = -$dy;
-    ($dx,$dy) = ($dy - $realpart*$dx, $dx + $realpart*$dy);
- }
+    ($dx,$dy) = ($dy - $realpart*$dx,
+                 $dx + $realpart*$dy);
+  }
 
   ### final: "$x,$y"
   return ($x,$y);
@@ -146,24 +148,22 @@ sub xy_to_n {
   return $n;
 }
 
+# for i-1 need level=6 to cover 8 points surrounding 0,0
+# for i-2 and higher level=3 is enough
+
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### ComplexMinus rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = abs($x1);
-  $y1 = abs($y1);
-  $x2 = abs($x2);
-  $y2 = abs($y2);
-  my $xm = ($x1 > $x2 ? $x1 : $x2);
-  my $ym = ($y1 > $y2 ? $y1 : $y2);
-  my $h = $xm*$xm + $ym*$ym;
+  my $xm = _max(abs($x1),abs($x2));
+  my $ym = _max(abs($y1),abs($y2));
 
-  my $rp1 = $self->{'realpart'} + 1;
-
-  my $level = ceil(log($h + $rp1) / log($rp1 - .1)) + 6;
-  ### $level
-  return (0, $self->{'norm'}**$level - 1);
+  return (0,
+          int (($xm*$xm + $ym*$ym)
+               * $self->{'norm'} ** ($self->{'realpart'} > 1
+                                     ? 4
+                                     : 8)));
 }
 
 1;
@@ -183,8 +183,8 @@ Math::PlanePath::ComplexMinus -- twindragon and other complex number base i-r
 
 =head1 DESCRIPTION
 
-This path traverses points by a complex number base i-r for integer r.  The
-default is base i-1 giving the "twindragon" shape.
+This path traverses points by a complex number base i-r for given integer r.
+The default is base i-1 which is the "twindragon" shape.
 
            26  27          10  11                             3
                24  25           8   9                         2
@@ -204,15 +204,15 @@ In base b=i-1 a complex integer can be represented
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-The digits a[n] to a[0] are all either 0 or 1.  N is those a[i] as bits and
-X,Y is the resulting complex number.  It can be shown that this is a
-one-to-one transformation so every integer point of the plane is visited.
+The digits a[n] to a[0] are all either 0 or 1.  N is those a[i] digits as
+bits and X,Y is the resulting complex number.  It can be shown that this is
+a one-to-one mapping so every integer point of the plane is visited.
 
-The shape of an N=0 to N=2^level-1 range is repeated in the next N=2^level
-to N=(2*2^level)-1.  For example N=0 to N=7 is repeated as N=8 to N=15,
+The shape of points N=0 to N=2^level-1 is repeated in the next N=2^level to
+N=(2*2^level)-1.  For example N=0 to N=7 is repeated as N=8 to N=15, but
 starting at X=2,Y=2 instead of the origin.  That 2,2 is because b^3 = 2+2i.
-There's no rotations or mirroring etc in this replication, just the
-position.
+There's no rotations or mirroring etc in this replication, just the position
+moves.
 
     N=0 to N=7          N=8 to N=15 repeat shape
 
@@ -222,15 +222,15 @@ position.
         4   5                    12  13
 
 For b=i-1 each N=2^level point starts at b^level.  The powering of that b
-means the start rotates around by +135 degrees each time and outward by a
-radius factor sqrt(2) each time.  So for example b^3 = 2+2i is followed by
-b^4 = -4, which is 135 degrees around, and radius |b^3|=sqrt(8) becomes
-|b^4|=sqrt(16).
+means the start position rotates around by +135 degrees each time, and
+outward by a radius factor sqrt(2) each time.  So for example b^3 = 2+2i is
+followed by b^4 = -4, which is 135 degrees around, and radius |b^3|=sqrt(8)
+becomes |b^4|=sqrt(16).
 
 =head2 Real Part
 
 The C<realpart =E<gt> $r> option gives a complex base b=i-r for a given
-rE<gt>=1.  For example C<realpart =E<gt> 2> is
+integer rE<gt>=1.  For example C<realpart =E<gt> 2> is
 
     20 21 22 23 24                                               4
           15 16 17 18 19                                         3
@@ -257,25 +257,24 @@ The offset back for each run like N=5 shown is the r in i-r, then the next
 level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at Y=-2*2=-4, X=2*2-1=3.
 
 The successive replications tile the plane for any r, though the N values
-needed to rotate around and do so might become large if the norm=r*r+1 is
-large.
+needed to rotate around and do so might become large if norm=r*r+1 is large.
 
 =head2 Fractal
 
-The i-1 twindragon is generally conceived as taking fractional N like
-0.abcde in binary and giving fractional complex X+iY.  The twindragon is
-then all the points of the complex plane reached by such fractional N.
-Those points can be shown to be connected and completely cover a certain
-radius around the origin.
+The i-1 twindragon is usually conceived as taking fractional N like 0.abcde
+in binary and giving fractional complex X+iY.  The twindragon is then all
+the points of the complex plane reached by such fractional N.  The set of
+points can be shown to be connected and completely cover a certain radius
+around the origin.
 
-The code here might be pressed into use for that for a finite number of bits
-of N by multiplying up to an integer
+The code here might be pressed into use for that to some finite number of
+bits of N by multiplying up to an integer by a chosen power k
 
     Nint = Nfrac * 256^k
     Xfrac = Xint / 16^k
     Yfrac = Yint / 16^k
 
-256 is a good base because b^8=16 is a positive real and means there's no
+256 is a good power because b^8=16 is a positive real and means there's no
 rotations to apply to the X,Y, just a division by (b^8)^k.  b^4=-4 for
 multiplier 16^k and divisor (-4)^k would be almost as easy.
 
@@ -306,15 +305,16 @@ fraction.
 
 =head2 X,Y to N
 
-A given X,Y representing X+Yi can be broken into digits of N by complex
-division by i-r, with each digit being a remainder 0 to r*r inclusive.
+A given X,Y representing X+Yi can be turned into digits of N by successive
+complex divisions by i-r, with each digit being a remainder 0 to r*r
+inclusive from that division.
 
 As per the base formula above
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-and the target is the a[0] digit 0 to r*r.  Taking that digit out and
-dividing down will be
+and the target is the a[0] digit 0 to r*r.  Subtracting a[0] and dividing by
+b will give
 
     (X+Yi - digit) / (i-r)
     = - (X-digit + Y*i) * (i+r) / norm
@@ -326,8 +326,8 @@ ie.
     X   <-   Y - (X-digit)*r)/norm
     Y   <-   -((X-digit) + Y*r)/norm
 
-The digit must make both X and Y real and imaginary parts integers.  The
-easiest to calculate from is the imaginary part,
+The digit must make both X and Y parts integers.  The easiest to calculate
+from is the imaginary part,
 
     - ((X-digit) + Y*r) == 0 mod norm
 
@@ -335,7 +335,7 @@ so
 
     digit = X + Y*r mod norm
 
-With that digit value the real part is a multiple of norm too,
+That digit value makes the real part a multiple of norm too,
 
     Y - (X-digit)*r
     = Y - X*r - (X+Y*r)*r
@@ -343,14 +343,32 @@ With that digit value the real part is a multiple of norm too,
     = Y*(r*r+1)
     = Y*norm
 
-Notice the new Y is the quotient, rounded towards negative infinity, from
-(X+Y*r)/norm.  Ie. in the division the quotient is the new Y and the
-remainder is the digit.
+Notice the new Y is the quotient from (X+Y*r)/norm, rounded towards negative
+infinity.  Ie. in the division "X+Y*r mod norm" calculating the digit the
+quotient is the new Y and the remainder is the digit.
+
+=cut
+
+# Is this quite right ? ...
+#
+# =head2 Radius Range
+# 
+# In general for base i-1 after the first few innermost levels each
+# N=2^level increases the covered radius around by a factor sqrt(2), ie.
+# 
+#     N = 0 to 2^level-1
+#     Xmin,Ymin closest to origin
+#     Xmin^2+Ymin^2 approx 2^(level-7)
+# 
+# The "level-7" is since the innermost few levels take a while to cover the
+# points surrounding the origin.  Notice for example X=1,Y=-1 is not reached
+# until N=58.  But after that it grows like N approx = pi*R^2.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::DragonCurve>
+L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::ComplexPlus>
 
 =head1 HOME PAGE
 
@@ -358,7 +376,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -374,20 +392,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-# =head2 Radius Range
-# 
-# In general for i-1 after the first few innermost levels each N=2^level
-# increases the covered radius around by a factor sqrt(2), ie.
-# 
-#     N = 0 to 2^level-1
-#     Xmin,Ymin closest to origin
-#     Xmin^2+Ymin^2 approx 2^(level-7)
-# 
-# The "level-7" is since the innermost few levels take a while to cover the
-# points surrounding the origin.  Notice for example X=1,Y=-1 is not reached
-# until N=58.  But after that it grows like N approx = pi*R^2.
-

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,6 +24,77 @@ use Math::Libm 'M_PI', 'hypot';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+
+
+{
+  require Image::Base::Text;
+  my $width = 79;
+  my $height = 50;
+  my $ox = $width/2;
+  my $oy = $height/2;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $store = sub {
+    my ($x,$y,$c) = @_;
+    # $x *= 2;
+    # $y *= 2;
+    $x += $ox;
+    $y += $oy;
+    if ($x >= 0 && $y >= 0 && $x < $width && $y < $height) {
+      my $o = $image->xy($x,$y);
+      # if (defined $o && $o ne ' ' && $o ne $c) {
+      #   $c = '*';
+      # }
+      $image->xy($x,$y,$c);
+    } else {
+      die "$x,$y";
+    }
+  };
+  my ($x,$y);
+  for my $n (0 .. 2**8) {
+    ($x,$y) = $path->n_to_xy($n);
+
+    # # (x+iy)/(i+1) = (x+iy)*(i-1)/2 = (-x-y)/2 + (x-y)/2
+    # if (($x+$y) % 2) { $x--; }
+    # ($x,$y) = ((-$x-$y)/2,
+    #            ($x-$y)/2);
+    # 
+    # # (x+iy)/(i+1) = (x+iy)*(i-1)/2 = (-x-y)/2 + (x-y)/2
+    # if (($x+$y) % 2) { $x--; }
+    # ($x,$y) = ((-$x-$y)/2,
+    #            ($x-$y)/2);
+    
+    # ($x,$y) = (-$y,$x); # rotate +90
+
+    $y = -$y;
+    $store->($x,$y,'*');
+  }
+  $store->($x,$y,'+');
+  $store->(0,0,'o');
+  $image->save('/dev/stdout');
+  exit 0;
+}
+
+{
+  # vs ComplexPlus
+  require Math::PlanePath::DragonCurve;
+  require Math::PlanePath::ComplexPlus;
+  require Math::BaseCnv;
+  my $dragon = Math::PlanePath::DragonCurve->new;
+  my $complex = Math::PlanePath::ComplexPlus->new;
+  for (my $n = 0; $n < 50; $n++) {
+    my ($x,$y) = $dragon->n_to_xy($n)
+      or next;
+    my $cn = $complex->xy_to_n($x,$y);
+    my $n2 = Math::BaseCnv::cnv($n,10,2);
+    my $cn2 = (defined $cn ? Math::BaseCnv::cnv($cn,10,2) : 'undef');
+    printf "%8s %8s  %d,%d\n", $n2, $cn2, $x,$y;
+  }
+  exit 0;
+}
 
 
 

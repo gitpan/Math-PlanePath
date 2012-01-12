@@ -44,7 +44,6 @@ use List::Util qw(min max);
   require Math::PlanePath::ImaginaryBase;
   require Math::PlanePath::SquareReplicate;
   require Math::PlanePath::QuintetReplicate;
-  require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::KochSquareflakes;
   require Math::PlanePath::GosperReplicate;
   require Math::PlanePath::SierpinskiTriangle;
@@ -57,7 +56,6 @@ use List::Util qw(min max);
   require Math::PlanePath::DigitGroups;
   require Math::PlanePath::HIndexing;
   require Math::PlanePath::DragonRounded;
-  require Math::PlanePath::MathImageTerdragonCurve;
   require Math::PlanePath::MathImageWunderlichSerpentine;
   require Math::PlanePath::MathImageDekkingCurve;
   require Math::PlanePath::MathImageDekkingStraight;
@@ -87,7 +85,6 @@ use List::Util qw(min max);
   require Math::PlanePath::CincoCurve;
   require Math::PlanePath::HilbertSpiral;
   require Math::PlanePath::AR2W2Curve;
-  require Math::PlanePath::MathImageComplexPlus;
   require Math::PlanePath::MathImagePeanoRounded;
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::FactorRationals;
@@ -95,14 +92,17 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImageTerdragonMidpoint;
   require Math::PlanePath::VogelFloret;
   require Math::PlanePath::MathImageCellularRule57;
-  require Math::PlanePath::MathImageAnvilSpiral;
   require Math::PlanePath::CellularRule;
-  require Math::PlanePath::MathImageAlternatePaper;
+  require Math::PlanePath::AlternatePaper;
   require Math::PlanePath::ComplexRevolving;
   require Math::PlanePath::MultipleRings;
-  my $path = Math::PlanePath::MultipleRings->new
+  require Math::PlanePath::ComplexMinus;
+  require Math::PlanePath::ComplexPlus;
+  require Math::PlanePath::AnvilSpiral;
+  require Math::PlanePath::TerdragonCurve;
+  my $path = Math::PlanePath::TerdragonCurve->new
     (
-     step => 0,
+     # wider => 3,
      # start_shape => 'B1rev',
      # rule => 8,
      # realpart => 1,
@@ -112,7 +112,6 @@ use List::Util qw(min max);
      # divisor_type => 'proper',
      # inward => 0,
      # radix => 3,
-     # wider => 3,
      # # step => 0,
      # # tree_type => 'Drib',
      # tree_type => 'Kepler',
@@ -127,7 +126,7 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0; $i <= 40; $i+=1) {
+  for (my $i = $n_start+0; $i <= 6400; $i+=1) {
 
   #for (my $i = $n_start; $i <= $n_start + 80000000000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {
@@ -161,13 +160,12 @@ use List::Util qw(min max);
 
     my $n = $path->xy_to_n ($x+.0, $y-.0);
     if (! defined $n) { $n = 'norev'; }
-    #    next;
-    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
     my $rev = '';
-    if ($i ne $n) {
+    if (defined $n && $n ne $seen{$xy}) {
       $rev = 'Rev';
     }
 
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
     my $range = '';
     if ($n_hi < $i || $n_lo > $i) {
       $range = 'Range';

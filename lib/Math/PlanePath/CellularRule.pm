@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -45,6 +45,8 @@ use constant parameter_info_array =>
       minimum   => 0,
       maximum   => 255,
       width     => 3,
+      type_hint => 'cellular_rule',
+      description => 'Rule number 0 to 255 encoding what triplets 111 to 000 become in the next row.',
     },
   ];
 
@@ -174,7 +176,8 @@ my @rule_to_class;
     }
   }
   {
-    # solid every second cell, 50,...
+    # solid every second cell, 50,58,114,122,178,186,242,250
+    # http://mathworld.wolfram.com/Rule250.html
     # 111      any, doesn't occur
     # 110      any, doesn't occur
     # 101 -> 1 middle
@@ -431,7 +434,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 63;
+  $VERSION = 64;
   @ISA = ('Math::PlanePath::CellularRule');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
   *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -503,7 +506,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 63;
+  $VERSION = 64;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -549,7 +552,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 63;
+  $VERSION = 64;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -588,7 +591,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PyramidRows Ryde Math-PlanePath PlanePath ie Xmax-Xmin CellularRule SierpinskiTriangle superclass
+=for stopwords PyramidRows Ryde Math-PlanePath PlanePath ie Xmax-Xmin CellularRule SierpinskiTriangle superclass eg CellularRule
 
 =head1 NAME
 

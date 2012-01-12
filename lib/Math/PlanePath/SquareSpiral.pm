@@ -1,4 +1,4 @@
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -31,7 +31,7 @@ use strict;
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -332,7 +332,7 @@ The perfect squares 1,4,9,16,25 fall on diagonals with the even perfect
 squares going to the upper left and the odd ones to the lower right.  The
 pronic numbers 2,6,12,20,30,42 etc k^2+k half way between the squares fall
 on similar diagonals to the upper right and lower left.  The decagonal
-numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right at y=-1.
+numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right at Y=-1.
 
 In general straight lines and diagonals are 4*k^2 + b*k + c.  b=0 is the
 even perfect squares up to the left, then b is an eighth turn
@@ -367,7 +367,7 @@ gives
 The centre horizontal 1 to 2 is extended by C<wider> many further places,
 then the path loops around that shape.  The starting point 1 is shifted to
 the left by ceil(wider/2) places to keep the spiral centred on the origin
-x=0,y=0.
+X=0,Y=0.
 
 Widening doesn't change the nature of the straight lines which arise, it
 just rotates them around.  For example in this wider=3 example the perfect
@@ -396,7 +396,7 @@ The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
-    http://oeis.org/A180714
+    http://oeis.org/A180714  (etc)
 
     A180714    X+Y coordinate sum
     A054552    N values on X axis
@@ -404,6 +404,8 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
     A054556    N values on Y axis
     A054567    N values on negative X axis
     A054569    N values on negative X=Y diagonal
+    A002061    N values on X=Y diagonal pos and neg
+    A137928    N values on X=1-Y opposite diagonal
 
     A054551    smallest prime in each loop
     A054553    another prime in loop ...
@@ -602,7 +604,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

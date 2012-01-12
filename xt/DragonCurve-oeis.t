@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 6 }
+BEGIN { plan tests => 11 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -40,12 +40,12 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
+  my $i = 0; 
+  while ($i < @$a1 && $i < @$a2) {
+    if ($a1->[$i] ne $a2->[$i]) {
       return 0;
     }
-    shift @$a1;
-    shift @$a2;
+    $i++;
   }
   return (@$a1 == @$a2);
 }
@@ -54,6 +54,243 @@ sub xy_is_straight {
   my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
   return (($x - $prev_x) == ($next_x - $x)
           && ($y - $prev_y) == ($next_y - $y));
+}
+
+# with Y reckoned increasing upwards
+sub dxdy_to_direction {
+  my ($dx, $dy) = @_;
+  if ($dx > 0) { return 0; }  # east
+  if ($dx < 0) { return 2; }  # west
+  if ($dy > 0) { return 1; }  # north
+  if ($dy < 0) { return 3; }  # south
+}
+
+
+
+#------------------------------------------------------------------------------
+# A088748 - dragon cumulative turn +/-1
+
+{
+  my $anum = 'A088748';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
+    my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
+    my $prev_dir = dxdy_to_direction ($prev_x - $n0_x,
+                                      $prev_y - $n0_y);
+    my $cumulative = 1;
+    for (my $n = 2; @got < @$bvalues; $n++) {
+      push @got, $cumulative;
+
+      my ($x, $y) = $dragon->n_to_xy ($n);
+      my $dir = dxdy_to_direction ($x - $prev_x,
+                                   $y - $prev_y);
+      my $turn = ($dir - $prev_dir) % 4;
+      if ($turn == 1) {
+        $turn = 1; # left
+      } elsif ($turn == 3) {
+        $turn = -1; # right
+      } else {
+        die "Oops, unrecognised turn $turn";
+      }
+      $cumulative += $turn;
+
+      ($prev_x,$prev_y) = ($x,$y);
+      $prev_dir = $dir;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- cumulative turn");
+}
+
+#------------------------------------------------------------------------------
+# A164910 - dragon cumulative turn +/-1, then partial sums
+
+{
+  my $anum = 'A164910';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    $bvalues->[15] = 48;  # typo ???
+
+
+    my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
+    my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
+    my $prev_dir = dxdy_to_direction ($prev_x - $n0_x,
+                                      $prev_y - $n0_y);
+    my $cumulative = 1;
+    my $partial_sum = $cumulative;
+    for (my $n = 2; @got < @$bvalues; $n++) {
+      push @got, $partial_sum;
+
+      my ($x, $y) = $dragon->n_to_xy ($n);
+      my $dir = dxdy_to_direction ($x - $prev_x,
+                                   $y - $prev_y);
+      my $turn = ($dir - $prev_dir) % 4;
+      if ($turn == 1) {
+        $turn = 1; # left
+      } elsif ($turn == 3) {
+        $turn = -1; # right
+      } else {
+        die "Oops, unrecognised turn $turn";
+      }
+      $cumulative += $turn;
+      $partial_sum += $cumulative;
+
+      ($prev_x,$prev_y) = ($x,$y);
+      $prev_dir = $dir;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@$bvalues));
+      MyTestHelpers::diag ("got:     ",join(',',@got));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- partial sums cumulative turn");
+}
+
+#------------------------------------------------------------------------------
+# A082410 -- complement reversal, is 1=left, 0=right
+
+{
+  my $anum = 'A082410';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    push @got, 0;
+
+    my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
+    my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
+    my $prev_dir = dxdy_to_direction ($prev_x - $n0_x,
+                                      $prev_y - $n0_y);
+    for (my $n = 2; @got < @$bvalues; $n++) {
+      my ($x, $y) = $dragon->n_to_xy ($n);
+      my $dir = dxdy_to_direction ($x - $prev_x,
+                                   $y - $prev_y);
+      my $turn = ($dir - $prev_dir) % 4;
+      if ($turn == 1) {
+        push @got, 1;  # left
+      } elsif ($turn == 3) {
+        push @got, 0;  # right
+      } else {
+        die "Oops, unrecognised turn";
+      }
+
+      ($prev_x,$prev_y) = ($x,$y);
+      $prev_dir = $dir;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- reversal complement");
+}
+
+#------------------------------------------------------------------------------
+# A038189 -- bit above lowest 1, is 0=left,1=right
+
+{
+  my $anum = 'A038189';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    push @got, 0;
+
+    my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
+    my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
+    my $prev_dir = dxdy_to_direction ($prev_x - $n0_x,
+                                      $prev_y - $n0_y);
+    for (my $n = 2; @got < @$bvalues; $n++) {
+      my ($x, $y) = $dragon->n_to_xy ($n);
+      my $dir = dxdy_to_direction ($x - $prev_x,
+                                   $y - $prev_y);
+      my $turn = ($dir - $prev_dir) % 4;
+      if ($turn == 1) {
+        push @got, 0;  # left
+      } elsif ($turn == 3) {
+        push @got, 1;  # right
+      } else {
+        die "Oops, unrecognised turn";
+      }
+
+      ($prev_x,$prev_y) = ($x,$y);
+      $prev_dir = $dir;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A091072 -- N positions of left turns
+
+{
+  my $anum = 'A091072';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
+    my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
+    my $prev_dir = dxdy_to_direction ($prev_x - $n0_x,
+                                      $prev_y - $n0_y);
+    for (my $n = 2; @got < @$bvalues; $n++) {
+      my ($x, $y) = $dragon->n_to_xy ($n);
+      my $dir = dxdy_to_direction ($x - $prev_x,
+                                   $y - $prev_y);
+      my $turn = ($dir - $prev_dir) % 4;
+      if ($turn == 1) {
+        push @got, $n-1;  # left
+      } elsif ($turn == 3) {
+        # right
+      } else {
+        die "Oops, unrecognised turn";
+      }
+
+      ($prev_x,$prev_y) = ($x,$y);
+      $prev_dir = $dir;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- left turn N positions");
 }
 
 #------------------------------------------------------------------------------
@@ -86,15 +323,6 @@ sub xy_is_straight {
 
 #------------------------------------------------------------------------------
 # A005811 -- total rotation
-
-# with Y reckoned increasing upwards
-sub dxdy_to_direction {
-  my ($dx, $dy) = @_;
-  if ($dx > 0) { return 0; }  # east
-  if ($dx < 0) { return 2; }  # west
-  if ($dy > 0) { return 1; }  # north
-  if ($dy < 0) { return 3; }  # south
-}
 
 {
   my $anum = 'A005811';
@@ -131,7 +359,7 @@ sub dxdy_to_direction {
 #------------------------------------------------------------------------------
 # A014577 -- relative direction 0=left, 1=right, starting from 1
 #
-# cf A082410 maybe same as A014577 with an extra initial 0
+# cf A082410 maybe same with an extra initial 0
 #
 # cf A059125 is almost but not quite the same, the 8,24,or some such entries
 # differ

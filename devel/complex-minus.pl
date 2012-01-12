@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,90 +20,67 @@
 use 5.006;
 use strict;
 use warnings;
+use POSIX;
+use Math::PlanePath::ComplexMinus;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-{
-  require Math::PlanePath::MathImageComplexPlus;
-  require Math::BigInt;
-  my $realpart = 10;
-  my $norm = $realpart*$realpart + 1;
-  ### $norm
-  my $path = Math::PlanePath::MathImageComplexPlus->new (realpart=>$realpart);
-  my $prev_dist = 1;
-  print sqrt($norm),"\n";
-  foreach my $level (1 .. 10) {
-    my $n = Math::BigInt->new($norm) ** $level - 1;
-    my ($x,$y) = $path->n_to_xy($n);
-    my $radians = atan2($y,$x);
-    my $degrees = $radians / 3.141592 * 180;
-    my $dist = sqrt($x*$x+$y*$y);
-    my $f = $dist / $prev_dist;
-    printf "%2d %.2f %.4f  %.2f\n",
-      $level, $dist, $f, $degrees;
-    $prev_dist = $dist;
-  }
-  exit 0;
-}
 
 {
-  require Math::PlanePath::MathImageComplexPlus;
-  my $path = Math::PlanePath::MathImageComplexPlus->new (realpart=>2);
-  foreach my $i (0 .. 10) {
-    {
-      my $x = $i;
-      my $y = 1;
+  # innermost points coverage
+  require Math::BaseCnv;
+  foreach my $realpart (1 .. 20) {
+    my $norm = $realpart**2 + 1;
+    my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
+    my $n_max = 0;
+    my $show = sub {
+      my ($x,$y) = @_;
       my $n = $path->xy_to_n($x,$y);
-      if (! defined $n) { $n = 'undef'; }
-      print "xy_to_n($x,$y) = $n\n";
-    }
-  }
-  foreach my $i (0 .. 10) {
-    {
-      my $n = $i;
-      my ($x,$y) = $path->n_to_xy($n);
-      print "n_to_xy($n) = $x,$y\n";
-    }
+      print "$x,$y n=$n\n";
+      if ($n > $n_max) {
+        $n_max = $n;
+      }
+    };
+    $show->(1,0);
+    $show->(1,1);
+    $show->(0,1);
+    $show->(-1,1);
+    $show->(-1,0);
+    $show->(-1,-1);
+    $show->(0,-1);
+    $show->(1,-1);
+    my $n_max_base = to_base($n_max,$norm);
+    my $n_max_log = log($n_max)/log($norm);
+    print "n_max $n_max  $n_max_base  $n_max_log\n";
+    print "\n";
   }
   exit 0;
-}
 
-{
-  my $count = 0;
-  my $realpart = 5;
-  my $norm = $realpart*$realpart+1;
-  foreach my $x (-200 .. 200) {
-    foreach my $y (-200 .. 200) {
-      my $new_x = $x;
-      my $neg_y = $x - $y*$realpart;
-      my $digit = $neg_y % $norm;
-      $new_x -= $digit;
-      $neg_y -= $digit;
-
-      next unless ($new_x*$realpart+$y)/$norm == $x;
-      next unless -$neg_y/$norm == $y;
-
-      print "$x,$y  digit=$digit\n";
-      $count++;
-    }
+  sub to_base {
+    my ($n, $radix) = @_;
+    my $ret = '';
+    do {
+      my $digit = $n % $radix;
+      $ret = "[$digit]$ret";
+    } while ($n = int($n/$radix));
+    return $ret;
   }
-  print "count $count\n";
-  exit 0;
 }
 
 {
   # min/max for level
   $|=1;
-  require Math::PlanePath::MathImageTwinDragon;
-  my $path = Math::PlanePath::MathImageTwinDragon->new;
+  my $realpart = 2;
+  my $norm = $realpart**2 + 1;
+  my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
   my $prev_min = 1;
   my $prev_max = 1;
   for (my $level = 1; $level < 25; $level++) {
-    my $n_start = 2**($level-1);
-    my $n_end = 2**$level;
+    my $n_start = $norm**($level-1);
+    my $n_end = $norm**$level;
 
-    my $min_hypot = 128*$n_end*$n_end;
+    my $min_hypot = POSIX::DBL_MAX();
     my $min_x = 0;
     my $min_y = 0;
     my $min_pos = '';
@@ -146,3 +123,72 @@ use warnings;
   }
   exit 0;
 }
+
+{
+  require Math::PlanePath::ComplexPlus;
+  require Math::BigInt;
+  my $realpart = 10;
+  my $norm = $realpart*$realpart + 1;
+  ### $norm
+  my $path = Math::PlanePath::ComplexPlus->new (realpart=>$realpart);
+  my $prev_dist = 1;
+  print sqrt($norm),"\n";
+  foreach my $level (1 .. 10) {
+    my $n = Math::BigInt->new($norm) ** $level - 1;
+    my ($x,$y) = $path->n_to_xy($n);
+    my $radians = atan2($y,$x);
+    my $degrees = $radians / 3.141592 * 180;
+    my $dist = sqrt($x*$x+$y*$y);
+    my $f = $dist / $prev_dist;
+    printf "%2d %.2f %.4f  %.2f\n",
+      $level, $dist, $f, $degrees;
+    $prev_dist = $dist;
+  }
+  exit 0;
+}
+
+{
+  require Math::PlanePath::ComplexPlus;
+  my $path = Math::PlanePath::ComplexPlus->new (realpart=>2);
+  foreach my $i (0 .. 10) {
+    {
+      my $x = $i;
+      my $y = 1;
+      my $n = $path->xy_to_n($x,$y);
+      if (! defined $n) { $n = 'undef'; }
+      print "xy_to_n($x,$y) = $n\n";
+    }
+  }
+  foreach my $i (0 .. 10) {
+    {
+      my $n = $i;
+      my ($x,$y) = $path->n_to_xy($n);
+      print "n_to_xy($n) = $x,$y\n";
+    }
+  }
+  exit 0;
+}
+
+{
+  my $count = 0;
+  my $realpart = 5;
+  my $norm = $realpart*$realpart+1;
+  foreach my $x (-200 .. 200) {
+    foreach my $y (-200 .. 200) {
+      my $new_x = $x;
+      my $neg_y = $x - $y*$realpart;
+      my $digit = $neg_y % $norm;
+      $new_x -= $digit;
+      $neg_y -= $digit;
+
+      next unless ($new_x*$realpart+$y)/$norm == $x;
+      next unless -$neg_y/$norm == $y;
+
+      print "$x,$y  digit=$digit\n";
+      $count++;
+    }
+  }
+  print "count $count\n";
+  exit 0;
+}
+

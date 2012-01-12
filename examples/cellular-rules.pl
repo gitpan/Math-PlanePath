@@ -47,6 +47,7 @@ my $size = 15;
 my %seen;
 my $count = 0;
 my $mirror_count = 0;
+my $finite_count = 0;
 
 my @strs;
 my @rules_list;
@@ -61,8 +62,9 @@ foreach my $rule (0 .. 255) {
       or last; # some patterns are only finitely many N values
     last if $y > $size; # stop at $size+1 many rows
 
-    substr($rows[$size-$y], $x+$size, 1) = '*';
+    substr($rows[$y], $x+$size, 1) = '*';
   }
+  @rows = reverse @rows;  # print going up the page
 
   my $str = join("\n",@rows);
   my $seen_rule = $seen{$str};
@@ -82,6 +84,10 @@ foreach my $rule (0 .. 255) {
   $rules_list[$rule] = $rule;
   $seen{$str} = $rule;
   $count++;
+
+  if ($rows[0] =~ /^ *$/) {
+    $finite_count++;
+  }
 }
 
 foreach my $rule (0 .. 255) {
@@ -93,6 +99,7 @@ foreach my $rule (0 .. 255) {
 
 my $unmirrored_count = $count - $mirror_count;
 
-print "Total $count different rule patterns.\n";
-print "Of which $mirror_count are mirror images of another though, for net $unmirrored_count.\n";
+print "Total $count different rule patterns\n";
+print "$mirror_count are mirror images of another\n";
+print "$finite_count stop after a few cells\n";
 exit 0;

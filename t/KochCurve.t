@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 63;
+  my $want_version = 64;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -238,32 +238,6 @@ foreach my $elem ([ 1, 1,0 ],
 # turn sequence
 
 {
-  # total 1s left 2s right base 4 digits
-  sub n_to_dir {
-    my ($n) = @_;
-    my $dir = 0;
-    while ($n) {
-      my $digit = $n % 4;
-      if ($digit == 1) { $dir++; }
-      if ($digit == 2) { $dir--; }
-      $n = int($n/4);
-    }
-    return $dir;
-  }
-
-  # lowest non-zero base 4 digit
-  sub n_to_turn {
-    my ($n) = @_;
-    for (;;) {
-      if ($n == 0) { die "oops n=0"; }
-      my $digit = $n % 4;
-      if ($digit == 1) { return 1; }
-      if ($digit == 2) { return -2; }
-      if ($digit == 3) { return 1; }
-      $n = int($n/4);
-    }
-  }
-
   sub dxdy_to_dir {
     my ($dx,$dy) = @_;
     if ($dy == 0) {
@@ -279,6 +253,32 @@ foreach my $elem ([ 1, 1,0 ],
       if ($dx == -1) { return 4; }
     }
     die "unrecognised $dx,$dy";
+  }
+
+  # total 1s left 2s right base 4 digits
+  sub calc_n_to_dir {
+    my ($n) = @_;
+    my $dir = 0;
+    while ($n) {
+      my $digit = $n % 4;
+      if ($digit == 1) { $dir++; }
+      if ($digit == 2) { $dir--; }
+      $n = int($n/4);
+    }
+    return $dir;
+  }
+
+  # lowest non-zero base 4 digit
+  sub calc_n_to_turn {
+    my ($n) = @_;
+    for (;;) {
+      if ($n == 0) { die "oops n=0"; }
+      my $digit = $n % 4;
+      if ($digit == 1) { return 1; }
+      if ($digit == 2) { return -2; }
+      if ($digit == 3) { return 1; }
+      $n = int($n/4);
+    }
   }
 
   my $path = Math::PlanePath::KochCurve->new;
@@ -299,7 +299,7 @@ foreach my $elem ([ 1, 1,0 ],
     my $dir = dxdy_to_dir($dx,$dy);
 
     my $got_turn = ($dir - $prev_dir) % 6;
-    my $want_turn = n_to_turn($n) % 6;
+    my $want_turn = calc_n_to_turn($n) % 6;
     if ($got_turn != $want_turn) {
       MyTestHelpers::diag ("n=$n turn got=$got_turn want=$want_turn");
       MyTestHelpers::diag ("  dir=$dir prev_dir=$prev_dir");
@@ -307,7 +307,7 @@ foreach my $elem ([ 1, 1,0 ],
     }
 
     my $got_dir = $dir % 6;
-    my $want_dir = n_to_dir($n) % 6;
+    my $want_dir = calc_n_to_dir($n) % 6;
     if ($got_dir != $want_dir) {
       MyTestHelpers::diag ("n=$n dir got=$got_dir want=$want_dir");
       last if $bad++ > 10;

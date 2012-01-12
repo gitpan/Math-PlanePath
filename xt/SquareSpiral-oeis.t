@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 9 }
+BEGIN { plan tests => 11 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,21 +33,71 @@ use Math::PlanePath::SquareSpiral;
 #use Smart::Comments '###';
 
 
-my $path  = Math::PlanePath::SquareSpiral->new;
+my $path = Math::PlanePath::SquareSpiral->new;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
+  my $i = 0; 
+  while ($i < @$a1 && $i < @$a2) {
+    if ($a1->[$i] ne $a2->[$i]) {
       return 0;
     }
-    shift @$a1;
-    shift @$a2;
+    $i++;
   }
   return (@$a1 == @$a2);
+}
+
+#------------------------------------------------------------------------------
+# A137928 -- N values on diagonal X=1-Y positive and negative
+{
+  my $anum = 'A137928';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n(1-$y,$y);
+      last unless @got < @$bvalues;
+      if ($y != 0) {
+        push @got, $path->xy_to_n(1-(-$y),-$y);
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- X=Y+1 diagonal, positive and negative");
+}
+
+#------------------------------------------------------------------------------
+# A002061 -- central polygonal numbers, N values on diagonal X=Y pos and neg
+{
+  my $anum = 'A002061';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n($y,$y);
+      last unless @got < @$bvalues;
+      push @got, $path->xy_to_n(-$y,-$y);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- X=Y+1 diagonal, positive and negative");
 }
 
 #------------------------------------------------------------------------------

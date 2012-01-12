@@ -8,6 +8,7 @@ debian/patches/pod-examples-dir.diff
 debian/rules
 debian/source/format
 debian/watch
+devel/alternate-paper.pl
 devel/archimedean.pl
 devel/beta-omega.pl
 devel/bigint-lite.pl
@@ -23,11 +24,14 @@ devel/dragon-numbers.pl
 devel/dragon.pl
 devel/exe-atan2.c
 devel/exe-complex-minus.c
+devel/exe-complex-plus.c
+devel/exe-complex-revolving.c
 devel/factor-rationals.pl
 devel/fibonacci-word.pl
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
 devel/fractions-tree.pl
+devel/gcd-rationals-integer.pl
 devel/gcd-rationals.pl
 devel/gosper-islands-stars.pl
 devel/gosper-side.pl
@@ -97,6 +101,8 @@ lib/Math/NumSeq/PlanePathCoord.pm
 lib/Math/NumSeq/PlanePathDelta.pm
 lib/Math/NumSeq/PlanePathN.pm
 lib/Math/PlanePath.pm
+lib/Math/PlanePath/AlternatePaper.pm
+lib/Math/PlanePath/AnvilSpiral.pm
 lib/Math/PlanePath/AR2W2Curve.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
@@ -107,6 +113,7 @@ lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/CincoCurve.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm
+lib/Math/PlanePath/ComplexPlus.pm
 lib/Math/PlanePath/ComplexRevolving.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
@@ -177,6 +184,7 @@ lib/Math/PlanePath/SquareReplicate.pm
 lib/Math/PlanePath/SquareSpiral.pm
 lib/Math/PlanePath/Staircase.pm
 lib/Math/PlanePath/StaircaseAlternating.pm
+lib/Math/PlanePath/TerdragonCurve.pm
 lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
@@ -190,6 +198,8 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 SIGNATURE
+t/AlternatePaper.t
+t/AnvilSpiral.t
 t/ArchimedeanSpiral.t
 t/AztecDiamondRings.t
 t/BetaOmeta.t
@@ -265,6 +275,7 @@ t/SierpinskiArrowheadCentres.t
 t/SierpinskiCurve.t
 t/SquareSpiral.t
 t/Staircase.t
+t/TerdragonCurve.t
 t/TheodorusSpiral.t
 t/TriangularHypot.t
 t/UlamWarburton.t
@@ -290,13 +301,14 @@ xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
+xt/AlternatePaper-oeis.t
 xt/CellularRule-oeis.t
 xt/CellularRule190-oeis.t
 xt/CellularRule54-oeis.t
 xt/CoprimeColumns-oeis.t
 xt/DiagonalRationals-oeis.t
 xt/DivisibleColumns-oeis.t
-xt/Dragon-oeis.t
+xt/DragonCurve-oeis.t
 xt/FactorRationals-oeis.t
 xt/FibonacciWordFractal-oeis.t
 xt/FractionsTree-oeis.t
@@ -311,5 +323,6 @@ xt/pod_lists.t
 xt/RationalsTree-oeis.t
 xt/SierpinskiTriangle-oeis.t
 xt/SquareSpiral-oeis.t
+xt/TerdragonCurve-oeis.t
 xt/UlamWarburton-oeis.t
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 63;
+$VERSION = 64;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -544,8 +544,7 @@ sub _planepath_oeis_key {
               }
                $path->parameter_info_list,
                ($path->isa('Math::PlanePath::Rows') ? ({name=>'width'}) : ()),
-               ($path->isa('Math::PlanePath::Columns')? ({name=>'height'}) : ())
-             ));
+               ($path->isa('Math::PlanePath::Columns')? ({name=>'height'}) : ())));
 }
 
 #------------------------------------------------------------------------------
@@ -895,9 +894,13 @@ sub values_max {
 # }
 # { package Math::PlanePath::PentSpiralSkewed;
 # }
+# { package Math::PlanePath::HexSpiral;
+# }
 # { package Math::PlanePath::HexSpiralSkewed;
 # }
 # { package Math::PlanePath::HeptSpiralSkewed;
+# }
+# { package Math::PlanePath::AnvilSpiral;
 # }
 # { package Math::PlanePath::OctagramSpiral;
 # }
@@ -1063,6 +1066,12 @@ sub values_max {
 # { package Math::PlanePath::DragonRounded;
 # }
 # { package Math::PlanePath::DragonMidpoint;
+# }
+# { package Math::PlanePath::AlternatePaper;
+# }
+# { package Math::PlanePath::TerdragonCurve;
+# }
+# { package Math::PlanePath::ComplexPlus;
 # }
 # { package Math::PlanePath::ComplexMinus;
 # }
@@ -1255,7 +1264,7 @@ __END__
 # }
 
 
-=for stopwords Ryde PlanePath Math-NumSeq DiffXY OEIS PlanePath
+=for stopwords Ryde PlanePath Math-NumSeq DiffXY OEIS PlanePath NumSeq SquareSpiral PlanePath
 
 =head1 NAME
 

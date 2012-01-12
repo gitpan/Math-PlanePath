@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule;
 # VERSION
 
 {
-  my $want_version = 63;
+  my $want_version = 64;
   ok ($Math::PlanePath::CellularRule::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule->VERSION,  $want_version,

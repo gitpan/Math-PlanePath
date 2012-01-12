@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 63;
+$VERSION = 64;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -191,6 +191,7 @@ classes include
     HexSpiral              six-sided spiral
     HexSpiralSkewed        six-sided spiral skewed for compactness
     HeptSpiralSkewed       seven-sided spiral, compact
+    AnvilSpiral            anvil shape
     OctagramSpiral         eight pointed star
     KnightSpiral           an infinite knight's tour
 
@@ -242,7 +243,10 @@ classes include
     DragonCurve            paper folding
     DragonRounded            same but rounding-off vertices
     DragonMidpoint         paper folding midpoints
-    ComplexMinus           twindragon and other base i-r
+    AlternatePaper         paper folding in alternating directions
+    TerdragonCurve         ternary dragon
+    ComplexPlus            base i+r
+    ComplexMinus           base i-r, including twindragon
     ComplexRevolving       revolving base i+1
 
     SierpinskiCurve        self-similar right-triangles
@@ -572,6 +576,7 @@ more N points than the preceding.
         8       SquareSpiral, PyramidSpiral
       16/2      StaircaseAlternating (up and back for +16)
         9       TriangleSpiral, TriangleSpiralSkewed
+       12       AnvilSpiral
        16       OctagramSpiral
       19.74     TheodorusSpiral (approaching 2*pi^2)
       32/4      KnightSpiral (4 loops 2-wide for +32)
@@ -629,13 +634,14 @@ such a power for things like KochPeaks and GosperIslands.
       2         HilbertCurve, HilbertSpiral, ZOrderCurve (default),
                   BetaOmega, AR2W2Curve, SierpinskiCurve, HIndexing
                   ImaginaryBase (default), CornerReplicate,
-                  ComplexMinus (default), ComplexRevolving,
+                  ComplexMinus (default), ComplexPlus (default),
+                  ComplexRevolving,
                   DragonCurve, DragonRounded, DragonMidpoint,
-                  DigitGroups (default)
+                  AlternatePaper, DigitGroups (default)
       3         PeanoCurve (default), GosperIslands, GosperSide
                   WunderlichMeander, KochelCurve,
                   SierpinskiTriangle, SierpinskiArrowhead,
-                  SierpinskiArrowheadCentres,
+                  SierpinskiArrowheadCentres, TerdragonCurve,
                   UlamWarburton, UlamWarburtonQuarter (each level)
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes,
                   LTiling
@@ -646,6 +652,7 @@ such a power for things like KochPeaks and GosperIslands.
       9         SquareReplicate
     Fibonacci   FibonacciWordFractal
     parameter   PeanoCurve, ZOrderCurve, ImaginaryBase, DigitGroups
+                  ComplexPlus, ComplexMinus
 
 =for my_pod base end
 
@@ -790,6 +797,7 @@ L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>,
+L<Math::PlanePath::AnvilSpiral>,
 L<Math::PlanePath::OctagramSpiral>,
 L<Math::PlanePath::KnightSpiral>
 
@@ -856,6 +864,9 @@ L<Math::PlanePath::SierpinskiArrowheadCentres>
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::DragonRounded>,
 L<Math::PlanePath::DragonMidpoint>,
+L<Math::PlanePath::AlternatePaper>,
+L<Math::PlanePath::TerdragonCurve>,
+L<Math::PlanePath::ComplexPlus>,
 L<Math::PlanePath::ComplexMinus>,
 L<Math::PlanePath::ComplexRevolving>
 

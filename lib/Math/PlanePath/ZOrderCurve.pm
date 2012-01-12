@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -260,8 +260,8 @@ This path puts points in a self-similar Z pattern described by G.M. Morton,
       2  |    8   9  12  13  24  25  28  29
       1  |    2   3   6   7  18  19  22  23
      Y=0 |    0   1   4   5  16  17  20  21  64  ...
-         +--------------------------------
-          X=0   1   2   3   4   5   6   7
+         +---------------------------------------
+            X=0   1   2   3   4   5   6   7   8
 
 The first four points make a "Z" shape if written with Y going downwards
 (inverted if drawn upwards as above),

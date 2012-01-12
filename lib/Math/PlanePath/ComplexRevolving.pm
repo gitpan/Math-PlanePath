@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -138,17 +138,16 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### ComplexRevolving rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  my $sum = _max(abs($x1),abs($x2)) + _max(abs($y1),abs($y2));
-  if (_is_infinite($sum)) { return (0, abs($sum)); }
+  my $xm = _max(abs($x1),abs($x2));
+  my $ym = _max(abs($y1),abs($y2));
 
-  my ($power, $level) = _round_down_pow ($sum, 2);
-  return (0, 32*$power*$power);
+  return (0, int (32*($xm*$xm + $ym*$ym)));
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel
+=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel Seminumerical et
 
 =head1 NAME
 
@@ -166,18 +165,18 @@ This path traverses points by a complex number base i+1 with turn factor i
 (+90 degrees) at each 1 bit.  This is the "revolving binary representation"
 of Knuth's Seminumerical Algorithms section 4.1 exercise 28.
 
-             54 51       38 35               5    
-          60 53       44 37                  4    
-    39 46 43 58 23 30 27 42                  3    
-       45  8 57  4 29 56 41 52               2    
-          31  6  3  2 15 22 19 50            1    
-    16    12  5  0  1 28 21    49        <- Y=0   
-    55 62 59 10  7 14 11 26                 -1    
-       61 24  9 20 13 40 25 36              -2    
-          47       18 63       34           -3    
-    32          48 17          33           -4    
+             54 51       38 35               5
+          60 53       44 37                  4
+    39 46 43 58 23 30 27 42                  3
+       45  8 57  4 29 56 41 52               2
+          31  6  3  2 15 22 19 50            1
+    16    12  5  0  1 28 21    49        <- Y=0
+    55 62 59 10  7 14 11 26                 -1
+       61 24  9 20 13 40 25 36              -2
+          47       18 63       34           -3
+    32          48 17          33           -4
 
-                 ^ 
+                 ^
     -4 -3 -2 -1 X=0 1  2  3  4  5
 
 The 1 bit positions of N are exponents e0 to et
@@ -225,6 +224,7 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::ComplexMinus>,
+L<Math::PlanePath::ComplexPlus>,
 L<Math::PlanePath::DragonCurve>
 
 Donald Knuth, "The Art of Computer Programming", volume 2 "Seminumerical

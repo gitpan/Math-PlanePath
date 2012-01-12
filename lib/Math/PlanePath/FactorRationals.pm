@@ -17,11 +17,15 @@
 
 
 # David M. Bradley http://arxiv.org/abs/math/0509025
-#   19 Yoram Sagher, Counting the rationals, AMM 1989
+#   19 Yoram Sagher, Counting the rationals, AMM Nov 1989 p823
+#   http://www.jstor.org/stable/2324846
 # earlier inverse
-#   6 Gerald Freilich, A denumerability formula for the rationals AMM 1965
+#   6 Gerald Freilich, A denumerability formula for the rationals AMM Nov
+#   1965 p1013-1014
+#   http://www.jstor.org/stable/2313350
 # prime powers
-#   17 Kevin McCrimmon, Enumeration of the positive rationals AMM 1960
+#   17 Kevin McCrimmon, Enumeration of the positive rationals AMM Nov 1960 p868
+#   http://www.jstor.org/stable/2309448
 #
 # prime factors q1,..qk of n
 # f(m/n) = m^2*n^2/ (q1q2...qk)
@@ -34,7 +38,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 63;
+$VERSION = 64;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -195,7 +199,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf FactorRationals
+=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf FactorRationals McCrimmon Freilich Yoram Sagher negabinary
 
 =head1 NAME
 
