@@ -25,7 +25,7 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,6 +40,7 @@ use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 
 use constant figure => 'circle';
+use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [{ name      => 'step',
@@ -74,8 +75,8 @@ sub x_negative {
 }
 *y_negative = \&x_negative;
 
-use constant 1.02; # for leading underscore
-use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
+# v1.02 for leading underscore
+use constant 1.02 _PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 sub new {
   my $class = shift;

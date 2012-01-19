@@ -32,7 +32,7 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -42,6 +42,8 @@ use Math::PlanePath;
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
+
+use constant n_frac_discontinuity => 0;
 
 # innermost hexagon level 0
 #     level 0    len=6

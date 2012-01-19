@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -37,6 +37,7 @@ use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 
 
 use constant class_y_negative => 0;
+use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [ { name      => 'rule',
@@ -143,7 +144,7 @@ my @rule_to_class;
     }
   }
   {
-    # right positive line
+    # right positive line, 16,...
     # 111      any, doesn't occur
     # 110      any, doesn't occur
     # 101      any, doesn't occur
@@ -160,7 +161,7 @@ my @rule_to_class;
     }
   }
   {
-    # central vertical line
+    # central vertical line 4,...
     # 111      any
     # 110      any
     # 101      any
@@ -434,7 +435,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 64;
+  $VERSION = 65;
   @ISA = ('Math::PlanePath::CellularRule');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
   *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -506,7 +507,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 64;
+  $VERSION = 65;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -552,7 +553,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 64;
+  $VERSION = 65;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;

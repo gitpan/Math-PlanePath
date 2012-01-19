@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -486,9 +486,9 @@ This path enumerates primitive Pythagorean triples by a breadth-first
 traversal of a ternary tree, either a "UAD" or "FB" tree.
 
 Each point is an integer X,Y = A,B with integer hypotenuse A^2+B^2=C^2 and
-primitive because A and B have no common factor.  Such a triple always has
-one of A,B odd and the other even.  The trees here give them ordered as A
-odd and B even.
+primitive in that A and B have no common factor.  Such a triple always has
+A,B one odd and the other even.  The trees here give them ordered as A odd
+and B even.
 
 The breadth-first traversal goes out to rather large A,B values while
 smaller ones have yet to be reached.  The UAD tree goes out further than the
@@ -504,8 +504,9 @@ primitive triples.
     my $path = Math::PlanePath::PythagoreanTree->new
                  (tree_type => 'UAD');
 
-Starting from A=3,B=4,C=5, the well-known 3^2 + 4^2 = 5^2, the tree visits
-all and only primitive triples.
+Starting from A=3,B=4,C=5 which is the well-known 3^2 + 4^2 = 5^2, the tree
+visits all and only primitive triples.  See L</UAD Matrices> below for
+details of the tree descent.
 
    Y=40 |          14
         |
@@ -524,10 +525,10 @@ all and only primitive triples.
         +--------------------------------------------------
            X=3         X=15  X=20           X=35      X=45
 
-For the path the starting point N=1 is X=3,Y=4 and from it three further
-N=2,3,4 are derived, then three more from each of those, etc,
+The starting point N=1 is X=3,Y=4 and from that point three further N=2,3,4
+are derived, then three more from each of those, etc,
 
-     N=1     N=2..4      N=5..13    N=14...
+     N=1     N=2..4      N=5..13     N=14...
 
                       +-> 7,24
           +-> 5,12  --+-> 55,48
@@ -619,15 +620,18 @@ N=2,3,4 are derived, then three more from each of those, etc.
 Primitive Pythagorean triples can be parameterized as follows, taking A odd
 and B even.
 
-    A = P^2 - Q^2,  B = 2*P*Q,  C = P^2 + Q^2
+    A = P^2 - Q^2
+    B = 2*P*Q
+    C = P^2 + Q^2
     with P>Q>=1, one odd, one even, and no common factor
 
-And conversely,
+Or conversely,
 
-    P = sqrt((C+A)/2),  Q = sqrt((C-A)/2)
+    P = sqrt((C+A)/2)
+    Q = sqrt((C-A)/2)
 
 The first P=2,Q=1 is the triple A=3,B=4,C=5.  The C<coordinates> option on
-the path gives these P,Q values as the returned X,Y coordinates,
+the path gives these P,Q values as the returned X,Y (for either tree type),
 
     my $path = Math::PlanePath::PythagoreanTree->new
                   (tree_type   => 'UAD',    # or 'FB'
@@ -653,12 +657,12 @@ Since P>Q>=1, the values fall in an octant below the X=Y diagonal,
 
 The correspondence between P,Q and A,B means the trees visit all P,Q pairs
 with no common factor and one of them even.  Of course there's other ways to
-iterate through such P,Q, such as simply P=2,3,etc, and which would generate
-triples too, in a different order from the trees here.
+iterate through such coprime pairs P,Q, and that would generate triples too,
+in a different order from the trees here.
 
 Incidentally letters P and Q used here are a little bit arbitrary.  This
-parameterization is often found as m,n or u,v, but don't want to confuse
-that with the N numbered points or the U matrix in UAD.
+parameterization is often found as m,n or u,v, but don't want "n" to be
+confused that with the N numbered points or "u" with the U matrix in UAD.
 
 =head1 FUNCTIONS
 
@@ -676,29 +680,24 @@ Create and return a new path object.
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
-Fractional positions give an X,Y position along a straight line between the
-integer positions.  Integer positions are always just 1 apart either
-horizontally or vertically, so the effect is that the fraction part appears
-either added to or subtracted from X or Y.
-
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
 Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
 The return is C<undef> if C<$x,$y> is not a primitive Pythagorean triple, or
-with the PQ option if if C<$x,$y> doesn't satisfy the PQ constraints
-described above (L</PQ Coordinates>).
+with the PQ option if C<$x,$y> doesn't satisfy the PQ constraints described
+above (L</PQ Coordinates>).
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
 Return a range of N values which occur in a rectangle with corners at
 C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
 
-Both trees visit large X,Y coordinates while yet to finish values closer to
-the origin which means the N range for a rectangle can be quite large.  For
-UAD C<$n_hi> is roughly C<3**max(x/2)>, or for FB smaller at roughly
-C<3**log2(x)>.
+Both trees go off into large X,Y coordinates while yet to finish values
+close to the origin which means the N range for a rectangle can be quite
+large.  For UAD C<$n_hi> is roughly C<3**max(x/2)>, or for FB smaller at
+roughly C<3**log2(x)>.
 
 =back
 
@@ -742,8 +741,8 @@ desired, but explicit steps are enough for the code.
 
 =head2 FB Transformations
 
-The FB tree is calculated in P,Q and an A,B calculated at the end.  The
-three transformation are
+The FB tree is calculated in P,Q and converted to A,B at the end as
+necessary.  The three transformations are
 
     K1     P -> P+Q
            Q -> 2Q
@@ -754,8 +753,8 @@ three transformation are
     K3     P -> 2P
            Q -> P+Q
 
-Price's paper shows rearrangements of four values q',q,p,p', but just the p
-and q are enough for a calculation.
+Price's paper shows rearrangements of a set of four values q',q,p,p', but
+just the p and q are enough for a calculation.
 
 =head2 X,Y to N for UAD
 
@@ -769,10 +768,10 @@ An A,B or P,Q point can be reversed up the tree to its parent as follows,
                                Q -> 2Q-P
 
 This gives a ternary digit 2, 1, 0 respectively for N and the number of
-steps is the level and a starting N for the digits.  If at any stage the P,Q
-aren't one odd the other even and PE<gt>Q then it means the original point,
-either an A,B or a P,Q, was not a primitive triple.  For a primitive triple
-the endpoint is always P=2,Q=1.
+steps is the level and a starting "1" digit.  If at any stage the P,Q aren't
+one odd the other even and PE<gt>Q then it means the original point, whether
+an A,B or a P,Q, was not a primitive triple.  For a primitive triple the
+endpoint is always P=2,Q=1.
 
 =head2 X,Y to N for FB
 
@@ -789,7 +788,7 @@ An A,B or P,Q point can be reversed up the tree to its parent as follows,
 
 This is rather similar to the binary greatest common divisor algorithm, but
 designed for one value odd and the other even.  As for the UAD ascent above
-if that opposite parity doesn't hold at any stage then the initial point
+if that P,Q opposite parity doesn't hold at any stage then the initial point
 wasn't a primitive triple.
 
 =head2 Rectangle to N Range for UAD

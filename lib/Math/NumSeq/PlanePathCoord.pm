@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 64;
+$VERSION = 65;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -149,7 +149,12 @@ my %oeis_anum =
      # OEIS-Catalogue: A059261 planepath=HilbertCurve coordinate_type=Sum
      # OEIS-Catalogue: A059285 planepath=HilbertCurve coordinate_type=DiffXY
      # OEIS-Catalogue: A163547 planepath=HilbertCurve coordinate_type=RSquared
-
+   },
+   # HilbertSpiral going negative is mirror on X=-Y line, which is (-Y,-X),
+   # and -Y-(-X) = X-Y same as plain HilbertCurve
+   'Math::PlanePath::HilbertSpiral' =>
+   { DiffXY   => 'A059285',
+     # OEIS-Other: A059285 planepath=HilbertSpiral coordinate_type=DiffXY
    },
 
    'Math::PlanePath::PeanoCurve,radix=3' =>

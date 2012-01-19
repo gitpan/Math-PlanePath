@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -91,17 +91,7 @@ sub numeq_array {
     MyTestHelpers::diag ("$anum not available");
   }
 
-  my $duplicate_37_typo;
-  if ($bvalues) {
-    # typo duplicated 37 in A068609.html as of March 2011
-    $duplicate_37_typo = (scalar(grep {$_==37} @$bvalues) > 1);
-    if ($duplicate_37_typo) {
-      MyTestHelpers::diag ("$anum has duplicate 37");
-    }
-  }
-
   skip (! $bvalues ? "no B file"
-        : $duplicate_37_typo ? "duplicate 37 typo"
         : 0,
         numeq_array(\@got, $bvalues),
         1, "$anum");

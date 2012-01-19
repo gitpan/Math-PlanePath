@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -40,6 +40,7 @@ use Math::PlanePath::KochCurve 42;
 
 
 use constant class_y_negative => 0;
+use constant n_frac_discontinuity => .5;
 
 
 # N=1 to 3      3 of, level=0

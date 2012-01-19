@@ -21,13 +21,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
+use constant n_frac_discontinuity => 0;
 
 # d = [ 1, 2, 3, 4 ]
 # n = [ 1,5,13,25 ]

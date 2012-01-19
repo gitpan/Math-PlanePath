@@ -44,6 +44,22 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['terdragon-small.png',
+    'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
+   ['terdragon-big.png',
+    'math-image --path=TerdragonCurve --lines --figure=point --scale=8 --size=200 --offset=65,0'],
+   ['terdragon-rounded-big.png',
+    'math-image --path=TerdragonCurve --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=35,-30'],
+
+
+   ['alternate-paper-small.png',
+    'math-image --path=AlternatePaper --lines --scale=4 --size=32 --offset=2,2'],
+   ['alternate-paper-big.png',
+    'math-image --path=AlternatePaper --lines --figure=point --scale=8 --size=200 --offset=4,4'],
+   ['alternate-paper-rounded-big.png',
+    'math-image --path=AlternatePaper --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=4,4'],
+
+
    ['complexplus-small.png',
     "math-image --path=ComplexPlus --all --scale=2 --size=32"],
    ['complexplus-big.png',
@@ -62,18 +78,6 @@ foreach my $elem
     "math-image --path=ComplexMinus,realpart=2 --expression='i<125?i:0' --scale=2 --size=32"],
    ['complexminus-r2-big.png',
     "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
-
-
-   ['terdragon-small.png',
-    'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
-   ['terdragon-big.png',
-    'math-image --path=TerdragonCurve --lines --figure=point --scale=8 --size=200 --offset=70,0'],
-
-
-   ['alternate-paper-small.png',
-    'math-image --path=AlternatePaper --lines --scale=4 --size=32 --offset=2,2'],
-   ['alternate-paper-big.png',
-    'math-image --path=AlternatePaper --lines --figure=point --scale=8 --size=200 --offset=4,4'],
 
 
    ['vogel-small.png',

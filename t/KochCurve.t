@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 64;
+  my $want_version = 65;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,

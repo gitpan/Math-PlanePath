@@ -28,7 +28,7 @@ use List::Util qw(max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -41,6 +41,8 @@ use Math::PlanePath::KochCurve 42;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
+
+use constant n_frac_discontinuity => 0;
 
 # N=1 to 3      3 of, level=1
 # N=4 to 15    12 of, level=2

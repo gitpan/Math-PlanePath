@@ -19,13 +19,22 @@
 # math-image --path=AlternatePaper --output=numbers --all
 # math-image --path=AlternatePaper --expression='i<=64?i:0' --output=numbers --size=60
 
+# sum X+Y A020986 partial sums of golay-rudin-shapiro
+#   A020985 +/-1 parity of count of 11 bit pairs
+#   (except initial 0)
+# diff X-Y A020990 sum 0 to k of (-1)^k * GolayRudinShapiro(k)
+#   (except initial 0)
+#
+# A134452 dX balanced ternary digital root
+#            sum of digits (keeping sign)
+# A056594 
 
 package Math::PlanePath::AlternatePaper;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');

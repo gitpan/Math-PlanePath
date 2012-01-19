@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -347,6 +347,13 @@ N=15
       9-- 8  13--14       \
       |       |   |        \
      10--11--12  15
+
+This mirroring has the effect of mapping
+
+    HilbertCurve X,Y  ->  -Y,-X for HilbertSpiral
+
+Notice the coordinate difference (-Y)-(-X) = X-Y so that difference,
+representing a projection onto the X=-Y diagonal, is the same in both paths.
 
 =head2 Level Ranges
 

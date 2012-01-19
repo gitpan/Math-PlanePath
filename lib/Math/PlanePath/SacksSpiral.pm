@@ -28,7 +28,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -131,6 +131,9 @@ sub rect_to_n_range {
           int($rhi*$rhi + 2));
 }
 
+#------------------------------------------------------------------------------
+# generic
+
 # return ($rlo,$rhi) which is the radial distance range found in the rectangle
 sub _rect_to_radius_range {
   my ($x1,$y1, $x2,$y2) = @_;
@@ -157,7 +160,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::SacksSpiral -- circular spiral, squaring each revolution
+Math::PlanePath::SacksSpiral -- circular spiral squaring each revolution
 
 =head1 SYNOPSIS
 
@@ -195,10 +198,10 @@ which comes out roughly as
                22        23
 
 The X,Y positions returned are fractional, except for the perfect squares on
-the right axis at X=0,1,2,3,etc spaced 1 apart.  Other points are a little
-further apart.
+the positive X axis X=0,1,2,3,etc.  The perfect squares are the closest
+points at 1 unit apart, other points are a little further apart.
 
-The arms going to the right like 5,10,17,etc or 8,15,24,etc are constant
+The arms going to the right like N=5,10,17,etc or N=8,15,24,etc are constant
 offsets from the perfect squares, ie. S<s^2 + c> for positive or negative
 integer c.  To the left the central arm 2,6,12,20,etc is the pronic numbers
 S<s^2 + s>, half way between the successive perfect squares.  Other arms
@@ -214,7 +217,7 @@ For example the triangular numbers s*(s+1)/2 come out as spiral arcs going
 clockwise and counter-clockwise.
 
 See F<examples/sacks-xpm.pl> in the Math-PlanePath sources for a complete
-program plotting the spiral points to an XPM image file.
+program plotting the spiral points to a file.
 
 =head1 FUNCTIONS
 

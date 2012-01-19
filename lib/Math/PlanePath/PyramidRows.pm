@@ -22,7 +22,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -39,6 +39,7 @@ sub x_negative {
   return ($self->{'step'} >= 2);
 }
 use constant class_y_negative => 0;
+use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array => [{ name      => 'step',
                                         share_key => 'pyramid_step',

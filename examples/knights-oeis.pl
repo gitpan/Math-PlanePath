@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -46,9 +46,6 @@
 #     A068613
 #     A068614
 #     A068615
-#
-# As of Jan 2011 there's a typo in the A068609 sample.  "37" is duplicated -
-# the second one should be "39".
 #
 
 use 5.004;

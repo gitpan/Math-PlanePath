@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -33,6 +33,7 @@ use Math::PlanePath;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant n_frac_discontinuity => .5;
 
 sub new {
   my $self = shift->SUPER::new (@_);

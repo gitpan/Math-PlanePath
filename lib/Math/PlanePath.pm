@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 64;
+$VERSION = 65;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -35,6 +35,7 @@ use constant class_x_negative => 1;
 use constant class_y_negative => 1;
 sub x_negative { $_[0]->class_x_negative }
 sub y_negative { $_[0]->class_y_negative }
+use constant n_frac_discontinuity => undef;
 
 sub new {
   my $class = shift;
@@ -176,8 +177,11 @@ Math::PlanePath -- points on a path through the 2-D plane
 =head1 DESCRIPTION
 
 This is the base class for some mathematical paths which map an integer
-position C<$n> to and from coordinates C<$x,$y> in the plane.  The current
-classes include
+position C<$n> to and from coordinates C<$x,$y> in the plane.
+
+The current classes include the following.  The intention is that any
+C<Math::PlanePath::Something> is a PlanePath, and supporting base classes or
+related things are further down like C<Math::PlanePath::Base::Xyzzy>.
 
 =for my_pod list begin
 
@@ -405,6 +409,22 @@ or 1.
 Some classes have secret dubious undocumented support for N values below
 this (zero or negative), but C<n_start()> is the intended starting point.
 
+=item C<$f = $path-E<gt>n_frac_discontinuity()>
+
+Return the fraction of N at which there's discontinuities in the path.  For
+example if there's a jump in the coordinates between N=7.4999 and N=7.5 then
+the returned C<$f> is 0.5.  Or C<$f> is 0 if there's a discontinuity between
+6.999 and 7.0.
+
+If there's no discontinuities in the path, so that for example fractions
+between N=7 to N=8 give smooth X,Y values (of some kind) then the return is
+C<undef>.
+
+This is mainly of interest for drawing line segments between successive N
+points.  If there's discontinuities then the idea is to draw from say N=7.0
+to N=7.499 and then another line from N=7.5 to N=8.  The returned C<$f> is
+whether there's discontinuities anywhere in C<$path>.
+
 =item C<$bool = $path-E<gt>x_negative()>
 
 =item C<$bool = $path-E<gt>y_negative()>
@@ -486,9 +506,14 @@ C<minimum> and/or C<maximum> are omitted if there's no hard limit on the
 parameter.
 
 C<share_key> is designed to indicate when parameters from different NumSeq
-classes can be a single control widget in a GUI etc.  Normally the C<name>
-is enough, but when the same name has slightly different meanings in
+classes can done by a single control widget in a GUI etc.  Normally the
+C<name> is enough, but when the same name has slightly different meanings in
 different classes a C<share_key> allows the same meanings to be matched up.
+
+=item C<$hashref = Math::PlanePath::Foo-E<gt>parameter_info_hash()>
+
+Return a hashref mapping parameter names C<$info-E<gt>{'name'}> to their
+C<$info> records.
 
 =back
 

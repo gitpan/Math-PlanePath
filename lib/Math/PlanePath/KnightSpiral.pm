@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -476,9 +476,6 @@ eight forms for 4 rotations and spiralling the same or opposite directions.
     A068613  - rotate 270 degrees, spiral opp dir
     A068614  - spiral opposite direction (Y negate)
     A068615  - rotate 90 degrees, spiral opp dir (X,Y transpose)
-
-(As of March 2011 there was a typo in the A068609 sample numbers, the second
-"37" should be "39".)
 
 See F<examples/knights-oeis.pl> for a sample program printing the values of
 A068608.

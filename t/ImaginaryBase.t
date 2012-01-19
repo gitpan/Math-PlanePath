@@ -36,7 +36,7 @@ require Math::PlanePath::ImaginaryBase;
 # VERSION
 
 {
-  my $want_version = 64;
+  my $want_version = 65;
   ok ($Math::PlanePath::ImaginaryBase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ImaginaryBase->VERSION,  $want_version,

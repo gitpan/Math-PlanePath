@@ -32,7 +32,7 @@ use Math::PlanePath::FibonacciWordFractal;
 # VERSION
 
 {
-  my $want_version = 64;
+  my $want_version = 65;
   ok ($Math::PlanePath::FibonacciWordFractal::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FibonacciWordFractal->VERSION,  $want_version,

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -269,11 +269,11 @@ times with end parts turned +90 and -90 degrees to make a larger L,
     +-----+        +-----+-----+        +-----+-----+-----+-----+
 
 The parts are numbered to the left then middle then upper.  This relative
-numbering is maintained in the rotated end parts of the next replication
-level, as for example N=4 to N=7.
+numbering is maintained in the rotated parts of the next replication level,
+as for example N=4 to N=7.
 
 The result is to visit 1 of every 3 points in the first quadrant with a
-subtle layout of points and spaces which make diagonal lines and little 2x2
+subtle layout of points and spaces making diagonal lines and little 2x2
 blocks.
 
     15  |  48          51  61          60 140         143 163
@@ -295,15 +295,14 @@ blocks.
         +------------------------------------------------------------
            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-The X=Y leading diagonal 0,2,8,10,32,etc is the integers made from only
+The X=Y leading diagonal N=0,2,8,10,32,etc is the integers made from only
 digits 0 and 2 in base 4.  Or equivalently integers which have zero bits at
-all even numbered positions and either 0 or 1 at odd positions, so binary
-a0b0c0d0.
+all even numbered positions, binary c0d0e0f0.
 
 =head2 Left or Upper
 
 Option C<L_fill =E<gt> "left"> or C<L_fill =E<gt> "upper"> numbers the tiles
-at their left end or upper end respectively.
+instead at their left end or upper end respectively.
 
     L_fill => 'left'           8  |      52              45  43        
                                7  |          15                      42
@@ -335,10 +334,10 @@ the "L" replications is unchanged.
 
 =head2 Ends
 
-Option C<L_fill =E<gt> "all"> numbers the endpoints within each "L", first
-left then upper.  This is the inverse of the default middle shown above in
-that it visits all the points the middle option doesn't, and so 2 of every 3
-points in the first quadrant.
+Option C<L_fill =E<gt> "ends"> numbers the two endpoints within each "L",
+first the left then upper.  This is the inverse of the default middle shown
+above, ie. it visits all the points the middle option doesn't, and so 2 of
+every 3 points in the first quadrant.
 
     +-----+
     |    7|
@@ -388,7 +387,7 @@ quadrant.
 
 =head2 Level Ranges
 
-For the "middles", "left" or "upper" numbering of 1 per tile, and taking the
+For the "middles", "left" or "upper" numbering 1 per tile, and taking the
 initial N=0 tile as level 0, a replication level is
 
     Nstart = 0
@@ -397,8 +396,8 @@ initial N=0 tile as level 0, a replication level is
 
     Xmax = Ymax = 2 * 2^level - 1
 
-For example level 2 which is the large tiling shown above is N=0 to
-N=4^2-1=15 and extends to Xmax=Ymax=2*2^2-1=7.
+For example level 2 which is the large tiling shown in the introduction is
+N=0 to N=4^2-1=15 and extends to Xmax=Ymax=2*2^2-1=7.
 
 For the "ends" variation there's two points per tile, or for "all" there's
 three, in which case the Nlevel increases to

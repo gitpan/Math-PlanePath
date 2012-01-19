@@ -37,7 +37,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

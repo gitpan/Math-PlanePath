@@ -26,7 +26,7 @@ use Math::Polynomial::Horner;
 
 #use Devel::Comments;
 
-my_interpolate ([1,2,3,4],[1+4,12+4+8,35+4+8+8,70+4+8+8+8]);
+my_interpolate ([0,1,2],[55, 239, 551,]);
 exit 0;
 
   
@@ -34,6 +34,7 @@ my_interpolate ([ 0,2,4,6 ],
 [ 0,5,25,61]);
 
 
+# [1,2,3,4],[1+4,12+4+8,35+4+8+8,70+4+8+8+8]
 # # step==0
 # my_interpolate ([  0,   1,   2,   3,   4 ],
 #                 [0.5, 0.5, 0.5, 0.5, 0.5 ]);

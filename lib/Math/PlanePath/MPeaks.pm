@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 64;
+$VERSION = 65;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -32,6 +32,7 @@ use Math::PlanePath 54; # v.54 for _max()
 
 
 use constant class_y_negative => 0;
+use constant n_frac_discontinuity => .5;
 
 # starting each left side at 0.5 before
 # [ 1,2,3 ],

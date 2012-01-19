@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 64;
+$VERSION = 65;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -179,6 +179,25 @@ my %oeis_anum
        # OEIS-Other: A000695 planepath=AlternatePaper
        # OEIS-Other: A062880 planepath=AlternatePaper line_type=Diagonal
      },
+
+     'Math::PlanePath::CellularRule,rule=5' =>
+     { Y_axis   => 'A061925',  # ceil(n^2/2)+1
+       # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
+     },
+     #
+     # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
+     # # central column only
+     # 'Math::PlanePath::CellularRule,rule=4' =>
+     # { Y_axis   => 'A000027', # 1 upwards
+     #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
+     # },
+     # # right line only
+     # 'Math::PlanePath::CellularRule,rule=16' =>
+     # { Y_axis   => 'A000027', # 1 upwards
+     #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
+     # },
+     # # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
+
 
      # TriangleSpiral - cf A062728 SE diagonal offset 1 but it starts n=0
      #
