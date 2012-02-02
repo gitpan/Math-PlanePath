@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -253,6 +253,38 @@ sub _xy_to_level_ceil {
 1;
 __END__
 
+
+
+
+
+
+
+
+
+
+# old rotating version:
+#
+#                                      19  ....  18
+#                                    /               \
+#             25        24        20        14        17
+#                                         /         /
+#        26        21        23        15  ----  16        13  ----  12
+#                     \                                                 \
+#             27        22         3   ---   2         8   ----  7        11
+#                               /              \         \              /
+#        31        30         4         0  ---    1         9  ----  10
+#                                \
+#   32        28  ---   29         5  ----   6        43        48
+#                                                       \
+#        33        34        37        36        44        42        47
+#                                    /
+#                       38        35        41        45        46
+#
+#                            39        40
+
+
+
+
 =for stopwords eg Ryde Gosper FlowsnakeCentres Flowsnake Math-PlanePath
 
 =head1 NAME
@@ -383,7 +415,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
@@ -401,29 +433,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-
-
-
-# old rotating version:
-#
-#                                      19  ....  18
-#                                    /               \
-#             25        24        20        14        17
-#                                         /         /
-#        26        21        23        15  ----  16        13  ----  12
-#                     \                                                 \
-#             27        22         3   ---   2         8   ----  7        11
-#                               /              \         \              /
-#        31        30         4         0  ---    1         9  ----  10
-#                                \
-#   32        28  ---   29         5  ----   6        43        48
-#                                                       \
-#        33        34        37        36        44        42        47
-#                                    /
-#                       38        35        41        45        46
-#
-#                            39        40

@@ -17,15 +17,710 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-use 5.006;
+use 5.010;
 use strict;
 use warnings;
+use POSIX 'floor';
 use Math::Libm 'M_PI', 'hypot';
+use List::Util 'min', 'max';
+
+use lib 'xt';
+
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+use Smart::Comments;
 
 
+# sub rect_to_n_range {
+#   my ($self, $x1,$y1, $x2,$y2) = @_;
+#   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
+# 
+#   my $xmax = int(_max(abs($x1),abs($x2)));
+#   my $ymax = int(_max(abs($y1),abs($y2)));
+#   my ($level, $len) = _round_down_pow (($xmax*$xmax + $ymax*$ymax + 1) * 7,
+#                                        2);
+# 
+#   my $x = 0;
+#   my $y = 0;
+#   my $rot = 0;
+#   my $i = 0;
+# 
+#   my @xmin = (0, 0);
+#   my @xmax = (0, 1);
+#   my @ymin = (0, 0);
+#   my @ymax = (0, 0);
+# 
+#   my $intersect = sub {
+#     my $xmin = $xmin[$i];
+#     my $xmax = $xmax[$i];
+#     my $ymin = $ymin[$i];
+#     my $ymax = $ymax[$i];
+#     if ($rot & 2) {
+#       ($xmin,$xmax) = (-$xmax,-$xmin);
+#       ($ymin,$ymax) = (-$ymax,-$ymin);
+#     }
+#     if ($rot & 1) {
+#       ($xmin,
+#        $xmax,
+#        $ymin,
+#        $ymax) = (-$ymax,
+#                  -$ymin,
+#                  $xmin,
+#                  $xmax);
+#     }
+#     $xmin += $x;
+#     $xmax += $x;
+#     $ymin += $y;
+#     $ymax += $y;
+#     return ($xmin <= $x2
+#             && $xmax >= $x1
+#             && $ymin <= $y2
+#             && $ymax >= $y1);
+#   };
+# 
+#   my $n_lo = 0;
+#   my $top = 1;
+#   for (;;) {
+#     if (&$intersect()) {
+#       if ($i) {
+#         $i--;
+#       } else {
+#         last;
+#       }
+#     } else {
+# 
+#       if ($i >= $top) {
+#         ### backtrack up ...
+#         $top++;
+#         $n_lo = 1 << $top;
+#       }
+#     }
+#   }
+# }
+
+
+{
+  # width,height
+
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+
+  my @xend = (1);
+  my @yend = (0);
+  my @xmin = (0);
+  my @xmax = (1);
+  my @ymin = (0);
+  my @ymax = (0);
+  extend();
+  sub extend {
+    my $xend = $xend[-1];
+    my $yend = $yend[-1];
+    ($xend,$yend) = ($xend-$yend,  # rotate +45
+                     $xend+$yend);
+    push @xend, $xend;
+    push @yend, $yend;
+    my $xmax = $xmax[-1];
+    my $xmin = $xmin[-1];
+    my $ymax = $ymax[-1];
+    my $ymin = $ymin[-1];
+    ### assert: $xmax >= $xmin
+    ### assert: $ymax >= $ymin
+
+#    ### at: "end=$xend,$yend   $xmin..$xmax  $ymin..$ymax"
+    push @xmax, max($xmax, $xend + $ymax);
+    push @xmin, min($xmin, $xend + $ymin);
+
+    push @ymax, max($ymax, $yend - $xmin);
+    push @ymin, min($ymin, $yend - $xmax);
+  }
+
+  my $level = 0;
+  my $n_level = 1;
+  my $n = 0;
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $prev_r = 1;
+  for (;;) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $xmin = min($xmin,$x);
+    $xmax = max($xmax,$x);
+    $ymin = min($ymin,$y);
+    $ymax = max($ymax,$y);
+    if ($n == $n_level) {
+      my $width = $xmax - $xmin + 1;
+      my $height = $ymax - $ymin + 1;
+      my $r = ($width/2)**2 + ($height/2)**2;
+      my $rf = $r / $prev_r;
+      my $xrange="$xmin..$xmax";
+      my $yrange="$ymin..$ymax";
+      printf "%2d n=%-7d %9s   %9s    r=%.2f (%.3f)\n",
+        $level, $n, $xrange, $yrange, $r, $rf;
+
+      extend();
+      $xrange="$xmin[$level]..$xmax[$level]";
+      $yrange="$ymin[$level]..$ymax[$level]";
+      printf "             %9s   %9s\n",
+        $xrange, $yrange;
+
+
+      $level++;
+      $n_level *= 2;
+      $prev_r = $r;
+      last if $level > 30;
+
+    }
+    $n++;
+  }
+
+  exit 0;
+}
+
+{
+  # A059125 "dragon-like"
+
+  require MyOEIS;
+  my ($drag_values) = MyOEIS::read_values('A014707');
+  my ($like_values) = MyOEIS::read_values('A059125');
+
+  my @diff = map {$drag_values->[$_] == $like_values->[$_] ? '_' : 'x' }
+    0 .. 80;
+
+  print @{$drag_values}[0..70],"\n";
+  print @{$like_values}[0..70],"\n";
+  print @diff[0..70],"\n";
+  exit 0;
+}
+
+{
+  # total turn
+  require Math::PlanePath::DragonCurve;
+
+  sub transitions {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += (($n & 3) == 1 || ($n & 3) == 2);
+      $n >>= 1;
+    }
+    return $count
+  }
+  sub transitions2 {
+    my ($n) = @_;
+
+    my $m = low_ones_mask($n);
+    $n ^= $m;  # zap to zeros
+    my $count = ($m!=0);
+
+    while ($n) {
+      ### assert: ($n&1)==0
+      $m = low_zeros_mask($n);
+      $n |= $m;  # fill to ones
+      $count++;
+
+      $m = low_ones_mask($n);
+      $n ^= $m;  # zap to zeros
+      $count++;
+      last unless $n;
+    }
+    return $count
+  }
+  sub transitions3 {
+    my ($n) = @_;
+    my $count = 0;
+    return ones_count($n^($n>>1));
+  }
+  sub low_zeros_mask {
+    my ($n) = @_;
+    die if $n == 0;
+    return ($n ^ ($n-1)) >> 1;
+  }
+  ### assert: low_zeros_mask(1)==0
+  ### assert: low_zeros_mask(2)==1
+  ### assert: low_zeros_mask(3)==0
+  ### assert: low_zeros_mask(4)==3
+  ### assert: low_zeros_mask(12)==3
+  ### assert: low_zeros_mask(10)==1
+  sub low_ones_mask {
+    my ($n) = @_;
+    return ($n ^ ($n+1)) >> 1;
+  }
+  ### assert: low_ones_mask(1)==1
+  ### assert: low_ones_mask(2)==0
+  ### assert: low_ones_mask(3)==3
+  ### assert: low_ones_mask(5)==1
+  sub ones_count {
+    my ($n) = @_;
+    my $count;
+    while ($n) {
+      $count += ($n&1);
+      $n >>= 1;
+    }
+    return $count;
+  }
+
+  # with Y reckoned increasing upwards
+  sub dxdy_to_dir {
+    my ($dx, $dy) = @_;
+    if ($dx > 0) { return 0; }  # east
+    if ($dx < 0) { return 2; }  # west
+    if ($dy > 0) { return 1; }  # north
+    if ($dy < 0) { return 3; }  # south
+  }
+
+  sub path_n_dir {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    return dxdy_to_dir ($next_x - $x,
+                        $next_y - $y);
+  }
+
+  # return 1 for left, -1 for right
+  sub path_n_turn {
+    my ($path, $n) = @_;
+    my $prev_dir = path_n_dir ($path, $n-1);
+    my $dir = path_n_dir ($path, $n);
+    my $turn = ($dir - $prev_dir) % 4;
+    if ($turn == 1) { return 1; }
+    if ($turn == 3) { return -1; }
+    die "Oops, unrecognised turn";
+  }
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $total_turn = 0;
+  for (my $n = 0; $n < 16; ) {
+    my $t = transitions($n);
+    my $t2 = transitions2($n);
+    my $t3 = transitions3($n);
+    my $good = ($t == $t2 && $t2 == $t3 && $t == $total_turn
+                ? 'good'
+                : '');
+    printf "%2d %d  %d,%d,%d   %s\n", $n, $total_turn, $t,$t2,$t3, $good;
+
+    $n++;
+    my $turn = path_n_turn($path,$n);
+    $total_turn += $turn;
+  }
+  exit 0;
+}
+
+{
+  # Rounded and Midpoint equivalence
+  require Math::PlanePath::DragonRounded;
+  require Math::PlanePath::DragonMidpoint;
+
+  my @yx_rtom_dx;
+  my @yx_rtom_dy;
+  foreach my $arms (4) {
+    ### $arms
+    my $rounded = Math::PlanePath::DragonRounded->new (arms => $arms);
+    my $midpoint = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+    my %seen;
+    foreach my $y (0 .. 5) {
+      foreach my $x (0 .. 5) {
+        my $n = $rounded->xy_to_n($x,$y) // next;
+        my ($mx,$my) = $midpoint->n_to_xy($n);
+        $yx_rtom_dx[$y][$x] = ($x - int($x/3)) - $mx;
+        $yx_rtom_dy[$y][$x] = ($y - int($y/3)) - $my;
+      }
+    }
+    print_6x6(\@yx_rtom_dx);
+    print_6x6(\@yx_rtom_dy);
+
+    foreach my $n (0 .. 100) {
+      my ($x,$y) = $rounded->n_to_xy($n);
+
+      my $mx = $x-floor($x/3) - $yx_rtom_dx[$y%6][$x%6];
+      my $my = $y-floor($y/3) - $yx_rtom_dy[$y%6][$x%6];
+
+      my $m = $midpoint->xy_to_n($mx,$my);
+
+      my $good = ($n == $m ? "good" : "");
+
+      printf "n=%d xy=%d,%d -> mxy=%d,%d m=%s   %s\n",
+        $n, $x,$y,
+          $mx,$my, $m,
+            $good;
+    }
+  }
+  exit 0;
+
+  sub print_6x6 {
+    my ($aref) = @_;
+    foreach my $y (0 .. 5) {
+      if ($y == 0) {
+        print "[[";
+      } else {
+        print " [";
+      }
+      foreach my $x (0 .. 5) {
+        my $v = $aref->[$y][$x] // 'undef';
+        printf "%5s", $v;
+        if ($x != 5) { print ", " }
+      }
+      if ($y == 5) {
+        print "] ]\n";
+      } else {
+        print "]\n";
+      }
+    }
+  }
+}
+
+{
+  # Curve xy to n by midpoint
+  require Math::PlanePath::DragonCurve;
+  require Math::PlanePath::DragonMidpoint;
+  require Math::BaseCnv;
+
+  foreach my $arms (3) {
+    ### $arms
+    my $curve = Math::PlanePath::DragonCurve->new (arms => $arms);
+    my $midpoint = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+    my %seen;
+    for (my $n = 0; $n < 50; $n++) {
+      my ($x,$y) = $curve->n_to_xy($n);
+
+      my $list = '';
+      my $found = '';
+    DX: foreach my $dx (-1,0) {
+        foreach my $dy (0,1) {
+          # my ($x,$y) = ($x-$y,$x+$y); # rotate +45 and mul sqrt(2)
+          my ($x,$y) = ($x+$y,$y-$x); # rotate -45 and mul sqrt(2)
+          my $m = $midpoint->xy_to_n($x+$dx,$y+$dy) // next;
+          $list .= " $m";
+          if ($m == $n) {
+            $found = "$dx,$dy";
+            # last DX;
+          }
+        }
+      }
+      printf "n=%d xy=%d,%d got  %s   %s\n",
+        $n,$x,$y,
+          $found, $list;
+      $seen{$found} = 1;
+    }
+    $,=' ';
+    print sort keys %seen,"\n";
+  }
+  exit 0;
+
+  # (x+iy)*(i+1) = (x-y)+(x+y)i   # +45
+  # (x+iy)*(-i+1) = (x+y)+(y-x)i  # -45
+}
+
+
+{
+  # x axis absolute direction
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new (arms => 4);
+
+  my $width = 30;
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0,$width+2,0);
+  my (@enter, @leave);
+  print "n_hi $n_hi\n";
+  for my $n (0 .. $n_hi) {
+    my ($x,$y) = $path->n_to_xy($n);
+
+    if ($y == 0 && $x >= 0) {
+      {
+        my ($nx,$ny) = $path->n_to_xy($n+4);
+        if ($ny > $y) {
+          $leave[$x] .= 'u';
+        }
+        if ($ny < $y) {
+          $leave[$x] .= 'd';
+        }
+        if ($nx > $x) {
+          $leave[$x] .= 'r';
+        }
+        if ($nx < $x) {
+          $leave[$x] .= 'l';
+        }
+      }
+      if ($n >= 4) {
+        my ($px,$py) = $path->n_to_xy($n-4);
+        if ($y > $py) {
+          $enter[$x] .= 'u';
+        }
+        if ($y < $py) {
+          $enter[$x] .= 'd';
+        }
+        if ($x > $px) {
+          $enter[$x] .= 'r';
+        }
+        if ($x < $px) {
+          $enter[$x] .= 'l';
+        }
+      }
+    }
+  }
+  foreach my $x (0 .. $width) {
+    print "$x  ",sort_str($enter[$x]),"  ",sort_str($leave[$x]),"\n";
+  }
+
+  sub sort_str {
+    my ($str) = @_;
+    if (! defined $str) {
+      return '-';
+    }
+    return join ('', sort split //, $str);
+
+  }
+  exit 0;
+}
+{
+  # xy absolute direction
+  require Image::Base::Text;
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new (arms => 4);
+
+  my $width = 78;
+  my $height = 5;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0,$width+2,$height+2);
+  print "n_hi $n_hi\n";
+  for my $n (0 .. $n_hi) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($nx,$ny) = $path->n_to_xy($n+4);
+    next if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+
+    # if ($nx == $x+1) {
+    #   $image->xy($x,$y,$n&3);
+    # }
+    # if ($ny == $y+1) {
+    #   $image->xy($x,$y,$n&3);
+    # }
+    if ($ny == $y) {
+      $image->xy($x,$y,$n&3);
+    }
+  }
+  $image->save('/dev/stdout');
+
+  exit 0;
+}
+
+{
+  # Midpoint xy to n
+  require Math::PlanePath::DragonMidpoint;
+  require Math::BaseCnv;
+
+  my @yx_adj_x = ([0,1,1,0],
+                  [1,0,0,1],
+                  [1,0,0,1],
+                  [0,1,1,0]);
+  my @yx_adj_y = ([0,0,1,1],
+                  [0,0,1,1],
+                  [1,1,0,0],
+                  [1,1,0,0]);
+  sub xy_to_n {
+    my ($self, $x,$y) = @_;
+
+    my $n = ($x * 0 * $y) + 0; # inherit bignum 0
+    my $npow = $n + 1;         # inherit bignum 1
+
+    while (($x != 0 && $x != -1) || ($y != 0 && $y != 1)) {
+
+      # my $ax = ((($x+1) ^ ($y+1)) >> 1) & 1;
+      # my $ay = (($x^$y) >> 1) & 1;
+      # ### assert: $ax == - $yx_adj_x[$y%4]->[$x%4]
+      # ### assert: $ay == - $yx_adj_y[$y%4]->[$x%4]
+
+      my $y4 = $y % 4;
+      my $x4 = $x % 4;
+      my $ax = $yx_adj_x[$y4]->[$x4];
+      my $ay = $yx_adj_y[$y4]->[$x4];
+
+      ### at: "$x,$y  n=$n  axy=$ax,$ay  bit=".($ax^$ay)
+
+      if ($ax^$ay) {
+        $n += $npow;
+      }
+      $npow *= 2;
+
+      $x -= $ax;
+      $y -= $ay;
+      ### assert: ($x+$y)%2 == 0
+      ($x,$y) = (($x+$y)/2,   # rotate -45 and divide sqrt(2)
+                 ($y-$x)/2);
+    }
+
+    ### final: "xy=$x,$y"
+    my $arm;
+    if ($x == 0) {
+      if ($y) {
+        $arm = 1;
+        ### flip ...
+        $n = $npow-1-$n;
+      } else { #  $y == 1
+        $arm = 0;
+      }
+    } else { # $x == -1
+      if ($y) {
+        $arm = 2;
+      } else {
+        $arm = 3;
+        ### flip ...
+        $n = $npow-1-$n;
+      }
+    }
+    ### $arm
+
+    my $arms_count = $self->arms_count;
+    if ($arm > $arms_count) {
+      return undef;
+    }
+    return $n * $arms_count + $arm;
+  }
+
+  foreach my $arms (4,3,1,2) {
+    ### $arms
+
+    my $path = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+    for (my $n = 0; $n < 50; $n++) {
+      my ($x,$y) = $path->n_to_xy($n)
+        or next;
+
+      my $rn = xy_to_n($path,$x,$y);
+
+      my $good = '';
+      if (defined $rn && $rn == $n) {
+        $good .= "good N";
+      }
+
+      my $n2 = Math::BaseCnv::cnv($n,10,2);
+      my $rn2 = Math::BaseCnv::cnv($rn,10,2);
+      printf "n=%d xy=%d,%d got rn=%d    %s\n",
+        $n,$x,$y,
+          $rn,
+            $good;
+    }
+  }
+  exit 0;
+}
+{
+  # xy modulus
+  require Math::PlanePath::DragonMidpoint;
+  my $path = Math::PlanePath::DragonMidpoint->new;
+  my %seen;
+  for (my $n = 0; $n < 1024; $n++) {
+    my ($x,$y) = $path->n_to_xy($n)
+      or next;
+    my $k = ($x+$y) & 15;
+    # $x &= 3; $y &= 3; $k = "$x,$y";
+    $seen{$k} = 1;
+  }
+  ### %seen
+  exit 0;
+}
+
+{
+  # arm xy modulus
+  require Math::PlanePath::DragonMidpoint;
+  my $path = Math::PlanePath::DragonMidpoint->new (arms => 4);
+
+  my %seen;
+  for (my $n = 0; $n < 1024; $n++) {
+    my ($x,$y) = $path->n_to_xy($n)
+      or next;
+    $x &= 3;
+    $y &= 3;
+    $seen{$n&3}->{"$x,$y"} = 1;
+  }
+
+  ### %seen
+  exit 0;
+}
+
+{
+  # xy to n
+  require Math::PlanePath::DragonMidpoint;
+  require Math::BaseCnv;
+
+  my @yx_adj_x = ([0,-1,-1,0],
+                  [-1,0,0,-1],
+                  [-1,0,0,-1],
+                  [0,-1,-1,0]);
+  my @yx_adj_y = ([0,0,-1,-1],
+                  [0,0,-1,-1],
+                  [-1,-1,0,0],
+                  [-1,-1,0,0]);
+  my $path = Math::PlanePath::DragonMidpoint->new (); # (arms => 4);
+  for (my $n = 0; $n < 50; $n++) {
+    my ($x,$y) = $path->n_to_xy($n)
+      or next;
+
+    ($x,$y) = (-$y,$x+1); # rotate +90
+    # ($x,$y) = (-$x-1,-$y+1); # rotate 180
+
+    # my $rot = 1;
+    # if ($rot & 2) {
+    #   $x -= 1;
+    # }
+    # if (($rot+1) & 2) {
+    #   # rot 1 or 2
+    #   $y += 1;
+    # }
+
+    ### xy: "$n   $x,$y  adj ".$yx_adj_x[$y&3]->[$x&3]." ".$yx_adj_y[$y&3]->[$x&3]
+
+    my $rx = $x;
+    my $ry = $y;
+    # if (((($x+1)>>1)&1) ^ ((($y-1)&2))) {
+    #   $rx--;
+    # }
+    # if (((($x-1)>>1)&1) ^ ((($y+1)&2))) {
+    #   $ry--;
+    # }
+
+    my $ax = ((($x+1) ^ ($y+1)) >> 1) & 1;
+    my $ay = (($x^$y) >> 1) & 1;
+    ### assert: $ax == - $yx_adj_x[$y&3]->[$x&3]
+    ### assert: $ay == - $yx_adj_y[$y&3]->[$x&3]
+
+    # $rx += $yx_adj_x[$y&3]->[$x&3];
+    # $ry += $yx_adj_y[$y&3]->[$x&3];
+    $rx -= $ax;
+    $ry -= $ay;
+
+    ($rx,$ry) = (($rx+$ry)/2,
+                 ($ry-$rx)/2);
+    ### assert: $rx == int($rx)
+    ### assert: $ry == int($ry)
+
+    # my $arm = $n & 3;
+    # my $nbit = ($path->arms_count == 4 ? ($n>>2)&1 : $n&1);
+    # my $bit = $ax ^ $ay ^ ($arm&0) ^ (($arm>>1)&1);
+
+    my $nbit = $n&1;
+    my $bit = $ax ^ $ay;
+
+    my $rn = $path->xy_to_n($ry-1,-$rx); # rotate -90
+    # my $rn = $path->xy_to_n(-$rx-1,-$ry+1); # rotate 180
+
+    my $good = '';
+    if (defined $rn && $rn == int($n/2)) {
+      $good .= "good N";
+    }
+    if ($nbit == $bit) {
+      $good .= "  good bit";
+    }
+
+    my $n2 = Math::BaseCnv::cnv($n,10,2);
+    my $rn2 = Math::BaseCnv::cnv($rn,10,2);
+    printf "%d %d (%8s %8s) bit=%d,%d  %d,%d  %s\n",
+      $n,$rn, $n2,$rn2,
+        $nbit,$bit,
+          $x,$y, $good;
+  }
+  exit 0;
+}
 
 {
   require Image::Base::Text;
@@ -61,12 +756,12 @@ use Math::Libm 'M_PI', 'hypot';
     # if (($x+$y) % 2) { $x--; }
     # ($x,$y) = ((-$x-$y)/2,
     #            ($x-$y)/2);
-    # 
+    #
     # # (x+iy)/(i+1) = (x+iy)*(i-1)/2 = (-x-y)/2 + (x-y)/2
     # if (($x+$y) % 2) { $x--; }
     # ($x,$y) = ((-$x-$y)/2,
     #            ($x-$y)/2);
-    
+
     # ($x,$y) = (-$y,$x); # rotate +90
 
     $y = -$y;

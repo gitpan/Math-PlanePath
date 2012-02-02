@@ -15,12 +15,38 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+
+
+     # <a href="gallery.html#hilbert-midpoint" title="HilbertMidpoint">
+     #    <img src="hilbert-midpoint-small.png" width=32 height=32 align=middle
+     #         alt="HilbM"></a>
+
+# <a name="hilbert-midpoint">, HilbertMidpoint
+# </a>
+# <img src="hilbert-midpoint-big.png" width=190 height=190
+#      alt="HilbertMidpoint sample">
+# <a href="http://search.cpan.org/perldoc?Math::PlanePath::HilbertMidpoint">
+# HilbertMidpoint</a> and
+
+     # 'Math::PlanePath::HilbertMidpoint'      => 58, # new in v.58
+
+
+# Local variables:
+# compile-command: "math-image --path=HilbertMidpoint --lines --scale=40"
+# End:
+#
+# math-image --path=HilbertMidpoint --all --output=numbers_dash
+
+
+
 package Math::PlanePath::HilbertMidpoint;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -207,7 +233,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
@@ -225,24 +251,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-     # <a href="gallery.html#hilbert-midpoint" title="HilbertMidpoint">
-     #    <img src="hilbert-midpoint-small.png" width=32 height=32 align=middle
-     #         alt="HilbM"></a>
-
-# <a name="hilbert-midpoint">, HilbertMidpoint
-# </a>
-# <img src="hilbert-midpoint-big.png" width=190 height=190
-#      alt="HilbertMidpoint sample">
-# <a href="http://search.cpan.org/perldoc?Math::PlanePath::HilbertMidpoint">
-# HilbertMidpoint</a> and
-
-     # 'Math::PlanePath::HilbertMidpoint'      => 58, # new in v.58
-
-
-# Local variables:
-# compile-command: "math-image --path=HilbertMidpoint --lines --scale=40"
-# End:
-#
-# math-image --path=HilbertMidpoint --all --output=numbers_dash

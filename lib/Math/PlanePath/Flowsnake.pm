@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -259,6 +259,65 @@ __END__
 # k < log7 ((x^2 + 3*y^2) * 1.62
 # k < log((x^2 + 3*y^2) * 1.62/log(7)
 # k < log((x^2 + 3*y^2) * 0.8345
+
+
+
+    #                     *---E
+    #                    /     \
+    #               *---*       *---*
+    #              /     \     /     \
+    #             *       *---*       *
+    #              \     /     \     /
+    #               *---*       *---*
+    #              /     \     /     \
+    #             *       *---*       *
+    #              \     /     \     /
+    #               *---*       *---*
+    #                    \     /
+    #                     *---*
+    # 
+    # 
+    #                     *     *
+    #                    / \   / \
+    #                   /   \ /   \
+    #                  *     *     *
+    #                  |     |     |
+    #                  |     |     |
+    #                  *     *     *
+    #                 / \   / \   / \
+    #                /   \ /   \ /   \
+    #               *     *     *     *
+    #               |     |     |     |
+    #               |     |     |     |
+    #               *     *     *     *
+    #                \   / \   / \   /
+    #                 \ /   \ /   \ /
+    #                  *     *     *
+    #                  |     |     |
+    #                  |     |     |
+    #                  *     *     *
+    #                   \   / \   /
+    #                    \ /   \ /
+    #                     *     *
+    # 
+    # 
+    # 
+    # 
+    #    B
+    #   / \   / \  
+    #  /   \ /   \ 
+    # .  ^  .     .
+    # |   | |     |
+    # |    ||     |
+    # .     O-->  A
+    #  \   / \   / 
+    #   \ / | \ /  
+    #    . |   .   
+    #    | v   |   
+    #    |     |   
+    #    C     .   
+    #     \   / 
+    #      \ /  
 
 
 =for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath FlowsnakeCentres
@@ -532,9 +591,13 @@ flowsnake variations in bigger hexagons (with wiggly sides too).
       or if down then at archive.org
     http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
 
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-planepath/index.html
+
 =head1 LICENSE
 
-Copyright 2010, 2011 Kevin Ryde
+Copyright 2010, 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
@@ -552,62 +615,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-                        *---E
-                       /     \
-                  *---*       *---*
-                 /     \     /     \
-                *       *---*       *
-                 \     /     \     /
-                  *---*       *---*
-                 /     \     /     \
-                *       *---*       *
-                 \     /     \     /
-                  *---*       *---*
-                       \     /
-                        *---*
-
-
-                        *     *
-                       / \   / \
-                      /   \ /   \
-                     *     *     *
-                     |     |     |
-                     |     |     |
-                     *     *     *
-                    / \   / \   / \
-                   /   \ /   \ /   \
-                  *     *     *     *
-                  |     |     |     |
-                  |     |     |     |
-                  *     *     *     *
-                   \   / \   / \   /
-                    \ /   \ /   \ /
-                     *     *     *
-                     |     |     |
-                     |     |     |
-                     *     *     *
-                      \   / \   /
-                       \ /   \ /
-                        *     *
-
-
-
-
-       B
-      / \   / \  
-     /   \ /   \ 
-    .  ^  .     .
-    |   | |     |
-    |    ||     |
-    .     O-->  A
-     \   / \   / 
-      \ / | \ /  
-       . |   .   
-       | v   |   
-       |     |   
-       C     .   
-        \   / 
-         \ /  
-

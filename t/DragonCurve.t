@@ -36,7 +36,7 @@ require Math::PlanePath::DragonCurve;
 # VERSION
 
 {
-  my $want_version = 65;
+  my $want_version = 66;
   ok ($Math::PlanePath::DragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonCurve->VERSION,  $want_version,
@@ -96,12 +96,13 @@ require Math::PlanePath::DragonCurve;
   # return 0 for left, 1 for right
   sub calc_n_turn {
     my ($n) = @_;
-
-    my $mask = $n & -$n;      # 000100..00
-    my $z = $n & ($mask << 1);
+    my ($mask,$z);
+    $mask = $n & -$n;          # lowest 1 bit, 000100..00
+    $z = $n & ($mask << 1);    # the bit above it
     my $turn = ($z == 0 ? 0 : 1);
     # printf "%b   %b  %b  %d\n", $n,$mask, $z, $turn;
     return $turn;
+
 
     die if $n == 0;
     while (($n % 2) == 0) {
@@ -111,12 +112,14 @@ require Math::PlanePath::DragonCurve;
     return ($n % 2);  # next bit is the turn
   }
 
+  # 
   # return 0 for left, 1 for right
   sub calc_n_next_turn {
     my ($n) = @_;
-    my $mask = $n ^ ($n+1);      # low bits 000111..11
-    my $z = $n & ($mask + 1);    # the solitary bit above it
-    my $turn = ($z == 0 ? 0 : 1);
+    my ($mask,$w);
+    $mask = $n ^ ($n+1);      # low one and below 000111..11
+    $w = $n & ($mask + 1);    # the bit above there
+    my $turn = ($w == 0 ? 0 : 1);
     return $turn;
   }
 

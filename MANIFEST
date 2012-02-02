@@ -185,6 +185,7 @@ lib/Math/PlanePath/SquareSpiral.pm
 lib/Math/PlanePath/Staircase.pm
 lib/Math/PlanePath/StaircaseAlternating.pm
 lib/Math/PlanePath/TerdragonCurve.pm
+lib/Math/PlanePath/TerdragonMidpoint.pm
 lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
@@ -291,6 +292,7 @@ tools/gallery.pl
 tools/hilbert-curve-table.pl
 tools/hilbert-spiral-table.pl
 tools/kochel-curve-table.pl
+tools/terdragon-midpoint-offset.pl
 tools/wunderlich-meander-table.pl
 xt/0-examples-xrefs.t
 xt/0-file-is-part-of.t
@@ -325,4 +327,7 @@ xt/SierpinskiTriangle-oeis.t
 xt/SquareSpiral-oeis.t
 xt/TerdragonCurve-oeis.t
 xt/UlamWarburton-oeis.t
+xtools/my-kwalitee.sh
+xtools/my-manifest.sh
+xtools/my-wunused.sh
 META.yml                                 Module meta-data (added by MakeMaker)

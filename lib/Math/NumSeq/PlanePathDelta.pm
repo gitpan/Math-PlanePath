@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 65;
+$VERSION = 66;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -872,6 +872,14 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_max => 1;
 }
 { package Math::PlanePath::TerdragonCurve;
+  use constant _NumSeq_Delta_dX_min => -2;
+  use constant _NumSeq_Delta_dX_max => 2;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 2;
+  use constant _NumSeq_Delta_DistSquared_max => 4;
+}
+{ package Math::PlanePath::TerdragonMidpoint;
   use constant _NumSeq_Delta_dX_min => -2;
   use constant _NumSeq_Delta_dX_max => 2;
   use constant _NumSeq_Delta_dY_min => -1;

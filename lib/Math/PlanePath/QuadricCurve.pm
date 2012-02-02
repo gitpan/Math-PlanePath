@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -252,6 +252,47 @@ sub rect_to_n_range {
 1;
 __END__
 
+
+
+
+
+
+    #                 0   1   2   3   4   5   6   7   8
+    #                                          
+    # 8                                               @
+    #                                                 |
+    # 7                                               +---+
+    #                                                     |
+    # 6                                           +---+---+
+    #                                             |       
+    # 5                                           +---+
+    #                                                 |
+    # 4                                               @---+   +   +---@
+    #                                                                 |
+    # 3           +---+                                               +
+    #             |   |                                                
+    # 2       @---+   +   +---@                                       +
+    #                 |   |   |                                        
+    # 1               +---+   +---+       +---+                       +
+    #                             |       |   |                        
+    # 0                   +---+---+   @---+   +   +---@---+   +   +---@
+    #                     |           |       |   |
+    #             +---+   +---+       +       +---+
+    #             |   |       |        
+    #         @---+   +   +---@       +
+    #                 |   |            
+    #                 +---+           +
+    #                                 |
+    #                                 @---+   +   +---@
+    #                                                 |
+    #                                                 +
+    #                                                  
+    #                                                 +
+    #                                                  
+    #                                                 +
+    #                                                 |
+    #                                                 @
+
 =for stopwords eg Ryde Math-PlanePath zig-zag
 
 =head1 NAME
@@ -372,7 +413,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
@@ -390,41 +431,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-                    0   1   2   3   4   5   6   7   8
-                                             
-    8                                               @
-                                                    |
-    7                                               +---+
-                                                        |
-    6                                           +---+---+
-                                                |       
-    5                                           +---+
-                                                    |
-    4                                               @---+   +   +---@
-                                                                    |
-    3           +---+                                               +
-                |   |                                                
-    2       @---+   +   +---@                                       +
-                    |   |   |                                        
-    1               +---+   +---+       +---+                       +
-                                |       |   |                        
-    0                   +---+---+   @---+   +   +---@---+   +   +---@
-                        |           |       |   |
-                +---+   +---+       +       +---+
-                |   |       |        
-            @---+   +   +---@       +
-                    |   |            
-                    +---+           +
-                                    |
-                                    @---+   +   +---@
-                                                    |
-                                                    +
-                                                     
-                                                    +
-                                                     
-                                                    +
-                                                    |
-                                                    @

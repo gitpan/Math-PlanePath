@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 65;
+$VERSION = 66;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -249,6 +249,7 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     DragonMidpoint         paper folding midpoints
     AlternatePaper         paper folding in alternating directions
     TerdragonCurve         ternary dragon
+    TerdragonMidpoint      ternary dragon midpoints
     ComplexPlus            base i+r
     ComplexMinus           base i-r, including twindragon
     ComplexRevolving       revolving base i+1
@@ -666,7 +667,8 @@ such a power for things like KochPeaks and GosperIslands.
       3         PeanoCurve (default), GosperIslands, GosperSide
                   WunderlichMeander, KochelCurve,
                   SierpinskiTriangle, SierpinskiArrowhead,
-                  SierpinskiArrowheadCentres, TerdragonCurve,
+                  SierpinskiArrowheadCentres,
+                  TerdragonCurve, TerdragonMidpoint,
                   UlamWarburton, UlamWarburtonQuarter (each level)
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes,
                   LTiling
@@ -891,6 +893,7 @@ L<Math::PlanePath::DragonRounded>,
 L<Math::PlanePath::DragonMidpoint>,
 L<Math::PlanePath::AlternatePaper>,
 L<Math::PlanePath::TerdragonCurve>,
+L<Math::PlanePath::TerdragonMidpoint>,
 L<Math::PlanePath::ComplexPlus>,
 L<Math::PlanePath::ComplexMinus>,
 L<Math::PlanePath::ComplexRevolving>

@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -206,6 +206,22 @@ sub n_to_xy {
   return ($x,$y);
 }
 
+# or tables arithmetically,
+#
+#   my $ax = ((($x+1) ^ ($y+1)) >> 1) & 1;
+#   my $ay = (($x^$y) >> 1) & 1;
+#   ### assert: $ax == - $yx_adj_x[$y%4]->[$x%4]
+#   ### assert: $ay == - $yx_adj_y[$y%4]->[$x%4]
+#
+my @yx_adj_x = ([0,1,1,0],
+                [1,0,0,1],
+                [1,0,0,1],
+                [0,1,1,0]);
+my @yx_adj_y = ([0,0,1,1],
+                [0,0,1,1],
+                [1,1,0,0],
+                [1,1,0,0]);
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### DragonMidpoint xy_to_n(): "$x, $y"
@@ -213,62 +229,63 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  my ($power,$level_limit) = _round_down_pow (_max(abs($x),abs($y)),
-                                             2);
-  $level_limit = 2*$level_limit + 6;
-  if (_is_infinite($level_limit)) {
-    return $level_limit;  # infinity
+  if (_is_infinite($x)) {
+    return $x;  # infinity
+  }
+  if (_is_infinite($y)) {
+    return $y;  # infinity
   }
 
-  my $arms = $self->{'arms'};
-  my @hypot = (5);
-  for (my $top = 0; $top < $level_limit; $top++) {
-    push @hypot, ($top % 4 ? 2 : 3) * $hypot[$top];  # little faster than 2^lev
+  my $n = ($x * 0 * $y); # inherit bignum 0
+  my $npow = $n + 1;     # inherit bignum 1
 
-    # start from digits=1 but subtract 1 so that n=0,1,...,$arms-1 are tried
-    # too
-  ARM: foreach my $arm (-$arms .. 0) {
-      my @digits = (((0) x $top), 1);
-      my $i = $top;
-      for (;;) {
-        my $n = 0;
-        foreach my $digit (reverse @digits) { # high to low
-          $n = 2*$n + $digit;
-        }
-        $n = $arms*$n + $arm;
-        ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+  while (($x != 0 && $x != -1) || ($y != 0 && $y != 1)) {
 
-        my ($nx,$ny) = $self->n_to_xy($n);
-        ### at: "n $nx,$ny  cf hypot ".$hypot[$i]
+    my $y4 = $y % 4;
+    my $x4 = $x % 4;
+    my $ax = $yx_adj_x[$y4]->[$x4];
+    my $ay = $yx_adj_y[$y4]->[$x4];
 
-        if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found
-          return $n;
-        }
+    ### at: "$x,$y  n=$n  axy=$ax,$ay  bit=".($ax^$ay)
 
-        if ($i == 0 || ($x-$nx)**2 + ($y-$ny)**2 > $hypot[$i]) {
-          ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + ($y-$ny)**2).' vs '.$hypot[$i]
+    if ($ax^$ay) {
+      $n += $npow;
+    }
+    $npow *= 2;
 
-          while (++$digits[$i] > 1) {
-            $digits[$i] = 0;
-            if (++$i >= $top) {
-              ### backtrack past top ...
-              next ARM;
-            }
-            ### backtrack up
-          }
+    $x -= $ax;
+    $y -= $ay;
+    ### assert: ($x+$y)%2 == 0
+    ($x,$y) = (($x+$y)/2,   # rotate -45 and divide sqrt(2)
+               ($y-$x)/2);
+  }
 
-        } else {
-          ### descend
-          ### assert: $i > 0
-          $i--;
-          $digits[$i] = 0;
-        }
-      }
+  ### final: "xy=$x,$y"
+  my $arm;
+  if ($x == 0) {
+    if ($y) {
+      $arm = 1;
+      ### flip ...
+      $n = $npow-1-$n;
+    } else { #  $y == 1
+      $arm = 0;
+    }
+  } else { # $x == -1
+    if ($y) {
+      $arm = 2;
+    } else {
+      $arm = 3;
+      ### flip ...
+      $n = $npow-1-$n;
     }
   }
-  ### not found below level limit
-  return undef;
+  ### $arm
+
+  my $arms_count = $self->arms_count;
+  if ($arm > $arms_count) {
+    return undef;
+  }
+  return $n * $arms_count + $arm;
 }
 
 # not exact
@@ -295,6 +312,39 @@ sub rect_to_n_range {
 
 1;
 __END__
+
+
+
+
+# wider drawn arms ...
+#
+#
+# ...            36---32             59---63-...        5
+#  |              |    |              |
+# 60             40   28             55                 4
+#  |              |    |              |
+# 56---52---48---44   24---20---16   51                 3
+#                                |    |
+#           17---13----9----5   12   47---43---39       2
+#            |              |    |              |
+#           21    6--- 2    1    8   27---31---35       1
+#            |    |              |    |
+# 33---29---25   10    3    0--- 4   23             <- Y=0
+#  |              |    |              |
+# 37---41---45   14    7---11---15---19                -1
+#            |    |
+#           49   18---22---26   46---50---54---58      -2
+#            |              |    |              |
+#           53             30   42             62      -3
+#            |              |    |              |
+# ...--61---57             34---38             ...     -4
+#
+#
+#
+#  ^    ^    ^    ^    ^    ^    ^    ^    ^    ^
+# -5   -4   -3   -2   -1   X=0   1    2    3    4
+
+
 
 =for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al DragonCurve DragonMidpoint
 
@@ -349,7 +399,7 @@ Harter, et al, following the midpoint of each edge of the curve segments.
      ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
     -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1
 
-The dragon curve itself begins as follows, with the edge midpoints at each
+The dragon curve itself begins as follows and the edge midpoints at each
 "*",
 
                 --*--       --*--
@@ -365,12 +415,12 @@ The dragon curve itself begins as follows, with the edge midpoints at each
               ...
 
 The midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  Those positions
-can in fact be had from the DragonCurve module by asking for N=0.5, 1.5,
-2.5, etc.  But for this DragonMidpoint curve they're turned clockwise 45
-degrees and shrunk by sqrt(2) to be integer X,Y values stepping by 1.
+can be had from the DragonCurve module by asking for N=0.5, 1.5, 2.5, etc.
+For this DragonMidpoint curve they're turned clockwise 45 degrees and shrunk
+by sqrt(2) to be integer X,Y values 1 apart.
 
-Because the dragon curve only traverses each edge once the midpoints are all
-distinct X,Y positions.
+Because the dragon curve traverses each edge only once, all the midpoints
+are distinct X,Y positions.
 
 =head2 Arms
 
@@ -379,32 +429,35 @@ perfectly when rotated by 90, 180 and 270 degrees.  The C<arms> parameter
 can choose 1 to 4 curve arms, successively advancing.
 
 For example C<arms =E<gt> 4> begins as follows, with N=0,4,8,12,etc being
-one arm, N=1,5,9,13 the second, N=2,6,10,14 the third and N=3,7,11,15 the
-fourth.
+the first arm (the same as above), N=1,5,9,13 the second, N=2,6,10,14 the
+third and N=3,7,11,15 the fourth.
 
-                    ...-107-103  83--79--75--71
+                    ...-107-103  83--79--75--71             6
                               |   |           |
-     68--64          36--32  99  87  59--63--67
+     68--64          36--32  99  87  59--63--67             5
       |   |           |   |   |   |   |
-     72  60          40  28  95--91  55
+     72  60          40  28  95--91  55                     4
       |   |           |   |           |
-     76  56--52--48--44  24--20--16  51
+     76  56--52--48--44  24--20--16  51                     3
       |                           |   |
-     80--84--88  17--13---9---5  12  47--43--39 ...
+     80--84--88  17--13---9---5  12  47--43--39 ...         2
               |   |           |   |           |  |
-    100--96--92  21   6---2   1   8  27--31--35 106
+    100--96--92  21   6---2   1   8  27--31--35 106         1
       |           |   |           |   |          |
-    104  33--29--25  10   3   0---4  23  94--98-102
+    104  33--29--25  10   3   0---4  23  94--98-102    <- Y=0
       |   |           |   |           |   |
-    ...  37--41--45  14   7--11--15--19  90--86--82
+    ...  37--41--45  14   7--11--15--19  90--86--82        -1
                   |   |                           |
-                 49  18--22--26  46--50--54--58  78
+                 49  18--22--26  46--50--54--58  78        -2
                   |           |   |           |   |
-                 53  89--93  30  42          62  74
+                 53  89--93  30  42          62  74        -3
                   |   |   |   |   |           |   |
-         65--61--57  85  97  34--38          66--70
+         65--61--57  85  97  34--38          66--70        -4
           |           |   |
-         69--73--77--81 101-105-...
+         69--73--77--81 101-105-...                        -5
+
+                              ^
+     -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5
 
 With four arms like this every X,Y point is visited exactly once,
 corresponding to the way four copies of the dragon curve traversing each
@@ -435,10 +488,59 @@ Return 0, the first N in the path.
 
 =back
 
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+An X,Y point can be turned into N by dividing out digits of a base complex
+i+1.  An adjustment is applied at each step to put X,Y onto a multiple of
+i+1 and this gives a bit for N, from low to high.
+
+The adjustment from X mod 4 and Y mod 4 is per the following tables.
+(Arising essentially because at successive levels of greater detail segments
+cannot cross and don't go straight ahead.)
+
+           Xadj           Yadj
+
+      3 | 0 1 1 0     3 | 1 1 0 0
+      2 | 1 0 0 1     2 | 1 1 0 0
+      1 | 1 0 0 1     1 | 0 0 1 1
+    Y=0 | 0 1 1 0   Y=0 | 0 0 1 1
+        +--------       +--------
+        X=0 1 2 3       X=0 1 2 3
+
+So
+
+    Xm = X + Xadj(X%4,Y%4)
+    Ym = Y + Yadj(X%4,Y%4)
+
+    new X,Y = (Xm+i*Ym) / (i+1)
+            = (Xm+i*Ym) * (1-i)/2
+            = (Xm+Ym)/2, (Ym-Xm)/2
+
+    Nbit = Xadj xor Yadj
+    new N = N + Nbit << count++
+
+Each Nbit is a bit for N, from low to high.  The X,Y reduction stops on
+reaching one of the four points X=0,-1 and Y=0,1 which are the N=0,1,2,3
+points of the 4-arms shown above.  That final N is thus the curve arm, eg.
+X=0,Y=0 is the first arm.  For endpoints X=0,Y=1 and X=-1,Y=0 the N bits
+must be flipped.
+
+The table represents moving X,Y which is a curve midpoint K to K+1 to the
+midpoint of either K to K+2 or K+1 to K+3, whichever of those two are even.
+In terms of N it moves to int(N/2), and Nbit the remainder,
+ie. N=2*newN+Nbit.
+
+There's probably no need for the "/2" dividing out for the new X,Y at each
+step, if the Xadj,Yadj lookup were taken at, and applied to, a suitably
+higher bit position each time.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::DragonCurve>
+L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::TerdragonMidpoint>
 
 =head1 HOME PAGE
 
@@ -446,7 +548,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -462,34 +564,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-
-     # ...            36---32             59---63-...        5
-     #  |              |    |              |                  
-     # 60             40   28             55                 4
-     #  |              |    |              |                  
-     # 56---52---48---44   24---20---16   51                 3
-     #                                |    |                  
-     #           17---13----9----5   12   47---43---39       2
-     #            |              |    |              |        
-     #           21    6--- 2    1    8   27---31---35       1 
-     #            |    |              |    |                   
-     # 33---29---25   10    3    0--- 4   23             <- Y=0
-     #  |              |    |              |                  
-     # 37---41---45   14    7---11---15---19                -1
-     #            |    |                                      
-     #           49   18---22---26   46---50---54---58      -2
-     #            |              |    |              |        
-     #           53             30   42             62      -3
-     #            |              |    |              |        
-     # ...--61---57             34---38             ...     -4
-     # 
-     # 
-     # 
-     #  ^    ^    ^    ^    ^    ^    ^    ^    ^    ^
-     # -5   -4   -3   -2   -1   X=0   1    2    3    4
-
-

@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 65;
+$VERSION = 66;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -603,6 +603,8 @@ sub values_max {
 # { package Math::PlanePath::AlternatePaper;
 # }
 # { package Math::PlanePath::TerdragonCurve;
+# }
+# { package Math::PlanePath::TerdragonMidpoint;
 # }
 # { package Math::PlanePath::ComplexPlus;
 # }

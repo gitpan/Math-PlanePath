@@ -29,7 +29,7 @@ use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -43,6 +43,8 @@ use Math::PlanePath::KochCurve 42;
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
+
+use constant n_frac_discontinuity => 0;
 
 # N=1 to 4      4 of, level=0
 # N=5 to 36    12 of, level=1

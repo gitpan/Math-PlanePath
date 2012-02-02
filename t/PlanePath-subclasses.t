@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 877 }
+BEGIN { plan tests => 890 }
 
 use lib 't';
 use MyTestHelpers;
@@ -41,9 +41,14 @@ my @modules = (
                'ComplexPlus,realpart=4',
                'ComplexPlus,realpart=5',
 
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=6',
+
                'TerdragonCurve',
-               'TerdragonCurve,arms=1',
                'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
                'TerdragonCurve,arms=6',
 
                'AlternatePaper',
@@ -308,7 +313,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 65;
+my $want_version = 66;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -462,11 +467,12 @@ my %class_dxdy_allowed
                                              '0,1'   => 1, # N
                                             },
 
-     'Math::PlanePath::HexSpiral'        => $dxdy_hex,
-     'Math::PlanePath::Flowsnake'        => $dxdy_hex,
-     'Math::PlanePath::FlowsnakeCentres' => $dxdy_hex,
-     'Math::PlanePath::GosperSide'       => $dxdy_hex,
-     'Math::PlanePath::TerdragonCurve'   => $dxdy_hex,
+     'Math::PlanePath::HexSpiral'         => $dxdy_hex,
+     'Math::PlanePath::Flowsnake'         => $dxdy_hex,
+     'Math::PlanePath::FlowsnakeCentres'  => $dxdy_hex,
+     'Math::PlanePath::GosperSide'        => $dxdy_hex,
+     'Math::PlanePath::TerdragonCurve'    => $dxdy_hex,
+     'Math::PlanePath::TerdragonMidpoint' => $dxdy_hex,
 
      'Math::PlanePath::KochCurve'        => $dxdy_hex,
      # except for jumps at ends/rings
@@ -948,6 +954,9 @@ sub pythagorean_diag {
           || $mod eq 'TerdragonCurve'
           || $mod eq 'TerdragonCurve,arms=1'
           || $mod eq 'TerdragonCurve,arms=2'
+          || $mod eq 'TerdragonMidpoint'
+          || $mod eq 'TerdragonMidpoint,arms=1'
+          || $mod eq 'TerdragonMidpoint,arms=2'
          ) {
         # GosperSide and Flowsnake take a long time to get
         # to Y negative, not reached by the rectangle

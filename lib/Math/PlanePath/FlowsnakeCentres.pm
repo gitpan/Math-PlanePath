@@ -30,7 +30,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -864,6 +864,10 @@ L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
 http://80386.nl/projects/flowsnake/ -- Ed Schouten's code
+
+=head1 HOME PAGE
+
+http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 

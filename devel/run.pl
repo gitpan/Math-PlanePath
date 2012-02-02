@@ -89,7 +89,6 @@ use List::Util qw(min max);
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::FactorRationals;
   require Math::PlanePath::GcdRationals;
-  require Math::PlanePath::MathImageTerdragonMidpoint;
   require Math::PlanePath::VogelFloret;
   require Math::PlanePath::CellularRule;
   require Math::PlanePath::AlternatePaper;
@@ -98,18 +97,19 @@ use List::Util qw(min max);
   require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::ComplexPlus;
   require Math::PlanePath::AnvilSpiral;
-  require Math::PlanePath::TerdragonCurve;
   require Math::PlanePath::MathImageCretanLabyrinth;
   require Math::PlanePath::MathImagePixelRingsFill;
   require Math::PlanePath::MathImageCellularRule57;
-  my $path = Math::PlanePath::MathImageCellularRule57->new
+  require Math::PlanePath::TerdragonMidpoint;
+  require Math::PlanePath::TerdragonCurve;
+  my $path = Math::PlanePath::TerdragonMidpoint->new
     (
      # mirror => 1,
      # wider => 3,
      # start_shape => 'B1rev',
      # rule => 8,
      # realpart => 1,
-     # arms => 1,
+      arms => 1,
      # L_fill => 'all',
      # mirror => 1,
      # divisor_type => 'proper',
@@ -129,7 +129,7 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0; $i <= 200; $i+=1) {
+  for (my $i = $n_start+0; $i <= 20; $i+=1) {
 
   #for (my $i = $n_start; $i <= $n_start + 80000000000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {

@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -37,6 +37,9 @@ use Math::PlanePath 54; # v.54 for _max()
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use Math::PlanePath::TerdragonMidpoint;
+
 
 use constant n_start => 0;
 sub arms_count {
@@ -168,6 +171,9 @@ sub n_to_xy {
 }
 
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 # maximum extent -- no, not quite right
 #
 #          .----*
@@ -182,6 +188,9 @@ sub n_to_xy {
 # then X=3,Y=1 is 3*3+3*1*1 = 9+3 = 12 = 4*3
 # then X=3,Y=3 is 3*3+3*3*3 = 9+3 = 36 = 4*3^2
 #
+my @try_dx = (2, 1, -1, -2, -1,  1);
+my @try_dy = (0, 1,  1, 0,  -1, -1);
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### TerdragonCurve xy_to_n(): "$x, $y"
@@ -189,62 +198,102 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  my ($pow,$exp) = _round_down_pow ($x*$x + 3*$y*$y,
-                                    3);
-  my $level_limit = $exp + 6;
-  if (_is_infinite($level_limit)) {
-    return $level_limit;  # infinity
+  if (_is_infinite($x)) {
+    return $x;  # infinity
+  }
+  if (_is_infinite($y)) {
+    return $y;  # infinity
   }
 
-  my $arms = $self->{'arms'};
-  my @hypot = (4);
-  for (my $top = 0; $top < $level_limit; $top++) {
-    push @hypot, ($top % 8 ? 4 : 3) * $hypot[$top];  # little faster than 3^lev
+  my $n;
+  my $xm = 2*$x;  # doubled out
+  my $ym = 2*$y;
+  foreach my $i (0 .. $#try_dx) {
+    my $t = $self->Math::PlanePath::TerdragonMidpoint::xy_to_n
+      ($xm+$try_dx[$i], $ym+$try_dy[$i]);
 
-    # start from digits=1 but use (n-1)*arms so that n=0,1,...,$arms-1 are
-    # tried too, done by $arm -6 to -1
-  ARM: foreach my $arm (-$arms .. -1) {
-      my @digits = (((0) x $top), 1);
-      my $i = $top;
-      for (;;) {
-        my $n = 0;
-        foreach my $digit (reverse @digits) { # high to low
-          $n = 3*$n + $digit;
-        }
-        $n = $arms*$n + $arm;
-        ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+    ### try: ($xm+$try_dx[$i]).",".($ym+$try_dy[$i])
+    ### $t
 
-        my ($nx,$ny) = $self->n_to_xy($n);
-        ### at: "n pos $nx,$ny  cf hypot ".$hypot[$i]
+    next unless defined $t;
 
-        if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found ...
-          return $n;
-        }
+    my ($tx,$ty) = $self->n_to_xy($t)
+      or next;
 
-        if ($i == 0 || ($x-$nx)**2 + 3*($y-$ny)**2 > $hypot[$i]) {
-          ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + 3*($y-$ny)**2).' vs '.$hypot[$i]
-
-          while (++$digits[$i] > 2) {
-            $digits[$i] = 0;
-            if (++$i > $top) {
-              ### backtrack past top ...
-              next ARM;
-            }
-            ### backtrack up ...
-          }
-
-        } else {
-          ### descend ...
-          ### assert: $i > 0
-          $i--;
-          $digits[$i] = 0;
-        }
+    if ($tx == $x && $ty == $y) {
+      ### found: $t
+      if (defined $t && (! defined $n || $t < $n)) {
+        $n = $t;
       }
     }
   }
-  ### not found below level limit
-  return undef;
+  return $n;
+
+
+
+
+
+
+
+
+
+
+  # my ($pow,$exp) = _round_down_pow ($x*$x + 3*$y*$y,
+  #                                   3);
+  # my $level_limit = $exp + 6;
+  # if (_is_infinite($level_limit)) {
+  #   return $level_limit;  # infinity
+  # }
+  # 
+  # my $arms = $self->{'arms'};
+  # my @hypot = (4);
+  # for (my $top = 0; $top < $level_limit; $top++) {
+  #   push @hypot, ($top % 8 ? 4 : 3) * $hypot[$top];  # little faster than 3^lev
+  # 
+  #   # start from digits=1 but use (n-1)*arms so that n=0,1,...,$arms-1 are
+  #   # tried too, done by $arm -6 to -1
+  # ARM: foreach my $arm (-$arms .. -1) {
+  #     my @digits = (((0) x $top), 1);
+  #     my $i = $top;
+  #     for (;;) {
+  #       my $n = 0;
+  #       foreach my $digit (reverse @digits) { # high to low
+  #         $n = 3*$n + $digit;
+  #       }
+  #       $n = $arms*$n + $arm;
+  #       ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
+  # 
+  #       my ($nx,$ny) = $self->n_to_xy($n);
+  #       ### at: "n pos $nx,$ny  cf hypot ".$hypot[$i]
+  # 
+  #       if ($i == 0 && $x == $nx && $y == $ny) {
+  #         ### found ...
+  #         return $n;
+  #       }
+  # 
+  #       if ($i == 0 || ($x-$nx)**2 + 3*($y-$ny)**2 > $hypot[$i]) {
+  #         ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + 3*($y-$ny)**2).' vs '.$hypot[$i]
+  # 
+  #         while (++$digits[$i] > 2) {
+  #           $digits[$i] = 0;
+  #           if (++$i > $top) {
+  #             ### backtrack past top ...
+  #             next ARM;
+  #           }
+  #           ### backtrack up ...
+  #         }
+  # 
+  #       } else {
+  #         ### descend ...
+  #         ### assert: $i > 0
+  #         $i--;
+  #         $digits[$i] = 0;
+  #       }
+  #     }
+  #   }
+  # }
+  # ### not found below level limit
+  # return undef;
 }
 
 # minimum  -- no, not quite right
@@ -466,6 +515,20 @@ Return 0, the first N in the path.
 
 =back
 
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+The current code applies TerdragonMidpoint C<xy_to_n()> to calculate six
+candidate N from the six edges around a point.  The smallest N which
+converts back to the target X,Y by C<n_to_xy()> is the result.
+
+The six edges are three going towards the point and three going away.  The
+midpoing calculation gives N-1 for the towards and N for the away.  Is there
+a good way to tell which edge is the smallest?  Or just which 3 edges lead
+away?  It might be directions 0,2,4 for the even arms and 1,3,5 for the odd
+ones, but the boundary of those areas is tricky.
+
 =head1 OEIS
 
 The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as the
@@ -475,21 +538,18 @@ turn at each line segment,
 
     A080846 -- turn 0=left,1=right, by 120 degrees
     A060236 -- turn 1=left,2=right, by 120 degrees
-    A038502 -- trim trailing ternary 0s, taken mod 3 is turn 1=L,2=R
+    A038502 -- drop trailing ternary 0s, then mod 3 is turn 1=L,2=R
     A026225 -- (3*i+1)*3^j, is N positions of left turns
-    A026179 -- gives N positions of right turns (except initial 1)
+    A026179 -- N positions of right turns (except initial 1)
 
 A026179 starts with a value 1 arising from its morphism definition but that
 value should be skipped to consider it as turns.  At N=1 the curve is a left
 turn.
 
-=head1 BUGS
-
-C<xy_to_n()> is a bit slow due to doing a crude backtracking digits search.
-
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::TerdragonMidpoint>,
 L<Math::PlanePath::DragonCurve>
 
 =head1 HOME PAGE
@@ -498,7 +558,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

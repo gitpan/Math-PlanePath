@@ -27,16 +27,19 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
+*_floor = \&Math::PlanePath::_floor;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -179,13 +182,19 @@ sub n_to_xy {
   return ($x,$y);
 }
 
-# point N>=2^18 have radius >= 2^17 or a bit less
-# N = 2^level
-#     r >= 2^(level-1)
-#     h >= 4^(level-1)
-#     level-1 <= log4(h)
-#     level-1 <= 2*log2(h)
-#     level <= 2*log2(h) + 1
+my @yx_rtom_dx = ([undef,     1,     1, undef,     1,     1],
+                  [    0, undef, undef,     1, undef, undef],
+                  [    0, undef, undef,     1, undef, undef],
+                  [undef,     1,     1, undef,     1,     1],
+                  [    1, undef, undef,     0, undef, undef],
+                  [    1, undef, undef,     0, undef, undef]);
+
+my @yx_rtom_dy = ([undef,     0,     0, undef,    -1,    -1],
+                  [    0, undef, undef,     0, undef, undef],
+                  [    0, undef, undef,     0, undef, undef],
+                  [undef,    -1,    -1, undef,     0,     0],
+                  [    0, undef, undef,     0, undef, undef],
+                  [    0, undef, undef,     0, undef, undef]);
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
@@ -194,89 +203,14 @@ sub xy_to_n {
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
-  {
-    my $yrem = $y % 3;
-    if ($x % 3) {
-      # horizontal
-      if ($yrem) {
-        return undef;
-      }
-    } else {
-      # vertical
-      unless ($yrem) {
-        return undef;
-      }
-    }
-  }
+  my $x6 = $x % 6;
+  my $y6 = $y % 6;
+  my $dx = $yx_rtom_dx[$y6][$x6];  defined $dx or return undef;
+  my $dy = $yx_rtom_dy[$y6][$x6];  defined $dy or return undef;
 
-  my $arms = $self->{'arms'};
-
-  # n=0 not covered by @digits starting from 1 ...
-  # {
-  #   my $ax = $x;
-  #   my $ay = $y;
-  #   foreach my $arm (0 .. $arms-1) {
-  #     if ($ax == 1 && $ay == 0) {
-  #       return $arm;
-  #     }
-  #     ($ax,$ay) = ($ay, -$ax);  # rotate -90
-  #   }
-  # }
-
-  my ($power,$level_limit) = _round_down_pow (_max(abs($x),abs($y))/3,
-                                             2);
-  $level_limit = 2*$level_limit + 6;
-  if (_is_infinite($level_limit)) {
-    return $level_limit;
-  }
-
-  my @hypot = (10);
-  for (my $top = 0; $top < $level_limit; $top++) {
-    ### $top
-    push @hypot, ($top % 4 ? 2 : 3) * $hypot[$top];  # little faster than 2^lev
-
-  ARM: foreach my $arm (0 .. $arms-1) {
-      my @digits = (((0) x $top), 1);
-      my $i = $top;
-      for (;;) {
-        my $n = 0;
-        foreach my $digit (reverse @digits) { # high to low
-          $n = 2*$n + $digit;
-        }
-        $n = $arms*($n-1) + $arm;   # n-1 to include N=0
-        ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-
-        my ($nx,$ny) = $self->n_to_xy($n);
-        ### xy_to_n at: "nxy=$nx,$ny  cf hypot ".$hypot[$i]
-
-        if ($i == 0 && $x == $nx && $y == $ny) {
-          ### found ...
-          return $n;
-        }
-
-        if ($i == 0 || ($x-$nx)**2 + ($y-$ny)**2 > $hypot[$i]) {
-          ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + ($y-$ny)**2).' vs '.$hypot[$i]
-
-          while (++$digits[$i] > 1) {
-            $digits[$i] = 0;
-            if (++$i >= $top) {
-              ### backtrack past top ...
-              next ARM;
-            }
-            ### backtrack up ...
-          }
-
-        } else {
-          ### descend ...
-          ### assert: $i > 0
-          $i--;
-          $digits[$i] = 0;
-        }
-      }
-    }
-  }
-  ### not found below level limit
-  return undef;
+  return $self->Math::PlanePath::DragonMidpoint::xy_to_n
+    ($x - _floor($x/3) - $dx,
+     $y - _floor($y/3) - $dy);
 }
 
 # level 21  n=1048576 .. 2097152
@@ -297,12 +231,6 @@ sub rect_to_n_range {
   my $ymax = int(_max($y1,$y2) / 3);
   return (0,
           ($xmax*$xmax + $ymax*$ymax + 1) * $self->{'arms'} * 16);
-
-  # use Math::PlanePath::SacksSpiral;
-  # my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range
-  #   ($x1/3,$y1/3, $x2/3,$y2/3);
-  # my $level_hi = ceil (log($r_hi+.1) * (3 * 1/log(2))) + 1;
-  # return (1, (2**$level_hi + 2));
 }
 
 1;
@@ -359,12 +287,13 @@ two points per edge and skipping vertices so as to make rounded-off corners,
       ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
     -15-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3 ...
 
-The two points on an edge have one of X or Y a multiple of 3, and the other
-Y or X at 1 mod 3 or 2 mod 3.  For example the N=19 and N=20 are on the X=-9
-edge (a multiple of 3), and at Y=4 and Y=5 (1 and 2 mod 3).
+The two points on an edge have one of X or Y a multiple of 3 and the other Y
+or X at 1 mod 3 or 2 mod 3.  For example N=19 and N=20 are on the X=-9 edge
+(a multiple of 3), and at Y=4 and Y=5 (1 and 2 mod 3).
 
 The "rounding" of the corners ensures that for example N=13 and N=21 don't
-touch as they approach X=-6,Y=3.  The curve never crosses itself.
+touch as they approach X=-6,Y=3.  The curve always approaches vertices like
+this and never crosses itself.
 
 =head2 Arms
 
@@ -404,7 +333,32 @@ curve arms, successively advancing.  For example C<arms =E<gt> 4> gives
      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
-With 4 arms all 3x3 blocks are visited, using 4 out of 9 points in each.
+With 4 arms like this all 3x3 blocks are visited, using 4 out of 9 points in
+each.
+
+=head2 Midpoint
+
+The points of this rounded curve correspond to the DragonMidpoint with a
+little squish to turn each 6x6 block into a 4x4 block.  For instance in the
+followng N=2,3 are pushed to the left, and N=6 through N=11 shift down and
+squashes up horizontally.
+
+     DragonRounded               DragonMidpoint
+
+        9--8                     
+       /    \
+     10      7                     9---8         
+      |      |                     |   |         
+     11      6                    10   7         
+    /         \                    |   |         
+               5--4      <=>     -11   6---5---4 
+                   \                           | 
+                    3                          3 
+                    |                          | 
+                    2                          2 
+                   /                           | 
+             . 0--1                        0---1 
+                            
 
 =head1 FUNCTIONS
 
@@ -432,6 +386,32 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Return 0, the first N in the path.
 
 =back
+
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+The correspondence with the DragonMidpoint noted above allows the method
+from that module to be used for the rounded C<xy_to_n()>.
+
+The correspondence essentially reckons each point on the rounded curve as
+the midpoint of a dragon curve of one greater level of detail, and segments
+on 45-degree angles.
+
+The coordinate conversion turns each 6x6 block of DragonRounded to a 4x4
+block of DragonMidpoint.  There's no rotations or anything.
+
+    Xmid = X - floor(X/3) - Xadj[X%6][Y%6]
+    Ymid = Y - floor(Y/3) - Yadj[X%6][Y%6]
+
+    N = DragonMidpoint n_to_xy of Xmid,Ymid
+
+    Xadj[][] is a 6x6 table of 0 or 1 or undef
+    Yadj[][] is a 6x6 table of -1 or 0 or undef
+
+The Xadj,Yadj tables are a handy place to notice X,Y points not on the
+DragonRounded style 4 of 9 points.  Or 16 of 36 points since the tables are
+6x6.
 
 =head1 SEE ALSO
 

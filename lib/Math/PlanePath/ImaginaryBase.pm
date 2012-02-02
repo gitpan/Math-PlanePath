@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -215,6 +215,35 @@ sub rect_to_n_range {
 1;
 __END__
 
+
+
+
+
+
+
+
+# x
+#
+#      60  61  62  63  44  45  46  47  28  29  30  31  12  13  14  15    6
+#                                                                        5
+#      56  57  58  59  40  41  42  43  24  25  26  27   8   9  10  11    4
+#                                                                        3
+#      52  53  54  55  36  37  38  39  20  21  22  23   4   5   6   7    2
+#                                                                        1
+#      48  49  50  51  32  33  34  35  16  17  18  19   0   1   2   3  Y=0
+#                                                                       -1
+#     124 125 126 127 108 109 110 111  92  93  94  95  76  77  78  79   -2
+#                                                                       -3
+#     120 121 122 123 104 105 106 107  88  89  90  91  72  73  74  75   -4
+#                                                                       -5
+#     116 117 118 119 100 101 102 103  84  85  86  87  68  69  70  71   -6
+#                                                                       -7
+#     112 113 114 115  96  97  98  99  80  81  82  83  64  65  66  67   -8
+#
+#                                                       ^
+#     -12 -11 -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3
+#
+
 =for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix ie
 
 =head1 NAME
@@ -345,7 +374,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -361,30 +390,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-
-
-# x
-#
-#      60  61  62  63  44  45  46  47  28  29  30  31  12  13  14  15    6
-#                                                                        5
-#      56  57  58  59  40  41  42  43  24  25  26  27   8   9  10  11    4
-#                                                                        3
-#      52  53  54  55  36  37  38  39  20  21  22  23   4   5   6   7    2
-#                                                                        1
-#      48  49  50  51  32  33  34  35  16  17  18  19   0   1   2   3  Y=0
-#                                                                       -1
-#     124 125 126 127 108 109 110 111  92  93  94  95  76  77  78  79   -2
-#                                                                       -3
-#     120 121 122 123 104 105 106 107  88  89  90  91  72  73  74  75   -4
-#                                                                       -5
-#     116 117 118 119 100 101 102 103  84  85  86  87  68  69  70  71   -6
-#                                                                       -7
-#     112 113 114 115  96  97  98  99  80  81  82  83  64  65  66  67   -8
-#
-#                                                       ^
-#     -12 -11 -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3
-#

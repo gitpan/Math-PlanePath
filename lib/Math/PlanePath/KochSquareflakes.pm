@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -422,6 +422,45 @@ sub rect_to_n_range {
 1;
 __END__
 
+
+
+
+
+
+
+
+
+    #                             15                     3
+    #                            /  \
+    #                     17--16      14--13             2
+    #                      |               |
+    #                     18              12             1
+    #                   /       4 -- 3      \
+    #                 19             |        11     <- Y=0
+    #                   \       1 -- 2      /
+    #                     20              10            -1
+    #                                      |
+    #                      5-- 6       8-- 9            -2
+    #                            \   /
+    #                              7                    -3
+    #
+    #                                                   -4
+    #
+    #                                                   -5
+    #
+    # ...                                               -6
+    #
+    # 21--22      24--25                      33--...   -7
+    #       \   /       \                   /
+    #         23          26              32            -8
+    #                      |               |
+    #                     27--28      30--31            -9
+    #                           \   /
+    #                             29                   -10
+
+
+
+
 =for stopwords eg Ryde ie Math-PlanePath Koch Nstart Xstart,Ystart
 
 =head1 NAME
@@ -590,7 +629,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -606,37 +645,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-
-
-
-    #                             15                     3
-    #                            /  \
-    #                     17--16      14--13             2
-    #                      |               |
-    #                     18              12             1
-    #                   /       4 -- 3      \
-    #                 19             |        11     <- Y=0
-    #                   \       1 -- 2      /
-    #                     20              10            -1
-    #                                      |
-    #                      5-- 6       8-- 9            -2
-    #                            \   /
-    #                              7                    -3
-    #
-    #                                                   -4
-    #
-    #                                                   -5
-    #
-    # ...                                               -6
-    #
-    # 21--22      24--25                      33--...   -7
-    #       \   /       \                   /
-    #         23          26              32            -8
-    #                      |               |
-    #                     27--28      30--31            -9
-    #                           \   /
-    #                             29                   -10

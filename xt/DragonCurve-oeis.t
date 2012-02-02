@@ -122,8 +122,6 @@ sub dxdy_to_direction {
   my @got;
   if ($bvalues) {
     MyTestHelpers::diag ("$anum has $#$bvalues values");
-    $bvalues->[15] = 48;  # typo ???
-
 
     my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
     my ($prev_x, $prev_y) = $dragon->n_to_xy (1);

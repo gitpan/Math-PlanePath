@@ -44,12 +44,41 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['quadric-islands-small.png',
+    'math-image --path=QuadricIslands --lines --scale=4 --size=32'],
+   ['quadric-islands-big.png',
+    'math-image --path=QuadricIslands --lines --scale=2 --size=200'],
+
+   ['quadric-curve-small.png',
+    'math-image --path=QuadricCurve --lines --scale=2 --size=32 --offset=3,0'],
+   ['quadric-curve-big.png',
+    'math-image --path=QuadricCurve --lines --scale=4 --size=300x200 --offset=3,0'],
+
+
    ['terdragon-small.png',
     'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
    ['terdragon-big.png',
-    'math-image --path=TerdragonCurve --lines --figure=point --scale=8 --size=200 --offset=65,0'],
+    'math-image --path=TerdragonCurve --lines --figure=point --scale=4 --size=200 --offset=65,0'],
    ['terdragon-rounded-big.png',
     'math-image --path=TerdragonCurve --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=35,-30'],
+   ['terdragon-rounded-6arm-big.png',
+    'math-image --path=TerdragonCurve,arms=6 --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=10 --size=200'],
+
+
+   ['terdragon-midpoint-6arm-big.png',
+    'math-image --path=TerdragonMidpoint,arms=6 --lines --figure=circle --scale=4 --size=200'],
+   ['terdragon-midpoint-small.png',
+    'math-image --path=TerdragonMidpoint --lines --scale=2 --size=32 --offset=2,-9'],
+   ['terdragon-midpoint-big.png',
+    'math-image --path=TerdragonMidpoint --lines --figure=circle --scale=8 --size=200 --offset=50,-50'],
+
+
+   ['divisible-columns-small.png',
+    'math-image --path=DivisibleColumns --all --scale=3 --size=32'],
+   ['divisible-columns-big.png',
+    'math-image --path=DivisibleColumns --all --scale=3 --size=200'],
+   ['divisible-columns-proper-big.png',
+    'math-image --path=DivisibleColumns,divisor_type=proper --all --scale=3 --size=400x200'],
 
 
    ['alternate-paper-small.png',
@@ -183,13 +212,6 @@ foreach my $elem
    ['rationals-tree-lines-bird.png',
     'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
 
-
-   ['divisible-columns-small.png',
-    'math-image --path=DivisibleColumns --all --scale=3 --size=32'],
-   ['divisible-columns-big.png',
-    'math-image --path=DivisibleColumns --all --scale=3 --size=200'],
-   ['divisible-columns-proper-big.png',
-    'math-image --path=DivisibleColumns,divisor_type=proper --all --scale=3 --size=200'],
 
    ['coprime-columns-small.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=32'],
@@ -465,17 +487,6 @@ foreach my $elem
     'math-image --path=KochPeaks --lines --scale=2 --size=32'],
    ['koch-peaks-big.png',
     'math-image --path=KochPeaks --lines --scale=3 --size=200x100'],
-
-
-   ['quadric-islands-small.png',
-    'math-image --path=QuadricIslands --lines --scale=4 --size=32'],
-   ['quadric-islands-big.png',
-    'math-image --path=QuadricIslands --lines --scale=2 --size=200'],
-
-   ['quadric-curve-small.png',
-    'math-image --path=QuadricCurve --lines --scale=2 --size=32 --offset=3,0'],
-   ['quadric-curve-big.png',
-    'math-image --path=QuadricCurve --lines --scale=4 --size=300x200 --offset=3,0'],
 
 
    ['flowsnake-3arm-big.png',

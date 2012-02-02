@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -514,7 +514,7 @@ shapes.
 
             X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-The two base shapes are an R and an F.  The R goes along an edge, the F goes
+The base shapes are an "R" and an "F".  The R goes along an edge, the F goes
 diagonally across.
 
           R pattern                      F pattern   ^
@@ -549,24 +549,25 @@ diagonally across.
     +------+-----+-----+ 
 
 The F pattern is symmetric, the same forward or reverse, including its
-sub-parts in reverse, so there's no separate "Frev" pattern.
+sub-parts taken in reverse, so there's no separate "Frev" pattern.
 
-The initial N=0 to N=8 is the Rrev turned -90, and N=9 to N=17 is the F
+The initial N=0 to N=8 is the Rrev turned -90, then N=9 to N=17 is the F
 shape.  The next higher level N=0,N=9,N=18 to N=72 is the Rrev too, as is
 any N=9^k to N=8*9^k.
 
 =head2 Fractal
 
 The curve is conceived by Haverkort for filling a unit square by descending
-into ever-smaller replacements like other space-filling curves.  For that
-the top-level can be any of the patterns.  But for the outward expanding
-version here the starting pattern must occur at the start of its next higher
-level, which means Rrev is the only choice since it's the only start in any
-of the three patterns.
+into ever-smaller replacements, like other space-filling curves.  For that
+the top-level can be any of the patterns.  To descend any of the shapes can
+be used for the start, but for the outward expanding version here the
+starting pattern must occur at the start of its next higher level, which
+means Rrev is the only choice as it's the only start in any of the three
+patterns.
 
-But all of the patterns can be found in the curve at any desired level of
-detail.  For example the "1" part of Rrev is an F, which means F to a
-desired level can be found at
+But all the patterns can be found in the path at any desired size.  For
+example the "1" part of Rrev is an F, which means F to a desired level can
+be found at
 
     NFstart = 1 * 9^level
     NFlast = NFstart + 9^level - 1

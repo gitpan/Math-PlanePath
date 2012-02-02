@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -181,11 +181,26 @@ The perfect squares 1,4,9,16 fall one before the bottom left corner of each
 loop, and the pronic numbers 2,6,12,20,30,etc are the vertical upwards from
 x=1.
 
-This spiral goes around at the same rate as the SquareSpiral, just reshaped
-a bit.  The height is the same as the square but the top left and top right
-corners are cut off (half way up) and the base extended left and right.
-Cutting the corners shortens the loop by 2 and extending the base lengthens
-it by 2, for the same rate.
+=head2 Square Spiral
+
+This spiral goes around at the same rate as the SquareSpiral, and is as if
+two corners are cut off (like the DiamondSpiral) and two others extended
+(like the OctagramSpiral).  The net effect is the same looping rate but the
+points pushed around a bit.
+
+Taking the points up to a perfect square shows the similarity.  The two
+triangular cut-off corners marked "*" are matched by the two triangular
+extensions.
+
+            +--------------------+   7x7 square
+            | *  *  * 31  *  *  *|
+            | *  * 32 13 30  *  *|
+            | * 33 14  3 12 29  *|
+            |34 15  4  1  2 11 28|
+          35|16  5  6  7  8  9 10|27
+       36 17|18 19 20 21 22 23 24|25 26
+    37 38 39|40 41 42 43 44 45 46|47 48 49
+            +--------------------+
 
 =head1 FUNCTIONS
 

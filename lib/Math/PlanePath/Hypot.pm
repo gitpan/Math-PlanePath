@@ -24,7 +24,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -213,6 +213,34 @@ sub rect_to_n_range {
 1;
 __END__
 
+
+
+
+# Quadrant style ...
+#
+#      9      73  75  79  83  85
+#      8      58  62  64  67  71  81  ...
+#      7      45  48  52  54  61  69  78  86
+#      6      35  37  39  43  50  56  65  77  88
+#      5      26  28  30  33  41  47  55  68  80
+#      4      17  19  22  25  31  40  49  60  70  84
+#      3      11  13  15  20  24  32  42  53  66  82
+#      2       6   8   9  14  21  29  38  51  63  76
+#      1       3   4   7  12  18  27  36  46  59  74
+#     Y=0      1   2   5  10  16  23  34  44  57  72
+# 
+#             X=0  1   2   3   4   5   6   7   8   9  ...
+# 
+# For example N=37 is at X=1,Y=6 which is sqrt(1*1+6*6) = sqrt(37) from the
+# origin.  The next closest to the origin is X=6,Y=2 at sqrt(40).  In general
+# it's the sums of two squares X^2+Y^2 taken in order from smallest to biggest.
+# 
+# Points X,Y and swapped Y,X are the same distance from the origin.  The one
+# with bigger X is taken first, then the swapped Y,X (as long as X!=Y).  For
+# example N=21 is X=4,Y=2 and N=22 is X=2,Y=4.
+
+
+
 =for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant onwards
 
 =head1 NAME
@@ -349,7 +377,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
@@ -367,28 +395,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-# Quadrant style ...
-#
-#      9      73  75  79  83  85
-#      8      58  62  64  67  71  81  ...
-#      7      45  48  52  54  61  69  78  86
-#      6      35  37  39  43  50  56  65  77  88
-#      5      26  28  30  33  41  47  55  68  80
-#      4      17  19  22  25  31  40  49  60  70  84
-#      3      11  13  15  20  24  32  42  53  66  82
-#      2       6   8   9  14  21  29  38  51  63  76
-#      1       3   4   7  12  18  27  36  46  59  74
-#     Y=0      1   2   5  10  16  23  34  44  57  72
-# 
-#             X=0  1   2   3   4   5   6   7   8   9  ...
-# 
-# For example N=37 is at X=1,Y=6 which is sqrt(1*1+6*6) = sqrt(37) from the
-# origin.  The next closest to the origin is X=6,Y=2 at sqrt(40).  In general
-# it's the sums of two squares X^2+Y^2 taken in order from smallest to biggest.
-# 
-# Points X,Y and swapped Y,X are the same distance from the origin.  The one
-# with bigger X is taken first, then the swapped Y,X (as long as X!=Y).  For
-# example N=21 is X=4,Y=2 and N=22 is X=2,Y=4.

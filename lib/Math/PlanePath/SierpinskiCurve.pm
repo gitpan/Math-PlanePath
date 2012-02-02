@@ -16,12 +16,20 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+
+# math-image --path=SierpinskiCurve --lines --scale=10
+#
+# math-image --path=SierpinskiCurve --all --output=numbers_dash
+
+
+
 package Math::PlanePath::SierpinskiCurve;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 65;
+$VERSION = 66;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -415,6 +423,102 @@ sub _apply_max {
 1;
 __END__
 
+
+
+
+
+
+
+   #                                              63-64            14
+   #                                               |  |
+   #                                              62 65            13
+   #                                             /     \
+   #                                        60-61       66-67      12
+   #                                         |              |
+   #                                        59-58       69-68      11
+   #                                             \     /
+   #                                  51-52       57 70            10
+   #                                   |  |        |  |
+   #                                  50 53       56 71       ...   9
+   #                                 /     \     /     \     /
+   #                            48-49       54-55       72-73       8
+   #                             |
+   #                            47-46       41-40                   7
+   #                                 \     /     \
+   #                      15-16       45 42       39                6
+   #                       |  |        |  |        |
+   #                      14 17       44-43       38                5
+   #                     /     \                 /
+   #                12-13       18-19       36-37                   4
+   #                 |              |        |
+   #                11-10       21-20       35-34                   3
+   #                     \     /                 \
+   #           3--4        9 22       27-28       33                2
+   #           |  |        |  |        |  |        |
+   #           2  5        8 23       26 29       32                1
+   #         /     \     /     \     /     \     /
+   #     0--1        6--7       24-25       30-31                 Y=0
+   #
+   #  ^
+   # X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 ...
+
+    #                                                                 127-128
+    #                                                                /       \
+    #                                                              126      ...
+    #                                                                |
+    #                                                              125
+    #                                                                 \
+    #                                                        121-122  124
+    #                                                        /     \  /
+    #                                                     120      123
+    #                                                       |
+    #                                                     119      116
+    #                                                        \     /  \
+    #                                               103-104  118-117  115
+    #                                               /     \           /
+    #                                             102     105      114
+    #                                              |       |         |
+    #                                             101     106      113
+    #                                               \     /           \
+    #                                       97-98   100 107  109-110  112
+    #                                      /     \  /     \  /     \  /
+    #                                    96       99      108      111
+    #                                     |
+    #                                    95       92       83       80
+    #                                      \     /  \     /  \     /  \
+    #                              31-32    94-93    91 84    82-81    79
+    #                             /     \           /     \           /
+    #                           30       33       90       85       78
+    #                            |        |        |        |        |
+    #                           29       34       89       86       77
+    #                             \     /           \     /           \
+    #                     25-26    28 35    37-38    88-87    73-74    76
+    #                    /     \  /     \  /     \           /     \  /
+    #                  24       27       36       39       72       75
+    #                   |                          |        |
+    #                  23       20       43       40       71       68
+    #                    \     /  \     /  \     /           \     /  \
+    #             7--8    22-21    19 44    42-41    55-56    70-69    67
+    #           /     \           /     \           /     \           /
+    #          6        9       18       45       54       57       66
+    #          |        |        |        |        |        |        |
+    #          5       10       17       46       53       58       65
+    #           \     /           \     /           \     /           \
+    #    1--2     4 11    13-14    16 47    49-50    52 59    61-62    64
+    #  /     \  /     \  /     \  /     \  /     \  /     \  /     \  /
+    # 0        3       12       15       48       51       60       63
+
+# The factor of 3 arises because there's a gap between each level, increasing
+# it by a fixed extra each time,
+# 
+#     length(level) = 2*length(level-1) + 2
+#                   = 2^level + (2^level + 2^(level-1) + ... + 2)
+#                   = 2^level + (2^(level+1)-1 - 1)
+#                   = 3*2^level - 2
+
+
+
+
 =for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel
 
 =head1 NAME
@@ -697,7 +801,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -713,101 +817,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-   #                                              63-64            14
-   #                                               |  |
-   #                                              62 65            13
-   #                                             /     \
-   #                                        60-61       66-67      12
-   #                                         |              |
-   #                                        59-58       69-68      11
-   #                                             \     /
-   #                                  51-52       57 70            10
-   #                                   |  |        |  |
-   #                                  50 53       56 71       ...   9
-   #                                 /     \     /     \     /
-   #                            48-49       54-55       72-73       8
-   #                             |
-   #                            47-46       41-40                   7
-   #                                 \     /     \
-   #                      15-16       45 42       39                6
-   #                       |  |        |  |        |
-   #                      14 17       44-43       38                5
-   #                     /     \                 /
-   #                12-13       18-19       36-37                   4
-   #                 |              |        |
-   #                11-10       21-20       35-34                   3
-   #                     \     /                 \
-   #           3--4        9 22       27-28       33                2
-   #           |  |        |  |        |  |        |
-   #           2  5        8 23       26 29       32                1
-   #         /     \     /     \     /     \     /
-   #     0--1        6--7       24-25       30-31                 Y=0
-   #
-   #  ^
-   # X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 ...
-
-    #                                                                 127-128
-    #                                                                /       \
-    #                                                              126      ...
-    #                                                                |
-    #                                                              125
-    #                                                                 \
-    #                                                        121-122  124
-    #                                                        /     \  /
-    #                                                     120      123
-    #                                                       |
-    #                                                     119      116
-    #                                                        \     /  \
-    #                                               103-104  118-117  115
-    #                                               /     \           /
-    #                                             102     105      114
-    #                                              |       |         |
-    #                                             101     106      113
-    #                                               \     /           \
-    #                                       97-98   100 107  109-110  112
-    #                                      /     \  /     \  /     \  /
-    #                                    96       99      108      111
-    #                                     |
-    #                                    95       92       83       80
-    #                                      \     /  \     /  \     /  \
-    #                              31-32    94-93    91 84    82-81    79
-    #                             /     \           /     \           /
-    #                           30       33       90       85       78
-    #                            |        |        |        |        |
-    #                           29       34       89       86       77
-    #                             \     /           \     /           \
-    #                     25-26    28 35    37-38    88-87    73-74    76
-    #                    /     \  /     \  /     \           /     \  /
-    #                  24       27       36       39       72       75
-    #                   |                          |        |
-    #                  23       20       43       40       71       68
-    #                    \     /  \     /  \     /           \     /  \
-    #             7--8    22-21    19 44    42-41    55-56    70-69    67
-    #           /     \           /     \           /     \           /
-    #          6        9       18       45       54       57       66
-    #          |        |        |        |        |        |        |
-    #          5       10       17       46       53       58       65
-    #           \     /           \     /           \     /           \
-    #    1--2     4 11    13-14    16 47    49-50    52 59    61-62    64
-    #  /     \  /     \  /     \  /     \  /     \  /     \  /     \  /
-    # 0        3       12       15       48       51       60       63
-
-# The factor of 3 arises because there's a gap between each level, increasing
-# it by a fixed extra each time,
-# 
-#     length(level) = 2*length(level-1) + 2
-#                   = 2^level + (2^level + 2^(level-1) + ... + 2)
-#                   = 2^level + (2^(level+1)-1 - 1)
-#                   = 3*2^level - 2
-
-
-
-# Local variables:
-# compile-command: "math-image --path=SierpinskiCurve --lines --scale=10"
-# End:
-#
-# math-image --path=SierpinskiCurve --all --output=numbers_dash

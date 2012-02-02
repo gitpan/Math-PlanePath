@@ -21,6 +21,9 @@ use 5.004;
 use strict;
 use List::Util 'min', 'max';
 
+# uncomment this to run the ### lines
+use Smart::Comments;
+
 # # skip low zeros
 # # 1 left
 # # 2 right
@@ -28,6 +31,306 @@ use List::Util 'min', 'max';
 
 # 1*3^k  left
 # 2*3^k  right
+
+{
+  # TerdragonCurve direction away from a point
+
+  require Image::Base::Text;
+  require Math::PlanePath::TerdragonCurve;
+  my $arms = 6;
+  my $path = Math::PlanePath::TerdragonCurve->new (arms => $arms);
+
+  my $width = 78;
+  my $height = 40;
+  my $x_lo = -$width/2;
+  my $y_lo = -$height/2;
+
+  my $x_hi = $x_lo + $width - 1;
+  my $y_hi = $y_lo + $height - 1;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+
+  my $plot = sub {
+    my ($x,$y,$char) = @_;
+    $x -= $x_lo;
+    $y -= $y_lo;
+    return if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+    $image->xy ($x,$height-1-$y,$char);
+  };
+
+  my ($n_lo, $n_hi) = $path->rect_to_n_range($x_lo-2,$y_lo-2, $x_hi+2,$y_hi+2);
+  print "n_hi $n_hi\n";
+  for my $n (0 .. $n_hi) {
+    my $arm = $n % $arms;
+
+    my ($x,$y) = $path->n_to_xy($n);
+    next if $x < $x_lo || $y < $y_lo || $x > $x_hi || $y > $y_hi;
+
+    my ($nx,$ny) = $path->n_to_xy($n + $arms);
+    my $dir = dxdy_to_dir6($nx-$x,$ny-$y);
+    if ($dir == 2) {
+      $plot->($x, $y, $dir);
+    }
+  }
+  $plot->(0,0, '+');
+  $image->save('/dev/stdout');
+
+  exit 0;
+}
+
+{
+  # TerdragonCurve xy_to_n offsets to Midpoint
+
+  require Math::PlanePath::TerdragonCurve;
+  require Math::PlanePath::TerdragonMidpoint;
+  my $arms = 6;
+  my $curve = Math::PlanePath::TerdragonCurve->new (arms => $arms);
+  my $midpoint = Math::PlanePath::TerdragonMidpoint->new (arms => $arms);
+  my %seen;
+  for my $n (0 .. 1000) {
+    my ($x,$y) = $curve->n_to_xy($n);
+    $x *= 2;
+    $y *= 2;
+
+    for my $dx (-2 .. 2) {
+      for my $dy (-1 .. 1) {
+
+        my $m = $midpoint->xy_to_n($x+$dx,$y+$dy) // next;
+        if ($m == $n) {
+          $seen{"$dx,$dy"} = 1;
+        }
+      }
+    }
+  }
+  ### %seen
+  exit 0;
+}
+
+{
+  # TerdragonCurve xy cf Midpoint
+
+  require Image::Base::Text;
+  require Math::PlanePath::TerdragonCurve;
+  require Math::PlanePath::TerdragonMidpoint;
+  my $arms = 6;
+  my $curve = Math::PlanePath::TerdragonCurve->new (arms => $arms);
+  my $midpoint = Math::PlanePath::TerdragonMidpoint->new (arms => $arms);
+
+  my $width = 50;
+  my $height = 30;
+  my $x_lo = -$width/2;
+  my $y_lo = -$height/2;
+
+  my $x_hi = $x_lo + $width - 1;
+  my $y_hi = $y_lo + $height - 1;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+
+  my $plot = sub {
+    my ($x,$y,$char) = @_;
+    $x -= $x_lo;
+    $y -= $y_lo;
+    return if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+    $image->xy ($x,$height-1-$y,$char);
+  };
+
+  my ($n_lo, $n_hi) = $curve->rect_to_n_range($x_lo-2,$y_lo-2, $x_hi+2,$y_hi+2);
+  print "n_hi $n_hi\n";
+  for my $y ($y_lo .. $y_hi) {
+    for my $x ($x_lo .. $x_hi) {
+      my $n = $curve->xy_to_n($x,$y) // next;
+      my $arm = $n % $arms;
+
+      my ($nx,$ny) = $curve->n_to_xy($n + $arms);
+      my $dir = dxdy_to_dir6($nx-$x,$ny-$y);
+      $plot->($x, $y, $dir);
+    }
+  }
+  $plot->(0,0, '+');
+  $image->save('/dev/stdout');
+
+  exit 0;
+}
+
+{
+  # TerdragonMidpoint xy absolute direction
+
+  require Image::Base::Text;
+  require Math::PlanePath::TerdragonMidpoint;
+  my $arms = 6;
+  my $path = Math::PlanePath::TerdragonMidpoint->new (arms => $arms);
+
+  my $width = 50;
+  my $height = 30;
+  my $x_lo = -$width/2;
+  my $y_lo = -$height/2;
+
+  my $x_hi = $x_lo + $width - 1;
+  my $y_hi = $y_lo + $height - 1;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+
+  my $plot = sub {
+    my ($x,$y,$char) = @_;
+    $x -= $x_lo;
+    $y -= $y_lo;
+    return if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+    $image->xy ($x,$height-1-$y,$char);
+  };
+
+  my ($n_lo, $n_hi) = $path->rect_to_n_range($x_lo-2,$y_lo-2, $x_hi+2,$y_hi+2);
+  print "n_hi $n_hi\n";
+  for my $n (0 .. $n_hi) {
+    my $arm = $n % $arms;
+
+    my ($x,$y) = $path->n_to_xy($n);
+    # if (($n % $arms) == 1) {
+    #   $x += 1;
+    #   $y += 1;
+    # }
+    next if $x < $x_lo || $y < $y_lo || $x > $x_hi || $y > $y_hi;
+
+    my ($nx,$ny) = $path->n_to_xy($n + $arms);
+    # if (($n % $arms) == 1) {
+    #   $nx += 1;
+    #   $ny += 1;
+    # }
+
+    # if ($nx == $x+1) {
+    #   $image->xy($x,$y,$n&3);
+    # }
+    # if ($ny == $y+1) {
+    #   $image->xy($x,$y,$n&3);
+    # }
+    # if ($ny == $y) {
+    # }
+
+    my $show;
+    my $dir = dxdy_to_dir6($nx-$x,$ny-$y);
+    my $digit = (($x + 3*$y) + 0) % 3;
+    my $d9 = ((2*$x + $y) + 0) % 9;
+    my $c = ($x+$y)/2;
+    my $flow = sprintf "%X", ($x + 3*$y) % 12;
+
+    my $prev_dir = -1;
+    if ($n >= $arms) {
+      my ($px,$py) = $path->n_to_xy($n - $arms);
+      $prev_dir = dxdy_to_dir6($x-$px,$y-$py);
+    }
+
+    foreach my $r (0,1,2) {
+      $flow = ($r == 0 ? '-'
+               : $r == 1 ? '/'
+               : '\\');
+      if ($arm & 1) {
+        if (($digit == 0 || $digit == 1)
+            && (($dir%3) == $r)) {
+          $show = $flow;
+        }
+        if (($digit == 2)
+            && (($prev_dir%3) == $r)) {
+          $show = $flow;
+        }
+      } else {
+        if (($digit == 0 || $digit == 2)
+            && (($dir%3) == $r)) {
+          $show = $flow;
+        }
+        if (($digit == 1)
+            && (($prev_dir%3) == $r)) {
+          $show = $flow;
+        }
+      }
+    }
+    if (! defined $show) {
+      $show = '.';
+    }
+
+
+    # if ($digit == 1) {
+    #   if ($dir == 0 || $dir == 3) {
+    #     $show = $dir;
+    #     $show = 'x';
+    #   }
+    # }
+    # if ($digit == 2) {
+    #   if ($dir == 0 || $dir == 3) {
+    #     $show = $prev_dir;
+    #     $show = 'x';
+    #   }
+    # }
+    # if ($digit == 0) {
+    #   $show = 'x';
+    # }
+
+    my $mod = (int($n/$arms) % 3);
+
+    # if (($arm == 0 && $mod == 0)
+    #     || ($arm == 1 && $mod == 2)
+    #     || ($arm == 2 && $mod == 0)
+    #     || ($arm == 3 && $mod == 2)
+    #     || ($arm == 4 && $mod == 0)
+    #     || ($arm == 5 && $mod == 2)) {
+    #   # $show = '0';
+    #   # $show = $digit;
+    #   if ($n < 3*$arms) {
+    #     print "n=$n $x,$y  mod=$mod\n";
+    #   }
+    # }
+    # if (($arm == 0 && $mod == 1)
+    #     || ($arm == 1 && $mod == 1)
+    #     || ($arm == 2 && $mod == 1)
+    #     || ($arm == 3 && $mod == 1)
+    #     || ($arm == 4 && $mod == 1)
+    #     || ($arm == 5 && $mod == 1)) {
+    #   # $show = '1';
+    # }
+    # if (($arm == 0 && $mod == 2)
+    #     || ($arm == 1 && $mod == 0)
+    #     || ($arm == 2 && $mod == 2)
+    #     || ($arm == 3 && $mod == 0)
+    #     || ($arm == 4 && $mod == 2)
+    #     || ($arm == 5 && $mod == 0)) {
+    #   #      $show = '2';
+    # }
+
+    if (defined $show) {
+      $plot->($x, $y, $show);
+    }
+    # if ($dir == 0) {
+    #   $image->xy($x-$x_lo,$y-$y_lo, $dir);
+    # }
+  }
+#  $plot->(0,0, '+');
+  $image->save('/dev/stdout');
+
+  exit 0;
+}
+
+{
+  require Math::PlanePath::TerdragonMidpoint;
+  my $path = Math::PlanePath::TerdragonMidpoint->new;
+  $path->xy_to_n(5,3);
+  exit 0;
+}
+
+{
+  # TerdragonMidpoint modulo
+
+  require Math::PlanePath::TerdragonMidpoint;
+  my $arms = 2;
+  my $path = Math::PlanePath::TerdragonMidpoint->new (arms => $arms);
+
+  for my $n (0 .. 3**4) {
+    my $arm = $n % $arms;
+    my $mod = (int($n/$arms) % 3);
+
+    my ($x,$y) = $path->n_to_xy($n);
+    my $digit = (($x + 3*$y) + 0) % 3;
+    print "n=$n $x,$y  mod=$mod  k=$digit\n";
+  }
+  exit 0;
+}
 
 {
   # cumulative turn +/- 1 list
@@ -285,6 +588,28 @@ use List::Util 'min', 'max';
   exit 0;
 }
 
+sub path_to_dir6 {
+  my ($path,$n) = @_;
+  my ($x,$y) = $path->n_to_xy($n);
+  my ($nx,$ny) = $path->n_to_xy($n + $path->arms_count);
+  return dxdy_to_dir6($nx-$x,$ny-$y);
+}
+sub dxdy_to_dir6 {
+  my ($dx,$dy) = @_;
+  if ($dy == 0) {
+    if ($dx == 2) { return 0; }
+    if ($dx == -2) { return 3; }
+  }
+  if ($dy == 1) {
+    if ($dx == 1) { return 1; }
+    if ($dx == -1) { return 2; }
+  }
+  if ($dy == -1) {
+    if ($dx == 1) { return 5; }
+    if ($dx == -1) { return 4; }
+  }
+  die "unrecognised $dx,$dy";
+}
 
 # per KochCurve.t
 sub dxdy_to_dir {
