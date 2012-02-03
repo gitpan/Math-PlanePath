@@ -20,19 +20,20 @@
 
 # Usage: perl cellular-rules.pl
 #
-# This program printing the patterns from the CellularRule paths as "*"s.
-# Rules which generate the same output are listed together rather than
-# repeating the output.
+# Print the patterns from the CellularRule paths as "*"s.  Rules generating
+# the same output are listed together rather than repeating the output.
 #
-# Points are plotted by looping $n until its $y is beyond the desired number
-# of rows.  @rows is an array of strings of length 2*size+1 spaces each
+# Implementation:
+#
+# Points are plotted by looping $n until its $y is beyond the desired
+# maximum rows.  @rows is an array of strings of length 2*size+1 spaces each
 # which are then set to "*"s at the plotted points.
 #
-# Another way to plot it would be to loop over $x,$y for the desired
-# rectangle and look at $n=$path->xy_to_n($x,$y) to see which cells have
-# defined($n).  Characters could be appended or "join(map{})"ed to make an
-# output $str in that case.  Though going by $n should be fastest for sparse
-# patterns (though CellularRule is not blindingly quick either way).
+# Another way to plot would be to loop over $x,$y for the desired rectangle
+# and look at $n=$path->xy_to_n($x,$y) to see which cells have defined($n).
+# Characters could be appended or "join(map{})"ed to make an output $str in
+# that case.  Going by $n should be fastest for sparse patterns, though
+# CellularRule is not blindingly quick either way.
 #
 # See Cellular::Automata::Wolfram for the same but with many more options
 # and a graphics file output.

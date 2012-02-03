@@ -16,12 +16,18 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# math-image --path=CellularRule --all --scale=10
+#
+# math-image --path=CellularRule --all --output=numbers --size=80x50
+
+
 package Math::PlanePath::CellularRule;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -78,9 +84,13 @@ my @rule_to_class;
     }
     $rule_to_class[$rule] = $aref;
   };
+
   $store->(54, [ 'Math::PlanePath::CellularRule54' ]);
+  $store->(57, [ 'Math::PlanePath::CellularRule57' ]);
+  $store->(99, [ 'Math::PlanePath::CellularRule57', mirror => 1 ]);
   $store->(190, [ 'Math::PlanePath::CellularRule190' ]);
   $store->(246, [ 'Math::PlanePath::CellularRule190', mirror => 1 ]);
+
   {
     # *******
     # ******
@@ -435,7 +445,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 66;
+  $VERSION = 67;
   @ISA = ('Math::PlanePath::CellularRule');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
   *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -507,7 +517,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 66;
+  $VERSION = 67;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -553,7 +563,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 66;
+  $VERSION = 67;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -592,7 +602,22 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PyramidRows Ryde Math-PlanePath PlanePath ie Xmax-Xmin CellularRule SierpinskiTriangle superclass eg CellularRule
+
+# For reference the specifics currently are
+# 
+#     54                              CellularRule54
+#     190,246                         CellularRule190
+#     18,26,82,90,146,154,210,218     SierpinskiTriangle
+#                                     (offset to start N=1)
+#     151,159,183,191,215,223,247,    PyramidRows step=2
+#     254,222,255                       solid block
+#     220,252                         PyramidRows step=1 half
+#     4,12,36,44,68,76,100,108,132,   Rows width=1
+#     140,164,172,196,204,228,236     single-cell column
+
+
+
+=for stopwords PyramidRows Ryde Math-PlanePath PlanePath ie Xmax-Xmin CellularRule SierpinskiTriangle superclass eg CellularRule CellularRule54 CellularRule190
 
 =head1 NAME
 
@@ -658,8 +683,8 @@ complicated non-repeating patterns when there's feedback across from one
 half to the other, for example rule 30.
 
 For some rules there's specific code which this class dispatches to, such as
-CellularRule54, CellularRule190 and SierpinskiTriangle (which is adjusted to
-start at N=1 for here).
+CellularRule54, CellularRule190 or SierpinskiTriangle (which is adjusted to
+start at N=1 here).
 
 For rules without specific code the current implementation is not
 particularly efficient as it builds and holds onto the bit pattern for all
@@ -703,6 +728,7 @@ cell the return is C<undef>.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::CellularRule54>,
+L<Math::PlanePath::CellularRule57>,
 L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::SierpinskiTriangle>,
 L<Math::PlanePath::PyramidRows>
@@ -735,23 +761,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# For reference the specifics currently are
-# 
-#     54                              CellularRule54
-#     190,246                         CellularRule190
-#     18,26,82,90,146,154,210,218     SierpinskiTriangle
-#                                     (offset to start N=1)
-#     151,159,183,191,215,223,247,    PyramidRows step=2
-#     254,222,255                       solid block
-#     220,252                         PyramidRows step=1 half
-#     4,12,36,44,68,76,100,108,132,   Rows width=1
-#     140,164,172,196,204,228,236     single-cell column
-
-
-
-# Local variables:
-# compile-command: "math-image --path=CellularRule --all --scale=10"
-# End:
-#
-# math-image --path=CellularRule --all --output=numbers --size=80x50

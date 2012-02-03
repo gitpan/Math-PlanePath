@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 554 }
+BEGIN { plan tests => 642 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::DragonRounded;
 # VERSION
 
 {
-  my $want_version = 66;
+  my $want_version = 67;
   ok ($Math::PlanePath::DragonRounded::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonRounded->VERSION,  $want_version,
@@ -59,6 +59,23 @@ require Math::PlanePath::DragonRounded;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# xy_to_n() reversal
+
+foreach my $arms (1 .. 4) {
+  my $path = Math::PlanePath::DragonRounded->new (arms => $arms);
+  for my $x (0 .. 5) {
+    for my $y (0 .. 5) {
+      my $n = $path->xy_to_n ($x,$y);
+      next if ! defined $n;
+
+      my ($nx,$ny) = $path->n_to_xy ($n);
+      ok ($nx, $x, "arms=$arms xy=$x,$y n=$n cf nxy=$nx,$ny");
+      ok ($ny, $y, "arms=$arms xy=$x,$y n=$n cf nxy=$nx,$ny");
+    }
+  }
 }
 
 #------------------------------------------------------------------------------

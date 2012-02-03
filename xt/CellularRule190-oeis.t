@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 2 }
+BEGIN { plan tests => 4 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -50,9 +50,9 @@ sub streq_array {
 }
 
 #------------------------------------------------------------------------------
-# A118111 - 0/1 by rows rule 190
-{
-  my $anum = 'A118111';
+# A118111 and A071039 - 0/1 by rows rule 190
+
+foreach my $anum ('A118111', 'A071039') {
   my $path = Math::PlanePath::CellularRule190->new;
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
@@ -105,33 +105,33 @@ sub streq_array {
 }
 
 #------------------------------------------------------------------------------
-# A071041 - 0/1 something rule 246, but what ?
+# A071041 - 0/1 rule 246
 
-# {
-#   my $anum = 'A071041';
-#   my $path = Math::PlanePath::CellularRule190->new (mirror => 1);
-#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-#   my @got;
-#   if ($bvalues) {
-#     my $x = 0;
-#     my $y = 0;
-#     foreach my $n (1 .. @$bvalues) {
-#       push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
-#       $x++;
-#       if ($x > $y) {
-#         $y++;
-#         $x = -$y;
-#       }
-#     }
-#   } else {
-#     MyTestHelpers::diag ("$anum not available");
-#   }
-#   ### bvalues: join(',',@{$bvalues}[0..40])
-#   ### got: '    '.join(',',@got[0..40])
-#   skip (! $bvalues,
-#         streq_array(\@got, $bvalues),
-#         1, "$anum");
-# }
+{
+  my $anum = 'A071041';
+  my $path = Math::PlanePath::CellularRule190->new (mirror => 1);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $x = 0;
+    my $y = 0;
+    foreach my $n (1 .. @$bvalues) {
+      push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
+      $x++;
+      if ($x > $y) {
+        $y++;
+        $x = -$y;
+      }
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  ### bvalues: join(',',@{$bvalues}[0..40])
+  ### got: '    '.join(',',@got[0..40])
+  skip (! $bvalues,
+        streq_array(\@got, $bvalues),
+        1, "$anum");
+}
 
 
 exit 0;

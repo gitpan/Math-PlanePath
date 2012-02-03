@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule;
 # VERSION
 
 {
-  my $want_version = 66;
+  my $want_version = 67;
   ok ($Math::PlanePath::CellularRule::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule->VERSION,  $want_version,
@@ -128,10 +128,12 @@ foreach my $relem ([ 50, # solid odd
 
 
 #------------------------------------------------------------------------------
+# compare CellularRule bit-wise calculation with the specific sub-classes
+#
 
 my $bitwise_count = 0;
 
-RULE: foreach my $rule (0 .. 255) {
+foreach my $rule (0 .. 255) {
   my $bad_count = 0;
 
   my $path = Math::PlanePath::CellularRule->new (rule => $rule);
@@ -157,6 +159,7 @@ RULE: foreach my $rule (0 .. 255) {
   }
 
   if (! $path->isa('Math::PlanePath::CellularRule')) {
+    MyTestHelpers::diag ("bitwise check rule=$rule");
     $bitwise_count++;
     # copy of CellularRule guts
     my $bitwise = bless { rows => [ "\001" ],
@@ -166,14 +169,15 @@ RULE: foreach my $rule (0 .. 255) {
                           rule_table => [ map { ($rule >> $_) & 1 } 0 .. 7 ],
                         }, 'Math::PlanePath::CellularRule';
 
-    foreach my $x (-10 .. 10) {
-      foreach my $y (0 .. 10) {
+    foreach my $x (-15 .. 15) {
+      foreach my $y (0 .. 15) {
         my $path_n = $path->xy_to_n($x,$y);
         my $bit_n = $bitwise->xy_to_n($x,$y);
         unless ((! defined $path_n && ! defined $bit_n)
                 || (defined $path_n && defined $bit_n && $path_n == $bit_n)) {
-          MyTestHelpers::diag ("rule=$rule wrong xy_to_n() bitwise at x=$x,y=$y");
-          next RULE if $bad_count++ > 5;
+          MyTestHelpers::diag ("rule=$rule wrong xy_to_n() bitwise at x=$x,y=$y, got bitwise n=",$bit_n," path n=",$path_n);
+          if (++$bad_count > 100) { die "Too much badness" };
+          ### $bad_count
         }
       }
     }
@@ -185,11 +189,11 @@ RULE: foreach my $rule (0 .. 255) {
       my $bit_xy = join(',',@bit_xy);
       unless ($path_xy eq $bit_xy) {
         MyTestHelpers::diag ("rule=$rule wrong n_to_xy() bitwise at n=$n");
-        next RULE if $bad_count++ > 5;
+        if (++$bad_count > 100) { die "Too much badness" };
       }
     }
   }
-  ok ($bad_count, 0);
+  ok ($bad_count, 0, "no badness in rule=$rule");
 }
 MyTestHelpers::diag ("bitwise checks $bitwise_count");
 

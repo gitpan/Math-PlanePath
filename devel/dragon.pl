@@ -33,6 +33,115 @@ use Math::PlanePath::KochCurve 42;
 use Smart::Comments;
 
 
+
+{
+  # Rounded and Midpoint equivalence table
+
+  require Math::PlanePath::DragonRounded;
+  require Math::PlanePath::DragonMidpoint;
+
+    my @yx_rtom_dx;
+    my @yx_rtom_dy;
+  foreach my $arms (1 .. 4) {
+    ### $arms
+    my $rounded = Math::PlanePath::DragonRounded->new (arms => $arms);
+    my $midpoint = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+    my %seen;
+    foreach my $n (0 .. 5000) {
+      my ($x,$y) = $rounded->n_to_xy($n) or next;
+      my ($mx,$my) = $midpoint->n_to_xy($n);
+      my $dx = ($x - floor($x/3)) - $mx;
+      my $dy = ($y - floor($y/3)) - $my;
+
+      if (defined $yx_rtom_dx[$y%6][$x%6]
+          && $yx_rtom_dx[$y%6][$x%6] != $dx) {
+        die "oops";
+      }
+      if (defined $yx_rtom_dy[$y%6][$x%6]
+          && $yx_rtom_dy[$y%6][$x%6] != $dy) {
+        die "oops";
+      }
+      $yx_rtom_dx[$y%6][$x%6] = $dx;
+      $yx_rtom_dy[$y%6][$x%6] = $dy;
+    }
+    print_6x6(\@yx_rtom_dx);
+    print_6x6(\@yx_rtom_dy);
+
+    foreach my $n (0 .. 1000) {
+      my ($x,$y) = $rounded->n_to_xy($n) or next;
+
+      my $mx = $x-floor($x/3) - $yx_rtom_dx[$y%6][$x%6];
+      my $my = $y-floor($y/3) - $yx_rtom_dy[$y%6][$x%6];
+
+      my $m = $midpoint->xy_to_n($mx,$my);
+
+      my $good = (defined $m && $n == $m ? "good" : "bad");
+
+      printf "n=%d xy=%d,%d -> mxy=%d,%d m=%s   %s\n",
+        $n, $x,$y,
+          $mx,$my, $m//'undef',
+            $good;
+    }
+  }
+  exit 0;
+
+  sub print_6x6 {
+    my ($aref) = @_;
+    foreach my $y (0 .. 5) {
+      if ($y == 0) {
+        print "[[";
+      } else {
+        print " [";
+      }
+      foreach my $x (0 .. 5) {
+        my $v = $aref->[$y][$x] // 'undef';
+        printf "%5s", $v;
+        if ($x != 5) { print ", " }
+      }
+      if ($y == 5) {
+        print "] ]\n";
+      } else {
+        print "]\n";
+      }
+    }
+  }
+}
+
+
+{
+  # Rounded and Midpoint equivalence checks
+
+  require Math::PlanePath::DragonRounded;
+  require Math::PlanePath::DragonMidpoint;
+
+  my @yx_rtom_dx;
+  my @yx_rtom_dy;
+  foreach my $arms (1 .. 4) {
+    print "\narms=$arms\n";
+    my $rounded = Math::PlanePath::DragonRounded->new (arms => $arms);
+    my $midpoint = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+    foreach my $y (reverse -10 .. 10) {
+      foreach my $x (-7 .. 7) {
+        my $d = '';
+        my $n = $rounded->xy_to_n($x,$y);
+        if (defined $n) {
+          my ($mx,$my) = $midpoint->n_to_xy($n);
+          my $dx = ($x - floor($x/3)) - $mx;
+          my $dy = ($y - floor($y/3)) - $my;
+          $d = "$dx,$dy";
+        } elsif ($x==0&&$y==0) {
+          $d = '+';
+        }
+        printf "%5s", $d;
+      }
+      print "\n";
+    }
+  }
+  exit 0;
+}
+
+
+
 # sub rect_to_n_range {
 #   my ($self, $x1,$y1, $x2,$y2) = @_;
 #   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
@@ -308,68 +417,6 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  # Rounded and Midpoint equivalence
-  require Math::PlanePath::DragonRounded;
-  require Math::PlanePath::DragonMidpoint;
-
-  my @yx_rtom_dx;
-  my @yx_rtom_dy;
-  foreach my $arms (4) {
-    ### $arms
-    my $rounded = Math::PlanePath::DragonRounded->new (arms => $arms);
-    my $midpoint = Math::PlanePath::DragonMidpoint->new (arms => $arms);
-    my %seen;
-    foreach my $y (0 .. 5) {
-      foreach my $x (0 .. 5) {
-        my $n = $rounded->xy_to_n($x,$y) // next;
-        my ($mx,$my) = $midpoint->n_to_xy($n);
-        $yx_rtom_dx[$y][$x] = ($x - int($x/3)) - $mx;
-        $yx_rtom_dy[$y][$x] = ($y - int($y/3)) - $my;
-      }
-    }
-    print_6x6(\@yx_rtom_dx);
-    print_6x6(\@yx_rtom_dy);
-
-    foreach my $n (0 .. 100) {
-      my ($x,$y) = $rounded->n_to_xy($n);
-
-      my $mx = $x-floor($x/3) - $yx_rtom_dx[$y%6][$x%6];
-      my $my = $y-floor($y/3) - $yx_rtom_dy[$y%6][$x%6];
-
-      my $m = $midpoint->xy_to_n($mx,$my);
-
-      my $good = ($n == $m ? "good" : "");
-
-      printf "n=%d xy=%d,%d -> mxy=%d,%d m=%s   %s\n",
-        $n, $x,$y,
-          $mx,$my, $m,
-            $good;
-    }
-  }
-  exit 0;
-
-  sub print_6x6 {
-    my ($aref) = @_;
-    foreach my $y (0 .. 5) {
-      if ($y == 0) {
-        print "[[";
-      } else {
-        print " [";
-      }
-      foreach my $x (0 .. 5) {
-        my $v = $aref->[$y][$x] // 'undef';
-        printf "%5s", $v;
-        if ($x != 5) { print ", " }
-      }
-      if ($y == 5) {
-        print "] ]\n";
-      } else {
-        print "]\n";
-      }
-    }
-  }
-}
 
 {
   # Curve xy to n by midpoint

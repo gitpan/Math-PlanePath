@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 239)[1];
+my $test_count = (tests => 241)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -290,8 +290,11 @@ my @modules = (
                
                # 'UlamWarburton',         # not really defined yet
                # 'UlamWarburtonQuarter',  # not really defined yet
-               'CellularRule54',      # but not across gap
-               'CellularRule190',     # but not across gap
+               'CellularRule54',           # but not across gap
+               # 'CellularRule57',           # but not across gap
+               # 'CellularRule57,mirror=1',  # but not across gap
+               'CellularRule190',          # but not across gap
+               'CellularRule190,mirror=1', # but not across gap
                
                'Rows',
                'Columns',

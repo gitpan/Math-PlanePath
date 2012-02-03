@@ -20,14 +20,13 @@
 #
 # Loeschian numbers strips on the right ...
 #
-# A071039 claims to be something rule 190, and A071041 rule 246, but how?
 
 package Math::PlanePath::CellularRule190;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -263,7 +262,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright Klaner Rado unplotted
+=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright Klaner-Rado unplotted
 
 =head1 NAME
 
@@ -406,7 +405,9 @@ and biggest in the rectangle.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::CellularRule>,
 L<Math::PlanePath::CellularRule54>,
+L<Math::PlanePath::CellularRule57>,
 L<Math::PlanePath::PyramidRows>
 
 L<Cellular::Automata::Wolfram>

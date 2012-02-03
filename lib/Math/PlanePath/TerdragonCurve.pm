@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -244,12 +244,12 @@ sub xy_to_n {
   # if (_is_infinite($level_limit)) {
   #   return $level_limit;  # infinity
   # }
-  # 
+  #
   # my $arms = $self->{'arms'};
   # my @hypot = (4);
   # for (my $top = 0; $top < $level_limit; $top++) {
   #   push @hypot, ($top % 8 ? 4 : 3) * $hypot[$top];  # little faster than 3^lev
-  # 
+  #
   #   # start from digits=1 but use (n-1)*arms so that n=0,1,...,$arms-1 are
   #   # tried too, done by $arm -6 to -1
   # ARM: foreach my $arm (-$arms .. -1) {
@@ -262,18 +262,18 @@ sub xy_to_n {
   #       }
   #       $n = $arms*$n + $arm;
   #       ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-  # 
+  #
   #       my ($nx,$ny) = $self->n_to_xy($n);
   #       ### at: "n pos $nx,$ny  cf hypot ".$hypot[$i]
-  # 
+  #
   #       if ($i == 0 && $x == $nx && $y == $ny) {
   #         ### found ...
   #         return $n;
   #       }
-  # 
+  #
   #       if ($i == 0 || ($x-$nx)**2 + 3*($y-$ny)**2 > $hypot[$i]) {
   #         ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + 3*($y-$ny)**2).' vs '.$hypot[$i]
-  # 
+  #
   #         while (++$digits[$i] > 2) {
   #           $digits[$i] = 0;
   #           if (++$i > $top) {
@@ -282,7 +282,7 @@ sub xy_to_n {
   #           }
   #           ### backtrack up ...
   #         }
-  # 
+  #
   #       } else {
   #         ### descend ...
   #         ### assert: $i > 0
@@ -370,11 +370,46 @@ This is the terdragon curve by Davis and Knuth,
 Points are on every second X and offset on alternate Y rows so as to give
 integer X,Y coordinates, as per L<Math::PlanePath/Triangular Lattice>.
 
-The curve visits "inner" X,Y points three times, and outside points either
-once or twice.  The first triple point is X=1,Y=3 which is N=8, N=11 and
-N=14.  The path N=7,8,9 make a vertex there, as does N=10,11,12 and
-N=13,14,15.  The path touches but doesn't cross itself.  The tripled
-vertices are all like this, touching but not crossing, and no edges repeat.
+The base figure is an "S" shape
+
+       2-----3
+        \
+         \
+    0-----1
+
+which then repeats in self-similar style, so N=3 to N=6 copy rotated +120
+degrees like N=1 to N=2,
+
+    6      4          base figure repeats
+     \   / \          as N=3 to N=6,
+      \/    \         rotated +120 degrees
+      5 2----3
+        \
+         \
+    0-----1
+
+Then N=6 to N=9 is a plain horizontal like N=2 to N=3,
+
+          8-----9       base figure repeats
+           \            as N=6 to N=9,
+            \           no rotation
+       6----7 4
+        \   / \
+         \/    \
+         5 2----3
+           \
+            \
+       0-----1
+
+Notice N=5 is a repeat of point X=1,Y=1 where N=2 was, and then N=7 repeats
+the N=4 position.  Each point is repeats up to 3 times.  Inner points are 3
+times and on the edges of the curve area up to 2 times.  The first tripled
+point is X=1,Y=3 which is N=8, N=11 and N=14.
+
+The curve never crosses itself, only touches at little triangular shaped
+corners, and no edges repeat.
+
+=head1 Spiralling
 
 The first step N=1 is to the right along the X axis and the path then slowly
 spirals counter-clockwise and progressively fatter.  The end of each
@@ -426,6 +461,34 @@ degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
 # math-image --path=TerdragonCurve --expression='i<=729?i:0' --text --size=132x40
 
 =pod
+
+=head1 Tiling
+
+The little "S" shapes of the base figure N=0 to N=3 can be thought of as a
+little parallelogram
+
+       2-----3
+      .     .
+     .     .
+    0-----1
+
+The "S" shapes then make a tiling of the plane with those shapes
+
+        \     \ /     /   \     \ /     /
+         *-----*-----*     *-----*-----*
+        /     / \     \   /     / \     \
+     \ /     /   \     \ /     /   \     \ /
+    --*-----*     *-----*-----*     *-----*--
+     / \     \   /     / \     \   /     / \
+        \     \ /     /   \     \ /     /
+         *-----*-----*     *-----*-----*
+        /     / \     \   /     / \     \
+     \ /     /   \     \ /     /   \     \ /
+    --*-----*     *-----*-----*     *-----*--
+     / \     \   /     / \     \   /     / \
+        \     \ /     /   \     \ /     /
+         *-----*-----*     *-----*-----*
+        /     / \     \   /     / \     \
 
 =head2 Arms
 

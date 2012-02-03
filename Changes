@@ -17,7 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-Version 66, January 2012
+Version 67, February 2012
+    - oops, DragonMidpoint,DragonRounded xy_to_n() exclude points on the
+      arm one past what was requested
+    - new CellularRule57
+
+Version 66, February 2012
     - new TerdragonMidpoint
     - DragonCurve,DragonMidpoint,DragonRounded,TerdragonCurve faster xy_to_n()
 

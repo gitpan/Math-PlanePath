@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -362,13 +362,14 @@ Sequences in various forms,
 
     http://oeis.org/A047999    etc
 
-    A001316 - number of cells in each row
+    A001316 - number of cells in each row (Gould's sequence)
     A001317 - row 0 or 1 as binary number
-    A006046 - cumulative number of cells up to row N
     A047999 - rows of 0 or 1
+    A006046 - Nleft cumulative number of cells up to row N
+    A074330 - Nright at right hand end of each row (starting Y=2)
 
 A001316 is the "rowpoints" Gould's sequence noted above.  A006046 is the
-cumulative which is the Nleft above.
+cumulative which is the Nleft above, and A074330 is 1 less for an "Nright".
 
 The path uses every second point to make a triangular lattice (see
 L<Math::PlanePath/Triangular Lattice>).  The 0/1 pattern in A047999 of a row

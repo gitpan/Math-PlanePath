@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 249)[1];
+my $test_count = (tests => 251)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -420,7 +420,10 @@ my @modules = (
                # 'UlamWarburton',         # not really defined yet
                # 'UlamWarburtonQuarter',  # not really defined yet
                'CellularRule54',      # but not across gap
+               # 'CellularRule57',           # but not across gap
+               # 'CellularRule57,mirror=1',  # but not across gap
                'CellularRule190',     # but not across gap
+               'CellularRule190,mirror=1',   # but not across gap
                
                'Rows',
                'Columns',

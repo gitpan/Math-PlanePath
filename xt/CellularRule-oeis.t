@@ -26,7 +26,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 183 }
+BEGIN { plan tests => 199 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -83,6 +83,8 @@ foreach my $elem
    [ 'A071039', 190, 'bits' ],
    [ 'A071040', 214, 'bits' ],
    [ 'A071041', 246, 'bits' ],
+
+   # [ 'A060576', 255, 'bits' ], # homeomorphically irreducibles ...
 
    [ 'A070909',  28, 'bits', 'right' ],
    [ 'A070909', 156, 'bits', 'right' ],
@@ -285,6 +287,23 @@ foreach my $elem
    [ 'A000079', 0xCA, 'bignum', 'left' ],
    [ 'A000079', 0xE2, 'bignum', 'left' ],
    [ 'A000079', 0xEA, 'bignum', 'left' ],
+   # bits, characteristic of square
+   [ 'A010052', 0x02, 'bits' ],
+   [ 'A010052', 0x0A, 'bits' ],
+   [ 'A010052', 0x22, 'bits' ],
+   [ 'A010052', 0x2A, 'bits' ],
+   [ 'A010052', 0x42, 'bits' ],
+   [ 'A010052', 0x4A, 'bits' ],
+   [ 'A010052', 0x62, 'bits' ],
+   [ 'A010052', 0x6A, 'bits' ],
+   [ 'A010052', 0x82, 'bits' ],
+   [ 'A010052', 0x8A, 'bits' ],
+   [ 'A010052', 0xA2, 'bits' ],
+   [ 'A010052', 0xAA, 'bits' ],
+   [ 'A010052', 0xC2, 'bits' ],
+   [ 'A010052', 0xCA, 'bits' ],
+   [ 'A010052', 0xE2, 'bits' ],
+   [ 'A010052', 0xEA, 'bits' ],
   ) {
   ### $elem
   my ($anum, $rule, $method, @params) = @$elem;

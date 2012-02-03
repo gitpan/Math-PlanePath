@@ -27,7 +27,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -207,6 +207,13 @@ sub xy_to_n {
   my $y6 = $y % 6;
   my $dx = $yx_rtom_dx[$y6][$x6];  defined $dx or return undef;
   my $dy = $yx_rtom_dy[$y6][$x6];  defined $dy or return undef;
+
+  my $n = $self->Math::PlanePath::DragonMidpoint::xy_to_n
+    ($x - _floor($x/3) - $dx,
+     $y - _floor($y/3) - $dy);
+  ### dxy: "$dx, $dy"
+  ### to: ($x - _floor($x/3) - $dx).", ".($y - _floor($y/3) - $dy)
+  ### $n
 
   return $self->Math::PlanePath::DragonMidpoint::xy_to_n
     ($x - _floor($x/3) - $dx,

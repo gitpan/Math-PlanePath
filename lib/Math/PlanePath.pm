@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 66;
+$VERSION = 67;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -278,7 +278,8 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     PyramidSides           along the sides of a 45-degree pyramid
     CellularRule           cellular automaton by rule number
     CellularRule54         cellular automaton rows pattern
-    CellularRule190        cellular automaton rows pattern
+    CellularRule57         cellular automaton (rule 99 mirror too)
+    CellularRule190        cellular automaton (rule 246 mirror too)
     UlamWarburton          cellular automaton diamonds
     UlamWarburtonQuarter   cellular automaton quarter-plane
 
@@ -591,7 +592,8 @@ more N points than the preceding.
         1       Diagonals
         2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
         4       DiamondSpiral, AztecDiamondRings, Staircase
-       4/2      CellularRule54, DiagonalsAlternating (2 rows for +4)
+       4/2      CellularRule54, CellularRule57,
+                  DiagonalsAlternating (2 rows for +4)
         5       PentSpiral, PentSpiralSkewed
        5.65     PixelRings (average about 4*sqrt(2))
         6       HexSpiral, HexSpiralSkewed, MPeaks,
@@ -910,6 +912,7 @@ L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>,
 L<Math::PlanePath::CellularRule>,
 L<Math::PlanePath::CellularRule54>,
+L<Math::PlanePath::CellularRule57>,
 L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::UlamWarburton>,
 L<Math::PlanePath::UlamWarburtonQuarter>

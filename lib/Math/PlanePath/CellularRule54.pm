@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -392,6 +392,8 @@ couple of forms,
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::CellularRule>,
+L<Math::PlanePath::CellularRule57>,
 L<Math::PlanePath::CellularRule190>,
 L<Math::PlanePath::PyramidRows>
 

@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 66;
+$VERSION = 67;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -157,11 +157,14 @@ my %oeis_anum
 
        # Drib Y_axis -- almost A061547 fibonacci F(n)/F(n+1), but start=1
      },
-     # RationalsTree Bird Y_axis -- almost A000975 no consecutive equal
-     # bits, but start=1
      # RationalsTree SB -- X_axis 2^n-1 but starting X=1
      # RationalsTree SB,CW -- Y_axis A000079 2^n but starting Y=1
      # RationalsTree AYT -- Y_axis A083318 2^n+1 but starting Y=1
+     # RationalsTree Bird -- Y_axis almost A000975 no consecutive equal bits,
+     #   but start=1
+
+     # RationalsTree Drib -- Y_axis almost A061547 derangements or
+     #    alternating bits plus pow4, but start=1 value=0
 
      'Math::PlanePath::SquareSpiral,wider=0' =>
      { X_axis   => 'A054552', # spoke E
@@ -184,6 +187,18 @@ my %oeis_anum
      { Y_axis   => 'A061925',  # ceil(n^2/2)+1
        # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
      },
+     # rule=13 Y axis
+     #
+     # rule=20,52,148,180 (mirror image of rule 6)
+     # Diagonal A032766 numbers 0 or 1 mod 3, but it starts offset=0 value=0
+     #
+     # rule=28,156
+     # Y_axis A002620 quarter squares floor(n^2/4) but diff start
+     # Diagonal A024206 quarter squares - 1, but diff start
+     #
+     # rule=50,58,114,122,178,179,186,242,250
+     # every second cell
+     # Diagonal A000217 triangular numbers but diff start
      #
      # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
      # # central column only
@@ -191,7 +206,8 @@ my %oeis_anum
      # { Y_axis   => 'A000027', # 1 upwards
      #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
      # },
-     # # right line only
+     #
+     # # right line only 16,24,48,56,80,88,112,120,144,152,176,184,208,216,240,248
      # 'Math::PlanePath::CellularRule,rule=16' =>
      # { Y_axis   => 'A000027', # 1 upwards
      #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
@@ -655,6 +671,10 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
 }
 { package Math::PlanePath::CellularRule54;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::CellularRule57;
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }

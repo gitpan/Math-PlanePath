@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 66;
+$VERSION = 67;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1161,6 +1161,10 @@ sub values_max {
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
 }
 { package Math::PlanePath::CellularRule54;
+  use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
+  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+}
+{ package Math::PlanePath::CellularRule57;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
 }

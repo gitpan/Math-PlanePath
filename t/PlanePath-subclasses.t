@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 890 }
+BEGIN { plan tests => 899 }
 
 use lib 't';
 use MyTestHelpers;
@@ -75,6 +75,8 @@ my @modules = (
                'CellularRule,rule=220', # right half solid
                'CellularRule,rule=222', # solid
                'CellularRule54',
+               'CellularRule57',
+               'CellularRule57,mirror=1',
                'CellularRule190',
                'CellularRule190,mirror=1',
 
@@ -313,7 +315,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 66;
+my $want_version = 67;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

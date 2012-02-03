@@ -32,6 +32,7 @@ use warnings;
 use File::Compare ();
 use File::Copy;
 use File::Temp;
+use Image::Base::GD;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -44,6 +45,104 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['cellular-rule-30-small.png',
+    'math-image --path=CellularRule,rule=30 --all --scale=2 --size=32'],
+   ['cellular-rule-30-big.png',
+    'math-image --path=CellularRule,rule=30 --all --scale=4 --size=300x150'],
+   ['cellular-rule-73-big.png',
+    'math-image --path=CellularRule,rule=73 --all --scale=4 --size=300x150'],
+
+   ['cellular-rule190-small.png',
+    'math-image --path=CellularRule190 --all --scale=3 --size=32'],
+   ['cellular-rule190-big.png',
+    'math-image --path=CellularRule190 --all --scale=4 --size=300x150'],
+   ['cellular-rule190-mirror-big.png',
+    'math-image --path=CellularRule190,mirror=1 --all --scale=4 --size=300x150'],
+
+   ['cellular-rule54-small.png',
+    'math-image --path=CellularRule54 --all --scale=3 --size=32'],
+   ['cellular-rule54-big.png',
+    'math-image --path=CellularRule54 --all --scale=4 --size=300x150'],
+
+
+   ['complexplus-small.png',
+    "math-image --path=ComplexPlus --all --scale=2 --size=32"],
+   ['complexplus-big.png',
+    "math-image --path=ComplexPlus --all --scale=3 --size=200",
+    border => 1],
+   ['complexplus-r2-small.png',
+    "math-image --path=ComplexPlus,realpart=2 --all --scale=2 --size=32"],
+   ['complexplus-r2-big.png',
+    "math-image --path=ComplexPlus,realpart=2 --all --scale=1 --size=200",
+    border => 1],
+
+
+   ['complexminus-small.png',
+    "math-image --path=ComplexMinus --expression='i<32?i:0' --scale=2 --size=32"],
+   ['complexminus-big.png',
+    "math-image --path=ComplexMinus --expression='i<1024?i:0' --scale=3 --size=200"],
+   ['complexminus-r2-small.png',
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<125?i:0' --scale=2 --size=32"],
+   ['complexminus-r2-big.png',
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
+
+
+   ['digit-groups-small.png',
+    "math-image --path=DigitGroups --expression='i<256?i:0' --scale=2 --size=32"],
+   #  --foreground=red
+   ['digit-groups-big.png',
+    "math-image --path=DigitGroups --expression='i<2048?i:0' --scale=3 --size=200 --offset=1,1",
+    border => 1],
+   ['digit-groups-radix5-big.png',
+    "math-image --path=DigitGroups,radix=5 --expression='i<15625?i:0' --scale=3 --size=200 --offset=1,1",
+    border => 1],
+
+   ['l-tiling-small.png',
+    'math-image --path=LTiling --all --scale=2 --size=32' ],
+   ['l-tiling-big.png',
+    'math-image --path=LTiling --all --scale=10 --size=200 --offset=1,1',
+    border => 1 ],
+   ['l-tiling-ends-big.png',
+    'math-image --path=LTiling,L_fill=ends --all --scale=10 --size=200 --offset=1,1',
+    border => 1],
+   ['l-tiling-all-big.png',
+    'math-image --path=LTiling,L_fill=all --lines --scale=10 --size=200'],
+
+   ['pixel-small.png',
+    'math-image --path=PixelRings --lines --scale=4 --size=32'],
+   ['pixel-big.png',
+    'math-image --path=PixelRings --all --figure=circle --scale=10 --size=200',
+    border => 1 ],
+   ['pixel-lines-big.png',
+    'math-image --path=PixelRings --lines --scale=10 --size=200'],
+
+   ['dragon-rounded-small.png',
+    'math-image --path=DragonRounded --lines --scale=2 --size=32 --offset=6,-3'],
+   ['dragon-rounded-big.png',
+    'math-image --path=DragonRounded --lines --figure=point --scale=3 --size=200 --offset=-20,0'],
+   ['dragon-rounded-3arm-big.png',
+    'math-image --path=DragonRounded,arms=3 --lines --figure=point --scale=3 --size=200'],
+
+   ['dragon-midpoint-small.png',
+    'math-image --path=DragonMidpoint --lines --scale=3 --size=32 --offset=7,-6'],
+   ['dragon-midpoint-big.png',
+    'math-image --path=DragonMidpoint --lines --figure=point --scale=8 --size=200 --offset=-10,50'],
+   ['dragon-midpoint-4arm-big.png',
+    'math-image --path=DragonMidpoint,arms=4 --lines --figure=point --scale=8 --size=200'],
+
+   ['dragon-small.png',
+    'math-image --path=DragonCurve --lines --scale=4 --size=32 --offset=6,0'],
+   ['dragon-big.png',
+    'math-image --path=DragonCurve --lines --figure=point --scale=8 --size=250x200 --offset=-55,0'],
+
+
+   ['cellular-rule57-small.png',
+    'math-image --path=CellularRule57 --all --scale=3 --size=32'],
+   ['cellular-rule57-big.png',
+    'math-image --path=CellularRule57 --all --scale=4 --size=300x150'],
+   ['cellular-rule57-mirror-big.png',
+    'math-image --path=CellularRule57,mirror=1 --all --scale=4 --size=300x150'],
+
    ['quadric-islands-small.png',
     'math-image --path=QuadricIslands --lines --scale=4 --size=32'],
    ['quadric-islands-big.png',
@@ -89,26 +188,6 @@ foreach my $elem
     'math-image --path=AlternatePaper --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=4,4'],
 
 
-   ['complexplus-small.png',
-    "math-image --path=ComplexPlus --all --scale=2 --size=32"],
-   ['complexplus-big.png',
-    "math-image --path=ComplexPlus --all --scale=3 --size=200"],
-   ['complexplus-r2-small.png',
-    "math-image --path=ComplexPlus,realpart=2 --all --scale=2 --size=32"],
-   ['complexplus-r2-big.png',
-    "math-image --path=ComplexPlus,realpart=2 --all --scale=1 --size=200"],
-
-
-   ['complexminus-small.png',
-    "math-image --path=ComplexMinus --expression='i<32?i:0' --scale=2 --size=32"],
-   ['complexminus-big.png',
-    "math-image --path=ComplexMinus --expression='i<1024?i:0' --scale=3 --size=200"],
-   ['complexminus-r2-small.png',
-    "math-image --path=ComplexMinus,realpart=2 --expression='i<125?i:0' --scale=2 --size=32"],
-   ['complexminus-r2-big.png',
-    "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
-
-
    ['vogel-small.png',
     'math-image --path=VogelFloret --all --scale=3 --size=32'],
    ['vogel-big.png',
@@ -136,26 +215,6 @@ foreach my $elem
     "math-image --path=ComplexRevolving --expression='i<64?i:0' --scale=2 --size=32"],
    ['complexrevolving-big.png',
     "math-image --path=ComplexRevolving --expression='i<4096?i:0' --scale=2 --size=200"],
-
-   ['cellular-rule-30-small.png',
-    'math-image --path=CellularRule,rule=30 --all --scale=2 --size=32'],
-   ['cellular-rule-30-big.png',
-    'math-image --path=CellularRule,rule=30 --all --scale=4 --size=300x150'],
-   ['cellular-rule-73-big.png',
-    'math-image --path=CellularRule,rule=73 --all --scale=4 --size=300x150'],
-
-   ['cellular-rule190-small.png',
-    'math-image --path=CellularRule190 --all --scale=3 --size=32'],
-   ['cellular-rule190-big.png',
-    'math-image --path=CellularRule190 --all --scale=4 --size=300x150'],
-   ['cellular-rule190-mirror-big.png',
-    'math-image --path=CellularRule190,mirror=1 --all --scale=4 --size=300x150'],
-
-   ['cellular-rule54-small.png',
-    'math-image --path=CellularRule54 --all --scale=3 --size=32'],
-   ['cellular-rule54-big.png',
-    'math-image --path=CellularRule54 --all --scale=4 --size=300x150'],
-
 
 
    ['fractions-tree-small.png',
@@ -242,16 +301,6 @@ foreach my $elem
     'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=7 --size=192'],
 
 
-
-   ['l-tiling-small.png',
-    'math-image --path=LTiling --all --scale=2 --size=32'],
-   ['l-tiling-big.png',
-    'math-image --path=LTiling --all --scale=10 --size=200'],
-   ['l-tiling-ends-big.png',
-    'math-image --path=LTiling,L_fill=ends --all --scale=10 --size=200'],
-   ['l-tiling-all-big.png',
-    'math-image --path=LTiling,L_fill=all --lines --scale=10 --size=200'],
-
    ['diagonals-alternating-small.png',
     'math-image --path=DiagonalsAlternating --lines --scale=6 --size=32'],
    ['diagonals-alternating-big.png',
@@ -334,14 +383,6 @@ foreach my $elem
     'math-image --path=CornerReplicate --lines --scale=4 --size=32'],
    ['corner-replicate-big.png',
     'math-image --path=CornerReplicate --lines --scale=10 --size=200'],
-
-   ['digit-groups-small.png',
-    "math-image --path=DigitGroups --expression='i<256?i:0' --scale=2 --size=32"],
-   #  --foreground=red
-   ['digit-groups-big.png',
-    "math-image --path=DigitGroups --expression='i<2048?i:0' --scale=3 --size=200"],
-   ['digit-groups-radix5-big.png',
-    "math-image --path=DigitGroups,radix=5 --expression='i<15625?i:0' --scale=3 --size=200"],
 
    ['h-indexing-small.png',
     'math-image --path=HIndexing --scale=3 --size=32 --lines --offset=2,2'],
@@ -431,13 +472,6 @@ foreach my $elem
     'math-image --path=SquareSpiral,wider=4 --lines --scale=13 --size=253x200'],
 
 
-   ['pixel-small.png',
-    'math-image --path=PixelRings --lines --scale=4 --size=32'],
-   ['pixel-big.png',
-    'math-image --path=PixelRings --all --figure=circle --scale=10 --size=200'],
-   ['pixel-lines-big.png',
-    'math-image --path=PixelRings --lines --scale=10 --size=200'],
-
    ['quintet-replicate-small.png',
     "math-image --path=QuintetReplicate --expression='i<125?i:0' --scale=2 --size=32"],
    ['quintet-replicate-big.png',
@@ -522,25 +556,6 @@ foreach my $elem
    ['pyramid-sides-big.png',
     'math-image --path=PyramidSides --lines --scale=15 --size=300x150'],
 
-   ['dragon-rounded-small.png',
-    'math-image --path=DragonRounded --lines --scale=2 --size=32 --offset=6,-3'],
-   ['dragon-rounded-big.png',
-    'math-image --path=DragonRounded --lines --figure=point --scale=3 --size=200 --offset=-20,0'],
-   ['dragon-rounded-3arm-big.png',
-    'math-image --path=DragonRounded,arms=3 --lines --figure=point --scale=3 --size=200'],
-
-   ['dragon-midpoint-small.png',
-    'math-image --path=DragonMidpoint --lines --scale=3 --size=32 --offset=7,-6'],
-   ['dragon-midpoint-big.png',
-    'math-image --path=DragonMidpoint --lines --figure=point --scale=8 --size=200 --offset=-10,50'],
-   ['dragon-midpoint-4arm-big.png',
-    'math-image --path=DragonMidpoint,arms=4 --lines --figure=point --scale=8 --size=200'],
-
-   ['dragon-small.png',
-    'math-image --path=DragonCurve --lines --scale=4 --size=32 --offset=6,0'],
-   ['dragon-big.png',
-    'math-image --path=DragonCurve --lines --figure=point --scale=8 --size=250x200 --offset=-55,0'],
-
 
    ['diamond-arms-small.png',
     'math-image --path=DiamondArms --lines --scale=5 --size=32'],
@@ -609,7 +624,7 @@ foreach my $elem
     'math-image --path=ArchimedeanChords --lines --scale=10 --size=200'],
 
   ) {
-  my ($filename, $command) = @$elem;
+  my ($filename, $command, %option) = @$elem;
 
   if ($seen_filename{$filename}++) {
     die "Duplicate filename $filename";
@@ -622,6 +637,9 @@ foreach my $elem
     die "Exit $status";
   }
 
+  if ($option{'border'}) {
+    png_border($tempfile);
+  }
   system('pngtextadd','--keyword=Author','--text=Kevin Ryde',$tempfile) == 0
     or die "system(pngtextadd)";
   system('pngtextadd','--keyword=Generator','--text=gallery.pl and math-image',$tempfile) == 0
@@ -662,3 +680,14 @@ my $total_gallery_bytes = $big_bytes + $gallery_html_bytes;
 print "total gallery bytes $total_gallery_bytes ($gallery_html_bytes html, $big_bytes \"big\" images)\n";
 
 exit 0;
+
+
+sub png_border {
+  my ($filename) = @_;
+  my $image = Image::Base::GD->new(-file => $filename);
+  $image->rectangle (0,0,
+                     $image->get('-width') - 1,
+                     $image->get('-height') - 1,
+                     'black');
+  $image->save;
+}

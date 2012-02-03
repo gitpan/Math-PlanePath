@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 66;
+$VERSION = 67;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1072,6 +1072,14 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_min => 1;
 }
 { package Math::PlanePath::CellularRule54;
+  use constant _NumSeq_Delta_dX_max => 4;
+  use constant _NumSeq_Delta_dY_min => 0;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_Dir4_max => 2; # E to NW
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+}
+{ package Math::PlanePath::CellularRule57;
   use constant _NumSeq_Delta_dX_max => 4;
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;

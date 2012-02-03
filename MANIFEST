@@ -66,6 +66,7 @@ devel/quintet.pl
 devel/r5.pl
 devel/rationals-tree.pl
 devel/rows.pl
+devel/rule-oeis.pl
 devel/rule-xpm.pl
 devel/rule.pl
 devel/rule62.pl
@@ -110,6 +111,7 @@ lib/Math/PlanePath/BetaOmega.pm
 lib/Math/PlanePath/CellularRule.pm
 lib/Math/PlanePath/CellularRule190.pm
 lib/Math/PlanePath/CellularRule54.pm
+lib/Math/PlanePath/CellularRule57.pm
 lib/Math/PlanePath/CincoCurve.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm

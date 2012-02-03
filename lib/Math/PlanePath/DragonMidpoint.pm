@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 66;
+$VERSION = 67;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -37,7 +37,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use constant n_start => 0;
 sub arms_count {
@@ -113,6 +113,10 @@ sub n_to_xy {
   my $arms = $self->{'arms'};
   my $rot = $n % $arms;
   $n = int($n/$arms);
+
+  ### $arms
+  ### rot from arm: $rot
+  ### $n
 
   # ENHANCE-ME: sx,sy just from len,len
   my @digits;
@@ -202,7 +206,7 @@ sub n_to_xy {
     $x = $frac + $x;
   }
 
-  ### rotated offset: "$x_offset,$y_offset   return $x,$y"
+  ### rotated return: "$x,$y"
   return ($x,$y);
 }
 
@@ -282,7 +286,7 @@ sub xy_to_n {
   ### $arm
 
   my $arms_count = $self->arms_count;
-  if ($arm > $arms_count) {
+  if ($arm >= $arms_count) {
     return undef;
   }
   return $n * $arms_count + $arm;
