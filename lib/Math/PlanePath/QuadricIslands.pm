@@ -29,19 +29,20 @@ use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+*_floor = \&Math::PlanePath::_floor;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant n_frac_discontinuity => 0;
@@ -143,15 +144,56 @@ sub n_to_xy {
   }
 }
 
-my @inner_to_n = (1,2,4,3);
+#   +-------+-------+-------+
+#   |31     | 24 0,1|     23|
+#   |       |       |       |
+#   |   +-------+-------+   |
+#   |   |4  |   |3  |   |   |
+#   |   |   |   |   |   |   |
+#   +---|--- ---|--- ---|---+   Y=0.5
+#   |32 |   |   |   |   | 16|
+#   |   |   |   |   |   |   |
+#   |   +=======+=======+   |   Y=0
+#   |   |1  |   |2  |   |   |
+#   |   |   |   |   |   |   |
+#   +---|--- ---|--- ---|---+   Y=-0.5
+#   |   |   |   |   |   |   |
+#   |   |   |   |   |   |   |
+#   |   +-------+-------+   |   Y=-1
+#   |       |       |       |
+#   |7      |8      |     15|
+#   +-------+-------+-------+
+#
+# -2 <= 2*x < 2, round to -2,-1,0,1
+# then 4*yround -8,-4,0,4
+# total -10 to 5 inclusive
+
+my @inner_n_list = ([1,7], [1,8], [2,8], [2,15],  # Y=-1
+                    [1,32], [1],   [2],  [2,16],  # Y=-0.5 
+                    [4,32], [4],   [3],  [3,16],  # Y=0
+                    [4,31],[4,24],[3,24],[3,23]); # Y=0.5
 
 sub xy_to_n {
+  return scalar((shift->xy_to_n_list(@_))[0]);
+}
+sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### QuadricIslands xy_to_n(): "$x, $y"
 
-  if (abs($x) <= .75 && abs($y) <= .75) {
-    return $inner_to_n[($x >= 0) + 2*($y >= 0)];
+  if ($x >= -1 && $x < 1
+      && $y >= -1 && $y < 1) {
+
+    ### round 2x: _floor(2*$x)
+    ### round 2y: _floor(2*$y)
+    ### index: _floor(2*$x) + 4*_floor(2*$y) + 10
+    ### assert: _floor(2*$x) + 4*_floor(2*$y) + 10 >= 0
+    ### assert: _floor(2*$x) + 4*_floor(2*$y) + 10 <= 15
+
+    return @{$inner_n_list[ _floor(2*$x)
+                            + 4*_floor(2*$y)
+                            + 10 ]};
   }
+
   $x = _round_nearest($x);
   $y = _round_nearest($y);
 
@@ -245,7 +287,7 @@ sub xy_to_n {
   if (defined $n) {
     return ((4+7*$high) * 8**($level+1) + 3)/7 + $n;
   } else {
-    return undef;
+    return;
   }
 }
 
@@ -365,7 +407,8 @@ This is concentric islands made from four sides of the QuadricCurve,
       -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3   4
 
 The initial figure is the square N=1,2,3,4 then for the next level each
-straight side expands to 4x longer and a zigzag like N=5 through N=13,
+straight side expands to 4x longer and a zigzag like N=5 through N=13 and
+the further sides to N=36.
 
                                 *---*
                                 |   |
@@ -388,7 +431,7 @@ N=(4*8^2+3)/7=37 and X=-(4^2)/2=-8,Y=-8.
 
 The innermost square N=1,2,3,4 is on 0.5 coordinates, for example N=1 at
 X=-0.5,Y=-0.5.  This is centred on the origin and consistent with the
-(4^level)/2.  Points from N=5 onwards are have integer X,Y.
+(4^level)/2.  Points from N=5 onwards are integer X,Y.
 
 =head1 FUNCTIONS
 

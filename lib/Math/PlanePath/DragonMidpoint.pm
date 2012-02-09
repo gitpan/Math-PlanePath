@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -350,6 +350,61 @@ __END__
 
 
 
+# DragonMidpoint abs(dY) is A073089, but that seq has an extra leading 0
+#
+#   --*--+   dy=+/-1  vert and left
+#        |            horiz and right
+#        *
+#        |
+#   |                 
+#   *
+#   |
+#   +--*--   dy=+/-1
+#
+#   +--*--   dx=+/-1  vert and right
+#   |                 horiz and left
+#   *
+#   |
+#        |   dx=+/-1  
+#        *
+#        |
+#   --*--+
+# 
+# left turn  ...01000
+# right turn ...11000
+# vert           ...1
+# horiz          ...0
+
+# Offset=1  0,0,1,1,1,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,0,0,1,0,0,1,1,0,0,0,1,1,0,1,1,1,0,0,1,1,0,1,1,0,0,0,1,   
+
+# mod16
+# 0     1
+# 1        8n+1=4n+1
+# 2  0
+# 3      1
+# 4     1
+# 5       1
+# 6  0
+# 7   0
+# 8     1
+# 9       8n+1=4n+1
+# 10 0
+# 11     1
+# 12    1
+# 13   0
+# 14 0
+# 15  0
+# 
+# a(1) = a(4n+2) = a(8n+7) = a(16n+13) = 0,
+# a(4n) = a(8n+3) = a(16n+5) = 1
+# a(8n+1) = a(4n+1)
+
+# N=0   0,1,1,1,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,0,0,1,0,0,1,1,0,0,0,1,1,0,1,1,1,0,0,1,1,0,1,1,0,0,0,1,0,0,1,1,
+
+
+
+
+
 =for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al DragonCurve DragonMidpoint
 
 =head1 NAME
@@ -539,6 +594,32 @@ ie. N=2*newN+Nbit.
 There's probably no need for the "/2" dividing out for the new X,Y at each
 step, if the Xadj,Yadj lookup were taken at, and applied to, a suitably
 higher bit position each time.
+
+=head1 OEIS
+
+The DragonMidpoint is in Sloane's Online Encyclopedia of Integer Sequences as
+
+
+    http://oeis.org/A073089
+
+    A073089 -- 0=horizontal, 1=vertical (extra initial 0)
+
+The midpoint curve is vertical when the DragonCurve has a vertical followed
+by left turn or horizontal followed by right turn.  The DragonCurve
+verticals are whenever N is odd, and the following turn is either the bit
+above the lowest 0 in N as per L<Math::PlanePath::DragonCurve/Turns>.
+
+The mod-16 definitions in A073089 express the combinations of N odd/even and
+bit-above-low-0 which make a vertical.  But note the n of A073089 is n=N+2
+in the numbering of this DragonMidpoint, and the initial value at n=1 has no
+corresponding point in DragonMidpoint (it would be N=-1).
+
+The recursion a(8n+1)=a(4n+1) in A073089 works to reduce an N=0b..0111 to
+0b..011 to bring the bit above the lowest 0 into range of the mod-16
+conditions (n=1 mod 8 corresponds to N=7 mod 8).  In terms of N it could be
+expressed as stripping low 1 bits unless there's no more than two of them.
+In terms of n it's a strip of zeros above a low 1 bit n=0b...00001 -E<gt>
+0b...01.
 
 =head1 SEE ALSO
 

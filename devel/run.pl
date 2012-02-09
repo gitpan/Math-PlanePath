@@ -33,7 +33,6 @@ use List::Util qw(min max);
   require Math::PlanePath::GreekKeySpiral;
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::TriangularHypot;
-  require Math::PlanePath::KochSnowflakes;
   require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::QuintetCurve;
@@ -52,7 +51,6 @@ use List::Util qw(min max);
   require Math::PlanePath::AztecDiamondRings;
   require Math::PlanePath::DiamondSpiral;
   require Math::PlanePath::UlamWarburtonQuarter;
-  require Math::PlanePath::SierpinskiCurve;
   require Math::PlanePath::DigitGroups;
   require Math::PlanePath::HIndexing;
   require Math::PlanePath::MathImageWunderlichSerpentine;
@@ -70,7 +68,6 @@ use List::Util qw(min max);
   require Math::PlanePath::PeanoCurve;
   require Math::PlanePath::KochCurve;
   require Math::PlanePath::HexArms;
-  require Math::PlanePath::QuadricIslands;
   require Math::PlanePath::TriangleSpiral;
   require Math::PlanePath::TriangleSpiralSkewed;
   require Math::PlanePath::Flowsnake;
@@ -96,20 +93,24 @@ use List::Util qw(min max);
   require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::ComplexPlus;
   require Math::PlanePath::AnvilSpiral;
-  require Math::PlanePath::MathImageCretanLabyrinth;
   require Math::PlanePath::MathImagePixelRingsFill;
   require Math::PlanePath::TerdragonMidpoint;
   require Math::PlanePath::TerdragonCurve;
   require Math::PlanePath::CellularRule57;
   require Math::PlanePath::DragonRounded;
-  my $path = Math::PlanePath::DragonRounded->new
+  require Math::PlanePath::QuadricIslands;
+  require Math::PlanePath::KochSnowflakes;
+  require Math::PlanePath::MathImageMooreSpiral;
+  require Math::PlanePath::CretanLabyrinth;
+  require Math::PlanePath::MathImageSierpinskiCurveSquare;
+  my $path = Math::PlanePath::MathImageSierpinskiCurveSquare->new
     (
      # mirror => 1,
      # wider => 3,
      # start_shape => 'B1rev',
      # rule => 8,
      # realpart => 1,
-     arms => 4,
+     # arms => 2,
      # L_fill => 'all',
      # mirror => 1,
      # divisor_type => 'proper',
@@ -131,7 +132,7 @@ use List::Util qw(min max);
 
   for (my $i = $n_start+0; $i <= 40; $i+=1) {
 
-  #for (my $i = $n_start; $i <= $n_start + 80000000000; $i=POSIX::ceil($i*1.01+1)) {
+    #for (my $i = $n_start; $i <= $n_start + 80000000000; $i=POSIX::ceil($i*1.01+1)) {
     # for (my $i = 0.75; $i <= 50; $i += .5) {
     # for (my $i = 9650; $i <= 9999; $i++) {
     #for (my $i = $n_start; $i <= 30; $i++) {
@@ -161,10 +162,15 @@ use List::Util qw(min max);
       $seen{$xy} = $i;
     }
 
-    my $n = $path->xy_to_n ($x+.0, $y-.0);
-    if (! defined $n) { $n = 'norev'; }
+    my @n_list = $path->xy_to_n_list ($x+.0, $y-.0);
+    my $n_rev;
+    if (@n_list) {
+      $n_rev = join(',',@n_list);
+    } else {
+      $n_rev = 'norev';
+    }
     my $rev = '';
-    if (defined $n && $n ne $seen{$xy}) {
+    if (@n_list && $n_list[0] ne $seen{$xy}) {
       $rev = 'Rev';
     }
 
@@ -183,12 +189,13 @@ use List::Util qw(min max);
     if (! defined $n_hi) { $n_hi = 'undef'; }
 
     my $iwidth = ($i == int($i) ? 0 : 2);
-    printf "%.*f %8.4f,%8.4f   %3s %s %s %s %s\n",
-      $iwidth,$i,  $x,$y,  $n,
-        "${n_lo}_${n_hi}",
-          $dxdy,
-            " $rep",
-              $flag;
+    printf "%.*f %8.4f,%8.4f   %3s  %s  %s %s %s\n",
+      $iwidth,$i,  $x,$y,
+        $n_rev,
+          "${n_lo}_${n_hi}",
+            $dxdy,
+              " $rep",
+                $flag;
 
     # %.2f ($x*$x+$y*$y),
   }

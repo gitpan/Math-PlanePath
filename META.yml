@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Math-PlanePath
-version:            67
+version:            68
 abstract:           Mathematical paths through the 2-D plane.
 author:
     - Kevin Ryde <user42@zip.com.au>
@@ -24,9 +24,6 @@ no_index:
     directory:
         - t
         - inc
-        - xt
-        - devel
-        - examples
 generated_by:       ExtUtils::MakeMaker version 6.57_05
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html

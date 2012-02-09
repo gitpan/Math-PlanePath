@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 67;
+$VERSION = 68;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -47,22 +47,23 @@ sub parameter_info_list {
   return @{$_[0]->parameter_info_array};
 }
 
-# not documented yet
-my %parameter_info_hash;
-sub parameter_info_hash {
-  my ($class_or_self) = @_;
-  my $class = (ref $class_or_self || $class_or_self);
-  return ($parameter_info_hash{$class}
-          ||= { map { $_->{'name'} => $_ }
-                $class_or_self->parameter_info_list });
+{
+  my %parameter_info_hash;
+  sub parameter_info_hash {
+    my ($class_or_self) = @_;
+    my $class = (ref $class_or_self || $class_or_self);
+    return ($parameter_info_hash{$class}
+            ||= { map { $_->{'name'} => $_ }
+                  $class_or_self->parameter_info_list });
+  }
 }
 
-# sub parameter_info_hash {
-#   my ($class) = @_;
-#   return { map { $_->{'name'}, $_ }
-#            @{$class->parameter_info_array} };
-# }
-
+sub xy_to_n_list {
+  if (defined (my $n = shift->xy_to_n(@_))) {
+    return $n;
+  }
+  return;
+}
 
 #------------------------------------------------------------------------------
 # shared internals
@@ -198,6 +199,7 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     AnvilSpiral            anvil shape
     OctagramSpiral         eight pointed star
     KnightSpiral           an infinite knight's tour
+    CretanLabyrinth        7-circuit extended infinitely
 
     SquareArms             four-arm square spiral
     DiamondArms            four-arm diamond spiral
@@ -373,6 +375,17 @@ figure centred on the integer C<$n>.
 For paths which completely tile the plane there's always an C<$n> to return,
 but for the spread-out paths an C<$x,$y> position may fall in between (no
 C<$n> close enough).
+
+=item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
+
+Return a list of N point numbers for coordinates C<$x,$y>.  If there's
+nothing at C<$x,$y> then return a empty list.
+
+    my @n_list = $path->xy_to_n(20,20);
+
+Most paths have just a single N for a given X,Y, but for those like
+DragonCurve and TerdragonCurve where two or three N's give the same X,Y this
+method returns the list of those N values.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
@@ -611,6 +624,7 @@ more N points than the preceding.
        64       DiamondArms (each arm)
        72       GreekKeySpiral
       128       SquareArms (each arm)
+     128/4      CretanLabyrinth (4 loops for +128)
       216       HexArms (each arm)
     parameter   MultipleRings, PyramidRows
 
@@ -828,7 +842,8 @@ L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>,
 L<Math::PlanePath::AnvilSpiral>,
 L<Math::PlanePath::OctagramSpiral>,
-L<Math::PlanePath::KnightSpiral>
+L<Math::PlanePath::KnightSpiral>,
+L<Math::PlanePath::CretanLabyrinth>
 
 L<Math::PlanePath::HexArms>,
 L<Math::PlanePath::SquareArms>,

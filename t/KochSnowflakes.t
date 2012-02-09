@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 33 }
+BEGIN { plan tests => 115 }
 
 use lib 't';
 use MyTestHelpers;
@@ -28,12 +28,13 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath::KochSnowflakes;
 
+  my $path = Math::PlanePath::KochSnowflakes->new;
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 67;
+  my $want_version = 68;
   ok ($Math::PlanePath::KochSnowflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSnowflakes->VERSION,  $want_version,
@@ -47,7 +48,6 @@ require Math::PlanePath::KochSnowflakes;
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::KochSnowflakes->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,10 +62,11 @@ require Math::PlanePath::KochSnowflakes;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::KochSnowflakes->new;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->class_x_negative, 1, 'class_x_negative()');
+  ok ($path->class_y_negative, 1, 'class_y_negative()');
 }
 
 #------------------------------------------------------------------------------
@@ -101,6 +102,54 @@ require Math::PlanePath::KochSnowflakes;
     my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
     ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
     ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+  }
+}
+
+#------------------------------------------------------------------------------
+# xy_to_n_list()
+
+{
+  my @data = (
+              [ -1, 0, [1] ],
+              [ -1, -.333, [1] ],
+              [ -1, -.5, [1] ],
+
+              [ -1, -.6, [1,5] ],
+              [ -1, -1, [5] ],
+
+              [ 1, 0, [2] ],
+              [ 1, -.333, [2] ],
+              [ 1, -.5, [2] ],
+
+              [ 1, -.6, [2,7] ],
+              [ 1, -1, [7] ],
+
+              [ 0, .666, [3] ],
+              [ 0, 1, [3] ],
+              [ 0, .5, [3] ],
+
+              [ 0, -1, [] ],
+              [ 8, 0, [] ],
+              [ 9, 0, [] ],
+             );
+  foreach my $elem (@data) {
+    my ($x,$y, $want_n_aref) = @$elem;
+    my $want_n_str = join(',', @$want_n_aref);
+    {
+      my @got_n_list = $path->xy_to_n_list($x,$y);
+      ok (scalar(@got_n_list), scalar(@$want_n_aref));
+      my $got_n_str = join(',', @got_n_list);
+      ok ($got_n_str, $want_n_str);
+    }
+    {
+      my $got_n = $path->xy_to_n($x,$y);
+      ok ($got_n, $want_n_aref->[0]);
+    }
+    {
+      my @got_n = $path->xy_to_n($x,$y);
+      ok (scalar(@got_n), 1);
+      ok ($got_n[0], $want_n_aref->[0]);
+    }
   }
 }
 exit 0;

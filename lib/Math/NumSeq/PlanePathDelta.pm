@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 67;
+$VERSION = 68;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -33,7 +33,17 @@ use Math::NumSeq::PlanePathCoord;
 
 use constant 1.02; # various underscore constants below
 use constant characteristic_smaller => 1;
-use constant description => Math::NumSeq::__('Delta from a PlanePath');
+
+
+sub description {
+  my ($self) = @_;
+  if (ref $self) {
+    return "Coordinate change $self->{'delta_type'} on path $self->{'planepath'}";
+  } else {
+    # class method
+    return Math::NumSeq::__('Coordinate changes from a PlanePath');
+  }
+}
 
 use constant::defer parameter_info_array =>
   sub {
@@ -57,9 +67,8 @@ use constant::defer parameter_info_array =>
 # SquareSpiral dX maybe A118175 signed version of Rule 220 in binary ??
 #              dY maybe A079813 signed version of n 0s then n 1s
 
-# DragonMidpoint maybe abs(dY)
-# A073089 (1/2)*(4n - 3 - Sum (k=1,n, A007400(k)))
-# A007400 Continued fraction for Sum[ 1/2^(2^n),{n,0,Infinity} ] = 0.8164215090218931... 
+# DragonMidpoint abs(dY) is A073089, but it has n=N+2 and extra initial 0 at
+# n=1
 
 my %oeis_anum
   = (
@@ -598,6 +607,14 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_max => 2;
 }
 { package Math::PlanePath::KnightSpiral;
+  use constant _NumSeq_Delta_dX_min => -2;
+  use constant _NumSeq_Delta_dX_max => 2;
+  use constant _NumSeq_Delta_dY_min => -2;
+  use constant _NumSeq_Delta_dY_max => 2;
+  use constant _NumSeq_Delta_DistSquared_min => 5;
+  use constant _NumSeq_Delta_DistSquared_max => 5;
+}
+{ package Math::PlanePath::CretanLabyrinth;
   use constant _NumSeq_Delta_dX_min => -2;
   use constant _NumSeq_Delta_dX_max => 2;
   use constant _NumSeq_Delta_dY_min => -2;

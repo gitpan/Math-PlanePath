@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 251)[1];
+my $test_count = (tests => 253)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -369,6 +369,8 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'CretanLabyrinth',
+
                'TerdragonMidpoint',
                'TerdragonMidpoint,arms=1',
                'TerdragonMidpoint,arms=2',

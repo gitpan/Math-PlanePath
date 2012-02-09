@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -172,6 +172,9 @@ my @try_dx = (0,0,-1,-1);
 my @try_dy = (0,1,1,0);
 
 sub xy_to_n {
+  return scalar((shift->xy_to_n_list(@_))[0]);
+}
+sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### DragonCurve xy_to_n(): "$x, $y"
 
@@ -186,10 +189,10 @@ sub xy_to_n {
   }
 
   if ($x == 0 && $y == 0) {
-    return 0;
+    return (0 .. $self->arms_count - 1);
   }
 
-  my $n;
+  my @n_list;
   my $xm = $x+$y;  # rotate -45 and mul sqrt(2)
   my $ym = $y-$x;
   foreach my $dx (0,-1) {
@@ -203,13 +206,18 @@ sub xy_to_n {
 
       if ($tx == $x && $ty == $y) {
         ### found: $t
-        if (defined $t && (! defined $n || $t < $n)) {
-          $n = $t;
+        if (@n_list && $t < $n_list[0]) {
+          unshift @n_list, $t;
+        } else {
+          push @n_list, $t;
+        }
+        if (@n_list == 2) {
+          return @n_list;
         }
       }
     }
   }
-  return $n;
+  return @n_list;
 }
 
 # f = (1 - 1/sqrt(2) = .292
@@ -593,6 +601,113 @@ pivoiting at the "4", and so on.
 It can be shown that this unfolding doesn't overlap itself but the corners
 may touch, such as at the X=-2,Y=1 etc noted above.
 
+=head2 Turns
+
+At each point N the curve always turns either left or right, it never goes
+straight ahead.  The bit above the lowest 1 in N gives the turn direction.
+
+    N = 0b...z10000   (possibly no trailing 0s)
+
+    z bit    Turn
+    -----    ----
+      0      left
+      1      right
+
+For example N=12 is binary 0b1100, the lowest 1 bit is 0b_1__ and the bit
+above that is a 1, which means turn to the right.  Or N=18 is binary
+0b10010, the lowest 1 is 0b___1_ and the bit above that is 0, so turn left
+there.
+
+This z bit can be picked out with some bit twiddling
+
+    $mask = $n & -$n;          # lowest 1 bit, 000100..00
+    $z = $n & ($mask << 1);    # the bit above it
+    $turn = ($z == 0 ? 'left' : 'right');
+
+The bits also give the turn after next by looking at the bit above the
+lowest 0.
+
+    N = 0b...w01111    (possibly no trailing 1s)
+
+    w bit    Next Turn
+    ----     ---------
+      0       left
+      1       right
+
+For example at N=12=0b1100 the lowest 0 is the least significant bit 0b___0,
+and above that is a 0 too, so after going to N=13 the turn there at 13 is to
+the left.  Or for N=18=0b10010 the lowest 0 is again the least significant
+bit, but above it is a 1, so at N=19 the turn is to the right.
+
+This too can be found with some bit twiddling, as for example
+
+    $mask = $n ^ ($n+1);      # low one and below 000111..11
+    $w = $n & ($mask + 1);    # the bit above there
+    $turn = ($w == 0 ? 'left' : 'right');
+
+There's nothing in the current code for these turn calculations.
+
+=head2 Total Turn
+
+The total turn can be calculated from the segment replacements resulting
+from the bits of N from high to low.
+
+    plain state
+     0 -> no change
+     1 -> turn left, go to reversed state
+
+    reversed state
+     1 -> no change
+     0 -> turn left, go to plain state
+
+This arises from the different side a segment expands on according to plain
+or reversed state.  A segment A to B expands to an "L" bend on the right in
+plain state, or on the left in reversed state.
+
+      plain state             reverse state
+
+      A = = = = B                    +       
+       \       /              0bit  / \      
+        \     /               turn /   \ 1bit
+    0bit \   / 1bit           left/     \    
+          \ /  turn              /       \   
+           +   left             A = = = = B
+
+In both cases there's a rotate of +45 degrees at each step which keeps the
+very first segment of the whole curve in a fixed direction (along the X
+axis) and this means the south-east slope which is the 0 of plain or the 1
+of reversed is no-change, and the north-east slope which is the other new
+edge is a turn towards the left.
+
+The effect for the bits of N is to count a left turn at each transition from
+0 to 1 or back again from 1 to 0.  Initial "plain" state means the infinite
+zero bits at the high end of N are included.  For example N=9 is 0b1001 so
+three left turns for curve direction south to go to N=10 (as can be seen in
+the diagram above).
+
+     1 00 1   N=9
+    ^ ^  ^   
+    +-+--+---three transitions,
+             so three left turns for direction south
+
+Or the transitions can be viewed as a count of how many blocks of 0s or 1s,
+
+    1 00 1   three blocks of 0s and 1s
+
+This can be calculated by some bit twiddling using a shift and xor to turn a
+count of transitions into a of 1 bits, as noted by Jorg Arndt (fxtbook
+section 1.31.3.1).
+
+    total turn = count_1_bits ($n ^ ($n >> 1))
+
+The reversing structure of the curve shows up in the total turn sequence.
+Each block of 2^N is followed by its own reversal plus 1.  For example,
+
+
+    N=0 to N=7    0, 1, 2, 1, 2, 3, 2, 1
+
+    N=15 to N=8   1, 2, 3, 2, 3, 4, 3, 2    each is +1
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
@@ -626,6 +741,11 @@ The curve visits an C<$x,$y> twice for various points (all the "inside"
 points).  In the current code the smaller of the two N values is returned.
 Is that the best way?
 
+=item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
+
+Return a list of N point numbers for coordinates C<$x,$y>.  There can be
+none, one or two N's for a given C<$x,$y>.
+
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
@@ -638,125 +758,24 @@ Return 0, the first N in the path.
 
 In the current implementation the four edges around a point are converted to
 DragonMidpoint by a rotate -45 and offset.  This gives four candidate N
-values and the smallest which converts back to the desired X,Y by
-C<n_to_xy()> is the result.
+values and those which converts back to the desired X,Y by C<n_to_xy()> are
+the results for C<xy_to_n_list()>.
 
     Xmid,Ymid = X+Y, Y-X    # rotate -45 degrees
     dx = 0 or -1
       dy = 0 or 1
         N candidate = DragonMidpoint xy_to_n(Xmid+dx,Ymid+dy)
 
-Is it possible to tell which two edges the ones leaving the X,Y point?  The
-two coming into the point won't convert back.  The orientation and direction
-of vertex touching doesn't seem to have an easy pattern.
-
-=head2 Turns
-
-At each point N the curve always turns either left or right, it never goes
-straight ahead.  The bit above the lowest 1 bit in N gives the turn
-direction.
-
-    N = 0b...z10000   (possibly no trailing 0s)
-
-    z bit    Turn
-    -----    ----
-      0      left
-      1      right
-
-For example N=12 is binary 0b1100, the lowest 1 bit is 0b.1.. and the bit
-above that is a 1, which means turn to the right.  Or N=18 is binary
-0b10010, the lowest 1 is 0b...1. and the bit above that is 0, so turn left
-there.
-
-The z bit can be picked out with some bit twiddling
-
-    $mask = $n & -$n;          # lowest 1 bit, 000100..00
-    $z = $n & ($mask << 1);    # the bit above it
-    $turn = ($z == 0 ? 'left' : 'right');
-
-The bits also give the turn after next by looking at the bit above the
-lowest 0.
-
-    N = 0b...w01111    (possibly no trailing 1s)
-
-    w bit    Next Turn
-    ----     ---------
-      0       left
-      1       right
-
-For example at N=12=0b1100 the lowest 0 is the least significant bit 0b...0,
-and above that is a 0 too, so after going to N=13 the turn there at 13 is to
-the left.  Or for N=18=0b10010 the lowest 0 is again the least significant
-bit, but above it is a 1, so at N=19 the turn there is to the right.
-
-This too can be found with some bit twiddling, as for example
-
-    $mask = $n ^ ($n+1);      # low one and below 000111..11
-    $w = $n & ($mask + 1);    # the bit above there
-    $turn = ($w == 0 ? 'left' : 'right');
-
-There's nothing in the current code for these turn calculations.
-
-=head2 Total Turn
-
-The total turn can be calculated from the segment replacements descending
-from the high to low bits of N.
-
-    plain state
-     0 -> no change
-     1 -> turn left, go to reversed state
-
-    reversed state
-     1 -> no change
-     0 -> turn left, go to plain state
-
-This arises from the different side a segment expands on according to plain
-or reversed state.  A segment A to B becomes an "L" on the right in plain
-state, or on the left in reversed state.
-
-      plain state             reverse state
-
-      A=========B                    +       
-       \       /              0bit  / \      
-        \     /               turn /   \ 1bit
-    0bit \   / 1bit           left/     \    
-          \ /  turn              /       \   
-           +   left             A=========B
-
-In both cases there's a rotate of +45 degrees at each step which keeps the
-very first segment of the whole curve in a fixed direction, and this means
-the south-east slope which is the 0 of plain or the 1 of reversed is
-no-change, and the north-east slope is a turn towards the left.
-
-The effect from the bits of N is to count a left turn at each transition
-from 0 to 1 or back from 1 to 0.  The initial "plain" state means the
-infinite zero bits at the high end of N are included.  For example N=9 is
-0b1001 so three left turns for curve direction south to go to N=10 (as can
-be seen in the diagram above).
-
-     1 00 1  N=9
-    ^ ^  ^   three transitions, direction south
-
-Or the transitions can be viewed as a count of how many blocks of 0s or 1s,
-
-    1 00 1   three blocks of 0s and 1s
-
-This can be calculated with some bit twiddling by a shift and xor to turn it
-into a count of 1 bits, as noted by Jorg Arndt (fxtbook section 1.31.3.1).
-
-    total turn = count_1_bits ($n ^ ($n >> 1))
-
-The reversing structure of the curve shows up in the total turn sequence.
-Each block of 2^N is followed by its own reversal, plus 1.  For example,
-
-    N=0 to N=7    0, 1, 2, 1, 2, 3, 2, 1
-
-    N=15 to N=8   1, 2, 3, 2, 3, 4, 3, 2    is +1
+For arms 1 and 3 the two "leaving" edges are up+down on odd points (X+Y odd)
+or left+right on even points (X+Y even).  But for arms 2 and 4 it's the
+other way around.  So without an easy way to identify the arm for an X,Y
+this probably doesn't help identify which two of the four edges are the
+desired ones.
 
 =head1 OEIS
 
 The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences in
-various forms,
+various forms (and see DragonMidpoint too),
 
     http://oeis.org/A005811  (etc)
 
@@ -768,16 +787,16 @@ various forms,
     A038189 -- bit above lowest 1, is 0=left,1=right (extra initial 0)
     A082410 -- reversing complement, is 1=left,0=right (extra initial 0)
     A091072 -- odd part 4K+1, is N positions of the left turns
-    A126937 -- points numbered like SquareSpiral (with N-1 and neg Y)
+    A126937 -- points numbered like SquareSpiral (with N-1 and flip Y)
 
 The four turn sequences differ only in having left or right represented as 0
 and 1, or 1 and 2, and the further A038189 and A082410 differ only in having
 an extra initial 0.
 
-The point numbering A126937 is a Dragon curve going downwards towards
-negative Y with points numbered by a square spiral starting from N=0 and
-spiralling upwards towards positive Y.  PlanePath code starting at i=0 can
-generate it with
+The point numbering A126937 has the dragon curve and square spiralling
+numbering Y points in the opposite directions.  So the dragon turning up
+towards positive Y but the square spiral turning down towards negative Y (or
+vice versa).  So PlanePath code for this, starting at $i=0, would be
 
       my $dragon = Math::PlanePath::DragonCurve->new;
       my $square = Math::PlanePath::SquareSpiral->new;
@@ -786,7 +805,7 @@ generate it with
 
 For reference, "dragon-like" A059125 is similar to the turn sequence
 A014707, but differs in having the "middle" value for each replication come
-from successive values of the sequence itself (or some such).
+from successive values of the sequence itself (or something like that).
 
 =head1 SEE ALSO
 

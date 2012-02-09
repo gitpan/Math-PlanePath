@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 67;
+  my $want_version = 68;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,

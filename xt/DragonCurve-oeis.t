@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 12 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -65,6 +65,67 @@ sub dxdy_to_direction {
   if ($dy < 0) { return 3; }  # south
 }
 
+
+#------------------------------------------------------------------------------
+# A088431 - dragon turns run lengths
+
+{
+  my $anum = 'A088431';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    my $prev_turn = path_n_turn($dragon,1);
+    my $run = 1; # count for initial $prev_turn
+    for (my $n = 2; @got < @$bvalues; $n++) {
+      my $turn = path_n_turn($dragon,$n);
+      if ($turn == $prev_turn) {
+        $run++;
+      } else {
+        push @got, $run;
+        $run = 1; # count for new $turn value
+      }
+      $prev_turn = $turn;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- cumulative turn");
+}
+
+# return 1 for left, 0 for right
+sub path_n_turn {
+  my ($path, $n) = @_;
+  my $prev_dir = path_n_dir ($path, $n-1);
+  my $dir = path_n_dir ($path, $n);
+  my $turn = ($dir - $prev_dir) % 4;
+  if ($turn == 1) { return 1; }
+  if ($turn == 3) { return 0; }
+  die "Oops, unrecognised turn";
+}
+# return 0,1,2,3
+sub path_n_dir {
+  my ($path, $n) = @_;
+  my ($x,$y) = $path->n_to_xy($n);
+  my ($next_x,$next_y) = $path->n_to_xy($n+1);
+  return dxdy_to_dir ($next_x - $x,
+                      $next_y - $y);
+}
+# return 0,1,2,3, with Y reckoned increasing upwards
+sub dxdy_to_dir {
+  my ($dx, $dy) = @_;
+  if ($dx > 0) { return 0; }  # east
+  if ($dx < 0) { return 2; }  # west
+  if ($dy > 0) { return 1; }  # north
+  if ($dy < 0) { return 3; }  # south
+}
 
 
 #------------------------------------------------------------------------------

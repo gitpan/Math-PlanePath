@@ -30,8 +30,261 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+#use Smart::Comments;
 
+
+
+{
+  # A073089 midpoint vertical/horizontal formula
+
+  require Math::NumSeq::OEIS::File;
+  my $A073089 = Math::NumSeq::OEIS::File->new (anum => 'A073089');
+
+  my $A014577 = Math::NumSeq::OEIS::File->new (anum => 'A014577'); # 0=left n=0
+  my $A014707 = Math::NumSeq::OEIS::File->new (anum => 'A014707'); # 1=left
+  my $A038189 = Math::NumSeq::OEIS::File->new (anum => 'A038189');
+  my $A082410 = Math::NumSeq::OEIS::File->new (anum => 'A082410');
+
+  my $A000035 = Math::NumSeq::OEIS::File->new (anum => 'A000035'); # n mod 2
+
+  my $count = 0;
+  foreach my $n (0 .. 1000) {
+    my $got = $A073089->ith($n) // next;
+
+    # works except for n=1
+    # my $turn = $A014707->ith($n-2) // next;
+    # my $flip = $A000035->ith($n-2) // next;
+    # my $calc = $turn ^ $flip;
+
+    # works
+    # my $turn = $A014577->ith($n-2) // next;
+    # my $flip = $A000035->ith($n-2) // next;
+    # my $calc = $turn ^ $flip ^ 1;
+
+    # so A073089(n) = A082410(n) xor A000035(n) xor 1
+    my $turn = $A082410->ith($n) // next;
+    my $flip = $A000035->ith($n) // next;
+    my $calc = $turn ^ $flip ^ 1;
+
+    if ($got != $calc) {
+    print "wrong $n  got=$got calc=$calc\n";
+    }
+    $count++;
+  }
+  print "count $count\n";
+  exit 0;
+}
+
+{
+  # doublings
+  require Math::PlanePath::DragonCurve;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my %seen;
+  for (my $n = 0; $n < 2000; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $key = "$x,$y";
+    push @{$seen{$key}}, $n;
+    if (@{$seen{$key}} == 2) {
+      my @v2;
+      my $aref = delete $seen{$key};
+      my $sum = 0;
+      foreach my $v (@$aref) {
+        $sum += $v;
+        my $v2 = Math::BaseCnv::cnv($v,10,2);
+        push @v2, $v2;
+        printf "%4s %12s\n", $v, $v2;
+      }
+      printf "%4s %12b  sum\n", $sum, $sum;
+
+      my $diff = abs($aref->[0]-$aref->[1]);
+      printf "%4s %12b  diff\n", $diff, $diff;
+
+      my $lenmatch = 0;
+      foreach my $i (1 .. length($v2[0])) {
+        my $want = substr ($v2[0], -$i);
+        if ($v2[1] =~ /$want$/) {
+          next;
+        } else {
+          $lenmatch = $i-1;
+          last;
+          last;
+        }
+      }
+      my $zeros = ($v2[0] =~ /(0*)$/ && $1);
+      my $lenzeros = length($zeros);
+      my $same = ($lenmatch == $lenzeros+2 ? "same" : "diff");
+      print "low same $lenmatch zeros $lenzeros   $same\n";
+
+      my $new = $aref->[0];
+      my $first_bit = my $bit = 2 * 2**$lenzeros;
+      my $change = 0;
+      while ($bit <= 2*$aref->[0]) {
+        ### $bit
+        ### $change
+        if ($change) {
+          $new ^= $bit;
+          $change = ! ($aref->[0] & $bit);
+        } else {
+          $change = ($aref->[0] & $bit);
+        }
+        $bit *= 2;
+      }
+      my $new2 = Math::BaseCnv::cnv($new,10,2);
+      if ($new != $aref->[1]) {
+        print "flip wrong first $first_bit last $bit to $new $new2\n";
+      }
+      print "\n";
+    }
+  }
+  exit 0;
+}
+
+
+{
+  # DragonMidpoint abs(dY) sequence
+  require Math::NumSeq::PlanePathDelta;
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => 'DragonMidpoint',
+                                               delta_type => 'dY');
+  foreach (0 .. 64) {
+    my ($i,$value) = $seq->next;
+    my $p = $i+2;
+    # while ($p && ! ($p&1)) {
+    #   $p/=2;
+    # }
+    my $v = calc_n_midpoint_vert($i+1);
+    printf "%d %d %7b\n", abs($value), $v, $p;
+  }
+  exit 0;
+}
+{
+  # DragonMidpoint abs(dY) sequence
+  require Math::PlanePath::DragonMidpoint;
+  my $path = Math::PlanePath::DragonMidpoint->new;
+  foreach my $n (0 .. 64) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($nx,$ny) = $path->n_to_xy($n+1);
+    if ($nx == $x) {
+      my $p = $n+2;
+      # while ($p && ! ($p&1)) {
+      #   $p/=2;
+      # }
+      my $v = calc_n_midpoint_vert($n);
+      printf "%d %7b\n", $v, $p;
+    }
+  }
+  exit 0;
+
+  sub calc_n_midpoint_vert {
+    my ($n) = @_;
+    if ($n < 0) { return 0; }
+    my $vert = ($n & 1);
+    my $right = calc_n_turn($n);
+    return ((($vert && !$right)
+             || (!$vert && $right))
+            ? 0
+            : 1);
+  }
+  # return 0 for left, 1 for right
+  sub calc_n_turn {
+    my ($n) = @_;
+    my ($mask,$z);
+    $mask = $n & -$n;          # lowest 1 bit, 000100..00
+    $z = $n & ($mask << 1);    # the bit above it
+    my $turn = ($z == 0 ? 0 : 1);
+    # printf "%b   %b  %b  %d\n", $n,$mask, $z, $turn;
+    return $turn;
+  }
+}
+
+
+{
+  # xy absolute direction nsew
+
+  require Math::PlanePath::DragonCurve;
+  my @array;
+  my $arms = 4;
+  my $path = Math::PlanePath::DragonCurve->new (arms => $arms);
+
+  my $width = 20;
+  my $height = 20;
+
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0,$width+2,$height+2);
+  print "n_hi $n_hi\n";
+  for my $n (0 .. 20*$n_hi) {
+    # next if ($n % 4) == 0;
+    # next if ($n % 4) == 1;
+    # next if ($n % 4) == 2;
+    # next if ($n % 4) == 3;
+    my ($x,$y) = $path->n_to_xy($n);
+    next if $x < 0 || $y < 0 || $x > $width || $y > $height;
+
+    my ($nx,$ny) = $path->n_to_xy($n+$arms);
+
+    if ($ny == $y+1) {
+      $array[$x][$y] .= ($n & 1 ? "n" : "N");
+    }
+    if ($ny == $y-1) {
+      $array[$x][$y] .= ($n & 1 ? "s" : "S");
+    }
+    # if ($nx == $x+1) {
+    #   $array[$x][$y] .= "w";
+    # }
+    # if ($nx == $x-1) {
+    #   $array[$x][$y] .= "e";
+    # }
+  }
+  foreach my $y (reverse 0 .. $height) {
+    foreach my $x (0 .. $width) {
+      my $v = $array[$x][$y]//'';
+      $v = sort_str($v);
+      printf "%3s", $v;
+    }
+    print "\n";
+  }
+
+  exit 0;
+}
+
+{
+  # xy absolute direction
+  require Image::Base::Text;
+  require Math::PlanePath::DragonCurve;
+  my $arms = 1;
+  my $path = Math::PlanePath::DragonCurve->new (arms => $arms);
+
+  my $width = 20;
+  my $height = 20;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0,$width+2,$height+2);
+  print "n_hi $n_hi\n";
+  for my $n (0 .. $n_hi) {
+    my ($x,$y) = $path->n_to_xy($n);
+    next if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
+
+    my ($nx,$ny) = $path->n_to_xy($n+$arms);
+
+    # if ($nx == $x+1) {
+    #   $image->xy($x,$y,$n&3);
+    # }
+    # if ($ny == $y+1) {
+    #   $image->xy($x,$y,$n&3);
+    # }
+    if ($ny == $y+1 || $ny == $y-1) {
+      # $image->xy($x,$y,$n&3);
+      $image->xy($x,$y,'|');
+    }
+    if ($nx == $x+1 || $nx == $x-1) {
+      # $image->xy($x,$y,$n&3);
+      $image->xy($x,$y,'-');
+    }
+  }
+  $image->save('/dev/stdout');
+
+  exit 0;
+}
 
 
 {
@@ -520,38 +773,7 @@ use Smart::Comments;
   }
   exit 0;
 }
-{
-  # xy absolute direction
-  require Image::Base::Text;
-  require Math::PlanePath::DragonCurve;
-  my $path = Math::PlanePath::DragonCurve->new (arms => 4);
 
-  my $width = 78;
-  my $height = 5;
-  my $image = Image::Base::Text->new (-width => $width,
-                                      -height => $height);
-
-  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0,$width+2,$height+2);
-  print "n_hi $n_hi\n";
-  for my $n (0 .. $n_hi) {
-    my ($x,$y) = $path->n_to_xy($n);
-    my ($nx,$ny) = $path->n_to_xy($n+4);
-    next if $x < 0 || $y < 0 || $x >= $width || $y >= $height;
-
-    # if ($nx == $x+1) {
-    #   $image->xy($x,$y,$n&3);
-    # }
-    # if ($ny == $y+1) {
-    #   $image->xy($x,$y,$n&3);
-    # }
-    if ($ny == $y) {
-      $image->xy($x,$y,$n&3);
-    }
-  }
-  $image->save('/dev/stdout');
-
-  exit 0;
-}
 
 {
   # Midpoint xy to n
@@ -840,63 +1062,6 @@ use Smart::Comments;
 
 
 
-{
-  # doublings
-  require Math::PlanePath::DragonCurve;
-  require Math::BaseCnv;
-  my $path = Math::PlanePath::DragonCurve->new;
-  my %seen;
-  for (my $n = 0; $n < 2000; $n++) {
-    my ($x,$y) = $path->n_to_xy($n);
-    my $key = "$x,$y";
-    push @{$seen{$key}}, $n;
-    if (@{$seen{$key}} == 2) {
-      my @v2;
-      my $aref = delete $seen{$key};
-      foreach my $v (@$aref) {
-        my $v2 = Math::BaseCnv::cnv($v,10,2);
-        push @v2, $v2;
-        printf "%4s %12s\n", $v, $v2;
-      }
-      my $lenmatch = 0;
-      foreach my $i (1 .. length($v2[0])) {
-        my $want = substr ($v2[0], -$i);
-        if ($v2[1] =~ /$want$/) {
-          next;
-        } else {
-          $lenmatch = $i-1;
-          last;
-          last;
-        }
-      }
-      my $zeros = ($v2[0] =~ /(0*)$/ && $1);
-      my $lenzeros = length($zeros);
-      my $same = ($lenmatch == $lenzeros+2 ? "same" : "diff");
-      print "low same $lenmatch zeros $lenzeros   $same\n";
-
-      my $new = $aref->[0];
-      my $first_bit = my $bit = 2 * 2**$lenzeros;
-      my $change = 0;
-      while ($bit <= 2*$aref->[0]) {
-        ### $bit
-        ### $change
-        if ($change) {
-          $new ^= $bit;
-          $change = ! ($aref->[0] & $bit);
-        } else {
-          $change = ($aref->[0] & $bit);
-        }
-        $bit *= 2;
-      }
-      my $new2 = Math::BaseCnv::cnv($new,10,2);
-      if ($new != $aref->[1]) {
-        print "flip wrong first $first_bit last $bit to $new $new2\n";
-      }
-      print "\n";
-    }
-  }
-  exit 0;
-}
 
 {
   # turn

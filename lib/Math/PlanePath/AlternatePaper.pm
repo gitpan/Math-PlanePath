@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -207,6 +207,9 @@ sub n_to_xy {
 # 0     1     2     3     4     5     6     7    8
 
 sub xy_to_n {
+  return scalar((shift->xy_to_n_list(@_))[0]);
+}
+sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### AlternatePaper xy_to_n(): "$x, $y"
 
@@ -222,79 +225,142 @@ sub xy_to_n {
   }
 
   if ($y < 0 || $y > $x || $x < 0) {
-    return undef;
+    ### outside first octant ...
+    return;
   }
 
-  my $n = $x * 0 * $y;  # inherit bignum 0
+  my $n = my $big_n = $x * 0 * $y;  # inherit bignum 0
   my $rev = 0;
+
+  my $big_x = $x;
+  my $big_y = $y;
+  my $big_rev = 0;
 
   while ($level-- >= 0) {
     ### at: "$x,$y  len=$len  n=$n"
 
-    $n *= 4;
-    if ($rev) {
-      if ($x+$y < 2*$len) {
-        ### rev 0 or 1 ...
-        if ($x < $len) {
-        } else {
-          ### rev 1 ...
-          $rev = 0;
-          $n -= 2;
-          ($x,$y) = ($len-$y, $x-$len);   # x-len,y-len then rotate +90
-        }
+    {
+      $n *= 4;
+      if ($rev) {
+        if ($x+$y < 2*$len) {
+          ### rev 0 or 1 ...
+          if ($x < $len) {
+          } else {
+            ### rev 1 ...
+            $rev = 0;
+            $n -= 2;
+            ($x,$y) = ($len-$y, $x-$len);   # x-len,y-len then rotate +90
+          }
 
+        } else {
+          ### rev 2 or 3 ...
+          if ($y > $len || ($x==$len && $y==$len)) {
+            ### rev 2 ...
+            $n -= 2;
+            $x -= $len;
+            $y -= $len;
+          } else {
+            ### rev 3 ...
+            $n -= 4;
+            $rev = 0;
+            ($x,$y) = ($y, 2*$len-$x);   # to origin then rotate -90
+          }
+        }
       } else {
-        ### rev 2 or 3 ...
-        if ($y > $len || ($x==$len && $y==$len)) {
-          ### rev 2 ...
-          $n -= 2;
-          $x -= $len;
-          $y -= $len;
-        } else {
-          ### rev 3 ...
-          $n -= 4;
-          $rev = 0;
-          ($x,$y) = ($y, 2*$len-$x);   # to origin then rotate -90
-        }
-      }
-    } else {
-      if ($x+$y <= 2*$len
-          && !($x==$len && $y==$len)
-          && !($x==2*$len && $y==0)) {
-        ### 0 or 1 ...
-        if ($x <= $len) {
-        } else {
-          ### 1 ...
-          $n += 2;
-          $rev = 1;
-          ($x,$y) = ($len-$y, $x-$len);   # x-len,y-len then rotate +90
-        }
+        if ($x+$y <= 2*$len
+            && !($x==$len && $y==$len)
+            && !($x==2*$len && $y==0)) {
+          ### 0 or 1 ...
+          if ($x <= $len) {
+          } else {
+            ### 1 ...
+            $n += 2;
+            $rev = 1;
+            ($x,$y) = ($len-$y, $x-$len);   # x-len,y-len then rotate +90
+          }
 
-      } else {
-        ### 2 or 3 ...
-        if ($y >= $len && !($x==2*$len && $y==$len)) {
-          $n += 2;
-          $x -= $len;
-          $y -= $len;
         } else {
-          $n += 4;
-          $rev = 1;
-          ($x,$y) = ($y, 2*$len-$x);   # to origin then rotate -90
+          ### 2 or 3 ...
+          if ($y >= $len && !($x==2*$len && $y==$len)) {
+            $n += 2;
+            $x -= $len;
+            $y -= $len;
+          } else {
+            $n += 4;
+            $rev = 1;
+            ($x,$y) = ($y, 2*$len-$x);   # to origin then rotate -90
+          }
         }
       }
     }
+    {
+      $big_n *= 4;
+      if ($big_rev) {
+        if ($big_x+$big_y <= 2*$len
+            && !($big_x==$len && $big_y==$len)
+            && !($big_x==2*$len && $big_y==0)) {
+          ### rev 0 or 1 ...
+          if ($big_x <= $len) {
+          } else {
+            ### rev 1 ...
+            $big_rev = 0;
+            $big_n -= 2;
+            ($big_x,$big_y) = ($len-$big_y, $big_x-$len);   # x-len,y-len then rotate +90
+          }
 
+        } else {
+          ### rev 2 or 3 ...
+          if ($big_y >= $len && !($big_x==2*$len && $big_y==$len)) {
+            ### rev 2 ...
+            $big_n -= 2;
+            $big_x -= $len;
+            $big_y -= $len;
+          } else {
+            ### rev 3 ...
+            $big_n -= 4;
+            $big_rev = 0;
+            ($big_x,$big_y) = ($big_y, 2*$len-$big_x);   # to origin then rotate -90
+          }
+        }
+      } else {
+        if ($big_x+$big_y < 2*$len) {
+          ### 0 or 1 ...
+          if ($big_x < $len) {
+          } else {
+            ### 1 ...
+            $big_n += 2;
+            $big_rev = 1;
+            ($big_x,$big_y) = ($len-$big_y, $big_x-$len);   # x-len,y-len then rotate +90
+          }
+
+        } else {
+          ### 2 or 3 ...
+          if ($big_y > $len || ($big_x==$len && $big_y==$len)) {
+            $big_n += 2;
+            $big_x -= $len;
+            $big_y -= $len;
+          } else {
+            $big_n += 4;
+            $big_rev = 1;
+            ($big_x,$big_y) = ($big_y, 2*$len-$big_x);   # to origin then rotate -90
+          }
+        }
+      }
+    }
     $len /= 2;
   }
 
   if ($x) {
     $n += ($rev ? -1 : 1);
   }
-  # if ($y) {
-  #   $n += ($rev ? -1 : 1);
-  # }
+  if ($big_x) {
+    $big_n += ($big_rev ? -1 : 1);
+  }
+
   ### final: "$x,$y  n=$n  rev=$rev"
-  return $n;
+  ### final: "$x,$y  big_n=$n  big_rev=$rev"
+
+  return ($n, ($n == $big_n ? () : ($big_n)));
 }
 
 # not exact
@@ -360,26 +426,26 @@ paper folding),
         +------------------------------------------------------------
           X=0    1     2     3      4      5      6      7      8
 
-The curve visits the X axis points and the X=Y diagonal points once each,
-and visits "inside" points between there twice.  The first doubled point is
-X=2,Y=1 which is N=3 and also N=7.  The sections N=2,3,4 and N=6,7,8 have
-touched, but the curve doesn't cross over itself.  The doubled vertices are
-all like this, touching but not crossing, and no edges repeat.
+The curve visits the X axis and X=Y diagonal points once each, and visits
+"inside" points between there twice.  The first doubled point is X=2,Y=1
+which is N=3 and also N=7.  The segments N=2,3,4 and N=6,7,8 have touched,
+but the curve doesn't cross over itself.  The doubled vertices are all like
+this, touching but not crossing, and no edges repeat.
 
 The first step N=1 is to the right along the X axis and the path fills the
-eighth of the plane up to the X=Y diagonal (inclusive).
+eighth of the plane up to the X=Y diagonal, inclusive.
 
-The N=0,1,4,5,16,17,etc on the X axis are the integers which have only
-digits 0 and 1 in base 4, or equivalently which have a 0 bit at each even
+The X axis N=0,1,4,5,16,17,etc are the integers which have only digits 0 and
+1 in base 4, or equivalently those which have a 0 bit at each even numbered
+bit position.
+
+The X=Y diagonal N=0,2,8,10,32,etc are the integers which have only digits 0
+and 2 in base 4, or equivalently which have a 0 bit at each odd numbered bit
 position.
 
-The N=0,2,8,10,32,etc on the X=Y diagonals are are the integers which have
-only digits 0 and 2 in base 4, or equivalently which have a 0 bit at each
-odd position.
-
-Those X axis values are the same as on the ZOrderCurve X axis, and the
-diagonal is the same as the ZOrderCurve Y axis, though in between the two
-are quite different.
+The X axis values are the same as on the ZOrderCurve X axis, and the X=Y
+diagonal is the same as the ZOrderCurve Y axis, but in between the two are
+quite different.
 
 =head2 Paper Folding
 
@@ -388,24 +454,24 @@ alternately one way and the other, then unfolded so each crease is a 90
 degree angle.  The effect is that the curve repeats in successive doublings
 turned by 90 degrees and reversed.
 
-The first segment unfolds, pivoting at the end "1",
+The first segment N=0 to N=1 unfolds, pivoting at the end "1",
 
-                                         2
-                                    ->   |
-                    unfold         /     |
-                     ===>         |      |
-                                         |
-    0------1                     0-------1
+                                    2
+                               ->   |
+                 unfold       /     |
+                  ===>       |      |
+                                    |
+    0------1                0-------1
 
 Then that "L" shape unfolds again, pivoting at the end "2", but on the
 opposite side to the first unfold,
 
-                                         2-------3
-           2                             |       |
-           |        unfold               |   ^   |
-           |         ===>                | _/    |
-           |                             |       |
-    0------1                     0-------1       4
+                                    2-------3
+           2                        |       |
+           |     unfold             |   ^   |
+           |      ===>              | _/    |
+           |                        |       |
+    0------1                0-------1       4
 
 In general after each unfold the shape is a triangle,
 
@@ -419,12 +485,12 @@ In general after each unfold the shape is a triangle,
         0,0                     0,0
 
     after even number          after odd number
-    of unfolds, being          of unfolds, being
+       of unfolds,                of unfolds,
      N=0 to N=2^even            N=0 to N=2^odd
 
-For an even number of unfolds the triangle consists of 4 sub-parts which are
-the high digit of N in base 4, and those sub-parts are self-similar in the
-"E<gt>" etc direction shown, and reversed for parts 1 and 3.
+For an even number of unfolds, the triangle consists of 4 sub-parts numbered
+by the high digit of N in base 4.  Those sub-parts are self-similar in the
+direction "E<gt>" etc shown, and with a reversal for parts 1 and 3.
 
               +
              /|
@@ -441,20 +507,20 @@ the high digit of N in base 4, and those sub-parts are self-similar in the
 =head2 Turns
 
 At each point N the curve always turns either to the left or right, it never
-goes straight ahead.  The bit above the lowest 1 bit in N and whether that
-position is odd or even gives the turn direction.
+goes straight ahead.  The turn is given by the bit above the lowest 1 bit in
+N and whether that position is odd or even.
 
     N = 0b...z100..00   (possibly no trailing 0s)
              ^
              pos, counting from 0 for least significant bit
 
-    (z bit) ^ (pos&1)   Turn
-    -----------------   ----
-           0            right
-           1            left
+    (z bit) XOR (pos&1)   Turn
+    -------------------   ----
+             0            right
+             1            left
 
-For example N=10 binary 0b1010, the lowest 1 bit is the 0b..1. and the bit
-above that is a 0 at even pos=2, so turn to the right.
+For example N=10 binary 0b1010, the lowest 1 bit is the 0b__1_ and the bit
+above that is a 0 at even number pos=2, so turn to the right.
 
 The bits also give the turn after next by looking at the bit above the
 lowest 0.
@@ -463,16 +529,16 @@ lowest 0.
              ^
              pos, counting from 0 for least significant bit
 
-    (w bit) ^ (pos&1)    Next Turn
-    -----------------    ---------
-            0             right
-            1             left
+    (w bit) XOR (pos&1)    Next Turn
+    -------------------    ---------
+             0             right
+             1             left
 
 For example at N=10=0b1010 the lowest 0 is the least significant bit, and
 above that is a 1 at odd pos=1, so turn right.
 
-The inversion at odd positions can be applied with an xor 0xAA..AA, after
-which the calculations are the sames as the DragonCurve (see
+The inversion for odd bit positions can be applied with an xor 0xAA..AA,
+after which the calculations are the sames as the DragonCurve (see
 L<Math::PlanePath::DragonCurve/Turns>).
 
 =head1 FUNCTIONS
@@ -492,13 +558,24 @@ Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 Fractional positions give an X,Y position along a straight line between the
-integer positions.
+integer points.
+
+=item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
+
+Return a list of N point numbers for coordinates C<$x,$y>.  There can be
+none, one or two N's for a given C<$x,$y>.
 
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
 
 =back
+
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+
 
 =head1 OEIS
 

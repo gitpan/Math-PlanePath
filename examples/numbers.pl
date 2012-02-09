@@ -113,6 +113,7 @@ my @all_classes = ('SquareSpiral',
                    'Corner',
                    'Corner,wider=5',
                    'KnightSpiral',
+                   'CretanLabyrinth',
 
                    'SquareArms',
                    'DiamondArms',

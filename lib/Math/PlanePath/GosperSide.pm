@@ -1,3 +1,6 @@
+# arms begin at 0,0 or at 1 in ?
+
+
 # Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
@@ -29,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,6 +43,32 @@ use Math::PlanePath;
 #use Devel::Comments;
 
 use constant n_start => 0;
+sub arms_count {
+  my ($self) = @_;
+  return $self->{'arms'} || 1;
+}
+
+# secret experimental as yet ...
+#
+# use constant parameter_info_array => [ { name      => 'arms',
+#                                          share_key => 'arms_6',
+#                                          type      => 'integer',
+#                                          minimum   => 1,
+#                                          maximum   => 6,
+#                                          default   => 1,
+#                                          width     => 1,
+#                                          description => 'Arms',
+#                                        } ];
+
+sub new {
+  my $class = shift;
+  my $self = $class->SUPER::new(@_);
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 6) { $arms = 6; }
+  $self->{'arms'} = $arms;
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -52,14 +81,33 @@ sub n_to_xy {
   }
 
   my $x;
-  my $y = 0;
+  my $y = my $yend = ($n * 0);  # inherit bignum 0
+  my $xend = $y + 2;            # inherit bignum 2
   {
-    my $whole = int($n);
-    $x = 2 * ($n - $whole);
-    $n = $whole;
+    my $int = int($n);
+    $x = 2 * ($n - $int);
+    $n = $int;
   }
-  my $xend = 2;
-  my $yend = 0;
+
+  
+  if ((my $arms = $self->{'arms'}) > 1) {
+    my $rot = $n % $arms;
+    $n = int(($n)/$arms); # round up +$arms-1
+    if ($rot >= 3) {
+      $rot -= 3;
+      $x = -$x;    # rotate 180, knowing y=0,yend=0
+      $xend = -2;
+    }
+    if ($rot == 1) {
+      $x = $y = $x/2;   # rotate +60, knowing y=0,yend=0
+      $xend = $yend = $xend/2;
+    } elsif ($rot == 2) {
+      $y = $x/2;   # rotate +120, knowing y=0,yend=0
+      $x = -$y;
+      $yend = $xend/2;
+      $xend = -$yend;
+    }
+  }
 
   while ($n) {
     my $digit = ($n % 3);
@@ -130,7 +178,8 @@ sub rect_to_n_range {
     ($x1,$y1, $x2,$y2);
   my $level = max (0,
                    ceil ((log($r_hi+.1) + log(2*.99)) * (1/log(sqrt(7)))));
-  return (0, 3 ** $level - 1);
+  return (0,
+          $self->{'arms'} * 3 ** $level - 1);
 }
 
 1;

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 29 }
+BEGIN { plan tests => 164 }
 
 use lib 't';
 use MyTestHelpers;
@@ -31,12 +31,14 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath::AlternatePaper;
 
+my $path = Math::PlanePath::AlternatePaper->new;
+
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 67;
+  my $want_version = 68;
   ok ($Math::PlanePath::AlternatePaper::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AlternatePaper->VERSION,  $want_version,
@@ -50,7 +52,6 @@ require Math::PlanePath::AlternatePaper;
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::AlternatePaper->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -65,7 +66,6 @@ require Math::PlanePath::AlternatePaper;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::AlternatePaper->new;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 0, 'x_negative() instance method');
   ok ($path->y_negative, 0, 'y_negative() instance method');
@@ -141,7 +141,6 @@ require Math::PlanePath::AlternatePaper;
     return ($n % 2) ^ ($pos % 2);  # next bit and its pos are the turn
   }
 
-  my $path = Math::PlanePath::AlternatePaper->new;
   my $bad = 0;
   foreach my $n ($path->n_start + 1 .. 500) {
     {
@@ -168,8 +167,6 @@ require Math::PlanePath::AlternatePaper;
 # random rect_to_n_range()
 
 {
-  my $path = Math::PlanePath::AlternatePaper->new;
-
   for (1 .. 5) {
     my $bits = int(rand(25));     # 0 to 25, inclusive
     my $n = int(rand(2**$bits));  # 0 to 2^bits, inclusive
@@ -185,6 +182,72 @@ require Math::PlanePath::AlternatePaper;
         "rect_to_n_range() n=$n at xy=$x,$y cf got n_lo=$n_lo");
     ok ($n_hi >= $n, 1,
         "rect_to_n_range() n=$n at xy=$x,$y cf got n_hi=$n_hi");
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# xy_to_n_list()
+
+{
+  my @data = (
+              [ 0,1, [] ],
+              [ -1,0, [] ],
+              [ -1,-1, [] ],
+              [ 1,-1, [] ],
+
+              [ 0,0, [0] ],
+              [ 1,0, [1] ],
+              [ 1,1, [2] ],
+
+              [ 2,1, [3,7] ],
+              [ 2,0, [4] ],
+              [ 3,0, [5] ],
+              [ 3,1, [6,14] ],
+              # 2,1  7
+              [ 2,2, [8] ],
+              [ 3,2, [9,13] ],
+
+              [ 3,3, [10] ],
+
+              [ 4,3, [11,31] ],
+              [ 4,2, [12,28] ],
+              # 3,2  13
+              # 3,1  14
+              [ 4,1, [15,27] ],
+              [ 4,0, [16] ],
+              [ 5,0, [17] ],
+              [ 5,1, [18,26] ],
+              [ 6,1, [19,23] ],
+              [ 6,0, [20] ],
+              [ 7,0, [21] ],
+              [ 7,1, [22,62] ],
+
+              [ 4,4, [32] ],
+
+              [ 8,0, [64] ],
+              [ 9,0, [65] ],
+
+             );
+  foreach my $elem (@data) {
+    my ($x,$y, $want_n_aref) = @$elem;
+    my $want_n_str = join(',', @$want_n_aref);
+    {
+      my @got_n_list = $path->xy_to_n_list($x,$y);
+      ok (scalar(@got_n_list), scalar(@$want_n_aref),
+         "xy=$x,$y");
+      my $got_n_str = join(',', @got_n_list);
+      ok ($got_n_str, $want_n_str);
+    }
+    {
+      my $got_n = $path->xy_to_n($x,$y);
+      ok ($got_n, $want_n_aref->[0]);
+    }
+    {
+      my @got_n = $path->xy_to_n($x,$y);
+      ok (scalar(@got_n), 1);
+      ok ($got_n[0], $want_n_aref->[0]);
+    }
   }
 }
 

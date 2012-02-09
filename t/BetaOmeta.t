@@ -52,7 +52,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 67;
+  my $want_version = 68;
   ok ($Math::PlanePath::BetaOmega::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::BetaOmega->VERSION,  $want_version,

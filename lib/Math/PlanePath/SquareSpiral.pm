@@ -31,7 +31,7 @@ use strict;
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -595,6 +595,8 @@ L<Math::PlanePath::PentSpiralSkewed>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>
 
+L<Math::PlanePath::CretanLabyrinth>
+
 X11 cursor font "box spiral" cursor which is this style (but going
 clockwise).
 
@@ -622,7 +624,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=SquareSpiral --lines --scale=20"
-# End:

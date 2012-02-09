@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 899 }
+BEGIN { plan tests => 906 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,14 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'CretanLabyrinth',
+
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+               'KochSnowflakes',
+               'KochCurve',
+               'KochPeaks',
 
                'ComplexPlus',
                'ComplexPlus,realpart=2',
@@ -223,12 +231,6 @@ my @modules = (
                'ImaginaryBase,radix=3',
                'ImaginaryBase,radix=37',
 
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-               'KochSnowflakes',
-               'KochCurve',
-               'KochPeaks',
-
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowhead',
                'SierpinskiTriangle',
@@ -315,7 +317,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 67;
+my $want_version = 68;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -370,6 +372,8 @@ my %xy_maximum_duplication =
   ('Math::PlanePath::DragonCurve' => 2,
    'Math::PlanePath::AlternatePaper' => 2,
    'Math::PlanePath::TerdragonCurve' => 3,
+   'Math::PlanePath::KochSnowflakes' => 2,
+   'Math::PlanePath::QuadricIslands' => 2,
   );
 my %xy_maximum_duplication_at_origin =
   ('Math::PlanePath::DragonCurve' => 4,

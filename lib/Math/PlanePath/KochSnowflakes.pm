@@ -28,7 +28,7 @@ use List::Util qw(max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -119,27 +119,60 @@ sub n_to_xy {
   }
 }
 
+
+
+#      +---------+         +---------+   Y=1.5
+#      |         |         |         |
+#      |         +---------+         |   Y=7/6 = 1.166
+#      |         |         |         |
+#      |    *13  |         |    *11  |   Y=1
+#      |         |         |         |
+#      |         |    *3   |         |   Y=2/3 = 0.666
+#      |         |         |         |
+#      +---------+         +---------+   Y=0.5
+#                |         |
+#      +---------+---------+---------+   Y=1/6 = 0.166
+#      |         |    O    |         | --Y=0
+#      |         |         |         |
+#      |         |         |         |
+#      |    *1   |         |    *2   |   Y=-1/3 = -0.333
+#      |         |         |         |
+#      +---------+         +---------+   Y=-3/6 = -0.5
+#      |         |         |         |
+#      +---------+         +---------+   Y=-5/6 = -0.833
+#      |         |         |         |
+#      |    *5   |         |    *7   |   Y=-1
+#      |         |         |         |
+#      |         |         |         |
+#      +---------+         +---------+   Y=-1.5
+#
 sub xy_to_n {
+  return scalar((shift->xy_to_n_list(@_))[0]);
+}
+sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### KochSnowflakes xy_to_n(): "$x, $y"
 
   $x = _round_nearest ($x);
   if (abs($x) <= 1) {
     if ($x == 0) {
-      if ($y >= 1/6 && $y < 1.5) {  # up to 1+1/2, not just 1+1/6
+      my $y6 = 6*$y;
+      if ($y6 >= 1 && $y6 < 7) {  # 2/3-1/2=1/6 to 2/3+1/2=7/6
         return 3;
       }
     } else {
-      if ($y >= -.5 && $y < 0.5) {
-        return 1 + ($x > 0);
+      my $y6 = 6*$y;
+      if ($y6 >= -5 && $y6 < 1) { # -1/3-1/2=-5/6 to -1/3+1/2=+1/6
+        return (1 + ($x > 0),
+                ($y6 < -3 ? (5+2*($x>0)) : ()));   # 5 or 7 up to Y<-1/2
       }
     }
   }
 
   $y = _round_nearest ($y);
-  if (($x ^ $y) & 1) {
+  if (($x % 2) != ($y % 2)) {
     ### diff parity...
-    return undef;
+    return;
   }
 
   my $high;
@@ -160,7 +193,7 @@ sub xy_to_n {
   }
   ### rotate/flip to: "$x,$y"
   if ($y <= 0) {
-    return undef;
+    return;
   }
 
   my ($len,$level) = _round_down_pow($y, 3);
@@ -177,7 +210,7 @@ sub xy_to_n {
   if (defined $n) {
     return (4**$level)*$high + $n;
   } else {
-    return undef;
+    return;
   }
 
 
@@ -320,8 +353,11 @@ innermost triangle which is
 
                     N=3
                 X=0, Y=+0.666
-              /                \
-         N=1                     N=2    
+               /             \
+              /               \
+             /                 \
+            /                   \
+         N=1                     N=2
     X=-1, Y=-0.333  ------   X=1, Y=-0.333
 
 These values are consistent with the centring and scaling of the higher

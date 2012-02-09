@@ -43,7 +43,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -374,6 +374,28 @@ sub rect_to_n_range {
 
 1;
 __END__
+
+
+#    +--+
+#    |  |
+# +--+--+--+
+#    |  |
+#    +--+
+# 
+#          +
+#          |
+#       +--+--+
+#       |  |  |
+#    +--+--+--+--+
+#    |  |  |  |  |
+# +--+--+--+--+--+--+
+#    |  |  |  |  |
+#    +--+--+--+--+
+#       |  |  |
+#       +--+--+
+#          |
+#          +
+
 
 =for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit PeanoCurve Math-PlanePath versa Online Radix radix Georg representable Mephisto
 
@@ -800,23 +822,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-   +--+
-   |  |
-+--+--+--+
-   |  |
-   +--+
-
-         +
-         |
-      +--+--+
-      |  |  |
-   +--+--+--+--+
-   |  |  |  |  |
-+--+--+--+--+--+--+
-   |  |  |  |  |
-   +--+--+--+--+
-      |  |  |
-      +--+--+
-         |
-         +

@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 67;
+$VERSION = 68;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -33,7 +33,15 @@ use Math::NumSeq::PlanePathCoord;
 #use Smart::Comments;
 
 
-use constant description => Math::NumSeq::__('N values from a PlanePath');
+sub description {
+  my ($self) = @_;
+  if (ref $self) {
+    return "N values on $self->{'line_type'} of path $self->{'planepath'}";
+  } else {
+    # class method
+    return Math::NumSeq::__('N values from a PlanePath');
+  }
+}
 
 use constant::defer parameter_info_array =>
   sub {
@@ -480,6 +488,8 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 # { package Math::PlanePath::KnightSpiral;
+# }
+# { package Math::PlanePath::CretanLabyrinth;
 # }
 # { package Math::PlanePath::SquareArms;
 # }

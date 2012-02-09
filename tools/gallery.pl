@@ -20,8 +20,8 @@
 
 # Usage: perl gallery.pl
 #
-# Creates .png files in $target_dir = "$ENV{HOME}/tux/web/math-planepath"
-# which are as shown at
+# Create the .png files in $target_dir = "$ENV{HOME}/tux/web/math-planepath"
+# as shown at
 #
 #   http://user42.tuxfamily.org/math-planepath/gallery.html
 #
@@ -45,6 +45,12 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['cretan-labyrinth-small.png',
+    'math-image --path=CretanLabyrinth --lines --scale=3 --size=32'],
+   ['cretan-labyrinth-big.png',
+    'math-image --path=CretanLabyrinth --lines --scale=9 --size=180x195'],
+
+
    ['cellular-rule-30-small.png',
     'math-image --path=CellularRule,rule=30 --all --scale=2 --size=32'],
    ['cellular-rule-30-big.png',

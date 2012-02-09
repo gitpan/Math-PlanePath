@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -192,6 +192,9 @@ my @try_dx = (2, 1, -1, -2, -1,  1);
 my @try_dy = (0, 1,  1, 0,  -1, -1);
 
 sub xy_to_n {
+  return scalar((shift->xy_to_n_list(@_))[0]);
+}
+sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### TerdragonCurve xy_to_n(): "$x, $y"
 
@@ -205,7 +208,7 @@ sub xy_to_n {
     return $y;  # infinity
   }
 
-  my $n;
+  my @n_list;
   my $xm = 2*$x;  # doubled out
   my $ym = 2*$y;
   foreach my $i (0 .. $#try_dx) {
@@ -222,78 +225,19 @@ sub xy_to_n {
 
     if ($tx == $x && $ty == $y) {
       ### found: $t
-      if (defined $t && (! defined $n || $t < $n)) {
-        $n = $t;
+      if (@n_list && $t < $n_list[0]) {
+        unshift @n_list, $t;
+      } elsif (@n_list && $t < $n_list[-1]) {
+        splice @n_list, -1,0, $t;
+      } else {
+        push @n_list, $t;
+      }
+      if (@n_list == 3) {
+        return @n_list;
       }
     }
   }
-  return $n;
-
-
-
-
-
-
-
-
-
-
-  # my ($pow,$exp) = _round_down_pow ($x*$x + 3*$y*$y,
-  #                                   3);
-  # my $level_limit = $exp + 6;
-  # if (_is_infinite($level_limit)) {
-  #   return $level_limit;  # infinity
-  # }
-  #
-  # my $arms = $self->{'arms'};
-  # my @hypot = (4);
-  # for (my $top = 0; $top < $level_limit; $top++) {
-  #   push @hypot, ($top % 8 ? 4 : 3) * $hypot[$top];  # little faster than 3^lev
-  #
-  #   # start from digits=1 but use (n-1)*arms so that n=0,1,...,$arms-1 are
-  #   # tried too, done by $arm -6 to -1
-  # ARM: foreach my $arm (-$arms .. -1) {
-  #     my @digits = (((0) x $top), 1);
-  #     my $i = $top;
-  #     for (;;) {
-  #       my $n = 0;
-  #       foreach my $digit (reverse @digits) { # high to low
-  #         $n = 3*$n + $digit;
-  #       }
-  #       $n = $arms*$n + $arm;
-  #       ### consider: "arm=$arm i=$i  digits=".join(',',reverse @digits)."  is n=$n"
-  #
-  #       my ($nx,$ny) = $self->n_to_xy($n);
-  #       ### at: "n pos $nx,$ny  cf hypot ".$hypot[$i]
-  #
-  #       if ($i == 0 && $x == $nx && $y == $ny) {
-  #         ### found ...
-  #         return $n;
-  #       }
-  #
-  #       if ($i == 0 || ($x-$nx)**2 + 3*($y-$ny)**2 > $hypot[$i]) {
-  #         ### too far away: "$nx,$ny target $x,$y    ".(($x-$nx)**2 + 3*($y-$ny)**2).' vs '.$hypot[$i]
-  #
-  #         while (++$digits[$i] > 2) {
-  #           $digits[$i] = 0;
-  #           if (++$i > $top) {
-  #             ### backtrack past top ...
-  #             next ARM;
-  #           }
-  #           ### backtrack up ...
-  #         }
-  #
-  #       } else {
-  #         ### descend ...
-  #         ### assert: $i > 0
-  #         $i--;
-  #         $digits[$i] = 0;
-  #       }
-  #     }
-  #   }
-  # }
-  # ### not found below level limit
-  # return undef;
+  return @n_list;
 }
 
 # minimum  -- no, not quite right
@@ -572,6 +516,11 @@ C<$x,$y> then return C<undef>.
 The curve can visit an C<$x,$y> up to three times.  In the current code the
 smallest of the these N values is returned.  Is that the best way?
 
+=item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
+
+Return a list of N point numbers for coordinates C<$x,$y>.  There can be
+none, one, two or three N's for a given C<$x,$y>.
+
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
@@ -583,8 +532,9 @@ Return 0, the first N in the path.
 =head2 X,Y to N
 
 The current code applies TerdragonMidpoint C<xy_to_n()> to calculate six
-candidate N from the six edges around a point.  The smallest N which
-converts back to the target X,Y by C<n_to_xy()> is the result.
+candidate N from the six edges around a point.  Those N values which convert
+back to the target X,Y by C<n_to_xy()> are the results for
+C<xy_to_n_list()>.
 
 The six edges are three going towards the point and three going away.  The
 midpoing calculation gives N-1 for the towards and N for the away.  Is there
@@ -601,7 +551,7 @@ turn at each line segment,
 
     A080846 -- turn 0=left,1=right, by 120 degrees
     A060236 -- turn 1=left,2=right, by 120 degrees
-    A038502 -- drop trailing ternary 0s, then mod 3 is turn 1=L,2=R
+    A038502 -- without trailing ternary 0s, taken mod 3 is turn 1=L,2=R
     A026225 -- (3*i+1)*3^j, is N positions of left turns
     A026179 -- N positions of right turns (except initial 1)
 

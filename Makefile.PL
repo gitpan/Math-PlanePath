@@ -20,10 +20,8 @@
 use 5.004;
 use strict;
 use ExtUtils::MakeMaker;
-use lib 'inc';
-use MyMakeMakerExtras;
 
-MyMakeMakerExtras::WriteMakefile
+WriteMakefile
   (NAME         => 'Math::PlanePath',
    ABSTRACT     => 'Mathematical paths through the 2-D plane.',
    VERSION_FROM => 'lib/Math/PlanePath.pm',

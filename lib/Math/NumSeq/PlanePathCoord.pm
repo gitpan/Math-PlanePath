@@ -30,9 +30,10 @@ package Math::NumSeq::PlanePathCoord;
 use 5.004;
 use strict;
 use Carp;
+use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 67;
+$VERSION = 68;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -40,8 +41,15 @@ use Math::NumSeq;
 #use Smart::Comments;
 
 
-use constant 1.02; # various underscore constants below
-use constant description => Math::NumSeq::__('Coordinate values from a PlanePath');
+sub description {
+  my ($self) = @_;
+  if (ref $self) {
+    return "Coordinate $self->{'coordinate_type'} values from path $self->{'planepath'}";
+  } else {
+    # class method
+    return Math::NumSeq::__('Coordinate values from a PlanePath');
+  }
+}
 
 use constant::defer parameter_info_array =>
   sub {
@@ -910,6 +918,8 @@ sub values_max {
 # { package Math::PlanePath::OctagramSpiral;
 # }
 # { package Math::PlanePath::KnightSpiral;
+# }
+# { package Math::PlanePath::CretanLabyrinth;
 # }
 # { package Math::PlanePath::SquareArms;
 # }

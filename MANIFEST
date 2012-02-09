@@ -120,6 +120,7 @@ lib/Math/PlanePath/ComplexRevolving.pm
 lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/CornerReplicate.pm
+lib/Math/PlanePath/CretanLabyrinth.pm
 lib/Math/PlanePath/DiagonalRationals.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiagonalsAlternating.pm
@@ -294,6 +295,7 @@ tools/gallery.pl
 tools/hilbert-curve-table.pl
 tools/hilbert-spiral-table.pl
 tools/kochel-curve-table.pl
+tools/moore-spiral-table.pl
 tools/terdragon-midpoint-offset.pl
 tools/wunderlich-meander-table.pl
 xt/0-examples-xrefs.t
@@ -301,7 +303,6 @@ xt/0-file-is-part-of.t
 xt/0-META-read.t
 xt/0-no-debug-left-on.t
 xt/0-Test-ConsistentVersion.t
-xt/0-Test-DistManifest.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
@@ -313,6 +314,7 @@ xt/CoprimeColumns-oeis.t
 xt/DiagonalRationals-oeis.t
 xt/DivisibleColumns-oeis.t
 xt/DragonCurve-oeis.t
+xt/DragonMidpoint-oeis.t
 xt/FactorRationals-oeis.t
 xt/FibonacciWordFractal-oeis.t
 xt/FractionsTree-oeis.t
@@ -329,7 +331,12 @@ xt/SierpinskiTriangle-oeis.t
 xt/SquareSpiral-oeis.t
 xt/TerdragonCurve-oeis.t
 xt/UlamWarburton-oeis.t
+xtools/my-check-copyright-years.sh
+xtools/my-check-spelling.sh
+xtools/my-deb.sh
+xtools/my-diff-prev.sh
 xtools/my-kwalitee.sh
 xtools/my-manifest.sh
+xtools/my-tags.sh
 xtools/my-wunused.sh
 META.yml                                 Module meta-data (added by MakeMaker)

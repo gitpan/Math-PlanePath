@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 67;
+$VERSION = 68;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -113,23 +113,9 @@ sub n_to_xy {
   {
     my $int = int($n);
     $frac = $n - $int;  # inherit possible BigFloat
-    # if ($frac) {
-    #   my ($x1,$y1) = $self->n_to_xy($int);
-    #   my ($x2,$y2) = $self->n_to_xy($int+$arms);
-    #
-    #   my $dx = $x2-$x1;
-    #   my $dy = $y2-$y1;
-    #   return ($frac*$dx + $x1, $frac*$dy + $y1);
-    # }
     $n = $int; # BigFloat int() gives BigInt, use that
   }
   ### $frac
-
-  # {
-  #   my $int = int($n);
-  #   $frac = $n - $int;
-  #   $n = $int;       # int(BigFloat) gives BigInt, use that
-  # }
 
   my $arm;
   {
@@ -144,7 +130,7 @@ sub n_to_xy {
   my $len = $x + $base;      # inherit big
 
   while ($n) {
-    my $digit = $n % 4;      # low to high
+    my $digit = $n % 4;      # low to high base 4 digits
     $n = int($n/4);
     ### at: "$x,$y"
     ### $digit
@@ -205,28 +191,6 @@ sub xy_to_n {
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
-
-  # my @xy_mod_off_curve = ([1,0,1],
-  #                         [0,1,0],
-  #                         [1,0,1]);
-  #
-  #  1  1  1  1
-  #  1  0  1  1
-  #  0  1  0  1
-  #  1  0  1  1
-  #
-  #  1  1  0  1
-  #  0  1  1  0
-  #  1  1  1  1
-  #  1  0  1  1
-  #
-  #
-  #
-  #
-  # unless ((($x%3) + ($y%3)) % 2) {
-  #   ### x,y not on 3x3 block usage ...
-  #   return undef;
-  # }
 
   my $arm = 0;
   if ($y < 0) {
@@ -698,9 +662,9 @@ follows.
                            ^
      -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
-The middle "." is the origin X=0,Y=0.  It'd be more symmetrical to make the
-origin the middle of the eight arms, at X=-0.5,Y=-0.5 in the above, but that
-would give fractional X,Y values.  Apply an offset as X+0.5,Y+0.5 if
+The middle "." is the origin X=0,Y=0.  It would be more symmetrical to make
+the origin the middle of the eight arms, at X=-0.5,Y=-0.5 in the above, but
+that would give fractional X,Y values.  Apply an offset as X+0.5,Y+0.5 if
 desired.
 
 =head2 Spacing
