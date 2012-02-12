@@ -86,6 +86,7 @@ devel/unused.pl
 devel/vertical.pl
 devel/vogel.pl
 examples/cellular-rules.pl
+examples/cretan-walls.pl
 examples/hilbert-oeis.pl
 examples/hilbert-path.pl
 examples/knights-oeis.pl
@@ -101,6 +102,7 @@ lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm
 lib/Math/NumSeq/PlanePathCoord.pm
 lib/Math/NumSeq/PlanePathDelta.pm
 lib/Math/NumSeq/PlanePathN.pm
+lib/Math/NumSeq/PlanePathTurn.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/AlternatePaper.pm
 lib/Math/PlanePath/AnvilSpiral.pm
@@ -260,6 +262,7 @@ t/MyTestHelpers.pm
 t/number-fraction.t
 t/NumSeq-PlanePathCoord.t
 t/NumSeq-PlanePathDelta.t
+t/NumSeq-PlanePathTurn.t
 t/PeanoCurve-load.t
 t/PeanoCurve.t
 t/PixelRings.t

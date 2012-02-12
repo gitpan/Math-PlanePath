@@ -67,7 +67,7 @@ use Math::PlanePath::KochCurve 42;
     my $calc = $turn ^ $flip ^ 1;
 
     if ($got != $calc) {
-    print "wrong $n  got=$got calc=$calc\n";
+      print "wrong $n  got=$got calc=$calc\n";
     }
     $count++;
   }

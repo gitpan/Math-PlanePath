@@ -38,7 +38,7 @@ my $path = Math::PlanePath::AlternatePaper->new;
 # VERSION
 
 {
-  my $want_version = 68;
+  my $want_version = 69;
   ok ($Math::PlanePath::AlternatePaper::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AlternatePaper->VERSION,  $want_version,

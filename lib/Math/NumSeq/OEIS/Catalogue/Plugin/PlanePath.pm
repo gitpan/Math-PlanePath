@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 48 A-numbers in 3 modules
+# total 49 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -400,6 +400,16 @@ use constant info_arrayref =>
       'ZOrderCurve',
       'line_type',
       'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A037314',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'ZOrderCurve,radix=3',
+      'i_start',
+      1
     ]
   },
   {

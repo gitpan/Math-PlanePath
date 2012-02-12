@@ -1,3 +1,5 @@
+# Copyright 2011, 2012 Kevin Ryde
+
 # This file is part of Math-PlanePath.
 #
 # Math-PlanePath is free software; you can redistribute it and/or modify it
@@ -28,7 +30,7 @@ use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

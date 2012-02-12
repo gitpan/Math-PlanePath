@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

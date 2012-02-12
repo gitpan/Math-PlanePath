@@ -93,7 +93,7 @@ use List::Util qw(min max);
   require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::ComplexPlus;
   require Math::PlanePath::AnvilSpiral;
-  require Math::PlanePath::MathImagePixelRingsFill;
+  require Math::PlanePath::MathImageFilledRings;
   require Math::PlanePath::TerdragonMidpoint;
   require Math::PlanePath::TerdragonCurve;
   require Math::PlanePath::CellularRule57;
@@ -103,7 +103,8 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImageMooreSpiral;
   require Math::PlanePath::CretanLabyrinth;
   require Math::PlanePath::MathImageSierpinskiCurveSquare;
-  my $path = Math::PlanePath::MathImageSierpinskiCurveSquare->new
+  require Math::PlanePath::MathImageGrayCode;
+  my $path = Math::PlanePath::MathImageGrayCode->new
     (
      # mirror => 1,
      # wider => 3,

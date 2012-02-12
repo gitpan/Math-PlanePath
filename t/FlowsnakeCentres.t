@@ -36,7 +36,7 @@ require Math::PlanePath::FlowsnakeCentres;
 # VERSION
 
 {
-  my $want_version = 68;
+  my $want_version = 69;
   ok ($Math::PlanePath::FlowsnakeCentres::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FlowsnakeCentres->VERSION,  $want_version,

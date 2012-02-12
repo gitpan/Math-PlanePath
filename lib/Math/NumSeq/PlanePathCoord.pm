@@ -33,7 +33,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 68;
+$VERSION = 69;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1379,9 +1379,10 @@ Return the first index C<$i> in the sequence.  This is the position
 C<rewind()> returns to.
 
 This is C<$path-E<gt>n_start()> from the PlanePath, since the i numbering is
-the N numbering of the underlying path.  For some of the OEIS generated
-sequences there may be a higher C<i_start()> corresponding to a higher
-starting point in the OEIS, though this is slightly experimental.
+the N numbering of the underlying path.  For some of the
+C<Math::NumSeq::OEIS> generated sequences there may be a higher C<i_start()>
+corresponding to a higher starting point in the OEIS, though this is
+slightly experimental.
 
 =back
 
@@ -1389,6 +1390,7 @@ starting point in the OEIS, though this is slightly experimental.
 
 L<Math::NumSeq>,
 L<Math::NumSeq::PlanePathDelta>,
+L<Math::NumSeq::PlanePathN>,
 L<Math::NumSeq::OEIS>
 
 L<Math::PlanePath>

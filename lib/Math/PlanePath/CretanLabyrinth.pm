@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -321,6 +321,9 @@ labyrinth.
     ------+      |      +-------
           |      |      |
           |  34  | 185  |
+
+See F<examples/cretan-walls.pl> in the Math-PlanePath sources for a sample
+program carving out the path from a solid block to leave the walls.
 
 =head1 FUNCTIONS
 

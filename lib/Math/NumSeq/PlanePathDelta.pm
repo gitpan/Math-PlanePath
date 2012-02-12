@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 68;
+$VERSION = 69;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -260,7 +260,6 @@ sub rewind {
 
   $self->{'i'} = $self->i_start;
   undef $self->{'x'};
-  undef $self->{'y'};
   $self->{'arms_count'} = $planepath_object->arms_count;
 }
 
@@ -280,16 +279,16 @@ sub next {
       or return;
   }
 
-  my $arms_count = $self->{'arms_count'};
-  my ($next_x, $next_y) = $planepath_object->n_to_xy($i + $arms_count)
+  my $arms = $self->{'arms_count'};
+  my ($next_x, $next_y) = $planepath_object->n_to_xy($i + $arms)
     or return;
-  my $ret = &{$self->{'delta_func'}}($x,$y, $next_x,$next_y);
+  my $value = &{$self->{'delta_func'}}($x,$y, $next_x,$next_y);
 
-  if ($arms_count == 1) {
+  if ($arms == 1) {
     $self->{'x'} = $next_x;
     $self->{'y'} = $next_y;
   }
-  return ($i, $ret);
+  return ($i, $value);
 }
 
 sub ith {
@@ -416,9 +415,9 @@ sub characteristic_increasing {
   my $planepath_object = $self->{'planepath_object'};
   my $func;
   return
-    (($func = ($planepath_object->can("_NumSeq_Coord_$self->{'delta_type'}_increasing")
+    (($func = ($planepath_object->can("_NumSeq_Delta_$self->{'delta_type'}_increasing")
                || ($self->{'delta_type'} eq 'DistSquared'
-                   && $planepath_object->can("_NumSeq_Coord_Radius_increasing"))))
+                   && $planepath_object->can("_NumSeq_Delta_Dist_increasing"))))
      ? $planepath_object->$func()
      : undef); # unknown
 }
@@ -428,9 +427,9 @@ sub characteristic_non_decreasing {
   my $planepath_object = $self->{'planepath_object'};
   my $func;
   return
-    (($func = ($planepath_object->can("_NumSeq_Coord_$self->{'delta_type'}_non_decreasing")
+    (($func = ($planepath_object->can("_NumSeq_Delta_$self->{'delta_type'}_non_decreasing")
                || ($self->{'delta_type'} eq 'DistSquared'
-                   && $planepath_object->can("_NumSeq_Coord_Radius_non_decreasing"))))
+                   && $planepath_object->can("_NumSeq_Delta_Dist_non_decreasing"))))
      ? $planepath_object->$func()
      : undef); # unknown
 }
@@ -682,11 +681,11 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_min => 1;
   # ENHANCE-ME: DistSquared bigger on going out to new ring, how big?
   use constant _NumSeq_Delta_DistSquared_max => 2;
-  sub _NumSeq_Coord_dX_increasing {
+  sub _NumSeq_Delta_dX_increasing {
     my ($self) = @_;
     return ($self->{'step'} == 0);
   }
-  sub _NumSeq_Coord_dY_non_decreasing {
+  sub _NumSeq_Delta_dY_non_decreasing {
     my ($self) = @_;
     return ($self->{'step'} == 0);
   }
@@ -837,7 +836,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_DistSquared_min => 2;
-  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+  use constant _NumSeq_Delta_dY_non_decreasing => 1;
 }
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant _NumSeq_Delta_dX_min => -2;
@@ -935,12 +934,12 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_DistSquared_min => 1;
 
-  use constant _NumSeq_Coord_dY_non_decreasing => 1;
-  sub _NumSeq_Coord_dX_non_decreasing {
+  use constant _NumSeq_Delta_dY_non_decreasing => 1;
+  sub _NumSeq_Delta_dX_non_decreasing {
     my ($self) = @_;
     return ($self->{'width'} <= 1);  # X=0 always
   }
-  sub _NumSeq_Coord_dY_increasing {
+  sub _NumSeq_Delta_dY_increasing {
     my ($self) = @_;
     return ($self->{'width'} <= 1);  # Y=0,1,2 when width==1
   }
@@ -968,12 +967,12 @@ sub values_max {
   }
   use constant _NumSeq_Delta_DistSquared_min => 1;
 
-  use constant _NumSeq_Coord_dX_non_decreasing => 1; # always
-  sub _NumSeq_Coord_dX_increasing {
+  use constant _NumSeq_Delta_dX_non_decreasing => 1; # always
+  sub _NumSeq_Delta_dX_increasing {
     my ($self) = @_;
     return ($self->{'height'} <= 1);  # Y=0,1,2 when height==1
   }
-  sub _NumSeq_Coord_dY_non_decreasing {
+  sub _NumSeq_Delta_dY_non_decreasing {
     my ($self) = @_;
     return ($self->{'height'} <= 1);  # X=0 always
   }
@@ -1030,12 +1029,12 @@ sub values_max {
     return ($self->{'step'} > 0 ? 2 : 1);
   }
 
-  use constant _NumSeq_Coord_dY_non_decreasing => 1; # always
-  sub _NumSeq_Coord_dX_non_decreasing {
+  use constant _NumSeq_Delta_dY_non_decreasing => 1; # always
+  sub _NumSeq_Delta_dX_non_decreasing {
     my ($self) = @_;
     return ($self->{'step'} <= 1);  # X=0 always
   }
-  sub _NumSeq_Coord_dY_increasing {
+  sub _NumSeq_Delta_dY_increasing {
     my ($self) = @_;
     return ($self->{'step'} <= 1);  # Y=0,1,2 when step==1
   }
@@ -1050,7 +1049,7 @@ sub values_max {
   # ENHANCE-ME: more restrictive than this for many rules
   use constant _NumSeq_Delta_Dir4_max => 2; # E to NW
   use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+  use constant _NumSeq_Delta_dY_non_decreasing => 1;
 }
 { package Math::PlanePath::CellularRule::Line;
   sub _NumSeq_Delta_dX_min {
@@ -1058,11 +1057,11 @@ sub values_max {
     return $path->{'sign'};
   }
   *_NumSeq_Delta_dX_max = \&_NumSeq_Delta_dX_min;
-  use constant _NumSeq_Coord_dX_non_decreasing => 1;
+  use constant _NumSeq_Delta_dX_non_decreasing => 1;
 
   use constant _NumSeq_Delta_dY_min => 1;
   use constant _NumSeq_Delta_dY_max => 1;
-  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+  use constant _NumSeq_Delta_dY_non_decreasing => 1;
 
   # sub _NumSeq_Delta_Dir4_min {
   #   my ($path) = @_;
@@ -1094,7 +1093,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_Dir4_max => 2; # E to NW
   use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+  use constant _NumSeq_Delta_dY_non_decreasing => 1;
 }
 { package Math::PlanePath::CellularRule57;
   use constant _NumSeq_Delta_dX_max => 4;
@@ -1102,7 +1101,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_Dir4_max => 2; # E to NW
   use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+  use constant _NumSeq_Delta_dY_non_decreasing => 1;
 }
 { package Math::PlanePath::CellularRule190;
   use constant _NumSeq_Delta_dX_max => 2;
@@ -1110,21 +1109,21 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_Dir4_max => 2; # E to NW
   use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Coord_dY_non_decreasing => 1;
+  use constant _NumSeq_Delta_dY_non_decreasing => 1;
 }
 { package Math::PlanePath::CoprimeColumns;
   use constant _NumSeq_Delta_dX_min => 0;
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Coord_dX_non_decreasing => 1;
+  use constant _NumSeq_Delta_dX_non_decreasing => 1;
 }
 { package Math::PlanePath::DivisibleColumns;
   use constant _NumSeq_Delta_dX_min => 0;
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Coord_dX_non_decreasing => 1;
+  use constant _NumSeq_Delta_dX_non_decreasing => 1;
 }
 # { package Math::PlanePath::File;
 #   # FIXME: analyze points for dx/dy min/max etc
@@ -1287,7 +1286,7 @@ Create and return a new sequence object.  The options are
 
     planepath          string, name of a PlanePath module
     planepath_object   PlanePath object
-    line_type          string, as described above
+    delta_type         string, as described above
 
 C<planepath> can be just the module part such as "SquareSpiral" or a full
 class name "Math::PlanePath::SquareSpiral".
@@ -1308,7 +1307,8 @@ This is C<$path-E<gt>n_start()> from the PlanePath.
 =head1 SEE ALSO
 
 L<Math::NumSeq>,
-L<Math::NumSeq::PlanePathCoord>
+L<Math::NumSeq::PlanePathCoord>,
+L<Math::NumSeq::PlanePathN>
 
 L<Math::PlanePath>
 
@@ -1336,7 +1336,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --values=PlanePathDelta"
-# End:

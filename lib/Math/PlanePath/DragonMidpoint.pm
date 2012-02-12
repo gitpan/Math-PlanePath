@@ -19,13 +19,35 @@
 # math-image --path=DragonMidpoint --lines --scale=20
 # math-image --path=DragonMidpoint --all --output=numbers_dash
 
+# A088435 (contfrac+1)/2 of sum(k>=1,1/3^(2^k)).
+# A088431 run lengths of dragon turns
+# A007400 cont frac 1/2^1 + 1/2^2 + 1/2^4 + 1/2^8 + ... 1/2^(2^n)
+#         = 0.8164215090218931...               
+#    2,4,6 values                             
+#    a(0)=0,
+#    a(1)=1,
+#    a(2)=4,
+#    a(8n) = a(8n+3) = 2,
+#    a(8n+4) = a(8n+7) = a(16n+5) = a(16n+14) = 4,
+#    a(16n+6) = a(16n+13) = 6,
+#    a(8n+1) = a(4n+1),
+#    a(8n+2) = a(4n+2)
+# A007404 in decimal
+# A081769 positions of 2s
+# A073097 number of 4s - 6s - 2s - 1 is -1,0,1
+# A073088 cumulative total multiples of 4 roughly, hence (4n-3-cum)/2
+# A073089 (1/2)*(4n - 3 - cumulative) is 0 or 1
+# A006466 contfrac 2*sum( 1/2^(2^n)), 1 and 2 only
+# A076214 in decimal
+# # A073089(n) = A082410(n) xor A000035(n) xor 1
+
 
 package Math::PlanePath::DragonMidpoint;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

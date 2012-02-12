@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 68;
+$VERSION = 69;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -89,15 +89,15 @@ my %oeis_anum
        # OEIS-Catalogue: A000695 planepath=ZOrderCurve
        # OEIS-Catalogue: A062880 planepath=ZOrderCurve line_type=Y_axis
      },
-     # but A037314 starts n=1, so N=0 not included
-     # 'Math::PlanePath::ZOrderCurve,radix=3' =>
-     # { X_axis => 'A037314',  # base 9 digits 0,1,2 only
-     #   # OEIS-Catalogue: A037314 planepath=ZOrderCurve,radix=3
-     # },
-     # but A051022 starts n=1, so N=0 not included
+     # A037314 starts OFFSET=1 value=1, so istart=1 here
+     'Math::PlanePath::ZOrderCurve,radix=3' =>
+     { X_axis => 'A037314',  # base 9 digits 0,1,2 only
+       # OEIS-Catalogue: A037314 planepath=ZOrderCurve,radix=3 i_start=1
+     },
+     # but A051022 starts OFFSET=1 value=0, cf i=0 value=0
      # 'Math::PlanePath::ZOrderCurve,radix=10' =>
      # { X_axis => 'A051022',  # base 10 insert 0s
-     #   # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10
+     #   # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10 i_start=1
      # },
 
      'Math::PlanePath::AztecDiamondRings' =>
@@ -223,23 +223,26 @@ my %oeis_anum
      # # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
 
 
-     # TriangleSpiral - cf A062728 SE diagonal offset 1 but it starts n=0
+     # TriangleSpiral - cf A062728 SE diagonal OFFSET=1 but it starts n=0
      #
      # CoprimeColumns X_axis -- cumulative totient but start X=1 value=0;
      # Diagonal A015614 cumulative-1 but start X=1 value=1
      #
-     # DivisibleColumns X_axis nearly A006218 but start X=1, Diagonal nearly
-     # A077597 but start X=1
+     # DivisibleColumns X_axis nearly A006218 but start X=1 cf OFFSET=0,
+     # Diagonal nearly A077597 but start X=1 cf OFFSET=0
      #
      # DiagonalRationals Diagonal -- cumulative totient but start X=1
      # value=1
      #
-     # CellularRule190 -- A006578 triangular+quarter square, but start N=1
+     # CellularRule190 -- A006578 triangular+quarter square, but starts
+     # OFFSET=0 cf N=1 in PlanePath
      #
-     # SacksSpiral X_axis -- squares, but starting from i=1
+     # SacksSpiral X_axis -- squares (i-1)^2, but starting from i=1 value=0
      #
      # GcdRationals -- X_axis triangular row, but starting X=1
-     # GcdRationals -- Y_axis A000124 triangular+1 but starting Y=1
+     #
+     # GcdRationals -- Y_axis A000124 triangular+1 but starting i=1 versus
+     # OFFSET=0
      #
      # HeptSpiralSkewed -- Y_axis A140065 (7n^2 - 17n + 12)/2 but starting
      # Y=0 not n=1
@@ -281,6 +284,9 @@ sub new {
   my $line_type = $self->{'line_type'};
   $self->{'i_func'}
     = $self->can("i_func_$line_type")
+      || croak "Unrecognised line_type: ",$line_type;
+  $self->{'pred_func'}
+    = $self->can("pred_func_$line_type")
       || croak "Unrecognised line_type: ",$line_type;
 
   if (my $func
@@ -351,6 +357,30 @@ sub i_func_Y_neg {
                                                -$i * $self->{'i_step'});
 }
 
+#------------------------------------------------------------------------------
+
+sub pred {
+  my ($self, $value) = @_;
+  my $planepath_object = $self->{'planepath_object'};
+  unless ($value == int($value)) {
+    return 0;
+  }
+  my ($x,$y) = $planepath_object->n_to_xy($value)
+    or return 0;
+  return &{$self->{'pred_func'}} ($x,$y);
+}
+sub pred_func_X_axis {
+  my ($x,$y) = @_;
+  return ($x >= 0 && $y == 0);
+}
+sub pred_func_Y_axis {
+  my ($x,$y) = @_;
+  return ($x == 0 && $y >= 0);
+}
+sub pred_func_Diagonal {
+  my ($x,$y) = @_;
+  return ($x >= 0 && $x == $y);
+}
 
 #------------------------------------------------------------------------------
 
@@ -361,7 +391,7 @@ sub characteristic_increasing {
   return $planepath_object->can($method) && $planepath_object->$method();
 }
 
-sub i_start {
+sub default_i_start {
   my ($self) = @_;
   my $method = "_NumSeq_$self->{'line_type'}_i_start";
   my $planepath_object = $self->{'planepath_object'}
@@ -376,39 +406,41 @@ sub i_start {
 sub values_min {
   my ($self) = @_;
   my $method = "_NumSeq_$self->{'line_type'}_min";
-  return $self->{'planepath_object'}->$method();
+  return $self->{'planepath_object'}->$method($self);
 }
 sub values_max {
   my ($self) = @_;
   my $method = "_NumSeq_$self->{'line_type'}_max";
   my $planepath_object = $self->{'planepath_object'};
-  return ($planepath_object->can($method)
-          ? $self->{'planepath_object'}->$method()
-          : undef);
+  if (my $func = $planepath_object->can($method)) {
+    return $self->{'planepath_object'}->$func($self);
+  }
+  return undef;
 }
 
 { package Math::PlanePath;
   sub _NumSeq_X_axis_min {
-    my ($path) = @_;
-    return $path->xy_to_n($path->_NumSeq_X_axis_i_start,
+    my ($path,$self) = @_;
+    ### _NumSeq_X_axis_min() ...
+    return $path->xy_to_n($self->i_start,
                           $path->_NumSeq_X_axis_at_Y);
   }
   sub _NumSeq_Y_axis_min {
-    my ($path) = @_;
+    my ($path,$self) = @_;
     return $path->xy_to_n($path->_NumSeq_Y_axis_at_X,
-                          $path->_NumSeq_Y_axis_i_start);
+                          $self->i_start);
   }
   sub _NumSeq_X_neg_min {
-    my ($path) = @_;
+    my ($path,$self) = @_;
     return $path->xy_to_n(0,0);
   }
   sub _NumSeq_Y_neg_min {
-    my ($path) = @_;
+    my ($path,$self) = @_;
     return $path->xy_to_n(0,0);
   }
   sub _NumSeq_Diagonal_min {
-    my ($path) = @_;
-    my $i = $path->_NumSeq_X_axis_i_start;
+    my ($path,$self) = @_;
+    my $i = $self->i_start;
     return $path->xy_to_n($i + $path->_NumSeq_Diagonal_X_offset,
                           $i);
   }
@@ -744,15 +776,6 @@ sub values_max {
 1;
 __END__
 
-sub can {
-  my ($self, $name) = @_;
-  return $self->{'pred_handler'} && $self->SUPER::can($name);
-}
-sub pred {
-  my ($self, $value) = @_;
-  return &{$self->{'pred_handler'} || return undef} ($value);
-}
-
 =for stopwords Ryde PlanePath SquareSpiral
 
 =head1 NAME
@@ -780,7 +803,8 @@ For example the SquareSpiral X axis starts i=0 with values 1, 2, 11, 28, 53,
 86, etc.
 
 The behaviour on paths which don't cover all points on the respective axis
-is unspecified as yet.
+is unspecified as yet, as is behaviour on paths with repeat points, such as
+the DragonCurve.
 
 =head1 FUNCTIONS
 
@@ -796,6 +820,22 @@ Create and return a new sequence object.  The options are
 
 C<planepath> can be just the module part such as "SquareSpiral" or a full
 class name "Math::PlanePath::SquareSpiral".
+
+=item C<$value = $seq-E<gt>ith($i)>
+
+Return the N value at C<$i> in the PlanePath.  C<$i> gives a position on the
+respective C<line_type>, so the X,Y to lookup a C<$value=N> is
+
+     X,Y     line_type
+    -----    ---------
+    $i,0     "X_axis"
+    0,$i     "Y_axis"
+    $i,$i    "Diagonal"
+
+=item C<$bool = $seq-E<gt>pred($value)>
+
+Return true if C<$value> occurs in the sequence.  This means C<$value> is an
+integer N on the respective C<line_type>.
 
 =back
 

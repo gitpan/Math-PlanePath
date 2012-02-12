@@ -28,7 +28,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;

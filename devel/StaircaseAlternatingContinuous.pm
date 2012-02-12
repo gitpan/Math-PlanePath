@@ -1,4 +1,6 @@
-# continuous at ends
+# continuous square at ends
+
+
 
 
 # Copyright 2011, 2012 Kevin Ryde
@@ -24,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;

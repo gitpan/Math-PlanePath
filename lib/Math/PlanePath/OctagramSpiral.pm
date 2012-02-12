@@ -28,7 +28,7 @@ use strict;
 use Math::PlanePath;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 68;
+$VERSION = 69;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
