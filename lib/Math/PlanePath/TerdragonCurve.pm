@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -293,26 +293,33 @@ This is the terdragon curve by Davis and Knuth,
 
 
               30                28                                  7
+            /     \           /     \
            /       \         /       \
-     31/34 -------- 26/29/32 ---------  27                          6
+     31/34 -------- 26/29/32 ---------- 27                          6
           \        /         \
+           \      /           \
            24/33/42 ---------- 22/25                                5
+           /      \           /     \
           /        \         /       \
   40/43/46 -------- 20/23/44 -------- 12/21            10           4
-           \       /        \        /      \       /       \
+          \        /        \        /      \        /     \
+           \      /          \      /        \      /       \
              18/45 --------- 13/16/19 ------ 8/11/14 -------- 9     3
-                    \       /       \       /       \
+                  \          /       \      /       \
+                   \        /         \    /         \
                        17              6/15 --------- 4/7           2
-                                             \      /     \
-                                               2/5 ---------  3     1
+                                            \        /    \
+                                             \      /      \
+                                               2/5 ---------- 3     1
                                                    \
+                                                    \
                                          0 ----------- 1         <-Y=0
 
        ^       ^        ^        ^       ^      ^      ^      ^
       -4      -3       -2       -1      X=0     1      2      3
 
-Points are on every second X and offset on alternate Y rows so as to give
-integer X,Y coordinates, as per L<Math::PlanePath/Triangular Lattice>.
+Points are a triangular grid using every second integer X,Y as per
+L<Math::PlanePath/Triangular Lattice>.
 
 The base figure is an "S" shape
 
@@ -321,8 +328,8 @@ The base figure is an "S" shape
          \
     0-----1
 
-which then repeats in self-similar style, so N=3 to N=6 copy rotated +120
-degrees like N=1 to N=2,
+which then repeats in self-similar style, so N=3 to N=6 is a copy rotated
++120 degrees, which is the angle of like N=1 to N=2,
 
     6      4          base figure repeats
      \   / \          as N=3 to N=6,
@@ -332,26 +339,27 @@ degrees like N=1 to N=2,
          \
     0-----1
 
-Then N=6 to N=9 is a plain horizontal like N=2 to N=3,
+Then N=6 to N=9 is a plain horizontal, which is the angle of N=2 to N=3,
 
           8-----9       base figure repeats
            \            as N=6 to N=9,
             \           no rotation
-       6----7 4
+       6----7,4
         \   / \
-         \/    \
-         5 2----3
+         \ /   \
+         5,2----3
            \
             \
        0-----1
 
-Notice N=5 is a repeat of point X=1,Y=1 where N=2 was, and then N=7 repeats
-the N=4 position.  Each point is repeats up to 3 times.  Inner points are 3
-times and on the edges of the curve area up to 2 times.  The first tripled
-point is X=1,Y=3 which is N=8, N=11 and N=14.
+Notice N=5 is a repeat of point X=1,Y=1 which is also N=2, and then N=7
+repeats the N=4 position X=2,Y=2.  Each point repeats up to 3 times.  Inner
+points are 3 times and on the edges of the curve area up to 2 times.  The
+first tripled point is X=1,Y=3 which can be seen above as N=8, N=11 and
+N=14.
 
-The curve never crosses itself, only touches at little triangular shaped
-corners, and no edges repeat.
+The curve never crosses itself.  The vertices touch as little triangular
+corners.  And no edges repeat.
 
 =head1 Spiralling
 
@@ -409,14 +417,15 @@ degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
 =head1 Tiling
 
 The little "S" shapes of the base figure N=0 to N=3 can be thought of as a
-little parallelogram
+parallelogram
 
        2-----3
       .     .
      .     .
     0-----1
 
-The "S" shapes then make a tiling of the plane with those shapes
+The "S" shapes of each 3 points make a tiling of the plane with those
+parallelograms
 
         \     \ /     /   \     \ /     /
          *-----*-----*     *-----*-----*
@@ -428,7 +437,7 @@ The "S" shapes then make a tiling of the plane with those shapes
          *-----*-----*     *-----*-----*
         /     / \     \   /     / \     \
      \ /     /   \     \ /     /   \     \ /
-    --*-----*     *-----*-----*     *-----*--
+    --*-----*     *-----o-----*     *-----*--
      / \     \   /     / \     \   /     / \
         \     \ /     /   \     \ /     /
          *-----*-----*     *-----*-----*
@@ -444,16 +453,22 @@ For example C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the
 first arm (the same shape as the plain curve above), then N=1,7,13,19 the
 second, N=2,8,14,20 the third, etc.
 
-                  8/13/31 -----------------  7/12/30
-                /        \                 /          \
-              /            \             /              \
-      9/14/32 ------------- 0/1/2/3/4/5 ----------------  6/17/35
-              \            /            \              /
-                \        /                \          /
-                 10/15/33 ----------------- 11/16/34
+                  \         /             \           /
+                   \       /               \         /
+                --- 8/13/31 ---------------- 7/12/30 ---
+                  /        \               /         \
+     \           /          \             /           \          /
+      \         /            \           /             \        /
+    --- 9/14/32 ------------- 0/1/2/3/4/5 -------------- 6/17/35 ---
+      /         \            /           \             /        \
+     /           \          /             \           /          \
+                  \        /               \         /
+               --- 10/15/33 ---------------- 11/16/34 ---
+                  /        \               /         \
+                 /          \             /           \
 
 With six arms every X,Y point is visited three times, except the origin 0,0
-where all six begin, and every edge between the points is traversed once.
+where all six begin.  Every edge between the points is traversed once.
 
 =head2 Turns
 
@@ -467,8 +482,8 @@ lowest non-zero digit gives the turn
       2         right
 
 Essentially at N=3^level or N=2*3^level the turn follows the shape at that 1
-or 2 point (the first and last unit step in each level are in the same
-direction, so the next level shape gives the turn).
+or 2 point.  The first and last unit step in each level are in the same
+direction, so the next level shape gives the turn.
 
        2*3^k-------3^(k+1)
           \
@@ -476,7 +491,7 @@ direction, so the next level shape gives the turn).
     0-------1*3^k
 
 The direction at N, ie. the total cumulative turn, is given by the number of
-1s in N written in ternary,
+1 digits when N is written in ternary,
 
     direction = (count 1s in ternary N) * 120 degrees
 
@@ -486,8 +501,7 @@ that point is 2*120=240 degrees, ie. the segment N=16 to N=17 is at angle
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 
@@ -544,14 +558,14 @@ ones, but the boundary of those areas is tricky.
 
 =head1 OEIS
 
-The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as the
-turn at each line segment,
+The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A080846  etc
 
     A080846 -- turn 0=left,1=right, by 120 degrees
     A060236 -- turn 1=left,2=right, by 120 degrees
-    A038502 -- without trailing ternary 0s, taken mod 3 is turn 1=L,2=R
+    A038502 -- strip trailing ternary 0s,
+                 taken mod 3 is turn 1=left,2=right
     A026225 -- (3*i+1)*3^j, is N positions of left turns
     A026179 -- N positions of right turns (except initial 1)
 

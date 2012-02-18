@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -473,9 +473,9 @@ the midpoint of each curve segment.
       -12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5 ...
 
 The points are the middle of each edge of a double-size TerdragonCurve.  So
-for example the TerdragonCurve N=3 to N=4 is X=3,Y=1 to X=2,Y=2 which is
-doubled out to X=6,Y=2 and X=4,Y=4 then the midpoint of those is X=5,Y=3 for
-N=3 here.
+for example the TerdragonCurve segment N=3 to N=4 is X=3,Y=1 to X=2,Y=2
+which is doubled out to X=6,Y=2 and X=4,Y=4, then the midpoint of those is
+X=5,Y=3 for N=3 here.
 
                             ...
                               \
@@ -502,11 +502,12 @@ N=3 here.
               ^
              X=0 1  2  3  4  5  6
 
-The result is integer X,Y coordinates on every second point as per
+The result is integer X,Y coordinates on every second point per
 L<Math::PlanePath/Triangular Lattice>, but visiting only 3 of every 4 such
-triangular points, or 3 of 8 integer X,Y points.  The pattern is alternate
-rows with 1 of 2 points such as Y=7, and 1 of 4 points such as Y=8.  Notice
-the pattern is the same when turned by 60 degrees or 120 degrees.
+triangular points, or 3 of 8 all integer X,Y points.  The points used make a
+pattern of alternate rows with 1 of each 2 points (such as the Y=7 row) and
+1 of each 4 points (such as the Y=8 row).  Notice the pattern is the same
+when turned by 60 degrees or 120 degrees.
 
     * * * * * * * * * * * * * * * * * * * *
      *   *   *   *   *   *   *   *   *   *
@@ -527,12 +528,12 @@ the pattern is the same when turned by 60 degrees or 120 degrees.
 =head2 Arms
 
 Multiple copies of the curve can be selected, each advancing successively.
-The curve covers 1/6 of the plane and 6 arms rotated by 60, 120, 180, 240
-and 300 degrees together perfectly.
+Like the main TerdragonCurve the midpoints cover 1/6 of the plane and 6 arms
+rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
 
-For example C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the
-first arm (like the plain curve above), then N=1,7,13,19 the second rotated
-60 degrees, N=2,8,14,20 the third rotated 120, etc.
+C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (like
+the plain curve above), then N=1,7,13,19 the second copy rotated 60 degrees,
+N=2,8,14,20 the third rotated 120, etc.
 
                                              ...
                                              /
@@ -562,8 +563,7 @@ first arm (like the plain curve above), then N=1,7,13,19 the second rotated
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 
@@ -592,18 +592,17 @@ Return 0, the first N in the path.
 An X,Y point can be turned into N by dividing out digits of a complex base
 w+1 where
 
-    w = 6th root of unity
-      = 1/2 + i * sqrt(3)/2
+    w = 1/2 + i * sqrt(3)/2 = 6th root of unity
 
 At each step the low ternary digit is formed from X,Y and an adjustment
-applied to move X,Y onto a multiple of w+1 to divide out.
+applied to move X,Y onto a multiple of w+1 ready to divide out w+1.
 
-In the N points above it can be seen that each group of three N values, such
-as N=0,1,2, or N=3,4,5 etc, make a straight line.  The adjustment moves an
-endpoint N=0 mod 3 or N=2 mod 3 to the centre N=1 mod 3.  The centre N=1 mod
-3 is always on a multiple of w+1.
+In the N points above it can be seen that each group of three N values make
+a straight line, such as N=0,1,2, or N=3,4,5 etc.  The adjustment moves the
+two ends of these N=0 mod 3 or N=2 mod 3 to the centre N=1 mod 3.  The
+centre N=1 mod 3 position is always a multiple of w+1.
 
-The angles and positions for the N triple groups follows a 12-point pattern,
+The angles and positions for the N triple groups follow a 12-point pattern,
 
      \   /   /   \   /   /   \   /   /   \   /   /   \
     - \ / \ - - - \ / \ - - - \ / \ - - - \ / \ - - -
@@ -633,26 +632,29 @@ The angles and positions for the N triple groups follows a 12-point pattern,
 In the current code a 12x12 table is used, indexed by X mod 12 and Y mod 12.
 Is there a good aX+bY mod 12 or mod 24 for a smaller table?  Maybe X+3Y like
 the digit?  Taking C=(X-Y)/2 in triangular coordinate style can get the
-table down to 6x6.  But however the adjustment is found the result is
+table down to 6x6.  But in any case once the adjustment is found the result
+is
 
-    Ndigit = (X + 3Y + 1) % 3    # 0,1,2 ternary digit
+    Ndigit = (X + 3Y + 1) mod 3    # 0,1,2 low ternary digit
 
-    Xmid = X + Xadj(X%12,Y%12)
-    Ymid = Y + Yadj(X%12,Y%12)
+    Xm = X + Xadj (X mod 12,Y mod 12)
+    Ym = Y + Yadj (X mod 12,Y mod 12)
 
-    new X,Y = (Xmid,Ymid) / (w+1)
-            = (Xmid,Ymid) * (2-w) / 3
-            = ((Xmid+Ymid)/2, (3*Ymid-Xmid)/6)
+    new X,Y = (Xm,Ym) / (w+1)
+            = (Xm,Ym) * (2-w) / 3
+            = ((Xm+Ym)/2, (3*Ym-Xm)/6)
 
-Points not reached by the curve can be detected with flag entries in the
-adjustment table.
+Points not reached by the curve (ie. not the 3 of 4 triangular or 3 of 8
+rectangular described above) can be detected with blank or tagged entries in
+the adjustment table.
 
-The X,Y reduction stops at X=3,Y=1 which is N=1.  Or at that point rotated
-by 60,120,180,240,300 degrees for the other arms.  Of course if only some of
-the arms are of interest then reaching one of the others means the original
-X,Y was outside the arms of interest.
+The X,Y reduction stops at the midpoint of the first triple of each arm.  So
+X=3,Y=1 which is N=1 for the first arm or point rotated by
+60,120,180,240,300 degrees for the others.  If only some of the arms are of
+interest then reaching one of the others means the original X,Y was outside
+the desired region.
 
-    arm     X,Y stop
+    Arm     X,Y stop
      0        3,1
      1        0,2
      2       -3,1
@@ -660,7 +662,7 @@ X,Y was outside the arms of interest.
      4        0,-2
      5        3,-1
 
-For an odd number arm each digit of N must be flipped so 0,1,2 becomes
+For the odd arms 1,3,5 each digit of N must be flipped so 0,1,2 becomes
 2,1,0,
 
     if arm mod 2 == 1

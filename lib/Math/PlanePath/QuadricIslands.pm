@@ -29,7 +29,7 @@ use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -435,8 +435,7 @@ X=-0.5,Y=-0.5.  This is centred on the origin and consistent with the
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

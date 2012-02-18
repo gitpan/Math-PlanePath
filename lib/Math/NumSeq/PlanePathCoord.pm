@@ -33,7 +33,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 69;
+$VERSION = 70;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -372,9 +372,10 @@ my %oeis_anum =
    },
    'Math::PlanePath::ZOrderCurve,radix=10,i_start=10' =>
    {
-    # i_start=10 per A080464 offset=10, it skips all but one initial zeros
+    # i_start=10 per A080464 OFFSET=10, it skips all but one initial zeros
     Product => 'A080464',
     # OEIS-Catalogue: A080464 planepath=ZOrderCurve,radix=10 coordinate_type=Product i_start=10
+
     AbsDiff => 'A080465',
     # OEIS-Catalogue: A080465 planepath=ZOrderCurve,radix=10 coordinate_type=AbsDiff i_start=10
    },
@@ -384,7 +385,7 @@ my %oeis_anum =
      # OEIS-Other: A059906 planepath=CornerReplicate coordinate_type=Y
    },
 
-   # OFFSET
+   # A061017 starts OFFSET=1 value=1, cf DivisibleColumns starts N=0 value=1
    # 'Math::PlanePath::DivisibleColumns' =>
    # { X => 'A061017',  # n appears divisors(n) times
    #   Y => 'A027750',  # triangle divisors of n
@@ -401,7 +402,8 @@ my %oeis_anum =
    #   # OEIS-Catalogue: A027751 planepath=DivisibleColumns,divisor_type=proper coordinate_type=Y
    # },
 
-   # Not quite, A038566/A038567 starts n=1 for 1/1, but CoprimeColumns N=0
+   # Not quite, A038566/A038567 starts OFFSET=1 value=1/1 but
+   # CoprimeColumns starts N=0
    # 'Math::PlanePath::CoprimeColumns' =>
    # { X => 'A038567',  # fractions denominator
    #   Y => 'A038566',  # fractions numerator
@@ -483,11 +485,11 @@ my %oeis_anum =
 
    'Math::PlanePath::Rows,width=2' =>
    {
-    # OFFSET
+    # A000035 starts OFFSET=0 value=0, cf Rows start N=1
     # X       => 'A000035', # 0,1 repeating
     # # OEIS-Other: A000035 planepath=Rows,width=2 coordinate_type=X
 
-    # not quite, Rows starts N=1 but A004525 starts n=0
+    # not quite, Rows starts N=1 but  starts n=0
     # Y       => 'A004525', # 0,0,1,1,2,2,etc
     #
     # almost Product => 'A142150', but it's "0,0,1,0,2" whereas product has
@@ -495,7 +497,7 @@ my %oeis_anum =
    },
    'Math::PlanePath::Columns,height=2' =>
    {
-    # OFFSET
+    # A000035 starts OFFSET=0 value=0, cf Columns start N=1
     # Y   => 'A000035', # 0,1 repeating
     # # OEIS-Other: A000035 planepath=Columns,height=2 coordinate_type=Y
 
@@ -1285,7 +1287,7 @@ __END__
 # }
 
 
-=for stopwords Ryde PlanePath Math-NumSeq DiffXY OEIS PlanePath NumSeq SquareSpiral PlanePath
+=for stopwords Ryde Math-PlanePath DiffXY OEIS PlanePath NumSeq SquareSpiral PlanePath
 
 =head1 NAME
 
@@ -1354,7 +1356,7 @@ Diagonals).
 
 =head1 FUNCTIONS
 
-See L<Math::NumSeq/FUNCTIONS> for the behaviour common to all path classes.
+See L<Math::NumSeq/FUNCTIONS> for behaviour common to all sequence classes.
 
 =over 4
 

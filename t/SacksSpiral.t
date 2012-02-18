@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 100 }
+BEGIN { plan tests => 150 }
 
 use lib 't';
 use MyTestHelpers;
@@ -53,7 +53,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 69;
+  my $want_version = 70;
   ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -185,6 +185,32 @@ sub numeq_array {
     ok ($got_rlo, $want_rlo, "$name, r lo");
     ok ($got_rhi, $want_rhi, "$name, r hi");
   }
+}
+
+#------------------------------------------------------------------------------
+# rect_to_n_range()
+
+{
+  my $path = Math::PlanePath::SacksSpiral->new;
+  foreach my $n (1 .. 50) {
+    my ($x, $y) = $path->n_to_xy($n);
+    my $x1 = 0;
+    my $y1 = 0;
+    my ($x2, $y2) = vector_towards_origin($x,$y,0.49);
+    my ($got_n_lo, $got_n_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ### @got_n_lo
+    ### @got_n_hi
+    ok ($got_n_hi >= $n, 1,
+        "hi want=$n got=$got_n_hi, at xy=$x,$y and range $x2,$y2");
+  }
+}
+
+sub vector_towards_origin {
+  my ($x,$y, $dist) = @_;
+  my $r = sqrt($x*$x+$y*$y);
+  my $frac = ($r-$dist)/$r;
+  return ($x * $frac,
+          $y * $frac);
 }
 
 exit 0;

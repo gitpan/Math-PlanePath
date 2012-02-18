@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 906 }
+BEGIN { plan tests => 910 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,24 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+               'SierpinskiCurve',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'HIndexing',
+
+               'StaircaseAlternating,end_type=square',
+               'StaircaseAlternating',
+               'Staircase',
 
                'CretanLabyrinth',
 
@@ -106,8 +124,6 @@ my @modules = (
                'CoprimeColumns',
                'DivisibleColumns',
 
-               'Staircase',
-               'StaircaseAlternating',
                'HilbertSpiral',
                'HilbertCurve',
 
@@ -123,19 +139,6 @@ my @modules = (
                'DigitGroups,radix=4',
                'DigitGroups,radix=5',
                'DigitGroups,radix=37',
-
-               'HIndexing',
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
 
                'RationalsTree',
                'RationalsTree,tree_type=CW',
@@ -317,7 +320,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 69;
+my $want_version = 70;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -389,10 +392,11 @@ my %rect_exact = (
                   'Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::Columns' => 1,
                   'Math::PlanePath::Diagonals' => 1,
+                  'Math::PlanePath::Staircase' => 1,
+                  'Math::PlanePath::StaircaseAlternating' => 1,
                   'Math::PlanePath::PyramidRows' => 1,
                   'Math::PlanePath::PyramidSides' => 1,
                   'Math::PlanePath::CellularRule190' => 1,
-                  'Math::PlanePath::Staircase' => 1,
                   'Math::PlanePath::Corner' => 1,
                   'Math::PlanePath::HilbertCurve' => 1,
                   'Math::PlanePath::HilbertSpiral' => 1,

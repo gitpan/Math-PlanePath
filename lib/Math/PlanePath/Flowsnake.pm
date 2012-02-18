@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -495,8 +495,7 @@ fractal boundary.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

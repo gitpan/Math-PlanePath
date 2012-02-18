@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,6 +24,30 @@ use POSIX ();
 
 # uncomment this to run the ### lines
 use Devel::Comments;
+
+{
+  use Math::BigFloat;
+  my $n = Math::BigFloat->new(1234);
+  ### accuracy: $n->accuracy()
+  ### precision: $n->precision()
+  my $global_accuracy = Math::BigFloat->accuracy();
+  my $global_precision = Math::BigFloat->precision();
+  ### $global_accuracy
+  ### $global_precision
+  my $global_div_scale = Math::BigFloat->div_scale();
+  ### $global_div_scale
+
+  Math::BigFloat->div_scale(500);
+  $global_div_scale = Math::BigFloat->div_scale();
+  ### $global_div_scale
+  ### div_scale: $n->div_scale
+
+  $n = Math::BigFloat->new(1234);
+  ### div_scale: $n->div_scale
+
+
+  exit 0;
+}
 
 {
   require Math::Complex;

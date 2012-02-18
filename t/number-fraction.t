@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 243)[1];
+my $test_count = (tests => 245)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -374,6 +374,7 @@ my @modules = (
                'PyramidSides',
                'Staircase',
                'StaircaseAlternating',
+               'StaircaseAlternating,end_type=square',
               );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 

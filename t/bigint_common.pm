@@ -1,6 +1,4 @@
-#!/usr/bin/perl -w
-
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -274,6 +272,18 @@ sub bigint_checks {
     ok ($got_y, $want_y);
   }
 
+  #--------------------------------------------------------------------------
+  # SacksSpiral
+
+  require Math::PlanePath::SacksSpiral;
+  {
+    my $path = Math::PlanePath::SacksSpiral->new;
+    my $x = 0;
+    my $y = $bigclass->new(2) ** 128;
+    my ($nlo, $nhi) = $path->rect_to_n_range($x,$y, 0,0);
+    ok (!! ref $nhi, 1,
+        'SacksSpiral rect_to_n_range() nhi bignum');
+  }
 }
 
 1;

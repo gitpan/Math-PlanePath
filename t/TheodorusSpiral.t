@@ -20,20 +20,21 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 10; }
+BEGIN { plan tests => 18; }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 require Math::PlanePath::TheodorusSpiral;
+my $path = Math::PlanePath::TheodorusSpiral->new;
 
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 69;
+  my $want_version = 70;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
@@ -47,7 +48,6 @@ require Math::PlanePath::TheodorusSpiral;
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::TheodorusSpiral->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -62,10 +62,42 @@ require Math::PlanePath::TheodorusSpiral;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::TheodorusSpiral->new;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
 }
+
+#------------------------------------------------------------------------------
+
+{
+  my $n_save = Math::PlanePath::TheodorusSpiral::_SAVE();
+  my $n = 2 * $n_save - 10;
+  my ($x1,$y1) = $path->n_to_xy ($n);
+
+  $path->n_to_xy ($n + 10); # forward
+
+  my ($x2,$y2) = $path->n_to_xy ($n);
+
+  ok ($x1, $x2);
+  ok ($y1, $y2);
+}
+
+
+{
+  my ($x,$y) = $path->n_to_xy (0);
+  ok ($x, 0);
+  ok ($y, 0);
+}
+{
+  my ($x,$y) = $path->n_to_xy (1);
+  ok ($x, 1);
+  ok ($y, 0);
+}
+{
+  my ($x,$y) = $path->n_to_xy (2);
+  ok ($x, 1);
+  ok ($y, 1);
+}
+
 
 exit 0;

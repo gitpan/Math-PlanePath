@@ -30,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 69;
+$VERSION = 70;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -190,7 +190,7 @@ sub next {
   ### NumSeq-PlanePathTurn next(): "i=$self->{'i'}  xy=$self->{'x'},$self->{'y'}  dxdy=$self->{'dx'},$self->{'dy'}"
 
   my $planepath_object = $self->{'planepath_object'};
-  
+
   my $i = $self->{'i'}++;
   my $arms = $self->{'arms'};
 
@@ -352,6 +352,7 @@ my $straight_LSR_predhash = { 0=>1 };
 
 { package Math::PlanePath;
 
+  use constant 1.02; # for leading underscore
   use constant _NumSeq_Turn_Left_min => 0;
   use constant _NumSeq_Turn_Left_max => 1;
   use constant _NumSeq_Turn_LSR_min => -1;
@@ -578,6 +579,8 @@ my $straight_LSR_predhash = { 0=>1 };
 # }
 # { package Math::PlanePath::Staircase;
 # }
+# { package Math::PlanePath::StaircaseAlternating;
+# }
 # { package Math::PlanePath::Corner;
 # }
 { package Math::PlanePath::PyramidRows;
@@ -631,7 +634,7 @@ my $straight_LSR_predhash = { 0=>1 };
 __END__
 
 
-=for stopwords Ryde  PlanePath Math-NumSeq
+=for stopwords Ryde Math-PlanePath NumSeq PlanePath SquareSpiral ie
 
 =head1 NAME
 
@@ -669,6 +672,8 @@ on the path.  For example a single arm path beginning N=0 has its first turn
 at i=1.
 
 =head1 FUNCTIONS
+
+See L<Math::NumSeq/FUNCTIONS> for behaviour common to all sequence classes.
 
 =over 4
 

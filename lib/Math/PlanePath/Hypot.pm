@@ -24,7 +24,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -330,8 +330,7 @@ the last since 24,-7 is also 25 away from the origin.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

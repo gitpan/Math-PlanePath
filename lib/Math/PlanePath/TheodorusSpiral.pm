@@ -23,17 +23,19 @@ use List::Util 'min', 'max';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use Math::PlanePath::SacksSpiral;
-*_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
+*_rect_to_radius_range_points = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range_points;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+#use Smart::Comments;
+
 
 use constant n_start => 0;
 use constant figure => 'circle';
@@ -68,9 +70,19 @@ sub new {
                              @_);
 }
 
+# r = sqrt(i)
+# x,y angle
+# r*x/hypot, r*y/hypot 
+#
+# newx = x - y/r
+# newy = y + x/r
+# (x-y/r)^2 + (y+x/r)^2
+#   =   x^2 - 2y/r + y^2/r^2
+#     + y^2 + 2x/r + x^2/r^2
+
 sub n_to_xy {
   my ($self, $n) = @_;
-  #### n_to_xy(): $n
+  #### TheodorusSpiral n_to_xy(): $n
 
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
@@ -85,7 +97,7 @@ sub n_to_xy {
   my $i = $self->{'i'};
   my $x = $self->{'x'};
   my $y = $self->{'y'};
-  #### n_to_xy(): "$n from $i $x,$y"
+  #### n_to_xy(): "$n from state $i $x,$y"
 
   if ($i > $n) {
     for (my $pos = $#save_n; $pos >= 0; $pos--) {
@@ -105,10 +117,15 @@ sub n_to_xy {
     $i++;
 
     if ($i == $next_save) {
-      push @save_n, $n;
+      push @save_n, $i;
       push @save_x, $x;
       push @save_y, $y;
       $next_save += _SAVE;
+
+      ### save: $i
+      ### @save_n
+      ### @save_x
+      ### @save_y
     }
   }
 
@@ -121,7 +138,7 @@ sub n_to_xy {
     return ($x - $frac*$y/$r,
             $y + $frac*$x/$r);
   } else {
-    #### plain return: "$i  $x,$y"
+    #### integer return: "$i  $x,$y"
     return ($x,$y);
   }
 }
@@ -157,12 +174,18 @@ sub xy_to_n {
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### rect_to_n_range(): "$x1,$y1   $x2,$y2"
 
-  my ($rlo, $rhi) = _rect_to_radius_range ($x1,$y1, $x2,$y2);
-  $rlo = max (0, $rlo-.51);
-  $rhi += .51;
-  return (int($rlo*$rlo),       # round down
-          int($rhi*$rhi + 1));  # round up
+  ($x1,$y1, $x2,$y2) = _rect_to_radius_range_points ($x1,$y1, $x2,$y2);
+  my $rlo = int ($x1*$x1 + $y1*$y1);
+  my $rhi = int ($x2*$x2 + $y2*$y2);
+
+  ### radius range: "$x1,$y1   $x2,$y2"
+  ### $rlo
+  ### $rhi
+
+  return (_max(0,$rlo-1),
+          $rhi + 1);
 }
 
 1;
@@ -252,8 +275,7 @@ at low values are nearly straight, but then spiral away.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 The code is currently implemented by adding unit steps in X,Y coordinates,
 so it's not particularly fast.  The last X,Y is saved in the object

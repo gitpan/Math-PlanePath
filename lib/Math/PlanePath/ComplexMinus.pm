@@ -25,7 +25,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -280,8 +280,7 @@ multiplier 16^k and divisor (-4)^k would be almost as easy.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

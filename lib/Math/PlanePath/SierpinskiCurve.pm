@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -306,17 +306,6 @@ sub rect_to_n_range {
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  #            x2
-  # y2 +-------+      *
-  #    |       |    *
-  # y1 +-------+  *
-  #             *
-  #           *
-  #         *
-  #       ------------------
-  #
-  #
-  #               *
   #   x1    *  x2 *
   #    +-----*-+y2*
   #    |      *|  *
@@ -325,6 +314,27 @@ sub rect_to_n_range {
   #    |       | **
   #    +-------+y1*
   #   ----------------
+  #
+  # arms=5 x1,y2 after X=Y-1 line, so x1 > y2-1, x1 >= y2
+  # ************
+  #      x1   *   x2
+  #      +---*----+y2
+  #      |  *     |
+  #      | *      |
+  #      |*       |
+  #      *        |
+  #     *+--------+y1
+  #    *
+  #
+  # arms=7 x1,y1 after X=-2-Y line, so x1 > -2-y1
+  # ************
+  # ** +------+
+  # * *|      |
+  # *  *      |
+  # *  |*     |
+  # *  | *    |
+  # *y1+--*---+
+  # * x1   *
   #
   my $arms = $self->{'arms'};
   if (($arms <= 4
@@ -337,7 +347,7 @@ sub rect_to_n_range {
        : ($y2 < 0
           && (($arms == 5 && $x1 >= $y2)
               || ($arms == 6 && $x1 >= 0)
-              || ($arms == 7 && $x1 > 3-$y2))))) {
+              || ($arms == 7 && $x1 > -2-$y1))))) {
     ### rect outside octants, for arms: $arms
     ### $x1
     ### $y2
@@ -356,11 +366,6 @@ sub rect_to_n_range {
       }
     }
   }
-  ### $max
-
-  if (_is_infinite($max)) {
-    return (0, $max);
-  }
 
   # base=2d+s
   # level begins at
@@ -372,7 +377,7 @@ sub rect_to_n_range {
   #   Nlevel = 4^level-1
 
   my $base = 2 * $self->{'diagonal_spacing'} + $self->{'straight_spacing'};
-  my ($power) = _round_down_pow ((($max+$base) / $base) || 1,
+  my ($power) = _round_down_pow (int(($max+$base-2)/$base),
                                  2);
   return (0, 4*$power*$power * $arms - 1);
 }
@@ -426,55 +431,10 @@ __END__
    #  ^
    # X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 ...
 
-    #                                                                 127-128
-    #                                                                /       \
-    #                                                              126      ...
-    #                                                                |
-    #                                                              125
-    #                                                                 \
-    #                                                        121-122  124
-    #                                                        /     \  /
-    #                                                     120      123
-    #                                                       |
-    #                                                     119      116
-    #                                                        \     /  \
-    #                                               103-104  118-117  115
-    #                                               /     \           /
-    #                                             102     105      114
-    #                                              |       |         |
-    #                                             101     106      113
-    #                                               \     /           \
-    #                                       97-98   100 107  109-110  112
-    #                                      /     \  /     \  /     \  /
-    #                                    96       99      108      111
-    #                                     |
-    #                                    95       92       83       80
-    #                                      \     /  \     /  \     /  \
-    #                              31-32    94-93    91 84    82-81    79
-    #                             /     \           /     \           /
-    #                           30       33       90       85       78
-    #                            |        |        |        |        |
-    #                           29       34       89       86       77
-    #                             \     /           \     /           \
-    #                     25-26    28 35    37-38    88-87    73-74    76
-    #                    /     \  /     \  /     \           /     \  /
-    #                  24       27       36       39       72       75
-    #                   |                          |        |
-    #                  23       20       43       40       71       68
-    #                    \     /  \     /  \     /           \     /  \
-    #             7--8    22-21    19 44    42-41    55-56    70-69    67
-    #           /     \           /     \           /     \           /
-    #          6        9       18       45       54       57       66
-    #          |        |        |        |        |        |        |
-    #          5       10       17       46       53       58       65
-    #           \     /           \     /           \     /           \
-    #    1--2     4 11    13-14    16 47    49-50    52 59    61-62    64
-    #  /     \  /     \  /     \  /     \  /     \  /     \  /     \  /
-    # 0        3       12       15       48       51       60       63
 
 # The factor of 3 arises because there's a gap between each level, increasing
 # it by a fixed extra each time,
-# 
+#
 #     length(level) = 2*length(level-1) + 2
 #                   = 2^level + (2^level + 2^(level-1) + ... + 2)
 #                   = 2^level + (2^(level+1)-1 - 1)
@@ -502,27 +462,27 @@ traversing the plane by right triangles.  The default is a single arm of the
 curve in an eighth of the plane.
 
 
-    10  |                                  31-32                 
+    10  |                                  31-32
         |                                 /     \
-     9  |                               30       33              
+     9  |                               30       33
         |                                |        |
-     8  |                               29       34              
+     8  |                               29       34
         |                                 \     /
-     7  |                         25-26    28 35    37-38        
+     7  |                         25-26    28 35    37-38
         |                        /     \  /     \  /     \
-     6  |                      24       27       36       39     
+     6  |                      24       27       36       39
         |                       |                          |
-     5  |                      23       20       43       40     
+     5  |                      23       20       43       40
         |                        \     /  \     /  \     /
      4  |                 7--8    22-21    19 44    42-41    55-...
         |               /     \           /     \           /
-     3  |              6        9       18       45       54     
+     3  |              6        9       18       45       54
         |              |        |        |        |        |
-     2  |              5       10       17       46       53     
+     2  |              5       10       17       46       53
         |               \     /           \     /           \
-     1  |        1--2     4 11    13-14    16 47    49-50    52  
+     1  |        1--2     4 11    13-14    16 47    49-50    52
         |      /     \  /     \  /     \  /     \  /     \  /
-    Y=0 |  .  0        3       12       15       48       51    
+    Y=0 |  .  0        3       12       15       48       51
         |
         +-----------------------------------------------------------
            ^
@@ -556,11 +516,10 @@ The points are on a square grid with integer X,Y.  4 points are used in each
     which means
     ((X%3)+(Y%3)) % 2 == 1
 
-The N values along the X axis 0,3,12,15,48,etc are all the numbers which use
-only digits 0 and 3 in base 4.  For example N=51 is 303 in base 4.  Or
-equivalently the values all have doubled bits in binary, for example N=48 is
-110000 binary.  (Compare the CornerReplicate which has these along the X
-axis.)
+The X axis N=0,3,12,15,48,etc are all the inteers which use only digits 0
+and 3 in base 4.  For example N=51 is 303 base 4.  Or equivalently the
+values all have doubled bits in binary, for example N=48 is 110000 binary.
+(Compare the CornerReplicate which also has these values along the X axis.)
 
 =head2 Level Ranges
 
@@ -720,7 +679,7 @@ ever greater self-similar detail,
 
 The code here might be pressed into use for this by drawing a mirror image
 of the curve (N=0 through Nlevel above).  Or using the C<arms=E<gt>2> form
-(N=0 to N=4^level, inclusive), and joining up the ends.
+(N=0 to N=4^level, inclusive) and joining up the ends.
 
 The curve is usually conceived as scaling down by quarters.  This can be had
 with C<straight_spacing =E<gt> 2>, and then an offset to X+1,Y+1 to centre
@@ -728,8 +687,7 @@ in a 4*2^level square
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

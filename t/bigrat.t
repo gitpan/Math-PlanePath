@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 253)[1];
+my $test_count = (tests => 255)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -501,6 +501,7 @@ my @modules = (
                'PyramidSides',
                'Staircase',
                'StaircaseAlternating',
+               'StaircaseAlternating,end_type=square',
               );
 my @classes = map {"Math::PlanePath::$_"} @modules;
 

@@ -102,16 +102,25 @@ use List::Util qw(min max);
   require Math::PlanePath::KochSnowflakes;
   require Math::PlanePath::MathImageMooreSpiral;
   require Math::PlanePath::CretanLabyrinth;
-  require Math::PlanePath::MathImageSierpinskiCurveSquare;
   require Math::PlanePath::MathImageGrayCode;
-  my $path = Math::PlanePath::MathImageGrayCode->new
+  require Math::PlanePath::MathImagePeanoHalf;
+  require Math::PlanePath::TheodorusSpiral;
+  require Math::PlanePath::SacksSpiral;
+  require Math::PlanePath::MathImageSierpinskiCurveSquared;
+  require Math::PlanePath::SierpinskiCurve;
+  require Math::PlanePath::StaircaseAlternating;
+  my $path = Math::PlanePath::SierpinskiCurve->new
     (
+     straight_spacing => 3,
+     diagonal_spacing => 7,
+     arms => 7,
+     # end_type => 'square',
+     # encode_type => 'XY',
      # mirror => 1,
      # wider => 3,
      # start_shape => 'B1rev',
      # rule => 8,
      # realpart => 1,
-     # arms => 2,
      # L_fill => 'all',
      # mirror => 1,
      # divisor_type => 'proper',
@@ -121,8 +130,6 @@ use List::Util qw(min max);
      # # tree_type => 'Drib',
      # tree_type => 'Kepler',
      # #coordinates => 'PQ',
-     # straight_spacing => 1,
-     # diagonal_spacing => 5,
     );
   ### $path
   my ($prev_x, $prev_y);
@@ -132,15 +139,7 @@ use List::Util qw(min max);
   print "n_start $n_start arms_count $arms_count\n";
 
   for (my $i = $n_start+0; $i <= 40; $i+=1) {
-
-    #for (my $i = $n_start; $i <= $n_start + 80000000000; $i=POSIX::ceil($i*1.01+1)) {
-    # for (my $i = 0.75; $i <= 50; $i += .5) {
-    # for (my $i = 9650; $i <= 9999; $i++) {
-    #for (my $i = $n_start; $i <= 30; $i++) {
-    #for (my $i = 1; $i <= 500; $i++) {
-    # for (my $i = 1; $i <= 2**40; $i*=2) {
-    #foreach my $i (2,13,24,41,64,93,128,175,222,275,334,399,470,553) {
-    #for (my $i=4; $i < 5000; $i++) {
+    #   for (my $i = $n_start; $i <= $n_start + 8000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;

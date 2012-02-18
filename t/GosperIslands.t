@@ -33,7 +33,7 @@ require Math::PlanePath::GosperIslands;
 # VERSION
 
 {
-  my $want_version = 69;
+  my $want_version = 70;
   ok ($Math::PlanePath::GosperIslands::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GosperIslands->VERSION,  $want_version,

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1202 }
+BEGIN { plan tests => 1236 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurve;
 # VERSION
 
 {
-  my $want_version = 69;
+  my $want_version = 70;
   ok ($Math::PlanePath::SierpinskiCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurve->VERSION,  $want_version,
@@ -90,18 +90,67 @@ require Math::PlanePath::SierpinskiCurve;
 
 
 #------------------------------------------------------------------------------
+# rect_to_n_range() samples
+
+{
+  foreach my $elem (
+
+                    [7, 0,-1, 0,-2, 0,27 ],
+
+
+                    # edges
+                    [1, 0,0, 0,0,   1,0],
+
+                    [2, 0,0, 0,0,   0,7],
+                    [2, -100,0, -1,0, 1,0],
+
+                    [3, -1,0, -1,0,  1,0],
+                    [3, -1,1, -1,1,    0,11],
+                    [3, -2,1, -2,1,    1,0],
+
+                    [4, -2,1, -2,1,    0,15],
+                    [4, -1,-1, -1,-1,  1,0],
+
+                    [5, -2,-1, -2,-1,  0,19],
+                    [5, 0,-2, 0,-2,    1,0],
+                    [5, -1,-2, -1,-2,  1,0],
+
+                    [6, -1,-2, -1,-2,    0,23],
+                    [6, 0,-2, 0,-2,    1,0],
+
+                    [7, 0,-2, 0,-2,    0,27],
+                    [7, 1,-2, 1,-2,    1,0],
+
+                    [8, 1,-2, 1,-2,    0,31],
+                   ) {
+    my ($arms, $x1,$y1,$x2,$y2, $want_n_lo,$want_n_hi) = @$elem;
+    my $path = Math::PlanePath::SierpinskiCurve->new (arms => $arms);
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ok ($n_hi, $want_n_hi, "arms=$arms  $x1,$y1, $x2,$y2");
+    ok ($n_lo, $want_n_lo);
+  }
+}
+
+
+#------------------------------------------------------------------------------
 # rect_to_n_range() near origin
 
 {
-  my $path = Math::PlanePath::SierpinskiCurve->new (arms => 7);
-  my $n = 55;
-  my ($x,$y) = $path->n_to_xy (55);
-  my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,,-1, $x,$y);
-  ### $x
-  ### $y
-  ### $n_lo
-  ### $n_hi
-  ok ($n_hi >= 55, 1, "got n_hi $n_hi");
+  my $bad = 0;
+  foreach my $arms (1 .. 8) {
+    my $path = Math::PlanePath::SierpinskiCurve->new (arms => $arms);
+    foreach my $n (0 .. 8*$arms) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+      unless ($n_lo <= $n) {
+        $bad++;
+      }
+      unless ($n_hi >= $n) {
+        $bad++;
+      }
+    }
+  }
+  ok ($bad, 0);
 }
 
 

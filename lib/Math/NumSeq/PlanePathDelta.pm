@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 69;
+$VERSION = 70;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -998,11 +998,23 @@ sub values_max {
 }
 { package Math::PlanePath::StaircaseAlternating;
   use constant _NumSeq_Delta_dX_min => -1;
-  use constant _NumSeq_Delta_dX_max => 2;
   use constant _NumSeq_Delta_dY_min => -1;
-  use constant _NumSeq_Delta_dY_max => 2;
+
+  my %dX_max = (jump   => 2,
+                square => 1);
+  sub _NumSeq_Delta_dX_max {
+    my ($self) = @_;
+    return $dX_max{$self->{'end_type'}};
+  }
+  *_NumSeq_Delta_dY_max = \&_NumSeq_Delta_dX_max;
+
   use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Delta_DistSquared_max => 4;
+  my %DistSquared_max = (jump   => 4,
+                         square => 1);
+  sub _NumSeq_Delta_DistSquared_max {
+    my ($self) = @_;
+    return $DistSquared_max{$self->{'end_type'}};
+  }
 }
 { package Math::PlanePath::Corner;
   use constant _NumSeq_Delta_dX_max => 1;
@@ -1240,7 +1252,7 @@ __END__
 # }
 
 
-=for stopwords Ryde TDir6 Math-NumSeq PlanePath NumSeq SquareSpiral
+=for stopwords Ryde TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral
 
 =head1 NAME
 
@@ -1277,6 +1289,8 @@ So dX=1,dY=1 is 60 degrees, dX=-1,dY=1 is 120 degrees, dX=-2,dY=0 is 180
 degrees, etc, and fractional values in between those.
 
 =head1 FUNCTIONS
+
+See L<Math::NumSeq/FUNCTIONS> for behaviour common to all sequence classes.
 
 =over 4
 

@@ -75,7 +75,7 @@ devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
 devel/sierpinski-curve.pl
 devel/sierpinski-triangle.pl
-devel/StaircaseAlternatingContinuous.pm
+devel/staircase-alternating.pl
 devel/svg.pl
 devel/terdragon.pl
 devel/theodorus.gnuplot
@@ -282,6 +282,7 @@ t/SierpinskiArrowheadCentres.t
 t/SierpinskiCurve.t
 t/SquareSpiral.t
 t/Staircase.t
+t/StaircaseAlternating.t
 t/TerdragonCurve.t
 t/TheodorusSpiral.t
 t/TriangularHypot.t
@@ -325,6 +326,7 @@ xt/GcdRationals-oeis.t
 xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
 xt/MyOEIS.pm
+xt/NumSeq-duplicate-oeis.t
 xt/NumSeq-PlanePath-oeis.t
 xt/PeanoCurve-oeis.t
 xt/PixelRings-image.t

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,26 +20,36 @@
 use 5.004;
 use strict;
 use Test;
+plan tests => 1;
+
+use lib 't';
+use MyTestHelpers;
+MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-use lib 't';
-use MyTestHelpers;
 
-my $test_count = (tests => 44)[1];
-plan tests => $test_count;
+use Math::NumSeq::OEIS::Catalogue::Plugin::BuiltinTable;
+use Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath;
 
-if (! eval { require Math::BigInt::Lite; 1 }) {
-  MyTestHelpers::diag ('skip due to Math::BigInt::Lite not available -- ',$@);
-  foreach (1 .. $test_count) {
-    skip ('due to no Math::BigInt::Lite', 1, 1);
-  }
-  exit 0;
+my %builtin_anums;
+foreach my $info (@{Math::NumSeq::OEIS::Catalogue::Plugin::BuiltinTable::info_arrayref()}) {
+  $builtin_anums{$info->{'anum'}} = $info;
 }
 
-MyTestHelpers::nowarnings();
+my $good = 1;
+my $count = 0;
+foreach my $info (@{Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath::info_arrayref()}) {
+  my $anum = $info->{'anum'};
+  if ($builtin_anums{$anum}) {
+    MyTestHelpers::diag ("$anum already a NumSeq builtin");
+    $good = 0;
+  }
+  $count++;
+}
 
-require bigint_common;
-bigint_common::bigint_checks ('Math::BigInt::Lite');
+ok ($good);
+MyTestHelpers::diag ("total $count PlanePath A-numbers");
+
 exit 0;

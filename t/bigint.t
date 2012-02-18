@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use Test;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = (tests => 43)[1];
+my $test_count = (tests => 44)[1];
 plan tests => $test_count;
 
 require Math::BigInt;

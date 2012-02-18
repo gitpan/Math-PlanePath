@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 70, February 2012
+    - TheodorusSpiral fix n_to_xy() position saving
+    - StaircaseAlternating new end_type=>"square"
+
 Version 69, February 2012
     - new Math::NumSeq::PlanePathTurn
     - Math::NumSeq::PlanePathN new pred()

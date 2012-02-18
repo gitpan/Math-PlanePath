@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -710,8 +710,7 @@ Each block of 2^N is followed by its own reversal plus 1.  For example,
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 
@@ -793,10 +792,11 @@ The four turn sequences differ only in having left or right represented as 0
 and 1, or 1 and 2, and the further A038189 and A082410 differ only in having
 an extra initial 0.
 
-The point numbering A126937 has the dragon curve and square spiralling
-numbering Y points in the opposite directions.  So the dragon turning up
-towards positive Y but the square spiral turning down towards negative Y (or
-vice versa).  So PlanePath code for this, starting at $i=0, would be
+The point numbering A126937 has the dragon curve and square spiralling with
+their Y points in the opposite directions, as can be seen in its
+F<a126937.pdf>.  So the dragon turns up towards positive Y but the square
+spiral turns down towards negative Y (or vice versa).  PlanePath code for
+this, starting at $i=0, would be
 
       my $dragon = Math::PlanePath::DragonCurve->new;
       my $square = Math::PlanePath::SquareSpiral->new;

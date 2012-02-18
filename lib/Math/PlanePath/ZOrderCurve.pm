@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -54,8 +54,7 @@ use constant parameter_info_array => [{ name      => 'radix',
                                       }];
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
   if (! $self->{'radix'} || $self->{'radix'} < 2) {
     $self->{'radix'} = 2;
   }
@@ -373,8 +372,7 @@ higher base.  For example radix 3 makes 3x3 groupings,
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 69;
+$VERSION = 70;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -690,6 +690,11 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
+{ package Math::PlanePath::StaircaseAlternating;
+  use constant _NumSeq_X_axis_increasing => 0;
+  use constant _NumSeq_Y_axis_increasing => 0;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
 { package Math::PlanePath::Corner;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
@@ -776,7 +781,7 @@ sub values_max {
 1;
 __END__
 
-=for stopwords Ryde PlanePath SquareSpiral
+=for stopwords Ryde Math-PlanePath SquareSpiral DragonCurve lookup 
 
 =head1 NAME
 
@@ -807,6 +812,8 @@ is unspecified as yet, as is behaviour on paths with repeat points, such as
 the DragonCurve.
 
 =head1 FUNCTIONS
+
+See L<Math::NumSeq/FUNCTIONS> for behaviour common to all sequence classes.
 
 =over 4
 

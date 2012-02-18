@@ -38,7 +38,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -192,6 +192,9 @@ sub _round_down_pow {
   my ($n, $base) = @_;
   ### _round_down_pow(): "$n base $base"
 
+  # only for integer bases
+  ### assert: $base == int($base)
+
   if ($n < $base) {
     return (1, 0);
   }
@@ -327,8 +330,7 @@ L<Math::PlanePath/Triangular Lattice>.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

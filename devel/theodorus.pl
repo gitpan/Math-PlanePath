@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,9 +24,29 @@ use POSIX 'floor', 'fmod';
 use Math::Trig 'pi', 'atan';
 use Math::BigFloat try => 'GMP';
 use Math::Libm 'hypot';
-
+use Math::PlanePath::TheodorusSpiral;
 use Smart::Comments;
 
+
+{
+  my $path = Math::PlanePath::TheodorusSpiral->new;
+  my $prev_x = 0;
+  my $prev_y = 0;
+  #for (my $n = 10; $n < 100000000; $n = int($n * 1.2)) {
+  foreach my $n (2000, 2010, 2020, 2010, 2000, 2010, 2000, 2010) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $rsq = $x*$x+$y*$y;
+
+    my $dx = $x - $prev_x;
+    my $dy = $y - $prev_y;
+    my $dxy_dist = hypot($dx,$dy);
+
+    printf "%d   %.2f,%.2f  %.2f  %.4f\n", $n, $x,$y, $rsq, $dxy_dist;
+
+    ($prev_x, $prev_y) = ($x,$y);
+  }
+  exit 0;
+}
 
 {
   {

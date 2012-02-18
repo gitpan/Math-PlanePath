@@ -45,6 +45,52 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['pythagorean-small.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
+   ['pythagorean-points-big.png',
+    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
+   ['pythagorean-tree-big.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
+
+   ['sierpinski-curve-small.png',
+    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --offset=-14,-14'],
+   ['sierpinski-curve-big.png',
+    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200'],
+   ['sierpinski-curve-8arm-big.png',
+    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
+
+
+   ['terdragon-small.png',
+    'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
+   ['terdragon-big.png',
+    'math-image --path=TerdragonCurve --lines --figure=point --scale=4 --size=200 --offset=65,0'],
+   ['terdragon-rounded-big.png',
+    'math-image --path=TerdragonCurve --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=35,-30'],
+   ['terdragon-rounded-6arm-big.png',
+    'math-image --path=TerdragonCurve,arms=6 --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=10 --size=200'],
+
+
+   ['terdragon-midpoint-6arm-big.png',
+    'math-image --path=TerdragonMidpoint,arms=6 --lines --figure=circle --scale=4 --size=200'],
+   ['terdragon-midpoint-small.png',
+    'math-image --path=TerdragonMidpoint --lines --scale=2 --size=32 --offset=2,-9'],
+   ['terdragon-midpoint-big.png',
+    'math-image --path=TerdragonMidpoint --lines --figure=circle --scale=8 --size=200 --offset=50,-50'],
+
+
+   ['staircase-small.png',
+    'math-image --path=Staircase --lines --scale=4 --size=32 --offset=2,2'],
+   ['staircase-big.png',
+    'math-image --path=Staircase --lines --scale=12 --size=200x200'],
+
+   ['staircase-alternating-square-small.png',
+    'math-image --path=StaircaseAlternating,end_type=square --lines --scale=4 --size=32'],
+   ['staircase-alternating-big.png',
+    'math-image --path=StaircaseAlternating --lines --scale=12 --size=200x200'],
+   ['staircase-alternating-square-big.png',
+    'math-image --path=StaircaseAlternating,end_type=square --lines --scale=12 --size=200x200'],
+
+
    ['cretan-labyrinth-small.png',
     'math-image --path=CretanLabyrinth --lines --scale=3 --size=32'],
    ['cretan-labyrinth-big.png',
@@ -158,24 +204,6 @@ foreach my $elem
     'math-image --path=QuadricCurve --lines --scale=2 --size=32 --offset=3,0'],
    ['quadric-curve-big.png',
     'math-image --path=QuadricCurve --lines --scale=4 --size=300x200 --offset=3,0'],
-
-
-   ['terdragon-small.png',
-    'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
-   ['terdragon-big.png',
-    'math-image --path=TerdragonCurve --lines --figure=point --scale=4 --size=200 --offset=65,0'],
-   ['terdragon-rounded-big.png',
-    'math-image --path=TerdragonCurve --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=35,-30'],
-   ['terdragon-rounded-6arm-big.png',
-    'math-image --path=TerdragonCurve,arms=6 --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=10 --size=200'],
-
-
-   ['terdragon-midpoint-6arm-big.png',
-    'math-image --path=TerdragonMidpoint,arms=6 --lines --figure=circle --scale=4 --size=200'],
-   ['terdragon-midpoint-small.png',
-    'math-image --path=TerdragonMidpoint --lines --scale=2 --size=32 --offset=2,-9'],
-   ['terdragon-midpoint-big.png',
-    'math-image --path=TerdragonMidpoint --lines --figure=circle --scale=8 --size=200 --offset=50,-50'],
 
 
    ['divisible-columns-small.png',
@@ -395,14 +423,6 @@ foreach my $elem
    ['h-indexing-big.png',
     'math-image --path=HIndexing --lines --scale=3 --size=200 --offset=2,2'],
 
-   ['sierpinski-curve-small.png',
-    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --offset=2,2'],
-   ['sierpinski-curve-big.png',
-    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200'],
-   ['sierpinski-curve-8arm-big.png',
-    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
-
-
    ['sierpinski-arrowhead-centres-small.png',
     'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32 --offset=0,1'],
    ['sierpinski-arrowhead-centres-big.png',
@@ -495,13 +515,6 @@ foreach my $elem
    ['quintet-centres-big.png',
     'math-image --path=QuintetCentres --lines --scale=7 --size=200 --offset=-20,-70'],
 
-
-   ['pythagorean-small.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=2 --size=32'],
-   ['pythagorean-points-big.png',
-    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
-   ['pythagorean-tree-big.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
 
    ['koch-squareflakes-inward-small.png',
     'math-image --path=KochSquareflakes,inward=1 --lines --scale=2 --size=32'],

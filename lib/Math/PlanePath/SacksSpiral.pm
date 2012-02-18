@@ -29,10 +29,12 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
+*_min = \&Math::PlanePath::_min;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -80,7 +82,9 @@ sub n_to_xy {
       $n = $n->as_float;
     }
     if ($n->isa('Math::BigFloat')) {
-      $two_pi = 2 * Math::BigFloat->bpi;
+      $two_pi = 2 * Math::BigFloat->bpi ($n->accuracy
+                                         || $n->precision
+                                         || $n->div_scale);
     }
   }
 
@@ -119,24 +123,64 @@ sub xy_to_n {
   }
 }
 
+# r^2 = x^2 + y^2
+# (r+1)^2 = r^2 + 2r + 1
+# r < x+y
+# (r+1)^2 < x^2+y^2 + x + y + 1
+#         < (x+.5)^2 + (y+.5)^2 + 1
+# (x+1)^2 + (y+1)^2 = x^2+y^2 + 2x+2y+2
+#
+# (x+1)^2 + (y+1)^2 - (r+1)^2
+#   = x^2+y^2 + 2x+2y+2 - (r^2 + 2r + 1)
+#   = x^2+y^2 + 2x+2y+2 - x^2-y^2 - 2*sqrt(x^2+y^2) - 1
+#   = 2x+2y+1 - 2*sqrt(x^2+y^2)
+#   >= 2x+2y+1 - 2*(x+y)
+#   = 1
+#
+# (x+e)^2 + (y+e)^2 - (r+e)^2
+#   = x^2+y^2 + 2xe+2ye + 2e^2 - (r^2 + 2re + e^2)
+#   = x^2+y^2 + 2xe+2ye + 2e^2 - x^2-y^2 - 2*e*sqrt(x^2+y^2) - e^2
+#   = 2xe+2ye + e^2 - 2*e*sqrt(x^2+y^2)
+#   >= 2xe+2ye + e^2 - 2*e*(x+y)
+#   = e^2 
+#
+# x+1,y+1 increases the radius by at least 1 thus pushing it to the outside
+# of a ring.  Actually it's more, as much as sqrt(2)=1.4142 on the leading
+# diagonal X=Y.  But the over-estimate is close enough for now.
+# 
+
 # not exact
 sub rect_to_n_range {
-  my $self = shift;
+  my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  my ($rlo, $rhi) = _rect_to_radius_range(@_);
-  # minimum rlo=0 for minimum N=1
-  $rlo -= 0.6; if ($rlo < 0) { $rlo = 0; }
-  $rhi += 0.6;
+  ($x1,$y1, $x2,$y2) = _rect_to_radius_range_points ($x1,$y1, $x2,$y2);
+  $x2 += 1;
+  $y2 += 1;
+  if ($x1 >= 1) { $x1 -= 1; }
+  if ($y1 >= 1) { $y1 -= 1; }
 
-  return (int($rlo*$rlo),
-          int($rhi*$rhi + 2));
+  return (int($x1*$x1+$y1*$y1),
+          int($x2*$x2+$y2*$y2));
 }
 
 #------------------------------------------------------------------------------
 # generic
 
-# return ($rlo,$rhi) which is the radial distance range found in the rectangle
-sub _rect_to_radius_range {
+# $x1,$y1, $x2,$y2 is a rectangle.
+# Return ($xmin,$ymin, $xmax,$ymax).
+#
+# The two points are respectively minimum and maximum radius from the
+# origin.
+#
+# If the rectangle is entirely one quadrant then the points are two opposing
+# corners.  But if an axis is crossed then the minimum is on that axis, and
+# if the origin is covered then that's the minimum.
+#
+# Currently the return is abs() absolute values of the places.  Could change
+# that if there was any significance to the quadrant containing the min/max
+# corners.
+#
+sub _rect_to_radius_range_points {
   my ($x1,$y1, $x2,$y2) = @_;
 
   # if opposite sign then origin x=0 covered, similarly y=0
@@ -148,10 +192,21 @@ sub _rect_to_radius_range {
   $y1 = abs($y1);
   $y2 = abs($y2);
 
-  return (hypot ($x_origin_covered ? 0 : min($x1,$x2),
-                 $y_origin_covered ? 0 : min($y1,$y2)),
-          hypot (max($x1,$x2),
-                 max($y1,$y2)));
+  return ($x_origin_covered ? 0 : _min($x1,$x2),
+          $y_origin_covered ? 0 : _min($y1,$y2),
+
+          _max($x1,$x2),
+          _max($y1,$y2));
+}
+
+
+# return ($rlo,$rhi) which is the radial distance range found in the rectangle
+sub _rect_to_radius_range {
+  my ($x1,$y1, $x2,$y2) = @_;
+
+  ($x1,$y1, $x2,$y2) = _rect_to_radius_range_points ($x1,$y1, $x2,$y2);
+  return (hypot($x1,$y1),
+          hypot($x2,$y2));
 }
 
 1;
@@ -222,8 +277,7 @@ program plotting the spiral points to a file.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

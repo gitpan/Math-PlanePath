@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -41,8 +41,8 @@ use constant n_frac_discontinuity => .5;
 #     d = 1/4 + sqrt(1/2 * $n + -3/16)
 #
 # start from integer vertical
-#     d = [ 0, 1,  2, 3, 4 ]
-#     n = [ 1, 2, 7, 16, 29 ]
+#     d = [ 0, 1,  2,  3,  4 ]
+#     n = [ 1, 2,  7, 16, 29 ]
 #     n = ((2*$d - 1)*$d + 1)
 #     d = 1/4 + sqrt(1/2 * $n + -7/16)
 #       = [1 + sqrt(8*$n-7) ] / 4
@@ -139,7 +139,7 @@ sub rect_to_n_range {
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x2 > x1
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y2 > y1
   if ($x2 < 0 || $y2 < 0) {
-    return (1, 0);   # nothing in first quadrant
+    return (1, 0);   # nothing outside first quadrant
   }
 
   if ($x1 < 0) { $x1 *= 0; }
@@ -147,11 +147,11 @@ sub rect_to_n_range {
   my $y_min = $y1;
 
   if ((($x1 ^ $y1) & 1) && $y1 < $y2) {  # y2==y_max
-    $y1++;
+    $y1 += 1;
     ### y1 inc: $y1
   }
   if (! (($x2 ^ $y2) & 1) && $y2 > $y_min) {
-    $y2--;
+    $y2 -= 1;
     ### y2 dec: $y2
   }
   return ($self->xy_to_n($x1,$y1),
@@ -210,8 +210,7 @@ for 1 across, but only 2 of each 3 drawn.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 

@@ -33,7 +33,7 @@ require Math::PlanePath::Staircase;
 # VERSION
 
 {
-  my $want_version = 69;
+  my $want_version = 70;
   ok ($Math::PlanePath::Staircase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Staircase->VERSION,  $want_version,
@@ -76,7 +76,7 @@ require Math::PlanePath::Staircase;
 
 
 #------------------------------------------------------------------------------
-# n_to_xy
+# first few values
 
 {
   my @data = ([ 0.75, -0.25,0 ],

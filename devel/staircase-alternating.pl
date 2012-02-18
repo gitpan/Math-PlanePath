@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -17,29 +17,17 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
 use 5.004;
 use strict;
+use Math::PlanePath::StaircaseAlternating;
 
 # uncomment this to run the ### lines
-use Devel::Comments;
+use Smart::Comments;
 
 {
-  # repeat points
-  require Math::PlanePath::MathImageCCurve;
-  my $path = Math::PlanePath::MathImageCCurve->new;
-  my %seen;
-  foreach my $n (0 .. 2**24 - 1) {
-    my ($x, $y) = $path->n_to_xy ($n);
-    $seen{"$x,$y"}++;
-  }
-
-  my @count;
-  while (my ($key,$visits) = each %seen) {
-    $count[$visits]++;
-    if ($visits > 4) {
-      print "$key    $visits\n";
-    }
-  }
-  ### @count
+  my $path = Math::PlanePath::StaircaseAlternating->new (end_type => 'square');
+  my @nlohi = $path->rect_to_n_range (0,2, 2,4);
+  ### @nlohi
   exit 0;
 }

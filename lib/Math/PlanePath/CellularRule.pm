@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 69;
+$VERSION = 70;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -46,14 +46,14 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
-  [ { name      => 'rule',
-      type      => 'integer',
-      default   => 30,
-      minimum   => 0,
-      maximum   => 255,
-      width     => 3,
-      type_hint => 'cellular_rule',
-      description => 'Rule number 0 to 255 encoding what triplets 111 to 000 become in the next row.',
+  [ { name        => 'rule',
+      type        => 'integer',
+      default     => 30,
+      minimum     => 0,
+      maximum     => 255,
+      width       => 3,
+      type_hint   => 'cellular_rule',
+      description => 'Rule number 0 to 255, encoding what triplets 111 through 000 become in the next row.',
     },
   ];
 
@@ -445,7 +445,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 69;
+  $VERSION = 70;
   @ISA = ('Math::PlanePath::CellularRule');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
   *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -517,7 +517,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 69;
+  $VERSION = 70;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -563,7 +563,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 69;
+  $VERSION = 70;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -693,8 +693,7 @@ an automaton, but this module offers the patterns in PlanePath style.
 
 =head1 FUNCTIONS
 
-See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
-classes.
+See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 
