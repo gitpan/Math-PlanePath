@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -564,14 +564,16 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     A080846 -- turn 0=left,1=right, by 120 degrees
     A060236 -- turn 1=left,2=right, by 120 degrees
+    A189673 -- morphism, turn 1=left,0=right (extra initial 0)
+    A137893 -- morphism, turn 1=left,0=right
     A038502 -- strip trailing ternary 0s,
                  taken mod 3 is turn 1=left,2=right
     A026225 -- (3*i+1)*3^j, is N positions of left turns
     A026179 -- N positions of right turns (except initial 1)
 
-A026179 starts with a value 1 arising from its morphism definition but that
-value should be skipped to consider it as turns.  At N=1 the curve is a left
-turn.
+A189673 and A026179 start with extra initial values arising from their
+morphism definition and that can be skipped to consider the turns starting
+with a left turn at N=1.
 
 =head1 SEE ALSO
 

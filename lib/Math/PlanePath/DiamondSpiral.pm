@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -218,6 +218,7 @@ point in the path as a square of side 1, so the entire plane is covered.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DiamondArms>,
+L<Math::PlanePath::AztecDiamondRings>,
 L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::PyramidSides>

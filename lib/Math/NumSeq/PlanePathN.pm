@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 70;
+$VERSION = 71;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -85,20 +85,35 @@ my %oeis_anum
      'Math::PlanePath::ZOrderCurve,radix=2' =>
      { X_axis   => 'A000695',  # base 4 digits 0,1 only
        Y_axis   => 'A062880',  # base 4 digits 0,2 only
-       # Diagonal => '',
+       Diagonal => 'A001196',  # base 4 digits 0,3 only
        # OEIS-Catalogue: A000695 planepath=ZOrderCurve
        # OEIS-Catalogue: A062880 planepath=ZOrderCurve line_type=Y_axis
+       # OEIS-Catalogue: A001196 planepath=ZOrderCurve line_type=Diagonal
      },
-     # A037314 starts OFFSET=1 value=1, so istart=1 here
+
+     # A037314 starts OFFSET=1 value=1, thus istart=1 here
      'Math::PlanePath::ZOrderCurve,radix=3' =>
      { X_axis => 'A037314',  # base 9 digits 0,1,2 only
        # OEIS-Catalogue: A037314 planepath=ZOrderCurve,radix=3 i_start=1
      },
-     # but A051022 starts OFFSET=1 value=0, cf i=0 value=0
+
+     # but A051022 starts OFFSET=1 value=0, cf here i=0 value=0
      # 'Math::PlanePath::ZOrderCurve,radix=10' =>
-     # { X_axis => 'A051022',  # base 10 insert 0s
+     # { X_axis => 'A051022',  # base 10 insert 0s, for digits 0 to 9 base 100
      #   # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10 i_start=1
      # },
+
+     'Math::PlanePath::CornerReplicate' =>
+     { X_axis   => 'A000695',  # base 4 digits 0,1 only
+       Y_axis   => 'A001196',  # base 4 digits 0,3 only
+       # OEIS-Other: A000695 planepath=CornerReplicate
+       # OEIS-Other: A001196 planepath=CornerReplicate line_type=Y_axis
+     },
+
+     'Math::PlanePath::LTiling,L_fill=middle' =>
+     { Diagonal => 'A062880',  # base 4 digits 0,2 only
+       # OEIS-Other: A062880 planepath=LTiling line_type=Diagonal
+     },
 
      'Math::PlanePath::AztecDiamondRings' =>
      { X_axis => 'A001844',  # centred squares 2n(n+1)+1
@@ -386,9 +401,24 @@ sub pred_func_Diagonal {
 
 sub characteristic_increasing {
   my ($self) = @_;
+  ### PlanePathN characteristic_increasing() ...
+
   my $method = "_NumSeq_$self->{'line_type'}_increasing";
   my $planepath_object = $self->{'planepath_object'};
+
+  ### planepath_object: ref $planepath_object
+  ### $method
+  ### can: $planepath_object->can($method)
+
   return $planepath_object->can($method) && $planepath_object->$method();
+}
+
+sub characteristic_non_decreasing {
+  my ($self) = @_;
+  my $method = "_NumSeq_$self->{'line_type'}_non_decreasing";
+  my $planepath_object = $self->{'planepath_object'};
+  return ($planepath_object->can($method) && $planepath_object->$method()
+          || $self->characteristic_increasing);
 }
 
 sub default_i_start {
@@ -489,6 +519,22 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
+{ package Math::PlanePath::DiamondArms;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::AztecDiamondRings;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::PentSpiral;
+  use constant _NumSeq_X_axis_step => 2;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
 { package Math::PlanePath::PentSpiralSkewed;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
@@ -500,6 +546,11 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::HexSpiralSkewed;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::HexArms;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
@@ -519,35 +570,55 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
-# { package Math::PlanePath::KnightSpiral;
-# }
-# { package Math::PlanePath::CretanLabyrinth;
-# }
-# { package Math::PlanePath::SquareArms;
-# }
-# { package Math::PlanePath::DiamondArms;
-# }
-# { package Math::PlanePath::HexArms;
-# }
-# { package Math::PlanePath::GreekKeySpiral;
-# }
-{ package Math::PlanePath::SacksSpiral;
+{ package Math::PlanePath::KnightSpiral;
+  use constant _NumSeq_Diagonal_increasing => 1; # low then high
+}
+{ package Math::PlanePath::CretanLabyrinth;
+  use constant _NumSeq_X_axis_increasing => 1;
+}
+{ package Math::PlanePath::SquareArms;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::GreekKeySpiral;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
 }
-# { package Math::PlanePath::VogelFloret;
-# }
-# { package Math::PlanePath::TheodorusSpiral;
-# }
-# { package Math::PlanePath::ArchimedeanChords;
-# }
+{ package Math::PlanePath::SacksSpiral;
+  use constant _NumSeq_X_axis_increasing   => 1;
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::VogelFloret;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::TheodorusSpiral;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::ArchimedeanChords;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
 { package Math::PlanePath::MultipleRings;
   use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
 }
 { package Math::PlanePath::PixelRings;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1; # where covered
+}
+{ package Math::PlanePath::FilledRings;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::Hypot;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -574,6 +645,8 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Y_axis_at_X => 1;
   use constant _NumSeq_Y_axis_i_start => 1;
+
+  use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::FractionsTree;
   use constant _NumSeq_Diagonal_increasing => 1;
@@ -591,14 +664,15 @@ sub values_max {
   use constant _NumSeq_Y_axis_at_X => 1;
   use constant _NumSeq_X_axis_i_start => 1;
   use constant _NumSeq_Y_axis_i_start => 1;
+  use constant _NumSeq_Diagonal_increasing => 1; # single value
 }
 { package Math::PlanePath::FactorRationals;
   use constant _NumSeq_X_axis_increasing => 1;
-  use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_X_axis_at_Y => 1;
   use constant _NumSeq_Y_axis_at_X => 1;
   use constant _NumSeq_X_axis_i_start => 1;
   use constant _NumSeq_Y_axis_i_start => 1;
+  use constant _NumSeq_Diagonal_increasing => 1; # single value
 }
 { package Math::PlanePath::GcdRationals;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -607,15 +681,21 @@ sub values_max {
   use constant _NumSeq_Y_axis_at_X => 1;
   use constant _NumSeq_X_axis_i_start => 1;
   use constant _NumSeq_Y_axis_i_start => 1;
+  use constant _NumSeq_Diagonal_increasing => 1; # single value
 }
 { package Math::PlanePath::PeanoCurve;
-  use constant _NumSeq_X_axis_increasing => 1;
-  use constant _NumSeq_Y_axis_increasing => 1;
-  use constant _NumSeq_Diagonal_increasing => 1;
+  sub _NumSeq_X_axis_increasing {
+    my ($self) = @_;
+    return ($self->{'radix'} % 2);
+  }
+  *_NumSeq_Y_axis_increasing = \&_NumSeq_X_axis_increasing;
 }
 { package Math::PlanePath::HilbertCurve;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::HilbertSpiral;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::ZOrderCurve;
@@ -625,6 +705,27 @@ sub values_max {
 }
 # { package Math::PlanePath::ImaginaryBase;
 # }
+{ package Math::PlanePath::CincoCurve;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+}
+{ package Math::PlanePath::BetaOmega;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+}
+{ package Math::PlanePath::KochelCurve;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+}
+{ package Math::PlanePath::AR2W2Curve;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::WunderlichMeander;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+}
 # { package Math::PlanePath::Flowsnake;
 # }
 # { package Math::PlanePath::FlowsnakeCentres;
@@ -634,32 +735,71 @@ sub values_max {
 # }
 # { package Math::PlanePath::GosperSide;
 # }
-# { package Math::PlanePath::KochCurve;
-# }
-# { package Math::PlanePath::KochPeaks;
-# }
-# { package Math::PlanePath::KochSnowflakes;
-# }
-# { package Math::PlanePath::KochSquareflakes;
-# }
-# { package Math::PlanePath::QuadricCurve;
-# }
-# { package Math::PlanePath::QuadricIslands;
-# }
-# { package Math::PlanePath::SierpinskiTriangle;
-# }
-# { package Math::PlanePath::SierpinskiArrowhead;
-# }
-# { package Math::PlanePath::SierpinskiArrowheadCentres;
-# }
+{ package Math::PlanePath::KochCurve;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::KochPeaks;
+  use constant _NumSeq_X_axis_increasing => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing => 1; # when touched
+  # Diagonal never touched
+}
+{ package Math::PlanePath::KochSnowflakes;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::KochSquareflakes;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::QuadricCurve;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # single value
+  use constant _NumSeq_Diagonal_increasing => 1; # single value
+}
+{ package Math::PlanePath::QuadricIslands;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # single value
+}
+{ package Math::PlanePath::SierpinskiTriangle;
+  use constant _NumSeq_X_axis_increasing   => 1; # single value
+  use constant _NumSeq_Y_axis_increasing   => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::SierpinskiArrowhead;
+  use constant _NumSeq_X_axis_increasing   => 1; # single value
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::SierpinskiArrowheadCentres;
+  use constant _NumSeq_X_axis_increasing   => 1; # single value
+  use constant _NumSeq_Y_axis_increasing   => 1; # never touched ?
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::SierpinskiCurve;
+  use constant _NumSeq_X_axis_increasing => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::HIndexing;
+  use constant _NumSeq_X_axis_increasing => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
 # { package Math::PlanePath::DragonCurve;
 # }
 # { package Math::PlanePath::DragonRounded;
 # }
 # { package Math::PlanePath::DragonMidpoint;
 # }
-# { package Math::PlanePath::AlternatePaper;
-# }
+{ package Math::PlanePath::AlternatePaper;
+  use constant _NumSeq_X_axis_increasing   => 1;
+  use constant _NumSeq_Y_axis_increasing   => 1; # single value
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
 # { package Math::PlanePath::TerdragonCurve;
 # }
 # { package Math::PlanePath::TerdragonMidpoint;
@@ -685,14 +825,28 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
-{ package Math::PlanePath::Staircase;
+{ package Math::PlanePath::DiagonalsAlternating;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
+{ package Math::PlanePath::MPeaks;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::Staircase;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
 { package Math::PlanePath::StaircaseAlternating;
-  use constant _NumSeq_X_axis_increasing => 0;
-  use constant _NumSeq_Y_axis_increasing => 0;
+  sub _NumSeq_X_axis_increasing {
+    my ($self) = @_;
+    return ($self->{'end_type'} eq 'square'
+            ? 1
+            : 0); # backs-up
+  }
+  *_NumSeq_Y_axis_increasing = \&_NumSeq_X_axis_increasing;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::Corner;
@@ -701,8 +855,9 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::PyramidRows;
+  use constant _NumSeq_X_axis_increasing => 1;  # single value
   use constant _NumSeq_Y_axis_increasing => 1;
-  use constant _NumSeq_Diagonal_increasing => 1; # when covered
+  use constant _NumSeq_Diagonal_increasing => 1; # when covered, or single
 }
 { package Math::PlanePath::PyramidSides;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -710,23 +865,35 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::CellularRule;
-  # ENHANCE-ME: more restrictive than this for many rules
-  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_X_axis_increasing   => 1; # single value
+  use constant _NumSeq_Y_axis_increasing   => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
-{ package Math::PlanePath::CellularRule::LeftSolid;
-  use constant _NumSeq_Y_axis_increasing => 1;
-}
+# { package Math::PlanePath::CellularRule::LeftSolid;
+#   # inherit from PyramidRows
+# }
 { package Math::PlanePath::CellularRule54;
+  use constant _NumSeq_X_axis_increasing   => 1; # single value
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::CellularRule57;
+  use constant _NumSeq_X_axis_increasing   => 1; # single value
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::CellularRule190;
+  use constant _NumSeq_X_axis_increasing   => 1; # single value
   use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::UlamWarburton;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::UlamWarburtonQuarter;
+  use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::CoprimeColumns;
@@ -753,13 +920,26 @@ sub values_max {
 # { package Math::PlanePath::QuintetCentres;
 #   # inherit QuintetCurve
 # }
+{ package Math::PlanePath::CornerReplicate;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::DigitGroups;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::FibonacciWordFractal;
+  use constant _NumSeq_X_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing   => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::LTiling;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
 
 #------------------------------------------------------------------------------
 { package Math::PlanePath;
   use constant _NumSeq_A2 => 0;
-}
-{ package Math::PlanePath::PentSpiral;
-  use constant _NumSeq_X_axis_step => 2;
 }
 { package Math::PlanePath::TriangleSpiral;
   use constant _NumSeq_A2 => 1;

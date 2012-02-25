@@ -16,6 +16,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# math-image --path=MultipleRings --lines
+# math-image --path=MultipleRings,step=1 --all --output=numbers --size=80x50
+
+
 package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
@@ -25,7 +30,7 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,7 +45,7 @@ use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 
 use constant figure => 'circle';
-use constant n_frac_discontinuity => .5;
+use constant n_frac_discontinuity => 0;
 
 use constant parameter_info_array =>
   [{ name      => 'step',
@@ -459,9 +464,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=MultipleRings --lines"
-# End:
-#
-# math-image --path=MultipleRings,step=1 --all --output=numbers --size=80x50

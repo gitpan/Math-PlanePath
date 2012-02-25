@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 245)[1];
+my $test_count = (tests => 249)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -273,6 +273,8 @@ my @modules = (
                'HilbertCurve',
 
                'LTiling',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
                'DiagonalsAlternating',
                'MPeaks',   # but not across gap
                'WunderlichMeander',
@@ -281,7 +283,7 @@ my @modules = (
                'DigitGroups',
                'PeanoCurve',
                'ZOrderCurve',
-               
+
                'HIndexing',
                'SierpinskiCurve',
                'AztecDiamondRings',     # but not across ring end
@@ -289,7 +291,7 @@ my @modules = (
                'SquareArms',
                'HexArms',
                'GreekKeySpiral',
-               
+
                # 'UlamWarburton',         # not really defined yet
                # 'UlamWarburtonQuarter',  # not really defined yet
                'CellularRule54',           # but not across gap
@@ -297,10 +299,10 @@ my @modules = (
                # 'CellularRule57,mirror=1',  # but not across gap
                'CellularRule190',          # but not across gap
                'CellularRule190,mirror=1', # but not across gap
-               
+
                'Rows',
                'Columns',
-               
+
                'SquareSpiral',
                'DiamondSpiral',
                'PentSpiral',
@@ -311,54 +313,56 @@ my @modules = (
                'PyramidSpiral',
                'TriangleSpiral',
                'TriangleSpiralSkewed',
-               
+
                # 'SacksSpiral',         # sin/cos
                # 'TheodorusSpiral',     # counting by N
                # 'ArchimedeanChords',   # counting by N
                # 'VogelFloret',         # sin/cos
                'KnightSpiral',
-               
+
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowhead',
                # 'SierpinskiTriangle',  # not really defined yet
                'QuadricCurve',
                'QuadricIslands',
-               
+
                'AlternatePaper',
                'DragonRounded',
                'DragonMidpoint',
                'DragonCurve',
-               
+
                'KochSquareflakes',
                'KochSnowflakes',
                'KochCurve',
                'KochPeaks',
-               
+
                'FlowsnakeCentres',
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
                'Flowsnake',
-               
+
                'RationalsTree',
                'FractionsTree',
                # 'DivisibleColumns', # counting by N
+               # 'DivisibleColumns,divisor_type=proper',
                # 'CoprimeColumns',   # counting by N
                # 'DiagonalRationals',# counting by N
                # 'GcdRationals',     # counting by N
                # 'FactorRationals',  # counting by N
                # 'TriangularHypot',  # counting by N
                'PythagoreanTree',
-               
+
                # 'Hypot',            # searching by N
                # 'HypotOctant',      # searching by N
                # 'PixelRings',       # searching by N
+               # 'FilledRings',      # searching by N
                # 'MultipleRings',    # sin/cos, maybe
-               
+
                'QuintetCentres',
                'QuintetCurve',
                'QuintetReplicate',
-               
+
                'SquareReplicate',
                'ComplexPlus',
                'ComplexPlus,realpart=3',
@@ -366,7 +370,7 @@ my @modules = (
                'ComplexMinus,realpart=3',
                'ComplexRevolving',
                'ImaginaryBase',
-               
+
                # 'File',  # not applicable
                'Diagonals',
                'Corner',

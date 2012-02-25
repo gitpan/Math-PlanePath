@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -366,9 +366,8 @@ corner.
 Because each step is by 1, the distance along the curve between two X,Y
 points is the difference in their N values (as from C<xy_to_n()>).
 
-The N values 0,2,8,10,32,etc on the diagonal X=Y are the integers using only
-digits 0 and 2 in base 4, or equivalently have even-numbered bits 0, like
-x0y0...z0.
+On the X=Y diagonal N=0,2,8,10,32,etc is the integers using only digits 0
+and 2 in base 4, or equivalently have even-numbered bits 0, like x0y0...z0.
 
 =head2 Locality
 

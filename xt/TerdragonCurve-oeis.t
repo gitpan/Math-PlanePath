@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 9 }
+BEGIN { plan tests => 11 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -150,6 +150,63 @@ sub xy_left_right {
 }
 
 #------------------------------------------------------------------------------
+# A189673 - morphism turn 0=left, 1=right, extra initial 0
+
+{
+  my $anum = 'A189673';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    push @got, 0;
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
+      my $lr = xy_left_right ($path->n_to_xy($n-1),
+                              $path->n_to_xy($n),
+                              $path->n_to_xy($n+1));
+      push @got, ($lr == 1 ? 0 : 1);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - morphism 1=left,0=right");
+}
+
+#------------------------------------------------------------------------------
+# A137893 - morphism turn 0=left, 1=right
+
+{
+  my $anum = 'A137893';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
+      my $lr = xy_left_right ($path->n_to_xy($n-1),
+                              $path->n_to_xy($n),
+                              $path->n_to_xy($n+1));
+      push @got, ($lr == 1 ? 0 : 1);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - morphism 1=left,0=right");
+}
+
+#------------------------------------------------------------------------------
 # A080846 - turn 0=left, 1=right
 
 {
@@ -172,7 +229,7 @@ sub xy_left_right {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum - 0,1 turns");
+        1, "$anum - turn 0=left,1=right");
 }
 
 #------------------------------------------------------------------------------
@@ -198,7 +255,7 @@ sub xy_left_right {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum - 0,1 turns");
+        1, "$anum - turn 1=left,2=right");
 }
 
 #------------------------------------------------------------------------------

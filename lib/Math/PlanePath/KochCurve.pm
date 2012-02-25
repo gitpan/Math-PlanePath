@@ -38,7 +38,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -387,6 +387,20 @@ In this formula the count of 1s and 2s can go past 360 degrees, representing
 a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
 direction 0 to 5 or as desired.
+
+=head1 OEIS
+
+The Koch curve is in Sloane's Online Encyclopedia of Integer Sequences in
+various forms,
+
+    http://oeis.org/A005811  (etc)
+
+    A035263 -- morphism, is turn 1=left,0=right
+    A029883 -- Thue-Morse first differences, turn +/-1=left, 0=right
+    A089045 -- +/- something, is turn +/-1=left, 0=right
+
+    A003159 -- N ending even number 0 bits, positions of left turns
+    A036554 -- N ending odd number 0 bits, positions of right turns
 
 =head1 SEE ALSO
 

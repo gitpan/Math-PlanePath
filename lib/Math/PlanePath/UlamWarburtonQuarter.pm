@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -371,6 +371,7 @@ numbered by growth level and anti-clockwise within the level.
     2 |   5     4     7    15    59    41    42    64
     1 |      2          10          50          51
    Y=0|   1     3    13    14    60    61    62    63
+      |
       +----------------------------------------------
         X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 

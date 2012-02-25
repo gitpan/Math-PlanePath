@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -101,7 +101,7 @@ sub check_class {
   ### $class
   ### $parameters
 
-  # return unless $class =~ /Delta/;
+  # return unless $class =~ /Turn/;
   #  return unless $anum eq 'A163540';
 
 

@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -268,6 +268,8 @@ This path makes a spiral with a Greek key scroll motif,
     58  61--62  67--66  71  76--75  80  89--88  85         -2
      |   |   |       |   |       |   |           |           
     59--60  63--64--65  72--73--74  81--82--83--84         -3
+
+                 ^
                   
     -3  -2  -1  X=0  1   2   3   4   5   6   7   8 ...
 

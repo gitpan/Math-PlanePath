@@ -24,7 +24,7 @@ use Math::Libm 'hypot';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -415,8 +415,8 @@ ellipse drawing algorithm.
 
 The way the algorithm works means the rings don't overlap.  Each is 4 or 8
 pixels longer than the preceding.  If the ring follows the preceding tightly
-then it's 4 longer, like the 18 to 33 ring.  If it goes wider then it's 8
-longer, like the 54 to 80 ring.  The average extra is 4*sqrt(2) or
+then it's 4 longer, like the N=18 to N=33 ring.  If it goes wider then it's
+8 longer, like the N=54 to N=80 ring.  The average extra is 4*sqrt(2) or
 thereabouts.
 
 The rings can be thought of as part-way between the diagonals of the
@@ -432,11 +432,11 @@ DiamondSpiral and the corners of the SquareSpiral.
     diagonal     ring         corner
     5 points    6 points     9 points
 
-For example the 54 to 80 has a vertical corner-type part 54,55,56 then a
-diagonal part 56,57,58,59.  In bigger rings the verticals are intermingled
-with the diagonals but the principle is the same.  The number of vertical
-steps determine where it crosses the 45-degree line, at R*sqrt(2) but
-rounded according to the midpoint algorithm.
+For example the N=54 to N=80 ring has a vertical corner-type part N=54,55,56
+then a diagonal part N=56,57,58,59.  In bigger rings the verticals are
+intermingled with the diagonals but the principle is the same.  The number
+of vertical steps determines where it crosses the 45-degree line, at
+R*sqrt(2) but rounded according to the midpoint algorithm.
 
 =head1 FUNCTIONS
 
@@ -453,9 +453,7 @@ Create and return a new path object.
 For C<$n < 1> the return is an empty list, it being considered there are no
 negative points.
 
-The behaviour for fractional C<$n> is not settled yet.  A position on the
-line segment between the integer N's might make sense, but perhaps pointing
-17.99 towards the "6" position to make a ring instead of towards the "18".
+The behaviour for fractional C<$n> is unspecified as yet.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

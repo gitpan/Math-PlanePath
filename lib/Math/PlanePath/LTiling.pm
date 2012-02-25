@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -295,9 +295,9 @@ blocks.
         +------------------------------------------------------------
            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-The X=Y leading diagonal N=0,2,8,10,32,etc is the integers made from only
-digits 0 and 2 in base 4.  Or equivalently integers which have zero bits at
-all even numbered positions, binary c0d0e0f0.
+Along the X=Y leading diagonal N=0,2,8,10,32,etc is the integers made from
+only digits 0 and 2 in base 4.  Or equivalently integers which have zero
+bits at all even numbered positions, binary c0d0e0f0.
 
 =head2 Left or Upper
 
@@ -384,6 +384,10 @@ quadrant.
     |  +--+--+  |         Y=0 |   0   1   5   3  21  22  14  12
     | 0  1| 5  3|             +--------------------------------
     +-----+-----+                X=0  1   2   3   4   5   6   7
+
+Along the X=Y leading diagonal N=0,6,24,30,96,etc are triples of the values
+from the single-point case, so 3* numbers using digits 0 and 2 in base 4,
+which is the same as 2* numbers using 0 and 3 in base 4.
 
 =head2 Level Ranges
 

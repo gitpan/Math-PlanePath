@@ -32,13 +32,16 @@
 #
 # http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
 
+# encoding_type => 'alternate'
+# encoding_type => 'negabinary'
+
 
 package Math::PlanePath::FactorRationals;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');

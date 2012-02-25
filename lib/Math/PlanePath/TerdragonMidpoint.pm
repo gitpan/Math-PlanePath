@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -547,7 +547,7 @@ N=2,8,14,20 the third rotated 120, etc.
                                     \        /
              20----14-----8-----2     1     6    35----41----47-..
                \                          /        \
-                26           3           0          29
+                26           3     .     0          29
                   \        /                          \
     ..-44----38----32     9     4     5----11----17----23
                         /        \

@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -285,6 +285,11 @@ Within an power of 2 square 2x2, 4x4, 8x8, 16x16 etc (2^k)x(2^k), all the N
 values 0 to 2^(2*k)-1 are within the square.  The top right corner 3, 15,
 63, 255 etc of each is the 2^(2*k)-1 maximum.
 
+Along the X axis N=0,1,4,5,16,17,etc is the integers with only digits 0,1 in
+base 4.  Along the Y axis N=0,2,8,10,32,etc is the integers with only digits
+0,2 in base 4.  And along the X=Y diagonal N=0,3,12,15,etc is digits 0,3 in
+base 4.
+
 =head2 Power of 2 Values
 
 Plotting N values related to powers of 2 can come out as interesting
@@ -369,6 +374,11 @@ higher base.  For example radix 3 makes 3x3 groupings,
      Y=0 |   0   1   2   9  10  11  18  19  20
          +--------------------------------------
            X=0   1   2   3   4   5   6   7   8
+
+Along the X axis N=0,1,2,9,10,11,etc is integers with only digits 0,1,2 in
+base 9.  Along the Y axis digits 0,3,6, and along the X=Y diagonal digits
+0,4,8.  In general for a given radix it's base R*R with the R many digits of
+the first RxR block.
 
 =head1 FUNCTIONS
 

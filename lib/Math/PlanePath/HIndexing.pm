@@ -17,6 +17,9 @@
 
 
 # http://theinf1.informatik.uni-jena.de/~niedermr/publications.html
+#
+# Rolf Niedermeier
+# http://fpt.akt.tu-berlin.de/niedermr/publications.html
 
 
 package Math::PlanePath::HIndexing;
@@ -24,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

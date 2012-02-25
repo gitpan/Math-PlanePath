@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 12 }
+BEGIN { plan tests => 15 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -65,6 +65,106 @@ sub dxdy_to_direction {
   if ($dy < 0) { return 3; }  # south
 }
 
+
+#------------------------------------------------------------------------------
+# A034947 - Jacobi -1/n is 1=left,-1=right
+
+{
+  my $anum = 'A034947';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my $turn = path_n_turn($dragon,$n);
+      if ($turn == 1) {
+        push @got, 1;  # left
+      } elsif ($turn == 0) {
+        push @got, -1; # right
+      } else {
+        die;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- Jacobi -1/n");
+}
+
+#------------------------------------------------------------------------------
+# A112347 - Kronecker -1/n is 1=left,-1=right, extra initial 0
+
+{
+  my $anum = 'A112347';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    push @got, 0;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my $turn = path_n_turn($dragon,$n);
+      if ($turn == 1) {
+        push @got, 1;  # left
+      } elsif ($turn == 0) {
+        push @got, -1; # right
+      } else {
+        die;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- Kronecker -1/n");
+}
+
+#------------------------------------------------------------------------------
+# A121238 - -1 power something is 1=left,-1=right, extra initial 1
+# A088585
+# A088567
+
+{
+  my $anum = 'A121238';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has $#$bvalues values");
+
+    push @got, 1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my $turn = path_n_turn($dragon,$n);
+      if ($turn == 1) {
+        push @got, 1;  # left
+      } elsif ($turn == 0) {
+        push @got, -1; # right
+      } else {
+        die;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- -1 power something");
+}
 
 #------------------------------------------------------------------------------
 # A088431 - dragon turns run lengths

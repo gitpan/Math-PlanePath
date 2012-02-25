@@ -39,7 +39,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 # new in 5.6, so unless got it separately with 5.005
 eval { require Pod::Parser }
   or plan skip_all => "Pod::Parser not available -- $@";
-plan tests => 6;
+plan tests => 7;
 
 my $toplevel_dir = File::Spec->catdir ($FindBin::Bin, File::Spec->updir);
 my $manifest_file = File::Spec->catfile ($toplevel_dir, 'MANIFEST');
@@ -153,8 +153,10 @@ diag "module count ",scalar(@lib_modules);
 
 #------------------------------------------------------------------------------
 
-{
-  open FH, 't/PlanePath-subclasses.t' or die $!;
+foreach my $tfile ('t/PlanePath-subclasses.t',
+                   't/NumSeq-PlanePathCoord.t',
+                  ) {
+  open FH, $tfile or die $!;
   my $content = do { local $/; <FH> }; # slurp
   close FH or die;
   ### $content
@@ -174,7 +176,7 @@ diag "module count ",scalar(@lib_modules);
 
     my $s = join(', ',@list);
     my $l = join(', ',@lib_modules);
-    is ($s, $l, 't/PlanePath-subclasses.t');
+    is ($s, $l, $tfile);
 
     my $j = "$s\n$l";
     $j =~ /^(.*)(.*)\n\1(.*)/ or die;
@@ -186,7 +188,7 @@ diag "module count ",scalar(@lib_modules);
     }
   }
 
-  {
+  if ($tfile eq 't/PlanePath-subclasses.t') {
     $content =~ /# rect_to_n_range exact begin(.*)# rect_to_n_range exact /s
       or die "rect_to_n_range exact not matched";
     my $list = $1;
@@ -210,7 +212,7 @@ diag "module count ",scalar(@lib_modules);
       }
     }
     ok ($good,
-       'PlanePath-subclasses.t rect exact matches file comments');
+        "$tfile rect exact matches file comments");
 
     sub module_exact {
       my ($module) = @_;

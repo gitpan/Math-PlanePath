@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 70;
+$VERSION = 71;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -213,7 +213,8 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     TheodorusSpiral        unit steps at right angles
     ArchimedeanChords      chords on an Archimedean spiral
     MultipleRings          concentric circles
-    PixelRings             concentric circles of pixels
+    PixelRings             concentric rings of midpoint pixels
+    FilledRings            concentric rings of pixels
     Hypot                  points by distance
     HypotOctant            first octant points by distance
     TriangularHypot        points by triangular lattice distance
@@ -612,7 +613,8 @@ more N points than the preceding.
         6       HexSpiral, HexSpiralSkewed, MPeaks,
                   MultipleRings (default)
        6/2      CellularRule190 (2 rows for +6)
-       6.28     ArchimedeanChords (approaching 2*pi)
+       6.28     ArchimedeanChords (approaching 2*pi),
+                  FilledRings (average)
         7       HeptSpiralSkewed
         8       SquareSpiral, PyramidSpiral
       16/2      StaircaseAlternating (up and back for +16)
@@ -858,6 +860,7 @@ L<Math::PlanePath::TheodorusSpiral>,
 L<Math::PlanePath::ArchimedeanChords>,
 L<Math::PlanePath::MultipleRings>,
 L<Math::PlanePath::PixelRings>,
+L<Math::PlanePath::FilledRings>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::HypotOctant>,
 L<Math::PlanePath::TriangularHypot>,

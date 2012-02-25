@@ -28,6 +28,7 @@ devel/exe-complex-plus.c
 devel/exe-complex-revolving.c
 devel/factor-rationals.pl
 devel/fibonacci-word.pl
+devel/filled-rings.pl
 devel/flowsnake-levels.pl
 devel/flowsnake.pl
 devel/fractions-tree.pl
@@ -73,6 +74,7 @@ devel/rule62.pl
 devel/run.pl
 devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
+devel/sierpinski-arrowhead.pl
 devel/sierpinski-curve.pl
 devel/sierpinski-triangle.pl
 devel/staircase-alternating.pl
@@ -96,8 +98,6 @@ examples/rationals-tree.pl
 examples/sacks-xpm.pl
 examples/square-numbers.pl
 examples/ulam-spiral-xpm.pl
-inc/my_pod2html
-inc/MyMakeMakerExtras.pm
 lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm
 lib/Math/NumSeq/PlanePathCoord.pm
 lib/Math/NumSeq/PlanePathDelta.pm
@@ -136,6 +136,7 @@ lib/Math/PlanePath/DragonRounded.pm
 lib/Math/PlanePath/FactorRationals.pm
 lib/Math/PlanePath/FibonacciWordFractal.pm
 lib/Math/PlanePath/File.pm
+lib/Math/PlanePath/FilledRings.pm
 lib/Math/PlanePath/Flowsnake.pm
 lib/Math/PlanePath/FlowsnakeCentres.pm
 lib/Math/PlanePath/FractionsTree.pm
@@ -234,6 +235,7 @@ t/DragonRounded.t
 t/FactorRationals.t
 t/FibonacciWordFractal.t
 t/File.t
+t/FilledRings.t
 t/Flowsnake.t
 t/FlowsnakeCentres.t
 t/GcdRationals.t
@@ -319,14 +321,15 @@ xt/DiagonalRationals-oeis.t
 xt/DivisibleColumns-oeis.t
 xt/DragonCurve-oeis.t
 xt/DragonMidpoint-oeis.t
+xt/duplicate-oeis.t
 xt/FactorRationals-oeis.t
 xt/FibonacciWordFractal-oeis.t
 xt/FractionsTree-oeis.t
 xt/GcdRationals-oeis.t
 xt/HilbertCurve-oeis.t
 xt/KnightSpiral-oeis.t
+xt/KochCurve-oeis.t
 xt/MyOEIS.pm
-xt/NumSeq-duplicate-oeis.t
 xt/NumSeq-PlanePath-oeis.t
 xt/PeanoCurve-oeis.t
 xt/PixelRings-image.t
@@ -342,6 +345,7 @@ xtools/my-deb.sh
 xtools/my-diff-prev.sh
 xtools/my-kwalitee.sh
 xtools/my-manifest.sh
+xtools/my-pc.sh
 xtools/my-tags.sh
 xtools/my-wunused.sh
 META.yml                                 Module meta-data (added by MakeMaker)

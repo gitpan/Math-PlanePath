@@ -45,6 +45,32 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['cretan-labyrinth-small.png',
+    'math-image --path=CretanLabyrinth --lines --scale=3 --size=32'],
+   ['cretan-labyrinth-big.png',
+    'math-image --path=CretanLabyrinth --lines --scale=9 --size=185x195 --offset=5,0'],
+
+
+   ['theodorus-small.png',
+    'math-image --path=TheodorusSpiral --lines --scale=3 --size=32'],
+   ['theodorus-big.png',
+    'math-image --path=TheodorusSpiral --lines --scale=10 --size=200'],
+
+
+   ['filled-rings-small.png',
+    'math-image --path=FilledRings --lines --scale=4 --size=32'],
+   ['filled-rings-big.png',
+    'math-image --path=FilledRings --lines --scale=10 --size=200'],
+
+
+   ['pixel-small.png',
+    'math-image --path=PixelRings --lines --scale=4 --size=32'],
+   ['pixel-big.png',
+    'math-image --path=PixelRings --all --figure=circle --scale=10 --size=200',
+    border => 1 ],
+   ['pixel-lines-big.png',
+    'math-image --path=PixelRings --lines --scale=10 --size=200'],
+
    ['pythagorean-small.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
    ['pythagorean-points-big.png',
@@ -89,12 +115,6 @@ foreach my $elem
     'math-image --path=StaircaseAlternating --lines --scale=12 --size=200x200'],
    ['staircase-alternating-square-big.png',
     'math-image --path=StaircaseAlternating,end_type=square --lines --scale=12 --size=200x200'],
-
-
-   ['cretan-labyrinth-small.png',
-    'math-image --path=CretanLabyrinth --lines --scale=3 --size=32'],
-   ['cretan-labyrinth-big.png',
-    'math-image --path=CretanLabyrinth --lines --scale=9 --size=180x195'],
 
 
    ['cellular-rule-30-small.png',
@@ -159,14 +179,6 @@ foreach my $elem
     border => 1],
    ['l-tiling-all-big.png',
     'math-image --path=LTiling,L_fill=all --lines --scale=10 --size=200'],
-
-   ['pixel-small.png',
-    'math-image --path=PixelRings --lines --scale=4 --size=32'],
-   ['pixel-big.png',
-    'math-image --path=PixelRings --all --figure=circle --scale=10 --size=200',
-    border => 1 ],
-   ['pixel-lines-big.png',
-    'math-image --path=PixelRings --lines --scale=10 --size=200'],
 
    ['dragon-rounded-small.png',
     'math-image --path=DragonRounded --lines --scale=2 --size=32 --offset=6,-3'],
@@ -611,11 +623,6 @@ foreach my $elem
     'math-image --path=Hypot --lines --scale=6 --size=32'],
    ['hypot-big.png',
     'math-image --path=Hypot --lines --scale=15 --size=200x150'],
-
-   ['theodorus-small.png',
-    'math-image --path=TheodorusSpiral --lines --scale=3 --size=32'],
-   ['theodorus-big.png',
-    'math-image --path=TheodorusSpiral --lines --scale=10 --size=200'],
 
    ['greek-key-small.png',
     'math-image --path=GreekKeySpiral --lines --scale=4 --size=32'],

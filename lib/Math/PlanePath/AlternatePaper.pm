@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -569,12 +569,6 @@ none, one or two N's for a given C<$x,$y>.
 Return 0, the first N in the path.
 
 =back
-
-=head1 FORMULAS
-
-=head2 X,Y to N
-
-
 
 =head1 OEIS
 

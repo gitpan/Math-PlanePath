@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 70;
+$VERSION = 71;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -778,19 +778,23 @@ various forms (and see DragonMidpoint too),
 
     http://oeis.org/A005811  (etc)
 
-    A005811 -- total turn
     A014577 -- turn, 0=left,1=right
     A014707 -- turn, 1=left,0=right
     A014709 -- turn, 2=left,1=right
     A014710 -- turn, 1=left,2=right
     A038189 -- bit above lowest 1, is 0=left,1=right (extra initial 0)
     A082410 -- reversing complement, is 1=left,0=right (extra initial 0)
+    A034947 -- Jacobi (-1/n), is turn 1=left,-1=right
+    A112347 -- Kronecker (-1/n), is 1=left,-1=right (extra initial 0)
+    A121238 -- -1^(n+ some partitions), is 1=left,-1=right (extra 1)
+
+    A005811 -- total turn
     A091072 -- odd part 4K+1, is N positions of the left turns
     A126937 -- points numbered like SquareSpiral (with N-1 and flip Y)
 
-The four turn sequences differ only in having left or right represented as 0
-and 1, or 1 and 2, and the further A038189 and A082410 differ only in having
-an extra initial 0.
+The turn sequences essentially differ only in having left or right
+represented as 0, 1 or -1, and possible extra initial 0 or 1 arsing from
+their definitions.
 
 The point numbering A126937 has the dragon curve and square spiralling with
 their Y points in the opposite directions, as can be seen in its

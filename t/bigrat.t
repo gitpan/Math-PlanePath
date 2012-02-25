@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 255)[1];
+my $test_count = (tests => 259)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -402,6 +402,8 @@ my @modules = (
                'HilbertCurve',
 
                'LTiling',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
                'DiagonalsAlternating',
                'MPeaks',   # but not across gap
                'WunderlichMeander',
@@ -472,6 +474,7 @@ my @modules = (
                'RationalsTree',
                'FractionsTree',
                # 'DivisibleColumns', # counting by N
+               # 'DivisibleColumns,divisor_type=proper',
                # 'CoprimeColumns',   # counting by N
                # 'DiagonalRationals',# counting by N
                # 'GcdRationals',     # counting by N
@@ -482,6 +485,7 @@ my @modules = (
                # 'Hypot',            # searching by N
                # 'HypotOctant',      # searching by N
                # 'PixelRings',       # searching by N
+               # 'FilledRings',      # searching by N
                # 'MultipleRings',    # sin/cos, maybe
                
                'QuintetCentres',

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 910 }
+BEGIN { plan tests => 923 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,21 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'Hypot',
+               'HypotOctant',
+               'PixelRings',
+               'FilledRings',
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
 
                'SierpinskiCurve,diagonal_spacing=5',
                'SierpinskiCurve,straight_spacing=5',
@@ -123,11 +138,14 @@ my @modules = (
 
                'CoprimeColumns',
                'DivisibleColumns',
+               'DivisibleColumns,divisor_type=proper',
 
                'HilbertSpiral',
                'HilbertCurve',
 
                'LTiling',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
                'DiagonalsAlternating',
                'MPeaks',
                'WunderlichMeander',
@@ -264,20 +282,6 @@ my @modules = (
                'ZOrderCurve,radix=9',
                'ZOrderCurve,radix=37',
 
-               'Hypot',
-               'HypotOctant',
-               'PixelRings',
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
                'SacksSpiral',
                'TheodorusSpiral',
                'ArchimedeanChords',
@@ -320,7 +324,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 70;
+my $want_version = 71;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
