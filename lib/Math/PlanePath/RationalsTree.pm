@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -886,8 +886,8 @@ following forms
     A086592  - AYT num+den sum, being Kepler half denominators
     A162909  - Bird numerators
     A162910  - Bird denominators
-    A068611  - Drib numerators
-    A068612  - Drib denominators
+    A162911  - Drib numerators
+    A162912  - Drib denominators
 
     A086893  - position of Fibonacci F(n+1)/F(n) in Stern diatomic,
                  N of F(n+1)/F(n) in CW
@@ -900,6 +900,9 @@ following forms
     A054425  -   DiagonalRationals to SB with 0s at non-coprimes
     A054426  -   inverse, SB to DiagonalRationals
     A054427  - permutation coprimes to SB right hand X/Y>1
+
+    A000975  - numbers 1010... without consecutive equal bits,
+                 being Bird tree X=1 column
 
 The sequences marked "extra ..." have one or two extra initial values over
 what the RationalsTree here gives, but are the same after that.  The Stern

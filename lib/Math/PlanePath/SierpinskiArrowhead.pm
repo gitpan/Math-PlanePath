@@ -26,7 +26,7 @@ use strict;
 use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

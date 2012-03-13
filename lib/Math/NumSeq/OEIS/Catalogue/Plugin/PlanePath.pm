@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 51 A-numbers in 4 modules
+# total 61 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -509,6 +509,86 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A033570',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'AnvilSpiral'
+    ]
+  },
+  {
+    'anum' => 'A126587',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'AnvilSpiral',
+      'line_type',
+      'Y_axis',
+      'i_start',
+      1
+    ]
+  },
+  {
+    'anum' => 'A033568',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'AnvilSpiral',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A016777',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Rows,width=3',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A016813',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Rows,width=4',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A016861',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Rows,width=5',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A016921',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Rows,width=6',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A016993',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Rows,width=7',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
     'anum' => 'A061925',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -526,6 +606,26 @@ use constant info_arrayref =>
       'DragonCurve',
       'turn_type',
       'LSR'
+    ]
+  },
+  {
+    'anum' => 'A137893',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'TerdragonCurve',
+      'turn_type',
+      'Left'
+    ]
+  },
+  {
+    'anum' => 'A035263',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'KochCurve',
+      'turn_type',
+      'Left'
     ]
   }
 ]

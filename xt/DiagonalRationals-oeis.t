@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 5 }
+BEGIN { plan tests => 7 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -55,13 +55,77 @@ sub streq_array {
 
 
 #------------------------------------------------------------------------------
+# A054431 - by anti-diagonals 1 if coprime, 0 if not
+{
+  my $anum = 'A054431';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    my $prev_n = $cantor->n_start - 1;
+  OUTER: for (my $y = 1; ; $y ++) {
+      foreach my $x (1 .. $y-1) {
+        my $n = $cantor->xy_to_n($x,$y-$x);
+        if (defined $n) {
+          push @got, 1;
+          if ($n != $prev_n + 1) {
+            die "oops, not n+1";
+          }
+          $prev_n = $n;
+        } else {
+          push @got, 0;
+        }
+        last OUTER if @got >= @$bvalues;
+      }
+    }
+    if (! streq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+
+  skip (! $bvalues,
+        streq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A157806 - abs(num-den)
+{
+  my $anum = 'A157806';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    foreach my $n (1 .. @$bvalues) {
+      my ($x,$y) = $cantor->n_to_xy ($n);
+      push @got, abs($x-$y);
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+
+  skip (! $bvalues,
+        streq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
 # A020652 - numerators
 {
   my $anum = 'A020652';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     splice @$bvalues, 5000; # trim down
+
     foreach my $n (1 .. @$bvalues) {
       my ($x,$y) = $cantor->n_to_xy ($n);
       push @got, $x;
@@ -84,7 +148,9 @@ sub streq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     splice @$bvalues, 5000; # trim down
+
     foreach my $n (1 .. @$bvalues) {
       my ($x,$y) = $cantor->n_to_xy ($n);
       push @got, $y;
@@ -109,6 +175,8 @@ sub streq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
     require Math::PlanePath::RationalsTree;
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
     foreach my $n (1 .. @$bvalues) {
@@ -130,6 +198,8 @@ sub streq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
     require Math::PlanePath::RationalsTree;
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
     foreach my $n (1 .. @$bvalues) {
@@ -155,6 +225,8 @@ sub streq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
     require Math::PlanePath::Diagonals;
     require Math::PlanePath::RationalsTree;
     my $diag = Math::PlanePath::Diagonals->new;

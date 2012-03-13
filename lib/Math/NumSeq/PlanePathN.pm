@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 71;
+$VERSION = 72;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -62,224 +62,309 @@ use constant::defer parameter_info_array =>
            ];
   };
 
-my %oeis_anum
-  = (
-     'Math::PlanePath::PeanoCurve,radix=3' =>
-     { X_axis   => 'A163480', # axis same as initial direction
-       Y_axis   => 'A163481', # axis opp to initial direction
-       Diagonal => 'A163343',
-       # OEIS-Catalogue: A163480 planepath=PeanoCurve
-       # OEIS-Catalogue: A163481 planepath=PeanoCurve line_type=Y_axis
-       # OEIS-Catalogue: A163343 planepath=PeanoCurve line_type=Diagonal
-     },
+my %oeis_anum =
+  (
+   'Math::PlanePath::PeanoCurve,radix=3' =>
+   { X_axis   => 'A163480', # axis same as initial direction
+     Y_axis   => 'A163481', # axis opp to initial direction
+     Diagonal => 'A163343',
+     # OEIS-Catalogue: A163480 planepath=PeanoCurve
+     # OEIS-Catalogue: A163481 planepath=PeanoCurve line_type=Y_axis
+     # OEIS-Catalogue: A163343 planepath=PeanoCurve line_type=Diagonal
+   },
 
-     'Math::PlanePath::HilbertCurve' =>
-     { X_axis   => 'A163482',
-       Y_axis   => 'A163483',
-       Diagonal => 'A062880', # base 4 digits 0,2 only
-       # OEIS-Catalogue: A163482 planepath=HilbertCurve
-       # OEIS-Catalogue: A163483 planepath=HilbertCurve line_type=Y_axis
-       # OEIS-Other: A062880 planepath=HilbertCurve line_type=Diagonal
-     },
+   'Math::PlanePath::HilbertCurve' =>
+   { X_axis   => 'A163482',
+     Y_axis   => 'A163483',
+     Diagonal => 'A062880', # base 4 digits 0,2 only
+     # OEIS-Catalogue: A163482 planepath=HilbertCurve
+     # OEIS-Catalogue: A163483 planepath=HilbertCurve line_type=Y_axis
+     # OEIS-Other: A062880 planepath=HilbertCurve line_type=Diagonal
+   },
 
-     'Math::PlanePath::ZOrderCurve,radix=2' =>
-     { X_axis   => 'A000695',  # base 4 digits 0,1 only
-       Y_axis   => 'A062880',  # base 4 digits 0,2 only
-       Diagonal => 'A001196',  # base 4 digits 0,3 only
-       # OEIS-Catalogue: A000695 planepath=ZOrderCurve
-       # OEIS-Catalogue: A062880 planepath=ZOrderCurve line_type=Y_axis
-       # OEIS-Catalogue: A001196 planepath=ZOrderCurve line_type=Diagonal
-     },
+   'Math::PlanePath::ZOrderCurve,radix=2' =>
+   { X_axis   => 'A000695',  # base 4 digits 0,1 only
+     Y_axis   => 'A062880',  # base 4 digits 0,2 only
+     Diagonal => 'A001196',  # base 4 digits 0,3 only
+     # OEIS-Catalogue: A000695 planepath=ZOrderCurve
+     # OEIS-Catalogue: A062880 planepath=ZOrderCurve line_type=Y_axis
+     # OEIS-Catalogue: A001196 planepath=ZOrderCurve line_type=Diagonal
+   },
 
-     # A037314 starts OFFSET=1 value=1, thus istart=1 here
-     'Math::PlanePath::ZOrderCurve,radix=3' =>
-     { X_axis => 'A037314',  # base 9 digits 0,1,2 only
-       # OEIS-Catalogue: A037314 planepath=ZOrderCurve,radix=3 i_start=1
-     },
+   # A037314 starts OFFSET=1 value=1, thus istart=1 here
+   'Math::PlanePath::ZOrderCurve,radix=3' =>
+   { X_axis => 'A037314',  # base 9 digits 0,1,2 only
+     # OEIS-Catalogue: A037314 planepath=ZOrderCurve,radix=3 i_start=1
+   },
 
-     # but A051022 starts OFFSET=1 value=0, cf here i=0 value=0
-     # 'Math::PlanePath::ZOrderCurve,radix=10' =>
-     # { X_axis => 'A051022',  # base 10 insert 0s, for digits 0 to 9 base 100
-     #   # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10 i_start=1
-     # },
+   # but A051022 starts OFFSET=1 value=0, cf here i=0 value=0
+   # 'Math::PlanePath::ZOrderCurve,radix=10' =>
+   # { X_axis => 'A051022',  # base 10 insert 0s, for digits 0 to 9 base 100
+   #   # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10 i_start=1
+   # },
 
-     'Math::PlanePath::CornerReplicate' =>
-     { X_axis   => 'A000695',  # base 4 digits 0,1 only
-       Y_axis   => 'A001196',  # base 4 digits 0,3 only
-       # OEIS-Other: A000695 planepath=CornerReplicate
-       # OEIS-Other: A001196 planepath=CornerReplicate line_type=Y_axis
-     },
+   'Math::PlanePath::CornerReplicate' =>
+   { X_axis   => 'A000695',  # base 4 digits 0,1 only
+     Y_axis   => 'A001196',  # base 4 digits 0,3 only
+     # OEIS-Other: A000695 planepath=CornerReplicate
+     # OEIS-Other: A001196 planepath=CornerReplicate line_type=Y_axis
+   },
 
-     'Math::PlanePath::LTiling,L_fill=middle' =>
-     { Diagonal => 'A062880',  # base 4 digits 0,2 only
-       # OEIS-Other: A062880 planepath=LTiling line_type=Diagonal
-     },
+   'Math::PlanePath::LTiling,L_fill=middle' =>
+   { Diagonal => 'A062880',  # base 4 digits 0,2 only
+     # OEIS-Other: A062880 planepath=LTiling line_type=Diagonal
+   },
 
-     'Math::PlanePath::AztecDiamondRings' =>
-     { X_axis => 'A001844',  # centred squares 2n(n+1)+1
-       # OEIS-Other: A001844 planepath=AztecDiamondRings
-       # Y_axis hexagonal numbers A000384, but starting i=0 value=1
-     },
+   'Math::PlanePath::AztecDiamondRings' =>
+   { X_axis => 'A001844',  # centred squares 2n(n+1)+1
+     # OEIS-Other: A001844 planepath=AztecDiamondRings
+     # Y_axis hexagonal numbers A000384, but starting i=0 value=1
+   },
 
-     'Math::PlanePath::ComplexMinus,realpart=1' =>
-     { X_axis => 'A066321', # binary base i-1
-       # OEIS-Catalogue: A066321 planepath=ComplexMinus
-     },
+   'Math::PlanePath::ComplexMinus,realpart=1' =>
+   { X_axis => 'A066321', # binary base i-1
+     # OEIS-Catalogue: A066321 planepath=ComplexMinus
+   },
 
-     'Math::PlanePath::DiamondSpiral' =>
-     { X_axis => 'A130883', # 2*n^2-n+1
-       Y_axis => 'A058331', # 2*n^2 + 1
-       # OEIS-Catalogue: A130883 planepath=DiamondSpiral
-       # OEIS-Catalogue: A058331 planepath=DiamondSpiral line_type=Y_axis
-     },
+   'Math::PlanePath::DiamondSpiral' =>
+   { X_axis => 'A130883', # 2*n^2-n+1
+     Y_axis => 'A058331', # 2*n^2 + 1
+     # OEIS-Catalogue: A130883 planepath=DiamondSpiral
+     # OEIS-Catalogue: A058331 planepath=DiamondSpiral line_type=Y_axis
+   },
 
-     # but OFFSET=1
-     # 'Math::PlanePath::DigitGroups,radix=2' =>
-     # { X_axis => 'A084471', # 0 -> 00 in binary
-     #   # OEIS-Catalogue: A084471 planepath=DigitGroups,radix=2
-     # },
+   # but OFFSET=1
+   # 'Math::PlanePath::DigitGroups,radix=2' =>
+   # { X_axis => 'A084471', # 0 -> 00 in binary
+   #   # OEIS-Catalogue: A084471 planepath=DigitGroups,radix=2
+   # },
 
-     'Math::PlanePath::FactorRationals' =>
-     { Y_axis => 'A102631', # n^2/(squarefree kernel)
-       # OEIS-Catalogue: A102631 planepath=FactorRationals line_type=Y_axis
-     },
-     # FactorRationals X_axis -- squares, but starting from i=1
+   'Math::PlanePath::FactorRationals' =>
+   { Y_axis => 'A102631', # n^2/(squarefree kernel)
+     # OEIS-Catalogue: A102631 planepath=FactorRationals line_type=Y_axis
+   },
+   # FactorRationals X_axis -- squares, but starting from i=1
 
-     'Math::PlanePath::HexSpiral,wider=0' =>
-     { X_axis   => 'A056105', # first spoke 3n^2-2n+1
-       Diagonal => 'A056106', # second spoke 3n^2-n+1
-       # OEIS-Other: A056105 planepath=HexSpiral
-       # OEIS-Other: A056106 planepath=HexSpiral line_type=Diagonal
-     },
+   'Math::PlanePath::HexSpiral,wider=0' =>
+   { X_axis   => 'A056105', # first spoke 3n^2-2n+1
+     Diagonal => 'A056106', # second spoke 3n^2-n+1
+     # OEIS-Other: A056105 planepath=HexSpiral
+     # OEIS-Other: A056106 planepath=HexSpiral line_type=Diagonal
+   },
 
-     'Math::PlanePath::HexSpiralSkewed,wider=0' =>
-     { X_axis   => 'A056105', # first spoke 3n^2-2n+1
-       Y_axis => 'A056106', # second spoke 3n^2-n+1
-       # OEIS-Catalogue: A056105 planepath=HexSpiralSkewed
-       # OEIS-Catalogue: A056106 planepath=HexSpiralSkewed line_type=Y_axis
-     },
-     # wider=1 X_axis almost 3*n^2 but not initial X=0 value
-     # wider=1 Y_axis almost A049451 twice pentagonal but not initial X=0
-     # wider=2 Y_axis almost A028896 6*triangular but not initial Y=0
+   'Math::PlanePath::HexSpiralSkewed,wider=0' =>
+   { X_axis   => 'A056105', # first spoke 3n^2-2n+1
+     Y_axis => 'A056106', # second spoke 3n^2-n+1
+     # OEIS-Catalogue: A056105 planepath=HexSpiralSkewed
+     # OEIS-Catalogue: A056106 planepath=HexSpiralSkewed line_type=Y_axis
+   },
+   # wider=1 X_axis almost 3*n^2 but not initial X=0 value
+   # wider=1 Y_axis almost A049451 twice pentagonal but not initial X=0
+   # wider=2 Y_axis almost A028896 6*triangular but not initial Y=0
 
-     'Math::PlanePath::PentSpiral' =>
-     { X_axis   => 'A192136', # (5*n^2-3*n+2)/2
-       # OEIS-Catalogue: A192136 planepath=PentSpiral
-     },
-     # PentSpiralSkewed -- X_axis values of A140066 (5n^2-11n+8)/2 but from
-     # X=0 so using (n-1)
-
-
-     'Math::PlanePath::RationalsTree,tree_type=Bird' =>
-     { X_axis   => 'A081254', # local max sumdisttopow2(m)/m^2
-       # OEIS-Catalogue: A081254 planepath=RationalsTree,tree_type=Bird
-     },
-     'Math::PlanePath::RationalsTree,tree_type=Drib' =>
-     { X_axis   => 'A086893', # pos of fibonacci F(n+1)/F(n) in Stern diatomic
-       # OEIS-Catalogue: A086893 planepath=RationalsTree,tree_type=Drib
-
-       # Drib Y_axis -- almost A061547 fibonacci F(n)/F(n+1), but start=1
-     },
-     # RationalsTree SB -- X_axis 2^n-1 but starting X=1
-     # RationalsTree SB,CW -- Y_axis A000079 2^n but starting Y=1
-     # RationalsTree AYT -- Y_axis A083318 2^n+1 but starting Y=1
-     # RationalsTree Bird -- Y_axis almost A000975 no consecutive equal bits,
-     #   but start=1
-
-     # RationalsTree Drib -- Y_axis almost A061547 derangements or
-     #    alternating bits plus pow4, but start=1 value=0
-
-     'Math::PlanePath::SquareSpiral,wider=0' =>
-     { X_axis   => 'A054552', # spoke E
-       # OEIS-Catalogue: A054552 planepath=SquareSpiral
-     },
-     # but OFFSET=1 whereas based from X=0 here
-     # # Y_axis   => 'A054556', # spoke N
-     # # Diagonal => 'A054554', # spoke NE
-     # # # OEIS-Catalogue: A054556 planepath=SquareSpiral line_type=Y_axis
-     # # # OEIS-Catalogue: A054554 planepath=SquareSpiral line_type=Diagonal
-
-     'Math::PlanePath::AlternatePaper' =>
-     { X_axis   => 'A000695',  # base 4 digits 0,1 only
-       Diagonal => 'A062880',  # base 4 digits 0,2 only
-       # OEIS-Other: A000695 planepath=AlternatePaper
-       # OEIS-Other: A062880 planepath=AlternatePaper line_type=Diagonal
-     },
-
-     'Math::PlanePath::CellularRule,rule=5' =>
-     { Y_axis   => 'A061925',  # ceil(n^2/2)+1
-       # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
-     },
-     # rule=13 Y axis
-     #
-     # rule=20,52,148,180 (mirror image of rule 6)
-     # Diagonal A032766 numbers 0 or 1 mod 3, but it starts offset=0 value=0
-     #
-     # rule=28,156
-     # Y_axis A002620 quarter squares floor(n^2/4) but diff start
-     # Diagonal A024206 quarter squares - 1, but diff start
-     #
-     # rule=50,58,114,122,178,179,186,242,250
-     # every second cell
-     # Diagonal A000217 triangular numbers but diff start
-     #
-     # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
-     # # central column only
-     # 'Math::PlanePath::CellularRule,rule=4' =>
-     # { Y_axis   => 'A000027', # 1 upwards
-     #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
-     # },
-     #
-     # # right line only 16,24,48,56,80,88,112,120,144,152,176,184,208,216,240,248
-     # 'Math::PlanePath::CellularRule,rule=16' =>
-     # { Y_axis   => 'A000027', # 1 upwards
-     #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
-     # },
-     # # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
+   'Math::PlanePath::PentSpiral' =>
+   { X_axis   => 'A192136', # (5*n^2-3*n+2)/2
+     # OEIS-Catalogue: A192136 planepath=PentSpiral
+   },
+   # PentSpiralSkewed -- X_axis values of A140066 (5n^2-11n+8)/2 but from
+   # X=0 so using (n-1)
 
 
-     # TriangleSpiral - cf A062728 SE diagonal OFFSET=1 but it starts n=0
-     #
-     # CoprimeColumns X_axis -- cumulative totient but start X=1 value=0;
-     # Diagonal A015614 cumulative-1 but start X=1 value=1
-     #
-     # DivisibleColumns X_axis nearly A006218 but start X=1 cf OFFSET=0,
-     # Diagonal nearly A077597 but start X=1 cf OFFSET=0
-     #
-     # DiagonalRationals Diagonal -- cumulative totient but start X=1
-     # value=1
-     #
-     # CellularRule190 -- A006578 triangular+quarter square, but starts
-     # OFFSET=0 cf N=1 in PlanePath
-     #
-     # SacksSpiral X_axis -- squares (i-1)^2, but starting from i=1 value=0
-     #
-     # GcdRationals -- X_axis triangular row, but starting X=1
-     #
-     # GcdRationals -- Y_axis A000124 triangular+1 but starting i=1 versus
-     # OFFSET=0
-     #
-     # HeptSpiralSkewed -- Y_axis A140065 (7n^2 - 17n + 12)/2 but starting
-     # Y=0 not n=1
-     #
-     # MPeaks -- X_axis A045944 matchstick n(3n+2) but initial N=3
-     # MPeaks -- Diagonal,Y_axis hexagonal first,second spoke, but starting
-     # from 3
-     #
-     # OctagramSpiral -- X_axis A125201 8*n^2-7*n+1 but initial N=1
-     #
-     # Rows,height=1 -- integers 1,2,3, etc, but starting i=0
-     # MultipleRings,step=0 -- integers 1,2,3, etc, but starting i=0
-     #
-     # Diagonals X_axis -- triangular 1,3,6,etc, but starting i=0 value=1
-     #
-     # PyramidRows Diagonal -- squares 1,4,9,16, but i=0 value=1
-     # PyramidRows,step=1 Diagonal -- triangular 1,3,6,10, but i=0 value=1
-     # PyramidRows,step=0 Y_axis -- 1,2,3,4, but i=0 value=1
-     #
-     # Corner X_axis -- squares, but starting i=0 value=1
-     # PyramidSides X_axis -- squares, but starting i=0 value=1
-    );
+   'Math::PlanePath::RationalsTree,tree_type=Bird' =>
+   { X_axis   => 'A081254', # local max sumdisttopow2(m)/m^2
+     # OEIS-Catalogue: A081254 planepath=RationalsTree,tree_type=Bird
+   },
+   'Math::PlanePath::RationalsTree,tree_type=Drib' =>
+   { X_axis   => 'A086893', # pos of fibonacci F(n+1)/F(n) in Stern diatomic
+     # OEIS-Catalogue: A086893 planepath=RationalsTree,tree_type=Drib
+
+     # Drib Y_axis -- almost A061547 fibonacci F(n)/F(n+1), but start=1
+   },
+   # RationalsTree SB -- X_axis 2^n-1 but starting X=1
+   # RationalsTree SB,CW -- Y_axis A000079 2^n but starting Y=1
+   # RationalsTree AYT -- Y_axis A083318 2^n+1 but starting Y=1
+   # RationalsTree Bird -- Y_axis almost A000975 no consecutive equal bits,
+   #   but start=1
+
+   # RationalsTree Drib -- Y_axis almost A061547 derangements or
+   #    alternating bits plus pow4, but start=1 value=0
+
+   'Math::PlanePath::SquareSpiral,wider=0' =>
+   { X_axis   => 'A054552', # spoke E
+     # OEIS-Catalogue: A054552 planepath=SquareSpiral
+   },
+   # but OFFSET=1 whereas based from X=0 here
+   # # Y_axis   => 'A054556', # spoke N
+   # # Diagonal => 'A054554', # spoke NE
+   # # # OEIS-Catalogue: A054556 planepath=SquareSpiral line_type=Y_axis
+   # # # OEIS-Catalogue: A054554 planepath=SquareSpiral line_type=Diagonal
+
+   'Math::PlanePath::AnvilSpiral,wider=0' =>
+   { X_axis   => 'A033570', # odd pentagonals (2n+1)*(3n+1)
+     # OEIS-Catalogue: A033570 planepath=AnvilSpiral
+
+     Y_axis => 'A126587', # points within 3,4,5 triangle, starting value=3
+     # OEIS-Catalogue: A126587 planepath=AnvilSpiral line_type=Y_axis i_start=1
+
+     Diagonal => 'A033568', # odd second pentagonals
+     # OEIS-Catalogue: A033568 planepath=AnvilSpiral line_type=Diagonal
+   },
+
+   'Math::PlanePath::AlternatePaper' =>
+   { X_axis   => 'A000695',  # base 4 digits 0,1 only
+     Diagonal => 'A062880',  # base 4 digits 0,2 only
+     # OEIS-Other: A000695 planepath=AlternatePaper
+     # OEIS-Other: A062880 planepath=AlternatePaper line_type=Diagonal
+   },
+
+   'Math::PlanePath::Columns,height=2' =>
+   { X_axis   => 'A005408',  # odd 2n+1
+     # OEIS-Other: A005408 planepath=Columns,height=2 line_type=X_axis
+   },
+   'Math::PlanePath::Rows,width=2' =>
+   { Y_axis   => 'A005408',  # odd 2n+1
+     # OEIS-Other: A005408 planepath=Rows,width=2 line_type=Y_axis
+   },
+
+   'Math::PlanePath::Columns,height=3' =>
+   { X_axis   => 'A016777',  # 3n+1
+     # OEIS-Other: A016777 planepath=Columns,height=3 line_type=X_axis
+   },
+   'Math::PlanePath::Rows,width=3' =>
+   { Y_axis   => 'A016777',  # 3n+1
+     # OEIS-Catalogue: A016777 planepath=Rows,width=3 line_type=Y_axis
+   },
+
+   'Math::PlanePath::Columns,height=4' =>
+   { X_axis   => 'A016813',  # 4n+1
+     # OEIS-Other: A016813 planepath=Columns,height=4 line_type=X_axis
+   },
+   'Math::PlanePath::Rows,width=4' =>
+   { Y_axis   => 'A016813',  # 4n+1
+     # OEIS-Catalogue: A016813 planepath=Rows,width=4 line_type=Y_axis
+   },
+
+   'Math::PlanePath::Columns,height=5' =>
+   { X_axis   => 'A016861',  # 5n+1
+     # OEIS-Other: A016861 planepath=Columns,height=5 line_type=X_axis
+   },
+   'Math::PlanePath::Rows,width=5' =>
+   { Y_axis   => 'A016861',  # 5n+1
+     # OEIS-Catalogue: A016861 planepath=Rows,width=5 line_type=Y_axis
+   },
+
+   'Math::PlanePath::Columns,height=6' =>
+   { X_axis   => 'A016921',  # 6n+1
+     # OEIS-Other: A016921 planepath=Columns,height=6 line_type=X_axis
+   },
+   'Math::PlanePath::Rows,width=6' =>
+   { Y_axis   => 'A016921',  # 6n+1
+     # OEIS-Catalogue: A016921 planepath=Rows,width=6 line_type=Y_axis
+   },
+
+   'Math::PlanePath::Columns,height=7' =>
+   { X_axis   => 'A016993',  # 7n+1
+     # OEIS-Other: A016993 planepath=Columns,height=7 line_type=X_axis
+   },
+   'Math::PlanePath::Rows,width=7' =>
+   { Y_axis   => 'A016993',  # 7n+1
+     # OEIS-Catalogue: A016993 planepath=Rows,width=7 line_type=Y_axis
+   },
+
+
+   'Math::PlanePath::CellularRule,rule=5' =>
+   { Y_axis   => 'A061925',  # ceil(n^2/2)+1
+     # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
+   },
+   #
+   # rule 84,116,212,244 two-wide right line
+   'Math::PlanePath::CellularRule,rule=84' =>
+   { Diagonal   => 'A005408',  # odds 2n+1
+     # OEIS-Other: A005408 planepath=CellularRule,rule=84 line_type=Diagonal
+   },
+   'Math::PlanePath::CellularRule,rule=116' =>
+   { Diagonal   => 'A005408',  # odds 2n+1
+     # OEIS-Other: A005408 planepath=CellularRule,rule=116 line_type=Diagonal
+   },
+   'Math::PlanePath::CellularRule,rule=212' =>
+   { Diagonal   => 'A005408',  # odds 2n+1
+     # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
+   },
+   'Math::PlanePath::CellularRule,rule=244' =>
+   { Diagonal   => 'A005408',  # odds 2n+1
+     # OEIS-Other: A005408 planepath=CellularRule,rule=244 line_type=Diagonal
+   },
+   #
+   # rule=13 Y axis
+   #
+   # rule=20,52,148,180 (mirror image of rule 6)
+   # Diagonal A032766 numbers 0 or 1 mod 3, but it starts offset=0 value=0
+   #
+   # rule=28,156
+   # Y_axis A002620 quarter squares floor(n^2/4) but diff start
+   # Diagonal A024206 quarter squares - 1, but diff start
+   #
+   # rule=50,58,114,122,178,179,186,242,250
+   # every second cell
+   # Diagonal A000217 triangular numbers but diff start
+   #
+   # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
+   # # central column only
+   # 'Math::PlanePath::CellularRule,rule=4' =>
+   # { Y_axis   => 'A000027', # 1 upwards
+   #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
+   # },
+   #
+   # # right line only 16,24,48,56,80,88,112,120,144,152,176,184,208,216,240,248
+   # 'Math::PlanePath::CellularRule,rule=16' =>
+   # { Y_axis   => 'A000027', # 1 upwards
+   #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
+   # },
+   # # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
+
+
+   # TriangleSpiral - cf A062728 SE diagonal OFFSET=1 but it starts n=0
+   #
+   # CoprimeColumns X_axis -- cumulative totient but start X=1 value=0;
+   # Diagonal A015614 cumulative-1 but start X=1 value=1
+   #
+   # DivisibleColumns X_axis nearly A006218 but start X=1 cf OFFSET=0,
+   # Diagonal nearly A077597 but start X=1 cf OFFSET=0
+   #
+   # DiagonalRationals Diagonal -- cumulative totient but start X=1
+   # value=1
+   #
+   # CellularRule190 -- A006578 triangular+quarter square, but starts
+   # OFFSET=0 cf N=1 in PlanePath
+   #
+   # SacksSpiral X_axis -- squares (i-1)^2, starting from i=1 value=0
+   #
+   # GcdRationals -- X_axis triangular row, but starting X=1
+   #
+   # GcdRationals -- Y_axis A000124 triangular+1 but starting i=1 versus
+   # OFFSET=0
+   #
+   # HeptSpiralSkewed -- Y_axis A140065 (7n^2 - 17n + 12)/2 but starting
+   # Y=0 not n=1
+   #
+   # MPeaks -- X_axis A045944 matchstick n(3n+2) but initial N=3
+   # MPeaks -- Diagonal,Y_axis hexagonal first,second spoke, but starting
+   # from 3
+   #
+   # OctagramSpiral -- X_axis A125201 8*n^2-7*n+1 but initial N=1
+   #
+   # Rows,height=1 -- integers 1,2,3, etc, but starting i=0
+   # MultipleRings,step=0 -- integers 1,2,3, etc, but starting i=0
+   #
+   # Diagonals X_axis -- triangular 1,3,6,etc, but starting i=0 value=1
+   #
+   # PyramidRows Diagonal -- squares 1,4,9,16, but i=0 value=1
+   # PyramidRows,step=1 Diagonal -- triangular 1,3,6,10, but i=0 value=1
+   # PyramidRows,step=0 Y_axis -- 1,2,3,4, but i=0 value=1
+   #
+   # Corner X_axis -- squares, but starting i=0 value=1
+   # PyramidSides X_axis -- squares, but starting i=0 value=1
+  );
 
 sub oeis_anum {
   my ($self) = @_;

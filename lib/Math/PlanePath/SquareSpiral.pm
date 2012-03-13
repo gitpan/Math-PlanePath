@@ -31,7 +31,7 @@ use strict;
 use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -284,6 +284,41 @@ sub rect_to_n_range {
 1;
 __END__
 
+
+sub n_to_dxdy {
+  my ($self, $n) = @_;
+  my $w = $self->{'wider'};
+
+  my $d = int ((2-$w + sqrt(int(4*$n) + $w*$w - 4)) / 2);
+
+  $n -= $d*$d;
+  my $int = int($n);
+  $n -= $int;  # fraction 0 <= $n < 1
+
+  my ($dx, $dy);
+  if ($int < $d+$w-1) {
+    $dx = 1;     # left
+    $dy = 0;
+  } elsif ($int == $d+$w-1) {
+    $dx = 1-$n;  # corner left to up
+    $dy = $n;
+  } elsif ($int < 2*$d+$w-1) {
+    $dx = 0;     # up
+    $dy = 1;
+  } else {
+    $dx = -$n;   # corner up to right
+    $dy = 1-$n;
+  }
+
+  if ($d % 2) {
+    $dx = -$dx;  # rotate +180
+    $dy = -$dy;
+  }
+
+  return ($dx,$dy);
+}
+
+
 =for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal OEIS Nbase sqrt BigRat Nrem wl wr Nsig
 
 =head1 NAME
@@ -391,39 +426,6 @@ around faster.  See the following modules,
          4        DiamondSpiral
 
 The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.
-
-=head1 OEIS
-
-This path is in Sloane's Online Encyclopedia of Integer Sequences as
-
-    http://oeis.org/A180714  (etc)
-
-    A180714    X+Y coordinate sum
-    A054552    N values on X axis
-    A054554    N values on X=Y diagonal
-    A054556    N values on Y axis
-    A054567    N values on negative X axis
-    A054569    N values on negative X=Y diagonal
-    A002061    N values on X=Y diagonal pos and neg
-    A137928    N values on X=1-Y opposite diagonal
-
-    A054551    smallest prime in each loop
-    A054553    another prime in loop ...
-    A054555    another prime in loop ...
-
-    A068225    permutation N -> N at its right (X+1,Y)
-    A121496       run lengths in that permutation
-    A068226    permutation N -> N at its left (X-1,Y)
-
-    A033952    digits on negative Y axis
-    A033953    digits on negative Y axis, starting 0
-    A033988    digits on negative X axis, starting 0
-    A033989    digits on Y axis, starting 0
-    A033990    digits on X axis, starting 0
-
-See summary at
-
-    http://oeis.org/A068225/a068225.html
 
 =head1 FUNCTIONS
 
@@ -583,6 +585,53 @@ w=wl=wr=0 then they simplify to the plain versions.
                                      Y = d-Nsig
     bottom    2d <= Nsig             X = -d+1-wl+(Nsig-(2d+1)) = Nsig-wl-3d
                                      Y = -d
+
+=head1 OEIS
+
+This path is in Sloane's Online Encyclopedia of Integer Sequences in many
+forms,
+
+    http://oeis.org/A180714  (etc)
+
+    A180714    X+Y coordinate sum
+
+    A054552    N values on X axis (E)
+    A054554    N values on X=Y diagonal (NE)
+    A054556    N values on Y axis (N)
+    A054567    N values on negative X axis (W)
+    A054569    N values on negative X=Y diagonal (SW)
+    A033951    N values on negative Y axis (S)
+    A053755    N values on X=-Y opp diagonal X<=0 (NW)
+    A016754    N values on X=-Y opp diagonal X>=0 (SE)
+
+    A137928    N values on X=1-Y opposite diagonal
+    A002061    N values on X=Y diagonal pos and neg
+    A016814    (4k+1)^2, every second N on south-east diagonal
+
+    A053999    prime[N] on X=-Y opp diagonal X>=0 (SE)
+    A054551    prime[N] on the X axis (E)
+    A054553    prime[N] on the X=Y diagonal (NE)
+    A054555    prime[N] on the Y axis (N)
+    A054564    prime[N] on X=-Y opp diagonal X<=0 (NW)
+    A054566    prime[N] on negative X axis (W)
+
+    A033638    N positions of the turns (extra initial 1, 1)
+    A172979      those positions which are primes too
+
+    A068225    permutation N -> N at the right X+1,Y
+    A121496      run lengths of consecutive N in that permutation
+    A068226    permutation N -> N at the left X-1,Y
+    A020703    permutation N by transposing X,Y
+
+    A033952    digits on negative Y axis
+    A033953    digits on negative Y axis, starting 0
+    A033988    digits on negative X axis, starting 0
+    A033989    digits on Y axis, starting 0
+    A033990    digits on X axis, starting 0
+
+See summary at
+
+    http://oeis.org/A068225/a068225.html
 
 =head1 SEE ALSO
 

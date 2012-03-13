@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 126 }
+BEGIN { plan tests => 206 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 71;
+  my $want_version = 72;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -60,6 +60,78 @@ require Math::PlanePath::MultipleRings;
       1,
       "VERSION object check $check_version");
 }
+
+#------------------------------------------------------------------------------
+# exact points
+
+my $base_r3 = Math::PlanePath::MultipleRings->new(step=>3)->{'base_r'};
+my $base_r4 = Math::PlanePath::MultipleRings->new(step=>4)->{'base_r'};
+
+foreach my $elem (
+                  # step=0 horizontal
+                  [ 0, 1, 0,0 ],
+                  [ 0, 2, 1,0 ],
+                  [ 0, 3, 2,0 ],
+
+                  # step=1
+                  [ 1, 1, 0,0 ],
+                  [ 1, 2, 1,0 ],
+                  [ 1, 3, -1,0 ],
+                  [ 1, 4, 2,0 ],
+                  [ 1, 7, 3,0 ],
+                  [ 1, 8, 0,3 ],
+                  [ 1, 9, -3,0 ],
+                  [ 1, 10, 0,-3 ],
+                  [ 1, 11, 4,0 ],
+                  [ 1, 16, 5,0 ],
+                  [ 1, 19, -5,0 ],
+
+                  # step=2
+                  [ 2, 1, 0.5, 0 ],
+                  [ 2, 2, -0.5, 0 ],
+                  [ 2, 3, 1.5, 0 ],
+                  [ 2, 4, 0, 1.5 ],
+                  [ 2, 5, -1.5, 0 ],
+                  [ 2, 6, 0,-1.5 ],
+                  [ 2, 7, 2.5, 0 ],
+                  [ 2, 10, -2.5, 0 ],
+                  [ 2, 13, 3.5, 0 ],
+                  [ 2, 17, -3.5, 0 ],
+                  [ 2, 21, 4.5, 0 ],
+                  [ 2, 26, -4.5, 0 ],
+
+                  # step=3
+                  [ 3, 1, $base_r3+1, 0 ],
+                  [ 3, 4, $base_r3+2, 0 ],
+                  [ 3, 7, -($base_r3+2), 0 ],
+                  [ 3, 10, $base_r3+3, 0 ],
+                  [ 3, 19, $base_r3+4, 0 ],
+                  [ 3, 25, -($base_r3+4), 0 ],
+
+                  # step=4
+                  [ 4, 1, $base_r4+1, 0 ],
+                  [ 4, 2, 0, $base_r4+1 ],
+                  [ 4, 3, -($base_r4+1), 0 ],
+                  [ 4, 4, 0, -($base_r4+1) ],
+                  [ 4, 5, $base_r4+2, 0 ],
+                  [ 4, 7, 0, $base_r4+2 ],
+                  [ 4, 9, -($base_r4+2), 0 ],
+                  [ 4, 11, 0, -($base_r4+2) ],
+
+                 ) {
+  my ($step, $n, $x, $y) = @$elem;
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+
+  {
+    # n_to_xy()
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
+    if ($got_y == 0) { $got_y = 0 }
+    ok ($got_x, $x, "step=$step n_to_xy() x at n=$n");
+    ok ($got_y, $y, "step=$step n_to_xy() y at n=$n");
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # _xy_to_angle_frac()
@@ -148,7 +220,8 @@ foreach my $step (3 .. 10) {
 
 foreach my $step (0 .. 3) {
   my $path = Math::PlanePath::MultipleRings->new (step => $step);
-  ok ($path->xy_to_n(0.1,0.1), 1, "xy_to_n(0.1,0.1) step=$step is 1");
+  ok ($path->xy_to_n(0.1,0.1), 1,
+      "xy_to_n(0.1,0.1) step=$step is 1");
 }
 foreach my $step (4 .. 10) {
   my $path = Math::PlanePath::MultipleRings->new (step => $step);

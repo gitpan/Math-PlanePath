@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 72, March 2012
+    - PlanePathTurn new turn_type "Right"
+
 Version 71, February 2012
     - new FilledRings
     - misc fixes for Math::NumSeq::PlanePathCoord etc values_min etc

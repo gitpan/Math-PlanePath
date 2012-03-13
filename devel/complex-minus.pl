@@ -28,6 +28,45 @@ use Math::PlanePath::ComplexMinus;
 
 
 {
+  # max Dir4
+
+  require Math::BaseCnv;
+
+  print 4-atan2(2,1)/atan2(1,1)/2,"\n";
+
+  require Math::NumSeq::PlanePathDelta;
+  my $realpart = 3;
+  my $radix = $realpart*$realpart + 1;
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => "ComplexPlus,realpart=$realpart",
+                                               delta_type => 'Dir4');
+  my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => "ComplexPlus,realpart=$realpart",
+                                                  delta_type => 'dX');
+  my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => "ComplexPlus,realpart=$realpart",
+                                                  delta_type => 'dY');
+  my $max = 0;
+  for (1 .. 1000000) {
+    my ($i, $value) = $seq->next;
+
+  # foreach my $k (1 .. 1000000) {
+  #   my $i = $radix ** (4*$k+3) - 1;
+  #   my $value = $seq->ith($i);
+
+    if ($value > $max) {
+      my $dx = $dx_seq->ith($i);
+      my $dy = $dy_seq->ith($i);
+      my $ri = Math::BaseCnv::cnv($i,10,$radix);
+      my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
+      my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
+      my $f = $dy && $dx/$dy;
+      printf "%d %s %.5f  %s %s   %.3f\n", $i, $ri, $value, $rdx,$rdy, $f;
+      $max = $value;
+    }
+  }
+
+  exit 0;
+}
+
+{
   # innermost points coverage
   require Math::BaseCnv;
   foreach my $realpart (1 .. 20) {

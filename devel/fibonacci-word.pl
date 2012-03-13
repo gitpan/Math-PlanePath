@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,6 +23,157 @@ use strict;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
+
+{
+  # DFW turns
+  require Math::NumSeq::FibonacciWord;
+
+  require Image::Base::Text;
+  my $image = Image::Base::Text->new (-width => 79, -height => 40);
+  my $foreground = '*';
+  my $doubleground = '+';
+
+  # require Image::Base::GD;
+  # $image = Image::Base::GD->new (-width => 200, -height => 200);
+  # $image->rectangle (0,0, 200,200, 'black');
+  # $foreground = 'white';
+  # $doubleground = 'red';
+
+  my $seq = Math::NumSeq::FibonacciWord->new (fibonacci_word_type => 'dense');
+  my $dx = 1;
+  my $dy = 0;
+  my $x = 1;
+  my $y = 1;
+
+  my $char = sub {
+    if (($image->xy($x,$y)//' ') eq $foreground) {
+      $image->xy ($x,$y, $doubleground);
+    } else {
+      $image->xy ($x,$y, $foreground);
+    }
+  };
+  my $draw = sub {
+    &$char ($x,$y);
+    $x += $dx;
+    $y += $dy;
+    &$char ($x,$y);
+    $x += $dx;
+    $y += $dy;
+    # &$char ($x,$y);
+    # $x += $dx;
+    # $y += $dy;
+  };
+
+  my $natural = sub {
+    my ($value) = @_;
+    &$draw();
+    if ($value == 1) {
+      ($dx,$dy) = (-$dy,$dx);
+    } elsif ($value == 2) {
+      ($dx,$dy) = ($dy,-$dx);
+    }
+  };
+
+  my $apply;
+
+  $apply = sub {
+    # dfw natural, rot +45
+    my ($i, $value) = $seq->next;
+    &$natural($value);
+  };
+
+  # # plus, rot -45
+  # $apply = sub {
+  #   my ($i, $value) = $seq->next;
+  #   if ($value == 0) {
+  #     # empty
+  #   } else {
+  #     &$natural($value);
+  #   }
+  # };
+  # $x += 20;
+  # $y += 20;
+
+  $apply = sub {
+    # standard
+    my ($i, $value) = $seq->next;
+    if ($value == 0) {
+      &$natural(1);
+      &$natural(2);
+    } elsif ($value == 1) {
+      &$natural(1);
+      &$natural(0);
+    } else {
+      &$natural(0);
+      &$natural(2);
+    }
+  };
+
+  $apply = sub {
+    # Ron Knott
+    my ($i, $value) = $seq->next;
+    if ($value == 0) {
+      &$natural(1);
+      &$natural(2);
+    } else {
+      &$natural($value);
+    }
+  };
+
+  # $x += 2;
+  # $y += int ($image->get('-height') / 2);
+  # $apply = sub {
+  #   # rot pi/5 = 36deg  curly
+  #   my ($i, $value) = $seq->next;
+  #   if ($value == 0) {
+  #     &$natural(2);
+  #     &$natural(1);
+  #   } elsif ($value == 1) {
+  #     &$natural(0);
+  #     &$natural(2);
+  #   } else {
+  #     &$natural(1);
+  #     &$natural(0);
+  #   }
+  # };
+
+  # $x += 20;
+  # $y += 20;
+  $apply = sub {
+    # expanded
+    my ($i, $value) = $seq->next;
+    if ($value == 0) {
+      &$natural(0);
+      &$natural(1);
+      &$natural(0);
+      &$natural(2);
+    } elsif ($value == 1) {
+      &$natural(0);
+      &$natural(1);
+      &$natural(0);
+    } else {
+      &$natural(0);
+      &$natural(0);
+      &$natural(2);
+    }
+  };
+
+  print "$x,$y\n";
+
+  for (1 .. 2000) {
+    &$apply();
+  }
+
+  # $image->save('/tmp/x.png');
+  # system('xzgv /tmp/x.png');
+
+  my $lines = $image->save_string;
+  my @lines = split /\n/, $lines;
+  $, = "\n";
+  print reverse @lines;
+
+  exit 0;
+}
 
 {
   my @xend = (0,0,1);

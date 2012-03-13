@@ -27,7 +27,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -341,13 +341,13 @@ The polar coordinates for a point N are
 
     R = sqrt(N) * radius_factor
     angle = N / (phi**2)        in revolutions, 1==full circle
-          = N * -phi            modulo 1 and since 1/phi^2 = 2-phi
+          = N * -phi            modulo 1, with since 1/phi^2 = 2-phi
     theta = 2*pi * angle        in radians
 
 Each point N+1 is at an angle 0.382 revolutions counter-clockwise from the
-preceding N, which is just over 1/3 of a circle.  Or equivalently it's 0.618
-back clockwise which is phi=1.618 ignoring the integer part since that's a
-full circle, only the fractional part determines the position.
+preceding N, which means just over 1/3 of a circle.  Or equivalently it's
+0.618 back clockwise which is phi=1.618, ignoring the integer part since
+that's a full circle, only the fractional part determines the position.
 
 C<radius_factor> is a scaling 0.6242 designed to put the closest points 1
 apart.  The closest are N=1 and N=4.  See L</Packing> below.
@@ -401,25 +401,26 @@ within radius R is
 
     T = pi * R^2        area of circle R
 
-so if N figures each of area A are packed into that space then
+so if N figures each of area A are packed into that space then the radius R
+is proportional to sqrt(N),
 
     N*A = T = pi * R^2
     R = sqrt(N) * sqrt(A/pi)
 
-The tightest possible packing for unit circle figures is a hexagonal
-honeycomb grid each of area A = sqrt(3)/2 = 0.866, for a factor sqrt(A/pi) =
+The tightest possible packing for unit circles is a hexagonal honeycomb grid
+each of area A = sqrt(3)/2 = 0.866, which would be factor sqrt(A/pi) =
 0.525.  The phi floret packing is not as tight as that, needing radius
-factor 0.624 per above.
+factor 0.624 as described above.
 
 Generally the tightness of the packing for a given rotation factor depends
 on what fractions closely approximate that factor.  If the terms of the
 continued fraction expansion are large then there's large regions of spiral
 arcs with gaps between.  The density in such regions is low and a big radius
-factor is needed to keep the points apart.  If the denominators are ever
-increasing then there may be no factor big enough to always keep the points
-a minimum distance apart ... or something like that.
+factor is needed to keep the points apart.  If the continued fraction terms
+are ever increasing then there may be no radius factor big enough to always
+keep the points a minimum distance apart ... or something like that.
 
-The terms of the continued fraction for phi are all 1 and in that sense is,
+The terms of the continued fraction for phi are all 1 and is, in that sense,
 among all irrationals, the value least well approximated by rationals.
 
                 1
@@ -447,7 +448,7 @@ Both F(k) and L(k) grow exponentially (as phi^k) which soon outstrips the
 sqrt in the R radial distance so they become widely spaced apart along the X
 axis.
 
-For interest or for reference, the angle F(k)*phi is in fact roughly the
+For interest, or for reference, the angle F(k)*phi is in fact roughly the
 next Fibonacci number F(k+1), per the well-known limit F(k+1)/F(k) -> phi as
 k->infinity,
 
@@ -457,9 +458,9 @@ k->infinity,
 The Lucas numbers similarly with L(k)*phi close to L(k+1).  The "epsilon"
 approaches zero quickly enough in both cases that the resulting Y coordinate
 approaches zero.  This can be calculated as follows, writing beta = -1/phi =
--0.618 and because abs(beta)<1 the powers beta^k go to zero.
+-0.618 and since abs(beta)<1 the powers beta^k go to zero.
 
-    F(k) = (phi^k - beta^k) / (phi - beta)
+    F(k) = (phi^k - beta^k) / (phi - beta)    # an integer
 
     angle = F(k) * -phi
           = - (phi*phi^k - phi*beta^k) / (phi - beta)
@@ -471,14 +472,14 @@ approaches zero.  This can be calculated as follows, writing beta = -1/phi =
     frac(angle) = - beta^k = 1/(-phi)^k
 
 The arc distance away from the X axis at radius R=sqrt(F(k)) is then as
-follows; simplifying using phi*(-beta)=1 and S<phi - beta> = sqrt(5).  The Y
+follows, simplifying using phi*(-beta)=1 and S<phi - beta> = sqrt(5).  The Y
 coordinate vertical distance is a little less than the arc distance.
 
     arcdist = 2*pi * R * frac(angle)
             = 2*pi * sqrt((phi^k - beta^k)/sqrt(5)) * 1/(-phi)^k
             = - (-1)^k * 2*pi * sqrt((1/phi^2k*phi^k - beta^3k)/sqrt(5))
             = - (-1)^k * 2*pi * sqrt((1/phi^k - 1/(-phi)^3k)/sqrt(5))
-              approaches 0 as k -> infinity
+                -> 0 as k -> infinity
 
 Basically the radius increases as phi^(k/2) but the angle frac decreases as
 (1/phi)^k so their product goes to zero.  The (-1)^k in the formula puts the
@@ -516,7 +517,7 @@ when added.  Similarly 66 to 333 difference 267 has 267*phi = 432.015, or
 number, the 123 between 99 and 222 is a Lucas number, and 267 = 144+123 =
 F(12)+L(10).
 
-The differences 55 and 555 apply to between pairs 22 to 77, 33 to 88, 666 to
+The differences 55 and 555 apply to pairs 22 and 77, 33 and 88, 666 and
 1111, etc, making four straightish arms.  55 and 555 themselves are near the
 X axis.
 
@@ -532,7 +533,7 @@ axis, spirals like the decimal 11111 above can be created.  This includes
 when "11" in the base is a Fibonacci number or Lucas number, such as base 12
 making "11" equal to 13.  If "11" is near the negative X axis then there's
 two spiral arms, one going out on the X negative side and one X positive,
-eg. base 16 has "11"=17 which is near the negative X axis.  A four-arm shape
+eg. base 16 has 0x11=17 which is near the negative X axis.  A four-arm shape
 can be formed similarly if "11" is near the Y axis, eg. base 107.
 
 =head1 FUNCTIONS

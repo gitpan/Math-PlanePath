@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -675,7 +675,8 @@ can be ignored just follow the state or orientations changes using the base
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::HilbertCurve>
+L<Math::PlanePath::HilbertCurve>,
+L<Math::PlanePath::PeanoCurve>
 
 Jens-Michael Wierum "Definition of a New Circular Space-Filling Curve:
 Beta-Omega-Indexing", Technical Report TR-001-02, Paderborn Center for

@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -385,7 +385,7 @@ couple of forms,
 
     http://oeis.org/A118108  (etc)
 
-    A118108    whole-row used cells as bits
+    A118108    whole-row used cells as bits of a bignum
     A118109    1/0 used and unused cells across rows
 
 =head1 SEE ALSO

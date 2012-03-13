@@ -21,14 +21,15 @@ use 5.004;
 use strict;
 use Test;
 
-# uncomment this to run the ### lines
-#use Smart::Comments '###';
-
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-my $test_count = (tests => 963)[1];
+# uncomment this to run the ### lines
+#use Smart::Comments '###';
+
+
+my $test_count = (tests => 966)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -40,6 +41,8 @@ if (! eval { require Math::NumSeq; 1 }) {
 }
 
 require Math::NumSeq::PlanePathCoord;
+
+use constant PI => 4*atan2(1,1);
 
 
 #------------------------------------------------------------------------------
@@ -368,8 +371,6 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
-               (map {"CellularRule,rule=$_"} 0..255),
-
                # module list begin
 
                'VogelFloret',
@@ -377,12 +378,30 @@ my @modules = (
                'TheodorusSpiral',
                'ArchimedeanChords',
 
-               'PeanoCurve',
-               'PeanoCurve,radix=2',
-               'PeanoCurve,radix=4',
-               'PeanoCurve,radix=5',
-               'PeanoCurve,radix=17',
-               'KnightSpiral',
+               'ImaginaryBase',
+               'ImaginaryBase,radix=3',
+               'ImaginaryBase,radix=4',
+               'ImaginaryBase,radix=5',
+               'ImaginaryBase,radix=6',
+               'ImaginaryBase,radix=37',
+
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+               'MultipleRings',
+
+               'Rows',
+               'Rows,width=1',
+               'Rows,width=2',
+               'Columns',
+               'Columns,height=1',
+               'Columns,height=2',
 
                'Corner',
                'Diagonals',
@@ -395,6 +414,13 @@ my @modules = (
                'PyramidRows,step=37',
                'PyramidSides',
                # 'File',
+
+               'PeanoCurve',
+               'PeanoCurve,radix=2',
+               'PeanoCurve,radix=4',
+               'PeanoCurve,radix=5',
+               'PeanoCurve,radix=17',
+               'KnightSpiral',
 
                'CellularRule,rule=6',   # left 1,2 line
                'CellularRule,rule=14',  # left 2 cell line
@@ -450,16 +476,6 @@ my @modules = (
                'HypotOctant',
                'PixelRings',
                'FilledRings',
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
 
                'ZOrderCurve',
                'ZOrderCurve,radix=3',
@@ -618,13 +634,6 @@ my @modules = (
                'HexArms',
                'GreekKeySpiral',
 
-               'Rows',
-               'Rows,width=1',
-               'Rows,width=2',
-               'Columns',
-               'Columns,height=1',
-               'Columns,height=2',
-
                'QuintetCurve',
                'QuintetCurve,arms=2',
                'QuintetCurve,arms=3',
@@ -647,9 +656,6 @@ my @modules = (
                'GosperIslands',
 
                'SquareReplicate',
-               'ImaginaryBase',
-               'ImaginaryBase,radix=3',
-               'ImaginaryBase,radix=37',
 
                'SierpinskiTriangle',
                'SierpinskiArrowhead',
@@ -671,6 +677,9 @@ my @modules = (
                'DragonCurve,arms=4',
 
                # module list end
+
+               # cellular 0 to 255
+               (map {"CellularRule,rule=$_"} 0..255),
               );
 
 {
@@ -680,24 +689,33 @@ my @modules = (
 
   foreach my $mod (@modules) {
     my $bad = 0;
-    foreach my $elem (['Math::NumSeq::PlanePathCoord','coordinate_type'],
-                      # ['Math::NumSeq::PlanePathDelta','delta_type'],
-                      # ['Math::NumSeq::PlanePathTurn','turn_type'],
-                      ['Math::NumSeq::PlanePathN','line_type']) {
+    foreach my $elem (
+                      ['Math::NumSeq::PlanePathN','line_type'],
+                      ['Math::NumSeq::PlanePathCoord','coordinate_type'],
+
+                      # not quite right yet
+                      #['Math::NumSeq::PlanePathDelta','delta_type'],
+
+                      ['Math::NumSeq::PlanePathTurn','turn_type'],
+                     ) {
       my ($class, $pname) = @$elem;
+
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
+        MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param
 
         my $seq = $class->new (planepath => $mod,
                                $pname => $param);
 
+        ### planepath_object: ref $seq->{'planepath_object'}
+
         my $i_start = $seq->i_start;
-        my $saw_values_min   = 999999999;
-        my $saw_values_max   = -1;
-        my $saw_values_min_i = 'sentinel';
-        my $saw_values_max_i = 'sentinel';
+        my $saw_values_min    = 999999999;
+        my $saw_values_max    = -999999999;
+        my $saw_values_min_at = 'sentinel';
+        my $saw_values_max_at = 'sentinel';
         my $saw_increasing = 1;
         my $saw_non_decreasing = 1;
         my $saw_increasing_at = '';
@@ -705,43 +723,69 @@ my @modules = (
         my $prev_value;
 
         my $count = 0;
-        foreach my $i ($i_start .. $i_start + 50) {
+        my $i_limit = 500;
+        if ($mod =~ /Vogel|Theod|Archim/ && $param =~ /axis|diagonal/i) {
+          $i_limit = 20;
+        }
+        if ($mod =~ /Hypot|PixelRings|FilledRings/
+            && $param =~ /axis|diagonal/i) {
+          $i_limit = 50;
+        }
+        if ($mod =~ /CellularRule/
+            && $param =~ /axis|diagonal/i) {
+          $i_limit = 80;
+        }
+        ### $i_limit
+
+        foreach my $i ($i_start .. $i_limit) {
           my $value = $seq->ith($i);
+          ### $i
+          ### $value
           next if ! defined $value;
           $count++;
 
           if ($value < $saw_values_min) {
             $saw_values_min = $value;
             if (my ($x,$y) = $seq->{'planepath_object'}->n_to_xy($i)) {
-              $saw_values_min_i = "i=$i xy=$x,$y";
+              $saw_values_min_at = "i=$i xy=$x,$y";
             } else {
-              $saw_values_min_i = "i=$i";
+              $saw_values_min_at = "i=$i";
             }
           }
           if ($value > $saw_values_max) {
             $saw_values_max = $value;
-            $saw_values_max_i = $i;
+            $saw_values_max_at = "i=$i";
           }
 
-          ### $value
-          ### $prev_value
+          # ### $value
+          # ### $prev_value
           if (defined $prev_value) {
             if (abs($value - $prev_value) < 0.0000001) {
               $prev_value = $value;
             }
             if ($value <= $prev_value) {
-              ### not increasing ...
-              $saw_increasing = 0;
-              $saw_increasing_at = "i=$i value=$value prev_value=$prev_value";
+              # ### not increasing ...
+              if ($saw_increasing) {
+                $saw_increasing = 0;
+                $saw_increasing_at = "i=$i value=$value prev_value=$prev_value";
+              }
+
               if ($value < $prev_value) {
-                $saw_non_decreasing = 0;
-                $saw_non_decreasing_at = "i=$i";
+                if ($saw_non_decreasing) {
+                  $saw_non_decreasing = 0;
+                  $saw_non_decreasing_at = "i=$i";
+                }
               }
             }
           }
           $prev_value = $value;
         }
         next if $count == 0;
+
+        ### $saw_values_min
+        ### $saw_values_min_at
+        ### $saw_values_max
+        ### $saw_values_max_at
 
         my $values_min = $seq->values_min;
         my $values_max = $seq->values_max;
@@ -752,7 +796,7 @@ my @modules = (
           $values_max = $saw_values_max;
         }
 
-        # these come arbitrarily close to X=Y, in general, probably
+        # these come arbitrarily close to dX==dY, in general, probably
         if (($mod eq 'VogelFloret'
              || $mod eq 'MultipleRings,step=2'
              || $mod eq 'MultipleRings,step=3'
@@ -760,19 +804,366 @@ my @modules = (
              || $mod eq 'MultipleRings,step=7'
              || $mod eq 'MultipleRings,step=37'
             )
-            && $param eq 'AbsDiff') {
+            && $param eq 'AbsDiff'
+            && $saw_values_min > 0 && $saw_values_min < 0.3) {
           $saw_values_min = 0;
-          $saw_values_min_i = 'override';
+          $saw_values_min_at = 'override';
+        }
+
+        # approach +/- 1 without ever actually reaching
+        if (($mod eq 'ArchimedeanChords'
+             || $mod eq 'TheodorusSpiral'
+            )
+            && ($param eq 'dX'
+                || $param eq 'dY'
+               )) {
+          $saw_values_min = -1;
+          $saw_values_min_at = 'override';
+          $saw_values_max = 1;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod eq 'MultipleRings'
+            )
+            && ($param eq 'dX'
+                || $param eq 'dY'
+               )) {
+          $saw_values_min = -1;
+          $saw_values_min_at = 'override';
+        }
+
+        # # not enough values to see these decreasing
+        if (($mod eq 'MultipleRings,step=1'
+             #      || $mod eq 'MultipleRings,step=2'
+             #      || $mod eq 'MultipleRings,step=3'
+            )
+            && ($param eq 'Left'
+                || $param eq 'Right')) {
+          $saw_values_max = 1;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod eq 'MultipleRings,step=1'
+             #      || $mod eq 'MultipleRings,step=2'
+             #      || $mod eq 'MultipleRings,step=3'
+            )
+            && ($param eq 'LSR')) {
+          $saw_values_min = -1;
+          $saw_values_min_at = 'override';
+        }
+        # if (($mod eq 'MultipleRings,step=2'
+        #      || $mod eq 'MultipleRings,step=3'
+        #     )
+        #     && ($param eq 'Left')) {
+        #   $saw_values_min = 0;
+        #   $saw_values_min_at = 'override';
+        # }
+
+        if (($mod eq 'MultipleRings,step=1'
+             || $mod eq 'MultipleRings,step=2'
+             || $mod eq 'MultipleRings,step=3'
+             || $mod eq 'MultipleRings,step=4'
+             || $mod eq 'MultipleRings,step=5'
+             || $mod eq 'MultipleRings,step=6'
+             || $mod eq 'MultipleRings'
+            )
+            && ($param eq 'dX'
+                || $param eq 'dY'
+                || $param eq 'Dist'
+               )) {
+          my ($step) = ($mod =~ /MultipleRings,step=(\d+)/);
+          $step ||= 6;
+          if (-$saw_values_min > 2*PI()/$step*0.85
+              && -$saw_values_min < 2*PI()/$step) {
+            $saw_values_min = -2*PI() / $step;
+            $saw_values_min_at = 'override';
+          }
+          if ($saw_values_max > 2*PI()/$step*0.85
+              && $saw_values_max < 2*PI()/$step) {
+            $saw_values_max = 2*PI() / $step;
+            $saw_values_max_at = 'override';
+          }
+        }
+        if (($mod eq 'MultipleRings,step=7'
+             || $mod eq 'MultipleRings,step=8'
+            )
+            && ($param eq 'dY'
+               )) {
+          if (-$saw_values_min > 0.9
+              && -$saw_values_min < 1) {
+            $saw_values_min = -1;
+            $saw_values_min_at = 'override';
+          }
+          if ($saw_values_max > 0.9
+              && $saw_values_max < 1) {
+            $saw_values_max = 1;
+            $saw_values_max_at = 'override';
+          }
+        }
+        if (($mod eq 'MultipleRings,step=7'
+             || $mod eq 'MultipleRings,step=8'
+            )
+            && ($param eq 'dX'
+               )) {
+          if (-$saw_values_min > 0.9
+              && -$saw_values_min < 1) {
+            $saw_values_min = -1;
+            $saw_values_min_at = 'override';
+          }
+        }
+
+        # approach 360 without ever actually reaching
+        if (($mod eq 'ArchimedeanChords'
+             || $mod eq 'SacksSpiral'
+             || $mod eq 'TheodorusSpiral'
+             || $mod eq 'Hypot'
+             || $mod eq 'MultipleRings,step=8'
+             || $mod eq 'MultipleRings,step=37'
+            )
+            && ($param eq 'Dir4'
+               )
+            && $saw_values_max > 3.7 && $saw_values_max < 4
+           ) {
+          $saw_values_max = 4;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod eq 'ArchimedeanChords'
+             || $mod eq 'SacksSpiral'
+             || $mod eq 'TheodorusSpiral'
+             || $mod eq 'Hypot'
+             || $mod eq 'MultipleRings,step=8'
+             || $mod eq 'MultipleRings,step=37'
+            )
+            && ($param eq 'TDir6'
+               )
+            && $saw_values_max > 5.55 && $saw_values_max < 6) {
+          $saw_values_max = 6;
+          $saw_values_max_at = 'override';
+        }
+
+        # approach 0 without ever actually reaching
+        if (($mod eq 'ArchimedeanChords'
+             || $mod eq 'MultipleRings,step=8'
+             || $mod eq 'MultipleRings,step=37'
+            )
+            && ($param eq 'Dir4'
+               )) {
+          $saw_values_min = 0;
+          $saw_values_min_at = 'override';
+        }
+        if (($mod eq 'ArchimedeanChords'
+             || $mod eq 'MultipleRings,step=8'
+             || $mod eq 'MultipleRings,step=37'
+            )
+            && ($param eq 'TDir6'
+               )) {
+          $saw_values_min = 0;
+          $saw_values_min_at = 'override';
+        }
+
+        # approach +180 without ever actually reaching
+        if (($mod eq 'PyramidRows'
+             || $mod eq 'PyramidRows,step=1'
+             || $mod eq 'PyramidRows,step=3'
+             || $mod eq 'PyramidRows,step=4'
+             || $mod eq 'PyramidRows,step=5'
+             || $mod eq 'PyramidRows,step=37'
+            )
+            && ($param eq 'Dir4'
+               )) {
+          $saw_values_max = 2;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod eq 'PyramidRows'
+             || $mod eq 'PyramidRows,step=1'
+             || $mod eq 'PyramidRows,step=3'
+             || $mod eq 'PyramidRows,step=4'
+             || $mod eq 'PyramidRows,step=5'
+             || $mod eq 'PyramidRows,step=37'
+            )
+            && ($param eq 'TDir6'
+               )) {
+          $saw_values_max = 3;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod =~ /^CellularRule/
+             || $mod eq 'SierpinskiTriangle')
+            && $param eq 'Dir4'
+            && $saw_values_max > 1.8 && $saw_values_max < 2) {
+          $saw_values_max = 2;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod =~ /^CellularRule/
+             || $mod eq 'SierpinskiTriangle')
+            && $param eq 'TDir6'
+            && $saw_values_max > 2.7 && $saw_values_max < 3) {
+          $saw_values_max = 3;
+          $saw_values_max_at = 'override';
+        }
+
+        # not enough values to see these decreasing
+        if (($mod eq 'SquareSpiral,wider=37'
+            )
+            && ($param eq 'dY')) {
+          $saw_values_min = -1;
+          $saw_values_min_at = 'override';
+        }
+        if (($mod eq 'SquareSpiral,wider=37'
+            )
+            && ($param eq 'Dir4')) {
+          $saw_values_max = 3;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod eq 'SquareSpiral,wider=37'
+            )
+            && ($param eq 'TDir6')) {
+          $saw_values_max = 4.5;
+          $saw_values_max_at = 'override';
+        }
+
+        # not enough values to see these decreasing
+        if (($mod eq 'TerdragonCurve'
+             || $mod eq 'TerdragonMidpoint'
+            )
+            && ($param eq 'dX')) {
+          $saw_values_max = 2;
+          $saw_values_max_at = 'override';
+          $saw_values_min = -2;
+          $saw_values_min_at = 'override';
+        }
+        if (($mod eq 'TerdragonCurve'
+             || $mod eq 'TerdragonMidpoint'
+            )
+            && ($param eq 'Dir4')) {
+          $saw_values_min = 0;
+          $saw_values_min_at = 'override';
+          $saw_values_max = 3.5;
+          $saw_values_max_at = 'override';
+        }
+        if (($mod eq 'TerdragonCurve'
+             || $mod eq 'TerdragonMidpoint'
+            )
+            && ($param eq 'TDir6')) {
+          $saw_values_min = 0;
+          $saw_values_min_at = 'override';
+          $saw_values_max = 5;
+          $saw_values_max_at = 'override';
+        }
+
+        if ($mod eq 'ImaginaryBase'
+            && ($param eq 'Dir4')
+            && $saw_values_max > 3.25
+            && $saw_values_max < 3.3) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 1,-2);
+          $saw_values_max_at = 'override';
+        }
+        if ($mod eq 'ImaginaryBase'
+            && ($param eq 'TDir6')
+            && $saw_values_max > 4.6
+            && $saw_values_max < 4.77) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 1,-2);
+          $saw_values_max_at = 'override';
+        }
+
+        if ($mod eq 'ImaginaryBase,radix=3'
+            && $param eq 'Dir4'
+            && $saw_values_max > 3.3
+            && $saw_values_max < 3.5) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 2,-2);
+          $saw_values_max_at = 'override';
+        }
+        if ($mod eq 'ImaginaryBase,radix=3'
+            && $param eq 'TDir6'
+            && $saw_values_max > 4.8
+            && $saw_values_max < 5) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 2,-2);
+          $saw_values_max_at = 'override';
+        }
+
+        if ($mod eq 'ImaginaryBase,radix=4'
+            && ($param eq 'Dir4')
+            && $saw_values_max > 3.55
+            && $saw_values_max < 3.63) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 3,-2);
+          $saw_values_max_at = 'override';
+        }
+        if ($mod eq 'ImaginaryBase,radix=4'
+            && ($param eq 'TDir6')
+            && $saw_values_max > 4.9
+            && $saw_values_max < 5.2) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 3,-2);
+          $saw_values_max_at = 'override';
+        }
+
+        if ($mod eq 'ImaginaryBase,radix=5'
+            && ($param eq 'Dir4')
+            && $saw_values_max > 3.55
+            && $saw_values_max < 3.71) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 4,-2);
+          $saw_values_max_at = 'override';
+        }
+        if ($mod eq 'ImaginaryBase,radix=5'
+            && ($param eq 'TDir6')
+            && $saw_values_max > 4.9
+            && $saw_values_max < 5.32) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 4,-2);
+          $saw_values_max_at = 'override';
+        }
+
+        if ($mod eq 'ImaginaryBase,radix=6'
+            && ($param eq 'Dir4')
+            && $saw_values_max > 3.55
+            && $saw_values_max < 3.76) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 5,-2);
+          $saw_values_max_at = 'override';
+        }
+        if ($mod eq 'ImaginaryBase,radix=6'
+            && ($param eq 'TDir6')
+            && $saw_values_max > 4.9
+            && $saw_values_max < 5.43) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 5,-2);
+          $saw_values_max_at = 'override';
+        }
+
+        if ($mod eq 'ImaginaryBase,radix=37'
+            && ($param eq 'Dir4')
+            && $saw_values_max > 2
+            && $saw_values_max < 3.99) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 36,-2);
+          $saw_values_max_at = 'override';
+        }
+        if ($mod eq 'ImaginaryBase,radix=37'
+            && ($param eq 'TDir6')
+            && $saw_values_max > 3
+            && $saw_values_max < 5.99) {
+          $saw_values_max
+            = Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 36,-2);
+          $saw_values_max_at = 'override';
         }
 
         if (abs ($values_min - $saw_values_min) > 0.0000001) {
-          MyTestHelpers::diag ("$mod $param values_min=$values_min vs saw_values_min=$saw_values_min at $saw_values_min_i");
+          MyTestHelpers::diag ("$mod $param values_min=$values_min vs saw_values_min=$saw_values_min at $saw_values_min_at");
+          MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
         if (abs ($values_max - $saw_values_max) > 0.0000001) {
-          MyTestHelpers::diag ("$mod $param values_max=$values_max vs saw_values_max=$saw_values_max at i=$saw_values_max_i");
+          MyTestHelpers::diag ("$mod $param values_max=$values_max vs saw_values_max=$saw_values_max at $saw_values_max_at");
+          MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
+
+
+        #-------------------
+
 
         my $increasing = $seq->characteristic('increasing');
         my $non_decreasing = $seq->characteristic('non_decreasing');
@@ -855,12 +1246,32 @@ my @modules = (
           $saw_non_decreasing = 0;
         }
 
+        if (($mod eq 'SquareSpiral,wider=37'
+            )
+            && ($param eq 'Dir4'
+                || $param eq 'TDir6')) {
+          $saw_non_decreasing = 0;
+        }
+
+        # # not enough values to see these decreasing
+        if (($mod eq 'MultipleRings,step=1'
+             #      || $mod eq 'MultipleRings,step=2'
+             #      || $mod eq 'MultipleRings,step=3'
+            )
+            && ($param eq 'Left'
+                || $param eq 'Right'
+                || $param eq 'LSR')) {
+          $saw_non_decreasing = 0;
+        }
+
         if ($increasing ne $saw_increasing) {
           MyTestHelpers::diag ("$mod $param increasing=$increasing vs saw_increasing=$saw_increasing at $saw_increasing_at");
+          MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
         if ($non_decreasing ne $saw_non_decreasing) {
           MyTestHelpers::diag ("$mod $param non_decreasing=$non_decreasing vs saw_non_decreasing=$saw_non_decreasing at $saw_non_decreasing_at");
+          MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
       }

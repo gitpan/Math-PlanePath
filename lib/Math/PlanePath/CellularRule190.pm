@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -400,6 +400,18 @@ The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
 
 =back
+
+=head1 OEIS
+
+This pattern is in Sloane's Online Encyclopedia of Integer Sequences in a
+couple of forms,
+
+    http://oeis.org/A037576  (etc)
+
+    A037576    whole-row used cells as bits of a bignum
+    A071039    \ 1/0 used and unused cells across rows
+    A118111    /
+    A071041    1/0 used and unused of mirrored rule 246 
 
 =head1 SEE ALSO
 

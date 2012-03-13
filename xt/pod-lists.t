@@ -154,9 +154,9 @@ diag "module count ",scalar(@lib_modules);
 #------------------------------------------------------------------------------
 
 foreach my $tfile ('t/PlanePath-subclasses.t',
-                   't/NumSeq-PlanePathCoord.t',
+                   'xt/NumSeq-PlanePathCoord.t',
                   ) {
-  open FH, $tfile or die $!;
+  open FH, $tfile or die "$tfile: $!";
   my $content = do { local $/; <FH> }; # slurp
   close FH or die;
   ### $content

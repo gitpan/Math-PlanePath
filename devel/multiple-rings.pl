@@ -19,37 +19,30 @@
 
 use 5.004;
 use strict;
-use Test;
-plan tests => 1;
-
-use lib 't';
-use MyTestHelpers;
-MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments;
 
 
-use Math::NumSeq::OEIS::Catalogue::Plugin::BuiltinTable;
-use Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath;
+{
+  # max dx
 
-my %builtin_anums;
-foreach my $info (@{Math::NumSeq::OEIS::Catalogue::Plugin::BuiltinTable::info_arrayref()}) {
-  $builtin_anums{$info->{'anum'}} = $info;
-}
+  require Math::PlanePath::MultipleRings;
+  my $path = Math::PlanePath::MultipleRings->new (step => 37);
+  my $n = $path->n_start;
+  my $dx_max = 0;
+  my ($prev_x, $prev_y) = $path->n_to_xy($n++);
+  foreach (1 .. 1000000) {
+    my ($x, $y) = $path->n_to_xy($n++);
 
-my $good = 1;
-my $count = 0;
-foreach my $info (@{Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath::info_arrayref()}) {
-  my $anum = $info->{'anum'};
-  if ($builtin_anums{$anum}) {
-    MyTestHelpers::diag ("$anum already a NumSeq builtin");
-    $good = 0;
+    my $dx = $y - $prev_y;
+    if ($dx > $dx_max) {
+      print "$n  $dx\n";
+      $dx_max = $dx;
+    }
+
+    $prev_x = $x;
+    $prev_y = $y;
   }
-  $count++;
+  exit 0;
 }
-
-ok ($good);
-MyTestHelpers::diag ("total $count PlanePath A-numbers");
-
-exit 0;

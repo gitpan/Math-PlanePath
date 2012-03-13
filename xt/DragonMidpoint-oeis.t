@@ -74,36 +74,81 @@ sub dxdy_to_direction {
 {
   my $anum = 'A073089';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
 
-    push @got, 0;
+  {
+    my @got;
+    if ($bvalues) {
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
-    my ($prev_x, $prev_y) = $path->n_to_xy (0);
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      if ($x == $prev_x) {
-        push @got, 1;  # vertical
-      } else {
-        push @got, 0;  # horizontal
+      push @got, 0;
+
+      my ($prev_x, $prev_y) = $path->n_to_xy (0);
+      for (my $n = 1; @got < @$bvalues; $n++) {
+        my ($x, $y) = $path->n_to_xy ($n);
+        if ($x == $prev_x) {
+          push @got, 1;  # vertical
+        } else {
+          push @got, 0;  # horizontal
+        }
+        ($prev_x,$prev_y) = ($x,$y);
       }
-      ($prev_x,$prev_y) = ($x,$y);
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
     }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum");
   }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
 
-#------------------------------------------------------------------------------
-# A073089_func vs file
+  # A073089_func vs file
+  {
+    my @got;
+    if ($bvalues) {
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+      for (my $n = 1; @got < @$bvalues; $n++) {
+        push @got, A073089_func($n);
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum -- bvalues against A-func");
+  }
+
+
+  # A073089_func vs path
+  {
+    my ($prev_x, $prev_y) = $path->n_to_xy (0);
+    my $n = 0;
+    my $bad = 0;
+    foreach my $n (0 .. 0x2FFF) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      my ($nx, $ny) = $path->n_to_xy ($n+1);
+      my $path_value = ($x == $nx
+                        ? 1   # vertical
+                        : 0); # horizontal
+
+      my $a_value = A073089_func($n+2);
+
+      if ($path_value != $a_value) {
+        MyTestHelpers::diag ("diff n=$n path=$path_value acalc=$a_value");
+        MyTestHelpers::diag ("  xy=$x,$y  nxy=$nx,$ny");
+        last if ++$bad > 10;
+      }
+    }
+    ok ($bad, 0, "$anum -- calculated");
+  }
+}
 
 sub A073089_func {
   my ($n) = @_;
@@ -113,11 +158,11 @@ sub A073089_func {
     if (($n % 4) == 2) { return 0; }
     if (($n % 8) == 7) { return 0; }
     if (($n % 16) == 13) { return 0; }
-    
+
     if (($n % 4) == 0) { return 1; }
     if (($n % 8) == 3) { return 1; }
     if (($n % 16) == 5) { return 1; }
-    
+
     if (($n % 8) == 1) {
       $n = ($n-1)/2+1;  # 8n+1 -> 4n+1
       next;
@@ -125,54 +170,6 @@ sub A073089_func {
     die "oops";
   }
 }
-{
-  my $anum = 'A073089';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
-
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      push @got, A073089_func($n);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- bvalues against A-func");
-}
-
-#------------------------------------------------------------------------------
-# A073089_func vs path
-
-{
-  my $anum = 'A073089';
-  my ($prev_x, $prev_y) = $path->n_to_xy (0);
-  my $n = 0;
-  my $bad = 0;
-  foreach my $n (0 .. 0x2FFF) {
-    my ($x, $y) = $path->n_to_xy ($n);
-    my ($nx, $ny) = $path->n_to_xy ($n+1);
-    my $path_value = ($x == $nx
-                      ? 1   # vertical
-                      : 0); # horizontal
-
-    my $a_value = A073089_func($n+2);
-
-    if ($path_value != $a_value) {
-      MyTestHelpers::diag ("diff n=$n path=$path_value acalc=$a_value");
-      MyTestHelpers::diag ("  xy=$x,$y  nxy=$nx,$ny");
-      last if ++$bad > 10;
-    }
-  }
-  ok ($bad, 0, "$anum -- calculated");
-}
-
 
 #------------------------------------------------------------------------------
 exit 0;

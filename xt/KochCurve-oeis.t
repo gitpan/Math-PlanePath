@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 5 }
+BEGIN { plan tests => 6 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -102,6 +102,38 @@ sub xy_left_right {
 }
 
 #------------------------------------------------------------------------------
+# A096268 - morphism turn 1=right,0=left
+
+{
+  my $anum = 'A096268';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my $turn = path_n_turn6($koch,$n);
+      if ($turn == 1) {
+        push @got, 0; # left
+      } elsif ($turn == 4) {
+        push @got, 1; # right
+      } else {
+        die "unrecognised turn $turn";
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- morphism");
+}
+
+#------------------------------------------------------------------------------
 # A035263 - morphism turn 1=left,0=right
 
 {
@@ -109,7 +141,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
@@ -141,7 +173,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     @$bvalues = map {abs} @$bvalues;
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
@@ -173,7 +205,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     @$bvalues = map {abs} @$bvalues;
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
@@ -205,7 +237,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
@@ -233,7 +265,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);

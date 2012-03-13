@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 12 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -40,12 +40,12 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
+  my $i = 0; 
+  while ($i < @$a1 && $i < @$a2) {
+    if ($a1->[$i] ne $a2->[$i]) {
       return 0;
     }
-    shift @$a1;
-    shift @$a2;
+    $i++;
   }
   return (@$a1 == @$a2);
 }
@@ -95,7 +95,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $level = 0; @got < @$bvalues; $level++) {
       require Math::BigInt;
       my $big = Math::BigInt->new(0);
@@ -127,7 +127,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my $cumulative;
     push @got, 0;  # bvalues starts with an n=0
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
@@ -150,6 +150,35 @@ sub xy_left_right {
 }
 
 #------------------------------------------------------------------------------
+# A189640 - morphism turn 1=left, 0=right, extra initial 0
+
+{
+  my $anum = 'A189640';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    push @got, 0;
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
+      my $lr = xy_left_right ($path->n_to_xy($n-1),
+                              $path->n_to_xy($n),
+                              $path->n_to_xy($n+1));
+      push @got, $lr;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - morphism 1=left,0=right");
+}
+
+#------------------------------------------------------------------------------
 # A189673 - morphism turn 0=left, 1=right, extra initial 0
 
 {
@@ -157,7 +186,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     push @got, 0;
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
@@ -186,7 +215,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       my $lr = xy_left_right ($path->n_to_xy($n-1),
@@ -214,7 +243,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       push @got, xy_left_right ($path->n_to_xy($n-1),
                                 $path->n_to_xy($n),
@@ -240,7 +269,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       push @got, xy_left_right ($path->n_to_xy($n-1),
                                 $path->n_to_xy($n),
@@ -266,7 +295,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     @$bvalues = map { $_ % 3 } @$bvalues;
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       push @got, xy_left_right ($path->n_to_xy($n-1),
@@ -289,49 +318,49 @@ sub xy_left_right {
 {
   my $anum = 'A026225';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      if (xy_left_right ($path->n_to_xy($n-1),
-                         $path->n_to_xy($n),
-                         $path->n_to_xy($n+1))
-          == 0) {
-        push @got, $n;
-      }
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - left turns");
-}
-{
-  my $anum = 'A026225';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      if (digit_above_low_zeros($n) == 1) {
-        push @got, $n;
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - N where lowest non-zero 1");
-}
 
+  {
+    my @got;
+    if ($bvalues) {
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+      for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
+        if (xy_left_right ($path->n_to_xy($n-1),
+                           $path->n_to_xy($n),
+                           $path->n_to_xy($n+1))
+            == 0) {
+          push @got, $n;
+        }
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    ### bvalues: join(',',@{$bvalues}[0..20])
+    ### got: '    '.join(',',@got[0..20])
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - left turns");
+  }
+  {
+    my @got;
+    if ($bvalues) {
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+      for (my $n = 1; @got < @$bvalues; $n++) {
+        if (digit_above_low_zeros($n) == 1) {
+          push @got, $n;
+        }
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - N where lowest non-zero 1");
+  }
+}
 
 #------------------------------------------------------------------------------
 # A026179 - positions of right turns
@@ -339,48 +368,49 @@ sub xy_left_right {
 {
   my $anum = 'A026179';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
-    push @got, 1;     # extra 1 ...
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      if (xy_left_right ($path->n_to_xy($n-1),
-                         $path->n_to_xy($n),
-                         $path->n_to_xy($n+1))
-          == 1) {
-        push @got, $n;
+
+  {
+    my @got;
+    if ($bvalues) {
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+      push @got, 1;     # extra 1 ...
+      for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
+        if (xy_left_right ($path->n_to_xy($n-1),
+                           $path->n_to_xy($n),
+                           $path->n_to_xy($n+1))
+            == 1) {
+          push @got, $n;
+        }
       }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
+    ### bvalues: join(',',@{$bvalues}[0..20])
+    ### got: '    '.join(',',@got[0..20])
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - right turns");
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - right turns");
-}
-{
-  my $anum = 'A026179';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (1);
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      if (digit_above_low_zeros($n) == 2) {
-        push @got, $n;
+  {
+    my @got = (1);
+    if ($bvalues) {
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+      for (my $n = 1; @got < @$bvalues; $n++) {
+        if (digit_above_low_zeros($n) == 2) {
+          push @got, $n;
+        }
       }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
     }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - N where lowest non-zero 2");
   }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - N where lowest non-zero 2");
 }
 
 sub digit_above_low_zeros {

@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -92,7 +92,49 @@ my @rule_to_class;
   $store->(246, [ 'Math::PlanePath::CellularRule190', mirror => 1 ]);
 
   {
-    # *******
+    # *************      whole solid
+    #  ***********
+    #   *********
+    #    *******
+    #     *****
+    #      ***
+    #       *
+    # 0xDE and 0xFE = 222, 254
+    # 111 -> 1   solid
+    # 110 -> 1   right side
+    # 101        any, doesn't occur
+    # 100 -> 1   initial
+    # 011 -> 1   left side
+    # 010 -> 1   initial
+    # 001 -> 1   initial
+    # 000 -> 0   sides blank
+    #
+    # -*************-     whole solid with full sides
+    # --***********--
+    # ---*********---
+    # ----*******----
+    # -----*****-----
+    # ------***------
+    #        *
+    # and with sides
+    # 111 -> 1   solid middle
+    # 110        any, doesn't occur
+    # 101        any, doesn't occur
+    # 100 -> 1   initial
+    # 011        any, doesn't occur
+    # 010 -> 1   initial
+    # 001 -> 1   initial
+    # 000 -> 1   sides blank
+
+    my $solid = [ 'Math::PlanePath::PyramidRows', step => 2 ];
+    $store->(222, $solid);
+    $store->(254, $solid);
+    foreach my $i (0 .. 255) {
+      $store->(($i&0x68)|0x97, $solid);
+    }
+  }
+  {
+    # *******      right half solid
     # ******
     # *****
     # ****
@@ -445,7 +487,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 71;
+  $VERSION = 72;
   @ISA = ('Math::PlanePath::CellularRule');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
   *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -517,7 +559,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 71;
+  $VERSION = 72;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -563,7 +605,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 71;
+  $VERSION = 72;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;

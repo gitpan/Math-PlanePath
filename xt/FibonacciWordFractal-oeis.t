@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -40,12 +40,12 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] != $a2->[0]) {
+  my $i = 0; 
+  while ($i < @$a1 && $i < @$a2) {
+    if ($a1->[$i] ne $a2->[$i]) {
       return 0;
     }
-    shift @$a1;
-    shift @$a2;
+    $i++;
   }
   return (@$a1 == @$a2);
 }
@@ -99,7 +99,7 @@ sub xy_turn_021 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     # $#$bvalues = 50; # shorten for testing ...
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       push @got, (xy_is_straight($path->n_to_xy($n-1),
@@ -124,7 +124,7 @@ sub xy_turn_021 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     # $#$bvalues = 50; # shorten for testing ...
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       push @got, xy_turn_021($path->n_to_xy($n-1),

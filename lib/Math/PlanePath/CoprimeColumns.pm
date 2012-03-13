@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -313,6 +313,18 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 The current implementation is fairly slack and is slow on medium to large N.
 A table of cumulative totients is built and retained for the X column number
 used.
+
+=head1 OEIS
+
+This pattern is in Sloane's Online Encyclopedia of Integer Sequences in a
+couple of forms,
+
+    http://oeis.org/A002088  (etc)
+
+    A002088    cumulative totient, N along X axis
+    A127368    by columns Y coordinate if coprime, 0 if not
+    A054521    by columns 1 if coprime, 0 if not
+    A054427    permutation coprime columns N -> RationalsTree SB N 
 
 =head1 SEE ALSO
 

@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -465,16 +465,6 @@ as a square of side 1.  If C<$x,$y> is outside the pyramid or on a skipped
 cell the return is C<undef>.
 
 =back
-
-=head1 OEIS
-
-This pattern is in Sloane's Online Encyclopedia of Integer Sequences in a
-couple of forms,
-
-    http://oeis.org/A118108  (etc)
-
-    A118108    whole-row used cells as bits
-    A118109    1/0 used and unused cells across rows
 
 =head1 SEE ALSO
 

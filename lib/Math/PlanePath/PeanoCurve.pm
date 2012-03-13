@@ -43,7 +43,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -745,8 +745,8 @@ forms,
 
     A163528    X coordinate
     A163529    Y coordinate
-    A163530    X+Y
-    A163531    square of distance from origin X^2+Y^2
+    A163530    X+Y coordinate sum
+    A163531    X^2+Y^2 square of distance from origin
     A163532    X change -1,0,1
     A163533    Y change -1,0,1
     A163534    absolute direction of each step (up,down,left,right)
@@ -759,8 +759,6 @@ forms,
     A163343    N on X=Y diagonal, 0,4,8,44,40,36,etc
     A163344    N on X=Y diagonal divided by 4
     A163479    diagonal sums divided by 6
-    A163480    row at Y=0
-    A163481    column at X=0
 
 And taking X,Y points by the Diagonals sequence, then the value of the
 following sequences is the N of the Peano curve at those positions.
@@ -789,6 +787,12 @@ then asking what N the Diagonals would put there.
 L<Math::PlanePath>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::AR2W2Curve>,
+L<Math::PlanePath::BetaOmega>,
+L<Math::PlanePath::CincoCurve>,
+L<Math::PlanePath::KochelCurve>,
+L<Math::PlanePath::WunderlichMeander>
+
 L<Math::PlanePath::KochCurve>
 
 Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",

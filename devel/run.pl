@@ -89,7 +89,6 @@ use List::Util qw(min max);
   require Math::PlanePath::CellularRule;
   require Math::PlanePath::AlternatePaper;
   require Math::PlanePath::ComplexRevolving;
-  require Math::PlanePath::MultipleRings;
   require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::ComplexPlus;
   require Math::PlanePath::AnvilSpiral;
@@ -108,9 +107,11 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImageSierpinskiCurveSquared;
   require Math::PlanePath::SierpinskiCurve;
   require Math::PlanePath::StaircaseAlternating;
-  require Math::PlanePath::MathImageFilledRings;
-  my $path = Math::PlanePath::MathImageFilledRings->new
+  require Math::PlanePath::FilledRings;
+  require Math::PlanePath::MultipleRings;
+  my $path = Math::PlanePath::MultipleRings->new
     (
+     step => 2,
      # straight_spacing => 3,
      # diagonal_spacing => 7,
      # arms => 7,
@@ -126,7 +127,6 @@ use List::Util qw(min max);
      # divisor_type => 'proper',
      # inward => 0,
      # radix => 3,
-     # # step => 0,
      # # tree_type => 'Drib',
      # tree_type => 'Kepler',
      # #coordinates => 'PQ',
@@ -138,8 +138,8 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  #for (my $i = $n_start+0; $i <= 40; $i+=1) {
-       for (my $i = $n_start; $i <= $n_start + 8000; $i=POSIX::ceil($i*2.01+1)) {
+  for (my $i = $n_start+0; $i <= 40; $i+=1) {
+  #     for (my $i = $n_start; $i <= $n_start + 8000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;

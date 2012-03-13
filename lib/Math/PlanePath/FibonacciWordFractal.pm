@@ -18,6 +18,8 @@
 
 # http://alexis.monnerot-dumaine.neuf.fr/articles/fibonacci%20fractal.pdf
 # [gone]
+#
+# math-image --path=FibonacciWordFractal --output=numbers_dash
 
 
 package Math::PlanePath::FibonacciWordFractal;
@@ -25,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -392,8 +394,8 @@ Math::PlanePath::FibonacciWordFractal -- turns by Fibonacci word bits
 =head1 DESCRIPTION
 
 This is an integer version of the Fibonacci word fractal by Alexis
-Monnerot-Dumaine.  It makes turns controlled by by the "Fibonacci word" or
-"golden string" sequence
+Monnerot-Dumaine.  It makes turns controlled by by the "Fibonacci word"
+sequence, sometimes called the "golden string" too.
 
     11  | 27-28-29    33-34-35          53-54-55    59-60-61
         |  |     |     |     |           |     |     |     |
@@ -422,10 +424,17 @@ Monnerot-Dumaine.  It makes turns controlled by by the "Fibonacci word" or
           X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 
 
 A current direction up,down,left,right is maintained, initially up.  The
-path goes one in that direction then if the Fibonacci word is 0 then turn to
-the left if N is even or to the right if N is odd.  For example at N=0 draw
-up to N=1 and the Fibonacci word at N=0 is 0 and N even so change direction
-to the right (for the N=1 to N=2 segment).
+path moves in that direction and then a possible turn according to the
+Fibonacci word,
+
+    Fib word
+    --------
+       0      turn left if even index, right if odd index
+       1      straight ahead
+
+In this form the Fibonacci word is reckoned as starting from index=1, so for
+example at N=0 draw a line upwards to N=1 and the first Fibonacci word value
+is 0 and index=1 odd so change direction to the right.
 
      N     Fibonacci word
     ---    --------------
@@ -442,7 +451,7 @@ The result is self-similar blocks within the first quadrant
 numbers.  For example at N=21 begins a new block above, then N=34 a new
 block across, N=55 down, N=89 across again, etc.
 
-The new blocks are a copy of the shape starting N=0, rotated and/or
+The new blocks are a copy of the shape starting N=0 rotated and/or
 transposed according to the replication level mod 6,
 
     level mod 6      new block
@@ -453,17 +462,6 @@ transposed according to the replication level mod 6,
        3              transpose
        4                         rotate +90
        5              transpose, rotate +90
-
-=head1 OEIS
-
-The Fibonacci word sequence itself is in Sloane's OEIS as A003849, and
-A156596 is the odd/even 0s turned into turns 1 or 2 to give the turn
-sequence directly
-
-    http://oeis.org/A156596
-
-    A156596  - turn sequence, 0=straight, 1=right, 2=left
-    A003849  - Fibonacci word sequence 0,1
 
 =head1 FUNCTIONS
 
@@ -498,6 +496,17 @@ Return 0, the first N in the path.
 
 =back
 
+=head1 OEIS
+
+The Fibonacci word sequence itself is in Sloane's OEIS as sequence A003849,
+and A156596 is the odd/even 0s turned into turns 1 or 2 to give the turn
+sequence directly
+
+    http://oeis.org/A156596
+
+    A156596  - turn sequence, 0=straight, 1=right, 2=left
+    A003849  - Fibonacci word sequence 0,1
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -516,7 +525,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
@@ -534,9 +543,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=FibonacciWordFractal --lines --scale=20"
-# End:
-#
-# math-image --path=FibonacciWordFractal --output=numbers_dash

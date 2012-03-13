@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 26 }
+BEGIN { plan tests => 24 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -42,12 +42,12 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
+  my $i = 0; 
+  while ($i < @$a1 && $i < @$a2) {
+    if ($a1->[$i] ne $a2->[$i]) {
       return 0;
     }
-    shift @$a1;
-    shift @$a2;
+    $i++;
   }
   return (@$a1 == @$a2);
 }
@@ -73,6 +73,7 @@ sub numeq_array {
         1, "$anum -- X axis");
 }
 
+#------------------------------------------------------------------------------
 # A163481 -- Y axis
 {
   my $anum = 'A163481';
@@ -618,40 +619,5 @@ sub transpose {
         1, "$anum -- relative direction transposed");
 }
 
-#------------------------------------------------------------------------------
-# A163480 -- row at Y=0
-{
-  my $anum = 'A163480';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $x (0 .. $#$bvalues) {
-      push @got, $peano->xy_to_n ($x, 0);
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- row at Y=0");
-}
-
-#------------------------------------------------------------------------------
-# A163481 -- column at X=0
-{
-  my $anum = 'A163481';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $y (0 .. $#$bvalues) {
-      push @got, $peano->xy_to_n (0, $y);
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- column X=0");
-}
 
 exit 0;

@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -244,7 +244,9 @@ Sequences in the following forms
 
     A020652  - numerators, X
     A020653  - denominators, Y
-    A157806  - abs difference, abs(X-Y)
+    A157806  - difference, abs(X-Y)
+    A054431  - by diagonals 1=coprime, 0=not
+                 (excluding X=0 row and Y=0 column)
 
     A054424  - permutation DiagonalRationals -> RationalsTree SB
     A054425  -   padded with 0s at non-coprimes

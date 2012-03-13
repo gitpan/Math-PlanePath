@@ -28,7 +28,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -683,23 +683,23 @@ Math::PlanePath::CincoCurve -- 5x5 self-similar curve
 
 This is the 5x5 self-similar Cinco curve by John Dennis,
 
-                                                     |
-      4     10--11  14--15--16  35--36  39--40--41  74  71--70  67--66
-             |   |   |       |   |   |   |       |   |   |   |   |   |
-      3      9  12--13  18--17  34  37--38  43--42  73--72  69--68  65
-             |           |       |           |                       |
-      2      8   5-- 4  19--20  33  30--29  44--45  52--53--54  63--64
-             |   |   |       |   |   |   |       |   |       |   |
-      1      7-- 6   3  22--21  32--31  28  47--46  51  56--55  62--61
-                     |   |               |   |       |   |           |
-    Y=0->    0-- 1-- 2  23--24--25--26--27  48--49--50  57--58--59--60
+                                                    |
+      4    10--11  14--15--16  35--36  39--40--41  74  71--70  67--66
+            |   |   |       |   |   |   |       |   |   |   |   |   |
+      3     9  12--13  18--17  34  37--38  43--42  73--72  69--68  65
+            |           |       |           |                       |
+      2     8   5-- 4  19--20  33  30--29  44--45  52--53--54  63--64
+            |   |   |       |   |   |   |       |   |       |   |
+      1     7-- 6   3  22--21  32--31  28  47--46  51  56--55  62--61
+                    |   |               |   |       |   |           |
+    Y=0->   0-- 1-- 2  23--24--25--26--27  48--49--50  57--58--59--60
 
-            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
+           X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-The base pattern is the N=0 to N=24 part.  It repeats transposed and/or
-rotated to make the ends join.  N=25 to N=49 is a repeat of the base, then
-N=50 to N=74 is a transpose to go upwards.
-The sub-part arrangements are as follows.
+The base pattern is the N=0 to N=24 part.  It repeats transposed and rotated
+to make the ends join.  N=25 to N=49 is a repeat of the base, then N=50 to
+N=74 is a transpose to go upwards.  The sub-part arrangements are as
+follows.
 
     +------+------+------+------+------+
     |  10  |  11  |  14  |  15  |  16  |
@@ -707,27 +707,33 @@ The sub-part arrangements are as follows.
     |----->|----->|----->|----->|----->|
     +------+------+------+------+------+
     |^  9  |  12 ||^ 13  |  18 ||<-----|
-    ||trans|trans|||trans|trans||  17  |
+    ||  T  |  T  |||  T  |  T  ||  17  |
     ||     |     v||     |     v|      |
     +------+------+------+------+------+
     |^  8  |  5  ||^  4  |  19 ||  20  |
-    ||trans|trans|||trans|trans||      |
+    ||  T  |  T  |||  T  |  T  ||      |
     ||     |     v||     |     v|----->|
     +------+------+------+------+------+
     |<-----|<---- |^  3  |  22 ||<-----|
-    |  7   |  6   ||trans|trans||  21  |
+    |  7   |  6   ||  T  |  T  ||  21  |
     |      |      ||     |     v|      |
     +------+------+------+------+------+
     |  0   |  1   |^  2  |  23 ||  24  |
-    |      |      ||trans|trans||      |
+    |      |      ||  T  |  T  ||      |
     |----->|----->||     |     v|----->|
     +------+------+------+------+------+
 
 Parts such as 6 going left are the base rotated 180 degrees.  The verticals
 like 2 are a transpose of the base, ie. swap X,Y, and downward vertical like
 23 is transpose plus rotate 180 (which is equivalent to a mirror across the
-anti-diagonal).  Notice the base shape fills its sub-part to the left of its
-edge and the transpose instead fills on the right.
+anti-diagonal).  Notice the base shape fills its sub-part to the left side
+and the transpose instead fills on the right.
+
+The N values along the X axis are increasing, as are the values along the Y
+axis.  This occurs because the values along the sub-parts of the base are
+increasing along the X and Y axes, and the other two sides are increasing
+too when rotated or transposed for sub-parts such as 2 and 23, or 7, 8
+and 9.
 
 John Dennis conceived this for use in combination with 2x2 Hilbert and 3x3
 meander shapes so that sizes which are products of 2, 3 and 5 can be used

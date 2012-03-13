@@ -48,7 +48,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -442,6 +442,15 @@ then drop down a bit.  So the maximum is either the top-right corner or the
 top of the next lower wedge, ie. smaller y but bigger g.  And conversely the
 minimum is either the bottom right, or the start of the next higher wedge,
 ie. smaller g but bigger y.  (That's right is it?)
+
+=head1 OEIS
+
+This enumeration of rationals is in Sloane's Online Encyclopedia of Integer
+Sequences in the following forms
+
+    http://oeis.org/A054531   (etc)
+
+    A054531  - denominators, Y coordinate
 
 =head1 SEE ALSO
 

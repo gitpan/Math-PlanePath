@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,12 +37,12 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
+  my $i = 0; 
+  while ($i < @$a1 && $i < @$a2) {
+    if ($a1->[$i] ne $a2->[$i]) {
       return 0;
     }
-    shift @$a1;
-    shift @$a2;
+    $i++;
   }
   return (@$a1 == @$a2);
 }
@@ -60,7 +60,7 @@ sub numeq_array {
 #       my ($x, $y) = $path->n_to_xy (int(($n+1)/2));
 #       push @got, $x;
 #     }
-#     MyTestHelpers::diag ("$anum has $#$bvalues values");
+#     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 #   } else {
 #     MyTestHelpers::diag ("$anum not available");
 #   }
@@ -97,7 +97,7 @@ sub numeq_array {
 #       my ($x, $y) = $path->n_to_xy (int($n/2));
 #       push @got, $y;
 #     }
-#     MyTestHelpers::diag ("$anum has $#$bvalues values");
+#     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 #   } else {
 #     MyTestHelpers::diag ("$anum not available");
 #   }
@@ -122,7 +122,7 @@ sub numeq_array {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y - $x;
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
@@ -146,7 +146,7 @@ sub numeq_array {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x;
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
@@ -170,7 +170,7 @@ sub numeq_array {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y;
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
@@ -185,47 +185,48 @@ sub numeq_array {
 # A086593 -- Kepler half-tree denominators, every second value
 
 {
-  my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
   my $anum = 'A086593';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n += 2) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Kepler half-tree denominators every second value");
-}
 
-# is also the sum X+Y, skipping initial 2
-{
-  my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
-  my $anum = 'A086593';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    push @got, 2;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x+$y;
+  {
+    my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
+    my @got;
+    if ($bvalues) {
+      for (my $n = $path->n_start; @got < @$bvalues; $n += 2) {
+        my ($x, $y) = $path->n_to_xy ($n);
+        push @got, $y;
+      }
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    } else {
+      MyTestHelpers::diag ("$anum not available");
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
-  } else {
-    MyTestHelpers::diag ("$anum not available");
+    ### bvalues: join(',',@{$bvalues}[0..20])
+    ### got: '    '.join(',',@got[0..20])
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum -- Kepler half-tree denominators every second value");
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- as sum X+Y");
+
+  # is also the sum X+Y, skipping initial 2
+  {
+    my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
+    my @got;
+    if ($bvalues) {
+      push @got, 2;
+      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+        my ($x, $y) = $path->n_to_xy ($n);
+        push @got, $x+$y;
+      }
+      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    ### bvalues: join(',',@{$bvalues}[0..20])
+    ### got: '    '.join(',',@got[0..20])
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum -- as sum X+Y");
+  }
 }
 
 #------------------------------------------------------------------------------

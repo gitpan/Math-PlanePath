@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -138,7 +138,7 @@ ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, 4,1), 5.5);
 
 foreach my $elem
   (['increasing',undef ], # default SquareSpiral dX not increasing
-   ['increasing', 1, planepath => 'MultipleRings,step=0', delta_type => 'dX' ],
+   ['non_decreasing', 1, planepath => 'MultipleRings,step=0', delta_type => 'dX' ],
   ) {
   my ($key, $want, @parameters) = @$elem;
 

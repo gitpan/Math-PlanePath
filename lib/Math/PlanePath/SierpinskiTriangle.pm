@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -359,7 +359,7 @@ replication.
 The Sierpinski Triangle is in Sloane's Online Encyclopedia of Integer
 Sequences in various forms,
 
-    http://oeis.org/A047999    etc
+    http://oeis.org/A001316    etc
 
     A001316 - number of cells in each row (Gould's sequence)
     A001317 - row 0 or 1 as binary number

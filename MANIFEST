@@ -44,11 +44,13 @@ devel/hilbert-diamond.pl
 devel/hilbert.pl
 devel/HilbertMidpoint.pm
 devel/hypot.pl
+devel/imaginary-base.pl
 devel/interpolate.pl
 devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-squareflakes.pl
 devel/Makefile
+devel/multiple-rings.pl
 devel/number-fraction.pl
 devel/numseq.pl
 devel/old/DragonArms.pm
@@ -58,6 +60,7 @@ devel/old/QuintetArms.pm
 devel/old/RationalsTree-bigint.t
 devel/old/SierpinskiArrowheadSkewed.pm
 devel/old/SierpinskiHoriz.pm
+devel/peano.pl
 devel/pixel-rings.pl
 devel/plus-similar.pl
 devel/pythagorean-area.pl
@@ -77,6 +80,7 @@ devel/sierpinski-arrowhead-stars.pl
 devel/sierpinski-arrowhead.pl
 devel/sierpinski-curve.pl
 devel/sierpinski-triangle.pl
+devel/square-spiral.pl
 devel/staircase-alternating.pl
 devel/svg.pl
 devel/terdragon.pl
@@ -262,7 +266,6 @@ t/LTiling.t
 t/MultipleRings.t
 t/MyTestHelpers.pm
 t/number-fraction.t
-t/NumSeq-PlanePathCoord.t
 t/NumSeq-PlanePathDelta.t
 t/NumSeq-PlanePathTurn.t
 t/PeanoCurve-load.t
@@ -321,7 +324,6 @@ xt/DiagonalRationals-oeis.t
 xt/DivisibleColumns-oeis.t
 xt/DragonCurve-oeis.t
 xt/DragonMidpoint-oeis.t
-xt/duplicate-oeis.t
 xt/FactorRationals-oeis.t
 xt/FibonacciWordFractal-oeis.t
 xt/FractionsTree-oeis.t
@@ -331,9 +333,12 @@ xt/KnightSpiral-oeis.t
 xt/KochCurve-oeis.t
 xt/MyOEIS.pm
 xt/NumSeq-PlanePath-oeis.t
+xt/NumSeq-PlanePathCoord.t
+xt/oeis-duplicate.t
+xt/oeis-xrefs.t
 xt/PeanoCurve-oeis.t
 xt/PixelRings-image.t
-xt/pod_lists.t
+xt/pod-lists.t
 xt/RationalsTree-oeis.t
 xt/SierpinskiTriangle-oeis.t
 xt/SquareSpiral-oeis.t

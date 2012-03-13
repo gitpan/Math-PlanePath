@@ -74,7 +74,7 @@ sub dxdy_to_direction {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
@@ -106,7 +106,7 @@ sub dxdy_to_direction {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     push @got, 0;
     for (my $n = 1; @got < @$bvalues; $n++) {
@@ -135,13 +135,14 @@ sub dxdy_to_direction {
 # A121238 - -1 power something is 1=left,-1=right, extra initial 1
 # A088585
 # A088567
+# A088575
 
 {
   my $anum = 'A121238';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     push @got, 1;
     for (my $n = 1; @got < @$bvalues; $n++) {
@@ -174,7 +175,7 @@ sub dxdy_to_direction {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     my $prev_turn = path_n_turn($dragon,1);
     my $run = 1; # count for initial $prev_turn
@@ -236,7 +237,7 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
     my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
@@ -282,7 +283,7 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
     my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
@@ -330,7 +331,7 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     push @got, 0;
 
@@ -374,7 +375,7 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     push @got, 0;
 
@@ -418,7 +419,7 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
     my ($n0_x, $n0_y) = $dragon->n_to_xy (0);
     my ($prev_x, $prev_y) = $dragon->n_to_xy (1);
@@ -460,7 +461,7 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     require Math::PlanePath::SquareSpiral;
     my $square  = Math::PlanePath::SquareSpiral->new;
 
@@ -503,7 +504,7 @@ sub dxdy_to_dir {
       push @got, dxdy_to_direction ($dx, $dy);
       ($prev_x,$prev_y) = ($x,$y);
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     ### bvalues: @$bvalues
     ### @got
   } else {
@@ -559,7 +560,7 @@ sub dxdy_to_dir {
       ($prev_dx,$prev_dy) = ($dx,$dy);
       ($prev_x,$prev_y) = ($x,$y);
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
@@ -608,7 +609,7 @@ sub dxdy_to_dir {
       ($prev_dx,$prev_dy) = ($dx,$dy);
       ($prev_x,$prev_y) = ($x,$y);
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
@@ -657,7 +658,7 @@ sub dxdy_to_dir {
       ($prev_dx,$prev_dy) = ($dx,$dy);
       ($prev_x,$prev_y) = ($x,$y);
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
   } else {
     MyTestHelpers::diag ("$anum not available");
   }
@@ -706,7 +707,7 @@ sub dxdy_to_dir {
       ($prev_dx,$prev_dy) = ($dx,$dy);
       ($prev_x,$prev_y) = ($x,$y);
     }
-    MyTestHelpers::diag ("$anum has $#$bvalues values");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
   } else {
     MyTestHelpers::diag ("$anum not available");
   }

@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -417,6 +417,15 @@ calculated from the fairly well-known sqrt formula,
 This means the N range for 0 to X can be calculated without needing to work
 out individual columns counts up to X.  In the current code if column counts
 have been worked out then they're used, otherwise this formula.
+
+=head1 OEIS
+
+This pattern is in Sloane's Online Encyclopedia of Integer Sequences in the
+following forms,
+
+    http://oeis.org/A006218  (etc)
+
+    A006218    cumulative count of divisors, being N on Y=1 row
 
 =head1 SEE ALSO
 

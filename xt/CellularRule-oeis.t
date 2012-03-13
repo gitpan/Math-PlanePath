@@ -321,7 +321,7 @@ sub number_of {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (number_of)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (number_of)");
 
     if ($#$bvalues > 400) {  # shorten A070952
       $#$bvalues = 400;
@@ -363,7 +363,7 @@ sub number_of_1s_first_diff {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (number_of first diffs)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (number_of first diffs)");
     if ($#$bvalues > 400) {  # trim A151929
       $#$bvalues = 400;
     }
@@ -397,7 +397,7 @@ sub trailing_number_of {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (trailing_number_of)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (trailing_number_of)");
 
     for (my $y = 0; @got < @$bvalues; $y++) {
       my $count = 0;
@@ -430,7 +430,7 @@ sub new_maximum_trailing_number_of {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (new_maximum_trailing_number_of)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (new_maximum_trailing_number_of)");
 
     if ($anum eq 'A094604') {
       # new max only at Y=2^k, so limit search
@@ -482,7 +482,7 @@ sub bignum {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (bignum)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (bignum)");
     my $y_start = 0;
 
     if ($anum eq 'A078176') {  # no initial 0 for row 0
@@ -536,7 +536,7 @@ sub bits {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (bits)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (bits)");
 
   OUTER: for (my $y = 0; ; $y++) {
       foreach my $x (($half eq 'right' || $half eq 'centre' ? 0 : -$y)
@@ -569,7 +569,7 @@ sub bignum_central_column {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (central column bignum)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (central column bignum)");
     require Math::BigInt;
     my $b = Math::BigInt->new(0);
     for (my $y = 0; @got < @$bvalues; $y++) {
@@ -594,7 +594,7 @@ sub central_column_N {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has $#$bvalues values (central column N)");
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (central column N)");
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n (0, $y);
     }

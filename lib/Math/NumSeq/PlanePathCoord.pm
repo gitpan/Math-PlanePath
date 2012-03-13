@@ -33,7 +33,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 71;
+$VERSION = 72;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -237,6 +237,11 @@ my %oeis_anum =
      # skipping the initial value=2 in A086593
    },
 
+
+   'Math::PlanePath::SacksSpiral' =>
+   { RSquared => 'A001477',  # integers 0,1,2,3,etc
+     # OEIS-Other: A001477 planepath=SacksSpiral coordinate_type=RSquared
+   },
 
    'Math::PlanePath::TheodorusSpiral' =>
    { RSquared => 'A001477',  # integers 0,1,2,3,etc
@@ -518,13 +523,31 @@ sub oeis_anum {
     if ($coordinate_type eq 'X') {
       return _oeis_modulo($width);
     }
-  }
-  if ($planepath_object->isa('Math::PlanePath::Columns')) {
+
+  } elsif ($planepath_object->isa('Math::PlanePath::Columns')) {
     my $height = $planepath_object->{'height'};
     if ($coordinate_type eq 'Y') {
       return _oeis_modulo($height);
     }
+
+    # CellularRule starts i=1 value=0, but A000027 is OFFSET=1 value=1
+    # } elsif ($planepath_object->isa('Math::PlanePath::CellularRule::Line')) {
+    #   # for all "rule" parameter values
+    #   if ($coordinate_type eq 'Y'
+    #       || ($planepath_object->{'sign'} == 0
+    #           && ($coordinate_type eq 'Sum'
+    #               || $coordinate_type eq 'DiffYX'
+    #               || $coordinate_type eq 'AbsDiff'
+    #               || $coordinate_type eq 'Radius'))) {
+    #     return 'A000027'; # natural numbers 1,2,3
+    #     # OEIS-Other: A000027 planepath=CellularRule,rule=2 coordinate_type=Y
+    #     # OEIS-Other: A000027 planepath=CellularRule,rule=4 coordinate_type=Sum
+    #     # OEIS-Other: A000027 planepath=CellularRule,rule=4 coordinate_type=DiffYX
+    #     # OEIS-Other: A000027 planepath=CellularRule,rule=4 coordinate_type=AbsDiff
+    #     # OEIS-Other: A000027 planepath=CellularRule,rule=4 coordinate_type=Radius
+    #   }
   }
+
 
   my $key = _planepath_oeis_key($planepath_object);
 
@@ -1295,6 +1318,8 @@ sub values_max {
 { package Math::PlanePath::DiagonalsAlternating;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
 }
+# { package Math::PlanePath::MPeaks;
+# }
 # { package Math::PlanePath::Staircase;
 # }
 # { package Math::PlanePath::StaircaseAlternating;
@@ -1519,8 +1544,8 @@ sub values_max {
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
 }
-{ package Math::PlanePath::UlamWarburton;
-}
+# { package Math::PlanePath::UlamWarburton;
+# }
 # { package Math::PlanePath::UlamWarburtonQuarter;
 # }
 { package Math::PlanePath::DiagonalRationals;

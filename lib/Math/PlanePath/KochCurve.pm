@@ -38,7 +38,7 @@ use strict;
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -356,30 +356,32 @@ Return 0, the first N in the path.
 
 =head2 Turn Sequence
 
-The sequence of turns made by the curve is straightforward.  In the base 4
-representation of N, the lowest non-zero digit gives the turn
+The sequence of turns made by the curve is straightforward.  The curve
+always turns either +60 degrees or -120 degrees, it never goes straight
+ahead.  In the base 4 representation of N the lowest non-zero digit gives
+the turn
 
    low digit       turn
    ---------   ------------
-      1         +60 degrees
-      2        -120 degrees
-      3         +60 degrees
+      1         +60 degrees (left)
+      2        -120 degrees (right)
+      3         +60 degrees (left)
 
-For example N=8 is 20 base 4, so turn -120 degrees for the next segment,
-ie. for N=8 to N=9.
+For example N=8 is 20 base 4, so lowest nonzero "2" means turn -120 degrees
+for the next segment.
 
 When the least significant digit is non-zero it determines the turn, making
-the base N=0 to N=4 shape.  When the low digit is zero it's instead the next
-level up which is in control, eg. N=0,4,8,12,16, making a turn where the
-base shape repeats.
+the base N=0 to N=4 shape.  When the low digit is zero then the next level
+up is in control, eg. N=0,4,8,12,16, making a turn where the base shape
+repeats.
 
 =head2 Net Direction
 
 The cumulative turn at a given N can be found by counting digits 1 and 2 in
 base 4.
 
-    direction = 60 * ((count of digit 1s in base 4)
-                      - (count of digit 2s in base 4))  degrees
+    direction = 60 * ((count of 1 digits in base 4)
+                      - (count of 2 digits in base 4))  degrees
 
 For example N=11 is 23 in base 4, so 60*(0-1) = -60 degrees.
 
@@ -387,6 +389,11 @@ In this formula the count of 1s and 2s can go past 360 degrees, representing
 a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
 direction 0 to 5 or as desired.
+
+=cut
+
+# Thue-Morse count 1s mod 2 is net direction
+# Toeplitz first diffs is turn sequence +1 or -1
 
 =head1 OEIS
 
@@ -396,6 +403,7 @@ various forms,
     http://oeis.org/A005811  (etc)
 
     A035263 -- morphism, is turn 1=left,0=right
+    A096268 -- morphism, is turn 0=left,1=right
     A029883 -- Thue-Morse first differences, turn +/-1=left, 0=right
     A089045 -- +/- something, is turn +/-1=left, 0=right
 

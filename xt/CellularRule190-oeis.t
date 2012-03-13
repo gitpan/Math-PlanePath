@@ -50,11 +50,39 @@ sub streq_array {
 }
 
 #------------------------------------------------------------------------------
-# A118111 and A071039 - 0/1 by rows rule 190
+# A071039 - 0/1 by rows rule 190
 
-foreach my $anum ('A118111', 'A071039') {
-  my $path = Math::PlanePath::CellularRule190->new;
+{
+  my $anum = 'A071039';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::CellularRule190->new;
+  my @got;
+  if ($bvalues) {
+    my $x = 0;
+    my $y = 0;
+    foreach my $n (1 .. @$bvalues) {
+      push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
+      $x++;
+      if ($x > $y) {
+        $y++;
+        $x = -$y;
+      }
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        streq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A118111 - 0/1 by rows rule 190 (duplicate)
+
+{
+  my $anum = 'A118111';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::CellularRule190->new;
   my @got;
   if ($bvalues) {
     my $x = 0;

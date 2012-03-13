@@ -36,7 +36,7 @@ require Math::PlanePath::LTiling;
 # VERSION
 
 {
-  my $want_version = 71;
+  my $want_version = 72;
   ok ($Math::PlanePath::LTiling::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::LTiling->VERSION,  $want_version,

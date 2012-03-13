@@ -102,7 +102,8 @@ sub check_class {
   ### $parameters
 
   # return unless $class =~ /Turn/;
-  #  return unless $anum eq 'A163540';
+  # return unless $class =~ /Koch/;
+  #  return unless $anum eq 'A035263';
 
 
   eval "require $class" or die;
@@ -128,6 +129,9 @@ sub check_class {
   } elsif ($anum eq 'A007770') {
     #  Happy bit slow, only first few values for now, not B-file 140,000 ...
     splice @$want, 20000;
+  } elsif ($anum eq 'A005408') {
+    #  shorten for CellularRule rule=84 etc
+    splice @$want, 500;
   } elsif ($anum eq 'A030547') {
     # fix sample values start from i=1 but OFFSET=0
     if ($want->[9] == 2) {
@@ -137,9 +141,7 @@ sub check_class {
   } elsif ($anum eq 'A038567'
            || $anum eq 'A038566'
            || $anum eq 'A020652'
-           || $anum eq 'A020653'
-           || $anum eq ''
-           || $anum eq '') {
+           || $anum eq 'A020653') {
     # CoprimeColumns, DiagonalRationals  shortened for now
     if ($#$want > 10000) {
       $#$want = 10000;
@@ -172,7 +174,8 @@ sub check_class {
     if ($got_anum ne $want_anum) {
       $good = 0;
       MyTestHelpers::diag ("bad: $name");
-      MyTestHelpers::diag ("got anum  $got_anum");
+      MyTestHelpers::diag ("got  anum $got_anum");
+      MyTestHelpers::diag ("want anum $want_anum");
       MyTestHelpers::diag (ref $seq);
     }
   }

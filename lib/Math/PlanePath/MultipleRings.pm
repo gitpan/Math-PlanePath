@@ -30,7 +30,7 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -81,6 +81,7 @@ sub x_negative {
 *y_negative = \&x_negative;
 
 # v1.02 for leading underscore
+# this used in PlanePathDelta.pm too
 use constant 1.02 _PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 sub new {
@@ -156,7 +157,7 @@ sub n_to_xy {
   ### assert: $n < ($step * ($d+1) * $d / 2)
 
   $n -= $d*($d-1)/2 * $step;
-  ### remainder: "$n"
+  ### n remainder: "$n"
   ### assert: $n >= 0
   ### assert: $n < $d*$step
 
@@ -171,19 +172,38 @@ sub n_to_xy {
     }
     if ($n->isa('Math::BigFloat')) {
       $d = Math::BigFloat->new($d);
-      $pi = Math::BigFloat->bpi;
+      $pi = Math::BigFloat->BP;
       $base_r = Math::BigFloat->new($base_r);
     }
   }
 
   # && $d != 0 # watch out for overflow making d==0 ??
   #
+  my $d_step = $d*$step;
   my $r = ($step > 6
-           ? 0.5 / sin($pi / ($d*$step))
+           ? 0.5 / sin($pi / $d_step)
            : $base_r + $d);
   ### r: "$r"
 
-  my $theta = $n*2*$pi/($d*$step);
+  my $n2 = 2*$n;
+
+  if ($n2 == int($n2)) {
+    if (($n2 % $d_step) == 0) {
+      ### theta=0 or theta=pi, exactly on X axis ...
+      return ($n ? -$r : $r,  # n remainder 0 means +ve X axis, non-zero -ve
+              0);
+    }
+    if (($d_step % 2) == 0) {
+      my $n2sub = $n2 - $d_step/2;
+      if (($n2sub % $d_step) == 0) {
+        ### theta=pi/2 or theta=3pi/2, exactly on Y axis ...
+        return (0,
+                $n2sub ? -$r : $r);
+      }
+    }
+  }
+
+  my $theta = $n2 * $pi / $d_step;
 
   ### theta frac: (($n - $d*($d-1)/2)/$d).''
   ### theta: "$theta"

@@ -16,6 +16,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=AR2W2Curve --all --output=numbers_dash
+#
 # http://www.springerlink.com/content/y1l60g7125038668/  [pay]
 #
 # Google Books LATIN'95 link: page 44 definition
@@ -27,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -616,7 +618,7 @@ and largest in the rectangle.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::HilbertCurve>,
-L<Math::PlanePath::ZOrderCurve>
+L<Math::PlanePath::PeanoCurve>
 
 Asano, Ranjan, Roos, Welzl and Widmayer "Space-Filling Curves and Their Use
 in the Design of Geometric Data Structures", Theoretical Computer Science,
@@ -649,10 +651,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=AR2W2Curve --lines --scale=20"
-# End:
-#
-# math-image --path=AR2W2Curve --all --output=numbers_dash

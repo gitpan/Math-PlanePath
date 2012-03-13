@@ -30,7 +30,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 71;
+$VERSION = 72;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -56,9 +56,11 @@ use constant::defer parameter_info_array =>
              type    => 'enum',
              default => 'Left',
              choices => ['Left',
+                         'Right',
                          'LSR',
                         ],
              description => Math::NumSeq::__('Left is 1=left, 0=right or straight.
+Right is 1=right, 0=left or straight.
 LSR is 1=left,0=straight,-1=right.'),
             },
            ];
@@ -100,12 +102,12 @@ my %oeis_anum
      #  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=Left
      # },
 
-     # 'Math::PlanePath::TerdragonCurve,arms=1' =>
-     # {
-     # but A080846 has OFFSET=0 cf first here i=1
-     #  'LR_01' => 'A080846', # turn, 0=left,1=right
-     #  # OEIS-Catalogue: A080846 planepath=TerdragonCurve turn_type=LR_01
-     # },
+     'Math::PlanePath::TerdragonCurve,arms=1' =>
+     {
+      # cf A080846 also Left 1=left,0=right but it has OFFSET=0 
+      'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
+      # OEIS-Catalogue: A137893 planepath=TerdragonCurve turn_type=Left
+     },
 
      'Math::PlanePath::SacksSpiral' =>
      { 'Left' => 'A000012',  # left always, all ones
@@ -160,6 +162,14 @@ my %oeis_anum
      # { Left => 'A129184',  # "right shift"
      #   # OEIS-Catalogue: A129184 planepath=Diagonals turn_type=Left
      # },
+
+     'Math::PlanePath::KochCurve' =>
+     { Left => 'A035263', # OFFSET=1 matches N=1
+       # OEIS-Catalogue: A035263 planepath=KochCurve turn_type=Left
+
+       # but A096268 OFFSET=0 whereas N=1 first turn
+       # Right => 'A096268',  # morphism
+     },
 
     );
 
@@ -293,6 +303,16 @@ sub _turn_func_Left {
           ? 1
           : 0);
 }
+sub _turn_func_Right {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  ### _turn_func_Left() ...
+  my $a = $next_dy * $dx;
+  my $b = $next_dx * $dy;
+  return ($a < $b
+          || $dx==-$next_dx && $dy==-$next_dy  # straight opposite 180
+          ? 1
+          : 0);
+}
 sub _turn_func_LSR {
   my ($dx,$dy, $next_dx,$next_dy) = @_;
   ### _turn_func_LSR() ...
@@ -310,7 +330,7 @@ sub pred {
   my $planepath_object = $self->{'planepath_object'};
 
   my $turn_type = $self->{'turn_type'};
-  if ($turn_type eq 'Left') {
+  if ($turn_type eq 'Left' || $turn_type eq 'Right') {
     unless ($value == 0 || $value == 1) {
       return 0;
     }
@@ -381,16 +401,18 @@ sub characteristic_non_decreasing {
   return $self->characteristic_increasing;
 }
 
-my $all_Left_predhash = { 0=>1, 1=>1 };
-my $all_LSR_predhash = { 0=>1, 1=>1, -1=>1 };
-my $straight_Left_predhash = { 0=>1 };
-my $straight_LSR_predhash = { 0=>1 };
+# my $all_Left_predhash = { 0=>1, 1=>1 };
+# my $all_LSR_predhash = { 0=>1, 1=>1, -1=>1 };
+# my $straight_Left_predhash = { 0=>1 };
+# my $straight_LSR_predhash = { 0=>1 };
 
 { package Math::PlanePath;
 
   use constant 1.02; # for leading underscore
   use constant _NumSeq_Turn_Left_min => 0;
   use constant _NumSeq_Turn_Left_max => 1;
+  use constant _NumSeq_Turn_Right_min => 0;
+  use constant _NumSeq_Turn_Right_max => 1;
   use constant _NumSeq_Turn_LSR_min => -1;
   use constant _NumSeq_Turn_LSR_max => 1;
 }
@@ -398,40 +420,62 @@ my $straight_LSR_predhash = { 0=>1 };
 { package Math::PlanePath::SquareSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::PyramidSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::TriangleSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::TriangleSpiralSkewed;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::DiamondSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::AztecDiamondRings;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::PentSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::PentSpiralSkewed;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::HexSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::HexSpiralSkewed;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::HeptSpiralSkewed;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 # { package Math::PlanePath::AnvilSpiral;
 # }
@@ -444,14 +488,20 @@ my $straight_LSR_predhash = { 0=>1 };
 { package Math::PlanePath::SquareArms;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::DiamondArms;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::HexArms;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 # { package Math::PlanePath::GreekKeySpiral;
 # }
@@ -462,6 +512,8 @@ my $straight_LSR_predhash = { 0=>1 };
   use constant _NumSeq_Turn_LSR_min => 1;
   use constant _NumSeq_Turn_LSR_max => 1;
   use constant _NumSeq_Turn_LSR_non_decreasing => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left always
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::VogelFloret;
   sub _NumSeq_Turn_Left_min {  # always left if rot<=0.5
@@ -472,7 +524,17 @@ my $straight_LSR_predhash = { 0=>1 };
     my ($self) = @_;
     return ($self->{'rotation_factor'} > 0.5 ? 0 : 1);
   }
-  use constant _NumSeq_Turn_Left_non_decreasing => 1;
+  use constant _NumSeq_Turn_Left_non_decreasing => 1; # constant 0 or 1
+
+  sub _NumSeq_Turn_Right_min {  # always right if rot>0.5
+    my ($self) = @_;
+    return ($self->{'rotation_factor'} > 0.5 ? 1 : 0);
+  }
+  sub _NumSeq_Turn_Right_max {
+    my ($self) = @_;
+    return ($self->{'rotation_factor'} > 0.5 ? 1 : 0);
+  }
+  use constant _NumSeq_Turn_Right_non_decreasing => 1; # constant 0 or 1
 
   sub _NumSeq_Turn_LSR_min {
     my ($self) = @_;
@@ -482,7 +544,7 @@ my $straight_LSR_predhash = { 0=>1 };
     my ($self) = @_;
     return ($self->{'rotation_factor'} > 0.5 ? -1 : 1);
   }
-  use constant _NumSeq_Turn_LSR_non_decreasing => 1;
+  use constant _NumSeq_Turn_LSR_non_decreasing => 1; # constant 1 or -1
 
   # sub _NumSeq_Turn_LSR_pred_hash {
   #   my ($self) = @_;
@@ -496,6 +558,8 @@ my $straight_LSR_predhash = { 0=>1 };
   use constant _NumSeq_Turn_LSR_min => 1;
   use constant _NumSeq_Turn_LSR_max => 1;
   use constant _NumSeq_Turn_LSR_non_decreasing => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left always
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::ArchimedeanChords;
   use constant _NumSeq_Turn_Left_min => 1; # left always
@@ -504,48 +568,53 @@ my $straight_LSR_predhash = { 0=>1 };
   use constant _NumSeq_Turn_LSR_min => 1;
   use constant _NumSeq_Turn_LSR_max => 1;
   use constant _NumSeq_Turn_LSR_non_decreasing => 1;
+  use constant _NumSeq_Turn_Right_max => 0; # left always
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 { package Math::PlanePath::MultipleRings;
+
+  # step=1 and step=2 are mostly 1 for left, but after a while each ring
+  # endpoint is to the right
+
   sub _NumSeq_Turn_Left_max {
     my ($self) = @_;
-    return ($self->{'step'} > 0
-            ? 1
-            : 0);  # horizontal only
+    return ($self->{'step'} <= 0
+            ? 0  # step == 0 is always straight ahead
+            : 1);
   }
-  sub _NumSeq_Turn_Left_non_decreasing {
+
+  sub _NumSeq_Turn_Right_max {
     my ($self) = @_;
-    return ($self->{'step'} > 0
-            ? 0
-            : 1);  # horizontal only
+    return ($self->{'step'} == 0
+            ? 0  # step == 0 is always straight ahead
+            : 1);
   }
 
   sub _NumSeq_Turn_LSR_min {
     my ($self) = @_;
-    return ($self->{'step'} > 0
-            ? -1
-            : 0); # horizontal only
+    return ($self->{'step'} == 0
+            ? 0  # step == 0 is always straight ahead
+            : -1);
   }
-  sub _NumSeq_Turn_LSR_max {
+  *_NumSeq_Turn_LSR_max = \&_NumSeq_Turn_Left_max;
+
+  sub _NumSeq_Turn_Left_non_decreasing {
     my ($self) = @_;
-    return ($self->{'step'} > 0
-            ? 1
-            : 0); # horizontal only
+    return ($self->{'step'} == 0);
   }
-  sub _NumSeq_Turn_LSR_non_decreasing {
-    my ($self) = @_;
-    return ($self->{'step'} > 0
-            ? 0
-            : 1);  # horizontal only
-  }
+  *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
+  *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
 }
-{ package Math::PlanePath::PixelRings;
-  use constant _NumSeq_Turn_LSR_min => 0; # left or straight
-}
+# { package Math::PlanePath::PixelRings;
+#   # right turns between rings
+# }
 # { package Math::PlanePath::FilledRings;
 # }
 { package Math::PlanePath::Hypot;
   use constant _NumSeq_Turn_Left_min => 1; # left always
   use constant _NumSeq_Turn_Left_non_decreasing => 1; # left always
+  use constant _NumSeq_Turn_Right_max => 0; # left always
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
   use constant _NumSeq_Turn_LSR_min => 1; # left always
   use constant _NumSeq_Turn_LSR_non_decreasing => 1; # left always
 }
@@ -553,9 +622,39 @@ my $straight_LSR_predhash = { 0=>1 };
 # }
 { package Math::PlanePath::TriangularHypot;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
+  use constant _NumSeq_Turn_Right_max => 0; # left or straight
+  use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
-# { package Math::PlanePath::PythagoreanTree;
-# }
+{ package Math::PlanePath::PythagoreanTree;
+  # UAD always turns right, it seems, both in PQ and XY
+  sub _NumSeq_Turn_Left_max {
+    my ($self) = @_;
+    return ($self->{'tree_type'} eq 'UAD'
+            ? 0 # always 0
+            : 1);
+  }
+  sub _NumSeq_Turn_Right_min {
+    my ($self) = @_;
+    return ($self->{'tree_type'} eq 'UAD'
+            ? 1 # always 1
+            : 0);
+  }
+  sub _NumSeq_Turn_LSR_max {
+    my ($self) = @_;
+    return ($self->{'tree_type'} eq 'UAD'
+            ? -1 # always -1
+            : 1);
+  }
+
+  sub _NumSeq_Turn_Left_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'tree_type'} eq 'UAD'
+            ? 1 # constant
+            : 0);
+  }
+  *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
+  *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
+}
 # { package Math::PlanePath::RationalsTree;
 # }
 # { package Math::PlanePath::FractionsTree;
@@ -633,6 +732,8 @@ my $straight_LSR_predhash = { 0=>1 };
             ? 0
             : 1);
   }
+  *_NumSeq_Turn_Right_max = \&_NumSeq_Turn_Left_max;
+  *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
 
   sub _NumSeq_Turn_LSR_min {
     my ($self) = @_;
@@ -665,6 +766,8 @@ my $straight_LSR_predhash = { 0=>1 };
             ? 0
             : 1);
   }
+  *_NumSeq_Turn_Right_max = \&_NumSeq_Turn_Left_max;
+  *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
 
   sub _NumSeq_Turn_LSR_min {
     my ($self) = @_;
@@ -708,6 +811,8 @@ my $straight_LSR_predhash = { 0=>1 };
             ? 0
             : 1); # vertical only
   }
+  *_NumSeq_Turn_Right_max = \&_NumSeq_Turn_Left_max;
+  *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
 
   sub _NumSeq_Turn_LSR_min {
     my ($self) = @_;
@@ -740,6 +845,7 @@ my $straight_LSR_predhash = { 0=>1 };
             ? 1
             : 0);
   }
+  *_NumSeq_Turn_Right_increasing = \&_NumSeq_Turn_Left_increasing;
 
   sub _NumSeq_Turn_LSR_increasing {
     my ($self) = @_;
@@ -751,6 +857,8 @@ my $straight_LSR_predhash = { 0=>1 };
 { package Math::PlanePath::CellularRule::Line;
   use constant _NumSeq_Turn_Left_max => 0; # straight ahead only
   use constant _NumSeq_Turn_Left_non_decreasing => 1; # straight ahead only
+  use constant _NumSeq_Turn_Right_max => 0; # straight ahead only
+  use constant _NumSeq_Turn_Right_non_decreasing => 1; # straight ahead only
 
   use constant _NumSeq_Turn_LSR_max => 0;
   use constant _NumSeq_Turn_LSR_min => 0;

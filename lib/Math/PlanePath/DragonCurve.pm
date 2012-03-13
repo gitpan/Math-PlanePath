@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 71;
+$VERSION = 72;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -789,6 +789,10 @@ various forms (and see DragonMidpoint too),
     A121238 -- -1^(n+ some partitions), is 1=left,-1=right (extra 1)
 
     A005811 -- total turn
+    A088748 -- total turn + 1
+    A164910 -- cumulative total turn (of A088748)
+
+    A088431 -- turn sequence run lengths
     A091072 -- odd part 4K+1, is N positions of the left turns
     A126937 -- points numbered like SquareSpiral (with N-1 and flip Y)
 
