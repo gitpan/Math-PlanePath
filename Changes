@@ -17,6 +17,11 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 73, April 2012
+    - new GrayCode, SierpinskiCurveStair, WunderlichSerpentine
+    - fix GcdRationals xy_to_n() on BigInt
+    - PlanePathCoord new SumAbs, TRadius, TRSquared
+
 Version 72, March 2012
     - PlanePathTurn new turn_type "Right"
 

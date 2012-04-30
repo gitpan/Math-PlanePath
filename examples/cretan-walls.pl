@@ -20,16 +20,19 @@
 
 # Usage: perl cretan-walls.pl
 #
-# This is a bit of fun carving out the CretanLabyrinth path from a solid
-# block of "*"s, thus leaving them representing the walls of the labyrinth.
+# This is a bit of fun carving out the CretanLabyrinth from a solid block of
+# "*"s, thus leaving those "*"s representing the walls of the labyrinth.
 #
-# The $spacing variable is how widely to spread the path, making the walls
-# thicker.
+# The $spacing variable is how widely to spread the path, for thicker walls.
+# The $width,$height sizes are chosen to make a whole 4-way cycle.
+#
+# The way the arms align means the entrance to the labyrinth is at the
+# bottom right corner.  In real labyrinths its usual to omit the lower right
+# bit of wall so the entrance is in the middle of the right side.
 #
 
 use 5.004;
 use strict;
-use POSIX ();
 use Math::PlanePath::CretanLabyrinth;
 
 my $spacing = 2;

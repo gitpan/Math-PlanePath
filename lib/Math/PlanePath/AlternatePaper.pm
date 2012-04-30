@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -388,7 +388,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA
+=for stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA..AA Golay Rudin dX GRS dY
 
 =head1 NAME
 
@@ -403,7 +403,7 @@ Math::PlanePath::AlternatePaper -- alternate paper folding curve
 =head1 DESCRIPTION
 
 This is the alternate paper folding curve (a variation on the DragonCurve
-paper folding),
+paper folding).
 
       8 |                                                      128
         |                                                       |
@@ -426,33 +426,33 @@ paper folding),
         +------------------------------------------------------------
           X=0    1     2     3      4      5      6      7      8
 
-The curve visits the X axis and X=Y diagonal points once each, and visits
-"inside" points between there twice.  The first doubled point is X=2,Y=1
-which is N=3 and also N=7.  The segments N=2,3,4 and N=6,7,8 have touched,
-but the curve doesn't cross over itself.  The doubled vertices are all like
-this, touching but not crossing, and no edges repeat.
+The curve visits the X axis and X=Y diagonal points once each and visits
+"inside" points between there twice each.  The first doubled point is
+X=2,Y=1 which is N=3 and also N=7.  The segments N=2,3,4 and N=6,7,8 have
+touched, but the curve doesn't cross over itself.  The doubled vertices are
+all like this, touching but not crossing, and no edges repeat.
 
 The first step N=1 is to the right along the X axis and the path fills the
-eighth of the plane up to the X=Y diagonal, inclusive.
+eighth of the plane up to the X=Y diagonal inclusive.
 
-The X axis N=0,1,4,5,16,17,etc are the integers which have only digits 0 and
-1 in base 4, or equivalently those which have a 0 bit at each even numbered
-bit position.
+The X axis N=0,1,4,5,16,17,etc is the integers which have only digits 0,1 in
+base 4, or equivalently those which have a 0 bit at each odd numbered bit
+position.
 
-The X=Y diagonal N=0,2,8,10,32,etc are the integers which have only digits 0
-and 2 in base 4, or equivalently which have a 0 bit at each odd numbered bit
+The X=Y diagonal N=0,2,8,10,32,etc is the integers which have only digits
+0,2 in base 4, or equivalently which have a 0 bit at each even numbered bit
 position.
 
 The X axis values are the same as on the ZOrderCurve X axis, and the X=Y
 diagonal is the same as the ZOrderCurve Y axis, but in between the two are
-quite different.
+different.
 
 =head2 Paper Folding
 
 The curve arises from thinking of a strip of paper folded in half
-alternately one way and the other, then unfolded so each crease is a 90
-degree angle.  The effect is that the curve repeats in successive doublings
-turned by 90 degrees and reversed.
+alternately one way and the other, and which is then unfolded so each crease
+is a 90 degree angle.  The effect is that the curve repeats in successive
+doublings turned 90 degrees and reversed.
 
 The first segment N=0 to N=1 unfolds, pivoting at the end "1",
 
@@ -475,6 +475,9 @@ opposite side to the first unfold,
 
 In general after each unfold the shape is a triangle,
 
+    after even number          after odd number
+       of unfolds,                of unfolds,
+     N=0 to N=2^even            N=0 to N=2^odd
                .                       .
               /|                      / \
              / |                     /   \
@@ -484,11 +487,7 @@ In general after each unfold the shape is a triangle,
          /_____|                 /___________\
         0,0                     0,0
 
-    after even number          after odd number
-       of unfolds,                of unfolds,
-     N=0 to N=2^even            N=0 to N=2^odd
-
-For an even number of unfolds, the triangle consists of 4 sub-parts numbered
+For an even number of unfolds the triangle consists of 4 sub-parts numbered
 by the high digit of N in base 4.  Those sub-parts are self-similar in the
 direction "E<gt>" etc shown, and with a reversal for parts 1 and 3.
 
@@ -503,43 +502,6 @@ direction "E<gt>" etc shown, and with a reversal for parts 1 and 3.
       /  |^ \ |
      / 0>| 1 \|
     +----+----+
-
-=head2 Turns
-
-At each point N the curve always turns either to the left or right, it never
-goes straight ahead.  The turn is given by the bit above the lowest 1 bit in
-N and whether that position is odd or even.
-
-    N = 0b...z100..00   (possibly no trailing 0s)
-             ^
-             pos, counting from 0 for least significant bit
-
-    (z bit) XOR (pos&1)   Turn
-    -------------------   ----
-             0            right
-             1            left
-
-For example N=10 binary 0b1010, the lowest 1 bit is the 0b__1_ and the bit
-above that is a 0 at even number pos=2, so turn to the right.
-
-The bits also give the turn after next by looking at the bit above the
-lowest 0.
-
-    N = 0b...w011..11    (possibly no trailing 1s)
-             ^
-             pos, counting from 0 for least significant bit
-
-    (w bit) XOR (pos&1)    Next Turn
-    -------------------    ---------
-             0             right
-             1             left
-
-For example at N=10=0b1010 the lowest 0 is the least significant bit, and
-above that is a 1 at odd pos=1, so turn right.
-
-The inversion for odd bit positions can be applied with an xor 0xAA..AA,
-after which the calculations are the sames as the DragonCurve (see
-L<Math::PlanePath::DragonCurve/Turns>).
 
 =head1 FUNCTIONS
 
@@ -570,19 +532,147 @@ Return 0, the first N in the path.
 
 =back
 
+=head1 FORMULAS
+
+=head2 Turns
+
+At each point N the curve always turns either left or right, it never goes
+straight ahead.  The turn is given by the bit above the lowest 1 bit in N
+and whether that position is odd or even.
+
+    N = 0b...z100..00   (including possibly no trailing 0s)
+             ^
+             pos, counting from 0 for least significant bit
+
+    (z bit) XOR (pos&1)   Turn
+    -------------------   ----
+             0            right
+             1            left
+
+For example N=10 binary 0b1010 has lowest 1 bit at 0b__1_ and the bit above
+that is a 0 at even number pos=2, so turn to the right.
+
+The bits also give the turn after next by looking at the bit above the
+lowest 0.
+
+    N = 0b...w011..11    (including possibly no trailing 1s)
+             ^
+             pos, counting from 0 for least significant bit
+
+    (w bit) XOR (pos&1)    Next Turn
+    -------------------    ---------
+             0             right
+             1             left
+
+For example at N=10 binary 0b1010 the lowest 0 is the least significant bit,
+and above that is a 1 at odd pos=1, so at N=10+1=11 turn right.
+
+The inversion for odd bit positions can be applied with an xor 0xAA..AA, and
+after that the calculations are the same as the DragonCurve (see
+L<Math::PlanePath::DragonCurve/Turns>).
+
+=head2 Total Turn
+
+The total turn can be calculated from the segment replacements resulting
+from the bits of N.
+
+    each bit of N from high to low
+
+      when plain state
+       0 -> no change
+       1 -> turn left if even bit pos or turn right if odd bit pos
+              and go to reversed state
+
+      when reversed state
+       1 -> no change
+       0 -> turn left if even bit pos or turn right if odd bit pos
+              and go to plain state
+
+    (bit positions numbered from 0 for the least significant bit)
+
+This is similar to the DragonCurve (L<Math::PlanePath::DragonCurve/Total
+Turn>) except the turn is either left or right according to an odd or even
+bit position of the transition, instead of always left for the DragonCurve.
+
+=head2 X,Y change
+
+Since there's always a turn either left or right, never straight ahead, the
+X coordinate changes, then the Y, then the X again, etc, alternately, and by
+either +/-1.  The change amounts are the Golay-Rudin-Shapiro sequence
+(parity of adjacent 11 bit pairs).
+
+From the total turn above it can be seen that if the 0-E<gt>1 transition is
+at an odd position and 1-E<gt>0 transition at an even position then there's
+a turn to the left followed by a turn to the right for no net change.
+Likewise an even and an odd.  This means runs of 1 bits with an odd length
+have no effect on the direction.  Runs of even length on the other hand are
+a left followed by a left, or a right followed by a right, for 180 degrees,
+which negates the dX change.  Thus
+
+    dX = (-1) ^ (count of even length runs of 1 bits in N)
+         for N even
+
+This is related to the Golay-Rudin-Shapiro sequence
+
+    GRS = (-1) ^ (count of adjacent 11 bit pairs in N)
+        = (-1) ^ count_1_bits(N & (N>>1))
+        = +1 if (N & (N>>1)) even parity
+          -1 if (N & (N>>1)) odd parity
+
+The GRS is +1 on an odd length run of 1 bits, for example a run 111 has two
+11 bit pairs.  On an even length run the GRS is -1.  For example 1111 has
+three 11 bit pairs.  So modulo 2 the power in the GRS is the same as the
+count of even length runs and so
+
+    dX = GRS(N) if N even
+         0      if N odd
+
+For dY the total turn and odd/even runs of 1s makes the same 180 degree
+changes, except that because N is odd for a Y change the least significant
+bit is 1 so there's no return to "plain" state.  This lowest run of 1s will
+be turn left giving dY=+1 if it started at even position (an odd number of
+1s), and conversely turn right for dY=-1 if at an odd position (an even
+number of 1s).  The result for this last run is the same negate if even
+length run of 1s, just for a slightly different reason.
+
+    dY = 0      if N even
+         GRS(N) if N odd
+
+The adjacent dX then dY at N=2k and N=2k+1 can be expressed together in
+terms of that k as
+
+    dX = GRS(2k)
+       = GRS(k)
+
+    dY = GRS(2k+1)
+       = GRS(k) * (-1)^k
+       = GRS(k) if k even or -GRS(k) if k odd
+
+Going from 2k+1 to k drops a 1 bit from the low end and if the second lowest
+bit is also a 1 then they're a 11 bit pair which is lost in GRS(k).  The
+factor (-1)^k accounts for that, being +1 if k even or -1 if k odd.
+
 =head1 OEIS
 
 The alternate paper folding curve is in Sloane's Online Encyclopedia of
 Integer Sequences as,
 
-    http://oeis.org/A106665
+    http://oeis.org/A106665  (etc)
 
     A106665 -- turn, 1=left,0=right, starting at N=1
+    A020985 -- dX and dY changes, Golay/Rudin/Shapiro sequence
+    A020986 -- X coordinate undoubled, Golay/Rudin/Shapiro cumulative
+    A020990 -- Y coordinate undoubled, GRS * (-1)^n cumulative
+
+Since the X and Y coordinates change each alternately, each coordinate
+appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990
+are "undoubled" in the sense of giving just one copy of those paired values.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::HIndexing>,
 L<Math::PlanePath::ZOrderCurve>
 
 =head1 HOME PAGE
@@ -591,7 +681,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

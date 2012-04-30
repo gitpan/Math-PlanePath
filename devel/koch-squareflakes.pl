@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,6 +24,30 @@ use Math::PlanePath::KochSquareflakes;
 
 
 {
+  # Xstart power
+  # Xstart = b^level
+  # b = Xstart^(1/level)
+  #
+  # D = P^2-4Q = 4^2-4*-2 = 24
+  # sqrt(24) = 4.898979485566356196394568149
+  #
+  my $path = Math::PlanePath::KochSquareflakes->new;
+  my $prev = 1;
+  foreach my $level (1 .. 12) {
+    my $nstart = (4**($level+1) - 1) / 3;
+    my ($xstart,$ystart) = $path->n_to_xy($nstart);
+    $xstart = -$xstart;
+    my $f = $xstart / $prev;
+    # my $b = $xstart ** (1/($level+1));
+    print "level=$level xstart=$xstart f=$f\n";
+    $prev = $xstart;
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  # Xstart list
   my $path = Math::PlanePath::KochSquareflakes->new;
   foreach my $level (1 .. 12) {
     my $nstart = (4**($level+1) - 1) / 3;

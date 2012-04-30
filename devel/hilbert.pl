@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -19,9 +19,43 @@
 
 use 5.010;
 use strict;
-# use Math::PlanePath::HilbertCurve;
+use Math::PlanePath::HilbertCurve;
 
 #use Smart::Comments;
+
+
+{
+  require Math::PlanePath::ZOrderCurve;
+  my $hilbert  = Math::PlanePath::HilbertCurve->new;
+  my $zorder   = Math::PlanePath::ZOrderCurve->new;
+  sub zorder_perm {
+    my ($n) = @_;
+    my ($x, $y) = $zorder->n_to_xy ($n);
+    return $hilbert->xy_to_n ($x, $y);
+  }
+  sub cycle_length {
+    my ($n) = @_;
+    my %seen;
+    my $count = 1;
+    my $p = $n;
+    for (;;) {
+      $p = zorder_perm($p);
+      if ($p == $n) {
+        last;
+      }
+      $count++;
+    }
+    return $count;
+  }
+  foreach my $n (0 .. 128) {
+    my $perm = zorder_perm($n);
+    my $len = cycle_length($n);
+    print "$n $perm   $len\n";
+  }
+  exit 0;
+}
+
+
 
 {
   require Math::BaseCnv;

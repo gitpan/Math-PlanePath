@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -67,9 +67,9 @@ sub n_to_xy {
   my $x = my $y = ($int * 0);  # inherit bignum 0
 
   my $len = $y + 1;    # inherit bignum 1
-  my $digit;
   for (;;) {
     ### bits: $int % 4
+
     my $digit = $int % 4;
     if ($digit == 0) {
       $x = $frac + $x;
@@ -310,6 +310,7 @@ Math::PlanePath::HilbertCurve -- 2x2 self-similar quadrant traversal
 
 =head1 DESCRIPTION
 
+X<Hilbert, David>
 This path is an integer version of the curve described by David Hilbert in
 1891 for filling a unit square.  It traverses a quadrant of the plane one
 step at a time in a self-similar 2x2 pattern,
@@ -558,12 +559,12 @@ Putting the two together then
 
 =head1 OEIS
 
-This Hilbert Curve path is in Sloane's OEIS in several forms,
+This path is in Sloane's OEIS in many forms,
 
     http://oeis.org/A059252  (etc)
 
-    A059252    Y coord    \ reckoning first move along X
-    A059253    X coord    / per the code here
+    A059252    Y coord
+    A059253    X coord
     A059261    X+Y
     A059285    X-Y
     A163547    X^2+Y^2 radius squared
@@ -578,9 +579,10 @@ This Hilbert Curve path is in Sloane's OEIS in several forms,
     A163541    absolute direction, swapped X,Y
     A163542    relative direction (ahead=0,right=1,left=2)
     A163543    relative direction, swapped X,Y
+    A163900    distance dX^2+dY^2 between Hilbert and ZOrder
 
-And the following taking points of the plane in various orders, each value
-in the sequence being the N of the Hilbert curve at those positions.
+The following take points of the plane in various orders, each value in the
+sequence being the N of the Hilbert curve at those positions.
 
     A163355    in the ZOrderCurve sequence
     A163357    in diagonals like Math::PlanePath::Diagonals with
@@ -600,6 +602,30 @@ put there.
     A163360    inverse of A163359  (Diagonals opposite)
     A163362    inverse of A163361  (Diagonals N=1)
     A163364    inverse of A163363  (Diagonals N=1 opposite)
+
+The A163355 ZOrderCurve ordering is a permutation of the integers and
+repeats or cycles can be considered,
+
+    A163905    ZOrderCurve permutation A163355 applied twice
+    A163915    ZOrderCurve permutation A163355 applied three times
+    A163901    fixed points (N where X,Y same in both curves)
+    A163902    2-cycle points
+    A163903    3-cycle points
+    A163890    cycle lengths, points by N
+    A163904    cycle lengths, points by diagonals
+    A163910    count of cycles in 4^k blocks
+    A163911    max cycle length in 4^k blocks
+    A163912    LCM of cycle lengths in 4^k blocks
+    A163914    count of 3-cycles in 4^k blocks
+    A163909      those counts for even k only
+    A163891    N of previously unseen cycle length
+    A163893      first differences of those A163891
+    A163894    smallest value not an n-cycle
+    A163895      position of new high in A163894
+    A163896      value of new high in A163894
+
+    A163907    ZOrderCurve permutation twice, on points by diagonals
+    A163908      inverse of this
 
 See F<examples/hilbert-oeis.pl> in the Math-PlanePath sources for a sample
 program printing the A163359 permutation values.

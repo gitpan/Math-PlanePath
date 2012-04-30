@@ -20,11 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1575 }
+BEGIN { plan tests => 1576 }
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 require Math::PlanePath::GosperSide;
 
@@ -33,7 +36,7 @@ require Math::PlanePath::GosperSide;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::GosperSide::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GosperSide->VERSION,  $want_version,
@@ -150,10 +153,11 @@ require Math::PlanePath::GosperSide;
 }
 
 #------------------------------------------------------------------------------
-# turn sequence
+# turn sequence described in the POD
 
 {
-  sub n_to_turn {
+  # 1 for +60 deg, -1 for -60 deg
+  sub n_to_turn_calculated {
     my ($n) = @_;
     for (;;) {
       if ($n == 0) { die "oops n=0"; }
@@ -202,7 +206,7 @@ require Math::PlanePath::GosperSide;
     my $dir = dxdy_to_dir($dx,$dy);
 
     my $got_turn = ($dir - $prev_dir) % 6;
-    my $want_turn = n_to_turn($n-1) % 6;
+    my $want_turn = n_to_turn_calculated($n-1) % 6;
 
     if ($got_turn != $want_turn) {
       MyTestHelpers::diag ("n=$n turn got=$got_turn want=$want_turn");
@@ -214,6 +218,48 @@ require Math::PlanePath::GosperSide;
     $prev_dir = $dir;
   }
   ok ($bad, 0, "turn sequence");
+}
+
+#------------------------------------------------------------------------------
+# total turn described in the POD
+
+{
+  # as a count of +60 deg
+  sub n_to_dir_calculated {
+    my ($n) = @_;
+    my $dir = 0;
+    while ($n) {
+      if (($n % 3) == 1) {
+        $dir++;
+      }
+      $n = int($n/3);
+    }
+    return $dir;
+  }
+
+  my $path = Math::PlanePath::GosperSide->new;
+  my $n = $path->n_start;
+  my $bad = 0;
+  my ($x,$y) = $path->n_to_xy($n);
+
+  while ($n < 1000) {
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    my $dx = $next_x - $x;
+    my $dy = $next_y - $y;
+    my $path_dir = dxdy_to_dir($dx,$dy);
+    my $calc_dir = n_to_dir_calculated($n) % 6;
+
+    if ($path_dir != $calc_dir) {
+      MyTestHelpers::diag ("n=$n dir path=$path_dir calc=$calc_dir");
+      MyTestHelpers::diag ("  xy from $x,$y to $next_x,$next_y");
+      last if $bad++ > 10;
+    }
+
+    $x = $next_x;
+    $y = $next_y;
+    $n++;
+  }
+  ok ($bad, 0, "total turn");
 }
 
 exit 0;

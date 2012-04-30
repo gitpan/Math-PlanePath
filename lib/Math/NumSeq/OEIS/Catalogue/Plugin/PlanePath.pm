@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
@@ -613,7 +613,7 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'TerdragonCurve',
+      'GosperSide',
       'turn_type',
       'Left'
     ]

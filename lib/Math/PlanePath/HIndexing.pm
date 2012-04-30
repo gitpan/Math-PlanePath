@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -274,6 +274,9 @@ Math::PlanePath::HIndexing -- self-similar right-triangle traversal
 
 =head1 DESCRIPTION
 
+X<Niedermeier, Rolf>
+X<Reinhardt, Klaus>
+X<Sanders, Peter>
 This is an infinite integer version of the H-indexing by Rolf Niedermeier,
 Klaus Reinhardt and Peter Sanders.
 

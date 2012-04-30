@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -231,7 +231,7 @@ __END__
   #   $x = int ($x / $xmod);
   #   $npos *= $xmod;
 
-=for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix
+=for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix RxR OEIS ZOrderCurve
 
 =head1 NAME
 
@@ -289,6 +289,12 @@ Along the X axis N=0,1,4,5,16,17,etc is the integers with only digits 0,1 in
 base 4.  Along the Y axis N=0,2,8,10,32,etc is the integers with only digits
 0,2 in base 4.  And along the X=Y diagonal N=0,3,12,15,etc is digits 0,3 in
 base 4.
+
+In the base Z pattern it can be seen that transposing to Y,X means swapping
+parts 1 and 2.  This applies in the sub-parts too so in general if N is at
+X,Y then changing base 4 digits 1E<lt>-E<gt>2 gives the N at the transpose
+Y,X.  For example N=22 at X=6,Y=1 is base-4 "112", change 1E<lt>-E<gt>2 is
+"221" for N=41 at X=1,Y=6.
 
 =head2 Power of 2 Values
 
@@ -434,6 +440,28 @@ N increases with increasing Y (for all C<radix> parameters).
 So for a given rectangle the smallest N is at the lower left corner
 (smallest X and smallest Y), and the biggest N is at the upper right
 (biggest X and biggest Y).
+
+=head1 OEIS
+
+This path is in Sloane's Online Encyclopedia of Integer Sequences in a few
+forms,
+
+    http://oeis.org/A000695  (etc)
+
+    A000695    X axis,   base 4 digits 0,1 only
+    A062880    Y axis,   base 4 digits 0,2 only
+    A001196    diagonal, base 4 digits 0,3 only
+    A057300    base 4 flip 1<->2, is N at transpose Y,X of N
+
+And taking X,Y points in the Diagonals sequence then the value of the
+following sequences is the N of the ZOrderCurve at those positions.
+
+    A054238    numbering by diagonals, from same axis as first step
+    A054239    inverse permutation
+
+C<Math::PlanePath::Diagonals> numbers points from the Y axis down, which is
+the opposite axis to the ZOrderCurve first step along the X axis, so a
+transpose is needed to give A054238.
 
 =head1 SEE ALSO
 

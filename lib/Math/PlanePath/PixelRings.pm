@@ -21,13 +21,13 @@ use 5.004;
 use strict;
 use List::Util qw(min max);
 use Math::Libm 'hypot';
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -137,7 +137,7 @@ sub n_to_xy {
   ### $rev
   ### $n
   my $y = $n;
-  my $x = ceil (sqrt (max (0, $r*$r - $y*$y)) - .5);
+  my $x = int (sqrt (_max (0, $r*$r - $y*$y)) + .5);
   if ($rev) {
     ($x,$y) = ($y,$x);
   }

@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -314,7 +314,7 @@ sub _divisors_cumulative {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath sqrt
+=for stopwords Ryde Math-PlanePath sqrt OEIS
 
 =head1 NAME
 

@@ -25,11 +25,10 @@
 package Math::PlanePath::QuadricIslands;
 use 5.004;
 use strict;
-use POSIX qw(ceil);
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -136,11 +135,11 @@ sub n_to_xy {
   } elsif ($side < 3) {
     ### horizontal leftwards
     return (-$x + $pos,     # rotate 180, offset
-            -$y + $pos)
+            -$y + $pos);
   } else {
     ### left vertical downwards
     return ($y - $pos,     # rotate -90, offset
-            -$x + $pos );
+            -$x + $pos);
   }
 }
 

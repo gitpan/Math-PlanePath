@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -198,8 +198,8 @@ use Devel::Comments;
 
 
 {
-  require App::MathImage::NumSeq::Abundant;
-  my $seq = App::MathImage::NumSeq::Abundant->new (hi => 5_000_000);
+  require Math::NumSeq::Abundant;
+  my $seq = Math::NumSeq::Abundant->new (hi => 5_000_000);
   my ($max_i, $max_value);
   while (my ($i, $value) = $seq->next) {
     # my $m = ($value % 6);

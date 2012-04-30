@@ -16,12 +16,16 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=CornerReplicate --all --output=numbers_dash --size=80x50
+#
+
+
 package Math::PlanePath::CornerReplicate;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -257,7 +261,7 @@ __END__
 # }
 
 
-=for stopwords eg Ryde Math-PlanePath SierpinskiCurve
+=for stopwords eg Ryde Math-PlanePath SierpinskiCurve ZOrderCurve OEIS
 
 =head1 NAME
 
@@ -307,11 +311,20 @@ The pattern is the initial N=0 to N=3 section,
 It then repeats as 2x2 blocks arranged in the same pattern, then 4x4 blocks,
 etc.
 
-Along the X axis N=0,1,4,5,16,17,etc is all the integers which use only
+The X axis N=0,1,4,5,16,17,etc is all the integers which use only
 digits 0 and 1 in base 4.  For example N=17 is 101 in base 4.
 
-Along the Y axis N=0,3,12,15,48,etc is all the integers which use only
-digits 0 and 3 in base 4.  For example N=51 is 303 in base 4.
+The Y axis N=0,3,12,15,48,etc is all the integers which use only digits 0
+and 3 in base 4.  For example N=51 is 303 in base 4.
+
+And the X=Y diagonal values N=0,2,8,10,32,34,etc is all the integers which
+use only digits 0 and 2 in base 4.
+
+The X axis is the same as the ZOrderCurve, and the Y axis here is the X=Y
+diagonal of the ZOrderCurve, and conversely the X=Y diagonal here is the Y
+axis of the ZOrderCurve.  In general the N value at a given X,Y is converted
+to or from the ZOrderCurve by changing base 4 digit values 2 to 3 and 3
+to 2.
 
 =head2 Level Ranges
 
@@ -343,13 +356,26 @@ and biggest in the rectangle.
 
 =back
 
+=head1 OEIS
+
+This path is in Sloane's Online Encyclopedia of Integer Sequences as
+
+    http://oeis.org/A000695  (etc)
+
+    A000695    X axis,   base 4 digits 0,1 only
+    A001196    Y axis,   base 4 digits 0,3 only
+    A062880    diagonal, base 4 digits 0,2 only
+    A163241    base-4 flip 2<->3,
+                 converts N to ZOrderCurve N (and back)
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::LTiling>,
 L<Math::PlanePath::SquareReplicate>,
 L<Math::PlanePath::GosperReplicate>,
-L<Math::PlanePath::ZOrderCurve>
+L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::GrayCode>
 
 =head1 HOME PAGE
 
@@ -375,9 +401,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=CornerReplicate --lines --scale=10"
-# End:
-#
-# math-image --path=CornerReplicate --all --output=numbers_dash --size=80x50

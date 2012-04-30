@@ -142,11 +142,21 @@ my @all_classes = ('SquareSpiral',
 
                    'PeanoCurve',
                    'PeanoCurve,radix=5',
+                   'WunderlichSerpentine',
+                   'WunderlichSerpentine,serpentine_type=coil',
+                   'WunderlichSerpentine,radix=5,serpentine_type=01001_01110_01000_11111_00010',
+                   'WunderlichMeander',
+
                    'HilbertCurve',
                    'HilbertSpiral',
+
                    'ZOrderCurve',
                    'ZOrderCurve,radix=5',
-                   'WunderlichMeander',
+
+                   'GrayCode',
+                   'GrayCode,apply_type=Ts',
+                   'GrayCode,radix=4',
+
                    'BetaOmega',
                    'AR2W2Curve',
                    'AR2W2Curve,start_shape=D2',
@@ -189,6 +199,10 @@ my @all_classes = ('SquareSpiral',
                    'QuadricIslands',
 
                    'SierpinskiCurve',
+                   'SierpinskiCurve,arms=8',
+                   'SierpinskiCurveStair',
+                   'SierpinskiCurveStair,arms=2',
+                   'SierpinskiCurveStair,diagonal_length=4',
                    'HIndexing',
 
                    'SierpinskiTriangle',
@@ -265,8 +279,8 @@ sub print_class {
   my $y_max = 0;
   my $cellwidth = 1;
 
-  my $path = $class->new (width  => POSIX::ceil ($width / 4),
-                          height => POSIX::ceil ($height / 2),
+  my $path = $class->new (width  => POSIX::ceil($width / 4),
+                          height => POSIX::ceil($height / 2),
                           @parameters);
   my $x_limit_lo;
   my $x_limit_hi;

@@ -22,16 +22,12 @@
 package Math::PlanePath::FilledRings;
 use 5.004;
 use strict;
-use List::Util qw(min max);
-use Math::Libm 'hypot';
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 

@@ -24,7 +24,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -56,7 +56,7 @@ sub _extend {
       push @y, $i;
     } elsif ($hypot > $y_next_hypot[$i]) {
       @y = ($i);
-      $hypot = $y_next_hypot[$i]
+      $hypot = $y_next_hypot[$i];
     }
   }
 
@@ -241,7 +241,7 @@ __END__
 
 
 
-=for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant onwards
+=for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant onwards TriangularHypot DiamondSpiral PyrmaidSides
 
 =head1 NAME
 
@@ -276,9 +276,8 @@ origin 0,0, or anti-clockwise from the X axis among those of equal distance,
 For example N=58 is at X=4,Y=-1 is sqrt(4*4+1*1) = sqrt(17) from the origin.
 The next furthest from the origin is X=3,Y=3 at sqrt(18).
 
-In general the X,Y points are the sums of two squares X^2+Y^2 taken in
-increasing order of that hypotenuse, with negative X or Y and swapped Y,X
-included.
+See TriangularHypot for points in order of X^2+3*Y^2, or DiamondSpiral and
+PyrmaidSides in order of plain sum X+Y.
 
 =head2 Equal Distances
 
@@ -367,6 +366,7 @@ for negative and swapped X,Y.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::HypotOctant>,
+L<Math::PlanePath::TriangularHypot>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::PythagoreanTree>
 

@@ -38,7 +38,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -72,7 +72,7 @@ sub _extend {
       push @y, $i;
     } elsif ($hypot > $y_next_hypot[$i]) {
       @y = ($i);
-      $hypot = $y_next_hypot[$i]
+      $hypot = $y_next_hypot[$i];
     }
   }
 
@@ -273,8 +273,8 @@ Math::PlanePath::TriangularHypot -- points of triangular lattice in order of hyp
 =head1 DESCRIPTION
 
 This path visits X,Y points on a triangular "A2" lattice in order of their
-distance from the origin 0,0, and anti-clockwise around from the X axis
-among those of equal distance,
+distance from the origin 0,0 and anti-clockwise around from the X axis among
+those of equal distance,
 
 
              58    47    39    46    57                 4
@@ -299,7 +299,7 @@ among those of equal distance,
     -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
 The lattice is put on a square X,Y grid using every second point per
-L<Math::PlanePath/Triangular Lattice>.  With a scaling X/2, Y*sqrt(3)/2 to
+L<Math::PlanePath/Triangular Lattice>.  With scaling X/2, Y*sqrt(3)/2 to
 give equilateral triangles with side length 1 the X,Y distance from the
 origin is
 

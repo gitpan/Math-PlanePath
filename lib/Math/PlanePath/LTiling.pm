@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -46,7 +46,7 @@ use constant parameter_info_array =>
       type    => 'enum',
       default => 'middle',
       choices => ['middle','left','upper','ends','all'],
-      # description => Math::NumSeq::__(''),
+      # description => '',
     },
   ];
 
@@ -269,8 +269,8 @@ times with end parts turned +90 and -90 degrees to make a larger L,
     +-----+        +-----+-----+        +-----+-----+-----+-----+
 
 The parts are numbered to the left then middle then upper.  This relative
-numbering is maintained in the rotated parts of the next replication level,
-as for example N=4 to N=7.
+numbering is maintained when rotated at the next replication level, as for
+example N=4 to N=7.
 
 The result is to visit 1 of every 3 points in the first quadrant with a
 subtle layout of points and spaces making diagonal lines and little 2x2
@@ -295,9 +295,9 @@ blocks.
         +------------------------------------------------------------
            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-Along the X=Y leading diagonal N=0,2,8,10,32,etc is the integers made from
-only digits 0 and 2 in base 4.  Or equivalently integers which have zero
-bits at all even numbered positions, binary c0d0e0f0.
+On the X=Y leading diagonal N=0,2,8,10,32,etc is the integers made from only
+digits 0 and 2 in base 4.  Or equivalently integers which have zero bits at
+all even numbered positions, binary c0d0e0f0.
 
 =head2 Left or Upper
 
@@ -330,14 +330,14 @@ instead at their left end or upper end respectively.
     +-----+-----+                    X=0  1   2   3   4   5   6   7   8
 
 The effect is to disrupt the pattern a bit though the overall structure of
-the "L" replications is unchanged.
+the replications is unchanged.
 
 =head2 Ends
 
 Option C<L_fill =E<gt> "ends"> numbers the two endpoints within each "L",
 first the left then upper.  This is the inverse of the default middle shown
-above, ie. it visits all the points the middle option doesn't, and so 2 of
-every 3 points in the first quadrant.
+above, ie. it visits all the points which the middle option doesn't, and so
+2 of every 3 points in the first quadrant.
 
     +-----+
     |    7|
@@ -391,8 +391,8 @@ which is the same as 2* numbers using 0 and 3 in base 4.
 
 =head2 Level Ranges
 
-For the "middles", "left" or "upper" numbering 1 per tile, and taking the
-initial N=0 tile as level 0, a replication level is
+For the "middles", "left" or "upper" cases with one N per tile, and taking
+the initial N=0 tile as level 0, a replication level is
 
     Nstart = 0
      to

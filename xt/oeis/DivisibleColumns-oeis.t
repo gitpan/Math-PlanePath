@@ -58,6 +58,8 @@ sub numeq_array {
   if (! $bvalues) {
     MyTestHelpers::diag ("$anum not available");
   } else {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
     my $path = Math::PlanePath::DivisibleColumns->new;
     for (my $i = 0; $i < @$bvalues; $i++) {
       my $x = $i+1;
@@ -74,4 +76,5 @@ sub numeq_array {
 }
 
 
+#------------------------------------------------------------------------------
 exit 0;

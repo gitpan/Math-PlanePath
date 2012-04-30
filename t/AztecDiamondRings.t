@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 205; }
+BEGIN { plan tests => 215; }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::AztecDiamondRings;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::AztecDiamondRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AztecDiamondRings->VERSION,  $want_version,
@@ -56,6 +56,29 @@ require Math::PlanePath::AztecDiamondRings;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# rect_to_n_range()
+
+{
+  my $path = Math::PlanePath::AztecDiamondRings->new;
+  foreach my $elem
+    (
+     [1,-2,  1,2,   5,27], # X=1,  Y=-2..2 being 23,12,5,14,27
+     [-1,-2, -1,2,  2,16], # X=-1, Y=-2..2 being 10,3,2,7,16
+
+     [-2,1,  2,1,   6,26], # Y=1,  X=-2..2 being 17,7,6,14,26
+     [-2,-1, 2,-1,  3,24], # Y=-1, X=-2..2 being 9,3,4,12,24
+     [-2,-1, 1,-1,  3,12], # Y=-1, X=-2..1 being 9,3,4,12
+
+     [0,-2,  -2,-2, 10,20],   # Y=-2, X=-2 to 0 being 20,10,11
+    ) {
+    my ($x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
+    my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ok ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2");
+    ok ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2");
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -133,20 +156,6 @@ require Math::PlanePath::AztecDiamondRings;
   }
 }
 
-
-#------------------------------------------------------------------------------
-# rect_to_n_range()
-
-{
-  foreach my $elem ([0,-2, -2,-2,  10,20],   # Y=-2, X=-2 to 0 being 20,10,11
-                   ) {
-    my ($x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
-    my $path = Math::PlanePath::AztecDiamondRings->new;
-    my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-    ok ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2");
-    ok ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2");
-  }
-}
 
 #------------------------------------------------------------------------------
 # random fracs

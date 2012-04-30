@@ -32,7 +32,7 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -365,6 +365,7 @@ Math::PlanePath::GosperIslands -- concentric Gosper islands
 
 =head1 DESCRIPTION
 
+X<Gosper, William>
 This path is integer versions of the Gosper island at successive levels,
 arranged as concentric rings on a triangular lattice (see
 L<Math::PlanePath/Triangular Lattice>).  Each island is the outline of a

@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -299,6 +299,7 @@ Math::PlanePath::CellularRule54 -- cellular automaton points
 
 =head1 DESCRIPTION
 
+X<Wolfram, Stephen>
 This is the pattern of Stephen Wolfram's "rule 54" cellular automaton
 
     http://mathworld.wolfram.com/Rule54.html

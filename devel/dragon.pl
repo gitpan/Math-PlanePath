@@ -35,6 +35,297 @@ use Math::PlanePath::KochCurve 42;
 
 
 {
+  # A088431 and A007400
+  require Math::ContinuedFraction;
+  require Math::NumSeq::PlanePathTurn;
+
+  my @runlengths = (0,1);
+  my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve');
+  my (undef, $prev) = $seq->next;
+  my $count = 1;
+  while (@runlengths < 50) {
+    my (undef, $turn) = $seq->next;
+    if ($turn != $prev) {
+      push @runlengths, $count * 2;
+      $count = 0;
+      $prev = $turn;
+    }
+    $count++;
+  }
+
+  # @runlengths = (0, 1, 4, 2, 4, 4, 6, 4, 2, 4, 6, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4,
+  #                2, 6, 4, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4, 2, 4, 6, 2, 4, 6, 4, 4,
+  #                2, 6, 4, 2, 4, 4, 6, 4, 2, 6, 4, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4,
+  #                2, 4, 6, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4, 2, 6, 4, 2, 4, 6, 4, 4,
+  #               );
+
+  my $cf = Math::ContinuedFraction->new(\@runlengths);
+  my $cfstr = $cf->to_ascii;
+  print "cf $cfstr\n";
+
+  foreach my $i (1 .. $#runlengths) {
+    my ($num, $den) = $cf->convergent($i);
+    my $numstr = $num->as_bin;
+    $numstr =~ s/^0b//;
+    my $denstr = $den->as_bin;
+    $denstr =~ s/^0b//;
+    printf "%3d %-40.70s\n", $i, $numstr;
+    printf "    %-40.70s\n", $denstr;
+  }
+
+  my ($num, $den) = $cf->convergent($#runlengths);
+  my $approx = $num->numify / $den->numify;
+  print "$approx\n";
+
+  $num *= Math::BigInt->new(2) ** 70;
+  $num /= $den;
+  my $bits = $num->as_bin;
+  $bits =~ s/^0b//;
+  print "d:   $bits\n";
+
+  exit 0;
+}
+
+{
+  # A088431
+  require Math::ContinuedFraction;
+  require Math::BigInt;
+  require Math::BigRat;
+  my $half = Math::BigRat->new('1/2');
+  my $rat = Math::BigRat->new('1');
+  for (my $exp = 1; $exp <= 16; $exp *= 2) {
+    $rat += $half ** $exp;
+  }
+  print "$rat\n";
+
+  my $num = $rat->numerator;
+  my $den = $rat->denominator;
+  print "num ",$num->as_bin,"\n";
+  print "den ",$den->as_bin,"\n";
+  my $cf = Math::ContinuedFraction->from_ratio($num,$den);
+  my $cfstr = $cf->to_ascii;
+  my $cfaref = $cf->to_array;
+  my $cflen = scalar(@$cfaref);
+  print "$cflen  $cfstr\n";
+  $,=',';
+
+  foreach (@$cfaref) { $_ /= 2 }
+  print @$cfaref,"\n";
+  exit 0;
+}
+
+{
+  # diagonal
+
+  #
+  #                       |---8
+  #                       |
+  #                       v
+  #                       6<--
+  #                           |
+  #                           |
+  #                   0   |---4
+  #                   |   |
+  #                   |   v
+  #                   |-->2
+  #
+  # new xmax = ymax or -ymin or 2L-xmin
+  # new xmin = ymin
+  # new ymax = 2L-ymin
+  # new ymin = -xmax or -ymax            same
+
+  my $xmax = 1;
+  my $xmin = 0;
+  my $ymax = 1;
+  my $ymin = 0;
+  my $len = 1;
+  my $exp = 8;
+  for (1 .. $exp) {
+    printf "%2d %-18s %-18s %-18s %-18s\n",
+      $_, to_bin($xmin),to_bin($xmax), to_bin($ymin),to_bin($ymax);
+    ($xmax,
+     $xmin,
+     $ymax,
+     $ymin)
+      =
+        (max($ymax, -$ymin, 2*$len-$xmin),
+         min($ymin),
+         2*$len-$ymin,
+         min(-$xmax,-$ymax));
+    ### assert: $xmin <= 0
+    ### assert: $ymin <= 0
+    ### assert: $xmax >= 0
+    ### assert: $ymax >= 0
+    $len *= 2;
+  }
+  print 3*$xmin/$len+.001," / 3\n";
+  print 6*$xmax/$len+.001," / 6\n";
+  print 3*$ymin/$len+.001," / 3\n";
+  print 3*$ymax/$len+.001," / 3\n";
+}
+
+{
+  # upwards
+  #                  9----8    5---4
+  #                  |    |    |   |
+  #                 10--11,7---6   3---2
+  #                       |            |
+  #            16   13---12        0---1
+  #             |    |
+  #            15---14
+  #
+  #
+  #
+  #                       8----->  4
+  #                       |        ^
+  #                       |        |
+  #            16----->   v        |
+  #
+  #
+  # # new xmax = xmax or ymax
+  # # new xmin = ymin-4
+  # # new ymax = ymax or -ymin or 2-xmin
+  # # new ymin = ymin or -ymax or -xmax
+  #
+  #                  16
+  #                   |
+  #                   |
+  #                   v
+  #                   <---8
+  #                       |
+  #                       |
+  #                       v
+  #                   --->4
+  #
+  # # upwards
+  # # new xmax = ymax or -ymin or L-xmin
+  # # new xmin = ymin or -ymax or -xmax
+  # # new ymax = 2L-ymin
+  # # new ymin = -xmax or -ymax
+
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $len = 1;
+  my $exp = 8;
+  for (1 .. $exp) {
+    printf "%2d %-18s %-18s %-18s %-18s\n",
+      $_, to_bin($xmin),to_bin($xmax), to_bin($ymin),to_bin($ymax);
+    ($xmax,$xmin,
+     $ymax,$ymin)
+      =
+        (max($ymax,-$ymin,$len-$xmin),
+         min($ymin,-$ymax,-$xmax),
+         2*$len-$ymin,
+         min(-$xmax,-$ymax));
+    ### assert: $xmin <= 0
+    ### assert: $ymin <= 0
+    ### assert: $xmax >= 0
+    ### assert: $ymax >= 0
+    $len *= 2;
+  }
+  print 3*$xmin/$len+.001," / 3\n";
+  print 6*$xmax/$len+.001," / 6\n";
+  print 3*$ymin/$len+.001," / 3\n";
+  print 3*$ymax/$len+.001," / 3\n";
+  exit 0;
+}
+
+
+
+
+
+{
+  # width,height
+
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+
+  my @xend = (1);
+  my @yend = (0);
+  my @xmin = (0);
+  my @xmax = (1);
+  my @ymin = (0);
+  my @ymax = (0);
+  extend();
+  sub extend {
+    my $xend = $xend[-1];
+    my $yend = $yend[-1];
+    ($xend,$yend) = ($xend-$yend,  # rotate +45
+                     $xend+$yend);
+    push @xend, $xend;
+    push @yend, $yend;
+    my $xmax = $xmax[-1];
+    my $xmin = $xmin[-1];
+    my $ymax = $ymax[-1];
+    my $ymin = $ymin[-1];
+    ### assert: $xmax >= $xmin
+    ### assert: $ymax >= $ymin
+
+    #    ### at: "end=$xend,$yend   $xmin..$xmax  $ymin..$ymax"
+    push @xmax, max($xmax, $xend + $ymax);
+    push @xmin, min($xmin, $xend + $ymin);
+
+    push @ymax, max($ymax, $yend - $xmin);
+    push @ymin, min($ymin, $yend - $xmax);
+  }
+
+  my $level = 0;
+  my $n_level = 1;
+  my $n = 0;
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $prev_r = 1;
+  for (;;) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $xmin = min($xmin,$x);
+    $xmax = max($xmax,$x);
+    $ymin = min($ymin,$y);
+    $ymax = max($ymax,$y);
+    if ($n == $n_level) {
+      my $width = $xmax - $xmin + 1;
+      my $height = $ymax - $ymin + 1;
+      my $r = ($width/2)**2 + ($height/2)**2;
+      my $rf = $r / $prev_r;
+      my $xmin2 = to_bin($xmin);
+      my $ymin2 = to_bin($ymin);
+      my $xmax2 = to_bin($xmax);
+      my $ymax2 = to_bin($ymax);
+      my $xrange= sprintf "%9s..%9s", $xmin2, $xmax2;
+      my $yrange= sprintf "%9s..%9s", $ymin2, $ymax2;
+
+      printf "%2d n=%-7d %19s   %19s    r=%.2f (%.3f)\n",
+        $level, $n, $xrange, $yrange, $r, $rf;
+
+      extend();
+      $xrange="$xmin[$level]..$xmax[$level]";
+      $yrange="$ymin[$level]..$ymax[$level]";
+      # printf "             %9s   %9s\n",
+      #   $xrange, $yrange;
+
+
+      $level++;
+      $n_level *= 2;
+      $prev_r = $r;
+      last if $level > 30;
+
+    }
+    $n++;
+  }
+
+  exit 0;
+
+  sub to_bin {
+    my ($n) = @_;
+    return ($n < 0 ? '-' : '') . sprintf('%b', abs($n));
+  }
+}
+
+
+{
   # A073089 midpoint vertical/horizontal formula
 
   require Math::NumSeq::OEIS::File;
@@ -462,84 +753,6 @@ use Math::PlanePath::KochCurve 42;
 #   }
 # }
 
-
-{
-  # width,height
-
-  require Math::PlanePath::DragonCurve;
-  my $path = Math::PlanePath::DragonCurve->new;
-
-  my @xend = (1);
-  my @yend = (0);
-  my @xmin = (0);
-  my @xmax = (1);
-  my @ymin = (0);
-  my @ymax = (0);
-  extend();
-  sub extend {
-    my $xend = $xend[-1];
-    my $yend = $yend[-1];
-    ($xend,$yend) = ($xend-$yend,  # rotate +45
-                     $xend+$yend);
-    push @xend, $xend;
-    push @yend, $yend;
-    my $xmax = $xmax[-1];
-    my $xmin = $xmin[-1];
-    my $ymax = $ymax[-1];
-    my $ymin = $ymin[-1];
-    ### assert: $xmax >= $xmin
-    ### assert: $ymax >= $ymin
-
-#    ### at: "end=$xend,$yend   $xmin..$xmax  $ymin..$ymax"
-    push @xmax, max($xmax, $xend + $ymax);
-    push @xmin, min($xmin, $xend + $ymin);
-
-    push @ymax, max($ymax, $yend - $xmin);
-    push @ymin, min($ymin, $yend - $xmax);
-  }
-
-  my $level = 0;
-  my $n_level = 1;
-  my $n = 0;
-  my $xmin = 0;
-  my $xmax = 0;
-  my $ymin = 0;
-  my $ymax = 0;
-  my $prev_r = 1;
-  for (;;) {
-    my ($x,$y) = $path->n_to_xy($n);
-    $xmin = min($xmin,$x);
-    $xmax = max($xmax,$x);
-    $ymin = min($ymin,$y);
-    $ymax = max($ymax,$y);
-    if ($n == $n_level) {
-      my $width = $xmax - $xmin + 1;
-      my $height = $ymax - $ymin + 1;
-      my $r = ($width/2)**2 + ($height/2)**2;
-      my $rf = $r / $prev_r;
-      my $xrange="$xmin..$xmax";
-      my $yrange="$ymin..$ymax";
-      printf "%2d n=%-7d %9s   %9s    r=%.2f (%.3f)\n",
-        $level, $n, $xrange, $yrange, $r, $rf;
-
-      extend();
-      $xrange="$xmin[$level]..$xmax[$level]";
-      $yrange="$ymin[$level]..$ymax[$level]";
-      printf "             %9s   %9s\n",
-        $xrange, $yrange;
-
-
-      $level++;
-      $n_level *= 2;
-      $prev_r = $r;
-      last if $level > 30;
-
-    }
-    $n++;
-  }
-
-  exit 0;
-}
 
 {
   # A059125 "dragon-like"

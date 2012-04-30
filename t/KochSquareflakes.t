@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 330 }
+BEGIN { plan tests => 362 }
 
 use lib 't';
 use MyTestHelpers;
@@ -37,7 +37,7 @@ use Math::PlanePath::KochSquareflakes;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::KochSquareflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSquareflakes->VERSION,  $want_version,
@@ -88,6 +88,35 @@ foreach my $inward (0, 1) {
       ok ($ny,$y);
     }
   }
+}
+
+#------------------------------------------------------------------------------
+# Xstart claimed in the POD
+
+foreach my $inward (0, 1) {
+  my $path = Math::PlanePath::KochSquareflakes->new (inward => $inward);
+  foreach my $level (0 .. 7) {
+    my $nstart = (4**($level+1) - 1)/3;
+    my ($xstart,$ystart) = $path->n_to_xy ($nstart);
+    ok ($xstart, $ystart);
+    my $calc_xstart = calc_xstart($level);
+    ok ($calc_xstart, $xstart);
+  }
+}
+sub calc_xstart {
+  my ($level) = @_;
+  if ($level == 0) {
+    return -0.5;
+  }
+  if ($level == 1) {
+    return -2;
+  }
+  my $x1 = -0.5;
+  my $x2 = -2;
+  foreach (2 .. $level) {
+    ($x1,$x2) = ($x2, 4*$x2 - 2*$x1);
+  }
+  return $x2;
 }
 
 exit 0;

@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -439,6 +439,7 @@ Math::PlanePath::BetaOmega -- 2x2 half-plane traversal
 
 =head1 DESCRIPTION
 
+X<Wierum, Jens-Michael>
 This is an integer version of the Beta-Omega curve by Jens-Michael Wierum.
 It makes a 2x2 self-similar traversal of a half plane XE<gt>=0.
 
@@ -623,8 +624,8 @@ The omega pattern is symmetrical so its reverse is the same, hence only
 rotate and transpose forms for it.  Omitting omega reverse reduces the
 states from 32 to 24, saving a little space in a table driven approach.  But
 if using separate variables for rotate, transpose and reverse then the
-reverse can be kept for for both beta and omega without worrying that it
-makes no difference in the omega.
+reverse can be kept for both beta and omega without worrying that it makes
+no difference in the omega.
 
 Adding bits to Y produces a positive value measured up from Ymin(level),
 where level is the number of base 4 digits in N.  That Ymin can be
@@ -684,7 +685,7 @@ Parallel Computing, March 2002.
 
     http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3487
     (cached copy)
-    
+
 Jens-Michael Wierum, "Logarithmic Path-Length in Space-Filling Curves", 14th
 Canadian Conference on Computational Geometry (CCCG'02), 2002.
 

@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 259)[1];
+my $test_count = (tests => 275)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -369,6 +369,15 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'GrayCode',
+
+               'WunderlichSerpentine',
+               'WunderlichSerpentine,serpentine_type=100_000_000',
+               'WunderlichSerpentine,serpentine_type=000_000_001',
+               'WunderlichSerpentine,radix=2',
+               'WunderlichSerpentine,radix=4',
+               'WunderlichSerpentine,radix=5,serpentine_type=coil',
+
                'CretanLabyrinth',
 
                'TerdragonMidpoint',
@@ -415,6 +424,7 @@ my @modules = (
                
                'HIndexing',
                'SierpinskiCurve',
+               'SierpinskiCurveStair',
                'AztecDiamondRings',     # but not across ring end
                'DiamondArms',
                'SquareArms',

@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -424,7 +424,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al TerdragonCurve TerdragonMidpoint terdragon
+=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al TerdragonCurve TerdragonMidpoint terdragon ie
 
 =head1 NAME
 
@@ -438,8 +438,8 @@ Math::PlanePath::TerdragonMidpoint -- dragon curve midpoints
 
 =head1 DESCRIPTION
 
-This is an integer version of the terdragon curve by Davis and Knuth, giving
-the midpoint of each curve segment.
+This is midpoints of an integer version of the terdragon curve by Davis and
+Knuth.
 
                       30----29----28----27                      13
                         \              /
@@ -472,10 +472,7 @@ the midpoint of each curve segment.
         ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
       -12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5 ...
 
-The points are the middle of each edge of a double-size TerdragonCurve.  So
-for example the TerdragonCurve segment N=3 to N=4 is X=3,Y=1 to X=2,Y=2
-which is doubled out to X=6,Y=2 and X=4,Y=4, then the midpoint of those is
-X=5,Y=3 for N=3 here.
+The points are the middle of each edge of a double-size TerdragonCurve.
 
                             ...
                               \
@@ -502,12 +499,16 @@ X=5,Y=3 for N=3 here.
               ^
              X=0 1  2  3  4  5  6
 
+For example the TerdragonCurve segment N=3 to N=4 is X=3,Y=1 to X=2,Y=2
+which is doubled out to X=6,Y=2 and X=4,Y=4, then the midpoint of those is
+X=5,Y=3 for N=3 here.
+
 The result is integer X,Y coordinates on every second point per
 L<Math::PlanePath/Triangular Lattice>, but visiting only 3 of every 4 such
-triangular points, or 3 of 8 all integer X,Y points.  The points used make a
-pattern of alternate rows with 1 of each 2 points (such as the Y=7 row) and
-1 of each 4 points (such as the Y=8 row).  Notice the pattern is the same
-when turned by 60 degrees or 120 degrees.
+triangular points, which is 3 of 8 all integer X,Y points.  The points used
+are a pattern of alternate rows with 1 of 2 points (such as the Y=7 row) and
+1 of 4 points (such as the Y=8 row).  Notice the pattern is the same when
+turned by 60 degrees or 120 degrees.
 
     * * * * * * * * * * * * * * * * * * * *
      *   *   *   *   *   *   *   *   *   *
@@ -528,8 +529,9 @@ when turned by 60 degrees or 120 degrees.
 =head2 Arms
 
 Multiple copies of the curve can be selected, each advancing successively.
-Like the main TerdragonCurve the midpoints cover 1/6 of the plane and 6 arms
-rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
+Like the main TerdragonCurve the plain midpoint curve covers 1/6 of the
+plane and 6 arms rotated by 60, 120, 180, 240 and 300 degrees mesh together
+perfectly.
 
 C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (like
 the plain curve above), then N=1,7,13,19 the second copy rotated 60 degrees,

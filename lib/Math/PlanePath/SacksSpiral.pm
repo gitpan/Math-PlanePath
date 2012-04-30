@@ -29,7 +29,7 @@ use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -226,6 +226,7 @@ Math::PlanePath::SacksSpiral -- circular spiral squaring each revolution
 
 =head1 DESCRIPTION
 
+X<Sacks, Robert>
 The Sacks spiral by Robert Sacks is an Archimedean spiral with points N
 placed on the spiral so the perfect squares fall on a line going to the
 right.  Read more at

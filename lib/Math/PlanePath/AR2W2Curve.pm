@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -438,13 +438,13 @@ sub rect_to_n_range {
                              + ($x1 >= $x_cmp ? 2 : $x2 >= $x_cmp ? 1 : 0)
                              + ($y1 >= $y_cmp ? 6 : $y2 >= $y_cmp ? 3 : 0)];
 
-      my $xr = ($x1 >= $x_cmp ? 2 : $x2 >= $x_cmp ? 1 : 0);
-      my $yr = ($y1 >= $y_cmp ? 6 : $y2 >= $y_cmp ? 3 : 0);
-      ### $min_state
-      ### min_state: state_string($min_state)
-      ### $xr
-      ### $yr
-      ### $digit
+      # my $xr = ($x1 >= $x_cmp ? 2 : $x2 >= $x_cmp ? 1 : 0);
+      # my $yr = ($y1 >= $y_cmp ? 6 : $y2 >= $y_cmp ? 3 : 0);
+      # ### $min_state
+      # ### min_state: state_string($min_state)
+      # ### $xr
+      # ### $yr
+      # ### $digit
 
       $n_min = 4*$n_min + $digit;
       $min_state += $digit;
@@ -490,6 +490,11 @@ Math::PlanePath::AR2W2Curve -- 2x2 self-similar curve of four patterns
 
 =head1 DESCRIPTION
 
+X<Asano>
+X<Ranjan>
+X<Roos>
+X<Welzl>
+X<Widmayer>
 This is an integer version of the AR2W2 curve by Asano, Ranjan, Roos, Welzl
 and Widmayer.
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 
@@ -363,6 +363,7 @@ Math::PlanePath::WunderlichMeander -- 3x3 self-similar "R" shape
 
 =head1 DESCRIPTION
 
+X<Wunderlich, Walter>
 This is an integer version of the 3x3 self-similar meander by Walter
 Wunderlich,
 

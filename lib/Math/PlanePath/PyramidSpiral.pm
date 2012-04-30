@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -144,7 +144,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PyramidSpiral pronic PlanePath Ryde Math-PlanePath SquareSpiral
+=for stopwords PyramidSpiral pronic PlanePath Ryde Math-PlanePath SquareSpiral DiamondSpiral OctagramSpiral OEIS
 
 =head1 NAME
 
@@ -227,6 +227,14 @@ in the path as centred in a square of side 1, so the entire plane is
 covered.
 
 =back
+
+=head1 OEIS
+
+This path is in Sloane's Online Encyclopedia of Integer Sequences as
+
+    http://oeis.org/A053615  (etc)
+
+    A053615    abs(X)
 
 =head1 SEE ALSO
 

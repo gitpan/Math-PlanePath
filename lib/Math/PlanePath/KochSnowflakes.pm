@@ -28,10 +28,11 @@ use List::Util qw(max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -39,7 +40,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant n_frac_discontinuity => 0;
@@ -111,7 +112,7 @@ sub n_to_xy {
   } elsif ($side < 2) {
     ### right slope upwards
     return (($x-3*$y)/-2 + 3*$len,  # flip vert and rotate +120
-            ($x+$y)/2 - $len)
+            ($x+$y)/2 - $len);
   } else {
     ### left slope downwards
     ($x,$y) = ((-3*$y-$x)/2,  # flip vert and rotate -120
@@ -120,14 +121,15 @@ sub n_to_xy {
 }
 
 
-
+# N=1 overlaps N=5
+# N=2 overlaps N=7
 #      +---------+         +---------+   Y=1.5
 #      |         |         |         |
 #      |         +---------+         |   Y=7/6 = 1.166
 #      |         |         |         |
-#      |    *13  |         |    *11  |   Y=1
+#      |    * 13 |         |    * 11 |   Y=1
 #      |         |         |         |
-#      |         |    *3   |         |   Y=2/3 = 0.666
+#      |         |    * 3  |         |   Y=2/3 = 0.666
 #      |         |         |         |
 #      +---------+         +---------+   Y=0.5
 #                |         |
@@ -135,13 +137,13 @@ sub n_to_xy {
 #      |         |    O    |         | --Y=0
 #      |         |         |         |
 #      |         |         |         |
-#      |    *1   |         |    *2   |   Y=-1/3 = -0.333
+#      |    * 1  |         |    * 2  |   Y=-1/3 = -0.333
 #      |         |         |         |
 #      +---------+         +---------+   Y=-3/6 = -0.5
 #      |         |         |         |
 #      +---------+         +---------+   Y=-5/6 = -0.833
 #      |         |         |         |
-#      |    *5   |         |    *7   |   Y=-1
+#      |    * 5  |         |    * 7  |   Y=-1
 #      |         |         |         |
 #      |         |         |         |
 #      +---------+         +---------+   Y=-1.5
@@ -157,12 +159,14 @@ sub xy_to_n_list {
   if (abs($x) <= 1) {
     if ($x == 0) {
       my $y6 = 6*$y;
-      if ($y6 >= 1 && $y6 < 7) {  # 2/3-1/2=1/6 to 2/3+1/2=7/6
+      if ($y6 >= 1 && $y6 < 7) {
+        # Y = 2/3-1/2=1/6 to 2/3+1/2=7/6
         return 3;
       }
     } else {
       my $y6 = 6*$y;
-      if ($y6 >= -5 && $y6 < 1) { # -1/3-1/2=-5/6 to -1/3+1/2=+1/6
+      if ($y6 >= -5 && $y6 < 1) {
+        # Y = -1/3-1/2=-5/6 to -1/3+1/2=+1/6
         return (1 + ($x > 0),
                 ($y6 < -3 ? (5+2*($x>0)) : ()));   # 5 or 7 up to Y<-1/2
       }
@@ -191,7 +195,8 @@ sub xy_to_n_list {
     $y = -$y;  # flip vert
     $high = 1;
   }
-  ### rotate/flip to: "$x,$y"
+  ### rotate/flip is: "$x,$y"
+
   if ($y <= 0) {
     return;
   }
@@ -203,67 +208,38 @@ sub xy_to_n_list {
   if (_is_infinite($level)) {
     return $level;
   }
-  my $n = Math::PlanePath::KochCurve->xy_to_n($x+3*$len, $y-$len);
+
+  
+  $y -= $len;  # shift to Y=0 basis
+  $len *= 3;
+
+  ### compare for end: ($x+$y)." >= 3*len=".$len
+  if ($x + $y >= $len) {
+    ### past end of this level, no points ...
+    return;
+  }
+  $x += $len;  # shift to X=0 basis
+
+  my $n = Math::PlanePath::KochCurve->xy_to_n($x, $y);
+
   ### plain curve on: ($x+3*$len).",".($y-$len)."  n=".(defined $n && $n)
   ### $high
   ### high: (4**$level)*$high
+
   if (defined $n) {
     return (4**$level)*$high + $n;
   } else {
     return;
   }
-
-
-
-
-  # if ($y < 0) {
-  #   return undef;
-  # }
-  #
-  # ### assert: 3*$y <= $x && 3*$y < -$x
-  # ### add ylen: "$len to $x,$y"
-  # ### $level
-  #
-  # while ($level-- >= 0) {
-  #   $n *= 4;
-  #   ### at: "level=$level len=$len   x=$x,y=$y  n=$n"
-  #   if ($x < 0) {
-  #     if ($x < -$len) {
-  #       ### digit 0, x add: 2*$len
-  #       $x += 2*$len;
-  #     } else {
-  #       ### digit 1...
-  #       $x += $len;
-  #       ($x,$y) = (($x-3*$y)/2 - $len,     # rotate +60
-  #                  ($x+$y)/2);
-  #       $n++;
-  #     }
-  #   } else {
-  #     if ($x <= $len && $y != 0) {
-  #       ### digit 2...
-  #       $y += $len;
-  #       ($x,$y) = (($x+3*$y)/2 - $len,   # rotate -60
-  #                  ($y-$x)/2);
-  #       $n += 2;
-  #     } else {
-  #       #### digit 3...
-  #       $x -= 2*$len;
-  #       $n += 3;
-  #     }
-  #   }
-  #   $len /= 3;
-  # }
-  # ### end at: "x=$x,y=$y"
-  # if ($x != -1 || $y != 0) {
-  #   return undef;
-  # }
-  # return $n;
 }
 
 # level extends to x= +/- 3^level
 #                  y= +/- 2*3^(level-1)
 #                   =     2/3 * 3^level
 #                  1.5*y = 3^level
+#
+# ENHANCE-ME: use _round_down_pow() to be bigint friendly
+# ENHANCE-ME: share KochCurve segment checker to find actual min/max
 #
 # not exact
 sub rect_to_n_range {
@@ -275,15 +251,38 @@ sub rect_to_n_range {
   $x2 = _round_nearest ($x2);
   $y2 = _round_nearest ($y2);
 
-  ### ymul: max(1,abs($y1)*1.5,abs($y2)*1.5)
-  ### ylog: log(max(1,abs($y1)*1.5,abs($y2)*1.5))/log(3)
-  my $level = ceil (log (max(1,
-                             abs($x1), abs($x2),
-                             abs($y1)*1.5, abs($y2)*1.5))
-                    / log(3));
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+
+  #
+  #          |
+  # +------  .   -----+
+  # |x1,y2  /|\  x2,y2|
+  #        / | \
+  #       /  |  \
+  # -----/---m---\-----
+  #     /    |    \
+  #    .-----------.
+  #          |
+  #           y1
+  #        -------
+  #
+  # -y1 bottom horizontal
+  # (x2+y2)/2 right side
+  # (-x1+y2)/2 left side
+  # each giving a power of 3 of the level
+  #
+  ### right: ($x2+$y2)/2
+  ### left: (-$x1+$y2)/2
+  ### bottom: -$y1
+
+  my (undef, $level) = _round_down_pow (_max (int(($x2+$y2)/2),
+                                              int((-$x1+$y2)/2),
+                                              -$y1),
+                                        3);
   ### $level
   # end of $level is 1 before base of $level+1
-  return (1, 4**($level+1) - 1);
+  return (1, 4**($level+2) - 1);
 }
 
 1;
@@ -419,18 +418,18 @@ Create and return a new path object.
 
 As noted in L</Level Ranges> above, for a given level
 
-    -(3^level)   <= X <= 3^level
-    -2*(3^level) <= Y <= 2*(3^level)
+          -(3^level) <= X <= 3^level
+    -(2/3)*(3^level) <= Y <= (2/3)*(3^level)
 
-So the maximum X,Y in a rectangle gives a level,
+So the maximum X,Y in a rectangle gives
 
-    level = ceil(log3(max(x1, x2, y1/2, y2/2)))
+    level = ceil(log3(max(abs(x1), abs(x2), abs(y1)*3/2, abs(y2)*3/2)))
 
 and the last point in that level is
 
-     N = 4^(level+1) - 1
+    Nlevel = 4^(level+1) - 1
 
-Using that as an N range is an over-estimate, but an easy calculation.  It's
+Using this as an N range is an over-estimate, but an easy calculation.  It's
 not too difficult to trace down for an exact range
 
 =head1 SEE ALSO

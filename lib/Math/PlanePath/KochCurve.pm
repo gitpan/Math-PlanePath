@@ -35,10 +35,9 @@
 package Math::PlanePath::KochCurve;
 use 5.004;
 use strict;
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -46,8 +45,6 @@ use Math::PlanePath 54; # v.54 for _max()
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-# uncomment this to run the ### lines
-#use Devel::Comments;
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
@@ -156,6 +153,12 @@ sub xy_to_n {
 # level extends to x= 2*3^level
 #                  level = log3(x/2)
 #
+# ENHANCE-ME:
+# look for min/max by digits high to low
+# chop search when segment of a given level+rotation outside rect
+# rot=0,180 is box Ymax=len Xmax=6*len
+# rot=60,120 is square to endpoint X=Y=3*len, triangle upper or lower
+#
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -173,10 +176,221 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  (undef, my $level) = _round_down_pow ($x2/2, 3);
-  ### $level
-  return (0, 4**($level+1)-1);
+  my ($len, $level) = _round_down_pow ($x2/2, 3);
+  return _rect_to_n_range_rot ($len, $level, 0, $x1,$y1, $x2,$y2);
+
+
+
+
+
+  # (undef, my $level) = _round_down_pow ($x2/2, 3);
+  # ### $level
+  # return (0, 4**($level+1)-1);
 }
+
+
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
+my @rot_to_dx = (2,1,-1,-2,-1,1);
+my @rot_to_dy = (0,1,1,0,-1,-1);
+my @max_digit_to_rot = (1, -2, 1, 0);
+my @min_digit_to_rot = (0, 1, -2, 1);
+my @max_digit_to_offset = (-1, -1, -1, 2);
+my @min_digit_to_offset = (1, 1, 1, 1);
+
+sub _rect_to_n_range_rot {
+  my ($initial_len, $level_max, $initial_rot, $x1,$y1, $x2,$y2) = @_;
+  ### KochCurve _rect_to_n_range_rot(): "$x1,$y1  $x2,$y2  len=$initial_len level=$level_max rot=$initial_rot"
+
+  my ($rot, $len, $x, $y);
+  my $overlap = sub {
+    my ($x, $y) = @_;
+    ### overlap: "$x,$y len=$len rot=$rot"
+
+    if ($len == 1) {
+      return ($x >= $x1 && $x <= $x2
+              && $y >= $y1 && $y <= $y2);
+    }
+    my $len = $len / 3;
+
+    if ($rot < 3) {
+      if ($rot == 0) {
+        #       *
+        #      / \
+        # o-+-*   *-+-.
+        return ($y <= $y2               # bottom before end
+                && $y+$len >= $y1
+                && $x <= $x2
+                && $x+6*$len > $x1);    # right before end, exclusive
+      } elsif ($rot == 1) {
+        #       .
+        #      /
+        # *-+-*
+        #  \
+        #   *  +-----
+        #  /   |x1,y2
+        # o
+        return ($x <= $x2              # left before end
+                && $y+3*$len > $y1     # top after start, exclusive
+                && $y-$x <= $y2-$x1);  # diag before corner
+      } else {
+        # .    |x1,y1
+        #  \   +-----
+        #   *
+        #  /
+        # *-+-*
+        #      \
+        #       o
+        return ($y <= $y2              # bottom before end
+                && $x-3*$len <=$x2     # left before end
+                && $y+$x >= $y1+$x1);  # diag after corner
+      }
+    } else {
+      if ($rot == 3) {
+        # .-+-*   *-+-o
+        #      \ /
+        #       *
+        return ($y >= $y1              # top after start
+                && $y-$len <= $y2      # bottom before end
+                && $x >= $x1           # right after start
+                && $x-6*$len < $x2);   # left before end, exclusive
+      } elsif ($rot == 4) {
+        # x2,y1|    o
+        # -----+   /
+        #         *
+        #          \
+        #       *-+-*
+        #      /
+        #     .
+        return ($x >= $x1              # right after start
+                && $y-3*$len < $y2     # bottom before end, exclusive
+                && $y-$x >= $y1-$x2);  # diag after corner
+      } else {
+        #    o
+        #     \
+        #      *-+-*
+        #         /
+        #        *
+        # -----+  \
+        # x2,y2|   .
+        return ($y >= $y1              # top after start
+                && $x+3*$len >= $x1    # right after start
+                && $y+$x <= $y2+$x2);  # diag before corner
+      }
+    }
+  };
+
+  my @lens = ($initial_len);
+  my $n_hi;
+  my $zero;
+  $rot = $initial_rot;
+  $len = $initial_len;
+  $x = 0;
+  $y = 0;
+  my @digits = (4);
+
+  for (;;) {
+    my $digit = --$digits[-1];
+    ### max at: "digits=".join(',',@digits)."  xy=$x,$y   len=$len"
+
+    if ($digit < 0) {
+      pop @digits;
+      if (! @digits) {
+        ### nothing found to level_max ...
+        return (1, 0);
+      }
+      ### end of digits, backtrack ...
+      $len = $lens[$#digits];
+      next;
+    }
+
+    my $offset = $max_digit_to_offset[$digit];
+    $rot = ($rot - $max_digit_to_rot[$digit]) % 6;
+    $x += $rot_to_dx[$rot] * $offset * $len;
+    $y += $rot_to_dy[$rot] * $offset * $len;
+
+    ### $offset
+    ### $rot
+
+    if (&$overlap ($x, $y, $len)) {
+      if ($#digits >= $level_max) {
+        ### yes overlap, found n_hi ...
+        ### digits: join(',',@digits)
+        ### n_hi: _digit_join_htol (\@digits, 4, 0)
+        $zero = 0*$x1*$x2*$y1*$y2;
+        $n_hi = _digit_join_htol (\@digits, 4, $zero);
+        last;
+      }
+      ### yes overlap, descend ...
+      push @digits, 4;
+      $len = ($lens[$#digits] ||= $len/3);
+    } else {
+      ### no overlap, next digit ...
+    }
+  }
+
+  $rot = $initial_rot;
+  $x = 0;
+  $y = 0;
+  $len = $initial_len;
+  @digits = (-1);
+
+  for (;;) {
+    my $digit = ++$digits[-1];
+    ### min at: "digits=".join(',',@digits)."  xy=$x,$y   len=$len"
+
+    if ($digit > 3) {
+      pop @digits;
+      if (! @digits) {
+        ### oops, n_lo not found to level_max ...
+        return (1, 0);
+      }
+      ### end of digits, backtrack ...
+      $len = $lens[$#digits];
+      next;
+    }
+
+    ### $digit
+    ### rot increment: $min_digit_to_rot[$digit]
+    $rot = ($rot + $min_digit_to_rot[$digit]) % 6;
+
+    if (&$overlap ($x, $y, $len)) {
+      if ($#digits >= $level_max) {
+        ### yes overlap, found n_lo ...
+        ### digits: join(',',@digits)
+        ### n_lo: _digit_join_htol (\@digits, 4, $zero)
+        return (_digit_join_htol (\@digits, 4, $zero),
+                $n_hi);
+      }
+      ### yes overlap, descend ...
+      push @digits, -1;
+      $len = ($lens[$#digits] ||= $len/3);
+
+    } else {
+      ### no overlap, next digit ...
+      ### offset: $min_digit_to_offset[$digit]
+
+      my $offset = $min_digit_to_offset[$digit];
+      $x += $rot_to_dx[$rot] * $offset * $len;
+      $y += $rot_to_dy[$rot] * $offset * $len;
+    }
+  }
+}
+
+# $aref->[0] high digit
+sub _digit_join_htol {
+  my ($aref, $radix, $zero) = @_;
+  my $n = $zero;
+  foreach my $digit (@$aref) {
+    $n *= $radix;
+    $n += $digit;
+  }
+  return $n;
+}
+
+# no Smart::Comments;
 
 #------------------------------------------------------------------------------
 # generic, shared
@@ -238,7 +452,7 @@ sub _round_down_pow {
 1;
 __END__
 
-=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie
+=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie OEIS
 
 =head1 NAME
 
@@ -252,14 +466,15 @@ Math::PlanePath::KochCurve -- horizontal Koch curve
 
 =head1 DESCRIPTION
 
+X<von Koch, Helge>
 This is an integer version of the self-similar curve by Helge von Koch going
 along the X axis and making triangular excursions upwards.
 
                                8                                   3
                              /  \
-                      6---- 7     9----10                19-...    2
+                      6---- 7     9----10                18-...    2
                        \              /                    \
-             2           5          11          14          18     1
+             2           5          11          14          17     1
            /  \        /              \        /  \        /
      0----1     3---- 4                12----13    15----16    <- Y=0
      ^
@@ -400,7 +615,7 @@ direction 0 to 5 or as desired.
 The Koch curve is in Sloane's Online Encyclopedia of Integer Sequences in
 various forms,
 
-    http://oeis.org/A005811  (etc)
+    http://oeis.org/A035263  (etc)
 
     A035263 -- morphism, is turn 1=left,0=right
     A096268 -- morphism, is turn 0=left,1=right

@@ -28,7 +28,7 @@ use strict;
 use List::Util 'min', 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -681,6 +681,7 @@ Math::PlanePath::CincoCurve -- 5x5 self-similar curve
 
 =head1 DESCRIPTION
 
+X<Dennis, John>
 This is the 5x5 self-similar Cinco curve by John Dennis,
 
                                                     |

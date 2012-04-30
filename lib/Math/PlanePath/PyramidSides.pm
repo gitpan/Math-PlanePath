@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -204,6 +204,7 @@ have different signs, then of course X=0 is the smallest.
 L<Math::PlanePath>,
 L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::Corner>,
+L<Math::PlanePath::DiamondSpiral>,
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::MPeaks>
 

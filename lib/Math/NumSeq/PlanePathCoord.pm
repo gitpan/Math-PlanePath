@@ -15,17 +15,6 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-# Taxi = abs(X)+abs(Y)   AbsSum SumAbs
-# TRadius
-# TRSquared   (x^2+3*y^2)/2
-# TriangularRadius
-# Ti = (X-Y)/2
-# Tj = Y
-# Tk = (Y-X)/2
-
-
 package Math::NumSeq::PlanePathCoord;
 use 5.004;
 use strict;
@@ -33,7 +22,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -47,7 +36,7 @@ sub description {
     return "Coordinate $self->{'coordinate_type'} values from path $self->{'planepath'}";
   } else {
     # class method
-    return Math::NumSeq::__('Coordinate values from a PlanePath');
+    return 'Coordinate values from a PlanePath';
   }
 }
 
@@ -56,14 +45,17 @@ use constant::defer parameter_info_array =>
     return [
             _parameter_info_planepath(),
             { name    => 'coordinate_type',
-              display => Math::NumSeq::__('Coordinate Type'),
+              display => 'Coordinate Type',
               type    => 'enum',
               default => 'X',
-              choices => ['X','Y','Sum','Product',
-                          'DiffXY','DiffYX','AbsDiff',
-                          'Radius','RSquared',
+              choices => ['X', 'Y',
+                          'Sum', 'SumAbs',
+                          'Product',
+                          'DiffXY', 'DiffYX', 'AbsDiff',
+                          'Radius', 'RSquared',
+                          'TRadius', 'TRSquared',
                          ],
-              # description => Math::NumSeq::__(''),
+              # description => '',
             },
            ];
   };
@@ -103,12 +95,12 @@ use constant::defer _parameter_info_planepath => sub {
   my $choices = [ sort keys %names ];
 
   return { name    => 'planepath',
-           display => Math::NumSeq::__('PlanePath Class'),
+           display => 'PlanePath Class',
            type    => 'string',
            default => $choices->[0],
            choices => $choices,
            width   => $width + 20,
-           # description => Math::NumSeq::__(''),
+           # description => '',
          };
 };
 
@@ -121,15 +113,18 @@ my %oeis_anum =
 
    # 'Math::PlanePath::SquareSpiral,wider=0' =>
    # {
-   #  # A180714 OFFSET=0 start n=0 cf SquareSpiral start N=1
+   #  # Not quite, starts OFFSET=0 not N=1
    #  # Sum     => 'A180714', # X+Y of square spiral
    #  # # OEIS-Catalogue: A180714 planepath=SquareSpiral coordinate_type=Sum
    #
-   #  # A053615 OFFSET=0 start=0 cf SquareSpiral start N=1
+   #  # Not quite, starts OFFSET=0 not N=1
    #  # AbsDiff => 'A053615', # 0..n..0, distance to pronic
-   #  #
-   #  # cf A053615 also Math::PlanePath::PyramidSpiral abs(X),
-   #  # coordinate going up and down ...
+   # },
+
+   # 'Math::PlanePath::PyramidSpiral' =>
+   # {
+   #  # Not quite, starts OFFSET=0 not N=1
+   #  AbsX => 'A053615', # distance to pronic
    # },
 
    # 'Math::PlanePath::Corner,wider=0' =>
@@ -150,11 +145,13 @@ my %oeis_anum =
    { X => 'A059253',
      Y => 'A059252',
      Sum  => 'A059261',
+     SumAbs  => 'A059261',
      DiffXY => 'A059285',
      RSquared => 'A163547',
      # OEIS-Catalogue: A059253 planepath=HilbertCurve coordinate_type=X
      # OEIS-Catalogue: A059252 planepath=HilbertCurve coordinate_type=Y
      # OEIS-Catalogue: A059261 planepath=HilbertCurve coordinate_type=Sum
+     # OEIS-Other:     A059261 planepath=HilbertCurve coordinate_type=SumAbs
      # OEIS-Catalogue: A059285 planepath=HilbertCurve coordinate_type=DiffXY
      # OEIS-Catalogue: A163547 planepath=HilbertCurve coordinate_type=RSquared
    },
@@ -165,15 +162,34 @@ my %oeis_anum =
      # OEIS-Other: A059285 planepath=HilbertSpiral coordinate_type=DiffXY
    },
 
-   'Math::PlanePath::PeanoCurve,radix=3' =>
-   { X => 'A163528',
-     Y => 'A163529',
-     Sum => 'A163530',
-     RSquared => 'A163531',
+   do {
+     my $peano = { X        => 'A163528',
+                   Y        => 'A163529',
+                   Sum      => 'A163530',
+                   SumAbs   => 'A163530',
+                   RSquared => 'A163531',
+                 };
      # OEIS-Catalogue: A163528 planepath=PeanoCurve coordinate_type=X
      # OEIS-Catalogue: A163529 planepath=PeanoCurve coordinate_type=Y
      # OEIS-Catalogue: A163530 planepath=PeanoCurve coordinate_type=Sum
+     # OEIS-Other:     A163530 planepath=PeanoCurve coordinate_type=SumAbs
      # OEIS-Catalogue: A163531 planepath=PeanoCurve coordinate_type=RSquared
+
+     # OEIS-Other: A163528 planepath=GrayCode,apply_type=TsF,radix=3 coordinate_type=X
+     # OEIS-Other: A163529 planepath=GrayCode,apply_type=TsF,radix=3 coordinate_type=Y
+     # OEIS-Other: A163530 planepath=GrayCode,apply_type=TsF,radix=3 coordinate_type=Sum
+     # OEIS-Other: A163530 planepath=GrayCode,apply_type=TsF,radix=3 coordinate_type=SumAbs
+     # OEIS-Other: A163531 planepath=GrayCode,apply_type=TsF,radix=3 coordinate_type=RSquared
+
+     # OEIS-Other: A163528 planepath=GrayCode,apply_type=FsT,radix=3 coordinate_type=X
+     # OEIS-Other: A163529 planepath=GrayCode,apply_type=FsT,radix=3 coordinate_type=Y
+     # OEIS-Other: A163530 planepath=GrayCode,apply_type=FsT,radix=3 coordinate_type=Sum
+     # OEIS-Other: A163530 planepath=GrayCode,apply_type=FsT,radix=3 coordinate_type=SumAbs
+     # OEIS-Other: A163531 planepath=GrayCode,apply_type=FsT,radix=3 coordinate_type=RSquared
+
+     ('Math::PlanePath::PeanoCurve,radix=3' => $peano,
+      'Math::PlanePath::GrayCode,apply_type=TsF,gray_type=reflected,radix=3' => $peano,
+      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=reflected,radix=3' => $peano)
    },
 
    # 'Math::PlanePath::RationalsTree,tree_type=SB' =>
@@ -372,8 +388,10 @@ my %oeis_anum =
    'Math::PlanePath::ZOrderCurve,radix=10,i_start=1' =>
    {
     # i_start=1 per A080463 offset=1, it skips initial zero
-    Sum => 'A080463',
+    Sum    => 'A080463',
+    SumAbs => 'A080463',
     # OEIS-Catalogue: A080463 planepath=ZOrderCurve,radix=10 coordinate_type=Sum i_start=1
+    # OEIS-Other:     A080463 planepath=ZOrderCurve,radix=10 coordinate_type=SumAbs i_start=1
    },
    'Math::PlanePath::ZOrderCurve,radix=10,i_start=10' =>
    {
@@ -665,6 +683,12 @@ sub _coordinate_func_Sum {
     or return undef;
   return $x + $y;
 }
+sub _coordinate_func_SumAbs {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return abs($x) + abs($y);
+}
 sub _coordinate_func_Product {
   my ($self, $n) = @_;
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
@@ -703,18 +727,18 @@ sub _coordinate_func_RSquared {
   return $x*$x + $y*$y;
 }
 
-# sub _coordinate_func_TRadius {
-#   my $rsquared;
-#   return (defined ($rsquared = _coordinate_func_TRSquared(@_))
-#           ? sqrt($rsquared)
-#           : undef);
-# }
-# sub _coordinate_func_TRSquared {
-#   my ($self, $n) = @_;
-#   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
-#     or return undef;
-#   return ($x*$x + 3*$y*$y)/2;
-# }
+sub _coordinate_func_TRadius {
+  my $rsquared;
+  return (defined ($rsquared = _coordinate_func_TRSquared(@_))
+          ? sqrt($rsquared)
+          : undef);
+}
+sub _coordinate_func_TRSquared {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return $x*$x + 3*$y*$y;
+}
 
 
 #------------------------------------------------------------------------------
@@ -737,7 +761,9 @@ sub characteristic_increasing {
   return
     (($func = ($planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_increasing")
                || ($self->{'coordinate_type'} eq 'RSquared'
-                   && $planepath_object->can("_NumSeq_Coord_Radius_increasing"))))
+                   && $planepath_object->can("_NumSeq_Coord_Radius_increasing"))
+               || ($self->{'coordinate_type'} eq 'TRSquared'
+                   && $planepath_object->can("_NumSeq_Coord_TRadius_increasing"))))
      ? $planepath_object->$func()
      : undef); # unknown
 }
@@ -747,7 +773,9 @@ sub characteristic_non_decreasing {
   my $planepath_object = $self->{'planepath_object'};
   if (my $func = ($planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_non_decreasing")
                   || ($self->{'coordinate_type'} eq 'RSquared'
-                      && $planepath_object->can("_NumSeq_Coord_Radius_non_decreasing")))) {
+                      && $planepath_object->can("_NumSeq_Coord_Radius_non_decreasing"))
+                  || ($self->{'coordinate_type'} eq 'TRSquared'
+                      && $planepath_object->can("_NumSeq_Coord_TRadius_non_decreasing")))) {
     return $planepath_object->$func();
   } else {
     # increasing means non_decreasing too
@@ -797,6 +825,14 @@ sub values_max {
     } else {
       return undef;
     }
+  }
+  sub _NumSeq_Coord_SumAbs_min {
+    my ($self) = @_;
+    my $x_min = $self->_NumSeq_Coord_X_min || 0;
+    if ($x_min < 0) { $x_min = 0; }
+    my $y_min = $self->_NumSeq_Coord_Y_min || 0;
+    if ($y_min < 0) { $y_min = 0; }
+    return abs($x_min) + abs($y_min);
   }
 
   sub _NumSeq_Coord_Product_min {
@@ -893,9 +929,9 @@ sub values_max {
     my ($self) = @_;
     if (defined (my $x_min = $self->_NumSeq_Coord_X_min)
         && defined (my $y_min = $self->_NumSeq_Coord_Y_min)) {
-      return $x_min*$x_min + $y_min*$y_min;
+      return ($x_min*$x_min + $y_min*$y_min);
     } else {
-      return 0;
+      return 0; # _coordinate_func_RSquared($self->n_to_xy($self->n_start));
     }
   }
   # Radius and RSquare max normally infinite
@@ -908,6 +944,20 @@ sub values_max {
   #   }
   #   return undef;
   # }
+
+  sub _NumSeq_Coord_TRadius_min {
+    my ($path) = @_;
+    return sqrt($path->_NumSeq_Coord_TRSquared_min);
+  }
+  sub _NumSeq_Coord_TRSquared_min {
+    my ($self) = @_;
+    if (defined (my $x_min = $self->_NumSeq_Coord_X_min)
+        && defined (my $y_min = $self->_NumSeq_Coord_Y_min)) {
+      return $x_min*$x_min + 3*$y_min*$y_min;
+    } else {
+      return 0; # _coordinate_func_TRSquared($self->n_to_xy($self->n_start));
+    }
+  }
 
   sub _NumSeq_Coord_pred_X {
     my ($path, $value) = @_;
@@ -924,13 +974,28 @@ sub values_max {
     return (($path->figure ne 'square' || $value == int($value))
             && ($path->x_negative || $path->y_negative || $value >= 0));
   }
-  sub _NumSeq_Coord_pred_R {
+  sub _NumSeq_Coord_pred_SumAbs {
     my ($path, $value) = @_;
-    return ($value >= 0);
+    return (($path->figure ne 'square' || $value == int($value))
+            && $value >= 0);
+  }
+  sub _NumSeq_Coord_pred_Radius {
+    my ($path, $value) = @_;
+    return $path->_NumSeq_Coord_pred_RSquared($value*$value);
   }
   sub _NumSeq_Coord_pred_RSquared {
     my ($path, $value) = @_;
-    # whether x^2+y^2 ...
+    # FIXME: this should be whether x^2+y^2 ...
+    return (($path->figure ne 'square' || $value == int($value))
+            && $value >= 0);
+  }
+  sub _NumSeq_Coord_pred_TRadius {
+    my ($path, $value) = @_;
+    return $path->_NumSeq_Coord_pred_RSquared($value*$value);
+  }
+  sub _NumSeq_Coord_pred_TRSquared {
+    my ($path, $value) = @_;
+    # FIXME: this should be whether x^2+3*y^2 occurs ...
     return (($path->figure ne 'square' || $value == int($value))
             && $value >= 0);
   }
@@ -942,8 +1007,9 @@ sub values_max {
 # }
 # { package Math::PlanePath::TriangleSpiralSkewed;
 # }
-# { package Math::PlanePath::DiamondSpiral;
-# }
+{ package Math::PlanePath::DiamondSpiral;
+  use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # diagonals pos,neg
+}
 # { package Math::PlanePath::AztecDiamondRings;
 # }
 # { package Math::PlanePath::PentSpiralSkewed;
@@ -955,12 +1021,10 @@ sub values_max {
             ? 1   # odd "wider" excludes X=Y
             : 0); # even "wider" includes X=Y
   }
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    return ($self->{'wider'} % 2
-            ? 1   # odd "wider" minimum X=1,Y=0
-            : 0); # even "wider" minimum X=0,Y=0
-  }
+  *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_AbsDiff_min;
+  # minimum 1 at X=1,Y=0 when wider odd
+  *_NumSeq_Coord_RSquared_min = \&_NumSeq_Coord_AbsDiff_min;
+  *_NumSeq_Coord_TRSquared_min = \&_NumSeq_Coord_AbsDiff_min;
 }
 # { package Math::PlanePath::HexSpiralSkewed;
 # }
@@ -991,6 +1055,11 @@ sub values_max {
   use constant _NumSeq_Coord_RSquared_smaller => 0;  # RSquared==$i
 }
 { package Math::PlanePath::VogelFloret;
+  sub _NumSeq_Coord_SumAbs_min {
+    my ($self) = @_;
+    my ($x,$y) = $self->n_to_xy($self->n_start);
+    return abs($x)+abs($y);
+  }
   sub _NumSeq_Coord_Radius_min {
     my ($self) = @_;
     # starting N=1 at R=radius_factor*sqrt(1), theta=something
@@ -1000,6 +1069,12 @@ sub values_max {
     my ($self) = @_;
     # starting N=1 at R=radius_factor*sqrt(1), theta=something
     return $self->{'radius_factor'} ** 2;
+  }
+  sub _NumSeq_Coord_TRSquared_min {
+    my ($self) = @_;
+    # starting N=1 at R=radius_factor*sqrt(1), theta=something
+    my ($x,$y) = $self->n_to_xy($self->n_start);
+    return $x*$x + 3*$y*$y;
   }
   sub _NumSeq_Coord_Radius_func {
     my ($seq, $i) = @_;
@@ -1046,9 +1121,18 @@ sub values_max {
             ? 0.5 / sin((4*atan2(1,1)) / $step)  # pi/step
             : $self->{'base_r'} + 1);
   }
+  *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_Radius_min;
   sub _NumSeq_Coord_RSquared_min {
     my ($self) = @_;
     return $self->_NumSeq_Coord_Radius_min ** 2;
+  }
+  sub _NumSeq_Coord_TRadius_min {
+    my ($self) = @_;
+    return $self->_NumSeq_Coord_Radius_min;
+  }
+  sub _NumSeq_Coord_TRSquared_min {
+    my ($self) = @_;
+    return $self->_NumSeq_Coord_RSquared_min;
   }
 
   sub _NumSeq_Coord_X_increasing {
@@ -1057,13 +1141,20 @@ sub values_max {
     return ($self->{'step'} == 0 ? 1 : 0);
   }
   *_NumSeq_Coord_Sum_increasing = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_SumAbs_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_DiffXY_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_AbsDiff_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Radius_increasing = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_TRadius_increasing = \&_NumSeq_Coord_X_increasing;
 
   *_NumSeq_Coord_Y_non_decreasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Product_non_decreasing = \&_NumSeq_Coord_X_increasing;
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
+  sub _NumSeq_Coord_TRadius_non_decreasing {
+    my ($self) = @_;
+    # step==0 trivial on X axis
+    return ($self->{'step'} == 0 ? 1 : 0);
+  }
 
   sub _NumSeq_Coord_RSquared_smaller {
     my ($self) = @_;
@@ -1080,13 +1171,17 @@ sub values_max {
 # { package Math::PlanePath::FilledRings;
 # }
 { package Math::PlanePath::Hypot;
-  # in order of radius, so monotonic
+  # in order of radius so monotonic, but always have 4x duplicates or more
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
 }
 { package Math::PlanePath::HypotOctant;
-  # in order of radius, so monotonic
+  # in order of radius so monotonic, but can have duplicates
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
   use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
+}
+{ package Math::PlanePath::TriangularHypot;
+  # in order of triangular radius so monotonic, but can have duplicates
+  use constant _NumSeq_Coord_TRadius_non_decreasing => 1;
 }
 { package Math::PlanePath::PythagoreanTree;
   {
@@ -1129,7 +1224,7 @@ sub values_max {
   }
 
   # Not quite right.
-  # sub _NumSeq_Coord_pred_R {
+  # sub _NumSeq_Coord_pred_Radius {
   #   my ($path, $value) = @_;
   #   return ($value >= 0
   #           && ($path->{'coordinate_type'} ne 'AB'
@@ -1147,16 +1242,22 @@ sub values_max {
 }
 # { package Math::PlanePath::PeanoCurve;
 # }
+# { package Math::PlanePath::WunderlichSerpentine;
+# }
 # { package Math::PlanePath::HilbertCurve;
 # }
 # { package Math::PlanePath::HilbertSpiral;
 # }
 # { package Math::PlanePath::ZOrderCurve;
 # }
+# { package Math::PlanePath::GrayCode;
+# }
 # { package Math::PlanePath::ImaginaryBase;
 # }
 { package Math::PlanePath::GosperIslands;
+  use constant _NumSeq_Coord_SumAbs_min => 2; # minimum X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_RSquared_min => 2; # minimum X=1,Y=1
+  use constant _NumSeq_Coord_TRSquared_min => 4; # minimum X=1,Y=1
 }
 # { package Math::PlanePath::GosperSide;
 # }
@@ -1164,21 +1265,30 @@ sub values_max {
 # }
 { package Math::PlanePath::KochPeaks;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y never occurs
+  use constant _NumSeq_Coord_SumAbs_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
+  use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
 }
 { package Math::PlanePath::KochSnowflakes;
+  use constant _NumSeq_Coord_SumAbs_min => 2/3; # minimum X=0,Y=2/3
   use constant _NumSeq_Coord_Radius_min   => 2/3; # minimum X=0,Y=2/3
   use constant _NumSeq_Coord_RSquared_min => 4/9; # minimum X=0,Y=2/3
+  use constant _NumSeq_Coord_TRSquared_min => 3*4/9; # minimum X=0,Y=2/3
+  use constant _NumSeq_Coord_TRadius_min => sqrt(_NumSeq_Coord_TRSquared_min);
 }
 { package Math::PlanePath::KochSquareflakes;
+  use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_RSquared_min => 0.5; # minimum X=0.5,Y=0.5
+  use constant _NumSeq_Coord_TRSquared_min => 1; # X=0.5,Y=0.5
 }
 { package Math::PlanePath::QuadricCurve;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   use constant _NumSeq_Coord_DiffXY_min => 0; # triangular Y<=X so X-Y>=0
 }
 { package Math::PlanePath::QuadricIslands;
+  use constant _NumSeq_Coord_SumAbs_min => 1; # minimum X=1/2,Y=1/2
   use constant _NumSeq_Coord_RSquared_min => 0.5; # minimum X=1/2,Y=1/2
+  use constant _NumSeq_Coord_TRSquared_min => 1; # X=1/2,Y=1/2
 }
 { package Math::PlanePath::SierpinskiTriangle;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
@@ -1221,8 +1331,19 @@ sub values_max {
             ? 1       # octant Y<=X-1 so X-Y>=1
             : undef); # more than 1 arm, DiffXY goes negative
   }
+  use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
   use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
+  use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
+}
+{ package Math::PlanePath::SierpinskiCurveStair;
+  *_NumSeq_Coord_X_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_X_min;
+  *_NumSeq_Coord_Sum_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Sum_min;
+  *_NumSeq_Coord_DiffXY_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_DiffXY_min;
+  use constant _NumSeq_Coord_SumAbs_min => 1;
+  use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
+  use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
+  use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
 }
 { package Math::PlanePath::HIndexing;
   use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
@@ -1230,8 +1351,10 @@ sub values_max {
 # { package Math::PlanePath::DragonCurve;
 # }
 { package Math::PlanePath::DragonRounded;
-  use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
+  use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y doesn't occur
+  use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
+  use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
 }
 # { package Math::PlanePath::DragonMidpoint;
 # }
@@ -1240,12 +1363,14 @@ sub values_max {
 # { package Math::PlanePath::TerdragonCurve;
 # }
 { package Math::PlanePath::TerdragonMidpoint;
+  use constant _NumSeq_Coord_SumAbs_min => 2; # X=2,Y=0 or X=1,Y=1
   sub _NumSeq_Coord_RSquared_min {
     my ($self) = @_;
     return ($self->arms_count < 2
             ? 4   # 1 arm, minimum X=2,Y=0
             : 2); # 2 or more arms, minimum X=1,Y=1
   }
+  use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
 }
 # { package Math::PlanePath::ComplexPlus;
 # }
@@ -1268,6 +1393,7 @@ sub values_max {
   *_NumSeq_Coord_Radius_increasing = \&_NumSeq_Coord_Y_increasing;
   *_NumSeq_Coord_DiffYX_increasing = \&_NumSeq_Coord_Y_increasing;
   *_NumSeq_Coord_Sum_increasing = \&_NumSeq_Coord_Y_increasing;
+  *_NumSeq_Coord_SumAbs_increasing = \&_NumSeq_Coord_Y_increasing;
   *_NumSeq_Coord_AbsDiff_increasing = \&_NumSeq_Coord_Y_increasing;
 
   *_NumSeq_Coord_X_non_decreasing = \&_NumSeq_Coord_Y_increasing;
@@ -1279,7 +1405,11 @@ sub values_max {
             ? 1    # width=1 is X=0,Y=N only, or width=2 is X=0,1,Y=N/2
             : 0);
   }
+  *_NumSeq_Coord_SumAbs_non_decreasing = \&_NumSeq_Coord_Sum_non_decreasing;
   *_NumSeq_Coord_Radius_non_decreasing = \&_NumSeq_Coord_Sum_non_decreasing;
+
+  # width <= 2 one or two columns is increasing
+  *_NumSeq_Coord_TRadius_increasing = \&_NumSeq_Coord_Sum_non_decreasing;
 
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
 }
@@ -1296,8 +1426,10 @@ sub values_max {
             : 0);
   }
   *_NumSeq_Coord_Radius_increasing = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_TRadius_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_DiffXY_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Sum_increasing = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_SumAbs_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_AbsDiff_increasing = \&_NumSeq_Coord_X_increasing;
 
   *_NumSeq_Coord_Y_non_decreasing = \&_NumSeq_Coord_X_increasing;
@@ -1310,13 +1442,16 @@ sub values_max {
             ? 1    # height=1 is X=N,Y=0 only, or height=2 is X=N/2,Y=0,1
             : 0);
   }
+  *_NumSeq_Coord_SumAbs_non_decreasing = \&_NumSeq_Coord_Sum_non_decreasing;
   *_NumSeq_Coord_Radius_non_decreasing = \&_NumSeq_Coord_Sum_non_decreasing;
 }
 { package Math::PlanePath::Diagonals;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
+  use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
 }
 { package Math::PlanePath::DiagonalsAlternating;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
+  use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
 }
 # { package Math::PlanePath::MPeaks;
 # }
@@ -1355,16 +1490,19 @@ sub values_max {
             : 0);
   }
   *_NumSeq_Coord_Sum_increasing = \&_NumSeq_Coord_Y_increasing;
+  *_NumSeq_Coord_SumAbs_increasing = \&_NumSeq_Coord_Y_increasing;
   *_NumSeq_Coord_DiffYX_increasing = \&_NumSeq_Coord_Y_increasing;
   *_NumSeq_Coord_AbsDiff_increasing = \&_NumSeq_Coord_Y_increasing;
   *_NumSeq_Coord_Radius_increasing = \&_NumSeq_Coord_Y_increasing;
+  *_NumSeq_Coord_TRadius_increasing = \&_NumSeq_Coord_Y_increasing;
 
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   *_NumSeq_Coord_X_non_decreasing = \&_NumSeq_Coord_Y_increasing; # X=0 always
   *_NumSeq_Coord_Product_non_decreasing = \&_NumSeq_Coord_Y_increasing; # N*0=0
 }
-# { package Math::PlanePath::PyramidSides;
-# }
+{ package Math::PlanePath::PyramidSides;
+  use constant _NumSeq_Coord_SumAbs_non_decreasing => 1;
+}
 { package Math::PlanePath::CellularRule;
   # ENHANCE-ME: more restrictive than this for many rules
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
@@ -1418,14 +1556,9 @@ sub values_max {
             ? 1
             : 0);
   }
-  sub _NumSeq_Coord_Radius_increasing {
-    my ($self) = @_;
-    return (($self->{'rule'} & 0x17) == 0        # single cell only
-            || ($self->{'rule'} & 0x5F) == 0x14  # right line 1,2
-            || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
-            ? 1
-            : 0);
-  }
+  *_NumSeq_Coord_SumAbs_increasing = \&_NumSeq_Coord_Sum_increasing;
+  *_NumSeq_Coord_Radius_increasing = \&_NumSeq_Coord_Sum_increasing;
+  *_NumSeq_Coord_TRadius_increasing = \&_NumSeq_Coord_Radius_increasing;
 
   *_NumSeq_Coord_Y_increasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Product_increasing = \&_NumSeq_Coord_X_increasing;
@@ -1472,6 +1605,7 @@ sub values_max {
 
   use constant _NumSeq_Coord_Y_increasing => 1;       # line upwards
   use constant _NumSeq_Coord_Radius_increasing => 1;  # line upwards
+  use constant _NumSeq_Coord_TRadius_increasing => 1; # line upwards
 
   sub _NumSeq_Coord_X_increasing {
     my ($path) = @_;
@@ -1489,6 +1623,7 @@ sub values_max {
             : 1); # X=0 so X+Y=Y, or X=Y so X+Y=2Y
   }
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # line upwards
+  use constant _NumSeq_Coord_SumAbs_increasing => 1;  # line upwards
 
   sub _NumSeq_Coord_Product_increasing {
     my ($path) = @_;
@@ -1552,6 +1687,7 @@ sub values_max {
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
+  use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
 }
 { package Math::PlanePath::FactorRationals;
   use constant _NumSeq_Coord_X_min => 1;
@@ -1570,11 +1706,12 @@ sub values_max {
 { package Math::PlanePath::DivisibleColumns;
   # X=2,Y=1 when proper
   # X=1,Y=1 when not
-  use constant _NumSeq_Coord_Y_min => 1;
   sub _NumSeq_Coord_X_min {
     my ($self) = @_;
     return ($self->{'proper'} ? 2 : 1);
   }
+  use constant _NumSeq_Coord_Y_min => 1;
+
   sub _NumSeq_Coord_DiffXY_min {
     my ($self) = @_;
     # octant Y<=X so X-Y>=0
@@ -1603,13 +1740,21 @@ sub values_max {
 # }
 { package Math::PlanePath::LTiling;  # NSEW
   sub _NumSeq_Coord_Sum_min {
-    my ($path) = @_;
-    return ($path->{'L_fill'} eq 'ends'
-            ? 1    # ends no 0,0
-            : 0);
+    my ($self) = @_;
+    return ($self->{'L_fill'} eq 'middle' || $self->{'L_fill'} eq 'all'
+            ? 0    # X=0,Y=0
+            : 1);  # X=1,Y=0 or X=0,Y=1 for ends,left,upper
   }
+  *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_Sum_min;
   *_NumSeq_Coord_AbsDiff_min = \&_NumSeq_Coord_Sum_min;
   *_NumSeq_Coord_RSquared_min = \&_NumSeq_Coord_Sum_min;
+  sub _NumSeq_Coord_TRSquared_min {
+    my ($self) = @_;
+    return ($self->{'L_fill'} eq 'upper' ? 3    # X=0,Y=1
+            : ($self->{'L_fill'} eq 'left'
+               || $self->{'L_fill'} eq 'ends') ? 1   # X=1,Y=0
+            : 0);  # 'middle','all' X=0,Y=0
+  }
 }
 
 
@@ -1650,7 +1795,8 @@ __END__
 #       return ($value >= 0);
 #     }
 #   } elsif ($coordinate_type eq 'RSquared') {
-#     # FIXME: only sum of two squares, and for triangular same odd/even
+#     # FIXME: only sum of two squares, and for triangular same odd/even.
+#     # Factorize or search ?
 #     return ($value >= 0);
 #   }
 #
@@ -1667,8 +1813,9 @@ Math::NumSeq::PlanePathCoord -- sequence of coordinate values from a PlanePath m
 =head1 SYNOPSIS
 
  use Math::NumSeq::PlanePathCoord;
- my $seq = Math::NumSeq::PlanePathCoord->new (planepath => 'SquareSpiral',
-                                              coordinate_type => 'X');
+ my $seq = Math::NumSeq::PlanePathCoord->new
+             (planepath => 'SquareSpiral',
+              coordinate_type => 'X');
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -1681,33 +1828,52 @@ The C<coordinate_type> choices are
     "X"          X coordinate
     "Y"          Y coordinate
     "Sum"        X+Y sum
+    "SumAbs"     abs(X)+abs(Y)
     "Product"    X*Y product
     "DiffXY"     X-Y difference
     "DiffYX"     Y-X difference (negative of DiffXY)
     "AbsDiff"    abs(Y-X) difference
     "Radius"     sqrt(X^2+Y^2) radius
     "RSquared"   X^2+Y^2 radius squared
+    "TRadius"    sqrt(X^2+3*Y^2) triangular radius
+    "TRSquared"  X^2+3*Y^2 triangular radius squared
 
 "Sum" can be interpreted geometrically as a projection onto the X=Y leading
 diagonal, or equivalently as a measure of which anti-diagonal stripe
 contains the X,Y.
 
-    \
-     2
-    \ \
-     1 2
-    \ \ \
-     0 1 2
+                      *    X=Y
+    \                  \  /
+     2                  \/
+    \ \                 /  .
+     1 2               /  /
+    \ \ \             / sum distance
+     0 1 2           o  /
+                       /
+
+"SumAbs" is a similar projection, but onto the diagonal of whichever
+quadrant contains the X,Y.  It's sometimes thought of as a taxi-cab or
+Manhatten distance, being how far be travelled through a square-grid city,
+by whatever combination of up and down.  For paths using only the first
+quadrant, so XE<gt>=0,YE<gt>=0 of course Sum and SumAbs are identical.
 
 "DiffXY" similarly, but a projection onto the X=-Y opposite diagonal, or a
 measure of which leading diagonal stripe has the X,Y.
 
-        / / / /
-      -1 0 1 2
-      / / / /
-    -1 0 1 2
-      / / /
-     0 1 2
+                        X=-Y  *
+        / / / /           \  /
+      -1 0 1 2             \/
+      / / / /            .  \
+    -1 0 1 2              \  \
+      / / /         diff dist \
+     0 1 2                  \  o
+                             \
+
+The triangular "TRadius" and "TRSquared" are meant for use with points on a
+triangular lattice such as HexSpiral.  TRSquared is the same as RSquared on
+the X axis but the Y axis is scaled up.  The triangular paths generally use
+every second X,Y point which makes TRSquared always even, or for KochPeaks
+and similar offset 1 from the origin then always odd.
 
 =head1 OEIS
 
@@ -1792,7 +1958,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --values=PlanePathCoord"
-# End:

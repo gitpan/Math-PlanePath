@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -352,6 +352,8 @@ Math::PlanePath::UlamWarburtonQuarter -- growth of a 2-D cellular automaton
 
 =head1 DESCRIPTION
 
+X<Ulam, Stanislaw>
+X<Warburton>
 This is the pattern of a cellular automaton studied by Ulam and Warburton,
 confined to a quarter of the plane and done on the diagonal.  Cells are
 numbered by growth level and anti-clockwise within the level.

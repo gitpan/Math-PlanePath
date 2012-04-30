@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -283,7 +283,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks Xlo=-9 Xhi=+9 Ypeak Xlo,Xhi
+=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks Xlo Xhi Xlo=-9 Xhi=+9 Ypeak Xlo,Xhi KochCurve
 
 =head1 NAME
 
@@ -298,7 +298,7 @@ Math::PlanePath::KochPeaks -- Koch curve peaks
 =head1 DESCRIPTION
 
 This path traces out concentric peaks made from integer versions of the
-self-similar Koch curve at successively greater replication levels.
+self-similar KochCurve at successively greater replication levels.
 
                                29                                 9
                               /  \

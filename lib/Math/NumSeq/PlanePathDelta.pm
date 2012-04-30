@@ -22,7 +22,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -46,7 +46,7 @@ sub description {
     return "Coordinate change $self->{'delta_type'} on path $self->{'planepath'}";
   } else {
     # class method
-    return Math::NumSeq::__('Coordinate changes from a PlanePath');
+    return 'Coordinate changes from a PlanePath';
   }
 }
 
@@ -55,30 +55,46 @@ use constant::defer parameter_info_array =>
     [ Math::NumSeq::PlanePathCoord::_parameter_info_planepath(),
       {
        name    => 'delta_type',
-       display => Math::NumSeq::__('Delta Type'),
+       display => 'Delta Type',
        type    => 'enum',
        default => 'dX',
        choices => ['dX','dY',
                    'Dir4','TDir6',
 
-                   # 'Dist','DistSquared',
+                   # maybe:
+                   # dRadius, dRSquared of the radii
+                   # dTheta360
+                   # 'Dist','DistSquared', of dxdy
                    # 'Dir360','TDir360',
                   ],
-       # description => Math::NumSeq::__(''),
+       # description => '',
       },
     ];
   };
 
-# SquareSpiral dX maybe A118175 signed version of Rule 220 in binary ??
-#              dY maybe A079813 signed version of n 0s then n 1s
-
 # DragonMidpoint abs(dY) is A073089, but it has n=N+2 and extra initial 0 at
 # n=1
 #
-# ComplesMinus i-1 dX with zeros removed is Golay-Rudin-Shapiro A020985 
+# MathPlanePath::AlternatePaper dX with zeros removed is
+# Math::NumSeq::GolayRudinShapiro A020985, no delta_type for that as yet
+#
+# Suspect not in OEIS:
+#
+# 'Math::PlanePath::GosperSide' =>
+# 'Math::PlanePath::TerdragonCurve' =>
+# Total turn is count of ternary 1 digits.
+# A062756 is total turn starting OFFSET=0
+# Dir6 would be total%6, or 2*(total%3) for Terdragon
+#
 
 my %oeis_anum
   = (
+     # 'Math::PlanePath::SquareSpiral' =>
+     # {
+     #  AbsdX => 'A079813', # k 0s then k 1s is abs(dY)
+     #  AbsdY => 'A118175', # k 0s then k 1s plus initial 1 is abs(dY)
+     # },
+
      # 'Math::PlanePath::HilbertCurve' =>
      # {
      #  # OFFSET n=1 cf N=0
@@ -86,7 +102,7 @@ my %oeis_anum
      #  # # which corresponds to 1=north,3=south per the HilbertCurve planepath
      #  # Dir4 => 'A163540',
      #  # # OEIS-Catalogue: A163540 planepath=HilbertCurve delta_type=Dir4
-     # 
+     #
      #  # delta path(n)-path(n-1) starting i=0 with path(-1)=0 for first value 0
      #  # dX => 'A163538',
      #  # # OEIS-Catalogue: A163538 planepath=HilbertCurve delta_type=dX
@@ -105,7 +121,7 @@ my %oeis_anum
      #  # # directions of the PeanoCurve planepath here
      #  # Dir4 => 'A163534',
      #  # # OEIS-Catalogue: A163534 planepath=PeanoCurve delta_type=Dir4
-     # 
+     #
      #  # delta a(n)-a(n-1), so initial dx=0 at i=0 ...
      #  # dX => 'A163532',
      #  # # OEIS-Catalogue: A163532 planepath=PeanoCurve delta_type=dX
@@ -244,9 +260,8 @@ sub new {
   ### NumSeq-PlanePathDelta new(): @_
   my $self = $class->SUPER::new(@_);
 
-  my $planepath_object = ($self->{'planepath_object'}
-                          ||= _planepath_name_to_object($self->{'planepath'}));
-  ### $planepath_object
+  $self->{'planepath_object'}
+    ||= _planepath_name_to_object($self->{'planepath'});
 
   $self->{'delta_func'}
     = $self->can("_delta_func_$self->{'delta_type'}")
@@ -792,7 +807,7 @@ sub values_max {
 
             # step > 6, between rings
             : (0.5/_PI()) * $self->{'step'}
-            * (2-cos(2*_PI()/$self->{'step'})))
+            * (2-cos(2*_PI()/$self->{'step'})));
   }
 
   sub _NumSeq_Delta_dY_min {
@@ -898,30 +913,42 @@ sub values_max {
   use constant _NumSeq_Delta_Dir4_max => 3.5;  # SE diagonal
 }
 { package Math::PlanePath::PeanoCurve;
+
   sub _NumSeq_Delta_dX_min {
     my ($self) = @_;
     return ($self->{'radix'} % 2 ? -1 : undef);
   }
+  *_NumSeq_Delta_dY_min = \&_NumSeq_Delta_dX_min;
+
   sub _NumSeq_Delta_dX_max {
     my ($self) = @_;
     return ($self->{'radix'} % 2 ? 1 : undef);
   }
-  sub _NumSeq_Delta_dY_min {
+  *_NumSeq_Delta_dY_max = \&_NumSeq_Delta_dX_max;
+
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  *_NumSeq_Delta_DistSquared_max = \&_NumSeq_Delta_dX_max;
+
+  use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
+}
+{ package Math::PlanePath::WunderlichSerpentine;
+  # same as PeanoCurve
+
+  sub _NumSeq_Delta_dX_min {
     my ($self) = @_;
     return ($self->{'radix'} % 2 ? -1 : undef);
   }
-  sub _NumSeq_Delta_dY_max {
+  *_NumSeq_Delta_dY_min = \&_NumSeq_Delta_dX_min;
+
+  sub _NumSeq_Delta_dX_max {
     my ($self) = @_;
     return ($self->{'radix'} % 2 ? 1 : undef);
   }
-  sub _NumSeq_Delta_DistSquared_min {
-    my ($self) = @_;
-    return ($self->{'radix'} % 2 ? 1 : undef);
-  }
-  sub _NumSeq_Delta_DistSquared_max {
-    my ($self) = @_;
-    return ($self->{'radix'} % 2 ? 1 : undef);
-  }
+  *_NumSeq_Delta_dY_max = \&_NumSeq_Delta_dX_max;
+
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  *_NumSeq_Delta_DistSquared_max = \&_NumSeq_Delta_dX_max;
+
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 }
 { package Math::PlanePath::HilbertCurve;
@@ -965,6 +992,9 @@ sub values_max {
     return Math::NumSeq::PlanePathDelta::_delta_func_TDir6
       (0,0, 1, 1 - $self->{'radix'});  # SE diagonal
   }
+}
+{ package Math::PlanePath::GrayCode;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
 }
 { package Math::PlanePath::ImaginaryBase;
   # Dir4 radix=2 goes south-east at
@@ -1088,6 +1118,15 @@ sub values_max {
                  $self->{'diagonal_spacing'} ** 2);
   }
   use constant _NumSeq_Delta_Dir4_max => 3.5; # diagonal
+}
+{ package Math::PlanePath::SierpinskiCurveStair;
+  use constant _NumSeq_Delta_dX_min => -1;
+  use constant _NumSeq_Delta_dX_max => 1;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Delta_DistSquared_max => 1;
+  use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 }
 { package Math::PlanePath::SierpinskiTriangle;
   use constant _NumSeq_Delta_dY_min => 0;
@@ -1459,7 +1498,7 @@ sub values_max {
             : (($self->{'rule'} & 0x5F) == 0x0E     # left line 2
                || ($self->{'rule'} & 0x5F) == 0x06) # left line 1,2
             ? -2
-            
+
             : undef);
   }
   sub _NumSeq_Delta_dX_max {
@@ -1748,16 +1787,13 @@ __END__
 #     } else {
 #       return ($value >= 0);
 #     }
-#   } elsif ($delta_type eq 'SqRadius') {
-#     # FIXME: only sum of two squares, and for triangular same odd/even
-#     return ($value >= 0);
 #   }
 #
 #   return undef;
 # }
 
 
-=for stopwords Ryde TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral
+=for stopwords Ryde TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath
 
 =head1 NAME
 
@@ -1766,8 +1802,9 @@ Math::NumSeq::PlanePathDelta -- sequence of changes in PlanePath X,Y coordinates
 =head1 SYNOPSIS
 
  use Math::NumSeq::PlanePathDelta;
- my $seq = Math::NumSeq::PlanePathDelta->new (planepath => 'SquareSpiral',
-                                              delta_type => 'dX');
+ my $seq = Math::NumSeq::PlanePathDelta->new
+             (planepath => 'SquareSpiral',
+              delta_type => 'dX');
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION

@@ -45,6 +45,62 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['gray-code-small.png',
+    'math-image --path=GrayCode --lines --scale=6 --size=32'],
+   ['gray-code-big.png',
+    'math-image --path=GrayCode --lines --scale=14 --size=226'],
+   ['gray-code-radix4-big.png',
+    'math-image --path=GrayCode,radix=4 --lines --scale=14 --size=226'],
+
+   ['zorder-small.png',
+    'math-image --path=ZOrderCurve --lines --scale=6 --size=32'],
+   ['zorder-big.png',
+    'math-image --path=ZOrderCurve --lines --scale=14 --size=226'],
+   ['zorder-radix5-big.png',
+    'math-image --path=ZOrderCurve,radix=5 --lines --scale=14 --size=226'],
+   ['zorder-fibbinary.png',
+    'math-image --path=ZOrderCurve --values=Fibbinary --scale=1 --size=704x320'],
+
+
+   ['sierpinski-curve-stair-small.png',
+    'math-image --path=SierpinskiCurveStair,arms=2 --scale=3 --size=32 --lines --offset=-14,-14'],
+   ['sierpinski-curve-stair-big.png',
+    'math-image --path=SierpinskiCurveStair --lines --scale=5 --size=200 --offset=-95,-95'],
+   ['sierpinski-curve-stair-8arm-big.png',
+    'math-image --path=SierpinskiCurveStair,arms=8 --lines --scale=5 --size=200'],
+
+
+   ['sierpinski-curve-small.png',
+    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --offset=-14,-14'],
+   ['sierpinski-curve-big.png',
+    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200 --offset=-95,-95'],
+   ['sierpinski-curve-8arm-big.png',
+    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
+
+
+   ['wunderlich-serpentine-small.png',
+    'math-image --path=WunderlichSerpentine --lines --scale=4 --size=32'],
+   ['wunderlich-serpentine-big.png',
+    'math-image --path=WunderlichSerpentine --lines --scale=7 --size=192'],
+   ['wunderlich-serpentine-coil-big.png',
+    'math-image --path=WunderlichSerpentine,serpentine_type=coil --values=Lines --scale=7 --size=192'],
+   ['wunderlich-serpentine-radix7-big.png',
+    'math-image --path=WunderlichSerpentine,radix=7 --values=Lines --scale=5 --size=192'],
+
+   ['wunderlich-meander-small.png',
+    'math-image --path=WunderlichMeander --lines --scale=4 --size=32'],
+   ['wunderlich-meander-big.png',
+    'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
+
+
+   ['peano-small.png',
+    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
+   ['peano-big.png',
+    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
+   ['peano-radix7-big.png',
+    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=5 --size=192'],
+
+
    ['cretan-labyrinth-small.png',
     'math-image --path=CretanLabyrinth --lines --scale=3 --size=32'],
    ['cretan-labyrinth-big.png',
@@ -77,14 +133,6 @@ foreach my $elem
     'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
    ['pythagorean-tree-big.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
-
-   ['sierpinski-curve-small.png',
-    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --offset=-14,-14'],
-   ['sierpinski-curve-big.png',
-    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200'],
-   ['sierpinski-curve-8arm-big.png',
-    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
-
 
    ['terdragon-small.png',
     'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
@@ -339,14 +387,6 @@ foreach my $elem
    ['hilbert-spiral-big.png',
     'math-image --path=HilbertSpiral --lines --scale=7 --size=230'],
 
-   ['peano-small.png',
-    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
-   ['peano-big.png',
-    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
-   ['peano-radix7-big.png',
-    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=7 --size=192'],
-
-
    ['diagonals-alternating-small.png',
     'math-image --path=DiagonalsAlternating --lines --scale=6 --size=32'],
    ['diagonals-alternating-big.png',
@@ -374,11 +414,6 @@ foreach my $elem
     'math-image --path=KochelCurve --lines --scale=4 --size=32'],
    ['kochel-big.png',
     'math-image --path=KochelCurve --lines --scale=7 --size=192'],
-
-   ['wunderlich-meander-small.png',
-    'math-image --path=WunderlichMeander --lines --scale=4 --size=32'],
-   ['wunderlich-meander-big.png',
-    'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
 
    ['beta-omega-small.png',
     'math-image --path=BetaOmega --lines --scale=4 --size=32'],
@@ -408,16 +443,6 @@ foreach my $elem
     'math-image --path=HexSpiralSkewed --lines --scale=13 --size=150'],
    ['hex-skewed-wider4-big.png',
     'math-image --path=HexSpiralSkewed,wider=4 --lines --scale=13 --size=150'],
-
-
-   ['zorder-small.png',
-    'math-image --path=ZOrderCurve --lines --scale=6 --size=32'],
-   ['zorder-big.png',
-    'math-image --path=ZOrderCurve --lines --scale=14 --size=226'],
-   ['zorder-radix5-big.png',
-    'math-image --path=ZOrderCurve,radix=5 --lines --scale=14 --size=226'],
-   ['zorder-fibbinary.png',
-    'math-image --path=ZOrderCurve --values=Fibbinary --scale=1 --size=704x320'],
 
 
    ['fibonacci-word-fractal-small.png',

@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -279,7 +279,7 @@ Plotting the N values by X,Y is as follows.  Since it's only fractions
 X/YE<lt>1, ie. XE<lt>Y, all points are above the X=Y diagonal.  The unused
 X,Y positions are where X and Y have a common factor.  For example X=2,Y=6
 have common factor 2 so is never reached.
-             
+
     12  |    1024                  26        27                1025
     11  |     512   48   28   22   34   35   23   29   49  513     
     10  |     256        20                  21       257          
@@ -335,7 +335,7 @@ only one new 1/Y fraction.  So if X=1 is included then roughly C<$n_hi =
 The trees are in Sloane's Online Encyclopedia of Integer Sequences in the
 following forms
 
-    http://oeis.org/A002487   (etc)
+    http://oeis.org/A020651   (etc)
 
     A020651  - Kepler numerators (RationalsTree AYT denominators)
     A086592  - Kepler denominators

@@ -30,9 +30,9 @@ use MyOEIS;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-use POSIX ();
-use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
-use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
+# use POSIX ();
+# use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
+# use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
 
 sub diff_nums {
   my ($gotaref, $wantaref) = @_;
@@ -103,6 +103,7 @@ sub check_class {
 
   # return unless $class =~ /Turn/;
   # return unless $class =~ /Koch/;
+  # return unless $anum eq 'A137893';
   #  return unless $anum eq 'A035263';
 
 

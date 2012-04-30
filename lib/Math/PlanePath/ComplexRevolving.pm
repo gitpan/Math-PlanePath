@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -147,7 +147,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel Seminumerical et
+=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel Seminumerical et ComplexPlus
 
 =head1 NAME
 
@@ -165,38 +165,39 @@ This path traverses points by a complex number base i+1 with turn factor i
 (+90 degrees) at each 1 bit.  This is the "revolving binary representation"
 of Knuth's Seminumerical Algorithms section 4.1 exercise 28.
 
-             54 51       38 35               5
-          60 53       44 37                  4
-    39 46 43 58 23 30 27 42                  3
-       45  8 57  4 29 56 41 52               2
-          31  6  3  2 15 22 19 50            1
-    16    12  5  0  1 28 21    49        <- Y=0
-    55 62 59 10  7 14 11 26                 -1
-       61 24  9 20 13 40 25 36              -2
-          47       18 63       34           -3
-    32          48 17          33           -4
+             54 51       38 35            5
+          60 53       44 37               4
+    39 46 43 58 23 30 27 42               3
+       45  8 57  4 29 56 41 52            2
+          31  6  3  2 15 22 19 50         1
+    16    12  5  0  1 28 21    49     <- Y=0
+    55 62 59 10  7 14 11 26              -1
+       61 24  9 20 13 40 25 36           -2
+          47       18 63       34        -3
+    32          48 17          33        -4
 
                  ^
     -4 -3 -2 -1 X=0 1  2  3  4  5
 
-The 1 bit positions of N are exponents e0 to et
+The 1 bits in N are exponents e0 to et, in increasing order,
 
-    N = 2^e0 + 2^e1 + ... + 2^et
+    N = 2^e0 + 2^e1 + ... + 2^et        e0 < e1 < ... < et
 
 and are applied to a base b=i+1 as
 
     X+iY = b^e0 + i * b^e1 + i^2 * b^e2 + ... + i^t * b^et
 
-The b^ek parts have the same exponents as the bits of N, but base b=i+1
-instead of base 2.  The i^k is an extra factor i at each 1 bit of N, causing
-a rotation by +90 degrees for the bits above it.  Notice the factor is i^k
-not i^ek, ie. it goes only with the 1 bits of N, not the whole exponent.
+Each 2^ek has become b^ek base b=i+1.  The i^k is an extra factor i at each
+1 bit of N, causing a rotation by +90 degrees for the bits above it.  Notice
+the factor is i^k not i^ek, ie. it increments only with the 1 bits of N,
+it's not the whole exponent.
 
 A single bit N=2^k is the simplest and is X+iY=(i+1)^k.  These
-N=1,2,4,8,16,etc are at successive angles 45, 90, 135, etc degrees.  But
-points N=2^k+1 with two bits means X+iY=(i+1) + i*(i+1)^k and that factor
-"i*" is a rotation by 90 degrees so the points N=3,5,9,17,33,etc are in the
-next quadrant around from their preceding 2,4,8,16,32.
+N=1,2,4,8,16,etc are at successive angles 45, 90, 135, etc degrees (the same
+as in ComplexPlus).  But points N=2^k+1 with two bits means X+iY=(i+1) +
+i*(i+1)^k and that factor "i*" is a rotation by 90 degrees so points
+N=3,5,9,17,33,etc are in the next quadrant around from their preceding
+2,4,8,16,32.
 
 As per the exercise in Knuth it's reasonably easy to show that this
 calculation is a one-to-one mapping between integer N and complex integer

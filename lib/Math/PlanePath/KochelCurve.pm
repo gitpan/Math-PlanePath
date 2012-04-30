@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -489,6 +489,7 @@ Math::PlanePath::KochelCurve -- 3x3 self-similar R and F
 
 =head1 DESCRIPTION
 
+X<Haverkort, Herman>
 This is an integer version of the Kochel curve by Herman Haverkort.  It
 fills the first quadrant in a 3x3 self-similar pattern made from two base
 shapes.

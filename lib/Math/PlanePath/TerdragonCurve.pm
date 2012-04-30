@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -119,7 +119,6 @@ sub n_to_xy {
   }
   ### @digits
 
-  my $rev = 0;
   my $i = $zero;
   my $j = $zero;
   my $k = $zero;
@@ -136,16 +135,6 @@ sub n_to_xy {
     elsif ($rot == 3) { ($si,$sj,$sk) = (-$si,-$sj,-$sk); }
     elsif ($rot == 4) { ($si,$sj,$sk) = ($sk,-$si,-$sj); }
     elsif ($rot == 5) { ($si,$sj,$sk) = ($sj,$sk,-$si); }
-
-    # if ($rev) {
-    # if ($digit) {
-    #   $x -= $sy;
-    #   $y += $sx;
-    #   ### rev add to: "$x,$y next is still rev"
-    # } else {
-    #   $rot ++;
-    #   $rev = 0;
-    # }
 
     if ($digit) {
       $i += $si;  # digit=1 or digit=2
@@ -170,9 +159,6 @@ sub n_to_xy {
   return (2*$i + $j - $k, $j+$k);
 }
 
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 # maximum extent -- no, not quite right
 #
@@ -275,7 +261,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism TerdragonMidpoint
 
 =head1 NAME
 
@@ -289,6 +275,8 @@ Math::PlanePath::TerdragonCurve -- triangular dragon curve
 
 =head1 DESCRIPTION
 
+X<Davis>
+X<Knuth, Donald>
 This is the terdragon curve by Davis and Knuth,
 
 
@@ -359,7 +347,11 @@ first tripled point is X=1,Y=3 which can be seen above as N=8, N=11 and
 N=14.
 
 The curve never crosses itself.  The vertices touch as little triangular
-corners.  And no edges repeat.
+corners and no edges repeat.
+
+The shape is the same as the GosperSide, but the turns here are by 120
+degrees each whereas the GosperSide is by 60 degrees each.  The extra angle
+here tightens up the shape.
 
 =head1 Spiralling
 
@@ -551,7 +543,7 @@ back to the target X,Y by C<n_to_xy()> are the results for
 C<xy_to_n_list()>.
 
 The six edges are three going towards the point and three going away.  The
-midpoing calculation gives N-1 for the towards and N for the away.  Is there
+midpoint calculation gives N-1 for the towards and N for the away.  Is there
 a good way to tell which edge is the smallest?  Or just which 3 edges lead
 away?  It might be directions 0,2,4 for the even arms and 1,3,5 for the odd
 ones, but the boundary of those areas is tricky.
@@ -584,6 +576,7 @@ with a left turn at N=1.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::TerdragonMidpoint>,
+L<Math::PlanePath::GosperSide>,
 L<Math::PlanePath::DragonCurve>
 
 =head1 HOME PAGE

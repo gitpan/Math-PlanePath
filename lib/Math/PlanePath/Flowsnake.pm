@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -334,6 +334,7 @@ Math::PlanePath::Flowsnake -- self-similar path through hexagons
 
 =head1 DESCRIPTION
 
+X<Gosper, William>
 This path is an integer version of the flowsnake curve by William Gosper,
 
                          39----40----41                        8

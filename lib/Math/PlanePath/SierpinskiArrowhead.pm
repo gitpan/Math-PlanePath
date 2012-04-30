@@ -23,10 +23,9 @@
 package Math::PlanePath::SierpinskiArrowhead;
 use 5.004;
 use strict;
-use POSIX qw(floor ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -277,6 +276,7 @@ Math::PlanePath::SierpinskiArrowhead -- self-similar triangular path traversal
 
 =head1 DESCRIPTION
 
+X<Sierpinski, Waclaw>
 This is an integer version of the Sierpinski arrowhead path.  It follows a
 self-similar triangular shape leaving middle triangle gaps.
 

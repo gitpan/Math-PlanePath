@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 84;
+plan tests => 114;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -62,6 +62,27 @@ require Math::PlanePath::KochCurve;
 }
 
 #------------------------------------------------------------------------------
+# rect_to_n_range()
+
+{
+  my $path = Math::PlanePath::KochCurve->new;
+  foreach my $elem
+    (
+     [4,1, 7,1, 5,5],   # Y=1 X=4..7 being N=5 only
+
+     [0,0, 9,3,   0,8],
+     [9,3, 9,3,   8,8],
+     [10,2, 10,2, 9,9],
+     [11,1, 11,1, 11,11],
+    ) {
+    my ($x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
+    my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ok ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2");
+    ok ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2");
+  }
+}
+
+#------------------------------------------------------------------------------
 # n_start, x_negative, y_negative
 
 {
@@ -69,6 +90,8 @@ require Math::PlanePath::KochCurve;
   ok ($path->n_start, 0, 'n_start()');
   ok (! $path->x_negative, 1, 'x_negative()');
   ok (! $path->y_negative, 1, 'y_negative()');
+  ok (! $path->class_x_negative, 1, 'class_x_negative()');
+  ok (! $path->class_y_negative, 1, 'class_y_negative()');
 }
 
 #------------------------------------------------------------------------------
@@ -188,8 +211,12 @@ foreach my $elem ([ 1, 1,0 ],
     my ($n, $x, $y) = @$elem;
     if ($n == int($n)) {
       my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-      ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+      ok ($got_nlo == 0, 1, "rect_to_n_range() got_nlo=$got_nlo at n=$n,x=$x,y=$y");
+      ok ($got_nhi == $n, 1, "rect_to_n_range() got_nhi=$got_nhi at n=$n,x=$x,y=$y");
+
+      ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x,$y, $x,$y);
+      ok ($got_nlo == $n, 1, "rect_to_n_range() got_nlo=$got_nlo at n=$n,x=$x,y=$y");
+      ok ($got_nhi == $n, 1, "rect_to_n_range() got_nhi=$got_nhi at n=$n,x=$x,y=$y");
     }
   }
 }

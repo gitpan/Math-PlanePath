@@ -28,10 +28,9 @@
 package Math::PlanePath::SquareSpiral;
 use 5.004;
 use strict;
-use POSIX 'floor';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -588,19 +587,25 @@ w=wl=wr=0 then they simplify to the plain versions.
 
 =head1 OEIS
 
-This path is in Sloane's Online Encyclopedia of Integer Sequences in many
+This path is in Sloane's Online Encyclopedia of Integer Sequences in various
 forms,
 
     http://oeis.org/A180714  (etc)
 
     A180714    X+Y coordinate sum
+    A053615    abs(X-Y), distance to nearest pronic
+    A079813    abs(dY), k 0s followed by k 1s
+    A118175    abs(dY), initial 1 then k 0s followed by k 1s
 
-    A054552    N values on X axis (E)
+    A033638    N positions of the turns (extra initial 1, 1)
+    A172979      those positions which are primes too
+
+    A054552    N values on X axis (East)
     A054554    N values on X=Y diagonal (NE)
-    A054556    N values on Y axis (N)
-    A054567    N values on negative X axis (W)
+    A054556    N values on Y axis (North)
+    A054567    N values on negative X axis (West)
     A054569    N values on negative X=Y diagonal (SW)
-    A033951    N values on negative Y axis (S)
+    A033951    N values on negative Y axis (South)
     A053755    N values on X=-Y opp diagonal X<=0 (NW)
     A016754    N values on X=-Y opp diagonal X>=0 (SE)
 
@@ -614,9 +619,6 @@ forms,
     A054555    prime[N] on the Y axis (N)
     A054564    prime[N] on X=-Y opp diagonal X<=0 (NW)
     A054566    prime[N] on negative X axis (W)
-
-    A033638    N positions of the turns (extra initial 1, 1)
-    A172979      those positions which are primes too
 
     A068225    permutation N -> N at the right X+1,Y
     A121496      run lengths of consecutive N in that permutation

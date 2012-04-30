@@ -27,7 +27,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -306,6 +306,7 @@ Math::PlanePath::VogelFloret -- circular pattern like a sunflower
 
 =head1 DESCRIPTION
 
+X<Vogel, H>
 The Vogel floret arranges integer points in a spiral with points based on
 the golden ratio phi = (1+sqrt(5))/2 and resembling the pattern of seeds
 found in the head of a sunflower,
@@ -457,8 +458,11 @@ k->infinity,
 
 The Lucas numbers similarly with L(k)*phi close to L(k+1).  The "epsilon"
 approaches zero quickly enough in both cases that the resulting Y coordinate
-approaches zero.  This can be calculated as follows, writing beta = -1/phi =
--0.618 and since abs(beta)<1 the powers beta^k go to zero.
+approaches zero.  This can be calculated as follows, writing
+
+    beta = -1/phi =-0.618
+
+and since abs(beta)<1 the powers beta^k go to zero.
 
     F(k) = (phi^k - beta^k) / (phi - beta)    # an integer
 

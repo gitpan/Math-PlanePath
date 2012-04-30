@@ -30,7 +30,7 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -640,6 +640,7 @@ Math::PlanePath::FlowsnakeCentres -- self-similar path of hexagon centres
 
 =head1 DESCRIPTION
 
+X<Gosper, William>
 This path is a variation of the flowsnake curve by William Gosper which
 follows the flowsnake tiling the same way but the centres of the hexagons
 instead of corners across.  The result is the same overall shape, but a

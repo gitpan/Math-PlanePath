@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -137,7 +137,7 @@ sub n_to_xy {
   my $x =
     my $y = ($n * 0) + $horiz[$i]/-2;  # inherit bignum
   if ($rot & 1) {
-    ($x,$y) = (-$y,$x)
+    ($x,$y) = (-$y,$x);
   }
   if ($rot & 2) {
     $x = -$x;
@@ -190,7 +190,7 @@ sub n_to_xy {
     ### delta: "$dx,$dy   rot=$rot   drot=$drot"
 
     if ($rot & 2) {
-      ($dx,$dy) = (-$dy,$dx)
+      ($dx,$dy) = (-$dy,$dx);
     }
     if ($rot & 4) {
       $dx = -$dx;
@@ -207,7 +207,7 @@ sub n_to_xy {
     my $dx = $frac;
     my $dy = ($rot & 1 ? $frac : 0);
     if ($rot & 2) {
-      ($dx,$dy) = (-$dy,$dx)
+      ($dx,$dy) = (-$dy,$dx);
     }
     if ($rot & 4) {
       $dx = -$dx;
@@ -524,7 +524,7 @@ This is the Koch curve shape arranged as four-sided concentric snowflakes.
 
 The innermost square N=1 to N=4 is the initial figure.  Its sides expand as
 the Koch curve pattern in subsequent rings.  The initial figure is on
-X=+/-0.5,Y=+/-0.5 fractions but the points after that are integer X,Y.
+X=+/-0.5,Y=+/-0.5 fractions.  The points after that are integer X,Y.
 
 =head1 Inward
 
@@ -570,14 +570,14 @@ Counting the innermost N=1 to N=4 square as level 0, a given level has
 
     looplen = 4*4^level
 
-many points.  The start of a level is N=1 plus preceding loop lengths so
+many points.  The start of a level is N=1 plus the preceding loop lengths so
 
     Nstart = 1 + 4*[ 1 + 4 + 4^2 + ... + 4^(level-1) ]
            = 1 + 4*(4^level - 1)/3
            = (4^(level+1) - 1)/3
 
-and the end similarly total loop lengths inclusive, or simply one less than
-the next Nstart,
+and the end of a level similarly the total loop lengths, or simply one less
+than the next Nstart,
 
     Nend = 4 * [ 1 + ... + 4^level ]
          = (4^(level+2) - 4) / 3
@@ -597,11 +597,15 @@ sequence,
 
     Xstart(0) = -0.5
     Xstart(1) = -2
-    Xstart(level+1) = 4*Xstart(level) - 2*Xstart(level)
+    Xstart(2) = 4*Xstart(1) - 2*Xstart(0) = -7
+    Xstart(3) = 4*Xstart(2) - 2*Xstart(1) = -24
+    ...
+    Xstart(level+1) = 4*Xstart(level) - 2*Xstart(level-1)
+
     0.5, 2, 7, 24, 82, 280, 956, 3264, ...
 
-This is because the base Koch shape horizontally is 4 wide, but diagonally
-is 3 wide (and 3 high).
+This recurrance occurs because the replications are 4 wide when horizontal
+but 3 wide when diagonal.
 
 =head1 FUNCTIONS
 

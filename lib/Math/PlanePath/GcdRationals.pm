@@ -48,7 +48,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -126,13 +126,23 @@ sub n_to_xy {
 #     = X*g - (g-1)*Y*g
 #   N = i + j*(j-1)/2
 #     = X*g - (g-1)*Y*g + Y*g*(Y*g-1)/2
-#     = X*g + Y*g * (-(g-1) + (Y*g-1)/2)
+#     = X*g + Y*g * (-(g-1) + (Y*g-1)/2)    # but Y*g-1 may be odd
 #     = X*g + Y*g * (Y*g-1 - (2g-2))/2
 #     = X*g + Y*g * (Y*g-1 - 2g + 2))/2
 #     = X*g + Y*g * (Y*g - 2g + 1))/2
 #     = X*g + Y*g * ((Y-2)*g + 1) / 2
 #     = g * [ X + Y*((Y-2)*g + 1) / 2 ]
 #
+#   N = X*g - (g-1)*Y*g + Y*g*(Y*g-1)/2
+#     = [ 2*X*g - 2*(g-1)*Y*g + Y*g*(Y*g-1) ] / 2
+#     = [ 2*X - 2*(g-1)*Y + Y*(Y*g-1) ] * g / 2
+#     = [ 2*X + Y*(- 2*(g-1) + (Y*g-1)) ] * g / 2
+#     = [ 2*X + Y*(-2g + 2 + Y*g - 1) ] * g / 2
+#     = [ 2*X + Y*((Y-2)*g + 1) ] * g / 2
+#     = X*g + [(Y-2)*g + 1]*Y*g/2
+#
+#  if Y and g both odd then (Y-2)*g+1 is odd+1 so even
+
 # q=int(x/y)
 # x = qy+r   qy=x-r
 # r = x % y
@@ -161,7 +171,10 @@ sub xy_to_n {
   }
 
   my $g = int($x/$y) + 1;
-  return ($y*(($y-2)*$g + 1) / 2 + $x)*$g;
+  ### g: "$g"
+  ### halve: ''.$y*(($y-2)*$g + 1)
+
+  return ((($y-2)*$g + 1)*$y + 2*$x) * $g / 2;
 }
 
 # increase in rows, so right column
@@ -240,6 +253,12 @@ sub rect_to_n_range {
 sub _gcd {
   my ($x, $y) = @_;
   #### _gcd(): "$x,$y"
+
+  # bgcd() available in even the earliest Math::BigInt
+  if (ref $y && $y->isa('Math::BigInt')) {
+    return Math::BigInt::bgcd($x,$y);
+  }
+
   if ($y > $x) {
     $y %= $x;
   }
@@ -254,11 +273,11 @@ sub _gcd {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd PyramidRows Fortnow
+=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd PyramidRows Fortnow coprime
 
 =head1 NAME
 
-Math::PlanePath::GcdRationals -- rationals by prime factorization
+Math::PlanePath::GcdRationals -- rationals by triangular GCD
 
 =head1 SYNOPSIS
 
@@ -268,6 +287,7 @@ Math::PlanePath::GcdRationals -- rationals by prime factorization
 
 =head1 DESCRIPTION
 
+X<Fortnow, Lance>
 This path enumerates rationals X/Y using a method by Lance Fortnow taking a
 GCD out of a triangular position.
 
@@ -411,22 +431,24 @@ The defining formula above can be reversed
 
 So
 
-    N = g * ( X + Y*((Y-2)*g + 1)/2 )
-    with g = floor(X/Y) + 1
+    N = X*g - (g-1)*Y*g + Y*g*(Y*g-1)/2
+      = X*g + ((Y-2)*g + 1)*Y*g/2
+      = (((Y-2)*g + 1)*Y + 2X)*g/2
 
-Either Y or (Y-2)*g+1 is even to take the /2.  If Y is odd then g must be
-odd which makes (Y-2)*g odd and (Y-2)*g+1 even.
+The /2 division is exact.  If Y and are both odd then (Y-2)*g+1 is odd*odd+1
+so even.
 
 Y*g is the next multiple of Y which is strictly greater than X.  It can be
-formed from the floor(X/Y) division
+formed from the g-1=floor(X/Y) division,
 
     X = Y*q + r     division
     g = q+1
     Y*g = Y*(q+1) = X+Y-r
         = X+Y-r
 
-Using X+Y-r instead of Y*g in the N formula might swap a multiply for an add
-or subtract if you get the remainder for free with the X/Y division.
+If you get the remainder for free in the X/Y division then using X+Y-r
+instead of Y*g in the N formula might reduce a multiply to an add or
+subtract,
 
 =head2 Rectangle N Range
 

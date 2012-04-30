@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 156;
+plan tests => 209;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::GcdRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GcdRationals->VERSION,  $want_version,
@@ -78,12 +78,24 @@ my $n_start = $path->n_start;
 
 
 #------------------------------------------------------------------------------
+# xy_to_n() reversing n_to_xy()
+
+{
+  foreach my $n ($path->n_start .. 50) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $rev_n = $path->xy_to_n ($x,$y); 
+    ok($rev_n,$n);
+  }
+}
+
+
+#------------------------------------------------------------------------------
 # Y=1 horizontal triangular numbers
 
 {
   foreach my $k (1 .. 15) {
     my $n = $path->xy_to_n ($k, 1); 
-    ok ($n, ($k+1)*$k/2);
+    ok ($n, $k*($k+1)/2);
 
     my ($x,$y) = $path->n_to_xy($n);
     ok ($x, $k);
@@ -174,6 +186,21 @@ my $n_start = $path->n_start;
         1,
         "x=$x1..$x2 y=$y1..$y2 nhi=$nhi (at y=$nhi_y) but got_nhi=$got_nhi");
   }
+}
+
+#------------------------------------------------------------------------------
+# _gcd() on Math::BigInt
+
+{
+  require Math::BigInt;
+  my $x = Math::BigInt->new(35);
+  my $y = Math::BigInt->new(15);
+  my $g = Math::PlanePath::GcdRationals::_gcd($x,$y);
+
+  # not a string compare since "+35" in old Math::BigInt
+  ok ($x == 35, 1, 'x input unchanged');
+  ok ($y == 15, 1, 'y input unchanged');
+  ok ($g == 5, 1, 'gcd(35,15) result');
 }
 
 exit 0;

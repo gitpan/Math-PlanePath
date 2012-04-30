@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 65 }
+BEGIN { plan tests => 75 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondSpiral;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::DiamondSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiamondSpiral->VERSION,  $want_version,
@@ -58,6 +58,31 @@ require Math::PlanePath::DiamondSpiral;
       "VERSION object check $check_version");
 }
 
+
+#------------------------------------------------------------------------------
+# rect_to_n_range()
+
+{
+    my $path = Math::PlanePath::DiamondSpiral->new;
+  foreach my $elem
+    (
+     [0,-2,  -2,-2, 13,39],   # Y=-2, X=-2 to 0 being 39,24,13
+     [-2,1,  2,1, 3,21],     # Y=1,  X=-2..2 being 21,10,3,8,17
+
+     [1,-2,  1,2,   2,18], # X=1,  Y=-2..2 being 14,6,2,8,18
+     [0,-2,  0,2,   1,13], # X=0,  Y=-2..2 being 13,5,1,3,9
+     [-1,-2, -1,2,  4,24], # X=-1, Y=-2..2 being 24,12,4,10,20
+     # 
+     # [-2,-1, 2,-1,  3,24], # Y=-1, X=-2..2 being 9,3,4,12,24
+     # [-2,-1, 1,-1,  3,12], # Y=-1, X=-2..1 being 9,3,4,12
+
+    ) {
+    my ($x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
+    my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ok ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2");
+    ok ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2");
+  }
+}
 
 #------------------------------------------------------------------------------
 # n_start, x_negative, y_negative

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -18,11 +18,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 use strict;
-use Math::PlanePath::MathImageCellularRule;
+use Math::PlanePath::CellularRule;
 
 {
   my $rule = 57;
-  my $path = Math::PlanePath::MathImageCellularRule->new(rule=>$rule);
+  my $path = Math::PlanePath::CellularRule->new(rule=>$rule);
   my @ys = (5..20);
   @ys = map{$_*2+1} @ys;
   my @ns = map{$path->xy_to_n(-$_,$_)
@@ -36,7 +36,7 @@ use Math::PlanePath::MathImageCellularRule;
 
 {
   my $rule = 57;
-  my $path = Math::PlanePath::MathImageCellularRule->new(rule=>$rule);
+  my $path = Math::PlanePath::CellularRule->new(rule=>$rule);
   my @ys = (5..10);
   @ys = map{$_*2+1} @ys;
   print "[",join(',',@ys),"]\n";

@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -84,6 +84,15 @@ use constant parameter_info_array =>
      width     => 1,
    },
   ];
+
+# Ntop = (4^level)/2 - 1
+# Xtop = 3*2^(level-1) - 1
+# fill = Ntop / (Xtop*(Xtop-1)/2)
+#      -> 2 * ((4^level)/2 - 1) / (3*2^(level-1) - 1)^2
+#      -> 2 * ((4^level)/2) / (3*2^(level-1))^2
+#      =  4^level / (9*4^(level-1)
+#      =  4/9 = 0.444
+
 
 sub new {
   my $class = shift;
@@ -457,6 +466,7 @@ Math::PlanePath::SierpinskiCurve -- Sierpinski curve
 
 =head1 DESCRIPTION
 
+X<Sierpinski, Waclaw>
 This is an integer version of the self-similar curve by Waclaw Sierpinski
 traversing the plane by right triangles.  The default is a single arm of the
 curve in an eighth of the plane.
@@ -516,7 +526,7 @@ The points are on a square grid with integer X,Y.  4 points are used in each
     which means
     ((X%3)+(Y%3)) % 2 == 1
 
-The X axis N=0,3,12,15,48,etc are all the inteers which use only digits 0
+The X axis N=0,3,12,15,48,etc are all the integers which use only digits 0
 and 3 in base 4.  For example N=51 is 303 base 4.  Or equivalently the
 values all have doubled bits in binary, for example N=48 is 110000 binary.
 (Compare the CornerReplicate which also has these values along the X axis.)
@@ -541,14 +551,20 @@ The top of each level is half way along,
 For example level=3 is Ntop = 2^(2*3-1)-1 = 31 at X=3*2^(3-1)-1 = 11 and
 Y=3*2^(3-1)-2 = 10.
 
-The factor of 3 arises essentially from the three steps which make up the
-N=0,1,2,3 section.  The Xlevel width grows as
+The factor of 3 arises from the three steps which make up the N=0,1,2,3
+section.  The Xlevel width grows as
 
     Xlevel(1) = 3
     Xlevel(level+1) = 2*Xwidth(level) + 3
 
 which dividing out the factor of 3 is 2*w+1, given 2^k-1 (in binary a left
 shift and bring in a new 1 bit, giving 2^k-1).
+
+Notice too the Nlevel points as a fraction of the triangular area
+Xlevel*(Xlevel-1)/2 gives the 4 out of 9 points filled,
+
+    FillFrac = Nlevel / (Xlevel*(Xlevel-1)/2)
+            -> 4/9
 
 =head2 Arms
 
@@ -714,6 +730,7 @@ Return 0, the first N in the path.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::SierpinskiCurveStair>,
 L<Math::PlanePath::SierpinskiArrowhead>,
 L<Math::PlanePath::KochCurve>
 

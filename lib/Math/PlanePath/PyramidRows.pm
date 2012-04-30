@@ -19,10 +19,9 @@
 package Math::PlanePath::PyramidRows;
 use 5.004;
 use strict;
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -113,11 +112,15 @@ sub n_to_xy {
 
   my $step = $self->{'step'};
   if ($step == 0) {
+    # step==0 is vertical line starting N=1 at Y=0
     return (0, $n-1);
   }
-  my $neg_b = ($step-2) * 0.5;
-  my $d = int (($neg_b + sqrt(int(2*$step*$n) + $neg_b*$neg_b - $step)) / $step);
-  ### s frac: (($neg_b + sqrt(int(2*$step*$n) + $neg_b*$neg_b - $step)) / $step)
+
+  my $neg_b = ($step-2);
+  my $d = int (($neg_b + sqrt(int(8*$step*$n) + $neg_b*$neg_b - 4*$step))
+               / (2*$step));
+
+  ### d frac: (($neg_b + sqrt(int(8*$step*$n) + $neg_b*$neg_b - 4*$step)) / (2*$step))
   ### $d
   ### rem: $n - (($step * $d*$d - ($step-2)*$d + 1) / 2)
 
@@ -186,16 +189,28 @@ sub rect_to_n_range {
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
 
   my $step = $self->{'step'};
-  my $step_right = ceil($step/2);
-  my $x_top_end = $y2 * $step_right;
-  if ($x1 > $x_top_end) {
-    ### rect all off to the right, no N
-    return (1, 0);
-  }
-
   my $step_left = int($step/2);
-  if ($x2 < -$y2 * $step_left) {
-    ### rect all off to the left, no N
+  my $step_right = $step - $step_left;
+
+  my $x_top_end = $y2 * $step_right;
+
+  # \    |    /
+  #  \   |   /
+  #   \  |  /  +-----    x_top_end > x1
+  #    \ | /   |x1,y2
+  #     \|/
+  # -----+-----------
+  #
+  #       \    |    x_top_start = -y2*step_left
+  # -----+ \   |      x_top_start < x2
+  # x2,y2|  \  |
+  #          \ | /
+  #           \|/
+  # -----------+--
+  #
+  if ($x1 > $x_top_end
+      || $x2 < -$y2 * $step_left) {
+    ### rect all off to the left or right, no N ...
     return (1, 0);
   }
 
@@ -205,11 +220,15 @@ sub rect_to_n_range {
 
   $y1 = _max ($y1,
               0,
-              $step_left && ceil(-$x2/$step_left), # for x2 >= x_bottom_start
-              $step_right && ceil($x1/$step_right), # for x1 <= x_bottom_end
+
+              # for x2 >= x_bottom_start, round up
+              $step_left && int((-$x2+$step_left-1)/$step_left),
+
+              # for x1 <= x_bottom_end, round up
+              $step_right && int(($x1+$step_right-1)/$step_right),
              );
-  ### y1 for bottom left: $step_left && - ceil($x2/$step_left)
-  ### y1 for bottom right: $step_right && ceil($x1/$step_right)
+  ### y1 for bottom left: $step_left && int((-$x2+$step_left-1)/$step_left)
+  ### y1 for bottom right: $step_right && int(($x1+$step_right-1)/$step_right)
   ### $y1
 
   ### x1 to x2 bottom row now intersects some of the pyramid

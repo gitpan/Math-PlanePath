@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -89,7 +89,7 @@ sub n_to_xy {
     $n = $int;
   }
 
-  
+
   if ((my $arms = $self->{'arms'}) > 1) {
     my $rot = $n % $arms;
     $n = int(($n)/$arms); # round up +$arms-1
@@ -199,6 +199,7 @@ Math::PlanePath::GosperSide -- one side of the Gosper island
 
 =head1 DESCRIPTION
 
+X<Gosper, William>
 This path is a single side of the Gosper island, in integers
 (L<Math::PlanePath/Triangular Lattice>).
 
@@ -252,20 +253,10 @@ The path is both the sides and the radial spokes of the GosperIslands path,
 as described in L<Math::PlanePath::GosperIslands/Side and Radial Lines>.
 Each N=3^level point is the start of a GosperIslands ring.
 
-=head2 Turn Sequence
-
-The sequence of turns made by the curve is straightforward.  In the base 3
-representation of N, the lowest non-zero digit gives the turn
-
-   low digit      turn
-   ---------   -----------
-      1        +60 degrees
-      2        -60 degrees
-
-When the least significant digit is non-zero it determines the turn, to make
-the base N=0 to N=3 shape.  When the low digit is zero it's instead the next
-level up, the N=0,3,6,9 shape which is in control, applying a turn for the
-base which follows.  So for example at N=6 = 20 base3 is a turn -60 degrees.
+The path is the same as the TerdragonCurve except the turns here are by 60
+degrees each, whereas TerdragonCurve is by 120 degrees.  See
+L<Math::PlanePath::TerdragonCurve> for the turn sequence and total direction
+formulas etc.
 
 =head1 FUNCTIONS
 
@@ -290,6 +281,7 @@ Fractional C<$n> gives a point on the straight line between integer N.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::GosperIslands>,
+L<Math::PlanePath::TerdragonCurve>,
 L<Math::PlanePath::KochCurve>
 
 L<Math::Fractal::Curve>

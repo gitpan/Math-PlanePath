@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 966)[1];
+my $test_count = (tests => 1039)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -373,6 +373,115 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'GrayCode,apply_type=TsF',
+               'GrayCode,apply_type=FsT',
+               'GrayCode,apply_type=Ts',
+               'GrayCode,apply_type=Fs',
+               'GrayCode,apply_type=sT',
+               'GrayCode,apply_type=sF',
+
+               'GrayCode,radix=3,apply_type=TsF',
+               'GrayCode,radix=3,apply_type=FsT',
+               'GrayCode,radix=3,apply_type=Ts',
+               'GrayCode,radix=3,apply_type=Fs',
+               'GrayCode,radix=3,apply_type=sT',
+               'GrayCode,radix=3,apply_type=sF',
+
+               'GrayCode,radix=3,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=3,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=3,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=3,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=3,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=3,gray_type=modular,apply_type=sF',
+
+               'GrayCode,radix=4,apply_type=TsF',
+               'GrayCode,radix=4,apply_type=FsT',
+               'GrayCode,radix=4,apply_type=Ts',
+               'GrayCode,radix=4,apply_type=Fs',
+               'GrayCode,radix=4,apply_type=sT',
+               'GrayCode,radix=4,apply_type=sF',
+
+               'GrayCode,radix=4,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=4,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=4,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=4,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=4,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=4,gray_type=modular,apply_type=sF',
+
+               'GrayCode,radix=5,apply_type=TsF',
+               'GrayCode,radix=5,apply_type=FsT',
+               'GrayCode,radix=5,apply_type=Ts',
+               'GrayCode,radix=5,apply_type=Fs',
+               'GrayCode,radix=5,apply_type=sT',
+               'GrayCode,radix=5,apply_type=sF',
+
+               'GrayCode,radix=5,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=5,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=5,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=5,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=5,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=5,gray_type=modular,apply_type=sF',
+
+               'GrayCode,radix=6,apply_type=TsF',
+               'GrayCode,radix=6,apply_type=FsT',
+               'GrayCode,radix=6,apply_type=Ts',
+               'GrayCode,radix=6,apply_type=Fs',
+               'GrayCode,radix=6,apply_type=sT',
+               'GrayCode,radix=6,apply_type=sF',
+
+               'GrayCode,radix=6,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=6,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=6,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=6,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=6,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=6,gray_type=modular,apply_type=sF',
+
+               'LTiling',
+               'LTiling,L_fill=left',
+               'LTiling,L_fill=upper',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
+
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+               'SierpinskiCurve',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'HIndexing',
+
+               'SierpinskiCurveStair',
+               'SierpinskiCurveStair,diagonal_length=2',
+               'SierpinskiCurveStair,diagonal_length=3',
+               'SierpinskiCurveStair,diagonal_length=4',
+               'SierpinskiCurveStair,arms=2',
+               'SierpinskiCurveStair,arms=3,diagonal_length=2',
+               'SierpinskiCurveStair,arms=4',
+               'SierpinskiCurveStair,arms=5',
+               'SierpinskiCurveStair,arms=6,diagonal_length=5',
+               'SierpinskiCurveStair,arms=7',
+               'SierpinskiCurveStair,arms=8',
+
+               'WunderlichSerpentine',
+               'WunderlichSerpentine,serpentine_type=100_000_000',
+               'WunderlichSerpentine,serpentine_type=000_000_001',
+               'WunderlichSerpentine,radix=2',
+               'WunderlichSerpentine,radix=4',
+               'WunderlichSerpentine,radix=5,serpentine_type=coil',
+
+               'PeanoCurve',
+               'PeanoCurve,radix=2',
+               'PeanoCurve,radix=4',
+               'PeanoCurve,radix=5',
+               'PeanoCurve,radix=17',
+               'KnightSpiral',
+
                'VogelFloret',
                'SacksSpiral',
                'TheodorusSpiral',
@@ -414,13 +523,6 @@ my @modules = (
                'PyramidRows,step=37',
                'PyramidSides',
                # 'File',
-
-               'PeanoCurve',
-               'PeanoCurve,radix=2',
-               'PeanoCurve,radix=4',
-               'PeanoCurve,radix=5',
-               'PeanoCurve,radix=17',
-               'KnightSpiral',
 
                'CellularRule,rule=6',   # left 1,2 line
                'CellularRule,rule=14',  # left 2 cell line
@@ -481,20 +583,6 @@ my @modules = (
                'ZOrderCurve,radix=3',
                'ZOrderCurve,radix=9',
                'ZOrderCurve,radix=37',
-
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
-               'SierpinskiCurve',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
-               'HIndexing',
 
                'Staircase',
                'StaircaseAlternating',
@@ -566,9 +654,6 @@ my @modules = (
                'HilbertSpiral',
                'HilbertCurve',
 
-               'LTiling',
-               'LTiling,L_fill=ends',
-               'LTiling,L_fill=all',
                'DiagonalsAlternating',
                'MPeaks',
                'WunderlichMeander',
@@ -723,7 +808,7 @@ my @modules = (
         my $prev_value;
 
         my $count = 0;
-        my $i_limit = 500;
+        my $i_limit = 800;
         if ($mod =~ /Vogel|Theod|Archim/ && $param =~ /axis|diagonal/i) {
           $i_limit = 20;
         }

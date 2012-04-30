@@ -18,9 +18,11 @@
 
 # math-image --values=PlanePathTurn
 #
-# LSR
-# Turn90
-# Turn60 0,1,2,3, -1,-2,-3
+# maybe:
+# Turn4 0,1,2,3
+# Turn4S 0,1,2,-1
+# Turn6 0,1,2,3,4,5
+# Turn6S 0,1,2,3, -1,-2,
 
 
 
@@ -30,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -44,7 +46,7 @@ use Math::NumSeq::PlanePathCoord;
 
 
 use constant characteristic_smaller => 1;
-use constant description => Math::NumSeq::__('Turns from a PlanePath');
+use constant description => 'Turns from a PlanePath';
 
 use constant::defer parameter_info_array =>
   sub {
@@ -52,19 +54,24 @@ use constant::defer parameter_info_array =>
             Math::NumSeq::PlanePathCoord::_parameter_info_planepath(),
             {
              name    => 'turn_type',
-             display => Math::NumSeq::__('Turn Type'),
+             display => 'Turn Type',
              type    => 'enum',
              default => 'Left',
              choices => ['Left',
                          'Right',
                          'LSR',
                         ],
-             description => Math::NumSeq::__('Left is 1=left, 0=right or straight.
+             description => 'Left is 1=left, 0=right or straight.
 Right is 1=right, 0=left or straight.
-LSR is 1=left,0=straight,-1=right.'),
+LSR is 1=left,0=straight,-1=right.',
             },
            ];
   };
+
+# Suspect not in OEIS:
+#
+# Left or Right according to lowest non-zero ternary digit 1 or 2
+#
 
 my %oeis_anum
   = (
@@ -102,11 +109,20 @@ my %oeis_anum
      #  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=Left
      # },
 
-     'Math::PlanePath::TerdragonCurve,arms=1' =>
-     {
-      # cf A080846 also Left 1=left,0=right but it has OFFSET=0 
-      'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
-      # OEIS-Catalogue: A137893 planepath=TerdragonCurve turn_type=Left
+     do {
+       # GosperSide and TerdragonCurve same turn sequence, by diff angles
+       my $h = {
+                'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
+                # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
+                # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
+
+                # But A080846 OFFSET=0 whereas first turn N=1 here
+                # Right => 'A080846',
+                # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
+                # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
+               };
+       ('Math::PlanePath::TerdragonCurve,arms=1' => $h,
+        'Math::PlanePath::GosperSide' => $h)
      },
 
      'Math::PlanePath::SacksSpiral' =>
@@ -188,8 +204,8 @@ sub new {
   ### PlanePathTurn new(): @_
   my $self = $class->SUPER::new(@_);
 
-  my $planepath_object = ($self->{'planepath_object'}
-                          ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'}));
+  $self->{'planepath_object'}
+    ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'});
 
 
   ### turn_func: "_turn_func_$self->{'turn_type'}", $self->{'turn_func'}
@@ -262,7 +278,6 @@ sub ith {
   }
 
   my $planepath_object = $self->{'planepath_object'};
-  my $n = $i + $planepath_object->n_start;
   my $arms = $self->{'arms'};
   my ($prev_x, $prev_y) = $planepath_object->n_to_xy ($i - $arms)
     or return undef;
@@ -667,10 +682,42 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::PeanoCurve;
 # }
+# { package Math::PlanePath::WunderlichSerpentine;
+# }
 # { package Math::PlanePath::HilbertCurve;
 # }
 # { package Math::PlanePath::ZOrderCurve;
 # }
+{ package Math::PlanePath::GrayCode;
+  # radix=2 TsF==Fs is always straight or left
+  sub _NumSeq_Turn_Right_max {
+    my ($self) = @_;
+    if ($self->{'radix'} == 2
+        && ($self->{'apply_type'} eq 'TsF'
+            || $self->{'apply_type'} eq 'Fs')) {
+      return 0; # never right
+    }
+    return 1;
+  }
+  sub _NumSeq_Turn_Right_non_decreasing {
+    my ($self) = @_;
+    if ($self->{'radix'} == 2
+        && ($self->{'apply_type'} eq 'TsF'
+            || $self->{'apply_type'} eq 'Fs')) {
+      return 1; # never right
+    }
+    return 0;
+  }
+  sub _NumSeq_Turn_LSR_min {
+    my ($self) = @_;
+    if ($self->{'radix'} == 2
+        && ($self->{'apply_type'} eq 'TsF'
+            || $self->{'apply_type'} eq 'Fs')) {
+      return 0; # never right
+    }
+    return -1;
+  }
+}
 # { package Math::PlanePath::ImaginaryBase;
 # }
 # { package Math::PlanePath::Flowsnake;
@@ -698,7 +745,9 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::SierpinskiArrowhead;
 # }
-# { package Math::PlanePath::SierpinskiArrowheadCentres;
+# { package Math::PlanePath::SierpinskiCurve;
+# }
+# { package Math::PlanePath::SierpinskiCurveStair;
 # }
 # { package Math::PlanePath::DragonCurve;
 # }
@@ -880,7 +929,7 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::File;
 #   # File                   points from a disk file
-#   # FIXME: analyze points for dx/dy min/max etc
+#   # FIXME: analyze points for min/max etc
 # }
 # { package Math::PlanePath::QuintetCurve;
 # }

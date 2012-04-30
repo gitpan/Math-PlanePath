@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -871,10 +871,10 @@ to high.  Does that have a name, or any particular significance?
 
 =head1 OEIS
 
-The trees are in Sloane's Online Encyclopedia of Integer Sequences in the
-following forms
+The trees are in Sloane's Online Encyclopedia of Integer Sequences in
+various forms,
 
-    http://oeis.org/A002487   (etc)
+    http://oeis.org/A007305   (etc)
 
     A007305  - SB numerators, Farey fractions (extra 0,1)
     A047679  - SB denominators
@@ -882,19 +882,19 @@ following forms
     A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
     A070990  - CW den-num diff, Stern diatomic first diffs (less 0)
     A020650  - AYT numerators
-    A020651  - AYT denominators, being Kepler half numerators
-    A086592  - AYT num+den sum, being Kepler half denominators
+    A020651  - AYT denominators, being Kepler numerators
+    A086592  - AYT num+den sum, being Kepler denominators
     A162909  - Bird numerators
     A162910  - Bird denominators
     A162911  - Drib numerators
     A162912  - Drib denominators
 
-    A086893  - position of Fibonacci F(n+1)/F(n) in Stern diatomic,
-                 N of F(n+1)/F(n) in CW
-                 N of X/1 in Drib, ie. N values in row at Y=1
-    A061547  - position of Fibonacci F(n)/F(n+1) in Stern diatomic,
-                 N of F(n)/F(n+1) in CW
-                 N of 1/Y in Drib, ie. N values in column at X=1
+    A086893  - position Fibonacci F[n+1],F[n] in Stern diatomic,
+                is  N of F[n+1]/F[n] in CW
+                and N of X/1 in Drib, ie. N values in row at Y=1
+    A061547  - position Fibonacci F[n],F[n+1] in Stern diatomic,
+                is  N of F[n]/F[n+1] in CW
+                and N of 1/Y in Drib, ie. N values in column at X=1
 
     A054424  - permutation DiagonalRationals to SB
     A054425  -   DiagonalRationals to SB with 0s at non-coprimes
@@ -903,11 +903,12 @@ following forms
 
     A000975  - numbers 1010... without consecutive equal bits,
                  being Bird tree X=1 column
+    A088696  - length of continued fraction SB left half (num/den<1)
 
 The sequences marked "extra ..." have one or two extra initial values over
-what the RationalsTree here gives, but are the same after that.  The Stern
-first differences "less ..." means it has one less term than what the code
-here gives.
+what the RationalsTree here gives, but are the same after that.  And the
+Stern first differences "less ..." means it has one less term than what the
+code here gives.
 
 =head1 FUNCTIONS
 

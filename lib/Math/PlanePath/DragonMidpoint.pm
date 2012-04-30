@@ -20,18 +20,6 @@
 # math-image --path=DragonMidpoint --all --output=numbers_dash
 
 # A088435 (contfrac+1)/2 of sum(k>=1,1/3^(2^k)).
-# A088431 run lengths of dragon turns
-# A007400 cont frac 1/2^1 + 1/2^2 + 1/2^4 + 1/2^8 + ... 1/2^(2^n)
-#         = 0.8164215090218931...
-#    2,4,6 values
-#    a(0)=0,
-#    a(1)=1,
-#    a(2)=4,
-#    a(8n) = a(8n+3) = 2,
-#    a(8n+4) = a(8n+7) = a(16n+5) = a(16n+14) = 4,
-#    a(16n+6) = a(16n+13) = 6,
-#    a(8n+1) = a(4n+1),
-#    a(8n+2) = a(4n+2)
 # A007404 in decimal
 # A081769 positions of 2s
 # A073097 number of 4s - 6s - 2s - 1 is -1,0,1
@@ -47,7 +35,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -427,7 +415,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al DragonCurve DragonMidpoint
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al DragonCurve DragonMidpoint bignum Xadj,Yadj lookup OEIS 0b.zz111 0b..zz11 ie
 
 =head1 NAME
 
@@ -441,7 +429,7 @@ Math::PlanePath::DragonMidpoint -- dragon curve midpoints
 
 =head1 DESCRIPTION
 
-This is the midpoint of each segment of the dragon or paper folding curve by
+This midpoints of each segment of the dragon or paper folding curve by
 Heighway, Harter, et al (see L<Math::PlanePath::DragonCurve>).
 
 
@@ -480,17 +468,17 @@ Heighway, Harter, et al (see L<Math::PlanePath::DragonCurve>).
      ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
     -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1
 
-The dragon curve begins as follows and the midpoints are each "*",
+The dragon curve begins as follows and the midpoints are numbered from 0,
 
-               +--*--+     +--*--+
+               +--8--+     +--4--+
                |     |     |     |
-               *     *     *     *
+               9     7     5     3
                |     |     |     |
-               +--*--+--*--+     +--*--+
+               +-10--+--6--+     +--2--+
                      |                 |
-                     *                 *
+                    11                 1
                      |                 |
-               +--*--+           o--*--+
+               +-12--+           o--0--+
                |
               ...
 
@@ -498,18 +486,18 @@ These midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  For this
 DragonMidpoint they're turned clockwise 45 degrees and shrunk by sqrt(2) to
 be integer X,Y values 1 apart.
 
-Because the dragon curve traverses each edge only once, all the midpoints
-are distinct X,Y positions.
+The midpoints are distinct X,Y positions because the dragon curve traverses
+each edge only once.
 
 The dragon curve is self-similar in 2^level sections due to its unfolding.
-This can be seen in the midpoints as for example above N=0 to N=16 is the
-same shape as N=32 to N=16, the latter part rotated and in reverse.
+This can be seen in the midpoints as for example the above N=0 to N=16 is
+the same shape as N=32 to N=16, the latter half rotated and in reverse.
 
 =head2 Arms
 
-The midpoints fill a quarter of the plane and four copies mesh together
-perfectly when rotated by 90, 180 and 270 degrees.  The C<arms> parameter
-can choose 1 to 4 curve arms, successively advancing.
+Like the DragonCurve the midpoints fill a quarter of the plane and four
+copies mesh together perfectly when rotated by 90, 180 and 270 degrees.  The
+C<arms> parameter can choose 1 to 4 curve arms, successively advancing.
 
 For example C<arms =E<gt> 4> begins as follows, with N=0,4,8,12,etc being
 the first arm (the same as the plain curve above), N=1,5,9,13 the second,
@@ -574,7 +562,7 @@ following tiling of the plane.
                       ^
                      X=0
 
-The pairs follow this pattern both for the main curve N=0 etc as shown, and
+The pairs follow this pattern both for the main curve N=0 etc shown, and
 also for the rotated copies per L</Arms> above.
 
 =head1 FUNCTIONS
@@ -613,9 +601,9 @@ position.
 
 The adjustment is in a repeating pattern of 4x4 blocks.  Points N=2k and
 N=2k+1 both move to the same place corresponding to N=k times i+1.  The
-pattern is related to the pair tiling shown above, but for some pairs both
-the N=2k and N=2k+1 positions must move, it's not just a matter of shifting
-the N=2k+1 to the N=2k.
+adjustment pattern is related to the pair tiling shown above, except for
+some pairs both the N=2k and N=2k+1 positions must move, it's not just a
+matter of shifting the N=2k+1 to the N=2k.
 
            Xadj               Yadj
     Ymod4              Ymod4
@@ -627,11 +615,11 @@ the N=2k+1 to the N=2k.
           0 1 2 3            0 1 2 3
            Xmod4              Xmod4
 
-The same tables work for both the main curve and for the rotated copies
-shown in L</Arms> above.
+The same tables work for both the main curve and for the rotated copies per
+L</Arms> above.
 
-    Xm = X - Xadj (X mod 4, Y mod 4)
-    Ym = Y - Yadj (X mod 4, Y mod 4)
+    Xm = X - Xadj(X mod 4, Y mod 4)
+    Ym = Y - Yadj(X mod 4, Y mod 4)
 
     new X,Y = (Xm+i*Ym) / (i+1)
             = (Xm+i*Ym) * (1-i)/2
@@ -649,7 +637,7 @@ The X,Y reduction stops at one of the four start points for the four arms
        -1, 0        3
 
 For arms 1 and 3 the N bits must be flipped 0E<lt>-E<gt>1.  The arm number
-an hence whether this flip is needed is not known until reaching the
+and hence whether this flip is needed is not known until reaching the
 endpoint.
 
 For bignum calculations there's no need to apply the "/2" shift in
@@ -671,8 +659,9 @@ by a left turn or a horizontal followed by a right turn.  DragonCurve
 verticals are whenever N is odd, and the turn is the bit above the lowest 0
 in N, as described in L<Math::PlanePath::DragonCurve/Turns>.
 
-Note the n of A073089 is n=N+2 in the numbering of the DragonMidpoint here,
-and its initial value at n=1 has no corresponding N (it would be N=-1).
+Note the n of A073089 is offset by 2 from the N numbering of the
+DragonMidpoint here, so n=N+2.  The A073089 initial value at n=1 has no
+corresponding N (it would be N=-1).
 
 The mod-16 definitions in A073089 express combinations of N odd/even and
 bit-above-low-0 which are the vertical midpoint segment.  The recursion
@@ -680,7 +669,7 @@ a(8n+1)=a(4n+1) works to reduce an N=0b.zz111 to 0b..zz11 in order to bring
 the bit above the lowest 0 into range of the mod-16 conditions.  n=1 mod 8
 corresponds to N=7 mod 8.  In terms of N it could be expressed as stripping
 low 1 bits down to at most 2 of them.  In terms of n it's a strip of zeros
-above a least significatn 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
+above least significant 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
 
 =head1 SEE ALSO
 

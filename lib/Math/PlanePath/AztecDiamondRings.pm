@@ -16,12 +16,17 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# math-image --path=AztecDiamondRings --all --output=numbers --size=60x14
+
+
+
 package Math::PlanePath::AztecDiamondRings;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -113,26 +118,46 @@ sub xy_to_n {
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
-  my $s = abs($x) + abs($y);
 
-  if ($y >= 0) {
-    if ($x >= 0) {
-      my $d = $x + $y;
-      return (2*$d + 2)*$d + 1 + $y;
-    } else {
-      my $d = $y - $x;
-      return (2*$d - 1)*$d - $x;
-    }
+  if ($x >= 0) {
+    my $d = $x + abs($y);
+    return (2*$d + 2)*$d + 1 + $y;
   } else {
-    if ($x < 0) {
-      my $d = -$x - $y;
-      return (2*$d - 4)*$d + 2 - $y;
+    if ($y >= 0) {
+      my $d = $y - $x;
+      return 2*$d*$d - $y;
     } else {
-      my $d = $x - $y;
-      return (2*$d + 2)*$d + 1 + $y;
+      my $d = $y + $x;
+      return (2*$d + 4)*$d + 2 - $y;
     }
   }
 }
+
+
+#          |                   |  x2>=-x1         |
+#    M---+ |               M-------M              |  +---M
+#    |   | |               |   |   |              |  |   |
+#    +---m |               +----m--+              |  m---+
+#          |                   |                  |
+#     -----+------      -------+-------      -----+--------
+#          |                   |                  |
+#
+#          |                   |                  |
+#    M---+ |               M-------M  y2>=-y1     |  +---M
+#    |   | |               |   |   |              |  |   |
+#    |   m |               |   |   |              |  m   |
+#   -------+------      -------m-------      -----+--------
+#    |   | |               |   |   |              |  |   |
+#    M---+ |               M-------M              |  +---M
+#          |                   |                  |
+#
+#          |                   |                  |
+#     -----+------      -------+-------      -----+--------
+#          |                   |                  |
+#    +---m |               +--m----+              |  m---+
+#    |   | |               |   |   |              |  |   |
+#    M---+ |               M-------M              |  +---M
+#          |                   |                  |
 
 # exact
 sub rect_to_n_range {
@@ -147,146 +172,15 @@ sub rect_to_n_range {
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  my ($max_x, $max_y);
-  {
-    my $max_d = 0;
-    if ($x2 >= 0 && $y2 >= 0) {
-      # top right
-      my $d = $x2+$y2;
-      if ($d >= $max_d) {
-        $max_x = $x2;
-        $max_y = $y2;
-        $max_d = $d;
-      }
-    }
-    if ($x1 < 0 && $y2 >= 0) {
-      # top left
-      my $d = $y2-$x1-1;
-      if ($d >= $max_d) {
-        $max_x = $x1;
-        $max_y = $y2;
-        $max_d = $d;
-      }
-    }
-    if ($x1 < 0 && $y1 < 0) {
-      # bottom left
-      my $d = -$y1-$x1-2;
-      if ($d >= $max_d) {
-        $max_x = $x1;
-        $max_y = $y1;
-        $max_d = $d;
-      }
-    }
-    if ($x2 >= 0 && $y1 < 0) {
-      # bottom right
-      my $d = $x2-$y1-1;
-      if ($d >= $max_d) {
-        $max_x = $x2;
-        $max_y = $y1;
-        $max_d = $d;
-      }
-    }
-  }
+  my $min_x = 0;
+  my $min_y = ($y2 < 0   ? ($min_x = -1, $y2)
+               : $y1 > 0 ? $y1
+               : 0);
+  if ($x2 < $min_x)    { $min_x = $x2 }  # right edge if 0/-1 not covered
+  elsif ($x1 > $min_x) { $min_x = $x1 }  # left edge if 0/-1 not covered
 
-  my ($min_x, $min_y);
-  if (($x1 < 0) != ($x2 < 0)) {
-    # X=0 covered
-    $min_x = 0;
-
-    if (($y1 < 0) != ($y2 < 0)) {
-      ### Y=0 covered too, so origin is minimum ...
-      $min_y = 0;
-
-    } else {
-      ### Y=0 not covered, y1,y2 both neg or both pos ...
-      #
-      #     x1       |       x2
-      #     +--------|-------+ y2
-      #     |        |       |
-      #     +--------|-------+ y1
-      #              |
-      #    ----------O-------------
-      #              |
-      #     x1       |       x2
-      #     +--------|-------+ y2
-      #     |        |       |
-      #     +--------|-------+ y1
-      #              |
-      #
-      if ($y2 < 0) {
-        $min_y = $y2;
-        if ($x1 < 0) {
-          $min_x = -1;  # X=-1,X=0 flat section, X=-1 smaller
-        }
-      } else {
-        $min_y = $y1;
-      }
-    }
-
-  } else {
-    # X origin not covered, x1 negative, x2 positive
-
-    if (($y1 < 0) != ($y2 < 0)) {
-      ### Y origin covered, y1 negative, y2 positive ...
-      #
-      #   x1        x2     |   x1        x2
-      #    +--------+ y2   |    +--------+ y2
-      #    |        |      |    |        |
-      #  ------------------O--------------------
-      #    |        |      |    |        |
-      #    +--------+ y1   |    +--------+ y1
-      #                    |
-      #
-      $min_y = 0;
-      if ($x2 < 0) {
-        $min_x = $x2;
-      } else {
-        $min_x = $x1;
-      }
-
-    } else {
-      # X,Y neither origin covered
-
-      # bottom right
-      my $min_d;
-
-      if ($x1 >= 0 && $y2 < 0) {
-        my $d = $x1-$y2-1;
-        if (! defined $min_d || $d <= $min_d) {
-          $min_x = $x1;
-          $min_y = $y2;
-          $min_d = $d;
-        }
-      }
-      if ($x2 < 0 && $y2 < 0) {
-        # bottom left
-        my $d = -$y2-$x2-2;
-        if (! defined $min_d || $d <= $min_d) {
-          $min_x = $x2;
-          $min_y = $y2;
-          $min_d = $d;
-        }
-      }
-      if ($x2 < 0 && $y1 >= 0) {
-        # top left
-        my $d = $y1-$x2-1;
-        if (! defined $min_d || $d <= $min_d) {
-          $min_x = $x2;
-          $min_y = $y1;
-          $min_d = $d;
-        }
-      }
-      if ($x1 >= 0 && $y1 >= 0) {
-        # top right
-        my $d = $x1+$y1;
-        if (! defined $min_d || $d <= $min_d) {
-          $min_x = $x1;
-          $min_y = $y1;
-          $min_d = $d;
-        }
-      }
-    }
-  }
+  my $max_y = ($y2 >= -$y1 ? $y2 : $y1);
+  my $max_x = ($x2 >= -$x1-($max_y<0) ? $x2 : $x1);
 
   ### min at: "$min_x, $min_y"
   ### max at: "$max_x, $max_y"
@@ -370,6 +264,93 @@ and biggest in the rectangle.
 
 =back
 
+=head1 FORMULAS
+
+=head2 X,Y to N
+
+The path makes lines in each quadrant.  The quadrant is determined by the
+signs of X and Y, then count which line in that quadrant with d=X+Y or
+d=X-Y, then a quadratic in d for the starting N of the line in that
+quadrant.
+
+    Y>=0 X>=0   d=X+Y   N=(2d+2)*d+1 + Y
+    Y>=0 X<0    d=Y-X   N=2d^2       - Y
+    Y<0  X>=0   d=X-Y   N=(2d+2)*d+1 + Y
+    Y<0  X<0    d=X+Y   N=(2d+4)*d+2 - Y
+
+For example
+
+    Y=2 X=3     d=2+3=5      N=(2*5+2)*5+1  + 2  = 63
+    Y=2 X=-1    d=2-(-1)=3   N=2*3*3        - 2  = 16
+    Y=-1 X=4    d=4-(-1)=5   N=(2*5+2)*5+1  + -1 = 60
+    Y=-2 X=-3   d=-3+(-2)=-5 N=(2*-5+4)*-5+2 - (-2) = 34
+
+The two XE<gt>=0 cases are the same N formula and can be combined with an
+abs,
+
+    X>=0        d=X+abs(Y)   N=(2d+2)*d+1 + Y
+
+This works because at Y=0 the last line of one ring joins up to the start of
+the next.  For example N=11 to N=15,
+
+    15             2
+      \ 
+       14          1
+         \
+          13   <- Y=0
+         /
+       12         -1
+      /
+    11            -2
+
+     ^
+    X=0 1  2
+
+=head2 Rectangle to N Range
+
+Within each row N increases as X increases away from the Y axis, and within
+each column similarly N increases as Y increases away from the X axis.  So
+in a rectangle the maximum N is at one of the four corners of the rectangle.
+
+              |
+    x1,y2 M---|----M x2,y2
+          |   |    |
+       -------O---------
+          |   |    |
+          |   |    |
+    x1,y1 M---|----M x1,y1
+              |
+
+For any two rows y1 and y2, the values in row y2 are all bigger if
+y2E<gt>=-y1.  This is so even when y1 and y2 are on the same side of the
+origin, ie. both positive or both negative.
+
+For any two columns x1 and x2, the values in the part with YE<gt>=0 are all
+bigger if x2E<gt>=-x1, or in the part of the columns with YE<lt>0 it's
+x2E<gt>=-x1-1.  So the biggest corner is at
+
+    max_y = (y2 >= -y1              ? y2 ? y1)
+    max_x = (x2 >= -x1 - (max_y<0)  ? x2 : x1)
+
+The difference in the X handling for Y positive or negative is due to the
+quadrant ordering.  When YE<gt>=0 the bigger values are on the X negative
+side, but when YE<lt>0 they're on the X positive side.
+
+A similar approach gives the minimum in a rectangle.
+
+    if y2 < 0 then min_y=y2, and xbase=-1
+    if y1 > 0 then min_y=y1, and xbase=0
+    else           min_y=0,  and xbase=0
+
+    if x2 < xbase then min_x=x2
+    if x1 > xbase then min_x=x1
+    else               min_x=xbase
+
+The minimum row is Y=0, but if that's not in the rectangle then the y2 or y1
+top or bottom edge.  Then within a row the minimum N is at xbase=0 if
+YE<lt>0 or xbase=-1 if YE<gt>=0.  If that xbase is not in range then the x2
+or x1 left or right edge.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -399,9 +380,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=AztecDiamondRings --lines"
-# End:
-#
-# math-image --path=AztecDiamondRings --all --output=numbers --size=60x14

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,17 +20,17 @@
 
 # Usage: perl fractions-tree.pl
 #
-# Print the MathImageFractionsTree paths in tree form.
+# Print the FractionsTree paths in tree form.
 #
 
 use 5.004;
 use strict;
-use Math::PlanePath::MathImageFractionsTree;
+use Math::PlanePath::FractionsTree;
 
 foreach my $tree_type ('Kepler') {
   print "$tree_type tree\n";
 
-  my $path = Math::PlanePath::MathImageFractionsTree->new
+  my $path = Math::PlanePath::FractionsTree->new
     (tree_type => $tree_type);
 
   printf "%31s", '';

@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -372,6 +372,7 @@ Math::PlanePath::CellularRule57 -- cellular automaton 57 and 99 points
 
 =head1 DESCRIPTION
 
+X<Wolfram, Stephen>
 This is the pattern of Stephen Wolfram's "rule 57" cellular automaton
 
     http://mathworld.wolfram.com/ElementaryCellularAutomaton.html

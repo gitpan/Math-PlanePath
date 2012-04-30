@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 72;
+$VERSION = 73;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -164,7 +164,7 @@ sub _rect_for_first_quadrant {
 1;
 __END__
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix MERCHANTABILITY
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix MERCHANTABILITY DragonCurve TerdragonCurve NumSeq
 
 =head1 NAME
 
@@ -221,9 +221,11 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     PythagoreanTree        primitive triples by tree
 
     PeanoCurve             3x3 self-similar quadrant traversal
+    WunderlichSerpentine   transpose parts of PeanoCurve
     HilbertCurve           2x2 self-similar quadrant traversal
     HilbertSpiral          2x2 self-similar whole-plane traversal
     ZOrderCurve            replicating Z shapes
+    GrayCode               Gray code splits
     WunderlichMeander      3x3 "R" pattern quadrant traversal
     BetaOmega              2x2 self-similar half-plane traversal
     AR2W2Curve             2x2 self-similar of four shapes
@@ -258,6 +260,7 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     ComplexRevolving       revolving base i+1
 
     SierpinskiCurve        self-similar right-triangles
+    SierpinskiCurveStair   self-similar right-triangles, stair-step
     HIndexing              self-similar right-triangles, squared up
 
     KochCurve              replicating triangular notches
@@ -676,14 +679,16 @@ such a power for things like KochPeaks and GosperIslands.
     Base          Path
     ----          ----
       2         HilbertCurve, HilbertSpiral, ZOrderCurve (default),
-                  BetaOmega, AR2W2Curve, SierpinskiCurve, HIndexing
+                  GrayCode (default), BetaOmega, AR2W2Curve,
+                  SierpinskiCurve, HIndexing, SierpinskiCurveStair,
                   ImaginaryBase (default), CornerReplicate,
                   ComplexMinus (default), ComplexPlus (default),
-                  ComplexRevolving,
-                  DragonCurve, DragonRounded, DragonMidpoint,
-                  AlternatePaper, DigitGroups (default)
-      3         PeanoCurve (default), GosperIslands, GosperSide
+                  ComplexRevolving, DragonCurve, DragonRounded,
+                  DragonMidpoint, AlternatePaper, DigitGroups
+                  (default)
+      3         PeanoCurve (default), WunderlichSerpentine (default),
                   WunderlichMeander, KochelCurve,
+                  GosperIslands, GosperSide
                   SierpinskiTriangle, SierpinskiArrowhead,
                   SierpinskiArrowheadCentres,
                   TerdragonCurve, TerdragonMidpoint,
@@ -696,8 +701,8 @@ such a power for things like KochPeaks and GosperIslands.
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
     Fibonacci   FibonacciWordFractal
-    parameter   PeanoCurve, ZOrderCurve, ImaginaryBase, DigitGroups
-                  ComplexPlus, ComplexMinus
+    parameter   PeanoCurve, WunderlichSerpentine, ZOrderCurve, GrayCode,
+                  ImaginaryBase, ComplexPlus, ComplexMinus, DigitGroups
 
 =for my_pod base end
 
@@ -867,10 +872,12 @@ L<Math::PlanePath::TriangularHypot>,
 L<Math::PlanePath::PythagoreanTree>
 
 L<Math::PlanePath::PeanoCurve>,
+L<Math::PlanePath::WunderlichSerpentine>,
+L<Math::PlanePath::WunderlichMeander>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::HilbertSpiral>,
 L<Math::PlanePath::ZOrderCurve>,
-L<Math::PlanePath::WunderlichMeander>,
+L<Math::PlanePath::GrayCode>,
 L<Math::PlanePath::AR2W2Curve>,
 L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::KochelCurve>,
@@ -902,6 +909,7 @@ L<Math::PlanePath::QuadricCurve>,
 L<Math::PlanePath::QuadricIslands>
 
 L<Math::PlanePath::SierpinskiCurve>,
+L<Math::PlanePath::SierpinskiCurveStair>,
 L<Math::PlanePath::HIndexing>
 
 L<Math::PlanePath::SierpinskiTriangle>,
@@ -986,9 +994,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-#     ZigzagOct              zig-zag of eight segments
-#       8       ZigzagOct
-# L<Math::PlanePath::ZigzagOct>

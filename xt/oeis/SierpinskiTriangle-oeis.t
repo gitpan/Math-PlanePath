@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 5 }
+plan tests => 5;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -201,5 +201,7 @@ sub streq_array {
         streq_array(\@got, $bvalues),
         1, "$anum");
 }
+
+#------------------------------------------------------------------------------
 
 exit 0;

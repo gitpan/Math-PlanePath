@@ -143,7 +143,7 @@ use Smart::Comments;
     }
     return $count;
   }
-  sub count_ones {
+  sub count_1_digits {
     my ($n) = @_;
     my $count = 0;
     while ($n) {

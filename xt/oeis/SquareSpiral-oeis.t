@@ -24,7 +24,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 30 }
+BEGIN { plan tests => 33 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -53,6 +53,90 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+
+#------------------------------------------------------------------------------
+# A053615 -- distance to pronic is abs(X-Y)
+
+{
+  my $anum = 'A053615';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, abs($x-$y);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A118175 -- abs(dX) is k 0's followed by k 1s etc, with initial 1
+
+{
+  my $anum = 'A118175';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
+      my $dx = $next_x - $x;
+      push @got, abs($dx);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1);
+}
+
+#------------------------------------------------------------------------------
+# A079813 -- abs(dY) is k 0's followed by k 1s etc
+
+{
+  my $anum = 'A079813';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
+      my $dy = $next_y - $y;
+      push @got, abs($dy);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1);
+}
+
 
 #------------------------------------------------------------------------------
 # A141481 -- plot sum of existing eight surrounding values entered
@@ -950,4 +1034,5 @@ sub A068225 {
         1, "$anum -- permutation N at X-1,Y");
 }
 
+#------------------------------------------------------------------------------
 exit 0;

@@ -27,6 +27,52 @@ use constant 1.02 PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 
 {
+  # axis increasing
+  my $radix = 4;
+  my $rsquared = $radix * $radix;
+  my $re = '.' x $radix;
+
+  require Math::NumSeq::PlanePathN;
+  foreach my $line_type ('Y_axis', 'X_axis', 'Diagonal') {
+  OUTER: foreach my $serpentine_num (0 .. 2**$rsquared-1) {
+      my $serpentine_type = sprintf "%0*b", $rsquared, $serpentine_num;
+      # $serpentine_type = reverse $serpentine_type;
+      $serpentine_type =~ s/($re)/$1_/go;
+      ### $serpentine_type
+
+      my $seq = Math::NumSeq::PlanePathN->new
+        (
+         planepath => "WunderlichSerpentine,radix=$radix,serpentine_type=$serpentine_type",
+         line_type => $line_type,
+        );
+      ### $seq
+
+      # my $path = Math::NumSeq::PlanePathN->new
+      #   (
+      #    e,radix=$radix,serpentine_type=$serpentine_type",
+      #    line_type => $line_type,
+      #   );
+
+      my $prev = -1;
+      for (1 .. 1000) {
+        my ($i, $value) = $seq->next;
+        if ($value <= $prev) {
+          # print "$line_type $serpentine_type   decrease at i=$i  value=$value cf prev=$prev\n";
+          # my $path = $seq->{'planepath_object'};
+          # my ($prev_x,$prev_y) = $path->n_to_xy($prev);
+          # my ($x,$y) = $path->n_to_xy($value);
+          # # print "  N=$prev $prev_x,$prev_y  N=$value $x,$y\n";
+          next OUTER;
+        }
+        $prev = $value;
+      }
+      print "$line_type $serpentine_type   all increasing\n";
+    }
+  }
+  exit 0;
+}
+
+{
   # max Dir4
 
   my $radix = 4;

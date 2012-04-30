@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 115 }
+BEGIN { plan tests => 140 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,7 +34,7 @@ require Math::PlanePath::KochSnowflakes;
 # VERSION
 
 {
-  my $want_version = 72;
+  my $want_version = 73;
   ok ($Math::PlanePath::KochSnowflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSnowflakes->VERSION,  $want_version,
@@ -70,6 +70,27 @@ require Math::PlanePath::KochSnowflakes;
 }
 
 #------------------------------------------------------------------------------
+# rect_to_n_range()
+
+{
+  my $path = Math::PlanePath::KochSnowflakes->new;
+  foreach my $elem
+    (
+     [-1,-5, -1,-5,  1,63 ], # N=23 only
+     [-2,-5, -1,-5,  1,63 ], # N=23 and point beside it
+
+     [0,0, 0,0,     1,15],   # origin only
+     [-9,-3, -9,-3, 1,63],   # N=16 only
+     [0,0, -9,-3,   1,63],   # taking in N=16
+    ) {
+    my ($x1,$y1,$x2,$y2, $want_lo, $want_hi) = @$elem;
+    my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ok ($got_lo, $want_lo, "lo on $x1,$y1 $x2,$y2");
+    ok ($got_hi, $want_hi, "hi on $x1,$y1 $x2,$y2");
+  }
+}
+
+#------------------------------------------------------------------------------
 # first few points
 
 {
@@ -80,6 +101,8 @@ require Math::PlanePath::KochSnowflakes;
               [ 4, -3,-1 ],
               [ 5, -1,-1 ],
               [ 6, 0,-2 ],
+
+              [ 17, -7,-3 ],
              );
   my $path = Math::PlanePath::KochSnowflakes->new;
   foreach my $elem (@data) {
@@ -93,7 +116,8 @@ require Math::PlanePath::KochSnowflakes;
     my ($want_n, $x, $y) = @$elem;
     next unless $want_n==int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "xy_to_n() n at x=$x,y=$y");
+    ok ($got_n, $want_n,
+        "xy_to_n($x,$y) N");
   }
 
   foreach my $elem (@data) {
@@ -110,6 +134,9 @@ require Math::PlanePath::KochSnowflakes;
 
 {
   my @data = (
+              [ -5, -1, [] ],
+              [ -5, -2, [] ],
+
               [ -1, 0, [1] ],
               [ -1, -.333, [1] ],
               [ -1, -.5, [1] ],
@@ -137,13 +164,16 @@ require Math::PlanePath::KochSnowflakes;
     my $want_n_str = join(',', @$want_n_aref);
     {
       my @got_n_list = $path->xy_to_n_list($x,$y);
-      ok (scalar(@got_n_list), scalar(@$want_n_aref));
+      ok (scalar(@got_n_list), scalar(@$want_n_aref),
+          "xy_to_n_list($x,$y) count");
       my $got_n_str = join(',', @got_n_list);
-      ok ($got_n_str, $want_n_str);
+      ok ($got_n_str, $want_n_str,
+          "xy_to_n_list($x,$y) values");
     }
     {
       my $got_n = $path->xy_to_n($x,$y);
-      ok ($got_n, $want_n_aref->[0]);
+      ok ($got_n, $want_n_aref->[0],
+          "xy_to_n($x,$y) first of list");
     }
     {
       my @got_n = $path->xy_to_n($x,$y);

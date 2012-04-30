@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -57,7 +57,7 @@ sub _extend {
       push @y, $i;
     } elsif ($hypot > $y_next_hypot[$i]) {
       @y = ($i);
-      $hypot = $y_next_hypot[$i]
+      $hypot = $y_next_hypot[$i];
     }
   }
 
@@ -200,10 +200,8 @@ from the origin 0,0.  The points are a rising triangle 0E<lt>=YE<lt>=X,
 For example N=11 at X=4,Y=1 is sqrt(4*4+1*1) = sqrt(17) from the origin.
 The next furthest from the origin is X=3,Y=3 at sqrt(18).
 
-In general the X,Y points are the sums of two squares X^2+Y^2 taken in
-increasing order of that hypotenuse, but only the "primitive" X,Y
-combinations, primitive in the sense of excluding mere negative X or Y or
-swapped Y,X.
+This octant is "primitive" elements X^2+Y^2, in the sense that it excludes
+mere negative X or Y or swapped Y,X.
 
 =head2 Equal Distances
 
@@ -264,6 +262,7 @@ more than one X,Y of that hypot.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::Hypot>,
+L<Math::PlanePath::TriangularHypot>,
 L<Math::PlanePath::PixelRings>,
 L<Math::PlanePath::PythagoreanTree>
 

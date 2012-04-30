@@ -31,9 +31,9 @@
 # f(m/n) = m^2*n^2/ (q1q2...qk)
 #
 # http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
-
-# encoding_type => 'alternate'
-# encoding_type => 'negabinary'
+#
+# pn_encoding => 'alternate'
+# pn_encoding => 'negabinary'
 
 
 package Math::PlanePath::FactorRationals;
@@ -41,7 +41,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -216,6 +216,9 @@ Math::PlanePath::FactorRationals -- rationals by prime powers
 
 =head1 DESCRIPTION
 
+X<McCrimmon, Kevin>
+X<Freilich, Gerald>
+X<Sagher, Yoram>
 This path enumerates rationals X/Y with no common factor, based on the prime
 powers in numerator and denominator.  This idea might have been first by
 Kevin McCrimmon then independently (was it?) by Gerald Freilich in reverse,

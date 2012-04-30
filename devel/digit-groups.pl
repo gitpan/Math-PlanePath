@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,10 +26,10 @@ use strict;
 
 {
   require Math::BaseCnv;
-  require Math::PlanePath::MathImageDigitGroups;
+  require Math::PlanePath::DigitGroups;
   foreach my $radix (2 .. 7) {
     print "radix $radix\n";
-    my $path = Math::PlanePath::MathImageDigitGroups->new (radix => $radix);
+    my $path = Math::PlanePath::DigitGroups->new (radix => $radix);
     foreach my $coord_max (0 .. 25) {
       my $n_max = $path->xy_to_n(0,0);
       my $x_max = 0;
@@ -59,10 +59,10 @@ use strict;
 
 {
   require Math::BaseCnv;
-  require Math::PlanePath::MathImageDigitGroups;
+  require Math::PlanePath::DigitGroups;
   foreach my $radix (2 .. 7) {
     print "radix $radix\n";
-    my $path = Math::PlanePath::MathImageDigitGroups->new (radix => $radix);
+    my $path = Math::PlanePath::DigitGroups->new (radix => $radix);
     foreach my $exp (1 .. 5) {
       my $coord_min = $radix ** ($exp-1);
       my $coord_max = $radix ** $exp - 1;
@@ -94,10 +94,10 @@ use strict;
 }
 {
   require Math::BaseCnv;
-  require Math::PlanePath::MathImageDigitGroups;
+  require Math::PlanePath::DigitGroups;
   foreach my $radix (2 .. 7) {
     print "radix $radix\n";
-    my $path = Math::PlanePath::MathImageDigitGroups->new (radix => $radix);
+    my $path = Math::PlanePath::DigitGroups->new (radix => $radix);
     foreach my $exp (1 .. 5) {
       my $coord_max = $radix ** $exp - 1;
       my $n_max = $path->xy_to_n(0,0);

@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -413,6 +413,8 @@ Math::PlanePath::UlamWarburton -- growth of a 2-D cellular automaton
 
 =head1 DESCRIPTION
 
+X<Ulam, Stanislaw>
+X<Warburton>
 This is the pattern of a cellular automaton studied by Ulam and Warburton,
 numbering cells by growth level and anti-clockwise within their level.
 
@@ -566,10 +568,10 @@ of the pattern.
 This cellular automaton is in Neil Sloane's Online Encyclopedia of Integer
 Sequences as
 
+    http://oeis.org/A147582    (etc)
+
     A147582 - new cells in level n
     A147562 - cumulative total cells to level n, being Nend(level)
-
-    http://oeis.org/A147582    etc
 
 The A147582 new cells sequence starts from n=1, so takes the innermost N=1
 single cell as level n=1, then N=2,3,4,5=5 as level n=2, etc.  This makes

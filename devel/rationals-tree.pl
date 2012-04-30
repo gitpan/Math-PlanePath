@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,6 +24,23 @@ use POSIX ();
 
 # uncomment this to run the ### lines
 use Devel::Comments;
+
+{
+  require Math::PlanePath::RationalsTree;
+  require Math::ContinuedFraction;
+  my $sb = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
+  for (my $n = $sb->n_start; $n < 3000; $n++) {
+    my ($x,$y) = $sb->n_to_xy ($n);
+    next if $x > $y;
+    my $cf = Math::ContinuedFraction->from_ratio($x,$y);
+    my $cfstr = $cf->to_ascii;
+    my $cfaref = $cf->to_array;
+    my $cflen = scalar(@$cfaref);
+    my $nhex = sprintf '0x%X', $n;
+    print "$nhex $n  $x/$y  $cflen  $cfstr\n";
+  }
+  exit 0;
+}
 
 {
   require Math::PlanePath::RationalsTree;

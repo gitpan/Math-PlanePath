@@ -22,10 +22,9 @@
 package Math::PlanePath::ComplexMinus;
 use 5.004;
 use strict;
-use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

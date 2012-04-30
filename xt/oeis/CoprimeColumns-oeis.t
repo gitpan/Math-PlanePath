@@ -78,6 +78,9 @@ sub delete_second_highest_bit {
 {
   my $anum = 'A054521';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+  }
 
   {
     my $good = 1;
@@ -85,6 +88,7 @@ sub delete_second_highest_bit {
     if (! $bvalues) {
       MyTestHelpers::diag ("$anum not available");
     } else {
+
       my $x = 1;
       my $y = 1;
       for (my $i = 0; $i < @$bvalues; $i++) {
@@ -139,6 +143,9 @@ sub delete_second_highest_bit {
 {
   my $anum = 'A127368';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+  }
 
   {
     my $good = 1;
@@ -205,6 +212,8 @@ sub delete_second_highest_bit {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
     my $n = 0;
     while (@got < @$bvalues) {
@@ -235,6 +244,8 @@ sub delete_second_highest_bit {
   if (! $bvalues) {
     MyTestHelpers::diag ("$anum not available");
   } else {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
     for (my $i = 0; $i < @$bvalues; $i++) {
       my $x = $i+1;
       my $want = $bvalues->[$i];

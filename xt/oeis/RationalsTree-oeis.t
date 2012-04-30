@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 19 }
+BEGIN { plan tests => 20 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -49,7 +49,71 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      return "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    $got =~ /^[0-9.-]+$/
+      or return "not a number pos=$i got='$got'";
+    $want =~ /^[0-9.-]+$/
+      or return "not a number pos=$i want='$want'";
+    if ($got != $want) {
+      return "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return undef;
+}
 
+
+#------------------------------------------------------------------------------
+# A088696 -- length of continued fraction of SB fractions
+
+{
+  my $anum = 'A088696';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $skip;
+  my @got;
+  my $diff;
+  if (! $bvalues) {
+    MyTestHelpers::diag ($skip = "$anum not available");
+  } elsif (! eval { require Math::ContinuedFraction; 1 }) {
+    MyTestHelpers::diag ($skip = "$anum - Math::ContinuedFraction not available");
+  } else {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
+  OUTER: for (my $k = 1; @got < @$bvalues; $k++) {
+      foreach my $n (2**$k .. 2**$k + 2**($k-1) - 1) {
+        my ($x,$y) = $path->n_to_xy ($n);
+        my $cf = Math::ContinuedFraction->from_ratio($x,$y);
+        my $cfaref = $cf->to_array;
+        my $cflen = scalar(@$cfaref);
+        push @got, $cflen-1;  # -1 to skip initial 0 term in $cf
+
+        ### cf: "n=$n xy=$x/$y cflen=$cflen ".$cf->to_ascii
+        last OUTER if @got >= @$bvalues;
+      }
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef,
+        "$anum - SB continued fraction length");
+}
 
 #------------------------------------------------------------------------------
 # A000975 -- without consecutive equal bits

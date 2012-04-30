@@ -33,6 +33,44 @@ sub bigint_checks {
   MyTestHelpers::diag ("$bigclass version ",
                        $bigclass->VERSION);
 
+  #----------------------------------------------------------------------------
+  # GcdRationals
+
+  {
+    require Math::PlanePath::GcdRationals;
+    my $path = Math::PlanePath::GcdRationals->new;
+    {
+      foreach my $n ($path->n_start .. 20) {
+        my ($x,$y) = $path->n_to_xy($n);
+        $x = $bigclass->new($x);
+        $y = $bigclass->new($y);
+        my $rev_n = $path->xy_to_n ($x,$y);
+        ok($rev_n,$n);
+      }
+    }
+    {
+      my $x = $bigclass->new(7);
+      my $y = 1;
+      my $n = 28; # 7*8/2
+      my $got_n = $path->xy_to_n($x,$y);
+      ok ($got_n, $n);
+      my ($got_x,$got_y) = $path->n_to_xy($n);
+      ok ($got_x, $x);
+      ok ($got_y, $y);
+    }
+    {
+      my $x = $bigclass->new(2) ** 128 - 1;
+      my $y = 1;
+      my $n = $x*($x+1)/2;
+      my $got_n = $path->xy_to_n($x,$y);
+      ok ($got_n, $n);
+      my ($got_x,$got_y) = $path->n_to_xy($n);
+      ok ($got_x, $x);
+      ok ($got_y, $y);
+    }
+  }
+
+
   #--------------------------------------------------------------------------
   # CoprimeColumns
 

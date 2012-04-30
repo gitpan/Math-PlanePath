@@ -43,7 +43,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -414,6 +414,7 @@ Math::PlanePath::PeanoCurve -- 3x3 self-similar quadrant traversal
 
 =head1 DESCRIPTION
 
+X<Peano, Guiseppe>
 This path is an integer version of the curve described by Guiseppe Peano in
 1890 for filling a unit square.  It traverses a quadrant of the plane one
 step at a time in a self-similar 3x3 pattern,
@@ -768,8 +769,8 @@ following sequences is the N of the Peano curve at those positions.
     A163338    A163334 + 1, Peano starting from N=1
     A163340    A163336 + 1, Peano starting from N=1
 
-C<Math::PlanePath::Diagonals> numbers from the Y axis down, which is the
-opposite axis to the Peano curve first step along the X axis, so a plain
+C<Math::PlanePath::Diagonals> numbers points from the Y axis down, which is
+the opposite axis to the Peano curve first step along the X axis, so a plain
 Diagonals -> PeanoCurve is the "opposite axis" form A163336.
 
 These sequences are permutations of the integers since all X,Y positions of

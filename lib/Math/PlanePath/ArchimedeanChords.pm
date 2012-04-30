@@ -30,7 +30,7 @@ use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -99,7 +99,7 @@ use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
 #                        +---+  <- subtract
 #
 #      f(x) / sub = f'(x)
-#      sub = f'(x) / f(x)
+#      sub = f(x) / f'(x)
 #
 #
 # _chord_angle_inc() takes $t is a polar angle around the Archimedean spiral.

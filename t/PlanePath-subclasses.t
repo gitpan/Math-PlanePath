@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 923 }
+BEGIN { plan tests => 992 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,62 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'KochSnowflakes',
+               'KochCurve',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+               'KochPeaks',
+
+               'AztecDiamondRings',
+               'DiamondSpiral',
+               'DiamondArms',
+               'SquareArms',
+               'HexArms',
+               'GreekKeySpiral',
+
+               'GrayCode',
+               'GrayCode,radix=3',
+               'GrayCode,radix=4',
+               'GrayCode,radix=37',
+               'GrayCode,apply_type=FsT',
+               'GrayCode,apply_type=Fs',
+               'GrayCode,apply_type=Ts',
+               'GrayCode,apply_type=sF',
+               'GrayCode,apply_type=sT',
+               'GrayCode,radix=4,gray_type=modular',
+
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+               'SierpinskiCurve',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'SierpinskiCurveStair',
+               'SierpinskiCurveStair,diagonal_length=2',
+               'SierpinskiCurveStair,diagonal_length=3',
+               'SierpinskiCurveStair,diagonal_length=4',
+               'SierpinskiCurveStair,arms=2',
+               'SierpinskiCurveStair,arms=3,diagonal_length=2',
+               'SierpinskiCurveStair,arms=4',
+               'SierpinskiCurveStair,arms=5',
+               'SierpinskiCurveStair,arms=6,diagonal_length=5',
+               'SierpinskiCurveStair,arms=7',
+               'SierpinskiCurveStair,arms=8',
+               'HIndexing',
+
+               'WunderlichSerpentine',
+               'WunderlichSerpentine,serpentine_type=100_000_000',
+               'WunderlichSerpentine,serpentine_type=000_000_001',
+               'WunderlichSerpentine,radix=2',
+               'WunderlichSerpentine,radix=4',
+               'WunderlichSerpentine,radix=5,serpentine_type=coil',
 
                'Hypot',
                'HypotOctant',
@@ -50,31 +106,11 @@ my @modules = (
                'MultipleRings,step=8',
                'MultipleRings,step=37',
 
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
-               'SierpinskiCurve',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
-               'HIndexing',
-
                'StaircaseAlternating,end_type=square',
                'StaircaseAlternating',
                'Staircase',
 
                'CretanLabyrinth',
-
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-               'KochSnowflakes',
-               'KochCurve',
-               'KochPeaks',
 
                'ComplexPlus',
                'ComplexPlus,realpart=2',
@@ -178,7 +214,6 @@ my @modules = (
                'SquareSpiral,wider=5',
                'SquareSpiral,wider=6',
                'SquareSpiral,wider=37',
-               'DiamondSpiral',
                'PentSpiral',
                'PentSpiralSkewed',
 
@@ -216,12 +251,6 @@ my @modules = (
 
                'UlamWarburton',
                'UlamWarburtonQuarter',
-
-               'AztecDiamondRings',
-               'DiamondArms',
-               'SquareArms',
-               'HexArms',
-               'GreekKeySpiral',
 
                'Rows',
                'Columns',
@@ -324,7 +353,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 72;
+my $want_version = 73;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -410,6 +439,7 @@ my %rect_exact = (
                   'Math::PlanePath::FlowsnakeCentres' => 1,
                   'Math::PlanePath::QuintetCurve' => 1,
                   'Math::PlanePath::QuintetCentres' => 1,
+                  'Math::PlanePath::DiamondSpiral' => 1,
                   'Math::PlanePath::AztecDiamondRings' => 1,
                   'Math::PlanePath::BetaOmega' => 1,
                   'Math::PlanePath::AR2W2Curve' => 1,
@@ -529,6 +559,7 @@ my %class_dxdy_allowed
      'Math::PlanePath::HilbertCurve'   => $dxdy_square,
      'Math::PlanePath::HilbertSpiral'  => $dxdy_square,
      'Math::PlanePath::PeanoCurve'     => $dxdy_square,
+     'Math::PlanePath::WunderlichSerpentine' => $dxdy_square,
      'Math::PlanePath::BetaOmega'      => $dxdy_square,
      'Math::PlanePath::AR2W2Curve'     => $dxdy_one,
      'Math::PlanePath::DragonCurve'    => $dxdy_square,
@@ -610,7 +641,8 @@ sub pythagorean_diag {
     ### $class
 
     my $dxdy_allowed = $class_dxdy_allowed{$class};
-    if ($mod =~ /^PeanoCurve/ && $parameters{'radix'}
+    if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
+        && $parameters{'radix'}
         && ($parameters{'radix'} % 2) == 0) {
       undef $dxdy_allowed;  # even radix doesn't join up
     }
@@ -1009,6 +1041,7 @@ sub pythagorean_diag {
 
             foreach my $x2 ($x1 .. $x_max) {
               my @col = map {$data->{$_}->{$x2}} $y1 .. $y2;
+              @col = grep {defined} @col;
               $min = List::Util::min (grep {defined} $min, @col);
               $max = List::Util::max (grep {defined} $max, @col);
               my $want_min = (defined $min ? $min : 1);

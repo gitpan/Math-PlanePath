@@ -48,12 +48,10 @@ use List::Util qw(min max);
   require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::RationalsTree;
   require Math::PlanePath::DivisibleColumns;
-  require Math::PlanePath::AztecDiamondRings;
   require Math::PlanePath::DiamondSpiral;
   require Math::PlanePath::UlamWarburtonQuarter;
   require Math::PlanePath::DigitGroups;
   require Math::PlanePath::HIndexing;
-  require Math::PlanePath::MathImageWunderlichSerpentine;
   require Math::PlanePath::MathImageDekkingCurve;
   require Math::PlanePath::MathImageDekkingStraight;
   require Math::PlanePath::HilbertCurve;
@@ -66,7 +64,6 @@ use List::Util qw(min max);
   require Math::PlanePath::PentSpiral;
   require Math::PlanePath::PentSpiralSkewed;
   require Math::PlanePath::PeanoCurve;
-  require Math::PlanePath::KochCurve;
   require Math::PlanePath::HexArms;
   require Math::PlanePath::TriangleSpiral;
   require Math::PlanePath::TriangleSpiralSkewed;
@@ -84,7 +81,6 @@ use List::Util qw(min max);
   require Math::PlanePath::MathImagePeanoRounded;
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::FactorRationals;
-  require Math::PlanePath::GcdRationals;
   require Math::PlanePath::VogelFloret;
   require Math::PlanePath::CellularRule;
   require Math::PlanePath::AlternatePaper;
@@ -97,21 +93,30 @@ use List::Util qw(min max);
   require Math::PlanePath::CellularRule57;
   require Math::PlanePath::DragonRounded;
   require Math::PlanePath::QuadricIslands;
-  require Math::PlanePath::KochSnowflakes;
   require Math::PlanePath::MathImageMooreSpiral;
   require Math::PlanePath::CretanLabyrinth;
-  require Math::PlanePath::MathImageGrayCode;
   require Math::PlanePath::MathImagePeanoHalf;
   require Math::PlanePath::TheodorusSpiral;
   require Math::PlanePath::SacksSpiral;
-  require Math::PlanePath::MathImageSierpinskiCurveSquared;
   require Math::PlanePath::SierpinskiCurve;
   require Math::PlanePath::StaircaseAlternating;
   require Math::PlanePath::FilledRings;
   require Math::PlanePath::MultipleRings;
-  my $path = Math::PlanePath::MultipleRings->new
+  require Math::PlanePath::GrayCode;
+  require Math::PlanePath::WunderlichSerpentine;
+  require Math::PlanePath::GcdRationals;
+  require Math::PlanePath::SierpinskiCurveStair;
+  require Math::PlanePath::AztecDiamondRings;
+  require Math::PlanePath::KochCurve;
+  require Math::PlanePath::PyramidRows;
+  require Math::PlanePath::KochSnowflakes;
+  my $path = Math::PlanePath::KochSnowflakes->new
     (
-     step => 2,
+     # diagonal_length => 5,
+     # apply_type => 'FS',
+     # radix => 4,
+     # serpentine_type => '010_000',
+      step => 4,
      # straight_spacing => 3,
      # diagonal_spacing => 7,
      # arms => 7,
@@ -138,8 +143,8 @@ use List::Util qw(min max);
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count\n";
 
-  for (my $i = $n_start+0; $i <= 40; $i+=1) {
-  #     for (my $i = $n_start; $i <= $n_start + 8000; $i=POSIX::ceil($i*2.01+1)) {
+  for (my $i = $n_start+0; $i <= 100; $i+=1) {
+    #     for (my $i = $n_start; $i <= $n_start + 8000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;

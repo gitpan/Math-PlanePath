@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 72;
+$VERSION = 73;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -39,7 +39,7 @@ sub description {
     return "N values on $self->{'line_type'} of path $self->{'planepath'}";
   } else {
     # class method
-    return Math::NumSeq::__('N values from a PlanePath');
+    return 'N values from a PlanePath';
   }
 }
 
@@ -49,15 +49,17 @@ use constant::defer parameter_info_array =>
             Math::NumSeq::PlanePathCoord::_parameter_info_planepath(),
 
             { name    => 'line_type',
-              display => Math::NumSeq::__('Line Type'),
+              display => 'Line Type',
               type    => 'enum',
               default => 'X_axis',
               choices => ['X_axis','Y_axis',
                           'Diagonal',
-                          # 'X_neg','Y_neg',
-                          # 'NE','NW','SW','SE',
+
+                          # maybe:
+                          # 'Xneg_axis','Yneg_axis',  negative axes
+                          # 'NE','NW','SW','SE',  diagonals
                          ],
-              # description => Math::NumSeq::__(''),
+              # description => '',
             },
            ];
   };
@@ -106,8 +108,10 @@ my %oeis_anum =
    'Math::PlanePath::CornerReplicate' =>
    { X_axis   => 'A000695',  # base 4 digits 0,1 only
      Y_axis   => 'A001196',  # base 4 digits 0,3 only
+     Diagonal => 'A062880',  # base 4 digits 0,2 only
      # OEIS-Other: A000695 planepath=CornerReplicate
      # OEIS-Other: A001196 planepath=CornerReplicate line_type=Y_axis
+     # OEIS-Other: A062880 planepath=CornerReplicate line_type=Diagonal
    },
 
    'Math::PlanePath::LTiling,L_fill=middle' =>
@@ -422,8 +426,6 @@ sub next {
 sub ith {
   my ($self, $i) = @_;
   ### NumSeq-PlanePath ith(): $i
-
-  my $planepath_object = $self->{'planepath_object'};
   return &{$self->{'i_func'}}($self, $i);
 }
 
@@ -775,6 +777,24 @@ sub values_max {
   }
   *_NumSeq_Y_axis_increasing = \&_NumSeq_X_axis_increasing;
 }
+{ package Math::PlanePath::WunderlichSerpentine;
+  sub _NumSeq_X_axis_increasing {
+    my ($self) = @_;
+    if ($self->{'radix'} % 2) {
+      return 1;  # odd radix always increasing
+    }
+    # FIXME: depends on the serpentine_type bits
+    return 0;
+  }
+  sub _NumSeq_Y_axis_increasing {
+    my ($self) = @_;
+    if ($self->{'radix'} % 2) {
+      return 1;  # odd radix always increasing
+    }
+    # FIXME: depends on the serpentine_type bits
+    return 0;
+  }
+}
 { package Math::PlanePath::HilbertCurve;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
@@ -787,6 +807,59 @@ sub values_max {
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::GrayCode;
+
+  # X axis increasing for:
+  # radix=2 TsF,Fs
+  # radix=3 reflected TsF,FsT
+  #  radix=3 modular TsF,Fs
+  # radix=4 reflected TsF,Fs
+  #  radix=4 modular TsF,Fs
+  # radix=5 reflected TsF,FsT
+  #  radix=5 modular TsF,Fs
+  #
+  sub _NumSeq_X_axis_increasing {
+    my ($self) = @_;
+    if ($self->{'gray_type'} eq 'modular' || $self->{'radix'} == 2) {
+      return ($self->{'apply_type'} eq 'TsF'
+              || $self->{'apply_type'} eq 'Fs');
+    }
+    if ($self->{'radix'} & 1) {
+      return ($self->{'apply_type'} eq 'TsF'
+              || $self->{'apply_type'} eq 'FsT');
+    } else {
+      return ($self->{'apply_type'} eq 'TsF'
+              || $self->{'apply_type'} eq 'Fs');
+    }
+  }
+  *_NumSeq_Y_axis_increasing = \&_NumSeq_X_axis_increasing;
+
+  # Diagonal increasing for:
+  # radix=2 FsT,Ts
+  # radix=3 reflected Ts,Fs
+  #  radix=3 modular FsT
+  # radix=4 reflected FsT,Ts
+  #  radix=4 modular FsT
+  # radix=5 reflected Ts,Fs
+  #  radix=5 modular FsT
+  sub _NumSeq_Diagonal_increasing {
+    my ($self) = @_;
+    if ($self->{'radix'} & 1) {
+      if ($self->{'gray_type'} eq 'modular') {
+        return ($self->{'apply_type'} eq 'FsT');  # odd modular
+      } else {
+        return ($self->{'apply_type'} eq 'Ts'
+                || $self->{'apply_type'} eq 'Fs');  # odd reflected
+      }
+    }
+    if ($self->{'gray_type'} eq 'reflected' || $self->{'radix'} == 2) {
+      return ($self->{'apply_type'} eq 'FsT'
+              || $self->{'apply_type'} eq 'Ts');  # even reflected
+    } else {
+      return ($self->{'apply_type'} eq 'FsT');  # even modular
+    }
+  }
 }
 # { package Math::PlanePath::ImaginaryBase;
 # }
@@ -865,6 +938,11 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::SierpinskiCurve;
+  use constant _NumSeq_X_axis_increasing => 1; # when touched
+  use constant _NumSeq_Y_axis_increasing => 1; # when touched
+  use constant _NumSeq_Diagonal_increasing => 1; # when touched
+}
+{ package Math::PlanePath::SierpinskiCurveStair;
   use constant _NumSeq_X_axis_increasing => 1; # when touched
   use constant _NumSeq_Y_axis_increasing => 1; # when touched
   use constant _NumSeq_Diagonal_increasing => 1; # when touched
@@ -998,7 +1076,7 @@ sub values_max {
 }
 # { package Math::PlanePath::File;
 #   # File                   points from a disk file
-#   # FIXME: analyze points for dx/dy min/max etc
+#   # FIXME: analyze points for min/max
 # }
 # { package Math::PlanePath::QuintetCurve;
 # }
@@ -1046,7 +1124,7 @@ sub values_max {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath SquareSpiral DragonCurve lookup 
+=for stopwords Ryde Math-PlanePath SquareSpiral DragonCurve lookup PlanePath
 
 =head1 NAME
 

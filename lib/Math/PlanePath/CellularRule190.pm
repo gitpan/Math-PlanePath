@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -163,8 +163,8 @@ sub rect_to_n_range {
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
 
-  # inherit bignum (before collapsing some y1 to x1 etc)
-  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);
+  # # inherit bignum (before collapsing some y1 to x1 etc)
+  # my $zero = ($x1 * 0 * $y1 * $x2 * $y2);
 
   my $mirror = $self->{'mirror'};
   my $unincremented_x1 = $x1;
@@ -262,7 +262,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright Klaner-Rado unplotted
+=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright Klaner-Rado unplotted OEIS
 
 =head1 NAME
 
@@ -276,6 +276,7 @@ Math::PlanePath::CellularRule190 -- cellular automaton 190 and 246 points
 
 =head1 DESCRIPTION
 
+X<Wolfram, Stephen>
 This is the pattern of Stephen Wolfram's "rule 190" cellular automaton
 
     http://mathworld.wolfram.com/Rule190.html

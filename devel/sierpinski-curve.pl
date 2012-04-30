@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,50 @@ use Math::PlanePath::SierpinskiArrowhead;
 use Smart::Comments;
 
 {
-  my $path = Math::PlanePath::MathImageSierpinskiCurve->new;
+  # filled fraction
+
+  require Math::PlanePath::SierpinskiCurve;
+  require Number::Fraction;
+  my $path = Math::PlanePath::SierpinskiCurve->new;
+  foreach my $level (1 .. 20) {
+    my $Ntop = 4**$level / 2 - 1;
+    my ($x,$y) = $path->n_to_xy($Ntop);
+    my $Xtop = 3*2**($level-1) - 1;
+    $x == $Xtop or die "x=$x Xtop=$Xtop";
+    my $frac = $Ntop / ($x*($x-1)/2);
+    print "  $level  $frac\n";
+  }
+  my $nf = Number::Fraction->new(4,9);
+  my $limit = $nf->to_num;
+  print "  limit  $nf = $limit\n";
+  exit 0;
+}
+
+{
+  # filled fraction
+
+  require Math::PlanePath::SierpinskiCurveStair;
+  require Number::Fraction;
+  foreach my $L (1 .. 5) {
+    print "L=$L\n";
+    my $path = Math::PlanePath::SierpinskiCurveStair->new (diagonal_length=>$L);
+    foreach my $level (1 .. 10) {
+      my $Nlevel = ((6*$L+4)*4**$level - 4) / 3;
+      my ($x,$y) = $path->n_to_xy($Nlevel);
+      my $Xlevel = ($L+2)*2**$level - 1;
+      $x == $Xlevel or die "x=$x Xlevel=$Xlevel";
+      my $frac = $Nlevel / ($x*($x-1)/2);
+      print "  $level  $frac\n";
+    }
+    my $nf = Number::Fraction->new((12*$L+8),(3*$L**2+12*$L+12));
+    my $limit = $nf->to_num;
+    print "  limit  $nf = $limit\n";
+  }
+  exit 0;
+}
+
+{
+  my $path = Math::PlanePath::SierpinskiCurve->new;
   my @rows = ((' ' x 79) x 64);
   foreach my $n (0 .. 3 * 3**4) {
     my ($x, $y) = $path->n_to_xy ($n);

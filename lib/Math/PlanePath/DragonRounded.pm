@@ -27,7 +27,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -208,12 +208,12 @@ sub xy_to_n {
   my $dx = $yx_rtom_dx[$y6][$x6];  defined $dx or return undef;
   my $dy = $yx_rtom_dy[$y6][$x6];  defined $dy or return undef;
 
-  my $n = $self->Math::PlanePath::DragonMidpoint::xy_to_n
-    ($x - _floor($x/3) - $dx,
-     $y - _floor($y/3) - $dy);
-  ### dxy: "$dx, $dy"
-  ### to: ($x - _floor($x/3) - $dx).", ".($y - _floor($y/3) - $dy)
-  ### $n
+  # my $n = $self->Math::PlanePath::DragonMidpoint::xy_to_n
+  #   ($x - _floor($x/3) - $dx,
+  #    $y - _floor($y/3) - $dy);
+  # ### dxy: "$dx, $dy"
+  # ### to: ($x - _floor($x/3) - $dx).", ".($y - _floor($y/3) - $dy)
+  # ### $n
 
   return $self->Math::PlanePath::DragonMidpoint::xy_to_n
     ($x - _floor($x/3) - $dx,
@@ -243,7 +243,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices multi-arm
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices multi-arm DragonMidpoint DragonRounded Xadj,Yadj
 
 =head1 NAME
 
@@ -347,7 +347,7 @@ each.
 
 The points of this rounded curve correspond to the DragonMidpoint with a
 little squish to turn each 6x6 block into a 4x4 block.  For instance in the
-followng N=2,3 are pushed to the left, and N=6 through N=11 shift down and
+following N=2,3 are pushed to the left, and N=6 through N=11 shift down and
 squashes up horizontally.
 
      DragonRounded               DragonMidpoint

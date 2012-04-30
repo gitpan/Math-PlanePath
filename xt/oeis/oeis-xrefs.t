@@ -62,7 +62,11 @@ my @module_filenames
 diag "module count ",scalar(@module_filenames);
 
 my %allow_duplicate_xrefs
-  = (A020650 => { 'lib/Math/PlanePath/FractionsTree.pm' => 1,
+  = (A053615 => { 'lib/Math/PlanePath/SquareSpiral.pm' => 1,
+                  'lib/Math/PlanePath/PyramidSpiral.pm' => 1,
+                },
+
+     A020650 => { 'lib/Math/PlanePath/FractionsTree.pm' => 1,
                   'lib/Math/PlanePath/RationalsTree.pm' => 1,
                 },
      A020651 => { 'lib/Math/PlanePath/FractionsTree.pm' => 1,
@@ -85,6 +89,21 @@ my %allow_duplicate_xrefs
      # permutation coprime <-> SB
      A054427 => { 'lib/Math/PlanePath/CoprimeColumns.pm' => 1,
                   'lib/Math/PlanePath/RationalsTree.pm'  => 1,
+                },
+
+     # base 4 digits 0,1
+     A000695 => {'lib/Math/PlanePath/CornerReplicate.pm'  => 1,
+                 'lib/Math/PlanePath/HilbertCurve.pm'     => 1,
+                 'lib/Math/PlanePath/ZOrderCurve.pm'      => 1,
+                },
+     # base 4 digits 0,2
+     A062880 => { 'lib/Math/PlanePath/CornerReplicate.pm' => 1,
+                  'lib/Math/PlanePath/HilbertCurve.pm'    => 1,
+                  'lib/Math/PlanePath/ZOrderCurve.pm'     => 1,
+                },
+     # base 4 digits 0,3
+     A001196 => { 'lib/Math/PlanePath/CornerReplicate.pm' => 1,
+                  'lib/Math/PlanePath/ZOrderCurve.pm'     => 1,
                 },
     );
 
@@ -110,12 +129,16 @@ foreach my $module_filename (@module_filenames) {
 #------------------------------------------------------------------------------
 
 my @xt_filenames
-  = grep {m{^xt/.*\.t$}} keys %$manifest;
+  = grep {m{^xt/.*-oeis\.t$}} keys %$manifest;
 @xt_filenames = sort @xt_filenames;
 diag "xt count ",scalar(@xt_filenames);
 
 my %allow_duplicate_checks
-  = (A020650 => { 'xt/FractionsTree-oeis.t' => 1,
+  = (A053615 => { 'xt/SquareSpiral-oeis.t' => 1,
+                  'xt/PyramidSpiral-oeis.t' => 1,
+                },
+
+     A020650 => { 'xt/FractionsTree-oeis.t' => 1,
                   'xt/RationalsTree-oeis.t' => 1,
                 },
      A020651 => { 'xt/FractionsTree-oeis.t' => 1,
@@ -123,6 +146,53 @@ my %allow_duplicate_checks
                 },
      A086592 => { 'xt/FractionsTree-oeis.t' => 1,
                   'xt/RationalsTree-oeis.t' => 1,
+                },
+
+     # base 4 digits 0,1
+     A000695 => { 'xt/CornerReplicate-oeis.t' => 1,
+                  'xt/ZOrderCurve-oeis.t'     => 1,
+                },
+     # base 4 digits 0,2
+     A062880 => { 'xt/CornerReplicate-oeis.t' => 1,
+                  'xt/HilbertCurve-oeis.t'    => 1,
+                  'xt/ZOrderCurve-oeis.t'     => 1,
+                },
+     # base 4 digits 0,3
+     A001196 => { 'xt/CornerReplicate-oeis.t' => 1,
+                  'xt/ZOrderCurve-oeis.t'     => 1,
+                },
+
+
+
+     A060032 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A062756 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A189640 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A189673 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A137893 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A080846 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A060236 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A038502 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A026225 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
+                },
+     A026179 => { 'xt/GosperSide-oeis.t' => 1,
+                  'xt/TerdragonCurve-oeis.t' => 1,
                 },
     );
 

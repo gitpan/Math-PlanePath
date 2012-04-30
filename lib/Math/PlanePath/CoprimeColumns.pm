@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -236,7 +236,7 @@ sub _coprime {
 1;
 __END__
 
-=for stopwords Ryde coprime coprimes coprimeness totient totients Math-PlanePath Euler's onwards
+=for stopwords Ryde coprime coprimes coprimeness totient totients Math-PlanePath Euler's onwards OEIS
 
 =head1 NAME
 

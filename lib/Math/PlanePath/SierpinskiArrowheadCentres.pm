@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 72;
+$VERSION = 73;
 
 use Math::PlanePath 37; # v.37 for _round_nearest()
 @ISA = ('Math::PlanePath');
@@ -229,6 +229,7 @@ Math::PlanePath::SierpinskiArrowheadCentres -- self-similar triangular path trav
 
 =head1 DESCRIPTION
 
+X<Sierpinski, Waclaw>
 This is a version of the Sierpinski arrowhead path taking the centres of
 each triangle represented by the arrowhead segments.  The effect is to
 traverse the Sierpinski triangle.

@@ -28,6 +28,18 @@ use Math::PlanePath::ComplexMinus;
 
 
 {
+  require Math::NumSeq::PlanePathDelta;
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath=> 'ComplexMinus',
+                                               delta_type => 'dX');
+  foreach my $i (0 .. 50) {
+    my ($i,$value) = $seq->next;
+    print "$value,";
+  }
+  print "\n";
+  exit 0;
+}
+
+{
   # max Dir4
 
   require Math::BaseCnv;
