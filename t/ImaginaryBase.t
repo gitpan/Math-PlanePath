@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 310 }
+BEGIN { plan tests => 311 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::ImaginaryBase;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::ImaginaryBase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ImaginaryBase->VERSION,  $want_version,
@@ -94,6 +94,42 @@ require Math::PlanePath::ImaginaryBase;
     ok ($n_hi >= $n, 1,
         "rect_to_n_range() radix=$radix reverse n=$n cf got n_hi=$n_hi");
   }
+}
+
+#------------------------------------------------------------------------------
+# cf A039724 negabinary
+#    A039723 negadecimal
+
+sub index_to_negaradix {
+  my ($n, $radix) = @_;
+  my $power = 1;
+  my $ret = 0;
+  while ($n) {
+    my $digit = $n % $radix;  # low to high
+    $n = int($n/$radix);
+    $ret += $power * $digit;
+    $power *= -$radix;
+  }
+  return $ret;
+}
+
+{
+  require Math::PlanePath::ZOrderCurve;
+  my $bad = 0;
+  foreach my $radix (2, 3, 5, 10, 16) {
+    my $zorder = Math::PlanePath::ZOrderCurve->new (radix => $radix);
+    my $imbase = Math::PlanePath::ImaginaryBase->new (radix => $radix);
+    foreach my $n (0 .. 256) {
+      my ($zx,$zy) = $zorder->n_to_xy($n);
+      my $nx = index_to_negaradix($zx,$radix);
+      my $ny = index_to_negaradix($zy,$radix);
+      my $in = $imbase->xy_to_n($nx,$ny);
+      if ($n != $in) {
+        $bad = 1;
+      }
+    }
+  }
+  ok ($bad, 0);
 }
 
 exit 0;

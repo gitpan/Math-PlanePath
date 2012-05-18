@@ -46,7 +46,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -143,8 +143,6 @@ Math::PlanePath::HilbertMidpoint -- Hilbert curve midpoints
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
-
-I<In progress ...>
 
 This is the midpoints of each segment of the HilbertCurve.
 

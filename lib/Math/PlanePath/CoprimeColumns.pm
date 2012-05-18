@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -240,7 +240,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::CoprimeColumns -- coprime x,y by columns
+Math::PlanePath::CoprimeColumns -- coprime X,Y by columns
 
 =head1 SYNOPSIS
 
@@ -270,26 +270,26 @@ columns from Y=0 to YE<lt>=X.
        +---------------------------------------------
        X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
-Since gcd(0,K)=0 the X axis itself X=0 is never visited, and since
-gcd(K,K)=K the leading diagonal X=Y is not visited except X=1,Y=1.
+Since gcd(X,0)=0 the X axis itself is never visited, and since gcd(K,K)=K
+the leading diagonal X=Y is not visited except X=1,Y=1.
 
 The number of coprime pairs in each column is Euler's totient function
 phi(X), and starting N=0 at X=1,Y=1 means the values 0,1,2,4,6,10,etc
 horizontally along Y=1 are the totient sums
 
-     i=K
-    sum   phi(i)
-     i=1
+                          i=K
+    cumulative totient = sum   phi(i)
+                          i=1      
 
 Anything making a straight line etc in the path will probably be related to
 totient sums in some way.
 
-The pattern of coprimes or not within a column is the same read going up as
-going down, since X,X-Y has the same coprimeness as X,Y.  This means
-coprimes occur in pairs from X=3 onwards.  (When X is even the middle point
-Y=X/2 is not coprime since it has common factor 2 from X=4 onwards.)  So
-there's an even number of points in each column from X=2 onwards and the
-totals horizontally along X=1 are even likewise.
+The pattern of coprimes or not within a column is the same going up as going
+down, since X,X-Y has the same coprimeness as X,Y.  This means coprimes
+occur in pairs from X=3 onwards.  When X is even the middle point Y=X/2 is
+not coprime since it has common factor 2, from X=4 onwards.  So there's an
+even number of points in each column from X=2 onwards and those cumulative
+totient totals horizontally along X=1 are therefore always even likewise.
 
 =head1 FUNCTIONS
 
@@ -311,8 +311,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 BUGS
 
 The current implementation is fairly slack and is slow on medium to large N.
-A table of cumulative totients is built and retained for the X column number
-used.
+A table of cumulative totients is built and retained up to the highest X
+column number used.
 
 =head1 OEIS
 
@@ -321,7 +321,10 @@ couple of forms,
 
     http://oeis.org/A002088  (etc)
 
-    A002088    cumulative totient, N along X axis
+    A038567    X coordinate, reduced fractions denominator
+    A038566    Y coordinate, reduced fractions numerator
+
+    A002088    N on X axis, cumulative totient
     A127368    by columns Y coordinate if coprime, 0 if not
     A054521    by columns 1 if coprime, 0 if not
     A054427    permutation coprime columns N -> RationalsTree SB N 

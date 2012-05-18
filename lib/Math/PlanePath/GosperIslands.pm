@@ -32,12 +32,13 @@ use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -129,7 +130,7 @@ sub n_to_xy {
   return ($x,$y);
 }
 
-
+# ENHANCE-ME: share with GosperSide ?
 sub _side_n_to_xy {
   my ($n) = @_;
   ### _side_n_to_xy(): $n
@@ -150,9 +151,7 @@ sub _side_n_to_xy {
   my $xend = 2;
   my $yend = 0;
 
-  while ($n) {
-    my $digit = ($n % 3);
-    $n = int($n/3);
+  foreach my $digit (_digit_split_lowtohigh($n,3)) {
     my $xend_offset = 3*($xend-$yend)/2;   # end and end +60
     my $yend_offset = ($xend+3*$yend)/2;
 

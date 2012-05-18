@@ -223,7 +223,7 @@ foreach my $tfile ('t/PlanePath-subclasses.t',
       close FH or die;
       ### $content
 
-      $content =~ /^# (not )?exact\nsub rect_to_n_range /m
+      $content =~ /^# (not )?exact\n(sub rect_to_n_range |\*rect_to_n_range =)/m
         or die "$filename no exact comment";
       return $1 ? 0 : 1;
     }

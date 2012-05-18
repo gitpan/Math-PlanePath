@@ -18,19 +18,17 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# cf A062410 - sum of numbers in previous row
-
-
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 33 }
+BEGIN { plan tests => 35 }
 
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
+use List::Util 'min', 'max';
 use Math::PlanePath::SquareSpiral;
 
 # uncomment this to run the ### lines
@@ -44,7 +42,7 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  my $i = 0; 
+  my $i = 0;
   while ($i < @$a1 && $i < @$a2) {
     if ($a1->[$i] ne $a2->[$i]) {
       return 0;
@@ -52,6 +50,105 @@ sub numeq_array {
     $i++;
   }
   return (@$a1 == @$a2);
+}
+
+# return 1,2,3,4
+sub path_n_dir4_1 {
+  my ($path, $n) = @_;
+  my ($x,$y) = $path->n_to_xy($n);
+  my ($next_x,$next_y) = $path->n_to_xy($n+1);
+  return dxdy_to_dir4_1 ($next_x - $x,
+                         $next_y - $y);
+}
+# return 1,2,3,4, with Y reckoned increasing upwards
+sub dxdy_to_dir4_1 {
+  my ($dx, $dy) = @_;
+  if ($dx > 0) { return 1; }  # east
+  if ($dx < 0) { return 3; }  # west
+  if ($dy > 0) { return 2; }  # north
+  if ($dy < 0) { return 4; }  # south
+}
+
+
+#------------------------------------------------------------------------------
+# A063826 -- direction 1,2,3,4 = E,N,W,S
+
+{
+  my $anum = 'A063826';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      push @got, path_n_dir4_1($path,$n);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1);
+}
+
+#------------------------------------------------------------------------------
+# A062410 -- a(n) is sum of existing numbers in row of a(n-1)
+
+{
+  my $anum = 'A062410';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                      max_value => 'unlimited');
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    require Math::BigInt;
+    my %plotted;
+    $plotted{0,0} = Math::BigInt->new(1);
+    my $xmin = 0;
+    my $ymin = 0;
+    my $xmax = 0;
+    my $ymax = 0;
+    push @got, 1;
+
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
+      my ($prev_x, $prev_y) = $path->n_to_xy ($n-1);
+      my ($x, $y) = $path->n_to_xy ($n);
+      my $total = 0;
+      if ($y == $prev_y) {
+        ### column: "$ymin .. $ymax at x=$prev_x"
+        foreach my $y ($ymin .. $ymax) {
+          $total += $plotted{$prev_x,$y} || 0;
+        }
+      } else {
+        ### row: "$xmin .. $xmax at y=$prev_y"
+        foreach my $x ($xmin .. $xmax) {
+          $total += $plotted{$x,$prev_y} || 0;
+        }
+      }
+      ### total: "$total"
+
+      $plotted{$x,$y} = $total;
+      $xmin = min($xmin,$x);
+      $xmax = max($xmax,$x);
+      $ymin = min($ymin,$y);
+      $ymax = max($ymax,$y);
+      push @got, $total;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- sum of rows");
 }
 
 #------------------------------------------------------------------------------

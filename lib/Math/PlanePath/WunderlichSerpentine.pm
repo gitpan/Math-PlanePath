@@ -37,7 +37,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -55,10 +55,11 @@ use Math::PlanePath::KochCurve 42;
 use constant parameter_info_array =>
   [ { name      => 'serpentine_type',
       type      => 'string',
-      default   => 'alternating',
+      default   => '010 101 010',
       choices   => ['alternating','coil','Peano'],
       width     => 11,
       type_hint => 'bit_string',
+      description => 'Serpentine type, as a bit string or one of the predefined choices.',
     },
     { name      => 'radix',
       share_key => 'radix_3',
@@ -178,7 +179,7 @@ sub n_to_xy {
   my $transpose = ($#digits & 1) && $serpentine_array->[0];
   my $xk = my $yk = 0;
   while (@digits) {
-    my $ndigit = pop @digits;
+    my $ndigit = pop @digits;      # high to low digits
     my $lowdigit = $ndigit % $radix;
     my $highdigit = int ($ndigit / $radix);
 

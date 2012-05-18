@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -225,6 +225,15 @@ Only every second square in the plane has an N.  If C<$x,$y> is a
 position without an N then the return is C<undef>.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A063177  (etc)
+
+    A063177    total sum previous row or diagonal
 
 =head1 SEE ALSO
 

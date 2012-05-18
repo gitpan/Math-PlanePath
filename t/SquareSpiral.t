@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 156 }
+BEGIN { plan tests => 376 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
@@ -342,5 +342,32 @@ require Math::PlanePath::SquareSpiral;
     ok ($got_n, $want_n, "n at x=$x,y=$y");
   }
 }
+
+#------------------------------------------------------------------------------
+# random _n_to_dxdy()
+
+{
+  foreach my $wider (0 .. 10) {
+    my $path = Math::PlanePath::SquareSpiral->new (wider => $wider);
+    # for (my $n = 1.25; $n < 40; $n++) {
+    foreach (1 .. 10) {
+      my $bits = int(rand(25));     # 0 to 25, inclusive
+      my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
+
+      my ($x,$y) = $path->n_to_xy ($n);
+      my ($next_x,$next_y) = $path->n_to_xy ($n+1);
+      my $delta_dx = $next_x - $x;
+      my $delta_dy = $next_y - $y;
+
+      my ($func_dx,$func_dy) = $path->_n_to_dxdy ($n);
+      if ($func_dx == 0) { $func_dx = '0'; } # avoid -0 in perl 5.6
+      if ($func_dy == 0) { $func_dy = '0'; } # avoid -0 in perl 5.6
+
+      ok ($func_dx, $delta_dx, "_n_to_dxdy($n) w=$wider dx at xy=$x,$y");
+      ok ($func_dy, $delta_dy, "_n_to_dxdy($n) w=$wider dy at xy=$x,$y");
+    }
+  }
+}
+
 
 exit 0;

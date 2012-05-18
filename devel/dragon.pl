@@ -20,6 +20,7 @@
 use 5.010;
 use strict;
 use warnings;
+use List::MoreUtils;
 use POSIX 'floor';
 use Math::Libm 'M_PI', 'hypot';
 use List::Util 'min', 'max';
@@ -30,8 +31,560 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+use Smart::Comments;
 
+
+
+
+
+
+  {
+    # low to high
+    my $rev = 0;
+    my @rev;
+    foreach my $digit (reverse @digits) {
+      push @rev, $rev;
+      $rev ^= $digit;
+    }
+    ### @digits
+    my $x = 0;
+    my $y = 0;
+    my $dy = $rot & 1;
+    my $dx = ! $dy;
+    if ($rot & 2) {
+      $dx = -$dx;
+      $dy = -$dy;
+    }
+    $rev = 0;
+    foreach my $digit (@digits) {
+      ### at: "$x,$y  dxdy=$dx,$dy"
+      my $rev = shift @rev;
+      if ($digit) {
+        if ($rev) {
+          ($x,$y) = (-$y,$x); # rotate +90
+        } else {
+          ($x,$y) = ($y,-$x); # rotate -90
+        }
+        $x += $dx;
+        $y += $dy;
+        $rev = $digit;
+      }
+      # multiply i+1, ie. (dx,dy) = (dx + i*dy)*(i+1)
+      ($dx,$dy) = ($dx-$dy, $dx+$dy);
+    }
+    ### final: "$x,$y  dxdy=$dx,$dy"
+    return ($x,$y);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  # inner rectangle touching
+
+  #                          |               |
+  #                    751-750         735-734         431-
+  #
+  #
+  #
+  #                                                382-383
+  #                                                      |
+  #                                            380-385-384
+  #                                                  |
+  #                                            379-386-387
+  #                                                      |
+  #                                            376-377-388
+  #                                                  |
+  #                                            375-374 371-
+  #
+  #                                                    368
+  #
+  #                                                    367-
+  #
+  #          9-- 8   5-- 4
+  #          |       |
+  #         10--11-- 6   3-- 2                     190-191
+  #              |                                       |
+  # 17--16  13--12       0-- 1                 188-193-192
+  #  |       |                                       |
+  # 18--19- 22--23                             187-194-195
+  #      |       |                                       |
+  #     20- 25--24                             184-185-196
+  #          |                                       |
+  #         26--27  46--47          94--95     183-182-179-
+  #              |       |               |               |
+  # 33--32  29- 44- 49--48      92- 97--96     108-113-176
+  #  |       |       |               |               |
+  # 34--35- 38- 43- 50--51  54- 91- 98--99 102-107-114-175-
+  #      |       |       |       |       |       |       |
+  #     36--37  40--41  52- 57- 88--89-100-101 104-105 116
+  #                          |       |
+  #                         58- 87--86- 83--82
+  #                              |       |
+  #                 65--64  61- 76--77  80--81     129-128
+  #                  |       |                       |
+  #                 66--67- 70- 75--74             130-131-134
+  #                      |       |                       |
+  #                     68--69  72--73                 132
+
+
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+
+  foreach my $k (0 .. 5) {
+    my $level = 2*$k;
+    my $Nlevel = 2**$level;
+    print "k=$k level=$level  Nlevel=$Nlevel\n";
+
+    # my $c1x = 2**$k - calc_Wmax($k);  # <--
+    # my $c1y = 2**$k + calc_Wmin($k);  # <--
+    # my $c2x = 2**($k+1) - calc_Wmax($k+1);
+    # my $c2y = 2**($k+1) + calc_Wmin($k+1);
+    # my $c3x = 2**($k+2) - calc_Wmax($k+2);   # <--
+    # my $c3y = 2**($k+2) + calc_Wmin($k+2);   # <--
+
+    my $c1x = calc_Wouter($k);  # <--
+    my $c1y = calc_Louter($k);  # <--
+    my $c2x = calc_Wouter($k+1);
+    my $c2y = calc_Louter($k+1);
+    my $c3x = calc_Wouter($k+2);   # <--
+    my $c3y = calc_Louter($k+2);   # <--
+
+    my $step_c2x = 2*$c1x - !($k&1);
+    unless ($step_c2x == $c2x) {
+      warn "step X $step_c2x != $c2x";
+    }
+    my $step_c2y = 2*$c1y - ($k&1);
+    unless ($step_c2y == $c2y) {
+      warn "step Y $step_c2y != $c2y";
+    }
+
+    my $step_c3x = 4 * $c1x - 2 + ($k&1);
+    unless ($step_c3x == $c3x) {
+      warn "step X $step_c3x != $c3x";
+    }
+    my $step_c3y = 4 * $c1y - 1 - ($k & 1);
+    unless ($step_c3y == $c3y) {
+      warn "step Y $step_c3y != $c3y";
+    }
+
+    unless ($c1y == $c2x) {
+      warn "diff $c1y $c2x";
+    }
+    unless ($c2y == $c3x) {
+      warn "diff $c2y $c3x";
+    }
+
+    my $xmax = $c1x;
+    my $ymax = $c1y;
+
+    my $xmin = -$c3x;
+    my $ymin = -$c3y;
+
+    print "  C1 x=$xmax,y=$ymax  C2 x=$c2x,y=$c2y C3 x=$c3x,y=$c3y\n";
+
+    print "  out x=$xmin..$xmax  y=$ymin..$ymax\n";
+    foreach (1 .. $k) {
+      print "    rotate\n";
+      ($xmax,       # rotate +90
+       $ymax,
+       $xmin,
+       $ymin) = (-$ymin,
+                 $xmax,
+                 -$ymax,
+                 $xmin);
+    }
+    print "  out x=$xmin..$xmax  y=$ymin..$ymax\n";
+
+    my $in_xmax = $xmax - 1;
+    my $in_xmin = $xmin + 1;
+    my $in_ymax = $ymax - 1;
+    my $in_ymin = $ymin + 1;
+    print "  in x=$in_xmin..$in_xmax  y=$in_ymin..$in_ymax\n";
+
+    # inner edges, Nlevel or higher is bad
+    foreach my $y ($in_ymax, $in_ymin) {
+      foreach my $x ($in_xmin .. $in_xmax) {
+        foreach my $n ($path->xy_to_n_list ($x, $y)) {
+          if ($n >= $Nlevel) {
+            print "$n  $x,$y  horiz ***\n";
+          }
+        }
+      }
+    }
+    # inner edges, Nlevel or higher is bad
+    foreach my $x ($in_xmax, $in_xmin) {
+      foreach my $y ($in_ymin .. $in_ymax) {
+        foreach my $n ($path->xy_to_n_list ($x, $y)) {
+          if ($n >= $Nlevel) {
+            print "$n  $x,$y  vert ***\n";
+          }
+        }
+      }
+    }
+
+
+    # outer edges, Nlevel or higher touched
+    my $touch = 0;
+    foreach my $y ($ymax, $ymin) {
+      foreach my $x ($xmin .. $xmax) {
+        foreach my $n ($path->xy_to_n_list ($x, $y)) {
+          if ($n >= $Nlevel) {
+            $touch++;
+          }
+        }
+      }
+    }
+    # inner edges, Nlevel or higher is bad
+    foreach my $x ($xmax, $xmin) {
+      foreach my $y ($ymin .. $ymax) {
+        foreach my $n ($path->xy_to_n_list ($x, $y)) {
+          if ($n >= $Nlevel) {
+            $touch++;
+          }
+        }
+      }
+    }
+    my $diff_touch = ($touch == 0 ? '  ***' : '');
+    print "  touch $touch$diff_touch\n";
+  }
+
+  exit 0;
+
+  sub calc_Louter {
+    my ($k) = @_;
+    # Louter = 2^k - abs(Lmin)
+    #        = 2^k - (2^k - 1 - (k&1))/3
+    #        = (3*2^k - (2^k - 1 - (k&1)))/3
+    #        = (3*2^k - 2^k + 1 + (k&1))/3
+    #        = (2*2^k + 1 + (k&1))/3
+    return (2*2**$k + 1 + ($k&1)) / 3;
+
+    # return 2**$k + calc_Lmin($k);
+  }
+  sub calc_Wouter {
+    my ($k) = @_;
+    # Wouter = 2^k - Wmax
+    #        = 2^k - (2*2^k - 2 + (k&1)) / 3
+    #        = (3*2^k - (2*2^k - 2 + (k&1))) / 3
+    #        = (3*2^k - 2*2^k + 2 - (k&1)) / 3
+    #        = (2^k + 2 - (k&1)) / 3
+    return (2**$k + 2 - ($k&1)) / 3;
+
+    # return 2**$k - calc_Wmax($k);
+  }
+
+
+
+  sub calc_Lmax {
+    my ($k) = @_;
+    #     Lmax = (7*2^k - 4)/6 if k even
+    #            (7*2^k - 2)/6 if k odd
+    if ($k & 1) {
+      return (7*2**$k - 2) / 6;
+    } else {
+      return (7*2**$k - 4) / 6;
+    }
+  }
+  sub calc_Lmin {
+    my ($k) = @_;
+    #     Lmin = - (2^k - 1)/3 if k even
+    #            - (2^k - 2)/3 if k odd
+    #          = - (2^k - 2 - (k&1))/3
+    if ($k & 1) {
+      return - (2**$k - 2) / 3;
+    } else {
+      return - (2**$k - 1) / 3;
+    }
+  }
+  sub calc_Wmax {
+    my ($k) = @_;
+    #     Wmax = (2*2^k - 1) / 3 if k odd
+    #            (2*2^k - 2) / 3 if k even
+    #          = (2*2^k - 2 + (k&1)) / 3
+    if ($k & 1) {
+      return (2*2**$k - 1) / 3;
+    } else {
+      return (2*2**$k - 2) / 3;
+    }
+  }
+  sub calc_Wmin {
+    my ($k) = @_;
+    return calc_Lmin($k);
+  }
+}
+
+{
+  # inner Wmin/Wmax
+
+  foreach my $k (0 .. 10) {
+    my $wmax = calc_Wmax($k);
+    my $wmin = calc_Wmin($k);
+    my $submax = 2**$k - $wmax;
+    my $submin = 2**$k + $wmin;
+    printf "%2d %4d %4d   %4d %4d\n",
+      $k, abs($wmin), $wmax, $submax, $submin;
+
+    # printf "%2d %8b %8b   %8b %8b\n",
+    #   $k, abs($wmin), $wmax, $submax, $submin;
+  }
+  exit 0;    
+}
+
+
+{
+  # upwards
+  #                  9----8    5---4
+  #                  |    |    |   |
+  #                 10--11,7---6   3---2
+  #                       |            |
+  #            16   13---12        0---1
+  #             |    |
+  #            15---14
+  #
+  #
+  #
+  #                       8----->  4
+  #                       |        ^
+  #                       |        |
+  #            16----->   v        |
+  #
+  #
+  #
+  # 2*(4^2-1)/3 = 10 0b1010
+  # 4*(4^2-1)/3 = 20 0b10100
+  #
+  # (2^3+1)/3
+  # (2^4-1)/3
+  # (2^5-2)/3 = 10
+  # (2^6-4)/3 = 20
+  # (2^7-2)/3 = 42 = 101010
+  # (2^8-4)/3 = 84 = 1010100
+  #
+  # # new xmax = xmax or ymax
+  # # new xmin = ymin-4
+  # # new ymax = ymax or -ymin or 2-xmin
+  # # new ymin = ymin or -ymax or -xmax
+  #
+  #                  16
+  #                   |
+  #                   |
+  #                   v
+  #       xmin seg 2  <---8
+  #                       |
+  #                       |
+  #                       v
+  #                   --->4   xmax seg0
+  #
+  #               ymin seg 0
+  #
+  # new xmax = len + -xmin
+  #          = len + -ymin
+  # new xmin = - xmax
+  # new ymax = 2len + (-ymin)   only candidate
+  # new ymin = -(ymax-len)
+  #
+  # xmax,xmin alternate
+  # ymax-len,ymin alternate
+
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $len = 1;
+  my $exp = 8;
+  for (0 .. $exp) {
+    printf "%2d %-10s %-10s = %-10s | %-10s %-10s = %-10s\n",
+      $_,
+        to_bin($xmin),to_bin($xmax),  to_bin(-$xmin+$xmax),
+            to_bin($ymin),to_bin($ymax),  to_bin(-$ymin+$ymax);
+
+    my @xmax_candidates = ($ymax,      # seg 0 across
+                           $len-$xmin, # seg 1 side    <---
+                           $len-$ymin, # seg 2 before  <---
+                          );
+    my $xmax_seg = max_index(@xmax_candidates);
+    my $xmax_candstr = join(',',@xmax_candidates);
+
+    my @xmin_candidates = ($ymin,         # seg 0 before
+                           -($ymax-$len), # seg 2 across
+                           -$xmax,        # seg 3 side  <---
+                          );
+    my $xmin_seg = min_index(@xmin_candidates);
+    my $xmin_candstr = join(',',@xmin_candidates);
+
+    my @ymin_candidates = (-$xmax,          # seg 0 side  <---
+                           -($ymax-$len));  # seg 1 extend
+    my $ymin_seg = min_index(@ymin_candidates);
+    my $ymin_candstr = join(',',@ymin_candidates);
+    print "$_  xmax ${xmax_seg}of$xmax_candstr xmin ${xmin_seg}of$xmin_candstr ymin ${ymin_seg}of$ymin_candstr\n";
+
+    ($xmax,$xmin, $ymax,$ymin)
+      = (
+         # xmax
+         max ($ymax,      # seg 0 across
+              $len-$xmin, # seg 1 side
+              $len-$ymin, # seg 2 before
+             ),
+
+         # xmin
+         min ($ymin,       # seg 0 before
+              $len-$ymax,  # seg 2 across
+              -$xmax,      # seg 3 side
+             ),
+
+         # ymax
+         2*$len-$ymin,    # seg 3 before
+
+         # ymin
+         min(-$xmax,           # seg 0 side
+             -($ymax-$len)));  # seg 1 extend
+
+    ### assert: $xmin <= 0
+    ### assert: $ymin <= 0
+    ### assert: $xmax >= 0
+    ### assert: $ymax >= 0
+
+    $len *= 2;
+  }
+  print 3*$xmin/$len+.001," / 3\n";
+  print 6*$xmax/$len+.001," / 6\n";
+  print 3*$ymin/$len+.001," / 3\n";
+  print 3*$ymax/$len+.001," / 3\n";
+  exit 0;
+
+  sub min_index {
+    my $min_value = $_[0];
+    my $ret = 0;
+    foreach my $i (1 .. $#_) {
+      my $next = $_[$i];
+      if ($next == $min_value) {
+        $ret .= ",$i";
+      } elsif ($next < $min_value) {
+        $ret = $i;
+        $min_value = $next;
+      }
+    }
+    return $ret;
+  }
+  sub max_index {
+    ### max_index(): @_
+    my $max_value = $_[0];
+    my $ret = 0;
+    foreach my $i (1 .. $#_) {
+      my $next = $_[$i];
+      ### $next
+      if ($next == $max_value) {
+        ### append ...
+        $ret .= ",$i";
+      } elsif ($next > $max_value) {
+        ### new max ...
+        $ret = $i;
+        $max_value = $next;
+      }
+    }
+    return $ret;
+  }
+}
+
+{
+  # width,height extents
+
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+
+  my @xend = (1);
+  my @yend = (0);
+  my @xmin = (0);
+  my @xmax = (1);
+  my @ymin = (0);
+  my @ymax = (0);
+  extend();
+  sub extend {
+    my $xend = $xend[-1];
+    my $yend = $yend[-1];
+    ($xend,$yend) = ($xend-$yend,  # rotate +45
+                     $xend+$yend);
+    push @xend, $xend;
+    push @yend, $yend;
+    my $xmax = $xmax[-1];
+    my $xmin = $xmin[-1];
+    my $ymax = $ymax[-1];
+    my $ymin = $ymin[-1];
+    ### assert: $xmax >= $xmin
+    ### assert: $ymax >= $ymin
+
+    #    ### at: "end=$xend,$yend   $xmin..$xmax  $ymin..$ymax"
+    push @xmax, max($xmax, $xend + $ymax);
+    push @xmin, min($xmin, $xend + $ymin);
+
+    push @ymax, max($ymax, $yend - $xmin);
+    push @ymin, min($ymin, $yend - $xmax);
+  }
+
+  my $level = 0;
+  my $n_level = 1;
+  my $n = 0;
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $prev_r = 1;
+  for (;;) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $xmin = min($xmin,$x);
+    $xmax = max($xmax,$x);
+    $ymin = min($ymin,$y);
+    $ymax = max($ymax,$y);
+    if ($n == $n_level) {
+      my $width = $xmax - $xmin + 1;
+      my $height = $ymax - $ymin + 1;
+      my $r = ($width/2)**2 + ($height/2)**2;
+      my $rf = $r / $prev_r;
+      my $xmin2 = to_bin($xmin);
+      my $ymin2 = to_bin($ymin);
+      my $xmax2 = to_bin($xmax);
+      my $ymax2 = to_bin($ymax);
+      my $xrange= sprintf "%9s..%9s", $xmin2, $xmax2;
+      my $yrange= sprintf "%9s..%9s", $ymin2, $ymax2;
+
+      printf "%2d n=%-7d %19s   %19s    r=%.2f (%.3f)\n",
+        $level, $n, $xrange, $yrange, $r, $rf;
+
+      extend();
+      $xrange="$xmin[$level]..$xmax[$level]";
+      $yrange="$ymin[$level]..$ymax[$level]";
+      # printf "             %9s   %9s\n",
+      #   $xrange, $yrange;
+
+
+      $level++;
+      $n_level *= 2;
+      $prev_r = $r;
+      last if $level > 30;
+
+    }
+    $n++;
+  }
+
+  exit 0;
+
+  sub to_bin {
+    my ($n) = @_;
+    return ($n < 0 ? '-' : '') . sprintf('%b', abs($n));
+  }
+}
 
 
 {
@@ -164,165 +717,7 @@ use Math::PlanePath::KochCurve 42;
   print 3*$ymax/$len+.001," / 3\n";
 }
 
-{
-  # upwards
-  #                  9----8    5---4
-  #                  |    |    |   |
-  #                 10--11,7---6   3---2
-  #                       |            |
-  #            16   13---12        0---1
-  #             |    |
-  #            15---14
-  #
-  #
-  #
-  #                       8----->  4
-  #                       |        ^
-  #                       |        |
-  #            16----->   v        |
-  #
-  #
-  # # new xmax = xmax or ymax
-  # # new xmin = ymin-4
-  # # new ymax = ymax or -ymin or 2-xmin
-  # # new ymin = ymin or -ymax or -xmax
-  #
-  #                  16
-  #                   |
-  #                   |
-  #                   v
-  #                   <---8
-  #                       |
-  #                       |
-  #                       v
-  #                   --->4
-  #
-  # # upwards
-  # # new xmax = ymax or -ymin or L-xmin
-  # # new xmin = ymin or -ymax or -xmax
-  # # new ymax = 2L-ymin
-  # # new ymin = -xmax or -ymax
 
-  my $xmin = 0;
-  my $xmax = 0;
-  my $ymin = 0;
-  my $ymax = 0;
-  my $len = 1;
-  my $exp = 8;
-  for (1 .. $exp) {
-    printf "%2d %-18s %-18s %-18s %-18s\n",
-      $_, to_bin($xmin),to_bin($xmax), to_bin($ymin),to_bin($ymax);
-    ($xmax,$xmin,
-     $ymax,$ymin)
-      =
-        (max($ymax,-$ymin,$len-$xmin),
-         min($ymin,-$ymax,-$xmax),
-         2*$len-$ymin,
-         min(-$xmax,-$ymax));
-    ### assert: $xmin <= 0
-    ### assert: $ymin <= 0
-    ### assert: $xmax >= 0
-    ### assert: $ymax >= 0
-    $len *= 2;
-  }
-  print 3*$xmin/$len+.001," / 3\n";
-  print 6*$xmax/$len+.001," / 6\n";
-  print 3*$ymin/$len+.001," / 3\n";
-  print 3*$ymax/$len+.001," / 3\n";
-  exit 0;
-}
-
-
-
-
-
-{
-  # width,height
-
-  require Math::PlanePath::DragonCurve;
-  my $path = Math::PlanePath::DragonCurve->new;
-
-  my @xend = (1);
-  my @yend = (0);
-  my @xmin = (0);
-  my @xmax = (1);
-  my @ymin = (0);
-  my @ymax = (0);
-  extend();
-  sub extend {
-    my $xend = $xend[-1];
-    my $yend = $yend[-1];
-    ($xend,$yend) = ($xend-$yend,  # rotate +45
-                     $xend+$yend);
-    push @xend, $xend;
-    push @yend, $yend;
-    my $xmax = $xmax[-1];
-    my $xmin = $xmin[-1];
-    my $ymax = $ymax[-1];
-    my $ymin = $ymin[-1];
-    ### assert: $xmax >= $xmin
-    ### assert: $ymax >= $ymin
-
-    #    ### at: "end=$xend,$yend   $xmin..$xmax  $ymin..$ymax"
-    push @xmax, max($xmax, $xend + $ymax);
-    push @xmin, min($xmin, $xend + $ymin);
-
-    push @ymax, max($ymax, $yend - $xmin);
-    push @ymin, min($ymin, $yend - $xmax);
-  }
-
-  my $level = 0;
-  my $n_level = 1;
-  my $n = 0;
-  my $xmin = 0;
-  my $xmax = 0;
-  my $ymin = 0;
-  my $ymax = 0;
-  my $prev_r = 1;
-  for (;;) {
-    my ($x,$y) = $path->n_to_xy($n);
-    $xmin = min($xmin,$x);
-    $xmax = max($xmax,$x);
-    $ymin = min($ymin,$y);
-    $ymax = max($ymax,$y);
-    if ($n == $n_level) {
-      my $width = $xmax - $xmin + 1;
-      my $height = $ymax - $ymin + 1;
-      my $r = ($width/2)**2 + ($height/2)**2;
-      my $rf = $r / $prev_r;
-      my $xmin2 = to_bin($xmin);
-      my $ymin2 = to_bin($ymin);
-      my $xmax2 = to_bin($xmax);
-      my $ymax2 = to_bin($ymax);
-      my $xrange= sprintf "%9s..%9s", $xmin2, $xmax2;
-      my $yrange= sprintf "%9s..%9s", $ymin2, $ymax2;
-
-      printf "%2d n=%-7d %19s   %19s    r=%.2f (%.3f)\n",
-        $level, $n, $xrange, $yrange, $r, $rf;
-
-      extend();
-      $xrange="$xmin[$level]..$xmax[$level]";
-      $yrange="$ymin[$level]..$ymax[$level]";
-      # printf "             %9s   %9s\n",
-      #   $xrange, $yrange;
-
-
-      $level++;
-      $n_level *= 2;
-      $prev_r = $r;
-      last if $level > 30;
-
-    }
-    $n++;
-  }
-
-  exit 0;
-
-  sub to_bin {
-    my ($n) = @_;
-    return ($n < 0 ? '-' : '') . sprintf('%b', abs($n));
-  }
-}
 
 
 {

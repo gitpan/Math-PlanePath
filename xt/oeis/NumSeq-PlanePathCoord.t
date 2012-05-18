@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 1039)[1];
+my $test_count = (tests => 1045)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -373,6 +373,23 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'ImaginaryHalf',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=4',
+               'ImaginaryHalf,radix=5',
+               'ImaginaryHalf,radix=6',
+               'ImaginaryHalf,radix=37',
+
+               'ImaginaryBase',
+               'ImaginaryBase,radix=3',
+               'ImaginaryBase,radix=4',
+               'ImaginaryBase,radix=5',
+               'ImaginaryBase,radix=6',
+               'ImaginaryBase,radix=37',
+
+               'QuadricCurve',
+               'QuadricIslands',
+
                'GrayCode,apply_type=TsF',
                'GrayCode,apply_type=FsT',
                'GrayCode,apply_type=Ts',
@@ -486,13 +503,6 @@ my @modules = (
                'SacksSpiral',
                'TheodorusSpiral',
                'ArchimedeanChords',
-
-               'ImaginaryBase',
-               'ImaginaryBase,radix=3',
-               'ImaginaryBase,radix=4',
-               'ImaginaryBase,radix=5',
-               'ImaginaryBase,radix=6',
-               'ImaginaryBase,radix=37',
 
                'MultipleRings,step=0',
                'MultipleRings,step=1',
@@ -745,8 +755,6 @@ my @modules = (
                'SierpinskiTriangle',
                'SierpinskiArrowhead',
                'SierpinskiArrowheadCentres',
-               'QuadricCurve',
-               'QuadricIslands',
 
                'DragonRounded',
                'DragonRounded,arms=2',
@@ -809,15 +817,16 @@ my @modules = (
 
         my $count = 0;
         my $i_limit = 800;
-        if ($mod =~ /Vogel|Theod|Archim/ && $param =~ /axis|diagonal/i) {
+        if ($mod =~ /Vogel|Theod|Archim/
+            && $param =~ /axis|[XY]_neg|diagonal/i) {
           $i_limit = 20;
         }
         if ($mod =~ /Hypot|PixelRings|FilledRings/
-            && $param =~ /axis|diagonal/i) {
+            && $param =~ /axis|[XY]_neg|diagonal/i) {
           $i_limit = 50;
         }
         if ($mod =~ /CellularRule/
-            && $param =~ /axis|diagonal/i) {
+            && $param =~ /axis|[XY]_neg|diagonal/i) {
           $i_limit = 80;
         }
         ### $i_limit
@@ -865,6 +874,7 @@ my @modules = (
           }
           $prev_value = $value;
         }
+        ### $count
         next if $count == 0;
 
         ### $saw_values_min
@@ -1303,7 +1313,19 @@ my @modules = (
             )
             && ($param eq 'X_axis'
                 || $param eq 'Y_axis'
+                || $param eq 'X_neg'
+                || $param eq 'Y_neg'
                 || $param eq 'Diagonal'
+               )) {
+          $saw_increasing = 0;
+          $saw_non_decreasing = 0;
+        }
+
+        # not enough values to see these decreasing
+        if (($mod eq 'ImaginaryHalf,radix=37'
+            )
+            && ($param eq 'Diagonal'
+                || $param eq 'Y'
                )) {
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
@@ -1349,12 +1371,12 @@ my @modules = (
           $saw_non_decreasing = 0;
         }
 
-        if ($increasing ne $saw_increasing) {
+        if ($count > 1 && $increasing ne $saw_increasing) {
           MyTestHelpers::diag ("$mod $param increasing=$increasing vs saw_increasing=$saw_increasing at $saw_increasing_at");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
-        if ($non_decreasing ne $saw_non_decreasing) {
+        if ($count > 1 && $non_decreasing ne $saw_non_decreasing) {
           MyTestHelpers::diag ("$mod $param non_decreasing=$non_decreasing vs saw_non_decreasing=$saw_non_decreasing at $saw_non_decreasing_at");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;

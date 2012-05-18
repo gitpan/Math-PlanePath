@@ -18,9 +18,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# cf A062410 - sum of numbers in previous row
-
-
 use 5.004;
 use strict;
 use Test;

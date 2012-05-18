@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -41,6 +41,7 @@ use constant parameter_info_array =>
       type    => 'filename',
       width   => 40,
       default => '',
+      description => 'File name to read.',
     } ];
 
 sub n_to_xy {

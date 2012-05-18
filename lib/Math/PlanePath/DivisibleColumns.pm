@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -423,9 +423,14 @@ have been worked out then they're used, otherwise this formula.
 This pattern is in Sloane's Online Encyclopedia of Integer Sequences in the
 following forms,
 
-    http://oeis.org/A006218  (etc)
+    http://oeis.org/A061017  (etc)
 
-    A006218    cumulative count of divisors, being N on Y=1 row
+    A061017    X coord, each n appears countdivisors(n) times
+    A027750    Y coord, list divisors of successive n
+
+    A027751    Y coord divisor_type=proper, divisors of successive n
+
+    A006218    N on Y=1 row, cumulative count of divisors
 
 =head1 SEE ALSO
 

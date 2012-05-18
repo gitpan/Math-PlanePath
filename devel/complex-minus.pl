@@ -21,11 +21,255 @@ use 5.006;
 use strict;
 use warnings;
 use POSIX;
+use List::Util 'min', 'max';
 use Math::PlanePath::ComplexMinus;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+
+{
+  # min/max for level
+  $|=1;
+  my $realpart = 2;
+  my $norm = $realpart**2 + 1;
+  my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
+  my $prev_min = 1;
+  my $prev_max = 1;
+  for (my $level = 1; $level < 25; $level++) {
+    my $n_start = $norm**($level-1);
+    my $n_end = $norm**$level;
+
+    my $min_hypot = POSIX::DBL_MAX();
+    my $min_x = 0;
+    my $min_y = 0;
+    my $min_pos = '';
+
+    my $max_hypot = 0;
+    my $max_x = 0;
+    my $max_y = 0;
+    my $max_pos = '';
+
+    print "level $level  n=$n_start .. $n_end\n";
+
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $h = $x*$x + $y*$y;
+
+      if ($h < $min_hypot) {
+        $min_hypot = $h;
+        $min_pos = "$x,$y";
+      }
+      if ($h > $max_hypot) {
+        $max_hypot = $h;
+        $max_pos = "$x,$y";
+      }
+    }
+    # print "$min_hypot,";
+
+    # print "  min $min_hypot   at $min_x,$min_y\n";
+    # print "  max $max_hypot   at $max_x,$max_y\n";
+    {
+      my $factor = $min_hypot / $prev_min;
+      print "  min r^2 $min_hypot 0b".sprintf('%b',$min_hypot)."   at $min_pos  factor $factor\n";
+      print "  cf formula ", 2**($level-7), "\n";
+    }
+    # {
+    #   my $factor = $max_hypot / $prev_max;
+    #   print "  max r^2 $max_hypot 0b".sprintf('%b',$max_hypot)."   at $max_pos  factor $factor\n";
+    # }
+    $prev_min = $min_hypot;
+    $prev_max = $max_hypot;
+  }
+  exit 0;
+}
+
+{
+  # covered inner rect
+  # depends on which coord extended first
+  require Math::BaseCnv;
+  $|=1;
+  my $realpart = 1;
+  my $norm = $realpart**2 + 1;
+  my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
+  my %seen;
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  for (my $level = 1; $level < 25; $level++) {
+    my $n_start = $norm**($level-1);
+    my $n_end = $norm**$level - 1;
+
+    foreach my $n ($n_start .. $n_end) {
+      my ($x,$y) = $path->n_to_xy($n);
+      $seen{"$x,$y"} = 1;
+      $xmin = min ($xmin, $x);
+      $xmax = max ($xmax, $x);
+      $ymin = min ($ymin, $y);
+      $ymax = max ($ymax, $y);
+    }
+    my $x1 = 0;
+    my $y1 = 0;
+    my $x2 = 0;
+    my $y2 = 0;
+    for (;;) {
+      my $more = 0;
+      {
+        my $x = $x1-1;
+        my $good = 1;
+        foreach my $y ($y1 .. $y2) {
+          if (! $seen{"$x,$y"}) {
+            $good = 0;
+            last;
+          }
+        }
+        if ($good) {
+          $more = 1;
+          $x1 = $x;
+        }
+      }
+      {
+        my $x = $x2+1;
+        my $good = 1;
+        foreach my $y ($y1 .. $y2) {
+          if (! $seen{"$x,$y"}) {
+            $good = 0;
+            last;
+          }
+        }
+        if ($good) {
+          $more = 1;
+          $x2 = $x;
+        }
+      }
+      {
+        my $y = $y1-1;
+        my $good = 1;
+        foreach my $x ($x1 .. $x2) {
+          if (! $seen{"$x,$y"}) {
+            $good = 0;
+            last;
+          }
+        }
+        if ($good) {
+          $more = 1;
+          $y1 = $y;
+        }
+      }
+      {
+        my $y = $y2+1;
+        my $good = 1;
+        foreach my $x ($x1 .. $x2) {
+          if (! $seen{"$x,$y"}) {
+            $good = 0;
+            last;
+          }
+        }
+        if ($good) {
+          $more = 1;
+          $y2 = $y;
+        }
+      }
+      last if ! $more;
+    }
+    printf "%2d  %10s %10s   %10s %10s\n",
+      $level,
+        Math::BaseCnv::cnv($x1,10,2),
+            Math::BaseCnv::cnv($x2,10,2),
+                Math::BaseCnv::cnv($y1,10,2),
+                    Math::BaseCnv::cnv($y2,10,2);
+  }
+  exit 0;
+}
+
+{
+  # n=2^k bits
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::ComplexMinus->new;
+  foreach my $i (0 .. 16) {
+    my $n = 2**$i;
+    my ($x,$y) = $path->n_to_xy($n);
+    my $x2 = Math::BaseCnv::cnv($x,10,2);
+    my $y2 = Math::BaseCnv::cnv($y,10,2);
+    printf "%#7X %12s %12s\n", $n, $x2, $y2;
+  }
+  print "\n";
+
+  # X axis bits
+  require Math::BaseCnv;
+  foreach my $x (0 .. 400) {
+    my $n = $path->xy_to_n($x,0);
+    my $w = int(log($n||1)/log(2)) + 2;
+    my $n2 = Math::BaseCnv::cnv($n,10,2);
+    print "x=$x n=$n = $n2\n";
+    for (my $bit = 1; $bit <= $n; $bit <<= 1) {
+      if ($n & $bit) {
+        my ($x,$y) = $path->n_to_xy($bit);
+        my $x2 = Math::BaseCnv::cnv($x,10,2);
+        my $y2 = Math::BaseCnv::cnv($y,10,2);
+        printf "  %#*X %*s %*s\n", $w, $bit, $w, $x2, $w, $y2;
+      }
+    }
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  # X axis generating
+  # hex  1 any                X=0x1 or -1
+  #      2 never
+  #      C bits 4,8 together  X=0x2 or -2
+  my @ns = (0, 1, 0xC, 0xD);
+  my @xseen;
+  foreach my $pos (1 .. 5) {
+    push @ns, map {16*$_+0, 16*$_+1, 16*$_+0xC, 16*$_+0xD} @ns;
+  }
+  my $path = Math::PlanePath::ComplexMinus->new;
+  require Set::IntSpan::Fast;
+  my $set = Set::IntSpan::Fast->new;
+  foreach my $n (@ns) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $y == 0 or die "n=$n x=$x y=$y";
+    $set->add($x);
+  }
+  print "ok $#ns\n";
+  print "x span ",$set->as_string,"\n";
+  print "x card ",$set->cardinality,"\n";
+  exit 0;
+}
+
+{
+  # n=2^k bits
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::ComplexMinus->new;
+  foreach my $i (0 .. 20) {
+    my $n = 2**$i;
+    my ($x,$y) = $path->n_to_xy($n);
+    my $x2 = Math::BaseCnv::cnv($x,10,2);
+    my $y2 = Math::BaseCnv::cnv($y,10,2);
+    printf "%6X %20s %11s\n", $n, $x2, $y2;
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  # X axis
+  require Math::BaseCnv;
+  require Math::NumSeq::PlanePathN;
+  my $seq = Math::NumSeq::PlanePathN->new (planepath=> 'ComplexMinus',
+                                           line_type => 'X_axis');
+  foreach my $i (0 .. 150) {
+    my ($i,$value) = $seq->next;
+    my $v2 = Math::BaseCnv::cnv($value,10,2);
+    printf "%4d %20s\n", $value, $v2;
+  }
+  print "\n";
+  exit 0;
+}
 
 {
   require Math::NumSeq::PlanePathDelta;
@@ -119,61 +363,6 @@ use Math::PlanePath::ComplexMinus;
   }
 }
 
-{
-  # min/max for level
-  $|=1;
-  my $realpart = 2;
-  my $norm = $realpart**2 + 1;
-  my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
-  my $prev_min = 1;
-  my $prev_max = 1;
-  for (my $level = 1; $level < 25; $level++) {
-    my $n_start = $norm**($level-1);
-    my $n_end = $norm**$level;
-
-    my $min_hypot = POSIX::DBL_MAX();
-    my $min_x = 0;
-    my $min_y = 0;
-    my $min_pos = '';
-
-    my $max_hypot = 0;
-    my $max_x = 0;
-    my $max_y = 0;
-    my $max_pos = '';
-
-    print "level $level  n=$n_start .. $n_end\n";
-
-    foreach my $n ($n_start .. $n_end) {
-      my ($x,$y) = $path->n_to_xy($n);
-      my $h = $x*$x + $y*$y;
-
-      if ($h < $min_hypot) {
-        $min_hypot = $h;
-        $min_pos = "$x,$y";
-      }
-      if ($h > $max_hypot) {
-        $max_hypot = $h;
-        $max_pos = "$x,$y";
-      }
-    }
-    # print "$min_hypot,";
-
-    # print "  min $min_hypot   at $min_x,$min_y\n";
-    # print "  max $max_hypot   at $max_x,$max_y\n";
-    {
-      my $factor = $min_hypot / $prev_min;
-      print "  min r^2 $min_hypot 0b".sprintf('%b',$min_hypot)."   at $min_pos  factor $factor\n";
-      print "  cf formula ", 2**($level-7), "\n";
-    }
-    # {
-    #   my $factor = $max_hypot / $prev_max;
-    #   print "  max r^2 $max_hypot 0b".sprintf('%b',$max_hypot)."   at $max_pos  factor $factor\n";
-    # }
-    $prev_min = $min_hypot;
-    $prev_max = $max_hypot;
-  }
-  exit 0;
-}
 
 {
   require Math::PlanePath::ComplexPlus;

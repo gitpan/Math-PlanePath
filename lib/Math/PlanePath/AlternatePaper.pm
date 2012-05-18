@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -104,7 +104,7 @@ sub n_to_xy {
   my $rev = 0;
   my $x = $zero;
   my $y = $zero;
-  while (defined (my $digit = pop @digits)) {
+  while (defined (my $digit = pop @digits)) {   # high to low digits
     {
       my $sx = pop @sx;
       my $sy = pop @sy;

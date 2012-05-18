@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 275)[1];
+my $test_count = (tests => 280)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -115,6 +115,27 @@ ok (Math::PlanePath::_floor(Math::BigRat->new('3/2')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('7/4')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
 
+
+#------------------------------------------------------------------------------
+# MultipleRings
+
+{
+  require Math::PlanePath::MultipleRings;
+  my $width = 5;
+  my $path = Math::PlanePath::MultipleRings->new (step => 6);
+
+  {
+    my $n = Math::BigRat->new(23);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok (!! (ref $got_x && $got_x->isa('Math::BigFloat')), 1);
+    ok ($got_x > 0 && $got_x < 1,
+        1,
+       "MultipleRings n_to_xy($n) got_x $got_x");
+    ok ($got_y > 2.5 && $got_y < 3.1,
+        1,
+       "MultipleRings n_to_xy($n) got_y $got_y");
+  }
+}
 
 #------------------------------------------------------------------------------
 # CoprimeColumns
@@ -369,6 +390,9 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'ImaginaryHalf',
+               'ImaginaryBase',
+
                'GrayCode',
 
                'WunderlichSerpentine',
@@ -506,7 +530,6 @@ my @modules = (
                'ComplexPlus',
                'ComplexMinus',
                'ComplexRevolving',
-               'ImaginaryBase',
                
                # 'File',  # not applicable
                'Diagonals',

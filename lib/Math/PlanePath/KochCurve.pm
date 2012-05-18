@@ -30,6 +30,9 @@
 # italiana e col contributo del Consiglio nazionale delle ricerche, Vol. 2:
 # Geometria, analisi, fisica matematica. Rome: Edizioni Cremonese,
 # pp. 464-479, 1964.
+#
+# Thue-Morse count 1s mod 2 is net direction
+# Toeplitz first diffs is turn sequence +1 or -1
 
 
 package Math::PlanePath::KochCurve;
@@ -37,13 +40,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 
 use constant n_start => 0;
@@ -68,11 +72,8 @@ sub n_to_xy {
   }
 
   my $len = $y+1;  # inherit bignum 1
-  while ($n) {
-    my $digit = $n % 4;
-    $n = int($n/4);
-    ### at: "$x,$y"
-    ### $digit
+  foreach my $digit (_digit_split_lowtohigh($n,4)) {
+    ### at: "$x,$y  digit=$digit"
 
     if ($digit == 0) {
 
@@ -159,7 +160,7 @@ sub xy_to_n {
 # rot=0,180 is box Ymax=len Xmax=6*len
 # rot=60,120 is square to endpoint X=Y=3*len, triangle upper or lower
 #
-# not exact
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
@@ -176,10 +177,25 @@ sub rect_to_n_range {
     return (1,0);
   }
 
+  #        \
+  #          \
+  #       *    \
+  #      / \     \
+  # o-+-*   *-+-e  \
+  # 0     3     6
+  #
+  # 3*Y+X/2 - (Y!=0)
+  #
+  #                  /
+  #             *-+-*
+  #              \
+  #       *       *
+  #      / \     /
+  # o-+-*   *-+-* 
+  # 0     3     6   X/2
+  #
   my ($len, $level) = _round_down_pow ($x2/2, 3);
   return _rect_to_n_range_rot ($len, $level, 0, $x1,$y1, $x2,$y2);
-
-
 
 
 
@@ -188,10 +204,6 @@ sub rect_to_n_range {
   # return (0, 4**($level+1)-1);
 }
 
-
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 my @rot_to_dx = (2,1,-1,-2,-1,1);
 my @rot_to_dy = (0,1,1,0,-1,-1);
@@ -390,7 +402,75 @@ sub _digit_join_htol {
   return $n;
 }
 
-# no Smart::Comments;
+
+
+# integer only, not documented
+
+my @digit_to_dir = (0, 1, -1, 0);
+sub _n_to_TDir6 {
+  my ($self, $n) = @_;
+  my $digits = _digit_split_lowtohigharef($n,4) || return undef;
+  my $dir = 0;
+  foreach my $digit (@$digits) {
+    $dir += $digit_to_dir[$digit];
+  }
+  return ($dir % 6);
+}
+
+my @dir_to_dx = (2, 1, -1, -2, -1, 1);
+my @dir_to_dy = (0, 1, 1, 0, -1, -1, 0);
+sub _n_to_dxdy {
+  my ($self, $n) = @_;
+  my $dir = $self->_n_to_TDir6($n);
+  return ($dir_to_dx[$dir], $dir_to_dy[$dir]);
+}
+
+my @digit_to_Turn6 = (undef,
+                      1,  # +60 degrees
+                      -2, # -120 degrees
+                      1); # +60 degrees
+sub _n_to_Turn6 {
+  my ($self, $n) = @_;
+  if (_is_infinite($n)) {
+    return undef;
+  }
+  while ($n) {
+    if (my $digit = ($n % 4)) {
+      return $digit_to_Turn6[$digit];
+    }
+    $n = int($n/4);
+  }
+}
+sub _n_to_LSR {
+  my ($self, $n) = @_;
+  my $turn6 = $self->_n_to_Turn6($n) || return undef;
+  return ($turn6 > 0 ? 1 : -1);
+}
+sub _n_to_Left {
+  my ($self, $n) = @_;
+  my $turn6 = $self->_n_to_Turn6($n) || return undef;
+  return ($turn6 > 0 ? 1 : 0);
+}
+sub _n_to_Right {
+  my ($self, $n) = @_;
+  my $turn6 = $self->_n_to_Turn6($n) || return undef;
+  return ($turn6 < 0 ? 1 : 0);
+}
+
+sub _digit_split_lowtohigharef {
+  my ($n, $radix) = @_;
+  ### _digit_split(): $n
+  my @ret;
+  unless (_is_infinite($n)) {
+    while ($n) {
+      push @ret, $n % $radix;
+      $n = int($n/$radix);
+    }
+  }
+  return \@ret;   # array[0] low digit
+}
+
+
 
 #------------------------------------------------------------------------------
 # generic, shared
@@ -466,7 +546,7 @@ Math::PlanePath::KochCurve -- horizontal Koch curve
 
 =head1 DESCRIPTION
 
-X<von Koch, Helge>
+X<Koch, Helge von>
 This is an integer version of the self-similar curve by Helge von Koch going
 along the X axis and making triangular excursions upwards.
 
@@ -561,6 +641,11 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
 
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
+
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
@@ -605,11 +690,6 @@ a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
 direction 0 to 5 or as desired.
 
-=cut
-
-# Thue-Morse count 1s mod 2 is net direction
-# Toeplitz first diffs is turn sequence +1 or -1
-
 =head1 OEIS
 
 The Koch curve is in Sloane's Online Encyclopedia of Integer Sequences in
@@ -617,13 +697,13 @@ various forms,
 
     http://oeis.org/A035263  (etc)
 
-    A035263 -- morphism, is turn 1=left,0=right
-    A096268 -- morphism, is turn 0=left,1=right
-    A029883 -- Thue-Morse first differences, turn +/-1=left, 0=right
-    A089045 -- +/- something, is turn +/-1=left, 0=right
+    A035263 -- turn 1=left,0=right, by morphism
+    A096268 -- turn 0=left,1=right, by morphism
+    A029883 -- turn +/-1=left,0=right, Thue-Morse first differences
+    A089045 -- turn +/-1=left,0=right, by +/- something
 
-    A003159 -- N ending even number 0 bits, positions of left turns
-    A036554 -- N ending odd number 0 bits, positions of right turns
+    A003159 -- N positions of left turns, ending even number 0 bits
+    A036554 -- N positions of right turns, ending odd number 0 bits
 
 =head1 SEE ALSO
 

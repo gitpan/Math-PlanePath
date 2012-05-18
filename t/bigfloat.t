@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use MyTestHelpers;
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-my $test_count = (tests => 52)[1];
+my $test_count = (tests => 55)[1];
 plan tests => $test_count;
 
 require Math::BigFloat;
@@ -124,6 +124,25 @@ ok (Math::PlanePath::_floor(Math::BigFloat->new('1.25')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigFloat->new('1.5'))  == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigFloat->new('1.75')) == 1,  1);
 ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
+
+#------------------------------------------------------------------------------
+# MultipleRings
+
+{
+  require Math::PlanePath::MultipleRings;
+  my $width = 5;
+  my $path = Math::PlanePath::MultipleRings->new (step => 6);
+
+  {
+    my $n = Math::BigFloat->new(4);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok (!! (ref $got_x && $got_x->isa('Math::BigFloat')), 1);
+    ok ($got_x >= -1.01 && $got_x <= -0.99,
+        1,
+       "MultipleRings n_to_xy($n) got_x $got_x");
+    ok ($got_y == 0, 1);
+  }
+}
 
 #------------------------------------------------------------------------------
 # Rows

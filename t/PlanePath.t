@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 22 }
+BEGIN { plan tests => 24 }
 
 use lib 't';
 use MyTestHelpers;
@@ -100,6 +100,14 @@ ok (Math::PlanePath::_floor(1.25), 1);
 ok (Math::PlanePath::_floor(1.5),  1);
 ok (Math::PlanePath::_floor(1.75), 1);
 ok (Math::PlanePath::_floor(2),    2);
+
+
+#------------------------------------------------------------------------------
+# _digit_split_lowtohigh()
+
+ok (join(',',Math::PlanePath::_digit_split_lowtohigh(0,2)), '');
+ok (join(',',Math::PlanePath::_digit_split_lowtohigh(13,2)), '1,0,1,1');
+
 
 #------------------------------------------------------------------------------
 exit 0;

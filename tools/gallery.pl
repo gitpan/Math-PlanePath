@@ -45,6 +45,22 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['imaginaryhalf-small.png',
+    'math-image --path=ImaginaryHalf --lines --scale=7 --size=32'],
+   ['imaginaryhalf-big.png',
+    'math-image --path=ImaginaryHalf --lines --scale=18 --size=200'],
+   ['imaginaryhalf-radix5-big.png',
+    'math-image --path=ImaginaryHalf,radix=5 --lines --scale=18 --size=200'],
+
+
+   ['imaginarybase-small.png',
+    'math-image --path=ImaginaryBase --lines --scale=7 --size=32'],
+   ['imaginarybase-big.png',
+    'math-image --path=ImaginaryBase --lines --scale=18 --size=200'],
+   ['imaginarybase-radix5-big.png',
+    'math-image --path=ImaginaryBase,radix=5 --lines --scale=18 --size=200'],
+
+
    ['gray-code-small.png',
     'math-image --path=GrayCode --lines --scale=6 --size=32'],
    ['gray-code-big.png',
@@ -502,13 +518,6 @@ foreach my $elem
     'math-image --path=SquareReplicate --lines --scale=4 --size=32'],
    ['square-replicate-big.png',
     'math-image --path=SquareReplicate --lines --scale=10 --size=215'],
-
-   ['imaginarybase-small.png',
-    'math-image --path=ImaginaryBase --lines --scale=6 --size=32'],
-   ['imaginarybase-big.png',
-    'math-image --path=ImaginaryBase --lines --scale=16 --size=200'],
-   ['imaginarybase-radix5-big.png',
-    'math-image --path=ImaginaryBase,radix=5 --lines --scale=16 --size=200'],
 
 
    ['gosper-replicate-small.png',  # 7^2-1=48

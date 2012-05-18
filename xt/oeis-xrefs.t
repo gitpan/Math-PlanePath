@@ -19,12 +19,12 @@
 
 
 # Check that OEIS A-numbers listed in lib/Math/PlanePath/Foo.pm files have
-# checking code exercising them in one of the xt/*-oeis.t scripts.
+# checking code exercising them in one of the xt/oeis/*-oeis.t scripts.
 #
 # And check that A-numbers are not duplicated among the .pm files, since
 # that's often a cut-and-paste mistake.
 #
-# And check that A-numbers are not duplicated among xt/*-oeis.t scripts,
+# And check that A-numbers are not duplicated among xt/oeis/*-oeis.t scripts,
 # since normally only need to exercise a claimed path sequence once.
 #
 
@@ -134,77 +134,82 @@ my @xt_filenames
 diag "xt count ",scalar(@xt_filenames);
 
 my %allow_duplicate_checks
-  = (A053615 => { 'xt/SquareSpiral-oeis.t' => 1,
-                  'xt/PyramidSpiral-oeis.t' => 1,
+  = (A053615 => { 'SquareSpiral-oeis.t' => 1,
+                  'PyramidSpiral-oeis.t' => 1,
                 },
 
-     A020650 => { 'xt/FractionsTree-oeis.t' => 1,
-                  'xt/RationalsTree-oeis.t' => 1,
+     A020650 => { 'FractionsTree-oeis.t' => 1,
+                  'RationalsTree-oeis.t' => 1,
                 },
-     A020651 => { 'xt/FractionsTree-oeis.t' => 1,
-                  'xt/RationalsTree-oeis.t' => 1,
+     A020651 => { 'FractionsTree-oeis.t' => 1,
+                  'RationalsTree-oeis.t' => 1,
                 },
-     A086592 => { 'xt/FractionsTree-oeis.t' => 1,
-                  'xt/RationalsTree-oeis.t' => 1,
+     A086592 => { 'FractionsTree-oeis.t' => 1,
+                  'RationalsTree-oeis.t' => 1,
                 },
 
      # base 4 digits 0,1
-     A000695 => { 'xt/CornerReplicate-oeis.t' => 1,
-                  'xt/ZOrderCurve-oeis.t'     => 1,
+     A000695 => { 'CornerReplicate-oeis.t' => 1,
+                  'ZOrderCurve-oeis.t'     => 1,
                 },
      # base 4 digits 0,2
-     A062880 => { 'xt/CornerReplicate-oeis.t' => 1,
-                  'xt/HilbertCurve-oeis.t'    => 1,
-                  'xt/ZOrderCurve-oeis.t'     => 1,
+     A062880 => { 'CornerReplicate-oeis.t' => 1,
+                  'HilbertCurve-oeis.t'    => 1,
+                  'ZOrderCurve-oeis.t'     => 1,
                 },
      # base 4 digits 0,3
-     A001196 => { 'xt/CornerReplicate-oeis.t' => 1,
-                  'xt/ZOrderCurve-oeis.t'     => 1,
+     A001196 => { 'CornerReplicate-oeis.t' => 1,
+                  'ZOrderCurve-oeis.t'     => 1,
                 },
 
 
 
-     A060032 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A060032 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A062756 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A062756 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A189640 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A189640 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A189673 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A189673 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A137893 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A137893 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A080846 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A080846 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A060236 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A060236 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A038502 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A038502 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A026225 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A026225 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
-     A026179 => { 'xt/GosperSide-oeis.t' => 1,
-                  'xt/TerdragonCurve-oeis.t' => 1,
+     A026179 => { 'GosperSide-oeis.t' => 1,
+                  'TerdragonCurve-oeis.t' => 1,
                 },
     );
 
-my %oeis_checks;
+my %oeis_checks = (# in PlanePathN
+                   A051022 => 'ZOrderCurve-oeis.t',
+                   A037314 => 'ZOrderCurve-oeis.t',
+                   A084471 => 'DigitGroups-oeis.t',
+                  );
 
 foreach my $xt_filename (@xt_filenames) {
   my $content = File::Slurp::read_file($xt_filename, err_mode => 'croak');
+  my (undef,undef,$xt_base_filename) = File::Spec->splitpath($xt_filename);
 
   while ($content =~ /^[^#]*\$anum = '(A\d{6,7})'/mg) {
     my $anum = $1;
     if (exists $oeis_checks{$anum}) {
-      unless ($allow_duplicate_checks{$anum}->{$xt_filename}) {
+      unless ($allow_duplicate_checks{$anum}->{$xt_base_filename}) {
         diag "$anum duplicate check";
         diag "  in  $oeis_checks{$anum}";
         diag "  and $xt_filename";

@@ -39,7 +39,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -57,11 +57,12 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
-  [ { name       => 'tree_type',
-      share_key  => 'tree_type_rationals',
-      type       => 'enum',
-      choices    => ['SB','CW','AYT','Bird','Drib'],
-      default    => 'SB',
+  [ { name            => 'tree_type',
+      share_key       => 'tree_type_rationals',
+      type            => 'enum',
+      default         => 'SB',
+      choices         => ['SB','CW','AYT','Bird','Drib'],
+      choices_display => ['SB','CW','AYT','Bird','Drib'],
     },
   ];
 

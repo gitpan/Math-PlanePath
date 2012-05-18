@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 992 }
+BEGIN { plan tests => 1003 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,14 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'ImaginaryHalf',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=37',
+
+               'ImaginaryBase',
+               'ImaginaryBase,radix=3',
+               'ImaginaryBase,radix=37',
 
                'KochSnowflakes',
                'KochCurve',
@@ -277,9 +285,6 @@ my @modules = (
                'GosperIslands',
 
                'SquareReplicate',
-               'ImaginaryBase',
-               'ImaginaryBase,radix=3',
-               'ImaginaryBase,radix=37',
 
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowhead',
@@ -353,7 +358,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 73;
+my $want_version = 74;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -446,6 +451,7 @@ my %rect_exact = (
                   'Math::PlanePath::KochelCurve' => 1,
                   'Math::PlanePath::WunderlichMeander' => 1,
                   'Math::PlanePath::File' => 1,
+                  'Math::PlanePath::KochCurve' => 1,
                   # rect_to_n_range exact end
                  );
 my %rect_exact_hi = (%rect_exact,
@@ -964,6 +970,7 @@ sub pythagorean_diag {
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || $path->isa('Math::PlanePath::QuintetCentres')
           || $mod eq 'ImaginaryBase,radix=37'
+          || $mod eq 'ImaginaryHalf,radix=37'
           || $mod eq 'GreekKeySpiral'
           || $mod eq 'ComplexPlus,realpart=2'
           || $mod eq 'ComplexPlus,realpart=3'

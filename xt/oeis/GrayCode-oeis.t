@@ -112,11 +112,11 @@ sub diff_nums {
 {
   my $anum = 'A163234';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
   my $diff;
   if ($bvalues) {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 
+    my @got;
     my $gray_path = Math::PlanePath::GrayCode->new
       (apply_type => 'sF');
     for (my $n = $gray_path->n_start; @got < @$bvalues; $n++) {
@@ -201,7 +201,7 @@ sub diff_nums {
 
 sub flip_base4_23 {
   my ($n) = @_;
-  my $digits = Math::PlanePath::GrayCode::_digit_split($n,4);
+  my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,4);
   foreach my $digit (@$digits) {
     if ($digit == 2) { $digit = 3; }
     elsif ($digit == 3) { $digit = 2; }

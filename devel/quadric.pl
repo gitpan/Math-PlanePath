@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,6 +20,21 @@
 use 5.010;
 use strict;
 use warnings;
+
+{
+  # QuadricIslands X negative axis N increasing
+  require Math::PlanePath::QuadricIslands;
+  my $path = Math::PlanePath::QuadricIslands->new;
+  my $prev_n = 0;
+  for (my $x = 0; $x > -1000000000; $x--) {
+    my $n = $path->xy_to_n($x,0) // next;
+    if ($n < $prev_n) {
+      print "decrease N at X=$x N=$n prev_N=$prev_n\n";
+    }
+    $prev_n = $n;
+  }
+}
+
 
 {
   # min/max for level

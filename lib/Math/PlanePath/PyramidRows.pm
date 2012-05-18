@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,13 +40,16 @@ sub x_negative {
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 
-use constant parameter_info_array => [{ name      => 'step',
-                                        share_key => 'pyramid_step',
-                                        type      => 'integer',
-                                        minimum   => 0,
-                                        default   => 2,
-                                        width     => 2,
-                                      }];
+use constant parameter_info_array =>
+  [ { name        => 'step',
+      share_key   => 'step_2',
+      display     => 'Step',
+      type        => 'integer',
+      minimum     => 0,
+      default     => 2,
+      width       => 2,
+      description => 'How much longer each row is than the preceding.',
+    } ];
 
 sub new {
   my $class = shift;
@@ -470,6 +473,15 @@ The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
 
 =back
+
+=head1 OEIS
+
+This path is in Sloane's Online Encyclopedia of Integer Sequences as,
+
+    http://oeis.org/A023531  (etc)
+
+    A023531    step=1 dY, being 1 at row end, but starting n=0
+    A010052    step=2 dY, being 1 at perfect square row end
 
 =head1 SEE ALSO
 

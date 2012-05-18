@@ -30,7 +30,7 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -48,13 +48,24 @@ use constant figure => 'circle';
 use constant n_frac_discontinuity => 0;
 
 use constant parameter_info_array =>
-  [{ name      => 'step',
-     share_key => 'rings_step',
-     type      => 'integer',
-     minimum   => 0,
-     default   => 6,
-     width     => 3,
-   }];
+  [{ name        => 'step',
+     share_key   => 'step_6',
+     type        => 'integer',
+     minimum     => 0,
+     default     => 6,
+     width       => 3,
+     description => 'How much longer each ring is than the preceding.',
+   },
+
+   # not working yet ...
+   # { name        => 'ring_shape',
+   #   type        => 'enum',
+   #   default     => 'circle',
+   #   choices     => ['circle','polygon'],
+   #   choices_display => ['Circle','Polygon'],
+   #   description     => 'The shape of each ring, either a circle or a polygon of "step" many sides.',
+   # },
+  ];
 
 
 # Electricity transmission cable in sixes, with one at centre ?
@@ -89,15 +100,23 @@ sub new {
   ### MultipleRings new(): @_
   my $self = $class->SUPER::new (@_);
 
+  my $ring_shape = ($self->{'ring_shape'} ||= 'circle');
+
   my $step = $self->{'step'};
   $step = $self->{'step'} = (! defined $step ? 6  # default
                              : $step < 0     ? 0  # minimum
                              : $step);
 
-  if ($step <= 6) {
-    $self->{'base_r'} = ($step > 1 && 0.5/sin(_PI/$step)) - 1;
-    ### base r: $self->{'base_r'}
+  if ($ring_shape eq 'polygon') {
+    $self->{'base_r'} = 0.5/sin(_PI/$step);
+  } else {
+    if ($step <= 6) {
+      $self->{'base_r'} = ($step == 6 ? 1
+                           : $step > 1 && 0.5/sin(_PI/$step)) - 1;
+    }
   }
+  ### base r: $self->{'base_r'}
+
   return $self;
 }
 
@@ -161,18 +180,41 @@ sub n_to_xy {
   ### assert: $n >= 0
   ### assert: $n < $d*$step
 
-  my $pi = _PI;
   my $base_r = $self->{'base_r'};
+  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+    my $r = ($step >= 6 ? $base_r*$d
+             : $step >= 4 ? $d+$base_r-1
+             : $d+$base_r-1);
+    $n /= $d;
+    my $side = int ($n);
+    $n -= $side;
+
+    my $theta = $side*2*_PI/$step;
+    my $fx = $r * cos($theta);
+    my $fy = $r * sin($theta);
+    $theta = ($side+1)*2*_PI/$step;
+    my $tx = $r * cos($theta);
+    my $ty = $r * sin($theta);
+
+    ### $side
+    ### $r
+    ### from: "$fx, $fy"
+    ### to: "$tx, $ty"
+
+    return ($fx + $n*($tx-$fx),
+            $fy + $n*($ty-$fy));
+  }
+
+  my $pi = _PI;
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {
       $n = Math::PlanePath::SacksSpiral::_bigfloat()->new($n);
-    }
-    if ($n->isa('Math::BigRat')) {
+    } elsif ($n->isa('Math::BigRat')) {
       $n = $n->as_float;
     }
     if ($n->isa('Math::BigFloat')) {
       $d = Math::BigFloat->new($d);
-      $pi = Math::BigFloat->BP;
+      $pi = Math::BigFloat->bpi;
       $base_r = Math::BigFloat->new($base_r);
     }
   }
@@ -240,13 +282,23 @@ sub _xy_to_d {
     return $r;
   }
   ### $r
-  if ((my $step = $self->{'step'}) > 6) {
+
+  my $step = $self->{'step'};
+  if ($self->{'ring_shape'} eq 'polygon' && $step >= 6) {
+    my $step = $self->{'step'};
+    my $a = _xy_to_angle_frac($x,$y);
+    $a -= int($a/$step) * $step;
+    return $r / ($self->{'base_r'} * cos($a*2*_PI));
+  }
+
+  if ($step > 6) {
     ### d frac by asin: _PI / ($step * asin(1/(2*$r)))
     return _PI / ($step * asin(1/(2*$r)));
+  } else {
+    # $step <= 6
+    ### d frac by base: $r - $self->{'base_r'}
+    return $r - $self->{'base_r'};
   }
-  # $step <= 6
-  ### d frac by base: $r - $self->{'base_r'}
-  return $r - $self->{'base_r'};
 }
 
 sub xy_to_n {
@@ -361,9 +413,9 @@ Math::PlanePath::MultipleRings -- rings of multiples
 =head1 DESCRIPTION
 
 This path puts points on concentric rings.  Each ring is "step" many points
-more then the previous, and the first is also "step" so each has a
-successively increasing multiple of that many points.  For example with the
-default step==6,
+more than the previous, and the first is also "step" so a successively
+increasing multiple of that many points.  For example with the default
+step==6,
 
                 24  23
              25        22
@@ -372,7 +424,7 @@ default step==6,
 
         27  12   3  2   8  20  38
 
-       28  13   4    1   7  19  37
+       28  13   4    1   7  19  37        <- Y=0
 
         29  14   5  6  18  36
 
@@ -381,39 +433,46 @@ default step==6,
              31        24
                 32  33
 
+                  ^
+                 X=0
+
 X,Y positions returned are fractional.  The innermost ring like the
 1,2,...,6 above has points 1 unit apart.  Subsequent rings are either packed
 similarly or spread out to ensure the X axis points like 1,7,19,37 above are
-1 unit apart.  The latter happens for step <= 6 and for step >= 7 the rings
+1 unit apart.  The latter happens for step <= 6.  For step >= 7 the rings
 are big enough to separate those X points.
 
 The layout is similar to the spiral paths of corresponding step.  For
-example step==6 is like the HexSpiral, only rounded out to circles instead
-of a hexagonal grid.  Similarly step==4 the DiamondSpiral or step==8 the
+example step=6 is like the HexSpiral, but rounded out to circles instead of
+a hexagonal grid.  Similarly step=4 the DiamondSpiral or step=8 the
 SquareSpiral.
 
 The step parameter is similar to the PyramidRows with the rows stretched
 around circles, though PyramidRows starts from a 1-wide initial row and
 increases by the step, whereas for MultipleRings there's no initial.
 
-The starting radial 1,7,19,37 etc for step==6 is S<6*k*(k-1)/2 + 1> (for k=1
-upwards) and in general it's S<step*k*(k-1)/2 + 1> which is basically a step
-multiple of the triangular numbers.  Straight line radials further around
-have arise from adding multiples of k, so for example for step==6 above the
-line 3,11,25 is S<6*k*(k-1)/2 + 1 + 2*k>.  Multiples of k bigger than the
-step give lines in between those of the innermost ring.
+The starting radial 1,7,19,37 etc on the X axis for step=6 is
+S<6*d*(d-1)/2 + 1>, counting the innermost ring as d=1.  In general it's a
+multiple of the triangular numbers, plus 1,
+
+    Nstart = step*d*(d-1)/2 + 1
+
+Straight line radials further around have arise from adding multiples of d,
+so for example in step=6 shown above the line N=3,11,25,etc is
+S<Nstart + 2*d>.  Multiples of d bigger than the step give lines which are
+in between the base ones extending out from the innermost ring.
 
 =head2 Step 3 Pentagonals
 
-For step==3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are a
+For step=3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are a
 radial going up to the left, and the second pentagonal numbers 2,7,15,26,
 S(k) = (3k+1)*k/2 are a radial going down to the left, respectively 1/3 and
 2/3 the way around the circles.
 
 As described in L<Math::PlanePath::PyramidRows/Step 3 Pentagonals>, those
-numbers and the preceding P(k)-1, P(k)-2, and S(k)-1, S(k)-2 are all
-composites, so plotting the primes on a step==3 MultipleRings has these
-values as two radial gaps where there's no primes.
+P(k) and preceding P(k)-1, P(k)-2, and S(k) and preceding S(k)-1, S(k)-2 are
+all composites, so plotting the primes on a step=3 MultipleRings has two
+radial gaps where there's no primes.
 
 =head1 FUNCTIONS
 
@@ -433,7 +492,7 @@ pass in a desired count.
 
 Return the X,Y coordinates of point number C<$n> on the path.
 
-C<$n> can be any value C<$n E<gt>= 0> and fractions give positions on the
+C<$n> can be any value C<$n E<gt>= 1> and fractions give positions on the
 rings in between the integer points.  For C<$n < 1> the return is an empty
 list since points begin at 1.
 
@@ -452,6 +511,84 @@ also don't cover the plane and if C<$x,$y> is not within one then the return
 is C<undef>.
 
 =back
+
+=head1 FORMULAS
+
+=head2 N to X,Y
+
+The rings are spaced so that each point is at least 1 unit apart.  The
+innermost ring has "step" many points which means the vertices of a polygon
+with "step" many sides of length 1.  The radius for such a polygon is
+
+      base_r     ___---*
+           ___---      |
+     ___--- a          | 1/2 = half the polygon side
+    o------------------+
+
+    a = 2pi/step * 1/2      # for step many sides
+    sin(a) = 1/2 / r
+
+    base_r = 0.5 / sin(pi/step)
+
+Subsequent rings are then either 1 bigger to keep the points on the X axis
+apart, or a similar polygon of d*step many sides to keep the points 1 apart
+sideways.  Reckoning the innermost ring as d=1, the second as d=2, etc, this
+means
+
+    r = max /  base_r + (d-1)
+            \  0.5 / sin(pi/(d*step))
+
+The polygon sin() case is the bigger radius if stepE<gt>6, so
+
+    if step<=6   r = base_r + (d-1)
+    if step>6    r = 0.5 / sin(pi/(d*step))
+
+The angle around the ring is determined by the offset of N from the Nstart
+(described above) for that ring.  d can be found for a given by rounding
+down a square root.  (N-1)/step converts the start into triangular number
+style,
+
+    d = floor (1 + sqrt(8*(N-1)/step + 1)) / 2
+
+Then the remainder into the ring,
+
+    Nrem = N - Nstart
+    angle = 2pi * Nrem / (d*step)
+
+    X = r * cos(angle)
+    Y = r * sin(angle)
+
+For a few cases X or Y are exact integers.  Special case code for these
+cases ensures floating point rounding of pi doesn't give small offsets from
+integers.
+
+If step=6 then base_r=1 exactly, the innermost ring being a little hexagon.
+This means the points on the X axis are integers X=1,2,3,etc.
+
+       *-----*
+      /   1 / \ 1  <-- innermost points 1 apart
+     /     /   \
+    *     *-----*   <--  base_r = 1
+     \      1  /
+      \       /
+       *-----*
+
+If angle=pi, ie. 2*Nrem==d*step, then the point is on the negative X axis.
+Returning Y=0 exactly avoids sin(pi) perhaps being some small non-zero due
+to rounding.
+
+If angle=pi/2 or angle=3pi/2, which is 4*Nrem==d*step or 4*Nrem==3*d*step,
+then the point is on the positive or negative Y axis.  Returning X=0 exactly
+avoids cos(pi/2) or cos(3pi/2) perhaps being some small non-zero.
+
+Points on the negative X axis points occur when the step is even, and points
+on the Y axis points occur when step is a multiple of 4.
+
+If angle=pi/4, 3pi/4, 5pi/4 or 7pi/4, which is 8*Nrem==d*step, 3*d*step,
+5*d*step or 7*d*step then the points are on the 45-degree lines X=Y or X=-Y.
+The current code doesn't try to ensure X==Y in these cases.  The values are
+not integers and the floating point rounding might have
+sin(pi/4)!=cos(pi/4).
 
 =head1 SEE ALSO
 

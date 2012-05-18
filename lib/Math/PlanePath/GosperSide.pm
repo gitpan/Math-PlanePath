@@ -32,12 +32,13 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -109,9 +110,7 @@ sub n_to_xy {
     }
   }
 
-  while ($n) {
-    my $digit = ($n % 3);
-    $n = int($n/3);
+  foreach my $digit (_digit_split_lowtohigh($n,3)) {
     my $xend_offset = 3*($xend-$yend)/2;   # end and end +60
     my $yend_offset = ($xend+3*$yend)/2;
 

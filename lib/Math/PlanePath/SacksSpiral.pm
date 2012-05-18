@@ -23,13 +23,12 @@
 package Math::PlanePath::SacksSpiral;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 use Math::Libm 'hypot';
 use POSIX 'floor';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -66,6 +65,11 @@ use constant::defer _bigfloat => sub {
 
 use constant 1.02; # for leading underscore
 use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
+
+sub n_to_rsquared {
+  my ($path, $n) = @_;
+  return $n;  # exactly RSquared=$n
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -149,18 +153,39 @@ sub xy_to_n {
 # diagonal X=Y.  But the over-estimate is close enough for now.
 # 
 
+# r = hypot(xmin,ymin)
+# Nlo = (r-1/2)^2
+#     = r^2 - r + 1/4
+#     >= x^2+y^2 - (x+y)    because x+y >= r
+#     = x(x-1) + y(y-1)
+#     >= floorx(floorx-1) + floory(floory-1)
+# in integers if round down to x=0 then x*(x-1)=0 too, so not negative
+#
+# r = hypot(xmax,ymax)
+# Nhi = (r+1/2)^2
+#     = r^2 + r + 1/4
+#     <= x^2+y^2 + (x+y) + 1
+#     = x(x+1) + y(y+1) + 1
+#     <= ceilx(ceilx+1) + ceily(ceily+1) + 1
+
+# Note: this code shared by TheodorusSpiral.  If start using the polar angle
+# for more accuracy here then unshare it first.
+#
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+  ($x1,$y1, $x2,$y2) = _rect_to_radius_corners ($x1,$y1, $x2,$y2);
 
-  ($x1,$y1, $x2,$y2) = _rect_to_radius_range_points ($x1,$y1, $x2,$y2);
-  $x2 += 1;
-  $y2 += 1;
-  if ($x1 >= 1) { $x1 -= 1; }
-  if ($y1 >= 1) { $y1 -= 1; }
+  ### $x_min
+  ### $y_min
+  ### N min: $x_min*($x_min-1) + $y_min*($y_min-1)
 
-  return (int($x1*$x1+$y1*$y1),
-          int($x2*$x2+$y2*$y2));
+  ### $x_max
+  ### $y_max
+  ### N max: $x_max*($x_max+1) + $y_max*($y_max+1) + 1
+
+  return ($x1*($x1-1) + $y1*($y1-1),
+          $x2*($x2+1) + $y2*($y2+1) + 1);
 }
 
 #------------------------------------------------------------------------------
@@ -170,41 +195,45 @@ sub rect_to_n_range {
 # Return ($xmin,$ymin, $xmax,$ymax).
 #
 # The two points are respectively minimum and maximum radius from the
-# origin.
+# origin, rounded down or up to integers.
 #
 # If the rectangle is entirely one quadrant then the points are two opposing
-# corners.  But if an axis is crossed then the minimum is on that axis, and
-# if the origin is covered then that's the minimum.
+# corners.  But if an axis is crossed then the minimum is on that axis and
+# if the origin is covered then the minimum is 0,0.
 #
 # Currently the return is abs() absolute values of the places.  Could change
 # that if there was any significance to the quadrant containing the min/max
 # corners.
 #
-sub _rect_to_radius_range_points {
+sub _rect_to_radius_corners {
   my ($x1,$y1, $x2,$y2) = @_;
 
-  # if opposite sign then origin x=0 covered, similarly y=0
-  my $x_origin_covered = ($x1<0) != ($x2<0);
-  my $y_origin_covered = ($y1<0) != ($y2<0);
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  $x1 = abs($x1);
-  $x2 = abs($x2);
-  $y1 = abs($y1);
-  $y2 = abs($y2);
+  return (int($x2 < 0 ? -$x2
+              : $x1 > 0 ? $x1
+              : 0),
+          int($y2 < 0 ? -$y2
+              : $y1 > 0 ? $y1
+              : 0),
 
-  return ($x_origin_covered ? 0 : _min($x1,$x2),
-          $y_origin_covered ? 0 : _min($y1,$y2),
-
-          _max($x1,$x2),
-          _max($y1,$y2));
+          _max(_ceil(abs($x1)), _ceil(abs($x2))),
+          _max(_ceil(abs($y1)), _ceil(abs($y2))));
 }
 
+sub _ceil {
+  my ($x) = @_;
+  my $int = int($x);
+  return ($x > $int ? $int+1 : $int);
+}
 
+# FIXME: prefer to stay in integers if possible
 # return ($rlo,$rhi) which is the radial distance range found in the rectangle
 sub _rect_to_radius_range {
   my ($x1,$y1, $x2,$y2) = @_;
 
-  ($x1,$y1, $x2,$y2) = _rect_to_radius_range_points ($x1,$y1, $x2,$y2);
+  ($x1,$y1, $x2,$y2) = _rect_to_radius_corners ($x1,$y1, $x2,$y2);
   return (hypot($x1,$y1),
           hypot($x2,$y2));
 }
@@ -255,26 +284,27 @@ which comes out roughly as
                22        23
 
 The X,Y positions returned are fractional, except for the perfect squares on
-the positive X axis X=0,1,2,3,etc.  The perfect squares are the closest
-points at 1 unit apart, other points are a little further apart.
+the positive X axis at X=0,1,2,3,etc.  The perfect squares are the closest
+points, at 1 unit apart.  Other points are a little further apart.
 
 The arms going to the right like N=5,10,17,etc or N=8,15,24,etc are constant
-offsets from the perfect squares, ie. S<s^2 + c> for positive or negative
-integer c.  To the left the central arm 2,6,12,20,etc is the pronic numbers
-S<s^2 + s>, half way between the successive perfect squares.  Other arms
-going to the left are offsets from that, ie. s^2 + s + c for integer c.
+offsets from the perfect squares, ie. S<d^2 + c> for positive or negative
+integer c.  To the left the central arm N=2,6,12,20,etc is the pronic
+numbers S<d^2 + d> = S<d*(d+1)>, half way between the successive perfect
+squares.  Other arms going to the left are offsets from that,
+ie. S<d*(d+1) + c> for integer c.
 
-Euler's quadratic s^2+s+41 is one such arm going left.  Low values loop
+Euler's quadratic d^2+d+41 is one such arm going left.  Low values loop
 around a few times before straightening out at about y=-127.  This quadratic
-has relatively many primes and in a plot of the primes on the spiral it can
-be seen standing out from its surrounds.
+has relatively many primes and in a plot of primes on the spiral it can be
+seen standing out from its surrounds.
 
 Plotting various quadratic sequences of points can form attractive patterns.
-For example the triangular numbers s*(s+1)/2 come out as spiral arcs going
+For example the triangular numbers k*(k+1)/2 come out as spiral arcs going
 clockwise and counter-clockwise.
 
 See F<examples/sacks-xpm.pl> in the Math-PlanePath sources for a complete
-program plotting the spiral points to a file.
+program plotting the spiral points to an XPM image.
 
 =head1 FUNCTIONS
 
@@ -296,6 +326,11 @@ spiral in between the integer points.
 For C<$n < 0> the return is an empty list, it being considered there are no
 negative points in the spiral.
 
+=item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
+
+Return the radial distance R^2 of point C<$n>, or C<undef> if there's
+no point C<$n>.  This is simply C<$n> itself, since R=sqrt(N).
+
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
 Return an integer point number for coordinates C<$x,$y>.  Each integer N
@@ -307,6 +342,25 @@ also don't cover the plane and if C<$x,$y> is not within one then the
 return is C<undef>.
 
 =back
+
+=head1 FORMULAS
+
+=head2 Rectangle to N Range
+
+R=sqrt(N) here is the same as in the TheodorusSpiral and the code is shared
+here.  See L<Math::PlanePath::TheodorusSpiral/Rectangle to N Range>.
+
+The accuracy could be improved here by taking into account the polar angle
+of the corners which are candidates for the maximum radius.  On the X axis
+the stripes of N are from X-0.5 to X+0.5, but up on the Y axis it's 0.25
+further out at Y-0.25 to Y+0.75.  The stripe the corner falls in can thus be
+biased by theta expressed as a fraction 0 to 1 around the plane.
+
+An exact theta 0 to 1 would require an arctan, but approximations 0, 0.25,
+0.5, 0.75 from the quadrants, or eighths of the plane by XE<gt>Y etc
+diagonals.  As noted for the Theodorus spiral the over-estimate from
+ignoring the angle is at worst R many points, which corresponds to a full
+loop here.  Using the angle would reduce that to 1/4 or 1/8 etc of a loop.
 
 =head1 SEE ALSO
 
@@ -340,7 +394,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=SacksSpiral"
-# End:

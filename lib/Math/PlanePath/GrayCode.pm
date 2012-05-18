@@ -51,7 +51,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -74,24 +74,27 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [
-   { name      => 'apply_type',
-     type      => 'enum',
-     default   => 'TsF',
+   { name            => 'apply_type',
+     type            => 'enum',
+     default         => 'TsF',
      choices         => ['TsF','Ts','Fs','FsT','sT','sF'],
      choices_display => ['TsF','Ts','Fs','FsT','sT','sF'],
+     description     => 'How to apply the Gray coding to/from and split.',
    },
-   { name      => 'gray_type',
-     type      => 'enum',
-     default   => 'reflected',
-     choices   => ['reflected','modular'],
-     description => 'The type of Gray code.',
+   { name             => 'gray_type',
+     type             => 'enum',
+     default          => 'reflected',
+     choices          => ['reflected','modular'],
+     choices_dispaly  => ['Reflected','Modular'],
+     description      => 'The type of Gray code.',
    },
-   { name      => 'radix',
-     share_key => 'radix_2',
-     type      => 'integer',
-     minimum   => 2,
-     default   => 2,
-     width     => 3,
+   { name        => 'radix',
+     share_key   => 'radix_2',
+     type        => 'integer',
+     minimum     => 2,
+     default     => 2,
+     width       => 3,
+     description => 'Radix, for both the Gray code and splitting.',
    },
   ];
 
@@ -161,7 +164,7 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my $digits = _digit_split($n,$radix);
+  my $digits = _digit_split_lowtohigharef($n,$radix);
   $self->{'n_func'}->($digits,$radix);
 
   my @xdigits;
@@ -196,8 +199,8 @@ sub xy_to_n {
   }
 
   my $radix = $self->{'radix'};
-  my $xdigits = _digit_split($x,$radix);
-  my $ydigits = _digit_split($y,$radix);
+  my $xdigits = _digit_split_lowtohigharef($x,$radix);
+  my $ydigits = _digit_split_lowtohigharef($y,$radix);
 
   $self->{'inverse_xy_func'}->($xdigits,$radix);
   $self->{'inverse_xy_func'}->($ydigits,$radix);
@@ -243,9 +246,9 @@ sub rect_to_n_range {
 use constant _noop_reflected => undef;
 use constant _noop_modular   => undef;
 
-sub _digit_split {
+sub _digit_split_lowtohigharef {
   my ($n, $radix) = @_;
-  ### _digit_split(): $n
+  ### _digit_split_lowtohigharef(): $n
   my @ret;
   while ($n) {
     push @ret, $n % $radix;

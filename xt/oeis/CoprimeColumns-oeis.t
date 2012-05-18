@@ -73,6 +73,66 @@ sub delete_second_highest_bit {
 
 
 #------------------------------------------------------------------------------
+# A038567 - X coordinate
+
+{
+  my $anum = 'A038567';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    $#$bvalues = 10000;
+
+    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+    my $n = 0;
+    while (@got < @$bvalues) {
+      my ($x,$y) = $path->n_to_xy ($n++);
+      push @got, $x;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A038566 - Y coordinate
+
+{
+  my $anum = 'A038566';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    $#$bvalues = 10000;
+
+    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+    my $n = 0;
+    while (@got < @$bvalues) {
+      my ($x,$y) = $path->n_to_xy ($n++);
+      push @got, $y;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
 # A054521 - by columns 1 if coprimes, 0 if not
 
 {

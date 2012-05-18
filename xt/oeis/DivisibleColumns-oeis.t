@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 1 }
+BEGIN { plan tests => 3 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -46,6 +46,121 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      return "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    $got =~ /^[0-9.-]+$/
+      or return "not a number pos=$i got='$got'";
+    $want =~ /^[0-9.-]+$/
+      or return "not a number pos=$i want='$want'";
+    if ($got != $want) {
+      return "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return undef;
+}
+
+#------------------------------------------------------------------------------
+# A027751 - Y coord, proper divisors, extra initial 1
+
+{
+  my $anum = 'A027751';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if (! $bvalues) {
+    MyTestHelpers::diag ("$anum not available");
+  } else {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    my @got;
+    push @got, 1;
+    my $path = Math::PlanePath::DivisibleColumns->new
+      (divisor_type => 'proper');
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @got, $y;
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A061017 - X coord
+
+{
+  my $anum = 'A061017';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if (! $bvalues) {
+    MyTestHelpers::diag ("$anum not available");
+  } else {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    my $path = Math::PlanePath::DivisibleColumns->new;
+    for (my $n = $path->n_start; $n < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @got, $x;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A027750 - Y coord
+
+{
+  my $anum = 'A027750';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if (! $bvalues) {
+    MyTestHelpers::diag ("$anum not available");
+  } else {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    my $path = Math::PlanePath::DivisibleColumns->new;
+    for (my $n = $path->n_start; $n < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      push @got, $y;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+
 
 #------------------------------------------------------------------------------
 # A006218 - cumulative count of divisors

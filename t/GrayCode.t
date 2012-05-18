@@ -45,7 +45,7 @@ sub binary_to_decimal {
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::GrayCode::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GrayCode->VERSION,  $want_version,
@@ -66,26 +66,26 @@ sub binary_to_decimal {
 
 sub to_gray_reflected {
   my ($n, $radix) = @_;
-  my $digits = Math::PlanePath::GrayCode::_digit_split($n,$radix);
+  my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
   Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
   return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
 }
 sub from_gray_reflected {
   my ($n, $radix) = @_;
-  my $digits = Math::PlanePath::GrayCode::_digit_split($n,$radix);
+  my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
   Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
   return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
 }
 
 sub to_gray_modular {
   my ($n, $radix) = @_;
-  my $digits = Math::PlanePath::GrayCode::_digit_split($n,$radix);
+  my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
   Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
   return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
 }
 sub from_gray_modular {
   my ($n, $radix) = @_;
-  my $digits = Math::PlanePath::GrayCode::_digit_split($n,$radix);
+  my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
   Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
   return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
 }

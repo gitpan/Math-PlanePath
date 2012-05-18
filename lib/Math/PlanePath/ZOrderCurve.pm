@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -47,6 +47,7 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array => [{ name      => 'radix',
                                         share_key => 'radix_2',
+                                        display   => 'Radix',
                                         type      => 'integer',
                                         minimum   => 2,
                                         default   => 2,
@@ -452,6 +453,9 @@ forms,
     A062880    Y axis,   base 4 digits 0,2 only
     A001196    diagonal, base 4 digits 0,3 only
     A057300    base 4 flip 1<->2, is N at transpose Y,X of N
+
+    A037314    radix=3  X axis, base 9 digits 0,1,2
+    A051022    radix=10 X axis, base 100 digits 0 to 9
 
 And taking X,Y points in the Diagonals sequence then the value of the
 following sequences is the N of the ZOrderCurve at those positions.

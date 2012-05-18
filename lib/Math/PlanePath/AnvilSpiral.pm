@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -345,19 +345,19 @@ the X axis XE<gt>0, and on the Y=1 horizontal XE<lt>0.
 
 Those pentagonals are always composites, from the factorization shown, and
 as noted in L<Math::PlanePath::PyramidRows/Step 3 Pentagonals>, the
-immediately preceding P(k)-1 and P(k)-2 are also composites.  So if plotting
-the primes on the spiral there's a 3-high horizontal blank line at Y=0,-1,-2
-for positive X, and Y=1,2,3 for negative X (after the first few values).
+immediately preceding P(k)-1 and P(k)-2 are also composites.  So plotting
+the primes on the spiral has a 3-high horizontal blank line at Y=0,-1,-2 for
+positive X, and Y=1,2,3 for negative X (after the first few values).
 
-Each loop around the spiral is 12 longer than the preceding.  Because this
-is 4* more than the step=3 PyramidRows, straight lines on a PyramidRows like
-that are straight lines here but split into two parts.
+Each loop around the spiral is 12 longer than the preceding.  This is 4*
+more than the step=3 PyramidRows so straight lines on a PyramidRows like
+these pentagonals are also straight lines here, but split into two parts.
 
 The outward diagonal excursions are similar to the OctagramSpiral, but
 there's just 4 of them here where the OctagramSpiral has 8.  This is
-reflected in the loop step in that the basic SquareSpiral is step 8, but by
-taking 4 excursions here that becomes 12, or in the OctagramSpiral 8
-excursions add 8 to make step 16.
+reflected in the loop step.  The basic SquareSpiral is step 8, but by taking
+4 excursions here increases that to 12, and in the OctagramSpiral 8
+excursions adds 8 to make step 16.
 
 =head2 Wider
 
@@ -382,12 +382,12 @@ gives
     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5
 
 The starting point 1 is shifted to the left by ceil(wider/2) places to keep
-the spiral centred on the origin X=0,Y=0.  This the same starting offset as
-the SquareSpiral C<wider>.
+the spiral centred on the origin X=0,Y=0.  This is the same starting offset
+as the SquareSpiral C<wider>.
 
 Widening doesn't change the nature of the straight lines which arise, it
 just rotates them around.  Each loop is still 12 longer than the previous,
-as the widening is essentially a constant amount in each loop.
+since the widening is essentially a constant amount in each loop.
 
 =head1 FUNCTIONS
 

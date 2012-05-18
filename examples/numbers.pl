@@ -169,6 +169,8 @@ my @all_classes = ('SquareSpiral',
 
                    'ImaginaryBase',
                    'ImaginaryBase,radix=5',
+                   'ImaginaryHalf',
+                   'ImaginaryHalf,radix=5',
                    'SquareReplicate',
                    'CornerReplicate',
                    'LTiling',

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -29,6 +29,7 @@ use Math::PlanePath 54; # v.54 for _max()
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -42,11 +43,12 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
-  [ { name    => 'L_fill',
-      type    => 'enum',
-      default => 'middle',
-      choices => ['middle','left','upper','ends','all'],
-      # description => '',
+  [ { name            => 'L_fill',
+      type            => 'enum',
+      default         => 'middle',
+      choices         => ['middle','left','upper','ends','all'],
+      choices_display => ['Middle','Left','Upper','Ends','All'],
+      description     => 'Which points to number with each "L".',
     },
   ];
 
@@ -104,11 +106,8 @@ sub n_to_xy {
     }
   }
 
-  while ($n) {
-    my $digit = $n % 4;
-    $n = int($n/4);
-    ### at: "$x,$y"
-    ### $digit
+  foreach my $digit (_digit_split_lowtohigh($n,4)) {
+    ### at: "$x,$y  digit=$digit"
 
     if ($digit == 1) {
       ($x,$y) = (4*$len-1-$y,$x);

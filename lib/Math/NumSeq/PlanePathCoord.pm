@@ -22,7 +22,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -42,20 +42,22 @@ sub description {
 
 use constant::defer parameter_info_array =>
   sub {
+    my $choices = ['X', 'Y',
+                   'Sum', 'SumAbs',
+                   'Product',
+                   'DiffXY', 'DiffYX', 'AbsDiff',
+                   'Radius', 'RSquared',
+                   'TRadius', 'TRSquared',
+                  ];
     return [
             _parameter_info_planepath(),
-            { name    => 'coordinate_type',
-              display => 'Coordinate Type',
-              type    => 'enum',
-              default => 'X',
-              choices => ['X', 'Y',
-                          'Sum', 'SumAbs',
-                          'Product',
-                          'DiffXY', 'DiffYX', 'AbsDiff',
-                          'Radius', 'RSquared',
-                          'TRadius', 'TRSquared',
-                         ],
-              # description => '',
+            { name            => 'coordinate_type',
+              display         => 'Coordinate Type',
+              type            => 'enum',
+              default         => 'X',
+              choices         => $choices,
+              choices_display => $choices,
+              description     => 'The coordinate or combination to take from the path.',
             },
            ];
   };
@@ -94,13 +96,13 @@ use constant::defer _parameter_info_planepath => sub {
   }
   my $choices = [ sort keys %names ];
 
-  return { name    => 'planepath',
-           display => 'PlanePath Class',
-           type    => 'string',
-           default => $choices->[0],
-           choices => $choices,
-           width   => $width + 20,
-           # description => '',
+  return { name        => 'planepath',
+           display     => 'PlanePath Class',
+           type        => 'string',
+           default     => $choices->[0],
+           choices     => $choices,
+           width       => $width + 20,
+           description => 'PlanePath module name.',
          };
 };
 
@@ -135,11 +137,12 @@ my %oeis_anum =
    #  # Not quite, A053615 starts n=0 but Corner starts N=1
    #  # AbsDiff => 'A053615', # 0..n..0
    # },
-
    # 'Math::PlanePath::Corner,wider=1' =>
-   # AbsDiff almost A053188 because the perfect squares occur on the leading
-   # diagonal X=Y.  But A053188 starts n=0 (with value 0), whereas planepath
-   # here starts i=1 for N=1 being the first point.
+   # {
+   #  # Not quite, OFFSET=0 with value 0, whereas Corner starts N=1.
+   #  # Works because perfect squares occur on the leading diagonal X=Y.
+   #  AbsDiff => 'A053188', # distance to nearest square
+   # }
 
    'Math::PlanePath::HilbertCurve' =>
    { X => 'A059253',
@@ -163,6 +166,8 @@ my %oeis_anum =
    },
 
    do {
+     # PeanoCurve and the GrayCode forms which give the same
+
      my $peano = { X        => 'A163528',
                    Y        => 'A163529',
                    Sum      => 'A163530',
@@ -194,18 +199,19 @@ my %oeis_anum =
 
    # 'Math::PlanePath::RationalsTree,tree_type=SB' =>
    # {
-   #  # OFFSET n=0 cf N=1
+   #  # OFFSET n=0 cf N=1 here
    #  # Y => 'A047679', # SB denominator
    #  # # OEIS-Catalogue: A047679 planepath=RationalsTree coordinate_type=Y
    #  #
-   #  # X is A007305 SB numerators but starting extra 0,1
-   #  # Sum is A007306 Farey/SB denominators, but starting extra 1,1
-   #  # Product is A119272 num*den, but starting extra 1,1
+   #  # X => 'A007305',   # SB numerators but starting extra 0,1
+   #  # Sum => 'A007306', # Farey/SB denominators, but starting extra 1,1
+   #  # Product => 'A119272', # num*den, but starting extra 1,1
    #  # cf A054424 permutation
    # },
+   #
    'Math::PlanePath::RationalsTree,tree_type=CW' =>
    {
-    # stern diatomic adjacent S(n)*S(n+1), or Conway's alimentary function
+    # Stern diatomic adjacent S(n)*S(n+1), or Conway's alimentary function
     Product => 'A070871',
     # OEIS-Catalogue: A070871 planepath=RationalsTree,tree_type=CW coordinate_type=Product
     #
@@ -288,11 +294,11 @@ my %oeis_anum =
      # OEIS-Other: A000004 planepath=PyramidRows,step=0 coordinate_type=X
      # OEIS-Other: A000004 planepath=PyramidRows,step=0 coordinate_type=Product
 
-     # but starts N=1
+     # but OFFSET=0 starting value 0, whereas N=1 for value 0 here
      # RSquared => 'A000290',  # squares 0 upwards
      # # OEIS-Other: A000290 planepath=PyramidRows,step=0 coordinate_type=RSquared
 
-     # But A001477 offset=0 where PyramidRows starts N=1
+     # But A001477 OFFSET=0 where PyramidRows starts N=1
      # Y        => 'A001477',  # integers 0 upwards
      # Sum      => 'A001477',  # integers 0 upwards
      # DiffYX   => 'A001477',  # integers 0 upwards
@@ -409,6 +415,7 @@ my %oeis_anum =
    },
 
    # A061017 starts OFFSET=1 value=1, cf DivisibleColumns starts N=0 value=1
+   # A027750 starts OFFSET=1 cf DivisibleColumns starts N=0
    # 'Math::PlanePath::DivisibleColumns' =>
    # { X => 'A061017',  # n appears divisors(n) times
    #   Y => 'A027750',  # triangle divisors of n
@@ -722,9 +729,7 @@ sub _coordinate_func_Radius {
 sub _coordinate_func_RSquared {
   my ($self, $n) = @_;
   ### _coordinate_func_RSquared(): $n, $self->{'planepath_object'}->n_to_xy($n)
-  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
-    or return undef;
-  return $x*$x + $y*$y;
+  return $self->{'planepath_object'}->n_to_rsquared($n);
 }
 
 sub _coordinate_func_TRadius {
@@ -804,6 +809,7 @@ sub values_max {
 }
 
 { package Math::PlanePath;
+
   sub _NumSeq_Coord_X_min {
     my ($self) = @_;
     return ($self->x_negative ? undef : 0);
@@ -1045,12 +1051,6 @@ sub values_max {
 # { package Math::PlanePath::GreekKeySpiral;
 # }
 { package Math::PlanePath::SacksSpiral;
-  sub _NumSeq_Coord_RSquared_func {
-    my ($seq, $i) = @_;
-    # exact value RSquared==$i, so as not to lose precision through sqrt
-    # and sin/cos in the main n_to_xy()
-    return $i;
-  }
   use constant _NumSeq_Coord_Radius_increasing => 1; # Radius==sqrt($i)
   use constant _NumSeq_Coord_RSquared_smaller => 0;  # RSquared==$i
 }
@@ -1078,32 +1078,26 @@ sub values_max {
   }
   sub _NumSeq_Coord_Radius_func {
     my ($seq, $i) = @_;
-    ### VogelFloret RSquared: $i, $seq->{'planepath_object'}
+    ### VogelFloret Radius: $i, $seq->{'planepath_object'}
     # R=radius_factor*sqrt($n)
     # avoid sin/cos in the main n_to_xy()
-    # FIXME: promote BigInt $i -> BigFloat for sqrt ?
-    return sqrt($i) * $seq->{'planepath_object'}->{'radius_factor'};
-  }
-  sub _NumSeq_Coord_RSquared_func {
-    my ($seq, $i) = @_;
-    ### VogelFloret RSquared: $i, $seq->{'planepath_object'}
-    # R=radius_factor*sqrt($n)
-    # R^2 = radius_factor^2 * $n
-    # avoid sqrt and sin/cos in the main n_to_xy()
-    # FIXME: promote BigInt $i -> BigFloat if radius_factor not an integer ?
-    return $i * ($seq->{'planepath_object'}->{'radius_factor'} ** 2);
+
+    my $path = $seq->{'planepath_object'};
+    my $rf = $path->{'radius_factor'};
+
+    # promote BigInt $i -> BigFloat so that sqrt() doesn't round, and in
+    # case radius_factor is not an integer
+    if (ref $i && $i->isa('Math::BigInt') && $rf != int($rf)) {
+      require Math::BigFloat;
+      $i = Math::BigFloat->new($i);
+    }
+
+    return sqrt($i) * $rf;
   }
   use constant _NumSeq_Coord_Radius_increasing => 1; # Radius==sqrt($i)
   use constant _NumSeq_Coord_RSquared_smaller => 0;  # RSquared==$i
 }
 { package Math::PlanePath::TheodorusSpiral;
-  sub _NumSeq_Coord_RSquared_func {
-    my ($seq, $i) = @_;
-    ### TheodorusSpiral RSquared: $i
-    # exact value RSquared==$i, so as not to lose precision through sqrts
-    # and sums in the main n_to_xy()
-    return $i;
-  }
   use constant _NumSeq_Coord_Radius_increasing => 1; # Radius==sqrt($i)
   use constant _NumSeq_Coord_RSquared_smaller => 0;  # RSquared==$i
 }
@@ -1253,6 +1247,8 @@ sub values_max {
 # { package Math::PlanePath::GrayCode;
 # }
 # { package Math::PlanePath::ImaginaryBase;
+# }
+# { package Math::PlanePath::ImaginaryHalf;
 # }
 { package Math::PlanePath::GosperIslands;
   use constant _NumSeq_Coord_SumAbs_min => 2; # minimum X=2,Y=0 or X=1,Y=1
@@ -1842,54 +1838,40 @@ The C<coordinate_type> choices are
 diagonal, or equivalently as a measure of which anti-diagonal stripe
 contains the X,Y.
 
-                      *    X=Y
-    \                  \  /
-     2                  \/
-    \ \                 /  .
-     1 2               /  /
-    \ \ \             / sum distance
-     0 1 2           o  /
-                       /
+                          *    line X=Y
+    \     anti-diag        \  /
+     2    numbering         \/
+    \ \     X+Y             /
+     1 2                   /  ^
+    \ \ \                 /  /
+     0 1 2               o  distance X+Y
+                           /
 
-"SumAbs" is a similar projection, but onto the diagonal of whichever
-quadrant contains the X,Y.  It's sometimes thought of as a taxi-cab or
-Manhatten distance, being how far be travelled through a square-grid city,
-by whatever combination of up and down.  For paths using only the first
-quadrant, so XE<gt>=0,YE<gt>=0 of course Sum and SumAbs are identical.
+"SumAbs" is a similar projection, but onto the cross-diagonal of
+whichever quadrant contains the X,Y.  It's sometimes thought of as a
+taxi-cab or Manhatten distance, being how far be travelled through a
+square-grid city by any combination of up and down.  If a path uses
+only the first quadrant, ie. XE<gt>=0,YE<gt>=0, then of course Sum and
+SumAbs are identical.
 
-"DiffXY" similarly, but a projection onto the X=-Y opposite diagonal, or a
-measure of which leading diagonal stripe has the X,Y.
+"DiffXY" is similar, but a projection onto the X=-Y opposite diagonal,
+or a measure of which leading diagonal stripe has the X,Y.
 
-                        X=-Y  *
-        / / / /           \  /
-      -1 0 1 2             \/
-      / / / /            .  \
-    -1 0 1 2              \  \
-      / / /         diff dist \
-     0 1 2                  \  o
-                             \
+                                    X=-Y  *
+        / / / /                       \  /
+      -1 0 1 2   diagonal              \/
+      / / / /    numbering              \
+    -1 0 1 2       X-Y                ^  \
+      / / /                            \  \
+     0 1 2                    X-Y distance o
+                                            \
 
-The triangular "TRadius" and "TRSquared" are meant for use with points on a
-triangular lattice such as HexSpiral.  TRSquared is the same as RSquared on
-the X axis but the Y axis is scaled up.  The triangular paths generally use
-every second X,Y point which makes TRSquared always even, or for KochPeaks
-and similar offset 1 from the origin then always odd.
-
-=head1 OEIS
-
-Some path coordinates are in Sloane's Online Encyclopedia of Integer
-Sequences.  See each PlanePath module for details.
-
-C<$seq-E<gt>oeis_anum()> returns the A-number in the usual way, if there's
-one known.  This includes things like A000004 all-zeros for cases where a
-coordinate is simple or even trivial.
-
-Known A-numbers are presented through C<Math::NumSeq::OEIS::Catalogue> so
-path related sequences can be created with C<Math::NumSeq::OEIS> in the
-usual way.  A-numbers specific to the paths are catalogued, plus a few of
-the simpler things not otherwise covered by NumSeq modules yet (such as
-A002262 successive 0 to k runs 0, 0,1, 0,1,2, 0,1,2,3, which arises in the
-Diagonals).
+The triangular "TRadius" and "TRSquared" are meant for use with points
+on a triangular lattice such as HexSpiral.  On the X axis TRSquared is
+the same as RSquared, but any Y amount is scaled up.  The triangular
+paths generally use every second X,Y point which makes TRSquared
+always even, but for example KochPeaks has an offset 1 from the origin
+and is instead always odd.
 
 =head1 FUNCTIONS
 
@@ -1905,8 +1887,8 @@ Create and return a new sequence object.  The options are
     planepath_object   PlanePath object
     coordinate_type    string, as described above
 
-C<planepath> can be just the module part such as "SquareSpiral" or a full
-class name "Math::PlanePath::SquareSpiral".
+C<planepath> can be either the module part such as "SquareSpiral" or a
+full class name "Math::PlanePath::SquareSpiral".
 
 =item C<$value = $seq-E<gt>ith($i)>
 
@@ -1922,6 +1904,15 @@ the N numbering of the underlying path.  For some of the
 C<Math::NumSeq::OEIS> generated sequences there may be a higher C<i_start()>
 corresponding to a higher starting point in the OEIS, though this is
 slightly experimental.
+
+=item C<$str = $seq-E<gt>oeis_anum()>
+
+Return the A-number (a string) for C<$seq> in Sloane's Online Encyclopedia
+of Integer Sequences, or return C<undef> if not in the OEIS or not known.
+
+Known A-numbers are presented through C<Math::NumSeq::OEIS::Catalogue>
+so PlanePath related sequences can be created with
+C<Math::NumSeq::OEIS> by their A-number in the usual way.
 
 =back
 

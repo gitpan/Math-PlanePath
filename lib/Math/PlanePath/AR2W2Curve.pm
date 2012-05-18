@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -47,14 +47,19 @@ use constant class_y_negative => 0;
 use constant parameter_info_array =>
   [
    {
-    name      => 'start_shape',
-    share_key => 'start_shape_ar2w2',
-    type      => 'enum',
-    default   => 'A1',
-    choices   => ['A1','D2',
-                  'B2','B1rev',
-                  'D1rev','A2rev',
-                 ],
+    name            => 'start_shape',
+    share_key       => 'start_shape_ar2w2',
+    type            => 'enum',
+    default         => 'A1',
+    choices         => ['A1','D2',
+                        'B2','B1rev',
+                        'D1rev','A2rev',
+                       ],
+    choices_display => ['A1','D2',
+                        'B2','B1rev',
+                        'D1rev','A2rev',
+                       ],
+    description     => 'The starting 2x2 pattern in the bottom left corner.',
    },
   ];
 
@@ -316,7 +321,7 @@ sub n_to_xy {
   my $y = 0;
   while (@digits) {
     $len /= 2;
-    $state += (my $digit = pop @digits);
+    $state += (my $digit = pop @digits);   # high to low digits
     if ($digit != 3) {
       $dir = $state;  # lowest non-3 digit
     }

@@ -15,6 +15,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# maybe:
+# dRadius, dRSquared of the radii
+# dTheta360
+# 'Dist','DistSquared', of dxdy
+# 'Dir360','TDir360',
+
+
 package Math::NumSeq::PlanePathDelta;
 use 5.004;
 use strict;
@@ -22,7 +30,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -60,21 +68,12 @@ use constant::defer parameter_info_array =>
        default => 'dX',
        choices => ['dX','dY',
                    'Dir4','TDir6',
-
-                   # maybe:
-                   # dRadius, dRSquared of the radii
-                   # dTheta360
-                   # 'Dist','DistSquared', of dxdy
-                   # 'Dir360','TDir360',
                   ],
-       # description => '',
+       description     => 'The coordinate change or direction to take from the path.',
       },
     ];
   };
 
-# DragonMidpoint abs(dY) is A073089, but it has n=N+2 and extra initial 0 at
-# n=1
-#
 # MathPlanePath::AlternatePaper dX with zeros removed is
 # Math::NumSeq::GolayRudinShapiro A020985, no delta_type for that as yet
 #
@@ -89,10 +88,17 @@ use constant::defer parameter_info_array =>
 
 my %oeis_anum
   = (
+     # 'Math::PlanePath::DragonMidpoint' =>
+     # {
+     #  # No, has n=N+2 and extra initial 0 at n=1
+     #  # A073089 => 'abs_dY',
+     # },
+
      # 'Math::PlanePath::SquareSpiral' =>
      # {
-     #  AbsdX => 'A079813', # k 0s then k 1s is abs(dY)
+     #  AbsdX => 'A079813', # k 0s then k 1s is abs(dX)
      #  AbsdY => 'A118175', # k 0s then k 1s plus initial 1 is abs(dY)
+     #  Dir4_1 => 'A063826', # ENSW 1 to 4, rather than 0 to 3
      # },
 
      # 'Math::PlanePath::HilbertCurve' =>
@@ -1025,6 +1031,8 @@ sub values_max {
       (0,0, $self->{'radix'}-1,-2);
   }
 }
+# { package Math::PlanePath::ImaginaryHalf;
+# }
 # { package Math::PlanePath::Flowsnake;
 #   # inherit from FlowsnakeCentres
 # }
@@ -1819,15 +1827,17 @@ The C<delta_type> choices are
     "Dir4"     direction 0=East, 1=North, 2=West, 3=South
     "TDir6"    triangular 0=E, 1=NE, 2=NW, 3=W, 4=SW, 5=SE
 
-In each case the value at i is the change from N=i to N=i+1 on the path, or
-N=i to N=i+arms for paths with multiple "arms" (thus following a particular
-arm).  i values start from the usual path C<n_start()>.
+In each case the value at i is the delta from N=i to N=i+1 on the
+path, or from N=i to N=i+arms for paths with multiple "arms" (thus
+following a particular arm).  i values start from the usual path
+C<n_start()>.
 
-"Dir4" is a fraction when a delta is in between the cardinal directions.
-For example North-West dX=-1,dY=+1 would be 1.5.
+"Dir4" is a fraction when a delta is in between the cardinal
+directions.  For example dX=-1,dY=+1 going North-West would be
+direction 1.5.
 
-"TDir6" direction is in the style of L<Math::PlanePath/Triangular Lattice>.
-So dX=1,dY=1 is 60 degrees, dX=-1,dY=1 is 120 degrees, dX=-2,dY=0 is 180
+"TDir6" is in the style of L<Math::PlanePath/Triangular Lattice>.  So
+dX=1,dY=1 is 60 degrees, dX=-1,dY=1 is 120 degrees, dX=-2,dY=0 is 180
 degrees, etc, and fractional values in between those.
 
 =head1 FUNCTIONS
@@ -1844,8 +1854,8 @@ Create and return a new sequence object.  The options are
     planepath_object   PlanePath object
     delta_type         string, as described above
 
-C<planepath> can be just the module part such as "SquareSpiral" or a full
-class name "Math::PlanePath::SquareSpiral".
+C<planepath> can be either the module part such as "SquareSpiral" or a
+full class name "Math::PlanePath::SquareSpiral".
 
 =item C<$value = $seq-E<gt>ith($i)>
 
@@ -1864,6 +1874,7 @@ This is C<$path-E<gt>n_start()> from the PlanePath.
 
 L<Math::NumSeq>,
 L<Math::NumSeq::PlanePathCoord>,
+L<Math::NumSeq::PlanePathTurn>,
 L<Math::NumSeq::PlanePathN>
 
 L<Math::PlanePath>

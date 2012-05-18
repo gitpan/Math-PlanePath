@@ -22,11 +22,13 @@ use strict;
 use warnings;
 use POSIX qw(floor ceil);
 use List::Util qw(min max);
+use Module::Load;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 {
+  my $path_class;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::HypotOctant;
   require Math::PlanePath::PythagoreanTree;
@@ -36,15 +38,11 @@ use List::Util qw(min max);
   require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::QuintetCurve;
-  require Math::PlanePath::DragonCurve;
   require Math::PlanePath::DragonMidpoint;
   require Math::PlanePath::CellularRule54;
   require Math::PlanePath::QuintetCentres;
-  require Math::PlanePath::ImaginaryBase;
   require Math::PlanePath::SquareReplicate;
-  require Math::PlanePath::QuintetReplicate;
   require Math::PlanePath::KochSquareflakes;
-  require Math::PlanePath::GosperReplicate;
   require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::RationalsTree;
   require Math::PlanePath::DivisibleColumns;
@@ -52,8 +50,8 @@ use List::Util qw(min max);
   require Math::PlanePath::UlamWarburtonQuarter;
   require Math::PlanePath::DigitGroups;
   require Math::PlanePath::HIndexing;
-  require Math::PlanePath::MathImageDekkingCurve;
-  require Math::PlanePath::MathImageDekkingStraight;
+  require Math::PlanePath::DekkingCurve;
+  require Math::PlanePath::DekkingStraight;
   require Math::PlanePath::HilbertCurve;
   require Math::PlanePath::BetaOmega;
   require Math::PlanePath::SierpinskiArrowheadCentres;
@@ -72,51 +70,67 @@ use List::Util qw(min max);
   require Math::PlanePath::KochelCurve;
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::MPeaks;
-  require Math::PlanePath::LTiling;
   require Math::PlanePath::CornerReplicate;
   require Math::PlanePath::FractionsTree;
   require Math::PlanePath::CincoCurve;
   require Math::PlanePath::HilbertSpiral;
   require Math::PlanePath::AR2W2Curve;
-  require Math::PlanePath::MathImagePeanoRounded;
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::FactorRationals;
   require Math::PlanePath::VogelFloret;
   require Math::PlanePath::CellularRule;
   require Math::PlanePath::AlternatePaper;
   require Math::PlanePath::ComplexRevolving;
-  require Math::PlanePath::ComplexMinus;
   require Math::PlanePath::ComplexPlus;
   require Math::PlanePath::AnvilSpiral;
-  require Math::PlanePath::TerdragonMidpoint;
-  require Math::PlanePath::TerdragonCurve;
   require Math::PlanePath::CellularRule57;
   require Math::PlanePath::DragonRounded;
   require Math::PlanePath::QuadricIslands;
-  require Math::PlanePath::MathImageMooreSpiral;
   require Math::PlanePath::CretanLabyrinth;
-  require Math::PlanePath::MathImagePeanoHalf;
-  require Math::PlanePath::TheodorusSpiral;
-  require Math::PlanePath::SacksSpiral;
-  require Math::PlanePath::SierpinskiCurve;
+  require Math::PlanePath::PeanoHalf;
   require Math::PlanePath::StaircaseAlternating;
-  require Math::PlanePath::FilledRings;
-  require Math::PlanePath::MultipleRings;
   require Math::PlanePath::GrayCode;
   require Math::PlanePath::WunderlichSerpentine;
   require Math::PlanePath::GcdRationals;
   require Math::PlanePath::SierpinskiCurveStair;
   require Math::PlanePath::AztecDiamondRings;
-  require Math::PlanePath::KochCurve;
   require Math::PlanePath::PyramidRows;
   require Math::PlanePath::KochSnowflakes;
-  my $path = Math::PlanePath::KochSnowflakes->new
+  require Math::PlanePath::MultipleRings;
+  require Math::PlanePath::SacksSpiral;
+  require Math::PlanePath::TheodorusSpiral;
+  require Math::PlanePath::FilledRings;
+  require Math::PlanePath::CubicBase;
+  require Math::PlanePath::ImaginaryHalf;
+  require Math::PlanePath::MooreSpiral;
+  require Math::PlanePath::QuintetSide;
+  require Math::PlanePath::PeanoRounded;
+  require Math::PlanePath::GosperSide;
+  $path_class = 'Math::PlanePath::ComplexMinus';
+  $path_class = 'Math::PlanePath::GosperIslands';
+  $path_class = 'Math::PlanePath::KochCurve';
+  $path_class = 'Math::PlanePath::QuadricCurve';
+  $path_class = 'Math::PlanePath::QuintetReplicate';
+  $path_class = 'Math::PlanePath::SierpinskiCurve';
+  $path_class = 'Math::PlanePath::LTiling';
+  $path_class = 'Math::PlanePath::ImaginaryHalf';
+  $path_class = 'Math::PlanePath::ImaginaryBase';
+  $path_class = 'Math::PlanePath::R5DragonCurve';
+  $path_class = 'Math::PlanePath::TerdragonCurve';
+  $path_class = 'Math::PlanePath::TerdragonMidpoint';
+  $path_class = 'Math::PlanePath::TerdragonRounded';
+  $path_class = 'Math::PlanePath::DragonCurve';
+  
+  Module::Load::load($path_class);
+  my $path = $path_class->new
     (
+     # arms => 2,
+     # step => 6,
+     # ring_shape => 'polygon',
      # diagonal_length => 5,
      # apply_type => 'FS',
      # radix => 4,
      # serpentine_type => '010_000',
-      step => 4,
      # straight_spacing => 3,
      # diagonal_spacing => 7,
      # arms => 7,
@@ -141,10 +155,10 @@ use List::Util qw(min max);
   my %seen;
   my $n_start = $path->n_start;
   my $arms_count = $path->arms_count;
-  print "n_start $n_start arms_count $arms_count\n";
+  print "n_start $n_start arms_count $arms_count   ",ref($path),"\n";
 
-  for (my $i = $n_start+0; $i <= 100; $i+=1) {
-    #     for (my $i = $n_start; $i <= $n_start + 8000; $i=POSIX::ceil($i*2.01+1)) {
+  for (my $i = $n_start+0; $i <= 125; $i+=1) {
+  #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;

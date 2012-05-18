@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 373 }
+BEGIN { plan tests => 473 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::ComplexMinus;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::ComplexMinus::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ComplexMinus->VERSION,  $want_version,
@@ -79,47 +79,69 @@ require Math::PlanePath::ComplexMinus;
 }
 
 
-# #------------------------------------------------------------------------------
-# # first few points
-# 
-# {
-#   my @data = (
-#               [ 0, 0,0 ],
-#               [ 1, 1,0 ],
-#               [ 2, 1,1 ],
-#               [ 3, 0,1 ],
-#               [ 4, 0,2 ],
-# 
-#               [ 0.25,  0.25, 0 ],
-#               [ 1.25,  1, 0.25 ],
-#               [ 2.25,  0.75, 1 ],
-#               [ 3.25,  0, 1.25 ],
-# 
-#              );
-#   my $path = Math::PlanePath::ComplexMinus->new;
-#   foreach my $elem (@data) {
-#     my ($n, $x, $y) = @$elem;
-#     {
-#       # n_to_xy()
-#       my ($got_x, $got_y) = $path->n_to_xy ($n);
-#       if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
-#       if ($got_y == 0) { $got_y = 0 }
-#       ok ($got_x, $x, "n_to_xy() x at n=$n");
-#       ok ($got_y, $y, "n_to_xy() y at n=$n");
-#     }
-#     if ($n==int($n)) {
-#       # xy_to_n()
-#       my $got_n = $path->xy_to_n ($x, $y);
-#       ok ($got_n, $n, "xy_to_n() n at x=$x,y=$y");
-#     }
-#     {
-#       $n = int($n);
-#       my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-#       ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-#       ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
-#     }
-#   }
-# }
+#------------------------------------------------------------------------------
+# first few points
+
+{
+  my @data = (
+              # [ 0, 0,0 ],
+              # [ 1, 1,0 ],
+              # [ 2, 1,1 ],
+              # [ 3, 0,1 ],
+              # [ 4, 0,2 ],
+              #
+              # [ 0.25,  0.25, 0 ],
+              # [ 1.25,  1, 0.25 ],
+              # [ 2.25,  0.75, 1 ],
+              # [ 3.25,  0, 1.25 ],
+
+              # claimed in the POD
+              [ 0x1D0,  4,0 ],
+              [ 0x1D1,  5,0 ],
+              [ 0x1DC,  6,0 ],
+              [ 0x1DD,  7,0 ],
+              [ 0x1C0,  8,0 ],
+              [ 0x1C1,  9,0 ],
+              [ 0x1CC, 10,0 ],
+              [ 0x1CD, 11,0 ],
+              [ 0x110, 12,0 ],
+              [ 0x111, 13,0 ],
+              [ 0x11C, 14,0 ],
+              [ 0x11D, 15,0 ],
+              [ 0x100, 16,0 ],
+              [ 0x101, 17,0 ],
+              [ 0x10C, 18,0 ],
+              [ 0x10D, 19,0 ],
+              [ 0xCD0, 20,0 ],
+              [ 0xCD1, 21,0 ],
+              [ 0xCDC, 22,0 ],
+              [ 0xCDD, 23,0 ],
+
+             );
+  my $path = Math::PlanePath::ComplexMinus->new;
+  foreach my $elem (@data) {
+    my ($n, $x, $y) = @$elem;
+    {
+      # n_to_xy()
+      my ($got_x, $got_y) = $path->n_to_xy ($n);
+      if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
+      if ($got_y == 0) { $got_y = 0 }
+      ok ($got_x, $x, "n_to_xy() x at n=$n");
+      ok ($got_y, $y, "n_to_xy() y at n=$n");
+    }
+    if ($n==int($n)) {
+      # xy_to_n()
+      my $got_n = $path->xy_to_n ($x, $y);
+      ok ($got_n, $n, "xy_to_n() n at x=$x,y=$y");
+    }
+    {
+      $n = int($n);
+      my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+      ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+    }
+  }
+}
 
 
 #------------------------------------------------------------------------------

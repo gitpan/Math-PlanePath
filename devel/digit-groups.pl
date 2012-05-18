@@ -25,6 +25,21 @@ use strict;
 #use Smart::Comments;
 
 {
+  # Diagonal
+  require Math::BaseCnv;
+  require Math::NumSeq::PlanePathN;
+  my $seq = Math::NumSeq::PlanePathN->new (planepath=> 'DigitGroups',
+                                           line_type => 'Diagonal');
+  foreach my $i (0 .. 150) {
+    my ($i,$value) = $seq->next;
+    my $v2 = Math::BaseCnv::cnv($value,10,2);
+    printf "%4d %20s\n", $value, $v2;
+  }
+  print "\n";
+  exit 0;
+}
+
+{
   require Math::BaseCnv;
   require Math::PlanePath::DigitGroups;
   foreach my $radix (2 .. 7) {

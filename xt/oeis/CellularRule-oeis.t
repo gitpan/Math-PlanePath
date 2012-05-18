@@ -19,6 +19,7 @@
 
 
 # cf A094605 rule 30 period of nth diagonal
+#    A094606 log2 of that period
 #
 
 

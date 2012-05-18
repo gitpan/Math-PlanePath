@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 608 }
+BEGIN { plan tests => 618 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::TerdragonCurve;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::TerdragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TerdragonCurve->VERSION,  $want_version,
@@ -60,6 +60,32 @@ require Math::PlanePath::TerdragonCurve;
       1,
       "VERSION object check $check_version");
 }
+
+#------------------------------------------------------------------------------
+# xy_to_n_list()
+
+{
+  my $path = Math::PlanePath::TerdragonCurve->new;
+  foreach my $elem ([ 1,  '1' ],
+                    [ 2,  '2,5' ],
+                    [ 3,  '3' ],
+                    [ 4,  '4,7' ],
+                    [ 5,  '2,5' ],
+                    [ 6,  '6,15' ],
+                    [ 7,  '4,7' ],
+                    [ 8,  '8,11,14' ],
+                    [ 11,  '8,11,14' ],
+                    [ 14,  '8,11,14' ],
+                   ) {
+    my ($n, $want_n_list) = @$elem;
+    my ($x,$y) = $path->n_to_xy ($n);
+
+    my @got_n_list = $path->xy_to_n_list ($x,$y);
+    my $got_n_list = join(',',@got_n_list);
+    ok ($got_n_list, $want_n_list);
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # turn sequence claimed in the pod

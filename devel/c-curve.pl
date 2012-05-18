@@ -25,8 +25,8 @@ use Devel::Comments;
 
 {
   # repeat points
-  require Math::PlanePath::MathImageCCurve;
-  my $path = Math::PlanePath::MathImageCCurve->new;
+  require Math::PlanePath::CCurve;
+  my $path = Math::PlanePath::CCurve->new;
   my %seen;
   foreach my $n (0 .. 2**24 - 1) {
     my ($x, $y) = $path->n_to_xy ($n);

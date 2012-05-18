@@ -27,7 +27,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -167,6 +167,28 @@ sub new {
   return $self;
 }
 
+# R=radius_factor*sqrt($n)
+# R^2 = radius_factor^2 * $n
+# avoids sqrt and sin/cos in the main n_to_xy()
+#
+sub n_to_rsquared {
+  my ($self, $n) = @_;
+  ### VogelFloret RSquared: $i, $seq->{'planepath_object'}
+
+  my $rf = $self->{'radius_factor'};
+  $rf *= $rf;  # squared
+
+  # don't round BigInt*flonum if radius_factor is not an integer, promote to
+  # BigFloat instead
+  if (ref $n && $n->isa('Math::BigInt') && $rf != int($rf)) {
+    require Math::BigFloat;
+    $n = Math::BigFloat->new($n);
+  }
+
+  return $n * $rf;
+}
+
+
 sub n_to_xy {
   my ($self, $n) = @_;
   return if $n < 0;
@@ -266,23 +288,58 @@ sub xy_to_n {
   #   return;
 }
 
+# max corner at R
+# R+0.5 = sqrt(N) * radius_factor
+# sqrt(N) = (R+0.5)/rfactor
+# N = (R+0.5)^2 / rfactor^2
+#   = (R^2 + R + 1/4) / rfactor^2
+#   <= (X^2+Y^2 + X+Y + 1/4) / rfactor^2
+#   <= (X(X+1) + Y(Y+1) + 1) / rfactor^2 
+#
+# min corner at R
+# R-0.5 = sqrt(N) * radius_factor
+# sqrt(N) = (R-0.5)/rfactor
+# N = (R-0.5)^2 / rfactor^2
+#   = (R^2 - R + 1/4) / rfactor^2
+#   >= (X^2+Y^2 - (X+Y)) / rfactor^2      because x+y >= r
+#   = (X(X-1) + Y(Y-1)) / rfactor^2 
+
 # not exact
 sub rect_to_n_range {
   my $self = shift;
   ### VogelFloret rect_to_n_range(): @_
+  my ($n_lo, $n_hi) = Math::PlanePath::SacksSpiral->rect_to_n_range(@_);
 
-  my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range(@_);
-  # minimum r_lo=1 for minimum N=1
+  my $rf = $self->{'radius_factor'};
+  $rf *= $rf; # squared
 
-  my $radius_factor = $self->{'radius_factor'};
-  $r_lo = ($r_lo-0.6) / $radius_factor;
-  if ($r_lo < 1) { $r_lo = 1; }
-  $r_hi = ($r_hi + 0.6) / $radius_factor;
-  ### $r_lo
-  ### $r_hi
+  # avoid BigInt/flonum if radius_factor is not an integer, promote to
+  # BigFloat instead
+  if ($rf == int($rf)) {
+    $n_hi += $rf-1; # division round upwards
+  } else {
+    if (ref $n_lo && $n_lo->isa('Math::BigInt')) {
+      require Math::BigFloat;
+      $n_lo = Math::BigFloat->new($n_lo);
+    }
+    if (ref $n_hi && $n_lo->isa('Math::BigInt')) {
+      require Math::BigFloat;
+      $n_hi = Math::BigFloat->new($n_hi);
+    }
+  }
 
-  return (int($r_lo*$r_lo),
-          int($r_hi*$r_hi + 2));
+  $n_lo = int($n_lo / $rf);
+  if ($n_lo < 1) { $n_lo = 1; }
+
+  $n_hi = _ceil($n_hi / $rf);
+
+  return ($n_lo, $n_hi);
+}
+
+sub _ceil {
+  my ($x) = @_;
+  my $int = int($x);
+  return ($x > $int ? $int+1 : $int);
 }
 
 1;
@@ -577,6 +634,11 @@ floret is where the integers fall.
 
 For C<$n < 0> the return is an empty list, it being considered there are no
 negative points in the spiral.
+
+=item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
+
+Return the radial distance R^2 of point C<$n>, or C<undef> if there's
+no point C<$n>.  This is C<$n * $radius_factor**2>.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

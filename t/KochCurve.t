@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 114;
+plan tests => 169;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -59,6 +59,30 @@ require Math::PlanePath::KochCurve;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# random rect_to_n_range()
+
+{
+  require Math::PlanePath::KochCurve;
+  my $path = Math::PlanePath::KochCurve->new;
+  for (1 .. 5) {
+    my $bits = int(rand(25));     # 0 to 25, inclusive
+    my $n = int(rand(2**$bits));  # 0 to 2^bits, inclusive
+
+    my ($x,$y) = $path->n_to_xy ($n);
+
+    my $rev_n = $path->xy_to_n ($x,$y);
+    ok (defined $rev_n, 1,
+        "xy_to_n($x,$y) reverse n, got undef");
+
+    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+    ok ($n_lo <= $n, 1,
+        "rect_to_n_range() n=$n at xy=$x,$y cf got n_lo=$n_lo");
+    ok ($n_hi >= $n, 1,
+        "rect_to_n_range() n=$n at xy=$x,$y cf got n_hi=$n_hi");
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -347,6 +371,26 @@ foreach my $elem ([ 1, 1,0 ],
 
   }
   ok ($bad, 0, "turn/dir sequence");
+}
+
+#------------------------------------------------------------------------------
+# random _n_to_dxdy()
+
+{
+  my $path = Math::PlanePath::KochCurve->new;
+  foreach (1 .. 20) {
+    my $bits = int(rand(25));     # 0 to 25, inclusive
+    my $n = int(rand(2**$bits));  # 0 to 2^bits, inclusive
+
+    my ($x,$y) = $path->n_to_xy ($n);
+    my ($next_x,$next_y) = $path->n_to_xy ($n+1);
+    my $delta_dx = $next_x - $x;
+    my $delta_dy = $next_y - $y;
+
+    my ($func_dx,$func_dy) = $path->_n_to_dxdy ($n);
+    ok ($func_dx, $delta_dx, "_n_to_dxdy($n) dx at xy=$x,$y");
+    ok ($func_dy, $delta_dy, "_n_to_dxdy($n) dy at xy=$x,$y");
+  }
 }
 
 

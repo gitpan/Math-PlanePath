@@ -29,12 +29,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -62,26 +63,31 @@ sub arms_count {
 
 use constant parameter_info_array =>
   [
-   { name      => 'arms',
-     share_key => 'arms_8',
-     type      => 'integer',
-     minimum   => 1,
-     maximum   => 8,
-     default   => 1,
-     width     => 1,
+   { name        => 'arms',
+     share_key   => 'arms_8',
+     type        => 'integer',
+     minimum     => 1,
+     maximum     => 8,
+     default     => 1,
+     width       => 1,
+     description => 'Arms',
    },
 
-   { name      => 'straight_spacing',
-     type      => 'integer',
-     minimum   => 1,
-     default   => 1,
-     width     => 1,
+   { name        => 'straight_spacing',
+     display     => 'Straight Spacing',
+     type        => 'integer',
+     minimum     => 1,
+     default     => 1,
+     width       => 1,
+     description => 'Spacing of the straight line points.',
    },
-   { name      => 'diagonal_spacing',
-     type      => 'integer',
-     minimum   => 1,
-     default   => 1,
-     width     => 1,
+   { name        => 'diagonal_spacing',
+     display     => 'Diagonal Spacing',
+     type        => 'integer',
+     minimum     => 1,
+     default     => 1,
+     width       => 1,
+     description => 'Spacing of the diagonal points.',
    },
   ];
 
@@ -138,11 +144,8 @@ sub n_to_xy {
   my $x = my $y = ($n * 0);  # inherit big 0
   my $len = $x + $base;      # inherit big
 
-  while ($n) {
-    my $digit = $n % 4;      # low to high base 4 digits
-    $n = int($n/4);
-    ### at: "$x,$y"
-    ### $digit
+  foreach my $digit (_digit_split_lowtohigh($n,4)) { # low to high base 4
+    ### at: "$x,$y  digit=$digit"
 
     if ($digit == 0) {
       $x = $frac + $x;

@@ -19,10 +19,41 @@
 
 use 5.004;
 use strict;
+use Math::Trig 'pi','tan';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+{
+  # polygon pack
+
+  my $poly = 4;
+  my $a = 2*pi/$poly;
+  my $slope = tan($a/2) * 2;
+  print "slope $slope\n";
+  my $w = 1;
+
+  # tan a/2 = 0.5/c
+  # c = 0.5 / tan(a/2)
+  my $c = 0.5 / tan($a/2);
+
+  for (1 .. 10) {
+    printf "c=%.3f w=%d\n", $c, $w;
+
+    # inward
+    # w=3, full c*s, each c*s/w, half to centre
+    my $full = $c*$slope;
+    my $seg = $full / $w;
+    my $b = $seg / 2;
+    my $extra_c = sqrt(1 - $b*$b);
+    printf "in  full=%.2f seg=%.2f b=%.2f  add %.6f\n",
+      $full, $seg, $b, $extra_c;
+    $c += $extra_c;
+    $w++;
+  }
+  exit 0;
+}
 
 {
   # max dx

@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -76,17 +76,19 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
-  [ { name       => 'tree_type',
-      share_key  => 'tree_type_pythagorean',
-      type       => 'enum',
-      choices    => ['UAD','FB'],
-      default    => 'UAD',
+  [ { name            => 'tree_type',
+      share_key       => 'tree_type_pythagorean',
+      type            => 'enum',
+      default         => 'UAD',
+      choices         => ['UAD','FB'],
+      choices_display => ['UAD','FB'],
     },
-    { name       => 'coordinates',
-      share_key  => 'coordinates_pythagorean',
-      type       => 'enum',
-      choices    => ['AB','PQ'], # 'Octant'
-      default    => 'AB',
+    { name            => 'coordinates',
+      share_key       => 'coordinates_pythagorean',
+      type            => 'enum',
+      default         => 'AB',
+      choices         => ['AB','PQ'], # 'Octant'
+      choices_display => ['AB','PQ'], # 'Octant'
     },
   ];
 

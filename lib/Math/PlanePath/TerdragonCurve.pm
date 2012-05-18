@@ -27,18 +27,22 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use Math::PlanePath::TerdragonMidpoint;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -81,81 +85,57 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n, $n); }
 
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;  # inherit possible BigFloat
-    $n = $int;          # BigFloat int() gives BigInt, use that
-  }
-
   my $zero = ($n * 0);  # inherit bignum 0
 
+  my $i = 0;
+  my $j = 0;
+  my $k = 0;
+  my $si = $zero;
+  my $sj = $zero;
+  my $sk = $zero;
+
   # initial rotation from arm number
-  my $arms = $self->{'arms'};
-  my $rot = $n % $arms;
-  $n = int($n/$arms);
-
-  my @digits;
-  my (@si, @sj, @sk);  # vectors
   {
-    my $si = $zero + 1; # inherit bignum 1
-    my $sj = $zero;     # inherit bignum 0
-    my $sk = $zero;     # inherit bignum 0
+    my $int = int($n);
+    my $frac = $n - $int;  # inherit possible BigFloat
+    $n = $int;             # BigFloat int() gives BigInt, use that
 
-    for (;;) {
-      push @digits, ($n % 3);
-      push @si, $si;
-      push @sj, $sj;
-      push @sk, $sk;
-      ### push: "digit $digits[-1]   $si,$sj,$sk"
+    my $arms = $self->{'arms'};
+    my $rot = $n % $arms;
+    $n = int($n/$arms);
 
-      $n = int($n/3) || last;
-
-      # straight + rot120 + straight
-      ($si,$sj,$sk) = (2*$si - $sj,
-                       2*$sj - $sk,
-                       2*$sk + $si);
+    my $s = $zero + 1;  # inherit bignum 1
+    if ($rot >= 3) {
+      $s = -$s;         # rotate 180
+      $frac = -$frac;
+      $rot -= 3;
     }
-  }
-  ### @digits
-
-  my $i = $zero;
-  my $j = $zero;
-  my $k = $zero;
-  while (defined (my $digit = pop @digits)) {  # digits high to low
-    my $si = pop @si;
-    my $sj = pop @sj;
-    my $sk = pop @sk;
-    ### at: "$i,$j,$k  $digit   side $si,$sj,$sk"
-    ### $rot
-
-    $rot %= 6;
-    if ($rot == 1)    { ($si,$sj,$sk) = (-$sk,$si,$sj); }
-    elsif ($rot == 2) { ($si,$sj,$sk) = (-$sj,-$sk,$si); }
-    elsif ($rot == 3) { ($si,$sj,$sk) = (-$si,-$sj,-$sk); }
-    elsif ($rot == 4) { ($si,$sj,$sk) = ($sk,-$si,-$sj); }
-    elsif ($rot == 5) { ($si,$sj,$sk) = ($sj,$sk,-$si); }
-
-    if ($digit) {
-      $i += $si;  # digit=1 or digit=2
-      $j += $sj;
-      $k += $sk;
-      if ($digit == 2) {
-        $i -= $sj;  # digit=2, straight+rot120
-        $j -= $sk;
-        $k += $si;
-      } else {
-        $rot += 2;  # digit=1
-      }
-    }
+    if ($rot == 0)    { $i = $frac; $si = $s; } # rotate 0
+    elsif ($rot == 1) { $j = $frac; $sj = $s; } # rotate +60
+    else              { $k = $frac; $sk = $s; } # rotate +120
   }
 
-  $rot %= 6;
-  $i = $frac * $rot_to_si[$rot] + $i;
-  $j = $frac * $rot_to_sj[$rot] + $j;
-  $k = $frac * $rot_to_sk[$rot] + $k;
+  foreach my $digit (_digit_split_lowtohigh($n,3)) {
+    ### at: "$i,$j,$k   side $si,$sj,$sk"
+    ### $digit
 
-  ### final: "$i,$j,$k"
+    if ($digit == 1) {
+      ($i,$j,$k) = ($si-$j, $sj-$k, $sk+$i);  # rotate +120 and add
+    } elsif ($digit == 2) {
+      $i -= $sk;   # add rotated +60
+      $j += $si;
+      $k += $sj;
+    }
+
+    # add rotated +60
+    ($si,$sj,$sk) = ($si - $sk,
+                     $sj + $si,
+                     $sk + $sj);
+  }
+
+  ### final: "$i,$j,$k   side $si,$sj,$sk"
+  ### is: (2*$i + $j - $k).",".($j+$k)
+
   return (2*$i + $j - $k, $j+$k);
 }
 
@@ -182,7 +162,7 @@ sub xy_to_n {
 }
 sub xy_to_n_list {
   my ($self, $x, $y) = @_;
-  ### TerdragonCurve xy_to_n(): "$x, $y"
+  ### TerdragonCurve xy_to_n_list(): "$x, $y"
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
@@ -206,7 +186,7 @@ sub xy_to_n_list {
 
     next unless defined $t;
 
-    my ($tx,$ty) = $self->n_to_xy($t)
+    my ($tx,$ty) = n_to_xy($self,$t)  # not a method for TerdragonRounded
       or next;
 
     if ($tx == $x && $ty == $y) {
@@ -261,6 +241,78 @@ sub rect_to_n_range {
 1;
 __END__
 
+
+# old n_to_xy()
+#
+# # initial rotation from arm number
+# my $arms = $self->{'arms'};
+# my $rot = $n % $arms;
+# $n = int($n/$arms);
+
+# my @digits;
+# my (@si, @sj, @sk);  # vectors
+# {
+#   my $si = $zero + 1; # inherit bignum 1
+#   my $sj = $zero;     # inherit bignum 0
+#   my $sk = $zero;     # inherit bignum 0
+#
+#   for (;;) {
+#     push @digits, ($n % 3);
+#     push @si, $si;
+#     push @sj, $sj;
+#     push @sk, $sk;
+#     ### push: "digit $digits[-1]   $si,$sj,$sk"
+#
+#     $n = int($n/3) || last;
+#
+#     # straight + rot120 + straight
+#     ($si,$sj,$sk) = (2*$si - $sj,
+#                      2*$sj - $sk,
+#                      2*$sk + $si);
+#   }
+# }
+# ### @digits
+#
+# my $i = $zero;
+# my $j = $zero;
+# my $k = $zero;
+# while (defined (my $digit = pop @digits)) {  # digits high to low
+#   my $si = pop @si;
+#   my $sj = pop @sj;
+#   my $sk = pop @sk;
+#   ### at: "$i,$j,$k  $digit   side $si,$sj,$sk"
+#   ### $rot
+#
+#   $rot %= 6;
+#   if ($rot == 1)    { ($si,$sj,$sk) = (-$sk,$si,$sj); }
+#   elsif ($rot == 2) { ($si,$sj,$sk) = (-$sj,-$sk,$si); }
+#   elsif ($rot == 3) { ($si,$sj,$sk) = (-$si,-$sj,-$sk); }
+#   elsif ($rot == 4) { ($si,$sj,$sk) = ($sk,-$si,-$sj); }
+#   elsif ($rot == 5) { ($si,$sj,$sk) = ($sj,$sk,-$si); }
+#
+#   if ($digit) {
+#     $i += $si;  # digit=1 or digit=2
+#     $j += $sj;
+#     $k += $sk;
+#     if ($digit == 2) {
+#       $i -= $sj;  # digit=2, straight+rot120
+#       $j -= $sk;
+#       $k += $si;
+#     } else {
+#       $rot += 2;  # digit=1
+#     }
+#   }
+# }
+#
+# $rot %= 6;
+# $i = $frac * $rot_to_si[$rot] + $i;
+# $j = $frac * $rot_to_sj[$rot] + $j;
+# $k = $frac * $rot_to_sk[$rot] + $k;
+#
+# ### final: "$i,$j,$k"
+# return (2*$i + $j - $k, $j+$k);
+
+
 =for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism TerdragonMidpoint
 
 =head1 NAME
@@ -289,7 +341,7 @@ This is the terdragon curve by Davis and Knuth,
            24/33/42 ---------- 22/25                                5
            /      \           /     \
           /        \         /       \
-  40/43/46 -------- 20/23/44 -------- 12/21            10           4
+    40/43/46 ------ 20/23/44 -------- 12/21            10           4
           \        /        \        /      \        /     \
            \      /          \      /        \      /       \
              18/45 --------- 13/16/19 ------ 8/11/14 -------- 9     3
@@ -317,7 +369,7 @@ The base figure is an "S" shape
     0-----1
 
 which then repeats in self-similar style, so N=3 to N=6 is a copy rotated
-+120 degrees, which is the angle of like N=1 to N=2,
++120 degrees, which is the angle of the N=1 to N=2 edge,
 
     6      4          base figure repeats
      \   / \          as N=3 to N=6,
@@ -377,6 +429,13 @@ Y*sqrt(3) for a triangular grid, per L<Math::PlanePath/Triangular Lattice>).
 The following is points N=0 to N=3^6=729 going half-circle around to 180
 degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
 
+=cut
+
+# the following generated by
+#   math-image --path=TerdragonCurve --expression='i<=729?i:0' --text --size=132x40
+
+=pod
+
                                * *               * *
                             * * * *           * * * *
                            * * * *           * * * *
@@ -398,13 +457,6 @@ degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
                  * * * *           * * * *
                 * * * *           * * * *
                  * *               * *
-
-=cut
-
-# the above generated by
-# math-image --path=TerdragonCurve --expression='i<=729?i:0' --text --size=132x40
-
-=pod
 
 =head1 Tiling
 
@@ -462,35 +514,6 @@ second, N=2,8,14,20 the third, etc.
 With six arms every X,Y point is visited three times, except the origin 0,0
 where all six begin.  Every edge between the points is traversed once.
 
-=head2 Turns
-
-At each point N the curve always turns 120 degrees either to the left or
-right, it never goes straight ahead.  If N is written in ternary then the
-lowest non-zero digit gives the turn
-
-    Ndigit      Turn
-    ------      ----
-      1         left
-      2         right
-
-Essentially at N=3^level or N=2*3^level the turn follows the shape at that 1
-or 2 point.  The first and last unit step in each level are in the same
-direction, so the next level shape gives the turn.
-
-       2*3^k-------3^(k+1)
-          \
-           \
-    0-------1*3^k
-
-The direction at N, ie. the total cumulative turn, is given by the number of
-1 digits when N is written in ternary,
-
-    direction = (count 1s in ternary N) * 120 degrees
-
-For example N=12 is ternary 110 which has two 1s so the cumulative turn at
-that point is 2*120=240 degrees, ie. the segment N=16 to N=17 is at angle
-240.
-
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -535,6 +558,50 @@ Return 0, the first N in the path.
 
 =head1 FORMULAS
 
+=head2 N to X,Y
+
+There's no reversals or reflections in the curve so C<n_to_xy()> can take
+the digits of N either low to high or high to low applying what's in effect
+powers of the N=3 position.  The current code goes low to high using i,j,k
+coordinates as described in L<Math::PlanePath/Triangular Calculations>.
+
+    si = 1    # position of endpoint N=3^level
+    sj = 0    #    where level=number of digits processed
+    sk = 0
+
+    i = 0     # position of N for digits so far processed
+    j = 0
+    k = 0
+
+    loop base 3 digits of N low to high
+       if digit == 0
+          i,j,k no change
+       if digit == 1
+          (i,j,k) = (si-j, sj-k, sk+i)  # rotate +120, add si,sj,sk
+       if digit == 2
+          i -= sk      # add (si,sj,sk) rotated +60
+          j += si
+          k += sj
+
+       (si,sj,sk) = (si - sk,      # add rotated +60
+                     sj + si,
+                     sk + sj)
+
+The digit handling is a combination of rotate and offset,
+
+    digit==1                   digit 2
+    rotate and offset          offset at si,sj,sk rotated 
+
+         ^                          2------>
+          \                            
+           \                          \ 
+    *---  --1                  *--   --*
+
+The calculation can also be thought of as using w=1/2+I*sqrt(3)/2, a complex
+sixth root of unity.  i is the real part, j in the w direction (60 degrees),
+and k in the w^2 direction (120 degrees).  si,sj,sk increase as if
+multiplied by w+1.
+
 =head2 X,Y to N
 
 The current code applies TerdragonMidpoint C<xy_to_n()> to calculate six
@@ -547,6 +614,35 @@ midpoint calculation gives N-1 for the towards and N for the away.  Is there
 a good way to tell which edge is the smallest?  Or just which 3 edges lead
 away?  It might be directions 0,2,4 for the even arms and 1,3,5 for the odd
 ones, but the boundary of those areas is tricky.
+
+=head2 Turns
+
+At each point N the curve always turns 120 degrees either to the left or
+right, it never goes straight ahead.  If N is written in ternary then the
+lowest non-zero digit gives the turn
+
+    Ndigit      Turn
+    ------      ----
+      1         left
+      2         right
+
+Essentially at N=3^level or N=2*3^level the turn follows the shape at that 1
+or 2 point.  The first and last unit step in each level are in the same
+direction, so the next level shape gives the turn.
+
+       2*3^k-------3^(k+1)
+          \
+           \
+    0-------1*3^k
+
+The direction at N, ie. the total cumulative turn, is given by the number of
+1 digits when N is written in ternary,
+
+    direction = (count 1s in ternary N) * 120 degrees
+
+For example N=12 is ternary 110 which has two 1s so the cumulative turn at
+that point is 2*120=240 degrees, ie. the segment N=16 to N=17 is at angle
+240.
 
 =head1 OEIS
 

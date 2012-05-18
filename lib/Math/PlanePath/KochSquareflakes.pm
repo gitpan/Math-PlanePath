@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -54,10 +54,11 @@ use Math::PlanePath::KochCurve 42;
 use constant n_frac_discontinuity => 0;
 
 use constant parameter_info_array =>
-  [ { name      => 'inward',
-      display   => 'Inward',
-      type      => 'boolean',
-      default   => 0,
+  [ { name        => 'inward',
+      display     => 'Inward',
+      type        => 'boolean',
+      default     => 0,
+      description => 'Whether to direct the sides of the square inward, rather than outward.',
     } ];
 
 # level 0 inner square
@@ -604,7 +605,7 @@ sequence,
 
     0.5, 2, 7, 24, 82, 280, 956, 3264, ...
 
-This recurrance occurs because the replications are 4 wide when horizontal
+This recurrence occurs because the replications are 4 wide when horizontal
 but 3 wide when diagonal.
 
 =head1 FUNCTIONS

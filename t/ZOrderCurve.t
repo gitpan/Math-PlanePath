@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 10 }
+BEGIN { plan tests => 15 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::ZOrderCurve;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::ZOrderCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ZOrderCurve->VERSION,  $want_version,
@@ -71,5 +71,17 @@ require Math::PlanePath::ZOrderCurve;
   ok ($path->y_negative, 0, 'y_negative() instance method');
 }
 
+
+#------------------------------------------------------------------------------
+# n_to_rsquared()
+
+{
+  my $path = Math::PlanePath::ZOrderCurve->new;
+  ok ($path->n_to_rsquared(0), 0);
+  ok ($path->n_to_rsquared(1), 1);
+  ok ($path->n_to_rsquared(3), 2);
+  ok ($path->n_to_rsquared(4), 4);
+  ok ($path->n_to_rsquared(6), 5);
+}
 
 exit 0;

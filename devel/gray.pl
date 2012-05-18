@@ -116,13 +116,13 @@ use Smart::Comments;
 
   sub to_gray {
     my ($n, $radix) = @_;
-    my $digits = Math::PlanePath::GrayCode::_digit_split($n,$radix);
+    my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
     Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
     return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
   }
   sub from_gray {
     my ($n, $radix) = @_;
-    my $digits = Math::PlanePath::GrayCode::_digit_split($n,$radix);
+    my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
     Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
     return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
   }
@@ -139,7 +139,7 @@ use Smart::Comments;
 
   sub to_binary_gray {
     my ($n) = @_;
-    my $digits = Math::PlanePath::GrayCode::_digit_split($n,2);
+    my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,2);
     Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,2);
     return Math::PlanePath::GrayCode::_digit_join($digits,2);
   }
@@ -152,7 +152,7 @@ use Smart::Comments;
   my $width = length($radix)*2*$num;
   foreach my $i (0 .. $radix ** $num - 1) {
 
-    my $i_digits = Math::PlanePath::GrayCode::_digit_split($i,$radix);
+    my $i_digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($i,$radix);
 
     my @gray_digits = @$i_digits;
     my $gray_digits = \@gray_digits;

@@ -24,13 +24,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -38,11 +39,12 @@ use Math::PlanePath;
 use constant n_start => 0;
 
 use constant parameter_info_array =>
-  [ { name      => 'realpart',
-      type      => 'integer',
-      default   => 1,
-      minimum   => 1,
-      width     => 2,
+  [ { name        => 'realpart',
+      type        => 'integer',
+      default     => 1,
+      minimum     => 1,
+      width       => 2,
+      description => 'Real part r in the i-r complex base.',
     } ];
 
 sub new {
@@ -86,17 +88,13 @@ sub n_to_xy {
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
 
-  while ($n) {
-    ### at: "$x,$y"
-    ### digit: ($n % $norm)
-
-    my $digit = $n % $norm;
-    $n = int($n/$norm);
+  foreach my $digit (_digit_split_lowtohigh($n,$norm)) {
+    ### at: "$x,$y  digit=$digit"
 
     $x += $digit * $dx;
     $y += $digit * $dy;
 
-    # (dx,dy) = (dx + i*dy)*(i-$realpart)
+    # multiply i-r, ie. (dx,dy) = (dx + i*dy)*(i-$realpart)
     $dy = -$dy;
     ($dx,$dy) = ($dy - $realpart*$dx,
                  $dx + $realpart*$dy);
@@ -208,10 +206,10 @@ bits and X,Y is the resulting complex number.  It can be shown that this is
 a one-to-one mapping so every integer point of the plane is visited.
 
 The shape of points N=0 to N=2^level-1 is repeated in the next N=2^level to
-N=(2*2^level)-1.  For example N=0 to N=7 is repeated as N=8 to N=15, but
-starting at X=2,Y=2 instead of the origin.  That 2,2 is because b^3 = 2+2i.
-There's no rotations or mirroring etc in this replication, just the position
-moves.
+N=2^(level+1)-1.  For example N=0 to N=7 is repeated as N=8 to N=15,
+starting at X=2,Y=2 instead of the origin.  That position 2,2 is because b^3
+= 2+2i.  There's no rotations or mirroring etc in this replication, just
+position offsets.
 
     N=0 to N=7          N=8 to N=15 repeat shape
 
@@ -221,10 +219,10 @@ moves.
         4   5                    12  13
 
 For b=i-1 each N=2^level point starts at b^level.  The powering of that b
-means the start position rotates around by +135 degrees each time, and
+means the start position rotates around by +135 degrees each time and
 outward by a radius factor sqrt(2) each time.  So for example b^3 = 2+2i is
-followed by b^4 = -4, which is 135 degrees around, and radius |b^3|=sqrt(8)
-becomes |b^4|=sqrt(16).
+followed by b^4 = -4, which is 135 degrees around and radius |b^3|=sqrt(8)
+becoming |b^4|=sqrt(16).
 
 =head2 Real Part
 
@@ -256,7 +254,68 @@ The offset back for each run like N=5 shown is the r in i-r, then the next
 level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at Y=-2*2=-4, X=2*2-1=3.
 
 The successive replications tile the plane for any r, though the N values
-needed to rotate around and do so might become large if norm=r*r+1 is large.
+needed to rotate around and do so become large if norm=r*r+1 is large.
+
+=head2 X Axis Values
+
+N=0,1,12,13,16,17,etc on the X axis is integers using only digits
+0,1,0xC,0xD in hexadecimal.  Those on the positive X axis have an odd number
+of such digits and on the negative X axis even number of digits.
+
+On the X axis the imaginary parts of the bit powers b^k must cancel out to
+leave just a real part.  The powers repeat in an 8-long cycle
+
+    k    b^k for b=i-1
+    0        +1
+    1      i -1      
+    2    -2i +0   \
+    3     2i +2   /
+    4        -4
+    5    -4i +4
+    6     8i +0   \
+    7    -8i -8   /
+
+The k=0 and k=4 bits are always reals and can always be included.  Bits pair
+k=2 and k=3 have imaginary parts -2i and 2i which cancel out, so they can be
+included together.  Similarly k=6 and k=7 with 8i and -8i.  The two blocks
+k=0to3 and k=4to7 differ only in a negation so the bits can be reckoned in
+groups of 4, ie. hexadecimal.  Bit 1 is 1 and bits 2,3 together are 0xC, so
+the possible combinations are 0,1,0xC,0xD.
+
+The high hex digit determines the sign, positive or negative, of the total
+real part.  k=0 or k=2,3 are positive.  k=4 or k=6,7 are negative, so
+
+    X>0      X<0
+
+    0x01     0x1_     even number of hex 0,1,C,D following
+    0x0C     0xC_     ("_" digit any of 0,1,C,D)
+    0x0D     0xD_
+
+which is equivalent to XE<gt>0 an odd number of hex digits or XE<lt>0 an
+even number.  For example N=28=0x1C at X=-2 is the XE<lt>0 form "0x1_".
+
+The order of the values on the positive X axis is obtained by taking the
+digits in reverse order on alternate positions
+
+    0,1,C,D   high digit
+    D,C,1,0
+    0,1,C,D
+    ...
+    D,C,1,0
+    0,1,C,D   low digit
+
+For example in the following notice the first and third digit increases, but
+the middle digit decreases,
+
+    X=4to7   N=0x1D0,0x1D1,0x1DC,0x1DD
+    X=8to11  N=0x1C0,0x1C1,0x1CC,0x1CD
+    X=12to15 N=0x110,0x111,0x11C,0x11D
+    X=16to19 N=0x100,0x101,0x10C,0x10D
+    X=20to23 N=0xCD0,0xCD1,0xCDC,0xCDD
+
+For the negative X axis it's the same if reading by increasing X,
+ie. towards +infinity, or the opposite way around if reading decreasing X,
+ie. towards -infinity.
 
 =head2 Fractal
 
@@ -266,16 +325,17 @@ the points of the complex plane reached by such fractional N.  The set of
 points can be shown to be connected and completely cover a certain radius
 around the origin.
 
-The code here might be pressed into use for that to some finite number of
-bits of N by multiplying up to an integer by a chosen power k
+The code here might be pressed into use for that up to some finite number of
+bits by multiplying up to an integer N with a desired power k
 
     Nint = Nfrac * 256^k
     Xfrac = Xint / 16^k
     Yfrac = Yint / 16^k
 
 256 is a good power because b^8=16 is a positive real and means there's no
-rotations to apply to the X,Y, just a division by (b^8)^k.  b^4=-4 for
-multiplier 16^k and divisor (-4)^k would be almost as easy.
+rotations to apply to the resulting X,Y, just a division by (b^8)^k=16^k
+each.  b^4=-4 for multiplier 16^k and divisor (-4)^k would be almost as
+easy.
 
 =head1 FUNCTIONS
 
@@ -361,6 +421,17 @@ quotient is the new Y and the remainder is the digit.
 # The "level-7" is since the innermost few levels take a while to cover the
 # points surrounding the origin.  Notice for example X=1,Y=-1 is not reached
 # until N=58.  But after that it grows like N approx = pi*R^2.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A066321  (etc)
+
+    A066321    N on X axis, being base i-1 positive reals
+    A066322    diffs N(X=16k+4) - N(X=16k+3)
+    A066323    N on X axis, in binary
 
 =head1 SEE ALSO
 

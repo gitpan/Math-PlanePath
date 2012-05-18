@@ -24,7 +24,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -283,29 +283,31 @@ PyrmaidSides in order of plain sum X+Y.
 
 Points with the same distance are taken in anti-clockwise order around from
 the X axis.  For example X=3,Y=1 is sqrt(10) from the origin, as are the
-swapped X=1,Y=3, and negative X=-1,Y=3 etc in other quadrants, for a total 8
-points N=30 to N=37 all the same distance.
+swapped X=1,Y=3, and X=-1,Y=3 etc in other quadrants, for a total 8 points
+N=30 to N=37 all the same distance.
 
 When one of X or Y is 0 there's no negative, so just four negations like
 N=10 to 13 points X=2,Y=0 through X=0,Y=-2.  Or on the diagonal X==Y there's
 no swap, so just four like N=22 to N=25 points X=3,Y=3 through X=3,Y=-3.
 
 There can be more than one way for the same distance to arise.
-A Pythagorean triple like 3^2 + 4^2 == 5^2 has 8 points from the 3,4 plus 4
+A Pythagorean triple like 3^2 + 4^2 == 5^2 has 8 points from the 3,4, then 4
 points from the 5,0 giving a total 12 points N=70 to N=81.  Other
-combinations like 20^2 + 15^2 == 24^2 + 7^2 occur, and with more than two
-different ways to have the same sum too.
+combinations like 20^2 + 15^2 == 24^2 + 7^2 occur too, and also with more
+than two different ways to have the same sum.
 
 =head2 Multiples of 4
 
 The first point of a given distance from the origin is either on the X axis
-or somewhere in the first octant.  The row Y=1 just above the axis is always
-first from X>=2 onwards, and similarly further rows for big enough X.
+or somewhere in the first octant.  The row Y=1 just above the axis is the
+first of its equals from XE<gt>=2 onwards, and similarly further rows for
+big enough X.
 
-Since there's always a multiple of 4 many points with the same distance, the
-first point has N=4*k+2, and similarly on the negative X side N=4*j.  If you
-plot the prime numbers on the path then those even number N's (composites)
-are just above the X axis, and on and just below the negative X axis.
+There's always a multiple of 4 many points with the same distance so the
+first point has N=4*k+2, and similarly on the negative X side N=4*j, for
+some k or j.  If you plot the prime numbers on the path then those even N's
+(composites) are gaps just above the positive X axis, and on or just below
+the negative X axis.
 
 =head2 Circle Lattice
 
@@ -313,19 +315,19 @@ Gauss's circle lattice problem asks how many integer X,Y points there are
 within a circle of radius R.
 
 The points on the X axis N=2,10,26,46, etc are the first for which
-X^2+Y^2==R^2 (integer X==R), so N-1 there is the number of points strictly
-inside, ie. X^2+Y^2 E<lt> R^2 (Sloane's A051132 C<http://oeis.org/A051132>).
+X^2+Y^2==R^2 (integer X==R), so N-1 is the number of points strictly inside,
+ie. X^2+Y^2 E<lt> R^2 (Sloane's A051132 C<http://oeis.org/A051132>).
 
 The last point satisfying X^2+Y^2==R^2 is either in the octant just below
 the X axis, or is on the negative Y axis.  Those N's are the number of
 points X^2+Y^2E<lt>=R^2, Sloane's A000328.
 
-When that A000328 is plotted on the path a straight line can be seen in the
-fourth quadrant extending down just above the diagonal.  It arises from
-multiples of the Pythagorean 3^2 + 4^2, first X=4,Y=-3, then X=8,Y=-6, etc
-X=4*k,Y=-3*k.  Sometimes the multiple is not the last among those of that
-5*k radius though, so there's gaps in the line.  For example 20,-15 is not
-the last since 24,-7 is also 25 away from the origin.
+When that A000328 sequence is plotted on the path a straight line can be
+seen in the fourth quadrant extending down just above the diagonal.  It
+arises from multiples of the Pythagorean 3^2 + 4^2, first X=4,Y=-3, then
+X=8,Y=-6, etc X=4*k,Y=-3*k.  But sometimes the multiple is not the last
+among those of that 5*k radius, so there's gaps in the line.  For example
+20,-15 is not the last since because 24,-7 is also 25 away from the origin.
 
 =head1 FUNCTIONS
 

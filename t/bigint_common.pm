@@ -26,12 +26,98 @@ use Test;
 use lib 't';
 use MyTestHelpers;
 
+sub isa_bigint {
+  my ($x) = @_;
+  if (ref $x && $x->isa('Math::BigInt')) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+sub isa_bigfloat {
+  my ($x) = @_;
+  if (ref $x && $x->isa('Math::BigFloat')) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+  
 sub bigint_checks {
   my ($bigclass) = @_;
 
   eval "require $bigclass" or die;
   MyTestHelpers::diag ("$bigclass version ",
                        $bigclass->VERSION);
+
+
+
+  #----------------------------------------------------------------------------
+  # _digit_split_lowtohigh()
+
+  {
+    require Math::PlanePath;
+    my $zero = Math::BigInt->new(0);
+    my $thirteen = Math::BigInt->new(13);
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,2)), '');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,3)), '');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,4)), '');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,8)), '');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,10)), '');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,16)), '');
+
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,2)), '1,0,1,1');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,3)), '1,1,1');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,4)), '1,3');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,8)), '5,1');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,10)), '3,1');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,16)), '13');
+
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh(Math::BigInt->new(4),4)), '0,1');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh(Math::BigInt->new(8),4)), '0,2');
+  }
+
+  #---------------------------------------------------------------------------
+  # VogelFloret
+
+  {
+    require Math::PlanePath::VogelFloret;
+    {
+      my $path = Math::PlanePath::VogelFloret->new (radius_factor => 1);
+      my $n = Math::BigInt->new(23);
+      my $rsquared = $path->n_to_rsquared($n);
+      ok ($rsquared == 23, 1);
+      ok (isa_bigint($rsquared), 1);
+    }
+    {
+      my $path = Math::PlanePath::VogelFloret->new (radius_factor => 1.5);
+      my $n = Math::BigInt->new(40);
+      my $rsquared = $path->n_to_rsquared($n);
+      ok ($rsquared == 90, 1);
+      ok (isa_bigfloat($rsquared), 1,
+          'non-integer radius_factor promote bigint->bigfloat');
+    }
+  }
+
+  #-----------------------------------------------------------------------------
+  # MultipleRings
+
+  {
+    require Math::PlanePath::MultipleRings;
+    my $path = Math::PlanePath::MultipleRings->new (step => 6);
+
+    {
+      my $n = Math::BigInt->new(23);
+      my ($got_x,$got_y) = $path->n_to_xy($n);
+      ok (isa_bigfloat($got_x), 1);
+      ok ($got_x > 0 && $got_x < 1,
+          1,
+          "MultipleRings n_to_xy($n) got_x $got_x");
+      ok ($got_y > 2.5 && $got_y < 3.1,
+          1,
+          "MultipleRings n_to_xy($n) got_y $got_y");
+    }
+  }
 
   #----------------------------------------------------------------------------
   # GcdRationals

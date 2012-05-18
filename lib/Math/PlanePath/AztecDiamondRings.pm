@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -191,6 +191,21 @@ sub rect_to_n_range {
 1;
 __END__
 
+                                                               
+       #                     67  66                             5
+       #                 68  46  45  65                         4
+       #             69  47  29  28  44  64                     3
+       #         70  48  30  16  15  27  43  63                 2
+       #     71  49  31  17   7   6  14  26  42  62             1
+       # 72  50  32  18   8   2   1   5  13  25  41  61     <- Y=0
+       # 73  51  33  19   9   3   4  12  24  40  60  84        -1
+       #     74  52  34  20  10  11  23  39  59  83            -2
+       #         75  53  35  21  22  38  58  82                -3
+       #             76  54  36  37  57  81                    -4
+       #                 77  55  56  80                        -5
+       #                     78  79                            -6
+
+
 =for stopwords SquareSpiral eg AztecDiamondRings Ryde Math-PlanePath DiamondSpiral
 
 =head1 NAME
@@ -207,32 +222,57 @@ Math::PlanePath::AztecDiamondRings -- rings around an Aztec diamond shape
 
 This path makes rings around an Aztec diamond shape,
 
-                           67  66                             5
-                       68  46  45  65                         4
-                   69  47  29  28  44  64                     3
-               70  48  30  16  15  27  43  63                 2
-           71  49  31  17   7   6  14  26  42  62             1
-       72  50  32  18   8   2   1   5  13  25  41  61     <- Y=0
-       73  51  33  19   9   3   4  12  24  40  60  84        -1
-           74  52  34  20  10  11  23  39  59  83            -2
-               75  53  35  21  22  38  58  82                -3
-                   76  54  36  37  57  81                    -4
-                       77  55  56  80                        -5
-                           78  79                            -6
+                 46-45                       4
+                /     \                       
+              47 29-28 44                    3
+             /  /     \  \                    
+           48 30 16-15 27 43  ...            2
+          /  /  /     \  \  \  \              
+        49 31 17  7--6 14 26 42 62           1
+       /  /  /  /     \  \  \  \  \            
+     50 32 18  8  2--1  5 13 25 41 61    <- Y=0    
+      |  |  |  |  |  |  |  |  |  |                 
+     51 33 19  9  3--4 12 24 40 60          -1     
+       \  \  \  \     /  /  /  /                   
+        52 34 20 10-11 23 39 59             -2     
+          \  \  \     /  /  /                      
+           53 35 21-22 38 58                -3     
+             \  \     /  /                         
+              54 36-37 57                   -4     
+                \     /                            
+                 55-56                      -5     
+                                                 
+                     ^
+    -5 -4 -3 -2 -1  X=0 1  2  3  4  5
 
-                                ^
-       -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5
+This is similar to the DiamondSpiral, but has all four corners flattened to
+2 vertical or horizontal, instead of just one in the DiamondSpiral.  This is
+only a small change to the alignment of numbers in the sides, but is more
+symmetric.
 
-This is very similar to the DiamondSpiral, but has all four corners
-flattened to 2 vertical or horizontal, instead of just one in the
-DiamondSpiral.  This is only a small change to the alignment of numbers in
-the sides, but is more symmetric.
+The hexagonal numbers 1,6,15,28,45,66,etc, k*(2k-1), are the vertical up
+along the Y axis.  The hexagonal numbers of the "second kind"
+3,10,21,36,55,78, etc k*(2k+1), are the vertical at X=-1 going downwards.
+Combining those two is the triangular numbers 3,6,10,15,21,etc, k*(k+1)/2,
+alternately on one line and the other.
 
-The hexagonal numbers 1,6,15,28,45,66,etc, k*(2k-1), are the vertical at X=0
-going upwards.  The hexagonal numbers of the "second kind" 3,10,21,36,55,78,
-etc k*(2k+1), are the vertical at X=-1 going downwards.  Combining those two
-is the triangular numbers 3,6,10,15,21,etc, k*(k+1)/2, alternately on one
-line and the other.
+The X axis 1,5,13,25,etc is the centred square numbers.  Those numbers are
+from drawing concentric squares with an extra point on each side each time,
+the same as the path here grows.
+
+    *---*---*---*
+    |           |
+    | *---*---* |     count total "*"s for
+    | |       | |     centred square numbers
+    * | *---* | *
+    | | |   | | |
+    | * | * | * |
+    | | |   | | |
+    | | *---* | |
+    * |       | *
+    | *---*---* |
+    |           |
+    *---*---*---*
 
 =head1 FUNCTIONS
 
@@ -269,32 +309,32 @@ and biggest in the rectangle.
 =head2 X,Y to N
 
 The path makes lines in each quadrant.  The quadrant is determined by the
-signs of X and Y, then count which line in that quadrant with d=X+Y or
-d=X-Y, then a quadratic in d for the starting N of the line in that
-quadrant.
+signs of X and Y, then the line in that quadrant is either d=X+Y or d=X-Y.
+A quadratic in d gives a starting N for the line and Y (or X if desired) is
+an offset from there,
 
-    Y>=0 X>=0   d=X+Y   N=(2d+2)*d+1 + Y
-    Y>=0 X<0    d=Y-X   N=2d^2       - Y
-    Y<0  X>=0   d=X-Y   N=(2d+2)*d+1 + Y
-    Y<0  X<0    d=X+Y   N=(2d+4)*d+2 - Y
+    Y>=0 X>=0     d=X+Y  N=(2d+2)*d+1 + Y
+    Y>=0 X<0      d=Y-X  N=2d^2       - Y
+    Y<0  X>=0     d=X-Y  N=(2d+2)*d+1 + Y
+    Y<0  X<0      d=X+Y  N=(2d+4)*d+2 - Y
 
 For example
 
-    Y=2 X=3     d=2+3=5      N=(2*5+2)*5+1  + 2  = 63
-    Y=2 X=-1    d=2-(-1)=3   N=2*3*3        - 2  = 16
-    Y=-1 X=4    d=4-(-1)=5   N=(2*5+2)*5+1  + -1 = 60
-    Y=-2 X=-3   d=-3+(-2)=-5 N=(2*-5+4)*-5+2 - (-2) = 34
+    Y=2 X=3       d=2+3=5      N=(2*5+2)*5+1  + 2  = 63
+    Y=2 X=-1      d=2-(-1)=3   N=2*3*3        - 2  = 16
+    Y=-1 X=4      d=4-(-1)=5   N=(2*5+2)*5+1  + -1 = 60
+    Y=-2 X=-3     d=-3+(-2)=-5 N=(2*-5+4)*-5+2 - (-2) = 34
 
 The two XE<gt>=0 cases are the same N formula and can be combined with an
 abs,
 
-    X>=0        d=X+abs(Y)   N=(2d+2)*d+1 + Y
+    X>=0          d=X+abs(Y)   N=(2d+2)*d+1 + Y
 
 This works because at Y=0 the last line of one ring joins up to the start of
 the next.  For example N=11 to N=15,
 
     15             2
-      \ 
+      \
        14          1
          \
           13   <- Y=0
@@ -321,8 +361,8 @@ in a rectangle the maximum N is at one of the four corners of the rectangle.
     x1,y1 M---|----M x1,y1
               |
 
-For any two rows y1 and y2, the values in row y2 are all bigger if
-y2E<gt>=-y1.  This is so even when y1 and y2 are on the same side of the
+For any two rows y1 and y2, the values in row y2 are all bigger than in y1
+if y2E<gt>=-y1.  This is so even when y1 and y2 are on the same side of the
 origin, ie. both positive or both negative.
 
 For any two columns x1 and x2, the values in the part with YE<gt>=0 are all
@@ -333,23 +373,32 @@ x2E<gt>=-x1-1.  So the biggest corner is at
     max_x = (x2 >= -x1 - (max_y<0)  ? x2 : x1)
 
 The difference in the X handling for Y positive or negative is due to the
-quadrant ordering.  When YE<gt>=0 the bigger values are on the X negative
-side, but when YE<lt>0 they're on the X positive side.
+quadrant ordering.  When YE<gt>=0, at X and -X the bigger N is the X
+negative side, but when YE<lt>0 it's the X positive side.
 
-A similar approach gives the minimum in a rectangle.
+A similar approach gives the minimum N in a rectangle.
 
-    if y2 < 0 then min_y=y2, and xbase=-1
-    if y1 > 0 then min_y=y1, and xbase=0
-    else           min_y=0,  and xbase=0
+    min_y = / y2 if y2 < 0, and set xbase=-1
+            | y1 if y1 > 0, and set xbase=0
+            \ 0 otherwise,  and set xbase=0
 
-    if x2 < xbase then min_x=x2
-    if x1 > xbase then min_x=x1
-    else               min_x=xbase
+    min_x = / x2 if x2 < xbase
+            | x1 if x1 > xbase
+            \ xbase otherwise
 
 The minimum row is Y=0, but if that's not in the rectangle then the y2 or y1
-top or bottom edge.  Then within a row the minimum N is at xbase=0 if
-YE<lt>0 or xbase=-1 if YE<gt>=0.  If that xbase is not in range then the x2
-or x1 left or right edge.
+top or bottom edge is the minimum.  Then within any row the minimum N is at
+xbase=0 if YE<lt>0 or xbase=-1 if YE<gt>=0.  If that xbase is not in range
+then the x2 or x1 left or right edge is the minimum.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A001844  (etc)
+
+    A001844    N on X axis, the centred squares 2n(n+1)+1
 
 =head1 SEE ALSO
 

@@ -30,7 +30,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -38,7 +38,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 # http://d4maths.lowtech.org/mirage/ulam.htm
 # http://d4maths.lowtech.org/mirage/img/ulam.gif
@@ -51,12 +51,12 @@ use Math::PlanePath;
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
 #     Pulchritudinous Primes of Ulam spiral.
 
-use constant parameter_info_array => [ { name => 'wider',
-                                         type => 'integer',
+use constant parameter_info_array => [ { name        => 'wider',
+                                         type        => 'integer',
+                                         minimum     => 0,
+                                         default     => 0,
+                                         width       => 3,
                                          description => 'Wider path.',
-                                         minimum => 0,
-                                         default => 0,
-                                         width => 3,
                                        } ];
 
 sub new {
@@ -263,6 +263,101 @@ sub rect_to_n_range {
 }
 
 
+# [ 1, 2, 3,  4,  5 ],
+# [ 1, 3, 7, 13, 21 ]
+# N = (d^2 - d + 1)
+#   = ($d**2 - $d + 1)
+#   = (($d - 1)*$d + 1)
+# d = 1/2 + sqrt(1 * $n + -3/4)
+#   = (1 + sqrt(4*$n - 3)) / 2
+#
+# wider=3
+# [ 2, 3,  4,  5 ],
+# [ 6, 13, 22, 33 ]
+# N = (d^2 + 2 d - 2)
+#   = ($d**2 + 2*$d - 2)
+#   = (($d + 2)*$d - 2)
+# d = -1 + sqrt(1 * $n + 3)
+#
+# wider=5
+# [ 2, 3,  4,  5 ],
+# [ 8, 17, 28, 41 ]
+# N = (d^2 + 4 d - 4)
+#   = ($d**2 + 4*$d - 4)
+#   = (($d + 4)*$d - 4)
+# d = -2 + sqrt(1 * $n + 8)
+#
+# wider=7
+# [ 2, 3,  4,  5 ],
+# [ 10, 21, 34, 49 ]
+# N = (d^2 + 6 d - 6)
+#   = ($d**2 + 6*$d - 6)
+#   = (($d + 6)*$d - 6)
+# d = -3 + sqrt(1 * $n + 15)
+#
+#
+# N = (d^2 + (w-1)*d + 1-w)
+# d = (1-w)/2 + sqrt($n + (w^2 + 2w - 3)/4)
+#   = (1-w + sqrt(4*$n + (w-3)(w+1))) / 2
+#
+# extra subtract d+w-1
+# Nbase = (d^2 + (w-1)*d + 1-w) + d+w-1
+#       = d^2 + w*d
+
+# use Smart::Comments;
+
+# including fraction
+sub _n_to_dxdy {
+  my ($self, $n) = @_;
+  ### _n_to_dxdy(): $n
+
+  my $w = $self->{'wider'};
+  my $d = int((1-$w + sqrt(int(4*$n) + ($w+2)*$w-3)) / 2);
+
+  my $int = int($n);
+  $n -= $int;  # fraction 0 <= $n < 1
+  $int -= ($d+$w)*$d;
+
+  ### $d
+  ### $w
+  ### $n
+  ### $int
+
+  my ($dx, $dy);
+  if ($int <= 0) {
+    if ($int < 0) {
+      ### horizontal ...
+      $dx = 1;
+      $dy = 0;
+    } else {
+      ### corner horiz to vert ...
+      $dx = 1-$n;
+      $dy = $n;
+    }
+  } else {
+    if ($int < $d) {
+      ### vertical ...
+      $dx = 0;
+      $dy = 1;
+    } else {
+      ### corner vert to horiz ...
+      $dx = -$n;
+      $dy = 1-$n;
+    }
+  }
+
+  unless ($d % 2) {
+    ### rotate +180 for even d ...
+    $dx = -$dx;
+    $dy = -$dy;
+  }
+
+  ### result: "$dx, $dy"
+  return ($dx,$dy);
+}
+
+
+
 # old bit:
 #
 # wider==0
@@ -282,40 +377,6 @@ sub rect_to_n_range {
 
 1;
 __END__
-
-
-sub n_to_dxdy {
-  my ($self, $n) = @_;
-  my $w = $self->{'wider'};
-
-  my $d = int ((2-$w + sqrt(int(4*$n) + $w*$w - 4)) / 2);
-
-  $n -= $d*$d;
-  my $int = int($n);
-  $n -= $int;  # fraction 0 <= $n < 1
-
-  my ($dx, $dy);
-  if ($int < $d+$w-1) {
-    $dx = 1;     # left
-    $dy = 0;
-  } elsif ($int == $d+$w-1) {
-    $dx = 1-$n;  # corner left to up
-    $dy = $n;
-  } elsif ($int < 2*$d+$w-1) {
-    $dx = 0;     # up
-    $dy = 1;
-  } else {
-    $dx = -$n;   # corner up to right
-    $dy = 1-$n;
-  }
-
-  if ($d % 2) {
-    $dx = -$dx;  # rotate +180
-    $dy = -$dy;
-  }
-
-  return ($dx,$dy);
-}
 
 
 =for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal OEIS Nbase sqrt BigRat Nrem wl wr Nsig
@@ -596,6 +657,7 @@ forms,
     A053615    abs(X-Y), distance to nearest pronic
     A079813    abs(dY), k 0s followed by k 1s
     A118175    abs(dY), initial 1 then k 0s followed by k 1s
+    A063826    direction 1=right,2=up,3=left,4=down
 
     A033638    N positions of the turns (extra initial 1, 1)
     A172979      those positions which are primes too
@@ -630,6 +692,8 @@ forms,
     A033988    digits on negative X axis, starting 0
     A033989    digits on Y axis, starting 0
     A033990    digits on X axis, starting 0
+
+    A062410    total sum previous row or column
 
 See summary at
 

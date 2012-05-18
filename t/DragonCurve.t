@@ -36,7 +36,7 @@ require Math::PlanePath::DragonCurve;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::DragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonCurve->VERSION,  $want_version,
@@ -90,7 +90,7 @@ require Math::PlanePath::DragonCurve;
     my $turn = ($dir - $prev_dir) % 4;
     if ($turn == 1) { return 0; }
     if ($turn == 3) { return 1; }
-    die "Oops, unrecognised turn";
+    die "Oops, unrecognised turn dir=$dir";
   }
 
   # return 0 for left, 1 for right

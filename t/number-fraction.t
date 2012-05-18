@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 265)[1];
+my $test_count = (tests => 267)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -380,6 +380,7 @@ my @modules = (
                'ComplexMinus,realpart=3',
                'ComplexRevolving',
                'ImaginaryBase',
+               'ImaginaryHalf',
 
                # 'File',  # not applicable
                'Diagonals',

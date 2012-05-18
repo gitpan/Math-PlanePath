@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -64,11 +64,12 @@ sub arms_count {
 
 use constant parameter_info_array =>
   [
-   { name      => 'diagonal_length',
-     type      => 'integer',
-     minimum   => 1,
-     default   => 1,
-     width     => 1,
+   { name        => 'diagonal_length',
+     type        => 'integer',
+     minimum     => 1,
+     default     => 1,
+     width       => 1,
+     description => 'Length of the diagonal in the base pattern.',
    },
    { name      => 'arms',
      share_key => 'arms_8',

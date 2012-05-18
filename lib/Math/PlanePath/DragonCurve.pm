@@ -18,6 +18,7 @@
 
 # math-image --path=DragonCurve --lines --scale=20
 # math-image --path=DragonCurve --all --scale=10
+# math-image --path=DragonCurve --output=numbers_dash
 #
 # Harter first to show copies of the dragon fit together ...
 #
@@ -42,7 +43,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -55,6 +56,9 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use Math::PlanePath::DragonMidpoint;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 
@@ -107,32 +111,31 @@ sub n_to_xy {
   my $rot = $n % $arms;
   $n = int($n/$arms);
 
-  my @digits;
+  my @digits = Math::PlanePath::_digit_split_lowtohigh($n,2);
+  ### @digits
+
+
   my @sx;
   my @sy;
   {
-    my $sy = $zero;   # inherit BigInt
-    my $sx = $sy + 1; # inherit BigInt
+    my $sy = $zero;   # inherit BigInt 0
+    my $sx = $sy + 1; # inherit BigInt 1
     ### $sx
     ### $sy
 
-    while ($n) {
-      push @digits, ($n % 2);
-      $n = int($n/2);
+    foreach (@digits) {
       push @sx, $sx;
       push @sy, $sy;
-
-      # (sx,sy) + rot+90(sx,sy)
+      # (sx,sy) + rot+90(sx,sy), is multiply (i+1)
       ($sx,$sy) = ($sx - $sy,
                    $sy + $sx);
     }
   }
 
-  ### @digits
   my $rev = 0;
   my $x = $zero;
   my $y = $zero;
-  while (defined (my $digit = pop @digits)) {
+  while (defined (my $digit = pop @digits)) {  # high to low
     my $sx = pop @sx;
     my $sy = pop @sy;
     ### at: "$x,$y  $digit   side $sx,$sy"
@@ -250,26 +253,23 @@ sub rect_to_n_range {
           $self->{'arms'} * ($xmax*$xmax + $ymax*$ymax + 1) * 7);
 }
 
-# uncomment this to run the ### lines
-#use Smart::Comments;
-
 # Not quite right yet ...
 #
 # sub rect_to_n_range {
 #   my ($self, $x1,$y1, $x2,$y2) = @_;
 #   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
-# 
-# 
+#
+#
 #    my ($length, $level_limit) = _round_down_pow
 #      ((_max(abs($x1),abs($x2))**2 + _max(abs($y1),abs($y2))**2 + 1) * 7,
 #       2);
 #    $level_limit += 2;
 #    ### $level_limit
-#   
+#
 #    if (_is_infinite($level_limit)) {
 #      return ($level_limit,$level_limit);
 #    }
-#   
+#
 #    $x1 = _round_nearest ($x1);
 #    $y1 = _round_nearest ($y1);
 #    $x2 = _round_nearest ($x2);
@@ -277,8 +277,8 @@ sub rect_to_n_range {
 #    ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
 #    ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 #    ### sorted range: "$x1,$y1  $x2,$y2"
-#   
-#   
+#
+#
 #    my @xend = (0, 1);
 #    my @yend = (0, 0);
 #    my @xmin = (0, 0);
@@ -303,14 +303,14 @@ sub rect_to_n_range {
 #        my $ymin = $ymin[-1];
 #        ### assert: $xmax >= $xmin
 #        ### assert: $ymax >= $ymin
-#   
+#
 #        #    ### at: "end=$xend,$yend   $xmin..$xmax  $ymin..$ymax"
 #        push @xmax, _max($xmax, $xend + $ymax);
 #        push @xmin, _min($xmin, $xend + $ymin);
-#   
+#
 #        push @ymax, _max($ymax, $yend - $xmin);
 #        push @ymin, _min($ymin, $yend - $xmax);
-#   
+#
 #        push @sidemax, _max ($xmax[-1], -$xmin[-1],
 #                             $ymax[-1], -$ymin[-1],
 #                             abs($xend),
@@ -318,7 +318,7 @@ sub rect_to_n_range {
 #      }
 #      ### @sidemax
 #    };
-#   
+#
 #    my $rect_dist = sub {
 #      my ($x,$y) = @_;
 #      my $xd = ($x < $x1 ? $x1 - $x
@@ -329,7 +329,7 @@ sub rect_to_n_range {
 #                : 0);
 #      return _max($xd,$yd);
 #    };
-#   
+#
 #    my $arms = $self->{'arms'};
 #    ### $arms
 #    my $n_lo;
@@ -344,7 +344,7 @@ sub rect_to_n_range {
 #          } else {
 #            @digits = (0);
 #          }
-#   
+#
 #          for (;;) {
 #            my $n = 0;
 #            foreach my $digit (reverse @digits) { # high to low
@@ -353,9 +353,9 @@ sub rect_to_n_range {
 #            $n = $n*$arms + $arm;
 #            my ($nx,$ny) = $self->n_to_xy($n);
 #            my $nh = &$rect_dist ($nx,$ny);
-#   
+#
 #            ### lo consider: "i=$i  digits=".join(',',reverse @digits)."  is n=$n xy=$nx,$ny nh=$nh"
-#   
+#
 #            if ($i == 0 && $nh == 0) {
 #              ### lo found inside: $n
 #              if (! defined $n_lo || $n < $n_lo) {
@@ -363,10 +363,10 @@ sub rect_to_n_range {
 #              }
 #              next ARM_LO;
 #            }
-#   
+#
 #            if ($i == 0 || $nh > $sidemax[$i+2]) {
 #              ### too far away: "nxy=$nx,$ny   nh=$nh vs ".$sidemax[$i+2]." at i=$i"
-#   
+#
 #              while (++$digits[$i] > 1) {
 #                $digits[$i] = 0;
 #                if (++$i <= $top) {
@@ -384,12 +384,12 @@ sub rect_to_n_range {
 #            }
 #          }
 #        }
-#   
+#
 #        # if an $n_lo was found on any arm within this $top then done
 #        if (defined $n_lo) {
 #          last;
 #        }
-#   
+#
 #        ### lo extend top ...
 #        if (++$top > $level_limit) {
 #          ### nothing below level limit ...
@@ -398,7 +398,7 @@ sub rect_to_n_range {
 #        &$extend($top+3);
 #      }
 #    }
-#   
+#
 #    my $n_hi = 0;
 #   ARM_HI: foreach my $arm (reverse 0 .. $arms-1) {
 #      &$extend($level_limit+2);
@@ -409,13 +409,13 @@ sub rect_to_n_range {
 #        foreach my $digit (reverse @digits) { # high to low
 #          $n = 2*$n + $digit;
 #        }
-#   
+#
 #        $n = $n*$arms + $arm;
 #        my ($nx,$ny) = $self->n_to_xy($n);
 #        my $nh = &$rect_dist ($nx,$ny);
-#   
+#
 #        ### hi consider: "arm=$arm  i=$i  digits=".join(',',reverse @digits)."  is n=$n xy=$nx,$ny nh=$nh"
-#   
+#
 #        if ($i == 0 && $nh == 0) {
 #          ### hi found inside: $n
 #          if ($n > $n_hi) {
@@ -423,10 +423,10 @@ sub rect_to_n_range {
 #            next ARM_HI;
 #          }
 #        }
-#   
+#
 #        if ($i == 0 || $nh > $sidemax[$i+2]) {
 #          ### too far away: "$nx,$ny   nh=$nh vs ".$sidemax[$i+2]." at i=$i"
-#   
+#
 #          while (--$digits[$i] < 0) {
 #            $digits[$i] = 1;
 #            if (++$i < $level_limit) {
@@ -436,7 +436,7 @@ sub rect_to_n_range {
 #              next ARM_HI;
 #            }
 #          }
-#   
+#
 #        } else {
 #          ### hi descend
 #          ### assert: $i > 0
@@ -445,12 +445,12 @@ sub rect_to_n_range {
 #        }
 #      }
 #    }
-#   
+#
 #    if ($n_hi == 0) {
 #      ### oops, lo found but hi not found
 #      $n_hi = $n_lo;
 #    }
-#   
+#
 #    return ($n_lo, $n_hi);
 # }
 
@@ -474,6 +474,12 @@ Math::PlanePath::DragonCurve -- dragon curve
 
 This is the dragon or paper folding curve by Heighway, Harter, et al,
 
+=cut
+
+# math-image --path=DragonCurve --all --output=numbers_dash --size=70x30
+
+=pod
+
                  9----8    5---4               2
                  |    |    |   |
                 10--11,7---6   3---2           1
@@ -486,9 +492,9 @@ This is the dragon or paper folding curve by Heighway, Harter, et al,
                  |
                 26---27                       -3
                       |
-    --32   29---29---28                       -4
-       |    |
-      31---30                                 -5
+         --32   29---28                       -4
+            |    |
+           31---30                            -5
 
        ^    ^    ^    ^    ^   ^   ^
       -5   -4   -3   -2   -1  X=0  1 ...
@@ -497,6 +503,31 @@ The curve visits "inside" X,Y points twice.  The first of these is X=-2,Y=1
 which is N=7 and also N=11.  The segments N=6,7,8 and N=10,11,12 have
 touched, but the path doesn't cross itself.  The doubled vertices are all
 like this, touching but not crossing, and no edges repeating.
+
+=head2 Arms
+
+The curve fills a quarter of the plane and four copies mesh together
+perfectly when rotated by 90, 180 and 270 degrees.  The C<arms> parameter
+can choose 1 to 4 curve arms successively advancing.
+
+For example C<arms =E<gt> 4> begins as follows, with N=0,4,8,12,etc being
+one arm, N=1,5,9,13 the second, N=2,6,10,14 the third and N=3,7,11,15 the
+fourth.
+
+             20 ------ 16
+                        |
+              9 ------5/12 -----  8       23
+              |         |         |        |
+     17 --- 13/6 --- 0/1/2/3 --- 4/15 --- 19
+      |       |         |         |
+     21      10 ----- 14/7 ----- 11
+                        |
+                       18 ------ 22
+
+With four arms every X,Y point is visited twice (except the origin 0,0 where
+all four begin) and every edge between the points is traversed once.
+
+=head2 Level Angle
 
 The first step N=1 is to the right along the X axis and the path then slowly
 spirals counter-clockwise and progressively fatter.  The end of each
@@ -549,43 +580,106 @@ initial N=2.
             * * * * *       * * * * *
               * * * *         * * * *
 
-At a power of two N=2^level for N=2 or higher, the curve always goes upward
-to that point, then leaves it to the left.  For example at N=16 the curve
-goes up from N=15 to N=16, then goes left for N=16 to N=17.  Likewise at
-N=32, etc.  So the spiral is curling around ever further, but the
-self-similar twist back again means the N=2^level endpoint is always at the
-same up/left orientation.  (See L</Total Turn> below for the net direction
-in general.)
+At a power of two Nlevel=2^level for N=2 or higher, the curve always goes
+upward from Nlevel-1 to Nlevel, then leaves it to the left for Nlevel+1.
+For example at N=16 the curve goes up from N=15 to N=16, then goes left for
+N=16 to N=17.  Likewise at N=32, etc.  The spiral is curls around ever
+further but the self-similar twist back again means the Nlevel endpoint is
+always at the same up/left orientation.  See L</Total Turn> below for the
+net direction in general.
 
-=head2 Arms
+=head2 Level Ranges
 
-The curve fills a quarter of the plane and four copies mesh together
-perfectly when rotated by 90, 180 and 270 degrees.  The C<arms> parameter
-can choose 1 to 4 curve arms, successively advancing.
+The X,Y extents of the path through to Nlevel=2^level can be expressed as a
+length in the direction of the Xlevel,Ylevel endpoint and a width across it.
 
-For example C<arms =E<gt> 4> begins as follows, with N=0,4,8,12,etc being
-one arm, N=1,5,9,13 the second, N=2,6,10,14 the third and N=3,7,11,15 the
-fourth.
+    level even, so endpoint is a straight line
+    k = level/2
 
-             20 ------ 16
-                        |
-              9 ------5/12 -----  8       23
-              |         |         |        |
-     17 --- 13/6 --- 0/1/2/3 --- 4/15 --- 19
-      |       |         |         |
-     21      10 ----- 14/7 ----- 11
-                        |
-                       18 ------ 22
+       +-+     <- Lmax
+       | |
+       | E     <- Lend = 2^k at Nlevel=2^level
+       |
+       +---+
+           |
+         O |   <- Lstart=0
+         | |
+         +-+   <- Lmin
 
-With four arms every X,Y point is visited twice (except the origin 0,0 where
-all four begin) and every edge between the points is traversed once.
+       ^   ^
+    Wmin   Wmax
+
+    Lmax = (7*2^k - 4)/6 if k even
+           (7*2^k - 2)/6 if k odd
+
+    Lmin = - (2^k - 1)/3 if k even
+           - (2^k - 2)/3 if k odd
+
+    Wmax = (2*2^k - 1) / 3 if k even
+           (2*2^k - 2) / 3 if k odd
+
+    Wmin = Lmin
+
+For example level=2 is to Nlevel=2^2=4 and k=level/2=1 is odd so it measures
+as follows,
+
+    4      <- Lmax = (7*2^1 - 2)/6 = 2
+    |
+    3--2
+       |
+    0--1   <- Lmin = -(2^1 - 2)/3 = 0
+
+    ^  ^Wmax = (2*2^1 - 1)/3 = 1
+    |
+    Wmin = Lmin = 0
+
+Or level=4 is to Nlevel=2^4=16 and k=4/2=2 is even.  It measures as follows.
+The lengthways "L" measures are in the direction of the N=16 endpoint and
+the "W" measures are across.
+
+          9----8    5---4        <- Wmax = (2*2^2 - 2)/3 = 2
+          |    |    |   |
+         10--11,7---6   3---2
+               |            |
+    16   13---12        0---1
+     |    |
+    15---14                      <- Wmin = -(2^2 - 1)/3 = -1
+
+     ^                      ^Lmin = Wmin = -1
+     |
+     Lmax = (7*2^2 - 4)/6 = 4
+
+The formulas are all integer values but the fractions 7/6, 1/3 and 2/3 show
+the limits as the level increases.  If scaled so that length Lend=2^k is
+reckoned as 1 unit then Lmax extends 1/6 past the end, Lmin and Wmin extend
+1/3, and Wmax extends across 2/3.
+
+    +--------+ --
+    | -      | 1/6   total length
+    || |     |          = 1/6+1+1/3 = 3/2
+    || E     | --
+    ||       |
+    ||       |
+    | \      |  1
+    |  \     |
+    |   --\  |
+    |      \ |
+    |       ||
+    |  O    || --
+    |  |    ||
+    |  |    || 1/3
+    |   ---- |
+    +--------+ --
+    1/3|  2/3 
+
+    total width = 1/3+2/3 = 1
 
 =head2 Paper Folding
 
 The path is called a paper folding curve because it can be generated by
-thinking of a long strip of paper folded in half repeatedly then unfolded so
-each crease is a 90 degree angle.  The effect is that the curve repeats in
-successive doublings turned by 90 degrees and reversed.
+thinking of a long strip of paper folded in half repeatedly and then
+unfolded so each crease is a 90 degree angle.  The effect is that the curve
+repeats in successive doublings turned by 90 degrees and reversed.
 
 The first segment unfolds, pivoting at the "1",
 
@@ -647,8 +741,8 @@ Is that the best way?
 
 =item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
 
-Return a list of N point numbers for coordinates C<$x,$y>.  There can be
-none, one or two N's for a given C<$x,$y>.
+Return a list of N point numbers for coordinates C<$x,$y>.  There may be up
+to two Ns for a given C<$x,$y>.
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -660,25 +754,30 @@ Return 0, the first N in the path.
 
 =head2 X,Y to N
 
-In the current implementation the four edges around a point are converted to
-DragonMidpoint by a rotate -45 and offset.  This gives four candidate N
-values and those which converts back to the desired X,Y by C<n_to_xy()> are
-the results for C<xy_to_n_list()>.
+The current code uses the DragonMidpoint C<xy_to_n()> by rotating -45
+degrees and offsetting to the midpoints of the four edges around the target
+X,Y.  The DragonMidpoint algorithm then gives four candidate N values and
+those which convert back to the desired X,Y in the DragonCurve C<n_to_xy()>
+are the results for C<xy_to_n_list()>.
 
     Xmid,Ymid = X+Y, Y-X    # rotate -45 degrees
     dx = 0 or -1
       dy = 0 or 1
         N candidate = DragonMidpoint xy_to_n(Xmid+dx,Ymid+dy)
 
-For arms 1 and 3 the two "leaving" edges are up+down on odd points (X+Y odd)
-or left+right on even points (X+Y even).  But for arms 2 and 4 it's the
-other way around.  So without an easy way to identify the arm for an X,Y
-this probably doesn't help identify which two of the four edges are the
-desired ones.
+Since there's at most two DragonCurve Ns at a given X,Y the loop can stop
+when two Ns are found.
+
+Only the "leaving" edges will convert back to the target N, so only two of
+the four edges actually need to be considered.  Is there a way to identify
+them?  For arms 1 and 3 the leaving edges are up,down on odd points (meaning
+sum X+Y odd) and right,left for even points (meaning sum X+Y even).  But for
+arms 2 and 4 it's the other way around.  Without an easy way to determine
+the arm this doesn't seem to help.
 
 =head2 Turns
 
-At each point N the curve always turns either left or right, it never goes
+At each point the curve always turns either left or right, it never goes
 straight ahead.  The bit above the lowest 1 in N gives the turn direction.
 
     N = 0b...z10000   (possibly no trailing 0s)
@@ -710,9 +809,9 @@ lowest 0.
       1       right
 
 For example at N=12=0b1100 the lowest 0 is the least significant bit 0b___0,
-and above that is a 0 too, so after going to N=13 the turn there at 13 is to
-the left.  Or for N=18=0b10010 the lowest 0 is again the least significant
-bit, but above it is a 1, so at N=19 the turn is to the right.
+and above that is a 0 too, so at N=13 the turn is to the left.  Or for
+N=18=0b10010 the lowest 0 is again the least significant bit, but above it
+is a 1, so at N=19 the turn is to the right.
 
 This too can be found with some bit twiddling, as for example
 
@@ -720,73 +819,79 @@ This too can be found with some bit twiddling, as for example
     $w = $n & ($mask + 1);    # the bit above there
     $turn = ($w == 0 ? 'left' : 'right');
 
-There's nothing in the current code for these turn calculations.
+There's nothing in the current code directly calculating a turn in this way.
 
 =head2 Total Turn
 
 The total turn can be calculated from the segment replacements resulting
-from the bits of N going from high to low.
+from the bits of N,
+
+    N bits from high to low, start in "plain" state
 
     plain state
-     0 -> no change
-     1 -> turn left, go to reversed state
+     0 bit -> no change
+     1 bit -> turn left, go to reversed state
 
     reversed state
-     1 -> no change
-     0 -> turn left, go to plain state
+     1 bit -> no change
+     0 bit -> turn left, go to plain state
 
-This arises from the different side a segment expands on according to plain
-or reversed state.  A segment A to B expands to an "L" bend on the right in
-plain state, or on the left in reversed state.
+The 0 or 1 counting arises from the different side a segment expands on in
+plain or reversed state.  Segment A to B expands to an "L" shape bend which
+is on the right in plain state, but on the left in reversed state.
 
       plain state             reverse state
 
-      A = = = = B                    +       
-       \       /              0bit  / \      
+      A = = = = B                    +
+       \       ^              0bit  / \
         \     /               turn /   \ 1bit
-    0bit \   / 1bit           left/     \    
-          \ /  turn              /       \   
+    0bit \   / 1bit           left/     \
+          \ /  turn              /       v
            +   left             A = = = = B
 
-In both cases there's a rotate of +45 degrees at each step which keeps the
-very first segment of the whole curve in a fixed direction (along the X
-axis) and this means the south-east slope which is the 0 of plain or the 1
-of reversed is no-change, and the north-east slope which is the other new
-edge is a turn towards the left.
+In both cases a rotate of +45 degrees keeps the very first segment of the
+whole curve in a fixed direction (along the X axis), which means the
+south-east slope shown is no-change, which is the 0 of plain or the 1 of
+reversed.  And the north-east slope which is the other new edge is a turn
+towards the left.
 
 The effect for the bits of N is to count a left turn at each transition from
-0 to 1 or back again from 1 to 0.  Initial "plain" state means the infinite
-zero bits at the high end of N are included.  For example N=9 is 0b1001 so
-three left turns for curve direction south to go to N=10 (as can be seen in
-the diagram above).
+0 to 1 or from 1 to 0.  Initial "plain" state means the infinite zero bits
+at the high end of N are included.  For example N=9 is 0b1001 so three left
+turns for curve direction south to go to N=10, as can be seen in the diagram
+above.
 
      1 00 1   N=9
-    ^ ^  ^   
+    ^ ^  ^
     +-+--+---three transitions,
              so three left turns for direction south
 
-Or the transitions can be viewed as a count of how many blocks of 0s or 1s,
+The transitions can be viewed as a count of how many runs of contiguous 0s
+or 1s,
 
     1 00 1   three blocks of 0s and 1s
 
-This can be calculated by some bit twiddling using a shift and xor to turn a
-count of transitions into a of 1 bits, as noted by Jorg Arndt (fxtbook
-section 1.31.3.1).
+X<Arndt, Jorg>
+This can be calculated by some bit twiddling with a shift and xor to turn
+transitions into 1 bits which can then be counted, as noted by Jorg Arndt
+(fxtbook section 1.31.3.1 "The Dragon Curve").
 
     total turn = count_1_bits ($n ^ ($n >> 1))
 
-The reversing structure of the curve shows up in the total turn sequence.
-Each block of 2^N is followed by its own reversal plus 1.  For example,
+The reversing structure of the curve shows up in the total turn at each
+point.  The total turns for a block of 2^N is followed by its own reversal
+plus 1.  For example,
 
-
+                    ------->
     N=0 to N=7    0, 1, 2, 1, 2, 3, 2, 1
 
     N=15 to N=8   1, 2, 3, 2, 3, 4, 3, 2    each is +1
+                               <-------
 
 =head1 OEIS
 
 The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences in
-various forms (and see DragonMidpoint too),
+various forms (and see DragonMidpoint for its forms too),
 
     http://oeis.org/A014577  (etc)
 
@@ -796,36 +901,43 @@ various forms (and see DragonMidpoint too),
     A014710 -- turn, 1=left,2=right
     A038189 -- bit above lowest 1, is 0=left,1=right (extra initial 0)
     A082410 -- reversing complement, is 1=left,0=right (extra initial 0)
-    A034947 -- Jacobi (-1/n), is turn 1=left,-1=right
-    A112347 -- Kronecker (-1/n), is 1=left,-1=right (extra initial 0)
-    A121238 -- -1^(n+ some partitions), is 1=left,-1=right (extra 1)
+    A034947 -- Jacobi (-1/n), is 1=left,-1=right
+    A112347 -- Jacobi (-1/n), is 1=left,-1=right (extra initial 0)
+    A121238 -- -1^(n + some partitions), is 1=left,-1=right (extra 1)
 
-The above turn sequences differ only in having left or right represented as
-0, 1 or -1, and possible extra initial 0 or 1 arising from their
-definitions.
+The above sequences differ only in having left or right represented as 0, 1
+or -1 and possible extra initial 0 or 1 arising from the definitions.
 
     A005811 -- total turn
     A088748 -- total turn + 1
-    A164910 -- cumulative total turn (of A088748)
-    A166242 -- double/halving so 2^(total turn)
+    A164910 --   cumulative total turn (with the +1)
+    A166242 -- double/halving, is 2^(total turn)
 
     A088431 -- turn sequence run lengths
     A007400 --   2*runlength
-    A091072 -- odd part 4K+1, is N positions of the left turns
-    A126937 -- points numbered like SquareSpiral (with N-1 and flip Y)
 
-The turn sequence run lengths A088431 and A007400 are in fact from a
-continued fraction expansion of
- 
+    A091072 -- odd part is 4K+1, is N positions of the left turns
+    A126937 -- points numbered like SquareSpiral (N-1 and flip Y)
+
+The run lengths A088431 and A007400 are in fact from a continued fraction
+expansion of an infinite sum
+
         1   1   1     1      1              1
     1 + - + - + -- + --- + ----- + ... + ------- + ...
         2   4   16   256   65536         2^(2^k)
 
+X<Shallit, Jeffrey>
+X<Kmosek>
+Jeffrey Shallit, and independently by M. Kmosek too, shows how continued
+fraction terms repeated in reverse gives rise to this sort of value,
+
+    http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps
+
 The A126937 SquareSpiral numbering has the dragon curve and square
-spiralling with their Y axes in opposite directions, as can be seen in
-F<a126937.pdf> of that sequence.  So the dragon turns up towards positive Y
-but the square spiral turns down towards negative Y (or vice versa).
-PlanePath code for this, starting at $i=0, would be
+spiralling with their Y axes in opposite directions, as shown in its
+F<a126937.pdf>.  So the dragon curve turns up towards positive Y but the
+square spiral is numbered down towards negative Y (or vice versa).
+PlanePath code for this starting at C<$i=0> would be
 
       my $dragon = Math::PlanePath::DragonCurve->new;
       my $square = Math::PlanePath::SquareSpiral->new;
@@ -834,7 +946,7 @@ PlanePath code for this, starting at $i=0, would be
 
 For reference, "dragon-like" A059125 is similar to the turn sequence
 A014707, but differs in having the "middle" value for each replication come
-from successive values of the sequence itself (or something like that).
+from successive values of the sequence itself, or something like that.
 
 =head1 SEE ALSO
 

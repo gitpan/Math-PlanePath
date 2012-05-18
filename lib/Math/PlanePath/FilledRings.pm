@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -32,7 +32,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::SacksSpiral;
-*_rect_to_radius_range_points = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range_points;
+*_rect_to_radius_corners = \&Math::PlanePath::SacksSpiral::_rect_to_radius_corners;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -296,7 +296,7 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### FilledRings rect_to_n_range(): "$x1,$y1 $x2,$y2"
 
-  ($x1,$y1, $x2,$y2) = _rect_to_radius_range_points ($x1,$y1, $x2,$y2);
+  ($x1,$y1, $x2,$y2) = _rect_to_radius_corners ($x1,$y1, $x2,$y2);
   ### radius range: "$x1,$y1 $x2,$y2"
 
   if ($x1 >= 1) { $x1 -= 1; }
@@ -325,7 +325,8 @@ Math::PlanePath::FilledRings -- concentric filled lattice rings
 
 =head1 DESCRIPTION
 
-This path puts points on integer X,Y pixels of filled rings of width 1 unit.
+This path puts points on integer X,Y pixels of filled rings of radius
+1 unit.
 
                     110-109-108-107-106                        6
                    /                   \  

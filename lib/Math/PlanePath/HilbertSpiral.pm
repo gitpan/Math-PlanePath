@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -85,7 +85,7 @@ sub n_to_xy {
 
   my $x = my $y = 0;
 
-  while (defined (my $digit = pop @digits)) {
+  while (defined (my $digit = pop @digits)) {  # high to low
     $len /= 2;
     $state += $digit;
     if ($digit != 3) {

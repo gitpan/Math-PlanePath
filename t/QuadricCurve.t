@@ -36,7 +36,7 @@ require Math::PlanePath::QuadricCurve;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::QuadricCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::QuadricCurve->VERSION,  $want_version,

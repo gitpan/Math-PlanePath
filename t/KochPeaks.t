@@ -36,7 +36,7 @@ require Math::PlanePath::KochPeaks;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::KochPeaks::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochPeaks->VERSION,  $want_version,

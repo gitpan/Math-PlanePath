@@ -17,10 +17,17 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 74, May 2012
+    - new ImaginaryBase
+    - new method n_to_rsquared()
+    - PlanePathN new line_type X_neg,Y_neg
+    - fix ImaginaryBase xy_to_n() possible infloop on floating point rounding
+    - fix TerdragonMidpoint xy_to_n() undef on points outside requested arms
+
 Version 73, April 2012
     - new GrayCode, SierpinskiCurveStair, WunderlichSerpentine
     - fix GcdRationals xy_to_n() on BigInt
-    - PlanePathCoord new SumAbs, TRadius, TRSquared
+    - PlanePathCoord new coord_type SumAbs,TRadius,TRSquared
 
 Version 72, March 2012
     - PlanePathTurn new turn_type "Right"

@@ -43,7 +43,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -64,6 +64,7 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ { name      => 'radix',
+      display   => 'Radix',
       share_key => 'radix_3',
       type      => 'integer',
       minimum   => 2,

@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -179,23 +179,23 @@ This path makes a pyramid shaped spiral,
 
 The perfect squares 1,4,9,16 fall one before the bottom left corner of each
 loop, and the pronic numbers 2,6,12,20,30,etc are the vertical upwards from
-x=1.
+X=1,Y=0.
 
 =head2 Square Spiral
 
-This spiral goes around at the same rate as the SquareSpiral, and is as if
+This spiral goes around at the same rate as the SquareSpiral.  It's as if
 two corners are cut off (like the DiamondSpiral) and two others extended
 (like the OctagramSpiral).  The net effect is the same looping rate but the
 points pushed around a bit.
 
-Taking the points up to a perfect square shows the similarity.  The two
-triangular cut-off corners marked "*" are matched by the two triangular
+Taking points up to a perfect square shows the similarity.  The two
+triangular cut-off corners marked by "."s are matched by the two triangular
 extensions.
 
             +--------------------+   7x7 square
-            | *  *  * 31  *  *  *|
-            | *  * 32 13 30  *  *|
-            | * 33 14  3 12 29  *|
+            | .  .  . 31  .  .  .|
+            | .  . 32 13 30  .  .|
+            | . 33 14  3 12 29  .|
             |34 15  4  1  2 11 28|
           35|16  5  6  7  8  9 10|27
        36 17|18 19 20 21 22 23 24|25 26
@@ -234,7 +234,7 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
     http://oeis.org/A053615  (etc)
 
-    A053615    abs(X)
+    A053615    abs(X), distance to next pronic, but starts n=0
 
 =head1 SEE ALSO
 

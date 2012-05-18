@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -407,6 +407,17 @@ For the smallest N, if the bottom left corner has YE<gt>X then it's in the
 YE<lt>=X means some of the "decreasing" part is covered and the smallest N
 is at Y=min(X,Ymax), ie. either the Y=X diagonal if it's in the rectangle or
 the top right corner otherwise.
+
+=head1 OEIS
+
+This path is in Sloane's Online Encyclopedia of Integer Sequences as,
+
+    http://oeis.org/A053188  (etc)
+
+    A196199    X-Y, runs of -n to +n
+    A053615    abs(X-Y), distance to next pronic
+    A053188    wider=1 abs(X-Y), distance to nearest square
+                 (extra initial 0)
 
 =head1 SEE ALSO
 

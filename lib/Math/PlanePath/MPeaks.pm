@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
@@ -203,9 +203,9 @@ Each "M" is 6 points longer than the preceding.  The verticals are 2 longer
 each, and the centre diagonals 1 longer each.  This step 6 is similar to the
 HexSpiral.
 
-The octagonal numbers 1,8,21,40,65,etc k*(3k-2) are a straight line of slope
-2 going up to the left.  The octagonal numbers of the second kind
-5,16,33,56,etc k*(3k+2) are along the X axis to the right.
+The octagonal numbers N=1,8,21,40,65,etc k*(3k-2) are a straight line
+of slope 2 going up to the left.  The octagonal numbers of the second
+kind N=5,16,33,56,etc k*(3k+2) are along the X axis to the right.
 
 =head1 FUNCTIONS
 

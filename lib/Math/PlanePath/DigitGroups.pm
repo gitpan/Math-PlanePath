@@ -15,10 +15,16 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# increment N+1 changes low 1111 to 10000
-# X bits change 011 to 000, no carry, decreasing by number of low 1s
+# math-image --path=DigitGroups --output=numbers_dash
+# math-image --path=DigitGroups,radix=2 --all --output=numbers
+#
+# increment N+1 changes low 01111 to 10000
+# X bits change 01111 to 000, no carry, decreasing by number of low 1s
 # Y bits change 011 to 100, plain +1
+#
+# cf A084473 0->0000
+#    A088698 1->11
+#    A175047 0000run->0
 
 
 package Math::PlanePath::DigitGroups;
@@ -26,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -216,18 +222,19 @@ Math::PlanePath::DigitGroups -- X,Y digits grouped by zeros
 
 =head1 DESCRIPTION
 
-This path splits an N into X,Y by digit groups with a leading 0.  The
+This path splits an N into X,Y by digit groups separated by a 0.  The
 default is binary so for example
 
     N = 110111001011
 
-is split into groups with a high 0 digit which go to X or Y alternately,
+is split into groups with a leading high 0 digit, and those groups go to X
+and Y alternately,
 
-    11 0111 0 01 011
-     X   Y  X  Y  X
+    N = 11 0111 0 01 011
+         X   Y  X  Y  X
 
-    X = 11 0 011 = 110011
-    Y = 0111 01  = 11101
+    X = 11      0    011 = 110011
+    Y =    0111   01     = 11101
 
 The result is a one-to-one mapping between numbers NE<gt>=0 and pairs
 XE<gt>=0,YE<gt>=0.
@@ -248,6 +255,16 @@ The default binary is
     Y=0 |    0    1    4    3   16    9   12    7   64   33   36   19
         +-------------------------------------------------------------
            X=0    1    2    3    4    5    6    7    8    9   10   11
+
+The values 0,1,4,3,16,9,etc along the X axis is the X coordinate with zero
+bits doubled.  For example X=9 is binary 1001, double up the zero bits to
+100001 for N=33.  This is because in the digit grouping Y=0 so when X is
+grouped by its zero bits there's a single 0 bit from Y in between them.
+
+Similarly the values 0,2,8,6,32,etc along the Y axis are the Y coordinate
+with zero bits doubled, plus an extra zero bit at the low end coming from
+the first X=0 group.  For example Y=9 is again binary 1001, doubled zeros to
+100001, and an extra zero at the low end 1000010 is N=66.
 
 =head2 Radix
 
@@ -272,16 +289,16 @@ For example C<radix =E<gt> 5> gives
 
 =head2 Real Line and Plane
 
-This split is inspired by the digit grouping in the proof that the real line
-is the same cardinality as the plane.  (By Cantor was it?)  In that proof a
-bijection between interval n=(0,1) and pairs x=(0,1),y=(0,1) is made by
-taking groups of fraction digits stopping at a non-zero digit.
+This split is inspired by the digit grouping in the proof (was it by
+Cantor?) that the real line is the same cardinality as the plane.
 
+In that proof a bijection between interval n=(0,1) and pairs x=(0,1),y=(0,1)
+is made by taking groups of digits stopping at a non-zero digit.
 Non-terminating fractions like 0.49999... are chosen over terminating
 0.5000... so there's infinitely many non-zero digits going lower.  For the
 integer form here the groupings are towards higher digits and there's
-infinitely many zero digits going higher, hence grouping by zeros instead of
-non-zeros.
+infinitely many zero digits going higher, hence the grouping by zeros
+instead of non-zeros.
 
 =head1 FUNCTIONS
 
@@ -302,6 +319,17 @@ Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A084471  (etc)
+
+    A084471    radix=2 N on X axis, bit 0->00
+    A084472    radix=2 N on X axis, in binary
+    A060142    radix=2 N on X axis, in ascending order
 
 =head1 SEE ALSO
 
@@ -332,11 +360,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=DigitGroups,radix=2 --lines"
-# End:
-#
-# math-image --path=DigitGroups --output=numbers_dash
-# math-image --path=DigitGroups,radix=2 --all --output=numbers
-#

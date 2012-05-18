@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 150 }
+BEGIN { plan tests => 153 }
 
 use lib 't';
 use MyTestHelpers;
@@ -51,7 +51,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,
@@ -91,6 +91,16 @@ sub numeq_array {
   ok (join(',',@pnames), '');
 }
 
+
+#------------------------------------------------------------------------------
+# n_to_rsquared()
+
+{
+  my $path = Math::PlanePath::SacksSpiral->new;
+  ok ($path->n_to_rsquared(0), 0);
+  ok ($path->n_to_rsquared(1), 1);
+  ok ($path->n_to_rsquared(20.5), 20.5);
+}
 
 #------------------------------------------------------------------------------
 # xy_to_n

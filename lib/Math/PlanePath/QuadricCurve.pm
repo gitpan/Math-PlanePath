@@ -24,12 +24,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -54,20 +55,16 @@ sub n_to_xy {
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $x;
-  my $len;
   {
     my $int = int($n);
     $x = $n - $int;  # frac
     $n = $int;       # BigFloat/BigRat int() gives BigInt, use that
-    $len = ($int * 0) + 1;   # inherit bigint one
   }
-  my $y = $x * 0;   # inherit big zero
+  my $y = $x * 0;     # inherit bignum 0
+  my $len = $y + 1;   # inherit bignum 1
 
-  while ($n) {
-    my $digit = $n % 8;
-    $n = int($n/8);
-    ### at: "$x,$y"
-    ### $digit
+  foreach my $digit (_digit_split_lowtohigh($n,8)) {
+    ### at: "$x,$y  digit=$digit"
 
     if ($digit == 0) {
 

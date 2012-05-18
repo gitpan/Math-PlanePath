@@ -19,19 +19,16 @@
 package Math::PlanePath::TheodorusSpiral;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
+use List::Util 'max';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
-
-use Math::PlanePath::SacksSpiral;
-*_rect_to_radius_range_points = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range_points;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -68,6 +65,11 @@ sub new {
                              x => 1,
                              y => 0,
                              @_);
+}
+
+sub n_to_rsquared {
+  my ($path, $n) = @_;
+  return $n;  # exactly RSquared=$n
 }
 
 # r = sqrt(i)
@@ -171,22 +173,9 @@ sub xy_to_n {
   return undef;
 }
 
+use Math::PlanePath::SacksSpiral;
 # not exact
-sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### rect_to_n_range(): "$x1,$y1   $x2,$y2"
-
-  ($x1,$y1, $x2,$y2) = _rect_to_radius_range_points ($x1,$y1, $x2,$y2);
-  my $rlo = int ($x1*$x1 + $y1*$y1);
-  my $rhi = int ($x2*$x2 + $y2*$y2);
-
-  ### radius range: "$x1,$y1   $x2,$y2"
-  ### $rlo
-  ### $rhi
-
-  return (_max(0,$rlo-1),
-          $rhi + 1);
-}
+*rect_to_n_range = \&Math::PlanePath::SacksSpiral::rect_to_n_range;
 
 1;
 __END__
@@ -257,10 +246,13 @@ So for example,
 1 to 2 is a unit step at right angles to the 0 to 1 radial.  Then 2 to 3
 steps at a right angle to radial 0 to 2 (which is 45 degrees), etc.  The
 distance 0 to 2 is sqrt(2), the distance 0 to 3 is sqrt(3), and in general
-r(N) = sqrt(N) since each step is a right triangle with radius(N+1)^2 =
-S<radius(N)^2 + 1>.  The resulting shape is very close to an Archimedean
-spiral with successive loops increasing in radius by pi = 3.14159 or
-thereabouts each time.
+
+    R = sqrt(N)
+
+since each step is a right triangle with radius(N+1)^2 = S<radius(N)^2
++ 1>.  The resulting shape is very close to an Archimedean spiral with
+successive loops increasing in radius by pi = 3.14159 or thereabouts
+each time.
 
 X,Y positions returned are fractional and each integer N position is exactly
 1 away from the previous.  Fractional N values give positions on the
@@ -300,6 +292,11 @@ there are no negative points in the spiral.  (The analytic continuation by
 Davis would be a possibility, though the resulting "inner spiral" makes
 positive and negative points overlap a bit.  A spiral starting at X=-1 would
 fit in between the positive points.)
+
+=item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
+
+Return the radial distance R^2 of point C<$n>, or C<undef> if there's
+no point C<$n>.  This is simply C<$n> itself, since R=sqrt(N).
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -343,23 +340,38 @@ invert, or some Newton's method, or whatever.
 For C<rect_to_n_range()> the corner furthest from the origin determines the
 high N.  For that corner
 
-    rhi=hypot(xhi,yhi)
-    Nhi = (rhi+.5)^2
+    Rhi=hypot(xhi,yhi)
+    Nhi = (Rhi+.5)^2
 
 The extra .5 is since a unit circle figure centred as much as .5 further out
-might intersect the xhi,yhi.  The worst case for this estimate is when Nhi
-doesn't intersect the xhi,yhi corner but is just before it,
-counter-clockwise.  It's then a full revolution bigger than it need be
-(depending where the other corners fall).
+might intersect the xhi,yhi.  The square root hypot() can be avoided by the
+following over-estimate, and ceil can keep it in integers for integer Nhi.
 
-Similarly for the corner nearest the origin,
+    Nhi = Rhi^2 + Rhi + 1/4
+        <= Xhi^2+Yhi^2 + Xhi+Yhi + 1      # since Rhi<=Xhi+Yhi
+        = Xhi*(Xhi+1) + Yhi*(Yhi+1) + 1
+        <= ceilXhi*(ceilXhi+1) + ceilYhi*(ceilYhi+1) + 1
 
-    rlo = hypot(xlo,ylo)
-    Nlo = (rlo-.5)^2, or 0 if origin covered by rectangle
+With either formula the worst case is when Nhi doesn't intersect the xhi,yhi
+corner but is just before it, counter-clockwise.  Nhi is then a full
+revolution bigger than it need be, depending where the other corners fall.
+
+Similarly for the corner or axis crossing nearest the origin (when the
+origin itself isn't covered by the rectangle),
+
+    Rlo = hypot(Xlo,Ylo)
+    Nlo = (Rlo-.5)^2, or 0 if origin covered by rectangle
+
+And again in integers without a square root if desired,
+
+    Nlo = Rlo^2 - Rlo + 1/4
+        >= Xlo^2+Ylo^2 - (Xlo+Ylo)        # since Xlo+Ylo>=Rlo
+        = Xlo*(Xlo-1) + Ylo*(Ylo-1)
+        >= floorXlo*(floorXlo-1) + floorYlo(floorYlo-1)
 
 The worst case is when this Nlo doesn't intersect the xlo,ylo corner but is
 just after it counter-clockwise, so Nlo is a full revolution smaller than it
-need be (depending where the other corners fall).
+need be.
 
 =head1 SEE ALSO
 

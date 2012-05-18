@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 18; }
+BEGIN { plan tests => 21; }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,7 +34,7 @@ my $path = Math::PlanePath::TheodorusSpiral->new;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
@@ -99,5 +99,15 @@ my $path = Math::PlanePath::TheodorusSpiral->new;
   ok ($y, 1);
 }
 
+
+#------------------------------------------------------------------------------
+# n_to_rsquared()
+
+{
+  my $path = Math::PlanePath::TheodorusSpiral->new;
+  ok ($path->n_to_rsquared(0), 0);
+  ok ($path->n_to_rsquared(1), 1);
+  ok ($path->n_to_rsquared(20.5), 20.5);
+}
 
 exit 0;

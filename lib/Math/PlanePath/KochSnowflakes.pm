@@ -28,7 +28,7 @@ use List::Util qw(max);
 use POSIX qw(ceil);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -347,7 +347,7 @@ N=6 becomes N=20 to N=24 at the next level.
 =head2 Triangular Coordinates
 
 The X,Y coordinates are arranged as integers on a square grid per
-L<Math::PlanePath/Triangular Lattice>, except for the Y coordinates of the
+L<Math::PlanePath/Triangular Lattice>, except the Y coordinates of the
 innermost triangle which is
 
                     N=3
@@ -359,9 +359,10 @@ innermost triangle which is
          N=1                     N=2
     X=-1, Y=-0.333  ------   X=1, Y=-0.333
 
-These values are consistent with the centring and scaling of the higher
-levels.  Rounding to an integer gives Y=0 or Y=1 and doesn't overlap the
-subsequent points if all-integer is desired.
+These values are not integers, but they're consistent with the
+centring and scaling of the higher levels.  If all-integer is desired
+then rounding gives Y=0 or Y=1 and doesn't overlap the subsequent
+points.
 
 =head2 Level Ranges
 
@@ -379,26 +380,26 @@ Each level expands the sides by a factor of 3 so
      Xlo = -(3^level)
      Xhi = +(3^level)
 
-For example level 2 above runs from X=-9 to X=+9.  The Y range is the points
-N=6 and N=12 iterated out
+For example level 2 above runs from X=-9 to X=+9.  The Y range is the
+points N=6 and N=12 iterated out.  Ylo in level 0 since there's no
+downward notch on that innermost triangle.
 
-    Ylo = -(2/3)*3^level
+    Ylo = / -(2/3)*3^level if level >= 1
+          \ -1/3           if level == 0
     Yhi = +(2/3)*3^level
 
-except for the initial triangle which doesn't have a downward notch and is
-only Y=-1/3 not Y=-2/3.
+Notice that for each level the extents grow by a factor of 3 but the
+notch introduced in each segment is not big enough to go past the
+corner positions.  They can equal the extents horizontally, for
+example in level 1 N=14 is at X=-3 the same as the corner N=4, and on
+the right N=10 at X=+3 the same as N=8, but they don't go past.
 
-Notice that for each level the extents grow by a factor of 3 but the notch
-introduced in each segment is not big enough to go past the corner
-positions.  At level 1 they equal the corners horizontally, ie. N=14 is at
-X=-3 the same as N=4, and on the right N=10 at X=+3 the same as N=8, but no
-more than that.
-
-The snowflake is an example of a fractal curve with ever finer structure.
-The code here can be used for that by going from N=Nstart to
-N=Nstart+length-1 and scaling X/3^level Y/3^level for a 2-wide 1-high figure
-of desired fineness.  See F<examples/koch-svg.pl> for an complete program
-doing that as an SVG image file.
+The snowflake is an example of a fractal curve with ever finer
+structure.  The code here can be used for that by going from N=Nstart
+to N=Nstart+length-1 and scaling X/3^level Y/3^level to give a 2-wide
+1-high figure of desired fineness.  See F<examples/koch-svg.pl> in the
+Math-PlanePath sources for a complete program doing that as an SVG
+image file.
 
 =head1 FUNCTIONS
 

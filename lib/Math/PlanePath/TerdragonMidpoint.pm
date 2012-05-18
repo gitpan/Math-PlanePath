@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -40,6 +40,9 @@ use Math::PlanePath;
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 
 use constant n_start => 0;
 sub arms_count {
@@ -47,13 +50,13 @@ sub arms_count {
   return $self->{'arms'} || 1;
 }
 
-use constant parameter_info_array => [ { name      => 'arms',
-                                         share_key => 'arms_6',
-                                         type      => 'integer',
-                                         minimum   => 1,
-                                         maximum   => 6,
-                                         default   => 1,
-                                         width     => 1,
+use constant parameter_info_array => [ { name        => 'arms',
+                                         share_key   => 'arms_6',
+                                         type        => 'integer',
+                                         minimum     => 1,
+                                         maximum     => 6,
+                                         default     => 1,
+                                         width       => 1,
                                          description => 'Arms',
                                        } ];
 
@@ -282,7 +285,7 @@ my @yx_to_arm = ([9, 9, 9, 4, 9, 9, 9],  # Y=-2
 #                   -1,-1, -2,0,         0,0,  2,0,         1,1,  0,0,
 #                  );
 
-my @yx_to_dxdy
+my @yx_to_dxdy  # 12 each row
   = (undef,undef, undef,undef, 1,1,  undef,undef, undef,undef, undef,undef,
      0,0,  undef,undef, undef,undef, undef,undef, -1,-1, undef,undef,
      undef,undef, -1,1, undef,undef, 0,0,  undef,undef, 1,-1,
@@ -336,7 +339,7 @@ sub xy_to_n {
       return undef;
     }
 
-    ### at: "$x,$y (c=$c)  n=$n  digit=$digit k=$k  offset=$yx_to_dxdy[$k-1],$yx_to_dxdy[$k] to ".($x+$yx_to_dxdy[$k-1]).",".($y+$yx_to_dxdy[$k])
+    ### at: "$x,$y (k=$k)  n=$n  digit=$digit k=$k  offset=$yx_to_dxdy[$k-1],$yx_to_dxdy[$k] to ".($x+$yx_to_dxdy[$k-1]).",".($y+$yx_to_dxdy[$k])
 
     $n += $npow * $digit;
     $npow *= 3;
@@ -355,7 +358,7 @@ sub xy_to_n {
 
   ### final: "xy=$x,$y"
 
-  my $arm = $yx_to_arm[$y+2][$x+3] || 0;
+  my $arm = $yx_to_arm[$y+2][$x+3] || 0;   # 0 to 5
   ### $arm
 
   if ($arm & 1) {
@@ -364,7 +367,7 @@ sub xy_to_n {
   }
 
   my $arms_count = $self->arms_count;
-  if ($arm > $arms_count) {
+  if ($arm >= $arms_count) {
     return undef;
   }
 
@@ -537,7 +540,7 @@ C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (like
 the plain curve above), then N=1,7,13,19 the second copy rotated 60 degrees,
 N=2,8,14,20 the third rotated 120, etc.
 
-                                             ...
+     arms=>6                                 ...
                                              /
              ...                           42
                \                          /
@@ -604,7 +607,8 @@ a straight line, such as N=0,1,2, or N=3,4,5 etc.  The adjustment moves the
 two ends of these N=0 mod 3 or N=2 mod 3 to the centre N=1 mod 3.  The
 centre N=1 mod 3 position is always a multiple of w+1.
 
-The angles and positions for the N triple groups follow a 12-point pattern,
+The angles and positions for the N triple groups follow a 12-point pattern
+as follows, where each / \ or - is a point on the path (any arm).
 
      \   /   /   \   /   /   \   /   /   \   /   /   \
     - \ / \ - - - \ / \ - - - \ / \ - - - \ / \ - - -

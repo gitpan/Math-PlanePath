@@ -24,12 +24,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -75,8 +76,8 @@ sub n_to_xy {
 
   my $x = my $y = my $by = ($n * 0); # inherit bignum 0
   my $bx = $x+1; # inherit bignum 1
-  do {
-    my $digit = ($n % 5);
+
+  foreach my $digit (_digit_split_lowtohigh($n,5)) {
     ### $digit
     ### $bx
     ### $by
@@ -98,8 +99,7 @@ sub n_to_xy {
     # power (bx,by) = (bx + i*by)*(i+2)
     #
     ($bx,$by) = (2*$bx-$by, 2*$by+$bx);
-
-  } while ($n = int($n/5));
+  }
 
   return ($x, $y);
 }

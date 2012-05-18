@@ -24,12 +24,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -77,27 +78,31 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
+  my $radix = $self->{'radix'};
   my $x = 0;
   my $y = 0;
-  my $dx = 1;
-  my $dy = 0;
-  my $radix = $self->{'radix'};
+  my $len = ($n*0)+1;  # inherit bignum 1
 
-  while ($n) {
-    my $digit = $n % $radix;
-    $n = int($n/$radix);
-    ### at: "$x,$y"
-    ### $digit
+  if (my @digits = _digit_split_lowtohigh($n, $radix)) {
+    $radix = -$radix;
+    for (;;) {
+      $x += (shift @digits) * $len;  # digits low to high
+      @digits || last;
 
-    $x += $dx * $digit;
-    $y += $dy * $digit;
-    ($dx,$dy) = (-$radix*$dy, $dx);  # *sqrt(R)*i, with dy/sqrt(R)
+      $y += (shift @digits) * $len;  # digits low to high
+      @digits || last;
+
+      $len *= $radix;  # negative radix negate each time
+    }
   }
 
   ### final: "$x,$y"
   return ($x,$y);
 }
 
+# ($x-$digit) and ($y-$digit) are multiples of $radix, but apply int() in
+# case floating point rounding
+#
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ImaginaryBase xy_to_n(): "$x, $y"
@@ -108,19 +113,20 @@ sub xy_to_n {
   if (_is_infinite($y)) { return ($y); }
 
   my $radix = $self->{'radix'};
-  my $n = 0;
-  my $power = 1;
+  my $n = ($x * 0 * $y);  # inherit bignum 0
+  my $power = $n + 1;     # inherit bignum 1
+
   while ($x || $y) {
     ### at: "$x,$y  digit ".($x % $radix)
     my $digit = $x % $radix;
     $n += $digit*$power;
-
-    ### assert: (($digit-$x) % $radix) == 0
-
-    # divide sqrt(R)i = * -sqrt(R)i/2, with y/sqrt(R)
-    # -(x-digit)/r = (digit-x)/r
-    ($x,$y) = ($y, ($digit-$x)/$radix);
     $power *= $radix;
+    $x = - int(($x-$digit)/$radix);
+
+    $digit = $y % $radix;
+    $n += $digit*$power;
+    $power *= $radix;
+    $y = - int(($y-$digit)/$radix);
   }
   return $n;
 }
@@ -292,11 +298,12 @@ The pattern can be seen by dividing into blocks as follows,
     | 12   13    8    9 | 28   29   24   25 |
     +-------------------+-------------------+
 
-After N=0 at the origin, N=1 is to the right.  Then that little 2x1 block is
-repeated above as N=2 and N=3.  Then that 2x2 repeated to the right as N=4
-to N=7, then 4x2 repeated below N=8 to N=16, and 4x4 to the right as N=16 to
-N=31, etc.  Each repeat is 90 degrees further around, and just at an offset
-so the same orientation and relative layout within the repetition.
+After N=0 at the origin, N=1 is to the right.  Then those two repeat above
+as N=2 and N=3.  Then that 2x2 block repeats to the right as N=4 to N=7,
+then 4x2 repeated below as N=8 to N=16, and 4x4 to the right as N=16 to
+N=31, etc.  Each repeat is 90 degrees further around.  The orientation and
+relative layout is unchanged within each replicated part, there's no
+rotation etc.
 
 =head2 Complex Base
 
@@ -320,10 +327,6 @@ replication in the respective direction.  It takes two steps to repeat
 horizontally and sqrt(r)^2=r hence the doubling of 1x1 to the right, 2x2 to
 the left, 4x4 to the right, etc, and similarly vertically.
 
-The pattern can be compared to the ZOrderCurve.  In Z-Order the replications
-are alternately right and above, but here they progress through four
-directions right, above, left, below.
-
 =head2 Radix
 
 The C<radix> parameter controls the "r" used to break N into X,Y.  For
@@ -342,6 +345,25 @@ level at each stage,
 
                              ^
     -6  -5  -4  -3  -2  -1  X=0  1   2
+
+=head2 Z Order and Negabinary
+
+The pattern can be compared to the ZOrderCurve.  In Z-Order the replications
+are alternately right and up, but here they progress through four directions
+right, up, left, down.
+
+The alternate positive and negative X, and alternate positive and
+negative Y likewise, follow the negabinary system.  If N is at X,Y on
+the ZOrderCurve then those coordinates converted to negabinary give
+the ImaginaryBase.
+
+    zX,zY = ZOrderCurve n_to_xy(N)
+    nX = to_negabinary(zX)
+    nY = to_negabinary(zX)
+    nX,nY equals ImaginaryBase n_to_xy(N)
+
+For a radix other than binary the conversion is likewise, to
+negaternary or negadecimal etc.
 
 =head1 FUNCTIONS
 

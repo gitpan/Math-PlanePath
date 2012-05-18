@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 23 }
+BEGIN { plan tests => 29 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::VogelFloret;
 # VERSION
 
 {
-  my $want_version = 73;
+  my $want_version = 74;
   ok ($Math::PlanePath::VogelFloret::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::VogelFloret->VERSION,  $want_version,
@@ -104,6 +104,22 @@ require Math::PlanePath::VogelFloret;
     ok ($path->{'radius_factor'} >= 2.0,
         1);
   }
+}
+
+#------------------------------------------------------------------------------
+# n_to_rsquared()
+
+{
+  my $path = Math::PlanePath::VogelFloret->new (radius_factor => 1);
+  ok ($path->n_to_rsquared(0), 0);
+  ok ($path->n_to_rsquared(1), 1);
+  ok ($path->n_to_rsquared(20.5), 20.5);
+}
+{
+  my $path = Math::PlanePath::VogelFloret->new (radius_factor => 2);
+  ok ($path->n_to_rsquared(0), 0);
+  ok ($path->n_to_rsquared(1), 1*4);
+  ok ($path->n_to_rsquared(20.5), 20.5*4);
 }
 
 #------------------------------------------------------------------------------

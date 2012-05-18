@@ -19,10 +19,10 @@
 # math-image --values=PlanePathTurn
 #
 # maybe:
-# Turn4 0,1,2,3
-# Turn4S 0,1,2,-1
-# Turn6 0,1,2,3,4,5
-# Turn6S 0,1,2,3, -1,-2,
+# Turn4   0,1,2,3  and fractional
+# Turn4pn 0,1,2,-1
+# TTurn6   0,1,2,3,4,5
+# TTurn6pn 0,1,2,3, -1,-2,
 
 
 
@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 73;
+$VERSION = 74;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -102,9 +102,9 @@ my %oeis_anum
       #  # OEIS-Catalogue: A014577 planepath=DragonCurve turn_type=Right
      },
 
-     # but A106665 has OFFSET=0 cf first here i=1
      # 'Math::PlanePath::AlternatePaper' =>
      # {
+     #  # but A106665 has OFFSET=0 cf first here i=1
      #  'Left' => 'A106665', # turn, 1=left,0=right
      #  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=Left
      # },
@@ -720,6 +720,8 @@ sub characteristic_non_decreasing {
 }
 # { package Math::PlanePath::ImaginaryBase;
 # }
+# { package Math::PlanePath::ImaginaryHalf;
+# }
 # { package Math::PlanePath::Flowsnake;
 # }
 # { package Math::PlanePath::FlowsnakeCentres;
@@ -969,21 +971,20 @@ form of a NumSeq sequence.
 The C<turn_type> choices are
 
     "Left"     1=left 0=right or straight
+    "Right"    1=right 0=left or straight
     "LSR"      1=left 0=straight -1=right
 
-In each case the value at i is turn which occurs at N=i, ie. between the
-segments N=i-1 to N=i to N=i+1
-
+In each case the value at i is the turn which occurs at N=i,
 
             i+1
              |
              |
     i-1 ---- i    turn at i
 
-For multiple "arms" the turn follows that particular arm so it's i-arms, i,
-i+arms.  i values start C<n_start()+arms_count()> so i-arms is the first N
-on the path.  For example a single arm path beginning N=0 has its first turn
-at i=1.
+For multiple "arms" the turn follows that particular arm so it's
+i-arms, i, i+arms.  i values start C<n_start()+arms_count()> so that
+i-arms is C<n_start()>, the first N on the path.  A single arm path
+beginning N=0 has its first turn at i=1.
 
 =head1 FUNCTIONS
 
@@ -999,8 +1000,8 @@ Create and return a new sequence object.  The options are
     planepath_object   PlanePath object
     turn_type          string, as described above
 
-C<planepath> can be just the module part such as "SquareSpiral" or a full
-class name "Math::PlanePath::SquareSpiral".
+C<planepath> can be either the module part such as "SquareSpiral" or a
+full class name "Math::PlanePath::SquareSpiral".
 
 =item C<$value = $seq-E<gt>ith($i)>
 

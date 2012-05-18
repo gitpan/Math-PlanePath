@@ -36,13 +36,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -138,18 +139,13 @@ sub n_to_xy {
   }
   $n = int($n/$arms);
 
-  while ($n) {
-    my $digit = $n % $norm;
-    $n = int($n/$norm);
-    ### at: "$x,$y  n=$n"
-    ### $digit
-    ### dxdy: "$dx,$dy"
+  foreach my $digit (_digit_split_lowtohigh($n,$norm)) {
+    ### at: "$x,$y  digit=$digit  dxdy=$dx,$dy"
 
     $x += $dx * $digit;
     $y += $dy * $digit;
 
-    # (dx,dy) = (dx + i*dy)*(i+$realpart)
-    #
+    # multiply i+r, ie. (dx,dy) = (dx + i*dy)*(i+$realpart)
     ($dx,$dy) = ($realpart*$dx - $dy, $dx + $realpart*$dy);
   }
 
@@ -287,8 +283,8 @@ DragonCurve,
 =head2 Real Part
 
 C<realpart =E<gt> $r> selects another r for complex base b=i+r.  For example
-C<realpart =E<gt> 2> is
 
+    realpart=>2
                                      45 46 47 48 49      8
                                40 41 42 43 44            7
                          35 36 37 38 39                  6
@@ -302,17 +298,18 @@ C<realpart =E<gt> 2> is
      ^
     X=0 1  2  3  4  5  6  7  8  9 10
 
-N is broken into base norm=r*r+1 digits, ie. digits 0 to r*r inclusive.
+N is broken into a base norm=r*r+1 digits, ie. digits 0 to r*r inclusive.
 
     norm = r*r + 1
     Nstart = 0
     Nlevel = norm^level - 1
 
-The low "digit" makes horizontal runs of r*r+1 many points, such as N=0 to
-N=4, then N=5 to N=9 etc above.  In the default r=1 these runs are 2 long.
-For r=2 they're 2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
+The low digit of N makes horizontal runs of r*r+1 many points, such as N=0
+to N=4, then N=5 to N=9 etc above.  In the default r=1 these runs are 2
+long.  For r=2 shown above they're 2*2+1=5 long, or r=3 would be 3*3+1=10,
+etc.
 
-The offset in each run such as the N=5 shown is i+r, so Y=1,X=r.  Then the
+The offset in each run such as the N=5 shown is i+r, ie. Y=1,X=r.  Then the
 offset for the next level is (i+r)^2 = (2r*i + r^2-1) so N=25 begins at
 Y=2*r=4, X=r*r-1=3.  In general each level adds an angle
 
@@ -320,11 +317,11 @@ Y=2*r=4, X=r*r-1=3.  In general each level adds an angle
     Nlevel_angle = level * angle
 
 So the points spiral around anti-clockwise.  For r=1 the angle is
-atan(1/1)=45 degrees, so that level=4 the angle is at 4*45=180 degrees,
-putting N=2^4=16 is on the negative X axis as shown above.
+atan(1/1)=45 degrees, so that for example level=4 is angle 4*45=180 degrees,
+putting N=2^4=16 on the negative X axis as shown in the first sample above.
 
 As r becomes bigger the angle becomes smaller, making it spiral more slowly.
-The points never fill the plane, but a set from N=0 to Nlevel are all
+The points never fill the plane, but the set of points N=0 to Nlevel are all
 touching.
 
 =head2 Arms
@@ -333,6 +330,8 @@ For C<realpart =E<gt> 1>, an optional C<arms =E<gt> 2> adds a second copy of
 the curve rotated 180 degrees and starting from X=0,Y=1.  It meshes
 perfectly to fill the plane.  Each arm advances successively so N=0,2,4,etc
 is the plain path and N=1,3,5,7,etc is the copy
+
+    arms=>2
 
         60  62          28  30                                 5
     56  58          24  26                                     4
@@ -382,7 +381,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2011, 2012 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

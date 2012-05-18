@@ -49,7 +49,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -346,6 +346,15 @@ odd or both even.  If C<$x,$y> is a position without an N, ie. one of X,Y
 odd the other even, then the return is C<undef>.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A063178  (etc)
+
+    A063178    total sum previous row or diagonal
 
 =head1 SEE ALSO
 

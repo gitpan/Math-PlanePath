@@ -23,7 +23,7 @@ use List::Util qw(min max);
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 73;
+$VERSION = 74;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -153,7 +153,6 @@ sub n_to_xy {
   return ($x, $y);
 }
 
-#use Smart::Comments;
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PixelRings xy_to_n(): "$x, $y"

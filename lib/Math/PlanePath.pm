@@ -21,10 +21,10 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 73;
+$VERSION = 74;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 # defaults
 use constant n_start => 1;
@@ -63,6 +63,12 @@ sub xy_to_n_list {
     return $n;
   }
   return;
+}
+
+sub n_to_rsquared {
+  my ($self, $n) = @_;
+  my ($x,$y) = $self->n_to_xy($n) or return undef;
+  return $x*$x + $y*$y;
 }
 
 #------------------------------------------------------------------------------
@@ -160,6 +166,56 @@ sub _rect_for_first_quadrant {
   return ($x1,$y1, $x2,$y2);
 }
 
+{
+  my %binary_to_base4 = ('00' => '0',
+                         '01' => '1',
+                         '10' => '2',
+                         '11' => '3');
+  my @radix_to_coderef;
+  $radix_to_coderef[2] = sub {
+    (my $str = $_[0]->as_bin) =~ s/^0b//;  # strip leading 0b
+    return reverse split //, $str;
+  };
+  $radix_to_coderef[4] = sub {
+    (my $str = $_[0]->as_bin) =~ s/^0b//; # strip leading 0b
+    if (length($str) & 1) {
+      $str = "0$str";
+    }
+    $str =~ s/(..)/$binary_to_base4{$1}/ge;
+    return reverse split //, $str;
+  };
+  $radix_to_coderef[8] = sub {
+    (my $str = $_[0]->as_oct) =~ s/^0//;  # strip leading 0
+    return reverse split //, $str;
+  };
+  $radix_to_coderef[10] = sub {
+    return reverse split //, $_[0]->bstr;
+  };
+  $radix_to_coderef[16] = sub {
+    (my $str = $_[0]->as_hex) =~ s/^0x//;  # strip leading 0x
+    return reverse map {hex} split //, $str;
+  };
+
+  sub _digit_split_lowtohigh {
+    my ($n, $radix) = @_;
+    ### _digit_split_lowtohigharef(): $n
+
+    $n || return; # don't return '0' from BigInt stringize
+
+    if (ref $n
+        && $n->isa('Math::BigInt')
+        && (my $coderef = $radix_to_coderef[$radix])) {
+      return $coderef->($_[0]);
+    }
+
+    my @ret;
+    do {
+      push @ret, $n % $radix;
+    } while ($n = int($n/$radix));
+    return @ret;   # array[0] low digit
+  }
+}
+
 
 1;
 __END__
@@ -233,6 +289,7 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     CincoCurve             5x5 self-similar
 
     ImaginaryBase          replicating in four directions
+    ImaginaryHalf          half-plane replicate three directions
     SquareReplicate        3x3 replicating squares
     CornerReplicate        2x2 replicating squares
     LTiling                self-simlar L shapes
@@ -361,6 +418,12 @@ C<$n> then the return is an empty list, so for example
 
 Paths start from C<$path-E<gt>n_start> below, though some will give a
 position for N=0 or N=-0.5 too.
+
+=item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
+
+Return the radial distance R^2 of point C<$n>, or C<undef> if there's
+no point C<$n>.  This is simply C<$x*$x+$y*$y> but for a few paths
+it's calculated with less work.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -631,11 +694,12 @@ more N points than the preceding.
       128       SquareArms (each arm)
      128/4      CretanLabyrinth (4 loops for +128)
       216       HexArms (each arm)
-    parameter   MultipleRings, PyramidRows
 
     totient     CoprimeColumns, DiagonalRationals
     divcount    DivisibleColumns
     various     CellularRule
+
+    parameter   MultipleRings, PyramidRows
 
 =for my_pod step end
 
@@ -681,7 +745,8 @@ such a power for things like KochPeaks and GosperIslands.
       2         HilbertCurve, HilbertSpiral, ZOrderCurve (default),
                   GrayCode (default), BetaOmega, AR2W2Curve,
                   SierpinskiCurve, HIndexing, SierpinskiCurveStair,
-                  ImaginaryBase (default), CornerReplicate,
+                  ImaginaryBase (default), ImaginaryHalf (default),
+                  CornerReplicate,
                   ComplexMinus (default), ComplexPlus (default),
                   ComplexRevolving, DragonCurve, DragonRounded,
                   DragonMidpoint, AlternatePaper, DigitGroups
@@ -702,7 +767,8 @@ such a power for things like KochPeaks and GosperIslands.
       9         SquareReplicate
     Fibonacci   FibonacciWordFractal
     parameter   PeanoCurve, WunderlichSerpentine, ZOrderCurve, GrayCode,
-                  ImaginaryBase, ComplexPlus, ComplexMinus, DigitGroups
+                  ImaginaryBase, ImaginaryHalf, ComplexPlus, ComplexMinus,
+                  DigitGroups
 
 =for my_pod base end
 
@@ -884,6 +950,7 @@ L<Math::PlanePath::KochelCurve>,
 L<Math::PlanePath::CincoCurve>,
 
 L<Math::PlanePath::ImaginaryBase>,
+L<Math::PlanePath::ImaginaryHalf>,
 L<Math::PlanePath::SquareReplicate>,
 L<Math::PlanePath::CornerReplicate>,
 L<Math::PlanePath::LTiling>,
