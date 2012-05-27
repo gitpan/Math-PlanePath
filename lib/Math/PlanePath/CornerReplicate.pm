@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -33,6 +33,7 @@ use Math::PlanePath 54; # v.54 for _max()
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -73,11 +74,8 @@ sub n_to_xy {
   my $x = my $y = ($n * 0);  # inherit bignum 0
   my $len = $x + 1;          # inherit bignum 1
 
-  while ($n) {
-    my $digit = $n % 4;
-    $n = int($n/4);
-    ### at: "$x,$y"
-    ### $digit
+  foreach my $digit (_digit_split_lowtohigh($n,4)) {
+    ### at: "$x,$y  digit=$digit"
 
     $x += $digit_to_x[$digit] * $len;
     $y += $digit_to_y[$digit] * $len;
@@ -362,9 +360,11 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
     http://oeis.org/A000695  (etc)
 
-    A000695    X axis,   base 4 digits 0,1 only
-    A001196    Y axis,   base 4 digits 0,3 only
-    A062880    diagonal, base 4 digits 0,2 only
+    A059906    Y coordinate
+
+    A000695    N on X axis, base 4 digits 0,1 only
+    A001196    N on Y axis, base 4 digits 0,3 only
+    A062880    N on diagonal, base 4 digits 0,2 only
     A163241    base-4 flip 2<->3,
                  converts N to ZOrderCurve N (and back)
 

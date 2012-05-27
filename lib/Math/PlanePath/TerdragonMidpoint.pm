@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -90,7 +90,7 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  # FIXME: own code ...
+  # ENHANCE-ME: own code ...
   #
   require Math::PlanePath::TerdragonCurve;
   my ($x1,$y1) = $self->Math::PlanePath::TerdragonCurve::n_to_xy($n);
@@ -532,13 +532,12 @@ turned by 60 degrees or 120 degrees.
 =head2 Arms
 
 Multiple copies of the curve can be selected, each advancing successively.
-Like the main TerdragonCurve the plain midpoint curve covers 1/6 of the
-plane and 6 arms rotated by 60, 120, 180, 240 and 300 degrees mesh together
-perfectly.
+Like the main TerdragonCurve the midpoint curve covers 1/6 of the plane and
+6 arms rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
 
 C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (like
-the plain curve above), then N=1,7,13,19 the second copy rotated 60 degrees,
-N=2,8,14,20 the third rotated 120, etc.
+the single curve above), then N=1,7,13,19 the second copy rotated 60
+degrees, N=2,8,14,20 the third rotated 120, etc.
 
      arms=>6                                 ...
                                              /
@@ -672,13 +671,15 @@ For the odd arms 1,3,5 each digit of N must be flipped so 0,1,2 becomes
 2,1,0,
 
     if arm mod 2 == 1
-    then  N = 3**digits - 1 - N
+    then  N = 3**numdigits - 1 - N
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::TerdragonCurve>,
+L<Math::PlanePath::TerdragonRounded>,
 L<Math::PlanePath::DragonMidpoint>
+L<Math::PlanePath::R5DragonMidpoint>
 
 =head1 HOME PAGE
 

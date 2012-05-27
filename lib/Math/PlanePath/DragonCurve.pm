@@ -35,15 +35,13 @@
 #    a(8n+1) = a(4n+1),
 #    a(8n+2) = a(4n+2)
 #
-#    A175337 r5 dragon turns
-#    A176405 r7 dragon turns
 
 package Math::PlanePath::DragonCurve;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -900,13 +898,17 @@ various forms (and see DragonMidpoint for its forms too),
     A014709 -- turn, 2=left,1=right
     A014710 -- turn, 1=left,2=right
     A038189 -- bit above lowest 1, is 0=left,1=right (extra initial 0)
+    A099545 -- (odd part n) mod 4, is 1=left,3=right
     A082410 -- reversing complement, is 1=left,0=right (extra initial 0)
     A034947 -- Jacobi (-1/n), is 1=left,-1=right
     A112347 -- Jacobi (-1/n), is 1=left,-1=right (extra initial 0)
     A121238 -- -1^(n + some partitions), is 1=left,-1=right (extra 1)
 
-The above sequences differ only in having left or right represented as 0, 1
-or -1 and possible extra initial 0 or 1 arising from the definitions.
+The above turn sequences differ only in having left or right represented as
+0, 1, -1, etc, and possible extra initial 0 or 1 arising from the
+definitions.
+
+    A003460 -- turns 1 to 2^level-1 in octal
 
     A005811 -- total turn
     A088748 -- total turn + 1
@@ -953,9 +955,12 @@ from successive values of the sequence itself, or something like that.
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonRounded>,
 L<Math::PlanePath::DragonMidpoint>,
-L<Math::PlanePath::TerdragonCurve>,
+L<Math::PlanePath::R5DragonCurve>,
+L<Math::PlanePath::TerdragonCurve>
+
 L<Math::PlanePath::ComplexMinus>,
-L<Math::PlanePath::ComplexPlus>
+L<Math::PlanePath::ComplexPlus>,
+L<Math::PlanePath::CCurve>
 
 =head1 HOME PAGE
 

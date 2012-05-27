@@ -23,7 +23,7 @@ use List::Util 'max';
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -67,9 +67,17 @@ sub new {
                              @_);
 }
 
+# r = sqrt(N)
+# hypot(r, frac)^2
+#   = r^2 + $frac^2
+#   = sqrt(N)^2 + $frac^2
+#   = N + $frac^2
+#
 sub n_to_rsquared {
   my ($path, $n) = @_;
-  return $n;  # exactly RSquared=$n
+  my $int = int($n);
+  $n -= $int;
+  return $n*$n + $int;
 }
 
 # r = sqrt(i)
@@ -295,8 +303,8 @@ fit in between the positive points.)
 
 =item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
 
-Return the radial distance R^2 of point C<$n>, or C<undef> if there's
-no point C<$n>.  This is simply C<$n> itself, since R=sqrt(N).
+Return the radial distance R^2 of point C<$n>, or C<undef> if C<$n> is
+negative.  For integer C<$n> this is simply C<$n> itself.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -315,6 +323,16 @@ Return "circle".
 =back
 
 =head1 FORMULAS
+
+=head2 N to RSquared
+
+For integer N the spiral has R=sqrt(N) and the square is simply
+RSquared=R^2=N.  For fractional N the point is on a straight line at right
+angles to the integer position, so
+
+    R = hypot(sqrt(Ninteger), Nfrac)
+    RSquared = (sqrt(Ninteger))^2 + Nfrac^2
+             = Ninteger + Nfrac^2
 
 =head2 X,Y to N
 

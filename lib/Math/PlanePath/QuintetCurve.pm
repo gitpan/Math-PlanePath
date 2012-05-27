@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -35,6 +35,7 @@ use Math::PlanePath::QuintetCentres;
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -72,17 +73,15 @@ sub n_to_xy {
   my $rot = $n % $arms;
   $n = int(($n+$arms-1) / $arms);
 
-  my @digits;
+  my @digits = _digit_split_lowtohigh($n,5);
   my @sx;
   my @sy;
   {
     my $sx = 1; # $rot_to_sx[$rot];
     my $sy = 0; # $rot_to_sy[$rot];
-    while ($n) {
-      push @digits, ($n % 5);
+    foreach (@digits) {
       push @sx, $sx;
       push @sy, $sy;
-      $n = int($n/5);
 
       # 2*(sx,sy) + rot+90(sx,sy)
       ($sx,$sy) = (2*$sx - $sy,

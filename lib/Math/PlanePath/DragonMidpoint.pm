@@ -35,13 +35,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -129,17 +130,16 @@ sub n_to_xy {
   ### $n
 
   # ENHANCE-ME: sx,sy just from len,len
-  my @digits;
+  my @digits = _digit_split_lowtohigh($n,2);
   my @sx;
   my @sy;
+
   {
     my $sx = $zero + 1;
     my $sy = -$sx;
-    while ($n) {
-      push @digits, ($n % 2);
+    foreach (@digits) {
       push @sx, $sx;
       push @sy, $sy;
-      $n = int($n/2);
 
       # (sx,sy) + rot+90(sx,sy)
       ($sx,$sy) = ($sx - $sy,
@@ -434,35 +434,35 @@ Heighway, Harter, et al (see L<Math::PlanePath::DragonCurve>).
 
 
 
-                    17--16           9---8                    5
+                    17--16           9---8                5
                      |   |           |   |
-                    18  15          10   7                    4
+                    18  15          10   7                4
                      |   |           |   |
-                    19  14--13--12--11   6---5---4            3
+                    19  14--13--12--11   6---5---4        3
                      |                           |
-                    20--21--22                   3            2
+                    20--21--22                   3        2
                              |                   |
-    33--32          25--24--23                   2            1
+    33--32          25--24--23                   2        1
      |   |           |                           |
-    34  31          26                       0---1        <- Y=0
+    34  31          26                       0---1    <- Y=0
      |   |           |
-    35  30--29--28--27                                       -1
+    35  30--29--28--27                                   -1
      |
-    36--37--38  43--44--45--46                               -2
+    36--37--38  43--44--45--46                           -2
              |   |           |
-            39  42  49--48--47                               -3
+            39  42  49--48--47                           -3
              |   |   |
-            40--41  50                                       -4
+            40--41  50                                   -4
                      |
-                    51                                       -5
+                    51                                   -5
                      |
-                    52--53--54                               -6
+                    52--53--54                           -6
                              |
-    ..--64          57--56--55                               -7
+    ..--64          57--56--55                           -7
          |           |
-        63          58                                       -8
+        63          58                                   -8
          |           |
-        62--61--60--59                                       -9
+        62--61--60--59                                   -9
 
 
      ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
@@ -628,7 +628,7 @@ L</Arms> above.
     Nbit = Xadj xor Yadj
     new N = N + (Nbit << count++)      # new low bit
 
-The X,Y reduction stops at one of the four start points for the four arms
+The X,Y reduction stops at one of the start points for the four arms
 
     X,Y endpoint   Arm
         0, 0        0
@@ -675,6 +675,7 @@ above least significant 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::R5DragonMidpoint>,
 L<Math::PlanePath::TerdragonMidpoint>
 
 =head1 HOME PAGE

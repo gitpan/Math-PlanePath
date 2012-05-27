@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 164 }
+BEGIN { plan tests => 181 }
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ my $path = Math::PlanePath::AlternatePaper->new;
 # VERSION
 
 {
-  my $want_version = 74;
+  my $want_version = 75;
   ok ($Math::PlanePath::AlternatePaper::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AlternatePaper->VERSION,  $want_version,
@@ -60,6 +60,35 @@ my $path = Math::PlanePath::AlternatePaper->new;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# first few values
+
+{
+  my @data = ([ 0,    0,0 ],
+              [ 0.25, 0.25,0 ],
+              [ 0.75, 0.75,0 ],
+              [ 1,    1,0 ],
+              [ 1.25, 1,0.25 ],
+              [ 1.75, 1,0.75 ],
+              [ 2,    1,1 ],
+
+             );
+  my $path = Math::PlanePath::AlternatePaper->new;
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    ok ($got_x, $want_x, "x at n=$n");
+    ok ($got_y, $want_y, "y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    next unless $want_n == int($want_n);
+    my $got_n = $path->xy_to_n ($x, $y);
+    ok ($got_n, $want_n, "n at x=$x,y=$y");
+  }
 }
 
 #------------------------------------------------------------------------------

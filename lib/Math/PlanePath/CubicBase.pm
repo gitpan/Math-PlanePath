@@ -17,7 +17,9 @@
 
 
 # math-image --path=CubicBase --all --output=numbers --size=60x20
+# math-image --path=CubicBase --values=Multiples,multiples=27 --output=numbers --size=60x20
 
+# math-image --path=CubicBase --expression='i<128?i:0' --output=numbers --size=132x20
 #
 
 package Math::PlanePath::CubicBase;
@@ -25,16 +27,21 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+
+use Math::PlanePath::KochCurve 42;
+*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant n_start => 0;
 
@@ -63,7 +70,7 @@ sub new {
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### CubicBase n_to_xy(): $n
+  ### CubicBase n_to_xy(): "$n"
 
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
@@ -86,34 +93,52 @@ sub n_to_xy {
 
   my $x = 0;
   my $y = 0;
-  my $dx = 2;
-  my $dy = 0;
+
   my $radix = $self->{'radix'};
-  my $rot = 0;
+  if (my @digits = _digit_split_lowtohigh($n,$radix)) {
+    my $dx = 2;
+    my $dy = 0;
+    my $len = ($n * 0) + 1;  # inherit bignum 1
+    my $ext = 1;
+    for (;;) {
+      { # 0 degrees
+        $x += (2*(shift @digits)) * $len;    # low to high
+      }
+      @digits || last;
 
-  while ($n) {
-    ### at: "$x,$y"
-    ### digit: ($n % $radix)
+      if ($ext ^= 1) {
+        $len *= $radix;
+      }
 
-    my $digit = $n % $radix;
-    $n = int($n/$radix);
+      { # +120 degrees
+        my $dlen = (shift @digits) * $len;   # low to high
+        $x -= $dlen;
+        $y += $dlen;
+      }
+      @digits || last;
 
-    $x += $digit * $dx;
-    $y += $digit * $dy;
+      if ($ext ^= 1) {
+        $len *= $radix;
+      }
 
-    ($dx,$dy) = (($dx+3*$dy)/-2, ($dx-$dy)/2);  # rotate +120
-    if (++$rot >= 2) {
-      $rot = 0;
-      $dx *= $radix;
-      $dy *= $radix;
+      { # +240 degrees
+        my $dlen = (shift @digits) * $len;   # low to high
+        $x -= $dlen;
+        $y -= $dlen;
+      }
+      @digits || last;
+
+      if ($ext ^= 1) {
+        $len *= $radix;
+      }
+    }
+
+    if ($self->{'skewed'}) {
+      $x = ($x + $y) / 2;
     }
   }
 
-  if ($self->{'skewed'}) {
-    $x = ($x + $y) / 2;
-  }
-
-  ### final: "$x,$y"
+  ### result: "$x,$y"
   return ($x,$y);
 }
 
@@ -134,54 +159,154 @@ sub xy_to_n {
       return undef;
     }
   }
+  # $x = ($x-$y)/2;  # into i,j coordinates
 
   my $radix = $self->{'radix'};
-  my $radix_2 = 2*$radix;
-
   my $n = ($x * 0 * $y);  # inherit bignum 0
+
+
+  # my ($len, $level) = _round_down_pow(abs($x)+abs($y), $radix);
+  # $len *= $radix;
+  # $level++;
+  # $len *= $radix;
+  # ### $level
+  # ### $len
+  #
+  # for (;;) {
+  #   ### at: "x=$x y=$y"
+  #
+  #   {
+  #     my $k = -$y;
+  #     my $digit = ($k >= 0
+  #                  ? int($k/$len)
+  #                  : -int(-$k/$len));
+  #     $n = $n*$radix + $digit;
+  #     $x += $digit*$len;
+  #     $y += $digit*$len;
+  #
+  #     ### 240deg digit: $digit
+  #     ### add to: "x=$x y=$y"
+  #   }
+  #
+  #   $len = int($len/$radix);
+  #   ### $len
+  #
+  #   {
+  #     my $k = $y;
+  #     my $digit = int($k/$len) % $radix;
+  #     $n = $n*$radix + $digit;
+  #     $x += $digit*$len;
+  #     $y -= $digit*$len;
+  #
+  #     ### 120deg digit: $digit
+  #     ### subtract to: "x=$x y=$y"
+  #   }
+  #
+  #   {
+  #     my $digit = ($x >= 0
+  #                  ? int($x/(2*$len))
+  #                  : -int(-$x/(2*$len)));
+  #     $n = $n*$radix + $digit;
+  #     $x -= 2*$digit;
+  #
+  #     ### 0deg digit: $digit
+  #     ### subtract to: "x=$x y=$y"
+  #   }
+  #
+  #   last unless $level-- > 0;
+  #
+  # }
+
+
+
   my $power = $n + 1;     # inherit bignum 1
   my $rot = 0;
 
-  while ($x || $y) {
-    ### at: "x=$x y=$y"
-    ### assert: (($x + $y) % 2) == 0
+  if ($x || $y) {
+    my $ext = 1;
 
-    my $digit = ($x + $y) % $radix_2;
-    $n += $digit/2 * $power;    # digits low to high
-    ### $digit
+    for (;;) {
+      ### at: "x=$x y=$y"
 
-    $x -= $digit;
-    ### subtract to: "x=$x y=$y"
+      {
+        my $digit = (($x+$y)/2) % $radix;
+        $n += $digit * $power;    # low to high
+        $x -= 2*$digit;
 
-    ($x,$y) = ((3*$y - $x)/2, ($x+$y)/-2);  # rotate -120
-    ### rotate to: "x=$x y=$y"
+        ### 0deg digit: $digit
+        ### subtract to: "x=$x y=$y"
+      }
 
-    if (++$rot >= 2) {
-      $rot = 0;
-      ### assert: ($x % $radix) == 0
-      ### assert: ($y % $radix) == 0
-      $x /= $radix;
-      $y /= $radix;
+      last unless $x || $y;
+      $power *= $radix;
+      if ($ext ^= 1) {
+        ### assert: ($x % $radix) == 0
+        ### assert: ($y % $radix) == 0
+        $x = int($x/$radix);
+        $y = int($y/$radix);
+        ### divide out to: "x=$x y=$y"
+      }
+
+      {
+        my $digit = (($y-$x)/2) % $radix;
+        $n += $digit * $power;    # low to high
+        $x += $digit;
+        $y -= $digit;
+
+        ### 120deg digit: $digit
+        ### subtract to: "x=$x y=$y"
+      }
+
+      last unless $x || $y;
+      $power *= $radix;
+      if ($ext ^= 1) {
+        ### assert: ($x % $radix) == 0
+        ### assert: ($y % $radix) == 0
+        $x = int($x/$radix);
+        $y = int($y/$radix);
+        ### divide out to: "x=$x y=$y"
+      }
+
+      {
+        my $digit = (-$y) % $radix;
+        $n += $digit * $power;    # digit low to high stored into $n
+        $x += $digit;
+        $y += $digit;
+
+        ### 240deg digit: $digit
+        ### subtract to: "x=$x y=$y"
+      }
+
+      last unless $x || $y;
+      $power *= $radix;
+      if ($ext ^= 1) {
+        ### assert: ($x % $radix) == 0
+        ### assert: ($y % $radix) == 0
+        $x = int($x/$radix);
+        $y = int($y/$radix);
+        ### divide out to: "x=$x y=$y"
+      }
     }
-
-    $power *= $radix;
   }
+
+  ### result: $n
   return $n;
 }
 
-# for i-1 need level=6 to cover 8 points surrounding 0,0
-# for i-2 and higher level=3 is enough
-
+# ENHANCE-ME: Can probably do better by measuring extents in 3 directions
+# for a hexagonal boundary.
+#
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### CubicBase rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  my $xm = _max(abs($x1),abs($x2));
-  my $ym = _max(abs($y1),abs($y2));
+  my $radix = $self->{'radix'} ;
+  my $xm = _max(abs($x1),abs($x2)) * $radix*$radix*$radix;
+  my $ym = _max(abs($y1),abs($y2)) * $radix*$radix*$radix;
 
   return (0,
-          int ($xm*$xm + $ym*$ym) * $self->{'radix'} * 8);
+          int($xm*$xm+$ym*$ym));
 }
 
 1;
@@ -201,9 +326,7 @@ Math::PlanePath::CubicBase -- replications in three directions
 
 =head1 DESCRIPTION
 
-This is a pattern arising from complex numbers expressed in a base w*cbrt(2)
-or other w*sqrt(r) base, where w=-1/2+i*sqrt(3)/2, the cube root of unity at
-+120 degrees.
+This is a pattern of replications in three directions 0, 120 and 240 degrees.
 
 =cut
 
@@ -232,7 +355,22 @@ The points are on a triangular grid by using every second integer X,Y, as
 per L<Math::PlanePath/Triangular Lattice>.  All points on that triangular
 grid are visited.
 
-The pattern can be seen by dividing into blocks of 2^k points,
+The initial N=0,N=1 is replicated at +120 degrees.  Then that trapezoid at
++240 degrees
+
+    +-----------+                       +-----------+       
+     \  2     3  \                       \  2     3  \      
+      +-----------+                       \           \     
+        \  0     1  \                       \  0     1  \   
+         +-----------+             ---------  -----------+  
+                                   \  6     7  \            
+      replicate +120deg              \          \    rep +240deg
+                                      \  4     5 \          
+                                       +----------+         
+
+Then that bow-tie N=0to7 is replicated at 0 degrees again.  Each replication
+is 1/3 of the circle around, 0, 120, 240 degrees repeating.  The relative
+layout within a replication is unchanged.
 
                       -----------------------
                       \ 18    19    26    27 \
@@ -250,7 +388,7 @@ The pattern can be seen by dividing into blocks of 2^k points,
     \ 54    55    62    63  \  6     7  \ 14    15  \
      \                        \          \            \
        \ 52    53    60    61  \  4     5 \  12    13  \
-        --------------          +---------- ------------
+        --------------          +----------+------------
                       \ 34    35    42    43 \
                        \                       \
                         \  32    33    40    41 \
@@ -260,27 +398,23 @@ The pattern can be seen by dividing into blocks of 2^k points,
                    \ 36    37    44    45 \
                     -----------------------
 
-N=0 is the origin, then N=1 to the right.  Those two are repeated at +120
-degrees up as N=2 and N=3.  Then that skew 2x2 repeated at 240 degrees
-around as N=4 to N=7.  The bow-tie shaped block of 8 is repeated around
-again to 0 degrees as N=8 to N=16.  Then the skewed 4x4 block at +120 as
-N=16 to N=31, and the resulting 32 point block repeated as N=32 to N=64 at
-+240 degrees.  Each replication is 1/3 of the circle around at 0, 120 and
-240 degrees.  The relative layout within a replication is unchanged.
+The radial distance doubles on every second replication, so N=1 and N=2 are
+at 1 unit from the origin, then N=4 and N=8 at 2 units, then N=16 and N=32
+at 4 units.  N=64 is not shown but is then at 8 units away (X=8,Y=0).
 
 This is similar to the ImaginaryBase, but where it repeats in 4 directions
-based on i=squareroot(-1), here it's in 3 directions based on w=cuberoot(1).
+based on i=squareroot(-1), here it's 3 directions based on w=cuberoot(1) =
+-1/2+i*sqrt(3)/2.
 
 =head2 Radix
 
 The C<radix> parameter controls the "r" used to break N into X,Y.  For
-example C<radix =E<gt> 4> gives 4x4 blocks, with r-1 copies of the preceding
-level at each stage.
+example C<radix =E<gt> 4> gives 4x4 blocks, with r-1 replications of the
+preceding level at each stage.
 
 =cut
 
-# these numbers generated by
-#   math-image --path=CubicBase,radix=4 --expression='i<64?i:0' --output=numbers --size=150x30
+# math-image --path=CubicBase,radix=4 --expression='i<64?i:0' --output=numbers --size=150x30
 
 =pod
 
@@ -304,24 +438,11 @@ level at each stage.
                                                    ^
     -15-14-13-12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
-Notice the parts always replicate successively away from the origin, so the
-block N=16 to N=31 is near the origin at X=-4, then N=32 at X=-8, N=48 at
-X=-12, and N=64 at X=-16 (not shown).
+Notice the parts always replicate away from the origin, so the block N=16 to
+N=31 is near the origin at X=-4, then N=32,48,64 are further away.
 
 In this layout the replications still mesh together perfectly and all points
-on that triangular grid are visited.
-
-=head2 Axis Values
-
-In the default radix=2, the N=0,1,8,9,etc on the positive X axis are those
-integers with zeros at two of every three bits starting from zeros in the
-second and third least significant bit.
-
-    X axis Ns = binary ..._00_00_00_     with _ either 0 or 1
-    in octal, digits 0,1 only
-
-For a radix other than binary the pattern is the same.  Each "_" is any
-digit of the given radix, and each 0 must be 0.
+on the triangular grid are visited.
 
 =head1 FUNCTIONS
 
@@ -345,7 +466,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::ImaginaryBase>
+L<Math::PlanePath::ImaginaryBase>,
+L<Math::PlanePath::ImaginaryHalf>
 
 =head1 HOME PAGE
 

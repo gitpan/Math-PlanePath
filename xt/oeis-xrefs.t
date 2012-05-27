@@ -62,7 +62,21 @@ my @module_filenames
 diag "module count ",scalar(@module_filenames);
 
 my %allow_duplicate_xrefs
-  = (A053615 => { 'lib/Math/PlanePath/SquareSpiral.pm' => 1,
+  = (
+     A196199 => { 'lib/Math/PlanePath/Corner.pm' => 1,
+                  'lib/Math/PlanePath/PyramidRows.pm' => 1,
+                  'lib/Math/PlanePath/PyramidSides.pm' => 1 },
+
+     A059906 => { 'lib/Math/PlanePath/CornerReplicate.pm' => 1,
+                  'lib/Math/PlanePath/ZOrderCurve.pm' => 1 },
+
+     A003159 => { 'lib/Math/PlanePath/CCurve.pm' => 1,
+                  'lib/Math/PlanePath/KochCurve.pm' => 1 },
+     A036554 => { 'lib/Math/PlanePath/CCurve.pm' => 1,
+                  'lib/Math/PlanePath/KochCurve.pm' => 1 },
+
+
+     A053615 => { 'lib/Math/PlanePath/SquareSpiral.pm' => 1,
                   'lib/Math/PlanePath/PyramidSpiral.pm' => 1,
                 },
 
@@ -134,7 +148,20 @@ my @xt_filenames
 diag "xt count ",scalar(@xt_filenames);
 
 my %allow_duplicate_checks
-  = (A053615 => { 'SquareSpiral-oeis.t' => 1,
+  = (
+     A196199 => { 'Corner-oeis.t' => 1,
+                  'PyramidRows-oeis.t' => 1,
+                  'PyramidSides-oeis.t' => 1 },
+
+     A059906 => { 'CornerReplicate-oeis.t' => 1,
+                  'ZOrderCurve-oeis.t' => 1 },
+
+     A003159 => { 'CCurve-oeis.t' => 1,
+                  'KochCurve-oeis.t' => 1 },
+     A036554 => { 'CCurve-oeis.t' => 1,
+                  'KochCurve-oeis.t' => 1 },
+
+     A053615 => { 'SquareSpiral-oeis.t' => 1,
                   'PyramidSpiral-oeis.t' => 1,
                 },
 

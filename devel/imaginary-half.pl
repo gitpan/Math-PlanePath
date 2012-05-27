@@ -26,6 +26,38 @@ use List::Util 'min', 'max';
 
 
 {
+  # Dir4 maximum
+  my $radix = 3;
+  require Math::PlanePath::ImaginaryHalf;
+  require Math::NumSeq::PlanePathDelta;
+  require Math::BigInt;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::ImaginaryHalf->new (radix => $radix);
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath_object => $path,
+                                               delta_type => 'Dir4');
+  my $dir4_max = 0;
+  foreach my $n (0 .. 600000) {
+    # my $n = Math::BigInt->new(2)**$level - 1;
+    my $dir4 = $seq->ith($n);
+    if ($dir4 > $dir4_max) {
+      $dir4_max = $dir4;
+      my ($dx,$dy) = path_n_dxdy($path,$n);
+      my $nr = Math::BaseCnv::cnv($n,10,$radix);
+      printf "%d %7s  %2d,%2d %8.6f\n", $n,$nr, ($dx),($dy), $dir4;
+    }
+  }
+  exit 0;
+
+  sub path_n_dxdy {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    return ($next_x - $x,
+            $next_y - $y);
+  }
+}
+
+{
   # ProthNumbers
   require Math::BaseCnv;
   require Math::PlanePath::ImaginaryHalf;

@@ -51,7 +51,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -59,6 +59,7 @@ use Math::PlanePath;
 *_min = \&Math::PlanePath::_min;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -164,14 +165,14 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my $digits = _digit_split_lowtohigharef($n,$radix);
-  $self->{'n_func'}->($digits,$radix);
+  my @digits = _digit_split_lowtohigh($n,$radix);
+  $self->{'n_func'}->(\@digits, $radix);
 
   my @xdigits;
   my @ydigits;
-  while (@$digits) {
-    push @xdigits, shift @$digits;
-    push @ydigits, shift @$digits || 0;
+  while (@digits) {
+    push @xdigits, shift @digits;        # low to high
+    push @ydigits, shift @digits || 0;
   }
   my $xdigits = \@xdigits;
   my $ydigits = \@ydigits;
@@ -199,21 +200,21 @@ sub xy_to_n {
   }
 
   my $radix = $self->{'radix'};
-  my $xdigits = _digit_split_lowtohigharef($x,$radix);
-  my $ydigits = _digit_split_lowtohigharef($y,$radix);
+  my @xdigits = _digit_split_lowtohigh ($x, $radix);
+  my @ydigits = _digit_split_lowtohigh ($y, $radix);
 
-  $self->{'inverse_xy_func'}->($xdigits,$radix);
-  $self->{'inverse_xy_func'}->($ydigits,$radix);
+  $self->{'inverse_xy_func'}->(\@xdigits, $radix);
+  $self->{'inverse_xy_func'}->(\@ydigits, $radix);
 
   my @digits;
   for (;;) {
-    (@$xdigits || @$ydigits) or last;
-    push @digits, shift @$xdigits || 0;
-    (@$xdigits || @$ydigits) or last;
-    push @digits, shift @$ydigits || 0;
+    (@xdigits || @ydigits) or last;
+    push @digits, shift @xdigits || 0;
+    (@xdigits || @ydigits) or last;
+    push @digits, shift @ydigits || 0;
   }
-  my $digits = \@digits;
 
+  my $digits = \@digits;
   $self->{'inverse_n_func'}->($digits,$radix);
 
   return _digit_join($digits,$radix);
@@ -245,17 +246,6 @@ sub rect_to_n_range {
 
 use constant _noop_reflected => undef;
 use constant _noop_modular   => undef;
-
-sub _digit_split_lowtohigharef {
-  my ($n, $radix) = @_;
-  ### _digit_split_lowtohigharef(): $n
-  my @ret;
-  while ($n) {
-    push @ret, $n % $radix;
-    $n = int($n/$radix);
-  }
-  return \@ret;   # array[0] low digit
-}
 
 # $aref->[0] low digit
 sub _digit_join {

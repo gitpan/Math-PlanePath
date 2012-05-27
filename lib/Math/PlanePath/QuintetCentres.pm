@@ -27,12 +27,13 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
@@ -97,17 +98,15 @@ sub n_to_xy {
   my $rot = $n % $arms;
   $n = int($n/$arms);
 
-  my @digits;
+  my @digits = _digit_split_lowtohigh($n,5);
   my @sx;
   my @sy;
   {
     my $sx = $zero + $rot_to_sx[$rot];
     my $sy = $zero + $rot_to_sy[$rot];
-    while ($n) {
-      push @digits, ($n % 5);
+    foreach (@digits) {
       push @sx, $sx;
       push @sy, $sy;
-      $n = int($n/5);
 
       # 2*(sx,sy) + rot+90(sx,sy)
       ($sx,$sy) = (2*$sx - $sy,

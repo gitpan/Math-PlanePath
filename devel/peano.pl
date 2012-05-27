@@ -27,6 +27,38 @@ use constant 1.02 PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 
 {
+  # Dir4 maximum
+  my $radix = 6;
+  require Math::PlanePath::PeanoCurve;
+  require Math::NumSeq::PlanePathDelta;
+  require Math::BigInt;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::PeanoCurve->new (radix => $radix);
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath_object => $path,
+                                               delta_type => 'Dir4');
+  my $dir4_max = 0;
+  foreach my $n (0 .. 600000) {
+    # my $n = Math::BigInt->new(2)**$level - 1;
+    my $dir4 = $seq->ith($n);
+    if ($dir4 > $dir4_max) {
+      $dir4_max = $dir4;
+      my ($dx,$dy) = path_n_dxdy($path,$n);
+      my $nr = Math::BaseCnv::cnv($n,10,$radix);
+      printf "%7s  %2b,\n    %2b %8.6f\n", $nr, abs($dx),abs($dy), $dir4;
+    }
+  }
+  exit 0;
+
+  sub path_n_dxdy {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    return ($next_x - $x,
+            $next_y - $y);
+  }
+}
+
+{
   # axis increasing
   my $radix = 4;
   my $rsquared = $radix * $radix;

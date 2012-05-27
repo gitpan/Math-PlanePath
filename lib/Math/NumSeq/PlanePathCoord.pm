@@ -22,7 +22,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 74;
+$VERSION = 75;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -88,7 +88,9 @@ use constant::defer _parameter_info_planepath => sub {
 
     opendir DIR, File::Spec->catdir ($dir, 'Math', 'PlanePath') or next;
     while (my $name = readdir DIR) {
-      $name =~ s/\.pm$// or next;
+      # basename of .pm files, and not emacs .#Foo.pm lockfiles
+      $name =~ s/^([^.].*)\.pm$/$1/
+        or next;
       if (length($name) > $width) { $width = length($name) }
       $names{$name} = 1;  # hash slice
     }
@@ -1060,6 +1062,8 @@ sub values_max {
     my ($x,$y) = $self->n_to_xy($self->n_start);
     return abs($x)+abs($y);
   }
+  use constant _NumSeq_AbsDiff_min_is_infimum => 1;
+
   sub _NumSeq_Coord_Radius_min {
     my ($self) = @_;
     # starting N=1 at R=radius_factor*sqrt(1), theta=something
@@ -1109,6 +1113,9 @@ sub values_max {
     my ($self) = @_;
     ### MultipleRings _NumSeq_Coord_RSquared_min() ...
     my $step = $self->{'step'};
+    if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+      return $self->{'base_r'};
+    }
     return ($step == 0
             ? 0  # step=0 along X axis starting X=0,Y=0
             : $step > 6
@@ -1143,7 +1150,22 @@ sub values_max {
 
   *_NumSeq_Coord_Y_non_decreasing = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Product_non_decreasing = \&_NumSeq_Coord_X_increasing;
-  use constant _NumSeq_Coord_Radius_non_decreasing => 1;
+  sub _NumSeq_Coord_SumAbs_non_decreasing {
+    my ($self) = @_;
+    # step==0 trivial on X axis
+    # polygon step=4 same x+y in ring, others vary
+    return ($self->{'step'} == 0
+            || ($self->{'ring_shape'} eq 'polygon' && $self->{'step'} == 4)
+            ? 1
+            : 0);
+  }
+  sub _NumSeq_Coord_Radius_non_decreasing {
+    my ($self) = @_;
+    # step==0 trivial on X axis
+    # circle is non-decreasing, polygon varies
+    return ($self->{'step'} == 0 ? 1
+            : ($self->{'ring_shape'} eq 'circle'));
+  }
   sub _NumSeq_Coord_TRadius_non_decreasing {
     my ($self) = @_;
     # step==0 trivial on X axis
@@ -1249,6 +1271,8 @@ sub values_max {
 # { package Math::PlanePath::ImaginaryBase;
 # }
 # { package Math::PlanePath::ImaginaryHalf;
+# }
+# { package Math::PlanePath::CubicBase;
 # }
 { package Math::PlanePath::GosperIslands;
   use constant _NumSeq_Coord_SumAbs_min => 2; # minimum X=2,Y=0 or X=1,Y=1
@@ -1358,6 +1382,16 @@ sub values_max {
 # }
 # { package Math::PlanePath::TerdragonCurve;
 # }
+{ package Math::PlanePath::TerdragonRounded;
+  use constant _NumSeq_Coord_SumAbs_min => 2; # X=2,Y=0
+  sub _NumSeq_Coord_RSquared_min {
+    my ($self) = @_;
+    return ($self->arms_count < 2
+            ? 4   # 1 arm, minimum X=2,Y=0
+            : 2); # 2 or more arms, minimum X=1,Y=1
+  }
+  use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
+}
 { package Math::PlanePath::TerdragonMidpoint;
   use constant _NumSeq_Coord_SumAbs_min => 2; # X=2,Y=0 or X=1,Y=1
   sub _NumSeq_Coord_RSquared_min {
@@ -1368,6 +1402,12 @@ sub values_max {
   }
   use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
 }
+# { package Math::PlanePath::R5DragonCurve;
+# }
+# { package Math::PlanePath::R5DragonMidpoint;
+# }
+# { package Math::PlanePath::CCurve;
+# }
 # { package Math::PlanePath::ComplexPlus;
 # }
 # { package Math::PlanePath::ComplexMinus;

@@ -45,6 +45,66 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['terdragon-rounded-small.png',
+    'math-image --path=TerdragonRounded --lines --scale=2 --size=32 --offset=-5,-10'],
+   ['terdragon-rounded-big.png',
+    'math-image --path=TerdragonRounded --lines --figure=point --scale=3 --size=200 --offset=65,-20'],
+   ['terdragon-rounded-6arm-big.png',
+    'math-image --path=TerdragonRounded,arms=6 --lines --figure=point --scale=5 --size=200'],
+
+
+   ['terdragon-small.png',
+    'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
+   ['terdragon-big.png',
+    'math-image --path=TerdragonCurve --lines --figure=point --scale=4 --size=200 --offset=75,50'],
+   # ['terdragon-6arm-big.png',
+   #  'math-image --path=TerdragonCurve,arms=6 --lines --figure=point --scale=4 --size=200'],
+   # ['terdragon-rounded-big.png',
+   #  'math-image --path=TerdragonCurve --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=35,-30'],
+   # ['terdragon-rounded-6arm-big.png',
+   #  'math-image --path=TerdragonCurve,arms=6 --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=10 --size=200'],
+
+
+   ['terdragon-midpoint-6arm-big.png',
+    'math-image --path=TerdragonMidpoint,arms=6 --lines --figure=circle --scale=4 --size=200'],
+   ['terdragon-midpoint-small.png',
+    'math-image --path=TerdragonMidpoint --lines --scale=2 --size=32 --offset=2,-9'],
+   ['terdragon-midpoint-big.png',
+    'math-image --path=TerdragonMidpoint --lines --figure=circle --scale=8 --size=200 --offset=50,-50'],
+
+
+   ['c-curve-small.png',
+    'math-image --path=CCurve --lines --scale=3 --size=32 --offset=8,0'],
+   ['c-curve-big.png',
+    'math-image --path=CCurve --lines --figure=point --scale=3 --size=250x250 --offset=22,-70'],
+
+
+   ['r5dragon-small.png',
+    'math-image --path=R5DragonCurve --lines --scale=4 --size=32 --offset=6,-5'],
+   ['r5dragon-big.png',
+    'math-image --path=R5DragonCurve --lines --figure=point --scale=10 --size=200x200 --offset=20,45'],
+   ['r5dragon-rounded-big.png',
+    'math-image --path=R5DragonCurve --values=Lines,lines_type=rounded,midpoint_offset=.6 --figure=point --scale=10 --size=200x200 --offset=20,45'],
+   ['r5dragon-rounded-4arm-big.png',
+    'math-image --path=R5DragonCurve,arms=4 --values=Lines,lines_type=rounded,midpoint_offset=.6 --figure=point --scale=20 --size=200x200'],
+
+
+   ['r5dragon-midpoint-small.png',
+    'math-image --path=R5DragonMidpoint --lines --scale=3 --size=32 --offset=3,-9'],
+   ['r5dragon-midpoint-big.png',
+    'math-image --path=R5DragonMidpoint --lines --figure=point --scale=8 --size=200 --offset=65,-15'],
+   ['r5dragon-midpoint-4arm-big.png',
+    'math-image --path=R5DragonMidpoint,arms=4 --lines --figure=point --scale=12 --size=200'],
+
+
+   ['cubicbase-small.png',
+    'math-image --path=CubicBase --lines --scale=5 --size=32'],
+   ['cubicbase-big.png',
+    'math-image --path=CubicBase --lines --scale=18 --size=200'],
+   ['cubicbase-radix5-big.png',
+    'math-image --path=CubicBase,radix=5 --lines --scale=18 --size=200'],
+
+
    ['imaginaryhalf-small.png',
     'math-image --path=ImaginaryHalf --lines --scale=7 --size=32'],
    ['imaginaryhalf-big.png',
@@ -59,6 +119,30 @@ foreach my $elem
     'math-image --path=ImaginaryBase --lines --scale=18 --size=200'],
    ['imaginarybase-radix5-big.png',
     'math-image --path=ImaginaryBase,radix=5 --lines --scale=18 --size=200'],
+
+
+   ['peano-small.png',
+    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
+   ['peano-big.png',
+    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
+   ['peano-radix7-big.png',
+    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=5 --size=192'],
+
+
+   ['rationals-tree-small.png',
+    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
+   ['rationals-tree-big.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=200'],
+   ['rationals-tree-lines-drib.png',
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-sb.png',
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-cw.png',
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-ayt.png',
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-bird.png',
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
 
 
    ['gray-code-small.png',
@@ -109,14 +193,6 @@ foreach my $elem
     'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
 
 
-   ['peano-small.png',
-    'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
-   ['peano-big.png',
-    'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
-   ['peano-radix7-big.png',
-    'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=5 --size=192'],
-
-
    ['cretan-labyrinth-small.png',
     'math-image --path=CretanLabyrinth --lines --scale=3 --size=32'],
    ['cretan-labyrinth-big.png',
@@ -149,24 +225,6 @@ foreach my $elem
     'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
    ['pythagorean-tree-big.png',
     'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
-
-   ['terdragon-small.png',
-    'math-image --path=TerdragonCurve --lines --scale=5 --size=32 --offset=-3,-7'],
-   ['terdragon-big.png',
-    'math-image --path=TerdragonCurve --lines --figure=point --scale=4 --size=200 --offset=65,0'],
-   ['terdragon-rounded-big.png',
-    'math-image --path=TerdragonCurve --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=35,-30'],
-   ['terdragon-rounded-6arm-big.png',
-    'math-image --path=TerdragonCurve,arms=6 --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=10 --size=200'],
-
-
-   ['terdragon-midpoint-6arm-big.png',
-    'math-image --path=TerdragonMidpoint,arms=6 --lines --figure=circle --scale=4 --size=200'],
-   ['terdragon-midpoint-small.png',
-    'math-image --path=TerdragonMidpoint --lines --scale=2 --size=32 --offset=2,-9'],
-   ['terdragon-midpoint-big.png',
-    'math-image --path=TerdragonMidpoint --lines --figure=circle --scale=8 --size=200 --offset=50,-50'],
-
 
    ['staircase-small.png',
     'math-image --path=Staircase --lines --scale=4 --size=32 --offset=2,2'],
@@ -365,22 +423,6 @@ foreach my $elem
     'math-image --path=DiagonalRationals --lines --scale=4 --size=32'],
    ['diagonal-rationals-big.png',
     'math-image --path=DiagonalRationals --lines --scale=10 --size=200'],
-
-   ['rationals-tree-small.png',
-    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
-   ['rationals-tree-big.png',
-    'math-image --path=RationalsTree --all --scale=3 --size=200'],
-   ['rationals-tree-lines-drib.png',
-    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-sb.png',
-    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-cw.png',
-    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-ayt.png',
-    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-bird.png',
-    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
-
 
    ['coprime-columns-small.png',
     'math-image --path=CoprimeColumns --all --scale=3 --size=32'],

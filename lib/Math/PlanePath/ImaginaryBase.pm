@@ -18,13 +18,15 @@
 
 # math-image --path=ImaginaryBase --lines --scale=10
 # math-image --path=ImaginaryBase --all --output=numbers_dash --size=80x50
+#
+# cf A039724 negabinary in binary
 
 package Math::PlanePath::ImaginaryBase;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

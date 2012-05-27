@@ -29,6 +29,7 @@ use MyOEIS;
 
 use Math::PlanePath::PeanoCurve;
 use Math::PlanePath::Diagonals;
+use Math::PlanePath::ZOrderCurve;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -51,6 +52,115 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+
+
+#------------------------------------------------------------------------------
+# A163333 -- Peano N <-> Z-Order radix=3, with digit swaps
+{
+  my $anum = 'A163333';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      my $peano  = Math::PlanePath::PeanoCurve->new;
+      my $zorder = Math::PlanePath::ZOrderCurve->new (radix => 3);
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $nn = $n;
+        {
+          my ($x,$y) = $zorder->n_to_xy ($nn);
+          ($x,$y) = ($y,$x);
+          $nn = $zorder->xy_to_n ($x,$y);
+        }
+        {
+          my ($x,$y) = $zorder->n_to_xy ($nn);
+          $nn = $peano->xy_to_n ($x, $y);
+        }
+        {
+          my ($x,$y) = $zorder->n_to_xy ($nn);
+          ($x,$y) = ($y,$x);
+          $nn = $zorder->xy_to_n ($x,$y);
+        }
+        push @got, $nn;
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum");
+  }
+  {
+    my @got;
+    if ($bvalues) {
+      my $peano  = Math::PlanePath::PeanoCurve->new;
+      my $zorder = Math::PlanePath::ZOrderCurve->new (radix => 3);
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $nn = $n;
+        {
+          my ($x,$y) = $zorder->n_to_xy ($nn);
+          ($x,$y) = ($y,$x);
+          $nn = $zorder->xy_to_n ($x,$y);
+        }
+        {
+          my ($x,$y) = $peano->n_to_xy ($nn);   # other way around
+          $nn = $zorder->xy_to_n ($x, $y);
+        }
+        {
+          my ($x,$y) = $zorder->n_to_xy ($nn);
+          ($x,$y) = ($y,$x);
+          $nn = $zorder->xy_to_n ($x,$y);
+        }
+        push @got, $nn;
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum");
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# A163332 -- Peano N at points in Z-Order radix=3 sequence
+{
+  my $anum = 'A163332';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      my $peano  = Math::PlanePath::PeanoCurve->new;
+      my $zorder = Math::PlanePath::ZOrderCurve->new (radix => 3);
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my ($x,$y) = $zorder->n_to_xy ($n);
+        push @got, $peano->xy_to_n ($x, $y);
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum");
+  }
+  {
+    my @got;
+    if ($bvalues) {
+      my $peano  = Math::PlanePath::PeanoCurve->new;
+      my $zorder = Math::PlanePath::ZOrderCurve->new (radix => 3);
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my ($x,$y) = $peano->n_to_xy ($n);   # other way around
+        push @got, $zorder->xy_to_n ($x, $y);
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum");
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # A163480 -- X axis

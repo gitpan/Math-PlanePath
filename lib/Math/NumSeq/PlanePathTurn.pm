@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 74;
+$VERSION = 75;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -722,6 +722,8 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::ImaginaryHalf;
 # }
+# { package Math::PlanePath::CubicBase;
+# }
 # { package Math::PlanePath::Flowsnake;
 # }
 # { package Math::PlanePath::FlowsnakeCentres;
@@ -757,11 +759,19 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::DragonMidpoint;
 # }
+# { package Math::PlanePath::AlternatePaper;
+# }
 # { package Math::PlanePath::TerdragonCurve;
+# }
+# { package Math::PlanePath::TerdragonRounded;
 # }
 # { package Math::PlanePath::TerdragonMidpoint;
 # }
-# { package Math::PlanePath::AlternatePaper;
+# { package Math::PlanePath::R5DragonCurve;
+# }
+# { package Math::PlanePath::R5DragonMidpoint;
+# }
+# { package Math::PlanePath::CCurve;
 # }
 # { package Math::PlanePath::ComplexPlus;
 # }

@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 267)[1];
+my $test_count = (tests => 295)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -240,6 +240,27 @@ require Math::PlanePath::KochCurve;
 ### Modules ...
 
 my @modules = (
+               'TerdragonRounded',
+               'TerdragonRounded,arms=1',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=6',
+
+               'CCurve',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
+               'AlternatePaper',
+               'DragonRounded',
+               'DragonMidpoint',
+               'DragonCurve',
+
                'GrayCode',
 
                'WunderlichSerpentine',
@@ -336,11 +357,6 @@ my @modules = (
                'QuadricCurve',
                'QuadricIslands',
 
-               'AlternatePaper',
-               'DragonRounded',
-               'DragonMidpoint',
-               'DragonCurve',
-
                'KochSquareflakes',
                'KochSnowflakes',
                'KochCurve',
@@ -381,6 +397,7 @@ my @modules = (
                'ComplexRevolving',
                'ImaginaryBase',
                'ImaginaryHalf',
+               'CubicBase',
 
                # 'File',  # not applicable
                'Diagonals',
@@ -409,7 +426,7 @@ foreach my $module (@modules) {
                           height => 17);
   my $arms = $path->arms_count;
 
-  my $n    = Number::Fraction->new(2**20) + 5;
+  my $n = Number::Fraction->new(2**20) + 5;
   if ($path->isa('Math::PlanePath::CellularRule190')) {
     $n += 1; # not across gap
   }
@@ -433,8 +450,8 @@ foreach my $module (@modules) {
   ### $x_frac
   ### $y_frac
 
-  ok ("$x_frac", "$want_x", "$module arms=$arms X frac");
-  ok ("$y_frac", "$want_y", "$module arms=$arms Y frac");
+  ok ("$x_frac", "$want_x", "$module arms=$arms X frac at n=$n_frac");
+  ok ("$y_frac", "$want_y", "$module arms=$arms Y frac at n=$n_frac");
 }
 
 exit 0;

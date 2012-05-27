@@ -30,7 +30,7 @@ use POSIX 'ceil';
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -157,8 +157,8 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n,$n); }
 
-  if ($n < 1) {
-    return ($n, 0);
+  if ($n <= 1) {
+    return ($n, 0);  # exactly Y=0
   }
 
   {

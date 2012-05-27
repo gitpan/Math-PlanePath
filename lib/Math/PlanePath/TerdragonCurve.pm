@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -671,9 +671,12 @@ with a left turn at N=1.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::TerdragonRounded>,
 L<Math::PlanePath::TerdragonMidpoint>,
-L<Math::PlanePath::GosperSide>,
-L<Math::PlanePath::DragonCurve>
+L<Math::PlanePath::GosperSide>
+
+L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::R5DragonCurve>
 
 =head1 HOME PAGE
 

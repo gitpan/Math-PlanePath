@@ -34,16 +34,20 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -66,10 +70,166 @@ sub n_to_xy {
     $frac = $n - $int;  # inherit possible BigFloat
     $n = $int;          # BigFloat int() gives BigInt, use that
   }
+  ### $frac
 
   my $zero = ($n * 0);  # inherit bignum 0
 
-  my @digits;
+  my @digits = _digit_split_lowtohigh($n,2);
+  if (scalar(@digits) & 1) {
+    push @digits, 0;  # extra high to make even
+  }
+
+  my @sx;
+  my @sy;
+  {
+    my $sy = $zero;   # inherit BigInt
+    my $sx = $sy + 1; # inherit BigInt
+    ### $sx
+    ### $sy
+  
+    foreach (1 .. scalar(@digits)/2) {
+      push @sx, $sx;
+      push @sy, $sy;
+  
+      # (sx,sy) + rot+90(sx,sy)
+      ($sx,$sy) = ($sx - $sy,
+                   $sy + $sx);
+  
+      push @sx, $sx;
+      push @sy, $sy;
+  
+      # (sx,sy) + rot-90(sx,sy)
+      ($sx,$sy) = ($sx + $sy,
+                   $sy - $sx);
+    }
+  }
+
+  ### @digits
+  ### @sx
+  ### @sy
+  ### assert: scalar(@sx) == scalar(@digits)
+
+  my $rot = 0;
+  my $rev = 0;
+  my $x = $zero;
+  my $y = $zero;
+  while (@digits) {
+    {
+      my $digit = pop @digits;   # high to low
+      my $sx = pop @sx;
+      my $sy = pop @sy;
+      ### at: "$x,$y  $digit   side $sx,$sy"
+      ### $rot
+
+      if ($rot & 2) {
+        ($sx,$sy) = (-$sx,-$sy);
+      }
+      if ($rot & 1) {
+        ($sx,$sy) = (-$sy,$sx);
+      }
+
+      if ($rev) {
+        if ($digit) {
+          $x -= $sy;
+          $y += $sx;
+          ### rev add to: "$x,$y next is still rev"
+        } else {
+          $rot ++;
+          $rev = 0;
+        }
+      } else {
+        if ($digit) {
+          $rot ++;
+          $x += $sx;
+          $y += $sy;
+          $rev = 1;
+          ### add to: "$x,$y next is rev"
+        }
+      }
+    }
+
+    @digits || last;
+
+    {
+      my $digit = pop @digits;
+      my $sx = pop @sx;
+      my $sy = pop @sy;
+      ### at: "$x,$y  $digit   side $sx,$sy"
+      ### $rot
+
+      if ($rot & 2) {
+        ($sx,$sy) = (-$sx,-$sy);
+      }
+      if ($rot & 1) {
+        ($sx,$sy) = (-$sy,$sx);
+      }
+
+      if ($rev) {
+        if ($digit) {
+          $x += $sy;
+          $y -= $sx;
+          ### rev add to: "$x,$y next is still rev"
+        } else {
+          $rot --;
+          $rev = 0;
+        }
+      } else {
+        if ($digit) {
+          $rot --;
+          $x += $sx;
+          $y += $sy;
+          $rev = 1;
+          ### add to: "$x,$y next is rev"
+        }
+      }
+    }
+  }
+
+  ### $rot
+  ### $rev
+
+  if ($rev) {
+    $rot += 2;
+    ### rev change rot to: $rot
+  }
+
+  $rot &= 3;
+  $x = $frac * $rot_to_sx[$rot] + $x;
+  $y = $frac * $rot_to_sy[$rot] + $y;
+
+  ### final: "$x,$y"
+  return ($x,$y);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+sub XXn_to_xy {
+  my ($self, $n) = @_;
+  ### AlternatePaper n_to_xy(): $n
+
+  if ($n < 0) { return; }
+  if (_is_infinite($n)) { return ($n, $n); }
+
+  my $frac;
+  {
+    my $int = int($n);
+    $frac = $n - $int;  # inherit possible BigFloat
+    $n = $int;          # BigFloat int() gives BigInt, use that
+  }
+
+  my $zero = ($n * 0);  # inherit bignum 0
+
+  my @digits = _digit_split_lowtohigh($n,2);
   my @sx;
   my @sy;
   {
@@ -78,9 +238,7 @@ sub n_to_xy {
     ### $sx
     ### $sy
 
-    while ($n) {
-      push @digits, ($n % 2);
-      $n = int($n/2);
+    for (my $i = 0; $i <= $#digits; $i++) {
       push @sx, $sx;
       push @sy, $sy;
 
@@ -88,8 +246,9 @@ sub n_to_xy {
       ($sx,$sy) = ($sx - $sy,
                    $sy + $sx);
 
-      push @digits, ($n % 2);
-      $n = int($n/2);
+      $i++;
+      $i <= $#digits || last;
+
       push @sx, $sx;
       push @sy, $sy;
 
@@ -100,11 +259,14 @@ sub n_to_xy {
   }
 
   ### @digits
+  ### @sx
+  ### @sy
+
   my $rot = 0;
   my $rev = 0;
   my $x = $zero;
   my $y = $zero;
-  while (defined (my $digit = pop @digits)) {   # high to low digits
+  while (defined (my $digit = pop @digits)) {
     {
       my $sx = pop @sx;
       my $sy = pop @sy;
@@ -184,6 +346,9 @@ sub n_to_xy {
   ### final: "$x,$y"
   return ($x,$y);
 }
+
+
+
 
 
 #                                                      8
@@ -672,6 +837,7 @@ are "undoubled" in the sense of giving just one copy of those paired values.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::CCurve>,
 L<Math::PlanePath::HIndexing>,
 L<Math::PlanePath::ZOrderCurve>
 

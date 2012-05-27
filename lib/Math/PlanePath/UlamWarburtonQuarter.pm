@@ -19,12 +19,20 @@
 # A147610 - 3^(ones(n-1) - 1)
 # A048883 - 3^(ones n)
 
+
+# Local variables:
+# compile-command: "math-image --path=UlamWarburtonQuarter --all"
+# End:
+#
+# math-image --path=UlamWarburtonQuarter --all --output=numbers --size=80x50
+
+
 package Math::PlanePath::UlamWarburtonQuarter;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -554,10 +562,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=UlamWarburtonQuarter --all"
-# End:
-#
-# math-image --path=UlamWarburtonQuarter --all --output=numbers --size=80x50
-

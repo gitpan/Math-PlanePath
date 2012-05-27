@@ -27,12 +27,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -103,22 +104,25 @@ sub n_to_xy {
     # (0 1) (x) = ( y )     (a b) (0 1) = (b a+b)   digit 1
     # (1 1) (y)   (x+y)     (c d) (1 1)   (d c+d)
 
+    my @digits = _digit_split_lowtohigh($n,2);
+    pop @digits;  # drop high 1 bit
+
     my $a = $one;     # initial  (1 0)
     my $b = $zero;    #          (0 1)
     my $c = $zero;
     my $d = $one;
-    while ($n > 1) {
-      ### digit: ($n % 2).''
+    while (@digits) {
       ### at: "($a $b)"
       ### at: "($c $d)"
-      if ($n % 2) {      # low to high
+      ### $digit
+
+      if (shift @digits) {      # low to high
         ($a,$b) = ($b, $a+$b);
         ($c,$d) = ($d, $c+$d);
       } else {
         $a += $b;
         $c += $d;
       }
-      $n = int($n/2);
     }
     ### final: "($a $b)"
     ### final: "($c $d)"

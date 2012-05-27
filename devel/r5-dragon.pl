@@ -26,6 +26,7 @@ use Math::Libm 'M_PI', 'hypot';
 use List::Util 'min', 'max';
 
 use lib 'devel/lib';
+use lib '../iother/lib';
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -33,6 +34,201 @@ use Math::PlanePath::KochCurve 42;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  # arm xy modulus
+  require Math::PlanePath::R5DragonMidpoint;
+  my $path = Math::PlanePath::R5DragonMidpoint->new (arms => 4);
+
+  my %dxdy_to_digit;
+  my %seen;
+  for (my $n = 0; $n < 6125; $n++) {
+    my $digit = $n % 5;
+
+    foreach my $arm (0 .. 3) {
+      my ($x,$y) = $path->n_to_xy(4*$n+$arm);
+      my $nb = int($n/5);
+      my ($xb,$yb) = $path->n_to_xy(4*$nb+$arm);
+
+      # (x+iy)*(1+2i) = x-2y + 2x+y
+      ($xb,$yb) = ($xb-2*$yb, 2*$xb+$yb);
+      my $dx = $xb - $x;
+      my $dy = $yb - $y;
+
+      my $dxdy = "$dx,$dy";
+      my $show = "${dxdy}[$digit]";
+      $seen{$x}{$y} = $show;
+      if ($dxdy eq '0,0') {
+      }
+
+      # if (defined $dxdy_to_digit{$dxdy} && $dxdy_to_digit{$dxdy} != $digit) {
+      #   die;
+      # }
+      $dxdy_to_digit{$dxdy} = $digit;
+    }
+  }
+
+  foreach my $y (reverse -45 .. 45) {
+    foreach my $x (-5 .. 5) {
+      printf " %9s", $seen{$x}{$y}//'e'
+    }
+    print "\n";
+  }
+  ### %dxdy_to_digit
+
+  exit 0;
+}
+
+{
+  # Midpoint xy to n
+  require Math::PlanePath::DragonMidpoint;
+  require Math::BaseCnv;
+
+  my @yx_adj_x = ([0,1,1,0],
+                  [1,0,0,1],
+                  [1,0,0,1],
+                  [0,1,1,0]);
+  my @yx_adj_y = ([0,0,1,1],
+                  [0,0,1,1],
+                  [1,1,0,0],
+                  [1,1,0,0]);
+  sub xy_to_n {
+    my ($self, $x,$y) = @_;
+
+    my $n = ($x * 0 * $y) + 0; # inherit bignum 0
+    my $npow = $n + 1;         # inherit bignum 1
+
+    while (($x != 0 && $x != -1) || ($y != 0 && $y != 1)) {
+
+      # my $ax = ((($x+1) ^ ($y+1)) >> 1) & 1;
+      # my $ay = (($x^$y) >> 1) & 1;
+      # ### assert: $ax == - $yx_adj_x[$y%4]->[$x%4]
+      # ### assert: $ay == - $yx_adj_y[$y%4]->[$x%4]
+
+      my $y4 = $y % 4;
+      my $x4 = $x % 4;
+      my $ax = $yx_adj_x[$y4]->[$x4];
+      my $ay = $yx_adj_y[$y4]->[$x4];
+
+      ### at: "$x,$y  n=$n  axy=$ax,$ay  bit=".($ax^$ay)
+
+      if ($ax^$ay) {
+        $n += $npow;
+      }
+      $npow *= 2;
+
+      $x -= $ax;
+      $y -= $ay;
+      ### assert: ($x+$y)%2 == 0
+      ($x,$y) = (($x+$y)/2,   # rotate -45 and divide sqrt(2)
+                 ($y-$x)/2);
+    }
+
+    ### final: "xy=$x,$y"
+    my $arm;
+    if ($x == 0) {
+      if ($y) {
+        $arm = 1;
+        ### flip ...
+        $n = $npow-1-$n;
+      } else { #  $y == 1
+        $arm = 0;
+      }
+    } else { # $x == -1
+      if ($y) {
+        $arm = 2;
+      } else {
+        $arm = 3;
+        ### flip ...
+        $n = $npow-1-$n;
+      }
+    }
+    ### $arm
+
+    my $arms_count = $self->arms_count;
+    if ($arm > $arms_count) {
+      return undef;
+    }
+    return $n * $arms_count + $arm;
+  }
+
+  foreach my $arms (4,3,1,2) {
+    ### $arms
+
+    my $path = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+    for (my $n = 0; $n < 50; $n++) {
+      my ($x,$y) = $path->n_to_xy($n)
+        or next;
+
+      my $rn = xy_to_n($path,$x,$y);
+
+      my $good = '';
+      if (defined $rn && $rn == $n) {
+        $good .= "good N";
+      }
+
+      my $n2 = Math::BaseCnv::cnv($n,10,2);
+      my $rn2 = Math::BaseCnv::cnv($rn,10,2);
+      printf "n=%d xy=%d,%d got rn=%d    %s\n",
+        $n,$x,$y,
+          $rn,
+            $good;
+    }
+  }
+  exit 0;
+}
+
+{
+  # tiling
+
+  require Image::Base::Text;
+  require Math::PlanePath::R5DragonCurve;
+  my $path = Math::PlanePath::R5DragonCurve->new;
+
+  my $width = 37;
+  my $height = 21;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+  my $xscale = 3;
+  my $yscale = 2;
+  my $w2 = int(($width+1)/2);
+  my $h2 = int($height/2);
+  $w2 -= $w2 % $xscale;
+  $h2 -= $h2 % $yscale;
+
+  my $affine = sub {
+    my ($x,$y) = @_;
+    return ($x*$xscale + $w2,
+            -$y*$yscale + $h2);
+  };
+
+  my ($n_lo, $n_hi) = $path->rect_to_n_range(-$w2/$xscale, -$h2/$yscale,
+                                             $w2/$xscale, $h2/$yscale);
+  print "n to $n_hi\n";
+  foreach my $n ($n_lo .. $n_hi) {
+    next if ($n % 5) == 2;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    foreach (1 .. 4) {
+      $image->line ($affine->($x,$y),
+                    $affine->($next_x,$next_y),
+                    ($x==$next_x ? '|' : '-'));
+
+      $image->xy ($affine->($x,$y),
+                  '+');
+      $image->xy ($affine->($next_x,$next_y),
+                  '+');
+
+      ($x,$y) = (-$y,$x); # rotate +90
+      ($next_x,$next_y) = (-$next_y,$next_x); # rotate +90
+    }
+  }
+  $image->xy ($affine->(0,0),
+              'o');
+
+  $image->save('/dev/stdout');
+  exit 0;
+}
 
 {
   # min/max for level

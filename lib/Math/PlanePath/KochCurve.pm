@@ -40,7 +40,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -191,7 +191,7 @@ sub rect_to_n_range {
   #              \
   #       *       *
   #      / \     /
-  # o-+-*   *-+-* 
+  # o-+-*   *-+-*
   # 0     3     6   X/2
   #
   my ($len, $level) = _round_down_pow ($x2/2, 3);
@@ -409,9 +409,12 @@ sub _digit_join_htol {
 my @digit_to_dir = (0, 1, -1, 0);
 sub _n_to_TDir6 {
   my ($self, $n) = @_;
-  my $digits = _digit_split_lowtohigharef($n,4) || return undef;
+  if ($n < 0) {
+    return undef;  # first direction at N=0
+  }
+  my @digits = _digit_split_lowtohigh($n,4);
   my $dir = 0;
-  foreach my $digit (@$digits) {
+  foreach my $digit (@digits) {
     $dir += $digit_to_dir[$digit];
   }
   return ($dir % 6);
@@ -421,8 +424,11 @@ my @dir_to_dx = (2, 1, -1, -2, -1, 1);
 my @dir_to_dy = (0, 1, 1, 0, -1, -1, 0);
 sub _n_to_dxdy {
   my ($self, $n) = @_;
-  my $dir = $self->_n_to_TDir6($n);
-  return ($dir_to_dx[$dir], $dir_to_dy[$dir]);
+  if (defined (my $dir = $self->_n_to_TDir6($n))) {
+    return ($dir_to_dx[$dir], $dir_to_dy[$dir]);
+  } else {
+    return;
+  }
 }
 
 my @digit_to_Turn6 = (undef,
@@ -456,20 +462,6 @@ sub _n_to_Right {
   my $turn6 = $self->_n_to_Turn6($n) || return undef;
   return ($turn6 < 0 ? 1 : 0);
 }
-
-sub _digit_split_lowtohigharef {
-  my ($n, $radix) = @_;
-  ### _digit_split(): $n
-  my @ret;
-  unless (_is_infinite($n)) {
-    while ($n) {
-      push @ret, $n % $radix;
-      $n = int($n/$radix);
-    }
-  }
-  return \@ret;   # array[0] low digit
-}
-
 
 
 #------------------------------------------------------------------------------
@@ -588,7 +580,7 @@ Each replication is 3 times the width.  The initial N=0 to N=4 figure is 6
 wide and in general a level runs from
 
     Xstart = 0
-    Xlevel = 2*3^level   (at N=Nlevel)
+    Xlevel = 2*3^level   at N=Nlevel
 
 The highest Y is 3 times greater at each level similarly.  The peak is at
 the midpoint of each level,
@@ -690,6 +682,85 @@ a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
 direction 0 to 5 or as desired.
 
+=head2 Rectangle to N Range -- Level
+
+An easy over-estimate of the N values in a rectangle can be had from the
+Xlevel formula above.  If XlevelE<gt>rectangleX then Nlevel is past the
+rectangle extent.
+
+    X = 2*3^level
+    floorlevel = floor log_base_3(X/2)
+    Nhi = 4^(floorlevel+1) - 1
+
+For example a rectangle extending to X=13 has floorlevel =
+floor(log3(13/2))=1 and Nhi=4^(1+1)-1=15.
+
+The rounding-down of the log3 ensures a point such as X=18 which is the
+first in the next Nlevel will give that next level.  So
+floorlevel=log3(18/2)=2 and Nhi=4^(2+1)-1=63.
+
+The worst case for this over-estimate is when rectangleX==Xlevel, ie. just
+into the next level.  In that case Nhi is almost a factor of 4 bigger than
+it needs to be.
+
+=head2 Rectangle to N Range -- Exact
+
+The exact Nlo and Nhi in a rectangle can be found by searching along the
+curve.  Nlo searches forward from the origin N=0.  Nhi searches backward
+from the Nlevel over-estimate described above.
+
+At a given digit position in the prospective N the sub-part of the curve
+comprising the lower digits has a certain triangular extent.  If it's
+outside the target rectangle then step to the next digit value, and to the
+next of the digit above when past digit=3 (or below digit=0 when searching
+backwards).
+
+There's six possible rotations for the curve sub-part.  In the following "o"
+is the start and the surrounding lines show the triangular extent.  There's
+just four curve parts shown in each, but these triangles bound a sub-curve
+of any level.
+
+   rot=0   -+-               +-----------------+
+         --   --              - .-+-*   *-+-o -
+       --   *   --             --    \ /    --
+     --    / \    --             --   *   --
+    - o-+-*   *-+-. -              --   --
+   +-----------------+       rot=3   -+-
+
+   rot=1
+   +---------+               rot=4    /+
+   |      . /                        / |
+   |     / /                        / o|
+   |*-+-* /                        / / |
+   | \   /                        / *  |
+   |  * /                        /   \ |
+   | / /                        / *-+-*|
+   |o /                        / /     |
+   | /                        / .      |
+   +/                        +---------+
+
+   +\  rot=2                 +---------+
+   | \                        \ o      |
+   |. \                        \ \     |
+   | \ \                        \ *-+-*|
+   |  * \                        \   / |
+   | /   \                        \ *  |
+   |*-+-* \                        \ \ |
+   |     \ \                        \ .|
+   |      o \                rot=5   \ |
+   +---------+                        \+
+
+The "." is the start of the next sub-curve.  It belongs to the next digit
+value and so can be excluded if desired.  For rot=0 and rot=3 this means
+simply shortening the X range permitted, or for rot=1 and rot=4 similarly
+the Y range.  For rot=2 and rot=5 it would require a separate test and
+doesn't matter very much.
+
+Tight sub-part extent checking reduces the sub-parts which are examined, but
+it works perfectly well with a looser check, such as a square box for the
+sub-curve extents.  Doing that might be easier if the target region was not
+a rectangle but some trickier shape.
+
 =head1 OEIS
 
 The Koch curve is in Sloane's Online Encyclopedia of Integer Sequences in
@@ -711,7 +782,8 @@ L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::KochPeaks>,
-L<Math::PlanePath::KochSnowflakes>
+L<Math::PlanePath::KochSnowflakes>,
+L<Math::PlanePath::CCurve>
 
 L<Math::Fractal::Curve>
 

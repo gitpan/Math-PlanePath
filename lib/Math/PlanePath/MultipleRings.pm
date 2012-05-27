@@ -19,7 +19,8 @@
 
 # math-image --path=MultipleRings --lines
 # math-image --path=MultipleRings,step=1 --all --output=numbers --size=80x50
-
+#
+# math-image --wx --path=MultipleRings,ring_shape=polygon,step=5  --scale=50 --figure=ring --all
 
 package Math::PlanePath::MultipleRings;
 use 5.004;
@@ -30,7 +31,7 @@ use strict;
 use Math::Libm 'asin', 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -57,14 +58,13 @@ use constant parameter_info_array =>
      description => 'How much longer each ring is than the preceding.',
    },
 
-   # not working yet ...
-   # { name        => 'ring_shape',
-   #   type        => 'enum',
-   #   default     => 'circle',
-   #   choices     => ['circle','polygon'],
-   #   choices_display => ['Circle','Polygon'],
-   #   description     => 'The shape of each ring, either a circle or a polygon of "step" many sides.',
-   # },
+   { name        => 'ring_shape',
+     type        => 'enum',
+     default     => 'circle',
+     choices     => ['circle','polygon'],
+     choices_display => ['Circle','Polygon'],
+     description     => 'The shape of each ring, either a circle or a polygon of "step" many sides.',
+   },
   ];
 
 
@@ -110,6 +110,7 @@ sub new {
   if ($ring_shape eq 'polygon') {
     $self->{'base_r'} = 0.5/sin(_PI/$step);
   } else {
+    # circles
     if ($step <= 6) {
       $self->{'base_r'} = ($step == 6 ? 1
                            : $step > 1 && 0.5/sin(_PI/$step)) - 1;
@@ -183,8 +184,8 @@ sub n_to_xy {
   my $base_r = $self->{'base_r'};
   if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
     my $r = ($step >= 6 ? $base_r*$d
-             : $step >= 4 ? $d+$base_r-1
-             : $d+$base_r-1);
+             # : $step >= 4 ? $d+$base_r-1
+             : ($d-1)/cos(_PI/$step) + $base_r);
     $n /= $d;
     my $side = int ($n);
     $n -= $side;
@@ -462,6 +463,46 @@ so for example in step=6 shown above the line N=3,11,25,etc is
 S<Nstart + 2*d>.  Multiples of d bigger than the step give lines which are
 in between the base ones extending out from the innermost ring.
 
+=head2 Ring Shape
+
+Option C<ring_shape =E<gt> 'polygon'> puts the points on concentric polygons
+of "step" many sides, so successive polygons have 1 more point on each side
+than the previous polygon.  For example step=4 gives 4-sided polygons,
+ie. diamonds,
+
+    ring_shape=>'polygon', step=>4
+
+                  16
+                /    \
+             17    7   15    
+           /    /     \   \   
+        18    8    2    6   14 
+      /    /    /     \    \   \ 
+    19   9    3         1    5   13 
+      \     \   \    /     /   /
+        20   10    4   12   24
+           \     \    /   /
+             21   11   23
+                \    /
+                  22
+
+The polygons are scaled to keep points 1 unit apart.  For stepE<gt>=6 this
+means 1 unit apart sideways.  step=6 is in fact a honeycomb grid where each
+points is 1 away its six neighbours.
+
+For step=3, 4 and 5 the polygon sides are 1 apart radially, as measured in
+the centre of each side.  This makes points a little more than 1 apart.
+Squeezing them up to make the closest points exactly 1 apart is possible,
+but may require iterating a square root for each ring.  step=3 squeezed down
+would in fact become a variable spacing with four close then one wider.
+
+For step=2 and step=1 in the current code the default circle shape is used.
+Should that change?  Is there a polygon style with 2 sides or 1 side?
+
+The polygon layout is only a little different from a circle, but it lines up
+points on the sides and that might help show a structure for some sets of
+points plotted on the path.
+
 =head2 Step 3 Pentagonals
 
 For step=3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are a
@@ -481,6 +522,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::MultipleRings-E<gt>new (step =E<gt> $integer)>
+
+=item C<$path = Math::PlanePath::MultipleRings-E<gt>new (step =E<gt> $integer, ring_shape =E<gt> $str)>
 
 Create and return a new path object.
 
@@ -514,80 +557,82 @@ is C<undef>.
 
 =head1 FORMULAS
 
-=head2 N to X,Y
+=head2 N to X,Y - Circle
 
-The rings are spaced so that each point is at least 1 unit apart.  The
+Points on the rings are spaced so they're at least 1 unit apart.  The
 innermost ring has "step" many points which means the vertices of a polygon
-with "step" many sides of length 1.  The radius for such a polygon is
+with "step" many sides each of length 1.  The "base_r" radius to such a
+vertex is
 
       base_r     ___---*
            ___---      |
-     ___--- a          | 1/2 = half the polygon side
+     ___--- alpha      | 1/2 = half the polygon side
     o------------------+
 
-    a = 2pi/step * 1/2      # for step many sides
-    sin(a) = 1/2 / r
+    alpha = 2pi/step * 1/2      # "step" many sides
+    sin(alpha) = (1/2) / base_r
 
     base_r = 0.5 / sin(pi/step)
 
-Subsequent rings are then either 1 bigger to keep the points on the X axis
-apart, or a similar polygon of d*step many sides to keep the points 1 apart
-sideways.  Reckoning the innermost ring as d=1, the second as d=2, etc, this
-means
+Subsequent rings are then either 1 bigger to keep the points on the X axis 1
+unit apart, or they're at the vertices of a polygon with d*step many sides
+so as to keep the points 1 apart sideways.  Reckoning the innermost ring as
+d=1 (at base_r), the second as d=2, etc, this means
 
     r = max /  base_r + (d-1)
             \  0.5 / sin(pi/(d*step))
 
-The polygon sin() case is the bigger radius if stepE<gt>6, so
+The sin() polygon case is the maximum whenever stepE<gt>6, so
 
     if step<=6   r = base_r + (d-1)
     if step>6    r = 0.5 / sin(pi/(d*step))
 
-The angle around the ring is determined by the offset of N from the Nstart
-(described above) for that ring.  d can be found for a given by rounding
-down a square root.  (N-1)/step converts the start into triangular number
-style,
+The angle theta around the ring for N is determined by how much N exceeds
+the Nstart of that ring (Nstart as described above).  d can be found by a
+square root.  (N-1)/step in the formula effectively converts the start into
+triangular number style.
 
     d = floor (1 + sqrt(8*(N-1)/step + 1)) / 2
 
-Then the remainder into the ring,
+Then the remainder into the ring is
 
     Nrem = N - Nstart
-    angle = 2pi * Nrem / (d*step)
+    theta = 2pi * Nrem / (d*step)
 
-    X = r * cos(angle)
-    Y = r * sin(angle)
+    X = r * cos(theta)
+    Y = r * sin(theta)
 
 For a few cases X or Y are exact integers.  Special case code for these
 cases ensures floating point rounding of pi doesn't give small offsets from
 integers.
 
-If step=6 then base_r=1 exactly, the innermost ring being a little hexagon.
-This means the points on the X axis are integers X=1,2,3,etc.
+If step=6 then base_r=1 exactly since the innermost ring is a little hexagon
+in this case.  This means the points on the X axis are all integers
+X=1,2,3,etc.
 
-       *-----*
+       P-----P
       /   1 / \ 1  <-- innermost points 1 apart
      /     /   \
-    *     *-----*   <--  base_r = 1
+    P     o-----P   <--  base_r = 1
      \      1  /
       \       /
-       *-----*
+       P-----P
 
-If angle=pi, ie. 2*Nrem==d*step, then the point is on the negative X axis.
-Returning Y=0 exactly avoids sin(pi) perhaps being some small non-zero due
-to rounding.
+If theta=pi, which is 2*Nrem==d*step, then the point is on the negative X
+axis.  Returning Y=0 exactly for that avoids sin(pi) generally being some
+small non-zero due to rounding.
 
-If angle=pi/2 or angle=3pi/2, which is 4*Nrem==d*step or 4*Nrem==3*d*step,
-then the point is on the positive or negative Y axis.  Returning X=0 exactly
-avoids cos(pi/2) or cos(3pi/2) perhaps being some small non-zero.
+If theta=pi/2 or theta=3pi/2, which is 4*Nrem==d*step or 4*Nrem==3*d*step,
+then N is on the positive or negative Y axis (respectively).  Returning X=0
+exactly avoids cos(pi/2) or cos(3pi/2) generally being some small non-zero.
 
-Points on the negative X axis points occur when the step is even, and points
-on the Y axis points occur when step is a multiple of 4.
+Points on the negative X axis points occur when the step is even.  Points on
+the Y axis points occur when the step is a multiple of 4.
 
-If angle=pi/4, 3pi/4, 5pi/4 or 7pi/4, which is 8*Nrem==d*step, 3*d*step,
+If theta=pi/4, 3pi/4, 5pi/4 or 7pi/4, which is 8*Nrem==d*step, 3*d*step,
 5*d*step or 7*d*step then the points are on the 45-degree lines X=Y or X=-Y.
 The current code doesn't try to ensure X==Y in these cases.  The values are
-not integers and the floating point rounding might have
+not integers and floating point rounding might make them them unequal due to
 sin(pi/4)!=cos(pi/4).
 
 =head1 SEE ALSO

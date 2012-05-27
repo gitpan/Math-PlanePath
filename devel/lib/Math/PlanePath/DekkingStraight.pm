@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -286,13 +286,9 @@ sub n_to_xy {
     $n = $int;
   }
 
-  my @digits;
-  my $len = $n*0 + 1;   # inherit bignum 1
-  while ($n) {
-    push @digits, $n % 25;
-    $n = int($n/25);
-    $len *= 5;
-  }
+  my @digits = _digit_split_lowtohigh($n,25);
+  my $len = ($n*0 + 5) ** scalar(@digits);     # inherit bignum 5
+
   ### digits: join(', ',@digits)."   count ".scalar(@digits)
   ### $len
 

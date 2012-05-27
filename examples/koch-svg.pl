@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,11 +21,11 @@
 # Usage: perl koch-svg.pl >output.svg
 #        perl koch-svg.pl LEVEL >output.svg
 #
-# Print SVG format graphics to standard output which is a Koch snowflake
-# curve of given LEVEL fineness.  The default level is 4.
+# Print SVG format graphics to standard output for a Koch snowflake curve of
+# given LEVEL fineness.  The default level is 4.
 #
-# The range of N values used follows the formulas in the KochSnowflakes
-# module docs.
+# The range of N values plotted follows the formulas in the KochSnowflakes
+# module POD.
 #
 # The svg size is a fixed 300x300, but of course the point of svg is that it
 # can be resized by a graphics viewer program.

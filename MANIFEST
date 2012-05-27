@@ -19,6 +19,7 @@ devel/complex-minus.pl
 devel/complex-revolving.pl
 devel/cont-frac.pl
 devel/coprime.pl
+devel/cubic-base.pl
 devel/digit-groups.pl
 devel/divisible.pl
 devel/dragon-numbers.pl
@@ -52,9 +53,7 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
-devel/lib/Math/PlanePath/CCurve.pm
-devel/lib/Math/PlanePath/CubicBase.pm
-devel/lib/Math/PlanePath/CubicBase.t
+devel/lib/Math/PlanePath/BoxFractalQuarter.pm
 devel/lib/Math/PlanePath/DekkingCurve.pm
 devel/lib/Math/PlanePath/DekkingStraight.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
@@ -62,8 +61,6 @@ devel/lib/Math/PlanePath/PeanoHalf.pm
 devel/lib/Math/PlanePath/PeanoRounded.pm
 devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
-devel/lib/Math/PlanePath/R5DragonCurve.pm
-devel/lib/Math/PlanePath/TerdragonRounded.pm
 devel/Makefile
 devel/multiple-rings.pl
 devel/number-fraction.pl
@@ -81,6 +78,7 @@ devel/plus-similar.pl
 devel/pythagorean-area.pl
 devel/pythagorean.pl
 devel/quadric.pl
+devel/quintet-replicate.pl
 devel/quintet.pl
 devel/r5-dragon.pl
 devel/r5.pl
@@ -130,6 +128,7 @@ lib/Math/PlanePath/AR2W2Curve.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
 lib/Math/PlanePath/BetaOmega.pm
+lib/Math/PlanePath/CCurve.pm
 lib/Math/PlanePath/CellularRule.pm
 lib/Math/PlanePath/CellularRule190.pm
 lib/Math/PlanePath/CellularRule54.pm
@@ -143,6 +142,7 @@ lib/Math/PlanePath/CoprimeColumns.pm
 lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/CornerReplicate.pm
 lib/Math/PlanePath/CretanLabyrinth.pm
+lib/Math/PlanePath/CubicBase.pm
 lib/Math/PlanePath/DiagonalRationals.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiagonalsAlternating.pm
@@ -200,6 +200,8 @@ lib/Math/PlanePath/QuadricIslands.pm
 lib/Math/PlanePath/QuintetCentres.pm
 lib/Math/PlanePath/QuintetCurve.pm
 lib/Math/PlanePath/QuintetReplicate.pm
+lib/Math/PlanePath/R5DragonCurve.pm
+lib/Math/PlanePath/R5DragonMidpoint.pm
 lib/Math/PlanePath/RationalsTree.pm
 lib/Math/PlanePath/Rows.pm
 lib/Math/PlanePath/SacksSpiral.pm
@@ -215,6 +217,7 @@ lib/Math/PlanePath/Staircase.pm
 lib/Math/PlanePath/StaircaseAlternating.pm
 lib/Math/PlanePath/TerdragonCurve.pm
 lib/Math/PlanePath/TerdragonMidpoint.pm
+lib/Math/PlanePath/TerdragonRounded.pm
 lib/Math/PlanePath/TheodorusSpiral.pm
 lib/Math/PlanePath/TriangleSpiral.pm
 lib/Math/PlanePath/TriangleSpiralSkewed.pm
@@ -239,6 +242,7 @@ t/bigint-lite.t
 t/bigint.t
 t/bigint_common.pm
 t/bigrat.t
+t/CCurve.t
 t/CellularRule.t
 t/CellularRule190.t
 t/CincoCurve.t
@@ -248,6 +252,7 @@ t/ComplexMinus.t
 t/CoprimeColumns.t
 t/Corner.t
 t/CornerReplicate.t
+t/CubicBase.t
 t/DiagonalRationals.t
 t/Diagonals.t
 t/DiamondArms.t
@@ -294,7 +299,6 @@ t/NumSeq-PlanePathTurn.t
 t/PeanoCurve-load.t
 t/PeanoCurve.t
 t/PixelRings.t
-t/PlanePath-subclasses.t
 t/PlanePath.t
 t/PyramidRows.t
 t/PythagoreanTree.t
@@ -330,6 +334,7 @@ tools/hilbert-curve-table.pl
 tools/hilbert-spiral-table.pl
 tools/kochel-curve-table.pl
 tools/moore-spiral-table.pl
+tools/r5dragon-midpoint-offset.pl
 tools/terdragon-midpoint-offset.pl
 tools/wunderlich-meander-table.pl
 xt/0-examples-xrefs.t
@@ -348,6 +353,7 @@ xt/oeis-duplicate.t
 xt/oeis-xrefs.t
 xt/oeis/AlternatePaper-oeis.t
 xt/oeis/AztecDiamondRings-oeis.t
+xt/oeis/CCurve-oeis.t
 xt/oeis/CellularRule-oeis.t
 xt/oeis/CellularRule190-oeis.t
 xt/oeis/CellularRule54-oeis.t
@@ -371,19 +377,23 @@ xt/oeis/HilbertCurve-oeis.t
 xt/oeis/KnightSpiral-oeis.t
 xt/oeis/KochCurve-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
-xt/oeis/NumSeq-PlanePathCoord.t
 xt/oeis/PeanoCurve-oeis.t
 xt/oeis/PyramidRows-oeis.t
+xt/oeis/PyramidSides-oeis.t
 xt/oeis/PyramidSpiral-oeis.t
+xt/oeis/R5DragonCurve-oeis.t
 xt/oeis/RationalsTree-oeis.t
 xt/oeis/SierpinskiTriangle-oeis.t
 xt/oeis/SquareSpiral-oeis.t
 xt/oeis/TerdragonCurve-oeis.t
+xt/oeis/TriangularHypot-oeis.t
 xt/oeis/TriangularSpiral-oeis.t
 xt/oeis/UlamWarburton-oeis.t
 xt/oeis/ZOrderCurve-oeis.t
 xt/PixelRings-image.t
+xt/PlanePath-subclasses.t
 xt/pod-lists.t
+xt/slow/NumSeq-PlanePathCoord.t
 xtools/my-check-copyright-years.sh
 xtools/my-check-spelling.sh
 xtools/my-deb.sh

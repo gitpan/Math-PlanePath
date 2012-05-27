@@ -17,6 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 75, May 2012
+    - new CubicBase, CCurve, R5DragonCurve, R5DragonMidpoint, TerdragonRounded
+    - MultipleRings new ring_shape=>'polygon'
+    - PlanePathDelta new delta_type=>'dSum'
+    - fix TheodorusSpiral n_to_rsquared() on fractional N
+
 Version 74, May 2012
     - new ImaginaryBase
     - new method n_to_rsquared()

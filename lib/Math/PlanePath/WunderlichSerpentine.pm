@@ -37,13 +37,14 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -168,18 +169,14 @@ sub n_to_xy {
   my $radix_minus_1 = $radix - 1;
   my $serpentine_array = $self->{'serpentine_array'};
 
-  my (@digits);
+  my @digits = _digit_split_lowtohigh($n,$rsquared);
   my $x = 0;
   my $y = 0;
-
-  while ($n) {
-    push @digits, $n % $rsquared; $n = int($n/$rsquared);
-  }
 
   my $transpose = ($#digits & 1) && $serpentine_array->[0];
   my $xk = my $yk = 0;
   while (@digits) {
-    my $ndigit = pop @digits;      # high to low digits
+    my $ndigit = pop @digits;      # high to low
     my $lowdigit = $ndigit % $radix;
     my $highdigit = int ($ndigit / $radix);
 

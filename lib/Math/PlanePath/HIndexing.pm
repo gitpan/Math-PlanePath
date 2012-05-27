@@ -27,12 +27,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -74,13 +75,8 @@ sub n_to_xy {
   ### $low
   ### $n
 
-  my @digits;
-  my $len = $n*0 + 1;
-  while ($n) {
-    push @digits, $n % 4;
-    $n = int($n/4);
-    $len *= 2;
-  }
+  my @digits = _digit_split_lowtohigh($n,4);
+  my $len = ($n*0 + 2) ** scalar(@digits);  # inherit bignum 2
 
   my $x = 0;
   my $y = 0;

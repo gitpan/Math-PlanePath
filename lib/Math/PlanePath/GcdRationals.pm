@@ -48,7 +48,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -448,7 +448,7 @@ formed from the g-1=floor(X/Y) division,
 
 If you get the remainder for free in the X/Y division then using X+Y-r
 instead of Y*g in the N formula might reduce a multiply to an add or
-subtract,
+subtract.
 
 =head2 Rectangle N Range
 

@@ -34,178 +34,52 @@ sub import {
   }
 }
 
-sub oeis_dir {
-  require File::Spec;
-  if ($without) {
-    return undef;
-  }
-  return File::Spec->catfile ($ENV{'HOME'} || File::Spec->curdir,
-                              'OEIS');
-}
-
-sub anum_validate {
-  my ($anum) = @_;
-  unless ($anum =~ /^A?0*([0-9]{6,})$/) {
-    require Carp;
-    Carp::croak("Bad A-number: $anum");
-  }
-  return $1;
-}
-
-sub anum_to_bfile {
-  my ($num, $prefix) = @_;
-  ### anum_to_bfile: @_
-  $prefix ||= 'b';
-  return sprintf '%s%06d.txt', $prefix, $num;
-}
-sub anum_to_html {
-  my ($num, $suffix) = @_;
-  ### anum_to_html: @_
-  $suffix ||= '.html';
-  return sprintf 'A%06d%s', $num, $suffix;
-}
-sub anum_to_internal {
-  my ($num, $suffix) = @_;
-  $suffix ||= '';
-  return sprintf 'A%06d.internal%s', $num, $suffix;
-}
-
 sub read_values {
   my ($anum, %option) = @_;
-  $anum = anum_validate ($anum);
 
   if ($without) {
     return;
   }
 
-  my ($aref, $lo, $filename) = _read_values($anum, %option)
-    or return;
-  # MyTestHelpers::diag("$filename read ",scalar(@$aref)," values");
-  return ($aref, $lo, $filename);
-}
-
-sub _read_values {
-  my ($anum, %option) = @_;
-
-  require File::Spec;
-  require POSIX;
-  my $max_value = $option{'max_value'}
-    || POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5);
-
- ABFILE: foreach my $basefile
-    (anum_to_bfile($anum,'a'), anum_to_bfile($anum)) {
-
-    # a003849.txt has replication level words rather than the individual
-    # sequence values
-    next if $basefile eq 'a003849.txt';
-
-    # a027750.txt is unflattened divisors
-    next if $basefile eq 'a027750.txt';
-
-    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
-    ### $basefile
-    ### $filename
-
-    if (open FH, "<$filename") {
-      my @array;
-      my $lo;
-      while (defined (my $line = <FH>)) {
-        $line =~ s/^\s+//;     # leading white space
-        next if $line eq '';   # ignore blank lines
-        next if $line =~ /^#/; # ignore comment lines, eg. b006450.txt
-
-        # eg. a005105.txt is some code, skip file
-        if ($line =~ /^Date:/) {
-          next ABFILE;
-        }
-
-        # eg. a195467.txt is a table, skip file
-        if ($line =~ /^00:/) {
-          next ABFILE;
-        }
-
-        # eg. a005228.txt source code not numbers, skip file
-        if ($line =~ /^From [A-Za-z]/) {
-          next ABFILE;
-        }
-
-        # a002260.txt some text not numbers, skip file
-        if ($line =~ /^Doubly/) {
-          next ABFILE;
-        }
-
-        my ($i, $n) = split /\s+/, $line;
-        if (! defined $lo) {
-          $lo = $i;
-        }
-        if (! (defined $n && $n =~ /^-?[0-9]+$/)) {
-          die "oops, bad line in $filename: '$line'";
-        }
-        if ($max_value eq 'unlimited') {
-          if (length($n) > 9) {
-            # require Math::BigInt;
-            # $n = Math::BigInt->new($n);
-          }
-        } else {
-          if ($n > $max_value) {
-            # MyTestHelpers::diag("$filename stop at bignum value: $line");
-            last;
-          }
-        }
-        push @array, $n;
-      }
-      close FH or die;
-      return (\@array, $lo, $filename);
-    }
-    ### no bfile: $!
+  my $seq = eval { require Math::NumSeq::OEIS::File;
+                   Math::NumSeq::OEIS::File->new (anum => $anum) };
+  if (! $seq) {
+    my $error = $@;
+    MyTestHelpers::diag ("$anum not available: ", $error);
+    return;
   }
 
-  foreach my $basefile (anum_to_internal($anum),
-                        anum_to_internal($anum,'.html'),
-                        anum_to_html($anum),
-                        anum_to_html($anum,'.htm')) {
-    my $filename = File::Spec->catfile (oeis_dir(), $basefile);
-    ### $basefile
-    ### $filename
-    unless (open FH, "< $filename") {
-      ### no html: $!
-      next;
+  my @bvalues;
+  my $count = 0;
+  my $lo = 0;
+  if (($lo, my $value) = $seq->next) {
+    push @bvalues, $value;
+    while ((undef, $value) = $seq->next) {
+      push @bvalues, $value;
     }
-    my $contents = do { local $/; <FH> }; # slurp
-    close FH or die;
+  }
 
-    my $lo;
-    if ($contents =~ /OFFSET(\s*<[^>]*>)*\s*([0-9-]+)/s) {
-      $lo = $2;
-    } elsif ($contents =~ /%O\s+([0-9-]+)/) {
-      $lo = $1;
-    } else {
-      MyTestHelpers::diag("$filename oops OFFSET not found");
-      die;
+  my $desc = "$anum has ".scalar(@bvalues)." values to $bvalues[-1]";
+  if (my $max_count = $option{'max_count'}) {
+    if (@bvalues > $max_count) {
+      $#bvalues = $option{'max_count'} - 1;
+      $desc .= ", shorten to ".scalar(@bvalues);
     }
+  }
 
-    # fragile grep out of the html ...
-    my $list = '';
-    if ($contents =~ s{>graph</a>.*}{}) {
-      $contents =~ m{.*<tt>([^<]+)</tt>};
-      $list = $1;
-    } else {
-      while ($contents =~ m{%[STU]\s+([^<]+)}g) {
-        ### $1
-        $list = join(',', $list, $1);
+  if (my $max_value = $option{'max_value'}) {
+    if ($max_value ne 'unlimited') {
+      for (my $i = 0; $i <= $#bvalues; $i++) {
+        if ($bvalues[$i] > $max_value) {
+          $#bvalues = $i-1;
+          $desc .= ", shorten to max ".$bvalues[-1];
+        }
       }
     }
-    unless ($list =~ m{^([0-9,-]|\s)+$}) {
-      MyTestHelpers::diag("$filename oops list of values no good: $list");
-      die;
-    }
-    my @array = split /[, \t\r\n]+/, $list;
-    @array = grep {$_ ne ''} @array; # no empty fields
-    ### $list
-    ### @array
-    return (\@array, $lo, $filename);
   }
-  return;
+  MyTestHelpers::diag ($desc);
+
+  return (\@bvalues, $lo, $seq->{'filename'});
 }
 
 # with Y reckoned increasing downwards

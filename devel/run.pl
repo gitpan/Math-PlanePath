@@ -37,41 +37,29 @@ use Module::Load;
   require Math::PlanePath::TriangularHypot;
   require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
-  require Math::PlanePath::QuintetCurve;
-  require Math::PlanePath::DragonMidpoint;
   require Math::PlanePath::CellularRule54;
-  require Math::PlanePath::QuintetCentres;
   require Math::PlanePath::SquareReplicate;
   require Math::PlanePath::KochSquareflakes;
   require Math::PlanePath::SierpinskiTriangle;
-  require Math::PlanePath::RationalsTree;
   require Math::PlanePath::DivisibleColumns;
   require Math::PlanePath::DiamondSpiral;
   require Math::PlanePath::UlamWarburtonQuarter;
   require Math::PlanePath::DigitGroups;
-  require Math::PlanePath::HIndexing;
   require Math::PlanePath::DekkingCurve;
   require Math::PlanePath::DekkingStraight;
   require Math::PlanePath::HilbertCurve;
   require Math::PlanePath::BetaOmega;
   require Math::PlanePath::SierpinskiArrowheadCentres;
-  require Math::PlanePath::SierpinskiArrowhead;
   require Math::PlanePath::Corner;
-  require Math::PlanePath::WunderlichMeander;
   require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::PentSpiral;
   require Math::PlanePath::PentSpiralSkewed;
-  require Math::PlanePath::PeanoCurve;
   require Math::PlanePath::HexArms;
   require Math::PlanePath::TriangleSpiral;
   require Math::PlanePath::TriangleSpiralSkewed;
-  require Math::PlanePath::Flowsnake;
-  require Math::PlanePath::FlowsnakeCentres;
   require Math::PlanePath::KochelCurve;
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::MPeaks;
-  require Math::PlanePath::CornerReplicate;
-  require Math::PlanePath::FractionsTree;
   require Math::PlanePath::CincoCurve;
   require Math::PlanePath::HilbertSpiral;
   require Math::PlanePath::AR2W2Curve;
@@ -79,8 +67,6 @@ use Module::Load;
   require Math::PlanePath::FactorRationals;
   require Math::PlanePath::VogelFloret;
   require Math::PlanePath::CellularRule;
-  require Math::PlanePath::AlternatePaper;
-  require Math::PlanePath::ComplexRevolving;
   require Math::PlanePath::ComplexPlus;
   require Math::PlanePath::AnvilSpiral;
   require Math::PlanePath::CellularRule57;
@@ -89,8 +75,6 @@ use Module::Load;
   require Math::PlanePath::CretanLabyrinth;
   require Math::PlanePath::PeanoHalf;
   require Math::PlanePath::StaircaseAlternating;
-  require Math::PlanePath::GrayCode;
-  require Math::PlanePath::WunderlichSerpentine;
   require Math::PlanePath::GcdRationals;
   require Math::PlanePath::SierpinskiCurveStair;
   require Math::PlanePath::AztecDiamondRings;
@@ -100,7 +84,6 @@ use Module::Load;
   require Math::PlanePath::SacksSpiral;
   require Math::PlanePath::TheodorusSpiral;
   require Math::PlanePath::FilledRings;
-  require Math::PlanePath::CubicBase;
   require Math::PlanePath::ImaginaryHalf;
   require Math::PlanePath::MooreSpiral;
   require Math::PlanePath::QuintetSide;
@@ -115,16 +98,37 @@ use Module::Load;
   $path_class = 'Math::PlanePath::LTiling';
   $path_class = 'Math::PlanePath::ImaginaryHalf';
   $path_class = 'Math::PlanePath::ImaginaryBase';
-  $path_class = 'Math::PlanePath::R5DragonCurve';
   $path_class = 'Math::PlanePath::TerdragonCurve';
   $path_class = 'Math::PlanePath::TerdragonMidpoint';
   $path_class = 'Math::PlanePath::TerdragonRounded';
   $path_class = 'Math::PlanePath::DragonCurve';
+  $path_class = 'Math::PlanePath::SierpinskiArrowhead';
+  $path_class = 'Math::PlanePath::DragonMidpoint';
+  $path_class = 'Math::PlanePath::QuintetCentres';
+  $path_class = 'Math::PlanePath::QuintetCurve';
+  $path_class = 'Math::PlanePath::GosperReplicate';
+  $path_class = 'Math::PlanePath::HIndexing';
+  $path_class = 'Math::PlanePath::CornerReplicate';
+  $path_class = 'Math::PlanePath::WunderlichMeander';
+  $path_class = 'Math::PlanePath::ComplexRevolving';
+  $path_class = 'Math::PlanePath::AlternatePaper';
+  $path_class = 'Math::PlanePath::WunderlichSerpentine';
+  $path_class = 'Math::PlanePath::PeanoCurve';
+  $path_class = 'Math::PlanePath::Flowsnake';
+  $path_class = 'Math::PlanePath::FlowsnakeCentres';
+  $path_class = 'Math::PlanePath::FractionsTree';
+  $path_class = 'Math::PlanePath::RationalsTree';
+  $path_class = 'Math::PlanePath::GrayCode';
+  $path_class = 'Math::PlanePath::CubicBase';
+  $path_class = 'Math::PlanePath::R5DragonCurve';
+  $path_class = 'Math::PlanePath::CCurve';
+  $path_class = 'Math::PlanePath::R5DragonMidpoint';
   
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     # arms => 2,
+     # radix => 3,
+      arms => 2,
      # step => 6,
      # ring_shape => 'polygon',
      # diagonal_length => 5,
@@ -157,7 +161,7 @@ use Module::Load;
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count   ",ref($path),"\n";
 
-  for (my $i = $n_start+0; $i <= 125; $i+=1) {
+  for (my $i = $n_start+0; $i <= 1300; $i+=1) {
   #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
@@ -177,6 +181,7 @@ use Module::Load;
     my $xy = (defined $x ? $x : 'undef').','.(defined $y ? $y : 'undef');
     if (defined $seen{$xy}) {
       $rep = "rep$seen{$xy}";
+      $seen{$xy} .= ",$i";
     } else {
       $seen{$xy} = $i;
     }

@@ -22,14 +22,14 @@
 # math-image --path=R5DragonCurve --all --output=numbers
 #
 # cf A176405 R7 turns
-
+#    A176416 R7B turns
 
 package Math::PlanePath::R5DragonCurve;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
@@ -41,6 +41,8 @@ use Math::PlanePath 54; # v.54 for _max()
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant n_start => 0;
 sub arms_count {
@@ -85,7 +87,7 @@ sub n_to_xy {
     $n = $int;          # BigFloat int() gives BigInt, use that
   }
 
-  my $zero = ($n * 0);  # inherit bignum 0
+  my $zero = ($frac * 0);  # inherit bignum 0
   my $one = $zero + 1;  # inherit bignum 1
 
   my $x = 0;
@@ -150,14 +152,19 @@ sub xy_to_n_list {
     return $y;  # infinity
   }
 
+  if ($x == 0 && $y == 0) {
+    return (0 .. $self->arms_count - 1);
+  }
+
+  require Math::PlanePath::R5DragonMidpoint;
+
   my @n_list;
   my $xm = $x+$y;  # rotate -45 and mul sqrt(2)
   my $ym = $y-$x;
   foreach my $dx (0,-1) {
     foreach my $dy (0,1) {
-      my $t;
- # = $self->Math::PlanePath::R5DragonMidpoint::xy_to_n
- #        ($xm+$dx, $ym+$dy);
+      my $t = $self->Math::PlanePath::R5DragonMidpoint::xy_to_n
+        ($xm+$dx, $ym+$dy);
 
       ### try: ($xm+$dx).",".($ym+$dy)
       ### $t
@@ -211,8 +218,7 @@ Math::PlanePath::R5DragonCurve -- radix 5 dragon curve
 
 =head1 DESCRIPTION
 
-X<Arndt, Jorg>
-This is the R5 dragon curve by Jorg Arndt,
+This is the R5 dragon curve,
 
              31-----30     27-----26                                  5
               |      |      |      |
@@ -242,9 +248,9 @@ which then repeats in self-similar style, so N=5 to N=10 is a copy rotated
 
     10    7----6
      |    |    |  <- repeat rotated +90
-     9---8 4---5
-           |
-           3---2
+     9---8,4---5
+          |
+          3----2
                |
           0----1
 
@@ -265,9 +271,9 @@ The shape of N=0,5,10,15,20,25 repeats the initial N=0 to N=5,
 
 
 The curve never crosses itself.  The vertices touch as corners like N=4 and
-N=8 but no edges repeat.
+N=8 above, but no edges repeat.
 
-=head1 Spiralling
+=head2 Spiralling
 
 The first step N=1 is to the right along the X axis and the path then slowly
 spirals counter-clockwise and progressively fatter.  The end of each
@@ -282,7 +288,7 @@ That point is at atan(2,1)=63.43 degrees further around for each level,
       1        1,0        0
       5        2,1       63.4
      25       -3,4      126.8
-    125      -11, -2    190.3
+    125      -11,-2     190.3
 
 =head2 Arms
 
@@ -290,10 +296,11 @@ The curve fills a quarter of the plane and four copies mesh together
 perfectly rotated by 90, 180 and 270 degrees.  The C<arms> parameter can
 choose 1 to 4 such curve arms successively advancing.
 
-For example C<arms =E<gt> 4> begins as follows.  N=0,4,8,12,16,etc is the
-first arm (the same shape as the plain curve above), then N=1,5,9,13,17 the
-second, N=2,6,10,14 the third, etc.
+C<arms =E<gt> 4> begins as follows.  N=0,4,8,12,16,etc is the first arm (the
+same shape as the plain curve above), then N=1,5,9,13,17 the second,
+N=2,6,10,14 the third, etc.
 
+    arms => 4
                     16/32---20/63
                       |
     21/60    9/56----5/12----8/59
@@ -307,6 +314,36 @@ second, N=2,6,10,14 the third, etc.
 With four arms every X,Y point is visited twice, except the origin 0,0 where
 all four begin.  Every edge between the points is traversed once.
 
+=head2 Tiling
+
+The little "S" shapes of the N=0to5 base shape tile the plane in the
+following pattern,
+
+     |     |  |  |  |     |  |  |  |
+     +--+--+--+--+  +--+--+--+--+  +-
+     |  |  |     |  |  |  |     |  |
+    -+--+  +--+--+--+--+  +--+--+--+-
+        |  |  |  |     |  |  |  |
+    -+--+--+--+  +--+--+--+--+  +--+-
+     |  |     |  |  |  |     |  |  |
+    -+  +--+--+--+--+  +--+--+--+--+
+     |  |  |  |     |  |  |  |     |
+    -+--+--+  +--+--o--+--+  +--+--+-
+     |     |  |  |  |     |  |  |  |
+     +--+--+--+--+  +--+--+--+--+  +-
+     |  |  |     |  |  |  |     |  |
+    -+--+  +--+--+--+--+  +--+--+--+-
+        |  |  |  |     |  |  |  |
+    -+--+--+--+  +--+--+--+--+  +--+-
+     |  |     |  |  |  |     |  |  |
+    -+  +--+--+--+--+  +--+--+--+--+
+     |  |  |  |     |  |  |  |     |
+
+This is simply edge N=2mod5 to N=3mod5 omitted from each mod5 block.  In
+each 2x1 block the "S" traverses 4 of the 6 edges and the way the curve
+meshes together traverses the other 2 edges in another brick, possibly a
+brick on another arm of the curve.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -315,11 +352,11 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::R5DragonCurve-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::R5DragonCurve-E<gt>new (arms =E<gt> 6)>
+=item C<$path = Math::PlanePath::R5DragonCurve-E<gt>new (arms =E<gt> 4)>
 
 Create and return a new path object.
 
-The optional C<arms> parameter can make 1 to 6 copies of the curve, each arm
+The optional C<arms> parameter can make 1 to 4 copies of the curve, each arm
 successively advancing.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
@@ -327,7 +364,7 @@ successively advancing.
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
-Fractional positions give an X,Y position along a straight line between the
+Fractional C<$n> gives an X,Y position along a straight line between the
 integer positions.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
@@ -335,13 +372,13 @@ integer positions.
 Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
-The curve can visit an C<$x,$y> up to three times.  In the current code the
-smallest of the these N values is returned.  Is that the best way?
+The curve can visit an C<$x,$y> twice.  In the current code the smallest of
+the these N values is returned.  Is that the best way?
 
 =item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
 
 Return a list of N point numbers for coordinates C<$x,$y>.  There can be
-none, one, two or three N's for a given C<$x,$y>.
+none, one or two N's for a given C<$x,$y>.
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -364,10 +401,8 @@ lowest non-zero digit gives the turn
       3         right
       4         right
 
-Essentially at a point N=5^level, N=2*3^level, N=3*3^level or N=4*3^level
-the turn follows the shape at that 1 to 4 multiplier point.  The first and
-last unit step in each level are in the same direction, so the next level
-shape gives the turn.
+Essentially at a point N=digit*5^level for digit=1,2,3,4 the turn follows
+the shape at that digit.
 
     4*5^k----5^(k+1)
      |
@@ -376,6 +411,9 @@ shape gives the turn.
               |
               |
      0------1*5^k
+
+The first and last unit steps in each level are in the same direction, so at
+those endpoints it's the next level up which the turn.
 
 =cut
 
@@ -392,7 +430,7 @@ shape gives the turn.
 
 The R5 dragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
-    http://oeis.org/A175337  etc
+    http://oeis.org/A175337
 
     A175337 -- turn 0=left,1=right by 90 degrees at N=n
 

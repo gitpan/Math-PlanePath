@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 74;
+  my $want_version = 75;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -178,7 +178,7 @@ foreach my $elem (
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::MultipleRings->parameter_info_list;
-  ok (join(',',@pnames), 'step');
+  ok (join(',',@pnames), 'step,ring_shape');
 }
 
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -331,6 +331,8 @@ If the step is an odd number then the extra is at the right, so step 3 gives
 Or step 1 goes solely to the right.  This is equivalent to the Diagonals
 path, but columns shifted up to make horizontal rows.
 
+    step => 1
+
     11  12  13  14  15
      7   8   9  10                    3
      4   5   6                        2
@@ -341,6 +343,8 @@ path, but columns shifted up to make horizontal rows.
 
 Step 0 means simply a vertical, each row 1 wide and not increasing.  This is
 unlikely to be much use.  The Rows path with C<width> 1 does this too.
+
+    step => 0
 
      5        4
      4        3
@@ -476,12 +480,22 @@ and biggest in the rectangle.
 
 =head1 OEIS
 
-This path is in Sloane's Online Encyclopedia of Integer Sequences as,
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
 
     http://oeis.org/A023531  (etc)
 
-    A023531    step=1 dY, being 1 at row end, but starting n=0
-    A010052    step=2 dY, being 1 at perfect square row end
+     step=1
+    A023531    dY, being 1 at row end, but starting n=0
+
+     step=2
+    A196199    X coordinate, runs -n to +n
+    A000196    Y coordinate, n appears 2n+1 times
+    A053186    X+Y, being distance to next higher square
+    A010052    dY,  being 1 at perfect square row end
+
+     step=3
+    A180447    Y coordinate, n appears 3n+1 times
 
 =head1 SEE ALSO
 

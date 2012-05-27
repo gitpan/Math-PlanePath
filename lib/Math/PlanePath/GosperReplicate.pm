@@ -29,15 +29,17 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
 
 use constant n_start => 0;
 
@@ -79,9 +81,7 @@ sub n_to_xy {
   #        / \
   #       5   6
 
-  while ($n) {
-    my $digit = $n % 7;
-    $n = int($n/7);
+  foreach my $digit (_digit_split_lowtohigh($n,7)) {
     ### digit: "$digit  $x,$y  side $sx,$sy"
 
     if ($digit == 1) {

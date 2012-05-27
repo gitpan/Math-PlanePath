@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -198,6 +198,15 @@ biggest N is at the X of biggest absolute value and preferring positive X=k
 over X=-k.  The smallest X conversely is at the X of smallest absolute
 value.  When the rectangle C<$x1> to C<$x2> crosses 0, ie. C<$x1> and C<$x2>
 have different signs, then of course X=0 is the smallest.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A196199  (etc)
+
+    A196199    X coordinate, runs -n to +n
 
 =head1 SEE ALSO
 

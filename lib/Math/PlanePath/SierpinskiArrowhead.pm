@@ -25,12 +25,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
@@ -60,41 +61,44 @@ sub n_to_xy {
   $n = $x;
   $x = $y;
 
-  my $len = 1;
-  while ($n) {
-    my $digit = ($n % 3);
+  if (my @digits = _digit_split_lowtohigh($n,3)) {
+    my $len = 1;
+    for (;;) {
+      my $digit = shift @digits;  # low to high
 
-    ### odd right: "$x,$y  len=$len"
-    ### $digit
-    if ($digit == 0) {
+      ### odd right: "$x,$y  len=$len"
+      ### $digit
+      if ($digit == 0) {
 
-    } elsif ($digit == 1) {
-      $x = $len - $x;  # mirror and offset
-      $y += $len;
+      } elsif ($digit == 1) {
+        $x = $len - $x;  # mirror and offset
+        $y += $len;
 
-    } else {
-      ($x,$y) = (($x+3*$y)/-2,             # rotate +120
-                 ($x-$y)/2    + 2*$len);
+      } else {
+        ($x,$y) = (($x+3*$y)/-2,             # rotate +120
+                   ($x-$y)/2    + 2*$len);
+      }
+
+      @digits || last;
+      $len *= 2;
+      $digit = shift @digits;  # low to high
+
+      ### odd left: "$x,$y  len=$len"
+      ### $digit
+      if ($digit == 0) {
+
+      } elsif ($digit == 1) {
+        $x = - $x - $len;  # mirror and offset
+        $y += $len;
+
+      } else {
+        ($x,$y) = ((3*$y-$x)/2,              # rotate -120
+                   ($x+$y)/-2  + 2*$len)
+      }
+
+      @digits || last;
+      $len *= 2;
     }
-    $len *= 2;
-
-    $n = int($n/3) || last;
-    $digit = ($n % 3);
-    $n = int($n/3);
-
-    ### odd left: "$x,$y  len=$len"
-    ### $digit
-    if ($digit == 0) {
-
-    } elsif ($digit == 1) {
-      $x = - $x - $len;  # mirror and offset
-      $y += $len;
-
-    } else {
-      ($x,$y) = ((3*$y-$x)/2,              # rotate -120
-                 ($x+$y)/-2  + 2*$len)
-    }
-    $len *= 2;
   }
 
   ### final: "$x,$y"

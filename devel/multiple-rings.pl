@@ -19,6 +19,7 @@
 
 use 5.004;
 use strict;
+use Math::Libm 'hypot';
 use Math::Trig 'pi','tan';
 
 # uncomment this to run the ### lines
@@ -28,30 +29,292 @@ use Math::Trig 'pi','tan';
 {
   # polygon pack
 
-  my $poly = 4;
-  my $a = 2*pi/$poly;
-  my $slope = tan($a/2) * 2;
-  print "slope $slope\n";
-  my $w = 1;
+  my $poly = 5;
+
+  # w/c = tan(angle/2)
+  # w = c*tan(angle/2)
+
+  # (c/row)^2 + (c-prev)^2 = 1
+  # 1/row^2 * c^2 + (c^2 - 2cp + p^2) = 1
+  # 1/row^2 * c^2 + c^2 - 2cp + p^2 - 1 = 0
+  # (1/row^2 + 1) * c^2 - 2p*c + (p^2 - 1) = 0
+  # A = (1 + 1/row^2)
+  # B = -2p
+  # C = (p^2-1)
+  # c = (2p + sqrt(4p^2 - 4*(p^2+1)*(1 + 1/row^2))) / (2*(1 + 1/row^2))
+
+  # d = c-prev
+  # c = d+prev
+  # ((d+prev)/row)^2 + d^2 = 1
+  # (d^2+2dp+p^2)/row^2 + d^2 = 1
+  # d^2/row^2 + 2p/row^2 * d + p^2/row^2 + d^2 - 1 = 0
+  # (1+1/row^2)*d^2 + 2p/row^2 * d + (p^2/row^2 - 1) = 0
+  # A = (1+1/row^2)
+  # B = 2p/row^2
+  # C = (p^2/row^2 - 1)
+
+  my $angle_frac = 1/$poly;
+  my $angle_degrees = $angle_frac * 360;
+  my $angle_radians = 2*pi * $angle_frac;
+  my $slope = 1/cos($angle_radians/2);  # e = slope*c
+  my $tan = tan($angle_radians/2);
+  print "angle $angle_degrees slope $slope  tan=$tan\n";
+
+  my @c = (0);
+  my @e = (0);
+  my @points_on_row;
+
+  my $delta_minimum = 1/$slope;
+  my $delta_minimum_hypot = hypot($delta_minimum, $delta_minimum*$tan);
+  print "delta_minimum = $delta_minimum  (hypot $delta_minimum_hypot)\n";
 
   # tan a/2 = 0.5/c
   # c = 0.5 / tan(a/2)
-  my $c = 0.5 / tan($a/2);
+  my $c = 0.5 / tan($angle_radians/2);
+  my $e = $c * $slope;
+  $c[1] = $c;
+  $e[1] = $e;
+  my $w = $c*$tan;
+  print "row=1 initial c=$c  e=$e  w=$w\n";
 
-  for (1 .. 10) {
-    printf "c=%.3f w=%d\n", $c, $w;
 
-    # inward
-    # w=3, full c*s, each c*s/w, half to centre
-    my $full = $c*$slope;
-    my $seg = $full / $w;
-    my $b = $seg / 2;
-    my $extra_c = sqrt(1 - $b*$b);
-    printf "in  full=%.2f seg=%.2f b=%.2f  add %.6f\n",
-      $full, $seg, $b, $extra_c;
-    $c += $extra_c;
-    $w++;
+  {
+    my $delta_equil = sqrt(3)/2;
+    my $delta_side = cos($angle_radians/2);
+    print "  delta equil=$delta_equil side=$delta_side\n";
+    if ($delta_equil > $delta_side) {
+      $c += $delta_equil;
+      $w = $c*$tan;
+      print "row=2 equilateral to c=$c  w=$w\n";
+    } else {
+      $c += $delta_side;
+      $w = $c*$tan;
+      print "row=2 side to c=$c  w=$w\n";
+    }
   }
+  $e = $c * $slope;
+  $c[2] = $c;
+  $e[2] = $e;
+
+  # for (my $row = 3; $row < 27; $row += 2) {
+  #   my $p = $c;
+  #
+  #   # # (p - (row-2)/row * c)^2 + (c-p)^2 = 1
+  #   # # p^2 - 2*rf*p*c + rf^2*c^2 + c^2 - 2cp + p^2 - 1 = 0
+  #   # # rf^2*c^2 + c^2 - 2*rf*p*c - 2*p*c + p^2 + p^2 - 1 = 0
+  #   # # (rf^2 + 1)*c^2 + (- 2*rf*p - 2*p)*c + (p^2 + p^2 - 1) = 0
+  #   # # (rf^2 + 1)*c^2 + -2*p*(rf+1)*c + (p^2 + p^2 - 1) = 0
+  #   # #
+  #   # my $rf = ($row-2)/$row;
+  #   # my $A = ($rf^2 + 1);
+  #   # my $B = -2*$rf*$p - 2*$p;
+  #   # my $C = (2*$p**2 - 1);
+  #   # print "A=$A B=$B C=$C\n";
+  #   # my $next_c;
+  #   # my $delta;
+  #   # if ($B*$B - 4*$A*$C >= 0) {
+  #   #   $next_c = (-$B + sqrt($B*$B - 4*$A*$C))/(2*$A);
+  #   #   $delta = $next_c - $c;
+  #   # } else {
+  #   #   $delta = .7;
+  #   #   $next_c = $c + $delta;
+  #   #
+  #   #   my $side = ($c - $rf*$next_c);
+  #   #   my $h = hypot($side, $delta);
+  #   #   print "  h=$h\n";
+  #   # }
+  #
+  #   # delta of i=0 j=1
+  #   #
+  #   # (p - (row-2)/row * c)^2 + d^2 = 1
+  #   # (p - rf*(p+d))^2 + d^2 = 1
+  #   # (p - rf*p - rf*d))^2 + d^2 = 1
+  #   # (-p + rf*p + rf*d))^2 + d^2 = 1
+  #   # (rf*d -p + rf*p)^2 + d^2 = 1
+  #   # (rf*d + (rf-1)p)^2 + d^2 = 1
+  #   # rf^2*d^2 + 2*rf*(rf-1)*p * d + (rf-1)^2*p^2 + d^2 - 1 = 0
+  #   # (rf^2+1)*d^2 + rf*(rf-1)*p * d + ((rf-1)^2*p^2 - 1) = 0
+  #   #
+  #   my $rf = ($row-2)/$row;
+  #    $rf = ($row+1 -2)/($row+1);
+  #   my $A = $rf**2 + 1;
+  #   my $B = 2*$rf*($rf-1)*$p;
+  #   my $C = ($rf-1)**2 * $p**2 - 1;
+  #   my $delta;
+  #   if ($B*$B - 4*$A*$C >= 0) {
+  #     $delta = (-$B + sqrt($B*$B - 4*$A*$C))/(2*$A);
+  #   } else {
+  #     print "discrim: ",$B*$B - 4*$A*$C,"\n";
+  #     $delta = 0;
+  #   }
+  #
+  #   # delta of i=0 j=0
+  #   # (c - p)^2 + d^2 = 1
+  #   #
+  #   if ($delta < $delta_minimum+.0) {
+  #     print "  side minimum $delta < $delta_minimum\n";
+  #     $delta = $delta_minimum;
+  #   }
+  #   my $next_c = $delta + $c;
+  #
+  #
+  #   # my $A = (1 + ($tan/$row)**2);
+  #   # my $B = -2*$c;
+  #   # my $C = ($c**2 - 1);
+  #   # my $next_c = (-$B + sqrt($B*$B - 4*$A*$C))/(2*$A);
+  #   # my $delta = $next_c - $c;
+  #   #
+  #   # $A = (1 + ($tan/$row)**2);
+  #   # $B = 2*$c/$row**2;
+  #   # $C = ($c**2/$row**2 - 1);
+  #   # my $delta_2 = 0; # (-$B + sqrt($B*$B - 4*$A*$C))/(2*$A);
+  #   # printf "row=$row delta=%.5f=%.5f next_c=%.5f\n", $delta, $delta_2, $next_c;
+  #   printf "row=$row delta=%.5f next_c=%.5f\n", $delta, $next_c;
+  #
+  #   $c[$row] = $c + $delta;
+  #   $c[$row+1] = $c + 2*$delta;
+  #
+  #   $e[$row] = $c[$row] * $slope;
+  #   $e[$row+1] = $c[$row+1] * $slope;
+  #
+  #   $c += 2*$delta;
+  # }
+
+  for (my $row = 3; $row < 138; $row++) {
+    my $p = $c;
+
+    # # (p - (row-2)/row * c)^2 + (c-p)^2 = 1
+    # # p^2 - 2*rf*p*c + rf^2*c^2 + c^2 - 2cp + p^2 - 1 = 0
+    # # rf^2*c^2 + c^2 - 2*rf*p*c - 2*p*c + p^2 + p^2 - 1 = 0
+    # # (rf^2 + 1)*c^2 + (- 2*rf*p - 2*p)*c + (p^2 + p^2 - 1) = 0
+    # # (rf^2 + 1)*c^2 + -2*p*(rf+1)*c + (p^2 + p^2 - 1) = 0
+    # #
+    # my $rf = ($row-2)/$row;
+    # my $A = ($rf^2 + 1);
+    # my $B = -2*$rf*$p - 2*$p;
+    # my $C = (2*$p**2 - 1);
+    # print "A=$A B=$B C=$C\n";
+    # my $next_c;
+    # my $delta;
+    # if ($B*$B - 4*$A*$C >= 0) {
+    #   $next_c = (-$B + sqrt($B*$B - 4*$A*$C))/(2*$A);
+    #   $delta = $next_c - $c;
+    # } else {
+    #   $delta = .7;
+    #   $next_c = $c + $delta;
+    #
+    #   my $side = ($c - $rf*$next_c);
+    #   my $h = hypot($side, $delta);
+    #   print "  h=$h\n";
+    # }
+
+    # delta of i=0 j=1
+    #
+    # (p*tan - (row-2)/row * tan*c)^2 + d^2 = 1
+    # tt*(p - rf*(p+d))^2 + d^2 = 1
+    # tt*(p - rf*p - rf*d)^2 + d^2 = 1
+    # tt*(-p + rf*p + rf*d)^2 + d^2-1 = 0
+    # tt*(rf*d -p + rf*p)^2 + d^2-1 = 0
+    # tt*(rf*d + (rf-1)p)^2 + d^2-1 = 0
+    # tt*rf^2*d^2 + tt*2*rf*(rf-1)*p * d + tt*(rf-1)^2*p^2 + d^2 - 1 = 0
+    # (tt*rf^2+1)*d^2 + tt*rf*(rf-1)*p * d + (tt*(rf-1)^2*p^2 - 1) = 0
+    #
+    #    print "  rf ",($row-2),"/$row\n";
+    my $rf = ($row-2)/($row);
+    my $A = $tan**2 * $rf**2 + 1;
+    my $B = $tan**2 * 2*$rf*($rf-1)*$p;
+    my $C = $tan**2 * ($rf-1)**2 * $p**2 - 1;
+    my $delta;
+    if ($B*$B - 4*$A*$C >= 0) {
+      $delta = (-$B + sqrt($B*$B - 4*$A*$C))/(2*$A);
+      my $next_c = $delta + $c;
+      my $pw = $p * $tan;
+      my $next_w = $next_c * $tan;
+      my $rem = $pw - $next_w*($row-2)/$row;
+      my $h = hypot ($delta, $rem);
+      #     print "  h^2=$h  pw=$pw nw=$next_w rem=$rem\n";
+    } else {
+      print "discrim: ",$B*$B - 4*$A*$C,"\n";
+      my $w = $p*$tan / $row;
+      print "  at d=0 w=$w\n";
+      $delta = 0;
+    }
+
+    # delta of i=0 j=0
+    # (c - p)^2 + d^2 = 1
+    #
+    if ($delta < $delta_minimum+.0) {
+      print "  side minimum $delta < $delta_minimum\n";
+      $delta = $delta_minimum;
+    }
+    my $next_c = $delta + $c;
+
+    printf "row=$row delta=%.5f next_c=%.5f\n", $delta, $next_c;
+
+    $c += $delta;
+    $c[$row] = $c;
+    $e[$row] = $c[$row] * $slope;
+  }
+  # print "c ",join(', ',@c),"\n";
+  # print "e ",join(', ',@e),"\n";
+
+
+  my (@x,@y);
+  foreach my $row (1 .. $#c) {
+    my $x1 = $e[$row];
+    my $y1 = 0;
+    my ($x2,$y2) = Math::Trig::cylindrical_to_cartesian($e[$row],
+                                                        $angle_radians, 0);
+    my $dx = $x2-$x1;
+    my $dy = $y2-$y1;
+
+    foreach my $p (0 .. $row) {
+      $x[$row][$p] = $x1 + $dx*$p/$row;
+      $y[$row][$p] = $y1 + $dy*$p/$row;
+    }
+    # print "row=$row x ",join(', ',@{$x[$row]}),"\n";
+  }
+
+  foreach my $row (1 .. $#c-1) {
+    print "\n";
+    my $min_dist = 9999;
+    my $min_dist_at_i = -1;
+    my $min_dist_at_j = -1;
+    foreach my $i (0 .. $row) {
+      foreach my $j (0 .. $row+1) {
+        my $dist = hypot($x[$row][$i] - $x[$row+1][$j],
+                         $y[$row][$i] - $y[$row+1][$j]);
+        if ($dist < $min_dist) {
+          # print "  dist=$dist at i=$i j=$j\n";
+          $min_dist = $dist;
+          $min_dist_at_i = $i;
+          $min_dist_at_j = $j;
+        }
+      }
+    }
+    if ($min_dist_at_i > $row/2) {
+      $min_dist_at_i = $row - $min_dist_at_i;
+      $min_dist_at_j = $row+1 - $min_dist_at_j;
+    }
+    print "row=$row  min_dist=$min_dist at i=$min_dist_at_i j=$min_dist_at_j\n";
+    my $zdist = hypot($x[$row][0] - $x[$row+1][0],
+                      $y[$row][0] - $y[$row+1][0]);
+    my $odist = hypot($x[$row][0] - $x[$row+1][1],
+                      $y[$row][0] - $y[$row+1][1]);
+    print "  zdist=$zdist  odist=$odist\n";
+  }
+
+
+  open OUT, '>', '/tmp/multiple-rings.tmp' or die;
+  foreach my $row (1 .. $#c-1) {
+    foreach my $i (0 .. $row) {
+      print OUT "$x[$row][$i], $y[$row][$i]\n";
+    }
+  }
+  close OUT or die;
+
+  system ('math-image --wx --path=File,filename=/tmp/multiple-rings.tmp --all --scale=25 --figure=ring');
+
   exit 0;
 }
 

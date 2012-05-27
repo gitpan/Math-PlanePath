@@ -27,10 +27,106 @@ use Math::PlanePath::ComplexMinus;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+{
+  # Dir4 maximum
+  my $realpart = 1;
+  my $norm = $realpart*$realpart + 1;
 
+  require Math::NumSeq::PlanePathDelta;
+  require Math::BigInt;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath_object => $path,
+                                               delta_type => 'Dir4');
+  my $dir4_max = 0;
+  # foreach my $n (0 .. 6000000) {
+
+  foreach my $i (0 .. 60000) {
+    my $n = Math::BigInt->new($norm)**$i - 1;
+    my $dir4 = $seq->ith($n);
+    if ($dir4 >= $dir4_max) {
+      $dir4_max = $dir4;
+      my ($dx,$dy) = path_n_dxdy($path,$n);
+      my $nr = Math::BaseCnv::cnv($n,10,$norm);
+      my $dxr = to_radix($dx,$norm);
+      my $dyr = to_radix($dy,$norm);
+      printf "%3d  %s\n     %s\n    %8.6f\n", $i, $dxr,$dyr, $dir4;
+    }
+  }
+  exit 0;
+
+  sub to_radix {
+    my ($n,$radix) = @_;
+    return join(',',
+                reverse Math::PlanePath::_digit_split_lowtohigh($n,$radix));
+  }
+  sub path_n_dxdy {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    return ($next_x - $x,
+            $next_y - $y);
+  }
+}
 
 {
-  # min/max for level
+  # min/max rectangle
+  #
+  # repeat at dx,dy
+
+  require Math::BaseCnv;
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $dx = 1;
+  my $dy = 0;
+  my $realpart = 2;
+  my $norm = $realpart*$realpart + 1;
+  printf "level  xmin       xmax   xdiff   | ymin     ymax      ydiff\n";
+  for (0 .. 22) {
+    my $xminR = Math::BaseCnv::cnv($xmin,10,$norm);
+    my $yminR = Math::BaseCnv::cnv($ymin,10,$norm);
+    my $xmaxR = Math::BaseCnv::cnv($xmax,10,$norm);
+    my $ymaxR = Math::BaseCnv::cnv($ymax,10,$norm);
+    my $xdiff = $xmax - $xmin;
+    my $ydiff = $ymax - $ymin;
+    my $xdiffR = Math::BaseCnv::cnv($xdiff,10,$norm);
+    my $ydiffR = Math::BaseCnv::cnv($ydiff,10,$norm);
+    printf "%2d %11s %11s =%11s | %11s %11s =%11s\n",
+      $_,
+        $xminR,$xmaxR,$xdiffR,
+          $yminR,$ymaxR,$ydiffR;
+
+    $xmax = max ($xmax, $xmax + $dx*($norm-1));
+    $ymax = max ($ymax, $ymax + $dy*($norm-1));
+    $xmin = min ($xmin, $xmin + $dx*($norm-1));
+    $ymin = min ($ymin, $ymin + $dy*($norm-1));
+
+    ### assert: $xmin <= 0
+    ### assert: $ymin <= 0
+    ### assert: $xmax >= 0
+    ### assert: $ymax >= 0
+
+    # multiply i-r, ie. (dx,dy) = (dx + i*dy)*(i-$realpart)
+    $dy = -$dy;
+    ($dx,$dy) = ($dy - $realpart*$dx,
+                 $dx + $realpart*$dy);
+  }
+  # print 3*$xmin/$len+.001," / 3\n";
+  # print 6*$xmax/$len+.001," / 6\n";
+  # print 3*$ymin/$len+.001," / 3\n";
+  # print 3*$ymax/$len+.001," / 3\n";
+  exit 0;
+
+  sub to_bin {
+    my ($n) = @_;
+    return ($n < 0 ? '-' : '') . sprintf('%b', abs($n));
+  }
+}
+
+{
+  # min/max hypot for level
   $|=1;
   my $realpart = 2;
   my $norm = $realpart**2 + 1;

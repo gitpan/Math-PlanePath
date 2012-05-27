@@ -201,12 +201,12 @@ sub diff_nums {
 
 sub flip_base4_23 {
   my ($n) = @_;
-  my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,4);
-  foreach my $digit (@$digits) {
+  my @digits = Math::PlanePath::_digit_split_lowtohigh($n,4);
+  foreach my $digit (@digits) {
     if ($digit == 2) { $digit = 3; }
     elsif ($digit == 3) { $digit = 2; }
   }
-  return Math::PlanePath::GrayCode::_digit_join($digits,4);
+  return Math::PlanePath::GrayCode::_digit_join(\@digits,4);
 }
 
 

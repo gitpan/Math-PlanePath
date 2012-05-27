@@ -31,7 +31,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -444,24 +444,37 @@ So for a given rectangle the smallest N is at the lower left corner
 
 =head1 OEIS
 
-This path is in Sloane's Online Encyclopedia of Integer Sequences in a few
+This path is in Sloane's Online Encyclopedia of Integer Sequences in various
 forms,
 
     http://oeis.org/A000695  (etc)
 
-    A000695    X axis,   base 4 digits 0,1 only
-    A062880    Y axis,   base 4 digits 0,2 only
-    A001196    diagonal, base 4 digits 0,3 only
-    A057300    base 4 flip 1<->2, is N at transpose Y,X of N
+    A059905    X coordinate of radix=2
+    A059906    Y coordinate of radix=2
+    A163325    X coordinate of radix=3
+    A163326    Y coordinate of radix=3
+    A080463    X+Y of radix=10 (from N=1 onwards)
+    A080464    X*Y of radix=10 (from N=10 onwards)
+    A080465    abs(X-Y) of radix=10 (from N=10 onwards)
 
-    A037314    radix=3  X axis, base 9 digits 0,1,2
-    A051022    radix=10 X axis, base 100 digits 0 to 9
+    A000695    N on X axis radix=2,   is base 4 digits 0,1 only
+    A062880    N on Y axis radix=2,   is base 4 digits 0,2 only
+    A001196    N on diagonal radix=2, is base 4 digits 0,3 only
+    A037314    N on X axis radix=3,   is base 9 digits 0,1,2
+    A051022    N on X axis radix=10,  is base 100 digits 0to9
+
+    A057300    N at transpose Y,X, is swap adjacent bits
+    A163327    N at transpose Y,X radix=3, swap adjacent digits
 
 And taking X,Y points in the Diagonals sequence then the value of the
 following sequences is the N of the ZOrderCurve at those positions.
 
     A054238    numbering by diagonals, from same axis as first step
-    A054239    inverse permutation
+    A054239      inverse permutation
+    A163328    numbering radix=3 by diagonals, same axis as first step
+    A163329      inverse permutation
+    A163330    numbering radix=3 by diagonals, opp axis as first step
+    A163331      inverse permutation
 
 C<Math::PlanePath::Diagonals> numbers points from the Y axis down, which is
 the opposite axis to the ZOrderCurve first step along the X axis, so a

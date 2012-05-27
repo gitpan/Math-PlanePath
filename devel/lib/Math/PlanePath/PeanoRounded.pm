@@ -1,5 +1,6 @@
 # works, worth having separately ?
 
+# alternating diagonals when even radix ?
 
 
 
@@ -22,7 +23,6 @@
 
 
 # math-image --path=PeanoRounded --all --output=numbers
-# math-image --path=PeanoRounded,radix=5 --all --output=numbers
 # math-image --path=PeanoRounded,radix=5 --lines
 #
 
@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -360,7 +360,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::PeanoRounded -- 3x3 self-similar quadrant traversal
+Math::PlanePath::PeanoRounded -- 3x3 self-similar quadrant traversal, with rounded corners
 
 =head1 SYNOPSIS
 
@@ -407,47 +407,61 @@ This is a version of the PeanoCurve with rounded-off corners,
 The radix parameter can do the calculation in a base other than 3, using the
 same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 
+=cut
+
+# math-image --path=PeanoRounded,radix=5 --all --output=numbers_dash
+
+=pod
+
       9  |     41-42       45-46       49-...
-         |    /     \     /     \     /   
-      8  |  40       43-44       47-48    
+         |    /     \     /     \     /
+      8  |  40       43-44       47-48
+         |   |                                radix=5
+      7  |  39       36-35       32-31
+         |    \     /     \     /     \
+      6  |     38-37       34-33       30
+         |                              |
+      5  |     21-22       25-26       29
+         |    /     \     /     \     /
+      4  |  20       23-24       27-28
          |   |
-      7  |  39       36-35       32-31    
-         |    \     /     \     /     \   
-      6  |     38-37       34-33       30 
-         |                              | 
-      5  |     21-22       25-26       29 
-         |    /     \     /     \     /   
-      4  |  20       23-24       27-28    
-         |   |                            
-      3  |  19       16-15       12-11    
-         |    \     /     \     /     \   
-      2  |     18-17       14-13       10 
-         |                              | 
-      1  |      1--2        5--6        9 
-         |    /     \     /     \     /   
-     Y=0 |   0        3--4        7--8    
+      3  |  19       16-15       12-11
+         |    \     /     \     /     \
+      2  |     18-17       14-13       10
+         |                              |
+      1  |      1--2        5--6        9
+         |    /     \     /     \     /
+     Y=0 |   0        3--4        7--8
          |
          +---------------------------------
-           X=0   1   2   3   4   5   6   7 
+           X=0  1  2  3  4  5  6  7  8  9
 
 If the radix is even then the ends of each group don't join up.  For example
-in radix 4 N=31 isn't next to N=32, etc.
+in radix 4 N=31 isn't next to N=32.
 
-         |       30   29             26   25        32 
-      3  |  31             28   27             24       33
-         |       17   18             21   22       
-      2  |  16             19   20             23  
-         |       14   13             10    9       
-      1  |  15             12   11              8  
-         |        1    2              5    6       
-     Y=0 |   0              3    4              7      
-         +------------------------------------------------
-           X=0   1   2   4   5   6   7   8   9  10  11  12
+=cut
 
-Even sizes can be made to join using other patterns, but this module is just
-Peano's digit construction.  For 2x2 groupings see HilbertCurve (which is
-essentially the only way to join up in 2x2).  For bigger groupings there's
-various ways.
+# math-image --path=PeanoRounded,radix=4 --all --output=numbers_dash
+
+=pod
+
+      7  |     30-29       26-25    32
+         |    /     \     /     \     \
+      6  |  31       28-27       24    33--...
+         |                        |
+      5  |     17-18       21-22  |
+         |    /     \     /     \ |
+      4  |  16       19-20       23
+         |  |
+      3  |  |  14-13       10--9
+         |  | /     \     /     \
+      2  |  15       12-11        8
+         |                        |
+      1  |      1--2        5--6  |
+         |    /     \     /     \ |
+     Y=0 |   0        3--4        7
+         +-----------------------------------------
+           X=0  1  2  4  5  6  7  8  9 10
 
 =head1 FUNCTIONS
 

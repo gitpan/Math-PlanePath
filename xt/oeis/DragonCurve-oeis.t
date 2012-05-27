@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 17 }
+BEGIN { plan tests => 19 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ use Math::PlanePath::DragonCurve;
 #use Smart::Comments '###';
 
 
-my $dragon  = Math::PlanePath::DragonCurve->new;
+my $dragon = Math::PlanePath::DragonCurve->new;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -90,6 +90,86 @@ sub dxdy_to_dir {
   if ($dx < 0) { return 2; }  # west
   if ($dy > 0) { return 1; }  # north
   if ($dy < 0) { return 3; }  # south
+}
+
+
+#------------------------------------------------------------------------------
+# A003460 -- turn 1=left,0=right packed as octal high to low, in 2^n levels
+
+{
+  my $anum = 'A003460';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    require Math::BigInt;
+    my $bits = Math::BigInt->new(0);
+    my $target_n_level = 2;
+    my $n = 1;
+    while (@got < @$bvalues) {
+      if ($n >= $target_n_level) {  # not including n=2^level point itself
+        my $octal = $bits->as_oct;
+        $octal =~ s/^0+//;  # strip leading "0"
+        push @got, Math::BigInt->new("$octal");
+        $target_n_level *= 2;
+      }
+
+      my $turn = path_n_turn($dragon,$n++);
+      my $bit;
+      if ($turn == 1) { # left
+        $bit = 1;
+      } elsif ($turn == 0) { # right
+        $bit = 0;
+      } else {
+        die "Oops, unrecognised turn $turn";
+      }
+      $bits = 2*$bits + $bit;
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..$#$bvalues]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..$#got]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- relative direction 1,3");
+}
+
+#------------------------------------------------------------------------------
+# A099545 -- relative direction 1=left, 3=right
+
+{
+  my $anum = 'A099545';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+
+    for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
+      my $turn = path_n_turn($dragon,$n);
+      if ($turn == 1) { # left
+        push @got, 1;
+      } elsif ($turn == 0) { # right
+        push @got, 3;
+      } else {
+        die "Oops, unrecognised turn $turn";
+      }
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- relative direction 1,3");
 }
 
 
@@ -229,6 +309,8 @@ sub dxdy_to_dir {
         numeq_array(\@got, $bvalues),
         1, "$anum -- relative direction");
 }
+
+
 
 #------------------------------------------------------------------------------
 # A014709 -- relative direction 1=left, 2=right

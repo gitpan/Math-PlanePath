@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -43,6 +43,7 @@ use Math::PlanePath::FlowsnakeCentres 55; # v.55 inheritance switch-around
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 
 # uncomment this to run the ### lines
@@ -117,14 +118,13 @@ sub n_to_xy {
 
   # ENHANCE-ME: The s[] vectors here are constants and could be kept up to
   # the level used thusfar
-  my (@digits, @sh, @si, @sj);
+  my @digits = _digit_split_lowtohigh($n,7);
+  my (@sh, @si, @sj);
   {
     my $sh = 1;
     my $si = 0;
     my $sj = 0;
-    while ($n) {
-      push @digits, $n % 7;
-      $n = int($n/7);
+    foreach (@digits) {
       push @sh, $sh;
       push @si, $si;
       push @sj, $sj;

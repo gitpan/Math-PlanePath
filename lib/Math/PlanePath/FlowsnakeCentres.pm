@@ -30,12 +30,13 @@ use List::Util 'max';
 use POSIX 'ceil';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
@@ -127,46 +128,40 @@ sub n_to_xy {
   my $rot = ($n % $arms);
   $n = int($n/$arms);
 
-  my @n;
+  my @digits = _digit_split_lowtohigh($n,7);
+  ### @digits
+
   my $x = 0;
   my $y = 0;
   {
-    while ($n) {
-      push @n, ($n % 7);
-      $n = int($n/7);
-    }
-    ### @n
-
-    # if (! @n || $n[0] == 0) {
+    # if (! @n || $digits[0] == 0) {
     #   $x = 2*$frac;
-    # } elsif ($n[0] == 1) {
+    # } elsif ($digits[0] == 1) {
     #   $x = $frac;
     #   $y = -$frac;
-    # } elsif ($n[0] == 2) {
+    # } elsif ($digits[0] == 2) {
     #   $x = -2*$frac;
-    # } elsif ($n[0] == 3) {
+    # } elsif ($digits[0] == 3) {
     #   $x = $frac;
     #   $y = -$frac;
-    # } elsif ($n[0] == 4) {
+    # } elsif ($digits[0] == 4) {
     #   $x = 2*$frac;
-    # } elsif ($n[0] == 5) {
+    # } elsif ($digits[0] == 5) {
     #   $x = $frac;
     #   $y = -$frac;
-    # } elsif ($n[0] == 6) {
+    # } elsif ($digits[0] == 6) {
     #   $x = -$frac;
     #   $y = -$frac;
     # }
 
     my $rev = 0;
-    for (my $i = $#n; $i >= 0; $i--) {  # high to low
-      ### digit: $n[$i]
+    foreach my $digit (reverse @digits) {   # high to low
+      ### $digit
       if ($rev) {
-        ### reverse: "$n[$i] to ".(6 - $n[$i])
-        $n[$i] = 6 - $n[$i];
+        ### reverse: "$digit to ".(6 - $digit)
+        $digit = 6 - $digit;  # mutate the array
       }
-      if ($i > 0) {
-        $rev ^= $digit_reverse[$n[$i]];
-      }
+      $rev ^= $digit_reverse[$digit];
       ### now rev: $rev
     }
     ### reversed n: @n
@@ -190,8 +185,8 @@ sub n_to_xy {
     $sy = -1;
   }
 
-  while (@n) {
-    my $digit = shift @n;  # low to high
+  while (@digits) {
+    my $digit = shift @digits;  # low to high
     ### digit: "$digit  $x,$y  side $sx,$sy  origin $ox,$oy"
 
     if ($digit == 0) {

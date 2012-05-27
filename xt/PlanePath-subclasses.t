@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 1003 }
+BEGIN { plan tests => 1062 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,37 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=6',
+
+               'CCurve',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
+               'CubicBase',
+               'CubicBase,radix=3',
+               'CubicBase,radix=4',
+               'CubicBase,radix=37',
 
                'ImaginaryHalf',
                'ImaginaryHalf,radix=3',
@@ -125,16 +156,6 @@ my @modules = (
                'ComplexPlus,realpart=3',
                'ComplexPlus,realpart=4',
                'ComplexPlus,realpart=5',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=6',
 
                'AlternatePaper',
 
@@ -358,7 +379,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 74;
+my $want_version = 75;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -411,6 +432,8 @@ foreach my $mod (@modules) {
 
 my %xy_maximum_duplication =
   ('Math::PlanePath::DragonCurve' => 2,
+   'Math::PlanePath::R5DragonCurve' => 2,
+   'Math::PlanePath::CCurve' => 9999,
    'Math::PlanePath::AlternatePaper' => 2,
    'Math::PlanePath::TerdragonCurve' => 3,
    'Math::PlanePath::KochSnowflakes' => 2,
@@ -419,6 +442,7 @@ my %xy_maximum_duplication =
 my %xy_maximum_duplication_at_origin =
   ('Math::PlanePath::DragonCurve' => 4,
    'Math::PlanePath::TerdragonCurve' => 6,
+   'Math::PlanePath::R5DragonCurve' => 4,
   );
 
 # modules for which rect_to_n_range() is exact
@@ -571,6 +595,9 @@ my %class_dxdy_allowed
      'Math::PlanePath::DragonCurve'    => $dxdy_square,
      'Math::PlanePath::DragonMidpoint' => $dxdy_square,
      'Math::PlanePath::DragonRounded'  => $dxdy_one,
+     'Math::PlanePath::R5DragonCurve'    => $dxdy_square,
+     'Math::PlanePath::R5DragonMidpoint' => $dxdy_square,
+     'Math::PlanePath::CCurve'         => $dxdy_square,
      'Math::PlanePath::HilbertMidpoint' => { %$dxdy_diagonal,
                                              '2,0'   => 1,
                                              '0,2'   => 1,
@@ -971,6 +998,7 @@ sub pythagorean_diag {
           || $path->isa('Math::PlanePath::QuintetCentres')
           || $mod eq 'ImaginaryBase,radix=37'
           || $mod eq 'ImaginaryHalf,radix=37'
+          || $mod eq 'CubicBase,radix=37'
           || $mod eq 'GreekKeySpiral'
           || $mod eq 'ComplexPlus,realpart=2'
           || $mod eq 'ComplexPlus,realpart=3'
@@ -995,6 +1023,7 @@ sub pythagorean_diag {
           || $mod eq 'HexSpiral,wider=37'
           || $mod eq 'HexSpiralSkewed,wider=37'
           || $mod eq 'ImaginaryBase,radix=37'
+          || $mod eq 'CubicBase,radix=37'
           || $mod eq 'ComplexPlus'
           || $mod eq 'ComplexPlus,realpart=2'
           || $mod eq 'ComplexPlus,realpart=3'
@@ -1005,11 +1034,15 @@ sub pythagorean_diag {
           || $mod eq 'ComplexMinus,realpart=5'
           || $mod eq 'AnvilSpiral,wider=17'
           || $mod eq 'TerdragonCurve'
-          || $mod eq 'TerdragonCurve,arms=1'
           || $mod eq 'TerdragonCurve,arms=2'
           || $mod eq 'TerdragonMidpoint'
-          || $mod eq 'TerdragonMidpoint,arms=1'
           || $mod eq 'TerdragonMidpoint,arms=2'
+          || $mod eq 'TerdragonRounded'
+          || $mod eq 'TerdragonRounded,arms=2'
+          || $mod eq 'TerdragonRounded,arms=3'
+          || $mod eq 'R5DragonCurve'
+          || $mod eq 'R5DragonMidpoint'
+          || $mod eq 'R5DragonMidpoint,arms=2'
          ) {
         # GosperSide and Flowsnake take a long time to get
         # to Y negative, not reached by the rectangle

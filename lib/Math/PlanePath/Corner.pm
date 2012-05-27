@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -414,7 +414,7 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A053188  (etc)
 
-    A196199    X-Y, runs of -n to +n
+    A196199    X-Y, being runs -n to +n
     A053615    abs(X-Y), distance to next pronic
     A053188    wider=1 abs(X-Y), distance to nearest square
                  (extra initial 0)

@@ -19,8 +19,6 @@
 # math-image --path=RationalsTree --all --scale=3
 # math-image --path=RationalsTree --all --output=numbers_xy --size=60x40
 #
-# A002487 - stern diatomic
-#
 #                    high-to-low   low-to-high
 # (X+Y)/Y  Y/(X+Y)     AYT          not-impl
 # X/(X+Y)  (X+Y)/Y      CW            SB    \ alt bit flips
@@ -39,12 +37,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -102,6 +101,10 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
   my $one = $zero + 1;  # inherit bignum 1
 
+  my @digits = _digit_split_lowtohigh($n,2);
+  pop @digits;  # drop high 1 bit
+
+
   my $tree_type = $self->{'tree_type'};
   if ($tree_type eq 'CW') {
     ### CW tree ...
@@ -121,18 +124,18 @@ sub n_to_xy {
     my $b = $zero;    #          (0 1)
     my $c = $zero;
     my $d = $one;
-    while ($n > 1) {
-      ### digit: ($n % 2).''
+    while (@digits) {
+      ### digit: $digits[0]
       ### at: "($a $b)"
       ### at: "($c $d)"
-      if ($n % 2) {      # low to high
+
+      if (shift @digits) {      # low to high
         $b += $a;
         $d += $c;
       } else {
         $a += $b;
         $c += $d;
       }
-      $n = int($n/2);
     }
     ### final: "($a $b)"
     ### final: "($c $d)"
@@ -179,18 +182,18 @@ sub n_to_xy {
     my $b = $zero;    #          (0 1)
     my $c = $zero;
     my $d = $one;
-    while ($n > 1) {
-      ### digit: ($n % 2).''
+    while (@digits) {
+      ### digit: $digits[0]
       ### at: "($a $b)"
       ### at: "($c $d)"
-      if ($n % 2) {      # low to high
+
+      if (shift @digits) {      # low to high
         ($a,$b) = ($b, $a+$b);
         ($c,$d) = ($d, $c+$d);
       } else {
         $b += $a;
         $d += $c;
       }
-      $n = int($n/2);
     }
     ### final: "($a $b)"
     ### final: "($c $d)"
@@ -218,14 +221,14 @@ sub n_to_xy {
 
     my $x = $one;
     my $y = $one;
-    while ($n > 1) {   # low to high
-      ### at: "$x,$y  n=$n"
-      if ($n % 2) {
+    while (@digits) {
+      ### at: "$x,$y  digit=$digits[0]"
+
+      if (shift @digits) {      # low to high
         ($x,$y) = ($x+$y,$x);   # (x,y) -> (x+y,x)
       } else {
         ($x,$y) = ($y,$x+$y);   # (x,y) -> (y,x+y)
       }
-      $n = int($n/2);
     }
     return ($x,$y);
 
@@ -246,18 +249,17 @@ sub n_to_xy {
     my $b = $zero;    #          (0 1)
     my $c = $zero;
     my $d = $one;
-    while ($n > 1) {
-      ### digit: ($n % 2).''
+    while (@digits) {
+      ### digit: $digits[0]
       ### at: "($a $b)"
       ### at: "($c $d)"
-      if ($n % 2) {      # low to high
+      if (shift @digits) {      # low to high
         ($a,$b) = ($a+$b, $a);
         ($c,$d) = ($c+$d, $c);
       } else {
         ($a,$b) = ($b, $a+$b);
         ($c,$d) = ($d, $c+$d);
       }
-      $n = int($n/2);
     }
     ### final: "($a $b)"
     ### final: "($c $d)"
@@ -271,13 +273,12 @@ sub n_to_xy {
     ### SB tree ...
     my $x = $one;
     my $y = $one;
-    while ($n > 1) {
-      if ($n % 2) {
+    while (@digits) {
+      if (shift @digits) {      # low to high
         $x += $y;     # (x,y) -> (x+y,y)
       } else {
         $y += $x;     # (x,y) -> (x,x+y)
       }
-      $n = int($n/2);
     }
     return ($x,$y);
   }

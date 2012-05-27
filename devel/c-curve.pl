@@ -28,9 +28,20 @@ use Devel::Comments;
   require Math::PlanePath::CCurve;
   my $path = Math::PlanePath::CCurve->new;
   my %seen;
-  foreach my $n (0 .. 2**24 - 1) {
+  my @first;
+  foreach my $n (0 .. 2**16 - 1) {
     my ($x, $y) = $path->n_to_xy ($n);
-    $seen{"$x,$y"}++;
+    my $xy = "$x,$y";
+    my $count = ++$seen{$xy};
+    $first[$count] ||= $xy;
+  }
+
+  ### @first
+  foreach my $xy (@first) {
+    $xy or next;
+    my ($x,$y) = split /,/, $xy;
+    my @n_list = $path->xy_to_n_list($x,$y);
+    print "$xy  N=",join(', ',@n_list),"\n";
   }
 
   my @count;
@@ -41,5 +52,33 @@ use Devel::Comments;
     }
   }
   ### @count
+
+
+  exit 0;
+}
+
+{
+  # _rect_to_level()
+  require Math::PlanePath::CCurve;
+  foreach my $x (0 .. 16) {
+    my ($len,$level) = Math::PlanePath::CCurve::_rect_to_level(0,0,$x,0);
+    $len = $len*$len-1;
+    print "$x  $len $level\n";
+  }
+  foreach my $x (0 .. 16) {
+    my ($len,$level) = Math::PlanePath::CCurve::_rect_to_level(0,0,0,$x);
+    $len = $len*$len-1;
+    print "$x  $len $level\n";
+  }
+  foreach my $x (0 .. 16) {
+    my ($len,$level) = Math::PlanePath::CCurve::_rect_to_level(0,0,-$x,0);
+    $len = $len*$len-1;
+    print "$x  $len $level\n";
+  }
+  foreach my $x (0 .. 16) {
+    my ($len,$level) = Math::PlanePath::CCurve::_rect_to_level(0,0,0,-$x);
+    $len = $len*$len-1;
+    print "$x  $len $level\n";
+  }
   exit 0;
 }

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 4 }
+BEGIN { plan tests => 5 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -51,6 +51,28 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
+
+#------------------------------------------------------------------------------
+# A059906 -- Y coordinate
+{
+  my $anum = 'A059906';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::CornerReplicate->new;
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      push @got, $y;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- Y coordinate");
+}
 
 #------------------------------------------------------------------------------
 # A000695 -- X axis base 4 digits 0,1 only

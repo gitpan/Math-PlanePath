@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 280)[1];
+my $test_count = (tests => 308)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -390,8 +390,35 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=1',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=1',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=1',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=6',
+
+               'CCurve',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
                'ImaginaryHalf',
                'ImaginaryBase',
+               'CubicBase',
 
                'GrayCode',
 
@@ -403,16 +430,6 @@ my @modules = (
                'WunderlichSerpentine,radix=5,serpentine_type=coil',
 
                'CretanLabyrinth',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=1',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=1',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=6',
 
                'OctagramSpiral',
                'AnvilSpiral',

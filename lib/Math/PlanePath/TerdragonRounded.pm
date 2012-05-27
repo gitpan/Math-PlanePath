@@ -1,6 +1,3 @@
-# mostly working
-
-
 # Copyright 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
@@ -30,7 +27,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -64,8 +61,8 @@ sub n_to_xy {
   }
 
   {
-    # ENHANCE-ME: for odd radix the ends join and the direction can be had
-    # without a full N+1 calculation
+    # ENHANCE-ME: the ends join and the direction can be had without a full
+    # N+1 calculation
     my $int = int($n);
     ### $int
     ### $n
@@ -99,6 +96,9 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### TerdragonRounded xy_to_n(): "$x, $y"
 
+  $x = _round_nearest($x);
+  $y = _round_nearest($y);
+
   if (($x+$y) % 2) {
     return undef;
   }
@@ -115,10 +115,11 @@ sub xy_to_n {
     my $arm = $n % $arms_count;
     $n = int($n/$arms_count);
 
-    if (($n % 9) == 2) {
+    my $mod = $n % 9;
+    if ($mod == 2) {
       return (2*int(($n-2)/9))*$arms_count + $arm;
     }
-    if (($n % 9) == 4) {
+    if ($mod == 4) {
       return (2*int(($n-4)/9) + 1)*$arms_count + $arm;
     }
   }
@@ -146,10 +147,10 @@ sub rect_to_n_range {
 
   # FIXME: How much wider ?
   # Might matter when TerdragonCurve becomes exact.
-  $x1 = int (($x1-5)/3);
-  $y1 = int (($y1-5)/3);
-  $x2 = int (($x2+5)/3);
-  $y2 = int (($y2+5)/3);
+  $x1 = int($x1/3) - 2;
+  $y1 = int($y1/3) - 2;
+  $x2 = int($x2/3) + 2;
+  $y2 = int($y2/3) + 2;
   
   my ($n_lo, $n_hi) = $self->Math::PlanePath::TerdragonCurve::rect_to_n_range
     ($x1,$y1, $x2,$y2);
@@ -167,7 +168,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::TerdragonRounded -- 3x3 self-similar quadrant traversal
+Math::PlanePath::TerdragonRounded -- triangular dragon curve, with rounded corners
 
 =head1 SYNOPSIS
 
@@ -188,47 +189,52 @@ This is a version of the TerdragonCurve with rounded-off corners,
 
 =pod
 
-    ...         44----43                                   14
-      \        /        \
-       46----45          42                                13
-                        /
-                40----41                                   12
-               /
-             39          24----23          20----19        11
-               \        /        \        /        \
-                38    25          22----21          18     10
-               /        \                          /
-       36----37          26----27          16----17         9
-      /                          \        /
-    35          32----31          28    15                  8
-      \        /        \        /        \
-       34----33          30----29          14               7
-                                          /
-                                  12----13                  6
-                                 /
-                               11           8-----7         5
-                                 \        /        \
-                                  10-----9           6      4
-                                                   /
-                                            4-----5         3
-                                          /
-                                         3                  2
-                                          \
-                                            2               1
-                                          /
-                             .     0-----1             <- Y=0
+                      .                                      15
 
-     ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
-    -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+      ...         44----43                                   14
+        \        /        \
+         46----45          42                                13
+                          /
+             .    40----41     .                 .           12
+                 /
+               39          24----23          20----19        11
+                 \        /        \        /        \
+                  38    25          22----21     .    18     10
+                 /        \                          /
+    .    36----37     .    26----27     .    16----17     .   9
+        /                          \        /
+      35          32----31          28    15                  8
+        \        /        \        /        \
+         34----33          30----29     .    14               7
+                                            /
+             .                 .    12----13     .            6
+                                   /
+                                 11           8-----7         5
+                                   \        /        \
+                               .    10-----9           6      4
+                                                     /
+                                        .     4-----5     .   3
+                                            /
+                                           3                  2
+                                            \
+                                              2               1
+                                            /
+                               .     0-----1     .       <- Y=0
+
+    ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
+    -9-8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
+
+The plain TerdragonCurve is tripled in size and two points on each edge are
+visited by the TerdragonRounded here.
 
 =head2 Arms
 
 Multiple copies of the curve can be selected, each advancing successively.
-Like the main TerdragonCurve the plain rounded curve is 1/6 of the plane and
-6 arms rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
+Like the main terdragon the rounded curve is 1/6 of the plane and 6 arms
+rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
 
-C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (like
-the plain curve above), then N=1,7,13,19 the second copy rotated 60 degrees,
+C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (the
+curve shown above), then N=1,7,13,19 the second copy rotated 60 degrees,
 N=2,8,14,20 the third rotated 120, etc.
 
 =cut
@@ -293,7 +299,11 @@ integer positions.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::TerdragonCurve>,
+L<Math::PlanePath::TerdragonMidpoint>,
 L<Math::PlanePath::DragonRounded>
+
+Jorg Arndt http://www.jjj.de/fxt/#fxtbook section 1.31.4 "Terdragon and
+Hexdragon", where this rounded terdragon is called hexdragon.
 
 =head1 HOME PAGE
 

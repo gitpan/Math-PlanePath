@@ -77,7 +77,7 @@ sub diff_nums {
 
 sub to_binary_gray {
   my ($n, $radix) = @_;
-  my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,2);
+  my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,2) ];
   Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,2);
   return Math::PlanePath::GrayCode::_digit_join($digits,2);
 }
@@ -378,7 +378,7 @@ sub count_1_bits {
 
     for (my $n = $diagonal_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal_path->n_to_xy ($n);
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($y,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($y,$radix) ];
       foreach (1 .. $x) { # x=0 unpermuted
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
       }
@@ -446,7 +446,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       }
@@ -468,7 +468,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       }
@@ -499,7 +499,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,10);
       }
@@ -520,7 +520,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,10);
       }
@@ -551,7 +551,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       }
@@ -571,7 +571,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       }
@@ -601,7 +601,7 @@ sub count_1_bits {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my $prev = 0;
     for (my $n = 1; @got < @$bvalues; $n++) {
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
       my $gray = Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       push @got, $gray - $prev;
@@ -631,7 +631,7 @@ sub count_1_bits {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my $prev = 0;
     for (my $n = 1; @got < @$bvalues; $n++) {
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
       my $gray = Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       push @got, $gray - $prev;
@@ -660,7 +660,7 @@ sub count_1_bits {
   } else {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
       push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
     }
@@ -685,7 +685,7 @@ sub count_1_bits {
   } else {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
       push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
     }
@@ -715,7 +715,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       }
@@ -735,7 +735,7 @@ sub count_1_bits {
       MyTestHelpers::diag ("$anum not available");
     } else {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
         push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
       }
@@ -763,7 +763,7 @@ sub count_1_bits {
   } else {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
       push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
     }
@@ -788,7 +788,7 @@ sub count_1_bits {
   } else {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
       push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
     }
@@ -815,7 +815,7 @@ sub count_1_bits {
   } else {
     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = Math::PlanePath::GrayCode::_digit_split_lowtohigharef($n,$radix);
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
       push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
     }

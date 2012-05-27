@@ -25,13 +25,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath 54; # v.54 for _max()
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -67,21 +68,25 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
-  my $x = my $y = my $by = ($n * 0);  # inherit bignum 0
-  my $bx = $x + 1;                    # inherit bignum 1
+  my $x = my $y = ($n * 0);  # inherit bignum 0
 
-  for (;;) {
-    if ($n % 2) {
-      $x += $bx;
-      $y += $by;
-      ($bx,$by) = (-$by,$bx);  # (bx+by*i)*i = bx*i - by,  is rotate +90
+  if (my @digits = _digit_split_lowtohigh($n,2)) {
+    my $bx = $x + 1;    # inherit bignum 1
+    my $by = $x;       # 0
+    for (;;) {
+      if (shift @digits) { # low to high
+        $x += $bx;
+        $y += $by;
+        ($bx,$by) = (-$by,$bx);  # (bx+by*i)*i = bx*i - by,  is rotate +90
+      }
+      @digits || last;
+
+      # (bx+by*i) * (i+1)
+      #   = bx*i+bx + -by + by*i
+      #   = (bx-by) + i*(bx+by)
+      ($bx,$by) = ($bx - $by,
+                   $bx + $by);
     }
-    $n = int($n/2) || last;
-    # (bx+by*i) * (i+1)
-    #   = bx*i+bx + -by + by*i
-    #   = (bx-by) + i*(bx+by)
-    ($bx,$by) = ($bx - $by,
-                 $bx + $by);
   }
 
   ### final: "$x,$y"

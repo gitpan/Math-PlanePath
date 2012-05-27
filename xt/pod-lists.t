@@ -39,7 +39,7 @@ BEGIN { MyTestHelpers::nowarnings() }
 # new in 5.6, so unless got it separately with 5.005
 eval { require Pod::Parser }
   or plan skip_all => "Pod::Parser not available -- $@";
-plan tests => 7;
+plan tests => 6;
 
 my $toplevel_dir = File::Spec->catdir ($FindBin::Bin, File::Spec->updir);
 my $manifest_file = File::Spec->catfile ($toplevel_dir, 'MANIFEST');
@@ -153,8 +153,8 @@ diag "module count ",scalar(@lib_modules);
 
 #------------------------------------------------------------------------------
 
-foreach my $tfile ('t/PlanePath-subclasses.t',
-                   'xt/oeis/NumSeq-PlanePathCoord.t',
+foreach my $tfile ('xt/PlanePath-subclasses.t',
+                   'xt/slow/NumSeq-PlanePathCoord.t',
                   ) {
   open FH, $tfile or die "$tfile: $!";
   my $content = do { local $/; <FH> }; # slurp

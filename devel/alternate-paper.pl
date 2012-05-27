@@ -96,7 +96,7 @@ use strict;
   use Math::PlanePath::GrayCode;
   sub total_turn_by_bits {
     my ($n) = @_;
-    my $bits = Math::PlanePath::_digit_split_lowtohigharef($n,2);
+    my $bits = [ Math::PlanePath::_digit_split_lowtohigh($n,2) ];
     my $rev = 0;
     my $total = 0;
     for (my $pos = $#$bits; $pos >= 0; $pos--) { # high bit to low bit

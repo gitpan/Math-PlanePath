@@ -43,13 +43,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -108,23 +109,25 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  # low to high
-  my $x = my $y = $n * 0;  # inherit BigInt 0
-  my $power = $x + 1;      # inherit BigInt 1
   my $radix = $self->{'radix'};
-  for (;;) {
-    ### $n
+  my @digits = _digit_split_lowtohigh($n,$radix);
+
+  # low to high
+  my $x = my $y = ($n * 0);  # inherit bignum 0
+  my $power = $x + 1;        # inherit bignum 1
+
+  while (@digits) {
     ### $power
     {
-      my $digit = $n % $radix;
+      my $digit = shift @digits;  # low to high
       if ($digit & 1) {
         $y = $power-1 - $y;   # 99..99 - Y
       }
       $x += $power * $digit;
     }
-    $n = int($n/$radix) || last;
+    @digits || last;
     {
-      my $digit = $n % $radix;
+      my $digit = shift @digits;  # low to high
       $y += $power * $digit;
       $power *= $radix;
 
@@ -132,7 +135,6 @@ sub n_to_xy {
         $x = $power-1 - $x;
       }
     }
-    $n = int($n/$radix) || last;
   }
   return ($x, $y);
 
@@ -761,6 +763,10 @@ forms,
     A163343    N on X=Y diagonal, 0,4,8,44,40,36,etc
     A163344    N on X=Y diagonal divided by 4
     A163479    diagonal sums divided by 6
+
+    A163332    Peano N -> ZOrder radix=3 N mapping
+                 and vice versa since is self-inverse
+    A163333    with ternary digit swaps before and after
 
 And taking X,Y points by the Diagonals sequence, then the value of the
 following sequences is the N of the Peano curve at those positions.

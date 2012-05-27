@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 21; }
+BEGIN { plan tests => 28; }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,7 +34,7 @@ my $path = Math::PlanePath::TheodorusSpiral->new;
 # VERSION
 
 {
-  my $want_version = 74;
+  my $want_version = 75;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,
@@ -106,8 +106,27 @@ my $path = Math::PlanePath::TheodorusSpiral->new;
 {
   my $path = Math::PlanePath::TheodorusSpiral->new;
   ok ($path->n_to_rsquared(0), 0);
+  {
+    ok ($path->n_to_rsquared(0.5), 0.25); # X=0.5, Y=0
+    my ($x,$y) = $path->n_to_xy(0.5);
+    ok ($path->n_to_rsquared(0.5), $x*$x+$y*$y);
+  }
   ok ($path->n_to_rsquared(1), 1);
-  ok ($path->n_to_rsquared(20.5), 20.5);
+  {
+    ok ($path->n_to_rsquared(1.5), 1.25); # X=1, Y=0.5
+    my ($x,$y) = $path->n_to_xy(1.5);
+    ok ($path->n_to_rsquared(1.5), $x*$x+$y*$y);
+  }
+  {
+    ok ($path->n_to_rsquared(2.5), 2.25); # X=1, Y=0.5
+    my ($x,$y) = $path->n_to_xy(2.5);
+    ok ($path->n_to_rsquared(2.5), $x*$x+$y*$y);
+  }
+  {
+    ok ($path->n_to_rsquared(123.5), 123.25); # X=1, Y=0.5
+    my ($x,$y) = $path->n_to_xy(123.5);
+    ok ($path->n_to_rsquared(123.5), $x*$x+$y*$y);
+  }
 }
 
 exit 0;

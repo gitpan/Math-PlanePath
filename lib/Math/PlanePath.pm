@@ -16,12 +16,23 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# n_tree_parent
+# n_tree_children
+# xy_integer
+# xy_integer_at_n
+# x_minimum
+# x_maximum
+# y_minimum
+# y_maximum
+# lattice_type square,triangular,triangular_odd,pentagonal,fractional
+
+
 package Math::PlanePath;
 use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 74;
+$VERSION = 75;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -198,7 +209,7 @@ sub _rect_for_first_quadrant {
 
   sub _digit_split_lowtohigh {
     my ($n, $radix) = @_;
-    ### _digit_split_lowtohigharef(): $n
+    ### _digit_split_lowtohigh(): $n
 
     $n || return; # don't return '0' from BigInt stringize
 
@@ -234,7 +245,7 @@ Math::PlanePath -- points on a path through the 2-D plane
 =head1 DESCRIPTION
 
 This is the base class for some mathematical paths which map an integer
-position C<$n> to and from coordinates C<$x,$y> in the plane.
+position C<$n> to and from coordinates C<$x,$y> in the 2D plane.
 
 The current classes include the following.  The intention is that any
 C<Math::PlanePath::Something> is a PlanePath, and supporting base classes or
@@ -290,6 +301,7 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
 
     ImaginaryBase          replicating in four directions
     ImaginaryHalf          half-plane replicate three directions
+    CubicBase              replicating in three directions
     SquareReplicate        3x3 replicating squares
     CornerReplicate        2x2 replicating squares
     LTiling                self-simlar L shapes
@@ -311,7 +323,11 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     DragonMidpoint         paper folding midpoints
     AlternatePaper         paper folding in alternating directions
     TerdragonCurve         ternary dragon
+    TerdragonRounded       ternary dragon, rounded corners
     TerdragonMidpoint      ternary dragon midpoints
+    R5DragonCurve          radix-5 dragon curve
+    R5DragonMidpoint       radix-5 dragon curve midpoints
+    CCurve                 "C" curve
     ComplexPlus            base i+r
     ComplexMinus           base i-r, including twindragon
     ComplexRevolving       revolving base i+1
@@ -359,23 +375,23 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
 
 The paths are object oriented to allow parameters, though many have none.
 See C<examples/numbers.pl> in the Math-PlanePath sources for a cute sample
-printout of the numbering for selected paths or all paths.
+printout of the numbering for selected paths or for all paths.
 
 =head2 Number Types
 
 The C<$n> and C<$x,$y> parameters can be either integers or floating point.
-The paths are meant to do something sensible with floating point fractions.
-Expect rounding-off for big exponents.
+The paths are meant to do something sensible with fractions.  But expect
+rounding-off for big floating point exponents.
 
-Floating point infinities (when available) are meant to give nan or infinite
-returns of some kind (some unspecified kind as yet).  C<n_to_xy()> on
-negative infinity C<$n> is an empty return, the same as other negative
-C<$n>.  Calculations which break an input into digits of some base are meant
-not to loop infinitely on infinities.
+Floating point infinities (when available) give nan or infinite returns of
+some kind (some unspecified kind as yet).  C<n_to_xy()> on negative infinity
+is an empty return, the same as other negative C<$n>.  Calculations which
+break an input into digits of some base shouldn't loop infinitely on
+infinities.
 
-Floating point nans (when available) are meant to give nan, infinite, or
-empty/undef returns, but again of some unspecified kind as yet but in any
-case not going into infinite loops.
+Floating point nans (when available) give nan, infinite, or empty/undef
+returns, but again of some unspecified kind as yet, though in any case not
+going into infinite loops.
 
 Many of the classes can operate on overloaded number types as inputs and
 give corresponding outputs.
@@ -388,8 +404,8 @@ give corresponding outputs.
 This is slightly experimental and some classes might truncate a bignum or a
 fraction to a float as yet.  In general the intention is to make the code
 generic enough that it can act on sensible number types.  Recent versions of
-the bignum modules might be required, perhaps Perl 5.8 and up for the C<**>
-exponentiation operator in particular.
+the bignum modules might be required, perhaps Perl 5.8 or higher for the
+C<**> exponentiation operator in particular.
 
 For reference, an C<undef> input to C<$n>, C<$x,$y>, etc, is meant to
 provoke an uninitialized value warnings (when warnings are enabled), but
@@ -414,20 +430,20 @@ Return X,Y coordinates of point C<$n> on the path.  If there's no point
 C<$n> then the return is an empty list, so for example
 
     my ($x,$y) = $path->n_to_xy (-123)
-      or next;   # usually no negatives in $path
+      or next;   # no negatives in $path
 
 Paths start from C<$path-E<gt>n_start> below, though some will give a
 position for N=0 or N=-0.5 too.
 
 =item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
 
-Return the radial distance R^2 of point C<$n>, or C<undef> if there's
-no point C<$n>.  This is simply C<$x*$x+$y*$y> but for a few paths
-it's calculated with less work.
+Return the radial distance R^2 of point C<$n>, or C<undef> if there's no
+point C<$n>.  This is simply C<$x**2+$y**2> but for a few paths this can be
+calculated with less work than C<$x,$y>.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the N point number for coordinates C<$x,$y>.  If there's nothing at
+Return the N point number at coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
     my $n = $path->xy_to_n(20,20);
@@ -445,13 +461,13 @@ C<$n> close enough).
 
 =item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
 
-Return a list of N point numbers for coordinates C<$x,$y>.  If there's
+Return a list of N point numbers at coordinates C<$x,$y>.  If there's
 nothing at C<$x,$y> then return a empty list.
 
     my @n_list = $path->xy_to_n(20,20);
 
 Most paths have just a single N for a given X,Y, but for those like
-DragonCurve and TerdragonCurve where two or three N's give the same X,Y this
+DragonCurve and TerdragonCurve where multiple N's give the same X,Y this
 method returns the list of those N values.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
@@ -461,27 +477,27 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
 
      my ($n_lo, $n_hi) = $path->rect_to_n_range (-5,-5, 5,5);
      foreach my $n ($n_lo .. $n_hi) {
-       my ($x, $y) = $path->n_to_xy ($n) or next;
+       my ($x, $y) = $path->n_to_xy($n) or next;
        print "$n  $x,$y";
      }
 
-The return may be an over-estimate of the range, and in all cases many of
-the points between C<$n_lo> and C<$n_hi> might be outside the rectangle.
-But the range at least bounds the N values which occur in the rectangle.
-Classes which guarantee an exact lo/hi range say so in their docs.
+The return may be an over-estimate of the range, and many of the points
+between C<$n_lo> and C<$n_hi> might be outside the rectangle.  But the range
+at least bounds the N values which occur in the rectangle.  Classes which
+can guarantee an exact lo/hi range say so in their docs.
 
 C<$n_hi> is usually no more than an extra partial row, revolution, or
 self-similar level.  C<$n_lo> is often merely the starting
-C<$path-E<gt>n_start()>, which is fine if the origin is in the rectangle but
-something away from the origin might actually start higher.
+C<$path-E<gt>n_start()>, which is fine if the origin is in the desired
+rectangle but something away from the origin might actually start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
 some N figures then those N's are included in the return.
 
 If there's no points in the rectangle then the return can be a "crossed"
-range like C<$n_lo=1>, C<$n_hi=0> (and which makes a C<foreach> do no
-loops).  Though C<rect_to_n_range()> might not notice there's no points in
-the rectangle and instead over-estimate the range.
+range like C<$n_lo=1>, C<$n_hi=0> (which makes a C<foreach> do no loops).
+But C<rect_to_n_range()> might not notice there's no points in the rectangle
+and instead over-estimate the range.
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -522,7 +538,7 @@ Y coordinates respectively.
 
 =item C<$bool = $path-E<gt>class_y_negative()>
 
-Return true if any paths made by this class extends into negative X
+Return true if any paths made by this class extend into negative X
 coordinates and/or negative Y coordinates, respectively.
 
 For some classes the X or Y extent may depend on parameter values.
@@ -532,7 +548,8 @@ For some classes the X or Y extent may depend on parameter values.
 Return the number of arms in a "multi-arm" path.
 
 For example in SquareArms this is 4 and each arm increments in turn, so the
-first arm is N=1,5,9,13, etc, incrementing by 4 each time.
+first arm is N=1,5,9,13, etc, starting from C<$path-E<gt>n_start()> and
+incrementing by 4 each time.
 
 =item C<$str = $path-E<gt>figure()>
 
@@ -574,8 +591,8 @@ C<type> is a string, one of
     "filename"
 
 "filename" is separate from "string" since it might require subtly different
-handling to ensure it reaches Perl as a byte string, whereas a "string" type
-might in principle take Perl wide chars.
+handling to reach Perl as a byte string, whereas a "string" type might in
+principle take Perl wide chars.
 
 For "enum" the C<choices> field is the possible values, such as
 
@@ -597,6 +614,12 @@ different classes a C<share_key> allows the same meanings to be matched up.
 Return a hashref mapping parameter names C<$info-E<gt>{'name'}> to their
 C<$info> records.
 
+    { wider => { name => "wider",
+                 type => "integer",
+                 ...
+               },
+    }
+
 =back
 
 =head1 GENERAL CHARACTERISTICS
@@ -616,23 +639,25 @@ a path use successive C<$n> values starting from C<$path-E<gt>n_start()>.
       print "$n  $x,$y\n";
     }
 
-The separate C<n_to_xy()> calls were motivated by plotting just some points
-of a path, such as just the primes or the perfect squares.  Successive
-positions in paths could be done in an iterator style more efficiently.  The
-paths with a quadratic "step" are not much worse than a C<sqrt()> to break N
-into a segment and offset, but the self-similar paths which chop N into
-digits of some radix might increment instead of recalculate.
+The separate C<n_to_xy()> calls were motivated by plotting just some N
+points of a path, such as just the primes or the perfect squares.
+Successive positions in paths might be done in an iterator style more
+efficiently.  The paths with a quadratic "step" are not much worse than a
+C<sqrt()> to break N into a segment and offset, but the self-similar paths
+which chop N into digits of some radix might increment instead of
+recalculate.
 
 A disadvantage of an iterator is that if you're only interested in a
-particular rectangular or similar region then the iteration may stray
-outside for a long time, making it much less useful than it seems.  For wild
-paths it can be better to apply C<xy_to_n()> by rows or similar, on the
-square-grid paths at least.
+particular rectangule or similar region then the iteration may stray outside
+for a long time, making it much less useful than it seems.  For wild paths
+it can be better to apply C<xy_to_n()> by rows or similar.
 
 =head2 Scaling and Orientation
 
-The paths generally make a first move horizontally to the right or from the
-X axis anti-clockwise, unless there's some more natural orientation.
+The paths generally make a first move horizontally to the right and/or
+around from the X axis anti-clockwise, unless there's some more natural
+orientation.  Anti-clockwise is the usual direction for mathematical
+spirals.
 
 There's no parameters for scaling, offset or reflection as those things are
 thought better left to a general coordinate transformer, for example to
@@ -651,11 +676,11 @@ a flip horizontally the same but starting on the left at the negative X
 axis.  See L</Triangular Lattice> below for 60 degree rotations of the
 triangular grid paths.
 
-The Rows and Columns paths are slight exceptions to the rule of not having
-rotated versions of paths.  They began as ways to pass in width and height
-as generic parameters and let the path use the one or the other.
+The Rows and Columns paths are exceptions to the rule of not having rotated
+versions of paths.  They began as ways to pass in width and height as
+generic parameters and let the path use the one or the other.
 
-For scaling and shifting see L<Transform::Canvas> or to rotate as well see
+For scaling and shifting see L<Transform::Canvas>, and to rotate as well see
 L<Geometry::AffineTransform>.
 
 =head2 Loop Step
@@ -728,14 +753,14 @@ factorization on the roots making a no-primes gap.
 A 4*step path splits a straight line in two, so for example the perfect
 squares are a straight line on the step=2 "Corner" path, and then on the
 step=8 SquareSpiral they instead fall on two lines (lower left and upper
-right).  In that bigger step there's one line of the even squares (2k)^2 ==
+right).  In the bigger step there's one line of the even squares (2k)^2 ==
 4*k^2 and another of the odd squares (2k+1)^2.  The gap between successive
 even squares increases by 8 each time and likewise between odd squares.
 
 =head2 Self-Similar Powers
 
 The self-similar patterns such as PeanoCurve generally have a base pattern
-which repeats at powers N=base^level, or some multiple or relationship to
+which repeats at powers N=base^level.  Or some multiple or relationship to
 such a power for things like KochPeaks and GosperIslands.
 
 =for my_pod base begin
@@ -746,29 +771,29 @@ such a power for things like KochPeaks and GosperIslands.
                   GrayCode (default), BetaOmega, AR2W2Curve,
                   SierpinskiCurve, HIndexing, SierpinskiCurveStair,
                   ImaginaryBase (default), ImaginaryHalf (default),
-                  CornerReplicate,
+                  CubicBase (default) CornerReplicate,
                   ComplexMinus (default), ComplexPlus (default),
                   ComplexRevolving, DragonCurve, DragonRounded,
-                  DragonMidpoint, AlternatePaper, DigitGroups
+                  DragonMidpoint, AlternatePaper, CCurve, DigitGroups
                   (default)
       3         PeanoCurve (default), WunderlichSerpentine (default),
                   WunderlichMeander, KochelCurve,
                   GosperIslands, GosperSide
                   SierpinskiTriangle, SierpinskiArrowhead,
                   SierpinskiArrowheadCentres,
-                  TerdragonCurve, TerdragonMidpoint,
+                  TerdragonCurve, TerdragonRounded, TerdragonMidpoint,
                   UlamWarburton, UlamWarburtonQuarter (each level)
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes,
                   LTiling
       5         QuintetCurve, QuintetCentres, QuintetReplicate,
-                  CincoCurve
+                  CincoCurve, R5DragonCurve, R5DragonMidpoint
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
     Fibonacci   FibonacciWordFractal
     parameter   PeanoCurve, WunderlichSerpentine, ZOrderCurve, GrayCode,
-                  ImaginaryBase, ImaginaryHalf, ComplexPlus, ComplexMinus,
-                  DigitGroups
+                  ImaginaryBase, ImaginaryHalf, CubicBase, ComplexPlus,
+                  ComplexMinus, DigitGroups
 
 =for my_pod base end
 
@@ -790,8 +815,9 @@ Some paths are on triangular or "A2" lattice points like
       *   *   *   *   *   *
     *   *   *   *   *   *
 
-These are done in integer X,Y on a square grid using every second square and
-offset on alternate rows so X and Y are either both even or both odd.
+These are done in integer X,Y on a square grid by using every second square
+and offsetting alternate rows.  This means X and Y are either both even or
+both odd, not of opposite parity.
 
     . * . * . * . * . * . *
     * . * . * . * . * . * .
@@ -800,7 +826,8 @@ offset on alternate rows so X and Y are either both even or both odd.
     . * . * . * . * . * . *
     * . * . * . * . * . * .
 
-The X axis and the diagonals X=Y and X=-Y divide the plane into six parts.
+The X axis and diagonals X=Y and X=-Y divide the plane into six equal parts
+in this grid.
 
        X=-Y     X=Y
          \     /
@@ -814,9 +841,9 @@ The X axis and the diagonals X=Y and X=-Y divide the plane into six parts.
 The diagonal X=3*Y is the middle of the first sixth, representing a twelfth
 of the plane.
 
-The resulting triangles are a little flatter than they should be.  The
-triangle base is width=2 and top is height=1, whereas height=sqrt(3) would
-be equilateral triangles.  That sqrt(3) factor can be applied if desired,
+The resulting triangles are flatter than they should be.  The triangle base
+is width=2 and top is height=1, whereas it would be height=sqrt(3) for an
+equilateral triangle.  That sqrt(3) factor can be applied if desired,
 
     X, Y*sqrt(3)          side length 2
 
@@ -826,9 +853,9 @@ Integer Y values have the advantage of fitting pixels on the usual kind of
 raster computer screen, and not losing precision in floating point results.
 
 If doing a general-purpose coordinate rotation then be sure to apply the
-sqrt(3) scale factor first or the rotation will be wrong.  60 degree
-rotations can be made within the integer X,Y coordinates directly as follows
-(all giving integer results),
+sqrt(3) scale factor first, otherwise any rotation will be wrong.  60 degree
+rotations can be made within the integer X,Y coordinates directly as
+follows, all giving integer X,Y results.
 
     (X-3Y)/2, (X+Y)/2       rotate +60   (anti-clockwise)
     (X+3Y)/2, (Y-X)/2       rotate -60   (clockwise)
@@ -861,8 +888,8 @@ degree angle with coordinates i,j,
       *   *   *      j=0
     i=0  1   2
 
-Such coordinates are sometimes used for hexagonal grid board games etc, and
-using this internally can simplify rotations a little,
+Such coordinates are sometimes used for hexagonal grids in board games etc,
+and using this internally can simplify rotations a little,
 
     -j, i+j         rotate +60   (anti-clockwise)
     i+j, -i         rotate -60   (clockwise)
@@ -883,8 +910,9 @@ A third coordinate k at a +120 degrees angle can be used too,
             *   *   *
              0   1   2
 
-This is redundant since it doesn't number anything i,j alone can't already,
-but it the advantage of turning rotations into just sign changes and swaps,
+This is redundant in that it doesn't number anything i,j alone can't
+already, but it has the advantage of turning rotations into just sign
+changes and swaps,
 
     -k, i, j        rotate +60
     j, k, -i        rotate -60
@@ -892,8 +920,8 @@ but it the advantage of turning rotations into just sign changes and swaps,
     k, -i, -j       rotate -120
     -i, -j, -k      rotate 180
 
-The conversions between i,j,k and the rectangular X,Y are similar to the i,j
-above with k worked into the X,Y.
+The conversions between i,j,k and the rectangular X,Y are like the i,j above
+but with k worked in too.
 
     X = 2i + j - k        i = (X-Y)/2        i = (X+Y)/2
     Y = j + k             j = Y         or   j = 0
@@ -951,6 +979,7 @@ L<Math::PlanePath::CincoCurve>,
 
 L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::ImaginaryHalf>,
+L<Math::PlanePath::CubicBase>,
 L<Math::PlanePath::SquareReplicate>,
 L<Math::PlanePath::CornerReplicate>,
 L<Math::PlanePath::LTiling>,
@@ -988,7 +1017,12 @@ L<Math::PlanePath::DragonRounded>,
 L<Math::PlanePath::DragonMidpoint>,
 L<Math::PlanePath::AlternatePaper>,
 L<Math::PlanePath::TerdragonCurve>,
+L<Math::PlanePath::TerdragonRounded>,
 L<Math::PlanePath::TerdragonMidpoint>,
+L<Math::PlanePath::R5DragonCurve>,
+L<Math::PlanePath::R5DragonMidpoint>,
+L<Math::PlanePath::CCurve>
+
 L<Math::PlanePath::ComplexPlus>,
 L<Math::PlanePath::ComplexMinus>,
 L<Math::PlanePath::ComplexRevolving>
@@ -1033,7 +1067,7 @@ L<Math::Fractal::Curve>,
 L<Math::Curve::Hilbert>,
 L<Algorithm::SpatialIndex::Strategy::QuadTree>
 
-PerlMagick (L<Image::Magick>) demo scripts F<lsys.pl> and C<tree.pl>
+PerlMagick (L<Image::Magick>) demo scripts F<lsys.pl> and F<tree.pl>
 
 =head1 HOME PAGE
 

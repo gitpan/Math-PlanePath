@@ -19,17 +19,19 @@
 # math-image --path=SquareReplicate --lines --scale=10
 # math-image --path=SquareReplicate --all --output=numbers_dash --size=80x50
 
+
 package Math::PlanePath::SquareReplicate;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -72,11 +74,8 @@ sub n_to_xy {
   my $x = my $y = ($n * 0);  # inherit bignum 0
   my $len = ($x + 1);        # inherit bignum 1
 
-  while ($n) {
-    my $digit = $n % 9;
-    $n = int($n/9);
-    ### at: "$x,$y"
-    ### $digit
+  foreach my $digit (_digit_split_lowtohigh($n,9)) {
+    ### at: "$x,$y  digit=$digit"
 
     $x += $digit_to_x[$digit] * $len;
     $y += $digit_to_y[$digit] * $len;

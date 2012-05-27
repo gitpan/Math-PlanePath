@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 74;
+$VERSION = 75;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -975,6 +975,8 @@ sub values_max {
 { package Math::PlanePath::ImaginaryHalf;
   use constant _NumSeq_Y_axis_increasing => 1;
 }
+# { package Math::PlanePath::CubicBase;
+# }
 { package Math::PlanePath::CincoCurve;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
@@ -1088,7 +1090,15 @@ sub values_max {
 }
 # { package Math::PlanePath::TerdragonCurve;
 # }
+# { package Math::PlanePath::TerdragonRounded;
+# }
 # { package Math::PlanePath::TerdragonMidpoint;
+# }
+# { package Math::PlanePath::R5DragonCurve;
+# }
+# { package Math::PlanePath::R5DragonMidpoint;
+# }
+# { package Math::PlanePath::CCurve;
 # }
 # { package Math::PlanePath::ComplexPlus;
 # }

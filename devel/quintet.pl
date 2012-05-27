@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -174,64 +174,4 @@ use Math::Libm 'M_PI', 'hypot';
   exit 0;
 }
 
-{
-  # min/max for level
-  require Math::BaseCnv;
-  require Math::PlanePath::QuintetReplicate;
-  my $path = Math::PlanePath::QuintetReplicate->new;
-  my $prev_min = 1;
-  my $prev_max = 1;
-  my @mins;
-  for (my $level = 0; $level < 20; $level++) {
-    my $n_start = 5**$level;
-    my $n_end = 5**($level+1) - 1;
 
-    my $min_hypot = 128*$n_end*$n_end;
-    my $min_x = 0;
-    my $min_y = 0;
-    my $min_pos = '';
-
-    my $max_hypot = 0;
-    my $max_x = 0;
-    my $max_y = 0;
-    my $max_pos = '';
-
-    print "level $level  n=$n_start .. $n_end\n";
-
-    foreach my $n ($n_start .. $n_end) {
-      my ($x,$y) = $path->n_to_xy($n);
-      my $h = $x*$x + $y*$y;
-      # my $h = abs($x) + abs($y);
-
-      if ($h < $min_hypot) {
-        my $n5 = Math::BaseCnv::cnv($n,10,5) . '[5]';
-        $min_hypot = $h;
-        $min_pos = "$x,$y  $n $n5";
-      }
-      if ($h > $max_hypot) {
-        my $n5 = Math::BaseCnv::cnv($n,10,5) . '[5]';
-        $max_hypot = $h;
-        $max_pos = "$x,$y  $n $n5";
-      }
-    }
-    # print "  min $min_hypot   at $min_x,$min_y\n";
-    # print "  max $max_hypot   at $max_x,$max_y\n";
-    {
-      my $factor = $min_hypot / $prev_min;
-      my $base5 = Math::BaseCnv::cnv($min_hypot,10,5) . '[5]';
-      print "  min $min_hypot $base5   at $min_pos  factor $factor\n";
-    }
-    # {
-    #   my $factor = $max_hypot / $prev_max;
-    #   my $base5 = Math::BaseCnv::cnv($max_hypot,10,5) . '[5]';
-    #   print "  max $max_hypot $base5   at $max_pos  factor $factor\n";
-    # }
-    $prev_min = $min_hypot;
-    $prev_max = $max_hypot;
-
-    push @mins, $min_hypot;
-  }
-
-  print join(',',@mins),"\n";
-  exit 0;
-}

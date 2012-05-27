@@ -38,7 +38,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -274,7 +274,7 @@ Math::PlanePath::TriangularHypot -- points of triangular lattice in order of hyp
 
 This path visits X,Y points on a triangular "A2" lattice in order of their
 distance from the origin 0,0 and anti-clockwise around from the X axis among
-those of equal distance,
+those of equal distance.
 
 
              58    47    39    46    57                 4
@@ -316,11 +316,12 @@ the X axis.  For example N=14 at X=4,Y=0 is sqrt(4) from the origin, as are
 the rotated X=2,Y=2 and X=--2,Y=2 etc in other sixths, for a total 6 points
 N=14 to N=19 all the same distance.
 
-In general there's either 6 or 12 symmetric points.  6 when on the six
-radial lines X=0, X=Y or X=-Y.  And 6 also when on the six radial lines Y=0,
-X=3*Y or X=-3*Y (these are midway between the first six).  And then 12 for
-anything in the twelve slices in between those lines, for example the first
-being N=20 through N=31 all at sqrt(28).
+In general there's either 6 or 12 symmetric points so the number of points
+of the same distance is always a multiple of 6 or 12.  There are 6 points
+when on the six radial lines X=0, X=Y or X=-Y, and the lines Y=0, X=3*Y or
+X=-3*Y which are midway between then.  Then there's 12-way symmetry for
+anything else, ie. anything in the twelve slices between those twelve lines.
+The first 12 for example is N=20 to N=31 all at sqrt(28).
 
 There can also be multiple ways for the same distance to arise, but the
 6-way or 12-way symmetry means always a multiple of 6 or 12.
@@ -357,6 +358,38 @@ odd or both even.  If C<$x,$y> is a position without an N, ie. one of X,Y
 odd the other even, then the return is C<undef>.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include,
+
+    http://oeis.org/A035019
+
+    A004016 -- number of points of rsquared distance h
+    A035019 -- number of points of equal hypot distance
+                (excludes distances with 0 points)
+
+A004016 is based on x^2+x*y+y^2 = h.  That x,y is obtained from the path X,Y
+here by a rotation -45 degrees,
+
+    x = (Y-X)/2           X = 2*(x+y)
+    y = (X+Y)/2           Y = 2*(y-x)
+
+The target h is then
+
+    h = x^2+x*y+y^2
+      = ((Y-X)/2)^2 + (Y-X)/2 * (X+Y)/2 + ((X+Y)/2)^2
+      = (X^2 + 3*Y^2) / 4
+
+which is the dist^2 distance in equilateral triangles of unit side as
+described above.
+
+=cut
+
+# ((Y-X)/2)^2 + (Y-X)/2 * (X+Y)/2 + ((X+Y)/2)^2
+#  = YY-2XY+XX + YY-XX + XX+2XY+YY   / 4
+#  = 3YY + XX
 
 =head1 SEE ALSO
 

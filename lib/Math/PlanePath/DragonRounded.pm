@@ -27,7 +27,7 @@ use strict;
 use List::Util qw(max);
 
 use vars '$VERSION', '@ISA';
-$VERSION = 74;
+$VERSION = 75;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -247,7 +247,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::DragonRounded -- dragon curve with rounded corners
+Math::PlanePath::DragonRounded -- dragon curve, with rounded corners
 
 =head1 SYNOPSIS
 
@@ -423,7 +423,8 @@ DragonRounded style 4 of 9 points.  Or 16 of 36 points since the tables are
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
-L<Math::PlanePath::DragonMidpoint>
+L<Math::PlanePath::DragonMidpoint>,
+L<Math::PlanePath::TerdragonRounded>
 
 =head1 HOME PAGE
 
