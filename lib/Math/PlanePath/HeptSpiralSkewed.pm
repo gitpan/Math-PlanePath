@@ -19,14 +19,16 @@
 package Math::PlanePath::HeptSpiralSkewed;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments '####';
@@ -112,7 +114,7 @@ sub xy_to_n {
     return (7*$d - 5)*$d/2 + 1 + $y;
   }
 
-  my $d = _max(abs($x),abs($y));
+  my $d = max(abs($x),abs($y));
   my $n = (7*$d - 5)*$d/2 + 1;
   if ($y == $d) {
     ### top horizontal
@@ -142,10 +144,10 @@ sub rect_to_n_range {
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      $d = _max ($d,
+      $d = max ($d,
                 1 + ($x > 0 && $y > 0
                      ? $x+$y                    # slope
-                     : _max(abs($x),abs($y))));  # square corners
+                     : max(abs($x),abs($y))));  # square corners
     }
   }
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0

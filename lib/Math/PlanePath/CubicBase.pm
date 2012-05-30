@@ -25,19 +25,20 @@
 package Math::PlanePath::CubicBase;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -62,9 +63,11 @@ use constant parameter_info_array =>
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
+
   my $radix = $self->{'radix'};
   if (! defined $radix || $radix <= 2) { $radix = 2; }
   $self->{'radix'} = $radix;
+
   return $self;
 }
 
@@ -302,8 +305,8 @@ sub rect_to_n_range {
   ### CubicBase rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   my $radix = $self->{'radix'} ;
-  my $xm = _max(abs($x1),abs($x2)) * $radix*$radix*$radix;
-  my $ym = _max(abs($y1),abs($y2)) * $radix*$radix*$radix;
+  my $xm = max(abs($x1),abs($x2)) * $radix*$radix*$radix;
+  my $ym = max(abs($y1),abs($y2)) * $radix*$radix*$radix;
 
   return (0,
           int($xm*$xm+$ym*$ym));

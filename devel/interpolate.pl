@@ -26,12 +26,12 @@ use Math::Polynomial::Horner;
 
 #use Devel::Comments;
 
-my_interpolate ([ 0, 3, 5, 7 ],
-[ -3, 3*4, 8*4, 15*4 ]
-);
+my_interpolate ([ 1, 2,    3,    4,     5 ],
+                [ 2-.5, 5-.5, 10-.5, 17-.5, 26-.5 ]
+               );
 exit 0;
 
-  
+
 
 # [1,2,3,4],[1+4,12+4+8,35+4+8+8,70+4+8+8+8]
 # # step==0

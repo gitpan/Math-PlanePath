@@ -24,20 +24,25 @@
 package Math::PlanePath::ArchimedeanChords;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
 use Math::Libm 'hypot', 'asinh';
 use POSIX 'ceil';
+#use List::Util 'min', 'max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
+
+use Math::PlanePath;
+*_is_infinite = \&Math::PlanePath::_is_infinite;
+
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath;
+$VERSION = 76;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant figure => 'circle';
 use constant n_start => 0;

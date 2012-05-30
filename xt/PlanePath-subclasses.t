@@ -35,6 +35,19 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'AR2W2Curve',
+               'AR2W2Curve,start_shape=D2',
+               'AR2W2Curve,start_shape=B2',
+               'AR2W2Curve,start_shape=B1rev',
+               'AR2W2Curve,start_shape=D1rev',
+               'AR2W2Curve,start_shape=A2rev',
+               'BetaOmega',
+               'KochelCurve',
+               'CincoCurve',
+
+               'HilbertSpiral',
+               'HilbertCurve',
+
                'TerdragonMidpoint',
                'TerdragonMidpoint,arms=2',
                'TerdragonMidpoint,arms=3',
@@ -191,22 +204,9 @@ my @modules = (
                'GcdRationals',
                'DiagonalRationals',
 
-               'AR2W2Curve',
-               'AR2W2Curve,start_shape=D2',
-               'AR2W2Curve,start_shape=B2',
-               'AR2W2Curve,start_shape=B1rev',
-               'AR2W2Curve,start_shape=D1rev',
-               'AR2W2Curve,start_shape=A2rev',
-               'BetaOmega',
-               'KochelCurve',
-               'CincoCurve',
-
                'CoprimeColumns',
                'DivisibleColumns',
                'DivisibleColumns,divisor_type=proper',
-
-               'HilbertSpiral',
-               'HilbertCurve',
 
                'LTiling',
                'LTiling,L_fill=ends',
@@ -379,7 +379,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 75;
+my $want_version = 76;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

@@ -27,17 +27,18 @@ package Math::PlanePath::MooreSpiral;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -213,7 +214,7 @@ sub xy_to_n {
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
 
-  my ($len, $level) = _round_down_pow (_max(abs($x),abs($y))*2 - 1,
+  my ($len, $level) = _round_down_pow (max(abs($x),abs($y))*2 - 1,
                                        3);
   ### $len
   ### $level
@@ -302,7 +303,7 @@ sub rect_to_n_range {
   $y1 = _round_nearest ($y1);
   $y2 = _round_nearest ($y2);
 
-  my ($len, $level) = _round_down_pow (_max(abs($x1),abs($y1),
+  my ($len, $level) = _round_down_pow (max(abs($x1),abs($y1),
                                             abs($x2),abs($y2))*2-1,
                                        3);
   ### $len

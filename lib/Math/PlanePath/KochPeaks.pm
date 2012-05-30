@@ -22,18 +22,20 @@
 package Math::PlanePath::KochPeaks;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath 54; # v.54 for _max()
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
+use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -266,8 +268,8 @@ sub rect_to_n_range {
   }
 
   # can't make use of the len=3**$level returned by _round_down_pow()
-  my ($power, $level) = _round_down_pow (_max(abs($x1),abs($x2))
-                                        + _max($y1, $y2),
+  my ($power, $level) = _round_down_pow (max(abs($x1),abs($x2))
+                                        + max($y1, $y2),
                                         3);
   ### $level
   return (1, $level + (8 * 4**$level + 1)/3);

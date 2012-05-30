@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 62 A-numbers in 4 modules
+# total 63 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -200,6 +200,16 @@ use constant info_arrayref =>
       'FractionsTree',
       'coordinate_type',
       'Y'
+    ]
+  },
+  {
+    'anum' => 'A055087',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DiagonalsOctant',
+      'coordinate_type',
+      'X'
     ]
   },
   {

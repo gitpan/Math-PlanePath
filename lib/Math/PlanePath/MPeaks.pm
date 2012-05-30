@@ -19,13 +19,16 @@
 package Math::PlanePath::MPeaks;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
+
+use Math::PlanePath;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
-use Math::PlanePath 54; # v.54 for _max()
+$VERSION = 76;
 @ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -140,9 +143,9 @@ sub rect_to_n_range {
   if ($y1 < 0) { $y1 = 0; }
 
   # ENHANCE-ME: this is a big over-estimate
-  my $d = _max ($y2+1,
-                abs($x1),
-                abs($x2));
+  my $d = max ($y2+1,
+               abs($x1),
+               abs($x2));
 
   # Nrightend = 3d^2 + 2d
   return (1,

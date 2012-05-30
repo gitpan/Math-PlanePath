@@ -19,16 +19,17 @@
 package Math::PlanePath::TheodorusSpiral;
 use 5.004;
 use strict;
-use List::Util 'max';
 use Math::Libm 'hypot';
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

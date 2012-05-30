@@ -25,20 +25,23 @@
 package Math::PlanePath::QuadricIslands;
 use 5.004;
 use strict;
-use Math::PlanePath::QuadricCurve;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_floor = \&Math::PlanePath::_floor;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use Math::PlanePath::QuadricCurve;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -317,8 +320,8 @@ sub rect_to_n_range {
   # $x2 = _round_nearest ($x2);
   # $y2 = _round_nearest ($y2);
 
-  my $m = _max(abs($x1), abs($x2),
-               abs($y1), abs($y2));
+  my $m = max(abs($x1), abs($x2),
+              abs($y1), abs($y2));
 
   my ($power,$level) = _round_down_pow (6*$m-2, 4);
   ### $power

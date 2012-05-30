@@ -39,18 +39,19 @@
 package Math::PlanePath::FactorRationals;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath 54; # v.54 for _max()
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
+use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 
 # uncomment this to run the ### lines
@@ -163,8 +164,8 @@ sub xy_to_n {
 sub _limit {
   my ($n) = @_;
   my $limit = int(sqrt($n));
-  my $cap = _max (int(65536 * 10 / length($n)),
-                  50);
+  my $cap = max (int(65536 * 10 / length($n)),
+                 50);
   if ($limit > $cap) {
     return ($cap, 1);
   } else {

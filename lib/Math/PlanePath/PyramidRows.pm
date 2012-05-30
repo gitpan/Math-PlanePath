@@ -19,15 +19,17 @@
 package Math::PlanePath::PyramidRows;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_min = \&Math::PlanePath::_min;
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -221,7 +223,7 @@ sub rect_to_n_range {
   ### assert: $x2 >= -$y2*$step_left
   ### assert: $x1 <= $y2*$step_right
 
-  $y1 = _max ($y1,
+  $y1 = max ($y1,
               0,
 
               # for x2 >= x_bottom_start, round up
@@ -245,24 +247,24 @@ sub rect_to_n_range {
   ### x bottom end: $y1*$step_right
   ### $x1
   ### $x2
-  ### bottom left x: _max ($x1, -$y1*$step_left)
+  ### bottom left x: max($x1, -$y1*$step_left)
   ### top right x: min ($x2, $x_top_end)
   ### $y1
   ### $y2
-  ### n_lo: (($step * $y1 - $sub)*$y1 + 2)/2 + _max ($x1, -$y1*$step_left)
-  ### n_hi: (($step * $y2 - $sub)*$y2 + 2)/2 + _min ($x2, $x_top_end)
+  ### n_lo: (($step * $y1 - $sub)*$y1 + 2)/2 + max($x1, -$y1*$step_left)
+  ### n_hi: (($step * $y2 - $sub)*$y2 + 2)/2 + min($x2, $x_top_end)
 
   ### assert: $y1-1==$y1 || (($step * $y1 - $sub)*$y1 + 2) == int (($step * $y1 - $sub)*$y1 + 2)
   ### assert: $y2-1==$y2 || (($step * $y2 - $sub)*$y2 + 2) == int (($step * $y2 - $sub)*$y2 + 2)
 
   return ((($step * $y1 - $sub)*$y1 + 2)/2
-          + _max ($x1, -$y1*$step_left),  # x_bottom_start
+          + max($x1, -$y1*$step_left),  # x_bottom_start
 
           (($step * $y2 - $sub)*$y2 + 2)/2
-          + _min ($x2, $x_top_end));
+          + min($x2, $x_top_end));
 
-  # return ($self->xy_to_n (_max ($x1, -$y1*$step_left), $y1),
-  #         $self->xy_to_n (_min ($x2, $x_top_end),      $y2));
+  # return ($self->xy_to_n (max ($x1, -$y1*$step_left), $y1),
+  #         $self->xy_to_n (min ($x2, $x_top_end),      $y2));
 }
 
 1;

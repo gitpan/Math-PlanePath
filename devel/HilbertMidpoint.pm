@@ -45,16 +45,16 @@ package Math::PlanePath::HilbertMidpoint;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::HilbertCurve;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

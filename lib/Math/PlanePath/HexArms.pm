@@ -34,18 +34,20 @@
 package Math::PlanePath::HexArms;
 use 5.004;
 use strict;
-use List::Util qw(max);
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
+
 
 use constant arms_count => 6;
 
@@ -190,10 +192,10 @@ sub _rect_to_hex_radius {
   $y2 = abs (_round_nearest ($y2));
 
   # radial symmetric in +/-y
-  my $y = _max (abs($y1), abs($y2));
+  my $y = max (abs($y1), abs($y2));
 
   # radial symmetric in +/-x
-  my $x = _max (abs($x1), abs($x2));
+  my $x = max (abs($x1), abs($x2));
 
   return ($y >= $x
           ? $y                      # middle

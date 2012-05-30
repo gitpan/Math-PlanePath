@@ -20,14 +20,14 @@ package Math::NumSeq::PlanePathN;
 use 5.004;
 use strict;
 use Carp;
+use constant 1.02;
+
+use Math::NumSeq;
+use Math::NumSeq::PlanePathCoord;
 
 use vars '$VERSION','@ISA';
-$VERSION = 75;
-use Math::NumSeq;
+$VERSION = 76;
 @ISA = ('Math::NumSeq');
-
-use constant 1.02;
-use Math::NumSeq::PlanePathCoord;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

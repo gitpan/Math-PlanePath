@@ -39,11 +39,7 @@ package Math::PlanePath::SierpinskiTriangle;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
 use Math::PlanePath 37; # v.37 for _round_nearest()
-@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -52,6 +48,11 @@ use Math::PlanePath::KochCurve 42;
 
 use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Devel::Comments;

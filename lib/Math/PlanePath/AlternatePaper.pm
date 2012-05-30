@@ -33,18 +33,17 @@ package Math::PlanePath::AlternatePaper;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath 54; # v.54 for _max()
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
+use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -759,23 +758,23 @@ This is similar to the DragonCurve (L<Math::PlanePath::DragonCurve/Total
 Turn>) except the turn is either left or right according to an odd or even
 bit position of the transition, instead of always left for the DragonCurve.
 
-=head2 X,Y change
+=head2 dX,dY
 
 Since there's always a turn either left or right, never straight ahead, the
-X coordinate changes, then the Y, then the X again, etc, alternately, and by
-either +/-1.  The change amounts are the Golay-Rudin-Shapiro sequence
-(parity of adjacent 11 bit pairs).
+X coordinate changes, then the Y, then the X again, etc, alternately, and
+each time by either +1 or -1.  The changes are the Golay-Rudin-Shapiro
+sequence, the parity of adjacent 11 bit pairs.
 
-From the total turn above it can be seen that if the 0-E<gt>1 transition is
-at an odd position and 1-E<gt>0 transition at an even position then there's
-a turn to the left followed by a turn to the right for no net change.
+In the total turn above it can be seen that if the 0-E<gt>1 transition is at
+an odd position and 1-E<gt>0 transition at an even position then there's a
+turn to the left followed by a turn to the right for no net change.
 Likewise an even and an odd.  This means runs of 1 bits with an odd length
 have no effect on the direction.  Runs of even length on the other hand are
 a left followed by a left, or a right followed by a right, for 180 degrees,
 which negates the dX change.  Thus
 
     dX = (-1) ^ (count of even length runs of 1 bits in N)
-         for N even
+         if N even
 
 This is related to the Golay-Rudin-Shapiro sequence
 
@@ -793,18 +792,18 @@ count of even length runs and so
          0      if N odd
 
 For dY the total turn and odd/even runs of 1s makes the same 180 degree
-changes, except that because N is odd for a Y change the least significant
-bit is 1 so there's no return to "plain" state.  This lowest run of 1s will
-be turn left giving dY=+1 if it started at even position (an odd number of
-1s), and conversely turn right for dY=-1 if at an odd position (an even
-number of 1s).  The result for this last run is the same negate if even
-length run of 1s, just for a slightly different reason.
+changes, except N is odd for Y change so the least significant bit is 1 and
+there's no return to "plain" state.  This lowest run of 1s will be turn left
+giving dY=+1 if it started at an even position (an odd number of 1s), and
+conversely turn right for dY=-1 if at an odd position (an even number of
+1s).  The result for this last run is the same negate if even length, just
+for a slightly different reason.
 
     dY = 0      if N even
          GRS(N) if N odd
 
-The adjacent dX then dY at N=2k and N=2k+1 can be expressed together in
-terms of that k as
+Adjacent dX then dY at N=2k and N=2k+1 can be expressed together in terms of
+that k as
 
     dX = GRS(2k)
        = GRS(k)
@@ -817,6 +816,25 @@ Going from 2k+1 to k drops a 1 bit from the low end and if the second lowest
 bit is also a 1 then they're a 11 bit pair which is lost in GRS(k).  The
 factor (-1)^k accounts for that, being +1 if k even or -1 if k odd.
 
+From the dX and dY formulas it can be seen that their sum is simply GRS(N),
+
+    dSum = dX + dY = GRS(N)
+
+The sum X+Y is a numbering of anti-diagonal lines,
+
+    \
+     \    
+    \ \   
+     \ \  
+    \ \ \ 
+     \ \ \
+    \ \ \ \
+     0 1 2 3 
+
+The curve steps each time either up to the next or back to the previous
+according as dSum=GRS(N), though this doesn't say where along the diagonal
+each N is.
+
 =head1 OEIS
 
 The alternate paper folding curve is in Sloane's Online Encyclopedia of
@@ -825,13 +843,19 @@ Integer Sequences as,
     http://oeis.org/A106665  (etc)
 
     A106665 -- turn, 1=left,0=right, starting at N=1
-    A020985 -- dX and dY changes, Golay/Rudin/Shapiro sequence
-    A020986 -- X coordinate undoubled, Golay/Rudin/Shapiro cumulative
-    A020990 -- Y coordinate undoubled, GRS * (-1)^n cumulative
+    A020985 -- Golay/Rudin/Shapiro sequence
+                 dX and dY, skipping every second value zero
+                 dSum, change in X+Y
+    A020986 -- Golay/Rudin/Shapiro cumulative
+                 X coordinate undoubled
+    A020990 -- Golay/Rudin/Shapiro * (-1)^n, cumulative
+                 Y coordinate undoubled
+                 X-Y diff, starting from N=1
 
 Since the X and Y coordinates change each alternately, each coordinate
 appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990
-are "undoubled" in the sense of giving just one copy of those paired values.
+are "undoubled" X and Y in the sense of just one copy of each of those
+paired values.
 
 =head1 SEE ALSO
 

@@ -31,15 +31,15 @@ use 5.004;
 use strict;
 use Carp;
 
-use vars '$VERSION','@ISA';
-$VERSION = 75;
 use Math::NumSeq;
-@ISA = ('Math::NumSeq');
+use Math::NumSeq::PlanePathCoord;
 
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
-use Math::NumSeq::PlanePathCoord;
+use vars '$VERSION','@ISA';
+$VERSION = 76;
+@ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -68,6 +68,15 @@ LSR is 1=left,0=straight,-1=right.',
            ];
   };
 
+my %characteristic_integer = (Left  => 1,
+                              Right => 1,
+                              LSR   => 1);
+sub characteristic_integer {
+  my ($self) = @_;
+  return $characteristic_integer{$self->{'turn_type'}};
+}
+
+#------------------------------------------------------------------------------
 # Suspect not in OEIS:
 #
 # Left or Right according to lowest non-zero ternary digit 1 or 2
@@ -75,6 +84,18 @@ LSR is 1=left,0=straight,-1=right.',
 
 my %oeis_anum
   = (
+     # A039963 for binary Left,LSR turn ?
+     # characteristic of A003159 ending even zeros
+     # 'Math::PlanePath::GrayCode' =>
+     # 'Math::PlanePath::SierpinskiCurve' => Right
+
+     # 'Math::PlanePath::DiagonalsOctant,direction=down' =>
+     # { Left => square or pronic starting from 1
+     # },
+     # 'Math::PlanePath::DiagonalsOctant,direction=up' =>
+     # { Left => square or pronic starting from 1
+     # },
+
      # 'Math::PlanePath::HilbertCurve' =>
      # {
      #  # cf 1,0,-1 here
@@ -152,11 +173,17 @@ my %oeis_anum
        # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=LSR
      },
      # MultipleRings step=0 is trivial X=N,Y=0
-     'Math::PlanePath::MultipleRings,step=0' =>
+     'Math::PlanePath::MultipleRings,step=0,ring_shape=circle' =>
      { Left => 'A000004',  # all-zeros
        LSR  => 'A000004',  # all zeros, straight
        # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left
        # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR
+     },
+     'Math::PlanePath::MultipleRings,step=0,ring_shape=polygon' =>
+     { Left => 'A000004',  # all-zeros
+       LSR  => 'A000004',  # all zeros, straight
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left ring_shape=polygon
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR ring_shape=polygon
      },
      # Rows width=0 is trivial X=N,Y=0
      'Math::PlanePath::Rows,width=0' =>
@@ -198,6 +225,8 @@ sub oeis_anum {
 
   return $oeis_anum{Math::NumSeq::PlanePathCoord::_planepath_oeis_key($self->{'planepath_object'})} -> {$self->{'turn_type'}};
 }
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

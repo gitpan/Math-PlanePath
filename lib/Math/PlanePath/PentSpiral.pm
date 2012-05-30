@@ -19,14 +19,16 @@
 package Math::PlanePath::PentSpiral;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
+
+use Math::PlanePath;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath 54; # v.54 for _max()
+$VERSION = 76;
 @ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -170,7 +172,7 @@ sub rect_to_n_range {
       ### $x
       ### $y
       ### $this_d
-      $d = _max($d, $this_d);
+      $d = max($d, $this_d);
     }
   }
   ### $d

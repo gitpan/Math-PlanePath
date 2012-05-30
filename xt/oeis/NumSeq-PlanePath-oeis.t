@@ -28,7 +28,7 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 # use POSIX ();
 # use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
@@ -101,7 +101,7 @@ sub check_class {
   ### $class
   ### $parameters
 
-  # return unless $class =~ /Turn/;
+  # return unless $class =~ /Delta/;
   # return unless $class =~ /Koch/;
   # return unless $anum eq 'A137893';
   #  return unless $anum eq 'A035263';
@@ -368,7 +368,7 @@ MyTestHelpers::diag ("\"Other\" uncatalogued sequences:");
 
 MyTestHelpers::diag ("Catalogue sequences:");
 {
-  require 'lib/Math/NumSeq/OEIS/Catalogue/Plugin/PlanePath.pm';
+  require Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath;
   my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath::info_arrayref();
   foreach my $info (@$aref) {
     ### $info

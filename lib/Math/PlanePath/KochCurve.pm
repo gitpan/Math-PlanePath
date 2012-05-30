@@ -39,15 +39,14 @@ package Math::PlanePath::KochCurve;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath 54; # v.54 for _max()
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
+use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 
 use constant n_start => 0;

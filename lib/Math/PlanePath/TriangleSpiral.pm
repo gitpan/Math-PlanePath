@@ -19,14 +19,16 @@
 package Math::PlanePath::TriangleSpiral;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -135,7 +137,7 @@ sub rect_to_n_range {
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      $d = _max ($d,
+      $d = max ($d,
                 1 + ($y < 0 && 3*$y <= $x && $x <= -3*$y
                      ? -$y                          # bottom horizontal
                      : int ((abs($x) + $y) / 2)));  # sides

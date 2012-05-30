@@ -63,6 +63,13 @@ diag "module count ",scalar(@module_filenames);
 
 my %allow_duplicate_xrefs
   = (
+     A001844 => {'lib/Math/PlanePath/AztecDiamondRings.pm' => 1,
+                 'lib/Math/PlanePath/MultipleRings.pm' => 1 },
+
+     A016754 => { 'lib/Math/PlanePath/MultipleRings.pm' => 1,
+                  'lib/Math/PlanePath/SquareSpiral.pm' => 1 },
+
+
      A196199 => { 'lib/Math/PlanePath/Corner.pm' => 1,
                   'lib/Math/PlanePath/PyramidRows.pm' => 1,
                   'lib/Math/PlanePath/PyramidSides.pm' => 1 },
@@ -126,17 +133,18 @@ my %oeis_xrefs;
 foreach my $module_filename (@module_filenames) {
   my $content = File::Slurp::read_file($module_filename, err_mode => 'croak');
 
-  while ($content =~ /^ +(A\d{6,7})/mg) {
-    my $anum = $1;
-    if (exists $oeis_xrefs{$anum}) {
-      unless ($allow_duplicate_xrefs{$anum}->{$module_filename}) {
-        diag "$anum duplicate xref";
-        diag "  in  $oeis_xrefs{$anum}";
-        diag "  and $module_filename";
-        $bad++;
+  while ($content =~ /^ +((A\d{6,7} )+)/mg) {
+    foreach my $anum (split / +/, $1) {
+      if (exists $oeis_xrefs{$anum}) {
+        unless ($allow_duplicate_xrefs{$anum}->{$module_filename}) {
+          diag "$anum duplicate xref";
+          diag "  in  $oeis_xrefs{$anum}";
+          diag "  and $module_filename";
+          $bad++;
+        }
       }
+      $oeis_xrefs{$anum} = $module_filename;
     }
-    $oeis_xrefs{$anum} = $module_filename;
   }
 }
 
@@ -227,6 +235,24 @@ my %oeis_checks = (# in PlanePathN
                    A051022 => 'ZOrderCurve-oeis.t',
                    A037314 => 'ZOrderCurve-oeis.t',
                    A084471 => 'DigitGroups-oeis.t',
+
+                   # TODO: centred polygonals
+                   A003154 => 'MultipleRings-oeis.t',
+                   A069133 => 'MultipleRings-oeis.t',
+                   A069128 => 'MultipleRings-oeis.t',
+                   A069126 => 'MultipleRings-oeis.t',
+                   A069099 => 'MultipleRings-oeis.t',
+                   A069132 => 'MultipleRings-oeis.t',
+                   A069125 => 'MultipleRings-oeis.t',
+                   A069129 => 'MultipleRings-oeis.t',
+                   A062786 => 'MultipleRings-oeis.t',
+                   A005448 => 'MultipleRings-oeis.t',
+                   A003215 => 'MultipleRings-oeis.t',
+                   A060544 => 'MultipleRings-oeis.t',
+                   A069131 => 'MultipleRings-oeis.t',
+                   A069130 => 'MultipleRings-oeis.t',
+                   A005891 => 'MultipleRings-oeis.t',
+                   A069127 => 'MultipleRings-oeis.t',
                   );
 
 foreach my $xt_filename (@xt_filenames) {

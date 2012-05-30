@@ -25,21 +25,22 @@
 package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
 # Math::Trig has asin_real() too, but it just runs the blob of code in
 # Math::Complex -- prefer libm
 use Math::Libm 'asin', 'hypot';
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_min = \&Math::PlanePath::_min;
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use Math::PlanePath::SacksSpiral; # for _bigfloat()
+
+use vars '$VERSION', '@ISA';
+@ISA = ('Math::PlanePath');
+$VERSION = 76;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -107,7 +108,7 @@ sub new {
                              : $step < 0     ? 0  # minimum
                              : $step);
 
-  if ($ring_shape eq 'polygon') {
+  if ($ring_shape eq 'polygon' && $step >= 3) {
     $self->{'base_r'} = 0.5/sin(_PI/$step);
   } else {
     # circles
@@ -360,12 +361,12 @@ sub rect_to_n_range {
   # ENHANCE-ME: might be able to be a little tighter on $d_lo
   my $d_lo = ($zero
               ? 1
-              : _max (1, -2 + int (_xy_to_d ($self,
-                                             _min($x1,$x2),
-                                             _min($y1,$y2)))));
+              : max (1, -2 + int (_xy_to_d ($self,
+                                            min($x1,$x2),
+                                            min($y1,$y2)))));
   my $d_hi = 1 + int (_xy_to_d ($self,
-                                _max($x1,$x2),
-                                _max($y1,$y2)));
+                                max($x1,$x2),
+                                max($y1,$y2)));
   ### $d_lo
   ### $d_hi
   if ((my $step = $self->{'step'})) {
@@ -452,11 +453,17 @@ The step parameter is similar to the PyramidRows with the rows stretched
 around circles, though PyramidRows starts from a 1-wide initial row and
 increases by the step, whereas for MultipleRings there's no initial.
 
-The starting radial 1,7,19,37 etc on the X axis for step=6 is
+=head2 X Axis
+
+The starting N=1,7,19,37 etc on the X axis for the default step=6 is
 S<6*d*(d-1)/2 + 1>, counting the innermost ring as d=1.  In general it's a
 multiple of the triangular numbers, plus 1,
 
     Nstart = step*d*(d-1)/2 + 1
+
+X<Centred Polygonal Numbers>
+This is the centred polygonal numbers, being the cumulative count of points
+making up concentric polygons or rings of this style.
 
 Straight line radials further around have arise from adding multiples of d,
 so for example in step=6 shown above the line N=3,11,25,etc is
@@ -634,6 +641,19 @@ If theta=pi/4, 3pi/4, 5pi/4 or 7pi/4, which is 8*Nrem==d*step, 3*d*step,
 The current code doesn't try to ensure X==Y in these cases.  The values are
 not integers and floating point rounding might make them them unequal due to
 sin(pi/4)!=cos(pi/4).
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A005448  (etc)
+
+    A005448 A001844 A005891 A003215 A069099     3 to 7
+    A016754 A060544 A062786 A069125 A003154     8 to 12
+    A069126 A069127 A069128 A069129 A069130    13 to 17
+    A069131 A069132 A069133                    18 to 20
+        centred pentagonals, N on X axis of step=k
 
 =head1 SEE ALSO
 

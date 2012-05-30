@@ -19,15 +19,17 @@
 package Math::PlanePath::PentSpiralSkewed;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_min = \&Math::PlanePath::_min;
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -63,12 +65,12 @@ sub n_to_xy {
 
   if ($n < $d) {
     #### upper diagonals and right vertical
-    return (_min(-$n, $d),
+    return (min(-$n, $d),
             - abs($n) + $d);
   } else {
     #### lower left and bottom horizontal
     return ($n - 2*$d,
-            _max ($d-$n, -$d));
+            max ($d-$n, -$d));
   }
 }
 
@@ -84,7 +86,7 @@ sub xy_to_n {
     #   n = [ 5, 14, 28 ]
     #   n = (5/2*$d**2 + 3/2*$d + 1)
     # so
-    my $d = _max($x-1, -$y);
+    my $d = max($x-1, -$y);
     ### lower right square part
     ### $d
     return ((5*$d + 3)*$d/2 + 1
@@ -115,12 +117,12 @@ sub rect_to_n_range {
       $y = _round_nearest ($y);
 
       my $this_d = 1 + ($x > 0 && $y < 0
-                        ? _max($x,-$y)
+                        ? max($x,-$y)
                         : abs($x)+abs($y));
       ### $x
       ### $y
       ### $this_d
-      $d = _max($d, $this_d);
+      $d = max($d, $this_d);
     }
   }
   ### $d

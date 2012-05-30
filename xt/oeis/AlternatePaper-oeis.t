@@ -77,6 +77,51 @@ sub dxdy_to_dir {
   if ($dy < 0) { return 3; }  # south
 }
 
+
+#------------------------------------------------------------------------------
+# A020990 - Golay/Rudin/Shapiro * (-1)^k cumulative, is Y coord undoubled,
+# except N=0
+{
+  my $anum = 'A020990';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 2; @got < @$bvalues; $n += 2) {
+        my ($x, $y) = $paper->n_to_xy ($n);
+        push @got, $y;
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum -- Y coordinate undoubled");
+  }
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 1; @got < @$bvalues; $n++) {
+        my ($x, $y) = $paper->n_to_xy ($n);
+        push @got, $x-$y;
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum -- diff X-Y");
+  }
+}
+
 #------------------------------------------------------------------------------
 # A020985 - Golay/Rudin/Shapiro dX and dY
 
@@ -144,31 +189,6 @@ sub dxdy_to_dir {
 }
 
 
-#------------------------------------------------------------------------------
-# A020990 - Golay/Rudin/Shapiro * (-1)^k cumulative, is Y coord undoubled,
-# except N=0
-{
-  my $anum = 'A020990';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
-    for (my $n = 2; @got < @$bvalues; $n += 2) {
-      my ($x, $y) = $paper->n_to_xy ($n);
-      push @got, $y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X coordinate undoubled");
-}
 
 #------------------------------------------------------------------------------
 # A106665 -- turn 1=left, 0=right, starting from N=1

@@ -26,17 +26,17 @@ package Math::PlanePath::CellularRule;
 use 5.004;
 use strict;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath 54; # v.54 for _max()
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
+use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -487,7 +487,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 75;
+  $VERSION = 76;
   @ISA = ('Math::PlanePath::CellularRule');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
   *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -559,7 +559,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 75;
+  $VERSION = 76;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -605,7 +605,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 75;
+  $VERSION = 76;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
   *_is_infinite = \&Math::PlanePath::_is_infinite;

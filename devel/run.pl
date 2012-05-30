@@ -48,7 +48,6 @@ use Module::Load;
   require Math::PlanePath::DekkingCurve;
   require Math::PlanePath::DekkingStraight;
   require Math::PlanePath::HilbertCurve;
-  require Math::PlanePath::BetaOmega;
   require Math::PlanePath::SierpinskiArrowheadCentres;
   require Math::PlanePath::Corner;
   require Math::PlanePath::SquareSpiral;
@@ -61,8 +60,6 @@ use Module::Load;
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::MPeaks;
   require Math::PlanePath::CincoCurve;
-  require Math::PlanePath::HilbertSpiral;
-  require Math::PlanePath::AR2W2Curve;
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::FactorRationals;
   require Math::PlanePath::VogelFloret;
@@ -75,7 +72,6 @@ use Module::Load;
   require Math::PlanePath::CretanLabyrinth;
   require Math::PlanePath::PeanoHalf;
   require Math::PlanePath::StaircaseAlternating;
-  require Math::PlanePath::GcdRationals;
   require Math::PlanePath::SierpinskiCurveStair;
   require Math::PlanePath::AztecDiamondRings;
   require Math::PlanePath::PyramidRows;
@@ -121,14 +117,20 @@ use Module::Load;
   $path_class = 'Math::PlanePath::GrayCode';
   $path_class = 'Math::PlanePath::CubicBase';
   $path_class = 'Math::PlanePath::R5DragonCurve';
-  $path_class = 'Math::PlanePath::CCurve';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
+  $path_class = 'Math::PlanePath::HilbertSpiral';
+  $path_class = 'Math::PlanePath::BetaOmega';
+  $path_class = 'Math::PlanePath::AR2W2Curve';
+  $path_class = 'Math::PlanePath::CCurve';
+  $path_class = 'Math::PlanePath::GcdRationals';
+  $path_class = 'Math::PlanePath::DiagonalsOctant';
   
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+direction => 'up',
      # radix => 3,
-      arms => 2,
+     # arms => 2,
      # step => 6,
      # ring_shape => 'polygon',
      # diagonal_length => 5,
@@ -161,7 +163,7 @@ use Module::Load;
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count   ",ref($path),"\n";
 
-  for (my $i = $n_start+0; $i <= 1300; $i+=1) {
+  for (my $i = $n_start+0; $i <= 32; $i+=1) {
   #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

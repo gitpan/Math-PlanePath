@@ -23,19 +23,20 @@
 package Math::PlanePath::ComplexRevolving;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath 54; # v.54 for _max()
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
+use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -143,8 +144,8 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### ComplexRevolving rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  my $xm = _max(abs($x1),abs($x2));
-  my $ym = _max(abs($y1),abs($y2));
+  my $xm = max(abs($x1),abs($x2));
+  my $ym = max(abs($y1),abs($y2));
 
   return (0, int (32*($xm*$xm + $ym*$ym)));
 }

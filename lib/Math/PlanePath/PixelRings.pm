@@ -19,20 +19,23 @@
 package Math::PlanePath::PixelRings;
 use 5.004;
 use strict;
-use List::Util qw(min max);
 use Math::Libm 'hypot';
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 # ENHANCE-ME: What's the formula for the cumulative pixel count, and its
 # inverse?  It's not floor(k*4*sqrt(2)).
@@ -137,7 +140,7 @@ sub n_to_xy {
   ### $rev
   ### $n
   my $y = $n;
-  my $x = int (sqrt (_max (0, $r*$r - $y*$y)) + .5);
+  my $x = int (sqrt (max (0, $r*$r - $y*$y)) + .5);
   if ($rev) {
     ($x,$y) = ($y,$x);
   }

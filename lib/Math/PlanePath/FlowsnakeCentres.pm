@@ -26,11 +26,12 @@
 package Math::PlanePath::FlowsnakeCentres;
 use 5.004;
 use strict;
-use List::Util 'max';
 use POSIX 'ceil';
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

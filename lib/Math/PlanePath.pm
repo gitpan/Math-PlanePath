@@ -16,6 +16,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# xy_to_n_list_maximum
+# xy_to_n_unique_at
 # n_tree_parent
 # n_tree_children
 # xy_integer
@@ -32,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 75;
+$VERSION = 76;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

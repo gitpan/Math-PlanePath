@@ -22,8 +22,9 @@
 # increment N+1 changes low 1111 to 10000
 # X bits change 011 to 000, no carry, decreasing by number of low 1s
 # Y bits change 011 to 100, plain +1
-
-
+#
+# cf A105186 replace odd position ternary digits with 0
+#
 
 
 package Math::PlanePath::ZOrderCurve;
@@ -31,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

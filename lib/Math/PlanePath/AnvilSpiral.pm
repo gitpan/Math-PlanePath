@@ -22,17 +22,16 @@
 package Math::PlanePath::AnvilSpiral;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
-*_min = \&Math::PlanePath::_min;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
-
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 
 # pentagonal N = (3k-1)*k/2
@@ -234,8 +233,8 @@ sub xy_to_n {
   #                $self->xy_to_n($x2,$y1),
   #                $self->xy_to_n($x1,$y2),
   #                $self->xy_to_n($x2,$y2));
-  # return (($x_zero && $y_zero ? 1 : _min (@corners)),
-  #         _max (@corners,
+  # return (($x_zero && $y_zero ? 1 : min (@corners)),
+  #         max (@corners,
   #               ($y_zero ? ($self->xy_to_n($x1,0),
   #                           $self->xy_to_n($x2,0)) : ())));
 
@@ -277,7 +276,7 @@ sub rect_to_n_range {
 
   ### abs: "$x1,$y1  $x2,$y2"
   ### d1 slope max y: int(($x1+1)/2)
-  ### d1 slope: $x1 - _min($y2,int(($x1+1)/2))
+  ### d1 slope: $x1 - min($y2,int(($x1+1)/2))
 
   #   --------*
   #          /
@@ -288,10 +287,10 @@ sub rect_to_n_range {
   # d=x-w-y on the slope
   # d=y     on the top horizontal
   #
-  my $d1 = _min ($x1-$w - _min($y2,int(($x1-$w+1)/2)) - 1,
+  my $d1 = min ($x1-$w - min($y2,int(($x1-$w+1)/2)) - 1,
                  $y2);
-  my $d2 = 1 + _max ($x2-$w - $y1,
-                     $y2);
+  my $d2 = 1 + max ($x2-$w - $y1,
+                    $y2);
   ### $d1
   ### $d2
   ### d2 right slope would be: $x2-$w_right - $y2

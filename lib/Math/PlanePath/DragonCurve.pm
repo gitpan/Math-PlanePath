@@ -39,14 +39,10 @@
 package Math::PlanePath::DragonCurve;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_min = \&Math::PlanePath::_min;
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -54,6 +50,10 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use Math::PlanePath::DragonMidpoint;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -78,10 +78,12 @@ use constant parameter_info_array => [ { name      => 'arms',
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
+
   my $arms = $self->{'arms'};
   if (! defined $arms || $arms <= 0) { $arms = 1; }
   elsif ($arms > 4) { $arms = 4; }
   $self->{'arms'} = $arms;
+
   return $self;
 }
 
@@ -245,8 +247,8 @@ sub xy_to_n_list {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
-  my $xmax = int(_max(abs($x1),abs($x2)));
-  my $ymax = int(_max(abs($y1),abs($y2)));
+  my $xmax = int(max(abs($x1),abs($x2)));
+  my $ymax = int(max(abs($y1),abs($y2)));
   return (0,
           $self->{'arms'} * ($xmax*$xmax + $ymax*$ymax + 1) * 7);
 }
@@ -259,7 +261,7 @@ sub rect_to_n_range {
 #
 #
 #    my ($length, $level_limit) = _round_down_pow
-#      ((_max(abs($x1),abs($x2))**2 + _max(abs($y1),abs($y2))**2 + 1) * 7,
+#      ((max(abs($x1),abs($x2))**2 + max(abs($y1),abs($y2))**2 + 1) * 7,
 #       2);
 #    $level_limit += 2;
 #    ### $level_limit
@@ -303,13 +305,13 @@ sub rect_to_n_range {
 #        ### assert: $ymax >= $ymin
 #
 #        #    ### at: "end=$xend,$yend   $xmin..$xmax  $ymin..$ymax"
-#        push @xmax, _max($xmax, $xend + $ymax);
-#        push @xmin, _min($xmin, $xend + $ymin);
+#        push @xmax, max($xmax, $xend + $ymax);
+#        push @xmin, min($xmin, $xend + $ymin);
 #
-#        push @ymax, _max($ymax, $yend - $xmin);
-#        push @ymin, _min($ymin, $yend - $xmax);
+#        push @ymax, max($ymax, $yend - $xmin);
+#        push @ymin, min($ymin, $yend - $xmax);
 #
-#        push @sidemax, _max ($xmax[-1], -$xmin[-1],
+#        push @sidemax, max ($xmax[-1], -$xmin[-1],
 #                             $ymax[-1], -$ymin[-1],
 #                             abs($xend),
 #                             abs($yend));
@@ -325,7 +327,7 @@ sub rect_to_n_range {
 #      my $yd = ($y < $y1 ? $y1 - $y
 #                : $y > $y2 ? $y - $y2
 #                : 0);
-#      return _max($xd,$yd);
+#      return max($xd,$yd);
 #    };
 #
 #    my $arms = $self->{'arms'};

@@ -26,12 +26,10 @@
 package Math::PlanePath::PeanoHalf;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -39,6 +37,11 @@ use Math::PlanePath::PeanoCurve;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -149,8 +152,8 @@ sub rect_to_n_range {
 
   my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
 
-  my ($len, $level) = _round_down_pow ($zero + _max(abs($x1),abs($y1),
-                                                    abs($x2),abs($y2))*2-1,
+  my ($len, $level) = _round_down_pow ($zero + max(abs($x1),abs($y1),
+                                                   abs($x2),abs($y2))*2-1,
                                        3);
   ### $len
   ### $level

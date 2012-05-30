@@ -72,7 +72,11 @@ sub read_values {
       for (my $i = 0; $i <= $#bvalues; $i++) {
         if ($bvalues[$i] > $max_value) {
           $#bvalues = $i-1;
-          $desc .= ", shorten to max ".$bvalues[-1];
+          if (@bvalues) {
+            $desc .= ", shorten to max ".$bvalues[-1];
+          } else {
+            $desc .= ", shorten to nothing";
+          }
         }
       }
     }

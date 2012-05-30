@@ -21,12 +21,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::BetaOmega 52;
 *_y_round_down_len_level = \&Math::PlanePath::BetaOmega::_y_round_down_len_level;
@@ -72,12 +73,8 @@ sub n_to_xy {
   my $int = int($n);
   $n -= $int;
 
-  my @digits;
-  my $len = $n*0 + 1;   # inherit possible bigint 1
-  do {
-    push @digits, $int % 4;
-    $len *= 2;
-  } while ($int = int($int/4));
+  my @digits = _digit_split_lowtohigh($int,4);;
+  my $len = ($n*0 + 2) ** scalar(@digits);   # inherit possible bigint 1
 
   my $state = ($#digits & 1 ? 4 : 0);
   my $dir = $state + 2; # default if all $digit==3

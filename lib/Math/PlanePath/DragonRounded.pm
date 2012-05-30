@@ -24,14 +24,10 @@
 package Math::PlanePath::DragonRounded;
 use 5.004;
 use strict;
-use List::Util qw(max);
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_floor = \&Math::PlanePath::_floor;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -40,6 +36,11 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use Math::PlanePath::DragonMidpoint;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -234,8 +235,8 @@ sub rect_to_n_range {
   $x2 = abs($x2);
   $y1 = abs($y1);
   $y2 = abs($y2);
-  my $xmax = int(_max($x1,$x2) / 3);
-  my $ymax = int(_max($y1,$y2) / 3);
+  my $xmax = int(max($x1,$x2) / 3);
+  my $ymax = int(max($y1,$y2) / 3);
   return (0,
           ($xmax*$xmax + $ymax*$ymax + 1) * $self->{'arms'} * 16);
 }

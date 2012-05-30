@@ -22,14 +22,9 @@
 package Math::PlanePath::CCurve;
 use 5.004;
 use strict;
-use List::Util 'sum';
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+use List::Util 'max','sum';
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
@@ -37,6 +32,10 @@ use Math::PlanePath;
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 *_digit_join_htol = \&Math::PlanePath::KochCurve::_digit_join_htol;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 
 # Not sure about this yet ... 2 or 4 ?
@@ -59,10 +58,12 @@ use constant n_start => 0;
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
+
   my $arms = $self->{'arms'};
   if (! defined $arms || $arms <= 0) { $arms = 1; }
   elsif ($arms > 2) { $arms = 2; }
   $self->{'arms'} = $arms;
+
   return $self;
 }
 
@@ -77,77 +78,54 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n, $n); }
 
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;  # inherit possible BigFloat
-    $n = $int;          # BigFloat int() gives BigInt, use that
-  }
-
   my $zero = ($n * 0);  # inherit bignum 0
-
-  # initial rotation from arm number $n mod $arms
-  my $arms = $self->{'arms'};
-  my $rot = $n % $arms;
-  $n = int($n/$arms);
-  $rot *= 2;
-
-  my @digits;
-  my @sx;
-  my @sy;
-  {
-    my $sy = $zero;
-    my $sx = $zero + 1; # bignum 1
-    ### $sx
-    ### $sy
-
-    while ($n) {
-      push @digits, ($n % 2);
-      $n = int($n/2);
-      push @sx, $sx;
-      push @sy, $sy;
-
-      # (sx,sy) + rot+90(sx,sy)
-      ($sx,$sy) = ($sx - $sy,
-                   $sy + $sx);
-    }
-  }
-
-  ### @digits
-  my $rev = 0;
   my $x = $zero;
   my $y = $zero;
-  while (defined (my $digit = pop @digits)) {
-    my $sx = pop @sx;
-    my $sy = pop @sy;
-    ### at: "$x,$y  $digit   side $sx,$sy"
-    ### $rot
-
-    if ($digit) {
-      if ($rot & 2) {
-        ($sx,$sy) = (-$sx,-$sy);
-      }
-      if ($rot & 1) {
-        ($sx,$sy) = (-$sy,$sx);
-      }
-      $x += $sx;
-      $y += $sy;
-      $rot ++;
-    }
+  {
+    my $int = int($n);
+    $x = $n - $int;  # inherit possible BigFloat
+    $n = $int;        # BigFloat int() gives BigInt, use that
   }
 
-  ### digits to: "$x,$y"
+  # initial rotation from arm number $n mod $arms
+  my $rot;
+  {
+    my $arms = $self->{'arms'};
+    $rot = $n % $arms;
+    $n = int($n/$arms);
+  }
 
-  $rot &= 3;
-  $x = $frac * $rot_to_sx[$rot] + $x;
-  $y = $frac * $rot_to_sy[$rot] + $y;
+  my $len = $zero+1;
+  foreach my $digit (_digit_split_lowtohigh($n,4)) {
+    ### $digit
 
-  ### final with frac: "$x,$y"
+    if ($digit == 0) {
+      ($x,$y) = ($y,-$x);    # rotate -90
+    } elsif ($digit == 1) {
+      $y -= $len;            # at Y=-len
+    } elsif ($digit == 2) {
+      $x += $len;            # at X=len,Y=-len
+      $y -= $len;
+    } else {
+      ### assert: $digit == 3
+      ($x,$y) = (2*$len - $y,  # at X=2len,Y=-len and rotate +90
+                 $x-$len);
+    }
+    $rot++; # to keep initial direction
+    $len *= 2;
+  }
+
+  if ($rot & 2) {
+    $x = -$x;
+    $y = -$y;
+  }
+  if ($rot & 1) {
+    ($x,$y) = (-$y,$x);
+  }
+
+  ### final: "$x,$y"
   return ($x,$y);
 }
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 # point N=2^(2k) at XorY=+/-2^k  radius 2^k
 #       N=2^(2k-1) at X=Y=+/-2^(k-1) radius sqrt(2)*2^(k-1)
@@ -223,7 +201,7 @@ sub xy_to_n_list {
           push @n_list, _digit_join_htol (\@digits, 4, $zero)
             * $arms_count + $arm;
         }
-      } elsif (_max(abs($x-$tx),abs($y-$ty)) <= $extents[$#digits]) {
+      } elsif (max(abs($x-$tx),abs($y-$ty)) <= $extents[$#digits]) {
         ### within extent, descend ...
         push @digits, -1;
         $len /= 2;
@@ -314,7 +292,7 @@ sub _rect_to_k {
   ### _rect_to_k(): $x1,$y1
 
   {
-    my $m = _max(abs($x1),abs($y1),abs($x2),abs($y2));
+    my $m = max(abs($x1),abs($y1),abs($x2),abs($y2));
     if ($m < 2) {
       return (2, 1);
     }
@@ -414,33 +392,33 @@ This is an integer version of the "C" curve.
 
 
                             11-----10-----9,7-----6------5               3
-                             |             |             |                
+                             |             |             |
                      13-----12             8             4------3        2
-                      |                                         |         
+                      |                                         |
               19---14,18----17                                  2        1
-               |      |      |                                  |         
+               |      |      |                                  |
        21-----20     15-----16                           0------1   <- Y=0
-        |                                                                 
+        |
        22                                                               -1
-        |                                                                 
+        |
       25,23---24                                                        -2
-        |                                                                 
+        |
        26     35-----34-----33                                          -3
-        |      |             |                                            
+        |      |             |
       27,37--28,36          32                                          -4
-        |      |             |                                            
+        |      |             |
        38     29-----30-----31                                          -5
-        |                                                                 
+        |
     39,41-----40                                                        -6
-        |                                                                 
+        |
        42                                              ...              -7
-        |                                                |                
+        |                                                |
        43-----44     49-----48                          64-----63       -8
-               |      |      |                                  |         
+               |      |      |                                  |
               45---46,50----47                                 62       -9
-                      |                                         |         
+                      |                                         |
                      51-----52            56            60-----61      -10
-                             |             |             |                
+                             |             |             |
                             53-----54----55,57---58-----59             -11
 
                                                          ^
@@ -545,7 +523,7 @@ step to the next digit at the current digit position.
 It's convenient to consider base-4 digits since that keeps the digit steps
 straight rather than diagonals.  The maximum extent of the curve at a given
 even numbered level is
-    
+
     k = level/2
     Lmax(level) = 2^k + int(2^(k-1) - 1);
 

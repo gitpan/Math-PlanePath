@@ -1085,8 +1085,8 @@ use Smart::Comments;
 #   my ($self, $x1,$y1, $x2,$y2) = @_;
 #   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 # 
-#   my $xmax = int(_max(abs($x1),abs($x2)));
-#   my $ymax = int(_max(abs($y1),abs($y2)));
+#   my $xmax = int(max(abs($x1),abs($x2)));
+#   my $ymax = int(max(abs($y1),abs($y2)));
 #   my ($level, $len) = _round_down_pow (($xmax*$xmax + $ymax*$ymax + 1) * 7,
 #                                        2);
 # 

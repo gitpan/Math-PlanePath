@@ -19,14 +19,16 @@
 package Math::PlanePath::HexSpiralSkewed;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -124,7 +126,7 @@ sub xy_to_n {
       return ((3*$d + 1 + 2*$w)*$d + 1
               - $y);
     } else {
-      my $d = $y + _max($x,0);
+      my $d = $y + max($x,0);
       ### right upper diagonal and top horizontal
       ### $d
       ### base: (3*$d - 1 + 2*$w)*$d + 1 - $w
@@ -136,7 +138,7 @@ sub xy_to_n {
     # $y < 0
     $x += $w_left;
     if ($x-$w <= -$y) {
-      my $d = -$y + _max(-$x,0);
+      my $d = -$y + max(-$x,0);
       ### left lower diagonal and bottom horizontal
       ### $d
       ### base: (3*$d + 2 + 2*$w)*$d + 1
@@ -174,10 +176,10 @@ sub rect_to_n_range {
       $x -= $w;
     }
     foreach my $y ($y1, $y2) {
-      $d = _max ($d,
+      $d = max ($d,
                 (($y > 0) == ($x > 0)
                  ? abs($x) + abs($y)      # top right or bottom left diagonals
-                 : _max(abs($x),abs($y)))); # top left or bottom right squares
+                 : max(abs($x),abs($y)))); # top left or bottom right squares
     }
   }
   $d += 1;

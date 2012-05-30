@@ -48,6 +48,13 @@ if (! eval { require Math::BigRat; 1 }) {
   exit 0;
 }
 MyTestHelpers::diag ('Math::BigRat version ', Math::BigRat->VERSION);
+if (! Math::BigRat->can('as_float')) {
+  MyTestHelpers::diag ('skip due to Math::BigRat->as_float method not available');
+  foreach (1 .. $test_count) {
+    skip ('due to no as_float()', 1, 1);
+  }
+  exit 0;
+}
 {
   my $f = Math::BigRat->new('-1/2');
   my $int = int($f);
@@ -575,7 +582,7 @@ foreach my $module (@modules) {
                           height => 17);
   my $arms = $path->arms_count;
   
-  my $n    = Math::BigRat->new(2) ** 256 + 3;
+  my $n = Math::BigRat->new(2) ** 256 + 3;
   if ($path->isa('Math::PlanePath::CellularRule190')) {
     $n += 1; # not across gap
   }

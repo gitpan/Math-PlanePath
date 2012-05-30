@@ -28,14 +28,16 @@
 package Math::PlanePath::SquareSpiral;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -51,6 +53,7 @@ use Math::PlanePath;
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
 #     Pulchritudinous Primes of Ulam spiral.
 
+# Note: shared by others with "wider"
 use constant parameter_info_array => [ { name        => 'wider',
                                          type        => 'integer',
                                          minimum     => 0,
@@ -249,11 +252,11 @@ sub rect_to_n_range {
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
 
-  my $d = 1 + _max (1,
-                    abs($y1),
-                    abs($y2),
-                    $x1 - $w_right, -$x1 - $w_left,
-                    $x2 - $w_right, -$x2 - $w_left);
+  my $d = 1 + max (abs($y1),
+                   abs($y2),
+                   $x1 - $w_right, -$x1 - $w_left,
+                   $x2 - $w_right, -$x2 - $w_left,
+                   1);
   ### $d
   ### is: $d*$d
 

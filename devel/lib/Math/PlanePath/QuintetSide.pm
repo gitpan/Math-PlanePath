@@ -28,12 +28,13 @@
 package Math::PlanePath::QuintetSide;
 use 5.004;
 use strict;
-use List::Util 'max';
 use POSIX 'ceil';
 use Math::Libm 'hypot';
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');

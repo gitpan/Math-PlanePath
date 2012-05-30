@@ -24,14 +24,16 @@
 package Math::PlanePath::OctagramSpiral;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
+*_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 @ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -184,7 +186,7 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  my $d = _max (1, map {abs(_round_nearest($_))} $x1,$y1,$x2,$y2);
+  my $d = max (1, map {abs(_round_nearest($_))} $x1,$y1,$x2,$y2);
   ### $d
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0

@@ -38,7 +38,7 @@ my $path = Math::PlanePath::CCurve->new;
 # VERSION
 
 {
-  my $want_version = 75;
+  my $want_version = 76;
   ok ($Math::PlanePath::CCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CCurve->VERSION,  $want_version,
@@ -86,8 +86,8 @@ my $path = Math::PlanePath::CCurve->new;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "x at n=$n");
-    ok ($got_y, $want_y, "y at n=$n");
+    ok ($got_x == $want_x, 1, "x at n=$n");
+    ok ($got_y == $want_y, 1, "y at n=$n");
   }
 
   # foreach my $elem (@data) {

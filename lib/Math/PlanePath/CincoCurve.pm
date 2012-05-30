@@ -25,17 +25,20 @@
 package Math::PlanePath::CincoCurve;
 use 5.004;
 use strict;
-use List::Util 'min', 'max';
+#use List::Util 'min', 'max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 
 use constant n_start => 0;

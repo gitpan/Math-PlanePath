@@ -26,22 +26,24 @@
 package Math::PlanePath::GosperIslands;
 use 5.004;
 use strict;
-use List::Util 'max';
 use POSIX 'ceil';
-use Math::PlanePath::SacksSpiral;
 use Math::Libm 'hypot';
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use Math::PlanePath::SacksSpiral;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 
 use constant n_frac_discontinuity => 0;

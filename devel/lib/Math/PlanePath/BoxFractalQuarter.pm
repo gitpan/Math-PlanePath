@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
+$VERSION = 76;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -127,7 +127,7 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
-  my ($power, $exp) = _round_down_pow (3*$n-2, 4);
+  my ($power, $exp) = _round_down_pow ($n, 5);
 
   ### $power
   ### $exp

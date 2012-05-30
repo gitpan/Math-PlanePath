@@ -22,19 +22,22 @@
 package Math::PlanePath::ComplexMinus;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
+
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
 
 use constant n_start => 0;
 
@@ -153,8 +156,8 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### ComplexMinus rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  my $xm = _max(abs($x1),abs($x2));
-  my $ym = _max(abs($y1),abs($y2));
+  my $xm = max(abs($x1),abs($x2));
+  my $ym = max(abs($y1),abs($y2));
 
   return (0,
           int (($xm*$xm + $ym*$ym)

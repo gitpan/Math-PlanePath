@@ -49,14 +49,10 @@ package Math::PlanePath::GrayCode;
 use 5.004;
 use strict;
 use Carp;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
-*_min = \&Math::PlanePath::_min;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
@@ -64,10 +60,13 @@ use Math::PlanePath;
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
-use Math::PlanePath::ZOrderCurve;
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
@@ -237,7 +236,7 @@ sub rect_to_n_range {
   }
 
   my $radix = $self->{'radix'};
-  my ($pow_max) = _round_down_pow (_max($x2,$y2), $radix);
+  my ($pow_max) = _round_down_pow (max($x2,$y2), $radix);
   $pow_max *= $radix;
   return (0, $pow_max*$pow_max - 1);
 }

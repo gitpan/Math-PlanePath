@@ -19,14 +19,16 @@
 package Math::PlanePath::TriangleSpiralSkewed;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -65,7 +67,7 @@ sub n_to_xy {
   if ($n <= 3*$d) {
     ### right slope and left vertical
     my $x = - ($d + $n);
-    return (_max($x,-$d),
+    return (max($x,-$d),
             2*$d - abs($n));
   } else {
     ### bottom horizontal
@@ -135,12 +137,12 @@ sub rect_to_n_range {
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
-      $d = _max ($d,
-                 1 + ($y < 0 && $y <= $x && $x <= -2*$y
-                      ? -$y                          # bottom horizontal
-                      : $x < 0 && $x <= $y && $y <= 2*-$x
-                      ? -$x              # left vertical
-                      : abs($x) + $y));  # right slope
+      $d = max ($d,
+                1 + ($y < 0 && $y <= $x && $x <= -2*$y
+                     ? -$y                          # bottom horizontal
+                     : $x < 0 && $x <= $y && $y <= 2*-$x
+                     ? -$x              # left vertical
+                     : abs($x) + $y));  # right slope
     }
   }
   return (1,

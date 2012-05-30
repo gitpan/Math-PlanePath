@@ -24,20 +24,20 @@
 package Math::PlanePath::KochSnowflakes;
 use 5.004;
 use strict;
-use List::Util qw(max);
-use POSIX qw(ceil);
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -276,9 +276,9 @@ sub rect_to_n_range {
   ### left: (-$x1+$y2)/2
   ### bottom: -$y1
 
-  my (undef, $level) = _round_down_pow (_max (int(($x2+$y2)/2),
-                                              int((-$x1+$y2)/2),
-                                              -$y1),
+  my (undef, $level) = _round_down_pow (max (int(($x2+$y2)/2),
+                                             int((-$x1+$y2)/2),
+                                             -$y1),
                                         3);
   ### $level
   # end of $level is 1 before base of $level+1

@@ -31,16 +31,17 @@
 package Math::PlanePath::DiagonalRationals;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 use Math::PlanePath::CoprimeColumns;
 use vars '@_x_to_n';
@@ -48,6 +49,7 @@ BEGIN {
   *_x_to_n = \@Math::PlanePath::CoprimeColumns::_x_to_n;
   *_extend = \&Math::PlanePath::CoprimeColumns::_extend;
 }
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -140,7 +142,7 @@ sub rect_to_n_range {
   while ($#_x_to_n < $d2) {
     _extend();
   }
-  my $d1 = _max (2, $x1 + $y1);
+  my $d1 = max (2, $x1 + $y1);
   ### $d1
   ### $d2
 

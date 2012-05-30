@@ -22,15 +22,16 @@
 package Math::PlanePath::CretanLabyrinth;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -241,10 +242,10 @@ sub rect_to_n_range {
   $x2 = _round_nearest($x2);
   $y2 = _round_nearest($y2);
 
-  my $d = _max (_xy_to_d($x1,$y1),
-                _xy_to_d($x2,$y1),
-                _xy_to_d($x1,$y2),
-                _xy_to_d($x2,$y2));
+  my $d = max (_xy_to_d($x1,$y1),
+               _xy_to_d($x2,$y1),
+               _xy_to_d($x1,$y2),
+               _xy_to_d($x2,$y2));
   return (1,
           (64*$d + 120)*$d + 54);
 }

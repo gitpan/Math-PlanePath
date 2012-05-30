@@ -26,17 +26,20 @@
 package Math::PlanePath::SquareArms;
 use 5.004;
 use strict;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
+
+
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
+
 
 use constant arms_count => 4;
 
@@ -158,7 +161,7 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   my ($d_lo, $d_hi) = _rect_square_range ($x1,$y1, $x2,$y2);
   return (((4*$d_lo - 4)*$d_lo + 1),
-          _max ($self->xy_to_n($x1,$y1),
+          max ($self->xy_to_n($x1,$y1),
                 $self->xy_to_n($x1,$y2),
                 $self->xy_to_n($x2,$y1),
                 $self->xy_to_n($x2,$y2)));

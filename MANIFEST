@@ -56,6 +56,7 @@ devel/koch-squareflakes.pl
 devel/lib/Math/PlanePath/BoxFractalQuarter.pm
 devel/lib/Math/PlanePath/DekkingCurve.pm
 devel/lib/Math/PlanePath/DekkingStraight.pm
+devel/lib/Math/PlanePath/DiagonalsOctant.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
 devel/lib/Math/PlanePath/PeanoHalf.pm
 devel/lib/Math/PlanePath/PeanoRounded.pm

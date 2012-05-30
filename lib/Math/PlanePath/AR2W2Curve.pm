@@ -27,17 +27,20 @@
 package Math::PlanePath::AR2W2Curve;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 75;
-use Math::PlanePath 54; # v.54 for _max()
-@ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
+use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+
+use vars '$VERSION', '@ISA';
+$VERSION = 76;
+@ISA = ('Math::PlanePath');
 
 
 use constant n_start => 0;
@@ -298,12 +301,9 @@ sub n_to_xy {
   my $int = int($n);
   $n -= $int;
 
-  my @digits;
-  my $len = $int*0 + 1;   # inherit bignum 1
-  do {
-    push @digits, $int % 4;
-    $len *= 2;
-  } while (($int = int($int/4)) || ($#digits&1));
+  my @digits = _digit_split_lowtohigh($int,4);;
+  my $len = ($n*0 + 2) ** scalar(@digits);   # inherit possible bigint
+
   ### digits: join(', ',@digits)."   count ".scalar(@digits)
   ### $len
 
@@ -415,7 +415,7 @@ sub rect_to_n_range {
     return (1, 0);
   }
 
-  my ($len, $level) = _round_down_pow (_max($x2,$y2), 2);
+  my ($len, $level) = _round_down_pow (max($x2,$y2), 2);
   ### len/level: "$len  $level"
   if (_is_infinite($level)) {
     return (0, $level);

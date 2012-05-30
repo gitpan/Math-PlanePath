@@ -25,15 +25,16 @@ use 5.004;
 use strict;
 use Math::Libm 'hypot';
 use POSIX 'floor';
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
+
+use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 75;
-
-use Math::PlanePath;
+$VERSION = 76;
 @ISA = ('Math::PlanePath');
-*_max = \&Math::PlanePath::_max;
-*_min = \&Math::PlanePath::_min;
+
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -218,8 +219,8 @@ sub _rect_to_radius_corners {
               : $y1 > 0 ? $y1
               : 0),
 
-          _max(_ceil(abs($x1)), _ceil(abs($x2))),
-          _max(_ceil(abs($y1)), _ceil(abs($y2))));
+          max(_ceil(abs($x1)), _ceil(abs($x2))),
+          max(_ceil(abs($y1)), _ceil(abs($y2))));
 }
 
 sub _ceil {
