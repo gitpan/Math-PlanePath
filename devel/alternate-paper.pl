@@ -26,6 +26,31 @@ use strict;
 
 
 {
+  # repeat points
+  require Math::PlanePath::AlternatePaper;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::AlternatePaper->new;
+  for my $nn (0 .. 1024) {
+    my ($x,$y) = $path->n_to_xy($nn);
+
+     next unless $y == 18;
+
+    my ($n,$m) = $path->xy_to_n_list($x,$y);
+    next unless ($n == $nn) && $m;
+
+    my $diff = $m - $n;
+    my $xor = $m ^ $n;
+    my $n4 = Math::BaseCnv::cnv($n,10,4);
+    my $m4 = Math::BaseCnv::cnv($m,10,4);
+    my $diff4 = Math::BaseCnv::cnv($diff,10,4);
+    my $xor4 = Math::BaseCnv::cnv($xor,10,4);
+    printf "%10s %6s %6s %6s,%-6s\n",
+      "$n,$x,$y", $n4, $m4, $diff4, $diff4;
+  }
+  exit 0;
+}
+
+{
   # dY
   require Math::PlanePath::AlternatePaper;
   require Math::BaseCnv;
@@ -63,6 +88,27 @@ use strict;
     }
     return $count;
   }
+}
+
+
+{
+  # base4 X,Y axes and diagonal
+  # diagonal base4 all twos
+  require Math::PlanePath::AlternatePaper;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::AlternatePaper->new;
+  for my $x (0 .. 40) {
+    my $y;
+    $y = 0;
+    $y = $x;
+
+    my $n = $path->xy_to_n($x,$y);
+    my $n2 = Math::BaseCnv::cnv($n,10,2);
+    my $n4 = Math::BaseCnv::cnv($n,10,4);
+    printf "%14s %10s  %4d  %d,%d\n",
+      $n2, $n4, $n,$x,$y;
+  }
+  exit 0;
 }
 
 {
@@ -190,24 +236,6 @@ use strict;
     return $next_y - $y;
   }
 }
-
-{
-  require Math::PlanePath::AlternatePaper;
-  require Math::BaseCnv;
-  my $path = Math::PlanePath::AlternatePaper->new;
-  for my $x (0 .. 40) {
-    my $y;
-    $y = 0;
-    $y = $x;
-
-    my $n = $path->xy_to_n($x,$y);
-    my $n2 = Math::BaseCnv::cnv($n,10,2);
-    my $n4 = Math::BaseCnv::cnv($n,10,4);
-    printf "%10s %10s  %d %d,%d\n", $n2, $n4, $n,$x,$y;
-  }
-  exit 0;
-}
-
 
 # return 1 for left, 0 for right
 sub path_n_turn {

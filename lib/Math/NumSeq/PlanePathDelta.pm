@@ -36,7 +36,7 @@ use Math::NumSeq::PlanePathCoord;
 *_planepath_name_to_object = \&Math::NumSeq::PlanePathCoord::_planepath_name_to_object;
 
 use vars '$VERSION','@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -1841,7 +1841,7 @@ sub values_max {
 
   use constant _NumSeq_Delta_dSum_min => 0; # advancing diagonals
   use constant _NumSeq_Delta_dSum_max => 1;
-  use constant _NumSeq_Delta_DistSquared_min => 2; # diagonal
+  use constant _NumSeq_Delta_DistSquared_min => 1; # initial points
 
   sub _NumSeq_Delta_Dir4_min {
     my ($self) = @_;
@@ -1852,8 +1852,8 @@ sub values_max {
   sub _NumSeq_Delta_Dir4_max {
     my ($self) = @_;
     return ($self->{'direction'} eq 'down'
-            ? 3.5 # diagonal SE
-            # horizontal N=6to7
+            ? 3.5 # SE diagonal
+            # N=6 to N=7
             : Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 2,-1));
   }
 
@@ -1866,8 +1866,8 @@ sub values_max {
   sub _NumSeq_Delta_TDir6_max {
     my ($self) = @_;
     return ($self->{'direction'} eq 'down'
-            ? 4 # diagonal SE
-            # horizontal N=6to7
+            ? 5 # SE diagonal
+            # N=6 to N=7
             : Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 2,-1));
   }
 }

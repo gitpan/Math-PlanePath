@@ -108,6 +108,8 @@ my @all_classes = ('SquareSpiral',
 
                    'Diagonals',
                    'DiagonalsAlternating',
+                   'DiagonalsOctant',
+                   'DiagonalsOctant,direction=up',
                    'Staircase',
                    'StaircaseAlternating',
                    'StaircaseAlternating,end_type=square',

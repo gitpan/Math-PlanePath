@@ -53,7 +53,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::PlanePath');
 
 
@@ -541,13 +541,13 @@ For example E. H. Moore "On Certain Crinkly Curves",
 
     http://www.ams.org/journals/tran/1900-001-01/S0002-9947-1900-1500526-4/
     http://www.ams.org/tran/1900-001-01/S0002-9947-1900-1500526-4/S0002-9947-1900-1500526-4.pdf
-
-    and errata
+    and
     http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/
     http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/S0002-9947-1900-1500428-3.pdf
 
-The "S" pattern is the same, but turned 45 degrees and line segments on the
-diagonal through the squares, per the ".." lines in the following
+The base "S" pattern is the same, but turned 45 degrees and line segments
+making on the diagonals through the squares, per the ".." lines in the
+following
 
     +--------+--------+--------+        +--------+--------+--------+
     |     .. | ..     |     .. |        |        |        |        |
@@ -565,6 +565,12 @@ diagonal through the squares, per the ".." lines in the following
 
 Rounding off the corners of the diagonal form so they don't touch can help
 show the equivalence,
+
+=cut
+
+# cf Math::PlanePath::PeanoRounded ... when finished
+
+=pod
 
       -----7        /
      /      \      /

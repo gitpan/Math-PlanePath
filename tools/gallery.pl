@@ -45,6 +45,21 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['diagonals-octant-small.png',
+    'math-image --path=DiagonalsOctant --lines --scale=6 --size=32'],
+   ['diagonals-octant-big.png',
+    'math-image --path=DiagonalsOctant --lines --scale=15 --size=195'],
+
+   ['diagonals-alternating-small.png',
+    'math-image --path=DiagonalsAlternating --lines --scale=6 --size=32'],
+   ['diagonals-alternating-big.png',
+    'math-image --path=DiagonalsAlternating --lines --scale=15 --size=195'],
+
+   ['diagonals-small.png',
+    'math-image --path=Diagonals --lines --scale=6 --size=32'],
+   ['diagonals-big.png',
+    'math-image --path=Diagonals --lines --scale=15 --size=195'],
+
    ['terdragon-rounded-small.png',
     'math-image --path=TerdragonRounded --lines --scale=2 --size=32 --offset=-5,-10'],
    ['terdragon-rounded-big.png',
@@ -444,16 +459,6 @@ foreach my $elem
     'math-image --path=HilbertSpiral --lines --scale=3 --size=32'],
    ['hilbert-spiral-big.png',
     'math-image --path=HilbertSpiral --lines --scale=7 --size=230'],
-
-   ['diagonals-alternating-small.png',
-    'math-image --path=DiagonalsAlternating --lines --scale=6 --size=32'],
-   ['diagonals-alternating-big.png',
-    'math-image --path=DiagonalsAlternating --lines --scale=15 --size=200'],
-
-   ['diagonals-small.png',
-    'math-image --path=Diagonals --lines --scale=6 --size=32'],
-   ['diagonals-big.png',
-    'math-image --path=Diagonals --lines --scale=15 --size=200'],
 
    ['corner-small.png',
     'math-image --path=Corner --lines --scale=4 --size=32'],

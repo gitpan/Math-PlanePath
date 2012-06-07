@@ -40,7 +40,7 @@ my @pairs_order_choices = ('rows',
 # VERSION
 
 {
-  my $want_version = 76;
+  my $want_version = 77;
   ok ($Math::PlanePath::GcdRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GcdRationals->VERSION,  $want_version,
@@ -234,6 +234,7 @@ my @pairs_order_choices = ('rows',
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::GcdRationals->parameter_info_list;
+  # ok (join(',',@pnames), 'pairs_order');
   ok (join(',',@pnames), '');
 }
 

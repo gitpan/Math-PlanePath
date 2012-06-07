@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -206,7 +206,8 @@ and the upper right is the maximum N.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::Diagonals>
+L<Math::PlanePath::Diagonals>,
+L<Math::PlanePath::DiagonalsOctant>
 
 =head1 HOME PAGE
 

@@ -43,7 +43,7 @@ use Math::PlanePath;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

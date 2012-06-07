@@ -26,7 +26,7 @@ use Math::NumSeq;
 use Math::NumSeq::PlanePathCoord;
 
 use vars '$VERSION','@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -1126,6 +1126,11 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 { package Math::PlanePath::DiagonalsAlternating;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::DiagonalsOctant;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;

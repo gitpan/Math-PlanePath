@@ -40,7 +40,7 @@ use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
-$VERSION = 76;
+$VERSION = 77;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

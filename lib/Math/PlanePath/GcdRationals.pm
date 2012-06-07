@@ -60,7 +60,7 @@ use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::PlanePath');
 
 
@@ -71,7 +71,7 @@ $VERSION = 76;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 
-# Not quite ready yet
+# Not ready yet.
 # use constant parameter_info_array =>
 #   [ { name        => 'pairs_order',
 #       type        => 'enum',

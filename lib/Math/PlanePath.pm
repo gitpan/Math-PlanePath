@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 76;
+$VERSION = 77;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -352,6 +352,7 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     Columns                fixed-height columns
     Diagonals              diagonals down from the Y to X axes
     DiagonalsAlternating   diagonals Y to X and back again
+    DiagonalsOctant        diagonals from Y axis to X=Y centre
     Staircase              stairs down from the Y to X axes
     StaircaseAlternating   stairs Y to X and back again
     Corner                 expanding stripes around a corner
@@ -696,6 +697,7 @@ more N points than the preceding.
       Step        Path
       ----        ----
         0       Rows, Columns (fixed widths)
+       2/2      DiagonalsOctant (2 rows for +2)
         1       Diagonals
         2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
         4       DiamondSpiral, AztecDiamondRings, Staircase
@@ -1033,6 +1035,7 @@ L<Math::PlanePath::Rows>,
 L<Math::PlanePath::Columns>,
 L<Math::PlanePath::Diagonals>,
 L<Math::PlanePath::DiagonalsAlternating>,
+L<Math::PlanePath::DiagonalsOctant>,
 L<Math::PlanePath::Staircase>,
 L<Math::PlanePath::StaircaseAlternating>,
 L<Math::PlanePath::Corner>

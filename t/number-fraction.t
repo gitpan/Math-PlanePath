@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 295)[1];
+my $test_count = (tests => 299)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -240,6 +240,9 @@ require Math::PlanePath::KochCurve;
 ### Modules ...
 
 my @modules = (
+               'DiagonalsOctant',
+               'DiagonalsOctant,direction=up',
+
                'TerdragonRounded',
                'TerdragonRounded,arms=1',
                'TerdragonRounded,arms=2',

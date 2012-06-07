@@ -42,7 +42,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::PlanePath');
 
 

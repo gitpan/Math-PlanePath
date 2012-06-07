@@ -373,6 +373,11 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'DiagonalsOctant',
+               'DiagonalsOctant,direction=up',
+               'Diagonals',
+               'DiagonalsAlternating',
+
                'MultipleRings,ring_shape=polygon,step=3',
                'MultipleRings,ring_shape=polygon,step=4',
                'MultipleRings,ring_shape=polygon,step=5',
@@ -431,7 +436,6 @@ my @modules = (
                'StaircaseAlternating,end_type=square',
 
                'Corner',
-               'Diagonals',
                'PyramidRows',
                'PyramidRows,step=0',
                'PyramidRows,step=1',
@@ -695,7 +699,6 @@ my @modules = (
                'HilbertSpiral',
                'HilbertCurve',
 
-               'DiagonalsAlternating',
                'MPeaks',
                'WunderlichMeander',
                'FibonacciWordFractal',

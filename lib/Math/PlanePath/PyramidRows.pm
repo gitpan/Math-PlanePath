@@ -27,7 +27,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::PlanePath');
 
 
@@ -508,6 +508,7 @@ L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::MultipleRings>
 
 L<Math::PlanePath::Diagonals>,
+L<Math::PlanePath::DiagonalsOctant>,
 L<Math::PlanePath::Rows>
 
 =head1 HOME PAGE

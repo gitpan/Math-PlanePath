@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 1062 }
+BEGIN { plan tests => 1071 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,11 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'DiagonalsOctant',
+               'DiagonalsOctant,direction=up',
+               'DiagonalsAlternating',
+               'Diagonals',
 
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
@@ -211,7 +216,6 @@ my @modules = (
                'LTiling',
                'LTiling,L_fill=ends',
                'LTiling,L_fill=all',
-               'DiagonalsAlternating',
                'MPeaks',
                'WunderlichMeander',
                'FibonacciWordFractal',
@@ -267,7 +271,6 @@ my @modules = (
                'TriangleSpiralSkewed',
 
                'Corner',
-               'Diagonals',
                'PyramidRows',
                'PyramidRows,step=0',
                'PyramidRows,step=1',
@@ -379,7 +382,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 76;
+my $want_version = 77;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -454,6 +457,7 @@ my %rect_exact = (
                   'Math::PlanePath::Rows' => 1,
                   'Math::PlanePath::Columns' => 1,
                   'Math::PlanePath::Diagonals' => 1,
+                  'Math::PlanePath::DiagonalsOctant' => 1,
                   'Math::PlanePath::Staircase' => 1,
                   'Math::PlanePath::StaircaseAlternating' => 1,
                   'Math::PlanePath::PyramidRows' => 1,
@@ -1097,9 +1101,9 @@ sub pythagorean_diag {
                   my ($got_min, $got_max)
                     = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
                   defined $got_min
-                    or &$report ("rect_to_n_range() got_min undef");
+                    or &$report ("rect_to_n_range($x1,$y1, $x2,$y2) got_min undef");
                   defined $got_max
-                    or &$report ("rect_to_n_range() got_max undef");
+                    or &$report ("rect_to_n_range($x1,$y1, $x2,$y2) got_max undef");
                   $got_min >= $n_start
                     or $rect_before_n_start{$class}
                       or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
@@ -1124,13 +1128,13 @@ sub pythagorean_diag {
                     ### $got_max
                     ### @col
                     ### $data
-                    &$report ("rect_to_n_range() bad min $x1,$y1 $x2,$y2 got_min=$got_min want_min=$want_min".(defined $min ? '' : '[nomin]')
+                    &$report ("rect_to_n_range($x1,$y1, $x2,$y2) bad min  got_min=$got_min want_min=$want_min".(defined $min ? '' : '[nomin]')
                              );
                   }
                   unless ($rect_exact_hi{$class}
                           ? $got_max == $want_max
                           : $got_max >= $want_max) {
-                    &$report ("rect_to_n_range() bad max $x1,$y1 $x2,$y2 got $got_max want $want_max".(defined $max ? '' : '[nomax]'));
+                    &$report ("rect_to_n_range($x1,$y1, $x2,$y2 ) bad max got $got_max want $want_max".(defined $max ? '' : '[nomax]'));
                   }
                 }
               }

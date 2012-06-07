@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -171,12 +171,12 @@ sub rect_to_n_range {
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
 
-  #       x2  |   /
-  #  -----+   |  /
-  #       |   | / +----
-  #  -----+   +   |x1,y2
+  #       x2  |  /
+  #  -----+   | /
+  #       |   |/ +----
+  #  -----+   +  |x1,y2
   #
-  if ($x2 < 0 || $x1 > $y2) {
+  if ($x2 < 0 || $y2 < 0 || $x1 > $y2) {
     ### outside upper octant, no range ...
     return (1, 0);
   }
@@ -219,7 +219,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::DiagonalsOctant -- points in diagonal stripes
+Math::PlanePath::DiagonalsOctant -- points in diagonal stripes for an eighth of the plane
 
 =head1 SYNOPSIS
 
@@ -229,12 +229,12 @@ Math::PlanePath::DiagonalsOctant -- points in diagonal stripes
 
 =head1 DESCRIPTION
 
-This path follows successive diagonals going from the Y axis down to the X=Y
-line to traverse an eighth of the plane.
+This path follows successive diagonals downwards from the Y axis down to the
+X=Y centre line, traversing the eighth of the plane on and above X=Y.
 
 =cut
 
-# math-image --path=DiagonalsOctant --expression='i<39?i:0'  --all --output=numbers
+# math-image --path=DiagonalsOctant --all --output=numbers
 
 =pod
 
@@ -259,7 +259,17 @@ line to traverse an eighth of the plane.
         X=0  1  2  3  4  5  6  7  8
 
 N=1,4,9,16,etc on the X=Y leading diagonal are the perfect squares.
-N=2,6,12,20,etc to the left of them are the pronic numbers k*(k+1)
+N=2,6,12,20,etc at the ends of the other diagonals are the pronic numbers
+k*(k+1).
+
+=head2 Pyramid Rows
+
+Taking two diagonals running from k^2+1 to (k+1)^2 is the same as a row of
+the step=2 PyramidRows (see L<Math::PlanePath::PyramidRows>).  Each endpoint
+is the same, but here it's two diagonals instead of one row.  For example in
+the PyramidRows the Y=3 row runs from N=10 to N=16 ending at X=3,Y=3.  Here
+that's in two diagonals N=10 to N=12 and then N=13 to N=16, and that N=16
+endpoint is the same X=3,Y=3.
 
 =head2 Direction
 
@@ -292,8 +302,9 @@ counts upward from the centre to the Y axis.
       +---------------------------
         X=0  1  2  3  4  5  6  7  8
 
-In this arrangement N=1,2,4,6,9,etc on the Y axis are the squares and pronic
-numbers.  The squares are on even Y and pronic on odd Y.
+In this arrangement N=1,2,4,6,9,etc on the Y axis are alternately the
+squares and the pronic numbers.  The squares are on even Y and pronic on
+odd Y.
 
 =head1 FUNCTIONS
 
@@ -393,37 +404,41 @@ Nstart=d*(d+1).
 
 Within each row increasing X is increasing N, and in each column increasing
 Y is increasing N.  This is so in both "down" and "up" arrangements.  On
-that basis for a rectangle the lower left corner is the minimum N and the
+that basis in a rectangle the lower left corner is the minimum N and the
 upper right is the maximum N.
 
 If the rectangle is partly outside the covered octant then the corners must
-be shifted to put them in range.
+be shifted to put them in range, ie. trim off any rows or columns entirely
+outside the rectangle.  For the lower left this means,
 
-        |    /
-      +---- /
-      | |  /        if x1 < 0 then x1 = 0
-      +---/         increase x1 to within octant
-    x1  |/
-        +      
+      |  |    /
+      |  |   /
+      +--------          if x1 < 0 then x1 = 0
+    x1   | /             increase x1 to within octant
+         |/
+         +      
 
-        |  |/
-        |  |          if y1 < x1 then y1 = x1
-        | /|          increase y1 to bottom-left within octant  
-        |/ +----y1 
-        +  x1
+         |  |/
+         |  |            if y1 < x1 then y1 = x1
+         | /|            increase y1 to bottom-left within octant  
+         |/ +----y1 
+         +  x1
 
-        |    /  x2  
-        | ------+ y2    if x2 > y2 then x2 = y2
-        |  /    |       decrease x2 so top-right within octant
-        | /     |        (the end of the y2 row)
-        |/
-        +
+And for the top right,
+
+         |    /  x2  
+         | ------+ y2    if x2 > y2 then x2 = y2
+         |  /    |       decrease x2 so top-right within octant
+         | /     |         (the end of the y2 row)
+         |/
+         +
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::Diagonals>,
-L<Math::PlanePath::DiagonalsAlternating>
+L<Math::PlanePath::DiagonalsAlternating>,
+L<Math::PlanePath::PyramidRows>
 
 =head1 HOME PAGE
 

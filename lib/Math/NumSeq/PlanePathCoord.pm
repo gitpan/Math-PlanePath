@@ -24,7 +24,7 @@ use constant 1.02; # various underscore constants below
 use Math::NumSeq;
 
 use vars '$VERSION','@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -1513,6 +1513,11 @@ sub values_max {
   use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
 }
 { package Math::PlanePath::DiagonalsAlternating;
+  use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
+  use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
+}
+{ package Math::PlanePath::DiagonalsOctant;
+  use constant _NumSeq_Coord_DiffXY_max => 0; # octant X<=Y so X-Y<=0
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
   use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
 }

@@ -34,7 +34,7 @@ use Math::PlanePath::KochCurve 42;
 *_digit_join_htol = \&Math::PlanePath::KochCurve::_digit_join_htol;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::PlanePath');
 
 

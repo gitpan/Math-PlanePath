@@ -40,7 +40,7 @@ use Math::PlanePath;
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::CoprimeColumns;

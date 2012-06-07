@@ -38,7 +38,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION','@ISA';
-$VERSION = 76;
+$VERSION = 77;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -877,6 +877,10 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::Diagonals;
 # }
 # { package Math::PlanePath::DiagonalsAlternating;
+# }
+# { package Math::PlanePath::DiagonalsOctant;
+#   # down is left or straight, but also right at N=2,3,4
+#   # up is straight or right, but also left at N=2,3,4
 # }
 # { package Math::PlanePath::Staircase;
 # }
