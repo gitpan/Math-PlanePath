@@ -19,11 +19,29 @@
 
 use 5.004;
 use strict;
+use List::Util 'min', 'max';
+use constant PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 
+{
+  # sum/sqrt(n) goes below pi/4
+ print "pi/4 ",PI/4,"\n";
+  require Math::PlanePath::AlternatePaper;
+  my $path = Math::PlanePath::AlternatePaper->new;
+  my $min = 999;
+  for my $n (1 .. 102400) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $sum = $x+$y;
+    my $frac = $sum/sqrt($n);
+#    printf "%10s %.4f\n", "$n,$x,$y", $frac;
+    $min = min($min,$frac);
+  }
+  print "min  $min\n";
+  exit 0;
+}
 
 {
   # repeat points

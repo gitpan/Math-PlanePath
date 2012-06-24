@@ -37,12 +37,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -100,8 +101,8 @@ sub n_to_xy {
   }
 
   # low to high
-  my $x = my $y = ($n % 2);
-  $n = int($n/2);
+  ($n, my $x) = _divrem($n,2);
+  my $y = $x;
   my $power = ($n * 0) + 2;  # inherit BigInt 2
   my $radix = $self->{'radix'};
 
@@ -177,10 +178,8 @@ sub xy_to_n {
     return $y;
   }
 
-  my $xlow = $x % 2;
-  my $ylow = $y % 2;
-  $x = int($x/2);
-  $y = int($y/2);
+  ($x, my $xlow) = _divrem ($x, 2);
+  ($y, my $ylow) = _divrem ($y, 2);
 
   my $radix = $self->{'radix'};
   my $radix_minus_1 = $radix - 1;
@@ -414,28 +413,30 @@ same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 
 =pod
 
-      9  |     41-42       45-46       49-...
-         |    /     \     /     \     /
-      8  |  40       43-44       47-48
-         |   |                                radix=5
-      7  |  39       36-35       32-31
-         |    \     /     \     /     \
-      6  |     38-37       34-33       30
-         |                              |
-      5  |     21-22       25-26       29
-         |    /     \     /     \     /
-      4  |  20       23-24       27-28
-         |   |
-      3  |  19       16-15       12-11
-         |    \     /     \     /     \
-      2  |     18-17       14-13       10
-         |                              |
-      1  |      1--2        5--6        9
-         |    /     \     /     \     /
-     Y=0 |   0        3--4        7--8
-         |
-         +---------------------------------
-           X=0  1  2  3  4  5  6  7  8  9
+    radix => 5
+
+     9  |     41-42       45-46       49-...
+        |    /     \     /     \     /
+     8  |  40       43-44       47-48
+        |   |                                radix=5
+     7  |  39       36-35       32-31
+        |    \     /     \     /     \
+     6  |     38-37       34-33       30
+        |                              |
+     5  |     21-22       25-26       29
+        |    /     \     /     \     /
+     4  |  20       23-24       27-28
+        |   |
+     3  |  19       16-15       12-11
+        |    \     /     \     /     \
+     2  |     18-17       14-13       10
+        |                              |
+     1  |      1--2        5--6        9
+        |    /     \     /     \     /
+    Y=0 |   0        3--4        7--8
+        |
+        +---------------------------------
+          X=0  1  2  3  4  5  6  7  8  9
 
 If the radix is even then the ends of each group don't join up.  For example
 in radix 4 N=31 isn't next to N=32.

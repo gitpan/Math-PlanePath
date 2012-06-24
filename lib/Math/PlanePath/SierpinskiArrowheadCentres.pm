@@ -23,6 +23,7 @@ use strict;
 use Math::PlanePath 37; # v.37 for _round_nearest()
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -31,7 +32,7 @@ use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -67,7 +68,7 @@ sub n_to_xy {
       return ($frac + $x,
               $frac + $y);
     }
-    my $digit = ($n % 3);
+    ($n, my $digit) = _divrem ($n, 3);
 
     ### odd right: "$x, $y  len=$len  frac=$frac"
     ### $digit
@@ -86,13 +87,12 @@ sub n_to_xy {
                  ($x-$y)/2    + 2*$len-1);
     }
 
-    unless ($n = int($n/3)) {
+    unless ($n) {
       return (-$frac + $x,
               $frac + $y);
     }
     $len *= 2;
-    $digit = ($n % 3);
-    $n = int($n/3);
+    ($n, $digit) = _divrem ($n, 3);
 
     ### odd left: "$x, $y  len=$len  frac=$frac"
     ### $digit
@@ -230,10 +230,9 @@ Math::PlanePath::SierpinskiArrowheadCentres -- self-similar triangular path trav
 
 =head1 DESCRIPTION
 
-X<Sierpinski, Waclaw>
-This is a version of the Sierpinski arrowhead path taking the centres of
-each triangle represented by the arrowhead segments.  The effect is to
-traverse the Sierpinski triangle.
+X<Sierpinski, Waclaw>This is a version of the Sierpinski arrowhead path
+taking the centres of each triangle represented by the arrowhead segments.
+The effect is to traverse the Sierpinski triangle.
 
               ...                                 ...
                /                                   /

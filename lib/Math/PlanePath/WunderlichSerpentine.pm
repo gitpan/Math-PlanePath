@@ -41,12 +41,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -178,8 +179,7 @@ sub n_to_xy {
   my $xk = my $yk = 0;
   while (@digits) {
     my $ndigit = pop @digits;      # high to low
-    my $lowdigit = $ndigit % $radix;
-    my $highdigit = int ($ndigit / $radix);
+    my ($highdigit, $lowdigit) = _divrem ($ndigit, $radix);
 
     ### $lowdigit
     ### $highdigit
@@ -269,24 +269,22 @@ sub xy_to_n {
   my $radix = $self->{'radix'};
   my $radix_minus_1 = $radix - 1;
 
-  my @xdigits;
-  my @ydigits;
-  while ($x || $y) {
-    push @xdigits, $x % $radix; $x = int($x/$radix);
-    push @ydigits, $y % $radix; $y = int($y/$radix);
-  }
+  my @xdigits = _digit_split_lowtohigh($x,$radix);
+  my @ydigits = _digit_split_lowtohigh($y,$radix);
   ### @xdigits
   ### @ydigits
 
   my $serpentine_array = $self->{'serpentine_array'};
   my $xk = 0;
   my $yk = 0;
-  my $transpose = $serpentine_array->[0] && ($#xdigits & 1);
+  my $highpos = max($#xdigits,$#ydigits);
+  my $transpose = $serpentine_array->[0] && ($highpos & 1);
 
-  my $n = 0;
-  while (@xdigits) {
-    my $xdigit = pop @xdigits;
-    my $ydigit = pop @ydigits;
+  my $n = ($x * 0 * $y);  # inherit bignum 0
+
+  foreach my $i (reverse 0 .. $highpos) {  # high to low
+    my $xdigit = $xdigits[$i] || 0;
+    my $ydigit = $ydigits[$i] || 0;
     my $ndigit;
 
     ### $n
@@ -298,22 +296,26 @@ sub xy_to_n {
 
     if ($transpose) {
       if ($xk & 1) { $xdigit = $radix_minus_1 - $xdigit; }
-      $n = ($n * $radix) + $xdigit;
+      $n *= $radix;
+      $n += $xdigit;
       $yk ^= $xdigit;
 
       if ($yk & 1) { $ydigit = $radix_minus_1 - $ydigit; }
-      $n = ($n * $radix) + $ydigit;
+      $n *= $radix;
+      $n += $ydigit;
       $xk ^= $ydigit;
 
       $ndigit = $radix*$xdigit + $ydigit;
 
     } else {
       if ($yk & 1) { $ydigit = $radix_minus_1 - $ydigit; }
-      $n = ($n * $radix) + $ydigit;
+      $n *= $radix;
+      $n += $ydigit;
       $xk ^= $ydigit;
 
       if ($xk & 1) { $xdigit = $radix_minus_1 - $xdigit; }
-      $n = ($n * $radix) + $xdigit;
+      $n *= $radix;
+      $n += $xdigit;
       $yk ^= $xdigit;
 
       $ndigit = $radix*$ydigit + $xdigit;
@@ -551,11 +553,10 @@ Math::PlanePath::WunderlichSerpentine -- transpose parts of PeanoCurve, includin
 
 =head1 DESCRIPTION
 
-X<Wunderlich, Walter>
-This is an integer version of Walter Wunderlich's variations on the
-PeanoCurve.  A "serpentine type" controls transposing of selected 3x3
-sub-parts.  The default is "alternating" 010,101,010 which transposes every
-second sub-part,
+X<Wunderlich, Walter>This is an integer version of Walter Wunderlich's
+variations on the PeanoCurve.  A "serpentine type" controls transposing of
+selected 3x3 sub-parts.  The default is "alternating" 010,101,010 which
+transposes every second sub-part,
 
        8  | 60--61--62--63  68--69  78--79--80--81
           |  |           |   |   |   |           |
@@ -635,7 +636,9 @@ the right, and so on.
 
 The optional C<radix> parameter gives the size of the sub-parts, similar to
 the PeanoCurve C<radix> parameter (see
-L<Math::PlanePath::PeanoCurve/Radix>).  For example C<radix =E<gt> 5> gives
+L<Math::PlanePath::PeanoCurve/Radix>).  For example radix 5 gives
+
+     radix => 5
 
      4  | 20-21-22-23-24-25 34-35 44-45 70-71-72-73-74-75 84-85
         |  |              |  |  |  |  |  |              |  |  |

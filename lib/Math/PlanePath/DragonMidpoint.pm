@@ -40,12 +40,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -121,12 +122,10 @@ sub n_to_xy {
     $frac = $n - $int;  # inherit possible BigFloat
     $n = $int;          # BigFloat int() gives BigInt, use that
   }
-
   my $zero = ($n * 0);  # inherit bignum 0
 
-  my $arms = $self->{'arms'};
-  my $rot = $n % $arms;
-  $n = int($n/$arms);
+  # arm as initial rotation
+  ($n, my $rot) = _divrem ($n, $self->{'arms'});
 
   ### $arms
   ### rot from arm: $rot

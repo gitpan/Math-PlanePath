@@ -26,9 +26,12 @@ use Math::Polynomial::Horner;
 
 #use Devel::Comments;
 
-my_interpolate ([ 1, 2,    3,    4,     5 ],
-                [ 2-.5, 5-.5, 10-.5, 17-.5, 26-.5 ]
+my_interpolate ([   3,5,7,9,11 ],
+                [   1,4,9,16,25         ]
                );
+# my_interpolate ([   4, 6, 8, 10 ],
+#                 [   2, 6, 12, 20         ]
+#                );
 exit 0;
 
 

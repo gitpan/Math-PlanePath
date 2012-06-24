@@ -36,7 +36,6 @@ use Math::PlanePath::ZOrderCurve;
 
 
 my $peano  = Math::PlanePath::PeanoCurve->new;
-my $diagonal = Math::PlanePath::Diagonals->new;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -170,8 +169,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     foreach my $x (0 .. $#$bvalues) {
-      my $n = $peano->xy_to_n ($x, 0);
-      push @got, $n;
+      push @got, $peano->xy_to_n($x,0);
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
@@ -191,8 +189,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     foreach my $y (0 .. $#$bvalues) {
-      my $n = $peano->xy_to_n (0, $y);
-      push @got, $n;
+      push @got, $peano->xy_to_n(0,$y);
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
@@ -212,12 +209,10 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $peano->xy_to_n ($x, $y);
-      ### diagonals same: "$x,$y is $n"
-      push @got, $n;
+      push @got, $peano->xy_to_n ($x, $y);
     }
   } else {
     MyTestHelpers::diag ("$anum not available");
@@ -233,11 +228,10 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $peano->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $diagonal->xy_to_n ($x, $y);
-      push @got, $n - 1;
+      push @got, $diagonal->xy_to_n($x,$y) - 1;
     }
   } else {
     MyTestHelpers::diag ("$anum not available");
@@ -254,10 +248,10 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      my $n = $peano->xy_to_n ($x, $y);
-      push @got, $n;
+      push @got, $peano->xy_to_n ($x, $y);
     }
   } else {
     MyTestHelpers::diag ("$anum not available");
@@ -273,10 +267,10 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $peano->n_to_xy ($n);
-      my $n = $diagonal->xy_to_n ($x, $y);
-      push @got, $n - 1;
+      push @got, $diagonal->xy_to_n($x,$y) - 1;
     }
   } else {
     MyTestHelpers::diag ("$anum not available");
@@ -293,9 +287,9 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      ($x, $y) = ($y, $x);   # transpose for same side
       push @got, $peano->xy_to_n ($x, $y) + 1;
     }
   } else {
@@ -312,13 +306,11 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $peano->n_to_xy ($n);
-      ($x, $y) = ($y, $x);   # transpose for same side
       push @got, $diagonal->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -332,13 +324,11 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      my $n = $peano->xy_to_n ($x, $y) + 1;
-      push @got, $n;
+      push @got, $peano->xy_to_n($x,$y) + 1;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -351,13 +341,11 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $peano->n_to_xy ($n);
-      my $n = $diagonal->xy_to_n ($x, $y);
-      push @got, $n;
+      push @got, $diagonal->xy_to_n($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -418,8 +406,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     foreach my $x (0 .. $#$bvalues) {
-      my $n = $peano->xy_to_n ($x, $x);
-      push @got, $n;
+      push @got, $peano->xy_to_n($x,$x);
     }
   } else {
     MyTestHelpers::diag ("$anum not available");
@@ -436,8 +423,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     foreach my $x (0 .. $#$bvalues) {
-      my $n = $peano->xy_to_n ($x, $x);
-      push @got, int($n/4);
+      push @got, int($peano->xy_to_n($x,$x) / 4);
     }
   } else {
     MyTestHelpers::diag ("$anum not available");

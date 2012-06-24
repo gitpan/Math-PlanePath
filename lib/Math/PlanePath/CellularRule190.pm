@@ -32,7 +32,7 @@ use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -277,8 +277,8 @@ Math::PlanePath::CellularRule190 -- cellular automaton 190 and 246 points
 
 =head1 DESCRIPTION
 
-X<Wolfram, Stephen>
-This is the pattern of Stephen Wolfram's "rule 190" cellular automaton
+X<Wolfram, Stephen>This is the pattern of Stephen Wolfram's "rule 190"
+cellular automaton
 
     http://mathworld.wolfram.com/Rule190.html
 

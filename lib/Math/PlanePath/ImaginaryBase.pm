@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -332,8 +332,10 @@ the left, 4x4 to the right, etc, and similarly vertically.
 =head2 Radix
 
 The C<radix> parameter controls the "r" used to break N into X,Y.  For
-example C<radix =E<gt> 3> gives 3x3 blocks, with r-1 copies of the preceding
-level at each stage,
+example radix 3 gives 3x3 blocks, with r-1 copies of the preceding level at
+each stage,
+
+    radix => 3
 
     24  25  26  15  16  17   6   7   8      2
     21  22  23  12  13  14   3   4   5      1

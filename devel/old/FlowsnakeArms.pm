@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -41,12 +41,13 @@ use Math::PlanePath::Flowsnake;
 use constant n_start => 0;
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
+
   my $arms = $self->{'arms'};
   if (! defined $arms || $arms <= 0) { $arms = 1; }
   elsif ($arms > 3) { $arms = 3; }
   $self->{'arms'} = $arms;
+
   return $self;
 }
 

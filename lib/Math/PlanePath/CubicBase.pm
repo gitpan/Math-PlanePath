@@ -37,7 +37,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -412,8 +412,8 @@ based on i=squareroot(-1), here it's 3 directions based on w=cuberoot(1) =
 =head2 Radix
 
 The C<radix> parameter controls the "r" used to break N into X,Y.  For
-example C<radix =E<gt> 4> gives 4x4 blocks, with r-1 replications of the
-preceding level at each stage.
+example radix 4 gives 4x4 blocks, with r-1 replications of the preceding
+level at each stage.
 
 =cut
 
@@ -421,7 +421,7 @@ preceding level at each stage.
 
 =pod
 
-       3                                 12    13    14    15
+       3         radix => 4              12    13    14    15
        2                                     8     9    10    11
        1                                        4     5     6     7
      Y=0 ->                                        0     1     2     3

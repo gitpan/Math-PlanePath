@@ -45,6 +45,43 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['rationals-tree-small.png',
+    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
+   ['rationals-tree-big.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=200'],
+   ['rationals-tree-lines-drib.png',
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-sb.png',
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-cw.png',
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-ayt.png',
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-bird.png',
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
+
+
+   ['power-array-small.png',
+    'math-image --path=PowerArray --lines --scale=8 --size=32'],
+   ['power-array-big.png',
+    'math-image --path=PowerArray --lines --scale=16 --size=200'],
+   ['power-array-radix5-big.png',
+    'math-image --path=PowerArray,radix=5 --lines --scale=16 --size=200'],
+
+   ['wythoff-array-small.png',
+    'math-image --path=WythoffArray --lines --scale=8 --size=32'],
+   ['wythoff-array-big.png',
+    'math-image --path=WythoffArray --lines --scale=16 --size=200'],
+
+   ['gcd-rationals-small.png',
+    'math-image --path=GcdRationals --lines --scale=6 --size=32 --offset=-4,-4'],
+   ['gcd-rationals-big.png',
+    'math-image --path=GcdRationals --lines --scale=15 --size=200'],
+   ['gcd-rationals-reverse-big.png',
+    'math-image --path=GcdRationals,pairs_order=rows_reverse --lines --scale=15 --size=200'],
+   ['gcd-rationals-diagonals-big.png',
+    "math-image --path=GcdRationals,pairs_order=diagonals_down --expression='i<=@{[47**2]}?i:0' --scale=2 --size=160x200"],
+
    ['diagonals-octant-small.png',
     'math-image --path=DiagonalsOctant --lines --scale=6 --size=32'],
    ['diagonals-octant-big.png',
@@ -142,22 +179,6 @@ foreach my $elem
     'math-image --path=PeanoCurve --lines --scale=7 --size=192'],
    ['peano-radix7-big.png',
     'math-image --path=PeanoCurve,radix=7 --values=Lines --scale=5 --size=192'],
-
-
-   ['rationals-tree-small.png',
-    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
-   ['rationals-tree-big.png',
-    'math-image --path=RationalsTree --all --scale=3 --size=200'],
-   ['rationals-tree-lines-drib.png',
-    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-sb.png',
-    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-cw.png',
-    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-ayt.png',
-    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-bird.png',
-    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
 
 
    ['gray-code-small.png',
@@ -411,12 +432,6 @@ foreach my $elem
     'math-image --path=FactorRationals --lines --scale=6 --size=32 --offset=-4,-4'],
    ['factor-rationals-big.png',
     'math-image --path=FactorRationals --lines --scale=15 --size=200'],
-
-   ['gcd-rationals-small.png',
-    'math-image --path=GcdRationals --lines --scale=6 --size=32 --offset=-4,-4'],
-   ['gcd-rationals-big.png',
-    'math-image --path=GcdRationals --lines --scale=15 --size=200'],
-
 
    ['ar2w2-small.png',
     'math-image --path=AR2W2Curve --lines --scale=4 --size=32'],
@@ -749,7 +764,7 @@ foreach my $elem
   }
   system('pngtextadd','--keyword=Author','--text=Kevin Ryde',$tempfile) == 0
     or die "system(pngtextadd)";
-  system('pngtextadd','--keyword=Generator','--text=gallery.pl and math-image',$tempfile) == 0
+  system('pngtextadd','--keyword=Generator','--text=Math-PlanePath tools/gallery.pl running math-image',$tempfile) == 0
     or die "system(pngtextadd)";
 
   $command =~ /--path=([^ ]+)/ or die "Oops no --path in command: $command";

@@ -38,7 +38,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION','@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -987,6 +987,10 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::FibonacciWordFractal;
 # }
 # { package Math::PlanePath::LTiling;
+# }
+# { package Math::PlanePath::WythoffArray;
+# }
+# { package Math::PlanePath::PowerArray;
 # }
 
 1;

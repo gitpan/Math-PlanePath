@@ -63,30 +63,36 @@ diag "module count ",scalar(@module_filenames);
 
 my %allow_duplicate_xrefs
   = (
+     A007814 => {'lib/Math/PlanePath/CCurve.pm' => 1,
+                 'lib/Math/PlanePath/PowerArray.pm' => 1 },
+
+     A003849 => {'lib/Math/PlanePath/FibonacciWordFractal.pm' => 1,
+                 'lib/Math/PlanePath/WythoffArray.pm' => 1 },
+
      A001844 => {'lib/Math/PlanePath/AztecDiamondRings.pm' => 1,
                  'lib/Math/PlanePath/MultipleRings.pm' => 1 },
-
+     
      A016754 => { 'lib/Math/PlanePath/MultipleRings.pm' => 1,
                   'lib/Math/PlanePath/SquareSpiral.pm' => 1 },
-
-
+     
+     
      A196199 => { 'lib/Math/PlanePath/Corner.pm' => 1,
                   'lib/Math/PlanePath/PyramidRows.pm' => 1,
                   'lib/Math/PlanePath/PyramidSides.pm' => 1 },
-
+     
      A059906 => { 'lib/Math/PlanePath/CornerReplicate.pm' => 1,
                   'lib/Math/PlanePath/ZOrderCurve.pm' => 1 },
-
+     
      A003159 => { 'lib/Math/PlanePath/CCurve.pm' => 1,
                   'lib/Math/PlanePath/KochCurve.pm' => 1 },
      A036554 => { 'lib/Math/PlanePath/CCurve.pm' => 1,
                   'lib/Math/PlanePath/KochCurve.pm' => 1 },
-
-
+     
+     
      A053615 => { 'lib/Math/PlanePath/SquareSpiral.pm' => 1,
                   'lib/Math/PlanePath/PyramidSpiral.pm' => 1,
                 },
-
+     
      A020650 => { 'lib/Math/PlanePath/FractionsTree.pm' => 1,
                   'lib/Math/PlanePath/RationalsTree.pm' => 1,
                 },
@@ -96,7 +102,7 @@ my %allow_duplicate_xrefs
      A086592 => { 'lib/Math/PlanePath/FractionsTree.pm' => 1,
                   'lib/Math/PlanePath/RationalsTree.pm' => 1,
                 },
-
+     
      A054424 => { 'lib/Math/PlanePath/DiagonalRationals.pm' => 1,
                   'lib/Math/PlanePath/RationalsTree.pm' => 1,
                 },
@@ -106,33 +112,38 @@ my %allow_duplicate_xrefs
      A054426 => { 'lib/Math/PlanePath/DiagonalRationals.pm' => 1,
                   'lib/Math/PlanePath/RationalsTree.pm' => 1,
                 },
-
+     
      # permutation coprime <-> SB
      A054427 => { 'lib/Math/PlanePath/CoprimeColumns.pm' => 1,
                   'lib/Math/PlanePath/RationalsTree.pm'  => 1,
                 },
-
+     
      # base 4 digits 0,1
      A000695 => {'lib/Math/PlanePath/CornerReplicate.pm'  => 1,
                  'lib/Math/PlanePath/HilbertCurve.pm'     => 1,
                  'lib/Math/PlanePath/ZOrderCurve.pm'      => 1,
+                 'lib/Math/PlanePath/AlternatePaper.pm'   => 1,
                 },
      # base 4 digits 0,2
      A062880 => { 'lib/Math/PlanePath/CornerReplicate.pm' => 1,
                   'lib/Math/PlanePath/HilbertCurve.pm'    => 1,
                   'lib/Math/PlanePath/ZOrderCurve.pm'     => 1,
+                  'lib/Math/PlanePath/AlternatePaper.pm'  => 1,
                 },
      # base 4 digits 0,3
      A001196 => { 'lib/Math/PlanePath/CornerReplicate.pm' => 1,
                   'lib/Math/PlanePath/ZOrderCurve.pm'     => 1,
                 },
+     
+     A055086 => { 'lib/Math/PlanePath/DiagonalsOctant.pm' => 1 },
+     A002620 => { 'lib/Math/PlanePath/DiagonalsOctant.pm' => 1 },
     );
 
 my %oeis_xrefs;
 
 foreach my $module_filename (@module_filenames) {
   my $content = File::Slurp::read_file($module_filename, err_mode => 'croak');
-
+  
   while ($content =~ /^ +((A\d{6,7} )+)/mg) {
     foreach my $anum (split / +/, $1) {
       if (exists $oeis_xrefs{$anum}) {
@@ -157,22 +168,28 @@ diag "xt count ",scalar(@xt_filenames);
 
 my %allow_duplicate_checks
   = (
+     A007814 => {'CCurve-oeis.t' => 1,
+                 'PowerArray-oeis.t' => 1 },
+
+     A003849 => {'FibonacciWordFractal-oeis.t' => 1,
+                 'WythoffArray-oeis.t' => 1 },
+
      A196199 => { 'Corner-oeis.t' => 1,
                   'PyramidRows-oeis.t' => 1,
                   'PyramidSides-oeis.t' => 1 },
-
+     
      A059906 => { 'CornerReplicate-oeis.t' => 1,
                   'ZOrderCurve-oeis.t' => 1 },
-
+     
      A003159 => { 'CCurve-oeis.t' => 1,
                   'KochCurve-oeis.t' => 1 },
      A036554 => { 'CCurve-oeis.t' => 1,
                   'KochCurve-oeis.t' => 1 },
-
+     
      A053615 => { 'SquareSpiral-oeis.t' => 1,
                   'PyramidSpiral-oeis.t' => 1,
                 },
-
+     
      A020650 => { 'FractionsTree-oeis.t' => 1,
                   'RationalsTree-oeis.t' => 1,
                 },
@@ -182,7 +199,7 @@ my %allow_duplicate_checks
      A086592 => { 'FractionsTree-oeis.t' => 1,
                   'RationalsTree-oeis.t' => 1,
                 },
-
+     
      # base 4 digits 0,1
      A000695 => { 'CornerReplicate-oeis.t' => 1,
                   'ZOrderCurve-oeis.t'     => 1,
@@ -196,9 +213,9 @@ my %allow_duplicate_checks
      A001196 => { 'CornerReplicate-oeis.t' => 1,
                   'ZOrderCurve-oeis.t'     => 1,
                 },
-
-
-
+     
+     
+     
      A060032 => { 'GosperSide-oeis.t' => 1,
                   'TerdragonCurve-oeis.t' => 1,
                 },
@@ -235,7 +252,7 @@ my %oeis_checks = (# in PlanePathN
                    A051022 => 'ZOrderCurve-oeis.t',
                    A037314 => 'ZOrderCurve-oeis.t',
                    A084471 => 'DigitGroups-oeis.t',
-
+                   
                    # TODO: centred polygonals
                    A003154 => 'MultipleRings-oeis.t',
                    A069133 => 'MultipleRings-oeis.t',
@@ -258,7 +275,7 @@ my %oeis_checks = (# in PlanePathN
 foreach my $xt_filename (@xt_filenames) {
   my $content = File::Slurp::read_file($xt_filename, err_mode => 'croak');
   my (undef,undef,$xt_base_filename) = File::Spec->splitpath($xt_filename);
-
+  
   while ($content =~ /^[^#]*\$anum = '(A\d{6,7})'/mg) {
     my $anum = $1;
     if (exists $oeis_checks{$anum}) {

@@ -45,6 +45,7 @@ use strict;
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -52,7 +53,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::DragonMidpoint;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -103,13 +104,10 @@ sub n_to_xy {
     $frac = $n - $int;  # inherit possible BigFloat
     $n = $int;          # BigFloat int() gives BigInt, use that
   }
-
   my $zero = ($n * 0);  # inherit bignum 0
 
-  # initial rotation from arm number $n mod $arms
-  my $arms = $self->{'arms'};
-  my $rot = $n % $arms;
-  $n = int($n/$arms);
+  # arm as initial rotation
+  ($n, my $rot) = _divrem ($n, $self->{'arms'});
 
   my @digits = Math::PlanePath::_digit_split_lowtohigh($n,2);
   ### @digits
@@ -871,10 +869,9 @@ or 1s,
 
     1 00 1   three blocks of 0s and 1s
 
-X<Arndt, Jorg>
-This can be calculated by some bit twiddling with a shift and xor to turn
-transitions into 1 bits which can then be counted, as noted by Jorg Arndt
-(fxtbook section 1.31.3.1 "The Dragon Curve").
+X<Arndt, Jorg>This can be calculated by some bit twiddling with a shift and
+xor to turn transitions into 1 bits which can then be counted, as noted by
+Jorg Arndt (fxtbook section 1.31.3.1 "The Dragon Curve").
 
     total turn = count_1_bits ($n ^ ($n >> 1))
 
@@ -930,10 +927,9 @@ expansion of an infinite sum
     1 + - + - + -- + --- + ----- + ... + ------- + ...
         2   4   16   256   65536         2^(2^k)
 
-X<Shallit, Jeffrey>
-X<Kmosek>
-Jeffrey Shallit, and independently by M. Kmosek too, shows how continued
-fraction terms repeated in reverse gives rise to this sort of value,
+X<Shallit, Jeffrey>X<Kmosek>Jeffrey Shallit, and independently by M. Kmosek
+too, shows how continued fraction terms repeated in reverse gives rise to
+this sort of value,
 
     http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps
 

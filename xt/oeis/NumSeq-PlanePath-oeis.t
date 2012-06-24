@@ -103,7 +103,7 @@ sub check_class {
 
   # return unless $class =~ /Delta/;
   # return unless $class =~ /Koch/;
-  # return unless $anum eq 'A137893';
+  # return unless $anum eq 'A002620';
   #  return unless $anum eq 'A035263';
 
 

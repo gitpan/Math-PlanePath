@@ -29,12 +29,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -204,14 +205,13 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my $arms = $self->{'arms'};
   my $frac;
   {
     my $int = int($n);
     $frac = $n - $int;  # inherit possible BigFloat
     if ($frac) {
       my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+$arms);
+      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
 
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
@@ -220,14 +220,9 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
   ### $frac
-
-  my $arm;
-  {
-    $arm = ($n % $arms);
-    $n = int($n/$arms);
-  }
-
   my $zero = ($n * 0);  # inherit bignum 0
+
+  ($n, my $arm) = _divrem ($n, $self->{'arms'});
 
   my $diagonal_length = $self->{'diagonal_length'};
   my $diagonal_div = 6*$diagonal_length + 4;

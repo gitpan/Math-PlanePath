@@ -32,6 +32,7 @@ use strict;
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::PeanoCurve;
 
@@ -39,7 +40,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -97,8 +98,8 @@ sub n_to_xy {
   my $x_reverse;
   if ($arms > 1) {
     my $int = int($n);
-    $x_reverse = ($int % 2);
-    $n -= int($int/2);
+    ($n, my $x_reverse) = _divrem($int,2);
+    $n = -$n;
   } else {
     $x_reverse = 0;
   }

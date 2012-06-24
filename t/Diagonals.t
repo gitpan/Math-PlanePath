@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 53 }
+BEGIN { plan tests => 95 }
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::Diagonals;
 # VERSION
 
 {
-  my $want_version = 77;
+  my $want_version = 78;
   ok ($Math::PlanePath::Diagonals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Diagonals->VERSION,  $want_version,
@@ -71,7 +71,7 @@ require Math::PlanePath::Diagonals;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Diagonals->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'direction');
 }
 
 
@@ -79,38 +79,63 @@ require Math::PlanePath::Diagonals;
 # n_to_xy(), xy_to_n()
 
 {
-  my @data = ([0.5,  -0.5,0.5 ],
-              [0.75, -0.25,0.25 ],
-              [1,    0,0 ],
-              [1.25, .25,-.25 ],
+  my @blocks = ([ [],  # default direction=>'down'
 
-              [1.5, -.5,1.5 ],
-              [2, 0,1 ],
-              [3, 1,0 ],
+                  [0.5,  -0.5,0.5 ],
+                  [0.75, -0.25,0.25 ],
+                  [1,    0,0 ],
+                  [1.25, .25,-.25 ],
 
-              [4, 0,2 ],
-              [5, 1,1 ],
-              [6, 2,0 ],
+                  [1.5, -.5,1.5 ],
+                  [2, 0,1 ],
+                  [3, 1,0 ],
 
-              [7,  0,3 ],
-              [8,  1,2 ],
-              [9,  2,1 ],
-              [10, 3,0 ],
+                  [4, 0,2 ],
+                  [5, 1,1 ],
+                  [6, 2,0 ],
 
-             );
-  my $path = Math::PlanePath::Diagonals->new;
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "x at n=$n");
-    ok ($got_y, $want_y, "y at n=$n");
-  }
+                  [7,  0,3 ],
+                  [8,  1,2 ],
+                  [9,  2,1 ],
+                  [10, 3,0 ],
+                ],
+                [ [ direction => 'up' ],
 
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    $want_n = int ($want_n + 0.5);
-    my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
+                  [0.5,  0.5,-0.5 ],
+                  [0.75, 0.25,-0.25 ],
+                  [1,    0,0 ],
+                  [1.25, -.25,.25 ],
+
+                  [1.5, 1.5,-.5 ],
+                  [2, 1,0 ],
+                  [3, 0,1 ],
+
+                  [4, 2,0 ],
+                  [5, 1,1 ],
+                  [6, 0,2 ],
+
+                  [7,  3,0 ],
+                  [8,  2,1 ],
+                  [9,  1,2 ],
+                  [10, 0,3 ],
+                ]);
+  foreach my $block (@blocks) {
+    my ($options, @data) = @$block;
+    my $path = Math::PlanePath::Diagonals->new (@$options);
+
+    foreach my $elem (@data) {
+      my ($n, $want_x, $want_y) = @$elem;
+      my ($got_x, $got_y) = $path->n_to_xy ($n);
+      ok ($got_x, $want_x, "x at n=$n");
+      ok ($got_y, $want_y, "y at n=$n");
+    }
+
+    foreach my $elem (@data) {
+      my ($want_n, $x, $y) = @$elem;
+      $want_n = int ($want_n + 0.5);
+      my $got_n = $path->xy_to_n ($x, $y);
+      ok ($got_n, $want_n, "@$options n at x=$x,y=$y");
+    }
   }
 }
 

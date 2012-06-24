@@ -27,7 +27,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -363,10 +363,9 @@ Math::PlanePath::VogelFloret -- circular pattern like a sunflower
 
 =head1 DESCRIPTION
 
-X<Vogel, H>
-The Vogel floret arranges integer points in a spiral with points based on
-the golden ratio phi = (1+sqrt(5))/2 and resembling the pattern of seeds
-found in the head of a sunflower,
+X<Vogel, H>The Vogel floret arranges integer points in a spiral with points
+based on the golden ratio phi = (1+sqrt(5))/2 and resembling the pattern of
+seeds found in the head of a sunflower,
 
                 27       19
                                   24

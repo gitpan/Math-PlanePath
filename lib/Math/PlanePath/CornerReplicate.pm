@@ -35,7 +35,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -86,8 +86,8 @@ sub n_to_xy {
   return ($x,$y);
 }
 
-my @yx_to_digit = ([0,1],
-                   [3,2]);
+# my @yx_to_digit = ([0,1],
+#                    [3,2]);
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### CornerReplicate xy_to_n(): "$x, $y"
@@ -104,15 +104,14 @@ sub xy_to_n {
     return $y;
   }
 
-  my $power = ($x * 0 * $y) + 1;  # inherit bignum 0
-  my $n = 0;
-  while ($x || $y) {
-    ### digit: $yx_to_digit[$y % 2]->[$x % 2]
+  my @x = _digit_split_lowtohigh($x,2);
+  my @y = _digit_split_lowtohigh($y,2);
 
-    $n = $n + $power * $yx_to_digit[$y % 2]->[$x % 2];
-    $x = int($x/2);
-    $y = int($y/2);
-    $power *= 4;
+  my $n = ($x * 0 * $y); # inherit bignum 0
+  foreach my $i (reverse 0 .. max($#x,$#y)) {  # high to low
+    $n *= 4;
+    my $ydigit = $y[$i] || 0;
+    $n += 2*$ydigit + (($x[$i]||0) ^ $ydigit);
   }
   return $n;
 }

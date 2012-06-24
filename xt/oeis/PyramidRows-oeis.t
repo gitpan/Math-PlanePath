@@ -48,6 +48,77 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  my $diff;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    unless ($got =~ /^[0-9.-]+$/) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "not a number pos=$i got='$got'";
+    }
+    unless ($want =~ /^[0-9.-]+$/) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "not a number pos=$i want='$want'";
+    }
+    if ($got != $want) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return $diff;
+}
+
+#------------------------------------------------------------------------------
+# A079824 -- diagonal sums
+# cf A079825 with rows numbered alternately left and right
+
+{
+  my $anum = 'A079824';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  if ($bvalues->[21] == 1717) {
+    $bvalues->[21] = 1617;
+  }
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::PyramidRows->new(step=>1);
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      my $total = 0;
+      foreach my $i (0 .. $y) {
+        $total += ($path->xy_to_n($i,$y-$i) || 0);
+      }
+      push @got, $total;
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef);
+}
 
 #------------------------------------------------------------------------------
 # A196199 -- X coordinate step=2

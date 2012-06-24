@@ -32,9 +32,10 @@ use strict;
 
 use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -70,8 +71,9 @@ sub n_to_xy {
     $frac = $n - $int;
     $n = $int;  # BigFloat int() gives BigInt, use that
   }
-  my $rot = $n % 4;
-  $n = int($n/4);
+
+  # arm as initial rotation
+  ($n, my $rot) = _divrem($n,4);
   ### $n
 
   # if (($rot%4) != 3) {
@@ -289,7 +291,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::DiamondArms-E<gt>new ()>
 
-Create and return a new square spiral object.
+Create and return a new path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

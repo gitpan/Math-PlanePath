@@ -37,12 +37,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -121,11 +123,8 @@ sub n_to_xy {
 
   my @horiz = (1);
   my @diag = (1);
-  my @digits;
   my $i = 0;
   while (--$level > 0) {
-    push @digits, ($n % 4);
-    $n = int($n/4);
     $horiz[$i+1] = 2*$horiz[$i] + 2*$diag[$i];
     $diag[$i+1]  = $horiz[$i] + 2*$diag[$i];
     ### horiz: $horiz[$i+1]
@@ -135,8 +134,9 @@ sub n_to_xy {
 
   ### horiz: join(', ',@horiz)
   ### $i
-  my $x =
-    my $y = ($n * 0) + $horiz[$i]/-2;  # inherit bignum
+  my $x
+    = my $y
+      = ($n * 0) + $horiz[$i]/-2;  # inherit bignum
   if ($rot & 1) {
     ($x,$y) = (-$y,$x);
   }
@@ -147,10 +147,13 @@ sub n_to_xy {
   $rot *= 2;
 
   my $inward = $self->{'inward'};
+  my @digits = _digit_split_lowtohigh($n,4);
 
-  while (defined (my $digit = pop @digits)) {
-    my ($dx, $dy, $drot);
+  while ($i > 0) {
     $i--;
+    my $digit = $digits[$i] || 0;
+
+    my ($dx, $dy, $drot);
     if ($digit == 0) {
       $dx = 0;
       $dy = 0;

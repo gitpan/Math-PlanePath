@@ -34,8 +34,6 @@ use Math::PlanePath::Diagonals;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-my $diagonal_path = Math::PlanePath::Diagonals->new;
-
 sub numeq_array {
   my ($a1, $a2) = @_;
   if (! ref $a1 || ! ref $a2) {
@@ -84,13 +82,11 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'up');
 
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
     for (my $n = $diagonal_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal_path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       my $n = $gray_path->xy_to_n ($x, $y);
       push @got, $n;
     }
@@ -99,8 +95,6 @@ sub diff_nums {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -114,14 +108,12 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my @got;
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'up');
+
     for (my $n = $gray_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $gray_path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       my $n = $diagonal_path->xy_to_n ($x, $y);
       push @got, $n + $gray_path->n_start - $diagonal_path->n_start;
     }
@@ -131,8 +123,6 @@ sub diff_nums {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff, undef);
@@ -145,10 +135,9 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'down');
 
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
     for (my $n = $diagonal_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal_path->n_to_xy ($n);
       my $n = $gray_path->xy_to_n ($x, $y);
@@ -159,8 +148,6 @@ sub diff_nums {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -174,10 +161,9 @@ sub diff_nums {
   my @got;
   my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'down');
 
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
     for (my $n = $gray_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $gray_path->n_to_xy ($n);
       my $n = $diagonal_path->xy_to_n ($x, $y);
@@ -189,8 +175,6 @@ sub diff_nums {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff, undef);
@@ -215,13 +199,11 @@ sub flip_base4_23 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'up');
 
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
     for (my $n = $diagonal_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal_path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       my $n = $gray_path->xy_to_n ($x, $y);
       $n = flip_base4_23($n);
       push @got, $n;
@@ -231,8 +213,6 @@ sub flip_base4_23 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -246,14 +226,12 @@ sub flip_base4_23 {
   my @got;
   my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'up');
 
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
     for (my $n = $gray_path->n_start; @got < @$bvalues; $n++) {
       my $n = flip_base4_23($n);
       my ($x, $y) = $gray_path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       $n = $diagonal_path->xy_to_n ($x, $y);
       push @got, $n + $gray_path->n_start - $diagonal_path->n_start;
     }
@@ -263,8 +241,6 @@ sub flip_base4_23 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff, undef);
@@ -279,10 +255,9 @@ sub flip_base4_23 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'down');
 
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
     for (my $n = $diagonal_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal_path->n_to_xy ($n);
       my $n = $gray_path->xy_to_n ($x, $y);
@@ -294,8 +269,6 @@ sub flip_base4_23 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -309,10 +282,9 @@ sub flip_base4_23 {
   my @got;
   my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'down');
 
-    my $gray_path = Math::PlanePath::GrayCode->new
-      (apply_type => 'sF');
     for (my $n = $gray_path->n_start; @got < @$bvalues; $n++) {
       my $n = flip_base4_23($n);
       my ($x, $y) = $gray_path->n_to_xy ($n);
@@ -325,8 +297,6 @@ sub flip_base4_23 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff, undef);
@@ -339,8 +309,6 @@ sub flip_base4_23 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $gray_path = Math::PlanePath::GrayCode->new
       (apply_type => 'sF');
     for (my $y = 0; @got < @$bvalues; $y++) {
@@ -355,8 +323,6 @@ sub flip_base4_23 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -371,8 +337,6 @@ sub flip_base4_23 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $gray_path = Math::PlanePath::GrayCode->new
       (apply_type => 'sF');
     for (my $y = 0; @got < @$bvalues; $y++) {
@@ -387,8 +351,6 @@ sub flip_base4_23 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

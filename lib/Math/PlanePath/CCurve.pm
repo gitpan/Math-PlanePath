@@ -28,13 +28,14 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 *_digit_join_htol = \&Math::PlanePath::KochCurve::_digit_join_htol;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -88,12 +89,7 @@ sub n_to_xy {
   }
 
   # initial rotation from arm number $n mod $arms
-  my $rot;
-  {
-    my $arms = $self->{'arms'};
-    $rot = $n % $arms;
-    $n = int($n/$arms);
-  }
+  ($n, my $rot) = _divrem ($n, $self->{'arms'});
 
   my $len = $zero+1;
   foreach my $digit (_digit_split_lowtohigh($n,4)) {
@@ -542,13 +538,14 @@ gives all the N which are the target X,Y.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A000120  (etc)
+    http://oeis.org/A179868  (etc)
 
-    A000120 - count of 1 bits, is direction (total turn)
-    A007814 - count low 0s, is turn (right -1)
+    A179868 - direction 0to3, (count of 1 bits) mod 4
+    A000120 - direction as total turn, count of 1 bits
+    A007814 - count low 0s, is turn by value-1 to the right
 
-    A003159 - end even 0 bits, is N positions of left or right turn
-    A036554 - end odd 0 bits, is N positions of straight or 180 turn
+    A003159 - N positions of left or right turn, ends even num 0 bits
+    A036554 - N positions of straight or 180 turn, ends odd num 0 bits
 
 =head1 SEE ALSO
 

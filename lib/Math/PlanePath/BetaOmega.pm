@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
@@ -436,9 +436,9 @@ Math::PlanePath::BetaOmega -- 2x2 half-plane traversal
 
 =head1 DESCRIPTION
 
-X<Wierum, Jens-Michael>
-This is an integer version of the Beta-Omega curve by Jens-Michael Wierum.
-It makes a 2x2 self-similar traversal of a half plane XE<gt>=0.
+X<Wierum, Jens-Michael>This is an integer version of the Beta-Omega curve by
+Jens-Michael Wierum.  It makes a 2x2 self-similar traversal of a half plane
+XE<gt>=0.
 
       5   25--26  29--30  33--34  37--38
            |   |   |   |   |   |   |   |

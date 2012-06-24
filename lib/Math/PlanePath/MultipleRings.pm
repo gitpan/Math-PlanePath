@@ -40,7 +40,7 @@ use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
-$VERSION = 77;
+$VERSION = 78;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -461,9 +461,9 @@ multiple of the triangular numbers, plus 1,
 
     Nstart = step*d*(d-1)/2 + 1
 
-X<Centred Polygonal Numbers>
-This is the centred polygonal numbers, being the cumulative count of points
-making up concentric polygons or rings of this style.
+X<Centred Polygonal Numbers>This is the centred polygonal numbers, being the
+cumulative count of points making up concentric polygons or rings of this
+style.
 
 Straight line radials further around have arise from adding multiples of d,
 so for example in step=6 shown above the line N=3,11,25,etc is

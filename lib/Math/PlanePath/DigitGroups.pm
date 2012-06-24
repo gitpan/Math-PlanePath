@@ -32,12 +32,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -94,21 +95,27 @@ sub n_to_xy {
   ### $radix
   my $x = my $y = $n * 0;          # inherit bignum 0
   my $xpower = my $ypower = $x+1;  # inherit bignum 1
+
+  my @digits = _digit_split_lowtohigh($n,$radix)
+    or return ($x, $y);  # 0,0 if $n==0
+
   my $digit;
   for (;;) {
+    # take from @digits to X
     do {
-      $digit = ($n % $radix);
+      $digit = shift @digits;  # low to high
       ### digit to x: $digit
       $x += $digit * $xpower;
-      $n = int ($n / $radix) || return ($x, $y);
+      @digits || return ($x, $y);
       $xpower *= $radix;
     } while ($digit);
 
+    # take from @digits to Y
     do {
-      $digit = ($n % $radix);
+      $digit = shift @digits;  # low to high
       ### digit to y: $digit
       $y += $digit * $ypower;
-      $n = int ($n / $radix) || return ($x, $y);
+      @digits || return ($x, $y);
       $ypower *= $radix;
     } while ($digit);
   }
@@ -256,36 +263,38 @@ The default binary is
         +-------------------------------------------------------------
            X=0    1    2    3    4    5    6    7    8    9   10   11
 
-The values 0,1,4,3,16,9,etc along the X axis is the X coordinate with zero
-bits doubled.  For example X=9 is binary 1001, double up the zero bits to
-100001 for N=33.  This is because in the digit grouping Y=0 so when X is
-grouped by its zero bits there's a single 0 bit from Y in between them.
+N=0,1,4,3,16,9,etc along the X axis is X with zero bits doubled.  For
+example X=9 is binary 1001, double up the zero bits to 100001 for N=33 at
+X=9,Y=0.  This is because in the digit grouping Y=0 so when X is grouped by
+its zero bits there's a single extra 0 from Y in between each group.
 
-Similarly the values 0,2,8,6,32,etc along the Y axis are the Y coordinate
-with zero bits doubled, plus an extra zero bit at the low end coming from
-the first X=0 group.  For example Y=9 is again binary 1001, doubled zeros to
-100001, and an extra zero at the low end 1000010 is N=66.
+Similarly N=0,2,8,6,32,etc along the Y axis is the Y with zero bits doubled,
+plus an extra zero bit at the low end coming from the first X=0 group.  For
+example Y=9 is again binary 1001, doubled zeros to 100001, and an extra zero
+at the low end 1000010 is N=66 at X=0,Y=9.
 
 =head2 Radix
 
 The C<radix =E<gt> $r> option selects a different base for the digit split.
-For example C<radix =E<gt> 5> gives
+For example radix 5 gives
 
-   12  |  60  301  302  303  304  685 1506 1507 1508 1509 1310 1511
-   11  |  55  276  277  278  279  680 1381 1382 1383 1384 1305 1386
-   10  | 250 1251 1252 1253 1254 1275 6256 6257 6258 6259 1300 6261
-    9  |  45  226  227  228  229  670 1131 1132 1133 1134 1295 1136
-    8  |  40  201  202  203  204  665 1006 1007 1008 1009 1290 1011
-    7  |  35  176  177  178  179  660  881  882  883  884 1285  886
-    6  |  30  151  152  153  154  655  756  757  758  759 1280  761
-    5  | 125  626  627  628  629  650 3131 3132 3133 3134  675 3136
-    4  |  20  101  102  103  104  145  506  507  508  509  270  511
-    3  |  15   76   77   78   79  140  381  382  383  384  265  386
-    2  |  10   51   52   53   54  135  256  257  258  259  260  261
-    1  |   5   26   27   28   29  130  131  132  133  134  255  136
-   Y=0 |   0    1    2    3    4   25    6    7    8    9   50   11
-       +-----------------------------------------------------------
-         X=0    1    2    3    4    5    6    7    8    9   10   11
+    radix => 5
+
+    12  |  60  301  302  303  304  685 1506 1507 1508 1509 1310 1511
+    11  |  55  276  277  278  279  680 1381 1382 1383 1384 1305 1386
+    10  | 250 1251 1252 1253 1254 1275 6256 6257 6258 6259 1300 6261
+     9  |  45  226  227  228  229  670 1131 1132 1133 1134 1295 1136
+     8  |  40  201  202  203  204  665 1006 1007 1008 1009 1290 1011
+     7  |  35  176  177  178  179  660  881  882  883  884 1285  886
+     6  |  30  151  152  153  154  655  756  757  758  759 1280  761
+     5  | 125  626  627  628  629  650 3131 3132 3133 3134  675 3136
+     4  |  20  101  102  103  104  145  506  507  508  509  270  511
+     3  |  15   76   77   78   79  140  381  382  383  384  265  386
+     2  |  10   51   52   53   54  135  256  257  258  259  260  261
+     1  |   5   26   27   28   29  130  131  132  133  134  255  136
+    Y=0 |   0    1    2    3    4   25    6    7    8    9   50   11
+        +-----------------------------------------------------------
+          X=0    1    2    3    4    5    6    7    8    9   10   11
 
 =head2 Real Line and Plane
 
@@ -327,14 +336,16 @@ this path include
 
     http://oeis.org/A084471  (etc)
 
-    A084471    radix=2 N on X axis, bit 0->00
-    A084472    radix=2 N on X axis, in binary
-    A060142    radix=2 N on X axis, in ascending order
+     radix=2
+    A084471    N on X axis, bit 0->00
+    A084472    N on X axis, in binary
+    A060142    N on X axis, sorted into ascending order
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::ZOrderCurve>
+L<Math::PlanePath::ZOrderCurve>,
+L<Math::PlanePath::PowerArray>
 
 =head1 HOME PAGE
 

@@ -27,7 +27,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -175,7 +175,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PentSpiral-E<gt>new ()>
 
-Create and return a new pentagon spiral object.
+Create and return a new path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

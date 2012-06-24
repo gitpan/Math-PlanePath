@@ -35,59 +35,109 @@ use Smart::Comments;
 
 
 
+{
+  # A088431 and A007400 continued fraction
+  require Math::ContinuedFraction;
+  require Math::NumSeq::PlanePathTurn;
+  require Math::NumSeq::GolayRudinShapiro;
+  require Math::NumSeq::OEIS;
 
+  my @runlengths = (0,1);
+  # my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve');
+  my $seq = Math::NumSeq::GolayRudinShapiro->new;
+  # my $seq = Math::NumSeq::OEIS->new (anum => 'A203531');
 
-
-  {
-    # low to high
-    my $rev = 0;
-    my @rev;
-    foreach my $digit (reverse @digits) {
-      push @rev, $rev;
-      $rev ^= $digit;
+  my (undef, $prev) = $seq->next;
+  my $count = 1;
+  while (@runlengths < 50) {
+    my (undef, $turn) = $seq->next;
+    if ($turn != $prev) {
+      push @runlengths, $count * 2;
+      $count = 0;
+      $prev = $turn;
     }
-    ### @digits
-    my $x = 0;
-    my $y = 0;
-    my $dy = $rot & 1;
-    my $dx = ! $dy;
-    if ($rot & 2) {
-      $dx = -$dx;
-      $dy = -$dy;
-    }
-    $rev = 0;
-    foreach my $digit (@digits) {
-      ### at: "$x,$y  dxdy=$dx,$dy"
-      my $rev = shift @rev;
-      if ($digit) {
-        if ($rev) {
-          ($x,$y) = (-$y,$x); # rotate +90
-        } else {
-          ($x,$y) = ($y,-$x); # rotate -90
-        }
-        $x += $dx;
-        $y += $dy;
-        $rev = $digit;
-      }
-      # multiply i+1, ie. (dx,dy) = (dx + i*dy)*(i+1)
-      ($dx,$dy) = ($dx-$dy, $dx+$dy);
-    }
-    ### final: "$x,$y  dxdy=$dx,$dy"
-    return ($x,$y);
+    $count++;
   }
 
+  # @runlengths = (0, 1, 4, 2, 4, 4, 6, 4, 2, 4, 6, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4,
+  #                2, 6, 4, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4, 2, 4, 6, 2, 4, 6, 4, 4,
+  #                2, 6, 4, 2, 4, 4, 6, 4, 2, 6, 4, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4,
+  #                2, 4, 6, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4, 2, 6, 4, 2, 4, 6, 4, 4,
+  #               );
+
+  my $cf = Math::ContinuedFraction->new(\@runlengths);
+  my $cfstr = $cf->to_ascii;
+  print "cf $cfstr\n";
+
+  foreach my $i (1 .. $#runlengths) {
+    my ($num, $den) = $cf->convergent($i);
+    my $numstr = $num->as_bin;
+    $numstr =~ s/^0b//;
+    my $denstr = $den->as_bin;
+    $denstr =~ s/^0b//;
+    # printf "%3d %-40.70s\n", $i, $numstr;
+    # printf "    %-40.70s\n", $denstr;
+
+    my $approx = ($num << 256) / $den;
+    my $bits = $approx->as_bin;
+    $bits =~ s/^0b//;
+    print "approx:   $bits\n";
+  }
+
+  my ($num, $den) = $cf->convergent($#runlengths);
+  my $approx = $num->numify / $den->numify;
+  print "$approx\n";
+
+  $num *= Math::BigInt->new(2) ** 70;
+  $num /= $den;
+  my $bits = $num->as_bin;
+  $bits =~ s/^0b//;
+  print "d:   $bits\n";
+
+  exit 0;
+}
 
 
 
+  # n_to_xy ...
 
-
-
-
-
-
-
-
-
+  # {
+  #   # low to high
+  #   my $rev = 0;
+  #   my @rev;
+  #   foreach my $digit (reverse @digits) {
+  #     push @rev, $rev;
+  #     $rev ^= $digit;
+  #   }
+  #   ### @digits
+  #   my $x = 0;
+  #   my $y = 0;
+  #   my $dy = $rot & 1;
+  #   my $dx = ! $dy;
+  #   if ($rot & 2) {
+  #     $dx = -$dx;
+  #     $dy = -$dy;
+  #   }
+  #   $rev = 0;
+  #   foreach my $digit (@digits) {
+  #     ### at: "$x,$y  dxdy=$dx,$dy"
+  #     my $rev = shift @rev;
+  #     if ($digit) {
+  #       if ($rev) {
+  #         ($x,$y) = (-$y,$x); # rotate +90
+  #       } else {
+  #         ($x,$y) = ($y,-$x); # rotate -90
+  #       }
+  #       $x += $dx;
+  #       $y += $dy;
+  #       $rev = $digit;
+  #     }
+  #     # multiply i+1, ie. (dx,dy) = (dx + i*dy)*(i+1)
+  #     ($dx,$dy) = ($dx-$dy, $dx+$dy);
+  #   }
+  #   ### final: "$x,$y  dxdy=$dx,$dy"
+  #   return ($x,$y);
+  # }
 
 
 {
@@ -587,57 +637,6 @@ use Smart::Comments;
 }
 
 
-{
-  # A088431 and A007400
-  require Math::ContinuedFraction;
-  require Math::NumSeq::PlanePathTurn;
-
-  my @runlengths = (0,1);
-  my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve');
-  my (undef, $prev) = $seq->next;
-  my $count = 1;
-  while (@runlengths < 50) {
-    my (undef, $turn) = $seq->next;
-    if ($turn != $prev) {
-      push @runlengths, $count * 2;
-      $count = 0;
-      $prev = $turn;
-    }
-    $count++;
-  }
-
-  # @runlengths = (0, 1, 4, 2, 4, 4, 6, 4, 2, 4, 6, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4,
-  #                2, 6, 4, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4, 2, 4, 6, 2, 4, 6, 4, 4,
-  #                2, 6, 4, 2, 4, 4, 6, 4, 2, 6, 4, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4,
-  #                2, 4, 6, 2, 4, 6, 4, 4, 2, 4, 6, 2, 4, 4, 6, 4, 2, 6, 4, 2, 4, 6, 4, 4,
-  #               );
-
-  my $cf = Math::ContinuedFraction->new(\@runlengths);
-  my $cfstr = $cf->to_ascii;
-  print "cf $cfstr\n";
-
-  foreach my $i (1 .. $#runlengths) {
-    my ($num, $den) = $cf->convergent($i);
-    my $numstr = $num->as_bin;
-    $numstr =~ s/^0b//;
-    my $denstr = $den->as_bin;
-    $denstr =~ s/^0b//;
-    printf "%3d %-40.70s\n", $i, $numstr;
-    printf "    %-40.70s\n", $denstr;
-  }
-
-  my ($num, $den) = $cf->convergent($#runlengths);
-  my $approx = $num->numify / $den->numify;
-  print "$approx\n";
-
-  $num *= Math::BigInt->new(2) ** 70;
-  $num /= $den;
-  my $bits = $num->as_bin;
-  $bits =~ s/^0b//;
-  print "d:   $bits\n";
-
-  exit 0;
-}
 
 {
   # A088431

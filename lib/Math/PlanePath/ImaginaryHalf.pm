@@ -35,7 +35,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -309,12 +309,14 @@ The C<radix> parameter controls the "r" used to break N into X,Y.  For
 example C<radix =E<gt> 4> gives 4x4 blocks, with r-1 copies of the preceding
 level at each stage.
 
+     radix => 4  
+
      60 61 62 63 44 45 46 47 28 29 30 31 12 13 14 15      3
      56 57 58 59 40 41 42 43 24 25 26 27  8  9 10 11      2
      52 53 54 55 36 37 38 39 20 21 22 23  4  5  6  7      1
      48 49 50 51 32 33 34 35 16 17 18 19  0  1  2  3  <- Y=0
 
-    ------------------------------------------------
+    --------------------------------------^-----------
     -12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3
 
 Notice for X negative the parts replicate successively towards -infinity, so

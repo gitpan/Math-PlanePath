@@ -42,7 +42,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -366,9 +366,8 @@ Math::PlanePath::GosperIslands -- concentric Gosper islands
 
 =head1 DESCRIPTION
 
-X<Gosper, William>
-This path is integer versions of the Gosper island at successive levels,
-arranged as concentric rings on a triangular lattice (see
+X<Gosper, William>This path is integer versions of the Gosper island at
+successive levels, arranged as concentric rings on a triangular lattice (see
 L<Math::PlanePath/Triangular Lattice>).  Each island is the outline of a
 self-similar tiling of the plane by hexagons, and the sides are self-similar
 expansions of line segments

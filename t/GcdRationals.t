@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 637;
+plan tests => 625;
 
 use lib 't';
 use MyTestHelpers;
@@ -30,17 +30,15 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments;
 
 require Math::PlanePath::GcdRationals;
-
-my @pairs_order_choices = ('rows',
-                           'rows_reverse',
-                           'diagonals_down',
-                           'diagonals_up');
+my @pairs_order_choices
+  = @{Math::PlanePath::GcdRationals->parameter_info_hash
+      ->{'pairs_order'}->{'choices'}};
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 77;
+  my $want_version = 78;
   ok ($Math::PlanePath::GcdRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GcdRationals->VERSION,  $want_version,
@@ -64,6 +62,52 @@ my @pairs_order_choices = ('rows',
       1,
       "VERSION object check $check_version");
 }
+
+#------------------------------------------------------------------------------
+# rect_to_n_range() various
+
+{
+  my @data = ([ 0,0, 19,5,  1,217 ], 
+              [ 7,7, 8,8,   35,93 ],   # 35,93
+              [ 19,2, 19,4, 200,217 ], # 200,217,205
+              [ 5,3, 5,7,   19,30 ],   # 19,30,20,26
+             );
+  my $path = Math::PlanePath::GcdRationals->new;
+  foreach my $elem (@data) {
+    my ($x1,$y1, $x2,$y2, $want_nlo, $want_nhi) = @$elem;
+    my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+    ok ($got_nlo <= $want_nlo,
+        1,
+        "got_nlo=$got_nlo  want_nlo=$want_nlo");
+    ok ($got_nhi >= $want_nhi,
+        1,
+        "got_nhi=$got_nhi  want_nhi=$want_nhi");
+  }
+}
+
+# exact ones
+# {
+#   my @data = ([ 3,7, 3,8,   24,31 ],
+#               [ 7,8, 7,13,  35,85 ],
+#               [ 1,1, 1,1,   1,1 ],
+#               [ 1,1, 1,2,   1,2 ],
+#               [ 1,1, 2,1,   1,3 ],
+#               [ 1,1, 8,1,   1,36 ],
+#               [ 6,1, 8,1,   21,36 ],
+#              );
+#   my $path = Math::PlanePath::GcdRationals->new;
+#   foreach my $elem (@data) {
+#     my ($x1,$y1, $x2,$y2, $want_nlo, $want_nhi) = @$elem;
+#     my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+#     ok ($got_nlo == $want_nlo,
+#         1,
+#         "got_nlo=$got_nlo  want_nlo=$want_nlo");
+#     ok ($got_nhi == $want_nhi,
+#         1,
+#         "got_nhi=$got_nhi  want_nhi=$want_nhi");
+#   }
+# }
+
 
 #------------------------------------------------------------------------------
 # pairs_order n_to_xy()
@@ -234,8 +278,7 @@ my @pairs_order_choices = ('rows',
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::GcdRationals->parameter_info_list;
-  # ok (join(',',@pnames), 'pairs_order');
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'pairs_order');
 }
 
 
@@ -266,51 +309,6 @@ foreach my $pairs_order (@pairs_order_choices) {
     ok ($y, 1);
   }
 }
-
-#------------------------------------------------------------------------------
-# rect_to_n_range() various
-
-{
-  my @data = ([ 7,7, 8,8,   35,93 ],   # 35,93
-              [ 19,2, 19,4, 200,217 ], # 200,217,205
-              [ 5,3, 5,7,   19,30 ],   # 19,30,20,26
-             );
-  my $path = Math::PlanePath::GcdRationals->new;
-  foreach my $elem (@data) {
-    my ($x1,$y1, $x2,$y2, $want_nlo, $want_nhi) = @$elem;
-    my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-    ok ($got_nlo <= $want_nlo,
-        1,
-        "got_nlo=$got_nlo  want_nlo=$want_nlo");
-    ok ($got_nhi >= $want_nhi,
-        1,
-        "got_nhi=$got_nhi  want_nhi=$want_nhi");
-  }
-}
-
-# exact ones
-{
-  my @data = ([ 3,7, 3,8,   24,31 ],
-              [ 7,8, 7,13,  35,85 ],
-              [ 1,1, 1,1,   1,1 ],
-              [ 1,1, 1,2,   1,2 ],
-              [ 1,1, 2,1,   1,3 ],
-              [ 1,1, 8,1,   1,36 ],
-              [ 6,1, 8,1,   21,36 ],
-             );
-  my $path = Math::PlanePath::GcdRationals->new;
-  foreach my $elem (@data) {
-    my ($x1,$y1, $x2,$y2, $want_nlo, $want_nhi) = @$elem;
-    my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
-    ok ($got_nlo == $want_nlo,
-        1,
-        "got_nlo=$got_nlo  want_nlo=$want_nlo");
-    ok ($got_nhi == $want_nhi,
-        1,
-        "got_nhi=$got_nhi  want_nhi=$want_nhi");
-  }
-}
-
 
 #------------------------------------------------------------------------------
 # rect_to_n_range() random

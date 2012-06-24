@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -33,6 +33,22 @@ use Math::PlanePath;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+
+use constant parameter_info_array =>
+  [ { name        => 'direction',
+      display     => 'Direction',
+      type        => 'enum',
+      default     => 'down',
+      choices     => ['down','up'],
+      choices_display => ['Down','Up'],
+      description => 'Number points downwards or upwards along the diagonals.',
+    } ];
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  $self->{'direction'} ||= 'down';
+  return $self;
+}
 
 # start each diagonal at 0.5 earlier
 #
@@ -88,8 +104,11 @@ sub n_to_xy {
   ### sub: ($s*($s+1)/2 + 1).''
   ### remainder: "$int"
 
-  return ($n + $int,
-          -$n - $int + $s);   # $n first so BigFloat not BigInt from $s
+  my $x = $n + $int;
+  my $y = -$n - $int + $s;  # $n first so BigFloat not BigInt from $s
+  return ($self->{'direction'} eq 'down'
+          ? ($x,$y)
+          : ($y,$x));
 }
 
 # round y on an 0.5 downwards so that x=-0.5,y=0.5 gives n=1 which is the
@@ -99,19 +118,23 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
+  if ($self->{'direction'} eq 'up') {
+    ($x,$y) = ($y,$x);
+  }
   $x = _round_nearest ($x);
   $y = _round_nearest (- $y);
   ### rounded
   ### $x
   ### $y
   if ($x < 0 || $y > 0) {
-    return undef;  # outside 
+    return undef;  # outside
   }
   my $s = $x - $y;
   ### $s
   return $s*($s+1)/2 + $x + 1;
 }
 
+# bottom-left to top-right
 # exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -157,12 +180,36 @@ axis.
       2  |   4   8  13  19
       1  |   2   5   9  14  20
     Y=0  |   1   3   6  10  15  21
-         + ------------------------
+         +-------------------------
            X=0   1   2   3   4   5
 
 The horizontal sequence 1,3,6,10,etc at Y=0 is the triangular numbers
 s*(s+1)/2.  If you plot them on a graph don't confuse that line with the
 axis or border!
+
+=head2 Direction
+
+Option C<direction =E<gt> 'up'> reverses the order within each diagonal to
+count upward from the X axis.
+
+=cut
+
+# math-image --path=Diagonals,direction=up  --all --output=numbers
+
+=pod
+
+      5  |  21 
+      4  |  15  20
+      3  |  10  14  19 ...
+      2  |   6   9  13  18  24 
+      1  |   3   5   8  12  17  23 
+    Y=0  |   1   2   4   7  11  16  22 
+         +-----------------------------
+          X=0   1   2   3   4   5    6
+
+This is merely a transpose changing X,Y to Y,X, but it's the same as in
+DiagonalsOctant and can be handy to control the direction when combining
+Diagonals with some other path or calculation.
 
 =head1 FUNCTIONS
 
@@ -172,7 +219,13 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::Diagonals-E<gt>new ()>
 
-Create and return a new path object.
+=item C<$path = Math::PlanePath::Diagonals-E<gt>new (direction =E<gt> $str)>
+
+Create and return a new path object.  The C<direction> option (a string) can
+be
+
+    direction => "down"       the default
+    direction => "up"         number upwards from the X axis
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

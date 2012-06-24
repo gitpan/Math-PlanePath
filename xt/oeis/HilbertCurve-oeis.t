@@ -37,7 +37,6 @@ use Math::PlanePath::ZOrderCurve;
 
 
 my $hilbert  = Math::PlanePath::HilbertCurve->new;
-my $diagonal = Math::PlanePath::Diagonals->new;
 my $zorder   = Math::PlanePath::ZOrderCurve->new;
 
 sub numeq_array {
@@ -112,11 +111,9 @@ sub zorder_is_3cycle {
 # 91:  0     2     4  5
 {
   my $anum = 'A163891';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 20);
   my @got;
   if ($bvalues) {
-    $#$bvalues = 20;
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my %seen;
     for (my $n = 0; @got < @$bvalues; $n++) {
       my $len = zorder_cycle_length($n);
@@ -129,8 +126,6 @@ sub zorder_is_3cycle {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -142,11 +137,9 @@ sub zorder_is_3cycle {
 # A163893 - first diffs of positions where cycle length some new unseen value
 {
   my $anum = 'A163893';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 20);
   my @got;
   if ($bvalues) {
-    $#$bvalues = 20;
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my %seen = (1 => 1);
     my $prev = 0;
     for (my $n = 0; @got < @$bvalues; $n++) {
@@ -161,8 +154,6 @@ sub zorder_is_3cycle {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -176,12 +167,9 @@ sub zorder_is_3cycle {
 
 {
   my $anum = 'A163896';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 8);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 8; # shorten
-
     my $high = -1;
     for (my $n = 0; @got < @$bvalues; $n++) {
       my $value = A163894_perm_n_not($n);
@@ -194,8 +182,6 @@ sub zorder_is_3cycle {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..6]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..6]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -207,12 +193,9 @@ sub zorder_is_3cycle {
 
 {
   my $anum = 'A163895';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 8);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 8; # shorten
-
     my $high = -1;
     for (my $n = 0; @got < @$bvalues; $n++) {
       my $value = A163894_perm_n_not($n);
@@ -225,8 +208,6 @@ sub zorder_is_3cycle {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..6]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..6]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -238,12 +219,9 @@ sub zorder_is_3cycle {
 
 {
   my $anum = 'A163894';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 200);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 200; # shorten
-
     for (my $n = 0; @got < @$bvalues; $n++) {
       push @got, A163894_perm_n_not($n);
     }
@@ -252,8 +230,6 @@ sub zorder_is_3cycle {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..7]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..7]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -278,12 +254,9 @@ sub A163894_perm_n_not {
 
 {
   my $anum = 'A163909';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 5);
   my @got;
   if ($bvalues) {
-    $#$bvalues = 5; # shorten
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $target = 1;
     my $target_even = 1;
     my $count = 0;
@@ -318,8 +291,6 @@ sub A163894_perm_n_not {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..7]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..7]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -330,12 +301,10 @@ sub A163894_perm_n_not {
 # A163914 - num 3-cycles in 4^k blocks
 {
   my $anum = 'A163914';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                     max_count => 8);
   my @got;
   if ($bvalues) {
-    $#$bvalues = 8; # shorten
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $target = 1;
     my $count = 0;
     my @seen;
@@ -366,8 +335,6 @@ sub A163894_perm_n_not {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -382,12 +349,12 @@ sub A163894_perm_n_not {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'up');   # from same axis as Hilbert
 
     for (my $n = 0; @got < @$bvalues; $n++) {
       my $nn = zorder_perm_inverse(zorder_perm_inverse($n));
       my ($x, $y) = $zorder->n_to_xy ($nn);
-      ($x,$y) = ($y,$x);    # same axis as Hilbert
       my $dn = $diagonal->xy_to_n ($x, $y);
       push @got, $dn-1;
     }
@@ -395,8 +362,6 @@ sub A163894_perm_n_not {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -412,11 +377,11 @@ sub A163894_perm_n_not {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'up');   # from same axis as Hilbert
 
     for (my $dn = $diagonal->n_start; @got < @$bvalues; $dn++) {
       my ($x, $y) = $diagonal->n_to_xy ($dn);
-      ($x,$y) = ($y,$x);    # same axis as Hilbert
       my $n = $zorder->xy_to_n ($x, $y);
       push @got, zorder_perm(zorder_perm($n));
     }
@@ -424,8 +389,6 @@ sub A163894_perm_n_not {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -441,11 +404,11 @@ sub A163894_perm_n_not {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'up');   # from same axis as Hilbert
 
     for (my $dn = $diagonal->n_start; @got < @$bvalues; $dn++) {
       my ($x, $y) = $diagonal->n_to_xy ($dn);
-      ($x,$y) = ($y,$x);    # same axis as Hilbert
       my $hn = $hilbert->xy_to_n ($x, $y);
       push @got, zorder_cycle_length($hn);
     }
@@ -453,8 +416,6 @@ sub A163894_perm_n_not {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -466,16 +427,13 @@ sub A163894_perm_n_not {
 # A163890 - cycle length by N
 {
   my $anum = 'A163890';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                     max_count => 10000);
   my @got;
   if ($bvalues) {
-    $#$bvalues = 10000; # shorten
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
       push @got, zorder_cycle_length($n);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -491,8 +449,6 @@ sub A163894_perm_n_not {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = 0; @got < @$bvalues; $n++) {
       my ($hx, $hy) = $hilbert->n_to_xy ($n);
       my ($zx, $zy) = $zorder->n_to_xy ($n);
@@ -504,8 +460,6 @@ sub A163894_perm_n_not {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..7]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..7]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -518,12 +472,9 @@ sub A163894_perm_n_not {
 
 {
   my $anum = 'A163912';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 6);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 6; # shorten
-
     my $target = 1;
     my $max = 0;
     my %lengths;
@@ -540,8 +491,6 @@ sub A163894_perm_n_not {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..7]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..7]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -562,12 +511,9 @@ sub lcm {
 # A163911 - max cycle in 4^k blocks
 {
   my $anum = 'A163911';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 7);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 7; # shorten
-
     my $target = 1;
     my $max = 0;
     for (my $n = 0; @got < @$bvalues; $n++) {
@@ -583,8 +529,6 @@ sub lcm {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -601,7 +545,6 @@ sub lcm {
 #   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
 #   my @got;
 #   if ($bvalues) {
-#     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
 #     # $#$bvalues = 9;
 # 
 #     my $target = 1;
@@ -622,8 +565,6 @@ sub lcm {
 #       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
 #       MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
 #     }
-#   } else {
-#     MyTestHelpers::diag ("$anum not available");
 #   }
 #   skip (! $bvalues,
 #         numeq_array(\@got, $bvalues),
@@ -634,12 +575,9 @@ sub lcm {
 # A163910 - num cycles in 4^k blocks
 {
   my $anum = 'A163910';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 9);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 9;
-
     my $target = 1;
     my $count = 0;
     my @seen;
@@ -670,8 +608,6 @@ sub lcm {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -686,12 +622,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       push @got, zorder_perm($n);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -704,13 +637,10 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $zorder->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -723,12 +653,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       push @got, zorder_perm(zorder_perm($n));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -741,12 +668,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       push @got, zorder_perm(zorder_perm(zorder_perm($n)));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -759,14 +683,11 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
       if (zorder_perm($n) == $n) {
         push @got, $n;
       }
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -779,14 +700,11 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
       if (zorder_is_2cycle($n)) {
         push @got, $n;
       }
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -799,14 +717,11 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = 0; @got < @$bvalues; $n++) {
       if (zorder_is_3cycle($n)) {
         push @got, $n;
       }
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -820,12 +735,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $i = 0; @got < @$bvalues; $i++) {
       push @got, $hilbert->xy_to_n ($i,$i);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -840,13 +752,10 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -859,13 +768,10 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $x;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -878,13 +784,10 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $x+$y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -897,13 +800,10 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $x-$y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -916,13 +816,10 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $x*$x+$y*$y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -937,13 +834,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'down');  # from opposite side
     foreach my $n (1 .. @$bvalues) {
-      my ($y, $x) = $diagonal->n_to_xy ($n);     # transposed, same side
+      my ($y, $x) = $diagonal->n_to_xy ($n);
       push @got, $hilbert->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -956,13 +852,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'down');  # from opposite side
     foreach my $n (0 .. $#$bvalues) {
-      my ($y, $x) = $hilbert->n_to_xy ($n);        # transposed, same side
+      my ($y, $x) = $hilbert->n_to_xy ($n);
       push @got, $diagonal->xy_to_n ($x, $y) - 1;  # 0-based diagonals
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -977,13 +872,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'down');  # from opposite side
     foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $diagonal->n_to_xy ($n);     # plain, opposite sides
+      my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $hilbert->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -996,13 +890,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'down');  # from opposite side
     foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);     # plain, opposite sides
+      my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $diagonal->xy_to_n ($x, $y) - 1;  # 0-based diagonals
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1017,14 +910,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'up');  # from same side
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      ($x, $y) = ($y, $x);                    # transpose for same side
       push @got, $hilbert->xy_to_n ($x, $y) + 1; # 1-based Hilbert
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1037,14 +928,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'up');  # from same side
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
-      ($x, $y) = ($y, $x);                    # transpose for same side
       push @got, $diagonal->xy_to_n ($x, $y); # 1-based Hilbert
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1059,13 +948,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'down');  # from opposite side
     foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $diagonal->n_to_xy ($n);  # no transpose for opp side
+      my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $hilbert->xy_to_n ($x, $y) + 1;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1078,13 +966,12 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
+    my $diagonal = Math::PlanePath::Diagonals->new
+      (direction => 'down');  # from opposite side
     foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);  # no transpose for opp side
+      my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $diagonal->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1098,7 +985,6 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $d (0 .. $#$bvalues) {
       my $sum = 0;
       foreach my $x (0 .. $d) {
@@ -1107,8 +993,6 @@ sub lcm {
       }
       push @got, $sum;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1121,7 +1005,6 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $d (0 .. $#$bvalues) {
       my $sum = 0;
       foreach my $x (0 .. $d) {
@@ -1130,8 +1013,6 @@ sub lcm {
       }
       push @got, int($sum/4);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1145,12 +1026,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $x (0 .. $#$bvalues) {
       push @got, $hilbert->xy_to_n ($x, 0);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1164,12 +1042,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $y (0 .. $#$bvalues) {
       push @got, $hilbert->xy_to_n (0, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1184,7 +1059,6 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my ($prev_x, $prev_y) = (0, 0);
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
@@ -1192,8 +1066,6 @@ sub lcm {
       push @got, $dx;
       ($prev_x, $prev_y) = ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1208,7 +1080,6 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my ($prev_x, $prev_y) = (0, 0);
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
@@ -1216,8 +1087,6 @@ sub lcm {
       push @got, $dy;
       ($prev_x, $prev_y) = ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1233,7 +1102,6 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
@@ -1242,8 +1110,6 @@ sub lcm {
       push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
       ($prev_x,$prev_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1258,7 +1124,6 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
@@ -1267,8 +1132,6 @@ sub lcm {
       push @got, MyOEIS::dxdy_to_direction ($dy, $dx);
       ($prev_x,$prev_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1283,7 +1146,6 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my ($n0_x, $n0_y) = $hilbert->n_to_xy (0);
     my ($p_x, $p_y) = $hilbert->n_to_xy (1);
     my ($p_dx, $p_dy) = ($p_x - $n0_x, $p_y - $n0_y);
@@ -1320,8 +1182,6 @@ sub lcm {
       ($p_dx,$p_dy) = ($dx,$dy);
       ($p_x,$p_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1341,7 +1201,6 @@ sub transpose {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my ($n0_x, $n0_y) = transpose ($hilbert->n_to_xy (0));
     my ($p_x, $p_y) = transpose ($hilbert->n_to_xy (1));
     my ($p_dx, $p_dy) = ($p_x - $n0_x, $p_y - $n0_y);
@@ -1378,8 +1237,6 @@ sub transpose {
       ($p_dx,$p_dy) = ($dx,$dy);
       ($p_x,$p_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

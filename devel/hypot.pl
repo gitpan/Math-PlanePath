@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,6 +22,22 @@ use 5.004;
 use strict;
 use POSIX ();
 use Math::PlanePath::Hypot;
+use Math::PlanePath::HypotOctant;
+
+{
+  # even equivalence
+  my $all = Math::PlanePath::HypotOctant->new (points => 'all');
+  my $even = Math::PlanePath::HypotOctant->new (points => 'even');
+  for (my $n = $all->n_start; $n < 300; $n++) {
+    my ($ex,$ey) = $even->n_to_xy($n);
+    my ($ax,$ay) = $all->n_to_xy($n);
+    my $cx = ($ex+$ey)/2;
+    my $cy = ($ex-$ey)/2;
+    my $diff = ($cx!=$ax || $cy!=$ay ? ' **' : '');
+    print "$n  $ax,$ay  $cx,$cy$diff\n";
+  }
+  exit 0;
+}
 
 {
   my %comb;

@@ -28,6 +28,10 @@
 # A134452 dX balanced ternary digital root
 #            sum of digits (keeping sign)
 # A056594 
+# A014081 count 11 pairs -- does this arise?
+#
+# http://www.numdam.org/item?id=BSMF_1981__109__207_0
+# http://archive.numdam.org/article/BSMF_1981__109__207_0.pdf
 
 package Math::PlanePath::AlternatePaper;
 use 5.004;
@@ -37,12 +41,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -52,6 +57,17 @@ $VERSION = 77;
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+
+  my $arms = $self->{'arms'};
+  if (! defined $arms || $arms <= 0) { $arms = 1; }
+  elsif ($arms > 8) { $arms = 8; }
+  $self->{'arms'} = $arms;
+
+  return $self;
+}
 
 my @rot_to_sx = (1,0,-1,0);
 my @rot_to_sy = (0,1,0,-1);
@@ -72,6 +88,8 @@ sub n_to_xy {
   ### $frac
 
   my $zero = ($n * 0);  # inherit bignum 0
+
+  ($n, my $arm) = _divrem ($n, $self->{'arms'});
 
   my @digits = _digit_split_lowtohigh($n,2);
   if (scalar(@digits) & 1) {
@@ -201,150 +219,139 @@ sub n_to_xy {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-sub XXn_to_xy {
-  my ($self, $n) = @_;
-  ### AlternatePaper n_to_xy(): $n
-
-  if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
-
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;  # inherit possible BigFloat
-    $n = $int;          # BigFloat int() gives BigInt, use that
-  }
-
-  my $zero = ($n * 0);  # inherit bignum 0
-
-  my @digits = _digit_split_lowtohigh($n,2);
-  my @sx;
-  my @sy;
-  {
-    my $sy = $zero;   # inherit BigInt
-    my $sx = $sy + 1; # inherit BigInt
-    ### $sx
-    ### $sy
-
-    for (my $i = 0; $i <= $#digits; $i++) {
-      push @sx, $sx;
-      push @sy, $sy;
-
-      # (sx,sy) + rot+90(sx,sy)
-      ($sx,$sy) = ($sx - $sy,
-                   $sy + $sx);
-
-      $i++;
-      $i <= $#digits || last;
-
-      push @sx, $sx;
-      push @sy, $sy;
-
-      # (sx,sy) + rot-90(sx,sy)
-      ($sx,$sy) = ($sx + $sy,
-                   $sy - $sx);
-    }
-  }
-
-  ### @digits
-  ### @sx
-  ### @sy
-
-  my $rot = 0;
-  my $rev = 0;
-  my $x = $zero;
-  my $y = $zero;
-  while (defined (my $digit = pop @digits)) {
-    {
-      my $sx = pop @sx;
-      my $sy = pop @sy;
-      ### at: "$x,$y  $digit   side $sx,$sy"
-      ### $rot
-
-      if ($rot & 2) {
-        ($sx,$sy) = (-$sx,-$sy);
-      }
-      if ($rot & 1) {
-        ($sx,$sy) = (-$sy,$sx);
-      }
-
-      if ($rev) {
-        if ($digit) {
-          $x -= $sy;
-          $y += $sx;
-          ### rev add to: "$x,$y next is still rev"
-        } else {
-          $rot ++;
-          $rev = 0;
-        }
-      } else {
-        if ($digit) {
-          $rot ++;
-          $x += $sx;
-          $y += $sy;
-          $rev = 1;
-          ### add to: "$x,$y next is rev"
-        }
-      }
-    }
-
-    $digit = pop @digits;
-    last if ! defined $digit;
-
-    {
-      my $sx = pop @sx;
-      my $sy = pop @sy;
-      ### at: "$x,$y  $digit   side $sx,$sy"
-      ### $rot
-
-      if ($rot & 2) {
-        ($sx,$sy) = (-$sx,-$sy);
-      }
-      if ($rot & 1) {
-        ($sx,$sy) = (-$sy,$sx);
-      }
-
-      if ($rev) {
-        if ($digit) {
-          $x += $sy;
-          $y -= $sx;
-          ### rev add to: "$x,$y next is still rev"
-        } else {
-          $rot --;
-          $rev = 0;
-        }
-      } else {
-        if ($digit) {
-          $rot --;
-          $x += $sx;
-          $y += $sy;
-          $rev = 1;
-          ### add to: "$x,$y next is rev"
-        }
-      }
-    }
-  }
-  if ($rev) {
-    $rot += 2;
-  }
-  $rot &= 3;
-  $x = $frac * $rot_to_sx[$rot] + $x;
-  $y = $frac * $rot_to_sy[$rot] + $y;
-
-  ### final: "$x,$y"
-  return ($x,$y);
-}
+# sub XXn_to_xy {
+#   my ($self, $n) = @_;
+#   ### AlternatePaper n_to_xy(): $n
+# 
+#   if ($n < 0) { return; }
+#   if (_is_infinite($n)) { return ($n, $n); }
+# 
+#   my $frac;
+#   {
+#     my $int = int($n);
+#     $frac = $n - $int;  # inherit possible BigFloat
+#     $n = $int;          # BigFloat int() gives BigInt, use that
+#   }
+# 
+#   my $zero = ($n * 0);  # inherit bignum 0
+# 
+#   my @digits = _digit_split_lowtohigh($n,2);
+#   my @sx;
+#   my @sy;
+#   {
+#     my $sy = $zero;   # inherit BigInt
+#     my $sx = $sy + 1; # inherit BigInt
+#     ### $sx
+#     ### $sy
+# 
+#     for (my $i = 0; $i <= $#digits; $i++) {
+#       push @sx, $sx;
+#       push @sy, $sy;
+# 
+#       # (sx,sy) + rot+90(sx,sy)
+#       ($sx,$sy) = ($sx - $sy,
+#                    $sy + $sx);
+# 
+#       $i++;
+#       $i <= $#digits || last;
+# 
+#       push @sx, $sx;
+#       push @sy, $sy;
+# 
+#       # (sx,sy) + rot-90(sx,sy)
+#       ($sx,$sy) = ($sx + $sy,
+#                    $sy - $sx);
+#     }
+#   }
+# 
+#   ### @digits
+#   ### @sx
+#   ### @sy
+# 
+#   my $rot = 0;
+#   my $rev = 0;
+#   my $x = $zero;
+#   my $y = $zero;
+#   while (defined (my $digit = pop @digits)) {
+#     {
+#       my $sx = pop @sx;
+#       my $sy = pop @sy;
+#       ### at: "$x,$y  $digit   side $sx,$sy"
+#       ### $rot
+# 
+#       if ($rot & 2) {
+#         ($sx,$sy) = (-$sx,-$sy);
+#       }
+#       if ($rot & 1) {
+#         ($sx,$sy) = (-$sy,$sx);
+#       }
+# 
+#       if ($rev) {
+#         if ($digit) {
+#           $x -= $sy;
+#           $y += $sx;
+#           ### rev add to: "$x,$y next is still rev"
+#         } else {
+#           $rot ++;
+#           $rev = 0;
+#         }
+#       } else {
+#         if ($digit) {
+#           $rot ++;
+#           $x += $sx;
+#           $y += $sy;
+#           $rev = 1;
+#           ### add to: "$x,$y next is rev"
+#         }
+#       }
+#     }
+# 
+#     $digit = pop @digits;
+#     last if ! defined $digit;
+# 
+#     {
+#       my $sx = pop @sx;
+#       my $sy = pop @sy;
+#       ### at: "$x,$y  $digit   side $sx,$sy"
+#       ### $rot
+# 
+#       if ($rot & 2) {
+#         ($sx,$sy) = (-$sx,-$sy);
+#       }
+#       if ($rot & 1) {
+#         ($sx,$sy) = (-$sy,$sx);
+#       }
+# 
+#       if ($rev) {
+#         if ($digit) {
+#           $x += $sy;
+#           $y -= $sx;
+#           ### rev add to: "$x,$y next is still rev"
+#         } else {
+#           $rot --;
+#           $rev = 0;
+#         }
+#       } else {
+#         if ($digit) {
+#           $rot --;
+#           $x += $sx;
+#           $y += $sy;
+#           $rev = 1;
+#           ### add to: "$x,$y next is rev"
+#         }
+#       }
+#     }
+#   }
+#   if ($rev) {
+#     $rot += 2;
+#   }
+#   $rot &= 3;
+#   $x = $frac * $rot_to_sx[$rot] + $x;
+#   $y = $frac * $rot_to_sy[$rot] + $y;
+# 
+#   ### final: "$x,$y"
+#   return ($x,$y);
+# }
 
 
 
@@ -403,6 +410,7 @@ sub xy_to_n_list {
   while ($level-- >= 0) {
     ### at: "$x,$y  len=$len  n=$n"
 
+    # the smaller N
     {
       $n *= 4;
       if ($rev) {
@@ -457,6 +465,8 @@ sub xy_to_n_list {
         }
       }
     }
+
+    # the bigger N
     {
       $big_n *= 4;
       if ($big_rev) {
@@ -524,7 +534,8 @@ sub xy_to_n_list {
   ### final: "$x,$y  n=$n  rev=$rev"
   ### final: "$x,$y  big_n=$n  big_rev=$rev"
 
-  return ($n, ($n == $big_n ? () : ($big_n)));
+  return ($n,
+          ($n == $big_n ? () : ($big_n)));
 }
 
 # not exact
@@ -566,8 +577,8 @@ Math::PlanePath::AlternatePaper -- alternate paper folding curve
 
 =head1 DESCRIPTION
 
-This is the alternate paper folding curve (a variation on the DragonCurve
-paper folding).
+This is an integer version of the alternate paper folding curve (a variation
+on the DragonCurve paper folding).
 
       8 |                                                      128
         |                                                       |
@@ -590,8 +601,8 @@ paper folding).
         +------------------------------------------------------------
           X=0    1     2     3      4      5      6      7      8
 
-The curve visits the X axis and X=Y diagonal points once each and visits
-"inside" points between there twice each.  The first doubled point is
+The curve visits the X axis points and X=Y diagonal points once each and
+visits "inside" points between there twice each.  The first doubled point is
 X=2,Y=1 which is N=3 and also N=7.  The segments N=2,3,4 and N=6,7,8 have
 touched, but the curve doesn't cross over itself.  The doubled vertices are
 all like this, touching but not crossing, and no edges repeat.
@@ -609,16 +620,17 @@ position.
 
 The X axis values are the same as on the ZOrderCurve X axis, and the X=Y
 diagonal is the same as the ZOrderCurve Y axis, but in between the two are
-different.
+different.  (See L<Math::PlanePath::ZOrderCurve>.)
 
 =head2 Paper Folding
 
 The curve arises from thinking of a strip of paper folded in half
-alternately one way and the other, and which is then unfolded so each crease
-is a 90 degree angle.  The effect is that the curve repeats in successive
-doublings turned 90 degrees and reversed.
+alternately one way and the other, and then unfolded so each crease is a 90
+degree angle.  The effect is that the curve repeats in successive doublings
+turned 90 degrees and reversed.
 
-The first segment N=0 to N=1 unfolds, pivoting at the end "1",
+The first segment N=0 to N=1 unfolds clockwise, pivoting at the endpoint
+"1",
 
                                     2
                                ->   |
@@ -627,8 +639,8 @@ The first segment N=0 to N=1 unfolds, pivoting at the end "1",
                                     |
     0------1                0-------1
 
-Then that "L" shape unfolds again, pivoting at the end "2", but on the
-opposite side to the first unfold,
+Then that "L" shape unfolds again, pivoting at the end "2", but
+anti-clockwise, on the opposite side to the first unfold,
 
                                     2-------3
            2                        |       |
@@ -637,23 +649,25 @@ opposite side to the first unfold,
            |                        |       |
     0------1                0-------1       4
 
-In general after each unfold the shape is a triangle,
+In general after each unfold the shape is a triangle as follows.  The "N"
+marks the N=2^k endpoint in the shape, bottom right or top centre.
 
     after even number          after odd number
        of unfolds,                of unfolds,
      N=0 to N=2^even            N=0 to N=2^odd
-               .                       .
+
+               .                       N
               /|                      / \
              / |                     /   \
             /  |                    /     \
            /   |                   /       \
           /    |                  /         \
-         /_____|                 /___________\
+         /_____N                 /___________\
         0,0                     0,0
 
 For an even number of unfolds the triangle consists of 4 sub-parts numbered
 by the high digit of N in base 4.  Those sub-parts are self-similar in the
-direction "E<gt>" etc shown, and with a reversal for parts 1 and 3.
+direction "E<gt>", "^" etc shown, and with a reversal for parts 1 and 3.
 
               +
              /|
@@ -687,7 +701,7 @@ integer points.
 
 =item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
 
-Return a list of N point numbers for coordinates C<$x,$y>.  There can be
+Return a list of N point numbers for coordinates C<$x,$y>.  There may be
 none, one or two N's for a given C<$x,$y>.
 
 =item C<$n = $path-E<gt>n_start()>
@@ -731,8 +745,8 @@ lowest 0.
 For example at N=10 binary 0b1010 the lowest 0 is the least significant bit,
 and above that is a 1 at odd pos=1, so at N=10+1=11 turn right.
 
-The inversion for odd bit positions can be applied with an xor 0xAA..AA, and
-after that the calculations are the same as the DragonCurve (see
+The inversion at odd bit positions can be applied with an xor 0b1010..1010,
+after which that the calculations are the same as the DragonCurve (see
 L<Math::PlanePath::DragonCurve/Turns>).
 
 =head2 Total Turn
@@ -763,7 +777,7 @@ bit position of the transition, instead of always left for the DragonCurve.
 Since there's always a turn either left or right, never straight ahead, the
 X coordinate changes, then the Y, then the X again, etc, alternately, and
 each time by either +1 or -1.  The changes are the Golay-Rudin-Shapiro
-sequence, the parity of adjacent 11 bit pairs.
+sequence, which is the parity of adjacent 11 bit pairs.
 
 In the total turn above it can be seen that if the 0-E<gt>1 transition is at
 an odd position and 1-E<gt>0 transition at an even position then there's a
@@ -773,67 +787,83 @@ have no effect on the direction.  Runs of even length on the other hand are
 a left followed by a left, or a right followed by a right, for 180 degrees,
 which negates the dX change.  Thus
 
-    dX = (-1) ^ (count of even length runs of 1 bits in N)
-         if N even
+    dX = /  (-1) ^ (count of even length runs of 1 bits in N),
+         |     if N even,
+         \  or 0 if N odd
 
-This is related to the Golay-Rudin-Shapiro sequence
+This (-1)^count is related to the Golay-Rudin-Shapiro sequence,
 
     GRS = (-1) ^ (count of adjacent 11 bit pairs in N)
         = (-1) ^ count_1_bits(N & (N>>1))
-        = +1 if (N & (N>>1)) even parity
-          -1 if (N & (N>>1)) odd parity
+        = /  +1 if (N & (N>>1)) even parity
+          \  -1 if (N & (N>>1)) odd parity
 
 The GRS is +1 on an odd length run of 1 bits, for example a run 111 has two
-11 bit pairs.  On an even length run the GRS is -1.  For example 1111 has
+11 bit pairs.  The GRS is -1 on an even length run, for example 1111 has
 three 11 bit pairs.  So modulo 2 the power in the GRS is the same as the
-count of even length runs and so
+count of even length runs and therefore
 
-    dX = GRS(N) if N even
-         0      if N odd
+    dX = /  GRS(N) if N even
+         \  0      if N odd
 
 For dY the total turn and odd/even runs of 1s makes the same 180 degree
 changes, except N is odd for Y change so the least significant bit is 1 and
-there's no return to "plain" state.  This lowest run of 1s will be turn left
-giving dY=+1 if it started at an even position (an odd number of 1s), and
-conversely turn right for dY=-1 if at an odd position (an even number of
-1s).  The result for this last run is the same negate if even length, just
-for a slightly different reason.
+there's no return to "plain" state.  If this lowest run of 1s starts on an
+even position (an odd number of 1s) then it's a turn left for +1.
+Conversely if the run started at an odd position (an even number of 1s) then
+a turn right for -1.  The result for this last run is the same "negate if
+even length" as the rest of the GRS, just for a slightly different reason.
 
-    dY = 0      if N even
-         GRS(N) if N odd
+    dY = /  0      if N even
+         \  GRS(N) if N odd
 
-Adjacent dX then dY at N=2k and N=2k+1 can be expressed together in terms of
-that k as
+=head2 Consecutive dX,dY
+
+At consecutive points N=2k and N=2k+1 the dX an dY can be expressed together
+in terms of GRS(k) as
 
     dX = GRS(2k)
        = GRS(k)
 
     dY = GRS(2k+1)
        = GRS(k) * (-1)^k
-       = GRS(k) if k even or -GRS(k) if k odd
+       = /  GRS(k) if k even
+         \  -GRS(k) if k odd
 
-Going from 2k+1 to k drops a 1 bit from the low end and if the second lowest
-bit is also a 1 then they're a 11 bit pair which is lost in GRS(k).  The
-factor (-1)^k accounts for that, being +1 if k even or -1 if k odd.
+Reducing 2k+1 to k drops a 1 bit from the low end.  If the second lowest bit
+is also a 1 then they're a 11 bit pair which is lost in GRS(k).  The factor
+(-1)^k adjusts for that, being +1 if k even or -1 if k odd.
 
-From the dX and dY formulas it can be seen that their sum is simply GRS(N),
+=head2 dSum
+
+From the dX and dY formulas above it can be seen that their sum is simply
+GRS(N),
 
     dSum = dX + dY = GRS(N)
 
 The sum X+Y is a numbering of anti-diagonal lines,
 
-    \
-     \    
-    \ \   
-     \ \  
-    \ \ \ 
-     \ \ \
-    \ \ \ \
-     0 1 2 3 
+   |       \
+   |      \ \
+   |     \ \ \
+   |    \ \ \ \
+   |   \ \ \ \ \
+   |  \ \ \ \ \ \
+   +--------------
+      0 1 2 3 4 5
 
 The curve steps each time either up to the next or back to the previous
-according as dSum=GRS(N), though this doesn't say where along the diagonal
-each N is.
+according to dSum=GRS(N).
+
+The way the curve visits the outside points once each and the inside points
+twice each means the visits an anti-diagonal d=X+Y a total of d many times.
+Such a diagonal has floor(d/2)+1 many points, the first visited once, the
+rest visited twice, except when d is even the X=Y point is only visited
+once.  In each case the total is total d many visits.
+
+This sum d=X+Y occurring d many times gives a geometric interpretation to
+the way the cumulative GRS sequence has each value k occurring k many times.
+(See L<Math::NumSeq::GolayRudinShapiroCumulative>.)
 
 =head1 OEIS
 
@@ -842,20 +872,36 @@ Integer Sequences as,
 
     http://oeis.org/A106665  (etc)
 
-    A106665 -- turn, 1=left,0=right, starting at N=1
-    A020985 -- Golay/Rudin/Shapiro sequence
-                 dX and dY, skipping every second value zero
-                 dSum, change in X+Y
-    A020986 -- Golay/Rudin/Shapiro cumulative
-                 X coordinate undoubled
-    A020990 -- Golay/Rudin/Shapiro * (-1)^n, cumulative
-                 Y coordinate undoubled
-                 X-Y diff, starting from N=1
+    A106665  turn, 1=left,0=right, starting at N=1
+    A020985  Golay/Rudin/Shapiro sequence
+                dX and dY, skipping every second value zero
+                dSum, change in X+Y
+    A020986  Golay/Rudin/Shapiro cumulative
+                X coordinate undoubled
+                X+Y coordinate sum
+    A020990  Golay/Rudin/Shapiro * (-1)^n, cumulative
+                Y coordinate undoubled
+                X-Y diff, starting from N=1
 
 Since the X and Y coordinates change each alternately, each coordinate
 appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990
 are "undoubled" X and Y in the sense of just one copy of each of those
 paired values.
+
+    A000695  N on X axis,   base 4 digits 0,1 only
+    A062880  N on diagonal, base 4 digits 0,2 only
+
+    A022155  positions where GRS < 0, which is
+               N where down or left step, ie. dSum < 0,
+               moving to the previous anti-diagonal
+    A203463  positions where GRS > 0, which is
+               N where up or right step, ie. dSum > 0,
+               moving to the next anti-diagonal
+
+    A020991  N-1 of first time on X+Y=k anti-diagonal
+    A212591  N-1 of last time on X+Y=k anti-diagonal
+    A093573  N-1 of points on the anti-diagonals d=X+Y,
+               in ascending N-1 within each diagonal
 
 =head1 SEE ALSO
 
@@ -864,6 +910,15 @@ L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::CCurve>,
 L<Math::PlanePath::HIndexing>,
 L<Math::PlanePath::ZOrderCurve>
+
+L<Math::NumSeq::GolayRudinShapiro>,
+L<Math::NumSeq::GolayRudinShapiroCumulative>
+
+Michel MendE<232>s France and G.Tenenbaum, "Dimension des Courbes Planes,
+Papiers Plies et Suites de Rudin-Shapiro", Bulletin de la S.M.F., volume
+109, 1981, pages 207-215.
+
+    http://www.numdam.org/item?id=BSMF_1981__109__207_0
 
 =head1 HOME PAGE
 

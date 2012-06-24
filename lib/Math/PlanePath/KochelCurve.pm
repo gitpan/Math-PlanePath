@@ -16,6 +16,9 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=KochelCurve --all --output=numbers_dash
+#
+
 package Math::PlanePath::KochelCurve;
 use 5.004;
 use strict;
@@ -25,12 +28,13 @@ use strict;
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -248,13 +252,9 @@ sub n_to_xy {
   my $int = int($n);
   $n -= $int;  # remaining fraction, preserve possible BigFloat/BigRat
 
-  my @digits;
-  my $len = $int*0 + 1;   # inherit bigint 1
-  while ($int) {
-    push @digits, $int % 9;
-    $int = int($int/9);
-    $len *= 3;
-  }
+  my @digits = _digit_split_lowtohigh($int,9);
+  my $len = ($int*0 + 3) ** scalar(@digits);  # inherit bignum
+
   ### digits: join(', ',@digits)."   count ".scalar(@digits)
   ### $len
 
@@ -492,10 +492,9 @@ Math::PlanePath::KochelCurve -- 3x3 self-similar R and F
 
 =head1 DESCRIPTION
 
-X<Haverkort, Herman>
-This is an integer version of the Kochel curve by Herman Haverkort.  It
-fills the first quadrant in a 3x3 self-similar pattern made from two base
-shapes.
+X<Haverkort, Herman>This is an integer version of the Kochel curve by Herman
+Haverkort.  It fills the first quadrant in a 3x3 self-similar pattern made
+from two base shapes.
 
             |
       8    80--79  72--71--70--69  60--59--58
@@ -641,10 +640,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=KochelCurve --lines --scale=20"
-# End:
-#
-# math-image --path=KochelCurve --all --output=numbers_dash

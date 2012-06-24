@@ -42,6 +42,8 @@ use strict;
 use Math::PlanePath 37; # v.37 for _round_nearest()
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -50,7 +52,7 @@ use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -65,8 +67,7 @@ sub n_start {
 }
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
   $self->{'n_start'} ||= 0;
   return $self;
 }
@@ -137,12 +138,11 @@ sub n_to_xy {
   # now remaining $n offset into the row
   #
   my $x = 0;
-  while ($n) {
+  foreach my $digit (_digit_split_lowtohigh($n,2)) {
     my $ybit = pop @ybits;
-    if ($n%2) {
+    if ($digit) {
       $x += $ybit;
     }
-    $n = int($n/2);
   }
 
   ### final: "$x,$y"
@@ -230,9 +230,8 @@ Math::PlanePath::SierpinskiTriangle -- self-similar triangular path traversal
 
 =head1 DESCRIPTION
 
-X<Sierpinski, Waclaw>
-This is an integer version of the Sierpinski triangle with cells numbered
-horizontally across each row.
+X<Sierpinski, Waclaw>This is an integer version of the Sierpinski triangle
+with cells numbered horizontally across each row.
 
     65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80   15
       57      58      59      60      61      62      63      64     14
@@ -280,11 +279,11 @@ cumulative count of preceding points,
 
     Nleft(Y) = rowpoints(0) + ... + rowpoints(Y-1)
 
-Since the powers of 2 are always even after the 2^0=1 in row Y=0, the
-leftmost N is always odd, and the self-similar nature of the triangle means
+Since the powers of 2 are always even except for 2^0=1 in row Y=0, the
+Nleft(Y) total is always odd.  The self-similar nature of the triangle means
 the same is true of the sub-triangles, like N=31,35,41,47,etc on the left of
 the X=8,Y=8 triangle.  This means in particular the primes fall
-predominately on the left side of the triangles.
+predominately on the left side of the triangles and sub-triangles.
 
 =head2 Level Sizes
 
@@ -302,7 +301,7 @@ For example level 2 is from N=0 to N=3^2-1=9.  Each level doubles in size,
 
 The triangle arises in Stephen Wolfram's "rule 90" cellular automaton.  In
 each row a cell turns on on if one but not both its diagonal predecessors
-are on, which is a mod 2 sum giving Pascal's triangle mod 2.
+are on.  That behaves as a mod 2 sum, giving Pascal's triangle mod 2.
 
     http://mathworld.wolfram.com/Rule90.html
 
@@ -314,7 +313,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SierpinskiTriangle-E<gt>new ()>
 
-Create and return a new triangle path object.
+Create and return a new path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

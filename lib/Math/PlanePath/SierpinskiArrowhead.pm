@@ -36,7 +36,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -281,9 +281,9 @@ Math::PlanePath::SierpinskiArrowhead -- self-similar triangular path traversal
 
 =head1 DESCRIPTION
 
-X<Sierpinski, Waclaw>
-This is an integer version of the Sierpinski arrowhead path.  It follows a
-self-similar triangular shape leaving middle triangle gaps.
+X<Sierpinski, Waclaw>This is an integer version of the Sierpinski arrowhead
+path.  It follows a self-similar triangular shape leaving middle triangle
+gaps.
 
     \
      27----26          19----18          15----14              8

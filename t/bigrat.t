@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 312)[1];
+my $test_count = (tests => 322)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -397,8 +397,16 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'WythoffArray',
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
+
+               'Diagonals',
+               'Diagonals,direction=up',
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
+               'DiagonalsAlternating',
 
                'TerdragonMidpoint',
                'TerdragonMidpoint,arms=1',
@@ -464,7 +472,6 @@ my @modules = (
                'LTiling',
                'LTiling,L_fill=ends',
                'LTiling,L_fill=all',
-               'DiagonalsAlternating',
                'MPeaks',   # but not across gap
                'WunderlichMeander',
                'FibonacciWordFractal',
@@ -539,6 +546,9 @@ my @modules = (
                # 'CoprimeColumns',   # counting by N
                # 'DiagonalRationals',# counting by N
                # 'GcdRationals',     # counting by N
+               # 'GcdRationals,pairs_order=rows_reverse',
+               # 'GcdRationals,pairs_order=diagonals_down',
+               # 'GcdRationals,pairs_order=diagonals_up',
                # 'FactorRationals',  # counting by N
                # 'TriangularHypot',  # counting by N
                'PythagoreanTree',
@@ -559,7 +569,6 @@ my @modules = (
                'ComplexRevolving',
                
                # 'File',  # not applicable
-               'Diagonals',
                'Corner',
                'PyramidRows',
                'PyramidSides',

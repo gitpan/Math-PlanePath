@@ -32,12 +32,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -166,10 +167,10 @@ sub n_to_xy {
   my $x = 0;
   my $y = 0;
   while (@levelbits) {
+    ($n, my $digit) = _divrem ($n, 3);
     ### levelbits: $levelbits[-1]
-    ### digit: $n % 3
-    my $digit = $n % 3;
-    $n = int($n/3);
+    ### $digit
+
     my $lbit = pop @levelbits;
     $x += $lbit;
     $y += $lbit;
@@ -360,11 +361,10 @@ Math::PlanePath::UlamWarburtonQuarter -- growth of a 2-D cellular automaton
 
 =head1 DESCRIPTION
 
-X<Ulam, Stanislaw>
-X<Warburton>
-This is the pattern of a cellular automaton studied by Ulam and Warburton,
-confined to a quarter of the plane and done on the diagonal.  Cells are
-numbered by growth level and anti-clockwise within the level.
+X<Ulam, Stanislaw>X<Warburton>This is the pattern of a cellular automaton
+studied by Ulam and Warburton, confined to a quarter of the plane and done
+on the diagonal.  Cells are numbered by growth level and anti-clockwise
+within the level.
 
    14 |  81    80    79    78    75    74    73    72
    13 |     57          56          55          54

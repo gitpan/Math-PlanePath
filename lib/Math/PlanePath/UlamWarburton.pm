@@ -16,22 +16,31 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# A147582 - turned on by level n
-# A147562 - total number of on cells at level n
+# math-image --path=UlamWarburton --all --output=numbers --size=80x50
+#
 # A147610 - 3^(ones(n-1) - 1)
 # A048883 - 3^(ones n)
+
+# A160117 peninsula and bridges
+# A160118 similar but all 8 directions around single-touching peninsula
+# A160415   first diffs
+# A160796 with initial single 1
+# A160797   first diffs
+# A188343
+
 
 package Math::PlanePath::UlamWarburton;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -174,10 +183,10 @@ sub n_to_xy {
   my $x = 0;
   my $y = 0;
   while (@levelbits) {
+    ($n, my $digit) = _divrem ($n, 3);
     ### levelbits: $levelbits[-1]
-    ### digit: $n % 3
-    my $digit = $n % 3;
-    $n = int($n/3);
+    ### $digit
+
     $x += pop @levelbits;
     if (@levelbits) {
       if ($digit == 0) {
@@ -413,10 +422,9 @@ Math::PlanePath::UlamWarburton -- growth of a 2-D cellular automaton
 
 =head1 DESCRIPTION
 
-X<Ulam, Stanislaw>
-X<Warburton>
-This is the pattern of a cellular automaton studied by Ulam and Warburton,
-numbering cells by growth level and anti-clockwise within their level.
+X<Ulam, Stanislaw>X<Warburton>This is the pattern of a cellular automaton
+studied by Ulam and Warburton, numbering cells by growth level and
+anti-clockwise within their level.
 
                                94                                  9
                             95 87 93                               8
@@ -631,9 +639,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=UlamWarburton"
-# End:
-#
-# math-image --path=UlamWarburton --all --output=numbers --size=80x50

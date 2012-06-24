@@ -87,6 +87,34 @@ sub dxdy_to_dir {
 }
 
 
+#------------------------------------------------------------------------------
+# A179868 - count 1 bits mod 4, is absolute direction
+
+{
+  my $anum = 'A179868';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got = (0);
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      push @got, path_n_dir($path,$n);
+    }
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
 
 #------------------------------------------------------------------------------
 # A003159 - ending even 0 bits, is turn left or right
@@ -211,8 +239,6 @@ sub dxdy_to_dir {
         undef,
         "$anum");
 }
-
-
 
 #------------------------------------------------------------------------------
 exit 0;

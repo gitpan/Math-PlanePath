@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -392,7 +392,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::StaircaseAlternating-E<gt>new ()>
 
-Create and return a new staircase path object.
+Create and return a new path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

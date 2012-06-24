@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurve;
 # VERSION
 
 {
-  my $want_version = 77;
+  my $want_version = 78;
   ok ($Math::PlanePath::SierpinskiCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurve->VERSION,  $want_version,
@@ -83,8 +83,8 @@ require Math::PlanePath::SierpinskiCurve;
                     [8, 1,1]) {
     my ($arms, $want_x_negative, $want_y_negative) = @$elem;
     my $path = Math::PlanePath::SierpinskiCurve->new (arms => $arms);
-    ok ($path->x_negative, $want_x_negative, 'x_negative()');
-    ok ($path->y_negative, $want_y_negative, 'y_negative()');
+    ok (!!$path->x_negative, !!$want_x_negative, 'x_negative()');
+    ok (!!$path->y_negative, !!$want_y_negative, 'y_negative()');
   }
 }
 

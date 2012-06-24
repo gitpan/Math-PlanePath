@@ -16,6 +16,10 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=LTiling --all --output=numbers --size=80x50
+#
+
+
 package Math::PlanePath::LTiling;
 use 5.004;
 use strict;
@@ -26,12 +30,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -91,18 +96,17 @@ sub n_to_xy {
   } elsif ($L_fill eq 'upper') {
     $y += 1;
   } elsif ($L_fill eq 'ends') {
-    if ($n % 2) { # low digit==1
+    ($n, my $rem) = _divrem ($n, 2);
+    if ($rem) { # low digit==1
       $y = $len;  # 1
     } else { # low digit==0
       $x = $len;  # 1
     }
-    $n = int($n/2);
   } elsif ($L_fill eq 'all') {
-    my $digit = $n % 3;
-    $n = int($n/3);
-    if ($digit == 1) {
+    ($n, my $rem) = _divrem ($n, 3);
+    if ($rem == 1) {
       $x = $len;  # 1
-    } elsif ($digit == 2) {
+    } elsif ($rem == 2) {
       $y = $len;  # 1
     }
   }
@@ -458,9 +462,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=LTiling --lines --scale=10"
-# End:
-#
-# math-image --path=LTiling --all --output=numbers --size=80x50

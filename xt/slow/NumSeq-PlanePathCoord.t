@@ -373,10 +373,21 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'WythoffArray',
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
+
+               'Diagonals',
+               'Diagonals,direction=up',
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
-               'Diagonals',
                'DiagonalsAlternating',
+
+               'GcdRationals',
+               'GcdRationals,pairs_order=rows_reverse',
+               'GcdRationals,pairs_order=diagonals_down',
+               'GcdRationals,pairs_order=diagonals_up',
 
                'MultipleRings,ring_shape=polygon,step=3',
                'MultipleRings,ring_shape=polygon,step=4',
@@ -679,7 +690,6 @@ my @modules = (
 
                'FractionsTree',
                'FactorRationals',
-               'GcdRationals',
                'DiagonalRationals',
 
                'AR2W2Curve',
@@ -889,7 +899,8 @@ my @modules = (
             if (abs($value - $prev_value) < 0.0000001) {
               $prev_value = $value;
             }
-            if ($value <= $prev_value) {
+            if ($value <= $prev_value
+               && ! Math::PlanePath::_is_infinite($prev_value)) {
               # ### not increasing ...
               if ($saw_increasing) {
                 $saw_increasing = 0;

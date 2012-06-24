@@ -31,11 +31,12 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::TerdragonCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -79,11 +80,8 @@ sub n_to_xy {
   }
 
   my $arms_count = $self->{'arms'};
-  my $arm = $n % $arms_count;
-  $n = int($n/$arms_count);
-
-  my $pair = $n % 2;
-  $n = int($n/2);
+  ($n, my $arm) = _divrem ($n, $arms_count);
+  ($n, my $pair) = _divrem ($n, 2);
 
   my ($x, $y) = $self->Math::PlanePath::TerdragonCurve::n_to_xy
     ((9*$n + ($pair ? 4 : 2)) * $arms_count + $arm);
@@ -113,8 +111,7 @@ sub xy_to_n {
 
   my $arms_count = $self->{'arms'};
   foreach my $n (@n_list) {
-    my $arm = $n % $arms_count;
-    $n = int($n/$arms_count);
+    ($n, my $arm) = _divrem ($n, $arms_count);
 
     my $mod = $n % 9;
     if ($mod == 2) {

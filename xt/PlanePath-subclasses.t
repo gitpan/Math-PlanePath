@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 1071 }
+BEGIN { plan tests => 1099 }
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,21 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'WythoffArray',
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
+
+               'GcdRationals',
+               'GcdRationals,pairs_order=rows_reverse',
+               'GcdRationals,pairs_order=diagonals_down',
+               'GcdRationals,pairs_order=diagonals_up',
+
+               'Hypot',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
 
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
@@ -148,8 +163,6 @@ my @modules = (
                'WunderlichSerpentine,radix=4',
                'WunderlichSerpentine,radix=5,serpentine_type=coil',
 
-               'Hypot',
-               'HypotOctant',
                'PixelRings',
                'FilledRings',
                'MultipleRings',
@@ -206,7 +219,6 @@ my @modules = (
 
                'FractionsTree',
                'FactorRationals',
-               'GcdRationals',
                'DiagonalRationals',
 
                'CoprimeColumns',
@@ -382,7 +394,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 77;
+my $want_version = 78;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

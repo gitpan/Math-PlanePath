@@ -39,9 +39,10 @@ use strict;
 
 use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -75,8 +76,9 @@ sub n_to_xy {
     $frac = $n - $int;
     $n = $int;  # BigFloat int() gives BigInt, use that
   }
-  my $rot = $n % 6;
-  $n = int($n/6);
+
+  # arm as initial rotation
+  ($n, my $rot) = _divrem($n,6);
   ### $n
 
   my $d = int ((-1 + sqrt(8 * $n + 1)) / 2);

@@ -19,26 +19,28 @@
 # math-image --all --output=numbers --path=TriangularHypot
 # math-image  --path=TriangularHypot
 
-# A003136 - Loeschian hypot norms of hex lattice
-
+# A034017 - loeschian primatives xx+xy+yy, primes 3k+1 and a factor of 3
+#           which is when x^2-x+1 mod n has a solution
+#
 # A092572 - all x^2+3*y^2
 # A158937 - all x^2+3*y^2 with repetitions x>0,y>0
 # A092573 - number of such solutions
-
+#
 # A092574 - x^2+3*y^2 with gcd(x,y)=1
 # A092575 - number of such gcd(x,y)=1
-
+#
 # A092572 - 6n+1 primes
 # A055664 - norms of Eisenstein-Jacobi primes
 # A008458 - hex coordination sequence
-
+#
+# A014201 - x*x+x*y+y*y solutions excluding 0,0
 
 package Math::PlanePath::TriangularHypot;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -300,10 +302,11 @@ those of equal distance.
 
 The lattice is put on a square X,Y grid using every second point per
 L<Math::PlanePath/Triangular Lattice>.  With scaling X/2, Y*sqrt(3)/2 to
-give equilateral triangles with side length 1 the X,Y distance from the
+give equilateral triangles of side length 1 the distance from X,Y to the
 origin is
 
-    dist^2 = (X/2^2 + (Y*sqrt(3)/2)^2  =  (X^2 + 3*Y^2) / 4
+    dist^2 = (X/2^2 + (Y*sqrt(3)/2)^2
+           = (X^2 + 3*Y^2) / 4
 
 For example N=19 at X=2,Y=-2 is sqrt((2**2+3*-2**2)/4) = sqrt(4) from the
 origin.  The next smallest after that is X=5,Y=1 at sqrt(7).  The key part
@@ -313,18 +316,18 @@ is X^2 + 3*Y^2 as the distance measure to order the points.
 
 Points with the same distance are taken in anti-clockwise order around from
 the X axis.  For example N=14 at X=4,Y=0 is sqrt(4) from the origin, as are
-the rotated X=2,Y=2 and X=--2,Y=2 etc in other sixths, for a total 6 points
+the rotated X=2,Y=2 and X=-2,Y=2 etc in other sixths, for a total 6 points
 N=14 to N=19 all the same distance.
 
 In general there's either 6 or 12 symmetric points so the number of points
 of the same distance is always a multiple of 6 or 12.  There are 6 points
-when on the six radial lines X=0, X=Y or X=-Y, and the lines Y=0, X=3*Y or
-X=-3*Y which are midway between then.  Then there's 12-way symmetry for
+when on the six radial lines X=0, X=Y or X=-Y, or on the lines Y=0, X=3*Y or
+X=-3*Y which are midway between them.  Then there's 12-way symmetry for
 anything else, ie. anything in the twelve slices between those twelve lines.
-The first 12 for example is N=20 to N=31 all at sqrt(28).
+For example the first 12 equal is N=20 to N=31 all at sqrt(28).
 
-There can also be multiple ways for the same distance to arise, but the
-6-way or 12-way symmetry means always a multiple of 6 or 12.
+There can also be further ways for the same distance to arise, but the 6-way
+or 12-way symmetry means always a multiple of 6 or 12.
 
 =head1 FUNCTIONS
 
@@ -334,7 +337,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::TriangularHypot-E<gt>new ()>
 
-Create and return a new hypot path object.
+Create and return a new triangular hypot path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -366,24 +369,30 @@ path include,
 
     http://oeis.org/A035019
 
-    A004016 -- number of points of rsquared distance h
-    A035019 -- number of points of equal hypot distance
-                (excludes distances with 0 points)
+    A003136  norms X^2+3*Y^2 which occur
+    A004016  count of points of norm n
+    A035019    skipping zero counts
+    A088534    counting only in the twelfth 0<=X<=Y
 
-A004016 is based on x^2+x*y+y^2 = h.  That x,y is obtained from the path X,Y
-here by a rotation -45 degrees,
+The counts in these sequences are expressed as norm = x^2+x*y+y^2.  That x,y
+is related to the "even" X,Y on the path here by a -45 degree rotation,
 
     x = (Y-X)/2           X = 2*(x+y)
     y = (X+Y)/2           Y = 2*(y-x)
 
-The target h is then
+The norm is then
 
-    h = x^2+x*y+y^2
-      = ((Y-X)/2)^2 + (Y-X)/2 * (X+Y)/2 + ((X+Y)/2)^2
-      = (X^2 + 3*Y^2) / 4
+    norm = x^2+x*y+y^2
+         = ((Y-X)/2)^2 + (Y-X)/2 * (X+Y)/2 + ((X+Y)/2)^2
+         = (X^2 + 3*Y^2) / 4
 
-which is the dist^2 distance in equilateral triangles of unit side as
-described above.
+X^2+3*Y^2 is the dist^2 described above for equilateral triangles of unit
+side.  The factor of /4 doesn't affect the count of how many points.
+
+Sequences A092572, A092573 and A158937 are based on x^2+3*y^2 but they're
+not applicable to this TriangularHypot since they're all integer x,y whereas
+the path here is every second point, ie. x,y both odd or both even.  The
+latter condition gives the x^2+x*y+y^2 form.
 
 =cut
 

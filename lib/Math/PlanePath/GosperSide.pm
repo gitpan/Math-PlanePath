@@ -32,13 +32,14 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -92,8 +93,7 @@ sub n_to_xy {
 
 
   if ((my $arms = $self->{'arms'}) > 1) {
-    my $rot = $n % $arms;
-    $n = int(($n)/$arms); # round up +$arms-1
+    ($n, my $rot) = _divrem ($n, $arms);
     if ($rot >= 3) {
       $rot -= 3;
       $x = -$x;    # rotate 180, knowing y=0,yend=0
@@ -198,9 +198,8 @@ Math::PlanePath::GosperSide -- one side of the Gosper island
 
 =head1 DESCRIPTION
 
-X<Gosper, William>
-This path is a single side of the Gosper island, in integers
-(L<Math::PlanePath/Triangular Lattice>).
+X<Gosper, William>This path is a single side of the Gosper island, in
+integers (L<Math::PlanePath/Triangular Lattice>).
 
                                         20-...        14
                                        /

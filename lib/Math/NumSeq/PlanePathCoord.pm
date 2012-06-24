@@ -24,7 +24,7 @@ use constant 1.02; # various underscore constants below
 use Math::NumSeq;
 
 use vars '$VERSION','@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -121,7 +121,13 @@ my %oeis_anum =
   (
    # ENHANCE-ME: Rows/Columns runs of 0,0,0,1,1,1, etc in other coord
    #
-   
+
+   'Math::PlanePath::WythoffArray' =>
+   {
+    Y   => 'A019586', # row containing N
+    # OEIS-Catalogue: A019586 planepath=WythoffArray coord_type=Y
+   },
+
    'Math::PlanePath::AlternatePaper,i_start=1' =>
    { DiffXY  => 'A020990', # GRS*(-1)^n cumulative
      AbsDiff => 'A020990',
@@ -309,6 +315,10 @@ my %oeis_anum =
    'Math::PlanePath::DiagonalsOctant,direction=down' =>
    { X        => 'A055087',  # 0, 0,1, 0,1, 0,1,2, 0,1,2, etc
      # OEIS-Catalogue: A055087 planepath=DiagonalsOctant coordinate_type=X
+     
+     # Not quite, OFFSET=0 vs N=1 here
+     # Sum,SumAbs  => 'A055086',  # reps floor(n/2)+1
+     # DiffYX  => 'A082375',  # step=2 k to 0
    },
    
    # PyramidRows step=0 is trivial X=0,Y=N
@@ -491,8 +501,8 @@ my %oeis_anum =
    },
 
    # Y same rows_reverse
-   'Math::PlanePath::GcdRationals' =>
-   { Y => 'A054531',  # T(n,k) = n/GCD(n,k), being denominators
+   'Math::PlanePath::GcdRationals,pairs_order=all' =>
+   { Y => 'A054531',  # T(n,k) = n/GCD(n,k), being denominators, rows+reverse
      # OEIS-Catalogue: A054531 planepath=GcdRationals coordinate_type=Y
    },
 
@@ -1062,6 +1072,8 @@ sub values_max {
   *_NumSeq_Coord_TRSquared_min = \&_NumSeq_Coord_AbsDiff_min;
 }
 # { package Math::PlanePath::HexSpiralSkewed;
+# }
+# { package Math::PlanePath::HexArms;
 # }
 # { package Math::PlanePath::HeptSpiralSkewed;
 # }
@@ -1796,9 +1808,17 @@ sub values_max {
 # }
 # { package Math::PlanePath::QuintetCentres;
 # }
-# { package Math::PlanePath::BetaOmega;
+# { package Math::PlanePath::QuintetReplicate;
 # }
 # { package Math::PlanePath::AR2W2Curve;
+# }
+# { package Math::PlanePath::BetaOmega;
+# }
+# { package Math::PlanePath::KochelCurve;
+# }
+# { package Math::PlanePath::CincoCurve;
+# }
+# { package Math::PlanePath::SquareReplicate;
 # }
 # { package Math::PlanePath::CornerReplicate;
 # }
@@ -1806,7 +1826,7 @@ sub values_max {
 # }
 # { package Math::PlanePath::FibonacciWordFractal;
 # }
-{ package Math::PlanePath::LTiling;  # NSEW
+{ package Math::PlanePath::LTiling;
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
     return ($self->{'L_fill'} eq 'middle' || $self->{'L_fill'} eq 'all'
@@ -1824,6 +1844,10 @@ sub values_max {
             : 0);  # 'middle','all' X=0,Y=0
   }
 }
+# { package Math::PlanePath::WythoffArray;
+# }
+# { package Math::PlanePath::PowerArray;
+# }
 
 
 #------------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 6 }
+BEGIN { plan tests => 9 }
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -28,7 +28,6 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 
 use Math::PlanePath::CoprimeColumns;
-use Math::PlanePath::RationalsTree;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -50,40 +49,43 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
-sub delete_second_highest_bit {
-  my ($n) = @_;
-  my $bit = 1;
-  my $ret = 0;
-  while ($bit <= $n) {
-    $ret |= ($n & $bit);
-    $bit <<= 1;
-  }
-  $bit >>= 1;
-  $ret &= ~$bit;
-  $bit >>= 1;
-  $ret |= $bit;
-  # ### $ret
-  # ### $bit
-  return $ret;
-}
-# ### assert: delete_second_highest_bit(1) == 1
-# ### assert: delete_second_highest_bit(2) == 1
-### assert: delete_second_highest_bit(4) == 2
-### assert: delete_second_highest_bit(5) == 3
+#------------------------------------------------------------------------------
+# A121998 - list of <=k with a common factor
 
+{
+  my $anum = 'A121998';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    OUTER: for (my $x = 2; ; $x++) {
+      for (my $y = 1; $y <= $x; $y++) {
+        if (! defined ($path->xy_to_n($x,$y))) {
+          push @got, $y;
+          last OUTER unless @got < @$bvalues;
+        }
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
 
 #------------------------------------------------------------------------------
 # A038567 - X coordinate
 
 {
   my $anum = 'A038567';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                      max_count => 10000);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 10000;
-
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+    my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
     my $n = 0;
     while (@got < @$bvalues) {
       my ($x,$y) = $path->n_to_xy ($n++);
@@ -93,8 +95,6 @@ sub delete_second_highest_bit {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
@@ -107,13 +107,11 @@ sub delete_second_highest_bit {
 
 {
   my $anum = 'A038566';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                      max_count => 10000);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    $#$bvalues = 10000;
-
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+    my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
     my $n = 0;
     while (@got < @$bvalues) {
       my ($x,$y) = $path->n_to_xy ($n++);
@@ -123,8 +121,6 @@ sub delete_second_highest_bit {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
@@ -138,17 +134,10 @@ sub delete_second_highest_bit {
 {
   my $anum = 'A054521';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-  }
-
   {
     my $good = 1;
     my $count = 0;
-    if (! $bvalues) {
-      MyTestHelpers::diag ("$anum not available");
-    } else {
-
+    if ($bvalues) {
       my $x = 1;
       my $y = 1;
       for (my $i = 0; $i < @$bvalues; $i++) {
@@ -172,9 +161,7 @@ sub delete_second_highest_bit {
 
   {
     my @got;
-    if (! $bvalues) {
-      MyTestHelpers::diag ("$anum not available");
-    } else {
+    if ($bvalues) {
     OUTER: for (my $x = 1; ; $x++) {
         foreach my $y (1 .. $x) {
           if (defined ($path->xy_to_n($x,$y))) {
@@ -203,16 +190,10 @@ sub delete_second_highest_bit {
 {
   my $anum = 'A127368';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-  }
-
   {
     my $good = 1;
     my $count = 0;
-    if (! $bvalues) {
-      MyTestHelpers::diag ("$anum not available");
-    } else {
+    if ($bvalues) {
       # last two values of A127368.html wrong way around as of June 2011
       $bvalues->[52] = 0;
       $bvalues->[53] = 9;
@@ -240,9 +221,7 @@ sub delete_second_highest_bit {
 
   {
     my @got;
-    if (! $bvalues) {
-      MyTestHelpers::diag ("$anum not available");
-    } else {
+    if ($bvalues) {
     OUTER: for (my $x = 1; ; $x++) {
         foreach my $y (1 .. $x) {
           if (defined ($path->xy_to_n($x,$y))) {
@@ -272,8 +251,7 @@ sub delete_second_highest_bit {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+    require Math::PlanePath::RationalsTree;
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
     my $n = 0;
     while (@got < @$bvalues) {
@@ -284,14 +262,34 @@ sub delete_second_highest_bit {
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum");
 }
+
+sub delete_second_highest_bit {
+  my ($n) = @_;
+  my $bit = 1;
+  my $ret = 0;
+  while ($bit <= $n) {
+    $ret |= ($n & $bit);
+    $bit <<= 1;
+  }
+  $bit >>= 1;
+  $ret &= ~$bit;
+  $bit >>= 1;
+  $ret |= $bit;
+  # ### $ret
+  # ### $bit
+  return $ret;
+}
+# ### assert: delete_second_highest_bit(1) == 1
+# ### assert: delete_second_highest_bit(2) == 1
+### assert: delete_second_highest_bit(4) == 2
+### assert: delete_second_highest_bit(5) == 3
+
 
 #------------------------------------------------------------------------------
 # A002088 - totient sum along X axis
@@ -301,11 +299,7 @@ sub delete_second_highest_bit {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $good = 1;
   my $count = 0;
-  if (! $bvalues) {
-    MyTestHelpers::diag ("$anum not available");
-  } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+  if ($bvalues) {
     for (my $i = 0; $i < @$bvalues; $i++) {
       my $x = $i+1;
       my $want = $bvalues->[$i];

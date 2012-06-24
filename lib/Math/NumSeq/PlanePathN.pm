@@ -26,7 +26,7 @@ use Math::NumSeq;
 use Math::NumSeq::PlanePathCoord;
 
 use vars '$VERSION','@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -66,6 +66,15 @@ use constant::defer parameter_info_array =>
 
 my %oeis_anum =
   (
+   'Math::PlanePath::WythoffArray' =>
+   {
+    # X_axis   => 'A000045', # Fibonaccis, but skip initial 0,1
+    # Diagonal => 'A020941', # diagonal, but OFFSET=1 cf here start N=0
+
+    Y_axis   => 'A003622', # spectrum of phi
+    # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
+   },
+
    'Math::PlanePath::PeanoCurve,radix=3' =>
    { X_axis   => 'A163480', # axis same as initial direction
      Y_axis   => 'A163481', # axis opp to initial direction
@@ -335,6 +344,9 @@ my %oeis_anum =
    # # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
 
 
+   # Hypot
+   # X_axis is 1 + A051132 points < n^2
+   #
    # TriangleSpiral - cf A062728 SE diagonal OFFSET=1 but it starts n=0
    #
    # CoprimeColumns X_axis -- cumulative totient but start X=1 value=0;
@@ -369,6 +381,11 @@ my %oeis_anum =
    # MultipleRings,step=0 -- integers 1,2,3, etc, but starting i=0
    #
    # Diagonals X_axis -- triangular 1,3,6,etc, but starting i=0 value=1
+   #
+   # DiagonalsOctant,direction=up
+   # Y_axis => 'A002620',
+   # but A002620 starts OFFSET=0 0,0,1,2,4, whereas axis N=1 1,2,4 so
+   # skipping two initial 0s
    #
    # PyramidRows Diagonal -- squares 1,4,9,16, but i=0 value=1
    # PyramidRows,step=1 Diagonal -- triangular 1,3,6,10, but i=0 value=1
@@ -1240,6 +1257,16 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1; # when touched
 }
 { package Math::PlanePath::LTiling;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::WythoffArray;
+  use constant _NumSeq_X_axis_increasing   => 1;
+  use constant _NumSeq_Y_axis_increasing   => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+}
+{ package Math::PlanePath::PowerArray;
+  use constant _NumSeq_X_axis_increasing   => 1;
+  use constant _NumSeq_Y_axis_increasing   => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 

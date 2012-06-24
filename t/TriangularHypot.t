@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 77;
+  my $want_version = 78;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,
@@ -103,6 +103,10 @@ sub hex_hypot {
       MyTestHelpers::diag ("n=$n x=$x2,y=$y2 h=$h2 < prev h=$h x=$x,y=$y");
       last if $bad++ > 10;
     }
+    if ($n > 2 && ! _turn_func_Left($x,$y, $x2,$y2)) {
+      MyTestHelpers::diag ("not turn left at n=$n x=$x2,y=$y2 prev x=$x,y=$y");
+      last if $bad++ > 10;
+    }
     $h = $h2;
     $x = $x2;
     $y = $y2;
@@ -110,6 +114,16 @@ sub hex_hypot {
   ok ($bad, 0, "n_to_xy() hypot non-decreasing");
 }
 
+sub _turn_func_Left {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  ### _turn_func_Left() ...
+  my $a = $next_dy * $dx;
+  my $b = $next_dx * $dy;
+  return ($a > $b
+          || $dx==-$next_dx && $dy==-$next_dy  # straight opposite 180
+          ? 1
+          : 0);
+}
 
 #------------------------------------------------------------------------------
 # all x,y covered and distinct n

@@ -238,10 +238,9 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new;
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       my $n = $zorder->xy_to_n ($x, $y);
       push @got, $n;
     }
@@ -262,10 +261,9 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new;
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $zorder->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       my $n = $diagonal->xy_to_n ($x, $y);
       push @got, $n - 1;
     }
@@ -281,14 +279,14 @@ sub diff_nums {
 
 
 #------------------------------------------------------------------------------
-# A163330 -- radix=3 diagonals same axis
+# A163330 -- radix=3 diagonals opposite axis
 {
   my $anum = 'A163330';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new;
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       my $n = $zorder->xy_to_n ($x, $y);
@@ -311,10 +309,9 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new;
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $zorder->n_to_xy ($n);
- #     ($x, $y) = ($y, $x);
       my $n = $diagonal->xy_to_n ($x, $y);
       push @got, $n - 1;
     }
@@ -337,10 +334,9 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new;
-    my $diagonal = Math::PlanePath::Diagonals->new;
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       my $n = $zorder->xy_to_n ($x, $y);
       push @got, $n;
     }
@@ -357,10 +353,9 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new;
-    my $diagonal = Math::PlanePath::Diagonals->new;
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
     foreach my $n (0 .. $#$bvalues) {
       my ($x, $y) = $zorder->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
       my $n = $diagonal->xy_to_n ($x, $y);
       push @got, $n - 1;
     }

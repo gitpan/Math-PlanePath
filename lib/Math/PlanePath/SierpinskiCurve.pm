@@ -35,12 +35,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -49,15 +50,13 @@ $VERSION = 77;
 
 use constant n_start => 0;
 
-my @x_negative = (undef,  0,0, 1,1, 1,1, 1,1);
-my @y_negative = (undef,  0,0, 0,0, 1,1, 1,1);
 sub x_negative {
   my ($self) = @_;
-  return $x_negative[$self->{'arms'}];
+  return ($self->{'arms'} >= 3);
 }
 sub y_negative {
   my ($self) = @_;
-  return $y_negative[$self->{'arms'}];
+  return ($self->{'arms'} >= 5);
 }
 sub arms_count {
   my ($self) = @_;
@@ -126,7 +125,6 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my $arms = $self->{'arms'};
   my $frac;
   {
     my $int = int($n);
@@ -135,11 +133,7 @@ sub n_to_xy {
   }
   ### $frac
 
-  my $arm;
-  {
-    $arm = ($n % $arms);
-    $n = int($n/$arms);
-  }
+  ($n, my $arm) = _divrem ($n, $self->{'arms'});
 
   my $s = $self->{'straight_spacing'};
   my $d = $self->{'diagonal_spacing'};
@@ -472,10 +466,9 @@ Math::PlanePath::SierpinskiCurve -- Sierpinski curve
 
 =head1 DESCRIPTION
 
-X<Sierpinski, Waclaw>
-This is an integer version of the self-similar curve by Waclaw Sierpinski
-traversing the plane by right triangles.  The default is a single arm of the
-curve in an eighth of the plane.
+X<Sierpinski, Waclaw>This is an integer version of the self-similar curve by
+Waclaw Sierpinski traversing the plane by right triangles.  The default is a
+single arm of the curve in an eighth of the plane.
 
 
     10  |                                  31-32

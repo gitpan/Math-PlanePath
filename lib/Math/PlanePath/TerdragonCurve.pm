@@ -32,12 +32,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -101,9 +102,7 @@ sub n_to_xy {
     my $frac = $n - $int;  # inherit possible BigFloat
     $n = $int;             # BigFloat int() gives BigInt, use that
 
-    my $arms = $self->{'arms'};
-    my $rot = $n % $arms;
-    $n = int($n/$arms);
+    ($n, my $rot) = _divrem ($n, $self->{'arms'});
 
     my $s = $zero + 1;  # inherit bignum 1
     if ($rot >= 3) {
@@ -328,9 +327,7 @@ Math::PlanePath::TerdragonCurve -- triangular dragon curve
 
 =head1 DESCRIPTION
 
-X<Davis>
-X<Knuth, Donald>
-This is the terdragon curve by Davis and Knuth,
+X<Davis>X<Knuth, Donald>This is the terdragon curve by Davis and Knuth,
 
 
               30                28                                  7

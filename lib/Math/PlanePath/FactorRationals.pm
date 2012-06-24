@@ -50,7 +50,7 @@ use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -217,13 +217,11 @@ Math::PlanePath::FactorRationals -- rationals by prime powers
 
 =head1 DESCRIPTION
 
-X<McCrimmon, Kevin>
-X<Freilich, Gerald>
-X<Sagher, Yoram>
-This path enumerates rationals X/Y with no common factor, based on the prime
-powers in numerator and denominator.  This idea might have been first by
-Kevin McCrimmon then independently (was it?) by Gerald Freilich in reverse,
-and again by Yoram Sagher.
+X<McCrimmon, Kevin>X<Freilich, Gerald>X<Sagher, Yoram>This path enumerates
+rationals X/Y with no common factor, based on the prime powers in numerator
+and denominator.  This idea might have been first by Kevin McCrimmon then
+independently (was it?) by Gerald Freilich in reverse, and again by Yoram
+Sagher.
 
     15  |      15   60       240            735  960           1815      
     14  |      14       126       350                1134      1694

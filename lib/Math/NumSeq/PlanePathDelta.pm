@@ -36,7 +36,7 @@ use Math::NumSeq::PlanePathCoord;
 *_planepath_name_to_object = \&Math::NumSeq::PlanePathCoord::_planepath_name_to_object;
 
 use vars '$VERSION','@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -1106,8 +1106,51 @@ sub values_max {
 # { package Math::PlanePath::FactorRationals;
 # }
 { package Math::PlanePath::GcdRationals;
-  # N+1 goes SE diagonal and across 1, at most SE N=2 to N=3
-  use constant _NumSeq_Delta_Dir4_max => 3.5;  # SE diagonal
+  my %Dir4_min
+    = (rows           => 0,  # N=4 to N=5 horiz
+       rows_reverse   => 0,  # N=1 to N=2 horiz
+       diagonals_down => 1,  # N=1 to N=2 vertical, nothing less
+       diagonals_up   => 0,  # N=4 to N=5 horiz
+      );
+  my %TDir6_min
+    = (rows           => 0,   # N=4 to N=5 horiz
+       rows_reverse   => 0,   # N=1 to N=2 horiz
+       diagonals_down => 1.5, # N=1 to N=2 vertical, nothing less
+       diagonals_up   => 0,   # N=4 to N=5 horiz
+      );
+  sub _NumSeq_Delta_Dir4_min {
+    my ($self) = @_;
+    return ($Dir4_min{$self->{'pairs_order'}});
+  }
+  sub _NumSeq_Delta_TDir6_min {
+    my ($self) = @_;
+    return ($TDir6_min{$self->{'pairs_order'}});
+  }
+
+  my %Dir4_max
+    = (rows => 3.5,     # N=2 to N=3 SE diagonal
+       rows_reverse =>  # N=3 to N=4 dX=2,dY=-1
+       Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 2,-1),
+       diagonals_down => 3.5, # N=5 to N=6 SE diagonal
+       diagonals_up =>  # N=9 to N=10 dX=2,dY=-1
+       Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 2,-1),
+      );
+  my %TDir6_max
+    = (rows => 5,       # N=2 to N=3 SE diagonal
+       rows_reverse =>  # N=3 to N=4 dX=2,dY=-1
+       Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 2,-1),
+       diagonals_down =>  5, # N=5 to N=6 SE diagonal
+       diagonals_up =>  # N=9 to N=10 dX=2,dY=-1
+       Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 2,-1),
+      );
+  sub _NumSeq_Delta_Dir4_max {
+    my ($self) = @_;
+    return ($Dir4_max{$self->{'pairs_order'}});
+  }
+  sub _NumSeq_Delta_TDir6_max {
+    my ($self) = @_;
+    return ($TDir6_max{$self->{'pairs_order'}});
+  }
 }
 { package Math::PlanePath::PeanoCurve;
 
@@ -1800,14 +1843,49 @@ sub values_max {
 }
 
 { package Math::PlanePath::Diagonals;
-  use constant _NumSeq_Delta_dX_max => 1;
-  use constant _NumSeq_Delta_dY_min => -1;
+  sub _NumSeq_Delta_dX_max {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? 1       # down at most +1 across
+            : undef); # up jumps back across unlimited at top
+  }
+  sub _NumSeq_Delta_dY_min {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? -1      # down at most -1
+            : undef); # up jumps down unlimited at top
+  }
   use constant _NumSeq_Delta_dSum_min => 0; # advancing diagonals
   use constant _NumSeq_Delta_dSum_max => 1;
   use constant _NumSeq_Delta_DistSquared_min => 2;
-  use constant _NumSeq_Delta_Dir4_min => 1; # vertical or more
-  use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
-  use constant _NumSeq_Delta_TDir6_min => 1.5; # vertical or more
+
+  sub _NumSeq_Delta_Dir4_min {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? 1   # down, vertical or more
+            : 0); # up, horiz at N=1
+  }
+  sub _NumSeq_Delta_TDir6_min {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? 1.5  # down, vertical or more
+            : 0);  # up, horiz at N=1
+  }
+
+  my %Dir4_max
+    = (down => 3.5,  # down, SE diagonal
+       up => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 2,-1));
+  my %TDir6_max
+    = (down => 5,   # down, SE diagonal
+       up => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 2,-1));
+  sub _NumSeq_Delta_Dir4_max {
+    my ($self) = @_;
+    return $Dir4_max{$self->{'direction'}};
+  }
+  sub _NumSeq_Delta_TDir6_max {
+    my ($self) = @_;
+    return $TDir6_max{$self->{'direction'}};
+  }
 }
 { package Math::PlanePath::DiagonalsAlternating;
   use constant _NumSeq_Delta_dX_min => -1;
@@ -2349,6 +2427,39 @@ sub values_max {
   use constant _NumSeq_Delta_TDir6_max => 6; # supremum, almost full way
   use constant _NumSeq_Dir4_max_is_supremum => 1;
   use constant _NumSeq_TDir6_max_is_supremum => 1;
+}
+{ package Math::PlanePath::WythoffArray;
+  use constant _NumSeq_Delta_Dir4_max =>  # N=4 to N=5 dX=3,dY=-1
+    Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 3,-1);
+  use constant _NumSeq_Delta_TDir6_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 3,-1);
+}
+{ package Math::PlanePath::PowerArray;
+  sub _NumSeq_Delta_Dir4_min {
+    my ($self) = @_;
+    return ($self->{'radix'} == 2 ? 0 : 1);
+  }
+  sub _NumSeq_Delta_TDir6_min {
+    my ($self) = @_;
+    return ($self->{'radix'} == 2 ? 0 : 1.5);
+  }
+
+  sub _NumSeq_Delta_Dir4_max {
+    my ($self) = @_;
+    my $pos = $self->{'radix'};
+    if ($pos == 2) { $pos = 4 }
+    return Math::NumSeq::PlanePathDelta::_delta_func_Dir4
+      ($self->n_to_xy($pos-1),
+       $self->n_to_xy($pos));
+  }
+  sub _NumSeq_Delta_TDir6_max {
+    my ($self) = @_;
+    my $pos = $self->{'radix'};
+    if ($pos == 2) { $pos = 4 }
+    return Math::NumSeq::PlanePathDelta::_delta_func_TDir6
+      ($self->n_to_xy($pos-1),
+       $self->n_to_xy($pos));
+  }
 }
 
 1;

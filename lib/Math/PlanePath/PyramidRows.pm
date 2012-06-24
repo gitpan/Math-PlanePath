@@ -27,7 +27,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -489,6 +489,7 @@ path include
 
      step=1
     A023531    dY, being 1 at row end, but starting n=0
+    A079824    N total along each diagonal
 
      step=2
     A196199    X coordinate, runs -n to +n

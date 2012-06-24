@@ -31,13 +31,14 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
@@ -125,9 +126,8 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $arms = $self->{'arms'};
-  my $rot = ($n % $arms);
-  $n = int($n/$arms);
+  # arm as initial rotation
+  ($n, my $rot) = _divrem ($n, $self->{'arms'});
 
   my @digits = _digit_split_lowtohigh($n,7);
   ### @digits
@@ -636,11 +636,10 @@ Math::PlanePath::FlowsnakeCentres -- self-similar path of hexagon centres
 
 =head1 DESCRIPTION
 
-X<Gosper, William>
-This path is a variation of the flowsnake curve by William Gosper which
-follows the flowsnake tiling the same way but the centres of the hexagons
-instead of corners across.  The result is the same overall shape, but a
-symmetric base figure.
+X<Gosper, William>This path is a variation of the flowsnake curve by William
+Gosper which follows the flowsnake tiling the same way but the centres of
+the hexagons instead of corners across.  The result is the same overall
+shape, but a symmetric base figure.
 
                          39----40                          8
                         /        \

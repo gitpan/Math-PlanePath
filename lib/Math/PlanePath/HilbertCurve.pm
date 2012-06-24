@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -296,7 +296,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein Flächenstück Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
+=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein FlE<228>chenstE<252>ck Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
 
 =head1 NAME
 
@@ -310,10 +310,9 @@ Math::PlanePath::HilbertCurve -- 2x2 self-similar quadrant traversal
 
 =head1 DESCRIPTION
 
-X<Hilbert, David>
-This path is an integer version of the curve described by David Hilbert in
-1891 for filling a unit square.  It traverses a quadrant of the plane one
-step at a time in a self-similar 2x2 pattern,
+X<Hilbert, David>This path is an integer version of the curve described by
+David Hilbert in 1891 for filling a unit square.  It traverses a quadrant of
+the plane one step at a time in a self-similar 2x2 pattern,
 
              ...
               |

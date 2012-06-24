@@ -28,13 +28,14 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
@@ -81,12 +82,11 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my $arms = $self->{'arms'};
   {
     my $int = int($n);
     if ($n != $int) {
       my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+$arms);
+      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
       my $frac = $n - $int;  # inherit possible BigFloat
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
@@ -94,10 +94,10 @@ sub n_to_xy {
     }
     $n = $int; # BigFloat int() gives BigInt, use that
   }
-
   my $zero = ($n * 0);   # inherit BigInt 0
-  my $rot = $n % $arms;
-  $n = int($n/$arms);
+
+  # arm as initial rotation
+  ($n, my $rot) = _divrem ($n, $self->{'arms'});
 
   my @digits = _digit_split_lowtohigh($n,5);
   my @sx;

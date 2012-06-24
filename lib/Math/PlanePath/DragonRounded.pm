@@ -31,6 +31,7 @@ use Math::PlanePath;
 *_floor = \&Math::PlanePath::_floor;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -38,7 +39,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::DragonMidpoint;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -89,12 +90,10 @@ sub n_to_xy {
 
   my $zero = ($n * 0);  # inherit bignum 0
 
-  my $arms = $self->{'arms'};
-  my $rot = $n % $arms;
-  $n = int($n/$arms);
+  # arm as initial rotation
+  ($n, my $rot) = _divrem ($n, $self->{'arms'});
 
-  my $x_offset = ($n % 2);
-  $n = int($n/2);
+  ($n, my $x_offset) = _divrem ($n, 2);
 
   # ENHANCE-ME: sx,sy just from len=3*2**level
   my @digits;

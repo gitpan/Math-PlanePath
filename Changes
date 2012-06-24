@@ -17,6 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 78, June 2012
+    - new WythoffArray, PowerArray
+    - GcdRationals new option pairs_order
+    - Hypot,HypotOctant new option points=odd,even
+    - Diagonals new options direction=up,down
+
 Version 77, June 2012
     - new DiagonalsOctant
 

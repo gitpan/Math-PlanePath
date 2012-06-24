@@ -53,7 +53,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -188,67 +188,28 @@ sub xy_to_n {
     return $y;
   }
 
-  # my $radix = $self->{'radix'};
-  # my $power = 1;
-  # my $xn = my $yn = ($x * 0); # inherit
-  # while ($x || $y) {
-  #   {
-  #     my $digit = $x % $radix;
-  #     $x = int($x/$radix);
-  #     if ($digit & 1) {
-  #       $yn = $power-1 - $yn;
-  #     }
-  #     $xn += $power * $digit;
-  #   }
-  #   {
-  #     my $digit = $y % $radix;
-  #     $y = int($y/$radix);
-  #     $yn += $power * $digit;
-  #     $power *= $radix;
-  #     if ($digit & 1) {
-  #       $xn = $power-1 - $xn;
-  #     }
-  #   }
-  # }
-  #
-  # my $n = ($x * 0); # inherit
-  # $power = 1;
-  # while ($xn || $yn) {
-  #   $n += ($xn % $radix) * $power;
-  #   $power *= $radix;
-  #   $n += ($yn % $radix) * $power;
-  #   $power *= $radix;
-  #   $xn = int($xn/$radix);
-  #   $yn = int($yn/$radix);
-  # }
-  # return $n;
-
-
   my $radix = $self->{'radix'};
-  my $radix_minus_1 = $radix - 1;
-  my @x;
-  my @y;
-  while ($x || $y) {
-    push @x, $x % $radix; $x = int($x/$radix);
-    push @y, $y % $radix; $y = int($y/$radix);
-  }
+  my @x = _digit_split_lowtohigh ($x, $radix);
+  my @y = _digit_split_lowtohigh ($y, $radix);
 
+  my $radix_minus_1 = $radix - 1;
   my $xk = 0;
   my $yk = 0;
-  my $n = 0;
-  while (@x) {
+  my $n = ($x * 0 * $y);  # inherit bignum 0
+
+  foreach my $i (reverse 0 .. max($#x,$#y)) {  # high to low
     {
-      my $digit = pop @y;
+      my $digit = $y[$i] || 0;
       if ($yk & 1) {
-        $digit = $radix_minus_1 - $digit;
+        $digit = $radix_minus_1 - $digit;  # reverse
       }
       $n = ($n * $radix) + $digit;
       $xk ^= $digit;
     }
     {
-      my $digit = pop @x;
+      my $digit = $x[$i] || 0;
       if ($xk & 1) {
-        $digit = $radix_minus_1 - $digit;
+        $digit = $radix_minus_1 - $digit;  # reverse
       }
       $n = ($n * $radix) + $digit;
       $yk ^= $digit;
@@ -419,10 +380,9 @@ Math::PlanePath::PeanoCurve -- 3x3 self-similar quadrant traversal
 
 =head1 DESCRIPTION
 
-X<Peano, Guiseppe>
-This path is an integer version of the curve described by Guiseppe Peano in
-1890 for filling a unit square.  It traverses a quadrant of the plane one
-step at a time in a self-similar 3x3 pattern,
+X<Peano, Guiseppe>This path is an integer version of the curve described by
+Guiseppe Peano in 1890 for filling a unit square.  It traverses a quadrant
+of the plane one step at a time in a self-similar 3x3 pattern,
 
        8    60--61--62--63--64--65  78--79--80--...
              |                   |   |
@@ -476,6 +436,8 @@ points is the difference in their N values (as given by C<xy_to_n()>).
 
 The radix parameter can do the calculation in a base other than 3, using the
 same kind of direction reversals.  For example radix 5 gives 5x5 groups,
+
+     radix => 5
 
       4  |  20--21--22--23--24--25--26--27--28--29
          |   |                                   |

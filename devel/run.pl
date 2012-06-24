@@ -30,21 +30,15 @@ use Module::Load;
 {
   my $path_class;
   require Math::PlanePath::Hypot;
-  require Math::PlanePath::HypotOctant;
   require Math::PlanePath::PythagoreanTree;
   require Math::PlanePath::GreekKeySpiral;
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::TriangularHypot;
-  require Math::PlanePath::Diagonals;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::CellularRule54;
   require Math::PlanePath::SquareReplicate;
-  require Math::PlanePath::KochSquareflakes;
-  require Math::PlanePath::SierpinskiTriangle;
   require Math::PlanePath::DivisibleColumns;
   require Math::PlanePath::DiamondSpiral;
-  require Math::PlanePath::UlamWarburtonQuarter;
-  require Math::PlanePath::DigitGroups;
   require Math::PlanePath::DekkingCurve;
   require Math::PlanePath::DekkingStraight;
   require Math::PlanePath::HilbertCurve;
@@ -96,7 +90,6 @@ use Module::Load;
   $path_class = 'Math::PlanePath::ImaginaryBase';
   $path_class = 'Math::PlanePath::TerdragonCurve';
   $path_class = 'Math::PlanePath::TerdragonMidpoint';
-  $path_class = 'Math::PlanePath::TerdragonRounded';
   $path_class = 'Math::PlanePath::DragonCurve';
   $path_class = 'Math::PlanePath::SierpinskiArrowhead';
   $path_class = 'Math::PlanePath::DragonMidpoint';
@@ -104,10 +97,8 @@ use Module::Load;
   $path_class = 'Math::PlanePath::QuintetCurve';
   $path_class = 'Math::PlanePath::GosperReplicate';
   $path_class = 'Math::PlanePath::HIndexing';
-  $path_class = 'Math::PlanePath::CornerReplicate';
   $path_class = 'Math::PlanePath::WunderlichMeander';
   $path_class = 'Math::PlanePath::ComplexRevolving';
-  $path_class = 'Math::PlanePath::AlternatePaper';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
   $path_class = 'Math::PlanePath::PeanoCurve';
   $path_class = 'Math::PlanePath::Flowsnake';
@@ -122,13 +113,33 @@ use Module::Load;
   $path_class = 'Math::PlanePath::BetaOmega';
   $path_class = 'Math::PlanePath::AR2W2Curve';
   $path_class = 'Math::PlanePath::CCurve';
-  $path_class = 'Math::PlanePath::GcdRationals';
+  $path_class = 'Math::PlanePath::NxN';
+  $path_class = 'Math::PlanePath::NxNinv';
+  $path_class = 'Math::PlanePath::Dispersion';
+  $path_class = 'Math::PlanePath::Hypot';
+  $path_class = 'Math::PlanePath::HypotOctant';
   $path_class = 'Math::PlanePath::DiagonalsOctant';
-  
+  $path_class = 'Math::PlanePath::Diagonals';
+  $path_class = 'Math::PlanePath::GcdRationals';
+  $path_class = 'Math::PlanePath::WythoffArray';
+  $path_class = 'Math::PlanePath::AlternatePaper';
+  $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
+  $path_class = 'Math::PlanePath::KochSquareflakes';
+  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
+  $path_class = 'Math::PlanePath::TerdragonRounded';
+  $path_class = 'Math::PlanePath::DigitGroups';
+  $path_class = 'Math::PlanePath::ZOrderCurve';
+  $path_class = 'Math::PlanePath::CornerReplicate';
+  $path_class = 'Math::PlanePath::SierpinskiTriangle';
+
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-direction => 'up',
+     # pairs_order => 'rows_reverse',
+     # pairs_order => 'diagonals_down',
+     # points => 'all',
+     # base => 7,
+     # direction => 'up',
      # radix => 3,
      # arms => 2,
      # step => 6,
@@ -163,8 +174,8 @@ direction => 'up',
   my $arms_count = $path->arms_count;
   print "n_start $n_start arms_count $arms_count   ",ref($path),"\n";
 
-  for (my $i = $n_start+0; $i <= 32; $i+=1) {
-  #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
+  for (my $i = $n_start+0; $i <= 1225; $i+=1) {
+    #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;

@@ -43,9 +43,10 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -440,11 +441,12 @@ sub _n_to_Turn6 {
     return undef;
   }
   while ($n) {
-    if (my $digit = ($n % 4)) {
+    ($n, my $digit) = _divrem($n,4);
+    if ($digit) {  # lowest non-zero digit
       return $digit_to_Turn6[$digit];
     }
-    $n = int($n/4);
   }
+  return 0;
 }
 sub _n_to_LSR {
   my ($self, $n) = @_;
@@ -537,9 +539,9 @@ Math::PlanePath::KochCurve -- horizontal Koch curve
 
 =head1 DESCRIPTION
 
-X<Koch, Helge von>
-This is an integer version of the self-similar curve by Helge von Koch going
-along the X axis and making triangular excursions upwards.
+X<Koch, Helge von>This is an integer version of the self-similar curve by
+Helge von Koch going along the X axis and making triangular excursions
+upwards.
 
                                8                                   3
                              /  \

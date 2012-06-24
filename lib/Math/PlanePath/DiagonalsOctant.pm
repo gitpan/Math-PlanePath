@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -154,7 +154,7 @@ sub xy_to_n {
 # exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-
+  
   $x1 = _round_nearest ($x1);
   $x2 = _round_nearest ($x2);
   if ($self->{'direction'} eq 'up') {
@@ -164,13 +164,13 @@ sub rect_to_n_range {
     $y1 = - _round_nearest (- $y1);
     $y2 = - _round_nearest (- $y2);
   }
-
+  
   # bottom-left and top-right same as Math::PlanePath::Diagonals, but also
   # brining $y1 up to within octant
-
+  
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-
+  
   #       x2  |  /
   #  -----+   | /
   #       |   |/ +----
@@ -180,7 +180,7 @@ sub rect_to_n_range {
     ### outside upper octant, no range ...
     return (1, 0);
   }
-
+  
   #     |
   #   +----   /
   #   | |    /
@@ -189,7 +189,7 @@ sub rect_to_n_range {
   #     +
   # increase x1 to within octant
   if ($x1 < 0) { $x1 *= 0; }  # zero by $x1*0 to preserve bignum
-
+  
   #  |   | /
   #  |   |/
   #  |  /|
@@ -197,7 +197,7 @@ sub rect_to_n_range {
   #  +   x1
   # increase y1 so bottom-left x1,y1 is within octant
   if ($y1 < $x1) { $y1 = $x1; }
-
+  
   #  |      /  x2
   #  | --------+
   #  |    /    |
@@ -206,7 +206,7 @@ sub rect_to_n_range {
   #  +
   # decrease x2 so top-right  is within octant
   if ($x2 > $y2) { $x2 = $y2; }
-
+  
   # exact range bottom left to top right
   return ($self->xy_to_n ($x1,$y1),
           $self->xy_to_n ($x2,$y2));
@@ -432,6 +432,37 @@ And for the top right,
          | /     |         (the end of the y2 row)
          |/
          +
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A055087  (etc)
+
+    direction=down
+    A055087    X coord,  runs 0 to k twice
+    A055086    X+Y,      k repeating floor(k/2)+1 times
+    A082375    Y-X       runs k to 0 or 1 stepping by 2
+    A002620    N at end each diagonal, X=k,Y=k and X=k,Y=k+1
+
+    direction=down
+    A055086    X+Y,      k repeating floor(k/2)+1 times
+    A002620    N on Y axis end of each diagonal, quarter squares
+
+The A055086 sum X+Y is the same for direction=down or direction=up, it
+effectively counts which diagonal a given N falls in and ignores whereabouts
+along it.
+
+    A004652    N at start and end of each even-numbered diagonal
+
+    A056536    N of PyramidRows at X,Y in DiagonalsOctant order
+    A091995      N with DiagonalsOctant direction=up
+    A091018      N-1, ie. starting from 0
+    A090894      N-1 and DiagonalsOctant direction=up
+
+    A056537    N of DiagonalsOctant at X,Y in PyramidRows order
+                 inverse of the A056536 permutation
 
 =head1 SEE ALSO
 

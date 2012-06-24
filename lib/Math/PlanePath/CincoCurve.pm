@@ -32,12 +32,13 @@ use strict;
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -466,15 +467,11 @@ sub n_to_xy {
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $int = int($n);
-  $n -= $int;
+  $n -= $int;  # fraction part
 
-  my @digits;
-  my $len = $int*0 + 1;   # inherit bignum 1
-  while ($int) {
-    push @digits, $int % 25;
-    $int = int($int/25);
-    $len *= 5;
-  }
+  my @digits = _digit_split_lowtohigh($int,25);
+  my $len = ($int*0 + 5) ** scalar(@digits);  # inherit bignum
+
   ### digits: join(', ',@digits)."   count ".scalar(@digits)
   ### $len
 
@@ -684,8 +681,7 @@ Math::PlanePath::CincoCurve -- 5x5 self-similar curve
 
 =head1 DESCRIPTION
 
-X<Dennis, John>
-This is the 5x5 self-similar Cinco curve by John Dennis,
+X<Dennis, John>This is the 5x5 self-similar Cinco curve by John Dennis,
 
                                                     |
       4    10--11  14--15--16  35--36  39--40--41  74  71--70  67--66

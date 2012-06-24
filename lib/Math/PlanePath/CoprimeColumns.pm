@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -328,6 +328,7 @@ couple of forms,
     A127368    by columns Y coordinate if coprime, 0 if not
     A054521    by columns 1 if coprime, 0 if not
     A054427    permutation coprime columns N -> RationalsTree SB N 
+    A121998    Y of skipped X,Y among 2<=Y<=X, those not coprime
 
 =head1 SEE ALSO
 

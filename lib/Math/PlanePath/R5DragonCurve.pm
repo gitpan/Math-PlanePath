@@ -34,12 +34,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -99,10 +100,7 @@ sub n_to_xy {
 
   # initial rotation from arm number
   {
-    my $arms = $self->{'arms'};
-    my $rot = $n % $arms;
-    $n = int($n/$arms);
-
+    ($n, my $rot) = _divrem ($n, $self->{'arms'});
     if ($rot == 0)    { $x = $frac, $sx = $one; }
     elsif ($rot == 1) { $y = $frac, $sy = $one; }
     elsif ($rot == 2) { $x = -$frac, $sx = -$one; }

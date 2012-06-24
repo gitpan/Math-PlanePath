@@ -32,12 +32,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -171,10 +172,10 @@ sub n_to_xy {
   my $x = 0;
   my $y = 0;
   while (@levelbits) {
+    ($n, my $digit) = _divrem ($n, 3);
     ### levelbits: $levelbits[-1]
-    ### digit: $n % 3
-    my $digit = $n % 3;
-    $n = int($n/3);
+    ### $digit
+
     my $lbit = pop @levelbits;
     $x += $lbit;
     $y += $lbit;

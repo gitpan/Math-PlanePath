@@ -38,7 +38,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -124,9 +124,7 @@ sub n_to_xy {
 #
 #   my $zero = ($n * 0);  # inherit bignum 0
 #
-#   my $arms = $self->{'arms'};
-#   my $rot = $n % $arms;
-#   $n = int($n/$arms);
+#   ($n, my $rot) = _divrem ($n, $self->{'arms'});
 #
 #   # ENHANCE-ME: sx,sy just from len,len
 #   my @digits;

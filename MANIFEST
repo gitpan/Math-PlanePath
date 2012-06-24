@@ -53,14 +53,19 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
+devel/lib/Math/PlanePath/AlternatePaperMidpoint.pm
 devel/lib/Math/PlanePath/BoxFractalQuarter.pm
 devel/lib/Math/PlanePath/DekkingCurve.pm
 devel/lib/Math/PlanePath/DekkingStraight.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
+devel/lib/Math/PlanePath/NxN.pm
+devel/lib/Math/PlanePath/NxNinv.pm
+devel/lib/Math/PlanePath/NxNvar.pm
 devel/lib/Math/PlanePath/PeanoHalf.pm
 devel/lib/Math/PlanePath/PeanoRounded.pm
 devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
+devel/lib/Math/PlanePath/squares-dispersion.pl
 devel/Makefile
 devel/multiple-rings.pl
 devel/number-fraction.pl
@@ -101,10 +106,12 @@ devel/terdragon.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
 devel/tiling.pl
+devel/tree.pl
 devel/ulam-warburton.pl
 devel/unused.pl
 devel/vertical.pl
 devel/vogel.pl
+devel/wythoff-array.pl
 examples/cellular-rules.pl
 examples/cretan-walls.pl
 examples/hilbert-oeis.pl
@@ -192,6 +199,7 @@ lib/Math/PlanePath/PeanoCurve.pm
 lib/Math/PlanePath/PentSpiral.pm
 lib/Math/PlanePath/PentSpiralSkewed.pm
 lib/Math/PlanePath/PixelRings.pm
+lib/Math/PlanePath/PowerArray.pm
 lib/Math/PlanePath/PyramidRows.pm
 lib/Math/PlanePath/PyramidSides.pm
 lib/Math/PlanePath/PyramidSpiral.pm
@@ -228,6 +236,7 @@ lib/Math/PlanePath/UlamWarburtonQuarter.pm
 lib/Math/PlanePath/VogelFloret.pm
 lib/Math/PlanePath/WunderlichMeander.pm
 lib/Math/PlanePath/WunderlichSerpentine.pm
+lib/Math/PlanePath/WythoffArray.pm
 lib/Math/PlanePath/ZOrderCurve.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -283,6 +292,8 @@ t/HilbertCurve-load.t
 t/HilbertCurve.t
 t/HilbertSpiral.t
 t/HIndexing.t
+t/Hypot.t
+t/HypotOctant.t
 t/ImaginaryBase.t
 t/KnightSpiral.t
 t/KochCurve.t
@@ -363,6 +374,8 @@ xt/oeis/CoprimeColumns-oeis.t
 xt/oeis/Corner-oeis.t
 xt/oeis/CornerReplicate-oeis.t
 xt/oeis/DiagonalRationals-oeis.t
+xt/oeis/DiagonalsOctant-more.t
+xt/oeis/DiagonalsOctant-oeis.t
 xt/oeis/DigitGroups-oeis.t
 xt/oeis/DivisibleColumns-oeis.t
 xt/oeis/DragonCurve-oeis.t
@@ -375,10 +388,14 @@ xt/oeis/GosperSide-oeis.t
 xt/oeis/GrayCode-oeis.t
 xt/oeis/HexSpiral-oeis.t
 xt/oeis/HilbertCurve-oeis.t
+xt/oeis/Hypot-more.t
+xt/oeis/Hypot-oeis.t
+xt/oeis/HypotOctant-oeis.t
 xt/oeis/KnightSpiral-oeis.t
 xt/oeis/KochCurve-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
 xt/oeis/PeanoCurve-oeis.t
+xt/oeis/PowerArray-oeis.t
 xt/oeis/PyramidRows-oeis.t
 xt/oeis/PyramidSides-oeis.t
 xt/oeis/PyramidSpiral-oeis.t
@@ -390,10 +407,12 @@ xt/oeis/TerdragonCurve-oeis.t
 xt/oeis/TriangularHypot-oeis.t
 xt/oeis/TriangularSpiral-oeis.t
 xt/oeis/UlamWarburton-oeis.t
+xt/oeis/WythoffArray-oeis.t
 xt/oeis/ZOrderCurve-oeis.t
 xt/PixelRings-image.t
 xt/PlanePath-subclasses.t
 xt/pod-lists.t
+xt/slow/GcdRationals-slow.t
 xt/slow/NumSeq-PlanePathCoord.t
 xtools/my-check-copyright-years.sh
 xtools/my-check-spelling.sh

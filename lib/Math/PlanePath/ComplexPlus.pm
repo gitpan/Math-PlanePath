@@ -41,9 +41,10 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -127,18 +128,18 @@ sub n_to_xy {
   my $dx;
   my $dy = 0;
 
-  my $arms = $self->{'arms'};
-  ### $arms
-  if ($n % $arms) {
-    $x = 0;
-    $y = 1;
-    $dx = -1;
-  } else {
-    $x = 0;
-    $y = 0;
-    $dx = 1;
+  {
+    ($n, my $arm) = _divrem ($n, $self->{'arms'});
+    if ($arm) {
+      $x = 0;
+      $y = 1;
+      $dx = -1;
+    } else {
+      $x = 0;
+      $y = 0;
+      $dx = 1;
+    }
   }
-  $n = int($n/$arms);
 
   foreach my $digit (_digit_split_lowtohigh($n,$norm)) {
     ### at: "$x,$y  digit=$digit  dxdy=$dx,$dy"

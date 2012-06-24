@@ -17,24 +17,35 @@
 
 
 # xy_to_n_list_maximum
-# xy_to_n_unique_at
-# n_tree_parent
-# n_tree_children
+# xy_to_n_list_maxcount
+# xy_to_n_list_maxnum
+#
+# n_tree_parent     N or undef
+# n_tree_children   N list or empty, n_start not empty if tree
+#
 # xy_integer
-# xy_integer_at_n
+# xy_integer_n_start
+#
 # x_minimum
 # x_maximum
 # y_minimum
 # y_maximum
+# use constant x_range => (1, undef);
+#
 # lattice_type square,triangular,triangular_odd,pentagonal,fractional
-
+#
+# xy_to_n_unique_n_start
+# figures_disjoint
+# figures_disjoint_n_start
+#         separate
+#         unoverlapped
 
 package Math::PlanePath;
 use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 77;
+$VERSION = 78;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -223,10 +234,18 @@ sub _rect_for_first_quadrant {
 
     my @ret;
     do {
-      push @ret, $n % $radix;
-    } while ($n = int($n/$radix));
+      ($n, my $digit) = _divrem($n,$radix);
+      push @ret, $digit;
+    } while ($n);
     return @ret;   # array[0] low digit
   }
+}
+
+sub _divrem {
+  my ($n, $d) = @_;
+  my $rem = $n % $d;
+  return (int(($n-$rem)/$d),
+          $rem);
 }
 
 
@@ -372,6 +391,8 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     FractionsTree          fractions 0<X/Y<1 by tree
     CoprimeColumns         coprime X,Y
     DivisibleColumns       X divisible by Y
+    WythoffArray           Fibonacci recurrences
+    PowerArray             powers in rows
     File                   points from a disk file
 
 =for my_pod list end
@@ -778,8 +799,8 @@ such a power for things like KochPeaks and GosperIslands.
                   CubicBase (default) CornerReplicate,
                   ComplexMinus (default), ComplexPlus (default),
                   ComplexRevolving, DragonCurve, DragonRounded,
-                  DragonMidpoint, AlternatePaper, CCurve, DigitGroups
-                  (default)
+                  DragonMidpoint, AlternatePaper, CCurve,
+                  DigitGroups (default), PowerArray (default)
       3         PeanoCurve (default), WunderlichSerpentine (default),
                   WunderlichMeander, KochelCurve,
                   GosperIslands, GosperSide
@@ -794,10 +815,10 @@ such a power for things like KochPeaks and GosperIslands.
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
-    Fibonacci   FibonacciWordFractal
+    Fibonacci   FibonacciWordFractal, WythoffArray
     parameter   PeanoCurve, WunderlichSerpentine, ZOrderCurve, GrayCode,
                   ImaginaryBase, ImaginaryHalf, CubicBase, ComplexPlus,
-                  ComplexMinus, DigitGroups
+                  ComplexMinus, DigitGroups, PowerArray
 
 =for my_pod base end
 
@@ -1056,6 +1077,8 @@ L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::FractionsTree>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::DivisibleColumns>,
+L<Math::PlanePath::WythoffArray>,
+L<Math::PlanePath::PowerArray>,
 L<Math::PlanePath::File>
 
 =for my_pod see_also end

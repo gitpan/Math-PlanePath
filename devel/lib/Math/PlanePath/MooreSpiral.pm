@@ -33,12 +33,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -112,8 +113,11 @@ sub n_to_xy {
   my $state = 20;
   my $arms = $self->{'arms'};
   if ($arms > 1) {
-    if ($int % $arms) { $state = 0; }
-    $int = int(($int+1)/$arms);
+    ($int, my $arm) = _divrem($int,2);
+    if ($arm) {
+      $state = 0;
+      $int += 1;
+    }
   }
 
   my @digits = _digit_split_lowtohigh($int,9);

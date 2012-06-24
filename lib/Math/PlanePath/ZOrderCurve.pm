@@ -30,17 +30,19 @@
 package Math::PlanePath::ZOrderCurve;
 use 5.004;
 use strict;
+use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
@@ -90,40 +92,42 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $x = my $y = ($n * 0); # inherit
   my $radix = $self->{'radix'};
-  if ($radix == 2) {
-    my $bit = $x|1;  # inherit
-    while ($n) {
-      ### $x
-      ### $y
-      ### $n
-      ### $bit
-      if ($n & 1) {
-        $x += $bit;
-      }
-      if ($n & 2) {
-        $y += $bit;
-      }
-      $n >>= 2;
-      $bit <<= 1;
-    }
-  } else {
-    my $power = $x+1;  # inherit
-    while ($n) {
-      ### $x
-      ### $y
-      ### $n
-      $x += ($n % $radix) * $power;
-      $n = int ($n / $radix);
-      $y += ($n % $radix) * $power;
-      $n = int ($n / $radix);
-      $power *= $radix;
-    }
+  my @digits = _digit_split_lowtohigh ($n, $radix);
+  ### @digits
+  unless ($#digits & 1) { push @digits, 0 }  # even number
+
+  my $x = my $y = ($n * 0); # inherit bignum 0
+  while (@digits) {
+    $y *= $radix;
+    $y += pop @digits;  # high to low
+    @digits || last;
+    $x *= $radix;
+    $x += pop @digits;  # high to low
   }
 
   ### is: "$x,$y"
   return ($x, $y);
+
+
+  # my $radix = $self->{'radix'};
+  # if ($radix == 2) {
+  #   my $bit = $x|1;  # inherit
+  #   while ($n) {
+  #     ### $x
+  #     ### $y
+  #     ### $n
+  #     ### $bit
+  #     if ($n & 1) {
+  #       $x += $bit;
+  #     }
+  #     if ($n & 2) {
+  #       $y += $bit;
+  #     }
+  #     $n >>= 2;
+  #     $bit <<= 1;
+  #   }
+  # } else {
 }
 
 sub xy_to_n {
@@ -139,35 +143,35 @@ sub xy_to_n {
   }
 
   my $n = ($x * 0 * $y); # inherit bignum 0
+
   my $radix = $self->{'radix'};
-  if ($radix == 2) {
-    my $nbit = $n|1; # inherit
-    while ($x || $y) {
-      if ($x & 1) {
-        $n |= $nbit;
-      }
-      $x >>= 1;
-      $nbit <<= 1;
+  my @x = _digit_split_lowtohigh($x,$radix);
+  my @y = _digit_split_lowtohigh($y,$radix);
 
-      if ($y & 1) {
-        $n |= $nbit;
-      }
-      $y >>= 1;
-      $nbit <<= 1;
-    }
-  } else {
-    my $power = $n+1; # inherit bignum 1
-    while ($x || $y) {
-      $n += ($x % $radix) * $power;
-      $x = int ($x / $radix);
-      $power *= $radix;
-
-      $n += ($y % $radix) * $power;
-      $y = int ($y / $radix);
-      $power *= $radix;
-    }
+  foreach my $i (reverse 0 .. max($#x,$#y)) {  # high to low
+    $n *= $radix;
+    $n += $y[$i] || 0;
+    $n *= $radix;
+    $n += $x[$i] || 0;
   }
   return $n;
+
+
+  # if ($radix == 2) {
+  #   my $nbit = $n|1; # inherit
+  #   while ($x || $y) {
+  #     if ($x & 1) {
+  #       $n |= $nbit;
+  #     }
+  #     $x >>= 1;
+  #     $nbit <<= 1;
+  # 
+  #     if ($y & 1) {
+  #       $n |= $nbit;
+  #     }
+  #     $y >>= 1;
+  #     $nbit <<= 1;
+  #   }
 }
 
 # exact
@@ -371,8 +375,10 @@ vertical.
 
 =head2 Radix
 
-The radix parameter can do the same sort of N -> X/Y digit splitting in a
-higher base.  For example radix 3 makes 3x3 groupings,
+The C<radix> parameter can do the same N E<lt>-E<gt> X/Y digit splitting in
+a higher base.  For example radix 3 makes 3x3 groupings,
+
+     radix => 3
 
       5  |  33  34  35  42  43  44
       4  |  30  31  32  39  40  41

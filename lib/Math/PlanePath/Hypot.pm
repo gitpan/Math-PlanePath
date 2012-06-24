@@ -16,15 +16,38 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
+# A000328 Number of points of norm <= n^2 in square lattice.
+#   1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441, 529, 613, 709, 797
+#   a(n) = 1 + 4 * sum(j=0, n^2 / 4,    n^2 / (4*j+1) - n^2 / (4*j+3) )
+#
+# A046109 num points norm == n^2
+#
+# A051132 num points norm <  n^2
+#   0, 1, 9, 25, 45, 69, 109, 145, 193, 249, 305, 373, 437, 517, 609, 697,
+#
+# A057655 num points x^2+y^2 <= n
+# A014198 = A057655 - 1
+#
+# A004018 num points x^2+y^2 == n
+#
+# A057962 hypot count x-1/2,y-1/2 <= n
+# is last point of each hypot in points=odd
+#
+# A057961 hypot count as radius increases
+
+
+
 package Math::PlanePath::Hypot;
 use 5.004;
 use strict;
+use Carp;
 
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -32,49 +55,106 @@ $VERSION = 77;
 #use Smart::Comments;
 
 
-# A000328 Number of points of norm <= n^2 in square lattice.
-# 1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441, 529, 613, 709, 797
-#
-# a(n) = 1 + 4 * sum(j=0, n^2 / 4,    n^2 / (4*j+1) - n^2 / (4*j+3) )
+use constant parameter_info_array =>
+  [ { name            => 'points',
+      type            => 'enum',
+      default         => 'all',
+      choices         => ['all','even','odd'],
+      choices_display => ['All','Even','Odd'],
+      description     => 'Which X,Y points visit, either all of them or just X+Y even or X+Y odd.',
+    },
+  ];
 
+sub new {
+  my $self = shift->SUPER::new(@_);
 
-my @n_to_x = (undef, 0);
-my @n_to_y = (undef, 0);
-my @hypot_to_n = (1);
-my @y_next_x = (1, 1);
-my @y_next_hypot = (1, 2);
+  my $points = ($self->{'points'} ||= 'all');
+  if ($points eq 'all') {
+    $self->{'n_to_x'} = [undef, 0];
+    $self->{'n_to_y'} = [undef, 0];
+    $self->{'hypot_to_n'} = [1];
+    $self->{'y_next_x'} = [1, 1];
+    $self->{'y_next_hypot'} = [1, 2];
+    $self->{'x_inc'} = 1;
+    $self->{'x_inc_factor'} = 2;
+    $self->{'x_inc_squared'} = 1;
+    $self->{'opposite_parity'} = -1;
+
+  } elsif ($points eq 'even') {
+    $self->{'n_to_x'} = [undef, 0];
+    $self->{'n_to_y'} = [undef, 0];
+    $self->{'hypot_to_n'} = [1];
+    $self->{'y_next_x'} = [2, 1];
+    $self->{'y_next_hypot'} = [4, 2];
+    $self->{'x_inc'} = 2;
+    $self->{'x_inc_factor'} = 4;
+    $self->{'x_inc_squared'} = 4;
+    $self->{'opposite_parity'} = 1;
+
+  } elsif ($points eq 'odd') {
+    $self->{'n_to_x'} = [undef]; # , 1,0,-1,0];
+    $self->{'n_to_y'} = [undef]; # , 0,1,0,-1];
+    $self->{'hypot_to_n'} = [undef]; # ,1
+    $self->{'y_next_x'} = [1]; # [3, 2];
+    $self->{'y_next_hypot'} = [1]; # [9, 5];
+    $self->{'x_inc'} = 2;
+    $self->{'x_inc_factor'} = 4;
+    $self->{'x_inc_squared'} = 4;
+    $self->{'opposite_parity'} = 0;
+
+  } else {
+    croak "Unrecognised points option: ", $points;
+  }
+  return $self;
+}
+
+# my @n_to_x = (undef, 0);
+# my @n_to_y = (undef, 0);
+# my @hypot_to_n = (1);
+# my @y_next_x = (1, 1);
+# my @y_next_hypot = (1, 2);
 
 sub _extend {
+  my ($self) = @_;
   ### _extend() n: scalar(@n_to_x)
+
+  my $n_to_x       = $self->{'n_to_x'};
+  my $n_to_y       = $self->{'n_to_y'};
+  my $hypot_to_n   = $self->{'hypot_to_n'};
+  my $y_next_x     = $self->{'y_next_x'};
+  my $y_next_hypot = $self->{'y_next_hypot'};
 
   # set @y to the Y with the smallest $y_next_hypot[$y], and if there's some
   # Y's with equal smallest hypot then all those Y's
   my @y = (0);
-  my $hypot = $y_next_hypot[0];
-  for (my $i = 1; $i < @y_next_x; $i++) {
-    if ($hypot == $y_next_hypot[$i]) {
+  my $hypot = $y_next_hypot->[0];
+  for (my $i = 1; $i < @$y_next_x; $i++) {
+    if ($hypot == $y_next_hypot->[$i]) {
       push @y, $i;
-    } elsif ($hypot > $y_next_hypot[$i]) {
+    } elsif ($hypot > $y_next_hypot->[$i]) {
       @y = ($i);
-      $hypot = $y_next_hypot[$i];
+      $hypot = $y_next_hypot->[$i];
     }
   }
 
-  # if the endmost of the @y_next_x, @y_next_hypot arrays are used then
+  # if the endmost of the @$y_next_x, @$y_next_hypot arrays are used then
   # extend them by one
-  if ($y[-1] == $#y_next_x) {
-    my $y = scalar(@y_next_x);
-    $y_next_x[$y] = $y;
-    $y_next_hypot[$y] = 2*$y*$y;
-    ### assert: $y_next_hypot[$y] == $y**2 + $y_next_x[$y]**2
+  if ($y[-1] == $#$y_next_x) {
+    my $y = scalar(@$y_next_x);
+    my $x = $y + ($self->{'points'} eq 'odd');
+    $y_next_x->[$y] = $x;
+    $y_next_hypot->[$y] = $x*$x+$y*$y;
+    ### assert: $y_next_hypot->[$y] == $y**2 + $y_next_x->[$y]**2
   }
 
   # @x is the $y_next_x[$y] for each of the @y smallests, and step those
   # selected elements next X and hypot for that new X,Y
   my @x = map {
-    my $x = $y_next_x[$_]++;
-    $y_next_hypot[$_] += 2*$x+1;
-    ### assert: $y_next_hypot[$_] == $_**2 + $y_next_x[$_]**2
+    my $x = $y_next_x->[$_];
+    $y_next_x->[$_] += $self->{'x_inc'};
+    $y_next_hypot->[$_]
+      += $self->{'x_inc_factor'} * $x + $self->{'x_inc_squared'};
+    ### assert: $y_next_hypot->[$_] == $_**2 + $y_next_x->[$_]**2
     $x
   } @y;
   ### $hypot
@@ -107,24 +187,24 @@ sub _extend {
   push @y, map {-$_} @y;
 
   ### store: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
-  ### at n: scalar(@n_to_x)
-  ### hypot_to_n: "h=$hypot n=".scalar(@n_to_x)
-  $hypot_to_n[$hypot] = scalar(@n_to_x);
-  push @n_to_x, @x;
-  push @n_to_y, @y;
+  ### at n: scalar(@$n_to_x)
+  ### hypot_to_n: "h=$hypot n=".scalar(@$n_to_x)
+  $hypot_to_n->[$hypot] = scalar(@$n_to_x);
+  push @$n_to_x, @x;
+  push @$n_to_y, @y;
 
-  # ### hypot_to_n now: join(' ',map {defined($hypot_to_n[$_]) && "h=$_,n=$hypot_to_n[$_]"} 0 .. $#hypot_to_n)
+  # ### hypot_to_n now: join(' ',map {defined($hypot_to_n->[$_]) && "h=$_,n=$hypot_to_n->[$_]"} 0 .. $#$hypot_to_n)
 
 
-  # my $x = $y_next_x[0];
+  # my $x = $y_next_x->[0];
   #
-  # $x = $y_next_x[$y];
-  # $n_to_x[$next_n] = $x;
-  # $n_to_y[$next_n] = $y;
+  # $x = $y_next_x->[$y];
+  # $n_to_x->[$next_n] = $x;
+  # $n_to_y->[$next_n] = $y;
   # $xy_to_n{"$x,$y"} = $next_n++;
   #
-  # $y_next_x[$y]++;
-  # $y_next_hypot[$y] = $y*$y + $y_next_x[$y]**2;
+  # $y_next_x->[$y]++;
+  # $y_next_hypot->[$y] = $y*$y + $y_next_x->[$y]**2;
 }
 
 sub n_to_xy {
@@ -146,20 +226,26 @@ sub n_to_xy {
     }
   }
 
-  while ($n > $#n_to_x) {
-    _extend();
-  }
+  my $n_to_x = $self->{'n_to_x'};
+  my $n_to_y = $self->{'n_to_y'};
 
-  return ($n_to_x[$n], $n_to_y[$n]);
+  while ($n > $#$n_to_x) {
+    _extend($self);
+  }
+  return ($n_to_x->[$n], $n_to_y->[$n]);
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### Hypot xy_to_n(): "$x, $y"
-  ### hypot_to_n last: $#hypot_to_n
+  ### hypot_to_n last: $#{$self->{'hypot_to_n'}}
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
+
+  if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
+    return undef;
+  }
 
   my $hypot = $x*$x + $y*$y;
   if (_is_infinite($hypot)) {
@@ -167,17 +253,22 @@ sub xy_to_n {
     return undef;
   }
 
-  while ($hypot > $#hypot_to_n) {
-    _extend();
+  my $n_to_x = $self->{'n_to_x'};
+  my $n_to_y = $self->{'n_to_y'};
+
+  my $hypot_to_n = $self->{'hypot_to_n'};
+  while ($hypot > $#$hypot_to_n) {
+    _extend($self);
   }
-  my $n = $hypot_to_n[$hypot];
+
+  my $n = $hypot_to_n->[$hypot];
   for (;;) {
-    if ($x == $n_to_x[$n] && $y == $n_to_y[$n]) {
+    if ($x == $n_to_x->[$n] && $y == $n_to_y->[$n]) {
       return $n;
     }
     $n += 1;
 
-    if ($n_to_x[$n]**2 + $n_to_y[$n]**2 != $hypot) {
+    if ($n_to_x->[$n]**2 + $n_to_y->[$n]**2 != $hypot) {
       ### oops, hypot_to_n no good ...
       return undef;
     }
@@ -189,7 +280,7 @@ sub xy_to_n {
   # my $h = $x*$x + $y*$y;
   #
   # while ($y_next_x[$y] <= $x) {
-  #   _extend();
+  #   _extend($self);
   # }
   # return $xy_to_n{"$x,$y"};
 }
@@ -228,13 +319,13 @@ __END__
 #      2       6   8   9  14  21  29  38  51  63  76
 #      1       3   4   7  12  18  27  36  46  59  74
 #     Y=0      1   2   5  10  16  23  34  44  57  72
-# 
+#
 #             X=0  1   2   3   4   5   6   7   8   9  ...
-# 
+#
 # For example N=37 is at X=1,Y=6 which is sqrt(1*1+6*6) = sqrt(37) from the
 # origin.  The next closest to the origin is X=6,Y=2 at sqrt(40).  In general
 # it's the sums of two squares X^2+Y^2 taken in order from smallest to biggest.
-# 
+#
 # Points X,Y and swapped Y,X are the same distance from the origin.  The one
 # with bigger X is taken first, then the swapped Y,X (as long as X!=Y).  For
 # example N=21 is X=4,Y=2 and N=22 is X=2,Y=4.
@@ -318,9 +409,9 @@ The points on the X axis N=2,10,26,46, etc are the first for which
 X^2+Y^2==R^2 (integer X==R), so N-1 is the number of points strictly inside,
 ie. X^2+Y^2 E<lt> R^2 (Sloane's A051132 C<http://oeis.org/A051132>).
 
-The last point satisfying X^2+Y^2==R^2 is either in the octant just below
-the X axis, or is on the negative Y axis.  Those N's are the number of
-points X^2+Y^2E<lt>=R^2, Sloane's A000328.
+The last point satisfying X^2+Y^2==R^2 is either in the octant below the X
+axis, or is on the negative Y axis.  Those N's are the number of points
+X^2+Y^2E<lt>=R^2, Sloane's A000328.
 
 When that A000328 sequence is plotted on the path a straight line can be
 seen in the fourth quadrant extending down just above the diagonal.  It
@@ -328,6 +419,78 @@ arises from multiples of the Pythagorean 3^2 + 4^2, first X=4,Y=-3, then
 X=8,Y=-6, etc X=4*k,Y=-3*k.  But sometimes the multiple is not the last
 among those of that 5*k radius, so there's gaps in the line.  For example
 20,-15 is not the last since because 24,-7 is also 25 away from the origin.
+
+=head2 Even Points
+
+Option C<points =E<gt> "even"> visits just the even points, meaning the sum
+X+Y even, so X,Y both even or both odd.
+
+=cut
+
+# math-image --expression='i<70?i:0' --path=Hypot,points=even --output=numbers --size=79
+
+=pod
+
+    points => "even"
+
+          52    40    39    51             5
+       47    32    23    31    46          4
+    53    27    16    15    26    50       3
+       33    11     7    10    30          2
+    41    17     3     2    14    38       1
+       24     8     1     6    22     <- Y=0
+    42    18     4     5    21    45      -1
+       34    12     9    13    37         -2
+    54    28    19    20    29    57      -3
+       48    35    25    36    49         -4
+          55    43    44    56            -5
+
+                    ^
+    -5 -4 -3 -2 -1 X=0 1  2  3  4  5
+
+Even points can be mapped to all points by a 45 degree rotate and flip.
+N=1,6,22,etc on the X axis here is on the X=Y diagonal of all-points.  And
+conversely N=1,2,10,26,etc on the X=Y diagonal here is the X axis of
+all-points.
+
+The sets of points with equal hypotenuse are the same in the even and all,
+but the flip takes them in a reversed order.
+
+=head2 Odd Points
+
+Option C<points =E<gt> "odd"> visits just the odd points, meaning sum X+Y
+odd, so X,Y one odd the other even.
+
+=cut
+
+# math-image --expression='i<=76?i:0' --path=Hypot,points=odd --output=numbers --size=78x30
+
+=pod
+
+    points => "odd"
+
+                                             
+             71    55    54    70                6
+          63    47    36    46    62             5  
+       64    37    27    26    35    61          4  
+    72    38    19    14    18    34    69       3  
+       48    20     7     6    17    45          2  
+    56    28     8     2     5    25    53       1  
+       39    15     3  +  1    13    33     <- Y=0  
+    57    29     9     4    12    32    60      -1  
+       49    21    10    11    24    52         -2  
+    73    40    22    16    23    44    76      -3  
+       65    41    30    31    43    68         -4  
+          66    50    42    51    67            -5  
+             74    58    59    75               -6
+                                             
+                       ^
+    -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+
+Odd points can be mapped to all points by a 45 degree rotate and a shift
+X-1,Y+1 to put N=1 at the origin.  The effect of that shift is as if the
+hypot measure in "all" points was (X-1/2)^2+(Y-1/2)^2 and for that reason
+the sets of points with equal hypots are not the same in odd and all.
 
 =head1 FUNCTIONS
 
@@ -337,7 +500,13 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::Hypot-E<gt>new ()>
 
-Create and return a new hypot path object.
+=item C<$path = Math::PlanePath::Hypot-E<gt>new (points =E<gt> $str)>
+
+Create and return a new hypot path object.  The C<points> option can be
+
+    "all"         all integer X,Y (the default)
+    "even"        only points with X+Y even
+    "odd"         only points with X+Y odd
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -363,6 +532,19 @@ returns N.
 The calculations are not particularly efficient currently.  Private arrays
 are built similar to what's described for HypotOctant, but with replication
 for negative and swapped X,Y.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A051132  (etc)
+
+     points="all"
+    A051132    N-1 on X axis, being count points norm < X^2
+
+     points="odd"
+    A005883    count of points with norm==4*n+1
 
 =head1 SEE ALSO
 

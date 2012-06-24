@@ -19,15 +19,15 @@
 
 use 5.004;
 use strict;
+use Math::PlanePath::AlternatePaper;
 use Test;
-BEGIN { plan tests => 4 }
+plan tests => 4;
 
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::PlanePath::AlternatePaper;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -60,13 +60,18 @@ sub path_n_turn {
   if ($turn == 3) { return 0; }
   die "Oops, unrecognised turn";
 }
+# return ($dx,$dy)
+sub path_n_dxdy {
+  my ($path,$n) = @_;
+  my ($x,$y) = $path->n_to_xy($n);
+  my ($next_x,$next_y) = $path->n_to_xy($n+1);
+  return ($next_x - $x,
+          $next_y - $y);
+}
 # return 0,1,2,3
 sub path_n_dir {
   my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n);
-  my ($next_x,$next_y) = $path->n_to_xy($n+1);
-  return dxdy_to_dir ($next_x - $x,
-                      $next_y - $y);
+  return dxdy_to_dir(path_n_dxdy($path,$n));
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
 sub dxdy_to_dir {
@@ -77,6 +82,273 @@ sub dxdy_to_dir {
   if ($dy < 0) { return 3; }  # south
 }
 
+
+# #------------------------------------------------------------------------------
+# # A014081 - count 11 pairs, mod 2 is GRS
+# {
+#   my $anum = 'A014081';
+#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+#   my @got;
+#   if ($bvalues) {
+#     foreach (@$bvalues) { $_ %= 2 }
+#     for (my $n = $paper->n_start; @got < @$bvalues; $n++) {
+#       push @got, path_n_dir($paper,2*$n);;
+#     }
+#     if (! numeq_array(\@got, $bvalues)) {
+#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+#       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+#     }
+#   } else {
+#     MyTestHelpers::diag ("$anum not available");
+#   }
+#   skip (! $bvalues,
+#         numeq_array(\@got, $bvalues),
+#         1, "$anum");
+# }
+
+
+#------------------------------------------------------------------------------
+# A020991 - position of last occurance of n, last time of X+Y=n
+
+{
+  my $anum = 'A020991';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my @count;
+    my $target = 1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x, $y) = $paper->n_to_xy ($n);
+      my $d = $x + $y;
+      $count[$d]++;
+      if ($count[$d] == $d) {
+        push @got, $n-1;
+        $target++;
+      }
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A212591 - position of first occurance of n, first time getting to X+Y=n
+# seq    0, 1, 2, 5, 8,  9, 10, 21, 32, 33, 34, 37, 40, 41, 42, 85
+# N   0  1  2  3  6, 9, 10, 11, 22, ...
+{
+  my $anum = 'A212591';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                      max_count => 1000);
+  my @got;
+  if ($bvalues) {
+    my $target = 1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x, $y) = $paper->n_to_xy ($n);
+      my $d = $x + $y;
+      if ($d == $target) {
+        push @got, $n-1;
+        $target++;
+      }
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A093573+1 - triangle of positions where cumulative=k
+#   cumulative A020986 starts n=0 for GRS(0)=0  (A020985)
+# 0,
+# 1,  3,
+# 2,  4,  6,
+# 5,  7, 13, 15,
+# 8, 12, 14, 16, 26,
+# 9, 11, 17, 19, 25, 27
+#
+# cf diagonals
+# 0
+# 1
+# 2, 4
+# 3,7, 5
+# 8, 6,14, 16
+# 9,13, 15,27, 17
+
+{
+  my $anum = 'A093573';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+  OUTER: for (my $sum = 1; ; $sum++) {
+      my @n_list;
+      foreach my $y (0 .. $sum) {
+        my $x = $sum - $y;
+        push @n_list, $paper->xy_to_n_list($x,$y);;
+      }
+      @n_list = sort {$a<=>$b} @n_list;
+      foreach my $n (@n_list) {
+        last OUTER if @got >= @$bvalues;
+        push @got, $n-1;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- X+Y");
+}
+
+#------------------------------------------------------------------------------
+# A020986 - GRS cumulative is X+Y
+#         - and is X coord undoubled except N=0
+{
+  my $anum = 'A020986';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 1; @got < @$bvalues; $n++) {
+        my ($x, $y) = $paper->n_to_xy ($n);
+        push @got, $x+$y;
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum -- X+Y");
+  }
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 2; @got < @$bvalues; $n += 2) {
+        my ($x, $y) = $paper->n_to_xy ($n);
+        push @got, $x;
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available");
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum -- X coordinate undoubled");
+  }
+}
+
+#------------------------------------------------------------------------------
+# A022155 - positions of -1, is S,W steps
+{
+  my $anum = 'A022155';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = $paper->n_start; @got < @$bvalues; $n++) {
+      my ($dx,$dy) = path_n_dxdy($paper,$n);
+      if ($dx < 0 || $dy < 0) {
+        push @got, $n;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A203463 - positions of 1, is N,E steps
+{
+  my $anum = 'A203463';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = $paper->n_start; @got < @$bvalues; $n++) {
+      my ($dx,$dy) = path_n_dxdy($paper,$n);
+      if ($dx > 0 || $dy > 0) {
+        push @got, $n;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A000695 - N on X axis
+{
+  my $anum = 'A000695';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $x = 0; @got < @$bvalues; $x++) {
+      push @got, $paper->xy_to_n($x,0);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A062880 - N on diagonal
+{
+  my $anum = 'A062880';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $x = 0; @got < @$bvalues; $x++) {
+      push @got, $paper->xy_to_n($x,$x);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  } else {
+    MyTestHelpers::diag ("$anum not available");
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- Y coordinate undoubled");
+}
 
 #------------------------------------------------------------------------------
 # A020990 - Golay/Rudin/Shapiro * (-1)^k cumulative, is Y coord undoubled,
@@ -131,7 +403,6 @@ sub dxdy_to_dir {
 
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my $prev_x = 0;
     my $prev_y = 0;
     for (my $n = 1; @got < @$bvalues; ) {
@@ -164,42 +435,14 @@ sub dxdy_to_dir {
 }
 
 #------------------------------------------------------------------------------
-# A020986 - Golay/Rudin/Shapiro cumulative is X coord undoubled, except N=0
-{
-  my $anum = 'A020986';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
-    for (my $n = 2; @got < @$bvalues; $n += 2) {
-      my ($x, $y) = $paper->n_to_xy ($n);
-      push @got, $x;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X coordinate undoubled");
-}
-
-
-
-#------------------------------------------------------------------------------
-# A106665 -- turn 1=left, 0=right, starting from N=1
+# A106665 -- turn 1=left, 0=right
+#   first turn at N=1 is OFFSET=0 in seq
 
 {
   my $anum = 'A106665';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $paper->n_start + 1; @got < @$bvalues; $n++) {
       push @got, path_n_turn($paper,$n);
     }

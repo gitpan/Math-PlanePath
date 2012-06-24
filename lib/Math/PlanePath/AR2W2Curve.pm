@@ -39,7 +39,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -495,13 +495,8 @@ Math::PlanePath::AR2W2Curve -- 2x2 self-similar curve of four patterns
 
 =head1 DESCRIPTION
 
-X<Asano>
-X<Ranjan>
-X<Roos>
-X<Welzl>
-X<Widmayer>
-This is an integer version of the AR2W2 curve by Asano, Ranjan, Roos, Welzl
-and Widmayer.
+X<Asano>X<Ranjan>X<Roos>X<Welzl>X<Widmayer>This is an integer version of the
+AR2W2 curve by Asano, Ranjan, Roos, Welzl and Widmayer.
 
                                          |
       7     42--43--44  47--48--49  62--63

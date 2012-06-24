@@ -65,6 +65,88 @@ sub diff_nums {
 
 
 #------------------------------------------------------------------------------
+# A088534 - count of points 0<=x<=y
+
+{
+  my $anum = 'A088534';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got = (0) x scalar(@$bvalues);
+    my $path = Math::PlanePath::TriangularHypot->new;
+    my $prev_h = 0;
+    my $count = 0;
+    for (my $n = 1; ; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      # next unless 0 <= $x && $x <= $y;
+      next unless 0 <= $y && $y <= $x/3;
+
+      my $h = ($x*$x + 3*$y*$y) / 4;
+
+      # Same when rotate -45 as per POD notes.
+      # ($x,$y) = (($x+$y)/2,
+      #            ($y-$x)/2);
+      # $h = $x*$x + $x*$y + $y*$y;
+
+      if ($h == $prev_h) {
+        $count++;
+      } else {
+        last if $prev_h > $#$bvalues;
+        $got[$prev_h] = $count;
+        $count = 1;
+        $prev_h = $h;
+      }
+    }
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A003136 - Loeschian numbers, norms of A2 lattice
+
+{
+  my $anum = 'A003136';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::TriangularHypot->new;
+    my $prev_h = -1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $h = ($x*$x + 3*$y*$y) / 4;
+
+      if ($h != $prev_h) {
+        push @got, $h;
+        $prev_h = $h;
+      }
+    }
+    foreach (@got) { $_ ||= 0 }
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
 # A004016 - count of points at distance n
 
 {
@@ -73,8 +155,6 @@ sub diff_nums {
 
   my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my @got;
     my $path = Math::PlanePath::TriangularHypot->new;
     my $prev_h = 0;
@@ -103,8 +183,6 @@ sub diff_nums {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,
@@ -121,8 +199,6 @@ sub diff_nums {
 
   my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my @got;
     my $path = Math::PlanePath::TriangularHypot->new;
     my $prev_h = 0;
@@ -144,8 +220,6 @@ sub diff_nums {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,

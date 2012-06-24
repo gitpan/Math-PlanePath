@@ -44,14 +44,18 @@ WriteMakefile
      { homepage => 'http://user42.tuxfamily.org/math-planepath/index.html',
        license  => 'http://www.gnu.org/licenses/gpl.html',
      },
-     maximum_tests =>
-     { description => 'Have "make test" do as much as possible.',
-       requires => { 'Data::Float'  => 0,
-                     'Math::BigInt' => 0,
-                     'Math::BigInt::Lite' => 0,
-                     'Math::BigFloat' => '1.993',
-                     'Math::BigRat' => 0,
-                   },
+     no_index => { directory=>['devel'] },
+
+     optional_features =>
+     { maximum_tests =>
+       { description => 'Have "make test" do as much as possible.',
+         requires => { 'Data::Float'  => 0,
+                       'Math::BigInt' => 0,
+                       'Math::BigInt::Lite' => 0,
+                       'Math::BigFloat' => '1.993',
+                       'Math::BigRat' => 0,
+                     },
+       },
      },
    },
   );

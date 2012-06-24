@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -510,7 +510,8 @@ sequence directly
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::DragonCurve>
+L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::WythoffArray>
 
 Alexis Monnerot-Dumaine "The Fibonacci Word Fractal", February 2009
 

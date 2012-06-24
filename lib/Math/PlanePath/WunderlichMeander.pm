@@ -31,7 +31,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 
@@ -360,9 +360,8 @@ Math::PlanePath::WunderlichMeander -- 3x3 self-similar "R" shape
 
 =head1 DESCRIPTION
 
-X<Wunderlich, Walter>
-This is an integer version of the 3x3 self-similar meander by Walter
-Wunderlich,
+X<Wunderlich, Walter>This is an integer version of the 3x3 self-similar
+meander by Walter Wunderlich,
 
       8     20--21--22  29--30--31  38--39--40
              |       |   |       |   |       |

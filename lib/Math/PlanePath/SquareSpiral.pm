@@ -25,6 +25,10 @@
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/index.html
 # including image highlighting the lines
 
+# cf sides alternately prime and fibonacci
+# A160790 A160791 A160792 A160793 A160794 A160795
+
+
 package Math::PlanePath::SquareSpiral;
 use 5.004;
 use strict;
@@ -35,7 +39,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 @ISA = ('Math::PlanePath');
 
 

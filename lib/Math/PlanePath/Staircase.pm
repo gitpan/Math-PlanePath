@@ -21,10 +21,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
+
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -62,16 +64,17 @@ sub n_to_xy {
   ### rem: $n
 
   my $int = int($n);
-  my $frac = $n - $int;
-  my $r = int($int/2);
-  if ($int % 2) {
+  $n -= $int;
+
+  ($int, my $rem) = _divrem ($int, 2);
+  if ($rem) {
     ### down ...
-    return ($r,
-            -$frac + 2*$d - $r);
+    return ($int,
+            -$n + 2*$d - $int);
   } else {
     ### across ...
-    return ($frac + $r-1,
-            2*$d - $r);
+    return ($n + $int-1,
+            2*$d - $int);
   }
 
 

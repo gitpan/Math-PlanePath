@@ -27,13 +27,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 77;
+$VERSION = 78;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -70,8 +71,7 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $low = ($n % 2);
-  $n = int($n/2);
+  ($n, my $low) = _divrem ($n, 2);
   ### $low
   ### $n
 
@@ -270,11 +270,9 @@ Math::PlanePath::HIndexing -- self-similar right-triangle traversal
 
 =head1 DESCRIPTION
 
-X<Niedermeier, Rolf>
-X<Reinhardt, Klaus>
-X<Sanders, Peter>
-This is an infinite integer version of the H-indexing by Rolf Niedermeier,
-Klaus Reinhardt and Peter Sanders.
+X<Niedermeier, Rolf>X<Reinhardt, Klaus>X<Sanders, Peter>This is an infinite
+integer version of the H-indexing by Rolf Niedermeier, Klaus Reinhardt and
+Peter Sanders.
 
 It traverses an octant of the plane by self-similar right triangles.  Notice
 the "H" shapes that arise from the backtracking, for example N=8 to N=23,
