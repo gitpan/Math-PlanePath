@@ -24,7 +24,7 @@ use constant 1.02; # various underscore constants below
 use Math::NumSeq;
 
 use vars '$VERSION','@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines

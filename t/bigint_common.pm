@@ -53,6 +53,19 @@ sub bigint_checks {
 
 
   #----------------------------------------------------------------------------
+  # _divrem()
+
+  {
+    require Math::PlanePath;
+    my $n = Math::BigInt->new(123);
+    my ($q,$r) = Math::PlanePath::_divrem($n,5);
+    ok ("$n", 123);
+    ok ("$q", 24);
+    ok ("$r", 3);
+    ok (ref $r, '');
+  }
+
+  #----------------------------------------------------------------------------
   # _digit_split_lowtohigh()
 
   {

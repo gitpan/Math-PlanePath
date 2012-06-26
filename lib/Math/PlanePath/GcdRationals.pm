@@ -63,7 +63,7 @@ use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::PlanePath');
 
 

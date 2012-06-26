@@ -373,6 +373,16 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'TriangularHypot',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+
                'WythoffArray',
                'PowerArray',
                'PowerArray,radix=3',
@@ -641,8 +651,6 @@ my @modules = (
                'CellularRule190',
                'CellularRule190,mirror=1',
 
-               'Hypot',
-               'HypotOctant',
                'PixelRings',
                'FilledRings',
 
@@ -726,7 +734,6 @@ my @modules = (
                'RationalsTree,tree_type=Bird',
                'RationalsTree,tree_type=Drib',
 
-               'TriangularHypot',
                'PythagoreanTree',
                'PythagoreanTree,coordinates=PQ',
                'PythagoreanTree,tree_type=FB',

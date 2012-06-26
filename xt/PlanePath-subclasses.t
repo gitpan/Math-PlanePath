@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 1099 }
+BEGIN { plan tests => 1107 }
 
 use lib 't';
 use MyTestHelpers;
@@ -35,6 +35,16 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'TriangularHypot',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+
                'WythoffArray',
                'PowerArray',
                'PowerArray,radix=3',
@@ -44,11 +54,6 @@ my @modules = (
                'GcdRationals,pairs_order=rows_reverse',
                'GcdRationals,pairs_order=diagonals_down',
                'GcdRationals,pairs_order=diagonals_up',
-
-               'Hypot',
-               'HypotOctant',
-               'HypotOctant,points=even',
-               'HypotOctant,points=odd',
 
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
@@ -245,7 +250,6 @@ my @modules = (
                'RationalsTree,tree_type=Bird',
                'RationalsTree,tree_type=Drib',
 
-               'TriangularHypot',
                'PythagoreanTree',
                'PythagoreanTree,coordinates=PQ',
                'PythagoreanTree,tree_type=FB',
@@ -394,7 +398,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 78;
+my $want_version = 79;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

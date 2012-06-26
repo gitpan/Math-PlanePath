@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 78;
+$VERSION = 79;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -327,7 +327,8 @@ couple of forms,
     A002088    N on X axis, cumulative totient
     A127368    by columns Y coordinate if coprime, 0 if not
     A054521    by columns 1 if coprime, 0 if not
-    A054427    permutation coprime columns N -> RationalsTree SB N 
+    A054427    permutation columns N -> RationalsTree SB N X/Y<1
+    A054428      inverse, SB X/Y<1 -> columns
     A121998    Y of skipped X,Y among 2<=Y<=X, those not coprime
 
 =head1 SEE ALSO

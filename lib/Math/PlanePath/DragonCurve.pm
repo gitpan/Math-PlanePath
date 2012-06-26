@@ -53,7 +53,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::DragonMidpoint;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

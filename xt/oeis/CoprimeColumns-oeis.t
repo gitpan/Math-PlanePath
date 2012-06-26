@@ -50,6 +50,96 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
+# A054428 - inverse, permutation SB N -> coprime columns N
+
+{
+  my $anum = 'A054428';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    require Math::PlanePath::RationalsTree;
+    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+    for (my $n = 0; @got < @$bvalues; $n++) {
+      my $sn = insert_second_highest_bit_one($n);
+      my ($x,$y) = $sb->n_to_xy ($sn);
+      ### sb: "$x/$y"
+      my $cn = $path->xy_to_n($x,$y);
+      if (! defined $cn) {
+        die "oops, SB $x,$y";
+      }
+      push @got, $cn+1;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
+    }
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+sub insert_second_highest_bit_one {
+  my ($n) = @_;
+  my $str = sprintf ('%b', $n);
+  substr($str,1,0) = '1';
+  return oct("0b$str");
+}
+# # ### assert: delete_second_highest_bit(1) == 1
+# # ### assert: delete_second_highest_bit(2) == 1
+# ### assert: delete_second_highest_bit(4) == 2
+# ### assert: delete_second_highest_bit(5) == 3
+
+
+#------------------------------------------------------------------------------
+# A054427 - permutation coprime columns N -> SB N 
+
+{
+  my $anum = 'A054427';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    require Math::PlanePath::RationalsTree;
+    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+    my $n = 0;
+    while (@got < @$bvalues) {
+      my ($x,$y) = $path->n_to_xy ($n++);
+      ### frac: "$x/$y"
+      my $sn = $sb->xy_to_n($x,$y);
+      push @got, delete_second_highest_bit($sn) + 1;
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+sub delete_second_highest_bit {
+  my ($n) = @_;
+  my $bit = 1;
+  my $ret = 0;
+  while ($bit <= $n) {
+    $ret |= ($n & $bit);
+    $bit <<= 1;
+  }
+  $bit >>= 1;
+  $ret &= ~$bit;
+  $bit >>= 1;
+  $ret |= $bit;
+  # ### $ret
+  # ### $bit
+  return $ret;
+}
+# ### assert: delete_second_highest_bit(1) == 1
+# ### assert: delete_second_highest_bit(2) == 1
+### assert: delete_second_highest_bit(4) == 2
+### assert: delete_second_highest_bit(5) == 3
+
+#------------------------------------------------------------------------------
 # A121998 - list of <=k with a common factor
 
 {
@@ -242,54 +332,6 @@ sub numeq_array {
           1, "$anum");
   }
 }
-
-#------------------------------------------------------------------------------
-# A054427 - permutation coprime columns N -> SB N 
-
-{
-  my $anum = 'A054427';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::RationalsTree;
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-    my $n = 0;
-    while (@got < @$bvalues) {
-      my ($x,$y) = $path->n_to_xy ($n++);
-      ### frac: "$x/$y"
-      my $sn = $sb->xy_to_n($x,$y);
-      push @got, delete_second_highest_bit($sn) + 1;
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-sub delete_second_highest_bit {
-  my ($n) = @_;
-  my $bit = 1;
-  my $ret = 0;
-  while ($bit <= $n) {
-    $ret |= ($n & $bit);
-    $bit <<= 1;
-  }
-  $bit >>= 1;
-  $ret &= ~$bit;
-  $bit >>= 1;
-  $ret |= $bit;
-  # ### $ret
-  # ### $bit
-  return $ret;
-}
-# ### assert: delete_second_highest_bit(1) == 1
-# ### assert: delete_second_highest_bit(2) == 1
-### assert: delete_second_highest_bit(4) == 2
-### assert: delete_second_highest_bit(5) == 3
-
 
 #------------------------------------------------------------------------------
 # A002088 - totient sum along X axis

@@ -390,6 +390,8 @@ my @modules = (
                # 'GcdRationals,pairs_order=diagonals_up',
                # 'FactorRationals',  # counting by N
                # 'TriangularHypot',  # counting by N
+               # 'TriangularHypot,points=odd',
+               # 'TriangularHypot,points=all',
                'PythagoreanTree',
 
                # 'Hypot',            # searching by N

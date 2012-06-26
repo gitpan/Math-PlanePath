@@ -47,7 +47,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -57,6 +57,16 @@ $VERSION = 78;
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+
+# use constant parameter_info_array => [ { name      => 'arms',
+#                                          share_key => 'arms_8',
+#                                          type      => 'integer',
+#                                          minimum   => 1,
+#                                          maximum   => 8,
+#                                          default   => 1,
+#                                          width     => 1,
+#                                          description => 'Arms',
+#                                        } ];
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -71,6 +81,9 @@ sub new {
 
 my @rot_to_sx = (1,0,-1,0);
 my @rot_to_sy = (0,1,0,-1);
+
+my @arm_to_x = (0,0, 0,0, -1,-1, -1,-1);
+my @arm_to_y = (0,0, 1,1,   1,1,  0,0);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -126,7 +139,7 @@ sub n_to_xy {
   ### @sy
   ### assert: scalar(@sx) == scalar(@digits)
 
-  my $rot = 0;
+  my $rot = int($arm/2);  # arm to initial rotation
   my $rev = 0;
   my $x = $zero;
   my $y = $zero;
@@ -210,9 +223,13 @@ sub n_to_xy {
     ### rev change rot to: $rot
   }
 
+  if ($arm & 1) {
+    ($x,$y) = ($y,$x);  # odd arms transpose
+  }
+
   $rot &= 3;
-  $x = $frac * $rot_to_sx[$rot] + $x;
-  $y = $frac * $rot_to_sy[$rot] + $y;
+  $x = $frac * $rot_to_sx[$rot] + $x + $arm_to_x[$arm];
+  $y = $frac * $rot_to_sy[$rot] + $y + $arm_to_y[$arm];
 
   ### final: "$x,$y"
   return ($x,$y);
@@ -399,6 +416,27 @@ sub xy_to_n_list {
     ### outside first octant ...
     return;
   }
+
+  # my $arm;
+  # if ($y < 0) {
+  #   $arm = 4;
+  #   $x = -$x; # rotate 180
+  #   $y = -$y;
+  # } else {
+  #   $arm = 0;
+  # }
+  # if ($x < 0) {
+  #   $arm += 2;
+  #   ($x,$y) = ($y,-$x); # rotate -90
+  # }
+  # if ($y > $x) {
+  #   $arm++;
+  #   ($x,$y) = ($y,$x); # mirror across diagonal
+  # }
+  # if ($arm > $self->{'arms'}) {
+  #   ### outside arms ...
+  #   return;
+  # }
 
   my $n = my $big_n = $x * 0 * $y;  # inherit bignum 0
   my $rev = 0;

@@ -47,7 +47,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -107,12 +107,6 @@ sub new {
   }
   return $self;
 }
-
-# my @n_to_x = (undef, 0);
-# my @n_to_y = (undef, 0);
-# my @hypot_to_n = (1);
-# my @y_next_x = (1, 1);
-# my @y_next_hypot = (1, 2);
 
 sub _extend {
   my ($self) = @_;
@@ -176,6 +170,7 @@ sub _extend {
   }
   ### with transpose q1: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
 
+  # rotate +90 quadrant 1 into quadrant 2
   {
     my @base_y = @y;
     push @y, @x;
@@ -183,6 +178,7 @@ sub _extend {
   }
   ### with rotate q2: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
 
+  # rotate +180 quadrants 1+2 into quadrants 2+3
   push @x, map {-$_} @x;
   push @y, map {-$_} @y;
 

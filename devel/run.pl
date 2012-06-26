@@ -33,7 +33,6 @@ use Module::Load;
   require Math::PlanePath::PythagoreanTree;
   require Math::PlanePath::GreekKeySpiral;
   require Math::PlanePath::PixelRings;
-  require Math::PlanePath::TriangularHypot;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::CellularRule54;
   require Math::PlanePath::SquareReplicate;
@@ -122,8 +121,6 @@ use Module::Load;
   $path_class = 'Math::PlanePath::Diagonals';
   $path_class = 'Math::PlanePath::GcdRationals';
   $path_class = 'Math::PlanePath::WythoffArray';
-  $path_class = 'Math::PlanePath::AlternatePaper';
-  $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
   $path_class = 'Math::PlanePath::KochSquareflakes';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::TerdragonRounded';
@@ -131,17 +128,20 @@ use Module::Load;
   $path_class = 'Math::PlanePath::ZOrderCurve';
   $path_class = 'Math::PlanePath::CornerReplicate';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
+  $path_class = 'Math::PlanePath::TriangularHypot';
+  $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
+  $path_class = 'Math::PlanePath::AlternatePaper';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+      arms => 2,
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_down',
-     # points => 'all',
+     # points => 'odd',
      # base => 7,
      # direction => 'up',
      # radix => 3,
-     # arms => 2,
      # step => 6,
      # ring_shape => 'polygon',
      # diagonal_length => 5,

@@ -40,6 +40,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -47,7 +48,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::AlternatePaper;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::PlanePath');
 
 

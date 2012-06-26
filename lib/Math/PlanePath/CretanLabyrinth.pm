@@ -30,7 +30,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

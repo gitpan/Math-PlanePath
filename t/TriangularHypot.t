@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 13 }
+BEGIN { plan tests => 17 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 78;
+  my $want_version = 79;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,
@@ -71,7 +71,7 @@ require Math::PlanePath::TriangularHypot;
   ok ($path->y_negative, 1, 'y_negative()');
 
   my @pnames = map {$_->{'name'}} $path->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'points');
 }
 
 #------------------------------------------------------------------------------
@@ -85,33 +85,51 @@ sub hex_hypot {
   return 3*$y*$y + $x*$x;
 }
 
-{
-  my $path = Math::PlanePath::TriangularHypot->new;
+foreach my $points ('odd','even','all') {
+  my $path = Math::PlanePath::TriangularHypot->new (points => $points);
   my $bad = 0;
   my $n = $path->n_start;
   my ($x,$y) = $path->n_to_xy($n);
   my $h = hex_hypot($x,$y);
   while (++$n < 5000) {
     my ($x2,$y2) = $path->n_to_xy ($n);
-    if (($x2 ^ $y2) & 1) {
-      MyTestHelpers::diag ("n=$n x=$x2,y=$y2 same parity");
-      last if $bad++ > 10;
+
+    if ($points eq 'even') {
+      if (($x2 ^ $y2) & 1) {
+        if (defined $n) {
+          MyTestHelpers::diag ("$points: x2=$x2,y2=$y2 is odd");
+          last if $bad++ > 10;
+        }
+        next;
+      }
+    } elsif ($points eq 'odd') {
+      if (! (($x2 ^ $y2) & 1)) {
+        if (defined $n) {
+          MyTestHelpers::diag ("$points: x2=$x2,y2=$y2 is even");
+          last if $bad++ > 10;
+        }
+        next;
+      }
     }
+
     my $h2 = hex_hypot($x2,$y2);
     ### xy: "$x2,$y2  is $h2"
     if ($h2 < $h) {
       MyTestHelpers::diag ("n=$n x=$x2,y=$y2 h=$h2 < prev h=$h x=$x,y=$y");
       last if $bad++ > 10;
     }
-    if ($n > 2 && ! _turn_func_Left($x,$y, $x2,$y2)) {
-      MyTestHelpers::diag ("not turn left at n=$n x=$x2,y=$y2 prev x=$x,y=$y");
-      last if $bad++ > 10;
+    if ($points eq 'even') {
+      # odd,all don't always turn left
+      if ($n > 2 && ! _turn_func_Left($x,$y, $x2,$y2)) {
+        MyTestHelpers::diag ("$points: not turn left at n=$n x=$x2,y=$y2 prev x=$x,y=$y");
+        last if $bad++ > 10;
+      }
     }
     $h = $h2;
     $x = $x2;
     $y = $y2;
   }
-  ok ($bad, 0, "n_to_xy() hypot non-decreasing");
+  ok ($bad, 0, "$points: n_to_xy() hypot non-decreasing");
 }
 
 sub _turn_func_Left {
@@ -120,7 +138,7 @@ sub _turn_func_Left {
   my $a = $next_dy * $dx;
   my $b = $next_dx * $dy;
   return ($a > $b
-          || $dx==-$next_dx && $dy==-$next_dy  # straight opposite 180
+          || abs($dx)==abs($next_dx) && abs($dy)==abs($next_dy)  # 0 or 180
           ? 1
           : 0);
 }
@@ -128,8 +146,8 @@ sub _turn_func_Left {
 #------------------------------------------------------------------------------
 # all x,y covered and distinct n
 
-{
-  my $path = Math::PlanePath::TriangularHypot->new;
+foreach my $points ('odd','even','all') {
+  my $path = Math::PlanePath::TriangularHypot->new (points => $points);
   my $bad = 0;
   my %seen;
   my $xlo = -10;
@@ -138,10 +156,28 @@ sub _turn_func_Left {
   my $yhi = 10;
   my ($nlo, $nhi) = $path->rect_to_n_range($xlo,$ylo, $xhi,$yhi);
   my $count = 0;
-  OUTER: for (my $x = $xlo; $x <= $xhi; $x++) {
+ OUTER: for (my $x = $xlo; $x <= $xhi; $x++) {
     for (my $y = $ylo; $y <= $yhi; $y++) {
-      next if ($x ^ $y) & 1;
       my $n = $path->xy_to_n ($x,$y);
+
+      if ($points eq 'even') {
+        if (($x ^ $y) & 1) {
+          if (defined $n) {
+            MyTestHelpers::diag ("$points: x=$x,y=$y is odd should be n=undef");
+            last if $bad++ > 10;
+          }
+          next;
+        }
+      } elsif ($points eq 'odd') {
+        if (! (($x ^ $y) & 1)) {
+          if (defined $n) {
+            MyTestHelpers::diag ("$points: x=$x,y=$y is even should be n=undef");
+            last if $bad++ > 10;
+          }
+          next;
+        }
+      }
+
       if (! defined $n) {
         MyTestHelpers::diag ("x=$x,y=$y n=undef");
         last OUTER if $bad++ > 10;
@@ -163,7 +199,7 @@ sub _turn_func_Left {
       $count++;
     }
   }
-  ok ($bad, 0, "xy_to_n() coverage and distinct, $count points");
+  ok ($bad, 0, "$points xy_to_n() coverage and distinct, $count points");
 }
 
 exit 0;

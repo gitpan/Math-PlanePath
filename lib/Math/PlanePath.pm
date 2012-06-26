@@ -45,7 +45,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 78;
+$VERSION = 79;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -241,12 +241,21 @@ sub _rect_for_first_quadrant {
   }
 }
 
+# return ($quotient, $remainder)
 sub _divrem {
   my ($n, $d) = @_;
+  if (ref $n && $n->isa('Math::BigInt')) {
+    my ($q,$r) = $n->copy->bdiv($d);  # quot,rem in array context
+    if (! ref $d || $d < 1_000_000) {
+      $r = $r->numify;  # plain remainder if fits
+    }
+    return ($q, $r);
+  }
   my $rem = $n % $d;
   return (int(($n-$rem)/$d),
           $rem);
 }
+# ENHANCE-ME: _divrem_destructive() returning remainder
 
 
 1;

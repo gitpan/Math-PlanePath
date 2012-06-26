@@ -141,6 +141,8 @@ my @all_classes = ('SquareSpiral',
                    'HypotOctant,points=even',
                    'HypotOctant,points=odd',
                    'TriangularHypot',
+                   'TriangularHypot,points=odd',
+                   'TriangularHypot,points=all',
 
                    'Rows',
                    'Columns',

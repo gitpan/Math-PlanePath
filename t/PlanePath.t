@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 24 }
+BEGIN { plan tests => 27 }
 
 use lib 't';
 use MyTestHelpers;
@@ -30,6 +30,17 @@ MyTestHelpers::nowarnings();
 #use Devel::Comments;
 
 require Math::PlanePath;
+
+#----------------------------------------------------------------------------
+# _divrem()
+
+{
+  my $n = 123;
+  my ($q,$r) = Math::PlanePath::_divrem($n,5);
+  ok ("$n", 123);
+  ok ("$q", 24);
+  ok ("$r", 3);
+}
 
 #------------------------------------------------------------------------------
 # _is_infinite()

@@ -38,7 +38,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION','@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines

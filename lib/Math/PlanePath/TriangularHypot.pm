@@ -16,7 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --all --output=numbers --path=TriangularHypot
 # math-image  --path=TriangularHypot
 
 # A034017 - loeschian primatives xx+xy+yy, primes 3k+1 and a factor of 3
@@ -35,12 +34,25 @@
 #
 # A014201 - x*x+x*y+y*y solutions excluding 0,0
 
+
+
+#                          [27] [28] [31]
+#                          [12] [13] [16] [21] [28]
+#                 [7]  [4]  [3]  [4]  [7] [12] [19] [28]
+# [25] [16]  [9]  [4]  [1]  [0]  [1]  [4]  [9] [16] [25] [36]
+#                 [7]  [4]  [3]  [4]  [7]
+#                          [12]
+#                          [27]
+
+
+
 package Math::PlanePath::TriangularHypot;
 use 5.004;
 use strict;
+use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -51,70 +63,140 @@ use Math::PlanePath;
 #use Smart::Comments;
 
 
-my @n_to_x = (undef, 0);
-my @n_to_y = (undef, 0);
-my @hypot_to_n = (1);
-my @y_next_x = (2-2);
-my @y_next_hypot = ((3*0**2 + 2**2) / 4);
+use constant parameter_info_array =>
+  [ { name            => 'points',
+      share_type      => 'points_eoa',
+      type            => 'enum',
+      default         => 'even',
+      choices         => ['even','odd','all'],
+      choices_display => ['Even','Odd','All'],
+      description     => 'Which X,Y points visit, either X+Y even, or X+Y odd, or all points.',
+    },
+  ];
 
-### assert: $y_next_hypot[0] == (3 * 0**2 + ($y_next_x[0]+2)**2)/4
-### assert: $y_next_hypot[0] == 1
+sub new {
+  ### TriangularHypot new() ...
+  my $self = shift->SUPER::new(@_);
+  my $points = ($self->{'points'} ||= 'even');
+
+  if ($points eq 'all') {
+    $self->{'n_to_x'} = [undef, 0];
+    $self->{'n_to_y'} = [undef, 0];
+    $self->{'hypot_to_n'} = [1];
+    $self->{'y_next_x'} = [1-1];
+    $self->{'y_next_hypot'} = [3*0**2 + 1**2];
+    $self->{'x_inc'} = 1;
+    $self->{'x_inc_factor'} = 2;  # ((x+1)^2 - x^2) = 2*x+1
+    $self->{'x_inc_squared'} = 1;
+    $self->{'opposite_parity'} = -1;
+
+  } elsif ($points eq 'even') {
+    $self->{'n_to_x'} = [undef, 0];
+    $self->{'n_to_y'} = [undef, 0];
+    $self->{'hypot_to_n'} = [1];
+    $self->{'y_next_x'} = [2-2];
+    $self->{'y_next_hypot'} = [3*0**2 + 2**2];
+    $self->{'x_inc'} = 2;
+    $self->{'x_inc_factor'} = 4;  # ((x+2)^2 - x^2) = 4*x+4
+    $self->{'x_inc_squared'} = 4;
+    $self->{'opposite_parity'} = 1;
+
+  } elsif ($points eq 'odd') {
+    $self->{'n_to_x'} = [undef];
+    $self->{'n_to_y'} = [undef];
+    $self->{'hypot_to_n'} = [undef];
+    $self->{'y_next_x'} = [1-2];
+    $self->{'y_next_hypot'} = [1];
+    $self->{'x_inc'} = 2;
+    $self->{'x_inc_factor'} = 4;
+    $self->{'x_inc_squared'} = 4;
+    $self->{'opposite_parity'} = 0;
+
+  } else {
+    croak "Unrecognised points option: ", $points;
+  }
+
+  ### $self
+  ### assert: $self->{'y_next_hypot'}->[0] == (3 * 0**2 + ($self->{'y_next_x'}->[0]+$self->{'x_inc'})**2)
+
+  return $self;
+}
 
 sub _extend {
-  ### _extend() n: scalar(@n_to_x)
+  my ($self) = @_;
+  ### _extend() ...
 
-  # set @y to the Y with the smallest $y_next_hypot[$y], and if there's some
+  my $n_to_x       = $self->{'n_to_x'};
+  my $n_to_y       = $self->{'n_to_y'};
+  my $hypot_to_n   = $self->{'hypot_to_n'};
+  my $y_next_x     = $self->{'y_next_x'};
+  my $y_next_hypot = $self->{'y_next_hypot'};
+
+  # set @y to the Y with the smallest $y_next_hypot->[$y], and if there's some
   # Y's with equal smallest hypot then all those Y's in ascending order
-  ### @y_next_x
-  ### @y_next_hypot
+  ### $y_next_x
+  ### $y_next_hypot
   my @y = (0);
-  my $hypot = $y_next_hypot[0];
-  for (my $i = 1; $i < @y_next_x; $i++) {
-    if ($hypot == $y_next_hypot[$i]) {
+  my $hypot = $y_next_hypot->[0];
+  for (my $i = 1; $i < @$y_next_x; $i++) {
+    if ($hypot == $y_next_hypot->[$i]) {
       push @y, $i;
-    } elsif ($hypot > $y_next_hypot[$i]) {
+    } elsif ($hypot > $y_next_hypot->[$i]) {
       @y = ($i);
-      $hypot = $y_next_hypot[$i];
+      $hypot = $y_next_hypot->[$i];
     }
   }
 
-  # if the endmost of the @y_next_x, @y_next_hypot arrays are used then
+  # if the endmost of the @$y_next_x, @y_next_hypot arrays are used then
   # extend them by one
-  if ($y[-1] == $#y_next_x) {
-    my $y = scalar(@y_next_x);
-    $y_next_x[$y] = 3*$y-2;      # X=3*Y, so X-2=3*Y-2
-    # h = (3 * $y**2 + $x**2) / 4
-    #   = (3 * $y**2 + ($3*y)**2) / 4
-    #   = (3*$y*$y + 9*$y*$y) / 4
-    #   = (12*$y*$y)/4
-    #   = 3*$y*$y
-    $y_next_hypot[$y] = 3*$y*$y;
+  if ($y[-1] == $#$y_next_x) {
+    my $y = scalar(@$y_next_x);
+    if ($self->{'points'} eq 'even') {
+      # h = (3 * $y**2 + $x**2)
+      #   = (3 * $y**2 + ($3*y)**2)
+      #   = (3*$y*$y + 9*$y*$y)
+      #   = (12*$y*$y)
+      $y_next_x->[$y] = 3*$y - $self->{'x_inc'};      # X=3*Y, so X-2=3*Y-2
+      $y_next_hypot->[$y] = 12*$y*$y;
+    } elsif ($self->{'points'} eq 'odd') {
+      my $odd = ! ($y%2);
+      $y_next_x->[$y] = $odd - $self->{'x_inc'};
+      $y_next_hypot->[$y] = 3*$y*$y + $odd;
+    } else { # points eq 'all'
+      $y_next_x->[$y] = - $self->{'x_inc'};      # X=0, so X-1=0
+      $y_next_hypot->[$y] = 3*$y*$y;
+    }
+
     ### taking y: $y[-1]
-    ### so new y: $y
-    ### new y_next_x: $y_next_x[$y]+2
-    ### new y_next_hypot: $y_next_hypot[$y]
-    ### assert: (($y ^ ($y_next_x[$y]+2)) & 1) == 0
-    ### assert: $y_next_hypot[$y] == (3 * $y**2 + ($y_next_x[$y]+2)**2)/4
+    ### so grow y: $y
+    ### new y_next_x: $y_next_x->[$y]+$self->{'x_inc'}
+    ### new y_next_hypot: $y_next_hypot->[$y]
+    ### assert: ($self->{'points'} ne 'even' || (($y ^ ($y_next_x->[$y]+$self->{'x_inc'})) & 1) == 0)
+    ### assert: $y_next_hypot->[$y] == (3 * $y**2 + ($y_next_x->[$y]+$self->{'x_inc'})**2)
   }
 
-  # @x is the $y_next_x[$y] for each of the @y smallests, and step those
+  # @x is the $y_next_x->[$y] for each of the @y smallests, and step those
   # selected elements next X and hypot for that new X,Y
   my @x = map {
-    my $x = ($y_next_x[$_] += 2);
-    $y_next_hypot[$_] += $x+1;   # ((x+2)^2 - x^2)/4 = x+1
-    # ### $_
-    # ### $x
-    # ### y_next_x[]: $y_next_x[$_]
-    # ### y_next_hypot[]: $y_next_hypot[$_]
-    # ### hypot expr: 0.75 * $_**2 + (0.5 * $y_next_x[$_])**2
-    ### assert: $y_next_hypot[$_] == (3 * $_**2 + ($y_next_x[$_]+2)**2)/4
+    ### assert: (3 * $_**2 + ($y_next_x->[$_]+$self->{'x_inc'})**2) == $y_next_hypot->[$_]
+
+    my $x = ($y_next_x->[$_] += $self->{'x_inc'});
+    $y_next_hypot->[$_]
+      += $self->{'x_inc_factor'}*$x + $self->{'x_inc_squared'};
+
+    ### y _: $_
+    ### y_next_x (adj inc): $y_next_x->[$_]+$self->{'x_inc'}
+    ### y_next_hypot[]: $y_next_hypot->[$_]
+    ### assert: $y_next_hypot->[$_] == (3 * $_**2 + ($y_next_x->[$_]+$self->{'x_inc'})**2)
+
     $x
   } @y;
   ### $hypot
-  ### base sixth: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
 
-  my $p1 = scalar(@y);
-  {
+  my $p2;
+  if ($self->{'points'} eq 'even') {
+    ### base twelvth: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
+    my $p1 = scalar(@y);
     my @base_x = @x;
     my @base_y = @y;
     unless ($y[0]) { # no mirror of x,0
@@ -125,23 +207,39 @@ sub _extend {
       pop @base_x;
       pop @base_y;
     }
-    $#x = $#y = ($p1+scalar(@base_x))*6-1;
+    $#x = $#y = ($p1+scalar(@base_x))*6-1;  # pre-extend arrays
     for (my $i = $#base_x; $i >= 0; $i--) {
       $x[$p1]   = ($base_x[$i] + 3*$base_y[$i]) / 2;
       $y[$p1++] = ($base_x[$i] - $base_y[$i]) / 2;
     }
-  }
-  ### with mirror: join(' ',map{"$x[$_],$y[$_]"} 0 .. $p1-1)
+    ### with mirror: join(' ',map{"$x[$_],$y[$_]"} 0 .. $p1-1)
 
-  my $p2 = 2*$p1;
-  foreach my $i (0 .. $p1-1) {
-    $x[$p1]   = ($x[$i] - 3*$y[$i])/2;   # rotate +60
-    $y[$p1++] = ($x[$i] + $y[$i])/2;
+    $p2 = 2*$p1;
+    foreach my $i (0 .. $p1-1) {
+      $x[$p1]   = ($x[$i] - 3*$y[$i])/2;   # rotate +60
+      $y[$p1++] = ($x[$i] + $y[$i])/2;
 
-    $x[$p2]   = ($x[$i] + 3*$y[$i])/-2;  # rotate +120
-    $y[$p2++] = ($x[$i] - $y[$i])/2;
+      $x[$p2]   = ($x[$i] + 3*$y[$i])/-2;  # rotate +120
+      $y[$p2++] = ($x[$i] - $y[$i])/2;
+    }
+    ### with rotates 60,120: join(' ',map{"$x[$_],$y[$_]"} 0 .. $p2-1)
+
+  } else {
+    ### base quarter: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
+    my $p1 = $#x;
+    push @y, reverse @y;
+    push @x, map {-$_} reverse @x;
+    if ($x[$p1] == 0) {
+      splice @x, $p1, 1;  # don't duplicate X=0 in mirror
+      splice @y, $p1, 1;
+    }
+    if ($y[-1] == 0) {
+      pop @y;  # omit final Y=0 ready for rotate
+      pop @x;
+    }
+    $p2 = scalar(@y);
+    ### with mirror +90: join(' ',map{"$x[$_],$y[$_]"} 0 .. $p2-1)
   }
-  ### with rotates 60,120: join(' ',map{"$x[$_],$y[$_]"} 0 .. $p2-1)
 
   foreach my $i (0 .. $p2-1) {
     $x[$p2]   = -$x[$i];        # rotate 180
@@ -150,24 +248,13 @@ sub _extend {
   ### with rotate 180: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
 
   ### store: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
-  ### at n: scalar(@n_to_x)
-  ### hypot_to_n: "h=$hypot n=".scalar(@n_to_x)
-  $hypot_to_n[$hypot] = scalar(@n_to_x);
-  push @n_to_x, @x;
-  push @n_to_y, @y;
+  ### at n: scalar(@$n_to_x)
+  ### hypot_to_n: "h=$hypot n=".scalar(@$n_to_x)
+  $hypot_to_n->[$hypot] = scalar(@$n_to_x);
+  push @$n_to_x, @x;
+  push @$n_to_y, @y;
 
-  # ### hypot_to_n now: join(' ',map {defined($hypot_to_n[$_]) && "h=$_,n=$hypot_to_n[$_]"} 0 .. $#hypot_to_n)
-
-
-  # my $x = $y_next_x[0];
-  #
-  # $x = $y_next_x[$y];
-  # $n_to_x[$next_n] = $x;
-  # $n_to_y[$next_n] = $y;
-  # $xy_to_n{"$x,$y"} = $next_n++;
-  #
-  # $y_next_x[$y]++;
-  # $y_next_hypot[$y] = $y*$y + $y_next_x[$y]**2;
+  # ### hypot_to_n now: join(' ',map {defined($hypot_to_n->[$_]) && "h=$_,n=$hypot_to_n->[$_]"} 0 .. $#hypot_to_n)
 }
 
 sub n_to_xy {
@@ -189,47 +276,47 @@ sub n_to_xy {
     }
   }
 
-  while ($n > $#n_to_x) {
-    _extend();
+  my $n_to_x = $self->{'n_to_x'};
+  while ($n > $#$n_to_x) {
+    _extend($self);
   }
-
-  return ($n_to_x[$n], $n_to_y[$n]);
+  return ($n_to_x->[$n], $self->{'n_to_y'}->[$n]);
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### Hypot xy_to_n(): "$x, $y"
-  ### hypot_to_n last: $#hypot_to_n
+  ### TriangularHypot xy_to_n(): "$x, $y"
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
 
-  if (($x ^ $y) & 1) {
-    ### diff parity...
+  if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
+    ### XY wrong parity, no point ...
     return undef;
   }
 
-  my $hypot4 = 3*$y*$y + $x*$x;
-  if (_is_infinite($hypot4)) {
+  my $hypot = 3*$y*$y + $x*$x;
+  if (_is_infinite($hypot)) {
     # avoid infinite loop extending @hypot_to_n
     return undef;
   }
-  ### assert: ($hypot4 % 4) == 0
-  my $hypot = $hypot4/4;
-  ### $hypot4
   ### $hypot
 
-  while ($hypot > $#hypot_to_n) {
-    _extend();
+  my $hypot_to_n = $self->{'hypot_to_n'};
+  my $n_to_x     = $self->{'n_to_x'};
+  my $n_to_y     = $self->{'n_to_y'};
+
+  while ($hypot > $#$hypot_to_n) {
+    _extend($self);
   }
-  my $n = $hypot_to_n[$hypot];
+  my $n = $hypot_to_n->[$hypot];
   for (;;) {
-    if ($x == $n_to_x[$n] && $y == $n_to_y[$n]) {
+    if ($x == $n_to_x->[$n] && $y == $n_to_y->[$n]) {
       return $n;
     }
     $n += 1;
 
-    if ($n_to_x[$n]**2 + 3*$n_to_y[$n]**2 != $hypot4) {
+    if ($n_to_x->[$n]**2 + 3*$n_to_y->[$n]**2 != $hypot) {
       ### oops, hypot_to_n no good ...
       return undef;
     }
@@ -253,7 +340,8 @@ sub rect_to_n_range {
   # circlearea = pi*(r+1/2)^2
   # each hexagon area outradius 1/2 is hexarea = sqrt(27/64)
   my $r2 = $x2*$x2 + 3*$y2*$y2;
-  my $n = (3.15 / sqrt(27/64) / 4) * ($r2 + sqrt($r2));
+  my $n = (3.15 / sqrt(27/64) / 4) * ($r2 + sqrt($r2))
+    * (3 - $self->{'x_inc'});  # *2 for odd or even, *1 for all
   return (1, 1 + int($n));
 }
 
@@ -278,6 +366,11 @@ This path visits X,Y points on a triangular "A2" lattice in order of their
 distance from the origin 0,0 and anti-clockwise around from the X axis among
 those of equal distance.
 
+=cut
+
+# math-image --all --output=numbers --path=TriangularHypot
+
+=pod
 
              58    47    39    46    57                 4
 
@@ -329,6 +422,57 @@ For example the first 12 equal is N=20 to N=31 all at sqrt(28).
 There can also be further ways for the same distance to arise, but the 6-way
 or 12-way symmetry means always a multiple of 6 or 12.
 
+=head2 Odd Points
+
+Option C<points =E<gt> "odd"> visits just the odd points, meaning sum X+Y
+odd, so X,Y one odd the other even.
+
+=cut
+
+# math-image --path=TriangularHypot,points=odd --output=numbers --expression='i<=70?i:0'
+
+=pod
+
+    points => "odd"
+
+                         69                              5
+          66    50    45    44    49    65               4
+       58    40    28    25    27    39    57            3
+    54    32    20    12    11    19    31    53         2
+       36    16     6     3     5    15    35            1
+    46    24    10     2     1     9    23    43    <- Y=0
+       37    17     7     4     8    18    38           -1
+    55    33    21    13    14    22    34    56        -2
+       59    41    29    26    30    42    60           -3
+          67    51    47    48    52    68              -4
+                         70                             -5
+
+                          ^
+       -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+
+=head2 All Points
+
+Option C<points =E<gt> "all"> visits all integer X,Y points.
+
+=cut
+
+# math-image --path=TriangularHypot,points=all --output=numbers --expression='i<=71?i:0'
+
+=pod
+
+    points => "all"
+
+                64 59 49 44 48 58 63                  3
+          69 50 39 30 25 19 24 29 38 47 68            2
+          51 35 20 13  8  4  7 12 18 34 46            1
+       65 43 31 17  9  3  1  2  6 16 28 42 62    <- Y=0
+          52 36 21 14 10  5 11 15 23 37 57           -1
+          70 53 40 32 26 22 27 33 41 56 71           -2
+                66 60 54 45 55 61 67                 -3
+
+                          ^
+       -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -336,6 +480,14 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::TriangularHypot-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::TriangularHypot-E<gt>new (points =E<gt> $str)>
+
+Create and return a new hypot path object.  The C<points> option can be
+
+    "even"        only points with X+Y even (the default)
+    "odd"         only points with X+Y odd
+    "all"         all integer X,Y
 
 Create and return a new triangular hypot path object.
 

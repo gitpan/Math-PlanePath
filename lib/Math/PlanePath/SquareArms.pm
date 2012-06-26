@@ -34,7 +34,7 @@ use Math::PlanePath;
 *_divrem = \&Math::PlanePath::_divrem;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 78;
+$VERSION = 79;
 @ISA = ('Math::PlanePath');
 
 
