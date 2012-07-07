@@ -35,6 +35,8 @@
 #    a(8n+1) = a(4n+1),
 #    a(8n+2) = a(4n+2)
 #
+#    A060833 not adding to 2^k+2,
+#            superset of positions of left turns ...
 
 package Math::PlanePath::DragonCurve;
 use 5.004;
@@ -45,7 +47,7 @@ use strict;
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -53,7 +55,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::DragonMidpoint;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -62,10 +64,6 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
 
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_4',
@@ -107,7 +105,7 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
 
   # arm as initial rotation
-  ($n, my $rot) = _divrem ($n, $self->{'arms'});
+  my $rot = _divrem_destructive ($n, $self->{'arms'});
 
   my @digits = Math::PlanePath::_digit_split_lowtohigh($n,2);
   ### @digits
@@ -456,7 +454,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook DragonMidpoint versa PlanePath
+=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook DragonMidpoint versa PlanePath Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns DragonCurve Shallit Kmosek SquareSpiral
 
 =head1 NAME
 

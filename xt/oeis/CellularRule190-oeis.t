@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 4 }
+plan tests => 4;
 
 use lib 't','xt';
 use MyTestHelpers;

@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -100,7 +100,7 @@ sub n_to_xy {
   }
   ### @fibs
 
-  # indices into fib[] which are the fibonaccis adding up to $n
+  # indices into fib[] which are the Fibonaccis adding up to $n
   my @indices;
   for (my $i = $#fibs; $i >= 0; $i--) {
     ### at: "n=$n f=".$fibs[$i]
@@ -191,7 +191,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie PeanoHalf Math-PlanePath Moore
+=for stopwords eg Ryde ie PeanoHalf Math-PlanePath Moore Wythoff Zeckendorf concecutive fibbinary PowerArray bignum OEIS
 
 =head1 NAME
 
@@ -256,7 +256,7 @@ Fibonacci numbers, so they become large quite quickly.
 =head2 Zeckendorf Base
 
 The N values are arranged according to how many trailing zero bits when N is
-represented in the Zeckendorf base.  This base makes N a sum of fibonacci
+represented in the Zeckendorf base.  This base makes N a sum of Fibonacci
 numbers.  At each stage the largest possible F is chosen, so the
 representation is unique.  For example
 

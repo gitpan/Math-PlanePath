@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -206,7 +206,7 @@ __END__
        #                     78  79                            -6
 
 
-=for stopwords SquareSpiral eg AztecDiamondRings Ryde Math-PlanePath DiamondSpiral
+=for stopwords SquareSpiral eg AztecDiamondRings Ryde Math-PlanePath DiamondSpiral ie xbase OEIS
 
 =head1 NAME
 

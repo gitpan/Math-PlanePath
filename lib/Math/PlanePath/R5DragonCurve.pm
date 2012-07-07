@@ -34,13 +34,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -48,11 +48,6 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
 use constant parameter_info_array =>
   [ { name        => 'arms',
       share_key   => 'arms_4',
@@ -100,7 +95,7 @@ sub n_to_xy {
 
   # initial rotation from arm number
   {
-    ($n, my $rot) = _divrem ($n, $self->{'arms'});
+    my $rot = _divrem_destructive ($n, $self->{'arms'});
     if ($rot == 0)    { $x = $frac, $sx = $one; }
     elsif ($rot == 1) { $y = $frac, $sy = $one; }
     elsif ($rot == 2) { $x = -$frac, $sx = -$one; }
@@ -204,7 +199,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint radix
 
 =head1 NAME
 

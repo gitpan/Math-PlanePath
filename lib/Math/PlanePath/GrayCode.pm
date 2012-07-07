@@ -61,7 +61,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -243,8 +243,8 @@ sub rect_to_n_range {
 
 #------------------------------------------------------------------------------
 
-use constant _noop_reflected => undef;
-use constant _noop_modular   => undef;
+use constant 1.02 _noop_reflected => undef;
+use constant 1.02 _noop_modular   => undef;
 
 # $aref->[0] low digit
 sub _digit_join {
@@ -310,7 +310,7 @@ sub _digits_from_gray_modular {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath eg Radix radix ie
+=for stopwords Ryde Math-PlanePath eg Radix radix ie Christos Faloutsos Fs FsT sF pre TsF Peano radices Peano's xk yk OEIS PlanePath
 
 =head1 NAME
 
@@ -325,8 +325,9 @@ Math::PlanePath::GrayCode -- Gray code coordinates
 
 =head1 DESCRIPTION
 
-This is a mapping of N to X,Y using Gray codes.  The default is the form by
-Christos Faloutsos which is an X,Y split in binary reflected Gray code.
+X<Faloutsos, Christos>This is a mapping of N to X,Y using Gray codes.  The
+default is the form by Christos Faloutsos which is an X,Y split in binary
+reflected Gray code.
 
       7  |  63-62 57-56 39-38 33-32
          |      |  |        |  |

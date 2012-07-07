@@ -27,14 +27,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -71,7 +71,7 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  ($n, my $low) = _divrem ($n, 2);
+  my $low = _divrem_destructive ($n, 2);
   ### $low
   ### $n
 

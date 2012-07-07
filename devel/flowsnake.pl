@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,8 +21,141 @@ use 5.010;
 use strict;
 use warnings;
 use Math::Libm 'M_PI', 'hypot';
+use Math::PlanePath;;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
+{
+  # turn sequence -- working for integers
+
+  require Math::PlanePath::Flowsnake;
+  require Math::NumSeq::PlanePathTurn;
+  require Math::NumSeq::PlanePathDelta;
+
+  # 0  straight
+  # 1  +60 rev
+  # 2  180 rev
+  # 3  +240
+  # 4  straight
+  # 5  straight
+  # 6  -60 rev
+
+  # 4---- 5---- 6
+  #  \           \
+  #    3---- 2    7
+  #        /
+  # 0---- 1
+  # turn(N) = tdir6(N)-tdir6(N-1)
+  # N-1 changes low 0s to low 6s
+  # N   = aaad000
+  # N-1 = aaac666
+  # low 0s no change to direction
+  # low 6s state 7
+  # N=14=20[7] dir[2]=3,dirrev[0]=5 total 3+5=2mod6
+  # N-1=13=16[7] dir[1]=1,dirrev[6]=0 total 1+0=1  diff 2-1=1
+  # dir[2]-dir[1]=2
+  # dirrev[0] since digit=2 goes to rev
+  # N=23=32[7]
+
+  my @turn6 = (0,1,2,5,4,0,5,
+               0,1,0,2,1,4,5,
+               0,1,1,5,5,1,5,
+               0,1,5,1,1,5,5,
+              );
+  my @digit_to_state = (0,7,7,0,0,0,7);
+  sub n_to_turn6 {
+    my ($self, $n) = @_;
+    unless ($n >= 1) {
+      return undef;
+    }
+
+    my $lowdigit = _divrem_destructive($n,7);
+    ### $lowdigit
+
+    # skip low 0s
+    unless ($lowdigit) {
+      while ($n) {
+        last if ($lowdigit = _divrem_destructive($n,7));
+      }
+      # flag that some zeros were skipped
+      $lowdigit += 14;
+      ### $lowdigit
+    }
+
+    # forward/reverse state from lowest non-3
+    for (;;) {
+      my $digit = _divrem_destructive($n,7);
+      if ($digit != 3) {
+        $lowdigit += $digit_to_state[$digit];
+        last;
+      }
+    }
+
+    ### lookup: $lowdigit
+    return $turn6[$lowdigit];
+  }
+  my @next_state = (0,7,7,0,0,0,7,
+                    0,7,7,7,0,0,7);
+  my @tdir6 = (0,1,3,2,0,0,5,
+               5,0,0,2,3,1,0);
+  sub n_to_tdir6 {
+    my ($self, $n) = @_;
+    unless ($n >= 0) {
+      return undef;
+    }
+    my $state = 0;
+    my $tdir6 = 0;
+    foreach my $digit (reverse Math::PlanePath::_digit_split_lowtohigh($n,7)) {
+      $state += $digit;
+      $tdir6 += $tdir6[$state];
+      $state = $next_state[$state];
+    }
+    return $tdir6 % 6;
+  }
+  sub _digit_lowest {
+    my ($n, $radix) = @_;
+    my $digit;
+    for (;;) {
+      last if ($digit = ($n % 7));
+      $n /= 7;
+      last unless $n;
+    }
+    # if ($digit < 1_000_000) {
+    #   $digit = "$digit";
+    # }
+    return $digit;
+  }
+
+  {
+    my $class = 'Math::PlanePath::Flowsnake';
+    my $path = $class->new;
+    my $seq = Math::NumSeq::PlanePathDelta->new (planepath=>'Flowsnake',
+                                                 delta_type => 'TDir6');
+    for (my $n = 1; $n < 7**3; $n+=1) {
+      my $value = ($seq->ith($n) - $seq->ith($n-1)) % 6;
+      my $turn = n_to_turn6($path,$n);
+      my $diff = ($value != $turn ? '   ***' : '');
+      print "$n  $value $turn$diff\n";
+    }
+    exit 0;
+  }
+  {
+    my $class = 'Math::PlanePath::Flowsnake';
+    my $path = $class->new;
+    my $seq = Math::NumSeq::PlanePathDelta->new (planepath=>'Flowsnake',
+                                                 delta_type => 'TDir6');
+    for (my $n = 0; $n < 7**3; $n+=1) {
+      my $value = $seq->ith($n);
+      my $tdir6 = n_to_tdir6($path,$n);
+      my $diff = ($value != $tdir6 ? '   ***' : '');
+      print "$n  $value $tdir6$diff\n";
+    }
+    exit 0;
+  }
+}
 {
   require Math::BaseCnv;
   require Math::PlanePath::Flowsnake;

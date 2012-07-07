@@ -37,13 +37,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -101,7 +101,7 @@ sub n_to_xy {
   }
 
   # low to high
-  ($n, my $x) = _divrem($n,2);
+  my $x = _divrem_destructive($n,2);
   my $y = $x;
   my $power = ($n * 0) + 2;  # inherit BigInt 2
   my $radix = $self->{'radix'};
@@ -178,8 +178,8 @@ sub xy_to_n {
     return $y;
   }
 
-  ($x, my $xlow) = _divrem ($x, 2);
-  ($y, my $ylow) = _divrem ($y, 2);
+  my $xlow = _divrem_destructive ($x, 2);
+  my $ylow = _divrem_destructive ($y, 2);
 
   my $radix = $self->{'radix'};
   my $radix_minus_1 = $radix - 1;

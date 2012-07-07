@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 17 }
+BEGIN { plan tests => 22 }
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 79;
+  my $want_version = 80;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,
@@ -85,7 +85,7 @@ sub hex_hypot {
   return 3*$y*$y + $x*$x;
 }
 
-foreach my $points ('odd','even','all') {
+foreach my $points ('hex_rotated','hex_centred','hex','odd','even','all') {
   my $path = Math::PlanePath::TriangularHypot->new (points => $points);
   my $bad = 0;
   my $n = $path->n_start;
@@ -146,7 +146,7 @@ sub _turn_func_Left {
 #------------------------------------------------------------------------------
 # all x,y covered and distinct n
 
-foreach my $points ('odd','even','all') {
+foreach my $points ('hex_centred','hex','odd','even','all') {
   my $path = Math::PlanePath::TriangularHypot->new (points => $points);
   my $bad = 0;
   my %seen;
@@ -172,6 +172,30 @@ foreach my $points ('odd','even','all') {
         if (! (($x ^ $y) & 1)) {
           if (defined $n) {
             MyTestHelpers::diag ("$points: x=$x,y=$y is even should be n=undef");
+            last if $bad++ > 10;
+          }
+          next;
+        }
+      } elsif ($points eq 'hex') {
+        if (! (($x+3*$y) % 6 == 0 || ($x+3*$y) % 6 == 2)) {
+          if (defined $n) {
+            MyTestHelpers::diag ("$points: x=$x,y=$y is not hex should be n=undef");
+            last if $bad++ > 10;
+          }
+          next;
+        }
+      } elsif ($points eq 'hex_rotated') {
+        if (! (($x+3*$y) % 6 == 4 || ($x+3*$y) % 6 == 0)) {
+          if (defined $n) {
+            MyTestHelpers::diag ("$points: x=$x,y=$y is not hex-centred should be n=undef");
+            last if $bad++ > 10;
+          }
+          next;
+        }
+      } elsif ($points eq 'hex_centred') {
+        if (! (($x+3*$y) % 6 == 2 || ($x+3*$y) % 6 == 4)) {
+          if (defined $n) {
+            MyTestHelpers::diag ("$points: x=$x,y=$y is not hex-centred should be n=undef");
             last if $bad++ > 10;
           }
           next;

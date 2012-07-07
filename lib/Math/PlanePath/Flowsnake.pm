@@ -17,6 +17,7 @@
 
 
 # math-image --path=Flowsnake --lines --scale=10
+# math-image --path=Flowsnake --all --output=numbers_dash
 # math-image --path=Flowsnake,arms=3 --all --output=numbers_dash
 #
 # Martin Gardner, "In which `Monster' Curves Force Redefinition of the Word
@@ -33,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -44,10 +45,12 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 # Triplet h,i,j coordinates are redundant, just the h,i is enough, though
 # two instead of three requires some additions in the rotation calculations,
@@ -108,8 +111,10 @@ sub n_to_xy {
   ### n int: $n
 
   my $arms = $self->{'arms'};
-  my $rot = 2 * ($n % $arms);
-  $n = int(($n+$arms-1) / $arms);
+  my $rot = _divrem_destructive ($n, $arms);
+  $rot *= 2;  # 0, 120 or 240
+  if ($rot) { $n += 1; }
+
   ### $arms
   ### $rot
   ### arms inc: $arms-1
@@ -343,7 +348,7 @@ William Gosper,
             \           \        /     /
              31----30    35----36    43    47----48            6
                   /                    \     \     \
-          28----29    17----16----15    44    46    49...      5
+          28----29    17----16----15    44    46    49--..     5
          /              \           \     \  /
        27    23----22    18----19    14    45                  4
          \     \     \        /     /
@@ -402,28 +407,28 @@ it curls around, but leaves a spiral gap beneath it (see L</Arms> below).
 The base pattern corresponds to a tiling by hexagons as follows, with the
 "***" lines being the base figure.
 
-                        .     .
-                       / \   / \
-                      /   \ /   \
-                     .     .     .
-                     |     |     |
-                     |     |     |
-                     4*****5*****6
-                    /*\   / \   /*\
-                   / * \ /   \ / * \
-                  .   * .     .   * .
-                  |   * |     |    *|
-                  |    *|     |    *|
-                  .     3*****2     7...
-                   \   / \   /*\   /
-                    \ /   \ / * \ /
-                     .     . *   .
-                     |     | *   |
-                     |     |*    |
-                     0*****1     .
-                      \   / \   /
-                       \ /   \ /
-                        .     .
+          .     .
+         / \   / \
+        /   \ /   \
+       .     .     .
+       |     |     |
+       |     |     |
+       4*****5*****6
+      /*\   / \   /*\
+     / * \ /   \ / * \
+    .   * .     .   * .
+    |   * |     |    *|
+    |    *|     |    *|
+    .     3*****2     7...
+     \   / \   /*\   /
+      \ /   \ / * \ /
+       .     . *   .
+       |     | *   |
+       |     |*    |
+       0*****1     .
+        \   / \   /
+         \ /   \ /
+          .     .
 
 In the next level the parts corresponding to 1, 2 and 6 are mirrored because
 they have their hexagon to the right of the line segment, rather than to the

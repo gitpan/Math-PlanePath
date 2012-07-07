@@ -28,24 +28,19 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_4',
                                          type      => 'integer',
@@ -97,7 +92,7 @@ sub n_to_xy {
   my $zero = ($n * 0);   # inherit BigInt 0
 
   # arm as initial rotation
-  ($n, my $rot) = _divrem ($n, $self->{'arms'});
+  my $rot = _divrem_destructive ($n, $self->{'arms'});
 
   my @digits = _digit_split_lowtohigh($n,5);
   my @sx;

@@ -373,15 +373,44 @@ foreach my $elem
 my @modules = (
                # module list begin
 
-               'TriangularHypot',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
-               'Hypot',
-               'Hypot,points=even',
-               'Hypot,points=odd',
+               'GreekKeySpiral',
+               'GreekKeySpiral,turns=0',
+               'GreekKeySpiral,turns=1',
+               'GreekKeySpiral,turns=3',
+               'GreekKeySpiral,turns=4',
+               'GreekKeySpiral,turns=5',
+               'GreekKeySpiral,turns=6',
+               'GreekKeySpiral,turns=7',
+               'GreekKeySpiral,turns=8',
+               'GreekKeySpiral,turns=37',
+
+               'AlternatePaperMidpoint',
+               'AlternatePaperMidpoint,arms=2',
+               'AlternatePaperMidpoint,arms=3',
+               'AlternatePaperMidpoint,arms=4',
+               'AlternatePaperMidpoint,arms=5',
+               'AlternatePaperMidpoint,arms=6',
+               'AlternatePaperMidpoint,arms=7',
+               'AlternatePaperMidpoint,arms=8',
+
+               'AlternatePaper',
+               'AlternatePaper,arms=2',
+               'AlternatePaper,arms=3',
+               'AlternatePaper,arms=4',
+               'AlternatePaper,arms=5',
+               'AlternatePaper,arms=6',
+               'AlternatePaper,arms=7',
+               'AlternatePaper,arms=8',
+
                'HypotOctant',
                'HypotOctant,points=even',
                'HypotOctant,points=odd',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'TriangularHypot',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
 
                'WythoffArray',
                'PowerArray',
@@ -398,27 +427,6 @@ my @modules = (
                'GcdRationals,pairs_order=rows_reverse',
                'GcdRationals,pairs_order=diagonals_down',
                'GcdRationals,pairs_order=diagonals_up',
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=4',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings,ring_shape=polygon',
-
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-               'MultipleRings',
-
 
                'ImaginaryHalf',
                'ImaginaryHalf,radix=3',
@@ -687,8 +695,6 @@ my @modules = (
                'TerdragonCurve,arms=5',
                'TerdragonCurve,arms=6',
 
-               'AlternatePaper',
-
                'OctagramSpiral',
                'AnvilSpiral',
                'AnvilSpiral,wider=1',
@@ -778,7 +784,6 @@ my @modules = (
                'DiamondArms',
                'SquareArms',
                'HexArms',
-               'GreekKeySpiral',
 
                'QuintetCurve',
                'QuintetCurve,arms=2',
@@ -819,6 +824,26 @@ my @modules = (
                'DragonCurve,arms=2',
                'DragonCurve,arms=3',
                'DragonCurve,arms=4',
+
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=4',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings,ring_shape=polygon',
+
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+               'MultipleRings',
 
                # module list end
 

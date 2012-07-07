@@ -78,8 +78,10 @@ sub path_n_turn {
 # return 0,1,2,3
 sub path_n_dir {
   my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n);
-  my ($next_x,$next_y) = $path->n_to_xy($n+1);
+  my ($x,$y) = $path->n_to_xy($n)
+    or die "Oops, no point at ",$n;
+  my ($next_x,$next_y) = $path->n_to_xy($n+1)
+    or die "Oops, no point at ",$n+1;
   return dxdy_to_dir ($next_x - $x,
                       $next_y - $y);
 }
@@ -94,6 +96,29 @@ sub dxdy_to_dir {
 
 
 #------------------------------------------------------------------------------
+# A082410 -- complement reversal, is 1=left, 0=right
+
+{
+  my $anum = 'A082410';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    push @got, 0;
+    for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
+      push @got, path_n_turn($dragon,$n); # 1=left,0=right
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- reversal complement");
+}
+
+#------------------------------------------------------------------------------
 # A003460 -- turn 1=left,0=right packed as octal high to low, in 2^n levels
 
 {
@@ -101,8 +126,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     require Math::BigInt;
     my $bits = Math::BigInt->new(0);
     my $target_n_level = 2;
@@ -131,8 +154,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..$#$bvalues]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..$#got]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -147,8 +168,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == 1) { # left
@@ -164,8 +183,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -181,8 +198,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $prev_turn = path_n_turn($dragon,1);
     my $run = 1; # count for initial $prev_turn
     push @got, 0,1; 
@@ -200,8 +215,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -216,8 +229,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $prev_turn = path_n_turn($dragon,1);
     my $run = 1; # count for initial $prev_turn
     for (my $n = 2; @got < @$bvalues; $n++) {
@@ -234,8 +245,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -251,8 +260,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == 1) { # left
@@ -268,8 +275,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -285,8 +290,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == 1) { # left
@@ -302,8 +305,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -320,8 +321,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == 1) { # left
@@ -333,8 +332,6 @@ sub dxdy_to_dir {
       }
     }
 
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -354,8 +351,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       push @got, path_n_turn($dragon,$n);
     }
@@ -364,8 +359,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -381,8 +374,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     push @got, 1;
     my $cumulative = 1;
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
@@ -400,8 +391,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -416,8 +405,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $cumulative = 1;
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       push @got, $cumulative;
@@ -435,8 +422,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -451,8 +436,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == 1) {
@@ -467,8 +450,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -483,8 +464,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     push @got, 0;
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
@@ -500,8 +479,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -519,8 +496,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     push @got, 1;
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
@@ -536,8 +511,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -553,8 +526,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $cumulative = 1;
     my $partial_sum = $cumulative;
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
@@ -574,40 +545,13 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@$bvalues));
       MyTestHelpers::diag ("got:     ",join(',',@got));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- partial sums cumulative turn");
 }
 
-#------------------------------------------------------------------------------
-# A082410 -- complement reversal, is 1=left, 0=right
 
-{
-  my $anum = 'A082410';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
-    push @got, 0;
-    for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
-      push @got, path_n_turn($dragon,$n); # 1=left,0=right
-    }
-
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- reversal complement");
-}
 
 #------------------------------------------------------------------------------
 # A038189 -- bit above lowest 1, is 0=left,1=right
@@ -617,8 +561,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     push @got, 0;
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
@@ -635,8 +577,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -651,8 +591,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == 1) { # left
@@ -667,8 +605,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -694,8 +630,6 @@ sub dxdy_to_dir {
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -711,8 +645,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $cumulative = 0;
     for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       push @got, $cumulative;
@@ -731,8 +663,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

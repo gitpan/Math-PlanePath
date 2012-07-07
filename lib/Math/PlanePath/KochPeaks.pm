@@ -33,7 +33,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -268,9 +268,9 @@ sub rect_to_n_range {
   }
 
   # can't make use of the len=3**$level returned by _round_down_pow()
-  my ($power, $level) = _round_down_pow (max(abs($x1),abs($x2))
-                                        + max($y1, $y2),
-                                        3);
+  my ($len, $level) = _round_down_pow (max(abs($x1),abs($x2))
+                                       + max($y1, $y2),
+                                       3);
   ### $level
   return (1, $level + (8 * 4**$level + 1)/3);
 }

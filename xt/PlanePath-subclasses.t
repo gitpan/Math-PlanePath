@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-BEGIN { plan tests => 1107 }
+plan tests => 1160;
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,35 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'GreekKeySpiral',
+               'GreekKeySpiral,turns=0',
+               'GreekKeySpiral,turns=1',
+               'GreekKeySpiral,turns=3',
+               'GreekKeySpiral,turns=4',
+               'GreekKeySpiral,turns=5',
+               'GreekKeySpiral,turns=6',
+               'GreekKeySpiral,turns=7',
+               'GreekKeySpiral,turns=8',
+               'GreekKeySpiral,turns=37',
+
+               'AlternatePaperMidpoint',
+               'AlternatePaperMidpoint,arms=2',
+               'AlternatePaperMidpoint,arms=3',
+               'AlternatePaperMidpoint,arms=4',
+               'AlternatePaperMidpoint,arms=5',
+               'AlternatePaperMidpoint,arms=6',
+               'AlternatePaperMidpoint,arms=7',
+               'AlternatePaperMidpoint,arms=8',
+
+               'AlternatePaper',
+               'AlternatePaper,arms=2',
+               'AlternatePaper,arms=3',
+               'AlternatePaper,arms=4',
+               'AlternatePaper,arms=5',
+               'AlternatePaper,arms=6',
+               'AlternatePaper,arms=7',
+               'AlternatePaper,arms=8',
 
                'TriangularHypot',
                'TriangularHypot,points=odd',
@@ -123,7 +152,6 @@ my @modules = (
                'DiamondArms',
                'SquareArms',
                'HexArms',
-               'GreekKeySpiral',
 
                'GrayCode',
                'GrayCode,radix=3',
@@ -192,8 +220,6 @@ my @modules = (
                'ComplexPlus,realpart=3',
                'ComplexPlus,realpart=4',
                'ComplexPlus,realpart=5',
-
-               'AlternatePaper',
 
                'ComplexMinus',
                'ComplexMinus,realpart=2',
@@ -398,7 +424,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 79;
+my $want_version = 80;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1019,18 +1045,25 @@ sub pythagorean_diag {
           || $mod eq 'ImaginaryBase,radix=37'
           || $mod eq 'ImaginaryHalf,radix=37'
           || $mod eq 'CubicBase,radix=37'
-          || $mod eq 'GreekKeySpiral'
           || $mod eq 'ComplexPlus,realpart=2'
           || $mod eq 'ComplexPlus,realpart=3'
           || $mod eq 'ComplexPlus,realpart=4'
           || $mod eq 'ComplexPlus,realpart=5'
+          || ($mod eq 'GreekKeySpiral' && $limit < 37)
+          || ($mod eq 'GreekKeySpiral,turns=3' && $limit < 65)
+          || ($mod eq 'GreekKeySpiral,turns=4' && $limit < 101)
+          || ($mod eq 'GreekKeySpiral,turns=5' && $limit < 145)
+          || ($mod eq 'GreekKeySpiral,turns=6' && $limit < 197)
+          || $mod eq 'GreekKeySpiral,turns=7'
+          || $mod eq 'GreekKeySpiral,turns=8'
+          || $mod eq 'GreekKeySpiral,turns=37'
          ) {
         # these don't get to X negative in small rectangle
         $got_x_negative = 1;
       }
 
       ($path_x_negative == $got_x_negative)
-        or &$report ("x_negative() $path_x_negative but in rect got $got_x_negative");
+        or &$report ("x_negative() $path_x_negative but in rect to n=$limit got $got_x_negative");
     }
     {
       my $path_y_negative = ($path->y_negative ? 1 : 0);
@@ -1038,21 +1071,28 @@ sub pythagorean_diag {
 
       if ($path->isa('Math::PlanePath::GosperSide')
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
-          || $path->isa('Math::PlanePath::GreekKeySpiral')
+          || ($mod eq 'GreekKeySpiral' && $limit < 55)
+          || ($mod eq 'GreekKeySpiral,turns=3' && $limit < 97)
+          || ($mod eq 'GreekKeySpiral,turns=4' && $limit < 151)
+          || ($mod eq 'GreekKeySpiral,turns=5' && $limit < 217)
+          || ($mod eq 'GreekKeySpiral,turns=6' && $limit < 295)
+          || $mod eq 'GreekKeySpiral,turns=7'
+          || $mod eq 'GreekKeySpiral,turns=8'
+          || $mod eq 'GreekKeySpiral,turns=37'
           || $mod eq 'SquareSpiral,wider=37'
           || $mod eq 'HexSpiral,wider=37'
           || $mod eq 'HexSpiralSkewed,wider=37'
           || $mod eq 'ImaginaryBase,radix=37'
           || $mod eq 'CubicBase,radix=37'
-          || $mod eq 'ComplexPlus'
-          || $mod eq 'ComplexPlus,realpart=2'
+          || ($mod eq 'ComplexPlus' && $limit < 32) # first y_neg at N=32
+          || $mod eq 'ComplexPlus,realpart=2'  # y_neg big
           || $mod eq 'ComplexPlus,realpart=3'
           || $mod eq 'ComplexPlus,realpart=4'
           || $mod eq 'ComplexPlus,realpart=5'
           || $mod eq 'ComplexMinus,realpart=3'
           || $mod eq 'ComplexMinus,realpart=4'
           || $mod eq 'ComplexMinus,realpart=5'
-          || $mod eq 'AnvilSpiral,wider=17'
+          || ($mod eq 'AnvilSpiral,wider=17' && $limit < 41) # first y_neg at N=41
           || $mod eq 'TerdragonCurve'
           || $mod eq 'TerdragonCurve,arms=2'
           || $mod eq 'TerdragonMidpoint'
@@ -1060,6 +1100,8 @@ sub pythagorean_diag {
           || $mod eq 'TerdragonRounded'
           || $mod eq 'TerdragonRounded,arms=2'
           || $mod eq 'TerdragonRounded,arms=3'
+          || ($mod eq 'AlternatePaper,arms=5' && $limit < 44) # first y_neg at N=44
+          || ($mod eq 'AlternatePaper,arms=8' && $limit < 14) # first y_neg at N=14
           || $mod eq 'R5DragonCurve'
           || $mod eq 'R5DragonMidpoint'
           || $mod eq 'R5DragonMidpoint,arms=2'
@@ -1072,7 +1114,7 @@ sub pythagorean_diag {
       }
 
       ($path_y_negative == $got_y_negative)
-        or &$report ("y_negative() $path_y_negative but in rect got $got_y_negative");
+        or &$report ("y_negative() $path_y_negative but in rect to n=$limit got $got_y_negative");
     }
 
     if ($path->figure ne 'circle'

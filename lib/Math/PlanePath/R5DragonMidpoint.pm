@@ -38,7 +38,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -46,11 +46,6 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
 use constant parameter_info_array => [ { name        => 'arms',
                                          share_key   => 'arms_6',
                                          type        => 'integer',
@@ -84,7 +79,7 @@ sub n_to_xy {
     my $int = int($n);
     if ($n != $int) {
       my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
       my $frac = $n - $int;  # inherit possible BigFloat
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
@@ -228,7 +223,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde R5Dragon Math-PlanePath Nlevel Davis Knuth et al R5DragonCurve R5DragonMidpoint terdragon ie
+=for stopwords eg Ryde R5Dragon Math-PlanePath Nlevel Davis Knuth et al R5DragonCurve R5DragonMidpoint terdragon ie Xmod Ymod
 
 =head1 NAME
 
@@ -272,7 +267,7 @@ This is midpoints of the R5 dragon curve,
       -10  -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3
 
 The points are the middle of each edge of the R5DragonCurve, rotated -45
-degrees, shunk by sqrt(2). and shifted to the origin.
+degrees, shrunk by sqrt(2). and shifted to the origin.
 
               *--11--*     *--7--*     R5DragonCurve
               |      |     |     |     and its midpoints
@@ -392,7 +387,8 @@ numbers means the original X,Y was outside the desired curve region.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::R5DragonCurve>,
+L<Math::PlanePath::R5DragonCurve>
+
 L<Math::PlanePath::DragonMidpoint>,
 L<Math::PlanePath::TerdragonMidpoint>
 

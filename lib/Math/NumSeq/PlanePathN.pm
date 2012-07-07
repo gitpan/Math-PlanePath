@@ -26,7 +26,7 @@ use Math::NumSeq;
 use Math::NumSeq::PlanePathCoord;
 
 use vars '$VERSION','@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -652,6 +652,19 @@ sub values_max {
 
   use constant _NumSeq_X_neg_min => 1; # not at X=0,Y=0 when wider
 }
+{ package Math::PlanePath::GreekKeySpiral;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  sub _NumSeq_X_neg_increasing {
+    my ($self) = @_;
+    return ($self->{'turns'} == 0);  # when SquareSpiral style
+  }
+  *_NumSeq_Y_neg_increasing = \&_NumSeq_X_neg_increasing;
+  sub _NumSeq_Diagonal_increasing {
+    my ($self) = @_;
+    return ($self->{'turns'} <= 1);
+  }
+}
 { package Math::PlanePath::PyramidSpiral;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Y_axis_increasing => 1;
@@ -778,10 +791,6 @@ sub values_max {
   use constant _NumSeq_X_neg_increasing => 1;
   use constant _NumSeq_Y_neg_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
-}
-{ package Math::PlanePath::GreekKeySpiral;
-  use constant _NumSeq_X_axis_increasing => 1;
-  use constant _NumSeq_Y_axis_increasing => 1;
 }
 { package Math::PlanePath::SacksSpiral;
   use constant _NumSeq_X_axis_increasing   => 1;
@@ -1103,6 +1112,15 @@ sub values_max {
 # }
 { package Math::PlanePath::AlternatePaper;
   use constant _NumSeq_X_axis_increasing   => 1;
+  use constant _NumSeq_Y_axis_increasing   => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+  # selecting the smaller N on the negative axes gives increasing, maybe
+  use constant _NumSeq_X_neg_increasing   => 1;
+  use constant _NumSeq_Y_neg_increasing   => 1;
+}
+{ package Math::PlanePath::AlternatePaperMidpoint;
+  use constant _NumSeq_X_axis_increasing   => 1;
+  use constant _NumSeq_Y_axis_increasing   => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
 }
 # { package Math::PlanePath::TerdragonCurve;

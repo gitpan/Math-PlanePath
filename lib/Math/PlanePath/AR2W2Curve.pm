@@ -39,7 +39,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -301,7 +301,7 @@ sub n_to_xy {
   my $int = int($n);
   $n -= $int;
 
-  my @digits = _digit_split_lowtohigh($int,4);;
+  my @digits = _digit_split_lowtohigh($int,4);
   my $len = ($n*0 + 2) ** scalar(@digits);   # inherit possible bigint
 
   ### digits: join(', ',@digits)."   count ".scalar(@digits)

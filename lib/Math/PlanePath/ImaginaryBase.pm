@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -48,11 +48,12 @@ use constant parameter_info_array => [{ name      => 'radix',
                                       }];
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
+
   my $radix = $self->{'radix'};
   if (! defined $radix || $radix <= 2) { $radix = 2; }
   $self->{'radix'} = $radix;
+
   return $self;
 }
 
@@ -252,7 +253,7 @@ __END__
 #     -12 -11 -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3
 #
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix ie
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal
 
 =head1 NAME
 

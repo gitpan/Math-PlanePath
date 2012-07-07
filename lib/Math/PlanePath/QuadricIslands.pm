@@ -39,7 +39,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -323,8 +323,8 @@ sub rect_to_n_range {
   my $m = max(abs($x1), abs($x2),
               abs($y1), abs($y2));
 
-  my ($power,$level) = _round_down_pow (6*$m-2, 4);
-  ### $power
+  my ($len,$level) = _round_down_pow (6*$m-2, 4);
+  ### $len
   ### $level
   return (1,
           (32*8**$level - 4)/7);
@@ -355,7 +355,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie Math-PlanePath quadric QuadricCurve
+=for stopwords eg Ryde ie Math-PlanePath quadric QuadricCurve onwards
 
 =head1 NAME
 

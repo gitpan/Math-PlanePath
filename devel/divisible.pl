@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,7 +37,7 @@ use strict;
 
     my $n = $path->xy_to_n($k,$k);
     my (undef, $nhi) = $path->rect_to_n_range(0,0,$k,$k);
-    my $total = Math::PlanePath::DivisibleColumns::_divisors_cumulative($k);
+    my $total = Math::PlanePath::DivisibleColumns::_count_divisors_cumulative($k);
 
     printf "%d %d,%d %d\n", $k, $n,$nhi, $total;
   }

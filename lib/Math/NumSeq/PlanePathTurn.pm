@@ -38,7 +38,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION','@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -463,9 +463,25 @@ sub characteristic_non_decreasing {
 
 { package Math::PlanePath::SquareSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
-  use constant _NumSeq_Turn_LSR_max => 1;
   use constant _NumSeq_Turn_Right_max => 0; # left or straight
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
+}
+{ package Math::PlanePath::GreekKeySpiral;
+  sub _NumSeq_Turn_LSR_min {
+    my ($self) = @_;
+    return ($self->{'turns'} == 0 ? 0  # SquareSpiral, left or straight only
+            : -1);  # any left,straight,right
+  }
+  sub _NumSeq_Turn_Right_max {
+    my ($self) = @_;
+    return ($self->{'turns'} == 0 ? 0  # SquareSpiral, left or straight only
+            : 1);
+  }
+  sub _NumSeq_Turn_Right_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'turns'} == 0 ? 1 # SquareSpiral, left or straight only
+            : 0);
+  }
 }
 { package Math::PlanePath::PyramidSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
@@ -547,8 +563,6 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_Right_max => 0; # left or straight
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
-# { package Math::PlanePath::GreekKeySpiral;
-# }
 { package Math::PlanePath::SacksSpiral;
   use constant _NumSeq_Turn_Left_min => 1; # left always
   use constant _NumSeq_Turn_Left_max => 1;
@@ -655,19 +669,50 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::FilledRings;
 # }
 { package Math::PlanePath::Hypot;
-  use constant _NumSeq_Turn_Left_min => 1; # left always
-  use constant _NumSeq_Turn_Left_non_decreasing => 1; # left always
-  use constant _NumSeq_Turn_Right_max => 0; # left always
+  sub _NumSeq_Turn_Left_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'all'
+            ? 1     # all, left always
+            : 0);   # odd,even left or straight
+  }
+  sub _NumSeq_Turn_LSR_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'all'
+            ? 1     # all, left always
+            : 0);   # odd,even left or straight
+  }
+  sub _NumSeq_Turn_Left_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'all'
+            ? 1     # all, left always
+            : 0);   # odd,even any
+  }
+  *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
+
+  use constant _NumSeq_Turn_Right_max => 0; # always left or straight 
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
-  use constant _NumSeq_Turn_LSR_min => 1; # left always
-  use constant _NumSeq_Turn_LSR_non_decreasing => 1; # left always
 }
 # { package Math::PlanePath::HypotOctant;
 # }
 { package Math::PlanePath::TriangularHypot;
-  use constant _NumSeq_Turn_LSR_min => 0; # left or straight
-  use constant _NumSeq_Turn_Right_max => 0; # left or straight
-  use constant _NumSeq_Turn_Right_non_decreasing => 1;
+  sub _NumSeq_Turn_LSR_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'even'
+            ? 0     # even, left or straight
+            : -1);   # odd,all any
+  }
+  sub _NumSeq_Turn_Right_max {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'even'
+            ? 0     # even, left or straight, so Right=0 always
+            : 1);   # odd,all both left or right
+  }
+  sub _NumSeq_Turn_Right_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'even'
+            ? 1     # even, left or straight, so Right=0 always
+            : 0);   # odd,all both left or right
+  }
 }
 { package Math::PlanePath::PythagoreanTree;
   # UAD always turns right, it seems, both in PQ and XY

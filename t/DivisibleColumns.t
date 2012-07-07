@@ -36,7 +36,7 @@ require Math::PlanePath::DivisibleColumns;
 # VERSION
 
 {
-  my $want_version = 79;
+  my $want_version = 80;
   ok ($Math::PlanePath::DivisibleColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DivisibleColumns->VERSION,  $want_version,
@@ -78,7 +78,7 @@ require Math::PlanePath::DivisibleColumns;
 
 
 #------------------------------------------------------------------------------
-# _divisors()
+# _count_divisors()
 
 foreach my $elem (
                   [ 1, 1 ], # 1 itself only
@@ -90,14 +90,14 @@ foreach my $elem (
                   [ 7, 2 ], # 1,7
                  ) {
   my ($x, $want) = @$elem;
-  my $got = Math::PlanePath::DivisibleColumns::_divisors($x);
-  ok ($got, $want, "_divisors($x)");
+  my $got = Math::PlanePath::DivisibleColumns::_count_divisors($x);
+  ok ($got, $want, "_count_divisors($x)");
 }
 
 foreach my $x (1 .. 500) {
-  my $got = Math::PlanePath::DivisibleColumns::_divisors($x);
+  my $got = Math::PlanePath::DivisibleColumns::_count_divisors($x);
   my $want = divisors_by_mod($x);
-  ok ($got, $want, "_divisors($x) vs x%y");
+  ok ($got, $want, "_count_divisors($x) vs x%y");
 }
 sub divisors_by_mod {
   my ($x) = @_;
@@ -110,7 +110,7 @@ sub divisors_by_mod {
 
 
 #------------------------------------------------------------------------------
-# _divisors_cumulative()
+# _count_divisors_cumulative()
 
 foreach my $elem (
                   [ 1, 1 ], # 1 itself only
@@ -122,16 +122,16 @@ foreach my $elem (
                   [ 7, 2+4+2+3+2+2+1 ], # 1,7
                  ) {
   my ($x, $want) = @$elem;
-  my $got = Math::PlanePath::DivisibleColumns::_divisors_cumulative($x);
-  ok ($got, $want, "_divisors_cumulative($x)");
+  my $got = Math::PlanePath::DivisibleColumns::_count_divisors_cumulative($x);
+  ok ($got, $want, "_count_divisors_cumulative($x)");
 }
 
 {
   my $want = 0;
   foreach my $x (1 .. 500) {
-    my $got = Math::PlanePath::DivisibleColumns::_divisors_cumulative($x);
+    my $got = Math::PlanePath::DivisibleColumns::_count_divisors_cumulative($x);
     $want += divisors_by_mod($x);
-    ok ($got, $want, "_divisors($x) vs x%y");
+    ok ($got, $want, "_count_divisors($x) vs x%y");
   }
 }
 

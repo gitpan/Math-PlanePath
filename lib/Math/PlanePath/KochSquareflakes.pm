@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -112,8 +112,7 @@ sub n_to_xy {
   ### n remainder from base: $n
 
   my $sidelen = $pow/4;
-  my $rot = int ($n / $sidelen);
-  $n %= $sidelen;
+  (my $rot, $n) = _divrem ($n, $sidelen);  # high part is rot
   ### $sidelen
   ### n remainder: $n
   ### $rot

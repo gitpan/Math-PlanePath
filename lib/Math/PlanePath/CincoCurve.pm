@@ -38,7 +38,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -557,30 +557,6 @@ sub xy_to_n {
 
   return $n;
 }
-
-# not exact
-sub XX_rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### CincoCurve rect_to_n_range(): "$x1,$y1, $x2,$y2"
-
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
-  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
-  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-
-  if ($x2 < 0 || $y2 < 0) {
-    return (1, 0);
-  }
-
-  my ($len, $level) = _round_down_pow (($x2 > $y2 ? $x2 : $y2),
-                                       5);
-  ### $len
-  ### $level
-  return (0, 25*$len*$len-1);
-}
-
 
 # exact
 sub rect_to_n_range {

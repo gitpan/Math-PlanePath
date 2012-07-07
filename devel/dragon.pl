@@ -33,8 +33,6 @@ use Math::PlanePath::KochCurve 42;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
-
-
 {
   # A088431 and A007400 continued fraction
   require Math::ContinuedFraction;

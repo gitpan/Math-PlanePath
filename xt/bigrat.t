@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 322)[1];
+my $test_count = (tests => 370)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -397,6 +397,35 @@ require Math::PlanePath::KochCurve;
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'GreekKeySpiral',
+               'GreekKeySpiral,turns=0',
+               'GreekKeySpiral,turns=1',
+               'GreekKeySpiral,turns=3',
+               'GreekKeySpiral,turns=4',
+               'GreekKeySpiral,turns=5',
+               'GreekKeySpiral,turns=6',
+               'GreekKeySpiral,turns=7',
+               'GreekKeySpiral,turns=8',
+               'GreekKeySpiral,turns=37',
+
+               'AlternatePaperMidpoint',
+               'AlternatePaperMidpoint,arms=2',
+               'AlternatePaperMidpoint,arms=3',
+               'AlternatePaperMidpoint,arms=4',
+               'AlternatePaperMidpoint,arms=5',
+               'AlternatePaperMidpoint,arms=6',
+               'AlternatePaperMidpoint,arms=7',
+               'AlternatePaperMidpoint,arms=8',
+
+               'AlternatePaper',
+               'AlternatePaper,arms=2',
+               'AlternatePaper,arms=3',
+               'AlternatePaper,arms=4',
+               'AlternatePaper,arms=5',
+               'AlternatePaper,arms=6',
+               'AlternatePaper,arms=7',
+               'AlternatePaper,arms=8',
+
                'WythoffArray',
                'PowerArray',
                'PowerArray,radix=3',
@@ -487,7 +516,6 @@ my @modules = (
                'DiamondArms',
                'SquareArms',
                'HexArms',
-               'GreekKeySpiral',
                
                # 'UlamWarburton',         # not really defined yet
                # 'UlamWarburtonQuarter',  # not really defined yet
@@ -523,7 +551,6 @@ my @modules = (
                'QuadricCurve',
                'QuadricIslands',
                
-               'AlternatePaper',
                'DragonRounded',
                'DragonMidpoint',
                'DragonCurve',

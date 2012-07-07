@@ -17,11 +17,7 @@
 
 
 # math-image --path=GreekKeySpiral --lines --scale=25
-
 # http://gwydir.demon.co.uk/jo/greekkey/corners.htm
-
-# turns parameter
-# 0 for no turns squarespiral style, default 2
 
 
 package Math::PlanePath::GreekKeySpiral;
@@ -29,48 +25,62 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_floor = \&Math::PlanePath::_floor;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::SquareArms;
-*_rect_square_range = \&Math::PlanePath::SquareArms::_rect_square_range;
+*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
+use constant parameter_info_array =>
+  [ { name      => 'turns',
+      share_key => 'turns_2',
+      type      => 'integer',
+      minimum   => 0,
+      default   => 2,
+      width     => 2,
+    },
+  ];
 
 
+# turns=1
 #       2---3
 #       |   |
-#       1   4
-#                           |
+#   0---1   4
+#
+# turns=2                   |
 #       5---6---7          18  15--14
 #       |       |           |   |   |
-#       4---3   8          17--16  13
+#       4---3   8          17--16  13         x=1,y=1
 #           |   |                   |
-#       1---2   9          10--11--12
-#                            
-#  10--11--12--13            
-#   |           |            
-#   9   6---5  14            
-#   |   |   |   |            
-#   8---7   4  15            
-#           |   |            
-#   1---2---3  16            
-#                            
-#  17--18--19--20--21  50  37--36--35--34
-#   |               |   |   |           |    3,3,2,1,1,1,2,3,4,down4
-#  16   9---8---7  22  49  38  41--42  33                           
-#   |   |       |   |   |   |   |   |   |                           
-#  15  10--11   6  23  48  39--40  43  32                           
-#   |       |   |   |   |           |   |                           
-#  14--13--12   5  24  47--46--45--44  31                           
-#               |   |                   |                           
-#   1---2---3---4  25--26--27--28--29--30    5,4,3,2,1,1,1,2,3,up3  
+#   0---1---2   9          10--11--12
 #
+# turns=3
+#     10--11--12--13
+#      |           |
+#      9   6---5  14                             x=2,y=1
+#      |   |   |   |
+#      8---7   4  15
+#              |   |
+#  0---1---2---3  16
+#
+# turns=4
+#     17--18--19--20--21  50  37--36--35--34
+#      |               |   |   |           |    3,3,2,1,1,1,2,3,4,down4
+#     16   9---8---7  22  49  38  41--42  33
+#      |   |       |   |   |   |   |   |   |
+#     15  10--11   6  23  48  39--40  43  32      x=3,y=2
+#      |       |   |   |   |           |   |
+#     14--13--12   5  24  47--46--45--44  31
+#                  |   |                   |
+#  0---1---2---3---4  25--26--27--28--29--30    5,4,3,2,1,1,1,2,3,up3
+#
+# turns=5
 #      26--27--28--29--30--31
 #       |                   |       4,4,3,2,1,1,1,2,3,4,5,5
 #      25  12--11--10---9  32
@@ -78,22 +88,99 @@ use Math::PlanePath::SquareArms;
 #      24  13  16--17   8  33       5,4,3,2,1,1,1,2,3,4,5,rem
 #   |   |   |   |   |   |   |
 #  35  23  14--15  18   7  34
-#   |   |           |   |   |
+#   |   |           |   |   |                     x=3,y=3
 #  36  22--21--20--19   6  35
 #                       |   |
-#   0---1---2---3---4---5  36
+#   0---1---2---3---4---5  36-
+#
+# turns=6
+#      37--38--39--40--41--42--43
+#       |                       |
+#      36  15--14--13--12--11  44                x=3,y=3
+#       |   |               |   |
+#      35  16  23--24--25  10  45
+#       |   |   |       |   |   |
+#      34  17  22--21  26   9  46   6,5,4,3,2,1,1,1,2,3,4,5,rem
+#       |   |       |   |   |   |
+#      33  18--19--20  27   8  47
+#       |               |   |   |
+#      32--31--30--29--28   7  48
+#                           |   |
+#   0---1---2---3---4---5---6  49-
+#
+# turns=7
+#      50--51--52--53--54--55--56--57
+#       |                           |
+#      49  18--17--16--15--14--13  58
+#       |   |                   |   |
+#      48  19  32--33--34--35  12  59               x=4,y=3
+#       |   |   |           |   |   |
+#      47  20  31  28--27  36  11  60
+#       |   |   |   |   |   |   |   |
+#      46  21  30--29  26  37  10  61  6,5,4,3,2,1,1,1,2,3,4,5,rem
+#       |   |           |   |   |   |
+#      45  22--23--24--25  38   9  62
+#       |                   |   |   |
+#      44--43--42--41--40--39   8  63
+#                               |   |
+#   0---1---2---3---4---5---6---7  64
+#
+# turns=8   x=5,y=4
 
 
+# centre
+# 2   1 1
+# 3   2 1
 
-my @shape_x    = (3,4,5,5, 5, 4, 4, 3, 3,    5, 4, 4, 5, 5, 4, 3,3, 3);
-my @shape_y    = (0,0,0,1, 2, 2, 1, 1, 2,    2, 2, 1, 1, 0, 0, 0,1, 2);
-my @shape_xdir = (1,1,0,0,-1, 0,-1, 0, 0,   -1, 0, 1, 0,-1,-1, 0,0,-1);
-my @shape_ydir = (0,0,1,1, 0,-1, 0, 1, 1,    0,-1, 0,-1, 0, 0, 1,1, 0);
+# 4   3 2
+# 5   3 3
+# 6   3 3
+# 7   4 3
 
-### assert: do { foreach (0..7,9..15) { $shape_xdir[$_] == $shape_x[$_+1]-$shape_x[$_] or die "shape_xdir $_"}; 1}
-### assert: do { foreach (0..7,9..15) { $shape_ydir[$_] == $shape_y[$_+1]-$shape_y[$_] or die "shape_ydir $_"}; 1}
-### assert $shape_xdir[17] == $shape_x[9] - ($shape_x[17]+3)
-### assert $shape_ydir[17] == $shape_y[9] - ($shape_y[17]+3)
+# 8   5 4
+# 9   5 5
+# 10  5 5
+# 11  6 5
+
+# 12  7 6
+# 13  7 7
+# 14  7 7
+# 15  8 7
+#
+# turns 2, 3,  4,  5
+# midp  4  6, 10, 15, 21   N = (1/2 d^2 + 1/2 d)
+#
+# 63, 189, 387, 657
+# 9*7 9*21, 9*43, 9*73
+#
+# 82     226     442
+# 9*9+1  9*25+1  9*49+1
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+
+  my $turns = $self->{'turns'};
+  if (! defined $turns) {
+    $turns = 2;
+  } elsif ($turns < 0) {
+  }
+  $self->{'turns'} = $turns;
+  my $t1 = $turns + 1;
+
+  $self->{'centre_x'} = int($t1/2) + (($turns%4)==0);
+  $self->{'centre_y'} = int($turns/2) + (($turns%4)==1);
+
+  $self->{'midpoint'} = $turns*$t1/2 + 1;
+  $self->{'side'} = $t1;
+  $self->{'squared'} = $t1*$t1;
+
+  ### turns   : $self->{'turns'}
+  ### midpoint: $self->{'midpoint'}
+  ### side    : $self->{'side'}
+  ### squared : $self->{'squared'}
+
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -103,78 +190,199 @@ sub n_to_xy {
     return;
   }
 
+  my $turns = $self->{'turns'};
+  my $squared = $self->{'squared'};
+  my $side = $turns + 1;
+
+  ### sqrt of: ($n-1) / $squared
+
+  my $d = int (sqrt(($n-1) / $squared));
+  $n -= $squared*$d*$d;
+  my $dhalf = int($d/2);
+
+  ### $d
+  ### $dhalf
+  ### n remainder: $n
+
+  my ($x,$y);
+  my $square_rot = 0;
   my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;
+  { my $int = int($n);
+    $frac = $n - int($n);
     $n = $int;
   }
-
-  # sqrt() done in integers to avoid limited precision from Math::BigRat sqrt()
-  #
-  my $d = int (sqrt(($n-1)/9));
-  #### d frac: (sqrt(($n-1)/9))
-  #### $d
-
-  $n -= 9*$d*$d + 1;
-  my $mod = $n % 9;
-  my $nines = int($n/9);
-  ### base: 9*$d*$d
-  ### remainder: $n
-  ### $nines
-  ### $mod
   ### $frac
-  ### horiz start: 18*$d-1
+  ### $n
 
-  my $dh = int($d/2);
-  my ($x, $y);
-  if ($d==0) {
-    $n = ($n + 9) % 9;
-  }
-  if ($n >= 9*$d+8 || $d==0) {
-    # n/9 = nines >= d+1
-    $x = 3*($dh - ($nines - $d));
-    $y = 3*($dh + ($d&1));
-    $mod += 9;
-    ### horizontal: "$x,$y"
-    ### now mod: $mod
-
+  if ($d % 2) {
+    ### odd d, right and top ...
+    if ($n >= $squared*($d+1)) {
+      ### top ...
+      $n -= $squared*2*$d;
+      (my $q, $n) = _divrem ($n, $squared);
+      $x = (-$dhalf-$q)*$side + 1;
+      $y = ($dhalf+1)*$side;
+      $square_rot = 2;
+    } else {
+      ### right ...
+      (my $q, $n) = _divrem ($n-$turns-1 + $squared, $squared);
+      $x = ($dhalf+1)*$side;
+      $y = ($q-$dhalf-1)*$side;
+      $square_rot = 1;
+    }
   } else {
-    $x = 3*$dh;
-    $y = 3*($nines - $dh);
-    ### vertical: "$x,$y"
+    ### even d, left and bottom ...
+    if ($d == 0 || $n >= $squared*($d+1)) {
+      ### bottom ...
+      $n -= $squared*2*$d;
+      (my $q, $n) = _divrem ($n, $squared);
+      $x = ($dhalf+$q)*$side-1;
+      $y = -($dhalf)*$side;
+      $square_rot = 0;
+    } else {
+      ### left ...
+      (my $q, $n) = _divrem ($n-$turns-1 + $squared, $squared);
+      $x = -($dhalf)*$side;
+      $y = -($q-$dhalf-1)*$side;
+      $square_rot = 3;
+    }
   }
-  ### $x
-  ### $y
 
-  ### shape: $shape_x[$mod].','.$shape_y[$mod]
-  # $frac first arg so as to get BigRat from it instead of BigInt from $x,$y
-  $x = ($frac * $shape_xdir[$mod] + $shape_x[$mod]) + $x;
-  $y = ($frac * $shape_ydir[$mod] + $shape_y[$mod]) + $y;
+  ### assert: $n >= 0
+  ### assert: $n < $squared
 
-  unless ($d & 1) {
-    $x = 5 - $x;
-    $y = 2 - $y;
-    ### flip for left and bottom: "$x,$y"
+  my $rot = $turns;
+  my $kx = 0;
+  my $ky = 0;
+  my $before;
+  ### n-midpoint: $n - $self->{'midpoint'}
+
+  if (($n -= $self->{'midpoint'}) >= 0) {
+    ### after middle ...
+  } elsif ($n += 1) {
+    ### before middle ...
+    $n = -$n;
+    if ($frac) {
+      ### fraction ...
+      $frac = 1-$frac;
+      $n -= 1;
+    } else {
+      ### integer ...
+      $n -= 0;
+    }
+    $rot += 2;
+    $before = 1;
+  } else {
+    ### centre segment ...
+    $rot += 1;
+    $before = 1;
+  }
+  ### key n: $n
+
+  # d: [ 0, 1,  2 ]
+  # n: [ 0, 3, 10 ]
+  # d = -1/4 + sqrt(1/2 * $n + 1/16)
+  #   = (-1 + sqrt(8*$n + 1)) / 4
+  # N = (2*$d + 1)*$d
+  # rel = (2*$d + 1)*$d + 2*$d+1
+  #     = (2*$d + 3)*$d + 1
+  #
+  $d = int((sqrt(8*$n+1) - 1) / 4);
+  $n -= (2*$d+3)*$d + 1;
+  ### $d
+  ### key signed rem: $n
+
+  if ($n < 0) {
+    ### key vertical ...
+    $kx += $d;
+    $ky = -$frac-$n-$d - 1 + $ky;
+    if ($d % 2) {
+      ### key right ...
+      $rot += 2;
+      $kx += 1;
+    } else {
+    }
+  } else {
+    ### key horizontal ...
+    $kx = $frac+$n-$d + $kx;
+    $ky += $d + 1;
+    $rot += 2;
+    if ($d % 2) {
+      ### key bottom ...
+      $rot += 2;
+      $kx += -1;
+    } else {
+    }
+  }
+  ### kxy raw: "$kx, $ky"
+
+  if ($rot & 2) {
+    $kx = -$kx;
+    $ky = -$ky;
+  }
+  if ($rot & 1) {
+    ($kx,$ky) = (-$ky,$kx);
+  }
+  ### kxy rotated: "$kx,$ky"
+
+  if ($before) {
+    if (($turns % 4) == 0) {
+      $kx -= 1;
+    }
+    if (($turns % 4) == 1) {
+      $ky -= 1;
+    }
+    if (($turns % 4) == 2) {
+      $kx += 1;
+    }
+    if (($turns % 4) == 3) {
+      $ky += 1;
+    }
   }
 
-  ### $x
-  ### $y
-  return ($x, $y);
+  $kx += $self->{'centre_x'};
+  $ky += $self->{'centre_y'};
+
+  if ($square_rot & 2) {
+    $kx = $turns-$kx;
+    $ky = $turns-$ky;
+  }
+  if ($square_rot & 1) {
+    ($kx,$ky) = ($turns-$ky,$kx);
+  }
+
+  # kx,ky first to inherit BigRat etc from $frac
+  return ($kx + $x,
+          $ky + $y);
 }
 
-my @inverse_bottom = ([1,2,9],
-                      [4,3,8],
-                      [5,6,7]);
-my @inverse_top = ([7,6,5],
-                   [8,3,4],
-                   [9,2,1]);
-my @inverse_right = ([1,2,3],
-                     [8,7,4],
-                     [9,6,5]);
-my @inverse_left = ([5,6,9],
-                    [4,7,8],
-                    [3,2,1]);
+
+# t+(t-1)+(t-2)+(t-3) = 4t-6
+
+# y=0  0
+# y=2  0+1+2+3  total 6
+# y=4  4+5+6+7  total 28
+#      (2 d^2 - d)
+# N=4*t*y/2 - (2y-1)*y
+#  =(2t - 2y + 1)*y
+
+# x=1  0+1+2    total 3
+# x=3  3+4+5+6  total 21
+# x=5  7+8+9+10 total 55
+#      (2 d^2 + d)
+# N = 4*t*(x-1)/2 + 3t-3 - (2x+1)*x
+#   = 2*t*(x-1) + 3t-3 - (2x+1)*x
+#   = 2tx-2t + 3t-3 - (2x+1)*x
+#   = (2t-2x-1)x - 2t + 3t-3
+#   = (2t-2x-1)x + t-3
+
+# y=0  squared-t-t                total 0
+# y=2  - (t-1)-(t-2)-(t-3)-(t-4)  total 10
+# y=4  - 5+6+7+8                  total 36
+#      (2 d^2 + d)
+# N = squared - 4*t*y/2 - 2t - (2y+1)*y +(x-y)
+#   = squared - (2t+2y+1)*y - 2t + x
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
@@ -182,60 +390,142 @@ sub xy_to_n {
   $y = _round_nearest ($y);
   ### xy_to_n: "x=$x, y=$y"
 
-  my $x3 = _floor($x/3);
-  my $y3 = _floor($y/3);
-  $x %= 3;
-  $y %= 3;
+  my $turns = $self->{'turns'};
+  my $side = $turns + 1;
+  my $squared = $self->{'squared'};
+
+  my $xs = _floor($x/$side);
+  my $ys = _floor($y/$side);
+  $x %= $side;
+  $y %= $side;
   my $n;
-  if ($x3 > -$y3) {
+  if ($xs > -$ys) {
     ### top or right
-    if ($x3 >= $y3) {
+    if ($xs >= $ys) {
       ### right going upwards
-      $n = 9*((4*$x3 - 3)*$x3 + $y3) + $inverse_right[$y]->[$x];
+      $n = $squared*((4*$xs - 3)*$xs + $ys);
+      ($x,$y) = ($y,$turns-$x);  # rotate -90
+      if ($x == 0) {
+        $x = $turns;
+        $n -= $side*$turns;   # +$side modulo
+      } else {
+        $x -= 1;
+        $n += $side;
+      }
     } else {
       ### top going leftwards
-      $n = 9*((4*$y3 - 1)*$y3 - $x3) + $inverse_top[$y]->[$x];
+      $n = $squared*((4*$ys - 1)*$ys - $xs);
+      $x = $turns-$x;  # rotate 180
+      $y = $turns-$y;
     }
   } else {
     ### bottom or left
-    if ($x3 > $y3 || ($x3 == 0 && $y3 == 0)) {
-      ### bottom going rightwards: "$x3,$y3"
-      $n = 9*((4*$y3 - 3)*$y3 + $x3) + $inverse_bottom[$y]->[$x];
+    if ($xs > $ys || ($xs == 0 && $ys == 0)) {
+      ### bottom going rightwards: "$xs,$ys"
+      $n = $squared*((4*$ys - 3)*$ys + $xs);
     } else {
       ### left going downwards
-      $n = 9*((4*$x3 - 1)*$x3 - $y3) + $inverse_left[$y]->[$x];
+      $n = $squared*((4*$xs - 1)*$xs - $ys);
+      ($x,$y) = ($turns-$y,$x);  # rotate +90
+      if ($x == 0) {
+        $x = $turns;
+        $n -= $side*$turns;   # +$side modulo
+      } else {
+        $x -= 1;
+        $n += $side;
+      }
     }
   }
+
+  if ($x + $y >= $turns) {
+    ### key top or right ...
+    if ($x > $y) {
+      ### key right ...
+      $x = $turns-$x;
+      if ($x % 2) {
+        ### forward ...
+        $n += (2*$turns-2*$x+2)*$x + $y - $turns;
+      } else {
+        ### backward ...
+        $n += $squared - (2*$turns-2*$x+2)*$x - $y;
+      }
+    } else {
+      ### key top ...
+      $y = $turns-$y;
+      if ($y % 2) {
+        ### backward ...
+        $n += (2*$turns-2*$y)*$y + $turns-$x;
+      } else {
+        ### forward ...
+        $n += $squared - (2*$turns - 2*$y)*$y - 2*$turns + $x;
+      }
+    }
+  } else {
+    ### key bottom or left ...
+    if ($x >= $y) {
+      ### key bottom ...
+      if ($y % 2) {
+        ### backward ...
+        $n += $squared - (2*$turns - 2*$y)*$y - $turns - $x - 1;
+      } else {
+        ### forward ...
+        $n += (2*$turns-2*$y)*$y + $x + 1;
+      }
+    } else {
+      ### key left ...
+      if ($x % 2) {
+        ### forward ...
+        $n += (2*$turns-2*$x-2)*$x + 2*$turns - $y;
+      } else {
+        ### backward ...
+        $n += $squared - (2*$turns - 2*$x - 2)*$x - 3*$turns + $y;
+      }
+    }
+  }
+
   return $n;
 }
+
+use Math::PlanePath::SquareArms;
+*_rect_square_range = \&Math::PlanePath::SquareArms::_rect_square_range;
 
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  # coords -1 to centre around the origin 0,0
-  my ($dlo, $dhi) = _rect_square_range ($x1-1, $y1-1,
-                                        $x2-1, $y2-1);
-  ### d range: "$dlo, $dhi"
+  $x1 = _round_nearest ($x1);
+  $y1 = _round_nearest ($y1);
+  $x2 = _round_nearest ($x2);
+  $y2 = _round_nearest ($y2);
 
-  # now d=0,1 is the inner thirds=0, and d=2,3,4 is the next ring thirds=1
-  $dlo = int (($dlo+1) / 3);
-  $dhi = int (($dhi+1) / 3);
+  # floor divisions to square blocks
+  {
+    my $side = $self->{'turns'} + 1;
+    _divrem_destructive($x1,$side);
+    _divrem_destructive($y1,$side);
+    _divrem_destructive($x2,$side);
+    _divrem_destructive($y2,$side);
+  }
+  my ($dlo, $dhi) = _rect_square_range ($x1, $y1,
+                                        $x2, $y2);
+  my $squared = $self->{'squared'};
 
-  ### d range thirds: "$dlo, $dhi"
-  ### right start: ((36*$dlo - 36)*$dlo + 10)
+  ### d range sides: "$dlo, $dhi"
+  ### right start: ((4*$squared*$dlo - 4*$squared)*$dlo + 10)
 
-  return ($dlo == 0 ? 1  # special case for innermost 3x3
-          : ((36*$dlo - 36)*$dlo + 10), # right vertical start
+  return ($dlo == 0 ? 1  # special case Nlo=1 for innermost square
+          # Nlo at right vertical start
+          : ((4*$squared*$dlo - 4*$squared)*$dlo + $squared+1),
 
-          (36*$dhi + 36)*$dhi + 9);     # bottom horizontal end
+          # Nhi at bottom horizontal end
+          (4*$squared*$dhi + 4*$squared)*$dhi + $squared);
 }
 
 1;
 __END__
 
-=for stopwords GreekKeySpiral PlanePath Ryde Math-PlanePath SquareSpiral 18-gonal Edkins
+=for stopwords GreekKeySpiral Ryde Math-PlanePath SquareSpiral Edkins
 
 =head1 NAME
 
@@ -252,34 +542,34 @@ Math::PlanePath::GreekKeySpiral -- square spiral with Greek key motif
 This path makes a spiral with a Greek key scroll motif,
 
     39--38--37--36  29--28--27  24--23                      5
-     |           |   |       |   |   |                       
+     |           |   |       |   |   |
     40  43--44  35  30--31  26--25  22                      4
-     |   |   |   |       |           |                       
+     |   |   |   |       |           |
     41--42  45  34--33--32  19--20--21  ...                 3
-             |               |           |                   
+             |               |           |
     48--47--46   5---6---7  18  15--14  99  96--95          2
-     |           |       |   |   |   |   |   |   |           
+     |           |       |   |   |   |   |   |   |
     49  52--53   4---3   8  17--16  13  98--97  94          1
-     |   |   |       |   |           |           |           
+     |   |   |       |   |           |           |
     50--51  54   1---2   9--10--11--12  91--92--93     <- Y=0
-             |                           |                   
+             |                           |
     57--56--55  68--69--70  77--78--79  90  87--86         -1
-     |           |       |   |       |   |   |   |           
+     |           |       |   |       |   |   |   |
     58  61--62  67--66  71  76--75  80  89--88  85         -2
-     |   |   |       |   |       |   |           |           
+     |   |   |       |   |       |   |           |
     59--60  63--64--65  72--73--74  81--82--83--84         -3
 
                  ^
-                  
+
     -3  -2  -1  X=0  1   2   3   4   5   6   7   8 ...
 
 The repeating figure is a 3x3 pattern
 
        |
        *   *---*
-       |   |   |      left vertical
+       |   |   |      right vertical
        *---*   *      going upwards
-               |   
+               |
        *---*---*
        |
 
@@ -294,16 +584,82 @@ example N=90 to N=91 above.  The horizontals instead have it on the outside
 edge, such as N=63 to N=64 along the bottom.  The innermost N=1 to N=9 is a
 bottom horizontal going right.
 
-      *---*---*     
+      *---*---*
       |       |        bottom horizontal
       *---*   *        going rightwards
-          |   |     
-    --*---*   *-->  
+          |   |
+    --*---*   *-->
 
 On the horizontals the excursion part is still "forward on the outside", as
 for example N=73 through N=76, but the shape is offset.  The way the entry
 is alternately on the inside and outside for the vertical and horizontal is
 necessary to make the corners join.
+
+=head2 Turns
+
+An optional C<turns =E<gt> $integer> parameter controls the turns within the
+repeating figure.  The default is C<turns=E<gt>2>.  Or for example
+C<turns=E<gt>4> begins
+
+=cut
+
+# math-image --path=GreekKeySpiral,turns=4 --all --output=numbers_dash --size=78
+
+=pod
+
+    turns => 4
+
+    105-104-103-102-101-100  79--78--77--76--75  62--61--60--59
+      |                   |   |               |   |           |
+    106 119-120-121-122  99  80  87--88--89  74  63  66--67  58
+      |   |           |   |   |   |       |   |   |   |   |   |
+    107 118 115-114 123  98  81  86--85  90  73  64--65  68  57
+      |   |   |   |   |   |   |       |   |   |           |   |
+    108 117-116 113 124  97  82--83--84  91  72--71--70--69  56
+      |           |   |   |               |                   |
+    109-110-111-112 125  96--95--94--93--92  51--52--53--54--55
+                      |                       |
+    130-129-128-127-126  17--18--19--20--21  50  37--36--35--34
+      |                   |               |   |   |           |
+    131 144-145-146-147  16   9-- 8-- 7  22  49  38  41--42  33
+      |   |           |   |   |       |   |   |   |   |   |   |
+    132 143 140-139 148  15  10--11   6  23  48  39--40  43  32
+      |   |   |   |   |   |       |   |   |   |           |   |
+    133 142-141 138 149  14--13--12   5  24  47--46--45--44  31
+      |           |   |               |   |                   |
+    134-135-136-137 150   1-- 2-- 3-- 4  25--26--27--28--29--30
+                      |
+             ..-152-151
+
+The count of turns is chosen to make C<turns=E<gt>0> a straight line, the
+same as the SquareSpiral.  C<turns=E<gt>1> is a single wiggle,
+
+=cut
+
+# math-image --path=GreekKeySpiral,turns=1 --all --output=numbers_dash --size=78
+
+=pod
+
+    turns => 1
+
+    66--65--64  61--60  57--56  53--52--51
+     |       |   |   |   |   |   |       |
+    67--68  63--62  59--58  55--54  49--50
+         |                           |    
+    70--69  18--17--16  13--12--11  48--47
+     |       |       |   |       |       |
+    71--72  19--20  15--14   9--10  45--46
+         |       |           |       |    
+       ...  22--21   2-- 3   8-- 7  44--43
+             |       |   |       |       |
+            23--24   1   4-- 5-- 6  41--42
+                 |                   |    
+            26--25  30--31  34--35  40--39
+             |       |   |   |   |       |
+            27--28--29  32--33  36--37--38
+
+In general the repeating figure is a square of turns+1 points on each side,
+spiralling in and then out again.
 
 =head1 FUNCTIONS
 
@@ -313,7 +669,9 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::GreekKeySpiral-E<gt>new ()>
 
-Create and return a new Greek key spiral object.
+=item C<$path = Math::PlanePath::GreekKeySpiral-E<gt>new (turns =E<gt> $integer)>
+
+Create and return a new Greek key spiral object.  The default C<turns> is 2.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

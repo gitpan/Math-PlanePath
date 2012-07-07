@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 12;
+plan tests => 22;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurveStair;
 # VERSION
 
 {
-  my $want_version = 79;
+  my $want_version = 80;
   ok ($Math::PlanePath::SierpinskiCurveStair::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurveStair->VERSION,  $want_version,
@@ -67,14 +67,38 @@ require Math::PlanePath::SierpinskiCurveStair;
 {
   my $path = Math::PlanePath::SierpinskiCurveStair->new;
   ok ($path->n_start, 0, 'n_start()');
-  ok ($path->x_negative, 0, 'x_negative()');
-  ok ($path->y_negative, 0, 'y_negative()');
+  ok ($path->x_negative ? 1 : 0, 0, 'x_negative()');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative()');
 
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::SierpinskiCurveStair->parameter_info_list;
   ok (join(',',@pnames), 'diagonal_length,arms');
 }
-
+{
+  my $path = Math::PlanePath::SierpinskiCurveStair->new (arms => 2);
+  ok ($path->x_negative ? 1 : 0, 0, 'x_negative()');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative()');
+}
+{
+  my $path = Math::PlanePath::SierpinskiCurveStair->new (arms => 3);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative()');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative()');
+}
+{
+  my $path = Math::PlanePath::SierpinskiCurveStair->new (arms => 4);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative()');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative()');
+}
+{
+  my $path = Math::PlanePath::SierpinskiCurveStair->new (arms => 5);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative()');
+  ok ($path->y_negative ? 1 : 0, 1, 'y_negative()');
+}
+{
+  my $path = Math::PlanePath::SierpinskiCurveStair->new (arms => 8);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative()');
+  ok ($path->y_negative ? 1 : 0, 1, 'y_negative()');
+}
 
 #------------------------------------------------------------------------------
 # xy_to_n() distinct n

@@ -52,7 +52,7 @@ use Math::PlanePath;
 use Math::PlanePath::HilbertCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 

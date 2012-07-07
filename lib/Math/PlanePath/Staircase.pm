@@ -21,12 +21,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -66,7 +66,7 @@ sub n_to_xy {
   my $int = int($n);
   $n -= $int;
 
-  ($int, my $rem) = _divrem ($int, 2);
+  my $rem = _divrem_destructive ($int, 2);
   if ($rem) {
     ### down ...
     return ($int,
@@ -83,21 +83,21 @@ sub n_to_xy {
 
   # my $int = int($n);  # BigFloat int() gives BigInt, use that
   # $n -= $int;         # frac, preserving any BigFloat
-  # 
+  #
   # if (2*$n >= 1) {  # $frac >= 0.5
   #   $n -= 1;
   #   $int += 1;
   # }
   # return if $int < 0;
-  # 
+  #
   # my $d = int((sqrt(8*$int-7) + 1) / 4);
   # #### $d
   # #### d frac: ((sqrt(8*$int-7) + 1) / 4)
   # #### base: ((2*$d - 1)*$d + 1)
-  # 
+  #
   # $int -= ((2*$d - 1)*$d + 1);
   # ### rem: $int
-  # 
+  #
   # my $r = int($int/2);
   # ### $r
   # if ($int & 1) {

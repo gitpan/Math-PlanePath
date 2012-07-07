@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -99,8 +99,9 @@ sub n_to_xy {
   my @digits = _digit_split_lowtohigh($n,$radix)
     or return ($x, $y);  # 0,0 if $n==0
 
-  my $digit;
   for (;;) {
+    my $digit;
+
     # take from @digits to X
     do {
       $digit = shift @digits;  # low to high
@@ -145,22 +146,24 @@ sub xy_to_n {
   my $radix = $self->{'radix'};
   my $n = ($x * 0 * $y);   # inherit bignum
   my $power = $n+1;        # inherit bignum 1
-  my $digit;
-  while ($x || $y) {
+
+  my @x = _digit_split_lowtohigh($x,$radix);
+  my @y = _digit_split_lowtohigh($y,$radix);
+
+  while (@x || @y) {
+    my $digit;
     do {
-      $digit = ($x % $radix);
+      $digit = shift @x || 0; # low to high
       ### digit from x: $digit
-      $n += $digit * $power;
+      $n += $digit * $power;  # low to high
       $power *= $radix;
-      $x = int ($x / $radix);
     } while ($digit);
 
     do {
-      $digit = ($y % $radix);
+      $digit = shift @y || 0; # low to high
       ### digit from y: $digit
-      $n += $digit * $power;
+      $n += $digit * $power;  # low to high
       $power *= $radix;
-      $y = int ($y / $radix);
     } while ($digit);
   }
   return $n;
@@ -214,7 +217,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath undrawn Radix cardinality bijection radix
+=for stopwords Ryde Math-PlanePath undrawn Radix cardinality bijection radix OEIS
 
 =head1 NAME
 

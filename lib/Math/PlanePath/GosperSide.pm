@@ -32,23 +32,19 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
 
 # secret experimental as yet ...
 #
@@ -93,7 +89,7 @@ sub n_to_xy {
 
 
   if ((my $arms = $self->{'arms'}) > 1) {
-    ($n, my $rot) = _divrem ($n, $arms);
+    my $rot = _divrem_destructive ($n, $arms);
     if ($rot >= 3) {
       $rot -= 3;
       $x = -$x;    # rotate 180, knowing y=0,yend=0
@@ -184,7 +180,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde GosperIslands Math-PlanePath Gosper
+=for stopwords eg Ryde GosperIslands Math-PlanePath Gosper TerdragonCurve
 
 =head1 NAME
 

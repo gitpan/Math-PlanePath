@@ -36,7 +36,7 @@ require Math::PlanePath::Corner;
 # VERSION
 
 {
-  my $want_version = 79;
+  my $want_version = 80;
   ok ($Math::PlanePath::Corner::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Corner->VERSION,  $want_version,

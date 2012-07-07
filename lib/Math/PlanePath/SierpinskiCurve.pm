@@ -35,13 +35,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -57,10 +57,6 @@ sub x_negative {
 sub y_negative {
   my ($self) = @_;
   return ($self->{'arms'} >= 5);
-}
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'};
 }
 
 use constant parameter_info_array =>
@@ -133,7 +129,7 @@ sub n_to_xy {
   }
   ### $frac
 
-  ($n, my $arm) = _divrem ($n, $self->{'arms'});
+  my $arm = _divrem_destructive ($n, $self->{'arms'});
 
   my $s = $self->{'straight_spacing'};
   my $d = $self->{'diagonal_spacing'};

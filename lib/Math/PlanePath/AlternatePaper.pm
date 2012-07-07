@@ -36,18 +36,20 @@
 package Math::PlanePath::AlternatePaper;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -55,18 +57,26 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-use constant class_x_negative => 0;
-use constant class_y_negative => 0;
+use constant class_x_negative => 1;
+use constant class_y_negative => 1;
+sub x_negative {
+  my ($self) = @_;
+  return ($self->{'arms'} >= 3);
+}
+sub y_negative {
+  my ($self) = @_;
+  return ($self->{'arms'} >= 5);
+}
 
-# use constant parameter_info_array => [ { name      => 'arms',
-#                                          share_key => 'arms_8',
-#                                          type      => 'integer',
-#                                          minimum   => 1,
-#                                          maximum   => 8,
-#                                          default   => 1,
-#                                          width     => 1,
-#                                          description => 'Arms',
-#                                        } ];
+use constant parameter_info_array => [ { name      => 'arms',
+                                         share_key => 'arms_8',
+                                         type      => 'integer',
+                                         minimum   => 1,
+                                         maximum   => 8,
+                                         default   => 1,
+                                         width     => 1,
+                                         description => 'Arms',
+                                       } ];
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -79,11 +89,21 @@ sub new {
   return $self;
 }
 
-my @rot_to_sx = (1,0,-1,0);
-my @rot_to_sy = (0,1,0,-1);
-
-my @arm_to_x = (0,0, 0,0, -1,-1, -1,-1);
-my @arm_to_y = (0,0, 1,1,   1,1,  0,0);
+my @next_state = (0,  8, 0, 12,   # forward
+                  4, 12, 4,  8,   # forward NW
+                  0,  8, 4,  8,   # reverse
+                  4, 12, 0, 12,   # reverse NE
+                 );
+my @digit_to_x = (0,1,1,1,
+                  1,0,0,0,
+                  0,1,0,0,
+                  1,0,1,1,
+                 );
+my @digit_to_y = (0,0,1,0,
+                  1,1,0,1,
+                  0,0,0,1,
+                  1,1,1,0,
+                 );
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -92,157 +112,73 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (_is_infinite($n)) { return ($n, $n); }
 
-  my $frac;
   {
     my $int = int($n);
-    $frac = $n - $int;  # inherit possible BigFloat
-    $n = $int;          # BigFloat int() gives BigInt, use that
+    if ($n != $int) {
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
+      my $frac = $n - $int;  # inherit possible BigFloat
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
+    $n = $int; # BigFloat int() gives BigInt, use that
   }
-  ### $frac
 
   my $zero = ($n * 0);  # inherit bignum 0
 
-  ($n, my $arm) = _divrem ($n, $self->{'arms'});
+  # arm as initial rotation
+  my $arm = _divrem_destructive ($n, $self->{'arms'});
 
-  my @digits = _digit_split_lowtohigh($n,2);
-  if (scalar(@digits) & 1) {
-    push @digits, 0;  # extra high to make even
-  }
+  ### $arm
+  ### $n
 
-  my @sx;
-  my @sy;
-  {
-    my $sy = $zero;   # inherit BigInt
-    my $sx = $sy + 1; # inherit BigInt
-    ### $sx
-    ### $sy
-  
-    foreach (1 .. scalar(@digits)/2) {
-      push @sx, $sx;
-      push @sy, $sy;
-  
-      # (sx,sy) + rot+90(sx,sy)
-      ($sx,$sy) = ($sx - $sy,
-                   $sy + $sx);
-  
-      push @sx, $sx;
-      push @sy, $sy;
-  
-      # (sx,sy) + rot-90(sx,sy)
-      ($sx,$sy) = ($sx + $sy,
-                   $sy - $sx);
-    }
-  }
+  my @digits = _digit_split_lowtohigh($n,4);
+  my $len = (2 + $zero) ** scalar($#digits);
 
-  ### @digits
-  ### @sx
-  ### @sy
-  ### assert: scalar(@sx) == scalar(@digits)
-
-  my $rot = int($arm/2);  # arm to initial rotation
-  my $rev = 0;
+  my $state = 0;
   my $x = $zero;
   my $y = $zero;
-  while (@digits) {
-    {
-      my $digit = pop @digits;   # high to low
-      my $sx = pop @sx;
-      my $sy = pop @sy;
-      ### at: "$x,$y  $digit   side $sx,$sy"
-      ### $rot
+  # my $above_low_zero = 0;
 
-      if ($rot & 2) {
-        ($sx,$sy) = (-$sx,-$sy);
-      }
-      if ($rot & 1) {
-        ($sx,$sy) = (-$sy,$sx);
-      }
-
-      if ($rev) {
-        if ($digit) {
-          $x -= $sy;
-          $y += $sx;
-          ### rev add to: "$x,$y next is still rev"
-        } else {
-          $rot ++;
-          $rev = 0;
-        }
-      } else {
-        if ($digit) {
-          $rot ++;
-          $x += $sx;
-          $y += $sy;
-          $rev = 1;
-          ### add to: "$x,$y next is rev"
-        }
-      }
-    }
-
-    @digits || last;
-
-    {
-      my $digit = pop @digits;
-      my $sx = pop @sx;
-      my $sy = pop @sy;
-      ### at: "$x,$y  $digit   side $sx,$sy"
-      ### $rot
-
-      if ($rot & 2) {
-        ($sx,$sy) = (-$sx,-$sy);
-      }
-      if ($rot & 1) {
-        ($sx,$sy) = (-$sy,$sx);
-      }
-
-      if ($rev) {
-        if ($digit) {
-          $x += $sy;
-          $y -= $sx;
-          ### rev add to: "$x,$y next is still rev"
-        } else {
-          $rot --;
-          $rev = 0;
-        }
-      } else {
-        if ($digit) {
-          $rot --;
-          $x += $sx;
-          $y += $sy;
-          $rev = 1;
-          ### add to: "$x,$y next is rev"
-        }
-      }
-    }
+  foreach my $digit (reverse @digits) { # high to low
+    $state += $digit;
+    $x += $len * $digit_to_x[$state];
+    $y += $len * $digit_to_y[$state];
+    $state = $next_state[$state];
+    $len /= 2;
   }
 
-  ### $rot
-  ### $rev
+  ### final: "xy=$x,$y state=$state"
 
-  if ($rev) {
-    $rot += 2;
-    ### rev change rot to: $rot
-  }
+  $x += $digit_to_x[$state];  # +1 for state=4,12
+  $y += $digit_to_y[$state];  # +1 for state=4,12
 
   if ($arm & 1) {
-    ($x,$y) = ($y,$x);  # odd arms transpose
+    ($x,$y) = ($y,$x);   # transpose
+  }
+  if ($arm & 2) {
+    ($x,$y) = (-$y,$x+1);  # rotate +90 and Y+1
+  }
+  if ($arm & 4) {
+    $x = -1 - $x;      # rotate +180 and X-1,Y+1
+    $y = 1 - $y;
   }
 
-  $rot &= 3;
-  $x = $frac * $rot_to_sx[$rot] + $x + $arm_to_x[$arm];
-  $y = $frac * $rot_to_sy[$rot] + $y + $arm_to_y[$arm];
+  # if (!($rot & 1) && $above_low_zero) {
+  #   $frac = -$frac;
+  # }
+  # $above_low_zero ^= ($rot & 1);
+  # if ($above_low_zero) {
+  #   $y = $frac + $y;
+  # } else {
+  #   $x = $frac + $x;
+  # }
 
-  ### final: "$x,$y"
+  ### rotated return: "$x,$y"
   return ($x,$y);
 }
 
-
-# sub XXn_to_xy {
-#   my ($self, $n) = @_;
-#   ### AlternatePaper n_to_xy(): $n
-# 
-#   if ($n < 0) { return; }
-#   if (_is_infinite($n)) { return ($n, $n); }
-# 
 #   my $frac;
 #   {
 #     my $int = int($n);
@@ -250,128 +186,6 @@ sub n_to_xy {
 #     $n = $int;          # BigFloat int() gives BigInt, use that
 #   }
 # 
-#   my $zero = ($n * 0);  # inherit bignum 0
-# 
-#   my @digits = _digit_split_lowtohigh($n,2);
-#   my @sx;
-#   my @sy;
-#   {
-#     my $sy = $zero;   # inherit BigInt
-#     my $sx = $sy + 1; # inherit BigInt
-#     ### $sx
-#     ### $sy
-# 
-#     for (my $i = 0; $i <= $#digits; $i++) {
-#       push @sx, $sx;
-#       push @sy, $sy;
-# 
-#       # (sx,sy) + rot+90(sx,sy)
-#       ($sx,$sy) = ($sx - $sy,
-#                    $sy + $sx);
-# 
-#       $i++;
-#       $i <= $#digits || last;
-# 
-#       push @sx, $sx;
-#       push @sy, $sy;
-# 
-#       # (sx,sy) + rot-90(sx,sy)
-#       ($sx,$sy) = ($sx + $sy,
-#                    $sy - $sx);
-#     }
-#   }
-# 
-#   ### @digits
-#   ### @sx
-#   ### @sy
-# 
-#   my $rot = 0;
-#   my $rev = 0;
-#   my $x = $zero;
-#   my $y = $zero;
-#   while (defined (my $digit = pop @digits)) {
-#     {
-#       my $sx = pop @sx;
-#       my $sy = pop @sy;
-#       ### at: "$x,$y  $digit   side $sx,$sy"
-#       ### $rot
-# 
-#       if ($rot & 2) {
-#         ($sx,$sy) = (-$sx,-$sy);
-#       }
-#       if ($rot & 1) {
-#         ($sx,$sy) = (-$sy,$sx);
-#       }
-# 
-#       if ($rev) {
-#         if ($digit) {
-#           $x -= $sy;
-#           $y += $sx;
-#           ### rev add to: "$x,$y next is still rev"
-#         } else {
-#           $rot ++;
-#           $rev = 0;
-#         }
-#       } else {
-#         if ($digit) {
-#           $rot ++;
-#           $x += $sx;
-#           $y += $sy;
-#           $rev = 1;
-#           ### add to: "$x,$y next is rev"
-#         }
-#       }
-#     }
-# 
-#     $digit = pop @digits;
-#     last if ! defined $digit;
-# 
-#     {
-#       my $sx = pop @sx;
-#       my $sy = pop @sy;
-#       ### at: "$x,$y  $digit   side $sx,$sy"
-#       ### $rot
-# 
-#       if ($rot & 2) {
-#         ($sx,$sy) = (-$sx,-$sy);
-#       }
-#       if ($rot & 1) {
-#         ($sx,$sy) = (-$sy,$sx);
-#       }
-# 
-#       if ($rev) {
-#         if ($digit) {
-#           $x += $sy;
-#           $y -= $sx;
-#           ### rev add to: "$x,$y next is still rev"
-#         } else {
-#           $rot --;
-#           $rev = 0;
-#         }
-#       } else {
-#         if ($digit) {
-#           $rot --;
-#           $x += $sx;
-#           $y += $sy;
-#           $rev = 1;
-#           ### add to: "$x,$y next is rev"
-#         }
-#       }
-#     }
-#   }
-#   if ($rev) {
-#     $rot += 2;
-#   }
-#   $rot &= 3;
-#   $x = $frac * $rot_to_sx[$rot] + $x;
-#   $y = $frac * $rot_to_sy[$rot] + $y;
-# 
-#   ### final: "$x,$y"
-#   return ($x,$y);
-# }
-
-
-
 
 
 #                                                      8
@@ -403,40 +217,44 @@ sub xy_to_n_list {
 
   $x = _round_nearest($x);
   $y = _round_nearest($y);
+  if (_is_infinite($x)) { return $x; }
+  if (_is_infinite($y)) { return $y; }
 
-  my ($len,$level) = _round_down_pow($x, 2);
-  ### $len
-  ### $level
+  my $arms = $self->{'arms'};
+  my $arm = 0;
+  my @ret;
+  foreach (1 .. 4) {
+    push @ret, map {$_*$arms+$arm} _xy_to_n_list__onearm($self,$x,$y);
+    last if ++$arm >= $arms;
 
-  if (_is_infinite($level)) {
-    return $level;  # infinity
+    ($x,$y) = ($y,$x); # transpose
+    push @ret, map {$_*$arms+$arm} _xy_to_n_list__onearm($self,$x,$y);
+    last if ++$arm >= $arms;
+
+    # X,Y -> Y,X
+    #     -> Y,X-1     # Y-1 shift
+    #     -> X-1,-Y    # rot -90
+    # ie. mirror across X axis and shift
+    ($x,$y) = ($x-1,-$y);
   }
+  return sort {$a<=>$b} @ret;
+}
+
+sub _xy_to_n_list__onearm {
+  my ($self, $x, $y) = @_;
+  ### _xy_to_n_list__onearm(): "$x,$y"
 
   if ($y < 0 || $y > $x || $x < 0) {
     ### outside first octant ...
     return;
   }
 
-  # my $arm;
-  # if ($y < 0) {
-  #   $arm = 4;
-  #   $x = -$x; # rotate 180
-  #   $y = -$y;
-  # } else {
-  #   $arm = 0;
-  # }
-  # if ($x < 0) {
-  #   $arm += 2;
-  #   ($x,$y) = ($y,-$x); # rotate -90
-  # }
-  # if ($y > $x) {
-  #   $arm++;
-  #   ($x,$y) = ($y,$x); # mirror across diagonal
-  # }
-  # if ($arm > $self->{'arms'}) {
-  #   ### outside arms ...
-  #   return;
-  # }
+  my ($len,$level) = _round_down_pow($x, 2);
+  ### $len
+  ### $level
+  if (_is_infinite($level)) {
+    return;
+  }
 
   my $n = my $big_n = $x * 0 * $y;  # inherit bignum 0
   my $rev = 0;
@@ -576,6 +394,7 @@ sub xy_to_n_list {
           ($n == $big_n ? () : ($big_n)));
 }
 
+
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -589,19 +408,194 @@ sub rect_to_n_range {
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  if ($x2 < 0 || $y2 < 0 || $y1 > $x2) {
-    # outside first octant
+  ### rounded: "$x1,$y1  $x2,$y2"
+
+  my $arms = $self->{'arms'};
+  if (($arms == 1 && $y1 > $x2)       # x2,y1 bottom right corner
+      || ($arms <= 2 && $x2 < 0)
+      || ($arms <= 4 && $y2 < 0)) {
+    ### outside ...
     return (1,0);
   }
 
-  my ($len, $level) =_round_down_pow ($x2, 2);
-  return (0, 4*$len*$len-1);
+  # arm start 0,1 at X=0,Y=0
+  #           2,3 at X=0,Y=1
+  #           4,5 at X=-1,Y=1
+  #           6,7 at X=-1,Y=1
+  # arms>=6 is arm=5 starting at Y=+1, so 1-$y1
+  # arms>=8 starts at X=-1 so extra +1 for x2 to the right in that case
+  my ($len, $level) =_round_down_pow (max ($x2+($arms>=8),
+                                           ($arms >= 2 ? $y2 : ()),
+                                           ($arms >= 4 ? -$x1 : ()),
+                                           ($arms >= 6 ? 1-$y1 : ())),
+                                      2);
+  return (0, 4*$arms*$len*$len-1);
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA..AA Golay Rudin dX GRS dY
+# Old code with explicit rotation etc rather than state table.
+#
+# my @rot_to_sx = (1,0,-1,0);
+# my @rot_to_sy = (0,1,0,-1);
+# 
+# my @arm_to_x = (0,0, 0,0, -1,-1, -1,-1);
+# my @arm_to_y = (0,0, 1,1,   1,1,  0,0);
+# 
+# sub XXn_to_xy {
+#   my ($self, $n) = @_;
+#   ### AlternatePaper n_to_xy(): $n
+# 
+#   if ($n < 0) { return; }
+#   if (_is_infinite($n)) { return ($n, $n); }
+# 
+#   my $frac;
+#   {
+#     my $int = int($n);
+#     $frac = $n - $int;  # inherit possible BigFloat
+#     $n = $int;          # BigFloat int() gives BigInt, use that
+#   }
+#   ### $frac
+# 
+#   my $zero = ($n * 0);  # inherit bignum 0
+# 
+#   my $arm = _divrem_destructive ($n, $self->{'arms'});
+# 
+#   my @digits = _digit_split_lowtohigh($n,2);
+#   if (scalar(@digits) & 1) {
+#     push @digits, 0;  # extra high to make even
+#   }
+# 
+#   my @sx;
+#   my @sy;
+#   {
+#     my $sy = $zero;   # inherit BigInt
+#     my $sx = $sy + 1; # inherit BigInt
+#     ### $sx
+#     ### $sy
+# 
+#     foreach (1 .. scalar(@digits)/2) {
+#       push @sx, $sx;
+#       push @sy, $sy;
+# 
+#       # (sx,sy) + rot+90(sx,sy)
+#       ($sx,$sy) = ($sx - $sy,
+#                    $sy + $sx);
+# 
+#       push @sx, $sx;
+#       push @sy, $sy;
+# 
+#       # (sx,sy) + rot-90(sx,sy)
+#       ($sx,$sy) = ($sx + $sy,
+#                    $sy - $sx);
+#     }
+#   }
+# 
+#   ### @digits
+#   ### @sx
+#   ### @sy
+#   ### assert: scalar(@sx) == scalar(@digits)
+# 
+#   my $rot = int($arm/2);  # arm to initial rotation
+#   my $rev = 0;
+#   my $x = $zero;
+#   my $y = $zero;
+#   while (@digits) {
+#     {
+#       my $digit = pop @digits;   # high to low
+#       my $sx = pop @sx;
+#       my $sy = pop @sy;
+#       ### at: "$x,$y  $digit   side $sx,$sy"
+#       ### $rot
+# 
+#       if ($rot & 2) {
+#         ($sx,$sy) = (-$sx,-$sy);
+#       }
+#       if ($rot & 1) {
+#         ($sx,$sy) = (-$sy,$sx);
+#       }
+# 
+#       if ($rev) {
+#         if ($digit) {
+#           $x -= $sy;
+#           $y += $sx;
+#           ### rev add to: "$x,$y next is still rev"
+#         } else {
+#           $rot ++;
+#           $rev = 0;
+#         }
+#       } else {
+#         if ($digit) {
+#           $rot ++;
+#           $x += $sx;
+#           $y += $sy;
+#           $rev = 1;
+#           ### add to: "$x,$y next is rev"
+#         }
+#       }
+#     }
+# 
+#     @digits || last;
+# 
+#     {
+#       my $digit = pop @digits;
+#       my $sx = pop @sx;
+#       my $sy = pop @sy;
+#       ### at: "$x,$y  $digit   side $sx,$sy"
+#       ### $rot
+# 
+#       if ($rot & 2) {
+#         ($sx,$sy) = (-$sx,-$sy);
+#       }
+#       if ($rot & 1) {
+#         ($sx,$sy) = (-$sy,$sx);
+#       }
+# 
+#       if ($rev) {
+#         if ($digit) {
+#           $x += $sy;
+#           $y -= $sx;
+#           ### rev add to: "$x,$y next is still rev"
+#         } else {
+#           $rot --;
+#           $rev = 0;
+#         }
+#       } else {
+#         if ($digit) {
+#           $rot --;
+#           $x += $sx;
+#           $y += $sy;
+#           $rev = 1;
+#           ### add to: "$x,$y next is rev"
+#         }
+#       }
+#     }
+#   }
+# 
+#   ### $rot
+#   ### $rev
+# 
+#   if ($rev) {
+#     $rot += 2;
+#     ### rev change rot to: $rot
+#   }
+# 
+#   if ($arm & 1) {
+#     ($x,$y) = ($y,$x);  # odd arms transpose
+#   }
+# 
+#   $rot &= 3;
+#   $x = $frac * $rot_to_sx[$rot] + $x + $arm_to_x[$arm];
+#   $y = $frac * $rot_to_sy[$rot] + $y + $arm_to_y[$arm];
+# 
+#   ### final: "$x,$y"
+#   return ($x,$y);
+# }
+
+
+
+=for :stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA..AA Golay-Rudin-Shapiro Rudin-Shapiro dX dY dX,dY GRS dSum undoubled MendE<232>s Tenenbaum des Courbes Papiers de
 
 =head1 NAME
 
@@ -653,8 +647,8 @@ base 4, or equivalently those which have a 0 bit at each odd numbered bit
 position.
 
 The X=Y diagonal N=0,2,8,10,32,etc is the integers which have only digits
-0,2 in base 4, or equivalently which have a 0 bit at each even numbered bit
-position.
+0,2 in base 4, or equivalently those which have a 0 bit at each even
+numbered bit position.
 
 The X axis values are the same as on the ZOrderCurve X axis, and the X=Y
 diagonal is the same as the ZOrderCurve Y axis, but in between the two are
@@ -687,8 +681,8 @@ anti-clockwise, on the opposite side to the first unfold,
            |                        |       |
     0------1                0-------1       4
 
-In general after each unfold the shape is a triangle as follows.  The "N"
-marks the N=2^k endpoint in the shape, bottom right or top centre.
+In general after each unfold the shape is a triangle as follows.  "N" marks
+the N=2^k endpoint in the shape, either bottom right or top centre.
 
     after even number          after odd number
        of unfolds,                of unfolds,
@@ -705,7 +699,8 @@ marks the N=2^k endpoint in the shape, bottom right or top centre.
 
 For an even number of unfolds the triangle consists of 4 sub-parts numbered
 by the high digit of N in base 4.  Those sub-parts are self-similar in the
-direction "E<gt>", "^" etc shown, and with a reversal for parts 1 and 3.
+direction "E<gt>", "^" etc as follows, and with a reversal for parts 1
+and 3.
 
               +
              /|
@@ -781,10 +776,12 @@ lowest 0.
              1             left
 
 For example at N=10 binary 0b1010 the lowest 0 is the least significant bit,
-and above that is a 1 at odd pos=1, so at N=10+1=11 turn right.
+and above that is a 1 at odd pos=1, so at N=10+1=11 turn right.  This works
+simply because w011..11 when incremented becomes w100..00 which is the "z"
+form above.
 
-The inversion at odd bit positions can be applied with an xor 0b1010..1010,
-after which that the calculations are the same as the DragonCurve (see
+The inversion at odd bit positions can be applied with an xor 0b1010..1010
+and that the calculations are the same as the DragonCurve (see
 L<Math::PlanePath::DragonCurve/Turns>).
 
 =head2 Total Turn
@@ -806,7 +803,7 @@ from the bits of N.
 
     (bit positions numbered from 0 for the least significant bit)
 
-This is similar to the DragonCurve (L<Math::PlanePath::DragonCurve/Total
+This is similar to the DragonCurve (see L<Math::PlanePath::DragonCurve/Total
 Turn>) except the turn is either left or right according to an odd or even
 bit position of the transition, instead of always left for the DragonCurve.
 
@@ -827,7 +824,7 @@ which negates the dX change.  Thus
 
     dX = /  (-1) ^ (count of even length runs of 1 bits in N),
          |     if N even,
-         \  or 0 if N odd
+         \  0 if N odd
 
 This (-1)^count is related to the Golay-Rudin-Shapiro sequence,
 
@@ -844,10 +841,10 @@ count of even length runs and therefore
     dX = /  GRS(N) if N even
          \  0      if N odd
 
-For dY the total turn and odd/even runs of 1s makes the same 180 degree
-changes, except N is odd for Y change so the least significant bit is 1 and
-there's no return to "plain" state.  If this lowest run of 1s starts on an
-even position (an odd number of 1s) then it's a turn left for +1.
+For dY the total turn and odd/even runs of 1s is the same 180 degree
+changes, except N is odd for a Y change so the least significant bit is 1
+and there's no return to "plain" state.  If this lowest run of 1s starts on
+an even position (an odd number of 1s) then it's a turn left for +1.
 Conversely if the run started at an odd position (an even number of 1s) then
 a turn right for -1.  The result for this last run is the same "negate if
 even length" as the rest of the GRS, just for a slightly different reason.
@@ -894,13 +891,13 @@ The curve steps each time either up to the next or back to the previous
 according to dSum=GRS(N).
 
 The way the curve visits the outside points once each and the inside points
-twice each means the visits an anti-diagonal d=X+Y a total of d many times.
-Such a diagonal has floor(d/2)+1 many points, the first visited once, the
-rest visited twice, except when d is even the X=Y point is only visited
-once.  In each case the total is total d many visits.
+twice each means an anti-diagonal d=X+Y is visited a total of d many times.
+The diagonal has floor(d/2)+1 many points, the first visited once, the rest
+visited twice, except when d is even and the X=Y point is only visited once.
+In each case the total is total d many visits.
 
-This sum d=X+Y occurring d many times gives a geometric interpretation to
-the way the cumulative GRS sequence has each value k occurring k many times.
+This sum d=X+Y occurring d many times is a geometric interpretation to the
+way the cumulative GRS sequence has each value k occurring k many times.
 (See L<Math::NumSeq::GolayRudinShapiroCumulative>.)
 
 =head1 OEIS
@@ -921,7 +918,7 @@ Integer Sequences as,
                 Y coordinate undoubled
                 X-Y diff, starting from N=1
 
-Since the X and Y coordinates change each alternately, each coordinate
+Since the X and Y coordinates each change alternately, each coordinate
 appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990
 are "undoubled" X and Y in the sense of just one copy of each of those
 paired values.
@@ -929,21 +926,23 @@ paired values.
     A000695  N on X axis,   base 4 digits 0,1 only
     A062880  N on diagonal, base 4 digits 0,2 only
 
-    A022155  positions where GRS < 0, which is
-               N where down or left step, ie. dSum < 0,
-               moving to the previous anti-diagonal
-    A203463  positions where GRS > 0, which is
-               N where up or right step, ie. dSum > 0,
-               moving to the next anti-diagonal
+    A022155  positions where GRS < 0
+               which is N where down or left step,
+               ie. dSum < 0 move to previous anti-diagonal
+    A203463  positions where GRS > 0
+               which is N where up or right step,
+               ie. dSum > 0 move to next anti-diagonal
 
     A020991  N-1 of first time on X+Y=k anti-diagonal
     A212591  N-1 of last time on X+Y=k anti-diagonal
     A093573  N-1 of points on the anti-diagonals d=X+Y,
-               in ascending N-1 within each diagonal
+               by ascending N-1 value within each diagonal
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::AlternatePaperMidpoint>
+
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::CCurve>,
 L<Math::PlanePath::HIndexing>,
@@ -952,7 +951,7 @@ L<Math::PlanePath::ZOrderCurve>
 L<Math::NumSeq::GolayRudinShapiro>,
 L<Math::NumSeq::GolayRudinShapiroCumulative>
 
-Michel MendE<232>s France and G.Tenenbaum, "Dimension des Courbes Planes,
+Michel MendE<232>s France and G. Tenenbaum, "Dimension des Courbes Planes,
 Papiers Plies et Suites de Rudin-Shapiro", Bulletin de la S.M.F., volume
 109, 1981, pages 207-215.
 

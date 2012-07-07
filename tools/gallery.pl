@@ -45,6 +45,37 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['greek-key-small.png',
+    'math-image --path=GreekKeySpiral --lines --scale=4 --size=32'],
+   ['greek-key-big.png',
+    'math-image --path=GreekKeySpiral --lines --scale=8 --size=200'],
+   ['greek-key-turns1-big.png',
+    'math-image --path=GreekKeySpiral,turns=1 --lines --scale=8 --figure=point --size=200'],
+   ['greek-key-turns5-big.png',
+    'math-image --path=GreekKeySpiral,turns=5 --lines --scale=8 --figure=point --size=200'],
+
+
+   ['c-curve-small.png',
+    'math-image --path=CCurve --lines --scale=3 --size=32 --offset=8,0'],
+   ['c-curve-big.png',
+    'math-image --path=CCurve --lines --figure=point --scale=3 --size=250x250 --offset=20,-70'],
+
+
+   ['alternate-paper-small.png',
+    'math-image --path=AlternatePaper --lines --scale=4 --size=32 --offset=-12,-12'],
+   ['alternate-paper-big.png',
+    'math-image --path=AlternatePaper --lines --figure=point --scale=8 --size=200 --offset=-95,-95'],
+   ['alternate-paper-rounded-big.png',
+    'math-image --path=AlternatePaper --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=-95,-95'],
+
+
+   ['alternate-paper-midpoint-small.png',
+    'math-image --path=AlternatePaperMidpoint --lines --scale=3 --size=32 --offset=-12,-12'],
+   ['alternate-paper-midpoint-big.png',
+    'math-image --path=AlternatePaperMidpoint --lines --figure=point --scale=4 --size=200 --offset=-95,-95'],
+   ['alternate-paper-midpoint-8arm-big.png',
+    'math-image --path=AlternatePaperMidpoint,arms=8 --lines --figure=point --scale=4 --size=200'],
+
    ['rationals-tree-small.png',
     'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
    ['rationals-tree-big.png',
@@ -123,12 +154,6 @@ foreach my $elem
     'math-image --path=TerdragonMidpoint --lines --scale=2 --size=32 --offset=2,-9'],
    ['terdragon-midpoint-big.png',
     'math-image --path=TerdragonMidpoint --lines --figure=circle --scale=8 --size=200 --offset=50,-50'],
-
-
-   ['c-curve-small.png',
-    'math-image --path=CCurve --lines --scale=3 --size=32 --offset=8,0'],
-   ['c-curve-big.png',
-    'math-image --path=CCurve --lines --figure=point --scale=3 --size=250x250 --offset=22,-70'],
 
 
    ['r5dragon-small.png',
@@ -382,14 +407,6 @@ foreach my $elem
     'math-image --path=DivisibleColumns --all --scale=3 --size=200'],
    ['divisible-columns-proper-big.png',
     'math-image --path=DivisibleColumns,divisor_type=proper --all --scale=3 --size=400x200'],
-
-
-   ['alternate-paper-small.png',
-    'math-image --path=AlternatePaper --lines --scale=4 --size=32 --offset=2,2'],
-   ['alternate-paper-big.png',
-    'math-image --path=AlternatePaper --lines --figure=point --scale=8 --size=200 --offset=4,4'],
-   ['alternate-paper-rounded-big.png',
-    'math-image --path=AlternatePaper --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=4,4'],
 
 
    ['vogel-small.png',
@@ -719,11 +736,6 @@ foreach my $elem
     'math-image --path=Hypot --lines --scale=6 --size=32'],
    ['hypot-big.png',
     'math-image --path=Hypot --lines --scale=15 --size=200x150'],
-
-   ['greek-key-small.png',
-    'math-image --path=GreekKeySpiral --lines --scale=4 --size=32'],
-   ['greek-key-big.png',
-    'math-image --path=GreekKeySpiral --lines --scale=13 --size=200'],
 
    ['knight-small.png',
     'math-image --path=KnightSpiral --lines --scale=7 --size=32'],

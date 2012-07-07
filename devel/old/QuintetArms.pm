@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,10 +35,6 @@ use Math::PlanePath;
 use Math::PlanePath::QuintetCurve;
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
 
 sub new {
   my $class = shift;
@@ -61,7 +57,7 @@ sub n_to_xy {
     my $int = int($n);
     if ($n != $int) {
       my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
       my $frac = $n - $int;  # inherit possible BigFloat
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;

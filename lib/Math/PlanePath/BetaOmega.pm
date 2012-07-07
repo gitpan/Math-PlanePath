@@ -21,6 +21,7 @@
 # math-image --path=BetaOmega --all --output=numbers_dash
 
 # http://www.upb.de/pc2/papers/files/pdfps399main.toappear.ps   # gone
+# http://www.uni-paderborn.de/pc2/papers/files/pdfps399main.toappear.ps
 # http://wwwcs.upb.de/pc2/papers/files/399.ps   # gone
 #
 # copy ?
@@ -32,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;

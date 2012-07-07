@@ -27,7 +27,7 @@ use Test;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = (tests => 95)[1];
+my $test_count = (tests => 99)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigInt::Lite; 1 }) {

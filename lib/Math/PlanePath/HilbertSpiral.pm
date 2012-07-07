@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -73,7 +73,7 @@ sub n_to_xy {
   my $int = int($n);
   $n -= $int;
 
-  my @digits = _digit_split_lowtohigh($int,4);;
+  my @digits = _digit_split_lowtohigh($int,4);
   my $len = ($n*0 + 2) ** scalar(@digits);   # inherit possible bigint 1
 
   my $state = ($#digits & 1 ? 4 : 0);

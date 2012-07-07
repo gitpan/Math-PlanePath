@@ -17,19 +17,48 @@
 
 
 # math-image --path=FilledRings --all --output=numbers_dash  --size=70x30
+#
+# offset 0 to 1
+# same PixelRings fractional offset for midpoint
+#
+# default 0.5     |-------int-------|             0.5
+#         |------------------|                    0
+#                         |------------------|   0.99 or 1.0
+#
+# default  0 |-------int-------|--------int-------|
+#                   |------------------|             0.5
+#                             |------------------|   0.99 or 1.0
+#
+# innermost
+#   |-------0-------|-------1--------|
+#
 
+# A036702 count Gaussian |z| <= n
+# A036706 count Gaussian n-1/2 < |z| < n+1/2 with a>0,b>=0, so 1/4
+# A036707 count Gaussian |z| < n+1/2 with b>=0, so 1/2 plane
+# A036708 count Gaussian n-1/2 < |z| < n+1/2 with b>=0, so 1/4
+#
+# A000328 num points <= circle radius n
+#         1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441,
+# A046109 num points == circle radius n
+# A051132 num points <  circle radius n
+#         0, 1, 9, 25, 45, 69, 109, 145, 193, 249, 305, 373, 437,
+# A057655 num points x^2+y^2 <= n
+#         1, 5, 9, 9, 13, 21, 21, 21, 25, 29, 37, 37, 37, 45, 45,
+#
 
 package Math::PlanePath::FilledRings;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_corners = \&Math::PlanePath::SacksSpiral::_rect_to_radius_corners;
@@ -38,11 +67,6 @@ use Math::PlanePath::SacksSpiral;
 #use Smart::Comments;
 
 
-# cf A000328 num points <= circle radius n
-#    A046109 num points == circle radius n
-#    A051132 num points <  circle radius n
-#    A057655 num points x^2+y^2 <= n
-#
 # N(r) = 1 + 4*sum  floor(r^2/(4i+1)) - floor(r^2/(4i+3))
 #
 # N(r+1) - N(r)
@@ -67,13 +91,13 @@ use Math::PlanePath::SacksSpiral;
 #  sqrt(3*3+2*2) = 3.60 out
 #  sqrt(3*3+1*1) = 3.16 in
 #
-#      * * *  
-#    * * * * *  
+#      * * *
+#    * * * * *
 #  * * * * * * *
 #  * * * o * * *   3+5+7+7+7+5+3 = 37
 #  * * * * * * *
-#    * * * * *  
-#      * * *   
+#    * * * * *
+#      * * *
 #
 # N(r) = 1 + 4*( floor(12.25/1)-floor(12.25/3)
 #          + floor(12.25/5)-floor(12.25/7)
@@ -136,12 +160,13 @@ sub n_to_xy {
   ### n rem: $n
 
   $len /= 4;     # length of a quadrant of this ring
-  my $quadrant = $n / $len;   # 0 <= q < 4
-  $n %= $len;
+  (my $quadrant, $n) = _divrem ($n, $len);
 
   ### len of quadrant: $len
   ### $quadrant
   ### n into quadrant: $n
+  ### assert: $quadrant >= 0
+  ### assert: $quadrant < 4
 
   my $rev;
   if ($rev = ($n > $len/2)) {
@@ -329,30 +354,30 @@ This path puts points on integer X,Y pixels of filled rings of radius
 1 unit.
 
                     110-109-108-107-106                        6
-                   /                   \  
+                   /                   \
             112-111  79--78--77--76--75 105-104                5
-              |    /                   \      |                 
+              |    /                   \      |
         114-113  80  48--47--46--45--44  74 103-102            4
-          |    /      |               |    \      |             
+          |    /      |               |    \      |
         115  81  50--49  27--26--25  43--42  73 101            3
-       /   /      |    /           \      |    \   \            
+       /   /      |    /           \      |    \   \
     116  82  52--51  28  14--13--12  24  41--40  72 100        2
-      |   |   |    /   /           \   \      |   |   |         
+      |   |   |    /   /           \   \      |   |   |
     117  83  53  29  15   5-- 4-- 3  11  23  39  71  99        1
-      |   |   |   |   |   |       |   |   |   |   |   |         
+      |   |   |   |   |   |       |   |   |   |   |   |
     118  84  54  30  16   6   1-- 2  10  22  38  70  98   <- Y=0
-      |   |   |   |   |   |                                     
+      |   |   |   |   |   |
     119  85  55  31  17   7-- 8-- 9  21  37  69  97 137       -1
-      |   |   |    \   \           /   /      |   |   |         
+      |   |   |    \   \           /   /      |   |   |
     120  86  56--57  32  18--19--20  36  67--68  96 136       -2
-       \   \      |    \           /      |    /   /            
+       \   \      |    \           /      |    /   /
         121  87  58--59  33--34--35  65--66  95 135           -3
-          |    \      |               |    /      |             
+          |    \      |               |    /      |
         122-123  88  60--61--62--63--64  94 133-134           -4
-              |    \                   /      |                 
+              |    \                   /      |
             124-125  89--90--91--92--93 131-132               -5
                    \                   /
-                    126-127-128-129-130 
+                    126-127-128-129-130
 
                               ^
      -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6
@@ -360,7 +385,7 @@ This path puts points on integer X,Y pixels of filled rings of radius
 For example the ring N=22 to N=37 is all the points
 
     2.5 < hypot(X,Y) < 3.5
-    with hypot(X,Y) = sqrt(X^2+Y^2) 
+    with hypot(X,Y) = sqrt(X^2+Y^2)
 
 =head1 FUNCTIONS
 
@@ -381,6 +406,16 @@ negative points.
 The behaviour for fractional C<$n> is unspecified as yet.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include,
+
+    http://oeis.org/A036705
+
+    A036705  first diffs of N on X axis,
+             being count of X,Y points n-1/2 < X^2+Y^2 <= n+1/2
 
 =head1 SEE ALSO
 

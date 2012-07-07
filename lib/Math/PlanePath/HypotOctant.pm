@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -39,6 +39,8 @@ use Math::PlanePath;
 #
 # A057655 num points norm <= n in square lattice.
 #
+# A036702 num points |z=a+bi| <= n with 0<=a, 0<=b<=a, so octant
+# A036703 num points n-1 < z <= n, first diffs?
 
 
 use constant parameter_info_array =>
@@ -251,7 +253,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath hypot octant
+=for stopwords Ryde Math-PlanePath hypot octant ie OEIS
 
 =head1 NAME
 

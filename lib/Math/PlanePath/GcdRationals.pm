@@ -63,7 +63,7 @@ use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -431,12 +431,12 @@ sub rect_to_n_range {
     return (1, int($d*($d+($d%2)) / 4));  # N end of diagonal d
   }
 
-  my $rev = ($self->{'pairs_order'} eq 'rows_reverse');
   my $nhi;
   {
     my $c = max($x2,$y2);
     $nhi = _pairs_order__rows__xyg_to_n($c,$c,2);
 
+    # my $rev = ($self->{'pairs_order'} eq 'rows_reverse');
     # my $slope = int($x2/$y2);
     # my $g = $slope + 1;
     #
@@ -595,7 +595,7 @@ sub _gcd {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd PyramidRows Fortnow coprime
+=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd PyramidRows Fortnow coprime triangulars DiagonalsOctant
 
 =head1 NAME
 

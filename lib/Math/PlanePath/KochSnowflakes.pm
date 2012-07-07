@@ -35,7 +35,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -209,7 +209,7 @@ sub xy_to_n_list {
     return $level;
   }
 
-  
+
   $y -= $len;  # shift to Y=0 basis
   $len *= 3;
 
@@ -276,10 +276,10 @@ sub rect_to_n_range {
   ### left: (-$x1+$y2)/2
   ### bottom: -$y1
 
-  my (undef, $level) = _round_down_pow (max (int(($x2+$y2)/2),
-                                             int((-$x1+$y2)/2),
-                                             -$y1),
-                                        3);
+  my ($len, $level) = _round_down_pow (max (int(($x2+$y2)/2),
+                                            int((-$x1+$y2)/2),
+                                            -$y1),
+                                       3);
   ### $level
   # end of $level is 1 before base of $level+1
   return (1, 4**($level+2) - 1);
@@ -288,7 +288,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie SVG Math-PlanePath
+=for stopwords eg Ryde ie SVG Math-PlanePath Ylo
 
 =head1 NAME
 

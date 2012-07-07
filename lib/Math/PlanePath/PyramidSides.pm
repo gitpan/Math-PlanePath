@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
@@ -108,7 +108,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic PyramidRows versa PlanePath Ryde Math-PlanePath ie Euler's
+=for stopwords pronic PyramidRows versa PlanePath Ryde Math-PlanePath ie Euler's OEIS
 
 =head1 NAME
 

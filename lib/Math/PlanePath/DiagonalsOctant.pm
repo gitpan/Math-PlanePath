@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -76,7 +76,7 @@ sub new {
 #   3 |  5  8 12 16
 #   2 |  3  6  9
 #   1 |  2  4
-# Y=0 |  1  
+# Y=0 |  1
 #     +-------------
 #
 sub n_to_xy {
@@ -154,7 +154,7 @@ sub xy_to_n {
 # exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  
+
   $x1 = _round_nearest ($x1);
   $x2 = _round_nearest ($x2);
   if ($self->{'direction'} eq 'up') {
@@ -164,13 +164,13 @@ sub rect_to_n_range {
     $y1 = - _round_nearest (- $y1);
     $y2 = - _round_nearest (- $y2);
   }
-  
+
   # bottom-left and top-right same as Math::PlanePath::Diagonals, but also
   # brining $y1 up to within octant
-  
+
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-  
+
   #       x2  |  /
   #  -----+   | /
   #       |   |/ +----
@@ -180,7 +180,7 @@ sub rect_to_n_range {
     ### outside upper octant, no range ...
     return (1, 0);
   }
-  
+
   #     |
   #   +----   /
   #   | |    /
@@ -189,7 +189,7 @@ sub rect_to_n_range {
   #     +
   # increase x1 to within octant
   if ($x1 < 0) { $x1 *= 0; }  # zero by $x1*0 to preserve bignum
-  
+
   #  |   | /
   #  |   |/
   #  |  /|
@@ -197,7 +197,7 @@ sub rect_to_n_range {
   #  +   x1
   # increase y1 so bottom-left x1,y1 is within octant
   if ($y1 < $x1) { $y1 = $x1; }
-  
+
   #  |      /  x2
   #  | --------+
   #  |    /    |
@@ -206,7 +206,7 @@ sub rect_to_n_range {
   #  +
   # decrease x2 so top-right  is within octant
   if ($x2 > $y2) { $x2 = $y2; }
-  
+
   # exact range bottom left to top right
   return ($self->xy_to_n ($x1,$y1),
           $self->xy_to_n ($x2,$y2));
@@ -215,7 +215,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath
+=for stopwords PlanePath Ryde Math-PlanePath pronic PyramidRows sqrt eg flonums Nstart Nrem octant ie OEIS
 
 =head1 NAME
 
@@ -253,7 +253,7 @@ X=Y centre line, traversing the eighth of the plane on and above X=Y.
     2 |   3  6  9
       |    \
     1 |   2  4
-      |   
+      |
   Y=0 |   1
       + ----------------------------
         X=0  1  2  3  4  5  6  7  8
@@ -283,22 +283,22 @@ counts upward from the centre to the Y axis.
 =pod
 
     8 |  25 29 34 39 45 51 58 65 73
-      |    \  \  \  \  \  \  \     
-    7 |  20 24 28 33 38 44 50 57   
-      |    \  \  \  \  \  \        
-    6 |  16 19 23 27 32 37 43      
-      |    \  \  \  \  \           
-    5 |  12 15 18 22 26 31         
-      |    \  \  \  \              
-    4 |   9 11 14 17 21            
-      |    \  \  \                 
-    3 |   6  8 10 13               
-      |    \  \                    
-    2 |   4  5  7                  
-      |    \                       
-    1 |   2  3                     
-      |                            
-  Y=0 |   1                        
+      |    \  \  \  \  \  \  \
+    7 |  20 24 28 33 38 44 50 57
+      |    \  \  \  \  \  \
+    6 |  16 19 23 27 32 37 43
+      |    \  \  \  \  \
+    5 |  12 15 18 22 26 31
+      |    \  \  \  \
+    4 |   9 11 14 17 21
+      |    \  \  \
+    3 |   6  8 10 13
+      |    \  \
+    2 |   4  5  7
+      |    \
+    1 |   2  3
+      |
+  Y=0 |   1
       +---------------------------
         X=0  1  2  3  4  5  6  7  8
 
@@ -416,17 +416,17 @@ outside the rectangle.  For the lower left this means,
       +--------          if x1 < 0 then x1 = 0
     x1   | /             increase x1 to within octant
          |/
-         +      
+         +
 
          |  |/
          |  |            if y1 < x1 then y1 = x1
-         | /|            increase y1 to bottom-left within octant  
-         |/ +----y1 
+         | /|            increase y1 to bottom-left within octant
+         |/ +----y1
          +  x1
 
 And for the top right,
 
-         |    /  x2  
+         |    /  x2
          | ------+ y2    if x2 > y2 then x2 = y2
          |  /    |       decrease x2 so top-right within octant
          | /     |         (the end of the y2 row)

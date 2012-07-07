@@ -28,14 +28,14 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 *_digit_join_htol = \&Math::PlanePath::KochCurve::_digit_join_htol;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -50,10 +50,6 @@ $VERSION = 79;
 #                                          description => 'Arms',
 #                                        } ];
 
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
 use constant n_start => 0;
 
 sub new {
@@ -89,7 +85,7 @@ sub n_to_xy {
   }
 
   # initial rotation from arm number $n mod $arms
-  ($n, my $rot) = _divrem ($n, $self->{'arms'});
+  my $rot = _divrem_destructive ($n, $self->{'arms'});
 
   my $len = $zero+1;
   foreach my $digit (_digit_split_lowtohigh($n,4)) {
@@ -158,7 +154,7 @@ sub xy_to_n_list {
   ### assert: $len==(0*$x*$y + 2) ** $k_limit
 
   my $arms_count = $self->{'arms'};
-  my $zero = 0*$x*$y;
+  my $zero = $x*0*$y;
   my @n_list;
 
   foreach my $arm (0 .. $arms_count-1) {
@@ -315,7 +311,6 @@ sub _rect_to_k {
     #   $len1 = 1;
     #   $k1 = 0;
     # } else {
-
     # }
 
     ($len1, $k1) = _round_down_pow (($m-1)/3, 2);
@@ -370,7 +365,7 @@ sub _n_to_dxdy {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath
+=for stopwords eg Ryde Math-PlanePath ie OEIS
 
 =head1 NAME
 

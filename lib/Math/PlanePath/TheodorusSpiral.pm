@@ -27,7 +27,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -75,7 +75,7 @@ sub new {
 #   = N + $frac^2
 #
 sub n_to_rsquared {
-  my ($path, $n) = @_;
+  my ($self, $n) = @_;
   my $int = int($n);
   $n -= $int;
   return $n*$n + $int;
@@ -189,7 +189,7 @@ use Math::PlanePath::SacksSpiral;
 1;
 __END__
 
-=for stopwords Theodorus theodorus Ryde Math-PlanePath Archimedean Nhi Nlo arctan xlo,ylo xhi,yhi rlo Nlo Nhi Nhi-Nlo
+=for stopwords Theodorus Ryde Math-PlanePath Archimedean Nhi Nlo arctan xlo,ylo xhi,yhi rlo Nlo Nhi Nhi-Nlo RSquared ceil
 
 =head1 NAME
 
@@ -287,7 +287,7 @@ previous positions 1000 apart are saved for re-use or to go back to.
 
 =item C<$path = Math::PlanePath::TheodorusSpiral-E<gt>new ()>
 
-Create and return a new theodorus spiral object.
+Create and return a new Theodorus spiral object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

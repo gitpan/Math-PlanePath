@@ -36,7 +36,7 @@ use Math::NumSeq::PlanePathCoord;
 *_planepath_name_to_object = \&Math::NumSeq::PlanePathCoord::_planepath_name_to_object;
 
 use vars '$VERSION','@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -461,8 +461,8 @@ my %type_is_dxdy = (dX => 1,
                     dSum => 1);
 sub characteristic_integer {
   my ($self) = @_;
-  my $delta_type = $self->{'delta_type'};
   my $planepath_object = $self->{'planepath_object'};
+  # my $delta_type = $self->{'delta_type'};
   # if ($type_is_dxdy{$delta_type)) {
   #   return $self->{'planepath'}->xy_integer) {
   # }
@@ -584,6 +584,18 @@ sub values_max {
 
 
 { package Math::PlanePath::SquareSpiral;
+  use constant _NumSeq_Delta_dX_min => -1;
+  use constant _NumSeq_Delta_dX_max => 1;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_dSum_min => -1; # straight only
+  use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Delta_DistSquared_max => 1;
+  use constant _NumSeq_Delta_Dir4_integer => 1;
+  use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
+}
+{ package Math::PlanePath::GreekKeySpiral;
   use constant _NumSeq_Delta_dX_min => -1;
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_min => -1;
@@ -797,18 +809,6 @@ sub values_max {
   use constant _NumSeq_Delta_DistSquared_max => 4;
   use constant _NumSeq_Delta_Dir4_max => 3.5;  # diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
-}
-{ package Math::PlanePath::GreekKeySpiral;
-  use constant _NumSeq_Delta_dX_min => -1;
-  use constant _NumSeq_Delta_dX_max => 1;
-  use constant _NumSeq_Delta_dY_min => -1;
-  use constant _NumSeq_Delta_dY_max => 1;
-  use constant _NumSeq_Delta_dSum_min => -1; # straight only
-  use constant _NumSeq_Delta_dSum_max => 1;
-  use constant _NumSeq_Delta_DistSquared_min => 1;
-  use constant _NumSeq_Delta_DistSquared_max => 1;
-  use constant _NumSeq_Delta_Dir4_integer => 1;
-  use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 }
 { package Math::PlanePath::SacksSpiral;
   use constant _NumSeq_Delta_DistSquared_min => 1;
@@ -1080,16 +1080,37 @@ sub values_max {
   use constant _NumSeq_Delta_Dir4_max => 3.5; # diagonal
 }
 { package Math::PlanePath::Hypot;
+  # approaches horizontal
   use constant _NumSeq_Delta_Dir4_max => 4;  # supremum, almost full way
   use constant _NumSeq_Delta_TDir6_max => 6; # supremum, almost full way
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
+  use constant _NumSeq_TDir6_max_is_supremum => 1;
 }
 { package Math::PlanePath::HypotOctant;
+  sub _NumSeq_Delta_Dir4_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'all'
+            ? 0      # all i=1 to X=1,Y=0
+            : 0.5);  # odd,even always at least NE
+  }
+  sub _NumSeq_Delta_TDir6_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'all'
+            ? 0    # all i=1 to X=1,Y=0
+            : 1);  # odd,even always at least NE
+  }
+
   # max direction SE diagonal as anything else is at most tangent to the
   # eighth of a circle
   use constant _NumSeq_Delta_Dir4_max => 3.5;
 }
-# { package Math::PlanePath::TriangularHypot;
-# }
+{ package Math::PlanePath::TriangularHypot;
+  # approaches horizontal
+  use constant _NumSeq_Delta_Dir4_max => 4;
+  use constant _NumSeq_Delta_TDir6_max => 6;
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
+  use constant _NumSeq_TDir6_max_is_supremum => 1;
+}
 # { package Math::PlanePath::PythagoreanTree;
 # }
 # { package Math::PlanePath::RationalsTree;
@@ -1361,7 +1382,7 @@ sub values_max {
   # direction supremum maybe at
   #   dx=-0b 1001001001001001... = - (8^k-1)/7
   #   dy=-0b11011011011011011... = - (3*8^k-1)/7
-  # which is 
+  # which is
   #   dx=-1, dy=-3
   use constant _NumSeq_Delta_Dir4_max =>
     Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, -1,-3);   # supremum
@@ -1627,6 +1648,18 @@ sub values_max {
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 }
+{ package Math::PlanePath::AlternatePaperMidpoint;
+  use constant _NumSeq_Delta_dX_min => -1;
+  use constant _NumSeq_Delta_dX_max => 1;
+  use constant _NumSeq_Delta_dY_min => -1;
+  use constant _NumSeq_Delta_dY_max => 1;
+  use constant _NumSeq_Delta_dSum_min => -1; # straight only
+  use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_DistSquared_min => 1;
+  use constant _NumSeq_Delta_DistSquared_max => 1;
+  use constant _NumSeq_Delta_Dir4_integer => 1;
+  use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
+}
 { package Math::PlanePath::TerdragonCurve;
   use constant _NumSeq_Delta_dX_min => -2;
   use constant _NumSeq_Delta_dX_max => 2;
@@ -1677,7 +1710,7 @@ sub values_max {
   # dy=1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,1 = ((9*16^5-1)/15-1)/2+1
   # approaches dx=6/15=12/30, dy=9/15/2=9/30
 
-  my @Dir4_max = (undef, 
+  my @Dir4_max = (undef,
                   Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 12,-9),
                   4);  # FIXME: smaller ?
   sub _NumSeq_Delta_Dir4_max {
@@ -2504,7 +2537,7 @@ __END__
 # }
 
 
-=for stopwords Ryde TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath
+=for stopwords Ryde dSum TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath
 
 =head1 NAME
 

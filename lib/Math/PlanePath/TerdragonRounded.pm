@@ -31,12 +31,12 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::TerdragonCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -48,7 +48,6 @@ use constant n_start => 0;
 
 *parameter_info_array   # arms
   = \&Math::PlanePath::TerdragonCurve::parameter_info_array;
-*arms_count = \&Math::PlanePath::TerdragonCurve::arms_count;
 *new = \&Math::PlanePath::TerdragonCurve::new;
 
 sub n_to_xy {
@@ -70,7 +69,7 @@ sub n_to_xy {
     ### $n
     if ($n != $int) {
       my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
       my $frac = $n - $int;  # inherit possible BigFloat
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
@@ -80,8 +79,8 @@ sub n_to_xy {
   }
 
   my $arms_count = $self->{'arms'};
-  ($n, my $arm) = _divrem ($n, $arms_count);
-  ($n, my $pair) = _divrem ($n, 2);
+  my $arm = _divrem_destructive ($n, $arms_count);
+  my $pair = _divrem_destructive ($n, 2);
 
   my ($x, $y) = $self->Math::PlanePath::TerdragonCurve::n_to_xy
     ((9*$n + ($pair ? 4 : 2)) * $arms_count + $arm);
@@ -111,7 +110,7 @@ sub xy_to_n {
 
   my $arms_count = $self->{'arms'};
   foreach my $n (@n_list) {
-    ($n, my $arm) = _divrem ($n, $arms_count);
+    my $arm = _divrem_destructive ($n, $arms_count);
 
     my $mod = $n % 9;
     if ($mod == 2) {
@@ -149,7 +148,7 @@ sub rect_to_n_range {
   $y1 = int($y1/3) - 2;
   $x2 = int($x2/3) + 2;
   $y2 = int($y2/3) + 2;
-  
+
   my ($n_lo, $n_hi) = $self->Math::PlanePath::TerdragonCurve::rect_to_n_range
     ($x1,$y1, $x2,$y2);
   if ($n_hi >= $n_hi) {
@@ -162,7 +161,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Terdragon Terdragon's eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS ZOrderCurve ie TerdragonCurve Math-PlanePath versa Online Radix radix HilbertCurve
+=for stopwords Guiseppe Terdragon terdragon eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS ZOrderCurve ie TerdragonCurve TerdragonRounded Math-PlanePath versa Online Radix radix HilbertCurve Jorg Arndt Hexdragon hexdragon
 
 =head1 NAME
 
@@ -300,7 +299,7 @@ L<Math::PlanePath::TerdragonCurve>,
 L<Math::PlanePath::TerdragonMidpoint>,
 L<Math::PlanePath::DragonRounded>
 
-Jorg Arndt http://www.jjj.de/fxt/#fxtbook section 1.31.4 "Terdragon and
+X<Arndt, Jorg>Jorg Arndt http://www.jjj.de/fxt/#fxtbook section 1.31.4 "Terdragon and
 Hexdragon", where this rounded terdragon is called hexdragon.
 
 =head1 HOME PAGE

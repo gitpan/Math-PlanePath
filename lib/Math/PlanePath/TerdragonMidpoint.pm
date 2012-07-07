@@ -38,7 +38,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -46,11 +46,6 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
 use constant parameter_info_array => [ { name        => 'arms',
                                          share_key   => 'arms_6',
                                          type        => 'integer',
@@ -84,7 +79,7 @@ sub n_to_xy {
     my $int = int($n);
     if ($n != $int) {
       my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
       my $frac = $n - $int;  # inherit possible BigFloat
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
@@ -678,8 +673,9 @@ For the odd arms 1,3,5 each digit of N must be flipped so 0,1,2 becomes
 
 L<Math::PlanePath>,
 L<Math::PlanePath::TerdragonCurve>,
-L<Math::PlanePath::TerdragonRounded>,
-L<Math::PlanePath::DragonMidpoint>
+L<Math::PlanePath::TerdragonRounded>
+
+L<Math::PlanePath::DragonMidpoint>,
 L<Math::PlanePath::R5DragonMidpoint>
 
 =head1 HOME PAGE

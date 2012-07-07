@@ -36,12 +36,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -63,49 +64,54 @@ sub n_to_xy {
   if (_is_infinite($n)) { return ($n,$n); }
 
   my $int = int($n);
-  my $frac = $n - $int;
-  my $x = my $y = ($int * 0);  # inherit bignum 0
+  $n -= $int;   # fraction part
 
-  my $len = $y + 1;    # inherit bignum 1
+  my @digits = _digit_split_lowtohigh($int,4)
+    or return ($n, 0);
+
+  my $x = my $y = ($int * 0);  # inherit bigint 0
+  my $len = $y + 1;            # inherit bigint 1
+
   for (;;) {
-    ### bits: $int % 4
 
-    my $digit = $int % 4;
+    ### @digits
+    my $digit = shift @digits; # low to high
     if ($digit == 0) {
-      $x = $frac + $x;
-      $frac = 0;
+      $x = $n + $x;
+      $n = 0;
     } elsif ($digit == 1) {
-      ($x,$y) = ($y+$len,$frac+$x);   # transpose and offset
-      $frac = 0;
+      ($x,$y) = ($y+$len,$n+$x);   # transpose and offset
+      $n = 0;
     } elsif ($digit == 2) {
-      ($x,$y) = (-$frac+$y+$len,$x+$len);   # transpose and offset
-      $frac = 0;
+      ($x,$y) = (-$n+$y+$len,$x+$len);   # transpose and offset
+      $n = 0;
     } else {
       $x = $len-1 - $x;  # rot 180 and offset
       $y = 2*$len-1 - $y;
     }
-    unless ($int >>= 2) {
-      $y = $frac + $y;
+    unless (@digits) {
+      $y = $n + $y;
       last;
     }
     $len *= 2;
 
-    $digit = $int % 4;
+    ### @digits
+    $digit = shift @digits; # low to high
     if ($digit == 0) {
-      $y = $frac + $y;
-      $frac = 0;
+      $y = $n + $y;
+      $n = 0;
     } elsif ($digit == 1) {
-      ($x,$y) = ($frac+$y,$x+$len);   # transpose and offset
-      $frac = 0;
+      ($x,$y) = ($n+$y,$x+$len);   # transpose and offset
+      $n = 0;
     } elsif ($digit == 2) {
-      ($x,$y) = ($y+$len,-$frac+$x+$len);   # transpose and offset
-      $frac = 0;
+      ($x,$y) = ($y+$len,-$n+$x+$len);   # transpose and offset
+      $n = 0;
     } else {
       $x = 2*$len-1 - $x;  # rot 180
       $y = $len-1 - $y;
     }
-    unless ($int >>= 2) {
-      $x = $frac + $x;
+    unless (@digits) {
+      $x = $n + $x;
       last;
     }
     $len *= 2;
@@ -296,7 +302,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein FlE<228>chenstE<252>ck Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
+=for :stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein FlE<228>chenstE<252>ck Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
 
 =head1 NAME
 

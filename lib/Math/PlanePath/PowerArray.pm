@@ -38,7 +38,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -96,7 +96,7 @@ sub n_to_xy {
   }
   ### $x
   ### $n
-  
+
   return ($x,
           $n - int($n/$radix) - 1); # collapse out multiples of radix
 }
@@ -154,7 +154,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath
+=for stopwords Ryde Math-PlanePath Radix radix ie OEIS
 
 =head1 NAME
 
@@ -211,18 +211,18 @@ example radix 3 divides out factors of 3,
 
      radix => 3
 
-      9  |   14    42   126   378  1134  3402 10206 30618 
-      8  |   13    39   117   351  1053  3159  9477 28431 
-      7  |   11    33    99   297   891  2673  8019 24057 
-      6  |   10    30    90   270   810  2430  7290 21870 
-      5  |    8    24    72   216   648  1944  5832 17496 
-      4  |    7    21    63   189   567  1701  5103 15309 
-      3  |    5    15    45   135   405  1215  3645 10935 
-      2  |    4    12    36   108   324   972  2916  8748 
-      1  |    2     6    18    54   162   486  1458  4374 
-    Y=0  |    1     3     9    27    81   243   729  2187 
+      9  |   14    42   126   378  1134  3402 10206 30618
+      8  |   13    39   117   351  1053  3159  9477 28431
+      7  |   11    33    99   297   891  2673  8019 24057
+      6  |   10    30    90   270   810  2430  7290 21870
+      5  |    8    24    72   216   648  1944  5832 17496
+      4  |    7    21    63   189   567  1701  5103 15309
+      3  |    5    15    45   135   405  1215  3645 10935
+      2  |    4    12    36   108   324   972  2916  8748
+      1  |    2     6    18    54   162   486  1458  4374
+    Y=0  |    1     3     9    27    81   243   729  2187
          +------------------------------------------------
-            X=0     1     2     3     4     5     6     7  
+            X=0     1     2     3     4     5     6     7
 
 N=1,3,9,27,etc along the X axis is the powers of 3.  N=1,2,4,5,7,etc on the
 Y axis is the integers N=1mod3 and N=2mod3, ie. those not a multiple of 3.
@@ -302,7 +302,7 @@ path include
 
      radix=10
     A011557    N on X axis, powers 10^X
-    
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,

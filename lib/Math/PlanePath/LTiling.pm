@@ -30,13 +30,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -96,14 +96,14 @@ sub n_to_xy {
   } elsif ($L_fill eq 'upper') {
     $y += 1;
   } elsif ($L_fill eq 'ends') {
-    ($n, my $rem) = _divrem ($n, 2);
+    my $rem = _divrem_destructive ($n, 2);
     if ($rem) { # low digit==1
       $y = $len;  # 1
     } else { # low digit==0
       $x = $len;  # 1
     }
   } elsif ($L_fill eq 'all') {
-    ($n, my $rem) = _divrem ($n, 3);
+    my $rem = _divrem_destructive ($n, 3);
     if ($rem == 1) {
       $x = $len;  # 1
     } elsif ($rem == 2) {

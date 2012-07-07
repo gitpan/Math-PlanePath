@@ -31,7 +31,7 @@ use Math::PlanePath;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -169,7 +169,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie
+=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie 0,1,0xC,0xD OEIS
 
 =head1 NAME
 

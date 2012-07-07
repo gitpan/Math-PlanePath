@@ -33,13 +33,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -48,10 +48,6 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
 
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_2',
@@ -113,7 +109,7 @@ sub n_to_xy {
   my $state = 20;
   my $arms = $self->{'arms'};
   if ($arms > 1) {
-    ($int, my $arm) = _divrem($int,2);
+    my $arm = _divrem_destructive($int,2);
     if ($arm) {
       $state = 0;
       $int += 1;

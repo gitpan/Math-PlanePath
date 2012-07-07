@@ -40,7 +40,7 @@ use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
-$VERSION = 79;
+$VERSION = 80;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -287,7 +287,6 @@ sub _xy_to_d {
 
   my $step = $self->{'step'};
   if ($self->{'ring_shape'} eq 'polygon' && $step >= 6) {
-    my $step = $self->{'step'};
     my $a = _xy_to_angle_frac($x,$y);
     $a -= int($a/$step) * $step;
     return $r / ($self->{'base_r'} * cos($a*2*_PI));
@@ -400,7 +399,7 @@ sub _xy_to_angle_frac {
 1;
 __END__
 
-=for stopwords Ryde HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings Math-PlanePath Pentagonals
+=for stopwords Ryde HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings Math-PlanePath Pentagonals Nstart ie OEIS
 
 =head1 NAME
 

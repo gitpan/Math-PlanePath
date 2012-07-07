@@ -31,7 +31,7 @@ use Math::PlanePath;
 *_floor = \&Math::PlanePath::_floor;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -39,7 +39,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::DragonMidpoint;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -48,11 +48,6 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_4',
                                          type      => 'integer',
@@ -91,9 +86,10 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
 
   # arm as initial rotation
-  ($n, my $rot) = _divrem ($n, $self->{'arms'});
+  my $rot = _divrem_destructive ($n, $self->{'arms'});
 
-  ($n, my $x_offset) = _divrem ($n, 2);
+  # two points per edge
+  my $x_offset = _divrem_destructive ($n, 2);
 
   # ENHANCE-ME: sx,sy just from len=3*2**level
   my @digits;

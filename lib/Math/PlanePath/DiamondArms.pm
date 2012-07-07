@@ -32,10 +32,10 @@ use strict;
 
 use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -73,7 +73,7 @@ sub n_to_xy {
   }
 
   # arm as initial rotation
-  ($n, my $rot) = _divrem($n,4);
+  my $rot = _divrem_destructive($n,4);
   ### $n
 
   # if (($rot%4) != 3) {

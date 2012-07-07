@@ -37,7 +37,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -57,7 +57,7 @@ use constant parameter_info_array =>
    { name      => 'skewed',
      type      => 'boolean',
      default   => 0,
-   }
+   },
 ];
 
 sub new {
@@ -99,8 +99,6 @@ sub n_to_xy {
 
   my $radix = $self->{'radix'};
   if (my @digits = _digit_split_lowtohigh($n,$radix)) {
-    my $dx = 2;
-    my $dy = 0;
     my $len = ($n * 0) + 1;  # inherit bignum 1
     my $ext = 1;
     for (;;) {
@@ -221,9 +219,7 @@ sub xy_to_n {
   # }
 
 
-
   my $power = $n + 1;     # inherit bignum 1
-  my $rot = 0;
 
   if ($x || $y) {
     my $ext = 1;
@@ -315,7 +311,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath ZOrderCurve Radix ie
+=for stopwords eg Ryde Math-PlanePath ZOrderCurve Radix ie ImaginaryBase radix
 
 =head1 NAME
 

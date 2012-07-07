@@ -22,7 +22,29 @@ use 5.004;
 use strict;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+use Smart::Comments;
+
+
+{
+  # 2^64-1 base7 45012021522523134134601
+  # decimal less first digit 2635249153387078802
+  #                          2635249153387078656
+  require Devel::Peek;
+  my $n = ~0;
+  my $radix = 7;
+  my $digit = $n % $radix;
+  ### $digit
+  $n /= $radix;
+  Devel::Peek::Dump($n);
+  $n = int($n);
+  Devel::Peek::Dump($n);
+
+  require Math::PlanePath;
+  my @digits = Math::PlanePath::_digit_split_lowtohigh(~0,$radix);
+  ### @digits
+
+  exit 0;
+}
 
 {
   # Diagonal

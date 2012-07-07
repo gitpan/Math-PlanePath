@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 27 }
+BEGIN { plan tests => 73 }
 
 use lib 't';
 use MyTestHelpers;
@@ -42,6 +42,36 @@ require Math::PlanePath;
   ok ("$r", 3);
 }
 
+{
+  # perl 5.6 did integer divisions in IV or something, exercise only up to ~0>>1
+  my $n = ~0 >> 1;
+  foreach my $d (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
+    my ($q,$r) = Math::PlanePath::_divrem($n,$d);
+    my $m = $q * $d + $r;
+    ok ($n, $m, "_divrem() ~0=$n / $d got q=$q rem=$r");
+  }
+}
+
+#----------------------------------------------------------------------------
+# _divrem_destructive()
+
+{
+  my $n = 123;
+  my $r = Math::PlanePath::_divrem_destructive($n,5);
+  ok ("$n", 24);
+  ok ("$r", 3);
+}
+
+{
+  foreach my $d (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
+    # perl 5.6 did integer divisions in IV or something, exercise only to ~0>>1
+    my $n = ~0 >> 1;
+    my $q = $n;
+    my $r = Math::PlanePath::_divrem_destructive($q,$d);
+    my $m = $q * $d + $r;
+    ok ($n, $m, "_divrem_destructive() ~0=$n / $d got q=$q rem=$r");
+  }
+}
 #------------------------------------------------------------------------------
 # _is_infinite()
 
@@ -119,6 +149,15 @@ ok (Math::PlanePath::_floor(2),    2);
 ok (join(',',Math::PlanePath::_digit_split_lowtohigh(0,2)), '');
 ok (join(',',Math::PlanePath::_digit_split_lowtohigh(13,2)), '1,0,1,1');
 
+{
+  my $n = ~0;
+  foreach my $radix (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
+    my @digits = Math::PlanePath::_digit_split_lowtohigh($n,$radix);
+    my $lowtwo = $n % ($radix * $radix);
+    ok ($digits[0], $lowtwo % $radix);
+    ok ($digits[1], int($lowtwo / $radix));
+  }
+}
 
 #------------------------------------------------------------------------------
 exit 0;

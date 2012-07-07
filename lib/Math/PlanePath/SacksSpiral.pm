@@ -32,7 +32,7 @@ use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -68,7 +68,7 @@ use constant 1.02; # for leading underscore
 use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
 
 sub n_to_rsquared {
-  my ($path, $n) = @_;
+  my ($self, $n) = @_;
   return $n;  # exactly RSquared=$n
 }
 
@@ -242,7 +242,7 @@ sub _rect_to_radius_range {
 1;
 __END__
 
-=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM Euler's
+=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM Euler's TheodorusSpiral arctan Theodorus
 
 =head1 NAME
 

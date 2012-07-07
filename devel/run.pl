@@ -31,7 +31,6 @@ use Module::Load;
   my $path_class;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::PythagoreanTree;
-  require Math::PlanePath::GreekKeySpiral;
   require Math::PlanePath::PixelRings;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::CellularRule54;
@@ -41,7 +40,6 @@ use Module::Load;
   require Math::PlanePath::DekkingCurve;
   require Math::PlanePath::DekkingStraight;
   require Math::PlanePath::HilbertCurve;
-  require Math::PlanePath::SierpinskiArrowheadCentres;
   require Math::PlanePath::Corner;
   require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::PentSpiral;
@@ -72,11 +70,9 @@ use Module::Load;
   require Math::PlanePath::MultipleRings;
   require Math::PlanePath::SacksSpiral;
   require Math::PlanePath::TheodorusSpiral;
-  require Math::PlanePath::FilledRings;
   require Math::PlanePath::ImaginaryHalf;
   require Math::PlanePath::MooreSpiral;
   require Math::PlanePath::QuintetSide;
-  require Math::PlanePath::PeanoRounded;
   require Math::PlanePath::GosperSide;
   $path_class = 'Math::PlanePath::ComplexMinus';
   $path_class = 'Math::PlanePath::GosperIslands';
@@ -93,7 +89,6 @@ use Module::Load;
   $path_class = 'Math::PlanePath::SierpinskiArrowhead';
   $path_class = 'Math::PlanePath::DragonMidpoint';
   $path_class = 'Math::PlanePath::QuintetCentres';
-  $path_class = 'Math::PlanePath::QuintetCurve';
   $path_class = 'Math::PlanePath::GosperReplicate';
   $path_class = 'Math::PlanePath::HIndexing';
   $path_class = 'Math::PlanePath::WunderlichMeander';
@@ -101,14 +96,12 @@ use Module::Load;
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
   $path_class = 'Math::PlanePath::PeanoCurve';
   $path_class = 'Math::PlanePath::Flowsnake';
-  $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::FractionsTree';
   $path_class = 'Math::PlanePath::RationalsTree';
   $path_class = 'Math::PlanePath::GrayCode';
   $path_class = 'Math::PlanePath::CubicBase';
   $path_class = 'Math::PlanePath::R5DragonCurve';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
-  $path_class = 'Math::PlanePath::HilbertSpiral';
   $path_class = 'Math::PlanePath::BetaOmega';
   $path_class = 'Math::PlanePath::AR2W2Curve';
   $path_class = 'Math::PlanePath::CCurve';
@@ -124,21 +117,29 @@ use Module::Load;
   $path_class = 'Math::PlanePath::KochSquareflakes';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::TerdragonRounded';
-  $path_class = 'Math::PlanePath::DigitGroups';
   $path_class = 'Math::PlanePath::ZOrderCurve';
   $path_class = 'Math::PlanePath::CornerReplicate';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
-  $path_class = 'Math::PlanePath::TriangularHypot';
+  $path_class = 'Math::PlanePath::SierpinskiArrowheadCentres';
+  $path_class = 'Math::PlanePath::QuintetCurve';
+  $path_class = 'Math::PlanePath::FilledRings';
+  $path_class = 'Math::PlanePath::HilbertSpiral';
+  $path_class = 'Math::PlanePath::HilbertCurve';
+  $path_class = 'Math::PlanePath::DigitGroups';
+  $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
   $path_class = 'Math::PlanePath::AlternatePaper';
+  $path_class = 'Math::PlanePath::GreekKeySpiral';
+  $path_class = 'Math::PlanePath::TriangularHypot';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-      arms => 2,
+      points => 'hex_rotated',
+     # turns => 1,
+     # arms => 8,
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_down',
-     # points => 'odd',
      # base => 7,
      # direction => 'up',
      # radix => 3,
@@ -151,19 +152,12 @@ use Module::Load;
      # straight_spacing => 3,
      # diagonal_spacing => 7,
      # arms => 7,
-     # end_type => 'square',
-     # encode_type => 'XY',
-     # mirror => 1,
      # wider => 3,
      # start_shape => 'B1rev',
      # rule => 8,
      # realpart => 1,
-     # L_fill => 'all',
      # mirror => 1,
      # divisor_type => 'proper',
-     # inward => 0,
-     # radix => 3,
-     # # tree_type => 'Drib',
      # tree_type => 'Kepler',
      # #coordinates => 'PQ',
     );
@@ -172,9 +166,10 @@ use Module::Load;
   my %seen;
   my $n_start = $path->n_start;
   my $arms_count = $path->arms_count;
-  print "n_start $n_start arms_count $arms_count   ",ref($path),"\n";
+  my $path_ref = ref($path);
+  print "n_start() $n_start arms_count() $arms_count   $path_ref\n";
 
-  for (my $i = $n_start+0; $i <= 1225; $i+=1) {
+  for (my $i = 1.0; $i <= 50; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

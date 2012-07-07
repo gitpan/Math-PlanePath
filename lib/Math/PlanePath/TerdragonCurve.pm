@@ -32,13 +32,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -48,11 +48,6 @@ use Math::PlanePath::TerdragonMidpoint;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
 use constant parameter_info_array =>
   [ { name      => 'arms',
       share_key => 'arms_6',
@@ -102,7 +97,7 @@ sub n_to_xy {
     my $frac = $n - $int;  # inherit possible BigFloat
     $n = $int;             # BigFloat int() gives BigInt, use that
 
-    ($n, my $rot) = _divrem ($n, $self->{'arms'});
+    my $rot = _divrem_destructive ($n, $self->{'arms'});
 
     my $s = $zero + 1;  # inherit bignum 1
     if ($rot >= 3) {
@@ -313,7 +308,7 @@ __END__
 # return (2*$i + $j - $k, $j+$k);
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism TerdragonMidpoint
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism TerdragonMidpoint GosperSide si sj sk
 
 =head1 NAME
 

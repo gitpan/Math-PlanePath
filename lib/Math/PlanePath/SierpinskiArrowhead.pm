@@ -36,7 +36,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -200,7 +200,7 @@ sub rect_to_n_range {
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
 
-  my ($power,$level) = _round_down_pow ($y2-1, 2);
+  my ($len,$level) = _round_down_pow ($y2-1, 2);
   ### $y2
   ### $level
   return (0, 3**($level+1));

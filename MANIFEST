@@ -39,6 +39,7 @@ devel/gcd-rationals.pl
 devel/gosper-islands-stars.pl
 devel/gosper-side.pl
 devel/gray.pl
+devel/greek-key.pl
 devel/grid.pl
 devel/hex-arms.pl
 devel/hexhypot.pl
@@ -53,7 +54,6 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
-devel/lib/Math/PlanePath/AlternatePaperMidpoint.pm
 devel/lib/Math/PlanePath/BoxFractalQuarter.pm
 devel/lib/Math/PlanePath/DekkingCurve.pm
 devel/lib/Math/PlanePath/DekkingStraight.pm
@@ -70,7 +70,6 @@ devel/Makefile
 devel/multiple-rings.pl
 devel/number-fraction.pl
 devel/numseq.pl
-devel/old/DragonArms.pm
 devel/old/FlowsnakeArms.pm
 devel/old/PythagoreanUAD.pm
 devel/old/QuintetArms.pm
@@ -130,6 +129,7 @@ lib/Math/NumSeq/PlanePathN.pm
 lib/Math/NumSeq/PlanePathTurn.pm
 lib/Math/PlanePath.pm
 lib/Math/PlanePath/AlternatePaper.pm
+lib/Math/PlanePath/AlternatePaperMidpoint.pm
 lib/Math/PlanePath/AnvilSpiral.pm
 lib/Math/PlanePath/AR2W2Curve.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
@@ -243,6 +243,7 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 SIGNATURE
 t/AlternatePaper.t
+t/AlternatePaperMidpoint.t
 t/AnvilSpiral.t
 t/ArchimedeanSpiral.t
 t/AztecDiamondRings.t
@@ -251,7 +252,6 @@ t/bigfloat.t
 t/bigint-lite.t
 t/bigint.t
 t/bigint_common.pm
-t/bigrat.t
 t/CCurve.t
 t/CellularRule.t
 t/CellularRule190.t
@@ -357,6 +357,7 @@ xt/0-Test-ConsistentVersion.t
 xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
+xt/bigrat.t
 xt/DragonCurve-more.t
 xt/GrayCode-oseq.t
 xt/KochCurve-more.t
@@ -382,6 +383,7 @@ xt/oeis/DragonCurve-oeis.t
 xt/oeis/DragonMidpoint-oeis.t
 xt/oeis/FactorRationals-oeis.t
 xt/oeis/FibonacciWordFractal-oeis.t
+xt/oeis/FilledRings-oeis.t
 xt/oeis/FractionsTree-oeis.t
 xt/oeis/GcdRationals-oeis.t
 xt/oeis/GosperSide-oeis.t

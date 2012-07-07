@@ -29,13 +29,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -45,22 +45,13 @@ use Math::PlanePath::KochCurve 42;
 
 
 use constant n_start => 0;
-
-# x,y negatives by number of arms
-my @x_negative = (undef,  0,0, 1,1, 1,1, 1,1);
-my @y_negative = (undef,  0,0, 0,0, 1,1, 1,1);
 sub x_negative {
   my ($self) = @_;
-  return $x_negative[$self->arms_count];
+  return ($self->{'arms'} >= 3);
 }
 sub y_negative {
   my ($self) = @_;
-  return $y_negative[$self->arms_count];
-}
-
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'};
+  return ($self->{'arms'} >= 5);
 }
 
 use constant parameter_info_array =>
@@ -222,7 +213,7 @@ sub n_to_xy {
   ### $frac
   my $zero = ($n * 0);  # inherit bignum 0
 
-  ($n, my $arm) = _divrem ($n, $self->{'arms'});
+  my $arm = _divrem_destructive ($n, $self->{'arms'});
 
   my $diagonal_length = $self->{'diagonal_length'};
   my $diagonal_div = 6*$diagonal_length + 4;
@@ -492,10 +483,10 @@ sub rect_to_n_range {
   # len(level) = = (L+2)*2^(level-1) - 2
   # points(level) = ((3*P+1)*4^level - 1) / 3
   #
-  my ($pow,$level) = _round_down_pow ($max/($self->{'diagonal_length'}+2),
+  my ($len,$level) = _round_down_pow ($max/($self->{'diagonal_length'}+2),
                                       2);
   return (0,
-          ((6*$self->{'diagonal_length'}+4)*4*$pow*$pow - 1) / 3
+          ((6*$self->{'diagonal_length'}+4)*4*$len*$len - 1) / 3
           * $arms - 1);
 }
 

@@ -19,15 +19,38 @@
 # math-image --path=DragonMidpoint --lines --scale=20
 # math-image --path=DragonMidpoint --all --output=numbers_dash
 
-# A088435 (contfrac+1)/2 of sum(k>=1,1/3^(2^k)).
-# A007404 in decimal
-# A081769 positions of 2s
-# A073097 number of 4s - 6s - 2s - 1 is -1,0,1
-# A073088 cumulative total multiples of 4 roughly, hence (4n-3-cum)/2
-# A073089 (1/2)*(4n - 3 - cumulative) is 0 or 1
 # A006466 contfrac 2*sum( 1/2^(2^n)), 1 and 2 only
-# A076214 in decimal
-# # A073089(n) = A082410(n) xor A000035(n) xor 1
+#    a(5n) recurrence ...
+#    1,1,1,1, 2,
+#    1,1,1,1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1, 2,
+#    1,1,1,1, 2,
+#    1,1,1,1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1, 2,
+#    1,1,1,1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1, 2,
+#    1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1,1,1,1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1, 2,
+#    1,1,1,1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1,1,1,1, 2,
+#    1, 2
+# A076214   in decimal
+#
+# A073097 number of 4s - 6s - 2s - 1 is -1,0,1
+# A081769 positions of 2s
+# A073088 cumulative total multiples of 4 roughly, hence (4n-3-cum)/2
+#
+# A088435 (contfrac+1)/2 of sum(k>=1,1/3^(2^k)).
+# A007404   in decimal
+#
 
 
 package Math::PlanePath::DragonMidpoint;
@@ -40,13 +63,13 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -55,11 +78,6 @@ $VERSION = 79;
 
 
 use constant n_start => 0;
-sub arms_count {
-  my ($self) = @_;
-  return $self->{'arms'} || 1;
-}
-
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_4',
                                          type      => 'integer',
@@ -91,7 +109,7 @@ sub new {
 #     my $int = int($n);
 #     if ($n != $int) {
 #       my ($x1,$y1) = $self->n_to_xy($int);
-#       my ($x2,$y2) = $self->n_to_xy($int+1);
+#       my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
 #       my $frac = $n - $int;  # inherit possible BigFloat
 #       my $dx = $x2-$x1;
 #       my $dy = $y2-$y1;
@@ -125,7 +143,7 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
 
   # arm as initial rotation
-  ($n, my $rot) = _divrem ($n, $self->{'arms'});
+  my $rot = _divrem_destructive ($n, $self->{'arms'});
 
   ### $arms
   ### rot from arm: $rot
@@ -431,9 +449,8 @@ Math::PlanePath::DragonMidpoint -- dragon curve midpoints
 
 =head1 DESCRIPTION
 
-This midpoints of each segment of the dragon or paper folding curve by
-Heighway, Harter, et al (see L<Math::PlanePath::DragonCurve>).
-
+This is the midpoints of each segment of the dragon or paper folding curve
+by Heighway, Harter, et al, per L<Math::PlanePath::DragonCurve>.
 
 
                     17--16           9---8                5
@@ -480,7 +497,7 @@ The dragon curve begins as follows and the midpoints are numbered from 0,
                      |                 |
                     11                 1
                      |                 |
-               +-12--+           o--0--+
+               +-12--+           *--0--+
                |
               ...
 
@@ -493,7 +510,8 @@ each edge only once.
 
 The dragon curve is self-similar in 2^level sections due to its unfolding.
 This can be seen in the midpoints as for example the above N=0 to N=16 is
-the same shape as N=32 to N=16, the latter half rotated and in reverse.
+the same shape as N=16 to N=32, the latter half rotated 90 degrees and in
+reverse.
 
 =head2 Arms
 
@@ -661,22 +679,24 @@ by a left turn or a horizontal followed by a right turn.  DragonCurve
 verticals are whenever N is odd, and the turn is the bit above the lowest 0
 in N, as described in L<Math::PlanePath::DragonCurve/Turns>.
 
-Note the n of A073089 is offset by 2 from the N numbering of the
-DragonMidpoint here, so n=N+2.  The A073089 initial value at n=1 has no
-corresponding N (it would be N=-1).
+The n of A073089 is offset by 2 from the N numbering of the DragonMidpoint
+here, ie. n=N+2.  The A073089 initial value at n=1 has no corresponding N
+(it would be N=-1).
 
 The mod-16 definitions in A073089 express combinations of N odd/even and
-bit-above-low-0 which are the vertical midpoint segment.  The recursion
+bit-above-low-0 which are the vertical midpoint segments.  The recursion
 a(8n+1)=a(4n+1) works to reduce an N=0b.zz111 to 0b..zz11 in order to bring
 the bit above the lowest 0 into range of the mod-16 conditions.  n=1 mod 8
 corresponds to N=7 mod 8.  In terms of N it could be expressed as stripping
 low 1 bits down to at most 2 of them.  In terms of n it's a strip of zeros
-above least significant 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
+above a low 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
+
+L<Math::PlanePath::AlternatePaperMidpoint>,
 L<Math::PlanePath::R5DragonMidpoint>,
 L<Math::PlanePath::TerdragonMidpoint>
 

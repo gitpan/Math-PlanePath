@@ -16,13 +16,17 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# maybe file type for sequence of turns instead of x,y
+
+
+
 package Math::PlanePath::File;
 use 5.004;
 use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

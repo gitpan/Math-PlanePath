@@ -21,7 +21,7 @@ use strict;
 use Test;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments '###';
 
 use lib 't';
 use MyTestHelpers;
@@ -51,27 +51,13 @@ sub bigint_checks {
                        $bigclass->VERSION);
 
 
-
-  #----------------------------------------------------------------------------
-  # _divrem()
-
-  {
-    require Math::PlanePath;
-    my $n = Math::BigInt->new(123);
-    my ($q,$r) = Math::PlanePath::_divrem($n,5);
-    ok ("$n", 123);
-    ok ("$q", 24);
-    ok ("$r", 3);
-    ok (ref $r, '');
-  }
-
   #----------------------------------------------------------------------------
   # _digit_split_lowtohigh()
 
   {
     require Math::PlanePath;
-    my $zero = Math::BigInt->new(0);
-    my $thirteen = Math::BigInt->new(13);
+    my $zero = $bigclass->new(0);
+    my $thirteen = $bigclass->new(13);
     ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,2)), '');
     ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,3)), '');
     ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,4)), '');
@@ -86,8 +72,50 @@ sub bigint_checks {
     ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,10)), '3,1');
     ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,16)), '13');
 
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh(Math::BigInt->new(4),4)), '0,1');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh(Math::BigInt->new(8),4)), '0,2');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($bigclass->new(4),4)), '0,1');
+    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($bigclass->new(8),4)), '0,2');
+
+    if ($bigclass->isa('Math::BigInt')) {
+      foreach my $radix (2,3,4,5,6,7,8,9,10,11,16,256) {
+        my @digits = Math::PlanePath::_digit_split_lowtohigh($thirteen,7);
+        foreach my $digit (@digits) {
+          ok (! ref $digit, 1,
+              '_digit_split_lowtohigh() return plain digits, not bigints');
+        }
+      }
+    }
+
+    ok ($thirteen, 13, 'thirteen unchanged');
+    ok ($zero, 0, 'zero unchanged');
+  }
+
+  #----------------------------------------------------------------------------
+  # _divrem()
+
+  {
+    require Math::PlanePath;
+    my $n = $bigclass->new(123);
+    my ($q,$r) = Math::PlanePath::_divrem($n,5);
+    ok ("$n", 123);
+    ok ("$q", 24);
+    ok ("$r", 3);
+    if ($bigclass->isa('Math::BigInt')) {
+      ok (ref $r, '');
+    }
+  }
+
+  #----------------------------------------------------------------------------
+  # _divrem_destructive()
+
+  {
+    require Math::PlanePath;
+    my $n = $bigclass->new(123);
+    my $r = Math::PlanePath::_divrem_destructive($n,5);
+    ok ("$n", 24);
+    ok ("$r", 3);
+    if ($bigclass->isa('Math::BigInt')) {
+      ok (ref $r, '');
+    }
   }
 
   #---------------------------------------------------------------------------
@@ -97,14 +125,14 @@ sub bigint_checks {
     require Math::PlanePath::VogelFloret;
     {
       my $path = Math::PlanePath::VogelFloret->new (radius_factor => 1);
-      my $n = Math::BigInt->new(23);
+      my $n = $bigclass->new(23);
       my $rsquared = $path->n_to_rsquared($n);
       ok ($rsquared == 23, 1);
-      ok (isa_bigint($rsquared), 1);
+      ok (ref $rsquared && $rsquared->isa($bigclass), 1);
     }
-    {
+    if ($bigclass->isa('Math::BigInt')) {
       my $path = Math::PlanePath::VogelFloret->new (radius_factor => 1.5);
-      my $n = Math::BigInt->new(40);
+      my $n = $bigclass->new(40);
       my $rsquared = $path->n_to_rsquared($n);
       ok ($rsquared == 90, 1);
       ok (isa_bigfloat($rsquared), 1,
@@ -112,7 +140,7 @@ sub bigint_checks {
     }
   }
 
-  #-----------------------------------------------------------------------------
+  #----------------------------------------------------------------------------
   # MultipleRings
 
   {
@@ -120,7 +148,7 @@ sub bigint_checks {
     my $path = Math::PlanePath::MultipleRings->new (step => 6);
 
     {
-      my $n = Math::BigInt->new(23);
+      my $n = $bigclass->new(23);
       my ($got_x,$got_y) = $path->n_to_xy($n);
       ok (isa_bigfloat($got_x), 1);
       ok ($got_x > 0 && $got_x < 1,
@@ -166,6 +194,14 @@ sub bigint_checks {
       my ($got_x,$got_y) = $path->n_to_xy($n);
       ok ($got_x, $x);
       ok ($got_y, $y);
+    }
+    {
+      my $x = $bigclass->new(30);
+      my $y = $bigclass->new(105);
+      my $gcd = Math::PlanePath::GcdRationals::_gcd($x,$y);
+      ok ($gcd, 15);
+      ok ($x, 30);
+      ok ($y, 105);
     }
   }
 

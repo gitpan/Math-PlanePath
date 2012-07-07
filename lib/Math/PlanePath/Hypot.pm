@@ -20,6 +20,7 @@
 # A000328 Number of points of norm <= n^2 in square lattice.
 #   1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441, 529, 613, 709, 797
 #   a(n) = 1 + 4 * sum(j=0, n^2 / 4,    n^2 / (4*j+1) - n^2 / (4*j+3) )
+# A014200 num points norm <= n^2, excluding 0, divided by 4
 #
 # A046109 num points norm == n^2
 #
@@ -47,7 +48,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
@@ -328,7 +329,7 @@ __END__
 
 
 
-=for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant onwards TriangularHypot DiamondSpiral PyrmaidSides
+=for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant onwards TriangularHypot DiamondSpiral PyrmaidSides OEIS hypots
 
 =head1 NAME
 
@@ -520,6 +521,9 @@ give an X,Y position in between the integer C<$n>.
 Return an integer point number for coordinates C<$x,$y>.  Each integer N is
 considered the centre of a unit square and an C<$x,$y> within that square
 returns N.
+
+For "even" and "odd" options only every second square in the plane has an N
+and if C<$x,$y> is a position not covered then the return is C<undef>.
 
 =back
 

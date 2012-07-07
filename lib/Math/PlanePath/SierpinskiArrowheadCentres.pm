@@ -23,7 +23,7 @@ use strict;
 use Math::PlanePath 37; # v.37 for _round_nearest()
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem = \&Math::PlanePath::_divrem;
+*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
 use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
@@ -32,7 +32,7 @@ use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -53,58 +53,55 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;
-    $n = $int;
-  }
+  my $int = int($n);
+  $n -= $int;  # fraction part
 
-  my $x = my $y = ($n * 0); # inherit bignum 0
-  my $len = $x + 1; # inherit bignum 1
+  my $x = my $y = ($int * 0); # inherit bigint 0
+  my $len = $x + 1;           # inherit bigint 1
 
+  my @digits = _digit_split_lowtohigh($int,3);
   for (;;) {
-    unless ($n) {
-      return ($frac + $x,
-              $frac + $y);
+    unless (@digits) {
+      return ($n + $x,
+              $n + $y);
     }
-    ($n, my $digit) = _divrem ($n, 3);
+    my $digit = shift @digits; # low to high
 
-    ### odd right: "$x, $y  len=$len  frac=$frac"
+    ### odd right: "$x, $y  len=$len  frac=$n"
     ### $digit
     if ($digit == 0) {
-      $x = $frac + $x;
-      $y = $frac + $y;
-      $frac = 0;
+      $x = $n + $x;
+      $y = $n + $y;
+      $n = 0;
 
     } elsif ($digit == 1) {
-      $x = -2*$frac -$x + $len;  # mirror and offset
+      $x = -2*$n -$x + $len;  # mirror and offset
       $y += $len;
-      $frac = 0;
+      $n = 0;
 
     } else {
       ($x,$y) = (($x+3*$y)/-2 - 1,             # rotate +120
                  ($x-$y)/2    + 2*$len-1);
     }
 
-    unless ($n) {
-      return (-$frac + $x,
-              $frac + $y);
+    unless (@digits) {
+      return (-$n + $x,
+              $n + $y);
     }
+    $digit = shift @digits; # low to high
     $len *= 2;
-    ($n, $digit) = _divrem ($n, 3);
 
-    ### odd left: "$x, $y  len=$len  frac=$frac"
+    ### odd left: "$x, $y  len=$len  frac=$n"
     ### $digit
     if ($digit == 0) {
-      $x = -$frac + $x;
-      $y = $frac + $y;
-      $frac = 0;
+      $x = -$n + $x;
+      $y = $n + $y;
+      $n = 0;
 
     } elsif ($digit == 1) {
-      $x = 2*$frac + -$x - $len;  # mirror and offset
+      $x = 2*$n + -$x - $len;  # mirror and offset
       $y += $len;
-      $frac = 0;
+      $n = 0;
 
     } else {
       ($x,$y) = ((3*$y-$x)/2 + 1,              # rotate -120
@@ -207,7 +204,7 @@ sub rect_to_n_range {
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
 
-  my ($power,$level) = _round_down_pow ($y2, 2);
+  my ($len,$level) = _round_down_pow ($y2, 2);
   ### $y2
   ### $level
   return (0, 3**($level+1) - 1);

@@ -27,6 +27,66 @@ use constant PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 
 {
+  require Math::PlanePath::AlternatePaper;
+  require Math::PlanePath::AlternatePaperMidpoint;
+  my $paper = Math::PlanePath::AlternatePaper->new (arms => 8);
+  my $midpoint = Math::PlanePath::AlternatePaperMidpoint->new (arms => 8);
+  foreach my $n (0 .. 7) {
+    my ($x1,$y1) = $paper->n_to_xy($n);
+    my ($x2,$y2) = $paper->n_to_xy($n+8);
+    my ($mx,$my) = $midpoint->n_to_xy($n);
+
+    my $x = $x1+$x2;    # midpoint*2
+    my $y = $y1+$y2;
+    ($x,$y) = (($x+$y-1)/2,
+               ($x-$y-1)/2);  # rotate -45 and shift
+
+    print "$n  $x,$y   $mx,$my\n";
+  }
+  exit 0;
+}
+
+{
+  # grid X,Y offset
+  require Math::PlanePath::AlternatePaperMidpoint;
+  my $path = Math::PlanePath::AlternatePaperMidpoint->new (arms => 8);
+
+  my %dxdy_to_digit;
+  my %seen;
+  for (my $n = 0; $n < 4**4; $n++) {
+    my $digit = $n % 4;
+
+    foreach my $arm (0 .. 7) {
+      my ($x,$y) = $path->n_to_xy(8*$n+$arm);
+      my $nb = int($n/4);
+      my ($xb,$yb) = $path->n_to_xy(8*$nb+$arm);
+
+      $xb *= 2;
+      $yb *= 2;
+      my $dx = $xb - $x;
+      my $dy = $yb - $y;
+
+      my $dxdy = "$dx,$dy";
+      my $show = "${dxdy}[$digit]";
+      $seen{$x}{$y} = $show;
+      if ($dxdy eq '0,0') {
+      }
+      $dxdy_to_digit{$dxdy} = $digit;
+    }
+  }
+
+  foreach my $y (reverse -45 .. 45) {
+    foreach my $x (-5 .. 5) {
+      printf " %9s", $seen{$x}{$y}//'e'
+    }
+    print "\n";
+  }
+  ### %dxdy_to_digit
+
+  exit 0;
+}
+
+{
   # sum/sqrt(n) goes below pi/4
  print "pi/4 ",PI/4,"\n";
   require Math::PlanePath::AlternatePaper;

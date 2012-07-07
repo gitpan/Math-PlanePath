@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 181 }
+BEGIN { plan tests => 351 }
 
 use lib 't';
 use MyTestHelpers;
@@ -31,14 +31,12 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath::AlternatePaper;
 
-my $path = Math::PlanePath::AlternatePaper->new;
-
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 79;
+  my $want_version = 80;
   ok ($Math::PlanePath::AlternatePaper::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AlternatePaper->VERSION,  $want_version,
@@ -52,6 +50,7 @@ my $path = Math::PlanePath::AlternatePaper->new;
       1,
       "VERSION class check $check_version");
 
+  my $path = Math::PlanePath::AlternatePaper->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -95,18 +94,44 @@ my $path = Math::PlanePath::AlternatePaper->new;
 # n_start, x_negative, y_negative
 
 {
+  my $path = Math::PlanePath::AlternatePaper->new;
   ok ($path->n_start, 0, 'n_start()');
-  ok ($path->x_negative, 0, 'x_negative() instance method');
-  ok ($path->y_negative, 0, 'y_negative() instance method');
-  ok ($path->class_x_negative, 0, 'class_x_negative()');
-  ok ($path->class_y_negative, 0, 'class_y_negative()');
+  ok ($path->x_negative ? 1 : 0, 0, 'x_negative() instance method');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative() instance method');
+  ok ($path->class_x_negative, 1, 'class_x_negative()');
+  ok ($path->class_y_negative, 1, 'class_y_negative()');
 }
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::AlternatePaper->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'arms');
 }
 
+{
+  my $path = Math::PlanePath::AlternatePaper->new (arms => 2);
+  ok ($path->x_negative ? 1 : 0, 0, 'x_negative() instance method');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative() instance method');
+}
+{
+  my $path = Math::PlanePath::AlternatePaper->new (arms => 3);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative() instance method');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative() instance method');
+}
+{
+  my $path = Math::PlanePath::AlternatePaper->new (arms => 4);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative() instance method');
+  ok ($path->y_negative ? 1 : 0, 0, 'y_negative() instance method');
+}
+{
+  my $path = Math::PlanePath::AlternatePaper->new (arms => 5);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative() instance method');
+  ok ($path->y_negative ? 1 : 0, 1, 'y_negative() instance method');
+}
+{
+  my $path = Math::PlanePath::AlternatePaper->new (arms => 8);
+  ok ($path->x_negative ? 1 : 0, 1, 'x_negative() instance method');
+  ok ($path->y_negative ? 1 : 0, 1, 'y_negative() instance method');
+}
 
 #------------------------------------------------------------------------------
 # turn sequence claimed in the pod
@@ -171,6 +196,7 @@ my $path = Math::PlanePath::AlternatePaper->new;
   }
 
   my $bad = 0;
+  my $path = Math::PlanePath::AlternatePaper->new;
   foreach my $n ($path->n_start + 1 .. 500) {
     {
       my $path_turn = path_n_turn ($path, $n);
@@ -193,9 +219,127 @@ my $path = Math::PlanePath::AlternatePaper->new;
 }
 
 #------------------------------------------------------------------------------
-# random rect_to_n_range()
+# xy_to_n_list()
 
 {
+  my @groups = ([ 1,   # arms=1
+                  [ 0,1, [] ],
+                  [ -1,0, [] ],
+                  [ -1,-1, [] ],
+                  [ 1,-1, [] ],
+
+                  [ 0,0, [0] ],
+                  [ 1,0, [1] ],
+                  [ 1,1, [2] ],
+
+                  [ 2,1, [3,7] ],
+                  [ 2,0, [4] ],
+                  [ 3,0, [5] ],
+                  [ 3,1, [6,14] ],
+                  # 2,1  7
+                  [ 2,2, [8] ],
+                  [ 3,2, [9,13] ],
+
+                  [ 3,3, [10] ],
+
+                  [ 4,3, [11,31] ],
+                  [ 4,2, [12,28] ],
+                  # 3,2  13
+                  # 3,1  14
+                  [ 4,1, [15,27] ],
+                  [ 4,0, [16] ],
+                  [ 5,0, [17] ],
+                  [ 5,1, [18,26] ],
+                  [ 6,1, [19,23] ],
+                  [ 6,0, [20] ],
+                  [ 7,0, [21] ],
+                  [ 7,1, [22,62] ],
+
+                  [ 4,4, [32] ],
+
+                  [ 8,0, [64] ],
+                  [ 9,0, [65] ],
+                ],
+
+                [ 2,   # arms=2
+                  [ 0,1, [3] ],
+                  [ -1,0, [] ],
+                  [ -1,-1, [] ],
+                  [ 1,-1, [] ],
+
+                  [ 0,0, [0,1] ],
+                  [ 1,0, [2] ],
+                  [ 1,1, [4,5] ],
+
+                  # [ 2,1, [3,7] ],
+                  # [ 2,0, [4] ],
+                  # [ 3,0, [5] ],
+                  # [ 3,1, [6,14] ],
+                  # # 2,1  7
+                  # [ 2,2, [8] ],
+                  # [ 3,2, [9,13] ],
+                  #
+                  # [ 3,3, [10] ],
+                  #
+                  # [ 4,3, [11,31] ],
+                  # [ 4,2, [12,28] ],
+                  # # 3,2  13
+                  # # 3,1  14
+                  # [ 4,1, [15,27] ],
+                  # [ 4,0, [16] ],
+                  # [ 5,0, [17] ],
+                  # [ 5,1, [18,26] ],
+                  # [ 6,1, [19,23] ],
+                  # [ 6,0, [20] ],
+                  # [ 7,0, [21] ],
+                  # [ 7,1, [22,62] ],
+                  #
+                  # [ 4,4, [32] ],
+                  #
+                  # [ 8,0, [64] ],
+                  # [ 9,0, [65] ],
+                ],
+
+                [ 3,   # arms=3
+                  [ 0,0, [0,1] ],
+                  [ 0,1, [2,4] ],
+                  [ 1,0, [3]   ],
+                  [ 1,1, [6,7] ],
+                ],
+               );
+  foreach my $group (@groups) {
+    my ($arms, @data) = @$group;
+    my $path = Math::PlanePath::AlternatePaper->new (arms => $arms);
+
+    foreach my $elem (@data) {
+      my ($x,$y, $want_n_aref) = @$elem;
+      my $want_n_str = join(',', @$want_n_aref);
+      {
+        my @got_n_list = $path->xy_to_n_list($x,$y);
+        ok (scalar(@got_n_list), scalar(@$want_n_aref),
+            "arms=$arms  xy=$x,$y");
+        my $got_n_str = join(',', @got_n_list);
+        ok ($got_n_str, $want_n_str);
+      }
+      {
+        my $got_n = $path->xy_to_n($x,$y);
+        ok ($got_n, $want_n_aref->[0]);
+      }
+      {
+        my @got_n = $path->xy_to_n($x,$y);
+        ok (scalar(@got_n), 1);
+        ok ($got_n[0], $want_n_aref->[0]);
+      }
+    }
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# random rect_to_n_range()
+
+foreach my $arms (1 .. 8) {
+  my $path = Math::PlanePath::AlternatePaper->new (arms => $arms);
   for (1 .. 5) {
     my $bits = int(rand(25));     # 0 to 25, inclusive
     my $n = int(rand(2**$bits));  # 0 to 2^bits, inclusive
@@ -204,7 +348,7 @@ my $path = Math::PlanePath::AlternatePaper->new;
 
     my $rev_n = $path->xy_to_n ($x,$y);
     ok (defined $rev_n, 1,
-        "xy_to_n($x,$y) reverse n, got undef");
+        "arms=$arms  xy_to_n($x,$y) reverse n, got undef");
 
     my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
     ok ($n_lo <= $n, 1,
@@ -214,71 +358,6 @@ my $path = Math::PlanePath::AlternatePaper->new;
   }
 }
 
-
-#------------------------------------------------------------------------------
-# xy_to_n_list()
-
-{
-  my @data = (
-              [ 0,1, [] ],
-              [ -1,0, [] ],
-              [ -1,-1, [] ],
-              [ 1,-1, [] ],
-
-              [ 0,0, [0] ],
-              [ 1,0, [1] ],
-              [ 1,1, [2] ],
-
-              [ 2,1, [3,7] ],
-              [ 2,0, [4] ],
-              [ 3,0, [5] ],
-              [ 3,1, [6,14] ],
-              # 2,1  7
-              [ 2,2, [8] ],
-              [ 3,2, [9,13] ],
-
-              [ 3,3, [10] ],
-
-              [ 4,3, [11,31] ],
-              [ 4,2, [12,28] ],
-              # 3,2  13
-              # 3,1  14
-              [ 4,1, [15,27] ],
-              [ 4,0, [16] ],
-              [ 5,0, [17] ],
-              [ 5,1, [18,26] ],
-              [ 6,1, [19,23] ],
-              [ 6,0, [20] ],
-              [ 7,0, [21] ],
-              [ 7,1, [22,62] ],
-
-              [ 4,4, [32] ],
-
-              [ 8,0, [64] ],
-              [ 9,0, [65] ],
-
-             );
-  foreach my $elem (@data) {
-    my ($x,$y, $want_n_aref) = @$elem;
-    my $want_n_str = join(',', @$want_n_aref);
-    {
-      my @got_n_list = $path->xy_to_n_list($x,$y);
-      ok (scalar(@got_n_list), scalar(@$want_n_aref),
-         "xy=$x,$y");
-      my $got_n_str = join(',', @got_n_list);
-      ok ($got_n_str, $want_n_str);
-    }
-    {
-      my $got_n = $path->xy_to_n($x,$y);
-      ok ($got_n, $want_n_aref->[0]);
-    }
-    {
-      my @got_n = $path->xy_to_n($x,$y);
-      ok (scalar(@got_n), 1);
-      ok ($got_n[0], $want_n_aref->[0]);
-    }
-  }
-}
 
 
 exit 0;

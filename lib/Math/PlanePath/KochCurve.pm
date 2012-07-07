@@ -38,15 +38,16 @@
 package Math::PlanePath::KochCurve;
 use 5.004;
 use strict;
+use List::Util 'sum';
 
 use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 *_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -412,12 +413,9 @@ sub _n_to_TDir6 {
   if ($n < 0) {
     return undef;  # first direction at N=0
   }
-  my @digits = _digit_split_lowtohigh($n,4);
-  my $dir = 0;
-  foreach my $digit (@digits) {
-    $dir += $digit_to_dir[$digit];
-  }
-  return ($dir % 6);
+  return (sum (map {$digit_to_dir[$_]} _digit_split_lowtohigh($n,4))
+          || 0) # if empty
+    % 6;
 }
 
 my @dir_to_dx = (2, 1, -1, -2, -1, 1);
@@ -441,7 +439,7 @@ sub _n_to_Turn6 {
     return undef;
   }
   while ($n) {
-    ($n, my $digit) = _divrem($n,4);
+    my $digit = _divrem_destructive($n,4);
     if ($digit) {  # lowest non-zero digit
       return $digit_to_Turn6[$digit];
     }
@@ -525,7 +523,7 @@ sub _round_down_pow {
 1;
 __END__
 
-=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie OEIS
+=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie OEIS Xlevel floorlevel Nhi Nlo
 
 =head1 NAME
 

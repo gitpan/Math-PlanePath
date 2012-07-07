@@ -35,7 +35,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -219,7 +219,7 @@ sub rect_to_n_range {
   ### xpos mult: ($x2-1)*($r2-1) + 1
   ### xneg mult: (-1-$x1)*($r2-1)*$radix + $r2
 
-  my (undef, $xpos_level)
+  my ($xpos_len, $xpos_level)
     = ($x2 >= 0
        ? _round_down_pow (($x2-1)*($r2-1) + 1, $r2)
        : (1,0));
@@ -230,7 +230,7 @@ sub rect_to_n_range {
                            : (0, -1));
   $y_level = 3*$y_level + 2;
 
-  my (undef, $xneg_level)
+  my ($xneg_len, $xneg_level)
     = ($x1 < 0
        ? _round_down_pow ((-1-$x1)*($r2-1)*$radix + $r2, $r2)
        : (1,0));
@@ -255,7 +255,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix ie
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix ie ImaginaryBase radix Proth
 
 =head1 NAME
 

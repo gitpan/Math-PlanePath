@@ -33,13 +33,18 @@
 # cf A003988,A010766 - triangle with values floor(i/j)
 #
 # http://mathworld.wolfram.com/DirichletDivisorProblem.html
+#
+# compile-command: "math-image --path=DivisibleColumns --all"
+#
+# math-image --path=DivisibleColumns --output=numbers --all
+#
 
 package Math::PlanePath::DivisibleColumns;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -69,7 +74,7 @@ my @x_to_n = (0,0,1);
 sub _extend {
   ### _extend(): $#x_to_n
   my $x = $#x_to_n;
-  push @x_to_n, $x_to_n[$x] + _divisors($x);
+  push @x_to_n, $x_to_n[$x] + _count_divisors($x);
 
   # if ($x > 2) {
   #   if (($x & 3) == 2) {
@@ -84,8 +89,8 @@ sub _extend {
   ### last: $x_to_n[$#x_to_n-1]
   ### diff: $x_to_n[$#x_to_n-1] - $x_to_n[$#x_to_n-2]
   ### divisors of: $#x_to_n - 2
-  ### divisors: _divisors($#x_to_n-2)
-  ### assert: $x_to_n[$#x_to_n-1] - $x_to_n[$#x_to_n-2] == _divisors($#x_to_n-2)
+  ### divisors: _count_divisors($#x_to_n-2)
+  ### assert: $x_to_n[$#x_to_n-1] - $x_to_n[$#x_to_n-2] == _count_divisors($#x_to_n-2)
 }
 
 sub new {
@@ -170,7 +175,9 @@ sub n_to_xy {
   }
 }
 
-sub _divisors {
+# Feturn a count of the number of integers dividing $x, including 1 and $x
+# itself.   Cf Math::Factor::XS maybe.
+sub _count_divisors {
   my ($x) = @_;
   my $ret = 1;
   unless ($x % 2) {
@@ -189,7 +196,7 @@ sub _divisors {
         $x /= $d;
         $count++;
       } until ($x % $d);
-      my $limit = sqrt($x);
+      $limit = sqrt($x);
       $ret *= $count;
     }
   }
@@ -283,12 +290,12 @@ sub rect_to_n_range {
   if ($x1 <= $#x_to_n) {
     $n_lo = $x_to_n[$x1];
   } else {
-    $n_lo = _divisors_cumulative($x1-1);
+    $n_lo = _count_divisors_cumulative($x1-1);
   }
   if ($x2 < $#x_to_n) {
     $n_hi = $x_to_n[$x2+1];
   } else {
-    $n_hi = _divisors_cumulative($x2);
+    $n_hi = _count_divisors_cumulative($x2);
   }
   $n_hi -= 1;
 
@@ -301,7 +308,9 @@ sub rect_to_n_range {
   return ($n_lo, $n_hi);
 }
 
-sub _divisors_cumulative {
+# Return a total count of all the divisors of all the integers 1 to $x
+# inclusive.
+sub _count_divisors_cumulative {
   my ($x) = @_;
   my $total = 0;
   my $limit = int(sqrt($x));
@@ -366,6 +375,12 @@ The current implementation is fairly slack and is slow on medium to large N.
 
 C<divisor_type =E<gt> 'proper'> gives only proper divisors of X, meaning
 that Y=X itself is excluded.
+
+=cut
+
+# math-image --path=DivisibleColumns,divisor_type=proper --output=numbers --all --size=134
+
+=pod
 
      9 |                                                      39   
      8 |                                                33         
@@ -459,10 +474,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=DivisibleColumns --all"
-# End:
-#
-# math-image --path=DivisibleColumns --output=numbers --all
-# math-image --path=DivisibleColumns,divisor_type=proper --output=numbers --all --size=134

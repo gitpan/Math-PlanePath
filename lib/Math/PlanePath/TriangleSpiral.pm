@@ -26,7 +26,7 @@ use Math::PlanePath;
 *_round_nearest = \&Math::PlanePath::_round_nearest;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 79;
+$VERSION = 80;
 @ISA = ('Math::PlanePath');
 
 
@@ -150,7 +150,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal 11-gonal (s+2)-gonal
+=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal 11-gonal (s+2)-gonal OEIS
 
 =head1 NAME
 
