@@ -64,7 +64,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -81,10 +81,10 @@ use constant parameter_info_array =>
       type            => 'enum',
       default         => 'even',
       choices         => ['even','odd', 'all',
-                          # 'hex','hex_rotated','hex_centred',
+                          'hex','hex_rotated','hex_centred',
                          ],
       choices_display => ['Even','Odd', 'All',
-                          # 'Hex','Hex Rotated','Hex Centred',
+                          'Hex','Hex Rotated','Hex Centred',
                          ],
       description     => 'Which X,Y points visit, either X+Y even or odd, or all points, or hexagonal grid points.',
     },
@@ -104,7 +104,7 @@ sub new {
     $self->{'x_inc'} = 1;
     $self->{'x_inc_factor'} = 2;  # ((x+1)^2 - x^2) = 2*x+1
     $self->{'x_inc_squared'} = 1;
-    $self->{'opposite_parity'} = -1;
+    $self->{'symmetry'} = 4;
 
   } elsif ($points eq 'even') {
     $self->{'n_to_x'} = [undef, 0];
@@ -115,7 +115,8 @@ sub new {
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;  # ((x+2)^2 - x^2) = 4*x+4
     $self->{'x_inc_squared'} = 4;
-    $self->{'opposite_parity'} = 1;
+    $self->{'skip_parity'} = 1;
+    $self->{'symmetry'} = 12;
 
   } elsif ($points eq 'odd') {
     $self->{'n_to_x'} = [undef];
@@ -126,7 +127,8 @@ sub new {
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;
     $self->{'x_inc_squared'} = 4;
-    $self->{'opposite_parity'} = 0;
+    $self->{'skip_parity'} = 0;
+    $self->{'symmetry'} = 4;
 
   } elsif ($points eq 'hex') {
     $self->{'n_to_x'} = [undef, 0];  # N=0 at X=0,Y=0
@@ -137,7 +139,9 @@ sub new {
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;  # ((x+2)^2 - x^2) = 4*x+4
     $self->{'x_inc_squared'} = 4;
-    $self->{'opposite_parity'} = 1;  # even, but further hex restriction too
+    $self->{'skip_parity'} = 1;  # should be even
+    $self->{'skip_hex'} = 4;     # x+3y==0,2 only
+    $self->{'symmetry'} = 6;
 
   } elsif ($points eq 'hex_rotated') {
     $self->{'n_to_x'} = [undef, 0];  # N=0 at X=0,Y=0
@@ -150,7 +154,9 @@ sub new {
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;  # ((x+2)^2 - x^2) = 4*x+4
     $self->{'x_inc_squared'} = 4;
-    $self->{'opposite_parity'} = 1;  # even, but further hex restriction too
+    $self->{'skip_parity'} = 1;  # should be even
+    $self->{'skip_hex'} = 2;     # x+3y==0,4 only
+    $self->{'symmetry'} = 6;
 
   } elsif ($points eq 'hex_centred') {
     $self->{'n_to_x'} = [undef];
@@ -161,7 +167,9 @@ sub new {
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;  # ((x+2)^2 - x^2) = 4*x+4
     $self->{'x_inc_squared'} = 4;
-    $self->{'opposite_parity'} = 1;  # even, but further hex restriction too
+    $self->{'skip_parity'} = 1;  # should be even
+    $self->{'skip_hex'} = 0;     # x+3y==2,4 only
+    $self->{'symmetry'} = 12;
 
   } else {
     croak "Unrecognised points option: ", $points;
@@ -236,7 +244,8 @@ sub _extend {
       $x += 2;
       $y_next_hypot->[$y] = $x*$x + 3*$y*$y;
       ### assert: (($x+$y*3) % 6 == 2 || ($x+$y*3) % 6 == 4)
-    } else { # points eq 'all'
+    } else {
+      ### assert: $points eq 'all'
       $y_next_x->[$y] = - $self->{'x_inc'};      # X=0, so X-1=0
       $y_next_hypot->[$y] = 3*$y*$y;
     }
@@ -256,9 +265,8 @@ sub _extend {
     my $x = ($y_next_x->[$_] += $self->{'x_inc'});
     ### map y _: $_
     ### map inc x to: $x
-    if (($self->{'points'} eq 'hex' && (($x+3*$_) % 6) == 2)
-        || ($self->{'points'} eq 'hex_rotated' && (($x+3*$_) % 6) == 0)
-        || ($self->{'points'} eq 'hex_centred' && (($x+3*$_) % 6) == 4)) {
+    if (defined $self->{'skip_hex'}
+         && ($x+2 + 3*$_) % 6 == $self->{'skip_hex'}) {
       ### extra inc for hex ...
       $y_next_x->[$_] += 2;
       $y_next_hypot->[$_] += 8*$x+16;   # (X+4)^2-X^2 = 8X+16
@@ -281,7 +289,7 @@ sub _extend {
   ### $hypot
 
   my $p2;
-  if ($self->{'points'} eq 'even' || $self->{'points'} eq 'hex_centred') {
+  if ($self->{'symmetry'} == 12) {
     ### base twelvth: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
     my $p1 = scalar(@y);
     my @base_x = @x;
@@ -317,7 +325,7 @@ sub _extend {
     }
     ### with rotate 180: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
 
-  } elsif ($self->{'points'} eq 'hex' || $self->{'points'} eq 'hex_rotated') {
+  } elsif ($self->{'symmetry'} == 6) {
     my $p1 = scalar(@x);
     my @base_x = @x;
     my @base_y = @y;
@@ -352,6 +360,7 @@ sub _extend {
     ### with rotates 120,240: join(' ',map{"$x[$_],$y[$_]"} 0 .. $p2-1)
 
   } else {
+    ### assert: $self->{'symmetry'} == 4
     ### base quarter: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
     my $p1 = $#x;
     push @y, reverse @y;
@@ -412,25 +421,19 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### TriangularHypot xy_to_n(): "$x, $y"
+  ### TriangularHypot xy_to_n(): "$x, $y    points=$self->{'points'}"
 
   $x = _round_nearest ($x);
   $y = _round_nearest ($y);
 
-  if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
+  if (defined $self->{'skip_parity'}
+      && (($x%2) ^ ($y%2)) == $self->{'skip_parity'}) {
     ### XY wrong parity, no point ...
     return undef;
   }
-  if ($self->{'points'} eq 'hex' && (($x+3*$y) % 6) == 4) {
-    ### XY hex centre, no point ...
-    return undef;
-  }
-  if ($self->{'points'} eq 'hex_rotated' && (($x+3*$y) % 6) == 2) {
-    ### XY hex centre, no point ...
-    return undef;
-  }
-  if ($self->{'points'} eq 'hex_centred' && (($x+3*$y) % 6) == 0) {
-    ### XY hex centre, no point ...
+  if (defined $self->{'skip_hex'}
+      && (($x%6) + 3*($y%6)) % 6 == $self->{'skip_hex'}) {
+    ### XY wrong hex, no point ...
     return undef;
   }
 
@@ -662,6 +665,54 @@ The points are all integer X,Y with X+3Y mod 6 == 0 or 2.  This is a subset
 of the "even" points in that X+Y is even but with 1 of each 3 points skipped
 to make the hexagonal outline.
 
+=head2 Hex Rotated Points
+
+Option C<points =E<gt> "hex_rotated"> is the same hexagonal points but
+rotated around so N=2 is at +60 degrees instead of on the X axis.
+
+=cut
+
+# math-image --path=TriangularHypot,points=hex_rotated --output=numbers --expression='i<=61?i:0' --size=150x20
+
+=pod
+
+    points => "hex_rotated"
+
+
+                60----50          42----49                             5
+               /        \        /        \
+             51          33----27          38----48                    4
+               \        /        \        /        \
+                34----22          15----21          41                 3
+               /        \        /        \        /
+       43----28          12-----6          14----26                    2
+      /        \        /        \        /        \
+    52          16-----7           2-----5          32----47           1
+      \        /        \        /        \        /        \
+       39----23           3-----1          11----20          59   <- Y=0
+      /        \        /        \        /        \        /
+    53          17-----8           4----10          37----58          -1
+      \        /        \        /        \        /
+       44----29          13-----9          19----31                   -2
+               \        /        \        /        \
+                35----24          18----25          46                -3
+               /        \        /        \        /
+             54          36----30          40----57                   -4
+               \        /        \        /
+                61----55          45----56                            -5
+
+
+                                ^
+    -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
+
+Points are still numbered from the X axis clockwise.  The sets of points at
+equal hypotenuse distances are the same as plain "hex" but the numbering is
+changed by the rotation.
+
+The points visited are all integer X,Y with X+3Y mod 6 == 0 or 4.  This grid
+can be viewed either as a +60 degree or a +180 degree rotation of the plain
+hex.
+
 =head2 Hex Centred Points
 
 Option C<points =E<gt> "hex_centred"> is the same hexagonal grid as hex
@@ -675,30 +726,30 @@ above, but with the origin X=0,Y=0 in the centre of a hexagon,
 
     points => "hex_centred"
 
-                               46----45                             5
-                              /        \
-                      39----28          27----38                    4
-                     /        \        /        \
-             47----29          16----15          26----44           3
-            /        \        /        \        /        \
-          48          17-----9           8----14          43        2
-            \        /        \        /        \        /
-             30----18           3-----2          13----25           1
-            /        \        /        \        /        \
-          40          10-----4           1-----7          37   <- Y=0
-            \        /        \        /        \        /
-             31----19           5-----6          24----36          -1
-            /        \        /        \        /        \
-          49          20----11          12----23          54       -2
-            \        /        \        /        \        /
-             50----32          21----22          35----53          -3
-                     \        /        \        /
-                      41----33          34----42                   -4
-                              \        /
-                               51----52                            -5
+                         46----45                              5
+                        /        \
+                39----28          27----38                     4
+               /        \        /        \
+       47----29          16----15          26----44            3
+      /        \        /        \        /        \
+    48          17-----9           8----14          43         2
+      \        /        \        /        \        /
+       30----18           3-----2          13----25            1
+      /        \        /        \        /        \
+    40          10-----4           1-----7          37    <- Y=0
+      \        /        \        /        \        /
+       31----19           5-----6          24----36           -1
+      /        \        /        \        /        \
+    49          20----11          12----23          54        -2
+      \        /        \        /        \        /
+       50----32          21----22          35----53           -3
+               \        /        \        /
+                41----33          34----42                    -4
+                        \        /
+                         51----52                             -5
 
-                                   ^
-       -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
+                             ^
+    -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
 N=1,2,3,4,5,6 are all at X^2+3Y^2=4 away from the origin, then
 N=7,8,9,10,11,12, etc.  The points visited are all integer X,Y with X+3Y mod
@@ -720,6 +771,7 @@ Create and return a new hypot path object.  The C<points> option can be
     "odd"           only points with X+Y odd
     "all"           all integer X,Y
     "hex"           hexagonal X+3Y==0,2 mod 6
+    "hex_rotated"   hexagonal X+3Y==0,4 mod 6
     "hex_centred"   hexagonal X+3Y==2,4 mod 6
 
 Create and return a new triangular hypot path object.
@@ -753,19 +805,17 @@ path include,
 
     http://oeis.org/A035019
 
-    A003136  norms X^2+3*Y^2 which occur
-
-    A004016  count of points of norm n
-    A035019    skipping zero counts
-    A088534    counting only in the twelfth 0<=X<=Y
+    points="even" (the default)
+      A003136  norms (X^2+3*Y^2)/4 which occur
+      A004016  count of points of norm n
+      A035019    skipping zero counts
+      A088534    counting only in the twelfth 0<=X<=Y
 
 The counts in these sequences are expressed as norm = x^2+x*y+y^2.  That x,y
 is related to the "even" X,Y on the path here by a -45 degree rotation,
 
     x = (Y-X)/2           X = 2*(x+y)
     y = (X+Y)/2           Y = 2*(y-x)
-
-The norm is then
 
     norm = x^2+x*y+y^2
          = ((Y-X)/2)^2 + (Y-X)/2 * (X+Y)/2 + ((X+Y)/2)^2
@@ -774,10 +824,13 @@ The norm is then
 X^2+3*Y^2 is the dist^2 described above for equilateral triangles of unit
 side.  The factor of /4 doesn't affect the count of how many points.
 
-Sequences A092572, A092573 and A158937 are based on x^2+3*y^2 but they're
-not applicable to this TriangularHypot since they're all integer x,y whereas
-the path here is every second point, ie. x,y both odd or both even.  The
-latter condition gives the x^2+x*y+y^2 form.
+    points="all"
+      A092572  norms X^2+3*Y^2 which occur
+      A158937  norms X^2+3*Y^2 which occur, X>0,Y>0 with repeats
+      A092573  count of points norm n for X>0,Y>0
+      A092574  norms X^2+3*Y^2 which occur for X>0,Y>0, gcd(X,Y)=1
+      A092575  count of points norm n for X>0,Y>0, gcd(X,Y)=1
+                 ie. X,Y no common factor
 
 =cut
 

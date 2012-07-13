@@ -17,8 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 81, July 2012
+    - TriangularHypot new points=hex,hex_rotated,hex_centred
+
 Version 80, July 2012
     - new AlternatePaperMidpoint
+    - AlternatePaper new "arms"
     - GreekKeySpiral new "turns"
     - ComplexPlus, Flowsnake, FlowsnakeCentres, TerdragonMidpoint,
       TerdragonRounded, R5DragonMidpoint fix for arms>1 fractional N

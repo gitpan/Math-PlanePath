@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 122 }
+plan tests => 122;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ my $path = Math::PlanePath::CCurve->new;
 # VERSION
 
 {
-  my $want_version = 80;
+  my $want_version = 81;
   ok ($Math::PlanePath::CCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CCurve->VERSION,  $want_version,
@@ -150,7 +150,8 @@ sub random_quarter {
 
 {
   my $bad = 0;
-  OUTER: foreach my $n ($path->n_start + 1 .. 500) {
+  my $n_start = $path->n_start;
+ OUTER: foreach my $n ($n_start .. 500) {
     {
       my $path_dir = path_n_dir ($path, $n);
       my $calc_dir = calc_n_dir ($n);
@@ -159,20 +160,22 @@ sub random_quarter {
         last OUTER if $bad++ > 10;
       }
     }
-    {
-      my $path_turn = path_n_turn ($path, $n);
-      my $calc_turn = calc_n_turn ($n);
-      if ($path_turn != $calc_turn) {
-        MyTestHelpers::diag ("turn n=$n  path $path_turn calc $calc_turn");
-        last if $bad++ > 10;
+    if ($n > $n_start) {  # turns from N=1 onwards
+      {
+        my $path_turn = path_n_turn ($path, $n);
+        my $calc_turn = calc_n_turn ($n);
+        if ($path_turn != $calc_turn) {
+          MyTestHelpers::diag ("turn n=$n  path $path_turn calc $calc_turn");
+          last OUTER if $bad++ > 10;
+        }
       }
-    }
-    {
-      my $path_turn = path_n_turn ($path, $n+1);
-      my $calc_turn = calc_n_next_turn ($n);
-      if ($path_turn != $calc_turn) {
-        MyTestHelpers::diag ("next turn n=$n  path $path_turn calc $calc_turn");
-        last if $bad++ > 10;
+      {
+        my $path_turn = path_n_turn ($path, $n+1);
+        my $calc_turn = calc_n_next_turn ($n);
+        if ($path_turn != $calc_turn) {
+          MyTestHelpers::diag ("next turn n=$n  path $path_turn calc $calc_turn");
+          last OUTER if $bad++ > 10;
+        }
       }
     }
   }

@@ -373,6 +373,74 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'ArchimedeanChords',
+               'SacksSpiral',
+               'TheodorusSpiral',
+
+               'VogelFloret',
+               'CubicBase',
+
+               'PeanoCurve',
+               'PeanoCurve,radix=2',
+               'PeanoCurve,radix=4',
+               'PeanoCurve,radix=5',
+               'PeanoCurve,radix=17',
+
+               'WunderlichSerpentine',
+               'WunderlichSerpentine,serpentine_type=100_000_000',
+               'WunderlichSerpentine,serpentine_type=000_000_001',
+               'WunderlichSerpentine,radix=2',
+               'WunderlichSerpentine,radix=4',
+               'WunderlichSerpentine,radix=5,serpentine_type=coil',
+
+               'KnightSpiral',
+               'Rows',
+               'Rows,width=1',
+               'Rows,width=2',
+               'Columns',
+               'Columns,height=1',
+               'Columns,height=2',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=4',
+               'TerdragonCurve,arms=5',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=4',
+               'TerdragonMidpoint,arms=5',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
+
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+
+               'WythoffArray',
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
+
+               'TriangularHypot',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'TriangularHypot,points=hex',
+               'TriangularHypot,points=hex_rotated',
+               'TriangularHypot,points=hex_centred',
+
                'GreekKeySpiral',
                'GreekKeySpiral,turns=0',
                'GreekKeySpiral,turns=1',
@@ -402,21 +470,6 @@ my @modules = (
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
 
-               'HypotOctant',
-               'HypotOctant,points=even',
-               'HypotOctant,points=odd',
-               'Hypot',
-               'Hypot,points=even',
-               'Hypot,points=odd',
-               'TriangularHypot',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
-
-               'WythoffArray',
-               'PowerArray',
-               'PowerArray,radix=3',
-               'PowerArray,radix=4',
-
                'Diagonals',
                'Diagonals,direction=up',
                'DiagonalsOctant',
@@ -442,13 +495,6 @@ my @modules = (
                'ImaginaryBase,radix=6',
                'ImaginaryBase,radix=37',
 
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=4',
-               'TerdragonRounded,arms=5',
-               'TerdragonRounded,arms=6',
-
                'CCurve',
 
                'R5DragonMidpoint',
@@ -473,20 +519,6 @@ my @modules = (
                'PyramidRows,step=5',
                'PyramidRows,step=37',
                'PyramidSides',
-
-               'Rows',
-               'Rows,width=1',
-               'Rows,width=2',
-               'Columns',
-               'Columns,height=1',
-               'Columns,height=2',
-
-               'ArchimedeanChords',
-               'SacksSpiral',
-               'TheodorusSpiral',
-
-               'VogelFloret',
-               'CubicBase',
 
                'ComplexMinus',
                'ComplexMinus,realpart=2',
@@ -593,20 +625,6 @@ my @modules = (
                'SierpinskiCurveStair,arms=7',
                'SierpinskiCurveStair,arms=8',
 
-               'WunderlichSerpentine',
-               'WunderlichSerpentine,serpentine_type=100_000_000',
-               'WunderlichSerpentine,serpentine_type=000_000_001',
-               'WunderlichSerpentine,radix=2',
-               'WunderlichSerpentine,radix=4',
-               'WunderlichSerpentine,radix=5,serpentine_type=coil',
-
-               'PeanoCurve',
-               'PeanoCurve,radix=2',
-               'PeanoCurve,radix=4',
-               'PeanoCurve,radix=5',
-               'PeanoCurve,radix=17',
-               'KnightSpiral',
-
                # 'File',
 
                'CellularRule,rule=6',   # left 1,2 line
@@ -680,20 +698,6 @@ my @modules = (
                'ComplexPlus,realpart=3',
                'ComplexPlus,realpart=4',
                'ComplexPlus,realpart=5',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=4',
-               'TerdragonMidpoint,arms=5',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=4',
-               'TerdragonCurve,arms=5',
-               'TerdragonCurve,arms=6',
 
                'OctagramSpiral',
                'AnvilSpiral',
@@ -859,10 +863,10 @@ my @modules = (
   foreach my $mod (@modules) {
     my $bad = 0;
     foreach my $elem (
-                      ['Math::NumSeq::PlanePathCoord','coordinate_type'],
                       ['Math::NumSeq::PlanePathDelta','delta_type'],
-                      ['Math::NumSeq::PlanePathTurn','turn_type'],
-                      ['Math::NumSeq::PlanePathN','line_type'],
+                      # ['Math::NumSeq::PlanePathCoord','coordinate_type'],
+                      # ['Math::NumSeq::PlanePathTurn','turn_type'],
+                      # ['Math::NumSeq::PlanePathN','line_type'],
                      ) {
       my ($class, $pname) = @$elem;
 

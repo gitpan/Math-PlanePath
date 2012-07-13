@@ -39,7 +39,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::QuadricCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 

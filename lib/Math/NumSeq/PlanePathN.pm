@@ -16,6 +16,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# maybe:
+# line_type 'DiagonalNW','DiagonalSW','DiagonalSE',  diagonals
+#           plain Diagonal is DiagonalNE
+
+
 package Math::NumSeq::PlanePathN;
 use 5.004;
 use strict;
@@ -26,7 +31,7 @@ use Math::NumSeq;
 use Math::NumSeq::PlanePathCoord;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -55,11 +60,8 @@ use constant::defer parameter_info_array =>
               choices => ['X_axis','Y_axis',
                           'X_neg','Y_neg',
                           'Diagonal',
-
-                          # maybe:
-                          # 'NE','NW','SW','SE',  diagonals
                          ],
-              description => 'The axis or line to taken path N values from.',
+              description => 'The axis or line to take path N values from.',
             },
            ];
   };

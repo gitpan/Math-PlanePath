@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 6 }
+plan tests => 6;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -109,8 +109,6 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 1) {
@@ -141,8 +139,6 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 1) {
@@ -173,7 +169,6 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     @$bvalues = map {abs} @$bvalues;
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
@@ -205,7 +200,6 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     @$bvalues = map {abs} @$bvalues;
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
@@ -237,8 +231,6 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 1) {
@@ -265,8 +257,6 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 4) {

@@ -36,7 +36,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 
@@ -421,7 +421,15 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::LTiling-E<gt>new ()>
 
-Create and return a new path object.
+=item C<$path = Math::PlanePath::LTiling-E<gt>new (L_fill =E<gt> $str)>
+
+Create and return a new path object.  The C<L_fill> choices are
+
+    "middle"    the default
+    "left"
+    "upper"
+    "ends"
+    "all"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

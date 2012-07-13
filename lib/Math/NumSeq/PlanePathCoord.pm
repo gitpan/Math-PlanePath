@@ -24,7 +24,7 @@ use constant 1.02; # various underscore constants below
 use Math::NumSeq;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -1277,7 +1277,9 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'points'} eq 'odd'
             ? 1     # odd, origin 0,0 not included
-            : 0);   # even,all origin 0,0
+            : $self->{'points'} eq 'hex_centred'
+            ? 2     # hex_centred, origin 0,0 not included
+            : 0);   # others include origin 0,0
   }
   sub _NumSeq_Coord_AbsDiff_min {
     my ($self) = @_;
@@ -1289,9 +1291,18 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'points'} eq 'odd'
             ? 1     # odd at X=1,Y=0
+            : $self->{'points'} eq 'hex_centred'
+            ? 2     # hex_centred at X=1,Y=1
             : 0);   # even,all at X=0,Y=0
   }
-  *_NumSeq_Coord_TRSquared_min = \&_NumSeq_Coord_RSquared_min;
+  sub _NumSeq_Coord_TRSquared_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd'
+            ? 1     # odd at X=1,Y=0
+            : $self->{'points'} eq 'hex_centred'
+            ? 4     # hex_centred at X=2,Y=0 or X=1,Y=1
+            : 0);   # even,all at X=0,Y=0
+  }
 
   # in order of triangular radius so monotonic, but can have duplicates so
   # non-decreasing
@@ -1993,40 +2004,38 @@ The C<coordinate_type> choices are
 diagonal, or equivalently as a measure of which anti-diagonal stripe
 contains the X,Y.
 
-                          *    line X=Y
-    \     anti-diag        \  /
-     2    numbering         \/
-    \ \     X+Y             /
-     1 2                   /  ^
-    \ \ \                 /  /
-     0 1 2               o  distance X+Y
-                           /
+                                *    line X=Y
+    \     anti-diag              \  /
+     2    numbering               \/
+    \ \     X+Y                   /
+     1 2                         /  ^
+    \ \ \                       /  /
+     0 1 2                     o  distance X+Y
+                                 /
 
-"SumAbs" is a similar projection, but onto the cross-diagonal of
-whichever quadrant contains the X,Y.  It's sometimes thought of as a
-taxi-cab or Manhatten distance, being how far be travelled through a
-square-grid city by any combination of up and down.  If a path uses
-only the first quadrant, ie. XE<gt>=0,YE<gt>=0, then of course Sum and
-SumAbs are identical.
+"SumAbs" is a similar projection, but onto the cross-diagonal of whichever
+quadrant contains the X,Y.  It's also thought of as a "taxi-cab" or
+Manhatten distance, being how far to travel through a square-grid city to
+get to X,Y.  If a path uses only the first quadrant, ie. XE<gt>=0,YE<gt>=0,
+then of course Sum and SumAbs are identical.
 
-"DiffXY" is similar, but a projection onto the X=-Y opposite diagonal,
-or a measure of which leading diagonal stripe has the X,Y.
+"DiffXY" is a similar projection, but onto the X=-Y opposite diagonal, or a
+measure of which leading diagonal stripe has the X,Y.
 
-                                    X=-Y  *
-        / / / /                       \  /
-      -1 0 1 2   diagonal              \/
-      / / / /    numbering              \
-    -1 0 1 2       X-Y                ^  \
-      / / /                            \  \
-     0 1 2                    X-Y distance o
-                                            \
+                                         X=-Y  *
+        / / / /                            \  /
+      -1 0 1 2   diagonal                   \/
+      / / / /    numbering                   \
+    -1 0 1 2       X-Y                     ^  \
+      / / /                                 \  \
+     0 1 2                         X-Y distance o
+                                                 \
 
-The triangular "TRadius" and "TRSquared" are meant for use with points
-on a triangular lattice such as HexSpiral.  On the X axis TRSquared is
-the same as RSquared, but any Y amount is scaled up.  The triangular
-paths generally use every second X,Y point which makes TRSquared
-always even, but for example KochPeaks has an offset 1 from the origin
-and is instead always odd.
+"TRadius" and "TRSquared" are meant for use with points on a triangular
+lattice such as HexSpiral.  On the X axis TRSquared is the same as RSquared,
+but any Y amount is scaled up by factor sqrt(3).  Most triangular paths use
+every second X,Y point which makes TRSquared always even, but some such as
+KochPeaks have an offset 1 from the origin making it odd instead.
 
 =head1 FUNCTIONS
 

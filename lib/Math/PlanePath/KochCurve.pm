@@ -47,7 +47,7 @@ use Math::PlanePath;
 *_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 
@@ -666,6 +666,9 @@ the base N=0 to N=4 shape.  When the low digit is zero then the next level
 up is in control, eg. N=0,4,8,12,16, making a turn where the base shape
 repeats.
 
+See L<Math::PlanePath::GrayCode/Turn Sequence> for a similar turn sequence
+arising from binary Gray code.
+
 =head2 Net Direction
 
 The cumulative turn at a given N can be found by counting digits 1 and 2 in
@@ -679,7 +682,7 @@ For example N=11 is 23 in base 4, so 60*(0-1) = -60 degrees.
 In this formula the count of 1s and 2s can go past 360 degrees, representing
 a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
-direction 0 to 5 or as desired.
+direction 0 to 5 if desired.
 
 =head2 Rectangle to N Range -- Level
 

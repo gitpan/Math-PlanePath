@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 466 }
+plan tests => 466;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::HIndexing;
 # VERSION
 
 {
-  my $want_version = 80;
+  my $want_version = 81;
   ok ($Math::PlanePath::HIndexing::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HIndexing->VERSION,  $want_version,

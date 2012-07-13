@@ -580,6 +580,9 @@ my @modules = (
                # 'TriangularHypot',  # counting by N
                # 'TriangularHypot,points=odd',
                # 'TriangularHypot,points=all',
+               # 'TriangularHypot,points=hex',
+               # 'TriangularHypot,points=hex_rotated',
+               # 'TriangularHypot,points=hex_centred',
                'PythagoreanTree',
                
                # 'Hypot',            # searching by N

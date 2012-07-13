@@ -28,6 +28,69 @@ use Smart::Comments;
 
 
 {
+  # turn Left
+  # 1,1,0,0,1,1,1,
+  # left at N=1,2 then 180 at N=3
+  # 7to8 
+  # N=2,3,4 same Y
+  # parity of A065883
+
+  require Math::NumSeq::PlanePathTurn;
+  my $planepath;
+  $planepath = "GrayCode";
+  my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
+                                              turn_type => 'LSR');
+  my $path = $seq->{'planepath_object'};
+  for (1 .. 60) {
+    my ($n, $turn) = $seq->next;
+    # next if $value;
+
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($dx,$dy) = path_n_dxdy($path,$n);
+    my $calc = calc_left_turn($n);
+    print "$n  $x,$y  $turn $calc  dxdy=$dx,$dy\n";
+    # printf "%d,", $value;
+
+    # printf "  i-1 gray %6b\n",to_gray($n-1,2);
+    # printf "  i   gray %6b\n",to_gray($n,2);
+    # printf "  i+1 gray %6b\n",to_gray($n+1,2);
+  }
+  print "\n";
+  exit 0;
+
+  sub path_n_dxdy {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($next_x,$next_y) = $path->n_to_xy($n+1);
+    return ($next_x - $x,
+            $next_y - $y);
+  }
+  sub calc_left_turn {
+    my ($n) = @_;
+    return count_low_0_bits(($n+1)>>1) % 2 ? 0 : 1;
+  }
+  sub count_low_1_bits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n % 2) {
+      $count++;
+      $n = int($n/2);
+    }
+    return $count;
+  }
+  sub count_low_0_bits {
+    my ($n) = @_;
+    if ($n == 0) { die; }
+    my $count = 0;
+    until ($n % 2) {
+      $count++;
+      $n /= 2;
+    }
+    return $count;
+  }
+}
+
+{
   # cf GRS
   require Math::NumSeq::GolayRudinShapiro;
   require Math::NumSeq::DigitCount;

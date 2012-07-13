@@ -19,13 +19,15 @@
 
 
 # Check that OEIS A-numbers listed in lib/Math/PlanePath/Foo.pm files have
-# checking code exercising them in one of the xt/oeis/*-oeis.t scripts.
+# code exercising them in one of the xt/oeis/*-oeis.t scripts.
 #
-# And check that A-numbers are not duplicated among the .pm files, since
-# that's often a cut-and-paste mistake.
+# Check that A-numbers are not duplicated among the .pm files, since that's
+# often a cut-and-paste mistake.
 #
-# And check that A-numbers are not duplicated among xt/oeis/*-oeis.t scripts,
-# since normally only need to exercise a claimed path sequence once.
+# Check that A-numbers are not duplicated among xt/oeis/*-oeis.t scripts,
+# since normally only need to exercise a claimed path sequence once.  Except
+# often that's not true since the same sequence can arise in separate ways.
+# But for now demand duplication is explicitly listed here.
 #
 
 
@@ -63,6 +65,9 @@ diag "module count ",scalar(@module_filenames);
 
 my %allow_duplicate_xrefs
   = (
+     A035263 => {'lib/Math/PlanePath/GrayCode.pm' => 1,
+                 'lib/Math/PlanePath/KochCurve.pm' => 1 },
+
      A007814 => {'lib/Math/PlanePath/CCurve.pm' => 1,
                  'lib/Math/PlanePath/PowerArray.pm' => 1 },
 
@@ -84,9 +89,11 @@ my %allow_duplicate_xrefs
                   'lib/Math/PlanePath/ZOrderCurve.pm' => 1 },
      
      A003159 => { 'lib/Math/PlanePath/CCurve.pm' => 1,
-                  'lib/Math/PlanePath/KochCurve.pm' => 1 },
+                  'lib/Math/PlanePath/KochCurve.pm' => 1,
+                  'lib/Math/PlanePath/GrayCode.pm' => 1 },
      A036554 => { 'lib/Math/PlanePath/CCurve.pm' => 1,
-                  'lib/Math/PlanePath/KochCurve.pm' => 1 },
+                  'lib/Math/PlanePath/KochCurve.pm' => 1,
+                  'lib/Math/PlanePath/GrayCode.pm' => 1 },
      
      
      A053615 => { 'lib/Math/PlanePath/SquareSpiral.pm' => 1,
@@ -168,6 +175,9 @@ diag "xt count ",scalar(@xt_filenames);
 
 my %allow_duplicate_checks
   = (
+     A035263 => {'GrayCode-oeis.t' => 1,
+                 'KochCurve-oeis.t' => 1 },
+
      A007814 => {'CCurve-oeis.t' => 1,
                  'PowerArray-oeis.t' => 1 },
 
@@ -182,9 +192,11 @@ my %allow_duplicate_checks
                   'ZOrderCurve-oeis.t' => 1 },
      
      A003159 => { 'CCurve-oeis.t' => 1,
-                  'KochCurve-oeis.t' => 1 },
+                  'KochCurve-oeis.t' => 1,
+                  'GrayCode-oeis.t' => 1 },
      A036554 => { 'CCurve-oeis.t' => 1,
-                  'KochCurve-oeis.t' => 1 },
+                  'KochCurve-oeis.t' => 1,
+                  'GrayCode-oeis.t' => 1 },
      
      A053615 => { 'SquareSpiral-oeis.t' => 1,
                   'PyramidSpiral-oeis.t' => 1,

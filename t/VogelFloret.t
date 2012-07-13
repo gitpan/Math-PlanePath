@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 29 }
+plan tests => 29;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::VogelFloret;
 # VERSION
 
 {
-  my $want_version = 80;
+  my $want_version = 81;
   ok ($Math::PlanePath::VogelFloret::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::VogelFloret->VERSION,  $want_version,

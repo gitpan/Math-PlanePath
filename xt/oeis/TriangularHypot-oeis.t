@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 2 }
+plan tests => 9;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -65,7 +65,207 @@ sub diff_nums {
 
 
 #------------------------------------------------------------------------------
-# A088534 - count of points 0<=x<=y
+# A092572 - all X^2+3Y^2 values which occur, points="all" X>0,Y>0
+{
+  my $anum = 'A092572';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
+    my $prev_h = -1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      next unless ($x > 0 && $y > 0);
+
+      my $h = $x*$x + 3*$y*$y;
+      if ($h != $prev_h) {
+        push @got, $h;
+        $prev_h = $h;
+      }
+    }
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A158937 - all X^2+3Y^2 values which occur, points="all" X>0,Y>0, with repeats
+{
+  my $anum = 'A158937';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
+    my $prev_h = -1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      next unless ($x > 0 && $y > 0);
+
+      my $h = $x*$x + 3*$y*$y;
+      push @got, $h;
+    }
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A092573 - count of points at distance n, points="all" X>0,Y>0
+
+{
+  my $anum = 'A092573';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
+    my $prev_h = 0;
+    my $count = 0;
+    for (my $n = 1; @got+1 < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      next unless ($x > 0 && $y > 0);
+
+      my $h = $x*$x + 3*$y*$y;
+      if ($h == $prev_h) {
+        $count++;
+      } else {
+        $got[$prev_h] = $count;
+        $count = 1;
+        $prev_h = $h;
+      }
+    }
+    shift @got;  # drop n=0, start from n=1
+    $#got = $#$bvalues;   # trim
+    foreach my $i (0 .. $#$bvalues) { $got[$i] ||= 0 }  # pad
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A092574 - all X^2+3Y^2 values which occur, points="all" X>0,Y>0 gcd(X,Y)=1
+{
+  my $anum = 'A092574';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
+    my $prev_h = -1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      next unless ($x > 0 && $y > 0);
+      next unless gcd($x,$y) == 1;
+
+      my $h = $x*$x + 3*$y*$y;
+      if ($h != $prev_h) {
+        push @got, $h;
+        $prev_h = $h;
+      }
+    }
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A092575 - count of points at distance n, points="all" X>0,Y>0 gcd(X,Y)=1
+
+{
+  my $anum = 'A092575';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
+    my $prev_h = 0;
+    my $count = 0;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy($n);
+      next unless ($x > 0 && $y > 0);
+      next unless gcd($x,$y) == 1;
+
+      my $h = $x*$x + 3*$y*$y;
+      if ($h == $prev_h) {
+        $count++;
+      } else {
+        $got[$prev_h] = $count;
+        $count = 1;
+        $prev_h = $h;
+      }
+    }
+    shift @got;  # drop n=0, start from n=1
+    $#got = $#$bvalues;   # trim
+    foreach my $i (0 .. $#$bvalues) { $got[$i] ||= 0 }  # pad
+
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: len=$#$bvalues  ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     len=$#got  ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+sub gcd {
+  my ($x, $y) = @_;
+  #### _gcd(): "$x,$y"
+
+  if ($y > $x) {
+    $y %= $x;
+  }
+  for (;;) {
+    if ($y <= 1) {
+      return ($y == 0 ? $x : 1);
+    }
+    ($x,$y) = ($y, $x % $y);
+  }
+}
+
+#------------------------------------------------------------------------------
+# A088534 - count of points 0<=x<=y, points="even"
 
 {
   my $anum = 'A088534';
@@ -132,7 +332,6 @@ sub diff_nums {
         $prev_h = $h;
       }
     }
-    foreach (@got) { $_ ||= 0 }
 
     $diff = diff_nums(\@got, $bvalues);
     if ($diff) {
@@ -176,7 +375,8 @@ sub diff_nums {
         $prev_h = $h;
       }
     }
-    foreach (@got) { $_ ||= 0 }
+    $#got = $#$bvalues;   # trim
+    foreach my $i (0 .. $#$bvalues) { $got[$i] ||= 0 }  # pad
 
     $diff = diff_nums(\@got, $bvalues);
     if ($diff) {

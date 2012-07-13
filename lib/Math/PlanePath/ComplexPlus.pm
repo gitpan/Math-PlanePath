@@ -44,7 +44,7 @@ use Math::PlanePath;
 *_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

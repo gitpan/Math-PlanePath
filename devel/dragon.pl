@@ -31,7 +31,183 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+#use Smart::Comments;
+
+
+{
+  # level to ymax, xmin
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $target = 4;
+  my $xmin = 0;
+  my $ymax = 0;
+  for (my $n = 0; $n < 2**28; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $xmin = min($x,$xmin);
+    $ymax = max($y,$ymax);
+    if ($n == $target) {
+      printf "%7d %14b %14b\n", $n, -$xmin, $ymax;
+      $target *= 2;
+    }
+  }
+  exit 0;
+}
+
+{
+  # upwards
+  #                  9----8    5---4
+  #                  |    |    |   |
+  #                 10--11,7---6   3---2
+  #                       |            |
+  #            16   13---12        0---1
+  #             |    |
+  #            15---14
+  #
+  #
+  #
+  #                       8----->  4
+  #                       |        ^
+  #                       |        |
+  #            16----->   v        |
+  #
+  #
+  #
+  # 2*(4^2-1)/3 = 10 0b1010
+  # 4*(4^2-1)/3 = 20 0b10100
+  #
+  # (2^3+1)/3
+  # (2^4-1)/3
+  # (2^5-2)/3 = 10
+  # (2^6-4)/3 = 20
+  # (2^7-2)/3 = 42 = 101010
+  # (2^8-4)/3 = 84 = 1010100
+  #
+  # # new xmax = xmax or ymax
+  # # new xmin = ymin-4
+  # # new ymax = ymax or -ymin or 2-xmin
+  # # new ymin = ymin or -ymax or -xmax
+  #
+  #                  16
+  #                   |
+  #                   |
+  #                   v
+  #       xmin seg 2  <---8
+  #                       |
+  #                       |
+  #                       v
+  #                   --->4   xmax seg0
+  #
+  #               ymin seg 0
+  #
+  # new xmax = len + -xmin
+  #          = len + -ymin
+  # new xmin = - xmax
+  # new ymax = 2len + (-ymin)   only candidate
+  # new ymin = -(ymax-len)
+  #
+  # xmax,xmin alternate
+  # ymax-len,ymin alternate
+
+  my $xmin = 0;
+  my $xmax = 0;
+  my $ymin = 0;
+  my $ymax = 0;
+  my $len = 1;
+  my $exp = 8;
+  print "level xmin    xmax       xsize      |   ymin   ymax   ysize\n";
+  for (0 .. $exp) {
+    printf "%2d %-10s %-10s = %-10s | %-10s %-10s = %-10s\n",
+      $_,
+        to_bin($xmin),to_bin($xmax),  to_bin(-$xmin+$xmax),
+            to_bin($ymin),to_bin($ymax),  to_bin(-$ymin+$ymax);
+
+    my @xmax_candidates = ($ymax,      # seg 0 across
+                           $len-$xmin, # seg 1 side    <---
+                           $len-$ymin, # seg 2 before  <---
+                          );
+    my $xmax_seg = max_index(@xmax_candidates);
+    my $xmax_candstr = join(',',@xmax_candidates);
+
+    my @xmin_candidates = ($ymin,         # seg 0 before
+                           -($ymax-$len), # seg 2 across
+                           -$xmax,        # seg 3 side  <---
+                          );
+    my $xmin_seg = min_index(@xmin_candidates);
+    my $xmin_candstr = join(',',@xmin_candidates);
+
+    my @ymin_candidates = (-$xmax,          # seg 0 side  <---
+                           -($ymax-$len));  # seg 1 extend
+    my $ymin_seg = min_index(@ymin_candidates);
+    my $ymin_candstr = join(',',@ymin_candidates);
+    print "$_  xmax ${xmax_seg}of$xmax_candstr xmin ${xmin_seg}of$xmin_candstr ymin ${ymin_seg}of$ymin_candstr\n";
+
+    ($xmax,$xmin, $ymax,$ymin)
+      = (
+         # xmax
+         max ($ymax,      # seg 0 across
+              $len-$xmin, # seg 1 side
+              $len-$ymin, # seg 2 before
+             ),
+
+         # xmin
+         min ($ymin,       # seg 0 before
+              $len-$ymax,  # seg 2 across
+              -$xmax,      # seg 3 side
+             ),
+
+         # ymax
+         2*$len-$ymin,    # seg 3 before
+
+         # ymin
+         min(-$xmax,           # seg 0 side
+             -($ymax-$len)));  # seg 1 extend
+
+    ### assert: $xmin <= 0
+    ### assert: $ymin <= 0
+    ### assert: $xmax >= 0
+    ### assert: $ymax >= 0
+
+    $len *= 2;
+  }
+  print 3*$xmin/$len+.001," / 3\n";
+  print 6*$xmax/$len+.001," / 6\n";
+  print 3*$ymin/$len+.001," / 3\n";
+  print 3*$ymax/$len+.001," / 3\n";
+  exit 0;
+
+  sub min_index {
+    my $min_value = $_[0];
+    my $ret = 0;
+    foreach my $i (1 .. $#_) {
+      my $next = $_[$i];
+      if ($next == $min_value) {
+        $ret .= ",$i";
+      } elsif ($next < $min_value) {
+        $ret = $i;
+        $min_value = $next;
+      }
+    }
+    return $ret;
+  }
+  sub max_index {
+    ### max_index(): @_
+    my $max_value = $_[0];
+    my $ret = 0;
+    foreach my $i (1 .. $#_) {
+      my $next = $_[$i];
+      ### $next
+      if ($next == $max_value) {
+        ### append ...
+        $ret .= ",$i";
+      } elsif ($next > $max_value) {
+        ### new max ...
+        $ret = $i;
+        $max_value = $next;
+      }
+    }
+    return $ret;
+  }
+}
 
 {
   # A088431 and A007400 continued fraction
@@ -391,160 +567,6 @@ use Smart::Comments;
 }
 
 
-{
-  # upwards
-  #                  9----8    5---4
-  #                  |    |    |   |
-  #                 10--11,7---6   3---2
-  #                       |            |
-  #            16   13---12        0---1
-  #             |    |
-  #            15---14
-  #
-  #
-  #
-  #                       8----->  4
-  #                       |        ^
-  #                       |        |
-  #            16----->   v        |
-  #
-  #
-  #
-  # 2*(4^2-1)/3 = 10 0b1010
-  # 4*(4^2-1)/3 = 20 0b10100
-  #
-  # (2^3+1)/3
-  # (2^4-1)/3
-  # (2^5-2)/3 = 10
-  # (2^6-4)/3 = 20
-  # (2^7-2)/3 = 42 = 101010
-  # (2^8-4)/3 = 84 = 1010100
-  #
-  # # new xmax = xmax or ymax
-  # # new xmin = ymin-4
-  # # new ymax = ymax or -ymin or 2-xmin
-  # # new ymin = ymin or -ymax or -xmax
-  #
-  #                  16
-  #                   |
-  #                   |
-  #                   v
-  #       xmin seg 2  <---8
-  #                       |
-  #                       |
-  #                       v
-  #                   --->4   xmax seg0
-  #
-  #               ymin seg 0
-  #
-  # new xmax = len + -xmin
-  #          = len + -ymin
-  # new xmin = - xmax
-  # new ymax = 2len + (-ymin)   only candidate
-  # new ymin = -(ymax-len)
-  #
-  # xmax,xmin alternate
-  # ymax-len,ymin alternate
-
-  my $xmin = 0;
-  my $xmax = 0;
-  my $ymin = 0;
-  my $ymax = 0;
-  my $len = 1;
-  my $exp = 8;
-  for (0 .. $exp) {
-    printf "%2d %-10s %-10s = %-10s | %-10s %-10s = %-10s\n",
-      $_,
-        to_bin($xmin),to_bin($xmax),  to_bin(-$xmin+$xmax),
-            to_bin($ymin),to_bin($ymax),  to_bin(-$ymin+$ymax);
-
-    my @xmax_candidates = ($ymax,      # seg 0 across
-                           $len-$xmin, # seg 1 side    <---
-                           $len-$ymin, # seg 2 before  <---
-                          );
-    my $xmax_seg = max_index(@xmax_candidates);
-    my $xmax_candstr = join(',',@xmax_candidates);
-
-    my @xmin_candidates = ($ymin,         # seg 0 before
-                           -($ymax-$len), # seg 2 across
-                           -$xmax,        # seg 3 side  <---
-                          );
-    my $xmin_seg = min_index(@xmin_candidates);
-    my $xmin_candstr = join(',',@xmin_candidates);
-
-    my @ymin_candidates = (-$xmax,          # seg 0 side  <---
-                           -($ymax-$len));  # seg 1 extend
-    my $ymin_seg = min_index(@ymin_candidates);
-    my $ymin_candstr = join(',',@ymin_candidates);
-    print "$_  xmax ${xmax_seg}of$xmax_candstr xmin ${xmin_seg}of$xmin_candstr ymin ${ymin_seg}of$ymin_candstr\n";
-
-    ($xmax,$xmin, $ymax,$ymin)
-      = (
-         # xmax
-         max ($ymax,      # seg 0 across
-              $len-$xmin, # seg 1 side
-              $len-$ymin, # seg 2 before
-             ),
-
-         # xmin
-         min ($ymin,       # seg 0 before
-              $len-$ymax,  # seg 2 across
-              -$xmax,      # seg 3 side
-             ),
-
-         # ymax
-         2*$len-$ymin,    # seg 3 before
-
-         # ymin
-         min(-$xmax,           # seg 0 side
-             -($ymax-$len)));  # seg 1 extend
-
-    ### assert: $xmin <= 0
-    ### assert: $ymin <= 0
-    ### assert: $xmax >= 0
-    ### assert: $ymax >= 0
-
-    $len *= 2;
-  }
-  print 3*$xmin/$len+.001," / 3\n";
-  print 6*$xmax/$len+.001," / 6\n";
-  print 3*$ymin/$len+.001," / 3\n";
-  print 3*$ymax/$len+.001," / 3\n";
-  exit 0;
-
-  sub min_index {
-    my $min_value = $_[0];
-    my $ret = 0;
-    foreach my $i (1 .. $#_) {
-      my $next = $_[$i];
-      if ($next == $min_value) {
-        $ret .= ",$i";
-      } elsif ($next < $min_value) {
-        $ret = $i;
-        $min_value = $next;
-      }
-    }
-    return $ret;
-  }
-  sub max_index {
-    ### max_index(): @_
-    my $max_value = $_[0];
-    my $ret = 0;
-    foreach my $i (1 .. $#_) {
-      my $next = $_[$i];
-      ### $next
-      if ($next == $max_value) {
-        ### append ...
-        $ret .= ",$i";
-      } elsif ($next > $max_value) {
-        ### new max ...
-        $ret = $i;
-        $max_value = $next;
-      }
-    }
-    return $ret;
-  }
-}
 
 {
   # width,height extents

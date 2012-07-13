@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 76 }
+plan tests => 76;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::Staircase;
 # VERSION
 
 {
-  my $want_version = 80;
+  my $want_version = 81;
   ok ($Math::PlanePath::Staircase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Staircase->VERSION,  $want_version,

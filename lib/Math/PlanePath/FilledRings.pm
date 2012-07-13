@@ -52,7 +52,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -412,10 +412,18 @@ The behaviour for fractional C<$n> is unspecified as yet.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A036705
+    http://oeis.org/A036704
 
+    A036704  N-1 along X axis,
+               being count of X,Y points norm <= n+1/2
     A036705  first diffs of N on X axis,
-             being count of X,Y points n-1/2 < X^2+Y^2 <= n+1/2
+               being count of X,Y points n-1/2 < norm <= n+1/2
+    A036706  1/4 of those diffs
+
+    A036707  N/2+X-1 along X axis,
+               being count norm <= n+1/2 in half plane Y>=0
+    A036708  (N(X,0)-N(X-1,0))/2+1,
+               first diffs of the half plane count
 
 =head1 SEE ALSO
 

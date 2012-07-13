@@ -135,7 +135,7 @@ use Module::Load;
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-      points => 'hex_rotated',
+      points => 'hex',
      # turns => 1,
      # arms => 8,
      # pairs_order => 'rows_reverse',
@@ -169,7 +169,7 @@ use Module::Load;
   my $path_ref = ref($path);
   print "n_start() $n_start arms_count() $arms_count   $path_ref\n";
 
-  for (my $i = 1.0; $i <= 50; $i+=1) {
+  for (my $i = 1.0; $i <= 500; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

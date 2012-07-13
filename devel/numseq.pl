@@ -25,6 +25,38 @@ use strict;
 
 
 {
+  # max turn Left etc
+
+  require Math::NumSeq::PlanePathTurn;
+  require Math::NumSeq::PlanePathDelta;
+  my $planepath;
+  $planepath = "TriangularHypot,points=hex";
+  $planepath = "TriangularHypot,points=hex_centred";
+  $planepath = "TriangularHypot,points=hex_rotated";
+  # my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
+  #                                             turn_type => 'Right');
+
+  $planepath = "TerdragonCurve";
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+                                              delta_type => 'TDir6');
+  my $max = -99;
+  my $min = 99;
+  for (1 .. 1000000) {
+    my ($i, $value) = $seq->next;
+    # $value = -$value; next unless $value;
+    if ($value > $max) {
+      printf "%d %.5f new max\n", $i, $value;
+      $max = $value;
+    }
+    if ($value < $min) {
+      printf "%d %.5f new min\n", $i, $value;
+      $min = $value;
+    }
+  }
+  exit 0;
+}
+
+{
   # max Dir4
 
   require Math::BaseCnv;

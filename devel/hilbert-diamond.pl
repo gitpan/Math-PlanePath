@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -52,6 +52,6 @@ foreach my $n (1 .. 64) {
 }
 
 $image->save ('/tmp/x.png');
-system ('xzgv /tmp/x.png');
+system ('zgv /tmp/x.png');
 
 exit 0;

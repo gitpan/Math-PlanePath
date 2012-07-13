@@ -1,0 +1,53 @@
+#!/usr/bin/ucblogo
+
+;; Copyright 2012 Kevin Ryde
+;;
+;; This file is part of Math-PlanePath.
+;;
+;; Math-PlanePath is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by the Free
+;; Software Foundation; either version 3, or (at your option) any later
+;; version.
+;;
+;; Math-PlanePath is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+;; for more details.
+;;
+;; You should have received a copy of the GNU General Public License along
+;; with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+; for n = binary z100..00 return the "z" bit alone z000..00
+; Eg. n=22 is binary 10110 and returns 4, ie. binary 100
+to bit.above.lowest.1bit :n
+  output bitand :n (1 + (bitxor :n (:n - 1)))
+end
+
+to dragon :steps
+  repeat :steps [
+    forward 5
+    ifelse 0 = bit.above.lowest.1bit repcount
+      [left 90] [right 90]
+  ]
+end
+
+dragon 1024
+
+
+; epspict "/tmp/x.eps
+
+; do.while
+; .setfirst
+; .maybeoutput
+; * + - /
+; < 
+; <=
+; <>
+; =
+; >
+; >=
+; `
+
+; /so/logo/ucblogo-6.0/csls/

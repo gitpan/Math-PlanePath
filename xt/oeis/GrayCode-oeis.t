@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use Test;
-plan tests => 10;
+plan tests => 26;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -72,6 +72,184 @@ sub diff_nums {
     }
   }
   return undef;
+}
+
+
+#------------------------------------------------------------------------------
+# A003159 -- (N+1)/2 of positions of Left turns
+{
+  my $anum = 'A003159';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::GrayCode->new;
+
+    for (my $n = 2; @got < @$bvalues; $n += 2) {
+      if (path_n_turn($path,$n) == 1) {
+        push @got, $n/2;
+      }
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum -- left turns positions");
+}
+
+#------------------------------------------------------------------------------
+# A036554 -- (N+1)/2 of positions of Left turns
+{
+  my $anum = 'A036554';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::GrayCode->new;
+
+    for (my $n = 2; @got < @$bvalues; $n += 2) {
+      if (path_n_turn($path,$n) == 0) {
+        push @got, $n/2;
+      }
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum -- 180deg turns positions");
+}
+
+#------------------------------------------------------------------------------
+# A039963 -- Left turns
+{
+  my $anum = 'A039963';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::GrayCode->new;
+
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
+      push @got, path_n_turn($path,$n);
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum -- left turns");
+}
+
+#------------------------------------------------------------------------------
+# A035263 -- Left turns undoubled, skip N even
+{
+  my $anum = 'A035263';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::GrayCode->new;
+
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n += 2) {
+      push @got, path_n_turn($path,$n);
+    }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum -- left turns undoubled");
+}
+
+#------------------------------------------------------------------------------
+# A065882 -- low base4 non-zero digit
+{
+  my $anum = 'A065882';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::GrayCode->new;
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n += 2) {
+      push @got, path_n_turn($path,$n);
+    }
+    foreach (@$bvalues) { $_ %= 2; }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum -- left turns undoubled");
+}
+
+#------------------------------------------------------------------------------
+# A007913 -- Left turns from square free part of N, skip N even
+{
+  my $anum = q{A007913};  # not xreffed in GrayCode.pm
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::GrayCode->new;
+    for (my $n = $path->n_start + 1; @got < @$bvalues; $n += 2) {
+      push @got, path_n_turn($path,$n);
+    }
+    foreach (@$bvalues) { $_ %= 2; }
+
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum -- left turns undoubled");
+}
+
+# return 1 for left, 0 for right
+sub path_n_turn {
+  my ($path, $n) = @_;
+  my $prev_dir = path_n_dir ($path, $n-1);
+  my $dir = path_n_dir ($path, $n);
+  my $turn = ($dir - $prev_dir) % 4;
+  if ($turn == 1) { return 1; }
+  if ($turn == 2) { return 0; }
+  die "Oops, unrecognised turn";
+}
+# return 0,1,2,3
+sub path_n_dir {
+  my ($path, $n) = @_;
+  my ($x,$y) = $path->n_to_xy($n)
+    or die "Oops, no point at ",$n;
+  my ($next_x,$next_y) = $path->n_to_xy($n+1)
+    or die "Oops, no point at ",$n+1;
+  return dxdy_to_dir ($next_x - $x,
+                      $next_y - $y);
+}
+# return 0,1,2,3, with Y reckoned increasing upwards
+sub dxdy_to_dir {
+  my ($dx, $dy) = @_;
+  if ($dx > 0) { return 0; }  # east
+  if ($dx < 0) { return 2; }  # west
+  if ($dy > 0) { return 1; }  # north
+  if ($dy < 0) { return 3; }  # south
 }
 
 
@@ -355,6 +533,301 @@ sub flip_base4_23 {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1);
+}
+
+#------------------------------------------------------------------------------
+# A003188 - binary gray reflected
+# modular and reflected same in binary
+
+{
+  my $anum = 'A003188';
+  my $radix = 2;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      }
+
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - binary gray reflected");
+  }
+
+  {
+    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      }
+
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - binary gray reflected");
+  }
+}
+
+# A014550 - binary gray reflected, in binary
+{
+  my $anum = 'A014550';
+  my $radix = 2;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,10);
+      }
+
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - binary gray, in binary");
+  }
+
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,10);
+      }
+
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - binary gray, in binary");
+  }
+}
+
+# A006068 - binary gray reflected inverse
+{
+  my $anum = 'A006068';
+  my $radix = 2;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - binary gray inverse");
+  }
+
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - binary gray inverse");
+  }
+}
+
+#------------------------------------------------------------------------------
+# A105530 - ternary gray modular
+
+{
+  my $anum = 'A105530';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $radix = 3;
+  my @got;
+  if ($bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
+      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - ternary gray modular");
+}
+
+# A105529 - ternary gray modular inverse
+{
+  my $anum = 'A105529';
+  my $radix = 3;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
+      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - ternary gray modular inverse");
+}
+
+#------------------------------------------------------------------------------
+# A128173 - ternary gray reflected
+# odd radix to and from are the same
+
+{
+  my $anum = 'A128173';
+  my $radix = 3;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - ternary gray reflected");
+  }
+
+  {
+    my @got;
+    if ($bvalues) {
+      for (my $n = 0; @got < @$bvalues; $n++) {
+        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
+        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum - ternary gray reflected");
+  }
+}
+
+#------------------------------------------------------------------------------
+# A003100 - decimal gray reflected
+
+{
+  my $anum = 'A003100';
+  my $radix = 10;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
+      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - decimal gray reflected");
+}
+
+# A174025 - decimal gray reflected inverse
+{
+  my $anum = 'A174025';
+  my $radix = 10;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
+      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - decimal gray reflected inverse");
+}
+
+#------------------------------------------------------------------------------
+# A098488 - decimal gray modular
+
+{
+  my $anum = 'A098488';
+  my $radix = 10;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
+      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
+      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum - decimal gray modular");
 }
 
 #------------------------------------------------------------------------------

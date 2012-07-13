@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 22 }
+plan tests => 22;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 80;
+  my $want_version = 81;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,
@@ -74,74 +74,6 @@ require Math::PlanePath::TriangularHypot;
   ok (join(',',@pnames), 'points');
 }
 
-#------------------------------------------------------------------------------
-# monotonic hypotenuse
-
-# (sqrt(3)/2 * y)^2 + (x/2)^2
-#     = 3/4 * y^2 + 1/4 * x^2
-#     = 1/4 * (3*y^2 + x^2)
-sub hex_hypot {
-  my ($x, $y) = @_;
-  return 3*$y*$y + $x*$x;
-}
-
-foreach my $points ('hex_rotated','hex_centred','hex','odd','even','all') {
-  my $path = Math::PlanePath::TriangularHypot->new (points => $points);
-  my $bad = 0;
-  my $n = $path->n_start;
-  my ($x,$y) = $path->n_to_xy($n);
-  my $h = hex_hypot($x,$y);
-  while (++$n < 5000) {
-    my ($x2,$y2) = $path->n_to_xy ($n);
-
-    if ($points eq 'even') {
-      if (($x2 ^ $y2) & 1) {
-        if (defined $n) {
-          MyTestHelpers::diag ("$points: x2=$x2,y2=$y2 is odd");
-          last if $bad++ > 10;
-        }
-        next;
-      }
-    } elsif ($points eq 'odd') {
-      if (! (($x2 ^ $y2) & 1)) {
-        if (defined $n) {
-          MyTestHelpers::diag ("$points: x2=$x2,y2=$y2 is even");
-          last if $bad++ > 10;
-        }
-        next;
-      }
-    }
-
-    my $h2 = hex_hypot($x2,$y2);
-    ### xy: "$x2,$y2  is $h2"
-    if ($h2 < $h) {
-      MyTestHelpers::diag ("n=$n x=$x2,y=$y2 h=$h2 < prev h=$h x=$x,y=$y");
-      last if $bad++ > 10;
-    }
-    if ($points eq 'even') {
-      # odd,all don't always turn left
-      if ($n > 2 && ! _turn_func_Left($x,$y, $x2,$y2)) {
-        MyTestHelpers::diag ("$points: not turn left at n=$n x=$x2,y=$y2 prev x=$x,y=$y");
-        last if $bad++ > 10;
-      }
-    }
-    $h = $h2;
-    $x = $x2;
-    $y = $y2;
-  }
-  ok ($bad, 0, "$points: n_to_xy() hypot non-decreasing");
-}
-
-sub _turn_func_Left {
-  my ($dx,$dy, $next_dx,$next_dy) = @_;
-  ### _turn_func_Left() ...
-  my $a = $next_dy * $dx;
-  my $b = $next_dx * $dy;
-  return ($a > $b
-          || abs($dx)==abs($next_dx) && abs($dy)==abs($next_dy)  # 0 or 180
-          ? 1
-          : 0);
-}
 
 #------------------------------------------------------------------------------
 # all x,y covered and distinct n
@@ -226,4 +158,74 @@ foreach my $points ('hex_centred','hex','odd','even','all') {
   ok ($bad, 0, "$points xy_to_n() coverage and distinct, $count points");
 }
 
+#------------------------------------------------------------------------------
+# monotonic hypotenuse
+
+# (sqrt(3)/2 * y)^2 + (x/2)^2
+#     = 3/4 * y^2 + 1/4 * x^2
+#     = 1/4 * (3*y^2 + x^2)
+sub hex_hypot {
+  my ($x, $y) = @_;
+  return 3*$y*$y + $x*$x;
+}
+
+foreach my $points ('hex_rotated','hex_centred','hex','odd','even','all') {
+  my $path = Math::PlanePath::TriangularHypot->new (points => $points);
+  my $bad = 0;
+  my $n = $path->n_start;
+  my ($x,$y) = $path->n_to_xy($n);
+  my $h = hex_hypot($x,$y);
+  while (++$n < 5000) {
+    my ($x2,$y2) = $path->n_to_xy ($n);
+
+    if ($points eq 'even') {
+      if (($x2 ^ $y2) & 1) {
+        if (defined $n) {
+          MyTestHelpers::diag ("$points: x2=$x2,y2=$y2 is odd");
+          last if $bad++ > 10;
+        }
+        next;
+      }
+    } elsif ($points eq 'odd') {
+      if (! (($x2 ^ $y2) & 1)) {
+        if (defined $n) {
+          MyTestHelpers::diag ("$points: x2=$x2,y2=$y2 is even");
+          last if $bad++ > 10;
+        }
+        next;
+      }
+    }
+
+    my $h2 = hex_hypot($x2,$y2);
+    ### xy: "$x2,$y2  is $h2"
+    if ($h2 < $h) {
+      MyTestHelpers::diag ("n=$n x=$x2,y=$y2 h=$h2 < prev h=$h x=$x,y=$y");
+      last if $bad++ > 10;
+    }
+    if ($points eq 'even') {
+      # odd,all don't always turn left
+      if ($n > 2 && ! _turn_func_Left($x,$y, $x2,$y2)) {
+        MyTestHelpers::diag ("$points: not turn left at n=$n x=$x2,y=$y2 prev x=$x,y=$y");
+        last if $bad++ > 10;
+      }
+    }
+    $h = $h2;
+    $x = $x2;
+    $y = $y2;
+  }
+  ok ($bad, 0, "$points: n_to_xy() hypot non-decreasing");
+}
+
+sub _turn_func_Left {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  ### _turn_func_Left() ...
+  my $a = $next_dy * $dx;
+  my $b = $next_dx * $dy;
+  return ($a > $b
+          || abs($dx)==abs($next_dx) && abs($dy)==abs($next_dy)  # 0 or 180
+          ? 1
+          : 0);
+}
+
+#------------------------------------------------------------------------------
 exit 0;

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -142,15 +142,14 @@ Math::PlanePath::Rows -- points in fixed-width rows
 
 This path is rows of a given fixed width.  For example width 7 is
 
-                                  width=7
-                                    ^
-    ...                             |
-      3  |  22 ...
+    width => 7
+
+      3  |  22  23  24  ...
       2  |  15  16  17  18  19  20  21
       1  |   8   9  10  11  12  13  14
-    y=0  |   1   2   3   4   5   6   7
+    Y=0  |   1   2   3   4   5   6   7
           -------------------------------
-           x=0   1   2   3   4   5   6
+           X=0   1   2   3   4   5   6
 
 =head1 FUNCTIONS
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -28,7 +28,7 @@ use Smart::Comments;
 
 {
   my $path = Math::PlanePath::GosperIslands->new;
-  my @rows = ((' ' x 32) x 78);
+  my @rows = ((' ' x 64) x 78);
 
   my $level = 3;
   my $n_start = 3**$level - 2;

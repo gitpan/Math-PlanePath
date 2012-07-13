@@ -23,6 +23,8 @@ devel/cubic-base.pl
 devel/digit-groups.pl
 devel/divisible.pl
 devel/dragon-numbers.pl
+devel/dragon.el
+devel/dragon.logo
 devel/dragon.pl
 devel/exe-atan2.c
 devel/exe-complex-minus.c

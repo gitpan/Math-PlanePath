@@ -35,7 +35,7 @@ use Math::PlanePath::KochCurve 42;
 *_digit_join_htol = \&Math::PlanePath::KochCurve::_digit_join_htol;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 
@@ -535,7 +535,7 @@ this path include
 
     http://oeis.org/A179868  (etc)
 
-    A179868 - direction 0to3, (count of 1 bits) mod 4
+    A179868 - direction 0to3, being count of 1 bits mod 4
     A000120 - direction as total turn, count of 1 bits
     A007814 - count low 0s, is turn by value-1 to the right
 

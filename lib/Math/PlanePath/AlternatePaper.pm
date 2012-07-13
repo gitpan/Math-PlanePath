@@ -17,7 +17,6 @@
 
 
 # math-image --path=AlternatePaper --output=numbers --all
-# math-image --path=AlternatePaper --expression='i<=64?i:0' --output=numbers --size=60
 
 # sum X+Y A020986 partial sums of golay-rudin-shapiro
 #   A020985 +/-1 parity of count of 11 bit pairs
@@ -27,7 +26,7 @@
 #
 # A134452 dX balanced ternary digital root
 #            sum of digits (keeping sign)
-# A056594 
+# A056594
 # A014081 count 11 pairs -- does this arise?
 #
 # http://www.numdam.org/item?id=BSMF_1981__109__207_0
@@ -49,7 +48,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -185,7 +184,7 @@ sub n_to_xy {
 #     $frac = $n - $int;  # inherit possible BigFloat
 #     $n = $int;          # BigFloat int() gives BigInt, use that
 #   }
-# 
+#
 
 
 #                                                      8
@@ -439,17 +438,17 @@ __END__
 #
 # my @rot_to_sx = (1,0,-1,0);
 # my @rot_to_sy = (0,1,0,-1);
-# 
+#
 # my @arm_to_x = (0,0, 0,0, -1,-1, -1,-1);
 # my @arm_to_y = (0,0, 1,1,   1,1,  0,0);
-# 
+#
 # sub XXn_to_xy {
 #   my ($self, $n) = @_;
 #   ### AlternatePaper n_to_xy(): $n
-# 
+#
 #   if ($n < 0) { return; }
 #   if (_is_infinite($n)) { return ($n, $n); }
-# 
+#
 #   my $frac;
 #   {
 #     my $int = int($n);
@@ -457,16 +456,16 @@ __END__
 #     $n = $int;          # BigFloat int() gives BigInt, use that
 #   }
 #   ### $frac
-# 
+#
 #   my $zero = ($n * 0);  # inherit bignum 0
-# 
+#
 #   my $arm = _divrem_destructive ($n, $self->{'arms'});
-# 
+#
 #   my @digits = _digit_split_lowtohigh($n,2);
 #   if (scalar(@digits) & 1) {
 #     push @digits, 0;  # extra high to make even
 #   }
-# 
+#
 #   my @sx;
 #   my @sy;
 #   {
@@ -474,29 +473,29 @@ __END__
 #     my $sx = $sy + 1; # inherit BigInt
 #     ### $sx
 #     ### $sy
-# 
+#
 #     foreach (1 .. scalar(@digits)/2) {
 #       push @sx, $sx;
 #       push @sy, $sy;
-# 
+#
 #       # (sx,sy) + rot+90(sx,sy)
 #       ($sx,$sy) = ($sx - $sy,
 #                    $sy + $sx);
-# 
+#
 #       push @sx, $sx;
 #       push @sy, $sy;
-# 
+#
 #       # (sx,sy) + rot-90(sx,sy)
 #       ($sx,$sy) = ($sx + $sy,
 #                    $sy - $sx);
 #     }
 #   }
-# 
+#
 #   ### @digits
 #   ### @sx
 #   ### @sy
 #   ### assert: scalar(@sx) == scalar(@digits)
-# 
+#
 #   my $rot = int($arm/2);  # arm to initial rotation
 #   my $rev = 0;
 #   my $x = $zero;
@@ -508,14 +507,14 @@ __END__
 #       my $sy = pop @sy;
 #       ### at: "$x,$y  $digit   side $sx,$sy"
 #       ### $rot
-# 
+#
 #       if ($rot & 2) {
 #         ($sx,$sy) = (-$sx,-$sy);
 #       }
 #       if ($rot & 1) {
 #         ($sx,$sy) = (-$sy,$sx);
 #       }
-# 
+#
 #       if ($rev) {
 #         if ($digit) {
 #           $x -= $sy;
@@ -535,23 +534,23 @@ __END__
 #         }
 #       }
 #     }
-# 
+#
 #     @digits || last;
-# 
+#
 #     {
 #       my $digit = pop @digits;
 #       my $sx = pop @sx;
 #       my $sy = pop @sy;
 #       ### at: "$x,$y  $digit   side $sx,$sy"
 #       ### $rot
-# 
+#
 #       if ($rot & 2) {
 #         ($sx,$sy) = (-$sx,-$sy);
 #       }
 #       if ($rot & 1) {
 #         ($sx,$sy) = (-$sy,$sx);
 #       }
-# 
+#
 #       if ($rev) {
 #         if ($digit) {
 #           $x += $sy;
@@ -572,23 +571,23 @@ __END__
 #       }
 #     }
 #   }
-# 
+#
 #   ### $rot
 #   ### $rev
-# 
+#
 #   if ($rev) {
 #     $rot += 2;
 #     ### rev change rot to: $rot
 #   }
-# 
+#
 #   if ($arm & 1) {
 #     ($x,$y) = ($y,$x);  # odd arms transpose
 #   }
-# 
+#
 #   $rot &= 3;
 #   $x = $frac * $rot_to_sx[$rot] + $x + $arm_to_x[$arm];
 #   $y = $frac * $rot_to_sy[$rot] + $y + $arm_to_y[$arm];
-# 
+#
 #   ### final: "$x,$y"
 #   return ($x,$y);
 # }
@@ -612,20 +611,26 @@ Math::PlanePath::AlternatePaper -- alternate paper folding curve
 This is an integer version of the alternate paper folding curve (a variation
 on the DragonCurve paper folding).
 
+=cut
+
+# math-image --path=AlternatePaper --expression='i<=128?i:0' --output=numbers --size=60
+
+=pod
+
       8 |                                                      128
         |                                                       |
-      7 |                                                42---43/127 
+      7 |                                                42---43/127
         |                                                |      |
       6 |                                         40---41/45--44/124
         |                                         |      |      |
       5 |                                  34---35/39--38/46--47/123
         |                                  |      |      |      |
       4 |                           32---33/53--36/52--37/49--48/112
-        |                           |      |      |      |      | 
-      3 |                    10---11/31--30/54--51/55--50/58--59/111 
-        |                    |      |      |      |      |      |  
-      2 |              8----9/13--12/28--29/25--24/56--57/61--60/108 
-        |              |     |      |      |      |      |      |          
+        |                           |      |      |      |      |
+      3 |                    10---11/31--30/54--51/55--50/58--59/111
+        |                    |      |      |      |      |      |
+      2 |              8----9/13--12/28--29/25--24/56--57/61--60/108
+        |              |     |      |      |      |      |      |
       1 |        2----3/7---6/14--15/27--26/18--19/23---22/62--63/107
         |        |     |     |      |      |      |      |      |
     Y=0 |  0-----1     4-----5     16-----17     20-----21     64---..
@@ -633,7 +638,7 @@ on the DragonCurve paper folding).
         +------------------------------------------------------------
           X=0    1     2     3      4      5      6      7      8
 
-The curve visits the X axis points and X=Y diagonal points once each and
+The curve visits the X axis points and the X=Y diagonal points once each and
 visits "inside" points between there twice each.  The first doubled point is
 X=2,Y=1 which is N=3 and also N=7.  The segments N=2,3,4 and N=6,7,8 have
 touched, but the curve doesn't cross over itself.  The doubled vertices are
@@ -714,6 +719,94 @@ and 3.
      / 0>| 1 \|
     +----+----+
 
+=head2 Arms
+
+The C<arms> parameter can choose 1 to 8 curve arms successively advancing.
+Each fills an eighth of the plane.  The second arm is mirrored across the
+X=Y leading diagonal, so
+
+=cut
+
+# math-image --path=AlternatePaper,arms=2 --expression='i<=128?i:0' --output=numbers --size=60
+
+=pod
+
+      arms => 2
+
+        |   |     |       |       |       |
+      4 |  33---31/55---25/57---23/63---64/65--
+        |         |       |       |       |
+      3 |  11---13/29---19/27---20/21---22/62--
+        |   |     |       |       |       |
+      2 |   9----7/15---16/17---18/26---24/56--
+        |         |       |       |       |
+      1 |   3----4/5-----6/14---12/28---30/54--
+        |   |     |       |       |       |
+    Y=0 |  0/1----2       8------10      32---
+        |
+        +------------- -------------------------
+          X=0     1       2       3       4
+
+Here the even N=0,2,4,6,etc is the plain curve below the X=Y diagonals and
+odd N=1,3,5,7,9,etc is the mirrored copy.
+
+Arms 3 and 4 are the same but rotated +90 degrees and starting from X=0,Y=1.
+That start point ensures each edge between integer points is traversed just
+once.
+
+=cut
+
+# math-image --path=AlternatePaper,arms=4 --expression='i<=256?i:0' --output=numbers --size=60
+
+=pod
+
+    arms => 4
+
+        |       |       |      |        |
+    --34/35---14/30---18/21--25/57----37/53--        3
+        |       |       |      |        |
+    --15/31---10/11----6/17--13/29----32/33--        2
+        |       |       |      |        |
+     --19       7-----2/3/5---8/9-----12/28--        1
+                        |      |        |
+                       0/1-----4        16--     <- Y=0
+
+    -----------------------------------------
+       -1      -2      X=0     1        2
+
+Points N=0,4,8,12,etc is the plain curve, N=1,5,9,13,etc the second mirrored
+arm, N=2,6,10,14,etc is arm 3 which is the plain curve rotated +90, and
+N=3,7,11,15,etc the rotated and mirrored.
+
+Arms 5 and 6 start at X=-1,Y=1, and arms 7 and 8 start at X=-1,Y=0 so they
+too traverse each edge once.  With a full 8 arms each point is visited twice
+except for the four start points which are three times.
+
+=cut
+
+# math-image --path=AlternatePaper,arms=8 --expression='i<=256?i:0' --output=numbers --size=60
+
+=pod
+
+    arms => 8
+
+        |       |       |       |       |       |
+    --75/107--66/67---26/58---34/41---49/113--73/105--        3
+        |       |       |       |       |       |
+    --51/115---27/59---18/19--10/33---25/57---64/65--         2
+        |       |       |       |       |       |
+    --36/43---12/35---4/5/11---2/3/9--16/17---24/56--         1
+        |       |       |       |       |       |
+    --28/60---20/21---6/7/13--0/1/15---8/39---32/47--     <- Y=0
+        |       |       |       |       |       |
+    --68/69---29/61----14/37---22/23--31/63---55/119--       -1
+        |       |       |       |       |       |
+    --77/109--53/117---38/45---30/62--70/71---79/111--       -2
+        |       |       |       |       |       |
+
+                                ^
+       -2      -1      -2      X=0     1        2
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -721,6 +814,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::AlternatePaper-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::AlternatePaper-E<gt>new (arms =E<gt> $integer)>
 
 Create and return a new path object.
 
@@ -735,7 +830,8 @@ integer points.
 =item C<@n_list = $path-E<gt>xy_to_n_list ($x,$y)>
 
 Return a list of N point numbers for coordinates C<$x,$y>.  There may be
-none, one or two N's for a given C<$x,$y>.
+none, one or two N's for a given C<$x,$y>, and for armsE<gt>=2 there are
+three N's at the starting X,Y points.
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -780,8 +876,8 @@ and above that is a 1 at odd pos=1, so at N=10+1=11 turn right.  This works
 simply because w011..11 when incremented becomes w100..00 which is the "z"
 form above.
 
-The inversion at odd bit positions can be applied with an xor 0b1010..1010
-and that the calculations are the same as the DragonCurve (see
+The inversion at odd bit positions can be applied with an xor 0b1010..1010.
+If that's done then the turn calculation is the same as the DragonCurve (see
 L<Math::PlanePath::DragonCurve/Turns>).
 
 =head2 Total Turn
@@ -810,9 +906,9 @@ bit position of the transition, instead of always left for the DragonCurve.
 =head2 dX,dY
 
 Since there's always a turn either left or right, never straight ahead, the
-X coordinate changes, then the Y, then the X again, etc, alternately, and
-each time by either +1 or -1.  The changes are the Golay-Rudin-Shapiro
-sequence, which is the parity of adjacent 11 bit pairs.
+X coordinate changes, then the Y, alternately.  X changes when N is even, Y
+changes when N is odd.  Each change is either +1 or -1.  The changes are the
+Golay-Rudin-Shapiro sequence, which is a parity of adjacent 11 bit pairs.
 
 In the total turn above it can be seen that if the 0-E<gt>1 transition is at
 an odd position and 1-E<gt>0 transition at an even position then there's a
@@ -852,10 +948,10 @@ even length" as the rest of the GRS, just for a slightly different reason.
     dY = /  0      if N even
          \  GRS(N) if N odd
 
-=head2 Consecutive dX,dY
+=head2 dX,dY Pair
 
-At consecutive points N=2k and N=2k+1 the dX an dY can be expressed together
-in terms of GRS(k) as
+At consecutive points N=2k and N=2k+1 the dX and dY can be expressed
+together in terms of GRS(k) as
 
     dX = GRS(2k)
        = GRS(k)
@@ -865,9 +961,9 @@ in terms of GRS(k) as
        = /  GRS(k) if k even
          \  -GRS(k) if k odd
 
-Reducing 2k+1 to k drops a 1 bit from the low end.  If the second lowest bit
-is also a 1 then they're a 11 bit pair which is lost in GRS(k).  The factor
-(-1)^k adjusts for that, being +1 if k even or -1 if k odd.
+For dY reducing 2k+1 to k drops a 1 bit from the low end.  If the second
+lowest bit is also a 1 then they're a 11 bit pair which is lost from GRS(k).
+The factor (-1)^k adjusts for that, being +1 if k even or -1 if k odd.
 
 =head2 dSum
 
@@ -887,23 +983,23 @@ The sum X+Y is a numbering of anti-diagonal lines,
    +--------------
       0 1 2 3 4 5
 
-The curve steps each time either up to the next or back to the previous
-according to dSum=GRS(N).
+The curve steps each time either up to the next or back to the previous by
+dSum=GRS(N).
 
 The way the curve visits the outside points once each and the inside points
 twice each means an anti-diagonal d=X+Y is visited a total of d many times.
 The diagonal has floor(d/2)+1 many points, the first visited once, the rest
-visited twice, except when d is even and the X=Y point is only visited once.
-In each case the total is total d many visits.
+visited twice, or when d is even then the X=Y point is only visited once.
+In each case the total is d many visits.
 
-This sum d=X+Y occurring d many times is a geometric interpretation to the
-way the cumulative GRS sequence has each value k occurring k many times.
-(See L<Math::NumSeq::GolayRudinShapiroCumulative>.)
+This coordinate sum d=X+Y occurring d many times is a geometric
+interpretation to the way the cumulative GRS sequence has each value k
+occurring k many times.  (See L<Math::NumSeq::GolayRudinShapiroCumulative>.)
 
 =head1 OEIS
 
 The alternate paper folding curve is in Sloane's Online Encyclopedia of
-Integer Sequences as,
+Integer Sequences as
 
     http://oeis.org/A106665  (etc)
 
@@ -914,7 +1010,7 @@ Integer Sequences as,
     A020986  Golay/Rudin/Shapiro cumulative
                 X coordinate undoubled
                 X+Y coordinate sum
-    A020990  Golay/Rudin/Shapiro * (-1)^n, cumulative
+    A020990  Golay/Rudin/Shapiro * (-1)^n cumulative
                 Y coordinate undoubled
                 X-Y diff, starting from N=1
 

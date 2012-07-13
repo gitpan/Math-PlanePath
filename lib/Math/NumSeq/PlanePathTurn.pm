@@ -38,7 +38,7 @@ use Math::PlanePath;
 *_is_infinite = \&Math::PlanePath::_is_infinite;
 
 use vars '$VERSION','@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -84,6 +84,13 @@ sub characteristic_integer {
 
 my %oeis_anum
   = (
+     # No, since A039963 is OFFSET=0 vs first turn at N=1 here
+     # 'Math::PlanePath::GrayCode' =>
+     # {
+     #  Left => 'A039963',
+     #  LSR  => 'A039963',
+     # },
+
      # A039963 for binary Left,LSR turn ?
      # characteristic of A003159 ending even zeros
      # 'Math::PlanePath::GrayCode' =>
@@ -695,24 +702,36 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::HypotOctant;
 # }
 { package Math::PlanePath::TriangularHypot;
-  sub _NumSeq_Turn_LSR_min {
+  sub _NumSeq_Turn_Left_min {
     my ($self) = @_;
-    return ($self->{'points'} eq 'even'
-            ? 0     # even, left or straight
-            : -1);   # odd,all any
+    return ($self->{'points'} eq 'hex'
+            ? 1     # hex, left always
+            : 0);   # other, various left/right
   }
+  *_NumSeq_Turn_Left_non_decreasing = \&_NumSeq_Turn_Left_min;
+
   sub _NumSeq_Turn_Right_max {
     my ($self) = @_;
-    return ($self->{'points'} eq 'even'
-            ? 0     # even, left or straight, so Right=0 always
+    return ($self->{'points'} =~ /hex|even/
+            ? 0     # even,hex, left or straight, so Right=0 always
             : 1);   # odd,all both left or right
   }
   sub _NumSeq_Turn_Right_non_decreasing {
     my ($self) = @_;
-    return ($self->{'points'} eq 'even'
-            ? 1     # even, left or straight, so Right=0 always
+    return ($self->{'points'} =~ /hex|even/
+            ? 1     # even,hex, left or straight, so Right=0 always
             : 0);   # odd,all both left or right
   }
+
+  sub _NumSeq_Turn_LSR_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'hex'
+            ? 1     # hex, left always
+            : $self->{'points'} =~ /even|hex_/
+            ? 0     # even,hex, left or straight
+            : -1);   # odd,all any
+  }
+  *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_min;
 }
 { package Math::PlanePath::PythagoreanTree;
   # UAD always turns right, it seems, both in PQ and XY

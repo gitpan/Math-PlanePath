@@ -38,7 +38,7 @@ use Math::PlanePath::KochCurve 42;
 use Math::PlanePath::AlternatePaper;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -472,10 +472,9 @@ reverse.
 
 =head2 Arms
 
-Like the AlternatePaper the midpoints fill an eighth of the plane and eight
-copies can mesh together perfectly mirrored and rotated by 90, 180 and 270
-degrees.  The C<arms> parameter can choose 1 to 8 curve arms, successively
-advancing.
+The midpoints fill an eighth of the plane and eight copies can mesh together
+perfectly mirrored and rotated by 90, 180 and 270 degrees.  The C<arms>
+parameter can choose 1 to 8 curve arms, successively advancing.
 
 For example C<arms =E<gt> 8> begins as follows.  N=0,8,16,24,etc is the
 first arm, the same as the plain curve above.  N=1,9,17,25 is the second,
@@ -513,14 +512,13 @@ N=2,10,18,26 the third, etc.
          -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
 With eight arms like this every X,Y point is visited exactly once, because
-eight arms of the AlternatePaper traverse every edge exactly once.
+in the AlternatePaper eight arms there traverse every edge exactly once.
 
-The arm numbering doesn't quite correspond to the AlternatePaper, due to the
+The arm numbering doesn't correspond to the AlternatePaper, due to the
 rotate and reflect of the first arm.  It ends up arms 0 and 1 of the
 AlternatePaper corresponding to arms 7 and 0 of the midpoints here, those
 two being a pair going horizontally corresponding to a pair in the
-AlternatePaper going diagonally into a quadrant.  Other similar pair
-mappings work equally well.
+AlternatePaper going diagonally into a quadrant.
 
 =head1 FUNCTIONS
 

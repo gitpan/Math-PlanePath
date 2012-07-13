@@ -22,25 +22,13 @@
 # math-image --path=GrayCode,apply_type=Ts --all --output=numbers_dash
 
 
-# A105529 ternary gray cyclic inverse
-# A105530 ternary gray cyclic
-# A128173 ternary gray reversing
-#
-# A098488 decimal gray modular
-# A003100 decimal gray reflected
-# A174025 decimal gray reflected inverse
-#
-# A014550 gray code, in binary
-# A003188 gray code, in decimal
-# A006068 gray code inverse, in decimal
 # A055975 gray code first diffs
 # A048641 gray code cumulative
 # A048642 gray code partial products
-# A099891 xor cumulative triangle
-# A039963 period doubling morphism, gray N left turns (and LSR)
 #
 # A195467 anti-diagonal powers of gray permutation
-# A173318 runs partial sums A005811
+# A173318 runs partial sums
+# A005811 count 1 bits in gray code (dragon curve total turn)
 #
 # A147995 strange hopping walk
 
@@ -61,7 +49,7 @@ use Math::PlanePath::KochCurve 42;
 *_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -353,10 +341,32 @@ converted back from Gray to integer indices.  Stepping from N to N+1 changes
 just one bit of the Gray code and therefore changes just one of X or Y each
 time.
 
-On the Y axis the values use only digits 0,3 in base 4.  On the X axis the
-values are 2k and 2k+1 where k uses only digits 0,3 in base 4.  It happens
-too that a turn N-1,N,N+1 is always either left +90 or reverse 180, never
-straight ahead or to the right.
+Y axis N=0,3,12,15,48,etc are values with only digits 0,3 in base 4.  X axis
+N=0,1,6,7,24,25,etc are values 2k and 2k+1 where k uses only digits 0,3 in
+base 4.
+
+=head2 Turn Sequence
+
+The turns in the curve are either to the left +90 or a reverse 180.  For
+example at N=2 the curve turns left, then at N=3 it reverses back 180 to go
+to N=4.  The turn is given by the low zero bits of (N+1)/2,
+
+    count_low_0_bits(floor((N+1)/2))
+      if even then turn 90 left
+      if odd  then turn 180 reverse
+
+Or equivalently
+
+    floor((N+1)/2) lowest non-zero digit in base 4,
+      1 or 3 = turn 90 left
+      2      = turn 180 reverse
+
+The 180 degree reversals are all horizontal.  They occur because at those N
+the three N-1,N,N+1 converted to Gray code have the same bits at odd
+positions and therefore the same Y coordinate.
+
+See L<Math::PlanePath::KochCurve/Turn Sequence> for similar turns but by +60
+and -120 degrees.
 
 =head2 Radix
 
@@ -548,6 +558,8 @@ In C<radix =E<gt> 3> and other odd radices the "reflected" Gray type gives
 the Peano curve (see L<Math::PlanePath::PeanoCurve>).  The "reflected"
 encoding is equivalent to Peano's "xk" and "yk" complementing.
 
+    radix => 3, gray_type => "reflected"
+
      |
     53--52--51  38--37--36--35--34--33
              |   |                   |
@@ -592,21 +604,46 @@ forms,
 
     http://oeis.org/A163233  (etc)
 
-    A163233    "sF" N values by diagonals, same axis start
-    A163234      inverse permutation
-    A163235    "sF" N values by diagonals, opp axis start
-    A163236      inverse permutation
-    A163237    "sF" N values by diagonals, same axis, flip digits 2,3
-    A163238      inverse permutation
-    A163239    "sF" N values by diagonals, opp axis, flip digits 2,3
-    A163240      inverse permutation
+    default (apply_type="TsF", radix=2)
+      A039963    turn sequence, 1=+90left,0=180reverse
+      A035263    turn undoubled, at N=2n and N=2n+1
+      A065882    base4 lowest non-zero,
+                   turn undoubled 1,3=left 2=180rev at N=2n,2n+1
+      A003159    (N+1)/2 of positions of Left turns,
+                   being n with even number of low 0 bits
+      A036554    (N+1)/2 of positions of Right turns
+                   being n with odd number of low 0 bits
 
-    A163242    "sF" N sums along diagonals
-    A163478      sums divided by 3
+The turn sequence goes in pairs, so N=1and2 left then N=3and4 reverse.
+A039963 includes that repetition, A035263 is undoubled to just one copy of
+each and so is the turn at each pair N=2k,2k+1.  There's many sequences like
+A065882 which when taken mod2 equal the "count low 0 bits odd/even" which is
+the undoubled turn sequence.
 
-The Gray code conversions themselves (not directly offered by the PlanePath
-code here) are variously for instance binary A003188, ternary reflected
-A128173 and modular A105530, decimal reflected A003100 and modular A098488.
+    apply_type="sF", radix=2
+      A163233    N values by diagonals, same axis start
+      A163234     inverse permutation
+      A163235    N values by diagonals, opp axis start
+      A163236     inverse permutation
+      A163237    N values by diagonals, same axis, flip digits 2,3
+      A163238     inverse permutation
+      A163239    N values by diagonals, opp axis, flip digits 2,3
+      A163240     inverse permutation
+      A163242    N sums along diagonals
+      A163478     those sums divided by 3
+
+Gray code conversions themselves (not directly offered by the PlanePath code
+here) are variously
+
+    A003188 binary
+    A014550 binary with values written in binary
+    A006068   inverse, Gray->integer
+    A128173 ternary reflected (its own inverse)
+    A105530 ternary modular
+    A105529   inverse, Gray->integer
+    A003100 decimal reflected
+    A174025   inverse, Gray->integer
+    A098488 decimal modular
 
 =head1 SEE ALSO
 

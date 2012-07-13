@@ -45,6 +45,21 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['triangular-hypot-small.png',
+    'math-image --path=TriangularHypot --lines --scale=4 --size=32'],
+   ['triangular-hypot-big.png',
+    'math-image --path=TriangularHypot --lines --scale=15 --size=200x150'],
+   ['triangular-hypot-odd-big.png',
+    'math-image --path=TriangularHypot,points=odd --lines --scale=15 --size=200x150'],
+   ['triangular-hypot-all-big.png',
+    'math-image --path=TriangularHypot,points=all --lines --scale=15 --size=200x150'],
+   ['triangular-hypot-hex-big.png',
+    'math-image --path=TriangularHypot,points=hex --lines --scale=15 --size=200x150'],
+   ['triangular-hypot-hex-rotated-big.png',
+    'math-image --path=TriangularHypot,points=hex_rotated --lines --scale=15 --size=200x150'],
+   ['triangular-hypot-hex-centred-big.png',
+    'math-image --path=TriangularHypot,points=hex_centred --lines --scale=15 --size=200x150'],
+
    ['greek-key-small.png',
     'math-image --path=GreekKeySpiral --lines --scale=4 --size=32'],
    ['greek-key-big.png',
@@ -721,11 +736,6 @@ foreach my $elem
     'math-image --path=PentSpiral --lines --scale=4 --size=32'],
    ['pent-big.png',
     'math-image --path=PentSpiral --lines --scale=13 --size=200'],
-
-   ['triangular-hypot-small.png',
-    'math-image --path=TriangularHypot --lines --scale=4 --size=32'],
-   ['triangular-hypot-big.png',
-    'math-image --path=TriangularHypot --lines --scale=15 --size=200x150'],
 
    ['hypot-octant-small.png',
     'math-image --path=HypotOctant --lines --scale=5 --size=32'],

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 307;
+plan tests => 308;
 
 use lib 't';
 use MyTestHelpers;
@@ -45,7 +45,7 @@ sub binary_to_decimal {
 # VERSION
 
 {
-  my $want_version = 80;
+  my $want_version = 81;
   ok ($Math::PlanePath::GrayCode::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GrayCode->VERSION,  $want_version,
@@ -259,4 +259,95 @@ sub is_pow2 {
   }
 }
 
+#------------------------------------------------------------------------------
+# turn sequence claimed in the pod -- default BRGC
+
+{
+  my $path = Math::PlanePath::GrayCode->new;
+  my $bad = 0;
+  my $n_start = $path->n_start;
+ OUTER: foreach my $n ($n_start+1 .. 500) {
+    {
+      my $path_turn = path_n_turn ($path, $n);
+      my $calc_turn = calc_n_turn_by_low0s ($n);
+      if ($path_turn != $calc_turn) {
+        MyTestHelpers::diag ("turn n=$n  path $path_turn calc $calc_turn");
+        last OUTER if $bad++ > 10;
+      }
+    }
+    {
+      my $path_turn = path_n_turn ($path, $n);
+      my $calc_turn = calc_n_turn_by_base4 ($n);
+      if ($path_turn != $calc_turn) {
+        MyTestHelpers::diag ("turn n=$n  path $path_turn calc $calc_turn");
+        last OUTER if $bad++ > 10;
+      }
+    }
+  }
+  ok ($bad, 0, "turn sequence");
+}
+
+# with Y reckoned increasing upwards
+sub dxdy_to_dir {
+  my ($dx, $dy) = @_;
+  if ($dx > 0) { return 0; }  # east
+  if ($dx < 0) { return 2; }  # west
+  if ($dy > 0) { return 1; }  # north
+  if ($dy < 0) { return 3; }  # south
+}
+
+# return 0=E,1=N,2=W,3=S
+sub path_n_dir {
+  my ($path, $n) = @_;
+  my ($x,$y) = $path->n_to_xy($n);
+  my ($next_x,$next_y) = $path->n_to_xy($n+1);
+  return dxdy_to_dir ($next_x - $x,
+                      $next_y - $y);
+}
+# return 0,1,2,3 to the left
+sub path_n_turn {
+  my ($path, $n) = @_;
+  my $prev_dir = path_n_dir ($path, $n-1);
+  my $dir = path_n_dir ($path, $n);
+  return ($dir - $prev_dir) & 3;
+}
+
+# return 0,1,2,3 to the left
+sub calc_n_turn_by_low0s {
+  my ($n) = @_;
+  # in floor (N+1)/2
+  # even number of 0 bits is turn=1 left
+  # odd number of 0 bits is turn=2 reversal
+  $n = ($n+1)>>1;
+  return (count_low_0_bits($n) % 2 ? 2 : 1);
+}
+sub count_low_0_bits {
+  my ($n) = @_;
+  if ($n == 0) { die; }
+  my $count = 0;
+  until ($n % 2) {
+    $count++;
+    $n /= 2;
+  }
+  return $count;
+}
+
+# return 0,1,2,3 to the left
+sub calc_n_turn_by_base4 {
+  my ($n) = @_;
+  $n = ($n+1)>>1;
+  my $digit = base4_lowest_nonzero_digit($n);
+  return ($digit == 1 || $digit == 3 ? 1
+          : 2);
+}
+sub base4_lowest_nonzero_digit {
+  my ($n) = @_;
+  while (($n & 3) == 0) {
+    $n >>= 2;
+    if ($n == 0) { die "oops, no nonzero digits at all"; } 
+  }
+  return $n & 3;
+}
+
+#------------------------------------------------------------------------------
 exit 0;

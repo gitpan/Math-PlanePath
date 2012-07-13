@@ -36,7 +36,7 @@ use Math::PlanePath;
 use Math::PlanePath::TerdragonCurve;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 80;
+$VERSION = 81;
 @ISA = ('Math::PlanePath');
 
 
@@ -178,7 +178,7 @@ Math::PlanePath::TerdragonRounded -- triangular dragon curve, with rounded corne
 
 =head1 DESCRIPTION
 
-This is a version of the TerdragonCurve with rounded-off corners,
+This is a version of the terdragon curve with rounded-off corners,
 
 =cut
 

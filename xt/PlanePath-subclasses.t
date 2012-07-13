@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 1160;
+plan tests => 1166;
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,13 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'TriangularHypot',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'TriangularHypot,points=hex',
+               'TriangularHypot,points=hex_rotated',
+               'TriangularHypot,points=hex_centred',
 
                'GreekKeySpiral',
                'GreekKeySpiral,turns=0',
@@ -64,9 +71,6 @@ my @modules = (
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
 
-               'TriangularHypot',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
                'Hypot',
                'Hypot,points=even',
                'Hypot,points=odd',
@@ -424,7 +428,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 80;
+my $want_version = 81;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

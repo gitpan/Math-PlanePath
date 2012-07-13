@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-BEGIN { plan tests => 362 }
+plan tests => 362;
 
 use lib 't';
 use MyTestHelpers;
@@ -37,7 +37,7 @@ use Math::PlanePath::KochSquareflakes;
 # VERSION
 
 {
-  my $want_version = 80;
+  my $want_version = 81;
   ok ($Math::PlanePath::KochSquareflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSquareflakes->VERSION,  $want_version,
