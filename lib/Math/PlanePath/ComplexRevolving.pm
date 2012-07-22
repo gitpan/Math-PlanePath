@@ -26,17 +26,16 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -52,7 +51,7 @@ sub n_to_xy {
   ### ComplexRevolving n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);
@@ -71,7 +70,7 @@ sub n_to_xy {
 
   my $x = my $y = ($n * 0);  # inherit bignum 0
 
-  if (my @digits = _digit_split_lowtohigh($n,2)) {
+  if (my @digits = digit_split_lowtohigh($n,2)) {
     my $bx = $x + 1;    # inherit bignum 1
     my $by = $x;       # 0
     for (;;) {
@@ -98,10 +97,10 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ComplexRevolving xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  if (_is_infinite($x)) { return ($x); }
-  $y = _round_nearest ($y);
-  if (_is_infinite($y)) { return ($y); }
+  $x = round_nearest ($x);
+  if (is_infinite($x)) { return ($x); }
+  $y = round_nearest ($y);
+  if (is_infinite($y)) { return ($y); }
 
   my $n = $x * 0 * $y;  # inherit bignum 0
   my $power = $n+1;     # inherit bignum 1
@@ -167,9 +166,9 @@ Math::PlanePath::ComplexRevolving -- points in revolving complex base i+1
 
 =head1 DESCRIPTION
 
-This path traverses points by a complex number base i+1 with turn factor i
-(+90 degrees) at each 1 bit.  This is the "revolving binary representation"
-of Knuth's Seminumerical Algorithms section 4.1 exercise 28.
+X<Knuth, Donald>This path traverses points by a complex number base i+1 with
+turn factor i (+90 degrees) at each 1 bit.  This is the "revolving binary
+representation" of Knuth's Seminumerical Algorithms section 4.1 exercise 28.
 
              54 51       38 35            5
           60 53       44 37               4

@@ -21,6 +21,7 @@ use 5.004;
 use strict;
 use List::Util 'min', 'max';
 use constant PI => 4 * atan2(1,1);  # similar to Math::Complex
+use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -220,7 +221,7 @@ use constant PI => 4 * atan2(1,1);  # similar to Math::Complex
   use Math::PlanePath::GrayCode;
   sub total_turn_by_bits {
     my ($n) = @_;
-    my $bits = [ Math::PlanePath::_digit_split_lowtohigh($n,2) ];
+    my $bits = [ digit_split_lowtohigh($n,2) ];
     my $rev = 0;
     my $total = 0;
     for (my $pos = $#$bits; $pos >= 0; $pos--) { # high bit to low bit

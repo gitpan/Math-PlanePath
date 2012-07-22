@@ -29,16 +29,16 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -80,7 +80,7 @@ sub n_to_xy {
   ### TerdragonCurve n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   my $zero = ($n * 0);  # inherit bignum 0
 
@@ -97,7 +97,7 @@ sub n_to_xy {
     my $frac = $n - $int;  # inherit possible BigFloat
     $n = $int;             # BigFloat int() gives BigInt, use that
 
-    my $rot = _divrem_destructive ($n, $self->{'arms'});
+    my $rot = _divrem_mutate ($n, $self->{'arms'});
 
     my $s = $zero + 1;  # inherit bignum 1
     if ($rot >= 3) {
@@ -110,7 +110,7 @@ sub n_to_xy {
     else              { $k = $frac; $sk = $s; } # rotate +120
   }
 
-  foreach my $digit (_digit_split_lowtohigh($n,3)) {
+  foreach my $digit (digit_split_lowtohigh($n,3)) {
     ### at: "$i,$j,$k   side $si,$sj,$sk"
     ### $digit
 
@@ -159,13 +159,13 @@ sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### TerdragonCurve xy_to_n_list(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;  # infinity
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;  # infinity
   }
 
@@ -308,7 +308,7 @@ __END__
 # return (2*$i + $j - $k, $j+$k);
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism TerdragonMidpoint GosperSide si sj sk
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism TerdragonMidpoint GosperSide si,sj,sk
 
 =head1 NAME
 
@@ -401,7 +401,7 @@ here tightens up the shape.
 =head1 Spiralling
 
 The first step N=1 is to the right along the X axis and the path then slowly
-spirals counter-clockwise and progressively fatter.  The end of each
+spirals anti-clockwise and progressively fatter.  The end of each
 replication is
 
     Nlevel = 3^level

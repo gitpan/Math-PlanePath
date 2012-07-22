@@ -18,22 +18,29 @@
 
 # math-image --path=QuintetReplicate --lines --scale=10
 # math-image --path=QuintetReplicate --output=numbers --all
+# math-image --path=QuintetReplicate --expression='5**i'
 
 package Math::PlanePath::QuintetReplicate;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
 
 use constant n_start => 0;
 
@@ -56,7 +63,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -77,7 +84,7 @@ sub n_to_xy {
   my $x = my $y = my $by = ($n * 0); # inherit bignum 0
   my $bx = $x+1; # inherit bignum 1
 
-  foreach my $digit (_digit_split_lowtohigh($n,5)) {
+  foreach my $digit (digit_split_lowtohigh($n,5)) {
     ### $digit
     ### $bx
     ### $by
@@ -117,24 +124,22 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### QuintetReplicate xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
-  if (_is_infinite($x)) { return ($x); }
-  if (_is_infinite($y)) { return ($y); }
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if (is_infinite($x)) { return ($x); }
+  if (is_infinite($y)) { return ($y); }
 
-  my $n = ($x * 0 * $y);  # inherit bignum 0
-  my $power = $n + 1;     # inherit bignum 1
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @n; # digits low to high
 
   while ($x || $y) {
-    ### at: "$x,$y n=$n power=$power"
+    ### at: "$x,$y"
 
     my $m = (2*$y - $x) % 5;
     ### $m
     ### digit: $modulus_to_digit[$m]
-    ### powered: $modulus_to_digit[$m] * $power
 
-    $n += $modulus_to_digit[$m] * $power;
-    $power *= 5;
+    push @n, $modulus_to_digit[$m];
 
     $x -= $modulus_to_x[$m];
     $y -= $modulus_to_y[$m];
@@ -148,11 +153,11 @@ sub xy_to_n {
     #
     ### assert: ((2*$x + $y) % 5) == 0
     ### assert: ((2*$y - $x) % 5) == 0
-    #
+
     ($x,$y) = ((2*$x + $y) / 5,
                (2*$y - $x) / 5);
   }
-  return $n;
+  return _digit_join_lowtohigh (\@n, 5, $zero);
 }
 
 # level   min x^2+y^2 for N >= 5^k
@@ -176,7 +181,7 @@ sub rect_to_n_range {
   if ($x1 < $x2) { $x1 = $x2; }
   if ($y1 < $y2) { $y1 = $y2; }
   my $rsquared = $x1*$x1 + $y1*$y1;
-  if (_is_infinite($rsquared)) {
+  if (is_infinite($rsquared)) {
     return (0, $rsquared);
   }
 
@@ -305,7 +310,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::QuintetCurve>,
-L<Math::PlanePath::ComplexMinus>
+L<Math::PlanePath::ComplexMinus>,
+L<Math::PlanePath::GosperReplicate>
 
 =head1 HOME PAGE
 
@@ -329,8 +335,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=QuintetReplicate --expression='5**i'"
-# End:

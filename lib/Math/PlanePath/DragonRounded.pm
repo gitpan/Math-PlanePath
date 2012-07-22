@@ -27,21 +27,17 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_floor = \&Math::PlanePath::_floor;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-use Math::PlanePath::DragonMidpoint;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest',
+  'floor';
+use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -73,7 +69,7 @@ sub n_to_xy {
   ### DragonRounded n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   my $frac;
   {
@@ -86,10 +82,10 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
 
   # arm as initial rotation
-  my $rot = _divrem_destructive ($n, $self->{'arms'});
+  my $rot = _divrem_mutate ($n, $self->{'arms'});
 
   # two points per edge
-  my $x_offset = _divrem_destructive ($n, 2);
+  my $x_offset = _divrem_mutate ($n, 2);
 
   # ENHANCE-ME: sx,sy just from len=3*2**level
   my @digits;
@@ -196,8 +192,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### DragonRounded xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   my $x6 = $x % 6;
   my $y6 = $y % 6;
@@ -205,15 +201,15 @@ sub xy_to_n {
   my $dy = $yx_rtom_dy[$y6][$x6];  defined $dy or return undef;
 
   # my $n = $self->Math::PlanePath::DragonMidpoint::xy_to_n
-  #   ($x - _floor($x/3) - $dx,
-  #    $y - _floor($y/3) - $dy);
+  #   ($x - floor($x/3) - $dx,
+  #    $y - floor($y/3) - $dy);
   # ### dxy: "$dx, $dy"
-  # ### to: ($x - _floor($x/3) - $dx).", ".($y - _floor($y/3) - $dy)
+  # ### to: ($x - floor($x/3) - $dx).", ".($y - floor($y/3) - $dy)
   # ### $n
 
   return $self->Math::PlanePath::DragonMidpoint::xy_to_n
-    ($x - _floor($x/3) - $dx,
-     $y - _floor($y/3) - $dy);
+    ($x - floor($x/3) - $dx,
+     $y - floor($y/3) - $dy);
 }
 
 # level 21  n=1048576 .. 2097152

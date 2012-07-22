@@ -16,6 +16,9 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# http://www.uni-graz.at/~gronau/monthly230-237.pdf
+
+
 package Math::PlanePath::TheodorusSpiral;
 use 5.004;
 use strict;
@@ -23,13 +26,14 @@ use Math::Libm 'hypot';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -96,7 +100,7 @@ sub n_to_xy {
   #### TheodorusSpiral n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   if ($n < 1) {
     return ($n, 0);
@@ -163,7 +167,7 @@ sub xy_to_n {
   ### $n_lo
   ### $n_hi
 
-  if (_is_infinite($n_lo) || _is_infinite($n_hi)) {
+  if (is_infinite($n_lo) || is_infinite($n_hi)) {
     ### infinite range, r inf or too big ...
     return undef;
   }
@@ -241,10 +245,10 @@ root spiral.
 Each step is a unit distance at right angles to the previous radial spoke.
 So for example,
 
-       3        -- Y=1+1/sqrt(2)
+       3        <- Y=1+1/sqrt(2)
         \
          \
-         ..2       Y=1
+         ..2    <- Y=1
        ..  |
       .    |
      0-----1    <- Y=0
@@ -253,12 +257,13 @@ So for example,
     X=0   X=1
 
 1 to 2 is a unit step at right angles to the 0 to 1 radial.  Then 2 to 3
-steps at a right angle to radial 0 to 2 (which is 45 degrees), etc.  The
-distance 0 to 2 is sqrt(2), the distance 0 to 3 is sqrt(3), and in general
+steps at a right angle to radial 0 to 2 which is 45 degrees, etc.
+
+The radial distance 0 to 2 is sqrt(2), 0 to 3 is sqrt(3), and in general
 
     R = sqrt(N)
 
-since each step is a right triangle with radius(N+1)^2 = S<radius(N)^2
+because each step is a right triangle with radius(N+1)^2 = S<radius(N)^2
 + 1>.  The resulting shape is very close to an Archimedean spiral with
 successive loops increasing in radius by pi = 3.14159 or thereabouts
 each time.
@@ -314,10 +319,10 @@ is considered the centre of a circle of diameter 1 and an C<$x,$y> within
 that circle returns N.
 
 The unit steps of the spiral means those unit circles don't overlap, but the
-loops are 3.14 apart so there's gaps in between.  If C<$x,$y> is not within
-one of the unit circles then the return is C<undef>.
+loops are roughly 3.14 apart so there's gaps in between.  If C<$x,$y> is not
+within one of the unit circles then the return is C<undef>.
 
-=item C<$n = $path-E<gt>figure ()>
+=item C<$str = $path-E<gt>figure ()>
 
 Return "circle".
 
@@ -327,7 +332,7 @@ Return "circle".
 
 =head2 N to RSquared
 
-For integer N the spiral has R=sqrt(N) and the square is simply
+For integer N the spiral has radius R=sqrt(N) and the square is simply
 RSquared=R^2=N.  For fractional N the point is on a straight line at right
 angles to the integer position, so
 
@@ -337,29 +342,30 @@ angles to the integer position, so
 
 =head2 X,Y to N
 
-For a given X,Y the radius r=hypot(X,Y) determines the N position as N=r^2.
+For a given X,Y the radius R=hypot(X,Y) determines the N position as N=R^2.
 An N point up to 0.5 away radially might above cover X,Y, so the range of N
 to consider is
 
-    Nlo = (r-.5)^2
-    Nhi = (r+.5)^2
+    Nlo = (R-.5)^2
+    Nhi = (R+.5)^2
 
-A simple search through those N's checking for which, if any, covers X,Y is
-then done.  The number of N's there is Nhi-Nlo = 2*r+1 which is about 1/3 of
-a loop around the spiral (2*r/2*pi*r ~= 1/3).  Actually 0.51 is used to
-guard against floating point round-off, which is then about 4*.51 = 2.04*r.
+A simple search through those N's searching for which, if any, covers X,Y is
+then done.  The number of N's searched is Nhi-Nlo = 2*R+1 which is about 1/3
+of a loop around the spiral (2*R/2*pi*R ~= 1/3).  Actually 0.51 is used to
+guard against floating point round-off, which is then about 4*.51 = 2.04*R
+many points.
 
 The angle of the X,Y position determines which part of the spiral is
 intersected, but using that doesn't seem particularly easy.  The angle for a
-given N is an arctan sum and don't yet have a good closed-form for that to
-invert, or some Newton's method, or whatever.
+given N is an arctan sum and don't have a good closed-form or converging
+series for that to invert, or some Newton's method, or whatever.
 
 =head2 Rectangle to N Range
 
 For C<rect_to_n_range()> the corner furthest from the origin determines the
 high N.  For that corner
 
-    Rhi=hypot(xhi,yhi)
+    Rhi = hypot(xhi,yhi)
     Nhi = (Rhi+.5)^2
 
 The extra .5 is since a unit circle figure centred as much as .5 further out
@@ -372,8 +378,8 @@ following over-estimate, and ceil can keep it in integers for integer Nhi.
         <= ceilXhi*(ceilXhi+1) + ceilYhi*(ceilYhi+1) + 1
 
 With either formula the worst case is when Nhi doesn't intersect the xhi,yhi
-corner but is just before it, counter-clockwise.  Nhi is then a full
-revolution bigger than it need be, depending where the other corners fall.
+corner but is just before it, anti-clockwise.  Nhi is then a full revolution
+bigger than it need be, depending where the other corners fall.
 
 Similarly for the corner or axis crossing nearest the origin (when the
 origin itself isn't covered by the rectangle),
@@ -389,8 +395,20 @@ And again in integers without a square root if desired,
         >= floorXlo*(floorXlo-1) + floorYlo(floorYlo-1)
 
 The worst case is when this Nlo doesn't intersect the xlo,ylo corner but is
-just after it counter-clockwise, so Nlo is a full revolution smaller than it
+just after it anti-clockwise, so Nlo is a full revolution smaller than it
 need be.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A072895  (etc)
+
+    A072895    N just below X axis
+    A137515    N-1 just below X axis
+                 counting num points for n revolutions
+    A172164    loop length increases
 
 =head1 SEE ALSO
 

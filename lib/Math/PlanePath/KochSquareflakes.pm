@@ -37,17 +37,17 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 *_divrem = \&Math::PlanePath::_divrem;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -97,11 +97,11 @@ sub n_to_xy {
   # 4^(level+1) - 1 = 3*N
   # 4^(level+1) = 3*N+1
   #
-  my ($pow,$level) = _round_down_pow (3*$n + 1, 4);
+  my ($pow,$level) = round_down_pow (3*$n + 1, 4);
 
   ### $level
   ### $pow
-  if (_is_infinite($level)) { return ($level,$level); }
+  if (is_infinite($level)) { return ($level,$level); }
 
   # Nstart = (4^(level+1)-1)/3 with $power=4^(level+1) here
   #
@@ -146,7 +146,7 @@ sub n_to_xy {
   $rot *= 2;
 
   my $inward = $self->{'inward'};
-  my @digits = _digit_split_lowtohigh($n,4);
+  my @digits = digit_split_lowtohigh($n,4);
 
   while ($i > 0) {
     $i--;
@@ -234,8 +234,8 @@ sub xy_to_n {
     return $inner_to_n[($x >= 0) + 2*($y >= 0)];
   }
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   # quarter curve segment and high digit
   my $n;
@@ -268,10 +268,10 @@ sub xy_to_n {
   $y = -$y;
   ### rotate to: "$x,$y   n=$n"
 
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;
   }
 
@@ -394,10 +394,10 @@ sub rect_to_n_range {
   ### KochSquareflakes rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   foreach ($x1,$y1, $x2,$y2) {
-    if (_is_infinite($_)) {
+    if (is_infinite($_)) {
       return (0, $_);
     }
-    $_ = abs(_round_nearest($_));
+    $_ = abs(round_nearest($_));
   }
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }

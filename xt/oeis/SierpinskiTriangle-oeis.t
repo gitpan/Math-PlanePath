@@ -20,49 +20,186 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 5;
+plan tests => 8;
 
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
-use MyOEIS;
 
+use MyOEIS;
 use Math::PlanePath::SierpinskiTriangle;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
 
-MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
-
 my $path = Math::PlanePath::SierpinskiTriangle->new;
 
-sub streq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
-      MyTestHelpers::diag ("differ: ", $a1->[0], ' ', $a2->[0]);
-      return 0;
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
     }
-    shift @$a1;
-    shift @$a2;
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      return "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    $got =~ /^[0-9.-]+$/
+      or return "not a number pos=$i got='$got'";
+    $want =~ /^[0-9.-]+$/
+      or return "not a number pos=$i want='$want'";
+    if ($got != $want) {
+      return "different pos=$i numbers got=$got want=$want";
+    }
   }
-  return (@$a1 == @$a2);
+  return undef;
 }
 
+
+#------------------------------------------------------------------------------
+# A106344 - by dX=-3,dY=+1 slopes upwards
+#
+# 1
+# 0, 1
+# 0, 1, 1,
+# 0, 0, 0, 1,
+# 0, 0, 1, 1, 1,
+# 0, 0, 0, 1, 0, 1,
+# 0, 0, 0, 1, 0, 1, 1,
+# 0, 0, 0, 0, 0, 0, 0, 1,
+# 0, 0, 0, 0, 1, 0, 1, 1, 1,
+# 0, 0, 0, 0, 0, 1, 0, 1, 0, 1,
+# 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1,
+# 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+# 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1,
+# 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1
+
+# 19  20  21  22  23  24  25  26   
+#   15      16      17      18     
+#     11  12          13  14   .    
+#        9              10   .      
+#          5   6   7   8   .        
+#            3   .   4   .          
+#              1   2    .   .        
+#                0    .   .   .
+
+# path(x,y) = binomial(y,(x+y)/2)
+# T(n,k)=binomial(k,n-k)
+# y=k
+# (x+y)/2=n-k
+# x+k=2n-2k
+# x=2n-3k
+{
+  my $anum = 'A106344';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my $diff;
+    if ($bvalues) {
+      my @got;
+      my $xstart = 0;
+      my $x = 0;
+      my $y = 0;
+      while (@got < @$bvalues) {
+        my $n = $path->xy_to_n($x,$y);
+        push @got, (defined $n ? 1 : 0);
+
+        $x += 3;
+        $y += 1;
+        if ($x > $y) {
+          $xstart -= 2;
+          $x = $xstart;
+          $y = 0;
+        }
+      }
+      $diff = diff_nums(\@got, $bvalues);
+      if ($diff) {
+        MyTestHelpers::diag ("bvalues: ",join('',@{$bvalues}[0..60]));
+        MyTestHelpers::diag ("got:     ",join('',@got[0..60]));
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum by path");
+  }
+  {
+    my $diff;
+    if ($bvalues) {
+      my @got;
+    OUTER: for (my $n = 0; ; $n++) {
+        for (my $k = 0; $k <= $n; $k++) {
+          my $n = $path->xy_to_n(2*$n-3*$k,$k);
+          push @got, (defined $n ? 1 : 0);
+          if (@got >= @$bvalues) {
+            last OUTER;
+          }
+        }
+      }
+      $diff = diff_nums(\@got, $bvalues);
+      if ($diff) {
+        MyTestHelpers::diag ("bvalues: ",join('',@{$bvalues}[0..60]));
+        MyTestHelpers::diag ("got:     ",join('',@got[0..60]));
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum by path");
+  }
+  {
+    my $diff;
+    if ($bvalues) {
+      my @got;
+      require Math::BigInt;
+    OUTER: for (my $n = 0; ; $n++) {
+        for (my $k = 0; $k <= $n; $k++) {
+
+          # my $b = Math::BigInt->new($k);
+          # $b->bnok($n-$k);   # binomial(k,k-n)
+          # $b->bmod(2);
+          # push @got, $b;
+
+          push @got, binomial_mod2 ($k, $n-$k);
+          if (@got >= @$bvalues) {
+            last OUTER;
+          }
+        }
+      }
+      $diff = diff_nums(\@got, $bvalues);
+      if ($diff) {
+        MyTestHelpers::diag ("bvalues: ",join('',@{$bvalues}[0..60]));
+        MyTestHelpers::diag ("got:     ",join('',@got[0..60]));
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum by bnok()");
+  }
+}
+
+# my $b = Math::BigInt->new($k);
+# $b->bnok($n-$k);   # binomial(k,k-n)
+# $b->bmod(2);
+sub binomial_mod2 {
+  my ($n, $k) = @_;
+  return Math::BigInt->new($n)->bnok($k)->bmod(2)->numify;
+}
 
 #------------------------------------------------------------------------------
 # A001316 - Gould's sequence number of 1s in each row
 {
   my $anum = 'A001316';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
+  my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+    my @got;
     my $prev_y = 0;
     my $count = 0;
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
@@ -75,16 +212,16 @@ sub streq_array {
         $count = 1;
       }
     }
-    if (! streq_array(\@got, $bvalues)) {
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum - count of points in each row");
+        $diff,
+        undef,
+        "$anum");
 }
 
 #------------------------------------------------------------------------------
@@ -92,24 +229,23 @@ sub streq_array {
 {
   my $anum = 'A074330';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
+  my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+    my @got;
     for (my $y = 1; @got < @$bvalues; $y++) {
       my $n = $path->xy_to_n($y,$y);
       push @got, $n;
     }
-    if (! streq_array(\@got, $bvalues)) {
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum - N at right of each row");
+        $diff,
+        undef,
+        "$anum");
 }
 
 
@@ -119,10 +255,9 @@ sub streq_array {
 {
   my $anum = 'A047999';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
+  my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+    my @got;
     my $x = 0;
     my $y = 0;
     foreach my $n (1 .. @$bvalues) {
@@ -133,14 +268,11 @@ sub streq_array {
         $x = -$y;
       }
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
+        $diff,
+        undef,
+        "$anum");
 }
 
 
@@ -150,10 +282,9 @@ sub streq_array {
 {
   my $anum = 'A001317';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
+  my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+  my @got;
     require Math::BigInt;
     my $y = 0;
     foreach my $n (1 .. @$bvalues) {
@@ -168,14 +299,11 @@ sub streq_array {
       $y++;
     }
     ### @got
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
+        $diff,
+        undef,
+        "$anum");
 }
 
 #------------------------------------------------------------------------------
@@ -185,21 +313,17 @@ sub streq_array {
 {
   my $anum = 'A006046';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
+  my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+    my @got;
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n(-$y,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
+        $diff,
+        undef,
+        "$anum");
 }
 
 #------------------------------------------------------------------------------

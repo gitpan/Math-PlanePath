@@ -45,16 +45,15 @@ package Math::PlanePath::HilbertMidpoint;
 use 5.004;
 use strict;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::HilbertCurve;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::HilbertCurve;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -69,7 +68,7 @@ sub n_to_xy {
   ### HilbertMidpoint n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   {
     my $int = int($n);
@@ -95,8 +94,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### HilbertMidpoint xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   foreach my $dx (1, -1) {
     my $try_x = int(($x + $dx)/2);

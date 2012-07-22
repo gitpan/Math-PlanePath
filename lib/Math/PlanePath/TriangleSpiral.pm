@@ -22,13 +22,13 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -90,8 +90,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### xy_to_n(): "$x,$y"
 
   if (($x ^ $y) & 1) {
@@ -130,10 +130,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
@@ -168,15 +168,21 @@ This path makes a spiral shaped as an equilateral triangle (each side the
 same length).  Cells are spread horizontally to fit on a square grid.
 
                       16                                 4
+                     /  \   
                    17    15                              3
-                18     4    14   ...                     2
+                  /        \  
+                18     4    14    ...                    2
+               /     /  \     \     \
              19     5     3    13    32                  1
-          20     6     1     2    12    31          <- y=0
-       21     7     8     9    10    11    30           -1
-    22    23    24    25    26    27    28    29        -2
-
+            /     /        \     \     \
+          20     6     1-----2    12    31          <- Y=0
+         /     /                    \     \
+       21     7-----8-----9----10----11    30           -1
+      /                                      \
+    22----23----24----25----26----27----28----29        -2
+                       
                        ^
-    -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6  7  8
+    -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
 
 Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
 x=2,y=0.  The diagonals are 1 across and 1 up or down, so n=3 is at x=1,y=1.

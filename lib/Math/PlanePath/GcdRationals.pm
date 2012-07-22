@@ -55,16 +55,17 @@ use Carp;
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 82;
 use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+@ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 
 use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 81;
-@ISA = ('Math::PlanePath');
 
 
 # uncomment this to run the ### lines
@@ -104,7 +105,7 @@ sub n_to_xy {
   ### GcdRationals n_to_xy(): "$n"
 
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   # FIXME: what to do for fractional $n?
   {
@@ -254,12 +255,12 @@ sub _pairs_order__diagonals_up__n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### GcdRationals xy_to_n(): "$x,$y"
 
-  if (_is_infinite($x)) { return $x; }
-  if (_is_infinite($y)) { return $y; }
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
   if ($x < 1 || $y < 1 || ! _coprime($x,$y)) {
     return undef;
   }
@@ -409,10 +410,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
@@ -538,10 +539,10 @@ sub _gcd {
 #   my ($self, $x1,$y1, $x2,$y2) = @_;
 #   ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
 # 
-#   $x1 = _round_nearest ($x1);
-#   $y1 = _round_nearest ($y1);
-#   $x2 = _round_nearest ($x2);
-#   $y2 = _round_nearest ($y2);
+#   $x1 = round_nearest ($x1);
+#   $y1 = round_nearest ($y1);
+#   $x2 = round_nearest ($x2);
+#   $y2 = round_nearest ($y2);
 # 
 #   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
 #   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;

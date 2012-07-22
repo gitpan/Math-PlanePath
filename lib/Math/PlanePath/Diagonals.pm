@@ -21,11 +21,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -121,8 +122,8 @@ sub xy_to_n {
   if ($self->{'direction'} eq 'up') {
     ($x,$y) = ($y,$x);
   }
-  $x = _round_nearest ($x);
-  $y = _round_nearest (- $y);
+  $x = round_nearest ($x);
+  $y = round_nearest (- $y);
   ### rounded
   ### $x
   ### $y
@@ -255,6 +256,26 @@ and biggest in the rectangle.
 Within each row increasing X is increasing N, and in each column increasing
 Y is increasing N.  So in a rectangle the lower left corner is the minimum N
 and the upper right is the maximum N.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A023531  (etc)
+
+    direction=down
+      A002262    X coordinate, runs 0 to k
+      A025581  	 Y coordinate, runs k to 0
+      A003056  	 X+Y coordinate sum, k repeated k+1 times
+      A114327  	 Y-X coordinate diff
+      A049581    abs(X-Y) coordinate diff
+      A004247    X*Y coordinate product
+      A048147    X^2+Y^2
+
+      A127949    dY, change in Y coordinate
+
+Similar for direction=up but transposing X,Y.
 
 =head1 SEE ALSO
 

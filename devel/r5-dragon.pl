@@ -28,9 +28,6 @@ use List::Util 'min', 'max';
 use lib 'devel/lib';
 use lib '../iother/lib';
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 # uncomment this to run the ### lines
 use Smart::Comments;
 

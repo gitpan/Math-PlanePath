@@ -27,12 +27,12 @@ use strict;
 use Carp;
 use constant 1.02;
 
-use Math::NumSeq;
-use Math::NumSeq::PlanePathCoord;
-
 use vars '$VERSION','@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::NumSeq;
 @ISA = ('Math::NumSeq');
+
+use Math::NumSeq::PlanePathCoord;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -68,13 +68,20 @@ use constant::defer parameter_info_array =>
 
 my %oeis_anum =
   (
+   'Math::PlanePath::SierpinskiTriangle' =>
+   {
+    # Diagonal_NW => 'A006046', # Gould's
+   },
+
    'Math::PlanePath::WythoffArray' =>
    {
+    # but OFFSET=1 vs here start N=0
     # X_axis   => 'A000045', # Fibonaccis, but skip initial 0,1
-    # Diagonal => 'A020941', # diagonal, but OFFSET=1 cf here start N=0
+    # Diagonal => 'A020941', # diagonal
 
-    Y_axis   => 'A003622', # spectrum of phi
-    # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
+    # but OFFSET=1 vs here start N=0
+    # Y_axis   => 'A003622', # spectrum of phi
+    # # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
    },
 
    'Math::PlanePath::PeanoCurve,radix=3' =>
@@ -233,7 +240,7 @@ my %oeis_anum =
      # OEIS-Catalogue: A033568 planepath=AnvilSpiral line_type=Diagonal
    },
 
-   'Math::PlanePath::AlternatePaper' =>
+   'Math::PlanePath::AlternatePaper,arms=1' =>
    { X_axis   => 'A000695',  # base 4 digits 0,1 only
      Diagonal => 'A062880',  # base 4 digits 0,2 only
      # OEIS-Other: A000695 planepath=AlternatePaper

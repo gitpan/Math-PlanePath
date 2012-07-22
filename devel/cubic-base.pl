@@ -24,15 +24,58 @@ use List::MoreUtils;
 use POSIX 'floor';
 use Math::Libm 'M_PI', 'hypot';
 use List::Util 'min', 'max';
+use Math::BaseCnv 'cnv';
 
 use lib 'xt';
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  # smallest hypot in each level
+  require Math::PlanePath::CubicBase;
+  require Math::NumSeq::PlanePathDelta;
+  my $tdir6_func = \&Math::NumSeq::PlanePathDelta::_delta_func_TDir6;
+
+  my $radix = 2;
+  my $path = Math::PlanePath::CubicBase->new (radix => $radix);
+  foreach my $level (1 .. 30) {
+    my $n_lo = $radix ** ($level-1);
+    my $n_hi = $radix ** $level - 1;
+    my $n = $n_lo;
+    my $min_h = $path->n_to_rsquared($n);
+    my @min_n = ($n);
+    for ($n++; $n < $n_hi; $n++) {
+      my $h = $path->n_to_rsquared($n);
+      if ($h < $min_h) {
+        @min_n = ($n);
+        $min_h = $h;
+      } elsif ($h == $min_h) {
+        push @min_n, $n;
+      }
+    }
+    print "level=$level\n";
+    # print "  n=${n_lo}to$n_hi\n";
+    print "  min_h=$min_h\n";
+    foreach my $n (@min_n) {
+      my $nr = cnv($n,10,$radix);
+      my ($x,$y) = $path->n_to_xy($n);
+      my $xr = cnv($x,10,$radix);
+      my $yr = cnv($y,10,$radix);
+      my $tdir6 = $tdir6_func->(0,0,$x,$y);
+      print "  n=$n  $nr  xy=$x,$y $xr,$yr  tdir6=$tdir6 \n";
+      
+    }
+  }
+  exit 0;
+
+  sub path_n_to_trsquared {
+    my ($path,$n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    return $x*$x+3*$y*$y;
+  }
+}
 
 {
   # Dir4 maximum

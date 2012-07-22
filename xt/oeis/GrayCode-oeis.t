@@ -28,8 +28,10 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
+use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 use Math::PlanePath::GrayCode;
 use Math::PlanePath::Diagonals;
+use Math::PlanePath::ZOrderCurve;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -363,12 +365,12 @@ sub dxdy_to_dir {
 
 sub flip_base4_23 {
   my ($n) = @_;
-  my @digits = Math::PlanePath::_digit_split_lowtohigh($n,4);
+  my @digits = digit_split_lowtohigh($n,4);
   foreach my $digit (@digits) {
     if ($digit == 2) { $digit = 3; }
     elsif ($digit == 3) { $digit = 2; }
   }
-  return Math::PlanePath::GrayCode::_digit_join(\@digits,4);
+  return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh(\@digits,4);
 }
 
 
@@ -547,9 +549,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       }
 
       if (! numeq_array(\@got, $bvalues)) {
@@ -567,9 +569,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       }
 
       if (! numeq_array(\@got, $bvalues)) {
@@ -592,9 +594,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,10);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,10);
       }
 
       if (! numeq_array(\@got, $bvalues)) {
@@ -611,9 +613,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,10);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,10);
       }
 
       if (! numeq_array(\@got, $bvalues)) {
@@ -636,9 +638,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       }
       if (! numeq_array(\@got, $bvalues)) {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -654,9 +656,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       }
       if (! numeq_array(\@got, $bvalues)) {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -679,9 +681,9 @@ sub flip_base4_23 {
   my @got;
   if ($bvalues) {
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      my $digits = [ digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
-      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -701,9 +703,9 @@ sub flip_base4_23 {
   my @got;
   if ($bvalues) {
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      my $digits = [ digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
-      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -727,9 +729,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       }
       if (! numeq_array(\@got, $bvalues)) {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -745,9 +747,9 @@ sub flip_base4_23 {
     my @got;
     if ($bvalues) {
       for (my $n = 0; @got < @$bvalues; $n++) {
-        my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+        my $digits = [ digit_split_lowtohigh($n,$radix) ];
         Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
-        push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+        push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       }
       if (! numeq_array(\@got, $bvalues)) {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -770,9 +772,9 @@ sub flip_base4_23 {
   my @got;
   if ($bvalues) {
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      my $digits = [ digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -792,9 +794,9 @@ sub flip_base4_23 {
   my @got;
   if ($bvalues) {
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      my $digits = [ digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
-      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -816,9 +818,9 @@ sub flip_base4_23 {
   my @got;
   if ($bvalues) {
     for (my $n = 0; @got < @$bvalues; $n++) {
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      my $digits = [ digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
-      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));

@@ -31,19 +31,19 @@ use Math::Libm 'hypot';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 82;
 use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+@ISA = ('Math::PlanePath');
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 use Math::PlanePath::SacksSpiral;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 81;
-@ISA = ('Math::PlanePath');
 
 
 use constant n_frac_discontinuity => 0;
@@ -94,11 +94,11 @@ sub n_to_xy {
   if ($n < 1) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
-  my ($pow, $level) = _round_down_pow ($n+2, 3);
+  my ($pow, $level) = round_down_pow ($n+2, 3);
   ### $level
   ### base: $pow - 2
   ### $sidelen
@@ -139,7 +139,7 @@ sub _side_n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -153,7 +153,7 @@ sub _side_n_to_xy {
   my $xend = 2;
   my $yend = 0;
 
-  foreach my $digit (_digit_split_lowtohigh($n,3)) {
+  foreach my $digit (digit_split_lowtohigh($n,3)) {
     my $xend_offset = 3*($xend-$yend)/2;   # end and end +60
     my $yend_offset = ($xend+3*$yend)/2;
 
@@ -194,8 +194,8 @@ sub _side_n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x_full, $y_full) = @_;
-  $x_full = _round_nearest($x_full);
-  $y_full = _round_nearest($y_full);
+  $x_full = round_nearest($x_full);
+  $y_full = round_nearest($y_full);
   ### GosperIslands xy_to_n(): "$x_full,$y_full"
 
   if (($x_full ^ $y_full) & 1) {
@@ -204,7 +204,7 @@ sub xy_to_n {
 
   my $r = hypot($x_full,$y_full);
   my $level_limit = ceil(log($r+1)/log(sqrt(7)));
-  if (_is_infinite($level_limit)) {
+  if (is_infinite($level_limit)) {
     return $level_limit;
   }
 

@@ -26,18 +26,18 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 
 # uncomment this to run the ### lines
@@ -70,7 +70,7 @@ sub n_to_xy {
   ### LTiling n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);
@@ -96,14 +96,14 @@ sub n_to_xy {
   } elsif ($L_fill eq 'upper') {
     $y += 1;
   } elsif ($L_fill eq 'ends') {
-    my $rem = _divrem_destructive ($n, 2);
+    my $rem = _divrem_mutate ($n, 2);
     if ($rem) { # low digit==1
       $y = $len;  # 1
     } else { # low digit==0
       $x = $len;  # 1
     }
   } elsif ($L_fill eq 'all') {
-    my $rem = _divrem_destructive ($n, 3);
+    my $rem = _divrem_mutate ($n, 3);
     if ($rem == 1) {
       $x = $len;  # 1
     } elsif ($rem == 2) {
@@ -111,7 +111,7 @@ sub n_to_xy {
     }
   }
 
-  foreach my $digit (_digit_split_lowtohigh($n,4)) {
+  foreach my $digit (digit_split_lowtohigh($n,4)) {
     ### at: "$x,$y  digit=$digit"
 
     if ($digit == 1) {
@@ -150,15 +150,15 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### LTiling xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($x < 0 || $y < 0) {
     return undef;
   }
 
-  my ($len, $level) = _round_down_pow (max($x,$y),
-                                       2);
-  if (_is_infinite($level)) {
+  my ($len, $level) = round_down_pow (max($x,$y),
+                                      2);
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -208,10 +208,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### LTiling rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
   ### rect: "X = $x1 to $x2, Y = $y1 to $y2"
@@ -221,10 +221,10 @@ sub rect_to_n_range {
     return (1, 0);
   }
 
-  my ($len, $level) = _round_down_pow (max($x2,$y2), 2);
+  my ($len, $level) = round_down_pow (max($x2,$y2), 2);
   ### $len
   ### $level
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return (0,$level);
   }
 

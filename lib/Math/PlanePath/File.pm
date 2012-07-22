@@ -26,14 +26,16 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
 
 sub n_start    { return _read($_[0])->{'n_start'} }
 sub x_negative { return _read($_[0])->{'x_negative'} }
@@ -78,7 +80,7 @@ sub xy_to_n {
 
   {
     my $key = ($self->{'figure'} eq 'square'
-               ? _round_nearest($x).','._round_nearest($y)
+               ? round_nearest($x).','.round_nearest($y)
                : "$x,$y");
     if (defined (my $n = _read($self)->{'xy_hash'}->{$key})) {
       return $n;

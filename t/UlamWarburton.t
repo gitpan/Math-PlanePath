@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 754;
+plan tests => 778;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::UlamWarburton;
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::UlamWarburton::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::UlamWarburton->VERSION,  $want_version,
@@ -59,6 +59,59 @@ require Math::PlanePath::UlamWarburton;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# tree_n_parent()
+{
+  my @data = ([ 1, undef ],
+
+              [ 2,  1 ],
+              [ 3,  1 ],
+              [ 4,  1 ],
+              [ 5,  1 ],
+
+              [ 6,  2 ],
+              [ 7,  3 ],
+              [ 8,  4 ],
+              [ 9,  5 ],
+
+              [ 10,  6 ],
+              [ 11,  6 ],
+              [ 12,  6 ],
+              [ 13,  7 ],
+              [ 14,  7 ],
+              [ 15,  7 ],
+             );
+  my $path = Math::PlanePath::UlamWarburton->new;
+  foreach my $elem (@data) {
+    my ($n, $want_n_parent) = @$elem;
+    my $got_n_parent = $path->tree_n_parent ($n);
+    ok ($got_n_parent, $want_n_parent);
+  }
+}
+
+#------------------------------------------------------------------------------
+# tree_n_children()
+{
+  my @data = ([ 1, '2,3,4,5' ],
+
+              [ 2,  '6' ],
+              [ 3,  '7' ],
+              [ 4,  '8' ],
+              [ 5,  '9' ],
+
+              [ 6,  '10,11,12' ],
+              [ 7,  '13,14,15' ],
+              [ 8,  '16,17,18' ],
+              [ 9,  '19,20,21' ],
+             );
+  my $path = Math::PlanePath::UlamWarburton->new;
+  foreach my $elem (@data) {
+    my ($n, $want_n_children) = @$elem;
+    my $got_n_children = join(',',$path->tree_n_children($n));
+    ok ($got_n_children, $want_n_children, "tree_n_children($n)");
+  }
 }
 
 #------------------------------------------------------------------------------

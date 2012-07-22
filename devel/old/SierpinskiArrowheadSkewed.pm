@@ -27,14 +27,16 @@ use POSIX qw(floor);
 
 use vars '$VERSION', '@ISA';
 $VERSION = 67;
-
 use Math::PlanePath;
-use Math::PlanePath::SierpinskiArrowhead;
 @ISA = ('Math::PlanePath');
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
+use Math::PlanePath::SierpinskiArrowhead;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
+
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
@@ -50,8 +52,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   return Math::PlanePath::SierpinskiArrowhead->xy_to_n
     ($y-$x, $y+$x);
 }
@@ -61,13 +63,13 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
-  $y2 = _round_nearest ($y2);
+  $y2 = round_nearest ($y2);
   if ($y2 < 0) {
     return (1,0);
   }
 
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
-  $x2 = _round_nearest ($x2);
+  $x2 = round_nearest ($x2);
   if ($x2 < 0) {
     return (1,0);
   }

@@ -25,17 +25,19 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_floor = \&Math::PlanePath::_floor;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
 *_divrem = \&Math::PlanePath::_divrem;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest',
+  'floor';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant parameter_info_array =>
   [ { name      => 'turns',
@@ -386,16 +388,16 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### xy_to_n: "x=$x, y=$y"
 
   my $turns = $self->{'turns'};
   my $side = $turns + 1;
   my $squared = $self->{'squared'};
 
-  my $xs = _floor($x/$side);
-  my $ys = _floor($y/$side);
+  my $xs = floor($x/$side);
+  my $ys = floor($y/$side);
   $x %= $side;
   $y %= $side;
   my $n;
@@ -494,18 +496,18 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   # floor divisions to square blocks
   {
     my $side = $self->{'turns'} + 1;
-    _divrem_destructive($x1,$side);
-    _divrem_destructive($y1,$side);
-    _divrem_destructive($x2,$side);
-    _divrem_destructive($y2,$side);
+    _divrem_mutate($x1,$side);
+    _divrem_mutate($y1,$side);
+    _divrem_mutate($x2,$side);
+    _divrem_mutate($y2,$side);
   }
   my ($dlo, $dhi) = _rect_square_range ($x1, $y1,
                                         $x2, $y2);

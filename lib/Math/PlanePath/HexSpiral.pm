@@ -50,12 +50,13 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 
 # uncomment this to run the ### lines
@@ -158,8 +159,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   my $w = $self->{'wider'};
   if (($x ^ $y ^ $w) & 1) {
     return undef;  # nothing on odd squares
@@ -281,8 +282,8 @@ triangular lattice per L<Math::PlanePath/Triangular Lattice>.
 The octagonal numbers 8,21,40,65, etc 3*k^2-2*k fall on a horizontal
 straight line at Y=-1.  In general straight lines are 3*k^2 + b*k + c.
 A plain 3*k^2 goes diagonally up to the left, then b is a 1/6 turn
-counter-clockwise, or clockwise if negative.  So b=1 goes horizontally to
-the left, b=2 diagonally down to the left, b=3 diagonally down to the right,
+anti-clockwise, or clockwise if negative.  So b=1 goes horizontally to the
+left, b=2 diagonally down to the left, b=3 diagonally down to the right,
 etc.
 
 =head2 Wider

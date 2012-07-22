@@ -29,19 +29,19 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
+use vars '$VERSION', '@ISA';
+$VERSION = 82;
 use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+@ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::PeanoCurve;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-use vars '$VERSION', '@ISA';
-$VERSION = 81;
-@ISA = ('Math::PlanePath');
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 
 
 # uncomment this to run the ### lines
@@ -101,7 +101,7 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my ($len, $level) = _round_down_pow (2*$n*$radix, $radix);
+  my ($len, $level) = round_down_pow (2*$n*$radix, $radix);
 
   ### $len
   ### peano at: $n + ($len*$len-1)/2
@@ -142,20 +142,23 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PeanoHalf rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
 
+  my $radix = $self->{'radix'};
   my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
 
-  my ($len, $level) = _round_down_pow ($zero + max(abs($x1),abs($y1),
-                                                   abs($x2),abs($y2))*2-1,
-                                       3);
+  my ($len, $level) = round_down_pow ($zero + max(abs($x1),abs($y1),
+                                                  abs($x2),abs($y2))*2-1,
+                                      $radix);
   ### $len
   ### $level
 
-  return (0, (9*$len*$len - 1) * $self->{'arms'} / 2);
+  $len *= $radix;
+  return (0,
+          ($len*$len - 1) * $self->{'arms'} / 2);
 }
 
 1;

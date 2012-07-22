@@ -29,16 +29,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -192,7 +192,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -213,15 +213,15 @@ sub n_to_xy {
   ### $frac
   my $zero = ($n * 0);  # inherit bignum 0
 
-  my $arm = _divrem_destructive ($n, $self->{'arms'});
+  my $arm = _divrem_mutate ($n, $self->{'arms'});
 
   my $diagonal_length = $self->{'diagonal_length'};
   my $diagonal_div = 6*$diagonal_length + 4;
 
-  my ($nlen,$level) = _round_down_pow ((3*$n+1)/$diagonal_div, 4);
+  my ($nlen,$level) = round_down_pow ((3*$n+1)/$diagonal_div, 4);
   ### $nlen
   ### $level
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -295,8 +295,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### SierpinskiCurveStair xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   my $arm = 0;
   if ($y < 0) {
@@ -335,10 +335,10 @@ sub xy_to_n {
   # (len+2)/(L+2) = 2^(level-1)
 
   my $diagonal_length = $self->{'diagonal_length'};
-  my ($len,$level) = _round_down_pow (($x+1)/($diagonal_length+2), 2);
+  my ($len,$level) = round_down_pow (($x+1)/($diagonal_length+2), 2);
   ### $level
   ### $len
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -407,10 +407,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiCurveStair rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
@@ -478,13 +478,13 @@ sub rect_to_n_range {
   #     = (Nlast(level + 1)) * arms - 1
   #     = ((4^(level+2) - 4) / 3 + 1) * arms - 1
   #     = ((4^(level+2) - 1) / 3) * arms - 1
-  # my ($len, $level) = _round_down_pow ($max, 2);
+  # my ($len, $level) = round_down_pow ($max, 2);
 
   # len(level) = = (L+2)*2^(level-1) - 2
   # points(level) = ((3*P+1)*4^level - 1) / 3
   #
-  my ($len,$level) = _round_down_pow ($max/($self->{'diagonal_length'}+2),
-                                      2);
+  my ($len,$level) = round_down_pow ($max/($self->{'diagonal_length'}+2),
+                                     2);
   return (0,
           ((6*$self->{'diagonal_length'}+4)*4*$len*$len - 1) / 3
           * $arms - 1);

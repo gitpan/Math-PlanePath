@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 15;
+plan tests => 18;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -46,6 +46,110 @@ sub numeq_array {
     $i++;
   }
   return (@$a1 == @$a2);
+}
+
+#------------------------------------------------------------------------------
+# A153733 remove trailing 1s
+{
+  my $anum = 'A153733';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $power = Math::PlanePath::PowerArray->new;
+    for (my $n = $power->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $power->n_to_xy ($n);
+      push @got, 2*$y;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+
+#------------------------------------------------------------------------------
+# A000265 -- 2*Y+1, odd part of n dividing out factors of 2
+{
+  my $anum = 'A000265';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $power = Math::PlanePath::PowerArray->new;
+    for (my $n = $power->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $power->n_to_xy ($n);
+      push @got, 2*$y+1;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+
+#------------------------------------------------------------------------------
+# A094267 -- dX
+{
+  my $anum = 'A094267';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PowerArray->new (radix => 2);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = path_n_to_dxdy ($path,$n);
+      push @got, $dx;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A108715 -- dY
+{
+  my $anum = 'A108715';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PowerArray->new (radix => 2);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = path_n_to_dxdy ($path,$n);
+      push @got, $dy;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+sub path_n_to_dxdy {
+  my ($path, $n) = @_;
+  my ($x,$y) = $path->n_to_xy($n)
+    or return;
+  my ($next_x,$next_y) = $path->n_to_xy($n+1)
+    or return;
+  return ($next_x - $x,
+          $next_y - $y);
 }
 
 #------------------------------------------------------------------------------
@@ -346,30 +450,6 @@ sub numeq_array {
         1,
         "$anum");
 }
-
-#------------------------------------------------------------------------------
-# A000265 -- 2*Y+1, odd part of n dividing out factors of 2
-{
-  my $anum = 'A000265';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $power = Math::PlanePath::PowerArray->new;
-    for (my $n = $power->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $power->n_to_xy ($n);
-      push @got, 2*$y+1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
 
 #------------------------------------------------------------------------------
 # A054582 -- dispersion traversed by diagonals, up from X axis

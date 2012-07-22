@@ -28,17 +28,20 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_range = \&Math::PlanePath::SacksSpiral::_rect_to_radius_range;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
+
 
 use constant n_start => 0;
 use constant parameter_info_array => [ { name      => 'arms',
@@ -73,7 +76,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -92,9 +95,9 @@ sub n_to_xy {
   my $zero = ($n * 0);   # inherit BigInt 0
 
   # arm as initial rotation
-  my $rot = _divrem_destructive ($n, $self->{'arms'});
+  my $rot = _divrem_mutate ($n, $self->{'arms'});
 
-  my @digits = _digit_split_lowtohigh($n,5);
+  my @digits = digit_split_lowtohigh($n,5);
   my @sx;
   my @sy;
   {
@@ -202,11 +205,11 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### QuintetCentres xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   my $level_limit = log($x*$x + $y*$y + 1) * 1 * 2;
-  if (_is_infinite($level_limit)) { return $level_limit; }
+  if (is_infinite($level_limit)) { return $level_limit; }
 
   my @digits;
   my $arm;
@@ -298,12 +301,12 @@ sub rect_to_n_range {
 
   my $level_limit = $level_plus_1;
   ### $level_limit
-  if (_is_infinite($level_limit)) { return ($level_limit,$level_limit); }
+  if (is_infinite($level_limit)) { return ($level_limit,$level_limit); }
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
   ### sorted range: "$x1,$y1  $x2,$y2"

@@ -16,6 +16,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# @EXPORT_OK = ('ab_to_pq','pq_to_ab');
+#
+# ENHANCE-ME: ab_to_pq() better perfect square testing
+
+
 # math-image --path=PythagoreanTree --all --scale=3
 
 # Daniel Shanks. Solved and Unsolved Problems in Number Theory, pp. 121 and
@@ -59,15 +64,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -105,7 +110,7 @@ sub n_to_xy {
   ### PythagoreanTree n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);
@@ -120,7 +125,7 @@ sub n_to_xy {
   }
 
   # h = 2*(n-1)+1 = 2*n-2+1 = 2*n-1
-  my ($range, $level) = _round_down_pow (2*$n-1, 3);
+  my ($range, $level) = round_down_pow (2*$n-1, 3);
   my $base = ($range - 1)/2 + 1;
   my $rem = $n - $base;
 
@@ -195,8 +200,8 @@ sub n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### PythagoreanTree xy_to_n(): "$x, $y"
 
   my ($p, $q);
@@ -216,7 +221,13 @@ sub xy_to_n {
       or return undef;    # if not a pythagorean A,B
   }
 
-  if (_is_infinite($p) || _is_infinite($q)  # infinity
+  if (is_infinite($p)) {
+    return $p;  # infinity
+  }
+  if (is_infinite($q)) {
+    return $q;  # infinity
+  }
+  if (is_infinite($p) || is_infinite($q)  # infinity
       || $p < 1 || $q < 1       # negatives
       || ! (($p ^ $q) & 1)      # must be opposite parity
      ) {
@@ -287,73 +298,6 @@ sub xy_to_n {
   return $n;
 }
 
-# p^2-q^2 = (p-q)*(p+q), the latter needing only one multiplication
-sub _pq_to_ab {
-  my ($p, $q) = @_;
-  return (($p-$q)*($p+$q), 2*$p*$q);
-}
-
-# a = p^2 - q^2
-# b = 2pq
-# q = b/2p
-# a = p^2 - (b/2p)^2
-#   = p^2 - b^2/4p^2
-# 4ap^2 = 4p^4 - b^2
-# 4(p^2)^2 - 4a(p^2) - b^2 = 0
-# p^2 = [ 4a +/- sqrt(16a^2 + 16*b^2) ] / 2*4
-#     = [ a +/- sqrt(a^2 - b^2) ] / 2
-#     = (a +/- c) / 2
-# p = sqrt((a+c)/2)    since c>a
-# a = (a+c)/2 - q^2
-# q^2 = (a+c)/2 - a
-#     = (c-a)/2
-# q = sqrt((c-a)/2)
-#
-sub _ab_to_pq {
-  my ($x, $y) = @_;
-  ### _ab_to_pq(): "$x, $y"
-
-  unless (($x & 1) && !($y & 1)) {
-    ### don't have A odd, B even
-    return;
-  }
-
-  # This used to be $z=hypot($x,$y) and check $z==int($z), but libm hypot()
-  # on Darwin 8.11.0 is somehow a couple of bits off being an integer, for
-  # example hypot(57,176)==185 but a couple of bits out so $z!=int($z).
-  # Would have thought hypot() ought to be exact on integer inputs and a
-  # perfect square sum :-(.  Check for a perfect square by multiplying back
-  # instead.
-  #
-  my $zsquared = $x*$x + $y*$y;
-  my $z = int(sqrt($zsquared)+.5);
-  ### $zsquared
-  ### $z
-  unless ($z*$z == $zsquared) {
-    return;
-  }
-
-  # x odd and y even means z^2 is odd and so z is odd
-  ### assert: $z&1
-  ### assert: $z > $x
-
-  my $p = sqrt(($z+$x)/2);
-  ### p^2: ($z+$x)/2
-  ### $p
-  if ($p != int($p)) {
-    return;
-  }
-
-  my $q = sqrt(($z-$x)/2);
-  ### $q
-  if ($q != int($q)) {
-    return;
-  }
-
-  return ($p, $q);
-}
-
-
 
 # numprims(H) = how many with hypot < H
 # limit H->inf  numprims(H) / H -> 1/2pi
@@ -363,10 +307,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PythagoreanTree rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
 
@@ -436,6 +380,92 @@ sub rect_to_n_range {
   }
   ### level: "$level"
   return (1, ((3+$zero)**$level - 1) / 2);
+}
+
+sub tree_n_children {
+  my ($self, $n) = @_;
+  $n *= 3;
+  return ($n-1, $n, $n+1);
+}
+sub tree_n_parent {
+  my ($self, $n) = @_;
+  if ($n >= 2) {
+    return int(($n+1)/3);
+  } else {
+    return undef;
+  }
+}
+
+
+#------------------------------------------------------------------------------
+
+# a=p^2-q^2, b=2pq
+# Done as a=(p-q)*(p+q) for one multiply instead of two squares, and to work
+# approaching a=UINT_MAX.
+#
+sub _pq_to_ab {
+  my ($p, $q) = @_;
+  return (($p-$q)*($p+$q), 2*$p*$q);
+}
+
+# a = p^2 - q^2
+# b = 2pq
+# q = b/2p
+# a = p^2 - (b/2p)^2
+#   = p^2 - b^2/4p^2
+# 4ap^2 = 4p^4 - b^2
+# 4(p^2)^2 - 4a(p^2) - b^2 = 0
+# p^2 = [ 4a +/- sqrt(16a^2 + 16*b^2) ] / 2*4
+#     = [ a +/- sqrt(a^2 + b^2) ] / 2
+#     = (a +/- c) / 2   where c=sqrt(a^2+b^2)
+# p = sqrt((a+c)/2)    since c>a
+# a = (a+c)/2 - q^2
+# q^2 = (a+c)/2 - a
+#     = (c-a)/2
+# q = sqrt((c-a)/2)
+#
+sub _ab_to_pq {
+  my ($a, $b) = @_;
+  ### _ab_to_pq(): "$a, $b"
+
+  unless (($a % 2) && !($b % 2)) {
+    ### don't have A odd, B even ...
+    return;
+  }
+
+  # This used to be $c=hypot($a,$b) and check $c==int($c), but libm hypot()
+  # on Darwin 8.11.0 is somehow a couple of bits off being an integer, for
+  # example hypot(57,176)==185 but a couple of bits out so $c!=int($c).
+  # Would have thought hypot() ought to be exact on integer inputs and a
+  # perfect square sum :-(.  Check for a perfect square by multiplying back
+  # instead.
+  #
+  my $csquared = $a*$a + $b*$b;
+  my $c = int(sqrt($csquared)+.5);
+  ### $csquared
+  ### $c
+  unless ($c*$c == $csquared) {
+    return;
+  }
+
+  # x odd and y even means z^2 is odd and so z is odd
+  ### assert: $c&1
+  ### assert: $c > $a
+
+  my $p = sqrt(($c+$a)/2);
+  ### p^2: ($c+$a)/2
+  ### $p
+  if ($p != int($p)) {
+    return;
+  }
+
+  my $q = sqrt(($c-$a)/2);
+  ### $q
+  if ($q != int($q)) {
+    return;
+  }
+
+  return ($p, $q);
 }
 
 1;

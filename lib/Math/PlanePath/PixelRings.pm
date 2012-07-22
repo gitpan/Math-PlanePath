@@ -24,14 +24,14 @@ use Math::Libm 'hypot';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -88,7 +88,7 @@ sub n_to_xy {
   ### PixelRings n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   if ($n < 6) {
     if ($n < 2) {
@@ -159,8 +159,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PixelRings xy_to_n(): "$x, $y"
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   if ($x == 0 && $y == 0) {
     return 1;
@@ -190,7 +190,7 @@ sub xy_to_n {
       }
     }
   }
-  if (_is_infinite($r)) {
+  if (is_infinite($r)) {
     return undef;
   }
 
@@ -233,10 +233,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PixelRings rect_to_n_range(): "$x1,$y1 $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   my $r_min
     = ((($x1<0) ^ ($x2<0)) || (($y1<0) ^ ($y2<0))
@@ -248,12 +248,12 @@ sub rect_to_n_range {
   ### $r_min
   ### $r_max
 
-  if (_is_infinite($r_min)) {
+  if (is_infinite($r_min)) {
     return ($r_min, $r_min);
   }
 
   my ($n_max, $r_target);
-  if (_is_infinite($r_max)) {
+  if (is_infinite($r_max)) {
     $n_max = $r_max;  # infinity
     $r_target = $r_min;
   } else {

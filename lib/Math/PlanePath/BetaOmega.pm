@@ -33,15 +33,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -133,12 +134,12 @@ sub n_to_xy {
   ### hex: sprintf "%#X", $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   my $int = int($n);
   $n -= $int;  # remaining fraction, preserve possible BigFloat/BigRat
 
-  my @digits = _digit_split_lowtohigh($int,4);
+  my @digits = digit_split_lowtohigh($int,4);
   my $len = ($n*0 + 2) ** scalar(@digits);   # inherit possible bigint
 
   ### digits: join(', ',@digits)."   count ".scalar(@digits)
@@ -188,7 +189,7 @@ sub _y_round_down_len_level {
     # eg. -2 becomes 7, or -10 becomes 31, 2^k-1
     $y = 1 - 3*$y;
   }
-  my ($len, $level) = _round_down_pow($y,2);
+  my ($len, $level) = round_down_pow($y,2);
 
   # Make positive y give even level, and negative y give odd level.
   # If positive and odd then reduce, or if negative and even then reduce.
@@ -204,8 +205,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### BetaOmega xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($x < 0) {
     return undef;
   }
@@ -215,7 +216,7 @@ sub xy_to_n {
   my ($len, $level) = _y_round_down_len_level ($y);
   ### y len/level: "$len  $level"
   {
-    my ($xlen, $xlevel) = _round_down_pow ($x, 2);
+    my ($xlen, $xlevel) = round_down_pow ($x, 2);
     ### x len/level: "$xlen  $xlevel"
     if ($xlevel > $level) {
       $level = $xlevel;
@@ -224,7 +225,7 @@ sub xy_to_n {
   }
   ### $len
   ### $level
-  if (_is_infinite($len)) {
+  if (is_infinite($len)) {
     return $len;
   }
 
@@ -279,19 +280,19 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### BetaOmega rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
 
   if ($x2 < 0) {
     return (1, 0);
   }
 
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  my ($len, $level) = _round_down_pow ($x2, 2);
+  my ($len, $level) = round_down_pow ($x2, 2);
   ### x len/level: "$len  $level"
 
   # If y1/y2 both positive or both negative then only look at the bigger of
@@ -305,7 +306,7 @@ sub rect_to_n_range {
       $len = $ylen;
     }
   }
-  if (_is_infinite($len)) {
+  if (is_infinite($len)) {
     return (0, $len);
   }
 

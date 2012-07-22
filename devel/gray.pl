@@ -22,6 +22,7 @@ use 5.004;
 use strict;
 use Math::Prime::XS 0.23 'is_prime'; # version 0.23 fix for 1928099
 use Math::PlanePath::GrayCode;
+use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 use Smart::Comments;
@@ -179,15 +180,15 @@ use Smart::Comments;
 
   sub to_gray {
     my ($n, $radix) = @_;
-    my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+    my $digits = [ digit_split_lowtohigh($n,$radix) ];
     Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-    return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+    return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
   }
   sub from_gray {
     my ($n, $radix) = @_;
-    my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+    my $digits = [ digit_split_lowtohigh($n,$radix) ];
     Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
-    return Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+    return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
   }
 }
 
@@ -202,9 +203,9 @@ use Smart::Comments;
 
   sub to_binary_gray {
     my ($n) = @_;
-    my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,2) ];
+    my $digits = [ digit_split_lowtohigh($n,2) ];
     Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,2);
-    return Math::PlanePath::GrayCode::_digit_join($digits,2);
+    return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,2);
   }
 }
 
@@ -215,7 +216,7 @@ use Smart::Comments;
   my $width = length($radix)*2*$num;
   foreach my $i (0 .. $radix ** $num - 1) {
 
-    my $i_digits = [ Math::PlanePath::_digit_split_lowtohigh($i,$radix) ];
+    my $i_digits = [ digit_split_lowtohigh($i,$radix) ];
 
     my @gray_digits = @$i_digits;
     my $gray_digits = \@gray_digits;

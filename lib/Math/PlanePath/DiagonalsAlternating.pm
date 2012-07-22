@@ -20,11 +20,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -93,8 +94,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($x < 0 || $y < 0) {
     return undef;  # outside first quadrant
   }

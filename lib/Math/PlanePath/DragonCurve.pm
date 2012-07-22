@@ -44,19 +44,19 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-use Math::PlanePath::DragonMidpoint;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
+use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -94,7 +94,7 @@ sub n_to_xy {
   ### DragonCurve n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   my $frac;
   {
@@ -105,9 +105,9 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
 
   # arm as initial rotation
-  my $rot = _divrem_destructive ($n, $self->{'arms'});
+  my $rot = _divrem_mutate ($n, $self->{'arms'});
 
-  my @digits = Math::PlanePath::_digit_split_lowtohigh($n,2);
+  my @digits = digit_split_lowtohigh($n,2);
   ### @digits
 
 
@@ -189,13 +189,13 @@ sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### DragonCurve xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;  # infinity
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;  # infinity
   }
 
@@ -256,20 +256,20 @@ sub rect_to_n_range {
 #   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 #
 #
-#    my ($length, $level_limit) = _round_down_pow
+#    my ($length, $level_limit) = round_down_pow
 #      ((max(abs($x1),abs($x2))**2 + max(abs($y1),abs($y2))**2 + 1) * 7,
 #       2);
 #    $level_limit += 2;
 #    ### $level_limit
 #
-#    if (_is_infinite($level_limit)) {
+#    if (is_infinite($level_limit)) {
 #      return ($level_limit,$level_limit);
 #    }
 #
-#    $x1 = _round_nearest ($x1);
-#    $y1 = _round_nearest ($y1);
-#    $x2 = _round_nearest ($x2);
-#    $y2 = _round_nearest ($y2);
+#    $x1 = round_nearest ($x1);
+#    $y1 = round_nearest ($y1);
+#    $x2 = round_nearest ($x2);
+#    $y2 = round_nearest ($y2);
 #    ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
 #    ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 #    ### sorted range: "$x1,$y1  $x2,$y2"
@@ -526,7 +526,7 @@ all four begin) and every edge between the points is traversed once.
 =head2 Level Angle
 
 The first step N=1 is to the right along the X axis and the path then slowly
-spirals counter-clockwise and progressively fatter.  The end of each
+spirals anti-clockwise and progressively fatter.  The end of each
 replication is N=2^level which is at level*45 degrees around,
 
     N       X,Y     angle

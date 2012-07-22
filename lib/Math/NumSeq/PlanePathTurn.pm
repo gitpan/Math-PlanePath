@@ -22,7 +22,7 @@
 # Turn4   0,1,2,3  and fractional
 # Turn4pn 0,1,2,-1
 # TTurn6   0,1,2,3,4,5
-# TTurn6pn 0,1,2,3, -1,-2,
+# TTurn6pn 0,1,2,3, -1,-2,  eg. flowsnake
 
 
 
@@ -31,15 +31,18 @@ use 5.004;
 use strict;
 use Carp;
 
-use Math::NumSeq;
-use Math::NumSeq::PlanePathCoord;
-
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-
 use vars '$VERSION','@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::NumSeq;
 @ISA = ('Math::NumSeq');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite';
+use Math::NumSeq::PlanePathCoord;
+use Math::PlanePath;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -130,7 +133,7 @@ my %oeis_anum
       #  # OEIS-Catalogue: A014577 planepath=DragonCurve turn_type=Right
      },
 
-     # 'Math::PlanePath::AlternatePaper' =>
+     # 'Math::PlanePath::AlternatePaper,arms=1' =>
      # {
      #  # but A106665 has OFFSET=0 cf first here i=1
      #  'Left' => 'A106665', # turn, 1=left,0=right
@@ -309,7 +312,7 @@ sub ith {
   my ($self, $i) = @_;
   ### PlanePathTurn ith(): $i
 
-  if (_is_infinite($i)) {
+  if (is_infinite($i)) {
     return undef;
   }
 

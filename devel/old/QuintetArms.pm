@@ -26,12 +26,12 @@ use strict;
 
 use vars '$VERSION', '@ISA';
 $VERSION = 67;
-
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 use Math::PlanePath::QuintetCurve;
 
 use constant n_start => 0;
@@ -51,7 +51,7 @@ sub n_to_xy {
   ### QuintetCurve n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   {
     my $int = int($n);

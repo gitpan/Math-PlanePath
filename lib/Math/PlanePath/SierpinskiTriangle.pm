@@ -16,6 +16,30 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Maybe:
+#
+# rule 22 includes the midpoint between adjacent leaf points.
+# math-image --path=CellularRule,rule=22 --all --text
+#
+# rule 60 right hand octant
+# rule 102 left hand octant
+# math-image --path=CellularRule,rule=60 --all
+# math-image --path=CellularRule,rule=102 --all
+# align=left
+# align=right
+# align=centre_spread
+#
+# rule 126 extra cell to the inward side of each
+# math-image --path=CellularRule,rule=60 --all --text
+# extra_cell=inward
+# extra_cell=midleaf
+#
+# cf rule 150 double ups, something base 2 instead
+# math-image --path=CellularRule,rule=150 --all
+#
+# cf rule 182 filled gaps
+# math-image --path=CellularRule,rule=182 --all
+
 # math-image --path=SierpinskiTriangle --all --scale=5
 # math-image --path=SierpinskiTriangle --all --output=numbers
 # math-image --path=SierpinskiTriangle --all --text --size=80
@@ -24,50 +48,61 @@
 #    numerator of (2^k)/k!
 #    2^(number of 1 bits in y)
 #
-# Cumulative cells in rows:
-#    A006046
-#
-# A001316 - number of cells in each row
-# A001317 - row bits in decimal
-# A047999 - cells by rows as 1,0
-# A006046 - cumulative cells to row N
-#
-# A106344 - skewed somehow ... binomial(k,n-k) mod 2
+# A080263
 
 
 package Math::PlanePath::SierpinskiTriangle;
 use 5.004;
 use strict;
 
-use Math::PlanePath 37; # v.37 for _round_nearest()
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+use vars '$VERSION', '@ISA';
+$VERSION = 82;
+use Math::PlanePath;
+@ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
-use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
+
+use Math::PlanePath::CellularRule54;
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
-use vars '$VERSION', '@ISA';
-$VERSION = 81;
-@ISA = ('Math::PlanePath');
-
-
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
+# Not quite ready.
+# use constant parameter_info_array =>
+#   [
+#    {
+#     name      => 'align',
+#     type      => 'enum',
+#     share_key => 'align_trl',
+#     default   => 'triangular',
+#     choices   => ['triangular', 'right', 'left','diagonal'],
+#    },
+#   ];
 
 use constant class_y_negative => 0;
 sub n_start {
   my ($self) = @_;
   return $self->{'n_start'};
 }
+sub x_negative {
+  my ($self) = @_;
+  return ($self->{'align'} ne 'right');
+}
 
 sub new {
   my $self = shift->SUPER::new(@_);
   $self->{'n_start'} ||= 0;
+  $self->{'align'} ||= 'triangular';
   return $self;
 }
 
@@ -97,15 +132,16 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if ($n == 0 || _is_infinite($n)) {
+  if ($n == 0 || is_infinite($n)) {
     return ($n,$n);
   }
 
-  my ($power, $level) = _round_down_pow ($n, 3);
+  my ($power, $level) = round_down_pow ($n, 3);
   ### $power
   ### $level
 
-  my @ybits = (my $y = 2**$level);
+  my $y = 2**$level;
+  my @ybits = ($y);
   $n -= $power;
   my $factor = 2;
 
@@ -134,10 +170,10 @@ sub n_to_xy {
   ### assert: $n >= 0
   ### assert: $n < $factor
 
-  # now remaining $n offset into the row
+  # now $n is offset into the row
   #
   my $x = 0;
-  foreach my $digit (_digit_split_lowtohigh($n,2)) {
+  foreach my $digit (digit_split_lowtohigh($n,2)) {
     my $ybit = pop @ybits;
     if ($digit) {
       $x += $ybit;
@@ -145,59 +181,74 @@ sub n_to_xy {
   }
 
   ### final: "$x,$y"
-  return (-$y+2*$x, $y);
+  if ($self->{'align'} eq 'right') {
+    return ($x, $y);
+  } elsif ($self->{'align'} eq 'left') {
+    return ($x-$y, $y);
+  } elsif ($self->{'align'} eq 'diagonal') {
+    return ($x, $y-$x);
+  } else { # triangular
+    return (-$y+2*$x, $y);
+  }
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### SierpinskiTriangle xy_to_n(): "$x, $y"
 
-  $y = _round_nearest ($y);
-  if (_is_infinite($y)) {
+  $y = round_nearest ($y);
+  $x = round_nearest($x);
+
+  if ($self->{'align'} eq 'diagonal') {
+    $y += $x;
+  } elsif ($self->{'align'} eq 'left') {
+    $x += $y;
+  } elsif ($self->{'align'} eq 'triangular') {
+    $x += $y;
+    if (_divrem_mutate ($x, 2)) {
+      # if odd point
+      return undef;
+    }
+  }
+
+  if (is_infinite($y)) {
     return ($y);
   }
-
-  $x = _round_nearest ($x);
-  if ($y < 0 || (($x^$y) & 1)) {
+  if ($y < 0) {
     return undef;
   }
-  $x = ($x + $y)/2;
-  ### adjusted x: $x
 
   if ($x < 0 || $x > $y) {
-    ### x outside row range ...
+    # if outside horiz range
+    ### not odd point in pyramid, no point ...
     return undef;
   }
+  ### adjusted x: $x
 
-  my $n = my $nx = ($y * 0);                 # inherit bignum 0
-  my $ybit = my $npower = my $nbit = $n+1;   # inherit bignum 1
-  while ($y) {
-    if ($y % 2) {
-      ### $ybit
+  my $zero = ($y * 0);
+  my $n = $zero;          # inherit bignum 0
+  my $npower = $zero+1;   # inherit bignum 1
+
+  my @x = digit_split_lowtohigh($x,2);
+  my @y = digit_split_lowtohigh($y,2);
+
+  my @nx;
+  foreach my $i (0 .. $#y) {
+    if ($y[$i]) {
       $n = 2*$n + $npower;
-
-      if ($x & $ybit) {
-        ### hit x ypower: "add nbit=$nbit for x"
-        $nx += $nbit;
-        $x -= $ybit;
+      push @nx, $x[$i] || 0;   # low to high
+    } else {
+      if ($x[$i]) {
+        return undef;
       }
-      $nbit *= 2;
     }
-    $ybit *= 2;
     $npower *= 3;
-    $y = int($y/2);
   }
 
   ### n at left end of y row: $n
-  ### n offset for x: $nx
-  ### x remaining: $x
+  ### n offset for x: @nx
 
-  if ($x) {
-    ### not on row points ...
-    return undef;
-  }
-
-  return $n + $nx + $self->{'n_start'};
+  return $n + _digit_join_lowtohigh(\@nx,2,$zero) + $self->{'n_start'};
 }
 
 # not exact
@@ -205,11 +256,58 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiTriangle rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
+  if ($self->{'align'} eq 'diagonal') {
+    $y1 = round_nearest ($y1);
+    $y2 = round_nearest ($y2);
+    if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
+
+    $x1 = round_nearest ($x1);
+    $x2 = round_nearest ($x2);
+    if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
+
+    if ($x2 < 0 || $y2 < 0) {
+      return (1,0);
+    }
+    if ($x1 < 0) { $x1 *= 0; }
+    if ($y1 < 0) { $y1 *= 0; }
+
+    return ($self->xy_to_n(0, $x1+$y1),
+            $self->xy_to_n($x2+$y2, 0));
+  }
+
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
 
-  return ($self->xy_to_n(-$y1,$y1),
-          $self->xy_to_n($y2,$y2));
+  return ($self->xy_to_n($self->{'align'} eq 'right' ? 0 : -$y1,
+                         $y1),
+          $self->xy_to_n($self->{'align'} eq 'left' ? 0 : $y2,
+                         $y2));
+}
+
+# ENHANCE-ME: calculate by the bits of n, not by X,Y
+sub tree_n_children {
+  my ($self, $n) = @_;
+  if ($n < 0) {
+    return;
+  }
+  my ($x,$y) = $self->n_to_xy($n);
+  $y += 1;
+  my $n1 = $self->xy_to_n($x - ($self->{'align'} ne 'right'), $y);
+  my $n2 = $self->xy_to_n($x + ($self->{'align'} ne 'left'),$y);
+  return ((defined $n1 ? ($n1) : ()),
+          (defined $n2 ? ($n2) : ()));
+}
+sub tree_n_parent {
+  my ($self, $n) = @_;
+  if ($n < 1) {
+    return undef;
+  }
+  my ($x,$y) = $self->n_to_xy($n);
+  $y -= 1;
+  if (defined (my $n = $self->xy_to_n($x-($self->{'align'} ne 'left'), $y))) {
+    return $n;
+  }
+  return $self->xy_to_n($x+($self->{'align'} ne 'right'),$y);
 }
 
 1;
@@ -266,9 +364,9 @@ rather than rows jumping across gaps.
 
 =head2 Row Ranges
 
-The number of points in each row is always a power of 2 by the number of 1
-bits in Y.  For example Y=13 is binary 1101 which has three 1 bits so in row
-Y=13 there are 2^3=8 points.  (These powers-of-2 are known as Gould's
+The number of points in each row is always a power of 2 according to the
+number of 1-bits in Y.  For example Y=13 is binary 1101 which has three 1
+bits so in row Y=13 there are 2^3=8 points.  (This count is Gould's
 sequence.)
 
     rowpoints(Y) = 2^(count of 1 bits in Y)
@@ -278,10 +376,10 @@ cumulative count of preceding points,
 
     Nleft(Y) = rowpoints(0) + ... + rowpoints(Y-1)
 
-Since the powers of 2 are always even except for 2^0=1 in row Y=0, the
+Since the powers of 2 are always even except for 2^0=1 in row Y=0, this
 Nleft(Y) total is always odd.  The self-similar nature of the triangle means
-the same is true of the sub-triangles, like N=31,35,41,47,etc on the left of
-the X=8,Y=8 triangle.  This means in particular the primes fall
+the same is true of the sub-triangles, for example N=31,35,41,47,etc on the
+left of the triangle at X=8,Y=8.  This means in particular the primes fall
 predominately on the left side of the triangles and sub-triangles.
 
 =head2 Level Sizes
@@ -299,8 +397,8 @@ For example level 2 is from N=0 to N=3^2-1=9.  Each level doubles in size,
 =head2 Cellular Automaton
 
 The triangle arises in Stephen Wolfram's "rule 90" cellular automaton.  In
-each row a cell turns on on if one but not both its diagonal predecessors
-are on.  That behaves as a mod 2 sum, giving Pascal's triangle mod 2.
+each row a cell turns on if one but not both its diagonal predecessors are
+on.  That behaves as a mod 2 sum, giving Pascal's triangle mod 2.
 
     http://mathworld.wolfram.com/Rule90.html
 
@@ -325,11 +423,12 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 =head2 N to X,Y
 
-Within a row the X position is given by choosing among the bits of Y.  For
-example row Y=5 in binary is 0b101 and the positions of the cells within
-that row are k = 0b000, 0b001, 0b100, 0b101, then spread out across every
-second cell as Y-2*k.  The N offset within the row is thus applied by using
-the bits of N to select which of the 1 bits of Y to select.
+Within a row the X position is given by choosing to keep or clear the 1-bits
+of Y.  For example row Y=5 in binary is 0b101 and the positions of the cells
+within that row are k = 0b000, 0b001, 0b100, 0b101, and then spread out
+across every second cell as Y-2*k.  The Noffset within the row is thus
+applied by using the bits of Noffset to select which of the 1 bits of Y to
+keep.
 
 =head2 Rectangle to N Range
 
@@ -361,19 +460,21 @@ Sequences in various forms,
 
     http://oeis.org/A001316    etc
 
-    A001316 - number of cells in each row (Gould's sequence)
-    A001317 - row 0 or 1 as binary number
-    A047999 - rows of 0 or 1
-    A006046 - Nleft cumulative number of cells up to row N
-    A074330 - Nright at right hand end of each row (starting Y=2)
+    A001316   number of cells in each row (Gould's sequence)
+    A001317   row cells 0 or 1 as binary number
+    A047999   0,1 cells by rows (every second point)
+    A106344   0,1 cells by upwards diagonals dX=3,dY=1
+    A006046   Nleft, cumulative number of cells up to row N
+    A074330   Nright, right hand end of each row (starting Y=1)
 
 A001316 is the "rowpoints" Gould's sequence noted above.  A006046 is the
-cumulative which is the Nleft above, and A074330 is 1 less for an "Nright".
+cumulative total of that sequence which is the "Nleft" above, and A074330 is
+1 less for "Nright".
 
 The path uses every second point to make a triangular lattice (see
 L<Math::PlanePath/Triangular Lattice>).  The 0/1 pattern in A047999 of a row
 Y=k is therefore every second point X=-k, X=-k+2, X=-k+4, etc for k+1 many
-points through to X=k.
+points through to X=k inclusive.
 
 =head1 SEE ALSO
 

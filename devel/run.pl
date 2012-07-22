@@ -23,6 +23,7 @@ use warnings;
 use POSIX qw(floor ceil);
 use List::Util qw(min max);
 use Module::Load;
+use Math::PlanePath::Base::Digits 'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -55,7 +56,6 @@ use Module::Load;
   require Math::PlanePath::FactorRationals;
   require Math::PlanePath::VogelFloret;
   require Math::PlanePath::CellularRule;
-  require Math::PlanePath::ComplexPlus;
   require Math::PlanePath::AnvilSpiral;
   require Math::PlanePath::CellularRule57;
   require Math::PlanePath::DragonRounded;
@@ -70,26 +70,19 @@ use Module::Load;
   require Math::PlanePath::MultipleRings;
   require Math::PlanePath::SacksSpiral;
   require Math::PlanePath::TheodorusSpiral;
-  require Math::PlanePath::ImaginaryHalf;
   require Math::PlanePath::MooreSpiral;
   require Math::PlanePath::QuintetSide;
   require Math::PlanePath::GosperSide;
-  $path_class = 'Math::PlanePath::ComplexMinus';
   $path_class = 'Math::PlanePath::GosperIslands';
-  $path_class = 'Math::PlanePath::KochCurve';
   $path_class = 'Math::PlanePath::QuadricCurve';
-  $path_class = 'Math::PlanePath::QuintetReplicate';
   $path_class = 'Math::PlanePath::SierpinskiCurve';
   $path_class = 'Math::PlanePath::LTiling';
-  $path_class = 'Math::PlanePath::ImaginaryHalf';
-  $path_class = 'Math::PlanePath::ImaginaryBase';
   $path_class = 'Math::PlanePath::TerdragonCurve';
   $path_class = 'Math::PlanePath::TerdragonMidpoint';
   $path_class = 'Math::PlanePath::DragonCurve';
   $path_class = 'Math::PlanePath::SierpinskiArrowhead';
   $path_class = 'Math::PlanePath::DragonMidpoint';
   $path_class = 'Math::PlanePath::QuintetCentres';
-  $path_class = 'Math::PlanePath::GosperReplicate';
   $path_class = 'Math::PlanePath::HIndexing';
   $path_class = 'Math::PlanePath::WunderlichMeander';
   $path_class = 'Math::PlanePath::ComplexRevolving';
@@ -98,13 +91,12 @@ use Module::Load;
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::FractionsTree';
   $path_class = 'Math::PlanePath::RationalsTree';
-  $path_class = 'Math::PlanePath::GrayCode';
-  $path_class = 'Math::PlanePath::CubicBase';
   $path_class = 'Math::PlanePath::R5DragonCurve';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
   $path_class = 'Math::PlanePath::BetaOmega';
   $path_class = 'Math::PlanePath::AR2W2Curve';
   $path_class = 'Math::PlanePath::CCurve';
+
   $path_class = 'Math::PlanePath::NxN';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
@@ -117,49 +109,57 @@ use Module::Load;
   $path_class = 'Math::PlanePath::KochSquareflakes';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::TerdragonRounded';
-  $path_class = 'Math::PlanePath::ZOrderCurve';
   $path_class = 'Math::PlanePath::CornerReplicate';
-  $path_class = 'Math::PlanePath::SierpinskiTriangle';
   $path_class = 'Math::PlanePath::SierpinskiArrowheadCentres';
   $path_class = 'Math::PlanePath::QuintetCurve';
   $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HilbertSpiral';
   $path_class = 'Math::PlanePath::HilbertCurve';
-  $path_class = 'Math::PlanePath::DigitGroups';
   $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
   $path_class = 'Math::PlanePath::AlternatePaper';
   $path_class = 'Math::PlanePath::GreekKeySpiral';
   $path_class = 'Math::PlanePath::TriangularHypot';
+  $path_class = 'Math::PlanePath::ComplexMinus';
+  $path_class = 'Math::PlanePath::QuintetReplicate';
+  $path_class = 'Math::PlanePath::GosperReplicate';
+  $path_class = 'Math::PlanePath::ComplexPlus';
+  $path_class = 'Math::PlanePath::CubicBase';
+  $path_class = 'Math::PlanePath::DigitGroups';
+  $path_class = 'Math::PlanePath::GrayCode';
+  $path_class = 'Math::PlanePath::ZOrderCurve';
+  $path_class = 'Math::PlanePath::ImaginaryBase';
+  $path_class = 'Math::PlanePath::ImaginaryHalf';
+  $path_class = 'Math::PlanePath::KochCurve';
+  $path_class = 'Math::PlanePath::SierpinskiTriangle';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-      points => 'hex',
+align => 'diagonal',
+     # radix => 3,
+     # points => 'hex',
      # turns => 1,
      # arms => 8,
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_down',
      # base => 7,
      # direction => 'up',
-     # radix => 3,
      # step => 6,
      # ring_shape => 'polygon',
      # diagonal_length => 5,
      # apply_type => 'FS',
-     # radix => 4,
      # serpentine_type => '010_000',
      # straight_spacing => 3,
      # diagonal_spacing => 7,
      # arms => 7,
      # wider => 3,
-     # start_shape => 'B1rev',
      # rule => 8,
      # realpart => 1,
      # mirror => 1,
      # divisor_type => 'proper',
      # tree_type => 'Kepler',
-     # #coordinates => 'PQ',
+     # coordinates => 'PQ',
     );
   ### $path
   my ($prev_x, $prev_y);
@@ -169,7 +169,7 @@ use Module::Load;
   my $path_ref = ref($path);
   print "n_start() $n_start arms_count() $arms_count   $path_ref\n";
 
-  for (my $i = 1.0; $i <= 500; $i+=1) {
+   for (my $i = $n_start; $i <= 18000; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
@@ -241,19 +241,20 @@ __END__
   sub rect_to_n_range {
     my ($self, $x1,$y1, $x2,$y2) = @_;
 
-    $y1 = _round_nearest ($y1);
-    $y2 = _round_nearest ($y2);
+    $y1 = round_nearest ($y1);
+    $y2 = round_nearest ($y2);
     if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
-    if ($y1 < 0 && $y2 < 0) {
+    if ($y2 < 0) {
       return (1,0);
     }
 
-    $x1 = _round_nearest ($x1);
-    $x2 = _round_nearest ($x2);
+    $x1 = round_nearest ($x1);
+    $x2 = round_nearest ($x2);
     if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
     ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-    my (undef, $top_level) = _round_down_pow3 (max(2, abs($x1), abs($x2)));
+    my (undef, $top_level) = round_down_pow (max(2, abs($x1), abs($x2)),
+                                             3);
     $top_level += 2;
     ### $top_level
 

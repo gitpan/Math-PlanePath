@@ -53,7 +53,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::DigitGroups::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DigitGroups->VERSION,  $want_version,
@@ -105,6 +105,8 @@ sub from_binary {
   return oct("0b$str");
 }
 
+# return $n with each run of bits "011...11" duplicated
+# eg. n=1011 -> 101011011
 sub duplicate_bit_runs {
   my ($n) = @_;
   ### duplicate_bit_runs(): $n

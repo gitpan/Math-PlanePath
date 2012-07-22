@@ -34,13 +34,15 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 use Math::PlanePath::SacksSpiral;
 
@@ -55,7 +57,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -68,7 +70,7 @@ sub n_to_xy {
   my $xend = 1;
   my $yend = 0;
 
-  foreach my $digit (_digit_split_lowtohigh($n,3)) {
+  foreach my $digit (digit_split_lowtohigh($n,3)) {
     my $xend_offset = $xend - $yend;   # end + end rotated +90
     my $yend_offset = $yend + $xend;   #  being the digit 2 position
 
@@ -115,13 +117,13 @@ sub _ends_for_level {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
   ### QuintetSide xy_to_n(): "$x, $y"
 
   my $r = hypot($x,$y);
   my $level = ceil(log($r+1)/log(sqrt(5)));
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
   return _xy_to_n_in_level($x,$y,$level);

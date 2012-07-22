@@ -45,41 +45,43 @@ MyTestHelpers::diag ('Number::Fraction version ', Number::Fraction->VERSION);
 
 
 #------------------------------------------------------------------------------
-# _round_nearest()
+# round_nearest()
 
-require Math::PlanePath;
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('-7/4')) == -2, 1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('-3/2')) == -1,  1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('-5/4')) == -1,  1);
+use Math::PlanePath::Base::Generic 'round_nearest';
 
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('-3/4')) == -1, 1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('-1/2')) == 0,  1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('-1/4')) == 0,  1);
+ok (round_nearest(Number::Fraction->new('-7/4')) == -2, 1);
+ok (round_nearest(Number::Fraction->new('-3/2')) == -1,  1);
+ok (round_nearest(Number::Fraction->new('-5/4')) == -1,  1);
 
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('1/4')) == 0,  1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('5/4')) == 1,  1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('3/2')) == 2,  1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('7/4')) == 2,  1);
-ok (Math::PlanePath::_round_nearest(Number::Fraction->new('2'))   == 2,  1);
+ok (round_nearest(Number::Fraction->new('-3/4')) == -1, 1);
+ok (round_nearest(Number::Fraction->new('-1/2')) == 0,  1);
+ok (round_nearest(Number::Fraction->new('-1/4')) == 0,  1);
+
+ok (round_nearest(Number::Fraction->new('1/4')) == 0,  1);
+ok (round_nearest(Number::Fraction->new('5/4')) == 1,  1);
+ok (round_nearest(Number::Fraction->new('3/2')) == 2,  1);
+ok (round_nearest(Number::Fraction->new('7/4')) == 2,  1);
+ok (round_nearest(Number::Fraction->new('2'))   == 2,  1);
 
 #------------------------------------------------------------------------------
-# _floor()
+# floor()
 
-require Math::PlanePath;
-ok (Math::PlanePath::_floor(Number::Fraction->new('-7/4')) == -2,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('-3/2')) == -2,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('-5/4')) == -2,  1);
+use Math::PlanePath::Base::Generic 'floor';
 
-ok (Math::PlanePath::_floor(Number::Fraction->new('-3/4')) == -1,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('-1/2')) == -1,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('-1/4')) == -1,  1);
+ok (floor(Number::Fraction->new('-7/4')) == -2,  1);
+ok (floor(Number::Fraction->new('-3/2')) == -2,  1);
+ok (floor(Number::Fraction->new('-5/4')) == -2,  1);
 
-ok (Math::PlanePath::_floor(Number::Fraction->new('1/4')) == 0,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('3/4')) == 0,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('5/4')) == 1,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('3/2')) == 1,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('7/4')) == 1,  1);
-ok (Math::PlanePath::_floor(Number::Fraction->new('2'))   == 2,  1);
+ok (floor(Number::Fraction->new('-3/4')) == -1,  1);
+ok (floor(Number::Fraction->new('-1/2')) == -1,  1);
+ok (floor(Number::Fraction->new('-1/4')) == -1,  1);
+
+ok (floor(Number::Fraction->new('1/4')) == 0,  1);
+ok (floor(Number::Fraction->new('3/4')) == 0,  1);
+ok (floor(Number::Fraction->new('5/4')) == 1,  1);
+ok (floor(Number::Fraction->new('3/2')) == 1,  1);
+ok (floor(Number::Fraction->new('7/4')) == 1,  1);
+ok (floor(Number::Fraction->new('2'))   == 2,  1);
 
 #------------------------------------------------------------------------------
 # Rows
@@ -214,13 +216,13 @@ require Math::PlanePath::ZOrderCurve;
 }
 
 #------------------------------------------------------------------------------
-### KochCurve ...
+### round_down_pow() ...
 
-require Math::PlanePath::KochCurve;
+use Math::PlanePath::Base::Digits 'round_down_pow';
 {
   my $orig = Number::Fraction->new(3) ** 20 + Number::Fraction->new('1/7');
   my $n    = Number::Fraction->new(3) ** 20 + Number::Fraction->new('1/7');
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+  my ($pow,$exp) = round_down_pow($n,3);
 
   ok ($n, $orig);
   ok ($pow, Number::Fraction->new(3) ** 20);
@@ -229,7 +231,7 @@ require Math::PlanePath::KochCurve;
 {
   my $orig = Number::Fraction->new(3) ** 20;
   my $n    = Number::Fraction->new(3) ** 20;
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+  my ($pow,$exp) = round_down_pow($n,3);
 
   ok ($n, $orig);
   ok ($pow, Number::Fraction->new(3) ** 20);

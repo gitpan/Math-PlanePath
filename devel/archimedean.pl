@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,6 +22,7 @@ use 5.004;
 use strict;
 use Math::Libm 'hypot', 'asinh', 'M_PI', 'asin';
 use POSIX ();
+use Math::PlanePath::Base::Generic 'round_nearest';
 use Math::PlanePath::ArchimedeanChords;
 
 # uncomment this to run the ### lines
@@ -376,8 +377,8 @@ sub next_t {
     $y = $y_origin - $y;  # inverted
 
     $x -= length($n) / 2;
-    $x = _round_nearest ($x);
-    $y = _round_nearest ($y);
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
 
     if ($x >= 0 && $x < $width && $y >= 0 && $y < $height) {
       substr ($rows[$y], $x,length($n)) = $n;

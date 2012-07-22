@@ -21,13 +21,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
@@ -73,11 +76,11 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PyramidSides xy_to_n(): $x, $y
 
-  $y = _round_nearest ($y);
+  $y = round_nearest ($y);
   if ($y < 0) {
     return undef;
   }
-  $x = _round_nearest ($x);
+  $x = round_nearest ($x);
 
   my $s = abs($x) + $y;
   return $s*$s + $x+$s + 1;
@@ -87,20 +90,30 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
   if ($y2 < 0) {
     return (1, 0); # rect all negative, no N
   }
-
-  my ($xlo, $xhi) = (abs($x1) < abs($x2) ? ($x1, $x2) : ($x2, $x1));
-  if ($x2 == -$x1) { $xhi = abs($xhi); }  # +ve bigger if say -5 .. +5
-  if (($x1 >= 0) ^ ($x2 >= 0)) { $xlo = 0; }  # diff signs, x=0 smallest
   if ($y1 < 0) { $y1 = 0; }
+
+  my ($xlo, $xhi) = (abs($x1) < abs($x2)   # lo,hi by absolute value
+                     ? ($x1, $x2)
+                     : ($x2, $x1));
+  if ($x2 == -$x1) {
+    # when say x1=-5 x2=+5 then x=+5 is the bigger N
+    $xhi = abs($xhi);
+  }
+  if (($x1 >= 0) ^ ($x2 >= 0)) {
+    # if x1>=0 and x2<0 or other way around then x=0 is covered and is the
+    # smallest N
+    $xlo = 0;
+  }
+
   return ($self->xy_to_n ($xlo, $y1),
           $self->xy_to_n ($xhi, $y2));
 }
@@ -194,10 +207,12 @@ For C<rect_to_n_range()>, in each column N increases so the biggest N is in
 the topmost row and and smallest N in the bottom row.
 
 In each row N increases along the sequence X=0,-1,1,-2,2,-3,3, etc.  So the
-biggest N is at the X of biggest absolute value and preferring positive X=k
-over X=-k.  The smallest X conversely is at the X of smallest absolute
-value.  When the rectangle C<$x1> to C<$x2> crosses 0, ie. C<$x1> and C<$x2>
-have different signs, then of course X=0 is the smallest.
+biggest N is at the X of biggest absolute value and preferring the positive
+X=k over the negative X=-k.
+
+The smallest X conversely is at the X of smallest absolute value.  When the
+range C<$x1> to C<$x2> crosses 0, ie. C<$x1> and C<$x2> have different
+signs, then X=0 is the smallest.
 
 =head1 OEIS
 

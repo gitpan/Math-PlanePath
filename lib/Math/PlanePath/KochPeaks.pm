@@ -25,17 +25,17 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
+use Math::PlanePath::KochCurve;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -85,7 +85,7 @@ use constant n_frac_discontinuity => .5;
 
 # sub _n_to_level {
 #   my ($n) = @_;
-#   my ($side, $level) = _round_down_pow(6*$n + 1, 4);
+#   my ($side, $level) = round_down_pow(6*$n + 1, 4);
 #   my $base = $level + (2*$side + 1)/3 - .5;
 #   ### $level
 #   ### $base
@@ -110,9 +110,9 @@ sub n_to_xy {
   # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
   return if 2*$n < 1;
 
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
-  my ($side, $level) = _round_down_pow((3*$n-1)/2, 4);
+  my ($side, $level) = round_down_pow((3*$n-1)/2, 4);
   my $base = $level + (2*$side + 1)/3;
   ### $level
   ### $base
@@ -171,17 +171,17 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### KochPeaks xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   if ($y < 0 || ! (($x ^ $y) & 1)) {
     ### neg y or parity...
     return undef;
   }
-  my ($len,$level) = _round_down_pow ($y+abs($x), 3);
+  my ($len,$level) = round_down_pow ($y+abs($x), 3);
   ### $level
   ### $len
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -257,20 +257,20 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochPeaks rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   ### rounded: "$x1,$y1  $x2,$y2"
 
   if ($y1 < 0 && $y2 < 0) {
     return (1,0);
   }
 
-  # can't make use of the len=3**$level returned by _round_down_pow()
-  my ($len, $level) = _round_down_pow (max(abs($x1),abs($x2))
-                                       + max($y1, $y2),
-                                       3);
+  # can't make use of the len=3**$level returned by round_down_pow()
+  my ($len, $level) = round_down_pow (max(abs($x1),abs($x2))
+                                      + max($y1, $y2),
+                                      3);
   ### $level
   return (1, $level + (8 * 4**$level + 1)/3);
 }

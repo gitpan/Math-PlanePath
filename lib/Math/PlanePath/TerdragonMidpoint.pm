@@ -30,16 +30,14 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -73,7 +71,7 @@ sub n_to_xy {
   ### TerdragonMidpoint n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   {
     my $int = int($n);
@@ -108,7 +106,7 @@ sub n_to_xy {
 #   ### TerdragonMidpoint n_to_xy(): $n
 #
 #   if ($n < 0) { return; }
-#   if (_is_infinite($n)) { return ($n, $n); }
+#   if (is_infinite($n)) { return ($n, $n); }
 #
 #   my $frac;
 #   {
@@ -312,13 +310,13 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### TerdragonMidpoint xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;  # infinity
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;  # infinity
   }
 

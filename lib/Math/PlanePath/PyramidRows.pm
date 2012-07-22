@@ -16,6 +16,18 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# align centre_floor
+#       centre_frac
+#       centre_spread
+#       left
+#       right
+#
+# rule=50,58,114,122,178,179,186,242,250
+# spacing=2,step=1
+# full V with points spaced apart
+# math-image --path=CellularRule,rule=50 --all --text
+#
+
 package Math::PlanePath::PyramidRows;
 use 5.004;
 use strict;
@@ -23,12 +35,13 @@ use strict;
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 
 # uncomment this to run the ### lines
@@ -137,8 +150,8 @@ sub n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   my $step = $self->{'step'};
   if ($y < 0
       || $x < -$y*int($step/2)
@@ -183,10 +196,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PyramidRows rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
   if ($y2 < 0) {
     return (1, 0); # rect all negative, no N
@@ -487,18 +500,22 @@ path include
 
     http://oeis.org/A023531  (etc)
 
-     step=1
-    A023531    dY, being 1 at row end, but starting n=0
-    A079824    N total along each diagonal
+    step=1
+      A002262    X coordinate, runs 0 to k
+      A003056  	 Y coordinate, k repeated k+1 times
+      A025581  	 Y-X coordinate diff, runs k to 0
+      A023531    dY, being 1 at triangular numbers (but starting n=0)
+      A167407    dX-dY, change in X-Y (extra initial 0)
+      A079824    N total along each opposite diagonal
 
-     step=2
-    A196199    X coordinate, runs -n to +n
-    A000196    Y coordinate, n appears 2n+1 times
-    A053186    X+Y, being distance to next higher square
-    A010052    dY,  being 1 at perfect square row end
+    step=2
+      A196199    X coordinate, runs -n to +n
+      A000196    Y coordinate, n appears 2n+1 times
+      A053186    X+Y, being distance to next higher square
+      A010052    dY,  being 1 at perfect square row end
 
-     step=3
-    A180447    Y coordinate, n appears 3n+1 times
+    step=3
+      A180447    Y coordinate, n appears 3n+1 times
 
 =head1 SEE ALSO
 

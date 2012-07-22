@@ -19,21 +19,47 @@
 
 
 
-; for n = binary z100..00 return the "z" bit alone z000..00
-; Eg. n=22 is binary 10110 and returns 4, ie. binary 100
+; For n = binary z100..00 return the "z" bit alone z000..00.
+; Eg. n=22 is binary 10110 the low 1-bit is the 10 and the return is
+; bit above that 100, ie. 4.
 to bit.above.lowest.1bit :n
   output bitand :n (1 + (bitxor :n (:n - 1)))
 end
 
+; Return angle +90 or -90 of dragon curve turn at n.
+; The first turn is at n=1.
+to dragon.turn.angle :n
+  output ifelse 0 = bit.above.lowest.1bit :n [90] [-90]
+end
+
+; Draw steps many segments of the dragon curve.
 to dragon :steps
+  localmake "step.len 12
+  repeat :steps [ forward :step.len
+                  left    dragon.turn.angle repcount ]
+end
+
+; Draw steps many segments of the dragon curve, with corners rounded
+; off with little 45-degree chamfers.  Done this way the vertices don't touch.
+to dragon.rounded :steps
+  localmake "step.len       12
+  localmake "straight.frac  0.5
+  localmake "straight.len   :step.len * :straight.frac
+  localmake "diag.len       :step.len * (1-:straight.frac)/2 * sqrt(2)
   repeat :steps [
-    forward 5
-    ifelse 0 = bit.above.lowest.1bit repcount
-      [left 90] [right 90]
+     localmake "turn  dragon.turn.angle repcount ; +90 or -90
+     forward :straight.len
+     left    :turn / 2
+     forward :diag.len
+     left    :turn / 2
   ]
 end
 
-dragon 1024
+dragon 256
+wait 60
+clearscreen
+dragon.rounded 256
+
 
 
 ; epspict "/tmp/x.eps
@@ -49,5 +75,5 @@ dragon 1024
 ; >
 ; >=
 ; `
-
+; refresh
 ; /so/logo/ucblogo-6.0/csls/

@@ -23,11 +23,12 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -131,8 +132,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### CellularRule54 xy_to_n(): "$x,$y"
 
   if ($y < 0
@@ -184,8 +185,8 @@ sub _rect_for_V {
   my ($x1,$y1, $x2,$y2) = @_;
   ### _rect_for_V(): "$x1,$y1, $x2,$y2"
 
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
 
   unless ($y2 >= 0) {
@@ -197,8 +198,8 @@ sub _rect_for_V {
     $y1 = 0;
   }
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
   my $neg_y2 = -$y2;
 

@@ -35,8 +35,8 @@
 # permutation of the integers.
 #
 # There's eight variations on the sequence.  2 directions clockwise and
-# counter-clockwise and 4 sides to start from relative to the side the
-# square spiral numbering starts from.
+# anti-clockwise and 4 sides to start from relative to the side the square
+# spiral numbering starts from.
 #
 #     A068608
 #     A068609

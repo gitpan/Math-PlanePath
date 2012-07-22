@@ -30,7 +30,6 @@
 # A035612
 # A020941
 # A135766 -- not divisible by 2,3,5, times 5^k, by triangle
-# A153733 remove trailing 1s
 
 package Math::PlanePath::PowerArray;
 use 5.004;
@@ -38,24 +37,18 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'parameter_info_array';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
-use constant parameter_info_array => [{ name      => 'radix',
-                                        share_key => 'radix_2',
-                                        type      => 'integer',
-                                        minimum   => 2,
-                                        default   => 2,
-                                        width     => 3,
-                                        description => 'Base to divide out.',
-                                      }];
 
 use constant n_start => 1;
 use constant class_x_negative => 0;
@@ -72,7 +65,7 @@ sub n_to_xy {
   ### PowerArray n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (_is_infinite($n) || $n == 0) { return ($n,$n); }
+  if (is_infinite($n) || $n == 0) { return ($n,$n); }
 
   {
     # fractions on straight line ?
@@ -115,8 +108,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PowerArray xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($x < 0 || $y < 0) {
     return undef;
   }
@@ -130,10 +123,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PowerArray rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
@@ -275,33 +268,38 @@ path include
 
     http://oeis.org/A007814  (etc)
 
-     radix=2
-    A007814    X coordinate, count low 0 bits of N
-    A025480    Y coordinate of N-1, ie. seq starts from N=0
-    A003602    Y+1 coordinate, k for which N=(2k-1)*2^m
-    A000265    2*Y+1 coordinate, strip low 0 bits of N
-    A006519    2^X, the power of 2 divided out
+    radix=2
+      A007814    X coordinate, count low 0 bits of N
+      A006519    2^X, the power of 2 divided out
 
-    A000079    N on X axis, powers 2^X
-    A005408    N on Y axis, the odd numbers
-    A057716    N not on X axis, the non-powers-of-2
+      A025480    Y coordinate of N-1, ie. seq starts from N=0
+      A003602    Y+1 coordinate, k for which N=(2k-1)*2^m
+      A153733    2*Y coordinate of N-1, strip low 1 bits
+      A000265    2*Y+1 coordinate, strip low 0 bits
 
-    A118417    N on X=Y+1 diagonal (ie. just below X=Y diagonal)
+      A094267    dX, change in X coordinate
+      A108715    dY, change in Y coordinate
 
-    A054582    N by diagonals upwards
-    A075300    N-1 by diagonals upwards
-    A135764    N by diagonals downwards
+      A000079    N on X axis, powers 2^X
+      A005408    N on Y axis, the odd numbers
+      A057716    N not on X axis, the non-powers-of-2
 
-     radix=3
-    A000244    N on X axis, powers 3^X
+      A118417    N on X=Y+1 diagonal (ie. just below X=Y diagonal)
 
-    A135765    odd N by diagonals, delete the Y=1,2mod4 even rows
+      A054582    N by diagonals upwards
+      A075300    N-1 by diagonals upwards
+      A135764    N by diagonals downwards
 
-     radix=4
-    A000302    N on X axis, powers 4^X
+    radix=3
+      A000244    N on X axis, powers 3^X
 
-     radix=10
-    A011557    N on X axis, powers 10^X
+      A135765    odd N by diagonals, delete the Y=1,2mod4 even rows
+
+    radix=4
+      A000302    N on X axis, powers 4^X
+
+    radix=10
+      A011557    N on X axis, powers 10^X
 
 =head1 SEE ALSO
 

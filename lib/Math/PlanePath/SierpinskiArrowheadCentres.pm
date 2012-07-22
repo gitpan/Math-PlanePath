@@ -20,21 +20,20 @@ package Math::PlanePath::SierpinskiArrowheadCentres;
 use 5.004;
 use strict;
 
-use Math::PlanePath 37; # v.37 for _round_nearest()
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
-*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
+
+use Math::PlanePath::CellularRule54;
+*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -49,7 +48,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -59,7 +58,7 @@ sub n_to_xy {
   my $x = my $y = ($int * 0); # inherit bigint 0
   my $len = $x + 1;           # inherit bigint 1
 
-  my @digits = _digit_split_lowtohigh($int,3);
+  my @digits = digit_split_lowtohigh($int,3);
   for (;;) {
     unless (@digits) {
       return ($n + $x,
@@ -113,21 +112,21 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### SierpinskiArrowheadCentres xy_to_n(): "$x, $y"
 
   if ($y < 0 || (($x^$y) & 1)) {
     return undef;
   }
 
-  my ($len, $level) = _round_down_pow ($y, 2);
+  my ($len, $level) = round_down_pow ($y, 2);
   ### pow2 round up: ($y + ($y==$x || $y==-$x))
   ### $len
   ### $level
   $level += 1;
 
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -204,7 +203,7 @@ sub rect_to_n_range {
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0); # rect outside pyramid
 
-  my ($len,$level) = _round_down_pow ($y2, 2);
+  my ($len,$level) = round_down_pow ($y2, 2);
   ### $y2
   ### $level
   return (0, 3**($level+1) - 1);

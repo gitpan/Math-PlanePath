@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 604;
+plan tests => 624;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::RationalsTree;
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::RationalsTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::RationalsTree->VERSION,  $want_version,
@@ -59,6 +59,55 @@ require Math::PlanePath::RationalsTree;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# tree_n_parent()
+{
+  my @data = ([ 1, undef ],
+
+              [ 2,  1 ],
+              [ 3,  1 ],
+
+              [ 4,  2 ],
+              [ 5,  2 ],
+              [ 6,  3 ],
+              [ 7,  3 ],
+
+              [ 8,  4 ],
+              [ 9,  4 ],
+              [ 10,  5 ],
+              [ 11,  5 ],
+              [ 12,  6 ],
+              [ 13,  6 ],
+             );
+  my $path = Math::PlanePath::RationalsTree->new;
+  foreach my $elem (@data) {
+    my ($n, $want_n_parent) = @$elem;
+    my $got_n_parent = $path->tree_n_parent ($n);
+    ok ($got_n_parent, $want_n_parent);
+  }
+}
+
+#------------------------------------------------------------------------------
+# tree_n_children()
+{
+  my @data = ([ 1, '2,3' ],
+
+              [ 2,  '4,5' ],
+              [ 3,  '6,7' ],
+
+              [ 4,  '8,9' ],
+              [ 5,  '10,11' ],
+              [ 6,  '12,13' ],
+              [ 7,  '14,15' ],
+             );
+  my $path = Math::PlanePath::RationalsTree->new;
+  foreach my $elem (@data) {
+    my ($n, $want_n_children) = @$elem;
+    my $got_n_children = join(',',$path->tree_n_children($n));
+    ok ($got_n_children, $want_n_children, "tree_n_children($n)");
+  }
 }
 
 #------------------------------------------------------------------------------

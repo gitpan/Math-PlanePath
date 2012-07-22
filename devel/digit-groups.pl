@@ -20,6 +20,7 @@
 
 use 5.004;
 use strict;
+use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 use Smart::Comments;
@@ -40,7 +41,7 @@ use Smart::Comments;
   Devel::Peek::Dump($n);
 
   require Math::PlanePath;
-  my @digits = Math::PlanePath::_digit_split_lowtohigh(~0,$radix);
+  my @digits = digit_split_lowtohigh(~0,$radix);
   ### @digits
 
   exit 0;

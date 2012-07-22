@@ -21,13 +21,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 use Math::PlanePath::BetaOmega 52;
 *_y_round_down_len_level = \&Math::PlanePath::BetaOmega::_y_round_down_len_level;
@@ -68,12 +70,12 @@ sub n_to_xy {
   ### hex: sprintf "%#X", $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   my $int = int($n);
   $n -= $int;
 
-  my @digits = _digit_split_lowtohigh($int,4);
+  my @digits = digit_split_lowtohigh($int,4);
   my $len = ($n*0 + 2) ** scalar(@digits);   # inherit possible bigint 1
 
   my $state = ($#digits & 1 ? 4 : 0);
@@ -119,8 +121,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### HilbertSpiral xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   my $n = ($x * 0 * $y);
 
@@ -133,7 +135,7 @@ sub xy_to_n {
       $len = $ylen;
     }
   }
-  if (_is_infinite($len)) {
+  if (is_infinite($len)) {
     return $len;
   }
 
@@ -209,10 +211,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### HilbertSpiral rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
@@ -231,7 +233,7 @@ sub rect_to_n_range {
       $len = $zlen;
     }
   }
-  if (_is_infinite($len)) {
+  if (is_infinite($len)) {
     return (0, $len);
   }
 

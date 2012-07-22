@@ -35,13 +35,13 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -179,8 +179,8 @@ sub xy_to_n {
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### xy_to_n: "x=$x, y=$y"
   ### $w_left
   ### $w_right
@@ -243,30 +243,38 @@ sub xy_to_n {
   return (4*$d + 3 + 2*$w)*$d + 1 + $w_left + $x;
 }
 
+# hi is exact but lo is not
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
-
-  my $w = $self->{'wider'};
-  my $w_right = int($w/2);
-  my $w_left = $w - $w_right;
-
-  my $d = 1 + max (abs($y1),
-                   abs($y2),
-                   $x1 - $w_right, -$x1 - $w_left,
-                   $x2 - $w_right, -$x2 - $w_left,
-                   1);
-  ### $d
-  ### is: $d*$d
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
   return (1,
-          (4*$d - 4 + 2*$w)*$d + 2);  # bottom-right
+          max ($self->xy_to_n($x1,$y1),
+               $self->xy_to_n($x2,$y1),
+               $self->xy_to_n($x1,$y2),
+               $self->xy_to_n($x2,$y2)));
+
+  # my $w = $self->{'wider'};
+  # my $w_right = int($w/2);
+  # my $w_left = $w - $w_right;
+  #
+  # my $d = 1 + max (abs($y1),
+  #                  abs($y2),
+  #                  $x1 - $w_right, -$x1 - $w_left,
+  #                  $x2 - $w_right, -$x2 - $w_left,
+  #                  1);
+  # ### $d
+  # ### is: $d*$d
+  #
+  # # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
+  # return (1,
+  #         (4*$d - 4 + 2*$w)*$d + 2);  # bottom-right
 }
 
 
@@ -310,8 +318,6 @@ sub rect_to_n_range {
 # extra subtract d+w-1
 # Nbase = (d^2 + (w-1)*d + 1-w) + d+w-1
 #       = d^2 + w*d
-
-# use Smart::Comments;
 
 # including fraction
 sub _n_to_dxdy {
@@ -386,7 +392,7 @@ sub _n_to_dxdy {
 __END__
 
 
-=for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal OEIS Nbase sqrt BigRat Nrem wl wr Nsig
+=for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal OEIS Nbase sqrt BigRat Nrem wl wr Nsig incrementing
 
 =head1 NAME
 
@@ -430,16 +436,16 @@ more.
 
 =head2 Straight Lines
 
-The perfect squares 1,4,9,16,25 fall on diagonals with the even perfect
-squares going to the upper left and the odd ones to the lower right.  The
+The perfect squares 1,4,9,16,25 fall on two diagonals with the even perfect
+squares going to the upper left and the odd squares to the lower right.  The
 pronic numbers 2,6,12,20,30,42 etc k^2+k half way between the squares fall
 on similar diagonals to the upper right and lower left.  The decagonal
 numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right at Y=-1.
 
 In general straight lines and diagonals are 4*k^2 + b*k + c.  b=0 is the
-even perfect squares up to the left, then b is an eighth turn
-counter-clockwise, or clockwise if negative.  So b=1 is horizontally to the
-left, b=2 diagonally down to the left, b=3 down vertically, etc.
+even perfect squares up to the left, then incrementing b is an eighth turn
+anti-clockwise, or clockwise if negative.  So b=1 is horizontal West, b=2
+diagonally down South-West, b=3 down South, etc.
 
 Honaker's prime-generating polynomial 4*k^2 + 4*k + 59 goes down to the
 right, after the first 30 or so values loop around a bit.
@@ -492,7 +498,8 @@ around faster.  See the following modules,
          3        PentSpiralSkewed
          4        DiamondSpiral
 
-The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.
+The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.  It
+shifts corners but doesn't cut them.
 
 =head1 FUNCTIONS
 
@@ -502,7 +509,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SquareSpiral-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (wider =E<gt> $w)>
+=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (wider =E<gt> $integer)>
 
 Create and return a new square spiral object.  An optional C<wider>
 parameter widens the spiral path, it defaults to 0 which is no widening.
@@ -653,10 +660,34 @@ w=wl=wr=0 then they simplify to the plain versions.
     bottom    2d <= Nsig             X = -d+1-wl+(Nsig-(2d+1)) = Nsig-wl-3d
                                      Y = -d
 
+=head2 Rectangle to N Range
+
+Within each row the minimum N is on the X=Y diagonal and N values increases
+monotonically as X moves away to the left or right.  Similarly in each
+column there's a minimum N on the X=-Y opposite diagonal, or X=-Y+1 diagonal
+when X negative, and N increases monotonically as Y moves away from there up
+or down.  When widerE<gt>0 the location of the minimum changes, but N is
+still monotonic moving away from the minimum.
+
+On that basis the maximum N in a rectangle is at one of the four corners,
+
+              |
+    x1,y2 M---|----M x2,y2      corner candidates
+          |   |    |            for maximum N
+       -------O---------
+          |   |    |
+          |   |    |
+    x1,y1 M---|----M x1,y1
+              |
+
 =head1 OEIS
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences in various
-forms,
+forms.  Summary at
+
+    http://oeis.org/A068225/a068225.html
+
+And various sequences,
 
     http://oeis.org/A180714  (etc)
 
@@ -678,7 +709,7 @@ forms,
     A053755    N values on X=-Y opp diagonal X<=0 (NW)
     A016754    N values on X=-Y opp diagonal X>=0 (SE)
 
-    A137928    N values on X=1-Y opposite diagonal
+    A137928    N values on X=-Y+1 opposite diagonal
     A002061    N values on X=Y diagonal pos and neg
     A016814    (4k+1)^2, every second N on south-east diagonal
 
@@ -689,10 +720,10 @@ forms,
     A054564    prime[N] on X=-Y opp diagonal X<=0 (NW)
     A054566    prime[N] on negative X axis (W)
 
-    A068225    permutation N -> N at the right X+1,Y
+    A068225    permutation N -> the N to its right at X+1,Y
     A121496      run lengths of consecutive N in that permutation
-    A068226    permutation N -> N at the left X-1,Y
-    A020703    permutation N by transposing X,Y
+    A068226    permutation N -> the N at its left X-1,Y
+    A020703    permutation N transposing X,Y
 
     A033952    digits on negative Y axis
     A033953    digits on negative Y axis, starting 0
@@ -701,10 +732,6 @@ forms,
     A033990    digits on X axis, starting 0
 
     A062410    total sum previous row or column
-
-See summary at
-
-    http://oeis.org/A068225/a068225.html
 
 =head1 SEE ALSO
 
@@ -717,6 +744,8 @@ L<Math::PlanePath::HexSpiralSkewed>,
 L<Math::PlanePath::HeptSpiralSkewed>
 
 L<Math::PlanePath::CretanLabyrinth>
+
+L<Math::NumSeq::SpiroFibonacci>
 
 X11 cursor font "box spiral" cursor which is this style (but going
 clockwise).

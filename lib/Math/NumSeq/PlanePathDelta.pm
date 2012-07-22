@@ -17,13 +17,23 @@
 
 
 # maybe:
+# dDiffYX,
+# dAbsDiff change in abs(X-Y)
+#    (Xnext-Ynext) - (X-Y)
+#      = (Xnext-X) - (Ynext-Y)
+#      = dX-dY
+#    (Xnext-Ynext) - (Y-X)        # if X-Y negative
+#      = Xnext+X - Ynext-Y
+# dSumAbs change in abs(X)+abs(Y)
 # AbsdX,AbsdY
 # dRadius, dRSquared, dTRadius, dTRSquared of the radii
 # dTheta360
-# dDist dDistSquared
-# Dist DSquared DistSquared of dxdy
-# TDist TDSquared
 # 'Dir360','TDir360',
+
+# dDist dDSquared
+# dTDist dTDSquared
+# Dist DSquared
+# TDist TDSquared
 
 
 package Math::NumSeq::PlanePathDelta;
@@ -32,15 +42,14 @@ use strict;
 use Carp;
 use List::Util 'max';
 
+use vars '$VERSION','@ISA';
+$VERSION = 82;
 use Math::NumSeq;
+@ISA = ('Math::NumSeq');
 
 use Math::NumSeq::PlanePathCoord;
 *_planepath_oeis_key = \&Math::NumSeq::PlanePathCoord::_planepath_oeis_key;
 *_planepath_name_to_object = \&Math::NumSeq::PlanePathCoord::_planepath_name_to_object;
-
-use vars '$VERSION','@ISA';
-$VERSION = 81;
-@ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -68,12 +77,12 @@ use constant::defer parameter_info_array =>
        display => 'Delta Type',
        type    => 'enum',
        default => 'dX',
-       choices => ['dX','dY','dSum',
+       choices => ['dX','dY','dSum','dDiffXY',
                    'Dir4','TDir6',
-                   'DSquared',
-                   'TDSquared',
+                   # 'Dist','DSquared',
+                   # 'TDist','TDSquared',
                   ],
-       description => 'The coordinate change or direction to take from the path.',
+       description => 'Coordinate change or direction to take from the path.',
       },
     ];
   };
@@ -82,33 +91,61 @@ use constant::defer parameter_info_array =>
 
 my %oeis_anum
   = (
+     'Math::PlanePath::Diagonals,direction=down' =>
+     {
+      dY => 'A127949',
+      # OEIS-Catalogue: A127949 planepath=Diagonals,delta_type=dY
+
+      # but starts OFFSET=0
+      # dSum => 'A023531', # 1 at triangulars
+     },
+     'Math::PlanePath::Diagonals,direction=up' =>
+     {
+      dX => 'A127949',
+      # OEIS-Other: A127949 planepath=Diagonals,delta_type=dX
+
+      # but starts OFFSET=0
+      # dSum => 'A023531', # 1 at triangulars
+     },
+     
+     # 'Math::PlanePath::PowerArray,radix=2' =>
+     # {
+     #  # # but starts OFFSET=0 vs n_start=1 here
+     #  # dX => 'A094267', # first diffs of count low 0s
+     #  #  # OEIS-Catalogue: A094267 planepath=PowerArray,radix=2
+     #
+     #  # # but starts OFFSET=0 vs n_start=1 here
+     #  # dY => 'A108715', # first diffs of odd part of n
+     #  # # OEIS-Catalogue: A108715 planepath=PowerArray,radix=2 coord_type=dY
+     # },
+     
      # 'Math::PlanePath::GosperSide' =>
      # 'Math::PlanePath::TerdragonCurve' =>
      # A062756 is total turn starting OFFSET=0, count of ternary 1 digits.
      # Dir6 would be total%6, or 2*(total%3) for Terdragon, suspect such a
      # modulo version not in OEIS.
-
-     'Math::PlanePath::AlternatePaper' =>
+     
+     'Math::PlanePath::AlternatePaper,arms=1' =>
      { dSum => 'A020985', # GRS
        # OEIS-Other: A020985 planepath=AlternatePaper delta_type=dSum
        #   # no option to take every second N yet
        #   dX_every_second_point_skipping_zeros => 'A020985', # GRS
        #   # ie. Math::NumSeq::GolayRudinShapiro
      },
-
+     
      # 'Math::PlanePath::DragonMidpoint' =>
      # {
      #  # No, has n=N+2 and extra initial 0 at n=1
      #  # A073089 => 'abs_dY',
      # },
-
+     
      # 'Math::PlanePath::SquareSpiral' =>
      # {
      #  AbsdX => 'A079813', # k 0s then k 1s is abs(dX)
      #  AbsdY => 'A118175', # k 0s then k 1s plus initial 1 is abs(dY)
      #  Dir4_1 => 'A063826', # ENSW 1 to 4, rather than 0 to 3
      # },
-
+     
      # 'Math::PlanePath::HilbertCurve' =>
      # {
      #  # OFFSET n=1 cf N=0
@@ -126,7 +163,7 @@ my %oeis_anum
      #  # cf A163541    absolute direction, transpose X,Y
      #  # would be N=0,E=1,S=2,W=3
      # },
-
+     
      # 'Math::PlanePath::PeanoCurve,radix=3' =>
      # {
      #  # OFFSET n=1 cf N=0
@@ -142,13 +179,13 @@ my %oeis_anum
      #  # dY => 'A163533',
      #  # # OEIS-Catalogue: A163533 planepath=PeanoCurve delta_type=dY
      # },
-
+     
      # 'Math::PlanePath::RationalsTree,tree_type=CW' =>
      # {
      #  # dY => 'A070990', # Stern diatomic first diffs, except it starts i=0
      #  # where RationalsTree N=1.  dX is same, but has extra leading 0.
      # },
-
+     
      # PyramidRows step=0 is trivial X=0,Y=N
      'Math::PlanePath::PyramidRows,step=0' =>
      { dX    => 'A000004',  # all zeros, X=0 always
@@ -158,17 +195,19 @@ my %oeis_anum
        # OEIS-Other: A000012 planepath=PyramidRows,step=0 delta_type=dY
        # OEIS-Other: A000012 planepath=PyramidRows,step=0 delta_type=Dir4
      },
-
+     
      # # PyramidRows step=1
      # 'Math::PlanePath::PyramidRows,step=1' =>
      # {
      #  # not quite, PyramidRows starts N=1 but A023531 starts n=0
      #  # dY    => 'A023531',  # 1,0,1,0,0,1,etc, 1 if n==k(k+3)/2
+     #  # not quite, PyramidRows starts N=1 but A167407 starts OFFSET=0
+     #  # dDiffXY => 'A167407'
      # },
-
+     
      # PyramidRows step=2 dY is A010052, 1 if n=k^2, except it starts n=0
      # where PyramidRows starts i=1
-
+     
      # MultipleRings step=0 is trivial X=N,Y=0
      'Math::PlanePath::MultipleRings,step=0,ring_shape=circle' =>
      { dX     => 'A000012',  # all ones
@@ -180,7 +219,7 @@ my %oeis_anum
        # OEIS-Other: A000004 planepath=MultipleRings,step=0 delta_type=Dir4
        # OEIS-Other: A000004 planepath=MultipleRings,step=0 delta_type=TDir6
      },
-
+     
      'Math::PlanePath::Rows,width=1' =>
      { dX   => 'A000004', # all zeros, X=0 always
        dY   => 'A000012', # all ones
@@ -199,7 +238,7 @@ my %oeis_anum
        # OEIS-Other: A000004 planepath=Columns,height=1 delta_type=Dir4
        # OEIS-Other: A000004 planepath=Columns,height=1 delta_type=TDir6
      },
-
+     
      # OFFSET
      # 'Math::PlanePath::Rows,width=2' =>
      # { dX    => 'A033999', # 1,-1 repeating
@@ -211,7 +250,7 @@ my %oeis_anum
      # { dY   => 'A033999', # 1,-1 repeating
      #   # OEIS-Other: A033999 planepath=Columns,height=2 delta_type=dY
      # },
-
+     
      # OFFSET
      # 'Math::PlanePath::Rows,width=3' =>
      # { dX   => 'A061347', # 1,1,-2 repeating
@@ -225,7 +264,7 @@ my %oeis_anum
      #   # OEIS-Other: A022003 planepath=Columns,height=3 delta_type=dX
      #   # OEIS-Other: A061347 planepath=Columns,height=3 delta_type=dY
      # },
-
+     
      'Math::PlanePath::Rows,width=4' =>
      { dY   => 'A011765', # 0,0,0,1 repeating, starting n=1
        # OEIS-Other: A011765 planepath=Rows,width=4 delta_type=dY
@@ -356,6 +395,10 @@ sub _delta_func_dSum {
   ### _delta_func_dSum() ...
   return ($next_x - $x) + ($next_y - $y);
 }
+sub _delta_func_dDiffXY {
+  my ($x,$y, $next_x,$next_y) = @_;
+  return ($next_x - $x) - ($next_y - $y);
+}
 sub _delta_func_Dist {
   return sqrt(_delta_func_DSquared(@_));
 }
@@ -469,10 +512,11 @@ sub _delta_func_TDir360 {
 
 #------------------------------------------------------------------------------
 
-# FIXME: most paths are integer
+# FIXME: most paths are integer ...
 my %type_is_dxdy = (dX => 1,
                     dY => 1,
-                    dSum => 1);
+                    dSum => 1,
+                    dDiffXY => 1);
 sub characteristic_integer {
   my ($self) = @_;
   my $planepath_object = $self->{'planepath_object'};
@@ -541,6 +585,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => undef;
   use constant _NumSeq_Delta_dSum_min => undef;
   use constant _NumSeq_Delta_dSum_max => undef;
+  use constant _NumSeq_Delta_dDiffXY_min => undef;
+  use constant _NumSeq_Delta_dDiffXY_max => undef;
 
   sub _NumSeq_Delta_Dist_min {
     my ($self) = @_;
@@ -653,12 +699,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::GreekKeySpiral;
@@ -668,12 +716,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::PyramidSpiral;
@@ -683,6 +733,9 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # SW diagonal
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;  # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
+
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 2.5; # at most SW diagonal
   use constant _NumSeq_Delta_TDir6_max => 4;  # at most SW diagonal
@@ -694,7 +747,9 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => -1;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # SW diagonal
-  use constant _NumSeq_Delta_dSum_max => 2;  # dX=+2
+  use constant _NumSeq_Delta_dSum_max => 2;  # dX=+2 horiz
+  use constant _NumSeq_Delta_dDiffXY_min => -2;  # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 2;   # dX=+2 horiz
 
   use constant _NumSeq_Delta_Dir4_max => 2.5; # at most SW diagonal
   use constant _NumSeq_Delta_TDir6_max => 4;  # at most SW diagonal
@@ -704,7 +759,7 @@ sub values_max {
   use constant _NumSeq_Delta_DSquared_max => 4;
   use constant _NumSeq_Delta_TDSquared_min => 4;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;  # triangular
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
 }
 { package Math::PlanePath::TriangleSpiralSkewed;
   use constant _NumSeq_Delta_dX_min => -1;
@@ -713,6 +768,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # diagonal only acrossways
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;  # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5;  # at most S vertical
   use constant _NumSeq_Delta_DSquared_max => 2;
 }
@@ -723,6 +780,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
@@ -733,6 +792,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
 { package Math::PlanePath::PentSpiral;
@@ -742,6 +803,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -3; # SW -2,-1
   use constant _NumSeq_Delta_dSum_max => 2;  # dX=+2 and NE diag
+  use constant _NumSeq_Delta_dDiffXY_min => -3; # NW dX=-2,dY=+1
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
 
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 
@@ -755,6 +818,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # SW diagonal
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -2; # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 2;  # SE diagonal
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5;  # SE diagonal
 }
@@ -765,13 +830,15 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # SW diagonal
   use constant _NumSeq_Delta_dSum_max => 2;  # dX=+2 and diagonal
+  use constant _NumSeq_Delta_dDiffXY_min => -2; # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 2;  # SE diagonal
 
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
 
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;  # triangular
 }
 { package Math::PlanePath::HexSpiralSkewed;
@@ -781,6 +848,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # W,S straight
   use constant _NumSeq_Delta_dSum_max => 1;  # N,E straight
+  use constant _NumSeq_Delta_dDiffXY_min => -2; # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 2;  # SE diagonal
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
@@ -791,6 +860,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # W,S straight
   use constant _NumSeq_Delta_dSum_max => 1;  # N,E straight
+  use constant _NumSeq_Delta_dDiffXY_min => -2; # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # S vertical at most
 }
@@ -801,6 +872,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
@@ -811,6 +884,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
@@ -821,6 +896,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 2;
   use constant _NumSeq_Delta_dSum_min => -3; # -2,-1
   use constant _NumSeq_Delta_dSum_max => 3;  # +2,+1
+  use constant _NumSeq_Delta_dDiffXY_min => -3;
+  use constant _NumSeq_Delta_dDiffXY_max => 3;
 
   # X=2,Y=1 angle
   use constant _NumSeq_Delta_Dir4_min =>
@@ -834,7 +911,7 @@ sub values_max {
 
   use constant _NumSeq_Delta_DSquared_min => 2*2+1*1; # dX=1,dY=2
   use constant _NumSeq_Delta_DSquared_max => 2*2+1*1;
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_min => 2*2 + 3*1*1; # dX=2,dY=1
   use constant _NumSeq_Delta_TDSquared_max => 1*1 + 3*2*2; # dX=1,dY=2
 }
@@ -845,6 +922,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
   use constant _NumSeq_Delta_DSquared_max => 1;
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
@@ -856,6 +935,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
@@ -871,6 +952,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
 
   use constant _NumSeq_Delta_Dir4_min => 0.5;  # diagonal
   use constant _NumSeq_Delta_Dir4_max => 3.5;  # diagonal
@@ -891,6 +974,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
 
   use constant _NumSeq_Delta_Dir4_max => 3.5;  # diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
@@ -899,7 +984,7 @@ sub values_max {
   use constant _NumSeq_Delta_DSquared_max => 4;
 
   use constant _NumSeq_Delta_TDSquared_max => 4;  # triangular
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
 }
 { package Math::PlanePath::SacksSpiral;
   use constant _NumSeq_Delta_Dir4_max  => 4;  # supremum
@@ -927,6 +1012,11 @@ sub values_max {
   use constant _NumSeq_dSum_min_is_infimum => 1;
   use constant _NumSeq_dSum_max_is_supremum => 1;
 
+  use constant _NumSeq_Delta_dDiffXY_min => -sqrt(2); # supremum diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => sqrt(2);
+  use constant _NumSeq_dDiffXY_min_is_infimum => 1;
+  use constant _NumSeq_dDiffXY_max_is_supremum => 1;
+
   use constant _NumSeq_Delta_Dir4_max  => 4;  # supremum
   use constant _NumSeq_Delta_TDir6_max => 6;  # supremum
 
@@ -948,10 +1038,14 @@ sub values_max {
   use constant _NumSeq_Delta_dSum_max => sqrt(2);
   use constant _NumSeq_dSum_min_is_infimum => 1;
 
+  use constant _NumSeq_Delta_dDiffXY_min => -sqrt(2); # supremum when diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => sqrt(2);
+  use constant _NumSeq_dDiffXY_min_is_infimum => 1;
+
   use constant _NumSeq_Delta_DSquared_max => 1;
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;  # supremum
-  use constant _NumSeq_Delta_TDSquared_max_is_supremum => 1;
+  use constant _NumSeq_TDSquared_max_is_supremum => 1;
 
   use constant _NumSeq_Delta_Dir4_max  => 4;  # supremum
   use constant _NumSeq_Delta_TDir6_max => 6;  # supremum
@@ -1006,7 +1100,8 @@ sub values_max {
     if ($self->{'step'} >= 6) {
       return -1; # supremum, unless polygon and step even
     }
-    if ($self->{'ring_shape'} eq 'polygon') {
+    if ($self->{'ring_shape'} eq 'polygon'
+        && $self->{'step'} >= 3) {
       # step=3,4,5
       return (-2*_PI()) / $self->{'step'};  # FIXME
     } else {
@@ -1074,15 +1169,24 @@ sub values_max {
             : -1); # infimum
   }
   use constant _NumSeq_Delta_dSum_max => 1;
-  sub _NumSeq_Delta_dSum_min_is_infimum {
-    ### MultipleRings _NumSeq_Delta_dSum_min_is_infimum() ...
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    return ($self->{'step'} == 0
+            ? 1    # horizontal only
+            : -1); # infimum
+  }
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
+
+  sub _NumSeq_dSum_min_is_infimum {
+    ### MultipleRings _NumSeq_dSum_min_is_infimum() ...
     my ($self) = @_;
     return ($self->{'step'} == 0
             ? 0    # horizontal only
             : 1);  # infimum
   }
-  *_NumSeq_Delta_dSum_max_is_supremum = \&_NumSeq_Delta_dSum_min_is_infimum;
-
+  *_NumSeq_dSum_max_is_supremum = \&_NumSeq_dSum_min_is_infimum;
+  *_NumSeq_dDiffXY_min_is_infimum = \&_NumSeq_dX_max_is_supremum;
+  *_NumSeq_dDiffXY_max_is_supremum = \&_NumSeq_dSum_min_is_infimum;
   *_NumSeq_dX_min_is_infimum = \&_NumSeq_dX_max_is_supremum;
   *_NumSeq_dY_max_is_supremum = \&_NumSeq_dX_max_is_supremum;
   *_NumSeq_dY_min_is_infimum = \&_NumSeq_dX_max_is_supremum;
@@ -1145,7 +1249,9 @@ sub values_max {
   }
   *_NumSeq_Delta_dY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_dSum_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_DSquared_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_dDiffXY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_Dist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_TDist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dir4_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDir6_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
 }
@@ -1156,6 +1262,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 3;  # dx=2,dy=1 at jump N=5 to N=6
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_max => 5; # dx=2,dy=1 at jump N=5 to N=6
   use constant _NumSeq_Delta_Dir4_max => 3.5; # diagonal
 }
@@ -1166,6 +1274,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # diagonal
 }
@@ -1241,12 +1351,124 @@ sub values_max {
             : 4);   # dX=1,dY=1
   }
 }
-# { package Math::PlanePath::PythagoreanTree;
-# }
-# { package Math::PlanePath::RationalsTree;
-# }
-# { package Math::PlanePath::FractionsTree;
-# }
+{ package Math::PlanePath::PythagoreanTree;
+  {
+    # AB apparent minimum dX=16,dY=8
+    my %Dir4_min = ('AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 16,8),
+                   );
+    my %TDir6_min = (
+                     'AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 16,8),
+                    );
+    my %Dir4_is_infimum = ('AB,FB' => 1,
+                           'PQ,FB' => 1);
+    sub _NumSeq_Delta_Dir4_min {
+      my ($self) = @_;
+      return $Dir4_min{"$self->{'coordinates'},$self->{'tree_type'}"} || 0;
+    }
+    sub _NumSeq_Delta_TDir6_min {
+      my ($self) = @_;
+      return $TDir6_min{"$self->{'coordinates'},$self->{'tree_type'}"} || 0;
+    }
+    sub _NumSeq_Dir4_min_is_infimum {
+      my ($self) = @_;
+      return $Dir4_is_infimum{"$self->{'coordinates'},$self->{'tree_type'}"};
+    }
+    *_NumSeq_TDir6_min_is_infimum = \&_NumSeq_Dir4_min_is_infimum;
+  }
+  {
+    # AB apparent minimum dX=-6,dY=-12
+    # PQ apparent maximum dX=-1,dY=-1
+    my %Dir4_max = ('AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, -6,-12),
+                    'PQ,UAD' => 2.5,
+                    'AB,FB'  => 4,
+                    'PQ,FB'  => 4,
+                   );
+    my %TDir6_max = ('AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, -6,-12),
+                     'PQ,UAD' => 4,
+                     'AB,FB'  => 6,
+                     'PQ,FB'  => 6,
+                    );
+    my %Dir4_is_supremum = ('AB,FB' => 1,
+                            'PQ,FB' => 1);
+    sub _NumSeq_Delta_Dir4_max {
+      my ($self) = @_;
+      return $Dir4_max{"$self->{'coordinates'},$self->{'tree_type'}"} || 3;
+    }
+    sub _NumSeq_Delta_TDir6_max {
+      my ($self) = @_;
+      return $TDir6_max{"$self->{'coordinates'},$self->{'tree_type'}"} || 4.5;
+    }
+    sub _NumSeq_Dir4_max_is_supremum {
+      my ($self) = @_;
+      return $Dir4_is_supremum{"$self->{'coordinates'},$self->{'tree_type'}"};
+    }
+    *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
+  }
+}
+{ package Math::PlanePath::RationalsTree;
+  {
+    # Drib apparent minimum dX=k dY=2*k+1 approaches dX=1,dY=2
+    my %Dir4_min = (CW   => 1,
+                    Drib => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 1,2),
+                   );
+    my %TDir6_min = (CW => 1.5,
+                    Drib => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 1,2),
+                    );
+    my %Dir4_is_infimum = (Drib => 1);
+    sub _NumSeq_Delta_Dir4_min {
+      my ($self) = @_;
+      return $Dir4_min{$self->{'tree_type'}} || 0;
+    }
+    sub _NumSeq_Delta_TDir6_min {
+      my ($self) = @_;
+      return $TDir6_min{$self->{'tree_type'}} || 0;
+    }
+    sub _NumSeq_Dir4_min_is_infimum {
+      my ($self) = @_;
+      return $Dir4_is_infimum{$self->{'tree_type'}};
+    }
+    *_NumSeq_TDir6_min_is_infimum = \&_NumSeq_Dir4_min_is_infimum;
+  }
+  {
+    my %Dir4_max = (SB   => 3.5,
+                    Bird => 3.5,
+                    CW   => 4,
+                    AYT  => 4,
+                    Drib => 4,
+                   );
+    my %TDir6_max = (SB   => 5,
+                     Bird => 5,
+                     CW   => 6,
+                     AYT  => 6,
+                     Drib => 6);
+    my %Dir4_is_supremum = (CW   => 1,
+                            AYT  => 1,
+                            Drib => 1);
+    sub _NumSeq_Delta_Dir4_max {
+      my ($self) = @_;
+      return $Dir4_max{$self->{'tree_type'}} || 3;
+    }
+    sub _NumSeq_Delta_TDir6_max {
+      my ($self) = @_;
+      return $TDir6_max{$self->{'tree_type'}} || 4.5;
+    }
+    sub _NumSeq_Dir4_max_is_supremum {
+      my ($self) = @_;
+      return $Dir4_is_supremum{$self->{'tree_type'}};
+    }
+    *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
+  }
+}
+{ package Math::PlanePath::FractionsTree;
+  use constant _NumSeq_Delta_Dir4_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0,
+                                                    sqrt(5)-1,-2); # phi
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
+  use constant _NumSeq_Delta_TDir6_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0,
+                                                     sqrt(5)-1,-2); # phi
+  use constant _NumSeq_TDir6_max_is_supremum => 1;
+}
 { package Math::PlanePath::DiagonalRationals;
   use constant _NumSeq_Delta_dSum_min => 0;
   use constant _NumSeq_Delta_dSum_max => 1;  # to next diagonal stripe
@@ -1255,8 +1477,17 @@ sub values_max {
   use constant _NumSeq_Delta_TDir6_min => 1.5; # vertical
   use constant _NumSeq_TDSquared_min => 3;
 }
-# { package Math::PlanePath::FactorRationals;
-# }
+{ package Math::PlanePath::FactorRationals;
+  # Dir probably approaches 0
+  # N=642735 to 642735 Dir4=0.05644  dX=45 dY=4
+  use constant _NumSeq_Dir4_min_is_infimum => 1;
+  use constant _NumSeq_TDir6_min_is_infimum => 1;
+
+  use constant _NumSeq_Delta_Dir4_max => 4;
+  use constant _NumSeq_Delta_TDir6_max => 6;
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
+  use constant _NumSeq_TDir6_max_is_supremum => 1;
+}
 { package Math::PlanePath::GcdRationals;
   my %Dir4_min
     = (rows           => 0,  # N=4 to N=5 horiz
@@ -1321,6 +1552,7 @@ sub values_max {
   }
   *_NumSeq_Delta_dY_min = \&_NumSeq_Delta_dX_min;
   *_NumSeq_Delta_dSum_min = \&_NumSeq_Delta_dX_min;
+  *_NumSeq_Delta_dDiffXY_min = \&_NumSeq_Delta_dX_min;
 
   sub _NumSeq_Delta_dX_max {
     my ($self) = @_;
@@ -1330,9 +1562,10 @@ sub values_max {
   }
   *_NumSeq_Delta_dY_max = \&_NumSeq_Delta_dX_max;
   *_NumSeq_Delta_dSum_max = \&_NumSeq_Delta_dX_max;
+  *_NumSeq_Delta_dDiffXY_max = \&_NumSeq_Delta_dX_max;
 
   *_NumSeq_Delta_DSquared_max = \&_NumSeq_Delta_dX_max;
-  sub _NumSeq_Delta_DSquared_non_decreasing {
+  sub _NumSeq_Delta_Dist_non_decreasing {
     my ($self) = @_;
     return ($self->{'radix'} % 2
             ? 1     # odd
@@ -1374,10 +1607,12 @@ sub values_max {
   *_NumSeq_Delta_dX_min = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_dX_min;
   *_NumSeq_Delta_dY_min = \&_NumSeq_Delta_dX_min;
   *_NumSeq_Delta_dSum_min = \&_NumSeq_Delta_dX_min;
+  *_NumSeq_Delta_dDiffXY_min = \&_NumSeq_Delta_dX_min;
 
   *_NumSeq_Delta_dX_max = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_dX_max;
   *_NumSeq_Delta_dY_max = \&_NumSeq_Delta_dX_max;
   *_NumSeq_Delta_dSum_max = \&_NumSeq_Delta_dX_max;
+  *_NumSeq_Delta_dDiffXY_max = \&_NumSeq_Delta_dX_max;
 
   *_NumSeq_Delta_Dir4_max = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_Dir4_max;
   use constant _NumSeq_Delta_Dir4_integer => 1;
@@ -1386,7 +1621,7 @@ sub values_max {
   *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
 
   *_NumSeq_Delta_DSquared_max = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_DSquared_max;
-  *_NumSeq_Delta_DSquared_non_decreasing = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_DSquared_non_decreasing;
+  *_NumSeq_Delta_Dist_non_decreasing = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_Dist_non_decreasing;
   *_NumSeq_Delta_TDSquared_max = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_TDSquared_max;
 }
 { package Math::PlanePath::HilbertCurve;
@@ -1396,12 +1631,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::HilbertSpiral;
@@ -1411,12 +1648,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 # { package Math::PlanePath::HilbertMidpoints;
@@ -1566,6 +1805,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
 
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
@@ -1573,7 +1814,7 @@ sub values_max {
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
 
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;             # triangular
 }
 { package Math::PlanePath::GosperIslands;
@@ -1587,6 +1828,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
@@ -1600,6 +1843,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
@@ -1609,6 +1854,7 @@ sub values_max {
   use constant _NumSeq_Delta_dX_max => 2;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 2; # diagonal NE
+  use constant _NumSeq_Delta_dDiffXY_max => 2; # diagonal NW
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
@@ -1621,6 +1867,7 @@ sub values_max {
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 2; # diagonal NE
+  use constant _NumSeq_Delta_dDiffXY_max => 2; # diagonal NW
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
 
@@ -1631,17 +1878,20 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::QuadricIslands;
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 }
 
@@ -1657,20 +1907,22 @@ sub values_max {
   sub _NumSeq_Delta_dX_min {
     my ($self) = @_;
     return - List::Util::max ($self->{'straight_spacing'},
-                                    $self->{'diagonal_spacing'});
+                              $self->{'diagonal_spacing'});
   }
   *_NumSeq_Delta_dY_min = \&_NumSeq_Delta_dX_min;
 
   sub _NumSeq_Delta_dSum_min {
     my ($self) = @_;
     return - List::Util::max ($self->{'straight_spacing'},
-                                    2*$self->{'diagonal_spacing'});
+                              2*$self->{'diagonal_spacing'});
   }
   sub _NumSeq_Delta_dSum_max {
     my ($self) = @_;
     return List::Util::max ($self->{'straight_spacing'},
                             2*$self->{'diagonal_spacing'});
   }
+  *_NumSeq_Delta_dDiffXY_min = \&_NumSeq_Delta_dSum_min;
+  *_NumSeq_Delta_dDiffXY_max = \&_NumSeq_Delta_dSum_max;
 
   sub _NumSeq_Delta_Dir4_integer {
     my ($self) = @_;
@@ -1707,17 +1959,18 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::SierpinskiTriangle;
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;
-  use constant _NumSeq_Delta_dSum_max => 1;  # straight E
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_Dir4_max => 2;  # supremum, west and 1 up
   use constant _NumSeq_Delta_TDir6_max => 3; # supremum, west and 1 up
@@ -1731,12 +1984,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
 
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;             # triangular
 }
 { package Math::PlanePath::SierpinskiArrowheadCentres;
@@ -1746,6 +2001,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
@@ -1759,12 +2016,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::DragonRounded;
@@ -1774,6 +2033,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
@@ -1784,11 +2045,13 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::R5DragonCurve;
@@ -1798,12 +2061,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::R5DragonMidpoint;
@@ -1813,12 +2078,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::CCurve;
@@ -1828,12 +2095,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::AlternatePaper;
@@ -1843,12 +2112,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::AlternatePaperMidpoint;
@@ -1858,12 +2129,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::TerdragonCurve;
@@ -1873,6 +2146,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
 
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
@@ -1885,7 +2160,7 @@ sub values_max {
 
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;  # triangular
 }
 { package Math::PlanePath::TerdragonRounded;
@@ -1895,12 +2170,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
 
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;             # triangular
 }
 { package Math::PlanePath::TerdragonMidpoint;
@@ -1910,6 +2187,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
 
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_integer => 1;
@@ -1922,7 +2201,7 @@ sub values_max {
 
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
-  use constant _NumSeq_Delta_TDSquared_non_decreasing => 1;  # triangular
+  use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;             # triangular
 }
 { package Math::PlanePath::ComplexPlus;
@@ -1993,6 +2272,22 @@ sub values_max {
     return ($self->{'width'} == 1); # constant when column only
   }
 
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    # dX=-(width-1) dY=+1 dDiffXY=-width+1-1=-width
+    return - $self->{'width'};
+  }
+  sub _NumSeq_Delta_dDiffXY_max {
+    my ($self) = @_;
+    return ($self->{'width'} == 1
+            ? -1  # constant dY=-1
+            : 1); # straight E
+  }
+  sub _NumSeq_Delta_dDiffXY_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'width'} == 1); # constant when column only
+  }
+
   sub _NumSeq_Delta_Dir4_min {
     my ($self) = @_;
     return ($self->{'width'} == 1
@@ -2026,8 +2321,8 @@ sub values_max {
   *_NumSeq_Delta_dY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dir4_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDir6_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_DSquared_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_TDSquared_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_Dist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_TDist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
 }
 
 { package Math::PlanePath::Columns;
@@ -2056,6 +2351,21 @@ sub values_max {
   }
   use constant _NumSeq_Delta_dSum_max => 1;
   sub _NumSeq_Delta_dSum_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'height'} == 1); # constant when one row only
+  }
+
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    return ($self->{'height'} == 1
+            ? 1    # constant dX=1,dY=0
+            : -1); # straight N
+  }
+  sub _NumSeq_Delta_dDiffXY_max {
+    my ($self) = @_;
+    return $self->{'height'}; # dX=+1 dY=-(height-1)
+  }
+  sub _NumSeq_Delta_dDiffXY_non_decreasing {
     my ($self) = @_;
     return ($self->{'height'} == 1); # constant when one row only
   }
@@ -2098,8 +2408,8 @@ sub values_max {
   *_NumSeq_Delta_dY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dir4_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDir6_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_DSquared_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_TDSquared_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_Dist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_TDist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
 }
 
 { package Math::PlanePath::Diagonals;
@@ -2117,6 +2427,18 @@ sub values_max {
   }
   use constant _NumSeq_Delta_dSum_min => 0; # advancing diagonals
   use constant _NumSeq_Delta_dSum_max => 1;
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? undef  # "down" jumps back unlimited at bottom
+            : -2);   # NW diagonal
+  }
+  sub _NumSeq_Delta_dDiffXY_max {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? 2       # SE diagonal
+            : undef); # "up" jumps down unlimited at top
+  }
 
   sub _NumSeq_Delta_Dir4_min {
     my ($self) = @_;
@@ -2160,6 +2482,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => 0; # advancing diagonals
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -2; # NW diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 2;  # SE diagonal
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_DSquared_max => 2;
 }
@@ -2184,6 +2508,19 @@ sub values_max {
 
   use constant _NumSeq_Delta_dSum_min => 0; # advancing diagonals
   use constant _NumSeq_Delta_dSum_max => 1;
+
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? undef  # "down" jumps back unlimited at bottom
+            : -2);   # NW diagonal
+  }
+  sub _NumSeq_Delta_dDiffXY_max {
+    my ($self) = @_;
+    return ($self->{'direction'} eq 'down'
+            ? 2       # SE diagonal
+            : undef); # "up" jumps down unlimited at top
+  }
 
   sub _NumSeq_Delta_Dir4_min {
     my ($self) = @_;
@@ -2222,6 +2559,7 @@ sub values_max {
 }
 { package Math::PlanePath::MPeaks;
   use constant _NumSeq_Delta_dSum_max => 2; # NE diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 2; # SE diagonal
   use constant _NumSeq_Delta_Dir4_min => 0.5; # NE diagonal
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_TDir6_min => 1; # NE diagonal
@@ -2232,13 +2570,12 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => -1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight S
   use constant _NumSeq_Delta_dSum_max => 2;  # next row
+  use constant _NumSeq_Delta_dDiffXY_max => 1; # straight S,E
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 }
 { package Math::PlanePath::StaircaseAlternating;
   use constant _NumSeq_Delta_dX_min => -1;
   use constant _NumSeq_Delta_dY_min => -1;
-  use constant _NumSeq_Delta_dSum_min => -1; # straight S
-
   {
     my %dX_max = (jump   => 2,
                   square => 1);
@@ -2248,7 +2585,19 @@ sub values_max {
     }
   }
   *_NumSeq_Delta_dY_max = \&_NumSeq_Delta_dX_max;
+
+  use constant _NumSeq_Delta_dSum_min => -1; # straight S
   *_NumSeq_Delta_dSum_max = \&_NumSeq_Delta_dX_max;
+
+  {
+    my %dDiffXY_max = (jump   => -2,
+                  square => -1);
+    sub _NumSeq_Delta_dDiffXY_min {
+      my ($self) = @_;
+      return $dDiffXY_max{$self->{'end_type'}};
+    }
+  }
+  *_NumSeq_Delta_dDiffXY_max = \&_NumSeq_Delta_dX_max;
 
   {
     my %DSquared_max = (jump   => 4,
@@ -2259,11 +2608,11 @@ sub values_max {
     }
   }
   {
-    my %DSquared_non_decreasing = (jump   => 0,
-                                   square => 1); # NSEW always
-    sub _NumSeq_Delta_DSquared_non_decreasing {
+    my %Dist_non_decreasing = (jump   => 0,
+                               square => 1); # NSEW always
+    sub _NumSeq_Delta_Dist_non_decreasing {
       my ($self) = @_;
-      return $DSquared_non_decreasing{$self->{'end_type'}};
+      return $Dist_non_decreasing{$self->{'end_type'}};
     }
   }
   {
@@ -2283,6 +2632,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => -1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight S
   use constant _NumSeq_Delta_dSum_max => 1;  # next row
+  use constant _NumSeq_Delta_dDiffXY_max => 1;  # straight S,E
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 }
 { package Math::PlanePath::PyramidRows;
@@ -2313,6 +2663,20 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'step'} == 0); # constant when column only
   }
+
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    return ($self->{'step'} == 0
+            ? -1      # constant N dY=1
+            : undef);
+  }
+  sub _NumSeq_Delta_dDiffXY_max {
+    my ($self) = @_;
+    return ($self->{'step'} == 0
+            ? -1      # constant N dY=1
+            : 1);
+  }
+  *_NumSeq_Delta_dDiffXY_non_decreasing = \&_NumSeq_Delta_dSum_non_decreasing;
 
   sub _NumSeq_Delta_DSquared_max {
     my ($self) = @_;
@@ -2369,14 +2733,15 @@ sub values_max {
   *_NumSeq_Delta_dY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dir4_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDir6_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_DSquared_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_TDSquared_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_Dist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_TDist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
 }
 { package Math::PlanePath::PyramidSides;
   use constant _NumSeq_Delta_dX_max => 1;
   use constant _NumSeq_Delta_dY_min => -1;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 2; # NE diagonal
+  use constant _NumSeq_Delta_dDiffXY_max => 2; # SE diagonal
   use constant _NumSeq_Delta_Dir4_min => 0.5;  # NE diagonal
   use constant _NumSeq_Delta_Dir4_max => 3.5;  # SE diagonal
   use constant _NumSeq_Delta_TDir6_min => 1;   # NE diagonal
@@ -2426,6 +2791,28 @@ sub values_max {
             || ($self->{'rule'} & 0x5F) == 0x14  # right line 1,2
             || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
             ? 1
+            : undef);
+  }
+
+  sub _NumSeq_Delta_dSum_min {
+    my ($self) = @_;
+    return (($self->{'rule'} & 0x5F) == 0x54  # right line 2, const dSum=+1
+            || ($self->{'rule'} & 0x5F) == 0x14  # right line 1,2
+            ? 1
+            : undef);
+  }
+  sub _NumSeq_Delta_dSum_max {
+    my ($self) = @_;
+    return (($self->{'rule'} & 0x5F) == 0x54  # right line 2
+            ? 1                               #   is constant dSum=+1
+            : ($self->{'rule'} & 0x5F) == 0x14  # right line 1,2
+            ? 2  # diagonal NE
+            : undef);
+  }
+  sub _NumSeq_Delta_dSum_non_decreasing {
+    my ($self) = @_;
+    return (($self->{'rule'} & 0x5F) == 0x54  # right line 2
+            ? 1                               #   is constant dSum=+1
             : undef);
   }
 
@@ -2518,6 +2905,7 @@ sub values_max {
   use constant _NumSeq_Delta_dX_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_dY_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_dSum_non_decreasing => 1; # constant
+  use constant _NumSeq_Delta_dDiffXY_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_Dir4_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_TDir6_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_Dist_non_decreasing => 1;
@@ -2528,6 +2916,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 2; # straight E dX=+2
+  use constant _NumSeq_Delta_dDiffXY_max => 2; # straight E dX=+2
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_Dir4_max => 2; # west and up
   use constant _NumSeq_Delta_TDir6_max => 3; # west and up
@@ -2537,12 +2926,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 1; # straight E
+  use constant _NumSeq_Delta_dDiffXY_max => 1; # straight E
 }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Delta_dX_max => 4;
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 4; # straight E dX=+4
+  use constant _NumSeq_Delta_dDiffXY_max => 4; # straight E dX=+4
 
   use constant _NumSeq_Delta_Dir4_max => 2;  # supremum, west and 1 up
   use constant _NumSeq_Delta_TDir6_max => 3; # supremum, west and 1 up
@@ -2554,6 +2945,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 3; # straight E dX=+3
+  use constant _NumSeq_Delta_dDiffXY_max => 3; # straight E dX=+3
 
   use constant _NumSeq_Delta_Dir4_max => 2;  # supremum, west and 1 up
   use constant _NumSeq_Delta_TDir6_max => 3; # supremum, west and 1 up
@@ -2565,6 +2957,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_min => 0;
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_max => 2; # straight E dX=+2
+  use constant _NumSeq_Delta_dDiffXY_max => 2; # straight E dX=+2
 
   use constant _NumSeq_Delta_Dir4_max => 2;  # supremum, west and 1 up
   use constant _NumSeq_Delta_TDir6_max => 3; # supremum, west and 1 up
@@ -2572,12 +2965,20 @@ sub values_max {
   use constant _NumSeq_TDir6_max_is_supremum => 1;
 }
 { package Math::PlanePath::UlamWarburton;
+  # minimum dir=0 at N=1
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
   use constant _NumSeq_Delta_DSquared_min => 2;  # diagonal
   use constant _NumSeq_Delta_TDSquared_min => 4;  # diagonal
 }
-# { package Math::PlanePath::UlamWarburtonQuarter;
-# }
+{ package Math::PlanePath::UlamWarburtonQuarter;
+  # minimum dir=0 at N=13 dX=2,dY=0
+  # maximum dir seems dX=13,dY=-9 at N=149 going top-left part to new bottom
+  # right diagonal
+  use constant _NumSeq_Delta_Dir4_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 13,-9);
+  use constant _NumSeq_Delta_TDir6_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 13,-9);
+}
 { package Math::PlanePath::CoprimeColumns;
   use constant _NumSeq_Delta_dX_min => 0;
   use constant _NumSeq_Delta_dX_max => 1;
@@ -2598,7 +2999,7 @@ sub values_max {
   use constant _NumSeq_Delta_TDir6_max => 4.5; # vertical
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::QuintetCentres;  # NSEW+diag
@@ -2610,8 +3011,11 @@ sub values_max {
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
 { package Math::PlanePath::QuintetRepliate;
+  # N=1874 Dir4=3.65596
+  # N=9374 Dir4=3.96738, etc
+  # Dir4 supremum at 244...44 base 5
   use constant _NumSeq_Delta_DSquared_max => 1;
-  use constant _NumSeq_Delta_Dir4_max => 4; # supremum at 244...44 base 5
+  use constant _NumSeq_Delta_Dir4_max => 4;
   use constant _NumSeq_Delta_TDir6_max => 6;
   use constant _NumSeq_Dir4_max_is_supremum => 1;
   use constant _NumSeq_TDir6_max_is_supremum => 1;
@@ -2623,6 +3027,8 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -2; # diagonals
   use constant _NumSeq_Delta_dSum_max => 2;
+  use constant _NumSeq_Delta_dDiffXY_min => -2;
+  use constant _NumSeq_Delta_dDiffXY_max => 2;
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
@@ -2633,12 +3039,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::BetaOmega;    # NSEW
@@ -2648,12 +3056,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::CincoCurve;    # NSEW
@@ -2663,12 +3073,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::WunderlichMeander;    # NSEW
@@ -2678,12 +3090,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::HIndexing;   # NSEW
@@ -2693,16 +3107,22 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
-# { package Math::PlanePath::DigitGroups;
-# }
+{ package Math::PlanePath::DigitGroups;
+  use constant _NumSeq_Delta_Dir4_max => 4;  # supremum, almost full way
+  use constant _NumSeq_Delta_TDir6_max => 6; # supremum, almost full way
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
+  use constant _NumSeq_TDir6_max_is_supremum => 1;
+}
 { package Math::PlanePath::CornerReplicate;
   sub _NumSeq_Delta_Dir4_max {
     my ($self) = @_;
@@ -2723,12 +3143,14 @@ sub values_max {
   use constant _NumSeq_Delta_dY_max => 1;
   use constant _NumSeq_Delta_dSum_min => -1; # straight only
   use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
 
   use constant _NumSeq_Delta_Dir4_integer => 1;
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
 
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
-  use constant _NumSeq_Delta_DSquared_non_decreasing => 1;
+  use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
 }
 { package Math::PlanePath::LTiling;
@@ -2834,7 +3256,7 @@ __END__
 # }
 
 
-=for stopwords Ryde dSum TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath
+=for stopwords Ryde dX dY dSum dDiffXY DiffXY TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath
 
 =head1 NAME
 
@@ -2858,6 +3280,7 @@ The C<delta_type> choices are
     "dX"       change in X coordinate
     "dY"       change in Y coordinate
     "dSum"     change in X+Y
+    "dDiffXY"  change in X-Y
     "Dir4"     direction 0=East, 1=North, 2=West, 3=South
     "TDir6"    triangular 0=E, 1=NE, 2=NW, 3=W, 4=SW, 5=SE
 
@@ -2875,18 +3298,28 @@ The sum X+Y numbers anti-diagonals (as described in
 L<Math::NumSeq::PlanePathCoord>).  dSum is therefore movement between
 diagonals, or 0 if a step stays within the same diagonal.
 
+"dDiffXY" is the change in DiffXY = X-Y and is also simply dX-dY, since
+
+    dDiffXY = (Xnext-Ynext) - (X-Y)
+            = (Xnext-X) - (Ynext-Y)
+            = dX - dY
+
+The difference X-Y numbers diagonals, downwards, as described in
+L<Math::NumSeq::PlanePathCoord>.  dDiffXY is therefore movement between
+those diagonals, or 0 if a step stays within the same diagonal.
+
 "Dir4" is a fraction when a delta is in between the cardinal
 directions.  For example dX=-1,dY=+1 going North-West would be
 direction 1.5.
 
-    Dir4 = atan(dY, dX)       scaled to 0<=Dir4<4
+    Dir4 = atan2(dY, dX)       in range to 0<=Dir4<4
 
 "TDir6" is in the style of L<Math::PlanePath/Triangular Lattice>.  So
 dX=1,dY=1 is 60 degrees, dX=-1,dY=1 is 120 degrees, dX=-2,dY=0 is 180
-degrees, etc, and fractional values in between those.  It behaves as if dY
+degrees, etc and fractional values in between those.  It behaves as if dY
 was scaled by a factor sqrt(3),
-                   
-    TDir6 = atan2(dY*sqrt(3), dX)       scaled to 0<=TDir6<6
+
+    TDir6 = atan2(dY*sqrt(3), dX)      in range 0<=TDir6<6
 
 =head1 FUNCTIONS
 

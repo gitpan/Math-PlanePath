@@ -22,12 +22,13 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -163,7 +164,7 @@ sub n_to_xy {
   ### Hypot n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);
@@ -192,15 +193,15 @@ sub xy_to_n {
   ### Hypot xy_to_n(): "$x, $y"
   ### hypot_to_n last: $#{$self->{'hypot_to_n'}}
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
     return undef;
   }
 
   my $hypot = $x*$x + $y*$y;
-  if (_is_infinite($hypot)) {
+  if (is_infinite($hypot)) {
     return $hypot;
   }
 
@@ -235,10 +236,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
 

@@ -21,6 +21,20 @@ use strict;
 use Math::PlanePath::CellularRule;
 
 {
+  my $rule = 124;
+  my $path = Math::PlanePath::CellularRule->new(rule=>$rule);
+  my @ys = (5..20);
+  @ys = map{$_*2+1} @ys;
+  my @ns = map{$path->xy_to_n(-$_,$_)
+             }@ys;
+  my @diffs = map {$ns[$_]-$ns[$_-1]} 1 .. $#ns;
+  print "[",join(',',@diffs),"]\n";
+  my @dds = map {$diffs[$_]-$diffs[$_-1]} 1 .. $#diffs;
+  print "[",join(',',@dds),"]\n";
+  exit 0;
+}
+
+{
   my $rule = 57;
   my $path = Math::PlanePath::CellularRule->new(rule=>$rule);
   my @ys = (5..20);

@@ -26,6 +26,10 @@ use Test;
 use lib 't';
 use MyTestHelpers;
 
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
+
 sub isa_bigint {
   my ($x) = @_;
   if (ref $x && $x->isa('Math::BigInt')) {
@@ -52,32 +56,32 @@ sub bigint_checks {
 
 
   #----------------------------------------------------------------------------
-  # _digit_split_lowtohigh()
+  # digit_split_lowtohigh()
 
   {
     require Math::PlanePath;
     my $zero = $bigclass->new(0);
     my $thirteen = $bigclass->new(13);
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,2)), '');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,3)), '');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,4)), '');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,8)), '');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,10)), '');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($zero,16)), '');
+    ok (join(',',digit_split_lowtohigh($zero,2)), '');
+    ok (join(',',digit_split_lowtohigh($zero,3)), '');
+    ok (join(',',digit_split_lowtohigh($zero,4)), '');
+    ok (join(',',digit_split_lowtohigh($zero,8)), '');
+    ok (join(',',digit_split_lowtohigh($zero,10)), '');
+    ok (join(',',digit_split_lowtohigh($zero,16)), '');
 
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,2)), '1,0,1,1');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,3)), '1,1,1');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,4)), '1,3');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,8)), '5,1');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,10)), '3,1');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($thirteen,16)), '13');
+    ok (join(',',digit_split_lowtohigh($thirteen,2)), '1,0,1,1');
+    ok (join(',',digit_split_lowtohigh($thirteen,3)), '1,1,1');
+    ok (join(',',digit_split_lowtohigh($thirteen,4)), '1,3');
+    ok (join(',',digit_split_lowtohigh($thirteen,8)), '5,1');
+    ok (join(',',digit_split_lowtohigh($thirteen,10)), '3,1');
+    ok (join(',',digit_split_lowtohigh($thirteen,16)), '13');
 
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($bigclass->new(4),4)), '0,1');
-    ok (join(',',Math::PlanePath::_digit_split_lowtohigh($bigclass->new(8),4)), '0,2');
+    ok (join(',',digit_split_lowtohigh($bigclass->new(4),4)), '0,1');
+    ok (join(',',digit_split_lowtohigh($bigclass->new(8),4)), '0,2');
 
     if ($bigclass->isa('Math::BigInt')) {
       foreach my $radix (2,3,4,5,6,7,8,9,10,11,16,256) {
-        my @digits = Math::PlanePath::_digit_split_lowtohigh($thirteen,7);
+        my @digits = digit_split_lowtohigh($thirteen,7);
         foreach my $digit (@digits) {
           ok (! ref $digit, 1,
               '_digit_split_lowtohigh() return plain digits, not bigints');
@@ -105,16 +109,40 @@ sub bigint_checks {
   }
 
   #----------------------------------------------------------------------------
-  # _divrem_destructive()
+  # _divrem_mutate()
 
   {
     require Math::PlanePath;
     my $n = $bigclass->new(123);
-    my $r = Math::PlanePath::_divrem_destructive($n,5);
+    my $r = Math::PlanePath::_divrem_mutate($n,5);
     ok ("$n", 24);
     ok ("$r", 3);
     if ($bigclass->isa('Math::BigInt')) {
       ok (ref $r, '');
+    }
+  }
+
+  #--------------------------------------------------------------------------
+  # ImaginaryBase
+
+  require Math::PlanePath::ImaginaryBase;
+  {
+    my $path = Math::PlanePath::ImaginaryBase->new;
+    {
+      my $x1 = $bigclass->binf;
+      my $y1 = 0;
+      my $x2 = 0;
+      my $y2 = 0;
+      foreach (1 .. 4) {
+        my ($n_lo,$n_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
+        ### $n_lo
+        ### $n_hi
+        ### $x1
+        ### $y1
+        ok (!! (ref $n_hi && ($n_hi->is_inf || $n_hi->is_nan)),
+            1);
+        ($x1,$y1, $x2,$y2) = ($y2, $x1,$y1, $x2); # rotate
+      }
     }
   }
 
@@ -384,11 +412,10 @@ sub bigint_checks {
   #--------------------------------------------------------------------------
   # KochCurve
 
-  require Math::PlanePath::KochCurve;
   {
     my $orig = $bigclass->new(3) ** 128 + 2;
     my $n    = $bigclass->new(3) ** 128 + 2;
-    my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+    my ($pow,$exp) = round_down_pow($n,3);
 
     ok ($n, $orig);
     ok ($pow, $bigclass->new(3) ** 128);
@@ -397,7 +424,7 @@ sub bigint_checks {
   {
     my $orig = $bigclass->new(3) ** 128;
     my $n    = $bigclass->new(3) ** 128;
-    my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+    my ($pow,$exp) = round_down_pow($n,3);
 
     ok ($n, $orig);
     ok ($pow, $bigclass->new(3) ** 128);

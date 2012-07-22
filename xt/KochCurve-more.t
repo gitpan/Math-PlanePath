@@ -1,4 +1,3 @@
-
 #!/usr/bin/perl -w
 
 # Copyright 2012 Kevin Ryde
@@ -29,7 +28,6 @@ plan tests => 1;
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
-use MyOEIS;
 
 
 # uncomment this to run the ### lines
@@ -40,6 +38,7 @@ use MyOEIS;
 # rect_to_n_range() on various boxes
 
 {
+  require Math::PlanePath::KochCurve;
   my $path = Math::PlanePath::KochCurve->new;
   my $n_start = $path->n_start;
 

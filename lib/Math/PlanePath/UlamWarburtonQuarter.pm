@@ -32,16 +32,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -105,7 +105,7 @@ sub n_to_xy {
   ### UlamWarburtonQuarter n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
   if ($n == 1) { return (0,0); }
 
   {
@@ -123,7 +123,7 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
-  my ($power, $exp) = _round_down_pow (3*$n-2, 4);
+  my ($power, $exp) = round_down_pow (3*$n-2, 4);
 
   ### $power
   ### $exp
@@ -167,7 +167,7 @@ sub n_to_xy {
   my $x = 0;
   my $y = 0;
   while (@levelbits) {
-    my $digit = _divrem_destructive ($n, 3);
+    my $digit = _divrem_mutate ($n, 3);
     ### levelbits: $levelbits[-1]
     ### $digit
 
@@ -193,8 +193,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### UlamWarburtonQuarter xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($x < 0 || $y < 0) {
     return undef;
   }
@@ -204,8 +204,8 @@ sub xy_to_n {
   $x += 1;  # pushed away by 1 ...
   $y += 1;
 
-  my ($len, $exp) = _round_down_pow ($x + $y, 2);
-  if (_is_infinite($exp)) { return ($exp); }
+  my ($len, $exp) = round_down_pow ($x + $y, 2);
+  if (is_infinite($exp)) { return ($exp); }
 
   my $level
     = my $n
@@ -275,10 +275,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### UlamWarburtonQuarter rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
@@ -298,9 +298,9 @@ sub rect_to_n_range {
 
   # round down to level=2^k numbers
   if ($dlo) {
-    ($dlo) = _round_down_pow ($dlo,2);
+    ($dlo) = round_down_pow ($dlo,2);
   }
-  ($dhi) = _round_down_pow ($dhi,2);
+  ($dhi) = round_down_pow ($dhi,2);
 
   ### rounded to pow2: "$dlo  ".(2*$dhi)
 
@@ -311,8 +311,8 @@ sub _n_start {
   my ($level) = @_;
   ### UlamWarburtonQuarter _n_start(): $level
 
-  my ($power, $exp) = _round_down_pow ($level, 2);
-  if (_is_infinite($power)) {
+  my ($power, $exp) = round_down_pow ($level, 2);
+  if (is_infinite($power)) {
     return $power;
   }
   my $n = 1 + ($power*$power - 1)/3  - ($level==0);
@@ -343,6 +343,45 @@ sub _n_start {
 ### assert: _n_start(6) == 10
 ### assert: _n_start(7) == 13
 ### assert: _n_start(8) == 22
+
+# ENHANCE-ME: step by the bits, not by X,Y
+sub tree_n_children {
+  my ($self, $n) = @_;
+  if ($n < 1) {
+    return undef;
+  }
+  my ($x,$y) = $self->n_to_xy($n);
+  my @ret;
+  my $dx = 1;
+  my $dy = 1;
+  foreach (1 .. 4) {
+    if (defined (my $n_child = $self->xy_to_n($x+$dx,$y+$dy))) {
+      if ($n_child > $n) {
+        push @ret, $n_child;
+      }
+    }
+    ($dx,$dy) = (-$dy,$dx); # rotate +90
+  }
+  return sort {$a<=>$b} @ret;
+}
+sub tree_n_parent {
+  my ($self, $n) = @_;
+  if ($n < 1) {
+    return undef;
+  }
+  my ($x,$y) = $self->n_to_xy($n);
+  my $dx = 1;
+  my $dy = 1;
+  foreach (1 .. 4) {
+    if (defined (my $n_parent = $self->xy_to_n($x+$dx,$y+$dy))) {
+      if ($n_parent < $n) {
+        return $n_parent;
+      }
+    }
+    ($dx,$dy) = (-$dy,$dx); # rotate +90
+  }
+  return undef;
+}
 
 1;
 __END__

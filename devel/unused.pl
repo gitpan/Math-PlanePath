@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,38 +24,6 @@ sub _log2_ceil {
   my $exp = ceil (log(max(1, $x)) / log(2));
   return $exp + (2 ** ($exp+1) <= $x);
 }
-
-sub _log2_floor {
-  my ($x) = @_;
-  if ($x <= 1) { return 0; }
-
-  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
-  # based blog()
-  if (ref $x && ($x->isa('Math::BigInt') || $x->isa('Math::BigRat'))) {
-    return $x->copy->blog(2);
-  }
-
-  my $exp = int(log($x)/log(2));
-  my $pow = 2**$exp;
-  ### x:   ref($x)."  $x"
-  ### exp: ref($exp)."  $exp"
-  ### pow: ref($pow)."  $pow"
-
-  # check how $pow actually falls against $x, not sure should trust float
-  # rounding in log()/log(3)
-  # Crib: $x as first arg in case $x==BigFloat and $pow==BigInt
-  if ($x < $pow) {
-    ### hmm, int(log) too big, decrease...
-    $exp -= 1;
-  } elsif ($x >= 2*$pow) {
-    ### hmm, int(log) too small, increase...
-    $exp += 1;
-  } else {
-    ### int(log) ok ...
-  }
-  return ($exp);
-}
-
 
 my @x = (0, 1);
 my @y = (0, 0);
@@ -106,71 +74,6 @@ my @y = (0, 0);
   #   }
 
 #------------------------------------------------------------------------------
-
-sub _log4_floor {
-  my ($n) = @_;
-  my $exp = 0;
-  while (($n /= 4) >= 1) {
-    $exp++;
-  }
-  return $exp;
-}
-### assert: _log4_floor(3) == 0
-### assert: _log4_floor(4) == 1
-### assert: _log4_floor(5) == 1
-### assert: _log4_floor(15) == 1
-### assert: _log4_floor(16) == 2
-### assert: _log4_floor(17) == 2
-
-# KochSnowflakes _log4_floor()
-
-require Math::PlanePath::KochSnowflakes;
-{
-  my $orig = Math::BigRat->new(4) ** 64;
-  my $n    = Math::BigRat->new(4) ** 64;
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1/3 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
-}
-{
-  my $orig = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
-  my $n    = Math::BigRat->new(4) ** 64 + Math::BigRat->new('1/3');
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigRat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1/3 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1/3 exp");
-}
-
-
-# KochSnowflakes _log4_floor()
-
-require Math::PlanePath::KochSnowflakes;
-{
-  my $orig = Math::BigFloat->new(4) ** 64;
-  my $n    = Math::BigFloat->new(4) ** 64;
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1.25 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
-}
-{
-  my $orig = Math::BigFloat->new(4) ** 64 + 1.25;
-  my $n    = Math::BigFloat->new(4) ** 64 + 1.25;
-  my $exp = Math::PlanePath::KochSnowflakes::_log4_floor($n);
-
-  ok ($n, $orig, "_log4_floor() unmodified input");
-  # ok ($pow == Math::BigFloat->new(4.0) ** 64, 1,
-  #     "_log4_floor() 4^64 + 1.25 power");
-  ok ($exp, 64, "_log4_floor() 4^64 + 1.25 exp");
-}
-
 
 sub _round_up_pow2 {
   my ($x) = @_;

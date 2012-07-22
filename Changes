@@ -17,6 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 82, July 2012
+    - new tree_n_children(), tree_n_parent()
+    - PlanePathDelta new delta_type=>"dDiffXY"
+    - ImaginaryBase,ImaginaryHalf rect_to_n_range() exact
+    - new Math::PlanePath::Base::Digits
+
 Version 81, July 2012
     - TriangularHypot new points=hex,hex_rotated,hex_centred
 
@@ -44,8 +50,8 @@ Version 76, May 2012
 
 Version 75, May 2012
     - new CubicBase, CCurve, R5DragonCurve, R5DragonMidpoint, TerdragonRounded
-    - MultipleRings new ring_shape=>'polygon'
-    - PlanePathDelta new delta_type=>'dSum'
+    - MultipleRings new ring_shape=>"polygon"
+    - PlanePathDelta new delta_type=>"dSum"
     - fix TheodorusSpiral n_to_rsquared() on fractional N
 
 Version 74, May 2012

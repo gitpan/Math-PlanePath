@@ -21,10 +21,9 @@ use strict;
 use Carp;
 use constant 1.02; # various underscore constants below
 
-use Math::NumSeq;
-
 use vars '$VERSION','@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
 # uncomment this to run the ### lines
@@ -109,12 +108,6 @@ use constant::defer _parameter_info_planepath => sub {
          };
 };
 
-sub characteristic_integer {
-  my ($self) = @_;
-  # FIXME: most paths are integer
-  return 0;
-}
-
 #------------------------------------------------------------------------------
 
 my %oeis_anum =
@@ -122,10 +115,20 @@ my %oeis_anum =
    # ENHANCE-ME: Rows/Columns runs of 0,0,0,1,1,1, etc in other coord
    #
 
+   'Math::PlanePath::PowerArray,radix=2' =>
+   { X => 'A007814', # base 2 count low 0s, starting n=1
+     # main generator Math::NumSeq::DigitCountLow
+     # OEIS-Other: A007814 planepath=PowerArray,radix=2
+
+     # but A025480 has OFFSET=0 for the k in n=(2k+1)*2^j-1
+     # Y => 'A025480',
+     # # OEIS-Catalogue: A025480 planepath=PowerArray,radix=2 coordinate_type=Y
+   },
+
    'Math::PlanePath::WythoffArray' =>
    {
     Y   => 'A019586', # row containing N
-    # OEIS-Catalogue: A019586 planepath=WythoffArray coord_type=Y
+    # OEIS-Catalogue: A019586 planepath=WythoffArray coordinate_type=Y
    },
 
    'Math::PlanePath::AlternatePaper,i_start=1' =>
@@ -313,12 +316,14 @@ my %oeis_anum =
    # },
 
    'Math::PlanePath::DiagonalsOctant,direction=down' =>
-   { X        => 'A055087',  # 0, 0,1, 0,1, 0,1,2, 0,1,2, etc
-     # OEIS-Catalogue: A055087 planepath=DiagonalsOctant coordinate_type=X
+   {
+    # Not quite, OFFSET=0 vs N=1 here
+    # X        => 'A055087',  # 0, 0,1, 0,1, 0,1,2, 0,1,2, etc
+    # # OEIS-Catalogue: A055087 planepath=DiagonalsOctant coordinate_type=X
 
-     # Not quite, OFFSET=0 vs N=1 here
-     # Sum,SumAbs  => 'A055086',  # reps floor(n/2)+1
-     # DiffYX  => 'A082375',  # step=2 k to 0
+    # Not quite, OFFSET=0 vs N=1 here
+    # Sum,SumAbs  => 'A055086',  # reps floor(n/2)+1
+    # DiffYX  => 'A082375',  # step=2 k to 0
    },
 
    # PyramidRows step=0 is trivial X=0,Y=N
@@ -501,7 +506,7 @@ my %oeis_anum =
    },
 
    # Y same rows_reverse
-   'Math::PlanePath::GcdRationals,pairs_order=all' =>
+   'Math::PlanePath::GcdRationals,pairs_order=rows' =>
    { Y => 'A054531',  # T(n,k) = n/GCD(n,k), being denominators, rows+reverse
      # OEIS-Catalogue: A054531 planepath=GcdRationals coordinate_type=Y
    },
@@ -786,6 +791,9 @@ sub _coordinate_func_TRSquared {
 
 
 #------------------------------------------------------------------------------
+
+# FIXME: many are integer ...
+use constant characteristic_integer => 0;
 
 sub characteristic_smaller {
   my ($self) = @_;
@@ -2000,41 +2008,47 @@ The C<coordinate_type> choices are
     "TRadius"    sqrt(X^2+3*Y^2) triangular radius
     "TRSquared"  X^2+3*Y^2 triangular radius squared
 
-"Sum" can be interpreted geometrically as a projection onto the X=Y leading
-diagonal, or equivalently as a measure of which anti-diagonal stripe
+"Sum"=X+Y can be interpreted geometrically as a projection onto the X=Y
+leading diagonal, or equivalently as a measure of which anti-diagonal stripe
 contains the X,Y.
 
-                                *    line X=Y
-    \     anti-diag              \  /
-     2    numbering               \/
-    \ \     X+Y                   /
-     1 2                         /  ^
-    \ \ \                       /  /
-     0 1 2                     o  distance X+Y
-                                 /
+                                 X,Y *    diagonal X=Y
+    \     anti-diag                   \  /
+     2    numbering                    \/
+    \ \     X+Y                        /
+     1 2                              /  ^
+    \ \ \                            /  /
+     0 1 2                          o  distance X+Y
+      \ \ \                           /
 
-"SumAbs" is a similar projection, but onto the cross-diagonal of whichever
-quadrant contains the X,Y.  It's also thought of as a "taxi-cab" or
-Manhatten distance, being how far to travel through a square-grid city to
-get to X,Y.  If a path uses only the first quadrant, ie. XE<gt>=0,YE<gt>=0,
-then of course Sum and SumAbs are identical.
+"SumAbs"=abs(X)+abs(Y) is a similar projection, but onto the cross-diagonal
+of whichever quadrant contains the X,Y.  It's also thought of as a
+"taxi-cab" or Manhatten distance, being how far to travel through a
+square-grid city to get to X,Y.  If a path uses only the first quadrant,
+ie. XE<gt>=0,YE<gt>=0, then of course Sum and SumAbs are identical.
 
-"DiffXY" is a similar projection, but onto the X=-Y opposite diagonal, or a
-measure of which leading diagonal stripe has the X,Y.
+"DiffXY"=X-Y is a similar projection, but onto the X=-Y opposite
+diagonal, or a measure of which leading diagonal stripe has the X,Y.
 
-                                         X=-Y  *
-        / / / /                            \  /
-      -1 0 1 2   diagonal                   \/
-      / / / /    numbering                   \
-    -1 0 1 2       X-Y                     ^  \
-      / / /                                 \  \
-     0 1 2                         X-Y distance o
-                                                 \
+                                X=-Y diagonal    * X,Y
+        / / / /                              \  /
+      -1 0 1 2   diagonal                     \/
+      / / / /    numbering                     \
+    -1 0 1 2       X-Y                       ^  \
+      / / /                                   \  \
+     0 1 2                           distance X-Y o
+                                                   \
 
-"TRadius" and "TRSquared" are meant for use with points on a triangular
+"DiffYX"=Y-X is simply the negative of DiffXY.  Both forms are included for
+convenience to get positive values from paths which are above or below the
+X=Y leading diagonal.  DiffXY is positive for paths such as CoprimeColumns
+which are below X=Y.  DiffYX is positive for paths such as CellularRule
+which are above X=Y.
+
+"TRadius" and "TRSquared" are designed for use with points on a triangular
 lattice such as HexSpiral.  On the X axis TRSquared is the same as RSquared,
 but any Y amount is scaled up by factor sqrt(3).  Most triangular paths use
-every second X,Y point which makes TRSquared always even, but some such as
+every second X,Y point which makes TRSquared even, but some such as
 KochPeaks have an offset 1 from the origin making it odd instead.
 
 =head1 FUNCTIONS

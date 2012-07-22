@@ -20,19 +20,19 @@
 
 # Usage: perl cellular-rules.pl
 #
-# Print the patterns from the CellularRule paths as "*"s.  Rules generating
-# the same output are listed together rather than repeating the output.
+# Print the patterns from the CellularRule paths with "*"s.  Rules with the
+# same output are listed together.
 #
 # Implementation:
 #
 # Points are plotted by looping $n until its $y is beyond the desired
 # maximum rows.  @rows is an array of strings of length 2*size+1 spaces each
-# which are then set to "*"s at the plotted points.
+# in which "*"s are set to plot points.
 #
 # Another way to plot would be to loop over $x,$y for the desired rectangle
 # and look at $n=$path->xy_to_n($x,$y) to see which cells have defined($n).
-# Characters could be appended or "join(map{})"ed to make an output $str in
-# that case.  Going by $n should be fastest for sparse patterns, though
+# Characters could be appended or join(map{}) to make an output $str in that
+# case.  Going by $n should be fastest for sparse patterns, though
 # CellularRule is not blindingly quick either way.
 #
 # See Cellular::Automata::Wolfram for the same but with many more options
@@ -43,7 +43,7 @@ use 5.004;
 use strict;
 use Math::PlanePath::CellularRule;
 
-my $size = 15;
+my $numrows = 15;
 
 my %seen;
 my $count = 0;
@@ -57,19 +57,20 @@ my @mirror_of;
 foreach my $rule (0 .. 255) {
   my $path = Math::PlanePath::CellularRule->new (rule => $rule);
 
-  my @rows = (' ' x (2*$size+1)) x ($size+1);
+  my @rows = (' ' x (2*$numrows+1)) x ($numrows+1);  # strings of spaces
   for (my $n = $path->n_start; ; $n++) {
     my ($x,$y) = $path->n_to_xy($n)
       or last; # some patterns are only finitely many N values
-    last if $y > $size; # stop at $size+1 many rows
+    last if $y > $numrows; # stop at $numrows+1 many rows
 
-    substr($rows[$y], $x+$size, 1) = '*';
+    substr($rows[$y], $x+$numrows, 1) = '*';
   }
-  @rows = reverse @rows;  # print going up the page
+  @rows = reverse @rows;  # print rows going up the page
 
-  my $str = join("\n",@rows);
-  my $seen_rule = $seen{$str};
+  my $str = join("\n",@rows);   # string of all rows
+  my $seen_rule = $seen{$str};  # possible previous rule giving this $str
   if (defined $seen_rule) {
+    # $str is a repeat of an output already seen, note this $rule with that
     $rules_list[$seen_rule] .= ",$rule";
     next;
   }
@@ -77,6 +78,7 @@ foreach my $rule (0 .. 255) {
   my $mirror_str = join("\n", map {scalar(reverse)} @rows);
   my $mirror_rule = $seen{$mirror_str};
   if (defined $mirror_rule) {
+    $mirror_of[$mirror_rule] = " (mirror image is rule $rule)";
     $mirror_of[$rule] = " (mirror image of rule $mirror_rule)";
     $mirror_count++;
   }
@@ -93,7 +95,6 @@ foreach my $rule (0 .. 255) {
 
 foreach my $rule (0 .. 255) {
   my $str = $strs[$rule] || next;
-
   print "rule=$rules_list[$rule]", $mirror_of[$rule]||'', "\n";
   print "\n$strs[$rule]\n\n";
 }

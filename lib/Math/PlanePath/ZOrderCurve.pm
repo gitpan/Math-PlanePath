@@ -33,35 +33,32 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'parameter_info_array',
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 
-use constant parameter_info_array => [{ name      => 'radix',
-                                        share_key => 'radix_2',
-                                        display   => 'Radix',
-                                        type      => 'integer',
-                                        minimum   => 2,
-                                        default   => 2,
-                                        width     => 3,
-                                      }];
-
 sub new {
   my $self = shift->SUPER::new(@_);
-  if (! $self->{'radix'} || $self->{'radix'} < 2) {
-    $self->{'radix'} = 2;
-  }
+
+  my $radix = $self->{'radix'};
+  if (! defined $radix || $radix <= 2) { $radix = 2; }
+  $self->{'radix'} = $radix;
+
   return $self;
 }
 
@@ -71,7 +68,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -93,7 +90,7 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my @digits = _digit_split_lowtohigh ($n, $radix);
+  my @digits = digit_split_lowtohigh ($n, $radix);
   ### @digits
   unless ($#digits & 1) { push @digits, 0 }  # even number
 
@@ -134,27 +131,87 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ZOrderCurve xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
-  if ($x < 0 || $y < 0
-      || _is_infinite($x)
-      || _is_infinite($y)) {
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if ($x < 0 || $y < 0) {
     return undef;
   }
-
-  my $n = ($x * 0 * $y); # inherit bignum 0
+  if (is_infinite($x)) {
+    return $x;
+  }
+  if (is_infinite($y)) {
+    return $y;
+  }
 
   my $radix = $self->{'radix'};
-  my @x = _digit_split_lowtohigh($x,$radix);
-  my @y = _digit_split_lowtohigh($y,$radix);
+  my $zero = ($x * 0 * $y); # inherit bignum 0
 
-  foreach my $i (reverse 0 .. max($#x,$#y)) {  # high to low
-    $n *= $radix;
-    $n += $y[$i] || 0;
-    $n *= $radix;
-    $n += $x[$i] || 0;
+  my @x = digit_split_lowtohigh($x,$radix);
+  my @y = digit_split_lowtohigh($y,$radix);
+  return _digit_join_lowtohigh ([ _digit_interleave (\@x, \@y) ],
+                                $radix,
+                                $zero);
+}
+
+# return list of @$xaref interleaved with @$yaref
+# ($xaref->[0], $yaref->[0], $xaref->[1], $yaref->[1], ...)
+#
+sub _digit_interleave {
+  my ($xaref, $yaref) = @_;
+  my $max = max($#$xaref,$#$yaref);
+  my @ret;
+  foreach my $i (0 .. $max) {
+    push @ret, $xaref->[$i] || 0;
+    push @ret, $yaref->[$i] || 0;
   }
+  return @ret;
+}
+
+# exact
+sub rect_to_n_range {
+  my ($self, $x1,$y1, $x2,$y2) = @_;
+
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
+
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x1 smaller
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y1 smaller
+
+  if ($y2 < 0 || $x2 < 0) {
+    return (1, 0); # rect all negative, no N
+  }
+
+  if ($x1 < 0) { $x1 = 0; }
+  if ($y1 < 0) { $y1 = 0; }
+
+  # monotonic increasing in $x and $y directions, so this is exact
+  return ($self->xy_to_n ($x1, $y1),
+          $self->xy_to_n ($x2, $y2));
+}
+
+# $aref->[0] low digit
+sub _digit_join_lowtohigh {
+  my ($aref, $radix, $zero) = @_;
+  ### _digit_join_lowtohigh() ...
+  ### $aref
+  ### $radix
+  ### $zero
+
+  my $n = (defined $zero ? $zero : 0);
+  foreach my $digit (reverse @$aref) { # high to low
+    ### $n
+    $n *= $radix;
+    $n += $digit;
+  }
+  ### $n
   return $n;
+}
+
+1;
+__END__
+
 
 
   # if ($radix == 2) {
@@ -172,29 +229,6 @@ sub xy_to_n {
   #     $y >>= 1;
   #     $nbit <<= 1;
   #   }
-}
-
-# exact
-sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x1 smaller
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y1 smaller
-
-  if ($y2 < 0 || $x2 < 0) {
-    return (1, 0); # rect all negative, no N
-  }
-
-  if ($x1 < 0) { $x1 = 0; }
-  if ($y1 < 0) { $y1 = 0; }
-
-  # monotonic increasing in $x and $y directions, so this is exact
-  return ($self->xy_to_n ($x1, $y1),
-          $self->xy_to_n ($x2, $y2));
-}
-
-1;
-__END__
 
   # my $xmod = 2 + ($self->{'wider'} || 0);
   # if (my $xmod = $self->{'wider'}) {

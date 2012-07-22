@@ -32,36 +32,38 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+
+use Math::PlanePath::Base::Digits
+  'parameter_info_array',
+  'digit_split_lowtohigh';
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 
-use constant parameter_info_array => [{ name      => 'radix',
-                                        share_key => 'radix_2',
-                                        type      => 'integer',
-                                        minimum   => 2,
-                                        default   => 2,
-                                        width     => 3,
-                                      }];
-
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  if (! $self->{'radix'} || $self->{'radix'} < 2) {
-    $self->{'radix'} = 2;
-  }
+  my $self = shift->SUPER::new(@_);
+
+  my $radix = $self->{'radix'};
+  if (! defined $radix || $radix <= 2) { $radix = 2; }
+  $self->{'radix'} = $radix;
+
   return $self;
 }
 
@@ -71,7 +73,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -92,47 +94,47 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  ### $radix
-  my $x = my $y = $n * 0;          # inherit bignum 0
-  my $xpower = my $ypower = $x+1;  # inherit bignum 1
+  my (@x,@y); # digits low to high
 
-  my @digits = _digit_split_lowtohigh($n,$radix)
-    or return ($x, $y);  # 0,0 if $n==0
+  my @digits = digit_split_lowtohigh($n,$radix)
+    or return (0,0);  # if $n==0
 
-  for (;;) {
+  DIGITS: for (;;) {
     my $digit;
 
-    # take from @digits to X
+    # from @digits to @x
     do {
-      $digit = shift @digits;  # low to high
-      ### digit to x: $digit
-      $x += $digit * $xpower;
-      @digits || return ($x, $y);
-      $xpower *= $radix;
-    } while ($digit);
+      ### digit to x: $digits[0]
+      $digit = shift @digits;  # $n digits low to high
+      push @x, $digit;
+      @digits || last DIGITS;
+    } while ($digit);  # $digit==0 is separator
 
-    # take from @digits to Y
+    # from @digits to @y
     do {
       $digit = shift @digits;  # low to high
       ### digit to y: $digit
-      $y += $digit * $ypower;
-      @digits || return ($x, $y);
-      $ypower *= $radix;
-    } while ($digit);
+      push @y, $digit;
+      @digits || last DIGITS;
+    } while ($digit);  # $digit==0 is separator
   }
+
+  my $zero = $n * 0; # inherit bignum 0
+  return (_digit_join_lowtohigh (\@x, $radix, $zero),
+          _digit_join_lowtohigh (\@y, $radix, $zero));
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### DigitGroups xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;
   }
   if ($x < 0 || $y < 0) {
@@ -144,29 +146,27 @@ sub xy_to_n {
   }
 
   my $radix = $self->{'radix'};
-  my $n = ($x * 0 * $y);   # inherit bignum
-  my $power = $n+1;        # inherit bignum 1
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @n; # digits low to high
 
-  my @x = _digit_split_lowtohigh($x,$radix);
-  my @y = _digit_split_lowtohigh($y,$radix);
+  my @x = digit_split_lowtohigh($x,$radix);
+  my @y = digit_split_lowtohigh($y,$radix);
 
   while (@x || @y) {
     my $digit;
     do {
       $digit = shift @x || 0; # low to high
       ### digit from x: $digit
-      $n += $digit * $power;  # low to high
-      $power *= $radix;
+      push @n, $digit;
     } while ($digit);
 
     do {
       $digit = shift @y || 0; # low to high
       ### digit from y: $digit
-      $n += $digit * $power;  # low to high
-      $power *= $radix;
+      push @n, $digit;
     } while ($digit);
   }
-  return $n;
+  return _digit_join_lowtohigh (\@n, $radix, $zero);
 }
 
 # not exact
@@ -183,23 +183,23 @@ sub rect_to_n_range {
 
   my $radix = $self->{'radix'};
 
-  my ($power, $x2_level) = _round_down_pow ($x2, $radix);
-  if (_is_infinite($x2_level)) {
+  my ($power, $x2_level) = round_down_pow ($x2, $radix);
+  if (is_infinite($x2_level)) {
     return (0,$x2_level);
   }
 
-  ($power, my $y2_level) = _round_down_pow ($y2, $radix);
-  if (_is_infinite($y2_level)) {
+  ($power, my $y2_level) = round_down_pow ($y2, $radix);
+  if (is_infinite($y2_level)) {
     return (0,$y2_level);
   }
 
-  ($power, my $x1_level) = _round_down_pow ($x1, $radix);
-  if (_is_infinite($x1_level)) {
+  ($power, my $x1_level) = round_down_pow ($x1, $radix);
+  if (is_infinite($x1_level)) {
     return (0,$x1_level);
   }
 
-  ($power, my $y1_level) = _round_down_pow ($y1, $radix);
-  if (_is_infinite($y1_level)) {
+  ($power, my $y1_level) = round_down_pow ($y1, $radix);
+  if (is_infinite($y1_level)) {
     return (0,$y1_level);
   }
 

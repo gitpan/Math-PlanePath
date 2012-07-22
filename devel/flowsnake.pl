@@ -22,7 +22,8 @@ use strict;
 use warnings;
 use Math::Libm 'M_PI', 'hypot';
 use Math::PlanePath;;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -72,13 +73,13 @@ use Math::PlanePath;;
       return undef;
     }
 
-    my $lowdigit = _divrem_destructive($n,7);
+    my $lowdigit = _divrem_mutate($n,7);
     ### $lowdigit
 
     # skip low 0s
     unless ($lowdigit) {
       while ($n) {
-        last if ($lowdigit = _divrem_destructive($n,7));
+        last if ($lowdigit = _divrem_mutate($n,7));
       }
       # flag that some zeros were skipped
       $lowdigit += 14;
@@ -87,7 +88,7 @@ use Math::PlanePath;;
 
     # forward/reverse state from lowest non-3
     for (;;) {
-      my $digit = _divrem_destructive($n,7);
+      my $digit = _divrem_mutate($n,7);
       if ($digit != 3) {
         $lowdigit += $digit_to_state[$digit];
         last;
@@ -108,7 +109,7 @@ use Math::PlanePath;;
     }
     my $state = 0;
     my $tdir6 = 0;
-    foreach my $digit (reverse Math::PlanePath::_digit_split_lowtohigh($n,7)) {
+    foreach my $digit (reverse digit_split_lowtohigh($n,7)) {
       $state += $digit;
       $tdir6 += $tdir6[$state];
       $state = $next_state[$state];

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 275;
+plan tests => 295;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -76,6 +76,53 @@ require Math::PlanePath::PythagoreanTree;
   ok (join(',',@pnames), 'tree_type,coordinates');
 }
 
+#------------------------------------------------------------------------------
+# tree_n_parent()
+{
+  my @data = ([ 1, undef ],
+
+              [ 2,  1 ],
+              [ 3,  1 ],
+              [ 4,  1 ],
+
+              [ 5,  2 ],
+              [ 6,  2 ],
+              [ 7,  2 ],
+              [ 8,  3 ],
+              [ 9,  3 ],
+              [ 10,  3 ],
+              [ 11,  4 ],
+              [ 12,  4 ],
+              [ 13,  4 ],
+             );
+  my $path = Math::PlanePath::PythagoreanTree->new;
+  foreach my $elem (@data) {
+    my ($n, $want_n_parent) = @$elem;
+    my $got_n_parent = $path->tree_n_parent ($n);
+    ok ($got_n_parent, $want_n_parent);
+  }
+}
+
+#------------------------------------------------------------------------------
+# tree_n_children()
+{
+  my @data = ([ 1, '2,3,4' ],
+
+              [ 2,  '5,6,7' ],
+              [ 3,  '8,9,10' ],
+              [ 4,  '11,12,13' ],
+
+              [ 5,  '14,15,16' ],
+              [ 6,  '17,18,19' ],
+              [ 7,  '20,21,22' ],
+             );
+  my $path = Math::PlanePath::PythagoreanTree->new;
+  foreach my $elem (@data) {
+    my ($n, $want_n_children) = @$elem;
+    my $got_n_children = join(',',$path->tree_n_children($n));
+    ok ($got_n_children, $want_n_children, "tree_n_children($n)");
+  }
+}
 
 #------------------------------------------------------------------------------
 # n_to_xy(),  xy_to_n()

@@ -21,12 +21,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_floor = \&Math::PlanePath::_floor;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest',
+  'floor';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -71,7 +72,7 @@ sub n_to_xy {
   # towards 0 instead of -infinity (in preparation for negative n one day
   # maybe, perhaps)
   #
-  my $x = _floor ($n / $height);
+  my $x = floor ($n / $height);
   return ($x,
           $frac + $n - $x*$height);
 }
@@ -79,11 +80,11 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $y = _round_nearest ($y);
+  $y = round_nearest ($y);
   if ($y < 0 || $y >= $self->{'height'}) {
     return undef;  # outside the oblong
   }
-  $x = _round_nearest ($x);
+  $x = round_nearest ($x);
   return $x * $self->{'height'} + $y + 1;
 }
 
@@ -92,8 +93,8 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   my $height = $self->{'height'};
 
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
   if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
   ### assert: $y1<=$y2
 
@@ -102,8 +103,8 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
   if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
   ### assert: $x1<=$x2
 

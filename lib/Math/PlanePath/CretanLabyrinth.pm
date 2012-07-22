@@ -25,13 +25,14 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -108,7 +109,7 @@ sub n_to_xy {
   ### CretanLabyrinth n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   if ($n < 55) {
     foreach my $i (0 .. $#initial_n-1) {
@@ -150,8 +151,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### CretanLabyrinth xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
   my $d = _xy_to_d($x,$y);
   ### $d
 
@@ -237,10 +238,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### CretanLabyrinth rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest($x1);
-  $y1 = _round_nearest($y1);
-  $x2 = _round_nearest($x2);
-  $y2 = _round_nearest($y2);
+  $x1 = round_nearest($x1);
+  $y1 = round_nearest($y1);
+  $x2 = round_nearest($x2);
+  $y2 = round_nearest($y2);
 
   my $d = max (_xy_to_d($x1,$y1),
                _xy_to_d($x2,$y1),

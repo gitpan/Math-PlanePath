@@ -29,19 +29,18 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -100,7 +99,7 @@ sub n_to_xy {
   ### MooreSpiral n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   my $int = int($n);
   $n -= $int;  # frac
@@ -109,14 +108,14 @@ sub n_to_xy {
   my $state = 20;
   my $arms = $self->{'arms'};
   if ($arms > 1) {
-    my $arm = _divrem_destructive($int,2);
+    my $arm = _divrem_mutate($int,2);
     if ($arm) {
       $state = 0;
       $int += 1;
     }
   }
 
-  my @digits = _digit_split_lowtohigh($int,9);
+  my @digits = digit_split_lowtohigh($int,9);
 
   my $zero = $int*0;   # inherit bignum 0
   my $len = ($zero+3) ** scalar(@digits);
@@ -213,11 +212,11 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### MooreSpiral xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
-  my ($len, $level) = _round_down_pow (max(abs($x),abs($y))*2 - 1,
-                                       3);
+  my ($len, $level) = round_down_pow (max(abs($x),abs($y))*2 - 1,
+                                      3);
   ### $len
   ### $level
 
@@ -233,10 +232,10 @@ sub xy_to_n {
     ### assert: $x < 3*$len
     ### assert: $y < 3*$len
   }
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;
   }
 
@@ -245,8 +244,8 @@ sub xy_to_n {
   my $n = ($x * 0 * $y); #  + (9*$npow - 1)/2;
   my $rot = ($level & 1 ? 2 : 0);
 
-  my @x = _digit_split_lowtohigh ($x, 3);
-  my @y = _digit_split_lowtohigh ($y, 3);
+  my @x = digit_split_lowtohigh ($x, 3);
+  my @y = digit_split_lowtohigh ($y, 3);
   ### @x
   ### @y
 
@@ -300,14 +299,14 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### MooreSpiral rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
 
-  my ($len, $level) = _round_down_pow (max(abs($x1),abs($y1),
-                                            abs($x2),abs($y2))*2-1,
-                                       3);
+  my ($len, $level) = round_down_pow (max(abs($x1),abs($y1),
+                                          abs($x2),abs($y2))*2-1,
+                                      3);
   ### $len
   ### $level
 

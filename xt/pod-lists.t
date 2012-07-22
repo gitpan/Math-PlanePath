@@ -46,7 +46,7 @@ my $manifest_file = File::Spec->catfile ($toplevel_dir, 'MANIFEST');
 my $manifest = ExtUtils::Manifest::maniread ($manifest_file);
 
 my @lib_modules
-  = map {m{^lib/Math/PlanePath/(.*)\.pm$} ? $1 : ()} keys %$manifest;
+  = map {m{^lib/Math/PlanePath/([^/]+)\.pm$} ? $1 : ()} keys %$manifest;
 @lib_modules = sort @lib_modules;
 diag "module count ",scalar(@lib_modules);
 

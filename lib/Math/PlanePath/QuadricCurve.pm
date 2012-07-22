@@ -24,16 +24,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -52,7 +52,7 @@ sub n_to_xy {
   ### QuadricCurve n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   my $x;
   {
@@ -63,7 +63,7 @@ sub n_to_xy {
   my $y = $x * 0;     # inherit bignum 0
   my $len = $y + 1;   # inherit bignum 1
 
-  foreach my $digit (_digit_split_lowtohigh($n,8)) {
+  foreach my $digit (digit_split_lowtohigh($n,8)) {
     ### at: "$x,$y  digit=$digit"
 
     if ($digit == 0) {
@@ -129,16 +129,16 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### QuadricCurve xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($x < 0) {
     ### neg x ...
     return undef;
   }
-  my ($len,$level) = _round_down_pow (($x+abs($y)) || 1, 4);
+  my ($len,$level) = round_down_pow (($x+abs($y)) || 1, 4);
   ### $level
   ### $len
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -227,16 +227,16 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### QuadricCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
   if ($x2 < $x1) {
     $x2 = $x1;   # x2 bigger
   }
   if ($x2 < 0) {
     return (1,0);  # rect all x negative, no points
   }
-  $y1 = abs (_round_nearest ($y1));
-  $y2 = abs (_round_nearest ($y2));
+  $y1 = abs (round_nearest ($y1));
+  $y2 = abs (round_nearest ($y2));
   if ($y2 < $y1) {
     $y2 = $y1;   # y2 bigger abs
   }

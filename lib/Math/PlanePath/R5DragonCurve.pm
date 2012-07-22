@@ -30,18 +30,17 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -76,7 +75,7 @@ sub n_to_xy {
   ### R5dragonCurve n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   my $frac;
   {
@@ -95,14 +94,14 @@ sub n_to_xy {
 
   # initial rotation from arm number
   {
-    my $rot = _divrem_destructive ($n, $self->{'arms'});
+    my $rot = _divrem_mutate ($n, $self->{'arms'});
     if ($rot == 0)    { $x = $frac, $sx = $one; }
     elsif ($rot == 1) { $y = $frac, $sy = $one; }
     elsif ($rot == 2) { $x = -$frac, $sx = -$one; }
     else              { $y = -$frac, $sy = -$one; } # rot==3
   }
 
-  foreach my $digit (_digit_split_lowtohigh($n,5)) {
+  foreach my $digit (digit_split_lowtohigh($n,5)) {
 
     ### at: "$x,$y   side $sx,$sy"
     ### $digit
@@ -137,13 +136,13 @@ sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### R5DragonCurve xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;  # infinity
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;  # infinity
   }
 
@@ -271,7 +270,7 @@ N=8 above, but no edges repeat.
 =head2 Spiralling
 
 The first step N=1 is to the right along the X axis and the path then slowly
-spirals counter-clockwise and progressively fatter.  The end of each
+spirals anti-clockwise and progressively fatter.  The end of each
 replication is
 
     Nlevel = 5^level

@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 11;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -87,6 +87,106 @@ sub diff_nums {
     }
   }
   return $diff;
+}
+
+#------------------------------------------------------------------------------
+# A025581 -- Y-X coordinate, k to 0, step=1
+
+{
+  my $anum = 'A025581';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PyramidRows->new (step => 1);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $y-$x;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A002262 -- X coordinate, step=1
+
+{
+  my $anum = 'A002262';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PyramidRows->new (step => 1);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $x;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A003056 -- Y coordinate, step=1
+
+{
+  my $anum = 'A003056';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PyramidRows->new (step => 1);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $y;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A167407 -- dDiffXY step=1, extra initial 0
+
+{
+  my $anum = 'A167407';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PyramidRows->new (step => 1);
+    @got = (0);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
+      my $dx = $next_x - $x;
+      my $dy = $next_y - $y;
+      push @got, $dx-$dy;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
 }
 
 #------------------------------------------------------------------------------

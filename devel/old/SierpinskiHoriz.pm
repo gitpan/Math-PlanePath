@@ -27,14 +27,14 @@ use List::Util qw(min max);
 
 use vars '$VERSION', '@ISA';
 $VERSION = 67;
-
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -50,7 +50,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -107,16 +107,16 @@ sub xy_to_n {
 
   return undef;
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
   if ($y < 0 || $x < 0 || (($x ^ $y) & 1)) {
     ### neg y or parity different ...
     return undef;
   }
-  my ($len,$level) = _round_down_pow(($x/2)||1, 3);
+  my ($len,$level) = round_down_pow(($x/2)||1, 3);
   ### $level
   ### $len
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -165,10 +165,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiHoriz rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
@@ -185,7 +185,7 @@ sub rect_to_n_range {
     ### outside first octant
     return (1,0);
   }
-  if (_is_infinite($x2)) {
+  if (is_infinite($x2)) {
     return (0, $x2);
   }
 

@@ -136,6 +136,8 @@ lib/Math/PlanePath/AnvilSpiral.pm
 lib/Math/PlanePath/AR2W2Curve.pm
 lib/Math/PlanePath/ArchimedeanChords.pm
 lib/Math/PlanePath/AztecDiamondRings.pm
+lib/Math/PlanePath/Base/Digits.pm
+lib/Math/PlanePath/Base/Generic.pm
 lib/Math/PlanePath/BetaOmega.pm
 lib/Math/PlanePath/CCurve.pm
 lib/Math/PlanePath/CellularRule.pm
@@ -249,6 +251,8 @@ t/AlternatePaperMidpoint.t
 t/AnvilSpiral.t
 t/ArchimedeanSpiral.t
 t/AztecDiamondRings.t
+t/Base-Digits.t
+t/Base-Generic.t
 t/BetaOmeta.t
 t/bigfloat.t
 t/bigint-lite.t
@@ -327,6 +331,7 @@ t/SierpinskiArrowhead.t
 t/SierpinskiArrowheadCentres.t
 t/SierpinskiCurve.t
 t/SierpinskiCurveStair.t
+t/SierpinskiTriangle.t
 t/SquareSpiral.t
 t/Staircase.t
 t/StaircaseAlternating.t
@@ -335,6 +340,7 @@ t/TerdragonMidpoint.t
 t/TheodorusSpiral.t
 t/TriangularHypot.t
 t/UlamWarburton.t
+t/UlamWarburtonQuarter.t
 t/VogelFloret.t
 t/ZOrderCurve.t
 tools/ar2w2-curve-table.pl
@@ -377,6 +383,7 @@ xt/oeis/CoprimeColumns-oeis.t
 xt/oeis/Corner-oeis.t
 xt/oeis/CornerReplicate-oeis.t
 xt/oeis/DiagonalRationals-oeis.t
+xt/oeis/Diagonals-oeis.t
 xt/oeis/DiagonalsOctant-more.t
 xt/oeis/DiagonalsOctant-oeis.t
 xt/oeis/DigitGroups-oeis.t
@@ -395,6 +402,7 @@ xt/oeis/HilbertCurve-oeis.t
 xt/oeis/Hypot-more.t
 xt/oeis/Hypot-oeis.t
 xt/oeis/HypotOctant-oeis.t
+xt/oeis/ImaginaryBase-other.t
 xt/oeis/KnightSpiral-oeis.t
 xt/oeis/KochCurve-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
@@ -408,6 +416,7 @@ xt/oeis/RationalsTree-oeis.t
 xt/oeis/SierpinskiTriangle-oeis.t
 xt/oeis/SquareSpiral-oeis.t
 xt/oeis/TerdragonCurve-oeis.t
+xt/oeis/TheodorusSpiral-oeis.t
 xt/oeis/TriangularHypot-oeis.t
 xt/oeis/TriangularSpiral-oeis.t
 xt/oeis/UlamWarburton-oeis.t

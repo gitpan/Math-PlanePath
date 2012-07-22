@@ -106,8 +106,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,
@@ -138,8 +136,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,
@@ -169,8 +165,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,
@@ -199,8 +193,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,
@@ -231,8 +223,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,

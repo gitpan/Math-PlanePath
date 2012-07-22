@@ -25,6 +25,9 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
+use Math::PlanePath::Base::Generic
+  'is_infinite';
+
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
@@ -373,6 +376,33 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'UlamWarburton',
+               'UlamWarburtonQuarter',
+
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,coordinates=PQ,tree_type=FB',
+
+               'RationalsTree',
+               'RationalsTree,tree_type=CW',
+               'RationalsTree,tree_type=AYT',
+               'RationalsTree,tree_type=Bird',
+               'RationalsTree,tree_type=Drib',
+
+               'CellularRule,rule=6',   # left 1,2 line
+               'CellularRule,rule=14',  # left 2 cell line
+               'CellularRule,rule=20',  # right 1,2 line
+               'CellularRule,rule=84',  # right 2 cell line
+
+               'FractionsTree',
+               'FactorRationals',
+               'DiagonalRationals',
+
+               'Staircase',
+               'StaircaseAlternating',
+               'StaircaseAlternating,end_type=square',
+
                'ArchimedeanChords',
                'SacksSpiral',
                'TheodorusSpiral',
@@ -506,10 +536,6 @@ my @modules = (
                'R5DragonCurve,arms=3',
                'R5DragonCurve,arms=4',
 
-               'Staircase',
-               'StaircaseAlternating',
-               'StaircaseAlternating,end_type=square',
-
                'Corner',
                'PyramidRows',
                'PyramidRows,step=0',
@@ -627,11 +653,6 @@ my @modules = (
 
                # 'File',
 
-               'CellularRule,rule=6',   # left 1,2 line
-               'CellularRule,rule=14',  # left 2 cell line
-               'CellularRule,rule=20',  # right 1,2 line
-               'CellularRule,rule=84',  # right 2 cell line
-
                'CellularRule',
                'CellularRule,rule=0',   # single cell
                'CellularRule,rule=8',   # single cell
@@ -706,10 +727,6 @@ my @modules = (
                'AnvilSpiral,wider=9',
                'AnvilSpiral,wider=17',
 
-               'FractionsTree',
-               'FactorRationals',
-               'DiagonalRationals',
-
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
                'AR2W2Curve,start_shape=B2',
@@ -737,17 +754,6 @@ my @modules = (
                'DigitGroups,radix=4',
                'DigitGroups,radix=5',
                'DigitGroups,radix=37',
-
-               'RationalsTree',
-               'RationalsTree,tree_type=CW',
-               'RationalsTree,tree_type=AYT',
-               'RationalsTree,tree_type=Bird',
-               'RationalsTree,tree_type=Drib',
-
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
                'SquareSpiral',
                'SquareSpiral,wider=1',
@@ -780,9 +786,6 @@ my @modules = (
                'PyramidSpiral',
                'TriangleSpiral',
                'TriangleSpiralSkewed',
-
-               'UlamWarburton',
-               'UlamWarburtonQuarter',
 
                'AztecDiamondRings',
                'DiamondArms',
@@ -829,6 +832,21 @@ my @modules = (
                'DragonCurve,arms=3',
                'DragonCurve,arms=4',
 
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,ring_shape=polygon,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,ring_shape=polygon,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,ring_shape=polygon,step=2',
+
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
                'MultipleRings,ring_shape=polygon,step=3',
                'MultipleRings,ring_shape=polygon,step=4',
                'MultipleRings,ring_shape=polygon,step=5',
@@ -837,17 +855,6 @@ my @modules = (
                'MultipleRings,ring_shape=polygon,step=8',
                'MultipleRings,ring_shape=polygon,step=37',
                'MultipleRings,ring_shape=polygon',
-
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-               'MultipleRings',
 
                # module list end
 
@@ -859,29 +866,29 @@ my @modules = (
   require Math::NumSeq::PlanePathDelta;
   require Math::NumSeq::PlanePathTurn;
   require Math::NumSeq::PlanePathN;
-
+  
   foreach my $mod (@modules) {
     my $bad = 0;
     foreach my $elem (
                       ['Math::NumSeq::PlanePathDelta','delta_type'],
-                      # ['Math::NumSeq::PlanePathCoord','coordinate_type'],
-                      # ['Math::NumSeq::PlanePathTurn','turn_type'],
-                      # ['Math::NumSeq::PlanePathN','line_type'],
+                      ['Math::NumSeq::PlanePathCoord','coordinate_type'],
+                      ['Math::NumSeq::PlanePathTurn','turn_type'],
+                      ['Math::NumSeq::PlanePathN','line_type'],
                      ) {
       my ($class, $pname) = @$elem;
-
+      
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
         MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param
-
+        
         my $seq = $class->new (planepath => $mod,
                                $pname => $param);
-
+        
         my $planepath_object = $seq->{'planepath_object'};
         ### planepath_object: ref $planepath_object
-
+        
         my $i_start = $seq->i_start;
         my $saw_values_min    = 999999999;
         my $saw_values_max    = -999999999;
@@ -892,7 +899,7 @@ my @modules = (
         my $saw_increasing_at = '';
         my $saw_non_decreasing_at = '';
         my $prev_value;
-
+        
         my $count = 0;
         my $i_limit = 800;
         if ($mod =~ /Vogel|Theod|Archim/
@@ -908,14 +915,14 @@ my @modules = (
           $i_limit = 80;
         }
         ### $i_limit
-
+        
         foreach my $i ($i_start .. $i_limit) {
           my $value = $seq->ith($i);
           ### $i
           ### $value
           next if ! defined $value;
           $count++;
-
+          
           if ($value < $saw_values_min) {
             $saw_values_min = $value;
             if (my ($x,$y) = $seq->{'planepath_object'}->n_to_xy($i)) {
@@ -928,7 +935,7 @@ my @modules = (
             $saw_values_max = $value;
             $saw_values_max_at = "i=$i";
           }
-
+          
           # ### $value
           # ### $prev_value
           if (defined $prev_value) {
@@ -936,13 +943,13 @@ my @modules = (
               $prev_value = $value;
             }
             if ($value <= $prev_value
-               && ! Math::PlanePath::_is_infinite($prev_value)) {
+                && ! is_infinite($prev_value)) {
               # ### not increasing ...
               if ($saw_increasing) {
                 $saw_increasing = 0;
                 $saw_increasing_at = "i=$i value=$value prev_value=$prev_value";
               }
-
+              
               if ($value < $prev_value) {
                 if ($saw_non_decreasing) {
                   $saw_non_decreasing = 0;
@@ -955,12 +962,12 @@ my @modules = (
         }
         ### $count
         next if $count == 0;
-
+        
         ### $saw_values_min
         ### $saw_values_min_at
         ### $saw_values_max
         ### $saw_values_max_at
-
+        
         my $values_min = $seq->values_min;
         my $values_max = $seq->values_max;
         if (! defined $values_min) {
@@ -969,7 +976,7 @@ my @modules = (
         if (! defined $values_max) {
           $values_max = $saw_values_max;
         }
-
+        
         if (my $coderef = $planepath_object->can("_NumSeq_${param}_max_is_supremum")) {
           if ($planepath_object->$coderef) {
             if ($saw_values_max == $values_max) {
@@ -995,9 +1002,9 @@ my @modules = (
             }
           }
         }
-
-
-
+        
+        
+        
         # these come arbitrarily close to dX==dY, in general, probably
         if (($mod eq 'MultipleRings,step=2'
              || $mod eq 'MultipleRings,step=3'
@@ -1196,9 +1203,18 @@ my @modules = (
         #     && ($param eq 'TDir6')) {
         #   $saw_values_min = 0;
         #   $saw_values_min_at = 'override';
-        #   $saw_values_max = 5;
-        #   $saw_values_max_at = 'override';
         # }
+
+        # not enough values to see near supremum
+        if (($mod eq 'ZOrderCurve,radix=37'
+            )
+            && ($param eq 'Dir4'
+                || $param eq 'TDir6'
+               )) {
+          $saw_values_max = $values_max;
+          $saw_values_max_at = 'override';
+        }
+
 
         if (abs ($values_min - $saw_values_min) > 0.001) {
           MyTestHelpers::diag ("$mod $param values_min=$values_min vs saw_values_min=$saw_values_min at $saw_values_min_at");

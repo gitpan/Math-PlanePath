@@ -28,20 +28,19 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_floor = \&Math::PlanePath::_floor;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
-use Math::PlanePath::QuadricCurve;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest',
+  'floor';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
+
+use Math::PlanePath::QuadricCurve;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -93,9 +92,9 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### QuadricIslands n_to_xy(): "$n"
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
-  my ($base,$level) = _round_down_pow ((7*$n - 3)*2, 8);
+  my ($base,$level) = round_down_pow ((7*$n - 3)*2, 8);
   $base /= 8;
   $level -= 1;
   $base = (4*$base + 3)/7;  # (4 * 8**$level + 3)/7
@@ -185,19 +184,19 @@ sub xy_to_n_list {
   if ($x >= -1 && $x < 1
       && $y >= -1 && $y < 1) {
 
-    ### round 2x: _floor(2*$x)
-    ### round 2y: _floor(2*$y)
-    ### index: _floor(2*$x) + 4*_floor(2*$y) + 10
-    ### assert: _floor(2*$x) + 4*_floor(2*$y) + 10 >= 0
-    ### assert: _floor(2*$x) + 4*_floor(2*$y) + 10 <= 15
+    ### round 2x: floor(2*$x)
+    ### round 2y: floor(2*$y)
+    ### index: floor(2*$x) + 4*floor(2*$y) + 10
+    ### assert: floor(2*$x) + 4*floor(2*$y) + 10 >= 0
+    ### assert: floor(2*$x) + 4*floor(2*$y) + 10 <= 15
 
-    return @{$inner_n_list[ _floor(2*$x)
-                            + 4*_floor(2*$y)
+    return @{$inner_n_list[ floor(2*$x)
+                            + 4*floor(2*$y)
                             + 10 ]};
   }
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   my $high;
   if ($x >= $y + ($y>0)) {
@@ -260,12 +259,12 @@ sub xy_to_n_list {
   #
   # line slope y/x = 1/2 as an index
   my $z = -$y-$x/2;
-  my ($len,$level) = _round_down_pow ($z, 4);
+  my ($len,$level) = round_down_pow ($z, 4);
   ### $z
   ### amin: 2*4**($level-1)
   ### $level
   ### $len
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -315,15 +314,15 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### QuadricIslands rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  # $x1 = _round_nearest ($x1);
-  # $y1 = _round_nearest ($y1);
-  # $x2 = _round_nearest ($x2);
-  # $y2 = _round_nearest ($y2);
+  # $x1 = round_nearest ($x1);
+  # $y1 = round_nearest ($y1);
+  # $x2 = round_nearest ($x2);
+  # $y2 = round_nearest ($y2);
 
   my $m = max(abs($x1), abs($x2),
               abs($y1), abs($y2));
 
-  my ($len,$level) = _round_down_pow (6*$m-2, 4);
+  my ($len,$level) = round_down_pow (6*$m-2, 4);
   ### $len
   ### $level
   return (1,
@@ -346,7 +345,7 @@ sub rect_to_n_range {
 #
 # based on max ??? ...
 #
-# my ($power,$level) = _round_down_pow ((3*$m+1-3)/10, 4);
+# my ($power,$level) = round_down_pow ((3*$m+1-3)/10, 4);
 # ### $power
 # ### $level
 # return (1,

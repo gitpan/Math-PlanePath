@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use POSIX;
 use List::Util 'min', 'max';
+use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 use Math::PlanePath::ComplexMinus;
 
 # uncomment this to run the ### lines
@@ -57,8 +58,7 @@ use Math::PlanePath::ComplexMinus;
 
   sub to_radix {
     my ($n,$radix) = @_;
-    return join(',',
-                reverse Math::PlanePath::_digit_split_lowtohigh($n,$radix));
+    return join(',', reverse digit_split_lowtohigh($n,$radix));
   }
   sub path_n_dxdy {
     my ($path, $n) = @_;

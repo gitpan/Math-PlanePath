@@ -30,14 +30,14 @@ use strict;
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -73,7 +73,7 @@ sub n_to_xy {
   }
 
   # arm as initial rotation
-  my $rot = _divrem_destructive($n,4);
+  my $rot = _divrem_mutate($n,4);
   ### $n
 
   # if (($rot%4) != 3) {
@@ -108,8 +108,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### DiamondArms xy_to_n: "$x,$y"
 
   my $rot = 0;
@@ -161,10 +161,10 @@ sub xy_to_n {
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   my $x = (($x1<0) == ($x2<0) ? min(abs($x1),abs($x2)) : 0);
   my $y = (($y1<0) == ($y2<0) ? min(abs($y1),abs($y2)) : 0);
   my $d = max(0, $x + $y - 2);

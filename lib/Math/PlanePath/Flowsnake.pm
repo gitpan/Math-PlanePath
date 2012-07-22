@@ -34,19 +34,20 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
 use Math::PlanePath::FlowsnakeCentres 55; # v.55 inheritance switch-around
 @ISA = ('Math::PlanePath::FlowsnakeCentres');
-
 use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -99,7 +100,7 @@ sub n_to_xy {
   ### Flowsnake n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   my $frac;
   {
@@ -111,7 +112,7 @@ sub n_to_xy {
   ### n int: $n
 
   my $arms = $self->{'arms'};
-  my $rot = _divrem_destructive ($n, $arms);
+  my $rot = _divrem_mutate ($n, $arms);
   $rot *= 2;  # 0, 120 or 240
   if ($rot) { $n += 1; }
 
@@ -123,7 +124,7 @@ sub n_to_xy {
 
   # ENHANCE-ME: The s[] vectors here are constants and could be kept up to
   # the level used thusfar
-  my @digits = _digit_split_lowtohigh($n,7);
+  my @digits = digit_split_lowtohigh($n,7);
   my (@sh, @si, @sj);
   {
     my $sh = 1;
@@ -194,8 +195,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### Flowsnake xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
   if (($x + $y) % 2) { return undef; }
   ### round to: "$x,$y"
 
@@ -375,8 +376,8 @@ The basic pattern is the seven points 0 to 6,
     0---- 1
 
 This repeats at 7-fold increasing scale, with sub-sections rotated according
-to the edge direction, and the 1, 2 and 6 sub-sections in mirror image.  The
-next level can be seen at the multiple of 7 points N=0,7,14,21,28,35,42,49.
+to the edge direction and the 1, 2 and 6 sub-sections in reverse.  The next
+level can be seen at the multiple-of-7 points N=0,7,14,21,28,35,42,49.
 
                                   42
                       -----------    ---
@@ -394,13 +395,14 @@ next level can be seen at the multiple of 7 points N=0,7,14,21,28,35,42,49.
                    -----
               0 ---
 
-Notice this is the same shape as the 0 to 6, but rotated by atan(1/sqrt(7))
+Notice this is the same shape as N=0 to N=6, but rotated by atan(1/sqrt(7))
 = 20.68 degrees anti-clockwise.  Each level rotates further and for example
 after about 18 levels it goes all the way around and back to the first
 quadrant.
 
-The rotation doesn't mean it fills the plane though.  The shape fattens as
-it curls around, but leaves a spiral gap beneath it (see L</Arms> below).
+The rotation doesn't fill the plane though, only 1/3 of it.  The shape
+fattens as it curls around, but leaves a spiral gap beneath (see L</Arms>
+below).
 
 =head2 Tiling
 
@@ -430,7 +432,7 @@ The base pattern corresponds to a tiling by hexagons as follows, with the
          \ /   \ /
           .     .
 
-In the next level the parts corresponding to 1, 2 and 6 are mirrored because
+In the next level the parts corresponding to 1, 2 and 6 are reversed because
 they have their hexagon to the right of the line segment, rather than to the
 left.
 
@@ -438,10 +440,11 @@ left.
 
 The optional C<arms> parameter can give up to three copies of the flowsnake,
 each advancing successively.  For example C<arms=E<gt>3> is as follows.
-Notice the N=3*k points are the plain curve, and N=3*k+1 and N=3*k+2 are
-rotated copies of it.
+Notice the N=3*k points are the plain curve, N=3*k+1 is a copy rotated by
+120 degrees (1/3 around), and N=3*k+2 is a copy rotated by 240 degrees (2/3
+around).
 
-                                     51----48----45                 5
+    arms => 3                        51----48----45                 5
                                        \           \
                       ...   69----66    54----57    42              4
                         \     \     \        /     /
@@ -483,10 +486,10 @@ respectively.
            \     /
             *---*
 
-But the sides of these "hexagons" are not straight lines, they're more like
-wild wiggly spiralling S shapes, and the endpoints rotate around (by the
-angle described above) at each level.  But the opposite sides are symmetric,
-so they mesh perfectly and with three arms fill the plane.
+But the sides of these "hexagons" are not straight lines, they're wild
+wiggly spiralling S shapes, and the endpoints rotate around (by the angle
+described above) at each level.  But opposing sides are symmetric, so they
+mesh perfectly and with three arms fill the plane.
 
 =head2 Fractal
 
@@ -495,9 +498,9 @@ segments with suitably scaled copies of the 0 to 7 figure (or its reversal).
 
 The code here could be used for that by taking points N=0 to N=7^level.  The
 Y coordinates should be multiplied by sqrt(3) to make proper equilateral
-triangles, then a rotation and scaling to have the endpoint come out at
-X=1,Y=0 or wherever desired.  With this the path is confined to a finite
-fractal boundary.
+triangles, then a rotation and scaling to make the endpoint come out at some
+desired point, such as X=1,Y=0.  With such a scaling the path is confined to
+a finite fractal boundary.
 
 =head1 FUNCTIONS
 
@@ -548,17 +551,18 @@ locations
     X-2, Y       left
     X-1, Y-1     left down
 
-This is so even when the "arms" multiple paths are in use (the same arms in
-both coordinates).
+This is true even when the "arms" multiple paths are in use (the same arms
+in both coordinates).
 
 Is there an easy way to know which of the three offsets is right?  The
-current approach is to give each to FlowsnakeCentres to make an N, and put
-that N back through C<n_to_xy()> to see if it's the target C<$n>.
+current approach is to put each through FlowsnakeCentres to make an N, and
+put that N back through Flowsnake C<n_to_xy()> to see if it's the target
+C<$n>.
 
 =head2 Rectangle to N Range
 
 The current code calculates an exact C<rect_to_n_range()> by searching for
-the highest and lowest N which are in the rectangle.
+the highest and lowest Ns which are in the rectangle.
 
 The curve at a given level is bounded by the Gosper island shape but the
 wiggly sides make it difficult to calculate, so a bounding radius
@@ -569,14 +573,14 @@ that radius away from the rectangle.
 When a part of the curve is excluded it prunes a whole branch of the digits
 tree.  When the lowest digit is reached then a check for that point being
 actually within the rectangle is made.  The radius calculation is a bit
-rough, and since it doesn't even take into account the direction of the
-curve so it's a rather large over-estimate, but it works.
+rough, and it doesn't take into account the direction of the curve, so it's
+a rather large over-estimate, but it works.
 
-The same sort of search can be applied to non-rectangular shapes,
-calculating a radial distance away from the shape.  The distance calculation
-doesn't have to be exact either, it can go from something bounding the shape
-until the lowest digit is reached and an individual X,Y is being considered
-as an candidate high or low N bound.
+The same sort of search can be applied for highest and lowest N in a
+non-rectangular shapes, calculating a radial distance away from the shape.
+The distance calculation doesn't have to be exact either, it can go from
+something bounding the shape until the lowest digit is reached and an
+individual X,Y is considered as a candidate for high or low N.
 
 =head1 SEE ALSO
 

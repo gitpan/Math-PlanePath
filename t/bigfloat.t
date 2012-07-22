@@ -78,52 +78,54 @@ MyTestHelpers::nowarnings();
 Math::BigFloat->precision(-20);  # digits right of decimal point
 
 #------------------------------------------------------------------------------
-# _is_infinite()
+# is_infinite()
 
-require Math::PlanePath;
+use Math::PlanePath::Base::Generic 'is_infinite';
 {
   my $x = Math::BigFloat->new;
   $x->binf;
   MyTestHelpers::diag ("+inf is ",$x);
-  ok (!! Math::PlanePath::_is_infinite($x), 1, '_is_infinte() BigFloat +inf');
+  ok (!! is_infinite($x), 1, '_is_infinte() BigFloat +inf');
 
   $x->binf('-');
   MyTestHelpers::diag ("-inf is ",$x);
-  ok (!! Math::PlanePath::_is_infinite($x), 1, '_is_infinte() BigFloat -inf');
+  ok (!! is_infinite($x), 1, '_is_infinte() BigFloat -inf');
 
   $x->bnan();
   MyTestHelpers::diag ("nan is ",$x);
-  ok (!! Math::PlanePath::_is_infinite($x), 1, '_is_infinte() BigFloat nan');
+  ok (!! is_infinite($x), 1, '_is_infinte() BigFloat nan');
 }
 
 #------------------------------------------------------------------------------
-# _round_nearest()
+# round_nearest()
 
-require Math::PlanePath;
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.75')) == -1,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.5'))  == 0,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('-.25')) == 0,  1);
+use Math::PlanePath::Base::Generic 'round_nearest';
 
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('.25'))  == 0,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('1.25')) == 1,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('1.5'))  == 2,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('1.75')) == 2,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigFloat->new('2'))    == 2,  1);
+ok (round_nearest(Math::BigFloat->new('-.75')) == -1,  1);
+ok (round_nearest(Math::BigFloat->new('-.5'))  == 0,  1);
+ok (round_nearest(Math::BigFloat->new('-.25')) == 0,  1);
+
+ok (round_nearest(Math::BigFloat->new('.25'))  == 0,  1);
+ok (round_nearest(Math::BigFloat->new('1.25')) == 1,  1);
+ok (round_nearest(Math::BigFloat->new('1.5'))  == 2,  1);
+ok (round_nearest(Math::BigFloat->new('1.75')) == 2,  1);
+ok (round_nearest(Math::BigFloat->new('2'))    == 2,  1);
 
 #------------------------------------------------------------------------------
-# _floor()
+# floor()
 
-require Math::PlanePath;
-ok (Math::PlanePath::_floor(Math::BigFloat->new('-.75')) == -1,  1);
-ok (Math::PlanePath::_floor(Math::BigFloat->new('-.5'))  == -1,  1);
-ok (Math::PlanePath::_floor(Math::BigFloat->new('-.25')) == -1,  1);
+use Math::PlanePath::Base::Generic 'floor';
 
-ok (Math::PlanePath::_floor(Math::BigFloat->new('.25'))  == 0,  1);
-ok (Math::PlanePath::_floor(Math::BigFloat->new('.75'))  == 0,  1);
-ok (Math::PlanePath::_floor(Math::BigFloat->new('1.25')) == 1,  1);
-ok (Math::PlanePath::_floor(Math::BigFloat->new('1.5'))  == 1,  1);
-ok (Math::PlanePath::_floor(Math::BigFloat->new('1.75')) == 1,  1);
-ok (Math::PlanePath::_floor(Math::BigFloat->new('2'))    == 2,  1);
+ok (floor(Math::BigFloat->new('-.75')) == -1,  1);
+ok (floor(Math::BigFloat->new('-.5'))  == -1,  1);
+ok (floor(Math::BigFloat->new('-.25')) == -1,  1);
+
+ok (floor(Math::BigFloat->new('.25'))  == 0,  1);
+ok (floor(Math::BigFloat->new('.75'))  == 0,  1);
+ok (floor(Math::BigFloat->new('1.25')) == 1,  1);
+ok (floor(Math::BigFloat->new('1.5'))  == 1,  1);
+ok (floor(Math::BigFloat->new('1.75')) == 1,  1);
+ok (floor(Math::BigFloat->new('2'))    == 2,  1);
 
 #------------------------------------------------------------------------------
 # MultipleRings
@@ -272,30 +274,30 @@ require Math::PlanePath::ZOrderCurve;
 }
 
 #------------------------------------------------------------------------------
-# KochCurve _round_down_pow()
+# round_down_pow()
 
-require Math::PlanePath::KochCurve;
+use Math::PlanePath::Base::Digits 'round_down_pow';
 {
   my $orig = Math::BigFloat->new(3) ** 64;
   my $n    = Math::BigFloat->new(3) ** 64;
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+  my ($pow,$exp) = round_down_pow($n,3);
 
-  ok ($n, $orig, "_round_down_pow(3) unmodified input");
+  ok ($n, $orig, "round_down_pow(3) unmodified input");
   ok ($pow == Math::BigFloat->new(3.0) ** 64, 1,
-      "_round_down_pow(3) 3^64 + 1.25 power");
-  ok ($exp, 64, "_round_down_pow(3) 3^64 + 1.25 exp");
+      "round_down_pow(3) 3^64 + 1.25 power");
+  ok ($exp, 64, "round_down_pow(3) 3^64 + 1.25 exp");
 }
 {
   my $orig = Math::BigFloat->new(3) ** 64 + 1.25;
   my $n    = Math::BigFloat->new(3) ** 64 + 1.25;
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+  my ($pow,$exp) = round_down_pow($n,3);
   ### pow: "$pow"
   ### exp: "$exp"
 
-  ok ($n, $orig, "_round_down_pow(3) unmodified input");
+  ok ($n, $orig, "round_down_pow(3) unmodified input");
   ok ($pow == Math::BigFloat->new(3.0) ** 64, 1,
-      "_round_down_pow(3) 3^64 + 1.25 power");
-  ok ($exp, 64, "_round_down_pow(3) 3^64 + 1.25 exp");
+      "round_down_pow(3) 3^64 + 1.25 power");
+  ok ($exp, 64, "round_down_pow(3) 3^64 + 1.25 exp");
 }
 
 exit 0;

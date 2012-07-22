@@ -33,14 +33,15 @@ use strict;
 # Math::Complex -- prefer libm
 use Math::Libm 'asin', 'hypot';
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-
-use Math::PlanePath::SacksSpiral; # for _bigfloat()
-
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
-$VERSION = 81;
+use Math::PlanePath;
+$VERSION = 82;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite';
+
+use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -158,7 +159,7 @@ sub n_to_xy {
   # don't have anything sensible for infinity, and _PI / infinity would
   # throw a div by zero
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
   $n -= 1;
 
   ### decremented n: $n
@@ -279,7 +280,7 @@ sub _xy_to_d {
     # or 1/(2*r) > 1 would be asin()==-nan
     return 1;
   }
-  if (_is_infinite($r)) {
+  if (is_infinite($r)) {
     ### avoid div-by-zero in 1/(2*$r) ...
     return $r;
   }
@@ -558,6 +559,10 @@ that circle returns N.
 The unit spacing of the points means those circles don't overlap, but they
 also don't cover the plane and if C<$x,$y> is not within one then the return
 is C<undef>.
+
+=item C<$str = $path-E<gt>figure ()>
+
+Return "circle".
 
 =back
 

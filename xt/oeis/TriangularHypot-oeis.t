@@ -64,6 +64,39 @@ sub diff_nums {
 }
 
 
+# #------------------------------------------------------------------------------
+# # A038588 - points="odd"
+# {
+#   my $anum = 'A038588';
+#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+# 
+#   my $diff;
+#   if ($bvalues) {
+#     my @got;
+#     my $path = Math::PlanePath::TriangularHypot->new (points => 'odd');
+#     my $prev_h = -1;
+#     for (my $n = 1; @got < @$bvalues; $n++) {
+#       my ($x,$y) = $path->n_to_xy($n);
+# 
+#       my $h = $x*$x + 3*$y*$y;
+#       if ($h != $prev_h) {
+#         push @got, $h;
+#         $prev_h = $h;
+#       }
+#     }
+# 
+#     $diff = diff_nums(\@got, $bvalues);
+#     if ($diff) {
+#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+#       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+#     }
+#   }
+#   skip (! $bvalues,
+#         $diff,
+#         undef,
+#         "$anum");
+# }
+
 #------------------------------------------------------------------------------
 # A092572 - all X^2+3Y^2 values which occur, points="all" X>0,Y>0
 {

@@ -86,41 +86,43 @@ MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
 
 
 #------------------------------------------------------------------------------
-# _round_nearest()
+# round_nearest()
 
-require Math::PlanePath;
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-7/4')) == -2, 1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-3/2')) == -1,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-5/4')) == -1,  1);
+use Math::PlanePath::Base::Generic
+  'round_nearest';
+ok (round_nearest(Math::BigRat->new('-7/4')) == -2, 1);
+ok (round_nearest(Math::BigRat->new('-3/2')) == -1,  1);
+ok (round_nearest(Math::BigRat->new('-5/4')) == -1,  1);
 
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-3/4')) == -1, 1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-1/2')) == 0,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('-1/4')) == 0,  1);
+ok (round_nearest(Math::BigRat->new('-3/4')) == -1, 1);
+ok (round_nearest(Math::BigRat->new('-1/2')) == 0,  1);
+ok (round_nearest(Math::BigRat->new('-1/4')) == 0,  1);
 
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('1/4')) == 0,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('5/4')) == 1,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('3/2')) == 2,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('7/4')) == 2,  1);
-ok (Math::PlanePath::_round_nearest(Math::BigRat->new('2'))   == 2,  1);
+ok (round_nearest(Math::BigRat->new('1/4')) == 0,  1);
+ok (round_nearest(Math::BigRat->new('5/4')) == 1,  1);
+ok (round_nearest(Math::BigRat->new('3/2')) == 2,  1);
+ok (round_nearest(Math::BigRat->new('7/4')) == 2,  1);
+ok (round_nearest(Math::BigRat->new('2'))   == 2,  1);
 
 #------------------------------------------------------------------------------
-# _floor()
+# floor()
 
-require Math::PlanePath;
-ok (Math::PlanePath::_floor(Math::BigRat->new('-7/4')) == -2,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('-3/2')) == -2,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('-5/4')) == -2,  1);
+use Math::PlanePath::Base::Generic
+  'floor';
+ok (floor(Math::BigRat->new('-7/4')) == -2,  1);
+ok (floor(Math::BigRat->new('-3/2')) == -2,  1);
+ok (floor(Math::BigRat->new('-5/4')) == -2,  1);
 
-ok (Math::PlanePath::_floor(Math::BigRat->new('-3/4')) == -1,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('-1/2')) == -1,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('-1/4')) == -1,  1);
+ok (floor(Math::BigRat->new('-3/4')) == -1,  1);
+ok (floor(Math::BigRat->new('-1/2')) == -1,  1);
+ok (floor(Math::BigRat->new('-1/4')) == -1,  1);
 
-ok (Math::PlanePath::_floor(Math::BigRat->new('1/4')) == 0,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('3/4')) == 0,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('5/4')) == 1,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('3/2')) == 1,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('7/4')) == 1,  1);
-ok (Math::PlanePath::_floor(Math::BigRat->new('2'))   == 2,  1);
+ok (floor(Math::BigRat->new('1/4')) == 0,  1);
+ok (floor(Math::BigRat->new('3/4')) == 0,  1);
+ok (floor(Math::BigRat->new('5/4')) == 1,  1);
+ok (floor(Math::BigRat->new('3/2')) == 1,  1);
+ok (floor(Math::BigRat->new('7/4')) == 1,  1);
+ok (floor(Math::BigRat->new('2'))   == 2,  1);
 
 
 #------------------------------------------------------------------------------
@@ -371,14 +373,13 @@ require Math::PlanePath::ZOrderCurve;
 }
 
 #------------------------------------------------------------------------------
-# KochCurve _round_down_pow()
+# round_down_pow()
 
-### KochCurve ...
-require Math::PlanePath::KochCurve;
+use Math::PlanePath::Base::Digits 'round_down_pow';
 {
   my $orig = Math::BigRat->new(3) ** 128 + Math::BigRat->new('1/7');
   my $n    = Math::BigRat->new(3) ** 128 + Math::BigRat->new('1/7');
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+  my ($pow,$exp) = round_down_pow($n,3);
 
   ok ($n, $orig);
   ok ($pow, Math::BigRat->new(3) ** 128);
@@ -387,7 +388,7 @@ require Math::PlanePath::KochCurve;
 {
   my $orig = Math::BigRat->new(3) ** 128;
   my $n    = Math::BigRat->new(3) ** 128;
-  my ($pow,$exp) = Math::PlanePath::KochCurve::_round_down_pow($n,3);
+  my ($pow,$exp) = round_down_pow($n,3);
   
   ok ($n, $orig);
   ok ($pow, Math::BigRat->new(3) ** 128);

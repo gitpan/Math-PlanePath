@@ -21,14 +21,15 @@ use 5.004;
 use strict;
 use Test;
 
-# uncomment this to run the ### lines
-#use Devel::Comments '###';
-
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = (tests => 127)[1];
+my $test_count = (tests => 131)[1];
 plan tests => $test_count;
+
+# uncomment this to run the ### lines
+#use Smart::Comments '###';
+
 
 require Math::BigInt;
 MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);

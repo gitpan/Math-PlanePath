@@ -19,33 +19,59 @@
 # math-image --path=ImaginaryBase --lines --scale=10
 # math-image --path=ImaginaryBase --all --output=numbers_dash --size=80x50
 #
-# cf A039724 negabinary in binary
+# cf A005351 positives as negabinary index
+#    A005352 negatives as negabinary index
+#    A039724 positives as negabinary index, in binary
+#    A027615 negabinary bit count
+#            = 3 * A072894(n+1) - 2n - 3
+#    A098725 first diffs of A072894
+#    A000695 same value binary and negabinary, being base 4 digits 0,1
+#    A001045 abs(negabinary) of 0b11111 all ones (2^n-(-1)^n)/3
+#    A185269 negabinary primes
+#
+#    A073785 positives as -3 index
+#    A007608 positives as -4 index
+#    A073786 -5
+#    A073787 -6
+#    A073788 -7
+#    A073789 -8
+#    A073790 -9
+#    A039723 positives as negadecimal index
+#    A051022 same value integer and negadecimal, 0s between digits
+#
+# http://mathworld.wolfram.com/Negabinary.html
+# http://mathworld.wolfram.com/Negadecimal.html
 
 package Math::PlanePath::ImaginaryBase;
 use 5.004;
 use strict;
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'parameter_info_array', # radix parameter
+  'round_down_pow',
+  'digit_split_lowtohigh';
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_interleave = \&Math::PlanePath::ZOrderCurve::_digit_interleave;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
+
 
 use constant n_start => 0;
-
-use constant parameter_info_array => [{ name      => 'radix',
-                                        share_key => 'radix_2',
-                                        type      => 'integer',
-                                        minimum   => 2,
-                                        default   => 2,
-                                        width     => 3,
-                                      }];
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -62,10 +88,10 @@ sub n_to_xy {
   ### ImaginaryBase n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
-  # ENHANCE-ME: lowest non-(r-1) determines direction to next, or something
-  # like that
+  # ENHANCE-ME: lowest non-(r-1) digit determines direction to next, or
+  # something like that
   {
     my $int = int($n);
     ### $int
@@ -86,7 +112,7 @@ sub n_to_xy {
   my $y = 0;
   my $len = ($n*0)+1;  # inherit bignum 1
 
-  if (my @digits = _digit_split_lowtohigh($n, $radix)) {
+  if (my @digits = digit_split_lowtohigh($n, $radix)) {
     $radix = -$radix;
     for (;;) {
       $x += (shift @digits) * $len;  # digits low to high
@@ -95,7 +121,7 @@ sub n_to_xy {
       $y += (shift @digits) * $len;  # digits low to high
       @digits || last;
 
-      $len *= $radix;  # negative radix negate each time
+      $len *= $radix;  # $radix negative negates each time
     }
   }
 
@@ -110,28 +136,25 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ImaginaryBase xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
-  if (_is_infinite($x)) { return ($x); }
-  if (_is_infinite($y)) { return ($y); }
+  $x = round_nearest ($x);
+  if (is_infinite($x)) { return ($x); }
+
+  $y = round_nearest ($y);
+  if (is_infinite($y)) { return ($y); }
 
   my $radix = $self->{'radix'};
-  my $n = ($x * 0 * $y);  # inherit bignum 0
-  my $power = $n + 1;     # inherit bignum 1
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @n; # digits low to high
 
   while ($x || $y) {
-    ### at: "$x,$y  digit ".($x % $radix)
-    my $digit = $x % $radix;
-    $n += $digit*$power;
-    $power *= $radix;
-    $x = - int(($x-$digit)/$radix);
+    ### at: "x=$x,y=$y   n=".join(',',@n)
 
-    $digit = $y % $radix;
-    $n += $digit*$power;
-    $power *= $radix;
-    $y = - int(($y-$digit)/$radix);
+    push @n, _divrem_mutate ($x, $radix);
+    $x = -$x;
+    push @n, _divrem_mutate ($y, $radix);
+    $y = -$y;
   }
-  return $n;
+  return _digit_join_lowtohigh (\@n,$radix, $zero);
 }
 
 # left xmax = (r-1) + (r^2 -r) + (r^3-r^2) + ... + (r^k - r^(k-1))
@@ -142,116 +165,187 @@ sub xy_to_n {
 #            = -r * ((r^2)^(k+1) -1) / (r^2 - 1)
 #
 
-# not exact
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### ImaginaryBase rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  # ENHANCE-ME: Not too hard to track down the min/max block intersecting
-  # the given rectangle.
-  # ENHANCE-ME: Explicit formula for x/y min/max.
+  $x1 = round_nearest($x1);
+  $y1 = round_nearest($y1);
+  $x2 = round_nearest($x2);
+  $y2 = round_nearest($y2);
 
-  foreach my $c ($x1,$y1, $x2,$y2) {
-    if (_is_infinite($c)) {
-      return (0, $c);
-    }
-    $c = _round_nearest($c);
-  }
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-
+  my $zero = $x1 * 0 * $y1 * $x2 * $y2;
   my $radix = $self->{'radix'};
-  my $xmin = 0;
-  my $xmax = 0;
-  my $ymin = 0;
-  my $ymax = 0;
-  my $width = 1;
-  my $height = 1;
-  my $power = 1;
-  for (;;) {
-    if ($xmin <= $x1 && $x2 <= $xmax
-        && $ymin <= $y1 && $y2 <= $ymax) {
-      return (0, $power-1);
-    }
-    $xmax += ($radix-1)*$width;
-    $width *= $radix;
-    $power *= $radix;
 
-    if ($xmin <= $x1 && $x2 <= $xmax
-        && $ymin <= $y1 && $y2 <= $ymax) {
-      return (0, $power-1);
-    }
-    $ymax += ($radix-1)*$height;
-    $height *= $radix;
-    $power *= $radix;
-
-    if ($xmin <= $x1 && $x2 <= $xmax
-        && $ymin <= $y1 && $y2 <= $ymax) {
-      return (0, $power-1);
-    }
-    $xmin -= ($radix-1)*$width;
-    $width *= $radix;
-    $power *= $radix;
-
-    if ($xmin <= $x1 && $x2 <= $xmax
-        && $ymin <= $y1 && $y2 <= $ymax) {
-      return (0, $power-1);
-    }
-    $ymin -= ($radix-1)*$height;
-    $height *= $radix;
-    $power *= $radix;
+  my ($min_xdigits, $max_xdigits)
+    = _negaradix_range_digits_lowtohigh($x1,$x2, $radix);
+  unless (defined $min_xdigits) {
+    return (0, $max_xdigits); # infinity
   }
+
+  my ($min_ydigits, $max_ydigits)
+    = _negaradix_range_digits_lowtohigh($y1,$y2, $radix);
+  unless (defined $min_ydigits) {
+    return (0, $max_ydigits); # infinity
+  }
+
+  ### $min_xdigits
+  ### $max_xdigits
+  ### min_x: _digit_join_lowtohigh ($min_xdigits, $radix, $zero)
+  ### max_x: _digit_join_lowtohigh ($max_xdigits, $radix, $zero)
+  ### $min_ydigits
+  ### $max_ydigits
+  ### min_y: _digit_join_lowtohigh ($min_ydigits, $radix, $zero)
+  ### max_y: _digit_join_lowtohigh ($max_ydigits, $radix, $zero)
+
+  my @min_digits = _digit_interleave ($min_xdigits, $min_ydigits);
+  my @max_digits = _digit_interleave ($max_xdigits, $max_ydigits);
+
+  ### final ...
+  ### @min_digits
+  ### @max_digits
+
+  return (_digit_join_lowtohigh (\@min_digits, $radix, $zero),
+          _digit_join_lowtohigh (\@max_digits, $radix, $zero));
 }
 
-  # my $radix = $self->{'radix'};
-  # $x1 = abs(_round_nearest($x1));
-  # $y1 = abs(_round_nearest($y1));
-  # $x2 = abs(_round_nearest($x2));
-  # $y2 = abs(_round_nearest($y2));
-  # my $xm = ($x1 > $x2 ? $x1 : $x2);
-  # my $ym = ($y1 > $y2 ? $y1 : $y2);
-  # my $max = ($xm > $ym ? $xm : $ym);
-  #
-  # my $level = 0;
-  #
-  # # cf $level = 2*ceil(log($max || 1) / log($radix)) + 3;
-  # # $radix**$level - 1
-  #
-  # return (0, $max*$max * $radix**5);
 
+
+# Return arrayrefs ($min_digits, $max_digits) which are the digits making
+# up the index range for negaradix values $x1 to $x2 inclusive.
+# The arrays are lowtohigh, so $min_digits->[0] is the least significant digit.
+#
+sub _negaradix_range_digits_lowtohigh {
+  my ($x1,$x2, $radix) = @_;
+  ### _negaradix_range_digits(): "$x1,$x2  radix=$radix"
+
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # make x1 <= x2
+
+  my $radix_minus_1 = $radix - 1;
+  ### $radix
+  ### $radix_minus_1
+
+
+  my ($len, $level, $min_base) = _negaradix_range_level ($x1,$x2, $radix);
+  ### $len
+  ### $level
+  if (is_infinite($level)) {
+    return (undef, $level);
+  }
+  my $max_base = $min_base;
+
+  ### assert: $min_base <= $x1
+  ### assert: $min_base + $len > $x2
+
+  my @min_digits;   # digits formed high to low, stored low to high
+  my @max_digits;
+  while (--$level > 0) {
+    $len /= $radix;
+    ### at: "len=$len  reverse"
+
+    # reversed digits, x1 low end for max, x2 high end for min
+    {
+      my $digit = max (0,
+                       min ($radix_minus_1,
+                            int (($x2 - $min_base) / $len)));
+      ### min base: $min_base
+      ### min diff: $x2-$min_base
+      ### min digit raw: $digit
+      ### min digit reversed: $radix_minus_1 - $digit
+      $min_base += $digit * $len;
+      $min_digits[$level] = $radix_minus_1 - $digit;
+    }
+    {
+      my $digit = max (0,
+                       min ($radix_minus_1,
+                            int (($x1 - $max_base) / $len)));
+      ### max base: $max_base
+      ### max diff: $x1-$max_base
+      ### max digit raw: $digit
+      ### max digit reversed: $radix_minus_1 - $digit
+      $max_base += $digit * $len;
+      $max_digits[$level--] = $radix_minus_1 - $digit;
+    }
+
+    $len /= $radix;
+    ### at: "len=$len  plain"
+
+    # plain digits, x1 low end for min, x2 high end for max
+    {
+      my $digit = max (0,
+                       min ($radix_minus_1,
+                            int (($x1 - $min_base) / $len)));
+      ### min base: $min_base
+      ### min diff: $x1-$min_base
+      ### min digit: $digit
+      $min_base += $digit * $len;
+      $min_digits[$level] = $digit;
+    }
+    {
+      my $digit = max (0,
+                       min ($radix_minus_1,
+                            int (($x2 - $max_base) / $len)));
+      ### max base: $max_base
+      ### max diff: $x2-$max_base
+      ### max digit: $digit
+      $max_base += $digit * $len;
+      $max_digits[$level] = $digit;
+    }
+  }
+  ### @min_digits
+  ### @max_digits
+  return (\@min_digits, \@max_digits);
+}
+
+# return ($len,$level,$base)
+# $level = number of digits in the bigest integer in negaradix $x1..$x2,
+#          rounded up to be $level even
+# $len = $radix**$level
+# $base = lowest negaradix reached by indexes from 0 to $len-1
+#
+# have $base <= $x1, $x2 < $base+$len
+# and $level is the smallest even number with that coverage
+#
+# negabinary
+# 0,1,5,21
+#
+# negaternary
+#   1  3  9 27  81 243
+# 0,2,   20    182
+#     -6   -60    -546
+#
+sub _negaradix_range_level {
+  my ($x1,$x2, $radix) = @_;
+  ### _negaradix_range_level(): "$x1,$x2  radix=$radix"
+  ### assert: $x1 <= $x2
+
+  my $radix_minus_1 = $radix - 1;
+  my $rsquared = $radix*$radix;
+
+  my ($len, $level)
+    = round_down_pow (max($radix - $x1*($radix + 1),
+                          (($radix+1)*$x2 - 1) * $radix),
+                      $radix);
+  if ($level & 1) {
+    ### increase level to even ...
+    $len *= $radix;
+    $level += 1;
+  }
+  ### $len
+  ### $level
+
+  # because level is even r^2k-1 is a multiple of r^2-1 and therefore of r+1
+  ### assert: ($len-1) % ($radix+1) == 0
+
+  return ($len,
+          $level,
+          ((1-$len) / ($radix+1)) * $radix);  # base
+}
 
 
 1;
 __END__
-
-
-
-
-
-
-
-
-# x
-#
-#      60  61  62  63  44  45  46  47  28  29  30  31  12  13  14  15    6
-#                                                                        5
-#      56  57  58  59  40  41  42  43  24  25  26  27   8   9  10  11    4
-#                                                                        3
-#      52  53  54  55  36  37  38  39  20  21  22  23   4   5   6   7    2
-#                                                                        1
-#      48  49  50  51  32  33  34  35  16  17  18  19   0   1   2   3  Y=0
-#                                                                       -1
-#     124 125 126 127 108 109 110 111  92  93  94  95  76  77  78  79   -2
-#                                                                       -3
-#     120 121 122 123 104 105 106 107  88  89  90  91  72  73  74  75   -4
-#                                                                       -5
-#     116 117 118 119 100 101 102 103  84  85  86  87  68  69  70  71   -6
-#                                                                       -7
-#     112 113 114 115  96  97  98  99  80  81  82  83  64  65  66  67   -8
-#
-#                                                       ^
-#     -12 -11 -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3
-#
 
 =for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal
 
@@ -268,7 +362,8 @@ Math::PlanePath::ImaginaryBase -- replications in four directions
 =head1 DESCRIPTION
 
 This is a simple pattern arising from complex numbers expressed in a base
-i*sqrt(2) or other i*sqrt(r) bases.  The default r=2 gives
+i*sqrt(2) or other i*sqrt(r) base.  Or equivalently by negabinary encoded
+X,Y digits interleaved.  The default radix=2 is
 
     38   39   34   35   54   55   50   51        5
     36   37   32   33   52   53   48   49        4
@@ -301,74 +396,102 @@ The pattern can be seen by dividing into blocks as follows,
     | 12   13    8    9 | 28   29   24   25 |
     +-------------------+-------------------+
 
-After N=0 at the origin, N=1 is to the right.  Then those two repeat above
-as N=2 and N=3.  Then that 2x2 block repeats to the right as N=4 to N=7,
-then 4x2 repeated below as N=8 to N=16, and 4x4 to the right as N=16 to
-N=31, etc.  Each repeat is 90 degrees further around.  The orientation and
-relative layout is unchanged within each replicated part, there's no
-rotation etc.
+After N=0 at the origin, N=1 replicates that single point to the right.
+Then that pair repeats above as N=2 and N=3.  Then that 2x2 block repeats to
+the left as N=4 to N=7, then 4x2 repeated below as N=8 to N=16.  Then 4x4 to
+the right as N=16 to N=31, etc.  Each repeat is 90 degrees further around.
+The relative layout and orientation of a sub-part is unchanged when
+replicated.
 
 =head2 Complex Base
 
-This pattern arises from representing a complex number in "base" b=i*sqrt(r)
-with digits a[i] in the range 0 to r-1.  For integer X,Y,
+This pattern arises from representing a complex number in "base" i*sqrt(r).
+For an integer X,Y,
 
-    X+Y*i*sqrt(r) = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
+    b = i*sqrt(r)
+    a[i] = 0 to r-1 digits
 
-and N is a base-r integer
+    X+Y*i*sqrt(r) = a[k]*b^k + ... + a[2]*b^2 + a[1]*b + a[0]
 
-    N = a[n]*r^n + ... + a[2]*r^2 + a[1]*r + a[0]
+and N is the a[i] digits in base r
 
-The factor sqrt(r) makes the generated Y an integer.  For actual use as a
-number base that factor can be omitted and instead fractional digits
-a[-1]*r^-1 etc used to reach smaller Y values, as for example in Knuth's
-"quater-imaginary" system of base 2*i, ie. i*sqrt(4), with digits 0,1,2,3.
+    N = a[k]*r^k + ... + a[2]*r^2 + a[1]*r + a[0]
+
+X<Knuth, Donald>The factor sqrt(r) makes the generated Y an integer.  For
+actual use as a number base that factor can be omitted and instead
+fractional digits a[-1]*r^-1 etc used to reach smaller Y values, as for
+example in Knuth's "quater-imaginary" system of base 2*i, ie. i*sqrt(4),
+with digits 0,1,2,3.
 
 The powers of i in the base give the replication direction, so i^0=1 right,
-i^1=i up, i^2=-1 right, i^3=-i down, etc.  The sqrt(r) part then spreads the
-replication in the respective direction.  It takes two steps to repeat
+i^1=i up, i^2=-1 right, i^3=-i down, etc.  The power of sqrt(r) then spreads
+the replication in the respective direction.  It takes two steps to repeat
 horizontally and sqrt(r)^2=r hence the doubling of 1x1 to the right, 2x2 to
 the left, 4x4 to the right, etc, and similarly vertically.
 
+=head2 Negabinary
+
+The way blocks repeat horizontally first to the right and then to the left
+is per the negabinary system base b=-2.
+
+    X = x[k]*(-2)^k + ... + x[2]*(-2)^2 + x[1]*(-2) + x[0]
+
+The effect is to represent any positive or negative X by a positive integer
+index NX.
+
+    X, negabinary: ... -1 -2  0  1  2  3  4  5 ...
+    index NX:           2  3  0  1  6  7  4  5
+
+Notice how the 0 point replicates to the right as 1 and then that pair 0,1
+replicates to the left as 2,3.  Then the block 2,3,0,1 repeats to the right
+as 6,7,4,5 which the same order with 4 added to each.  Then the resulting
+block of eight repeats to the left similarly, in the same order with 8 added
+to each.
+
+The ImaginaryBase takes the indexes NX and NY of these negabinary forms and
+forms N by interleaving the digits (bits) of NX and NY.  That interleaving
+is in the style of the ZOrderCurve.
+
+    zX,zY = ZOrderCurve n_to_xy(N)
+    X = to_negabinary(zX)
+    Y = to_negabinary(zY)
+    X,Y equals ImaginaryBase n_to_xy(N)
+
+The ZOrderCurve replicates blocks alternately right and up, whereas for
+ImaginaryBase here it's right,up,left,down repeating.
+
 =head2 Radix
 
-The C<radix> parameter controls the "r" used to break N into X,Y.  For
-example radix 3 gives 3x3 blocks, with r-1 copies of the preceding level at
-each stage,
+The C<radix> parameter controls the radix used to break N into X,Y.  For
+example radix 3 replicates to make 3x1, 3x3, 9x3, 9x9, etc blocks.  The
+replications are radix-1=2 copies of the preceding level at each stage,
 
     radix => 3
 
-    24  25  26  15  16  17   6   7   8      2
-    21  22  23  12  13  14   3   4   5      1
-    18  19  20   9  10  11   0   1   2  <- Y=0
-    51  52  53  42  43  44  33  34  35     -1
-    48  49  50  39  40  41  30  31  32     -2
-    45  46  47  36  37  38  27  28  29     -3
-    78  79  80  69  70  71  60  61  62     -4
-    75  76  77  66  67  68  57  58  59     -5
-    72  73  74  63  64  65  54  55  56     -6
+    +------------------------+-----------+
+    | 24  25  26  15  16  17 | 6   7   8 |      2
+    |                        |           |
+    | 21  22  23  12  13  14 | 3   4   5 |      1
+    |                        +-----------+
+    | 18  19  20   9  10  11 | 0   1   2 |  <- Y=0
+    +------------------------+-----------+
+    | 51  52  53  42  43  44  33  34  35 |     -1
+    |                                    |
+    | 48  49  50  39  40  41  30  31  32 |     -2
+    |                                    |
+    | 45  46  47  36  37  38  27  28  29 |     -3
+    |                                    |
+    | 78  79  80  69  70  71  60  61  62 |     -4
+    |                                    |
+    | 75  76  77  66  67  68  57  58  59 |     -5
+    |                                    |
+    | 72  73  74  63  64  65  54  55  56 |     -6
+    +------------------------------------+
+                               ^
+      -6  -5  -4  -3  -2  -1  X=0  1   2
 
-                             ^
-    -6  -5  -4  -3  -2  -1  X=0  1   2
-
-=head2 Z Order and Negabinary
-
-The pattern can be compared to the ZOrderCurve.  In Z-Order the replications
-are alternately right and up, but here they progress through four directions
-right, up, left, down.
-
-The alternate positive and negative X, and alternate positive and
-negative Y likewise, follow the negabinary system.  If N is at X,Y on
-the ZOrderCurve then those coordinates converted to negabinary give
-the ImaginaryBase.
-
-    zX,zY = ZOrderCurve n_to_xy(N)
-    nX = to_negabinary(zX)
-    nY = to_negabinary(zX)
-    nX,nY equals ImaginaryBase n_to_xy(N)
-
-For a radix other than binary the conversion is likewise, to
-negaternary or negadecimal etc.
+X,Y are "negaternary" in this case, and similar negaradix base=-radix for
+higher values.
 
 =head1 FUNCTIONS
 
@@ -387,7 +510,26 @@ Create and return a new path object.
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
+
 =back
+
+=head1 FORMULAS
+
+=head2 Rectangle to N Range
+
+The X and Y ranges can be treated separately and then interleaved,
+
+    NXmin,NXmax = negaradix range to cover x1..x2
+    NYmin,NYmax = negaradix range to cover y1..y2
+
+    Nmin = interleave digits NXmin, NYmin
+    Nmax = interleave digits NXmax, NYmax
+
+If the NX,NY ranges are exact then the resulting Nmin,Nmax range is exact.
 
 =head1 SEE ALSO
 

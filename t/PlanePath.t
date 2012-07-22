@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 73;
+plan tests => 29;
 
 use lib 't';
 use MyTestHelpers;
@@ -53,13 +53,19 @@ require Math::PlanePath;
 }
 
 #----------------------------------------------------------------------------
-# _divrem_destructive()
+# _divrem_mutate()
 
 {
   my $n = 123;
-  my $r = Math::PlanePath::_divrem_destructive($n,5);
+  my $r = Math::PlanePath::_divrem_mutate($n,5);
   ok ("$n", 24);
   ok ("$r", 3);
+}
+{
+  my $n = -123;
+  my $r = Math::PlanePath::_divrem_mutate($n,5);
+  ok ("$n", -25);
+  ok ("$r", 2);
 }
 
 {
@@ -67,95 +73,9 @@ require Math::PlanePath;
     # perl 5.6 did integer divisions in IV or something, exercise only to ~0>>1
     my $n = ~0 >> 1;
     my $q = $n;
-    my $r = Math::PlanePath::_divrem_destructive($q,$d);
+    my $r = Math::PlanePath::_divrem_mutate($q,$d);
     my $m = $q * $d + $r;
-    ok ($n, $m, "_divrem_destructive() ~0=$n / $d got q=$q rem=$r");
-  }
-}
-#------------------------------------------------------------------------------
-# _is_infinite()
-
-{
-  my $pos_infinity = 0;
-  my $neg_infinity = 0;
-  my $nan = 0;
-
-  my $skip_inf;
-  my $skip_nan;
-  if (! eval { require Data::Float; 1 }) {
-    MyTestHelpers::diag ("Data::Float not available");
-    $skip_inf = 'due to Data::Float not available';
-    $skip_nan = 'due to Data::Float not available';
-  } else {
-    if (Data::Float::have_infinite()) {
-      $pos_infinity = Data::Float::pos_infinity();
-      $neg_infinity = Data::Float::neg_infinity();
-    } else {
-      $skip_inf = 'due to Data::Float no infinite';
-    }
-
-    if (Data::Float::have_nan()) {
-      $nan = Data::Float::nan();
-      MyTestHelpers::diag ("nan is ",$nan);
-    } else {
-      $skip_nan = 'due to Data::Float no nan';
-    }
-  }
-
-  skip ($skip_inf,
-        !! Math::PlanePath::_is_infinite($pos_infinity), 1, '_is_infinte() +inf');
-  skip ($skip_inf,
-        !! Math::PlanePath::_is_infinite($neg_infinity), 1, '_is_infinte() -inf');
-  skip ($skip_nan,
-        !! Math::PlanePath::_is_infinite($nan), 1, '_is_infinte() nan');
-}
-{
-  require POSIX;
-  ok (! Math::PlanePath::_is_infinite(POSIX::DBL_MAX()), 1, '_is_infinte() DBL_MAX');
-  ok (! Math::PlanePath::_is_infinite(- POSIX::DBL_MAX()), 1, '_is_infinte() neg DBL_MAX');
-}
-
-#------------------------------------------------------------------------------
-# _round_nearest()
-
-ok (Math::PlanePath::_round_nearest(-.75),  -1);
-ok (Math::PlanePath::_round_nearest(-.5),   0);
-ok (Math::PlanePath::_round_nearest(-0.25), 0);
-
-ok (Math::PlanePath::_round_nearest(0.25), 0);
-ok (Math::PlanePath::_round_nearest(1.25), 1);
-ok (Math::PlanePath::_round_nearest(1.5),  2);
-ok (Math::PlanePath::_round_nearest(1.75), 2);
-ok (Math::PlanePath::_round_nearest(2),    2);
-
-#------------------------------------------------------------------------------
-# _floor()
-
-ok (Math::PlanePath::_floor(-.75),  -1);
-ok (Math::PlanePath::_floor(-.5),   -1);
-ok (Math::PlanePath::_floor(-0.25), -1);
-
-ok (Math::PlanePath::_floor(0.25), 0);
-ok (Math::PlanePath::_floor(0.75), 0);
-ok (Math::PlanePath::_floor(1.25), 1);
-ok (Math::PlanePath::_floor(1.5),  1);
-ok (Math::PlanePath::_floor(1.75), 1);
-ok (Math::PlanePath::_floor(2),    2);
-
-
-#------------------------------------------------------------------------------
-# _digit_split_lowtohigh()
-
-ok (join(',',Math::PlanePath::_digit_split_lowtohigh(0,2)), '');
-ok (join(',',Math::PlanePath::_digit_split_lowtohigh(13,2)), '1,0,1,1');
-
-{
-  my $n = ~0;
-  foreach my $radix (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
-    my @digits = Math::PlanePath::_digit_split_lowtohigh($n,$radix);
-    my $lowtwo = $n % ($radix * $radix);
-    ok ($digits[0], $lowtwo % $radix);
-    ok ($digits[1], int($lowtwo / $radix));
+    ok ($n, $m, "_divrem_mutate() ~0=$n / $d got q=$q rem=$r");
   }
 }
 

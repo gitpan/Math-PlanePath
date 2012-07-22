@@ -37,15 +37,22 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -96,7 +103,7 @@ sub n_to_xy {
   ### ComplexPlus n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);
@@ -118,25 +125,20 @@ sub n_to_xy {
   ### $norm
   ### $realpart
 
-  my $x;
-  my $y;
+  my $x = my $y = ($n * 0); # inherit bignum
   my $dx;
   my $dy = 0;
-
   {
-    my $arm = _divrem_destructive ($n, $self->{'arms'});
+    my $arm = _divrem_mutate ($n, $self->{'arms'});
     if ($arm) {
-      $x = 0;
-      $y = 1;
+      $y += 1;   # start X=0,Y=1
       $dx = -1;
     } else {
-      $x = 0;
-      $y = 0;
       $dx = 1;
     }
   }
 
-  foreach my $digit (_digit_split_lowtohigh($n,$norm)) {
+  foreach my $digit (digit_split_lowtohigh($n,$norm)) {
     ### at: "$x,$y  digit=$digit  dxdy=$dx,$dy"
 
     $x += $dx * $digit;
@@ -154,19 +156,19 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ComplexPlus xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  if (_is_infinite($x)) { return ($x); }
-  $y = _round_nearest ($y);
-  if (_is_infinite($y)) { return ($y); }
+  $x = round_nearest ($x);
+  if (is_infinite($x)) { return ($x); }
+  $y = round_nearest ($y);
+  if (is_infinite($y)) { return ($y); }
 
   my $orig_x = $x;
   my $orig_y = $y;
 
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @n; # digits low to high
 
-  my $n = 0;
-  my $power = 1;
   my $prev_x = 0;
   my $prev_y = 0;
   while ($x || $y) {
@@ -174,7 +176,7 @@ sub xy_to_n {
     my $digit = $neg_y % $norm;
     ### at: "$x,$y  n=$n  digit $digit"
 
-    $n += $digit * $power;
+    push @n, $digit;
     $x -= $digit;
     $neg_y -= $digit;
 
@@ -190,7 +192,6 @@ sub xy_to_n {
     #    = [ y*realpart - x ] / norm
     #
     ($x,$y) = (($x*$realpart+$y)/$norm, -$neg_y/$norm);
-    $power *= $norm;
 
     if ($x == $prev_x && $y == $prev_y) {
       last;
@@ -201,23 +202,21 @@ sub xy_to_n {
 
   ### final: "$x,$y n=$n cf arms $self->{'arms'}"
 
-  if ($self->{'arms'} > 1) {
-    if ($y) {
-      ### re-run as: -$orig_x, 1-$orig_y
+  if ($y) {
+    if ($self->{'arms'} > 1) {
+      ### not on first arm, re-run as: -$orig_x, 1-$orig_y
       local $self->{'arms'} = 1;
-      $n = $self->xy_to_n(-$orig_x,1-$orig_y); # 180 degrees
-      ### re-run got: $n
-      ### assert: defined $n
-      return 2*$n+1;
-    } else {
-      return 2*$n;
+      return 1 + 2 * $self->xy_to_n(-$orig_x,1-$orig_y); # 180 degrees
     }
-  } else {
-    if ($y == 0) {
-      return $n;
-    }
+    ### X,Y not visited
+    return undef;
   }
-  return undef;
+
+  my $n = _digit_join_lowtohigh (\@n, $norm, $zero);
+  if ($self->{'arms'} > 1) {
+    $n *= 2;
+  }
+  return $n;
 }
 
 # not exact

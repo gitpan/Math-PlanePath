@@ -28,16 +28,16 @@ package Math::PlanePath::CellularRule57;
 use 5.004;
 use strict;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
-*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'round_nearest';
+
+use Math::PlanePath::CellularRule54;
+*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -228,8 +228,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### CellularRule57 xy_to_n(): "$x,$y"
 
   if ($y < 0

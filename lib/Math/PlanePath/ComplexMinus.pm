@@ -25,18 +25,22 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -66,7 +70,7 @@ sub n_to_xy {
   ### ComplexMinus n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   # is this sort of midpoint worthwhile? not documented yet
   {
@@ -91,7 +95,7 @@ sub n_to_xy {
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
 
-  foreach my $digit (_digit_split_lowtohigh($n,$norm)) {
+  foreach my $digit (digit_split_lowtohigh($n,$norm)) {
     ### at: "$x,$y  digit=$digit"
 
     $x += $digit * $dx;
@@ -111,22 +115,21 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ComplexMinus xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
-  if (_is_infinite($x)) { return ($x); }
-  if (_is_infinite($y)) { return ($y); }
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if (is_infinite($x)) { return ($x); }
+  if (is_infinite($y)) { return ($y); }
 
   my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
-
-  my $n = ($x * 0 * $y);  # inherit bignum 0
-  my $power = $n + 1;     # inherit bignum 1
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @n; # digits low to high
 
   while ($x || $y) {
     my $new_y = $y*$realpart + $x;
 
     my $digit = $new_y % $norm;
-    $n += $digit * $power;
+    push @n, $digit;
 
     $x -= $digit;
     $new_y = $digit - $new_y;
@@ -143,9 +146,8 @@ sub xy_to_n {
 
     ($x,$y) = (($y - $x*$realpart) / $norm,
                $new_y / $norm);
-    $power *= $norm;
   }
-  return $n;
+  return _digit_join_lowtohigh (\@n, $norm, $zero);
 }
 
 # for i-1 need level=6 to cover 8 points surrounding 0,0
@@ -169,7 +171,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie 0,1,0xC,0xD OEIS
+=for stopwords eg Ryde Math-PlanePath 0.abcde twindragon ie 0xC 0,1,0xC,0xD OEIS
 
 =head1 NAME
 

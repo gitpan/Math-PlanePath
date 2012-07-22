@@ -29,14 +29,14 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -74,7 +74,7 @@ sub n_to_xy {
   }
 
   # arm as initial rotation
-  my $rot = _divrem_destructive($n,4);
+  my $rot = _divrem_mutate($n,4);
   ### $n
 
   my $d = int ((-1 + sqrt(4*$n + 1)) / 2);
@@ -103,8 +103,8 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### SquareArms xy_to_n: "$x,$y"
 
   if ($x == 0 && $y == 0) {
@@ -173,10 +173,10 @@ sub _rect_square_range {
   my ($x1,$y1, $x2,$y2) = @_;
   ### _rect_square_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   # if x1,x2 opposite signs then origin x=0 covered, similarly y
   my $x_zero_uncovered = ($x1<0) == ($x2<0);

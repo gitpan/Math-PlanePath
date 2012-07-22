@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -19,6 +19,7 @@
 
 use 5.004;
 use strict;
+use Math::PlanePath::Base::Digits 'round_down_pow';
 
 # uncomment this to run the ### lines
 use Smart::Comments;
@@ -55,7 +56,7 @@ use Math::PlanePath::KochCurve;
         $y2 = 1-3*$y1;
       }
 
-      my ($ylen, $ylevel) = Math::PlanePath::KochCurve::_round_down_pow($y2,2);
+      my ($ylen, $ylevel) = round_down_pow($y2,2);
       ($ylen, $ylevel) = Math::PlanePath::BetaOmega::_y_round_down_len_level($y);
       print "$y   $y2   $ylevel $ylen\n";
     }

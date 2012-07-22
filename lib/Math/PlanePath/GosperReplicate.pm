@@ -29,16 +29,21 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -50,7 +55,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -81,7 +86,7 @@ sub n_to_xy {
   #        / \
   #       5   6
 
-  foreach my $digit (_digit_split_lowtohigh($n,7)) {
+  foreach my $digit (digit_split_lowtohigh($n,7)) {
     ### digit: "$digit  $x,$y  side $sx,$sy"
 
     if ($digit == 1) {
@@ -131,103 +136,53 @@ sub n_to_xy {
   return ($x,$y);
 }
 
+# modulus
+#       1   3
+#        \ /
+#     5---0---2
+#        / \
+#       4   6
+#                       0  1  2  3  4  5  6
+my @modulus_to_x     = (0,-1, 2, 1,-1,-2, 1);
+my @modulus_to_y     = (0, 1, 0, 1,-1, 0,-1);
+my @modulus_to_digit = (0, 3, 1, 2, 5, 4, 6);
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### GosperReplicate xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
   if (($x + $y) % 2) {
     return undef;
   }
 
   my $level = _xy_to_level_ceil($x,$y);
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
-  # modulus
-  #       1   3
-  #        \ /
-  #     5---0---2
-  #        / \
-  #       4   6
-
-  my $n = ($x * 0 * $y);   # inherit bignum 0
-  my $power = $n+1;        # inherit bignum 1
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @n; # digits low to high
 
   while ($level-- >= 0 && ($x || $y)) {
-    ### at: "$x,$y"
-    if (my $m = ($x + 2*$y) % 7) {
-      ### mod remainder: $m
+    ### at: "$x,$y  m=".(($x + 2*$y) % 7)
 
-      if ($m == 2) {  # 2,0  = 2
-        $n += $power;
-        # $m = 1;
-        $x -= 2;
-      } else {
-        if ($m == 3) {  # 1,1 = 1+2 = 3
-          $m = 2;
-          $x -= 1;
-          $y -= 1;
-        } elsif ($m == 1) {  # -1,1 = -1+2 = 1
-          $m = 3;
-          $x += 1;
-          $y -= 1;
-        } elsif ($m == 5) {  # -2,0 = -2 = 5
-          $m = 4;
-          $x += 2;
-        } elsif ($m == 4) {  # -1,-1 = -1-2 = -3 = 4
-          $m = 5;
-          $x += 1;
-          $y += 1;
-        } elsif ($m == 6) {  # 1,-1 = 1-2 = -1 = 6
-          $m = 6;
-          $x -= 1;
-          $y += 1;
-        }
-        $n += $m * $power;
-      }
-    }
-    $power *= 7;
+    my $m = ($x + 2*$y) % 7;
+    push @n, $modulus_to_digit[$m];
+    $x -= $modulus_to_x[$m];
+    $y -= $modulus_to_y[$m];
 
     ### digit: "to $x,$y"
-    ### assert: (3*$y + 5*$x) % 14 == 0
-    ### assert: (5*$y - $x) % 14 == 0
+    ### assert: (3 * $y + 5 * $x) % 14 == 0
+    ### assert: (5 * $y - $x) % 14 == 0
 
     # shrink
     ($x,$y) = ((3*$y + 5*$x) / 14,
                (5*$y - $x) / 14);
   }
 
-
-  # my @digits;
-  #   push @digits, $m;
-  # # digit
-  # #       3   2
-  # #        \ /
-  # #     4---0---1
-  # #        / \
-  # #       5   6
-  #
-  # # my @rot = (1,2,3,4,5,6);
-  # my $n = 0;
-  # # my $rot = 0;
-  # while (@digits) {
-  #   my $digit = pop @digits;
-  #   ### $digit
-  #   ### $rot
-  #   $n *= 7;
-  #
-  #   if ($digit) {
-  #     $digit = (($digit - $rot - 1) % 6) + 1;
-  #     $n += $digit;
-  #     $rot += $digit - 4;
-  #     ### rotated digit: $digit
-  #     ### rot now: $rot
-  #   }
-  # }
-  return $n;
+  return _digit_join_lowtohigh (\@n, 7, $zero);
 }
 
 
@@ -252,38 +207,6 @@ sub _xy_to_level_ceil {
 
 1;
 __END__
-
-
-
-
-
-
-
-
-
-
-# old rotating version:
-#
-#                                      19  ....  18
-#                                    /               \
-#             25        24        20        14        17
-#                                         /         /
-#        26        21        23        15  ----  16        13  ----  12
-#                     \                                                 \
-#             27        22         3   ---   2         8   ----  7        11
-#                               /              \         \              /
-#        31        30         4         0  ---    1         9  ----  10
-#                                \
-#   32        28  ---   29         5  ----   6        43        48
-#                                                       \
-#        33        34        37        36        44        42        47
-#                                    /
-#                       38        35        41        45        46
-#
-#                            39        40
-
-
-
 
 =for stopwords eg Ryde Gosper FlowsnakeCentres Flowsnake Math-PlanePath
 
@@ -327,8 +250,8 @@ The points are spread out on every second X coordinate to make a a
 triangular lattice in integer coordinates (see L<Math::PlanePath/Triangular
 Lattice>).
 
-The basic pattern is the inner N=0 to N=6, then six copies of that shape are
-arranged around as the N=7,14,21,28,35,42 blocks.  Then six copies of the
+The base pattern is the inner N=0 to N=6, then six copies of that shape are
+arranged around as the blocks N=7,14,21,28,35,42.  Then six copies of the
 N=0 to N=48 shape are replicated around, etc.
 
 Each point represents a little hexagon, thus tiling the plane with hexagons.
@@ -354,6 +277,10 @@ The innermost N=0 to N=6 are for instance,
          \ /   \ /
           *     *
 
+The further replications are the same arrangement, but the sides become
+every wigglier and the centres rotate around.  The rotation can be seen at
+N=7 X=5,Y=1 which is up from the X axis.
+
 The FlowsnakeCentres path is this same replicating shape, but starting from
 a side instead of the middle and with rotations and reflections to make
 points adjacent.  The Flowsnake curve itself is this replication too, but
@@ -362,15 +289,16 @@ following edges.
 =head2 Complex Base
 
 The path corresponds to expressing complex integers X+i*Y in a base
-b=5/2+i*sqrt(3)/2 with a bit of scaling to fit equilateral triangles to a
-square grid.  So for integer X,Y both odd or both even,
+b=5/2+i*sqrt(3)/2 with some scaling to put equilateral triangles on a square
+grid.  So for integer X,Y with X and Y either both odd or both even,
 
     X/2 + i*Y*sqrt(3)/2 = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
 where each digit a[i] is either 0 or a sixth root of unity encoded into N as
 base 7 digits,
 
-     N digit     a[i]
+     N digit     a[i] complex number
+     -------     -------------------
        0          0
        1         e^(0/3 * pi * i) = 1
        2         e^(1/3 * pi * i) = 1/2 + i*sqrt(3)/2

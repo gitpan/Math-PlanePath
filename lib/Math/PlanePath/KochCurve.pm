@@ -40,15 +40,24 @@ use 5.004;
 use strict;
 use List::Util 'sum';
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
+# undocumented previous name for this ...
+*_round_down_pow = \&round_down_pow;
 
 
 use constant n_start => 0;
@@ -61,7 +70,7 @@ sub n_to_xy {
 
   # secret negatives to -.5
   if (2*$n < -1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   my $x;
   my $y;
@@ -73,7 +82,7 @@ sub n_to_xy {
   }
 
   my $len = $y+1;  # inherit bignum 1
-  foreach my $digit (_digit_split_lowtohigh($n,4)) {
+  foreach my $digit (digit_split_lowtohigh($n,4)) {
     ### at: "$x,$y  digit=$digit"
 
     if ($digit == 0) {
@@ -101,16 +110,16 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### KochPeaks xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($y < 0 || $x < 0 || (($x ^ $y) & 1)) {
     ### neg y or parity different ...
     return undef;
   }
-  my ($len,$level) = _round_down_pow(($x/2)||1, 3);
+  my ($len,$level) = round_down_pow(($x/2)||1, 3);
   ### $level
   ### $len
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -166,10 +175,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
 
@@ -195,12 +204,12 @@ sub rect_to_n_range {
   # o-+-*   *-+-*
   # 0     3     6   X/2
   #
-  my ($len, $level) = _round_down_pow ($x2/2, 3);
+  my ($len, $level) = round_down_pow ($x2/2, 3);
   return _rect_to_n_range_rot ($len, $level, 0, $x1,$y1, $x2,$y2);
 
 
 
-  # (undef, my $level) = _round_down_pow ($x2/2, 3);
+  # (undef, my $level) = round_down_pow ($x2/2, 3);
   # ### $level
   # return (0, 4**($level+1)-1);
 }
@@ -211,7 +220,6 @@ my @rot_to_dy = (0,1,1,0,-1,-1);
 my @max_digit_to_rot = (1, -2, 1, 0);
 my @min_digit_to_rot = (0, 1, -2, 1);
 my @max_digit_to_offset = (-1, -1, -1, 2);
-my @min_digit_to_offset = (1, 1, 1, 1);
 
 sub _rect_to_n_range_rot {
   my ($initial_len, $level_max, $initial_rot, $x1,$y1, $x2,$y2) = @_;
@@ -219,7 +227,6 @@ sub _rect_to_n_range_rot {
 
   my ($rot, $len, $x, $y);
   my $overlap = sub {
-    my ($x, $y) = @_;
     ### overlap: "$x,$y len=$len rot=$rot"
 
     if ($len == 1) {
@@ -295,13 +302,13 @@ sub _rect_to_n_range_rot {
     }
   };
 
+  my $zero = 0*$x1*$x2*$y1*$y2;
   my @lens = ($initial_len);
   my $n_hi;
-  my $zero;
   $rot = $initial_rot;
   $len = $initial_len;
-  $x = 0;
-  $y = 0;
+  $x = $zero;
+  $y = $zero;
   my @digits = (4);
 
   for (;;) {
@@ -327,13 +334,12 @@ sub _rect_to_n_range_rot {
     ### $offset
     ### $rot
 
-    if (&$overlap ($x, $y, $len)) {
+    if (&$overlap()) {
       if ($#digits >= $level_max) {
         ### yes overlap, found n_hi ...
         ### digits: join(',',@digits)
-        ### n_hi: _digit_join_htol (\@digits, 4, 0)
-        $zero = 0*$x1*$x2*$y1*$y2;
-        $n_hi = _digit_join_htol (\@digits, 4, $zero);
+        ### n_hi: _digit_join_hightolow (\@digits, 4, $zero)
+        $n_hi = _digit_join_hightolow (\@digits, 4, $zero);
         last;
       }
       ### yes overlap, descend ...
@@ -345,8 +351,8 @@ sub _rect_to_n_range_rot {
   }
 
   $rot = $initial_rot;
-  $x = 0;
-  $y = 0;
+  $x = $zero;
+  $y = $zero;
   $len = $initial_len;
   @digits = (-1);
 
@@ -369,12 +375,12 @@ sub _rect_to_n_range_rot {
     ### rot increment: $min_digit_to_rot[$digit]
     $rot = ($rot + $min_digit_to_rot[$digit]) % 6;
 
-    if (&$overlap ($x, $y, $len)) {
+    if (&$overlap()) {
       if ($#digits >= $level_max) {
         ### yes overlap, found n_lo ...
         ### digits: join(',',@digits)
-        ### n_lo: _digit_join_htol (\@digits, 4, $zero)
-        return (_digit_join_htol (\@digits, 4, $zero),
+        ### n_lo: _digit_join_hightolow (\@digits, 4, $zero)
+        return (_digit_join_hightolow (\@digits, 4, $zero),
                 $n_hi);
       }
       ### yes overlap, descend ...
@@ -383,19 +389,16 @@ sub _rect_to_n_range_rot {
 
     } else {
       ### no overlap, next digit ...
-      ### offset: $min_digit_to_offset[$digit]
-
-      my $offset = $min_digit_to_offset[$digit];
-      $x += $rot_to_dx[$rot] * $offset * $len;
-      $y += $rot_to_dy[$rot] * $offset * $len;
+      $x += $rot_to_dx[$rot] * $len;
+      $y += $rot_to_dy[$rot] * $len;
     }
   }
 }
 
 # $aref->[0] high digit
-sub _digit_join_htol {
+sub _digit_join_hightolow {
   my ($aref, $radix, $zero) = @_;
-  my $n = $zero;
+  my $n = (defined $zero ? $zero : 0);
   foreach my $digit (@$aref) {
     $n *= $radix;
     $n += $digit;
@@ -413,7 +416,7 @@ sub _n_to_TDir6 {
   if ($n < 0) {
     return undef;  # first direction at N=0
   }
-  return (sum (map {$digit_to_dir[$_]} _digit_split_lowtohigh($n,4))
+  return (sum (map {$digit_to_dir[$_]} digit_split_lowtohigh($n,4))
           || 0) # if empty
     % 6;
 }
@@ -435,11 +438,11 @@ my @digit_to_Turn6 = (undef,
                       1); # +60 degrees
 sub _n_to_Turn6 {
   my ($self, $n) = @_;
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return undef;
   }
   while ($n) {
-    my $digit = _divrem_destructive($n,4);
+    my $digit = _divrem_mutate($n,4);
     if ($digit) {  # lowest non-zero digit
       return $digit_to_Turn6[$digit];
     }
@@ -460,64 +463,6 @@ sub _n_to_Right {
   my ($self, $n) = @_;
   my $turn6 = $self->_n_to_Turn6($n) || return undef;
   return ($turn6 < 0 ? 1 : 0);
-}
-
-
-#------------------------------------------------------------------------------
-# generic, shared
-
-# Return ($pow, $exp) with $pow = $base**$exp <= $n,
-# the next power of $base at or below $n.
-#
-# (ENHANCE-ME: Occasionally the $pow value is not wanted,
-# eg. SierpinskiArrowhead, though that tends to be approximation code rather
-# than exact range calculations etc.)
-#
-sub _round_down_pow {
-  my ($n, $base) = @_;
-  ### _round_down_pow(): "$n base $base"
-
-  # only for integer bases
-  ### assert: $base == int($base)
-
-  if ($n < $base) {
-    return (1, 0);
-  }
-
-  # Math::BigInt and Math::BigRat overloaded log() return NaN, use integer
-  # based blog()
-  if (ref $n) {
-    if ($n->isa('Math::BigRat')) {
-      $n = int($n);
-    }
-    if ($n->isa('Math::BigInt')) {
-      ### use blog() ...
-      my $exp = $n->copy->blog($base);
-      ### exp: "$exp"
-      return (Math::BigInt->new(1)->blsft($exp,$base),
-              $exp);
-    }
-  }
-
-  my $exp = int(log($n)/log($base));
-  my $pow = $base**$exp;
-  ### n:   ref($n)."  $n"
-  ### exp: ref($exp)."  $exp"
-  ### pow: ref($pow)."  $pow"
-
-  # check how $pow actually falls against $n, not sure should trust float
-  # rounding in log()/log($base)
-  # Crib: $n as first arg in case $n==BigFloat and $pow==BigInt
-  if ($n < $pow) {
-    ### hmm, int(log) too big, decrease...
-    $exp -= 1;
-    $pow = $base**$exp;
-  } elsif ($n >= $base*$pow) {
-    ### hmm, int(log) too small, increase...
-    $exp += 1;
-    $pow *= $base;
-  }
-  return ($pow, $exp);
 }
 
 1;
@@ -548,6 +493,7 @@ upwards.
              2           5          11          14          17     1
            /  \        /              \        /  \        /
      0----1     3---- 4                12----13    15----16    <- Y=0
+
      ^
     X=0   2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
 

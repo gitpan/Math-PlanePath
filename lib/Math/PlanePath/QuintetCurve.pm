@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -33,10 +33,13 @@ use Math::PlanePath::QuintetCentres;
 @ISA = ('Math::PlanePath::QuintetCentres');
 
 use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -54,7 +57,7 @@ sub n_to_xy {
     return;
   }
   my $arms = $self->{'arms'};
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -71,10 +74,10 @@ sub n_to_xy {
     $n = $int; # BigFloat int() gives BigInt, use that
   }
 
-  my $rot = _divrem_destructive ($n,$arms);
+  my $rot = _divrem_mutate ($n,$arms);
   if ($rot) { $n += 1; }
 
-  my @digits = _digit_split_lowtohigh($n,5);
+  my @digits = digit_split_lowtohigh($n,5);
   my @sx;
   my @sy;
   {
@@ -183,8 +186,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### QuintetCurve xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   my ($n, $cx, $cy);
   foreach my $i (0, 1, 2, 3) {

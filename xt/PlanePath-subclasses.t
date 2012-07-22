@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 1166;
+plan tests => 1174;
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,34 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'SierpinskiTriangle',
+               'SierpinskiArrowhead',
+               'SierpinskiArrowheadCentres',
+
+               'ImaginaryBase',
+               'ImaginaryBase,radix=3',
+               'ImaginaryBase,radix=4',
+               'ImaginaryBase,radix=5',
+               'ImaginaryBase,radix=37',
+
+               'ImaginaryHalf',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=4',
+               'ImaginaryHalf,radix=5',
+               'ImaginaryHalf,radix=37',
+
+               'SquareSpiral',
+               'SquareSpiral,wider=1',
+               'SquareSpiral,wider=2',
+               'SquareSpiral,wider=3',
+               'SquareSpiral,wider=4',
+               'SquareSpiral,wider=5',
+               'SquareSpiral,wider=6',
+               'SquareSpiral,wider=37',
+
+               'PentSpiral',
+               'PentSpiralSkewed',
 
                'TriangularHypot',
                'TriangularHypot,points=odd',
@@ -136,14 +164,6 @@ my @modules = (
                'CubicBase,radix=3',
                'CubicBase,radix=4',
                'CubicBase,radix=37',
-
-               'ImaginaryHalf',
-               'ImaginaryHalf,radix=3',
-               'ImaginaryHalf,radix=37',
-
-               'ImaginaryBase',
-               'ImaginaryBase,radix=3',
-               'ImaginaryBase,radix=37',
 
                'KochSnowflakes',
                'KochCurve',
@@ -285,17 +305,6 @@ my @modules = (
                'PythagoreanTree,tree_type=FB',
                'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
-               'SquareSpiral',
-               'SquareSpiral,wider=1',
-               'SquareSpiral,wider=2',
-               'SquareSpiral,wider=3',
-               'SquareSpiral,wider=4',
-               'SquareSpiral,wider=5',
-               'SquareSpiral,wider=6',
-               'SquareSpiral,wider=37',
-               'PentSpiral',
-               'PentSpiralSkewed',
-
                'HexSpiral',
                'HexSpiral,wider=1',
                'HexSpiral,wider=2',
@@ -356,9 +365,6 @@ my @modules = (
 
                'SquareReplicate',
 
-               'SierpinskiArrowheadCentres',
-               'SierpinskiArrowhead',
-               'SierpinskiTriangle',
                'QuadricCurve',
                'QuadricIslands',
 
@@ -428,7 +434,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 81;
+my $want_version = 82;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -497,6 +503,7 @@ my %xy_maximum_duplication_at_origin =
 # modules for which rect_to_n_range() is exact
 my %rect_exact = (
                   # rect_to_n_range exact begin
+                  'Math::PlanePath::ImaginaryBase' => 1,
                   'Math::PlanePath::CincoCurve' => 1,
                   'Math::PlanePath::DiagonalsAlternating' => 1,
                   'Math::PlanePath::CornerReplicate' => 1,
@@ -530,6 +537,7 @@ my %rect_exact = (
                  );
 my %rect_exact_hi = (%rect_exact,
                      # high is exact but low is not
+                     'Math::PlanePath::SquareSpiral' => 1,
                      'Math::PlanePath::SquareArms' => 1,
                     );
 my %rect_before_n_start = ('Math::PlanePath::Rows' => 1,
@@ -1086,7 +1094,10 @@ sub pythagorean_diag {
           || $mod eq 'SquareSpiral,wider=37'
           || $mod eq 'HexSpiral,wider=37'
           || $mod eq 'HexSpiralSkewed,wider=37'
-          || $mod eq 'ImaginaryBase,radix=37'
+          || ($mod eq 'ImaginaryBase,radix=3' && $limit < 3**3) # first Y negs
+          || ($mod eq 'ImaginaryBase,radix=4' && $limit < 4**3)
+          || ($mod eq 'ImaginaryBase,radix=5' && $limit < 5**3)
+          || ($mod eq 'ImaginaryBase,radix=37' && $limit < 37**3)
           || $mod eq 'CubicBase,radix=37'
           || ($mod eq 'ComplexPlus' && $limit < 32) # first y_neg at N=32
           || $mod eq 'ComplexPlus,realpart=2'  # y_neg big

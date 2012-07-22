@@ -16,22 +16,26 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# n_to_dxdy
-# n_to_dir4
-# xy_to_dir4_list
-# xy_to_dxdy_list
-# xy_to_n_list_maxcount
-# xy_to_n_list_maximum
-# xy_to_n_list_maxnum
+# Math::PlanePath::Base::Generic
+# divrem
+# divrem_mutate
+
+# $path->n_to_dxdy
+# $path->n_to_dir4
+# $path->n_to_dist
+# $path->xy_to_dir4_list
+# $path->xy_to_dxdy_list
+# $path->xy_to_n_list_maxcount
+# $path->xy_to_n_list_maximum
+# $path->xy_to_n_list_maxnum
+# $path->xy_next_in_rect($x,$y, $x1,$y1,$x2,$y2)
+#    return ($x,$y) or empty
 #
-# n_tree_parent     N or undef
-# n_tree_children   N list or empty, at n_start not empty if tree
+# $path->xy_integer
+# $path->xy_integer_n_start
 #
-# xy_integer
-# xy_integer_n_start
-#
-# x_range 'integer'
-# x_range 'all'
+# $path->x_range('integer')
+# $path->x_range('all')
 # use constant x_range => (1, undef);
 # x_minimum
 # x_maximum
@@ -40,7 +44,7 @@
 #
 # lattice_type square,triangular,triangular_odd,pentagonal,fractional
 #
-# xy_to_n_unique_n_start
+# xy_unique_n_start
 # figures_disjoint
 # figures_disjoint_n_start
 #         separate
@@ -52,7 +56,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 81;
+$VERSION = 82;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -70,6 +74,8 @@ use constant class_y_negative => 1;
 sub x_negative { $_[0]->class_x_negative }
 sub y_negative { $_[0]->class_y_negative }
 use constant n_frac_discontinuity => undef;
+use constant tree_n_parent => undef;
+use constant tree_n_children => ();
 
 sub new {
   my $class = shift;
@@ -93,9 +99,12 @@ sub parameter_info_list {
 }
 
 sub xy_to_n_list {
+  ### xy_to_n_list() ...
   if (defined (my $n = shift->xy_to_n(@_))) {
+    ### $n
     return $n;
   }
+  ### empty ...
   return;
 }
 
@@ -107,65 +116,6 @@ sub n_to_rsquared {
 
 #------------------------------------------------------------------------------
 # shared internals
-
-sub _is_infinite {
-  my ($x) = @_;
-  return ($x != $x         # nan
-          || ($x != 0 && $x == 2*$x));  # inf
-}
-
-# With a view to being friendly to BigRat/BigFloat.
-#
-# For reference, POSIX::floor() in perl 5.12.4 is a bit bizarre on UV=64bit
-# and NV=53bit double.  UV=2^64-1 rounds up to NV=2^64 which floor() then
-# returns, so floor() in fact increases the value of what was an integer
-# already.
-#
-sub _floor {
-  my ($x) = @_;
-  ### _floor(): "$x", $x
-  my $int = int($x);
-  if ($x == $int) {
-    ### is an integer ...
-    return $x;
-  }
-  $x -= $int;
-  ### frac: "$x"
-  if ($x >= 0) {
-    ### frac is non-negative ...
-    return $int;
-  } else {
-    ### frac is negative ...
-    return $int-1;
-  }
-}
-
-# with a view to being friendly to BigRat/BigFloat
-sub _round_nearest {
-  my ($x) = @_;
-  ### _round_nearest(): "$x", $x
-
-  # BigRat through to perl 5.12.4 has some dodginess giving a bigint -0
-  # which is considered !=0.  Adding +0 to numify seems to avoid the problem.
-  my $int = int($x) + 0;
-  if ($x == $int) {
-    ### is an integer ...
-    return $x;
-  }
-  $x -= $int;
-  ### int:  "$int"
-  ### frac: "$x"
-  if ($x >= .5) {
-    ### round up ...
-    return $int + 1;
-  }
-  if ($x < -.5) {
-    ### round down ...
-    return $int - 1;
-  }
-  ### within +/- .5 ...
-  return $int;
-}
 
 sub _max {
   my $max = 0;
@@ -186,85 +136,19 @@ sub _min {
   return $_[$min];
 }
 
+use Math::PlanePath::Base::Generic 'round_nearest';
 sub _rect_for_first_quadrant {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  $x1 = _round_nearest($x1);
-  $y1 = _round_nearest($y1);
-  $x2 = _round_nearest($x2);
-  $y2 = _round_nearest($y2);
+  $x1 = round_nearest($x1);
+  $y1 = round_nearest($y1);
+  $x2 = round_nearest($x2);
+  $y2 = round_nearest($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
   if ($x2 < 0 || $y2 < 0) {
     return;
   }
   return ($x1,$y1, $x2,$y2);
-}
-
-{
-  my %binary_to_base4 = ('00' => '0',
-                         '01' => '1',
-                         '10' => '2',
-                         '11' => '3');
-  my @radix_to_coderef;
-  $radix_to_coderef[2] = sub {
-    (my $str = $_[0]->as_bin) =~ s/^0b//;  # strip leading 0b
-    return reverse split //, $str;
-  };
-  $radix_to_coderef[4] = sub {
-    (my $str = $_[0]->as_bin) =~ s/^0b//; # strip leading 0b
-    if (length($str) & 1) {
-      $str = "0$str";
-    }
-    $str =~ s/(..)/$binary_to_base4{$1}/ge;
-    return reverse split //, $str;
-  };
-  $radix_to_coderef[8] = sub {
-    (my $str = $_[0]->as_oct) =~ s/^0//;  # strip leading 0
-    return reverse split //, $str;
-  };
-  $radix_to_coderef[10] = sub {
-    return reverse split //, $_[0]->bstr;
-  };
-  $radix_to_coderef[16] = sub {
-    (my $str = $_[0]->as_hex) =~ s/^0x//;  # strip leading 0x
-    return reverse map {hex} split //, $str;
-  };
-
-  # In _divrem() and _digit_split_lowtohigh() divide using rem=n%d then
-  # q=(n-rem)/d so that quotient is an exact division.  If it's not exact
-  # then goes to float and loses precision if UV=64bit NV=53bit.
-
-  sub _digit_split_lowtohigh {
-    my ($n, $radix) = @_;
-    ### _digit_split_lowtohigh(): $n
-
-    $n || return; # don't return '0' from BigInt stringize
-
-    my @ret;
-    if (ref $n && $n->isa('Math::BigInt')) {
-      if (my $coderef = $radix_to_coderef[$radix]) {
-        return $coderef->($_[0]);
-      }
-      $n = $n->copy; # for bdiv() modification
-      do {
-        (undef, my $digit) = $n->bdiv($radix);
-        push @ret, $digit;
-      } while ($n);
-      if ($radix < 1_000_000) {  # plain scalars if fit
-        foreach (@ret) {
-          $_ = $_->numify;  # mutate array contents
-        }
-      }
-      return @ret;   # array[0] low digit
-    } else {
-      do {
-        my $digit = $n % $radix;
-        push @ret, $digit;
-        $n = int(($n - $digit) / $radix);
-      } while ($n);
-    }
-    return @ret;   # array[0] low digit
-  }
 }
 
 # return ($quotient, $remainder)
@@ -285,7 +169,7 @@ sub _divrem {
 # return $remainder, modify $n
 # the scalar $_[0] is modified, but if it's a BigInt then a new BigInt is made
 # and stored there, the bigint value is not changed
-sub _divrem_destructive {
+sub _divrem_mutate {
   my $d = $_[1];
   my $rem;
   if (ref $_[0] && $_[0]->isa('Math::BigInt')) {
@@ -300,9 +184,54 @@ sub _divrem_destructive {
   return $rem;
 }
 
-
 1;
 __END__
+
+# Maybe:
+#
+# =item C<$branches = $path-E<gt>tree_constant_branches()>
+# 
+# If C<$path> is a tree with a constant number of children at each node then
+# return that number.  For example PythagoreanTree has 3 descendants at
+# each N.
+# 
+# If C<$path> is not a tree, or it's a tree but the number of children varies
+# with N, then return 0.
+#
+# use constant tree_constant_branches => 0;
+# use constant tree_constant_branches => 3;
+# use constant tree_constant_branches => 2;
+# use constant tree_constant_branches => 2;
+
+# sub tree_n_parent {
+#   my ($self, $n) = @_;
+#   ### tree_n_parent() generic: $n
+# 
+#   if (my $branches = $self->tree_constant_branches) {
+#     my $n_start = $self->n_start;
+#     if ($n > $n_start) {
+#       return int(($n - $n_start - 1)/$branches) + $n_start;
+#     }
+#   }
+#   return undef;
+# }
+# 
+# sub tree_n_children {
+#   my ($self, $n) = @_;
+#   ### tree_n_children() generic: ref $self, $n
+#   ### branches: $self->tree_constant_branches
+# 
+#   if (my $branches = $self->tree_constant_branches) {
+#     my $n_start = $self->n_start;
+#     $n = $branches*($n-$n_start) + $n_start;
+#     return map {$n+$_} 1 .. $branches;
+#   } else {
+#     return;
+#   }
+# }
+
+
+
 
 =for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie
 
@@ -595,10 +524,10 @@ If there's no discontinuities in the path, so that for example fractions
 between N=7 to N=8 give smooth continuous X,Y values (of some kind) then the
 return is C<undef>.
 
-This is mainly of interest for drawing line segments between successive N
-points.  If there's discontinuities then the idea is to draw from say N=7.0
-to N=7.499 and then another line from N=7.5 to N=8.  The returned C<$f> is
-whether there's discontinuities anywhere in C<$path>.
+This is mainly of interest for drawing line segments between N points.  If
+there's discontinuities then the idea is to draw from say N=7.0 to N=7.499
+and then another line from N=7.5 to N=8.  The returned C<$f> is whether
+there's discontinuities anywhere in C<$path>.
 
 =item C<$bool = $path-E<gt>x_negative()>
 
@@ -638,6 +567,31 @@ C<$n> position.  This is currently either
 
 Of course this is only a suggestion since PlanePath doesn't draw anything
 itself.  A figure like a diamond for instance can look good too.
+
+=back
+
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return a list of N values which are the child nodes of C<$n>, or return an
+empty list if C<$n> has no children.  The could be no children either
+because C<$path> is not a tree or because there's no children at a
+particular C<$n>.
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if it has no parent.  There
+could be no parent either because C<$path> is not a tree or because C<$n> is
+the top of the tree (or one of the tops).
+
+=back
+
+=head2 Parameter Methods
+
+=over
 
 =item C<$aref = Math::PlanePath::Foo-E<gt>parameter_info_array()>
 

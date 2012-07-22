@@ -39,16 +39,17 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -109,7 +110,7 @@ sub n_to_xy {
   ### AlternatePaper n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   {
     my $int = int($n);
@@ -127,12 +128,12 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
 
   # arm as initial rotation
-  my $arm = _divrem_destructive ($n, $self->{'arms'});
+  my $arm = _divrem_mutate ($n, $self->{'arms'});
 
   ### $arm
   ### $n
 
-  my @digits = _digit_split_lowtohigh($n,4);
+  my @digits = digit_split_lowtohigh($n,4);
   my $len = (2 + $zero) ** scalar($#digits);
 
   my $state = 0;
@@ -214,10 +215,10 @@ sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### AlternatePaper xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
-  if (_is_infinite($x)) { return $x; }
-  if (_is_infinite($y)) { return $y; }
+  $x = round_nearest($x);
+  $y = round_nearest($y);
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
 
   my $arms = $self->{'arms'};
   my $arm = 0;
@@ -248,10 +249,10 @@ sub _xy_to_n_list__onearm {
     return;
   }
 
-  my ($len,$level) = _round_down_pow($x, 2);
+  my ($len,$level) = round_down_pow($x, 2);
   ### $len
   ### $level
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return;
   }
 
@@ -399,10 +400,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### AlternatePaper rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest($x1);
-  $x2 = _round_nearest($x2);
-  $y1 = _round_nearest($y1);
-  $y2 = _round_nearest($y2);
+  $x1 = round_nearest($x1);
+  $x2 = round_nearest($x2);
+  $y1 = round_nearest($y1);
+  $y2 = round_nearest($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
@@ -423,11 +424,11 @@ sub rect_to_n_range {
   #           6,7 at X=-1,Y=1
   # arms>=6 is arm=5 starting at Y=+1, so 1-$y1
   # arms>=8 starts at X=-1 so extra +1 for x2 to the right in that case
-  my ($len, $level) =_round_down_pow (max ($x2+($arms>=8),
-                                           ($arms >= 2 ? $y2 : ()),
-                                           ($arms >= 4 ? -$x1 : ()),
-                                           ($arms >= 6 ? 1-$y1 : ())),
-                                      2);
+  my ($len, $level) =round_down_pow (max ($x2+($arms>=8),
+                                          ($arms >= 2 ? $y2 : ()),
+                                          ($arms >= 4 ? -$x1 : ()),
+                                          ($arms >= 6 ? 1-$y1 : ())),
+                                     2);
   return (0, 4*$arms*$len*$len-1);
 }
 
@@ -447,7 +448,7 @@ __END__
 #   ### AlternatePaper n_to_xy(): $n
 #
 #   if ($n < 0) { return; }
-#   if (_is_infinite($n)) { return ($n, $n); }
+#   if (is_infinite($n)) { return ($n, $n); }
 #
 #   my $frac;
 #   {
@@ -459,9 +460,9 @@ __END__
 #
 #   my $zero = ($n * 0);  # inherit bignum 0
 #
-#   my $arm = _divrem_destructive ($n, $self->{'arms'});
+#   my $arm = _divrem_mutate ($n, $self->{'arms'});
 #
-#   my @digits = _digit_split_lowtohigh($n,2);
+#   my @digits = digit_split_lowtohigh($n,2);
 #   if (scalar(@digits) & 1) {
 #     push @digits, 0;  # extra high to make even
 #   }

@@ -36,7 +36,7 @@ require Math::PlanePath::CubicBase;
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::CubicBase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CubicBase->VERSION,  $want_version,
@@ -221,7 +221,7 @@ require Math::PlanePath::CubicBase;
 #   my $power = 1;
 #   my $grow = 0;
 #   $x = index_to_negaradix($x,$radix*$radix);
-#   foreach my $xdigit (Math::PlanePath::_digit_split_lowtohigh($x,$radix)) {
+#   foreach my $xdigit (digit_split_lowtohigh($x,$radix)) {
 #     $n += $power*$xdigit;
 #     $power *= $radix*$radix*$radix;
 #     # if ($grow ^= 1) {

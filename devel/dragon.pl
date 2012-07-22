@@ -24,19 +24,195 @@ use List::MoreUtils;
 use POSIX 'floor';
 use Math::Libm 'M_PI', 'hypot';
 use List::Util 'min', 'max';
+use Math::PlanePath::DragonCurve;
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::KochCurve;
+*_digit_join_hightolow = \&Math::PlanePath::KochCurve::_digit_join_hightolow;
 
 use lib 'xt';
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 
+
+
+{
+  # rect range exact
+
+  my @rot_to_dx = (1,0,-1,0);
+  my @rot_to_dy = (0,1,0,-1);
+  my @digit_to_rev = (0,5,0,5,undef,
+                      5,0,5,0);
+  my @min_digit_to_rot = (-1,1,1,-1,0,
+                          0,1,-1,-1,1);
+
+  sub rect_to_n_range {
+    my ($self, $x1,$y1, $x2,$y2) = @_;
+    ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
+
+    my $xmax = int(max(abs($x1),abs($x2)));
+    my $ymax = int(max(abs($y1),abs($y2)));
+    my ($level_power, $level_max)
+      = round_down_pow (($xmax*$xmax + $ymax*$ymax + 1) * 7,
+                        2);
+    ### $level_power
+    ### $level_max
+    if (is_infinite($level_max)) {
+      return (0, $level_max);
+    }
+
+    my $zero = $x1 * 0 * $y1 * $x2 * $y2;
+    my $initial_len = 2**$level_max;
+    ### $initial_len
+
+    my ($len, $rot, $x, $y);
+    my $overlap = sub {
+      my $extent = ($len == 1 ? 0 : 2*$len);
+      ### overlap consider: "xy=$x,$y extent=$extent"
+      return ($x + $extent >= $x1
+              && $x - $extent <= $x2
+              && $y + $extent >= $y1
+              && $y - $extent <= $y2);
+    };
+
+
+    my $find_min = sub {
+      my ($initial_rev, $extra_rot) = @_;
+      ### find_min() ...
+      ### $initial_rev
+      ### $extra_rot
+
+      $rot = $level_max + 1 + $extra_rot;
+      $len = $initial_len;
+      if ($initial_rev) {
+        $rot += 2;
+        $x = 2*$len * $rot_to_dx[($rot+2)&3];
+        $y = 2*$len * $rot_to_dy[($rot+2)&3];
+      } else {
+        $x = $zero;
+        $y = $zero;
+      }
+      my @digits = (-1);  # high to low
+      my $rev = $initial_rev;
+
+      for (;;) {
+        my $digit = ++$digits[-1];
+        ### min at: "digits=".join(',',@digits)."  xy=$x,$y   len=$len  rot=".($rot&3)." rev=$rev"
+
+        unless ($initial_rev) {
+          my $nlo = _digit_join_hightolow ([@digits,(0)x($level_max-$#digits)], 4, $zero);
+          my ($nx,$ny) = $self->n_to_xy($nlo);
+          my ($nextx,$nexty) = $self->n_to_xy($nlo + $len*$len);
+          ### nlo: "nlo=$nlo xy=$nx,$ny  next xy=$nextx,$nexty"
+          ### assert: $x == $nx
+          ### assert: $y == $ny
+          # ### assert: $nextx == $nx + ($rot_to_dx[$rot&3] * $len)
+          # ### assert: $nexty == $ny + ($rot_to_dy[$rot&3] * $len)
+        }
+
+        $rot += $min_digit_to_rot[$digit+$rev];
+        ### $digit
+        ### rot increment: $min_digit_to_rot[$digit+$rev]." to $rot"
+
+        if ($digit > 3) {
+          pop @digits;
+          if (! @digits) {
+            ### not found to level_max ...
+
+            if ($x1 <= 0 && $x2 >= 0 && $y1 <= 0 && $y2 >= 0) {
+              ### origin covered: 4**($level_max+1)
+              return 4**$level_max;
+            } else {
+              return;
+            }
+          }
+          $rev = (@digits < 2 ? $initial_rev
+                  : $digits[-2]&1 ? 5 : 0);
+          ### past digit=3, backtrack ...
+          $len *= 2;
+          next;
+        }
+
+        if (&$overlap()) {
+          if ($#digits >= $level_max) {
+            ### yes overlap, found n_lo ...
+            last;
+          }
+          ### yes overlap, descend ...
+          ### apply rev: "digit=$digit rev=$rev   xor=$digit_to_rev[$digit+$rev]"
+          push @digits, -1;
+          $rev = ($digit & 1 ? 5 : 0);
+          $len /= 2;
+
+          # {
+          #   my $state = 0;
+          #   foreach (@digits) { if ($_&1) { $state ^= 5 } }
+          #   ### assert: $rev == $state
+          # }
+
+        } else {
+          ### no overlap, next digit ...
+          $rot &= 3;
+          $x += $rot_to_dx[$rot] * $len;
+          $y += $rot_to_dy[$rot] * $len;
+        }
+      }
+      ### digits: join(',',@digits)
+      ### found n_lo: _digit_join_hightolow (\@digits, 4, $zero)
+      return _digit_join_hightolow (\@digits, 4, $zero);
+    };
+
+    my $arms = $self->{'arms'};
+    my @n_lo;
+    foreach my $arm (0 .. $arms-1) {
+      if (defined (my $n = &$find_min(0,$arm))) {
+        push @n_lo, $n*$arms + $arm;
+      }
+    }
+    if (! @n_lo) {
+      return (1,0);  # rectangle not visited by curve
+    }
+
+    my $n_top = 4 * $level_power * $level_power;
+    ### $n_top
+    my @n_hi;
+    foreach my $arm (0 .. $arms-1) {
+      if (defined (my $n = &$find_min(5,$arm))) {
+        push @n_hi, ($n_top-$n)*$arms + $arm;
+      }
+    }
+
+    return (min(@n_lo), max(@n_hi));
+  }
+
+  my $path = Math::PlanePath::DragonCurve->new (arms => 4);
+  foreach my $n (4 .. 1000) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    my $want_lo = min(@n_list);
+    my $want_hi = max(@n_list);
+    my ($lo,$hi) = rect_to_n_range ($path, $x,$y, $x,$y);
+    print "n=$n  lo=$lo wantlo=$want_lo  hi=$hi wanthi=$want_hi\n";
+
+    if ($lo != $want_lo) {
+      die "n=$n  lo=$lo wantlo=$want_lo";
+    }
+    if ($hi != $want_hi) {
+      die "n=$n  hi=$hi wanthi=$want_hi";
+    }
+  }
+  exit 0;
+}
+
+
 {
   # level to ymax, xmin
-  require Math::PlanePath::DragonCurve;
   my $path = Math::PlanePath::DragonCurve->new;
   my $target = 4;
   my $xmin = 0;
@@ -1095,78 +1271,9 @@ use Math::PlanePath::KochCurve 42;
       print "\n";
     }
   }
+
   exit 0;
 }
-
-
-
-# sub rect_to_n_range {
-#   my ($self, $x1,$y1, $x2,$y2) = @_;
-#   ### DragonCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
-# 
-#   my $xmax = int(max(abs($x1),abs($x2)));
-#   my $ymax = int(max(abs($y1),abs($y2)));
-#   my ($level, $len) = _round_down_pow (($xmax*$xmax + $ymax*$ymax + 1) * 7,
-#                                        2);
-# 
-#   my $x = 0;
-#   my $y = 0;
-#   my $rot = 0;
-#   my $i = 0;
-# 
-#   my @xmin = (0, 0);
-#   my @xmax = (0, 1);
-#   my @ymin = (0, 0);
-#   my @ymax = (0, 0);
-# 
-#   my $intersect = sub {
-#     my $xmin = $xmin[$i];
-#     my $xmax = $xmax[$i];
-#     my $ymin = $ymin[$i];
-#     my $ymax = $ymax[$i];
-#     if ($rot & 2) {
-#       ($xmin,$xmax) = (-$xmax,-$xmin);
-#       ($ymin,$ymax) = (-$ymax,-$ymin);
-#     }
-#     if ($rot & 1) {
-#       ($xmin,
-#        $xmax,
-#        $ymin,
-#        $ymax) = (-$ymax,
-#                  -$ymin,
-#                  $xmin,
-#                  $xmax);
-#     }
-#     $xmin += $x;
-#     $xmax += $x;
-#     $ymin += $y;
-#     $ymax += $y;
-#     return ($xmin <= $x2
-#             && $xmax >= $x1
-#             && $ymin <= $y2
-#             && $ymax >= $y1);
-#   };
-# 
-#   my $n_lo = 0;
-#   my $top = 1;
-#   for (;;) {
-#     if (&$intersect()) {
-#       if ($i) {
-#         $i--;
-#       } else {
-#         last;
-#       }
-#     } else {
-# 
-#       if ($i >= $top) {
-#         ### backtrack up ...
-#         $top++;
-#         $n_lo = 1 << $top;
-#       }
-#     }
-#   }
-# }
-
 
 {
   # A059125 "dragon-like"

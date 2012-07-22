@@ -44,18 +44,17 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -90,7 +89,7 @@ sub n_to_xy {
   if ($n < 0) {            # negative
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -112,7 +111,7 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my @digits = _digit_split_lowtohigh($n,$radix);
+  my @digits = digit_split_lowtohigh($n,$radix);
 
   # low to high
   my $x = my $y = ($n * 0);  # inherit bignum 0
@@ -175,22 +174,22 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PeanoCurve xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   if ($x < 0 || $y < 0) {
     return undef;
   }
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;
   }
 
   my $radix = $self->{'radix'};
-  my @x = _digit_split_lowtohigh ($x, $radix);
-  my @y = _digit_split_lowtohigh ($y, $radix);
+  my @x = digit_split_lowtohigh ($x, $radix);
+  my @y = digit_split_lowtohigh ($y, $radix);
 
   my $radix_minus_1 = $radix - 1;
   my $xk = 0;
@@ -222,10 +221,10 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
   ### rect_to_n_range(): "$x1,$y1 to $x2,$y2"
@@ -236,8 +235,8 @@ sub rect_to_n_range {
 
   my $radix = $self->{'radix'};
 
-  my ($power, $level) = _round_down_pow (max($x2,$y2), $radix);
-  if (_is_infinite($level)) {
+  my ($power, $level) = round_down_pow (max($x2,$y2), $radix);
+  if (is_infinite($level)) {
     return (0, $level);
   }
 

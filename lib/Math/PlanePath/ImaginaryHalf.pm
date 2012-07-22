@@ -26,18 +26,29 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'parameter_info_array',
+  'digit_split_lowtohigh',
+  'round_down_pow';
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+
+use Math::PlanePath::ImaginaryBase;
+*_negaradix_range_digits_lowtohigh
+  = \&Math::PlanePath::ImaginaryBase::_negaradix_range_digits_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,22 +57,13 @@ $VERSION = 81;
 use constant n_start => 0;
 use constant class_y_negative => 0;
 
-use constant parameter_info_array =>
-  [{ name      => 'radix',
-     share_key => 'radix_2',
-     type      => 'integer',
-     minimum   => 2,
-     default   => 2,
-     width     => 3,
-   },
-];
-
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
+
   my $radix = $self->{'radix'};
   if (! defined $radix || $radix <= 2) { $radix = 2; }
   $self->{'radix'} = $radix;
+
   return $self;
 }
 
@@ -70,7 +72,7 @@ sub n_to_xy {
   ### ImaginaryHalf n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   # is this sort of midpoint worthwhile? not documented yet
   {
@@ -93,19 +95,19 @@ sub n_to_xy {
   my $x = 0;
   my $y = 0;
 
-  if (my @digits = _digit_split_lowtohigh($n, $radix)) {
+  if (my @digits = digit_split_lowtohigh($n, $radix)) {
     for (;;) {
-      ### at: "n=$n  $x,$y"
+      ### at: "x=$x,y=$y  digits=".join(',',@digits)
 
-      $x += (shift @digits) * $xlen;  # digits low to high
+      $x += (shift @digits) * $xlen;  # $n digits low to high
       @digits || last;
       $xlen *= $radix;
 
-      $y += (shift @digits) * $ylen;  # digits low to high
+      $y += (shift @digits) * $ylen;
       @digits || last;
       $ylen *= $radix;
 
-      $x -= (shift @digits) * $xlen;  # digits low to high
+      $x -= (shift @digits) * $xlen;
       @digits || last;
       $xlen *= $radix;
     }
@@ -119,36 +121,29 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### ImaginaryHalf xy_to_n(): "$x, $y"
 
-  $y = _round_nearest ($y);
-  if (_is_infinite($y)) { return $y; }
+  $y = round_nearest ($y);
+  if (is_infinite($y)) { return $y; }
   if ($y < 0) { return undef; }
 
-  $x = _round_nearest ($x);
-  if (_is_infinite($x)) { return $x; }
+  $x = round_nearest ($x);
+  if (is_infinite($x)) { return $x; }
 
   my $radix = $self->{'radix'};
-  my $n = ($x * 0 * $y);  # inherit bignum 0
-  my $power = $n + 1;     # inherit bignum 1
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @ndigits; # digits low to high
+  my @ydigits = digit_split_lowtohigh($y, $radix);
 
-  while ($x || $y) {
-    ### xpos digit: $x % $radix
-    my $digit = $x % $radix;
-    $n += $digit*$power;
-    $x = - int(($x-$digit)/$radix);
-    $power *= $radix;
 
-    ### y digit: $y % $radix
-    $digit = $y % $radix;
-    $n += $digit*$power;
-    $y = int($y/$radix);
-    $power *= $radix;
+  while ($x || @ydigits) {
+    push @ndigits, _divrem_mutate ($x, $radix);
+    $x = -$x;
 
-    $digit = $x % $radix;
-    $n += $digit*$power;
-    $x = - int(($x-$digit)/$radix);
-    $power *= $radix;
+    push @ndigits, shift @ydigits || 0;
+
+    push @ndigits, _divrem_mutate ($x, $radix);
+    $x = -$x;
   }
-  return $n;
+  return _digit_join_lowtohigh (\@ndigits, $radix, $zero);
 }
 
 # Nlevel=2^level-1
@@ -194,68 +189,63 @@ sub xy_to_n {
 # (3-1)*3*2+4=16  k+2=2 want level=6
 # (11-1)*3*2+4=64 k+2=3 want level=9
 
-# not exact
+# exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### ImaginaryHalf rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### ImaginaryBase rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  my $zero = $x1 * 0 * $x2 * $y1 * $y2;
+
+  $y1 = round_nearest($y1);
+  $y2 = round_nearest($y2);
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-
   if ($y2 < 0) {
+    ### rectangle all Y negative, no points ...
     return (1, 0);
   }
+  if (is_infinite($y2)) {
+    return (0, $y2);
+  }
+  if ($y1 < 0) { $y1 = 0; }
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  $x1 = round_nearest($x1);
+  $x2 = round_nearest($x2);
 
   my $radix = $self->{'radix'};
-  my $r2 = $radix*$radix;
 
-  ### $x1
-  ### $x2
-  ### xpos mult: ($x2-1)*($r2-1) + 1
-  ### xneg mult: (-1-$x1)*($r2-1)*$radix + $r2
-
-  my ($xpos_len, $xpos_level)
-    = ($x2 >= 0
-       ? _round_down_pow (($x2-1)*($r2-1) + 1, $r2)
-       : (1,0));
-  $xpos_level = 3*$xpos_level + 1;
-
-  my ($y_len, $y_level) = ($y2 > 0
-                           ? _round_down_pow ($y2, $radix)
-                           : (0, -1));
-  $y_level = 3*$y_level + 2;
-
-  my ($xneg_len, $xneg_level)
-    = ($x1 < 0
-       ? _round_down_pow ((-1-$x1)*($r2-1)*$radix + $r2, $r2)
-       : (1,0));
-  $xneg_level = 3*$xneg_level;
-
-  ### $xpos_level
-  ### $xneg_level
-  ### $y_level
-  ### $y_len
-
-  my $zero = 0 * $x1 * $x2 * $y1 * $y2;
-  my $r = $radix + $zero;
-
-  if ($y_level > $xpos_level && $y_level > $xneg_level) {
-    ### y biggest ...
-    return (0, $y_len*$y_len*$y_len*$r*$r - 1);
-  } else {
-    return (0, $r ** max($xpos_level,$xneg_level) - 1);
+  my ($min_xdigits, $max_xdigits)
+    = _negaradix_range_digits_lowtohigh($x1,$x2, $radix);
+  unless (defined $min_xdigits) {
+    return (0, $max_xdigits); # infinity
   }
+
+  my @min_ydigits = digit_split_lowtohigh ($y1, $radix);
+  my @max_ydigits = digit_split_lowtohigh ($y2, $radix);
+
+  my @min_digits
+    = _digit_interleave_xyx_lowtohigh ($min_xdigits, \@min_ydigits);
+  my @max_digits
+    = _digit_interleave_xyx_lowtohigh ($max_xdigits, \@max_ydigits);
+
+  return (_digit_join_lowtohigh (\@min_digits, $radix, $zero),
+          _digit_join_lowtohigh (\@max_digits, $radix, $zero));
+}
+
+sub _digit_interleave_xyx_lowtohigh {
+  my ($xaref, $yaref) = @_;
+  my @ret;
+  foreach my $i (0 .. max($#$xaref,2*$#$yaref)) {
+    push @ret, $xaref->[2*$i] || 0;
+    push @ret, $yaref->[$i] || 0;
+    push @ret, $xaref->[2*$i+1] || 0;
+  }
+  return @ret;
 }
 
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix ie ImaginaryBase radix Proth
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix ie ImaginaryBase radix-1 Proth
 
 =head1 NAME
 
@@ -284,21 +274,23 @@ This is a half-plane variation on the ImaginaryBase path.
 
 The pattern can be seen by dividing into the following blocks,
 
-    +---------------------------------------+
-    | 22   23   18   19   30   31   26   27 |
-    |                                       |
-    | 20   21   16   17   28   29   24   25 |
-    +---------+---------+-------------------+
-    |  6    7 |  2    3 | 14   15   10   11 |
-    |         +----+----+                   |
-    |  4    5 |  0 |  1 | 12   13    8    9 |
-    +---------+----+----+-------------------+
+    +---------------------------------+
+    | 22  23  18  19   30  31  26  27 |
+    |                                 |
+    | 20  21  16  17   28  29  24  25 |
+    +--------+-------+----------------+
+    |  6   7 | 2   3 | 14  15  10  11 |
+    |        +---+---+                |
+    |  4   5 | 0 | 1 | 12  13   8   9 |  <- Y=0
+    +--------+---+---+----------------+
+               ^
+              X=0
 
-N=0 is at the origin, then N=1 is to the right.  Those two are repeated
-above as N=2 and N=3.  Then that 2x2 repeated to the right as N=4 to N=7,
-then 4x2 repeated below N=8 to N=16, and 4x4 to the right as N=16 to N=31,
-etc.  The repetitions are successively to the right, above, left.  The
-relative layout within a replication is unchanged.
+N=0 is at the origin, then N=1 replicates that point to the right.  Those
+two repeat above as N=2 and N=3.  Then that 2x2 repeats to the left as N=4
+to N=7, then 4x2 repeats to the right as N=8 to N=15, and 8x2 above as N=16
+to N=31, etc.  The repetitions are successively to the right, above, left.
+The relative layout within a replication is unchanged.
 
 This is similar to the ImaginaryBase, but where it repeats in 4 directions
 there's only 3 here.  The ZOrderCurve is a 2 direction replication.
@@ -332,26 +324,28 @@ This is simply demanding that the bits going to the Y coordinate must be 0.
     X axis Ns = binary ...__0__0__0_     with _ either 0 or 1
     in octal, digits 0,1,4,5 only
 
-The N=0,1,8,9,etc on the X positive axis have the high 1 bit in the first
-slot of a 3-bit group.  N=0,4,5,etc on the X negative axis have the high 1
-bit in the second slot,
+N=0,1,8,9,etc on the X positive axis have the highest 1-bit in the first
+slot of a 3-bit group.  Or N=0,4,5,etc on the X negative axis have the high
+1 bit in the third slot,
 
-    X pos Ns = binary 1_0__0__0__0...0__0__0_
-    in octal, high octal digit 1
-
+    X pos Ns = binary    1_0__0__0...0__0__0_
     X neg Ns = binary  10__0__0__0...0__0__0_
-    in octal, high octal digit 4 or 5
+                       ^^^
+                       three bit group
+
+    X pos Ns in octal have high octal digit 1
+    X neg Ns in octal high octal digit 4 or 5
 
 N=0,2,16,18,etc on the Y axis are conversely those integers with a 0s in
 each two of three bits, again simply demanding the bits going to the X
 coordinate must be 0.
 
     Y axis Ns = binary ..._00_00_00_0    with _ either 0 or 1
-    in octal, digits 0,2 only
+    in octal has digits 0,2 only
 
 For a radix other than binary the pattern is the same.  Each "_" is any
 digit of the given radix, and each 0 must be 0.  The high 1 bit for X
-positive and negative becomes the high non-zero digit, 1 to radix-1.
+positive and negative becomes high non-zero digit 1 to radix-1.
 
 =head2 Level Ranges
 
@@ -420,6 +414,11 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
+
+=item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
+
+The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
+and biggest in the rectangle.
 
 =back
 

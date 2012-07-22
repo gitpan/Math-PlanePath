@@ -26,12 +26,13 @@ use strict;
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 
 # pentagonal N = (3k-1)*k/2
@@ -157,8 +158,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### AnvilSpiral xy_to_1 n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
@@ -250,10 +251,10 @@ sub rect_to_n_range {
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
 
-  $x1 = _round_nearest($x1);
-  $x2 = _round_nearest($x2);
-  $y1 = _round_nearest($y1);
-  $y2 = _round_nearest($y2);
+  $x1 = round_nearest($x1);
+  $x2 = round_nearest($x2);
+  $y1 = round_nearest($y1);
+  $y2 = round_nearest($y2);
 
   my $x_zero = (($x1<0) != ($x2<0));
   my $y_zero = (($y1<0) != ($y2<0));

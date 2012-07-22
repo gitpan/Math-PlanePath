@@ -26,16 +26,17 @@ package Math::PlanePath::CellularRule;
 use 5.004;
 use strict;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::CellularRule54 54; # v.54 for _rect_for_V()
-*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+
+use Math::PlanePath::CellularRule54;
+*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 
 # uncomment this to run the ### lines
@@ -372,7 +373,7 @@ sub n_to_xy {
   if ($int < 1) {
     return;
   }
-  if (_is_infinite($int)) { return ($int,$int); }
+  if (is_infinite($int)) { return ($int,$int); }
 
   my $row_end_n = $self->{'row_end_n'};
   my $y = 0;
@@ -420,11 +421,11 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### CellularRule xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
-  if (_is_infinite($x)) { return $x; }
-  if (_is_infinite($y)) { return $y; }
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
 
   if ($y < 0 || ! ($x <= $y && ($x+=$y) >= 0)) {
     return undef;
@@ -460,8 +461,8 @@ sub rect_to_n_range {
   ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
     or return (1,0);  # rect outside pyramid
 
-  if (_is_infinite($y1)) { return (1, $y1); }  # for nan
-  if (_is_infinite($y2)) { return (1, $y2); }  # for nan or inf
+  if (is_infinite($y1)) { return (1, $y1); }  # for nan
+  if (is_infinite($y2)) { return (1, $y2); }  # for nan or inf
 
   my $row_end_n = $self->{'row_end_n'};
   while ($#$row_end_n < $y2) {
@@ -487,10 +488,12 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 81;
+  $VERSION = 82;
   @ISA = ('Math::PlanePath::CellularRule');
-  *_is_infinite = \&Math::PlanePath::_is_infinite;
-  *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+  use Math::PlanePath::Base::Generic
+    'is_infinite',
+      'round_nearest';
 
   use constant class_y_negative => 0;
   sub x_negative {
@@ -517,7 +520,7 @@ sub rect_to_n_range {
     if ($int < 0) {
       return;
     }
-    if (_is_infinite($int)) { return ($int,$int); }
+    if (is_infinite($int)) { return ($int,$int); }
 
     return ($n + $int*$self->{'sign'}, $int);
   }
@@ -526,9 +529,9 @@ sub rect_to_n_range {
     my ($self, $x, $y) = @_;
     ### CellularRule-Line xy_to_n(): "$x,$y"
 
-    $x = _round_nearest ($x);
-    $y = _round_nearest ($y);
-    if (_is_infinite($y)) { return $y; }
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
+    if (is_infinite($y)) { return $y; }
 
     if ($y >= 0 && $x == $y*$self->{'sign'}) {
       return $y+1;
@@ -541,17 +544,17 @@ sub rect_to_n_range {
   sub rect_to_n_range {
     my ($self, $x1,$y1, $x2,$y2) = @_;
 
-    $x1 = _round_nearest ($x1);
-    $y1 = _round_nearest ($y1);
-    $x2 = _round_nearest ($x2);
-    $y2 = _round_nearest ($y2);
+    $x1 = round_nearest ($x1);
+    $y1 = round_nearest ($y1);
+    $x2 = round_nearest ($x2);
+    $y2 = round_nearest ($y2);
     if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
 
     if ($y2 < 0) {
       return (1, 0);
     }
-    if (_is_infinite($y1)) { return (1, $y1+1); }
-    if (_is_infinite($y2)) { return (1, $y2+1); }
+    if (is_infinite($y1)) { return (1, $y1+1); }
+    if (is_infinite($y2)) { return (1, $y2+1); }
     return ($y1+1, $y2+1);
   }
 }
@@ -559,12 +562,14 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 81;
+  $VERSION = 82;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
-  *_is_infinite = \&Math::PlanePath::_is_infinite;
-  *_floor = \&Math::PlanePath::_floor;
-  *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+  use Math::PlanePath::Base::Generic
+    'is_infinite',
+      'round_nearest',
+        'floor';
 
   use constant n_start => 1;
   use constant x_negative => 1; # not the PyramidRows from step
@@ -579,13 +584,13 @@ sub rect_to_n_range {
     my ($x,$y) = $self->SUPER::n_to_xy($n)
       or return;
     ### pyramid: "$x, $y"
-    return ($x+_round_nearest($x) - $y, $y);
+    return ($x+round_nearest($x) - $y, $y);
   }
   sub xy_to_n {
     my ($self, $x, $y) = @_;
     ### CellularRule-OddSolid xy_to_n(): "$x,$y"
-    $x = _round_nearest ($x);
-    $y = _round_nearest ($y);
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
     if (($x+$y)%2) {
       return undef;
     }
@@ -595,8 +600,8 @@ sub rect_to_n_range {
   sub rect_to_n_range {
     my ($self, $x1,$y1, $x2,$y2) = @_;
 
-    $y1 = _round_nearest ($y1);
-    $y2 = _round_nearest ($y2);
+    $y1 = round_nearest ($y1);
+    $y2 = round_nearest ($y2);
     if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
     return $self->SUPER::rect_to_n_range(0,$y1,0,$y2+1);
   }
@@ -605,11 +610,13 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 81;
+  $VERSION = 82;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
-  *_is_infinite = \&Math::PlanePath::_is_infinite;
-  *_round_nearest = \&Math::PlanePath::_round_nearest;
+
+  use Math::PlanePath::Base::Generic
+    'is_infinite',
+      'round_nearest';
 
   use constant x_negative => 1; # not the PyramidRows from step
 
@@ -629,13 +636,13 @@ sub rect_to_n_range {
     my ($self, $x, $y) = @_;
     ### CellularRule-LeftSolid xy_to_n(): "$x,$y"
     ### super: "at ".($x-$y).",$y"
-    return $self->SUPER::xy_to_n ($x+_round_nearest($y), $y);
+    return $self->SUPER::xy_to_n ($x+round_nearest($y), $y);
   }
   # not exact
   sub rect_to_n_range {
     my ($self, $x1,$y1, $x2,$y2) = @_;
-    $y1 = _round_nearest ($y1);
-    $y2 = _round_nearest ($y2);
+    $y1 = round_nearest ($y1);
+    $y2 = round_nearest ($y2);
     if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
     return $self->SUPER::rect_to_n_range(0,$y1,0,$y2+1);
   }

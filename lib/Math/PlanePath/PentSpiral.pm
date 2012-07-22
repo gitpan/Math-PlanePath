@@ -22,13 +22,13 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -95,8 +95,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   # nothing on odd squares
   # when y>=0 any odd x is not covered
@@ -161,9 +161,9 @@ sub rect_to_n_range {
 
   my $d = 0;
   foreach my $x ($x1, $x2) {
-    $x = _round_nearest ($x);
+    $x = round_nearest ($x);
     foreach my $y ($y1, $y2) {
-      $y = _round_nearest ($y);
+      $y = round_nearest ($y);
 
       my $this_d = 1 + ($y >= 0     ? abs($x) + $y
                         : $x < $y   ? -($x+$y)/2

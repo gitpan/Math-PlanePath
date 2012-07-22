@@ -32,7 +32,7 @@ use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
 @ISA = ('Math::PlanePath');
 
 
@@ -301,7 +301,7 @@ seen standing out from its surrounds.
 
 Plotting various quadratic sequences of points can form attractive patterns.
 For example the triangular numbers k*(k+1)/2 come out as spiral arcs going
-clockwise and counter-clockwise.
+clockwise and anti-clockwise.
 
 See F<examples/sacks-xpm.pl> in the Math-PlanePath sources for a complete
 program plotting the spiral points to an XPM image.
@@ -340,6 +340,10 @@ that circle returns N.
 The unit spacing of the spiral means those circles don't overlap, but they
 also don't cover the plane and if C<$x,$y> is not within one then the
 return is C<undef>.
+
+=item C<$str = $path-E<gt>figure ()>
+
+Return "circle".
 
 =back
 

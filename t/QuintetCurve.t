@@ -36,7 +36,7 @@ require Math::PlanePath::QuintetCurve;
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::QuintetCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::QuintetCurve->VERSION,  $want_version,

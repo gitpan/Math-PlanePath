@@ -37,14 +37,14 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
@@ -78,7 +78,7 @@ sub n_to_xy {
   }
 
   # arm as initial rotation
-  my $rot = _divrem_destructive($n,6);
+  my $rot = _divrem_mutate($n,6);
   ### $n
 
   my $d = int ((-1 + sqrt(8 * $n + 1)) / 2);
@@ -114,8 +114,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### HexArms xy_to_n: "x=$x, y=$y"
   if (($x ^ $y) & 1) {
     return undef;  # nothing on odd squares
@@ -188,10 +188,10 @@ sub rect_to_n_range {
 sub _rect_to_hex_radius {
   my ($x1,$y1, $x2,$y2) = @_;
 
-  $x1 = abs (_round_nearest ($x1));
-  $y1 = abs (_round_nearest ($y1));
-  $x2 = abs (_round_nearest ($x2));
-  $y2 = abs (_round_nearest ($y2));
+  $x1 = abs (round_nearest ($x1));
+  $y1 = abs (round_nearest ($y1));
+  $x2 = abs (round_nearest ($x2));
+  $y2 = abs (round_nearest ($y2));
 
   # radial symmetric in +/-y
   my $y = max (abs($y1), abs($y2));

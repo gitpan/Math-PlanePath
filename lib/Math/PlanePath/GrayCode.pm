@@ -40,17 +40,20 @@ use Carp;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -76,12 +79,7 @@ use constant parameter_info_array =>
      choices_dispaly  => ['Reflected','Modular'],
      description      => 'The type of Gray code.',
    },
-   { name        => 'radix',
-     share_key   => 'radix_2',
-     type        => 'integer',
-     minimum     => 2,
-     default     => 2,
-     width       => 3,
+   { %{Math::PlanePath::Base::Digits::parameter_info_radix2()},
      description => 'Radix, for both the Gray code and splitting.',
    },
   ];
@@ -131,7 +129,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -152,7 +150,7 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my @digits = _digit_split_lowtohigh($n,$radix);
+  my @digits = digit_split_lowtohigh($n,$radix);
   $self->{'n_func'}->(\@digits, $radix);
 
   my @xdigits;
@@ -166,29 +164,29 @@ sub n_to_xy {
   $self->{'xy_func'}->($xdigits,$radix);
   $self->{'xy_func'}->($ydigits,$radix);
 
-  return (_digit_join($xdigits,$radix),
-          _digit_join($ydigits,$radix));
+  return (_digit_join_lowtohigh($xdigits,$radix),
+          _digit_join_lowtohigh($ydigits,$radix));
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### GrayCode xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   if ($x < 0 || $y < 0) {
     return undef;
   }
-  if (_is_infinite($x)) {
+  if (is_infinite($x)) {
     return $x;
   }
-  if (_is_infinite($y)) {
+  if (is_infinite($y)) {
     return $y;
   }
 
   my $radix = $self->{'radix'};
-  my @xdigits = _digit_split_lowtohigh ($x, $radix);
-  my @ydigits = _digit_split_lowtohigh ($y, $radix);
+  my @xdigits = digit_split_lowtohigh ($x, $radix);
+  my @ydigits = digit_split_lowtohigh ($y, $radix);
 
   $self->{'inverse_xy_func'}->(\@xdigits, $radix);
   $self->{'inverse_xy_func'}->(\@ydigits, $radix);
@@ -204,17 +202,17 @@ sub xy_to_n {
   my $digits = \@digits;
   $self->{'inverse_n_func'}->($digits,$radix);
 
-  return _digit_join($digits,$radix);
+  return _digit_join_lowtohigh($digits,$radix);
 }
 
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = _round_nearest($x1);
-  $y1 = _round_nearest($y1);
-  $x2 = _round_nearest($x2);
-  $y2 = _round_nearest($y2);
+  $x1 = round_nearest($x1);
+  $y1 = round_nearest($y1);
+  $x2 = round_nearest($x2);
+  $y2 = round_nearest($y2);
 
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }  # x1 smaller
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }  # y1 smaller
@@ -224,7 +222,7 @@ sub rect_to_n_range {
   }
 
   my $radix = $self->{'radix'};
-  my ($pow_max) = _round_down_pow (max($x2,$y2), $radix);
+  my ($pow_max) = round_down_pow (max($x2,$y2), $radix);
   $pow_max *= $radix;
   return (0, $pow_max*$pow_max - 1);
 }
@@ -233,17 +231,6 @@ sub rect_to_n_range {
 
 use constant 1.02 _noop_reflected => undef;
 use constant 1.02 _noop_modular   => undef;
-
-# $aref->[0] low digit
-sub _digit_join {
-  my ($aref, $radix) = @_;
-  my $n = 0;
-  while (defined (my $digit = pop @$aref)) {
-    $n *= $radix;
-    $n += $digit;
-  }
-  return $n;
-}
 
 # $aref->[0] low digit
 sub _digits_to_gray_reflected {
@@ -298,7 +285,7 @@ sub _digits_from_gray_modular {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath eg Radix radix ie Christos Faloutsos Fs FsT sF pre TsF Peano radices Peano's xk yk OEIS PlanePath
+=for stopwords Ryde Math-PlanePath eg Radix radix ie Christos Faloutsos Fs FsT sF pre TsF Peano radices Peano's xk yk OEIS PlanePath undoubled pre-determined
 
 =head1 NAME
 
@@ -345,32 +332,9 @@ Y axis N=0,3,12,15,48,etc are values with only digits 0,3 in base 4.  X axis
 N=0,1,6,7,24,25,etc are values 2k and 2k+1 where k uses only digits 0,3 in
 base 4.
 
-=head2 Turn Sequence
-
-The turns in the curve are either to the left +90 or a reverse 180.  For
-example at N=2 the curve turns left, then at N=3 it reverses back 180 to go
-to N=4.  The turn is given by the low zero bits of (N+1)/2,
-
-    count_low_0_bits(floor((N+1)/2))
-      if even then turn 90 left
-      if odd  then turn 180 reverse
-
-Or equivalently
-
-    floor((N+1)/2) lowest non-zero digit in base 4,
-      1 or 3 = turn 90 left
-      2      = turn 180 reverse
-
-The 180 degree reversals are all horizontal.  They occur because at those N
-the three N-1,N,N+1 converted to Gray code have the same bits at odd
-positions and therefore the same Y coordinate.
-
-See L<Math::PlanePath::KochCurve/Turn Sequence> for similar turns but by +60
-and -120 degrees.
-
 =head2 Radix
 
-The default is binary, or the C<radix =E<gt> $r> option can select another
+The default is binary.  The C<radix =E<gt> $r> option can select another
 radix.  This is used for both the Gray code and the digit splitting.  For
 example C<radix =E<gt> 4>,
 
@@ -395,8 +359,8 @@ example C<radix =E<gt> 4>,
 
 =head2 Apply Type
 
-The C<apply_type =E<gt> $str> option controls how Gray codes are applied to
-N and X,Y.  It can be one of
+Option C<apply_type =E<gt> $str> controls how Gray codes are applied to N
+and X,Y.  It can be one of
 
     "TsF"    to Gray, split, from Gray  (default)
     "Ts"     to Gray, split
@@ -431,12 +395,12 @@ then split, leaving Gray coded values for X,Y.
           X=0   1   2   3   4   5   6   7
 
 This "Ts" is quite attractive because a step from N to N+1 changes just one
-bit in X or Y alternately, giving 2-D single-digit changes.  For example
-N=19 at X=4 then N=20 at X=6 is a single bit change in X.
+bit in X or Y alternately, giving 2-D single-bit changes.  For example N=19
+at X=4 followed by N=20 at X=6 is a single bit change in X.
 
 N=0,2,8,10,etc on the leading diagonal X=Y is numbers using only digits 0,2
-in base 4.  The Y axis N=0,3,15,12,etc is numbers using only digits 0,3 in
-base 4, but in a Gray code order.
+in base 4.  N=0,3,15,12,etc on the Y axis is numbers using only digits 0,3
+in base 4, but in a Gray code order.
 
 The "Fs", "FsT" and "sF" forms effectively treat the input N as a Gray code
 and convert from it to integers, either before or after split.  For "Fs" the
@@ -492,14 +456,18 @@ For example in decimal,
       18           11           17
       19           10           18
 
-Notice on reaching "19" the reflected type runs the low digit down again, a
-reverse or reflection of the preceding 0 up to 9.  The modular form instead
-continues to increment the low digit, wrapping around from 9 to 0.
+Notice on reaching "19" the reflected type runs the least significant digit
+downwards from 9 to 0, which is a reverse or reflection of the preceding 0
+to 9 upwards.  The modular form instead continues to increment that least
+significant digit, wrapping around from 9 to 0.
 
-In binary modular and reflected are the same (see L</Equivalent
-Combinations> below).  There's various other systematic ways to change a
-single digit successively but many of them are implicitly based on a
-pre-determined fixed number of bits or digits.
+In binary the modular and reflected forms are the same (see L</Equivalent
+Combinations> below).
+
+There's various other systematic ways to make a Gray code changing a single
+digit successively.  But many ways are implicitly based on a pre-determined
+fixed number of bits or digits, which doesn't suit an unlimited path as
+given here.
 
 =head2 Equivalent Combinations
 
@@ -515,15 +483,15 @@ Some option combinations are equivalent,
 
     radix>2 even reflected     TsF==Fs, Ts==FsT
 
-In binary radix=2 the "modular" and "reflected" Gray codes are the same
+In radix=2 binary the "modular" and "reflected" Gray codes are the same
 because there's only digits 0 and 1 so going forward or backward is the
 same.
 
 For odd radix and reflected Gray code, the "to Gray" and "from Gray"
 operations are the same.  For example the following table is ternary
 radix=3.  Notice how integer value 012 maps to Gray code 010, and in turn
-integer 010 maps to Gray code 012.  All values are either 2-cycle pairs like
-that or unchanged like 021.
+integer 010 maps to Gray code 012.  All values are either pairs like that or
+unchanged like 021.
 
     integer      Gray
               "reflected"       (written in ternary)
@@ -597,6 +565,32 @@ Return the first N on the path, which is 0.
 
 =back
 
+=head1 FORMULAS
+
+=head2 Turn Sequence
+
+The turns in the default binary TsF curve are either to the left +90 or a
+reverse 180.  For example at N=2 the curve turns left, then at N=3 it
+reverses back 180 to go to N=4.  The turn is given by the low zero bits of
+(N+1)/2,
+
+    count_low_0_bits(floor((N+1)/2))
+      if even then turn 90 left
+      if odd  then turn 180 reverse
+
+Or equivalently
+
+    floor((N+1)/2) lowest non-zero digit in base 4,
+      1 or 3 = turn 90 left
+      2      = turn 180 reverse
+
+The 180 degree reversals are all horizontal.  They occur because at those N
+the three N-1,N,N+1 converted to Gray code have the same bits at odd
+positions and therefore the same Y coordinate.
+
+See L<Math::PlanePath::KochCurve/Turn Sequence> for similar turns based on
+low zero bits (but by +60 and -120 degrees).
+
 =head1 OEIS
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences in a few
@@ -604,7 +598,7 @@ forms,
 
     http://oeis.org/A163233  (etc)
 
-    default (apply_type="TsF", radix=2)
+    default apply_type="TsF", radix=2
       A039963    turn sequence, 1=+90left,0=180reverse
       A035263    turn undoubled, at N=2n and N=2n+1
       A065882    base4 lowest non-zero,
@@ -614,36 +608,37 @@ forms,
       A036554    (N+1)/2 of positions of Right turns
                    being n with odd number of low 0 bits
 
-The turn sequence goes in pairs, so N=1and2 left then N=3and4 reverse.
-A039963 includes that repetition, A035263 is undoubled to just one copy of
-each and so is the turn at each pair N=2k,2k+1.  There's many sequences like
-A065882 which when taken mod2 equal the "count low 0 bits odd/even" which is
-the undoubled turn sequence.
+The turn sequence goes in pairs, so N=1 and N=2 left then N=3 and N=4
+reverse.  A039963 includes that repetition, A035263 is just one copy of each
+and so is the turn at each pair N=2k and N=2k+1.  There's many sequences
+like A065882 which when taken mod2 equal the "count low 0 bits odd/even"
+which is the same undoubled turn sequence.
 
     apply_type="sF", radix=2
       A163233    N values by diagonals, same axis start
       A163234     inverse permutation
       A163235    N values by diagonals, opp axis start
       A163236     inverse permutation
+      A163242    N sums along diagonals
+      A163478     those sums divided by 3
+
       A163237    N values by diagonals, same axis, flip digits 2,3
       A163238     inverse permutation
       A163239    N values by diagonals, opp axis, flip digits 2,3
       A163240     inverse permutation
-      A163242    N sums along diagonals
-      A163478     those sums divided by 3
 
 Gray code conversions themselves (not directly offered by the PlanePath code
 here) are variously
 
-    A003188 binary
-    A014550 binary with values written in binary
-    A006068   inverse, Gray->integer
-    A128173 ternary reflected (its own inverse)
-    A105530 ternary modular
-    A105529   inverse, Gray->integer
-    A003100 decimal reflected
-    A174025   inverse, Gray->integer
-    A098488 decimal modular
+    A003188  binary
+    A014550  binary with values written in binary
+    A006068    inverse, Gray->integer
+    A128173  ternary reflected (its own inverse)
+    A105530  ternary modular
+    A105529    inverse, Gray->integer
+    A003100  decimal reflected
+    A174025    inverse, Gray->integer
+    A098488  decimal modular
 
 =head1 SEE ALSO
 

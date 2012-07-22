@@ -24,19 +24,21 @@ use 5.004;
 use strict;
 use List::Util 'max','sum';
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-*_digit_join_htol = \&Math::PlanePath::KochCurve::_digit_join_htol;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::KochCurve;
+*_digit_join_hightolow = \&Math::PlanePath::KochCurve::_digit_join_hightolow;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 
 # Not sure about this yet ... 2 or 4 ?
@@ -73,7 +75,7 @@ sub n_to_xy {
   ### CCurve n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n, $n); }
+  if (is_infinite($n)) { return ($n, $n); }
 
   my $zero = ($n * 0);  # inherit bignum 0
   my $x = $zero;
@@ -85,10 +87,10 @@ sub n_to_xy {
   }
 
   # initial rotation from arm number $n mod $arms
-  my $rot = _divrem_destructive ($n, $self->{'arms'});
+  my $rot = _divrem_mutate ($n, $self->{'arms'});
 
   my $len = $zero+1;
-  foreach my $digit (_digit_split_lowtohigh($n,4)) {
+  foreach my $digit (digit_split_lowtohigh($n,4)) {
     ### $digit
 
     if ($digit == 0) {
@@ -141,11 +143,11 @@ sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### CCurve xy_to_n(): "$x, $y"
 
-  $x = _round_nearest($x);
-  $y = _round_nearest($y);
+  $x = round_nearest($x);
+  $y = round_nearest($y);
 
   my ($len,$k_limit) = _rect_to_k ($x,$y, $x,$y);
-  if (_is_infinite($k_limit)) {
+  if (is_infinite($k_limit)) {
     return $k_limit;  # infinity
   }
 
@@ -189,9 +191,10 @@ sub xy_to_n_list {
       if ($#digits >= $k_limit) {
         ### low digit ...
         if ($x == $tx && $y == $ty) {
-          ### found: _digit_join_htol (\@digits, 4, $zero)
-          push @n_list, _digit_join_htol (\@digits, 4, $zero)
-            * $arms_count + $arm;
+          ### found: _digit_join_hightolow (\@digits, 4, $zero)
+          push @n_list,
+            _digit_join_hightolow (\@digits, 4, $zero)
+              * $arms_count + $arm;
         }
       } elsif (max(abs($x-$tx),abs($y-$ty)) <= $extents[$#digits]) {
         ### within extent, descend ...
@@ -237,16 +240,16 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### CCurve rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
   my ($len,$level) = _rect_to_k ($x1,$y1, $x2,$y2);
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return (0, $level);
   }
   return (0, 4*$len*$len*$self->{'arms'} - 1);
@@ -292,7 +295,7 @@ sub _rect_to_k {
       return (4, 2);
     }
     ### round_down: 4*($m-1)/3
-    my ($len, $k) = _round_down_pow (4*($m-1)/3, 2);
+    my ($len, $k) = round_down_pow (4*($m-1)/3, 2);
     return ($len, $k);
   }
 
@@ -313,7 +316,7 @@ sub _rect_to_k {
     # } else {
     # }
 
-    ($len1, $k1) = _round_down_pow (($m-1)/3, 2);
+    ($len1, $k1) = round_down_pow (($m-1)/3, 2);
     next if $k1 < $offset;
     my $sub = ($offset-$k1) % 4;
     $k1 -= $sub;  # round down to k1 == offset mod 4
@@ -341,7 +344,7 @@ sub _n_to_dxdy {
   my $int = int($n);
   $n -= $int;  # fraction part
 
-  my @digits = _digit_split_lowtohigh($int,2);
+  my @digits = digit_split_lowtohigh($int,2);
   my $dir = sum(@digits) & 3;
   my $dx = $dir_to_dx[$dir];
   my $dy = $dir_to_dy[$dir];

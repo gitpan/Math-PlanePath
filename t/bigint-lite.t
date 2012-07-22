@@ -21,14 +21,15 @@ use 5.004;
 use strict;
 use Test;
 
-# uncomment this to run the ### lines
-#use Devel::Comments '###';
-
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = (tests => 99)[1];
+my $test_count = (tests => 103)[1];
 plan tests => $test_count;
+
+# uncomment this to run the ### lines
+#use Smart::Comments '###';
+
 
 if (! eval { require Math::BigInt::Lite; 1 }) {
   MyTestHelpers::diag ('skip due to Math::BigInt::Lite not available -- ',$@);

@@ -32,14 +32,16 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-*_divrem_destructive = \&Math::PlanePath::_divrem_destructive;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -74,7 +76,7 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if (_is_infinite($n)) {
+  if (is_infinite($n)) {
     return ($n,$n);
   }
 
@@ -89,7 +91,7 @@ sub n_to_xy {
 
 
   if ((my $arms = $self->{'arms'}) > 1) {
-    my $rot = _divrem_destructive ($n, $arms);
+    my $rot = _divrem_mutate ($n, $arms);
     if ($rot >= 3) {
       $rot -= 3;
       $x = -$x;    # rotate 180, knowing y=0,yend=0
@@ -106,7 +108,7 @@ sub n_to_xy {
     }
   }
 
-  foreach my $digit (_digit_split_lowtohigh($n,3)) {
+  foreach my $digit (digit_split_lowtohigh($n,3)) {
     my $xend_offset = 3*($xend-$yend)/2;   # end and end +60
     my $yend_offset = ($xend+3*$yend)/2;
 
@@ -138,8 +140,8 @@ sub n_to_xy {
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
   ### GosperSide xy_to_n(): "$x, $y"
 
   if (($x ^ $y) & 1) {
@@ -149,7 +151,7 @@ sub xy_to_n {
   my $h2 = $x*$x + $y*$y*3 + 1;
   my $level = max (0,
                    ceil ((log($h2) + 2*log(2*.99)) * (1/2*log(sqrt(7)))));
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
   return Math::PlanePath::GosperIslands::_xy_to_n_in_level($x,$y,$level);

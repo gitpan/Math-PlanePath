@@ -21,14 +21,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -124,11 +126,11 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
 
-  $x = _round_nearest ($x);
+  $x = round_nearest ($x);
   if ($self->{'direction'} eq 'up') {
-    $y = _round_nearest ($y);
+    $y = round_nearest ($y);
   } else {
-    $y = - _round_nearest (- $y);
+    $y = - round_nearest (- $y);
   }
 
   ### rounded
@@ -155,14 +157,14 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
   if ($self->{'direction'} eq 'up') {
-    $y1 = _round_nearest ($y1);
-    $y2 = _round_nearest ($y2);
+    $y1 = round_nearest ($y1);
+    $y2 = round_nearest ($y2);
   } else {
-    $y1 = - _round_nearest (- $y1);
-    $y2 = - _round_nearest (- $y2);
+    $y1 = - round_nearest (- $y1);
+    $y2 = - round_nearest (- $y2);
   }
 
   # bottom-left and top-right same as Math::PlanePath::Diagonals, but also
@@ -215,7 +217,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath pronic PyramidRows sqrt eg flonums Nstart Nrem octant ie OEIS
+=for stopwords PlanePath Ryde Math-PlanePath pronic PyramidRows sqrt eg flonums N-Nstart Nrem octant ie OEIS
 
 =head1 NAME
 

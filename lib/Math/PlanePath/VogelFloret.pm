@@ -19,6 +19,10 @@
 
 # http://algorithmicbotany.org/papers/#abop
 #
+# http://www.sciencedirect.com/science/article/pii/0025556479900804
+# http://dx.doi.org/10.1016/0025-5564(79)90080-4 Helmut Vogel, "A Better Way
+# to Construct the Sunflower Head", Volume 44, Issues 3-4, June 1979, Pages
+# 179-189
 
 package Math::PlanePath::VogelFloret;
 use 5.004;
@@ -27,12 +31,12 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
 
+use Math::PlanePath::Base::Generic
+  'is_infinite';
 use Math::PlanePath::SacksSpiral;
 
 # uncomment this to run the ### lines
@@ -244,7 +248,7 @@ sub xy_to_n {
   #### $n_lo
   #### $n_hi
 
-  if (_is_infinite($n_lo) || _is_infinite($n_hi)) {
+  if (is_infinite($n_lo) || is_infinite($n_hi)) {
     ### infinite range, r inf or too big
     return undef;
   }
@@ -345,7 +349,7 @@ sub _ceil {
 1;
 __END__
 
-=for stopwords Vogel PlanePaths VogelFloret fibonacci sqrt sqrt2 PlanePath Ryde Math-PlanePath frac repdigits straightish Vogel's builtin repunit eg phi-ness radix
+=for stopwords Helmut Vogel PlanePaths VogelFloret fibonacci sqrt sqrt2 PlanePath Ryde Math-PlanePath frac repdigits straightish Vogel's builtin repunit eg phi-ness radix
 
 =head1 NAME
 
@@ -363,9 +367,9 @@ Math::PlanePath::VogelFloret -- circular pattern like a sunflower
 
 =head1 DESCRIPTION
 
-X<Vogel, H>The Vogel floret arranges integer points in a spiral with points
-based on the golden ratio phi = (1+sqrt(5))/2 and resembling the pattern of
-seeds found in the head of a sunflower,
+X<Vogel, Helmut>The is an implementation of Helmut Vogel's model for the
+arrangement of seeds in the head of a sunflower.  Integer points are on a
+spiral at multiples of the golden ratio phi = (1+sqrt(5))/2,
 
                 27       19
                                   24
@@ -390,10 +394,6 @@ seeds found in the head of a sunflower,
                             23       31
                    28
 
-Most of the PlanePaths are implicitly quadratic, but the VogelFloret is
-instead based on integer multiples of phi (or other selected rotation
-factor).
-
 The polar coordinates for a point N are
 
     R = sqrt(N) * radius_factor
@@ -401,10 +401,11 @@ The polar coordinates for a point N are
           = N * -phi            modulo 1, with since 1/phi^2 = 2-phi
     theta = 2*pi * angle        in radians
 
-Each point N+1 is at an angle 0.382 revolutions counter-clockwise from the
-preceding N, which means just over 1/3 of a circle.  Or equivalently it's
-0.618 back clockwise which is phi=1.618, ignoring the integer part since
-that's a full circle, only the fractional part determines the position.
+Each point N+1 is at an angle +0.382 revolutions around (anti-clockwise)
+from the preceding N, which means just over 1/3 of a circle.  Or
+equivalently it's -0.618 back (clockwise) which is phi=1.618 ignoring the
+integer part since that's a full circle -- only the fractional part
+determines the position.
 
 C<radius_factor> is a scaling 0.6242 designed to put the closest points 1
 apart.  The closest are N=1 and N=4.  See L</Packing> below.
@@ -653,6 +654,10 @@ C<undef>.
 With C<rotation_factor> and C<radius_factor> parameters it's possible for
 unit circles to overlap.  In the current code the return is the largest N
 covering C<$x,$y>, but perhaps that will change.
+
+=item C<$str = $path-E<gt>figure ()>
+
+Return "circle".
 
 =back
 

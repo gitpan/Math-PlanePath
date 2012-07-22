@@ -21,15 +21,17 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_floor = \&Math::PlanePath::_floor;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
+
+use Math::PlanePath::Base::Generic
+  'round_nearest',
+  'floor';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -83,11 +85,11 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
 
-  $x = _round_nearest ($x);
+  $x = round_nearest ($x);
   if ($x < 0 || $x >= $self->{'width'}) {
     return undef;  # outside the column
   }
-  $y = _round_nearest ($y);
+  $y = round_nearest ($y);
   return $x + $y * $self->{'width'} + 1;
 }
 
@@ -97,8 +99,8 @@ sub rect_to_n_range {
   ### rect_to_n_range: "$x1,$y1  $x2,$y2"
   my $width = $self->{'width'};
 
-  $x1 = _round_nearest ($x1);
-  $x2 = _round_nearest ($x2);
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
   if ($x2 < $x1) { ($x1,$x2) = ($x2,$x1) } # swap to x1<x2
 
   ### x range: "$x1 to $x2"
@@ -108,8 +110,8 @@ sub rect_to_n_range {
     return (1,0);
   }
 
-  $y1 = _round_nearest ($y1);
-  $y2 = _round_nearest ($y2);
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
   if ($y2 < $y1) { ($y1,$y2) = ($y2,$y1) } # swap to y1<y2
   ### assert: $y1<=$y2
 

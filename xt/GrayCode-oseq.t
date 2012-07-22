@@ -29,8 +29,10 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
+use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 use Math::PlanePath::GrayCode;
 use Math::PlanePath::Diagonals;
+use Math::PlanePath::ZOrderCurve;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -77,9 +79,9 @@ sub diff_nums {
 
 sub to_binary_gray {
   my ($n, $radix) = @_;
-  my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,2) ];
+  my $digits = [ digit_split_lowtohigh($n,2) ];
   Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,2);
-  return Math::PlanePath::GrayCode::_digit_join($digits,2);
+  return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,2);
 }
 
 
@@ -348,11 +350,11 @@ sub count_1_bits {
 
     for (my $n = $diagonal_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal_path->n_to_xy ($n);
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($y,$radix) ];
+      my $digits = [ digit_split_lowtohigh($y,$radix) ];
       foreach (1 .. $x) { # x=0 unpermuted
         Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
       }
-      push @got, Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      push @got, Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
     }
 
     if (! numeq_array(\@got, $bvalues)) {
@@ -402,9 +404,9 @@ sub count_1_bits {
   if ($bvalues) {
     my $prev = 0;
     for (my $n = 1; @got < @$bvalues; $n++) {
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      my $digits = [ digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-      my $gray = Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      my $gray = Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       push @got, $gray - $prev;
       $prev = $gray;
     }
@@ -429,9 +431,9 @@ sub count_1_bits {
   if ($bvalues) {
     my $prev = 0;
     for (my $n = 1; @got < @$bvalues; $n++) {
-      my $digits = [ Math::PlanePath::_digit_split_lowtohigh($n,$radix) ];
+      my $digits = [ digit_split_lowtohigh($n,$radix) ];
       Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-      my $gray = Math::PlanePath::GrayCode::_digit_join($digits,$radix);
+      my $gray = Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
       push @got, $gray - $prev;
       $prev = $gray;
     }

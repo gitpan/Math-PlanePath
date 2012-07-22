@@ -32,6 +32,11 @@
 # innermost
 #   |-------0-------|-------1--------|
 #
+#
+# offset -0.5 to +0.5
+# h-0.5 < R < h+0.5
+# h-0.5 <= R-0.5 < h+0.5
+# h-0.5 < R+0.5 <= h+0.5
 
 # A036702 count Gaussian |z| <= n
 # A036706 count Gaussian n-1/2 < |z| < n+1/2 with a>0,b>=0, so 1/4
@@ -52,13 +57,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
 *_divrem = \&Math::PlanePath::_divrem;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
 
 use Math::PlanePath::SacksSpiral;
 *_rect_to_radius_corners = \&Math::PlanePath::SacksSpiral::_rect_to_radius_corners;
@@ -133,7 +139,7 @@ sub n_to_xy {
   ### FilledRings n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   if ($n < 2) {
     return ($n-1, 0);
@@ -232,8 +238,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### FilledRings xy_to_n(): "$x, $y"
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   if ($x == 0 && $y == 0) {
     return 1;
@@ -241,7 +247,7 @@ sub xy_to_n {
 
   my $r = int ((sqrt(4*($x*$x+$y*$y)) + 1) / 2);
   ### $r
-  if (_is_infinite($r)) {
+  if (is_infinite($r)) {
     return undef;
   }
 
@@ -336,7 +342,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath
+=for stopwords Ryde Math-PlanePath OEIS
 
 =head1 NAME
 

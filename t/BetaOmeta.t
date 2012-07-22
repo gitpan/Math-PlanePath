@@ -53,7 +53,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::BetaOmega::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::BetaOmega->VERSION,  $want_version,
@@ -193,7 +193,7 @@ foreach my $elem ([0, 1,0],
 # require Math::PlanePath::KochCurve;
 # my $want_y_min = Y_min_pow($want_level);
 # my ($based_len, $based_level)
-#   = Math::PlanePath::KochCurve::_round_down_pow ($y - $want_y_min, 2);
+#   = round_down_pow ($y - $want_y_min, 2);
 # ok ($based_len, $want_len);
 # ok ($based_level, $want_level);
 

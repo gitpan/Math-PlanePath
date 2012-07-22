@@ -35,7 +35,7 @@ use Math::PlanePath::FilledRings;
 # VERSION
 
 {
-  my $want_version = 81;
+  my $want_version = 82;
   ok ($Math::PlanePath::FilledRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FilledRings->VERSION,  $want_version,

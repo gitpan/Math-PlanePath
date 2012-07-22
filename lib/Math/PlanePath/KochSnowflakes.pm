@@ -27,17 +27,17 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
+use Math::PlanePath::KochCurve;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -78,9 +78,9 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### KochSnowflakes n_to_xy(): $n
   if ($n < 1) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
-  my ($base, $level) = _round_down_pow ($n, 4);
+  my ($base, $level) = round_down_pow ($n, 4);
   ### $level
   ### $base
   ### next base would be: 4**($level+1)
@@ -155,7 +155,7 @@ sub xy_to_n_list {
   my ($self, $x, $y) = @_;
   ### KochSnowflakes xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
+  $x = round_nearest ($x);
   if (abs($x) <= 1) {
     if ($x == 0) {
       my $y6 = 6*$y;
@@ -173,7 +173,7 @@ sub xy_to_n_list {
     }
   }
 
-  $y = _round_nearest ($y);
+  $y = round_nearest ($y);
   if (($x % 2) != ($y % 2)) {
     ### diff parity...
     return;
@@ -201,11 +201,11 @@ sub xy_to_n_list {
     return;
   }
 
-  my ($len,$level) = _round_down_pow($y, 3);
+  my ($len,$level) = round_down_pow($y, 3);
   $level += 1;
   ### $level
   ### $len
-  if (_is_infinite($level)) {
+  if (is_infinite($level)) {
     return $level;
   }
 
@@ -238,7 +238,7 @@ sub xy_to_n_list {
 #                   =     2/3 * 3^level
 #                  1.5*y = 3^level
 #
-# ENHANCE-ME: use _round_down_pow() to be bigint friendly
+# ENHANCE-ME: use round_down_pow() to be bigint friendly
 # ENHANCE-ME: share KochCurve segment checker to find actual min/max
 #
 # not exact
@@ -246,10 +246,10 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### KochSnowflakes rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = _round_nearest ($x1);
-  $y1 = _round_nearest ($y1);
-  $x2 = _round_nearest ($x2);
-  $y2 = _round_nearest ($y2);
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
@@ -276,10 +276,10 @@ sub rect_to_n_range {
   ### left: (-$x1+$y2)/2
   ### bottom: -$y1
 
-  my ($len, $level) = _round_down_pow (max (int(($x2+$y2)/2),
-                                            int((-$x1+$y2)/2),
-                                            -$y1),
-                                       3);
+  my ($len, $level) = round_down_pow (max (int(($x2+$y2)/2),
+                                           int((-$x1+$y2)/2),
+                                           -$y1),
+                                      3);
   ### $level
   # end of $level is 1 before base of $level+1
   return (1, 4**($level+2) - 1);

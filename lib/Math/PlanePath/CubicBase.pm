@@ -28,17 +28,20 @@ use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
-*_digit_split_lowtohigh = \&Math::PlanePath::_digit_split_lowtohigh;
-
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'parameter_info_array',
+  'digit_split_lowtohigh';
+
+use Math::PlanePath::ZOrderCurve;
+*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,19 +49,15 @@ $VERSION = 81;
 
 use constant n_start => 0;
 
-use constant parameter_info_array =>
-  [{ name      => 'radix',
-     share_key => 'radix_2',
-     type      => 'integer',
-     minimum   => 2,
-     default   => 2,
-     width     => 3,
-   },
-   { name      => 'skewed',
-     type      => 'boolean',
-     default   => 0,
-   },
-];
+# use constant parameter_info_array =>
+#   [ Math::PlanePath::Base::Digits::parameter_info_radix2(),
+#
+#    # Experimental ...
+#    # { name      => 'skewed',
+#    #   type      => 'boolean',
+#    #   default   => 0,
+#    # },
+# ];
 
 sub new {
   my $class = shift;
@@ -76,7 +75,7 @@ sub n_to_xy {
   ### CubicBase n_to_xy(): "$n"
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   # is this sort of midpoint worthwhile? not documented yet
   {
@@ -98,7 +97,7 @@ sub n_to_xy {
   my $y = 0;
 
   my $radix = $self->{'radix'};
-  if (my @digits = _digit_split_lowtohigh($n,$radix)) {
+  if (my @digits = digit_split_lowtohigh($n,$radix)) {
     my $len = ($n * 0) + 1;  # inherit bignum 1
     my $ext = 1;
     for (;;) {
@@ -147,10 +146,10 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### CubicBase xy_to_n(): "$x, $y"
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
-  if (_is_infinite($x)) { return ($x); }
-  if (_is_infinite($y)) { return ($y); }
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if (is_infinite($x)) { return ($x); }
+  if (is_infinite($y)) { return ($y); }
 
   if ($self->{'skewed'}) {
     $x = 2*$x - $y;
@@ -163,63 +162,8 @@ sub xy_to_n {
   # $x = ($x-$y)/2;  # into i,j coordinates
 
   my $radix = $self->{'radix'};
-  my $n = ($x * 0 * $y);  # inherit bignum 0
-
-
-  # my ($len, $level) = _round_down_pow(abs($x)+abs($y), $radix);
-  # $len *= $radix;
-  # $level++;
-  # $len *= $radix;
-  # ### $level
-  # ### $len
-  #
-  # for (;;) {
-  #   ### at: "x=$x y=$y"
-  #
-  #   {
-  #     my $k = -$y;
-  #     my $digit = ($k >= 0
-  #                  ? int($k/$len)
-  #                  : -int(-$k/$len));
-  #     $n = $n*$radix + $digit;
-  #     $x += $digit*$len;
-  #     $y += $digit*$len;
-  #
-  #     ### 240deg digit: $digit
-  #     ### add to: "x=$x y=$y"
-  #   }
-  #
-  #   $len = int($len/$radix);
-  #   ### $len
-  #
-  #   {
-  #     my $k = $y;
-  #     my $digit = int($k/$len) % $radix;
-  #     $n = $n*$radix + $digit;
-  #     $x += $digit*$len;
-  #     $y -= $digit*$len;
-  #
-  #     ### 120deg digit: $digit
-  #     ### subtract to: "x=$x y=$y"
-  #   }
-  #
-  #   {
-  #     my $digit = ($x >= 0
-  #                  ? int($x/(2*$len))
-  #                  : -int(-$x/(2*$len)));
-  #     $n = $n*$radix + $digit;
-  #     $x -= 2*$digit;
-  #
-  #     ### 0deg digit: $digit
-  #     ### subtract to: "x=$x y=$y"
-  #   }
-  #
-  #   last unless $level-- > 0;
-  #
-  # }
-
-
-  my $power = $n + 1;     # inherit bignum 1
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+  my @n; # digits low to high
 
   if ($x || $y) {
     my $ext = 1;
@@ -229,7 +173,7 @@ sub xy_to_n {
 
       {
         my $digit = (($x+$y)/2) % $radix;
-        $n += $digit * $power;    # low to high
+        push @n, $digit;
         $x -= 2*$digit;
 
         ### 0deg digit: $digit
@@ -237,7 +181,6 @@ sub xy_to_n {
       }
 
       last unless $x || $y;
-      $power *= $radix;
       if ($ext ^= 1) {
         ### assert: ($x % $radix) == 0
         ### assert: ($y % $radix) == 0
@@ -248,7 +191,7 @@ sub xy_to_n {
 
       {
         my $digit = (($y-$x)/2) % $radix;
-        $n += $digit * $power;    # low to high
+        push @n, $digit;
         $x += $digit;
         $y -= $digit;
 
@@ -257,7 +200,6 @@ sub xy_to_n {
       }
 
       last unless $x || $y;
-      $power *= $radix;
       if ($ext ^= 1) {
         ### assert: ($x % $radix) == 0
         ### assert: ($y % $radix) == 0
@@ -268,7 +210,7 @@ sub xy_to_n {
 
       {
         my $digit = (-$y) % $radix;
-        $n += $digit * $power;    # digit low to high stored into $n
+        push @n, $digit;
         $x += $digit;
         $y += $digit;
 
@@ -277,7 +219,6 @@ sub xy_to_n {
       }
 
       last unless $x || $y;
-      $power *= $radix;
       if ($ext ^= 1) {
         ### assert: ($x % $radix) == 0
         ### assert: ($y % $radix) == 0
@@ -288,8 +229,7 @@ sub xy_to_n {
     }
   }
 
-  ### result: $n
-  return $n;
+  return _digit_join_lowtohigh (\@n, $radix, $zero);
 }
 
 # ENHANCE-ME: Can probably do better by measuring extents in 3 directions
@@ -300,16 +240,79 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### CubicBase rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
+  $x1 = round_nearest ($x1);
+  $y1 = round_nearest ($y1);
+  $x2 = round_nearest ($x2);
+  $y2 = round_nearest ($y2);
+
   my $radix = $self->{'radix'} ;
   my $xm = max(abs($x1),abs($x2)) * $radix*$radix*$radix;
   my $ym = max(abs($y1),abs($y2)) * $radix*$radix*$radix;
 
   return (0,
-          int($xm*$xm+$ym*$ym));
+          $xm*$xm+$ym*$ym);
 }
 
 1;
 __END__
+
+# xy_to_n() high to low
+#
+# use Math::PlanePath::Base::Digits
+#   'round_down_pow';
+#
+# my ($len, $level) = round_down_pow(abs($x)+abs($y), $radix);
+# $len *= $radix;
+# $level++;
+# $len *= $radix;
+# ### $level
+# ### $len
+#
+# for (;;) {
+#   ### at: "x=$x y=$y"
+#
+#   {
+#     my $k = -$y;
+#     my $digit = ($k >= 0
+#                  ? int($k/$len)
+#                  : -int(-$k/$len));
+#     $n = $n*$radix + $digit;
+#     $x += $digit*$len;
+#     $y += $digit*$len;
+#
+#     ### 240deg digit: $digit
+#     ### add to: "x=$x y=$y"
+#   }
+#
+#   $len = int($len/$radix);
+#   ### $len
+#
+#   {
+#     my $k = $y;
+#     my $digit = int($k/$len) % $radix;
+#     $n = $n*$radix + $digit;
+#     $x += $digit*$len;
+#     $y -= $digit*$len;
+#
+#     ### 120deg digit: $digit
+#     ### subtract to: "x=$x y=$y"
+#   }
+#
+#   {
+#     my $digit = ($x >= 0
+#                  ? int($x/(2*$len))
+#                  : -int(-$x/(2*$len)));
+#     $n = $n*$radix + $digit;
+#     $x -= 2*$digit;
+#
+#     ### 0deg digit: $digit
+#     ### subtract to: "x=$x y=$y"
+#   }
+#
+#   last unless $level-- > 0;
+#
+# }
+
 
 =for stopwords eg Ryde Math-PlanePath ZOrderCurve Radix ie ImaginaryBase radix
 
@@ -357,15 +360,15 @@ grid are visited.
 The initial N=0,N=1 is replicated at +120 degrees.  Then that trapezoid at
 +240 degrees
 
-    +-----------+                       +-----------+       
-     \  2     3  \                       \  2     3  \      
-      +-----------+                       \           \     
-        \  0     1  \                       \  0     1  \   
-         +-----------+             ---------  -----------+  
-                                   \  6     7  \            
+    +-----------+                       +-----------+
+     \  2     3  \                       \  2     3  \
+      +-----------+                       \           \
+        \  0     1  \                       \  0     1  \
+         +-----------+             ---------  -----------+
+                                   \  6     7  \
       replicate +120deg              \          \    rep +240deg
-                                      \  4     5 \          
-                                       +----------+         
+                                      \  4     5 \
+                                       +----------+
 
 Then that bow-tie N=0to7 is replicated at 0 degrees again.  Each replication
 is 1/3 of the circle around, 0, 120, 240 degrees repeating.  The relative
@@ -401,9 +404,9 @@ The radial distance doubles on every second replication, so N=1 and N=2 are
 at 1 unit from the origin, then N=4 and N=8 at 2 units, then N=16 and N=32
 at 4 units.  N=64 is not shown but is then at 8 units away (X=8,Y=0).
 
-This is similar to the ImaginaryBase, but where it repeats in 4 directions
-based on i=squareroot(-1), here it's 3 directions based on w=cuberoot(1) =
--1/2+i*sqrt(3)/2.
+This is similar to the ImaginaryBase, but where that path repeats in 4
+directions based on i=squareroot(-1), here it's 3 directions based on
+w=cuberoot(1) = -1/2+i*sqrt(3)/2.
 
 =head2 Radix
 

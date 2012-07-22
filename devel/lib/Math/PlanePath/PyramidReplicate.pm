@@ -24,15 +24,15 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
-
+$VERSION = 82;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-*_round_nearest = \&Math::PlanePath::_round_nearest;
 
-use Math::PlanePath::KochCurve 42;
-*_round_down_pow = \&Math::PlanePath::KochCurve::_round_down_pow;
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::Base::Digits
+  'round_down_pow';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -52,7 +52,7 @@ sub n_to_xy {
   ### PyramidReplicate n_to_xy(): $n
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   {
     my $int = int($n);
@@ -104,19 +104,19 @@ sub xy_to_n {
 
   return undef;
 
-  $x = _round_nearest ($x);
-  $y = _round_nearest ($y);
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
 
   my ($len,$level_limit);
   {
     my $xa = abs($x);
     my $ya = abs($y);
-    ($len,$level_limit) = _round_down_pow (2*($xa > $ya ? $xa : $ya) || 1, 3);
+    ($len,$level_limit) = round_down_pow (2*($xa > $ya ? $xa : $ya) || 1, 3);
     ### $level_limit
     ### $len
   }
   $level_limit += 2;
-  if (_is_infinite($level_limit)) {
+  if (is_infinite($level_limit)) {
     return $level_limit;
   }
 
@@ -166,12 +166,12 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PyramidReplicate rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  my $max = abs(_round_nearest($x1));
+  my $max = abs(round_nearest($x1));
   foreach ($y1, $x2, $y2) {
-    my $m = abs(_round_nearest($_));
+    my $m = abs(round_nearest($_));
     if ($m > $max) { $max = $m }
   }
-  my ($len,$level) = _round_down_pow (2*($max||1)-1, 3);
+  my ($len,$level) = round_down_pow (2*($max||1)-1, 3);
   return (0, 9*$len*$len - 1);  # 9^level-1
 }
 

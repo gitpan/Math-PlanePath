@@ -30,15 +30,15 @@ use POSIX 'ceil';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
-use Math::PlanePath;
-*_is_infinite = \&Math::PlanePath::_is_infinite;
-
-use Math::PlanePath::MultipleRings;
-
 use vars '$VERSION', '@ISA';
-$VERSION = 81;
+$VERSION = 82;
+use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
+use Math::PlanePath::Base::Generic
+  'is_infinite',
+  'round_nearest';
+use Math::PlanePath::MultipleRings;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -160,7 +160,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
 
   if ($n < 0) { return; }
-  if (_is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) { return ($n,$n); }
 
   if ($n <= 1) {
     return ($n, 0);  # exactly Y=0
@@ -229,7 +229,7 @@ sub xy_to_n {
   ### $r
   ### $r_limit
 
-  if (_is_infinite($r_limit)) {
+  if (is_infinite($r_limit)) {
     ### infinite range, r inf or too big
     return undef;
   }
@@ -523,7 +523,7 @@ The current implementation is a bit slow.
 
 Return 0, the first C<$n> on the path.
 
-=item C<$n = $path-E<gt>figure ()>
+=item C<$str = $path-E<gt>figure ()>
 
 Return "circle".
 
