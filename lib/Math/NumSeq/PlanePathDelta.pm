@@ -17,7 +17,10 @@
 
 
 # maybe:
-# dDiffYX,
+# AbsdX,AbsdY   dAbsX,dAbsY
+# Abs_dX
+# abs_dX
+# dRadius, dRSquared, dTRadius, dTRSquared of the radii
 # dAbsDiff change in abs(X-Y)
 #    (Xnext-Ynext) - (X-Y)
 #      = (Xnext-X) - (Ynext-Y)
@@ -25,11 +28,10 @@
 #    (Xnext-Ynext) - (Y-X)        # if X-Y negative
 #      = Xnext+X - Ynext-Y
 # dSumAbs change in abs(X)+abs(Y)
-# AbsdX,AbsdY
-# dRadius, dRSquared, dTRadius, dTRSquared of the radii
 # dTheta360
 # 'Dir360','TDir360',
 
+# matching Dir4,TDir6
 # dDist dDSquared
 # dTDist dTDSquared
 # Dist DSquared
@@ -43,9 +45,11 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::NumSeq;
-@ISA = ('Math::NumSeq');
+use Math::NumSeq::Base::IterateIth;
+@ISA = ('Math::NumSeq::Base::IterateIth',
+        'Math::NumSeq');
 
 use Math::NumSeq::PlanePathCoord;
 *_planepath_oeis_key = \&Math::NumSeq::PlanePathCoord::_planepath_oeis_key;
@@ -57,7 +61,6 @@ use Math::NumSeq::PlanePathCoord;
 
 use constant 1.02; # various underscore constants below
 use constant characteristic_smaller => 1;
-
 
 sub description {
   my ($self) = @_;
@@ -77,7 +80,7 @@ use constant::defer parameter_info_array =>
        display => 'Delta Type',
        type    => 'enum',
        default => 'dX',
-       choices => ['dX','dY','dSum','dDiffXY',
+       choices => ['dX','dY','dSum','dDiffXY','dDiffYX',
                    'Dir4','TDir6',
                    # 'Dist','DSquared',
                    # 'TDist','TDSquared',
@@ -94,18 +97,18 @@ my %oeis_anum
      'Math::PlanePath::Diagonals,direction=down' =>
      {
       dY => 'A127949',
-      # OEIS-Catalogue: A127949 planepath=Diagonals,delta_type=dY
+      # OEIS-Catalogue: A127949 planepath=Diagonals delta_type=dY
 
       # but starts OFFSET=0
-      # dSum => 'A023531', # 1 at triangulars
+      # dSum => 'A023531', # characteristic "1" at triangulars
      },
      'Math::PlanePath::Diagonals,direction=up' =>
      {
       dX => 'A127949',
-      # OEIS-Other: A127949 planepath=Diagonals,delta_type=dX
+      # OEIS-Other: A127949 planepath=Diagonals,direction=up delta_type=dX
 
       # but starts OFFSET=0
-      # dSum => 'A023531', # 1 at triangulars
+      # dSum => 'A023531', # characteristic "1" at triangulars
      },
      
      # 'Math::PlanePath::PowerArray,radix=2' =>
@@ -116,7 +119,7 @@ my %oeis_anum
      #
      #  # # but starts OFFSET=0 vs n_start=1 here
      #  # dY => 'A108715', # first diffs of odd part of n
-     #  # # OEIS-Catalogue: A108715 planepath=PowerArray,radix=2 coord_type=dY
+     #  # # OEIS-Catalogue: A108715 planepath=PowerArray,radix=2 delta_type=dY
      # },
      
      # 'Math::PlanePath::GosperSide' =>
@@ -135,14 +138,14 @@ my %oeis_anum
      
      # 'Math::PlanePath::DragonMidpoint' =>
      # {
-     #  # No, has n=N+2 and extra initial 0 at n=1
-     #  # A073089 => 'abs_dY',
+     #  # Not quite, has n=N+2 and extra initial 0 at n=1
+     #  # AbsdY => 'A073089',
      # },
      
      # 'Math::PlanePath::SquareSpiral' =>
      # {
      #  AbsdX => 'A079813', # k 0s then k 1s is abs(dX)
-     #  AbsdY => 'A118175', # k 0s then k 1s plus initial 1 is abs(dY)
+     #  AbsdY => 'A079813', # k 0s then k 1s plus initial 1 is abs(dY)
      #  Dir4_1 => 'A063826', # ENSW 1 to 4, rather than 0 to 3
      # },
      
@@ -311,9 +314,8 @@ sub oeis_anum {
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
   ### NumSeq-PlanePathDelta new(): @_
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   $self->{'planepath_object'}
     ||= _planepath_name_to_object($self->{'planepath'});
@@ -331,120 +333,113 @@ sub i_start {
   my $planepath_object = $self->{'planepath_object'} || return 0;
   return $planepath_object->n_start;
 }
-sub rewind {
-  my ($self) = @_;
-  my $planepath_object = $self->{'planepath_object'} || return;
 
-  $self->{'i'} = $self->i_start;
-  undef $self->{'x'};
-  $self->{'arms_count'} = $planepath_object->arms_count;
-}
-
-sub next {
-  my ($self) = @_;
-  ### NumSeq-PlanePath next(): $self->{'i'}
-  ### n_next: $self->{'n_next'}
-
-  my $planepath_object = $self->{'planepath_object'};
-  my $i = $self->{'i'}++;
-  my $x = $self->{'x'};
-  my $y;
-  if (defined $x) {
-    $y = $self->{'y'};
-  } else {
-    ($x, $y) = $planepath_object->n_to_xy ($i)
-      or return;
-  }
-
-  my $arms = $self->{'arms_count'};
-  my ($next_x, $next_y) = $planepath_object->n_to_xy($i + $arms)
-    or return;
-  my $value = &{$self->{'delta_func'}}($x,$y, $next_x,$next_y);
-
-  if ($arms == 1) {
-    $self->{'x'} = $next_x;
-    $self->{'y'} = $next_y;
-  }
-  return ($i, $value);
-}
+# Old code keeping a previous X,Y to take a delta from.
+#
+# sub rewind {
+#   my ($self) = @_;
+# 
+#   my $planepath_object = $self->{'planepath_object'} || return;
+#   $self->{'i'} = $self->i_start;
+#   undef $self->{'x'};
+#   $self->{'arms_count'} = $planepath_object->arms_count;
+# }
+# sub next {
+#   my ($self) = @_;
+#   ### NumSeq-PlanePath next(): $self->{'i'}
+#   ### n_next: $self->{'n_next'}
+# 
+#   my $planepath_object = $self->{'planepath_object'};
+#   my $i = $self->{'i'}++;
+#   my $x = $self->{'x'};
+#   my $y;
+#   if (defined $x) {
+#     $y = $self->{'y'};
+#   } else {
+#     ($x, $y) = $planepath_object->n_to_xy ($i)
+#       or return;
+#   }
+# 
+#   my $arms = $self->{'arms_count'};
+#   my ($next_x, $next_y) = $planepath_object->n_to_xy($i + $arms)
+#     or return;
+#   my $value = &{$self->{'delta_func'}}($x,$y, $next_x,$next_y);
+# 
+#   if ($arms == 1) {
+#     $self->{'x'} = $next_x;
+#     $self->{'y'} = $next_y;
+#   }
+#   return ($i, $value);
+# }
 
 sub ith {
   my ($self, $i) = @_;
   ### NumSeq-PlanePath ith(): $i
 
   my $planepath_object = $self->{'planepath_object'};
-  my ($x, $y) = $planepath_object->n_to_xy ($i)
-    or return undef;
-  my ($next_x, $next_y) = $planepath_object->n_to_xy ($i + $self->{'arms_count'})
-    or return undef;
-  return &{$self->{'delta_func'}}($x,$y, $next_x,$next_y);
+  if (my ($dx, $dy) = $planepath_object->n_to_dxdy ($i)) {
+    return &{$self->{'delta_func'}}($dx,$dy);
+  } else {
+    return undef;
+  }
 }
 
 sub _delta_func_dX {
-  my ($x,$y, $next_x,$next_y) = @_;
-  ### _delta_func_dX() ...
-  return $next_x - $x;
+  my ($dx,$dy) = @_;
+  return $dx;
 }
 sub _delta_func_dY {
-  my ($x,$y, $next_x,$next_y) = @_;
-  ### _delta_func_dY() ...
-  return $next_y - $y;
+  my ($dx,$dy) = @_;
+  return $dy;
 }
 sub _delta_func_dSum {
-  my ($x,$y, $next_x,$next_y) = @_;
-  ### _delta_func_dSum() ...
-  return ($next_x - $x) + ($next_y - $y);
+  my ($dx,$dy) = @_;
+  return $dx+$dy;
 }
 sub _delta_func_dDiffXY {
-  my ($x,$y, $next_x,$next_y) = @_;
-  return ($next_x - $x) - ($next_y - $y);
+  my ($dx,$dy) = @_;
+  return $dx-$dy;
+}
+sub _delta_func_dDiffYX {
+  my ($dx,$dy) = @_;
+  return $dy-$dx;
 }
 sub _delta_func_Dist {
   return sqrt(_delta_func_DSquared(@_));
 }
 sub _delta_func_DSquared {
-  my ($x,$y, $next_x,$next_y) = @_;
-  $x -= $next_x;
-  $y -= $next_y;
-  return $x*$x + $y*$y;
+  my ($dx,$dy) = @_;
+  return $dx*$dx + $dy*$dy;
 }
 sub _delta_func_TDist {
   return sqrt(_delta_func_TDSquared(@_));
 }
 sub _delta_func_TDSquared {
-  my ($x,$y, $next_x,$next_y) = @_;
-  $x -= $next_x;
-  $y -= $next_y;
-  return $x*$x + 3*$y*$y;
+  my ($dx,$dy) = @_;
+  return $dx*$dx + 3*$dy*$dy;
 }
 
 sub _delta_func_Dir4 {
-  my ($x,$y, $next_x,$next_y) = @_;
-  ### _delta_func_Dir4(): "$x,$y,  $next_x,$next_y"
-
-  return _delta_func_Dir360($x,$y, $next_x,$next_y) / 90;
+  my ($dx,$dy) = @_;
+  ### _delta_func_Dir4(): "$dx,$dy"
+  return _delta_func_Dir360($dx,$dy) / 90;
 }
 sub _delta_func_TDir6 {
-  my ($x,$y, $next_x,$next_y) = @_;
-  ### _delta_func_TDir6(): "$x,$y,  $next_x,$next_y"
-
-  return _delta_func_TDir360($x,$y, $next_x,$next_y) / 60;
+  my ($dx,$dy) = @_;
+  ### _delta_func_TDir6(): "$dx,$dy"
+  return _delta_func_TDir360($dx,$dy) / 60;
 }
 sub _delta_func_Dir8 {
-  my ($x,$y, $next_x,$next_y) = @_;
-  return _delta_func_Dir360($x,$y, $next_x,$next_y) / 45;
+  my ($dx,$dy) = @_;
+  return _delta_func_Dir360($dx,$dy) / 45;
 }
 
 use constant 1.02; # for leading underscore
 use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 sub _delta_func_Dir360 {
-  my ($x,$y, $next_x,$next_y) = @_;
-  ### _delta_func_Dir360(): "$x,$y,  $next_x,$next_y"
-
-  my $dx = $next_x - $x;
-  my $dy = $next_y - $y;
-  ### dxdy: "$dx $dy"
+  my ($dx,$dy) = @_;
+  ### _delta_func_Dir360(): "$dx,$dy"
 
   if ($dy == 0) {
     return ($dx >= 0 ? 0 : 180);
@@ -478,12 +473,8 @@ sub _delta_func_Dir360 {
 }
 
 sub _delta_func_TDir360 {
-  my ($x,$y, $next_x,$next_y) = @_;
-  ### _delta_func_TDir360(): "$x,$y,  $next_x,$next_y"
-
-  my $dx = $next_x - $x;
-  my $dy = $next_y - $y;
-  ### dxdy: "$dx $dy"
+  my ($dx,$dy) = @_;
+  ### _delta_func_TDir360(): "$dx,$dy"
 
   if ($dy == 0) {
     return ($dx >= 0 ? 0 : 180);
@@ -516,7 +507,8 @@ sub _delta_func_TDir360 {
 my %type_is_dxdy = (dX => 1,
                     dY => 1,
                     dSum => 1,
-                    dDiffXY => 1);
+                    dDiffXY => 1,
+                    dDiffYX => 1);
 sub characteristic_integer {
   my ($self) = @_;
   my $planepath_object = $self->{'planepath_object'};
@@ -587,6 +579,23 @@ sub values_max {
   use constant _NumSeq_Delta_dSum_max => undef;
   use constant _NumSeq_Delta_dDiffXY_min => undef;
   use constant _NumSeq_Delta_dDiffXY_max => undef;
+
+  sub _NumSeq_Delta_dDiffYX_min {
+    my ($self) = @_;
+    if (defined (my $m = $self->_NumSeq_Delta_dDiffXY_max)) {
+      return - $m;
+    } else {
+      return undef;
+    }
+  }
+  sub _NumSeq_Delta_dDiffYX_max {
+    my ($self) = @_;
+    if (defined (my $m = $self->_NumSeq_Delta_dDiffXY_min)) {
+      return - $m;
+    } else {
+      return undef;
+    }
+  }
 
   sub _NumSeq_Delta_Dist_min {
     my ($self) = @_;
@@ -1250,6 +1259,7 @@ sub values_max {
   *_NumSeq_Delta_dY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_dSum_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_dDiffXY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_dDiffYX_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDist_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dir4_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
@@ -1817,6 +1827,13 @@ sub values_max {
   use constant _NumSeq_Delta_TDist_non_decreasing => 1;  # triangular
   use constant _NumSeq_Delta_TDSquared_max => 4;             # triangular
 }
+{ package Math::PlanePath::GosperReplicate;
+  # maximum angle N=34 dX=3,dY=-1, it seems
+  use constant _NumSeq_Delta_Dir4_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (0,0, 3,-1);
+  use constant _NumSeq_Delta_TDir6_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (0,0, 3,-1);
+}
 { package Math::PlanePath::GosperIslands;
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
@@ -2287,6 +2304,8 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'width'} == 1); # constant when column only
   }
+  *_NumSeq_Delta_dDiffYX_non_decreasing
+    = \&_NumSeq_Delta_dDiffXY_non_decreasing;
 
   sub _NumSeq_Delta_Dir4_min {
     my ($self) = @_;
@@ -2369,6 +2388,8 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'height'} == 1); # constant when one row only
   }
+  *_NumSeq_Delta_dDiffYX_non_decreasing
+    = \&_NumSeq_Delta_dDiffXY_non_decreasing;
 
   sub _NumSeq_Delta_Dir4_min {
     my ($self) = @_;
@@ -2677,6 +2698,7 @@ sub values_max {
             : 1);
   }
   *_NumSeq_Delta_dDiffXY_non_decreasing = \&_NumSeq_Delta_dSum_non_decreasing;
+  *_NumSeq_Delta_dDiffYX_non_decreasing = \&_NumSeq_Delta_dSum_non_decreasing;
 
   sub _NumSeq_Delta_DSquared_max {
     my ($self) = @_;
@@ -2906,6 +2928,7 @@ sub values_max {
   use constant _NumSeq_Delta_dY_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_dSum_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_dDiffXY_non_decreasing => 1; # constant
+  use constant _NumSeq_Delta_dDiffYX_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_Dir4_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_TDir6_non_decreasing => 1; # constant
   use constant _NumSeq_Delta_Dist_non_decreasing => 1;
@@ -3010,7 +3033,7 @@ sub values_max {
   use constant _NumSeq_Delta_DSquared_max => 2;
   use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
 }
-{ package Math::PlanePath::QuintetRepliate;
+{ package Math::PlanePath::QuintetReplicate;
   # N=1874 Dir4=3.65596
   # N=9374 Dir4=3.96738, etc
   # Dir4 supremum at 244...44 base 5
@@ -3281,45 +3304,51 @@ The C<delta_type> choices are
     "dY"       change in Y coordinate
     "dSum"     change in X+Y
     "dDiffXY"  change in X-Y
+    "dDiffYX"  change in Y-X
     "Dir4"     direction 0=East, 1=North, 2=West, 3=South
     "TDir6"    triangular 0=E, 1=NE, 2=NW, 3=W, 4=SW, 5=SE
 
-In each case the value at i is the change from N=i to N=i+1 on the path, or
-from N=i to N=i+arms for paths with multiple "arms" (thus following a
-particular arm).  i values start from the usual C<$path-E<gt>n_start()>.
+In each case the value at i is per C<$path-E<gt>n_to_dxdy($i)>, being the
+change from N=i to N=i+1, or from N=i to N=i+arms for paths with multiple
+"arms" (thus following a particular arm).  i values start from the usual
+C<$path-E<gt>n_start()>.
 
-"dSum" is the change in X+Y and is also simply dX+dY, since
+"dSum" is the change in X+Y and is also simply dX+dY since
 
     dSum = (Xnext+Ynext) - (X+Y)
          = (Xnext-X) + (Ynext-Y)
          = dX + dY
 
-The sum X+Y numbers anti-diagonals (as described in
-L<Math::NumSeq::PlanePathCoord>).  dSum is therefore movement between
-diagonals, or 0 if a step stays within the same diagonal.
+The sum X+Y counts anti-diagonals, as described in
+L<Math::NumSeq::PlanePathCoord>.  dSum is therefore a move between diagonals
+or 0 if a step stays within the same diagonal.
 
-"dDiffXY" is the change in DiffXY = X-Y and is also simply dX-dY, since
+"dDiffXY" is the change in DiffXY = X-Y and is also simply dX-dY since
 
     dDiffXY = (Xnext-Ynext) - (X-Y)
             = (Xnext-X) - (Ynext-Y)
             = dX - dY
 
-The difference X-Y numbers diagonals, downwards, as described in
-L<Math::NumSeq::PlanePathCoord>.  dDiffXY is therefore movement between
-those diagonals, or 0 if a step stays within the same diagonal.
+The difference X-Y counts diagonals, downwards to the south-east, as
+described in L<Math::NumSeq::PlanePathCoord>.  dDiffXY is therefore movement
+between those diagonals or 0 if a step stays within the same diagonal.
 
-"Dir4" is a fraction when a delta is in between the cardinal
-directions.  For example dX=-1,dY=+1 going North-West would be
-direction 1.5.
+"dDiffYX" is the negative of dDiffXY.  Which one is desired depends on which
+way you want to measure diagonals, or what sign to have the changes.
+dDiffYX is based on Y-X and so counts diagonals upwards (North-West).
 
-    Dir4 = atan2(dY, dX)       in range to 0<=Dir4<4
+"Dir4" is a fraction when a delta is in between the cardinal N,S,E,W
+directions.  For example dX=-1,dY=+1 to the North-West would be
+direction=1.5.
 
-"TDir6" is in the style of L<Math::PlanePath/Triangular Lattice>.  So
-dX=1,dY=1 is 60 degrees, dX=-1,dY=1 is 120 degrees, dX=-2,dY=0 is 180
-degrees, etc and fractional values in between those.  It behaves as if dY
-was scaled by a factor sqrt(3),
+    Dir4 = atan2 (dY, dX)       in range to 0 <= Dir4 < 4
 
-    TDir6 = atan2(dY*sqrt(3), dX)      in range 0<=TDir6<6
+"TDir6" is in triangular style per L<Math::PlanePath/Triangular Lattice>.
+So dX=1,dY=1 is 60 degrees, dX=-1,dY=1 is 120 degrees, dX=-2,dY=0 is 180
+degrees, etc and fractional values if in between.  It behaves as if dY was
+scaled by a factor sqrt(3) to make equilateral triangles,
+
+    TDir6 = atan2(dY*sqrt(3), dX)      in range 0 <= TDir6 < 6
 
 =head1 FUNCTIONS
 

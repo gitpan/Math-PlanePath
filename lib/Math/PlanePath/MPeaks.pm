@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -234,6 +234,17 @@ rounded to the nearest integer which has the effect of treating points as a
 squares of side 1, so the half-plane y>=-0.5 is entirely covered.
 
 =back
+
+=head1 OEIS
+
+Entries in Neil Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A045944  (etc)
+
+    A045944    N on X axis, except initial 0
+    A056106    N on Y axis, except initial 1
+    A056109    N on X negative axis, from Y=-1
 
 =head1 SEE ALSO
 

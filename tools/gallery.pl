@@ -45,6 +45,18 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['sierpinski-triangle-small.png',
+    'math-image --path=SierpinskiTriangle --all --scale=2 --size=32 --offset=0,1'],
+   ['sierpinski-triangle-big.png',
+    'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200'],
+   ['sierpinski-triangle-right-big.png',
+    'math-image --path=SierpinskiTriangle,align=right --all --scale=3 --size=200x200 --offset=-98,0'],
+   ['sierpinski-triangle-left-big.png',
+    'math-image --path=SierpinskiTriangle,align=left --all --scale=3 --size=200x200 --offset=98,0'],
+   ['sierpinski-triangle-diagonal-big.png',
+    'math-image --path=SierpinskiTriangle,align=diagonal --values=LinesTree --scale=4 --size=200x200 --offset=-98,2'],
+
+
    ['triangular-hypot-small.png',
     'math-image --path=TriangularHypot --lines --scale=4 --size=32'],
    ['triangular-hypot-big.png',
@@ -579,11 +591,6 @@ foreach my $elem
     'math-image --path=SierpinskiArrowhead --lines --scale=2 --size=32 --offset=0,1'],
    ['sierpinski-arrowhead-big.png',
     'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200'],
-
-   ['sierpinski-triangle-small.png',
-    'math-image --path=SierpinskiTriangle --all --scale=2 --size=32 --offset=0,1'],
-   ['sierpinski-triangle-big.png',
-    'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200'],
 
 
    ['ulam-warburton-quarter-small.png',

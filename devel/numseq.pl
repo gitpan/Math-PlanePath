@@ -25,6 +25,43 @@ use strict;
 
 
 {
+  # axis increasing
+  my $radix = 4;
+  my $rsquared = $radix * $radix;
+  my $re = '.' x $radix;
+
+  require Math::NumSeq::PlanePathN;
+  my $planepath;
+  $planepath = "AlternatePaperMidpoint,arms=7";
+  $planepath = "ImaginaryBase,radix=37";
+ LINE_TYPE: foreach my $line_type ('Diagonal_SE','Diagonal_SW','Diagonal_NW','Diagonal') {
+    my $seq = Math::NumSeq::PlanePathN->new
+      (
+       planepath => $planepath,
+       line_type => $line_type,
+      );
+    ### $seq
+
+    my $prev = -1;
+    for (1 .. 1000) {
+      my ($i, $value) = $seq->next
+        or last;
+      if ($value <= $prev) {
+        # print "$line_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
+        my $path = $seq->{'planepath_object'};
+        my ($prev_x,$prev_y) = $path->n_to_xy($prev);
+        my ($x,$y) = $path->n_to_xy($value);
+        print "$line_type not   N=$prev $prev_x,$prev_y  N=$value $x,$y\n";
+        next LINE_TYPE;
+      }
+      $prev = $value;
+    }
+    print "$line_type   all increasing\n";
+  }
+  exit 0;
+}
+
+{
   # max Dir4
 
   require Math::BaseCnv;
@@ -40,6 +77,8 @@ use strict;
   $planepath = "PythagoreanTree,coordinates=PQ,tree_type=FB";
   $planepath = "UlamWarburtonQuarter";
   $planepath = "UlamWarburton";
+  $planepath = "GosperReplicate";
+  $planepath = "QuintetReplicate";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                delta_type => 'Dir4');
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
@@ -51,7 +90,7 @@ use strict;
     my ($i, $value) = $seq->next;
 
     # neg for minimum
-     $value = -$value; next unless $value;
+    # $value = -$value; next unless $value;
 
     if ($value > $max) {
       my $dx = $dx_seq->ith($i);

@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -319,10 +319,9 @@ sub rect_to_n_range {
 # Nbase = (d^2 + (w-1)*d + 1-w) + d+w-1
 #       = d^2 + w*d
 
-# including fraction
-sub _n_to_dxdy {
+sub n_to_dxdy {
   my ($self, $n) = @_;
-  ### _n_to_dxdy(): $n
+  ### n_to_dxdy(): $n
 
   my $w = $self->{'wider'};
   my $d = int((1-$w + sqrt(int(4*$n) + ($w+2)*$w-3)) / 2);
@@ -691,47 +690,55 @@ And various sequences,
 
     http://oeis.org/A180714  (etc)
 
-    A180714    X+Y coordinate sum
-    A053615    abs(X-Y), distance to nearest pronic
-    A079813    abs(dY), k 0s followed by k 1s
-    A118175    abs(dY), initial 1 then k 0s followed by k 1s
-    A063826    direction 1=right,2=up,3=left,4=down
+    wider=0 (the default)
+      A180714    X+Y coordinate sum
+      A053615    abs(X-Y), distance to nearest pronic
+      A079813    abs(dY), k 0s followed by k 1s
+      A118175    abs(dY), initial 1 then k 0s followed by k 1s
+      A063826    direction 1=right,2=up,3=left,4=down
 
-    A033638    N positions of the turns (extra initial 1, 1)
-    A172979      those positions which are primes too
+      A033638    N positions of the turns (extra initial 1, 1)
+      A172979      those positions which are primes too
 
-    A054552    N values on X axis (East)
-    A054554    N values on X=Y diagonal (NE)
-    A054556    N values on Y axis (North)
-    A054567    N values on negative X axis (West)
-    A054569    N values on negative X=Y diagonal (SW)
-    A033951    N values on negative Y axis (South)
-    A053755    N values on X=-Y opp diagonal X<=0 (NW)
-    A016754    N values on X=-Y opp diagonal X>=0 (SE)
+      A054552    N values on X axis (East)
+      A054554    N values on X=Y diagonal (NE)
+      A054556    N values on Y axis (North)
+      A054567    N values on negative X axis (West)
+      A054569    N values on negative X=Y diagonal (SW)
+      A033951    N values on negative Y axis (South)
+      A053755    N values on X=-Y opp diagonal X<=0 (NW)
+      A016754    N values on X=-Y opp diagonal X>=0 (SE)
 
-    A137928    N values on X=-Y+1 opposite diagonal
-    A002061    N values on X=Y diagonal pos and neg
-    A016814    (4k+1)^2, every second N on south-east diagonal
+      A137928    N values on X=-Y+1 opposite diagonal
+      A002061    N values on X=Y diagonal pos and neg
+      A016814    (4k+1)^2, every second N on south-east diagonal
 
-    A053999    prime[N] on X=-Y opp diagonal X>=0 (SE)
-    A054551    prime[N] on the X axis (E)
-    A054553    prime[N] on the X=Y diagonal (NE)
-    A054555    prime[N] on the Y axis (N)
-    A054564    prime[N] on X=-Y opp diagonal X<=0 (NW)
-    A054566    prime[N] on negative X axis (W)
+      A143856    N values on ENE slope dX=2,dY=1
+      A143861    N values on NNE slope dX=1,dY=2
 
-    A068225    permutation N -> the N to its right at X+1,Y
-    A121496      run lengths of consecutive N in that permutation
-    A068226    permutation N -> the N at its left X-1,Y
-    A020703    permutation N transposing X,Y
+      A053999    prime[N] on X=-Y opp diagonal X>=0 (SE)
+      A054551    prime[N] on the X axis (E)
+      A054553    prime[N] on the X=Y diagonal (NE)
+      A054555    prime[N] on the Y axis (N)
+      A054564    prime[N] on X=-Y opp diagonal X<=0 (NW)
+      A054566    prime[N] on negative X axis (W)
 
-    A033952    digits on negative Y axis
-    A033953    digits on negative Y axis, starting 0
-    A033988    digits on negative X axis, starting 0
-    A033989    digits on Y axis, starting 0
-    A033990    digits on X axis, starting 0
+      A068225    permutation N to the N to its right at X+1,Y
+      A121496      run lengths of consecutive N in that permutation
+      A068226    permutation N to the N at its left X-1,Y
+      A020703    permutation N transposing X,Y
 
-    A062410    total sum previous row or column
+      A033952    digits on negative Y axis
+      A033953    digits on negative Y axis, starting 0
+      A033988    digits on negative X axis, starting 0
+      A033989    digits on Y axis, starting 0
+      A033990    digits on X axis, starting 0
+
+      A062410    total sum previous row or column
+
+    wider=1
+      A069894    N on South-West diagonal
+      A002939    N on South-East diagonal (extra initial 0)
 
 =head1 SEE ALSO
 

@@ -60,18 +60,10 @@ sub path_n_turn {
   if ($turn == 3) { return 0; }
   die "Oops, unrecognised turn";
 }
-# return ($dx,$dy)
-sub path_n_dxdy {
-  my ($path,$n) = @_;
-  my ($x,$y) = $path->n_to_xy($n);
-  my ($next_x,$next_y) = $path->n_to_xy($n+1);
-  return ($next_x - $x,
-          $next_y - $y);
-}
 # return 0,1,2,3
 sub path_n_dir {
   my ($path, $n) = @_;
-  return dxdy_to_dir(path_n_dxdy($path,$n));
+  return dxdy_to_dir($path->n_to_dxdy($n));
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
 sub dxdy_to_dir {
@@ -98,8 +90,6 @@ sub dxdy_to_dir {
 #       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
 #       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
 #     }
-#   } else {
-#     MyTestHelpers::diag ("$anum not available");
 #   }
 #   skip (! $bvalues,
 #         numeq_array(\@got, $bvalues),
@@ -229,8 +219,6 @@ sub dxdy_to_dir {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
         MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -247,8 +235,6 @@ sub dxdy_to_dir {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
         MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -264,7 +250,7 @@ sub dxdy_to_dir {
   my @got;
   if ($bvalues) {
     for (my $n = $paper->n_start; @got < @$bvalues; $n++) {
-      my ($dx,$dy) = path_n_dxdy($paper,$n);
+      my ($dx,$dy) = $paper->n_to_dxdy($n);
       if ($dx < 0 || $dy < 0) {
         push @got, $n;
       }
@@ -273,8 +259,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -289,7 +273,7 @@ sub dxdy_to_dir {
   my @got;
   if ($bvalues) {
     for (my $n = $paper->n_start; @got < @$bvalues; $n++) {
-      my ($dx,$dy) = path_n_dxdy($paper,$n);
+      my ($dx,$dy) = $paper->n_to_dxdy($n);
       if ($dx > 0 || $dy > 0) {
         push @got, $n;
       }
@@ -298,8 +282,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -320,8 +302,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -342,8 +322,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -367,8 +345,6 @@ sub dxdy_to_dir {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
         MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -385,8 +361,6 @@ sub dxdy_to_dir {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
         MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -426,8 +400,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -451,8 +423,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

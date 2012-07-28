@@ -27,24 +27,19 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'parameter_info_array',
+  'round_down_pow',
   'digit_split_lowtohigh',
-  'round_down_pow';
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+  'digit_join_lowtohigh';
 
 use Math::PlanePath::ImaginaryBase;
 *_negaradix_range_digits_lowtohigh
@@ -143,7 +138,7 @@ sub xy_to_n {
     push @ndigits, _divrem_mutate ($x, $radix);
     $x = -$x;
   }
-  return _digit_join_lowtohigh (\@ndigits, $radix, $zero);
+  return digit_join_lowtohigh (\@ndigits, $radix, $zero);
 }
 
 # Nlevel=2^level-1
@@ -227,8 +222,8 @@ sub rect_to_n_range {
   my @max_digits
     = _digit_interleave_xyx_lowtohigh ($max_xdigits, \@max_ydigits);
 
-  return (_digit_join_lowtohigh (\@min_digits, $radix, $zero),
-          _digit_join_lowtohigh (\@max_digits, $radix, $zero));
+  return (digit_join_lowtohigh (\@min_digits, $radix, $zero),
+          digit_join_lowtohigh (\@max_digits, $radix, $zero));
 }
 
 sub _digit_interleave_xyx_lowtohigh {

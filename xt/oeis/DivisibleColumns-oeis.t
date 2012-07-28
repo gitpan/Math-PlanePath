@@ -79,11 +79,7 @@ sub diff_nums {
   my $anum = 'A027751';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
-  if (! $bvalues) {
-    MyTestHelpers::diag ("$anum not available");
-  } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+  if ($bvalues) {
     my @got;
     push @got, 1;
     my $path = Math::PlanePath::DivisibleColumns->new
@@ -111,11 +107,7 @@ sub diff_nums {
   my $anum = 'A061017';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
-  if (! $bvalues) {
-    MyTestHelpers::diag ("$anum not available");
-  } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+  if ($bvalues) {
     my $path = Math::PlanePath::DivisibleColumns->new;
     for (my $n = $path->n_start; $n < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy($n);
@@ -139,11 +131,7 @@ sub diff_nums {
   my $anum = 'A027750';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
-  if (! $bvalues) {
-    MyTestHelpers::diag ("$anum not available");
-  } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+  if ($bvalues) {
     my $path = Math::PlanePath::DivisibleColumns->new;
     for (my $n = $path->n_start; $n < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy($n);
@@ -170,11 +158,7 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $good = 1;
   my $count = 0;
-  if (! $bvalues) {
-    MyTestHelpers::diag ("$anum not available");
-  } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
+  if ($bvalues) {
     my $path = Math::PlanePath::DivisibleColumns->new;
     for (my $i = 0; $i < @$bvalues; $i++) {
       my $x = $i+1;

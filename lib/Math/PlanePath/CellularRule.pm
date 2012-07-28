@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -179,6 +179,11 @@ my @rule_to_class;
       $store->(($i&0xC8)|0x12, $sierpinski_triangle);
     }
   }
+  $store->(60, [ 'Math::PlanePath::SierpinskiTriangle',
+                 n_start => 1, align => "right" ]);
+  $store->(102, [ 'Math::PlanePath::SierpinskiTriangle',
+                  n_start => 1, align => "left" ]);
+
   {
     # left negative line, 2,10,...
     # 111      any, doesn't occur
@@ -488,7 +493,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 82;
+  $VERSION = 83;
   @ISA = ('Math::PlanePath::CellularRule');
 
   use Math::PlanePath::Base::Generic
@@ -562,7 +567,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 82;
+  $VERSION = 83;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 
@@ -610,7 +615,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::LeftSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 82;
+  $VERSION = 83;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 
@@ -653,7 +658,7 @@ __END__
 
 
 # For reference the specifics currently are
-# 
+#
 #     54                              CellularRule54
 #     190,246                         CellularRule190
 #     18,26,82,90,146,154,210,218     SierpinskiTriangle
@@ -685,8 +690,9 @@ cellular automatons
 
     http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
 
-Points are numbered left to right in rows so for example C<rule =E<gt> 30>
-is
+Points are numbered left to right in rows so for example
+
+    rule => 30
 
     51 52    53 54 55 56    57 58       59          60 61 62       9
        44 45       46          47 48 49                50          8
@@ -702,9 +708,22 @@ is
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
 The automaton starts from a single point N=1 at the origin and grows into
-the rows above.  The C<rule> parameter specifies what each set of 3 cells
-below will produce in the one cell above.  The rule is encoded as a value 0
-to 255 inclusive used as bits,
+the rows above.  The C<rule> parameter controls how the 3 cells below and
+diagonally below produce a new cell,
+
+             +-----+
+             | new |              next row, Y+1
+             +-----+
+            ^   ^   ^
+          /     |     \
+         /      |      \
+    +-----+  +-----+  +-----+
+    |  A  |  |  B  |  |  C  |     row Y
+    +-----+  +-----+  +-----+
+
+There's 8 possible combinations of ABC being each 0,1.  Each such
+combination can become 0 or 1 in the "new" cell.  Those 0 or 1 for "new" is
+encoded as 8 bits in a value 0 to 255,
 
     cells below     cell above from rule
 
@@ -715,11 +734,11 @@ to 255 inclusive used as bits,
         0,0,1    ->   bit1
         0,0,0    ->   bit0
 
-When cells 0,0,0 become 1, ie. bit0 in C<rule> is 1 (an odd number), the
-"off" cells either side of the initial N=1 become all "on" infinitely to the
-sides.  And if the 1,1,1 bit7 is a 0 (ie. S<rule E<lt> 128>) then they turn
-on and off alternately in odd and even rows.  In both cases only the pyramid
-portion part -YE<lt>=XE<lt>=Y is considered for the N points, but the
+When cells 0,0,0 become 1, ie. C<rule> bit0 is 1 (an odd number), the "off"
+cells either side of the initial N=1 become all "on" infinitely to the
+sides.  Or if rule bit7 for 1,1,1 is a 0 (ie. S<rule E<lt> 128>) then they
+turn on and off alternately in odd and even rows.  In both cases only the
+pyramid portion part -YE<lt>=XE<lt>=Y is considered for the N points but the
 infinite cells to the sides are included in the calculation.
 
 The full set of patterns can be seen at the Math World page above, or can be
@@ -728,18 +747,19 @@ sources.  The patterns range from simple to complex.  For some the N=1 cell
 doesn't grow at all, only that single point, eg. rule 0 or rule 8.  Some
 grow to mere straight lines such as rule 2 or rule 5.  Others make columns
 or patterns with "quadratic" style stepping of 1 or 2 rows, or self-similar
-replications such as the Sierpinski triangle.  Some rules even give
-complicated non-repeating patterns when there's feedback across from one
-half to the other, for example rule 30.
+replications such as the Sierpinski triangle of rule 18 and 60.  Some rules
+even give complicated non-repeating patterns when there's feedback across
+from one half to the other, for example rule 30.
 
-For some rules there's specific code which this class dispatches to, such as
-CellularRule54, CellularRule190 or SierpinskiTriangle (which is adjusted to
-start at N=1 here).
+For some rules there's specific PlanePath code which this class dispatches
+to, such as CellularRule54, CellularRule190 or SierpinskiTriangle (adjusted
+to start at N=1 here).
 
 For rules without specific code the current implementation is not
 particularly efficient as it builds and holds onto the bit pattern for all
-rows to the highest N or X,Y used.  There's no doubt better ways to iterate
-an automaton, but this module offers the patterns in PlanePath style.
+rows through to the highest N or X,Y used.  There's no doubt better ways to
+iterate an automaton, but this module offers the patterns in PlanePath
+style.
 
 =head1 FUNCTIONS
 
@@ -753,11 +773,10 @@ Create and return a new path object.  C<rule> should be an integer 0 to 255.
 A C<rule> should be given always.  There is a default, but it's secret and
 likely to change.
 
-For some of the simple rules there's specific code implementing the pattern
-and the return value is an object from that class, not a
-C<Math::PlanePath::CellularRule> as such.  Is it undesirable that C<new()>
-CellularRule gives an object not C<isa()> CellularRule?  Perhaps it could be
-cooked up to be a subclass or superclass, but for now getting the more
+If there's specific PlanePath code implementing the pattern then the
+returned object is from that class and is not
+C<isa('Math::PlanePath::CellularRule')>.  Perhaps they could be cooked up to
+be a subclass or superclass of CellularRule, but for now getting the more
 efficient specific modules at least run much faster.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
@@ -785,6 +804,8 @@ L<Math::PlanePath::PyramidRows>
 L<Cellular::Automata::Wolfram>
 
 http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+
+http://oeis.org/wiki/Index_to_OEIS:_Section_Ce#cell
 
 =head1 HOME PAGE
 

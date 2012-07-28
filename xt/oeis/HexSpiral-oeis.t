@@ -72,8 +72,6 @@ sub numeq_array {
                                                       max_value => 'unlimited');
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     require Math::BigInt;
     my %plotted;
     $plotted{2,0} = Math::BigInt->new(1);
@@ -124,8 +122,6 @@ sub numeq_array {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

@@ -173,8 +173,6 @@ sub numeq_array {
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -193,8 +191,6 @@ sub numeq_array {
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -214,8 +210,6 @@ sub numeq_array {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $peano->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -233,8 +227,6 @@ sub numeq_array {
       my ($x, $y) = $peano->n_to_xy ($n);
       push @got, $diagonal->xy_to_n($x,$y) - 1;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -253,8 +245,6 @@ sub numeq_array {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $peano->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -272,8 +262,6 @@ sub numeq_array {
       my ($x, $y) = $peano->n_to_xy ($n);
       push @got, $diagonal->xy_to_n($x,$y) - 1;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -292,8 +280,6 @@ sub numeq_array {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $peano->xy_to_n ($x, $y) + 1;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -368,8 +354,6 @@ sub numeq_array {
       }
       push @got, $sum;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -390,8 +374,6 @@ sub numeq_array {
       }
       push @got, int($sum/6);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -408,8 +390,6 @@ sub numeq_array {
     foreach my $x (0 .. $#$bvalues) {
       push @got, $peano->xy_to_n($x,$x);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -425,8 +405,6 @@ sub numeq_array {
     foreach my $x (0 .. $#$bvalues) {
       push @got, int($peano->xy_to_n($x,$x) / 4);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -444,8 +422,6 @@ sub numeq_array {
       my ($x, $y) = $peano->n_to_xy ($n);
       push @got, $x;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -463,8 +439,6 @@ sub numeq_array {
       my ($x, $y) = $peano->n_to_xy ($n);
       push @got, $y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -483,8 +457,6 @@ sub numeq_array {
       my $sum = $x + $y;
       push @got, $sum;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -503,8 +475,6 @@ sub numeq_array {
       my $sqr = $x*$x + $y*$y;
       push @got, $sqr;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -526,8 +496,6 @@ sub numeq_array {
       push @got, $dx;
       ($prev_x, $prev_y) = ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -549,8 +517,6 @@ sub numeq_array {
       push @got, $dy;
       ($prev_x, $prev_y) = ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -574,8 +540,6 @@ sub numeq_array {
       push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
       ($prev_x,$prev_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -598,8 +562,6 @@ sub numeq_array {
       push @got, MyOEIS::dxdy_to_direction ($dy, $dx);
       ($prev_x,$prev_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -650,8 +612,6 @@ sub numeq_array {
       ($p_dx,$p_dy) = ($dx,$dy);
       ($p_x,$p_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -707,8 +667,6 @@ sub transpose {
       ($p_dx,$p_dy) = ($dx,$dy);
       ($p_x,$p_y) = ($x,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

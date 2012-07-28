@@ -61,15 +61,12 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy ($n);
       push @got, $x * $y;
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
@@ -86,15 +83,10 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy ($n);
       push @got, $x;
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
@@ -110,15 +102,10 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy ($n);
       push @got, $y;
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
@@ -135,14 +122,9 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     for (my $y = 1; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n (1, $y);
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
@@ -159,17 +141,12 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     require Math::PlanePath::DiagonalRationals;
     my $columns = Math::PlanePath::DiagonalRationals->new;
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $columns->n_to_xy ($n);
       push @got, $path->xy_to_n($x,$y);
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,
@@ -186,17 +163,12 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     require Math::PlanePath::RationalsTree;
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $sb->n_to_xy ($n);
       push @got, $path->xy_to_n($x,$y);
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,

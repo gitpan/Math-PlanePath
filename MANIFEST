@@ -384,6 +384,7 @@ xt/oeis/Corner-oeis.t
 xt/oeis/CornerReplicate-oeis.t
 xt/oeis/DiagonalRationals-oeis.t
 xt/oeis/Diagonals-oeis.t
+xt/oeis/DiagonalsAlternating-oeis.t
 xt/oeis/DiagonalsOctant-more.t
 xt/oeis/DiagonalsOctant-oeis.t
 xt/oeis/DigitGroups-oeis.t
@@ -417,8 +418,8 @@ xt/oeis/SierpinskiTriangle-oeis.t
 xt/oeis/SquareSpiral-oeis.t
 xt/oeis/TerdragonCurve-oeis.t
 xt/oeis/TheodorusSpiral-oeis.t
+xt/oeis/TriangleSpiral-oeis.t
 xt/oeis/TriangularHypot-oeis.t
-xt/oeis/TriangularSpiral-oeis.t
 xt/oeis/UlamWarburton-oeis.t
 xt/oeis/WythoffArray-oeis.t
 xt/oeis/ZOrderCurve-oeis.t

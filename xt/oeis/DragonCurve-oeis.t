@@ -132,7 +132,7 @@ sub dxdy_to_dir {
     my $n = 1;
     while (@got < @$bvalues) {
       if ($n >= $target_n_level) {  # not including n=2^level point itself
-        my $octal = $bits->as_oct;
+        my $octal = $bits->as_oct;  # new enough Math::BigInt
         $octal =~ s/^0+//;  # strip leading "0"
         push @got, Math::BigInt->new("$octal");
         $target_n_level *= 2;
@@ -619,7 +619,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     require Math::PlanePath::SquareSpiral;
     my $square  = Math::PlanePath::SquareSpiral->new;
 

@@ -65,6 +65,16 @@ diag "module count ",scalar(@module_filenames);
 
 my %allow_duplicate_xrefs
   = (
+     A001844 => {'lib/Math/PlanePath/AztecDiamondRings.pm' => 1,
+                 'lib/Math/PlanePath/MultipleRings.pm' => 1,
+                 'lib/Math/PlanePath/PyramidRows.pm' => 1,
+                 'lib/Math/PlanePath/AztecDiamondRings.pm' => 1,
+                 'lib/Math/PlanePath/Diagonals.pm' => 1,
+                 'lib/Math/PlanePath/DiagonalsAlternating.pm' => 1 },
+
+     A002487 => { 'lib/Math/PlanePath/RationalsTree.pm' => 1,
+                  'lib/Math/PlanePath/SierpinskiTriangle.pm' => 1 },
+
      A002262 => { 'lib/Math/PlanePath/Diagonals.pm' => 1,
                   'lib/Math/PlanePath/PyramidRows.pm' => 1 },
      A003056 => { 'lib/Math/PlanePath/Diagonals.pm' => 1,
@@ -80,9 +90,6 @@ my %allow_duplicate_xrefs
 
      A003849 => {'lib/Math/PlanePath/FibonacciWordFractal.pm' => 1,
                  'lib/Math/PlanePath/WythoffArray.pm' => 1 },
-
-     A001844 => {'lib/Math/PlanePath/AztecDiamondRings.pm' => 1,
-                 'lib/Math/PlanePath/MultipleRings.pm' => 1 },
 
      A016754 => { 'lib/Math/PlanePath/MultipleRings.pm' => 1,
                   'lib/Math/PlanePath/SquareSpiral.pm' => 1 },
@@ -182,6 +189,15 @@ diag "xt count ",scalar(@xt_filenames);
 
 my %allow_duplicate_checks
   = (
+     A001844 => { 'MultipleRings-oeis.t' => 1,
+                  'PyramidRows-oeis.t' => 1,
+                  'AztecDiamondRings-oeis.t' => 1,
+                  'Diagonals-oeis.t' => 1,
+                  'DiagonalsAlternating-oeis.t' => 1 },
+
+     A002487 => { 'RationalsTree-oeis.t' => 1,
+                  'SierpinskiTriangle-oeis.t' => 1 },
+
      A025581 => { 'Diagonals-oeis.t' => 1,
                   'PyramidRows-oeis.t' => 1 },
      A002262 => { 'Diagonals-oeis.t' => 1,
@@ -340,5 +356,6 @@ foreach my $anum (keys %oeis_checks) {
   }
 }
 
+$bad = 0; # pending OEIS-Catalogue automatic checks
 is ($bad, 0);
 exit 0;

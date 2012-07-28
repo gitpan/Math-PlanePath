@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 55;
+plan tests => 99;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,7 +35,7 @@ use Math::PlanePath::FilledRings;
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::FilledRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FilledRings->VERSION,  $want_version,
@@ -50,6 +50,23 @@ use Math::PlanePath::FilledRings;
       "VERSION class check $check_version");
 }
 
+#------------------------------------------------------------------------------
+# n_start, x_negative, y_negative
+
+{
+  my $path = Math::PlanePath::FilledRings->new;
+  ok ($path->n_start, 1, 'n_start()');
+  ok ($path->x_negative, 1, 'x_negative()');
+  ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->class_x_negative, 1, 'class_x_negative()');
+  ok ($path->class_y_negative, 1, 'class_y_negative()');
+  ok ($path->n_frac_discontinuity, 0, 'n_frac_discontinuity()');
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::FilledRings->parameter_info_list;
+  ok (join(',',@pnames), '');
+}
 
 #------------------------------------------------------------------------------
 # _cumul_extend()
@@ -67,13 +84,59 @@ sub cumul_calc {
   return $count + 1;
 }
 
-foreach my $r (0 .. 50) {
-  my $want = cumul_calc($r);
-  Math::PlanePath::FilledRings::_cumul_extend();
-  my $got = $Math::PlanePath::FilledRings::_cumul[$r];
-  ok ($got, $want, "r=$r");
+{
+  my $path = Math::PlanePath::FilledRings->new;
+  foreach my $r (0 .. 50) {
+    my $want = cumul_calc($r);
+    Math::PlanePath::FilledRings::_cumul_extend($path);
+    my $got = $path->{'cumul'}->[$r];
+    ok ($got, $want, "r=$r");
+  }
 }
 
+#------------------------------------------------------------------------------
+# n_to_xy
+
+{
+  my @data = ([ 1, 0,0 ],
+              [ 1.25, 0.25, 0 ],
+              [ 1.75, 0.75, 0 ],
+
+              [ 2, 1,0 ],
+              [ 2.25, 1, 0.25 ],
+
+              [ 3, 1,1 ], # top
+              [ 3.25, 0.75, 1 ],
+
+              [ 9,    1, -1 ],
+              [ 9.25, 1, -0.75 ],
+              [ 10,   2, 0 ],
+
+              [ 14,  -1,2 ],
+              [ 14.25,  -1.25, 1.75 ],
+
+              [ 21.25,  2, -0.75 ],
+              [ 37.25,  3, -0.75 ],
+              [ 38,     4, 0 ],
+             );
+  my $path = Math::PlanePath::FilledRings->new;
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    ok ($got_x, $want_x, "x at n=$n");
+    ok ($got_y, $want_y, "y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    if ($want_n == int($want_n)) {
+      my $got_n = $path->xy_to_n ($x, $y);
+      ok ($got_n, $want_n, "n at x=$x,y=$y");
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
 exit 0;
 
 

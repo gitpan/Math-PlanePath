@@ -350,8 +350,6 @@ sub number_of {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -381,8 +379,6 @@ sub number_of_1s_first_diff {
     }
     ### bvalues: join(',',@{$bvalues}[0..20])
     ### got: '    '.join(',',@got[0..20])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -417,8 +413,6 @@ sub trailing_number_of {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -461,8 +455,6 @@ sub new_maximum_trailing_number_of {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -517,8 +509,6 @@ sub bignum {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -551,8 +541,6 @@ sub bits {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -578,8 +566,6 @@ sub bignum_central_column {
       $b = 2*$b + $bit;
       push @got, "$b";
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -599,8 +585,6 @@ sub central_column_N {
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n (0, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),

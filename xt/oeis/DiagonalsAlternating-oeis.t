@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -17,24 +17,22 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
 use 5.004;
 use strict;
 use Test;
-plan tests => 5;
+plan tests => 1;
 
 use lib 't','xt';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
-use MyOEIS;
+BEGIN { MyTestHelpers::nowarnings(); }
 
-use Math::PlanePath::CornerReplicate;
-use Math::PlanePath::ZOrderCurve;
+use MyOEIS;
+use Math::PlanePath::DiagonalsAlternating;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-my $crep = Math::PlanePath::CornerReplicate->new;
-my $zorder = Math::PlanePath::ZOrderCurve->new;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -50,19 +48,58 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
-
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  my $diff;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    unless ($got =~ /^[0-9.-]+$/) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "not a number pos=$i got='$got'";
+    }
+    unless ($want =~ /^[0-9.-]+$/) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "not a number pos=$i want='$want'";
+    }
+    if ($got != $want) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return $diff;
+}
 
 #------------------------------------------------------------------------------
-# A059906 -- Y coordinate
+# A001844 -- X=Y diagonal, centred squares
+
 {
-  my $anum = 'A059906';
+  my $anum = 'A001844';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $path = Math::PlanePath::CornerReplicate->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $y;
+    my $path = Math::PlanePath::DiagonalsAlternating->new;
+    for (my $i = 0; @got < @$bvalues; $i++) {
+      push @got, $path->xy_to_n ($i, $i);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -71,74 +108,21 @@ sub numeq_array {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum -- Y coordinate");
+        1,
+        "$anum");
 }
 
 #------------------------------------------------------------------------------
-# A000695 -- X axis base 4 digits 0,1 only
-{
-  my $anum = 'A000695';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $x (0 .. $#$bvalues) {
-      my $n = $crep->xy_to_n ($x, 0);
-      push @got, $n;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X axis");
-}
-
-#------------------------------------------------------------------------------
-# A001196 -- Y axis
-{
-  my $anum = 'A001196';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $y (0 .. $#$bvalues) {
-      my $n = $crep->xy_to_n (0, $y);
-      push @got, $n;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Y axis");
-}
-
-#------------------------------------------------------------------------------
-# A062880 -- N diagonal
-{
-  my $anum = 'A062880';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $i (0 .. $#$bvalues) {
-      my $n = $crep->xy_to_n ($i, $i);
-      push @got, $n;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- leading diagonal");
-}
-
-
-#------------------------------------------------------------------------------
-# A163241 -- flip base-4 digits 2,3, map to ZOrderCurve
+# A131179 -- X axis, extra 0
 
 {
-  my $anum = 'A163241';
-  my $radix = 2;
+  my $anum = 'A131179';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
+  my @got = (0);
   if ($bvalues) {
-    for (my $n = $crep->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $crep->n_to_xy ($n);
-      my $n = $zorder->xy_to_n ($x, $y);
-      push @got, $n;
+    my $path = Math::PlanePath::DiagonalsAlternating->new;
+    for (my $x = 0; @got < @$bvalues; $x++) {
+      push @got, $path->xy_to_n ($x, 0);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -147,9 +131,32 @@ sub numeq_array {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1);
+        1,
+        "$anum");
 }
 
+#------------------------------------------------------------------------------
+# A128918 -- Y axis, extra 0
+
+{
+  my $anum = 'A128918';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got = (1);
+  if ($bvalues) {
+    my $path = Math::PlanePath::DiagonalsAlternating->new;
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n (0, $y);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
 
 #------------------------------------------------------------------------------
 exit 0;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,8 +23,23 @@ use strict;
 use warnings;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
+
+{
+  # number of children
+  require Math::PlanePath::UlamWarburton;
+  require Math::PlanePath::UlamWarburtonQuarter;
+  # my $path = Math::PlanePath::UlamWarburton->new;
+  my $path = Math::PlanePath::UlamWarburtonQuarter->new;
+  for (my $n = $path->n_start+1; $n < 40; $n++) {
+    my @n_children = $path->tree_n_children($n);
+    my $num_children = scalar(@n_children);
+    print "$num_children,";
+  }
+  print "\n";
+  exit 0;
+}
 # turn on u(0) = 1
 #         u(1) = 1
 #         u(n) = 4 * 3^ones(n-1) - 1

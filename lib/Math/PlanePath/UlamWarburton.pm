@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -406,8 +406,10 @@ sub _n_start {
 # ENHANCE-ME: step by the bits, not by X,Y
 sub tree_n_children {
   my ($self, $n) = @_;
+  ### UlamWarburton tree_n_children(): $n
+
   if ($n < 1) {
-    return undef;
+    return;
   }
   my ($x,$y) = $self->n_to_xy($n);
   my @ret;
@@ -425,7 +427,9 @@ sub tree_n_children {
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
-  if ($n < 1) {
+  ### UlamWarburton tree_n_parent(): $n
+
+  if ($n <= 1) {
     return undef;
   }
   my ($x,$y) = $self->n_to_xy($n);
@@ -656,24 +660,6 @@ right.  The points in the path here are numbered by growth level rather than
 in this sort of replication, but the replication helps to see the structure
 of the pattern.
 
-=head1 OEIS
-
-This cellular automaton is in Neil Sloane's Online Encyclopedia of Integer
-Sequences as
-
-    http://oeis.org/A147582    (etc)
-
-    A147582 - new cells in level n
-    A147562 - cumulative total cells to level n, being Nend(level)
-
-The A147582 new cells sequence starts from n=1, so takes the innermost N=1
-single cell as level n=1, then N=2,3,4,5=5 as level n=2, etc.  This makes
-the formula a binary ones count of n-1 rather than n the way levelcells()
-above is expressed.
-
-The ones-count power 3^(count 1 bits in level) part of the levelcells() is
-also separately in A048883, and as n-1 in A147610.
-
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -690,6 +676,43 @@ Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 1 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
+
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return the children of C<$n>, or an empty list if C<$n> has no children
+(including when C<$n E<lt> 1>, ie. before the start of the path).
+
+The children are the cells turned on adjacent to C<$n> at the next level.
+This can be none, one or three points.
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the start of
+the path).
+
+=back
+
+=head1 OEIS
+
+This cellular automaton is in Neil Sloane's Online Encyclopedia of Integer
+Sequences as
+
+    http://oeis.org/A147582    (etc)
+
+    A147562 - cumulative total cells to level n, being Nend(level)
+    A147582 - number of new cells in level n
+
+The A147582 new cells sequence starts from n=1, so takes the innermost N=1
+single cell as level n=1, then N=2,3,4,5 as level n=2 with 5 cells, etc.
+This makes the formula a binary 1-bits count on n-1 rather than on N the way
+levelcells() above is expressed.
+
+The 1bits-count power 3^(count 1 bits in level) part of the levelcells() is
+also separately in A048883, and as n-1 in A147610.
 
 =head1 SEE ALSO
 

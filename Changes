@@ -17,11 +17,22 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 83, July 2012
+    - new n_to_dxdy()
+    - SierpinskiTriangle new "align" parameter
+    - SierpinskiTriangle,TriangleSpiral,TriangleSpiralSkewed,Hypot new
+      "n_start" option
+    - PlanePathDelta new delta_type=>"dDiffYX"
+    - PlanePathN new line_type=>"Diagonal_NW","Diagonal_SW","Diagonal_SE"
+    - Math::PlanePath::Base::Digits new digit_join_lowtohigh()
+    - new Math::PlanePath::Base::Generic round_nearest()
+
 Version 82, July 2012
     - new tree_n_children(), tree_n_parent()
     - PlanePathDelta new delta_type=>"dDiffXY"
     - ImaginaryBase,ImaginaryHalf rect_to_n_range() exact
-    - new Math::PlanePath::Base::Digits
+    - new Math::PlanePath::Base::Digits round_down_pow(),
+      digit_split_lowtohigh(), parameter_info_array(), parameter_info_radix2()
 
 Version 81, July 2012
     - TriangularHypot new points=hex,hex_rotated,hex_centred

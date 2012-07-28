@@ -32,7 +32,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   my $path_class;
   require Math::PlanePath::Hypot;
   require Math::PlanePath::PythagoreanTree;
-  require Math::PlanePath::PixelRings;
   require Math::PlanePath::SquareArms;
   require Math::PlanePath::CellularRule54;
   require Math::PlanePath::SquareReplicate;
@@ -46,8 +45,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   require Math::PlanePath::PentSpiral;
   require Math::PlanePath::PentSpiralSkewed;
   require Math::PlanePath::HexArms;
-  require Math::PlanePath::TriangleSpiral;
-  require Math::PlanePath::TriangleSpiralSkewed;
   require Math::PlanePath::KochelCurve;
   require Math::PlanePath::KochPeaks;
   require Math::PlanePath::MPeaks;
@@ -87,7 +84,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::WunderlichMeander';
   $path_class = 'Math::PlanePath::ComplexRevolving';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
-  $path_class = 'Math::PlanePath::PeanoCurve';
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::FractionsTree';
   $path_class = 'Math::PlanePath::RationalsTree';
@@ -100,8 +96,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::NxN';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
-  $path_class = 'Math::PlanePath::Hypot';
-  $path_class = 'Math::PlanePath::HypotOctant';
   $path_class = 'Math::PlanePath::DiagonalsOctant';
   $path_class = 'Math::PlanePath::Diagonals';
   $path_class = 'Math::PlanePath::GcdRationals';
@@ -131,12 +125,21 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ImaginaryBase';
   $path_class = 'Math::PlanePath::ImaginaryHalf';
   $path_class = 'Math::PlanePath::KochCurve';
+  $path_class = 'Math::PlanePath::PixelRings';
+  $path_class = 'Math::PlanePath::PeanoCurve';
+  $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
+  $path_class = 'Math::PlanePath::TriangleSpiral';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
+  $path_class = 'Math::PlanePath::HypotOctant';
+  $path_class = 'Math::PlanePath::Hypot';
+
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-align => 'diagonal',
+     n_start => 37,
+     # align => 'diagonal',
+     # offset => -0.5,
      # radix => 3,
      # points => 'hex',
      # turns => 1,
@@ -169,7 +172,7 @@ align => 'diagonal',
   my $path_ref = ref($path);
   print "n_start() $n_start arms_count() $arms_count   $path_ref\n";
 
-   for (my $i = $n_start; $i <= 18000; $i+=1) {
+   for (my $i = $n_start; $i <= 580; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

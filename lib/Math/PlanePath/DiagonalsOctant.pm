@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -443,20 +443,20 @@ this path include
     http://oeis.org/A055087  (etc)
 
     direction=down
-    A055087    X coord,  runs 0 to k twice
-    A055086    X+Y,      k repeating floor(k/2)+1 times
-    A082375    Y-X       runs k to 0 or 1 stepping by 2
-    A002620    N at end each diagonal, X=k,Y=k and X=k,Y=k+1
+      A055087    X coord, runs 0 to k twice
+      A055086    X+Y, k repeating floor(k/2)+1 times
+      A082375    Y-X, runs k to 0 or 1 stepping by 2
+      A002620    N at end each run X=k,Y=k and X=k,Y=k+1
 
-    direction=down
-    A055086    X+Y,      k repeating floor(k/2)+1 times
-    A002620    N on Y axis end of each diagonal, quarter squares
+    direction=up
+      A055086    X+Y, k repeating floor(k/2)+1 times
+      A002620    N on Y axis, end of each run, quarter squares
 
-The A055086 sum X+Y is the same for direction=down or direction=up, it
-effectively counts which diagonal a given N falls in and ignores whereabouts
+A055086 sum X+Y is the same for direction=down or direction=up, it
+effectively counts which diagonal a given N falls in, ignoring whereabouts
 along it.
 
-    A004652    N at start and end of each even-numbered diagonal
+    A004652    N start and end of each even-numbered diagonal
 
     A056536    N of PyramidRows at X,Y in DiagonalsOctant order
     A091995      N with DiagonalsOctant direction=up

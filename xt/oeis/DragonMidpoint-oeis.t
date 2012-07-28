@@ -76,12 +76,8 @@ sub dxdy_to_direction {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
 
   {
-    my @got;
+    my @got = (0);
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
-      push @got, 0;
-
       my ($prev_x, $prev_y) = $path->n_to_xy (0);
       for (my $n = 1; @got < @$bvalues; $n++) {
         my ($x, $y) = $path->n_to_xy ($n);
@@ -96,8 +92,6 @@ sub dxdy_to_direction {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
         MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -108,8 +102,6 @@ sub dxdy_to_direction {
   {
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
       for (my $n = 1; @got < @$bvalues; $n++) {
         push @got, A073089_func($n);
       }
@@ -117,8 +109,6 @@ sub dxdy_to_direction {
         MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
         MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),

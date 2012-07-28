@@ -25,18 +25,16 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -157,7 +155,7 @@ sub xy_to_n {
     ($x,$y) = ((2*$x + $y) / 5,
                (2*$y - $x) / 5);
   }
-  return _digit_join_lowtohigh (\@n, 5, $zero);
+  return digit_join_lowtohigh (\@n, 5, $zero);
 }
 
 # level   min x^2+y^2 for N >= 5^k
@@ -268,9 +266,9 @@ which is then replicated
                |  |
                +--+
 
-The effect is to tile the whole plane.
-Notice the centres 0,5,10,15,20 are a "+" shape but rotated around by an
-angle atan(1/2)=26.565 degrees, as noted below.
+The effect is to tile the whole plane.  Notice the centres 0,5,10,15,20 are
+the same "+" shape but rotated around by an angle atan(1/2)=26.565 degrees,
+as noted below.
 
 =head2 Complex Base
 
@@ -278,8 +276,15 @@ This tiling corresponds to expressing a complex integer X+i*Y in base b=2+i
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-where each digit a[i] is 0, 1, i, -1, or -i, and those digits are then
-represented in integer N by base 5 digits 0,1,2,3,4.
+where each digit a[i] is +/-1 or +/-1,
+
+    a[i] digit     N digit
+    ----------     -------
+        0             0
+        1             1
+        i             2
+       -1             3
+       -i             4
 
 The base b=2+i is at an angle atan(1/2) = 26.56 degrees as seen at N=5
 above.  Successive powers b^2, b^3, b^4 etc at N=5^level rotate around by

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 130;
+plan tests => 196;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiTriangle;
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::SierpinskiTriangle::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiTriangle->VERSION,  $want_version,
@@ -73,11 +73,12 @@ require Math::PlanePath::SierpinskiTriangle;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::SierpinskiTriangle->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'align');
 }
 
 #------------------------------------------------------------------------------
 # tree_n_parent()
+
 {
   my @data = ([ 0, undef ],
               [ 1,  0 ],
@@ -94,11 +95,13 @@ require Math::PlanePath::SierpinskiTriangle;
               [ 9,  5 ],
               [ 10, 8 ],
              );
-  my $path = Math::PlanePath::SierpinskiTriangle->new;
-  foreach my $elem (@data) {
-    my ($n, $want_n_parent) = @$elem;
-    my $got_n_parent = $path->tree_n_parent ($n);
-    ok ($got_n_parent, $want_n_parent, "tree_n_parent($n");
+  foreach my $align ('triangular','left','right','diagonal') {
+    my $path = Math::PlanePath::SierpinskiTriangle->new (align => $align);
+    foreach my $elem (@data) {
+      my ($n, $want_n_parent) = @$elem;
+      my $got_n_parent = $path->tree_n_parent ($n);
+      ok ($got_n_parent, $want_n_parent, "tree_n_parent($n");
+    }
   }
 }
 
@@ -119,11 +122,13 @@ require Math::PlanePath::SierpinskiTriangle;
               [ 9,  '11,12' ],
               [ 10, '13,14' ],
              );
-  my $path = Math::PlanePath::SierpinskiTriangle->new;
-  foreach my $elem (@data) {
-    my ($n, $want_n_children) = @$elem;
-    my $got_n_children = join(',',$path->tree_n_children($n));
-    ok ($got_n_children, $want_n_children, "tree_n_children($n)");
+  foreach my $align ('triangular','left','right','diagonal') {
+    my $path = Math::PlanePath::SierpinskiTriangle->new (align => $align);
+    foreach my $elem (@data) {
+      my ($n, $want_n_children) = @$elem;
+      my $got_n_children = join(',',$path->tree_n_children($n));
+      ok ($got_n_children, $want_n_children, "tree_n_children($n)");
+    }
   }
 }
 
@@ -186,7 +191,7 @@ require Math::PlanePath::SierpinskiTriangle;
   my $bad = 0;
   my $path = Math::PlanePath::SierpinskiTriangle->new;
   my $want_n = $path->n_start;
- OUTER: foreach my $y (0 .. 32) {
+ OUTER: foreach my $y (0 .. 16) {
     foreach my $x (-$y .. $y) {
       my $got_n = $path->xy_to_n($x,$y);
       if (defined $got_n) {

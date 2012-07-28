@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -33,6 +33,14 @@ use Math::PlanePath::Base::Generic
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 # base at bottom right corner
 #   r = [ 1,  2,  3 ]
@@ -54,14 +62,14 @@ use Math::PlanePath::Base::Generic
 sub n_to_xy {
   my ($self, $n) = @_;
   #### TriangleSpiralSkewed n_to_xy: $n
-  if ($n < 1) { return; }
-  if ($n < 2) { return ($n - 1, 0); }
 
-  my $d = int ((3 + sqrt(8*$n - 7)) / 6);
-  #### d frac: (0.5 + sqrt(8*$n + -7)/6)
+  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  if ($n < 0) { return; }
+
+  my $d = int ((3 + sqrt(8*$n + 1)) / 6);
   #### $d
 
-  $n -= (9*$d - 3)*$d/2 + 1;
+  $n -= (9*$d - 3)*$d/2;
   #### remainder: $n
 
   if ($n <= 3*$d) {
@@ -81,12 +89,12 @@ sub n_to_xy {
 #   [ 3, 14, 34 ]
 #   n = (9/2*$d**2 + -5/2*$d + 1)
 #     = 4.5*$d*$d - 2.5*$d + 1
-# 
+#
 # positive y, x=0 centres
 #   [ 1,  2,  3 ]
 #   [ 3, 13, 31 ]
 #   n = (4*$d*$d + -2*$d + 1)
-# 
+#
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = round_nearest ($x);
@@ -101,7 +109,7 @@ sub xy_to_n {
     #   [  8, 24, 49, 83 ]
     #   n = (9/2*$d**2 + -5/2*$d + 1)
     #
-    return ((9*$y - 5)*$y/2 + 1) + $x;
+    return (9*$y - 5)*$y/2 + $x + $self->{'n_start'};
   }
   if ($x < 0 && $x <= $y && $y <= 2*-$x) {
     ### left vertical
@@ -111,7 +119,7 @@ sub xy_to_n {
     #   [  6, 20, 43, 75 ]
     #   n = (9/2*$d**2 + -1/2*$d + 1)
     #
-    return ((9*$x - 1)*$x/2 + 1) - $y;
+    return (9*$x - 1)*$x/2 - $y + $self->{'n_start'};
   }
 
   my $d = $x + $y;
@@ -123,9 +131,10 @@ sub xy_to_n {
   #   [ 3, 14, 34, 63 ]
   #   n = (9/2*$d**2 + -5/2*$d + 1)
   #
-  return ((9*$d - 5)*$d/2 + 1) - $x;
+  return (9*$d - 5)*$d/2 - $x + $self->{'n_start'};
 }
 
+# n_hi exact, n_lo not
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -134,25 +143,30 @@ sub rect_to_n_range {
   $y1 = round_nearest ($y1);
   $x2 = round_nearest ($x2);
   $y2 = round_nearest ($y2);
-  my $d = 0;
-  foreach my $x ($x1, $x2) {
-    foreach my $y ($y1, $y2) {
-      $d = max ($d,
-                1 + ($y < 0 && $y <= $x && $x <= -2*$y
-                     ? -$y                          # bottom horizontal
-                     : $x < 0 && $x <= $y && $y <= 2*-$x
-                     ? -$x              # left vertical
-                     : abs($x) + $y));  # right slope
-    }
-  }
-  return (1,
-          (9*$d - 9)*$d + 2);
+
+  return ($self->{'n_start'},
+          max ($self->xy_to_n ($x1,$y1),
+               $self->xy_to_n ($x1,$y2),
+               $self->xy_to_n ($x2,$y1),
+               $self->xy_to_n ($x2,$y2)));
 }
+# my $d = 0;
+# foreach my $x ($x1, $x2) {
+#   foreach my $y ($y1, $y2) {
+#     $d = max ($d,
+#               1 + ($y < 0 && $y <= $x && $x <= -2*$y
+#                    ? -$y                          # bottom horizontal
+#                    : $x < 0 && $x <= $y && $y <= 2*-$x
+#                    ? -$x              # left vertical
+#                    : abs($x) + $y));  # right slope
+#   }
+# }
+#         (9*$d - 9)*$d + 1 + $self->{'n_start'});
 
 1;
 __END__
 
-=for stopwords TriangleSpiral TriangleSpiralSkewed PlanePath Ryde Math-PlanePath 
+=for stopwords TriangleSpiral TriangleSpiralSkewed PlanePath Ryde Math-PlanePath
 
 =head1 NAME
 
@@ -169,27 +183,63 @@ Math::PlanePath::TriangleSpiralSkewed -- integer points drawn around a skewed eq
 This path makes an spiral shaped as an equilateral triangle (each side the
 same length), but skewed to the left to fit on a square grid,
 
+=cut
+
+# math-image --path=TriangleSpiralSkewed --expression='i<=31?i:0' --output=numbers_dash
+
+=pod
+
     16                              4
-     |\    
+     |\
     17 15                           3
-     |   \ 
+     |   \
     18  4 14                        2
-     |  |\  \   
+     |  |\  \
     19  5  3 13                     1
-     |  |   \  \     
+     |  |   \  \
     20  6  1--2 12 ...         <- Y=0
-     |  |         \  \   
+     |  |         \  \
     21  7--8--9-10-11 30           -1
-     |                  \ 
+     |                  \
     22-23-24-25-26-27-28-29        -2
-                      
-           ^          
+
+           ^
     -2 -1 X=0 1  2  3  4  5
 
 The properties are the same as the spread-out TriangleSpiral.  The triangle
 numbers fall on straight lines as the do in the TriangleSpiral but the skew
 means the top corner goes up at an angle to the vertical and the left and
 right downwards are different angles plotted (but are symmetric by N count).
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, with the same shape etc.  For example
+to start at 0,
+
+=cut
+
+# math-image --path=TriangleSpiralSkewed,n_start=0 --expression='i<=31?i:0' --output=numbers_dash
+
+=pod
+
+    15        n_start => 0
+     |\
+    16 14
+     |   \
+    17  3 13 ...
+     |  |\  \  \
+    18  4  2 12 31
+     |  |   \  \  \
+    19  5  0--1 11 30
+     |  |         \  \
+    20  6--7--8--9-10 29
+     |                  \
+    21-22-23-24-25-26-27-28
+
+With this adjustment for example the X axis N=0,1,11,30,etc is (9k-7)*k/2,
+the hendecagonal numbers (11-polygonals).  And N=0,8,25,etc is the
+hendecagonals of the second kind, (9k-7)*k/2 for k negative.
 
 =head1 FUNCTIONS
 
@@ -198,6 +248,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::TriangleSpiralSkewed-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::TriangleSpiralSkewed-E<gt>new (n_start =E<gt> $n)>
 
 Create and return a new skewed triangle spiral object.
 
@@ -216,6 +268,35 @@ in the path as centred in a square of side 1, so the entire plane is
 covered.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A117625  (etc)
+
+    n_start=1 (default)
+      A117625     N on X axis
+      A064226     N on Y axis, but without initial value=1
+      A006137     N on X negative
+      A064225     N on Y negative
+      A081589     N on X=Y leading diagonal
+      A038764     N on X=Y negative South-West diagonal
+      A081267     N on X=-Y negative South-East diagonal
+      A060544     N on ESE slope dX=2,dY=-1
+      A081272     N on SSE slope dX=1,dY=-2
+
+    n_start=0
+      A051682     N on X axis (11-gonal numbers)
+      A081268     N on X=1 vertical (next to Y axis)
+      A062728     N on South-East diagonal (11-gonal second kind)
+      A081266     N on X=Y negative South-West diagonal
+      A081270     N on X=1-Y North-West diagonal, starting N=3
+
+
+A081271
+
 
 =head1 SEE ALSO
 

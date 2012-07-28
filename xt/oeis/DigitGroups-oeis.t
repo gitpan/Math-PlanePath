@@ -82,8 +82,6 @@ sub diff_nums {
 
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $path = Math::PlanePath::DigitGroups->new;
     for (my $x = 1; @got < @$bvalues; $x++) {
       my $n = $path->xy_to_n ($x,0);
@@ -93,8 +91,6 @@ sub diff_nums {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -115,8 +111,6 @@ sub to_binary {
 
   my $diff;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my @got;
     my $path = Math::PlanePath::DigitGroups->new;
     for (my $x = 0; @got < 16 * @$bvalues; $x++) {
@@ -130,8 +124,6 @@ sub to_binary {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         $diff,

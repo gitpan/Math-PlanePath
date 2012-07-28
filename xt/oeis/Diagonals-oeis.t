@@ -90,6 +90,71 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
+# A000124 -- Y axis, triangular+1
+
+{
+  my $anum = 'A000124';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::Diagonals->new;
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n (0, $y);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A001844 -- X=Y diagonal, centred squares
+
+{
+  my $anum = 'A001844';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my @got;
+    if ($bvalues) {
+      my $path = Math::PlanePath::Diagonals->new;
+      for (my $i = 0; @got < @$bvalues; $i++) {
+        push @got, $path->xy_to_n ($i, $i);
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1,
+          "$anum");
+  }
+  {
+    my @got;
+    if ($bvalues) {
+      my $path = Math::PlanePath::Diagonals->new (direction => 'up');
+      for (my $i = 0; @got < @$bvalues; $i++) {
+        push @got, $path->xy_to_n ($i, $i);
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1,
+          "$anum");
+  }
+}
+
+#------------------------------------------------------------------------------
 # A002262 -- X coordinate, 0 to k
 
 {

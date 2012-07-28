@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -410,6 +410,16 @@ For C<$n < 1> the return is an empty list, it being considered the path
 starts at 1.
 
 =back
+
+=head1 OEIS
+
+Entries in Neil Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A033581  (etc)
+
+    wider=2
+      A033581    N on Y axis (6*n^2) except for initial N=2
 
 =head1 SEE ALSO
 

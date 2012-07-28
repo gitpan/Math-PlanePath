@@ -66,8 +66,6 @@ sub numeq_array {
       my ($x, $y) = $knight->n_to_xy ($n);
       push @got, $square->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -88,8 +86,6 @@ sub numeq_array {
       ### rotated: "$x,$y"
       ### is: "got[$#got] = $got[-1]"
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues ? "no B file"
@@ -109,8 +105,6 @@ sub numeq_array {
       ($x, $y) = (-$x, -$y);
       push @got, $square->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -128,8 +122,6 @@ sub numeq_array {
       ($x, $y) = ($y, -$x);
       push @got, $square->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -147,8 +139,6 @@ sub numeq_array {
       $x = -$x;
       push @got, $square->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -166,8 +156,6 @@ sub numeq_array {
       ($x, $y) = (-$y, -$x);
       push @got, $square->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -185,8 +173,6 @@ sub numeq_array {
       $y = -$y;
       push @got, $square->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -204,8 +190,6 @@ sub numeq_array {
       ($y, $x) = ($x, $y);
       push @got, $square->xy_to_n ($x, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

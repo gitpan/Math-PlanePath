@@ -60,7 +60,6 @@ sub streq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my $x = 0;
     my $y = 0;
     foreach my $n (1 .. @$bvalues) {
@@ -71,8 +70,6 @@ sub streq_array {
         $x = -$y;
       }
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -86,7 +83,6 @@ sub streq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     require Math::BigInt;
     my $y = 0;
     foreach my $n (1 .. @$bvalues) {
@@ -99,9 +95,6 @@ sub streq_array {
       push @got, "$b";
       $y++;
     }
-    ### @got
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),

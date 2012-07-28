@@ -263,7 +263,7 @@ use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
   for (my $n = 0; $n <= 64; $n += 2) {
     my $n2 = Math::BaseCnv::cnv($n,10,2);
     my $n4 = Math::BaseCnv::cnv($n,10,4);
-    my $dx = path_n_dx ($path, $n);
+    my ($dx,$dy) = $path->n_to_dxdy($n);
 
     my $grs = GRS($n);
     my $calc_dx = 0;

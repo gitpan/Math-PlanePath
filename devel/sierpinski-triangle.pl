@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,6 +24,18 @@ use Math::PlanePath::SierpinskiTriangle;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
+
+{
+  # number of children
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  for (my $n = $path->n_start+1; $n < 40; $n++) {
+    my @n_children = $path->tree_n_children($n);
+    my $num_children = scalar(@n_children);
+    print "$num_children,";
+  }
+  print "\n";
+  exit 0;
+}
 
 {
   my $path = Math::PlanePath::SierpinskiTriangle->new;

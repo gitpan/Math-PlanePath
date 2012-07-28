@@ -41,7 +41,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,10 +50,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -164,8 +162,8 @@ sub n_to_xy {
   $self->{'xy_func'}->($xdigits,$radix);
   $self->{'xy_func'}->($ydigits,$radix);
 
-  return (_digit_join_lowtohigh($xdigits,$radix),
-          _digit_join_lowtohigh($ydigits,$radix));
+  return (digit_join_lowtohigh($xdigits,$radix),
+          digit_join_lowtohigh($ydigits,$radix));
 }
 
 sub xy_to_n {
@@ -202,7 +200,7 @@ sub xy_to_n {
   my $digits = \@digits;
   $self->{'inverse_n_func'}->($digits,$radix);
 
-  return _digit_join_lowtohigh($digits,$radix);
+  return digit_join_lowtohigh($digits,$radix);
 }
 
 # not exact

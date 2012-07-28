@@ -105,7 +105,7 @@ sub numeq_array {
   if ($bvalues) {
     my $path = Math::PlanePath::PowerArray->new (radix => 2);
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = path_n_to_dxdy ($path,$n);
+      my ($dx,$dy) = $path->n_to_dxdy($n);
       push @got, $dx;
     }
     if (! numeq_array(\@got, $bvalues)) {
@@ -128,7 +128,7 @@ sub numeq_array {
   if ($bvalues) {
     my $path = Math::PlanePath::PowerArray->new (radix => 2);
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = path_n_to_dxdy ($path,$n);
+      my ($dx,$dy) = $path->n_to_dxdy($n);
       push @got, $dy;
     }
     if (! numeq_array(\@got, $bvalues)) {
@@ -140,16 +140,6 @@ sub numeq_array {
         numeq_array(\@got, $bvalues),
         1,
         "$anum");
-}
-
-sub path_n_to_dxdy {
-  my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n)
-    or return;
-  my ($next_x,$next_y) = $path->n_to_xy($n+1)
-    or return;
-  return ($next_x - $x,
-          $next_y - $y);
 }
 
 #------------------------------------------------------------------------------

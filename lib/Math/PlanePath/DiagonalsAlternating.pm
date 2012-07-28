@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -203,6 +203,19 @@ begins at 1.
 Within each row increasing X is increasing N, and in each column increasing
 Y is increasing N.  So in a rectangle the lower left corner is the minimum N
 and the upper right is the maximum N.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A131179  (etc)
+
+    A131179    N on X axis (extra initial 0)
+    A128918    N on Y axis (extra initial 1)
+    A001844    N on X=Y diagonal
+
+Similar for direction=up but transposing X,Y.
 
 =head1 SEE ALSO
 

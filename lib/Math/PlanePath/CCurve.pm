@@ -25,7 +25,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -336,29 +336,37 @@ sub _rect_to_k {
 my @dir_to_dx = (1,0,-1,0);
 my @dir_to_dy = (0,1,0,-1);
 
-# including fraction
-sub _n_to_dxdy {
+sub n_to_dxdy {
   my ($self, $n) = @_;
-  ### _n_to_dxdy(): $n
+  ### n_to_dxdy(): $n
 
   my $int = int($n);
-  $n -= $int;  # fraction part
+  $n -= $int;  # $n fraction part
 
   my @digits = digit_split_lowtohigh($int,2);
-  my $dir = sum(@digits) & 3;
+  my $dir = (sum(@digits)||0) & 3;  # count of 1-bits
   my $dx = $dir_to_dx[$dir];
   my $dy = $dir_to_dy[$dir];
 
   if ($n) {
     # apply fraction part $n
-    my $turn = 0;
-    while (shift @digits) {     # count low 1 bits, is turn at N+1
-      $turn++;
+
+    # count low 1-bits is right turn of N+1, apply as dir-(turn-1) so decr $dir
+    while (shift @digits) {
+      $dir--;
     }
-    $dir -= $turn-1;  # to the right
+
+    # this with turn=count-1 turn which is dir++ worked into swap and negate
+    # of dir_to_dy parts
     $dir &= 3;
-    $dx += $n*($dir_to_dx[$dir] - $dx);
-    $dy += $n*($dir_to_dy[$dir] - $dy);
+    $dx -= $n*($dir_to_dy[$dir] + $dx);  # with rot-90 instead of $dir+1
+    $dy += $n*($dir_to_dx[$dir] - $dy);
+
+    # this the equivalent with explicit dir++ for turn=count-1
+    # $dir++;
+    # $dir &= 3;
+    # $dx += $n*($dir_to_dx[$dir] - $dx);  # with rot-90 instead of $dir+1
+    # $dy += $n*($dir_to_dy[$dir] - $dy);
   }
 
   ### result: "$dx, $dy"
@@ -483,15 +491,15 @@ always +90 degrees, ie. upwards, at those points.
 =head2 Turn Sequence
 
 At each point N the curve can turn in any direction, left, right, straight,
-or 180 degrees back.  The turn comes from the low zero bits of N,
+or 180 degrees back.  The turn is given by number of low 0-bits of N,
 
     turn right = (count_low_0_bits(N) - 1) * 90degrees
 
 For example N=8 is binary 0b100 which is 2 low zero bit for turn=(2-1)*90=90
 degrees to the right.
 
-When N is odd there's no low zero bits and the turn is (0-1)*90=-90 to the
-right, which means +90 turn to the left.
+When N is odd there's no low zero bits and the turn is always (0-1)*90=-90
+to the right in that case, which means +90 turn to the left.
 
 =head2 Next Turn
 
@@ -506,6 +514,40 @@ N=12.
 
 This works simply because low ones like ..0111 increment to low zeros
 ..1000.  The low ones you have at N will be the low zeros at N+1.
+
+=head2 N to dX,dY
+
+C<n_to_dxdy()> is implemented using the direction described above.  If N is
+an integer then direction = count_1_bits mod 4 gives the direction for
+dX,dY.
+
+    dir = count_1_bits(N) mod 4
+    dx = dir_to_dx[dir]    # table 0 to 3
+    dy = dir_to_dy[dir]
+
+If N is fractional then the direction at int(N) and the turn at int(N)+1 are
+combined.  The two are similar calculations.  The direction is the count of
+all 1-bits, the turn is the count of low 1-bits, ie. those up to the
+lowest 0.
+
+    # apply turn to make direction at Nint+1
+    turn = count_low_1_bits(N) - 1      # N integer part
+    dir = (dir - turn) mod 4            # direction at N+1
+
+    # adjust dx,dy by fractional amount in this direction
+    dx += Nfrac * (dir_to_dx[dir] - dx)
+    dy += Nfrac * (dir_to_dy[dir] - dy)
+
+A tiny optimization can be made by working the "-1" from the turn formula
+into a +90 degree rotation of the "dir_to_dx" and "dir_to_dy" parts by
+swapping and a sign change,
+
+    turn_plus_1 = count_low_1_bits(N)     # N integer part
+    dir = (dir - turn_plus_1) mod 4       # direction-1 at N+1
+
+    # adjustment including extra +90 degrees on dir
+    dx -= $n*(dir_to_dy[dir] + dx)
+    dy += $n*(dir_to_dx[dir] - dy)
 
 =head2 X,Y to N
 

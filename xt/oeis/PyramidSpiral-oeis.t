@@ -59,8 +59,6 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, abs($x);
@@ -69,8 +67,6 @@ sub numeq_array {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

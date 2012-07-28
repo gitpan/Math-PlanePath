@@ -37,9 +37,20 @@ MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
   my $n = Math::BigInt->new(2) ** 256;
   my $int = int($n);
   if (! ref $int) {
-    MyTestHelpers::diag ('skip due to Math::BigInt no "int" operator');
+    MyTestHelpers::diag ('skip due to Math::BigInt no "int()" operator');
     foreach (1 .. $test_count) {
       skip ('due to no Math::BigInt int() operator', 1, 1);
+    }
+    exit 0;
+  }
+}
+{
+  # as used by digit_split_lowtohigh(), doesn't adapt itself at runtime
+  my $n = Math::BigInt->new(123);
+  if ($n->can('as_oct')) {
+    MyTestHelpers::diag ('skip due to Math::BigInt no "as_oct()" method');
+    foreach (1 .. $test_count) {
+      skip ('due to no Math::BigInt as_oct()', 1, 1);
     }
     exit 0;
   }

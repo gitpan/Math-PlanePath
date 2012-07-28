@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 1174;
+plan tests => 877;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,9 +35,44 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'TriangularHypot',
+               'TriangularHypot,n_start=0',
+               'TriangularHypot,n_start=37',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'TriangularHypot,points=hex',
+               'TriangularHypot,points=hex_rotated',
+               'TriangularHypot,points=hex_centred',
+
+               'Hypot,n_start=37',
+               'Hypot,points=even,n_start=37',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+
+               'TriangleSpiral',
+               'TriangleSpiral,n_start=0',
+               'TriangleSpiral,n_start=37',
+               'TriangleSpiralSkewed',
+               'TriangleSpiralSkewed,n_start=0',
+               'TriangleSpiralSkewed,n_start=37',
+
                'SierpinskiTriangle',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=diagonal',
                'SierpinskiArrowhead',
                'SierpinskiArrowheadCentres',
+
+               'PeanoCurve',
+               'PeanoCurve,radix=2',
+               'PeanoCurve,radix=4',
+               'PeanoCurve,radix=5',
+               'PeanoCurve,radix=17',
 
                'ImaginaryBase',
                'ImaginaryBase,radix=3',
@@ -62,13 +97,6 @@ my @modules = (
 
                'PentSpiral',
                'PentSpiralSkewed',
-
-               'TriangularHypot',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
-               'TriangularHypot,points=hex',
-               'TriangularHypot,points=hex_rotated',
-               'TriangularHypot,points=hex_centred',
 
                'GreekKeySpiral',
                'GreekKeySpiral,turns=0',
@@ -98,13 +126,6 @@ my @modules = (
                'AlternatePaper,arms=6',
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
-
-               'Hypot',
-               'Hypot,points=even',
-               'Hypot,points=odd',
-               'HypotOctant',
-               'HypotOctant,points=even',
-               'HypotOctant,points=odd',
 
                'WythoffArray',
                'PowerArray',
@@ -322,8 +343,6 @@ my @modules = (
 
                'HeptSpiralSkewed',
                'PyramidSpiral',
-               'TriangleSpiral',
-               'TriangleSpiralSkewed',
 
                'Corner',
                'PyramidRows',
@@ -381,12 +400,6 @@ my @modules = (
                'DragonCurve,arms=3',
                'DragonCurve,arms=4',
 
-               'PeanoCurve',
-               'PeanoCurve,radix=2',
-               'PeanoCurve,radix=4',
-               'PeanoCurve,radix=5',
-               'PeanoCurve,radix=17',
-
                'ZOrderCurve',
                'ZOrderCurve,radix=3',
                'ZOrderCurve,radix=9',
@@ -423,9 +436,9 @@ sub module_to_pathobj {
     require Module::Util;
     my %classes = map {$_=>1} @classes;
     foreach my $module (Module::Util::find_in_namespace('Math::PlanePath')) {
-      if (! $classes{$module} && $module !~ /^Math::PlanePath::MathImage/) {
-        MyTestHelpers::diag ("other module ",$module);
-      }
+      next if $classes{$module};  # listed, good
+      next if $module =~ /^Math::PlanePath::[^:]+::/; # skip Base etc submods
+      MyTestHelpers::diag ("other module ",$module);
     }
   };
 }
@@ -434,7 +447,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 82;
+my $want_version = 83;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -539,6 +552,7 @@ my %rect_exact_hi = (%rect_exact,
                      # high is exact but low is not
                      'Math::PlanePath::SquareSpiral' => 1,
                      'Math::PlanePath::SquareArms' => 1,
+                     'Math::PlanePath::TriangleSpiralSkewed' => 1,
                     );
 my %rect_before_n_start = ('Math::PlanePath::Rows' => 1,
                            'Math::PlanePath::Columns' => 1,
@@ -717,20 +731,20 @@ sub pythagorean_diag {
 }
 
 {
-  my $default_limit = $ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 30;
+  my $default_limit = ($ENV{'MATH_PLANEPATH_TEST_LIMIT'} || 30);
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
-
+  my $good = 1;
+  
   foreach my $mod (@modules) {
+    # MyTestHelpers::diag ($mod);
+    
     my ($class, %parameters) = module_parse($mod);
-    eval "require $class" or die;
-
-    my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-
-    my $good = 1;
-
     ### $class
-
+    eval "require $class" or die;
+    
+    my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
+    
     my $dxdy_allowed = $class_dxdy_allowed{$class};
     if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
         && $parameters{'radix'}
@@ -741,11 +755,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-
+    
     #
     # MyTestHelpers::diag ($mod);
     #
-
+    
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -762,29 +776,28 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-
+    
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' ', @_);
       $good = 0;
       # exit 1;
     };
-
+    
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
-    my $n_start = $path->n_start;
     my $got_arms = $path->arms_count;
-
+    
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-
+    
+    my $n_start = $path->n_start;
     {
-      my $n_start = $path->n_start;
       { my ($x,$y) = $path->n_to_xy($n_start);
         if (! defined $x) {
           unless ($path->isa('Math::PlanePath::File')) {
@@ -810,14 +823,14 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     {
       my $saw_warning = 0;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
       $path->n_to_xy(undef);
       $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
     }
-
+    
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -839,7 +852,7 @@ sub pythagorean_diag {
       ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
         or &$report("n_to_xy($pos_infinity) y is $y");
     }
-
+    
     if (defined $neg_infinity) {
       ### n_to_xy() on $neg_infinity
       my @xy = $path->n_to_xy($neg_infinity);
@@ -862,7 +875,7 @@ sub pythagorean_diag {
           or &$report("n_to_xy($neg_infinity) xy is ",join(',',@xy));
       }
     }
-
+    
     # nan input documented loosely as yet ...
     if (defined $nan) {
       my @xy = $path->n_to_xy($nan);
@@ -943,7 +956,7 @@ sub pythagorean_diag {
     my $got_x_negative = 0;
     my $got_y_negative = 0;
     my ($prev_x, $prev_y);
-    foreach my $n (1 .. $limit) {
+    foreach my $n (1 .. $limit + $n_start) {
       my ($x, $y) = $path->n_to_xy ($n)
         or next;
       defined $x or &$report("n_to_xy($n) X undef");
@@ -958,8 +971,8 @@ sub pythagorean_diag {
       if ($count_n_to_xy{$k}++ > $xy_maximum_duplication) {
         unless ($x == 0 && $y == 0
                 && $count_n_to_xy{$k} <= $xy_maximum_duplication_at_origin{$class}) {
-        &$report ("n_to_xy($n) duplicate$count_n_to_xy{$k} xy=$k prev n=$saw_n_to_xy{$k}");
-      }
+          &$report ("n_to_xy($n) duplicate$count_n_to_xy{$k} xy=$k prev n=$saw_n_to_xy{$k}");
+        }
       }
       $saw_n_to_xy{$k} = $n;
 
@@ -1034,8 +1047,10 @@ sub pythagorean_diag {
       my ($got_lo, $got_hi) = $path->rect_to_n_range ($x1,$y1, $x2,$y2);
       (defined $got_lo && defined $got_hi)
         or &$report ("rect_to_n_range() x1=$x1,y1=$y1, x2=$x2,y2=$y2 undefs");
-      $got_lo >= $n_start
-        or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
+      if ($got_hi >= $got_lo) {
+        $got_lo >= $n_start
+          or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
+      }
     }
 
     ### x negative xy_to_n() ...
@@ -1177,9 +1192,11 @@ sub pythagorean_diag {
                     or &$report ("rect_to_n_range($x1,$y1, $x2,$y2) got_min undef");
                   defined $got_max
                     or &$report ("rect_to_n_range($x1,$y1, $x2,$y2) got_max undef");
-                  $got_min >= $n_start
-                    or $rect_before_n_start{$class}
-                      or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
+                  if ($got_max >= $got_min) {
+                    $got_min >= $n_start
+                      or $rect_before_n_start{$class}
+                        or &$report ("rect_to_n_range() got_min=$got_min is before n_start=$n_start");
+                  }
 
                   if (! defined $min || ! defined $max) {
                     if (! $rect_exact_hi{$class}) {
@@ -1216,8 +1233,37 @@ sub pythagorean_diag {
         }
       }
     }
-    ok ($good, 1, "exercise $class");
+
+    ### tree_n_children before n_start ...
+    foreach my $n ($n_start-5 .. $n_start-1) {
+      my @n_children = $path->tree_n_children($n);
+      (@n_children == 0)
+        or &$report ("tree_n_children($n) before n_start=$n_start unexpectedly got ",scalar(@n_children)," values:",@n_children);
+    }
+
+    ### tree_n_parent before n_start ...
+    foreach my $n ($n_start-5 .. $n_start) {
+      my $n_parent = $path->tree_n_parent($n);
+      if (defined $n_parent) {
+        &$report ("tree_n_parent($n) <= n_start=$n_start unexpectedly got parent ",$n_parent);
+      }
+    }
+
+    ### tree_n_children try tree_n_parent ...
+    foreach my $n ($n_start .. $n_start+$limit) {
+      ### $n
+      my @n_children = $path->tree_n_children($n);
+      ### @n_children
+      foreach my $n_child (@n_children) {
+        my $got_n_parent = $path->tree_n_parent($n_child);
+        ($got_n_parent == $n)
+          or &$report ("tree_n_parent($n_child) got $got_n_parent want $n");
+      }
+    }
+
+    ### done mod: $mod
   }
+  ok ($good, 1);
 }
 
 exit 0;

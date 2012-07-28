@@ -376,6 +376,20 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'GosperReplicate',
+               'GosperSide',
+               'GosperIslands',
+
+               'QuintetReplicate',
+               'QuintetCurve',
+               'QuintetCurve,arms=2',
+               'QuintetCurve,arms=3',
+               'QuintetCurve,arms=4',
+               'QuintetCentres',
+               'QuintetCentres,arms=2',
+               'QuintetCentres,arms=3',
+               'QuintetCentres,arms=4',
+
                'UlamWarburton',
                'UlamWarburtonQuarter',
 
@@ -792,26 +806,12 @@ my @modules = (
                'SquareArms',
                'HexArms',
 
-               'QuintetCurve',
-               'QuintetCurve,arms=2',
-               'QuintetCurve,arms=3',
-               'QuintetCurve,arms=4',
-               'QuintetCentres',
-               'QuintetCentres,arms=2',
-               'QuintetCentres,arms=3',
-               'QuintetCentres,arms=4',
-               'QuintetReplicate',
-
                'Flowsnake',
                'Flowsnake,arms=2',
                'Flowsnake,arms=3',
                'FlowsnakeCentres',
                'FlowsnakeCentres,arms=2',
                'FlowsnakeCentres,arms=3',
-
-               'GosperReplicate',
-               'GosperSide',
-               'GosperIslands',
 
                'SquareReplicate',
 
@@ -866,29 +866,29 @@ my @modules = (
   require Math::NumSeq::PlanePathDelta;
   require Math::NumSeq::PlanePathTurn;
   require Math::NumSeq::PlanePathN;
-  
+
   foreach my $mod (@modules) {
     my $bad = 0;
     foreach my $elem (
-                      ['Math::NumSeq::PlanePathDelta','delta_type'],
-                      ['Math::NumSeq::PlanePathCoord','coordinate_type'],
-                      ['Math::NumSeq::PlanePathTurn','turn_type'],
+                      # ['Math::NumSeq::PlanePathDelta','delta_type'],
+                      # ['Math::NumSeq::PlanePathCoord','coordinate_type'],
+                      # ['Math::NumSeq::PlanePathTurn','turn_type'],
                       ['Math::NumSeq::PlanePathN','line_type'],
                      ) {
       my ($class, $pname) = @$elem;
-      
+
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
         MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param
-        
+
         my $seq = $class->new (planepath => $mod,
                                $pname => $param);
-        
+
         my $planepath_object = $seq->{'planepath_object'};
         ### planepath_object: ref $planepath_object
-        
+
         my $i_start = $seq->i_start;
         my $saw_values_min    = 999999999;
         my $saw_values_max    = -999999999;
@@ -899,7 +899,7 @@ my @modules = (
         my $saw_increasing_at = '';
         my $saw_non_decreasing_at = '';
         my $prev_value;
-        
+
         my $count = 0;
         my $i_limit = 800;
         if ($mod =~ /Vogel|Theod|Archim/
@@ -915,14 +915,14 @@ my @modules = (
           $i_limit = 80;
         }
         ### $i_limit
-        
+
         foreach my $i ($i_start .. $i_limit) {
           my $value = $seq->ith($i);
           ### $i
           ### $value
           next if ! defined $value;
           $count++;
-          
+
           if ($value < $saw_values_min) {
             $saw_values_min = $value;
             if (my ($x,$y) = $seq->{'planepath_object'}->n_to_xy($i)) {
@@ -935,7 +935,7 @@ my @modules = (
             $saw_values_max = $value;
             $saw_values_max_at = "i=$i";
           }
-          
+
           # ### $value
           # ### $prev_value
           if (defined $prev_value) {
@@ -949,7 +949,7 @@ my @modules = (
                 $saw_increasing = 0;
                 $saw_increasing_at = "i=$i value=$value prev_value=$prev_value";
               }
-              
+
               if ($value < $prev_value) {
                 if ($saw_non_decreasing) {
                   $saw_non_decreasing = 0;
@@ -962,12 +962,12 @@ my @modules = (
         }
         ### $count
         next if $count == 0;
-        
+
         ### $saw_values_min
         ### $saw_values_min_at
         ### $saw_values_max
         ### $saw_values_max_at
-        
+
         my $values_min = $seq->values_min;
         my $values_max = $seq->values_max;
         if (! defined $values_min) {
@@ -976,7 +976,7 @@ my @modules = (
         if (! defined $values_max) {
           $values_max = $saw_values_max;
         }
-        
+
         if (my $coderef = $planepath_object->can("_NumSeq_${param}_max_is_supremum")) {
           if ($planepath_object->$coderef) {
             if ($saw_values_max == $values_max) {
@@ -1002,9 +1002,9 @@ my @modules = (
             }
           }
         }
-        
-        
-        
+
+
+
         # these come arbitrarily close to dX==dY, in general, probably
         if (($mod eq 'MultipleRings,step=2'
              || $mod eq 'MultipleRings,step=3'
@@ -1260,8 +1260,7 @@ my @modules = (
         }
 
         # not enough values to see these decreasing
-        if (($mod eq 'ImaginaryBase,radix=37'
-             || $mod eq 'ComplexPlus,realpart=2'
+        if (($mod eq 'ComplexPlus,realpart=2'
              || $mod eq 'ComplexPlus,realpart=3'
              || $mod eq 'ComplexPlus,realpart=4'
              || $mod eq 'ComplexPlus,realpart=5'
@@ -1289,6 +1288,16 @@ my @modules = (
                 || $param eq 'Y_neg'
                 || $param eq 'Diagonal'
                )) {
+          $saw_increasing = 0;
+          $saw_non_decreasing = 0;
+        }
+
+        if ($mod eq 'ImaginaryBase,radix=37'
+            && ($param eq 'Diagonal_NW'
+                || $param eq 'Diagonal_NW'
+                || $param eq 'Diagonal_SS'
+                || $param eq 'Diagonal_SE')
+            && $limit < 73092278) {
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
         }

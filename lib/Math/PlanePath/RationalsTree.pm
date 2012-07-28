@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -509,8 +509,12 @@ sub _bingcd_max {
 
 sub tree_n_children {
   my ($self, $n) = @_;
-  $n *= 2;
-  return ($n, $n+1);
+  if ($n >= 1) {
+    $n *= 2;
+    return ($n, $n+1);
+  } else {
+    return;
+  }
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
@@ -543,12 +547,13 @@ having no common factor.
 
 Fractions are traversed by rows of a binary tree which effectively
 represents a coprime pair X,Y by the steps of the binary greatest common
-divisor algorithm which would prove X,Y coprime.  The steps left or right
-are encoded/decoded as an N value.
+divisor algorithm which would prove X,Y coprime.  The steps "left" or
+"right" are encoded/decoded as an N value.
 
 There's five different types of tree.  In a given tree row they all have the
 same set of X/Y fractions, but in a different order reflecting different
-encodings of the N value.
+encodings of the N value (bits high to low or low to high, and possible bit
+flip at every second position).
 
 See F<examples/rationals-tree.pl> in the PlanePath sources for a simple
 print of all the trees.
@@ -566,8 +571,8 @@ Brocot.  The rows are fractions of increasing value.
                        | |      | |      | |      | |
     N=8 to N=15     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1
 
-Writing the parents in between the children as an "in-order" traversal to
-given depth has the values in increasing order too,
+Writing the parents in between the children so as to make an "in-order" tree
+traversal to given depth puts the values in increasing order,
 
                  1/1
          1/2      |      2/1
@@ -586,19 +591,19 @@ Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
 so is never reached.
 
-    10  |     512        35                  44       767
-     9  |     256   33        39   40        46  383       768
-     8  |     128        18        21       191       384
-     7  |      64   17   19   20   22   95       192   49   51
-     6  |      32                  47        96
-     5  |      16    9   10   23        48   25   26   55
-     4  |       8        11        24        27        56
-     3  |       4    5        12   13        28   29        60
-     2  |       2         6        14        30        62
-     1  |       1    3    7   15   31   63  127  255  511 1023
+    10  |    512        35                  44       767
+     9  |    256   33        39   40        46  383       768
+     8  |    128        18        21       191       384
+     7  |     64   17   19   20   22   95       192   49   51
+     6  |     32                  47        96
+     5  |     16    9   10   23        48   25   26   55
+     4  |      8        11        24        27        56
+     3  |      4    5        12   13        28   29        60
+     2  |      2         6        14        30        62
+     1  |      1    3    7   15   31   63  127  255  511 1023
     Y=0 |
          ----------------------------------------------------
-          X=0   1    2    3    4    5    6    7    8    9   10
+         X=0   1    2    3    4    5    6    7    8    9   10
 
 The X=1 vertical is the fractions 1/Y at the left of each tree row, which is
 at N value
@@ -641,8 +646,8 @@ A node descends as
     X/(X+Y)  (X+Y)/Y
 
 Taking these formulas in reverse up the tree shows how it relates to the
-binary greatest common divisor algorithm.  At a given node the smaller of
-P,Q is subtracted from the bigger,
+binary greatest common divisor algorithm.  At a given node the smaller of P
+or Q is subtracted from the bigger,
 
        P/(Q-P)         (P-Q)/P
       /          or        \
@@ -650,6 +655,8 @@ P,Q is subtracted from the bigger,
 
 Plotting the N values by X,Y has the same X=1 vertical and Y=1 horizontal as
 the SB above, but the values in between are re-ordered.
+
+    tree_type => "CW"
 
     10  |      512        56                  38      1022
      9  |      256   48        60   34        46  510       513
@@ -681,8 +688,8 @@ calculate the SB tree by taking the bits of N from low to high instead.
 
 =head2 Andreev and Yu-Ting Tree
 
-C<tree_type=E<gt>"AYT"> selects the tree described (independently is it?)
-by D. N. Andreev and Shen Yu-Ting.
+C<tree_type=E<gt>"AYT"> selects the tree described (independently is it?) by
+D. N. Andreev and Shen Yu-Ting.
 
    http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf
    http://www.jstor.org/stable/2320374
@@ -718,13 +725,15 @@ The (X+Y)/Y leg is the same as in the CW (on the right instead of the left).
 But Y/(X+Y) is not the same as the CW (which is X/(X+Y)).
 
 The Y/(X+Y) right leg forms the Fibonacci numbers F(k)/F(k+1) at the end of
-each row, ie. at Nend=2^(level+1)-1.  And as noted by Andreev successive two
+each row, ie. at Nend=2^(level+1)-1.  And as noted by Andreev successive
 right legs at points N=4k+1 and N=4k+3 add up to 1, ie.
 
     X/Y at N=4k+1   +   X/Y at N=4k+3   =  1
     Eg. 2/5 at N=13 and 3/5 at N=15 add up to 1
 
 Plotting the N values by X,Y gives
+
+    tree_type => "AYT"
 
     10  |     513        41                  43       515
      9  |     257   49        37   39        51  259       514
@@ -755,7 +764,7 @@ A/(A+B) and B/(A+B).  This is the same as the AYT tree with
     B = X+Y        Y = A
 
 So the AYT denominator is the Kepler numerator, and the AYT sum num+den is
-the Kepler denominator.
+the Kepler denominator.  (See FractionsTree.)
 
 =head2 Bird Tree
 
@@ -782,6 +791,8 @@ The subtrees are plus one and reciprocal, or reciprocal and plus one
 which ends up meaning Y/(X+Y) and (X+Y)/X taking N bits low to high.
 
 Plotting the N values by X,Y gives,
+
+    tree_type => "Bird"
 
     10  |     682        41                  38       597      
      9  |     341   43        45   34        36  298       938 
@@ -820,7 +831,7 @@ at each level.  Only every second bit is inverted because mirroring twice
 
 C<tree_type=E<gt>"Drib"> selects the Drib tree by Ralf Hinze.  It reverses
 the bits of N in the Bird tree (in a similar way that the SB and CW are bit
-reversals).
+reversals of each other).
 
     N=1                             1/1
                               ------   ------
@@ -838,6 +849,8 @@ The descendants of each node are
 
 The endmost fractions of each row are Fibonacci numbers, F(k)/F(k+1) on the
 left and F(k+1)/F(k) on the right.
+
+    tree_type => "Drib"
 
     10  |     682        50                  44       852     
      9  |     426   58        54   40        36  340       683
@@ -864,25 +877,25 @@ Xor with 0010 for 1101 N=13 which is 4/1 in the Drib tree.
 
 =head2 Common Characteristics
 
-In all the trees the rows are permutations of the fractions arising from the
-SB tree and Stern diatomic sequence.  The properties of the diatomic
+In all the trees the rows are permutations of the rationals arising from the
+SB tree and the Stern diatomic sequence.  The properties of the diatomic
 sequence mean that within a row from Nstart=2^level to Nend=2^(level+1)-1
-the fractions have totals
+the rationals have totals
 
-    sum fractions = (3 * 2^level - 1) / 2
+    sum rationals = (3 * 2^level - 1) / 2
 
     sum numerators = 3^level
 
-For example at level=2, N=4 to N=7, the fractions are 1/3, 2/3, 3/2, 3/1.
-The sum fractions 1/3+2/3+3/2+3/1 = 11/2 which is (3*2^2-1)/2=11/2.  The sum
-numerators 1+2+3+3 = 9 is 3^2.
+For example at level=2, N=4 to N=7, the rationals are 1/3, 2/3, 3/2, 3/1.
+The sum of rationals 1/3+2/3+3/2+3/1 = 11/2 which is (3*2^2-1)/2=11/2.  The
+sum of numerators 1+2+3+3 = 9 is 3^2.
 
 All sorts of permutations are conceivable within a row, but the ones here
-have some relationship to X/Y descendants or tree sub-forms.  There's 2
-choices high to low or low to high N bits, and then 3 bit flip forms:
-unflipped, flip starting from bit 0, flip starting bit 1.  Only 5 of the 6
-are implemented currently, the missing one being the AYT formulas done low
-to high.  Does that have a name, or any particular significance?
+have some relationship to X/Y descendants or tree sub-forms.  There's two
+choices high to low or low to high N bits, and then three bit flip forms:
+unflipped, flip every second starting from the first or the second.  Only 5
+of the 6 are implemented currently, the missing one is the AYT formulas done
+low to high.  Does that have a name, or a particular significance?
 
 =head1 OEIS
 
@@ -937,6 +950,10 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 Create and return a new path object.
 
+=item C<$n = $path-E<gt>n_start()>
+
+Return 1, the first N in the path.
+
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
 Return a range of N values which occur in a rectangle with corners at
@@ -949,11 +966,35 @@ reduces a little to roughly 2**(max/min + min).
 
 =back
 
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return the two children of C<$n>, or an empty list if C<$n E<lt> 1>
+(ie. before the start of the path).
+
+This is simply C<2*$n, 2*$n+1>.  The children are C<$n> with an extra bit
+appended, either a 0-bit or a 1-bit.
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the top of
+the tree).
+
+This is simply C<floor($n/2)>, stripping the least significant bit from
+C<$n> (undoing what C<tree_n_children()> appends).
+
+=back
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::FractionsTree>,
+L<Math::PlanePath::PythagoreanTree>,
 L<Math::PlanePath::CoprimeColumns>,
-L<Math::PlanePath::PythagoreanTree>
+L<Math::PlanePath::DiagonalRationals>
 
 L<Math::NumSeq::SternDiatomic>
 

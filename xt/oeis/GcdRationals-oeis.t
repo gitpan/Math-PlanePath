@@ -66,8 +66,6 @@ sub numeq_array {
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
 
   skip (! $bvalues,

@@ -45,15 +45,15 @@ require Math::NumSeq::PlanePathDelta;
 #------------------------------------------------------------------------------
 # _delta_func_Dir4()
 
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,200,2), 0);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,1,200), 1);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,-200,2), 2);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,1,-200), 3);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(199, 0), 0);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(0, 199), 1);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(-199, 0), 2);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(0, -199), 3);
 
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,2,3), 0.5);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,-1,4), 1.5);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,-1,0), 2.5);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,2,1), 3.5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,1), 0.5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(-3,3), 1.5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(-3,-3), 2.5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(2,-2), 3.5);
 
 {
   my $two_pi = atan2(1,1)*8;
@@ -62,7 +62,7 @@ ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,2,1), 3.5);
     my $dx = cos($radians);
     my $dy = sin($radians);
     my $want_4 = 4 * $degrees / 360;
-    my $got_4 = Math::NumSeq::PlanePathDelta::_delta_func_Dir4(0,0,$dx,$dy);
+    my $got_4 = Math::NumSeq::PlanePathDelta::_delta_func_Dir4($dx,$dy);
 
     ### $dx
     ### $dy
@@ -78,38 +78,38 @@ ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(1,2,2,1), 3.5);
 #------------------------------------------------------------------------------
 # _delta_func_TDir6()
 
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2,200,2), 0);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2,201,202), 1);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2,-199,202), 2);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2,-200,2), 3);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2,-199,-198), 4);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2,201,-198), 5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(199,0), 0);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(5,5), 1);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-5,5), 2);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-5,0), 3);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-2,-2), 4);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(2,-2), 5);
 
 # twelfths at dx=3,dy=1 and dx=0,dy=1
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, 4,3), 0.5); # +3,+1
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, 1,5), 1.5); # 0,+1
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, -2,3), 2.5); # -3,+1
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, -2,1), 3.5);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, 1,-300), 4.5);
-ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, 4,1), 5.5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(3,1), 0.5); # +3,+1
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(0,199), 1.5); # 0,+1
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-6,2), 2.5); # -3,+1
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-6,-2), 3.5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(0,-199), 4.5);
+ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(3,-1), 5.5);
 
 {
-  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(0,0,1,1.001);
+  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,1.001);
   ok ($got_6 >= 1);
   ok ($got_6 <= 1.1);
 }
 {
-  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(0,0,-1,0.999);
+  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-1,0.999);
   ok ($got_6 >= 2);
   ok ($got_6 <= 2.1);
 }
 {
-  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(0,0,-1,0.0001);
+  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-1,0.0001);
   ok ($got_6 >= 2.9);
   ok ($got_6 <= 3);
 }
 {
-  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(0,0,-1,-0.0001);
+  my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(-1,-0.0001);
   ok ($got_6 >= 3);
   ok ($got_6 <= 3.1);
 }
@@ -120,7 +120,7 @@ ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(1,2, 4,1), 5.5);
     my $dx = cos($radians);
     my $dy = sin($radians) / sqrt(3); # flattened
     my $want_6 = 6 * $degrees / 360;
-    my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6(0,0,$dx,$dy);
+    my $got_6 = Math::NumSeq::PlanePathDelta::_delta_func_TDir6($dx,$dy);
 
     ### $dx
     ### $dy

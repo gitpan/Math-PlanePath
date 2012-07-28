@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -47,12 +47,9 @@ use Math::PlanePath;
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
-
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -212,7 +209,7 @@ sub xy_to_n {
     return undef;
   }
 
-  my $n = _digit_join_lowtohigh (\@n, $norm, $zero);
+  my $n = digit_join_lowtohigh (\@n, $norm, $zero);
   if ($self->{'arms'} > 1) {
     $n *= 2;
   }

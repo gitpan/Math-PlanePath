@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -235,8 +235,12 @@ sub _bingcd_max {
 
 sub tree_n_children {
   my ($self, $n) = @_;
-  $n *= 2;
-  return ($n, $n+1);
+  if ($n >= 1) {
+    $n *= 2;
+    return ($n, $n+1);
+  } else {
+    return;
+  }
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
@@ -339,6 +343,10 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 Create and return a new path object.
 
+=item C<$n = $path-E<gt>n_start()>
+
+Return 1, the first N in the path.
+
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
 Return a range of N values which occur in a rectangle with corners at
@@ -347,6 +355,28 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.
 For reference, C<$n_hi> can be quite large because within each row there's
 only one new 1/Y fraction.  So if X=1 is included then roughly C<$n_hi =
 2**max(x,y)>.
+
+=back
+
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return the two children of C<$n>, or an empty list if C<$n E<lt> 1>
+(ie. before the start of the path).
+
+This is simply C<2*$n, 2*$n+1>.  The children are C<$n> with an extra bit
+appended, either a 0-bit or a 1-bit.
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the top of
+the tree).
+
+This is simply C<floor($n/2)>, stripping the least significant bit from
+C<$n> (undoing what C<tree_n_children()> appends).
 
 =back
 

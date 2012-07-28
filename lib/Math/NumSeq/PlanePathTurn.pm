@@ -20,7 +20,7 @@
 #
 # maybe:
 # Turn4   0,1,2,3  and fractional
-# Turn4pn 0,1,2,-1
+# Turn4pn 0,1,2,-1  Turn4mid Turn4n
 # TTurn6   0,1,2,3,4,5
 # TTurn6pn 0,1,2,3, -1,-2,  eg. flowsnake
 
@@ -32,15 +32,12 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
-use Math::PlanePath::Base::Generic
-  'is_infinite';
 use Math::NumSeq::PlanePathCoord;
 use Math::PlanePath;
-
 use Math::PlanePath::Base::Generic
   'is_infinite';
 

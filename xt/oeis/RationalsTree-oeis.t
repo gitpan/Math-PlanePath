@@ -86,11 +86,11 @@ sub diff_nums {
   my @got;
   my $diff;
   if (! $bvalues) {
-    MyTestHelpers::diag ($skip = "$anum not available");
+    $skip = "$anum not available";
   } elsif (! eval { require Math::ContinuedFraction; 1 }) {
-    MyTestHelpers::diag ($skip = "$anum - Math::ContinuedFraction not available");
+    $skip = "$anum - Math::ContinuedFraction not available";
+    MyTestHelpers::diag ($skip);
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
   OUTER: for (my $k = 1; @got < @$bvalues; $k++) {
       foreach my $n (2**$k .. 2**$k + 2**($k-1) - 1) {
@@ -121,16 +121,14 @@ sub diff_nums {
 {
   my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
   my $anum = 'A000975';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 100);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     push @got, 0;  # extra initial 0 in A000975
-    for (my $y = 1; @got < @$bvalues; $y++) {
+    require Math::BigInt;
+    for (my $y = Math::BigInt->new(1); @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n (1, $y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -149,15 +147,12 @@ sub diff_nums {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-      my $f1 = 1;
+        my $f1 = 1;
       my $f0 = 1;
       while (@got < @$bvalues) {
         push @got, $path->xy_to_n ($f1, $f0);
         ($f1,$f0) = ($f1+$f0,$f1);
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -169,12 +164,9 @@ sub diff_nums {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-      for (my $x = 1; @got < @$bvalues; $x++) {
+        for (my $x = 1; @got < @$bvalues; $x++) {
         push @got, $path->xy_to_n ($x, 1);
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -188,23 +180,19 @@ sub diff_nums {
 # F(n)/F(n+1) in CW
 {
   my $anum = 'A061547';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 100);
   {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
       push @got, 0;  # extra initial 0 in A061547
-      my $f1 = 1;
-      my $f0 = 1;
+      require Math::BigInt;
+      my $f1 = Math::BigInt->new(1);
+      my $f0 = Math::BigInt->new(1);
       while (@got < @$bvalues) {
         push @got, $path->xy_to_n ($f0, $f1);
         ($f1,$f0) = ($f1+$f0,$f1);
       }
-      ### bvalues: join(',',@{$bvalues}[0..20])
-      ### got: '    '.join(',',@got[0..20])
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
@@ -216,18 +204,11 @@ sub diff_nums {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
       push @got, 0;  # extra initial 0 in A061547
-      for (my $y = 1; @got < @$bvalues; $y++) {
+      for (my $y = Math::BigInt->new(1); @got < @$bvalues; $y++) {
         push @got, $path->xy_to_n (1, $y);
       }
-      ### bvalues: join(',',@{$bvalues}[0..20])
-      ### got: '    '.join(',',@got[0..20])
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum");
@@ -244,14 +225,11 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     push @got, 0,1;  # extra initial
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..10])
   ### got: '    '.join(',',@got[0..10])
@@ -269,13 +247,10 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -293,14 +268,11 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     push @got,1,1; # extra initial
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x+$y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -319,17 +291,12 @@ sub diff_nums {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-      shift @$bvalues; # drop initial value=0 from oeis
+        shift @$bvalues; # drop initial value=0 from oeis
       foreach my $n (1 .. @$bvalues) {
         my ($x, $y) = $path->n_to_xy ($n);
         push @got, $x;
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum -- CW tree numerators as Stern diatomic");
@@ -341,17 +308,12 @@ sub diff_nums {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-      push @got,0,1; # extra initial
+        push @got,0,1; # extra initial
       for (my $n = $path->n_start; @got < @$bvalues; $n++) {
         my ($x, $y) = $path->n_to_xy ($n);
         push @got, $y;
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum -- CW tree denominators as Stern diatomic");
@@ -367,14 +329,11 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     unshift @$bvalues, 0;   # extra 0 in RationalsTree
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y - $x;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -392,13 +351,10 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -417,13 +373,10 @@ sub diff_nums {
   my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -441,13 +394,10 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x+$y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -465,13 +415,10 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -489,13 +436,10 @@ sub diff_nums {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (1 .. @$bvalues) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -514,16 +458,11 @@ sub diff_nums {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-      foreach my $n (1 .. @$bvalues) {
+        foreach my $n (1 .. @$bvalues) {
         my ($x, $y) = $path->n_to_xy ($n);
         push @got, $x;
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum -- Drib tree numerators");
@@ -534,23 +473,18 @@ sub diff_nums {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
     my @got;
     if ($bvalues) {
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-      foreach my $n (1 .. @$bvalues) {
-        my ($x, $y) = $path->n_to_xy (_reverse ($n));
+        foreach my $n (1 .. @$bvalues) {
+        my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
         push @got, $x;
       }
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum -- Drib tree numerators by bit reversal");
   }
 }
 
-sub _reverse {
+sub bit_reverse {
   my ($n) = @_;
   my $rev = 1;
   while ($n > 1) {
@@ -569,13 +503,10 @@ sub _reverse {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy (_reverse ($n));
+      my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
       push @got, $y;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])

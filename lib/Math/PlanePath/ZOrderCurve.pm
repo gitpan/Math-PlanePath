@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,7 +42,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'parameter_info_array',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -148,7 +149,7 @@ sub xy_to_n {
 
   my @x = digit_split_lowtohigh($x,$radix);
   my @y = digit_split_lowtohigh($y,$radix);
-  return _digit_join_lowtohigh ([ _digit_interleave (\@x, \@y) ],
+  return digit_join_lowtohigh ([ _digit_interleave (\@x, \@y) ],
                                 $radix,
                                 $zero);
 }
@@ -189,24 +190,6 @@ sub rect_to_n_range {
   # monotonic increasing in $x and $y directions, so this is exact
   return ($self->xy_to_n ($x1, $y1),
           $self->xy_to_n ($x2, $y2));
-}
-
-# $aref->[0] low digit
-sub _digit_join_lowtohigh {
-  my ($aref, $radix, $zero) = @_;
-  ### _digit_join_lowtohigh() ...
-  ### $aref
-  ### $radix
-  ### $zero
-
-  my $n = (defined $zero ? $zero : 0);
-  foreach my $digit (reverse @$aref) { # high to low
-    ### $n
-    $n *= $radix;
-    $n += $digit;
-  }
-  ### $n
-  return $n;
 }
 
 1;

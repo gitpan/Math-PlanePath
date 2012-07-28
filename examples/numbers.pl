@@ -21,7 +21,7 @@
 # Usage: perl numbers.pl CLASS...
 #        perl numbers.pl all
 #
-# Print the given path CLASS or CLASSes as N numbers in a grid.  Eg.
+# Print the given path CLASS or classes as N numbers in a grid.  Eg.
 #
 #     perl numbers.pl SquareSpiral DiamondSpiral
 #
@@ -39,17 +39,17 @@
 # stops when the width of the numbers to be displayed would be wider than
 # the tty.
 #
-# Stopping when N goes outside the tty width means that just the first say
-# 99 or so N values will be shown.  There's quite likely other bigger N
-# within the X,Y grid region, but these first few N show how the path
-# begins, without clogging up the output.
+# Stopping when N goes outside the tty means that just the first say 99 or
+# so N values will be shown.  There's often other bigger N within the X,Y
+# grid region, but the first few N show how the path begins, without
+# clogging up the output.
 #
 # The origin 0,0 is kept in the middle of the output, horizontally, to help
 # see how much is on each side and to make multiple paths printed line up
 # such as the "all" option.  Vertically only as many rows as necessary are
 # printed.
 #
-# Paths with fractional X,Y positions like SacksSpiral or VogelFloret get
+# Paths with fractional X,Y positions like SacksSpiral or VogelFloret are
 # rounded to character positions.  There's some hard-coded fudge factors to
 # try to make them come out nicely.
 #
@@ -67,7 +67,7 @@ my $width = 79;
 my $height = 23;
 
 # use Term::Size if available
-# chars() can return 0 for unknown size
+# chars() can return 0 for unknown size, ignore that
 if (eval { require Term::Size }) {
   my ($term_width, $term_height) = Term::Size::chars();
   if ($term_width)  { $width = $term_width - 1; }

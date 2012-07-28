@@ -38,7 +38,7 @@ my @pairs_order_choices
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::GcdRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GcdRationals->VERSION,  $want_version,

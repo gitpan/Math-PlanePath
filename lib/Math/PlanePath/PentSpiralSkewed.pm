@@ -24,7 +24,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -191,6 +191,16 @@ each rounded to the nearest integer, which has the effect of treating each
 point in the path as a square of side 1.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A140066  (etc)
+
+    A140066    N on Y axis
+    A134238    N on Y negative axis
 
 =head1 SEE ALSO
 

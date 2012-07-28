@@ -20,10 +20,12 @@
 use 5.004;
 use strict;
 use List::Util 'min', 'max';
-use Math::PlanePath::Base::Generic 'is_infinite';
-use Math::PlanePath::Base::Digits 'round_down_pow';
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+use Math::PlanePath::Base::Generic
+  'is_infinite';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 use Math::PlanePath::ImaginaryBase;
 
 # uncomment this to run the ### lines
@@ -124,8 +126,8 @@ use Smart::Comments;
     foreach my $x2 (0 .. 1) {
       my ($min_digits, $max_digits)
         = Math::PlanePath::ImaginaryBase::_negaradix_range_digits_lowtohigh($x1,$x2, $radix);
-      my $min = _digit_join_lowtohigh ($min_digits, $radix);
-      my $max = _digit_join_lowtohigh ($max_digits, $radix);
+      my $min = digit_join_lowtohigh ($min_digits, $radix);
+      my $max = digit_join_lowtohigh ($max_digits, $radix);
       my ($want_min, $want_max)
         = negaradix_index_range($x1,$x2, $radix);
       if ($min != $want_min || $max != $want_max) {

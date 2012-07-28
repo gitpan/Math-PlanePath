@@ -45,7 +45,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,7 +54,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -188,33 +189,38 @@ sub xy_to_n {
   }
 
   my $radix = $self->{'radix'};
+  my $zero = ($x * 0 * $y);  # inherit bignum 0
+
   my @x = digit_split_lowtohigh ($x, $radix);
   my @y = digit_split_lowtohigh ($y, $radix);
 
   my $radix_minus_1 = $radix - 1;
   my $xk = 0;
   my $yk = 0;
-  my $n = ($x * 0 * $y);  # inherit bignum 0
 
-  foreach my $i (reverse 0 .. max($#x,$#y)) {  # high to low
+  my @n;  # stored low to high, generated from high to low
+  my $i_high = max($#x,$#y);
+  my $npos = 2*$i_high+1;
+
+  foreach my $i (reverse 0 .. $i_high) {  # high to low
     {
       my $digit = $y[$i] || 0;
       if ($yk & 1) {
-        $digit = $radix_minus_1 - $digit;  # reverse
+        $digit = $radix_minus_1 - $digit;  # reverse digit
       }
-      $n = ($n * $radix) + $digit;
+      $n[$npos--] = $digit;
       $xk ^= $digit;
     }
     {
       my $digit = $x[$i] || 0;
       if ($xk & 1) {
-        $digit = $radix_minus_1 - $digit;  # reverse
+        $digit = $radix_minus_1 - $digit;  # reverse digit
       }
-      $n = ($n * $radix) + $digit;
+      $n[$npos--] = $digit;
       $yk ^= $digit;
     }
   }
-  return $n;
+  return digit_join_lowtohigh (\@n, $radix, $zero);
 }
 
 # exact

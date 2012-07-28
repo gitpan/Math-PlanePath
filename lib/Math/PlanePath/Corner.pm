@@ -17,6 +17,7 @@
 
 
 # math-image --path=Corner --output=numbers_dash --all
+# math-image --path=Corner,wider=1 --all --output=numbers
 
 
 package Math::PlanePath::Corner;
@@ -24,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -414,12 +415,16 @@ the top right corner otherwise.
 
 This path is in Sloane's Online Encyclopedia of Integer Sequences as,
 
-    http://oeis.org/A053188  (etc)
+    http://oeis.org/A196199  (etc)
 
-    A196199    X-Y, being runs -n to +n
-    A053615    abs(X-Y), distance to next pronic
-    A053188    wider=1 abs(X-Y), distance to nearest square
-                 (extra initial 0)
+    wider=0 (the default)
+      A196199    X-Y, being runs -n to +n
+      A053615    abs(X-Y), distance to next pronic
+      A002522    N on Y axis (N=Y^2+1)
+
+    wider=1 
+      A053188    abs(X-Y), distance to nearest square
+                   (extra initial 0)
 
 =head1 SEE ALSO
 
@@ -453,7 +458,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=Corner,wider=1 --all --output=numbers"
-# End:

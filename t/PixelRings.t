@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 11;
+plan tests => 15;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::PixelRings;
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::PixelRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PixelRings->VERSION,  $want_version,
@@ -70,6 +70,14 @@ require Math::PlanePath::PixelRings;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->class_x_negative, 1, 'class_x_negative()');
+  ok ($path->class_y_negative, 1, 'class_y_negative()');
+  ok ($path->n_frac_discontinuity, 0, 'n_frac_discontinuity()');
+}
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::PixelRings->parameter_info_list;
+  ok (join(',',@pnames), '');
 }
 
 #------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -259,8 +259,8 @@ and the upper right is the maximum N.
 
 =head1 OEIS
 
-Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
-path include
+Entries in Neil Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
 
     http://oeis.org/A023531  (etc)
 
@@ -274,6 +274,9 @@ path include
       A048147    X^2+Y^2
 
       A127949    dY, change in Y coordinate
+    
+      A000124    N on Y axis
+      A001844    N on X=Y diagonal
 
 Similar for direction=up but transposing X,Y.
 

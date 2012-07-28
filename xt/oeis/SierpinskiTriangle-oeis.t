@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 8;
+plan tests => 14;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,8 +32,6 @@ use Math::PlanePath::SierpinskiTriangle;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-
-my $path = Math::PlanePath::SierpinskiTriangle->new;
 
 sub diff_nums {
   my ($gotaref, $wantaref) = @_;
@@ -64,6 +62,7 @@ sub diff_nums {
 
 #------------------------------------------------------------------------------
 # A106344 - by dX=-3,dY=+1 slopes upwards
+# cf A106346 its matrix inverse, or something
 #
 # 1
 # 0, 1
@@ -99,8 +98,73 @@ sub diff_nums {
   my $anum = 'A106344';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   {
+    # align="left" is dX=1,dY=1 diagonals
     my $diff;
     if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new (align => 'left');
+      my @got;
+      my $xstart = 0;
+      my $x = 0;
+      my $y = 0;
+      while (@got < @$bvalues) {
+        my $n = $path->xy_to_n($x,$y);
+        push @got, (defined $n ? 1 : 0);
+
+        $x += 1;
+        $y += 1;
+        if ($x > 0) {
+          $xstart--;
+          $x = $xstart;
+          $y = 0;
+        }
+      }
+      $diff = diff_nums(\@got, $bvalues);
+      if ($diff) {
+        MyTestHelpers::diag ("bvalues: ",join('',@{$bvalues}[0..60]));
+        MyTestHelpers::diag ("got:     ",join('',@got[0..60]));
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum by path");
+  }
+  {
+    # align="right" is dX=2,dY=1 slopes, chess knight moves
+    my $diff;
+    if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new (align => 'right');
+      my @got;
+      my $xstart = 0;
+      my $x = 0;
+      my $y = 0;
+      while (@got < @$bvalues) {
+        my $n = $path->xy_to_n($x,$y);
+        push @got, (defined $n ? 1 : 0);
+
+        $x += 2;
+        $y += 1;
+        if ($x > $y) {
+          $xstart--;
+          $x = $xstart;
+          $y = 0;
+        }
+      }
+      $diff = diff_nums(\@got, $bvalues);
+      if ($diff) {
+        MyTestHelpers::diag ("bvalues: ",join('',@{$bvalues}[0..60]));
+        MyTestHelpers::diag ("got:     ",join('',@got[0..60]));
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum by path");
+  }
+  {
+    my $diff;
+    if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new;
       my @got;
       my $xstart = 0;
       my $x = 0;
@@ -131,6 +195,7 @@ sub diff_nums {
   {
     my $diff;
     if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new;
       my @got;
     OUTER: for (my $n = 0; ; $n++) {
         for (my $k = 0; $k <= $n; $k++) {
@@ -155,6 +220,7 @@ sub diff_nums {
   {
     my $diff;
     if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new;
       my @got;
       require Math::BigInt;
     OUTER: for (my $n = 0; ; $n++) {
@@ -192,6 +258,92 @@ sub binomial_mod2 {
   return Math::BigInt->new($n)->bnok($k)->bmod(2)->numify;
 }
 
+
+#------------------------------------------------------------------------------
+# A106345 - 
+# k=0..floor(n/2) of binomial(k, n-2k)
+#
+# path(x,y) = binomial(y,(x+y)/2)
+# T(n,k)=binomial(k,n-2k)
+# y=k
+# (x+y)/2=n-2k
+# x+k=2n-4k
+# x=2n-5k
+
+{
+  my $anum = 'A106345';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                      # touch slow, shorten
+                                                      max_count => 1000);
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::SierpinskiTriangle->new;
+    my @got;
+    for (my $xstart = 0; @got < @$bvalues; $xstart -= 2) {
+      my $x = $xstart;
+      my $y = 0;
+      my $total = 0;
+      while ($x <= $y) {
+        my $n = $path->xy_to_n($x,$y);
+        if (defined $n) {
+          $total++;
+        }
+        $x += 5;
+        $y += 1;
+      }
+      push @got, $total;
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+
+#------------------------------------------------------------------------------
+# A002487 - stern diatomic count along of dX=3,dY=1 slopes
+
+{
+  my $anum = 'A002487';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                      # touch slow, shorten
+                                                      max_count => 1000);
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::SierpinskiTriangle->new;
+    my @got = (0);
+    for (my $xstart = 0; @got < @$bvalues; $xstart -= 2) {
+      my $x = $xstart;
+      my $y = 0;
+      my $total = 0;
+      while ($x <= $y) {
+        my $n = $path->xy_to_n($x,$y);
+        if (defined $n) {
+          $total++;
+        }
+        $x += 3;
+        $y += 1;
+      }
+      push @got, $total;
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+
+
 #------------------------------------------------------------------------------
 # A001316 - Gould's sequence number of 1s in each row
 {
@@ -199,6 +351,7 @@ sub binomial_mod2 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
   if ($bvalues) {
+    my $path = Math::PlanePath::SierpinskiTriangle->new;
     my @got;
     my $prev_y = 0;
     my $count = 0;
@@ -231,6 +384,7 @@ sub binomial_mod2 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
   if ($bvalues) {
+    my $path = Math::PlanePath::SierpinskiTriangle->new;
     my @got;
     for (my $y = 1; @got < @$bvalues; $y++) {
       my $n = $path->xy_to_n($y,$y);
@@ -255,26 +409,78 @@ sub binomial_mod2 {
 {
   my $anum = 'A047999';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $x = 0;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      push @got, (defined($path->xy_to_n($x,$y)) ? 1 : 0);
-      $x += 2;
-      if ($x > $y) {
-        $y++;
-        $x = -$y;
+  {
+    my $diff;
+    if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new;
+      my @got;
+      my $x = 0;
+      my $y = 0;
+      foreach my $n (1 .. @$bvalues) {
+        push @got, (defined($path->xy_to_n($x,$y)) ? 1 : 0);
+        $x += 2;
+        if ($x > $y) {
+          $y++;
+          $x = -$y;
+        }
       }
     }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum");
   }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
+  {
+    my $diff;
+    if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new (align => "right");
+      my @got;
+      my $x = 0;
+      my $y = 0;
+      foreach my $n (1 .. @$bvalues) {
+        push @got, (defined($path->xy_to_n($x,$y)) ? 1 : 0);
+        $x++;
+        if ($x > $y) {
+          $y++;
+          $x = 0;
+        }
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum");
+  }
 }
 
+
+#------------------------------------------------------------------------------
+# A075438 - 1/0 by rows of "right", including blank 0s in left of pyramid
+{
+  my $anum = 'A075438';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my $diff;
+    if ($bvalues) {
+      my $path = Math::PlanePath::SierpinskiTriangle->new (align => 'right');
+      my @got;
+      my $x = 0;
+      my $y = 0;
+      foreach my $n (1 .. @$bvalues) {
+        push @got, (defined($path->xy_to_n($x,$y)) ? 1 : 0);
+        $x++;
+        if ($x > $y) {
+          $y++;
+          $x = -$y;
+        }
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum");
+  }
+}
 
 #------------------------------------------------------------------------------
 # A001317 - rows as binary bignums, without the skipped (x^y)&1==1 points of
@@ -284,7 +490,8 @@ sub binomial_mod2 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
   if ($bvalues) {
-  my @got;
+    my $path = Math::PlanePath::SierpinskiTriangle->new;
+    my @got;
     require Math::BigInt;
     my $y = 0;
     foreach my $n (1 .. @$bvalues) {
@@ -315,6 +522,7 @@ sub binomial_mod2 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
   if ($bvalues) {
+    my $path = Math::PlanePath::SierpinskiTriangle->new;
     my @got;
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n(-$y,$y);

@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -348,7 +348,7 @@ sub _n_start {
 sub tree_n_children {
   my ($self, $n) = @_;
   if ($n < 1) {
-    return undef;
+    return;
   }
   my ($x,$y) = $self->n_to_xy($n);
   my @ret;
@@ -366,7 +366,7 @@ sub tree_n_children {
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
-  if ($n < 1) {
+  if ($n <= 1) {
     return undef;
   }
   my ($x,$y) = $self->n_to_xy($n);
@@ -401,8 +401,8 @@ Math::PlanePath::UlamWarburtonQuarter -- growth of a 2-D cellular automaton
 =head1 DESCRIPTION
 
 X<Ulam, Stanislaw>X<Warburton>This is the pattern of a cellular automaton
-studied by Ulam and Warburton, confined to a quarter of the plane and done
-on the diagonal.  Cells are numbered by growth level and anti-clockwise
+studied by Ulam and Warburton, confined to a quarter of the plane and
+oriented diagonally.  Cells are numbered by growth level and anti-clockwise
 within the level.
 
    14 |  81    80    79    78    75    74    73    72
@@ -432,14 +432,14 @@ new cell has no neighbours.  So the initial cell "a" is N=1,
     | a                    initial level 1 cell
     +----
 
-The next level "b" cell can only go NE,
+The next level "b" cell can only go NE (confined to the first quadrant),
 
     |   b
     | a                    level 2
     +------
 
 Then the next level "c" cells can go in three directions SE, NE, NW.  These
-cells are numbered anti-clockwise around from the SE N=3,N=4,N=5.
+cells are numbered anti-clockwise around from the SE as N=3,N=4,N=5.
 
     | c   c
     |   b
@@ -447,7 +447,7 @@ cells are numbered anti-clockwise around from the SE N=3,N=4,N=5.
     +---------
 
 The "d" cell is then only a single on the leading diagonal, since the other
-diagonals already have neighbours (the existing "c" cells).
+diagonals all already have neighbours (the existing "c" cells).
 
     |       d
     | c   c                level 4
@@ -481,7 +481,7 @@ diagonals already have neighbours (the existing "c" cells).
 
 In general each level always grows by 1 along the leading diagonal X=Y and
 travels into the sides with a sort of diamond shaped tree pattern filling 6
-cells of each 4x4 square block.
+of 16 cells in each 4x4 square block.
 
 =head2 Level Ranges
 
@@ -533,8 +533,7 @@ level=7 = 2^2+2^1+2^0 is Nstart = 1+(4^2-1)/3 + 4^1 + 3*4^0 = 13.
 
 =head2 Self-Similar Replication
 
-The square shape growth up to a level 2^a repeats three times.  For example
-a 5-cell "a" part,
+The square shape growth up to a level 2^a repeats three times.  For example,
 
     |  d   d   c   c
     |    d       c
@@ -545,8 +544,8 @@ a 5-cell "a" part,
     |  a   a   b   b
     +--------------------
 
-The 2x2 square "a" repeats, pointing SE, NE and NW as "b", "c" and "d".
-This resulting 4x4 square then likewise repeats.  The points in the path
+The 3x3 square "a" repeats, pointing SE, NE and NW as "b", "c" and "d".
+This resulting 7x7 square then likewise repeats.  The points in the path
 here are numbered by growth level rather than by this sort of replication,
 but the replication helps to see the structure of the pattern.
 
@@ -567,12 +566,30 @@ at 1 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
 
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return the children of C<$n>, or an empty list if C<$n> has no children
+(including when C<$n E<lt> 1>, ie. before the start of the path).
+
+The children are the cells turned on adjacent to C<$n> at the next level.
+This can be none, one or three points.
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the start of
+the path).
+
+=back
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::UlamWarburton>,
-L<Math::PlanePath::CellularRule54>,
-L<Math::PlanePath::CellularRule190>
+L<Math::PlanePath::CellularRule>
 
 L<Math::PlanePath::SierpinskiTriangle> (a similar binary ones-count related
 level calculation)

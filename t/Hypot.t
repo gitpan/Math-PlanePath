@@ -38,7 +38,7 @@ my $path = Math::PlanePath::Hypot->new;
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::Hypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Hypot->VERSION,  $want_version,
@@ -84,22 +84,25 @@ my $path = Math::PlanePath::Hypot->new;
 
 foreach my $points (@{Math::PlanePath::Hypot
   ->parameter_info_hash->{'points'}->{'choices'}}) {
-  my $path = Math::PlanePath::Hypot->new (points => $points);
-  my $prev_h = -1;
-  my $prev_x = 0;
-  my $prev_y = -1;
-  foreach my $n ($path->n_start .. 1000) {
-    my ($x, $y) = $path->n_to_xy ($n);
-    my $h = $x*$x + $y*$y;
-    if ($h < $prev_h) {
-      die "decreasing h=$h prev=$prev_h";
+  foreach my $n_start (1, 0, 37) {
+    my $path = Math::PlanePath::Hypot->new (points => $points,
+                                            n_start => $n_start);
+    my $prev_h = -1;
+    my $prev_x = 0;
+    my $prev_y = -1;
+    foreach my $n ($n_start .. $n_start + 1000) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      my $h = $x*$x + $y*$y;
+      if ($h < $prev_h) {
+        die "decreasing h=$h prev=$prev_h";
+      }
+      if ($n > $n_start+1 && ! _turn_func_Left($prev_x,$prev_y, $x,$y)) {
+        die "not turn left at n=$n xy=$x,$y prev=$prev_x,$prev_y";
+      }
+      $prev_h = $h;
+      $prev_x = $x;
+      $prev_y = $y;
     }
-    if ($n > 2 && ! _turn_func_Left($prev_x,$prev_y, $x,$y)) {
-      die "not turn left at n=$n xy=$x,$y prev=$prev_x,$prev_y";
-    }
-    $prev_h = $h;
-    $prev_x = $x;
-    $prev_y = $y;
   }
 }
 

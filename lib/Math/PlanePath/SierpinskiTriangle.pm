@@ -48,7 +48,9 @@
 #    numerator of (2^k)/k!
 #    2^(number of 1 bits in y)
 #
-# A080263
+# cf A080263
+#    A067771  vertices of sierpinski graph, joins up replications
+#             so 1 less each giving 3*(3^k-1)/2
 
 
 package Math::PlanePath::SierpinskiTriangle;
@@ -56,52 +58,48 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
-
-use Math::PlanePath::CellularRule54;
-*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-# Not quite ready.
-# use constant parameter_info_array =>
-#   [
-#    {
-#     name      => 'align',
-#     type      => 'enum',
-#     share_key => 'align_trl',
-#     default   => 'triangular',
-#     choices   => ['triangular', 'right', 'left','diagonal'],
-#    },
-#   ];
+use constant parameter_info_array =>
+  [ { name      => 'align',
+      type      => 'enum',
+      share_key => 'align_trl',
+      default   => 'triangular',
+      choices   => ['triangular', 'right', 'left','diagonal'],
+      choices_display => ['Triangular', 'Right', 'Left','Diagonal'],
+    },
+  ];
 
-use constant class_y_negative => 0;
-sub n_start {
-  my ($self) = @_;
-  return $self->{'n_start'};
-}
+my %x_negative = (triangular => 1,
+                  left       => 1,
+                  right      => 0,
+                  diagonal   => 0);
 sub x_negative {
   my ($self) = @_;
-  return ($self->{'align'} ne 'right');
+  return $x_negative{$self->{'align'}};
 }
+use constant class_y_negative => 0;
+use constant default_n_start => 0;
 
 sub new {
   my $self = shift->SUPER::new(@_);
-  $self->{'n_start'} ||= 0;
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   $self->{'align'} ||= 'triangular';
   return $self;
 }
@@ -128,6 +126,8 @@ sub n_to_xy {
     }
     $n = $int;
   }
+  ### $n
+  ### $frac
 
   if ($n < 0) {
     return;
@@ -210,20 +210,22 @@ sub xy_to_n {
       return undef;
     }
   }
+  ### adjusted xy: "$x,$y"
 
+  return _right_xy_to_n ($self, $x, $y);
+}
+
+sub _right_xy_to_n {
+  my ($self, $x, $y) = @_;
+  ### _right_xy_to_n() ...
+
+  unless ($x >= 0 && $x <= $y && $y >= 0) {
+    ### outside horiz range ...
+    return undef;
+  }
   if (is_infinite($y)) {
-    return ($y);
+    return $y;
   }
-  if ($y < 0) {
-    return undef;
-  }
-
-  if ($x < 0 || $x > $y) {
-    # if outside horiz range
-    ### not odd point in pyramid, no point ...
-    return undef;
-  }
-  ### adjusted x: $x
 
   my $zero = ($y * 0);
   my $n = $zero;          # inherit bignum 0
@@ -247,8 +249,9 @@ sub xy_to_n {
 
   ### n at left end of y row: $n
   ### n offset for x: @nx
+  ### total: $n + digit_join_lowtohigh(\@nx,2,$zero) + $self->{'n_start'}
 
-  return $n + _digit_join_lowtohigh(\@nx,2,$zero) + $self->{'n_start'};
+  return $n + digit_join_lowtohigh(\@nx,2,$zero) + $self->{'n_start'};
 }
 
 # not exact
@@ -256,41 +259,65 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiTriangle rect_to_n_range(): "$x1,$y1, $x2,$y2"
 
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
+
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
+
   if ($self->{'align'} eq 'diagonal') {
-    $y1 = round_nearest ($y1);
-    $y2 = round_nearest ($y2);
-    if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1) }
-
-    $x1 = round_nearest ($x1);
-    $x2 = round_nearest ($x2);
-    if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
-
-    if ($x2 < 0 || $y2 < 0) {
-      return (1,0);
-    }
-    if ($x1 < 0) { $x1 *= 0; }
-    if ($y1 < 0) { $y1 *= 0; }
-
-    return ($self->xy_to_n(0, $x1+$y1),
-            $self->xy_to_n($x2+$y2, 0));
+    $y2 += $x2;
+    $y1 += $x1;
   }
+  if ($y2 < 0) {
+    return (1, 0);
+  }
+  if ($y1 < 0) {
+    $y1 = 0;
+  }
+  return (_right_xy_to_n($self,0,$y1),
+          _right_xy_to_n($self,$y2,$y2));
 
-  ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
-    or return (1,0); # rect outside pyramid
 
-  return ($self->xy_to_n($self->{'align'} eq 'right' ? 0 : -$y1,
-                         $y1),
-          $self->xy_to_n($self->{'align'} eq 'left' ? 0 : $y2,
-                         $y2));
+  # use Math::PlanePath::CellularRule54;
+  # *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+  #
+  # if ($self->{'align'} eq 'diagonal') {
+  #   if ($x2 < 0 || $y2 < 0) {
+  #     return (1,0);
+  #   }
+  #   if ($x1 < 0) { $x1 *= 0; }
+  #   if ($y1 < 0) { $y1 *= 0; }
+  #
+  #   return ($self->xy_to_n(0, $x1+$y1),
+  #           $self->xy_to_n($x2+$y2, 0));
+  # }
+  #
+  # ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
+  #   or return (1,0); # rect outside pyramid
+  #
+  # return ($self->xy_to_n($self->{'align'} eq 'right' ? 0 : -$y1,
+  #                        $y1),
+  #         $self->xy_to_n($self->{'align'} eq 'left' ? 0 : $y2,
+  #                        $y2));
 }
 
 # ENHANCE-ME: calculate by the bits of n, not by X,Y
 sub tree_n_children {
   my ($self, $n) = @_;
-  if ($n < 0) {
-    return;
+
+  my ($x,$y) = $self->n_to_xy($n)
+    or return;
+
+  if ($self->{'align'} eq 'diagonal') {
+    my $n1 = $self->xy_to_n($x,$y+1);
+    my $n2 = $self->xy_to_n($x+1, $y);
+    return ((defined $n1 ? ($n1) : ()),
+            (defined $n2 ? ($n2) : ()));
   }
-  my ($x,$y) = $self->n_to_xy($n);
+
   $y += 1;
   my $n1 = $self->xy_to_n($x - ($self->{'align'} ne 'right'), $y);
   my $n2 = $self->xy_to_n($x + ($self->{'align'} ne 'left'),$y);
@@ -299,10 +326,17 @@ sub tree_n_children {
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
-  if ($n < 1) {
-    return undef;
+
+  my ($x,$y) = $self->n_to_xy($n)
+    or return undef;
+
+  if ($self->{'align'} eq 'diagonal') {
+    if (defined (my $n = $self->xy_to_n($x-1, $y))) {
+      return $n;
+    }
+    return $self->xy_to_n($x,$y-1);
   }
-  my ($x,$y) = $self->n_to_xy($n);
+
   $y -= 1;
   if (defined (my $n = $self->xy_to_n($x-($self->{'align'} ne 'left'), $y))) {
     return $n;
@@ -353,7 +387,7 @@ The base figure is the first two rows shape N=0 to N=2.  Notice the middle
 "." position (X=0,Y=1) is skipped
 
      1  .  2
-        0  
+        0
 
 This is replicated twice in the next row pair, as N=3 to N=8.  Then the
 resulting four-row shape is replicated twice again in the next four-row
@@ -394,13 +428,136 @@ For example level 2 is from N=0 to N=3^2-1=9.  Each level doubles in size,
                0  <= Y <= 2^level - 1
     - 2^level + 1 <= X <= 2^level - 1
 
+=head2 Align
+
+An optional C<align> parameter controls how the points are arranged relative
+to the Y axis.  The default shown above is "triangular".
+
+"right" means points to the right of the axis, packed next to each other and
+so using an eighth of the plane.
+
+=cut
+
+# math-image --path=SierpinskiTriangle,align=right --all --output=numbers
+
+=pod
+
+    align=>"right"
+
+    19 20 21 22 23 24 25 26       7
+    15    16    17    18          6
+    11 12       13 14             5
+     9          10                4
+     5  6  7  8                   3
+     3     4                      2
+     1  2                         1
+     0                        <- Y=0
+
+    X=0 1  2  3  4  5  6  7
+
+"left" is similar but to the left of the Y axis, ie. into negative X.
+
+=cut
+
+# math-image --path=SierpinskiTriangle,align=left --all --output=numbers
+
+=pod
+
+    align="left"
+
+    19 20 21 22 23 24 25 26        7
+       15    16    17    18        6
+          11 12       13 14        5
+              9          10        4
+                 5  6  7  8        3
+                    3     4        2
+                       1  2        1
+                          0    <- Y=0
+
+    -7 -6 -5 -4 -3 -2 -1 X=0
+
+"diagonal" put rows on diagonals down from the Y axis to the X axis.  This
+uses the whole of the first quadrant (with gaps).
+
+=cut
+
+# math-image --expression='i<=80?i:0' --path=SierpinskiTriangle,align=diagonal --output=numbers
+
+=pod
+
+    align="diagonal"
+
+    65                                                    15
+    57 66                                                 14
+    49    67                                              13
+    45 50 58 68                                           12
+    37          69                                        11
+    33 38       59 70                                     10
+    29    39    51    71                                   9
+    27 30 34 40 46 52 60 72                                8
+    19                      73                             7
+    15 20                   61 74                          6
+    11    21                53    75                       5
+     9 12 16 22             47 54 62 76                    4
+     5          23          41          77                 3
+     3  6       17 24       35 42       63 78              2
+     1     7    13    25    31    43    55    79           1
+     0  2  4  8 10 14 18 26 28 32 36 44 48 56 64 80    <- Y=0
+
+    X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+
+These diagonals visit all points X,Y where X and Y written in binary have
+1-bits in the same places, ie. where S<X xor Y> == 0.  This xor rule is an
+easy way to generate 0 or 1 for visited or not visited cells of the pattern.
+It can also be calculated by X,Y but plotted instead as X,X+Y for the
+"right" align or X-Y,X+Y for "triangular".
+
 =head2 Cellular Automaton
 
-The triangle arises in Stephen Wolfram's "rule 90" cellular automaton.  In
-each row a cell turns on if one but not both its diagonal predecessors are
-on.  That behaves as a mod 2 sum, giving Pascal's triangle mod 2.
+The triangle arises in Stephen Wolfram's CellularRule style 1-D cellular
+automaton.
+
+    align           rule
+    -----           ----
+    "triangular"    18,26,82,90,146,154,210,218
+    "right"         60
+    "left"          102
 
     http://mathworld.wolfram.com/Rule90.html
+    http://mathworld.wolfram.com/Rule60.html
+    http://mathworld.wolfram.com/Rule102.html
+
+In each row the rule 18 pattern turns a cell "on" in the next row if one but
+not both its diagonal predecessors are "on".  This is a mod 2 sum giving
+Pascal's triangle mod 2.
+
+Some other rules make variations on the triangle.  Rule 22 is "triangular"
+style but filling the gap between leaf points such as N=5 and N=6.  Rule 126
+adds an extra point on the inward side of each.  Rule 182 fills in the big
+gaps leaving a single-cell empty border delimiting them.
+
+=head2 N Start
+
+The default is to number points starting N=0 as shown above.  An optional
+C<n_start> can give a different start, with the same shape.  For example to
+start at 1 (which is CellularRule rule=60),
+
+=cut
+
+# math-image --path=SierpinskiTriangle,n_start=1 --expression='i<=27?i:0' --output=numbers
+
+=pod
+
+    n_start => 1
+
+    20    21    22    23    24    25    26    27
+       16          17          18          19
+          12    13                14    15
+             10                      11
+                 6     7     8     9
+                    4           5
+                       2     3
+                          1
 
 =head1 FUNCTIONS
 
@@ -419,6 +576,26 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
 
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return the children of C<$n>, or an empty list if C<$n E<lt> 1> (ie. before
+the start of the path).
+
+The children are the none, one or two points diagonally up on the next row.
+For example N=3 has two children N=5,N=6.  In turn N=5 has just one child
+N=9.  And N=6 has no children.
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the top of
+the triangle).
+
+=back
+
 =head1 FORMULAS
 
 =head2 N to X,Y
@@ -432,12 +609,8 @@ keep.
 
 =head2 Rectangle to N Range
 
-Since N increases upwards and to the right, the bottom-left and top-right
-corners are the N range for a rectangle if those corners are points on the
-triangular path.
-
 An easy range can be had just from the Y range by noting the diagonals X=Y
-and X=-Y are always visited, so just take the left of Ymin and right of
+and X=-Y are always visited, so just take the Nleft of Ymin and Nright of
 Ymax,
 
     Nmin = N at -Ymin,Ymin
@@ -462,25 +635,37 @@ Sequences in various forms,
 
     A001316   number of cells in each row (Gould's sequence)
     A001317   row cells 0 or 1 as binary number
-    A047999   0,1 cells by rows (every second point)
-    A106344   0,1 cells by upwards diagonals dX=3,dY=1
     A006046   Nleft, cumulative number of cells up to row N
     A074330   Nright, right hand end of each row (starting Y=1)
 
-A001316 is the "rowpoints" Gould's sequence noted above.  A006046 is the
-cumulative total of that sequence which is the "Nleft" above, and A074330 is
-1 less for "Nright".
+A001316 is the "rowpoints" noted above.  A006046 is the cumulative total of
+that sequence which is the "Nleft" above, and A074330 is 1 less for
+"Nright".
 
-The path uses every second point to make a triangular lattice (see
-L<Math::PlanePath/Triangular Lattice>).  The 0/1 pattern in A047999 of a row
-Y=k is therefore every second point X=-k, X=-k+2, X=-k+4, etc for k+1 many
-points through to X=k inclusive.
+    A047999   0,1 cells by rows
+    A106344   0,1 cells by upwards sloping dX=3,dY=1
+
+    align="right"
+      A075438   0,1 cells by rows including 0 blanks at left of pyramid
+
+A047999 is every second point in the default triangular lattice, or all
+points in align="right" or "left".
+
+    A002487   count points along dX=3,dY=1 slopes
+                (is the Stern diatomic sequence)
+    A106345   count points along dX=5,dY=1 slopes
+
+dX=3,dY=1 sloping lines are equivalent to dX=-1,dY=1 anti-diagonals in
+"right" alignment.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::SierpinskiArrowhead>,
-L<Math::PlanePath::SierpinskiArrowheadCentres>
+L<Math::PlanePath::SierpinskiArrowheadCentres>,
+L<Math::PlanePath::CellularRule>
+
+L<Math::NumSeq::SternDiatomic>
 
 =head1 HOME PAGE
 

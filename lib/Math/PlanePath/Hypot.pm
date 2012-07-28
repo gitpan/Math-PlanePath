@@ -24,9 +24,6 @@
 #
 # A046109 num points norm == n^2
 #
-# A051132 num points norm <  n^2
-#   0, 1, 9, 25, 45, 69, 109, 145, 193, 249, 305, 373, 437, 517, 609, 697,
-#
 # A057655 num points x^2+y^2 <= n
 # A014198 = A057655 - 1
 #
@@ -36,6 +33,7 @@
 # is last point of each hypot in points=odd
 #
 # A057961 hypot count as radius increases
+#
 
 
 
@@ -45,7 +43,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -70,11 +68,15 @@ use constant parameter_info_array =>
 sub new {
   my $self = shift->SUPER::new(@_);
 
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+
   my $points = ($self->{'points'} ||= 'all');
   if ($points eq 'all') {
-    $self->{'n_to_x'} = [undef, 0];
-    $self->{'n_to_y'} = [undef, 0];
-    $self->{'hypot_to_n'} = [1];
+    $self->{'n_to_x'} = [0];
+    $self->{'n_to_y'} = [0];
+    $self->{'hypot_to_n'} = [0];
     $self->{'y_next_x'} = [1, 1];
     $self->{'y_next_hypot'} = [1, 2];
     $self->{'x_inc'} = 1;
@@ -83,9 +85,9 @@ sub new {
     $self->{'opposite_parity'} = -1;
 
   } elsif ($points eq 'even') {
-    $self->{'n_to_x'} = [undef, 0];
-    $self->{'n_to_y'} = [undef, 0];
-    $self->{'hypot_to_n'} = [1];
+    $self->{'n_to_x'} = [0];
+    $self->{'n_to_y'} = [0];
+    $self->{'hypot_to_n'} = [0];
     $self->{'y_next_x'} = [2, 1];
     $self->{'y_next_hypot'} = [4, 2];
     $self->{'x_inc'} = 2;
@@ -94,11 +96,11 @@ sub new {
     $self->{'opposite_parity'} = 1;
 
   } elsif ($points eq 'odd') {
-    $self->{'n_to_x'} = [undef]; # , 1,0,-1,0];
-    $self->{'n_to_y'} = [undef]; # , 0,1,0,-1];
-    $self->{'hypot_to_n'} = [undef]; # ,1
-    $self->{'y_next_x'} = [1]; # [3, 2];
-    $self->{'y_next_hypot'} = [1]; # [9, 5];
+    $self->{'n_to_x'} = [];
+    $self->{'n_to_y'} = [];
+    $self->{'hypot_to_n'} = [];
+    $self->{'y_next_x'} = [1];
+    $self->{'y_next_hypot'} = [1];
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;
     $self->{'x_inc_squared'} = 4;
@@ -209,7 +211,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### Hypot n_to_xy(): $n
 
-  if ($n < 1) { return; }
+  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  if ($n < 0) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
   {
@@ -262,7 +265,7 @@ sub xy_to_n {
   my $n = $hypot_to_n->[$hypot];
   for (;;) {
     if ($x == $n_to_x->[$n] && $y == $n_to_y->[$n]) {
-      return $n;
+      return $n + $self->{'n_start'};
     }
     $n += 1;
 
@@ -296,7 +299,8 @@ sub rect_to_n_range {
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
 
   # circle area pi*r^2, with r^2 = $x2**2 + $y2**2
-  return (1, int (3.2 * (($x2+1)**2 + ($y2+1)**2)));
+  return ($self->{'n_start'},
+          $self->{'n_start'} + int (3.2 * (($x2+1)**2 + ($y2+1)**2)));
 }
 
 1;
@@ -346,6 +350,12 @@ Math::PlanePath::Hypot -- points in order of hypotenuse distance
 
 This path visits integer points X,Y in order of their distance from the
 origin 0,0, or anti-clockwise from the X axis among those of equal distance,
+
+=cut
+
+# math-image --expression='i<=89?i:0' --path=Hypot --output=numbers --size=79
+
+=pod
 
                     84  73  83                         5
             74  64  52  47  51  63  72                 4
@@ -404,8 +414,9 @@ Gauss's circle lattice problem asks how many integer X,Y points there are
 within a circle of radius R.
 
 The points on the X axis N=2,10,26,46, etc are the first for which
-X^2+Y^2==R^2 (integer X==R), so N-1 is the number of points strictly inside,
-ie. X^2+Y^2 E<lt> R^2 (Sloane's A051132 C<http://oeis.org/A051132>).
+X^2+Y^2==R^2 (integer X==R).  Adding option C<n_start=E<gt>0> to make them
+each 1 less gives the number of points strictly inside, ie. X^2+Y^2 E<lt>
+R^2.
 
 The last point satisfying X^2+Y^2==R^2 is either in the octant below the X
 axis, or is on the negative Y axis.  Those N's are the number of points
@@ -498,7 +509,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::Hypot-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::Hypot-E<gt>new (points =E<gt> $str)>
+=item C<$path = Math::PlanePath::Hypot-E<gt>new (points =E<gt> $str), n_start =E<gt> $n>
 
 Create and return a new hypot path object.  The C<points> option can be
 
@@ -541,11 +552,11 @@ this path include
 
     http://oeis.org/A051132  (etc)
 
-     points="all"
-    A051132    N-1 on X axis, being count points norm < X^2
+    points="all", n_start=0
+      A051132    N on X axis, being count points norm < X^2
 
-     points="odd"
-    A005883    count of points with norm==4*n+1
+    points="odd"
+      A005883    count of points with norm==4*n+1
 
 =head1 SEE ALSO
 

@@ -101,8 +101,6 @@ sub dxdy_to_dir {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($path,$n);
       if ($turn == 1) { # left
@@ -118,8 +116,6 @@ sub dxdy_to_dir {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

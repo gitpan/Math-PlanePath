@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -61,11 +61,11 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'parameter_info_array', # radix parameter
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 use Math::PlanePath::ZOrderCurve;
 *_digit_interleave = \&Math::PlanePath::ZOrderCurve::_digit_interleave;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -154,7 +154,7 @@ sub xy_to_n {
     push @n, _divrem_mutate ($y, $radix);
     $y = -$y;
   }
-  return _digit_join_lowtohigh (\@n,$radix, $zero);
+  return digit_join_lowtohigh (\@n,$radix, $zero);
 }
 
 # left xmax = (r-1) + (r^2 -r) + (r^3-r^2) + ... + (r^k - r^(k-1))
@@ -192,12 +192,12 @@ sub rect_to_n_range {
 
   ### $min_xdigits
   ### $max_xdigits
-  ### min_x: _digit_join_lowtohigh ($min_xdigits, $radix, $zero)
-  ### max_x: _digit_join_lowtohigh ($max_xdigits, $radix, $zero)
+  ### min_x: digit_join_lowtohigh ($min_xdigits, $radix, $zero)
+  ### max_x: digit_join_lowtohigh ($max_xdigits, $radix, $zero)
   ### $min_ydigits
   ### $max_ydigits
-  ### min_y: _digit_join_lowtohigh ($min_ydigits, $radix, $zero)
-  ### max_y: _digit_join_lowtohigh ($max_ydigits, $radix, $zero)
+  ### min_y: digit_join_lowtohigh ($min_ydigits, $radix, $zero)
+  ### max_y: digit_join_lowtohigh ($max_ydigits, $radix, $zero)
 
   my @min_digits = _digit_interleave ($min_xdigits, $min_ydigits);
   my @max_digits = _digit_interleave ($max_xdigits, $max_ydigits);
@@ -206,8 +206,8 @@ sub rect_to_n_range {
   ### @min_digits
   ### @max_digits
 
-  return (_digit_join_lowtohigh (\@min_digits, $radix, $zero),
-          _digit_join_lowtohigh (\@max_digits, $radix, $zero));
+  return (digit_join_lowtohigh (\@min_digits, $radix, $zero),
+          digit_join_lowtohigh (\@max_digits, $radix, $zero));
 }
 
 

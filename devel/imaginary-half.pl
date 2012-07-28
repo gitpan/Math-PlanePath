@@ -41,20 +41,12 @@ use List::Util 'min', 'max';
     my $dir4 = $seq->ith($n);
     if ($dir4 > $dir4_max) {
       $dir4_max = $dir4;
-      my ($dx,$dy) = path_n_dxdy($path,$n);
+      my ($dx,$dy) = $path->n_to_dxdy($n);
       my $nr = Math::BaseCnv::cnv($n,10,$radix);
       printf "%d %7s  %2d,%2d %8.6f\n", $n,$nr, ($dx),($dy), $dir4;
     }
   }
   exit 0;
-
-  sub path_n_dxdy {
-    my ($path, $n) = @_;
-    my ($x,$y) = $path->n_to_xy($n);
-    my ($next_x,$next_y) = $path->n_to_xy($n+1);
-    return ($next_x - $x,
-            $next_y - $y);
-  }
 }
 
 {

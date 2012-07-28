@@ -60,9 +60,6 @@ sub numeq_array {
 #       my ($x, $y) = $path->n_to_xy (int(($n+1)/2));
 #       push @got, $x;
 #     }
-#     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-#   } else {
-#     MyTestHelpers::diag ("$anum not available");
 #   }
 #   ### bvalues: join(',',@{$bvalues}[0..20])
 #   ### got: '    '.join(',',@got[0..20])
@@ -97,9 +94,6 @@ sub numeq_array {
 #       my ($x, $y) = $path->n_to_xy (int($n/2));
 #       push @got, $y;
 #     }
-#     MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-#   } else {
-#     MyTestHelpers::diag ("$anum not available");
 #   }
 #   ### bvalues: join(',',@{$bvalues}[0..20])
 #   ### got: '    '.join(',',@got[0..20])
@@ -122,9 +116,6 @@ sub numeq_array {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y - $x;
     }
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -146,9 +137,6 @@ sub numeq_array {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x;
     }
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -170,9 +158,6 @@ sub numeq_array {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $y;
     }
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -196,9 +181,6 @@ sub numeq_array {
         my ($x, $y) = $path->n_to_xy ($n);
         push @got, $y;
       }
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     ### bvalues: join(',',@{$bvalues}[0..20])
     ### got: '    '.join(',',@got[0..20])
@@ -217,9 +199,6 @@ sub numeq_array {
         my ($x, $y) = $path->n_to_xy ($n);
         push @got, $x+$y;
       }
-      MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-    } else {
-      MyTestHelpers::diag ("$anum not available");
     }
     ### bvalues: join(',',@{$bvalues}[0..20])
     ### got: '    '.join(',',@got[0..20])

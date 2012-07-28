@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 35;
+plan tests => 39;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -71,6 +71,88 @@ sub dxdy_to_dir4_1 {
 
 
 #------------------------------------------------------------------------------
+# A143856 -- N values ENE slope=2
+{
+  my $anum = 'A143856';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $i = 0; @got < @$bvalues; $i++) {
+      push @got, $path->xy_to_n (2*$i, $i);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- ENE");
+}
+
+#------------------------------------------------------------------------------
+# A143861 -- N values NNE slope=2
+{
+  my $anum = 'A143861';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $i = 0; @got < @$bvalues; $i++) {
+      push @got, $path->xy_to_n ($i, 2*$i);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- NNE");
+}
+
+#------------------------------------------------------------------------------
+# A069894 -- wider=1 diagonal SW
+{
+  my $anum = 'A069894';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::SquareSpiral->new (wider => 1);
+    for (my $i = 0; @got < @$bvalues; $i++) {
+      push @got, $path->xy_to_n (-$i, -$i);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- NNE");
+}
+
+#------------------------------------------------------------------------------
+# A069894 -- wider=1 diagonal SE, extra initial 0
+{
+  my $anum = 'A002939';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got = (0);
+  if ($bvalues) {
+    my $path = Math::PlanePath::SquareSpiral->new (wider => 1);
+    for (my $i = 0; @got < @$bvalues; $i++) {
+      push @got, $path->xy_to_n ($i, -$i);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- NNE");
+}
+
+#------------------------------------------------------------------------------
 # A063826 -- direction 1,2,3,4 = E,N,W,S
 
 {
@@ -78,8 +160,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       push @got, path_n_dir4_1($path,$n);
     }
@@ -87,8 +167,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -104,8 +182,6 @@ sub dxdy_to_dir4_1 {
                                                       max_value => 'unlimited');
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     require Math::BigInt;
     my %plotted;
     $plotted{0,0} = Math::BigInt->new(1);
@@ -143,8 +219,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -159,8 +233,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, abs($x-$y);
@@ -169,8 +241,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -186,8 +256,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       my ($next_x, $next_y) = $path->n_to_xy ($n+1);
@@ -198,8 +266,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -214,8 +280,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       my ($next_x, $next_y) = $path->n_to_xy ($n+1);
@@ -226,8 +290,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -244,8 +306,6 @@ sub dxdy_to_dir4_1 {
                                                       max_value => 'unlimited');
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     require Math::BigInt;
     my %plotted;
     $plotted{0,0} = Math::BigInt->new(1);
@@ -272,8 +332,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -288,8 +346,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     push @got, 1, 1;
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       my ($prev_x, $prev_y) = $path->n_to_xy ($n-1);
@@ -306,8 +362,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -324,15 +378,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::Prime::XS }) {
     $skip = "Math::Prime::XS not available";
     MyTestHelpers::diag ("Math::Prime::XS not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       my ($prev_x, $prev_y) = $path->n_to_xy ($n-1);
       my ($x, $y) = $path->n_to_xy ($n);
@@ -364,8 +415,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $path->xy_to_n ($y, $x);
@@ -374,8 +423,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -390,8 +437,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $count = 0;
     my $prev_right_n = A068225(1) - 1;  # make first value look like a run
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
@@ -408,8 +453,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -427,15 +470,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::Prime::XS }) {
     $skip = "Math::Prime::XS not available";
     MyTestHelpers::diag ("Math::Prime::XS not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $hi = $bvalues->[-1];
     my @primes = (0,  # skip N=0
                   Math::Prime::XS::sieve_primes($hi));
@@ -464,15 +504,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::Prime::XS }) {
     $skip = "Math::Prime::XS not available";
     MyTestHelpers::diag ("Math::Prime::XS not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $hi = $bvalues->[-1];
     my @primes = (0,  # skip N=0
                   Math::Prime::XS::sieve_primes($hi));
@@ -501,15 +538,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::Prime::XS }) {
     $skip = "Math::Prime::XS not available";
     MyTestHelpers::diag ("Math::Prime::XS not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $hi = $bvalues->[-1];
     my @primes = (0,  # skip N=0
                   Math::Prime::XS::sieve_primes($hi));
@@ -538,15 +572,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::Prime::XS }) {
     $skip = "Math::Prime::XS not available";
     MyTestHelpers::diag ("Math::Prime::XS not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $hi = $bvalues->[-1];
     my @primes = (0,  # skip N=0
                   Math::Prime::XS::sieve_primes($hi));
@@ -575,15 +606,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::Prime::XS }) {
     $skip = "Math::Prime::XS not available";
     MyTestHelpers::diag ("Math::Prime::XS not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $hi = $bvalues->[-1];
     my @primes = (0,  # skip N=0
                   Math::Prime::XS::sieve_primes($hi));
@@ -612,15 +640,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::Prime::XS }) {
     $skip = "Math::Prime::XS not available";
     MyTestHelpers::diag ("Math::Prime::XS not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $hi = $bvalues->[-1];
     my @primes = (0,  # skip N=0
                   Math::Prime::XS::sieve_primes($hi));
@@ -646,8 +671,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n(1-$y,$y);
       last unless @got < @$bvalues;
@@ -659,8 +682,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -674,8 +695,6 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n($y,$y);
       last unless @got < @$bvalues;
@@ -685,8 +704,6 @@ sub dxdy_to_dir4_1 {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -700,13 +717,9 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $i = 0; @got < @$bvalues; $i+=2) {
       push @got, $path->xy_to_n($i,-$i);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -723,15 +736,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::NumSeq::AllDigits }) {
     $skip = "Math::NumSeq::AllDigits not available";
     MyTestHelpers::diag ("Math::NumSeq::AllDigits not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $seq = Math::NumSeq::AllDigits->new;
     for (my $y = 0; @got < @$bvalues; $y--) {
       my $n = $path->xy_to_n (0, $y);
@@ -758,15 +768,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::NumSeq::AllDigits }) {
     $skip = "Math::NumSeq::AllDigits not available";
     MyTestHelpers::diag ("Math::NumSeq::AllDigits not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $seq = Math::NumSeq::AllDigits->new;
     for (my $y = 0; @got < @$bvalues; $y--) {
       my $n = $path->xy_to_n (0, $y);
@@ -793,15 +800,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::NumSeq::AllDigits }) {
     $skip = "Math::NumSeq::AllDigits not available";
     MyTestHelpers::diag ("Math::NumSeq::AllDigits not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $seq = Math::NumSeq::AllDigits->new;
     for (my $x = 0; @got < @$bvalues; $x--) {
       my $n = $path->xy_to_n ($x, 0);
@@ -828,15 +832,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::NumSeq::AllDigits }) {
     $skip = "Math::NumSeq::AllDigits not available";
     MyTestHelpers::diag ("Math::NumSeq::AllDigits not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $seq = Math::NumSeq::AllDigits->new;
     for (my $y = 0; @got < @$bvalues; $y++) {
       my $n = $path->xy_to_n (0, $y);
@@ -863,15 +864,12 @@ sub dxdy_to_dir4_1 {
   my $skip;
   if (! $bvalues) {
     $skip = "$anum not available";
-    MyTestHelpers::diag ("$anum not available");
 
   } elsif (! eval { require Math::NumSeq::AllDigits }) {
     $skip = "Math::NumSeq::AllDigits not available";
     MyTestHelpers::diag ("Math::NumSeq::AllDigits not available -- $@");
 
   } else {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     my $seq = Math::NumSeq::AllDigits->new;
     for (my $x = 0; @got < @$bvalues; $x++) {
       my $n = $path->xy_to_n ($x, 0);
@@ -895,13 +893,9 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $x = 0; @got < @$bvalues; $x++) {
       push @got, $path->xy_to_n($x,-$x);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -915,13 +909,9 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $x = 0; @got < @$bvalues; $x--) {
       push @got, $path->xy_to_n($x,-$x);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -936,13 +926,9 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $y = 0; @got < @$bvalues; $y--) {
       push @got, $path->xy_to_n(0,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -956,15 +942,9 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n(0,$y);
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -978,16 +958,10 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $x = 0; @got < @$bvalues; $x++) {
       my $n = $path->xy_to_n ($x, 0);
       push @got, $n;
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1001,16 +975,10 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $x = 0; @got < @$bvalues; $x++) {
       my $n = $path->xy_to_n (-$x, 0);
       push @got, $n;
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1024,15 +992,9 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $i = 0; @got < @$bvalues; $i++) {
       push @got, $path->xy_to_n($i,$i);
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1046,15 +1008,11 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $i = 0; @got < @$bvalues; $i++) {
       push @got, $path->xy_to_n(-$i,-$i);
     }
     ### bvalues: join(',',@{$bvalues}[0..20])
     ### got: '    '.join(',',@got[0..20])
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1068,15 +1026,11 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       my $sum = $x + $y;
       push @got, $sum;
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1090,13 +1044,9 @@ sub dxdy_to_dir4_1 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       push @got, A068225($n);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
@@ -1117,14 +1067,10 @@ sub A068225 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $path->xy_to_n ($x-1,$y);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

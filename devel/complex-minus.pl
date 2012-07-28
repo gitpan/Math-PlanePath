@@ -47,7 +47,7 @@ use Math::PlanePath::ComplexMinus;
     my $dir4 = $seq->ith($n);
     if ($dir4 >= $dir4_max) {
       $dir4_max = $dir4;
-      my ($dx,$dy) = path_n_dxdy($path,$n);
+      my ($dx,$dy) = $path->n_to_dxdy($n);
       my $nr = Math::BaseCnv::cnv($n,10,$norm);
       my $dxr = to_radix($dx,$norm);
       my $dyr = to_radix($dy,$norm);
@@ -59,13 +59,6 @@ use Math::PlanePath::ComplexMinus;
   sub to_radix {
     my ($n,$radix) = @_;
     return join(',', reverse digit_split_lowtohigh($n,$radix));
-  }
-  sub path_n_dxdy {
-    my ($path, $n) = @_;
-    my ($x,$y) = $path->n_to_xy($n);
-    my ($next_x,$next_y) = $path->n_to_xy($n+1);
-    return ($next_x - $x,
-            $next_y - $y);
   }
 }
 

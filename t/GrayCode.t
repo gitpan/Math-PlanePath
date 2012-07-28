@@ -28,6 +28,8 @@ MyTestHelpers::nowarnings();
 
 use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 use Math::PlanePath::GrayCode;
+use Math::PlanePath::Base::Digits
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,7 +48,7 @@ sub binary_to_decimal {
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::GrayCode::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GrayCode->VERSION,  $want_version,
@@ -65,32 +67,30 @@ sub binary_to_decimal {
 #------------------------------------------------------------------------------
 # to/from binary Gray
 
-use Math::PlanePath::ZOrderCurve;
-
 sub to_gray_reflected {
   my ($n, $radix) = @_;
   my $digits = [ digit_split_lowtohigh($n,$radix) ];
   Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-  return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
+  return digit_join_lowtohigh($digits,$radix);
 }
 sub from_gray_reflected {
   my ($n, $radix) = @_;
   my $digits = [ digit_split_lowtohigh($n,$radix) ];
   Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
-  return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
+  return digit_join_lowtohigh($digits,$radix);
 }
 
 sub to_gray_modular {
   my ($n, $radix) = @_;
   my $digits = [ digit_split_lowtohigh($n,$radix) ];
   Math::PlanePath::GrayCode::_digits_to_gray_modular($digits,$radix);
-  return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
+  return digit_join_lowtohigh($digits,$radix);
 }
 sub from_gray_modular {
   my ($n, $radix) = @_;
   my $digits = [ digit_split_lowtohigh($n,$radix) ];
   Math::PlanePath::GrayCode::_digits_from_gray_modular($digits,$radix);
-  return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
+  return digit_join_lowtohigh($digits,$radix);
 }
 
 {

@@ -16,7 +16,7 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# digit_join_lowtohigh
+# 
 # bit_split_lowtohigh
 # bit_join_lowtohigh
 
@@ -26,13 +26,14 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 82;
+$VERSION = 83;
 
 use Exporter;
 @ISA = ('Exporter');
 @EXPORT_OK = ('parameter_info_array',
               # 'parameter_info_hash',
               'digit_split_lowtohigh',
+              'digit_join_lowtohigh',
               'round_down_pow');
 
 # uncomment this to run the ### lines
@@ -175,6 +176,28 @@ sub round_down_pow {
   }
 }
 
+#------------------------------------------------------------------------------
+# $aref->[0] low digit
+
+sub digit_join_lowtohigh {
+  my ($aref, $radix, $zero) = @_;
+
+  ### digit_join_lowtohigh() ...
+  ### $aref
+  ### $radix
+  ### $zero
+
+  my $n = (defined $zero ? $zero : 0);
+  foreach my $digit (reverse @$aref) { # high to low
+    ### $n
+    $n *= $radix;
+    $n += $digit;
+  }
+  ### $n
+  return $n;
+}
+
+
 1;
 __END__
 
@@ -236,6 +259,20 @@ should be E<gt>=0.
 returned.  A C<reverse> can be used to get high to low instead
 (L<perlfunc/reverse>).
 
+=item C<$n = digit_join_lowtohigh ($arrayref, $radix)>
+
+=item C<$n = digit_join_lowtohigh ($arrayref, $radix, $zero)>
+
+Return a value made by joining digits from C<$arrayref> in base C<$radix>.
+For example,
+
+   @digits = (5,4,3,2,1)   # decimal digits low to high
+   $n = digit_split_lowtohigh (\@digits, 10);
+   # $n == 12345
+
+Optional C<$zero> can be a 0 of an overloaded number type such as
+C<Math::BigInt> to give a returned C<$n> of that type.
+
 =back
 
 =head2 Subclassing
@@ -285,11 +322,15 @@ overridden with for example
      description => 'Radix, for both something and something.',
    },
 
+This function is not exportable since it's meant for a one-off call in an
+initializer and so no need to import it for repeated use.
+
 =back
 
 =head1 SEE ALSO
 
-L<Math::PlanePath>
+L<Math::PlanePath>,
+L<Math::PlanePath::Base::Generic>
 
 L<Math::BigInt>
 

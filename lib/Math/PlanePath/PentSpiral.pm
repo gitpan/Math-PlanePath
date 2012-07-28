@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -253,6 +253,16 @@ point in the path as a square of side 1.
 
 =back
 
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A140066  (etc)
+
+    A140066    N on Y axis
+    A134238    N on South-West diagonal
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -283,9 +293,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=PentSpiral --lines --scale=20"
-# End:
-#
-# math-image --path=PentSpiral --all --output=numbers_dash

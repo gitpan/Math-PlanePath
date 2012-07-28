@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -89,24 +89,22 @@ my $offset = 100;
   }
 }
 
-my $image = MyImage->new;
-my $path = Math::PlanePath::PixelRings->new;
-
 #------------------------------------------------------------------------------
 # _cumul_extend()
 
 {
+  my $path = Math::PlanePath::PixelRings->new;
+  my $image = MyImage->new;
   my $good = 1;
-  my $limit = $ENV{'MATH_PLANEPATH_TEST_PIXELCUMUL_LIMIT'} || 200;
+  my $limit = 500;
   foreach my $r (1 .. $limit) {
     %image_coords = ();
     $image->ellipse (-$r+$offset,-$r+$offset, $r+$offset,$r+$offset, 'white');
     my $image_count = scalar(@{[keys %image_coords]});
 
-    ## no critic (ProtectPrivateSubs, ProtectPrivateVars)
-    Math::PlanePath::PixelRings::_cumul_extend();
-    my $got = $Math::PlanePath::PixelRings::_cumul[$r+1];
-    my $want = $Math::PlanePath::PixelRings::_cumul[$r]+$image_count;
+    Math::PlanePath::PixelRings::_cumul_extend($path);
+    my $got = $path->{'cumul'}->[$r+1];
+    my $want = $path->{'cumul'}->[$r] + $image_count;
     if ($got != $want) {
       $good = 0;
       MyTestHelpers::diag ("_cumul_extend() r=$r wrong: want=$want got=$got");
@@ -119,9 +117,12 @@ my $path = Math::PlanePath::PixelRings->new;
 # coords
 
 {
+  my $path = Math::PlanePath::PixelRings->new;
+  my $image = MyImage->new;
+
   my $n = 1;
   my $good = 1;
-  my $limit = $ENV{'MATH_PLANEPATH_TEST_PIXELRINGS_LIMIT'} || 50;
+  my $limit = 100;
   foreach my $r (0 .. $limit) {
     %image_coords = ();
     $image->ellipse (-$r+$offset,-$r+$offset, $r+$offset,$r+$offset, 'white');

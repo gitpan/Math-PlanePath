@@ -57,7 +57,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -120,18 +120,32 @@ use Math::PlanePath::SacksSpiral;
 # (r+1/2)^2 = r^2+r+1/4  floor=r*(r+1)
 # (r-1/2)^2 = r^2-r+1/4  ceil=r*(r-1)+1
 
-use vars '@_cumul';
-@_cumul = (2);
+# use Math::PlanePath::PixelRings;
+# *parameter_info_array = \&Math::PlanePath::PixelRings::parameter_info_array;
+
+use constant n_frac_discontinuity => 0;
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+
+  $self->{'cumul'} = [ 2 ];
+  $self->{'offset'} ||= 0;
+
+  return $self;
+}
 
 sub _cumul_extend {
+  my ($self) = @_;
   ### _cumul_extend() ...
-  my $r2 = ($#_cumul + 3) * $#_cumul + 2;
+
+  my $cumul = $self->{'cumul'};
+  my $r2 = ($#$cumul + 3) * $#$cumul + 2;
   my $c = 0;
   for (my $d = 1; $d <= $r2; $d += 4) {
     $c += int($r2/$d) - int($r2/($d+2));
   }
-  push @_cumul, 4*$c + 2;
-  ### @_cumul
+  push @$cumul, 4*$c + 2;
+  ### $cumul
 }
 
 sub n_to_xy {
@@ -145,23 +159,39 @@ sub n_to_xy {
     return ($n-1, 0);
   }
 
+  {
+    # ENHANCE-ME: direction of N+1 from the cumulative lookup
+    my $int = int($n);
+    if ($n != $int) {
+      my $frac = $n - $int;
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+1);
+      if ($y2 == 0 && $x2 > 0) { $x2 -= 1; }
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
+    }
+    $n = $int;
+  }
+
   ### search cumul for: "n=$n"
+  my $cumul = $self->{'cumul'};
   my $r = 1;
   for (;;) {
-    if ($r > $#_cumul) {
-      _cumul_extend ();
+    if ($r > $#$cumul) {
+      _cumul_extend ($self);
     }
-    if ($_cumul[$r] > $n) {
+    if ($cumul->[$r] > $n) {
       last;
     }
     $r++;
   }
   ### $r
 
-  $n -= $_cumul[$r-1];
-  my $len = $_cumul[$r] - $_cumul[$r-1];   # length of this ring
+  $n -= $cumul->[$r-1];
+  my $len = $cumul->[$r] - $cumul->[$r-1];   # length of this ring
 
-  ### cumul: "$_cumul[$r-1] to $_cumul[$r]"
+  ### cumul: "$cumul->[$r-1] to $cumul->[$r]"
   ### $len
   ### n rem: $n
 
@@ -181,8 +211,11 @@ sub n_to_xy {
   ### $rev
   ### $n
 
-  my $rhi = ($r+1)*$r;
-  my $rlo = ($r-1)*$r+1;
+  # my $rhi = ($r+1)*$r;
+  # my $rlo = ($r-1)*$r+1;
+
+  my $rlo = ($r-0.5+$self->{'offset'})**2;
+  my $rhi = ($r+0.5+$self->{'offset'})**2;
   my $x = $r;
   my $y = 0;
   while ($n > 0) {
@@ -251,13 +284,14 @@ sub xy_to_n {
     return undef;
   }
 
-  while ($#_cumul < $r) {
-    _cumul_extend ();
+  my $cumul = $self->{'cumul'};
+  while ($#$cumul < $r) {
+    _cumul_extend ($self);
   }
-  my $n = $_cumul[$r-1];
+  my $n = $cumul->[$r-1];
   ### n base: $n
 
-  my $len = $_cumul[$r] - $n;
+  my $len = $cumul->[$r] - $n;
   ### $len
   $len /= 4;
   ### len/4: $len
@@ -356,8 +390,8 @@ Math::PlanePath::FilledRings -- concentric filled lattice rings
 
 =head1 DESCRIPTION
 
-This path puts points on integer X,Y pixels of filled rings of radius
-1 unit.
+This path puts points on integer X,Y pixels of filled rings with radius 1
+unit each ring.
 
                     110-109-108-107-106                        6
                    /                   \
@@ -391,7 +425,7 @@ This path puts points on integer X,Y pixels of filled rings of radius
 For example the ring N=22 to N=37 is all the points
 
     2.5 < hypot(X,Y) < 3.5
-    with hypot(X,Y) = sqrt(X^2+Y^2)
+    where hypot(X,Y) = sqrt(X^2+Y^2)
 
 =head1 FUNCTIONS
 
@@ -418,7 +452,7 @@ The behaviour for fractional C<$n> is unspecified as yet.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A036704
+    http://oeis.org/A036704  (etc)
 
     A036704  N-1 along X axis,
                being count of X,Y points norm <= n+1/2

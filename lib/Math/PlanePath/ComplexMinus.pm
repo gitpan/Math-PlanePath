@@ -26,18 +26,16 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -147,7 +145,7 @@ sub xy_to_n {
     ($x,$y) = (($y - $x*$realpart) / $norm,
                $new_y / $norm);
   }
-  return _digit_join_lowtohigh (\@n, $norm, $zero);
+  return digit_join_lowtohigh (\@n, $norm, $zero);
 }
 
 # for i-1 need level=6 to cover 8 points surrounding 0,0

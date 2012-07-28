@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -33,6 +33,14 @@ use Math::PlanePath::Base::Generic
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 # base at bottom right corner
 #   d = [ 1,  2,  3 ]
@@ -60,15 +68,14 @@ use Math::PlanePath::Base::Generic
 sub n_to_xy {
   my ($self, $n) = @_;
   #### TriangleSpiral n_to_xy: $n
-  if ($n < 1) { return; }
-  if ($n < 2) { return ($n - 1, 0); }
 
-  my $d = int ((3 + sqrt(8*$n - 7)) / 6);
-  #### d frac: (0.5 + sqrt(8*$n + -7)/6)
+  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  if ($n < 0) { return; }
+
+  my $d = int ((3 + sqrt(8*$n+1)) / 6);
   #### $d
-  #### base: 4*$d*$d + -4*$d + 2
 
-  $n -= ((9*$d - 3)*$d/2 + 1);
+  $n -= (9*$d - 3)*$d/2;
   #### remainder: $n
 
   if ($n <= 3*$d) {
@@ -108,7 +115,7 @@ sub xy_to_n {
     #      = ((4.5*$y -3)*$y + 1)
     # from which $x/2
     #
-    return ((9*$y - 6)*$y/2 + 1) + $x/2;
+    return ((9*$y - 6)*$y/2) + $x/2 + $self->{'n_start'};
 
   } else {
     ### sides diagonal
@@ -122,7 +129,7 @@ sub xy_to_n {
     # from which -$x offset
     #
     my $d = abs($x) + $y;
-    return ((9*$d - 6)*$d/8 + 1) - $x;
+    return ((9*$d - 6)*$d/8) - $x + $self->{'n_start'};
   }
 }
 
@@ -134,6 +141,7 @@ sub rect_to_n_range {
   $y1 = round_nearest ($y1);
   $x2 = round_nearest ($x2);
   $y2 = round_nearest ($y2);
+
   my $d = 0;
   foreach my $x ($x1, $x2) {
     foreach my $y ($y1, $y2) {
@@ -143,8 +151,8 @@ sub rect_to_n_range {
                      : int ((abs($x) + $y) / 2)));  # sides
     }
   }
-  return (1,
-          (9*$d - 9)*$d/2 + 2);
+  return ($self->{'n_start'},
+          (9*$d - 9)*$d/2 + $self->{'n_start'});
 }
 
 1;
@@ -165,7 +173,7 @@ Math::PlanePath::TriangleSpiral -- integer points drawn around an equilateral tr
 =head1 DESCRIPTION
 
 This path makes a spiral shaped as an equilateral triangle (each side the
-same length).  Cells are spread horizontally to fit on a square grid.
+same length).
 
                       16                                 4
                      /  \   
@@ -184,19 +192,16 @@ same length).  Cells are spread horizontally to fit on a square grid.
                        ^
     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
 
-Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
-x=2,y=0.  The diagonals are 1 across and 1 up or down, so n=3 is at x=1,y=1.
-Each alternate row is thus offset from the one above or below.  The
-resulting little triangles between the points are flatter than they ought to
-be.  Drawn on a square grid the angle up is 45 degrees making an isosceles
-right triangle instead of 60 for an equilateral triangle, but at least the
-two sides slope down at the same angle.
+Cells are spread horizontally to fit on a square grid as per
+L<Math::PlanePath/Triangular Lattice>.  The horizontal gaps are 2, so for
+instance n=1 is at x=0,y=0 then n=2 is at x=2,y=0.  The diagonals are 1
+across and 1 up or down, so n=3 is at x=1,y=1.  Each alternate row is offset
+from the one above or below.
 
 This grid is the same as the HexSpiral and the path is like that spiral
-except instead of a flat top it extends to a triangular peak and the lower
-left and right extend out similarly.  The result is a longer loop, and each
-successive cycle is 9 longer than the previous (whereas the HexSpiral takes
-6 more).
+except instead of a flat top and SE,SW sides it extends to triangular peaks.
+The result is a longer loop and each successive loop is step=9 longer than
+the previous (whereas the HexSpiral is step=6 more).
 
 The triangular numbers 1, 3, 6, 10, 15, 21, 28, 36 etc, k*(k+1)/2, fall one
 before the successive corners of the triangle, so when plotted make three
@@ -206,6 +211,36 @@ The 11-gonal "hendecagonal" numbers 11, 30, 58, etc, k*(9k-7)/2 fall on a
 straight line horizontally to the right.  (As per the general rule that a
 step "s" lines up the (s+2)-gonal numbers.)
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start with the same shape etc.  For example
+to start at 0,
+
+=cut
+
+# math-image --path=TriangleSpiral,n_start=0 --expression='i<=31?i:0' --output=numbers_dash
+
+=pod
+
+    n_start => 0      15   
+                     /  \  
+                   16    14
+                  /        \     
+                17     3    13   
+               /     /  \     \  
+             18     4     2    12   ...  
+            /     /        \     \     \ 
+          19     5     0-----1    11    30 
+         /     /                    \     \ 
+       20     6-----7-----8-----9----10    29 
+      /                                      \ 
+    21----22----23----24----25----26----27----28 
+
+With this adjustment the X axis N=0,1,11,30,etc is the hendecagonal numbers
+(9k-7)*k/2.  And N=0,8,25,etc diagonally South-East is the hendecagonals of
+the second kind which is (9k-7)*k/2 for k negative.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -213,6 +248,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::TriangleSpiral-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::TriangleSpiral-E<gt>new (n_start =E<gt> $n)>
 
 Create and return a new triangle spiral object.
 
@@ -239,9 +276,28 @@ position without an N then the return is C<undef>.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A063177  (etc)
+    http://oeis.org/A117625  (etc)
 
-    A063177    total sum previous row or diagonal
+    n_start=1 (default)
+      A117625     N on X axis
+      A081272     N on Y axis
+      A006137     N on X negative axis
+      A064226     N on X=Y leading diagonal, but without initial value=1
+      A064225     N on X=Y negative South-West diagonal
+      A081267     N on X=-Y negative South-East diagonal
+      A081589     N on ENE slope dX=3,dY=1
+      A038764     N on WSW slope dX=-3,dY=-1
+      A060544     N on ESE slope dX=3,dY=-1 diagonal
+
+      A063177    total sum previous row or diagonal
+
+    n_start=0
+      A051682     N on X axis (11-gonal numbers)
+      A062741     N on Y axis
+      A081268     N on X=Y+2 diagonal (next to NE diagonal)
+      A062728     N on South-East diagonal (11-gonal second kind)
+      A081266     N on WSW slope dX=-3,dY=-1
+      A081271     N on X=2 vertical
 
 =head1 SEE ALSO
 

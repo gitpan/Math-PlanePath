@@ -29,18 +29,16 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -182,7 +180,7 @@ sub xy_to_n {
                (5*$y - $x) / 14);
   }
 
-  return _digit_join_lowtohigh (\@n, 7, $zero);
+  return digit_join_lowtohigh (\@n, 7, $zero);
 }
 
 
@@ -252,7 +250,7 @@ Lattice>).
 
 The base pattern is the inner N=0 to N=6, then six copies of that shape are
 arranged around as the blocks N=7,14,21,28,35,42.  Then six copies of the
-N=0 to N=48 shape are replicated around, etc.
+resulting N=0 to N=48 shape are replicated around, etc.
 
 Each point represents a little hexagon, thus tiling the plane with hexagons.
 The innermost N=0 to N=6 are for instance,
@@ -277,14 +275,14 @@ The innermost N=0 to N=6 are for instance,
          \ /   \ /
           *     *
 
-The further replications are the same arrangement, but the sides become
-every wigglier and the centres rotate around.  The rotation can be seen at
-N=7 X=5,Y=1 which is up from the X axis.
+The further replications are the same arrangement, but the sides become ever
+wigglier and the centres rotate around.  The rotation can be seen at N=7
+X=5,Y=1 which is up from the X axis.
 
 The FlowsnakeCentres path is this same replicating shape, but starting from
-a side instead of the middle and with rotations and reflections to make
-points adjacent.  The Flowsnake curve itself is this replication too, but
-following edges.
+a side instead of the middle and traversing in such as way as to make each N
+adjacent.  The Flowsnake curve itself is this replication too, but following
+edges.
 
 =head2 Complex Base
 
@@ -332,9 +330,10 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::GosperIslands>,
-L<Math::PlanePath::QuintetReplicate>,
 L<Math::PlanePath::Flowsnake>,
-L<Math::PlanePath::FlowsnakeCentres>
+L<Math::PlanePath::FlowsnakeCentres>,
+L<Math::PlanePath::QuintetReplicate>,
+L<Math::PlanePath::ComplexPlus>
 
 =head1 HOME PAGE
 

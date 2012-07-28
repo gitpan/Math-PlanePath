@@ -26,7 +26,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -37,7 +37,13 @@ use Math::PlanePath::Base::Generic
 #use Devel::Comments;
 
 
-sub n_start    { return _read($_[0])->{'n_start'} }
+sub n_start    {
+  my ($self) = @_;
+  if (ref $self) {
+    _read($self);
+  }
+  return $self->SUPER::n_start;
+}
 sub x_negative { return _read($_[0])->{'x_negative'} }
 sub y_negative { return _read($_[0])->{'y_negative'} }
 sub figure     { return _read($_[0])->{'figure'} }

@@ -41,7 +41,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -423,7 +423,7 @@ sub _n_to_TDir6 {
 
 my @dir_to_dx = (2, 1, -1, -2, -1, 1);
 my @dir_to_dy = (0, 1, 1, 0, -1, -1, 0);
-sub _n_to_dxdy {
+sub _UNTESTED__n_to_dxdy {
   my ($self, $n) = @_;
   if (defined (my $dir = $self->_n_to_TDir6($n))) {
     return ($dir_to_dx[$dir], $dir_to_dy[$dir]);

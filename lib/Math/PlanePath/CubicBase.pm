@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,10 +38,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'parameter_info_array',
-  'digit_split_lowtohigh';
-
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -229,7 +227,7 @@ sub xy_to_n {
     }
   }
 
-  return _digit_join_lowtohigh (\@n, $radix, $zero);
+  return digit_join_lowtohigh (\@n, $radix, $zero);
 }
 
 # ENHANCE-ME: Can probably do better by measuring extents in 3 directions

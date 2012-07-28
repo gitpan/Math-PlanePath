@@ -103,8 +103,6 @@ my @levelcells = (1, map {$n_start[$_]-$n_start[$_-1]} 1 .. $#n_start);
     if ($#$bvalues > $#got) { $#$bvalues = $#got; }
     if ($#got > $#$bvalues) { $#got = $#$bvalues; }
     ### $bvalues
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..10])
   ### got: '    '.join(',',@got[0..10])
@@ -126,8 +124,6 @@ my @levelcells = (1, map {$n_start[$_]-$n_start[$_-1]} 1 .. $#n_start);
     if ($#$bvalues > $#got) { $#$bvalues = $#got; }
     if ($#got > $#$bvalues) { $#got = $#$bvalues; }
     ### $bvalues
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..10])
   ### got: '    '.join(',',@got[0..10])

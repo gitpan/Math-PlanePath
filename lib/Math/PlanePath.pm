@@ -20,7 +20,6 @@
 # divrem
 # divrem_mutate
 
-# $path->n_to_dxdy
 # $path->n_to_dir4
 # $path->n_to_dist
 # $path->xy_to_dir4_list
@@ -56,14 +55,22 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 82;
+$VERSION = 83;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 # defaults
-use constant n_start => 1;
 use constant figure => 'square';
+use constant default_n_start => 1;
+sub n_start {
+  my ($self) = @_;
+  if (ref $self && defined $self->{'n_start'}) {
+    return $self->{'n_start'};
+  } else {
+    return $self->default_n_start;
+  }
+}
 sub arms_count {
   my ($self) = @_;
   return $self->{'arms'} || 1;
@@ -108,6 +115,15 @@ sub xy_to_n_list {
   return;
 }
 
+sub n_to_dxdy {
+  my ($self, $n) = @_;
+  my ($x,$y) = $self->n_to_xy ($n)
+    or return;
+  my ($next_x,$next_y) = $self->n_to_xy ($n + $self->arms_count)
+    or return;
+  return ($next_x - $x,
+          $next_y - $y);
+}
 sub n_to_rsquared {
   my ($self, $n) = @_;
   my ($x,$y) = $self->n_to_xy($n) or return undef;
@@ -406,14 +422,14 @@ give corresponding outputs.
     Math::BigFloat
     Number::Fraction    1.14 or higher (for abs())
 
-This is slightly experimental and some classes might truncate a bignum or a
-fraction to a float as yet.  In general the intention is to make the
-calculations generic to act on any sensible number type.  Recent versions of
-the bignum modules might be required, perhaps Perl 5.8 or higher for the
-C<**> exponentiation operator in particular.
+A few classes might truncate a bignum or a fraction to a float as yet.  In
+general the intention is to make the calculations generic to act on any
+sensible number type.  Recent enough versions of the bignum modules might be
+required, perhaps Perl 5.8 or higher for the C<**> exponentiation operator
+in particular.
 
-For reference, an C<undef> input to C<$n>, C<$x,$y>, etc, is meant to
-provoke an uninitialized value warnings (when warnings are enabled), but
+For reference, an C<undef> input as C<$n>, C<$x>, C<$y>, etc, is meant to
+provoke an uninitialized value warning (when warnings are enabled), but
 currently it doesn't croak etc.  Perhaps that will change, but the warning
 at least prevents bad inputs going unnoticed.
 
@@ -439,6 +455,35 @@ C<$n> then the return is an empty list.  For example
 
 Paths start from C<$path-E<gt>n_start()> below, though some will give a
 position for N=0 or N=-0.5 too.
+
+=item C<($dx,$dy) = $path-E<gt>n_to_dxdy ($n)>
+
+Return the change in X and Y going from point C<$n> to point C<$n+1>, or for
+paths with multiple arms from C<$n> to C<$n+$arms_count> (thus advancing by
+one along the arm of C<$n>).
+
+    $n+1 *  $next_x,$next_y
+         |
+         |
+         |              $dx = $next_x - $x
+      $n *  $x,$y       $dy = $next_y - $y
+
+C<$n> can be fractional and in that case the delta is from that fractional
+C<$n> position to C<$n+1> (or C<$n+$arms>).
+ 
+                $n+1
+                v  $next_x,$next_y
+    integer *---+---- 
+            |  /
+            | /
+            |/            $dx = $next_x - $x
+         $n +   $x,$y     $dy = $next_y - $y
+            |            
+    integer *
+
+This is simply C<n_to_xy()> C<$dx=$next_x-$x, $dy=$next_y-$y>.  Currently
+for most paths it's merely two such C<n_to_xy()> calls, but some paths can
+or might calculate it with a little less work.
 
 =item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
 

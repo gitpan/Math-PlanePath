@@ -16,6 +16,10 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# ENHANCE-ME: What formula for the cumulative pixel count, and its inverse?
+# Not floor(k*4*sqrt(2)).
+
+
 package Math::PlanePath::PixelRings;
 use 5.004;
 use strict;
@@ -25,7 +29,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -37,50 +41,77 @@ use Math::PlanePath::Base::Generic
 #use Smart::Comments;
 
 
-# ENHANCE-ME: What's the formula for the cumulative pixel count, and its
-# inverse?  It's not floor(k*4*sqrt(2)).
-use vars '@_cumul';
-@_cumul = (1, 2);
-my $cumul_x = 0;
-my $cumul_y = 0;
-my $cumul_add = 0;
+# use constant parameter_info_array =>
+#   [
+#    {
+#     name           => 'offset',
+#     share_key      => 'offset_05',
+#     type           => 'float',
+#     description    => 'Radial offset for the centre of each ring.',
+#     default        => 0,
+#     minimum        => -0.5,
+#     maximum        => 0.5,
+#     page_increment => 0.05,
+#     step_increment => 0.005,
+#     width          => 7,
+#     decimals       => 4,
+#    },
+#   ];
+use constant n_frac_discontinuity => 0;
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+
+  $self->{'offset'} ||= 0;
+  $self->{'cumul'} = [ 1, 2 ];
+  $self->{'cumul_x'} = 0;
+  $self->{'cumul_y'} = 0;
+  $self->{'cumul_add'} = 0;
+
+  return $self;
+}
 
 sub _cumul_extend {
-  ### _cumul_extend(): "length of r=$#_cumul"
-  my $r = $#_cumul;
-  $cumul_add += 4;
-  if ($cumul_x == $cumul_y) {
-    ### at: "$cumul_x,$cumul_y"
+  my ($self) = @_;
+  ### _cumul_extend(): "length of r=".($#{$self->{'cumul'}})
+
+  my $cumul = $self->{'cumul'};
+  my $r = $#$cumul;
+  $self->{'cumul_add'} += 4;
+  if ($self->{'cumul_x'} == $self->{'cumul_y'}) {
+    ### at: "$self->{'cumul_x'},$self->{'cumul_y'}"
     ### step across and maybe up
-    $cumul_x++;
+    $self->{'cumul_x'}++;
 
-    ### xy hypot: ($cumul_x+.5)**2 + ($cumul_y)**2
+    ### xy hypot: ($self->{'cumul_x'}+.5)**2 + ($self->{'cumul_y'})**2
     ### r squared: $r*$r
-    ### E: ($cumul_x+.5)**2 + $cumul_y*$cumul_y - $r*$r
+    ### E: ($self->{'cumul_x'}+.5)**2 + $self->{'cumul_y'}**2 - ($r+$self->{'offset'})**2
 
-    if (($cumul_x+.5)**2 + $cumul_y*$cumul_y < $r*$r) {
+    if (($self->{'cumul_x'}+.5)**2 + $self->{'cumul_y'}**2 < ($r+$self->{'offset'})**2) {
       ### midpoint of x,y inside, increment to x,y+1
-      $cumul_y++;
-      $cumul_add += 4;
+      $self->{'cumul_y'}++;
+      $self->{'cumul_add'} += 4;
     }
 
   } else {
-    ### at: "$cumul_x,$cumul_y"
-    ### try y+1 with x or x+1 is: ($cumul_x+.5).",".($cumul_y+1)
-    $cumul_y++;
-    ### xy hypot: ($cumul_x+.5)**2 + ($cumul_y)**2
+    ### at: "$self->{'cumul_x'},$self->{'cumul_y'}"
+    ### try y+1 with x or x+1 is: ($self->{'cumul_x'}+.5).",".($self->{'cumul_y'}+1)
+    $self->{'cumul_y'}++;
+
+    ### xy hypot: ($self->{'cumul_x'}+.5)**2 + ($self->{'cumul_y'})**2
     ### r squared: $r*$r
-    ### E: ($cumul_x+.5)**2 + $cumul_y*$cumul_y - $r*$r
-    if (($cumul_x+.5)**2 + $cumul_y*$cumul_y < $r*$r) {
+    ### E: ($self->{'cumul_x'}+.5)**2 + $self->{'cumul_y'}**2 - ($r+$self->{'offset'})**2
+
+    if (($self->{'cumul_x'}+.5)**2 + $self->{'cumul_y'}**2 < ($r+$self->{'offset'})**2) {
       ### midpoint inside, increment x too
-      $cumul_x++;
-      $cumul_add += 4;
+      $self->{'cumul_x'}++;
+      $self->{'cumul_add'} += 4;
     }
   }
-  ### to: "$cumul_x,$cumul_y"
-  ### cumul extend: scalar(@_cumul).' = '.($_cumul[-1] + $cumul_add)
+  ### to: "$self->{'cumul_x'},$self->{'cumul_y'}"
+  ### cumul extend: scalar(@$cumul).' = '.($cumul->[-1] + $cumul_add)
   ### $cumul_add
-  push @_cumul, $_cumul[-1] + $cumul_add;
+  push @$cumul, $cumul->[-1] + $self->{'cumul_add'};
 }
 
 sub n_to_xy {
@@ -88,42 +119,46 @@ sub n_to_xy {
   ### PixelRings n_to_xy(): $n
 
   if ($n < 1) { return; }
-  if (is_infinite($n)) { return ($n,$n); }
+  if (is_infinite($n)) {
+    return ($n,$n);
+  }
 
-  if ($n < 6) {
-    if ($n < 2) {
-      return ($n-1, 0);
+  if ($n < 2) {
+    return ($n-1, 0);
+  }
+
+  {
+    # ENHANCE-ME: direction of N+1 from the cumulative lookup
+    my $int = int($n);
+    if ($n != $int) {
+      my $frac = $n - $int;
+      my ($x1,$y1) = $self->n_to_xy($int);
+      my ($x2,$y2) = $self->n_to_xy($int+1);
+      if ($y2 == 0 && $x2 > 0) { $x2 -= 1; }
+      my $dx = $x2-$x1;
+      my $dy = $y2-$y1;
+      return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
-    $n -= 2;
-    my $frac = $n - int($n);
-    my $x = 1 - $frac;
-    my $y = $frac;
-    if ($n & 2) {
-      $x = -$x;
-      $y = -$y;
-    }
-    if ($n & 1) {
-      ($x,$y) = (-$y, $x);
-    }
-    return ($x,$y);
+    $n = $int;
   }
 
   ### search cumul for n: $n
+  my $cumul = $self->{'cumul'};
   my $r = 1;
   for (;;) {
-    if ($r >= @_cumul) {
-      _cumul_extend ();
+    if ($r >= @$cumul) {
+      _cumul_extend ($self);
     }
-    if ($_cumul[$r] > $n) {
+    if ($cumul->[$r] > $n) {
       last;
     }
     $r++;
   }
   $r--;
 
-  $n -= $_cumul[$r];
-  my $len = $_cumul[$r+1] - $_cumul[$r];
-  ### cumul: "$_cumul[$r] to $_cumul[$r+1]"
+  $n -= $cumul->[$r];
+  my $len = $cumul->[$r+1] - $cumul->[$r];
+  ### cumul: "$cumul->[$r] to $cumul->[$r+1]"
   ### $len
   ### n rem: $n
   $len /= 4;
@@ -140,7 +175,7 @@ sub n_to_xy {
   ### $rev
   ### $n
   my $y = $n;
-  my $x = int (sqrt (max (0, $r*$r - $y*$y)) + .5);
+  my $x = int (sqrt (max (0, ($r+$self->{'offset'})**2 - $y*$y)) + .5);
   if ($rev) {
     ($x,$y) = ($y,$x);
   }
@@ -159,6 +194,7 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### PixelRings xy_to_n(): "$x, $y"
+
   $x = round_nearest ($x);
   $y = round_nearest ($y);
 
@@ -194,13 +230,14 @@ sub xy_to_n {
     return undef;
   }
 
-  while ($#_cumul <= $r) {
+  my $cumul = $self->{'cumul'};
+  while ($#$cumul <= $r) {
     ### extend cumul for r: $r
-    _cumul_extend ();
+    _cumul_extend ($self);
   }
 
-  my $n = $_cumul[$r];
-  my $len = $_cumul[$r+1] - $n;
+  my $n = $cumul->[$r];
+  my $len = $cumul->[$r+1] - $n;
   ### $r
   ### n base: $n
   ### $len
@@ -260,22 +297,20 @@ sub rect_to_n_range {
     $r_target = $r_max;
   }
 
-  while ($#_cumul < $r_target) {
+  my $cumul = $self->{'cumul'};
+  while ($#$cumul < $r_target) {
     ### extend cumul for r: $r_target
-    _cumul_extend ();
+    _cumul_extend ($self);
   }
 
   if (! defined $n_max) {
-    $n_max = $_cumul[$r_max];
+    $n_max = $cumul->[$r_max];
   }
-  return ($_cumul[$r_min], $n_max);
+  return ($cumul->[$r_min], $n_max);
 }
 
 1;
 __END__
-
-
-
 
 
 
@@ -417,12 +452,12 @@ ellipse drawing algorithm.
 
 The way the algorithm works means the rings don't overlap.  Each is 4 or 8
 pixels longer than the preceding.  If the ring follows the preceding tightly
-then it's 4 longer, like the N=18 to N=33 ring.  If it goes wider then it's
-8 longer, like the N=54 to N=80 ring.  The average extra is 4*sqrt(2) or
-thereabouts.
+then it's 4 longer, for example N=18 to N=33.  If it goes wider then it's 8
+longer, for example N=54 to N=80 ring.  The average extra is approximately
+4*sqrt(2).
 
-The rings can be thought of as part-way between the diagonals of the
-DiamondSpiral and the corners of the SquareSpiral.
+The rings can be thought of as part-way between the diagonals like
+DiamondSpiral and the corners like SquareSpiral.
 
 
      *           **           *****
@@ -434,11 +469,11 @@ DiamondSpiral and the corners of the SquareSpiral.
     diagonal     ring         corner
     5 points    6 points     9 points
 
-For example the N=54 to N=80 ring has a vertical corner-type part N=54,55,56
-then a diagonal part N=56,57,58,59.  In bigger rings the verticals are
-intermingled with the diagonals but the principle is the same.  The number
-of vertical steps determines where it crosses the 45-degree line, at
-R*sqrt(2) but rounded according to the midpoint algorithm.
+For example the N=54 to N=80 ring has a vertical part N=54,55,56 like a
+corner then a diagonal part N=56,57,58,59.  In bigger rings the verticals
+are intermingled with the diagonals but the principle is the same.  The
+number of vertical steps determines where it crosses the 45-degree line,
+which is at R*sqrt(2) but rounded according to the midpoint algorithm.
 
 =head1 FUNCTIONS
 

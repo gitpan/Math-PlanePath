@@ -99,7 +99,6 @@ sub xy_turn_021 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     # $#$bvalues = 50; # shorten for testing ...
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       push @got, (xy_is_straight($path->n_to_xy($n-1),
@@ -107,8 +106,6 @@ sub xy_turn_021 {
                                  $path->n_to_xy($n+1))
                   ? 1 : 0);
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])
@@ -124,15 +121,12 @@ sub xy_turn_021 {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
     # $#$bvalues = 50; # shorten for testing ...
     for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
       push @got, xy_turn_021($path->n_to_xy($n-1),
                              $path->n_to_xy($n),
                              $path->n_to_xy($n+1));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   ### bvalues: join(',',@{$bvalues}[0..20])
   ### got: '    '.join(',',@got[0..20])

@@ -23,10 +23,6 @@
 #
 # A092572 - all x^2+3*y^2
 # A158937 - all x^2+3*y^2 with repetitions x>0,y>0
-# A092573 - number of such solutions
-#
-# A092574 - x^2+3*y^2 with gcd(x,y)=1
-# A092575 - number of such gcd(x,y)=1
 #
 # A092572 - 6n+1 primes
 # A055664 - norms of Eisenstein-Jacobi primes
@@ -69,7 +65,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -99,12 +95,16 @@ use constant parameter_info_array =>
 sub new {
   ### TriangularHypot new() ...
   my $self = shift->SUPER::new(@_);
-  my $points = ($self->{'points'} ||= 'even');
 
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+
+  my $points = ($self->{'points'} ||= 'even');
   if ($points eq 'all') {
-    $self->{'n_to_x'} = [undef, 0];
-    $self->{'n_to_y'} = [undef, 0];
-    $self->{'hypot_to_n'} = [1];  # N=0 at X=0,Y=0
+    $self->{'n_to_x'} = [0];
+    $self->{'n_to_y'} = [0];
+    $self->{'hypot_to_n'} = [0];  # N=0 at X=0,Y=0
     $self->{'y_next_x'} = [1-1];
     $self->{'y_next_hypot'} = [3*0**2 + 1**2];
     $self->{'x_inc'} = 1;
@@ -113,9 +113,9 @@ sub new {
     $self->{'symmetry'} = 4;
 
   } elsif ($points eq 'even') {
-    $self->{'n_to_x'} = [undef, 0];
-    $self->{'n_to_y'} = [undef, 0];
-    $self->{'hypot_to_n'} = [1];  # N=0 at X=0,Y=0
+    $self->{'n_to_x'} = [0];
+    $self->{'n_to_y'} = [0];
+    $self->{'hypot_to_n'} = [0];  # N=0 at X=0,Y=0
     $self->{'y_next_x'} = [2-2];
     $self->{'y_next_hypot'} = [3*0**2 + 2**2];
     $self->{'x_inc'} = 2;
@@ -125,9 +125,9 @@ sub new {
     $self->{'symmetry'} = 12;
 
   } elsif ($points eq 'odd') {
-    $self->{'n_to_x'} = [undef];
-    $self->{'n_to_y'} = [undef];
-    $self->{'hypot_to_n'} = [undef];
+    $self->{'n_to_x'} = [];
+    $self->{'n_to_y'} = [];
+    $self->{'hypot_to_n'} = [];
     $self->{'y_next_x'} = [1-2];
     $self->{'y_next_hypot'} = [1];
     $self->{'x_inc'} = 2;
@@ -137,9 +137,9 @@ sub new {
     $self->{'symmetry'} = 4;
 
   } elsif ($points eq 'hex') {
-    $self->{'n_to_x'} = [undef, 0];  # N=0 at X=0,Y=0
-    $self->{'n_to_y'} = [undef, 0];
-    $self->{'hypot_to_n'} = [1];  # N=0 at X=0,Y=0
+    $self->{'n_to_x'} = [0];  # N=0 at X=0,Y=0
+    $self->{'n_to_y'} = [0];
+    $self->{'hypot_to_n'} = [0];  # N=0 at X=0,Y=0
     $self->{'y_next_x'} = [2-2];
     $self->{'y_next_hypot'} = [2**2 + 3*0**2]; # next at X=2,Y=0
     $self->{'x_inc'} = 2;
@@ -150,9 +150,9 @@ sub new {
     $self->{'symmetry'} = 6;
 
   } elsif ($points eq 'hex_rotated') {
-    $self->{'n_to_x'} = [undef, 0];  # N=0 at X=0,Y=0
-    $self->{'n_to_y'} = [undef, 0];
-    $self->{'hypot_to_n'} = [1];  # N=0 at X=0,Y=0
+    $self->{'n_to_x'} = [0];  # N=0 at X=0,Y=0
+    $self->{'n_to_y'} = [0];
+    $self->{'hypot_to_n'} = [0];  # N=0 at X=0,Y=0
     $self->{'y_next_x'} = [4-2,
                            1-2];
     $self->{'y_next_hypot'} = [4**2 + 3*0**2, # next at X=4,Y=0
@@ -165,8 +165,8 @@ sub new {
     $self->{'symmetry'} = 6;
 
   } elsif ($points eq 'hex_centred') {
-    $self->{'n_to_x'} = [undef];
-    $self->{'n_to_y'} = [undef];
+    $self->{'n_to_x'} = [];
+    $self->{'n_to_y'} = [];
     $self->{'hypot_to_n'} = [];
     $self->{'y_next_x'} = [2-2];  # for first at X=2
     $self->{'y_next_hypot'} = [2**2 + 3*0**2]; # at X=2,Y=0
@@ -231,25 +231,30 @@ sub _extend {
       #   = (12*$y*$y)
       $y_next_x->[$y] = 3*$y - $self->{'x_inc'};      # X=3*Y, so X-2=3*Y-2
       $y_next_hypot->[$y] = 12*$y*$y;
+
     } elsif ($points eq 'odd') {
       my $odd = ! ($y%2);
       $y_next_x->[$y] = $odd - $self->{'x_inc'};
       $y_next_hypot->[$y] = 3*$y*$y + $odd;
+
     } elsif ($points eq 'hex') {
       my $x = $y_next_x->[$y] = (($y % 3) == 1 ? $y : $y-2);
       $x += 2;
       $y_next_hypot->[$y] = $x*$x + 3*$y*$y;
       ### assert: (($x+$y*3) % 6 == 0 || ($x+$y*3) % 6 == 2)
+
     } elsif ($points eq 'hex_rotated') {
       my $x = $y_next_x->[$y] = (($y % 3) == 2 ? $y : $y-2);
       $x += 2;
       $y_next_hypot->[$y] = $x*$x + 3*$y*$y;
       ### assert: (($x+$y*3) % 6 == 4 || ($x+$y*3) % 6 == 0)
+
     } elsif ($points eq 'hex_centred') {
       my $x = $y_next_x->[$y] = 3*$y;
       $x += 2;
       $y_next_hypot->[$y] = $x*$x + 3*$y*$y;
       ### assert: (($x+$y*3) % 6 == 2 || ($x+$y*3) % 6 == 4)
+
     } else {
       ### assert: $points eq 'all'
       $y_next_x->[$y] = - $self->{'x_inc'};      # X=0, so X-1=0
@@ -403,7 +408,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### Hypot n_to_xy(): $n
 
-  if ($n < 1) { return; }
+  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  if ($n < 0) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
   {
@@ -461,7 +467,7 @@ sub xy_to_n {
   my $n = $hypot_to_n->[$hypot];
   for (;;) {
     if ($x == $n_to_x->[$n] && $y == $n_to_y->[$n]) {
-      return $n;
+      return $n + $self->{'n_start'};
     }
     $n += 1;
 
@@ -492,7 +498,8 @@ sub rect_to_n_range {
   my $r2 = $x2*$x2 + 3*$y2*$y2;
   my $n = (3.15 / sqrt(27/64) / 4) * ($r2 + sqrt($r2))
     * (3 - $self->{'x_inc'});  # *2 for odd or even, *1 for all
-  return (1, 1 + int($n));
+  return ($self->{'n_start'},
+          $self->{'n_start'} + int($n));
 }
 
 1;
@@ -813,7 +820,7 @@ path include,
 
     points="even" (the default)
       A003136  norms (X^2+3*Y^2)/4 which occur
-      A004016  count of points of norm n
+      A004016  count of points of norm==n
       A035019    skipping zero counts
       A088534    counting only in the twelfth 0<=X<=Y
 
@@ -833,9 +840,10 @@ side.  The factor of /4 doesn't affect the count of how many points.
     points="all"
       A092572  norms X^2+3*Y^2 which occur
       A158937  norms X^2+3*Y^2 which occur, X>0,Y>0 with repeats
-      A092573  count of points norm n for X>0,Y>0
+      A092573  count of points norm==n for X>0,Y>0
+
       A092574  norms X^2+3*Y^2 which occur for X>0,Y>0, gcd(X,Y)=1
-      A092575  count of points norm n for X>0,Y>0, gcd(X,Y)=1
+      A092575  count of points norm==n for X>0,Y>0, gcd(X,Y)=1
                  ie. X,Y no common factor
 
 =cut

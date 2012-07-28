@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Maybe:
+# NumChildren
+#
+
+
 package Math::NumSeq::PlanePathCoord;
 use 5.004;
 use strict;
@@ -22,7 +28,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -218,9 +224,17 @@ my %oeis_anum =
      # OEIS-Other: A163530 planepath=GrayCode,apply_type=FsT,radix=3 coordinate_type=SumAbs
      # OEIS-Other: A163531 planepath=GrayCode,apply_type=FsT,radix=3 coordinate_type=RSquared
 
+     # OEIS-Other: A163528 planepath=WunderlichSerpentine,serpentine_type=Peano,radix=3 coordinate_type=X
+     # OEIS-Other: A163529 planepath=WunderlichSerpentine,serpentine_type=Peano,radix=3 coordinate_type=Y
+     # OEIS-Other: A163530 planepath=WunderlichSerpentine,serpentine_type=Peano,radix=3 coordinate_type=Sum
+     # OEIS-Other: A163530 planepath=WunderlichSerpentine,serpentine_type=Peano,radix=3 coordinate_type=SumAbs
+     # OEIS-Other: A163531 planepath=WunderlichSerpentine,serpentine_type=Peano,radix=3 coordinate_type=RSquared
+
      ('Math::PlanePath::PeanoCurve,radix=3' => $peano,
       'Math::PlanePath::GrayCode,apply_type=TsF,gray_type=reflected,radix=3' => $peano,
-      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=reflected,radix=3' => $peano)
+      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=reflected,radix=3' => $peano,
+      'Math::PlanePath::WunderlichSerpentine,serpentine_type=Peano,radix=3' => $peano,
+      )
    },
 
    # 'Math::PlanePath::RationalsTree,tree_type=SB' =>
@@ -617,9 +631,7 @@ sub oeis_anum {
     #   }
   }
 
-
   my $key = _planepath_oeis_key($planepath_object);
-
   {
     my $i_start = $self->i_start;
     if ($i_start != $planepath_object->n_start) {
@@ -640,8 +652,10 @@ sub _oeis_modulo {
 
 sub _planepath_oeis_key {
   my ($path) = @_;
+  ### PlanePathCoord _planepath_oeis_key() ...
   return join(',',
               ref($path),
+
               (map {
                 my $value = $path->{$_->{'name'}};
                 ### $_
@@ -651,7 +665,18 @@ sub _planepath_oeis_key {
               }
                $path->parameter_info_list,
                ($path->isa('Math::PlanePath::Rows') ? ({name=>'width'}) : ()),
-               ($path->isa('Math::PlanePath::Columns')? ({name=>'height'}) : ())));
+               ($path->isa('Math::PlanePath::Columns')?({name=>'height'}):())),
+
+              do {
+                my $path_class = ref $path;
+                my $n_start = $path->n_start;
+                ### $path_class
+                ### $n_start
+                ### class n_start: $path_class->n_start
+                ($n_start == $path_class->n_start
+                 ? ()
+                 : "n_start=$n_start")
+              });
 }
 
 #------------------------------------------------------------------------------
@@ -676,9 +701,10 @@ sub new {
 
 sub _planepath_name_to_object {
   my ($name) = @_;
-  ### _planepath_name_to_object(): $name
+  ### PlanePathCoord _planepath_name_to_object(): $name
   ($name, my @args) = split /,+/, $name;
   $name = "Math::PlanePath::$name";
+  ### $name
   require Module::Load;
   Module::Load::load ($name);
   return $name->new (map {/(.*?)=(.*)/} @args);

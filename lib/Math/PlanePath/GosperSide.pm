@@ -1,6 +1,3 @@
-# arms begin at 0,0 or at 1 in ?
-
-
 # Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
@@ -19,6 +16,9 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# arms begin at 0,0 or at 1 in ?
+
+
 # math-image --path=GosperSide --lines --scale=10
 # math-image --path=GosperSide --output=numbers
 
@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

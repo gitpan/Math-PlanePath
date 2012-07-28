@@ -22,7 +22,9 @@ use 5.004;
 use strict;
 use Math::Prime::XS 0.23 'is_prime'; # version 0.23 fix for 1928099
 use Math::PlanePath::GrayCode;
-use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 use Smart::Comments;
@@ -47,7 +49,7 @@ use Smart::Comments;
     # next if $value;
 
     my ($x,$y) = $path->n_to_xy($n);
-    my ($dx,$dy) = path_n_dxdy($path,$n);
+    my ($dx,$dy) = $path->n_to_dxdy($n);
     my $calc = calc_left_turn($n);
     print "$n  $x,$y  $turn $calc  dxdy=$dx,$dy\n";
     # printf "%d,", $value;
@@ -59,13 +61,6 @@ use Smart::Comments;
   print "\n";
   exit 0;
 
-  sub path_n_dxdy {
-    my ($path, $n) = @_;
-    my ($x,$y) = $path->n_to_xy($n);
-    my ($next_x,$next_y) = $path->n_to_xy($n+1);
-    return ($next_x - $x,
-            $next_y - $y);
-  }
   sub calc_left_turn {
     my ($n) = @_;
     return count_low_0_bits(($n+1)>>1) % 2 ? 0 : 1;
@@ -182,13 +177,13 @@ use Smart::Comments;
     my ($n, $radix) = @_;
     my $digits = [ digit_split_lowtohigh($n,$radix) ];
     Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,$radix);
-    return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
+    return digit_join_lowtohigh($digits,$radix);
   }
   sub from_gray {
     my ($n, $radix) = @_;
     my $digits = [ digit_split_lowtohigh($n,$radix) ];
     Math::PlanePath::GrayCode::_digits_from_gray_reflected($digits,$radix);
-    return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,$radix);
+    return digit_join_lowtohigh($digits,$radix);
   }
 }
 
@@ -205,7 +200,7 @@ use Smart::Comments;
     my ($n) = @_;
     my $digits = [ digit_split_lowtohigh($n,2) ];
     Math::PlanePath::GrayCode::_digits_to_gray_reflected($digits,2);
-    return Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh($digits,2);
+    return digit_join_lowtohigh($digits,2);
   }
 }
 

@@ -64,7 +64,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -384,8 +384,12 @@ sub rect_to_n_range {
 
 sub tree_n_children {
   my ($self, $n) = @_;
-  $n *= 3;
-  return ($n-1, $n, $n+1);
+  if ($n >= 1) {
+    $n *= 3;
+    return ($n-1, $n, $n+1);
+  } else {
+    return;
+  }
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
@@ -515,12 +519,15 @@ Math::PlanePath::PythagoreanTree -- primitive Pythagorean triples by tree
 =head1 DESCRIPTION
 
 This path enumerates primitive Pythagorean triples by a breadth-first
-traversal of a ternary tree, either a "UAD" or "FB" tree.
+traversal of a ternary tree, either a "UAD" or "FB" tree.  Each point is an
+integer X,Y = A,B with integer hypotenuse and primitive in the sense that A
+and B have no common factor.
 
-Each point is an integer X,Y = A,B with integer hypotenuse A^2+B^2=C^2 and
-primitive in that A and B have no common factor.  Such a triple always has
-A,B one odd and the other even.  The trees here give them ordered as A odd
-and B even.
+     A^2 + B^2 = C^2
+     gcd(A,B)=1  ie. no common factor
+
+Such a triple always has one of A,B odd and the other even.  The trees here
+give them ordered as A odd and B even.
 
 The breadth-first traversal goes out to rather large A,B values while
 smaller ones have yet to be reached.  The UAD tree goes out further than the
@@ -531,34 +538,31 @@ FB.
 The UAD tree by Berggren (1934) and later independently by Barning (1963),
 Hall (1970), and a number of others, uses three matrices U, A and D which
 can be multiplied onto an existing primitive triple to form three new
-primitive triples.
+primitive triples.  See L</UAD Matrices> below for details of the tree
+descent.
 
-    my $path = Math::PlanePath::PythagoreanTree->new
-                 (tree_type => 'UAD');
+    tree_type => "UAD"   (the default
 
-Starting from A=3,B=4,C=5 which is the well-known 3^2 + 4^2 = 5^2, the tree
-visits all and only primitive triples.  See L</UAD Matrices> below for
-details of the tree descent.
+    Y=40 |          14
+         |
+         |
+         |
+         |                                              7
+    Y=24 |        5
+         |
+    Y=20 |                      3
+         |
+    Y=12 |      2                             13
+         |
+         |                4
+     Y=4 |    1
+         |
+         +--------------------------------------------------
+            X=3         X=15  X=20           X=35      X=45
 
-   Y=40 |          14
-        |
-        |
-        |
-        |                                              7
-   Y=24 |        5
-        |
-   Y=20 |                      3
-        |
-   Y=12 |      2                             13
-        |
-        |                4
-    Y=4 |    1
-        |
-        +--------------------------------------------------
-           X=3         X=15  X=20           X=35      X=45
-
-The starting point N=1 is X=3,Y=4 and from that point three further N=2,3,4
-are derived, then three more from each of those, etc,
+The starting point is N=1 at X=3,Y=4 which is the well-known 3^2 + 4^2 =
+5^2.  From there further N=2, N=3, N=4 are derived, then three more from
+each of those, etc,
 
      N=1     N=2..4      N=5..13     N=14...
 
@@ -580,11 +584,11 @@ and the first N of the level is at
     N = 1 + 3 + 3^2 + ... + 3^(level-1)
     N = (3^level + 1) / 2
 
-Taking the middle "A" direction at each node, ie. 21,20 then 119,120 then
-697,696, etc, gives the triples with legs differing by 1, so just below the
-X=Y leading diagonal.  These are at N=3^level.
+Taking the middle "A" matrix at each node, ie. 3,4 to 21,20 to 119,120 to
+697,696, etc, gives the triples with legs differing by 1, and thus just
+below the X=Y leading diagonal.  These are at N=3^level.
 
-Taking the lower "D" direction at each node, ie. 15,8 then 35,12 then 63,16,
+Taking the lower "D" matrix at each node, ie. 3,4 to 15,8 to 35,12 to 63,16,
 etc, is the primitives among a sequence of triples known to the ancients,
 
      A = k^2-1,  B = 2*k,  C = k^2+1
@@ -595,23 +599,17 @@ last of each level, so N=(3^(level+1)-1)/2.
 
 =head2 FB Tree
 
-The FB tree by H. Lee Price,
+The FB tree by H. Lee Price
 
     http://arxiv.org/abs/0809.4324
 
-is based on expressing triples in certain
-"Fibonacci boxes" with q',q,p,p' having p=q+q' and p'=p+q, each the sum of
-the preceding two in a fashion similar to the Fibonacci sequence.  Any box
-where p and q have no common factor corresponds to a primitive triple (see
-L</PQ Coordinates> below).
+is based on expressing triples in certain "Fibonacci boxes" with a box of
+four values q',q,p,p' having p=q+q' and p'=p+q, each the sum of the
+preceding two in a fashion similar to the Fibonacci sequence.  Any box where
+p and q have no common factor corresponds to a primitive triple (see L</PQ
+Coordinates> below).
 
-    my $path = Math::PlanePath::PythagoreanTree->new
-                 (tree_type => 'FB');
-
-For a given box three transformations can be applied to go to new boxes
-corresponding to new primitive triples.  This visits all and only primitive
-triples, but in a different order and different tree structure to the UAD
-above.
+    tree_type => "FB"
 
     Y=40 |         5
          |
@@ -629,6 +627,11 @@ above.
          |
          +----------------------------------------------
            X=3         X=15   x=21         X=35
+
+For a given box three transformations can be applied to go to new boxes
+corresponding to new primitive triples.  This visits all and only primitive
+triples, but in a different order and different tree structure to the UAD
+above.
 
 The first point N=1 is again at X=3,Y=4, from which three further points
 N=2,3,4 are derived, then three more from each of those, etc.
@@ -649,8 +652,8 @@ N=2,3,4 are derived, then three more from each of those, etc.
 
 =head2 PQ Coordinates
 
-Primitive Pythagorean triples can be parameterized as follows, taking A odd
-and B even.
+Primitive Pythagorean triples can be parameterized as follows, for A odd and
+B even.
 
     A = P^2 - Q^2
     B = 2*P*Q
@@ -664,13 +667,10 @@ Or conversely,
 
 The first P=2,Q=1 is the triple A=3,B=4,C=5.  The C<coordinates> option on
 the path gives these P,Q values as the returned X,Y (for either tree type),
+Since PE<gt>QE<gt>=1, the values fall in the eighth of the plane below the
+X=Y diagonal,
 
-    my $path = Math::PlanePath::PythagoreanTree->new
-                  (tree_type   => 'UAD',    # or 'FB'
-                   coordinates => 'PQ');
-    my ($p,$q) = $path->n_to_xy(1);  # P=2,Q=1
-
-Since P>Q>=1, the values fall in an octant below the X=Y diagonal,
+    coordinates => "PQ"
 
     11 |                         *
     10 |                       *  
@@ -688,13 +688,14 @@ Since P>Q>=1, the values fall in an octant below the X=Y diagonal,
          0 1 2 3 4 5 6 7 8 9 ...
 
 The correspondence between P,Q and A,B means the trees visit all P,Q pairs
-with no common factor and one of them even.  Of course there's other ways to
-iterate through such coprime pairs P,Q, and that would generate triples too,
-in a different order from the trees here.
+with no common factor and one of them even.  There's other ways to iterate
+through such coprime pairs P,Q, and that would generate triples too, in a
+different order from the trees here.
 
 Incidentally letters P and Q used here are a little bit arbitrary.  This
 parameterization is often found as m,n or u,v, but don't want "n" to be
-confused that with the N numbered points or "u" with the U matrix in UAD.
+confused that with the N point numbering or "u" confused with the U matrix
+in UAD.
 
 =head1 FUNCTIONS
 
@@ -704,7 +705,21 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PythagoreanTree-E<gt>new ()>
 
-Create and return a new path object.
+=item C<$path = Math::PlanePath::PythagoreanTree-E<gt>new (tree_type =E<gt> $str, coordinates =E<gt> $str)>
+
+Create and return a new path object.  The C<tree_type> option can be
+
+    "UAD"  (the default)
+    "FB"
+
+The C<coordinates> option can be
+
+    "AB"   (the default)
+    "PQ"
+
+=item C<$n = $path-E<gt>n_start()>
+
+Return 1, the first N in the path.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -717,7 +732,7 @@ Return the point number for coordinates C<$x,$y>.  If there's nothing at
 C<$x,$y> then return C<undef>.
 
 The return is C<undef> if C<$x,$y> is not a primitive Pythagorean triple, or
-with the PQ option if C<$x,$y> doesn't satisfy the PQ constraints described
+for the PQ option if C<$x,$y> doesn't satisfy the PQ constraints described
 above (L</PQ Coordinates>).
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
@@ -732,11 +747,33 @@ roughly C<3**log2(x)>.
 
 =back
 
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return the three children of C<$n>, or an empty list if C<$n E<lt> 1>
+(ie. before the start of the path).
+
+This is simply C<3*$n-1, 3*$n, 3*$n+1>.  This is like appending an extra
+ternary digit, but onto N+1 rather than N (and adjusting back).
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the top of
+the tree).
+
+This is simply C<floor(($n+1)/3)>, reversing the C<tree_n_children()>
+calculation.
+
+=back
+
 =head1 FORMULAS
 
 =head2 UAD Matrices
 
-The three UAD matrices are as follows
+The UAD matrices are
 
         /  1   2   2  \
     U = | -2  -1  -2  |
@@ -754,8 +791,8 @@ They're multiplied on the right of an (A,B,C) vector, for example
 
     (3, 4, 5) * U = (5, 12, 13)
 
-But internally the code uses P,Q and calculates an A,B at the end as
-necessary.  The transformations in P,Q coordinates are
+Internally the code uses P,Q and calculates an A,B at the end as necessary.
+The UAD transformations in P,Q coordinates are
 
     U     P -> 2P-Q
           Q -> P
@@ -773,7 +810,7 @@ desired, but explicit steps are enough for the code.
 =head2 FB Transformations
 
 The FB tree is calculated in P,Q and converted to A,B at the end as
-necessary.  The three transformations are
+necessary.  Its three transformations are
 
     K1     P -> P+Q
            Q -> 2Q
@@ -785,11 +822,12 @@ necessary.  The three transformations are
            Q -> P+Q
 
 Price's paper shows rearrangements of a set of four values q',q,p,p', but
-just the p and q are enough for a calculation.
+just the p and q are enough for the calculation.
 
-=head2 X,Y to N for UAD
+=head2 X,Y to N -- UAD
 
-An A,B or P,Q point can be reversed up the tree to its parent as follows,
+C<xy_to_n()> works in P,Q coordinates and converts an A,B input when
+necessary.  A P,Q point can be reversed up the UAD tree to its parent point
 
     if P > 3Q    reverse "D"   P -> P-2Q
                                Q -> unchanged
@@ -798,15 +836,17 @@ An A,B or P,Q point can be reversed up the tree to its parent as follows,
     otherwise    reverse "U"   P -> Q
                                Q -> 2Q-P
 
-This gives a ternary digit 2, 1, 0 respectively for N and the number of
-steps is the level and a starting "1" digit.  If at any stage the P,Q aren't
-one odd the other even and PE<gt>Q then it means the original point, whether
-an A,B or a P,Q, was not a primitive triple.  For a primitive triple the
-endpoint is always P=2,Q=1.
+This gives a ternary digit 2, 1, 0 respectively for N (low to high), plus a
+high "1" digit.  The number of steps is the level.
 
-=head2 X,Y to N for FB
+If at any stage P,Q isn't PE<gt>Q, one odd, the other even, then it means
+the original point, whether an A,B or a P,Q, was not a primitive triple.
+For a primitive triple the endpoint is always P=2,Q=1.
 
-An A,B or P,Q point can be reversed up the tree to its parent as follows,
+=head2 X,Y to N -- FB
+
+After converting A,B to P,Q if necessary, a P,Q point can be reversed up the
+FB tree to its parent
 
     if P odd     reverse K1    P -> P-Q
      (so Q even)               Q -> Q/2
@@ -817,16 +857,16 @@ An A,B or P,Q point can be reversed up the tree to its parent as follows,
     otherwise    reverse K3    P -> P/2
                                Q -> Q - P/2
 
-This is rather similar to the binary greatest common divisor algorithm, but
-designed for one value odd and the other even.  As for the UAD ascent above
-if that P,Q opposite parity doesn't hold at any stage then the initial point
-wasn't a primitive triple.
+This is a little like the binary greatest common divisor algorithm, but
+designed for one value odd and the other even.  As per the UAD ascent above
+if at any stage P,Q isn't PE<gt>Q, one odd, the other even, then the initial
+point wasn't a primitive triple.
 
-=head2 Rectangle to N Range for UAD
+=head2 Rectangle to N Range -- UAD
 
 For the UAD tree, the smallest A,B within each level is found at the topmost
 "U" steps for the smallest A or the bottom-most "D" steps for the smallest
-B.  For example in the table above of level 2, N=5..13, the smallest A is in
+B.  For example in the table above of level=2 N=5..13 the smallest A is
 the top A=7,B=24, and the smallest B is in the bottom A=35,B=12.  In general
 
     Amin = 2*level + 1
@@ -843,11 +883,11 @@ unchanged, so every level includes a Q=1.  This means if you ask what range
 of N is needed to cover all Q E<lt> someQ then there isn't one, only a P
 E<lt> someP has an N to go up to.
 
-=head2 Rectangle to N Range, FB
+=head2 Rectangle to N Range -- FB
 
 For the FB tree, the smallest A,B within each level is found in the topmost
-two final positions.  For example in the table above of level 2, N=5..13,
-the smallest A is in the top A=9,B=40, and the smallest B is in the next row
+two final positions.  For example in the table above of level=2 N=5..13 the
+smallest A is in the top A=9,B=40, and the smallest B is in the next row
 A=35,B=12.  In general,
 
     Amin = 2^level + 1
@@ -863,12 +903,17 @@ K1 steps for the balance.  This is a slightly complicated
 
 The fixed Q=1 arises from the K1 steps giving
 
-    P=2 + 1+2+4+8+...+2^(level-2) = 2 + 2^(level-1) - 1
-    Q=2^(level-1)
+    P = 2 + 1+2+4+8+...+2^(level-2)
+      = 2 + 2^(level-1) - 1
+      = 2^(level-1) + 1
+    Q = 2^(level-1)
 
-and then the K2 step Q -E<gt> P-Q = 1.  As for the UAD above this means
-small Q's always remain no matter how big N gets, only a P range determines
-an N range.
+    followed by K2 step
+    Q -> P-Q
+         = 1
+
+As for the UAD above this means small Q's always remain no matter how big N
+gets, only a P range determines an N range.
 
 =head1 SEE ALSO
 

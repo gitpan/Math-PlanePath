@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 122;
+plan tests => 150;
 
 use lib 't';
 use MyTestHelpers;
@@ -38,7 +38,7 @@ my $path = Math::PlanePath::CCurve->new;
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::CCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CCurve->VERSION,  $want_version,
@@ -85,9 +85,19 @@ my $path = Math::PlanePath::CCurve->new;
   my $path = Math::PlanePath::CCurve->new;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x == $want_x, 1, "x at n=$n");
-    ok ($got_y == $want_y, 1, "y at n=$n");
+    {
+      my ($got_x, $got_y) = $path->n_to_xy ($n);
+      ok ($got_x == $want_x, 1, "x at n=$n");
+      ok ($got_y == $want_y, 1, "y at n=$n");
+    }
+    {
+      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
+      my $want_dx = $next_x - $want_x;
+      my $want_dy = $next_y - $want_y;
+      my ($got_dx, $got_dy) = $path->n_to_dxdy ($n);
+      ok ($got_dx == $want_dx, 1, "dx at n=$n");
+      ok ($got_dy == $want_dy, 1, "dy at n=$n");
+    }
   }
 
   # foreach my $elem (@data) {
@@ -116,7 +126,7 @@ my $path = Math::PlanePath::CCurve->new;
 
 
 #------------------------------------------------------------------------------
-# random _n_to_dxdy()
+# random n_to_dxdy()
 
 {
   my $path = Math::PlanePath::CCurve->new;
@@ -131,12 +141,12 @@ my $path = Math::PlanePath::CCurve->new;
     my $delta_dx = $next_x - $x;
     my $delta_dy = $next_y - $y;
 
-    my ($func_dx,$func_dy) = $path->_n_to_dxdy ($n);
+    my ($func_dx,$func_dy) = $path->n_to_dxdy ($n);
     if ($func_dx == 0) { $func_dx = '0'; } # avoid -0 in perl 5.6
     if ($func_dy == 0) { $func_dy = '0'; } # avoid -0 in perl 5.6
 
-    ok ($func_dx, $delta_dx, "_n_to_dxdy($n) dx at xy=$x,$y");
-    ok ($func_dy, $delta_dy, "_n_to_dxdy($n) dy at xy=$x,$y");
+    ok ($func_dx, $delta_dx, "n_to_dxdy($n) dx at xy=$x,$y");
+    ok ($func_dy, $delta_dy, "n_to_dxdy($n) dy at xy=$x,$y");
   }
 }
 

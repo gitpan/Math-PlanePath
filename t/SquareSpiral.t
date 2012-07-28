@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 82;
+  my $want_version = 83;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
@@ -344,7 +344,7 @@ require Math::PlanePath::SquareSpiral;
 }
 
 #------------------------------------------------------------------------------
-# random _n_to_dxdy()
+# random n_to_dxdy()
 
 {
   foreach my $wider (0 .. 10) {
@@ -359,12 +359,12 @@ require Math::PlanePath::SquareSpiral;
       my $delta_dx = $next_x - $x;
       my $delta_dy = $next_y - $y;
 
-      my ($func_dx,$func_dy) = $path->_n_to_dxdy ($n);
+      my ($func_dx,$func_dy) = $path->n_to_dxdy($n);
       if ($func_dx == 0) { $func_dx = '0'; } # avoid -0 in perl 5.6
       if ($func_dy == 0) { $func_dy = '0'; } # avoid -0 in perl 5.6
 
-      ok ($func_dx, $delta_dx, "_n_to_dxdy($n) w=$wider dx at xy=$x,$y");
-      ok ($func_dy, $delta_dy, "_n_to_dxdy($n) w=$wider dy at xy=$x,$y");
+      ok ($func_dx, $delta_dx, "n_to_dxdy($n) w=$wider dx at xy=$x,$y");
+      ok ($func_dy, $delta_dy, "n_to_dxdy($n) w=$wider dy at xy=$x,$y");
     }
   }
 }

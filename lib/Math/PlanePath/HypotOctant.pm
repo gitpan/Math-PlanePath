@@ -16,13 +16,27 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# circular ring splashes from DigitProductSteps values_type=count
+#
+#
+# A000328 Number of points of norm <= n^2 in square lattice.
+# 1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441, 529, 613, 709, 797
+# a(n) = 1 + 4 * sum(j=0, n^2 / 4,    n^2 / (4*j+1) - n^2 / (4*j+3) )
+#
+# A057655 num points norm <= n in square lattice.
+#
+# A036702 num points |z=a+bi| <= n with 0<=a, 0<=b<=a, so octant
+# A036703 num points n-1 < z <= n, first diffs?
+
+
+
 package Math::PlanePath::HypotOctant;
 use 5.004;
 use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -32,16 +46,6 @@ use Math::PlanePath::Base::Generic
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
-
-# A000328 Number of points of norm <= n^2 in square lattice.
-# 1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441, 529, 613, 709, 797
-# a(n) = 1 + 4 * sum(j=0, n^2 / 4,    n^2 / (4*j+1) - n^2 / (4*j+3) )
-#
-# A057655 num points norm <= n in square lattice.
-#
-# A036702 num points |z=a+bi| <= n with 0<=a, 0<=b<=a, so octant
-# A036703 num points n-1 < z <= n, first diffs?
 
 
 use constant parameter_info_array =>
@@ -429,18 +433,22 @@ the case there's more than one X,Y of that hypot.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A051132  (etc)
+    http://oeis.org/A024507  (etc)
 
-     points="all"
-    A024507   X^2+Y^2 of all points not on X axis or X=Y diagonal
-    A024509   X^2+Y^2 of all points not on X axis
-                being integers occurring as sum of two non-zero squares,
-                with repetitions for multiple ways
+    points="all"
+      A024507   X^2+Y^2 of all points not on X axis or X=Y diagonal
+      A024509   X^2+Y^2 of all points not on X axis
+                  being integers occurring as sum of two non-zero squares,
+                  with repetitions for multiple ways
 
-      points="odd"
-    A057653   X^2+Y^2 occurring for some point
-                being odd numbers which are sum of two squares,
-                no repetitions
+    points="even"
+      A036702   N on X=Y leading Diagonal
+                  being count of points norm<=k
+
+    points="odd"
+      A057653   X^2+Y^2 values occurring
+                  ie. odd numbers which are sum of two squares,
+                  without repetitions
 
 =head1 SEE ALSO
 

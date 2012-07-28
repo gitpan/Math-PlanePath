@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
 # math-image --path=DigitGroups --output=numbers_dash
 # math-image --path=DigitGroups,radix=2 --all --output=numbers
 #
@@ -25,6 +26,11 @@
 # cf A084473 0->0000
 #    A088698 1->11
 #    A175047 0000run->0
+#
+# G. Cantor, Ein Beitrag zur Mannigfaltigkeitslehre, Journal für die reine
+# und angewandte Mathematik (Crelle's Journal), Vol. 84, 242-258, 1878.
+# http://www.digizeitschriften.de/dms/img/?PPN=PPN243919689_0084&DMDID=dmdlog15
+
 
 
 package Math::PlanePath::DigitGroups;
@@ -32,7 +38,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,12 +48,10 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'round_down_pow';
 
-use Math::PlanePath::ZOrderCurve;
-*_digit_join_lowtohigh = \&Math::PlanePath::ZOrderCurve::_digit_join_lowtohigh;
-
 use Math::PlanePath::Base::Digits
   'parameter_info_array',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -120,8 +124,8 @@ sub n_to_xy {
   }
 
   my $zero = $n * 0; # inherit bignum 0
-  return (_digit_join_lowtohigh (\@x, $radix, $zero),
-          _digit_join_lowtohigh (\@y, $radix, $zero));
+  return (digit_join_lowtohigh (\@x, $radix, $zero),
+          digit_join_lowtohigh (\@y, $radix, $zero));
 }
 
 sub xy_to_n {
@@ -166,7 +170,7 @@ sub xy_to_n {
       push @n, $digit;
     } while ($digit);
   }
-  return _digit_join_lowtohigh (\@n, $radix, $zero);
+  return digit_join_lowtohigh (\@n, $radix, $zero);
 }
 
 # not exact

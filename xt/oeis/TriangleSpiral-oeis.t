@@ -54,6 +54,58 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
+# A081589 -- N on slope=3 ENE
+{
+  my $anum = 'A081589';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::TriangleSpiral->new;
+    my $x = 0;
+    my $y = 0;
+    while (@got < @$bvalues) {
+      push @got, $path->xy_to_n ($x,$y);
+      $x += 3;
+      $y += 1;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A038764 -- N on slope=2 WSW
+{
+  my $anum = 'A038764';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::TriangleSpiral->new;
+    my $x = 0;
+    my $y = 0;
+    while (@got < @$bvalues) {
+      push @got, $path->xy_to_n ($x,$y);
+      $x += -3;
+      $y += -1;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
 # A063177 -- a(n) is sum of existing numbers in row of a(n-1)
 
 {
@@ -62,8 +114,6 @@ sub numeq_array {
                                                       max_value => 'unlimited');
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values");
-
     require Math::BigInt;
     my %plotted;
     $plotted{0,0} = Math::BigInt->new(1);
@@ -112,8 +162,6 @@ sub numeq_array {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
     }
-  } else {
-    MyTestHelpers::diag ("$anum not available");
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

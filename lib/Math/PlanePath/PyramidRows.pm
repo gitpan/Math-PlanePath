@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 82;
+$VERSION = 83;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -507,15 +507,25 @@ path include
       A023531    dY, being 1 at triangular numbers (but starting n=0)
       A167407    dX-dY, change in X-Y (extra initial 0)
       A079824    N total along each opposite diagonal
+      A000217    N on X=Y diagonal, extra initial 0
 
     step=2
       A196199    X coordinate, runs -n to +n
       A000196    Y coordinate, n appears 2n+1 times
       A053186    X+Y, being distance to next higher square
       A010052    dY,  being 1 at perfect square row end
+      A000290    N on X=Y diagonal, extra initial 0
+      A002522    N on North-West diagonal (n^2+1)
 
     step=3
       A180447    Y coordinate, n appears 3n+1 times
+      A104249    N on Y axis
+      A143689    N on North-West diagonal
+
+    step=4
+      A084849    N on Y axis
+      A001844    N on diagonal (North-East)
+      A058331    N on North-West diagonal
 
 =head1 SEE ALSO
 
