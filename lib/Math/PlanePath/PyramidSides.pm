@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -222,6 +222,8 @@ path include
     http://oeis.org/A196199  (etc)
 
     A196199    X coordinate, runs -n to +n
+    A002522    N on X negative axis
+    A033951    N on X=Y diagonal
 
 =head1 SEE ALSO
 

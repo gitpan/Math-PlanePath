@@ -68,6 +68,7 @@ devel/lib/Math/PlanePath/PeanoRounded.pm
 devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
 devel/lib/Math/PlanePath/squares-dispersion.pl
+devel/lib/Math/PlanePath/Toothpick.pm
 devel/Makefile
 devel/multiple-rings.pl
 devel/number-fraction.pl
@@ -373,7 +374,6 @@ xt/MyOEIS.pm
 xt/oeis-duplicate.t
 xt/oeis-xrefs.t
 xt/oeis/AlternatePaper-oeis.t
-xt/oeis/AztecDiamondRings-oeis.t
 xt/oeis/CCurve-oeis.t
 xt/oeis/CellularRule-oeis.t
 xt/oeis/CellularRule190-oeis.t

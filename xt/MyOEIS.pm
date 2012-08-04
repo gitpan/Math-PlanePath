@@ -63,7 +63,7 @@ sub read_values {
   if (my $max_count = $option{'max_count'}) {
     if (@bvalues > $max_count) {
       $#bvalues = $option{'max_count'} - 1;
-      $desc .= ", shorten to ".scalar(@bvalues);
+      $desc .= ", shorten to ".scalar(@bvalues)." values to $bvalues[-1]";
     }
   }
 
@@ -73,7 +73,7 @@ sub read_values {
         if ($bvalues[$i] > $max_value) {
           $#bvalues = $i-1;
           if (@bvalues) {
-            $desc .= ", shorten to max ".$bvalues[-1];
+            $desc .= ", shorten to ".scalar(@bvalues)." values to $bvalues[-1]";
           } else {
             $desc .= ", shorten to nothing";
           }

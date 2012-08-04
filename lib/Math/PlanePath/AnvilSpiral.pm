@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -417,6 +417,11 @@ Entries in Neil Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
     http://oeis.org/A033581  (etc)
+
+    wider=0 (the default)
+      A033570    N on X axis, alternate pentagonals (2n+1)*(3n+1)
+      A126587    N on Y axis
+      A033568    N on X=Y diagonal, alternate second pents (2*n-1)*(3*n-1)
 
     wider=2
       A033581    N on Y axis (6*n^2) except for initial N=2

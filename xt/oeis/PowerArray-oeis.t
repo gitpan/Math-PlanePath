@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 18;
+plan tests => 14;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -187,29 +187,6 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
-# A000079 -- N on X axis 2^X
-{
-  my $anum = 'A000079';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PowerArray->new (radix => 2);
-    require Math::BigInt;
-    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
 # A057716 -- N not on X axis, the non 2^X
 {
   my $anum = 'A057716';
@@ -222,75 +199,6 @@ sub numeq_array {
       if ($y != 0) {
         push @got, $n;
       }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A000244 -- N on X axis 3^X
-{
-  my $anum = 'A000244';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PowerArray->new (radix => 3);
-    require Math::BigInt;
-    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A000302 -- N on X axis 4^X
-{
-  my $anum = 'A000302';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PowerArray->new (radix => 4);
-    require Math::BigInt;
-    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A011557 -- N on X axis 10^X
-{
-  my $anum = 'A011557';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PowerArray->new (radix => 10);
-    require Math::BigInt;
-    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,0);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -337,29 +245,6 @@ sub numeq_array {
       my ($x, $y) = $diagonals->n_to_xy ($n);
       $y = 2*$y+($y%2); # stretch
       push @got, $power->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A007814 -- X coord, count low 0 bits of N
-{
-  my $anum = 'A007814';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PowerArray->new (radix => 2);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x;
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));

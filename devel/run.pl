@@ -41,7 +41,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   require Math::PlanePath::DekkingStraight;
   require Math::PlanePath::HilbertCurve;
   require Math::PlanePath::Corner;
-  require Math::PlanePath::SquareSpiral;
   require Math::PlanePath::PentSpiral;
   require Math::PlanePath::PentSpiralSkewed;
   require Math::PlanePath::HexArms;
@@ -52,7 +51,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   require Math::PlanePath::DiagonalRationals;
   require Math::PlanePath::FactorRationals;
   require Math::PlanePath::VogelFloret;
-  require Math::PlanePath::CellularRule;
   require Math::PlanePath::AnvilSpiral;
   require Math::PlanePath::CellularRule57;
   require Math::PlanePath::DragonRounded;
@@ -62,7 +60,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   require Math::PlanePath::StaircaseAlternating;
   require Math::PlanePath::SierpinskiCurveStair;
   require Math::PlanePath::AztecDiamondRings;
-  require Math::PlanePath::PyramidRows;
   require Math::PlanePath::KochSnowflakes;
   require Math::PlanePath::MultipleRings;
   require Math::PlanePath::SacksSpiral;
@@ -129,15 +126,21 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::PeanoCurve';
   $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
   $path_class = 'Math::PlanePath::TriangleSpiral';
-  $path_class = 'Math::PlanePath::SierpinskiTriangle';
   $path_class = 'Math::PlanePath::HypotOctant';
   $path_class = 'Math::PlanePath::Hypot';
+  $path_class = 'Math::PlanePath::SquareSpiral';
+  $path_class = 'Math::PlanePath::CellularRule';
+  $path_class = 'Math::PlanePath::PyramidRows';
+  $path_class = 'Math::PlanePath::SierpinskiTriangle';
+  $path_class = 'Math::PlanePath::Toothpick';
 
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     n_start => 37,
+     step => 6,
+     align => 'left',
+     # n_start => 37,
      # align => 'diagonal',
      # offset => -0.5,
      # radix => 3,
@@ -165,28 +168,30 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # coordinates => 'PQ',
     );
   ### $path
-  my ($prev_x, $prev_y);
   my %seen;
   my $n_start = $path->n_start;
   my $arms_count = $path->arms_count;
   my $path_ref = ref($path);
-  print "n_start() $n_start arms_count() $arms_count   $path_ref\n";
+  print "n_start()=$n_start arms_count()=$arms_count   $path_ref\n";
 
-   for (my $i = $n_start; $i <= 580; $i+=1) {
+  for (my $i = $n_start; $i <= 80; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
     # next unless $x < 0; # abs($x)>abs($y) && $x > 0;
 
     my $dxdy = '';
-    if (defined $prev_x) {
-      my $dx = $x - $prev_x;
-      my $dy = $y - $prev_y;
-      my $d = Math::Libm::hypot($dx,$dy);
-      $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
+    my $diffdxdy = '';
+    my ($dx, $dy) = $path->n_to_dxdy($i);
+    my $d = Math::Libm::hypot($dx,$dy);
+    $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
+
+    my ($next_x, $next_y) = $path->n_to_xy($i+$arms_count);
+    my $want_dx = $next_x - $x;
+    my $want_dy = $next_y - $y;
+    if ($dx != $want_dx || $dy != $want_dy) {
+      $diffdxdy = "dxdy(want $want_dx,$want_dy)";
     }
-    $prev_x = $x;
-    $prev_y = $y;
 
     my $rep = '';
     my $xy = (defined $x ? $x : 'undef').','.(defined $y ? $y : 'undef');
@@ -215,20 +220,24 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
       $range = 'Range';
     }
 
+    my @n_children = $path->tree_n_children ($i);
+    my $n_children = (@n_children ? " c=".join(',',@n_children) : '');
+
     my $flag = '';
-    if ($rev || $range) {
-      $flag = "  ***$rev$range";
+    if ($rev || $range || $diffdxdy) {
+      $flag = "  ***$rev$range$diffdxdy";
     }
 
     if (! defined $n_lo) { $n_lo = 'undef'; }
     if (! defined $n_hi) { $n_hi = 'undef'; }
 
     my $iwidth = ($i == int($i) ? 0 : 2);
-    printf "%.*f %8.4f,%8.4f   %3s  %s  %s %s %s\n",
+    printf "%.*f %8.4f,%8.4f   %3s  %s  %s%s %s %s\n",
       $iwidth,$i,  $x,$y,
         $n_rev,
           "${n_lo}_${n_hi}",
             $dxdy,
+              $n_children,
               " $rep",
                 $flag;
 

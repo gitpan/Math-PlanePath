@@ -38,7 +38,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -343,10 +343,10 @@ this path include
 
     http://oeis.org/A084471  (etc)
 
-     radix=2
-    A084471    N on X axis, bit 0->00
-    A084472    N on X axis, in binary
-    A060142    N on X axis, sorted into ascending order
+    radix=2 (the default)
+      A084471    N on X axis, bit 0->00
+      A084472    N on X axis, in binary
+      A060142    N on X axis, sorted into ascending order
 
 =head1 SEE ALSO
 

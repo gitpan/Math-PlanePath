@@ -51,27 +51,6 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
-# A066321 - N on X axis
-
-{
-  my $anum = 'A066321';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $x = 0; @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x,0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- N on X axis");
-}
-
-#------------------------------------------------------------------------------
 # A066322 - N on X axis, diffs at 16k+3,16k+4
 
 {

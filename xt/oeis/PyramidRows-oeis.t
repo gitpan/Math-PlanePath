@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 19;
+plan tests => 13;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -123,136 +123,6 @@ sub diff_nums {
     my $path = Math::PlanePath::PyramidRows->new (step => 2);
     for (my $i = 0; @got < @$bvalues; $i++) {
       push @got, $path->xy_to_n($i,$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A002522 -- step=2 north-west diagonal
-
-{
-  my $anum = 'A002522';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 2);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n(-$i,$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A143689 -- step=3 north-west diagonal
-
-{
-  my $anum = 'A143689';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 3);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n(-$i,$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A104249 -- step=3 Y axis
-
-{
-  my $anum = 'A104249';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 3);
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(0,$y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A084849 -- step=4 Y axis
-
-{
-  my $anum = 'A084849';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 4);
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(0,$y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A001844 -- step=4 leading diagonal
-
-{
-  my $anum = 'A001844';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 4);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n($i,$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A058331 -- step=4 north-west diagonal
-
-{
-  my $anum = 'A058331';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 4);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n(-$i,$i);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));

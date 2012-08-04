@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -325,6 +325,20 @@ each rounded to the nearest integer, which has the effect of treating each
 point in the path as a square of side 1.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A056105  (etc)
+
+    A056105    N on X axis, 3n^2-2n+1
+    A056106    N on Y axis, 3n^2-n+1
+    A056107    N on North-West diagonal, 3n^2+1
+    A056108    N on X negative axis, 3n^2+n+1
+    A056109    N on Y negative axis, 3n^2+2n+1
+    A003215    N on South-East diagonal, centred hexagonals
 
 =head1 SEE ALSO
 

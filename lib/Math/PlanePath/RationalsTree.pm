@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -547,8 +547,8 @@ having no common factor.
 
 Fractions are traversed by rows of a binary tree which effectively
 represents a coprime pair X,Y by the steps of the binary greatest common
-divisor algorithm which would prove X,Y coprime.  The steps "left" or
-"right" are encoded/decoded as an N value.
+divisor algorithm which prove X,Y coprime.  The steps "left" or "right" are
+encoded/decoded as an N value.
 
 There's five different types of tree.  In a given tree row they all have the
 same set of X/Y fractions, but in a different order reflecting different
@@ -892,10 +892,11 @@ sum of numerators 1+2+3+3 = 9 is 3^2.
 
 All sorts of permutations are conceivable within a row, but the ones here
 have some relationship to X/Y descendants or tree sub-forms.  There's two
-choices high to low or low to high N bits, and then three bit flip forms:
-unflipped, flip every second starting from the first or the second.  Only 5
-of the 6 are implemented currently, the missing one is the AYT formulas done
-low to high.  Does that have a name, or a particular significance?
+choices high to low or low to high N bits, and then three bit flip forms: no
+flips, flip every second starting from the first, or flip every second
+starting from the second.  Only 5 of the 6 are implemented currently.  The
+missing one is the AYT formulas done low to high.  Does that have a name, or
+a particular significance?
 
 =head1 OEIS
 
@@ -910,8 +911,8 @@ various forms,
     A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
     A070990  - CW den-num diff, Stern diatomic first diffs (less 0)
     A020650  - AYT numerators
-    A020651  - AYT denominators, being Kepler numerators
-    A086592  - AYT num+den sum, being Kepler denominators
+    A020651  - AYT denominators (Kepler numerators)
+    A086592  - AYT num+den sum (Kepler denominators)
     A162909  - Bird numerators
     A162910  - Bird denominators
     A162911  - Drib numerators
@@ -929,8 +930,7 @@ various forms,
     A054426  -   inverse, SB to DiagonalRationals
     A054427  - permutation coprimes to SB right hand X/Y>1
 
-    A000975  - numbers 1010... without consecutive equal bits,
-                 being Bird tree X=1 column
+    A000975  - Bird N in column X=1, being 1010 alternating bits
     A088696  - length of continued fraction SB left half (num/den<1)
 
 The sequences marked "extra ..." have one or two extra initial values over

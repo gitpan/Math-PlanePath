@@ -17,8 +17,8 @@
 
 
 # Maybe:
-# NumChildren
-#
+# NumChildren -- or maybe better in Delta
+# tree_n_children_count
 
 
 package Math::NumSeq::PlanePathCoord;
@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1455,8 +1455,20 @@ sub values_max {
 }
 { package Math::PlanePath::SierpinskiTriangle;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
-  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
-  use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
+  sub _NumSeq_Coord_DiffXY_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'diagonal' ? undef
+           : 0); # triangular X<=Y so X-Y<=0
+  }
+  sub _NumSeq_Coord_Y_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'align'} ne 'diagonal'); # rows upwards, except diagonal
+  }
+  sub _NumSeq_Coord_Sum_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'diagonal'); # anti-diagonals
+  }
+  *_NumSeq_Coord_SumAbs_non_decreasing = \&_NumSeq_Coord_Sum_non_decreasing;
 }
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
@@ -1648,21 +1660,29 @@ sub values_max {
 { package Math::PlanePath::PyramidRows;
   sub _NumSeq_Coord_X_max {
     my ($self) = @_;
-    return ($self->{'step'} == 0
-            ? 0    # X=0 vertical
+    return ($self->{'step'} == 0 || $self->{'align'} eq 'left'
+            ? 0    # X=0 vertical, or left X<=0
             : undef);
   }
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
-    return ($self->{'step'} <= 2
-            ? 0    # triangular X>=-Y for step=2, vertical X>=0 step=1,0
+    # for align=right X>=0 so X+Y >= 0
+    # for step==0   X=0 so X+Y >= 0
+    # for step==1   X>=-Y so X+Y >= 0
+    # for step==2 and align=centre   X>=-Y so X+Y >= 0
+    return ($self->{'step'} <= 1
+            || $self->{'align'} eq 'right'
+            || ($self->{'step'} == 2 && $self->{'align'} eq 'centre')
+            ? 0
             : undef);
   }
   sub _NumSeq_Coord_DiffXY_max {
     my ($self) = @_;
     # for step==0   X=0 so X-Y <= 0
-    # for step==1,2 X<=Y so X-Y <= 0
-    return ($self->{'step'} <= 2
+    # for step==1   X<=Y so X-Y <= 0
+    # for step==2 and align=left,centre   X<=Y so X-Y <= 0
+    return ($self->{'step'} <= 1
+            || ($self->{'step'} == 2 && $self->{'align'} ne 'right')
             ? 0
             : undef);
   }

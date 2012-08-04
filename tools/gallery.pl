@@ -45,6 +45,21 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['pyramid-rows-small.png',
+    'math-image --path=PyramidRows --lines --scale=5 --size=32'],
+   ['pyramid-rows-big.png',
+    'math-image --path=PyramidRows --lines --scale=15 --size=300x150'],
+   ['pyramid-rows-right-big.png',
+    'math-image --path=PyramidRows,step=4,align=right --lines --scale=15 --size=300x150 --offset=-120,0'],
+   ['pyramid-rows-left-big.png',
+    'math-image --path=PyramidRows,step=1,align=left --lines --scale=15 --size=160x150 --offset=65,0'],
+
+   ['pyramid-sides-small.png',
+    'math-image --path=PyramidSides --lines --scale=5 --size=32'],
+   ['pyramid-sides-big.png',
+    'math-image --path=PyramidSides --lines --scale=15 --size=300x150'],
+
+
    ['sierpinski-triangle-small.png',
     'math-image --path=SierpinskiTriangle --all --scale=2 --size=32 --offset=0,1'],
    ['sierpinski-triangle-big.png',
@@ -711,16 +726,6 @@ foreach my $elem
     'math-image --path=TriangleSpiralSkewed --lines --scale=3 --size=32'],
    ['triangle-spiral-skewed-big.png',
     'math-image --path=TriangleSpiralSkewed --lines --scale=13 --size=150'],
-
-   ['pyramid-rows-small.png',
-    'math-image --path=PyramidRows --lines --scale=5 --size=32'],
-   ['pyramid-rows-big.png',
-    'math-image --path=PyramidRows --lines --scale=15 --size=300x150'],
-
-   ['pyramid-sides-small.png',
-    'math-image --path=PyramidSides --lines --scale=5 --size=32'],
-   ['pyramid-sides-big.png',
-    'math-image --path=PyramidSides --lines --scale=15 --size=300x150'],
 
 
    ['diamond-arms-small.png',

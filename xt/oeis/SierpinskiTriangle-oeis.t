@@ -514,26 +514,5 @@ sub binomial_mod2 {
 }
 
 #------------------------------------------------------------------------------
-# A006046 - total number of points up to row N, ie. cumulative count
-#           is N at left of each row
-
-{
-  my $anum = 'A006046';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::SierpinskiTriangle->new;
-    my @got;
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(-$y,$y);
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
 
 exit 0;

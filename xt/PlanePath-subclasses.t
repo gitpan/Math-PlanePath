@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 877;
+plan tests => 898;
 
 use lib 't';
 use MyTestHelpers;
@@ -34,6 +34,57 @@ require Math::PlanePath;
 
 my @modules = (
                # module list begin
+
+               'PyramidRows,align=right',
+               'PyramidRows,align=right,step=0',
+               'PyramidRows,align=right,step=1',
+               'PyramidRows,align=right,step=3',
+               'PyramidRows,align=right,step=4',
+               'PyramidRows,align=right,step=5',
+               'PyramidRows,align=right,step=37',
+               'PyramidRows,align=left',
+               'PyramidRows,align=left,step=0',
+               'PyramidRows,align=left,step=1',
+               'PyramidRows,align=left,step=3',
+               'PyramidRows,align=left,step=4',
+               'PyramidRows,align=left,step=5',
+               'PyramidRows,align=left,step=37',
+               'PyramidRows',
+               'PyramidRows,step=0',
+               'PyramidRows,step=1',
+               'PyramidRows,step=3',
+               'PyramidRows,step=4',
+               'PyramidRows,step=5',
+               'PyramidRows,step=37',
+
+               'CellularRule',
+               'CellularRule,rule=0',   # blank
+               'CellularRule,rule=57',
+               'CellularRule,rule=60',
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=206', # left half solid
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=222', # full solid
+               'CellularRule54',
+               'CellularRule57',
+               'CellularRule57,mirror=1',
+               'CellularRule190',
+               'CellularRule190,mirror=1',
+
+               'SquareSpiral,n_start=0',
+               'SquareSpiral,n_start=37',
+               'SquareSpiral,wider=5,n_start=0',
+               'SquareSpiral,wider=5,n_start=37',
+               'SquareSpiral,wider=6,n_start=0',
+               'SquareSpiral,wider=6,n_start=37',
+               'SquareSpiral',
+               'SquareSpiral,wider=1',
+               'SquareSpiral,wider=2',
+               'SquareSpiral,wider=3',
+               'SquareSpiral,wider=4',
+               'SquareSpiral,wider=5',
+               'SquareSpiral,wider=6',
+               'SquareSpiral,wider=37',
 
                'TriangularHypot',
                'TriangularHypot,n_start=0',
@@ -85,15 +136,6 @@ my @modules = (
                'ImaginaryHalf,radix=4',
                'ImaginaryHalf,radix=5',
                'ImaginaryHalf,radix=37',
-
-               'SquareSpiral',
-               'SquareSpiral,wider=1',
-               'SquareSpiral,wider=2',
-               'SquareSpiral,wider=3',
-               'SquareSpiral,wider=4',
-               'SquareSpiral,wider=5',
-               'SquareSpiral,wider=6',
-               'SquareSpiral,wider=37',
 
                'PentSpiral',
                'PentSpiralSkewed',
@@ -280,19 +322,6 @@ my @modules = (
                'AnvilSpiral,wider=9',
                'AnvilSpiral,wider=17',
 
-               'CellularRule',
-               'CellularRule,rule=0',   # blank
-               'CellularRule,rule=57',
-               'CellularRule,rule=60',
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=222', # solid
-               'CellularRule54',
-               'CellularRule57',
-               'CellularRule57,mirror=1',
-               'CellularRule190',
-               'CellularRule190,mirror=1',
-
                'FractionsTree',
                'FactorRationals',
                'DiagonalRationals',
@@ -345,13 +374,6 @@ my @modules = (
                'PyramidSpiral',
 
                'Corner',
-               'PyramidRows',
-               'PyramidRows,step=0',
-               'PyramidRows,step=1',
-               'PyramidRows,step=3',
-               'PyramidRows,step=4',
-               'PyramidRows,step=5',
-               'PyramidRows,step=37',
                'PyramidSides',
                'File',
 
@@ -447,7 +469,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 83;
+my $want_version = 84;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

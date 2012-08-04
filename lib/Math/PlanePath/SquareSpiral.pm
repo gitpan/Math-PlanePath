@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -68,6 +68,9 @@ use constant parameter_info_array => [ { name        => 'wider',
 
 sub new {
   my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   $self->{'wider'} ||= 0;  # default
   return $self;
 }
@@ -124,30 +127,30 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### SquareSpiral n_to_xy: $n
 
-  if ($n < 1) {
-    #### less than one
+  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  if ($n < 0) {
+    #### before n_start ...
     return;
   }
 
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
-  if ($n <= $w+2) {
+  if ($n <= $w+1) {
     #### centre horizontal
-    # n=1 at w_left
-    # x = $n-1 - int(($w+1)/2)
-    #   = $n - int(1 + ($w+1)/2)
-    #   = $n - int(($w+3)/2)
-    return ($n-1 - $w_left,  # n=1 at w_left
+    # n=0 at w_left
+    # x = $n - int(($w+1)/2)
+    #   = $n - int(($w+1)/2)
+    return ($n - $w_left,  # n=0 at w_left
             0);
   }
 
-  my $d = int ((2-$w + sqrt(int(4*$n) + $w*$w - 4)) / 4);
-  #### d frac: ((2-$w + sqrt(int(4*$n) + $w*$w - 4)) / 4)
+  my $d = int ((2-$w + sqrt(int(4*$n) + $w*$w)) / 4);
+  #### d frac: ((2-$w + sqrt(int(4*$n) + $w*$w)) / 4)
   #### $d
 
   #### base: 4*$d*$d + (-4+2*$w)*$d + (2-$w)
-  $n -= ((4*$d + 2*$w)*$d + 1);
+  $n -= ((4*$d + 2*$w)*$d);
   #### remainder: $n
 
   if ($n >= 0) {
@@ -198,7 +201,7 @@ sub xy_to_n {
     #       = 4*$d*$d + (-3+2*$w)*$d +  1-$w
     ### N_Y0: (4*$d + -3 + 2*$w)*$d + 1-$w
     #
-    return (4*$d + -3 + 2*$w)*$d + 1-$w + $y;
+    return (4*$d + -3 + 2*$w)*$d - $w + $y + $self->{'n_start'};
   }
 
   if (($d = -$x - $w_left) > abs($y)) {
@@ -212,7 +215,7 @@ sub xy_to_n {
     #       = 4*$d*$d + (1 + 2*$w)*$d + 1
     ### N_Y0: (4*$d + 1 + 2*$w)*$d + 1
     #
-    return (4*$d + 1 + 2*$w)*$d + 1 - $y;
+    return (4*$d + 1 + 2*$w)*$d - $y + $self->{'n_start'};
   }
 
   $d = abs($y);
@@ -227,7 +230,7 @@ sub xy_to_n {
     #       = 4*$d*$d + (-1 + 2*$w)*$d + 1 - $w_left
     ### N_Y0: (4*$d - 1 + 2*$w)*$d + 1 - $w_left
     #
-    return (4*$d - 1 + 2*$w)*$d + 1 - $w_left - $x;
+    return (4*$d - 1 + 2*$w)*$d - $w_left - $x + $self->{'n_start'};
   }
 
   ### bottom horizontal, and centre y=0
@@ -240,7 +243,7 @@ sub xy_to_n {
   #       = 4*$d*$d + (3 + 2*$w)*$d + 1 + $w_left
   ### N_Y0: (4*$d + 3 + 2*$w)*$d + 1 + $w_left
   #
-  return (4*$d + 3 + 2*$w)*$d + 1 + $w_left + $x;
+  return (4*$d + 3 + 2*$w)*$d + $w_left + $x + $self->{'n_start'};
 }
 
 # hi is exact but lo is not
@@ -254,7 +257,7 @@ sub rect_to_n_range {
   $y2 = round_nearest ($y2);
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
-  return (1,
+  return ($self->{'n_start'},
           max ($self->xy_to_n($x1,$y1),
                $self->xy_to_n($x2,$y1),
                $self->xy_to_n($x1,$y2),
@@ -323,12 +326,18 @@ sub n_to_dxdy {
   my ($self, $n) = @_;
   ### n_to_dxdy(): $n
 
+  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  if ($n < 0) {
+    #### before n_start ...
+    return;
+  }
+
   my $w = $self->{'wider'};
-  my $d = int((1-$w + sqrt(int(4*$n) + ($w+2)*$w-3)) / 2);
+  my $d = int((1-$w + sqrt(int(4*$n) + ($w+2)*$w+1)) / 2);
 
   my $int = int($n);
   $n -= $int;  # fraction 0 <= $n < 1
-  $int -= ($d+$w)*$d;
+  $int -= ($d+$w)*$d-1;
 
   ### $d
   ### $w

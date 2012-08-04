@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 5;
+plan tests => 1;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -49,80 +49,6 @@ sub numeq_array {
     $i++;
   }
   return (@$a1 == @$a2);
-}
-
-
-#------------------------------------------------------------------------------
-# A059906 -- Y coordinate
-{
-  my $anum = 'A059906';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::CornerReplicate->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Y coordinate");
-}
-
-#------------------------------------------------------------------------------
-# A000695 -- X axis base 4 digits 0,1 only
-{
-  my $anum = 'A000695';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $x (0 .. $#$bvalues) {
-      my $n = $crep->xy_to_n ($x, 0);
-      push @got, $n;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X axis");
-}
-
-#------------------------------------------------------------------------------
-# A001196 -- Y axis
-{
-  my $anum = 'A001196';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $y (0 .. $#$bvalues) {
-      my $n = $crep->xy_to_n (0, $y);
-      push @got, $n;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Y axis");
-}
-
-#------------------------------------------------------------------------------
-# A062880 -- N diagonal
-{
-  my $anum = 'A062880';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $i (0 .. $#$bvalues) {
-      my $n = $crep->xy_to_n ($i, $i);
-      push @got, $n;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- leading diagonal");
 }
 
 

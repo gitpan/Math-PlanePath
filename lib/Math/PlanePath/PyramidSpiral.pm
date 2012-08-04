@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -238,6 +238,8 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
     http://oeis.org/A053615  (etc)
 
     A053615    abs(X), distance to next pronic, but starts n=0
+    A054552    N on X axis, 4n^2 - 3n + 1
+    A033951    N on South-East diagonal, 4n^2 + 3n + 1
 
 =head1 SEE ALSO
 

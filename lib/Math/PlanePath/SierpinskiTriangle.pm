@@ -58,7 +58,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -77,7 +77,7 @@ use Math::PlanePath::Base::Digits
 use constant parameter_info_array =>
   [ { name      => 'align',
       type      => 'enum',
-      share_key => 'align_trl',
+      share_key => 'align_trld',
       default   => 'triangular',
       choices   => ['triangular', 'right', 'left','diagonal'],
       choices_display => ['Triangular', 'Right', 'Left','Diagonal'],
@@ -428,7 +428,7 @@ For example level 2 is from N=0 to N=3^2-1=9.  Each level doubles in size,
                0  <= Y <= 2^level - 1
     - 2^level + 1 <= X <= 2^level - 1
 
-=head2 Align
+=head2 Align Parameter
 
 An optional C<align> parameter controls how the points are arranged relative
 to the Y axis.  The default shown above is "triangular".
@@ -442,7 +442,7 @@ so using an eighth of the plane.
 
 =pod
 
-    align=>"right"
+    align => "right"
 
     19 20 21 22 23 24 25 26       7
     15    16    17    18          6
@@ -463,7 +463,7 @@ so using an eighth of the plane.
 
 =pod
 
-    align="left"
+    align => "left"
 
     19 20 21 22 23 24 25 26        7
        15    16    17    18        6
@@ -567,7 +567,15 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SierpinskiTriangle-E<gt>new ()>
 
-Create and return a new path object.
+=item C<$path = Math::PlanePath::SierpinskiTriangle-E<gt>new (align =E<gt> $str)>
+
+Create and return a new path object.  C<align> is a string, one of the
+following as described above.
+
+    "triangular"   the default
+    "right"
+    "left"
+    "diagonal"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

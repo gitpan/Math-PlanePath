@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 19;
+plan tests => 18;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -426,34 +426,6 @@ sub dxdy_to_dir {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- cumulative +/-1 turn");
-}
-
-#------------------------------------------------------------------------------
-# A034947 - Jacobi -1/n is 1=left,-1=right
-
-{
-  my $anum = 'A034947';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn($dragon,$n);
-      if ($turn == 1) {
-        push @got, 1;  # left
-      } elsif ($turn == 0) {
-        push @got, -1; # right
-      } else {
-        die;
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Jacobi -1/n");
 }
 
 #------------------------------------------------------------------------------

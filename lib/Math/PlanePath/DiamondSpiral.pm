@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -292,6 +292,17 @@ rectangle, or the edge on the side of the origin when not.
     min_y = / if y2 < 0 then y2
             | if y1 > 0 then y1
             \ else           0
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A130883  (etc)
+
+    A130883    N on X axis, 2*n^2-n+1
+    A058331    N on Y axis, 2*n^2 + 1
+    A001844    N on Y negative axis, centred squares 2*n^2+2n+1
 
 =head1 SEE ALSO
 

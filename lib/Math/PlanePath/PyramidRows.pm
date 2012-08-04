@@ -16,12 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# align centre_floor
-#       centre_frac
-#       centre_spread
-#       left
-#       right
-#
 # rule=50,58,114,122,178,179,186,242,250
 # spacing=2,step=1
 # full V with points spaced apart
@@ -36,22 +30,17 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'round_nearest';
 
-
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 
-sub x_negative {
-  my ($self) = @_;
-  return ($self->{'step'} >= 2);
-}
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 
@@ -64,20 +53,52 @@ use constant parameter_info_array =>
       default     => 2,
       width       => 2,
       description => 'How much longer each row is than the preceding.',
-    } ];
+    },
+    { name      => 'align',
+      type      => 'enum',
+      share_key => 'align_crl',
+      default   => 'centre',
+      choices   => ['centre', 'right', 'left'],
+      choices_display => ['Centre', 'Right', 'Left'],
+    },
+  ];
 
 sub new {
   my $class = shift;
   ### PyramidRows new(): @_
   my $self = $class->SUPER::new (@_);
 
+  my $align = ($self->{'align'} ||= 'centre');
+
   my $step = $self->{'step'};
   $step = $self->{'step'} =
     (! defined $step ? 2 # default
      : $step < 0     ? 0 # minimum
      : $step);
+
+  my $left_slope = $self->{'left_slope'} = ($align eq 'left' ? $step
+                                            : $align eq 'right' ? 0
+                                            : int($step/2));
+  my $right_slope = $self->{'right_slope'} = $step - $left_slope;
+
+  # "b" term in the quadratic giving N on the Y axis
+  $self->{'axis_b'} = $left_slope - $right_slope + 2;
+
+  ### $align
   ### $step
+  ### $left_slope
+  ### right_slope: $self->{'right_slope'}
+
   return $self;
+}
+
+my %align_x_negative_step = (left  => 1,
+                             centre => 2);
+sub x_negative {
+  my ($self) = @_;
+  my $align = $self->{'align'};
+  return ($align ne 'right'
+          && $self->{'step'} >= $align_x_negative_step{$align});
 }
 
 # step==2 row line beginning at x=-0.5,
@@ -131,34 +152,43 @@ sub n_to_xy {
   my $step = $self->{'step'};
   if ($step == 0) {
     # step==0 is vertical line starting N=1 at Y=0
-    return (0, $n-1);
+    my $int = round_nearest($n);
+    return ($n-$int, $int-1);
   }
 
-  my $neg_b = ($step-2);
-  my $d = int (($neg_b + sqrt(int(8*$step*$n) + $neg_b*$neg_b - 4*$step))
+  my $neg_b = $step-2;
+  my $y = int (($neg_b + sqrt(int(8*$step*$n) + $neg_b*$neg_b - 4*$step))
                / (2*$step));
 
   ### d frac: (($neg_b + sqrt(int(8*$step*$n) + $neg_b*$neg_b - 4*$step)) / (2*$step))
-  ### $d
-  ### rem: $n - (($step * $d*$d - ($step-2)*$d + 1) / 2)
+  ### $y
+  ### centre N: (($self->{'step'}*$y + $self->{'axis_b'})*$y/2+1)
 
-  return ($n - ($step * $d*$d - (($step&1) - 2)*$d + 2)/2,
-          $d);
+  return ($n - (($self->{'step'}*$y + $self->{'axis_b'})*$y/2+1),
+          $y);
 }
 
-# N = ($step * $d*$d - ($step-2)*$d + 1) / 2
+# N = ($step * $y*$y - ($step-2)*$y + 1) / 2
+#
+# right polygonal
+# P(i) = (k-2)/2 * i*(i+1) - (k-3)*i
+#      = [(k-2)/2 *(i+1) - (k-3) ]*i
+#      = [(k-2)*(i+1) - 2*(k-3) ]/2*i
+#      = [(k-2)*i + k-2 - 2*(k-3) ]/2*i
+#      = [(k-2)*i + k-2 - 2k+6) ]/2*i
+#      = [(k-2)*i + -k+4 ]/2*i
 #
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = round_nearest ($x);
   $y = round_nearest ($y);
-  my $step = $self->{'step'};
+
   if ($y < 0
-      || $x < -$y*int($step/2)
-      || $x > $y*int(($step+1)/2)) {
+      || $x < -$y*$self->{'left_slope'}
+      || $x > $y*$self->{'right_slope'}) {
     return undef;
   }
-  return (($step * $y - (($step&1) - 2))*$y + 2)/2 + $x;
+  return ($self->{'step'}*$y + $self->{'axis_b'})*$y/2 + 1 + $x;
 }
 
 # left N   = ($step * $d*$d - ($step-2)*$d + 1) / 2
@@ -207,14 +237,16 @@ sub rect_to_n_range {
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
 
   my $step = $self->{'step'};
-  my $step_left = int($step/2);
-  my $step_right = $step - $step_left;
+  my $left_slope = $self->{'left_slope'};
+  my $right_slope = $self->{'right_slope'};
 
-  my $x_top_end = $y2 * $step_right;
+  my $x_top_right = $y2 * $right_slope;
+  ### $x_top_right
+  ### x_top_left: - $y2 * $left_slope
 
   # \    |    /
   #  \   |   /
-  #   \  |  /  +-----    x_top_end > x1
+  #   \  |  /  +-----    x_top_right > x1
   #    \ | /   |x1,y2
   #     \|/
   # -----+-----------
@@ -226,58 +258,61 @@ sub rect_to_n_range {
   #           \|/
   # -----------+--
   #
-  if ($x1 > $x_top_end
-      || $x2 < -$y2 * $step_left) {
+  if ($x1 > $x_top_right
+      || $x2 < - $y2 * $left_slope) {
     ### rect all off to the left or right, no N ...
     return (1, 0);
   }
 
-  ### x1 to x2 top row intersects some of the pyramid
-  ### assert: $x2 >= -$y2*$step_left
-  ### assert: $x1 <= $y2*$step_right
+  ### x1 to x2 of top row y2 intersects some of the pyramid ...
+  ### assert: $x2 >= -$y2*$left_slope
+  ### assert: $x1 <= $y2*$right_slope
 
+  # raise y1 to the lowest row of the rectangle which intersects some of the
+  # pyramid
   $y1 = max ($y1,
-              0,
+             0,
 
-              # for x2 >= x_bottom_start, round up
-              $step_left && int((-$x2+$step_left-1)/$step_left),
+             # for x2 >= x_bottom_left, round up
+             $left_slope && int((-$x2+$left_slope-1)/$left_slope),
 
-              # for x1 <= x_bottom_end, round up
-              $step_right && int(($x1+$step_right-1)/$step_right),
-             );
-  ### y1 for bottom left: $step_left && int((-$x2+$step_left-1)/$step_left)
-  ### y1 for bottom right: $step_right && int(($x1+$step_right-1)/$step_right)
+             # for x1 <= x_bottom_right, round up
+             $right_slope && int(($x1+$right_slope-1)/$right_slope),
+            );
   ### $y1
+  ### y1 for bottom left: $left_slope && int((-$x2+$left_slope-1)/$left_slope)
+  ### y1 for bottom right: $right_slope && int(($x1+$right_slope-1)/$right_slope)
+  ### assert: $x2 >= -$y1*$left_slope
+  ### assert: $x1 <= $y1*$right_slope
 
-  ### x1 to x2 bottom row now intersects some of the pyramid
-  ### assert: $x2 >= -$y1*$step_left
-  ### assert: $x1 <= $y1*$step_right
+  return ($self->xy_to_n (max($x1, -$y1*$left_slope), $y1),
+          $self->xy_to_n (min($x2, $x_top_right), $y2));
 
 
-  my $sub = ($step&1) - 2;
+  # my $sub = ($step&1) - 2;
+  #
+  # ### x bottom start: -$y1*$left_slope
+  # ### x bottom end: $y1*$right_slope
+  # ### $x1
+  # ### $x2
+  # ### bottom left x: max($x1, -$y1*$left_slope)
+  # ### top right x: min ($x2, $x_top_end)
+  # ### $y1
+  # ### $y2
+  # ### n_lo: (($step * $y1 - $sub)*$y1 + 2)/2 + max($x1, -$y1*$left_slope)
+  # ### n_hi: (($step * $y2 - $sub)*$y2 + 2)/2 + min($x2, $x_top_end)
+  #
+  # ### assert: $y1-1==$y1 || (($step * $y1 - $sub)*$y1 + 2) == int (($step * $y1 - $sub)*$y1 + 2)
+  # ### assert: $y2-1==$y2 || (($step * $y2 - $sub)*$y2 + 2) == int (($step * $y2 - $sub)*$y2 + 2)
 
-  ### x bottom start: -$y1*$step_left
-  ### x bottom end: $y1*$step_right
-  ### $x1
-  ### $x2
-  ### bottom left x: max($x1, -$y1*$step_left)
-  ### top right x: min ($x2, $x_top_end)
-  ### $y1
-  ### $y2
-  ### n_lo: (($step * $y1 - $sub)*$y1 + 2)/2 + max($x1, -$y1*$step_left)
-  ### n_hi: (($step * $y2 - $sub)*$y2 + 2)/2 + min($x2, $x_top_end)
-
-  ### assert: $y1-1==$y1 || (($step * $y1 - $sub)*$y1 + 2) == int (($step * $y1 - $sub)*$y1 + 2)
-  ### assert: $y2-1==$y2 || (($step * $y2 - $sub)*$y2 + 2) == int (($step * $y2 - $sub)*$y2 + 2)
-
-  return ((($step * $y1 - $sub)*$y1 + 2)/2
-          + max($x1, -$y1*$step_left),  # x_bottom_start
-
-          (($step * $y2 - $sub)*$y2 + 2)/2
-          + min($x2, $x_top_end));
-
-  # return ($self->xy_to_n (max ($x1, -$y1*$step_left), $y1),
-  #         $self->xy_to_n (min ($x2, $x_top_end),      $y2));
+  # (($step * $y1 - $sub)*$y1 + 2)/2
+  #           + max($x1, -$y1*$left_slope),  # x_bottom_start
+  #
+  #           (($step * $y2 - $sub)*$y2 + 2)/2
+  #           + min($x2, $x_top_end));
+  #
+  #   # return ($self->xy_to_n (max ($x1, -$y1*$left_slope), $y1),
+  #   #         $self->xy_to_n (min ($x2, $x_top_end),      $y2));
 }
 
 1;
@@ -299,7 +334,7 @@ Math::PlanePath::PyramidRows -- points stacked up in a pyramid
 
 This path arranges points in successively wider rows going upwards so as to
 form an upside-down pyramid.  The default step is 2, ie. each row 2 wider
-than the preceding, one square each side,
+than the preceding, an extra point at the left and the right,
 
     17  18  19  20  21  22  23  24  25         4
         10  11  12  13  14  15  16             3
@@ -309,7 +344,7 @@ than the preceding, one square each side,
 
     -4  -3  -2  -1  x=0  1   2   3   4 ...
 
-The right end here 1,4,9,16,etc is the perfect squares.  The vertical
+The right end N=1,4,9,16,etc is the perfect squares.  The vertical
 2,6,12,20,etc at x=-1 is the pronic numbers s*(s+1), half way between those
 successive squares.
 
@@ -348,7 +383,7 @@ path, but columns shifted up to make horizontal rows.
 
     step => 1
 
-    11  12  13  14  15
+    11  12  13  14  15                4
      7   8   9  10                    3
      4   5   6                        2
      2   3                            1
@@ -374,17 +409,63 @@ step.  Large steps are not particularly interesting and quickly become very
 wide.  A limit might be desirable in a user interface, but there's no limit
 in the code as such.
 
+=head2 Align Parameter
+
+An optional C<align> parameter controls how the points are arranged relative
+to the Y axis.  The default shown above is "centre".
+
+"right" means points to the right of the axis,
+
+=cut
+
+# math-image --path=PyramidRows,align=right --all --output=numbers
+
+=pod
+
+    align=>"right"
+
+    26  27  28  29  30  31  32  33  34  35  36        5
+    17  18  19  20  21  22  23  24  25                4
+    10  11  12  13  14  15  16                        3
+     5   6   7   8   9                                2
+     2   3   4                                        1
+     1                                            <- Y=0
+
+    X=0  1   2   3   4   5   6   7   8   9  10
+
+"left" is similar but to the left of the Y axis, ie. into negative X.
+
+=cut
+
+# math-image --path=PyramidRows,align=left --all --output=numbers
+
+=pod
+
+    align=>"left"
+
+    26  27  28  29  30  31  32  33  34  35  36        5
+            17  18  19  20  21  22  23  24  25        4
+                    10  11  12  13  14  15  16        3
+                             5   6   7   8   9        2
+                                     2   3   4        1
+                                             1    <- Y=0
+
+    -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0
+
+The step parameter still controls how much longer each row is than its
+predecessor.
+
 =head2 Step 3 Pentagonals
 
-For step 3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are at
+For step=3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are at
 the rightmost end of each row.  The second pentagonal numbers 2,7,15,26,
 S(k) = (3k+1)*k/2 are the vertical at x=-1.  Those second numbers are
 obtained by P(-k), and the two together are the "generalized pentagonal
 numbers".
 
 Both these sequences are composites from 12 and 15 onwards, respectively,
-and the preceding values P(k)-1, P(k)-2, S(k)-1 and S(k)-2 are too.  They
-factorize simply as
+and the immediately preceding P(k)-1, P(k)-2, and S(k)-1, S(k)-2 are too.
+They factorize simply as
 
     P(k)   = (3*k-1)*k/2
     P(k)-1 = (3*k+2)*(k-1)/2
@@ -393,13 +474,19 @@ factorize simply as
     S(k)-1 = (3*k-2)*(k+1)/2
     S(k)-2 = (3*k+4)*(k-1)/2
 
-If you plot the primes on a step 3 PyramidRows then these second pentagonal
-sequences make a 3-wide vertical gap of no primes at x=-1,-2,-3. and the
-plain pentagonal sequences make the endmost three N of each row non-prime.
-The vertical is much more noticeable in a plot.
+Plotting the primes on a step=3 PyramidRows has the second pentagonal
+S(k),S(k)-1,S(k)-2 as a 3-wide vertical gap of no primes at X=-1,-2,-3.  The
+the plain pentagonal P(k),P(k-1),P(k)-2 are the endmost three N of each row
+non-prime.  The vertical is much more noticeable in a plot.
+
+=cut
+
+# math-image --path=PyramidRows,step=3 --all --output=numbers --size=128x7
+
+=pod
 
        no primes these three columns         no primes these end three
-         except the low 2,7,13                     except low 5,11
+         except the low 2,7,13                     except low 3,5,11
                |  |  |                                /  /  /
      52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70
         36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
@@ -408,19 +495,38 @@ The vertical is much more noticeable in a plot.
                   6  7  8  9 10 11 12
                      2  3  4  5
                         1
-     -6 -5 -4 -3 -2 -1 x=0 1  2  3  4 ...
+     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10 11 ...
 
-In general a constant offset c from S(k) is a column and from P(k) a
-diagonal going 2 to the right each time.  The simple factorizations above
-using the roots of the quadratic P(k)-c or S(k)-c is possible whenever
-24*c+1 is a perfect square.  This means the further columns S(k)-5, S(k)-7,
-S(k)-12, etc have no primes either.
+With align="left" the end values can be put into columns,
+
+=cut
+
+# math-image --path=PyramidRows,step=3,align=left --all --output=numbers --size=150x6
+
+=pod
+
+                                no primes these end three
+    align => "left"                  except low 3,5,11
+                                            |  |  |
+    36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51        5
+             23 24 25 26 27 28 29 30 31 32 33 34 35        4
+                      13 14 15 16 17 18 19 20 21 22        3
+                                6  7  8  9 10 11 12        2
+                                         2  3  4  5        1
+                                                  1    <- Y=0
+              ... -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0
+
+In general a constant offset S(k)-c is a column and from P(k)-c is a
+diagonal sloping up dX=2,dY=1 right.  The simple factorizations above using
+the roots of the quadratic P(k)-c or S(k)-c is possible whenever 24*c+1 is a
+perfect square.  This means the further columns S(k)-5, S(k)-7, S(k)-12, etc
+also have no primes.
 
 The columns S(k), S(k)-1, S(k)-2 are prominent because they're adjacent.
-There's no other adjacent ones of this type because the squares after 49 are
-too far apart for successive 24*c+1.  Of course there could be other reasons
-for other columns or diagonals to have few or many primes, perhaps above a
-certain point, etc.
+There's no other adjacent columns of this type because the squares after 49
+are too far apart for 24*c+1 to be a square for successive c.  Of course
+there could be other reasons for other columns or diagonals to have few or
+many primes.
 
 =cut
 
@@ -469,9 +575,17 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PyramidRows-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::PyramidRows-E<gt>new (step =E<gt> $s)>
+=item C<$path = Math::PlanePath::PyramidRows-E<gt>new (step =E<gt> $integer, align =E<gt> $str)>
 
-Create and return a new path object.  The default step is 2.
+Create and return a new path object.  The default C<step> is 2.  C<align> is
+a string, one of
+
+    "centre"    the default
+    "right"     points aligned right of the Y axis
+    "left"      points aligned left of the Y axis
+
+Points are always numbered from left to right in the rows, the alignment
+changes where each row begins (or ends).
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -507,6 +621,7 @@ path include
       A023531    dY, being 1 at triangular numbers (but starting n=0)
       A167407    dX-dY, change in X-Y (extra initial 0)
       A079824    N total along each opposite diagonal
+      A000124    N on Y axis (triangular+1)
       A000217    N on X=Y diagonal, extra initial 0
 
     step=2
@@ -515,17 +630,32 @@ path include
       A053186    X+Y, being distance to next higher square
       A010052    dY,  being 1 at perfect square row end
       A000290    N on X=Y diagonal, extra initial 0
-      A002522    N on North-West diagonal (n^2+1)
+      A002522    N on X=-Y North-West diagonal (n^2+1)
 
     step=3
       A180447    Y coordinate, n appears 3n+1 times
       A104249    N on Y axis
-      A143689    N on North-West diagonal
+      A143689    N on X=-Y North-West diagonal
 
     step=4
       A084849    N on Y axis
-      A001844    N on diagonal (North-East)
-      A058331    N on North-West diagonal
+      A001844    N on X=Y diagonal (North-East)
+      A058331    N on X=-Y North-West diagonal
+
+    step=5
+      A116668    N on Y axis
+
+    step=6
+      A056108    N on Y axis
+      A056109    N on X=Y diagonal (North-East)
+      A056107    N on X=-Y North-West diagonal
+
+    step=8
+      A053755    N on X=-Y North-West diagonal
+
+    step=9
+      A006137    N on Y axis
+      A038764    N on X=Y diagonal (North-East)
 
 =head1 SEE ALSO
 

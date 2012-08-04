@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use Math::PlanePath::AlternatePaper;
 use Test;
-plan tests => 4;
+plan tests => 11;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -286,46 +286,6 @@ sub dxdy_to_dir {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A000695 - N on X axis
-{
-  my $anum = 'A000695';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $x = 0; @got < @$bvalues; $x++) {
-      push @got, $paper->xy_to_n($x,0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A062880 - N on diagonal
-{
-  my $anum = 'A062880';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $x = 0; @got < @$bvalues; $x++) {
-      push @got, $paper->xy_to_n($x,$x);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Y coordinate undoubled");
 }
 
 #------------------------------------------------------------------------------

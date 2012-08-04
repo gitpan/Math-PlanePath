@@ -24,7 +24,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -197,10 +197,14 @@ point in the path as a square of side 1.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A140066  (etc)
+    http://oeis.org/A192136  (etc)
 
+    A192136    N on X axis, (5*n^2 - 3*n + 2)/2
     A140066    N on Y axis
+    A116668    N on X negative axis, (5n^2 + n + 2)/2
     A134238    N on Y negative axis
+    A158187    N on North-West diagonal, 10*n^2 + 1
+    A005891    N on South-East diagonal, centred pentagonals
 
 =head1 SEE ALSO
 

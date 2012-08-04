@@ -376,6 +376,33 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=diagonal',
+
+               'PyramidRows',
+               'PyramidRows,step=0',
+               'PyramidRows,step=1',
+               'PyramidRows,step=3',
+               'PyramidRows,step=4',
+               'PyramidRows,step=5',
+               'PyramidRows,step=37',
+               'PyramidRows,align=right',
+               'PyramidRows,align=right,step=0',
+               'PyramidRows,align=right,step=1',
+               'PyramidRows,align=right,step=3',
+               'PyramidRows,align=right,step=4',
+               'PyramidRows,align=right,step=5',
+               'PyramidRows,align=right,step=37',
+               'PyramidRows,align=left',
+               'PyramidRows,align=left,step=0',
+               'PyramidRows,align=left,step=1',
+               'PyramidRows,align=left,step=3',
+               'PyramidRows,align=left,step=4',
+               'PyramidRows,align=left,step=5',
+               'PyramidRows,align=left,step=37',
+
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
@@ -551,13 +578,6 @@ my @modules = (
                'R5DragonCurve,arms=4',
 
                'Corner',
-               'PyramidRows',
-               'PyramidRows,step=0',
-               'PyramidRows,step=1',
-               'PyramidRows,step=3',
-               'PyramidRows,step=4',
-               'PyramidRows,step=5',
-               'PyramidRows,step=37',
                'PyramidSides',
 
                'ComplexMinus',
@@ -815,7 +835,6 @@ my @modules = (
 
                'SquareReplicate',
 
-               'SierpinskiTriangle',
                'SierpinskiArrowhead',
                'SierpinskiArrowheadCentres',
 
@@ -870,9 +889,9 @@ my @modules = (
   foreach my $mod (@modules) {
     my $bad = 0;
     foreach my $elem (
-                      # ['Math::NumSeq::PlanePathDelta','delta_type'],
-                      # ['Math::NumSeq::PlanePathCoord','coordinate_type'],
-                      # ['Math::NumSeq::PlanePathTurn','turn_type'],
+                      ['Math::NumSeq::PlanePathDelta','delta_type'],
+                      ['Math::NumSeq::PlanePathCoord','coordinate_type'],
+                      ['Math::NumSeq::PlanePathTurn','turn_type'],
                       ['Math::NumSeq::PlanePathN','line_type'],
                      ) {
       my ($class, $pname) = @$elem;
@@ -1297,7 +1316,7 @@ my @modules = (
                 || $param eq 'Diagonal_NW'
                 || $param eq 'Diagonal_SS'
                 || $param eq 'Diagonal_SE')
-            && $limit < 73092278) {
+            && $i_limit < 73092278) {
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
         }

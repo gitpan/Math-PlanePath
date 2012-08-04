@@ -128,11 +128,11 @@ sub dxdy_to_dir4_1 {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum -- NNE");
+        1);
 }
 
 #------------------------------------------------------------------------------
-# A069894 -- wider=1 diagonal SE, extra initial 0
+# A002939 -- wider=1 diagonal SE, extra initial 0
 {
   my $anum = 'A002939';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
@@ -887,55 +887,6 @@ sub dxdy_to_dir4_1 {
 }
 
 #------------------------------------------------------------------------------
-# A016754 -- N values on X=-Y diagonal X>=0
-{
-  my $anum = 'A016754';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $x = 0; @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,-$x);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X=-Y diagonal for X>=0");
-}
-
-#------------------------------------------------------------------------------
-# A053755 -- N values on X=-Y diagonal X<=0
-{
-  my $anum = 'A053755';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $x = 0; @got < @$bvalues; $x--) {
-      push @got, $path->xy_to_n($x,-$x);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X=-Y diagonal for X>=0");
-}
-
-#------------------------------------------------------------------------------
-# A033951 -- N values negative Y axis
-
-{
-  my $anum = 'A033951';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $y = 0; @got < @$bvalues; $y--) {
-      push @got, $path->xy_to_n(0,$y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X=-Y diagonal for X>=0");
-}
-
-#------------------------------------------------------------------------------
 # A054556 -- N values on Y axis
 {
   my $anum = 'A054556';
@@ -949,23 +900,6 @@ sub dxdy_to_dir4_1 {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- Y axis");
-}
-
-#------------------------------------------------------------------------------
-# A054552 -- N values on X axis
-{
-  my $anum = 'A054552';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $x = 0; @got < @$bvalues; $x++) {
-      my $n = $path->xy_to_n ($x, 0);
-      push @got, $n;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X axis");
 }
 
 #------------------------------------------------------------------------------

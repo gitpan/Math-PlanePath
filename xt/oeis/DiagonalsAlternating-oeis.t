@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1;
+plan tests => 2;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -87,29 +87,6 @@ sub diff_nums {
     }
   }
   return $diff;
-}
-
-#------------------------------------------------------------------------------
-# A001844 -- X=Y diagonal, centred squares
-
-{
-  my $anum = 'A001844';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::DiagonalsAlternating->new;
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n ($i, $i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
 }
 
 #------------------------------------------------------------------------------

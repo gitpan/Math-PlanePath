@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use Math::BigInt try=>'GMP';
 use Test;
-plan tests => 17;
+plan tests => 16;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -122,29 +122,6 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A019586 -- Y coord
-{
-  my $anum = 'A019586';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
 # A003603 -- Y+1 coord
 {
   my $anum = 'A003603';
@@ -169,7 +146,7 @@ sub diff_nums {
 
 #------------------------------------------------------------------------------
 # A139764 -- lowest Zeckendorf term fibonacci value,
-#   is X axis value of the column containing n
+#   is N on X axis for the column containing n
 {
   my $anum = 'A139764';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);

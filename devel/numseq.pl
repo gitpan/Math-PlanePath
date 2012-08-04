@@ -34,6 +34,7 @@ use strict;
   my $planepath;
   $planepath = "AlternatePaperMidpoint,arms=7";
   $planepath = "ImaginaryBase,radix=37";
+  $planepath = "QuintetCurve";
  LINE_TYPE: foreach my $line_type ('Diagonal_SE','Diagonal_SW','Diagonal_NW','Diagonal') {
     my $seq = Math::NumSeq::PlanePathN->new
       (
@@ -42,21 +43,24 @@ use strict;
       );
     ### $seq
 
-    my $prev = -1;
+    my $prev_value = -1;
+    my $prev_i = -1;
+    my $i_limit = 1000;
     for (1 .. 1000) {
       my ($i, $value) = $seq->next
         or last;
-      if ($value <= $prev) {
+      if ($value <= $prev_value) {
         # print "$line_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
         my $path = $seq->{'planepath_object'};
-        my ($prev_x,$prev_y) = $path->n_to_xy($prev);
+        my ($prev_x,$prev_y) = $path->n_to_xy($prev_value);
         my ($x,$y) = $path->n_to_xy($value);
-        print "$line_type not   N=$prev $prev_x,$prev_y  N=$value $x,$y\n";
+        print "$line_type not   N=$prev_value $prev_x,$prev_y  N=$value $x,$y\n";
         next LINE_TYPE;
       }
-      $prev = $value;
+      $prev_i = $i;
+      $prev_value = $value;
     }
-    print "$line_type   all increasing\n";
+    print "$line_type   all increasing (to i=$prev_i)\n";
   }
   exit 0;
 }

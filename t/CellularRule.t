@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule;
 # VERSION
 
 {
-  my $want_version = 83;
+  my $want_version = 84;
   ok ($Math::PlanePath::CellularRule::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule->VERSION,  $want_version,
@@ -121,7 +121,7 @@ foreach my $relem ([ 50, # solid odd
     if ($n==int($n)) {
       my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
       ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+      ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y ".(ref $path));
     }
   }
 }

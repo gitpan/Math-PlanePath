@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 3;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -71,6 +71,23 @@ sub diff_nums {
     }
   }
   return undef;
+}
+
+#------------------------------------------------------------------------------
+# A084471 -- X axis 0 -> 00, but starting OFFSET=1 so N on X axis starting X=1
+{
+  my $anum = 'A084471';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::DigitGroups->new;
+    for (my $x = 1; @got < @$bvalues; $x++) {
+      push @got, $path->xy_to_n ($x, 0);
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1);
 }
 
 #------------------------------------------------------------------------------

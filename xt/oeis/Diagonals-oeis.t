@@ -113,48 +113,6 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A001844 -- X=Y diagonal, centred squares
-
-{
-  my $anum = 'A001844';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  {
-    my @got;
-    if ($bvalues) {
-      my $path = Math::PlanePath::Diagonals->new;
-      for (my $i = 0; @got < @$bvalues; $i++) {
-        push @got, $path->xy_to_n ($i, $i);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1,
-          "$anum");
-  }
-  {
-    my @got;
-    if ($bvalues) {
-      my $path = Math::PlanePath::Diagonals->new (direction => 'up');
-      for (my $i = 0; @got < @$bvalues; $i++) {
-        push @got, $path->xy_to_n ($i, $i);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1,
-          "$anum");
-  }
-}
-
-#------------------------------------------------------------------------------
 # A002262 -- X coordinate, 0 to k
 
 {
@@ -310,32 +268,6 @@ sub diff_nums {
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $x*$y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A127949 -- dY
-
-{
-  my $anum = 'A127949';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::Diagonals->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
-      # push @got, $next_x - $x;
-      push @got, $next_y - $y;
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));

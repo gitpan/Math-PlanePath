@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -206,10 +206,10 @@ In base b=i-1 a complex integer can be represented
 
 The digits a[n] to a[0] are all either 0 or 1.  N is those a[i] digits as
 bits and X,Y is the resulting complex number.  It can be shown that this is
-a one-to-one mapping so every integer point of the plane is visited.
+a one-to-one mapping so every integer X,Y of the plane is visited.
 
-The shape of points N=0 to N=2^level-1 is repeated in the next N=2^level to
-N=2^(level+1)-1.  For example N=0 to N=7 is repeated as N=8 to N=15,
+The shape of points N=0 to N=2^level-1 is repeats as N=2^level to
+N=2^(level+1)-1.  For example N=0 to N=7 is repeated as N=8 to N=15, but
 starting at X=2,Y=2 instead of the origin.  That position 2,2 is because b^3
 = 2+2i.  There's no rotations or mirroring etc in this replication, just
 position offsets.
@@ -261,38 +261,38 @@ needed to rotate around and do so become large if norm=r*r+1 is large.
 
 =head2 X Axis Values
 
-N=0,1,12,13,16,17,etc on the X axis is integers using only digits
-0,1,0xC,0xD in hexadecimal.  Those on the positive X axis have an odd number
-of such digits and on the negative X axis even number of digits.
+For base i-1, N=0,1,12,13,16,17,etc on the X axis is integers using only
+digits 0,1,0xC,0xD in hexadecimal.  Those on the positive X axis have an odd
+number of such digits and on the X negative axis an even number of digits.
 
-On the X axis the imaginary parts of the bit powers b^k must cancel out to
+On the X axis the imaginary parts of the base powers b^k must cancel out to
 leave just a real part.  The powers repeat in an 8-long cycle
 
     k    b^k for b=i-1
     0        +1
     1      i -1      
-    2    -2i +0   \
+    2    -2i +0   \ pair cancel
     3     2i +2   /
     4        -4
     5    -4i +4
-    6     8i +0   \
+    6     8i +0   \ pair cancel
     7    -8i -8   /
 
 The k=0 and k=4 bits are always reals and can always be included.  Bits pair
 k=2 and k=3 have imaginary parts -2i and 2i which cancel out, so they can be
 included together.  Similarly k=6 and k=7 with 8i and -8i.  The two blocks
 k=0to3 and k=4to7 differ only in a negation so the bits can be reckoned in
-groups of 4, ie. hexadecimal.  Bit 1 is 1 and bits 2,3 together are 0xC, so
-the possible combinations are 0,1,0xC,0xD.
+groups of 4 (rather than 8), ie. hexadecimal.  Bit 1 is 1 and bits 2,3
+together are 0xC, so the possible combinations are 0,1,0xC,0xD.
 
 The high hex digit determines the sign, positive or negative, of the total
 real part.  k=0 or k=2,3 are positive.  k=4 or k=6,7 are negative, so
 
-    X>0      X<0
+    N for X>0   N for X<0
 
-    0x01     0x1_     even number of hex 0,1,C,D following
-    0x0C     0xC_     ("_" digit any of 0,1,C,D)
-    0x0D     0xD_
+       0x01        0x1_     even number of hex 0,1,C,D following
+       0x0C        0xC_     ("_" digit any of 0,1,C,D)
+       0x0D        0xD_
 
 which is equivalent to XE<gt>0 an odd number of hex digits or XE<lt>0 an
 even number.  For example N=28=0x1C at X=-2 is the XE<lt>0 form "0x1_".
@@ -317,8 +317,8 @@ the middle digit decreases,
     X=20to23 N=0xCD0,0xCD1,0xCDC,0xCDD
 
 For the negative X axis it's the same if reading by increasing X,
-ie. towards +infinity, or the opposite way around if reading decreasing X,
-ie. towards -infinity.
+ie. upwards toward +infinity, or the opposite way around if reading
+decreasing X, ie. downwards toward -infinity.
 
 =head2 Fractal
 
@@ -433,8 +433,8 @@ this path include
     http://oeis.org/A066321  (etc)
 
     A066321    N on X axis, being base i-1 positive reals
-    A066322    diffs N(X=16k+4) - N(X=16k+3)
     A066323    N on X axis, in binary
+    A066322    diffs (N at X=16k+4) - (N at X=16k+3)
 
 =head1 SEE ALSO
 

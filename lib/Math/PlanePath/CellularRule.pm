@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -235,7 +235,7 @@ my @rule_to_class;
     }
   }
   {
-    # solid every second cell, 50,58,114,122,178,186,242,250
+    # solid every second cell, 50,58,114,122,178,186,242,250, 179
     # http://mathworld.wolfram.com/Rule250.html
     # 111      any, doesn't occur
     # 110      any, doesn't occur
@@ -249,9 +249,16 @@ my @rule_to_class;
     foreach my $i (0 .. 255) {
       $store->(($i&0xC8)|0x32, $odd_solid);
     }
+    $store->(179, $odd_solid);
   }
   {
-    # solid left half 0xCE=206,0xEE=238
+    # *******   left half solid 206,238 = 0xCE,0xEE
+    #  ******
+    #   *****
+    #    ****
+    #     ***
+    #      **
+    #       *
     # 111 -> 1 middle
     # 110 -> 1 vertical
     # 101      any, doesn't occur
@@ -260,7 +267,8 @@ my @rule_to_class;
     # 010 -> 1 initial
     # 001 -> 1 initial
     # 000 -> 0 outsides
-    my $left_solid = [ 'Math::PlanePath::CellularRule::LeftSolid' ];
+    my $left_solid = [ 'Math::PlanePath::PyramidRows',
+                       step => 1, align => 'left' ];
     foreach my $i (0 .. 255) {
       $store->(($i&0x20)|0xCE, $left_solid);
     }
@@ -275,16 +283,15 @@ my @rule_to_class;
 
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   my $rule = $self->{'rule'};
   if (! defined $rule) {
-    $rule = $self->{'rule'} =  parameter_info_array()->[0]->{'default'};
+    $rule = $self->{'rule'} = parameter_info_array()->[0]->{'default'};
   }
 
   if (my $aref = $rule_to_class[$rule]) {
-    ($class, my @args) = @$aref;
+    my ($class, @args) = @$aref;
     ### $class
     ### @args
     $class->can('new')
@@ -493,7 +500,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 83;
+  $VERSION = 84;
   @ISA = ('Math::PlanePath::CellularRule');
 
   use Math::PlanePath::Base::Generic
@@ -567,7 +574,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 83;
+  $VERSION = 84;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 
@@ -604,52 +611,12 @@ sub rect_to_n_range {
   # not exact
   sub rect_to_n_range {
     my ($self, $x1,$y1, $x2,$y2) = @_;
-
+    ### OddSolid rect_to_n_range() ...
     $y1 = round_nearest ($y1);
     $y2 = round_nearest ($y2);
     if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
-    return $self->SUPER::rect_to_n_range(0,$y1,0,$y2+1);
-  }
-}
-
-{
-  package Math::PlanePath::CellularRule::LeftSolid;
-  use vars '$VERSION', '@ISA';
-  $VERSION = 83;
-  use Math::PlanePath::PyramidRows;
-  @ISA = ('Math::PlanePath::PyramidRows');
-
-  use Math::PlanePath::Base::Generic
-    'is_infinite',
-      'round_nearest';
-
-  use constant x_negative => 1; # not the PyramidRows from step
-
-  sub new {
-    my ($class) = @_;
-    return $class->SUPER::new(step=>1);
-  }
-  sub n_to_xy {
-    my ($self, $n) = @_;
-    ### CellularRule-LeftSolid n_to_xy(): $n
-
-    my ($x,$y) = $self->SUPER::n_to_xy($n)
-      or return;
-    return ($x-$y, $y);
-  }
-  sub xy_to_n {
-    my ($self, $x, $y) = @_;
-    ### CellularRule-LeftSolid xy_to_n(): "$x,$y"
-    ### super: "at ".($x-$y).",$y"
-    return $self->SUPER::xy_to_n ($x+round_nearest($y), $y);
-  }
-  # not exact
-  sub rect_to_n_range {
-    my ($self, $x1,$y1, $x2,$y2) = @_;
-    $y1 = round_nearest ($y1);
-    $y2 = round_nearest ($y2);
-    if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
-    return $self->SUPER::rect_to_n_range(0,$y1,0,$y2+1);
+    return ($y1*($y1+1)/2+1,     # start of row, triangular+1
+            ($y2+1)*($y2+2)/2);  # end of row, triangular
   }
 }
 
@@ -660,14 +627,15 @@ __END__
 # For reference the specifics currently are
 #
 #     54                              CellularRule54
+#     57,99                           CellularRule57
 #     190,246                         CellularRule190
-#     18,26,82,90,146,154,210,218     SierpinskiTriangle
-#                                     (offset to start N=1)
+#     18,26,82,90,146,154,210,218     SierpinskiTriangle n_start=1
 #     151,159,183,191,215,223,247,    PyramidRows step=2
-#     254,222,255                       solid block
-#     220,252                         PyramidRows step=1 half
+#       254,222,255                   
+#     220,252                         PyramidRows step=1
+#     206,238                         PyramidRows step=1 left
 #     4,12,36,44,68,76,100,108,132,   Rows width=1
-#     140,164,172,196,204,228,236     single-cell column
+#       140,164,172,196,204,228,236     single-cell column
 
 
 
@@ -725,14 +693,14 @@ There's 8 possible combinations of ABC being each 0,1.  Each such
 combination can become 0 or 1 in the "new" cell.  Those 0 or 1 for "new" is
 encoded as 8 bits in a value 0 to 255,
 
-    cells below     cell above from rule
+    ABC cells below     new cell bit from rule
 
-        1,1,1    ->   bit7
-        1,1,0    ->   bit6
-        1,0,1    ->   bit5
-        ...
-        0,0,1    ->   bit1
-        0,0,0    ->   bit0
+           1,1,1   ->   bit7
+           1,1,0   ->   bit6
+           1,0,1   ->   bit5
+           ...
+           0,0,1   ->   bit1
+           0,0,0   ->   bit0
 
 When cells 0,0,0 become 1, ie. C<rule> bit0 is 1 (an odd number), the "off"
 cells either side of the initial N=1 become all "on" infinitely to the
@@ -744,16 +712,16 @@ infinite cells to the sides are included in the calculation.
 The full set of patterns can be seen at the Math World page above, or can be
 printed with the F<examples/cellular-rules.pl> program in the Math-PlanePath
 sources.  The patterns range from simple to complex.  For some the N=1 cell
-doesn't grow at all, only that single point, eg. rule 0 or rule 8.  Some
-grow to mere straight lines such as rule 2 or rule 5.  Others make columns
-or patterns with "quadratic" style stepping of 1 or 2 rows, or self-similar
-replications such as the Sierpinski triangle of rule 18 and 60.  Some rules
-even give complicated non-repeating patterns when there's feedback across
-from one half to the other, for example rule 30.
+doesn't grow at all such as rule 0 or rule 8.  Some grow to mere straight
+lines such as rule 2 or rule 5.  Others make columns or patterns with
+"quadratic" style stepping of 1 or 2 rows, or self-similar replications such
+as the Sierpinski triangle of rule 18 and 60.  Some rules have complicated
+non-repeating patterns when there's feedback across from one half to the
+other, such as rule 30.
 
 For some rules there's specific PlanePath code which this class dispatches
-to, such as CellularRule54, CellularRule190 or SierpinskiTriangle (adjusted
-to start at N=1 here).
+to, such as CellularRule54, CellularRule57, CellularRule190 or
+SierpinskiTriangle (adjusted to start at N=1).
 
 For rules without specific code the current implementation is not
 particularly efficient as it builds and holds onto the bit pattern for all

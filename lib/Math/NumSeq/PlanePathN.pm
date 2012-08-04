@@ -23,7 +23,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -133,7 +133,7 @@ my %oeis_anum =
      # OEIS-Other: A054552 planepath=PyramidSpiral
      # OEIS-Other: A033951 planepath=PyramidSpiral line_type=Diagonal_SE
    },
-
+   
    'Math::PlanePath::PowerArray,radix=2' =>
    { X_axis   => 'A000079',  # powers 2^X
      Y_axis   => 'A005408',  # odd 2n+1
@@ -159,7 +159,7 @@ my %oeis_anum =
    { X_axis   => 'A011557',  # powers 10^X
      # OEIS-Other: A011557 planepath=PowerArray,radix=10
    },
-
+   
    'Math::PlanePath::Corner,wider=0' =>
    { Y_axis   => 'A002522',  # n^2+1
      # OEIS-Other: A002522 planepath=Corner line_type=Y_axis
@@ -167,7 +167,7 @@ my %oeis_anum =
      # Not quite, OFFSET=0 value=0 cf here Y=0 value=1
      # # X_axis => 'A000290', # squares
    },
-
+   
    # 'Math::PlanePath::DiagonalsOctant,direction=down' =>
    # {
    # Not quite, starting i=0 for square=1 cf A000290 starts 0
@@ -250,7 +250,7 @@ my %oeis_anum =
      # OEIS-Other: A002522 planepath=PyramidSides line_type=X_neg
      # OEIS-Other: A033951 planepath=PyramidSides line_type=Diagonal
      #
-     # X_axis -- squares, but starting i=0 value=1
+     # X_axis -- squares (x+1)^2, but starting i=0 value=1
    },
    
    # Diagonals X_axis -- triangular 1,3,6,etc, but starting i=0 value=1
@@ -374,7 +374,7 @@ my %oeis_anum =
    'Math::PlanePath::DiamondSpiral' =>
    { X_axis => 'A130883', # 2*n^2-n+1
      Y_axis => 'A058331', # 2*n^2 + 1
-     Y_neg  => 'A001844', # 2*n^2 + 1
+     Y_neg  => 'A001844', # centred squares 2n(n+1)+1
      # OEIS-Catalogue: A130883 planepath=DiamondSpiral
      # OEIS-Catalogue: A058331 planepath=DiamondSpiral line_type=Y_axis
      # OEIS-Other: A001844 planepath=DiamondSpiral line_type=Y_neg
@@ -488,6 +488,7 @@ my %oeis_anum =
            # OEIS-Catalogue: A033951 planepath=SquareSpiral line_type=Y_neg
            # OEIS-Catalogue: A053755 planepath=SquareSpiral line_type=Diagonal_NW
            # OEIS-Catalogue: A016754 planepath=SquareSpiral line_type=Diagonal_SE
+           #
            # OEIS-Other: A054552 planepath=GreekKeySpiral,turns=0
            # OEIS-Other: A033951 planepath=GreekKeySpiral,turns=0 line_type=Y_neg
            # OEIS-Other: A053755 planepath=GreekKeySpiral,turns=0 line_type=Diagonal_NW
@@ -503,15 +504,36 @@ my %oeis_anum =
          };
      ('Math::PlanePath::SquareSpiral,wider=0'   => $squarespiral,
       'Math::PlanePath::GreekKeySpiral,turns=0' => $squarespiral,
+     );
+   },
+   do {
+     my $squarespiral
+       = { X_axis      => 'A001107',
+           Y_axis      => 'A033991',
+           Y_neg       => 'A033954', # second 10-gonals
+           Diagonal    => 'A002939',
+           Diagonal_NW => 'A016742', # 10-gonals average, 4*n^2
+           Diagonal_SW => 'A002943',
+           # OEIS-Other: A001107 planepath=SquareSpiral,n_start=0 line_type=X_axis
+           # OEIS-Catalogue: A033991 planepath=SquareSpiral,n_start=0 line_type=Y_axis
+           # OEIS-Other: A033954 planepath=SquareSpiral,n_start=0 line_type=Y_neg
+           # OEIS-Catalogue: A002939 planepath=SquareSpiral,n_start=0 line_type=Diagonal
+           # OEIS-Other: A016742 planepath=SquareSpiral,n_start=0 line_type=Diagonal_NW
+           # OEIS-Catalogue: A002943 planepath=SquareSpiral,n_start=0 line_type=Diagonal_SW
+         };
+     ('Math::PlanePath::SquareSpiral,wider=0,n_start=0' => $squarespiral,
      ) },
 
    'Math::PlanePath::SquareSpiral,wider=1' =>
    { Diagonal_SW => 'A069894',
      # OEIS-Catalogue: A069894 planepath=SquareSpiral,wider=1 line_type=Diagonal_SW
-
      # Not quite, extra initial 0.
-     # Diagonal_SE => 'A002939',
+     # Diagonal_SE => 'A002939', # 2*n*(2*n-1)
      # # OEIS-Catalogue: A002939 planepath=SquareSpiral,wider=1 line_type=Diagonal_SE
+   },
+   'Math::PlanePath::SquareSpiral,wider=1,n_start=0' =>
+   { Diagonal_SW => 'A016754', # odd squares
+     # OEIS-Other: A016754 planepath=SquareSpiral,wider=1,n_start=0 line_type=Diagonal_SW
    },
 
    'Math::PlanePath::AnvilSpiral,wider=0' =>
@@ -597,22 +619,77 @@ my %oeis_anum =
    },
    #
    # rule 84,116,212,244 two-wide right line
-   'Math::PlanePath::CellularRule,rule=84' =>
-   { Diagonal   => 'A005408',  # odds 2n+1
+   do {
+     my $tworight
+       = { Diagonal   => 'A005408',  # odds 2n+1
+         };
+     ('Math::PlanePath::CellularRule,rule=84' => $tworight,
+      'Math::PlanePath::CellularRule,rule=116' => $tworight,
+      'Math::PlanePath::CellularRule,rule=212' => $tworight,
+      'Math::PlanePath::CellularRule,rule=244' => $tworight,
+     );
+     
      # OEIS-Other: A005408 planepath=CellularRule,rule=84 line_type=Diagonal
-   },
-   'Math::PlanePath::CellularRule,rule=116' =>
-   { Diagonal   => 'A005408',  # odds 2n+1
      # OEIS-Other: A005408 planepath=CellularRule,rule=116 line_type=Diagonal
-   },
-   'Math::PlanePath::CellularRule,rule=212' =>
-   { Diagonal   => 'A005408',  # odds 2n+1
      # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
-   },
-   'Math::PlanePath::CellularRule,rule=244' =>
-   { Diagonal   => 'A005408',  # odds 2n+1
      # OEIS-Other: A005408 planepath=CellularRule,rule=244 line_type=Diagonal
    },
+   #
+   # rule=50,58,114,122,178,179,186,242,250 pyramid every second point
+   'Math::PlanePath::CellularRule::OddSolid,step=1' =>
+   { Diagonal_NW => 'A000124',  # triangular+1
+     #
+     # Not quite, starts value=0
+     # Diagonal => 'A000217', # triangular numbers but diff start
+     #
+     # OEIS-Other: A000124 planepath=CellularRule,rule=50 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=58 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=114 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=122 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=178 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=179 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=186 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=242 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=250 line_type=Diagonal_NW
+   },
+   'Math::PlanePath::CellularRule,rule=77' =>
+   { Y_axis   => 'A000124',  # triangular+1
+     # OEIS-Other: A000124 planepath=CellularRule,rule=77 line_type=Y_axis
+   },
+   'Math::PlanePath::CellularRule,rule=177' =>
+   { Diagonal   => 'A000124',  # triangular+1
+     # OEIS-Other: A000124 planepath=CellularRule,rule=177 line_type=Diagonal
+   },
+   'Math::PlanePath::CellularRule,rule=185' =>
+   { Diagonal   => 'A002522',  # n^2+1
+     # OEIS-Other: A002522 planepath=CellularRule,rule=185 line_type=Diagonal
+   },
+   'Math::PlanePath::CellularRule,rule=189' =>
+   { Y_axis   => 'A002522',  # n^2+1
+     # OEIS-Other: A002522 planepath=CellularRule,rule=189 line_type=Y_axis
+   },
+   'Math::PlanePath::CellularRule::LeftSolid,step=1' =>
+   { Diagonal_NW  => 'A000124',  # triangular+1
+   # OEIS-Other: A000124 planepath=CellularRule,rule=206 line_type=Diagonal_NW
+   # OEIS-Other: A000124 planepath=CellularRule,rule=238 line_type=Diagonal_NW
+   },
+   do {
+     my $solidgapright
+       = { Diagonal   => 'A002522',  # n^2+1
+         };
+     ('Math::PlanePath::CellularRule,rule=209' => $solidgapright,
+      'Math::PlanePath::CellularRule,rule=241' => $solidgapright,
+     );
+     # OEIS-Other: A002522 planepath=CellularRule,rule=209 line_type=Diagonal
+     # OEIS-Other: A002522 planepath=CellularRule,rule=241 line_type=Diagonal
+   },
+   'Math::PlanePath::CellularRule,rule=229' =>
+   { Y_axis   => 'A002522',  # n^2+1
+     # OEIS-Other: A002522 planepath=CellularRule,rule=229 line_type=Y_axis
+   },
+   #
+   # rule=6,38,134,166 left line 1,2
+   # Diagonal_NW => 'A001651' except OFFSET=1 cf start Y=0 here
    #
    # rule=13 Y axis
    #
@@ -622,10 +699,6 @@ my %oeis_anum =
    # rule=28,156
    # Y_axis A002620 quarter squares floor(n^2/4) but diff start
    # Diagonal A024206 quarter squares - 1, but diff start
-   #
-   # rule=50,58,114,122,178,179,186,242,250
-   # every second cell
-   # Diagonal A000217 triangular numbers but diff start
    #
    # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
    # # central column only
@@ -673,8 +746,12 @@ my %oeis_anum =
 sub oeis_anum {
   my ($self) = @_;
   ### PlanePathN oeis_anum() ...
-  return $oeis_anum{Math::NumSeq::PlanePathCoord::_planepath_oeis_key($self->{'planepath_object'})}
-    ->{$self->{'line_type'}};
+  my $key = Math::NumSeq::PlanePathCoord::_planepath_oeis_key($self->{'planepath_object'});
+
+  ### $key
+  ### hash: $oeis_anum{$key}
+
+  return $oeis_anum{$key}->{$self->{'line_type'}};
 }
 
 sub new {

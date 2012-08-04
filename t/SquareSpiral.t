@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 83;
+  my $want_version = 84;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
@@ -363,8 +363,8 @@ require Math::PlanePath::SquareSpiral;
       if ($func_dx == 0) { $func_dx = '0'; } # avoid -0 in perl 5.6
       if ($func_dy == 0) { $func_dy = '0'; } # avoid -0 in perl 5.6
 
-      ok ($func_dx, $delta_dx, "n_to_dxdy($n) w=$wider dx at xy=$x,$y");
-      ok ($func_dy, $delta_dy, "n_to_dxdy($n) w=$wider dy at xy=$x,$y");
+      ok ($func_dx, $delta_dx, "n_to_dxdy($n) wider=$wider dx at xy=$x,$y");
+      ok ($func_dy, $delta_dy, "n_to_dxdy($n) wider=$wider dy at xy=$x,$y");
     }
   }
 }

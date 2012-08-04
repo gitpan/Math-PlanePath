@@ -37,7 +37,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 83;
+$VERSION = 84;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -292,11 +292,13 @@ path include
 
     radix=3
       A000244    N on X axis, powers 3^X
-
       A135765    odd N by diagonals, delete the Y=1,2mod4 even rows
 
     radix=4
       A000302    N on X axis, powers 4^X
+
+    radix=5
+      A000351    N on X axis, powers 5^X
 
     radix=10
       A011557    N on X axis, powers 10^X

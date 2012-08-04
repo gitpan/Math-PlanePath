@@ -1,4 +1,4 @@
-/* Copyright 2011 Kevin Ryde
+/* Copyright 2011, 2012 Kevin Ryde
 
    This file is part of Math-PlanePath.
 
@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 void
 dump (double d)
@@ -29,6 +30,11 @@ dump (double d)
           u.byte[0], u.byte[1], u.byte[2], u.byte[3],
           u.byte[4], u.byte[5], u.byte[6], u.byte[7]);
 }
+
+static const double double_ulong_max_plus_1
+  = ((double) ((ULONG_MAX >> 1)+1)) * 2.0;
+static const double double_ull_max_plus_1
+  = ((double) ((ULLONG_MAX >> 1)+1)) * 2.0;
 
 int
 main (void)
@@ -44,5 +50,14 @@ main (void)
   printf ("\n");
   printf ("%la\n", atan2(zero,negzero));
   printf ("%la\n", atan2(negzero,negzero));
+  printf ("\n");
+
+  printf ("ulong %la   ", double_ulong_max_plus_1);
+  dump (double_ulong_max_plus_1);
+  printf ("      %lf\n", double_ulong_max_plus_1);
+  printf ("ull   %la   ", double_ull_max_plus_1);
+  dump (double_ull_max_plus_1);
+  printf ("      %lf\n", double_ull_max_plus_1);
+
   exit (0);
 }
