@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -426,7 +426,7 @@ The R5 dragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A175337
 
-    A175337 -- turn 0=left,1=right by 90 degrees at N=n
+    A175337 -- turn 0=left,1=right by 90 degrees at N=n+1
 
 =head1 SEE ALSO
 

@@ -23,7 +23,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -188,22 +188,31 @@ my %oeis_anum =
    # }
    
    
-   'Math::PlanePath::PyramidRows,step=1' =>
-   {
-    Y_axis   => 'A000124',  # triangular+1 = n*(n+1)/2+1
-    # OEIS-Other: A000124 planepath=PyramidRows,step=1 line_type=Y_axis
-    
-    # Not quite, but i=0 value=1
-    # Diagonal => 'A000217', # triangular 1,3,6,10
+   do {
+     my $href= {
+                Y_axis   => 'A000124',  # triangular+1 = n*(n+1)/2+1
+                # OEIS-Other: A000124 planepath=PyramidRows,step=1 line_type=Y_axis
+                # OEIS-Other: A000124 planepath=PyramidRows,step=1,align=right line_type=Y_axis
+                
+                # Not quite, but i=0 value=1
+                # Diagonal => 'A000217', # triangular 1,3,6,10
+               };
+     ('Math::PlanePath::PyramidRows,step=1,align=centre' => $href,
+      'Math::PlanePath::PyramidRows,step=1,align=right'  => $href);
    },
-   'Math::PlanePath::PyramidRows,step=2' =>
+   'Math::PlanePath::PyramidRows,step=1,align=left' =>
+   { Diagonal_NW => 'A000124',  # triangular+1 = n*(n+1)/2+1
+     # OEIS-Other: A000124 planepath=PyramidRows,step=1,align=left line_type=Diagonal_NW
+   },
+
+   'Math::PlanePath::PyramidRows,step=2,align=centre' =>
    { Diagonal_NW => 'A002522',  # n^2+1
      # OEIS-Other: A002522 planepath=PyramidRows,step=2 line_type=Diagonal_NW
      
      # Not quite
      # Diagonal => 'A000290', # squares 1,4,9,16, but i=0 value=1
    },
-   'Math::PlanePath::PyramidRows,step=3' =>
+   'Math::PlanePath::PyramidRows,step=3,align=centre' =>
    { Diagonal_NW => 'A143689',
      Y_axis      => 'A104249',
      # OEIS-Catalogue: A143689 planepath=PyramidRows,step=3 line_type=Diagonal_NW
@@ -213,7 +222,7 @@ my %oeis_anum =
      # Diagonal    => 'A005448',
      # # OEIS-Catalogue: A005448 planepath=PyramidRows,step=3 line_type=Diagonal
    },
-   'Math::PlanePath::PyramidRows,step=4' =>
+   'Math::PlanePath::PyramidRows,step=4,align=centre' =>
    { Y_axis      => 'A084849',
      Diagonal    => 'A001844',
      Diagonal_NW => 'A058331',
@@ -221,11 +230,11 @@ my %oeis_anum =
      # OEIS-Other: A001844 planepath=PyramidRows,step=4 line_type=Diagonal
      # OEIS-Other: A058331 planepath=PyramidRows,step=4 line_type=Diagonal_NW
    },
-   'Math::PlanePath::PyramidRows,step=5' =>
+   'Math::PlanePath::PyramidRows,step=5,align=centre' =>
    { Y_axis      => 'A116668',
      # OEIS-Other: A116668 planepath=PyramidRows,step=5 line_type=Y_axis
    },
-   'Math::PlanePath::PyramidRows,step=6' =>
+   'Math::PlanePath::PyramidRows,step=6,align=centre' =>
    { Diagonal_NW => 'A056107',
      Y_axis      => 'A056108',
      Diagonal    => 'A056109',
@@ -233,11 +242,11 @@ my %oeis_anum =
      # OEIS-Other: A056108 planepath=PyramidRows,step=6 line_type=Y_axis
      # OEIS-Other: A056109 planepath=PyramidRows,step=6 line_type=Diagonal
    },
-   'Math::PlanePath::PyramidRows,step=8' =>
+   'Math::PlanePath::PyramidRows,step=8,align=centre' =>
    { Diagonal_NW => 'A053755',
      # OEIS-Other: A053755 planepath=PyramidRows,step=8 line_type=Diagonal_NW
    },
-   'Math::PlanePath::PyramidRows,step=9' =>
+   'Math::PlanePath::PyramidRows,step=9,align=centre' =>
    { Y_axis   => 'A006137',
      Diagonal => 'A038764',
      # OEIS-Other: A006137 planepath=PyramidRows,step=9 line_type=Y_axis
@@ -527,9 +536,6 @@ my %oeis_anum =
    'Math::PlanePath::SquareSpiral,wider=1' =>
    { Diagonal_SW => 'A069894',
      # OEIS-Catalogue: A069894 planepath=SquareSpiral,wider=1 line_type=Diagonal_SW
-     # Not quite, extra initial 0.
-     # Diagonal_SE => 'A002939', # 2*n*(2*n-1)
-     # # OEIS-Catalogue: A002939 planepath=SquareSpiral,wider=1 line_type=Diagonal_SE
    },
    'Math::PlanePath::SquareSpiral,wider=1,n_start=0' =>
    { Diagonal_SW => 'A016754', # odd squares
@@ -636,7 +642,7 @@ my %oeis_anum =
    },
    #
    # rule=50,58,114,122,178,179,186,242,250 pyramid every second point
-   'Math::PlanePath::CellularRule::OddSolid,step=1' =>
+   'Math::PlanePath::CellularRule::OddSolid' =>
    { Diagonal_NW => 'A000124',  # triangular+1
      #
      # Not quite, starts value=0
@@ -668,11 +674,10 @@ my %oeis_anum =
    { Y_axis   => 'A002522',  # n^2+1
      # OEIS-Other: A002522 planepath=CellularRule,rule=189 line_type=Y_axis
    },
-   'Math::PlanePath::CellularRule::LeftSolid,step=1' =>
-   { Diagonal_NW  => 'A000124',  # triangular+1
+   # PyramidRows step=1,align=left
    # OEIS-Other: A000124 planepath=CellularRule,rule=206 line_type=Diagonal_NW
    # OEIS-Other: A000124 planepath=CellularRule,rule=238 line_type=Diagonal_NW
-   },
+
    do {
      my $solidgapright
        = { Diagonal   => 'A002522',  # n^2+1
@@ -928,6 +933,8 @@ sub pred_func_Diagonal_SE {
 
 #------------------------------------------------------------------------------
 
+use constant characteristic_integer => 1; # integer Ns
+
 sub characteristic_increasing {
   my ($self) = @_;
   ### PlanePathN characteristic_increasing(): $self
@@ -937,7 +944,8 @@ sub characteristic_increasing {
 
   ### planepath_object: ref $planepath_object
   ### $method
-  ### can: $planepath_object->can($method)
+  ### can code: $planepath_object->can($method)
+  ### result: $planepath_object->can($method) && $planepath_object->$method()
 
   return $planepath_object->can($method) && $planepath_object->$method();
 }
@@ -960,9 +968,10 @@ sub characteristic_increasing_from_i {
 
 sub characteristic_non_decreasing {
   my ($self) = @_;
-  my $method = "_NumSeq_$self->{'line_type'}_non_decreasing";
+  ### PlanePathN characteristic_non_decreasing() ...
   my $planepath_object = $self->{'planepath_object'};
-  return ($planepath_object->can($method) && $planepath_object->$method()
+  my $method = "_NumSeq_$self->{'line_type'}_non_decreasing";
+  return (($planepath_object->can($method) && $planepath_object->$method())
           || $self->characteristic_increasing);
 }
 
@@ -1065,7 +1074,10 @@ sub values_max {
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-  use constant _NumSeq_X_neg_min => 1; # not at X=0,Y=0 when wider
+  sub _NumSeq_X_neg_min { # not the value at X=0,Y=0 if wider>0
+    my ($self) = @_;
+    return $self->n_start;
+  }
 }
 { package Math::PlanePath::GreekKeySpiral;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1668,6 +1680,15 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Y_neg_min => undef; # negatives
   use constant _NumSeq_Y_neg_max => 1;     # negatives
+
+  # secret negatives
+  # (w-1)*(w-1)-1
+  # = w^2-2w+1-1
+  # = w(w-2)
+  sub _NumSeq_Diagonal_SE_min {
+    my ($self) = @_;
+    return ($self->{'width'}-2)*$self->{'width'};
+  }
 }
 { package Math::PlanePath::Columns;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1675,6 +1696,12 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_X_neg_min => undef; # negatives
   use constant _NumSeq_X_neg_max => 1;     # negatives
+
+  sub _NumSeq_Diagonal_NW_min {
+    my ($self) = @_;
+    # secret negatives
+    return ($self->{'height'}-2)*$self->{'height'};
+  }
 }
 { package Math::PlanePath::Diagonals;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1737,9 +1764,6 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
 }
-# { package Math::PlanePath::CellularRule::LeftSolid;
-#   # inherit from PyramidRows
-# }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;

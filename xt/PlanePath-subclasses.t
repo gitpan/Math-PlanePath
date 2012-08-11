@@ -35,6 +35,14 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
+               'File',
+
+               'KochCurve',
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+               'KochPeaks',
+
                'PyramidRows,align=right',
                'PyramidRows,align=right,step=0',
                'PyramidRows,align=right,step=1',
@@ -228,12 +236,6 @@ my @modules = (
                'CubicBase,radix=4',
                'CubicBase,radix=37',
 
-               'KochSnowflakes',
-               'KochCurve',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-               'KochPeaks',
-
                'AztecDiamondRings',
                'DiamondSpiral',
                'DiamondArms',
@@ -375,7 +377,6 @@ my @modules = (
 
                'Corner',
                'PyramidSides',
-               'File',
 
                'UlamWarburton',
                'UlamWarburtonQuarter',
@@ -469,7 +470,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 84;
+my $want_version = 85;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -729,6 +730,14 @@ sub dbl_max_neg {
   return - POSIX::DBL_MAX();
 }
 
+sub is_pos_infinity {
+  my ($n) = @_;
+  return defined $pos_infinity && $n == $pos_infinity;
+}
+sub is_neg_infinity {
+  my ($n) = @_;
+  return defined $neg_infinity && $n == $neg_infinity;
+}
 
 sub pythagorean_diag {
   my ($path,$x,$y) = @_;
@@ -757,16 +766,16 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-  
+
   foreach my $mod (@modules) {
     # MyTestHelpers::diag ($mod);
-    
+
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-    
+
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-    
+
     my $dxdy_allowed = $class_dxdy_allowed{$class};
     if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
         && $parameters{'radix'}
@@ -777,11 +786,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-    
+
     #
     # MyTestHelpers::diag ($mod);
     #
-    
+
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -798,26 +807,27 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-    
+
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' ', @_);
       $good = 0;
       # exit 1;
     };
-    
+
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-    
+
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-    
+
+    my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     {
       { my ($x,$y) = $path->n_to_xy($n_start);
@@ -845,73 +855,123 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     {
       my $saw_warning = 0;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
       $path->n_to_xy(undef);
       $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
     }
-    
+
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
     # finite could be a fixed x==0
     if (defined $pos_infinity) {
-      ### n_to_xy pos_infinity
-      my ($x, $y) = $path->n_to_xy($pos_infinity);
-      if ($path->isa('Math::PlanePath::File')) {
-        # all undefs for File
-        if (! defined $x) { $x = $pos_infinity }
-        if (! defined $y) { $y = $pos_infinity }
-      } elsif ($path->isa('Math::PlanePath::PyramidRows')
-               && ! $parameters{'step'}) {
-        # x==0 normal from step==0, fake it up to pass test
-        if (defined $x && $x == 0) { $x = $pos_infinity }
+      {
+        ### n_to_xy($pos_infinity) ...
+        my ($x, $y) = $path->n_to_xy($pos_infinity);
+        if ($path->isa('Math::PlanePath::File')) {
+          # all undefs for File
+          if (! defined $x) { $x = $pos_infinity }
+          if (! defined $y) { $y = $pos_infinity }
+        } elsif ($path->isa('Math::PlanePath::PyramidRows')
+                 && ! $parameters{'step'}) {
+          # x==0 normal from step==0, fake it up to pass test
+          if (defined $x && $x == 0) { $x = $pos_infinity }
+        }
+        (is_pos_infinity($x) || is_neg_infinity($x) || &$is_nan($x))
+          or &$report("n_to_xy($pos_infinity) x is $x");
+        (is_pos_infinity($y) || is_neg_infinity($y) || &$is_nan($y))
+          or &$report("n_to_xy($pos_infinity) y is $y");
       }
-      ($x==$pos_infinity || $x==$neg_infinity || &$is_nan($x))
-        or &$report("n_to_xy($pos_infinity) x is $x");
-      ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
-        or &$report("n_to_xy($pos_infinity) y is $y");
+      {
+        ### n_to_dxdy($pos_infinity) ...
+        my @dxdy = $path->n_to_xy($pos_infinity);
+        if ($path->isa('Math::PlanePath::File')) {
+          # all undefs for File
+          @dxdy = ($pos_infinity, $pos_infinity);
+        }
+        my $num_values = scalar(@dxdy);
+        $num_values == 2
+          or &$report("n_to_dxdy(pos_infinity) got $num_values values, want 2");
+        my ($dx,$dy) = @dxdy;
+        (is_pos_infinity($dx) || is_neg_infinity($dx) || &$is_nan($dx))
+          or &$report("n_to_dxdy($pos_infinity) dx is $dx");
+        (is_pos_infinity($dy) || is_neg_infinity($dy) || &$is_nan($dy))
+          or &$report("n_to_dxdy($pos_infinity) dy is $dy");
+      }
     }
-    
+
     if (defined $neg_infinity) {
-      ### n_to_xy() on $neg_infinity
-      my @xy = $path->n_to_xy($neg_infinity);
-      if ($path->isa('Math::PlanePath::Rows')) {
-        # secret negative n for Rows
-        my ($x, $y) = @xy;
-        ($x==$pos_infinity || $x==$neg_infinity || &$is_nan($x))
-          or &$report("n_to_xy($neg_infinity) x is $x");
-        ($y==$neg_infinity)
-          or &$report("n_to_xy($neg_infinity) y is $y");
-      } elsif ($path->isa('Math::PlanePath::Columns')) {
-        # secret negative n for Columns
-        my ($x, $y) = @xy;
-        ($x==$neg_infinity)
-          or &$report("n_to_xy($neg_infinity) x is $x");
-        ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
-          or &$report("n_to_xy($neg_infinity) y is $y");
-      } else {
-        scalar(@xy) == 0
-          or &$report("n_to_xy($neg_infinity) xy is ",join(',',@xy));
+      {
+        ### n_to_xy($neg_infinity) ...
+        my @xy = $path->n_to_xy($neg_infinity);
+        if ($path->isa('Math::PlanePath::Rows')) {
+          # secret negative n for Rows
+          my ($x, $y) = @xy;
+          ($x==$pos_infinity || $x==$neg_infinity || &$is_nan($x))
+            or &$report("n_to_xy($neg_infinity) x is $x");
+          ($y==$neg_infinity)
+            or &$report("n_to_xy($neg_infinity) y is $y");
+        } elsif ($path->isa('Math::PlanePath::Columns')) {
+          # secret negative n for Columns
+          my ($x, $y) = @xy;
+          ($x==$neg_infinity)
+            or &$report("n_to_xy($neg_infinity) x is $x");
+          ($y==$pos_infinity || $y==$neg_infinity || &$is_nan($y))
+            or &$report("n_to_xy($neg_infinity) y is $y");
+        } else {
+          scalar(@xy) == 0
+            or &$report("n_to_xy($neg_infinity) xy is ",join(',',@xy));
+        }
+      }
+      {
+        ### n_to_dxdy($neg_infinity) ...
+        my @dxdy = $path->n_to_xy($neg_infinity);
+        my $num_values = scalar(@dxdy);
+        if (($path->isa('Math::PlanePath::Rows')
+             || $path->isa('Math::PlanePath::Columns'))
+            && $num_values == 2) {
+          # secret N negative for Rows,Columns
+          $num_values = 0;
+        }
+        $num_values == 0
+          or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
     }
-    
+
     # nan input documented loosely as yet ...
     if (defined $nan) {
-      my @xy = $path->n_to_xy($nan);
-      if ($path->isa('Math::PlanePath::File')) {
-        # allow empty from File without filename
-        if (! @xy) { @xy = ($nan, $nan); }
-      } elsif ($path->isa('Math::PlanePath::PyramidRows')
-               && ! $parameters{'step'}) {
-        # x==0 normal from step==0, fake it up to pass test
-        if (defined $xy[0] && $xy[0] == 0) { $xy[0] = $nan }
+      {
+        my @xy = $path->n_to_xy($nan);
+        if ($path->isa('Math::PlanePath::File')) {
+          # allow empty from File without filename
+          if (! @xy) { @xy = ($nan, $nan); }
+        } elsif ($path->isa('Math::PlanePath::PyramidRows')
+                 && ! $parameters{'step'}) {
+          # x==0 normal from step==0, fake it up to pass test
+          if (defined $xy[0] && $xy[0] == 0) { $xy[0] = $nan }
+        }
+        my ($x, $y) = @xy;
+        &$is_nan($x) or &$report("n_to_xy($nan) x not nan, got ", $x);
+        &$is_nan($y) or &$report("n_to_xy($nan) y not nan, got ", $y);
       }
-      my ($x, $y) = @xy;
-      &$is_nan($x) or &$report("n_to_xy($nan) x not nan, got ", $x);
-      &$is_nan($y) or &$report("n_to_xy($nan) y not nan, got ", $y);
+      {
+        my @dxdy = $path->n_to_xy($nan);
+        if ($path->isa('Math::PlanePath::File')
+            && @dxdy == 0) {
+          # allow empty from File without filename
+          @dxdy = ($nan, $nan);
+        }
+        my $num_values = scalar(@dxdy);
+        $num_values == 2
+          or &$report("n_to_dxdy(nan) got $num_values values, want 2");
+        my ($dx,$dy) = @dxdy;
+        &$is_nan($dx) or &$report("n_to_dxdy($nan) dx not nan, got ", $dx);
+        &$is_nan($dy) or &$report("n_to_dxdy($nan) dy not nan, got ", $dy);
+      }
+
     }
 
     foreach my $x
@@ -978,25 +1038,29 @@ sub pythagorean_diag {
     my $got_x_negative = 0;
     my $got_y_negative = 0;
     my ($prev_x, $prev_y);
-    foreach my $n (1 .. $limit + $n_start) {
+    my @n_to_x;
+    my @n_to_y;
+    foreach my $n ($n_start .. $n_start + $limit) {
       my ($x, $y) = $path->n_to_xy ($n)
         or next;
+      $n_to_x[$n] = $x;
+      $n_to_y[$n] = $y;
       defined $x or &$report("n_to_xy($n) X undef");
       defined $y or &$report("n_to_xy($n) Y undef");
 
       if ($x < 0) { $got_x_negative = 1; }
       if ($y < 0) { $got_y_negative = 1; }
 
-      my $k = (int($x) == $x && int($y) == $y
+      my $xystr = (int($x) == $x && int($y) == $y
                ? sprintf('%d,%d', $x,$y)
                : sprintf('%.3f,%.3f', $x,$y));
-      if ($count_n_to_xy{$k}++ > $xy_maximum_duplication) {
+      if ($count_n_to_xy{$xystr}++ > $xy_maximum_duplication) {
         unless ($x == 0 && $y == 0
-                && $count_n_to_xy{$k} <= $xy_maximum_duplication_at_origin{$class}) {
-          &$report ("n_to_xy($n) duplicate$count_n_to_xy{$k} xy=$k prev n=$saw_n_to_xy{$k}");
+                && $count_n_to_xy{$xystr} <= $xy_maximum_duplication_at_origin{$class}) {
+          &$report ("n_to_xy($n) duplicate$count_n_to_xy{$xystr} xy=$xystr prev n=$saw_n_to_xy{$xystr}");
         }
       }
-      $saw_n_to_xy{$k} = $n;
+      $saw_n_to_xy{$xystr} = $n;
 
       if ($dxdy_allowed) {
         if (defined $prev_x) {
@@ -1015,26 +1079,26 @@ sub pythagorean_diag {
            $x + ($x >= 0 ? .4 : -.4),
            $y + ($y >= 0 ? .4 : -.4));
         $n_lo <= $n
-          or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo");
+          or &$report ("rect_to_n_range() lo n=$n xy=$xystr, got $n_lo");
         $n_hi >= $n
-          or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi");
+          or &$report ("rect_to_n_range() hi n=$n xy=$xystr, got $n_hi");
         $n_lo == int($n_lo)
-          or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo, integer");
+          or &$report ("rect_to_n_range() lo n=$n xy=$xystr, got $n_lo, integer");
         $n_hi == int($n_hi)
-          or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi, integer");
+          or &$report ("rect_to_n_range() hi n=$n xy=$xystr, got $n_hi, integer");
         $n_lo >= $n_start
           or &$report ("rect_to_n_range(0,0,$x,$y)+.4 n_lo=$n_lo is before n_start=$n_start");
       }
       {
         my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
         ($rect_exact{$class} ? $n_lo == $n : $n_lo <= $n)
-          or &$report ("rect_to_n_range() lo n=$n xy=$k, got $n_lo");
+          or &$report ("rect_to_n_range() lo n=$n xy=$xystr, got $n_lo");
         ($rect_exact_hi{$class} ? $n_hi == $n : $n_hi >= $n)
-          or &$report ("rect_to_n_range() hi n=$n xy=$k, got $n_hi");
+          or &$report ("rect_to_n_range() hi n=$n xy=$xystr, got $n_hi");
         $n_lo == int($n_lo)
-          or &$report ("rect_to_n_range() lo n=$n xy=$k, got n_lo=$n_lo, should be an integer");
+          or &$report ("rect_to_n_range() lo n=$n xy=$xystr, got n_lo=$n_lo, should be an integer");
         $n_hi == int($n_hi)
-          or &$report ("rect_to_n_range() hi n=$n xy=$k, got n_hi=$n_hi, should be an integer");
+          or &$report ("rect_to_n_range() hi n=$n xy=$xystr, got n_hi=$n_hi, should be an integer");
         $n_lo >= $n_start
           or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
       }
@@ -1043,13 +1107,43 @@ sub pythagorean_diag {
         foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
           foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {
             my $rev_n = $path->xy_to_n ($x + $x_offset, $y + $y_offset);
-            ### try xy_to_n from: "n=$n  xy=$x,$y xy=$k  x_offset=$x_offset y_offset=$y_offset"
+            ### try xy_to_n from: "n=$n  xy=$x,$y xy=$xystr  x_offset=$x_offset y_offset=$y_offset"
             ### $rev_n
             unless (defined $rev_n && $n == $rev_n) {
-              &$report ("xy_to_n() rev n=$n xy=$k x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
+              &$report ("xy_to_n() rev n=$n xy=$xystr x_offset=$x_offset y_offset=$y_offset got ".(defined $rev_n ? $rev_n : 'undef'));
               pythagorean_diag($path,$x,$y);
             }
           }
+        }
+      }
+    }
+
+    ### n_to_dxdy() ...
+    if ($path->can('n_to_dxdy') != Math::PlanePath->can('n_to_dxdy')) {
+      MyTestHelpers::diag ($mod, ' n_to_dxdy()');
+      foreach my $n ($n_start .. $#n_to_x-1) {
+        next unless defined $n_to_x[$n] && defined $n_to_x[$n+1];
+        my $want_dx = $n_to_x[$n+1] - $n_to_x[$n];
+        my $want_dy = $n_to_y[$n+1] - $n_to_y[$n];
+        my ($got_dx,$got_dy) = $path->n_to_dxdy($n);
+        $want_dx == $got_dx
+          or &$report ("n_to_dxdy($n) got_dx=$got_dx want_dx=$want_dx");
+        $want_dy == $got_dy
+          or &$report ("n_to_dxdy($n) got_dy=$got_dy want_dy=$want_dy");
+      }
+
+      foreach my $n ($n_start .. $n_start + $limit) {
+        foreach my $offset (0.25, 0.75) {
+          my $n = $n + $offset;
+          my ($x,$y) = $path->n_to_xy($n);
+          my ($next_x,$next_y) = $path->n_to_xy($n+$arms_count);
+          my $want_dx = ($next_x - $x);
+          my $want_dy = ($next_y - $y);
+          my ($got_dx,$got_dy) = $path->n_to_dxdy($n);
+          $want_dx == $got_dx
+            or &$report ("n_to_dxdy($n) got_dx=$got_dx want_dx=$want_dx");
+          $want_dy == $got_dy
+            or &$report ("n_to_dxdy($n) got_dy=$got_dy want_dy=$want_dy");
         }
       }
     }

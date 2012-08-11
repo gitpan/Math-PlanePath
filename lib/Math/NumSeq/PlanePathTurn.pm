@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -84,6 +84,20 @@ sub characteristic_integer {
 
 my %oeis_anum
   = (
+     # Math::PlanePath::PowerArray
+     # Not quite, seem to be 4-pattern 0,0,0,1, but first turn at N=2
+     # Left => A011765
+     # Right => A011765
+
+     # Math::PlanePath::TriangleSpiral
+     # Not quite A010054 starts OFFSET=0 for 1,1,0,1,0,0,1 extra initial 1
+     # cf turns here start N=1 for 1,0,1,0,0,1
+     # Left => 'A010054', # 1 at triangle number
+
+     # SquareSpiral
+     # abs(A167752) Left,LSR if that really is the quarter-squares
+     # abs(A167753) Left,LSR of wider=1 if that really is the ceil(n+1)^2
+
      # No, since A039963 is OFFSET=0 vs first turn at N=1 here
      # 'Math::PlanePath::GrayCode' =>
      # {
@@ -94,7 +108,7 @@ my %oeis_anum
      # A039963 for binary Left,LSR turn ?
      # characteristic of A003159 ending even zeros
      # 'Math::PlanePath::GrayCode' =>
-     # 'Math::PlanePath::SierpinskiCurve' => Right
+     # 'Math::PlanePath::SierpinskiCurve' Right => 'A039963'
 
      # 'Math::PlanePath::DiagonalsOctant,direction=down' =>
      # { Left => square or pronic starting from 1
@@ -114,6 +128,13 @@ my %oeis_anum
      # {
      #  # cf 1,0,-1 here
      #  # A163536 relative direction 0=ahead,1=right,2=left
+     # },
+
+     # Not quite,    OFFSET=0 values 0,0,1,1,0
+     # cf first turn here N=1 values 0,0,1,1,0
+     # 'Math::PlanePath::R5DragonCurve' =>
+     # { Right => 'A175337',
+     #   # OEIS-Catalogue: A175337 planepath=R5DragonCurve turn_type=Right
      # },
 
      'Math::PlanePath::DragonCurve,arms=1' =>
@@ -144,7 +165,7 @@ my %oeis_anum
                 # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
                 # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
 
-                # But A080846 OFFSET=0 whereas first turn N=1 here
+                # But A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
                 # Right => 'A080846',
                 # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
                 # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
@@ -173,12 +194,21 @@ my %oeis_anum
      },
 
      # PyramidRows step=0 is trivial X=N,Y=0
-     'Math::PlanePath::PyramidRows,step=0' =>
-     { Left => 'A000004',  # all-zeros
-       LSR  => 'A000004',  # all zeros, straight
+     do {
+       my $href= { Left => 'A000004',  # all-zeros
+                   LSR  => 'A000004',  # all zeros, straight
+                 };
+       ('Math::PlanePath::PyramidRows,step=0,align=centre' => $href,
+        'Math::PlanePath::PyramidRows,step=0,align=right'  => $href,
+        'Math::PlanePath::PyramidRows,step=0,align=left'   => $href,
+       );
+
        # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=Left
        # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=LSR
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=right turn_type=Left
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=left turn_type=LSR
      },
+
      # MultipleRings step=0 is trivial X=N,Y=0
      'Math::PlanePath::MultipleRings,step=0,ring_shape=circle' =>
      { Left => 'A000004',  # all-zeros
@@ -217,7 +247,8 @@ my %oeis_anum
      { Left => 'A035263', # OFFSET=1 matches N=1
        # OEIS-Catalogue: A035263 planepath=KochCurve turn_type=Left
 
-       # but A096268 OFFSET=0 whereas N=1 first turn
+       # but A096268 OFFSET=0 values 0,1,0,0,0,1
+       # whereas here N=1 first turn values 0,1,0,0,0,1
        # Right => 'A096268',  # morphism
      },
 
@@ -261,6 +292,7 @@ sub i_start {
 sub rewind {
   my ($self) = @_;
   my $planepath_object = $self->{'planepath_object'} || return;
+
   $self->{'i'} = $self->i_start;
   $self->{'arms'} = $planepath_object->arms_count;
   undef $self->{'x'};
@@ -283,9 +315,15 @@ sub next {
     $dy = $self->{'dy'};
   } else {
     ($x, $y) = $planepath_object->n_to_xy ($i)
-      or return;
+      or do {
+        ### nothing in path at n: $i
+        return;
+      };
     my ($prev_x, $prev_y) = $planepath_object->n_to_xy ($i-$arms)
-      or return;
+      or do {
+        ### nothing in path at previous n: $i-$arms
+        return;
+      };
     $dx = $x - $prev_x;
     $dy = $y - $prev_y;
   }
@@ -1023,8 +1061,6 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_LSR_non_decreasing => 1; # straight ahead only
 }
 # { package Math::PlanePath::CellularRule::OddSolid;
-# }
-# { package Math::PlanePath::CellularRule::LeftSolid;
 # }
 # { package Math::PlanePath::CellularRule54;
 # }

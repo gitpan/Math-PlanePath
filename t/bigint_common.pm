@@ -28,6 +28,7 @@ use MyTestHelpers;
 
 use Math::PlanePath::Base::Digits
   'round_down_pow',
+  'bit_split_lowtohigh',
   'digit_split_lowtohigh';
 
 sub isa_bigint {
@@ -56,6 +57,29 @@ sub bigint_checks {
 
 
   #----------------------------------------------------------------------------
+  # bit_split_lowtohigh()
+
+  {
+    require Math::PlanePath;
+    my $zero = $bigclass->new(0);
+    my $thirteen = $bigclass->new(13);
+    ok (join(',',bit_split_lowtohigh($zero)), '');
+
+    ok (join(',',bit_split_lowtohigh($thirteen)), '1,0,1,1');
+
+    if ($bigclass->isa('Math::BigInt')) {
+      my @bits = bit_split_lowtohigh($thirteen);
+      foreach my $bit (@bits) {
+        ok (! ref $bit, 1,
+            'bit_split_lowtohigh() return plain bits, not bigints');
+      }
+    }
+
+    ok ($thirteen, 13, 'thirteen unchanged');
+    ok ($zero, 0, 'zero unchanged');
+  }
+
+  #----------------------------------------------------------------------------
   # digit_split_lowtohigh()
 
   {
@@ -81,10 +105,10 @@ sub bigint_checks {
 
     if ($bigclass->isa('Math::BigInt')) {
       foreach my $radix (2,3,4,5,6,7,8,9,10,11,16,256) {
-        my @digits = digit_split_lowtohigh($thirteen,7);
+        my @digits = digit_split_lowtohigh($thirteen,$radix);
         foreach my $digit (@digits) {
           ok (! ref $digit, 1,
-              '_digit_split_lowtohigh() return plain digits, not bigints');
+              'digit_split_lowtohigh() return plain digits, not bigints');
         }
       }
     }

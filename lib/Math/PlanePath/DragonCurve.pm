@@ -45,7 +45,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -55,7 +55,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'bit_split_lowtohigh';
 use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
@@ -107,7 +107,7 @@ sub n_to_xy {
   # arm as initial rotation
   my $rot = _divrem_mutate ($n, $self->{'arms'});
 
-  my @digits = digit_split_lowtohigh($n,2);
+  my @digits = bit_split_lowtohigh($n);
   ### @digits
 
 

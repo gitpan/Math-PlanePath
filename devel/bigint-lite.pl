@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,6 +22,33 @@ use 5.004;
 use strict;
 use Devel::TimeThis;
 use Math::BigInt::Lite;
+
+{
+  # sprintf about 2x faster
+  my $start = 0xFFFFFFF;
+  my $end = $start + 0x10000;
+  {
+    my $t = Devel::TimeThis->new('sprintf');
+    foreach ($start .. $end) {
+      my $n = $_;
+      my @array = reverse split //, sprintf('%b',$n);
+    }
+  }
+  {
+    my $t = Devel::TimeThis->new('division');
+    foreach ($start .. $end) {
+      my $n = $_;
+      my @ret;
+      do {
+        my $digit = $n % 2;
+        push @ret, $digit;
+        $n = int(($n - $digit) / 2);
+      } while ($n);
+    }
+  }
+  exit 0;
+
+}
 
 {
   {

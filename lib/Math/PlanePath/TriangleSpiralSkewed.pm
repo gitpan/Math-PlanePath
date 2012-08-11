@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -277,6 +277,8 @@ path include
     http://oeis.org/A117625  (etc)
 
     n_start=1 (default)
+      A010054     turn 1=left,0=straight, extra initial 1
+
       A117625     N on X axis
       A064226     N on Y axis, but without initial value=1
       A006137     N on X negative

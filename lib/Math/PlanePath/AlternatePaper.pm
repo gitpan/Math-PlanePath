@@ -49,7 +49,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -462,7 +462,7 @@ __END__
 #
 #   my $arm = _divrem_mutate ($n, $self->{'arms'});
 #
-#   my @digits = digit_split_lowtohigh($n,2);
+#   my @digits = bit_split_lowtohigh($n);
 #   if (scalar(@digits) & 1) {
 #     push @digits, 0;  # extra high to make even
 #   }

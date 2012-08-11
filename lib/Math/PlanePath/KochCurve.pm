@@ -41,7 +41,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -407,63 +407,97 @@ sub _digit_join_hightolow {
 }
 
 
-
-# integer only, not documented
-
 my @digit_to_dir = (0, 1, -1, 0);
-sub _n_to_TDir6 {
+my @tdir6_to_dx = (2, 1,-1,-2, -1, 1);
+my @tdir6_to_dy = (0, 1, 1, 0, -1,-1);
+my @digit_to_turn = (1,  # digit=1
+                     -2, # digit=2
+                     1); # digit=3
+sub n_to_dxdy {
   my ($self, $n) = @_;
+  ### n_to_dxdy(): $n
+
   if ($n < 0) {
-    return undef;  # first direction at N=0
+    return;  # first direction at N=0
   }
-  return (sum (map {$digit_to_dir[$_]} digit_split_lowtohigh($n,4))
-          || 0) # if empty
-    % 6;
-}
-
-my @dir_to_dx = (2, 1, -1, -2, -1, 1);
-my @dir_to_dy = (0, 1, 1, 0, -1, -1, 0);
-sub _UNTESTED__n_to_dxdy {
-  my ($self, $n) = @_;
-  if (defined (my $dir = $self->_n_to_TDir6($n))) {
-    return ($dir_to_dx[$dir], $dir_to_dy[$dir]);
-  } else {
-    return;
-  }
-}
-
-my @digit_to_Turn6 = (undef,
-                      1,  # +60 degrees
-                      -2, # -120 degrees
-                      1); # +60 degrees
-sub _n_to_Turn6 {
-  my ($self, $n) = @_;
   if (is_infinite($n)) {
-    return undef;
+    return ($n,$n);
   }
-  while ($n) {
-    my $digit = _divrem_mutate($n,4);
-    if ($digit) {  # lowest non-zero digit
-      return $digit_to_Turn6[$digit];
-    }
+
+  my $int = int($n);
+  $n -= $int;
+  my @digits = digit_split_lowtohigh($int,4);
+  ### @digits
+
+  my $tdir6 = sum(0, map {$digit_to_dir[$_]} @digits) % 6;
+  my $dx = $tdir6_to_dx[$tdir6];
+  my $dy = $tdir6_to_dy[$tdir6];
+
+  if ($n) {
+    # fraction part
+
+    # lowest non-3 digit
+    my $digit;
+    do {
+      $digit = shift @digits || 0;  # zero if no digits or all 3s
+    } until ($digit != 3);
+
+    $tdir6 += $digit_to_turn[$digit];
+    $tdir6 %= 6;
+    $dx += $n*($tdir6_to_dx[$tdir6] - $dx);
+    $dy += $n*($tdir6_to_dy[$tdir6] - $dy);
   }
-  return 0;
+  return ($dx, $dy);
 }
-sub _n_to_LSR {
-  my ($self, $n) = @_;
-  my $turn6 = $self->_n_to_Turn6($n) || return undef;
-  return ($turn6 > 0 ? 1 : -1);
-}
-sub _n_to_Left {
-  my ($self, $n) = @_;
-  my $turn6 = $self->_n_to_Turn6($n) || return undef;
-  return ($turn6 > 0 ? 1 : 0);
-}
-sub _n_to_Right {
-  my ($self, $n) = @_;
-  my $turn6 = $self->_n_to_Turn6($n) || return undef;
-  return ($turn6 < 0 ? 1 : 0);
-}
+
+# UNTESTED
+#
+# sub _n_to_tdir6 {
+#   my ($self, $n) = @_;
+#   if ($n < 0) {
+#     return undef;  # first direction at N=0
+#   }
+#   if (is_infinite($n)) {
+#     return ($n,$n);
+#   }
+#   return (sum (map {$digit_to_dir[$_]} digit_split_lowtohigh($n,4))
+#           || 0) # if empty
+#     % 6;
+# }
+#
+# my @digit_to_Turn6 = (undef,
+#                       1,  # +60 degrees
+#                       -2, # -120 degrees
+#                       1); # +60 degrees
+# sub _n_to_Turn6 {
+#   my ($self, $n) = @_;
+#   if (is_infinite($n)) {
+#     return undef;
+#   }
+#   while ($n) {
+#     my $digit = _divrem_mutate($n,4);
+#     if ($digit) {
+#       # lowest non-zero digit
+#       return $digit_to_Turn6[$digit];
+#     }
+#   }
+#   return 0;
+# }
+# sub _n_to_LSR {
+#   my ($self, $n) = @_;
+#   my $turn6 = $self->_n_to_Turn6($n) || return undef;
+#   return ($turn6 > 0 ? 1 : -1);
+# }
+# sub _n_to_Left {
+#   my ($self, $n) = @_;
+#   my $turn6 = $self->_n_to_Turn6($n) || return undef;
+#   return ($turn6 > 0 ? 1 : 0);
+# }
+# sub _n_to_Right {
+#   my ($self, $n) = @_;
+#   my $turn6 = $self->_n_to_Turn6($n) || return undef;
+#   return ($turn6 < 0 ? 1 : 0);
+# }
 
 1;
 __END__
@@ -591,12 +625,12 @@ Return 0, the first N in the path.
 
 =head1 FORMULAS
 
-=head2 Turn Sequence
+=head2 N to Turn
 
-The sequence of turns made by the curve is straightforward.  The curve
-always turns either +60 degrees or -120 degrees, it never goes straight
-ahead.  In the base 4 representation of N the lowest non-zero digit gives
-the turn
+The turn at a given N position is straightforward.  The curve always turns
+either +60 degrees or -120 degrees, it never goes straight ahead.  In the
+base 4 representation of N the lowest non-zero digit gives the turn.  The
+first turn is at N=1 so there's always a non-zero digit in N.
 
    low digit       turn
    ---------   ------------
@@ -607,28 +641,61 @@ the turn
 For example N=8 is 20 base 4, so lowest nonzero "2" means turn -120 degrees
 for the next segment.
 
-When the least significant digit is non-zero it determines the turn, making
-the base N=0 to N=4 shape.  When the low digit is zero then the next level
-up is in control, eg. N=0,4,8,12,16, making a turn where the base shape
-repeats.
+If the least significant digit is non-zero then it determines the turn,
+making the base N=0 to N=4 shape.  If the least significant is zero then the
+next level up is in control, eg. N=0,4,8,12,16, making a turn according to
+the base shape again at that higher level.  The first and last segments of
+the base shape are "straight" so there's no extra adjustment to apply in
+those higher digits.
 
 See L<Math::PlanePath::GrayCode/Turn Sequence> for a similar turn sequence
 arising from binary Gray code.
 
-=head2 Net Direction
+=head2 N to Next Turn
 
-The cumulative turn at a given N can be found by counting digits 1 and 2 in
+The turn at N+1, ie the next turn, can be found from the base-4 digits by
+considering how the digits of N change when 1 is added, and the low-digit
+turn calculation is applied on those changed digits.
+
+Adding 1 means low digit 0, 1 or 2 will become non-zero.  Any low 3s wrap
+around to become low 0s.  So the turn at N+1 can be found from the digits of
+N by seeking the lowest non-3
+
+   lowest non-3       turn
+    digit of N       at N+1
+   ------------   ------------
+        0          +60 degrees (left)
+        1         -120 degrees (right)
+        2          +60 degrees (left)
+
+=head2 N to Direction
+
+The total turn at a given N can be found by counting digits 1 and 2 in
 base 4.
 
-    direction = 60 * ((count of 1 digits in base 4)
-                      - (count of 2 digits in base 4))  degrees
+    direction = ((count of 1-digits in base 4)
+                 - (count of 2-digits in base 4)) * 60 degrees
 
-For example N=11 is 23 in base 4, so 60*(0-1) = -60 degrees.
+For example N=11 is "23" in base 4, so 60*(0-1) = -60 degrees.
 
 In this formula the count of 1s and 2s can go past 360 degrees, representing
 a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
 direction 0 to 5 if desired.
+
+=cut
+
+#   It also
+# works to map each digit to an amount to add
+# 
+#     digit   add
+#     -----   ---
+#       0      0
+#       1      1
+#       2     -1
+#       3      0
+
+=pod
 
 =head2 Rectangle to N Range -- Level
 
@@ -637,24 +704,27 @@ Xlevel formula above.  If XlevelE<gt>rectangleX then Nlevel is past the
 rectangle extent.
 
     X = 2*3^level
+
+so
+
     floorlevel = floor log_base_3(X/2)
     Nhi = 4^(floorlevel+1) - 1
 
 For example a rectangle extending to X=13 has floorlevel =
-floor(log3(13/2))=1 and Nhi=4^(1+1)-1=15.
+floor(log3(13/2))=1 and so Nhi=4^(1+1)-1=15.
 
 The rounding-down of the log3 ensures a point such as X=18 which is the
 first in the next Nlevel will give that next level.  So
-floorlevel=log3(18/2)=2 and Nhi=4^(2+1)-1=63.
+floorlevel=log3(18/2)=2 (exactly) and Nhi=4^(2+1)-1=63.
 
-The worst case for this over-estimate is when rectangleX==Xlevel, ie. just
-into the next level.  In that case Nhi is almost a factor of 4 bigger than
-it needs to be.
+The worst case for this over-estimate is when rectangleX==Xlevel, ie. the
+rectangle is just into the next level.  In that case Nhi is nearly a factor
+4 bigger than it needs to be.
 
 =head2 Rectangle to N Range -- Exact
 
 The exact Nlo and Nhi in a rectangle can be found by searching along the
-curve.  Nlo searches forward from the origin N=0.  Nhi searches backward
+curve.  For Nlo search forward from the origin N=0.  For Nhi search backward
 from the Nlevel over-estimate described above.
 
 At a given digit position in the prospective N the sub-part of the curve
@@ -663,10 +733,10 @@ outside the target rectangle then step to the next digit value, and to the
 next of the digit above when past digit=3 (or below digit=0 when searching
 backwards).
 
-There's six possible rotations for the curve sub-part.  In the following "o"
-is the start and the surrounding lines show the triangular extent.  There's
-just four curve parts shown in each, but these triangles bound a sub-curve
-of any level.
+There's six possible orientations for the curve sub-part.  In the following
+pictures "o" is the start and the surrounding lines show the triangular
+extent.  There's just four curve parts shown in each, but these triangles
+bound a sub-curve of any level.
 
    rot=0   -+-               +-----------------+
          --   --              - .-+-*   *-+-o -
@@ -699,15 +769,14 @@ of any level.
    +---------+                        \+
 
 The "." is the start of the next sub-curve.  It belongs to the next digit
-value and so can be excluded if desired.  For rot=0 and rot=3 this means
-simply shortening the X range permitted, or for rot=1 and rot=4 similarly
-the Y range.  For rot=2 and rot=5 it would require a separate test and
-doesn't matter very much.
+value and so can be excluded.  For rot=0 and rot=3 this means simply
+shortening the X range permitted.  For rot=1 and rot=4 similarly the Y
+range.  For rot=2 and rot=5 it would require a separate test.
 
 Tight sub-part extent checking reduces the sub-parts which are examined, but
 it works perfectly well with a looser check, such as a square box for the
-sub-curve extents.  Doing that might be easier if the target region was not
-a rectangle but some trickier shape.
+sub-curve extents.  Doing that might be easier if the target region is not a
+rectangle but instead some trickier shape.
 
 =head1 OEIS
 

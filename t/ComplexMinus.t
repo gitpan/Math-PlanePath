@@ -36,7 +36,7 @@ require Math::PlanePath::ComplexMinus;
 # VERSION
 
 {
-  my $want_version = 84;
+  my $want_version = 85;
   ok ($Math::PlanePath::ComplexMinus::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ComplexMinus->VERSION,  $want_version,

@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,7 +35,7 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'bit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -106,7 +106,7 @@ sub n_to_xy {
     # (0 1) (x) = ( y )     (a b) (0 1) = (b a+b)   digit 1
     # (1 1) (y)   (x+y)     (c d) (1 1)   (d c+d)
 
-    my @digits = digit_split_lowtohigh($n,2);
+    my @digits = bit_split_lowtohigh($n);
     pop @digits;  # drop high 1 bit
 
     my $a = $one;     # initial  (1 0)

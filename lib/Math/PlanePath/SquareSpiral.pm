@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -494,6 +494,33 @@ left (instead of top left when wider=0) and the odd squares to the top right
 Each loop is still 8 longer than the previous, as the widening is basically
 a constant amount in each loop.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, with the same shape etc.  For example
+to start at 0,
+
+=cut
+
+# math-image --path=SquareSpiral,n_start=0 --all --output=numbers_dash --size=35x16
+
+=pod
+
+    n_start => 0
+
+    16-15-14-13-12 ...
+     |           |  | 
+    17  4--3--2 11 28 
+     |  |     |  |  | 
+    18  5  0--1 10 27 
+     |  |        |  | 
+    19  6--7--8--9 26 
+     |              | 
+    20-21-22-23-24-25 
+
+The only effect is to push the N values around by a constant amount.  It
+might help match coordinates with something else zero-based.
+
 =head2 Corners
 
 Other spirals can be formed by cutting the corners of the square so as to go
@@ -517,7 +544,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SquareSpiral-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (wider =E<gt> $integer)>
+=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (wider =E<gt> $integer, n_start =E<gt> $integer)>
 
 Create and return a new square spiral object.  An optional C<wider>
 parameter widens the spiral path, it defaults to 0 which is no widening.
@@ -700,10 +727,7 @@ And various sequences,
     http://oeis.org/A180714  (etc)
 
     wider=0 (the default)
-      A180714    X+Y coordinate sum
-      A053615    abs(X-Y), distance to nearest pronic
       A079813    abs(dY), k 0s followed by k 1s
-      A118175    abs(dY), initial 1 then k 0s followed by k 1s
       A063826    direction 1=right,2=up,3=left,4=down
 
       A033638    N positions of the turns (extra initial 1, 1)
@@ -747,7 +771,17 @@ And various sequences,
 
     wider=1
       A069894    N on South-West diagonal
-      A002939    N on South-East diagonal (extra initial 0)
+
+The following have "offset 0" in the OEIS and therefore are based on
+starting from N=0.
+
+    n_start=0
+      A180714    X+Y coordinate sum
+      A053615    abs(X-Y), being distance to nearest pronic
+
+      A118175    abs(dX), runs of 1s then 0s
+
+      A002939    N on X=Y diagonal
 
 =head1 SEE ALSO
 

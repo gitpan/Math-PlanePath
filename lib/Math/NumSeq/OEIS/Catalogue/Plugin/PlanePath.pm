@@ -22,16 +22,36 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 94 A-numbers in 4 modules
+# total 98 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
+  {
+    'anum' => 'A180714',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'SquareSpiral,n_start=0',
+      'coordinate_type',
+      'Sum'
+    ]
+  },
+  {
+    'anum' => 'A053615',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'SquareSpiral,n_start=0',
+      'coordinate_type',
+      'AbsDiff'
+    ]
+  },
   {
     'anum' => 'A019586',
     'class' => 'Math::NumSeq::PlanePathCoord',
@@ -346,6 +366,26 @@ use constant info_arrayref =>
       'GcdRationals',
       'coordinate_type',
       'Y'
+    ]
+  },
+  {
+    'anum' => 'A079813',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'SquareSpiral',
+      'delta_type',
+      'AbsdY'
+    ]
+  },
+  {
+    'anum' => 'A118175',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'SquareSpiral,n_start=0',
+      'delta_type',
+      'AbsdX'
     ]
   },
   {

@@ -132,14 +132,16 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::CellularRule';
   $path_class = 'Math::PlanePath::PyramidRows';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
-  $path_class = 'Math::PlanePath::Toothpick';
+  $path_class = 'Math::PlanePath::PowerArray';
+  $path_class = 'Math::PlanePath::ParabolicRuns';
+  $path_class = 'Math::PlanePath::ToothpickTree';
 
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     step => 6,
-     align => 'left',
+     # step => 6,
+     # align => 'left',
      # n_start => 37,
      # align => 'diagonal',
      # offset => -0.5,
@@ -174,7 +176,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   my $path_ref = ref($path);
   print "n_start()=$n_start arms_count()=$arms_count   $path_ref\n";
 
-  for (my $i = $n_start; $i <= 80; $i+=1) {
+  for (my $i = $n_start; $i <= 8000; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 84;
+  my $want_version = 85;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,
@@ -59,6 +59,32 @@ require Math::PlanePath::KochCurve;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# random n_to_dxdy()
+
+{
+  my $path = Math::PlanePath::KochCurve->new;
+  foreach (1 .. 20) {
+    my $bits = int(rand(25));     # 0 to 25, inclusive
+    my $n = int(rand(2**$bits));  # 0 to 2^bits, inclusive
+    $n += random_quarter();
+
+    my ($x,$y) = $path->n_to_xy ($n);
+    my ($next_x,$next_y) = $path->n_to_xy ($n+1);
+    my $delta_dx = $next_x - $x;
+    my $delta_dy = $next_y - $y;
+
+    my ($func_dx,$func_dy) = $path->n_to_dxdy ($n);
+    ok ($func_dx, $delta_dx, "n_to_dxdy($n) dx at xy=$x,$y");
+    ok ($func_dy, $delta_dy, "n_to_dxdy($n) dy at xy=$x,$y");
+  }
+}
+
+# return 0, 0.25, 0.5 or 0.75
+sub random_quarter {
+  int(rand(4)) / 4;
 }
 
 #------------------------------------------------------------------------------
@@ -294,26 +320,5 @@ require Math::PlanePath::KochCurve;
   }
   ok ($bad, 0, "turn/dir sequence");
 }
-
-#------------------------------------------------------------------------------
-# random n_to_dxdy()
-
-{
-  my $path = Math::PlanePath::KochCurve->new;
-  foreach (1 .. 20) {
-    my $bits = int(rand(25));     # 0 to 25, inclusive
-    my $n = int(rand(2**$bits));  # 0 to 2^bits, inclusive
-
-    my ($x,$y) = $path->n_to_xy ($n);
-    my ($next_x,$next_y) = $path->n_to_xy ($n+1);
-    my $delta_dx = $next_x - $x;
-    my $delta_dy = $next_y - $y;
-
-    my ($func_dx,$func_dy) = $path->_UNTESTED__n_to_dxdy ($n);
-    ok ($func_dx, $delta_dx, "n_to_dxdy($n) dx at xy=$x,$y");
-    ok ($func_dy, $delta_dy, "n_to_dxdy($n) dy at xy=$x,$y");
-  }
-}
-
 
 exit 0;

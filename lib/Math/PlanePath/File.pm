@@ -26,12 +26,13 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
-  'round_nearest';
+  'round_nearest',
+  'is_infinite';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -58,6 +59,12 @@ use constant parameter_info_array =>
 
 sub n_to_xy {
   my ($self, $n) = @_;
+  if ($n < $self->{'n_start'}) {
+    return;
+  }
+  if (is_infinite($n)) {
+    return;
+  }
   if (defined (my $x = _read($self)->{'x_array'}->[$n])) {
     return ($x, $self->{'y_array'}->[$n]);
   }

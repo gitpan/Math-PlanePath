@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -500,7 +500,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 84;
+  $VERSION = 85;
   @ISA = ('Math::PlanePath::CellularRule');
 
   use Math::PlanePath::Base::Generic
@@ -574,7 +574,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 84;
+  $VERSION = 85;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 
@@ -585,6 +585,7 @@ sub rect_to_n_range {
 
   use constant n_start => 1;
   use constant x_negative => 1; # not the PyramidRows from step
+  use constant parameter_info_array => []; # not the PyramidRows params
 
   sub new {
     my ($class) = @_;

@@ -24,7 +24,7 @@ use Test;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = (tests => 131)[1];
+my $test_count = (tests => 140)[1];
 plan tests => $test_count;
 
 # uncomment this to run the ### lines
@@ -45,9 +45,10 @@ MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
   }
 }
 {
-  # as used by digit_split_lowtohigh(), doesn't adapt itself at runtime
+  # as_oct() used by digit_split_lowtohigh(), and code doesn't adapt itself
+  # at runtime
   my $n = Math::BigInt->new(123);
-  if ($n->can('as_oct')) {
+  if (! $n->can('as_oct')) {
     MyTestHelpers::diag ('skip due to Math::BigInt no "as_oct()" method');
     foreach (1 .. $test_count) {
       skip ('due to no Math::BigInt as_oct()', 1, 1);

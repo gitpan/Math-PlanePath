@@ -29,7 +29,8 @@ use MyOEIS;
 
 use Math::PlanePath::ImaginaryBase;
 use Math::PlanePath::Diagonals;
-use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
+use Math::PlanePath::Base::Digits
+  'bit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -92,7 +93,7 @@ sub diff_nums {
 
 sub delete_odd_bits {
   my ($n) = @_;
-  my @digits = digit_split_lowtohigh($n,2);
+  my @digits = bit_split_lowtohigh($n);
   my $bit = 1;
   my $ret = 0;
   while (@digits) {

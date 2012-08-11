@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -36,6 +36,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
+  'bit_split_lowtohigh',
   'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
@@ -104,8 +105,8 @@ sub xy_to_n {
     return $y;
   }
 
-  my @x = digit_split_lowtohigh($x,2);
-  my @y = digit_split_lowtohigh($y,2);
+  my @x = bit_split_lowtohigh($x);
+  my @y = bit_split_lowtohigh($y);
 
   my $n = ($x * 0 * $y); # inherit bignum 0
   foreach my $i (reverse 0 .. max($#x,$#y)) {  # high to low

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 47;
+plan tests => 51;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -28,6 +28,7 @@ BEGIN { MyTestHelpers::nowarnings(); }
 
 use Math::PlanePath::Base::Digits
   'round_down_pow',
+  'bit_split_lowtohigh',
   'digit_split_lowtohigh';
 
 
@@ -122,7 +123,28 @@ ok (join(',',digit_split_lowtohigh(13,2)), '1,0,1,1');
     ok ($digits[1], int($lowtwo / $radix));
   }
 }
+{
+  my $uv_max = ~0;
+  my $ones = 1;
+  foreach my $bit (digit_split_lowtohigh($uv_max,2)) {
+    $ones &&= $bit;
+  }
+  ok ($ones, 1);
+}
+#------------------------------------------------------------------------------
+# bit_split_lowtohigh()
 
+ok (join(',',bit_split_lowtohigh(0)), '');
+ok (join(',',bit_split_lowtohigh(13)), '1,0,1,1');
+
+{
+  my $uv_max = ~0;
+  my $ones = 1;
+  foreach my $bit (bit_split_lowtohigh($uv_max)) {
+    $ones &&= $bit;
+  }
+  ok ($ones, 1);
+}
 
 #------------------------------------------------------------------------------
 1;

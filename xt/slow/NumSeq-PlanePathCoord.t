@@ -376,10 +376,77 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'DigitGroups',
+               'DigitGroups,radix=3',
+               'DigitGroups,radix=4',
+               'DigitGroups,radix=5',
+               'DigitGroups,radix=37',
+
+               'KochCurve',
+               'KochPeaks',
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+
+               'ImaginaryBase,radix=37',
+               'ImaginaryBase',
+               'ImaginaryBase,radix=3',
+               'ImaginaryBase,radix=4',
+               'ImaginaryBase,radix=5',
+               'ImaginaryBase,radix=6',
+
+               'ImaginaryHalf,radix=37',
+               'ImaginaryHalf',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=4',
+               'ImaginaryHalf,radix=5',
+               'ImaginaryHalf,radix=6',
+
+               'QuintetReplicate',
+               'QuintetCurve',
+               'QuintetCurve,arms=2',
+               'QuintetCurve,arms=3',
+               'QuintetCurve,arms=4',
+               'QuintetCentres',
+               'QuintetCentres,arms=2',
+               'QuintetCentres,arms=3',
+               'QuintetCentres,arms=4',
+
                'SierpinskiTriangle',
                'SierpinskiTriangle,align=right',
                'SierpinskiTriangle,align=left',
                'SierpinskiTriangle,align=diagonal',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,n_start=37,align=right',
+               'SierpinskiTriangle,n_start=37,align=left',
+               'SierpinskiTriangle,n_start=37,align=diagonal',
+
+               'TriangleSpiral',
+               'TriangleSpiral,n_start=37',
+               'TriangleSpiralSkewed',
+               'TriangleSpiralSkewed,n_start=37',
+
+               'SquareSpiral',
+               'SquareSpiral,wider=1',
+               'SquareSpiral,wider=2',
+               'SquareSpiral,wider=3',
+               'SquareSpiral,wider=4',
+               'SquareSpiral,wider=5',
+               'SquareSpiral,wider=6',
+               'SquareSpiral,wider=37',
+               'SquareSpiral,n_start=37',
+               'SquareSpiral,n_start=37,wider=1',
+               'SquareSpiral,n_start=37,wider=2',
+               'SquareSpiral,n_start=37,wider=3',
+               'SquareSpiral,n_start=37,wider=4',
+               'SquareSpiral,n_start=37,wider=5',
+               'SquareSpiral,n_start=37,wider=6',
+               'SquareSpiral,n_start=37,wider=37',
+
+               'WythoffArray',
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
 
                'PyramidRows',
                'PyramidRows,step=0',
@@ -406,16 +473,6 @@ my @modules = (
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
-
-               'QuintetReplicate',
-               'QuintetCurve',
-               'QuintetCurve,arms=2',
-               'QuintetCurve,arms=3',
-               'QuintetCurve,arms=4',
-               'QuintetCentres',
-               'QuintetCentres,arms=2',
-               'QuintetCentres,arms=3',
-               'QuintetCentres,arms=4',
 
                'UlamWarburton',
                'UlamWarburtonQuarter',
@@ -500,11 +557,6 @@ my @modules = (
                'Hypot,points=even',
                'Hypot,points=odd',
 
-               'WythoffArray',
-               'PowerArray',
-               'PowerArray,radix=3',
-               'PowerArray,radix=4',
-
                'TriangularHypot',
                'TriangularHypot,points=odd',
                'TriangularHypot,points=all',
@@ -551,20 +603,6 @@ my @modules = (
                'GcdRationals,pairs_order=rows_reverse',
                'GcdRationals,pairs_order=diagonals_down',
                'GcdRationals,pairs_order=diagonals_up',
-
-               'ImaginaryHalf',
-               'ImaginaryHalf,radix=3',
-               'ImaginaryHalf,radix=4',
-               'ImaginaryHalf,radix=5',
-               'ImaginaryHalf,radix=6',
-               'ImaginaryHalf,radix=37',
-
-               'ImaginaryBase',
-               'ImaginaryBase,radix=3',
-               'ImaginaryBase,radix=4',
-               'ImaginaryBase,radix=5',
-               'ImaginaryBase,radix=6',
-               'ImaginaryBase,radix=37',
 
                'CCurve',
 
@@ -687,6 +725,105 @@ my @modules = (
 
                # 'File',
 
+
+               'PixelRings',
+               'FilledRings',
+
+               'ZOrderCurve',
+               'ZOrderCurve,radix=3',
+               'ZOrderCurve,radix=9',
+               'ZOrderCurve,radix=37',
+
+               'CretanLabyrinth',
+
+               'ComplexPlus',
+               'ComplexPlus,realpart=2',
+               'ComplexPlus,realpart=3',
+               'ComplexPlus,realpart=4',
+               'ComplexPlus,realpart=5',
+
+               'OctagramSpiral',
+               'AnvilSpiral',
+               'AnvilSpiral,wider=1',
+               'AnvilSpiral,wider=2',
+               'AnvilSpiral,wider=9',
+               'AnvilSpiral,wider=17',
+
+               'AR2W2Curve',
+               'AR2W2Curve,start_shape=D2',
+               'AR2W2Curve,start_shape=B2',
+               'AR2W2Curve,start_shape=B1rev',
+               'AR2W2Curve,start_shape=D1rev',
+               'AR2W2Curve,start_shape=A2rev',
+               'BetaOmega',
+               'KochelCurve',
+               'CincoCurve',
+
+               'CoprimeColumns',
+               'DivisibleColumns',
+               'DivisibleColumns,divisor_type=proper',
+
+               'HilbertSpiral',
+               'HilbertCurve',
+
+               'MPeaks',
+               'WunderlichMeander',
+               'FibonacciWordFractal',
+
+               'CornerReplicate',
+
+               'DiamondSpiral',
+               'PentSpiral',
+               'PentSpiralSkewed',
+
+               'HexSpiral',
+               'HexSpiral,wider=1',
+               'HexSpiral,wider=2',
+               'HexSpiral,wider=3',
+               'HexSpiral,wider=4',
+               'HexSpiral,wider=5',
+               'HexSpiral,wider=37',
+               'HexSpiralSkewed',
+               'HexSpiralSkewed,wider=1',
+               'HexSpiralSkewed,wider=2',
+               'HexSpiralSkewed,wider=3',
+               'HexSpiralSkewed,wider=4',
+               'HexSpiralSkewed,wider=5',
+               'HexSpiralSkewed,wider=37',
+
+               'HeptSpiralSkewed',
+               'PyramidSpiral',
+
+               'AztecDiamondRings',
+               'DiamondArms',
+               'SquareArms',
+               'HexArms',
+
+               'Flowsnake',
+               'Flowsnake,arms=2',
+               'Flowsnake,arms=3',
+               'FlowsnakeCentres',
+               'FlowsnakeCentres,arms=2',
+               'FlowsnakeCentres,arms=3',
+
+               'SquareReplicate',
+
+               'SierpinskiArrowhead',
+               'SierpinskiArrowheadCentres',
+
+               'DragonRounded',
+               'DragonRounded,arms=2',
+               'DragonRounded,arms=3',
+               'DragonRounded,arms=4',
+               'DragonMidpoint',
+               'DragonMidpoint,arms=2',
+               'DragonMidpoint,arms=3',
+               'DragonMidpoint,arms=4',
+               'DragonCurve',
+               'DragonCurve,arms=2',
+               'DragonCurve,arms=3',
+               'DragonCurve,arms=4',
+
                'CellularRule',
                'CellularRule,rule=0',   # single cell
                'CellularRule,rule=8',   # single cell
@@ -732,126 +869,6 @@ my @modules = (
                'CellularRule190',
                'CellularRule190,mirror=1',
 
-               'PixelRings',
-               'FilledRings',
-
-               'ZOrderCurve',
-               'ZOrderCurve,radix=3',
-               'ZOrderCurve,radix=9',
-               'ZOrderCurve,radix=37',
-
-               'CretanLabyrinth',
-
-               'KochCurve',
-               'KochPeaks',
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-
-               'ComplexPlus',
-               'ComplexPlus,realpart=2',
-               'ComplexPlus,realpart=3',
-               'ComplexPlus,realpart=4',
-               'ComplexPlus,realpart=5',
-
-               'OctagramSpiral',
-               'AnvilSpiral',
-               'AnvilSpiral,wider=1',
-               'AnvilSpiral,wider=2',
-               'AnvilSpiral,wider=9',
-               'AnvilSpiral,wider=17',
-
-               'AR2W2Curve',
-               'AR2W2Curve,start_shape=D2',
-               'AR2W2Curve,start_shape=B2',
-               'AR2W2Curve,start_shape=B1rev',
-               'AR2W2Curve,start_shape=D1rev',
-               'AR2W2Curve,start_shape=A2rev',
-               'BetaOmega',
-               'KochelCurve',
-               'CincoCurve',
-
-               'CoprimeColumns',
-               'DivisibleColumns',
-               'DivisibleColumns,divisor_type=proper',
-
-               'HilbertSpiral',
-               'HilbertCurve',
-
-               'MPeaks',
-               'WunderlichMeander',
-               'FibonacciWordFractal',
-
-               'CornerReplicate',
-               'DigitGroups',
-               'DigitGroups,radix=3',
-               'DigitGroups,radix=4',
-               'DigitGroups,radix=5',
-               'DigitGroups,radix=37',
-
-               'SquareSpiral',
-               'SquareSpiral,wider=1',
-               'SquareSpiral,wider=2',
-               'SquareSpiral,wider=3',
-               'SquareSpiral,wider=4',
-               'SquareSpiral,wider=5',
-               'SquareSpiral,wider=6',
-               'SquareSpiral,wider=37',
-               'DiamondSpiral',
-               'PentSpiral',
-               'PentSpiralSkewed',
-
-               'HexSpiral',
-               'HexSpiral,wider=1',
-               'HexSpiral,wider=2',
-               'HexSpiral,wider=3',
-               'HexSpiral,wider=4',
-               'HexSpiral,wider=5',
-               'HexSpiral,wider=37',
-               'HexSpiralSkewed',
-               'HexSpiralSkewed,wider=1',
-               'HexSpiralSkewed,wider=2',
-               'HexSpiralSkewed,wider=3',
-               'HexSpiralSkewed,wider=4',
-               'HexSpiralSkewed,wider=5',
-               'HexSpiralSkewed,wider=37',
-
-               'HeptSpiralSkewed',
-               'PyramidSpiral',
-               'TriangleSpiral',
-               'TriangleSpiralSkewed',
-
-               'AztecDiamondRings',
-               'DiamondArms',
-               'SquareArms',
-               'HexArms',
-
-               'Flowsnake',
-               'Flowsnake,arms=2',
-               'Flowsnake,arms=3',
-               'FlowsnakeCentres',
-               'FlowsnakeCentres,arms=2',
-               'FlowsnakeCentres,arms=3',
-
-               'SquareReplicate',
-
-               'SierpinskiArrowhead',
-               'SierpinskiArrowheadCentres',
-
-               'DragonRounded',
-               'DragonRounded,arms=2',
-               'DragonRounded,arms=3',
-               'DragonRounded,arms=4',
-               'DragonMidpoint',
-               'DragonMidpoint,arms=2',
-               'DragonMidpoint,arms=3',
-               'DragonMidpoint,arms=4',
-               'DragonCurve',
-               'DragonCurve,arms=2',
-               'DragonCurve,arms=3',
-               'DragonCurve,arms=4',
-
-               'MultipleRings',
                'MultipleRings,step=0',
                'MultipleRings,ring_shape=polygon,step=0',
                'MultipleRings,step=1',
@@ -874,6 +891,7 @@ my @modules = (
                'MultipleRings,ring_shape=polygon,step=8',
                'MultipleRings,ring_shape=polygon,step=37',
                'MultipleRings,ring_shape=polygon',
+               'MultipleRings',
 
                # module list end
 
@@ -909,6 +927,9 @@ my @modules = (
         ### planepath_object: ref $planepath_object
 
         my $i_start = $seq->i_start;
+        my $characteristic_integer = $seq->characteristic('integer') || 0;
+        my $saw_characteristic_integer = 1;
+        my $saw_characteristic_integer_at = '';
         my $saw_values_min    = 999999999;
         my $saw_values_max    = -999999999;
         my $saw_values_min_at = 'sentinel';
@@ -933,14 +954,22 @@ my @modules = (
             && $param =~ /axis|[XY]_neg|diagonal/i) {
           $i_limit = 80;
         }
+        my $i_end = $i_start + $i_limit;
         ### $i_limit
 
-        foreach my $i ($i_start .. $i_limit) {
+        foreach my $i ($i_start .. $i_end) {
           my $value = $seq->ith($i);
           ### $i
           ### $value
           next if ! defined $value;
           $count++;
+
+          if ($saw_characteristic_integer) {
+            if ($value != int($value)) {
+              $saw_characteristic_integer = 0;
+              $saw_characteristic_integer_at = "i=$i value=$value";
+            }
+          }
 
           if ($value < $saw_values_min) {
             $saw_values_min = $value;
@@ -1256,6 +1285,13 @@ my @modules = (
         $non_decreasing ||= 0;
 
         # not enough values to see these decreasing
+        if ($mod eq 'DigitGroups,radix=37'
+            && $param eq 'Radius'
+            && $i_end < 37*37) {
+          $saw_characteristic_integer = 0;
+        }
+
+        # not enough values to see these decreasing
         if (($mod eq 'ZOrderCurve,radix=9'
              || $mod eq 'ZOrderCurve,radix=37'
              || $mod eq 'PeanoCurve,radix=17'
@@ -1263,7 +1299,6 @@ my @modules = (
              || $mod eq 'SquareSpiral,wider=37'
              || $mod eq 'HexSpiral,wider=37'
              || $mod eq 'HexSpiralSkewed,wider=37'
-             || $mod eq 'ImaginaryBase,radix=37'
              || $mod eq 'ComplexPlus,realpart=2'
              || $mod eq 'ComplexPlus,realpart=3'
              || $mod eq 'ComplexPlus,realpart=4'
@@ -1305,28 +1340,56 @@ my @modules = (
                 || $param eq 'Y_axis'
                 || $param eq 'X_neg'
                 || $param eq 'Y_neg'
-                || $param eq 'Diagonal'
+                || $param =~ /Diagonal/
                )) {
+          $saw_increasing = 0;
+          $saw_non_decreasing = 0;
+        }
+
+        if ($mod eq 'QuintetCurve'
+            && $i_end < 5938  # first decrease
+            && $param eq 'Diagonal_SE') {
+          $saw_increasing = 0;
+          $saw_non_decreasing = 0;
+        }
+        if ($mod eq 'QuintetCentres'
+            && $i_end < 5931 # first decreasing
+            && $param eq 'Diagonal_SE') {
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
         }
 
         if ($mod eq 'ImaginaryBase,radix=37'
-            && ($param eq 'Diagonal_NW'
-                || $param eq 'Diagonal_NW'
-                || $param eq 'Diagonal_SS'
-                || $param eq 'Diagonal_SE')
-            && $i_limit < 73092278) {
+            && $i_end < 1369  # N of first Y coordinate decrease
+            && $param eq 'Y') {
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
         }
+        # if ($mod eq 'ImaginaryBase,radix=37'
+        #     $param eq 'Diagonal_NW'
+        #         || $param eq 'Diagonal_NW'
+        #         || $param eq 'Diagonal_SS'
+        #         || $param eq 'Diagonal_SE')
+        #     && $i_end < 74) {
+        #   $saw_increasing = 0;
+        #   $saw_non_decreasing = 0;
+        # }
 
-        # not enough values to see these decreasing
-        if (($mod eq 'ImaginaryHalf,radix=37'
-            )
-            && ($param eq 'Diagonal'
-                || $param eq 'Y'
-               )) {
+        if ($mod eq 'ImaginaryHalf,radix=37'
+            && $i_end < 1369  # N of first Y coordinate decrease
+            && $param eq 'Y') {
+          $saw_increasing = 0;
+          $saw_non_decreasing = 0;
+        }
+        if ($mod eq 'ImaginaryHalf,radix=37'
+            && $i_end < 99974  # first decrease
+            && $param eq 'Diagonal') {
+          $saw_increasing = 0;
+          $saw_non_decreasing = 0;
+        }
+        if ($mod eq 'ImaginaryHalf,radix=37'
+            && $i_end < 2702  # first decreasing
+            && $param eq 'Diagonal_NW') {
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
         }
@@ -1378,6 +1441,12 @@ my @modules = (
         }
         if ($count > 1 && $non_decreasing ne $saw_non_decreasing) {
           MyTestHelpers::diag ("$mod $param non_decreasing=$non_decreasing vs saw_non_decreasing=$saw_non_decreasing at $saw_non_decreasing_at");
+          MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
+          $bad++;
+        }
+
+        if ($characteristic_integer != $saw_characteristic_integer) {
+          MyTestHelpers::diag ("$mod $param characteristic_integer=$characteristic_integer vs saw_characteristic_integer=$saw_characteristic_integer at $saw_characteristic_integer_at");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }

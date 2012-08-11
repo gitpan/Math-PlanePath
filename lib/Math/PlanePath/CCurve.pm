@@ -25,7 +25,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -38,6 +38,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
+  'bit_split_lowtohigh',
   'digit_split_lowtohigh';
 
 
@@ -343,7 +344,7 @@ sub n_to_dxdy {
   my $int = int($n);
   $n -= $int;  # $n fraction part
 
-  my @digits = digit_split_lowtohigh($int,2);
+  my @digits = bit_split_lowtohigh($int);
   my $dir = (sum(@digits)||0) & 3;  # count of 1-bits
   my $dx = $dir_to_dx[$dir];
   my $dy = $dir_to_dy[$dir];
@@ -365,7 +366,7 @@ sub n_to_dxdy {
     # this the equivalent with explicit dir++ for turn=count-1
     # $dir++;
     # $dir &= 3;
-    # $dx += $n*($dir_to_dx[$dir] - $dx);  # with rot-90 instead of $dir+1
+    # $dx += $n*($dir_to_dx[$dir] - $dx);
     # $dy += $n*($dir_to_dy[$dir] - $dy);
   }
 

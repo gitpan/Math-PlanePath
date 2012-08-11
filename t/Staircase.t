@@ -33,7 +33,7 @@ require Math::PlanePath::Staircase;
 # VERSION
 
 {
-  my $want_version = 84;
+  my $want_version = 85;
   ok ($Math::PlanePath::Staircase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Staircase->VERSION,  $want_version,

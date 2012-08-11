@@ -26,12 +26,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 84;
+$VERSION = 85;
 
 use Exporter;
 @ISA = ('Exporter');
 @EXPORT_OK = ('parameter_info_array',
               # 'parameter_info_hash',
+              'bit_split_lowtohigh',
               'digit_split_lowtohigh',
               'digit_join_lowtohigh',
               'round_down_pow');
@@ -175,6 +176,30 @@ sub round_down_pow {
     return @ret;   # array[0] low digit
   }
 }
+
+use constant 1.02 _UV_MAX_PLUS_1 => ((~0 >> 1) + 1) * 2.0;
+
+# not documented yet ...
+sub bit_split_lowtohigh {
+  my ($n, $radix) = @_;
+  my @ret;
+  if ($n >= 1) {
+    if (ref $n && $n->isa('Math::BigInt')) {
+      (my $str = $n->as_bin) =~ s/^0b//;  # strip leading 0b
+      return reverse split //, $str;
+    }
+    if ($n < _UV_MAX_PLUS_1) {
+      return reverse split //, sprintf('%b',$n);
+    }
+    do {
+      my $digit = $n % 2;
+      push @ret, $digit;
+      $n = int(($n - $digit) / 2);
+    } while ($n);
+  }
+  return @ret;   # array[0] low digit
+}
+
 
 #------------------------------------------------------------------------------
 # $aref->[0] low digit

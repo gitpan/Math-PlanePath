@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,7 +45,7 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'bit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -100,7 +100,7 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
   my $one = $zero + 1;  # inherit bignum 1
 
-  my @digits = digit_split_lowtohigh($n,2);
+  my @digits = bit_split_lowtohigh($n);
   pop @digits;  # drop high 1 bit
 
 

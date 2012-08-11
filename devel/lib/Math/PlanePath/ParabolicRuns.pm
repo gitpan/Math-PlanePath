@@ -16,43 +16,14 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=Toothpick --all --output=numbers --size=80x50
-#
-# A139250 total cells
-#    a(2^k) = A007583(k) = (2^(2n+1) + 1)/3
-#    a(2^k-1) = A000969(2^k-2), A000969=floor (2*n+3)*(n+1)/3
-# A139251 cells added
-#   0, 1, 2,
-#   4,  4,
-#   4, 8, 12, 8,
-#   4, 8, 12, 12, 16, 28, 32, 16,
-#   4, 8, 12, 12, 16, 28, 32, 20, 16, 28, 36, 40, 60, 88, 80, 32,
-#   4, 8, 12, 12, 16, 28, 32, 20, 16, 28, 36, 40, 60, 88, 80, 36, 16, 28, 36, 40, 60, 88, 84, 56, 60, 92, 112, 140, 208, 256, 192, 64,
-#   4, 8, 12, 12, 16, 28, 32, 20, 16, 28
-
-# A152968 (cells added)/2
-# A152978 (cells added)/4
-# A139252 total segments
-# A139253 primes
-# A147614 grid points if length 2
-# A139560 new segments added
-# A160570 triangle, row sums are toothpick cumulative
-# A152980 diffs
-# A153000 total in first quad
-# A153006 in one quad ?
-# A153007 triangular-toothpick
-# A151567 toothpick seq
-# A160552 A160762 A151548 A078008 A151575 A147614 toothpick
-# A160164 I tooth A187220 gull
-
-package Math::PlanePath::Toothpick;
+package Math::PlanePath::ParabolicRuns;
 use 5.004;
 use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -67,114 +38,75 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
-sub new {
-  my $self = shift->SUPER::new(@_);
-  $self->{'h'} = 1;
-  $self->{'endpoints'} = [ '0,0' ];
-  $self->{'xy_to_n'} = { '0,0' => 1 };
-  $self->{'n_to_x'} = [ undef, 0 ];
-  $self->{'n_to_y'} = [ undef, 0 ];
-  return $self;
-}
-
-sub _extend {
-  my ($self) = @_;
-  ### _extend(): $self
-  my $endpoints = $self->{'endpoints'};
-  my $h = $self->{'h'};
-  my @extend;
-  foreach (@$endpoints) {
-    my ($x,$y) = split /,/;
-    if ($h) {
-      push @extend,
-        ($x+1).",$y",
-          ($x-1).",$y";
-    } else {
-      push @extend,
-        "$x,".($y+1),
-          "$x,".($y-1);
-    }
-  }
-  my %extend;
-  foreach (@extend) {
-    $extend{$_}++;
-  }
-  @$endpoints = ();
-  my $n_to_x = $self->{'n_to_x'};
-  my $n_to_y = $self->{'n_to_y'};
-  my $xy_to_n = $self->{'xy_to_n'};
-  foreach (@extend) {
-    if ($extend{$_}==1 && ! exists $xy_to_n->{$_}) {
-      push @$endpoints, $_;
-      my ($x,$y) = split /,/;
-      push @$n_to_x, $x;
-      push @$n_to_y, $y;
-      $xy_to_n->{$_} = $#$n_to_x;
-    }
-  }
-  $self->{'h'} = ! $h;
-}
+use constant n_start => 1;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### Toothpick n_to_xy(): $n
+  ### ParabolicRuns n_to_xy(): $n
 
   if ($n < 1) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  {
-    my $int = int($n);
-    ### $int
-    ### $n
-    if ($n != $int) {
-      my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
-      my $frac = $n - $int;  # inherit possible BigFloat
-      my $dx = $x2-$x1;
-      my $dy = $y2-$y1;
-      return ($frac*$dx + $x1, $frac*$dy + $y1);
+  $n -= 1;
+  my @x;
+  for (my $k = 0; ; $k++) {
+    $x[$k] = 0;
+    for (my $y = $k; $y >= 0; $y--) {
+      my $len = $k-$y+1;
+      if ($n < $len) {
+        return ($x[$y] + $n, $y);
+      }
+      $x[$y] += $len;
+      $n -= $len;
     }
-    $n = $int;       # BigFloat int() gives BigInt, use that
   }
-
-  while ($#{$self->{'n_to_x'}} < $n) {
-    _extend($self);
-  }
-  ### $self
-
-  ### x: $self->{'n_to_x'}->[$n]
-  ### y: $self->{'n_to_y'}->[$n]
-  return ($self->{'n_to_x'}->[$n],
-          $self->{'n_to_y'}->[$n]);
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### Toothpick xy_to_n(): "$x, $y"
+  ### ParabolicRuns xy_to_n(): "$x, $y"
 
   $x = round_nearest ($x);
   $y = round_nearest ($y);
 
-  my $n_hi = 4*(1 + $x*$x + $y*$y);
-  while ($#{$self->{'n_to_x'}} < $n_hi) {
-    _extend($self);
+  if ($x < 0 || $y < 0) { return undef; }
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
+
+  my $n = 1;
+  my @sx;
+  for (my $k = 0; ; $k++) {
+    $sx[$k] = 0;
+    for (my $sy = $k; $sy >= 0; $sy--) {
+      my $len = $k-$sy+1;
+      if ($y == $sy) {
+        if ($x < $len) {
+          return ($n + $x);
+        }
+        $x -= $len;
+      }
+      $n += $len;
+    }
   }
-  return $self->{'xy_to_n'}->{"$x,$y"};
 }
 
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### Toothpick rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### ParabolicRuns rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = round_nearest ($x1);
   $y1 = round_nearest ($y1);
   $x2 = round_nearest ($x2);
   $y2 = round_nearest ($y2);
 
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+
   return (1,
-          4*(1 + max(abs($x1),abs($x2))**2
-             + max(abs($y1),abs($y2))**2));
+          2*($x2+1)*($y2+1)**2);
 }
 
 # ENHANCE-ME: calculate by the bits of n, not by X,Y
@@ -221,12 +153,12 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::Toothpick -- growth of a 2-D cellular automaton
+Math::PlanePath::ParabolicRuns -- growth of a 2-D cellular automaton
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::Toothpick;
- my $path = Math::PlanePath::Toothpick->new;
+ use Math::PlanePath::ParabolicRuns;
+ my $path = Math::PlanePath::ParabolicRuns->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -241,7 +173,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::Toothpick-E<gt>new ()>
+=item C<$path = Math::PlanePath::ParabolicRuns-E<gt>new ()>
 
 Create and return a new path object.
 

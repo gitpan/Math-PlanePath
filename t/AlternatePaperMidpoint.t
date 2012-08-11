@@ -36,7 +36,7 @@ require Math::PlanePath::AlternatePaperMidpoint;
 # VERSION
 
 {
-  my $want_version = 84;
+  my $want_version = 85;
   ok ($Math::PlanePath::AlternatePaperMidpoint::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AlternatePaperMidpoint->VERSION,  $want_version,

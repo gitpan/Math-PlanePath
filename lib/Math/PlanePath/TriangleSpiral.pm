@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -279,6 +279,8 @@ this path include
     http://oeis.org/A117625  (etc)
 
     n_start=1 (default)
+      A010054     turn 1=left,0=straight, extra initial 1
+
       A117625     N on X axis
       A081272     N on Y axis
       A006137     N on X negative axis
@@ -289,7 +291,7 @@ this path include
       A038764     N on WSW slope dX=-3,dY=-1
       A060544     N on ESE slope dX=3,dY=-1 diagonal
 
-      A063177    total sum previous row or diagonal
+      A063177     total sum previous row or diagonal
 
     n_start=0
       A051682     N on X axis (11-gonal numbers)

@@ -41,7 +41,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -586,8 +586,8 @@ The 180 degree reversals are all horizontal.  They occur because at those N
 the three N-1,N,N+1 converted to Gray code have the same bits at odd
 positions and therefore the same Y coordinate.
 
-See L<Math::PlanePath::KochCurve/Turn Sequence> for similar turns based on
-low zero bits (but by +60 and -120 degrees).
+See L<Math::PlanePath::KochCurve/N to Turn> for similar turns based on low
+zero bits (but by +60 and -120 degrees).
 
 =head1 OEIS
 

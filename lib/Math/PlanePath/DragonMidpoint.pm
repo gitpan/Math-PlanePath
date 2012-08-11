@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -69,7 +69,7 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'digit_split_lowtohigh';
+  'bit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -148,7 +148,7 @@ sub n_to_xy {
   ### $n
 
   # ENHANCE-ME: sx,sy just from len,len
-  my @digits = digit_split_lowtohigh($n,2);
+  my @digits = bit_split_lowtohigh($n);
   my @sx;
   my @sy;
 

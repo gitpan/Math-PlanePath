@@ -21,7 +21,10 @@
 # math-image --path=SierpinskiCurve --lines --scale=10
 #
 # math-image --path=SierpinskiCurve --all --output=numbers_dash
-
+#
+# turn seq from low non-zero or N/2 low bit or something
+# cf A039963
+#
 
 
 package Math::PlanePath::SierpinskiCurve;
@@ -32,7 +35,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

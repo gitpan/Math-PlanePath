@@ -58,7 +58,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 84;
+$VERSION = 85;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -68,7 +68,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh',
+  'bit_split_lowtohigh',
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
@@ -173,7 +173,7 @@ sub n_to_xy {
   # now $n is offset into the row
   #
   my $x = 0;
-  foreach my $digit (digit_split_lowtohigh($n,2)) {
+  foreach my $digit (bit_split_lowtohigh($n)) {
     my $ybit = pop @ybits;
     if ($digit) {
       $x += $ybit;
@@ -231,8 +231,8 @@ sub _right_xy_to_n {
   my $n = $zero;          # inherit bignum 0
   my $npower = $zero+1;   # inherit bignum 1
 
-  my @x = digit_split_lowtohigh($x,2);
-  my @y = digit_split_lowtohigh($y,2);
+  my @x = bit_split_lowtohigh($x);
+  my @y = bit_split_lowtohigh($y);
 
   my @nx;
   foreach my $i (0 .. $#y) {

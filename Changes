@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 85, August 2012
+    - SquareSpiral new "n_start" parameter
+    - PlanePathDelta new delta_type=>"AbsdX","AbsdY"
+
 Version 84, August 2012
     - PyramidRows new "align" parameter
 
@@ -24,7 +28,7 @@ Version 83, July 2012
     - new n_to_dxdy()
     - SierpinskiTriangle new "align" parameter
     - SierpinskiTriangle,TriangleSpiral,TriangleSpiralSkewed,Hypot new
-      "n_start" option
+      "n_start" parameter
     - PlanePathDelta new delta_type=>"dDiffYX"
     - PlanePathN new line_type=>"Diagonal_NW","Diagonal_SW","Diagonal_SE"
     - Math::PlanePath::Base::Digits new digit_join_lowtohigh()

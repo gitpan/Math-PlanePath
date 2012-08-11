@@ -38,7 +38,7 @@ my $path = Math::PlanePath::CCurve->new;
 # VERSION
 
 {
-  my $want_version = 84;
+  my $want_version = 85;
   ok ($Math::PlanePath::CCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CCurve->VERSION,  $want_version,
@@ -204,10 +204,7 @@ sub dxdy_to_dir {
 # return 0=E,1=N,2=W,3=S
 sub path_n_dir {
   my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n);
-  my ($next_x,$next_y) = $path->n_to_xy($n+1);
-  return dxdy_to_dir ($next_x - $x,
-                      $next_y - $y);
+  return dxdy_to_dir ($path->n_to_dxdy($n));
 }
 
 # return 0,1,2,3 to the left
