@@ -23,7 +23,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -163,65 +163,117 @@ my %oeis_anum =
    'Math::PlanePath::Corner,wider=0' =>
    { Y_axis   => 'A002522',  # n^2+1
      # OEIS-Other: A002522 planepath=Corner line_type=Y_axis
-     #
-     # Not quite, OFFSET=0 value=0 cf here Y=0 value=1
-     # # X_axis => 'A000290', # squares
    },
-   
-   # 'Math::PlanePath::DiagonalsOctant,direction=down' =>
-   # {
-   # Not quite, starting i=0 for square=1 cf A000290 starts 0
-   # # Diagonal => 'A000290', # squares
-   #
-   # Not quite, A033638 extra initial 1
-   # # Diagonal => 'A033638', # quarter squares + 1
-   # }
-   
-   # 'Math::PlanePath::DiagonalsOctant,direction=up' =>
-   # {
-   # # Y_axis => 'A002620', # quarter squares
-   # # but A002620 starts OFFSET=0 0,0,1,2,4, whereas axis N=1 1,2,4 so
-   # # skipping two initial 0s
-   #
-   # Not quite, A002061 extra initial 1
-   # # Diagonal => 'A002061', # central polygonal n^2-n+1
-   # }
-   
-   
+   'Math::PlanePath::Corner,wider=0,n_start=0' =>
+   { X_axis   => 'A005563',  # (n+1)^2-1
+     Y_axis   => 'A000290',  # squares
+     Diagonal => 'A002378',  # pronic
+     # OEIS-Other: A005563 planepath=Corner,n_start=0 line_type=X_axis
+     # OEIS-Other: A000290 planepath=Corner,n_start=0 line_type=Y_axis
+     # OEIS-Other: A002378 planepath=Corner,n_start=0 line_type=Diagonal
+   },   
+   'Math::PlanePath::Corner,wider=1,n_start=0' =>
+   { Y_axis   => 'A002378',  # pronic
+     Diagonal => 'A005563',  # (n+1)^2-1
+     # OEIS-Other: A002378 planepath=Corner,wider=1,n_start=0 line_type=Y_axis
+     # OEIS-Other: A005563 planepath=Corner,wider=1,n_start=0 line_type=Diagonal
+   },   
+   'Math::PlanePath::Corner,wider=2,n_start=0' =>
+   { Y_axis   => 'A005563',  # (n+1)^2-1
+     # OEIS-Other: A005563 planepath=Corner,wider=2,n_start=0 line_type=Y_axis
+   },   
+
+   # PyramidRows step=1
    do {
-     my $href= {
-                Y_axis   => 'A000124',  # triangular+1 = n*(n+1)/2+1
-                # OEIS-Other: A000124 planepath=PyramidRows,step=1 line_type=Y_axis
-                # OEIS-Other: A000124 planepath=PyramidRows,step=1,align=right line_type=Y_axis
-                
-                # Not quite, but i=0 value=1
-                # Diagonal => 'A000217', # triangular 1,3,6,10
-               };
+     my $href =
+       { Y_axis   => 'A000124',  # triangular+1 = n*(n+1)/2+1
+       };
      ('Math::PlanePath::PyramidRows,step=1,align=centre' => $href,
       'Math::PlanePath::PyramidRows,step=1,align=right'  => $href);
+
+     # OEIS-Other: A000124 planepath=PyramidRows,step=1 line_type=Y_axis
+     # OEIS-Other: A000124 planepath=PyramidRows,step=1,align=right line_type=Y_axis
    },
    'Math::PlanePath::PyramidRows,step=1,align=left' =>
    { Diagonal_NW => 'A000124',  # triangular+1 = n*(n+1)/2+1
      # OEIS-Other: A000124 planepath=PyramidRows,step=1,align=left line_type=Diagonal_NW
    },
+   do {
+     my $href =
+       { Y_axis   => 'A000217',  # triangular
+       };
+     ('Math::PlanePath::PyramidRows,step=1,align=centre,n_start=0' => $href,
+      'Math::PlanePath::PyramidRows,step=1,align=right,n_start=0'  => $href);
+
+     # OEIS-Other: A000217 planepath=PyramidRows,step=1,n_start=0 line_type=Y_axis
+     # OEIS-Other: A000217 planepath=PyramidRows,step=1,align=right,n_start=0 line_type=Y_axis
+   },
 
    'Math::PlanePath::PyramidRows,step=2,align=centre' =>
    { Diagonal_NW => 'A002522',  # n^2+1
      # OEIS-Other: A002522 planepath=PyramidRows,step=2 line_type=Diagonal_NW
-     
-     # Not quite
-     # Diagonal => 'A000290', # squares 1,4,9,16, but i=0 value=1
    },
+   'Math::PlanePath::PyramidRows,step=2,align=centre,n_start=0' =>
+   { Y_axis      => 'A002378', # pronic
+     Diagonal    => 'A005563',
+     Diagonal_NW => 'A000290', # squares
+     # OEIS-Other: A002378 planepath=PyramidRows,step=2,n_start=0 line_type=Y_axis
+     # OEIS-Other: A005563 planepath=PyramidRows,step=2,n_start=0 line_type=Diagonal
+     # OEIS-Other: A000290 planepath=PyramidRows,step=2,n_start=0 line_type=Diagonal_NW
+   },
+   'Math::PlanePath::PyramidRows,step=2,align=right,n_start=0' =>
+   { Y_axis   => 'A000290', # squares
+     Diagonal => 'A002378', # pronic
+     # OEIS-Other: A000290 planepath=PyramidRows,step=2,align=right,n_start=0 line_type=Y_axis
+     # OEIS-Other: A002378 planepath=PyramidRows,step=2,align=right,n_start=0 line_type=Diagonal
+   },
+   'Math::PlanePath::PyramidRows,step=2,align=left,n_start=0' =>
+   { Y_axis      => 'A005563',
+     Diagonal_NW => 'A002378', # pronic
+     # OEIS-Other: A005563 planepath=PyramidRows,step=2,align=left,n_start=0 line_type=Y_axis
+     # OEIS-Other: A002378 planepath=PyramidRows,step=2,align=left,n_start=0 line_type=Diagonal_NW
+   },
+   'Math::PlanePath::PyramidRows,step=2,align=centre,n_start=2' =>
+   { Diagonal_NW => 'A059100', # n^2+2
+     # OEIS-Catalogue: A059100 planepath=PyramidRows,step=2,n_start=2 line_type=Diagonal_NW
+   },
+   'Math::PlanePath::PyramidRows,step=2,align=right,n_start=2' =>
+   { Y_axis => 'A059100', # n^2+2
+     # OEIS-Other: A059100 planepath=PyramidRows,step=2,align=right,n_start=2 line_type=Y_axis
+   },
+
    'Math::PlanePath::PyramidRows,step=3,align=centre' =>
-   { Diagonal_NW => 'A143689',
-     Y_axis      => 'A104249',
-     # OEIS-Catalogue: A143689 planepath=PyramidRows,step=3 line_type=Diagonal_NW
+   { Y_axis      => 'A104249',
+     Diagonal_NW => 'A143689',
      # OEIS-Catalogue: A104249 planepath=PyramidRows,step=3 line_type=Y_axis
+     # OEIS-Catalogue: A143689 planepath=PyramidRows,step=3 line_type=Diagonal_NW
+     # Not quite OFFSET=1 cf start i=0 here
+     # Diagonal    => 'A005448',
+     # # OEIS-Catalogue: A005448 planepath=PyramidRows,step=3 line_type=Diagonal
+   },
+   'Math::PlanePath::PyramidRows,step=3,align=right' =>
+   { Y_axis   => 'A143689',
+     Diagonal => 'A104249',
+     # OEIS-Other: A143689 planepath=PyramidRows,step=3,align=right line_type=Y_axis
+     # OEIS-Other: A104249 planepath=PyramidRows,step=3,align=right line_type=Diagonal
      
      # Not quite OFFSET=1 cf start i=0 here
      # Diagonal    => 'A005448',
      # # OEIS-Catalogue: A005448 planepath=PyramidRows,step=3 line_type=Diagonal
    },
+   'Math::PlanePath::PyramidRows,step=3,align=centre,n_start=0' =>
+   { Y_axis      => 'A005449', # second pentagonal n*(3n+1)/2
+     Diagonal_NW => 'A000326', # pentagonal n(3n-1)/2
+     # OEIS-Other: A005449 planepath=PyramidRows,step=3,n_start=0 line_type=Y_axis
+     # OEIS-Other: A000326 planepath=PyramidRows,step=3,n_start=0 line_type=Diagonal_NW
+   },
+   'Math::PlanePath::PyramidRows,step=3,align=right,n_start=0' =>
+   { Y_axis   => 'A000326', # pentagonal n(3n-1)/2
+     Diagonal => 'A005449', # second pentagonal n*(3n+1)/2
+     # OEIS-Other: A000326 planepath=PyramidRows,step=3,align=right,n_start=0 line_type=Y_axis
+     # OEIS-Other: A005449 planepath=PyramidRows,step=3,align=right,n_start=0 line_type=Diagonal
+   },
+
    'Math::PlanePath::PyramidRows,step=4,align=centre' =>
    { Y_axis      => 'A084849',
      Diagonal    => 'A001844',
@@ -230,6 +282,33 @@ my %oeis_anum =
      # OEIS-Other: A001844 planepath=PyramidRows,step=4 line_type=Diagonal
      # OEIS-Other: A058331 planepath=PyramidRows,step=4 line_type=Diagonal_NW
    },
+   'Math::PlanePath::PyramidRows,step=4,align=right' =>
+   { Diagonal => 'A058331',
+     # OEIS-Other: A058331 planepath=PyramidRows,step=4,align=right line_type=Diagonal
+   },
+   'Math::PlanePath::PyramidRows,step=4,align=left' =>
+   { Diagonal_NW => 'A001844',
+     # OEIS-Other: A001844 planepath=PyramidRows,step=4,align=left line_type=Diagonal_NW
+   },
+   'Math::PlanePath::PyramidRows,step=4,align=centre,n_start=0' =>
+   { Y_axis      => 'A014105', # second hexagonal
+     Diagonal    => 'A046092', # 4*triangular
+     Diagonal_NW => 'A001105',
+     # OEIS-Other:     A014105 planepath=PyramidRows,step=4,n_start=0 line_type=Y_axis
+     # OEIS-Catalogue: A046092 planepath=PyramidRows,step=4,n_start=0 line_type=Diagonal
+     # OEIS-Other:     A001105 planepath=PyramidRows,step=4,n_start=0 line_type=Diagonal_NW
+   },
+   'Math::PlanePath::PyramidRows,step=4,align=right,n_start=0' =>
+   { Diagonal => 'A001105',
+     # OEIS-Other: A001105 planepath=PyramidRows,step=4,align=right,n_start=0 line_type=Diagonal
+   },
+   'Math::PlanePath::PyramidRows,step=4,align=left,n_start=0' =>
+   { Diagonal_NW => 'A046092', # 4*triangular
+     # OEIS-Other: A046092 planepath=PyramidRows,step=4,align=left,n_start=0 line_type=Diagonal_NW
+   },
+
+   # TODO PyramidRows,step=5 n_start=0
+
    'Math::PlanePath::PyramidRows,step=5,align=centre' =>
    { Y_axis      => 'A116668',
      # OEIS-Other: A116668 planepath=PyramidRows,step=5 line_type=Y_axis
@@ -254,10 +333,10 @@ my %oeis_anum =
    },
    
    'Math::PlanePath::PyramidSides' =>
-   { X_neg   => 'A002522',
+   { X_neg    => 'A002522',
      Diagonal => 'A033951',
-     # OEIS-Other: A002522 planepath=PyramidSides line_type=X_neg
-     # OEIS-Other: A033951 planepath=PyramidSides line_type=Diagonal
+     # OEIS-Catalogue: A002522 planepath=PyramidSides line_type=X_neg
+     # OEIS-Other:     A033951 planepath=PyramidSides line_type=Diagonal
      #
      # X_axis -- squares (x+1)^2, but starting i=0 value=1
    },
@@ -280,11 +359,41 @@ my %oeis_anum =
    { Diagonal => 'A001844',  # centred squares 2n(n+1)+1
      # OEIS-Other: A001844 planepath=DiagonalsAlternating line_type=Diagonal
      
-     # but extra initial 0 cf start N=1 in DiagonalsAlternating
+     # Not quite, extra initial 1 or 0
      # X_axis => 'A128918',
      # Y_axis => 'A131179',
    },
+   'Math::PlanePath::DiagonalsAlternating,n_start=0' =>
+   { Diagonal => 'A046092',  # 2*triangular
+     # OEIS-Other: A046092 planepath=DiagonalsAlternating,n_start=0 line_type=Diagonal
+   },
+
+   'Math::PlanePath::DiagonalsOctant,direction=down,n_start=0' =>
+   { Diagonal => 'A005563', # n*(n+2)  0,3,8,15,24
+     # OEIS-Other: A005563 planepath=DiagonalsOctant,n_start=0 line_type=Diagonal
+   },
+   'Math::PlanePath::DiagonalsOctant,direction=up,n_start=0' =>
+   { Diagonal => 'A002378', # pronic n*(n+1)
+     # OEIS-Other: A002378 planepath=DiagonalsOctant,direction=up,n_start=0 line_type=Diagonal
+   },
+   # 'Math::PlanePath::DiagonalsOctant,direction=down' =>
+   # {
+   # Not quite, starting i=0 for square=1 cf A000290 starts 0
+   # # Diagonal => 'A000290', # squares
+   #
+   # Not quite, A033638 extra initial 1
+   # # Diagonal => 'A033638', # quarter squares + 1
+   # }
+   # 'Math::PlanePath::DiagonalsOctant,direction=up,n_start=0' =>
+   # {
+   # # Not quite, extra initial 0
+   # # Y_axis => 'A002620', # quarter squares
+   #
+   # # Not quite, A002061 extra initial 1
+   # # Diagonal => 'A002061', # central polygonal n^2-n+1
+   # }
    
+
    'Math::PlanePath::SierpinskiTriangle,align=triangular' =>
    { Diagonal_NW => 'A006046',
      # OEIS-Other: A006046 planepath=SierpinskiTriangle line_type=Diagonal_NW
@@ -316,13 +425,28 @@ my %oeis_anum =
     # # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
    },
    
-   'Math::PlanePath::PeanoCurve,radix=3' =>
-   { X_axis   => 'A163480', # axis same as initial direction
-     Y_axis   => 'A163481', # axis opp to initial direction
-     Diagonal => 'A163343',
+   # PeanoCurve
+   do {
+     my $href =
+       { X_axis   => 'A163480', # axis same as initial direction
+         Y_axis   => 'A163481', # axis opp to initial direction
+         Diagonal => 'A163343',
+       };
+     ('Math::PlanePath::PeanoCurve,radix=3' => $href,
+      'Math::PlanePath::GrayCode,apply_type=TsF,gray_type=reflected,radix=3' => $href,
+      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=reflected,radix=3' => $href,
+     );
      # OEIS-Catalogue: A163480 planepath=PeanoCurve
      # OEIS-Catalogue: A163481 planepath=PeanoCurve line_type=Y_axis
      # OEIS-Catalogue: A163343 planepath=PeanoCurve line_type=Diagonal
+
+     # OEIS-Other: A163480 planepath=GrayCode,apply_type=TsF,radix=3
+     # OEIS-Other: A163481 planepath=GrayCode,apply_type=TsF,radix=3 line_type=Y_axis
+     # OEIS-Other: A163343 planepath=GrayCode,apply_type=TsF,radix=3 line_type=Diagonal
+
+     # OEIS-Other: A163480 planepath=GrayCode,apply_type=FsT,radix=3
+     # OEIS-Other: A163481 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Y_axis
+     # OEIS-Other: A163343 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Diagonal
    },
    
    'Math::PlanePath::HilbertCurve' =>
@@ -347,12 +471,10 @@ my %oeis_anum =
      # OEIS-Catalogue: A037314 planepath=ZOrderCurve,radix=3 i_start=1
      # A037314 starts OFFSET=1 value=1, thus istart=1 here
    },
-   # 'Math::PlanePath::ZOrderCurve,radix=10' =>
-   # {
-   #   Not quite, A051022 starts OFFSET=1 value=0, cf here i=0 value=0
-   #   X_axis => 'A051022',  # base 10 insert 0s, for digits 0 to 9 base 100
-   #   # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10 i_start=1
-   # },
+   'Math::PlanePath::ZOrderCurve,radix=10' =>
+   { X_axis => 'A051022',  # base 10 insert 0s, for digits 0 to 9 base 100
+     # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10
+   },
    
    'Math::PlanePath::CornerReplicate' =>
    { X_axis   => 'A000695',  # base 4 digits 0,1 only
@@ -361,6 +483,55 @@ my %oeis_anum =
      # OEIS-Other: A000695 planepath=CornerReplicate
      # OEIS-Other: A001196 planepath=CornerReplicate line_type=Y_axis
      # OEIS-Other: A062880 planepath=CornerReplicate line_type=Diagonal
+   },
+
+   # GrayCode radix=2 TsF==Fs reflected==modular
+   do {
+     my $href =
+       { Y_axis => 'A001196',  # base 4 digits 0,3 only
+       };
+     ('Math::PlanePath::GrayCode,apply_type=TsF,gray_type=reflected,radix=2' => $href,
+      'Math::PlanePath::GrayCode,apply_type=Fs,gray_type=reflected,radix=2' => $href,
+      'Math::PlanePath::GrayCode,apply_type=TsF,gray_type=modular,radix=2' => $href,
+      'Math::PlanePath::GrayCode,apply_type=Fs,gray_type=modular,radix=2' => $href,
+     );
+     # OEIS-Other: A001196 planepath=GrayCode,apply_type=TsF line_type=Y_axis
+     # OEIS-Other: A001196 planepath=GrayCode,apply_type=Fs line_type=Y_axis
+     # OEIS-Other: A001196 planepath=GrayCode,apply_type=TsF,gray_type=modular line_type=Y_axis
+     # OEIS-Other: A001196 planepath=GrayCode,apply_type=Fs,gray_type=modular line_type=Y_axis
+   },
+   # GrayCode radix=2 Ts==FsT reflected==modular
+   do {
+     my $href =
+       { Diagonal => 'A062880',  # base 4 digits 0,2 only
+       };
+     ('Math::PlanePath::GrayCode,apply_type=Ts,gray_type=reflected,radix=2' => $href,
+      'Math::PlanePath::GrayCode,apply_type=Ts,gray_type=modular,radix=2' => $href,
+      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=reflected,radix=2' => $href,
+      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=modular,radix=2' => $href,
+     );
+     # OEIS-Other: A062880 planepath=GrayCode,apply_type=Ts line_type=Diagonal
+     # OEIS-Other: A062880 planepath=GrayCode,apply_type=Ts,gray_type=modular line_type=Diagonal
+     # OEIS-Other: A062880 planepath=GrayCode,apply_type=FsT line_type=Diagonal
+     # OEIS-Other: A062880 planepath=GrayCode,apply_type=FsT,gray_type=modular line_type=Diagonal
+   },
+
+   # GrayCode radix=3 sT==sF reflected
+   # N split then toGray giving Y=0 means N ternary 010202 etc
+   # N split then toGray giving X=Y means N ternary pairs 112200
+   do {
+     my $href =
+       { X_axis   => 'A163344',  # central Peano/4, base9 digits 0,1,2 only
+         Diagonal => 'A163343',  # central diagonal of Peano, base9 0,4,8
+       };
+     ('Math::PlanePath::GrayCode,apply_type=sT,gray_type=reflected,radix=3' => $href,
+      'Math::PlanePath::GrayCode,apply_type=sF,gray_type=reflected,radix=3' => $href,
+     );
+     # OEIS-Catalogue: A163344 planepath=GrayCode,apply_type=sT,radix=3 line_type=X_axis
+     # OEIS-Other:     A163344 planepath=GrayCode,apply_type=sF,radix=3 line_type=X_axis
+
+     # OEIS-Other: A163343 planepath=GrayCode,apply_type=sT,radix=3 line_type=Diagonal
+     # OEIS-Other: A163343 planepath=GrayCode,apply_type=sF,radix=3 line_type=Diagonal
    },
    
    'Math::PlanePath::LTiling,L_fill=middle' =>

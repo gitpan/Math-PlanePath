@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -355,7 +355,14 @@ odd the other even, then the return is C<undef>.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A063178  (etc)
+    http://oeis.org/A056105  (etc)
+
+    A056105    N on X axis
+    A056106    N on X=Y diagonal
+    A056107    N on North-West diagonal
+    A056108    N on negative X axis
+    A056109    N on South-West diagonal
+    A003215    N on South-East diagonal
 
     A063178    total sum previous row or diagonal
 

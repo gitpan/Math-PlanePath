@@ -36,7 +36,7 @@ require Math::PlanePath::HIndexing;
 # VERSION
 
 {
-  my $want_version = 85;
+  my $want_version = 86;
   ok ($Math::PlanePath::HIndexing::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HIndexing->VERSION,  $want_version,

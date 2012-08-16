@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,6 +48,9 @@ use constant parameter_info_array =>
 
 sub new {
   my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   $self->{'direction'} ||= 'down';
   return $self;
 }
@@ -84,6 +87,9 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   ### DiagonalsOctant n_to_xy(): "$n   ".(ref $n || '')
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   my $d = int(4*$n)-2;   # for sqrt
   if ($d < 0) {
@@ -145,11 +151,11 @@ sub xy_to_n {
   if ($self->{'direction'} eq 'up') {
     my $d = $x + $y + 2;
     ### $d
-    return ($d*$d - ($d % 2))/4 - $x;
+    return ($d*$d - ($d % 2))/4 - $x + $self->{'n_start'} - 1;
   } else {
     my $d = $x + $y + 1;
     ### $d
-    return ($d*$d - ($d % 2))/4 + 1 + $x;
+    return ($d*$d - ($d % 2))/4 + $x + $self->{'n_start'};
   }
 }
 
@@ -179,7 +185,7 @@ sub rect_to_n_range {
   #  -----+   +  |x1,y2
   #
   if ($x2 < 0 || $y2 < 0 || $x1 > $y2) {
-    ### outside upper octant, no range ...
+    ### entirely outside upper octant, no range ...
     return (1, 0);
   }
 
@@ -308,6 +314,31 @@ In this arrangement N=1,2,4,6,9,etc on the Y axis are alternately the
 squares and the pronic numbers.  The squares are on even Y and pronic on
 odd Y.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same diagonals sequence.  For
+example to start at 0,
+
+=cut
+
+# math-image --path=DiagonalsOctant,n_start=0 --all --output=numbers --size=35x5
+# math-image --path=DiagonalsOctant,n_start=0,direction=up --all --output=numbers --size=35x5
+
+=pod
+
+    n_start => 0                 n_start=>0, direction=>"up"
+
+      6  | 12                        | 15
+      5  |  9 13                     | 11 14
+      4  |  6 10 14                  |  8 10 13
+      3  |  4  7 11 15               |  5  7  9 12
+      2  |  2  5  8                  |  3  4  6
+      1  |  1  3                     |  1  2
+    Y=0  |  0                        |  0
+         +--------------             +--------------
+          X=0  1  2  3                X=0  1  2  3
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -315,6 +346,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::DiagonalsOctant-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::DiagonalsOctant-E<gt>new (n_start =E<gt> $integer)>
 
 Create and return a new path object.
 
@@ -443,10 +476,11 @@ this path include
     http://oeis.org/A055087  (etc)
 
     direction=down
+      A002620    N at end each run X=k,Y=k and X=k,Y=k+1
+    direction=down, n_start=0
       A055087    X coord, runs 0 to k twice
       A055086    X+Y, k repeating floor(k/2)+1 times
       A082375    Y-X, runs k to 0 or 1 stepping by 2
-      A002620    N at end each run X=k,Y=k and X=k,Y=k+1
 
     direction=up
       A055086    X+Y, k repeating floor(k/2)+1 times

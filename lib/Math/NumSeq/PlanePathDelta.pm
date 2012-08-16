@@ -46,7 +46,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -110,22 +110,27 @@ my %oeis_anum
      },
      
      'Math::PlanePath::Diagonals,direction=down' =>
-     {
-      dY => 'A127949',
-      # OEIS-Catalogue: A127949 planepath=Diagonals delta_type=dY
-
-      # but starts OFFSET=0
-      # dSum => 'A023531', # characteristic "1" at triangulars
+     { dY => 'A127949',
+       # OEIS-Catalogue: A127949 planepath=Diagonals delta_type=dY
      },
      'Math::PlanePath::Diagonals,direction=up' =>
-     {
-      dX => 'A127949',
-      # OEIS-Other: A127949 planepath=Diagonals,direction=up delta_type=dX
-
-      # but starts OFFSET=0
-      # dSum => 'A023531', # characteristic "1" at triangulars
+     { dX => 'A127949',
+       # OEIS-Other: A127949 planepath=Diagonals,direction=up delta_type=dX
      },
-     
+     'Math::PlanePath::Diagonals,direction=down,n_start=0' =>
+     { dSum => 'A023531', # characteristic "1" at triangulars
+       # OEIS-Other: A023531 planepath=Diagonals,n_start=0 delta_type=dSum
+     },
+     'Math::PlanePath::Diagonals,direction=up,n_start=0' =>
+     { dSum => 'A023531', # characteristic "1" at triangulars
+       # OEIS-Other: A023531 planepath=Diagonals,direction=up,n_start=0 delta_type=dSum    
+     },
+
+     'Math::PlanePath::DiagonalsAlternating,n_start=0' =>
+     { dSum => 'A023531', # characteristic "1" at triangulars
+       # OEIS-Other: A023531 planepath=DiagonalsAlternating,n_start=0 delta_type=dSum
+     },
+
      # 'Math::PlanePath::PowerArray,radix=2' =>
      # {
      #  # # but starts OFFSET=0 vs n_start=1 here
@@ -136,37 +141,75 @@ my %oeis_anum
      #  # dY => 'A108715', # first diffs of odd part of n
      #  # # OEIS-Catalogue: A108715 planepath=PowerArray,radix=2 delta_type=dY
      # },
-     
-     # 'Math::PlanePath::GosperSide' =>
-     # 'Math::PlanePath::TerdragonCurve' =>
-     # A062756 is total turn starting OFFSET=0, count of ternary 1 digits.
-     # Dir6 would be total%6, or 2*(total%3) for Terdragon, suspect such a
-     # modulo version not in OEIS.
-     
-     'Math::PlanePath::AlternatePaper,arms=1' =>
-     { dSum => 'A020985', # GRS
-       # OEIS-Other: A020985 planepath=AlternatePaper delta_type=dSum
-       #   # no option to take every second N yet
-       #   dX_every_second_point_skipping_zeros => 'A020985', # GRS
-       #   # ie. Math::NumSeq::GolayRudinShapiro
+
+     do {
+       my $href = 
+         { # AbsdX => '', # 1,0 repeating
+           AbsdY => 'A000035', # 0,1 repeating
+         };
+       ('Math::PlanePath::DragonCurve,arms=1' => $href,
+        'Math::PlanePath::DragonCurve,arms=3' => $href,
+       );
+       # OEIS-Other: A000035 planepath=DragonCurve delta_type=AbsdY
+       # OEIS-Other: A000035 planepath=DragonCurve,arms=3 delta_type=AbsdY
      },
-     
+     # 'Math::PlanePath::DragonCurve,arms=2' => $href,# 0,1,1,0
+     # 'Math::PlanePath::DragonCurve,arms=4' => $href,
+
      # 'Math::PlanePath::DragonMidpoint' =>
      # {
      #  # Not quite, has n=N+2 and extra initial 0 at n=1
      #  # AbsdY => 'A073089',
      # },
      
+     'Math::PlanePath::AlternatePaper,arms=1' =>
+     { AbsdY => 'A000035', # 0,1 repeating
+       dSum  => 'A020985', # GRS
+       # OEIS-Other: A000035 planepath=AlternatePaper delta_type=AbsdY
+       # OEIS-Other: A020985 planepath=AlternatePaper delta_type=dSum
+
+       #   dX_every_second_point_skipping_zeros => 'A020985', # GRS
+       #   # ie. Math::NumSeq::GolayRudinShapiro
+     },
+     
+     # 'Math::PlanePath::GosperSide' =>
+     # 'Math::PlanePath::TerdragonCurve' =>
+     # A062756 is total turn starting OFFSET=0, count of ternary 1 digits.
+     # Dir6 would be total%6, or 2*(total%3) for Terdragon, suspect such a
+     # modulo version not in OEIS.
+
+     do {
+       my $href = 
+         { # AbsdX => '', # 1,0 repeating
+           AbsdY => 'A000035', # 0,1 repeating
+         };
+       ('Math::PlanePath::R5DragonCurve,arms=1' => $href,
+        'Math::PlanePath::R5DragonCurve,arms=3' => $href,
+       );
+       # OEIS-Other: A000035 planepath=R5DragonCurve delta_type=AbsdY
+       # OEIS-Other: A000035 planepath=R5DragonCurve,arms=3 delta_type=AbsdY
+     },
+
+     'Math::PlanePath::CCurve' =>
+     { AbsdX => 'A010059', # 0,1 repeating
+       AbsdY => 'A010060', # 1-bit count mod 2, Thue-Morse
+       Dir4  => 'A179868', # 1-bit count mod 4
+       # OEIS-Catalogue: A010059 planepath=CCurve delta_type=AbsdX
+       # OEIS-Other:     A010060 planepath=CCurve delta_type=AbsdY
+       # OEIS-Catalogue: A179868 planepath=CCurve delta_type=Dir4
+     },
+
      # 'Math::PlanePath::HilbertCurve' =>
      # {
-     #  # OFFSET n=1 cf N=0
+     #  # Not quite, OFFSET=1 at origin, cf path instead N=0
      #  # # A163540 is 0=east,1=south,2=west,3=north for drawing down the page,
      #  # # which corresponds to 1=north,3=south per the HilbertCurve planepath
      #  # Dir4 => 'A163540',
      #  # # OEIS-Catalogue: A163540 planepath=HilbertCurve delta_type=Dir4
      #
-     #  # delta path(n)-path(n-1) starting i=0 with path(-1)=0 for first value 0
-     #  # dX => 'A163538',
+     # Not quite, # delta path(n)-path(n-1) starting i=0 with path(-1)=0 for
+     # first value 0
+     # # dX => 'A163538',
      #  # # OEIS-Catalogue: A163538 planepath=HilbertCurve delta_type=dX
      #  # dY => 'A163539',
      #  # # OEIS-Catalogue: A163539 planepath=HilbertCurve delta_type=dY
@@ -213,17 +256,46 @@ my %oeis_anum
        # OEIS-Other: A000012 planepath=PyramidRows,step=0 delta_type=Dir4
      },
      
-     # # PyramidRows step=1
-     # 'Math::PlanePath::PyramidRows,step=1' =>
-     # {
-     #  # not quite, PyramidRows starts N=1 but A023531 starts n=0
-     #  # dY    => 'A023531',  # 1,0,1,0,0,1,etc, 1 if n==k(k+3)/2
-     #  # not quite, PyramidRows starts N=1 but A167407 starts OFFSET=0
-     #  # dDiffXY => 'A167407'
-     # },
+     # PyramidRows step=1
+     do {   # n_start=1
+       my $href = 
+         { dDiffYX => 'A127949',
+         };
+       ('Math::PlanePath::PyramidRows,step=1,align=centre' => $href,
+        'Math::PlanePath::PyramidRows,step=1,align=right'  => $href,
+       );
+       # OEIS-Other: A127949 planepath=PyramidRows,step=1 delta_type=dDiffYX
+       # OEIS-Other: A127949 planepath=PyramidRows,step=1,align=right delta_type=dDiffYX
+     },
+     do {   # n_start=0
+       my $href = 
+         { dY      => 'A023531',  # 1,0,1,0,0,1,etc, 1 if n==k(k+3)/2
+           AbsdY   => 'A023531',  # abs(dy) same
+
+           # Not quite, A167407 has an extra initial 0
+           # dDiffXY => 'A167407',
+         };
+       ('Math::PlanePath::PyramidRows,step=1,align=centre,n_start=0' => $href,
+        'Math::PlanePath::PyramidRows,step=1,align=right,n_start=0'  => $href,
+       );
+       # OEIS-Catalogue: A023531 planepath=PyramidRows,step=1,n_start=0 delta_type=dY
+       # OEIS-Other:     A023531 planepath=PyramidRows,step=1,n_start=0 delta_type=AbsdY
+
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=right,n_start=0 delta_type=dY
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=right,n_start=0 delta_type=AbsdY
+     },
+     'Math::PlanePath::PyramidRows,step=1,align=left,n_start=0' =>
+     { dY      => 'A023531',  # 1,0,1,0,0,1,etc, 1 if n==k(k+3)/2
+       AbsdY   => 'A023531',  # abs(dy) same
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=left,n_start=0 delta_type=dY
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=left,n_start=0 delta_type=AbsdY
+     },
      
-     # PyramidRows step=2 dY is A010052, 1 if n=k^2, except it starts n=0
-     # where PyramidRows starts i=1
+     # 'Math::PlanePath::PyramidRows,step=2,align=centre,n_start=0' =>
+     # { 
+     #  # Not quite, extra initial 0
+     #  # dDiffXY      => 'A010052',
+     # },
      
      # MultipleRings step=0 is trivial X=N,Y=0
      'Math::PlanePath::MultipleRings,step=0,ring_shape=circle' =>

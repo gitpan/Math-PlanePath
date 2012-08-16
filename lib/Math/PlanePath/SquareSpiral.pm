@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -781,7 +781,12 @@ starting from N=0.
 
       A118175    abs(dX), runs of 1s then 0s
 
-      A002939    N on X=Y diagonal
+      A001107    N on X axis
+      A033991    N on Y axis
+      A033954    N on negative Y axis, second 10-gonals
+      A002939    N on X=Y diagonal North-East
+      A016742    N on North-West diagonal, 4*k^2
+      A002943    N on South-West diagonal
 
 =head1 SEE ALSO
 

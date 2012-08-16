@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 3;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,8 +32,6 @@ use Math::PlanePath::FactorRationals;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-
-MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
 
 my $path = Math::PlanePath::FactorRationals->new;
 
@@ -50,67 +48,6 @@ sub numeq_array {
     $i++;
   }
   return (@$a1 == @$a2);
-}
-
-
-#------------------------------------------------------------------------------
-# A019554 - product
-
-{
-  my $anum = 'A019554';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $x * $y;
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-
-#------------------------------------------------------------------------------
-# A071974 - numerators
-
-{
-  my $anum = 'A071974';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $x;
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A071975 - denominators
-
-{
-  my $anum = 'A071975';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
 }
 
 

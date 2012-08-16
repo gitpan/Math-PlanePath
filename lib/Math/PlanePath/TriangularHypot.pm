@@ -65,7 +65,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

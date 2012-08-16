@@ -98,7 +98,7 @@ sub dxdy_to_direction {
           1, "$anum");
   }
 
-  # A073089_func vs file
+  # A073089_func vs b-file
   {
     my @got;
     if ($bvalues) {

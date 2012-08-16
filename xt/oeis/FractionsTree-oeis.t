@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 5;
+plan tests => 2;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -102,69 +102,6 @@ sub numeq_array {
 #         1, "$anum -- Kepler tree denominators");
 # }
 
-
-#------------------------------------------------------------------------------
-# A020650 -- Kepler den-num, being AYT numerators
-
-{
-  my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
-  my $anum = 'A020650';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y - $x;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A020651 -- Kepler half-tree numerators / AYT denominators
-
-{
-  my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
-  my $anum = 'A020651';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Kepler numerators");
-}
-
-#------------------------------------------------------------------------------
-# A086592 -- Kepler half-tree denominators
-
-{
-  my $path  = Math::PlanePath::FractionsTree->new (tree_type => 'Kepler');
-  my $anum = 'A086592';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Kepler half-tree denominators");
-}
 
 #------------------------------------------------------------------------------
 # A086593 -- Kepler half-tree denominators, every second value

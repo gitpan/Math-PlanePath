@@ -71,7 +71,7 @@ sub diff_nums {
     require Math::PlanePath::PyramidRows;
     my $diag = Math::PlanePath::DiagonalsOctant->new(direction=>'up');
     my $rows = Math::PlanePath::PyramidRows->new(step=>1);
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $diag->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $diag->n_to_xy($n);
       push @got, nthprime ($rows->xy_to_n($x,$y) - 1);
     }

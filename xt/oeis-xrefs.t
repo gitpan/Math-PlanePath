@@ -70,7 +70,7 @@ foreach my $seq_filename ('lib/Math/NumSeq/PlanePathCoord.pm',
                          ) {
   open my $fh, '<', $seq_filename or die "Cannot open $seq_filename";
   while (<$fh>) {
-    if (/^\s*# OEIS-(Catalogue|Other): (A\d+)([^#]+)/) {
+    if (/^\s*# OEIS-(Catalogue|Other): +(A\d+)([^#]+)/) {
       my $anum = $2;
       my @args = split /\s/, $3;
       my %args = map { split /=/, $_, 2 } @args;
@@ -164,6 +164,7 @@ foreach my $path_name (@path_names) {
     next if $anum eq 'A000012'; # all ones
     next if $anum eq 'A001477'; # integers 0,1,2,3
     next if $anum eq 'A081274'; # oeis duplicate
+    next if $anum eq 'A000035'; # 0,1 reps
     if (! exists $pod_anums{$anum}) {
       diag "Math::PlanePath::$path_name checked anum $anum not in pod";
     }

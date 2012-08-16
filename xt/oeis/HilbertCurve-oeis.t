@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util 'min', 'max';
 use Test;
-plan tests => 46;
+plan tests => 38;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -53,6 +53,33 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      return "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    $got =~ /^[0-9.-]+$/
+      or return "not a number pos=$i got='$got'";
+    $want =~ /^[0-9.-]+$/
+      or return "not a number pos=$i want='$want'";
+    if ($got != $want) {
+      return "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return undef;
+}
+
+#------------------------------------------------------------------------------
 
 sub zorder_perm {
   my ($n) = @_;
@@ -102,6 +129,71 @@ sub zorder_is_3cycle {
   return ($p3 == $n);
 }
 
+
+#------------------------------------------------------------------------------
+# A163540 -- absolute direction 0=east, 1=south, 2=west, 3=north
+# Y coordinates reckoned down the page, so south is Y increasing
+
+{
+  my $anum = 'A163540';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
+      push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- absolute direction");
+}
+
+#------------------------------------------------------------------------------
+# A163538 -- delta X
+# extra first entry for N=0 no change
+{
+  my $anum = 'A163538';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if ($bvalues) {
+    my @got = (0);
+    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
+      push @got, $dx;
+    }
+    $diff = diff_nums(\@got,$bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef,
+        "$anum -- delta X (transpose)");
+}
+
+#------------------------------------------------------------------------------
+# A163539 -- delta Y
+# extra first entry for N=0 no change
+{
+  my $anum = 'A163539';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got = (0);
+  if ($bvalues) {
+    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
+      push @got, $dy;
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- delta Y (transpose)");
+}
 
 #------------------------------------------------------------------------------
 # A163891 - positions where cycle length some new previously unseen value
@@ -542,11 +634,9 @@ sub lcm {
 # # A147600 - num fixed points in 4^k blocks
 # {
 #   my $anum = 'A147600';
-#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count=>9);
 #   my @got;
 #   if ($bvalues) {
-#     # $#$bvalues = 9;
-# 
 #     my $target = 1;
 #     my $count = 0;
 #     for (my $n = 0; @got < @$bvalues; $n++) {
@@ -555,7 +645,6 @@ sub lcm {
 #         $count = 0;
 #         $target *= 4;
 #       }
-# 
 #       if ($n == zorder_perm($n)) {
 #         $count++;
 #       }
@@ -622,7 +711,7 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
       push @got, zorder_perm($n);
     }
   }
@@ -637,7 +726,7 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $zorder->xy_to_n ($x, $y);
     }
@@ -653,7 +742,7 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
       push @got, zorder_perm(zorder_perm($n));
     }
   }
@@ -668,7 +757,7 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
+    for (my $n = 0; @got < @$bvalues; $n++) {
       push @got, zorder_perm(zorder_perm(zorder_perm($n)));
     }
   }
@@ -729,104 +818,6 @@ sub lcm {
 }
 
 #------------------------------------------------------------------------------
-# A062880 -- diagonal X=Y is base 4 digits 0,2 only
-{
-  my $anum = 'A062880';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $hilbert->xy_to_n ($i,$i);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- column at X=0");
-}
-
-#------------------------------------------------------------------------------
-# A059252 - Y coord
-
-{
-  my $anum = 'A059252';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      push @got, $y;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - Y coord");
-}
-
-# A059253 - X coord
-{
-  my $anum = 'A059253';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      push @got, $x;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - X coord");
-}
-
-# A059261 - X+Y
-{
-  my $anum = 'A059261';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      push @got, $x+$y;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - X+Y");
-}
-
-# A059285 - X-Y
-{
-  my $anum = 'A059285';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      push @got, $x-$y;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - X-Y");
-}
-
-# A163547 - X^2+Y^2
-{
-  my $anum = 'A163547';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      push @got, $x*$x+$y*$y;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - X^2+Y^2");
-}
-
-#------------------------------------------------------------------------------
 # A163357 - in diagonal sequence
 
 {
@@ -834,9 +825,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new
-      (direction => 'down');  # from opposite side
-    foreach my $n (1 .. @$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                    n_start => 0);
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($y, $x) = $diagonal->n_to_xy ($n);
       push @got, $hilbert->xy_to_n ($x, $y);
     }
@@ -852,11 +843,11 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new
-      (direction => 'down');  # from opposite side
-    foreach my $n (0 .. $#$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                    n_start => 0);
+    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
       my ($y, $x) = $hilbert->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n ($x, $y) - 1;  # 0-based diagonals
+      push @got, $diagonal->xy_to_n ($x, $y);
     }
   }
   skip (! $bvalues,
@@ -874,7 +865,7 @@ sub lcm {
   if ($bvalues) {
     my $diagonal = Math::PlanePath::Diagonals->new
       (direction => 'down');  # from opposite side
-    foreach my $n (1 .. @$bvalues) {
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $hilbert->xy_to_n ($x, $y);
     }
@@ -890,85 +881,9 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new
-      (direction => 'down');  # from opposite side
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n ($x, $y) - 1;  # 0-based diagonals
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
-#------------------------------------------------------------------------------
-# A163361 - diagonal sequence, one based
-
-{
-  my $anum = 'A163361';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new
-      (direction => 'up');  # from same side
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $diagonal->n_to_xy ($n);
-      push @got, $hilbert->xy_to_n ($x, $y) + 1; # 1-based Hilbert
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
-# A163362 - inverse
-{
-  my $anum = 'A163362';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new
-      (direction => 'up');  # from same side
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n ($x, $y); # 1-based Hilbert
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
-#------------------------------------------------------------------------------
-# A163363 - diagonal sequence, one based, opp sides
-
-{
-  my $anum = 'A163363';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new
-      (direction => 'down');  # from opposite side
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $diagonal->n_to_xy ($n);
-      push @got, $hilbert->xy_to_n ($x, $y) + 1;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
-# A163364 - inverse
-{
-  my $anum = 'A163364';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new
-      (direction => 'down');  # from opposite side
-    foreach my $n (0 .. $#$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                    n_start => 0);
+    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
       push @got, $diagonal->xy_to_n ($x, $y);
     }
@@ -979,13 +894,87 @@ sub lcm {
 }
 
 #------------------------------------------------------------------------------
+# A163361 - diagonal sequence, one based, same side
+
+{
+  my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
+  {
+    my $anum = 'A163361';
+    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+    my @got;
+    if ($bvalues) {
+      for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
+        my ($x, $y) = $diagonal->n_to_xy ($n);
+        push @got, $hilbert->xy_to_n ($x, $y) + 1; # 1-based Hilbert
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1);
+  }
+
+  # A163362 - inverse
+  {
+    my $anum = 'A163362';
+    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+    my @got;
+    if ($bvalues) {
+      for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
+        my ($x, $y) = $hilbert->n_to_xy ($n);
+        push @got, $diagonal->xy_to_n ($x, $y); # 1-based Hilbert
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1);
+  }
+}
+
+#------------------------------------------------------------------------------
+# A163363 - diagonal sequence, one based, opp sides
+
+{
+  my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
+  {
+    my $anum = 'A163363';
+    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+    my @got;
+    if ($bvalues) {
+      for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
+        my ($x, $y) = $diagonal->n_to_xy ($n);
+        push @got, $hilbert->xy_to_n ($x, $y) + 1;
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1);
+  }
+
+  # A163364 - inverse
+  {
+    my $anum = 'A163364';
+    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+    my @got;
+    if ($bvalues) {
+      for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
+        my ($x, $y) = $hilbert->n_to_xy ($n);
+        push @got, $diagonal->xy_to_n ($x, $y);
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1);
+  }
+}
+
+#------------------------------------------------------------------------------
 # A163365 - diagonal sums
 {
   my $anum = 'A163365';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $d (0 .. $#$bvalues) {
+    for (my $d = 0; @got < @$bvalues; $d++) {
       my $sum = 0;
       foreach my $x (0 .. $d) {
         my $y = $d - $x;
@@ -1005,7 +994,7 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $d (0 .. $#$bvalues) {
+    for (my $d = 0; @got < @$bvalues; $d++) {
       my $sum = 0;
       foreach my $x (0 .. $d) {
         my $y = $d - $x;
@@ -1020,103 +1009,6 @@ sub lcm {
 }
 
 #------------------------------------------------------------------------------
-# A163482 -- row at Y=0
-{
-  my $anum = 'A163482';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $x (0 .. $#$bvalues) {
-      push @got, $hilbert->xy_to_n ($x, 0);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- row at Y=0");
-}
-
-#------------------------------------------------------------------------------
-# A163483 -- column at X=0
-{
-  my $anum = 'A163483';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $y (0 .. $#$bvalues) {
-      push @got, $hilbert->xy_to_n (0, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- column at X=0");
-}
-
-#------------------------------------------------------------------------------
-# A163538 -- delta X
-# first entry is for N=0 no change
-{
-  my $anum = 'A163538';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my ($prev_x, $prev_y) = (0, 0);
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      my $dx = $x - $prev_x;
-      push @got, $dx;
-      ($prev_x, $prev_y) = ($x, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- delta X (transpose)");
-}
-
-#------------------------------------------------------------------------------
-# A163539 -- delta Y
-# first entry is for N=0 no change
-{
-  my $anum = 'A163539';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my ($prev_x, $prev_y) = (0, 0);
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      my $dy = $y - $prev_y;
-      push @got, $dy;
-      ($prev_x, $prev_y) = ($x, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- delta Y (transpose)");
-}
-
-#------------------------------------------------------------------------------
-# A163540 -- absolute direction 0=east, 1=south, 2=west, 3=north
-# Y coordinates reckoned down the page, so south is Y increasing
-
-{
-  my $anum = 'A163540';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      my $dx = $x - $prev_x;
-      my $dy = $y - $prev_y;
-      push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
-      ($prev_x,$prev_y) = ($x,$y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- absolute direction");
-}
-
-#------------------------------------------------------------------------------
 # A163541 -- absolute direction transpose 0=east, 1=south, 2=west, 3=north
 
 {
@@ -1124,13 +1016,10 @@ sub lcm {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my ($prev_x, $prev_y) = $hilbert->n_to_xy (0);
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $hilbert->n_to_xy ($n);
-      my $dx = $x - $prev_x;
-      my $dy = $y - $prev_y;
-      push @got, MyOEIS::dxdy_to_direction ($dy, $dx);
-      ($prev_x,$prev_y) = ($x,$y);
+    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
+      ($dx,$dy) = ($dy,$dx);   # transpose
+      push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
     }
   }
   skip (! $bvalues,

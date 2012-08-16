@@ -105,7 +105,7 @@ sub check_class {
   # return unless $class =~ /PlanePathCoord/;
   # return unless $class =~ /Koch/;
   # return unless $anum eq 'A006046';
-  # return unless $anum eq 'A000124';
+  # return unless $anum eq 'A051162';
 
 
   eval "require $class" or die;

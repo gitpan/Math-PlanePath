@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 20;
+plan tests => 19;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -136,56 +136,39 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A086893 -- pos of F(n+1)/F(n) in Stern diatomic
+# A086893 -- pos of frac F(n+1)/F(n) in Stern diatomic, is CW N
 
 {
   my $anum = 'A086893';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
 
-  # F(n+1)/F(n) in CW
-  {
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-    my @got;
-    if ($bvalues) {
-        my $f1 = 1;
-      my $f0 = 1;
-      while (@got < @$bvalues) {
-        push @got, $path->xy_to_n ($f1, $f0);
-        ($f1,$f0) = ($f1+$f0,$f1);
-      }
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+  my @got;
+  if ($bvalues) {
+    my $f1 = 1;
+    my $f0 = 1;
+    while (@got < @$bvalues) {
+      push @got, $path->xy_to_n ($f1, $f0);
+      ($f1,$f0) = ($f1+$f0,$f1);
     }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
   }
-
-  # 1/X in Drib
-  {
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
-    my @got;
-    if ($bvalues) {
-        for (my $x = 1; @got < @$bvalues; $x++) {
-        push @got, $path->xy_to_n ($x, 1);
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
-  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 #------------------------------------------------------------------------------
-# A061547 -- pos of F(n)/F(n+1) in Stern diatomic
+# A061547 -- pos of frac F(n)/F(n+1) in Stern diatomic, is CW N
 
-# F(n)/F(n+1) in CW
+# F(n)/F(n+1) in CW, extra initial 0
 {
   my $anum = 'A061547';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 100);
   {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-    my @got;
+    my @got = (0);  # extra initial 0 in A061547
     if ($bvalues) {
-      push @got, 0;  # extra initial 0 in A061547
+      push @got, 0;
       require Math::BigInt;
       my $f1 = Math::BigInt->new(1);
       my $f0 = Math::BigInt->new(1);
@@ -199,12 +182,11 @@ sub diff_nums {
           1, "$anum");
   }
 
-  # Y/1 in Drib
+  # Y/1 in Drib, extra initial 0 in A061547
   {
     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
-    my @got;
+    my @got = (0); # extra initial 0 in A061547
     if ($bvalues) {
-      push @got, 0;  # extra initial 0 in A061547
       for (my $y = Math::BigInt->new(1); @got < @$bvalues; $y++) {
         push @got, $path->xy_to_n (1, $y);
       }
@@ -343,145 +325,22 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A020650 -- AYT tree numerators
-
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my $anum = 'A020650';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- AYT tree numerators");
-}
-
-#------------------------------------------------------------------------------
-# A162910 -- AYT tree denominators
-
-{
-  my $anum = 'A020651';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- AYT tree denominators");
-}
-
-#------------------------------------------------------------------------------
-# A086592 -- AYT num+den is Kepler denominators
-
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my $anum = 'A086592';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x+$y;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- AYT tree num+den, is Kepler denominators");
-}
-
-#------------------------------------------------------------------------------
-# A162909 -- Bird tree numerators
-
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-  my $anum = 'A162909';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Bird tree numerators");
-}
-
-#------------------------------------------------------------------------------
-# A162910 -- Bird tree denominators
-
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-  my $anum = 'A162910';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Bird tree denominators");
-}
-
-#------------------------------------------------------------------------------
-# A162911 -- Drib tree numerators
+# A162911 -- Drib tree numerators = Bird tree reverse N
 
 {
   my $anum = 'A162911';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  {
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
-    my @got;
-    if ($bvalues) {
-        foreach my $n (1 .. @$bvalues) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $x;
-      }
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+  my @got;
+  if ($bvalues) {
+    foreach my $n (1 .. @$bvalues) {
+      my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
+      push @got, $x;
     }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- Drib tree numerators");
   }
-
-  # A162911 -- Drib tree numerators - Bird tree reverse N
-  {
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-    my @got;
-    if ($bvalues) {
-        foreach my $n (1 .. @$bvalues) {
-        my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
-        push @got, $x;
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- Drib tree numerators by bit reversal");
-  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- Drib tree numerators by bit reversal");
 }
 
 sub bit_reverse {

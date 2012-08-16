@@ -22,6 +22,9 @@
 # A038568   rationals numerators   X/Y followed by Y/X by ascending Y
 # A038569   rationals denominators
 
+# maybe n_start=0 to include 0/1, or including_zero=>1
+# giving A038567 num+den
+# cf A157806 abs(n-d) starts OFFSET=0 value=0 for num=1,den=1
 
 # math-image --path=DiagonalRationals --all --scale=10
 # math-image --path=DiagonalRationals --output=numbers --all
@@ -35,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;

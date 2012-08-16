@@ -111,48 +111,6 @@ sub dxdy_to_dir4_1 {
 }
 
 #------------------------------------------------------------------------------
-# A069894 -- wider=1 diagonal SW
-{
-  my $anum = 'A069894';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::SquareSpiral->new (wider => 1);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n (-$i, -$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
-#------------------------------------------------------------------------------
-# A002939 -- wider=1 diagonal SE, extra initial 0
-{
-  my $anum = 'A002939';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    my $path = Math::PlanePath::SquareSpiral->new (wider => 1);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n ($i, -$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- NNE");
-}
-
-#------------------------------------------------------------------------------
 # A063826 -- direction 1,2,3,4 = E,N,W,S
 
 {
@@ -224,78 +182,6 @@ sub dxdy_to_dir4_1 {
         numeq_array(\@got, $bvalues),
         1, "$anum -- sum of rows");
 }
-
-#------------------------------------------------------------------------------
-# A053615 -- distance to pronic is abs(X-Y)
-
-{
-  my $anum = 'A053615';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, abs($x-$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A118175 -- abs(dX) is k 0's followed by k 1s etc, with initial 1
-
-{
-  my $anum = 'A118175';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
-      my $dx = $next_x - $x;
-      push @got, abs($dx);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
-#------------------------------------------------------------------------------
-# A079813 -- abs(dY) is k 0's followed by k 1s etc
-
-{
-  my $anum = 'A079813';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
-      my $dy = $next_y - $y;
-      push @got, abs($dy);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
 
 #------------------------------------------------------------------------------
 # A141481 -- plot sum of existing eight surrounding values entered
@@ -951,24 +837,6 @@ sub dxdy_to_dir4_1 {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- X=Y diagonal");
-}
-
-#------------------------------------------------------------------------------
-# A180714 -- coord sum X+Y
-{
-  my $anum = 'A180714';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      my $sum = $x + $y;
-      push @got, $sum;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- sum coords X+Y");
 }
 
 #------------------------------------------------------------------------------

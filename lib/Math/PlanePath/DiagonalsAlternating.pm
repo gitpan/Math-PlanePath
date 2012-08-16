@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -33,6 +33,14 @@ use Math::PlanePath::Base::Generic
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 # d= [ 1,2,3 ]
 # N= [ 1,6,15 ]
@@ -50,6 +58,9 @@ use constant class_y_negative => 0;
 sub n_to_xy {
   my ($self, $n) = @_;
   ### DiagonalsAlternating n_to_xy(): "$n   ".(ref $n || '')
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   if ($n < 1) {
     return;
@@ -113,7 +124,7 @@ sub xy_to_n {
   # N = ((1/2*$d + 1/2)*$d + 1)
   #   = ($d + 1)*$d/2 + 1
 
-  my $n = ($d + 1)*$d/2 + 1;
+  my $n = ($d + 1)*$d/2 + $self->{'n_start'};
   if ($d % 2) {
     return $n + $x;
   } else {
@@ -121,25 +132,8 @@ sub xy_to_n {
   }
 }
 
-# exact
-sub rect_to_n_range {
-  my ($self, $x1,$y1, $x2,$y2) = @_;
-
-  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
-  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-  if ($y2 < 0 || $x2 < 0) {
-    return (1, 0); # rect all negative, no N
-  }
-
-  my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum 0
-
-  if ($x1 < 0) { $x1 = 0; }
-  if ($y1 < 0) { $y1 = 0; }
-
-  # exact range bottom left to top right
-  return ($self->xy_to_n ($zero+$x1,$y1),
-          $self->xy_to_n ($zero+$x2,$y2));
-}
+use Math::PlanePath::Diagonals;
+*rect_to_n_range = \&Math::PlanePath::Diagonals::rect_to_n_range;
 
 1;
 __END__
@@ -176,6 +170,28 @@ The triangular numbers 1,3,6,10,etc, k*(k+1)/2, fall alternately on the X
 axis and Y axis.  So 1,6,15,28,etc on the Y axis, and 3,10,21,36,etc on the
 X axis.  Those on the Y axis are the hexagonal numbers j*(2j-1) and those on
 the X axis are the hexagonals of the second kind j*(2j+1).
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same sequence.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=DiagonalsAlternating,n_start=0 --all --output=numbers --size=35x5
+
+=pod
+
+    n_start => 0            
+
+      4  |  14
+      3  |   6 13
+      2  |   5  7 12
+      1  |   1  4  8 11
+    Y=0  |   0  2  3  9 10
+         +----------------- 
+           X=0  1  2  3  4  
 
 =head1 FUNCTIONS
 

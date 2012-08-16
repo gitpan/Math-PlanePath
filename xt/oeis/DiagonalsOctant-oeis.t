@@ -34,20 +34,6 @@ use MyOEIS;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
 sub diff_nums {
   my ($gotaref, $wantaref) = @_;
   for (my $i = 0; $i < @$gotaref; $i++) {
@@ -88,7 +74,7 @@ sub diff_nums {
     my $rows = Math::PlanePath::PyramidRows->new(step=>1);
     my $prev_d = 0;
     my $str = '';
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $diag->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $diag->n_to_xy($n);
       my $d = $x+$y;
       if ($d != $prev_d) {
@@ -123,7 +109,7 @@ sub diff_nums {
     my $rows = Math::PlanePath::PyramidRows->new(step=>1);
     my $prev_d = 0;
     my $str = '';
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $diag->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $diag->n_to_xy($n);
       my $d = $x+$y;
       if ($d != $prev_d) {
@@ -182,7 +168,7 @@ sub diff_nums {
     require Math::PlanePath::PyramidRows;
     my $diag = Math::PlanePath::DiagonalsOctant->new(direction=>'up');
     my $rows = Math::PlanePath::PyramidRows->new(step=>1);
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $diag->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $diag->n_to_xy($n);
       push @got, $rows->xy_to_n($x,$y) - 1;
     }
@@ -207,7 +193,7 @@ sub diff_nums {
     require Math::PlanePath::PyramidRows;
     my $diag = Math::PlanePath::DiagonalsOctant->new(direction=>'up');
     my $rows = Math::PlanePath::PyramidRows->new(step=>1);
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $diag->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $diag->n_to_xy($n);
       push @got, $rows->xy_to_n($x,$y);
     }
@@ -232,7 +218,7 @@ sub diff_nums {
     require Math::PlanePath::PyramidRows;
     my $diag = Math::PlanePath::DiagonalsOctant->new;
     my $rows = Math::PlanePath::PyramidRows->new(step=>1);
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $diag->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $diag->n_to_xy($n);
       push @got, $rows->xy_to_n($x,$y);
     }
@@ -257,7 +243,7 @@ sub diff_nums {
     require Math::PlanePath::PyramidRows;
     my $diag = Math::PlanePath::DiagonalsOctant->new;
     my $rows = Math::PlanePath::PyramidRows->new(step=>1);
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $rows->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $rows->n_to_xy($n);
       push @got, $diag->xy_to_n($x,$y);
     }
@@ -296,7 +282,7 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A002620 -- N end each diagonal
+# A002620 -- N end each diagonal, extra initial 0s
 {
   my $anum = 'A002620';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
@@ -336,75 +322,6 @@ sub diff_nums {
     skip (! $bvalues,
           $diff, undef);
   }
-}
-
-#------------------------------------------------------------------------------
-# A055087 -- X coord
-{
-  my $anum = 'A055087';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::DiagonalsOctant->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
-
-#------------------------------------------------------------------------------
-# A055086 -- X+Y
-{
-  my $anum = 'A055086';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::DiagonalsOctant->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x+$y;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
-
-#------------------------------------------------------------------------------
-# A082375 -- Y-X
-{
-  my $anum = 'A082375';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::DiagonalsOctant->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y-$x;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
 }
 
 #------------------------------------------------------------------------------

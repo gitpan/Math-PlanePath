@@ -104,33 +104,4 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A051132 - count points norm < n^2, is N-1 of X axis
-
-{
-  my $anum = 'A051132';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::Hypot->new;
-    my @got;
-    for (my $x = 0; @got < @$bvalues; $x++) {
-      my $n = $path->xy_to_n($x,0);
-      push @got, $n-1;
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
-
-
-#------------------------------------------------------------------------------
 exit 0;

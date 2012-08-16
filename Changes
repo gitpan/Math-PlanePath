@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 86, August 2012
+    - Diagonals,DiagonalsOctant,DiagonalsAlternating,PyramidRows,PyramidSides,
+      Corner new "n_start" parameter
+
 Version 85, August 2012
     - SquareSpiral new "n_start" parameter
     - PlanePathDelta new delta_type=>"AbsdX","AbsdY"

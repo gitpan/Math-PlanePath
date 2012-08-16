@@ -359,11 +359,12 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     require Math::PlanePath::Diagonals;
-    my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
+    my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                      n_start => 0);
     my $power = Math::PlanePath::PowerArray->new;
     for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonals->n_to_xy ($n);
-      push @got, $power->xy_to_n($x,$y) - 1;
+      push @got, $power->xy_to_n($x,$y);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));

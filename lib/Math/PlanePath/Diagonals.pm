@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,6 +47,9 @@ use constant parameter_info_array =>
 
 sub new {
   my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   $self->{'direction'} ||= 'down';
   return $self;
 }
@@ -85,10 +88,13 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### Diagonals n_to_xy(): "$n   ".(ref $n || '')
 
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
+
   my $int = int($n);  # BigFloat int() gives BigInt, use that
   $n -= $int;         # frac, preserving any BigFloat
 
-  if (2*$n >= 1) {  # $frac >= 0.5
+  if (2*$n >= 1) {  # if $frac >= 0.5
     $n -= 1;
     $int += 1;
   }
@@ -97,16 +103,16 @@ sub n_to_xy {
   return if $int < 1;
 
   ### sqrt of: (8*$int - 7).''
-  my $s = int((sqrt(8*$int-7) - 1) / 2);
+  my $d = int((sqrt(8*$int-7) - 1) / 2);
 
-  $int -= $s*($s+1)/2 + 1;
+  $int -= $d*($d+1)/2 + 1;
 
-  ### s: "$s"
-  ### sub: ($s*($s+1)/2 + 1).''
+  ### d: "$d"
+  ### sub: ($d*($d+1)/2 + 1).''
   ### remainder: "$int"
 
   my $x = $n + $int;
-  my $y = -$n - $int + $s;  # $n first so BigFloat not BigInt from $s
+  my $y = -$n - $int + $d;  # $n first so BigFloat not BigInt from $d
   return ($self->{'direction'} eq 'down'
           ? ($x,$y)
           : ($y,$x));
@@ -130,12 +136,13 @@ sub xy_to_n {
   if ($x < 0 || $y > 0) {
     return undef;  # outside
   }
-  my $s = $x - $y;
-  ### $s
-  return $s*($s+1)/2 + $x + 1;
+
+  my $d = $x - $y;
+  ### $d
+  return $d*($d+1)/2 + $x + $self->{'n_start'};
 }
 
-# bottom-left to top-right
+# bottom-left to top-right, used by DiagonalsAlternating too
 # exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
@@ -199,18 +206,43 @@ count upward from the X axis.
 
 =pod
 
-      5  |  21 
+    direction => "up"
+
+      5  |  21
       4  |  15  20
       3  |  10  14  19 ...
-      2  |   6   9  13  18  24 
-      1  |   3   5   8  12  17  23 
-    Y=0  |   1   2   4   7  11  16  22 
+      2  |   6   9  13  18  24
+      1  |   3   5   8  12  17  23
+    Y=0  |   1   2   4   7  11  16  22
          +-----------------------------
-          X=0   1   2   3   4   5    6
+           X=0   1   2   3   4   5   6
 
 This is merely a transpose changing X,Y to Y,X, but it's the same as in
 DiagonalsOctant and can be handy to control the direction when combining
 Diagonals with some other path or calculation.
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same diagonals sequence.  For
+example to start at 0,
+
+=cut
+
+# math-image --path=Diagonals,n_start=0 --all --output=numbers --size=35x5
+# math-image --path=Diagonals,n_start=0,direction=up --all --output=numbers --size=35x5
+
+=pod
+
+    n_start => 0                 n_start=>0, direction=>"up"
+
+      4  |  10                        |  14
+      3  |   6 11                     |   9 13
+      2  |   3  7 12                  |   5  8 12
+      1  |   1  4  8 13               |   2  4  7 11
+    Y=0  |   0  2  5  9 14            |   0  1  3  6 10
+         +-----------------           +-----------------
+           X=0  1  2  3  4              X=0  1  2  3  4
 
 =head1 FUNCTIONS
 
@@ -220,7 +252,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::Diagonals-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::Diagonals-E<gt>new (direction =E<gt> $str)>
+=item C<$path = Math::PlanePath::Diagonals-E<gt>new (direction =E<gt> $str, n_start =E<gt> $integer)>
 
 Create and return a new path object.  The C<direction> option (a string) can
 be
@@ -257,10 +289,19 @@ Within each row increasing X is increasing N, and in each column increasing
 Y is increasing N.  So in a rectangle the lower left corner is the minimum N
 and the upper right is the maximum N.
 
+    |            \     \ N max
+    |       \ ----------+
+    |        |     \    |\
+    |        |\     \   |
+    |       \| \     \  |
+    |        +----------
+    |  N min  \  \     \
+    +-------------------------
+
 =head1 OEIS
 
-Entries in Neil Sloane's Online Encyclopedia of Integer Sequences related to
-this path include
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
 
     http://oeis.org/A023531  (etc)
 
@@ -274,20 +315,21 @@ this path include
       A048147    X^2+Y^2
 
       A127949    dY, change in Y coordinate
-    
+
       A000124    N on Y axis
       A001844    N on X=Y diagonal
 
-Similar for direction=up but transposing X,Y.
+    direction=up
+      Likewise but swapping X,Y.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::DiagonalsAlternating>,
+L<Math::PlanePath::DiagonalsOctant>,
 L<Math::PlanePath::Corner>,
 L<Math::PlanePath::Rows>,
-L<Math::PlanePath::Columns>,
-L<Math::PlanePath::DiagonalsAlternating>,
-L<Math::PlanePath::DiagonalsOctant>
+L<Math::PlanePath::Columns>
 
 =head1 HOME PAGE
 

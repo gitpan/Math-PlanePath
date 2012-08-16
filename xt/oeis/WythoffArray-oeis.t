@@ -76,6 +76,33 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
+# A064274 -- inverse perm of by diagonals up from X axis
+{
+  my $anum = 'A064274';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if ($bvalues) {
+    my @got = (0);  # extra 0
+    require Math::PlanePath::Diagonals;
+    my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
+    my $wythoff = Math::PlanePath::WythoffArray->new;
+    for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $wythoff->n_to_xy ($n);
+      $x = Math::BigInt->new($x);
+      $y = Math::BigInt->new($y);
+      push @got, $diagonals->xy_to_n($x,$y);
+    }
+    $diff = diff_nums(\@got,$bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef);
+}
+
+#------------------------------------------------------------------------------
 # A035612 -- X coord, starting 1
 {
   my $anum = 'A035612';
@@ -157,33 +184,6 @@ sub diff_nums {
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       push @got, $path->xy_to_n($x,0);   # down to axis
-    }
-    $diff = diff_nums(\@got,$bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
-
-#------------------------------------------------------------------------------
-# A064274 -- inverse perm of by diagonals up from X axis
-{
-  my $anum = 'A064274';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (0);  # extra 0
-    require Math::PlanePath::Diagonals;
-    my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
-    my $wythoff = Math::PlanePath::WythoffArray->new;
-    for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $wythoff->n_to_xy ($n);
-      $x = Math::BigInt->new($x);
-      $y = Math::BigInt->new($y);
-      push @got, $diagonals->xy_to_n($x,$y);
     }
     $diff = diff_nums(\@got,$bvalues);
     if ($diff) {
@@ -315,32 +315,6 @@ sub diff_nums {
         1,
         "$anum");
 }
-
-#------------------------------------------------------------------------------
-# A175004 -- by diagonals, something W-1 and shift ...
-
-# {
-#   my $anum = 'A175004';
-#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-#   my @got;
-#   if ($bvalues) {
-#     require Math::PlanePath::Diagonals;
-#     my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
-#     my $wythoff = Math::PlanePath::WythoffArray->new;
-#     for (my $n = $diagonals->n_start + 1; @got < @$bvalues; $n++) {
-#       my ($x, $y) = $diagonals->n_to_xy ($n);
-#       push @got, $wythoff->xy_to_n($x,$y) - 1;
-#     }
-#     if (! numeq_array(\@got, $bvalues)) {
-#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-#       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-#     }
-#   }
-#   skip (! $bvalues,
-#         numeq_array(\@got, $bvalues),
-#         1,
-#         "$anum");
-# }
 
 #------------------------------------------------------------------------------
 # A035513 -- by diagonals, up from X axis

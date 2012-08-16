@@ -341,19 +341,13 @@ sub dxdy_to_dir {
     my $prev_y = 0;
     for (my $n = 1; @got < @$bvalues; ) {
       {
-        my ($x, $y) = $paper->n_to_xy ($n);
-        push @got, $x - $prev_x;
-        $prev_x = $x;
-        $prev_y = $y;
-        $n++;
+        my ($dx, $dy) = $paper->n_to_dxdy ($n++);
+        push @got, $dx;
       }
       last unless @got < @$bvalues;
       {
-        my ($x, $y) = $paper->n_to_xy ($n);
-        push @got, $y - $prev_y;
-        $prev_x = $x;
-        $prev_y = $y;
-        $n++;
+        my ($dx, $dy) = $paper->n_to_xy ($n++);
+        push @got, $dy;
       }
     }
     if (! numeq_array(\@got, $bvalues)) {

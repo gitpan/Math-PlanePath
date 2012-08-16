@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 4;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -84,33 +84,6 @@ sub dxdy_to_dir {
   if ($dx < 0) { return 2; }  # west
   if ($dy > 0) { return 1; }  # north
   if ($dy < 0) { return 3; }  # south
-}
-
-
-#------------------------------------------------------------------------------
-# A179868 - count 1 bits mod 4, is absolute direction
-
-{
-  my $anum = 'A179868';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got = (0);
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      push @got, path_n_dir($path,$n);
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
 }
 
 

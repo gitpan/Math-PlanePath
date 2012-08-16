@@ -33,7 +33,7 @@ use Math::PlanePath::DiagonalRationals;
 #use Smart::Comments '###';
 
 
-my $cantor = Math::PlanePath::DiagonalRationals->new;
+my $diagrat = Math::PlanePath::DiagonalRationals->new;
 
 sub streq_array {
   my ($a1, $a2) = @_;
@@ -60,10 +60,10 @@ sub streq_array {
   my @got;
   if ($bvalues) {
 
-    my $prev_n = $cantor->n_start - 1;
+    my $prev_n = $diagrat->n_start - 1;
   OUTER: for (my $y = 1; ; $y ++) {
       foreach my $x (1 .. $y-1) {
-        my $n = $cantor->xy_to_n($x,$y-$x);
+        my $n = $diagrat->xy_to_n($x,$y-$x);
         if (defined $n) {
           push @got, 1;
           if ($n != $prev_n + 1) {
@@ -95,50 +95,8 @@ sub streq_array {
   my @got;
   if ($bvalues) {
     foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $cantor->n_to_xy ($n);
+      my ($x,$y) = $diagrat->n_to_xy ($n);
       push @got, abs($x-$y);
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  }
-
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A020652 - numerators
-{
-  my $anum = 'A020652';
-  my ($bvalues, $lo) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    splice @$bvalues, 5000; # trim down
-
-    foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $cantor->n_to_xy ($n);
-      push @got, $x;
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  }
-
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A020653 - denominators
-{
-  my $anum = 'A020653';
-  my ($bvalues, $lo) = MyOEIS::read_values($anum, max_count => 5000);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $cantor->n_to_xy ($n);
-      push @got, $y;
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
@@ -161,7 +119,7 @@ sub streq_array {
     require Math::PlanePath::RationalsTree;
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
     foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $cantor->n_to_xy ($n);
+      my ($x,$y) = $diagrat->n_to_xy ($n);
       push @got, $sb->xy_to_n($x,$y);
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
@@ -181,7 +139,7 @@ sub streq_array {
     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
     foreach my $n (1 .. @$bvalues) {
       my ($x,$y) = $sb->n_to_xy ($n);
-      push @got, $cantor->xy_to_n($x,$y);
+      push @got, $diagrat->xy_to_n($x,$y);
     }
     ### bvalues: join(',',@{$bvalues}[0..40])
     ### got: '    '.join(',',@got[0..40])
@@ -210,7 +168,7 @@ sub streq_array {
       $x++;
       $y++;
       ### frac: "$x/$y"
-      my $cn = $cantor->xy_to_n ($x,$y);
+      my $cn = $diagrat->xy_to_n ($x,$y);
       if (defined $cn) {
         push @got, $sb->xy_to_n($x,$y);
       } else {

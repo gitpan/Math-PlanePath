@@ -40,7 +40,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   require Math::PlanePath::DekkingCurve;
   require Math::PlanePath::DekkingStraight;
   require Math::PlanePath::HilbertCurve;
-  require Math::PlanePath::Corner;
   require Math::PlanePath::PentSpiral;
   require Math::PlanePath::PentSpiralSkewed;
   require Math::PlanePath::HexArms;
@@ -93,8 +92,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::NxN';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
-  $path_class = 'Math::PlanePath::DiagonalsOctant';
-  $path_class = 'Math::PlanePath::Diagonals';
   $path_class = 'Math::PlanePath::GcdRationals';
   $path_class = 'Math::PlanePath::WythoffArray';
   $path_class = 'Math::PlanePath::KochSquareflakes';
@@ -130,17 +127,22 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::Hypot';
   $path_class = 'Math::PlanePath::SquareSpiral';
   $path_class = 'Math::PlanePath::CellularRule';
-  $path_class = 'Math::PlanePath::PyramidRows';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
   $path_class = 'Math::PlanePath::PowerArray';
   $path_class = 'Math::PlanePath::ParabolicRuns';
   $path_class = 'Math::PlanePath::ToothpickTree';
+  $path_class = 'Math::PlanePath::DiagonalsOctant';
+  $path_class = 'Math::PlanePath::PyramidRows';
+  $path_class = 'Math::PlanePath::Corner';
+  $path_class = 'Math::PlanePath::Diagonals';
+  $path_class = 'Math::PlanePath::DiagonalsAlternating';
 
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     # step => 6,
+     n_start=>37,
+     # step => 5,
      # align => 'left',
      # n_start => 37,
      # align => 'diagonal',
@@ -176,7 +178,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   my $path_ref = ref($path);
   print "n_start()=$n_start arms_count()=$arms_count   $path_ref\n";
 
-  for (my $i = $n_start; $i <= 8000; $i+=1) {
+  for (my $i = $n_start; $i <= 80; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

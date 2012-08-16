@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 898;
+plan tests => 931;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,13 +35,9 @@ require Math::PlanePath;
 my @modules = (
                # module list begin
 
-               'File',
-
-               'KochCurve',
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-               'KochPeaks',
+               'DiagonalsAlternating',
+               'DiagonalsAlternating,n_start=0',
+               'DiagonalsAlternating,n_start=37',
 
                'PyramidRows,align=right',
                'PyramidRows,align=right,step=0',
@@ -64,6 +60,50 @@ my @modules = (
                'PyramidRows,step=4',
                'PyramidRows,step=5',
                'PyramidRows,step=37',
+               'PyramidRows,step=0,n_start=37',
+               'PyramidRows,step=1,n_start=37',
+               'PyramidRows,step=2,n_start=37',
+               'PyramidRows,align=right,step=5,n_start=37',
+               'PyramidRows,align=left,step=3,n_start=37',
+
+               'DiagonalsOctant',
+               'DiagonalsOctant,direction=up',
+               'DiagonalsOctant,n_start=0',
+               'DiagonalsOctant,direction=up,n_start=0',
+               'DiagonalsOctant,n_start=37',
+               'DiagonalsOctant,direction=up,n_start=37',
+
+               'Diagonals',
+               'Diagonals,direction=up',
+               'Diagonals,n_start=0',
+               'Diagonals,direction=up,n_start=0',
+               'Diagonals,n_start=37',
+               'Diagonals,direction=up,n_start=37',
+
+               'Corner',
+               'Corner,wider=1',
+               'Corner,wider=2',
+               'Corner,wider=37',
+               'Corner,n_start=0',
+               'Corner,wider=1,n_start=0',
+               'Corner,wider=2,n_start=0',
+               'Corner,wider=37,n_start=0',
+               'Corner,n_start=37',
+               'Corner,wider=1,n_start=37',
+               'Corner,wider=2,n_start=37',
+               'Corner,wider=13,n_start=37',
+
+               'PyramidSides',
+               'PyramidSides,n_start=0',
+               'PyramidSides,n_start=37',
+
+               'File',
+
+               'KochCurve',
+               'KochPeaks',
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
 
                'CellularRule',
                'CellularRule,rule=0',   # blank
@@ -186,11 +226,6 @@ my @modules = (
                'GcdRationals,pairs_order=rows_reverse',
                'GcdRationals,pairs_order=diagonals_down',
                'GcdRationals,pairs_order=diagonals_up',
-
-               'DiagonalsOctant',
-               'DiagonalsOctant,direction=up',
-               'DiagonalsAlternating',
-               'Diagonals',
 
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
@@ -375,14 +410,15 @@ my @modules = (
                'HeptSpiralSkewed',
                'PyramidSpiral',
 
-               'Corner',
-               'PyramidSides',
-
                'UlamWarburton',
                'UlamWarburtonQuarter',
 
                'Rows',
+               'Rows,width=1',
+               'Rows,width=2',
                'Columns',
+               'Columns,height=1',
+               'Columns,height=2',
 
                'QuintetCurve',
                'QuintetCurve,arms=2',
@@ -470,7 +506,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 85;
+my $want_version = 86;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

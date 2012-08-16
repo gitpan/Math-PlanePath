@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -413,8 +413,8 @@ starts at 1.
 
 =head1 OEIS
 
-Entries in Neil Sloane's Online Encyclopedia of Integer Sequences related to
-this path include
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
 
     http://oeis.org/A033581  (etc)
 

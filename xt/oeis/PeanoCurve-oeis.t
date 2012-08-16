@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 24;
+plan tests => 21;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -54,6 +54,48 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
+# A163532 -- delta X  a(n)-a(n-1)
+{
+  my $anum = 'A163532';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got = (0); # extra initial entry N=0 no change
+  if ($bvalues) {
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $peano->n_to_dxdy ($n);
+      push @got, $dx;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- delta X (transpose)");
+}
+
+#------------------------------------------------------------------------------
+# A163533 -- delta Y  a(n)-a(n-1)
+{
+  my $anum = 'A163533';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got = (0); # extra initial entry N=0 no change
+  if ($bvalues) {
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $peano->n_to_dxdy ($n);
+      push @got, $dy;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- delta Y (transpose)");
+}
+
+#------------------------------------------------------------------------------
 # A163333 -- Peano N <-> Z-Order radix=3, with digit swaps
 {
   my $anum = 'A163333';
@@ -63,7 +105,7 @@ sub numeq_array {
     if ($bvalues) {
       my $peano  = Math::PlanePath::PeanoCurve->new;
       my $zorder = Math::PlanePath::ZOrderCurve->new (radix => 3);
-      for (my $n = 0; @got < @$bvalues; $n++) {
+      for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
         my $nn = $n;
         {
           my ($x,$y) = $zorder->n_to_xy ($nn);
@@ -135,7 +177,7 @@ sub numeq_array {
     if ($bvalues) {
       my $peano  = Math::PlanePath::PeanoCurve->new;
       my $zorder = Math::PlanePath::ZOrderCurve->new (radix => 3);
-      for (my $n = 0; @got < @$bvalues; $n++) {
+      for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
         my ($x,$y) = $zorder->n_to_xy ($n);
         push @got, $peano->xy_to_n ($x, $y);
       }
@@ -149,7 +191,7 @@ sub numeq_array {
     if ($bvalues) {
       my $peano  = Math::PlanePath::PeanoCurve->new;
       my $zorder = Math::PlanePath::ZOrderCurve->new (radix => 3);
-      for (my $n = 0; @got < @$bvalues; $n++) {
+      for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
         my ($x,$y) = $peano->n_to_xy ($n);   # other way around
         push @got, $zorder->xy_to_n ($x, $y);
       }
@@ -162,51 +204,15 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A163480 -- X axis
-{
-  my $anum = 'A163480';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $x (0 .. $#$bvalues) {
-      push @got, $peano->xy_to_n($x,0);
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X axis");
-}
-
-#------------------------------------------------------------------------------
-# A163481 -- Y axis
-{
-  my $anum = 'A163481';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $y (0 .. $#$bvalues) {
-      push @got, $peano->xy_to_n(0,$y);
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Y axis");
-}
-
-
-#------------------------------------------------------------------------------
 # A163334 -- diagonals same axis
 {
   my $anum = 'A163334';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (1 .. @$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                    n_start => 0);
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $peano->xy_to_n ($x, $y);
     }
@@ -222,10 +228,11 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (0 .. $#$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                    n_start => 0);
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $peano->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n($x,$y) - 1;
+      push @got, $diagonal->xy_to_n($x,$y);
     }
   }
   skip (! $bvalues,
@@ -240,8 +247,9 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
-    foreach my $n (1 .. @$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                    n_start => 0);
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $peano->xy_to_n ($x, $y);
     }
@@ -257,10 +265,11 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
-    foreach my $n (0 .. $#$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                    n_start => 0);
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $peano->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n($x,$y) - 1;
+      push @got, $diagonal->xy_to_n($x,$y);
     }
   }
   skip (! $bvalues,
@@ -276,7 +285,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (1 .. @$bvalues) {
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $peano->xy_to_n ($x, $y) + 1;
     }
@@ -293,7 +302,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (0 .. $#$bvalues) {
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $peano->n_to_xy ($n);
       push @got, $diagonal->xy_to_n ($x, $y);
     }
@@ -311,7 +320,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
-    foreach my $n (1 .. @$bvalues) {
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
       push @got, $peano->xy_to_n($x,$y) + 1;
     }
@@ -328,7 +337,7 @@ sub numeq_array {
   my @got;
   if ($bvalues) {
     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
-    foreach my $n (0 .. $#$bvalues) {
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $peano->n_to_xy ($n);
       push @got, $diagonal->xy_to_n($x,$y);
     }
@@ -346,7 +355,7 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $d (0 .. $#$bvalues) {
+    for (my $d = 0; @got < @$bvalues; $d++) {
       my $sum = 0;
       foreach my $x (0 .. $d) {
         my $y = $d - $x;
@@ -366,7 +375,7 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $d (0 .. $#$bvalues) {
+    for (my $d = 0; @got < @$bvalues; $d++) {
       my $sum = 0;
       foreach my $x (0 .. $d) {
         my $y = $d - $x;
@@ -381,146 +390,19 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
-# A163343 -- central diagonal
-{
-  my $anum = 'A163343';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $x (0 .. $#$bvalues) {
-      push @got, $peano->xy_to_n($x,$x);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, 'A163343 -- central diagonal');
-}
-
-# A163344 -- central diagonal div 4
+# A163344 -- N/4 on X=Y diagonal
 {
   my $anum = 'A163344';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    foreach my $x (0 .. $#$bvalues) {
+    for (my $x = 0; @got < @$bvalues; $x++) {
       push @got, int($peano->xy_to_n($x,$x) / 4);
     }
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum -- central diagonal div 4");
-}
-
-#------------------------------------------------------------------------------
-# A163528 -- X coordinate
-{
-  my $anum = 'A163528';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      push @got, $x;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- X coordinate");
-}
-
-#------------------------------------------------------------------------------
-# A163529 -- Y coordinate
-{
-  my $anum = 'A163529';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      push @got, $y;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Y coordinate");
-}
-
-#------------------------------------------------------------------------------
-# A163530 -- coord sum X+Y
-{
-  my $anum = 'A163530';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      my $sum = $x + $y;
-      push @got, $sum;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- sum coords X+Y");
-}
-
-#------------------------------------------------------------------------------
-# A163531 -- x^2+y^2 square of distance
-{
-  my $anum = 'A163531';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      my $sqr = $x*$x + $y*$y;
-      push @got, $sqr;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- x^2+y^2 square of distance");
-}
-
-#------------------------------------------------------------------------------
-# A163532 -- delta X
-# first entry is for N=0 no change
-{
-  my $anum = 'A163532';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my ($prev_x, $prev_y) = (0, 0);
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      my $dx = $x - $prev_x;
-      push @got, $dx;
-      ($prev_x, $prev_y) = ($x, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- delta X (transpose)");
-}
-
-#------------------------------------------------------------------------------
-# A163533 -- delta Y
-# first entry is for N=0 no change
-{
-  my $anum = 'A163533';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my ($prev_x, $prev_y) = (0, 0);
-    foreach my $n (0 .. $#$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      my $dy = $y - $prev_y;
-      push @got, $dy;
-      ($prev_x, $prev_y) = ($x, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- delta Y (transpose)");
 }
 
 #------------------------------------------------------------------------------
@@ -532,13 +414,9 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my ($prev_x, $prev_y) = $peano->n_to_xy (0);
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      my $dx = $x - $prev_x;
-      my $dy = $y - $prev_y;
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $peano->n_to_dxdy ($n);
       push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
-      ($prev_x,$prev_y) = ($x,$y);
     }
   }
   skip (! $bvalues,
@@ -554,13 +432,9 @@ sub numeq_array {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my ($prev_x, $prev_y) = $peano->n_to_xy (0);
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $peano->n_to_xy ($n);
-      my $dx = $x - $prev_x;
-      my $dy = $y - $prev_y;
+    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
+      my ($dx, $dy) = $peano->n_to_dxdy ($n);
       push @got, MyOEIS::dxdy_to_direction ($dy, $dx);
-      ($prev_x,$prev_y) = ($x,$y);
     }
   }
   skip (! $bvalues,

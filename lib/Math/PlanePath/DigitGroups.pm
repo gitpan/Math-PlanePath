@@ -31,14 +31,12 @@
 # und angewandte Mathematik (Crelle's Journal), Vol. 84, 242-258, 1878.
 # http://www.digizeitschriften.de/dms/img/?PPN=PPN243919689_0084&DMDID=dmdlog15
 
-
-
 package Math::PlanePath::DigitGroups;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

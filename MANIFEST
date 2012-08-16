@@ -377,7 +377,6 @@ xt/oeis/CoprimeColumns-oeis.t
 xt/oeis/Corner-oeis.t
 xt/oeis/CornerReplicate-oeis.t
 xt/oeis/DiagonalRationals-oeis.t
-xt/oeis/Diagonals-oeis.t
 xt/oeis/DiagonalsAlternating-oeis.t
 xt/oeis/DiagonalsOctant-more.t
 xt/oeis/DiagonalsOctant-oeis.t
@@ -389,7 +388,6 @@ xt/oeis/FactorRationals-oeis.t
 xt/oeis/FibonacciWordFractal-oeis.t
 xt/oeis/FilledRings-oeis.t
 xt/oeis/FractionsTree-oeis.t
-xt/oeis/GcdRationals-oeis.t
 xt/oeis/GosperSide-oeis.t
 xt/oeis/GrayCode-oeis.t
 xt/oeis/HexSpiral-oeis.t
@@ -404,7 +402,6 @@ xt/oeis/NumSeq-PlanePath-oeis.t
 xt/oeis/PeanoCurve-oeis.t
 xt/oeis/PowerArray-oeis.t
 xt/oeis/PyramidRows-oeis.t
-xt/oeis/PyramidSides-oeis.t
 xt/oeis/PyramidSpiral-oeis.t
 xt/oeis/R5DragonCurve-oeis.t
 xt/oeis/RationalsTree-oeis.t

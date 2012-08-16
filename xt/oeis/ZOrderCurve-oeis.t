@@ -84,11 +84,11 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (1 .. @$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                    n_start => 0);
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      my $n = $zorder->xy_to_n ($x, $y);
-      push @got, $n;
+      push @got, $zorder->xy_to_n ($x, $y);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -107,11 +107,11 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (0 .. $#$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                    n_start => 0);
+    for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $zorder->n_to_xy ($n);
-      my $n = $diagonal->xy_to_n ($x, $y);
-      push @got, $n - 1;
+      push @got, $diagonal->xy_to_n ($x, $y);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -132,11 +132,11 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
-    foreach my $n (1 .. @$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                    n_start => 0);
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      my $n = $zorder->xy_to_n ($x, $y);
-      push @got, $n;
+      push @got, $zorder->xy_to_n ($x, $y);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -155,11 +155,11 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
-    foreach my $n (0 .. $#$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                    n_start => 0);
+    for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $zorder->n_to_xy ($n);
-      my $n = $diagonal->xy_to_n ($x, $y);
-      push @got, $n - 1;
+      push @got, $diagonal->xy_to_n ($x, $y);
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -180,11 +180,11 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new;
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (1 .. @$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                    n_start => 0);
+    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonal->n_to_xy ($n);
-      my $n = $zorder->xy_to_n ($x, $y);
-      push @got, $n;
+      push @got, $zorder->xy_to_n ($x, $y);
     }
   }
   skip (! $bvalues,
@@ -199,11 +199,11 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $zorder   = Math::PlanePath::ZOrderCurve->new;
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
-    foreach my $n (0 .. $#$bvalues) {
+    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                    n_start => 0);
+    for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $zorder->n_to_xy ($n);
-      my $n = $diagonal->xy_to_n ($x, $y);
-      push @got, $n - 1;
+      push @got, $diagonal->xy_to_n ($x, $y);
     }
   }
   skip (! $bvalues,

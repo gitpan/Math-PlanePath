@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -794,16 +794,16 @@ Plotting the N values by X,Y gives,
 
     tree_type => "Bird"
 
-    10  |     682        41                  38       597      
-     9  |     341   43        45   34        36  298       938 
-     8  |     170        23        16       149       469      
-     7  |      85   20   22   17   19   74       234   59   57 
-     6  |      42                  37       117                
-     5  |      21   11    8   18        58   28   31   61      
-     4  |      10         9        29        30        50      
-     3  |       5    4        14   15        25   24        54 
-     2  |       2         7        12        27        52      
-     1  |       1    3    6   13   26   53  106  213  426  853 
+    10  |     682        41                  38       597
+     9  |     341   43        45   34        36  298       938
+     8  |     170        23        16       149       469
+     7  |      85   20   22   17   19   74       234   59   57
+     6  |      42                  37       117
+     5  |      21   11    8   18        58   28   31   61
+     4  |      10         9        29        30        50
+     3  |       5    4        14   15        25   24        54
+     2  |       2         7        12        27        52
+     1  |       1    3    6   13   26   53  106  213  426  853
     Y=0 |
          ----------------------------------------------------
           X=0   1    2    3    4    5    6    7    8    9   10
@@ -841,7 +841,7 @@ reversals of each other).
                        | |      | |      | |      | |
     N=8 to N=15     3/5  5/2  1/4 4/3  3/4 4/1  2/5 5/3
 
-The descendants of each node are 
+The descendants of each node are
 
           X/Y
         /     \
@@ -852,17 +852,17 @@ left and F(k+1)/F(k) on the right.
 
     tree_type => "Drib"
 
-    10  |     682        50                  44       852     
+    10  |     682        50                  44       852
      9  |     426   58        54   40        36  340       683
-     8  |     170        30        16       212       427     
+     8  |     170        30        16       212       427
      7  |     106   18   22   24   28   84       171   59   51
-     6  |      42                  52       107               
-     5  |      26   14    8   20        43   19   31   55     
-     4  |      10        12        27        23        41     
+     6  |      42                  52       107
+     5  |      26   14    8   20        43   19   31   55
+     4  |      10        12        27        23        41
      3  |       6    4        11   15        25   17        45
-     2  |       2         7         9        29        37     
+     2  |       2         7         9        29        37
      1  |       1    3    5   13   21   53   85  213  341  853
-    Y=0 | 
+    Y=0 |
          -------------------------------------------------------
          X=0    1    2    3    4    5    6    7    8    9   10
 
@@ -897,46 +897,6 @@ flips, flip every second starting from the first, or flip every second
 starting from the second.  Only 5 of the 6 are implemented currently.  The
 missing one is the AYT formulas done low to high.  Does that have a name, or
 a particular significance?
-
-=head1 OEIS
-
-The trees are in Sloane's Online Encyclopedia of Integer Sequences in
-various forms,
-
-    http://oeis.org/A007305   (etc)
-
-    A007305  - SB numerators, Farey fractions (extra 0,1)
-    A047679  - SB denominators
-    A007306  - SB num+den sum, Farey 0 to 1 part (extra 1,1)
-    A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
-    A070990  - CW den-num diff, Stern diatomic first diffs (less 0)
-    A020650  - AYT numerators
-    A020651  - AYT denominators (Kepler numerators)
-    A086592  - AYT num+den sum (Kepler denominators)
-    A162909  - Bird numerators
-    A162910  - Bird denominators
-    A162911  - Drib numerators
-    A162912  - Drib denominators
-
-    A086893  - position Fibonacci F[n+1],F[n] in Stern diatomic,
-                is  N of F[n+1]/F[n] in CW
-                and N of X/1 in Drib, ie. N values in row at Y=1
-    A061547  - position Fibonacci F[n],F[n+1] in Stern diatomic,
-                is  N of F[n]/F[n+1] in CW
-                and N of 1/Y in Drib, ie. N values in column at X=1
-
-    A054424  - permutation DiagonalRationals to SB
-    A054425  -   DiagonalRationals to SB with 0s at non-coprimes
-    A054426  -   inverse, SB to DiagonalRationals
-    A054427  - permutation coprimes to SB right hand X/Y>1
-
-    A000975  - Bird N in column X=1, being 1010 alternating bits
-    A088696  - length of continued fraction SB left half (num/den<1)
-
-The sequences marked "extra ..." have one or two extra initial values over
-what the RationalsTree here gives, but are the same after that.  And the
-Stern first differences "less ..." means it has one less term than what the
-code here gives.
 
 =head1 FUNCTIONS
 
@@ -987,6 +947,48 @@ This is simply C<floor($n/2)>, stripping the least significant bit from
 C<$n> (undoing what C<tree_n_children()> appends).
 
 =back
+
+=head1 OEIS
+
+The trees are in Sloane's Online Encyclopedia of Integer Sequences in
+various forms,
+
+    http://oeis.org/A007305   (etc)
+
+    A007305  - SB numerators, Farey fractions (extra 0,1)
+    A047679  - SB denominators
+    A007306  - SB num+den sum, Farey 0 to 1 part (extra 1,1)
+    A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
+    A070990  - CW den-num diff, Stern diatomic first diffs (less 0)
+    A070871  - CW num*den product
+    A020650  - AYT numerators
+    A020651  - AYT denominators (Kepler numerators)
+    A086592  - AYT num+den sum (Kepler denominators)
+    A162909  - Bird numerators
+    A162910  - Bird denominators
+    A162911  - Drib numerators
+    A162912  - Drib denominators
+
+    A086893  - position Fibonacci F[n+1],F[n] in Stern diatomic,
+                is  N of F[n+1]/F[n] in CW
+                and N of X/1 in Drib, ie. N values in row at Y=1
+    A061547  - position Fibonacci F[n],F[n+1] in Stern diatomic,
+                is  N of F[n]/F[n+1] in CW
+                and N of 1/Y in Drib, ie. N values in column at X=1
+
+    A054424  - permutation DiagonalRationals to SB
+    A054425  -   DiagonalRationals to SB with 0s at non-coprimes
+    A054426  -   inverse, SB to DiagonalRationals
+    A054427  - permutation coprimes to SB right hand X/Y>1
+
+    A081254  - Bird N in row Y=1, binary 110101010...10
+    A000975  - Bird N in column X=1, binary 1010..1010
+    A088696  - length of continued fraction SB left half (num/den<1)
+
+The sequences marked "extra ..." have one or two extra initial values over
+what the RationalsTree here gives, but are the same after that.  And the
+Stern first differences "less ..." means it has one less term than what the
+code here gives.
 
 =head1 SEE ALSO
 

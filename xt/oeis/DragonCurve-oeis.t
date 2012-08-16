@@ -96,6 +96,31 @@ sub dxdy_to_dir {
 
 
 #------------------------------------------------------------------------------
+# A126937 -- points numbered as SquareSpiral, starting N=0
+
+{
+  my $anum = 'A126937';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    require Math::PlanePath::SquareSpiral;
+    my $square  = Math::PlanePath::SquareSpiral->new (n_start => 0);
+
+    for (my $n = $dragon->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $dragon->n_to_xy ($n);
+      my $square_n = $square->xy_to_n ($x, -$y);
+      push @got, $square_n;
+    }
+    ### bvalues: join(',',@{$bvalues}[0..40])
+    ### got: '    '.join(',',@got[0..40])
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- relative direction");
+}
+
+
+#------------------------------------------------------------------------------
 # A082410 -- complement reversal, is 1=left, 0=right
 
 {
@@ -582,31 +607,6 @@ sub dxdy_to_dir {
         numeq_array(\@got, $bvalues),
         1, "$anum -- left turn N positions");
 }
-
-#------------------------------------------------------------------------------
-# A126937 -- points numbered as SquareSpiral
-
-{
-  my $anum = 'A126937';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::SquareSpiral;
-    my $square  = Math::PlanePath::SquareSpiral->new;
-
-    for (my $n = $dragon->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $dragon->n_to_xy ($n);
-      my $square_n = $square->xy_to_n ($x, -$y) - 1;
-      push @got, $square_n;
-    }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- relative direction");
-}
-
 
 #------------------------------------------------------------------------------
 # A005811 -- total rotation, count runs of bits in binary

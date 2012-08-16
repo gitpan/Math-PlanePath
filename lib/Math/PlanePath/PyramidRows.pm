@@ -21,6 +21,8 @@
 # full V with points spaced apart
 # math-image --path=CellularRule,rule=50 --all --text
 #
+# A091018, A090894 using n_start=0
+# A196199, A000196, A053186 using n_start=0
 
 package Math::PlanePath::PyramidRows;
 use 5.004;
@@ -30,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -67,6 +69,10 @@ sub new {
   my $class = shift;
   ### PyramidRows new(): @_
   my $self = $class->SUPER::new (@_);
+
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
 
   my $align = ($self->{'align'} ||= 'centre');
 
@@ -146,6 +152,9 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### PyramidRows n_to_xy(): $n
 
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
+
   # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
   return if 2*$n < 1;
 
@@ -188,7 +197,10 @@ sub xy_to_n {
       || $x > $y*$self->{'right_slope'}) {
     return undef;
   }
-  return ($self->{'step'}*$y + $self->{'axis_b'})*$y/2 + 1 + $x;
+  return (($self->{'step'}*$y + $self->{'axis_b'})*$y/2
+          + $x
+          + $self->{'n_start'});
+;
 }
 
 # left N   = ($step * $d*$d - ($step-2)*$d + 1) / 2
@@ -455,6 +467,28 @@ to the Y axis.  The default shown above is "centre".
 The step parameter still controls how much longer each row is than its
 predecessor.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same rows sequence.  For
+example to start at 0,
+
+=cut
+
+# math-image --path=PyramidRows,n_start=0 --all --output=numbers --size=48x5
+
+=pod
+
+    n_start => 0
+
+    16 17 18 19 20 21 22 23 24        4 
+        9 10 11 12 13 14 15           3 
+           4  5  6  7  8              2 
+              1  2  3                 1 
+                 0                <- Y=0
+    --------------------------
+    -4 -3 -2 -1 X=0 1  2  3  4
+
 =head2 Step 3 Pentagonals
 
 For step=3 the pentagonal numbers 1,5,12,22,etc, P(k) = (3k-1)*k/2, are at
@@ -575,7 +609,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PyramidRows-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::PyramidRows-E<gt>new (step =E<gt> $integer, align =E<gt> $str)>
+=item C<$path = Math::PlanePath::PyramidRows-E<gt>new (step =E<gt> $integer, align =E<gt> $str, n_start =E<gt> $integer)>
 
 Create and return a new path object.  The default C<step> is 2.  C<align> is
 a string, one of

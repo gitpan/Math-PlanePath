@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,6 +48,9 @@ use Math::PlanePath::SquareSpiral;
 
 sub new {
   my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   $self->{'wider'} ||= 0;  # default
   return $self;
 }
@@ -55,6 +58,9 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   ### Corner n_to_xy: $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
   if (2*$n < 1) {
@@ -133,8 +139,9 @@ sub xy_to_n {
   my $xw = $x - $wider;
   if ($y >= $xw) {
     ### top edge, N left is: $y*$y + $wider*$y + 1
-    return ($y*$y + $wider*$y + 1  # Y axis N value
-            + $x);                 # plus X offset across
+    return ($y*$y + $wider*$y      # Y axis N value
+            + $x                   # plus X offset across
+            + $self->{'n_start'});
   } else {
     ### right vertical, N diag is: $xw*$xw + $xw*$wider
     ### $xw
@@ -143,7 +150,9 @@ sub xy_to_n {
     #   = xw*xw + w*xw + 1 + xw+w + xw - y
     #   = xw*xw + xw*(w+2) + 1 + w - y
     #   = xw*(xw + w+2) + w+1 - y
-    return $xw*($xw+$wider+2) + $wider + 1 - $y;
+    return ($xw*($xw+$wider+2) + $wider
+            - $y
+            +  $self->{'n_start'});
   }
 }
 
@@ -308,6 +317,29 @@ to the Y axis, then the path makes corners around that shape.
 Each loop is still 2 longer than the previous, as the widening is a constant
 amount in each loop.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same sequence.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=Corner,n_start=0 --all --output=numbers --size=35x5
+
+=pod
+
+    n_start => 0
+
+      5  |  25 ...
+      4  |  16 17 18 19 20
+      3  |   9 10 11 12 21
+      2  |   4  5  6 13 22
+      1  |   1  2  7 14 23
+    Y=0  |   0  3  8 15 24
+          -----------------
+           X=0   1   2   3
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -421,10 +453,19 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
       A196199    X-Y, being runs -n to +n
       A053615    abs(X-Y), distance to next pronic
       A002522    N on Y axis (N=Y^2+1)
+    wider=0,n_start=0
+      A005563    N on X_axis, (X+1)^2-1
+      A000290    N on Y axis, perfect squares
+      A002378    N on X=Y diagonal, pronic
 
-    wider=1 
-      A053188    abs(X-Y), distance to nearest square
-                   (extra initial 0)
+    wider=1
+      A053188    abs(X-Y), dist to nearest square, extra initial 0
+    wider=1,n_start=0
+      A002378    N on Y_axis, pronic
+      A005563    N on X=Y diagonal, (k+1)^2-1
+
+    wider=2,n_start=0
+      A005563    N on Y axis, (Y+1)^2-1
 
 =head1 SEE ALSO
 

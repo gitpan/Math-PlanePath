@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -130,13 +130,6 @@ my %oeis_anum
      #  # A163536 relative direction 0=ahead,1=right,2=left
      # },
 
-     # Not quite,    OFFSET=0 values 0,0,1,1,0
-     # cf first turn here N=1 values 0,0,1,1,0
-     # 'Math::PlanePath::R5DragonCurve' =>
-     # { Right => 'A175337',
-     #   # OEIS-Catalogue: A175337 planepath=R5DragonCurve turn_type=Right
-     # },
-
      'Math::PlanePath::DragonCurve,arms=1' =>
      {
       'LSR' => 'A034947', # Jacobi symbol (-1/n)
@@ -174,6 +167,13 @@ my %oeis_anum
         'Math::PlanePath::GosperSide' => $h)
      },
 
+     # Not quite,    OFFSET=0 values 0,0,1,1,0
+     # cf first turn here N=1 values 0,0,1,1,0
+     # 'Math::PlanePath::R5DragonCurve' =>
+     # { Right => 'A175337',
+     #   # OEIS-Catalogue: A175337 planepath=R5DragonCurve turn_type=Right
+     # },
+
      'Math::PlanePath::SacksSpiral' =>
      { 'Left' => 'A000012',  # left always, all ones
        'LSR'  => 'A000012',
@@ -207,6 +207,30 @@ my %oeis_anum
        # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=LSR
        # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=right turn_type=Left
        # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=left turn_type=LSR
+     },
+
+     # PyramidRows step=1
+     do {
+       my $href= { Left => 'A129184', # triangle 1s shift right
+                 };
+       ('Math::PlanePath::PyramidRows,step=1,align=centre,n_start=0' => $href,
+        'Math::PlanePath::PyramidRows,step=1,align=right,n_start=0'  => $href,
+        'Math::PlanePath::PyramidRows,step=1,align=left,n_start=0'   => $href,
+       );
+
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,n_start=0 turn_type=Left
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=right,n_start=0 turn_type=Left
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=left,n_start=0 turn_type=Left
+     },
+     do {
+       my $href= { Right => 'A023531',  # 1 at n==m*(m+3)/2
+                 };
+       ('Math::PlanePath::PyramidRows,step=1,align=centre,n_start=-1' => $href,
+        'Math::PlanePath::PyramidRows,step=1,align=right,n_start=-1'  => $href,
+       );
+
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,n_start=-1 turn_type=Right
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=right,n_start=-1 turn_type=Right
      },
 
      # MultipleRings step=0 is trivial X=N,Y=0

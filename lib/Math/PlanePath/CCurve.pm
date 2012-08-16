@@ -25,7 +25,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -394,52 +394,52 @@ Math::PlanePath::CCurve -- Levy C curve
 This is an integer version of the "C" curve.
 
 
-                            11-----10-----9,7-----6------5               3
-                             |             |             |
-                     13-----12             8             4------3        2
-                      |                                         |
-              19---14,18----17                                  2        1
-               |      |      |                                  |
-       21-----20     15-----16                           0------1   <- Y=0
-        |
-       22                                                               -1
-        |
-      25,23---24                                                        -2
-        |
-       26     35-----34-----33                                          -3
-        |      |             |
-      27,37--28,36          32                                          -4
-        |      |             |
-       38     29-----30-----31                                          -5
-        |
-    39,41-----40                                                        -6
-        |
-       42                                              ...              -7
-        |                                                |
-       43-----44     49-----48                          64-----63       -8
-               |      |      |                                  |
-              45---46,50----47                                 62       -9
-                      |                                         |
-                     51-----52            56            60-----61      -10
-                             |             |             |
-                            53-----54----55,57---58-----59             -11
+                          11-----10-----9,7-----6------5               3
+                           |             |             |
+                   13-----12             8             4------3        2
+                    |                                         |
+            19---14,18----17                                  2        1
+             |      |      |                                  |
+     21-----20     15-----16                           0------1   <- Y=0
+      |
+     22                                                               -1
+      |
+    25,23---24                                                        -2
+      |
+     26     35-----34-----33                                          -3
+      |      |             |
+    27,37--28,36          32                                          -4
+      |      |             |
+     38     29-----30-----31                                          -5
+      |
+    39,41---40                                                        -6
+      |
+     42                                              ...              -7
+      |                                                |
+     43-----44     49-----48                          64-----63       -8
+             |      |      |                                  |
+            45---46,50----47                                 62       -9
+                    |                                         |
+                   51-----52            56            60-----61      -10
+                           |             |             |
+                          53-----54----55,57---58-----59             -11
 
-                                                         ^
-       -7     -6     -5     -4     -3     -2     -1     X=0     1
+                                                       ^
+     -7     -6     -5     -4     -3     -2     -1     X=0     1
 
-The initial segment N=0 to N=1 is duplicated turned +90 degrees left as N=1
-to N=2.  Then N=0to2 is duplicated likewise turned +90 degrees to make
-N=2to4.  And so on doubling.
+The initial segment N=0 to N=1 is repeated with a turn +90 degrees left to
+give N=1 to N=2.  Then N=0to2 is repeated likewise turned +90 degrees to
+make N=2to4.  And so on doubling each time.
 
-The 90 degree rotation is relative to the initial N=0to1 direction.  So
-N=0to1 is left, so at N=2^level the first segment is upwards +90.
+The 90 degree rotation is relative to the initial N=0to1 direction.  So at
+N=0 the direction is left, and the repeat at N=2^level is turned by +90
+making it upwards at N=1,2,4,8,16,etc.
 
 The curve crosses itself and repeats some X,Y positions.  The first doubled
 point is X=-2,Y=3 which is both N=7 and N=9.  The first tripled point is
-X=18,Y=-7 which is N=189, N=279 and N=281.  There are points with an
-arbitrary number of repetitions (is that right?).  The repetitions are
-always finite, the curve doesn't turn back on itself endlessly, only a
-limited extent.
+X=18,Y=-7 which is N=189, N=279 and N=281.  The number of repeats at a given
+point is finite, but as N increases there's points where that number of
+repeats becomes ever bigger (is that right?).
 
 =head1 FUNCTIONS
 
@@ -484,14 +484,14 @@ For example N=11 is binary 1011 has three 1 bits, so direction 3*90=270
 degrees, ie. to the south.
 
 This bit count is because at each power-of-2 position the curve is a copy of
-the lower bits but turned +90 degrees.
+the lower bits but turned +90 degrees, so +90 for each 1-bit.
 
-For powers-of-2 N=2,4,8,16, etc, there's just one 1 bit so the direction is
-always +90 degrees, ie. upwards, at those points.
+For powers-of-2 N=2,4,8,16, etc, there's only one 1 bit so the direction is
+always +90 degrees there, ie. upwards.
 
 =head2 Turn Sequence
 
-At each point N the curve can turn in any direction, left, right, straight,
+At each point N the curve can turn in any direction: left, right, straight,
 or 180 degrees back.  The turn is given by number of low 0-bits of N,
 
     turn right = (count_low_0_bits(N) - 1) * 90degrees
@@ -500,12 +500,12 @@ For example N=8 is binary 0b100 which is 2 low zero bit for turn=(2-1)*90=90
 degrees to the right.
 
 When N is odd there's no low zero bits and the turn is always (0-1)*90=-90
-to the right in that case, which means +90 turn to the left.
+to the right there, which means +90 turn to the left.
 
 =head2 Next Turn
 
 The turn at the point following N, ie. at N+1, can be calculated from the
-bits of N similarly, by counting the low 1s,
+bits of N similarly, by counting the low 1-bits,
 
     following turn right = (count_low_1_bits(N) - 1) * 90degrees
 
@@ -514,7 +514,7 @@ nextturn=(2-1)*90=90 degrees to the right at the following point, ie. at
 N=12.
 
 This works simply because low ones like ..0111 increment to low zeros
-..1000.  The low ones you have at N will be the low zeros at N+1.
+..1000.  The low ones at N are the low zeros at N+1.
 
 =head2 N to dX,dY
 
@@ -526,10 +526,8 @@ dX,dY.
     dx = dir_to_dx[dir]    # table 0 to 3
     dy = dir_to_dy[dir]
 
-If N is fractional then the direction at int(N) and the turn at int(N)+1 are
-combined.  The two are similar calculations.  The direction is the count of
-all 1-bits, the turn is the count of low 1-bits, ie. those up to the
-lowest 0.
+For fractional N then the direction at int(N) can be modified by the turn at
+int(N)+1 to give the direction at int(N)+1.
 
     # apply turn to make direction at Nint+1
     turn = count_low_1_bits(N) - 1      # N integer part
@@ -540,8 +538,8 @@ lowest 0.
     dy += Nfrac * (dir_to_dy[dir] - dy)
 
 A tiny optimization can be made by working the "-1" from the turn formula
-into a +90 degree rotation of the "dir_to_dx" and "dir_to_dy" parts by
-swapping and a sign change,
+into a +90 degree rotation of the "dir_to_dx" and "dir_to_dy" parts by a
+swap and sign change,
 
     turn_plus_1 = count_low_1_bits(N)     # N integer part
     dir = (dir - turn_plus_1) mod 4       # direction-1 at N+1
@@ -581,9 +579,13 @@ this path include
 
     http://oeis.org/A179868  (etc)
 
-    A179868 - direction 0to3, being count of 1 bits mod 4
-    A000120 - direction as total turn, count of 1 bits
-    A007814 - count low 0s, is turn by value-1 to the right
+    A010059 - abs(dX), count 1-bits mod 2
+    A010060 - abs(dY), [count 1-bits + 1] mod 2, Thue-Morse seq
+
+    A179868 - direction 0to3, count 1-bits mod 4
+    A000120 - direction as total turn, count 1-bits
+
+    A007814 - a(n)=turn-1 to the right, count low 0s
 
     A003159 - N positions of left or right turn, ends even num 0 bits
     A036554 - N positions of straight or 180 turn, ends odd num 0 bits

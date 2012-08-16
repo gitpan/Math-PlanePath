@@ -26,6 +26,24 @@ use Math::NumSeq::Squares;
 
 
 {
+  require Math::BaseCnv;
+  require Math::PlanePath::PowerArray;
+  my $path;
+  my $radix = 3;
+  my $width = 9;
+  $path = Math::PlanePath::PowerArray->new (radix => $radix);
+  foreach my $y (reverse 0 .. 6) {
+    foreach my $x (0 .. 5) {
+      my $n = $path->xy_to_n($x,$y);
+      my $nb = sprintf '%*s', $width, Math::BaseCnv::cnv($n,10,$radix);
+      print $nb;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   # max Dir4
 
   require Math::BaseCnv;

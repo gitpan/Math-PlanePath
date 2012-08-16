@@ -23,6 +23,10 @@
 # http://dx.doi.org/10.1016/0025-5564(79)90080-4 Helmut Vogel, "A Better Way
 # to Construct the Sunflower Head", Volume 44, Issues 3-4, June 1979, Pages
 # 179-189
+#
+# http://www.ms.unimelb.edu.au/~segerman/papers/sunflower_spiral_fibonacci_metric.pdf
+# Zeckendorf/Fibbinary with N bits makes radial spokes.  cf FibbinaryBitCount
+
 
 package Math::PlanePath::VogelFloret;
 use 5.004;
@@ -31,7 +35,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

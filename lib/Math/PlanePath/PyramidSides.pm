@@ -16,12 +16,14 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# n_start=0 for A196199 X coord
+
 package Math::PlanePath::PyramidSides;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -34,6 +36,14 @@ use Math::PlanePath::Base::Generic
 
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 #                     21
 #                 20  13  22
@@ -57,6 +67,9 @@ use constant n_frac_discontinuity => .5;
 sub n_to_xy {
   my ($self, $n) = @_;
   ### PyramidSides n_to_xy: $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
   return if 2*$n < 1;
@@ -83,7 +96,7 @@ sub xy_to_n {
   $x = round_nearest ($x);
 
   my $s = abs($x) + $y;
-  return $s*$s + $x+$s + 1;
+  return $s*$s + $x+$s + $self->{'n_start'};
 }
 
 # exact
@@ -143,7 +156,7 @@ upwards.
                 19  12   7  14  23                2
             18  11   6   3   8  15  24            1
         17  10   5   2   1   4   9  16  25    <- Y=0
-
+       ------------------------------------
                          ^
     ... -4  -3  -2  -1  X=0  1   2   3   4 ...
 
@@ -168,6 +181,28 @@ to the first 2500 or so values).  The line shows in other step==2 paths too,
 but not as clearly.  In the PyramidRows for instance the beginning is up at
 Y=40, and in the Corner path it's a diagonal.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pyramid sequence.  For
+example to start at 0,
+
+=cut
+
+# math-image --path=PyramidSides,n_start=0 --all --output=numbers --size=48x5
+
+=pod
+
+    n_start => 0
+
+                20                    4
+             19 12 21                 3
+          18 11  6 13 22              2
+       17 10  5  2  7 14 23           1
+    16  9  4  1  0  3  8 15 24    <- Y=0
+    --------------------------
+    -4 -3 -2 -1 X=0 1  2  3  4
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -175,6 +210,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::PyramidSides-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::PyramidSides-E<gt>new (n_start =E<gt> $integer)>
 
 Create and return a new path object.
 
@@ -221,9 +258,14 @@ path include
 
     http://oeis.org/A196199  (etc)
 
-    A196199    X coordinate, runs -n to +n
-    A002522    N on X negative axis
-    A033951    N on X=Y diagonal
+    n_start=1 (the default)
+      A002522    N on X negative axis, x^2+1
+      A033951    N on X=Y diagonal, 4d^2+3d+1
+
+    n_start=0
+      A196199    X coordinate, runs -n to +n
+      A000196    abs(X)+abs(Y), floor(sqrt(N)),
+                   k repeated 2k+1 times starting 0
 
 =head1 SEE ALSO
 

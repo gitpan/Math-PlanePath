@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -698,7 +698,7 @@ the path).
 
 =head1 OEIS
 
-This cellular automaton is in Neil Sloane's Online Encyclopedia of Integer
+This cellular automaton is in Sloane's Online Encyclopedia of Integer
 Sequences as
 
     http://oeis.org/A147582    (etc)

@@ -15,29 +15,13 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#
-# Clark Kimberling
-# http://faculty.evansville.edu/ck6/integer/intersp.html
-#
-# Classic Sequences
-# http://oeis.org/classic.html
-# A035506 stolarsky by diagonals
-# A035507   inverse
-# A082156
-# A007067 stolarsky first column
-# A019586 or, for the original form, A003603
-# A035612
-# A020941
-# A135766 -- not divisible by 2,3,5, times 5^k, by triangle
-
 package Math::PlanePath::PowerArray;
 use 5.004;
 use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -189,7 +173,19 @@ This is a split of N into an odd part and power of 2,
 
 For N=odd*2^k the coordinates are X=k, Y=(odd-1)/2.  The X coordinate is how
 many factors of 2 can be divided out.  The Y coordinate counts odd integers
-1,3,5,7,etc as 0,1,2,3,etc.
+1,3,5,7,etc as 0,1,2,3,etc.  This is clearer by writing N values in binary,
+
+    N values in binary
+
+      6  |  1101     11010    110100   1101000  11010000 110100000
+      5  |  1011     10110    101100   1011000  10110000 101100000
+      4  |  1001     10010    100100   1001000  10010000 100100000
+      3  |   111      1110     11100    111000   1110000  11100000
+      2  |   101      1010     10100    101000   1010000  10100000
+      1  |    11       110      1100     11000    110000   1100000
+    Y=0  |     1        10       100      1000     10000    100000
+         +----------------------------------------------------------
+             X=0         1         2         3         4         5
 
 =head2 Radix
 
@@ -217,10 +213,22 @@ example radix 3 divides out factors of 3,
          +------------------------------------------------
             X=0     1     2     3     4     5     6     7
 
-N=1,3,9,27,etc along the X axis is the powers of 3.  N=1,2,4,5,7,etc on the
-Y axis is the integers N=1mod3 and N=2mod3, ie. those not a multiple of 3.
-Notice when Y=1or2 mod 4 the N values in that row are all even, and when
-Y=0or3 mod 4 the N values are all odd.
+X axis N=1,3,9,27,etc is the powers of 3.  Y axis N=1,2,4,5,7,etc is the
+integers N=1mod3 and N=2mod3, ie. those not a multiple of 3.  Notice when
+Y=1or2 mod 4 the N values in that row are all even, and when Y=0or3 mod 4
+the N values are all odd.
+
+    radix => 3,  N values in ternary
+
+      6  |   101     1010    10100   101000  1010000 10100000
+      5  |    22      220     2200    22000   220000  2200000
+      4  |    21      210     2100    21000   210000  2100000
+      3  |    12      120     1200    12000   120000  1200000
+      2  |    11      110     1100    11000   110000  1100000
+      1  |     2       20      200     2000    20000   200000
+    Y=0  |     1       10      100     1000    10000   100000
+         +----------------------------------------------------
+             X=0        1        2        3        4        5
 
 =head1 FUNCTIONS
 
@@ -261,6 +269,15 @@ Within each row increasing X is increasing N, and in each column increasing
 Y is increasing N.  So in a rectangle the lower left corner is the minimum N
 and the upper right is the maximum N.
 
+    |               N max
+    |     ----------+
+    |    |          |
+    |    |          |
+    |    |          |
+    |    +----------
+    |   N min
+    +-------------------
+
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
@@ -270,7 +287,7 @@ path include
 
     radix=2
       A007814    X coordinate, count low 0 bits of N
-      A006519    2^X, the power of 2 divided out
+      A006519    2^X power
 
       A025480    Y coordinate of N-1, ie. seq starts from N=0
       A003602    Y+1 coordinate, k for which N=(2k-1)*2^m
@@ -286,13 +303,13 @@ path include
 
       A118417    N on X=Y+1 diagonal (just below X=Y diagonal)
 
-      A054582    N by diagonals upwards
-      A075300    N-1 by diagonals upwards
-      A135764    N by diagonals downwards
+      A054582    N by diagonals, upwards
+      A075300    N-1 by diagonals, upwards
+      A135764    N by diagonals, downwards
 
     radix=3
       A000244    N on X axis, powers 3^X
-      A135765    odd N by diagonals, delete the Y=1,2mod4 even rows
+      A135765    odd N by diagonals, delete the Y=1,2mod4 rows
 
     radix=4
       A000302    N on X axis, powers 4^X

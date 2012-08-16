@@ -45,7 +45,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 85;
+$VERSION = 86;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -556,7 +556,7 @@ show the equivalence,
 Plotting sequences of values with some connection to ternary digits or
 powers of 3 will usually give the most interesting patterns on the Peano
 curve.  For example the Mephisto waltz sequence
-(eg. L<Math::NumSeq::MephistoWaltz>) makes diamond shapes,
+(L<Math::NumSeq::MephistoWaltz>) makes diamond shapes,
 
     **   *  ***   *  *  *** **   *** **   *** ** **   *  *
     *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
