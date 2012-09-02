@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -42,11 +42,11 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
-my @rot_to_sx = (1,0,-1,0);
-my @rot_to_sy = (0,1,0,-1);
+my @rot_to_dx = (1,0,-1,0);
+my @rot_to_dy = (0,1,0,-1);
 my @digit_reverse = (0,1,0,0,1,0);
 
 sub n_to_xy {
@@ -56,33 +56,23 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  my $arms = $self->{'arms'};
   if (is_infinite($n)) {
     return ($n,$n);
   }
 
-  {
-    my $int = int($n);
-    if ($n != $int) {
-      my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+$arms);
-      my $frac = $n - $int;  # inherit possible BigFloat
-      my $dx = $x2-$x1;
-      my $dy = $y2-$y1;
-      return ($frac*$dx + $x1, $frac*$dy + $y1);
-    }
-    $n = $int; # BigFloat int() gives BigInt, use that
-  }
+  my $arms = $self->{'arms'};
+  my $int = int($n);
+  $n -= $int;  # fraction part
 
-  my $rot = _divrem_mutate ($n,$arms);
-  if ($rot) { $n += 1; }
+  my $rot = _divrem_mutate ($int,$arms);
+  if ($rot) { $int += 1; }
 
-  my @digits = digit_split_lowtohigh($n,5);
+  my @digits = digit_split_lowtohigh($int,5);
   my @sx;
   my @sy;
   {
-    my $sx = 1; # $rot_to_sx[$rot];
-    my $sy = 0; # $rot_to_sy[$rot];
+    my $sy = 0 * $int; # inherit bignum 0
+    my $sx = 1 + $sy;  # inherit bignum 1
     foreach (@digits) {
       push @sx, $sx;
       push @sy, $sy;
@@ -173,10 +163,18 @@ sub n_to_xy {
         $rev = 1;
       }
     }
+
+    # lowest non-zero digit determines the direction
+    if ($digit != 0) {
+      ### frac_dir at non-zero: $rot
+    }
   }
 
   ### final: "$x,$y"
-  return ($x,$y);
+  ### $rot
+  $rot &= 3;
+  return ($n * $rot_to_dx[$rot] + $x,
+          $n * $rot_to_dy[$rot] + $y);
 }
 
 #                  up  upl left
@@ -209,7 +207,7 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::QuintetCurve -- self-similar  "plus" shaped curve
+Math::PlanePath::QuintetCurve -- self-similar "plus" shaped curve
 
 =head1 SYNOPSIS
 
@@ -221,7 +219,7 @@ Math::PlanePath::QuintetCurve -- self-similar  "plus" shaped curve
 
 This path is traces out a spiralling self-similar "+" shape,
 
-             ...                     93--92                      11
+            125--...                 93--92                      11
               |                       |   |
         123-124                      94  91--90--89--88          10
           |                           |               |
@@ -263,42 +261,57 @@ The base figure is the initial N=0 to N=4.
           |   |
           2---3
 
-It corresponds to a traversal of a "+" shape,
+It corresponds to a traversal of the following "+" shape,
 
-         .....5
+         .... 5
          .    |
          .   <|
-         .    |
-    0----1....4.....
-    . v  |    |    .
+              |
+    0----1 .. 4 ....
+      v  |    |    .
     .    |>   |>   .
     .    |    |    .
-    .....2----3.....
+    .... 2----3 ....
          . v  .
          .    .
          .    .
-         ......
+         . .. .
 
 The "v" and ">" notches are the side the figure is directed at the higher
 replications.  The 0, 2 and 3 parts are the right hand side of the line and
 are a plain repetition of the base figure.  The 1 and 4 parts are to the
 left and are a reversal.  The first such reversal is seen above as N=5 to
 N=10.
+        .....
+        .   .
 
-    5---6---7
-            |
-            |       reversed figure
-        9---8
-        |
-        |
-       10
+    5---6---7 ...
+    .   .   |   .
+    .       |   .   reversed figure
+    ... 9---8 ...
+        |   .
+        |   .
+       10 ...
+
+In the base figure it can be seen the N=5 endpoint is rotated up around from
+the N=0 to N=1 direction.  This makes successive higher levels slowly spiral
+around.
+
+    N = 5^level
+    angle = level * atan(1/2)
+          = level * 26.56 degrees
+    radius = sqrt(5) ^ level
+
+In the sample shown above N=125 is level=3 and has spiralled around to angle
+3*26.56=79.7 degrees.  The next level goes into the second quadrant with X
+negative.  A full circle around the plane is around level 14.
 
 =head2 Arms
 
 The optional C<arms =E<gt> $a> parameter can give 1 to 4 copies of the
 curve, each advancing successively.  For example C<arms=E<gt>4> is as
-follows.  Notice the N=4*k points are the plain curve, and N=4*k+1, N=4*k+2
-and N=4*k+3 are rotated copies of it.
+follows.  N=4*k points are the plain curve, and N=4*k+1, N=4*k+2 and N=4*k+3
+are rotated copies of it.
 
                     69--65                      ...
                      |   |                       |
@@ -326,8 +339,8 @@ and N=4*k+3 are rotated copies of it.
          |                       |   |
         ...                     67--71
 
-Essentially the curve is an ever expanding "+" shape with one corner at the
-origin.  This means four of them back be packed as follows,
+The curve is essentially an ever expanding "+" shape with one corner at the
+origin.  Four such shapes can be packed as follows,
 
                 +---+
                 |   |
@@ -343,8 +356,9 @@ origin.  This means four of them back be packed as follows,
             |   |
             +---+
 
-At higher replication levels the sides become wiggly and spiralling, but
-they're symmetric and mesh to fill the plane.
+At higher replication levels the sides are wiggly and spiralling and the
+centres of each rotated around, but they sides are symmetric and mesh
+together perfectly to fill the plane.
 
 =head1 FUNCTIONS
 

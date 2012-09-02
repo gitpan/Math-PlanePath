@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -357,11 +357,13 @@ described in L<Math::PlanePath/Triangular Lattice> don't apply directly.
 Counting the innermost N=1 to N=3 peak as level 0, each peak is
 
     Nstart = level + (2*4^level + 1)/3
+    Nend   = level + (8*4^level + 1)/3
     length = 2*4^level + 1       including endpoints
 
 For example the outer peak shown above is level 2 starting at
-N=2+(2*4^2+1)/3=13 and having length=2*4^2+1=33 many points through to N=45
-(inclusive, 45-13+1=33).  The X width at a given level is the endpoints at
+Nstart=2+(2*4^2+1)/3=13 through to Nend=2+(8*4^2+1)/3=45 with
+length=2*4^2+1=33 inclusive (45-13+1=33).  The X width at a given level is
+the endpoints at
 
     Xlo = -(3^level)
     Xhi = +(3^level)

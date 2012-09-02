@@ -27,7 +27,7 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 require Math::PlanePath::QuintetCurve;
 
@@ -36,7 +36,7 @@ require Math::PlanePath::QuintetCurve;
 # VERSION
 
 {
-  my $want_version = 86;
+  my $want_version = 87;
   ok ($Math::PlanePath::QuintetCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::QuintetCurve->VERSION,  $want_version,
@@ -82,6 +82,10 @@ require Math::PlanePath::QuintetCurve;
               # [ 2,   1,    -1,1 ],
 
               # arms=1
+              [ 1,   .25,   .25, 0 ],
+              [ 1,   .5,    .5, 0 ],
+              [ 1,   1.75,  1, -.75 ],
+
               [ 1,   0,    0,0 ],
               [ 1,   1,    1,0 ],
               [ 1,   2,    1,-1 ],
@@ -92,9 +96,6 @@ require Math::PlanePath::QuintetCurve;
               [ 1,   6,    3,1 ],
               [ 1,   7,    4,1 ],
 
-              [ 1,   .25,   .25, 0 ],
-              [ 1,   .5,    .5, 0 ],
-              [ 1,   1.75,  1, -.75 ],
              );
   foreach my $elem (@data) {
     my ($arms, $n, $x, $y) = @$elem;

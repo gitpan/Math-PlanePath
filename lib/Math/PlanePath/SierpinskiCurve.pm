@@ -35,7 +35,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -124,40 +124,37 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;  # inherit possible BigFloat
-    $n = $int; # BigFloat int() gives BigInt, use that
-  }
-  ### $frac
+  my $int = int($n); # BigFloat int() gives BigInt, use that
+  $n -= $int;   # preserve possible BigFloat
+  ### $int
+  ### $n
 
-  my $arm = _divrem_mutate ($n, $self->{'arms'});
+  my $arm = _divrem_mutate ($int, $self->{'arms'});
 
   my $s = $self->{'straight_spacing'};
   my $d = $self->{'diagonal_spacing'};
   my $base = 2*$d+$s;
-  my $x = my $y = ($n * 0);  # inherit big 0
+  my $x = my $y = ($int * 0);  # inherit big 0
   my $len = $x + $base;      # inherit big
 
-  foreach my $digit (digit_split_lowtohigh($n,4)) { # low to high base 4
+  foreach my $digit (digit_split_lowtohigh($int,4)) {
     ### at: "$x,$y  digit=$digit"
 
     if ($digit == 0) {
-      $x = $frac + $x;
-      $y = $frac + $y;
-      $frac = 0;
+      $x = $n*$d + $x;
+      $y = $n*$d + $y;
+      $n = 0;
 
     } elsif ($digit == 1) {
-      ($x,$y) = ($frac - $y + $len-$d-$s,   # rotate +90
+      ($x,$y) = ($n*$s - $y + $len-$d-$s,   # rotate +90
                  $x + $d);
-      $frac = 0;
+      $n = 0;
 
     } elsif ($digit == 2) {
       # rotate -90
-      ($x,$y) = ($frac + $y  + $len-$d,
-                 -$frac - $x + $len-$d-$s);
-      $frac = 0;
+      ($x,$y) = ($n*$d + $y  + $len-$d,
+                 -$n*$d - $x + $len-$d-$s);
+      $n = 0;
 
     } else { # digit==3
       $x += $len;
@@ -166,8 +163,8 @@ sub n_to_xy {
   }
 
   # n=0 or n=33..33
-  $x = $frac + $x;
-  $y = $frac + $y;
+  $x = $n*$d + $x;
+  $y = $n*$d + $y;
 
   $x += 1;
   if ($arm & 1) {
@@ -451,7 +448,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel
+=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel OEIS
 
 =head1 NAME
 
@@ -724,6 +721,21 @@ integer positions.
 Return 0, the first N in the path.
 
 =back
+
+=head2 OEIS
+
+The Sierpinski curve is in Sloane's Online Encyclopedia of Integer Sequences
+as,
+
+    http://oeis.org/A039963    etc
+
+    A039963   turn 1=right,0=left, doubling the KochCurve turns
+    A081706   N-1 of left turn positions
+    A127254   abs(dY), so 0=horizontal 1=diagonal or vertical,
+                except extra initial 1
+
+A039963 is numbered starting n=0 for the first turn, which is at the point
+N=1 in the path here.
 
 =head1 SEE ALSO
 

@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -386,7 +386,7 @@ sub tree_n_parent {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart Nend
+=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart Nend ie
 
 =head1 NAME
 
@@ -425,7 +425,8 @@ within the level.
         X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
 The rule is a given cell grows diagonally NE, NW, SE and SW, but only if the
-new cell has no neighbours.  So the initial cell "a" is N=1,
+new cell has no neighbours and only within the first quadrant.  So the
+initial cell "a" is N=1,
 
 
     |
@@ -472,7 +473,7 @@ diagonals all already have neighbours (the existing "c" cells).
 
     | g   g   g   g
     |   f       f
-    |     e   e   g
+    | g   e   e   g
     |       d
     | c   c   e   g        level 7
     |   b       f
@@ -480,7 +481,7 @@ diagonals all already have neighbours (the existing "c" cells).
     +-------------
 
 In general each level always grows by 1 along the leading diagonal X=Y and
-travels into the sides with a sort of diamond shaped tree pattern filling 6
+travels into the sides with a self-similar diamond shaped pattern filling 6
 of 16 cells in each 4x4 square block.
 
 =head2 Level Ranges
@@ -533,7 +534,7 @@ level=7 = 2^2+2^1+2^0 is Nstart = 1+(4^2-1)/3 + 4^1 + 3*4^0 = 13.
 
 =head2 Self-Similar Replication
 
-The square shape growth up to a level 2^a repeats three times.  For example,
+The square shape growth up to a level 2^ repeats three times.  For example,
 
     |  d   d   c   c
     |    d       c
@@ -576,7 +577,13 @@ Return the children of C<$n>, or an empty list if C<$n> has no children
 (including when C<$n E<lt> 1>, ie. before the start of the path).
 
 The children are the cells turned on adjacent to C<$n> at the next level.
-This can be none, one or three points.
+This can be none, one or three points.  The way points are numbered means
+that when there's multiple children they're consecutive N values, for
+example at N=12 the children 19,20,21.
+
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return the number of children of C<$n>, or 0 if C<$n> has no children.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

@@ -38,7 +38,7 @@ my $path = Math::PlanePath::CCurve->new;
 # VERSION
 
 {
-  my $want_version = 86;
+  my $want_version = 87;
   ok ($Math::PlanePath::CCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CCurve->VERSION,  $want_version,

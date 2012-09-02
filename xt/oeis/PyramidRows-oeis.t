@@ -21,6 +21,7 @@
 use 5.004;
 use strict;
 use Test;
+use List::Util 'sum';
 plan tests => 5;
 
 use lib 't','xt';
@@ -87,6 +88,41 @@ sub diff_nums {
     }
   }
   return $diff;
+}
+
+#------------------------------------------------------------------------------
+# A079824 -- diagonal sums
+# cf A079825 with rows numbered alternately left and right
+# a(21)=(n/6)*(7*n^2-6*n+5)
+{
+  my $anum = 'A079824';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    my $path = Math::PlanePath::PyramidRows->new(step=>1);
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      my @diag;
+      foreach my $i (0 .. $y) {
+        my $n = $path->xy_to_n($i,$y-$i);
+        next if ! defined $n;
+        push @diag, $n;
+      }
+      my $total = sum(@diag);
+      push @got, $total;
+
+      # if ($y <= 21) {
+      #   MyTestHelpers::diag (join('+',@diag)," = $total");
+      # }
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef);
 }
 
 #------------------------------------------------------------------------------
@@ -158,37 +194,6 @@ sub diff_nums {
         numeq_array(\@got, $bvalues),
         1,
         "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A079824 -- diagonal sums
-# cf A079825 with rows numbered alternately left and right
-
-{
-  my $anum = 'A079824';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  if ($bvalues->[21] == 1717) {
-    $bvalues->[21] = 1617;
-  }
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::PyramidRows->new(step=>1);
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      my $total = 0;
-      foreach my $i (0 .. $y) {
-        $total += ($path->xy_to_n($i,$y-$i) || 0);
-      }
-      push @got, $total;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
 }
 
 #------------------------------------------------------------------------------

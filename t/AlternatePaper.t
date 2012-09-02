@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 351;
+plan tests => 3485;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::AlternatePaper;
 # VERSION
 
 {
-  my $want_version = 86;
+  my $want_version = 87;
   ok ($Math::PlanePath::AlternatePaper::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AlternatePaper->VERSION,  $want_version,
@@ -65,14 +65,19 @@ require Math::PlanePath::AlternatePaper;
 # first few values
 
 {
-  my @data = ([ 0,    0,0 ],
-              [ 0.25, 0.25,0 ],
-              [ 0.75, 0.75,0 ],
-              [ 1,    1,0 ],
-              [ 1.25, 1,0.25 ],
-              [ 1.75, 1,0.75 ],
-              [ 2,    1,1 ],
-
+  my @data = ([ 0,      0, 0 ],
+              [ 0.25,   0.25, 0 ],
+              [ 0.75,   0.75, 0 ],
+              [ 1,      1, 0 ],
+              [ 1.25,   1, 0.25 ],
+              [ 1.75,   1, 0.75 ],
+              [ 2,      1, 1 ],
+              [ 2.25,   1.25, 1 ],
+              [ 2.75,   1.75, 1 ],
+              [ 3,      2, 1 ],
+              [ 3.25,   2, 0.75 ],
+              [ 3.75,   2, 0.25 ],
+              [ 4,      2, 0 ],
              );
   my $path = Math::PlanePath::AlternatePaper->new;
   foreach my $elem (@data) {
@@ -87,6 +92,28 @@ require Math::PlanePath::AlternatePaper;
     next unless $want_n == int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
     ok ($got_n, $want_n, "n at x=$x,y=$y");
+  }
+}
+
+#------------------------------------------------------------------------------
+# n_to_xy() fracs
+
+foreach my $arms (1 .. 8) {
+  my $path = Math::PlanePath::AlternatePaper->new (arms => $arms);
+  foreach my $n (0 .. 64) {
+    my ($x1,$y1) = $path->n_to_xy ($n);
+    my ($x2,$y2) = $path->n_to_xy ($n+$arms);
+
+    foreach my $frac (0.25, 0.5, 0.75) {
+      my $want_xf = $x1 + ($x2-$x1)*$frac;
+      my $want_yf = $y1 + ($y2-$y1)*$frac;
+
+      my $nf = $n + $frac;
+      my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
+
+      ok ($got_xf == $want_xf, 1, "n_to_xy($nf) arms=$arms frac $frac, x");
+      ok ($got_yf == $want_yf, 1, "n_to_xy($nf) arms=$arms frac $frac, y");
+    }
   }
 }
 

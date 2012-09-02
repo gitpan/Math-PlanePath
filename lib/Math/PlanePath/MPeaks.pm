@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -105,8 +105,8 @@ sub xy_to_n {
   $x = round_nearest ($x);
 
   {
-    my $two_x;
-    if (($two_x=2*$x) > $y) {
+    my $two_x = 2*$x;
+    if ($two_x > $y) {
       ### right vertical ...
       # right end [ 5,16,33 ]
       # N = (3 x^2 + 2 x)
@@ -131,9 +131,7 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
 
-  $x1 = round_nearest ($x1);
   $y1 = round_nearest ($y1);
-  $x2 = round_nearest ($x2);
   $y2 = round_nearest ($y2);
 
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
@@ -142,15 +140,37 @@ sub rect_to_n_range {
   }
   if ($y1 < 0) { $y1 = 0; }
 
-  # ENHANCE-ME: this is a big over-estimate
-  my $d = max ($y2+1,
-               abs($x1),
-               abs($x2));
+  $x1 = round_nearest ($x1);
+  $x2 = round_nearest ($x2);
+  if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
 
-  # Nrightend = 3d^2 + 2d
+  my $zero = $x1 * 0 * $x2;
+
+  # columns X<0 are increasing with increasing Y
+  # columns X>0 increase below Y=2*X
+  #
   return (1,
-          (3*$d+2)*$d);
+          max (
+               # left column
+               $self->xy_to_n($x1,
+                              ($y2 >= 2*$x1 ? $y2 : $y1)),
+
+               # right column
+               $self->xy_to_n($x2,
+                              ($y2 >= 2*$x2 ? $y2 : $y1)),
+
+               # top row centre X=0, if it's covered by x1,x2
+               ($x1 < 0 && $x2 > 0
+                ? $self->xy_to_n($zero,$y2)
+                : ())));
 }
+
+# No, because N decreases in right hand columns
+# return (1,
+#         max ($self->xy_to_n($x1,$y2),
+#              $self->xy_to_n($x2,$y2),
+#              # and at X=0 if it's covered by x1,x2
+#              ($x1 < 0 && $x2 > 0 ? $self->xy_to_n($zero,$y2) : ()));
 
 # my @n;
 # if ($y1 <= 2*$x2) {
@@ -166,7 +186,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath ie HexSpiral
+=for stopwords Ryde Math-PlanePath ie HexSpiral OEIS
 
 =head1 NAME
 
@@ -202,9 +222,9 @@ The centre goes half way down.  Reckoning the N=1 to N=5 as layer d=1 then
     Ypeak = 2*d - 1
     Ycentre = d - 1
 
-Each "M" is 6 points longer than the preceding.  The verticals are 2 longer
-each, and the centre diagonals 1 longer each.  This step 6 is similar to the
-HexSpiral.
+Each "M" is 6 points longer than the preceding.  The verticals are each 2
+longer, and the centre diagonals each 1 longer.  This step 6 is similar to
+the HexSpiral.
 
 The octagonal numbers N=1,8,21,40,65,etc k*(3k-2) are a straight line
 of slope 2 going up to the left.  The octagonal numbers of the second

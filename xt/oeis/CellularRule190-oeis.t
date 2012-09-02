@@ -145,8 +145,6 @@ sub streq_array {
       }
     }
   }
-  ### bvalues: join(',',@{$bvalues}[0..40])
-  ### got: '    '.join(',',@got[0..40])
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
         1, "$anum");

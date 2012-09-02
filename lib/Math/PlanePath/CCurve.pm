@@ -18,6 +18,10 @@
 
 # math-image --path=CCurve --output=numbers_dash
 #
+# pos(2^et+r) = (i+1)^et + i*pos(r)
+# N=2^e0+2^e1+...+2^e(t-1)+2^et  e0 high bit
+# pos = (i+1)^e0 + i*(i+1)^e1 + ... + i^(t-1)*(i+1)^e(t-1) + i^t*(i+1)^et
+
 
 package Math::PlanePath::CCurve;
 use 5.004;
@@ -25,7 +29,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -377,7 +381,7 @@ sub n_to_dxdy {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath ie OEIS
+=for stopwords eg Ryde Math-PlanePath ie OEIS dX dY
 
 =head1 NAME
 
@@ -585,7 +589,7 @@ this path include
     A179868 - direction 0to3, count 1-bits mod 4
     A000120 - direction as total turn, count 1-bits
 
-    A007814 - a(n)=turn-1 to the right, count low 0s
+    A007814 - a(n)=turn-1 to the right, being count low 0s
 
     A003159 - N positions of left or right turn, ends even num 0 bits
     A036554 - N positions of straight or 180 turn, ends odd num 0 bits

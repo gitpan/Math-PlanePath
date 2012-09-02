@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -497,7 +497,7 @@ sub tree_n_parent {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart OEIS 
+=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart OEIS ie
 
 =head1 NAME
 
@@ -687,7 +687,13 @@ Return the children of C<$n>, or an empty list if C<$n> has no children
 (including when C<$n E<lt> 1>, ie. before the start of the path).
 
 The children are the cells turned on adjacent to C<$n> at the next level.
-This can be none, one or three points.
+This can be none, one or three points; or four at the initial N=1.  The way
+points are numbered means that when there's multiple children they're
+consecutive N values, for example at N=6 the children are 10,11,12.
+
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return the number of children of C<$n>, or 0 if C<$n> has no children.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -717,8 +723,7 @@ also separately in A048883, and as n-1 in A147610.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::CellularRule54>,
-L<Math::PlanePath::CellularRule190>
+L<Math::PlanePath::CellularRule>
 
 L<Math::PlanePath::SierpinskiTriangle> (a similar binary ones-count related
 level calculation)

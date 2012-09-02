@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()
@@ -326,7 +326,7 @@ __END__
     #      \ /  
 
 
-=for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath FlowsnakeCentres
+=for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath FlowsnakeCentres Ns
 
 =head1 NAME
 

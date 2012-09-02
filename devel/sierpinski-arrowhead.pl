@@ -27,6 +27,91 @@ use Smart::Comments;
 
 
 {
+  # turn sequence
+
+  require Math::NumSeq::PlanePathTurn;
+  require Math::BaseCnv;
+  my $seq = Math::NumSeq::PlanePathTurn->new
+    (planepath => 'SierpinskiArrowhead',
+     turn_type => 'Left');
+  foreach (1 .. 400) {
+    my ($i, $value) = $seq->next;
+    my $i3 = Math::BaseCnv::cnv($i,10,3);
+    my $calc = calc_turnleft($i);
+    print "$i $i3 $value $calc\n";
+  }
+
+  sub calc_turnleft {   # not working
+    my ($n) = @_;
+    my $ret = 1;
+    my $flip = 0;
+    while ($n && ($n % 9) == 0) {
+      $n = int($n/9);
+    }
+    if ($n) {
+      my $digit = $n % 9;
+      my $flip = ($digit == 0
+                  || $digit == 1     # 01
+                  # || $digit == 3  # 10
+                  || $digit == 5  # 12
+                  || $digit == 6  # 20
+                  || $digit == 7  # 21
+                 );
+      $ret ^= $flip;
+      $n = int($n/9);
+    }
+    while ($n) {
+      my $digit = $n % 9;
+      my $flip = ($digit == 1     # 01
+                  || $digit == 3  # 10
+                  || $digit == 5  # 12
+                  || $digit == 7  # 21
+                 );
+      $ret ^= $flip;
+      $n = int($n/9);
+    }
+    return $ret;
+  }
+
+  sub WORKING__calc_turnleft { # works
+    my ($n) = @_;
+    my $ret = 1;
+    while ($n && ($n % 3) == 0) {
+      $ret ^= 1;             # flip for trailing 0s
+      $n = int($n/3);
+    }
+    $n = int($n/3);
+    while ($n) {
+      if (($n % 3) == 1) {   # flip for all 1s
+        $ret ^= 1;
+      }
+      $n = int($n/3);
+    }
+    return $ret;
+  }
+
+  sub count_digits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count++;
+      $n = int($n/3);
+    }
+    return $count;
+  }
+  sub count_1_digits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += (($n % 3) == 1);
+      $n = int($n/3);
+    }
+    return $count;
+  }
+  exit 0;
+}
+
+{
   # direction sequence
   require Math::NumSeq::PlanePathDelta;
   require Math::BaseCnv;
@@ -98,59 +183,6 @@ use Smart::Comments;
       $n = int($n/3);
     }
     return $dir % 6;
-  }
-  exit 0;
-}
-
-{
-  # turn sequence
-
-  require Math::NumSeq::PlanePathTurn;
-  require Math::BaseCnv;
-  my $seq = Math::NumSeq::PlanePathTurn->new
-    (planepath => 'SierpinskiArrowhead',
-     turn_type => 'Left');
-  foreach (1 .. 40) {
-    my ($i, $value) = $seq->next;
-    my $i3 = Math::BaseCnv::cnv($i,10,3);
-    my $calc = calc($i);
-    print "$i $i3 $value $calc\n";
-  }
-
-  sub calc { # works
-    my ($n) = @_;
-    my $ret = 1;
-    while ($n && ($n % 3) == 0) {  # low zeros
-      $ret ^= 1;
-      $n = int($n/3);
-    }
-    $n = int($n/3);
-    while ($n) {
-      if (($n % 3) == 1) {   # any 1s above lowest non-zero
-        $ret ^= 1;
-      }
-      $n = int($n/3);
-    }
-    return $ret;
-  }
-
-  sub count_digits {
-    my ($n) = @_;
-    my $count = 0;
-    while ($n) {
-      $count++;
-      $n = int($n/3);
-    }
-    return $count;
-  }
-  sub count_1_digits {
-    my ($n) = @_;
-    my $count = 0;
-    while ($n) {
-      $count += (($n % 3) == 1);
-      $n = int($n/3);
-    }
-    return $count;
   }
   exit 0;
 }

@@ -30,6 +30,15 @@
 # A057114 - permutation SB X -> X+1
 # A057115 - permutation SB X -> X-1
 
+# math-image --path=RationalsTree,tree_type=Drib --all --output=numbers_xy
+
+#     9  10                    12  10
+# 8      11                 8      14
+#        12  13                     9  13
+#            14                        11
+#            15                        15
+#
+# Stern-Brocot              Calkin-Wilf
 
 
 package Math::PlanePath::RationalsTree;
@@ -37,7 +46,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -516,6 +525,10 @@ sub tree_n_children {
     return;
   }
 }
+sub tree_n_num_children {
+  my ($self, $n) = @_;
+  return ($n >= 1 ? 2 : 0);
+}
 sub tree_n_parent {
   my ($self, $n) = @_;
   if ($n >= 2) {
@@ -528,7 +541,7 @@ sub tree_n_parent {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped FractionsTree
 
 =head1 NAME
 
@@ -571,8 +584,8 @@ Brocot.  The rows are fractions of increasing value.
                        | |      | |      | |      | |
     N=8 to N=15     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1
 
-Writing the parents in between the children so as to make an "in-order" tree
-traversal to given depth puts the values in increasing order,
+Writing the parents in between the children as an "in-order" tree traversal
+of given depth has values in increasing order,
 
                  1/1
          1/2      |      2/1
@@ -581,11 +594,11 @@ traversal to given depth puts the values in increasing order,
 
      1/3 1/2 2/3 1/1 3/2 2/1 3/1
                     ^
-                   4/3 goes here next
+                   4/3 here at next level
 
-New values are a "mediant" (x1+x2)/(y1+y2) from the left and right parents
-in this flattening.  So the 4/3 shown above is from left parent 1/1 and
-right parent 3/2 as mediant (1+3)/(1+2)=4/3.
+New values are a "mediant" (x1+x2)/(y1+y2) formed from the left and right
+parent in this flattening.  So the 4/3 shown above is from left parent 1/1
+and right parent 3/2 as mediant (1+3)/(1+2)=4/3.
 
 Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
@@ -938,6 +951,11 @@ Return the two children of C<$n>, or an empty list if C<$n E<lt> 1>
 This is simply C<2*$n, 2*$n+1>.  The children are C<$n> with an extra bit
 appended, either a 0-bit or a 1-bit.
 
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return 2, since every node has two children, or return 0 if C<$nE<lt>1>
+(ie. before the start of the path).
+
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
 Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the top of
@@ -1024,24 +1042,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-
-#     9  10                    12  10
-# 8      11                 8      14
-#        12  13                     9  13
-#            14                        11
-#            15                        15
-#
-# Stern-Brocot              Calkin-Wilf
-
-
-
-
-# Local variables:
-# compile-command: "math-image --path=RationalsTree --lines --scale=20"
-# End:
-#
-# math-image --path=RationalsTree,tree_type=Drib --all --output=numbers_xy

@@ -24,13 +24,13 @@ package Math::PlanePath::SierpinskiArrowhead;
 use 5.004;
 use strict;
 
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
+
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-
-use Math::PlanePath::CellularRule54;
-*_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -43,8 +43,36 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
+# shared by SierpinskiArrowheadCentres
+use constant parameter_info_array =>
+  [ { name      => 'align',
+      type      => 'enum',
+      share_key => 'align_trld',
+      default   => 'triangular',
+      choices   => ['triangular','right','left','diagonal'],
+      choices_display => ['Triangular','Right','Left','Diagonal'],
+    },
+  ];
+
+{
+  my %x_negative = (triangular => 1,
+                    left       => 1,
+                    right      => 0,
+                    diagonal   => 0);
+  # shared by SierpinskiArrowheadCentres
+  sub x_negative {
+    my ($self) = @_;
+    return $x_negative{$self->{'align'}};
+  }
+}
 use constant n_start => 0;
 use constant class_y_negative => 0;
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  $self->{'align'} ||= 'triangular';
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -102,7 +130,15 @@ sub n_to_xy {
   }
 
   ### final: "$x,$y"
-  return ($x, $y);
+  if ($self->{'align'} eq 'right') {
+    return (($x+$y)/2, $y);
+  } elsif ($self->{'align'} eq 'left') {
+    return (($x-$y)/2, $y);
+  } elsif ($self->{'align'} eq 'diagonal') {
+    return (($x+$y)/2, ($y-$x)/2);
+  } else { # triangular
+    return ($x,$y);
+  }
 }
 
 sub xy_to_n {
@@ -111,9 +147,33 @@ sub xy_to_n {
   $y = round_nearest ($y);
   ### SierpinskiArrowhead xy_to_n(): "$x, $y"
 
-  if ($y < 0 || (($x^$y) & 1)) {
+  if ($y < 0) {
     return undef;
   }
+
+  if ($self->{'align'} eq 'left') {
+    if ($x > 0) {
+      return undef;
+    }
+    $x = 2*$x + $y; # adjust to triangular style
+
+  } elsif ($self->{'align'} eq 'triangular') {
+    if (($x%2) != ($y%2)) {
+      return undef;
+    }
+
+  } else {
+    # right or diagonal
+    if ($x < 0) {
+      return undef;
+    }
+    if ($self->{'align'} eq 'right') {
+      $x = 2*$x - $y;
+    } else { # diagonal
+      ($x,$y) = ($x-$y, $x+$y);
+      }
+  }
+  ### adjusted xy: "$x,$y"
 
   # On row Y=2^k the points belong to belong in the level below except for
   # the endmost X=Y or X=-Y.  For example Y=4 has N=6 which is in the level
@@ -196,8 +256,19 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### SierpinskiArrowhead rect_to_n_range() ...
 
-  ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
-    or return (1,0); # rect outside pyramid
+  $y1 = round_nearest ($y1);
+  $y2 = round_nearest ($y2);
+  if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
+
+  if ($self->{'align'} eq 'diagonal') {
+    $y2 += max (round_nearest ($x1),
+                round_nearest ($x2));
+  }
+
+  unless ($y2 >= 0) {
+    ### rect all negative, no N ...
+    return (1, 0);
+  }
 
   my ($len,$level) = round_down_pow ($y2-1, 2);
   ### $y2
@@ -266,7 +337,7 @@ __END__
 # 81
 
 
-=for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND ZOrderCurve Math-PlanePath
+=for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND ZOrderCurve Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -410,6 +481,108 @@ level, ie. after two replications of the previous level,
     Ncross = 2/3 * 3^level
            = 2 * 3^(level-1)
 
+=head2 Align Parameter
+
+An optional C<align> parameter controls how the points are arranged relative
+to the Y axis.  The default shown above is "triangular".  The choices are
+the same as for the SierpinskiTriangle path.
+
+"right" means points to the right of the axis, packed next to each other and
+so using an eighth of the plane.
+
+=cut
+
+# math-image --path=SierpinskiArrowhead,align=right --all --output=numbers_dash --size=78x22
+
+=pod
+
+    align => "right"
+
+        |   |
+     8  |  27-26    19-18    15-14
+        |      |   /    |   /    |
+     7  |     25 20    17-16    13
+        |    /    |            /
+     6  |  24    21       11-12
+        |   |   /        /
+     5  |  23-22       10
+        |               |
+     4  |      5--6     9
+        |    /    |   /
+     3  |   4     7--8
+        |   |
+     2  |   3--2
+        |      |
+     1  |      1
+        |    /
+    Y=0 |   0
+        +--------------------------
+           X=0 1  2  3  4  5  6  7
+
+"left" is similar but skewed to the left of the Y axis, ie. into negative X.
+
+=cut
+
+# math-image --path=SierpinskiArrowhead,align=left --all --output=numbers_dash --size=78x22
+
+=pod
+
+    align => "left"
+
+    \
+     27-26    19-18    15-14     |  8
+          \    |   \    |   \    |
+           25 20    17-16    13  |  7
+            |   \             |  |
+           24    21       11-12  |  6
+             \    |        |     |
+              23-22       10     |  5
+                            \    |
+                     5--6     9  |  4
+                     |   \    |  |
+                     4     7--8  |  3
+                      \          |
+                        3--2     |  2
+                            \    |
+                              1  |  1
+                              |  |
+                              0  | Y=0
+    -----------------------------+
+
+     -8 -7 -6 -5 -4 -3 -2 -1 X=0
+
+"diagonal" put rows on diagonals down from the Y axis to the X axis.  This
+uses the whole of the first quadrant (with gaps).
+
+=cut
+
+# math-image --expression='i<=27?i:0' --path=SierpinskiArrowhead,align=diagonal --output=numbers_dash --size=78x22
+
+=pod
+
+    align => "diagonal"
+
+        |   |
+     8  |  27
+        |    \
+     7  |     26
+        |      |
+     6  |  24-25
+        |   |
+     5  |  23    20-19
+        |    \    |   \
+     4  |     22-21    18
+        |               |
+     3  |   4--5       17
+        |   |   \        \
+     2  |   3     6       16-15
+        |    \    |            \
+     1  |      2  7    10-11    14
+        |      |   \    |   \    |
+    Y=0 |   0--1     8--9    12-13
+        +--------------------------
+           X=0 1  2  3  4  5  6  7
+
 =head2 Sideways
 
 The arrowhead is sometimes drawn on its side, with a base along the X axis.
@@ -447,6 +620,18 @@ If C<$n> is not an integer then the return is on a straight line between the
 integer points.
 
 =back
+
+=head2 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include,
+
+    http://oeis.org/A189706    etc
+
+    A189706   turn 0=left,1=right at odd positions N=1,3,5,etc
+    A189707     (N+1)/2 of the odd N positions of left turns
+    A189708     (N+1)/2 of the odd N positions of right turns
+    A156595   turn 0=left,1=right at even positions N=2,4,6,etc
 
 =head1 SEE ALSO
 

@@ -44,7 +44,7 @@ WriteMakefile
      { homepage => 'http://user42.tuxfamily.org/math-planepath/index.html',
        license  => 'http://www.gnu.org/licenses/gpl.html',
      },
-     no_index => { directory=>['devel'] },
+     no_index => { directory=>['devel','xt'] },
 
      optional_features =>
      { maximum_tests =>

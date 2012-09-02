@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -240,7 +240,7 @@ sub _digit_interleave_xyx_lowtohigh {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix ie ImaginaryBase radix-1 Proth
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve radix Radix ie ImaginaryBase radix-1 Proth
 
 =head1 NAME
 

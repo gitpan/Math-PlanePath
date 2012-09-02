@@ -21,6 +21,7 @@ use 5.006;
 use strict;
 use warnings;
 use POSIX qw(floor ceil);
+use Math::Libm;
 use List::Util qw(min max);
 use Module::Load;
 use Math::PlanePath::Base::Digits 'round_down_pow';
@@ -30,55 +31,16 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 
 {
   my $path_class;
-  require Math::PlanePath::Hypot;
-  require Math::PlanePath::PythagoreanTree;
-  require Math::PlanePath::SquareArms;
-  require Math::PlanePath::CellularRule54;
-  require Math::PlanePath::SquareReplicate;
-  require Math::PlanePath::DivisibleColumns;
-  require Math::PlanePath::DiamondSpiral;
-  require Math::PlanePath::DekkingCurve;
-  require Math::PlanePath::DekkingStraight;
-  require Math::PlanePath::HilbertCurve;
-  require Math::PlanePath::PentSpiral;
-  require Math::PlanePath::PentSpiralSkewed;
-  require Math::PlanePath::HexArms;
-  require Math::PlanePath::KochelCurve;
-  require Math::PlanePath::KochPeaks;
-  require Math::PlanePath::MPeaks;
-  require Math::PlanePath::CincoCurve;
-  require Math::PlanePath::DiagonalRationals;
-  require Math::PlanePath::FactorRationals;
-  require Math::PlanePath::VogelFloret;
-  require Math::PlanePath::AnvilSpiral;
-  require Math::PlanePath::CellularRule57;
-  require Math::PlanePath::DragonRounded;
-  require Math::PlanePath::QuadricIslands;
-  require Math::PlanePath::CretanLabyrinth;
-  require Math::PlanePath::PeanoHalf;
-  require Math::PlanePath::StaircaseAlternating;
-  require Math::PlanePath::SierpinskiCurveStair;
-  require Math::PlanePath::AztecDiamondRings;
-  require Math::PlanePath::KochSnowflakes;
-  require Math::PlanePath::MultipleRings;
-  require Math::PlanePath::SacksSpiral;
-  require Math::PlanePath::TheodorusSpiral;
-  require Math::PlanePath::MooreSpiral;
-  require Math::PlanePath::QuintetSide;
-  require Math::PlanePath::GosperSide;
   $path_class = 'Math::PlanePath::GosperIslands';
   $path_class = 'Math::PlanePath::QuadricCurve';
   $path_class = 'Math::PlanePath::SierpinskiCurve';
   $path_class = 'Math::PlanePath::LTiling';
   $path_class = 'Math::PlanePath::TerdragonCurve';
   $path_class = 'Math::PlanePath::TerdragonMidpoint';
-  $path_class = 'Math::PlanePath::DragonCurve';
   $path_class = 'Math::PlanePath::SierpinskiArrowhead';
-  $path_class = 'Math::PlanePath::DragonMidpoint';
   $path_class = 'Math::PlanePath::QuintetCentres';
   $path_class = 'Math::PlanePath::HIndexing';
   $path_class = 'Math::PlanePath::WunderlichMeander';
-  $path_class = 'Math::PlanePath::ComplexRevolving';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::FractionsTree';
@@ -98,16 +60,11 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::TerdragonRounded';
   $path_class = 'Math::PlanePath::CornerReplicate';
-  $path_class = 'Math::PlanePath::SierpinskiArrowheadCentres';
-  $path_class = 'Math::PlanePath::QuintetCurve';
   $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HilbertSpiral';
   $path_class = 'Math::PlanePath::HilbertCurve';
   $path_class = 'Math::PlanePath::FlowsnakeCentres';
-  $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
-  $path_class = 'Math::PlanePath::AlternatePaper';
   $path_class = 'Math::PlanePath::GreekKeySpiral';
-  $path_class = 'Math::PlanePath::TriangularHypot';
   $path_class = 'Math::PlanePath::ComplexMinus';
   $path_class = 'Math::PlanePath::QuintetReplicate';
   $path_class = 'Math::PlanePath::GosperReplicate';
@@ -124,26 +81,43 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
   $path_class = 'Math::PlanePath::TriangleSpiral';
   $path_class = 'Math::PlanePath::HypotOctant';
-  $path_class = 'Math::PlanePath::Hypot';
   $path_class = 'Math::PlanePath::SquareSpiral';
   $path_class = 'Math::PlanePath::CellularRule';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
   $path_class = 'Math::PlanePath::PowerArray';
   $path_class = 'Math::PlanePath::ParabolicRuns';
-  $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::DiagonalsOctant';
   $path_class = 'Math::PlanePath::PyramidRows';
   $path_class = 'Math::PlanePath::Corner';
   $path_class = 'Math::PlanePath::Diagonals';
   $path_class = 'Math::PlanePath::DiagonalsAlternating';
+  $path_class = 'Math::PlanePath::ComplexRevolving';
+  $path_class = 'Math::PlanePath::MPeaks';
+  $path_class = 'Math::PlanePath::DragonMidpoint';
+  $path_class = 'Math::PlanePath::EToothpickTree';
+  $path_class = 'Math::PlanePath::ToothpickTree';
+  $path_class = 'Math::PlanePath::ToothpickFractal';
+  $path_class = 'Math::PlanePath::ParabolicRows';
+  $path_class = 'Math::PlanePath::QuintetCurve';
+  $path_class = 'Math::PlanePath::DragonCurve';
+  $path_class = 'Math::PlanePath::Hypot';
+  $path_class = 'Math::PlanePath::TriangularHypot';
+  $path_class = 'Math::PlanePath::KnightSpiral';
+  $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
+  $path_class = 'Math::PlanePath::AlternatePaper';
+  $path_class = 'Math::PlanePath::SierpinskiArrowheadCentres';
+  $path_class = 'Math::PlanePath::DekkingCentres';
+  $path_class = 'Math::PlanePath::DekkingCurve';
 
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     n_start=>37,
+     # parts => '3/4',
+     # start => 'snowflake',
+     align => 'left',
+     # n_start=>37,
      # step => 5,
-     # align => 'left',
      # n_start => 37,
      # align => 'diagonal',
      # offset => -0.5,
@@ -178,7 +152,29 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   my $path_ref = ref($path);
   print "n_start()=$n_start arms_count()=$arms_count   $path_ref\n";
 
-  for (my $i = $n_start; $i <= 80; $i+=1) {
+  {
+    require Data::Float;
+    my $pos_infinity = Data::Float::pos_infinity();
+    my $neg_infinity = Data::Float::neg_infinity();
+    my $nan = Data::Float::nan();
+    $path->n_to_xy($pos_infinity);
+    $path->n_to_xy($neg_infinity);
+    $path->n_to_xy($nan);
+    $path->xy_to_n(0,$pos_infinity);
+    $path->xy_to_n(0,$neg_infinity);
+    $path->xy_to_n(0,$nan);
+    $path->xy_to_n($pos_infinity,0);
+    $path->xy_to_n($neg_infinity,0);
+    $path->xy_to_n($nan,0);
+    $path->rect_to_n_range($pos_infinity,0,0,0);
+    $path->rect_to_n_range($neg_infinity,0,0,0);
+    $path->rect_to_n_range($nan,0,0,0);
+    $path->rect_to_n_range(0,$pos_infinity,0,0);
+    $path->rect_to_n_range(0,$neg_infinity,0,0);
+    $path->rect_to_n_range(0,$nan,0,0);
+  }
+
+  for (my $i = $n_start+0; $i <= 500; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
@@ -187,14 +183,20 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     my $dxdy = '';
     my $diffdxdy = '';
     my ($dx, $dy) = $path->n_to_dxdy($i);
-    my $d = Math::Libm::hypot($dx,$dy);
-    $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
+    if (defined $dx && defined $dy) {
+      my $d = Math::Libm::hypot($dx,$dy);
+      $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
+    } else {
+      $dxdy='[undef]';
+    }
 
     my ($next_x, $next_y) = $path->n_to_xy($i+$arms_count);
-    my $want_dx = $next_x - $x;
-    my $want_dy = $next_y - $y;
-    if ($dx != $want_dx || $dy != $want_dy) {
-      $diffdxdy = "dxdy(want $want_dx,$want_dy)";
+    if (defined $next_x && defined $next_y) {
+      my $want_dx = $next_x - $x;
+      my $want_dy = $next_y - $y;
+      if ($dx != $want_dx || $dy != $want_dy) {
+        $diffdxdy = "dxdy(want $want_dx,$want_dy)";
+      }
     }
 
     my $rep = '';
@@ -225,7 +227,18 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     }
 
     my @n_children = $path->tree_n_children ($i);
-    my $n_children = (@n_children ? " c=".join(',',@n_children) : '');
+    my $n_children = '';
+    if (@n_children) {
+      $n_children = " c=";
+      foreach my $n_child (@n_children) {
+        $n_children .= $n_child;
+        my $n_parent = $path->tree_n_parent($n_child);
+        if (! defined $n_parent || $n_parent != $i) {
+          $n_children .= "***";
+        }
+        $n_children .= ",";
+      }
+    }
 
     my $flag = '';
     if ($rev || $range || $diffdxdy) {
@@ -242,8 +255,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
           "${n_lo}_${n_hi}",
             $dxdy,
               $n_children,
-              " $rep",
-                $flag;
+                " $rep",
+                  $flag;
 
     # %.2f ($x*$x+$y*$y),
   }

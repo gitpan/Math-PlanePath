@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -223,7 +223,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath pronic PyramidRows sqrt eg flonums N-Nstart Nrem octant ie OEIS
+=for stopwords PlanePath Ryde Math-PlanePath pronic PyramidRows sqrt eg flonums N-Nstart Nrem octant ie OEIS Nstart
 
 =head1 NAME
 

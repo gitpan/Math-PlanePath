@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -549,7 +549,7 @@ For example level=2 starts at Nstart=3^3-2=25.
 The way the side/radial lines expand as described above makes the Nstart
 position rotate around at each level.  N=7 is at X=5,Y=1 which is angle
 
-    angle = atan(1*sqrt(3) / 5)
+    angle = arctan(1*sqrt(3) / 5)
           = 19.106.. degrees
 
 The sqrt(3) factor as usual turns the flattened integer X,Y coordinates into

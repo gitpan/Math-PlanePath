@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 931;
+plan tests => 943;
 
 use lib 't';
 use MyTestHelpers;
@@ -32,8 +32,130 @@ MyTestHelpers::nowarnings();
 
 require Math::PlanePath;
 
+my $verbose = 1;
+
+               # 'ToothpickFractal,parts=all',
+               # 'ToothpickFractal,parts=quarter',
+               # 'ToothpickFractal,parts=half',
+               # 'ToothpickFractal,parts=3/4',
+
+               # 'DekkingCurve',
+               # 'DekkingCentres',
+
 my @modules = (
                # module list begin
+
+               'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+
+               'AlternatePaper,arms=2',
+               'AlternatePaper',
+               'AlternatePaper,arms=3',
+               'AlternatePaper,arms=4',
+               'AlternatePaper,arms=5',
+               'AlternatePaper,arms=6',
+               'AlternatePaper,arms=7',
+               'AlternatePaper,arms=8',
+
+               'Rows',
+               'Rows,width=1',
+               'Rows,width=2',
+               'Rows,n_start=0',
+               'Rows,width=37,n_start=0',
+               'Rows,width=37,n_start=123',
+               'Columns',
+               'Columns,height=1',
+               'Columns,height=2',
+               'Columns,n_start=0',
+               'Columns,height=37,n_start=0',
+               'Columns,height=37,n_start=123',
+
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+               'SierpinskiCurve',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'SierpinskiCurveStair',
+               'SierpinskiCurveStair,diagonal_length=2',
+               'SierpinskiCurveStair,diagonal_length=3',
+               'SierpinskiCurveStair,diagonal_length=4',
+               'SierpinskiCurveStair,arms=2',
+               'SierpinskiCurveStair,arms=3,diagonal_length=2',
+               'SierpinskiCurveStair,arms=4',
+               'SierpinskiCurveStair,arms=5',
+               'SierpinskiCurveStair,arms=6,diagonal_length=5',
+               'SierpinskiCurveStair,arms=7',
+               'SierpinskiCurveStair,arms=8',
+               'HIndexing',
+
+               'PentSpiral',
+               'PentSpiralSkewed',
+               'KnightSpiral',
+
+               'TriangularHypot',
+               'TriangularHypot,n_start=0',
+               'TriangularHypot,n_start=37',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'TriangularHypot,points=hex',
+               'TriangularHypot,points=hex_rotated',
+               'TriangularHypot,points=hex_centred',
+
+               'Hypot,n_start=37',
+               'Hypot,points=even,n_start=37',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+
+               'QuintetCurve',
+               'QuintetCurve,arms=2',
+               'QuintetCurve,arms=3',
+               'QuintetCurve,arms=4',
+               'QuintetCentres',
+               'QuintetCentres,arms=2',
+               'QuintetCentres,arms=3',
+               'QuintetCentres,arms=4',
+               'QuintetReplicate',
+
+               'DragonCurve',
+               'DragonCurve,arms=2',
+               'DragonCurve,arms=3',
+               'DragonCurve,arms=4',
+
+               'SierpinskiArrowhead',
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=diagonal',
+
+               'DragonRounded',
+               'DragonRounded,arms=2',
+               'DragonRounded,arms=3',
+               'DragonRounded,arms=4',
+
+               'DragonMidpoint',
+               'DragonMidpoint,arms=2',
+               'DragonMidpoint,arms=3',
+               'DragonMidpoint,arms=4',
+
+               'MPeaks',
 
                'DiagonalsAlternating',
                'DiagonalsAlternating,n_start=0',
@@ -134,38 +256,12 @@ my @modules = (
                'SquareSpiral,wider=6',
                'SquareSpiral,wider=37',
 
-               'TriangularHypot',
-               'TriangularHypot,n_start=0',
-               'TriangularHypot,n_start=37',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
-               'TriangularHypot,points=hex',
-               'TriangularHypot,points=hex_rotated',
-               'TriangularHypot,points=hex_centred',
-
-               'Hypot,n_start=37',
-               'Hypot,points=even,n_start=37',
-               'Hypot',
-               'Hypot,points=even',
-               'Hypot,points=odd',
-               'HypotOctant',
-               'HypotOctant,points=even',
-               'HypotOctant,points=odd',
-
                'TriangleSpiral',
                'TriangleSpiral,n_start=0',
                'TriangleSpiral,n_start=37',
                'TriangleSpiralSkewed',
                'TriangleSpiralSkewed,n_start=0',
                'TriangleSpiralSkewed,n_start=37',
-
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=diagonal',
-               'SierpinskiArrowhead',
-               'SierpinskiArrowheadCentres',
 
                'PeanoCurve',
                'PeanoCurve,radix=2',
@@ -184,9 +280,6 @@ my @modules = (
                'ImaginaryHalf,radix=4',
                'ImaginaryHalf,radix=5',
                'ImaginaryHalf,radix=37',
-
-               'PentSpiral',
-               'PentSpiralSkewed',
 
                'GreekKeySpiral',
                'GreekKeySpiral,turns=0',
@@ -207,15 +300,6 @@ my @modules = (
                'AlternatePaperMidpoint,arms=6',
                'AlternatePaperMidpoint,arms=7',
                'AlternatePaperMidpoint,arms=8',
-
-               'AlternatePaper',
-               'AlternatePaper,arms=2',
-               'AlternatePaper,arms=3',
-               'AlternatePaper,arms=4',
-               'AlternatePaper,arms=5',
-               'AlternatePaper,arms=6',
-               'AlternatePaper,arms=7',
-               'AlternatePaper,arms=8',
 
                'WythoffArray',
                'PowerArray',
@@ -288,31 +372,6 @@ my @modules = (
                'GrayCode,apply_type=sT',
                'GrayCode,radix=4,gray_type=modular',
 
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
-               'SierpinskiCurve',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
-               'SierpinskiCurveStair',
-               'SierpinskiCurveStair,diagonal_length=2',
-               'SierpinskiCurveStair,diagonal_length=3',
-               'SierpinskiCurveStair,diagonal_length=4',
-               'SierpinskiCurveStair,arms=2',
-               'SierpinskiCurveStair,arms=3,diagonal_length=2',
-               'SierpinskiCurveStair,arms=4',
-               'SierpinskiCurveStair,arms=5',
-               'SierpinskiCurveStair,arms=6,diagonal_length=5',
-               'SierpinskiCurveStair,arms=7',
-               'SierpinskiCurveStair,arms=8',
-               'HIndexing',
-
                'WunderlichSerpentine',
                'WunderlichSerpentine,serpentine_type=100_000_000',
                'WunderlichSerpentine,serpentine_type=000_000_001',
@@ -370,7 +429,6 @@ my @modules = (
                'LTiling',
                'LTiling,L_fill=ends',
                'LTiling,L_fill=all',
-               'MPeaks',
                'WunderlichMeander',
                'FibonacciWordFractal',
 
@@ -413,23 +471,6 @@ my @modules = (
                'UlamWarburton',
                'UlamWarburtonQuarter',
 
-               'Rows',
-               'Rows,width=1',
-               'Rows,width=2',
-               'Columns',
-               'Columns,height=1',
-               'Columns,height=2',
-
-               'QuintetCurve',
-               'QuintetCurve,arms=2',
-               'QuintetCurve,arms=3',
-               'QuintetCurve,arms=4',
-               'QuintetCentres',
-               'QuintetCentres,arms=2',
-               'QuintetCentres,arms=3',
-               'QuintetCentres,arms=4',
-               'QuintetReplicate',
-
                'Flowsnake',
                'Flowsnake,arms=2',
                'Flowsnake,arms=3',
@@ -446,19 +487,6 @@ my @modules = (
                'QuadricCurve',
                'QuadricIslands',
 
-               'DragonRounded',
-               'DragonRounded,arms=2',
-               'DragonRounded,arms=3',
-               'DragonRounded,arms=4',
-               'DragonMidpoint',
-               'DragonMidpoint,arms=2',
-               'DragonMidpoint,arms=3',
-               'DragonMidpoint,arms=4',
-               'DragonCurve',
-               'DragonCurve,arms=2',
-               'DragonCurve,arms=3',
-               'DragonCurve,arms=4',
-
                'ZOrderCurve',
                'ZOrderCurve,radix=3',
                'ZOrderCurve,radix=9',
@@ -468,7 +496,6 @@ my @modules = (
                'TheodorusSpiral',
                'ArchimedeanChords',
                'VogelFloret',
-               'KnightSpiral',
 
                # module list end
               );
@@ -506,7 +533,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 86;
+my $want_version = 87;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -612,10 +639,16 @@ my %rect_exact_hi = (%rect_exact,
                      'Math::PlanePath::SquareSpiral' => 1,
                      'Math::PlanePath::SquareArms' => 1,
                      'Math::PlanePath::TriangleSpiralSkewed' => 1,
+                     'Math::PlanePath::MPeaks' => 1,
                     );
 my %rect_before_n_start = ('Math::PlanePath::Rows' => 1,
                            'Math::PlanePath::Columns' => 1,
                           );
+
+my %non_linear_frac = (
+                       'Math::PlanePath::SacksSpiral' => 1,
+                       'Math::PlanePath::VogelFloret' => 1,
+                      );
 
 # possible X,Y deltas
 my $dxdy_square = {
@@ -804,7 +837,9 @@ sub pythagorean_diag {
   my $good = 1;
 
   foreach my $mod (@modules) {
-    # MyTestHelpers::diag ($mod);
+    if ($verbose) {
+      MyTestHelpers::diag ($mod);
+    }
 
     my ($class, %parameters) = module_parse($mod);
     ### $class
@@ -865,6 +900,7 @@ sub pythagorean_diag {
 
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
+    my $n_frac_discontinuity = $path->n_frac_discontinuity;
     {
       { my ($x,$y) = $path->n_to_xy($n_start);
         if (! defined $x) {
@@ -1088,8 +1124,8 @@ sub pythagorean_diag {
       if ($y < 0) { $got_y_negative = 1; }
 
       my $xystr = (int($x) == $x && int($y) == $y
-               ? sprintf('%d,%d', $x,$y)
-               : sprintf('%.3f,%.3f', $x,$y));
+                   ? sprintf('%d,%d', $x,$y)
+                   : sprintf('%.3f,%.3f', $x,$y));
       if ($count_n_to_xy{$xystr}++ > $xy_maximum_duplication) {
         unless ($x == 0 && $y == 0
                 && $count_n_to_xy{$xystr} <= $xy_maximum_duplication_at_origin{$class}) {
@@ -1154,16 +1190,44 @@ sub pythagorean_diag {
       }
     }
 
+    ### n_to_xy() fractional ...
+    unless ($non_linear_frac{$class}
+            || defined $n_frac_discontinuity) {
+      foreach my $n ($n_start .. $#n_to_x - $arms_count) {
+        my $x = $n_to_x[$n];
+        my $y = $n_to_y[$n];
+        my $next_x = $n_to_x[$n+$arms_count];
+        my $next_y = $n_to_y[$n+$arms_count];
+        next unless defined $x && defined $next_x;
+        my $dx = $next_x - $x;
+        my $dy = $next_y - $y;
+        foreach my $frac (0.25, 0.75) {
+          my $n_frac = $n + $frac;
+          my ($got_x,$got_y) = $path->n_to_xy($n_frac);
+          my $want_x = $x + $frac*$dx;
+          my $want_y = $y + $frac*$dy;
+          abs($want_x - $got_x) < 0.00001
+            or &$report ("n_to_xy($n_frac) got_x=$got_x want_x=$want_x");
+          abs($want_y - $got_y) < 0.00001
+            or &$report ("n_to_xy($n_frac) got_y=$got_y want_y=$want_y");
+        }
+      }
+    }
+
     ### n_to_dxdy() ...
     if ($path->can('n_to_dxdy') != Math::PlanePath->can('n_to_dxdy')) {
       MyTestHelpers::diag ($mod, ' n_to_dxdy()');
-      foreach my $n ($n_start .. $#n_to_x-1) {
-        next unless defined $n_to_x[$n] && defined $n_to_x[$n+1];
-        my $want_dx = $n_to_x[$n+1] - $n_to_x[$n];
-        my $want_dy = $n_to_y[$n+1] - $n_to_y[$n];
+      foreach my $n ($n_start .. $#n_to_x - $arms_count) {
+        my $x = $n_to_x[$n];
+        my $y = $n_to_y[$n];
+        my $next_x = $n_to_x[$n+$arms_count];
+        my $next_y = $n_to_y[$n+$arms_count];
+        next unless defined $x && defined $next_x;
+        my $want_dx = $next_x - $x;
+        my $want_dy = $next_y - $y;
         my ($got_dx,$got_dy) = $path->n_to_dxdy($n);
         $want_dx == $got_dx
-          or &$report ("n_to_dxdy($n) got_dx=$got_dx want_dx=$want_dx");
+          or &$report ("n_to_dxdy($n) got_dx=$got_dx want_dx=$want_dx  (next_x=$n_to_x[$n+$arms_count], x=$n_to_x[$n])");
         $want_dy == $got_dy
           or &$report ("n_to_dxdy($n) got_dy=$got_dy want_dy=$want_dy");
       }
@@ -1388,9 +1452,16 @@ sub pythagorean_diag {
 
     ### tree_n_children before n_start ...
     foreach my $n ($n_start-5 .. $n_start-1) {
-      my @n_children = $path->tree_n_children($n);
-      (@n_children == 0)
-        or &$report ("tree_n_children($n) before n_start=$n_start unexpectedly got ",scalar(@n_children)," values:",@n_children);
+      {
+        my @n_children = $path->tree_n_children($n);
+        (@n_children == 0)
+          or &$report ("tree_n_children($n) before n_start=$n_start unexpectedly got ",scalar(@n_children)," values:",@n_children);
+      }
+      {
+        my $num_children = $path->tree_n_num_children($n);
+        ($num_children == 0)
+          or &$report ("tree_n_num_children($n) before n_start=$n_start unexpectedly got $num_children values");
+      }
     }
 
     ### tree_n_parent before n_start ...

@@ -319,14 +319,14 @@ sub number_of {
   my ($anum, $rule, $want_value, $half) = @_;
   $half ||= 'whole';
   my $path = Math::PlanePath::CellularRule->new (rule => $rule);
+  my $max_count;
+  if ($anum eq 'A070952') {
+    $max_count = 400; # shorten
+  }
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (number_of)");
-
-    if ($#$bvalues > 400) {  # shorten A070952
-      $#$bvalues = 400;
-    }
+    MyTestHelpers::diag ("$anum number_of");
     if ($anum eq 'A071049') {  # extra initial 0
       push @got, 0;
     }
@@ -359,13 +359,14 @@ sub number_of {
 sub number_of_1s_first_diff {
   my ($anum, $rule) = @_;
   my $path = Math::PlanePath::CellularRule->new (rule => $rule);
+  my $max_count;
+  if ($anum eq 'A151929') {
+    $max_count = 400; # shorten
+  }
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (number_of first diffs)");
-    if ($#$bvalues > 400) {  # trim A151929
-      $#$bvalues = 400;
-    }
+    MyTestHelpers::diag ("$anum number_of first diffs");
     my $prev_count = 0;
     for (my $y = 0; @got < @$bvalues; $y++) {
       my $count = 0;
@@ -377,8 +378,6 @@ sub number_of_1s_first_diff {
       push @got, $count - $prev_count;
       $prev_count = $count;
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
   }
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
@@ -394,7 +393,7 @@ sub trailing_number_of {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (trailing_number_of)");
+    MyTestHelpers::diag ("$anum trailing_number_of");
 
     for (my $y = 0; @got < @$bvalues; $y++) {
       my $count = 0;
@@ -425,7 +424,7 @@ sub new_maximum_trailing_number_of {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (new_maximum_trailing_number_of)");
+    MyTestHelpers::diag ("$anum new_maximum_trailing_number_of");
 
     if ($anum eq 'A094604') {
       # new max only at Y=2^k, so limit search
@@ -475,7 +474,7 @@ sub bignum {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (bignum)");
+    MyTestHelpers::diag ("$anum bignum");
     my $y_start = 0;
 
     if ($anum eq 'A078176') {  # no initial 0 for row 0
@@ -527,7 +526,7 @@ sub bits {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (bits)");
+    MyTestHelpers::diag ("$anum bits");
 
   OUTER: for (my $y = 0; ; $y++) {
       foreach my $x (($half eq 'right' || $half eq 'centre' ? 0 : -$y)
@@ -558,7 +557,7 @@ sub bignum_central_column {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (central column bignum)");
+    MyTestHelpers::diag ("$anum central column bignum");
     require Math::BigInt;
     my $b = Math::BigInt->new(0);
     for (my $y = 0; @got < @$bvalues; $y++) {
@@ -581,7 +580,7 @@ sub central_column_N {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    MyTestHelpers::diag ("$anum has ",scalar(@$bvalues)," values (central column N)");
+    MyTestHelpers::diag ("$anum central column N");
     for (my $y = 0; @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n (0, $y);
     }

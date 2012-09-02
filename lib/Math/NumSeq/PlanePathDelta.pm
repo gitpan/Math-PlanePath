@@ -46,7 +46,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -97,6 +97,25 @@ use constant::defer parameter_info_array =>
 
 my %oeis_anum
   = (
+     # 'Math::PlanePath::SierpinskiCurve,arms=1,straight_spacing=1,diagonal_spacing=1' =>
+     # {
+     #  # # Not quite, A127254 has extra initial 1
+     #  # AbsdY => 'A127254',  # 0 at 2*position of "odious" odd number 1-bits
+     #  # # OEIS-Catalogue: A127254 planepath=SierpinskiCurve delta_type=AbsdY
+     # },
+
+     'Math::PlanePath::SierpinskiCurveStair,arms=1' =>
+     { AbsdX => 'A059841',  # 1,0 repeating
+       AbsdY => 'A000035',  # 0,1 repeating
+
+       # OEIS-Other: A059841 planepath=SierpinskiCurveStairCurve delta_type=AbsdX
+       # OEIS-Other: A059841 planepath=SierpinskiCurveStairCurve,diagonal_length=2 delta_type=AbsdX
+       # OEIS-Other: A059841 planepath=SierpinskiCurveStairCurve,diagonal_length=3 delta_type=AbsdX
+       # OEIS-Other: A059841 planepath=SierpinskiCurveStairCurve delta_type=AbsdY
+       # OEIS-Other: A059841 planepath=SierpinskiCurveStairCurve,diagonal_length=2 delta_type=AbsdY
+       # OEIS-Other: A059841 planepath=SierpinskiCurveStairCurve,diagonal_length=3 delta_type=AbsdY
+     },
+
      'Math::PlanePath::SquareSpiral,wider=0' =>
      { AbsdY => 'A079813',   # k 0s then k 1s plus initial 1 is abs(dY)
        # OEIS-Catalogue: A079813 planepath=SquareSpiral delta_type=AbsdY
@@ -105,10 +124,10 @@ my %oeis_anum
      { AbsdX  => 'A118175',  # k 1s then k 0s is abs(dX)
        # OEIS-Catalogue: A118175 planepath=SquareSpiral,n_start=0 delta_type=AbsdX
 
-       # direction 1to4
-       # Dir4_1 => 'A063826', # ENSW 1 to 4, rather than 0 to 3
+       # direction 1=east,2=north,3=south,4=west
+       # Dir4_1 => 'A063826',
      },
-     
+
      'Math::PlanePath::Diagonals,direction=down' =>
      { dY => 'A127949',
        # OEIS-Catalogue: A127949 planepath=Diagonals delta_type=dY
@@ -123,7 +142,7 @@ my %oeis_anum
      },
      'Math::PlanePath::Diagonals,direction=up,n_start=0' =>
      { dSum => 'A023531', # characteristic "1" at triangulars
-       # OEIS-Other: A023531 planepath=Diagonals,direction=up,n_start=0 delta_type=dSum    
+       # OEIS-Other: A023531 planepath=Diagonals,direction=up,n_start=0 delta_type=dSum
      },
 
      'Math::PlanePath::DiagonalsAlternating,n_start=0' =>
@@ -131,47 +150,41 @@ my %oeis_anum
        # OEIS-Other: A023531 planepath=DiagonalsAlternating,n_start=0 delta_type=dSum
      },
 
-     # 'Math::PlanePath::PowerArray,radix=2' =>
-     # {
-     #  # # but starts OFFSET=0 vs n_start=1 here
-     #  # dX => 'A094267', # first diffs of count low 0s
-     #  #  # OEIS-Catalogue: A094267 planepath=PowerArray,radix=2
-     #
-     #  # # but starts OFFSET=0 vs n_start=1 here
-     #  # dY => 'A108715', # first diffs of odd part of n
-     #  # # OEIS-Catalogue: A108715 planepath=PowerArray,radix=2 delta_type=dY
-     # },
-
      do {
-       my $href = 
-         { # AbsdX => '', # 1,0 repeating
+       my $href =
+         { AbsdX => 'A059841', # 1,0 repeating
            AbsdY => 'A000035', # 0,1 repeating
          };
        ('Math::PlanePath::DragonCurve,arms=1' => $href,
         'Math::PlanePath::DragonCurve,arms=3' => $href,
        );
+       # OEIS-Other: A059841 planepath=DragonCurve delta_type=AbsdX
        # OEIS-Other: A000035 planepath=DragonCurve delta_type=AbsdY
+       # OEIS-Other: A059841 planepath=DragonCurve,arms=3 delta_type=AbsdX
        # OEIS-Other: A000035 planepath=DragonCurve,arms=3 delta_type=AbsdY
      },
      # 'Math::PlanePath::DragonCurve,arms=2' => $href,# 0,1,1,0
-     # 'Math::PlanePath::DragonCurve,arms=4' => $href,
+     'Math::PlanePath::DragonCurve,arms=4' =>
+     { AbsdY => 'A165211', # 0,1,0,1, 1,0,1,0, repeating
+       # OEIS-Other: A165211 planepath=DragonCurve,arms=4 delta_type=AbsdY
+     },
 
      # 'Math::PlanePath::DragonMidpoint' =>
      # {
      #  # Not quite, has n=N+2 and extra initial 0 at n=1
      #  # AbsdY => 'A073089',
      # },
-     
+
      'Math::PlanePath::AlternatePaper,arms=1' =>
      { AbsdY => 'A000035', # 0,1 repeating
        dSum  => 'A020985', # GRS
        # OEIS-Other: A000035 planepath=AlternatePaper delta_type=AbsdY
        # OEIS-Other: A020985 planepath=AlternatePaper delta_type=dSum
 
-       #   dX_every_second_point_skipping_zeros => 'A020985', # GRS
-       #   # ie. Math::NumSeq::GolayRudinShapiro
+       # dX_every_second_point_skipping_zeros => 'A020985', # GRS
+       #  # ie. Math::NumSeq::GolayRudinShapiro
      },
-     
+
      # 'Math::PlanePath::GosperSide' =>
      # 'Math::PlanePath::TerdragonCurve' =>
      # A062756 is total turn starting OFFSET=0, count of ternary 1 digits.
@@ -179,15 +192,21 @@ my %oeis_anum
      # modulo version not in OEIS.
 
      do {
-       my $href = 
-         { # AbsdX => '', # 1,0 repeating
+       my $href =
+         { AbsdX => 'A059841', # 1,0 repeating
            AbsdY => 'A000035', # 0,1 repeating
          };
        ('Math::PlanePath::R5DragonCurve,arms=1' => $href,
         'Math::PlanePath::R5DragonCurve,arms=3' => $href,
        );
+       # OEIS-Other: A059841 planepath=R5DragonCurve delta_type=AbsdX
        # OEIS-Other: A000035 planepath=R5DragonCurve delta_type=AbsdY
+       # OEIS-Other: A059841 planepath=R5DragonCurve,arms=3 delta_type=AbsdX
        # OEIS-Other: A000035 planepath=R5DragonCurve,arms=3 delta_type=AbsdY
+     },
+     'Math::PlanePath::R5DragonCurve,arms=4' =>
+     { AbsdY => 'A165211', # 0,1,0,1, 1,0,1,0, repeating
+       # OEIS-Other: A165211 planepath=R5DragonCurve,arms=4 delta_type=AbsdY
      },
 
      'Math::PlanePath::CCurve' =>
@@ -199,47 +218,6 @@ my %oeis_anum
        # OEIS-Catalogue: A179868 planepath=CCurve delta_type=Dir4
      },
 
-     # 'Math::PlanePath::HilbertCurve' =>
-     # {
-     #  # Not quite, OFFSET=1 at origin, cf path instead N=0
-     #  # # A163540 is 0=east,1=south,2=west,3=north for drawing down the page,
-     #  # # which corresponds to 1=north,3=south per the HilbertCurve planepath
-     #  # Dir4 => 'A163540',
-     #  # # OEIS-Catalogue: A163540 planepath=HilbertCurve delta_type=Dir4
-     #
-     # Not quite, # delta path(n)-path(n-1) starting i=0 with path(-1)=0 for
-     # first value 0
-     # # dX => 'A163538',
-     #  # # OEIS-Catalogue: A163538 planepath=HilbertCurve delta_type=dX
-     #  # dY => 'A163539',
-     #  # # OEIS-Catalogue: A163539 planepath=HilbertCurve delta_type=dY
-     #  #
-     #  # cf A163541    absolute direction, transpose X,Y
-     #  # would be N=0,E=1,S=2,W=3
-     # },
-     
-     # 'Math::PlanePath::PeanoCurve,radix=3' =>
-     # {
-     #  # OFFSET n=1 cf N=0
-     #  # # A163534 is 0=east,1=south,2=west,3=north treated as down the page,
-     #  # # which corrsponds to 1=north (incr Y), 3=south (decr Y) for
-     #  # # directions of the PeanoCurve planepath here
-     #  # Dir4 => 'A163534',
-     #  # # OEIS-Catalogue: A163534 planepath=PeanoCurve delta_type=Dir4
-     #
-     #  # delta a(n)-a(n-1), so initial dx=0 at i=0 ...
-     #  # dX => 'A163532',
-     #  # # OEIS-Catalogue: A163532 planepath=PeanoCurve delta_type=dX
-     #  # dY => 'A163533',
-     #  # # OEIS-Catalogue: A163533 planepath=PeanoCurve delta_type=dY
-     # },
-     
-     # 'Math::PlanePath::RationalsTree,tree_type=CW' =>
-     # {
-     #  # dY => 'A070990', # Stern diatomic first diffs, except it starts i=0
-     #  # where RationalsTree N=1.  dX is same, but has extra leading 0.
-     # },
-     
      # PyramidRows step=0 is trivial X=0,Y=N
      do {
        my $href = { dX    => 'A000004',  # all zeros, X=0 always
@@ -255,10 +233,10 @@ my %oeis_anum
        # OEIS-Other: A000012 planepath=PyramidRows,step=0 delta_type=dY
        # OEIS-Other: A000012 planepath=PyramidRows,step=0 delta_type=Dir4
      },
-     
+
      # PyramidRows step=1
      do {   # n_start=1
-       my $href = 
+       my $href =
          { dDiffYX => 'A127949',
          };
        ('Math::PlanePath::PyramidRows,step=1,align=centre' => $href,
@@ -268,7 +246,7 @@ my %oeis_anum
        # OEIS-Other: A127949 planepath=PyramidRows,step=1,align=right delta_type=dDiffYX
      },
      do {   # n_start=0
-       my $href = 
+       my $href =
          { dY      => 'A023531',  # 1,0,1,0,0,1,etc, 1 if n==k(k+3)/2
            AbsdY   => 'A023531',  # abs(dy) same
 
@@ -290,13 +268,13 @@ my %oeis_anum
        # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=left,n_start=0 delta_type=dY
        # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=left,n_start=0 delta_type=AbsdY
      },
-     
+
      # 'Math::PlanePath::PyramidRows,step=2,align=centre,n_start=0' =>
-     # { 
+     # {
      #  # Not quite, extra initial 0
      #  # dDiffXY      => 'A010052',
      # },
-     
+
      # MultipleRings step=0 is trivial X=N,Y=0
      'Math::PlanePath::MultipleRings,step=0,ring_shape=circle' =>
      { dX     => 'A000012',  # all ones
@@ -308,7 +286,7 @@ my %oeis_anum
        # OEIS-Other: A000004 planepath=MultipleRings,step=0 delta_type=Dir4
        # OEIS-Other: A000004 planepath=MultipleRings,step=0 delta_type=TDir6
      },
-     
+
      'Math::PlanePath::Rows,width=1' =>
      { dX   => 'A000004', # all zeros, X=0 always
        dY   => 'A000012', # all ones
@@ -327,45 +305,48 @@ my %oeis_anum
        # OEIS-Other: A000004 planepath=Columns,height=1 delta_type=Dir4
        # OEIS-Other: A000004 planepath=Columns,height=1 delta_type=TDir6
      },
-     
+
      # OFFSET
-     # 'Math::PlanePath::Rows,width=2' =>
-     # { dX    => 'A033999', # 1,-1 repeating
-     #   TDir6 => 'A010673', # 0,2 repeating
-     #   # OEIS-Other: A033999 planepath=Rows,width=2 delta_type=dX
-     #   # OEIS-Other: A010673 planepath=Rows,width=2 delta_type=TDir6
+     # 'Math::PlanePath::Rows,width=2,n_start=0' =>
+     # { dX    => 'A033999', # 1,-1 repeating, OFFSET=0
+     #   TDir6 => 'A010673', # 0,2 repeating, OFFSET=0
+     #   # OEIS-Other: A033999 planepath=Rows,width=2,n_start=0 delta_type=dX
+     #   # OEIS-Other: A010673 planepath=Rows,width=2,n_start=0 delta_type=TDir6
      # },
-     # 'Math::PlanePath::Columns,height=2' =>
+     # 'Math::PlanePath::Columns,height=2,n_start=0' =>
      # { dY   => 'A033999', # 1,-1 repeating
-     #   # OEIS-Other: A033999 planepath=Columns,height=2 delta_type=dY
+     #   # OEIS-Other: A033999 planepath=Columns,height=2,n_start=0 delta_type=dY
      # },
-     
-     # OFFSET
-     # 'Math::PlanePath::Rows,width=3' =>
-     # { dX   => 'A061347', # 1,1,-2 repeating
-     #   dY   => 'A022003', # 0,0,1 repeating
-     #   # OEIS-Other: A061347 planepath=Rows,width=3 delta_type=dX
+
+     'Math::PlanePath::Rows,width=3' =>
+     { dX   => 'A061347', # 1,1,-2 repeating OFFSET=1
+       # OEIS-Catalogue: A061347 planepath=Rows,width=3 delta_type=dX
+     },
+     # 'Math::PlanePath::Rows,width=3,n_start=0' =>
+     # { dY   => 'A022003', # 0,0,1 repeating, decimal of 1/999
      #   # OEIS-Other: A022003 planepath=Rows,width=3 delta_type=dY
      # },
+     'Math::PlanePath::Columns,height=3' =>
+     { dY   => 'A061347', # 1,1,-2 repeating
+       # OEIS-Other: A061347 planepath=Columns,height=3 delta_type=dY
+     },
      # 'Math::PlanePath::Columns,height=3' =>
      # { dX   => 'A022003', # 0,0,1 repeating
-     #   dY   => 'A061347', # 1,1,-2 repeating
      #   # OEIS-Other: A022003 planepath=Columns,height=3 delta_type=dX
-     #   # OEIS-Other: A061347 planepath=Columns,height=3 delta_type=dY
      # },
-     
+
      'Math::PlanePath::Rows,width=4' =>
-     { dY   => 'A011765', # 0,0,0,1 repeating, starting n=1
+     { dY   => 'A011765', # 0,0,0,1 repeating, starting OFFSET=1
        # OEIS-Other: A011765 planepath=Rows,width=4 delta_type=dY
      },
      'Math::PlanePath::Columns,height=4' =>
-     { dX   => 'A011765', # 0,0,0,1 repeating, starting n=1
+     { dX   => 'A011765', # 0,0,0,1 repeating, starting OFFSET=1
        # OEIS-Other: A011765 planepath=Columns,height=4 delta_type=dX
      },
 
      # OFFSET
      # 'Math::PlanePath::Rows,width=6' =>
-     # { dY   => 'A172051', # 0,0,0,1 repeating, starting n=0
+     # { dY   => 'A172051', # 0,0,0,0,0,1 repeating decimal 1/999999
      #   # OEIS-Other: A172051 planepath=Rows,width=6 delta_type=dY
      # },
      # 'Math::PlanePath::Columns,height=6' =>
@@ -424,7 +405,7 @@ sub i_start {
 #
 # sub rewind {
 #   my ($self) = @_;
-# 
+#
 #   my $planepath_object = $self->{'planepath_object'} || return;
 #   $self->{'i'} = $self->i_start;
 #   undef $self->{'x'};
@@ -434,7 +415,7 @@ sub i_start {
 #   my ($self) = @_;
 #   ### NumSeq-PlanePath next(): $self->{'i'}
 #   ### n_next: $self->{'n_next'}
-# 
+#
 #   my $planepath_object = $self->{'planepath_object'};
 #   my $i = $self->{'i'}++;
 #   my $x = $self->{'x'};
@@ -445,12 +426,12 @@ sub i_start {
 #     ($x, $y) = $planepath_object->n_to_xy ($i)
 #       or return;
 #   }
-# 
+#
 #   my $arms = $self->{'arms_count'};
 #   my ($next_x, $next_y) = $planepath_object->n_to_xy($i + $arms)
 #     or return;
 #   my $value = &{$self->{'delta_func'}}($x,$y, $next_x,$next_y);
-# 
+#
 #   if ($arms == 1) {
 #     $self->{'x'} = $next_x;
 #     $self->{'y'} = $next_y;
@@ -1651,6 +1632,12 @@ sub values_max {
     }
     *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
   }
+
+  # 'Math::PlanePath::RationalsTree,tree_type=CW' =>
+  # {
+  #  # dY => 'A070990', # Stern diatomic first diffs, except it starts i=0
+  #  # where RationalsTree N=1.  dX is same, but has extra leading 0.
+  # },
 }
 { package Math::PlanePath::FractionsTree;
   use constant _NumSeq_Delta_Dir4_max =>
@@ -1808,6 +1795,22 @@ sub values_max {
             : 1);    # even, supremum
   }
   *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
+
+  # 'Math::PlanePath::PeanoCurve,radix=3' =>
+  # {
+  #  # Not quite, OFFSET n=1 cf N=0
+  #  # # A163534 is 0=east,1=south,2=west,3=north treated as down the page,
+  #  # # which corrsponds to 1=north (incr Y), 3=south (decr Y) for
+  #  # # directions of the PeanoCurve planepath here
+  #  # Dir4 => 'A163534',
+  #  # # OEIS-Catalogue: A163534 planepath=PeanoCurve delta_type=Dir4
+  #
+  #  # delta a(n)-a(n-1), so initial dx=0 at i=0 ...
+  #  # dX => 'A163532',
+  #  # # OEIS-Catalogue: A163532 planepath=PeanoCurve delta_type=dX
+  #  # dY => 'A163533',
+  #  # # OEIS-Catalogue: A163533 planepath=PeanoCurve delta_type=dY
+  # },
 }
 { package Math::PlanePath::WunderlichSerpentine;
   # same as PeanoCurve
@@ -1823,10 +1826,35 @@ sub values_max {
   *_NumSeq_Delta_dSum_max = \&_NumSeq_Delta_dX_max;
   *_NumSeq_Delta_dDiffXY_max = \&_NumSeq_Delta_dX_max;
 
-  *_NumSeq_Delta_Dir4_max = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_Dir4_max;
-  *_NumSeq_Delta_Dir4_integer = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_Dir4_integer;
-  *_NumSeq_Delta_TDir6_max = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_TDir6_max;
-  *_NumSeq_Dir4_max_is_supremum = \&Math::PlanePath::PeanoCurve::_NumSeq_Dir4_max_is_supremum;
+  # radix=2 0101 is straight NSEW parts, other evens are diagonal
+  sub _NumSeq_Delta_Dir4_max {
+    my ($self) = @_;
+    return (($self->{'radix'} % 2)
+            || join('',@{$self->{'serpentine_array'}}) eq '0101'
+            ? 3      # odd, South
+            : 4);    # even, supremum
+  }
+  sub _NumSeq_Delta_Dir4_integer {
+    my ($self) = @_;
+    return (($self->{'radix'} % 2)
+            || join('',@{$self->{'serpentine_array'}}) eq '0101'
+            ? 1      # odd, continuous path
+            : 0);    # even, jumps
+  }
+  sub _NumSeq_Delta_TDir6_max {
+    my ($self) = @_;
+    return (($self->{'radix'} % 2)
+            || join('',@{$self->{'serpentine_array'}}) eq '0101'
+            ? 4.5     # odd, South
+            : 6);     # even, supremum
+  }
+  sub _NumSeq_Dir4_max_is_supremum {
+    my ($self) = @_;
+    return (($self->{'radix'} % 2)
+            || join('',@{$self->{'serpentine_array'}}) eq '0101'
+            ? 0      # odd, South
+            : 1);    # even, supremum
+  }
   *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
 
   *_NumSeq_Delta_DSquared_max = \&Math::PlanePath::PeanoCurve::_NumSeq_Delta_DSquared_max;
@@ -1849,6 +1877,25 @@ sub values_max {
   use constant _NumSeq_Delta_DSquared_max => 1;  # NSEW only
   use constant _NumSeq_Delta_Dist_non_decreasing => 1;
   use constant _NumSeq_Delta_TDSquared_max => 3;
+
+  # 'Math::PlanePath::HilbertCurve' =>
+  # {
+  #  # Not quite, OFFSET=1 at origin, cf path instead N=0
+  #  # # A163540 is 0=east,1=south,2=west,3=north for drawing down the page,
+  #  # # which corresponds to 1=north,3=south per the HilbertCurve planepath
+  #  # Dir4 => 'A163540',
+  #  # # OEIS-Catalogue: A163540 planepath=HilbertCurve delta_type=Dir4
+  #
+  # Not quite, # delta path(n)-path(n-1) starting i=0 with path(-1)=0 for
+  # first value 0
+  # # dX => 'A163538',
+  #  # # OEIS-Catalogue: A163538 planepath=HilbertCurve delta_type=dX
+  #  # dY => 'A163539',
+  #  # # OEIS-Catalogue: A163539 planepath=HilbertCurve delta_type=dY
+  #  #
+  #  # cf A163541    absolute direction, transpose X,Y
+  #  # would be N=0,E=1,S=2,W=3
+  # },
 }
 { package Math::PlanePath::HilbertSpiral;
   use constant _NumSeq_Delta_dX_min => -1;
@@ -1893,6 +1940,9 @@ sub values_max {
   }
 }
 { package Math::PlanePath::GrayCode;
+  sub _NumSeq_Delta_AbsdX_min {
+  }
+
   my %sup = (
              # # radix==2 always "reflected"
              # # TsF => 0,
@@ -2289,17 +2339,58 @@ sub values_max {
   *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
 }
 { package Math::PlanePath::SierpinskiArrowhead;
-  use constant _NumSeq_Delta_dX_min => -2;
-  use constant _NumSeq_Delta_dX_max => 2;
+  sub _NumSeq_Delta_dX_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? -2 : -1);
+  }
+  sub _NumSeq_Delta_dX_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 2 : 1);
+  }
   use constant _NumSeq_Delta_dY_min => -1;
   use constant _NumSeq_Delta_dY_max => 1;
-  use constant _NumSeq_Delta_AbsdX_min => 1;
-  use constant _NumSeq_Delta_dSum_min => -2; # diagonals
-  use constant _NumSeq_Delta_dSum_max => 2;
-  use constant _NumSeq_Delta_dDiffXY_min => -2;
-  use constant _NumSeq_Delta_dDiffXY_max => 2;
-  use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
-  use constant _NumSeq_Delta_TDir6_integer => 1;
+  sub _NumSeq_Delta_AbsdX_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 1 : 0);
+  }
+  sub _NumSeq_Delta_AbsdX_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 2 : 1);
+  }
+  sub _NumSeq_Delta_dSum_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' || $self->{'align'} eq 'right'
+            ? -2  # diagonal
+            : -1);
+  }
+  sub _NumSeq_Delta_dSum_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' || $self->{'align'} eq 'right'
+            ? 2  # diagonal
+            : 1);
+  }
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? -1 : -2);
+  }
+  sub _NumSeq_Delta_dDiffXY_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? 1 : 2);
+  }
+  sub _NumSeq_Delta_Dir4_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? 3
+            : 3.5); # SE diagonal
+  }
+  sub _NumSeq_Delta_TDir6_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? 4.5
+            : 5); # SE diagonal
+  }
+  sub _NumSeq_Delta_TDir6_integer {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 1 : 0);
+  }
 
   use constant _NumSeq_Delta_DSquared_min => 2;
   use constant _NumSeq_Delta_DSquared_max => 4;
@@ -2307,19 +2398,66 @@ sub values_max {
   use constant _NumSeq_Delta_TDSquared_max => 4;             # triangular
 }
 { package Math::PlanePath::SierpinskiArrowheadCentres;
-  use constant _NumSeq_Delta_dX_min => -2;
-  use constant _NumSeq_Delta_dX_max => 2;
+  sub _NumSeq_Delta_dX_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? -2 : -1);
+  }
+  sub _NumSeq_Delta_dX_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 2 : 1);
+  }
   use constant _NumSeq_Delta_dY_min => -1;
   use constant _NumSeq_Delta_dY_max => 1;
-  use constant _NumSeq_Delta_AbsdX_min => 1;
-  use constant _NumSeq_Delta_dSum_min => -2; # diagonals
-  use constant _NumSeq_Delta_dSum_max => 2;
-  use constant _NumSeq_Delta_dDiffXY_min => -2;
-  use constant _NumSeq_Delta_dDiffXY_max => 2;
-  use constant _NumSeq_Delta_DSquared_min => 2;
-  use constant _NumSeq_Delta_DSquared_max => 4;
-  use constant _NumSeq_Delta_Dir4_max => 3.5; # SE diagonal
-  use constant _NumSeq_Delta_TDir6_integer => 1;
+  sub _NumSeq_Delta_AbsdX_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 1 : 0);
+  }
+  sub _NumSeq_Delta_AbsdX_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 2 : 1);
+  }
+  sub _NumSeq_Delta_dSum_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' || $self->{'align'} eq 'right'
+            ? -2
+            : -1);
+  }
+  sub _NumSeq_Delta_dSum_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' || $self->{'align'} eq 'right'
+            ? 2
+            : 1);
+  }
+  sub _NumSeq_Delta_dDiffXY_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? -1 : -2);
+  }
+  sub _NumSeq_Delta_dDiffXY_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? 1 : 2);
+  }
+  sub _NumSeq_Delta_dDSquared_min {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 2 : 1);
+  }
+  sub _NumSeq_Delta_dDSquared_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 4 : 2);
+  }
+  sub _NumSeq_Delta_Dir4_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? 3
+            : 3.5); # SE diagonal
+  }
+  sub _NumSeq_Delta_TDir6_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right' ? 4.5
+            : 5); # SE diagonal
+  }
+  sub _NumSeq_Delta_TDir6_integer {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular' ? 1 : 0);
+  }
 }
 
 { package Math::PlanePath::DragonCurve;
@@ -3322,7 +3460,6 @@ sub values_max {
     my ($self) = @_;
     return (($self->{'rule'} & 0x5F) == 0x54  # right line 2
             ? 1    # N,E only
-            
             : 0);  # various diagonals
   }
 
@@ -3716,6 +3853,17 @@ sub values_max {
             ? 1    # dX=1,dY=0
             : 3);  # dX=0,dY=1
   }
+
+  # 'Math::PlanePath::PowerArray,radix=2' =>
+  # {
+  #  # # but starts OFFSET=0 vs n_start=1 here
+  #  # dX => 'A094267', # first diffs of count low 0s
+  #  #  # OEIS-Catalogue: A094267 planepath=PowerArray,radix=2
+  #
+  #  # # but starts OFFSET=0 vs n_start=1 here
+  #  # dY => 'A108715', # first diffs of odd part of n
+  #  # # OEIS-Catalogue: A108715 planepath=PowerArray,radix=2 delta_type=dY
+  # },
 }
 
 1;
@@ -3760,7 +3908,7 @@ __END__
 # }
 
 
-=for stopwords Ryde dX dY dSum dDiffXY DiffXY TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath
+=for stopwords Ryde dX dY dX+dY dSum dDiffXY DiffXY dDiffYX TDir6 Math-NumSeq Math-PlanePath NumSeq SquareSpiral PlanePath
 
 =head1 NAME
 

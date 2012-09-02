@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -174,7 +174,7 @@ __END__
     # -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6
 
 
-=for stopwords SquareSpiral ie eg DiamondSpiral PlanePath Ryde Math-PlanePath HexSpiralSkewed PentSpiralSkewed HeptSpiralSkewed
+=for stopwords SquareSpiral ie eg DiamondSpiral PlanePath Ryde Math-PlanePath HexSpiralSkewed PentSpiralSkewed HeptSpiralSkewed OEIS
 
 =head1 NAME
 

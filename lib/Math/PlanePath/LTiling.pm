@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -237,7 +237,7 @@ sub rect_to_n_range {
 __END__
 
 
-=for stopwords eg Ryde ie LTiling Math-PlanePath Asano Ranjan Roos Welzl Widmayer HilbertCurve ZOrderCurve Informatics Nlevel
+=for stopwords eg Ryde ie LTiling Math-PlanePath Asano Ranjan Roos Welzl Widmayer HilbertCurve ZOrderCurve Informatics Nlevel OEIS
 
 =head1 NAME
 

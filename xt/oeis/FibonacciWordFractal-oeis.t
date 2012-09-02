@@ -107,8 +107,6 @@ sub xy_turn_021 {
                   ? 1 : 0);
     }
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum - 0/1 Fibonacci word");
@@ -128,8 +126,6 @@ sub xy_turn_021 {
                              $path->n_to_xy($n+1));
     }
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum - 0,1,2 turns");

@@ -16,7 +16,10 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# circular ring splashes from DigitProductSteps values_type=count
+# circular ring splashes from 
+# math-image --path=HypotOctant --values=DigitProductSteps,values_type=count
+# math-image --path=Hypot --values=DigitProduct,values_type=count
+# math-image --path=Hypot --values=DigitCount
 #
 #
 # A000328 Number of points of norm <= n^2 in square lattice.
@@ -36,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

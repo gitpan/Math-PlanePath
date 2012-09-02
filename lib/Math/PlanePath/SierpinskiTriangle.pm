@@ -58,7 +58,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -94,6 +94,7 @@ sub x_negative {
 }
 use constant class_y_negative => 0;
 use constant default_n_start => 0;
+use constant n_frac_discontinuity => .5;
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -347,7 +348,7 @@ sub tree_n_parent {
 1;
 __END__
 
-=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax SierpinskiArrowheadCentres OEIS Online rowpoints Nleft Math-PlanePath Gould's Nright
+=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax SierpinskiArrowheadCentres OEIS Online rowpoints Nleft Math-PlanePath Gould's Nright bitand CellularRule Noffset
 
 =head1 NAME
 
@@ -485,7 +486,7 @@ uses the whole of the first quadrant (with gaps).
 
 =pod
 
-    align="diagonal"
+    align => "diagonal"
 
     65                                                    15
     57 66                                                 14
@@ -507,10 +508,14 @@ uses the whole of the first quadrant (with gaps).
     X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
 
 These diagonals visit all points X,Y where X and Y written in binary have
-1-bits in the same places, ie. where S<X xor Y> == 0.  This xor rule is an
-easy way to generate 0 or 1 for visited or not visited cells of the pattern.
-It can also be calculated by X,Y but plotted instead as X,X+Y for the
-"right" align or X-Y,X+Y for "triangular".
+1-bits in different places, ie. where S<X bitand Y> == 0.  For example
+X=13,Y=3 is not visited because 13=0b1011 and 6=0b0110 both have bit 0b0010
+set.
+
+This bit rule is an easy way to generate 0 or 1 for visited or not visited
+cells of the pattern.  It can be calculated by this diagonal X,Y but then
+plotted instead as X,X+Y for the "right" align or X-Y,X+Y for "triangular"
+if desired.
 
 =head2 Cellular Automaton
 
@@ -527,20 +532,21 @@ automaton.
     http://mathworld.wolfram.com/Rule60.html
     http://mathworld.wolfram.com/Rule102.html
 
-In each row the rule 18 pattern turns a cell "on" in the next row if one but
-not both its diagonal predecessors are "on".  This is a mod 2 sum giving
+In each row the rule 18 etc pattern turns a cell "on" in the next row if one
+but not both its diagonal predecessors are "on".  This is a mod 2 sum giving
 Pascal's triangle mod 2.
 
-Some other rules make variations on the triangle.  Rule 22 is "triangular"
-style but filling the gap between leaf points such as N=5 and N=6.  Rule 126
-adds an extra point on the inward side of each.  Rule 182 fills in the big
-gaps leaving a single-cell empty border delimiting them.
+Some other cellular rules make variations on the triangle.  Rule 22 is the
+"triangular" shape but filling the gap between leaf points such as N=5 and
+N=6.  Or rule 126 adds an extra point on the inward side of each.  And rule
+182 fills in the big gaps leaving just a single-cell empty border delimiting
+them.
 
 =head2 N Start
 
 The default is to number points starting N=0 as shown above.  An optional
-C<n_start> can give a different start, with the same shape.  For example to
-start at 1 (which is CellularRule rule=60),
+C<n_start> can give a different start, with the same shape.  For example
+starting at 1 (which is per CellularRule rule=60),
 
 =cut
 
@@ -595,7 +601,12 @@ the start of the path).
 
 The children are the none, one or two points diagonally up on the next row.
 For example N=3 has two children N=5,N=6.  In turn N=5 has just one child
-N=9.  And N=6 has no children.
+N=9.  And N=6 has no children.  The way points are numbered across a row
+means that when there's two children they're consecutive N values.
+
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return the number of children of C<$n>, or 0 if C<$n> has no children.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

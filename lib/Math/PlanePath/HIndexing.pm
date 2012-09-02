@@ -20,14 +20,46 @@
 #
 # Rolf Niedermeier
 # http://fpt.akt.tu-berlin.de/niedermr/publications.html
-
+#
+#
+# H second part down per paper
+# |
+# | *--*  *  *-
+# | |  |  |  |
+# | *  *--*  *   
+# | |        |   
+# | *  *--*  *   
+# | |  |  |  |
+# | O  *  *--* 
+# |
+# +------------
+#
+# eight similar to AlternatePaper
+#
+#                |
+#    *--*  *--*  *  *-
+#    |  |  |  |  |  |
+#  --*  *  *  *--*  *--*
+#       |  |           |
+#       *  *  *--*--*--*
+#    |  |  |
+# *--*  *  O  *--*--*--*
+# |                    |
+# *--*--*--*  *  *  *--*
+#             |  |  |
+# *--*--*--*  *  *  *-
+# |           |  |  
+# *--*  *--*  *  *  *-
+#    |  |  |  |  |  |
+#          *--*  *--*
+#
 
 package Math::PlanePath::HIndexing;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

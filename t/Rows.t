@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 36;
+plan tests => 40;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::Rows;
 # VERSION
 
 {
-  my $want_version = 86;
+  my $want_version = 87;
   ok ($Math::PlanePath::Rows::VERSION, $want_version, 'VERSION variable');
   ok (Math::PlanePath::Rows->VERSION,  $want_version, 'VERSION class method');
 
@@ -79,8 +79,10 @@ require Math::PlanePath::Rows;
 {
   my @data = ([ 1, 0,0 ],
               [ 2, 1,0 ],
-
+              [ 2.5, 1.5,0 ],
               [ 5, 4,0 ],
+
+              [ 5.5, -0.5,1 ],
               [ 6, 0,1 ],
               [ 7, 1,1 ],
 
@@ -95,6 +97,7 @@ require Math::PlanePath::Rows;
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
+    next if $want_n != int($want_n);
     my $got_n = $path->xy_to_n ($x, $y);
     ok ($got_n, $want_n, "n at x=$x,y=$y");
   }

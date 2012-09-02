@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

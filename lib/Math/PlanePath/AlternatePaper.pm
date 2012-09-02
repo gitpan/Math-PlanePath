@@ -46,10 +46,12 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh',
+  'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -89,6 +91,29 @@ sub new {
   return $self;
 }
 
+
+# state=0  /|         +----+----+
+#         / |         |\ 1||<--/
+#        /2 |         |^\ || 0/
+#       /-->|         || \v| /
+#      +----+         ||3 \|/
+#     /|\ 3||         +----+
+#    / |^\ ||         |<--/   state=4
+#   / 0|| \v|         | 2/
+#  /-->||1 \|         | /
+# +----+----+         |/
+#
+# |\  state=8         +----+----+  state=12
+# |^\                  \ 1||<--/|
+# || \                  \ || 0/ |
+# ||3 \                  \v| /2 |
+# +----+                  \|/-->|
+# |<--/|\                  +----+
+# | 2/ |^\                  \ 3||
+# | /0 || \                  \ ||
+# |/-->||1 \                  \v|
+# +----+----+                  \|
+
 my @next_state = (0,  8, 0, 12,   # forward
                   4, 12, 4,  8,   # forward NW
                   0,  8, 4,  8,   # reverse
@@ -105,6 +130,18 @@ my @digit_to_y = (0,0,1,0,
                   1,1,1,0,
                  );
 
+# state_to_dx[S] == state_to_x[S+3] - state_to_x[S+0]
+my @state_to_dx = (1, undef,undef,undef,
+                   -1, undef,undef,undef,
+                   0, undef,undef,undef,
+                   0, undef,undef,undef,
+                  );
+my @state_to_dy = (0, undef,undef,undef,
+                   0, undef,undef,undef,
+                   1, undef,undef,undef,
+                   -1, undef,undef,undef,
+                  );
+
 sub n_to_xy {
   my ($self, $n) = @_;
   ### AlternatePaper n_to_xy(): $n
@@ -112,81 +149,55 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (is_infinite($n)) { return ($n, $n); }
 
-  {
-    my $int = int($n);
-    if ($n != $int) {
-      my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
-      my $frac = $n - $int;  # inherit possible BigFloat
-      my $dx = $x2-$x1;
-      my $dy = $y2-$y1;
-      return ($frac*$dx + $x1, $frac*$dy + $y1);
-    }
-    $n = $int; # BigFloat int() gives BigInt, use that
-  }
-
-  my $zero = ($n * 0);  # inherit bignum 0
-
-  # arm as initial rotation
-  my $arm = _divrem_mutate ($n, $self->{'arms'});
-
-  ### $arm
+  my $int = int($n);  # integer part
+  $n -= $int;         # fraction part
+  ### $int
   ### $n
 
-  my @digits = digit_split_lowtohigh($n,4);
-  my $len = (2 + $zero) ** scalar($#digits);
+  my $zero = ($int * 0);  # inherit bignum 0
+  my $arm = _divrem_mutate ($int, $self->{'arms'});
 
+  ### $arm
+  ### $int
+
+  my @digits = digit_split_lowtohigh($int,4);
   my $state = 0;
-  my $x = $zero;
-  my $y = $zero;
-  # my $above_low_zero = 0;
+  my (@xbits,@ybits); # bits low to high (like @digits)
 
-  foreach my $digit (reverse @digits) { # high to low
-    $state += $digit;
-    $x += $len * $digit_to_x[$state];
-    $y += $len * $digit_to_y[$state];
+  foreach my $i (reverse 0 .. $#digits) {  # high to low
+    $state += $digits[$i];
+    $xbits[$i] = $digit_to_x[$state];
+    $ybits[$i] = $digit_to_y[$state];
     $state = $next_state[$state];
-    $len /= 2;
   }
+  my $x = digit_join_lowtohigh(\@xbits,2,$zero);
+  my $y = digit_join_lowtohigh(\@ybits,2,$zero);
+
+  # X+1,Y+1 for final state=4 or state=12
+  $x += $digit_to_x[$state];
+  $y += $digit_to_y[$state];
 
   ### final: "xy=$x,$y state=$state"
 
-  $x += $digit_to_x[$state];  # +1 for state=4,12
-  $y += $digit_to_y[$state];  # +1 for state=4,12
+  # apply possible fraction part of $n in direction of $state
+  $x = $n * $state_to_dx[$state] + $x;
+  $y = $n * $state_to_dy[$state] + $y;
 
+  # rotate,transpose for arm number
   if ($arm & 1) {
     ($x,$y) = ($y,$x);   # transpose
   }
   if ($arm & 2) {
-    ($x,$y) = (-$y,$x+1);  # rotate +90 and Y+1
+    ($x,$y) = (-$y,$x+1);  # rotate +90 and shift origin to X=0,Y=1
   }
   if ($arm & 4) {
-    $x = -1 - $x;      # rotate +180 and X-1,Y+1
+    $x = -1 - $x;      # rotate +180 and shift origin to X=-1,Y=1
     $y = 1 - $y;
   }
-
-  # if (!($rot & 1) && $above_low_zero) {
-  #   $frac = -$frac;
-  # }
-  # $above_low_zero ^= ($rot & 1);
-  # if ($above_low_zero) {
-  #   $y = $frac + $y;
-  # } else {
-  #   $x = $frac + $x;
-  # }
 
   ### rotated return: "$x,$y"
   return ($x,$y);
 }
-
-#   my $frac;
-#   {
-#     my $int = int($n);
-#     $frac = $n - $int;  # inherit possible BigFloat
-#     $n = $int;          # BigFloat int() gives BigInt, use that
-#   }
-#
-
 
 #                                                      8
 #
@@ -432,8 +443,265 @@ sub rect_to_n_range {
   return (0, 4*$arms*$len*$len-1);
 }
 
+
+my @dir_to_dx = (1,0,-1,0);
+my @dir_to_dy = (0,1,0,-1);
+
+sub n_to_dxdy {
+  my ($self, $n) = @_;
+  ### n_to_dxdy(): $n
+
+  my $int = int($n);
+  $n -= $int;  # $n fraction part
+  ### $int
+  ### $n
+
+  my $arm = _divrem_mutate ($int, $self->{'arms'});
+  ### $arm
+  ### $int
+
+  # $dir initial direction from the arm.
+  # $inc +/-1 according to the bit position odd or even, but also odd
+  # numbered arms are transposed so flip them.
+  # 
+  my @bits = bit_split_lowtohigh($int);
+  my $dir = ($arm+1) >> 1;
+  my $inc = (($#bits ^ $arm) & 1 ? -1 : 1);
+  my $prev = 0;
+
+  ### @bits
+  ### initial dir: $dir
+  ### initial inc: $inc
+
+  foreach my $bit (reverse @bits) {
+    if ($bit != $prev) {
+      $dir += $inc;
+      $prev = $bit;
+    }
+    $inc = -$inc;   # opposite at each bit
+  }
+  $dir &= 3;
+  my $dx = $dir_to_dx[$dir];
+  my $dy = $dir_to_dy[$dir];
+  ### $dx
+  ### $dy
+
+  if ($n) {
+    ### apply fraction part: $n
+
+    # maybe:
+    # +/- $n as dx or dy
+    # +/- (1-$n) as other dy or dx
+
+    # strip any low 1-bits, and the 0-bit above them
+    # $inc is +1 at an even bit position or -1 at an odd bit position
+    $inc = my $inc = ($arm & 1 ? -1 : 1);
+    while (shift @bits) {
+      $inc = -$inc;
+    }
+    if ($bits[0]) { # bit above lowest 0-bit, 1=right,0=left
+      $inc = -$inc;
+    }
+    $dir += $inc;   # apply turn to give $dir at $n+1
+    $dir &= 3;
+    $dx += $n*($dir_to_dx[$dir] - $dx);
+    $dy += $n*($dir_to_dy[$dir] - $dy);
+  }
+
+  ### result: "$dx, $dy"
+  return ($dx,$dy);
+}
+
+# {
+#   sub print_table {
+#     my ($name, $aref) = @_;
+#     print "my \@$name = (";
+#     my $entry_width = max (map {length($_//'')} @$aref);
+# 
+#     foreach my $i (0 .. $#$aref) {
+#       printf "%*s", $entry_width, $aref->[$i]//'undef';
+#       if ($i == $#$aref) {
+#         print ");\n";
+#       } else {
+#         print ",";
+#         if (($i % 16) == 15
+#             || ($entry_width >= 3 && ($i % 4) == 3)) {
+#           print "\n        ".(" " x length($name));
+#         } elsif (($i % 4) == 3) {
+#           print " ";
+#         }
+#       }
+#     }
+#   }
+# 
+#   my @next_state;
+# my @state_to_dxdy;
+# 
+# sub make_state {
+#   my %values = @_;
+#   #  if ($oddpos) { $rot = ($rot-1)&3; }
+#   my $state = delete $values{'nextturn'};
+#   $state <<= 2; $state |= delete $values{'rot'};
+#   $state <<= 1; $state |= delete $values{'oddpos'};
+#   $state <<= 1; $state |= delete $values{'lowerbit'};
+#   $state <<= 1; $state |= delete $values{'bit'};
+#   die if %values;
+#   return $state;
+# }
+# sub state_string {
+#   my ($state) = @_;
+#   my $bit = $state & 1;  $state >>= 1;
+#   my $lowerbit = $state & 1;  $state >>= 1;
+#   my $oddpos = $state & 1;  $state >>= 1;
+#   my $rot = $state & 3;  $state >>= 2;
+#   my $nextturn = $state;
+#   #  if ($oddpos) { $rot = ($rot+1)&3; }
+#   return "rot=$rot,oddpos=$oddpos nextturn=$nextturn  lowerbit=$lowerbit (bit=$bit)";
+# }
+# 
+# foreach my $nextturn (0, 1, 2) {
+#   foreach my $rot (0, 1, 2, 3) {
+#     foreach my $oddpos (0, 1) {
+#       foreach my $lowerbit (0, 1) {
+#         foreach my $bit (0, 1) {
+#           my $state = make_state (bit      => $bit,
+#                                   lowerbit => $lowerbit,
+#                                   rot      => $rot,
+#                                   oddpos   => $oddpos,
+#                                   nextturn => $nextturn);
+#           ### $state
+# 
+#           my $new_nextturn = $nextturn;
+#           my $new_lowerbit = $bit;
+#           my $new_rot = $rot;
+#           my $new_oddpos = $oddpos ^ 1;
+# 
+#           if ($bit != $lowerbit) {
+#             if ($oddpos) {
+#               $new_rot++;
+#             } else {
+#               $new_rot--;
+#             }
+#             $new_rot &= 3;
+#           }
+#           if ($lowerbit == 0 && ! $nextturn) {
+#             $new_nextturn = ($bit ^ $oddpos ? 1 : 2);  # bit above lowest 0
+#           }
+# 
+#           my $dx = 1;
+#           my $dy = 0;
+#           if ($rot & 2) {
+#             $dx = -$dx;
+#             $dy = -$dy;
+#           }
+#           if ($rot & 1) {
+#             ($dx,$dy) = (-$dy,$dx); # rotate +90
+#           }
+#           ### rot to: "$dx, $dy"
+# 
+#           # if ($oddpos) {
+#           #   ($dx,$dy) = (-$dy,$dx); # rotate +90
+#           # } else {
+#           #   ($dx,$dy) = ($dy,-$dx); # rotate -90
+#           # }
+# 
+#           my $next_dx = $dx;
+#           my $next_dy = $dy;
+#           if ($nextturn == 2) {
+#             ($next_dx,$next_dy) = (-$next_dy,$next_dx); # left, rotate +90
+#           } else {
+#             ($next_dx,$next_dy) = ($next_dy,-$next_dx); # right, rotate -90
+#           }
+#           my $frac_dx = $next_dx - $dx;
+#           my $frac_dy = $next_dy - $dy;
+# 
+#           # mask to rot,oddpos only, ignore bit,lowerbit
+#           my $masked_state = $state & ~3;
+#           $state_to_dxdy[$masked_state]     = $dx;
+#           $state_to_dxdy[$masked_state + 1] = $dy;
+#           $state_to_dxdy[$masked_state + 2] = $frac_dx;
+#           $state_to_dxdy[$masked_state + 3] = $frac_dy;
+# 
+#           my $next_state =  make_state (bit      => 0,
+#                                         lowerbit => $new_lowerbit,
+#                                         rot      => $new_rot,
+#                                         oddpos   => $new_oddpos,
+#                                         nextturn => $new_nextturn);
+#           $next_state[$state] = $next_state;
+#         }
+#       }
+#     }
+#   }
+# }
+# 
+# my @arm_to_state;
+# foreach my $arm (0 .. 7) {
+#   my $rot = $arm >> 1;
+#   my $oddpos = 0;
+#   if ($arm & 1) {
+#     $rot++;
+#     $oddpos ^= 1;
+#   }
+#   $arm_to_state[$arm] = make_state (bit => 0,
+#                                     lowerbit => 0,
+#                                     rot => $rot,
+#                                     oddpos => $oddpos,
+#                                     nextturn => 0);
+# }
+# 
+# ### @next_state
+# ### @state_to_dxdy
+# ### next_state length: 4*(4*2*2 + 4*2)
+# 
+# print "# next_state length ", scalar(@next_state), "\n";
+# print_table ("next_state", \@next_state);
+# print_table ("state_to_dxdy", \@state_to_dxdy);
+# print_table ("arm_to_state", \@arm_to_state);
+# print "\n";
+# 
+# foreach my $arm (0 .. 7) {
+#   print "# arm=$arm  ",state_string($arm_to_state[$arm]),"\n";
+# }
+# print "\n";
+# 
+# 
+# 
+#   use Smart::Comments;
+# 
+#   sub n_to_dxdy {
+#     my ($self, $n) = @_;
+#     ### n_to_dxdy(): $n
+# 
+#     my $int = int($n);
+#     $n -= $int;  # $n fraction part
+#     ### $int
+#     ### $n
+# 
+#     my $state = _divrem_mutate ($int, $self->{'arms'}) << 2;
+#     ### arm as initial state: $state
+# 
+#     foreach my $bit (bit_split_lowtohigh($int)) {
+#       $state = $next_state[$state + $bit];
+#     }
+#     $state &= 0x1C;  # mask out "prevbit"
+# 
+#     ### final state: $state
+#     ### dx: $state_to_dxdy[$state]
+#     ### dy: $state_to_dxdy[$state+1],
+#     ### frac dx: $state_to_dxdy[$state+2],
+#     ### frac dy: $state_to_dxdy[$state+3],
+# 
+#     return ($state_to_dxdy[$state]   + $n * $state_to_dxdy[$state+2],
+#             $state_to_dxdy[$state+1] + $n * $state_to_dxdy[$state+3]);
+#   }
+# 
+# }
+
 1;
 __END__
+
+#------------------------------------------------------------------------------
+
 
 # Old code with explicit rotation etc rather than state table.
 #
@@ -462,9 +730,9 @@ __END__
 #
 #   my $arm = _divrem_mutate ($n, $self->{'arms'});
 #
-#   my @digits = bit_split_lowtohigh($n);
-#   if (scalar(@digits) & 1) {
-#     push @digits, 0;  # extra high to make even
+#   my @bits = bit_split_lowtohigh($n);
+#   if (scalar(@bits) & 1) {
+#     push @bits, 0;  # extra high to make even
 #   }
 #
 #   my @sx;
@@ -475,7 +743,7 @@ __END__
 #     ### $sx
 #     ### $sy
 #
-#     foreach (1 .. scalar(@digits)/2) {
+#     foreach (1 .. scalar(@bits)/2) {
 #       push @sx, $sx;
 #       push @sy, $sy;
 #
@@ -492,21 +760,21 @@ __END__
 #     }
 #   }
 #
-#   ### @digits
+#   ### @bits
 #   ### @sx
 #   ### @sy
-#   ### assert: scalar(@sx) == scalar(@digits)
+#   ### assert: scalar(@sx) == scalar(@bits)
 #
 #   my $rot = int($arm/2);  # arm to initial rotation
 #   my $rev = 0;
 #   my $x = $zero;
 #   my $y = $zero;
-#   while (@digits) {
+#   while (@bits) {
 #     {
-#       my $digit = pop @digits;   # high to low
+#       my $bit = pop @bits;   # high to low
 #       my $sx = pop @sx;
 #       my $sy = pop @sy;
-#       ### at: "$x,$y  $digit   side $sx,$sy"
+#       ### at: "$x,$y  $bit   side $sx,$sy"
 #       ### $rot
 #
 #       if ($rot & 2) {
@@ -517,7 +785,7 @@ __END__
 #       }
 #
 #       if ($rev) {
-#         if ($digit) {
+#         if ($bit) {
 #           $x -= $sy;
 #           $y += $sx;
 #           ### rev add to: "$x,$y next is still rev"
@@ -526,7 +794,7 @@ __END__
 #           $rev = 0;
 #         }
 #       } else {
-#         if ($digit) {
+#         if ($bit) {
 #           $rot ++;
 #           $x += $sx;
 #           $y += $sy;
@@ -536,13 +804,13 @@ __END__
 #       }
 #     }
 #
-#     @digits || last;
+#     @bits || last;
 #
 #     {
-#       my $digit = pop @digits;
+#       my $bit = pop @bits;
 #       my $sx = pop @sx;
 #       my $sy = pop @sy;
-#       ### at: "$x,$y  $digit   side $sx,$sy"
+#       ### at: "$x,$y  $bit   side $sx,$sy"
 #       ### $rot
 #
 #       if ($rot & 2) {
@@ -553,7 +821,7 @@ __END__
 #       }
 #
 #       if ($rev) {
-#         if ($digit) {
+#         if ($bit) {
 #           $x += $sy;
 #           $y -= $sx;
 #           ### rev add to: "$x,$y next is still rev"
@@ -562,7 +830,7 @@ __END__
 #           $rev = 0;
 #         }
 #       } else {
-#         if ($digit) {
+#         if ($bit) {
 #           $rot --;
 #           $x += $sx;
 #           $y += $sy;
@@ -595,7 +863,7 @@ __END__
 
 
 
-=for :stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA..AA Golay-Rudin-Shapiro Rudin-Shapiro dX dY dX,dY GRS dSum undoubled MendE<232>s Tenenbaum des Courbes Papiers de
+=for :stopwords eg Ryde Math-PlanePath Nlevel et al vertices doublings OEIS Online DragonCurve ZOrderCurve 0xAA..AA Golay-Rudin-Shapiro Rudin-Shapiro dX dY dX,dY GRS dSum undoubled MendE<232>s Tenenbaum des Courbes Papiers de ie
 
 =head1 NAME
 
@@ -842,7 +1110,7 @@ Return 0, the first N in the path.
 
 =head1 FORMULAS
 
-=head2 Turns
+=head2 Turn
 
 At each point N the curve always turns either left or right, it never goes
 straight ahead.  The turn is given by the bit above the lowest 1 bit in N
@@ -859,6 +1127,8 @@ and whether that position is odd or even.
 
 For example N=10 binary 0b1010 has lowest 1 bit at 0b__1_ and the bit above
 that is a 0 at even number pos=2, so turn to the right.
+
+=head2 Next Turn
 
 The bits also give the turn after next by looking at the bit above the
 lowest 0.
@@ -909,7 +1179,8 @@ bit position of the transition, instead of always left for the DragonCurve.
 Since there's always a turn either left or right, never straight ahead, the
 X coordinate changes, then the Y, alternately.  X changes when N is even, Y
 changes when N is odd.  Each change is either +1 or -1.  The changes are the
-Golay-Rudin-Shapiro sequence, which is a parity of adjacent 11 bit pairs.
+Golay-Rudin-Shapiro sequence, which is a parity of the count of adjacent 11
+bit pairs.
 
 In the total turn above it can be seen that if the 0-E<gt>1 transition is at
 an odd position and 1-E<gt>0 transition at an even position then there's a
@@ -919,9 +1190,8 @@ have no effect on the direction.  Runs of even length on the other hand are
 a left followed by a left, or a right followed by a right, for 180 degrees,
 which negates the dX change.  Thus
 
-    dX = /  (-1) ^ (count of even length runs of 1 bits in N),
-         |     if N even,
-         \  0 if N odd
+    dX = /  (-1)^(count even length runs of 1 bits in N), if N even
+         \  0, if N odd
 
 This (-1)^count is related to the Golay-Rudin-Shapiro sequence,
 
@@ -951,8 +1221,8 @@ even length" as the rest of the GRS, just for a slightly different reason.
 
 =head2 dX,dY Pair
 
-At consecutive points N=2k and N=2k+1 the dX and dY can be expressed
-together in terms of GRS(k) as
+At a consecutive pair of points N=2k and N=2k+1 the dX and dY can be
+expressed together in terms of GRS(k) as
 
     dX = GRS(2k)
        = GRS(k)
@@ -963,8 +1233,9 @@ together in terms of GRS(k) as
          \  -GRS(k) if k odd
 
 For dY reducing 2k+1 to k drops a 1 bit from the low end.  If the second
-lowest bit is also a 1 then they're a 11 bit pair which is lost from GRS(k).
-The factor (-1)^k adjusts for that, being +1 if k even or -1 if k odd.
+lowest bit is also a 1 then they were a "11" bit pair which is lost from
+GRS(k).  The factor (-1)^k adjusts for that, being +1 if k even or -1 if k
+odd.
 
 =head2 dSum
 
@@ -975,25 +1246,25 @@ GRS(N),
 
 The sum X+Y is a numbering of anti-diagonal lines,
 
-   |       \
-   |      \ \
-   |     \ \ \
-   |    \ \ \ \
-   |   \ \ \ \ \
-   |  \ \ \ \ \ \
-   +--------------
-      0 1 2 3 4 5
+   | \ \ \
+   |\ \ \ \
+   | \ \ \ \
+   |\ \ \ \ \
+   | \ \ \ \ \
+   |\ \ \ \ \ \
+   +------------
+     0 1 2 3 4 5
 
-The curve steps each time either up to the next or back to the previous by
-dSum=GRS(N).
+The curve steps each time either up to the next or back to the previous
+according to dSum=GRS(N).
 
-The way the curve visits the outside points once each and the inside points
-twice each means an anti-diagonal d=X+Y is visited a total of d many times.
-The diagonal has floor(d/2)+1 many points, the first visited once, the rest
-visited twice, or when d is even then the X=Y point is only visited once.
-In each case the total is d many visits.
+The way the curve visits edge outer X,Y points once each and inner X,Y
+points twice each means an anti-diagonal d=X+Y is visited a total of d many
+times.  The diagonal has floor(d/2)+1 many points.  When d is odd the first
+is visited once and the rest visited twice.  When d is even the X=Y point is
+only visited once.  In each case the total is d many visits.
 
-This coordinate sum d=X+Y occurring d many times is a geometric
+The way the coordinate sum d=X+Y occurs d many times is a geometric
 interpretation to the way the cumulative GRS sequence has each value k
 occurring k many times.  (See L<Math::NumSeq::GolayRudinShapiroCumulative>.)
 
@@ -1023,17 +1294,22 @@ paired values.
     A000695  N on X axis,   base 4 digits 0,1 only
     A062880  N on diagonal, base 4 digits 0,2 only
 
-    A022155  positions where GRS < 0
-               which is N where down or left step,
-               ie. dSum < 0 move to previous anti-diagonal
-    A203463  positions where GRS > 0
-               which is N where up or right step,
-               ie. dSum > 0 move to next anti-diagonal
+    A022155  N positions of left or down segment,
+               being GRS < 0,
+               ie. dSum < 0 so move to previous anti-diagonal
+    A203463  N positions of up or right segment,
+               being GRS > 0,
+               ie. dSum > 0 so move to next anti-diagonal
 
     A020991  N-1 of first time on X+Y=k anti-diagonal
     A212591  N-1 of last time on X+Y=k anti-diagonal
     A093573  N-1 of points on the anti-diagonals d=X+Y,
                by ascending N-1 value within each diagonal
+
+A020991 etc have values N-1, ie. the numbering differs by 1 from the N here,
+since they're based on the A020986 cumulative GRS starting at n=0 for value
+GRS(0).  This matches the turn sequence A106665 starting at n=0 for the
+first turn, whereas for the path here that's N=1.
 
 =head1 SEE ALSO
 

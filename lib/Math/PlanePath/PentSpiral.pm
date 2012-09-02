@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -57,7 +57,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
   if ($n < 1) { return; }
-  if ($n < 2) { return ($n-1,0); }
+  if ($n < 2) { return (2*$n-2,0); }
 
   my $d = int( (sqrt(40*$n-55)+5) / 10 );
   #### d frac: .5 + sqrt((8*$n-11)/20)
@@ -183,7 +183,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PentSpiral PentSpiralSkewed PlanePath Ryde Math-PlanePath
+=for stopwords PentSpiral PentSpiralSkewed PlanePath Ryde Math-PlanePath OEIS
 
 =head1 NAME
 

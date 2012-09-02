@@ -165,6 +165,7 @@ foreach my $path_name (@path_names) {
     next if $anum eq 'A001477'; # integers 0,1,2,3
     next if $anum eq 'A081274'; # oeis duplicate
     next if $anum eq 'A000035'; # 0,1 reps
+    next if $anum eq 'A059841'; # 1,0 reps
     if (! exists $pod_anums{$anum}) {
       diag "Math::PlanePath::$path_name checked anum $anum not in pod";
     }

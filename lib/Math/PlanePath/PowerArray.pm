@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -301,6 +301,7 @@ path include
       A005408    N on Y axis, the odd numbers
       A057716    N not on X axis, the non-powers-of-2
 
+      A014480    N on X=Y diagonal
       A118417    N on X=Y+1 diagonal (just below X=Y diagonal)
 
       A054582    N by diagonals, upwards

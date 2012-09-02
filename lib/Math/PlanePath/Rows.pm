@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,6 +43,9 @@ sub new {
   if (! exists $self->{'width'}) {
     $self->{'width'} = 1;
   }
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   ### width: $self->{'width'}
   return $self;
 }
@@ -51,23 +54,26 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### Rows n_to_xy(): "$n"
 
-  # no division by zero, and negatives not meaningful for now
+  # no division by width=0, and width<0 not meaningful for now
   my $width;
   if (($width = $self->{'width'}) <= 0) {
     ### no points for width<=0
     return;
   }
 
-  my $int = int($n);  # BigFloat int() gives BigInt, use that
-  $n -= $int;         # preserve any BigFloat
+  $n = $n - $self->{'n_start'};  # zero based
 
-  if (2*$n >= 1) {  # if $n >= 0.5
+  my $int = int($n);  # BigFloat int() gives BigInt, use that
+  $n -= $int;         # fraction part, preserve any BigFloat
+
+  if (2*$n >= 1) {  # if $n >= 0.5, but BigInt friendly
     $n -= 1;
-  } else {
-    $int -= 1;    # int-1 so zero based
+    $int += 1;
   }
   ### $n
   ### $int
+  ### assert: $n >= -0.5
+  ### assert: $n < 0.5
 
   my $y = int ($int / $width);
   $int -= $y*$width;
@@ -90,7 +96,7 @@ sub xy_to_n {
     return undef;  # outside the column
   }
   $y = round_nearest ($y);
-  return $x + $y * $self->{'width'} + 1;
+  return $x + $y * $self->{'width'} + $self->{'n_start'};
 }
 
 # exact
@@ -121,8 +127,8 @@ sub rect_to_n_range {
   ### rect exact on: "$x1,$y1  $x2,$y2"
 
   # exact range bottom left to top right
-  return ($x1 + $y1 * $width + 1,
-          $x2 + $y2 * $width + 1);
+  return ($x1 + $y1 * $width + $self->{'n_start'},
+          $x2 + $y2 * $width + $self->{'n_start'});
 }
 
 1;
@@ -142,16 +148,40 @@ Math::PlanePath::Rows -- points in fixed-width rows
 
 =head1 DESCRIPTION
 
-This path is rows of a given fixed width.  For example width 7 is
+This path is rows of a given fixed width.  For example width=7 is
 
     width => 7
 
-      3  |  22  23  24  ...
+      3  |  22  23  24 ...
       2  |  15  16  17  18  19  20  21
       1  |   8   9  10  11  12  13  14
     Y=0  |   1   2   3   4   5   6   7
           -------------------------------
            X=0   1   2   3   4   5   6
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, with the same shape.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=Rows,n_start=0,width=7 --all --output=numbers
+
+=pod
+
+    n_start => 0, width => 7
+
+      3  |  21  22  23  24 ...
+      2  |  14  15  16  17  18  19  20
+      1  |   7   8   9  10  11  12  13
+    Y=0  |   0   1   2   3   4   5   6
+          -------------------------------
+           X=0   1   2   3   4   5   6
+
+The only effect is to push the N values around by a constant amount.  It
+might help match coordinates with something else zero-based.
 
 =head1 FUNCTIONS
 
@@ -160,6 +190,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::Rows-E<gt>new (width =E<gt> $w)>
+
+=item C<$path = Math::PlanePath::Rows-E<gt>new (width =E<gt> $w, n_start =E<gt> $n)>
 
 Create and return a new path object.  A C<width> parameter must be supplied.
 

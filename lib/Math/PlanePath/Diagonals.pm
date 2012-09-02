@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -164,7 +164,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath DiagonalsOctant
+=for stopwords PlanePath Ryde Math-PlanePath DiagonalsOctant OEIS
 
 =head1 NAME
 
@@ -318,6 +318,10 @@ path include
 
       A000124    N on Y axis
       A001844    N on X=Y diagonal
+
+    direction=down, n_start=0
+      A023531    dSum = dX+dY, being 1 at N=triangular+1 (and 0)
+      A129184    turn 1=left,0=right
 
     direction=up
       Likewise but swapping X,Y.

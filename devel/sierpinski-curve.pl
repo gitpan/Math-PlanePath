@@ -27,6 +27,73 @@ use Math::PlanePath::SierpinskiArrowhead;
 use Smart::Comments;
 
 {
+  require Tk;
+  require Tk::CanvasLogo;
+  require Math::NumSeq::MephistoWaltz;
+  my $top = MainWindow->new;
+  my $width = 1000;
+  my $height = 800;
+  my $logo = $top->CanvasLogo(-width => $width, -height => $height)->pack;
+  my $turtle = $logo->NewTurtle('foo');
+  $turtle->LOGO_RT(45);
+  $turtle->LOGO_PU();
+  $turtle->LOGO_FD(- $height*sqrt(2)/2*.9);
+  $turtle->LOGO_PD();
+  $turtle->LOGO_RT(135);
+  $turtle->LOGO_LT(30);
+
+  my $step = 20;
+  $turtle->LOGO_FD($step);
+  my $seq = Math::NumSeq::MephistoWaltz->new;
+  for (;;) {
+    my ($i,$value) = $seq->next;
+    last if $i > 10000;
+    if ($value) {
+      $turtle->LOGO_RT(60);
+      $turtle->LOGO_FD($step);
+    } else {
+      $turtle->LOGO_LT(60);
+      $turtle->LOGO_FD($step);
+    }
+  }
+
+  Tk::MainLoop();
+  exit;
+}
+
+{
+  require Tk;
+  require Tk::CanvasLogo;
+  require Math::NumSeq::PlanePathTurn;
+  my $top = MainWindow->new();
+  my $logo = $top->CanvasLogo->pack;
+  my $turtle = $logo->NewTurtle('foo');
+
+  my $seq = Math::NumSeq::PlanePathTurn->new
+    (planepath => 'KochCurve',
+     turn_type => 'Left');
+  $turtle->LOGO_RT(45);
+  $turtle->LOGO_FD(10);
+  for (;;) {
+    my ($i,$value) = $seq->next;
+    last if $i > 64;
+    if ($value) {
+      $turtle->LOGO_RT(45);
+      $turtle->LOGO_FD(10);
+      $turtle->LOGO_RT(45);
+      $turtle->LOGO_FD(10);
+    } else {
+      $turtle->LOGO_LT(90);
+      $turtle->LOGO_FD(10);
+      $turtle->LOGO_LT(90);
+      $turtle->LOGO_FD(10);
+    }
+  }
+
+  Tk::MainLoop();
+  exit;
+}
+{
   # filled fraction
 
   require Math::PlanePath::SierpinskiCurve;

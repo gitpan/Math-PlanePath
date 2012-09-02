@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -428,7 +428,7 @@ Counting the innermost square as level 0, each ring is
     Ystart = - 4^level / 2
 
 For example the lower partial ring shown above is level 2 starting
-N=(4*8^2+3)/7=37 and X=-(4^2)/2=-8,Y=-8.
+N=(4*8^2+3)/7=37 at X=-(4^2)/2=-8,Y=-8.
 
 The innermost square N=1,2,3,4 is on 0.5 coordinates, for example N=1 at
 X=-0.5,Y=-0.5.  This is centred on the origin and consistent with the

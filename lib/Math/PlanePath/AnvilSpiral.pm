@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -305,7 +305,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords AnvilSpiral SquareSpiral Ryde Math-PlanePath pentagonals PyramidRows OctagramSpiral
+=for stopwords AnvilSpiral SquareSpiral Ryde Math-PlanePath pentagonals PyramidRows OctagramSpiral OEIS
 
 =head1 NAME
 

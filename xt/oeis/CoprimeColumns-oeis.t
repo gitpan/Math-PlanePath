@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 9;
+plan tests => 10;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -47,6 +47,61 @@ sub numeq_array {
     $i++;
   }
   return (@$a1 == @$a2);
+}
+
+#------------------------------------------------------------------------------
+# A127368 - Y coordinate of coprimes, 0 for non-coprimes
+
+{
+  my $anum = 'A127368';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my $good = 1;
+    my $count = 0;
+    if ($bvalues) {
+      my $x = 1;
+      my $y = 1;
+      for (my $i = 0; $i < @$bvalues; $i++) {
+        my $want = $bvalues->[$i];
+        my $got = (Math::PlanePath::CoprimeColumns::_coprime($x,$y)
+                   ? $y : 0);
+        if ($got != $want) {
+          MyTestHelpers::diag ("wrong _coprime($x,$y)=$got want=$want at i=$i of $filename");
+          $good = 0;
+        }
+        $y++;
+        if ($y > $x) {
+          $x++;
+          $y = 1;
+        }
+        $count++;
+      }
+    }
+    ok ($good, 1, "$anum count $count");
+  }
+
+  {
+    my @got;
+    if ($bvalues) {
+    OUTER: for (my $x = 1; ; $x++) {
+        foreach my $y (1 .. $x) {
+          if (defined ($path->xy_to_n($x,$y))) {
+            push @got, $y;
+          } else {
+            push @got, 0;
+          }
+          last OUTER if @got >= @$bvalues;
+        }
+      }
+      if (! numeq_array(\@got, $bvalues)) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          numeq_array(\@got, $bvalues),
+          1, "$anum");
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -109,8 +164,6 @@ sub insert_second_highest_bit_one {
       my $sn = $sb->xy_to_n($x,$y);
       push @got, delete_second_highest_bit($sn) + 1;
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
   }
 
   skip (! $bvalues,
@@ -273,65 +326,6 @@ sub delete_second_highest_bit {
   }
 }
 
-
-#------------------------------------------------------------------------------
-# A127368 - Y coordinate of coprimes, 0 for non-coprimes
-
-{
-  my $anum = 'A127368';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  {
-    my $good = 1;
-    my $count = 0;
-    if ($bvalues) {
-      # last two values of A127368.html wrong way around as of June 2011
-      $bvalues->[52] = 0;
-      $bvalues->[53] = 9;
-
-      my $x = 1;
-      my $y = 1;
-      for (my $i = 0; $i < @$bvalues; $i++) {
-        my $want = $bvalues->[$i];
-        my $got = (Math::PlanePath::CoprimeColumns::_coprime($x,$y)
-                   ? $y : 0);
-        if ($got != $want) {
-          MyTestHelpers::diag ("wrong _coprime($x,$y)=$got want=$want at i=$i of $filename");
-          $good = 0;
-        }
-        $y++;
-        if ($y > $x) {
-          $x++;
-          $y = 1;
-        }
-        $count++;
-      }
-    }
-    ok ($good, 1, "$anum count $count");
-  }
-
-  {
-    my @got;
-    if ($bvalues) {
-    OUTER: for (my $x = 1; ; $x++) {
-        foreach my $y (1 .. $x) {
-          if (defined ($path->xy_to_n($x,$y))) {
-            push @got, $y;
-          } else {
-            push @got, 0;
-          }
-          last OUTER if @got >= @$bvalues;
-        }
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
-  }
-}
 
 #------------------------------------------------------------------------------
 # A002088 - totient sum along X axis

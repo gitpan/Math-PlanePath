@@ -111,8 +111,6 @@ sub dxdy_to_dir {
       my $square_n = $square->xy_to_n ($x, -$y);
       push @got, $square_n;
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

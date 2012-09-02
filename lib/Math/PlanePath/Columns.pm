@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -41,6 +41,9 @@ sub new {
   if (! exists $self->{'height'}) {
     $self->{'height'} = 1;
   }
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   return $self;
 }
 
@@ -54,27 +57,31 @@ sub n_to_xy {
     return;
   }
 
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;   # inherit possible BigFloat
-    if (2*$frac >= 1) {  # $frac >= 0.5
-      $frac -= 1;
-      $n = $int; # n-1, BigFloat int() gives BigInt, use that
-    } else {
-      $n = $int-1;
-    }
-  }
+  $n = $n - $self->{'n_start'};  # zero based
 
-  # column x=0 starts at n=0.5 with y=-0.5
-  #
-  # subtract back from $n instead of using POSIX::fmod() because fmod rounds
-  # towards 0 instead of -infinity (in preparation for negative n one day
-  # maybe, perhaps)
-  #
-  my $x = floor ($n / $height);
+  my $int = int($n);  # BigFloat int() gives BigInt, use that
+  $n -= $int;         # fraction part, preserve any BigFloat
+
+  if (2*$n >= 1) {  # if $n >= 0.5, but BigInt friendly
+    $n -= 1;
+    $int += 1;
+  }
+  ### $n
+  ### $int
+  ### assert: $n >= -0.5
+  ### assert: $n < 0.5
+
+  my $x = int ($int / $height);
+  $int -= $x*$height;
+  if ($int < 0) {    # ensure round down when $int negative
+    $int += $height;
+    $x -= 1;
+  }
+  ### floor x: $x
+  ### remainder: $int
+
   return ($x,
-          $frac + $n - $x*$height);
+          $n + $int);
 }
 
 sub xy_to_n {
@@ -85,7 +92,7 @@ sub xy_to_n {
     return undef;  # outside the oblong
   }
   $x = round_nearest ($x);
-  return $x * $self->{'height'} + $y + 1;
+  return $x * $self->{'height'} + $y + $self->{'n_start'};
 }
 
 # exact
@@ -99,7 +106,7 @@ sub rect_to_n_range {
   ### assert: $y1<=$y2
 
   if ($height<=0 || $y1 >= $height || $y2 < 0) {
-    ### completely outside 0 to height-1, or height<=0
+    ### completely outside 0 to height-1, or height<=0 ...
     return (1,0);
   }
 
@@ -109,11 +116,11 @@ sub rect_to_n_range {
   ### assert: $x1<=$x2
 
   if ($y1 < 0) { $y1 *= 0; }                            # preserve bignum
-  if ($y2 >= $height) { $y2 = ($y2 * 0) + $height-1; }  # preserve bignum
+  if ($y2 >= $height) { $y2 = ($y2*0) + $height-1; }  # preserve bignum
 
   # exact range bottom left to top right
-  return ($x1*$height + $y1 + 1,
-          $x2*$height + $y2 + 1);
+  return ($x1*$height + $y1 + $self->{'n_start'},
+          $x2*$height + $y2 + $self->{'n_start'});
 }
 
 1;
@@ -136,13 +143,38 @@ Math::PlanePath::Columns -- points in fixed-height columns
 This path is columns of a given fixed height.  For example height 5 would be
 
          |
-      4  |   5  10  15  20    --->   height==5
+      4  |   5  10  15  20        <---  height==5
       3  |   4   9  14  19
       2  |   3   8  13  18
       1  |   2   7  12  17  ...
-    y=0  |   1   6  11  16  21 
+    Y=0  |   1   6  11  16  21 
           ----------------------
-           x=0   1   2   3   4  ...
+           X=0   1   2   3   4  ...
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, with the same shape.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=Columns,n_start=0,height=5 --all --output=numbers
+
+=pod
+
+    n_start => 0, height => 5
+
+      4  |   4   9  14  19 
+      3  |   3   8  13  18 
+      2  |   2   7  12  17 
+      1  |   1   6  11  16  ...
+    Y=0  |   0   5  10  15  20
+          ----------------------
+           X=0   1   2   3   4  ...
+
+The only effect is to push the N values around by a constant amount.  It
+might help match coordinates with something else zero-based.
 
 =head1 FUNCTIONS
 
@@ -151,6 +183,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::Columns-E<gt>new (height =E<gt> $h)>
+
+=item C<$path = Math::PlanePath::Columns-E<gt>new (height =E<gt> $h, n_start =E<gt> $n)>
 
 Create and return a new path object.  A C<height> parameter must be supplied.
 

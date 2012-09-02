@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 7;
+plan tests => 5;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -98,8 +98,6 @@ sub streq_array {
       my ($x,$y) = $diagrat->n_to_xy ($n);
       push @got, abs($x-$y);
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
   }
 
   skip (! $bvalues,
@@ -122,8 +120,6 @@ sub streq_array {
       my ($x,$y) = $diagrat->n_to_xy ($n);
       push @got, $sb->xy_to_n($x,$y);
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
   }
 
   skip (! $bvalues,
@@ -141,8 +137,6 @@ sub streq_array {
       my ($x,$y) = $sb->n_to_xy ($n);
       push @got, $diagrat->xy_to_n($x,$y);
     }
-    ### bvalues: join(',',@{$bvalues}[0..40])
-    ### got: '    '.join(',',@got[0..40])
   }
 
   skip (! $bvalues,

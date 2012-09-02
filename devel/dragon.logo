@@ -18,6 +18,8 @@
 ;; with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+;; http://rosettacode.org/wiki/Dragon_curve
+
 ;;------------------------------------------------------------------------------
 
 ; Return the bit above the lowest 1-bit in :n.
@@ -37,12 +39,14 @@ end
 ; Draw :steps many segments of the dragon curve.
 to dragon :steps
   localmake "step.len 12  ; length of each step
-  repeat :steps [ forward :step.len
-                  left    dragon.turn.angle repcount ]
+  repeat :steps [
+    forward :step.len
+    left    dragon.turn.angle repcount  ; repcount = 1 to :steps inclusive
+  ]
 end
 
 ; Draw :steps many segments of the dragon curve, with corners chamfered
-; off with  little 45-degree diagonals.
+; off with little 45-degree diagonals.
 ; Done this way the vertices don't touch.
 to dragon.chamfer :steps
   localmake "step.len       12  ; length of each step
@@ -50,6 +54,7 @@ to dragon.chamfer :steps
 
   localmake "straight.len   :step.len * :straight.frac
   localmake "diagonal.len   (:step.len - :straight.len) * sqrt(1/2)
+
   repeat :steps [
      localmake "turn  (dragon.turn.angle repcount)/2   ; +45 or -45
      forward :straight.len
@@ -59,8 +64,8 @@ to dragon.chamfer :steps
   ]
 end
 
-; dragon 256
-dragon.chamfer 256
+dragon 256
+; dragon.chamfer 256
 
 
 ; ;;------------------------------------------------------------------------------

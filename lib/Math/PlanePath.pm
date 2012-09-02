@@ -20,6 +20,14 @@
 # divrem
 # divrem_mutate
 
+# $level = $path->tree_level_start;
+# $level = $path->tree_n_to_level($n);
+# ($n_lo,$n_hi) = $path->tree_level_to_n_range($level);
+#
+# starting depth=0 for the root, so depth many parents above
+# $depth = $path->tree_n_to_depth($n);
+
+
 # $path->n_to_dir4
 # $path->n_to_dist
 # $path->xy_to_dir4_list
@@ -55,7 +63,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 86;
+$VERSION = 87;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -83,6 +91,11 @@ sub y_negative { $_[0]->class_y_negative }
 use constant n_frac_discontinuity => undef;
 use constant tree_n_parent => undef;
 use constant tree_n_children => ();
+sub tree_n_num_children {
+  my ($self, $n) = @_;
+  my @n_list = $self->tree_n_children($n);
+  return scalar(@n_list);
+}
 
 sub new {
   my $class = shift;
@@ -206,11 +219,11 @@ __END__
 # Maybe:
 #
 # =item C<$branches = $path-E<gt>tree_constant_branches()>
-# 
+#
 # If C<$path> is a tree with a constant number of children at each node then
 # return that number.  For example PythagoreanTree has 3 descendants at
 # each N.
-# 
+#
 # If C<$path> is not a tree, or it's a tree but the number of children varies
 # with N, then return 0.
 #
@@ -222,7 +235,7 @@ __END__
 # sub tree_n_parent {
 #   my ($self, $n) = @_;
 #   ### tree_n_parent() generic: $n
-# 
+#
 #   if (my $branches = $self->tree_constant_branches) {
 #     my $n_start = $self->n_start;
 #     if ($n > $n_start) {
@@ -231,12 +244,12 @@ __END__
 #   }
 #   return undef;
 # }
-# 
+#
 # sub tree_n_children {
 #   my ($self, $n) = @_;
 #   ### tree_n_children() generic: ref $self, $n
 #   ### branches: $self->tree_constant_branches
-# 
+#
 #   if (my $branches = $self->tree_constant_branches) {
 #     my $n_start = $self->n_start;
 #     $n = $branches*($n-$n_start) + $n_start;
@@ -249,7 +262,7 @@ __END__
 
 
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY
 
 =head1 NAME
 
@@ -408,7 +421,7 @@ rounding-off for big floating point exponents.
 Floating point infinities (when available) give nan or infinite returns of
 some kind (some unspecified kind as yet).  C<n_to_xy()> on negative infinity
 is an empty return, the same as other negative C<$n>.  Calculations which
-break an input into digits of some base don't loop infinitely on infinities.
+split an input into digits of some base don't loop infinitely on infinities.
 
 Floating point nans (when available) give nan, infinite, or empty/undef
 returns, but again of some unspecified kind as yet, but in any case not
@@ -420,16 +433,15 @@ give corresponding outputs.
     Math::BigInt        maybe perl 5.8 up for ** operator
     Math::BigRat
     Math::BigFloat
-    Number::Fraction    1.14 or higher (for abs())
+    Number::Fraction    1.14 or higher for abs()
 
 A few classes might truncate a bignum or a fraction to a float as yet.  In
 general the intention is to make the calculations generic to act on any
 sensible number type.  Recent enough versions of the bignum modules might be
-required, perhaps Perl 5.8 or higher for the C<**> exponentiation operator
-in particular.
+required, perhaps Perl 5.8 or higher for C<**> exponentiation operator.
 
 For reference, an C<undef> input as C<$n>, C<$x>, C<$y>, etc, is meant to
-provoke an uninitialized value warning (when warnings are enabled), but
+provoke an uninitialized value warning when warnings are enabled, but
 currently it doesn't croak etc.  Perhaps that will change, but the warning
 at least prevents bad inputs going unnoticed.
 
@@ -462,34 +474,38 @@ Return the change in X and Y going from point C<$n> to point C<$n+1>, or for
 paths with multiple arms from C<$n> to C<$n+$arms_count> (thus advancing by
 one along the arm of C<$n>).
 
-    $n+1 *  $next_x,$next_y
-         |
-         |
-         |              $dx = $next_x - $x
-      $n *  $x,$y       $dy = $next_y - $y
+    +  $n+1 == $next_x,$next_y
+    |
+    |
+    |                    $dx = $next_x - $x
+    +  $n == $x,$y       $dy = $next_y - $y
 
-C<$n> can be fractional and in that case the delta is from that fractional
+C<$n> can be fractional and in that case the dX,dY is from that fractional
 C<$n> position to C<$n+1> (or C<$n+$arms>).
- 
-                $n+1
-                v  $next_x,$next_y
-    integer *---+---- 
+
+           frac $n+1 == $next_x,$next_y
+                v
+    integer *---+----
             |  /
             | /
-            |/            $dx = $next_x - $x
-         $n +   $x,$y     $dy = $next_y - $y
-            |            
+            |/                 $dx = $next_x - $x
+       frac +  $n == $x,$y     $dy = $next_y - $y
+            |
     integer *
 
-This is simply C<n_to_xy()> C<$dx=$next_x-$x, $dy=$next_y-$y>.  Currently
-for most paths it's merely two such C<n_to_xy()> calls, but some paths can
-or might calculate it with a little less work.
+In both cases C<n_to_dxdy()> is the difference C<$dx=$next_x-$x,
+$dy=$next_y-$y>.  Currently for most paths it's merely two C<n_to_xy()>
+calls to calculate the two points, but some paths can calculate a dX,dY with
+a little less work.
 
 =item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
 
-Return the radial distance R^2 of point C<$n>, or C<undef> if there's no
-point C<$n>.  This is simply C<$x**2+$y**2> but for a few paths it can be
-calculated with less work than C<n_to_xy()>.
+Return the radial distance X^2+Y^2 of point C<$n>, this being the radial
+distance R=hypot(X,Y).  If there's no point C<$n> then the return is
+C<undef>.
+
+For a few paths this can be calculated with less work than C<n_to_xy()>.
+For example the SacksSpiral is simply R^2==N.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -505,7 +521,7 @@ C<$x> and C<$y> can be fractional and the path classes will give an integer
 C<$n> which contains C<$x,$y> within a unit square, circle, or intended
 figure centred on the integer C<$n>.
 
-For paths which completely tile the plane there's always an C<$n> to return,
+For paths which completely fill the plane there's always an C<$n> to return,
 but for the spread-out paths an C<$x,$y> position may fall in between (no
 C<$n> close enough) and give C<undef>.
 
@@ -516,9 +532,9 @@ nothing at C<$x,$y> then return an empty list.
 
     my @n_list = $path->xy_to_n(20,20);
 
-Most paths have just a single N for a given X,Y but for those like
-DragonCurve and TerdragonCurve where multiple N's give the same X,Y this
-method returns the list of those N values.
+Most paths have just a single N for a given X,Y but some such as DragonCurve
+and TerdragonCurve have multiple N's at a given X,Y and method returns all
+of them.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
@@ -531,18 +547,18 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
        print "$n  $x,$y";
      }
 
-The return might be an over-estimate of the range, and many of the points
-between C<$n_lo> and C<$n_hi> might be outside the rectangle even when the
-range is exact.  But the range is at least an lower and upper bound on the N
-values which occur in the rectangle.  Classes which can guarantee an exact
-lo/hi range say so in their docs.
+The return might be an over-estimate of the N range required to cover the
+rectangle, and many of the points between C<$n_lo> and C<$n_hi> might be
+outside the rectangle even when the range is exact.  But the range is at
+least an lower and upper bound on the N values which occur in the rectangle.
+Classes which can guarantee an exact lo/hi range say so in their docs.
 
 C<$n_hi> is usually no more than an extra partial row, revolution, or
 self-similar level.  C<$n_lo> might be merely the starting
 C<$path-E<gt>n_start()> -- which is fine if the origin is in the desired
 rectangle but away from the origin might actually start higher.
 
-C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional and if they partly overlap
+C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional.  If they partly overlap
 some N figures then those N's are included in the return.
 
 If there's no points in the rectangle then the return can be a "crossed"
@@ -552,27 +568,27 @@ rectangle and instead return some over-estimate.
 
 =item C<$n = $path-E<gt>n_start()>
 
-Return the first N in the path.  In the current classes this is either 0
-or 1.
+Return the first N in the path.  The start is usually either 0 or 1
+according to what is most natural for the path.  Some paths have an
+C<n_start> parameter to control the numbering.
 
 Some classes have secret dubious undocumented support for N values below
 this (zero or negative), but C<n_start()> is the intended starting point.
 
 =item C<$f = $path-E<gt>n_frac_discontinuity()>
 
-Return the fraction of N at which there's discontinuities in the path.  For
-example if there's a jump in the coordinates between N=7.4999 and N=7.5 then
-the returned C<$f> is 0.5.  Or C<$f> is 0 if there's a discontinuity between
-6.999 and 7.0.
+Return the fraction of N at which there may be discontinuities in the path.
+For example if there's a jump in the coordinates between N=7.4999 and N=7.5
+then the returned C<$f> is 0.5.  Or C<$f> is 0 if there's a discontinuity
+between 6.999 and 7.0.
 
-If there's no discontinuities in the path, so that for example fractions
-between N=7 to N=8 give smooth continuous X,Y values (of some kind) then the
-return is C<undef>.
+If there's no discontinuities in the path then the return is C<undef>.  That
+means for example fractions between N=7 to N=8 give smooth continuous X,Y
+values (of some kind).
 
 This is mainly of interest for drawing line segments between N points.  If
 there's discontinuities then the idea is to draw from say N=7.0 to N=7.499
-and then another line from N=7.5 to N=8.  The returned C<$f> is whether
-there's discontinuities anywhere in C<$path>.
+and then another line from N=7.5 to N=8.
 
 =item C<$bool = $path-E<gt>x_negative()>
 
@@ -599,7 +615,7 @@ For some classes the X or Y extent may depend on parameter values.
 Return the number of arms in a "multi-arm" path.
 
 For example in SquareArms this is 4 and each arm increments in turn, so the
-first arm is N=1,5,9,13, etc, starting from C<$path-E<gt>n_start()> and
+first arm is N=1,5,9,13,etc starting from C<$path-E<gt>n_start()> and
 incrementing by 4 each time.
 
 =item C<$str = $path-E<gt>figure()>
@@ -625,6 +641,10 @@ Return a list of N values which are the child nodes of C<$n>, or return an
 empty list if C<$n> has no children.  The could be no children either
 because C<$path> is not a tree or because there's no children at a
 particular C<$n>.
+
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return the number of children of C<$n>, or 0 if C<$n> has no children.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -723,26 +743,25 @@ C<sqrt()> to break N into a segment and offset, but the self-similar paths
 which chop N into digits of some radix could increment instead of
 recalculate.
 
-A disadvantage of an iterator is that if you're only interested in a
-particular rectangle or similar region then the iteration may stray outside
-for a long time, making it much less useful than it seems.  For wild paths
-it can be better to apply C<xy_to_n()> by rows or similar in the desired
-region.
+If interested only in a particular rectangle or similar region then
+iterating has the disadvantage that it may stray outside the target region
+for a long time, making an iterator much less useful than it seems.  For
+wild paths it can be better to apply C<xy_to_n()> by rows or similar across
+the desired region.
 
-The L<Math::NumSeq::PlanePathCoord> and similar classes offer the PlanePath
-coordinates, directions, turns, etc as sequences.  The iterator forms there
-simply make repeated calls to C<n_to_xy()> etc.
+L<Math::NumSeq::PlanePathCoord> etc offer the PlanePath coordinates,
+directions, turns, etc as sequences.  The iterator forms there simply make
+repeated calls to C<n_to_xy()> etc.
 
 =head2 Scaling and Orientation
 
-The paths generally make a first move horizontally to the right and/or
-anti-clockwise around from the X axis, unless there's some more natural
-orientation.  Anti-clockwise is the usual direction for mathematical
-spirals.
+The paths generally make a first move to the right and go anti-clockwise
+around from the X axis, unless there's some more natural orientation.
+Anti-clockwise is the usual direction for mathematical spirals.
 
 There's no parameters for scaling, offset or reflection as those things are
 thought better left to a general coordinate transformer, for example to
-expand or invert for display.  But some easy transformations can be had just
+expand or invert for display.  Some easy transformations can be had just
 from the X,Y with
 
     -X,Y        flip horizontally (mirror image)
@@ -775,8 +794,8 @@ more N points than the preceding.
       Step        Path
       ----        ----
         0       Rows, Columns (fixed widths)
-       2/2      DiagonalsOctant (2 rows for +2)
         1       Diagonals
+       2/2      DiagonalsOctant (2 rows for +2)
         2       SacksSpiral, PyramidSides, Corner, PyramidRows (default)
         4       DiamondSpiral, AztecDiamondRings, Staircase
        4/2      CellularRule54, CellularRule57,
@@ -787,7 +806,7 @@ more N points than the preceding.
                   MultipleRings (default)
        6/2      CellularRule190 (2 rows for +6)
        6.28     ArchimedeanChords (approaching 2*pi),
-                  FilledRings (average)
+                  FilledRings (average 2*pi)
         7       HeptSpiralSkewed
         8       SquareSpiral, PyramidSpiral
       16/2      StaircaseAlternating (up and back for +16)
@@ -842,8 +861,9 @@ even squares increases by 8 each time and likewise between odd squares.
 =head2 Self-Similar Powers
 
 The self-similar patterns such as PeanoCurve generally have a base pattern
-which repeats at powers N=base^level.  Or some multiple or relationship to
-such a power for things like KochPeaks and GosperIslands.
+which repeats at powers N=base^level or squares N=(base*base)^level.  Or
+some multiple or relationship to such a power for things like KochPeaks and
+GosperIslands.
 
 =for my_pod base begin
 
@@ -866,7 +886,7 @@ such a power for things like KochPeaks and GosperIslands.
                   TerdragonCurve, TerdragonRounded, TerdragonMidpoint,
                   UlamWarburton, UlamWarburtonQuarter (each level)
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes,
-                  LTiling
+                  LTiling,
       5         QuintetCurve, QuintetCentres, QuintetReplicate,
                   CincoCurve, R5DragonCurve, R5DragonMidpoint
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
@@ -879,11 +899,11 @@ such a power for things like KochPeaks and GosperIslands.
 
 =for my_pod base end
 
-Many number sequences plotted on these paths tend to be fairly random, or
-merely show the tiling or path layout rather than much about the number
-sequence.  Sequences related to the base can make holes or patterns picking
-out parts of the path.  For example numbers without a particular digit (or
-digits) in the relevant base show up as holes.  See for example
+Many number sequences plotted on these self-similar paths tend to be fairly
+random, or merely show the tiling or path layout rather than much about the
+number sequence.  Sequences related to the base can make holes or patterns
+picking out parts of the path.  For example numbers without a particular
+digit (or digits) in the relevant base show up as holes.  See for example
 L<Math::PlanePath::ZOrderCurve/Power of 2 Values>.
 
 =head2 Triangular Lattice
@@ -891,20 +911,20 @@ L<Math::PlanePath::ZOrderCurve/Power of 2 Values>.
 Some paths are on triangular or "A2" lattice points like
 
       *---*---*---*---*---*
-     / \ / \ / \ / \ / \ / 
+     / \ / \ / \ / \ / \ /
     *---*---*---*---*---*
      \ / \ / \ / \ / \ / \
       *---*---*---*---*---*
-     / \ / \ / \ / \ / \ / 
+     / \ / \ / \ / \ / \ /
     *---*---*---*---*---*
      \ / \ / \ / \ / \ / \
       *---*---*---*---*---*
-     / \ / \ / \ / \ / \ / 
+     / \ / \ / \ / \ / \ /
     *---*---*---*---*---*
 
 This is done in integer X,Y on a square grid by using every second square
-and offsetting alternate rows.  This means sum X+Y is even, ie. X and Y
-either both even or both odd, not of opposite parity.
+and offsetting alternate rows.  This means sum X+Y even, ie. X and Y either
+both even or both odd, not of opposite parity.
 
     . * . * . * . * . * . *
     * . * . * . * . * . * .
@@ -913,8 +933,8 @@ either both even or both odd, not of opposite parity.
     . * . * . * . * . * . *
     * . * . * . * . * . * .
 
-The X axis and diagonals X=Y and X=-Y divide the plane into six equal parts
-in this grid.
+The X axis the and diagonals X=Y and X=-Y divide the plane into six equal
+parts in this grid.
 
        X=-Y     X=Y
          \     /
@@ -940,7 +960,7 @@ Integer Y values have the advantage of fitting pixels on the usual kind of
 raster computer screen, and not losing precision in floating point results.
 
 If doing a general-purpose coordinate rotation then be sure to apply the
-sqrt(3) scale factor first, otherwise the rotation will be wrong.  60 degree
+sqrt(3) scale factor before rotating, or it will be skewed.  60 degree
 rotations can be made within the integer X,Y coordinates directly as
 follows, all giving integer X,Y results.
 
@@ -965,9 +985,9 @@ radial distance.
 =head2 Triangular Calculations
 
 For a triangular lattice the rotation formulas above allow calculations to
-be done in the rectangular X,Y coordinates which are inputs and outputs of
-the PlanePath functions.  An alternative is to number vertically on a 60
-degree angle with coordinates i,j,
+be done in the rectangular X,Y coordinates, those being the inputs and
+outputs of the PlanePath functions.  Another way is to number vertically on
+a 60 degree angle with coordinates i,j,
 
           ...
           *   *   *      2
@@ -975,8 +995,8 @@ degree angle with coordinates i,j,
       *   *   *      j=0
     i=0  1   2
 
-Such coordinates are sometimes used for hexagonal grids in board games etc,
-and using this internally can simplify rotations a little,
+Such coordinates are sometimes used for hexagonal grids in board games etc.
+Using this internally can simplify rotations a little,
 
     -j, i+j         rotate +60   (anti-clockwise)
     i+j, -i         rotate -60   (clockwise)
@@ -1162,7 +1182,7 @@ L<Math::Fractal::Curve>,
 L<Math::Curve::Hilbert>,
 L<Algorithm::SpatialIndex::Strategy::QuadTree>
 
-PerlMagick (L<Image::Magick>) demo scripts F<lsys.pl> and F<tree.pl>
+PerlMagick (module L<Image::Magick>) demo scripts F<lsys.pl> and F<tree.pl>
 
 =head1 HOME PAGE
 

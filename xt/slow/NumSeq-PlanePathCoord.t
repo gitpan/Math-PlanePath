@@ -376,6 +376,23 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'WunderlichSerpentine,radix=2',
+               'WunderlichSerpentine',
+               'WunderlichSerpentine,serpentine_type=100_000_000',
+               'WunderlichSerpentine,serpentine_type=000_000_001',
+               'WunderlichSerpentine,radix=4',
+               'WunderlichSerpentine,radix=5,serpentine_type=coil',
+
+               'SierpinskiArrowhead',
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+
+               'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+
                'DigitGroups',
                'DigitGroups,radix=3',
                'DigitGroups,radix=4',
@@ -513,13 +530,6 @@ my @modules = (
                'PeanoCurve,radix=4',
                'PeanoCurve,radix=5',
                'PeanoCurve,radix=17',
-
-               'WunderlichSerpentine',
-               'WunderlichSerpentine,serpentine_type=100_000_000',
-               'WunderlichSerpentine,serpentine_type=000_000_001',
-               'WunderlichSerpentine,radix=2',
-               'WunderlichSerpentine,radix=4',
-               'WunderlichSerpentine,radix=5,serpentine_type=coil',
 
                'KnightSpiral',
                'Rows',
@@ -807,9 +817,6 @@ my @modules = (
                'FlowsnakeCentres,arms=3',
 
                'SquareReplicate',
-
-               'SierpinskiArrowhead',
-               'SierpinskiArrowheadCentres',
 
                'DragonRounded',
                'DragonRounded,arms=2',

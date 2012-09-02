@@ -43,7 +43,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -215,25 +215,20 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  {
-    my $int = int($n);
-    if ($n != $int) {
-      my $frac = $n - $int;
-      $n = $int; # BigFloat int() gives BigInt, use that
-      my ($x1, $y1) = $self->n_to_xy($n);
-      my ($x2, $y2) = $self->n_to_xy($n+1);
-      return ($x2*$frac + $x1*(1-$frac),
-              $y2*$frac + $y1*(1-$frac));
-    }
-  }
+  my $int = int($n);
+  $n -= $int;  # fraction part
 
   my $n_to_x = $self->{'n_to_x'};
   my $n_to_y = $self->{'n_to_y'};
 
-  while ($n > $#$n_to_x) {
+  while ($int >= $#$n_to_x) {
     _extend($self);
   }
-  return ($n_to_x->[$n], $n_to_y->[$n]);
+
+  my $x = $n_to_x->[$int];
+  my $y = $n_to_y->[$int];
+  return ($x + $n * ($n_to_x->[$int+1] - $x),
+          $y + $n * ($n_to_y->[$int+1] - $y));
 }
 
 sub xy_to_n {

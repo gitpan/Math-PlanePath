@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 385)[1];
+my $test_count = (tests => 397)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -409,7 +409,15 @@ my @modules = (
                'KnightSpiral',
 
                'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+
                'SierpinskiArrowhead',
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+
                # 'SierpinskiTriangle',  # not really defined yet
                'QuadricCurve',
                'QuadricIslands',

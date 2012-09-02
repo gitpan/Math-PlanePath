@@ -42,6 +42,7 @@ use lib 'xt';
 
 
 
+
 {
   # rect range exact
 
@@ -1369,10 +1370,7 @@ use lib 'xt';
 
   sub path_n_dir {
     my ($path, $n) = @_;
-    my ($x,$y) = $path->n_to_xy($n);
-    my ($next_x,$next_y) = $path->n_to_xy($n+1);
-    return dxdy_to_dir ($next_x - $x,
-                        $next_y - $y);
+    return dxdy_to_dir ($path->n_to_xy($n+1));
   }
 
   # return 1 for left, -1 for right

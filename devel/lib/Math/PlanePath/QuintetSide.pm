@@ -34,7 +34,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
 
@@ -265,10 +265,10 @@ This path is ...
 It slowly spirals around counter clockwise, with a lot of wiggling in
 between.  The N=3^level point is at
 
-   N = 3^level
-   angle = level * atan(1/2)
-         = level * 26.56 degrees
-   radius = sqrt(5) ^ level
+    N = 3^level
+    angle = level * atan(1/2)
+          = level * 26.56 degrees
+    radius = sqrt(5) ^ level
 
 A full revolution for example takes roughly level=14 which is about
 N=4,780,000.

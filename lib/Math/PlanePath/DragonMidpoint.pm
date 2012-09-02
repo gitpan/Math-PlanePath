@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -189,7 +189,7 @@ sub n_to_xy {
 
     if ($rev) {
       if ($digit) {
-        $x += -$sy;
+        $x -= $sy;
         $y += $sx;
         ### rev add to: "$x,$y next is still rev"
       } else {
@@ -447,8 +447,8 @@ Math::PlanePath::DragonMidpoint -- dragon curve midpoints
 
 =head1 DESCRIPTION
 
-This is the midpoints of each segment of the dragon or paper folding curve
-by Heighway, Harter, et al, per L<Math::PlanePath::DragonCurve>.
+This is the midpoint of each segment of the dragon paper folding curve by
+Heighway, Harter, et al, per L<Math::PlanePath::DragonCurve>.
 
 
                     17--16           9---8                5
@@ -485,7 +485,8 @@ by Heighway, Harter, et al, per L<Math::PlanePath::DragonCurve>.
      ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
     -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1
 
-The dragon curve begins as follows and the midpoints are numbered from 0,
+The dragon curve begins as follows and the midpoints of each segment are
+numbered from 0,
 
                +--8--+     +--4--+
                |     |     |     |
@@ -500,15 +501,15 @@ The dragon curve begins as follows and the midpoints are numbered from 0,
               ...
 
 These midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  For this
-DragonMidpoint they're turned clockwise 45 degrees and shrunk by sqrt(2) to
-be integer X,Y values 1 apart.
+DragonMidpoint path they're turned clockwise 45 degrees and shrunk by
+sqrt(2) to be integer X,Y values 1 apart and initial direction to the right.
 
 The midpoints are distinct X,Y positions because the dragon curve traverses
 each edge only once.
 
 The dragon curve is self-similar in 2^level sections due to its unfolding.
-This can be seen in the midpoints as for example the above N=0 to N=16 is
-the same shape as N=16 to N=32, the latter half rotated 90 degrees and in
+This can be seen in the midpoints too as for example above N=0 to N=16 is
+the same shape as N=16 to N=32, the latter rotated 90 degrees and in
 reverse.
 
 =head2 Arms
@@ -684,10 +685,10 @@ here, ie. n=N+2.  The A073089 initial value at n=1 has no corresponding N
 The mod-16 definitions in A073089 express combinations of N odd/even and
 bit-above-low-0 which are the vertical midpoint segments.  The recursion
 a(8n+1)=a(4n+1) works to reduce an N=0b.zz111 to 0b..zz11 in order to bring
-the bit above the lowest 0 into range of the mod-16 conditions.  n=1 mod 8
-corresponds to N=7 mod 8.  In terms of N it could be expressed as stripping
-low 1 bits down to at most 2 of them.  In terms of n it's a strip of zeros
-above a low 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
+a the lowest 0 into range of the mod-16 conditions.  n=1 mod 8 corresponds
+to N=7 mod 8.  In terms of N it could be expressed as stripping low 1 bits
+down to at most 2 of them.  In terms of n it's a strip of zeros above a low
+1 bit, ie. n=0b...00001 -E<gt> 0b...01.
 
 =head1 SEE ALSO
 

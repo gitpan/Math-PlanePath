@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -31,7 +31,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+#use Smart::Comments;
 
 
 sub _odd {
@@ -79,21 +79,21 @@ sub n_to_xy {
   # one
   #
   if ($n < $p1) {
-    #### right upwards, eg 2
+    #### right upwards, eg 2 ...
     return (- _odd($n) + $outer,
             2*$n - $inner);
   }
   $n -= $p1;
 
   if ($n < $p1) {
-    #### top leftwards, eg 3
+    #### top leftwards, eg 3 ...
     return (-2*$n + $inner,
             _odd($n) + $inner);
   }
   $n -= $p1;
 
   if ($n < $p) {
-    #### left downwards
+    #### left downwards ...
     return ( - _odd($n) - $inner,
              -2*$n + $outer);
   }
@@ -108,10 +108,10 @@ sub n_to_xy {
 
 
 
-  # two
+  ### two ...
   #
   if ($n < $p1) {
-    # right upwards
+    ### right upwards ...
     return (_odd($n) + $inner,
             2*$n - $inner);
   }
@@ -173,9 +173,14 @@ sub n_to_xy {
 
   ### four ...
   #
+  if ($n <= 1) {
+    ### special 17 upwards ...
+    return ($n + $outer - 2,
+            2*$n - $outer);
+  }
   if ($n < $p) {
-    ### right upwards, eg 17 special cross ...
-    return (- _odd($n) + $outer - 2*($n == 0),
+    ### right upwards ...
+    return (- _odd($n) + $outer,
             2*$n - $outer);
   }
   $n -= $p;

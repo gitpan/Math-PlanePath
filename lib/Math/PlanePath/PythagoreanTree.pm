@@ -64,7 +64,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -390,6 +390,10 @@ sub tree_n_children {
   } else {
     return;
   }
+}
+sub tree_n_num_children {
+  my ($self, $n) = @_;
+  return ($n >= 1 ? 3 : 0);
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
@@ -757,7 +761,13 @@ Return the three children of C<$n>, or an empty list if C<$n E<lt> 1>
 (ie. before the start of the path).
 
 This is simply C<3*$n-1, 3*$n, 3*$n+1>.  This is like appending an extra
-ternary digit, but onto N+1 rather than N (and adjusting back).
+ternary digit to go to the next level, but onto N+1 rather than N and then
+adjusting back.
+
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return 3, since every node has three children, or return 0 if C<$nE<lt>1>
+(ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

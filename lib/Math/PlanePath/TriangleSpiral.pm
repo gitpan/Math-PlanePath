@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -158,7 +158,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal 11-gonal (s+2)-gonal OEIS
+=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal 11-gonal (s+2)-gonal OEIS hendecagonals
 
 =head1 NAME
 

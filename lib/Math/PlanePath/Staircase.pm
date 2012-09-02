@@ -16,12 +16,14 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# math-image --path=Staircase --all --output=numbers_dash --size=70x30
+
 package Math::PlanePath::Staircase;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -287,10 +289,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=Staircase --lines --scale=20"
-# End:
-#
-# math-image --path=Staircase --all --output=numbers_dash --size=70x30

@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 398)[1];
+my $test_count = (tests => 422)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -398,6 +398,15 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'QuintetCurve',
+               'QuintetCurve,arms=2',
+               'QuintetCurve,arms=3',
+               'QuintetCurve,arms=4',
+               'QuintetCentres',
+               'QuintetCentres,arms=2',
+               'QuintetCentres,arms=3',
+               'QuintetCentres,arms=4',
+
                'PyramidRows',
                'PyramidRows,step=0',
                'PyramidRows,step=1',
@@ -565,8 +574,16 @@ my @modules = (
                'KnightSpiral',
                
                'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+
                'SierpinskiArrowhead',
-               # 'SierpinskiTriangle',  # not really defined yet
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+
+               # 'SierpinskiTriangle',  # fracs not really defined yet
                'QuadricCurve',
                'QuadricIslands',
                
@@ -610,8 +627,6 @@ my @modules = (
                # 'FilledRings',      # searching by N
                # 'MultipleRings',    # sin/cos, maybe
                
-               'QuintetCentres',
-               'QuintetCurve',
                'QuintetReplicate',
                
                'SquareReplicate',
@@ -667,8 +682,8 @@ foreach my $module (@modules) {
   my ($x_frac,$y_frac) = $path->n_to_xy($n_frac);
   ### xy frac: "$x_frac, $y_frac"
 
-  ok ("$x_frac", "$want_x", "$module arms=$arms X frac");
-  ok ("$y_frac", "$want_y", "$module arms=$arms Y frac");
+  ok ("$x_frac", "$want_x", "$module arms=$arms X frac=$frac dxdy=$dx,$dy arms=$arms");
+  ok ("$y_frac", "$want_y", "$module arms=$arms Y frac=$frac dxdy=$dx,$dy arms=$arms");
 }
 
 exit 0;

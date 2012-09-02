@@ -35,7 +35,7 @@ use File::Temp;
 use Image::Base::GD;
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
 my $tempfh = File::Temp->new (SUFFIX => '.png');
@@ -45,6 +45,80 @@ my %seen_filename;
 
 foreach my $elem
   (
+   # ['hilbert-midpoint-small.png',
+   #  'math-image --path=HilbertMidpoint --lines --scale=2 --size=32'],
+   # ['hilbert-midpoint-big.png',
+   #  'math-image --path=HilbertMidpoint --lines --scale=3 --size=190'],
+
+   ['hilbert-small.png',
+    'math-image --path=HilbertCurve --lines --scale=3 --size=32'],
+   ['hilbert-big.png',
+    'math-image --path=HilbertCurve --lines --scale=7 --size=225'],
+
+   ['hilbert-spiral-small.png',
+    'math-image --path=HilbertSpiral --lines --scale=3 --size=32'],
+   ['hilbert-spiral-big.png',
+    'math-image --path=HilbertSpiral --lines --scale=7 --size=230'],
+
+   ['sierpinski-arrowhead-small.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=2 --size=32 --offset=0,1'],
+   ['sierpinski-arrowhead-big.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200'],
+   ['sierpinski-arrowhead-right-big.png',
+    'math-image --path=SierpinskiArrowhead,align=right --lines --scale=4 --size=200x200 --offset=-98,0'],
+   ['sierpinski-arrowhead-left-big.png',
+    'math-image --path=SierpinskiArrowhead,align=left --lines --scale=4 --size=200x200 --offset=98,0'],
+   ['sierpinski-arrowhead-diagonal-big.png',
+    'math-image --path=SierpinskiArrowhead,align=diagonal --lines --scale=5 --size=200x200 --offset=-98,2 --figure=point'],
+
+
+   ['power-array-small.png',
+    'math-image --path=PowerArray --lines --scale=8 --size=32'],
+   ['power-array-big.png',
+    'math-image --path=PowerArray --lines --scale=16 --size=200'],
+   ['power-array-radix5-big.png',
+    'math-image --path=PowerArray,radix=5 --lines --scale=16 --size=200'],
+
+   ['wythoff-array-small.png',
+    'math-image --path=WythoffArray --lines --scale=8 --size=32'],
+   ['wythoff-array-big.png',
+    'math-image --path=WythoffArray --lines --scale=16 --size=200'],
+
+
+   ['complexminus-small.png',
+    "math-image --path=ComplexMinus --expression='i<32?i:0' --scale=2 --size=32"],
+   ['complexminus-big.png',
+    "math-image --path=ComplexMinus --expression='i<1024?i:0' --scale=3 --size=200"],
+   ['complexminus-r2-small.png',
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<125?i:0' --scale=2 --size=32"],
+   ['complexminus-r2-big.png',
+    "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
+
+
+   ['sierpinski-arrowhead-centres-small.png',
+    'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32 --offset=0,1'],
+   ['sierpinski-arrowhead-centres-big.png',
+    'math-image --path=SierpinskiArrowheadCentres --lines --scale=3 --size=400x200'],
+   ['sierpinski-arrowhead-centres-right-big.png',
+    'math-image --path=SierpinskiArrowheadCentres,align=right --lines --scale=4 --size=200x200 --offset=-98,0'],
+   ['sierpinski-arrowhead-centres-left-big.png',
+    'math-image --path=SierpinskiArrowheadCentres,align=left --lines --scale=4 --size=200x200 --offset=98,0'],
+   ['sierpinski-arrowhead-centres-diagonal-big.png',
+    'math-image --path=SierpinskiArrowheadCentres,align=diagonal --lines --scale=5 --size=200x200 --offset=-98,2 --figure=point'],
+
+
+   ['sierpinski-triangle-small.png',
+    'math-image --path=SierpinskiTriangle --all --scale=2 --size=32 --offset=0,1'],
+   ['sierpinski-triangle-big.png',
+    'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200'],
+   ['sierpinski-triangle-right-big.png',
+    'math-image --path=SierpinskiTriangle,align=right --all --scale=3 --size=200x200 --offset=-98,0'],
+   ['sierpinski-triangle-left-big.png',
+    'math-image --path=SierpinskiTriangle,align=left --all --scale=3 --size=200x200 --offset=98,0'],
+   ['sierpinski-triangle-diagonal-big.png',
+    'math-image --path=SierpinskiTriangle,align=diagonal --values=LinesTree --scale=4 --size=200x200 --offset=-98,2'],
+
+
    ['pyramid-rows-small.png',
     'math-image --path=PyramidRows --lines --scale=5 --size=32'],
    ['pyramid-rows-big.png',
@@ -58,18 +132,6 @@ foreach my $elem
     'math-image --path=PyramidSides --lines --scale=5 --size=32'],
    ['pyramid-sides-big.png',
     'math-image --path=PyramidSides --lines --scale=15 --size=300x150'],
-
-
-   ['sierpinski-triangle-small.png',
-    'math-image --path=SierpinskiTriangle --all --scale=2 --size=32 --offset=0,1'],
-   ['sierpinski-triangle-big.png',
-    'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200'],
-   ['sierpinski-triangle-right-big.png',
-    'math-image --path=SierpinskiTriangle,align=right --all --scale=3 --size=200x200 --offset=-98,0'],
-   ['sierpinski-triangle-left-big.png',
-    'math-image --path=SierpinskiTriangle,align=left --all --scale=3 --size=200x200 --offset=98,0'],
-   ['sierpinski-triangle-diagonal-big.png',
-    'math-image --path=SierpinskiTriangle,align=diagonal --values=LinesTree --scale=4 --size=200x200 --offset=-98,2'],
 
 
    ['triangular-hypot-small.png',
@@ -133,18 +195,6 @@ foreach my $elem
    ['rationals-tree-lines-bird.png',
     'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
 
-
-   ['power-array-small.png',
-    'math-image --path=PowerArray --lines --scale=8 --size=32'],
-   ['power-array-big.png',
-    'math-image --path=PowerArray --lines --scale=16 --size=200'],
-   ['power-array-radix5-big.png',
-    'math-image --path=PowerArray,radix=5 --lines --scale=16 --size=200'],
-
-   ['wythoff-array-small.png',
-    'math-image --path=WythoffArray --lines --scale=8 --size=32'],
-   ['wythoff-array-big.png',
-    'math-image --path=WythoffArray --lines --scale=16 --size=200'],
 
    ['gcd-rationals-small.png',
     'math-image --path=GcdRationals --lines --scale=6 --size=32 --offset=-4,-4'],
@@ -374,16 +424,6 @@ foreach my $elem
     border => 1],
 
 
-   ['complexminus-small.png',
-    "math-image --path=ComplexMinus --expression='i<32?i:0' --scale=2 --size=32"],
-   ['complexminus-big.png',
-    "math-image --path=ComplexMinus --expression='i<1024?i:0' --scale=3 --size=200"],
-   ['complexminus-r2-small.png',
-    "math-image --path=ComplexMinus,realpart=2 --expression='i<125?i:0' --scale=2 --size=32"],
-   ['complexminus-r2-big.png',
-    "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
-
-
    ['digit-groups-small.png',
     "math-image --path=DigitGroups --expression='i<256?i:0' --scale=2 --size=32"],
    #  --foreground=red
@@ -519,21 +559,6 @@ foreach my $elem
     'math-image --path=CoprimeColumns --all --scale=3 --size=200'],
 
 
-   # ['hilbert-midpoint-small.png',
-   #  'math-image --path=HilbertMidpoint --lines --scale=2 --size=32'],
-   # ['hilbert-midpoint-big.png',
-   #  'math-image --path=HilbertMidpoint --lines --scale=3 --size=190'],
-
-   ['hilbert-small.png',
-    'math-image --path=HilbertCurve --lines --scale=3 --size=32'],
-   ['hilbert-big.png',
-    'math-image --path=HilbertCurve --lines --scale=7 --size=225'],
-
-   ['hilbert-spiral-small.png',
-    'math-image --path=HilbertSpiral --lines --scale=3 --size=32'],
-   ['hilbert-spiral-big.png',
-    'math-image --path=HilbertSpiral --lines --scale=7 --size=230'],
-
    ['corner-small.png',
     'math-image --path=Corner --lines --scale=4 --size=32'],
    ['corner-big.png',
@@ -596,17 +621,6 @@ foreach my $elem
     'math-image --path=HIndexing --scale=3 --size=32 --lines --offset=2,2'],
    ['h-indexing-big.png',
     'math-image --path=HIndexing --lines --scale=3 --size=200 --offset=2,2'],
-
-   ['sierpinski-arrowhead-centres-small.png',
-    'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32 --offset=0,1'],
-   ['sierpinski-arrowhead-centres-big.png',
-    'math-image --path=SierpinskiArrowheadCentres --lines --scale=3 --size=400x200'],
-
-   ['sierpinski-arrowhead-small.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=2 --size=32 --offset=0,1'],
-   ['sierpinski-arrowhead-big.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200'],
-
 
    ['ulam-warburton-quarter-small.png',
     "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],

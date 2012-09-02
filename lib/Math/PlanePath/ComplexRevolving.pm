@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,7 +35,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'bit_split_lowtohigh';
+  'bit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -102,24 +103,24 @@ sub xy_to_n {
   $y = round_nearest ($y);
   if (is_infinite($y)) { return ($y); }
 
-  my $n = $x * 0 * $y;  # inherit bignum 0
-  my $power = $n+1;     # inherit bignum 1
+  my $zero = $x * 0 * $y;  # inherit bignum 0
 
+  my @n;
   while ($x || $y) {
     ### at: "$x,$y  power=$power  n=$n"
 
     # (a+bi)*(i+1) = (a-b)+(a+b)i
     #
     if (($x % 2) == ($y % 2)) {  # x+y even
+      push @n, 0;
     } else {
       ### not multiple of 1+i, take e0=0 for b^e0=1
-      $n += $power;
-      ### $n
-
       # [(x+iy)-1]/i
       #   = [(x-1)+yi]/i
       #   = y + (x-1)/i
       #   = y + (1-x)*i    # rotate -90
+
+      push @n, 1;
       ($x,$y) = ($y, 1-$x);
 
       ### sub and div to: "$x,$y"
@@ -131,11 +132,11 @@ sub xy_to_n {
     #  x = (-x - y)/-2  = (x + y)/2
     #  y = (-y + x)/-2  = (y - x)/2
     #
+    ### assert: (($x+$y)%2)==0
     ($x,$y) = (($x+$y)/2, ($y-$x)/2);
-    $power *= 2;
   }
 
-  return $n;
+  return digit_join_lowtohigh(\@n,2,$zero);
 }
 
 # not exact
@@ -194,8 +195,8 @@ and are applied to a base b=i+1 as
 
 Each 2^ek has become b^ek base b=i+1.  The i^k is an extra factor i at each
 1 bit of N, causing a rotation by +90 degrees for the bits above it.  Notice
-the factor is i^k not i^ek, ie. it increments only with the 1 bits of N,
-it's not the whole exponent.
+the factor is i^k not i^ek, ie. it increments only with the 1-bits of N, not
+the whole exponent.
 
 A single bit N=2^k is the simplest and is X+iY=(i+1)^k.  These
 N=1,2,4,8,16,etc are at successive angles 45, 90, 135, etc degrees (the same

@@ -17,6 +17,15 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 87, August 2012
+    - new tree_n_num_children()
+    - PlanePathCoord new coordinate_type NumChildren
+    - SierpinskiArrowhead,SierpinskiArrowheadCentres new parameter
+      align=right,left,diagonal
+    - Rows,Columns new "n_start" parameter
+    - KnightSpiral,PentSpiral,SierpinskiCurve fixes for n_to_xy() on
+      some fractional N
+
 Version 86, August 2012
     - Diagonals,DiagonalsOctant,DiagonalsAlternating,PyramidRows,PyramidSides,
       Corner new "n_start" parameter
@@ -30,7 +39,7 @@ Version 84, August 2012
 
 Version 83, July 2012
     - new n_to_dxdy()
-    - SierpinskiTriangle new "align" parameter
+    - SierpinskiTriangle new parameter align=right,left,diagonal
     - SierpinskiTriangle,TriangleSpiral,TriangleSpiralSkewed,Hypot new
       "n_start" parameter
     - PlanePathDelta new delta_type=>"dDiffYX"
@@ -86,7 +95,7 @@ Version 74, May 2012
 Version 73, April 2012
     - new GrayCode, SierpinskiCurveStair, WunderlichSerpentine
     - fix GcdRationals xy_to_n() on BigInt
-    - PlanePathCoord new coord_type SumAbs,TRadius,TRSquared
+    - PlanePathCoord new coordinate_type SumAbs,TRadius,TRSquared
 
 Version 72, March 2012
     - PlanePathTurn new turn_type "Right"

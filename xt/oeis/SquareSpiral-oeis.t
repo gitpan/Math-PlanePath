@@ -822,7 +822,7 @@ sub dxdy_to_dir4_1 {
 }
 
 #------------------------------------------------------------------------------
-# A054569 -- N values on negative X=Y diagonal
+# A054569 -- N values on negative X=Y diagonal, but OFFSET=1
 {
   my $anum = 'A054569';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
@@ -831,8 +831,6 @@ sub dxdy_to_dir4_1 {
     for (my $i = 0; @got < @$bvalues; $i++) {
       push @got, $path->xy_to_n(-$i,-$i);
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),

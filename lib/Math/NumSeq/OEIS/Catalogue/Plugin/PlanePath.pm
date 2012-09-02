@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 117 A-numbers in 4 modules
+# total 119 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -539,6 +539,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A061347',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'Rows,width=3',
+      'delta_type',
+      'dX'
+    ]
+  },
+  {
     'anum' => 'A117625',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -640,6 +650,16 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'HypotOctant,points=even',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A014480',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PowerArray',
       'line_type',
       'Diagonal'
     ]
@@ -778,14 +798,6 @@ use constant info_arrayref =>
       'HilbertCurve',
       'line_type',
       'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A000695',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'ZOrderCurve'
     ]
   },
   {
@@ -1153,6 +1165,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A035263',
+    'class' => 'Math::NumSeq::PlanePathTurn',
+    'parameters' => [
+      'planepath',
+      'KochCurve',
+      'turn_type',
+      'Left'
+    ]
+  },
+  {
     'anum' => 'A034947',
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
@@ -1173,11 +1195,11 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A035263',
+    'anum' => 'A129184',
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'KochCurve',
+      'Diagonals,n_start=0',
       'turn_type',
       'Left'
     ]

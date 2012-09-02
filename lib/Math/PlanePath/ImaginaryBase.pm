@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -347,7 +347,7 @@ sub _negaradix_range_level {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal NX negaradix Nmin Nmax
 
 =head1 NAME
 

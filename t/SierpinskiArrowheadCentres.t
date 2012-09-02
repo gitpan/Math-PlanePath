@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 193;
+plan tests => 328;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiArrowheadCentres;
 # VERSION
 
 {
-  my $want_version = 86;
+  my $want_version = 87;
   ok ($Math::PlanePath::SierpinskiArrowheadCentres::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiArrowheadCentres->VERSION,  $want_version,
@@ -75,49 +75,93 @@ require Math::PlanePath::SierpinskiArrowheadCentres;
 # first few points
 
 {
-  my @data = ([ 0,  0,0 ],
-              [ 1,  1,1 ],
-              [ 2,  -1,1 ],
-              [ 3,  -2,2 ],
-              [ 4,  -3,3 ],
-              [ 5,  -1,3 ],
-              [ 6,  1,3 ],
-              [ 7,  2,2 ],
-              [ 8,  3,3 ],
+  my @table = ([ [ ], # default triangular
+                 [ 0,  0,0 ],
+                 [ 1,  1,1 ],
+                 [ 2,  -1,1 ],
+                 [ 3,  -2,2 ],
+                 [ 4,  -3,3 ],
+                 [ 5,  -1,3 ],
+                 [ 6,  1,3 ],
+                 [ 7,  2,2 ],
+                 [ 8,  3,3 ],
 
-              [ .25,   .25, .25 ],
-              [ 1.25,   0.5, 1 ],
-              [ 2.25,   -1.25, 1.25 ],
-              [ 3.25,   -2.25, 2.25 ],
-              [ 4.25,   -2.5, 3 ],
-              [ 5.25,   -.5, 3 ],
-              [ 6.25,   1.25, 2.75 ],
-              [ 7.25,   2.25, 2.25 ],
-              [ 8.25,   3.25, 3.25 ],
-             );
-  my $path = Math::PlanePath::SierpinskiArrowheadCentres->new;
-  foreach my $elem (@data) {
-    my ($n, $want_x, $want_y) = @$elem;
-    my ($got_x, $got_y) = $path->n_to_xy ($n);
-    if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
-    if ($got_y == 0) { $got_y = 0 }
-    ok ($got_x, $want_x, "n_to_xy() x at n=$n");
-    ok ($got_y, $want_y, "n_to_xy() y at n=$n");
-  }
+                 [ .25,   .25, .25 ],
+                 [ 1.25,   0.5, 1 ],
+                 [ 2.25,   -1.25, 1.25 ],
+                 [ 3.25,   -2.25, 2.25 ],
+                 [ 4.25,   -2.5, 3 ],
+                 [ 5.25,   -.5, 3 ],
+                 [ 6.25,   1.25, 2.75 ],
+                 [ 7.25,   2.25, 2.25 ],
+                 [ 8.25,   3.25, 3.25 ],
+               ],
 
-  foreach my $elem (@data) {
-    my ($want_n, $x, $y) = @$elem;
-    next unless $want_n==int($want_n);
-    my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
-  }
+               [ [ align => 'diagonal' ],
+                 [ 0,  0,0 ],
+                 [ 1,  1,0 ],
+                 [ 2,  0,1 ],
+                 [ 3,  0,2 ],
+                 [ 4,  0,3 ],
+                 [ 5,  1,2 ],
+                 [ 6,  2,1 ],
+                 [ 7,  2,0 ],
+                 [ 8,  3,0 ],
+               ],
 
-  foreach my $elem (@data) {
-    my ($n, $x, $y) = @$elem;
-    my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
-    next unless $n==int($n);
-    ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
-    ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+               [ [ align => 'left' ],
+                 [ 0,  0,0 ],
+                 [ 1,  0,1 ],
+                 [ 2,  -1,1 ],
+                 [ 3,  -2,2 ],
+                 [ 4,  -3,3 ],
+                 [ 5,  -2,3 ],
+                 [ 6,  -1,3 ],
+                 [ 7,  0,2 ],
+                 [ 8,  0,3 ],
+               ],
+
+               [ [ align => 'right' ],
+                 [ 0,  0,0 ],
+                 [ 1,  1,1 ],
+                 [ 2,  0,1 ],
+                 [ 3,  0,2 ],
+                 [ 4,  0,3 ],
+                 [ 5,  1,3 ],
+                 [ 6,  2,3 ],
+                 [ 7,  2,2 ],
+                 [ 8,  3,3 ],
+               ],
+              );
+  foreach my $t (@table) {
+    my ($options, @data) = @$t;
+    my $path = Math::PlanePath::SierpinskiArrowheadCentres->new (@$options);
+
+    foreach my $elem (@data) {
+      my ($n, $want_x, $want_y) = @$elem;
+      my ($got_x, $got_y) = $path->n_to_xy ($n);
+      if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
+      if ($got_y == 0) { $got_y = 0 }
+      ok ($got_x, $want_x, "n_to_xy() x at n=$n  @$options");
+      ok ($got_y, $want_y, "n_to_xy() y at n=$n  @$options");
+    }
+
+    foreach my $elem (@data) {
+      my ($want_n, $x, $y) = @$elem;
+      next unless $want_n==int($want_n);
+      my $got_n = $path->xy_to_n ($x, $y);
+      ok ($got_n, $want_n, "n at x=$x,y=$y");
+    }
+
+    foreach my $elem (@data) {
+      my ($n, $x, $y) = @$elem;
+      my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
+      next unless $n==int($n);
+      ok ($got_nlo <= $n, 1,
+          "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
+      ok ($got_nhi >= $n, 1,
+          "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
+    }
   }
 }
 

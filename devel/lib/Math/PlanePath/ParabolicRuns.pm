@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -109,102 +109,5 @@ sub rect_to_n_range {
           2*($x2+1)*($y2+1)**2);
 }
 
-# ENHANCE-ME: calculate by the bits of n, not by X,Y
-sub tree_n_children {
-  my ($self, $n) = @_;
-
-  my ($x,$y) = $self->n_to_xy($n)
-    or return undef;
-  my ($n1,$n2);
-  if (($x + $y) % 2) {
-    # vertical to children
-    $n1 = $self->xy_to_n($x,$y-1);
-    $n2 = $self->xy_to_n($x,$y+1);
-  } else  {
-    # horizontal to children
-    $n1 = $self->xy_to_n($x-1,$y);
-    $n2 = $self->xy_to_n($x+1,$y);
-  }
-  return ((defined $n1 && $n1 > $n ? $n1 : ()),
-          (defined $n2 && $n2 > $n ? $n2 : ()));
-}
-sub tree_n_parent {
-  my ($self, $n) = @_;
-  if ($n == 1) {
-    return undef;
-  }
-  my ($x,$y) = $self->n_to_xy($n)
-    or return undef;
-  if (($x + $y) % 2) {
-    # horizontal to parent
-    return min ($self->xy_to_n($x-1,$y) || $n,
-                $self->xy_to_n($x+1,$y) || $n);
-  } else {
-    # vertical to parent
-    return min ($self->xy_to_n($x,$y-1) || $n,
-                $self->xy_to_n($x,$y+1) || $n);
-  }
-}
-
 1;
 __END__
-
-=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart Nend
-
-=head1 NAME
-
-Math::PlanePath::ParabolicRuns -- growth of a 2-D cellular automaton
-
-=head1 SYNOPSIS
-
- use Math::PlanePath::ParabolicRuns;
- my $path = Math::PlanePath::ParabolicRuns->new;
- my ($x, $y) = $path->n_to_xy (123);
-
-=head1 DESCRIPTION
-
-I<In progress ...>
-
-This is the "toothpick" pattern ...
-
-=head1 FUNCTIONS
-
-See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
-
-=over 4
-
-=item C<$path = Math::PlanePath::ParabolicRuns-E<gt>new ()>
-
-Create and return a new path object.
-
-=back
-
-=head1 SEE ALSO
-
-L<Math::PlanePath>,
-L<Math::PlanePath::UlamWarburtonQuarter>
-
-=head1 HOME PAGE
-
-http://user42.tuxfamily.org/math-planepath/index.html
-
-=head1 LICENSE
-
-Copyright 2012 Kevin Ryde
-
-This file is part of Math-PlanePath.
-
-Math-PlanePath is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the Free
-Software Foundation; either version 3, or (at your option) any later
-version.
-
-Math-PlanePath is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-more details.
-
-You should have received a copy of the GNU General Public License along with
-Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
-
-=cut

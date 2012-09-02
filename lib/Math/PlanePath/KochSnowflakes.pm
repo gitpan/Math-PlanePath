@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -238,7 +238,6 @@ sub xy_to_n_list {
 #                   =     2/3 * 3^level
 #                  1.5*y = 3^level
 #
-# ENHANCE-ME: use round_down_pow() to be bigint friendly
 # ENHANCE-ME: share KochCurve segment checker to find actual min/max
 #
 # not exact

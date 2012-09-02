@@ -23,7 +23,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -47,7 +47,7 @@ use constant::defer parameter_info_array =>
   sub {
     return [
             Math::NumSeq::PlanePathCoord::_parameter_info_planepath(),
-            
+
             { name    => 'line_type',
               display => 'Line Type',
               type    => 'enum',
@@ -93,7 +93,7 @@ my %oeis_anum =
      # OEIS-Other: A062728 planepath=TriangleSpiralSkewed,n_start=0 line_type=Diagonal_SE
      # OEIS-Catalogue: A081266 planepath=TriangleSpiralSkewed,n_start=0 line_type=Diagonal_SW
    },
-   
+
    'Math::PlanePath::TriangleSpiral' =>
    { X_axis      => 'A117625', # step by 2 each time
      Y_neg       => 'A006137', # step by 2 each time
@@ -102,7 +102,7 @@ my %oeis_anum =
      # OEIS-Other: A117625 planepath=TriangleSpiral line_type=X_axis
      # OEIS-Other: A064225 planepath=TriangleSpiral line_type=Diagonal_SW
      # OEIS-Other: A081267 planepath=TriangleSpiral line_type=Diagonal_SE
-     
+
      # # Not quite, starts value=3 at n=0 which is Y=1
      # Diagonal => 'A064226', # and duplicate in A081269
    },
@@ -111,34 +111,38 @@ my %oeis_anum =
      Diagonal_SE => 'A062728', # 11-gonal "second" per Math::NumSeq::Polygonal
      # OEIS-Catalogue: A062741 planepath=TriangleSpiral,n_start=0 line_type=Y_axis
      # OEIS-Other: A062728 planepath=TriangleSpiral,n_start=0 line_type=Diagonal_SE
-     
+
      # but spaced 2 apart ...
      # X_axis      => 'A051682', # 11-gonals per Math::NumSeq::Polygonal
      # # OEIS-Other: A051682 planepath=TriangleSpiral,n_start=0 # X_axis
    },
-   
+
    'Math::PlanePath::Hypot,points=all,n_start=0' =>
    { X_axis => 'A051132', # count points < n^2
      # OEIS-Catalogue: A051132 planepath=Hypot,n_start=0
    },
-   
+
    'Math::PlanePath::HypotOctant,points=even' =>
    { Diagonal => 'A036702',  # count points |z|<=n for 0<=b<=a
      # OEIS-Catalogue: A036702 planepath=HypotOctant,points=even line_type=Diagonal
    },
-   
+
    'Math::PlanePath::PyramidSpiral' =>
    { X_axis      => 'A054552', # square spiral spoke E, 4n^2 - 3n + 1
      Diagonal_SE => 'A033951', # square spiral spoke S, 4n^2 + 3n + 1
      # OEIS-Other: A054552 planepath=PyramidSpiral
      # OEIS-Other: A033951 planepath=PyramidSpiral line_type=Diagonal_SE
    },
-   
+
+   # cf A168183 non-multiples-of-9, A168186 non-multiples-of-12
+   # values on Y axis, except OFFSET=1 value=1, whereas start Y=0 here
    'Math::PlanePath::PowerArray,radix=2' =>
    { X_axis   => 'A000079',  # powers 2^X
      Y_axis   => 'A005408',  # odd 2n+1
+     Diagonal => 'A014480',  # (2n+1)*2^n starting n=0
      # OEIS-Other: A000079 planepath=PowerArray
      # OEIS-Other: A005408 planepath=PowerArray line_type=Y_axis
+     # OEIS-Catalogue: A014480 planepath=PowerArray line_type=Diagonal
    },
    'Math::PlanePath::PowerArray,radix=3' =>
    { X_axis   => 'A000244',  # powers 3^X
@@ -159,7 +163,7 @@ my %oeis_anum =
    { X_axis   => 'A011557',  # powers 10^X
      # OEIS-Other: A011557 planepath=PowerArray,radix=10
    },
-   
+
    'Math::PlanePath::Corner,wider=0' =>
    { Y_axis   => 'A002522',  # n^2+1
      # OEIS-Other: A002522 planepath=Corner line_type=Y_axis
@@ -171,17 +175,17 @@ my %oeis_anum =
      # OEIS-Other: A005563 planepath=Corner,n_start=0 line_type=X_axis
      # OEIS-Other: A000290 planepath=Corner,n_start=0 line_type=Y_axis
      # OEIS-Other: A002378 planepath=Corner,n_start=0 line_type=Diagonal
-   },   
+   },
    'Math::PlanePath::Corner,wider=1,n_start=0' =>
    { Y_axis   => 'A002378',  # pronic
      Diagonal => 'A005563',  # (n+1)^2-1
      # OEIS-Other: A002378 planepath=Corner,wider=1,n_start=0 line_type=Y_axis
      # OEIS-Other: A005563 planepath=Corner,wider=1,n_start=0 line_type=Diagonal
-   },   
+   },
    'Math::PlanePath::Corner,wider=2,n_start=0' =>
    { Y_axis   => 'A005563',  # (n+1)^2-1
      # OEIS-Other: A005563 planepath=Corner,wider=2,n_start=0 line_type=Y_axis
-   },   
+   },
 
    # PyramidRows step=1
    do {
@@ -256,7 +260,7 @@ my %oeis_anum =
      Diagonal => 'A104249',
      # OEIS-Other: A143689 planepath=PyramidRows,step=3,align=right line_type=Y_axis
      # OEIS-Other: A104249 planepath=PyramidRows,step=3,align=right line_type=Diagonal
-     
+
      # Not quite OFFSET=1 cf start i=0 here
      # Diagonal    => 'A005448',
      # # OEIS-Catalogue: A005448 planepath=PyramidRows,step=3 line_type=Diagonal
@@ -331,7 +335,7 @@ my %oeis_anum =
      # OEIS-Other: A006137 planepath=PyramidRows,step=9 line_type=Y_axis
      # OEIS-Other: A038764 planepath=PyramidRows,step=9 line_type=Diagonal
    },
-   
+
    'Math::PlanePath::PyramidSides' =>
    { X_neg    => 'A002522',
      Diagonal => 'A033951',
@@ -340,7 +344,7 @@ my %oeis_anum =
      #
      # X_axis -- squares (x+1)^2, but starting i=0 value=1
    },
-   
+
    # Diagonals X_axis -- triangular 1,3,6,etc, but starting i=0 value=1
    'Math::PlanePath::Diagonals,direction=down' =>
    { Y_axis   => 'A000124',  # triangular+1 = n*(n+1)/2+1
@@ -354,11 +358,11 @@ my %oeis_anum =
      # OEIS-Other: A000124 planepath=Diagonals,direction=up line_type=X_axis
      # OEIS-Other: A001844 planepath=Diagonals,direction=up line_type=Diagonal
    },
-   
+
    'Math::PlanePath::DiagonalsAlternating' =>
    { Diagonal => 'A001844',  # centred squares 2n(n+1)+1
      # OEIS-Other: A001844 planepath=DiagonalsAlternating line_type=Diagonal
-     
+
      # Not quite, extra initial 1 or 0
      # X_axis => 'A128918',
      # Y_axis => 'A131179',
@@ -392,7 +396,7 @@ my %oeis_anum =
    # # Not quite, A002061 extra initial 1
    # # Diagonal => 'A002061', # central polygonal n^2-n+1
    # }
-   
+
 
    'Math::PlanePath::SierpinskiTriangle,align=triangular' =>
    { Diagonal_NW => 'A006046',
@@ -413,18 +417,18 @@ my %oeis_anum =
    { Y_axis => 'A006046',
      # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=diagonal line_type=Y_axis
    },
-   
+
    'Math::PlanePath::WythoffArray' =>
    {
     # but OFFSET=1 vs here start X=0
     # X_axis   => 'A000045', # Fibonaccis, but skip initial 0,1
     # Diagonal => 'A020941', # diagonal
-    
+
     # but OFFSET=1 vs here start Y=0
     # Y_axis   => 'A003622', # spectrum of phi
     # # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
    },
-   
+
    # PeanoCurve
    do {
      my $href =
@@ -448,7 +452,7 @@ my %oeis_anum =
      # OEIS-Other: A163481 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Y_axis
      # OEIS-Other: A163343 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Diagonal
    },
-   
+
    'Math::PlanePath::HilbertCurve' =>
    { X_axis   => 'A163482',
      Y_axis   => 'A163483',
@@ -457,12 +461,12 @@ my %oeis_anum =
      # OEIS-Catalogue: A163483 planepath=HilbertCurve line_type=Y_axis
      # OEIS-Other: A062880 planepath=HilbertCurve line_type=Diagonal
    },
-   
+
    'Math::PlanePath::ZOrderCurve,radix=2' =>
-   { X_axis   => 'A000695',  # base 4 digits 0,1 only
+   { X_axis   => 'A000695',  # base 4 digits 0,1 only (RadixConversion)
      Y_axis   => 'A062880',  # base 4 digits 0,2 only
      Diagonal => 'A001196',  # base 4 digits 0,3 only
-     # OEIS-Catalogue: A000695 planepath=ZOrderCurve
+     # OEIS-Other:     A000695 planepath=ZOrderCurve
      # OEIS-Catalogue: A062880 planepath=ZOrderCurve line_type=Y_axis
      # OEIS-Catalogue: A001196 planepath=ZOrderCurve line_type=Diagonal
    },
@@ -475,7 +479,7 @@ my %oeis_anum =
    { X_axis => 'A051022',  # base 10 insert 0s, for digits 0 to 9 base 100
      # OEIS-Catalogue: A051022 planepath=ZOrderCurve,radix=10
    },
-   
+
    'Math::PlanePath::CornerReplicate' =>
    { X_axis   => 'A000695',  # base 4 digits 0,1 only
      Y_axis   => 'A001196',  # base 4 digits 0,3 only
@@ -533,24 +537,24 @@ my %oeis_anum =
      # OEIS-Other: A163343 planepath=GrayCode,apply_type=sT,radix=3 line_type=Diagonal
      # OEIS-Other: A163343 planepath=GrayCode,apply_type=sF,radix=3 line_type=Diagonal
    },
-   
+
    'Math::PlanePath::LTiling,L_fill=middle' =>
    { Diagonal => 'A062880',  # base 4 digits 0,2 only
      # OEIS-Other: A062880 planepath=LTiling line_type=Diagonal
    },
-   
+
    'Math::PlanePath::AztecDiamondRings' =>
    { X_axis => 'A001844',  # centred squares 2n(n+1)+1
      # OEIS-Other: A001844 planepath=AztecDiamondRings
-     
+
      # Y_axis hexagonal numbers A000384, but starting i=0 value=1
    },
-   
+
    'Math::PlanePath::ComplexMinus,realpart=1' =>
    { X_axis => 'A066321', # binary base i-1
      # OEIS-Catalogue: A066321 planepath=ComplexMinus
    },
-   
+
    'Math::PlanePath::DiamondSpiral' =>
    { X_axis => 'A130883', # 2*n^2-n+1
      Y_axis => 'A058331', # 2*n^2 + 1
@@ -559,7 +563,7 @@ my %oeis_anum =
      # OEIS-Catalogue: A058331 planepath=DiamondSpiral line_type=Y_axis
      # OEIS-Other: A001844 planepath=DiamondSpiral line_type=Y_neg
    },
-   
+
    # Not quite, starts at OFFSET=1
    # 'Math::PlanePath::DigitGroups,radix=2' =>
    # { X_axis => 'A084471', # 0 -> 00 in binary
@@ -805,7 +809,7 @@ my %oeis_anum =
       'Math::PlanePath::CellularRule,rule=212' => $tworight,
       'Math::PlanePath::CellularRule,rule=244' => $tworight,
      );
-     
+
      # OEIS-Other: A005408 planepath=CellularRule,rule=84 line_type=Diagonal
      # OEIS-Other: A005408 planepath=CellularRule,rule=116 line_type=Diagonal
      # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
@@ -982,7 +986,7 @@ sub next {
   }
   # secret experimental automatic bigint to preserve precision
   if (! ref $n && $n > 0xFF_FFFF) {
-    $n = &{$self->{'i_func'}}($self,_to_bigint($i))
+    $n = &{$self->{'i_func'}}($self,_to_bigint($i));
   }
   return ($self->{'i'}++, $n);
 }
@@ -1772,11 +1776,15 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing   => 1; # when touched
   use constant _NumSeq_Diagonal_increasing => 1; # when touched
   use constant _NumSeq_Diagonal_NW_increasing => 1;
+  # align="diagonal" is X increasing, other align is single origin point only
+  use constant _NumSeq_X_axis_increasing => 1;
 }
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant _NumSeq_Y_axis_increasing   => 1; # never touched ?
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
+  # align="diagonal" is X increasing, other align is single origin point only
+  use constant _NumSeq_X_axis_increasing => 1;
 }
 { package Math::PlanePath::SierpinskiCurve;
   use constant _NumSeq_X_axis_increasing => 1; # when touched
@@ -2039,7 +2047,7 @@ sub values_max {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath SquareSpiral DragonCurve lookup PlanePath
+=for stopwords Ryde Math-PlanePath SquareSpiral DragonCurve lookup PlanePath ie
 
 =head1 NAME
 

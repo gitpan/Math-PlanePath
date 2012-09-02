@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -200,7 +200,6 @@ sub xy_to_n {
   return (($self->{'step'}*$y + $self->{'axis_b'})*$y/2
           + $x
           + $self->{'n_start'});
-;
 }
 
 # left N   = ($step * $d*$d - ($step-2)*$d + 1) / 2

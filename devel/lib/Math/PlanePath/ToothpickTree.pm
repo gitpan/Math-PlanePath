@@ -17,6 +17,7 @@
 
 
 # math-image --path=ToothpickTree --all --output=numbers --size=80x50
+# math-image --path=ToothpickTree --all --figure=eobar
 #
 # A139250 total cells
 #    a(2^k) = A007583(k) = (2^(2n+1) + 1)/3
@@ -31,22 +32,34 @@
 #   4, 8, 12, 12, 16, 28, 32, 20, 16, 28
 
 # A152968 (cells added)/2
-# A152978 (cells added)/4
-# A139252 total segments
-# A139253 primes
-# A147614 grid points if length 2
-# A139560 new segments added
-# A160570 triangle, row sums are toothpick cumulative
-# A152980 diffs
-# A153000 total in first quad
-# A153006 in one quad ?
-# A153007 triangular-toothpick
-# A151567 toothpick seq
-# A160552 A160762 A151548 A078008 A151575 A147614 toothpick
-# A160164 I tooth A187220 gull
+# A152978 (cells added)/4, is quarter cells added too
+# A139253 primes among total cells
 #
-# cf A160808 count cells falling on Fibonacci spiral
-#    A161330 E-toothpick snowflake
+# A139252 total segments
+# A139560 new segments added, end-to-end meetings not counted
+# A147614 grid points if length 2,
+#           ie. counting endpoints too, without multiplicity
+# A139252 count segments to level, end-to-end meetings coalesced
+#
+# A153006 three-quarter total cells
+# A152980 three-quarter cells added
+#
+# A153000 quarter total cells
+# A152978 quarter cells added
+#    start half tooth horizontal x=0,y=1 to x=1,y=1
+#    first tooth added is x=1,y=1 vertical 
+#
+# A160570 triangle, row sums are toothpick cumulative
+# A153007 triangular-toothpick
+# A160552 A160762 A151548 toothpick
+#
+# cf A160808 count cells Fibonacci spiral
+#    A160809 cells added Fibonacci spiral
+#
+#    A160164 "I"-toothpick A187220 gull
+#
+#    A151567 another rule toothpicks
+
 
 package Math::PlanePath::ToothpickTree;
 use 5.004;
@@ -55,10 +68,9 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
@@ -79,9 +91,22 @@ sub new {
   $self->{'xy_to_n'} = { '0,0' => 1 };
   $self->{'n_to_x'} = [ undef, 0 ];
   $self->{'n_to_y'} = [ undef, 0 ];
+  $self->{'level_to_n'} = [ 1, 2 ];
   $self->{'level'} = 0;
   return $self;
 }
+
+
+use constant _UNTESTED__tree_level_start => 0;
+sub _UNTESTED__tree_level_n_range {
+  my ($self, $level) = @_;
+  my $level_to_n = $self->{'level_to_n'};
+  while ($#$level_to_n <= $level) {
+    _extend($self);
+  }
+  return ($level_to_n->[$level], $level_to_n->[$level+1]-1);
+}
+
 
 my @dir_to_dx = (1,0,-1,0);
 my @dir_to_dy = (0,1,0,-1);
@@ -135,6 +160,7 @@ sub _extend {
     push @$n_to_y, $y;
     $xy_to_n->{"$x,$y"} = $#$n_to_x;
   }
+  push @{$self->{'level_to_n'}}, $#$n_to_x + 1;
   $self->{'level'}++;
 }
 
@@ -226,18 +252,24 @@ sub rect_to_n_range {
 # ENHANCE-ME: calculate by the bits of n, not by X,Y
 sub tree_n_children {
   my ($self, $n) = @_;
+  ### tree_n_children(): $n
 
   my ($x,$y) = $self->n_to_xy($n)
     or return undef;
   my ($n1,$n2);
   if (($x + $y) % 2) {
-    # vertical to children
-    $n1 = $self->xy_to_n($x,$y-1);
-    $n2 = $self->xy_to_n($x,$y+1);
-  } else  {
-    # horizontal to children
+    # odd, horizontal to children
     $n1 = $self->xy_to_n($x-1,$y);
     $n2 = $self->xy_to_n($x+1,$y);
+  } else  {
+    # even, vertical to children
+    $n1 = $self->xy_to_n($x,$y-1);
+    $n2 = $self->xy_to_n($x,$y+1);
+  }
+  ### $n1
+  ### $n2
+  if (($n1||0) > ($n2||0)) {
+    ($n1,$n2) = ($n2,$n1); # sorted
   }
   return ((defined $n1 && $n1 > $n ? $n1 : ()),
           (defined $n2 && $n2 > $n ? $n2 : ()));
@@ -263,7 +295,9 @@ sub tree_n_parent {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart Nend
+
+
+=for stopwords eg Ryde Math-PlanePath Nstart Nend
 
 =head1 NAME
 
@@ -294,7 +328,7 @@ non-overlapping line segments (toothpicks).
        |   |       |       |       |   |
     --51- 28--18--27      26--17--25 -48--           3
            |   |               |   |
-              13---9--- ---8--12                     2
+              13---9--  ---8--12                     2
            |   |   |       |   |   |
           29--19-  5---2---4 -16--24                 1
            |       |   |   |       |
@@ -302,7 +336,7 @@ non-overlapping line segments (toothpicks).
            |       |   |   |       |
           30--20-  6---3---7 -23--35                -1
            |   |   |       |   |   |
-              14--10--- --11--15                    -2
+              14--10--  --11--15                    -2
            |   |               |   |
     --52- 31--21--32      33--22--34 -55--          -3
        |   |       |       |       |   |
@@ -315,8 +349,9 @@ non-overlapping line segments (toothpicks).
 Each X,Y point is the centre of a toothpick.  The toothpick is vertical on
 "even" points X+Y==0 mod 2, or horizontal on "odd" points X+Y==1 mod 2.
 
-Points are numbered around by growth of toothpick ends, and anti-clockwise
-around when there's a new point at both ends of an existing point.
+Points are numbered by each growth level at the endpoints, and
+anti-clockwise around when there's a new point at both ends of an existing
+toothpick.
 
                                                    ---9--- ---8---
                                   |       |           |       |
@@ -329,17 +364,19 @@ around when there's a new point at both ends of an existing point.
                                                    --10--- --11---
 
 The start is N=1 and points N=2 and N=3 are added to the two ends of that
-toothpick.  Then a points N=4,5,6,7 at those four ends.
+toothpick.  Then points N=4,5,6,7 are added at those four ends.
 
 For points N=4,5,6,7 a new toothpick is only added at each far ends, not the
 "inner" positions X=1,Y=0 and X=-1,Y=0.  This is because those points are
-the ends of two toothpicks.  X=1,Y=0 is the end of toothpicks N=4 and N=7,
-and conversely X=-1,Y=0 the ends of N=5,N=6.  The rule is that when two ends
-meet like that nothing is added at that point.
+the ends of two toothpicks and would overlap.  X=1,Y=0 is the end of
+toothpicks N=4 and N=7, and X=-1,Y=0 the ends of N=5,N=6.  The rule is that
+when two ends meet like that nothing is added at that point.  The end of a
+toothpick is allowed to touch an existing toothpick.  The first time this
+happens is N=16.  Its left end touches N=4.
 
-The stair-step diagonal N=2,4,8,12,17,25,36,44,49 etc, and similar in the
-other quadrants, extends indefinitely and the parts in between are filled in
-a self-similar style.
+The stair-step X=Y,X=Y-1 diagonal N=2,4,8,12,17,25,36,44,49 etc and similar
+in the other quadrants extend indefinitely.  The quarters to either side of
+the diagonals are filled in a self-similar fashion.
 
 =head1 FUNCTIONS
 
@@ -350,6 +387,31 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =item C<$path = Math::PlanePath::ToothpickTree-E<gt>new ()>
 
 Create and return a new path object.
+
+=back
+
+=head2 Tree Methods
+
+=over
+
+=item C<@n_children = $path-E<gt>tree_n_children($n)>
+
+Return the children of C<$n>, or an empty list if C<$n> has no children
+(including when C<$n E<lt> 1>, ie. before the start of the path).
+
+The children are the new toothpicks added at the ends of C<$n> in the next
+level.  This can be none, one or two points.  For example N=8 has a single
+child 12, N=24 has no children, or N=2 has two children 4,5.  The way points
+are numbered means when there's two children they're consecutive N values.
+
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return the number of children of C<$n>, or 0 if C<$n> has no children.
+
+=item C<$n_parent = $path-E<gt>tree_n_parent($n)>
+
+Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the start of
+the path).
 
 =back
 

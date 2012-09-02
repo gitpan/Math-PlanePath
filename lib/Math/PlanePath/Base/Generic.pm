@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 86;
+$VERSION = 87;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -97,7 +97,7 @@ sub floor {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath
+=for stopwords Ryde Math-PlanePath PlanePath
 
 =head1 NAME
 

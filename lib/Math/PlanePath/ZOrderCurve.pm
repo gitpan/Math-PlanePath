@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -471,7 +471,7 @@ So for a given rectangle the smallest N is at the lower left corner
 This path is in Sloane's Online Encyclopedia of Integer Sequences in various
 forms,
 
-    http://oeis.org/A000695  (etc)
+    http://oeis.org/A059905  (etc)
 
     A059905    X coordinate of radix=2
     A059906    Y coordinate of radix=2

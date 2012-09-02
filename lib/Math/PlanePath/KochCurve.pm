@@ -41,7 +41,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -163,12 +163,6 @@ sub xy_to_n {
 
 # level extends to x= 2*3^level
 #                  level = log3(x/2)
-#
-# ENHANCE-ME:
-# look for min/max by digits high to low
-# chop search when segment of a given level+rotation outside rect
-# rot=0,180 is box Ymax=len Xmax=6*len
-# rot=60,120 is square to endpoint X=Y=3*len, triangle upper or lower
 #
 # exact
 sub rect_to_n_range {

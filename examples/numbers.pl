@@ -232,8 +232,16 @@ my @all_classes = ('SquareSpiral',
                    'SierpinskiTriangle,align=right',
                    'SierpinskiTriangle,align=left',
                    'SierpinskiTriangle,align=diagonal',
+
                    'SierpinskiArrowhead',
+                   'SierpinskiArrowhead,align=right',
+                   'SierpinskiArrowhead,align=left',
+                   'SierpinskiArrowhead,align=diagonal',
+
                    'SierpinskiArrowheadCentres',
+                   'SierpinskiArrowheadCentres,align=right',
+                   'SierpinskiArrowheadCentres,align=left',
+                   'SierpinskiArrowheadCentres,align=diagonal',
 
                    'DragonCurve',
                    'DragonCurve,arms=4',

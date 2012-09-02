@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -138,7 +138,7 @@ use Math::PlanePath::Diagonals;
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath hexagonals
+=for stopwords PlanePath Ryde Math-PlanePath hexagonals OEIS
 
 =head1 NAME
 

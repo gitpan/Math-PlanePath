@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 86;
+$VERSION = 87;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -170,7 +170,7 @@ sub round_down_pow {
         my $digit = $n % $radix;
         push @ret, $digit;
         $n = int(($n - $digit) / $radix);
-      } while ($n);
+      } while ($n > 0);
     }
 
     return @ret;   # array[0] low digit
@@ -226,7 +226,7 @@ sub digit_join_lowtohigh {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath
+=for stopwords Ryde Math-PlanePath lowtohigh Subclassing arrayref PlanePath hashref radix initializer
 
 =head1 NAME
 

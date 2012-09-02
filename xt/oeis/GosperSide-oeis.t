@@ -253,8 +253,6 @@ sub xy_left_right {
                                 $path->n_to_xy($n+1)) + 1;
     }
   }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum - taken mod 3 for 0,1 turns");
@@ -279,8 +277,6 @@ sub xy_left_right {
         }
       }
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum - left turns");
@@ -324,8 +320,6 @@ sub xy_left_right {
         }
       }
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum - right turns");

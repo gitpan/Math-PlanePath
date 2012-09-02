@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -37,7 +37,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 use Math::PlanePath::AlternatePaper;
 
 # uncomment this to run the ### lines
@@ -76,37 +77,6 @@ sub new {
 
   return $self;
 }
-
-sub Xn_to_xy {
-  my ($self, $n) = @_;
-  ### AlternatePaperMidpoint n_to_xy(): $n
-
-  if ($n < 0) { return; }
-  if (is_infinite($n)) { return ($n, $n); }
-
-  {
-    my $int = int($n);
-    if ($n != $int) {
-      my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
-      my $frac = $n - $int;  # inherit possible BigFloat
-      my $dx = $x2-$x1;
-      my $dy = $y2-$y1;
-      return ($frac*$dx + $x1, $frac*$dy + $y1);
-    }
-    $n = $int; # BigFloat int() gives BigInt, use that
-  }
-
-  my ($x1,$y1) = $self->Math::PlanePath::AlternatePaper::n_to_xy($n);
-  my ($x2,$y2) = $self->Math::PlanePath::AlternatePaper::n_to_xy($n+1);
-
-  my $dx = $x2-$x1;
-  my $dy = $y2-$y1;
-  return ($x1+$y1 + ($dx+$dy-1)/2,
-          $x1-$y1 - ($dy-$dx+1)/2);
-}
-
-
 
 #    +-----------+      states
 #    |\         /|
@@ -176,24 +146,24 @@ sub n_to_xy {
   ### $n
 
   my @digits = digit_split_lowtohigh($n,4);
-  my $len = (2 + $zero) ** (scalar($#digits) + 1);
-
   my $state = 0;
-  my $x = $zero;
-  my $y = $zero;
 
-  foreach my $digit (reverse @digits) { # high to low
-    $state += $digit;
-    $x += $len * $digit_to_x[$state];
-    $y += $len * $digit_to_y[$state];
+  my @x;
+  my @y;
+  foreach my $i (reverse 1 .. scalar(@digits)) {
+    $state += $digits[$i-1];  # high to low
+    $x[$i] = $digit_to_x[$state];
+    $y[$i] = $digit_to_y[$state];
     $state = $next_state[$state];
-    $len /= 2;
   }
 
   ### final: "xy=$x,$y state=$state"
 
-  $x += $digit_to_x[$state];      # state=4,12 increment
-  $y += $digit_to_y[$state + 3];  # state=4,8 increment
+  $x[0] = $digit_to_x[$state];      # state=4,12 increment
+  $y[0] = $digit_to_y[$state + 3];  # state=4,8 increment
+
+  my $x = digit_join_lowtohigh(\@x,2,$zero);
+  my $y = digit_join_lowtohigh(\@y,2,$zero);
 
   if ($arm & 1) {
     ($x,$y) = ($y+1,$x+1);
@@ -402,6 +372,40 @@ sub rect_to_n_range {
 1;
 __END__
 
+#------------------------------------------------------------------------------
+# Old code running AlternatePaper n_to_xy() twice.
+#
+# sub n_to_xy {
+#   my ($self, $n) = @_;
+#   ### AlternatePaperMidpoint n_to_xy(): $n
+#
+#   if ($n < 0) { return; }
+#   if (is_infinite($n)) { return ($n, $n); }
+#
+#   {
+#     my $int = int($n);
+#     if ($n != $int) {
+#       my ($x1,$y1) = $self->n_to_xy($int);
+#       my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
+#       my $frac = $n - $int;  # inherit possible BigFloat
+#       my $dx = $x2-$x1;
+#       my $dy = $y2-$y1;
+#       return ($frac*$dx + $x1, $frac*$dy + $y1);
+#     }
+#     $n = $int; # BigFloat int() gives BigInt, use that
+#   }
+#
+#   my ($x1,$y1) = $self->Math::PlanePath::AlternatePaper::n_to_xy($n);
+#   my ($x2,$y2) = $self->Math::PlanePath::AlternatePaper::n_to_xy($n+1);
+#
+#   my $dx = $x2-$x1;
+#   my $dy = $y2-$y1;
+#   return ($x1+$y1 + ($dx+$dy-1)/2,
+#           $x1-$y1 - ($dy-$dx+1)/2);
+# }
+
+
+#------------------------------------------------------------------------------
 
 =for stopwords Math-PlanePath eg Ryde AlternatePaper AlternatePaperMidpoint OEIS
 
@@ -420,20 +424,20 @@ Math::PlanePath::AlternatePaperMidpoint -- alternate paper folding midpoints
 This is the midpoints of each alternate paper folding curve
 (L<Math::PlanePath::AlternatePaper>).
 
-     8  |                        64-65-...           
-        |                         |                  
-     7  |                        63                  
-        |                         |       
-     6  |                  20-21 62                  
+     8  |                        64-65-...
+        |                         |
+     7  |                        63
+        |                         |
+     6  |                  20-21 62
         |                   |  |  |
-     5  |                  19 22 61-60-59            
-        |                   |  |        |            
-     4  |            16-17-18 23 56-57-58            
-        |             |        |  |                  
-     3  |            15 26-25-24 55 50-49-48-47      
-        |             |  |        |  |        |      
-     2  |       4--5 14 27-28-29 54 51 36-37 46      
-        |       |  |  |        |  |  |  |  |  |      
+     5  |                  19 22 61-60-59
+        |                   |  |        |
+     4  |            16-17-18 23 56-57-58
+        |             |        |  |
+     3  |            15 26-25-24 55 50-49-48-47
+        |             |  |        |  |        |
+     2  |       4--5 14 27-28-29 54 51 36-37 46
+        |       |  |  |        |  |  |  |  |  |
      1  |       3  6 13-12-11 30 53-52 35 38 45-44-43
         |       |  |        |  |        |  |        |
     Y=0 | 0--1--2  7--8--9-10 31-32-33-34 39-40-41-42
@@ -443,75 +447,76 @@ This is the midpoints of each alternate paper folding curve
 The AlternatePaper curve begins as follows and the midpoints are numbered
 from 0,
 
-                      | 
-                      9 
-                      | 
-                *--8--*
+                      |
+                      9
+                      |
+                 --8--
                 |     |
                 7     |
                 |     |
-          *--2--*--6--*
+           --2-- --6--
           |     |     |
           1     3     5
           |     |     |
-    *--0--*     *--4--*
+    *--0--       --4--
 
 These midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  For this
 AlternatePaperMidpoint they're turned 45 degrees and mirrored so the 0,1,2
-diagonally up become a straight line along the X axis, and the 2,3,4
-segments become a vertical up to the X=Y diagonal for N=4 at X=2,Y=2.
+upward diagonal becomes horizontal along the X axis, and the 2,3,4 downward
+diagonal becomes a vertical at X=2, extending to X=2,Y=2 at N=4.
 
 The midpoints are distinct X,Y positions because the alternate paper curve
 traverses each edge only once.
 
 The curve is self-similar in 2^level sections due to its unfolding.  This
-can be seen in the midpoints as for example the above N=0 to N=16 is the
-same shape as N=16 to N=32, but latter rotated +90 degrees and numbered in
+can be seen in the midpoints as for example N=0 to N=16 above is the same
+shape as N=16 to N=32, but the latter rotated +90 degrees and numbered in
 reverse.
 
 =head2 Arms
 
 The midpoints fill an eighth of the plane and eight copies can mesh together
-perfectly mirrored and rotated by 90, 180 and 270 degrees.  The C<arms>
-parameter can choose 1 to 8 curve arms, successively advancing.
+perfectly when mirrored and rotated by 90, 180 and 270 degrees.  The C<arms>
+parameter can choose 1 to 8 curve arms successively advancing.
 
 For example C<arms =E<gt> 8> begins as follows.  N=0,8,16,24,etc is the
 first arm, the same as the plain curve above.  N=1,9,17,25 is the second,
 N=2,10,18,26 the third, etc.
 
-                           90-82 81-89                
-                            |  |  |  |
-                          ... 74 73 ...                      6
-                               |  |                           
-                              66 65                          5
-                               |  |                           
-                  43-35 42-50-58 57-49-41                    4
-                   |  |  |              |                     
-         91-..    51 27 34-26-18 17-25-33                    3
-          |        |  |        |  |                           
-         83-75-67-59 19-11--3 10  9 32-40                    2
-                               |  |  |  |                     
-         84-76-68-60 20-12--4  2  1 24 48    ..-88           1
-          |        |  |              |  |        |            
-         92-..    52 28  5  6  0--8-16 56-64-72-80      <- Y=0
-                   |  |  |  |                                 
-                  44-36 13 14  7-15-23 63-71-79-87          -1
-                         |  |        |  |        |            
-                  37-29-21 22-30-38 31 55    ..-95          -2
-                   |              |  |  |                     
-                  45-53-61 62-54-46 39-47                   -3
-                         |  |                                 
-                        69 70                               -4
-                         |  |                                 
-                    ... 77 78 ...                           -5
-                      |  |  |  |
-                     93-85 86-94                            -6
+                      90-82 81-89                       7
+    arms => 8          |  |  |  |
+                     ... 74 73 ...                      6
+                          |  |
+                         66 65                          5
+                          |  |
+             43-35 42-50-58 57-49-41                    4
+              |  |  |              |
+    91-..    51 27 34-26-18 17-25-33                    3
+     |        |  |        |  |
+    83-75-67-59 19-11--3 10  9 32-40                    2
+                          |  |  |  |
+    84-76-68-60 20-12--4  2  1 24 48    ..-88           1
+     |        |  |              |  |        |
+    92-..    52 28  5  6  0--8-16 56-64-72-80      <- Y=0
+              |  |  |  |
+             44-36 13 14  7-15-23 63-71-79-87          -1
+                    |  |        |  |        |
+             37-29-21 22-30-38 31 55    ..-95          -2
+              |              |  |  |
+             45-53-61 62-54-46 39-47                   -3
+                    |  |
+                   69 70                               -4
+                    |  |
+               ... 77 78 ...                           -5
+                 |  |  |  |
+                93-85 86-94                            -6
 
-          ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
-         -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+     ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
+    -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
 With eight arms like this every X,Y point is visited exactly once, because
-in the AlternatePaper eight arms there traverse every edge exactly once.
+the 8-arm AlternatePaper traverses every edge exactly once
+(L<Math::PlanePath::AlternatePaper/Arms>).
 
 The arm numbering doesn't correspond to the AlternatePaper, due to the
 rotate and reflect of the first arm.  It ends up arms 0 and 1 of the

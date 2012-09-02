@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -36,6 +36,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
+use Math::PlanePath::RationalsTree;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -233,23 +234,10 @@ sub _bingcd_max {
   return int($x/$y) + $y + 1;
 }
 
-sub tree_n_children {
-  my ($self, $n) = @_;
-  if ($n >= 1) {
-    $n *= 2;
-    return ($n, $n+1);
-  } else {
-    return;
-  }
-}
-sub tree_n_parent {
-  my ($self, $n) = @_;
-  if ($n >= 2) {
-    return int($n/2);
-  } else {
-    return undef;
-  }
-}
+# Same structure as RationalsTree
+*tree_n_children     = \&Math::PlanePath::RationalsTree::tree_n_children;
+*tree_n_num_children = \&Math::PlanePath::RationalsTree::tree_n_num_children;
+*tree_n_parent       = \&Math::PlanePath::RationalsTree::tree_n_parent;
 
 1;
 __END__
@@ -369,6 +357,11 @@ Return the two children of C<$n>, or an empty list if C<$n E<lt> 1>
 
 This is simply C<2*$n, 2*$n+1>.  The children are C<$n> with an extra bit
 appended, either a 0-bit or a 1-bit.
+
+=item C<$num = $path-E<gt>tree_n_num_children($n)>
+
+Return 2, since every node has two children, or return 0 if C<$nE<lt>1>
+(ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

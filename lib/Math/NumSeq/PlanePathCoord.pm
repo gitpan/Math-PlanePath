@@ -17,9 +17,10 @@
 
 
 # Maybe:
-# NumChildren -- or maybe better in Delta
-# tree_n_children_count
-
+# NumSurround
+# NumSurround4
+# NumSurround6
+# NumSurround8
 
 package Math::NumSeq::PlanePathCoord;
 use 5.004;
@@ -28,7 +29,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -54,6 +55,7 @@ use constant::defer parameter_info_array =>
                    'DiffXY', 'DiffYX', 'AbsDiff',
                    'Radius', 'RSquared',
                    'TRadius', 'TRSquared',
+                   'NumChildren',
                   ];
     return [
             _parameter_info_planepath(),
@@ -109,7 +111,7 @@ use constant::defer _parameter_info_planepath => sub {
            type        => 'string',
            default     => $choices->[0],
            choices     => $choices,
-           width       => $width + 20,
+           width       => $width + 5,
            description => 'PlanePath module name.',
          };
 };
@@ -137,6 +139,23 @@ my %oeis_anum =
      # but A025480 starts OFFSET=0 for the k in n=(2k+1)*2^j-1
      # Y => 'A025480',
      # # OEIS-Almost: A025480 i_to_n_offset=-1 planepath=PowerArray,radix=2 coordinate_type=Y
+   },
+   'Math::PlanePath::PowerArray,radix=3' =>
+   { X => 'A007949', # k of greatest 3^k dividing n
+     # OEIS-Other: A007949 planepath=PowerArray,radix=3
+     # main generator Math::NumSeq::DigitCountLow
+   },
+   'Math::PlanePath::PowerArray,radix=5' =>
+   { X => 'A112765',
+     # OEIS-Other: A112765 planepath=PowerArray,radix=5
+   },
+   'Math::PlanePath::PowerArray,radix=6' =>
+   { X => 'A122841',
+     # OEIS-Other: A122841 planepath=PowerArray,radix=6
+   },
+   'Math::PlanePath::PowerArray,radix=10' =>
+   { X => 'A122840',
+     # OEIS-Other: A112765 planepath=PowerArray,radix=5
    },
 
    'Math::PlanePath::WythoffArray' =>
@@ -423,7 +442,7 @@ my %oeis_anum =
    'Math::PlanePath::PyramidRows,step=2,align=right,n_start=0' =>
    { X       => 'A053186',  # runs 0 to 2n
      Y       => 'A000196',  # n appears 2n+1 times, starting 0
-     DiffXY  => 'A196199',  # runs -n to n 
+     DiffXY  => 'A196199',  # runs -n to n
      AbsDiff => 'A053615',  # 0..n..0, distance to pronic
      # OEIS-Other: A053186 planepath=PyramidRows,align=right,n_start=0 coordinate_type=X
      # OEIS-Other: A000196 planepath=PyramidRows,align=right,n_start=0 coordinate_type=Y
@@ -434,8 +453,8 @@ my %oeis_anum =
    { X   => '',  # runs -2n+1 to 0
      Y   => 'A000196',  # n appears 2n+1 times, starting 0
      Sum => 'A196199',  # -n to n
-    # OEIS-Other: A000196 planepath=PyramidRows,align=left,n_start=0 coordinate_type=Y
-    # OEIS-Other: A196199 planepath=PyramidRows,align=left,n_start=0 coordinate_type=Sum
+     # OEIS-Other: A000196 planepath=PyramidRows,align=left,n_start=0 coordinate_type=Y
+     # OEIS-Other: A196199 planepath=PyramidRows,align=left,n_start=0 coordinate_type=Sum
    },
 
    # PyramidRows step=3
@@ -621,27 +640,26 @@ my %oeis_anum =
      # # OEIS-Other: A000290 planepath=Columns,height=1 coordinate_type=RSquared
    },
 
-   'Math::PlanePath::Rows,width=2' =>
-   {
-    # A000035 starts OFFSET=0 value=0, cf Rows start N=1
-    # X       => 'A000035', # 0,1 repeating
-    # # OEIS-Other: A000035 planepath=Rows,width=2 coordinate_type=X
-
-    # not quite, Rows starts N=1 but  starts n=0
-    # Y       => 'A004525', # 0,0,1,1,2,2,etc
-    #
-    # almost Product => 'A142150', but it's OFFSET=0 starting "0,0,1,0,2"
-    # whereas product has extra 0 "0,0,0,1,0,2,0"
-   },
-   'Math::PlanePath::Columns,height=2' =>
-   {
-    # A000035 starts OFFSET=0 value=0, cf Columns start N=1
-    # Y   => 'A000035', # 0,1 repeating
-    # # OEIS-Other: A000035 planepath=Columns,height=2 coordinate_type=Y
-
-    # not quite, Columns starts N=1 but A004525 starts n=0
-    # X   => 'A004525', # 0,0,1,1,2,2,etc
-   },
+   # 'Math::PlanePath::Rows,width=2,n_start=0' =>
+   # { X       => 'A000035', # 0,1 repeating OFFSET=0
+   #   # OEIS-Other: A000035 planepath=Rows,width=2,n_start=0 coordinate_type=X
+   #   # sequence in Math::NumSeq::Modulo
+   #
+   #   Y       => 'A004526', # 0,0,1,1,2,2,etc OFFSET=0
+   #   # OEIS-Other: A004526 planepath=Rows,width=2,n_start=0 coordinate_type=Y
+   #   # sequence in Math::NumSeq::Runs "2rep"
+   #
+   #   # Not quite, A142150 OFFSET=0 starting 0,0,1,0,2 interleave integers and 0
+   #   # but Product here extra 0 start 0,0,0,1,0,2,0
+   #   # Product => 'A142150'
+   # },
+   # 'Math::PlanePath::Columns,height=2,n_start=0' =>
+   # { X       => 'A004526', # 0,0,1,1,2,2,etc OFFSET=0
+   #   # OEIS-Other: A004526 planepath=Rows,width=2,n_start=0 coordinate_type=X
+   #
+   #   Y       => 'A000035', # 0,1 repeating OFFSET=0
+   #   # OEIS-Other: A000035 planepath=Rows,width=2,n_start=0 coordinate_type=Y
+   # },
   );
 
 sub oeis_anum {
@@ -685,18 +703,24 @@ sub oeis_anum {
     #   }
   }
 
+  my $i_start = $self->i_start;
   my $key = _planepath_oeis_key($planepath_object);
-  {
-    my $i_start = $self->i_start;
-    if ($i_start != $planepath_object->n_start) {
-      $key .= ",i_start=$i_start";
-    }
-    ### $i_start
-    ### n_start: $planepath_object->n_start
+  if ($i_start != $planepath_object->n_start) {
+    $key .= ",i_start=$i_start";
   }
+  ### $i_start
+  ### n_start: $planepath_object->n_start
   ### $key
+  if (defined (my $anum = $oeis_anum{$key}->{$coordinate_type})) {
+    return $anum;
+  }
 
-  return $oeis_anum{$key}->{$coordinate_type};
+  # all-zeros if no children at all
+  if ($coordinate_type eq 'NumChildren' && $self->ith($i_start) == 0) {
+    return 'A000004';
+  }
+
+  return undef;
 }
 sub _oeis_modulo {
   my ($modulus) = @_;
@@ -711,12 +735,48 @@ sub _planepath_oeis_key {
               ref($path),
 
               (map {
-                my $value = $path->{$_->{'name'}};
-                ### $_
-                ### $value
-                ### gives: "$_->{'name'}=$value"
-                (defined $value ? "$_->{'name'}=$value" : ())
-              }
+                # nasty hack to exclude SierpinskiCurveStair diagonal_length
+                $_->{'name'} eq 'diagonal_length'
+                  ? ()
+                    : do {
+                      my $value = $path->{$_->{'name'}};
+                      ### $_
+                      ### $value
+                      ### gives: "$_->{'name'}=$value"
+                      (defined $value ? "$_->{'name'}=$value" : ())
+                    }
+                  }
+               $path->parameter_info_list,
+               ($path->isa('Math::PlanePath::Rows') ? ({name=>'width'}) : ()),
+               ($path->isa('Math::PlanePath::Columns')?({name=>'height'}):())),
+
+              do {
+                my $path_class = ref $path;
+                my $n_start = $path->n_start;
+                ### $path_class
+                ### $n_start
+                ### class n_start: $path_class->n_start
+                ($n_start == $path_class->n_start
+                 ? ()
+                 : "n_start=$n_start")
+              });
+}
+sub _planepath_oeis_anum_key {
+  my ($path) = @_;
+  ### PlanePathCoord _planepath_oeis_key() ...
+  return join(',',
+              (map {
+                # nasty hack to exclude SierpinskiCurveStair diagonal_length
+                $_->{'name'} eq 'diagonal_length'
+                  ? ()
+                    : do {
+                      my $value = $path->{$_->{'name'}};
+                      ### $_
+                      ### $value
+                      ### gives: "$_->{'name'}=$value"
+                      (defined $value ? "$_->{'name'}=$value" : ())
+                    }
+                  }
                $path->parameter_info_list,
                ($path->isa('Math::PlanePath::Rows') ? ({name=>'width'}) : ()),
                ($path->isa('Math::PlanePath::Columns')?({name=>'height'}):())),
@@ -869,6 +929,61 @@ sub _coordinate_func_TRSquared {
   return $x*$x + 3*$y*$y;
 }
 
+sub _coordinate_func_NumChildren {
+  my ($self, $n) = @_;
+  return $self->{'planepath_object'}->tree_n_num_children($n);
+}
+
+
+
+
+# UNTESTED
+# math-image --values=PlanePathCoord,coordinate_type=NumSurround4,planepath=DragonCurve --path=DragonCurve --scale=10
+sub _coordinate_func_NumSurround4 {
+  my ($self, $n, $points) = @_;
+  return _path_n_surround_count ($self->{'planepath_object'}, $n, 4);
+}
+sub _coordinate_func_NumSurround6 {
+  my ($self, $n, $points) = @_;
+  return _path_n_surround_count ($self->{'planepath_object'}, $n, 6);
+}
+sub _coordinate_func_NumSurround8 {
+  my ($self, $n, $points) = @_;
+  return _path_n_surround_count ($self->{'planepath_object'}, $n, 8);
+}
+{ my @surround;
+  $surround[4] = [ 1,0, 0,1, -1,0, 0,-1 ];
+  $surround[6] = [ 2,0, 1,1, -1,1,
+                   -2,0, -1,-1, 1,-1 ];
+  $surround[8] = [ 1,0, 0,1, -1,0, 0,-1,
+                   1,1, -1,1, 1,-1, -1,-1 ];
+  sub _path_n_surround_count {
+    my ($path, $n, $points) = @_;
+    ### _path_n_surround_count(): $n, $points
+    my $aref = $surround[$points]
+      || croak "_path_n_surround_count() unrecognised points ",$points;
+    my ($x, $y) = $path->n_to_xy($n) or return undef;
+    my $count = 0;
+    for (my $i = 0; $i < @$aref; ) {
+      my $dx = $aref->[$i++];
+      $count += defined ($path->xy_to_n($x+$dx, $y+$aref->[$i++]));
+    }
+    return $count;
+  }
+}
+sub _coordinate_func_TreeDepth {
+  my ($self, $n) = @_;
+  my $path = $self->{'planepath_object'};
+  if ($path->can('_NumSeq_Coord_n_to_depth')) {
+    return $path->_NumSeq_Coord_n_to_depth($n);
+  } else {
+    my $depth = 0;
+    while (defined ($n = $path->tree_n_parent($n))) {
+      $depth++;
+    }
+    return $depth;
+  }
+}
 
 #------------------------------------------------------------------------------
 
@@ -915,10 +1030,17 @@ sub characteristic_non_decreasing {
                   || ($self->{'coordinate_type'} eq 'TRSquared'
                       && $planepath_object->can("_NumSeq_Coord_TRadius_non_decreasing")))) {
     return $planepath_object->$func();
-  } else {
-    # increasing means non_decreasing too
-    return $self->characteristic_increasing;
   }
+  if (defined (my $values_min = $self->values_min)) {
+    if (defined (my $values_max = $self->values_max)) {
+      if ($values_min == $values_max) {
+        # constant seq is non-decreasing
+        return 1;
+      }
+    }
+  }
+  # increasing means non_decreasing too
+  return $self->characteristic_increasing;
 }
 
 sub values_min {
@@ -942,6 +1064,15 @@ sub values_max {
 }
 
 { package Math::PlanePath;
+  use constant _NumSeq_Coord_NumSurround4_min => 0;
+  use constant _NumSeq_Coord_NumSurround6_min => 0;
+  use constant _NumSeq_Coord_NumSurround8_min => 0;
+  use constant _NumSeq_Coord_NumSurround4 => 4;
+  use constant _NumSeq_Coord_NumSurround6 => 6;
+  use constant _NumSeq_Coord_NumSurround8 => 8;
+  use constant _NumSeq_Coord_NumSurround4_integer => 1;  # always integers
+  use constant _NumSeq_Coord_NumSurround6_integer => 1;
+  use constant _NumSeq_Coord_NumSurround8_integer => 1;
 
   sub _NumSeq_Coord_X_min {
     my ($self) = @_;
@@ -1154,6 +1285,9 @@ sub values_max {
     return (($path->figure ne 'square' || $value == int($value))
             && $value >= 0);
   }
+  use constant _NumSeq_Coord_NumChildren_min => 0;
+  use constant _NumSeq_Coord_NumChildren_max => 0;
+  use constant _NumSeq_Coord_NumChildren_integer => 1;
 }
 
 # { package Math::PlanePath::SquareSpiral;
@@ -1428,6 +1562,12 @@ sub values_max {
   use constant _NumSeq_Coord_TRadius_non_decreasing => 1;
 }
 { package Math::PlanePath::PythagoreanTree;
+  sub _NumSeq_Coord_n_to_depth {
+    my ($self, $n) = @_;
+    if ($n < 1) { return undef; }
+    my ($len, $level) = round_down_pow (2*$n-1, 3);
+    return $level;
+  }
   {
     my %_NumSeq_Coord_X_min = (PQ => 2,
                                AB => 3,
@@ -1479,15 +1619,30 @@ sub values_max {
   #           && ($path->{'coordinate_type'} ne 'AB'
   #               || $value == int($value)));
   # }
+
+  use constant _NumSeq_Coord_NumChildren_min => 3;
+  use constant _NumSeq_Coord_NumChildren_max => 3;
 }
 { package Math::PlanePath::RationalsTree;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
+  use constant _NumSeq_Coord_NumChildren_min => 2;
+  use constant _NumSeq_Coord_NumChildren_max => 2;
+  sub _NumSeq_Coord_n_to_depth {
+    my ($self, $n) = @_;
+    if ($n < 1) { return undef; }
+    my ($len, $level) = round_down_pow ($n, 2);
+    return $level;
+  }
 }
 { package Math::PlanePath::FractionsTree;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 2;
   use constant _NumSeq_Coord_DiffXY_max => -1; # upper octant X<=Y-1 so X-Y<=-1
+  use constant _NumSeq_Coord_NumChildren_min => 2;
+  use constant _NumSeq_Coord_NumChildren_max => 2;
+  *_NumSeq_Coord_n_to_depth
+    = \&Math::PlanePath::RationalsTree::_NumSeq_Coord_n_to_depth;
 }
 # { package Math::PlanePath::PeanoCurve;
 # }
@@ -1570,14 +1725,47 @@ sub values_max {
     return ($self->{'align'} eq 'diagonal'); # anti-diagonals
   }
   *_NumSeq_Coord_SumAbs_non_decreasing = \&_NumSeq_Coord_Sum_non_decreasing;
+  use constant _NumSeq_Coord_NumChildren_max => 2;
+
+  use Math::PlanePath::Base::Digits;
+  sub _NumSeq_Coord_n_to_depth {
+    my ($self, $n) = @_;
+    ### SierpinskiTriangle n_to_depth(): $n
+    $n = $n - $self->{'n_start'};
+    if ($n < 0) {
+      return undef;
+    }
+
+    my ($power, $level) = round_down_pow ($n, 3);
+    ### $power
+    ### $level
+    if (is_infinite($level)) {
+      return $level;
+    }
+
+    my @depth;
+    for ( ; $level >= 0; $level--) {
+      ### at: "n=$n power=$power level=$level depth=".join(',',map{$_||0}@depth)
+      my $rem = $n - $power;
+      if ($depth[$level] = ($rem >= 0)) {
+        $n = $rem;
+        $power *= 2;
+      }
+      $power /= 3;
+    }
+    ### @depth
+    return Math::PlanePath::Base::Digits::digit_join_lowtohigh(\@depth,2,$n*0);
+  }
 }
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
-  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+  *_NumSeq_Coord_DiffXY_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_DiffXY_max;
 }
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
-  use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+  *_NumSeq_Coord_DiffXY_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_DiffXY_max;
 }
 { package Math::PlanePath::SierpinskiCurve;
   {
@@ -1624,8 +1812,11 @@ sub values_max {
 { package Math::PlanePath::HIndexing;
   use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
 }
-# { package Math::PlanePath::DragonCurve;
-# }
+{ package Math::PlanePath::DragonCurve;
+  use constant _NumSeq_Coord_NumSurround4_min => 2;
+  # use constant _NumSeq_Coord_NumSurround6_min => 0; # ???
+  use constant _NumSeq_Coord_NumSurround8_min => 3;
+}
 { package Math::PlanePath::DragonRounded;
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y doesn't occur
@@ -1994,10 +2185,12 @@ sub values_max {
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
 }
-# { package Math::PlanePath::UlamWarburton;
-# }
-# { package Math::PlanePath::UlamWarburtonQuarter;
-# }
+{ package Math::PlanePath::UlamWarburton;
+  use constant _NumSeq_Coord_NumChildren_max => 4;
+}
+{ package Math::PlanePath::UlamWarburtonQuarter;
+  use constant _NumSeq_Coord_NumChildren_max => 3;
+}
 { package Math::PlanePath::DiagonalRationals;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
@@ -2131,7 +2324,7 @@ __END__
 # }
 
 
-=for stopwords Ryde Math-PlanePath DiffXY OEIS PlanePath NumSeq SquareSpiral PlanePath SumAbs Manhatten ie TRadius TRSquared HexSpiral RSquared KochPeaks
+=for stopwords Ryde Math-PlanePath DiffXY OEIS PlanePath NumSeq SquareSpiral PlanePath SumAbs Manhatten ie TRadius TRSquared HexSpiral RSquared KochPeaks CoprimeColumns DiffYX CellularRule
 
 =head1 NAME
 
@@ -2152,18 +2345,19 @@ a NumSeq sequence.  The NumSeq "i" index is the PlanePath "N" value.
 
 The C<coordinate_type> choices are
 
-    "X"          X coordinate
-    "Y"          Y coordinate
-    "Sum"        X+Y sum
-    "SumAbs"     abs(X)+abs(Y)
-    "Product"    X*Y product
-    "DiffXY"     X-Y difference
-    "DiffYX"     Y-X difference (negative of DiffXY)
-    "AbsDiff"    abs(Y-X) difference
-    "Radius"     sqrt(X^2+Y^2) radius
-    "RSquared"   X^2+Y^2 radius squared
-    "TRadius"    sqrt(X^2+3*Y^2) triangular radius
-    "TRSquared"  X^2+3*Y^2 triangular radius squared
+    "X"            X coordinate
+    "Y"            Y coordinate
+    "Sum"          X+Y sum
+    "SumAbs"       abs(X)+abs(Y)
+    "Product"      X*Y product
+    "DiffXY"       X-Y difference
+    "DiffYX"       Y-X difference (negative of DiffXY)
+    "AbsDiff"      abs(Y-X) difference
+    "Radius"       sqrt(X^2+Y^2) radius
+    "RSquared"     X^2+Y^2 radius squared
+    "TRadius"      sqrt(X^2+3*Y^2) triangular radius
+    "TRSquared"    X^2+3*Y^2 triangular radius squared
+    "NumChildren"  tree_n_num_children()
 
 "Sum"=X+Y can be interpreted geometrically as a projection onto the X=Y
 leading diagonal, or equivalently as a measure of which anti-diagonal stripe

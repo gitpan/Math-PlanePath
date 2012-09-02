@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 23;;
+plan tests => 42;;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::Columns;
 # VERSION
 
 {
-  my $want_version = 86;
+  my $want_version = 87;
   ok ($Math::PlanePath::Columns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Columns->VERSION,  $want_version,
@@ -74,6 +74,36 @@ require Math::PlanePath::Columns;
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Columns->parameter_info_list;
   ok (join(',',@pnames), '');
+}
+
+#------------------------------------------------------------------------------
+# n_to_xy
+
+{
+  my @data = ([ 1, 0,0 ],
+              [ 2, 0,1 ],
+              [ 2.5, 0,1.5 ],
+              [ 5, 0,4 ],
+
+              [ 5.5, 1,-0.5 ],
+              [ 6, 1,0 ],
+              [ 7, 1,1 ],
+
+             );
+  my $path = Math::PlanePath::Columns->new (height => 5);
+  foreach my $elem (@data) {
+    my ($n, $want_x, $want_y) = @$elem;
+    my ($got_x, $got_y) = $path->n_to_xy ($n);
+    ok ($got_x, $want_x, "x at n=$n");
+    ok ($got_y, $want_y, "y at n=$n");
+  }
+
+  foreach my $elem (@data) {
+    my ($want_n, $x, $y) = @$elem;
+    next if $want_n != int($want_n);
+    my $got_n = $path->xy_to_n ($x, $y);
+    ok ($got_n, $want_n, "n at x=$x,y=$y");
+  }
 }
 
 #------------------------------------------------------------------------------

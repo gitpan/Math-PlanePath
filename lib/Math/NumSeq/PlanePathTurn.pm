@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 86;
+$VERSION = 87;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -82,210 +82,19 @@ sub characteristic_integer {
 # Left or Right according to lowest non-zero ternary digit 1 or 2
 #
 
-my %oeis_anum
-  = (
-     # Math::PlanePath::PowerArray
-     # Not quite, seem to be 4-pattern 0,0,0,1, but first turn at N=2
-     # Left => A011765
-     # Right => A011765
-
-     # Math::PlanePath::TriangleSpiral
-     # Not quite A010054 starts OFFSET=0 for 1,1,0,1,0,0,1 extra initial 1
-     # cf turns here start N=1 for 1,0,1,0,0,1
-     # Left => 'A010054', # 1 at triangle number
-
-     # SquareSpiral
-     # abs(A167752) Left,LSR if that really is the quarter-squares
-     # abs(A167753) Left,LSR of wider=1 if that really is the ceil(n+1)^2
-
-     # No, since A039963 is OFFSET=0 vs first turn at N=1 here
-     # 'Math::PlanePath::GrayCode' =>
-     # {
-     #  Left => 'A039963',
-     #  LSR  => 'A039963',
-     # },
-
-     # A039963 for binary Left,LSR turn ?
-     # characteristic of A003159 ending even zeros
-     # 'Math::PlanePath::GrayCode' =>
-     # 'Math::PlanePath::SierpinskiCurve' Right => 'A039963'
-
-     # 'Math::PlanePath::DiagonalsOctant,direction=down' =>
-     # { Left => square or pronic starting from 1
-     # },
-     # 'Math::PlanePath::DiagonalsOctant,direction=up' =>
-     # { Left => square or pronic starting from 1
-     # },
-
-     # 'Math::PlanePath::HilbertCurve' =>
-     # {
-     #  # cf 1,0,-1 here
-     #  # A163542    relative direction (ahead=0,right=1,left=2)
-     #  # A163543    relative direction, transpose X,Y
-     # },
-
-     # 'Math::PlanePath::PeanoCurve,radix=3' =>
-     # {
-     #  # cf 1,0,-1 here
-     #  # A163536 relative direction 0=ahead,1=right,2=left
-     # },
-
-     'Math::PlanePath::DragonCurve,arms=1' =>
-     {
-      'LSR' => 'A034947', # Jacobi symbol (-1/n)
-      # OEIS-Catalogue: A034947 planepath=DragonCurve turn_type=LSR
-
-      #  # but A014707 has OFFSET=0 cf first elem for N=1
-      #  'Right' => 'A014707', # turn, 1=left,0=right
-      #  # OEIS-Catalogue: A014707 planepath=DragonCurve turn_type=Left
-
-      #  # but A014577 has OFFSET=0 cf first elem for N=1
-      #  'Right' => 'A014577', # turn, 0=left,1=right
-      #  # OEIS-Catalogue: A014577 planepath=DragonCurve turn_type=Right
-     },
-
-     # 'Math::PlanePath::AlternatePaper,arms=1' =>
-     # {
-     #  # but A106665 has OFFSET=0 cf first here i=1
-     #  'Left' => 'A106665', # turn, 1=left,0=right
-     #  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=Left
-     # },
-
-     do {
-       # GosperSide and TerdragonCurve same turn sequence, by diff angles
-       my $h = {
-                'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
-                # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
-                # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
-
-                # But A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
-                # Right => 'A080846',
-                # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
-                # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
-               };
-       ('Math::PlanePath::TerdragonCurve,arms=1' => $h,
-        'Math::PlanePath::GosperSide' => $h)
-     },
-
-     # Not quite,    OFFSET=0 values 0,0,1,1,0
-     # cf first turn here N=1 values 0,0,1,1,0
-     # 'Math::PlanePath::R5DragonCurve' =>
-     # { Right => 'A175337',
-     #   # OEIS-Catalogue: A175337 planepath=R5DragonCurve turn_type=Right
-     # },
-
-     'Math::PlanePath::SacksSpiral' =>
-     { 'Left' => 'A000012',  # left always, all ones
-       'LSR'  => 'A000012',
-       # OEIS-Other: A000012 planepath=SacksSpiral
-       # OEIS-Other: A000012 planepath=SacksSpiral turn_type=LSR
-     },
-     'Math::PlanePath::TheodorusSpiral' =>
-     { 'Left' => 'A000012',  # left always, all ones
-       'LSR'  => 'A000012',
-       # OEIS-Other: A000012 planepath=TheodorusSpiral
-       # OEIS-Other: A000012 planepath=TheodorusSpiral turn_type=LSR
-     },
-     'Math::PlanePath::ArchimedeanChords' =>
-     { 'Left' => 'A000012',  # left always, all ones
-       'LSR'  => 'A000012',
-       # OEIS-Other: A000012 planepath=ArchimedeanChords
-       # OEIS-Other: A000012 planepath=ArchimedeanChords turn_type=LSR
-     },
-
-     # PyramidRows step=0 is trivial X=N,Y=0
-     do {
-       my $href= { Left => 'A000004',  # all-zeros
-                   LSR  => 'A000004',  # all zeros, straight
-                 };
-       ('Math::PlanePath::PyramidRows,step=0,align=centre' => $href,
-        'Math::PlanePath::PyramidRows,step=0,align=right'  => $href,
-        'Math::PlanePath::PyramidRows,step=0,align=left'   => $href,
-       );
-
-       # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=Left
-       # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=LSR
-       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=right turn_type=Left
-       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=left turn_type=LSR
-     },
-
-     # PyramidRows step=1
-     do {
-       my $href= { Left => 'A129184', # triangle 1s shift right
-                 };
-       ('Math::PlanePath::PyramidRows,step=1,align=centre,n_start=0' => $href,
-        'Math::PlanePath::PyramidRows,step=1,align=right,n_start=0'  => $href,
-        'Math::PlanePath::PyramidRows,step=1,align=left,n_start=0'   => $href,
-       );
-
-       # OEIS-Other: A129184 planepath=PyramidRows,step=1,n_start=0 turn_type=Left
-       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=right,n_start=0 turn_type=Left
-       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=left,n_start=0 turn_type=Left
-     },
-     do {
-       my $href= { Right => 'A023531',  # 1 at n==m*(m+3)/2
-                 };
-       ('Math::PlanePath::PyramidRows,step=1,align=centre,n_start=-1' => $href,
-        'Math::PlanePath::PyramidRows,step=1,align=right,n_start=-1'  => $href,
-       );
-
-       # OEIS-Other: A023531 planepath=PyramidRows,step=1,n_start=-1 turn_type=Right
-       # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=right,n_start=-1 turn_type=Right
-     },
-
-     # MultipleRings step=0 is trivial X=N,Y=0
-     'Math::PlanePath::MultipleRings,step=0,ring_shape=circle' =>
-     { Left => 'A000004',  # all-zeros
-       LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left
-       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR
-     },
-     'Math::PlanePath::MultipleRings,step=0,ring_shape=polygon' =>
-     { Left => 'A000004',  # all-zeros
-       LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left ring_shape=polygon
-       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR ring_shape=polygon
-     },
-     # Rows width=0 is trivial X=N,Y=0
-     'Math::PlanePath::Rows,width=0' =>
-     { Left => 'A000004',  # all-zeros
-       LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=Left
-       # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=LSR
-     },
-     # Columns height=0 is trivial X=N,Y=0
-     'Math::PlanePath::Columns,height=0' =>
-     { Left => 'A000004',  # all-zeros
-       LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=Columns,height=0 turn_type=Left
-       # OEIS-Other: A000004 planepath=Columns,height=0 turn_type=LSR
-     },
-
-     # but A129184 OFFSET=1 whereas N=2 first turn in Diagonals
-     # 'Math::PlanePath::Diagonals,wider=0' =>
-     # { Left => 'A129184',  # "right shift"
-     #   # OEIS-Catalogue: A129184 planepath=Diagonals turn_type=Left
-     # },
-
-     'Math::PlanePath::KochCurve' =>
-     { Left => 'A035263', # OFFSET=1 matches N=1
-       # OEIS-Catalogue: A035263 planepath=KochCurve turn_type=Left
-
-       # but A096268 OFFSET=0 values 0,1,0,0,0,1
-       # whereas here N=1 first turn values 0,1,0,0,0,1
-       # Right => 'A096268',  # morphism
-     },
-
-    );
-
 sub oeis_anum {
   my ($self) = @_;
   ### PlanePathTurn oeis_anum() ...
 
-  # my $key = Math::NumSeq::PlanePathCoord::_planepath_oeis_key($self->{'planepath_object'});
-  # ### $key
+  my $planepath = $self->{'planepath_object'};
+  my $key = Math::NumSeq::PlanePathCoord::_planepath_oeis_anum_key($self->{'planepath_object'});
 
-  return $oeis_anum{Math::NumSeq::PlanePathCoord::_planepath_oeis_key($self->{'planepath_object'})} -> {$self->{'turn_type'}};
+  ### planepath: ref $planepath
+  ### $key
+  ### whole table: $planepath->_NumSeq_Turn_oeis_anum
+  ### key href: $planepath->_NumSeq_Turn_oeis_anum->{$key}
+
+  return $planepath->_NumSeq_Turn_oeis_anum->{$key}->{$self->{'turn_type'}};
 }
 
 #------------------------------------------------------------------------------
@@ -528,12 +337,16 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_Right_max => 1;
   use constant _NumSeq_Turn_LSR_min => -1;
   use constant _NumSeq_Turn_LSR_max => 1;
+  use constant _NumSeq_Turn_oeis_anum => {};
 }
 
 { package Math::PlanePath::SquareSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_Right_max => 0; # left or straight
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
+  # SquareSpiral
+  # abs(A167752)==Left,LSR if that really is the quarter-squares
+  # abs(A167753)==Left,LSR of wider=1 if that really is the ceil(n+1)^2
 }
 { package Math::PlanePath::GreekKeySpiral;
   sub _NumSeq_Turn_LSR_min {
@@ -563,6 +376,11 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_LSR_max => 1;
   use constant _NumSeq_Turn_Right_max => 0; # left or straight
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
+
+  # Math::PlanePath::TriangleSpiral
+  # Not quite, A010054 starts OFFSET=0 for 1,1,0,1,0,0,1 extra initial 1
+  # cf turns here start N=1 for 1,0,1,0,0,1
+  # Left => 'A010054', # 1 at triangle number
 }
 { package Math::PlanePath::TriangleSpiralSkewed;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
@@ -641,6 +459,15 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_LSR_non_decreasing => 1;
   use constant _NumSeq_Turn_Right_max => 0; # left always
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    { '' =>
+      { 'Left' => 'A000012',  # left always, all ones
+        'LSR'  => 'A000012',
+        # OEIS-Other: A000012 planepath=SacksSpiral
+        # OEIS-Other: A000012 planepath=SacksSpiral turn_type=LSR
+      },
+    };
 }
 { package Math::PlanePath::VogelFloret;
   sub _NumSeq_Turn_Left_min {  # always left if rot<=0.5
@@ -687,6 +514,15 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_LSR_non_decreasing => 1;
   use constant _NumSeq_Turn_Right_max => 0; # left always
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    { '' =>
+      { 'Left' => 'A000012',  # left always, all ones
+        'LSR'  => 'A000012',
+        # OEIS-Other: A000012 planepath=TheodorusSpiral
+        # OEIS-Other: A000012 planepath=TheodorusSpiral turn_type=LSR
+      },
+    };
 }
 { package Math::PlanePath::ArchimedeanChords;
   use constant _NumSeq_Turn_Left_min => 1; # left always
@@ -697,6 +533,15 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_LSR_non_decreasing => 1;
   use constant _NumSeq_Turn_Right_max => 0; # left always
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    { '' =>
+      { 'Left' => 'A000012',  # left always, all ones
+        'LSR'  => 'A000012',
+        # OEIS-Other: A000012 planepath=ArchimedeanChords
+        # OEIS-Other: A000012 planepath=ArchimedeanChords turn_type=LSR
+      },
+    };
 }
 { package Math::PlanePath::MultipleRings;
 
@@ -731,6 +576,23 @@ sub characteristic_non_decreasing {
   }
   *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    {
+     # MultipleRings step=0 is trivial X=N,Y=0
+     'step=0,ring_shape=circle' =>
+     { Left => 'A000004',  # all-zeros
+       LSR  => 'A000004',  # all zeros, straight
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR
+     },
+     'step=0,ring_shape=polygon' =>
+     { Left => 'A000004',  # all-zeros
+       LSR  => 'A000004',  # all zeros, straight
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left ring_shape=polygon
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR ring_shape=polygon
+     },
+    };
 }
 # { package Math::PlanePath::PixelRings;
 #   # right turns between rings
@@ -758,7 +620,7 @@ sub characteristic_non_decreasing {
   }
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
 
-  use constant _NumSeq_Turn_Right_max => 0; # always left or straight 
+  use constant _NumSeq_Turn_Right_max => 0; # always left or straight
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
 }
 # { package Math::PlanePath::HypotOctant;
@@ -836,10 +698,23 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::GcdRationals;
 # }
 # { package Math::PlanePath::PeanoCurve;
+# # 'Math::PlanePath::PeanoCurve,radix=3' =>
+# # {
+# #  # Not quite, LSR here is 1,0,-1
+# #  # A163536 relative direction 0=ahead,1=left,2=right OFFSET=1
+# #  # SLR
+# # },
 # }
 # { package Math::PlanePath::WunderlichSerpentine;
 # }
 # { package Math::PlanePath::HilbertCurve;
+# 'Math::PlanePath::HilbertCurve' =>
+# {
+#  # Not quite, cf 1,0,-1 here
+#  # A163542    relative direction ahead=0,left=1,right=2 OFFSET=1
+#  # A163543    relative direction, transpose X,Y  ahead=0,right=1,left=2
+#  # SLR  SRL
+# },
 # }
 # { package Math::PlanePath::ZOrderCurve;
 # }
@@ -872,6 +747,15 @@ sub characteristic_non_decreasing {
     }
     return -1;
   }
+
+  # Not quite, A039963 is OFFSET=0 vs first turn at N=1 here
+  # 'Math::PlanePath::GrayCode' =>
+  # {
+  #  Left => 'A039963',  # duplicated KochCurve
+  #  LSR  => 'A039963',
+  # },
+  # Koch characteristic of A003159 ending even zeros
+  # 'Math::PlanePath::GrayCode' =>
 }
 # { package Math::PlanePath::ImaginaryBase;
 # }
@@ -886,10 +770,18 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::GosperIslands;
 # }
-# { package Math::PlanePath::GosperSide;
-# }
-# { package Math::PlanePath::KochCurve;
-# }
+{ package Math::PlanePath::KochCurve;
+  use constant _NumSeq_Turn_oeis_anum =>
+    { '' =>
+      { Left => 'A035263', # OFFSET=1 matches N=1
+        # OEIS-Catalogue: A035263 planepath=KochCurve turn_type=Left
+
+        # Not quite, A096268 OFFSET=0 values 0,1,0,0,0,1
+        # whereas here N=1 first turn values 0,1,0,0,0,1
+        # Right => 'A096268',  # morphism
+      },
+    };
+}
 # { package Math::PlanePath::KochPeaks;
 # }
 # { package Math::PlanePath::KochSnowflakes;
@@ -905,24 +797,82 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::SierpinskiArrowhead;
 # }
 # { package Math::PlanePath::SierpinskiCurve;
+#   use constant _NumSeq_Turn_oeis_anum =>
+#   { 'arms=1' =>
+#     {
+#      # Not quite, A039963 numbered OFFSET=0 whereas first turn at N=1 here
+#      Right => 'A039963',  # duplicated KochCurve turns
+#     },
+#   },
+# }
 # }
 # { package Math::PlanePath::SierpinskiCurveStair;
 # }
-# { package Math::PlanePath::DragonCurve;
-# }
+{ package Math::PlanePath::DragonCurve;
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'arms=1' =>
+      {
+       'LSR' => 'A034947', # Jacobi symbol (-1/n)
+       # OEIS-Catalogue: A034947 planepath=DragonCurve turn_type=LSR
+
+       # 'L1R0' => 'A014577', # left=1,right=0  OFFSET=0
+       # 'L0R1' => 'A014707', # left=0,right=1  OFFSET=0
+       # 'L1R2' => 'A014709', # left=1,right=2  OFFSET=0
+       # 'L2R1' => 'A014710', # left=2,right=1  OFFSET=0
+       # 'L1R3' => 'A099545', # left=1,right=3  OFFSET=1
+
+       #  # Not quite, A014707 has OFFSET=0 cf first elem for N=1
+       #  'Left' => 'A014707', # turn, 1=left,0=right
+       #  # OEIS-Catalogue: A014707 planepath=DragonCurve turn_type=Left
+
+       #  # Not quite, A014577 has OFFSET=0 cf first elem for N=1
+       #  'Right' => 'A014577', # turn, 0=left,1=right
+       #  # OEIS-Catalogue: A014577 planepath=DragonCurve turn_type=Right
+      },
+    };
+}
 # { package Math::PlanePath::DragonRounded;
 # }
 # { package Math::PlanePath::DragonMidpoint;
 # }
 # { package Math::PlanePath::AlternatePaper;
+# 'Math::PlanePath::AlternatePaper,arms=1' =>
+# {
+#  # Not quite, A106665 has OFFSET=0 cf first here i=1
+#  'Left' => 'A106665', # turn, 1=left,0=right
+#  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=Left
+# },
 # }
-# { package Math::PlanePath::TerdragonCurve;
-# }
+BEGIN {
+  # GosperSide and TerdragonCurve same turn sequence, by diff angles
+  my $href
+    = { 'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
+        # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
+        # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
+
+        # Not quite, A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
+        # Right => 'A080846',
+        # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
+        # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
+      };
+  { package Math::PlanePath::TerdragonCurve;
+    use constant _NumSeq_Turn_oeis_anum => { 'arms=1' => $href };
+  }
+  { package Math::PlanePath::GosperSide;
+    use constant _NumSeq_Turn_oeis_anum => { '' => $href };
+  }
+}
 # { package Math::PlanePath::TerdragonRounded;
 # }
 # { package Math::PlanePath::TerdragonMidpoint;
 # }
 # { package Math::PlanePath::R5DragonCurve;
+# # Not quite,    OFFSET=0 values 0,0,1,1,0
+# # cf first turn here N=1 values 0,0,1,1,0
+# # 'Math::PlanePath::R5DragonCurve' =>
+# # { Right => 'A175337',
+# #   # OEIS-Catalogue: A175337 planepath=R5DragonCurve turn_type=Right
+# # },
 # }
 # { package Math::PlanePath::R5DragonMidpoint;
 # }
@@ -969,6 +919,16 @@ sub characteristic_non_decreasing {
             ? 0
             : 1);
   }
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    {
+     'width=0' => # Rows width=0 is trivial X=N,Y=0
+     { Left => 'A000004',  # all-zeros
+       LSR  => 'A000004',  # all zeros, straight
+       # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=LSR
+     },
+    };
 }
 { package Math::PlanePath::Columns;
   # if height==1 then always straight ahead
@@ -999,14 +959,49 @@ sub characteristic_non_decreasing {
             ? 0
             : 1);
   }
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    {
+     'height=0' => # Columns height=0 is trivial X=N,Y=0
+     { Left => 'A000004',  # all-zeros
+       LSR  => 'A000004',  # all zeros, straight
+       # OEIS-Other: A000004 planepath=Columns,height=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=Columns,height=0 turn_type=LSR
+     },
+    };
 }
-# { package Math::PlanePath::Diagonals;
-# }
+{ package Math::PlanePath::Diagonals;
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'direction=down,n_start=0' =>
+      { Left => 'A129184', # shift of triangle
+        # OEIS-Catalogue: A129184 planepath=Diagonals,n_start=0 turn_type=Left
+      },
+      'direction=down,n_start=-1' =>
+      { Right => 'A023531', # 1 at m(m+3)/2
+        # OEIS-Other: A023531 planepath=Diagonals,n_start=-1 turn_type=Right
+      },
+
+      'direction=up,n_start=0' =>
+      { Right => 'A129184', # shift of triangle
+        # OEIS-Other: A129184 planepath=Diagonals,direction=up,n_start=0 turn_type=Right
+      },
+      'direction=up,n_start=-1' =>
+      { Left => 'A023531', # 1 at m(m+3)/2
+        # OEIS-Other: A023531 planepath=Diagonals,direction=up,n_start=-1 turn_type=Left
+      },
+    };
+}
 # { package Math::PlanePath::DiagonalsAlternating;
 # }
 # { package Math::PlanePath::DiagonalsOctant;
 #   # down is left or straight, but also right at N=2,3,4
 #   # up is straight or right, but also left at N=2,3,4
+#   'Math::PlanePath::DiagonalsOctant,direction=down' =>
+#   { Left => square or pronic starting from 1
+#   },
+#   'Math::PlanePath::DiagonalsOctant,direction=up' =>
+#   { Left => square or pronic starting from 1
+#   },
 # }
 # { package Math::PlanePath::Staircase;
 # }
@@ -1052,12 +1047,52 @@ sub characteristic_non_decreasing {
             ? 0
             : 1); # vertical only
   }
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    {
+     # PyramidRows step=0 is trivial X=N,Y=0
+     do {
+       my $href= { Left => 'A000004',  # all-zeros
+                   LSR  => 'A000004',  # all zeros, straight
+                 };
+       ('step=0,align=centre' => $href,
+        'step=0,align=right'  => $href,
+        'step=0,align=left'   => $href,
+       );
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=LSR
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=right turn_type=Left
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=left turn_type=LSR
+     },
+
+     # PyramidRows step=1
+     do {
+       my $href= { Left => 'A129184', # triangle 1s shift right
+                 };
+       ('step=1,align=centre,n_start=0' => $href,
+        'step=1,align=right,n_start=0'  => $href,
+        'step=1,align=left,n_start=0'   => $href,
+       );
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,n_start=0 turn_type=Left
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=right,n_start=0 turn_type=Left
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=left,n_start=0 turn_type=Left
+     },
+     do {
+       my $href= { Right => 'A023531',  # 1 at n==m*(m+3)/2
+                 };
+       ('step=1,align=centre,n_start=-1' => $href,
+        'step=1,align=right,n_start=-1'  => $href,
+       );
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,n_start=-1 turn_type=Right
+       # OEIS-Other: A023531 planepath=PyramidRows,step=1,align=right,n_start=-1 turn_type=Right
+     },
+    };
 }
 { package Math::PlanePath::PyramidSides;
-  use constant _NumSeq_Turn_Left_max => 0; # right or straight
-  use constant _NumSeq_Turn_Left_non_decreasing => 1; # right or straight
-  use constant _NumSeq_Turn_LSR_max => 0; # right or straight
-}
+    use constant _NumSeq_Turn_Left_max => 0; # right or straight
+    use constant _NumSeq_Turn_Left_non_decreasing => 1; # right or straight
+    use constant _NumSeq_Turn_LSR_max => 0; # right or straight
+  }
 { package Math::PlanePath::CellularRule;
   sub _NumSeq_Turn_Left_increasing {
     my ($self) = @_;
@@ -1115,6 +1150,14 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::WythoffArray;
 # }
 # { package Math::PlanePath::PowerArray;
+# use constant _NumSeq_oeis_anum => 
+#   {
+#      # Math::PlanePath::PowerArray
+#      # Not quite, A011765 0,0,0,1 repeating OFFSET=1
+#      # cf n_start=1 is first turn at N=2
+#      # Left  => 'A011765',
+#      # Right => 'A011765',
+#   };
 # }
 
 1;

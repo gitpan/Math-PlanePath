@@ -61,8 +61,6 @@ sub numeq_array {
 #       push @got, $x;
 #     }
 #   }
-#   ### bvalues: join(',',@{$bvalues}[0..20])
-#   ### got: '    '.join(',',@got[0..20])
 #   skip (! $bvalues,
 #         numeq_array(\@got, $bvalues),
 #         1, "$anum -- Kepler tree numerators");
@@ -95,8 +93,6 @@ sub numeq_array {
 #       push @got, $y;
 #     }
 #   }
-#   ### bvalues: join(',',@{$bvalues}[0..20])
-#   ### got: '    '.join(',',@got[0..20])
 #   skip (! $bvalues,
 #         numeq_array(\@got, $bvalues),
 #         1, "$anum -- Kepler tree denominators");
@@ -119,8 +115,6 @@ sub numeq_array {
         push @got, $y;
       }
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum -- Kepler half-tree denominators every second value");
@@ -137,8 +131,6 @@ sub numeq_array {
         push @got, $x+$y;
       }
     }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
     skip (! $bvalues,
           numeq_array(\@got, $bvalues),
           1, "$anum -- as sum X+Y");
