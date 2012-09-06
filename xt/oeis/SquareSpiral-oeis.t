@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 39;
+plan tests => 29;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -229,7 +229,7 @@ sub dxdy_to_dir4_1 {
 
 {
   my $anum = 'A033638';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_value => 1_000_000);
   my @got;
   if ($bvalues) {
     push @got, 1, 1;

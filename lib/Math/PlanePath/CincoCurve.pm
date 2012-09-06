@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,7 +39,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 
 use constant n_start => 0;
@@ -521,41 +522,21 @@ sub xy_to_n {
     return $y;
   }
 
-  my ($len, $level) = round_down_pow (($x > $y ? $x : $y),
-                                      5);
-  ### $len
-  ### $level
-
-  my $n = ($x * 0 * $y);
+  my @xdigits = digit_split_lowtohigh ($x, 5);
+  my @ydigits = digit_split_lowtohigh ($y, 5);
   my $state = 0;
-  while ($level-- >= 0) {
-    ### at: "$x,$y  len=$len level=$level"
-    ### assert: $x >= 0
-    ### assert: $y >= 0
-    ### assert: $x < 5*$len
-    ### assert: $y < 5*$len
+  my @ndigits;
 
-    my $xo = int ($x / $len);
-    my $yo = int ($y / $len);
-    ### assert: $xo >= 0
-    ### assert: $xo <= 4
-    ### assert: $yo >= 0
-    ### assert: $yo <= 4
-
-    $x %= $len;
-    $y %= $len;
-    ### xy bits: "$xo, $yo"
-
-    my $digit = $yx_to_digit[$state + 5*$yo + $xo];
-    $state = $next_state[$state+$digit];
-    $n = 25*$n + $digit;
-    $len /= 5;
+  foreach my $i (reverse 0 .. max($#xdigits,$#ydigits)) {  # high to low
+    my $ndigit = $yx_to_digit[$state
+                              + 5*($ydigits[$i]||0)
+                              + ($xdigits[$i]||0)];
+    $ndigits[$i] = $ndigit;
+    $state = $next_state[$state+$ndigit];
   }
 
-  ### assert: $x == 0
-  ### assert: $y == 0
-
-  return $n;
+  return digit_join_lowtohigh (\@ndigits, 25,
+                               $x * 0 * $y); # bignum zero
 }
 
 # exact

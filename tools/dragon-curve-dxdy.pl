@@ -20,6 +20,8 @@
 
 # Usage: perl dragon-curve-dxdy.pl
 #
+# Print the state tables used for DragonCurve n_to_dxdy().  These are not
+# the same as the tables for n_to_xy() which are in dragon-curve-table.pl.
 
 use 5.010;
 use strict;
@@ -54,22 +56,31 @@ sub print_table {
 my @state_to_dxdy;
 
 sub make_state {
-  my ($nextturn, $rot, $prevbit, $bit) = @_;
-  return $bit + 2*($prevbit + 2*($rot + 4*$nextturn));
+  my %param = @_;
+  my $state = 0;
+  $state <<= 1; $state |= delete $param{'nextturn'};   # high
+  $state <<= 2; $state |= delete $param{'rot'};
+  $state <<= 1; $state |= delete $param{'prevbit'};
+  $state <<= 1; $state |= delete $param{'digit'};      # low
+  if (%param) { die; }
+  return $state;
 }
 sub state_string {
   my ($state) = @_;
-  my $bit = $state & 1;  $state >>= 1;
+  my $digit = $state & 1;  $state >>= 1;
   my $prevbit = $state & 1;  $state >>= 1;
   my $rot = $state & 3;  $state >>= 2;
-  my $nextturn = $state & 1;
-  return "rot=$rot nextturn=$nextturn  prevbit=$prevbit (bit=$bit)";
+  my $nextturn = $state & 1;  $state >>= 1;
+  return "rot=$rot  prevbit=$prevbit (digit=$digit)";
 }
 
 foreach my $nextturn (0, 1) {
   foreach my $rot (0, 1, 2, 3) {
     foreach my $prevbit (0, 1) {
-      my $state = make_state ($nextturn, $rot, $prevbit, 0);
+      my $state = make_state (nextturn => $nextturn,
+                              rot      => $rot,
+                              prevbit  => $prevbit,
+                              digit    => 0);
       ### $state
 
       foreach my $orig_bit (0, 1) {
@@ -115,7 +126,10 @@ foreach my $nextturn (0, 1) {
         $state_to_dxdy[$masked_state + 3] = $frac_dy;
 
         my $next_state = make_state
-          ($new_nextturn, $new_rot, $new_prevbit, 0);
+          (nextturn => $new_nextturn,
+           rot      => $new_rot,
+           prevbit  => $new_prevbit,
+           digit    => 0);
         $next_state[$state+$orig_bit] = $next_state;
       }
     }

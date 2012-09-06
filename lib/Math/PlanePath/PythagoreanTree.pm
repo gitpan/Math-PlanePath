@@ -64,7 +64,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -73,9 +73,6 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow';
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -403,7 +400,16 @@ sub tree_n_parent {
     return undef;
   }
 }
-
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+  ### PythagoreanTree tree_n_to_depth(): $n
+  if ($n >= 1) {
+    my ($len, $level) = round_down_pow (2*$n-1, 3);
+    return $level;
+  } else {
+    return undef;
+  }
+}
 
 #------------------------------------------------------------------------------
 
@@ -776,6 +782,14 @@ the tree).
 
 This is simply C<floor(($n+1)/3)>, reversing the C<tree_n_children()>
 calculation.
+
+=item C<$depth = $path-E<gt>tree_n_to_depth($n)>
+
+Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
+top of the tree at N=1 is depth=0, then its children depth=1, etc.
+
+The structure of the tree with 3 nodes per point means the depth is
+floor(log3(2N-1)), so for example N=5 through N=13 all have depth=2.
 
 =back
 

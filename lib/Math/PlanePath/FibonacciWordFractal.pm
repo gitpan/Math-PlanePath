@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,6 +45,8 @@ use constant class_y_negative => 0;
 
 my @rot_to_sx = (0,-1,0,1);
 my @rot_to_sy = (1,0,-1,0);
+
+my $moffset = 0;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -77,7 +79,7 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
   my $one = $zero + 1;  # inherit bignum 0
 
-  my @f = ($one, $zero+2);
+  my @f = ($one, 2+$zero);
   my @xend = ($zero, $zero, $one);     # F3 N=2 X=1,Y=1
   my @yend = ($zero, $one, $one);
   my $level = 2;
@@ -85,24 +87,25 @@ sub n_to_xy {
     push @f, $f[-1] + $f[-2];
 
     my ($x,$y);
-    if (($level % 6) == 1) {
+    my $m = (($level+$moffset) % 6);
+    if ($m == 1) {
       $x = $yend[-2];     # T
       $y = $xend[-2];
-    } elsif (($level % 6) == 2) {
+    } elsif ($m == 2) {
       $x = $yend[-2];      # -90
       $y = - $xend[-2];
-    } elsif (($level % 6) == 3) {
+    } elsif ($m == 3) {
       $x = $xend[-2];     # T -90
       $y = - $yend[-2];
 
-    } elsif (($level % 6) == 4) {
+    } elsif ($m == 4) {
       ### T
       $x = $yend[-2];     # T
       $y = $xend[-2];
-    } elsif (($level % 6) == 5) {
+    } elsif ($m == 5) {
       $x = - $yend[-2];     # +90
       $y = $xend[-2];
-    } elsif (($level % 6) == 0) {
+    } elsif ($m == 0) {
       $x = - $xend[-2];     # T +90
       $y = $yend[-2];
     }
@@ -124,8 +127,9 @@ sub n_to_xy {
     my $yo = pop @yend;
 
     if ($n >= $f[-1]) {
+      my $m = (($level+$moffset) % 6);
       $n -= $f[-1];
-      ### offset: "$xo, $yo  for ".($level % 6)
+      ### offset: "$xo, $yo  for levelmod=$m"
 
       if ($transpose) {
         ($xo,$yo) = ($yo,$xo);
@@ -141,17 +145,16 @@ sub n_to_xy {
 
       $x += $xo;
       $y += $yo;
-
-      if (($level % 6) == 1) {         # F7 N=13 etc
+      if ($m == 1) {         # F7 N=13 etc
         $transpose ^= 3;  # T
-      } elsif (($level % 6) == 2) {    # F8 N=21 etc
+      } elsif ($m == 2) {    # F8 N=21 etc
         # -90
         if ($transpose) {
           $rot++;
         } else {
           $rot--;   # -90
         }
-      } elsif (($level % 6) == 3) {    # F3 N=2 etc
+      } elsif ($m == 3) {    # F3 N=2 etc
         # T -90
         if ($transpose) {
           $rot++;
@@ -160,16 +163,16 @@ sub n_to_xy {
         }
         $transpose ^= 3;
 
-      } elsif (($level % 6) == 4) {    # F4 N=3 etc
+      } elsif ($m == 4) {    # F4 N=3 etc
         $transpose ^= 3;  # T
-      } elsif (($level % 6) == 5) {    # F5 N=5 etc
+      } elsif ($m == 5) {    # F5 N=5 etc
         # +90
         if ($transpose) {
           $rot--;
         } else {
           $rot++;   # +90
         }
-      } else {  # (($level % 6) == 0)  # F6 N=8 etc
+      } else {  # ($m == 0)  # F6 N=8 etc
         # T +90
         if ($transpose) {
           $rot--;
@@ -217,24 +220,25 @@ sub xy_to_n {
 
   for (;;) {
     my ($xo,$yo);
-    if (($level % 6) == 2) {
+    my $m = ($level % 6);
+    if ($m == 2) {
       $xo = $yend[-2];     # T
       $yo = $xend[-2];
-    } elsif (($level % 6) == 3) {
+    } elsif ($m == 3) {
       $xo = $yend[-2];      # -90
       $yo = - $xend[-2];
-    } elsif (($level % 6) == 4) {
+    } elsif ($m == 4) {
       $xo = $xend[-2];     # T -90
       $yo = - $yend[-2];
 
-    } elsif (($level % 6) == 5) {
+    } elsif ($m == 5) {
       ### T
       $xo = $yend[-2];     # T
       $yo = $xend[-2];
-    } elsif (($level % 6) == 0) {
+    } elsif ($m == 0) {
       $xo = - $yend[-2];     # +90
       $yo = $xend[-2];
-    } elsif (($level % 6) == 1) {
+    } elsif ($m == 1) {
       $xo = - $xend[-2];     # T +90
       $yo = $yend[-2];
     }
@@ -254,19 +258,20 @@ sub xy_to_n {
   while ($level >= 2) {
     ### at: "$x,$y  n=$n level=$level consider $xend[-1],$yend[-1] for $f[-1]"
 
-    if (($level+3) % 6 < 3) {
+    my $m = (($level+$moffset) % 6);
+    if ($m >= 3) {
       ### 3,4,5 X ...
       if ($x >= $xend[-1]) {
         $n += $f[-1];
         $x -= $xend[-1];
         $y -= $yend[-1];
-        ### shift to: "$x,$y  levelmod ".($level % 6)
+        ### shift to: "$x,$y  levelmod ".$m
 
-        if (($level % 6) == 3) {          # F3 N=2 etc
+        if ($m == 3) {          # F3 N=2 etc
           ($x,$y) = (-$y,$x);  # +90
-        } elsif (($level % 6) == 4) {     # F4 N=3 etc
+        } elsif ($m == 4) {     # F4 N=3 etc
           $y = -$y;            # +90 T
-        } elsif (($level % 6) == 5) {     # F5 N=5 etc
+        } elsif ($m == 5) {     # F5 N=5 etc
           ($x,$y) = ($y,$x);   # T
         }
         ### rot to: "$x,$y"
@@ -280,13 +285,13 @@ sub xy_to_n {
         $n += $f[-1];
         $x -= $xend[-1];
         $y -= $yend[-1];
-        ### shift to: "$x,$y  levelmod ".($level % 6)
+        ### shift to: "$x,$y  levelmod ".$m
 
-        if (($level % 6) == 0) {          # F6 N=8 etc
+        if ($m == 0) {          # F6 N=8 etc
           ($x,$y) = ($y,-$x);  # -90
-        } elsif (($level % 6) == 1) {     # F7 N=13 etc
+        } elsif ($m == 1) {     # F7 N=13 etc
           $x = -$x;            # -90 T
-        } elsif (($level % 6) == 2) {     # F8 N=21 etc, incl F2 N=1
+        } elsif ($m == 2) {     # F8 N=21 etc, incl F2 N=1
           ($x,$y) = ($y,$x);   # T
         }
         ### rot to: "$x,$y"
@@ -324,11 +329,8 @@ sub rect_to_n_range {
   if ($x2 < 0 || $y2 < 0) {
     return (1, 0);
   }
-  if (is_infinite($x2)) {
-    return (0, $x2);
-  }
-  if (is_infinite($y2)) {
-    return (0, $y2);
+  foreach ($x1,$x2,$y1,$y2) {
+    if (is_infinite($_)) { return (0, $_); }
   }
 
   my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum 0
@@ -344,23 +346,24 @@ sub rect_to_n_range {
 
   for (;;) {
     my ($xo,$yo);
-    if (($level % 6) == 3) {         # at F3 N=2 etc
+    my $m = (($level+$moffset) % 6);
+    if ($m == 3) {         # at F3 N=2 etc
       $xo = $yend0;     # -90
       $yo = - $xend0;
-    } elsif (($level % 6) == 4) {    # at F4 N=3 etc
+    } elsif ($m == 4) {    # at F4 N=3 etc
       $xo = $xend0;     # T -90
       $yo = - $yend0;
 
-    } elsif (($level % 6) == 5) {    # at F5 N=5 etc
+    } elsif ($m == 5) {    # at F5 N=5 etc
       $xo = $yend0;     # T
       $yo = $xend0;
-    } elsif (($level % 6) == 0) {    # at F6 N=8 etc
+    } elsif ($m == 0) {    # at F6 N=8 etc
       $xo = - $yend0;   # +90
       $yo = $xend0;
-    } elsif (($level % 6) == 1) {    # at F7 N=13 etc
+    } elsif ($m == 1) {    # at F7 N=13 etc
       $xo = - $xend0;   # T +90
       $yo = $yend0;
-    } else {   #  if (($level % 6) == 2) {    # at F8 N=21 etc
+    } else {   #  if ($m == 2) {    # at F8 N=21 etc
       $xo = $yend0;     # T
       $yo = $xend0;
     }
@@ -394,9 +397,9 @@ Math::PlanePath::FibonacciWordFractal -- turns by Fibonacci word bits
 
 =head1 DESCRIPTION
 
-This is an integer version of the Fibonacci word fractal by Alexis
-Monnerot-Dumaine.  It makes turns controlled by by the "Fibonacci word"
-sequence, sometimes called the "golden string" too.
+X<Monnerot-Dumaine, Alexis>This is an integer version of the Fibonacci word
+fractal by Alexis Monnerot-Dumaine.  It makes turns controlled by the
+"Fibonacci word" sequence, sometimes called the "golden string".
 
     11  | 27-28-29    33-34-35          53-54-55    59-60-61
         |  |     |     |     |           |     |     |     |
@@ -424,9 +427,9 @@ sequence, sometimes called the "golden string" too.
         +-------------------------------------------------------
           X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 
 
-A current direction up,down,left,right is maintained, initially up.  The
-path moves in that direction and then a possible turn according to the
-Fibonacci word,
+A current direction up,down,left,right is maintained, starting in the up
+direction.  The path moves in the current direction and then turns or goes
+straight according to the Fibonacci word,
 
     Fib word
     --------

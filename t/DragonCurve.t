@@ -36,7 +36,7 @@ require Math::PlanePath::DragonCurve;
 # VERSION
 
 {
-  my $want_version = 87;
+  my $want_version = 88;
   ok ($Math::PlanePath::DragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonCurve->VERSION,  $want_version,
@@ -73,15 +73,11 @@ require Math::PlanePath::DragonCurve;
     if ($dy > 0) { return 1; }  # north
     if ($dy < 0) { return 3; }  # south
   }
-
   sub path_n_dir {
     my ($path, $n) = @_;
-    my ($x,$y) = $path->n_to_xy($n);
-    my ($next_x,$next_y) = $path->n_to_xy($n+1);
-    return dxdy_to_dir ($next_x - $x,
-                        $next_y - $y);
+    my ($dx,$dy) = $path->n_to_dxdy($n) or die "Oops, no point at ",$n;
+    return dxdy_to_dir ($dx, $dy);
   }
-
   # return 0 for left, 1 for right
   sub path_n_turn {
     my ($path, $n) = @_;

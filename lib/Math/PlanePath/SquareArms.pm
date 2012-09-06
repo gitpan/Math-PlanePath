@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -59,14 +59,14 @@ use constant arms_count => 4;
 sub n_to_xy {
   my ($self, $n) = @_;
   ### SquareArms n_to_xy(): $n
-  if ($n < 1) {
-    return;
-  }
+
   if ($n < 2) {
+    if ($n < 1) { return; }
     ### centre
     return (0, 1-$n);  # from n=1 towards n=5 at x=0,y=-1
   }
   $n -= 2;
+
   my $frac;
   { my $int = int($n);
     $frac = $n - $int;

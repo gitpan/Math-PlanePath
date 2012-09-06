@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -44,6 +44,9 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use Math::PlanePath::SacksSpiral;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 use constant n_frac_discontinuity => 0;
@@ -101,7 +104,6 @@ sub n_to_xy {
   my ($pow, $level) = round_down_pow ($n+2, 3);
   ### $level
   ### base: $pow - 2
-  ### $sidelen
   ### assert: $pow == 3 ** $level
 
   $n -= $pow-2;  # remainder
@@ -198,12 +200,18 @@ sub xy_to_n {
   $y_full = round_nearest($y_full);
   ### GosperIslands xy_to_n(): "$x_full,$y_full"
 
-  if (($x_full ^ $y_full) & 1) {
+  foreach my $overflow (3*$x_full+3*$y_full, 3*$x_full-3*$y_full) {
+    if (is_infinite($overflow)) { return $overflow; }
+  }
+  if (($x_full + $y_full) % 2) {
+    ### odd point, not reached ...
     return undef;
   }
 
   my $r = hypot($x_full,$y_full);
   my $level_limit = ceil(log($r+1)/log(sqrt(7)));
+  ### $r
+  ### $level_limit
   if (is_infinite($level_limit)) {
     return $level_limit;
   }

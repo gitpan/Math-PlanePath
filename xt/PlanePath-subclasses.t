@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 943;
+plan tests => 565;
 
 use lib 't';
 use MyTestHelpers;
@@ -39,11 +39,245 @@ my $verbose = 1;
                # 'ToothpickFractal,parts=half',
                # 'ToothpickFractal,parts=3/4',
 
-               # 'DekkingCurve',
-               # 'DekkingCentres',
-
 my @modules = (
                # module list begin
+
+               'GosperIslands',
+
+               'AR2W2Curve',
+               'AR2W2Curve,start_shape=D2',
+               'AR2W2Curve,start_shape=B2',
+               'AR2W2Curve,start_shape=B1rev',
+               'AR2W2Curve,start_shape=D1rev',
+               'AR2W2Curve,start_shape=A2rev',
+               'BetaOmega',
+               'KochelCurve',
+               'CincoCurve',
+               'WunderlichMeander',
+
+               'ZOrderCurve',
+               'ZOrderCurve,radix=3',
+               'ZOrderCurve,radix=9',
+               'ZOrderCurve,radix=37',
+
+               'SacksSpiral',
+               'TheodorusSpiral',
+               'ArchimedeanChords',
+               'VogelFloret',
+
+               'ComplexRevolving',
+               'ComplexPlus',
+               'ComplexPlus,realpart=2',
+               'ComplexPlus,realpart=3',
+               'ComplexPlus,realpart=4',
+               'ComplexPlus,realpart=5',
+               'ComplexMinus',
+               'ComplexMinus,realpart=2',
+               'ComplexMinus,realpart=3',
+               'ComplexMinus,realpart=4',
+               'ComplexMinus,realpart=5',
+
+               'OctagramSpiral',
+               'AnvilSpiral',
+               'AnvilSpiral,wider=1',
+               'AnvilSpiral,wider=2',
+               'AnvilSpiral,wider=9',
+               'AnvilSpiral,wider=17',
+
+               'CoprimeColumns',
+               'DivisibleColumns',
+               'DivisibleColumns,divisor_type=proper',
+
+               'LTiling',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
+               'FibonacciWordFractal',
+
+               'CornerReplicate',
+               'DigitGroups',
+               'DigitGroups,radix=3',
+               'DigitGroups,radix=4',
+               'DigitGroups,radix=5',
+               'DigitGroups,radix=37',
+
+               'RationalsTree',
+               'RationalsTree,tree_type=CW',
+               'RationalsTree,tree_type=AYT',
+               'RationalsTree,tree_type=Bird',
+               'RationalsTree,tree_type=Drib',
+
+               'HexSpiral',
+               'HexSpiral,wider=1',
+               'HexSpiral,wider=2',
+               'HexSpiral,wider=3',
+               'HexSpiral,wider=4',
+               'HexSpiral,wider=5',
+               'HexSpiral,wider=37',
+               'HexSpiralSkewed',
+               'HexSpiralSkewed,wider=1',
+               'HexSpiralSkewed,wider=2',
+               'HexSpiralSkewed,wider=3',
+               'HexSpiralSkewed,wider=4',
+               'HexSpiralSkewed,wider=5',
+               'HexSpiralSkewed,wider=37',
+
+               'HeptSpiralSkewed',
+               'PyramidSpiral',
+
+               'UlamWarburton',
+               'UlamWarburtonQuarter',
+
+               'Flowsnake',
+               'Flowsnake,arms=2',
+               'Flowsnake,arms=3',
+               'FlowsnakeCentres',
+               'FlowsnakeCentres,arms=2',
+               'FlowsnakeCentres,arms=3',
+
+               'GosperReplicate',
+               'GosperSide',
+
+               'SquareReplicate',
+
+               'QuadricCurve',
+               'QuadricIslands',
+
+               'WythoffArray',
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
+
+               'PixelRings',
+               'FilledRings',
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'CubicBase',
+               'CubicBase,radix=3',
+               'CubicBase,radix=4',
+               'CubicBase,radix=37',
+
+               'GcdRationals',
+               'GcdRationals,pairs_order=rows_reverse',
+               'GcdRationals,pairs_order=diagonals_down',
+               'GcdRationals,pairs_order=diagonals_up',
+
+               'HilbertSpiral',
+               'HilbertCurve',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=6',
+
+               'CCurve',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
+               'AztecDiamondRings',
+               'DiamondArms',
+               'SquareArms',
+               'HexArms',
+
+               'GrayCode',
+               'GrayCode,radix=3',
+               'GrayCode,radix=4',
+               'GrayCode,radix=37',
+               'GrayCode,apply_type=FsT',
+               'GrayCode,apply_type=Fs',
+               'GrayCode,apply_type=Ts',
+               'GrayCode,apply_type=sF',
+               'GrayCode,apply_type=sT',
+               'GrayCode,radix=4,gray_type=modular',
+
+               'WunderlichSerpentine',
+               'WunderlichSerpentine,serpentine_type=100_000_000',
+               'WunderlichSerpentine,serpentine_type=000_000_001',
+               'WunderlichSerpentine,radix=2',
+               'WunderlichSerpentine,radix=4',
+               'WunderlichSerpentine,radix=5,serpentine_type=coil',
+
+               'CellularRule',
+               'CellularRule,rule=0',   # blank
+               'CellularRule,rule=57',
+               'CellularRule,rule=60',
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=206', # left half solid
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=222', # full solid
+               'CellularRule54',
+               'CellularRule57',
+               'CellularRule57,mirror=1',
+               'CellularRule190',
+               'CellularRule190,mirror=1',
+
+               'DragonMidpoint',
+               'DragonMidpoint,arms=2',
+               'DragonMidpoint,arms=3',
+               'DragonMidpoint,arms=4',
+
+               'QuintetCurve',
+               'QuintetCurve,arms=2',
+               'QuintetCurve,arms=3',
+               'QuintetCurve,arms=4',
+               'QuintetCentres',
+               'QuintetCentres,arms=2',
+               'QuintetCentres,arms=3',
+               'QuintetCentres,arms=4',
+
+               'QuintetReplicate',
+
+               'DekkingCurve',
+               'DekkingCentres',
+
+               'DragonCurve',
+               'DragonCurve,arms=2',
+               'DragonCurve,arms=3',
+               'DragonCurve,arms=4',
+
+               'DiamondSpiral',
+               'DiamondSpiral,n_start=0',
+               'DiamondSpiral,n_start=37',
+
+               'FractionsTree',
+               'FactorRationals',
+               'DiagonalRationals',
+
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,coordinates=PQ,tree_type=FB',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=diagonal',
 
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowheadCentres,align=right',
@@ -119,41 +353,15 @@ my @modules = (
                'HypotOctant,points=even',
                'HypotOctant,points=odd',
 
-               'QuintetCurve',
-               'QuintetCurve,arms=2',
-               'QuintetCurve,arms=3',
-               'QuintetCurve,arms=4',
-               'QuintetCentres',
-               'QuintetCentres,arms=2',
-               'QuintetCentres,arms=3',
-               'QuintetCentres,arms=4',
-               'QuintetReplicate',
-
-               'DragonCurve',
-               'DragonCurve,arms=2',
-               'DragonCurve,arms=3',
-               'DragonCurve,arms=4',
-
                'SierpinskiArrowhead',
                'SierpinskiArrowhead,align=right',
                'SierpinskiArrowhead,align=left',
                'SierpinskiArrowhead,align=diagonal',
 
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=diagonal',
-
                'DragonRounded',
                'DragonRounded,arms=2',
                'DragonRounded,arms=3',
                'DragonRounded,arms=4',
-
-               'DragonMidpoint',
-               'DragonMidpoint,arms=2',
-               'DragonMidpoint,arms=3',
-               'DragonMidpoint,arms=4',
 
                'MPeaks',
 
@@ -227,20 +435,6 @@ my @modules = (
                'KochSquareflakes',
                'KochSquareflakes,inward=>1',
 
-               'CellularRule',
-               'CellularRule,rule=0',   # blank
-               'CellularRule,rule=57',
-               'CellularRule,rule=60',
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=206', # left half solid
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=222', # full solid
-               'CellularRule54',
-               'CellularRule57',
-               'CellularRule57,mirror=1',
-               'CellularRule190',
-               'CellularRule190,mirror=1',
-
                'SquareSpiral,n_start=0',
                'SquareSpiral,n_start=37',
                'SquareSpiral,wider=5,n_start=0',
@@ -301,201 +495,11 @@ my @modules = (
                'AlternatePaperMidpoint,arms=7',
                'AlternatePaperMidpoint,arms=8',
 
-               'WythoffArray',
-               'PowerArray',
-               'PowerArray,radix=3',
-               'PowerArray,radix=4',
-
-               'GcdRationals',
-               'GcdRationals,pairs_order=rows_reverse',
-               'GcdRationals,pairs_order=diagonals_down',
-               'GcdRationals,pairs_order=diagonals_up',
-
-               'AR2W2Curve',
-               'AR2W2Curve,start_shape=D2',
-               'AR2W2Curve,start_shape=B2',
-               'AR2W2Curve,start_shape=B1rev',
-               'AR2W2Curve,start_shape=D1rev',
-               'AR2W2Curve,start_shape=A2rev',
-               'BetaOmega',
-               'KochelCurve',
-               'CincoCurve',
-
-               'HilbertSpiral',
-               'HilbertCurve',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=6',
-
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=6',
-
-               'CCurve',
-
-               'R5DragonMidpoint',
-               'R5DragonMidpoint,arms=2',
-               'R5DragonMidpoint,arms=3',
-               'R5DragonMidpoint,arms=4',
-               'R5DragonCurve',
-               'R5DragonCurve,arms=2',
-               'R5DragonCurve,arms=3',
-               'R5DragonCurve,arms=4',
-
-               'CubicBase',
-               'CubicBase,radix=3',
-               'CubicBase,radix=4',
-               'CubicBase,radix=37',
-
-               'AztecDiamondRings',
-               'DiamondSpiral',
-               'DiamondArms',
-               'SquareArms',
-               'HexArms',
-
-               'GrayCode',
-               'GrayCode,radix=3',
-               'GrayCode,radix=4',
-               'GrayCode,radix=37',
-               'GrayCode,apply_type=FsT',
-               'GrayCode,apply_type=Fs',
-               'GrayCode,apply_type=Ts',
-               'GrayCode,apply_type=sF',
-               'GrayCode,apply_type=sT',
-               'GrayCode,radix=4,gray_type=modular',
-
-               'WunderlichSerpentine',
-               'WunderlichSerpentine,serpentine_type=100_000_000',
-               'WunderlichSerpentine,serpentine_type=000_000_001',
-               'WunderlichSerpentine,radix=2',
-               'WunderlichSerpentine,radix=4',
-               'WunderlichSerpentine,radix=5,serpentine_type=coil',
-
-               'PixelRings',
-               'FilledRings',
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
                'StaircaseAlternating,end_type=square',
                'StaircaseAlternating',
                'Staircase',
 
                'CretanLabyrinth',
-
-               'ComplexPlus',
-               'ComplexPlus,realpart=2',
-               'ComplexPlus,realpart=3',
-               'ComplexPlus,realpart=4',
-               'ComplexPlus,realpart=5',
-
-               'ComplexMinus',
-               'ComplexMinus,realpart=2',
-               'ComplexMinus,realpart=3',
-               'ComplexMinus,realpart=4',
-               'ComplexMinus,realpart=5',
-               'ComplexRevolving',
-
-               'OctagramSpiral',
-               'AnvilSpiral',
-               'AnvilSpiral,wider=1',
-               'AnvilSpiral,wider=2',
-               'AnvilSpiral,wider=9',
-               'AnvilSpiral,wider=17',
-
-               'FractionsTree',
-               'FactorRationals',
-               'DiagonalRationals',
-
-               'CoprimeColumns',
-               'DivisibleColumns',
-               'DivisibleColumns,divisor_type=proper',
-
-               'LTiling',
-               'LTiling,L_fill=ends',
-               'LTiling,L_fill=all',
-               'WunderlichMeander',
-               'FibonacciWordFractal',
-
-               'CornerReplicate',
-               'DigitGroups',
-               'DigitGroups,radix=3',
-               'DigitGroups,radix=4',
-               'DigitGroups,radix=5',
-               'DigitGroups,radix=37',
-
-               'RationalsTree',
-               'RationalsTree,tree_type=CW',
-               'RationalsTree,tree_type=AYT',
-               'RationalsTree,tree_type=Bird',
-               'RationalsTree,tree_type=Drib',
-
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
-
-               'HexSpiral',
-               'HexSpiral,wider=1',
-               'HexSpiral,wider=2',
-               'HexSpiral,wider=3',
-               'HexSpiral,wider=4',
-               'HexSpiral,wider=5',
-               'HexSpiral,wider=37',
-               'HexSpiralSkewed',
-               'HexSpiralSkewed,wider=1',
-               'HexSpiralSkewed,wider=2',
-               'HexSpiralSkewed,wider=3',
-               'HexSpiralSkewed,wider=4',
-               'HexSpiralSkewed,wider=5',
-               'HexSpiralSkewed,wider=37',
-
-               'HeptSpiralSkewed',
-               'PyramidSpiral',
-
-               'UlamWarburton',
-               'UlamWarburtonQuarter',
-
-               'Flowsnake',
-               'Flowsnake,arms=2',
-               'Flowsnake,arms=3',
-               'FlowsnakeCentres',
-               'FlowsnakeCentres,arms=2',
-               'FlowsnakeCentres,arms=3',
-
-               'GosperReplicate',
-               'GosperSide',
-               'GosperIslands',
-
-               'SquareReplicate',
-
-               'QuadricCurve',
-               'QuadricIslands',
-
-               'ZOrderCurve',
-               'ZOrderCurve,radix=3',
-               'ZOrderCurve,radix=9',
-               'ZOrderCurve,radix=37',
-
-               'SacksSpiral',
-               'TheodorusSpiral',
-               'ArchimedeanChords',
-               'VogelFloret',
 
                # module list end
               );
@@ -533,7 +537,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 87;
+my $want_version = 88;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -578,7 +582,7 @@ foreach my $mod (@modules) {
   $path->x_negative;
   $path->y_negative;
   $path->n_start;
-  ok (1,1, 'x_negative(),y_negative(),n_start() methods run');
+  # ok (1,1, 'x_negative(),y_negative(),n_start() methods run');
 }
 
 #------------------------------------------------------------------------------
@@ -790,6 +794,13 @@ if (! eval { require Data::Float; 1 }) {
   $neg_infinity = Data::Float::neg_infinity();
   $nan = Data::Float::nan();
 }
+sub pos_infinity_maybe {
+  return (defined $pos_infinity ? $pos_infinity : ());
+}
+sub neg_infinity_maybe {
+  return (defined $neg_infinity ? $neg_infinity : ());
+}
+
 sub dbl_max {
   require POSIX;
   return POSIX::DBL_MAX();
@@ -797,6 +808,51 @@ sub dbl_max {
 sub dbl_max_neg {
   require POSIX;
   return - POSIX::DBL_MAX();
+}
+sub dbl_max_for_class_xy {
+  my ($path) = @_;
+  ### dbl_max_for_class_xy(): "$path"
+  if ($path->isa('Math::PlanePath::CoprimeColumns')
+      || $path->isa('Math::PlanePath::DiagonalRationals')
+      || $path->isa('Math::PlanePath::DivisibleColumns')
+      || $path->isa('Math::PlanePath::CellularRule')
+      || $path->isa('Math::PlanePath::DragonCurve')
+      || $path->isa('Math::PlanePath::PixelRings')
+     ) {
+    ### don't try DBL_MAX on this path xy_to_n() ...
+    return ();
+  }
+  return dbl_max();
+}
+sub dbl_max_neg_for_class_xy {
+  my ($path) = @_;
+  if (dbl_max_for_class_xy($path)) {
+    return dbl_max_neg();
+  } else {
+    return ();
+  }
+}
+sub dbl_max_for_class_rect {
+  my ($path) = @_;
+  # no DBL_MAX on these
+  if ($path->isa('Math::PlanePath::CoprimeColumns')
+      || $path->isa('Math::PlanePath::DiagonalRationals')
+      || $path->isa('Math::PlanePath::DivisibleColumns')
+      || $path->isa('Math::PlanePath::CellularRule')
+      || $path->isa('Math::PlanePath::PixelRings')
+     ) {
+    ### don't try DBL_MAX on this path rect_to_n_range() ...
+    return ();
+  }
+  return dbl_max();
+}
+sub dbl_max_neg_for_class_rect {
+  my ($path) = @_;
+  if (dbl_max_for_class_rect($path)) {
+    return dbl_max_neg();
+  } else {
+    return ();
+  }
 }
 
 sub is_pos_infinity {
@@ -835,18 +891,18 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-
+  
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-
+    
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-
+    
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-
+    
     my $dxdy_allowed = $class_dxdy_allowed{$class};
     if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
         && $parameters{'radix'}
@@ -857,11 +913,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-
+    
     #
     # MyTestHelpers::diag ($mod);
     #
-
+    
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -878,26 +934,26 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-
+    
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' ', @_);
       $good = 0;
       # exit 1;
     };
-
+    
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-
+    
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-
+    
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
@@ -927,14 +983,14 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     {
       my $saw_warning = 0;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
       $path->n_to_xy(undef);
       $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
     }
-
+    
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -974,7 +1030,7 @@ sub pythagorean_diag {
           or &$report("n_to_dxdy($pos_infinity) dy is $dy");
       }
     }
-
+    
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1012,7 +1068,7 @@ sub pythagorean_diag {
           or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
     }
-
+    
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1047,17 +1103,16 @@ sub pythagorean_diag {
     }
 
     foreach my $x
-      ($pos_infinity, $neg_infinity,
-
-       # no DBL_MAX on these
-       ($path->isa('Math::PlanePath::CoprimeColumns')
-        || $path->isa('Math::PlanePath::DiagonalRationals')
-        || $path->isa('Math::PlanePath::DivisibleColumns')
-        ? (dbl_max_neg())
-        : (dbl_max(), dbl_max_neg()))) {
-
-      next if ! defined $x;
-      foreach my $y ($pos_infinity, $neg_infinity) {
+      (0,
+       pos_infinity_maybe(),
+       neg_infinity_maybe(),
+       dbl_max_for_class_xy($path),
+       dbl_max_neg_for_class_xy($path)) {
+      foreach my $y (0,
+                     pos_infinity_maybe(),
+                     neg_infinity_maybe(),,
+                     dbl_max_for_class_xy($path),
+                     dbl_max_neg_for_class_xy($path)) {
         next if ! defined $y;
         ### xy_to_n: $x, $y
         my @n = $path->xy_to_n($x,$y);
@@ -1068,33 +1123,26 @@ sub pythagorean_diag {
       }
     }
 
-    foreach my $x1
-      ($pos_infinity, $neg_infinity,
-
-       # no DBL_MAX on these
-       ($path->isa('Math::PlanePath::CoprimeColumns')
-        || $path->isa('Math::PlanePath::DiagonalRationals')
-        || $path->isa('Math::PlanePath::DivisibleColumns')
-        ? (dbl_max_neg())
-        : (dbl_max(), dbl_max_neg()))) {
-      next if ! defined $x1;
-
-      foreach my $x2
-        ($pos_infinity, $neg_infinity,
-
-         # no DBL_MAX on these
-         ($path->isa('Math::PlanePath::CoprimeColumns')
-          || $path->isa('Math::PlanePath::DiagonalRationals')
-          || $path->isa('Math::PlanePath::DivisibleColumns')
-          ? (dbl_max_neg())
-          : (dbl_max(), dbl_max_neg()))) {
-        next if ! defined $x2;
-
-        foreach my $y1 ($pos_infinity, $neg_infinity) {
-          next if ! defined $y1;
-
-          foreach my $y2 ($pos_infinity, $neg_infinity) {
-            next if ! defined $y2;
+    foreach my $x1 (0,
+                    pos_infinity_maybe(),
+                    neg_infinity_maybe(),
+                    dbl_max_for_class_rect($path),
+                    dbl_max_neg_for_class_rect($path)) {
+      foreach my $x2 (0,
+                      pos_infinity_maybe(),
+                      neg_infinity_maybe(),
+                      dbl_max_for_class_rect($path),
+                      dbl_max_neg_for_class_rect($path)) {
+        foreach my $y1 (0,
+                        pos_infinity_maybe(),
+                        neg_infinity_maybe(),
+                        dbl_max_for_class_rect($path),
+                        dbl_max_neg_for_class_rect($path)) {
+          foreach my $y2 (0,
+                          pos_infinity_maybe(),
+                          neg_infinity_maybe(),
+                          dbl_max_for_class_rect($path),
+                          dbl_max_neg_for_class_rect($path)) {
 
             my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
             scalar(@nn) == 2
@@ -1464,15 +1512,14 @@ sub pythagorean_diag {
       }
     }
 
-    ### tree_n_parent before n_start ...
+    ### tree_n_parent() before n_start ...
     foreach my $n ($n_start-5 .. $n_start) {
       my $n_parent = $path->tree_n_parent($n);
       if (defined $n_parent) {
         &$report ("tree_n_parent($n) <= n_start=$n_start unexpectedly got parent ",$n_parent);
       }
     }
-
-    ### tree_n_children try tree_n_parent ...
+    ### tree_n_children() look at tree_n_parent of each ...
     foreach my $n ($n_start .. $n_start+$limit) {
       ### $n
       my @n_children = $path->tree_n_children($n);
@@ -1481,6 +1528,27 @@ sub pythagorean_diag {
         my $got_n_parent = $path->tree_n_parent($n_child);
         ($got_n_parent == $n)
           or &$report ("tree_n_parent($n_child) got $got_n_parent want $n");
+      }
+    }
+
+    ### tree_n_to_depth() before n_start ...
+    foreach my $n ($n_start-5 .. $n_start-1) {
+      my $depth = $path->tree_n_to_depth($n);
+      if (defined $depth) {
+        &$report ("tree_n_to_depth($n) < n_start=$n_start unexpectedly got depth ",$depth);
+      }
+    }
+    ### tree_n_to_depth matching parent count ...
+    if ($path->can('tree_n_to_depth')
+        != Math::PlanePath->can('tree_n_to_depth')) {
+      # MyTestHelpers::diag ($mod, ' tree_n_to_depth()');
+      foreach my $n ($n_start .. $n_start+$limit) {
+        my $want_depth = $path->Math::PlanePath::tree_n_to_depth($n);
+        my $got_depth = $path->tree_n_to_depth($n);
+        if (! defined $got_depth || ! defined $want_depth
+            || $got_depth != $want_depth) {
+          &$report ("tree_n_to_depth($n) got ",$got_depth," want ",$want_depth);
+        }
       }
     }
 

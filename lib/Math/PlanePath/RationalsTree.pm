@@ -46,7 +46,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,10 +54,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
+  'round_down_pow',
   'bit_split_lowtohigh';
-
-# uncomment this to run the ### lines
-#use Devel::Comments;
 
 
 use constant class_x_negative => 0;
@@ -537,6 +535,20 @@ sub tree_n_parent {
     return undef;
   }
 }
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+  ### RationalsTree tree_n_to_depth(): $n
+  if ($n >= 1) {
+    my ($len, $level) = round_down_pow ($n, 2);
+    ### $len
+    ### $level
+    return $level;
+  } elsif ($n >= 1) {
+    return 0;
+  } else {
+    return undef;
+  }
+}
 
 1;
 __END__
@@ -963,6 +975,14 @@ the tree).
 
 This is simply C<floor($n/2)>, stripping the least significant bit from
 C<$n> (undoing what C<tree_n_children()> appends).
+
+=item C<$depth = $path-E<gt>tree_n_to_depth($n)>
+
+Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
+top of the tree at N=1 is depth=0, then its children depth=1, etc.
+
+The structure of the tree with 2 nodes per point means the depth is simply
+floor(log2(N)), so for example N=4 through N=7 are all depth=2.
 
 =back
 

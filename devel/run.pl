@@ -40,7 +40,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::SierpinskiArrowhead';
   $path_class = 'Math::PlanePath::QuintetCentres';
   $path_class = 'Math::PlanePath::HIndexing';
-  $path_class = 'Math::PlanePath::WunderlichMeander';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::FractionsTree';
@@ -48,14 +47,12 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::R5DragonCurve';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
   $path_class = 'Math::PlanePath::BetaOmega';
-  $path_class = 'Math::PlanePath::AR2W2Curve';
   $path_class = 'Math::PlanePath::CCurve';
 
   $path_class = 'Math::PlanePath::NxN';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
   $path_class = 'Math::PlanePath::GcdRationals';
-  $path_class = 'Math::PlanePath::WythoffArray';
   $path_class = 'Math::PlanePath::KochSquareflakes';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::TerdragonRounded';
@@ -99,7 +96,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ToothpickFractal';
   $path_class = 'Math::PlanePath::ParabolicRows';
   $path_class = 'Math::PlanePath::QuintetCurve';
-  $path_class = 'Math::PlanePath::DragonCurve';
   $path_class = 'Math::PlanePath::Hypot';
   $path_class = 'Math::PlanePath::TriangularHypot';
   $path_class = 'Math::PlanePath::KnightSpiral';
@@ -108,6 +104,15 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::SierpinskiArrowheadCentres';
   $path_class = 'Math::PlanePath::DekkingCentres';
   $path_class = 'Math::PlanePath::DekkingCurve';
+  $path_class = 'Math::PlanePath::DiamondSpiral';
+  $path_class = 'Math::PlanePath::DragonCurve';
+  $path_class = 'Math::PlanePath::KochelCurve';
+  $path_class = 'Math::PlanePath::WythoffArray';
+  $path_class = 'Math::PlanePath::FibonacciWordKnott';
+  $path_class = 'Math::PlanePath::FibonacciWordFractal';
+  $path_class = 'Math::PlanePath::CincoCurve';
+  $path_class = 'Math::PlanePath::WunderlichMeander';
+  $path_class = 'Math::PlanePath::AR2W2Curve';
 
 
   Module::Load::load($path_class);
@@ -115,7 +120,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     (
      # parts => '3/4',
      # start => 'snowflake',
-     align => 'left',
+     # align => 'left',
      # n_start=>37,
      # step => 5,
      # n_start => 37,
@@ -174,7 +179,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 500; $i+=1) {
+  for (my $i = $n_start+0; $i <= 330; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

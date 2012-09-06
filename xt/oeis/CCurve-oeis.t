@@ -72,10 +72,8 @@ sub path_n_turn {
 # return 0,1,2,3
 sub path_n_dir {
   my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n);
-  my ($next_x,$next_y) = $path->n_to_xy($n+1);
-  return dxdy_to_dir ($next_x - $x,
-                      $next_y - $y);
+  my ($dx,$dy) = $path->n_to_dxdy($n) or die "Oops, no point at ",$n;
+  return dxdy_to_dir ($dx, $dy);
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
 sub dxdy_to_dir {

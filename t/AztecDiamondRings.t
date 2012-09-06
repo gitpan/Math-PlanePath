@@ -33,7 +33,7 @@ require Math::PlanePath::AztecDiamondRings;
 # VERSION
 
 {
-  my $want_version = 87;
+  my $want_version = 88;
   ok ($Math::PlanePath::AztecDiamondRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AztecDiamondRings->VERSION,  $want_version,
@@ -102,6 +102,7 @@ require Math::PlanePath::AztecDiamondRings;
 # first few points
 
 {
+  my $path = Math::PlanePath::AztecDiamondRings->new;
   my @data = (
               [ 1,    0,0 ],
               [ 2,   -1,0 ],
@@ -125,7 +126,6 @@ require Math::PlanePath::AztecDiamondRings;
              );
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
-    my $path = Math::PlanePath::AztecDiamondRings->new;
     {
       # n_to_xy()
       my ($got_x, $got_y) = $path->n_to_xy ($n);

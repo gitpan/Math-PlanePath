@@ -45,11 +45,21 @@ use Smart::Comments;
   my $x = 1;
   my $y = 1;
 
+  my $transpose = 1;
+
   my $char = sub {
-    if (($image->xy($x,$y)//' ') eq $foreground) {
-      $image->xy ($x,$y, $doubleground);
+    if ($transpose) {
+      if (($image->xy($y,$x)//' ') eq $foreground) {
+        $image->xy ($y,$x, $doubleground);
+      } else {
+        $image->xy ($y,$x, $foreground);
+      }
     } else {
-      $image->xy ($x,$y, $foreground);
+      if (($image->xy($x,$y)//' ') eq $foreground) {
+        $image->xy ($x,$y, $doubleground);
+      } else {
+        $image->xy ($x,$y, $foreground);
+      }
     }
   };
   my $draw = sub {
@@ -109,17 +119,6 @@ use Smart::Comments;
     }
   };
 
-  $apply = sub {
-    # Ron Knott
-    my ($i, $value) = $seq->next;
-    if ($value == 0) {
-      &$natural(1);
-      &$natural(2);
-    } else {
-      &$natural($value);
-    }
-  };
-
   # $x += 2;
   # $y += int ($image->get('-height') / 2);
   # $apply = sub {
@@ -155,6 +154,17 @@ use Smart::Comments;
       &$natural(0);
       &$natural(0);
       &$natural(2);
+    }
+  };
+
+  $apply = sub {
+    # Ron Knott
+    my ($i, $value) = $seq->next;
+    if ($value == 0) {
+      &$natural(1);
+      &$natural(2);
+    } else {
+      &$natural($value);
     }
   };
 

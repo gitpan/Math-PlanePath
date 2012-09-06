@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondSpiral;
 # VERSION
 
 {
-  my $want_version = 87;
+  my $want_version = 88;
   ok ($Math::PlanePath::DiamondSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiamondSpiral->VERSION,  $want_version,
@@ -96,7 +96,7 @@ require Math::PlanePath::DiamondSpiral;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::DiamondSpiral->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'n_start');
 }
 
 

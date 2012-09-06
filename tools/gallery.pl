@@ -45,31 +45,117 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['sierpinski-curve-small.png',
+    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --figure=point'],
+   ['sierpinski-curve-big.png',
+    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200 --figure=point'],
+   ['sierpinski-curve-8arm-big.png',
+    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200 --figure=point'],
+
+
+   ['alternate-paper-midpoint-small.png',
+    'math-image --path=AlternatePaperMidpoint --lines --scale=3 --size=32'],
+   ['alternate-paper-midpoint-big.png',
+    'math-image --path=AlternatePaperMidpoint --lines --figure=point --scale=4 --size=200'],
+   ['alternate-paper-midpoint-8arm-big.png',
+    'math-image --path=AlternatePaperMidpoint,arms=8 --lines --figure=point --scale=4 --size=200'],
+
+
+   ['sierpinski-curve-stair-small.png',
+    'math-image --path=SierpinskiCurveStair,arms=2 --scale=3 --size=32 --lines --figure=point'],
+   ['sierpinski-curve-stair-big.png',
+    'math-image --path=SierpinskiCurveStair --lines --scale=5 --size=200 --figure=point'],
+   ['sierpinski-curve-stair-8arm-big.png',
+    'math-image --path=SierpinskiCurveStair,arms=8 --lines --scale=5 --size=200 --figure=point'],
+
+
+   ['alternate-paper-small.png',
+    'math-image --path=AlternatePaper --lines --scale=4 --size=32'],
+   ['alternate-paper-big.png',
+    'math-image --path=AlternatePaper --lines --figure=point --scale=8 --size=200'],
+   ['alternate-paper-rounded-big.png',
+    'math-image --path=AlternatePaper --values=Lines,lines_type=rounded,midpoint_offset=0.4 --figure=point --scale=16 --size=200'],
+
+
+   ['pyramid-rows-small.png',
+    'math-image --path=PyramidRows --lines --scale=5 --size=32'],
+   ['pyramid-rows-big.png',
+    'math-image --path=PyramidRows --lines --scale=15 --size=300x150'],
+   ['pyramid-rows-right-big.png',
+    'math-image --path=PyramidRows,step=4,align=right --lines --scale=15 --size=300x150'],
+   ['pyramid-rows-left-big.png',
+    'math-image --path=PyramidRows,step=1,align=left --lines --scale=15 --size=160x150 --offset=65,0'],
+
+   ['sierpinski-triangle-small.png',
+    'math-image --path=SierpinskiTriangle --all --scale=2 --size=32'],
+   ['sierpinski-triangle-big.png',
+    'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200'],
+   ['sierpinski-triangle-right-big.png',
+    'math-image --path=SierpinskiTriangle,align=right --all --scale=3 --size=200x200'],
+   ['sierpinski-triangle-left-big.png',
+    'math-image --path=SierpinskiTriangle,align=left --all --scale=3 --size=200x200 --offset=98,0'],
+   ['sierpinski-triangle-diagonal-big.png',
+    'math-image --path=SierpinskiTriangle,align=diagonal --values=LinesTree --scale=4 --size=200x200'],
+
+
+   ['sierpinski-arrowhead-centres-small.png',
+    'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32'],
+   ['sierpinski-arrowhead-centres-big.png',
+    'math-image --path=SierpinskiArrowheadCentres --lines --scale=3 --size=400x200'],
+   ['sierpinski-arrowhead-centres-right-big.png',
+    'math-image --path=SierpinskiArrowheadCentres,align=right --lines --scale=4 --size=200x200'],
+   ['sierpinski-arrowhead-centres-left-big.png',
+    'math-image --path=SierpinskiArrowheadCentres,align=left --lines --scale=4 --size=200x200 --offset=98,0'],
+   ['sierpinski-arrowhead-centres-diagonal-big.png',
+    'math-image --path=SierpinskiArrowheadCentres,align=diagonal --lines --scale=5 --size=200x200 --figure=point'],
+
+
+   ['sierpinski-arrowhead-small.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=2 --size=32'],
+   ['sierpinski-arrowhead-big.png',
+    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200'],
+   ['sierpinski-arrowhead-right-big.png',
+    'math-image --path=SierpinskiArrowhead,align=right --lines --scale=4 --size=200x200'],
+   ['sierpinski-arrowhead-left-big.png',
+    'math-image --path=SierpinskiArrowhead,align=left --lines --scale=4 --size=200x200 --offset=98,0'],
+   ['sierpinski-arrowhead-diagonal-big.png',
+    'math-image --path=SierpinskiArrowhead,align=diagonal --lines --scale=5 --size=200x200 --figure=point'],
+
+
+   ['wunderlich-meander-small.png',
+    'math-image --path=WunderlichMeander --lines --scale=4 --size=32 --figure=point'],
+   ['wunderlich-meander-big.png',
+    'math-image --path=WunderlichMeander --lines --scale=7 --size=192 --figure=point'],
+
+   ['hilbert-small.png',
+    'math-image --path=HilbertCurve --lines --scale=3 --size=32 --figure=point'],
+   ['hilbert-big.png',
+    'math-image --path=HilbertCurve --lines --scale=7 --size=225 --figure=point'],
+
+   ['hilbert-spiral-small.png',
+    'math-image --path=HilbertSpiral --lines --scale=3 --size=32 --figure=point'],
+   ['hilbert-spiral-big.png',
+    'math-image --path=HilbertSpiral --lines --scale=7 --size=230 --figure=point'],
+
+   ['cinco-small.png',
+    'math-image --path=CincoCurve --lines --scale=6 --size=32 --figure=point'],
+   ['cinco-big.png',
+    'math-image --path=CincoCurve --lines --scale=7 --size=176 --figure=point'],
+
+   ['dekking-curve-small.png',
+    'math-image --path=DekkingCurve --lines --scale=5 --size=32 --figure=point'],
+   ['dekking-curve-big.png',
+    'math-image --path=DekkingCurve --lines --scale=7 --size=183 --figure=point'],
+
+   ['dekking-centres-small.png',
+    'math-image --path=DekkingCentres --lines --scale=6 --size=32 --figure=point'],
+   ['dekking-centres-big.png',
+    'math-image --path=DekkingCentres --lines --scale=7 --size=176 --figure=point'],
+
    # ['hilbert-midpoint-small.png',
    #  'math-image --path=HilbertMidpoint --lines --scale=2 --size=32'],
    # ['hilbert-midpoint-big.png',
    #  'math-image --path=HilbertMidpoint --lines --scale=3 --size=190'],
-
-   ['hilbert-small.png',
-    'math-image --path=HilbertCurve --lines --scale=3 --size=32'],
-   ['hilbert-big.png',
-    'math-image --path=HilbertCurve --lines --scale=7 --size=225'],
-
-   ['hilbert-spiral-small.png',
-    'math-image --path=HilbertSpiral --lines --scale=3 --size=32'],
-   ['hilbert-spiral-big.png',
-    'math-image --path=HilbertSpiral --lines --scale=7 --size=230'],
-
-   ['sierpinski-arrowhead-small.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=2 --size=32 --offset=0,1'],
-   ['sierpinski-arrowhead-big.png',
-    'math-image --path=SierpinskiArrowhead --lines --scale=3 --size=400x200'],
-   ['sierpinski-arrowhead-right-big.png',
-    'math-image --path=SierpinskiArrowhead,align=right --lines --scale=4 --size=200x200 --offset=-98,0'],
-   ['sierpinski-arrowhead-left-big.png',
-    'math-image --path=SierpinskiArrowhead,align=left --lines --scale=4 --size=200x200 --offset=98,0'],
-   ['sierpinski-arrowhead-diagonal-big.png',
-    'math-image --path=SierpinskiArrowhead,align=diagonal --lines --scale=5 --size=200x200 --offset=-98,2 --figure=point'],
 
 
    ['power-array-small.png',
@@ -94,39 +180,6 @@ foreach my $elem
    ['complexminus-r2-big.png',
     "math-image --path=ComplexMinus,realpart=2 --expression='i<3125?i:0' --scale=1 --size=200"],
 
-
-   ['sierpinski-arrowhead-centres-small.png',
-    'math-image --path=SierpinskiArrowheadCentres --lines --scale=2 --size=32 --offset=0,1'],
-   ['sierpinski-arrowhead-centres-big.png',
-    'math-image --path=SierpinskiArrowheadCentres --lines --scale=3 --size=400x200'],
-   ['sierpinski-arrowhead-centres-right-big.png',
-    'math-image --path=SierpinskiArrowheadCentres,align=right --lines --scale=4 --size=200x200 --offset=-98,0'],
-   ['sierpinski-arrowhead-centres-left-big.png',
-    'math-image --path=SierpinskiArrowheadCentres,align=left --lines --scale=4 --size=200x200 --offset=98,0'],
-   ['sierpinski-arrowhead-centres-diagonal-big.png',
-    'math-image --path=SierpinskiArrowheadCentres,align=diagonal --lines --scale=5 --size=200x200 --offset=-98,2 --figure=point'],
-
-
-   ['sierpinski-triangle-small.png',
-    'math-image --path=SierpinskiTriangle --all --scale=2 --size=32 --offset=0,1'],
-   ['sierpinski-triangle-big.png',
-    'math-image --path=SierpinskiTriangle --all --scale=3 --size=400x200'],
-   ['sierpinski-triangle-right-big.png',
-    'math-image --path=SierpinskiTriangle,align=right --all --scale=3 --size=200x200 --offset=-98,0'],
-   ['sierpinski-triangle-left-big.png',
-    'math-image --path=SierpinskiTriangle,align=left --all --scale=3 --size=200x200 --offset=98,0'],
-   ['sierpinski-triangle-diagonal-big.png',
-    'math-image --path=SierpinskiTriangle,align=diagonal --values=LinesTree --scale=4 --size=200x200 --offset=-98,2'],
-
-
-   ['pyramid-rows-small.png',
-    'math-image --path=PyramidRows --lines --scale=5 --size=32'],
-   ['pyramid-rows-big.png',
-    'math-image --path=PyramidRows --lines --scale=15 --size=300x150'],
-   ['pyramid-rows-right-big.png',
-    'math-image --path=PyramidRows,step=4,align=right --lines --scale=15 --size=300x150 --offset=-120,0'],
-   ['pyramid-rows-left-big.png',
-    'math-image --path=PyramidRows,step=1,align=left --lines --scale=15 --size=160x150 --offset=65,0'],
 
    ['pyramid-sides-small.png',
     'math-image --path=PyramidSides --lines --scale=5 --size=32'],
@@ -164,21 +217,6 @@ foreach my $elem
    ['c-curve-big.png',
     'math-image --path=CCurve --lines --figure=point --scale=3 --size=250x250 --offset=20,-70'],
 
-
-   ['alternate-paper-small.png',
-    'math-image --path=AlternatePaper --lines --scale=4 --size=32 --offset=-12,-12'],
-   ['alternate-paper-big.png',
-    'math-image --path=AlternatePaper --lines --figure=point --scale=8 --size=200 --offset=-95,-95'],
-   ['alternate-paper-rounded-big.png',
-    'math-image --path=AlternatePaper --values=Lines,lines_type=rounded,midpoint_offset=.4 --figure=point --scale=16 --size=200 --offset=-95,-95'],
-
-
-   ['alternate-paper-midpoint-small.png',
-    'math-image --path=AlternatePaperMidpoint --lines --scale=3 --size=32 --offset=-12,-12'],
-   ['alternate-paper-midpoint-big.png',
-    'math-image --path=AlternatePaperMidpoint --lines --figure=point --scale=4 --size=200 --offset=-95,-95'],
-   ['alternate-paper-midpoint-8arm-big.png',
-    'math-image --path=AlternatePaperMidpoint,arms=8 --lines --figure=point --scale=4 --size=200'],
 
    ['rationals-tree-small.png',
     'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
@@ -314,23 +352,6 @@ foreach my $elem
    ['zorder-fibbinary.png',
     'math-image --path=ZOrderCurve --values=Fibbinary --scale=1 --size=704x320'],
 
-
-   ['sierpinski-curve-stair-small.png',
-    'math-image --path=SierpinskiCurveStair,arms=2 --scale=3 --size=32 --lines --offset=-14,-14'],
-   ['sierpinski-curve-stair-big.png',
-    'math-image --path=SierpinskiCurveStair --lines --scale=5 --size=200 --offset=-95,-95'],
-   ['sierpinski-curve-stair-8arm-big.png',
-    'math-image --path=SierpinskiCurveStair,arms=8 --lines --scale=5 --size=200'],
-
-
-   ['sierpinski-curve-small.png',
-    'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --offset=-14,-14'],
-   ['sierpinski-curve-big.png',
-    'math-image --path=SierpinskiCurve --lines --scale=3 --size=200 --offset=-95,-95'],
-   ['sierpinski-curve-8arm-big.png',
-    'math-image --path=SierpinskiCurve,arms=8 --lines --scale=3 --size=200'],
-
-
    ['wunderlich-serpentine-small.png',
     'math-image --path=WunderlichSerpentine --lines --scale=4 --size=32'],
    ['wunderlich-serpentine-big.png',
@@ -339,11 +360,6 @@ foreach my $elem
     'math-image --path=WunderlichSerpentine,serpentine_type=coil --values=Lines --scale=7 --size=192'],
    ['wunderlich-serpentine-radix7-big.png',
     'math-image --path=WunderlichSerpentine,radix=7 --values=Lines --scale=5 --size=192'],
-
-   ['wunderlich-meander-small.png',
-    'math-image --path=WunderlichMeander --lines --scale=4 --size=32'],
-   ['wunderlich-meander-big.png',
-    'math-image --path=WunderlichMeander --lines --scale=7 --size=192'],
 
 
    ['cretan-labyrinth-small.png',
@@ -380,7 +396,7 @@ foreach my $elem
     'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
 
    ['staircase-small.png',
-    'math-image --path=Staircase --lines --scale=4 --size=32 --offset=2,2'],
+    'math-image --path=Staircase --lines --scale=4 --size=32'],
    ['staircase-big.png',
     'math-image --path=Staircase --lines --scale=12 --size=200x200'],
 
@@ -428,19 +444,19 @@ foreach my $elem
     "math-image --path=DigitGroups --expression='i<256?i:0' --scale=2 --size=32"],
    #  --foreground=red
    ['digit-groups-big.png',
-    "math-image --path=DigitGroups --expression='i<2048?i:0' --scale=3 --size=200 --offset=1,1",
+    "math-image --path=DigitGroups --expression='i<2048?i:0' --scale=3 --size=200",
     border => 1],
    ['digit-groups-radix5-big.png',
-    "math-image --path=DigitGroups,radix=5 --expression='i<15625?i:0' --scale=3 --size=200 --offset=1,1",
+    "math-image --path=DigitGroups,radix=5 --expression='i<15625?i:0' --scale=3 --size=200",
     border => 1],
 
    ['l-tiling-small.png',
     'math-image --path=LTiling --all --scale=2 --size=32' ],
    ['l-tiling-big.png',
-    'math-image --path=LTiling --all --scale=10 --size=200 --offset=1,1',
+    'math-image --path=LTiling --all --scale=10 --size=200',
     border => 1 ],
    ['l-tiling-ends-big.png',
-    'math-image --path=LTiling,L_fill=ends --all --scale=10 --size=200 --offset=1,1',
+    'math-image --path=LTiling,L_fill=ends --all --scale=10 --size=200',
     border => 1],
    ['l-tiling-all-big.png',
     'math-image --path=LTiling,L_fill=all --lines --scale=10 --size=200'],
@@ -478,9 +494,9 @@ foreach my $elem
     'math-image --path=QuadricIslands --lines --scale=2 --size=200'],
 
    ['quadric-curve-small.png',
-    'math-image --path=QuadricCurve --lines --scale=2 --size=32 --offset=3,0'],
+    'math-image --path=QuadricCurve --lines --scale=2 --size=32'],
    ['quadric-curve-big.png',
-    'math-image --path=QuadricCurve --lines --scale=4 --size=300x200 --offset=3,0'],
+    'math-image --path=QuadricCurve --lines --scale=4 --size=300x200'],
 
 
    ['divisible-columns-small.png',
@@ -533,19 +549,19 @@ foreach my $elem
     'math-image --path=FactorRationals --lines --scale=15 --size=200'],
 
    ['ar2w2-small.png',
-    'math-image --path=AR2W2Curve --lines --scale=4 --size=32'],
+    'math-image --path=AR2W2Curve --lines --scale=4 --size=32 --figure=point'],
    ['ar2w2-a1-big.png',
-    'math-image --path=AR2W2Curve --lines --scale=7 --size=225'],
+    'math-image --path=AR2W2Curve --lines --scale=7 --size=225 --figure=point'],
    ['ar2w2-d2-big.png',
-    'math-image --path=AR2W2Curve,start_shape=D2 --lines --scale=7 --size=113'],
+    'math-image --path=AR2W2Curve,start_shape=D2 --lines --scale=7 --size=113 --figure=point'],
    ['ar2w2-b2-big.png',
-    'math-image --path=AR2W2Curve,start_shape=B2 --lines --scale=7 --size=113'],
+    'math-image --path=AR2W2Curve,start_shape=B2 --lines --scale=7 --size=113 --figure=point'],
    ['ar2w2-b1rev-big.png',
-    'math-image --path=AR2W2Curve,start_shape=B1rev --lines --scale=7 --size=113'],
+    'math-image --path=AR2W2Curve,start_shape=B1rev --lines --scale=7 --size=113 --figure=point'],
    ['ar2w2-d1rev-big.png',
-    'math-image --path=AR2W2Curve,start_shape=D1rev --lines --scale=7 --size=113'],
+    'math-image --path=AR2W2Curve,start_shape=D1rev --lines --scale=7 --size=113 --figure=point'],
    ['ar2w2-a2rev-big.png',
-    'math-image --path=AR2W2Curve,start_shape=A2rev --lines --scale=7 --size=113'],
+    'math-image --path=AR2W2Curve,start_shape=A2rev --lines --scale=7 --size=113 --figure=point'],
 
 
    ['diagonal-rationals-small.png',
@@ -567,20 +583,15 @@ foreach my $elem
     'math-image --path=Corner,wider=4 --lines --scale=12 --size=200'],
 
 
-   ['cinco-small.png',
-    'math-image --path=CincoCurve --lines --scale=4 --size=32'],
-   ['cinco-big.png',
-    'math-image --path=CincoCurve --lines --scale=7 --size=192'],
-
    ['kochel-small.png',
-    'math-image --path=KochelCurve --lines --scale=4 --size=32'],
+    'math-image --path=KochelCurve --lines --scale=4 --size=32 --figure=point'],
    ['kochel-big.png',
-    'math-image --path=KochelCurve --lines --scale=7 --size=192'],
+    'math-image --path=KochelCurve --lines --scale=7 --size=192 --figure=point'],
 
    ['beta-omega-small.png',
-    'math-image --path=BetaOmega --lines --scale=4 --size=32'],
+    'math-image --path=BetaOmega --lines --scale=4 --size=32 --figure=point'],
    ['beta-omega-big.png',
-    'math-image --path=BetaOmega --lines --scale=7 --size=226'],
+    'math-image --path=BetaOmega --lines --scale=7 --size=226 --figure=point'],
 
    ['mpeaks-small.png',
     'math-image --path=MPeaks --lines --scale=4 --size=32'],
@@ -610,7 +621,7 @@ foreach my $elem
    ['fibonacci-word-fractal-small.png',
     'math-image --path=FibonacciWordFractal --lines --scale=2 --size=32 --offset=2,2'],
    ['fibonacci-word-fractal-big.png',
-    'math-image --path=FibonacciWordFractal --lines --scale=2 --size=345x170 --offset=2,2'],
+    'math-image --path=FibonacciWordFractal --lines --scale=2 --size=345x170'],
 
    ['corner-replicate-small.png',
     'math-image --path=CornerReplicate --lines --scale=4 --size=32'],
@@ -618,9 +629,9 @@ foreach my $elem
     'math-image --path=CornerReplicate --lines --scale=10 --size=200'],
 
    ['h-indexing-small.png',
-    'math-image --path=HIndexing --scale=3 --size=32 --lines --offset=2,2'],
+    'math-image --path=HIndexing --scale=3 --size=32 --lines --figure=point'],
    ['h-indexing-big.png',
-    'math-image --path=HIndexing --lines --scale=3 --size=200 --offset=2,2'],
+    'math-image --path=HIndexing --lines --scale=3 --size=200 --figure=point'],
 
    ['ulam-warburton-quarter-small.png',
     "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],
@@ -680,16 +691,16 @@ foreach my $elem
     "math-image --path=QuintetReplicate --expression='i<3125?i:0' --scale=2 --size=200"],
 
    ['quintet-curve-small.png',
-    'math-image --path=QuintetCurve --lines --scale=4 --size=32 --offset=-10,0'],
+    'math-image --path=QuintetCurve --lines --scale=4 --size=32 --offset=-10,0 --figure=point'],
    ['quintet-curve-big.png',
-    'math-image --path=QuintetCurve --lines --scale=7 --size=200 --offset=-20,-70'],
+    'math-image --path=QuintetCurve --lines --scale=7 --size=200 --offset=-20,-70 --figure=point'],
    ['quintet-curve-4arm-big.png',
-    'math-image --path=QuintetCurve,arms=4 --lines --scale=7 --size=200'],
+    'math-image --path=QuintetCurve,arms=4 --lines --scale=7 --size=200 --figure=point'],
 
    ['quintet-centres-small.png',
-    'math-image --path=QuintetCentres --lines --scale=4 --size=32 --offset=-10,0'],
+    'math-image --path=QuintetCentres --lines --scale=4 --size=32 --offset=-10,0 --figure=point'],
    ['quintet-centres-big.png',
-    'math-image --path=QuintetCentres --lines --scale=7 --size=200 --offset=-20,-70'],
+    'math-image --path=QuintetCentres --lines --scale=7 --size=200 --offset=-20,-70 --figure=point'],
 
 
    ['koch-squareflakes-inward-small.png',

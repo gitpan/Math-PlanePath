@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -37,7 +37,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -124,8 +124,10 @@ sub xy_to_n {
 
   $x = round_nearest ($x);
   $y = round_nearest ($y);
-  if (is_infinite($x)) { return ($x); }
-  if (is_infinite($y)) { return ($y); }
+
+  foreach my $overflow (2*$x + 2*$y, 2*$x - 2*$y) {
+    if (is_infinite($overflow)) { return $overflow; }
+  }
 
   my $zero = ($x * 0 * $y);  # inherit bignum 0
   my @n; # digits low to high
@@ -141,7 +143,7 @@ sub xy_to_n {
 
     $x -= $modulus_to_x[$m];
     $y -= $modulus_to_y[$m];
-    ### shrink to: "$x,$y"
+    ### modulus shift to: "$x,$y"
 
     # div i+2,
     # = (i*y + x) * (i-2)/-5
@@ -149,8 +151,8 @@ sub xy_to_n {
     # = (y + 2*y*i - x*i + 2*x) / 5
     # = (2x+y + (2*y-x)i) / 5
     #
-    ### assert: ((2*$x + $y) % 5) == 0
-    ### assert: ((2*$y - $x) % 5) == 0
+    # ### assert: ((2*$x + $y) % 5) == 0
+    # ### assert: ((2*$y - $x) % 5) == 0
 
     ($x,$y) = ((2*$x + $y) / 5,
                (2*$y - $x) / 5);

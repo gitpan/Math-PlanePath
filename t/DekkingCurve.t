@@ -20,16 +20,13 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 396;
+plan tests => 193;;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-# uncomment this to run the ### lines
-#use Devel::Comments;
-
-require Math::PlanePath::CornerReplicate;
+require Math::PlanePath::DekkingCurve;
 
 
 #------------------------------------------------------------------------------
@@ -37,20 +34,20 @@ require Math::PlanePath::CornerReplicate;
 
 {
   my $want_version = 88;
-  ok ($Math::PlanePath::CornerReplicate::VERSION, $want_version,
+  ok ($Math::PlanePath::DekkingCurve::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::CornerReplicate->VERSION,  $want_version,
+  ok (Math::PlanePath::DekkingCurve->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::CornerReplicate->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::DekkingCurve->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::CornerReplicate->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::DekkingCurve->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::CornerReplicate->new;
+  my $path = Math::PlanePath::DekkingCurve->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -65,48 +62,40 @@ require Math::PlanePath::CornerReplicate;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::CornerReplicate->new;
+  my $path = Math::PlanePath::DekkingCurve->new;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 0, 'x_negative()');
   ok ($path->y_negative, 0, 'y_negative()');
   ok ($path->class_x_negative, 0, 'class_x_negative() instance method');
   ok ($path->class_y_negative, 0, 'class_y_negative() instance method');
 }
-
+{
+  my @pnames = map {$_->{'name'}}
+    Math::PlanePath::DekkingCurve->parameter_info_list;
+  ok (join(',',@pnames), '');
+}
 
 #------------------------------------------------------------------------------
-# first few points
+# n_to_xy() first few points
 
 {
+  my $path = Math::PlanePath::DekkingCurve->new;
   my @data = (
               [ 0,    0,0 ],
               [ 1,    1,0 ],
-              [ 2,    1,1 ],
-              [ 3,    0,1 ],
+              [ 2,    2,0 ],
+              [ 3,    2,1 ],
 
-              [ 4,    2,0 ],
-              [ 5,    3,0 ],
-              [ 6,    3,1 ],
-              [ 7,    2,1 ],
+              [ 0.25, 0.25,0 ],
+              [ 1.25, 1.25,0 ],
+              [ 2.25, 2,0.25 ],
 
-              [ 8,    2,2 ],
-              [ 9,    3,2 ],
-              [ 10,   3,3 ],
-              [ 11,   2,3 ],
+              [ 24.25,   5, 0.75 ],
+              [ 25.25,   5.25, 0 ],
 
-              [ 12,   0,2 ],
-              [ 13,   1,2 ],
-              [ 14,   1,3 ],
-              [ 15,   0,3 ],
-
-
-              # [ .25,   .25, 0 ],
-              # [ .5,    .5, 0 ],
-              # [ 1.75,  1, -.75 ],
              );
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
-    my $path = Math::PlanePath::CornerReplicate->new;
     {
       # n_to_xy()
       my ($got_x, $got_y) = $path->n_to_xy ($n);
@@ -130,8 +119,8 @@ require Math::PlanePath::CornerReplicate;
       {
         $n = int($n);
         my ($got_nlo, $got_nhi) = $path->rect_to_n_range ($x,$y, $x,$y);
-        ok ($got_nlo, $n, "rect_to_n_range($x,$y,$x,$y) for n=$n, got_nlo=$got_nlo");
-        ok ($got_nhi, $n, "rect_to_n_range($x,$y,$x,$y) for n=$n, got_nhi=$got_nhi");
+        ok ($got_nlo <= $n, 1, "rect_to_n_range($x,$y,$x,$y) for n=$n, got_nlo=$got_nlo");
+        ok ($got_nhi >= $n, 1, "rect_to_n_range($x,$y,$x,$y) for n=$n, got_nhi=$got_nhi");
       }
     }
   }
@@ -139,21 +128,51 @@ require Math::PlanePath::CornerReplicate;
 
 
 #------------------------------------------------------------------------------
-# rect_to_n_range()
+# xy_to_n() sample values
 
 {
-  my $path = Math::PlanePath::CornerReplicate->new;
-  my ($n_lo, $n_hi) = $path->rect_to_n_range(0,0, 0,0);
-  ok ($n_lo == 0, 1, "rect_to_n_range() 0,0  n_lo=$n_lo");
-  ok ($n_hi >= 0, 1, "rect_to_n_range() 0,0  n_hi=$n_hi");
-}
+  my $path = Math::PlanePath::DekkingCurve->new;
+  my @data = (
+              [ 0,0,  0 ],
+              [ 1,0,  1 ],
+              [ 2,0,  2 ],
+              [ 3,0,  undef ],
+              [ 4,0,  undef ],
+              [ 5,0,  25 ],
+              [ 6,0,  26 ],
+              [ 7,0,  27 ],
+              [ 8,0,  undef ],
+              [ 9,0,  undef ],
+              [ 10,0,  50 ],
 
+              [ 0,0,  0 ],
+              [ 0,1,  undef ],
+              [ 0,2,  undef ],
+              [ 0,3,  9 ],
+              [ 0,4,  10 ],
+              [ 0,5,  undef ],
+              [ 0,6,  undef ],
+              [ 0,7,  undef ],
+              [ 0,8,  114 ],
+              [ 0,9,  115 ],
+              [ 0,10, undef ],
+             );
+  foreach my $elem (@data) {
+    my ($x, $y, $want_n) = @$elem;
+    my $got_n = $path->xy_to_n ($x, $y);
+    ok ((! defined $got_n && ! defined $want_n)
+        || (defined $got_n && defined $want_n && $want_n == $got_n),
+        1,
+        "xy_to_n($x,$y)  want=".(defined $want_n ? $want_n : [undef]).
+        " got=".(defined $got_n ? $got_n : [undef]));
+  }
+}
 
 #------------------------------------------------------------------------------
 # random fracs
 
 {
-  my $path = Math::PlanePath::CornerReplicate->new;
+  my $path = Math::PlanePath::DekkingCurve->new;
   for (1 .. 20) {
     my $bits = int(rand(20));         # 0 to 20, inclusive
     my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
@@ -165,32 +184,18 @@ require Math::PlanePath::CornerReplicate;
       my $want_xf = $x1 + ($x2-$x1)*$frac;
       my $want_yf = $y1 + ($y2-$y1)*$frac;
 
+      # the end of the ring goes towards the start of the current ring, not
+      # the next
+      if ($y1 == -1 && $x1 >= 0) {
+        $want_xf = $x1;
+      }
+
       my $nf = $n + $frac;
       my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
 
       ok ($got_xf, $want_xf, "n_to_xy($n) frac $frac, x");
       ok ($got_yf, $want_yf, "n_to_xy($n) frac $frac, y");
     }
-  }
-}
-
-#------------------------------------------------------------------------------
-# random points
-
-{
-  my $path = Math::PlanePath::CornerReplicate->new;
-  for (1 .. 50) {
-    my $bits = int(rand(20));         # 0 to 20, inclusive
-    my $n = int(rand(2**$bits)) + 1;  # 1 to 2^bits, inclusive
-
-    my ($x,$y) = $path->n_to_xy ($n);
-    my $rev_n = $path->xy_to_n ($x,$y);
-    if (! defined $rev_n) { $rev_n = 'undef'; }
-    ok ($rev_n, $n, "xy_to_n($x,$y) reverse to expect n=$n, got $rev_n");
-
-    my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-    ok ($n_lo, $n, "rect_to_n_range() reverse n=$n cf got n_lo=$n_lo");
-    ok ($n_hi, $n, "rect_to_n_range() reverse n=$n cf got n_hi=$n_hi");
   }
 }
 

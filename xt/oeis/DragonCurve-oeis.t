@@ -50,12 +50,6 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
-sub xy_is_straight {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-  return (($x - $prev_x) == ($next_x - $x)
-          && ($y - $prev_y) == ($next_y - $y));
-}
-
 # with Y reckoned increasing upwards
 sub dxdy_to_direction {
   my ($dx, $dy) = @_;
@@ -78,12 +72,9 @@ sub path_n_turn {
 # return 0,1,2,3
 sub path_n_dir {
   my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n)
+  my ($dx,$dy) = $path->n_to_dxdy($n)
     or die "Oops, no point at ",$n;
-  my ($next_x,$next_y) = $path->n_to_xy($n+1)
-    or die "Oops, no point at ",$n+1;
-  return dxdy_to_dir ($next_x - $x,
-                      $next_y - $y);
+  return dxdy_to_dir ($dx, $dy);
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
 sub dxdy_to_dir {

@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,8 +50,9 @@ sub _odd {
 sub n_to_xy {
   my ($self, $n) = @_;
   #### KnightSpiral n_to_xy: $n
-  if ($n < 1) { return; }
+
   if ($n < 2) {
+    if ($n < 1) { return; }
     $n--;
     return (2*$n, -$n);
   }

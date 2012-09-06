@@ -21,6 +21,10 @@
 #
 # math-image --path=TerdragonCurve --all --scale=10
 
+# cf A106154 terdragon 6 something
+#    A105499 terdragon permute something
+
+
 
 package Math::PlanePath::TerdragonCurve;
 use 5.004;
@@ -38,7 +42,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;

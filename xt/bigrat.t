@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 422)[1];
+my $test_count = (tests => 426)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -398,6 +398,9 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'DekkingCurve',
+               'DekkingCentres',
+
                'QuintetCurve',
                'QuintetCurve,arms=2',
                'QuintetCurve,arms=3',

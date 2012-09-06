@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -158,6 +158,10 @@ sub xy_to_n {
     }
   }
   # $x = ($x-$y)/2;  # into i,j coordinates
+
+  foreach my $overflow ($x+$y, $x-$y) {
+    if (is_infinite($overflow)) { return $overflow; }
+  }
 
   my $radix = $self->{'radix'};
   my $zero = ($x * 0 * $y);  # inherit bignum 0

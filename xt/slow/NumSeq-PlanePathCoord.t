@@ -376,6 +376,9 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'DekkingCurve',
+               'DekkingCentres',
+
                'WunderlichSerpentine,radix=2',
                'WunderlichSerpentine',
                'WunderlichSerpentine,serpentine_type=100_000_000',

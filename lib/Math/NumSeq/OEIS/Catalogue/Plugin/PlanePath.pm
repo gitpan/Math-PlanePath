@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 119 A-numbers in 4 modules
+# total 123 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -40,6 +40,14 @@ use constant info_arrayref =>
       'SquareSpiral,n_start=0',
       'coordinate_type',
       'Sum'
+    ]
+  },
+  {
+    'anum' => 'A010751',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DiamondSpiral,n_start=0'
     ]
   },
   {
@@ -489,16 +497,6 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A118175',
-    'class' => 'Math::NumSeq::PlanePathDelta',
-    'parameters' => [
-      'planepath',
-      'SquareSpiral,n_start=0',
-      'delta_type',
-      'AbsdX'
-    ]
-  },
-  {
     'anum' => 'A127949',
     'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
@@ -536,6 +534,26 @@ use constant info_arrayref =>
       'PyramidRows,step=1,n_start=0',
       'delta_type',
       'dY'
+    ]
+  },
+  {
+    'anum' => 'A033999',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'Rows,width=2,n_start=0',
+      'delta_type',
+      'dX'
+    ]
+  },
+  {
+    'anum' => 'A010673',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'Rows,width=2,n_start=0',
+      'delta_type',
+      'TDir6'
     ]
   },
   {
@@ -755,6 +773,18 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A074330',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'SierpinskiTriangle',
+      'line_type',
+      'Diagonal',
+      'i_start',
+      1
+    ]
+  },
+  {
     'anum' => 'A163480',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -872,6 +902,16 @@ use constant info_arrayref =>
       'DiamondSpiral',
       'line_type',
       'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A084471',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'DigitGroups,radix=2',
+      'i_start',
+      1
     ]
   },
   {
@@ -1083,6 +1123,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A033568',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'AnvilSpiral',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
     'anum' => 'A126587',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -1092,16 +1142,6 @@ use constant info_arrayref =>
       'Y_axis',
       'i_start',
       1
-    ]
-  },
-  {
-    'anum' => 'A033568',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'AnvilSpiral',
-      'line_type',
-      'Diagonal'
     ]
   },
   {

@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -99,9 +99,11 @@ sub xy_to_n {
   ### ComplexRevolving xy_to_n(): "$x, $y"
 
   $x = round_nearest ($x);
-  if (is_infinite($x)) { return ($x); }
   $y = round_nearest ($y);
-  if (is_infinite($y)) { return ($y); }
+
+  foreach my $overflow ($x+$y, $x-$y) {
+    if (is_infinite($overflow)) { return $overflow; }
+  }
 
   my $zero = $x * 0 * $y;  # inherit bignum 0
 

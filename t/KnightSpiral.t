@@ -33,7 +33,7 @@ require Math::PlanePath::KnightSpiral;
 # VERSION
 
 {
-  my $want_version = 87;
+  my $want_version = 88;
   ok ($Math::PlanePath::KnightSpiral::VERSION,
       $want_version,
       'VERSION variable');
@@ -77,7 +77,7 @@ require Math::PlanePath::KnightSpiral;
 
 
 #------------------------------------------------------------------------------
-# xy_to_n
+# xy_to_n()
 
 {
   my $path = Math::PlanePath::KnightSpiral->new;

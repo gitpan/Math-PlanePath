@@ -48,7 +48,7 @@ sub binary_to_decimal {
 # VERSION
 
 {
-  my $want_version = 87;
+  my $want_version = 88;
   ok ($Math::PlanePath::GrayCode::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GrayCode->VERSION,  $want_version,
@@ -302,10 +302,8 @@ sub dxdy_to_dir {
 # return 0=E,1=N,2=W,3=S
 sub path_n_dir {
   my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n);
-  my ($next_x,$next_y) = $path->n_to_xy($n+1);
-  return dxdy_to_dir ($next_x - $x,
-                      $next_y - $y);
+  my ($dx,$dy) = $path->n_to_dxdy($n) or die "Oops, no point at ",$n;
+  return dxdy_to_dir ($dx, $dy);
 }
 # return 0,1,2,3 to the left
 sub path_n_turn {

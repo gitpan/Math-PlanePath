@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use Test;
-plan tests => 26;
+plan tests => 29;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -239,12 +239,8 @@ sub path_n_turn {
 # return 0,1,2,3
 sub path_n_dir {
   my ($path, $n) = @_;
-  my ($x,$y) = $path->n_to_xy($n)
-    or die "Oops, no point at ",$n;
-  my ($next_x,$next_y) = $path->n_to_xy($n+1)
-    or die "Oops, no point at ",$n+1;
-  return dxdy_to_dir ($next_x - $x,
-                      $next_y - $y);
+  my ($dx,$dy) = $path->n_to_dxdy($n) or die "Oops, no point at ",$n;
+  return dxdy_to_dir ($dx, $dy);
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
 sub dxdy_to_dir {
@@ -257,7 +253,7 @@ sub dxdy_to_dir {
 
 
 #------------------------------------------------------------------------------
-# A163233 -- diagonals sF
+# A163233 -- permutation diagonals sF
 {
   my $anum = 'A163233';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);

@@ -26,10 +26,63 @@ use strict;
 
 
 {
+  # axis increasing
+  my $radix = 4;
+  my $rsquared = $radix * $radix;
+  my $re = '.' x $radix;
+
+  require Math::NumSeq::PlanePathN;
+  my $planepath;
+  $planepath = "AlternatePaperMidpoint,arms=7";
+  $planepath = "ImaginaryBase,radix=37";
+  $planepath = "ImaginaryHalf,radix=37";
+  $planepath = "DekkingCurve";
+  $planepath = "DekkingCentres";
+ LINE_TYPE: foreach my $line_type ('X_axis',
+                                   'Y_axis',
+                                   # 'Diagonal_SE',
+                                   # 'Diagonal_SW',
+                                   # 'Diagonal_NW',
+                                   'Diagonal',
+                                  ) {
+    my $seq = Math::NumSeq::PlanePathN->new
+      (
+       planepath => $planepath,
+       line_type => $line_type,
+      );
+    ### $seq
+
+    my $i_start = $seq->i_start;
+    my $prev_value = -1;
+    my $prev_i = -1;
+    my $i_limit = 1000;
+    my $i_end = $i_start + $i_limit;
+    for my $i ($i_start .. $i_end) {
+      my $value = $seq->ith($i);
+      next if ! defined $value;
+      ### $value
+      if ($value <= $prev_value) {
+        # print "$line_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
+        my $path = $seq->{'planepath_object'};
+        my ($prev_x,$prev_y) = $path->n_to_xy($prev_value);
+        my ($x,$y) = $path->n_to_xy($value);
+        print "$line_type not   N=$prev_value $prev_x,$prev_y  N=$value $x,$y\n";
+        next LINE_TYPE;
+      }
+      $prev_i = $i;
+      $prev_value = $value;
+    }
+    print "$line_type   all increasing (to i=$prev_i)\n";
+  }
+  exit 0;
+}
+
+
+{
   # PlanePathCoord increasing
   require Math::NumSeq::PlanePathCoord;
   my $planepath;
-  $planepath = "ImaginaryBase,radix=37";
+  $planepath = "DekkingCurve";
  COORDINATE_TYPE: foreach my $coordinate_type ('X',
                                                'Y',
                                               ) {
@@ -48,6 +101,7 @@ use strict;
     for my $i ($i_start .. $i_end) {
       my $value = $seq->ith($i);
       next if ! defined $value;
+      ### $i
       ### $value
       if (defined $prev_value && $value < $prev_value) {
         # print "$coordinate_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
@@ -61,55 +115,6 @@ use strict;
       $prev_value = $value;
     }
     print "$coordinate_type   all increasing (to i=$prev_i)\n";
-  }
-  exit 0;
-}
-
-
-{
-  # axis increasing
-  my $radix = 4;
-  my $rsquared = $radix * $radix;
-  my $re = '.' x $radix;
-
-  require Math::NumSeq::PlanePathN;
-  my $planepath;
-  $planepath = "AlternatePaperMidpoint,arms=7";
-  $planepath = "ImaginaryBase,radix=37";
-  $planepath = "ImaginaryHalf,radix=37";
- LINE_TYPE: foreach my $line_type ('Y_axis',
-                                   'Diagonal_SE',
-                                   'Diagonal_SW',
-                                   'Diagonal_NW',
-                                   'Diagonal') {
-    my $seq = Math::NumSeq::PlanePathN->new
-      (
-       planepath => $planepath,
-       line_type => $line_type,
-      );
-    ### $seq
-
-    my $i_start = $seq->i_start;
-    my $prev_value = -1;
-    my $prev_i = -1;
-    my $i_limit = 100000;
-    my $i_end = $i_start + $i_limit;
-    for my $i ($i_start .. $i_end) {
-      my $value = $seq->ith($i);
-      next if ! defined $value;
-      ### $value
-      if ($value <= $prev_value) {
-        # print "$line_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
-        my $path = $seq->{'planepath_object'};
-        my ($prev_x,$prev_y) = $path->n_to_xy($prev_value);
-        my ($x,$y) = $path->n_to_xy($value);
-        print "$line_type not   N=$prev_value $prev_x,$prev_y  N=$value $x,$y\n";
-        next LINE_TYPE;
-      }
-      $prev_i = $i;
-      $prev_value = $value;
-    }
-    print "$line_type   all increasing (to i=$prev_i)\n";
   }
   exit 0;
 }

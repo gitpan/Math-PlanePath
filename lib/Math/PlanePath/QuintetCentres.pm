@@ -28,7 +28,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -208,17 +208,21 @@ sub xy_to_n {
   $x = round_nearest($x);
   $y = round_nearest($y);
 
-  my $level_limit = log($x*$x + $y*$y + 1) * 1 * 2;
-  if (is_infinite($level_limit)) { return $level_limit; }
+  foreach my $overflow (2*$x + 2*$y, 2*$x - 2*$y) {
+    if (is_infinite($overflow)) { return $overflow; }
+  }
+
+  # my $level_limit = log($x*$x + $y*$y + 1) * 1 * 2;
+  # if (is_infinite($level_limit)) { return $level_limit; }
 
   my @digits;
   my $arm;
   my $state;
   for (;;) {
-    if ($level_limit-- < 0) {
-      ### oops, level limit ...
-      return undef;
-    }
+    # if ($level_limit-- < 0) {
+    #   ### oops, level limit ...
+    #   return undef;
+    # }
     if ($x == 0) {
       if ($y == 0) {
         ### found first arm 0,0 ...

@@ -63,7 +63,8 @@ sub path_n_turn {
 # return 0,1,2,3
 sub path_n_dir {
   my ($path, $n) = @_;
-  return dxdy_to_dir($path->n_to_dxdy($n));
+  my ($dx,$dy) = $path->n_to_dxdy($n) or die "Oops, no point at ",$n;
+  return dxdy_to_dir ($dx, $dy);
 }
 # return 0,1,2,3, with Y reckoned increasing upwards
 sub dxdy_to_dir {
@@ -95,6 +96,38 @@ sub dxdy_to_dir {
 #         numeq_array(\@got, $bvalues),
 #         1, "$anum");
 # }
+
+#------------------------------------------------------------------------------
+# A020985 - Golay/Rudin/Shapiro dX and dY
+
+{
+  my $anum = 'A020985';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my @got;
+  if ($bvalues) {
+    my $prev_x = 0;
+    my $prev_y = 0;
+    for (my $n = $paper->n_start; @got < @$bvalues; ) {
+      {
+        my ($dx, $dy) = $paper->n_to_dxdy ($n++);
+        push @got, $dx;
+      }
+      last unless @got < @$bvalues;
+      {
+        my ($dx, $dy) = $paper->n_to_dxdy ($n++);
+        push @got, $dy;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum -- dX and dY");
+}
 
 
 #------------------------------------------------------------------------------
@@ -326,38 +359,6 @@ sub dxdy_to_dir {
           numeq_array(\@got, $bvalues),
           1, "$anum -- diff X-Y");
   }
-}
-
-#------------------------------------------------------------------------------
-# A020985 - Golay/Rudin/Shapiro dX and dY
-
-{
-  my $anum = 'A020985';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my @got;
-  if ($bvalues) {
-    my $prev_x = 0;
-    my $prev_y = 0;
-    for (my $n = 1; @got < @$bvalues; ) {
-      {
-        my ($dx, $dy) = $paper->n_to_dxdy ($n++);
-        push @got, $dx;
-      }
-      last unless @got < @$bvalues;
-      {
-        my ($dx, $dy) = $paper->n_to_xy ($n++);
-        push @got, $dy;
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- dX and dY");
 }
 
 #------------------------------------------------------------------------------

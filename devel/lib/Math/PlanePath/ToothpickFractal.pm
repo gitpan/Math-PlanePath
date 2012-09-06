@@ -3,6 +3,8 @@
 # name 3/4 form
 #
 # 3/4 as 3 of 4 quads without rotate ?
+#
+# 3/4 half toothpick transpose to 2nd quad the different orientation
 
 
 # Copyright 2012 Kevin Ryde
@@ -37,7 +39,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;

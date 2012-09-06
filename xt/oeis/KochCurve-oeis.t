@@ -50,12 +50,6 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
-sub xy_is_straight {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-  return (($x - $prev_x) == ($next_x - $x)
-          && ($y - $prev_y) == ($next_y - $y));
-}
-
 # return 1 for left, 0 for right
 sub path_n_turn6 {
   my ($path, $n) = @_;

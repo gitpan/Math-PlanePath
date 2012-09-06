@@ -33,6 +33,29 @@
 # A019586 or, for the original form, A003603
 # A135766 not divisible by 2,3,5, times 5^k, by triangle
 
+# Fib(k+1)*floor[n*tau] + Fib(k)*(n-1)
+#
+# wyth:
+# A006355 row Y=2
+# A022086 row Y=3
+# A022087                                             
+# A000285                                             
+# A022095                                             
+# A013655 (sum of Fibonacci and Lucas numbers)        
+# A022112                                             
+# A022113
+# A022120
+# A022121
+# A022379
+# A022130
+# A022382
+# A022088
+# A022136
+# A022137
+# A022089                   
+# A022388, A022096, A022090, A022389, A022097, A022091, A022390, A022098, A022092                            
+                                                                              
+
 
 package Math::PlanePath::WythoffArray;
 use 5.004;
@@ -40,13 +63,15 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
+use Math::PlanePath::Base::Digits
+  'bit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -160,19 +185,60 @@ sub xy_to_n {
   if ($x < 0 || $y < 0) {
     return undef;
   }
+
+  my $zero = $x * 0 * $y;
+  $x += 2;
   if (is_infinite($x)) { return $x; }
   if (is_infinite($y)) { return $y; }
 
-  # FIXME: power up f0,f1 by bits of $x
-  my $zero = $x * 0 * $y;
+  my @bits = bit_split_lowtohigh($x);
+  ### @bits
+  pop @bits; # discard high 1-bit
+
   my $yplus1 = $zero + $y+1; # bigint from $x perhaps
-  my $f0 = int((sqrt(5*$yplus1*$yplus1) + $yplus1) / 2);
-  my $f1 = $f0 + $y;
-  for ( ; $x > 0; $x -= 1) {
-    ($f1,$f0) = ($f1+$f0,$f1);  # step
+
+  # spectrum(Y+1) so Y,Ybefore are notional two values at X=-2 and X=-1
+  my $ybefore = int((sqrt(5*$yplus1*$yplus1) + $yplus1) / 2);
+  ### $ybefore
+
+  # k=1, Fk1=F[k-1]=0, Fk=F[k]=1
+  my $Fk1 = $zero;
+  my $Fk  = 1 + $zero;
+  
+  my $add = -2;
+  while (@bits) {
+    ### remaining bits: @bits
+    ### Fk1: "$Fk1"
+    ### Fk: "$Fk"
+  
+    # two squares and some adds
+    # F[2k+1] = 4*F[k]^2 - F[k-1]^2 + 2*(-1)^k
+    # F[2k-1] =   F[k]^2 + F[k-1]^2
+    # F[2k] = F[2k+1] - F[2k-1]
+    #
+    $Fk *= $Fk;
+    $Fk1 *= $Fk1;
+    my $F2kplus1 = 4*$Fk - $Fk1 + $add;
+    $Fk1 += $Fk; # F[2k-1]
+    my $F2k = $F2kplus1 - $Fk1;
+  
+    if (pop @bits) {  # high to low
+      $Fk1 = $F2k;     # F[2k]
+      $Fk = $F2kplus1; # F[2k+1]
+      $add = -2;
+    } else {
+      # $Fk1 is F[2k-1] already
+      $Fk = $F2k;  # F[2k]
+      $add = 2;
+    }
   }
-  ### $f1
-  return $f1;
+  
+  ### final pair ...
+  ### Fk1: "$Fk1"
+  ### Fk: "$Fk"
+  ### @bits
+
+  return ($Fk*$ybefore + $Fk1*$y);
 }
 
 # exact
@@ -386,7 +452,7 @@ in various forms,
     A000201     N+1 of those N not on Y axis, spectrum of phi
     A003849     1,0 if N on Y axis or not, being the Fibonacci word
 
-    A035336     N in X=1 column
+    A035336     N in column X=1
     A020941     N on X=Y diagonal
 
     A083412     N by Diagonals from Y axis downwards

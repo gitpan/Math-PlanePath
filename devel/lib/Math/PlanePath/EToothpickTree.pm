@@ -29,6 +29,12 @@
 # E-toothpick snowflake
 #    A161330 total cells
 #    A161331 cells added at level
+#    A161332 cells added at level / 2
+#    A161333 total cells * 3
+#    A161334 total cells / 2
+#    A161335 total cells * 2
+#    A161336 (total cells - 2) / 6
+#
 # Y-toothpick
 #    A160120 total cells
 #    A160121 cells added
@@ -196,7 +202,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

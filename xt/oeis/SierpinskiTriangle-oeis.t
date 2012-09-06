@@ -378,32 +378,6 @@ sub binomial_mod2 {
 }
 
 #------------------------------------------------------------------------------
-# A074330 - cumulative Gould's sequence, N at right of each row, starting Y=1
-{
-  my $anum = 'A074330';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::SierpinskiTriangle->new;
-    my @got;
-    for (my $y = 1; @got < @$bvalues; $y++) {
-      my $n = $path->xy_to_n($y,$y);
-      push @got, $n;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
-
-
-#------------------------------------------------------------------------------
 # A047999 - 1/0 by rows, without the skipped (x^y)&1==1 points of triangular
 # lattice
 {

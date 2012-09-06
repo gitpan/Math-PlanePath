@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,8 +56,11 @@ use Math::PlanePath::Base::Generic
 sub n_to_xy {
   my ($self, $n) = @_;
   #### PyramidSpiral n_to_xy: $n
-  if ($n < 1) { return; }
-  if ($n < 2) { return ($n - 1, 0); }
+
+  if ($n < 2) {
+    if ($n < 1) { return; }
+    return ($n - 1, 0);
+  }
 
   my $r = int (.5 + sqrt (($n-1)/4));
   #### r frac: (.5 + sqrt (($n-1)/4))

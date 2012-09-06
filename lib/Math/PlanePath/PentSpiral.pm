@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,8 +56,11 @@ use Math::PlanePath::Base::Generic
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
-  if ($n < 1) { return; }
-  if ($n < 2) { return (2*$n-2,0); }
+
+  if ($n < 2) {
+    if ($n < 1) { return; }
+    return (2*$n-2,0);
+  }
 
   my $d = int( (sqrt(40*$n-55)+5) / 10 );
   #### d frac: .5 + sqrt((8*$n-11)/20)

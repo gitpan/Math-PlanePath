@@ -36,7 +36,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 87;
+$VERSION = 88;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -280,9 +280,10 @@ sub _xy_to_d {
     # or 1/(2*r) > 1 would be asin()==-nan
     return 1;
   }
-  if (is_infinite($r)) {
-    ### avoid div-by-zero in 1/(2*$r) ...
-    return $r;
+  my $two_r = 2*$r;
+  if (is_infinite($two_r)) {
+    ### 1/inf is a divide by zero, avoid that ...
+    return $two_r;
   }
   ### $r
 
@@ -294,8 +295,8 @@ sub _xy_to_d {
   }
 
   if ($step > 6) {
-    ### d frac by asin: _PI / ($step * asin(1/(2*$r)))
-    return _PI / ($step * asin(1/(2*$r)));
+    ### d frac by asin: _PI / ($step * asin(1/$two_r))
+    return _PI / ($step * asin(1/$two_r));
   } else {
     # $step <= 6
     ### d frac by base: $r - $self->{'base_r'}

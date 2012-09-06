@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 397)[1];
+my $test_count = (tests => 401)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -242,6 +242,9 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 ### Modules ...
 
 my @modules = (
+               'DekkingCurve',
+               'DekkingCentres',
+
                'PyramidRows',
                'PyramidRows,step=0',
                'PyramidRows,step=1',

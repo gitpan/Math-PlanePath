@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -154,14 +154,20 @@ sub xy_to_n {
   ### ComplexPlus xy_to_n(): "$x, $y"
 
   $x = round_nearest ($x);
-  if (is_infinite($x)) { return ($x); }
   $y = round_nearest ($y);
-  if (is_infinite($y)) { return ($y); }
+
+  my $realpart = $self->{'realpart'};
+  {
+    my $rx = $realpart*$x;
+    my $ry = $realpart*$y;
+    foreach my $overflow ($rx+$ry, $rx-$ry) {
+      if (is_infinite($overflow)) { return $overflow; }
+    }
+  }
 
   my $orig_x = $x;
   my $orig_y = $y;
 
-  my $realpart = $self->{'realpart'};
   my $norm = $self->{'norm'};
   my $zero = ($x * 0 * $y);  # inherit bignum 0
   my @n; # digits low to high
@@ -203,7 +209,10 @@ sub xy_to_n {
     if ($self->{'arms'} > 1) {
       ### not on first arm, re-run as: -$orig_x, 1-$orig_y
       local $self->{'arms'} = 1;
-      return 1 + 2 * $self->xy_to_n(-$orig_x,1-$orig_y); # 180 degrees
+      my $n = $self->xy_to_n(-$orig_x,1-$orig_y);
+      if (defined $n) {
+        return 1 + 2*$n; # 180 degrees
+      }
     }
     ### X,Y not visited
     return undef;

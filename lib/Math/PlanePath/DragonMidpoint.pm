@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -261,11 +261,8 @@ sub xy_to_n {
   $x = round_nearest($x);
   $y = round_nearest($y);
 
-  if (is_infinite($x)) {
-    return $x;  # infinity
-  }
-  if (is_infinite($y)) {
-    return $y;  # infinity
+  foreach my $overflow ($x+$y, $x-$y) {
+    if (is_infinite($overflow)) { return $overflow; }
   }
 
   my $n = ($x * 0 * $y); # inherit bignum 0
@@ -619,8 +616,8 @@ for N=2k or N=2k+1 to the point where dividing out i+1 gives the N=k
 position.
 
 The adjustment is in a repeating pattern of 4x4 blocks.  Points N=2k and
-N=2k+1 both move to the same place corresponding to N=k times i+1.  The
-adjustment pattern is related to the pair tiling shown above, except for
+N=2k+1 both move to the same place corresponding to N=k multiplied by i+1.
+The adjustment pattern is related to the pair tiling shown above, except for
 some pairs both the N=2k and N=2k+1 positions must move, it's not just a
 matter of shifting the N=2k+1 to the N=2k.
 
@@ -642,10 +639,10 @@ L</Arms> above.
 
     new X,Y = (Xm+i*Ym) / (i+1)
             = (Xm+i*Ym) * (1-i)/2
-            = (Xm+Ym)/2, (Ym-Xm)/2     # Xm+Ym, Ym-Xm are even
+            = (Xm+Ym)/2, (Ym-Xm)/2     # Xm+Ym and Ym-Xm are both even
 
-    Nbit = Xadj xor Yadj
-    new N = N + (Nbit << count++)      # new low bit
+    Nbit = Xadj xor Yadj               # new low bit of N
+    new N = N + (Nbit << count++)
 
 The X,Y reduction stops at one of the start points for the four arms
 
@@ -671,29 +668,30 @@ The DragonMidpoint is in Sloane's Online Encyclopedia of Integer Sequences as
 
     http://oeis.org/A073089
 
-    A073089 -- segments 0=horizontal, 1=vertical (extra initial 0)
+    A073089 -- direction 0=horizontal,1=vertical (extra initial 0)
 
 The midpoint curve is vertical when the DragonCurve has a vertical followed
 by a left turn or a horizontal followed by a right turn.  DragonCurve
 verticals are whenever N is odd, and the turn is the bit above the lowest 0
 in N, as described in L<Math::PlanePath::DragonCurve/Turns>.
 
-The n of A073089 is offset by 2 from the N numbering of the DragonMidpoint
-here, ie. n=N+2.  The A073089 initial value at n=1 has no corresponding N
-(it would be N=-1).
+The n of A073089 is offset by 2 from the N numbering of the path here, so
+n=N+2.  The initial value at n=1 in A073089 has no corresponding N (it would
+be N=-1).
 
 The mod-16 definitions in A073089 express combinations of N odd/even and
 bit-above-low-0 which are the vertical midpoint segments.  The recursion
 a(8n+1)=a(4n+1) works to reduce an N=0b.zz111 to 0b..zz11 in order to bring
-a the lowest 0 into range of the mod-16 conditions.  n=1 mod 8 corresponds
-to N=7 mod 8.  In terms of N it could be expressed as stripping low 1 bits
-down to at most 2 of them.  In terms of n it's a strip of zeros above a low
-1 bit, ie. n=0b...00001 -E<gt> 0b...01.
+a lowest 0 into range of the mod-16 conditions.  n=1 mod 8 corresponds to
+N=7 mod 8.  In terms of N it could be expressed as stripping low 1 bits down
+to at most 2 of them.  In terms of n it's a strip of zeros above a low 1
+bit, ie. n=0b...00001 -E<gt> 0b...01.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
+L<Math::PlanePath::DragonRounded>
 
 L<Math::PlanePath::AlternatePaperMidpoint>,
 L<Math::PlanePath::R5DragonMidpoint>,

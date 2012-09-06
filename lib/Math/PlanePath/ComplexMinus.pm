@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -115,10 +115,16 @@ sub xy_to_n {
 
   $x = round_nearest ($x);
   $y = round_nearest ($y);
-  if (is_infinite($x)) { return ($x); }
-  if (is_infinite($y)) { return ($y); }
 
   my $realpart = $self->{'realpart'};
+  {
+    my $rx = $realpart*$x;
+    my $ry = $realpart*$y;
+    foreach my $overflow ($rx+$ry, $rx-$ry) {
+      if (is_infinite($overflow)) { return $overflow; }
+    }
+  }
+
   my $norm = $self->{'norm'};
   my $zero = ($x * 0 * $y);  # inherit bignum 0
   my @n; # digits low to high

@@ -59,8 +59,8 @@ sub print_table {
     }
 
     my @next_state;
-    my @edge_x;
-    my @edge_y;
+    my @edge_dx;
+    my @edge_dy;
     my @yx_to_digit;
 
     foreach my $rev (0, 1) {
@@ -235,8 +235,8 @@ sub print_table {
           }
           ### rot to: "$xo, $yo"
 
-          $edge_x[$state+$orig_digit] = $xo - $Math::PlanePath::DekkingCentres::_digit_to_x[$state+$orig_digit];
-          $edge_y[$state+$orig_digit] = $yo - $Math::PlanePath::DekkingCentres::_digit_to_y[$state+$orig_digit];
+          $edge_dx[$state+$orig_digit] = $xo - $Math::PlanePath::DekkingCentres::_digit_to_x[$state+$orig_digit];
+          $edge_dy[$state+$orig_digit] = $yo - $Math::PlanePath::DekkingCentres::_digit_to_y[$state+$orig_digit];
 
           my $next_state = make_state ($new_rev, $new_rot);
           $next_state[$state+$orig_digit] = $next_state;
@@ -245,44 +245,17 @@ sub print_table {
     }
 
     print "# state length ",scalar(@next_state)," in each of 4 tables\n";
-    print_table ("next_state", \@next_state);
-    print_table ("edge_x", \@edge_x);
-    print_table ("edge_y", \@edge_y);
+#    print_table ("next_state", \@next_state);
+    print_table ("edge_dx", \@edge_dx);
+    print_table ("edge_dy", \@edge_dy);
     # print_table ("last_yx_to_digit", \@yx_to_digit);
 
     ### @next_state
-    ### @edge_x
-    ### @edge_y
+    ### @edge_dx
+    ### @edge_dy
     ### @yx_to_digit
     ### next_state length: scalar(@next_state)
 
 
-    {
-      my @pending_state = (0);
-      my $count = 0;
-      my @seen_state;
-      my $depth = 1;
-      $seen_state[0] = $depth;
-      while (@pending_state) {
-        my $state = pop @pending_state;
-        $count++;
-        ### consider state: $state
-
-        foreach my $digit (0 .. 24) {
-          my $next_state = $next_state[$state+$digit];
-          if (! $seen_state[$next_state]) {
-            $seen_state[$next_state] = $depth;
-            push @pending_state, $next_state;
-            ### push: "$next_state  depth $depth"
-          }
-        }
-        $depth++;
-      }
-      for (my $state = 0; $state < @next_state; $state += 25) {
-        print "# used state $state   depth $seen_state[$state]\n";
-      }
-      print "used state count $count\n";
-    }
-
-    print "\n";
+     print "\n";
     exit 0;

@@ -21,13 +21,14 @@ use 5.004;
 use strict;
 use Math::BigInt try=>'GMP';
 use Test;
-plan tests => 16;
+plan tests => 46;
 
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
+use Math::BigInt try => 'GMP';
 use Math::PlanePath::WythoffArray;
 
 # uncomment this to run the ### lines
@@ -39,7 +40,7 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  my $i = 0; 
+  my $i = 0;
   while ($i < @$a1 && $i < @$a2) {
     if ($a1->[$i] ne $a2->[$i]) {
       return 0;
@@ -73,6 +74,88 @@ sub diff_nums {
     }
   }
   return undef;
+}
+
+#------------------------------------------------------------------------------
+# N on columns
+# per list in A035513
+
+foreach my $elem ([ 'A035337', 2 ],
+                  [ 'A035338', 3 ],
+                  [ 'A035339', 4 ],
+                  [ 'A035340', 5 ],
+                 ) {
+  my ($anum, $x, %options) = @$elem;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => undef);
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::WythoffArray->new;
+    my @got = @{$options{'extra_initial'}||[]};
+    require Math::BigInt;
+    for (my $y = Math::BigInt->new(0); @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n ($x, $y);
+    }
+    $diff = diff_nums(\@got,$bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef,
+        "$anum column X=$x");
+}
+
+#------------------------------------------------------------------------------
+# N on rows
+# per list in A035513
+
+foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
+                  [ 'A022086', 3, extra_initial=>[0,3,3,6] ],
+                  [ 'A022087', 4, extra_initial=>[0,4,4,8] ],
+                  [ 'A000285', 5, extra_initial=>[1,4,5,9] ],
+                  [ 'A022095', 6, extra_initial=>[1,5,6,11] ],
+                  [ 'A013655', 7, extra_initial=>[3,2,5,7,12] ],
+                  [ 'A022112', 8, extra_initial=>[2,6,8,14] ],
+                  [ 'A022113', 9, extra_initial=>[2,7,9,16] ],
+                  [ 'A022120', 10, extra_initial=>[3,7,10,17] ],
+                  [ 'A022121', 11, extra_initial=>[3,8,11,19] ],
+                  [ 'A022379', 12, extra_initial=>[3,9,12,21] ],
+                  [ 'A022130', 13, extra_initial=>[4,9,13,22] ],
+                  [ 'A022382', 14, extra_initial=>[4,10,14,24] ],
+                  [ 'A022088', 15, extra_initial=>[0,5,5,10,15,25] ],
+                  [ 'A022136', 16, extra_initial=>[5,11,16,27] ],
+                  [ 'A022137', 17, extra_initial=>[5,12,17,29] ],
+                  [ 'A022089', 18, extra_initial=>[0,6,6,12,18,30] ],
+                  [ 'A022388', 19, extra_initial=>[6,13,19,32] ],
+                  [ 'A022096', 20, extra_initial=>[1,6,7,13,20,33] ],
+                  [ 'A022090', 21, extra_initial=>[0,7,7,14,21,35] ],
+                  [ 'A022389', 22, extra_initial=>[7,15,22,37] ],
+                  [ 'A022097', 23, extra_initial=>[1,7,8,15,23,38] ],
+                  [ 'A022091', 24, extra_initial=>[0,8,8,16,24,40] ],
+                  [ 'A022390', 25, extra_initial=>[8,17,25,42] ],
+                  [ 'A022098', 26, extra_initial=>[1,8,9,17,26,43], ],
+                  [ 'A022092', 27, extra_initial=>[0,9,9,18,27,45], ],
+                 ) {
+  my ($anum, $y, %options) = @$elem;
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => undef);
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::WythoffArray->new;
+    my @got = @{$options{'extra_initial'}||[]};
+    require Math::BigInt;
+    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
+      push @got, $path->xy_to_n ($x, $y);
+    }
+    $diff = diff_nums(\@got,$bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef,
+        "$anum row Y=$y");
 }
 
 #------------------------------------------------------------------------------
@@ -369,6 +452,7 @@ sub diff_nums {
 
 #------------------------------------------------------------------------------
 # A000204 -- N on Y=1 row, Lucas numbers
+# cf A000032 starting 2,1
 {
   my $anum = 'A000204';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
@@ -414,7 +498,7 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A003622 -- N on Y axis
+# A003622 -- N on Y axis (though OFFSET=1)
 {
   my $anum = 'A003622';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);

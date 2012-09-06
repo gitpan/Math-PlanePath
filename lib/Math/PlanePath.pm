@@ -20,12 +20,8 @@
 # divrem
 # divrem_mutate
 
-# $level = $path->tree_level_start;
-# $level = $path->tree_n_to_level($n);
-# ($n_lo,$n_hi) = $path->tree_level_to_n_range($level);
-#
-# starting depth=0 for the root, so depth many parents above
-# $depth = $path->tree_n_to_depth($n);
+# $level = $path->tree_depth_start;
+# ($n_lo,$n_hi) = $path->tree_depth_to_n_range($level);
 
 
 # $path->n_to_dir4
@@ -63,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 87;
+$VERSION = 88;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -95,6 +91,17 @@ sub tree_n_num_children {
   my ($self, $n) = @_;
   my @n_list = $self->tree_n_children($n);
   return scalar(@n_list);
+}
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+  if ($n < $self->n_start) {
+    return undef;
+  }
+  my $depth = 0;
+  while (defined ($n = $self->tree_n_parent($n))) {
+    $depth++;
+  }
+  return $depth;
 }
 
 sub new {
@@ -328,6 +335,8 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     BetaOmega              2x2 self-similar half-plane
     AR2W2Curve             2x2 self-similar of four parts
     KochelCurve            3x3 self-similar of two parts
+    DekkingCurve           5x5 self-similar, edges
+    DekkingCentres         5x5 self-similar, centres
     CincoCurve             5x5 self-similar
 
     ImaginaryBase          replicate in four directions
@@ -652,6 +661,16 @@ Return the parent node of C<$n>, or C<undef> if it has no parent.  There
 could be no parent either because C<$path> is not a tree or because C<$n> is
 the top of the tree (or one of the tops).
 
+=item C<$depth = $path-E<gt>tree_n_to_depth($n)>
+
+Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
+top of the tree is depth=0, then its children depth=1, etc.
+
+The depth is a count of how many parent, grandparent, etc, are above C<$n>,
+ie. until reaching C<tree_n_to_parent()> returning C<undef>.  For non-tree
+paths C<tree_n_to_parent()> is always C<undef> and C<tree_n_to_depth()> is
+always 0.
+
 =back
 
 =head2 Parameter Methods
@@ -888,7 +907,8 @@ GosperIslands.
       4         KochCurve, KochPeaks, KochSnowflakes, KochSquareflakes,
                   LTiling,
       5         QuintetCurve, QuintetCentres, QuintetReplicate,
-                  CincoCurve, R5DragonCurve, R5DragonMidpoint
+                  DekkingCurve, DekkingCentres, CincoCurve,
+                  R5DragonCurve, R5DragonMidpoint
       7         Flowsnake, FlowsnakeCentres, GosperReplicate
       8         QuadricCurve, QuadricIslands
       9         SquareReplicate
@@ -1082,6 +1102,8 @@ L<Math::PlanePath::GrayCode>,
 L<Math::PlanePath::AR2W2Curve>,
 L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::KochelCurve>,
+L<Math::PlanePath::DekkingCurve>,
+L<Math::PlanePath::DekkingCentres>,
 L<Math::PlanePath::CincoCurve>,
 
 L<Math::PlanePath::ImaginaryBase>,

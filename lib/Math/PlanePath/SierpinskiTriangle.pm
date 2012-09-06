@@ -58,7 +58,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -345,6 +345,36 @@ sub tree_n_parent {
   return $self->xy_to_n($x+($self->{'align'} ne 'right'),$y);
 }
 
+# n_to_xy() stopped at the Y coordinate (and unmangled by "align")
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+  ### SierpinskiTriangle n_to_depth(): $n
+  $n = $n - $self->{'n_start'};
+  if ($n < 0) {
+    return undef;
+  }
+
+  my ($power, $level) = round_down_pow ($n, 3);
+  ### $power
+  ### $level
+  if (is_infinite($level)) {
+    return $level;
+  }
+
+  my @depth;
+  for ( ; $level >= 0; $level--) {
+    ### at: "n=$n power=$power level=$level depth=".join(',',map{$_||0}@depth)
+    my $rem = $n - $power;
+    if ($depth[$level] = ($rem >= 0)) {
+      $n = $rem;
+      $power *= 2;
+    }
+    $power /= 3;
+  }
+  ### @depth
+  return digit_join_lowtohigh (\@depth, 2, $n*0);
+}
+
 1;
 __END__
 
@@ -612,6 +642,11 @@ Return the number of children of C<$n>, or 0 if C<$n> has no children.
 
 Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the top of
 the triangle).
+
+=item C<$depth = $path-E<gt>tree_n_to_depth($n)>
+
+Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  This
+is simply the C<$y> coordinate from C<n_to_xy()>.
 
 =back
 

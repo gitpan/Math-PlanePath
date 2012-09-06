@@ -18,9 +18,10 @@
 ;; with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-; A156595
+;; A156595 xor adjacent mephisto waltz
+;; 
 
-;;------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 
 to increment :var
   make :var (thing :var)+1

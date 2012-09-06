@@ -184,6 +184,8 @@ my @all_classes = ('SquareSpiral',
                    'AR2W2Curve,start_shape=D1rev',
                    'AR2W2Curve,start_shape=A2rev',
                    'KochelCurve',
+                   'DekkingCurve',
+                   'DekkingCentres',
                    'CincoCurve',
 
                    'ImaginaryBase',

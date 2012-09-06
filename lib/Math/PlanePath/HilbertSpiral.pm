@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -412,6 +412,19 @@ and biggest in the rectangle.
 
 =back
 
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A059285  (etc)
+
+    A059285    X-Y coordinate diff
+
+The difference X-Y is the same as the HilbertCurve, since the "negative"
+spiral parts are mirrored across the X=-Y anti-diagonal, which means
+coordinates (-Y,-X) and -Y-(-X) = X-Y.
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -442,9 +455,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=HilbertSpiral --lines"
-# End:
-
-# math-image --path=HilbertSpiral --all --output=numbers_dash

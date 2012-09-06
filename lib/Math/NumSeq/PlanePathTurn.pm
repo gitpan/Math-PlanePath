@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -843,24 +843,22 @@ sub characteristic_non_decreasing {
 #  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=Left
 # },
 # }
-BEGIN {
-  # GosperSide and TerdragonCurve same turn sequence, by diff angles
-  my $href
-    = { 'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
-        # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
-        # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
+{ package Math::PlanePath::GosperSide;
+  use constant _NumSeq_Turn_oeis_anum =>
+    { '' => { 'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
+              # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
+              # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
 
-        # Not quite, A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
-        # Right => 'A080846',
-        # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
-        # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
-      };
-  { package Math::PlanePath::TerdragonCurve;
-    use constant _NumSeq_Turn_oeis_anum => { 'arms=1' => $href };
-  }
-  { package Math::PlanePath::GosperSide;
-    use constant _NumSeq_Turn_oeis_anum => { '' => $href };
-  }
+              # Not quite, A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
+              # Right => 'A080846',
+              # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
+              # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
+            } };
+}
+{ package Math::PlanePath::TerdragonCurve;
+  # GosperSide and TerdragonCurve same turn sequence, by diff angles
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'arms=1' => Math::PlanePath::GosperSide->_NumSeq_Turn_oeis_anum->{''} };
 }
 # { package Math::PlanePath::TerdragonRounded;
 # }
@@ -1139,6 +1137,12 @@ BEGIN {
 # }
 # { package Math::PlanePath::QuintetCentres;
 # }
+# { package Math::PlanePath::DekkingCurve;
+# }
+# { package Math::PlanePath::DekkingCentres;
+# }
+# { package Math::PlanePath::CincoCurve;
+# }
 # { package Math::PlanePath::CornerReplicate;
 # }
 # { package Math::PlanePath::DigitGroups;
@@ -1244,6 +1248,8 @@ L<Math::NumSeq>,
 L<Math::NumSeq::PlanePathCoord>,
 L<Math::NumSeq::PlanePathDelta>,
 L<Math::NumSeq::PlanePathN>
+
+L<Math::NumberCruncher> has a C<Clockwise()> turn calculator
 
 =head1 HOME PAGE
 

@@ -59,11 +59,10 @@ devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
 devel/lib/Math/PlanePath/BoxFractalQuarter.pm
-devel/lib/Math/PlanePath/DekkingCentres.pm
-devel/lib/Math/PlanePath/DekkingCurve.pm
 devel/lib/Math/PlanePath/EToothpickTree-oeis.t
 devel/lib/Math/PlanePath/EToothpickTree.pm
 devel/lib/Math/PlanePath/FibonacciSquareSpiral.pm
+devel/lib/Math/PlanePath/FibonacciWordKnott.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
 devel/lib/Math/PlanePath/NxN.pm
 devel/lib/Math/PlanePath/NxNinv.pm
@@ -157,6 +156,8 @@ lib/Math/PlanePath/Corner.pm
 lib/Math/PlanePath/CornerReplicate.pm
 lib/Math/PlanePath/CretanLabyrinth.pm
 lib/Math/PlanePath/CubicBase.pm
+lib/Math/PlanePath/DekkingCentres.pm
+lib/Math/PlanePath/DekkingCurve.pm
 lib/Math/PlanePath/DiagonalRationals.pm
 lib/Math/PlanePath/Diagonals.pm
 lib/Math/PlanePath/DiagonalsAlternating.pm
@@ -272,6 +273,7 @@ t/CoprimeColumns.t
 t/Corner.t
 t/CornerReplicate.t
 t/CubicBase.t
+t/DekkingCurve.t
 t/DiagonalRationals.t
 t/Diagonals.t
 t/DiamondArms.t

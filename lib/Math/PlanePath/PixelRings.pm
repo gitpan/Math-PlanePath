@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -109,8 +109,8 @@ sub _cumul_extend {
     }
   }
   ### to: "$self->{'cumul_x'},$self->{'cumul_y'}"
-  ### cumul extend: scalar(@$cumul).' = '.($cumul->[-1] + $cumul_add)
-  ### $cumul_add
+  ### cumul extend: scalar(@$cumul).' = '.($cumul->[-1] + $self->{'cumul_add'})
+  ### cumul_add: $self->{'cumul_add'}
   push @$cumul, $cumul->[-1] + $self->{'cumul_add'};
 }
 
@@ -118,14 +118,14 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### PixelRings n_to_xy(): $n
 
-  if ($n < 1) { return; }
+  if ($n < 2) {
+    if ($n < 1) { return; }
+    return ($n-1, 0);
+  }
   if (is_infinite($n)) {
     return ($n,$n);
   }
 
-  if ($n < 2) {
-    return ($n-1, 0);
-  }
 
   {
     # ENHANCE-ME: direction of N+1 from the cumulative lookup
@@ -269,6 +269,9 @@ sub xy_to_n {
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### PixelRings rect_to_n_range(): "$x1,$y1 $x2,$y2"
+
+  # ENHANCE-ME: use an estimate from rings no bigger than sqrt(2), so can
+  # get a range for big x,y
 
   $x1 = round_nearest ($x1);
   $y1 = round_nearest ($y1);

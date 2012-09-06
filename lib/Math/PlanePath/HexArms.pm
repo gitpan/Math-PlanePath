@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 87;
+$VERSION = 88;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -62,15 +62,15 @@ use constant arms_count => 6;
 sub n_to_xy {
   my ($self, $n) = @_;
   #### HexArms n_to_xy: $n
-  if ($n < 1) {
-    return;
-  }
+
   if ($n < 2) {
+    if ($n < 1) { return; }
     ### centre
     $n--;
     return ($n, -$n);  # from n=1 towards n=7 at x=1,y=-1
   }
   $n -= 2;
+
   my $frac;
   { my $int = int($n);
     $frac = $n - $int;
