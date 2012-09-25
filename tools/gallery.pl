@@ -45,6 +45,29 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['h-indexing-small.png',
+    'math-image --path=HIndexing --scale=3 --size=32 --lines --figure=point'],
+   ['h-indexing-big.png',
+    'math-image --path=HIndexing --lines --scale=5 --size=200 --figure=point'],
+
+   ['rationals-tree-lines-l.png',
+    'math-image --path=RationalsTree,tree_type=L --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-small.png',
+    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
+   ['rationals-tree-big.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=200'],
+   ['rationals-tree-lines-sb.png',
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-cw.png',
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-bird.png',
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-drib.png',
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-ayt.png',
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
+
+
    ['sierpinski-curve-small.png',
     'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --figure=point'],
    ['sierpinski-curve-big.png',
@@ -216,22 +239,6 @@ foreach my $elem
     'math-image --path=CCurve --lines --scale=3 --size=32 --offset=8,0'],
    ['c-curve-big.png',
     'math-image --path=CCurve --lines --figure=point --scale=3 --size=250x250 --offset=20,-70'],
-
-
-   ['rationals-tree-small.png',
-    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
-   ['rationals-tree-big.png',
-    'math-image --path=RationalsTree --all --scale=3 --size=200'],
-   ['rationals-tree-lines-drib.png',
-    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-sb.png',
-    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-cw.png',
-    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-ayt.png',
-    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-bird.png',
-    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
 
 
    ['gcd-rationals-small.png',
@@ -627,11 +634,6 @@ foreach my $elem
     'math-image --path=CornerReplicate --lines --scale=4 --size=32'],
    ['corner-replicate-big.png',
     'math-image --path=CornerReplicate --lines --scale=10 --size=200'],
-
-   ['h-indexing-small.png',
-    'math-image --path=HIndexing --scale=3 --size=32 --lines --figure=point'],
-   ['h-indexing-big.png',
-    'math-image --path=HIndexing --lines --scale=3 --size=200 --figure=point'],
 
    ['ulam-warburton-quarter-small.png',
     "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],

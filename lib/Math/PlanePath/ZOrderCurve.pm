@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -44,6 +44,7 @@ use Math::PlanePath::Base::Digits
   'parameter_info_array',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -73,59 +74,145 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  {
-    # ENHANCE-ME: N and N+1 are either adjacent X or on a slope Y to Y+1 for
-    # the base X, don't need the full calculation for N+1
-    my $int = int($n);
-    ### $int
-    if ($n != $int) {
-      my $frac = $n - $int;  # inherit possible BigFloat/BigRat
-      ### $frac
-      my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
-      my $dx = $x2-$x1;
-      my $dy = $y2-$y1;
-      return ($frac*$dx + $x1, $frac*$dy + $y1);
+  my $int = int($n);
+  $n -= $int;   # fraction part
+
+  my $radix = $self->{'radix'};
+  my @ndigits = digit_split_lowtohigh ($int, $radix);
+  ### @ndigits
+  unless ($#ndigits & 1) {
+    push @ndigits, 0;  # pad @ndigits to an even number of digits
+  }
+
+  my @xdigits;
+  my @ydigits;
+  while (@ndigits) {
+    push @xdigits, shift @ndigits;  # low to high
+    push @ydigits, shift @ndigits;  # low to high
+  }
+  ### @xdigits
+  ### @ydigits
+
+  my $zero = ($int * 0); # inherit bigint 0
+  my $x = digit_join_lowtohigh (\@xdigits, $radix, $zero);
+  my $y = digit_join_lowtohigh (\@ydigits, $radix, $zero);
+
+  if ($n) {
+    # fraction part
+    my $dx = 1;
+    my $dy = $zero;
+    my $radix_minus_1 = $radix - 1;
+    foreach my $i (0 .. $#xdigits) {  # low to high
+      if ($xdigits[$i] != $radix_minus_1) {
+        ### lowest non-9 is an X digit, so dx=1 dy=0,-R+1,-R^2+1,etc
+        last;
+      }
+      $dy = ($dy * $radix) - $radix_minus_1;  # 1-$radix**$i
+      if ($ydigits[$i] != $radix_minus_1) {
+        ### lowest non-9 is a Y digit, so dy=1, dx=-R+1,-R^2+1,etc
+        $dx = $dy;
+        $dy = 1;
+        last;
+      }
     }
-    $n = $int; # BigFloat int() gives BigInt, use that
+    ### $dx
+    ### $dy
+    $x = $n*$dx + $x;
+    $y = $n*$dy + $y;
+  }
+
+  return ($x, $y);
+}
+
+sub n_to_dxdy {
+  my ($self, $n) = @_;
+  ### ZOrderCurve n_to_xy(): $n
+
+  if ($n < 0) {
+    return;
+  }
+
+  my $int = int($n);
+  $n -= $int;   # fraction part
+
+  if (is_infinite($int)) {
+    return ($int,$int);
   }
 
   my $radix = $self->{'radix'};
-  my @digits = digit_split_lowtohigh ($n, $radix);
-  ### @digits
-  unless ($#digits & 1) { push @digits, 0 }  # even number
-
-  my $x = my $y = ($n * 0); # inherit bignum 0
-  while (@digits) {
-    $y *= $radix;
-    $y += pop @digits;  # high to low
-    @digits || last;
-    $x *= $radix;
-    $x += pop @digits;  # high to low
+  my $digit = _divrem_mutate($int,$radix);   # lowest digit of N
+  if ($digit < $radix - 2) {
+    # N an integer at lowdigit<radix-2, so dx=1,dy=0
+    return (1, 0);
   }
 
-  ### is: "$x,$y"
-  return ($x, $y);
+  my $radix_minus_1 = $radix - 1;
+  my $scan_for_dx = ($digit == $radix_minus_1);
+  unless ($scan_for_dx) {
+    ### assert: $digit == $radix-2
+    unless ($n) {
+      # N an integer with lowdigit==radix-2, so dx=1,dy=0
+      return (1, 0);
+    }
+    # scan digits for next_dx,next_dy
+  }
 
+  my $power = $radix + ($int*0);  # $radix**$i, inherit bigint
 
-  # my $radix = $self->{'radix'};
-  # if ($radix == 2) {
-  #   my $bit = $x|1;  # inherit
-  #   while ($n) {
-  #     ### $x
-  #     ### $y
-  #     ### $n
-  #     ### $bit
-  #     if ($n & 1) {
-  #       $x += $bit;
-  #     }
-  #     if ($n & 2) {
-  #       $y += $bit;
-  #     }
-  #     $n >>= 2;
-  #     $bit <<= 1;
-  #   }
-  # } else {
+  for (;;) {
+    if (_divrem_mutate($int,$radix) != $radix_minus_1) {
+      ### lowest non-9 is a Y digit, so dy=1, dx=-R+1,-R^2+1,etc
+      if ($scan_for_dx) {
+        # scanned for dx=1-power,dy=1 have nextdx=1,nextdy=0
+        # frac*(nextdx-dx) + dx = n*(1-(1-power))+(1-power)
+        #                       = n*(1-1+power))+1-power
+        #                       = n*power+1-power
+        #                       = (n-1)*power+1
+        # frac*(nextdy-dy) + dy = n*(0-1) + 1
+        #                       = 1-n
+        return (($n-1)*$power + 1,
+                1-$n);
+
+      } else {
+        # scanned for nextdx=1-power,nextdy=1 have dx=1,dy=0
+        # frac*(nextdx-dx) + dx = n*((1-power)-1)+1
+        #                       = n*(1-power-1)+1
+        #                       = n*-power+1
+        #                       = 1 - n*power
+        # frac*(nextdy-dy) + dy = n*(1-0) + 0
+        #                       = n
+        return (1 - $n*$power,
+                $n);
+      }
+    }
+
+    if (_divrem_mutate($int,$radix) != $radix_minus_1) {
+      ### lowest non-9 is an X digit, so dx=1 dy=0,-R+1,-R^2+1,etc
+      $power -= 1;
+      if ($scan_for_dx) {
+        # scanned for dx=1,dy=1-power have nextdx=1,nextdy=0
+        # frac*(nextdx-dx) + dx = n*(1-1)+1
+        #                       = 1
+        # frac*(nextdy-dy) + dy = n*(0-(1-power)) + (1-power)
+        #                       = n*(-1+power) + 1-power
+        #                       = -n + n*power + 1 - power
+        #                       = 1-n + (n-1)*power
+        #                       = (n-1)*(power-1)
+        return (1,
+                ($n-1) * $power);
+      } else {
+        # scanned for nextdx=1,nextdy=1-power have dx=1,dy=0
+        # frac*(nextdx-dx) + dx = n*(1-1) + 1
+        #                       = 1
+        # frac*(nextdy-dy) + dy = n*((1-power) - 0) + 0
+        #                       = n*(1-power)
+        return (1,
+                -$n*$power);
+      }
+    }
+
+    $power *= $radix;
+  }
 }
 
 sub xy_to_n {
@@ -134,24 +221,18 @@ sub xy_to_n {
 
   $x = round_nearest ($x);
   $y = round_nearest ($y);
-  if ($x < 0 || $y < 0) {
-    return undef;
-  }
-  if (is_infinite($x)) {
-    return $x;
-  }
-  if (is_infinite($y)) {
-    return $y;
-  }
+  if ($x < 0 || $y < 0) { return undef; }
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
 
   my $radix = $self->{'radix'};
-  my $zero = ($x * 0 * $y); # inherit bignum 0
+  my $zero = ($x * 0 * $y); # inherit bigint 0
 
   my @x = digit_split_lowtohigh($x,$radix);
   my @y = digit_split_lowtohigh($y,$radix);
   return digit_join_lowtohigh ([ _digit_interleave (\@x, \@y) ],
-                                $radix,
-                                $zero);
+                               $radix,
+                               $zero);
 }
 
 # return list of @$xaref interleaved with @$yaref
@@ -159,9 +240,8 @@ sub xy_to_n {
 #
 sub _digit_interleave {
   my ($xaref, $yaref) = @_;
-  my $max = max($#$xaref,$#$yaref);
   my @ret;
-  foreach my $i (0 .. $max) {
+  foreach my $i (0 .. max($#$xaref,$#$yaref)) {
     push @ret, $xaref->[$i] || 0;
     push @ret, $yaref->[$i] || 0;
   }
@@ -184,75 +264,16 @@ sub rect_to_n_range {
     return (1, 0); # rect all negative, no N
   }
 
-  if ($x1 < 0) { $x1 = 0; }
-  if ($y1 < 0) { $y1 = 0; }
+  if ($x1 < 0) { $x1 *= 0; }   # "*=" to preserve bigint x1 or y1
+  if ($y1 < 0) { $y1 *= 0; }
 
-  # monotonic increasing in $x and $y directions, so this is exact
+  # monotonic increasing in X and Y directions, so this is exact
   return ($self->xy_to_n ($x1, $y1),
           $self->xy_to_n ($x2, $y2));
 }
 
 1;
 __END__
-
-
-
-  # if ($radix == 2) {
-  #   my $nbit = $n|1; # inherit
-  #   while ($x || $y) {
-  #     if ($x & 1) {
-  #       $n |= $nbit;
-  #     }
-  #     $x >>= 1;
-  #     $nbit <<= 1;
-  # 
-  #     if ($y & 1) {
-  #       $n |= $nbit;
-  #     }
-  #     $y >>= 1;
-  #     $nbit <<= 1;
-  #   }
-
-  # my $xmod = 2 + ($self->{'wider'} || 0);
-  # if (my $xmod = $self->{'wider'}) {
-  # 
-  #   $xmod += 2;
-  #   ### $xmod
-  # 
-  #   my $xbit = 1;
-  #   my $ybit = 1;
-  #   while ($n) {
-  #     ### $x
-  #     ### $y
-  #     ### $n
-  #     ### $xbit
-  #     ### $ybit
-  #     $x += ($n % $xmod) * $xbit;
-  #     $n = floor ($n / $xmod);
-  #     $xbit *= $xmod;
-  # 
-  #     if ($n & 1) {
-  #       $y += $ybit;
-  #     }
-  #     $n >>= 1;
-  #     $ybit <<= 1;
-  #   }
-  # } else {
-
-  # my $xmod = 2 + ($self->{'wider'} || 0);
-  # 
-  # my $n = 0;
-  # my $npos = 1;
-  # while ($x || $y) {
-  #   if ($y & 1) {
-  #     $n += $npos;
-  #   }
-  #   $y >>= 1;
-  #   $npos <<= 1;
-  # 
-  # $n += ($x % $xmod) * $npos;
-  #   $x = int ($x / $xmod);
-  #   $npos *= $xmod;
 
 =for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix RxR OEIS ZOrderCurve
 
@@ -325,22 +346,22 @@ Plotting N values related to powers of 2 can come out as interesting
 patterns.  For example displaying the N's which have no digit 3 in their
 base 4 representation gives
 
-    * 
-    * * 
-    *   * 
-    * * * * 
-    *       * 
-    * *     * * 
-    *   *   *   * 
-    * * * * * * * * 
-    *               * 
-    * *             * * 
-    *   *           *   * 
-    * * * *         * * * * 
-    *       *       *       * 
-    * *     * *     * *     * * 
-    *   *   *   *   *   *   *   * 
-    * * * * * * * * * * * * * * * * 
+    *
+    * *
+    *   *
+    * * * *
+    *       *
+    * *     * *
+    *   *   *   *
+    * * * * * * * *
+    *               *
+    * *             * *
+    *   *           *   *
+    * * * *         * * * *
+    *       *       *       *
+    * *     * *     * *     * *
+    *   *   *   *   *   *   *   *
+    * * * * * * * * * * * * * * * *
 
 The 0,1,2 and not 3 makes a little 2x2 "L" at the bottom left, then
 repeating at 4x4 with again the whole "3" position undrawn, and so on.  This
@@ -353,37 +374,37 @@ Plotting the fibbinary numbers (eg. L<Math::NumSeq::Fibbinary>) which are N
 values with no adjacent 1 bits in binary makes an attractive tree-like
 pattern,
 
-    *                                                               
-    **                                                              
-    *                                                               
-    ****                                                            
-    *                                                               
-    **                                                              
-    *   *                                                           
-    ********                                                        
-    *                                                               
-    **                                                              
-    *                                                               
-    ****                                                            
-    *       *                                                       
-    **      **                                                      
-    *   *   *   *                                                   
-    ****************                                                
-    *                               *                               
-    **                              **                              
-    *                               *                               
-    ****                            ****                            
-    *                               *                               
-    **                              **                              
-    *   *                           *   *                           
-    ********                        ********                        
-    *               *               *               *               
-    **              **              **              **              
-    *               *               *               *               
-    ****            ****            ****            ****            
-    *       *       *       *       *       *       *       *       
-    **      **      **      **      **      **      **      **      
-    *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   
+    *
+    **
+    *
+    ****
+    *
+    **
+    *   *
+    ********
+    *
+    **
+    *
+    ****
+    *       *
+    **      **
+    *   *   *   *
+    ****************
+    *                               *
+    **                              **
+    *                               *
+    ****                            ****
+    *                               *
+    **                              **
+    *   *                           *   *
+    ********                        ********
+    *               *               *               *
+    **              **              **              **
+    *               *               *               *
+    ****            ****            ****            ****
+    *       *       *       *       *       *       *       *
+    **      **      **      **      **      **      **      **
+    *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
     ****************************************************************
 
 The horizontals arise from N=...0a0b0c for bits a,b,c so Y=...000 and
@@ -456,6 +477,28 @@ the N=42 shown above at X=0,Y=7.
 
 With the C<radix> parameter the digits are treated likewise, in the given
 radix rather than binary.
+
+If N includes a fraction part then it's applied to a straight line towards
+point N+1.  The +1 of N+1 changes X and Y according to how many low radix-1
+digits there are in N, and thus in X and Y.  In general if the lowest non
+radix-1 is in X then
+
+    dX=1
+    dY = - (R^pos - 1)           # pos=0 for lowest digit
+
+The simplest case is when the lowest digit of N is not radix-1, so dX=1,dY=0
+across.
+
+If the lowest non radix-1 is in Y then
+
+    dX = - (R^(pos+1) - 1)       # pos=0 for lowest digit
+    dY = 1
+
+If all digits of X and Y are radix-1 then the implicit 0 above the top of X
+is considered the lowest non radix-1 and so the first case applies.  In the
+radix=2 above this happens for instance at N=15 binary 1111 so X = binary 11
+and Y = binary 11.  The 0 above the top of X is at pos=2 so dX=1,
+dY=-(2^2-1)=-3.
 
 =head2 Rectangle to N Range
 
@@ -541,3 +584,12 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
+
+
+
+
+
+
+
+
+

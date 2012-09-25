@@ -17,20 +17,19 @@
 
 
 # maybe:
-# AbsdX,AbsdY   dAbsX,dAbsY
-# Abs_dX
-# abs_dX
 #
-# dRadius, dRSquared, dTRadius, dTRSquared of the radii
+# dRadius, dRSquared,
+# dTRadius, dTRSquared   of the radii
+# dTheta360
+# 'Dir360','TDir360',
+#
 # dAbsDiff change in abs(X-Y)
 #    (Xnext-Ynext) - (X-Y)
 #      = (Xnext-X) - (Ynext-Y)
 #      = dX-dY
 #    (Xnext-Ynext) - (Y-X)        # if X-Y negative
 #      = Xnext+X - Ynext-Y
-# dSumAbs change in abs(X)+abs(Y)
-# dTheta360
-# 'Dir360','TDir360',
+# dSumAbs change in abs(X)+abs(Y)  taxi dist
 
 # matching Dir4,TDir6
 # dDist dDSquared
@@ -46,7 +45,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -1573,7 +1572,8 @@ sub values_max {
                      CW   => 1,
                      AYT  => 0,
                      Bird => 0,
-                     Drib => 0);
+                     Drib => 0,
+                     L    => 1);
     sub _NumSeq_Delta_AbsdY_min {
       my ($self) = @_;
       return $AbsdY_min{$self->{'tree_type'}} || 0;
@@ -1581,12 +1581,17 @@ sub values_max {
   }
   {
     # Drib apparent minimum dX=k dY=2*k+1 approaches dX=1,dY=2
-    my %Dir4_min = (CW   => 1,
-                    Drib => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (1,2),
-                   );
-    my %TDir6_min = (CW => 1.5,
-                    Drib => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (1,2),
-                    );
+    my %Dir4_min
+      = (CW   => 1,
+         Drib => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (1,2),
+         L    => 0.5, # N=0 dX=1,dY=1
+
+        );
+    my %TDir6_min
+      = (CW => 1.5,
+         Drib => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (1,2),
+         L    => 1, # N=0 dX=1,dY=1
+        );
     my %Dir4_is_infimum = (Drib => 1);
     sub _NumSeq_Delta_Dir4_min {
       my ($self) = @_;
@@ -1603,20 +1608,28 @@ sub values_max {
     *_NumSeq_TDir6_min_is_infimum = \&_NumSeq_Dir4_min_is_infimum;
   }
   {
-    my %Dir4_max = (SB   => 3.5,
-                    Bird => 3.5,
-                    CW   => 4,
-                    AYT  => 4,
-                    Drib => 4,
-                   );
-    my %TDir6_max = (SB   => 5,
-                     Bird => 5,
-                     CW   => 6,
-                     AYT  => 6,
-                     Drib => 6);
+    my %Dir4_max
+      = (SB   => 3.5,
+         Bird => 3.5,
+         CW   => 4,
+         AYT  => 4,
+         Drib => 4,
+         L    => 4, # at 2^k-1 dX=k+1,dY=-1 so approach Dir=4
+         CS   => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (2,-1),
+        );
+    my %TDir6_max
+      = (SB   => 5,
+         Bird => 5,
+         CW   => 6,
+         AYT  => 6,
+         Drib => 6,
+         L    => 6,
+         CS   => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (2,-1),
+        );
     my %Dir4_is_supremum = (CW   => 1,
                             AYT  => 1,
-                            Drib => 1);
+                            Drib => 1,
+                            L    => 1);
     sub _NumSeq_Delta_Dir4_max {
       my ($self) = @_;
       return $Dir4_max{$self->{'tree_type'}} || 3;

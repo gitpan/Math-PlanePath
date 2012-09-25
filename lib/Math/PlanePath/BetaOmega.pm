@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,7 +42,9 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'bit_split_lowtohigh',
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -139,42 +141,47 @@ sub n_to_xy {
   my $int = int($n);
   $n -= $int;  # remaining fraction, preserve possible BigFloat/BigRat
 
-  my @digits = digit_split_lowtohigh($int,4);
-  my $len = ($n*0 + 2) ** scalar(@digits);   # inherit possible bigint
+  my $zero = $int * 0;  # inherit bignum
+  my @ndigits = digit_split_lowtohigh($int,4);
+  ### ndigits: join(', ',@ndigits)."   count ".scalar(@ndigits)
 
-  ### digits: join(', ',@digits)."   count ".scalar(@digits)
-  ### $len
+  my $state = ($#ndigits & 1 ? 28 : 0);
+  my $dirstate   = ($#ndigits & 1 ? 0 : 28); # default if all $ndigit==3
+  my @xdigits;
+  my @ydigits;
 
-  my $state = ($#digits & 1 ? 28 : 0);
-  my $dir = ($#digits & 1 ? 0 : 28); # default if all $digit==3
-  my $x = 0;
-  my $y = 0;
-
-  while (@digits) {
-    $len /= 2;
-    $state += (my $digit = pop @digits);
-    if ($digit != 3) {
-      $dir = $state;  # lowest non-3 digit
+  foreach my $i (reverse 0 .. $#ndigits) {
+    my $ndigit = $ndigits[$i];    # high to low
+    $state += $ndigit;
+    if ($ndigit != 3) {
+      $dirstate = $state;  # lowest non-3 digit
     }
 
-    ### $digit
+    ### $ndigit
     ### $state
-    ### $dir
+    ### $dirstate
     ### digit_to_x: $digit_to_x[$state]
     ### digit_to_y: $digit_to_y[$state]
     ### next_state: $next_state[$state]
 
-    $x += $len * $digit_to_x[$state];
-    $y += $len * ($digit_to_y[$state] - (scalar(@digits)&1));
+    $xdigits[$i] = $digit_to_x[$state];
+    $ydigits[$i] = $digit_to_y[$state];
     $state = $next_state[$state];
   }
 
-  ### $dir
+  ### $dirstate
   ### frac: $n
+  ### Ymin: - (((4+$zero)**int($#ndigits/2) - 1) * 2 / 3)
 
   # with $n fractional part
-  return ($n * ($digit_to_x[$dir+1] - $digit_to_x[$dir]) + $x,
-          $n * ($digit_to_y[$dir+1] - $digit_to_y[$dir]) + $y);
+  return ($n * ($digit_to_x[$dirstate+1] - $digit_to_x[$dirstate])
+          + digit_join_lowtohigh(\@xdigits, 2, $zero),
+
+          $n * ($digit_to_y[$dirstate+1] - $digit_to_y[$dirstate])
+          + (digit_join_lowtohigh(\@ydigits, 2, $zero)
+
+             # Ymin = - (4^floor(level/2) - 1) * 2 / 3
+             - (((4+$zero)**int(scalar(@ndigits)/2) - 1) * 2 / 3)));
 }
 
 
@@ -206,73 +213,45 @@ sub xy_to_n {
   ### BetaOmega xy_to_n(): "$x, $y"
 
   $x = round_nearest ($x);
-  $y = round_nearest ($y);
   if ($x < 0) {
     return undef;
   }
+  if (is_infinite($x)) {
+    return $x;
+  }
+  my @xbits = bit_split_lowtohigh($x);
 
-  my $n = ($x * 0 * $y);
-
+  $y = round_nearest ($y);
+  my $zero = ($x * 0 * $y);
   my ($len, $level) = _y_round_down_len_level ($y);
-  ### y len/level: "$len  $level"
-  {
-    my ($xlen, $xlevel) = round_down_pow ($x, 2);
-    ### x len/level: "$xlen  $xlevel"
-    if ($xlevel > $level) {
-      $level = $xlevel;
-      $len = $xlen;
-    }
+  ### y: "len=$len  level=$level"
+
+  if ($#xbits > $level) {
+    ### increase level to xbits ...
+    $level = $#xbits;
+    $len = (2+$zero) ** $level;
   }
   ### $len
   ### $level
-  if (is_infinite($len)) {
-    return $len;
+
+  $y += (($level&1 ? 4 : 2) * $len - 2) / 3;
+  ### offset y to: $y
+  if (is_infinite($y)) {
+    return $y;
+  }
+  my @ybits = bit_split_lowtohigh($y);
+  my $state = ($level & 1 ? 28 : 0);
+
+  my @ndigits;
+  foreach my $i (reverse 0 .. $level) {   # high to low
+    ### at: "i=$i state=$state  xbit=".($xbits[$i]||0)." ybit=".($ybits[$i]||0)
+
+    my $ndigit = $xy_to_digit[$state + 2*($xbits[$i]||0) + ($ybits[$i]||0)];
+    $ndigits[$i] = $ndigit;
+    $state = $next_state[$state+$ndigit];
   }
 
-  my $state;
-  {
-    my $offset;
-    if ($level & 1) {
-      $state = 28;
-      $offset = 4*$len;
-    } else {
-      $state = 0;
-      $offset = 2*$len;
-    }
-    $y += ($offset - 2) / 3;
-    # $y now relative to Ymin(level), so in range 0 <= $y < 2*len
-  }
-  ### offset x,y to: "$x, $y"
-
-  for (;;) {
-    ### at: "$x,$y  len=$len"
-    ### assert: $x >= 0
-    ### assert: $y >= 0
-    ### assert: $x < 2*$len
-    ### assert: $y < 2*$len
-
-    my $xo;
-    if ($xo = ($x >= $len)) {
-      $x -= $len;
-    }
-    my $yo;
-    if ($yo = ($y >= $len)) {
-      $y -= $len;
-    }
-    ### xy bits: ($xo+0).", ".($yo+0)
-
-    my $digit = $xy_to_digit[$state + 2*$xo + $yo];
-    $n = 4*$n + $digit;
-    $state = $next_state[$state+$digit];
-
-    last if --$level < 0;
-    $len /= 2;
-  }
-
-  ### assert: $x == 0
-  ### assert: $y == 0
-
-  return $n;
+  return digit_join_lowtohigh(\@ndigits, 4, $zero)
 }
 
 # exact

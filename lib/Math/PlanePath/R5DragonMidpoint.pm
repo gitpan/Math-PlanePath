@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -232,7 +232,7 @@ Math::PlanePath::R5DragonMidpoint -- R5 dragon curve midpoints
 
 =head1 DESCRIPTION
 
-This is midpoints of the R5 dragon curve,
+X<Arndt, Jorg>This is midpoints of the R5 dragon curve by Jorg Arndt,
 
                                        31--30                       11
                                         |   |
@@ -276,7 +276,7 @@ degrees, shrunk by sqrt(2). and shifted to the origin.
                                  |
                                  2
                                  |
-                           .--1--*
+                           +--1--*
 
 =head2 Arms
 
@@ -289,8 +289,8 @@ C<arms =E<gt> 4> begins as follows.  N=0,4,8,12,16,etc is the first arm (the
 same shape as the plain curve above), then N=1,5,9,13,17 the second,
 N=2,6,10,14 the third, etc.
 
-                76--80-...                                6
-    arms=>4      |
+    arms=>4     76--80-...                                6
+                 |
                 72--68--64  44--40                        5
                          |   |   |
                 25--21  60  48  36                        4
@@ -363,7 +363,8 @@ in any case once the adjustment is found the result is
 These X,Y reductions eventually reach one of the starting points for the
 four arms
 
-    X,Y       Arm
+     X,Y      Arm
+    -----     ---
      0, 0      0
      0, 1      1
     -1, 1      2

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,45 +25,103 @@
 
 use 5.004;
 use strict;
+use List::Util 'max';
 use Math::PlanePath::RationalsTree;
 
-foreach my $tree_type ('SB', 'CW', 'AYT', 'Bird','Drib') {
+my $tree_type_choices_arrayref
+  = Math::PlanePath::RationalsTree->parameter_info_hash()->{'tree_type'}->{'choices'};
+
+foreach my $tree_type (@$tree_type_choices_arrayref) {
   print "$tree_type tree\n";
 
   my $path = Math::PlanePath::RationalsTree->new
     (tree_type => $tree_type);
 
-  printf "%31s", '';
-  foreach my $n (1) {
-    my ($x,$y) = $path->n_to_xy($n);
-    print "$x/$y";
+  my $n = $path->n_start;
+  foreach (1) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre("$x/$y",64);
   }
   print "\n";
 
-  printf "%15s", '';
-  foreach my $n (2 .. 3) {
-    my ($x,$y) = $path->n_to_xy($n);
-    printf "%-32s", "$x/$y";
+  foreach (1 .. 2) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre("$x/$y",32);
   }
   print "\n";
 
-  printf "%7s", '';
-  foreach my $n (4 .. 7) {
-    my ($x,$y) = $path->n_to_xy($n);
-    printf "%-16s", "$x/$y";
+  foreach (1 .. 4) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre("$x/$y",16);
   }
   print "\n";
 
-  printf "%3s", '';
-  foreach my $n (8 .. 15) {
-    my ($x,$y) = $path->n_to_xy($n);
-    printf "%-8s", "$x/$y";
+  foreach (1 .. 8) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre("$x/$y",8);
   }
   print "\n";
 
-  foreach my $n (16 .. 31) {
-    my ($x,$y) = $path->n_to_xy($n);
-    printf "%4s", "$x/$y";
+  foreach (16 .. 31) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre("$x/$y",4);
+  }
+  print "\n";
+
+  print "\n";
+}
+
+sub centre {
+  my ($str, $width) = @_;
+  my $extra = max (0, $width - length($str)); 
+  my $left = int($extra/2);
+  my $right = $extra - $left;
+  return ' 'x$left . $str . ' 'x$right;
+}
+
+sub xy_to_cfrac_str {
+  my ($x,$y) = @_;
+  my @quotients;
+  while ($x > 0 && $y > 0) {
+    push @quotients, int($x/$y);
+    $x %= $y;
+    ($x,$y) = ($y,$x);
+  }
+  return "[".join(',',@quotients)."]";
+}
+
+print "-----------------------------------------------------------------------\n";
+print "Or as continued fraction quotients.\n";
+print "\n";
+
+foreach my $tree_type (@$tree_type_choices_arrayref) {
+  print "$tree_type tree\n";
+
+  my $path = Math::PlanePath::RationalsTree->new
+    (tree_type => $tree_type);
+
+  my $n = $path->n_start;
+  foreach (1) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre(xy_to_cfrac_str($x,$y), 72);
+  }
+  print "\n";
+
+  foreach (1 .. 2) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre(xy_to_cfrac_str($x,$y), 36);
+  }
+  print "\n";
+
+  foreach (1 .. 4) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre(xy_to_cfrac_str($x,$y), 18);
+  }
+  print "\n";
+
+  foreach (1 .. 8) {
+    my ($x,$y) = $path->n_to_xy($n++);
+    print centre(xy_to_cfrac_str($x,$y), 9);
   }
   print "\n";
 

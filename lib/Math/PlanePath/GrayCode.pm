@@ -41,7 +41,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -565,7 +565,7 @@ Return the first N on the path, which is 0.
 
 =head1 FORMULAS
 
-=head2 Turn Sequence
+=head2 Turn
 
 The turns in the default binary TsF curve are either to the left +90 or a
 reverse 180.  For example at N=2 the curve turns left, then at N=3 it
@@ -596,7 +596,7 @@ forms,
 
     http://oeis.org/A163233  (etc)
 
-    default apply_type="TsF", radix=2
+    apply_type="TsF", radix=2  (the defaults)
       A039963    turn sequence, 1=+90left,0=180reverse
       A035263    turn undoubled, at N=2n and N=2n+1
       A065882    base4 lowest non-zero,
@@ -609,7 +609,7 @@ forms,
 The turn sequence goes in pairs, so N=1 and N=2 left then N=3 and N=4
 reverse.  A039963 includes that repetition, A035263 is just one copy of each
 and so is the turn at each pair N=2k and N=2k+1.  There's many sequences
-like A065882 which when taken mod2 equal the "count low 0 bits odd/even"
+like A065882 which when taken mod2 equal the "count low 0-bits odd/even"
 which is the same undoubled turn sequence.
 
     apply_type="sF", radix=2

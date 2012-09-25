@@ -496,6 +496,20 @@ sub bigint_checks {
     ok ($got_y, $want_y);
   }
 
+  foreach my $tree_type ('SB','CW','AYT','Bird','Drib') {
+    my $path = Math::PlanePath::RationalsTree->new (tree_type => $tree_type);
+    foreach my $i (2 .. 100) {
+      my $x = Math::BigInt->new($i);
+      my $y = Math::BigInt->new($i-1);
+      my $n = $path->xy_to_n ($x,$y) || next;
+      my ($n_lo,$n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+      ok ($n < $n_hi, 1,
+          "rect_to_n_range() $tree_type on near diagonal $x,$y, n=$n nhi=$n_hi");
+      # MyTestHelpers::diag ("n=$n  xy=$x,$y   nhi=$n_hi");
+    }
+  }
+
+
   #--------------------------------------------------------------------------
   # SacksSpiral
 

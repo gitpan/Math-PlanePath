@@ -41,7 +41,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -642,8 +642,8 @@ the base shape again at that higher level.  The first and last segments of
 the base shape are "straight" so there's no extra adjustment to apply in
 those higher digits.
 
-See L<Math::PlanePath::GrayCode/Turn Sequence> for a similar turn sequence
-arising from binary Gray code.
+See L<Math::PlanePath::GrayCode/Turn> for a similar turn sequence arising
+from binary Gray code.
 
 =head2 N to Next Turn
 

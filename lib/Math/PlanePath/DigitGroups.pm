@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -44,10 +44,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'round_down_pow';
-
-use Math::PlanePath::Base::Digits
-  'parameter_info_array',
+  'parameter_info_array',   # "radix" parameter
+  'round_down_pow',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
 

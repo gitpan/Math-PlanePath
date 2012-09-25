@@ -56,13 +56,14 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
@@ -93,8 +94,8 @@ sub new {
   my $pairs_order = ($self->{'pairs_order'} ||= 'rows');
   (($self->{'pairs_order_n_to_xy'}
     = $self->can("_pairs_order__${pairs_order}__n_to_xy"))
-   && ($self->{'pairs_order_xyg_to_n'}
-       = $self->can("_pairs_order__${pairs_order}__xyg_to_n")))
+   && ($self->{'pairs_order_xygr_to_n'}
+       = $self->can("_pairs_order__${pairs_order}__xygr_to_n")))
     or croak "Unrecognised pairs_order: ",$pairs_order;
 
   return $self;
@@ -264,104 +265,87 @@ sub xy_to_n {
   if ($x < 1 || $y < 1 || ! _coprime($x,$y)) {
     return undef;
   }
+  
+  my ($p,$r) = _divrem ($x,$y);
+  ### $x
+  ### $y
+  ### $p
+  ### $r
+  return $self->{'pairs_order_xygr_to_n'}->($x,$y,$p+1,$r);
 
-  my $g = int($x/$y) + 1;
-  ### g: "$g"
-  ### halve: ''.$y*(($y-2)*$g + 1)
 
-  return $self->{'pairs_order_xyg_to_n'}->($x,$y,$g);
-
-
-
-  # if ($self->{'pairs_order'} eq 'rows') {
-  #   return ((($y-2)*$g + 1)*$y + 2*$x) * $g / 2;
-  #
-  # } else {
-  #   # X=(g-1)*v+u
-  #   # Y=v
-  #   # v = j/g
-  #   # u = i/g
-  #   #   g-1 = floor(x/y)
-  #   # Y=j/g
-  #   # j=Y*g
-  #   #
-  #   # X=4,Y=1
-  #   # g-1 = floor(x/y) = 4
-  #   # g=5
-  #   # j=1*5 = 5
-  #   # i = (X%y)*g = 0*g = 0
-  #   #   j = Y*g
-  #   #   (g-1)*j + i = X*g
-  #   #   i = X*g - (g-1)*j
-  #   #     = X*g - (g-1)*Y*g
-  #   ### i: $x*$g - ($g-1)*$g*$y
-  #   ### i: ($x % $y)*$g
-  #   ### j: $y*$g
-  #   require Math::PlanePath::DiagonalsOctant;
-  #   my $i = $x*$g - ($g-1)*$g*$y;
-  #   my $j = $y*$g;
-  #   if ($i == 0) {
-  #     $i = $g-1;
-  #     $j = $g-1;
-  #   }
-  #   my $x = $i-1;
-  #   my $y = $j-1;
-  #   if ($self->{'pairs_order'} eq 'diagonals_up') {
-  #     my $d = $x+$y;      # top 0,d measure diag down by x
-  #     my $e = int($d/2);  # end e,d-e
-  #     ($x,$y) = ($e-$x, $d - ($e-$x));
-  #   }
-  #   return Math::PlanePath::DiagonalsOctant->new->xy_to_n ($x,$y);
-  # }
+  # my $g = int($x/$y) + 1;
+  # ### g: "$g"
+  # ### halve: ''.$y*(($y-2)*$g + 1)
+  # return $self->{'pairs_order_xygr_to_n'}->($x,$y,$g);
 }
 
-sub _pairs_order__rows__xyg_to_n {
-  my ($x,$y,$g) = @_;
-  return ((($y-2)*$g + 1)*$y + 2*$x) * $g / 2;
+sub _pairs_order__rows__xygr_to_n {
+  my ($x,$y,$g,$r) = @_;
+  ### j: $x+$y-$r
+  ### i: $g*$r
+  $x += $y;
+  $x -= $r;  # j=X+Y-r
+  return $x*($x-1)/2 + $g*$r;   # i=g*r
 }
-sub _pairs_order__rows_reverse__xyg_to_n {
-  my ($x,$y,$g) = @_;
-  my $i = $x*$g - ($g-1)*$g*$y;
-  my $j = $y*$g;
-  if ($i == 0) {
-    $i = $g-1;
-    $j = $g-1;
+
+# i = X*g - (g-1)*g*Y
+#   = X*g - (g-1)*(X+Y-r)
+#   = X*g - g*(X+Y-r) + *(X+Y-r)
+#   = X*g - g*X - g*Y + g*r + (X+Y-r)
+#   = X*g - g*X - (X+Y-r) + g*r + (X+Y-r)
+#   = g*r
+#
+# N = j-i+1 + j*(j-1)/2
+#   = [2j-2i + 2 + $j*($j-1)] / 2
+#   = [-2i + 2 + 2j+ j*(j-1)] / 2
+#   = [-2i + 2 + j*(j-1+2)] / 2
+#   = [-2i + 2 + j*(j+1)] / 2
+#   = 1-i + j*(j+1)/2
+#
+sub _pairs_order__rows_reverse__xygr_to_n {
+  my ($x,$y,$g,$r) = @_;
+  $y += $x;
+  $y -= $r;    # j = X+Y-r
+  if ($r == 0) {
+    # Case r=0 which is Y=1 becomes i=0 and that doesn't reverse to the
+    # correct place by j-i+1.  Can either set $r=1,$g+=1 or leave $r==0
+    # alone and adjust $y.
+    $y -= 2;
   }
-  $i = $j-$i + 1;
-  return $i + $j*($j-1)/2;
-
-  # return ((($y-2)*$g + 1)*$y + 2*$x) * $g / 2;
+  return $y*($y+1)/2 - $r*$g + 1;
 }
-sub _pairs_order__diagonals_down__xyg_to_n {
-  my ($x,$y,$g) = @_;
 
-  my $i = $x*$g - ($g-1)*$g*$y;
-  my $j = $y*$g;
-  if ($i == 0) {
-    $i = $g-1;
-    $j = $g-1;
+# d = (i-1)+(j-1)+1
+#   = i+j-1
+#   = rg + X+Y-r - 1
+#   = X+Y + r*(g-1) - 1
+# if r==0 Y==1 then r=1 g=X-1
+# i = r*g = X-1
+# j = X+Y-r = X+1-1 = X-1
+# d = i+j-1
+#   = 2X-2
+# N = (d*d - (d%2))/4 + X-1
+#   = ((2X-2)*(2X-2) - 0)/4 + X-1
+#   = (X-1)^2 + X-1
+#
+sub _pairs_order__diagonals_down__xygr_to_n {
+  my ($x,$y,$g,$r) = @_;
+
+  $y += $x + $r*($g-1) - 1;   # d=X+Y + r*(g-1) - 1
+  if ($r == 0) {
+    $y *= 2;   # d=2*g-2
   }
-  $x = $i-1;
-  $y = $j-1;
-
-  my $d = $x + $y + 1;
-  return ($d*$d - ($d % 2))/4 + 1 + $x;
+  return ($y*$y - ($y % 2))/4 + $r*$g;
 }
-sub _pairs_order__diagonals_up__xyg_to_n {
-  my ($x,$y,$g) = @_;
+sub _pairs_order__diagonals_up__xygr_to_n {
+  my ($x,$y,$g,$r) = @_;
 
-  my $i = $x*$g - ($g-1)*$g*$y;
-  my $j = $y*$g;
-  if ($i == 0) {
-    $i = $g-1;
-    $j = $g-1;
+  $y += $x + $r*($g-1);   # d=X+Y + r*(g-1)
+  if ($r == 0) {
+    $y = 2*$x - 1;
   }
-  $x = $i-1;
-  $y = $j-1;
-
-  my $d = $x + $y + 2;
-  ### $d
-  return ($d*$d - ($d % 2))/4 - $x;
+  return ($y*$y - ($y % 2))/4 - $r*$g + 1;
 }
 
 
@@ -435,7 +419,7 @@ sub rect_to_n_range {
   my $nhi;
   {
     my $c = max($x2,$y2);
-    $nhi = _pairs_order__rows__xyg_to_n($c,$c,2);
+    $nhi = _pairs_order__rows__xygr_to_n($c,$c,2,0);
 
     # my $rev = ($self->{'pairs_order'} eq 'rows_reverse');
     # my $slope = int($x2/$y2);
@@ -454,7 +438,7 @@ sub rect_to_n_range {
     #     # pairs_order=rows
     #     $x = $x2;  # top-right corner
     #   }
-    #   $nhi = $self->{'pairs_order_xyg_to_n'}->($x, $y2, $g);
+    #   $nhi = $self->{'pairs_order_xygr_to_n'}->($x, $y2, $g, 0);
     #
     #   ### $slope
     #   ### $g
@@ -466,10 +450,10 @@ sub rect_to_n_range {
     # #
     # my $yw = int(($x2+$g-1) / $g); # rounded up
     # if ($yw >= $y1) {
-    #   $nhi = max ($nhi, $self->{'pairs_order_xyg_to_n'}->($x2,$yw,$g+1));
+    #   $nhi = max ($nhi, $self->{'pairs_order_xygr_to_n'}->($x2,$yw,$g+1,0));
     #
     #   ### $yw
-    #   ### nhi_wedge: $self->{'pairs_order_xyg_to_n'}->($x2,$yw,$g+1)
+    #   ### nhi_wedge: $self->{'pairs_order_xygr_to_n'}->($x2,$yw,$g+1,0)
     # }
     #   my $yw = int($x2 / $g) - ($g==1);  # below X=Y diagonal when g==1
     #   if ($yw >= $y1) {
@@ -483,10 +467,10 @@ sub rect_to_n_range {
 
   my $nlo;
   {
-    $nlo = _pairs_order__rows__xyg_to_n(1,$x1,1);
+    $nlo = _pairs_order__rows__xygr_to_n(1,$x1, 1, $x1-1);
 
     # my $g = int($x1/$y1) + 1;
-    # $nlo = $self->{'pairs_order_xyg_to_n'}->($x1,$y1,$g);
+    # $nlo = $self->{'pairs_order_xygr_to_n'}->($x1,$y1,$g,0);
     #
     # ### glo: $g
     # ### $nlo
@@ -497,9 +481,9 @@ sub rect_to_n_range {
     #   ### $yw
     #   if ($yw <= $y2) {
     #     $g = int($x1/$yw); # no +1, and perhaps up across more than one wedge
-    #     $nlo = min ($nlo, $self->{'pairs_order_xyg_to_n'}->($x1,$yw,$g));
+    #     $nlo = min ($nlo, $self->{'pairs_order_xygr_to_n'}->($x1,$yw,$g,0));
     #     ### glo_wedge: $g
-    #     ### nlo_wedge: $self->{'pairs_order_xyg_to_n'}->($x1,$yw,$g)
+    #     ### nlo_wedge: $self->{'pairs_order_xygr_to_n'}->($x1,$yw,$g,0)
     #   }
     # }
     # if ($nlo < 1) {
@@ -517,7 +501,8 @@ sub _gcd {
   #### _gcd(): "$x,$y"
 
   # bgcd() available in even the earliest Math::BigInt
-  if (ref $y && $y->isa('Math::BigInt')) {
+  if ((ref $x && $x->isa('Math::BigInt'))
+      || (ref $y && $y->isa('Math::BigInt'))) {
     return Math::BigInt::bgcd($x,$y);
   }
 
@@ -611,10 +596,7 @@ Math::PlanePath::GcdRationals -- rationals by triangular GCD
 =head1 DESCRIPTION
 
 X<Fortnow, Lance>This path enumerates X/Y rationals using a method by Lance
-Fortnow taking a greatest common divisor out of a triangular position.  It
-has the attraction of being both efficient to calculate (a GCD) and
-completing X/Y blocks with a much smaller N range than the tree based
-rationals.
+Fortnow taking a greatest common divisor out of a triangular position.
 
     http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
 
@@ -635,9 +617,13 @@ rationals.
          --------------------------------------------------------
           X=0   1   2   3   4   5   6   7   8   9  10  11  12  13
 
+The attraction of this approach is that it's both efficient to calculate and
+it traverses blocks of X/Y rationals with a modest range of N values,
+roughly a square N=2*max(num,den)^2 in the default rows style.
+
 The mapping from N to rational is
 
-    N = i + j*(j-1)/2     upper triangle 1 <= i <= j
+    N = i + j*(j-1)/2     for upper triangle 1 <= i <= j
     gcd = GCD(i,j)
     rational = i/j + gcd-1
 
@@ -646,24 +632,25 @@ which means
     X = (i + j*(gcd-1)) / gcd
     Y = j/gcd
 
-The i,j position is a numbering of points above the X=Y diagonal by rows, in
-the style of PyramidRows step=1.
+The i,j position is a numbering of points above the X=Y diagonal by rows (in
+the style of PyramidRows step=1).
 
-    j=4  7  8  9  10
-    j=3  4  5  6
-    j=2  2  3
-    j=1  1
-       i=1  2  3  4
+    j=4  |  7  8  9 10
+    j=3  |  4  5  6
+    j=2  |  2  3
+    j=1  |  1
+         +-------------
+          i=1  2  3  4
 
 If GCD(i,j)=1 then X/Y is simply X=i,Y=j unchanged.  This means fractions
-S<X/Y E<lt> 1> are numbered by rows with increasing numerator, but skipping
+S<X/Y E<lt> 1> are numbered by rows with increasing numerator, skipping
 positions where i,j have a common factor.
 
 The skipped positions where i,j have a common factor become rationals
-S<X/YE<gt>1>, ie. below the X=Y diagonal.  GCD(i,j)-1 is the integer part as
-S<R = i/j+(gcd-1)>.  For example N=51 is at i=6,j=10 by rows and that i,j
-has common factor gcd(6,10)=2 so becomes rational R = 6/10+(2-1) = 3/5+1 =
-8/5, ie. X=8,Y=5.
+S<X/YE<gt>1>, ie. below the X=Y diagonal.  GCD(i,j)-1 is the integer part so
+S<rational = (gcd-1) + i/j>.  For example N=51 is at i=6,j=10 by rows and
+that i,j has common factor gcd(6,10)=2 so becomes rational R = (2-1) + 6/10
+= 1+3/5 = 8/5, ie. X=8,Y=5.
 
 =head2 Triangular Numbers
 
@@ -686,17 +673,17 @@ triangulars on the bottom row, ie.
 
 If N is prime then it's above the sloping line X=2*Y.  If N is composite
 then it might be above or below, but the primes are always above.  Here's
-the table with dots "..." for the X=2*Y line.
+the table with dots "..." marking the X=2*Y line.
 
            primes and composites above
-
+        |
      6  |      16              20      68
         |                                             .... X=2*Y
      5  |      11  12  13  14      47  49  51  53 ....
         |                                     ....
      4  |       7       9      30      34 .... 69
         |                             ....
-     3  |       4   5      17  19 .... 39  42      70   always
+     3  |       4   5      17  19 .... 39  42      70   only
         |                     ....                      composite
      2  |       2       8 .... 18      32      50       below
         |             ....
@@ -709,7 +696,7 @@ the table with dots "..." for the X=2*Y line.
 Values below X=2*Y such as 39 and 42 are always composite.  Values above
 such as 19 and 30 are either prime or composite.  Only X=2,Y=1 is exactly on
 the line, which is prime N=3 as it happens.  Other X=2*k,Y=k are not an X/Y
-rational in least terms because it has common factor k.
+rational in least terms due to common factor k.
 
 This pattern of primes and composites occurs because N is a multiple of
 gcd(i,j) when gcd odd, or a multiple of gcd/2 when gcd even.
@@ -720,10 +707,10 @@ gcd(i,j) when gcd odd, or a multiple of gcd/2 when gcd even.
     N = gcd   * (i/gcd + j/gcd * (j-1)/2)  when gcd odd
         gcd/2 * (2i/gcd + j/gcd * (j-1))   when gcd even
 
-If gcd odd then either j/gcd or j-1 is even, taking the "/2".  If gcd even
-then only gcd/2 can come out as a factor since the full gcd might leave both
-j/gcd and j-1 odd and so the "/2" not an integer.  That happens for example
-to N=70
+If gcd odd then either j/gcd or j-1 is even, taking the "/2" factor.  If gcd
+even then only gcd/2 can come out as a factor since the full gcd might leave
+both j/gcd and j-1 odd and so the "/2" not an integer.  That happens for
+example to N=70
 
     N = 70
     i = 4, j = 12     for 4 + 12*11/2 = 70 = N
@@ -731,7 +718,7 @@ to N=70
     but N is not a multiple of 4, only of 4/2=2
 
 Of course knowing gcd or gcd/2 is a factor is only useful when that factor
-is 2 or more, so only
+is 2 or more, so
 
     odd gcd with gcd >= 2       means gcd >= 3
     even gcd with gcd/2 >= 2    means gcd >= 4
@@ -748,11 +735,12 @@ above.
 Option C<pairs_order =E<gt> "rows_reverse"> reverses the order of points
 within the rows of i,j pairs,
 
-    j=4  10  9  8  7
-    j=3   6  5  4
-    j=2   3  2
-    j=1   1
-        i=1  2  3  4
+    j=4 | 10  9  8  7
+    j=3 |  6  5  4
+    j=2 |  3  2
+    j=1 |  1
+        +------------
+         i=1  2  3  4
 
 The point numbering becomes
 
@@ -779,34 +767,34 @@ The point numbering becomes
          ------------------------------------------------
           X=0   1   2   3   4   5   6   7   8   9  10  11
 
-The triangular numbers per L</Triangular Numbers> above are now in the X=1
-column, ie. at the left rather than the bottom.  The Y=1 bottom row is the
-next after each triangular, ie. T(X)+1.
+The triangular numbers per L</Triangular Numbers> are now in the X=1 column,
+ie. at the left rather than the bottom.  The Y=1 bottom row is the next
+after each triangular, ie. T(X)+1.
 
 =head2 Diagonals
 
 Option C<pairs_order =E<gt> "diagonals_down"> takes the i,j pairs by
 diagonals down from the Y axis.  C<pairs_order =E<gt> "diagonals_up">
-likewise but upwards from the X=Y centre up to the Y axis.  This is in the
-style of the DiagonalsOctant path.
+likewise but upwards from the X=Y centre up to the Y axis.  (These
+numberings as per L<Math::PlanePath::DiagonalsOctant>.)
 
-    diagonals_down                    diagonals_up
+    diagonals_down                  diagonals_up
 
-    j=7  13                           j=7  16
-    j=6  10 14                        j=6  12 15
-    j=5   7 11 15                     j=5   9 11 14
-    j=4   5  8 12 16                  j=4   6  8 10 13
-    j=3   3  6  9                     j=3   4  5  7
-    j=2   2  4                        j=2   2  3
-    j=1   1                           j=1   1
-        i=1  2  3  4                      i=1  2  3  4
+    j=7 | 13                         j=7 | 16
+    j=6 | 10 14                      j=6 | 12 15
+    j=5 |  7 11 15                   j=5 |  9 11 14
+    j=4 |  5  8 12 16                j=4 |  6  8 10 13
+    j=3 |  3  6  9                   j=3 |  4  5  7
+    j=2 |  2  4                      j=2 |  2  3
+    j=1 |  1                         j=1 |  1
+        +------------                    +------------
+         i=1  2  3  4                     i=1  2  3  4
 
 The resulting path becomes
 
 =cut
 
 # math-image --path=GcdRationals,pairs_order=diagonals_down --all --output=numbers --size=40x10
-# math-image --path=GcdRationals,pairs_order=diagonals_up --all --output=numbers --size=40x10
 
 =pod
 
@@ -825,6 +813,15 @@ The resulting path becomes
          --------------------------------
           X=0  1  2  3  4  5  6  7  8  9
 
+The Y=1 bottom row is the perfect squares which are at i=j in the
+DiagonalsOctant and have gcd(i,j)=i thus becoming X=i,Y=1.
+
+=cut
+
+# math-image --path=GcdRationals,pairs_order=diagonals_up --all --output=numbers --size=40x10
+
+=pod
+
     pairs_order => "diagonals_up"
 
      9  |     25 29    39 45    58 65
@@ -840,10 +837,13 @@ The resulting path becomes
          --------------------------------
           X=0  1  2  3  4  5  6  7  8  9
 
-For "diagonals_down" the Y=1 bottom row is the perfect squares which are at
-i=j in the DiagonalsOctant and have gcd(i,j)=i thus becoming X=i,Y=1.
+N=1,2,4,6,9 etc in the X=1 column is the perfect squares k*k and the pronics
+k*(k+1) interleaved, also called the quarter-squares.  N=2,5,10,17,etc on
+Y=X+1 above the leading diagonal are the squares+1, and N=3,8,15,24,etc
+below on Y=X-1 below the diagonal are the squares-1.
 
-The gcd shears moves points downwards and shears them across horizontally.
+The GCD division moves points downwards and shears them across horizontally.
+The effect on diagonal lines of i,j points is as follows
 
       | 1
       |   1     gcd=1 slope=-1
@@ -868,15 +868,15 @@ The gcd shears moves points downwards and shears them across horizontally.
 The line of "1"s is the diagonal with gcd=1 and thus X,Y=i,j unchanged.
 
 The line of "2"s is when gcd=2 so X=(i+j)/2,Y=j/2.  Since i+j=d is constant
-within the diagonal this makes X=d fixed, ie. a vertical.
+within the diagonal this makes X=d fixed, ie. vertical.
 
 Then gcd=3 becomes X=(i+2j)/3 which slopes across by +1 for each i, or gcd=4
 X=(i+3j)/4 slope +2, etc.
 
-Of course only some of the points in a diagonal have a given gcd, but those
-which do are transformed this way.  The effect is that for N up to a given
-diagonal row all the "*" points in the following are traversed, plus extras
-in wedge shaped arms out to the side.
+Of course only some of the points in an i,j diagonal have a given gcd, but
+those which do are transformed this way.  The effect is that for N up to a
+given diagonal row all the "*" points in the following are traversed, plus
+extras in wedge shaped arms out to the side.
 
      | *
      | * *                 up to a given diagonal points "*"
@@ -893,7 +893,7 @@ In terms of the rationals X/Y the effect is that up to N=d^2 diagonal d=2j
 the fractions enumerated are
 
     N=d^2
-    enumerates to num <= d and num+den <= 2*d
+    enumerates all num/den where num <= d and num+den <= 2*d
 
 =head1 FUNCTIONS
 
@@ -916,40 +916,75 @@ Create and return a new path object.  The C<pairs_order> option can be
 
 =head1 FORMULAS
 
-=head2 X,Y to N
+=head2 X,Y to N -- Rows
 
-The defining formula above for X,Y can be reversed
+The defining formula above for X,Y can be inverted to give i,j and N.  This
+calculation doesn't notice if X,Y have a common factor, so a coprime(X,Y)
+test must be made separately, if desired.
 
-    X/Y = i/j + g-1
-    g-1 = floor(X/Y)
+    X/Y = g-1 + (i/g)/(j/g)
+
+The g-1 integer part is recovered by a division
+
+    X = p*Y + r
+      where 0<=r<Y, unless Y=1 in which case use r=1, p=X-1
+    g-1 = p
+    g = p+1
+
+The Y=1 special case can instead be left as the usual kind of division
+r=0,p=X, so 0E<lt>=rE<lt>Y.  This ends up i=0 below which is outside the
+intended 1E<lt>=iE<lt>=j range, but j is 1 bigger and the combination still
+gives the correct N.  It's as if the i=g,j=g point at the end of a row is
+moved to i=0,j=g+1 just before the start of the next row.  If only N is of
+interest not the i,j as such then it can be left r=0.
+
+Equating the denominators in the X/Y formula above gives j
 
     Y = j/g
-    X = ((g-1)*j + i)/g
+    j = g*Y
+      = (p+1)*Y
+    j = X+Y-r        per the division X=p*Y+r
 
-so
+And the numerators give i
 
-    j = Y*g
+    X = (g-1)*Y + i/g
     i = X*g - (g-1)*Y*g
+      = X*g - p*Y*g
+      = X*g - (X-r)*g     per the division X=p*Y+r
+    i = r*g
+    i = r*(p+1)
 
-So
+Then N from i,j by the definition
+
     N = i + j*(j-1)/2
-      = X*g - (g-1)*Y*g + Y*g*(Y*g-1)/2
-      = X*g + ((Y-2)*g + 1)*Y*g/2
-      = (((Y-2)*g + 1)*Y + 2X)*g/2
 
-The /2 division is exact.  If Y and g are both odd and so don't take that
-divisor then the term (Y-2)*g+1 is odd*odd+1 so even.
+For example X=11,Y=4 divides as 11=2*4+3 for p=2,r=3 so i=3*(2+1)=9
+j=11+4-3=12 and so N=9+12*11/2=75 (as shown in the first table above).
 
-Y*g in the formulas is the first multiple of Y which is strictly greater
-than X.  It can be formed from the g-1=floor(X/Y) division,
+It's possible to use only the quotient p by taking j=(p+1)*Y instead of
+j=X+Y-r, but usually a division operation gives the remainder at no extra
+cost, or a cost small enough that it's worth it to swap a multiply for an
+add or two.
 
-    X = Y*quot + rem     division
-    g = quot+1
-    Y*g = Y*(q+1) = X+Y-rem
-        = X+Y-rem
+=head2 X,Y to N -- Rows Reverse
 
-If a division gives quotient and remainder for the same price then X+Y-rem
-instead of Y*g might reduce a multiply to instead an add or subtract.
+For pairs_order="rows_reverse", the horizontal i is reversed to j-i+1.  This
+can be worked into the triangular part of the N formula as
+
+    Nrrev = (j-i+1) + j*(j-1)/2        for 1<=i<=j
+          = j*(j+1)/2 - i + 1
+
+The Y=1 case described above cannot be left to go through with r=0 giving
+i=0 and j+1 since the reversal j-i+1 is then not correct.  Either use r=1 as
+described, or if not then compensate at the end,
+
+    if r=0 then j += 2
+    Nrrev = j*(j+1)/2 - i + 1
+
+For example X=5,Y=1 is r=0,p=5 gives i=0*(5+1)=0 j=5+1-0=6.  Without
+adjustment it would be Nrrev=6*7/2-0+1=22 which is wrong.  But adjusting
+j-=2 so that j=6-2=4 gives the desired Nrrev=4*5/2-0+1=11 (per the table in
+L</Rows Reverse> above).
 
 =cut
 

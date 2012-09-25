@@ -26,28 +26,28 @@ use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
-require Math::PlanePath::ToothpickFractal;
+require Math::PlanePath::ToothpickReplicate;
 
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 88;
-  ok ($Math::PlanePath::ToothpickFractal::VERSION, $want_version,
+  my $want_version = 89;
+  ok ($Math::PlanePath::ToothpickReplicate::VERSION, $want_version,
       'VERSION variable');
-  ok (Math::PlanePath::ToothpickFractal->VERSION,  $want_version,
+  ok (Math::PlanePath::ToothpickReplicate->VERSION,  $want_version,
       'VERSION class method');
 
-  ok (eval { Math::PlanePath::ToothpickFractal->VERSION($want_version); 1 },
+  ok (eval { Math::PlanePath::ToothpickReplicate->VERSION($want_version); 1 },
       1,
       "VERSION class check $want_version");
   my $check_version = $want_version + 1000;
-  ok (! eval { Math::PlanePath::ToothpickFractal->VERSION($check_version); 1 },
+  ok (! eval { Math::PlanePath::ToothpickReplicate->VERSION($check_version); 1 },
       1,
       "VERSION class check $check_version");
 
-  my $path = Math::PlanePath::ToothpickFractal->new;
+  my $path = Math::PlanePath::ToothpickReplicate->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
 
   ok (eval { $path->VERSION($want_version); 1 },
@@ -63,7 +63,7 @@ require Math::PlanePath::ToothpickFractal;
 # n_start, x_negative, y_negative
 
 {
-  my $path = Math::PlanePath::ToothpickFractal->new;
+  my $path = Math::PlanePath::ToothpickReplicate->new;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
@@ -72,7 +72,7 @@ require Math::PlanePath::ToothpickFractal;
 }
 {
   my @pnames = map {$_->{'name'}}
-    Math::PlanePath::ToothpickFractal->parameter_info_list;
+    Math::PlanePath::ToothpickReplicate->parameter_info_list;
   ok (join(',',@pnames), 'parts');
 }
 
@@ -243,7 +243,7 @@ require Math::PlanePath::ToothpickFractal;
              );
   foreach my $elem (@data) {
     my ($options, @points) = @$elem;
-    my $path = Math::PlanePath::ToothpickFractal->new (@$options);
+    my $path = Math::PlanePath::ToothpickReplicate->new (@$options);
     foreach my $point (@points) {
       my ($n, $x, $y) = @$point;
       {
@@ -282,7 +282,7 @@ require Math::PlanePath::ToothpickFractal;
 # # N on leading diagonal
 # 
 # {
-#   my $path = Math::PlanePath::ToothpickFractal->new;
+#   my $path = Math::PlanePath::ToothpickReplicate->new;
 #   foreach my $i (1 .. 32) {
 #     my $n = $path->xy_to_n($i,$i);
 #     printf "%b %d %b %b\n", $i, $n,$n, 3*$n;

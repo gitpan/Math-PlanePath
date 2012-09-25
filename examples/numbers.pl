@@ -295,6 +295,7 @@ my @all_classes = ('SquareSpiral',
                    'RationalsTree,tree_type=AYT',
                    'RationalsTree,tree_type=Bird',
                    'RationalsTree,tree_type=Drib',
+                   'RationalsTree,tree_type=L',
                    'FractionsTree',
 
                    'DivisibleColumns',

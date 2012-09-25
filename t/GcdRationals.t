@@ -38,7 +38,7 @@ my @pairs_order_choices
 # VERSION
 
 {
-  my $want_version = 88;
+  my $want_version = 89;
   ok ($Math::PlanePath::GcdRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GcdRationals->VERSION,  $want_version,
@@ -253,13 +253,15 @@ my @pairs_order_choices
     }
     {
       my $func = Math::PlanePath::GcdRationals
-        ->can("_pairs_order__${pairs_order}__xyg_to_n");
+        ->can("_pairs_order__${pairs_order}__xygr_to_n");
       ok (defined $func, 1, $pairs_order);
       foreach my $point (@points) {
         my ($want_n, $x,$y) = @$point;
-        my $g = 1;
-        my $got_n = &$func($x,$y,$g);
-        ok ($got_n, $want_n, "$pairs_order xyg=$x,$y,$g");
+        my $q = 0; # imagining x=q*y+r has q=0,r=x
+        my $r = $x;
+        my $g = $q+1;
+        my $got_n = &$func($x,$y, $g,$r);
+        ok ($got_n, $want_n, "$pairs_order xygr=$x,$y,$g,$r");
       }
     }
   }

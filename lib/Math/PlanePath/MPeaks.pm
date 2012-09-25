@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -138,7 +138,7 @@ sub rect_to_n_range {
   if ($y2 < 0) {
     return (1, 0); # rect all negative, no N
   }
-  if ($y1 < 0) { $y1 = 0; }
+  if ($y1 < 0) { $y1 *= 0; }   # "*=" to preserve bigint y1
 
   $x1 = round_nearest ($x1);
   $x2 = round_nearest ($x2);

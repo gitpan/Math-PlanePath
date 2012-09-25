@@ -8,6 +8,7 @@ debian/patches/pod-examples-dir.diff
 debian/rules
 debian/source/format
 debian/watch
+devel/alternate-paper-midpoint.pl
 devel/alternate-paper.pl
 devel/archimedean.pl
 devel/beta-omega.pl
@@ -49,7 +50,6 @@ devel/hex-arms.pl
 devel/hexhypot.pl
 devel/hilbert-diamond.pl
 devel/hilbert.pl
-devel/HilbertMidpoint.pm
 devel/hypot.pl
 devel/imaginary-base.pl
 devel/imaginary-half.pl
@@ -58,9 +58,12 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
+devel/lib/EToothpickTree-oeis.t
+devel/lib/EToothpickTree.pm
 devel/lib/Math/PlanePath/BoxFractalQuarter.pm
-devel/lib/Math/PlanePath/EToothpickTree-oeis.t
-devel/lib/Math/PlanePath/EToothpickTree.pm
+devel/lib/Math/PlanePath/cfrac-fractions.pl
+devel/lib/Math/PlanePath/CfracFractions.pm
+devel/lib/Math/PlanePath/CfracFractions.t
 devel/lib/Math/PlanePath/FibonacciSquareSpiral.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
@@ -75,11 +78,12 @@ devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
 devel/lib/Math/PlanePath/squares-dispersion.pl
 devel/lib/Math/PlanePath/toothpick.pl
-devel/lib/Math/PlanePath/ToothpickFractal.pm
-devel/lib/Math/PlanePath/ToothpickFractal.t
+devel/lib/Math/PlanePath/ToothpickReplicate.pm
+devel/lib/Math/PlanePath/ToothpickReplicate.t
 devel/lib/Math/PlanePath/ToothpickTree-oeis.t
 devel/lib/Math/PlanePath/ToothpickTree.pm
 devel/Makefile
+devel/maybe/HilbertMidpoint.pm
 devel/mephisto-waltz.logo
 devel/multiple-rings.pl
 devel/number-fraction.pl
@@ -104,6 +108,7 @@ devel/sierpinski-arrowhead-stars.pl
 devel/sierpinski-arrowhead.pl
 devel/sierpinski-curve.pl
 devel/sierpinski-triangle.pl
+devel/square-spiral.gnuplot
 devel/square-spiral.pl
 devel/staircase-alternating.pl
 devel/terdragon.pl
@@ -401,6 +406,7 @@ xt/oeis/FactorRationals-oeis.t
 xt/oeis/FibonacciWordFractal-oeis.t
 xt/oeis/FilledRings-oeis.t
 xt/oeis/FractionsTree-oeis.t
+xt/oeis/GcdRationals-oeis.t
 xt/oeis/GosperSide-oeis.t
 xt/oeis/GrayCode-oeis.t
 xt/oeis/HexSpiral-oeis.t
@@ -427,6 +433,7 @@ xt/oeis/TheodorusSpiral-oeis.t
 xt/oeis/TriangleSpiral-oeis.t
 xt/oeis/TriangularHypot-oeis.t
 xt/oeis/UlamWarburton-oeis.t
+xt/oeis/UlamWarburtonQuarter-oeis.t
 xt/oeis/WythoffArray-oeis.t
 xt/oeis/ZOrderCurve-oeis.t
 xt/PixelRings-image.t

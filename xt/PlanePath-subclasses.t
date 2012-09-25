@@ -42,6 +42,35 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
+               'RationalsTree,tree_type=CS',
+               'RationalsTree',
+               'RationalsTree,tree_type=CW',
+               'RationalsTree,tree_type=AYT',
+               'RationalsTree,tree_type=Bird',
+               'RationalsTree,tree_type=Drib',
+               'RationalsTree,tree_type=L',
+
+               'GcdRationals',
+               'GcdRationals,pairs_order=rows_reverse',
+               'GcdRationals,pairs_order=diagonals_down',
+               'GcdRationals,pairs_order=diagonals_up',
+
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+
+               'ZOrderCurve,radix=5',
+               'ZOrderCurve',
+               'ZOrderCurve,radix=3',
+               'ZOrderCurve,radix=9',
+               'ZOrderCurve,radix=37',
+
                'GosperIslands',
 
                'AR2W2Curve',
@@ -54,11 +83,6 @@ my @modules = (
                'KochelCurve',
                'CincoCurve',
                'WunderlichMeander',
-
-               'ZOrderCurve',
-               'ZOrderCurve,radix=3',
-               'ZOrderCurve,radix=9',
-               'ZOrderCurve,radix=37',
 
                'SacksSpiral',
                'TheodorusSpiral',
@@ -99,12 +123,6 @@ my @modules = (
                'DigitGroups,radix=4',
                'DigitGroups,radix=5',
                'DigitGroups,radix=37',
-
-               'RationalsTree',
-               'RationalsTree,tree_type=CW',
-               'RationalsTree,tree_type=AYT',
-               'RationalsTree,tree_type=Bird',
-               'RationalsTree,tree_type=Drib',
 
                'HexSpiral',
                'HexSpiral,wider=1',
@@ -165,11 +183,6 @@ my @modules = (
                'CubicBase,radix=4',
                'CubicBase,radix=37',
 
-               'GcdRationals',
-               'GcdRationals,pairs_order=rows_reverse',
-               'GcdRationals,pairs_order=diagonals_down',
-               'GcdRationals,pairs_order=diagonals_up',
-
                'HilbertSpiral',
                'HilbertCurve',
 
@@ -189,15 +202,6 @@ my @modules = (
                'TerdragonRounded,arms=6',
 
                'CCurve',
-
-               'R5DragonMidpoint',
-               'R5DragonMidpoint,arms=2',
-               'R5DragonMidpoint,arms=3',
-               'R5DragonMidpoint,arms=4',
-               'R5DragonCurve',
-               'R5DragonCurve,arms=2',
-               'R5DragonCurve,arms=3',
-               'R5DragonCurve,arms=4',
 
                'AztecDiamondRings',
                'DiamondArms',
@@ -537,7 +541,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 88;
+my $want_version = 89;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,10 +24,44 @@ use Math::Matrix;
 use List::Util 'min', 'max';
 use Math::Libm 'hypot';
 use Math::PlanePath::PythagoreanTree;
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+{
+  # P,Q continued fraction quotients
+  require Math::BaseCnv;
+  require Math::ContinuedFraction;
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQT');
+
+  my $level = 8;
+  foreach my $n (1 .. 3**$level) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+    my $cfrac_str = $cfrac->to_ascii;
+    # my $nbits = Math::BaseCnv::cnv($n,10,3);
+    my $nbits = n_to_treedigits_str($n);
+    printf "%3d %7s %2d/%-2d  %s\n", $n, $nbits, $x,$y, $cfrac_str;
+  }
+  exit 0;
+
+  sub n_to_treedigits_str {
+    my ($n) = @_;
+    return join('',n_to_treedigits($n));
+  }
+  sub n_to_treedigits {
+    my ($n) = @_;
+    my ($len, $level) = round_down_pow (2*$n-1, 3);
+    my @digits = digit_split_lowtohigh ($n - ($len+1)/2,  3);
+    $#digits = $level-1;   # pad to $level with undefs
+    foreach (@digits) { $_ ||= 0 }
+    return @digits;
+  }
+}
 {
   require Math::PlanePath::PythagoreanTree;
   my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');

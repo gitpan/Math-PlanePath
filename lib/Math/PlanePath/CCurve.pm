@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -493,7 +493,7 @@ the lower bits but turned +90 degrees, so +90 for each 1-bit.
 For powers-of-2 N=2,4,8,16, etc, there's only one 1 bit so the direction is
 always +90 degrees there, ie. upwards.
 
-=head2 Turn Sequence
+=head2 Turn
 
 At each point N the curve can turn in any direction: left, right, straight,
 or 180 degrees back.  The turn is given by number of low 0-bits of N,
@@ -584,7 +584,7 @@ this path include
     http://oeis.org/A179868  (etc)
 
     A010059 - abs(dX), count 1-bits mod 2
-    A010060 - abs(dY), [count 1-bits + 1] mod 2, Thue-Morse seq
+    A010060 - abs(dY), [count 1-bits + 1] mod 2, Thue-Morse
 
     A179868 - direction 0to3, count 1-bits mod 4
     A000120 - direction as total turn, count 1-bits

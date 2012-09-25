@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -201,7 +201,7 @@ sub rect_to_n_range {
   if (is_infinite($y2)) {
     return (0, $y2);
   }
-  if ($y1 < 0) { $y1 = 0; }
+  if ($y1 < 0) { $y1 *= 0; }   # "*=" to preserve bigint y1
 
   $x1 = round_nearest($x1);
   $x2 = round_nearest($x2);

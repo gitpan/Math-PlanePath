@@ -51,14 +51,14 @@
 # cf A080263
 #    A067771  vertices of sierpinski graph, joins up replications
 #             so 1 less each giving 3*(3^k-1)/2
-
+#    A003987  X xor Y by anti-diagonals
 
 package Math::PlanePath::SierpinskiTriangle;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -232,16 +232,16 @@ sub _right_xy_to_n {
   my $n = $zero;          # inherit bignum 0
   my $npower = $zero+1;   # inherit bignum 1
 
-  my @x = bit_split_lowtohigh($x);
-  my @y = bit_split_lowtohigh($y);
+  my @xbits = bit_split_lowtohigh($x);
+  my @ybits = bit_split_lowtohigh($y);
 
-  my @nx;
-  foreach my $i (0 .. $#y) {
-    if ($y[$i]) {
+  my @nbits;
+  foreach my $i (0 .. $#ybits) {
+    if ($ybits[$i]) {
       $n = 2*$n + $npower;
-      push @nx, $x[$i] || 0;   # low to high
+      push @nbits, $xbits[$i] || 0;   # low to high
     } else {
-      if ($x[$i]) {
+      if ($xbits[$i]) {
         return undef;
       }
     }
@@ -249,10 +249,10 @@ sub _right_xy_to_n {
   }
 
   ### n at left end of y row: $n
-  ### n offset for x: @nx
-  ### total: $n + digit_join_lowtohigh(\@nx,2,$zero) + $self->{'n_start'}
+  ### n offset for x: @nbits
+  ### total: $n + digit_join_lowtohigh(\@nbits,2,$zero) + $self->{'n_start'}
 
-  return $n + digit_join_lowtohigh(\@nx,2,$zero) + $self->{'n_start'};
+  return $n + digit_join_lowtohigh(\@nbits,2,$zero) + $self->{'n_start'};
 }
 
 # not exact

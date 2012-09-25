@@ -25,21 +25,19 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=ToothpickFractal --all --output=numbers --size=80x50
-#
 # A139250 total cells
 #    a(2^k) = A007583(k) = (2^(2n+1) + 1)/3
 #    a(2^k-1) = A000969(2^k-2), A000969=floor (2*n+3)*(n+1)/3
 #
 
-package Math::PlanePath::ToothpickFractal;
+package Math::PlanePath::ToothpickReplicate;
 use 5.004;
 use strict;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -57,20 +55,6 @@ use constant default_n_start => 1;
 use constant class_x_negative => 1;
 use constant class_y_negative => 1;
 
-sub x_negative {
-  my ($self) = @_;
-  return ($self->{'parts'} ne 'quarter');
-}
-my %y_negative = ('all' => 1,
-                  '3/4' => 1,
-                  'half' => 0,
-                  'quarter' => 0);
-sub y_negative {
-  my ($self) = @_;
-  return $y_negative{$self->{'parts'}};
-}
-
-
 use constant parameter_info_array =>
   [ { name      => 'parts',
       share_key => 'parts_a321',
@@ -79,6 +63,19 @@ use constant parameter_info_array =>
       choices   => ['all','3/4','half','quarter'],
     },
   ];
+
+sub x_negative {
+  my ($self) = @_;
+  return ($self->{'parts'} ne 'quarter');
+}
+my %y_negative = ('all'     => 1,
+                  '3/4'     => 1,
+                  'half'    => 0,
+                  'quarter' => 0);
+sub y_negative {
+  my ($self) = @_;
+  return $y_negative{$self->{'parts'}};
+}
 
 
 # Fraction covered
@@ -107,7 +104,7 @@ use constant parameter_info_array =>
 # All
 #                                    |
 #  ...--25--  --27--  --19--  --17--44             4
-#        |       |       |       |   | 
+#        |       |       |       |   |
 #       24--21--26      18--13--16                 3
 #        |   |               |   |
 #           20---7--  ---5--12                     2
@@ -121,7 +118,7 @@ use constant parameter_info_array =>
 #           28---9--  --11--36                    -2
 #        |   |               |   |
 #       32--29--34      42--37--40                -3
-#        |       |       |       |   
+#        |       |       |       |
 #  ...--33--  --35--  --43--  --41--...           -4
 #
 #                    ^
@@ -143,9 +140,9 @@ use constant parameter_info_array =>
 #   -4   -3 -2  -1  X=0  1   2   3   4
 
 # 3/4
-#                                      
+#
 #  ...--30--  --32--  --24--  --22--...            4
-#        |       |       |       |     
+#        |       |       |       |
 #       29--26--31      23--18--21                 3
 #        |   |               |   |
 #           25---8--  ---6--17                     2
@@ -159,9 +156,9 @@ use constant parameter_info_array =>
 #                   11---9--10                    -2
 #                    |       |   |
 #                 --12--  --13--14                -3
-#                                |   
+#                                |
 #                          -  --33--              -4
-#                                    
+#
 #                    ^
 #   -4   -3 -2  -1  X=0  1   2   3   4
 
@@ -235,7 +232,7 @@ my @quadrant_to_vdy = (1, 1, -1,-1);
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### ToothpickFractal n_to_xy(): $n
+  ### ToothpickReplicate n_to_xy(): $n
 
   if ($n < 1) { return; }
   if (is_infinite($n)) { return ($n,$n); }
@@ -442,7 +439,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### ToothpickFractal xy_to_n(): "$x, $y"
+  ### ToothpickReplicate xy_to_n(): "$x, $y"
 
   $x = round_nearest ($x);
   $y = round_nearest ($y);
@@ -594,7 +591,7 @@ sub xy_to_n {
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### ToothpickFractal rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### ToothpickReplicate rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = round_nearest ($x1);
   $y1 = round_nearest ($y1);
@@ -666,22 +663,60 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::ToothpickFractal -- toothpick sequence
+Math::PlanePath::ToothpickReplicate -- toothpick sequence
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::ToothpickFractal;
- my $path = Math::PlanePath::ToothpickFractal->new;
+ use Math::PlanePath::ToothpickReplicate;
+ my $path = Math::PlanePath::ToothpickReplicate->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
 
 I<In progress ...>
 
-This is the "toothpick" pattern arranged as a self-similar fractal in a
-quarter of the plane.
+This is the "toothpick" pattern arranged as a self-similar replicating
+pattern
 
-     8  |  --40--  --42--  --32--  --30--
+=cut
+
+# math-image --path=ToothpickReplicate --all --output=numbers --size=60x10
+
+=pod
+
+    ..-25--  --27--  --19--  --17--..         4
+        |       |       |       |
+       24--21--26      18--13--16             3
+        |   |               |   |
+           20---7--  ---5--12                 2
+        |   |   |       |   |   |
+       23--22-  6---2---4 -14--15             1
+        |       |   |   |       |
+                    1                    <- Y=0
+        |       |   |   |       |
+       31--30-  8---3--10 -38--39            -1
+        |   |   |       |   |   |
+           28---9--  --11--36                -2
+        |   |               |   |
+       32--29--34      42--37--40            -3
+        |       |       |       |
+    ..-33--  --35--  --43--  --41--..        -4
+
+                    ^
+        -3 -2  -1  X=0  1   2   3
+
+=head2 Quarter
+
+Option C<parts =E<gt> "quarter"> selects replications just in a quarter of
+the plane,
+
+=cut
+
+# math-image --path=ToothpickReplicate --all --output=numbers --size=80x50
+
+=pod
+
+     8  |  --40--  --42--  --32--  --30--...
         |     |       |       |       |
      7  |    39--36--41      31--26--29
         |         |               |   |
@@ -701,8 +736,11 @@ quarter of the plane.
         +------------------------------
         X=0   1   2   3   4   5   6   7
 
-The points visited as the same as L<Math::PlanePath::ToothpickTree>, but in
-a self-similar order.  The pattern repeats at 2^level size blocks.
+=head2 Replication
+
+The points visited are the same as L<Math::PlanePath::ToothpickTree>, but in
+a self-similar order.  The pattern within each quarter repeats at 2^level
+size blocks.
 
     +------------+------------+
     |            |            |
@@ -711,15 +749,15 @@ a self-similar order.  The pattern repeats at 2^level size blocks.
     |                         |
     |          --B--          |
     |            |            |
-    +--          A         ---+
+    +----------  A         ---+
     |            |            |
     |  block 0       block 1  |
-    |   same     |   rot +90  |
+    |            |   rot +90  |
     |            |            |
     |            |            |
     +------------+------------+
 
-In the sample above
+In the parts=quarter above
 
     N=1 to N=10     "0" block
     N=11            "A" middle point
@@ -731,15 +769,18 @@ In the sample above
 The very first points N=1 and N=2 are effectively the "A" and "B" middle
 toothpicks with no points at all in the 0,1,2,3 lower blocks.
 
+The full parts=all form is four quarters, each advancing by a replication
+level each time.
+
 =head2 Level Ranges
 
-Counting the very first N=1,2 as level 0, a new level begins at
+Counting the very first N=1,2 as level 0, a new quarter level begins at
 
     Nlevel = (2*4^level + 1)/3
 
-For example level=1 begins at (2*4^1+1)/3=3, or level=2 which is the points
-shown above begins (2*4^2+1)/3=11, and extends through to Nlevel(3)-1 =
-(2*4^3+1)/3-1=42.
+For example level=1 begins at N=(2*4^1+1)/3=3, or level=2 which is the
+points shown above begins (2*4^2+1)/3=11, and extends through to Nlevel(3)-1
+= (2*4^3+1)/3-1=42.
 
 The X,Y extent of a level is
 
@@ -758,7 +799,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::ToothpickFractal-E<gt>new ()>
+=item C<$path = Math::PlanePath::ToothpickReplicate-E<gt>new ()>
 
 Create and return a new path object.
 

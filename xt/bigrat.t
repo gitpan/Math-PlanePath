@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 426)[1];
+my $test_count = (tests => 428)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -606,6 +606,7 @@ my @modules = (
                'Flowsnake',
                
                'RationalsTree',
+               'RationalsTree,tree_type=L',
                'FractionsTree',
                # 'DivisibleColumns', # counting by N
                # 'DivisibleColumns,divisor_type=proper',

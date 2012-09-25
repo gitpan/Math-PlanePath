@@ -23,7 +23,6 @@
 
 use 5.010;
 use strict;
-use List::Util 'max';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

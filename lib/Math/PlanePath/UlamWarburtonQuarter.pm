@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -420,7 +420,6 @@ within the level.
     2 |   5     4     7    15    59    41    42    64
     1 |      2          10          50          51
    Y=0|   1     3    13    14    60    61    62    63
-      |
       +----------------------------------------------
         X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
@@ -480,7 +479,7 @@ diagonals all already have neighbours (the existing "c" cells).
     | a   c   g   g
     +-------------
 
-In general each level always grows by 1 along the leading diagonal X=Y and
+In general each level always grows by 1 along the X=Y leading diagonal and
 travels into the sides with a self-similar diamond shaped pattern filling 6
 of 16 cells in each 4x4 square block.
 
@@ -591,6 +590,16 @@ Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the start of
 the path).
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path includes
+
+    http://oeis.org/A151920    (etc)
+
+    A147610   num cells in level, being 3^(count 1-bits)
+    A151920   Nend, total cells to level n, cumulative 3^(count 1s)
 
 =head1 SEE ALSO
 

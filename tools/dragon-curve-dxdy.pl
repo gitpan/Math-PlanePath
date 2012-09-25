@@ -83,9 +83,7 @@ foreach my $nextturn (0, 1) {
                               digit    => 0);
       ### $state
 
-      foreach my $orig_bit (0, 1) {
-        my $bit = $orig_bit;
-
+      foreach my $bit (0, 1) {
         my $new_nextturn = $nextturn;
         my $new_prevbit = $bit;
         my $new_rot = $rot;
@@ -130,7 +128,7 @@ foreach my $nextturn (0, 1) {
            rot      => $new_rot,
            prevbit  => $new_prevbit,
            digit    => 0);
-        $next_state[$state+$orig_bit] = $next_state;
+        $next_state[$state+$bit] = $next_state;
       }
     }
   }

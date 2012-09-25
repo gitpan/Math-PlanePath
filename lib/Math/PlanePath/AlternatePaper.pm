@@ -51,7 +51,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -1149,7 +1149,7 @@ form above.
 
 The inversion at odd bit positions can be applied with an xor 0b1010..1010.
 If that's done then the turn calculation is the same as the DragonCurve (see
-L<Math::PlanePath::DragonCurve/Turns>).
+L<Math::PlanePath::DragonCurve/Turn>).
 
 =head2 Total Turn
 
@@ -1276,7 +1276,7 @@ Integer Sequences as
     http://oeis.org/A106665  (etc)
 
     A106665  turn, 1=left,0=right, starting at N=1
-    A020985  Golay/Rudin/Shapiro sequence
+    A020985  Golay/Rudin/Shapiro sequence +1,-1
                 dX and dY, skipping every second value zero
                 dSum, change in X+Y
     A020986  Golay/Rudin/Shapiro cumulative
@@ -1285,6 +1285,7 @@ Integer Sequences as
     A020990  Golay/Rudin/Shapiro * (-1)^n cumulative
                 Y coordinate undoubled
                 X-Y diff, starting from N=1
+    A020987  GRS with values 0,1
 
 Since the X and Y coordinates each change alternately, each coordinate
 appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990

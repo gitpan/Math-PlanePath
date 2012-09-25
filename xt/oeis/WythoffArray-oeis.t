@@ -34,6 +34,10 @@ use Math::PlanePath::WythoffArray;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+sub BIGINT {
+  require Math::NumSeq::PlanePathN;
+  return Math::NumSeq::PlanePathN::_bigint();
+}
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -77,6 +81,50 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
+# A000045 -- N on X axis, Fibonacci numbers
+{
+  my $anum = 'A000045';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got = (0,1); # initial skipped
+  if ($bvalues) {
+    my $path = Math::PlanePath::WythoffArray->new;
+    for (my $x = BIGINT()->new(0); @got < @$bvalues; $x++) {
+      push @got, $path->xy_to_n ($x, 0);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A005248 -- every second N on Y=1 row, every second Lucas number
+{
+  my $anum = q{A005248};
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got = (2,3); # initial skipped
+  if ($bvalues) {
+    my $path = Math::PlanePath::WythoffArray->new;
+    for (my $x = BIGINT()->new(1); @got < @$bvalues; $x+=2) {
+      push @got, $path->xy_to_n ($x, 1);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
 # N on columns
 # per list in A035513
 
@@ -91,8 +139,7 @@ foreach my $elem ([ 'A035337', 2 ],
   if ($bvalues) {
     my $path = Math::PlanePath::WythoffArray->new;
     my @got = @{$options{'extra_initial'}||[]};
-    require Math::BigInt;
-    for (my $y = Math::BigInt->new(0); @got < @$bvalues; $y++) {
+    for (my $y = BIGINT()->new(0); @got < @$bvalues; $y++) {
       push @got, $path->xy_to_n ($x, $y);
     }
     $diff = diff_nums(\@got,$bvalues);
@@ -143,8 +190,7 @@ foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
   if ($bvalues) {
     my $path = Math::PlanePath::WythoffArray->new;
     my @got = @{$options{'extra_initial'}||[]};
-    require Math::BigInt;
-    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
+    for (my $x = BIGINT()->new(0); @got < @$bvalues; $x++) {
       push @got, $path->xy_to_n ($x, $y);
     }
     $diff = diff_nums(\@got,$bvalues);
@@ -171,8 +217,8 @@ foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
     my $wythoff = Math::PlanePath::WythoffArray->new;
     for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $wythoff->n_to_xy ($n);
-      $x = Math::BigInt->new($x);
-      $y = Math::BigInt->new($y);
+      $x = BIGINT()->new($x);
+      $y = BIGINT()->new($y);
       push @got, $diagonals->xy_to_n($x,$y);
     }
     $diff = diff_nums(\@got,$bvalues);
@@ -412,8 +458,8 @@ foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
     my $wythoff = Math::PlanePath::WythoffArray->new;
     for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $diagonals->n_to_xy ($n);
-      $x = Math::BigInt->new($x);
-      $y = Math::BigInt->new($y);
+      $x = BIGINT()->new($x);
+      $y = BIGINT()->new($y);
       push @got, $wythoff->xy_to_n($x,$y);
     }
     $diff = diff_nums(\@got,$bvalues);
@@ -427,30 +473,6 @@ foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
 }
 
 #------------------------------------------------------------------------------
-# A000045 -- N on X axis, Fibonacci numbers
-{
-  my $anum = 'A000045';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
-                                                     max_count => 150);
-  my @got = (0,1); # initial skipped
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    require Math::BigInt;
-    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x, 0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
 # A000204 -- N on Y=1 row, Lucas numbers
 # cf A000032 starting 2,1
 {
@@ -460,8 +482,7 @@ foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
   my @got = (1, 3); # initial skipped
   if ($bvalues) {
     my $path = Math::PlanePath::WythoffArray->new;
-    require Math::BigInt;
-    for (my $x = Math::BigInt->new(0); @got < @$bvalues; $x++) {
+    for (my $x = BIGINT()->new(0); @got < @$bvalues; $x++) {
       push @got, $path->xy_to_n ($x, 1);
     }
     if (! numeq_array(\@got, $bvalues)) {

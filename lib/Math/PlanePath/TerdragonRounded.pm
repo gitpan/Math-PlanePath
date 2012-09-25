@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -184,40 +184,38 @@ This is a version of the terdragon curve with rounded-off corners,
 
 =pod
 
-                      .                                      15
+    ...         44----43                                   14
+      \        /        \
+       46----45     .    42                                13
+                        /
+           .    40----41                                   12
+               /
+             39     .    24----23          20----19        11
+               \        /        \        /        \
+           .    38    25     .    22----21     .    18     10
+               /        \                          /
+       36----37     .    26----27     .    16----17         9
+      /                          \        /
+    35     .    32----31     .    28    15     .            8
+      \        /        \        /        \
+       34----33          30----29     .    14               7
+                                          /
+                             .    12----13     .            6
+                                 /
+                               11     .     8-----7         5
+                                 \        /        \
+                                  10-----9     .     6      4
+                                                   /
+                                      .     4-----5         3
+                                          /
+                                         3                  2
+                                          \
+                                      .     2               1
+                                          /
+                             .     0-----1     .       <- Y=0
 
-      ...         44----43                                   14
-        \        /        \
-         46----45          42                                13
-                          /
-             .    40----41     .                 .           12
-                 /
-               39          24----23          20----19        11
-                 \        /        \        /        \
-                  38    25          22----21     .    18     10
-                 /        \                          /
-    .    36----37     .    26----27     .    16----17     .   9
-        /                          \        /
-      35          32----31          28    15                  8
-        \        /        \        /        \
-         34----33          30----29     .    14               7
-                                            /
-             .                 .    12----13     .            6
-                                   /
-                                 11           8-----7         5
-                                   \        /        \
-                               .    10-----9           6      4
-                                                     /
-                                        .     4-----5     .   3
-                                            /
-                                           3                  2
-                                            \
-                                              2               1
-                                            /
-                               .     0-----1     .       <- Y=0
-
-    ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
-    -9-8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
+     ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
+    -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
 
 The plain TerdragonCurve is tripled in size and two points on each edge are
 visited by the TerdragonRounded here.
@@ -297,8 +295,8 @@ L<Math::PlanePath::TerdragonCurve>,
 L<Math::PlanePath::TerdragonMidpoint>,
 L<Math::PlanePath::DragonRounded>
 
-X<Arndt, Jorg>Jorg Arndt http://www.jjj.de/fxt/#fxtbook section 1.31.4 "Terdragon and
-Hexdragon", where this rounded terdragon is called hexdragon.
+X<Arndt, Jorg>Jorg Arndt C<http://www.jjj.de/fxt/#fxtbook> section 1.31.4
+"Terdragon and Hexdragon", where this rounded terdragon is called hexdragon.
 
 =head1 HOME PAGE
 

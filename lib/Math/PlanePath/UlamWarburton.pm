@@ -34,7 +34,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -709,8 +709,8 @@ Sequences as
 
     http://oeis.org/A147582    (etc)
 
-    A147562 - cumulative total cells to level n, being Nend(level)
     A147582 - number of new cells in level n
+    A147562 - Nend, total cells to level n
 
 The A147582 new cells sequence starts from n=1, so takes the innermost N=1
 single cell as level n=1, then N=2,3,4,5 as level n=2 with 5 cells, etc.

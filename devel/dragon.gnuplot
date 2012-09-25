@@ -132,7 +132,7 @@
 
 # Return the position of the highest 1-bit in n.
 # The least significant bit is position 0.
-# For example n=11 is binary "1011" and the high bit is pos=3.
+# For example n=13 is binary "1101" and the high bit is pos=3.
 # If n==0 then the return is 0.
 # Arranging the test as n>=2 avoids infinite recursion if n==NaN (any
 # comparison involving NaN is always false).
@@ -145,12 +145,12 @@ high_bit_pos(n) = (n>=2 ? 1+high_bit_pos(int(n/2)) : 0)
 bit(n,pos) = int(n / 2**pos) & 1
 
 # dragon(n) returns a complex number which is the position of the
-# dragon curve at integer vertex "n".  The first point is n=0 at the
-# origin {0,0}.  Then n=1 is at {1,0} which is x=1,y=0, etc.  If n is
-# not an integer then the point returned is for int(n).
+# dragon curve at integer point "n".  n=0 is the first point and is at
+# the origin {0,0}.  Then n=1 is at {1,0} which is x=1,y=0, etc.  If n
+# is not an integer then the point returned is for int(n).
 #
 # The calculation goes by bits of n from high to low.  Gnuplot doesn't
-# have iteration in functions, but it can go recursively through
+# have iteration in functions, but can go recursively from
 # pos=high_bit_pos(n) down to pos=0, inclusive.
 #
 # mul() rotates by +90 degrees (complex "i") at bit transitions 0->1
@@ -160,11 +160,10 @@ bit(n,pos) = int(n / 2**pos) & 1
 #
 dragon(n) = dragon_by_bits(n, high_bit_pos(n))
 dragon_by_bits(n,pos) \
-  = (pos<0 ? 0 : add(n,pos) + mul(n,pos)*dragon_by_bits(n,pos-1))
+  = (pos>=0 ? add(n,pos) + mul(n,pos)*dragon_by_bits(n,pos-1)  : 0)
 
-add(n,pos) = (bit(n,pos)                                \
-              ? (bit(n,pos+1) ? {0,1} * {1,1}**pos      \
-                              :         {1,1}**pos)     \
+add(n,pos) = (bit(n,pos) ? (bit(n,pos+1) ? {0,1} * {1,1}**pos   \
+                                         :         {1,1}**pos)  \
               : 0)
 mul(n,pos) = (bit(n,pos) == bit(n,pos+1) ? 1 : {0,1})
 
@@ -174,7 +173,7 @@ mul(n,pos) = (bit(n,pos) == bit(n,pos+1) ? 1 : {0,1})
 #
 # Any trange works, it doesn't have to start at 0.  But must have
 # enough "samples" that all integers t in the range are visited,
-# otherwise vertices in the curve will be missed.
+# otherwise vertices in the curve would be missed.
 #
 length=256
 set trange [0:length]
@@ -206,28 +205,30 @@ plot real(dragon(t)),imag(dragon(t)) with lines
 # # integers.
 # 
 # set xrange [0:4.95]
+# set key left
 # plot int(x)!
+# 
+# # If you wanted to write your own it can be done recursively.
+# 
+# # Using int(n) allows non-integer "n" inputs, with the factorial
+# # calculated on int(n) in that case.
+# # Arranging the condition as "n>=2" avoids infinite recursion if
+# # n==NaN, since any comparison involving NaN is false.  Could change
+# # "1" to an expression like "n*0+1" to propagate a NaN input to the
+# # output too, if desired.
+# #
+# factorial(n) = (n >= 2 ? int(n)*factorial(n-1) : 1)
+# set xrange [0:4.95]
+# set key left
+# plot factorial(x)
+# 
+# # plot (factorial(NaN))
+# pause 100
 # 
 # # And the <code>gamma()</code> function for any real.
 # 
 # set xrange [0:5]
 # plot gamma(x)
-# 
-# # If you wanted to write your own factorial function it can be done
-# # recursively.
-# 
-# # Using int(n) allows non-integer "n" inputs, with the factorial
-# # calculated on int(n) in that case.
-# # Arranging the condition as "n>=2" avoids infinite recursion if
-# # n==NaN, since any comparison involving NaN is false.  Could use an
-# # expression like "n*0+1" to propagate a NaN input to the output too,
-# # if desired.
-# #
-# factorial(n) = (n >= 2 ? int(n)*factorial(n-1) : 1)
-# 
-# set xrange [0:4.95]
-# # plot factorial(x)
-# plot (factorial(NaN))
 
 #------------------------------------------------------------------------------
 

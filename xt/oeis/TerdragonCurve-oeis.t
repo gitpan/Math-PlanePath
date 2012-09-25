@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 11;
+plan tests => 12;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -85,6 +85,25 @@ sub xy_left_right {
     return 1; # right;
   }
   die "unrecognised turn $turn";
+}
+
+#------------------------------------------------------------------------------
+# A005823 - N positions with total turn == 0, no ternary 1s
+
+{
+  my $anum = 'A005823';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $bad = 0;
+  if ($bvalues) {
+    foreach my $n (@$bvalues) {
+      my ($dx,$dy) = $path->n_to_dxdy($n);
+      unless ($dx == 2 && $dy == 0) {
+        $bad++;
+      }
+    }
+  }
+  skip (! $bvalues, $bad,0, "$anum");
 }
 
 #------------------------------------------------------------------------------
@@ -262,7 +281,7 @@ sub xy_left_right {
 }
 
 #------------------------------------------------------------------------------
-# A026225 - positions of left turns
+# A026225 - N positions of left turns
 
 {
   my $anum = 'A026225';

@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -79,17 +79,17 @@ sub new {
 }
 
 #    +-----------+      states
-#    |\         /|
-#    | \   4   / |
-#    |  \     /  |
-#    |   \   /   |
-#    |    \ /    |
-#    | 8   *  12 |
-#    |    / \    |
-#    |   /   \   |
-#    |  /     \  |
-#    | /   0   \ |
-#    |/         \|
+#    |\  -------/|
+#    | \ \ 4   / |
+#    |^ \ \   /  |
+#    ||  \ v / /||
+#    ||   \ / / ||
+#    ||8 / * /12||
+#    || / / \   ||
+#    ||/ / ^ \  ||
+#    |  /   \ \ v|
+#    | /   0 \ \ |
+#    |/ ------  \|
 #    +-----------+
 #
 #           +           state=0 digits
@@ -101,10 +101,10 @@ sub new {
 #     /  0 \|/  2 \
 #    +------+------+
 
-my @next_state = (0, 12, 0,  8,   # forward
-                  4,  8, 4, 12,   # forward NW
-                  4,  8, 0,  8,   # reverse
-                  0, 12, 4, 12,   # reverse NE
+my @next_state = (0, 12, 0,  8,   # 0 forward
+                  4,  8, 4, 12,   # 4 forward NW
+                  4,  8, 0,  8,   # 8 reverse
+                  0, 12, 4, 12,   # 12 reverse NE
                  );
 my @digit_to_x = (0,0,1,1,
                   1,1,0,0,
@@ -138,26 +138,25 @@ sub n_to_xy {
   }
 
   my $zero = ($n * 0);  # inherit bignum 0
-
-  # arm as initial rotation
   my $arm = _divrem_mutate ($n, $self->{'arms'});
-
   ### $arm
   ### $n
 
   my @digits = digit_split_lowtohigh($n,4);
-  my $state = 0;
+  my $state = my $dirstate = 0;
 
   my @x;
   my @y;
   foreach my $i (reverse 1 .. scalar(@digits)) {
-    $state += $digits[$i-1];  # high to low
-    $x[$i] = $digit_to_x[$state];
+    my $digit = $digits[$i-1];   # high to low, all digits
+    $state += $digit;
+    if ($digit != 3) {
+      $dirstate = $state;
+    }
+    $x[$i] = $digit_to_x[$state];  # high to low, leaving one lowest
     $y[$i] = $digit_to_y[$state];
     $state = $next_state[$state];
   }
-
-  ### final: "xy=$x,$y state=$state"
 
   $x[0] = $digit_to_x[$state];      # state=4,12 increment
   $y[0] = $digit_to_y[$state + 3];  # state=4,8 increment
@@ -165,14 +164,16 @@ sub n_to_xy {
   my $x = digit_join_lowtohigh(\@x,2,$zero);
   my $y = digit_join_lowtohigh(\@y,2,$zero);
 
+  ### final: "x=$x,y=$y state=$state"
+
   if ($arm & 1) {
-    ($x,$y) = ($y+1,$x+1);
+    ($x,$y) = ($y+1,$x+1);  # transpose and offset
   }
   if ($arm & 2) {
-    ($x,$y) = (-$y,$x+1);
+    ($x,$y) = (-$y,$x+1);   # rotate +90 and offset
   }
   if ($arm & 4) {
-    $x = -1 - $x;
+    $x = -1 - $x;           # rotate 180 and offset
     $y = 1 - $y;
   }
 
@@ -180,6 +181,26 @@ sub n_to_xy {
   return ($x,$y);
 }
 
+  #                                   |           |
+  #                         64-65-66 71-72-73-74 95
+  #                          |                    |
+  #                         63             98-97-96
+  #                          |              |
+  #                   20-21 62             99
+  #                    |  |  |
+  #                   19 22 61-60-59
+  #                    |  |        |
+  #             16-17-18 23 56-57-58
+  #              |        |  |
+  #             15 26-25-24 55 50-49-48-47
+  #              |  |        |  |        |
+  #        4--5 14 27-28-29 54 51 36-37 46
+  #        |  |  |        |  |  |  |  |  |
+  #        3  6 13-12-11 30 53-52 35 38 45-44-43
+  #        |  |        |  |        |  |        |
+  #  0--1--2  7--8--9-10 31-32-33-34 39-40-41-42
+  #
+  #  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
 
 #          43-35 42-50-58 57-49-41
 #           |  |  |              |
@@ -264,27 +285,6 @@ sub xy_to_n {
   #     /  3 \|/  1 \
   #    +------+------+
 
-  #                                   |           |
-  #                         64-65-66 71-72-73-74 95
-  #                          |                    |
-  #                         63             98-97-96
-  #                          |              |
-  #                   20-21 62             99
-  #                    |  |  |
-  #                   19 22 61-60-59
-  #                    |  |        |
-  #             16-17-18 23 56-57-58
-  #              |        |  |
-  #             15 26-25-24 55 50-49-48-47
-  #              |  |        |  |        |
-  #        4--5 14 27-28-29 54 51 36-37 46
-  #        |  |  |        |  |  |  |  |  |
-  #        3  6 13-12-11 30 53-52 35 38 45-44-43
-  #        |  |        |  |        |  |        |
-  #  0--1--2  7--8--9-10 31-32-33-34 39-40-41-42
-  #
-  #  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-
   my $n = ($x * 0 * $y); # inherit bignum 0
   my $rev = 0;
 
@@ -362,50 +362,15 @@ sub rect_to_n_range {
   }
 
   my ($len, $level) = round_down_pow (max ($x2,
-                                           ($arms >= 2 ? $y2-1 : ()),
+                                           ($arms >= 2 ? $y2-1  : ()),
                                            ($arms >= 4 ? -1-$x1 : ()),
-                                           ($arms >= 6 ? -$y1 : ())),
+                                           ($arms >= 6 ? -$y1   : ())),
                                       2);
   return (0, 2*$arms*$len*$len-1);
 }
 
 1;
 __END__
-
-#------------------------------------------------------------------------------
-# Old code running AlternatePaper n_to_xy() twice.
-#
-# sub n_to_xy {
-#   my ($self, $n) = @_;
-#   ### AlternatePaperMidpoint n_to_xy(): $n
-#
-#   if ($n < 0) { return; }
-#   if (is_infinite($n)) { return ($n, $n); }
-#
-#   {
-#     my $int = int($n);
-#     if ($n != $int) {
-#       my ($x1,$y1) = $self->n_to_xy($int);
-#       my ($x2,$y2) = $self->n_to_xy($int+$self->{'arms'});
-#       my $frac = $n - $int;  # inherit possible BigFloat
-#       my $dx = $x2-$x1;
-#       my $dy = $y2-$y1;
-#       return ($frac*$dx + $x1, $frac*$dy + $y1);
-#     }
-#     $n = $int; # BigFloat int() gives BigInt, use that
-#   }
-#
-#   my ($x1,$y1) = $self->Math::PlanePath::AlternatePaper::n_to_xy($n);
-#   my ($x2,$y2) = $self->Math::PlanePath::AlternatePaper::n_to_xy($n+1);
-#
-#   my $dx = $x2-$x1;
-#   my $dy = $y2-$y1;
-#   return ($x1+$y1 + ($dx+$dy-1)/2,
-#           $x1-$y1 - ($dy-$dx+1)/2);
-# }
-
-
-#------------------------------------------------------------------------------
 
 =for stopwords Math-PlanePath eg Ryde AlternatePaper AlternatePaperMidpoint OEIS
 

@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -671,9 +671,9 @@ The DragonMidpoint is in Sloane's Online Encyclopedia of Integer Sequences as
     A073089 -- direction 0=horizontal,1=vertical (extra initial 0)
 
 The midpoint curve is vertical when the DragonCurve has a vertical followed
-by a left turn or a horizontal followed by a right turn.  DragonCurve
+by a left turn, or horizontal followed by a right turn.  DragonCurve
 verticals are whenever N is odd, and the turn is the bit above the lowest 0
-in N, as described in L<Math::PlanePath::DragonCurve/Turns>.
+in N, as described in L<Math::PlanePath::DragonCurve/Turn>.
 
 The n of A073089 is offset by 2 from the N numbering of the path here, so
 n=N+2.  The initial value at n=1 in A073089 has no corresponding N (it would

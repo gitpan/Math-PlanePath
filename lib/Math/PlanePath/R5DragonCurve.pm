@@ -27,11 +27,12 @@
 package Math::PlanePath::R5DragonCurve;
 use 5.004;
 use strict;
+use List::Util 'first','sum';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -41,9 +42,6 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
-
-# uncomment this to run the ### lines
-#use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -77,15 +75,11 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (is_infinite($n)) { return ($n, $n); }
 
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;  # inherit possible BigFloat
-    $n = $int;          # BigFloat int() gives BigInt, use that
-  }
+  my $int = int($n);
+  $n -= $int;    # fraction part
 
-  my $zero = ($frac * 0);  # inherit bignum 0
-  my $one = $zero + 1;  # inherit bignum 1
+  my $zero = ($n * 0);    # inherit bignum 0
+  my $one = $zero + 1;    # inherit bignum 1
 
   my $x = 0;
   my $y = 0;
@@ -94,14 +88,14 @@ sub n_to_xy {
 
   # initial rotation from arm number
   {
-    my $rot = _divrem_mutate ($n, $self->{'arms'});
-    if ($rot == 0)    { $x = $frac, $sx = $one; }
-    elsif ($rot == 1) { $y = $frac, $sy = $one; }
-    elsif ($rot == 2) { $x = -$frac, $sx = -$one; }
-    else              { $y = -$frac, $sy = -$one; } # rot==3
+    my $rot = _divrem_mutate ($int, $self->{'arms'});
+    if ($rot == 0)    { $x = $n;  $sx = $one;  }
+    elsif ($rot == 1) { $y = $n;  $sy = $one;  }
+    elsif ($rot == 2) { $x = -$n; $sx = -$one; }
+    else              { $y = -$n; $sy = -$one; } # rot==3
   }
 
-  foreach my $digit (digit_split_lowtohigh($n,5)) {
+  foreach my $digit (digit_split_lowtohigh($int,5)) {
 
     ### at: "$x,$y   side $sx,$sy"
     ### $digit
@@ -128,6 +122,44 @@ sub n_to_xy {
   return ($x, $y);
 }
 
+my @digit_to_dir = (0,1,2,1,0);
+my @dir_to_dx = (1,0,-1,0);
+my @dir_to_dy = (0,1,0,-1);
+my @digit_to_nextturn = (1,1,-1,-1);
+
+sub n_to_dxdy {
+  my ($self, $n) = @_;
+  ### R5dragonCurve n_to_dxdy(): $n
+
+  if ($n < 0) { return; }
+
+  my $int = int($n);
+  $n -= $int;    # fraction part
+
+  if (is_infinite($int)) { return ($int, $int); }
+
+  # direction from arm number
+  my $dir = _divrem_mutate ($int, $self->{'arms'});
+
+  # plus direction from digits
+  my @ndigits = digit_split_lowtohigh($int,5);
+  $dir = sum($dir, map {$digit_to_dir[$_]} @ndigits) & 3;
+
+  ### direction: $dir
+  my $dx = $dir_to_dx[$dir];
+  my $dy = $dir_to_dy[$dir];
+
+  # fractional $n incorporated using next turn
+  if ($n) {
+    # lowest non-4 digit, or 0 if all 4s (implicit 0 above high digit)
+    $dir += $digit_to_nextturn[(first {$_!=4} @ndigits) || 0];
+    $dir &= 3;
+    ### next direction: $dir
+    $dx += $n*($dir_to_dx[$dir] - $dx);
+    $dy += $n*($dir_to_dy[$dir] - $dy);
+  }
+  return ($dx, $dy);
+}
 
 sub xy_to_n {
   return scalar((shift->xy_to_n_list(@_))[0]);
@@ -212,14 +244,14 @@ Math::PlanePath::R5DragonCurve -- radix 5 dragon curve
 
 =head1 DESCRIPTION
 
-This is the R5 dragon curve,
+X<Arndt, Jorg>This is the R5 dragon curve by Jorg Arndt,
 
              31-----30     27-----26                                  5
               |      |      |      |
              32---29/33--28/24----25                                  4
                      |      |
              35---34/38--39/23----22     11-----10      7------6      3
-                     |             |      |      |      |      |
+              |      |             |      |      |      |      |
              36---37/41--20/40--21/17--16/12---13/9----8/4-----5      2
                      |      |      |      |      |      |
     --50     47---42/46--19/43----18     15-----14      3------2      1
@@ -238,7 +270,7 @@ The base figure is an "S" shape
     0----1
 
 which then repeats in self-similar style, so N=5 to N=10 is a copy rotated
-+90 degrees, which is the angle of the N=1 to N=2 edge,
++90 degrees, as per the direction of the N=1 to N=2 segment.
 
     10    7----6
      |    |    |  <- repeat rotated +90
@@ -247,6 +279,9 @@ which then repeats in self-similar style, so N=5 to N=10 is a copy rotated
           3----2
                |
           0----1
+
+This replication is similar to the TerdragonCurve in that there's no
+reversals or mirroring.  Each replication is the plain base curve.
 
 The shape of N=0,5,10,15,20,25 repeats the initial N=0 to N=5,
 
@@ -264,7 +299,7 @@ The shape of N=0,5,10,15,20,25 repeats the initial N=0 to N=5,
       -4   -3   -2   -1   X=0   1
 
 
-The curve never crosses itself.  The vertices touch as corners like N=4 and
+The curve never crosses itself.  The vertices touch at corners like N=4 and
 N=8 above, but no edges repeat.
 
 =head2 Spiralling
@@ -275,7 +310,7 @@ replication is
 
     Nlevel = 5^level
 
-That point is at atan(2,1)=63.43 degrees further around for each level,
+That point is at arctan(2/1)=63.43 degrees further around for each level,
 
     Nlevel     X,Y     angle (degrees)
     ------    -----    -----
@@ -310,8 +345,8 @@ all four begin.  Every edge between the points is traversed once.
 
 =head2 Tiling
 
-The little "S" shapes of the N=0to5 base shape tile the plane in the
-following pattern,
+The little "S" shapes of the N=0to5 base shape tile the plane with 2x1
+bricks and 1x1 holes in the following pattern,
 
      |     |  |  |  |     |  |  |  |
      +--+--+--+--+  +--+--+--+--+  +-
@@ -333,10 +368,10 @@ following pattern,
     -+  +--+--+--+--+  +--+--+--+--+
      |  |  |  |     |  |  |  |     |
 
-This is simply edge N=2mod5 to N=3mod5 omitted from each mod5 block.  In
-each 2x1 block the "S" traverses 4 of the 6 edges and the way the curve
-meshes together traverses the other 2 edges in another brick, possibly a
-brick on another arm of the curve.
+This is simply the curve with segment N=2mod5 to N=3mod5 omitted from each
+mod5 block.  In each 2x1 block the "S" traverses 4 of the 6 edges and the
+way the curve meshes together traverses the other 2 edges in another brick,
+possibly a brick on another arm of the curve.
 
 =head1 FUNCTIONS
 
@@ -382,21 +417,22 @@ Return 0, the first N in the path.
 
 =head1 FORMULAS
 
-=head2 Turns
+=head2 Turn
 
 At each point N the curve always turns 90 degrees either to the left or
-right, it never goes straight ahead.  If N is written in base 5 then the
-lowest non-zero digit gives the turn
+right, it never goes straight ahead.  As per the code in Jorg Arndt's
+fxtbook, if N is written in base 5 then the lowest non-zero digit gives the
+turn
 
-    Ndigit      Turn
-    ------      ----
-      1         left
-      2         left
-      3         right
-      4         right
+    lowest non-0 digit     turn
+    ------------------     ----
+            1              left
+            2              left
+            3              right
+            4              right
 
-Essentially at a point N=digit*5^level for digit=1,2,3,4 the turn follows
-the shape at that digit.
+At a point N=digit*5^level for digit=1,2,3,4 the turn follows the shape at
+that digit, so two lefts then two rights,
 
     4*5^k----5^(k+1)
      |
@@ -406,19 +442,43 @@ the shape at that digit.
               |
      0------1*5^k
 
-The first and last unit steps in each level are in the same direction, so at
-those endpoints it's the next level up which the turn.
+The first and last unit segments in each level are the same direction, so at
+those endpoints it's the next level up which gives the turn.
 
-=cut
+=head2 Next Turn
 
-# The direction at N, ie. the total cumulative turn, is given by the number of
-# 1 digits when N is written in base 5,
-#
-#     direction = (count 1,2s in base5 N) * 90 degrees
-#
-# For example N=12 is base5 110 which has two 1s so the cumulative turn at
-# that point is 2*90=180 degrees, ie. the segment N=16 to N=17 is at angle
-# 180.
+The turn at N+1 can be calculated in a similar way but from the lowest non-4
+digit.
+
+    lowest non-4 digit     turn
+    ------------------     ----
+            0              left
+            1              left
+            2              right
+            3              right
+
+This works simply because in N=...z444 becomes N+1=...(z+1)000 and the turn
+at N+1 is given by digit z+1.
+
+=head2 Total Turn
+
+The direction at N, ie. the total cumulative turn, is given by the direction
+of each digit when N is written in base 5,
+
+    digit       direction
+      0             0
+      1             1
+      2             2
+      3             1
+      4             0
+
+    direction = (sum direction for each digit) * 90 degrees
+
+For example N=13 is base5 23 so direction=(2+1)*90 = 270 degrees, ie. south.
+
+Because there's no reversals etc in the replications there's no state to
+maintain when considering the digits, just a plain sum of direction for each
+digit.
 
 =head1 OEIS
 
@@ -426,7 +486,8 @@ The R5 dragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A175337
 
-    A175337 -- turn 0=left,1=right by 90 degrees at N=n+1
+    A175337 -- next turn 0=left,1=right
+                (n=0 is the first turn, which is at N=1)
 
 =head1 SEE ALSO
 

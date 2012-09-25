@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -508,8 +508,11 @@ sequence directly
 
     http://oeis.org/A156596
 
-    A156596  - turn sequence, 0=straight, 1=right, 2=left
-    A003849  - Fibonacci word sequence 0,1
+    A156596  - turn sequence, 0=straight,1=right,2=left
+    A003849  - Fibonacci word, values 0,1
+    A005614  - Fibonacci word, values 1,0
+    A003842  - Fibonacci word, values 1,2
+    A014675  - Fibonacci word, values 2,1
 
 =head1 SEE ALSO
 

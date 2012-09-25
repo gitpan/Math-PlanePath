@@ -16,11 +16,53 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml
+
+
+# CS
+# SB->CS Gray code A003188, xor with floor A004526 or A008619 A110654 A076938
+# Bird->CS lamplighter A154436
+# CS->SB  Gray A006068
+# CS->Bird lamp A154435
+
+# 1536   97   51   54  104  120   62   59  113 1792
+#  768        50                  58       896
+#  384   49        52   60        57  448       640
+#  192        27        31       224       320
+#   96   25   26   30   29  112       160   41   42
+#   48                  56        80
+#   24   13   15   28        40   21   23   44
+#   12        14        20        22        36
+#    6    7        10   11        18   19        34
+#    3         5         9        17        33
+#    1    2    4    8   16   32   64  128  256  512
+
+# A072726 numerator of rationals >= 1 with continued fractions even terms
+# A072727 denominator
+# A072728 numerator of rationals >= 1 with continued fraction terms 1,2 only
+# A072729 denominator
+# Math::NumSeq::PlanePathTurn
+# A010059 start=0: 1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,0,1,0
+#   match 1,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,0,1,0
+#   PlanePathTurn planepath=RationalsTree,tree_type=CS,  turn_type=Left
+#
+# A010060 start=0: 0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,1,0,1
+#   match 0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,1,0,1
+#   PlanePathTurn planepath=RationalsTree,tree_type=CS,  turn_type=Right
+
+
+# cf Peter Luschny L-tree inserting 0/1 by pushing all terms along to N+1,
+#    then CW rows read right to left
+#    A174980 A174981
+
+# J. Czyz and W. Self, The Rationals Are Countable: Euclid's Proof, The
+# College Mathematics Journal, Vol. 34, No. 5 (Nov., 2003), pp. 367
+
 # math-image --path=RationalsTree --all --scale=3
 # math-image --path=RationalsTree --all --output=numbers_xy --size=60x40
 #
 #                    high-to-low   low-to-high
-# (X+Y)/Y  Y/(X+Y)     AYT          not-impl
+# (X+Y)/Y  Y/(X+Y)     not-impl       AYT
 # X/(X+Y)  (X+Y)/Y      CW            SB    \ alt bit flips
 # Y/(X+Y)  (X+Y)/X     Drib          Bird   /
 #
@@ -44,9 +86,10 @@
 package Math::PlanePath::RationalsTree;
 use 5.004;
 use strict;
+use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -55,7 +98,12 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'bit_split_lowtohigh';
+  'bit_split_lowtohigh',
+  'digit_join_lowtohigh';
+*_divrem = \&Math::PlanePath::_divrem;
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 
 use constant class_x_negative => 0;
@@ -66,15 +114,33 @@ use constant parameter_info_array =>
       share_key       => 'tree_type_rationals',
       type            => 'enum',
       default         => 'SB',
-      choices         => ['SB','CW','AYT','Bird','Drib'],
-      choices_display => ['SB','CW','AYT','Bird','Drib'],
+      choices         => ['SB','CW','AYT','Bird','Drib','L',
+                         # 'CS',
+                         ],
+      choices_display => ['SB','CW','AYT','Bird','Drib','L',
+                         # 'CS',
+                         ],
     },
   ];
+
+my %attributes = (CW   => [ n_start => 1, ],
+                  SB   => [ n_start => 1, reverse_bits => 1 ],
+                  Drib => [ n_start => 1, alternating => 1 ],
+                  Bird => [ n_start => 1, alternating => 1, reverse_bits => 1 ],
+                  AYT  => [ n_start => 1, sep1s => 1 ],
+
+                  CS   => [ n_start => 1, sep1s => 1, reverse_bits => 1 ],
+                  L    => [ n_start => 0 ],
+                 );
 
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new (@_);
-  $self->{'tree_type'} ||= 'SB';
+  my $tree_type = ($self->{'tree_type'} ||= 'SB');
+  my $attributes = $attributes{$tree_type}
+    || croak "Unrecognised tree type: ",$tree_type;
+  %$self = (%$self, @$attributes);
+  ### $self
   return $self;
 }
 
@@ -82,7 +148,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### RationalsTree n_to_xy(): "$n"
 
-  if ($n < 1) { return; }
+  if ($n < $self->{'n_start'}) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
   # FIXME: what to do for fractional $n?
@@ -107,198 +173,66 @@ sub n_to_xy {
   my $zero = ($n * 0);  # inherit bignum 0
   my $one = $zero + 1;  # inherit bignum 1
 
-  my @digits = bit_split_lowtohigh($n);
-  pop @digits;  # drop high 1 bit
+  if ($self->{'n_start'} == 0) {
+    # L tree adjust;
+    $n += 2;
+  }
 
+  my @nbits = bit_split_lowtohigh($n);
+  pop @nbits;
+  ### lowtohigh sans high: @nbits
 
-  my $tree_type = $self->{'tree_type'};
-  if ($tree_type eq 'CW') {
-    ### CW tree ...
-    # (x,y) -> (x+y,x) and (y,x+y) but bits in reverse
+  if (! $self->{'reverse_bits'}) {
+    @nbits = reverse @nbits;
+    ### reverse to: @nbits
+  }
 
-    #       X/Y
-    #     /     \
-    # X/(X+Y)  (X+Y)/Y
-    #
-    # (1 0) (x) = ( x )     (a b) (1 0) = (a+b b)   digit 0
-    # (1 1) (y)   (x+y)     (c d) (1 1)   (c+d d)
-    #
-    # (1 1) (x) = (x+y)     (a b) (1 1) = (a a+b)   digit 1
-    # (0 1) (y)   ( y )     (c d) (0 1)   (c c+d)
+  my $x = $one;
+  my $y = $one;
 
-    my $a = $one;     # initial  (1 0)
-    my $b = $zero;    #          (0 1)
-    my $c = $zero;
-    my $d = $one;
-    while (@digits) {
-      ### digit: $digits[0]
-      ### at: "($a $b)"
-      ### at: "($c $d)"
-
-      if (shift @digits) {      # low to high
-        $b += $a;
-        $d += $c;
-      } else {
-        $a += $b;
-        $c += $d;
+  if ($self->{'sep1s'}) {
+    foreach my $nbit (@nbits) {
+      $x += $y;
+      if ($nbit) {
+        ($x,$y) = ($y,$x);
       }
     }
-    ### final: "($a $b)"
-    ### final: "($c $d)"
 
-    # (a b) (1) = (a+b)
-    # (c d) (1)   (c+d)
-    return ($a+$b, $c+$d);
-
-
-    # my $lx = $zero;
-    # my $ly = $one;
-    # my $rx = $one;
-    # my $ry = $zero;
-    # for (;;) {
-    #   if ($n % 2) {      # low to high
-    #     $lx += $rx;
-    #     $ly += $ry;
-    #     unless ($n = int($n/2)) {
-    #       return ($lx,$ly);
-    #     }
-    #   } else {
-    #     $rx += $lx;
-    #     $ry += $ly;
-    #     unless ($n = int($n/2)) {
-    #       return ($rx,$ry);
-    #     }
-    #   }
-    # }
-
-  } elsif ($tree_type eq 'AYT') {
-    ### AYT tree ...
-
-    #       X/Y
-    #     /     \
-    # (X+Y)/Y  Y/(X+Y)
-    #
-    # (1 1) (x) = (x+y)     (a b) (1 1) = (a a+b)   digit 0
-    # (0 1) (y)   ( y )     (c d) (0 1)   (c c+d)
-    #
-    # (0 1) (x) = ( y )     (a b) (0 1) = (b a+b)   digit 1
-    # (1 1) (y)   (x+y)     (c d) (1 1)   (d c+d)
-
-    my $a = $one;     # initial  (1 0)
-    my $b = $zero;    #          (0 1)
-    my $c = $zero;
-    my $d = $one;
-    while (@digits) {
-      ### digit: $digits[0]
-      ### at: "($a $b)"
-      ### at: "($c $d)"
-
-      if (shift @digits) {      # low to high
-        ($a,$b) = ($b, $a+$b);
-        ($c,$d) = ($d, $c+$d);
+  } elsif ($self->{'alternating'}) {
+    foreach my $nbit (@nbits) {
+      ($x,$y) = ($y,$x);
+      if ($nbit) {
+        $x += $y;     # (x,y) -> (x+y,x), including swap
       } else {
-        $b += $a;
-        $d += $c;
+        $y += $x;     # (x,y) -> (y,x+y), including swap
       }
     }
-    ### final: "($a $b)"
-    ### final: "($c $d)"
 
-    # (a b) (1) = (a+b)
-    # (c d) (1)   (c+d)
-    return ($a+$b, $c+$d);
-
-
-    # $n = _reverse ($n);   # high to low
-    # my $x = $one;
-    # my $y = $one;
-    # while ($n > 1) {
-    #   ### at: "$x,$y  n=$n"
-    #   $x += $y;             # (x,y) -> (x+y,y)  digit 0
-    #   if ($n % 2) {
-    #     ($x,$y) = ($y,$x);  # (x,y) -> (y,x+y)  digit 1
-    #   }
-    #   $n = int($n/2);
-    # }
-    # return ($x,$y);
-
-  } elsif ($tree_type eq 'Bird') {
-    ### Bird tree ...
-
-    my $x = $one;
-    my $y = $one;
-    while (@digits) {
-      ### at: "$x,$y  digit=$digits[0]"
-
-      if (shift @digits) {      # low to high
-        ($x,$y) = ($x+$y,$x);   # (x,y) -> (x+y,x)
+  } elsif ($self->{'tree_type'} eq 'L') {
+    my $sub = 2;
+    foreach my $nbit (@nbits) {
+      if ($nbit) {
+        $y += $x;     # (x,y) -> (x,x+y)
+        $sub = 0;
       } else {
-        ($x,$y) = ($y,$x+$y);   # (x,y) -> (y,x+y)
+        $x += $y;     # (x,y) -> (x+y,y)
       }
     }
-    return ($x,$y);
-
-  } elsif ($tree_type eq 'Drib') {
-    ### Drib tree ...
-
-    #       X/Y
-    #     /     \
-    # (X+Y)/X  Y/(X+Y)
-    #
-    # (1 1) (x) = (x+y)     (a b) (1 1) = (a+b a)   digit 0
-    # (1 0) (y)   ( x )     (c d) (1 0)   (c+d c)
-    #
-    # (0 1) (x) = ( y )     (a b) (0 1) = (b a+b)   digit 1
-    # (1 1) (y)   (x+y)     (c d) (1 1)   (d c+d)
-
-    my $a = $one;     # initial  (1 0)
-    my $b = $zero;    #          (0 1)
-    my $c = $zero;
-    my $d = $one;
-    while (@digits) {
-      ### digit: $digits[0]
-      ### at: "($a $b)"
-      ### at: "($c $d)"
-      if (shift @digits) {      # low to high
-        ($a,$b) = ($a+$b, $a);
-        ($c,$d) = ($c+$d, $c);
-      } else {
-        ($a,$b) = ($b, $a+$b);
-        ($c,$d) = ($d, $c+$d);
-      }
-    }
-    ### final: "($a $b)"
-    ### final: "($c $d)"
-
-    # (a b) (1) = (a+b)
-    # (c d) (1)   (c+d)
-    return ($a+$b, $c+$d);
-
+    $x -= $sub;   # -2 at N=00...000 all zero bits
 
   } else {
-    ### SB tree ...
-    my $x = $one;
-    my $y = $one;
-    while (@digits) {
-      if (shift @digits) {      # low to high
+    ### nbits apply CW: @nbits
+    foreach my $nbit (@nbits) {   # high to low
+      if ($nbit) {
         $x += $y;     # (x,y) -> (x+y,y)
       } else {
         $y += $x;     # (x,y) -> (x,x+y)
       }
     }
-    return ($x,$y);
   }
+  ### result: "$x, $y"
+  return ($x,$y);
 }
-
-# sub _reverse {
-#   my ($n) = @_;
-#   my $rev = 1;
-#   while ($n > 1) {
-#     $rev = 2*$rev + ($n % 2);
-#     $n = int($n/2);
-#   }
-#   return $rev;
-# }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
@@ -306,140 +240,104 @@ sub xy_to_n {
   $y = round_nearest ($y);
   ### RationalsTree xy_to_n(): "$x,$y   $self->{'tree_type'}"
 
-  if (is_infinite($x)) {  # ($x == 0 && $y == 0)
+  if ($x < $self->{'n_start'} || $y < 1) {
+    return undef;
+  }
+  if (is_infinite($x)) {
     return $x;
   }
   if (is_infinite($y)) {
     return $y;
   }
-  if ($x < 1 || $y < 1) {
-    return undef;
+
+  my @quotients = _xy_to_quotients($x,$y)
+    or return undef;  # $x,$y have a common factor
+  ### @quotients
+
+  my @nbits;
+  if ($self->{'sep1s'}) {
+    $quotients[0]++;  # the integer part, making it 1 or more
+    foreach my $q (@quotients) {
+      push @nbits, (0) x ($q-1), 1;   # runs of "000..0001"
+    }
+    pop @nbits;  # no high 1-bit separator
+
+  } else {
+    if ($quotients[0] < 0) {   # X=0,Y=1 in tree_type="L"
+      return $self->{'n_start'};;
+    }
+
+    my $bit = 1;
+    foreach my $q (@quotients) {
+      push @nbits, ($bit) x $q;
+      $bit ^= 1;     # alternate runs of "00000" or "11111"
+    }
+    ### nbits in quotient order: @nbits
+
+    if ($self->{'alternating'}) {
+      # Flip every second bit, starting from the second lowest.
+      for (my $i = 1; $i <= $#nbits; $i += 2) {
+        $nbits[$i] ^= 1;
+      }
+    }
+
+    if ($self->{'tree_type'} eq 'L') {
+      # Flip all bits.
+      my $anyones = 0;
+      foreach my $nbit (@nbits) {
+        $nbit ^= 1;   # mutate array
+        $anyones ||= $nbit;
+      }
+      unless ($anyones) {
+        push @nbits, 0,0;
+      }
+    }
   }
 
-  # ($x,$y) = ($y,$x);
+  if ($self->{'reverse_bits'}) {
+    @nbits = reverse @nbits;
+  }
+  push @nbits, 1;   # high 1-bit
 
-  my $zero = $x * 0 * $y;   # inherit bignum 0
-  my $one = ($zero + 1);    # inherit bignum 1
-
-  if ($self->{'tree_type'} eq 'AYT') {
-
-    my $n = 0;
-    my $power = $one;   # bits generated low to high
-    for (;;) {
-      ### CW at: "$x,$y n=$n power=$power"
-      if ($x <= 1 && $y <= 1) {
-        last;
-      }
-      if ($x == $y) {
-        return undef;
-      }
-      if ($x > $y) {
-        $x -= $y;               # (x-y,y)   inverse of (x+y,y)
-      } else {
-        ($x,$y) = ($y-$x,$x);   # (y-x,x)   inverse of (y,x+y)
-        $n += $power;
-      }
-      $power *= 2;
-    }
-    return $n + $power;  # plus high bit
-
-  } elsif ($self->{'tree_type'} eq 'CW') {
-
-    my $n = $zero;
-    my $power = $one;   # bits generated low to high
-    for (;;) {
-      ### at: "$x,$y n=$n"
-      if ($x <= 1 && $y <= 1) {
-        last;
-      }
-      if ($x == $y) {
-        return undef;
-      }
-      if ($x > $y) {
-        $x -= $y;   # (x,y) <- (x-y, y)
-        $n += $power;
-      } else {
-        $y -= $x;   # (x,y) <- (x, y-x)
-      }
-      $power *= 2;
-    }
-    return $n + $power;  # plus high bit
-
-  } elsif ($self->{'tree_type'} eq 'Drib') {
-
-    my $n = $zero;
-    my $power = $one;   # bits generated low to high
-    for (;;) {
-      ### at: "$x,$y n=$n"
-      if ($x <= 1 && $y <= 1) {
-        last;
-      }
-      if ($x == $y) {
-        return undef;
-      }
-
-      #       X/Y
-      #     /     \
-      # (X+Y)/X  Y/(X+Y)
-      #
-      if ($x > $y) {
-        ($x,$y) = ($y, $x-$y);    # (x,y) <- (y, x-y)  digit 1
-        $n += $power;
-      } else {
-        ($x,$y) = ($y-$x, $x);    # (x,y) <- (y-x, x)  digit 0
-      }
-      $power *= 2;
-    }
-    return $n + $power;  # plus high bit
-
-  } elsif ($self->{'tree_type'} eq 'Bird') {
-
-    my $n = $one;  # bits generated high to low, this is the high bit
-    for (;;) {
-      ### at: "$x,$y n=$n"
-      if ($x <= 1 && $y <= 1) {
-        last;
-      }
-      if ($x == $y) {
-        return undef;
-      }
-
-      #       X/Y
-      #     /     \
-      # (X+Y)/X  Y/(X+Y)
-      #
-      $n *= 2;
-      if ($x > $y) {
-        ($x,$y) = ($y, $x-$y);    # (x,y) <- (y, x-y)  digit 1
-        $n += 1;
-      } else {
-        ($x,$y) = ($y-$x, $x);    # (x,y) <- (y-x, x)  digit 0
-      }
-    }
-    return $n;
-
-  } else { # SB
-
-    my $n = $one;  # bits generated high to low, this is the high bit
-    for (;;) {
-      ### at: "$x,$y n=$n"
-      if ($x <= 1 && $y <= 1) {
-        last;
-      }
-      $n *= 2;
-      if ($x == $y) {
-        return undef;
-      }
-      if ($x > $y) {
-        $x -= $y;   # (x,y) <- (x-y, y)
-        $n += 1;
-      } else {
-        $y -= $x;   # (x,y) <- (x, y-x)
-      }
-    }
-    ### xy_to_n() result: $n
+  ### @nbits
+  my $n = digit_join_lowtohigh (\@nbits, 2,
+                                $x*0*$y);   # inherit bignum 0
+  if ($self->{'tree_type'} eq 'L') {
+    return $n-2;
+  } else {
     return $n;
   }
+}
+
+# Return a list of the quotients from Euclid's greatest common divisor
+# algorithm on X,Y.  This is also the terms of the continued fraction
+# expansion of rational X/Y.
+#
+# The last term, the one at the end of the list, is decremented since this
+# is what the code above requires.  This term is the top-most quotient in
+# for example gcd(7,1) is 7=7*1+0 with q=7 returned as 6.
+#
+# If $x,$y have a common factor then the return is an empty list.  If
+# there's no common factor then returned list is always one or more
+# quotients.
+#
+sub _xy_to_quotients {
+  my ($x,$y) = @_;
+  my @ret;
+  for (;;) {
+    my ($q, $r) = _divrem($x,$y);
+    push @ret, $q;
+    last unless $r;
+    $x = $y;
+    $y = $r;
+  }
+
+  if ($y > 1) {
+    ### found Y>1 common factor, no N at this X,Y ...
+    return;
+  }
+  $ret[-1]--;
+  return @ret;
 }
 
 
@@ -460,7 +358,11 @@ sub rect_to_n_range {
 
   if ($x2 < 1 || $y2 < 1) {
     ### no values, rect below first quadrant
-    return (1,0);
+    if ($self->{'n_start'}) {
+      return (1,0);
+    } else {
+      return (0,0);
+    }
   }
 
   my $zero = ($x1 * 0 * $y1 * $x2 * $y2);  # inherit bignum
@@ -479,7 +381,8 @@ sub rect_to_n_range {
     if ($l2 > $level) { $level = $l2; }
   }
 
-  return (1, ($zero+2) ** ($level + 3));
+  return ($self->{'n_start'},
+          $self->{'n_start'} + (2+$zero) ** ($level + 3));
 }
 
 sub _bingcd_max {
@@ -516,8 +419,10 @@ sub _bingcd_max {
 
 sub tree_n_children {
   my ($self, $n) = @_;
+  $n += (1-$self->{'n_start'});
   if ($n >= 1) {
     $n *= 2;
+    $n -= (1-$self->{'n_start'});
     return ($n, $n+1);
   } else {
     return;
@@ -525,12 +430,12 @@ sub tree_n_children {
 }
 sub tree_n_num_children {
   my ($self, $n) = @_;
-  return ($n >= 1 ? 2 : 0);
+  return ($n >= $self->{'n_start'} ? 2 : 0);
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
-  if ($n >= 2) {
-    return int($n/2);
+  if (($n -= $self->{'n_start'}) > 0) {
+    $n = $self->{'n_start'} + int(($n-1)/2);
   } else {
     return undef;
   }
@@ -538,13 +443,11 @@ sub tree_n_parent {
 sub tree_n_to_depth {
   my ($self, $n) = @_;
   ### RationalsTree tree_n_to_depth(): $n
-  if ($n >= 1) {
-    my ($len, $level) = round_down_pow ($n, 2);
+  if (($n -= $self->{'n_start'}) >= 0) {
+    my ($len, $level) = round_down_pow ($n+1, 2);
     ### $len
     ### $level
     return $level;
-  } elsif ($n >= 1) {
-    return 0;
   } else {
     return undef;
   }
@@ -552,6 +455,20 @@ sub tree_n_to_depth {
 
 1;
 __END__
+
+
+  # xy_to_n() post-processing CW to make AYT
+  #
+  # if ($self->{'tree_type'} eq 'AYT') {
+  #   # AYT shift-xor "N xor (N<<1)" each bit xor with the one below it.  But
+  #   # the high 1-bit is left unchanged, hence "$#nbits-1".  At the low end
+  #   # for "N<<1" a 1-bit is shifted in, which is arranged by letting $i-1
+  #   # become -1 to get the endmost array element which is the high 1-bit.
+  #   foreach my $i (reverse 0 .. $#nbits-1) {
+  #     $nbits[$i] ^= $nbits[$i-1];
+  #   }
+  # }
+
 
 =for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped FractionsTree
 
@@ -570,23 +487,31 @@ Math::PlanePath::RationalsTree -- rationals by tree
 This path enumerates rational fractions X/Y in reduced form, ie. X and Y
 having no common factor.
 
-Fractions are traversed by rows of a binary tree which effectively
-represents a coprime pair X,Y by the steps of the binary greatest common
-divisor algorithm which prove X,Y coprime.  The steps "left" or "right" are
-encoded/decoded as an N value.
+The rationals are traversed by rows of a binary tree which effectively
+represents a coprime pair X,Y by steps of a subtraction-only greatest common
+divisor algorithm proving them coprime.  Or equivalently by bit runs with
+lengths which are the quotients in the Euclidean GCD algorithm, which is
+also the terms in the continued fraction representation of X/Y.
 
-There's five different types of tree.  In a given tree row they all have the
-same set of X/Y fractions, but in a different order reflecting different
-encodings of the N value (bits high to low or low to high, and possible bit
-flip at every second position).
+The SB, CW, Bird, Drib and AYT trees all have the same set of X/Y fractions
+in a row, but in a different order due to different encodings of the N
+value, high to low or low to high and possible bit flips.  The L tree has a
+shift which visits 0 as 0/1 too.
 
-See F<examples/rationals-tree.pl> in the PlanePath sources for a simple
-print of all the trees.
+The bit runs mean that N values are quite large for relatively modest sized
+rationals.  For example 167/3 is N=288230376151711741, a 58-bit number.  The
+tendency is for the tree to travel out to large rationals while yet to fill
+in small ones.  The worst is the integer X/1 requires an N of X many bits,
+and similarly 1/Y requiring Y bits.
+
+See F<examples/rationals-tree.pl> in the PlanePath sources for a printout of
+all the trees.
 
 =head2 Stern-Brocot Tree
 
-The default C<tree_type=E<gt>"SB"> is the tree of Moritz Stern and Achille
-Brocot.  The rows are fractions of increasing value.
+X<Stern, Moritz>X<Brocot, Achille>The default C<tree_type=E<gt>"SB"> is the
+tree of Moritz Stern and Achille Brocot.  The rows are fractions of
+increasing value.
 
     N=1                             1/1
                               ------   ------
@@ -597,7 +522,7 @@ Brocot.  The rows are fractions of increasing value.
     N=8 to N=15     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1
 
 Writing the parents in between the children as an "in-order" tree traversal
-of given depth has values in increasing order,
+to given depth has all values in increasing order too,
 
                  1/1
          1/2      |      2/1
@@ -606,11 +531,12 @@ of given depth has values in increasing order,
 
      1/3 1/2 2/3 1/1 3/2 2/1 3/1
                     ^
-                   4/3 here at next level
+                    |
+                    4/3 next level
 
 New values are a "mediant" (x1+x2)/(y1+y2) formed from the left and right
-parent in this flattening.  So the 4/3 shown above is from left parent 1/1
-and right parent 3/2 as mediant (1+3)/(1+2)=4/3.
+parent in this flattening.  So the next level 4/3 is left parent 1/1 and
+right parent 3/2 forming mediant (1+3)/(1+2)=4/3.
 
 Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
@@ -630,24 +556,24 @@ so is never reached.
          ----------------------------------------------------
          X=0   1    2    3    4    5    6    7    8    9   10
 
-The X=1 vertical is the fractions 1/Y at the left of each tree row, which is
+The X=1 vertical is the fractions 1/Y which is at the left of each tree row,
 at N value
 
-    Nstart=2^level
+    Nstart = 2^level
 
-The Y=1 horizontal is the Y/1 integers at the end each row which is
+The Y=1 horizontal is the X/1 integers at the end each row which is
 
-    Nend=2^(level+1)-1
+    Nend = 2^(level+1)-1
 
 =head2 Calkin-Wilf Tree
 
-C<tree_type=E<gt>"CW"> selects the tree of Neil Calkin and Herbert Wilf,
-"Recounting the Rationals",
+X<Calkin, Neil>X<Wilf, Herbert>C<tree_type=E<gt>"CW"> selects the tree of
+Neil Calkin and Herbert Wilf, "Recounting the Rationals",
 
     http://www.math.upenn.edu/%7Ewilf/website/recounting.pdf
 
-As noted above the values within each row are the same as the Stern-Brocot,
-as they are for all the trees, but they're in a different order.
+As noted above, the values within each row are the same as the Stern-Brocot,
+but in a different order.
 
     N=1                             1/1
                               ------   ------
@@ -662,7 +588,8 @@ the next.  So at 4/3 the denominator 3 becomes the numerator of the 3/5 to
 the right.  These values are Stern's diatomic sequence.
 
 Each row is symmetric in reciprocals, ie. reading from right to left is the
-reciprocals of reading left to right.
+reciprocals of reading left to right.  The numerators read left to right are
+the denominators read right to left.
 
 A node descends as
 
@@ -670,16 +597,17 @@ A node descends as
         /     \
     X/(X+Y)  (X+Y)/Y
 
-Taking these formulas in reverse up the tree shows how it relates to the
-binary greatest common divisor algorithm.  At a given node the smaller of P
+Taking these formulas in reverse up the tree shows how it relates to a
+subtraction-only greatest common divisor.  At a given node the smaller of P
 or Q is subtracted from the bigger,
 
        P/(Q-P)         (P-Q)/P
       /          or        \
     P/Q                    P/Q
 
-Plotting the N values by X,Y has the same X=1 vertical and Y=1 horizontal as
-the SB above, but the values in between are re-ordered.
+Plotting the N values by X,Y is as follows.  The X=1 vertical and Y=1
+horizontal are the same as the SB above, but the values in between are
+re-ordered.
 
     tree_type => "CW"
 
@@ -697,12 +625,12 @@ the SB above, but the values in between are re-ordered.
          -------------------------------------------------------------
            X=0   1    2    3    4    5    6    7    8    9   10
 
-In each node descent the left X/(X+Y) E<lt> 1 and the right (X+Y)/Y E<gt> 1,
-which means even N is above the X=Y diagonal and odd N is below.
+In each node left leg is X/(X+Y) E<lt> 1 and the right leg is (X+Y)/Y E<gt>
+1, which means even N is above the X=Y diagonal and odd N is below.
 
 N values for the SB and CW trees are converted by reversing bits.  At a
 given X,Y position if N = binary "1abcde" in the SB tree then at that same
-X,Y in the CW the N value is "1edcba".  For example at X=3,Y=4 the SB tree
+X,Y in the CW has N = binary "1edcba".  For example at X=3,Y=4 the SB tree
 has N=11=0b1011 and the CW has N=14=0b1110, a reversal of the bits below the
 high 1.
 
@@ -713,10 +641,14 @@ calculate the SB tree by taking the bits of N from low to high instead.
 
 =head2 Andreev and Yu-Ting Tree
 
-C<tree_type=E<gt>"AYT"> selects the tree described (independently is it?) by
-D. N. Andreev and Shen Yu-Ting.
+X<Andreev, D.N.>X<Yu-Ting, Shen>C<tree_type=E<gt>"AYT"> selects the tree
+described (independently is it?) by D. N. Andreev and Shen Yu-Ting.
 
    http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf
+
+   Shen Yu-Ting, "A Natural Enumeration of Non-Negative Rational Numbers --
+   An Informal Discussion", American Mathematical Monthly, 87, 1980,
+   pages 25-29.
    http://www.jstor.org/stable/2320374
 
 Their constructions are a one-to-one mapping between an integer N and
@@ -746,17 +678,23 @@ which means
         /     \
     (X+Y)/Y  Y/(X+Y)
 
-The (X+Y)/Y leg is the same as in the CW (on the right instead of the left).
-But Y/(X+Y) is not the same as the CW (which is X/(X+Y)).
+The left leg (X+Y)/Y is the same as in the CW has on the right.  But Y/(X+Y)
+is not the same as the CW (the other there being X/(X+Y)).
 
 The Y/(X+Y) right leg forms the Fibonacci numbers F(k)/F(k+1) at the end of
 each row, ie. at Nend=2^(level+1)-1.  And as noted by Andreev successive
-right legs at points N=4k+1 and N=4k+3 add up to 1, ie.
+right leg fractions N=4k+1 and N=4k+3 add up to 1, ie.
 
-    X/Y at N=4k+1   +   X/Y at N=4k+3   =  1
+    X/Y at N=4k+1  +  X/Y at N=4k+3  =  1
     Eg. 2/5 at N=13 and 3/5 at N=15 add up to 1
 
 Plotting the N values by X,Y gives
+
+=cut
+
+# math-image --path=RationalsTree,tree_type=AYT --all --output=numbers_xy --size=70x11
+
+=pod
 
     tree_type => "AYT"
 
@@ -776,29 +714,31 @@ Plotting the N values by X,Y gives
 
 The Y=1 horizontal is the X/1 integers at Nstart=2^level.  The X=1 vertical
 is the 1/Y fractions.  Those fractions always immediately follow the
-corresponding integer, thus N=Nstart+1 in that column.
+corresponding integer, so N=Nstart+1 in that column.
 
-In each node descent the left (X+Y)/Y E<gt> 1 and the right Y/(X+Y) E<lt> 1,
+In each node the left leg (X+Y)/Y E<gt> 1 and the right leg Y/(X+Y) E<lt> 1,
 which means odd N is above the X=Y diagonal and even N is below.
 
-The tree structure corresponds to Johannes Kepler's tree of fractions.  That
-tree starts from 1/2 and makes fractions A/B with AE<lt>B by descending to
-A/(A+B) and B/(A+B).  This is the same as the AYT tree with
+X<Kepler, Johannes>The tree structure corresponds to Johannes Kepler's tree
+of fractions (L<Math::PlanePath::FractionsTree>).  That tree starts from 1/2
+and makes fractions A/B with AE<lt>B by descending to A/(A+B) and B/(A+B).
+This is the same as the AYT tree with
 
-    A = Y          X = B-A
-    B = X+Y        Y = A
+    A = Y        AYT denominator is Kepler numerator
+    B = X+Y      AYT sum num+den is the Kepler denominator
 
-So the AYT denominator is the Kepler numerator, and the AYT sum num+den is
-the Kepler denominator.  (See FractionsTree.)
+    X = B-A      inverse
+    Y = A
 
 =head2 Bird Tree
 
-C<tree_type=E<gt>"Bird"> selects the Bird tree by Ralf Hinze, per
-"Functional Pearls: The Bird tree",
+X<Hinze, Ralf>C<tree_type=E<gt>"Bird"> selects the Bird tree by Ralf Hinze
 
+    "Functional Pearls: The Bird tree",
     http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf
 
-It's expressed recursively (illustrating Haskell features) and ends up as
+It's expressed recursively, illustrating Haskell programming features, and
+ends up as
 
     N=1                             1/1
                               ------   ------
@@ -808,8 +748,8 @@ It's expressed recursively (illustrating Haskell features) and ends up as
                        | |      | |      | |      | |
     N=8 to N=15     3/5  3/4  1/4 2/5  5/2 4/1  4/3 5/3
 
-The subtrees are plus one and reciprocal, or reciprocal and plus one
-(ie. the other way around),
+The subtrees are tree plus one reciprocal on the left, and tree reciprocal
+plus one on the right,
 
     1/(tree + 1)  and  (1/tree) + 1
 
@@ -838,25 +778,28 @@ at the Nstart=2^level or Nend=2^(level+1)-1 row endpoints.  Those 1/Y
 fractions are instead on a zigzag through the middle of the tree giving
 binary N=1010...etc of alternate 1 and 0 bits.  The integers X/1 in the Y=1
 vertical are similar, but N=11010...etc starting the alternation from a 1 in
-the second highest bit, because those integers are in the right hand half of
+the second highest bit, since those integers are in the right hand half of
 the tree.
 
 The Bird tree N values are related to the SB tree by inverting every second
-bit starting from the second after the highest 1, ie. xor "001010...".  So
+bit starting from the second after the high 1-bit, ie. xor "001010...".  So
 if N=1abcdefg binary then b,d,f are inverted, ie. an xor with binary
 00101010.  For example 3/4 in the SB tree is at N=11 = binary 1011.  Xor
 with 0010 for binary 1001 N=9 which is the 3/4 in the Bird tree.  The same
 xor goes back the other way Bird tree to SB tree.
 
-This xoring reflects the way the tree is mirrored, swapping left and right
-at each level.  Only every second bit is inverted because mirroring twice
-(or any even number of times) puts it back to the ordinary way.
+This xoring is a mirroring in the tree, swapping left and right at each
+level.  Only every second bit is inverted because mirroring twice puts it
+back to the ordinary way (likewise any even number of times).
 
 =head2 Drib Tree
 
-C<tree_type=E<gt>"Drib"> selects the Drib tree by Ralf Hinze.  It reverses
-the bits of N in the Bird tree (in a similar way that the SB and CW are bit
-reversals of each other).
+X<Hinze, Ralf>C<tree_type=E<gt>"Drib"> selects the Drib tree by Ralf Hinze.
+
+    http://oeis.org/A162911
+
+It reverses the bits of N in the Bird tree (in a similar way that the SB and
+CW are bit reversals of each other).
 
     N=1                             1/1
                               ------   ------
@@ -900,28 +843,123 @@ DribE<lt>-E<gt>CW, but working from the second lowest bit upwards, ie. xor
 binary "0..01010".  For example 4/1 is at N=15 binary 1111 in the CW tree.
 Xor with 0010 for 1101 N=13 which is 4/1 in the Drib tree.
 
+=head2 L Tree
+
+X<Luschny, Peter>C<tree_type=E<gt>"L"> selects the L-tree by Peter Luschny.
+
+    http://www.oeis.org/wiki/User:Peter_Luschny/SternsDiatomic
+
+It's a row-reversal of the CW tree, with a shift to include 0 as 0/1.
+
+                              0/1
+              1/2                             1/1
+      2/3             3/2             1/3             2/1
+  3/4     5/3     2/5     5/2     3/5     4/3     1/4     3/1
+4/5 7/4 3/7 8/3 5/8 7/5 2/7 7/2 5/7 8/5 3/8 7/3 4/7 5/4 1/5 4/1
+
+
+    N=0                             0/1
+                              ------   ------
+    N=1 to N=2             1/2               1/1
+                          /    \            /    \
+    N=3 to N=8         2/3      3/2      1/3      2/1
+                       | |      | |      | |      | |
+    N=9 to N=16     3/4  5/3  2/5 5/2  3/5 4/3  1/4 3/1
+
+Notice 3/4 to 1/4 is the corresponding row of the CW tree read
+right-to-left.
+
+=cut
+
+# math-image --path=RationalsTree,tree_type=L --all --output=numbers_xy --size=70x11
+
+=pod
+
+    tree_type => "L"
+
+    10  |    1021        37                  55       511
+     9  |     509   45        33   59        47  255      1020
+     8  |     253        25        19       127       508
+     7  |     125   21   17   27   23   63       252   44   36
+     6  |      61                  31       124
+     5  |      29    9   11   15        60   20   24   32
+     4  |      13         7        28        16        58
+     3  |       5    3        12    8        26   18        54
+     2  |       1         4        10        22        46
+     1  |  0    2    6   14   30   62  126  254  510 1022 2046
+    Y=0 |
+         -------------------------------------------------------
+         X=0    1    2    3    4    5    6    7    8    9   10
+
+N=0,2,6,14,30,etc along the row at Y=1 are powers 2^(X+1)-2.
+N=1,5,13,29,etc in the column at X=1 are similar powers 2^Y-3.
+
 =head2 Common Characteristics
 
-In all the trees the rows are permutations of the rationals arising from the
-SB tree and the Stern diatomic sequence.  The properties of the diatomic
-sequence mean that within a row from Nstart=2^level to Nend=2^(level+1)-1
-the rationals have totals
+In the SB, CW, Bird, Drib and AYT trees have the same set of rationals in
+each row, in different orders.  The properties of the diatomic sequence mean
+that within a row the totals are
 
-    sum rationals = (3 * 2^level - 1) / 2
+    in row N=2^level to N=2^(level+1)-1 inclusive
 
-    sum numerators = 3^level
+    sum X/Y     = (3 * 2^level - 1) / 2
+    sum X       = 3^level
+    sum 1/(X*Y) = 1
 
-For example at level=2, N=4 to N=7, the rationals are 1/3, 2/3, 3/2, 3/1.
-The sum of rationals 1/3+2/3+3/2+3/1 = 11/2 which is (3*2^2-1)/2=11/2.  The
-sum of numerators 1+2+3+3 = 9 is 3^2.
+For example the SB tree level=2, N=4 to N=7,
 
-All sorts of permutations are conceivable within a row, but the ones here
-have some relationship to X/Y descendants or tree sub-forms.  There's two
-choices high to low or low to high N bits, and then three bit flip forms: no
-flips, flip every second starting from the first, or flip every second
-starting from the second.  Only 5 of the 6 are implemented currently.  The
-missing one is the AYT formulas done low to high.  Does that have a name, or
-a particular significance?
+    sum X/Y     = 1/3 + 2/3 + 3/2 + 3/1 = 11/2 = (3*2^2-1)/2
+    sum X       = 1+2+3+3 = 9 = 3^2
+    sum 1/(X*Y) = 1/(1*3) + 1/(2*3) + 1/(3*2) + 1/(3*1) = 1
+
+Many permutations are conceivable within a row, but the ones here have some
+relationship to X/Y descendants or tree sub-forms.  The combinations are
+
+                        high to low    low to high  
+    runs 000 or 111         SB             CW       
+    alternating 0,1        Bird           Drib      
+    runs 100..00            --             AYT      
+
+There's no AYT runs done high to low currently.  Is it the top-down
+quotients runs by Paul D. Hanna, and Jerzy Czyz and William Self?
+
+=head2 Minkowski Question Mark
+
+The Minkowski question mark function is an alternating +/- sum of the
+quotients in the continued fraction of a real number,
+
+                     1         1            1
+    ?(r) = 2 * (1 - ---- + --------- - ------------ + ... )
+                    2^q0   2^(q0+q1)   2^(q0+q1+q2)
+
+For a rational r the continued fraction is finite and so the sum is rational
+too.  The pattern of + and - in the terms gives runs of bits the same as the
+N values in the SB tree.  The code here can calculate the ? function on a
+rational r=X/Y using
+
+    N = xy_to_n(X,Y) tree_type=>"SB"
+    level=floor(log2(N))       # row containing N
+    Nstart=2^level             # start of row containing N
+
+           2*(N-Nstart) + 1
+    ?(r) = ----------------
+               Nstart
+
+The effect of N-Nstart is to remove the high 1-bit and the division /Nstart
+scales down from integer N to a fraction, in particular if 0E<lt>rE<lt>1
+then 0E<lt>?(r)E<lt>1.
+
+    N = 1abcdef    in binary
+    ? = a.bcdef1
+
+For example ?(2/3) is X=2,Y=3 which is N=5 in SB.  It has Nstart=4 and so
+?(2/3)=(2*(5-4)+1)/4=3/4.  Or in binary N=101 gives Nstart=100 and
+N-Nstart=01 so 2*(N-Nstart)+1=011 and divide Nstart=100 for ?=0.11.
+
+In practice this is not an efficient way to handle the Minkowski question
+function, since it spreads quotients out to potentially long runs of bits.
+L<Math::ContinuedFraction> may be better, and allows repeating patterns of
+quadratic irrationals to be represented without truncation.
 
 =head1 FUNCTIONS
 
@@ -933,11 +971,19 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::RationalsTree-E<gt>new (tree_type =E<gt> $str)>
 
-Create and return a new path object.
+Create and return a new path object.  C<tree_type> (a string) can be
+
+    "SB"      Stern-Brocot
+    "CW"      Calkin-Wilf
+    "Bird"
+    "Drib"
+    "AYT"     Andreev, Yu-Ting
+    "L"
 
 =item C<$n = $path-E<gt>n_start()>
 
-Return 1, the first N in the path.
+Return the first N in the path.  This is 1 for SB, CW, Bird, Drib and AYT,
+but 0 for L.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
@@ -981,8 +1027,8 @@ C<$n> (undoing what C<tree_n_children()> appends).
 Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
 top of the tree at N=1 is depth=0, then its children depth=1, etc.
 
-The structure of the tree with 2 nodes per point means the depth is simply
-floor(log2(N)), so for example N=4 through N=7 are all depth=2.
+This is simply floor(log2(N)) since the tree has 2 nodes per point.  For
+example N=4 through N=7 are all depth=2.
 
 =back
 
@@ -993,35 +1039,41 @@ various forms,
 
     http://oeis.org/A007305   (etc)
 
-    A007305  - SB numerators, Farey fractions (extra 0,1)
-    A047679  - SB denominators
-    A007306  - SB num+den sum, Farey 0 to 1 part (extra 1,1)
-    A002487  - CW nums and dens, Stern diatomic sequence (extra 0)
-    A070990  - CW den-num diff, Stern diatomic first diffs (less 0)
-    A070871  - CW num*den product
-    A020650  - AYT numerators
-    A020651  - AYT denominators (Kepler numerators)
-    A086592  - AYT num+den sum (Kepler denominators)
-    A162909  - Bird numerators
-    A162910  - Bird denominators
-    A162911  - Drib numerators
-    A162912  - Drib denominators
+    A007305  SB X numerators, Farey fractions (extra 0,1)
+    A047679  SB Y denominators
+    A007306  SB X+Y sum, Farey 0 to 1 part (extra 1,1)
+    A002487  CW X and Y, Stern diatomic sequence (extra 0)
+    A070990  CW Y-X diff, Stern diatomic first diffs (less 0)
+    A070871  CW X*Y product
+    A020650  AYT X
+    A020651  AYT Y (Kepler X)
+    A086592  AYT X+Y sum (Kepler denominators)
+    A162909  Bird X
+    A162910  Bird Y
+    A162911  Drib X
+    A162912  Drib Y
 
-    A086893  - position Fibonacci F[n+1],F[n] in Stern diatomic,
-                is  N of F[n+1]/F[n] in CW
-                and N of X/1 in Drib, ie. N values in row at Y=1
-    A061547  - position Fibonacci F[n],F[n+1] in Stern diatomic,
-                is  N of F[n]/F[n+1] in CW
-                and N of 1/Y in Drib, ie. N values in column at X=1
+    A086893  position Fibonacci F[n+1],F[n] in Stern diatomic,
+               CW N of F[n+1]/F[n]
+               Drib N on row Y=1, being X/1
+    A061547  position Fibonacci F[n],F[n+1] in Stern diatomic,
+               CW N of F[n]/F[n+1]
+               Drib N in column X=1, being 1/Y
 
-    A054424  - permutation DiagonalRationals to SB
-    A054425  -   DiagonalRationals to SB with 0s at non-coprimes
-    A054426  -   inverse, SB to DiagonalRationals
-    A054427  - permutation coprimes to SB right hand X/Y>1
+    A059893  permutation SB<->CW, reverse bits below highest
+    A153153  permutation CW->AYT, reverse and un-Gray
+    A153154  permutation AYT->CW, reverse and Gray code
+    A154437  permutation AYT->Drib, Lamplighter low to high
+    A154438  permutation Drib->AYT, un-Lamplighter low to high
 
-    A081254  - Bird N in row Y=1, binary 110101010...10
-    A000975  - Bird N in column X=1, binary 1010..1010
-    A088696  - length of continued fraction SB left half (num/den<1)
+    A054424  permutation DiagonalRationals -> SB
+    A054426  inverse, SB -> DiagonalRationals
+    A054425  DiagonalRationals -> SB with 0s at non-coprimes
+    A054427  permutation coprimes -> SB right hand X/Y>1
+
+    A081254  Bird N in row Y=1, binary 110101010...10
+    A000975  Bird N in column X=1, binary 1010..1010
+    A088696  length of continued fraction SB left half (num/den<1)
 
 The sequences marked "extra ..." have one or two extra initial values over
 what the RationalsTree here gives, but are the same after that.  And the
@@ -1036,7 +1088,8 @@ L<Math::PlanePath::PythagoreanTree>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::DiagonalRationals>
 
-L<Math::NumSeq::SternDiatomic>
+L<Math::NumSeq::SternDiatomic>,
+L<Math::ContinuedFraction>
 
 =head1 HOME PAGE
 

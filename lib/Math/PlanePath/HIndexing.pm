@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -345,7 +345,7 @@ and repeating above it.
         +-------------------------------------------------------------
            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-The tiling essentially the same as the Sierpinski curve (see
+The tiling is essentially the same as the Sierpinski curve (see
 L<Math::PlanePath::SierpinskiCurve>).  The following is with two points per
 triangle.  Or equally well it could be thought of with those triangles
 further divided to have one point each, a little skewed.

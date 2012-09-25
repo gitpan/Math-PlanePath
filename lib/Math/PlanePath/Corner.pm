@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -172,8 +172,8 @@ sub rect_to_n_range {
     return (1, 0); # rect all negative, no N
   }
 
-  if ($x1 < 0) { $x1 = 0; }
-  if ($y1 < 0) { $y1 = 0; }
+  if ($x1 < 0) { $x1 *= 0; }   # "*=" to preserve bigint x1 or y1
+  if ($y1 < 0) { $y1 *= 0; }
 
   my $wider = $self->{'wider'};
   my $ylo = $y1;

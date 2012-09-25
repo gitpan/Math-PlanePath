@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 105;
+plan tests => 291;
 
 use lib 't';
 use MyTestHelpers;
@@ -39,7 +39,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 88;
+  my $want_version = 89;
   ok ($Math::PlanePath::FactorRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FactorRationals->VERSION,  $want_version,
@@ -110,6 +110,45 @@ my $n_start = $path->n_start;
               [ 81,  9,1 ],
 
               [ 45,  3,5 ], # 3^2*5
+
+              # Listing in Umberto Cerruti "Ordinare i Razionali: Gli Alberi
+              # di Keplero e di Calkin-Wilf"
+              # http://www.dm.unito.it/~cerruti/pdfblog/ordinamenti.pdf
+              # http://www.dm.unito.it/~cerruti/mathblog.html
+              # But inverted since mapping even B(2k)=-k odd B(2k-1)=k.
+              [ 1,  1,1 ],
+              [ 2,  1,2 ],
+              [ 3,  1,3 ],
+              [ 4,  2,1 ],
+              [ 5,  1,5 ],
+              [ 6,  1,6 ],
+              [ 7,  1,7 ],
+              [ 8,  1,4 ],
+              [ 9,  3,1 ],
+              [ 10,  1,10 ],
+              [ 11,  1,11 ],
+              [ 12,  2,3 ],
+              [ 13,  1,13 ],
+              [ 14,  1,14 ],
+              [ 15,  1,15 ],
+              [ 16,  4,1 ],
+              [ 17,  1,17 ],
+              [ 18,  3,2 ],
+              [ 19,  1,19 ],
+              [ 20,  2,5 ],
+              [ 21,  1,21 ],
+              [ 22,  1,22 ],
+              [ 23,  1,23 ],
+              [ 24,  1,12 ],
+              [ 25,  5,1 ],
+              [ 26,  1,26 ],
+              [ 27,  1,9 ],
+              [ 28,  2,7 ],
+              [ 29,  1,29 ],
+              [ 30,  1,30 ],
+
+              [ 66395120,  44,1805 ],
+
              );
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;

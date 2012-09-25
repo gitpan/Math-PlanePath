@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -112,7 +112,7 @@ sub rect_to_n_range {
   if ($y2 < 0) {
     return (1, 0); # rect all negative, no N
   }
-  if ($y1 < 0) { $y1 = 0; }
+  if ($y1 < 0) { $y1 *= 0; }   # "*=" to preserve bigint y1
 
   my ($xlo, $xhi) = (abs($x1) < abs($x2)   # lo,hi by absolute value
                      ? ($x1, $x2)
@@ -124,7 +124,7 @@ sub rect_to_n_range {
   if (($x1 >= 0) ^ ($x2 >= 0)) {
     # if x1>=0 and x2<0 or other way around then x=0 is covered and is the
     # smallest N
-    $xlo = 0;
+    $xlo *= 0;   # "*=" to preserve bigint
   }
 
   return ($self->xy_to_n ($xlo, $y1),

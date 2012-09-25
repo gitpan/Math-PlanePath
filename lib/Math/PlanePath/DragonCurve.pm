@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -133,6 +133,7 @@ sub new {
     foreach my $digit (reverse @digits) {  # high to low
       ### at: "x=$x,y=$y  len=$len digit=$digit state=$state"
       # ### state is: state_string($state)
+
       $state += $digit;
       $x += $len * $digit_to_x[$state];
       $y += $len * $digit_to_y[$state];
@@ -947,7 +948,7 @@ sum X+Y odd) and right,left for even points (meaning sum X+Y even).  But for
 arms 2 and 4 it's the other way around.  Without an easy way to determine
 the arm this doesn't seem to help.
 
-=head2 Turns
+=head2 Turn
 
 At each point the curve always turns either left or right, it never goes
 straight ahead.  The bit above the lowest 1 in N gives the turn direction.
@@ -969,6 +970,8 @@ This z bit can be picked out with some bit twiddling
     $mask = $n & -$n;          # lowest 1 bit, 000100..00
     $z = $n & ($mask << 1);    # the bit above it
     $turn = ($z == 0 ? 'left' : 'right');
+
+=head2 Next Turn
 
 The bits also give the turn after next by looking at the bit above the
 lowest 0.  This works because 011..11 + 1 = 100..00 so the bit above the

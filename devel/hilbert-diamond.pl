@@ -52,6 +52,6 @@ foreach my $n (1 .. 64) {
 }
 
 $image->save ('/tmp/x.png');
-system ('zgv /tmp/x.png');
+system ('xzgv /tmp/x.png');
 
 exit 0;

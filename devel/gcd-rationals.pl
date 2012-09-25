@@ -21,10 +21,24 @@
 use 5.010;
 use strict;
 use Math::PlanePath::GcdRationals;
+use List::Util 'min', 'max';
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  # nhi roughly max(num,den)**2
+  my $path = Math::PlanePath::GcdRationals->new (pairs_order => "diagonals_down");
+  foreach my $n (1 .. 5000) {
+    my ($x,$y) = $path->n_to_xy($n);
+    # my $nhi = 2 * max($x,$y)**2;
+    my $nhi =  max($x,$y)**2;
+    my $flag = ($nhi < $n ? '****' : '');
+    print "$n  $nhi$flag\n";
+  }
+  exit 0;
+}
 
 {
   require Math::PlanePath::DiagonalsOctant;

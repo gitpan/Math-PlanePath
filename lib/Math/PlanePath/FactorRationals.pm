@@ -34,6 +34,7 @@
 #
 # pn_encoding => 'alternate'
 # pn_encoding => 'negabinary'
+# maybe Umberto Cerruti B(2k)=-k odd B(2k-1)=k which is Y/X invert
 
 
 package Math::PlanePath::FactorRationals;
@@ -43,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -252,7 +253,7 @@ An X,Y is mapped to N by
 The effect is to distinguish prime factors coming from the numerator or
 denominator by making odd or even powers of those primes in N.
 
-A rational X/Y has prime factor p with exponent p^s for either positive or
+A rational X/Y has prime factor p with exponent p^s for positive or
 negative s.  Positive is in the numerator X, negative in the denominator Y.
 This is turned into a power p^k in N,
 
@@ -262,13 +263,14 @@ This is turned into a power p^k in N,
 The effect is to map a signed s to positive k,
 
      s           k
+    ---         ---
     -1    <->    1
      1    <->    2
     -2    <->    3
      2    <->    4
     etc
 
-For example (and other primes multiply in similarly),
+For example (and other primes multiply similarly),
 
    N=3   ->  3^-1 = 1/3
    N=9   ->  3^1  = 3/1
@@ -276,25 +278,26 @@ For example (and other primes multiply in similarly),
    N=81  ->  3^2  = 9/1
 
 Thinking in terms of X and Y values, the key is that since X and Y have no
-common factor a prime p appears in one of X or Y but not both.  The
-oddness/evenness of the p^k exponent in N can then encode which of the two
-it appears in.
+common factor any prime p appears in one of X or Y but not both.  The
+oddness/evenness of the p^k exponent in N can then encode which of the two X
+or Y it came from.
 
 =head2 Various Values
 
-The leftmost column at X=1 is integers with odd powers of prime factors.
-That column is the fractions 1/Y so the s exponents of the primes there are
-all negative and thus all exponents in N are odd.
+N=1,2,3,8,5,6,etc in the column X=1 is integers with odd powers of prime
+factors.  This is the fractions 1/Y so the s exponents of the primes are all
+negative and thus all exponents in N are odd.
 
-The bottom row at Y=1 is the perfect squares.  That row is the integers X/1
-so the s exponents there are all positive and thus in N become 2*s, giving
-simply N=X^2.
+N=1,4,9,16,etc in row Y=1 is the perfect squares.  That row is the
+integers X/1 so the s exponents there are all positive and thus in N become
+2*s, giving simply N=X^2.
 
 As noted by David M. Bradley, other mappings of signed E<lt>-E<gt> unsigned
 powers could give other enumerations.  The "negabinary" a[k]*(-2)^k is one
 possibility, or the "reversing binary representation" (-1)^k*2^ek of Knuth
 vol 2 section 4.1 exercise 27.  But the alternating + and - here keeps the
-growth of N down to roughly X^2*Y^2, per the N=X^2*Y^2/Yprimes above.
+growth of N down to roughly X^2*Y^2, per the N=X^2*Y^2/Yprimes formula
+above.
 
 =head1 FUNCTIONS
 
@@ -330,7 +333,7 @@ The current factorizing limits handle anything up to 2^32, and above that
 numbers comprised of small factors, but big numbers with big factors are not
 handled.  Is this a good idea?  For large inputs there's no merit in
 disappearing into a nearly-infinite loop.  But perhaps the limits could be
-configurable and/or some advanced factoring modules tried for a while
+configurable and/or some advanced factoring modules attempted for a while
 if/when available.
 
 =head1 OEIS
@@ -340,12 +343,12 @@ Integer Sequences in the following forms
 
     http://oeis.org/A071974   (etc)
 
-    A071974 - numerators, X
-    A071975 - denominators, Y
-    A019554 - product num*den, ie. X*Y
-    A102631 - n^2/squarefreekernel(n), column at X=1
+    A071974 - X coordinate, numerators
+    A071975 - Y coordinate, denominators
+    A019554 - X*Y product
+    A102631 - N in column X=1, n^2/squarefreekernel(n)
     A060837 - permutation DiagonalRationals -> FactorRationals
-    A071970 - permutation Stern/CW -> FactorRationals
+    A071970 - permutation RationalsTree CW -> FactorRationals
 
 The last A071970 is rationals taken in order of the Stern diatomic sequence
 stern[i]/stern[i+1], which is also the order of the Calkin-Wilf tree rows
@@ -386,10 +389,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=FactorRationals --all --scale=10"
-# End:
-#
-# math-image --path=FactorRationals --all --output=numbers

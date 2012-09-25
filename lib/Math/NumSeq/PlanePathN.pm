@@ -16,6 +16,15 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# line_type
+#    "TreeRow_Start"
+#    "TreeRow_End"
+#    "RowStart"
+#    "RowEnd"
+#    "Depth_Start"
+#    "Depth_End"
+
+
 package Math::NumSeq::PlanePathN;
 use 5.004;
 use strict;
@@ -23,7 +32,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -446,6 +455,8 @@ my %oeis_anum =
     # Not quite, OFFSET=1 vs start here Y=0
     # Y_axis   => 'A003622', # spectrum of phi 1,4,6,9
     # # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
+
+    # Y=1 every second => 'A005248', # every second Lucas number
    },
 
    # PeanoCurve
@@ -681,16 +692,22 @@ my %oeis_anum =
    { X_axis   => 'A086893', # pos of fibonacci F(n+1)/F(n) in Stern diatomic
      # OEIS-Catalogue: A086893 planepath=RationalsTree,tree_type=Drib
 
-     # Drib Y_axis -- almost A061547 fibonacci F(n)/F(n+1), but start=1
+     # Drib Y_axis
+     # Not quite, A061547 OFFSET=1 value=0 cf here Y=1 N=1
+     # Y_axis => 'A061547'# derangements or alternating bits plus pow4
    },
+   #
+   # RationalsTree CS
+   # Not quite, A000079 OFFSET=0 value=1 cf here X=1 N=1
+   # X_axis => 'A000079',  # powers 2^X
+   # Not quite, A007283 OFFSET=0 and doesn't have extra N=1 at Y=1
+   # Y_axis => 'A007283', # 3*2^n starting OFFSET=0 value=3
+   #
    # RationalsTree SB -- X_axis 2^n-1 but starting X=1
    # RationalsTree SB,CW -- Y_axis A000079 2^n but starting Y=1
    # RationalsTree AYT -- Y_axis A083318 2^n+1 but starting Y=1
    # RationalsTree Bird -- Y_axis almost A000975 no consecutive equal bits,
    #   but start=1
-
-   # RationalsTree Drib -- Y_axis almost A061547 derangements or
-   #    alternating bits plus pow4, but start=1 value=0
 
    do {
      my $squarespiral
@@ -960,12 +977,27 @@ my %oeis_anum =
    # OFFSET=0 value=0 cf value N=1 here
    #
    # SacksSpiral X_axis -- squares (i-1)^2, starting from i=1 value=0
+
+   # GcdRationals
+   # Not quite, starts X=1
+   # X_axis => triangular row
+   # Not quite, starts X=1 here cf OFFSET=0 in A000124
+   # Y_axis => 'A000124', # triangular+1
    #
-   # GcdRationals -- X_axis triangular row, but starting X=1
+   # GcdRationals,pairs_order=diagonals_down
+   # Not quite, start X=1 here cf A000290 starts OFFSET=1
+   # X_axis => 'A000290', # Y=1 row, perfect squares
+   # Not quite, A033638 starts two ones 1,1,...
+   # Y_axis => 'A033638', # quarter-squares + 1
    #
-   # GcdRationals -- Y_axis A000124 triangular+1 but starting i=1 cf
-   # OFFSET=0
-   #
+   # GcdRationals,pairs_order=diagonals_up
+   # Not quite, A002061 starts two ones 1,1,
+   # X_axis => 'A002061',
+   # Not quite, X=1 column squares+pronic, but no initial 0,0 of A002620
+   # Y_axis => 'A002620', # X=1 column
+   # Not quite, starting value=2 here
+   # Diagonal_above => 'A002522', # Y=X+1 diagonal, squares+1
+
    # MPeaks -- X_axis A045944 matchstick n(3n+2) but initial N=3
    # MPeaks -- Diagonal,Y_axis hexagonal first,second spoke, but starting
    # from 3
@@ -1122,6 +1154,19 @@ sub i_func_Diagonal_SE {
                                 -$i);
 }
 
+sub i_func_Depth_start {
+  my ($self, $i) = @_;
+  my $path_object = $self->{'planepath_object'};
+  my ($n_lo, $n_hi) = $path_object->_NumSeq_tree_depth_to_n_range ($i);
+  return $n_lo;
+}
+sub i_func_Depth_end {
+  my ($self, $i) = @_;
+  my $path_object = $self->{'planepath_object'};
+  my ($n_lo, $n_hi) = $path_object->_NumSeq_tree_depth_to_n_range ($i);
+  return $n_hi;
+}
+
 #------------------------------------------------------------------------------
 
 sub pred {
@@ -1132,39 +1177,59 @@ sub pred {
   }
   my ($x,$y) = $planepath_object->n_to_xy($value)
     or return 0;
-  return &{$self->{'pred_func'}} ($x,$y);
+  return &{$self->{'pred_func'}} ($self, $x,$y, $value);
 }
 sub pred_func_X_axis {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x >= 0 && $y == 0);
 }
 sub pred_func_Y_axis {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x == 0 && $y >= 0);
 }
 sub pred_func_X_neg {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x <= 0 && $y == 0);
 }
 sub pred_func_Y_neg {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x == 0 && $y <= 0);
 }
 sub pred_func_Diagonal {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x >= 0 && $x == $y);
 }
 sub pred_func_Diagonal_NW {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x <= 0 && $x == -$y);
 }
 sub pred_func_Diagonal_SW {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x <= 0 && $x == $y);
 }
 sub pred_func_Diagonal_SE {
-  my ($x,$y) = @_;
+  my ($self, $x,$y) = @_;
   return ($x >= 0 && $x == -$y);
+}
+
+sub pred_func_Depth_start {
+  my ($self, $x,$y, $n) = @_;
+  my $planepath_object = $self->{'planepath_object'};
+  my $depth = $planepath_object->tree_n_to_depth($n);
+  my ($nstart, $nend) = $planepath_object->_NumSeq_tree_depth_to_n_range($depth);
+  return ($n == $nstart);
+}
+sub pred_func_Depth_end {
+  my ($self, $x,$y, $n) = @_;
+  ### pred_func_Depth_end(): $n
+  my $planepath_object = $self->{'planepath_object'};
+  my $depth = $planepath_object->tree_n_to_depth($n);
+  ### $depth
+  my ($nstart, $nend)
+    = $planepath_object->_NumSeq_tree_depth_to_n_range($depth);
+  ### $nstart
+  ### $nend
+  return ($n == $nend);
 }
 
 #------------------------------------------------------------------------------
@@ -1270,6 +1335,17 @@ sub values_max {
     return $self->i_func_Diagonal_SE ($self->i_start);
   }
 
+  sub _NumSeq_Depth_start_min {
+    my ($path,$self) = @_;
+    my ($nstart, $nend) = $path->_NumSeq_tree_depth_to_n_range(0);
+    return $nstart;
+  }
+  sub _NumSeq_Depth_end_min {
+    my ($path,$self) = @_;
+    my ($nstart, $nend) = $path->_NumSeq_tree_depth_to_n_range(0);
+    return $nend;
+  }
+
   use constant _NumSeq_X_axis_i_start => 0;
   use constant _NumSeq_Y_axis_i_start => 0;
   use constant _NumSeq_X_axis_at_Y => 0;
@@ -1286,6 +1362,23 @@ sub values_max {
   #   my ($path, $value) = @_;
   #   return ($value == int($value)
   #           && ($path->y_negative || $value >= 0));
+  # }
+
+  use constant _NumSeq_tree_depth_to_n_range => ();
+  # use Math::PlanePath::Base::Generic;
+  # sub _NumSeq_tree_depth_to_n_range {
+  #   my ($self, $depth) = @_;
+  #   if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
+  #     return $depth;
+  #   }
+  #   if ($depth < 0) {
+  #     return undef;
+  #   }
+  #   my $n = $self->n_start;
+  #   while ($depth-- > 0) {
+  #     ($n) = $self->tree_n_children($n)
+  #     
+  #   }
   # }
 }
 
@@ -1607,18 +1700,51 @@ sub values_max {
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 }
-# { package Math::PlanePath::PythagoreanTree;
-# }
+{ package Math::PlanePath::PythagoreanTree;
+  use Math::PlanePath::Base::Generic;
+  sub _NumSeq_tree_depth_to_n_range {
+    my ($self, $depth) = @_;
+    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
+      return $depth;
+    }
+    if ($depth < 0) {
+      return undef;
+    }
+    my $nstart = (3**$depth + 1) / 2;
+    return ($nstart, 3*$nstart-2);
+  }
+}
 { package Math::PlanePath::RationalsTree;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_X_axis_at_Y => 1;
   use constant _NumSeq_X_axis_i_start => 1;
 
-  use constant _NumSeq_Y_axis_increasing => 1;
+  sub _NumSeq_Y_axis_increasing {
+    my ($self) = @_;
+    return ($self->{'tree_type'} eq 'L' ? 0 : 1);
+  }
+  sub _NumSeq_Y_axis_increasing_from_i {
+    my ($self) = @_;
+    return ($self->{'tree_type'} eq 'L' ? 2 : 1);
+  }
+  use constant _NumSeq_Y_axis_min => 1;
   use constant _NumSeq_Y_axis_at_X => 1;
   use constant _NumSeq_Y_axis_i_start => 1;
 
   use constant _NumSeq_Diagonal_increasing => 1;
+
+  use Math::PlanePath::Base::Generic;
+  sub _NumSeq_tree_depth_to_n_range {
+    my ($self, $depth) = @_;
+    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
+      return $depth;
+    }
+    if ($depth < 0) {
+      return undef;
+    }
+    my $nstart = 2**$depth;
+    return ($nstart, 2*$nstart-1);
+  }
 }
 { package Math::PlanePath::FractionsTree;
   use constant _NumSeq_Diagonal_increasing => 1;
@@ -1628,6 +1754,9 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Y_axis_at_X => 1;
   use constant _NumSeq_Y_axis_i_start => 2;
+
+  *_NumSeq_tree_depth_to_n_range
+    = \&Math::PlanePath::RationalsTree::_NumSeq_tree_depth_to_n_range;
 }
 { package Math::PlanePath::DiagonalRationals;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1840,6 +1969,36 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing   => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
+
+  # low 10111=23 increment to 11000=24
+  # 10111 ones=4 width=2^4
+
+  # Depth_start => 'A006046', # Nleft
+  # Depth_end => 'A074330', # Nright  but starting OFFSET=1 value=2
+  use Math::PlanePath::Base::Generic;
+  sub _NumSeq_tree_depth_to_n_range {
+    my ($self, $depth) = @_;
+    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
+      return $depth;
+    }
+    if ($depth < 0) {
+      return undef;
+    }
+
+    my $zero = my $n = ($depth * 0);    # inherit bignum 0
+    my $width = my $npower = $zero+1;   # inherit bignum 1
+     
+    foreach my $dbit (bit_split_lowtohigh($depth)) {
+      if ($dbit) {
+        $n = 2*$n + $npower;
+        $width *= 2;
+      }
+      $npower *= 3;
+    }
+    $n += $self->{'n_start'};
+
+    return ($n, $n+$width-1);
+  }
 }
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant _NumSeq_Y_axis_increasing   => 1; # when touched
@@ -2036,10 +2195,70 @@ sub values_max {
   use constant _NumSeq_Diagonal_NW_increasing => 1;
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
+
+  # Not quite, A147562 has OFFSET=0 value=0 whereas depth=0 Nend=1 here
+  # Depth_end => 'A147562'
+  sub _NumSeq_tree_depth_to_n_range {
+    my ($self, $depth) = @_;
+    my ($nstart, $nend) = Math::PlanePath::UlamWarburtonQuarter::_NumSeq_tree_depth_to_n_range($self, $depth)
+      or return;
+    return (4*$nstart-3,
+            4*$nend-3);
+  }
 }
 { package Math::PlanePath::UlamWarburtonQuarter;
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
+
+  # low 10111=23 increment to 11000=24
+  # 4^2*3+4*3^2+1*3^3 = 111     123
+  # 4^3*3 = 192                 150 +27 = 3^3
+
+  # Depth_end => 'A151920', # starting OFFSET=0 for value=1
+  use Math::PlanePath::Base::Generic;
+    use Math::PlanePath::Base::Digits;
+  sub _NumSeq_tree_depth_to_n_range {
+    my ($self, $depth) = @_;
+    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
+      return $depth;
+    }
+    if ($depth < 0) {
+      return undef;
+    }
+    my @bits = Math::PlanePath::Base::Digits::bit_split_lowtohigh($depth);
+    return (_NumSeq_tree_depth_to_n_start($self,$depth),
+            _NumSeq_tree_depth_to_n_start($self,$depth+1) - 1);
+  }
+  sub _NumSeq_tree_depth_to_n_start {
+    my ($self, $depth) = @_;
+    ### _NumSeq_tree_depth_to_n_start(): $depth
+    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
+      return $depth;
+    }
+    if ($depth < 0) {
+      return undef;
+    }
+    my $zero = $depth*0;
+    my @bits = Math::PlanePath::Base::Digits::bit_split_lowtohigh($depth+1)
+      or return 1;
+    ### @bits
+
+    my $level = $#bits;
+    my $four = 4+$zero;  # bignum 4
+    my $pow3 = 1+$zero;  # bignum 1
+    my $n = $zero + ($four**$level + 2)/3;
+
+    while (--$level >= 0) {
+      ### at: "level=$level pow3=$pow3"
+      if ($bits[$level]) {
+        ### add: $pow3 * $four**$level
+        $n += $pow3 * $four**$level;
+        $pow3 *= 3;
+      }
+    }
+    ### $n
+    return $n;
+  }
 }
 { package Math::PlanePath::CoprimeColumns;
   use constant _NumSeq_X_axis_increasing => 1;

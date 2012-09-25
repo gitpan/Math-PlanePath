@@ -18,9 +18,23 @@
 
 # Maybe:
 # NumSurround
-# NumSurround4
-# NumSurround6
+# NumSurround4     NSEW
+# NumSurroundDiag  diagonals
+# NumSurround6     triangular
 # NumSurround8
+# NumPrev4
+# Int = int(X/Y) cf A153036 SB integer part
+# Frac = XmodY/Y fractional
+# FracNum = abs(X) mod abs(Y)
+# ModXY = X mod Y range 0 to abs(Y)-1
+# ModYX
+# IntXY
+# IntYX
+# DivXY = X/Y fractional
+# DivYX = Y/X fractional
+# GCD LCM
+# Theta360 angle matching Radius,RSquared
+# Ttheta360 angle matching TRadius,TRSquared
 
 package Math::NumSeq::PlanePathCoord;
 use 5.004;
@@ -29,9 +43,15 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
+
+use Math::PlanePath;
+*_divrem = \&Math::PlanePath::_divrem;
+
+use Math::PlanePath::Base::Generic
+  'is_infinite';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -49,14 +69,18 @@ sub description {
 
 use constant::defer parameter_info_array =>
   sub {
-    my $choices = ['X', 'Y',
+    my $choices = [
+                   # 'GCD',
+                   # 'ModXY',
+                   # 'Int',
+
+                   'X', 'Y',
                    'Sum', 'SumAbs',
                    'Product',
                    'DiffXY', 'DiffYX', 'AbsDiff',
                    'Radius', 'RSquared',
                    'TRadius', 'TRSquared',
-                   'Depth',
-                   'NumChildren',
+                   'Depth', 'NumChildren',
                   ];
     return [
             _parameter_info_planepath(),
@@ -254,24 +278,27 @@ my %oeis_anum =
      )
    },
 
-   # 'Math::PlanePath::RationalsTree,tree_type=SB' =>
-   # {
-   #  # OFFSET n=0 cf N=1 here
-   #  # Y => 'A047679', # SB denominator
-   #  # # OEIS-Catalogue: A047679 planepath=RationalsTree coordinate_type=Y
-   #  #
-   #  # X => 'A007305',   # SB numerators but starting extra 0,1
-   #  # Sum => 'A007306', # Farey/SB denominators, but starting extra 1,1
-   #  # Product => 'A119272', # num*den, but starting extra 1,1
-   #  # cf A054424 permutation
-   # },
-   #
+   'Math::PlanePath::RationalsTree,tree_type=SB' =>
+   { Depth => 'A000523', # floor(log2(n)) starting OFFSET=1
+     # OEIS-Catalogue: A000523 planepath=RationalsTree coordinate_type=Depth
+
+     # Not quite, OFFSET n=0 cf N=1 here
+     # Y => 'A047679', # SB denominator
+     # # OEIS-Catalogue: A047679 planepath=RationalsTree coordinate_type=Y
+     #
+     # X => 'A007305',   # SB numerators but starting extra 0,1
+     # Sum => 'A007306', # Farey/SB denominators, but starting extra 1,1
+     # Product => 'A119272', # num*den, but starting extra 1,1
+     # cf A054424 permutation
+   },
    'Math::PlanePath::RationalsTree,tree_type=CW' =>
    {
     # Stern diatomic adjacent S(n)*S(n+1), or Conway's alimentary function
     Product => 'A070871',
+    Depth   => 'A000523', # floor(log2(n)) starting OFFSET=1
     # OEIS-Catalogue: A070871 planepath=RationalsTree,tree_type=CW coordinate_type=Product
-    #
+    # OEIS-Other:     A000523 planepath=RationalsTree,tree_type=CW coordinate_type=Depth
+
     # CW X and Y is Stern diatomic A002487, but RationalsTree starts N=0
     #    X=1,1,2 or Y=1,2 rather than from 0
     # CW DiffYX is A070990 stern diatomic first diffs, but RationalsTree
@@ -283,24 +310,50 @@ my %oeis_anum =
      Y      => 'A020651', # AYT denominator
      Sum    => 'A086592', # Kepler's tree denominators
      SumAbs => 'A086592', # Kepler's tree denominators
+     Depth  => 'A000523', # floor(log2(n)) starting OFFSET=1
      # OEIS-Catalogue: A020650 planepath=RationalsTree,tree_type=AYT coordinate_type=X
      # OEIS-Catalogue: A020651 planepath=RationalsTree,tree_type=AYT coordinate_type=Y
      # OEIS-Other: A086592 planepath=RationalsTree,tree_type=AYT coordinate_type=Sum
-     #
+     # OEIS-Other: A000523 planepath=RationalsTree,tree_type=AYT coordinate_type=Depth
+
      # DiffYX almost A070990 Stern diatomic first differences, but we have
      # an extra 0 at the start, and we start i=1 rather than n=0 too
+   },
+   'Math::PlanePath::RationalsTree,tree_type=CS' =>
+   {
+     Depth  => 'A000523', # floor(log2(n)) starting OFFSET=1
+     # OEIS-Other: A000523 planepath=RationalsTree,tree_type=CS coordinate_type=Depth
+
+     # # Not quite, OFFSET=0 value=1/1 corresponding to N=0 X=0/Y=1 here
+     # Sum    => 'A071585', # rats>=1 is CS num+den
+     # Y      => 'A071766', # rats>=1 CS denominator
+     # # OEIS-Catalogue: A071585 planepath=RationalsTree,tree_type=CS coordinate_type=X
+     # # OEIS-Catalogue: A071766 planepath=RationalsTree,tree_type=CS coordinate_type=Y
    },
    'Math::PlanePath::RationalsTree,tree_type=Bird' =>
    { X   => 'A162909', # Bird tree numerators
      Y   => 'A162910', # Bird tree denominators
+     Depth  => 'A000523', # floor(log2(n)) starting OFFSET=1
      # OEIS-Catalogue: A162909 planepath=RationalsTree,tree_type=Bird coordinate_type=X
      # OEIS-Catalogue: A162910 planepath=RationalsTree,tree_type=Bird coordinate_type=Y
+     # OEIS-Other: A000523 planepath=RationalsTree,tree_type=Bird coordinate_type=Depth
    },
    'Math::PlanePath::RationalsTree,tree_type=Drib' =>
-   { X => 'A162911', # Drib tree numerators
-     Y => 'A162912', # Drib tree denominators
+   { X      => 'A162911', # Drib tree numerators
+     Y      => 'A162912', # Drib tree denominators
+     Depth  => 'A000523', # floor(log2(n)) starting OFFSET=1
      # OEIS-Catalogue: A162911 planepath=RationalsTree,tree_type=Drib coordinate_type=X
      # OEIS-Catalogue: A162912 planepath=RationalsTree,tree_type=Drib coordinate_type=Y
+     # OEIS-Other:     A000523 planepath=RationalsTree,tree_type=Drib coordinate_type=Depth
+   },
+   'Math::PlanePath::RationalsTree,tree_type=L,n_start=0' =>
+   {
+     X => 'A174981', # numerator
+    # OEIS-Catalogue: A174981 planepath=RationalsTree,tree_type=L coordinate_type=X
+
+    # # Not quite, A002487 n=2 is denominator at N=0
+    # Y    => 'A002487', # denominator, stern diatomic
+    # # OEIS-Catalogue: A071585 planepath=RationalsTree,tree_type=CS coordinate_type=Y
    },
 
    'Math::PlanePath::FractionsTree,tree_type=Kepler' =>
@@ -308,13 +361,18 @@ my %oeis_anum =
      Y       => 'A086592', # Kepler half-tree denominators
      DiffYX  => 'A020650', # AYT numerators
      AbsDiff => 'A020650', # AYT numerators
-     # OEIS-Other: A020651 planepath=FractionsTree coordinate_type=X
+     Depth   => 'A000523', # floor(log2(n)) starting OFFSET=1
+     # OEIS-Other:     A020651 planepath=FractionsTree coordinate_type=X
      # OEIS-Catalogue: A086592 planepath=FractionsTree coordinate_type=Y
-     # OEIS-Other: A020650 planepath=FractionsTree coordinate_type=DiffYX
-     # OEIS-Other: A020650 planepath=FractionsTree coordinate_type=AbsDiff
-     #
-     # cf Sum A086593 every second denominator, but Sum from 1/2 value=3
-     # skipping the initial value=2 in A086593
+     # OEIS-Other:     A020650 planepath=FractionsTree coordinate_type=DiffYX
+     # OEIS-Other:     A020650 planepath=FractionsTree coordinate_type=AbsDiff
+     # OEIS-Other:     A000523 planepath=FractionsTree coordinate_type=Depth
+
+     # Not quite, Sum is from 1/2 value=3 skipping the initial value=2 in
+     # A086593 (which would be 1/1).  Also is every second denominator, but
+     # again no initial value=2.
+     # Sum => 'A086593',
+     # Y_odd => 'A086593',   # at N=1,3,5,etc
    },
 
 
@@ -349,7 +407,7 @@ my %oeis_anum =
    'Math::PlanePath::Diagonals,direction=up,n_start=0' =>
    { X        => 'A025581',  # \ opposite of direction="down"
      Y        => 'A002262',  # /
-     Sum      => 'A003056',  # \ 
+     Sum      => 'A003056',  # \
      SumAbs   => 'A003056',  # | same as direction="down'
      Product  => 'A004247',  # |
      AbsDiff  => 'A049581',  # |
@@ -576,9 +634,10 @@ my %oeis_anum =
    #   # OEIS-Catalogue: A027750 planepath=DivisibleColumns coordinate_type=Y
    # },
 
-   # A027751 is almost proper divisor Y values, but has an extra 1 at the
-   # start from reckoning by convention 1 as a proper divisor of 1 -- though
-   # that's inconsistent with A032741 count of proper divisors being 0.
+   # Not quite, A027751 proper divisor Y values, but has an extra 1 at the
+   # start from reckoning by convention 1 as a proper divisor of 1
+   # -- though that's inconsistent with A032741 count of proper divisors
+   # being 0.
    #
    # 'Math::PlanePath::DivisibleColumns,divisor_type=proper' =>
    # { Y => 'A027751',  # proper divisors by rows
@@ -1008,6 +1067,57 @@ sub _coordinate_func_NumSurround8 {
     return $count;
   }
 }
+use constant _INFINITY => do {
+  my $x = 999;
+  foreach (1 .. 20) {
+    $x *= $x;
+  }
+  $x;
+};
+sub _coordinate_func_Int {
+  my ($self, $n) = @_;
+  ### _coordinate_func_Int(): $n
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  ### $x
+  ### $y
+  $y = abs($y) || return _INFINITY;   # X/0
+  $x = abs($x);
+  if ($y == int($y)) {
+    my ($q) = _divrem($x,$y);
+    return $q;
+  } else {
+    return int($x/$y);
+  }
+}
+sub _coordinate_func_ModXY {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  $y = abs($y) || return 0;
+  if ($y == int($y)) {
+    my ($q,$r) = _divrem($x,$y);
+    return $r;
+  } else {
+    return $x % $y;
+  }
+}
+
+use Math::PlanePath::GcdRationals;
+sub _coordinate_func_GCD {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  $x = abs(int($x));
+  $y = abs(int($y));
+  if ($x == 0) {
+    return $y;
+  }    
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
+  return Math::PlanePath::GcdRationals::_gcd($x,$y);
+}
+
 
 #------------------------------------------------------------------------------
 
@@ -1105,6 +1215,12 @@ sub values_max {
   use constant _NumSeq_Coord_NumSurround4_integer => 1;  # always integers
   use constant _NumSeq_Coord_NumSurround6_integer => 1;
   use constant _NumSeq_Coord_NumSurround8_integer => 1;
+  use constant _NumSeq_Coord_Int_min => 0;
+  use constant _NumSeq_Coord_Int_max => undef;
+  use constant _NumSeq_Coord_Int_integer => 1;
+  use constant _NumSeq_Coord_GCD_min => 0;
+  use constant _NumSeq_Coord_GCD_max => undef;
+  use constant _NumSeq_Coord_GCD_integer => 1;
 
   sub _NumSeq_Coord_X_min {
     my ($self) = @_;
@@ -1322,6 +1438,8 @@ sub values_max {
   use constant _NumSeq_Coord_NumChildren_integer => 1;
   use constant _NumSeq_Coord_Depth_min => 0;
   use constant _NumSeq_Coord_Depth_max => 0;
+  use constant _NumSeq_Coord_Depth_integer => 1;
+  use constant _NumSeq_Coord_Depth_non_decreasing => 1; # usually
 }
 
 # { package Math::PlanePath::SquareSpiral;
@@ -1547,6 +1665,7 @@ sub values_max {
   *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_X_min;
   *_NumSeq_Coord_DiffXY_min = \&_NumSeq_Coord_X_min;
   *_NumSeq_Coord_AbsDiff_min = \&_NumSeq_Coord_X_min;
+  use constant _NumSeq_Coord_Int_min => 1;  # triangular X>=Y so X/Y >= 1
 
   sub _NumSeq_Coord_RSquared_min {
     my ($self) = @_;
@@ -1634,6 +1753,23 @@ sub values_max {
       return $_NumSeq_Coord_AbsDiff_min{$self->{'coordinates'}};
     }
   }
+  {
+    my %_NumSeq_Coord_Int_min = (PQ => 1, # octant X>=Y+1 so X/Y>=1
+                                );
+    sub _NumSeq_Coord_Int_min {
+      my ($self) = @_;
+      return $_NumSeq_Coord_Int_min{$self->{'coordinates'}};
+    }
+    *_NumSeq_Int_min_is_infimum = \&_NumSeq_Coord_Int_min;
+  }
+  {
+    my %_NumSeq_Coord_GCD_min = (PQ => 1, # no common factor
+                                );
+    sub _NumSeq_Coord_GCD_max {
+      my ($self) = @_;
+      return $_NumSeq_Coord_GCD_min{$self->{'coordinates'}};
+    }
+  }
 
   sub _NumSeq_Coord_Radius_integer {
     my ($self) = @_;
@@ -1653,11 +1789,15 @@ sub values_max {
   use constant _NumSeq_Coord_Depth_max => undef;
 }
 { package Math::PlanePath::RationalsTree;
-  use constant _NumSeq_Coord_X_min => 1;
+  sub _NumSeq_Coord_X_min {
+    my ($self) = @_;
+    return ($self->{'tree_type'} eq 'L' ? 0 : 1);
+  }
   use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_NumChildren_min => 2;
   use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_Depth_max => undef;
+  use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 }
 { package Math::PlanePath::FractionsTree;
   use constant _NumSeq_Coord_X_min => 1;
@@ -1666,6 +1806,8 @@ sub values_max {
   use constant _NumSeq_Coord_NumChildren_min => 2;
   use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_Depth_max => undef;
+  use constant _NumSeq_Coord_Int_max => 0;  # 0 < X/Y < 1
+  use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 }
 # { package Math::PlanePath::PeanoCurve;
 # }
@@ -1692,8 +1834,9 @@ sub values_max {
 }
 # { package Math::PlanePath::GosperSide;
 # }
-# { package Math::PlanePath::KochCurve;
-# }
+{ package Math::PlanePath::KochCurve;
+  use constant _NumSeq_Coord_Int_min => 0;  # X>Y so X/Y>1
+}
 { package Math::PlanePath::KochPeaks;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y never occurs
   use constant _NumSeq_Coord_SumAbs_min => 1; # minimum X=1,Y=0
@@ -1724,6 +1867,7 @@ sub values_max {
 { package Math::PlanePath::QuadricCurve;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   use constant _NumSeq_Coord_DiffXY_min => 0; # triangular Y<=X so X-Y>=0
+  use constant _NumSeq_Coord_Int_min => 1;  # X>=Y so X/Y>=1
 }
 { package Math::PlanePath::QuadricIslands;
   use constant _NumSeq_Coord_X_integer => 0;
@@ -1750,16 +1894,25 @@ sub values_max {
   *_NumSeq_Coord_SumAbs_non_decreasing = \&_NumSeq_Coord_Sum_non_decreasing;
   use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_Depth_max => undef;
+  sub _NumSeq_Coord_Int_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'diagonal' ? undef
+           : 1); # triangular X<=Y so X/Y<=1
+  }
 }
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   *_NumSeq_Coord_DiffXY_max
     = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_DiffXY_max;
+  *_NumSeq_Coord_Int_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_Int_max;
 }
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   *_NumSeq_Coord_DiffXY_max
     = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_DiffXY_max;
+  *_NumSeq_Coord_Int_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_Int_max;
 }
 { package Math::PlanePath::SierpinskiCurve;
   {
@@ -1789,6 +1942,14 @@ sub values_max {
             ? 1       # octant Y<=X-1 so X-Y>=1
             : undef); # more than 1 arm, DiffXY goes negative
   }
+  sub _NumSeq_Coord_Int_min {
+    my ($self) = @_;
+    return ($self->arms_count == 1
+            ? 1       # octant X>Y so X/Y>1
+            : undef); # more than 1 arm
+  }
+  *_NumSeq_Int_min_is_infimum = \&_NumSeq_Coord_Int_min;
+
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
   use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
@@ -1798,6 +1959,8 @@ sub values_max {
   *_NumSeq_Coord_X_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_X_min;
   *_NumSeq_Coord_Sum_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Sum_min;
   *_NumSeq_Coord_DiffXY_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_DiffXY_min;
+  *_NumSeq_Coord_Int_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Int_min;
+  *_NumSeq_Coord_Int_is_infimum = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Int_is_infimum;
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
   use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
@@ -1805,6 +1968,7 @@ sub values_max {
 }
 { package Math::PlanePath::HIndexing;
   use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
+  use constant _NumSeq_Coord_Int_max => 1; # upper octant X<=Y so X/Y<=1
 }
 { package Math::PlanePath::DragonCurve;
   use constant _NumSeq_Coord_NumSurround4_min => 2;
@@ -1860,6 +2024,7 @@ sub values_max {
     my ($self) = @_;
     return $self->{'width'} - 1;
   }
+  *_NumSeq_Coord_Int_max = \&_NumSeq_Coord_X_max;
 
   sub _NumSeq_Coord_Y_increasing {
     my ($self) = @_;
@@ -1973,6 +2138,10 @@ sub values_max {
             ? 0
             : undef);
   }
+  sub _NumSeq_Coord_Int_max {
+    my ($self) = @_;
+    return ($self->{'step'} <= 1 ? 0 : undef);
+  }
 
   sub _NumSeq_Coord_Radius_integer {
     my ($self) = @_;
@@ -2003,6 +2172,7 @@ sub values_max {
   # ENHANCE-ME: more restrictive than this for many rules
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
+  use constant _NumSeq_Coord_Int_max => 0;
 
   # single cell
   # 111 -> any
@@ -2181,29 +2351,35 @@ sub values_max {
 }
 { package Math::PlanePath::UlamWarburton;
   use constant _NumSeq_Coord_NumChildren_max => 4;
+  use constant _NumSeq_Coord_Depth_max => undef;
 }
 { package Math::PlanePath::UlamWarburtonQuarter;
   use constant _NumSeq_Coord_NumChildren_max => 3;
+  use constant _NumSeq_Coord_Depth_max => undef;
 }
 { package Math::PlanePath::DiagonalRationals;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
   use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
+  use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 }
 { package Math::PlanePath::FactorRationals;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
+  use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 }
 { package Math::PlanePath::GcdRationals;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
+  use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 }
 { package Math::PlanePath::CoprimeColumns;
   use constant _NumSeq_Coord_X_min => 1;
   use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
   use constant _NumSeq_Coord_X_non_decreasing => 1; # columns across
+  use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 }
 { package Math::PlanePath::DivisibleColumns;
   # X=2,Y=1 when proper

@@ -17,7 +17,6 @@
 
 
 # 
-# bit_split_lowtohigh
 # bit_join_lowtohigh
 
 
@@ -26,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 88;
+$VERSION = 89;
 
 use Exporter;
 @ISA = ('Exporter');

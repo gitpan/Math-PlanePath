@@ -21,29 +21,386 @@
 use 5.010;
 use strict;
 use POSIX ();
+use List::Util 'sum';
+use Math::PlanePath::Base::Digits
+  'round_down_pow',
+  'digit_split_lowtohigh';
+use Math::PlanePath::RationalsTree;
+use Math::ContinuedFraction;
 
 # uncomment this to run the ### lines
-use Devel::Comments;
+#use Smart::Comments;
+
 
 {
-  require Math::PlanePath::RationalsTree;
-  require Math::ContinuedFraction;
-  my $sb = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
-  for (my $n = $sb->n_start; $n < 3000; $n++) {
-    my ($x,$y) = $sb->n_to_xy ($n);
-    next if $x > $y;
-    my $cf = Math::ContinuedFraction->from_ratio($x,$y);
-    my $cfstr = $cf->to_ascii;
-    my $cfaref = $cf->to_array;
-    my $cflen = scalar(@$cfaref);
-    my $nhex = sprintf '0x%X', $n;
-    print "$nhex $n  $x/$y  $cflen  $cfstr\n";
+  # L-tree OFFSET=0 for 0/1
+  #                  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+  # A174981(n)   num 0, 1, 1, 2, 3, 1, 2, 3, 5, 2, 5, 3, 4, 1, 3,
+  # A002487(n+2) den 1, 2, 1, 3, 2, 3, 1, 4, 3, 5, 2, 5, 3, 4, 1,
+  # A174980 den, stern variant
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+  foreach my $n (0 .. 15) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $x //= 'undef';
+    $y //= 'undef';
+    my $ln = cw_to_l($n);
+    print "$n  $x,$y   $ln\n";
+  }
+
+  sub cw_to_l {
+    my ($n) = @_;
+    $n++;
+    my ($pow,$exp) = round_down_pow($n,2);
+    $n ^= $pow-1;
+    # $n--;
+    # $n |= $pow;
+    return $n-1;
+  }
+  exit 0;
+}
+
+
+{
+  # permutations in N row
+  my $choices = Math::PlanePath::RationalsTree->parameter_info_hash
+    ->{'tree_type'}->{'choices'};
+  my %seen;
+  foreach my $from_type (@$choices) {
+    my $from_path = Math::PlanePath::RationalsTree->new (tree_type => $from_type);
+
+    foreach my $to_type (@$choices) {
+      next if $from_type eq $to_type;
+      my $to_path = Math::PlanePath::RationalsTree->new (tree_type => $to_type);
+      {
+        my $str = '';
+        foreach my $from_n (2 .. 25) {
+          my ($x,$y) = $from_path->n_to_xy($from_n);
+          my $to_n = $to_path->xy_to_n($x,$y);
+          $str .= "$to_n,";
+        }
+        next if $seen{$str}++;
+        print "$from_type->$to_type  http://oeis.org/search?q=$str\n";
+      }
+      {
+        my $str = '';
+        foreach my $from_n (2 .. 25) {
+          my ($x,$y) = $from_path->n_to_xy($from_n);
+          my $to_n = $to_path->xy_to_n($x,$y);
+          $to_n ^= $from_n;
+          # $str .= "$to_n,";
+          $str .= sprintf '%d,', $to_n;
+        }
+        next if $seen{$str}++;
+        print "$from_type->$to_type XOR  http://oeis.org/search?q=$str\n";
+      }
+    }
+    print "\n";
   }
   exit 0;
 }
 
 {
-  require Math::PlanePath::RationalsTree;
+  # Minkowski question mark
+  #
+  # cf = [0,a1,a2,...] range 0to1
+  #             (-1)^(k-1)
+  # ? = sum  -----------
+  #      k    2^(a1+...+ak-1)
+  # (-1)^(1-1)/2^a1 = 1/2^a1 = 0.000..001 binary
+
+  # + (-1)^(1-2)/2^(a1+a2) = -1/2^(a1+a2)
+  #   = 0.0001 - 0.000000001
+  #   = 0.000011111
+  #
+  # 0to1 cf = [0,a0,a1,...]
+  # ? = 2*(1 - 2^-a0 + 2^-(a0+a1) - 2^-(a0+a1+a2) + ...)
+  #
+  # ? =
+  #
+  # ?(1/k^n) = 1/2^(k^n-1)
+  # ?(0) = 0
+  # ?(1/3) = 1/4
+  require Math::BaseCnv;
+  require Math::BigRat;
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+
+  # ?(1/3)=1/4  ?(1/2)=1/2  ?(2/3)=3/4
+  foreach my $xy ('1/3', '1/2', '2/3') {
+    my ($x,$y) = split m{/}, $xy;
+    try ($x,$y);
+  }
+
+  foreach my $n ($path->n_start .. 64) {
+    my ($x,$y) = $path->n_to_xy($n);
+    try ($x,$y);
+  }
+
+  foreach my $xy ('1/3', '1/2', '2/3') {
+    my ($x,$y) = split m{/}, $xy;
+    try ($x,$y);
+  }
+
+  sub try {
+    my ($x,$y) = @_;
+    my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+    my $cfrac_str = $cfrac->to_ascii;
+    my $n = $path->xy_to_n($x,$y);
+    my $nbits = Math::BaseCnv::cnv($n,10,2);
+    my $mp = minkowski_by_path($x,$y);
+    my $mc = minkowski_by_cfrac($x,$y);
+    my $mpstr = to_binary($mp);
+    my $mcstr = to_binary($mc);
+    print "$x/$y  $nbits  p=$mp c=$mc   $cfrac_str\n";
+  }
+
+  # pow=2^level <= N
+  # ? = (2*(N-pow) + 1) / pow
+  #   = (2N - 2pow + 1) / pow
+  #   = (2N+1)/pow - 2pow/pow
+  #   = (2N+1)/pow - 2
+  #   = 2*((N+1/2)/pow - 1)
+  sub minkowski_by_path {
+    my ($x,$y) = @_;
+    my $n = $path->xy_to_n($x,$y);
+    my ($pow,$exp) = round_down_pow($n,2);
+    return Math::BigRat->new(2*$n+1) / $pow - 2;
+    return Math::BigRat->new(2*($n-$pow) + 1) / $pow;
+
+    return (2*($n-$pow) + 1) / $pow;
+    return (2*$pow-1 - $n) / $pow;
+    return $n / (2*$pow);
+  }
+  # q0, q1, ...
+  #
+  #                (-1)^k
+  # ? = sum -------------------
+  #      k  2^(q0+q1+...qk - 1)
+  sub minkowski_by_cfrac {
+    my ($x,$y) = @_;
+    my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+    my $aref = $cfrac->to_array;
+    ### $aref
+    my $ret = 1;
+    my $sign = Math::BigRat->new(1);
+    my $pos = 0;
+    foreach my $q (@$aref) {
+      $sign = -$sign;
+      $pos += $q;
+      $ret += $sign / (Math::BigInt->new(2) ** $pos);
+    }
+    return 2*$ret;
+  }
+
+  # pow=2^level <= N
+  # F = (2*(N-pow) + 1) / pow / 2
+  #   = ((N-pow) + 1/2) / pow
+  sub F_by_path {
+    my ($x,$y) = @_;
+    my $n = $path->xy_to_n($x,$y);
+    my ($pow,$exp) = round_down_pow($n,2);
+    return Math::BigRat->new(2*$n+1) / $pow - 2;
+    return Math::BigRat->new(2*($n-$pow) + 1) / $pow;
+  }
+  # q0, q1, ...
+  #
+  #                (-1)^k
+  # F = sum -------------------
+  #      k  2^(q0+q1+...qk)
+  sub F_by_cfrac {
+    my ($x,$y) = @_;
+    my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+    my $aref = $cfrac->to_array;
+    ### $aref
+    my $ret = 1;
+    my $sign = Math::BigRat->new(1);
+    my $pos = 0;
+    foreach my $q (@$aref) {
+      $sign = -$sign;
+      $pos += $q;
+      $ret += $sign / (Math::BigInt->new(2) ** $pos);
+    }
+    return $ret;
+  }
+
+  sub to_binary {
+    my ($n) = @_;
+    my $str = sprintf '%b', int($n);
+    $n -= int($n);
+    if ($n) {
+      $str .= '.';
+      while ($n) {
+        $n *= 2;
+        if ($n >= 1) {
+          $n -= 1;
+          $str .= '1';
+        } else {
+          $str .= '0';
+        }
+      }
+    }
+    return $str;
+  }
+  exit 0;
+}
+
+
+{
+  # 49/22
+  # ### nbits apply CW: [
+  # ###                   '0',
+  # ###                   '1',
+  # ###                   '1',
+  # ###                   '0',
+  # ###                   '0',
+  # ###                   '0',
+  # ###                   '0',
+  # ###                   '1',
+  # ###                   '1'
+  # ###                 ]
+
+  # CS
+  # 49/22
+  # 27/22  X
+  # 5/22   X
+  # 5/17   Y
+  # 5/12   Y
+  # 5/7    Y
+  # 5/2    Y
+  # 3/2    X
+  # 1/2    X
+  # 1/1    Y
+
+
+  # 1      .       = 1
+  # 10     .0.     = 2
+  # 100    .0.0.   = 3
+  # 1000   .0.0.0. = 4
+
+  # 1 00 1000 10 1
+  #   \/ \--/ \/ ^
+  #   2    4  2  2
+
+  # 0,
+  # 1,       .   1
+  #
+  # 1/2      .0. = .. = 2 -> 2 = 1/2
+  # 2        .1. = 1,1 -> 0,2 = 0 + 1/(0+1/2) = 2
+  #
+  # 3/2      .0.0. = ... = 3 = 0 + 1/3
+  # 1/3      .0.1. = ..1. = 2,1 -> 1,2 = 0+1/(1+1/2) = 2/3
+  # 2/3      .1.0. = .1.. = 1,2 -> 0,3 = 0+1/(0+1/3) = 3
+  # 3        .1.1. = 1,1,1 -> 0,1,2 = 0+1/(0+1/(1+1/2)) = 3/2
+  #
+  # 100 .. 111             SB  1/3 2/3 3/2 3/1
+  # 5/2 4/3 5/3 1/4 2/5 3/4 3/5  4    1000 .. 1111     SB 1/4 .. 4/1
+
+  # CW: 224 11100000  3/16  [0, 5, 3]
+  # CS: 194   3.0000, 16.0000   194  1_4096  0.000,1.000(1.0000) c=388,389
+  # 194 = binary 11000010
+  #              0 5   3
+  # 1.1.0.0.0.0.1.0. = .1.....1.. = 1,5,2 -> 0,5,3 = 0+1/(5+1/3) = 3/16
+  #
+  # AYT
+  # 836  49.0000, 22.0000   836  1_268435456
+  # 1001000101 = 581
+  # 1101000100 = 836
+  #  |\/\--/\/
+  #  22  4  2
+
+  my $x = 1;
+  my $y = 1;
+  foreach my $nbit (0,0, 1,0,0,0, 1,0, 1) {
+    $y += $x;
+    if (! $nbit) {
+      ($x,$y) = ($y,$x);
+    }
+  }
+  # foreach my $nbit (reverse 0,0, 1,0,0,0, 1,0, 1) {
+  #   # foreach my $nbit (reverse 0,0,0,0) {
+  #   $x += $y;
+  #   if ($nbit) {
+  #     ($x,$y) = ($y,$x);
+  #   }
+  # }
+  print "$x,$y\n";
+  my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+  my $cfrac_str = $cfrac->to_ascii;
+  print "$cfrac_str\n";
+  exit 0;
+}
+
+{
+  # AYT vs continued fraction
+  require Math::BaseCnv;
+  my $ayt = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+
+  my $level = 10;
+  foreach my $n (1 .. 2**$level) {
+    my ($x,$y) = $ayt->n_to_xy($n);
+    my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+    my $cfrac_str = $cfrac->to_ascii;
+    my $nbits = Math::BaseCnv::cnv($n,10,2);
+    printf "%3d %7s %2d/%-2d  %s\n", $n, $nbits, $x,$y, $cfrac_str;
+  }
+  exit 0;
+}
+
+{
+  my $cfrac = Math::ContinuedFraction->from_ratio(29,42);
+  my $cfrac_str = $cfrac->to_ascii;
+  print "$cfrac_str\n";
+  exit 0;
+}
+
+
+{
+  # lengths of frac or bits
+
+  require Math::PlanePath::DiagonalRationals;
+  require Math::PlanePath::CoprimeColumns;
+  require Math::PlanePath::PythagoreanTree;
+
+  foreach my $path (Math::PlanePath::DiagonalRationals->new,
+                    Math::PlanePath::CoprimeColumns->new,
+                    Math::PlanePath::PythagoreanTree->new(coordinates=>'PQ'),
+                   ) {
+    print join(',', map{cfrac_length($path->n_to_xy($_))} 2 .. 32),"\n";
+    print join(',', map{bits_length ($path->n_to_xy($_))} 2 .. 32),"\n";
+    print "\n";
+  }
+  exit 0;
+
+  sub bits_length {
+    my ($x,$y) = @_;
+    return sum(0, Math::PlanePath::RationalsTree::_xy_to_quotients($x,$y));
+  }
+  sub cfrac_length {
+    my ($x,$y) = @_;
+    my @quotients = Math::PlanePath::RationalsTree::_xy_to_quotients($x,$y);
+    return scalar(@quotients);
+  }
+}
+
+
+
+
+{
+  # 167/3
+  require Math::BigInt;
+  my $path = Math::PlanePath::RationalsTree->new;
+  my $x = Math::BigInt->new(167);
+  my $y = Math::BigInt->new(3);
+  my $n = $path->xy_to_n($x,$y);
+  print $n,"\n";
+  my $binstr = $n->as_bin;
+  $binstr =~ s/0b//;
+  print $binstr,"\n";
+  print length($binstr),"\n";
+  exit 0;
+}
+
+
+{
   my $cw = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
   my $ayt = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
 
@@ -93,15 +450,88 @@ use Devel::Comments;
       if ($flip) { $t ^= $bit; }
     }
     if (!$flip) { $t = ~$t; }
-    $t &= (1 << $level) - 1;
-    $t += (1 << $level);
+    $t &= (1 << $level) - 1;    # mask to level
+    $t += (1 << $level);        # high 1-bit
     return ($t,$a);
   }
 }
+{
+  {
+    my $cf = Math::ContinuedFraction->new([0,10,2,1,8]);
+    print $cf->to_ascii,"\n";
+    print $cf->brconvergent(4),"\n";
+  }
+  {
+    my $cf = Math::ContinuedFraction->from_ratio(26,269);
+    print $cf->to_ascii,"\n";
+  }
+  exit 0;
+}
+{
+  my $n = 12590;
+  my $radix = 3;
+  while ($n) {
+    my $digit = $n % $radix;
+    if ($digit == 0) {
+      $digit = $radix;
+    }
+    $n -= $digit;
+    ($n % $radix) == 0 or die;
+    $n /= $radix;
+    print "$digit";
+  }
+  print "\n";
+  exit 0;
+}
+{
+  my $n = 12590;
+  my $radix = 3;
+  my @digits = digit_split_lowtohigh($n,$radix);
+  my $borrow = 0;
+  foreach my $i (0 .. $#digits) {
+    $digits[$i] -= $borrow;
+    if ($digits[$i] <= 0) {
+      $digits[$i] += $radix;
+      $borrow = 1;
+    } else {
+      $borrow = 0;
+    }
+  }
+  $borrow == 0 or die;
+  print reverse(@digits),"\n";
+  exit 0;
+}
+{
+  my $n = 0;
+  my @digits = (1,2,1,3,1,3,3,2,2);
+  my $power = 1;
+  foreach my $digit (@digits) {
+    $power *= 3;
+    $n += $power * $digit;
+  }
+  print $n;
+  exit 0;
+}
+
+{
+  require Math::ContinuedFraction;
+  my $sb = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
+  for (my $n = $sb->n_start; $n < 3000; $n++) {
+    my ($x,$y) = $sb->n_to_xy ($n);
+    next if $x > $y;
+    my $cf = Math::ContinuedFraction->from_ratio($x,$y);
+    my $cfstr = $cf->to_ascii;
+    my $cfaref = $cf->to_array;
+    my $cflen = scalar(@$cfaref);
+    my $nhex = sprintf '0x%X', $n;
+    print "$nhex $n  $x/$y  $cflen  $cfstr\n";
+  }
+  exit 0;
+}
+
 
 
 {
-  require Math::PlanePath::RationalsTree;
   my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
   my $bird = Math::PlanePath::RationalsTree->new(tree_type => 'Bird');
 
@@ -203,7 +633,6 @@ use Devel::Comments;
 
 {
   # diatomic 0,1,1,2,1,3,2,3, 1,4,3,5,2,5,3,4, 1,5,4,7,3,8,5,7,2,7,5,8,3,7,4,5,1,6,5,9,4,11,7,10,3,11,8,13,5,12,7,9,2,9,7,12,5,13,8,11,3,10,7,11,4,9,5,6,1,7,6,11,5,14,9,13,4,15,11,18,7,17,
-  require Math::PlanePath::RationalsTree;
   my $ayt = Math::PlanePath::RationalsTree->new(tree_type => 'AYT');
 
   foreach my $level (0 .. 3) {

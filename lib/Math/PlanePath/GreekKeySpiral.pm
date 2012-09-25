@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -597,7 +597,7 @@ for example N=73 through N=76, but the shape is offset.  The way the entry
 is alternately on the inside and outside for the vertical and horizontal is
 necessary to make the corners join.
 
-=head2 Turns
+=head2 Turn
 
 An optional C<turns =E<gt> $integer> parameter controls the turns within the
 repeating figure.  The default is C<turns=E<gt>2>.  Or for example

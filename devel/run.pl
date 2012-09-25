@@ -42,17 +42,12 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::HIndexing';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
   $path_class = 'Math::PlanePath::Flowsnake';
-  $path_class = 'Math::PlanePath::FractionsTree';
-  $path_class = 'Math::PlanePath::RationalsTree';
-  $path_class = 'Math::PlanePath::R5DragonCurve';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
-  $path_class = 'Math::PlanePath::BetaOmega';
   $path_class = 'Math::PlanePath::CCurve';
 
   $path_class = 'Math::PlanePath::NxN';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
-  $path_class = 'Math::PlanePath::GcdRationals';
   $path_class = 'Math::PlanePath::KochSquareflakes';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::TerdragonRounded';
@@ -99,7 +94,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::Hypot';
   $path_class = 'Math::PlanePath::TriangularHypot';
   $path_class = 'Math::PlanePath::KnightSpiral';
-  $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
   $path_class = 'Math::PlanePath::AlternatePaper';
   $path_class = 'Math::PlanePath::SierpinskiArrowheadCentres';
   $path_class = 'Math::PlanePath::DekkingCentres';
@@ -113,11 +107,23 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::CincoCurve';
   $path_class = 'Math::PlanePath::WunderlichMeander';
   $path_class = 'Math::PlanePath::AR2W2Curve';
+  $path_class = 'Math::PlanePath::AlternatePaperMidpoint';
+  $path_class = 'Math::PlanePath::BetaOmega';
+  $path_class = 'Math::PlanePath::FractionsTree';
+  $path_class = 'Math::PlanePath::R5DragonCurve';
+  $path_class = 'Math::PlanePath::CfracFractions';
+  $path_class = 'Math::PlanePath::GcdRationals';
+  $path_class = 'Math::PlanePath::PythagoreanTree';
+  $path_class = 'Math::PlanePath::RationalsTree';
 
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+     # radix => 12,
+     # pairs_order => 'rows_reverse',
+     # pairs_order => 'diagonals_up',
+      tree_type => 'L',
      # parts => '3/4',
      # start => 'snowflake',
      # align => 'left',
@@ -126,12 +132,9 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # n_start => 37,
      # align => 'diagonal',
      # offset => -0.5,
-     # radix => 3,
      # points => 'hex',
      # turns => 1,
      # arms => 8,
-     # pairs_order => 'rows_reverse',
-     # pairs_order => 'diagonals_down',
      # base => 7,
      # direction => 'up',
      # step => 6,
@@ -147,8 +150,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # realpart => 1,
      # mirror => 1,
      # divisor_type => 'proper',
-     # tree_type => 'Kepler',
      # coordinates => 'PQ',
+     # tree_type => 'FB',
     );
   ### $path
   my %seen;
@@ -179,7 +182,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 330; $i+=1) {
+  for (my $i = $n_start+0; $i <= 256; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
@@ -243,6 +246,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
         }
         $n_children .= ",";
       }
+      $n_children =~ s/,$//;
     }
 
     my $flag = '';

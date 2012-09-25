@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 401)[1];
+my $test_count = (tests => 403)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -437,6 +437,7 @@ my @modules = (
                'Flowsnake',
 
                'RationalsTree',
+               'RationalsTree,tree_type=L',
                'FractionsTree',
                # 'DivisibleColumns', # counting by N
                # 'DivisibleColumns,divisor_type=proper',

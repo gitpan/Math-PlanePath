@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -357,7 +357,7 @@ A given replication extends to
          = (4^(level+1) - 1) / 3
     Ymin = - Ymax
 
-=head2 Turn Sequence
+=head2 Turn
 
 The sequence of turns made by the curve is straightforward.  In the base 8
 (octal) representation of N, the lowest non-zero digit gives the turn

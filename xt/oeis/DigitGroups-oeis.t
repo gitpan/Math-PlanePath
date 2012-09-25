@@ -74,23 +74,6 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A084471 -- X axis 0 -> 00, but starting OFFSET=1 so N on X axis starting X=1
-{
-  my $anum = 'A084471';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::DigitGroups->new;
-    for (my $x = 1; @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x, 0);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
-#------------------------------------------------------------------------------
 # A084472 - X axis in binary, excluding 0
 
 {

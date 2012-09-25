@@ -64,7 +64,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -72,7 +72,11 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'round_down_pow';
+  'round_down_pow',
+  'digit_split_lowtohigh';
+
+# uncomment this to run the ### lines
+#use Smart::Comments;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -121,23 +125,24 @@ sub n_to_xy {
     }
   }
 
+  # @digits list of ternary digits 0,1,2 which are the position of $n within
+  # its row of the tree.  This is like a mixed-radix form where the high
+  # digit is binary (and so always 1, and not in @digits) and the rest are
+  # ternary.
+  #
   # h = 2*(n-1)+1 = 2*n-2+1 = 2*n-1
-  my ($range, $level) = round_down_pow (2*$n-1, 3);
-  my $base = ($range - 1)/2 + 1;
-  my $rem = $n - $base;
+  # rowstart = (range-1)/2+1
+  #
+  my ($len, $level) = round_down_pow (2*$n-1, 3);
 
-  ### $n
   ### h: 2*$n-1
   ### $level
-  ### $range
-  ### $base
-  ### $rem
+  ### $len
+  ### base: ($len + 1)/2
+  ### rem n: $n - ($len + 1)/2
 
-  my @digits;
-  while ($level--) {
-    push @digits, $rem%3;
-    $rem = int($rem/3);
-  }
+  my @digits = digit_split_lowtohigh ($n - ($len+1)/2,  3);
+  $#digits = $level-1;   # pad to $level with undefs
   ### @digits
 
   my $q = 1;
@@ -145,30 +150,44 @@ sub n_to_xy {
 
   if ($self->{'tree_type'} eq 'UAD') {
     ### UAD
-    foreach my $digit (reverse @digits) {  # high digit first
+    foreach my $digit (reverse @digits) {  # high to low, possibly $digit=undef
       ### $p
       ### $q
       ### $digit
-      if ($digit == 0) {
-        ($p,$q) = (2*$p-$q, $p);
-      } elsif ($digit == 1) {
-        ($p,$q) = (2*$p+$q, $p);
+
+      if ($digit) {
+        if ($digit == 1) {
+          ($p,$q) = (2*$p+$q, $p);
+        } else {
+          $p += 2*$q;
+        }
       } else {
-        $p += 2*$q;
+        # $digit==0, or undef when small
+        ($p,$q) = (2*$p-$q, $p);
       }
     }
   } else {
     ### FB
-    foreach my $digit (reverse @digits) {  # high digit first
+    foreach my $digit (reverse @digits) {  # high to low, possibly $digit=undef
       ### $p
       ### $q
       ### $digit
-      if ($digit == 0) {
-        ($q,$p) = (2*$q, $p+$q);
-      } elsif ($digit == 1) {
-        ($q,$p) = ($p-$q, 2*$p);
+
+      if ($digit) {
+        if ($digit == 1) {
+          # ($q,$p) = ($p-$q, 2*$p);
+          $q = $p-$q;
+          $p *= 2;
+        } else {
+          # ($q,$p) = ($p+$q, 2*$p);
+          $q += $p;
+          $p *= 2;
+        }
       } else {
-        ($q,$p) = ($p+$q, 2*$p);
+        # $digit == 0
+        # ($q,$p) = (2*$q, $p+$q);
+        $p += $q;
+        $q *= 2;
       }
     }
   }
@@ -464,7 +483,7 @@ sub _ab_to_pq {
 
   # x odd and y even means z^2 is odd and so z is odd
   ### assert: $c&1
-  ### assert: $c > $a
+  ### assert: $c+1==$c || $c > $a
 
   my $p = sqrt(($c+$a)/2);
   ### p^2: ($c+$a)/2
@@ -591,12 +610,17 @@ each of those, etc,
 Counting the N=1 point as level 1, each level has 3^(level-1) many points
 and the first N of the level is at
 
-    N = 1 + 3 + 3^2 + ... + 3^(level-1)
-    N = (3^level + 1) / 2
+    Nstart = 1 + 3 + 3^2 + ... + 3^(level-1)
+           = (3^level + 1) / 2
 
-Taking the middle "A" matrix at each node, ie. 3,4 to 21,20 to 119,120 to
-697,696, etc, gives the triples with legs differing by 1, and thus just
-below the X=Y leading diagonal.  These are at N=3^level.
+These levels are like a mixed-radix representation of N where the high digit
+is binary, and so since the high is non-zero thus always 1, and further
+digits below in ternary.  The number of digits is the level and the ternary
+digits are the position within the level.
+
+N=1,3,9,27,etc 3^level is the middle "A" matrix at each node, giving 3,4
+then 21,20 then 119,120 then 697,696, etc, which are the triples with legs
+differing by 1, and thus just below the X=Y leading diagonal.
 
 Taking the lower "D" matrix at each node, ie. 3,4 to 15,8 to 35,12 to 63,16,
 etc, is the primitives among a sequence of triples known to the ancients,

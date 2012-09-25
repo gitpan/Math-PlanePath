@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -554,8 +554,8 @@ sub rect_to_n_range {
   if ($x2 < 0 || $y2 < 0) {
     return (1, 0);
   }
-  if ($x1 < 0) { $x1 = 0 }
-  if ($y1 < 0) { $y1 = 0 }
+  if ($x1 < 0) { $x1 *= 0; }   # "*=" to preserve bigint x1 or y1
+  if ($y1 < 0) { $y1 *= 0; }
 
   my ($len, $level) = round_down_pow (($x2 > $y2 ? $x2 : $y2),
                                       5);

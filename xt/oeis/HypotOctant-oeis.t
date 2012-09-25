@@ -89,27 +89,6 @@ sub diff_nums {
 #         "$anum");
 # }
 
-#------------------------------------------------------------------------------
-# A036702 - points=even, N on X=Y leading diagonal 
-
-{
-  my $anum = 'A036702';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::HypotOctant->new (points => 'even');
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n($i,$i);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
 
 #------------------------------------------------------------------------------
 # A057653 

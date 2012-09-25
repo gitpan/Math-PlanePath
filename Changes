@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 89, September 2012
+    - RationalsTree new tree_type=L
+
 Version 88, September 2012
     - new DekkingCurve, DekkingCentres
     - new tree_n_to_depth()
@@ -206,7 +209,7 @@ Version 45, September 2011
 
 Version 44, September 2011
     - new ComplexMinus
-    - RationalsTree new Drib tree
+    - RationalsTree new tree_type=Drib
     - Corner new wider parameter
 
 Version 43, September 2011

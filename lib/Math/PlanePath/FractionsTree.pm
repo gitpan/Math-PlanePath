@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,7 +35,8 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'bit_split_lowtohigh';
+  'bit_split_lowtohigh',
+  'digit_join_lowtohigh';
 use Math::PlanePath::RationalsTree;
 
 # uncomment this to run the ### lines
@@ -59,6 +60,7 @@ sub new {
   my $class = shift;
   my $self = $class->SUPER::new (@_);
   $self->{'tree_type'} ||= 'Kepler';
+  $self->{'n_start'} = 1; # for RationalsTree sharing
   return $self;
 }
 
@@ -107,19 +109,19 @@ sub n_to_xy {
     # (0 1) (x) = ( y )     (a b) (0 1) = (b a+b)   digit 1
     # (1 1) (y)   (x+y)     (c d) (1 1)   (d c+d)
 
-    my @digits = bit_split_lowtohigh($n);
-    pop @digits;  # drop high 1 bit
+    my @bits = bit_split_lowtohigh($n);
+    pop @bits;  # drop high 1 bit
 
     my $a = $one;     # initial  (1 0)
     my $b = $zero;    #          (0 1)
     my $c = $zero;
     my $d = $one;
-    while (@digits) {
+    while (@bits) {
       ### at: "($a $b)"
       ### at: "($c $d)"
       ### $digit
 
-      if (shift @digits) {      # low to high
+      if (shift @bits) {      # low to high
         ($a,$b) = ($b, $a+$b);
         ($c,$d) = ($d, $c+$d);
       } else {
@@ -142,11 +144,11 @@ sub xy_to_n {
   $y = round_nearest ($y);
   ### FractionsTree xy_to_n(): "$x,$y   $self->{'tree_type'}"
 
-  if (is_infinite($x)) { return $x; }
-  if (is_infinite($y)) { return $y; }
   if ($x < 1 || $y < 2 || $x >= $y) {
     return undef;
   }
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
 
   my $zero = $x * 0 * $y;   # inherit bignum 0
   my $one = ($zero + 1);    # inherit bignum 1
@@ -155,26 +157,30 @@ sub xy_to_n {
   #     /     \
   # X/(X+Y)  Y/(X+Y)
   #
-  # (x,y) <- (x, y-x)  digit 0
-  # (x,y) <- (y-x, x)  digit 1
+  # (x,y) <- (x, y-x)  nbit 0
+  # (x,y) <- (y-x, x)  nbit 1
   #
-  my $n = $zero;
-  my $power = $one;   # bits generated low to high
+  my @nbits;   # low to high
   for (;;) {
     ### at: "$x,$y n=$n"
+
     if ($y <= 2) {
       if ($x == 1 && $y == 2) {
-        return $n + $power;  # plus high bit
+        push @nbits, 1;  # high bit
+        return digit_join_lowtohigh(\@nbits, 2, $zero);
       } else {
         return undef;
       }
     }
-    ($y -= $x) || return undef;  # common factor
+
+    ($y -= $x)          # (X,Y) <- (X, Y-X)
+      || return undef;  # common factor if had X==Y
     if ($x > $y) {
       ($x,$y) = ($y,$x);
-      $n += $power;
+      push @nbits, 1;
+    } else {
+      push @nbits, 0;
     }
-    $power *= 2;
   }
 }
 
@@ -258,17 +264,18 @@ Math::PlanePath::FractionsTree -- fractions by tree
 =head1 DESCRIPTION
 
 This path enumerates fractions X/Y in the range 0 E<lt> X/Y E<lt> 1 and in
-reduced form, ie. X and Y having no common factor.
+reduced form, ie. X and Y having no common factor, using a method by
+Johannes Kepler.
 
 Fractions are traversed by rows of a binary tree which effectively
-represents a coprime pair X,Y by the steps of the binary greatest common
-divisor algorithm which would prove X,Y coprime.  The steps left or right
-are encoded/decoded as an N value.
+represents a coprime pair X,Y by subtraction steps of a subtraction-only
+form of Euclid's greatest common divisor algorithm which would prove X,Y
+coprime.  The steps left or right are encoded/decoded as an N value.
 
 =head2 Kepler Tree
 
-The only tree currently is by Johannes Kepler, though in principle some bit
-reversal etc variations such as in RationalsTree would be possible.
+The default and only tree currently is by Johannes Kepler.  In principle
+similar bit reversal etc variations as in RationalsTree would be possible.
 
     N=1                             1/2
                               ------   ------
@@ -391,8 +398,8 @@ following forms
 
     A020651  - Kepler numerators (RationalsTree AYT denominators)
     A086592  - Kepler denominators
-    A086593  - Kepler denominators every second value, and sum X+Y
-    A020650  - difference Y-X (RationalsTree AYT numerators)
+    A086593  - Kepler sum X+Y, and every second denominator
+    A020650  - Kepler difference Y-X (RationalsTree AYT numerators)
 
 The tree descends as X/(X+Y) and Y/(X+Y) so the denominators are in pairs of
 two X+Y each time, after the initial 1/2.  A086593 is every second value,
@@ -407,7 +414,8 @@ L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::PythagoreanTree>
 
-L<Math::NumSeq::SternDiatomic>
+L<Math::NumSeq::SternDiatomic>,
+L<Math::ContinuedFraction>
 
 Johannes Kepler, "Harmonices Mundi" Book III.  Excerpt of translation by
 Aiton, Duncan and Field at
@@ -438,9 +446,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=FractionsTree --all --scale=10"
-# End:
-#
-# math-image --path=FractionsTree --all --output=numbers

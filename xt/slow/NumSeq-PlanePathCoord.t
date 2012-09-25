@@ -376,6 +376,23 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'RationalsTree,tree_type=L',
+               'RationalsTree,tree_type=CS',
+               'RationalsTree',
+               'RationalsTree,tree_type=CW',
+               'RationalsTree,tree_type=AYT',
+               'RationalsTree,tree_type=Bird',
+               'RationalsTree,tree_type=Drib',
+
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,coordinates=PQ,tree_type=FB',
+
                'DekkingCurve',
                'DekkingCentres',
 
@@ -404,9 +421,6 @@ my @modules = (
 
                'KochCurve',
                'KochPeaks',
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
 
                'ImaginaryBase,radix=37',
                'ImaginaryBase',
@@ -496,17 +510,6 @@ my @modules = (
 
                'UlamWarburton',
                'UlamWarburtonQuarter',
-
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
-
-               'RationalsTree',
-               'RationalsTree,tree_type=CW',
-               'RationalsTree,tree_type=AYT',
-               'RationalsTree,tree_type=Bird',
-               'RationalsTree,tree_type=Drib',
 
                'CellularRule,rule=6',   # left 1,2 line
                'CellularRule,rule=14',  # left 2 cell line

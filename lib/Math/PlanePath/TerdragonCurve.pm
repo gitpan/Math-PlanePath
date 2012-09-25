@@ -42,7 +42,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 88;
+$VERSION = 89;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -332,22 +332,22 @@ X<Davis>X<Knuth, Donald>This is the terdragon curve by Davis and Knuth,
               30                28                                  7
             /     \           /     \
            /       \         /       \
-     31/34 -------- 26/29/32 ---------- 27                          6
+     31,34 -------- 26,29,32 ---------- 27                          6
           \        /         \
            \      /           \
-           24/33/42 ---------- 22/25                                5
+           24,33,42 ---------- 22,25                                5
            /      \           /     \
           /        \         /       \
-    40/43/46 ------ 20/23/44 -------- 12/21            10           4
+    40,43,46 ------ 20,23,44 -------- 12,21            10           4
           \        /        \        /      \        /     \
            \      /          \      /        \      /       \
-             18/45 --------- 13/16/19 ------ 8/11/14 -------- 9     3
+             18,45 --------- 13,16,19 ------ 8,11,14 -------- 9     3
                   \          /       \      /       \
                    \        /         \    /         \
-                       17              6/15 --------- 4/7           2
+                       17              6,15 --------- 4,7           2
                                             \        /    \
                                              \      /      \
-                                               2/5 ---------- 3     1
+                                               2,5 ---------- 3     1
                                                    \
                                                     \
                                          0 ----------- 1         <-Y=0
@@ -402,7 +402,7 @@ The shape is the same as the GosperSide, but the turns here are by 120
 degrees each whereas the GosperSide is by 60 degrees each.  The extra angle
 here tightens up the shape.
 
-=head1 Spiralling
+=head2 Spiralling
 
 The first step N=1 is to the right along the X axis and the path then slowly
 spirals anti-clockwise and progressively fatter.  The end of each
@@ -455,7 +455,7 @@ degrees.  The N=0 origin is marked "o" and the N=729 end marked "e".
                 * * * *           * * * *
                  * *               * *
 
-=head1 Tiling
+=head2 Tiling
 
 The little "S" shapes of the base figure N=0 to N=3 can be thought of as a
 parallelogram
@@ -483,6 +483,10 @@ parallelograms
         \     \ /     /   \     \ /     /
          *-----*-----*     *-----*-----*
         /     / \     \   /     / \     \
+
+As per for example
+
+    http://tilingsearch.org/HTML/data23/C07A.html
 
 =head2 Arms
 
@@ -612,7 +616,7 @@ a good way to tell which edge is the smallest?  Or just which 3 edges lead
 away?  It might be directions 0,2,4 for the even arms and 1,3,5 for the odd
 ones, but the boundary of those areas is tricky.
 
-=head2 Turns
+=head2 Turn
 
 At each point N the curve always turns 120 degrees either to the left or
 right, it never goes straight ahead.  If N is written in ternary then the
@@ -632,6 +636,8 @@ direction, so the next level shape gives the turn.
            \
     0-------1*3^k
 
+=head2 Total Turn
+
 The direction at N, ie. the total cumulative turn, is given by the number of
 1 digits when N is written in ternary,
 
@@ -647,7 +653,8 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A080846  etc
 
-    A080846 -- turn 0=left,1=right, by 120 degrees
+    A080846 -- next turn 0=left,1=right, by 120 degrees
+                 (numbered n=0 for the first turn, which is at N=1)
     A060236 -- turn 1=left,2=right, by 120 degrees
     A137893 -- morphism, turn 1=left,0=right
     A189640 -- morphism, turn 1=left,0=right (extra initial 0)
@@ -655,14 +662,16 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
     A038502 -- strip trailing ternary 0s,
                  taken mod 3 is turn 1=left,2=right
 
-    A026225 -- (3*i+1)*3^j is N positions of left turns
+    A026225 -- N positions of left turns,
+                 being (3*i+1)*3^j so lowest non-0 digit is a 1
     A026179 -- N positions of right turns (except initial 1)
-    A060032 -- turns 1=left,2=right as bignums to 3^level
+    A060032 -- turn 1=left,2=right as bignums to 3^level
 
-    A062756 -- total turn
+    A062756 -- total turn, count ternary 1s
+    A005823 -- N positions where total turn == 0, no ternary 1s
 
 A189673 and A026179 start with extra initial values arising from their
-morphism definition and that can be skipped to consider the turns starting
+morphism definition.  That can be skipped to consider the turns starting
 with a left turn at N=1.
 
 =head1 SEE ALSO
