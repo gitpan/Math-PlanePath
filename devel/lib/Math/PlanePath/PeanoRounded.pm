@@ -34,7 +34,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -58,6 +58,7 @@ use constant class_y_negative => 0;
 use constant parameter_info_array =>
   [ { name      => 'radix',
       share_key => 'radix_3',
+      display   => 'Radix',
       type      => 'integer',
       minimum   => 2,
       default   => 3,
@@ -404,8 +405,8 @@ This is a version of the PeanoCurve with rounded-off corners,
 
 =head2 Radix
 
-The radix parameter can do the calculation in a base other than 3, using the
-same kind of direction reversals.  For example radix 5 gives 5x5 groups,
+The C<radix> parameter can do the calculation in a base other than 3, using
+the same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 
 =cut
 

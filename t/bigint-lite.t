@@ -24,7 +24,7 @@ use Test;
 use lib 't';
 use MyTestHelpers;
 
-my $test_count = (tests => 602)[1];
+my $test_count = (tests => 618)[1];
 plan tests => $test_count;
 
 # uncomment this to run the ### lines

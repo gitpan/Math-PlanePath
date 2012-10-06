@@ -58,7 +58,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -76,12 +76,14 @@ use Math::PlanePath::Base::Digits
 
 use constant parameter_info_array =>
   [ { name      => 'align',
-      type      => 'enum',
       share_key => 'align_trld',
+      display   => 'Align',
+      type      => 'enum',
       default   => 'triangular',
       choices   => ['triangular', 'right', 'left','diagonal'],
       choices_display => ['Triangular', 'Right', 'Left','Diagonal'],
     },
+    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
 
 my %x_negative = (triangular => 1,
@@ -332,15 +334,18 @@ sub tree_n_parent {
     or return undef;
 
   if ($self->{'align'} eq 'diagonal') {
-    if (defined (my $n = $self->xy_to_n($x-1, $y))) {
-      return $n;
+    my $n_parent = $self->xy_to_n($x-1, $y);
+    if (defined $n_parent) {
+      return $n_parent;
+    } else {
+      return $self->xy_to_n($x,$y-1);
     }
-    return $self->xy_to_n($x,$y-1);
   }
 
   $y -= 1;
-  if (defined (my $n = $self->xy_to_n($x-($self->{'align'} ne 'left'), $y))) {
-    return $n;
+  my $n_parent = $self->xy_to_n($x-($self->{'align'} ne 'left'), $y);
+  if (defined $n_parent) {
+    return $n_parent;
   }
   return $self->xy_to_n($x+($self->{'align'} ne 'right'),$y);
 }
@@ -636,7 +641,8 @@ means that when there's two children they're consecutive N values.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return the number of children of C<$n>, or 0 if C<$n> has no children.
+Return the number of children of C<$n>, or return C<undef> if C<$nE<lt>1>
+(ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -711,6 +717,12 @@ points in align="right" or "left".
 
 dX=3,dY=1 sloping lines are equivalent to dX=-1,dY=1 anti-diagonals in
 "right" alignment.
+
+    A080263   Dyck encoding of the tree structure
+    A080264     same in binary
+    A080265   position in list of all Dyck trees
+    A080268   breadth-first Dyck encoding
+    A080269     same in binary
 
 =head1 SEE ALSO
 

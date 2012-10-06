@@ -56,7 +56,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -78,6 +78,7 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ { name        => 'pairs_order',
+      display     => 'Pairs Order',
       type        => 'enum',
       default     => 'rows',
       choices     => ['rows','rows_reverse','diagonals_down','diagonals_up'],
@@ -265,7 +266,7 @@ sub xy_to_n {
   if ($x < 1 || $y < 1 || ! _coprime($x,$y)) {
     return undef;
   }
-  
+
   my ($p,$r) = _divrem ($x,$y);
   ### $x
   ### $y
@@ -374,10 +375,10 @@ sub _pairs_order__diagonals_up__xygr_to_n {
 #     = 2y^2 - y + 2
 #     = y*(2y-1) + 2
 
-# 11  12  13  14      47  49  51  53     108 111 114 117     194 198 202 206     
-#  7       9      30      34      69      75     124     132     195     205     
+# 11  12  13  14      47  49  51  53     108 111 114 117     194 198 202 206
+#  7       9      30      34      69      75     124     132     195     205
 #  4   5      17  19      39  42      70  74     110 115     159 165     217
-#  2       8      18      32      50      72      98     128     162     200     
+#  2       8      18      32      50      72      98     128     162     200
 #  1   3   6  10  15  21  28  36  45  55  66  78  91 105 120 136 153 171 190
 
 # 206=20*19/2+16  i=16,j=20 gcd=4
@@ -523,29 +524,29 @@ sub _gcd {
 # sub rect_to_n_range {
 #   my ($self, $x1,$y1, $x2,$y2) = @_;
 #   ### rect_to_n_range(): "$x1,$y1  $x2,$y2"
-# 
+#
 #   $x1 = round_nearest ($x1);
 #   $y1 = round_nearest ($y1);
 #   $x2 = round_nearest ($x2);
 #   $y2 = round_nearest ($y2);
-# 
+#
 #   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
 #   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 #   ### $x2
 #   ### $y2
-# 
+#
 #   if ($x2 < 1 || $y2 < 1) {
 #     return (1, 0);  # outside quadrant
 #   }
-# 
+#
 #   if ($x1 < 1) { $x1 = 1; }
 #   if ($y1 < 1) { $y1 = 1; }
-# 
+#
 #   my $g = int($x2/$y2) + 1;
 #   my $nhi = ($y2*(($y2-2)*$g + 1) / 2 + $x2)*$g;
 #   ### ghi: $g
 #   ### $nhi
-# 
+#
 #   my $yw = int($x2 / $g) - ($g==1);  # below X=Y diagonal when g==1
 #   if ($yw >= $y1) {
 #     $g = int($x2/$yw) + 1;  # perhaps went across more than one wedge
@@ -554,13 +555,13 @@ sub _gcd {
 #     ### $yw
 #     ### nhi_wedge: ($yw*(($yw-2)*($g+1) + 1) / 2 + $x2)*($g+1)
 #   }
-# 
+#
 #   $g = int($x1/$y1) + 1;
 #   my $nlo = ($y1*(($y1-2)*$g + 1) / 2 + $x1)*$g;
-# 
+#
 #   ### glo: $g
 #   ### $nlo
-# 
+#
 #   if ($g > 1) {
 #     $yw = max (int($x1 / $g),
 #                1);
@@ -573,7 +574,7 @@ sub _gcd {
 #       ### nlo_wedge: ($yw*(($yw-2)*$g + 1) / 2 + $x1)*$g
 #     }
 #   }
-# 
+#
 #   return ($nlo, $nhi);
 # }
 
@@ -581,7 +582,7 @@ sub _gcd {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd PyramidRows Fortnow coprime triangulars DiagonalsOctant
+=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd gcds PyramidRows Fortnow coprime triangulars DiagonalsOctant numberings pronics
 
 =head1 NAME
 
@@ -991,25 +992,25 @@ L</Rows Reverse> above).
 # No, not quite
 #
 # =head2 Rectangle N Range -- Rows
-# 
+#
 # An over-estimate of the N range can be calculated just from the X,Y to N
 # formula above.
-# 
+#
 # Within a row N increases with increasing X, so for a rectangle the minimum
 # is in the left column and the maximum in the right column.
-# 
+#
 # Within a column N values increase until reaching the end of a "g" wedge,
 # then drop down a bit.  So the maximum is either the top-right corner of the
 # rectangle, or the top of the next lower wedge, ie. smaller Y but bigger g.
 # Conversely the minimum is either the bottom right of the rectangle, or the
 # bottom of the next higher wedge, ie. smaller g but bigger Y.  (Is that
 # right?)
-# 
+#
 # This is an over-estimate because it ignores which X,Y points are coprime and
 # thus actually should have N values.
-# 
+#
 # =head2 Rectangle N Range -- Rows Reverse
-# 
+#
 # When row pairs are taken in reverse order increasing X is not increasing N,
 # but rather the maximum N of a row is at the left end of the wedge.
 
@@ -1022,7 +1023,7 @@ Sequences in the following forms
 
     http://oeis.org/A054531   (etc)
 
-    A054531  - Y coordinate, ie. denominators
+    A054531  - Y coordinate, being N/GCD(i,j)
 
 =head1 SEE ALSO
 

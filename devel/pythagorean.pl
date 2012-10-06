@@ -32,6 +32,143 @@ use Math::PlanePath::Base::Digits
 use Smart::Comments;
 
 {
+  require Math::BigInt::Lite;
+  my $x = Math::BigInt::Lite->new(3);
+  my $y = Math::BigInt::Lite->new(4);
+  Math::PlanePath::PythagoreanTree::_ab_to_pq($x,$y);
+  exit 0;
+}
+{
+  require Math::BigInt::Lite;
+  my $x = Math::BigInt::Lite->new(3);
+  my $low = $x & 1;
+  ### $low
+  exit 0;
+}
+{
+  require Math::BigInt::Lite;
+  my $x = Math::BigInt::Lite->new(3);
+  my $y = Math::BigInt::Lite->new(4);
+  ### $x
+  ### $y
+  my ($a, $b) = ($x,$y);
+  ### _ab_to_pq(): "A=$a, B=$b"
+
+  unless ($a >= 3 && $b >= 4 && ($a % 2) && !($b % 2)) {
+    ### don't have A odd, B even ...
+    return;
+  }
+
+  # This used to be $c=hypot($a,$b) and check $c==int($c), but libm hypot()
+  # on Darwin 8.11.0 is somehow a couple of bits off being an integer, for
+  # example hypot(57,176)==185 but a couple of bits out so $c!=int($c).
+  # Would have thought hypot() ought to be exact on integer inputs and a
+  # perfect square sum :-(.  Check for a perfect square by multiplying back
+  # instead.
+  #
+  my $c;
+  {
+    my $csquared = $a*$a + $b*$b;
+    $c = int(sqrt($csquared));
+    ### $csquared
+    ### $c
+    unless ($c*$c == $csquared) {
+      return;
+    }
+  }
+  exit 0;
+}
+
+{
+  require Math::BigInt::Lite;
+  my $x = Math::BigInt::Lite->new(3);
+  my $y = Math::BigInt::Lite->new(4);
+  ### $x
+  ### $y
+
+  # my $csquared = $x*$x + $y*$y;
+  # my $c = int(sqrt($csquared));
+  # ### $c
+
+  # my $mod = $x%2;
+  # $mod = $y%2;
+  my $eq = ($x*$x == $y*$y);
+  ### $eq
+
+  # my $x = 3;
+  # my $y = 4;
+  # $x = Math::BigInt::Lite->new($x);
+  # $y = Math::BigInt::Lite->new($y);
+
+  # $mod = $x%2;
+  # $mod = $y%2;
+  unless ($x >= 3 && $y >= 4 && ($x % 2) && !($y % 2)) {
+    ### don't have A odd, B even ...
+    die;
+  }
+
+  # {
+  #   my $eq = ($c*$c == $csquared);
+  #   ### $eq
+  # }
+
+
+  exit 0;
+}
+
+{
+  # X/Y list
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+      tree_type => 'Chan',
+     # tree_type => 'FB',
+     # tree_type => 'UAD',
+     # coordinates => 'AB',
+     coordinates => 'PQ',
+    );
+  my $n = $path->n_start;
+  foreach my $level (0 .. 4) {
+    foreach (1 .. 3**$level) {
+      my ($x,$y) = $path->n_to_xy($n++);
+      my $flag = '';
+      if ($x <= $y) {
+        $flag = '  ***';
+      }
+      print "$x / $y$flag\n";
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
+  # graphical N values
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+     # tree_type => 'FB',
+      tree_type => 'UAD',
+     # coordinates => 'AB',
+     coordinates => 'PQ',
+    );
+  my @rows;
+  foreach my $n (1 .. 18) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $y /= 3;
+    print "$x,$y\n";
+    $rows[$y] ||= ' 'x1000;
+    substr($rows[$y],$x,length($n)) = $n;
+  }
+  for (my $y = $#rows; $y >= 0; $y--) {
+    $rows[$y] ||= '';
+    $rows[$y] =~ s/ +$//;
+    print $rows[$y],"\n";
+  }
+  exit 0;
+}
+
+{
   # P,Q continued fraction quotients
   require Math::BaseCnv;
   require Math::ContinuedFraction;
@@ -183,29 +320,6 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  require Math::PlanePath::PythagoreanTree;
-  my $path = Math::PlanePath::PythagoreanTree->new
-    (
-     # tree_type => 'FB',
-      tree_type => 'UAD',
-     coordinates => 'AB',
-    );
-  my @rows;
-  foreach my $n (1 .. 18) {
-    my ($x,$y) = $path->n_to_xy($n);
-    $y /= 3;
-    print "$x,$y\n";
-    $rows[$y] ||= ' 'x1000;
-    substr($rows[$y],$x,length($n)) = $n;
-  }
-  for (my $y = $#rows; $y >= 0; $y--) {
-    $rows[$y] ||= '';
-    $rows[$y] =~ s/ +$//;
-    print $rows[$y],"\n";
-  }
-  exit 0;
-}
 
 
 

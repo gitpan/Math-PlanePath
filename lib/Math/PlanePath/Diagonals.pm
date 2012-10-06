@@ -19,9 +19,11 @@
 package Math::PlanePath::Diagonals;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -37,13 +39,16 @@ use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [ { name        => 'direction',
+      share_key   => 'direction_ud',
       display     => 'Direction',
       type        => 'enum',
       default     => 'down',
       choices     => ['down','up'],
       choices_display => ['Down','Up'],
       description => 'Number points downwards or upwards along the diagonals.',
-    } ];
+    },
+    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+  ];
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -51,6 +56,10 @@ sub new {
     $self->{'n_start'} = $self->default_n_start;
   }
   $self->{'direction'} ||= 'down';
+
+  # secret undocumented options
+  $self->{'x_start'} ||= 0;
+  $self->{'y_start'} ||= 0;
   return $self;
 }
 
@@ -113,18 +122,25 @@ sub n_to_xy {
 
   my $x = $n + $int;
   my $y = -$n - $int + $d;  # $n first so BigFloat not BigInt from $d
-  return ($self->{'direction'} eq 'down'
-          ? ($x,$y)
-          : ($y,$x));
+  if ($self->{'direction'} eq 'up') {
+    ($x,$y) = ($y,$x);
+  }
+  return ($x + $self->{'x_start'},
+          $y + $self->{'y_start'});
 }
 
 # round y on an 0.5 downwards so that x=-0.5,y=0.5 gives n=1 which is the
 # inverse of n_to_xy() ... or is that inconsistent with other classes doing
 # floor() always?
 #
+# d(d+1)/2+1
+#   = (d^2 + d + 2) / 2
+#
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
+  $x -= $self->{'x_start'};
+  $y -= $self->{'y_start'};
   if ($self->{'direction'} eq 'up') {
     ($x,$y) = ($y,$x);
   }
@@ -149,12 +165,12 @@ sub rect_to_n_range {
 
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); }
   if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); }
-  if ($y2 < 0 || $x2 < 0) {
+  if ($x2 < $self->{'x_start'} || $y2 < $self->{'y_start'}) {
     return (1, 0); # rect all negative, no N
   }
 
-  if ($x1 < 0) { $x1 *= 0; } # preserve bignum
-  if ($y1 < 0) { $y1 *= 0; } # preserve bignum
+  $x1 = max ($x1, $self->{'x_start'});
+  $y1 = max ($y1, $self->{'y_start'});
 
   # exact range bottom left to top right
   return ($self->xy_to_n ($x1,$y1),
@@ -191,9 +207,9 @@ axis.
          +-------------------------
            X=0   1   2   3   4   5
 
-The horizontal sequence 1,3,6,10,etc at Y=0 is the triangular numbers
-s*(s+1)/2.  If you plot them on a graph don't confuse that line with the
-axis or border!
+N=1,3,6,10,etc on the X axis is the triangular numbers.  N=1,2,4,7,11,etc on
+the Y axis is the triangular plus 1, the next point visited after the X
+axis.
 
 =head2 Direction
 
@@ -244,6 +260,26 @@ example to start at 0,
          +-----------------           +-----------------
            X=0  1  2  3  4              X=0  1  2  3  4
 
+=head2 X,Y Start
+
+Options C<x_start =E<gt> $x> and C<x_start =E<gt> $y> give a starting
+position for the diagonals.  For example to start at X=1,Y=1
+
+      7  |   22               x_start => 1,
+      6  |   16 23            y_start => 1
+      5  |   11 17 24         
+      4  |    7 12 18 ...     
+      3  |    4  8 13 19      
+      2  |    2  5  9 14 20   
+      1  |    1  3  6 10 15 21
+    Y=0  | 
+         +------------------
+         X=0  1  2  3  4  5
+
+The effect is merely to add a fixed offset to all X,Y values taken and
+returned, but it can be handy to have the path do that to step through
+non-negatives or similar.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -282,6 +318,27 @@ and biggest in the rectangle.
 =back
 
 =head1 FORMULAS
+
+=head2 X,Y to N
+
+The sum d=X+Y numbers each diagonal from d=0 upwards, corresponding to the Y
+coordinate where the diagonal starts (or X if direction=up).
+
+    d=2
+        \
+    d=1  \
+        \ \
+    d=0  \ \
+        \ \ \
+
+N is then given by
+
+    d = X+Y
+    N = d*(d+1)/2 + X + Nstart
+
+The d*(d+1)/2 shows how the triangular numbers fall on the Y axis when X=0
+and Nstart=0.  For the default Nstart=1 it's 1 more than the triangulars, as
+noted above.
 
 =head2 Rectangle to N Range
 

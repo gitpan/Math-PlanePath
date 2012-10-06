@@ -16,9 +16,30 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Maybe
 # @EXPORT_OK = ('ab_to_pq','pq_to_ab');
 #
-# ENHANCE-ME: ab_to_pq() better perfect square testing
+# =item C<($p,$q) = Math::PlanePath::PythagoreanTree::ab_to_pq($a,$b)>
+#
+# Return the P,Q coordinates for C<$a,$b>.  As described above this is
+#
+#     P = sqrt((C+A)/2)    where C=sqrt(A^2+B^2)
+#     Q = sqrt((C-A)/2)
+#
+# If C<$a,$b> are not a Pythagorean triple with integer P,Q then return no
+# values.
+#
+# Noticing P,Q not integers detects some non-primitive triples, but not all
+# of them.  If C<$a,$b> have a square common factor gcd(A,B)=K^2 then P,Q
+# are integers with common factor K and therefore a non-primitive triple.
+#
+# =item C<($a,$b) = Math::PlanePath::PythagoreanTree::pq_to_ab($p,$q)>
+#
+# Return the A,B coordinates for C<$p,$q>.  This is simply
+# S<C<$p*$p - $q*$q>> and C<2*$p*$q>.
+#
+# This is intended for use with C<$p,$q> satisfying PE<gt>QE<gt>=1 and no
+# common factor, but that's not checked.
 
 
 # math-image --path=PythagoreanTree --all --scale=3
@@ -29,10 +50,10 @@
 #
 # Euclid Book X prop 28,29 that u,v makes a triple, maybe Babylonians
 #
-
 # http://www.math.uconn.edu/~kconrad/blurbs/ugradnumthy/pythagtriple.pdf
 #
 # http://www.fq.math.ca/Scanned/30-2/waterhouse.pdf
+# Continued fractions.
 #
 # http://www.math.ou.edu/~dmccullough/teaching/pythagoras1.pdf
 # http://www.math.ou.edu/~dmccullough/teaching/pythagoras2.pdf
@@ -59,12 +80,13 @@
 # http://www.microscitech.com/pythag_eigenvectors_invariants.pdf
 #
 
+
 package Math::PlanePath::PythagoreanTree;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -83,14 +105,16 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ { name            => 'tree_type',
-      share_key       => 'tree_type_pythagorean',
+      share_key       => 'tree_type_uadfb',
+      display         => 'Tree Type',
       type            => 'enum',
       default         => 'UAD',
       choices         => ['UAD','FB'],
       choices_display => ['UAD','FB'],
     },
     { name            => 'coordinates',
-      share_key       => 'coordinates_pythagorean',
+      share_key       => 'coordinates_abpq',
+      display         => 'Coordinates',
       type            => 'enum',
       default         => 'AB',
       choices         => ['AB','PQ'], # 'Octant'
@@ -157,13 +181,13 @@ sub n_to_xy {
 
       if ($digit) {
         if ($digit == 1) {
-          ($p,$q) = (2*$p+$q, $p);
+          ($p,$q) = (2*$p+$q, $p);      # (2p+q, p)
         } else {
-          $p += 2*$q;
+          $p += 2*$q;                   # (p+2q, q)
         }
       } else {
         # $digit==0, or undef when small
-        ($p,$q) = (2*$p-$q, $p);
+        ($p,$q) = (2*$p-$q, $p);        # (2p-q, p)
       }
     }
   } else {
@@ -175,18 +199,17 @@ sub n_to_xy {
 
       if ($digit) {
         if ($digit == 1) {
-          # ($q,$p) = ($p-$q, 2*$p);
-          $q = $p-$q;
+          $q = $p-$q;                   # (2p, p-q)
           $p *= 2;
         } else {
           # ($q,$p) = ($p+$q, 2*$p);
-          $q += $p;
+          $q += $p;                     # (2p, p+q)
           $p *= 2;
         }
       } else {
         # $digit == 0
         # ($q,$p) = (2*$q, $p+$q);
-        $p += $q;
+        $p += $q;                       # (p+q, 2q)
         $q *= 2;
       }
     }
@@ -243,10 +266,8 @@ sub xy_to_n {
   if (is_infinite($q)) {
     return $q;  # infinity
   }
-  if (is_infinite($p) || is_infinite($q)  # infinity
-      || $p < 1 || $q < 1       # negatives
-      || ! (($p ^ $q) & 1)      # must be opposite parity
-     ) {
+  if ($p < 1 || $q < 1           # must be positive
+      || ($p % 2) == ($q % 2)) { # must be opposite parity
     return undef;
   }
 
@@ -288,7 +309,7 @@ sub xy_to_n {
       }
       last if $q <= 1 && $p <= 2;
 
-      if ($q & 1) {
+      if ($q % 2) {
         # q odd, p even
         $p /= 2;
         $n += $power; # digit 1 or 2
@@ -409,7 +430,7 @@ sub tree_n_children {
 }
 sub tree_n_num_children {
   my ($self, $n) = @_;
-  return ($n >= 1 ? 3 : 0);
+  return ($n >= 1 ? 3 : undef);
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
@@ -434,7 +455,7 @@ sub tree_n_to_depth {
 
 # a=p^2-q^2, b=2pq
 # Done as a=(p-q)*(p+q) for one multiply instead of two squares, and to work
-# approaching a=UINT_MAX.
+# close to a=UINT_MAX.
 #
 sub _pq_to_ab {
   my ($p, $q) = @_;
@@ -443,25 +464,33 @@ sub _pq_to_ab {
 
 # a = p^2 - q^2
 # b = 2pq
+# c = p^2 + q^2
+#
 # q = b/2p
 # a = p^2 - (b/2p)^2
 #   = p^2 - b^2/4p^2
 # 4ap^2 = 4p^4 - b^2
-# 4(p^2)^2 - 4a(p^2) - b^2 = 0
+# 4(p^2)^2 - 4a*p^2 - b^2 = 0
 # p^2 = [ 4a +/- sqrt(16a^2 + 16*b^2) ] / 2*4
 #     = [ a +/- sqrt(a^2 + b^2) ] / 2
 #     = (a +/- c) / 2   where c=sqrt(a^2+b^2)
 # p = sqrt((a+c)/2)    since c>a
+#
 # a = (a+c)/2 - q^2
 # q^2 = (a+c)/2 - a
 #     = (c-a)/2
 # q = sqrt((c-a)/2)
 #
+# if c^2 = a^2+b^2 is a perfect square then a,b,c is a pythagorean triple
+# p^2 = (a+c)/2
+#     = (a + sqrt(a^2+b^2))/2
+# 2p^2 = a + sqrt(a^2+b^2)
+# 
 sub _ab_to_pq {
   my ($a, $b) = @_;
-  ### _ab_to_pq(): "$a, $b"
+  ### _ab_to_pq(): "A=$a, B=$b"
 
-  unless (($a % 2) && !($b % 2)) {
+  unless ($a >= 3 && $b >= 4 && ($a % 2) && !($b % 2)) {
     ### don't have A odd, B even ...
     return;
   }
@@ -473,30 +502,61 @@ sub _ab_to_pq {
   # perfect square sum :-(.  Check for a perfect square by multiplying back
   # instead.
   #
-  my $csquared = $a*$a + $b*$b;
-  my $c = int(sqrt($csquared)+.5);
-  ### $csquared
-  ### $c
-  unless ($c*$c == $csquared) {
-    return;
+  # The condition is "$csquared != $c*$c" with operands that way around
+  # since the other way is bad for Math::BigInt::Lite 0.14.
+  #
+  my $c;
+  {
+    my $csquared = $a*$a + $b*$b;
+    $c = int(sqrt($csquared));
+    ### $csquared
+    ### $c
+    if ($csquared != $c*$c) {
+      return;
+    }
   }
 
-  # x odd and y even means z^2 is odd and so z is odd
-  ### assert: $c&1
-  ### assert: $c+1==$c || $c > $a
+  # A odd and B even means C^2 is odd and so C is odd
+  # if B==0 then C=A, otherwise C>A
+  ### assert: $c+1==$c || ($c % 2)
+  ### assert: $c+1==$c || $c >= $a
 
-  my $p = sqrt(($c+$a)/2);
-  ### p^2: ($c+$a)/2
-  ### $p
-  if ($p != int($p)) {
-    return;
+  my $p;
+  {
+    # If a,b is a triple but not primitive then can have psquared not an
+    # integer.  Eg. a=9,b=12 has c=15 giving psquared=(9+15)/2=12 is not a
+    # perfect square.  So notice that here.
+    #
+    my $psquared = ($c+$a)/2;
+    $p = sqrt(($c+$a)/2);
+    ### $psquared
+    ### $p
+    if ($psquared != $p*$p) {
+      return;
+    }
   }
 
-  my $q = sqrt(($c-$a)/2);
-  ### $q
-  if ($q != int($q)) {
-    return;
+  my $q;
+  {
+    # If a,b is a triple but not primitive then can have qsquared not an
+    # integer.  Eg. a=15,b=36 has c=39 giving qsquared=(39-15)/2=12 is not a
+    # perfect square.  So notice that here.
+    #
+    my $qsquared = ($c-$a)/2;
+    $q = int(sqrt($qsquared));
+    ### $qsquared
+    ### $q
+    if ($qsquared != $q*$q) {
+      return;
+    }
   }
+
+  # Might have a common factor between P,Q here.  Eg.
+  #     A=27 = 3*3*3, B=36 = 4*3*3
+  #     A=45 = 3*3*5, B=108 = 4*3*3*3
+  #     A=63, B=216
+  #     A=75 =3*5*5  B=100 = 4*5*5
+  #     A=81, B=360
 
   return ($p, $q);
 }
@@ -531,7 +591,7 @@ __END__
 
 
 
-=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's octant coprime
+=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's octant coprime mixed-radix
 
 =head1 NAME
 
@@ -635,6 +695,7 @@ last of each level, so N=(3^(level+1)-1)/2.
 
 The FB tree by H. Lee Price
 
+    "The Pythagorean Tree: A New Species", 2008
     http://arxiv.org/abs/0809.4324
 
 is based on expressing triples in certain "Fibonacci boxes" with a box of
@@ -692,7 +753,7 @@ B even.
     A = P^2 - Q^2
     B = 2*P*Q
     C = P^2 + Q^2
-    with P>Q>=1, one odd, one even, and no common factor
+    with P > Q >= 1, one odd, one even, and no common factor
 
 Or conversely,
 
@@ -758,7 +819,7 @@ Return 1, the first N in the path.
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
-at 0 and if C<$n E<lt> 0> then the return is an empty list.
+at 1 and if C<$nE<lt>1> then the return is an empty list.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -796,8 +857,8 @@ adjusting back.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return 3, since every node has three children, or return 0 if C<$nE<lt>1>
-(ie. before the start of the path).
+Return 3, since every node has three children, or return C<undef> if
+C<$nE<lt>1> (ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -849,7 +910,7 @@ The UAD transformations in P,Q coordinates are
           Q -> P
 
     D     P -> P+2Q
-          Q -> unchanged
+          Q -> Q unchanged
 
 The advantage of P,Q for the calculation is that it's 2 values instead of 3.
 The transformations could be written as 2x2 matrix multiplications if
@@ -874,8 +935,8 @@ just the p and q are enough for the calculation.
 
 =head2 X,Y to N -- UAD
 
-C<xy_to_n()> works in P,Q coordinates and converts an A,B input when
-necessary.  A P,Q point can be reversed up the UAD tree to its parent point
+C<xy_to_n()> works in P,Q coordinates and converts an A,B input.  A P,Q
+point can be reversed up the UAD tree to its parent point
 
     if P > 3Q    reverse "D"   P -> P-2Q
                                Q -> unchanged
@@ -887,9 +948,9 @@ necessary.  A P,Q point can be reversed up the UAD tree to its parent point
 This gives a ternary digit 2, 1, 0 respectively for N (low to high), plus a
 high "1" digit.  The number of steps is the level.
 
-If at any stage P,Q isn't PE<gt>Q, one odd, the other even, then it means
-the original point, whether an A,B or a P,Q, was not a primitive triple.
-For a primitive triple the endpoint is always P=2,Q=1.
+If at any stage P,Q doesn't satisfy PE<gt>Q, one odd, the other even, then
+it means the original point, whether it was an A,B or a P,Q, was not a
+primitive triple.  For a primitive triple the endpoint is always P=2,Q=1.
 
 =head2 X,Y to N -- FB
 
@@ -906,9 +967,9 @@ FB tree to its parent
                                Q -> Q - P/2
 
 This is a little like the binary greatest common divisor algorithm, but
-designed for one value odd and the other even.  As per the UAD ascent above
-if at any stage P,Q isn't PE<gt>Q, one odd, the other even, then the initial
-point wasn't a primitive triple.
+designed for one value odd and the other even.  Like the UAD ascent above,
+if at any stage P,Q doesn't satisfy PE<gt>Q, one odd, the other even, then
+the initial point wasn't a primitive triple.
 
 =head2 Rectangle to N Range -- UAD
 
@@ -969,9 +1030,6 @@ L<Math::PlanePath>,
 L<Math::PlanePath::Hypot>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>
-
-H. Lee Price, "The Pythagorean Tree: A New Species", 2008,
-<http://arxiv.org/abs/0809.4324>.
 
 =head1 HOME PAGE
 

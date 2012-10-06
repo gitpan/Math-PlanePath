@@ -33,7 +33,7 @@ require Math::PlanePath::HexSpiral;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::HexSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexSpiral->VERSION,  $want_version,
@@ -70,7 +70,7 @@ require Math::PlanePath::HexSpiral;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::HexSpiral->parameter_info_list;
-  ok (join(',',@pnames), 'wider');
+  ok (join(',',@pnames), 'wider,n_start');
 }
 
 #------------------------------------------------------------------------------

@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,8 +46,9 @@ use Math::PlanePath::Base::Digits
 # shared by SierpinskiArrowheadCentres
 use constant parameter_info_array =>
   [ { name      => 'align',
-      type      => 'enum',
       share_key => 'align_trld',
+      display   => 'Align',
+      type      => 'enum',
       default   => 'triangular',
       choices   => ['triangular','right','left','diagonal'],
       choices_display => ['Triangular','Right','Left','Diagonal'],
@@ -337,7 +338,7 @@ __END__
 # 81
 
 
-=for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND ZOrderCurve Math-PlanePath OEIS
+=for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND ZOrderCurve Math-PlanePath OEIS SierpinskiTriangle
 
 =head1 NAME
 
@@ -609,7 +610,15 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SierpinskiArrowhead-E<gt>new ()>
 
-Create and return a new arrowhead path object.
+=item C<$path = Math::PlanePath::SierpinskiArrowhead-E<gt>new (align =E<gt> $str)>
+
+Create and return a new arrowhead path object.  C<align> is a string, one of
+the following as described above.
+
+    "triangular"       the default
+    "right"
+    "left"
+    "diagonal"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -350,7 +350,7 @@ __END__
 
 #------------------------------------------------------------------------------
 
-=for stopwords eg Ryde Sierpinski Nlevel ie SierpinskiTriangle Math-PlanePath bitand
+=for stopwords eg Ryde Sierpinski Nlevel ie SierpinskiTriangle Math-PlanePath bitand dX,dY
 
 =head1 NAME
 
@@ -366,7 +366,8 @@ Math::PlanePath::SierpinskiArrowheadCentres -- self-similar triangular path trav
 
 X<Sierpinski, Waclaw>This is a version of the Sierpinski arrowhead path
 taking the centres of each triangle represented by the arrowhead segments.
-The effect is to traverse the SierpinskiTriangle points.
+The effect is to traverse the SierpinskiTriangle points in a connected
+sequence.
 
               ...                                 ...
                /                                   /
@@ -395,9 +396,9 @@ The effect is to traverse the SierpinskiTriangle points.
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
 The base figure is the N=0 to N=2 shape.  It's repeated up in mirror image
-as N=3 to N=6 then across and rotated as N=6 to N=9.  At the next level the
-same is done with the N=0 to N=8 shape, up mirrored as N=9 to N=17 and
-across rotated as N=18 to N=26, etc.
+as N=3 to N=6 then rotated across as N=6 to N=9.  At the next level the same
+is done with N=0 to N=8 as the base, then N=9 to N=17 up mirrored, and N=18
+to N=26 across, etc.
 
 The X,Y coordinates are on a triangular lattice using every second integer
 X, per L<Math::PlanePath/Triangular Lattice>.
@@ -416,7 +417,7 @@ The base pattern is a triangle like
 
 Higher levels replicate this within the triangles 0,1,2 but the middle is
 not traversed.  The result is the familiar Sierpinski triangle by connected
-steps either 2 across or 1 diagonal.
+steps of either 2 across or 1 diagonal.
 
     * * * * * * * * * * * * * * * *
      *   *   *   *   *   *   *   *
@@ -526,8 +527,8 @@ so using an eighth of the plane.
 
      -7 -6 -5 -4 -3 -2 -1 X=0
 
-"diagonal" put rows on diagonals down from the Y axis to the X axis.  This
-uses the whole of the first quadrant (with gaps).
+"diagonal" puts rows on diagonals down from the Y axis to the X axis.  This
+uses the whole of the first quadrant, with gaps.
 
 =cut
 
@@ -556,8 +557,8 @@ uses the whole of the first quadrant (with gaps).
         +--------------------------
            X=0 1  2  3  4  5  6  7
 
-These diagonals visit all points X,Y where X and Y written in binary have
-1-bits in different places, ie. where S<X bitand Y> == 0.
+These diagonals visit all points X,Y where X and Y written in binary have no
+1-bits in the same places, ie. where S<X bitand Y> = 0.
 
 =head1 FUNCTIONS
 
@@ -567,7 +568,15 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SierpinskiArrowheadCentres-E<gt>new ()>
 
-Create and return a new path object.
+=item C<$path = Math::PlanePath::SierpinskiArrowheadCentres-E<gt>new (align =E<gt> $str)>
+
+Create and return a new arrowhead path object.  C<align> is a string, one of
+the following as described above.
+
+    "triangular"       the default
+    "right"
+    "left"
+    "diagonal"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

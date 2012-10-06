@@ -33,7 +33,7 @@ require Math::PlanePath::Columns;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::Columns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Columns->VERSION,  $want_version,
@@ -73,7 +73,7 @@ require Math::PlanePath::Columns;
   # height not a parameter as such ...
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Columns->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'n_start');
 }
 
 #------------------------------------------------------------------------------

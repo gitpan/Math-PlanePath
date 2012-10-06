@@ -32,7 +32,7 @@ use List::Util 'first','sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -48,6 +48,7 @@ use constant n_start => 0;
 use constant parameter_info_array =>
   [ { name        => 'arms',
       share_key   => 'arms_4',
+      display     => 'Arms',
       type        => 'integer',
       minimum     => 1,
       maximum     => 4,
@@ -230,7 +231,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint radix
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint radix Jorg Arndt Arndt's fxtbook TerdragonCurve
 
 =head1 NAME
 
@@ -348,30 +349,45 @@ all four begin.  Every edge between the points is traversed once.
 The little "S" shapes of the N=0to5 base shape tile the plane with 2x1
 bricks and 1x1 holes in the following pattern,
 
-     |     |  |  |  |     |  |  |  |
-     +--+--+--+--+  +--+--+--+--+  +-
-     |  |  |     |  |  |  |     |  |
-    -+--+  +--+--+--+--+  +--+--+--+-
-        |  |  |  |     |  |  |  |
-    -+--+--+--+  +--+--+--+--+  +--+-
-     |  |     |  |  |  |     |  |  |
-    -+  +--+--+--+--+  +--+--+--+--+
-     |  |  |  |     |  |  |  |     |
-    -+--+--+  +--+--o--+--+  +--+--+-
-     |     |  |  |  |     |  |  |  |
-     +--+--+--+--+  +--+--+--+--+  +-
-     |  |  |     |  |  |  |     |  |
-    -+--+  +--+--+--+--+  +--+--+--+-
-        |  |  |  |     |  |  |  |
-    -+--+--+--+  +--+--+--+--+  +--+-
-     |  |     |  |  |  |     |  |  |
-    -+  +--+--+--+--+  +--+--+--+--+
-     |  |  |  |     |  |  |  |     |
+     |         |    |    |    |         |    |    |    |
+     |---------+---------|    |---------+---------|    |-
+     |    |    |         |    |    |    |         |    |
+     |    |    |         |    |    |    |         |    |
+    ------|    |---------+---------|    |---------+------
+          |    |    |    |         |    |    |    |
+          |    |    |    |         |    |    |    |
+    ------+---------|    |---------+---------|    |------
+     |    |         |    |    |    |         |    |    |
+     |    |         |    |    |    |         |    |    |
+    -|    |---------+---------|    |---------+---------|
+     |    |    |    |         |    |    |    |         |
+     |    |    |    |         |    |    |    |         |
+    -+---------|    |---------o---------|    |---------+-
+     |         |    |    |    |         |    |    |    |
+     |         |    |    |    |         |    |    |    |
+     |---------+---------|    |---------+---------|    |-
+     |    |    |         |    |    |    |         |    |
+     |    |    |         |    |    |    |         |    |
+    ------|    |---------+---------|    |---------+------
+          |    |    |    |         |    |    |    |
+          |    |    |    |         |    |    |    |
+    ------+---------|    |---------+---------|    |------
+     |    |         |    |    |    |         |    |    |
+     |    |         |    |    |    |         |    |    |
+    -|    |---------+---------|    |---------+---------|
+     |    |    |    |         |    |    |    |         |
 
 This is simply the curve with segment N=2mod5 to N=3mod5 omitted from each
 mod5 block.  In each 2x1 block the "S" traverses 4 of the 6 edges and the
 way the curve meshes together traverses the other 2 edges in another brick,
 possibly a brick on another arm of the curve.
+
+This tiling is also for example
+
+    http://tilingsearch.org/HTML/data182/AL04.html
+
+    Or with enlarged square part,
+    http://tilingsearch.org/HTML/data149/L3010.html
 
 =head1 FUNCTIONS
 

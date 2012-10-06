@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,6 +50,7 @@ use constant parameter_info_array =>
   [
    { name       => 'tree_type',
      share_key  => 'tree_type_fractions',
+     display    => 'Tree Type',
      type       => 'enum',
      default    => 'Kepler',
      choices    => ['Kepler'],
@@ -151,7 +152,6 @@ sub xy_to_n {
   if (is_infinite($y)) { return $y; }
 
   my $zero = $x * 0 * $y;   # inherit bignum 0
-  my $one = ($zero + 1);    # inherit bignum 1
 
   #       X/Y
   #     /     \
@@ -274,8 +274,14 @@ coprime.  The steps left or right are encoded/decoded as an N value.
 
 =head2 Kepler Tree
 
-The default and only tree currently is by Johannes Kepler.  In principle
-similar bit reversal etc variations as in RationalsTree would be possible.
+X<Kepler, Johannes>The default and only tree currently is by Johannes Kepler.
+
+    "Harmonices Mundi", Book III
+    Excerpt of translation by Aiton, Duncan and Field at
+    http://ndirty.cute.fi/~karttu/Kepler/a086592.htm
+
+In principle similar bit reversal etc variations as in RationalsTree would
+be possible.
 
     N=1                             1/2
                               ------   ------
@@ -368,8 +374,8 @@ appended, either a 0-bit or a 1-bit.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return 2, since every node has two children, or return 0 if C<$nE<lt>1>
-(ie. before the start of the path).
+Return 2, since every node has two children, or return C<undef> if
+C<$nE<lt>1> (ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -401,11 +407,11 @@ following forms
     A086593  - Kepler sum X+Y, and every second denominator
     A020650  - Kepler difference Y-X (RationalsTree AYT numerators)
 
-The tree descends as X/(X+Y) and Y/(X+Y) so the denominators are in pairs of
-two X+Y each time, after the initial 1/2.  A086593 is every second value,
-starting at 2, eliminating the duplication.  This is also the sum X+Y (from
-value 3 onwards), as can be seen by thinking of writing a node as the X+Y
-which would be the denominators it descends to.
+The tree descends as X/(X+Y) and Y/(X+Y) so the denominators are two copies
+of X+Y time after the initial 1/2.  A086593 is every second, starting at 2,
+eliminating the duplication.  This is also the sum X+Y, from value 3
+onwards, as can be seen by thinking of writing a node as the X+Y which would
+be the denominators it descends to.
 
 =head1 SEE ALSO
 
@@ -416,11 +422,6 @@ L<Math::PlanePath::PythagoreanTree>
 
 L<Math::NumSeq::SternDiatomic>,
 L<Math::ContinuedFraction>
-
-Johannes Kepler, "Harmonices Mundi" Book III.  Excerpt of translation by
-Aiton, Duncan and Field at
-
-    http://ndirty.cute.fi/~karttu/Kepler/a086592.htm
 
 =head1 HOME PAGE
 

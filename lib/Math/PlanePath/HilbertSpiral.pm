@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -288,7 +288,7 @@ sub rect_to_n_range {
 __END__
 
 
-=for stopwords HilbertCurve eg Ryde ie BetaOmega Math-PlanePath HilbertSpiral
+=for stopwords HilbertCurve eg Ryde ie BetaOmega Math-PlanePath HilbertSpiral OEIS
 
 =head1 NAME
 
@@ -333,7 +333,6 @@ HilbertCurve, just mirrored along the anti-diagonal.  For example. N=4 to
 N=15
 
     HilbertSpiral             HilbertCurve
-     (mirror)                    (plain)
 
                   \        5---6   9--10
                    \       |   |   |   |
@@ -352,7 +351,8 @@ This mirroring has the effect of mapping
     HilbertCurve X,Y  ->  -Y,-X for HilbertSpiral
 
 Notice the coordinate difference (-Y)-(-X) = X-Y so that difference,
-representing a projection onto the X=-Y diagonal, is the same in both paths.
+representing a projection onto the X=-Y opposite diagonal, is the same in
+both paths.
 
 =head2 Level Ranges
 

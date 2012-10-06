@@ -32,7 +32,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -386,7 +386,7 @@ sub tree_n_parent {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart Nend ie
+=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart Nend ie OEIS
 
 =head1 NAME
 
@@ -576,13 +576,14 @@ Return the children of C<$n>, or an empty list if C<$n> has no children
 (including when C<$n E<lt> 1>, ie. before the start of the path).
 
 The children are the cells turned on adjacent to C<$n> at the next level.
-This can be none, one or three points.  The way points are numbered means
-that when there's multiple children they're consecutive N values, for
-example at N=12 the children 19,20,21.
+This can be 0, 1 or 3 points.  The way points are numbered means that when
+there's multiple children they're consecutive N values, for example at N=12
+the children 19,20,21.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return the number of children of C<$n>, or 0 if C<$n> has no children.
+Return the number of children of C<$n>, or return C<undef> if C<$nE<lt>1>
+(ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

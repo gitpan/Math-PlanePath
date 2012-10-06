@@ -35,7 +35,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -131,6 +131,7 @@ use constant parameter_info_array =>
    {
     name      => 'rotation_type',
     type      => 'enum',
+    display   => 'Rotation Type',
     share_key => 'vogel_rotation_type',
     choices   => ['phi', 'sqrt2', 'sqrt3', 'sqrt5', 'custom'],
     default   => 'phi',
@@ -139,6 +140,7 @@ use constant parameter_info_array =>
     name => 'rotation_factor',
     type => 'float',
     type_hint => 'expression',
+    display   => 'Rotation Factor',
     description => 'Rotation factor.  If you have Math::Symbolic then this  can be an expression like pi+2*e-phi (constants phi,e,gam,pi), otherwise it should be a plain number.',
     default => - (1 + sqrt(5)) / 2,
     default_expression => '-phi',
@@ -147,6 +149,7 @@ use constant parameter_info_array =>
     when_value => 'custom',
    },
    { name           => 'radius_factor',
+     display        => 'Radius Factor',
      description    => 'Radius factor, spreading points out to make them non-overlapping.  0 means the default factor.',
      type           => 'float',
      minimum        => 0,

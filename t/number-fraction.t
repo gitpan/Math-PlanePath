@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 403)[1];
+my $test_count = (tests => 435)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -242,6 +242,28 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 ### Modules ...
 
 my @modules = (
+               'CfracDigits,radix=1',
+               'CfracDigits',
+               'CfracDigits,radix=3',
+               'CfracDigits,radix=4',
+               'CfracDigits,radix=10',
+               'CfracDigits,radix=37',
+
+               'ChanTree',
+               'ChanTree,k=2',
+               'ChanTree,k=4',
+               'ChanTree,k=5',
+               'ChanTree,k=7',
+               'ChanTree,reduced=1',
+               'ChanTree,reduced=1,k=2',
+               'ChanTree,reduced=1,k=4',
+               'ChanTree,reduced=1,k=5',
+               'ChanTree,reduced=1,k=7',
+
+               'RationalsTree',
+               'RationalsTree,tree_type=L',
+               'FractionsTree',
+
                'DekkingCurve',
                'DekkingCentres',
 
@@ -436,9 +458,6 @@ my @modules = (
                'GosperIslands',
                'Flowsnake',
 
-               'RationalsTree',
-               'RationalsTree,tree_type=L',
-               'FractionsTree',
                # 'DivisibleColumns', # counting by N
                # 'DivisibleColumns,divisor_type=proper',
                # 'CoprimeColumns',   # counting by N

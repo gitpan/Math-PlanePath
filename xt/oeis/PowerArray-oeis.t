@@ -49,6 +49,28 @@ sub numeq_array {
 }
 
 #------------------------------------------------------------------------------
+# A067251 -- radix=10, N on Y axis, no trailing 0 digits
+{
+  my $anum = 'A067251';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PowerArray->new (radix => 10);
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      push @got, $path->xy_to_n(0,$y);
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
 # A153733 remove trailing 1s
 {
   my $anum = 'A153733';
@@ -164,6 +186,7 @@ sub numeq_array {
         1,
         "$anum");
 }
+
 #------------------------------------------------------------------------------
 # A005408 -- N on Y axis, odd numbers
 {

@@ -33,7 +33,7 @@ require Math::PlanePath::Rows;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::Rows::VERSION, $want_version, 'VERSION variable');
   ok (Math::PlanePath::Rows->VERSION,  $want_version, 'VERSION class method');
 
@@ -69,7 +69,7 @@ require Math::PlanePath::Rows;
   # width not a parameter as such ...
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Rows->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'n_start');
 }
 
 

@@ -16,185 +16,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --wx --path=EToothpickTree --values=LinesTree --scale=20 --figure=toothpick_E
-# math-image --wx --path=EToothpickTree,shape=Y --values=LinesTree --scale=20 --figure=toothpick_Y
+# math-image --wx --path=LToothpickTree --values=LinesTree --scale=10 --figure=toothpick_L
 
-# http://blog.barabel.net/index.php?post/2012/01/epiphanie
-# http://blog.barabel.net/cgi-bin/toothpick.cgi?maxNumberOfTooths=2012
-# https://p.twimg.com/AiMexOHCEAAeONg.png
-#
-# E-toothpick 
-#    A161328 total cells at level
-#    A161329 cells added at level
-# E-toothpick snowflake
-#    A161330 total cells
-#    A161331 cells added at level
-#    A161332 cells added at level / 2
-#    A161333 total cells * 3
-#    A161334 total cells / 2
-#    A161335 total cells * 2
-#    A161336 (total cells - 2) / 6
-#
-# Y-toothpick
-#    A160120 total cells
-#    A160121 cells added
-#    A160122 cells added *2/3
-#    A160123 cells added /3
-#    A160157 total cells * 2
-#    A160167 total cells * 3
-#    A160425 grid points covered
-#    A160789 Y-tooth - plain-tooth
-#    A161418 num triangles
-#    A161426 one triangle total
-#    A161427 one triangle added
-#    A161828 num rhombus
-#    A161829 rhombus added
-#    A161834 num rhombus / 3
-#    A161836 num concave/convex hexagons
-#    A161837 added concave/convex hexagons
-#    A161838 num concave/convex hexagons / 3
-# Y-toothpick in 120 degree third of the plane
-#    A161830 total cells
-#    A161831 cells added
-#    A161832 total / 2
-#    A161833 cells added / 2
-# Y-toothpick in 120 degree third of the plane, starting at angle ...
-#    A161910 total cells
-# Y-toothpick without internal propagation
-#    A160715 total cells
-#    A151710 cells added
-# Y skeleton
-#    A161430
-#    A161429
-# Y: 1+1+2+1 + 3+2+3+41+2+ 3 + 5+6+4+4 + 6+4+4+8
+# A172310
 
 
-
-#
-#
-#       \   /
-#        \ /
-#     ----1----
-#        / \
-#       /   \
-
-#        \   / \   /
-#         \ /   \ /
-#      ----4     3----
-#      \    \   /    /
-#       \    \ /    /
-#    ----5----1----2----
-#       /    / \    \
-#      /    /   \    \
-#      ----6     7----
-#         / \   / \
-#        /   \ /   \
-
-#                          
-#        \    /       \   /  
-#         \  /         \ /   
-#      ----10           9----
-#            \   / \   /     
-#             \ /   \ /      
-#          ----4     3----      
-#    \     \    \   /    /    /  
-#     \     \    \ /    /    /   
-#  ----11----5----1----2----8----
-#     /     /    / \    \    \   
-#    /     /    /   \    \    \  
-#          ----6     7----      
-#             / \   / \     
-#            /   \ /   \   
-#      ----12           13----
-#         /  \         /  \
-#        /    \       /    \
-
-#                            
-#                         \    /
-#                          \  /
-#         16                15----
-#          \    /       \   /  
-#           \  /         \ /   
-#        ----10           9----23
-#              \   / \   /       \   \   /
-#               \ /   \ /             \ /
-#            ----4     3----          22----
-#      \     \    \   /    /    /     /     /     /    /    /
-#       \     \    \ /    /    /     /     /     /    /    /
-#  17----11----5----1----2----8----14----21----38---44---62
-#       /     /    / \    \    \     \     \     \    \    \
-#      /     /    /   \    \    \     \     \     \    \    \
-#            ----6     7----          20----
-#               / \   / \             / \
-#              /   \ /   \           /   \
-#        ----12           13----    
-#           /  \         /  \       /
-#          /    \       /    \     /
-#        18                  19---*----
-#                                  \
-#                                   \
-# 0, 2, 8, 14, 20, 38, 44, 62, 80
-#     +6 +6  +6  +18  6  18  18
-#
-#
-#
-#
-#
-#
-#                 
-#                                           8
-#                                           |
-#                                           |
-#                                          \|/
-#                                   8       7       8
-#                                     \     |     /
-#                                       7   |   7    
-#                                     /   \ | /   \  
-#                                   8       6       8
-#                                           |    
-#                       8                   |                   8
-#                       |                  \|/                  |
-#                   8   |                   5               8   |    
-#                     \ |/                  |                 \ |/   
-#               8       7               5   |   5               7       8
-#                 \ |   |                 \ | /                 |   | /  
-#                   7   |                   4                   |   7    
-#                  /  \ |                   |                   | /   \
-#                8      6       5           |           5       6       8
-#                      /  \ |   |          \|/          |   | /  \     
-#                           5   |           3           |   5          
-#                         /   \ |           |           | /   \        
-#                       6       4           |           4       6      
-#                              /  \ |      \|/      | /  \             
-#                                   3       2       3                  
-#                                  /  \ |   |   | /  \                 
-#                                       2   |   2                     
-#                                  \  /   \ | /  \   /                
-#                                   3       1       3                 
-#                                 / |               | \               
-#                       6       4   |               |   4       6     
-#                         \   /     |               |     \   /       
-#                           5       4               4       5            
-#                         /        /| \  /     \  / |\        \  /       
-#               8       6           |   5       5   |           6       8
-#                 \   / |           |   |\     /|   |           | \   /  
-#                   7   |           5               5           |   7    
-#                 /     |          /|\             /|\          |     \  
-#               8       7           |               |           7       8
-#                                   |               |                    
-#                                   6               6                 
-#                              \  / | \  /     \  / | \  /            
-#                               7   |   7       7   |   7             
-#                              /|   |   |\     /|   |   |\            
-#                                   7               7                 
-#                                  /|\             /|\                
-#                                   |               |                 
-#                                   |               |                 
-#                                   8               8                 
-
-
-
-package Math::PlanePath::EToothpickTree;             
+package Math::PlanePath::LToothpickTree;             
 use 5.004;
 use strict;
 use Carp;
@@ -202,7 +29,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -212,19 +39,17 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'round_down_pow';
 
+# uncomment this to run the ### lines
+#use Smart::Comments;
+
 
 use constant parameter_info_array =>
   [ { name      => 'start',
-      share_key => 'start_rs',
+      share_key => 'start_upstarplus',
+      display   => 'Start',
       type      => 'enum',
       default   => 'right',
-      choices   => ['right','snowflake'],
-    },
-    { name      => 'shape',
-      share_key => 'shape_ev',
-      type      => 'enum',
-      default   => 'E',
-      choices   => ['E','V','Y'],
+      choices   => ['up','star','plus'],
     },
   ];
 
@@ -238,35 +63,31 @@ sub _UNTESTED__tree_level_n_range {
   return ($level_to_n->[$level], $level_to_n->[$level+1]-1);
 }
 
-my @dir_to_dx = (0,-1,-1, 0, 1, 1);
-my @dir_to_dy = (2, 1,-1,-2,-1, 1);
+my @dir_to_dx = (1,1,0,-1, -1,-1,0,1);
+my @dir_to_dy = (0,1,1,1,  0,-1,-1,-1);
 
 sub new {
   my $self = shift->SUPER::new(@_);
   $self->{'horiz'} = 0;
-  $self->{'start'} ||= 'right';
-  $self->{'shape'} ||= 'E';
-  if ($self->{'shape'} eq 'E') {
-    $self->{'rotate_list'} = [ -1, 0, 1 ];
-  } elsif ($self->{'shape'} eq 'V') {
-    $self->{'rotate_list'} = [ -1, 1 ];
-  } elsif ($self->{'shape'} eq 'Y') {
-    $self->{'rotate_list'} = [ -2, 0, 2 ];
-  } else {
-    croak "Unrecognised shape: ",$self->{'shape'};
-  }
+  my $start = ($self->{'start'} ||= 'up');
+  $self->{'rotate_list'} = [ -1, 1 ];
+
   my @initial_dir;
-  if ($self->{'start'} eq 'right') {
-    @initial_dir = (0);
-  } elsif ($self->{'start'} eq 'snowflake') {
-    @initial_dir = (0, 3);
+  if ($start eq 'up') {
+    @initial_dir = (2);
+  } elsif ($start eq 'star') {
+    @initial_dir = (2, 6);
+  } elsif ($start eq 'plus') {
+    @initial_dir = (1, 5);
   } else {
-    croak "Unrecognised start: ",$self->{'start'};
+    croak "Unrecognised start: ",$start;
   }
 
   foreach my $dir (@initial_dir) {
+    $self->{'edges'}->{"0,0,$dir"} = 1;  # centre
+    $self->{'edges'}->{_xyd_opposite(0,0,$dir)} = 1;
     foreach my $rotate (@{$self->{'rotate_list'}}) {
-      my $dir = ($dir + $rotate) % 6;
+      my $dir = ($dir + $rotate) & 7;
       my $ox = $dir_to_dx[$dir];
       my $oy = $dir_to_dy[$dir];
       push @{$self->{'endpoints_x'}}, $ox;
@@ -275,10 +96,18 @@ sub new {
       $self->{'endpoints_count'}->{"$ox,$oy"}++;
 
       $self->{'edges'}->{"0,0,$dir"} = 1;
-      $dir = ($dir + 3) % 6;
-      $self->{'edges'}->{"$ox,$oy,$dir"} = 1;
+      $self->{'edges'}->{_xyd_opposite(0,0,$dir)} = 1;
+      ### opposite: _xyd_opposite(0,0,$dir)
+      if ($dir & 1) {
+        ### cross1: _xyd_cross1(0,0,$dir)
+        ### cross2: _xyd_cross2(0,0,$dir)
+        $self->{'edges'}->{_xyd_cross1(0,0,$dir)} = 1;
+        $self->{'edges'}->{_xyd_cross2(0,0,$dir)} = 1;
+      }
     }
   }
+  ### $self
+
   $self->{'xy_to_n'} = { '0,0' => 1 };
   $self->{'n_to_x'} = [ undef, 0 ];
   $self->{'n_to_y'} = [ undef, 0 ];
@@ -298,7 +127,7 @@ sub _extend {
   #   my ($x,$y,$dir) = split /,/, $edge;
   #   my $ox = $x + $dir_to_dx[$dir];
   #   my $oy = $y + $dir_to_dy[$dir];
-  #   my $odir = ($dir + 3) % 6;
+  #   my $odir = ($dir + 4) & 7;
   #   my $okey = "$ox,$oy,$odir";
   #   exists $edges->{$okey} or die "Oops, missing $okey opposite of $edge";;
   # }
@@ -309,23 +138,29 @@ sub _extend {
   my $endpoints_dir = $self->{'endpoints_dir'};
   my $endpoints_count = $self->{'endpoints_count'};
 
+  my @no_extend;
+
   # never extend if would overlap existing edges,
   # or if multiple ends meeting
   for (my $i = 0; $i <= $#$endpoints_x; $i++) {
     my $x = $endpoints_x->[$i];
     my $y = $endpoints_y->[$i];
     my $dir = $endpoints_dir->[$i];
+    ### endpoint check never: "$x,$y,$dir"
 
     if ($endpoints_count->{"$x,$y"} > 1) {
-      undef $endpoints_x->[$i];
+      # undef $endpoints_x->[$i];
+      $no_extend[$i] = 1;
       next;
     }
 
     foreach my $rotate (@{$self->{'rotate_list'}}) {
-      my $dir = ($dir + $rotate) % 6;
+      my $dir = ($dir + $rotate) & 7;
+      ### check existing edge: "$x,$y,$dir"
       if (exists $edges->{"$x,$y,$dir"}) {
-        ### exclude existing edge: "$x,$y,$dir"
-        undef $endpoints_x->[$i];
+        ### exclude due to existing edge ...
+        # undef $endpoints_x->[$i];
+      $no_extend[$i] = 1;
       }
     }
   }
@@ -337,17 +172,18 @@ sub _extend {
     next if ! defined $x;
     my $y = $endpoints_y->[$i];
     my $dir = $endpoints_dir->[$i];
+    $new_edge{"$x,$y,$dir"}++;  # centre
+    $new_edge{_xyd_opposite($x,$y,$dir)}++;
     foreach my $rotate (@{$self->{'rotate_list'}}) {
-      my $dir = ($dir + $rotate) % 6;
+      my $dir = ($dir + $rotate) & 7;
       $new_edge{"$x,$y,$dir"}++;
-      my $ox = $x + $dir_to_dx[$dir];
-      my $oy = $y + $dir_to_dy[$dir];
-      my $odir = ($dir + 3) % 6;
-      $new_edge{"$ox,$oy,$odir"}++;
+      $new_edge{_xyd_opposite($x,$y,$dir)}++;
+      if ($dir & 1) {
+        $new_edge{_xyd_cross1($x,$y,$dir)}++;
+        $new_edge{_xyd_cross2($x,$y,$dir)}++;
+      }
     }
   }
-
-  my @no_extend;
 
   # no extend if duplicate new edges, but the endpoint remains a candidate
   # for later rounds
@@ -357,12 +193,10 @@ sub _extend {
     my $y = $endpoints_y->[$i];
     my $dir = $endpoints_dir->[$i];
     foreach my $rotate (@{$self->{'rotate_list'}}) {
-      my $dir = ($dir + $rotate) % 6;
+      my $dir = ($dir + $rotate) & 7;
       my $key = "$x,$y,$dir";
       if ($new_edge{$key} > 1) {
         $no_extend[$i] = 1;
-
-        # undef $endpoints_x->[$i];
       }
     }
   }
@@ -386,28 +220,40 @@ sub _extend {
     next if ! defined $x;
     my $y = $endpoints_y->[$i];
     my $dir = $endpoints_dir->[$i];
+    ### consider extend endpoint: "xy=$x,$y,dir=$dir"
 
     if ($no_extend[$i]) {
-      # no extend at this level, but maybe later
+      ### no extend at this level, but maybe later ...
       push @new_endpoints_x, $x;
       push @new_endpoints_y, $y;
       push @new_endpoints_dir, $dir;
       next;
     }
 
+    ### store: "$x,$y N=".scalar(@$n_to_x)
     $xy_to_n->{"$x,$y"} = scalar(@$n_to_x);
     push @$n_to_x, $x;
     push @$n_to_y, $y;
     push @$n_to_level, $level;
 
+    $edges->{"$x,$y,$dir"} = 1;  # centre
+    $self->{'edges'}->{_xyd_opposite($x,$y,$dir)} = 1;
+
     foreach my $rotate (@{$self->{'rotate_list'}}) {
-      my $dir = ($dir + $rotate) % 6;
-      my $key = "$x,$y,$dir";
-      $edges->{$key} = 1;
+      my $dir = ($dir + $rotate) & 7;
+      $edges->{"$x,$y,$dir"} = 1;
+      ### store edge: "$x,$y,$dir"
+      if ($dir & 1) {
+        $edges->{_xyd_cross1($x,$y,$dir)} = 1;
+        $edges->{_xyd_cross2($x,$y,$dir)} = 1;
+        ### store cross1: _xyd_cross1($x,$y,$dir)
+        ### store cross2: _xyd_cross2($x,$y,$dir)
+      }
       my $ox = $x + $dir_to_dx[$dir];
       my $oy = $y + $dir_to_dy[$dir];
-      my $odir = ($dir + 3) % 6;
+      my $odir = ($dir + 4) & 7;  # opposite direction
       $edges->{"$ox,$oy,$odir"} = 1;
+      ### store opposite edge: "$ox,$oy,$odir"
       push @new_endpoints_x, $ox;
       push @new_endpoints_y, $oy;
       push @new_endpoints_dir, $dir;
@@ -429,18 +275,41 @@ sub _extend {
   $self->{'level'}++;
 }
 
-my $stop = 64;
- $stop = 999999999;
+sub _xyd_opposite {
+  my ($x,$y,$dir) = @_;
+  $x += $dir_to_dx[$dir];
+  $y += $dir_to_dy[$dir];
+  $dir = ($dir + 4) & 7;  # opposite direction
+  return "$x,$y,$dir";
+}
+sub _xyd_cross1 {
+  my ($x,$y,$dir) = @_;
+  $dir = ($dir - 1) & 7;   # right -1
+  $x += $dir_to_dx[$dir];
+  $y += $dir_to_dy[$dir];
+  $dir = ($dir + 3) & 7;  # left +3
+  return "$x,$y,$dir";
+}
+sub _xyd_cross2 {
+  my ($x,$y,$dir) = @_;
+  $dir = ($dir + 1) & 7;   # right -1
+  $x += $dir_to_dx[$dir];
+  $y += $dir_to_dy[$dir];
+  $dir = ($dir - 3) & 7;  # left +3
+  return "$x,$y,$dir";
+}
+
+my $stop = 725000;
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### EToothpickTree n_to_xy(): $n
+  ### LToothpickTree n_to_xy(): $n
 
   if ($n < 1) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  if ($self->{'shape'} eq 'Y' && $n > $stop) {
+  if ($n > $stop) {
     return;
-}
+  }
   {
     my $int = int($n);
     ### $int
@@ -468,7 +337,7 @@ sub n_to_xy {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### EToothpickTree xy_to_n(): "$x, $y"
+  ### LToothpickTree xy_to_n(): "$x, $y"
 
   $x = round_nearest ($x);
   $y = round_nearest ($y);
@@ -484,7 +353,7 @@ sub xy_to_n {
   }
 
   my $n = $self->{'xy_to_n'}->{"$x,$y"};
-  if (defined $n && $self->{'shape'} eq 'Y' && $n > $stop) {
+  if (defined $n && $n > $stop) {
     return undef;
   }
 
@@ -504,7 +373,7 @@ sub xy_to_n {
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
-  ### EToothpickTree rect_to_n_range(): "$x1,$y1  $x2,$y2"
+  ### LToothpickTree rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
   $x1 = round_nearest ($x1);
   $y1 = round_nearest ($y1);
@@ -516,7 +385,6 @@ sub rect_to_n_range {
                       abs($y1),
                       abs($y2));
   ### $level
-  ### $len
   if (is_infinite($level)) {
     return $level;
   }
@@ -533,7 +401,7 @@ sub tree_n_children {
   ### $x
   ### $y
 
-  my @n = map { $self->xy_to_n($x+$dir_to_dx[$_],$y+$dir_to_dy[$_]) } 0 .. 5;
+  my @n = map { $self->xy_to_n($x+$dir_to_dx[$_],$y+$dir_to_dy[$_]) } 0 .. 7;
   my $n_to_level = $self->{'n_to_level'};
   my $want_level = $n_to_level->[$n] + 1;
   ### $want_level
@@ -556,7 +424,7 @@ sub tree_n_parent {
   my $want_level = $n_to_level->[$n] - 1;
   ### $want_level
 
-  foreach my $dir (0 .. 5) {
+  foreach my $dir (0 .. 7) {
     if (defined (my $n = $self->xy_to_n($x+$dir_to_dx[$dir],
                                         $y+$dir_to_dy[$dir]))) {
       if ($n_to_level->[$n] == $want_level) {
@@ -574,12 +442,12 @@ __END__
 
 =head1 NAME
 
-Math::PlanePath::EToothpickTree -- toothpick sequence
+Math::PlanePath::LToothpickTree -- toothpick sequence
 
 =head1 SYNOPSIS
 
- use Math::PlanePath::EToothpickTree;
- my $path = Math::PlanePath::EToothpickTree->new;
+ use Math::PlanePath::LToothpickTree;
+ my $path = Math::PlanePath::LToothpickTree->new;
  my ($x, $y) = $path->n_to_xy (123);
 
 =head1 DESCRIPTION
@@ -591,7 +459,7 @@ non-overlapping line segments (toothpicks).
 
 =cut
 
-# math-image --path=EToothpickTree --output=numbers --all --size=65x11
+# math-image --path=LToothpickTree --output=numbers --all --size=65x11
 
 =pod
 
@@ -684,7 +552,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =over 4
 
-=item C<$path = Math::PlanePath::EToothpickTree-E<gt>new ()>
+=item C<$path = Math::PlanePath::LToothpickTree-E<gt>new ()>
 
 Create and return a new path object.
 
@@ -712,7 +580,8 @@ Create and return a new path object.
 #
 # =item C<$num = $path-E<gt>tree_n_num_children($n)>
 # 
-# Return the number of children of C<$n>, or 0 if C<$n> has no children.
+# Return the number of children of C<$n>, or return C<undef> if C<$nE<lt>1>
+# (ie. before the start of the path).
 #
 # =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 #

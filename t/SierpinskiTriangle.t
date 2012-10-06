@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiTriangle;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::SierpinskiTriangle::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiTriangle->VERSION,  $want_version,
@@ -73,7 +73,7 @@ require Math::PlanePath::SierpinskiTriangle;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::SierpinskiTriangle->parameter_info_list;
-  ok (join(',',@pnames), 'align');
+  ok (join(',',@pnames), 'align,n_start');
 }
 
 #------------------------------------------------------------------------------

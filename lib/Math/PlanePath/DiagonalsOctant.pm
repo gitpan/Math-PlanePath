@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,13 +38,16 @@ use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [ { name        => 'direction',
+      share_key   => 'direction_ud',
       display     => 'Direction',
       type        => 'enum',
       default     => 'down',
       choices     => ['down','up'],
       choices_display => ['Down','Up'],
       description => 'Number points downwards or upwards along the diagonals.',
-    } ];
+    },
+    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+  ];
 
 sub new {
   my $self = shift->SUPER::new(@_);

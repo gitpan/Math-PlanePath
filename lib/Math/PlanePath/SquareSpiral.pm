@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -58,13 +58,17 @@ use Math::PlanePath::Base::Generic
 #     Pulchritudinous Primes of Ulam spiral.
 
 # Note: shared by others with "wider"
-use constant parameter_info_array => [ { name        => 'wider',
-                                         type        => 'integer',
-                                         minimum     => 0,
-                                         default     => 0,
-                                         width       => 3,
-                                         description => 'Wider path.',
-                                       } ];
+use constant parameter_info_array =>
+  [ { name        => 'wider',
+      display     => 'Wider',
+      type        => 'integer',
+      minimum     => 0,
+      default     => 0,
+      width       => 3,
+      description => 'Wider path.',
+    },
+    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+  ];
 
 sub new {
   my $self = shift->SUPER::new (@_);

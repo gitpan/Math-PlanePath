@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,13 +56,15 @@ use constant parameter_info_array =>
       width       => 2,
       description => 'How much longer each row is than the preceding.',
     },
-    { name      => 'align',
-      type      => 'enum',
-      share_key => 'align_crl',
-      default   => 'centre',
-      choices   => ['centre', 'right', 'left'],
+    { name            => 'align',
+      type            => 'enum',
+      share_key       => 'align_crl',
+      display         => 'Align',
+      default         => 'centre',
+      choices         => ['centre', 'right', 'left'],
       choices_display => ['Centre', 'Right', 'Left'],
     },
+    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
 
 sub new {
@@ -247,7 +249,6 @@ sub rect_to_n_range {
   }
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1); } # swap to x1<=x2
 
-  my $step = $self->{'step'};
   my $left_slope = $self->{'left_slope'};
   my $right_slope = $self->{'right_slope'};
 
@@ -300,6 +301,7 @@ sub rect_to_n_range {
           $self->xy_to_n (min($x2, $x_top_right), $y2));
 
 
+  # my $step = $self->{'step'};
   # my $sub = ($step&1) - 2;
   #
   # ### x bottom start: -$y1*$left_slope

@@ -16,14 +16,18 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# cf A054429 permutation reverse within binary row
+#
 # http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml
 
 
 # CS
-# SB->CS Gray code A003188, xor with floor A004526 or A008619 A110654 A076938
-# Bird->CS lamplighter A154436
-# CS->SB  Gray A006068
-# CS->Bird lamp A154435
+# A003188  permutation SB->CS, Gray code shift+xor
+# A006068  permutation CS->SB, Gray code inverse
+# A154435  permutation CS->Bird, lamplighter bit flips
+# A154436  permutation Bird->CS, lamplighter variant
+
+# xor with floor A004526 or A008619 A110654 A076938
 
 # 1536   97   51   54  104  120   62   59  113 1792
 #  768        50                  58       896
@@ -51,10 +55,6 @@
 #   PlanePathTurn planepath=RationalsTree,tree_type=CS,  turn_type=Right
 
 
-# cf Peter Luschny L-tree inserting 0/1 by pushing all terms along to N+1,
-#    then CW rows read right to left
-#    A174980 A174981
-
 # J. Czyz and W. Self, The Rationals Are Countable: Euclid's Proof, The
 # College Mathematics Journal, Vol. 34, No. 5 (Nov., 2003), pp. 367
 
@@ -72,8 +72,6 @@
 # A057114 - permutation SB X -> X+1
 # A057115 - permutation SB X -> X-1
 
-# math-image --path=RationalsTree,tree_type=Drib --all --output=numbers_xy
-
 #     9  10                    12  10
 # 8      11                 8      14
 #        12  13                     9  13
@@ -87,9 +85,11 @@ package Math::PlanePath::RationalsTree;
 use 5.004;
 use strict;
 use Carp;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -112,6 +112,7 @@ use constant class_y_negative => 0;
 use constant parameter_info_array =>
   [ { name            => 'tree_type',
       share_key       => 'tree_type_rationals',
+      display         => 'Tree Type',
       type            => 'enum',
       default         => 'SB',
       choices         => ['SB','CW','AYT','Bird','Drib','L',
@@ -264,7 +265,7 @@ sub xy_to_n {
 
   } else {
     if ($quotients[0] < 0) {   # X=0,Y=1 in tree_type="L"
-      return $self->{'n_start'};;
+      return $self->{'n_start'};
     }
 
     my $bit = 1;
@@ -371,15 +372,17 @@ sub rect_to_n_range {
   if ($x1 < 1) { $x1 = 1; }
   if ($y1 < 1) { $y1 = 1; }
 
-  # big x2, small y1
-  # big y2, small x1
-  my $level = _bingcd_max ($y2,$x1);
-  ### $level
-  {
-    my $l2 = _bingcd_max ($x2,$y1);
-    ### $l2
-    if ($l2 > $level) { $level = $l2; }
-  }
+  # # big x2, small y1
+  # # big y2, small x1
+  # my $level = _bingcd_max ($y2,$x1);
+  # ### $level
+  # {
+  #   my $l2 = _bingcd_max ($x2,$y1);
+  #   ### $l2
+  #   if ($l2 > $level) { $level = $l2; }
+  # }
+
+  my $level = max($x1,$x2,$y1,$y2);
 
   return ($self->{'n_start'},
           $self->{'n_start'} + (2+$zero) ** ($level + 3));
@@ -430,7 +433,7 @@ sub tree_n_children {
 }
 sub tree_n_num_children {
   my ($self, $n) = @_;
-  return ($n >= $self->{'n_start'} ? 2 : 0);
+  return ($n >= $self->{'n_start'} ? 2 : undef);
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
@@ -470,7 +473,7 @@ __END__
   # }
 
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped FractionsTree
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped FractionsTree GCD Luschny Jerzy Czyz Minkowski Nstart
 
 =head1 NAME
 
@@ -490,19 +493,19 @@ having no common factor.
 The rationals are traversed by rows of a binary tree which effectively
 represents a coprime pair X,Y by steps of a subtraction-only greatest common
 divisor algorithm proving them coprime.  Or equivalently by bit runs with
-lengths which are the quotients in the Euclidean GCD algorithm, which is
+lengths which are the quotients in the Euclidean GCD algorithm, which are
 also the terms in the continued fraction representation of X/Y.
 
 The SB, CW, Bird, Drib and AYT trees all have the same set of X/Y fractions
 in a row, but in a different order due to different encodings of the N
 value, high to low or low to high and possible bit flips.  The L tree has a
-shift which visits 0 as 0/1 too.
+shift which visits zero as 0/1 too.
 
 The bit runs mean that N values are quite large for relatively modest sized
 rationals.  For example 167/3 is N=288230376151711741, a 58-bit number.  The
 tendency is for the tree to travel out to large rationals while yet to fill
-in small ones.  The worst is the integer X/1 requires an N of X many bits,
-and similarly 1/Y requiring Y bits.
+in small ones.  The worst is the integer X/1 has N with X many bits, and
+similarly 1/Y has Y bits.
 
 See F<examples/rationals-tree.pl> in the PlanePath sources for a printout of
 all the trees.
@@ -521,8 +524,8 @@ increasing value.
                        | |      | |      | |      | |
     N=8 to N=15     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1
 
-Writing the parents in between the children as an "in-order" tree traversal
-to given depth has all values in increasing order too,
+Writing the parents between the children as an "in-order" tree traversal to
+a given depth has all values in increasing order too,
 
                  1/1
          1/2      |      2/1
@@ -532,11 +535,13 @@ to given depth has all values in increasing order too,
      1/3 1/2 2/3 1/1 3/2 2/1 3/1
                     ^
                     |
-                    4/3 next level
+                    4/3 next level = (1+3)/(1+2)
 
 New values are a "mediant" (x1+x2)/(y1+y2) formed from the left and right
 parent in this flattening.  So the next level 4/3 is left parent 1/1 and
-right parent 3/2 forming mediant (1+3)/(1+2)=4/3.
+right parent 3/2 forming mediant (1+3)/(1+2)=4/3.  At the left end is
+imagined a preceding 0/1 and at the right a following 1/0, so as to add
+1/level and level/1 at the ends for a total 2^level many new values.
 
 Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
@@ -753,7 +758,7 @@ plus one on the right,
 
     1/(tree + 1)  and  (1/tree) + 1
 
-which ends up meaning Y/(X+Y) and (X+Y)/X taking N bits low to high.
+which means Y/(X+Y) and (X+Y)/X taking N bits low to high.
 
 Plotting the N values by X,Y gives,
 
@@ -818,6 +823,12 @@ The descendants of each node are
 The endmost fractions of each row are Fibonacci numbers, F(k)/F(k+1) on the
 left and F(k+1)/F(k) on the right.
 
+=cut
+
+# math-image --path=RationalsTree,tree_type=Drib --all --output=numbers_xy
+
+=pod
+
     tree_type => "Drib"
 
     10  |     682        50                  44       852
@@ -851,13 +862,6 @@ X<Luschny, Peter>C<tree_type=E<gt>"L"> selects the L-tree by Peter Luschny.
 
 It's a row-reversal of the CW tree, with a shift to include 0 as 0/1.
 
-                              0/1
-              1/2                             1/1
-      2/3             3/2             1/3             2/1
-  3/4     5/3     2/5     5/2     3/5     4/3     1/4     3/1
-4/5 7/4 3/7 8/3 5/8 7/5 2/7 7/2 5/7 8/5 3/8 7/3 4/7 5/4 1/5 4/1
-
-
     N=0                             0/1
                               ------   ------
     N=1 to N=2             1/2               1/1
@@ -866,8 +870,7 @@ It's a row-reversal of the CW tree, with a shift to include 0 as 0/1.
                        | |      | |      | |      | |
     N=9 to N=16     3/4  5/3  2/5 5/2  3/5 4/3  1/4 3/1
 
-Notice 3/4 to 1/4 is the corresponding row of the CW tree read
-right-to-left.
+Notice 3/4 to 1/4 is the same as in the CW tree but read right-to-left.
 
 =cut
 
@@ -1011,8 +1014,8 @@ appended, either a 0-bit or a 1-bit.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return 2, since every node has two children, or return 0 if C<$nE<lt>1>
-(ie. before the start of the path).
+Return 2, since every node has two children, or if C<$nE<lt>1> (ie. before
+the start of the path) then return C<undef>.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -1042,6 +1045,7 @@ various forms,
     A007305  SB X numerators, Farey fractions (extra 0,1)
     A047679  SB Y denominators
     A007306  SB X+Y sum, Farey 0 to 1 part (extra 1,1)
+    A153036  SB floor(X/Y), ie. integer part
     A002487  CW X and Y, Stern diatomic sequence (extra 0)
     A070990  CW Y-X diff, Stern diatomic first diffs (less 0)
     A070871  CW X*Y product
@@ -1052,6 +1056,8 @@ various forms,
     A162910  Bird Y
     A162911  Drib X
     A162912  Drib Y
+    A174981  L-tree X
+    A002487  L-tree Y, same as CW X,Y, Stern diatomic
 
     A086893  position Fibonacci F[n+1],F[n] in Stern diatomic,
                CW N of F[n+1]/F[n]

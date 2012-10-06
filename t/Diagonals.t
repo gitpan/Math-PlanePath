@@ -33,7 +33,7 @@ require Math::PlanePath::Diagonals;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::Diagonals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Diagonals->VERSION,  $want_version,
@@ -71,7 +71,7 @@ require Math::PlanePath::Diagonals;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Diagonals->parameter_info_list;
-  ok (join(',',@pnames), 'direction');
+  ok (join(',',@pnames), 'direction,n_start');
 }
 
 

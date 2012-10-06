@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -251,7 +251,7 @@ sub xy_to_n {
     $state = $next_state[$state+$ndigit];
   }
 
-  return digit_join_lowtohigh(\@ndigits, 4, $zero)
+  return digit_join_lowtohigh(\@ndigits, 4, $zero);
 }
 
 # exact

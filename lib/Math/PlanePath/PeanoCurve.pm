@@ -45,7 +45,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -439,8 +439,8 @@ points is the difference in their N values (as given by C<xy_to_n()>).
 
 =head2 Radix
 
-The radix parameter can do the calculation in a base other than 3, using the
-same kind of direction reversals.  For example radix 5 gives 5x5 groups,
+The C<radix> parameter can do the calculation in a base other than 3, using
+the same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 
      radix => 5
 

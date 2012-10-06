@@ -376,6 +376,24 @@ foreach my $elem
 my @modules = (
                # module list begin
 
+               'CfracDigits,radix=1',
+               'CfracDigits',
+               'CfracDigits,radix=3',
+               'CfracDigits,radix=4',
+               'CfracDigits,radix=37',
+
+               'ChanTree,k=2',
+               'ChanTree',
+               'ChanTree,k=4',
+               'ChanTree,k=5',
+               'ChanTree,k=6',
+               'ChanTree,k=7',
+
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,coordinates=PQ,tree_type=FB',
+
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=CS',
                'RationalsTree',
@@ -387,11 +405,6 @@ my @modules = (
                'KochSnowflakes',
                'KochSquareflakes',
                'KochSquareflakes,inward=>1',
-
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
                'DekkingCurve',
                'DekkingCentres',

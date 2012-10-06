@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -263,7 +263,7 @@ Math::PlanePath::DekkingCentres -- 5x5 self-similar
 
 This is a variation of a 5x5 self-similar curve by F. M. Dekking.  This form
 visits the "centres" of the 5x5 self-similar blocks.  The result is diagonal
-steps, but replications wholely within 5x5 areas.
+steps, but replications wholly within 5x5 areas.
 
                               ...
         |                     /

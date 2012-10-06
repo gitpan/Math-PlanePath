@@ -51,7 +51,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -72,6 +72,7 @@ sub y_negative {
 
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_8',
+                                         display   => 'Arms',
                                          type      => 'integer',
                                          minimum   => 1,
                                          maximum   => 8,

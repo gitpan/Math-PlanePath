@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,6 +45,7 @@ use constant n_start => 0;
 
 use constant parameter_info_array =>
   [ { name        => 'realpart',
+      display     => 'Real Part',
       type        => 'integer',
       default     => 1,
       minimum     => 1,

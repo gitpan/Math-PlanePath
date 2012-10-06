@@ -117,12 +117,12 @@ diag "module count ",scalar(@lib_modules);
       or die "step list not matched";
     $list .= $1;
 
-    # initialized to exceptions, those not in the pod
+    # initialized to exceptions, no "step" in the pod
     my @list = ('File',
                 'Hypot', 'HypotOctant',
                 'TriangularHypot', 'VogelFloret',
-                'PythagoreanTree', 'RationalsTree', 'FractionsTree',
-                'FactorRationals', 'GcdRationals');
+                'PythagoreanTree', 'RationalsTree', 'FractionsTree', 'ChanTree',
+                'FactorRationals', 'GcdRationals', 'CfracDigits');
     my %seen;
     while ($list =~ /([A-Z]\S+)/g) {
       my $elem = $1;

@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -56,6 +56,7 @@ use Math::PlanePath::Base::Digits
 
 use constant parameter_info_array =>
   [ { name      => 'serpentine_type',
+      display   => 'Serpentine Type',
       type      => 'string',
       default   => '010 101 010',
       choices   => ['alternating','coil','Peano'],
@@ -65,6 +66,7 @@ use constant parameter_info_array =>
     },
     { name      => 'radix',
       share_key => 'radix_3',
+      display   => 'Radix',
       type      => 'integer',
       minimum   => 2,
       default   => 3,

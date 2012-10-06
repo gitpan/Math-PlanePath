@@ -44,7 +44,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -61,11 +61,12 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
-  [ { name    => 'divisor_type',
-      display => 'Divisor Type',
-      type    => 'enum',
-      choices => ['all','proper'],
-      default => 'all',
+  [ { name      => 'divisor_type',
+      share_key => 'divisor_type_allproper',
+      display   => 'Divisor Type',
+      type      => 'enum',
+      choices   => ['all','proper'],
+      default   => 'all',
       description => 'Divisor type, with "proper" meaning divisors d<X, so excluding d=X itself.',
     },
   ];

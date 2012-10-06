@@ -34,27 +34,6 @@
 # A135766 not divisible by 2,3,5, times 5^k, by triangle
 
 # Fib(k+1)*floor[n*tau] + Fib(k)*(n-1)
-#
-# wyth:
-# A006355 row Y=2
-# A022086 row Y=3
-# A022087                                             
-# A000285                                             
-# A022095                                             
-# A013655 (sum of Fibonacci and Lucas numbers)        
-# A022112                                             
-# A022113
-# A022120
-# A022121
-# A022379
-# A022130
-# A022382
-# A022088
-# A022136
-# A022137
-# A022089                   
-# A022388, A022096, A022090, A022389, A022097, A022091, A022390, A022098, A022092                            
-                                                                              
 
 
 package Math::PlanePath::WythoffArray;
@@ -63,7 +42,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -204,13 +183,13 @@ sub xy_to_n {
   # k=1, Fk1=F[k-1]=0, Fk=F[k]=1
   my $Fk1 = $zero;
   my $Fk  = 1 + $zero;
-  
+
   my $add = -2;
   while (@bits) {
     ### remaining bits: @bits
     ### Fk1: "$Fk1"
     ### Fk: "$Fk"
-  
+
     # two squares and some adds
     # F[2k+1] = 4*F[k]^2 - F[k-1]^2 + 2*(-1)^k
     # F[2k-1] =   F[k]^2 + F[k-1]^2
@@ -221,7 +200,7 @@ sub xy_to_n {
     my $F2kplus1 = 4*$Fk - $Fk1 + $add;
     $Fk1 += $Fk; # F[2k-1]
     my $F2k = $F2kplus1 - $Fk1;
-  
+
     if (pop @bits) {  # high to low
       $Fk1 = $F2k;     # F[2k]
       $Fk = $F2kplus1; # F[2k+1]
@@ -232,7 +211,7 @@ sub xy_to_n {
       $add = 2;
     }
   }
-  
+
   ### final pair ...
   ### Fk1: "$Fk1"
   ### Fk: "$Fk"
@@ -285,7 +264,7 @@ Math::PlanePath::WythoffArray -- table of Fibonacci recurrences
 =head1 DESCRIPTION
 
 This path is the Wythoff array of Fibonacci recurrences, or Zeckendorf
-Fibonacci base low zeros.
+Fibonacci base trailing zeros.
 
 =cut
 
@@ -312,14 +291,15 @@ Fibonacci base low zeros.
          +-------------------------------------------------------
            X=0    1    2    3    4    5    6    7    8    9   10
 
-X axis N=1,2,3,5,8,etc is the Fibonacci numbers.  The Y=1 row above it
-N=4,7,11,18,etc is the Lucas numbers.
+N=1,2,3,5,8,etc on the X axis is the Fibonacci numbers.  N=4,7,11,18,etc in
+the row Y=1 above it is the Lucas numbers.
 
 All rows have the Fibonacci style recurrence F(X+1) = F(X)+F(X-1).  For
-example in the Y=2 row N=42 at X=4 is 16+26, the two values to its left.
+example at X=4,Y=2 the N=42 is 16+26, the sum of the two values to its left.
 
-Y axis N=1,4,6,9,12,etc is the "spectrum" of the golden ratio, meaning its
-rounded down integer multiples.  For example at Y=5 N=5+floor((5+1)*phi)=14.
+N=1,4,6,9,12,etc on the Y axis is the "spectrum" of the golden ratio,
+meaning its rounded down integer multiples.  For example at Y=5
+N=5+floor((5+1)*phi)=14.
 
     phi = (sqrt(5)+1)/2
     spectrum(k) = floor(phi*k)
@@ -327,24 +307,27 @@ rounded down integer multiples.  For example at Y=5 N=5+floor((5+1)*phi)=14.
 
 The recurrence in each row starts as if there were two values Y and
 spectrum(Y+1) to the left of the axis, adding together to be Y+spectrum(Y+1)
-on the axis, and then Y+2*spectrum(Y+1) in the X=1 column.
+on the axis, then Y+2*spectrum(Y+1) in the X=1 column, etc.
 
-Every integer N from 1 upwards occurs precisely once in the table.  The
-recurrence means that in each row N grows as roughly a power phi^X, the same
-as the Fibonacci numbers, so they become large quite quickly.
+If there's a common factor in the initial values in a row then that factor
+remains in all subsequent sums.  For example the Y=2 row starts with two
+even numbers, and so the whole row is even.
+
+Every N from 1 upwards occurs precisely once in the table.  The recurrence
+means that in each row N grows as roughly a power phi^X, the same as the
+Fibonacci numbers, so they become large quite quickly.
 
 =head2 Zeckendorf Base
 
 The N values are arranged according to trailing zero bits when N is
 represented in the Zeckendorf base.  This base makes N a sum of Fibonacci
-numbers by choosing at each stage the largest possible Fibonacci.  For
-example
+numbers, choosing at each stage the largest possible Fibonacci.  For example
 
     Fibonacci F[0]=1, F[1]=2, F[2]=3, F[3]=5, etc
 
     45 = 34 + 8 + 3
        = F[7] + F[4] + F[2]
-       = 10010100       as bits
+       = 10010100        1-bits at 7,4,2
 
 The array in Zeckendorf base bits is
 
@@ -360,21 +343,20 @@ The array in Zeckendorf base bits is
          +--------------------------------------------------
                X=0        1         2         3          4
 
-The X coordinate is the number of trailing zeros, the index of the lowest
-Fibonacci used in the sum.  The Y coordinate is the index of the "odd"
-Zeckendorf remaining.
+The X coordinate is the number of trailing zeros, which is the lowest
+Fibonacci used in the sum.
 
-The Y index is formed by stripping the trailing zero bits, the lowest 1, and
-then one more 0 above that.  For example,
+The Y coordinate is formed by stripping any trailing zero bits, then the
+lowest 1, and then one more 0 above that.  For example,
 
-    N = 45 = Zeck(10010100)
-                      ^^^^ strip low zeros, lowest 1, and the 0 above
+    N = 45 = Zeck 10010100
+                      ^^^^ strip low zeros, low 1, and 0 above
     Y = Zeck(1001) = F[3]+F[0] = 5+1 = 6
 
 The Zeckendorf form never has consecutive "11" bits, because after
 subtracting an F[k] the remainder is smaller than the next lower F[k-1].
-Numbers with no concecutive "11" are also called the fibbinary numbers
-(L<Math::NumSeq::Fibbinary>).
+Numbers with no concecutive "11" are also called the fibbinary numbers (see
+L<Math::NumSeq::Fibbinary>).
 
 Stripping low zeros is similar to what the PowerArray does with low zero
 digits in an ordinary base such as binary.  Doing it in the Zeckendorf base
@@ -416,8 +398,8 @@ and biggest in the rectangle.
 =head2 Rectangle to N Range
 
 Within each row increasing X is increasing N, and in each column increasing
-Y is increasing N.  So in a rectangle the lower left corner is the minimum N
-and the upper right is the maximum N.
+Y is increasing N.  So for a rectangle the lower left corner is the minimum
+N and the upper right is the maximum N.
 
     |               N max
     |     ----------+
@@ -433,11 +415,11 @@ and the upper right is the maximum N.
 The Wythoff array is in Sloane's Online Encyclopedia of Integer Sequences
 in various forms,
 
-    http://oeis.org/A019586    etc
+    http://oeis.org/A035614    etc
 
     A035614     X coordinate
     A035612     X+1 coordinate, columns numbered starting X=1
-    A139764     N on X axis for successive N values,
+    A139764     N dropped down to X axis N value,
                   being the lowest Fibonacci in Zeckendorf form
 
     A019586     Y coordinate, the Wythoff row containing N

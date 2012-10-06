@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -53,6 +53,7 @@ use constant n_start => 0;
 use constant parameter_info_array =>
   [ { name      => 'radix',
       share_key => 'radix_3',
+      display   => 'Radix',
       type      => 'integer',
       minimum   => 2,
       default   => 3,
@@ -60,6 +61,7 @@ use constant parameter_info_array =>
     },
     { name      => 'arms',
       share_key => 'arms_2',
+      display   => 'Arms',
       type      => 'integer',
       minimum   => 1,
       maximum   => 2,

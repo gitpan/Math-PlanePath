@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 125 A-numbers in 4 modules
+# total 131 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -48,116 +48,6 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'DiamondSpiral,n_start=0'
-    ]
-  },
-  {
-    'anum' => 'A019586',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'WythoffArray',
-      'coordinate_type',
-      'Y'
-    ]
-  },
-  {
-    'anum' => 'A053615',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'Corner,n_start=0',
-      'coordinate_type',
-      'AbsDiff'
-    ]
-  },
-  {
-    'anum' => 'A059253',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'HilbertCurve',
-      'coordinate_type',
-      'X'
-    ]
-  },
-  {
-    'anum' => 'A059252',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'HilbertCurve',
-      'coordinate_type',
-      'Y'
-    ]
-  },
-  {
-    'anum' => 'A059261',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'HilbertCurve',
-      'coordinate_type',
-      'Sum'
-    ]
-  },
-  {
-    'anum' => 'A059285',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'HilbertCurve',
-      'coordinate_type',
-      'DiffXY'
-    ]
-  },
-  {
-    'anum' => 'A163547',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'HilbertCurve',
-      'coordinate_type',
-      'RSquared'
-    ]
-  },
-  {
-    'anum' => 'A163528',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'PeanoCurve',
-      'coordinate_type',
-      'X'
-    ]
-  },
-  {
-    'anum' => 'A163529',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'PeanoCurve',
-      'coordinate_type',
-      'Y'
-    ]
-  },
-  {
-    'anum' => 'A163530',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'PeanoCurve',
-      'coordinate_type',
-      'Sum'
-    ]
-  },
-  {
-    'anum' => 'A163531',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'PeanoCurve',
-      'coordinate_type',
-      'RSquared'
     ]
   },
   {
@@ -261,113 +151,101 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A004247',
+    'anum' => 'A191379',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
-      'Diagonals,n_start=0',
-      'coordinate_type',
-      'Product'
+      'ChanTree'
     ]
   },
   {
-    'anum' => 'A114327',
+    'anum' => 'A163528',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
-      'Diagonals,n_start=0',
-      'coordinate_type',
-      'DiffYX'
-    ]
-  },
-  {
-    'anum' => 'A049581',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'Diagonals,n_start=0',
-      'coordinate_type',
-      'AbsDiff'
-    ]
-  },
-  {
-    'anum' => 'A048147',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'Diagonals,n_start=0',
-      'coordinate_type',
-      'RSquared'
-    ]
-  },
-  {
-    'anum' => 'A055087',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'DiagonalsOctant,n_start=0',
+      'PeanoCurve',
       'coordinate_type',
       'X'
     ]
   },
   {
-    'anum' => 'A055086',
+    'anum' => 'A163529',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
-      'DiagonalsOctant,n_start=0',
+      'PeanoCurve',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A163530',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'PeanoCurve',
       'coordinate_type',
       'Sum'
     ]
   },
   {
-    'anum' => 'A082375',
+    'anum' => 'A163531',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
-      'DiagonalsOctant,n_start=0',
-      'coordinate_type',
-      'DiffYX'
-    ]
-  },
-  {
-    'anum' => 'A069011',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'PyramidRows,step=1,n_start=0',
+      'PeanoCurve',
       'coordinate_type',
       'RSquared'
     ]
   },
   {
-    'anum' => 'A196199',
+    'anum' => 'A059253',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
-      'PyramidRows,n_start=0',
+      'HilbertCurve',
       'coordinate_type',
       'X'
     ]
   },
   {
-    'anum' => 'A000196',
+    'anum' => 'A059252',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
-      'PyramidRows,n_start=0',
+      'HilbertCurve',
       'coordinate_type',
       'Y'
     ]
   },
   {
-    'anum' => 'A180447',
+    'anum' => 'A059261',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
-      'PyramidRows,step=3,n_start=0',
+      'HilbertCurve',
       'coordinate_type',
-      'Y'
+      'Sum'
+    ]
+  },
+  {
+    'anum' => 'A059285',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'HilbertCurve',
+      'coordinate_type',
+      'DiffXY'
+    ]
+  },
+  {
+    'anum' => 'A163547',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'HilbertCurve',
+      'coordinate_type',
+      'RSquared'
     ]
   },
   {
@@ -447,6 +325,166 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A003991',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,x_start=1,y_start=1',
+      'coordinate_type',
+      'Product'
+    ]
+  },
+  {
+    'anum' => 'A003989',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,x_start=1,y_start=1',
+      'coordinate_type',
+      'GCD'
+    ]
+  },
+  {
+    'anum' => 'A003988',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,direction=up,x_start=1,y_start=1',
+      'coordinate_type',
+      'Int'
+    ]
+  },
+  {
+    'anum' => 'A004247',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'Product'
+    ]
+  },
+  {
+    'anum' => 'A114327',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'DiffYX'
+    ]
+  },
+  {
+    'anum' => 'A049581',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'AbsDiff'
+    ]
+  },
+  {
+    'anum' => 'A048147',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'RSquared'
+    ]
+  },
+  {
+    'anum' => 'A109004',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'GCD'
+    ]
+  },
+  {
+    'anum' => 'A055087',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DiagonalsOctant,n_start=0',
+      'coordinate_type',
+      'X'
+    ]
+  },
+  {
+    'anum' => 'A055086',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DiagonalsOctant,n_start=0',
+      'coordinate_type',
+      'Sum'
+    ]
+  },
+  {
+    'anum' => 'A082375',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DiagonalsOctant,n_start=0',
+      'coordinate_type',
+      'DiffYX'
+    ]
+  },
+  {
+    'anum' => 'A053615',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Corner,n_start=0',
+      'coordinate_type',
+      'AbsDiff'
+    ]
+  },
+  {
+    'anum' => 'A069011',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,step=1,n_start=0',
+      'coordinate_type',
+      'RSquared'
+    ]
+  },
+  {
+    'anum' => 'A196199',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,n_start=0',
+      'coordinate_type',
+      'X'
+    ]
+  },
+  {
+    'anum' => 'A000196',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,n_start=0',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A180447',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,step=3,n_start=0',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
     'anum' => 'A020652',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
@@ -507,6 +545,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A019586',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'WythoffArray',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
     'anum' => 'A079813',
     'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
@@ -517,11 +565,11 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A127949',
+    'anum' => 'A070990',
     'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
       'planepath',
-      'Diagonals',
+      'RationalsTree,tree_type=L',
       'delta_type',
       'dY'
     ]
@@ -544,16 +592,6 @@ use constant info_arrayref =>
       'CCurve',
       'delta_type',
       'Dir4'
-    ]
-  },
-  {
-    'anum' => 'A023531',
-    'class' => 'Math::NumSeq::PlanePathDelta',
-    'parameters' => [
-      'planepath',
-      'PyramidRows,step=1,n_start=0',
-      'delta_type',
-      'dY'
     ]
   },
   {
@@ -587,221 +625,23 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A117625',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed'
-    ]
-  },
-  {
-    'anum' => 'A006137',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed',
-      'line_type',
-      'X_neg'
-    ]
-  },
-  {
-    'anum' => 'A064225',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed',
-      'line_type',
-      'Y_neg'
-    ]
-  },
-  {
-    'anum' => 'A081589',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed',
-      'line_type',
-      'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A038764',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed',
-      'line_type',
-      'Diagonal_SW'
-    ]
-  },
-  {
-    'anum' => 'A081267',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed',
-      'line_type',
-      'Diagonal_SE'
-    ]
-  },
-  {
-    'anum' => 'A081274',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed',
-      'line_type',
-      'Diagonal_SW'
-    ]
-  },
-  {
-    'anum' => 'A081266',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiralSkewed,n_start=0',
-      'line_type',
-      'Diagonal_SW'
-    ]
-  },
-  {
-    'anum' => 'A062741',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'TriangleSpiral,n_start=0',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A051132',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'Hypot,n_start=0'
-    ]
-  },
-  {
-    'anum' => 'A036702',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HypotOctant,points=even',
-      'line_type',
-      'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A014480',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PowerArray',
-      'line_type',
-      'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A059100',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PyramidRows,step=2,n_start=2',
-      'line_type',
-      'Diagonal_NW'
-    ]
-  },
-  {
-    'anum' => 'A104249',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PyramidRows,step=3',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A143689',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PyramidRows,step=3',
-      'line_type',
-      'Diagonal_NW'
-    ]
-  },
-  {
-    'anum' => 'A084849',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PyramidRows,step=4',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A046092',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PyramidRows,step=4,n_start=0',
-      'line_type',
-      'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A002522',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PyramidSides',
-      'line_type',
-      'X_neg'
-    ]
-  },
-  {
-    'anum' => 'A000124',
-    'class' => 'Math::NumSeq::PlanePathN',
+    'anum' => 'A127949',
+    'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
       'planepath',
       'Diagonals',
-      'line_type',
-      'Y_axis'
+      'delta_type',
+      'dY'
     ]
   },
   {
-    'anum' => 'A001844',
-    'class' => 'Math::NumSeq::PlanePathN',
+    'anum' => 'A023531',
+    'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
       'planepath',
-      'Diagonals',
-      'line_type',
-      'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A006046',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'SierpinskiTriangle,align=diagonal',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A074330',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'SierpinskiTriangle',
-      'line_type',
-      'Diagonal',
-      'i_start',
-      1
+      'PyramidRows,step=1,n_start=0',
+      'delta_type',
+      'dY'
     ]
   },
   {
@@ -833,62 +673,6 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A163482',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HilbertCurve'
-    ]
-  },
-  {
-    'anum' => 'A163483',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HilbertCurve',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A062880',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'ZOrderCurve',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A001196',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'ZOrderCurve',
-      'line_type',
-      'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A037314',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'ZOrderCurve,radix=3',
-      'i_start',
-      1
-    ]
-  },
-  {
-    'anum' => 'A051022',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'ZOrderCurve,radix=10'
-    ]
-  },
-  {
     'anum' => 'A163344',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -896,164 +680,6 @@ use constant info_arrayref =>
       'GrayCode,apply_type=sT,radix=3',
       'line_type',
       'X_axis'
-    ]
-  },
-  {
-    'anum' => 'A066321',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'ComplexMinus'
-    ]
-  },
-  {
-    'anum' => 'A130883',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'DiamondSpiral'
-    ]
-  },
-  {
-    'anum' => 'A058331',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'DiamondSpiral',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A084471',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'DigitGroups,radix=2',
-      'i_start',
-      1
-    ]
-  },
-  {
-    'anum' => 'A102631',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'FactorRationals',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A056105',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HexSpiralSkewed'
-    ]
-  },
-  {
-    'anum' => 'A056106',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HexSpiralSkewed',
-      'line_type',
-      'Y_axis'
-    ]
-  },
-  {
-    'anum' => 'A056107',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HexSpiralSkewed',
-      'line_type',
-      'Diagonal_NW'
-    ]
-  },
-  {
-    'anum' => 'A056108',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HexSpiralSkewed',
-      'line_type',
-      'X_neg'
-    ]
-  },
-  {
-    'anum' => 'A056109',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HexSpiralSkewed',
-      'line_type',
-      'Y_neg'
-    ]
-  },
-  {
-    'anum' => 'A003215',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HexSpiralSkewed',
-      'line_type',
-      'Diagonal_SE'
-    ]
-  },
-  {
-    'anum' => 'A192136',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PentSpiralSkewed'
-    ]
-  },
-  {
-    'anum' => 'A116668',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PentSpiralSkewed',
-      'line_type',
-      'X_neg'
-    ]
-  },
-  {
-    'anum' => 'A158187',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PentSpiralSkewed',
-      'line_type',
-      'Diagonal_NW'
-    ]
-  },
-  {
-    'anum' => 'A005891',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'PentSpiralSkewed',
-      'line_type',
-      'Diagonal_SE'
-    ]
-  },
-  {
-    'anum' => 'A081254',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'RationalsTree,tree_type=Bird'
-    ]
-  },
-  {
-    'anum' => 'A086893',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'RationalsTree,tree_type=Drib'
     ]
   },
   {
@@ -1135,36 +761,6 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A033570',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'AnvilSpiral'
-    ]
-  },
-  {
-    'anum' => 'A033568',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'AnvilSpiral',
-      'line_type',
-      'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A126587',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'AnvilSpiral',
-      'line_type',
-      'Y_axis',
-      'i_start',
-      1
-    ]
-  },
-  {
     'anum' => 'A016777',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -1222,6 +818,468 @@ use constant info_arrayref =>
       'CellularRule,rule=5',
       'line_type',
       'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A062741',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiral,n_start=0',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A117625',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed'
+    ]
+  },
+  {
+    'anum' => 'A006137',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed',
+      'line_type',
+      'X_neg'
+    ]
+  },
+  {
+    'anum' => 'A064225',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed',
+      'line_type',
+      'Y_neg'
+    ]
+  },
+  {
+    'anum' => 'A081589',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A038764',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed',
+      'line_type',
+      'Diagonal_SW'
+    ]
+  },
+  {
+    'anum' => 'A081267',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed',
+      'line_type',
+      'Diagonal_SE'
+    ]
+  },
+  {
+    'anum' => 'A081274',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed',
+      'line_type',
+      'Diagonal_SW'
+    ]
+  },
+  {
+    'anum' => 'A081266',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'TriangleSpiralSkewed,n_start=0',
+      'line_type',
+      'Diagonal_SW'
+    ]
+  },
+  {
+    'anum' => 'A130883',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'DiamondSpiral'
+    ]
+  },
+  {
+    'anum' => 'A058331',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'DiamondSpiral',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A192136',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PentSpiralSkewed'
+    ]
+  },
+  {
+    'anum' => 'A116668',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PentSpiralSkewed',
+      'line_type',
+      'X_neg'
+    ]
+  },
+  {
+    'anum' => 'A158187',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PentSpiralSkewed',
+      'line_type',
+      'Diagonal_NW'
+    ]
+  },
+  {
+    'anum' => 'A005891',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PentSpiralSkewed',
+      'line_type',
+      'Diagonal_SE'
+    ]
+  },
+  {
+    'anum' => 'A056105',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HexSpiralSkewed'
+    ]
+  },
+  {
+    'anum' => 'A056106',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HexSpiralSkewed',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A056107',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HexSpiralSkewed',
+      'line_type',
+      'Diagonal_NW'
+    ]
+  },
+  {
+    'anum' => 'A056108',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HexSpiralSkewed',
+      'line_type',
+      'X_neg'
+    ]
+  },
+  {
+    'anum' => 'A056109',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HexSpiralSkewed',
+      'line_type',
+      'Y_neg'
+    ]
+  },
+  {
+    'anum' => 'A003215',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HexSpiralSkewed',
+      'line_type',
+      'Diagonal_SE'
+    ]
+  },
+  {
+    'anum' => 'A033570',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'AnvilSpiral'
+    ]
+  },
+  {
+    'anum' => 'A033568',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'AnvilSpiral',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A126587',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'AnvilSpiral',
+      'line_type',
+      'Y_axis',
+      'i_start',
+      1
+    ]
+  },
+  {
+    'anum' => 'A051132',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Hypot,n_start=0'
+    ]
+  },
+  {
+    'anum' => 'A036702',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HypotOctant,points=even',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A081254',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'RationalsTree,tree_type=Bird'
+    ]
+  },
+  {
+    'anum' => 'A086893',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'RationalsTree,tree_type=Drib'
+    ]
+  },
+  {
+    'anum' => 'A102631',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'FactorRationals',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A163482',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HilbertCurve'
+    ]
+  },
+  {
+    'anum' => 'A163483',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HilbertCurve',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A062880',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'ZOrderCurve',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A001196',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'ZOrderCurve',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A037314',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'ZOrderCurve,radix=3',
+      'i_start',
+      1
+    ]
+  },
+  {
+    'anum' => 'A051022',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'ZOrderCurve,radix=10'
+    ]
+  },
+  {
+    'anum' => 'A006046',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'SierpinskiTriangle,align=diagonal',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A074330',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'SierpinskiTriangle',
+      'line_type',
+      'Diagonal',
+      'i_start',
+      1
+    ]
+  },
+  {
+    'anum' => 'A066321',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'ComplexMinus'
+    ]
+  },
+  {
+    'anum' => 'A000124',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Diagonals',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A001844',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Diagonals',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A059100',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,step=2,n_start=2',
+      'line_type',
+      'Diagonal_NW'
+    ]
+  },
+  {
+    'anum' => 'A104249',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,step=3',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A143689',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,step=3',
+      'line_type',
+      'Diagonal_NW'
+    ]
+  },
+  {
+    'anum' => 'A084849',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,step=4',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A046092',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PyramidRows,step=4,n_start=0',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A002522',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PyramidSides',
+      'line_type',
+      'X_neg'
+    ]
+  },
+  {
+    'anum' => 'A084471',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'DigitGroups,radix=2',
+      'i_start',
+      1
+    ]
+  },
+  {
+    'anum' => 'A014480',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PowerArray',
+      'line_type',
+      'Diagonal'
     ]
   },
   {

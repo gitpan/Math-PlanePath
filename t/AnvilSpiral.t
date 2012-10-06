@@ -33,7 +33,7 @@ require Math::PlanePath::AnvilSpiral;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::AnvilSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AnvilSpiral->VERSION,  $want_version,
@@ -72,7 +72,7 @@ require Math::PlanePath::AnvilSpiral;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::AnvilSpiral->parameter_info_list;
-  ok (join(',',@pnames), 'wider');
+  ok (join(',',@pnames), 'wider,n_start');
 }
 
 #------------------------------------------------------------------------------

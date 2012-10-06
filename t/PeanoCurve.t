@@ -33,7 +33,7 @@ require Math::PlanePath::PeanoCurve;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::PeanoCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PeanoCurve->VERSION, $want_version,

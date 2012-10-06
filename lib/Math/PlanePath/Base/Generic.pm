@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 89;
+$VERSION = 90;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -93,6 +93,14 @@ sub floor {
     return $int-1;
   }
 }
+
+use constant 1.02 _parameter_info_nstart1 => { name        => 'n_start',
+                                               share_key   => 'n_start_1',
+                                               type        => 'integer',
+                                               default     => 1,
+                                               width       => 3,
+                                               description => 'Starting N.',
+                                             };
 
 1;
 __END__

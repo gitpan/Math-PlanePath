@@ -36,7 +36,7 @@ require Math::PlanePath::DragonRounded;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::DragonRounded::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonRounded->VERSION,  $want_version,

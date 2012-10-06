@@ -26,7 +26,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -51,6 +51,7 @@ sub figure     { return _read($_[0])->{'figure'} }
 
 use constant parameter_info_array =>
   [ { name    => 'filename',
+      display => 'Filename',
       type    => 'filename',
       width   => 40,
       default => '',

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -31,12 +31,8 @@ use Math::PlanePath::Base::Generic
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant parameter_info_array => [ { name        => 'n_start',
-                                         type        => 'integer',
-                                         default     => 1,
-                                         width       => 3,
-                                         description => 'Starting N.',
-                                       } ];
+use constant parameter_info_array =>
+  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
 
 sub new {
   my $self = shift->SUPER::new (@_);

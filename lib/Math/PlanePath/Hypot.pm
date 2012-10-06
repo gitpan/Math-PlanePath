@@ -43,7 +43,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -57,12 +57,15 @@ use Math::PlanePath::Base::Generic
 
 use constant parameter_info_array =>
   [ { name            => 'points',
+      share_key       => 'points_aeo',
+      display         => 'Points',
       type            => 'enum',
       default         => 'all',
       choices         => ['all','even','odd'],
       choices_display => ['All','Even','Odd'],
       description     => 'Which X,Y points visit, either all of them or just X+Y even or X+Y odd.',
     },
+    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
 
 sub new {

@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use POSIX 'floor';
 use List::Util 'min', 'max';
-use Math::PlanePath::CfracFractions;
+use Math::PlanePath::CfracDigits;
 use Math::PlanePath::Base::Digits
   'round_down_pow';
 use Math::PlanePath::Base::Generic
@@ -31,13 +31,79 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::KochCurve;
 *_digit_join_hightolow = \&Math::PlanePath::KochCurve::_digit_join_hightolow;
 
+
+
+{
+  # +1 at low end to turn 1111 into 10000
+  require Math::PlanePath::CfracDigits;
+  my $rat = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $cf = Math::PlanePath::CfracDigits->new (radix => 1);
+  for (my $n = $rat->n_start; $n < 200; $n++) {
+    my ($cx,$cy) = $cf->n_to_xy($n);
+    # my ($rx,$ry) = $rat->n_to_xy($n);
+    my $rn = $rat->xy_to_n($cy,$cx);
+    printf "%d,%d  %b  %b\n",
+      $cx,$cy, $n, $rn-1;
+  }
+  exit 0;
+}
+{
+  # Fibonacci F[k]/F[k+1]
+  require Math::NumSeq::Fibonacci;
+  my $seq = Math::NumSeq::Fibonacci->new;
+  my $radix = 3;
+  my $path = Math::PlanePath::CfracDigits->new (radix => $radix);
+  for (my $i = 1; $i < 20; $i++) {
+    my $x = $seq->ith($i);
+    my $y = $seq->ith($i+1);
+    my $log = Math::PlanePath::CfracDigits::_log_phi_estimate($y);
+    my $n = $path->xy_to_n($x,$y);
+    # {
+    #   my @digits = ($radix+1) x ($i-2);
+    #   my $carry = 0;
+    #   foreach my $digit (@digits) {   # low to high
+    #     if ($carry = (($digit += $carry) >= $radix)) {  # modify array contents
+    #       $digit -= $radix;
+    #     }
+    #   }
+    #   if ($carry) {
+    #     push @digits, 1;
+    #   }
+    #   print join(',',@digits),"\n";
+    # }
+    my @digits = ($radix+1) x ($i-2);
+    my $d = Math::PlanePath::CfracDigits::_digit_join_1toR_destructive(\@digits,$radix+1,0);
+    my $pow = ($radix+1)**$i;
+    my ($nlo,$nhi) = $path->rect_to_n_range(0,0, $x,$y);
+    print "$n   $log $nhi $d $pow\n";
+  }
+  exit 0;
+}
+
+{
+  require Math::PlanePath::CfracDigits;
+  require Number::Fraction;
+  my $path = Math::PlanePath::CfracDigits->new (radix => 1);
+  my $rat = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $nf = Number::Fraction->new(1,7);
+  $nf = 1 / (4 + 1 / (2 + Number::Fraction->new(1,7)));
+  print "$nf\n";
+  my $x = $nf->{num};
+  my $y = $nf->{den};
+  my $n = $path->xy_to_n($x,$y);
+  printf "%d  %b\n", $n, $n;
+ $n = $rat->xy_to_n($x,$y);
+  printf "%d  %b\n", $n, $n;
+  exit 0;
+}
+
 {
   # range vs GcdRationals
 
   my $radix = 2;
-  require Math::PlanePath::CfracFractions;
+  require Math::PlanePath::CfracDigits;
   require Math::PlanePath::GcdRationals;
-  my $cf = Math::PlanePath::CfracFractions->new (radix => $radix);
+  my $cf = Math::PlanePath::CfracDigits->new (radix => $radix);
   my $gc = Math::PlanePath::GcdRationals->new;
 
   foreach my $y (2 .. 1000) {
@@ -54,9 +120,9 @@ use Math::PlanePath::KochCurve;
 {
   # maximum N
 
-  require Math::PlanePath::CfracFractions;
+  require Math::PlanePath::CfracDigits;
   my $radix = 6;
-  my $path = Math::PlanePath::CfracFractions->new (radix => $radix);
+  my $path = Math::PlanePath::CfracDigits->new (radix => $radix);
 
   foreach my $y (2 .. 1000) {
     my $nmax = -1;
@@ -85,7 +151,7 @@ use Math::PlanePath::KochCurve;
     print "$y x=$xmax  n=$nmax  $ysquared$flag $yfactor   $groups\n";
 
 
-    my $log = Math::PlanePath::CfracFractions::_log_phi_estimate($y);
+    my $log = Math::PlanePath::CfracDigits::_log_phi_estimate($y);
     $flag = '';
     if ($nhi < $nmax) {
       $flag = "*****";
@@ -97,12 +163,12 @@ use Math::PlanePath::KochCurve;
 
   sub groups_string {
     my ($n) = @_;
-    my @groups = Math::PlanePath::CfracFractions::_n_to_quotients($n,$radix);
+    my @groups = Math::PlanePath::CfracDigits::_n_to_quotients($n,$radix);
     return join(',',reverse @groups);
   }
   sub length_1toR {
     my ($n) = @_;
-    my @digits = Math::PlanePath::CfracFractions::_digit_split_1toR_lowtohigh($n,$radix);
+    my @digits = Math::PlanePath::CfracDigits::_digit_split_1toR_lowtohigh($n,$radix);
     return scalar(@digits);
   }
   sub log2 {
@@ -128,8 +194,8 @@ use Math::PlanePath::KochCurve;
 {
   # minimum N in each row is at X=1
 
-  require Math::PlanePath::CfracFractions;
-  my $path = Math::PlanePath::CfracFractions->new;
+  require Math::PlanePath::CfracDigits;
+  my $path = Math::PlanePath::CfracDigits->new;
 
   foreach my $y (2 .. 1000) {
     my $nmin = 1e308;

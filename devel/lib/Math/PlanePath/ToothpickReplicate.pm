@@ -37,7 +37,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -58,6 +58,7 @@ use constant class_y_negative => 1;
 use constant parameter_info_array =>
   [ { name      => 'parts',
       share_key => 'parts_a321',
+      display   => 'Parts',
       type      => 'enum',
       default   => 'all',
       choices   => ['all','3/4','half','quarter'],

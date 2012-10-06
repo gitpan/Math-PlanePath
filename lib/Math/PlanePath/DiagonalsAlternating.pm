@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -30,6 +30,8 @@ use Math::PlanePath::Base::Generic
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant parameter_info_array =>
+  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -39,6 +41,8 @@ sub new {
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
+  $self->{'x_start'} ||= 0;
+  $self->{'y_start'} ||= 0;
   return $self;
 }
 
@@ -78,33 +82,36 @@ sub n_to_xy {
     ### positive, upwards ...
     if ($int == 0) {
       ### horizontal X axis ...
-      return ($n + 2*$d-1,
-              0);
+      return ($n + 2*$d-1 + $self->{'x_start'},
+              $self->{'y_start'});
     } else {
       $n += $int;
-      return (-$n + 2*$d + 1,
-              $n - 1);
+      return (-$n + 2*$d + 1 + $self->{'x_start'},
+              $n - 1 + $self->{'y_start'});
     }
   } else {
     ### negative remainder, downwards ...
     if ($int == -2*$d) {
       ### vertical Y axis ...
-      return (0,
-              $n + 2*$d - 2);
+      return ($self->{'x_start'},
+              $n + 2*$d - 2 + $self->{'y_start'});
     } else {
       $n += $int;
-      return ($n + 2*$d - 1,
-              -$n);
+      return ($n + 2*$d - 1 + $self->{'x_start'},
+              -$n + $self->{'y_start'});
     }
   }
-  return ($n + $int,
-          -$n - $int + $d);   # $n first so BigFloat not BigInt from $d
+  # $n first so BigFloat not BigInt from $d
+  return ($n + $int + $self->{'x_start'},
+          -$n - $int + $d + $self->{'y_start'});
 }
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
 
+  $x -= $self->{'x_start'};
+  $y -= $self->{'y_start'};
   $x = round_nearest ($x);
   $y = round_nearest ($y);
   if ($x < 0 || $y < 0) {

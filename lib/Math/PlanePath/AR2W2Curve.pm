@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,6 +54,7 @@ use constant parameter_info_array =>
    {
     name            => 'start_shape',
     share_key       => 'start_shape_ar2w2',
+    display         => 'Start Shape',
     type            => 'enum',
     default         => 'A1',
     choices         => ['A1','D2',

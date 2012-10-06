@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,6 +48,7 @@ use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [ { name        => 'rule',
+      display     => 'Rule',
       type        => 'integer',
       default     => 30,
       minimum     => 0,
@@ -283,12 +284,14 @@ my @rule_to_class;
 
 
 sub new {
+  ### CellularRule new() ...
   my $self = shift->SUPER::new(@_);
 
   my $rule = $self->{'rule'};
   if (! defined $rule) {
     $rule = $self->{'rule'} = parameter_info_array()->[0]->{'default'};
   }
+  ### $rule
 
   if (my $aref = $rule_to_class[$rule]) {
     my ($class, @args) = @$aref;
@@ -500,7 +503,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 89;
+  $VERSION = 90;
   @ISA = ('Math::PlanePath::CellularRule');
 
   use Math::PlanePath::Base::Generic
@@ -512,6 +515,9 @@ sub rect_to_n_range {
     my ($self) = @_;
     return $self->{'sign'} < 0;
   }
+
+  use constant parameter_info_array => [];
+  *new = \&Math::PlanePath::new;
 
   sub n_to_xy {
     my ($self, $n) = @_;
@@ -574,7 +580,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 89;
+  $VERSION = 90;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 

@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -33,6 +33,8 @@ use Math::PlanePath::Base::Generic
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant parameter_info_array =>
+  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
 
 sub new {
   my $self = shift->SUPER::new (@_);
@@ -166,7 +168,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral TriangleSpiralSkewed PlanePath Ryde Math-PlanePath polygonals hendecagonal hendecagonals OEIS
+=for stopwords TriangleSpiral TriangleSpiralSkewed PlanePath Ryde Math-PlanePath 11-polygonals hendecagonal hendecagonals OEIS
 
 =head1 NAME
 

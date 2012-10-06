@@ -50,23 +50,42 @@ sub isa_bigfloat {
   
 sub bigint_checks {
   my ($bigclass) = @_;
-
+  
   eval "require $bigclass" or die;
   MyTestHelpers::diag ("$bigclass version ",
                        $bigclass->VERSION);
-
-
+  
+  
+  #--------------------------------------------------------------------------
+  # PythagoreanTree
+  
+  require Math::PlanePath::PythagoreanTree;
+  foreach my $elem ([3,4, 2,1],
+                    [6,8, undef,undef],
+                    [3,5, undef,undef],
+                    [9,10, undef,undef],
+                   ){
+    my ($a,$b, $want_p,$want_q) = @$elem;
+    $a = $bigclass->new($a);
+    $b = $bigclass->new($b);
+    my ($got_p,$got_q) = Math::PlanePath::PythagoreanTree::_ab_to_pq($a,$b);
+    ok ($a, $elem->[0]);  # inputs unchanged
+    ok ($b, $elem->[1]);
+    ok ($got_p, $want_p);
+    ok ($got_q, $want_q);
+  }
+  
   #----------------------------------------------------------------------------
   # bit_split_lowtohigh()
-
+  
   {
     require Math::PlanePath;
     my $zero = $bigclass->new(0);
     my $thirteen = $bigclass->new(13);
     ok (join(',',bit_split_lowtohigh($zero)), '');
-
+    
     ok (join(',',bit_split_lowtohigh($thirteen)), '1,0,1,1');
-
+    
     if ($bigclass->isa('Math::BigInt')) {
       my @bits = bit_split_lowtohigh($thirteen);
       foreach my $bit (@bits) {
@@ -74,14 +93,14 @@ sub bigint_checks {
             'bit_split_lowtohigh() return plain bits, not bigints');
       }
     }
-
+    
     ok ($thirteen, 13, 'thirteen unchanged');
     ok ($zero, 0, 'zero unchanged');
   }
-
+  
   #----------------------------------------------------------------------------
   # digit_split_lowtohigh()
-
+  
   {
     require Math::PlanePath;
     my $zero = $bigclass->new(0);
@@ -92,17 +111,17 @@ sub bigint_checks {
     ok (join(',',digit_split_lowtohigh($zero,8)), '');
     ok (join(',',digit_split_lowtohigh($zero,10)), '');
     ok (join(',',digit_split_lowtohigh($zero,16)), '');
-
+    
     ok (join(',',digit_split_lowtohigh($thirteen,2)), '1,0,1,1');
     ok (join(',',digit_split_lowtohigh($thirteen,3)), '1,1,1');
     ok (join(',',digit_split_lowtohigh($thirteen,4)), '1,3');
     ok (join(',',digit_split_lowtohigh($thirteen,8)), '5,1');
     ok (join(',',digit_split_lowtohigh($thirteen,10)), '3,1');
     ok (join(',',digit_split_lowtohigh($thirteen,16)), '13');
-
+    
     ok (join(',',digit_split_lowtohigh($bigclass->new(4),4)), '0,1');
     ok (join(',',digit_split_lowtohigh($bigclass->new(8),4)), '0,2');
-
+    
     if ($bigclass->isa('Math::BigInt')) {
       foreach my $radix (2,3,4,5,6,7,8,9,10,11,16,256) {
         my @digits = digit_split_lowtohigh($thirteen,$radix);
@@ -112,14 +131,14 @@ sub bigint_checks {
         }
       }
     }
-
+    
     ok ($thirteen, 13, 'thirteen unchanged');
     ok ($zero, 0, 'zero unchanged');
   }
-
+  
   #----------------------------------------------------------------------------
   # _divrem()
-
+  
   {
     require Math::PlanePath;
     my $n = $bigclass->new(123);
@@ -131,10 +150,10 @@ sub bigint_checks {
       ok (ref $r, '');
     }
   }
-
+  
   #----------------------------------------------------------------------------
   # _divrem_mutate()
-
+  
   {
     require Math::PlanePath;
     my $n = $bigclass->new(123);
@@ -145,10 +164,10 @@ sub bigint_checks {
       ok (ref $r, '');
     }
   }
-
+  
   #--------------------------------------------------------------------------
   # ImaginaryBase
-
+  
   require Math::PlanePath::ImaginaryBase;
   {
     my $path = Math::PlanePath::ImaginaryBase->new;
@@ -169,10 +188,10 @@ sub bigint_checks {
       }
     }
   }
-
+  
   #---------------------------------------------------------------------------
   # VogelFloret
-
+  
   {
     require Math::PlanePath::VogelFloret;
     {
@@ -191,14 +210,14 @@ sub bigint_checks {
           'non-integer radius_factor promote bigint->bigfloat');
     }
   }
-
+  
   #----------------------------------------------------------------------------
   # MultipleRings
-
+  
   {
     require Math::PlanePath::MultipleRings;
     my $path = Math::PlanePath::MultipleRings->new (step => 6);
-
+    
     {
       my $n = $bigclass->new(23);
       my ($got_x,$got_y) = $path->n_to_xy($n);
@@ -211,10 +230,10 @@ sub bigint_checks {
           "MultipleRings n_to_xy($n) got_y $got_y");
     }
   }
-
+  
   #----------------------------------------------------------------------------
   # GcdRationals
-
+  
   {
     require Math::PlanePath::GcdRationals;
     my $path = Math::PlanePath::GcdRationals->new;
@@ -256,11 +275,11 @@ sub bigint_checks {
       ok ($y, 105);
     }
   }
-
-
+  
+  
   #--------------------------------------------------------------------------
   # CoprimeColumns
-
+  
   require Math::PlanePath::CoprimeColumns;
   {
     my $path = Math::PlanePath::CoprimeColumns->new;
@@ -283,10 +302,10 @@ sub bigint_checks {
       ok ($got_y, 1);
     }
   }
-
+  
   #--------------------------------------------------------------------------
   # Corner
-
+  
   require Math::PlanePath::Corner;
   {
     my $path = Math::PlanePath::Corner->new;
@@ -294,21 +313,21 @@ sub bigint_checks {
       my $y = $bigclass->new(2) ** 128 - 1;
       {
         my $n = $y*($y+1) + 1;  # on the diagonal
-
+        
         my ($got_x,$got_y) = $path->n_to_xy($n);
         ok ($got_x, $y);
         ok ($got_y, $y);
-
+        
         my $got_n = $path->xy_to_n($y,$y);
         ok ($got_n, $n);
       }
       {
         my $n = $y*$y+1;  # left X=1 vertical
-
+        
         my ($got_x,$got_y) = $path->n_to_xy($n);
         ok ($got_x, 0);
         ok ($got_y, $y);
-
+        
         my $got_n = $path->xy_to_n(0,$y);
         ok ($got_n, $n);
       }
@@ -320,43 +339,43 @@ sub bigint_checks {
       ok ($got_y, undef);
     }
   }
-
+  
   #--------------------------------------------------------------------------
   # Diagonals
-
+  
   {
     require Math::PlanePath::Diagonals;
     my $path = Math::PlanePath::Diagonals->new;
     {
       my $x = $bigclass->new(2) ** 128 - 1;
       my $n = ($x+1)*($x+2)/2;  # triangular numbers on Y=0 horizontal
-
+      
       my ($got_x,$got_y) = $path->n_to_xy($n);
       ok ($got_x, $x);
       ok ($got_y, 0);
-
+      
       my $got_n = $path->xy_to_n($x,0);
       ok ($got_n, $n);
     }
     {
       my $x = $bigclass->new(2) ** 128 - 1;
       my $n = ($x+1)*($x+2)/2;  # Y=0 horizontal
-
+      
       my ($got_x,$got_y) = $path->n_to_xy($n);
       ok ($got_x, $x);
       ok ($got_y, 0);
-
+      
       my $got_n = $path->xy_to_n($x,0);
       ok ($got_n, $n);
     }
     {
       my $y = $bigclass->new(2) ** 128 - 1;
       my $n = $y*($y+1)/2 + 1;  # X=0 vertical
-
+      
       my ($got_x,$got_y) = $path->n_to_xy($n);
       ok ($got_x, 0);
       ok ($got_y, $y);
-
+      
       my $got_n = $path->xy_to_n(0,$y);
       ok ($got_n, $n);
     }
@@ -367,24 +386,24 @@ sub bigint_checks {
       ok ($got_y, undef);
     }
   }
-
+  
   #--------------------------------------------------------------------------
   # PeanoCurve
-
+  
   require Math::PlanePath::PeanoCurve;
   {
     my $path = Math::PlanePath::PeanoCurve->new;
-
+    
     {
       my $n = $bigclass->new(9) ** 128 + 2;
       my $want_x = $bigclass->new(3) ** 128 + 2;
       my $want_y = $bigclass->new(3) ** 128 - 1;
-
+      
       my ($got_x,$got_y) = $path->n_to_xy($n);
       ok ($got_x, $want_x);
       ok ($got_y, $want_y);
     }
-
+    
     # 2020202...
     # {
     #   my $x = $bigclass->new(3) ** 128 + 1;
@@ -401,14 +420,14 @@ sub bigint_checks {
     #   ok ($got_n, $want_n);
     # }
   }
-
+  
   #--------------------------------------------------------------------------
   # ZOrderCurve
-
+  
   require Math::PlanePath::ZOrderCurve;
   {
     my $path = Math::PlanePath::ZOrderCurve->new;
-
+    
     {
       my $n = $bigclass->new(4) ** 128 + 9;
       my $want_x = $bigclass->new(2) ** 128 + 1;
@@ -432,10 +451,10 @@ sub bigint_checks {
       ok ($got_n, $want_n);
     }
   }
-
+  
   #--------------------------------------------------------------------------
   # KochCurve
-
+  
   {
     my $orig = $bigclass->new(3) ** 128 + 2;
     my $n    = $bigclass->new(3) ** 128 + 2;

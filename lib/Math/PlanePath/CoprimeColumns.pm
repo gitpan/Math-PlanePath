@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -218,7 +218,7 @@ sub _coprime {
   #### _coprime(): "$x,$y"
 
   if ($y > $x) {
-    if ($x == 1) {
+    if ($x <= 1) {
       ### result yes ...
       return 1;
     }

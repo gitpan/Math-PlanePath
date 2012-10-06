@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 89;
+$VERSION = 90;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -180,7 +180,7 @@ use constant 1.02 _UV_MAX_PLUS_1 => ((~0 >> 1) + 1) * 2.0;
 
 # not documented yet ...
 sub bit_split_lowtohigh {
-  my ($n, $radix) = @_;
+  my ($n) = @_;
   my @ret;
   if ($n >= 1) {
     if (ref $n && $n->isa('Math::BigInt')) {

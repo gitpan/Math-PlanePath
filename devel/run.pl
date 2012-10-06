@@ -81,7 +81,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DiagonalsOctant';
   $path_class = 'Math::PlanePath::PyramidRows';
   $path_class = 'Math::PlanePath::Corner';
-  $path_class = 'Math::PlanePath::Diagonals';
   $path_class = 'Math::PlanePath::DiagonalsAlternating';
   $path_class = 'Math::PlanePath::ComplexRevolving';
   $path_class = 'Math::PlanePath::MPeaks';
@@ -111,19 +110,28 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::BetaOmega';
   $path_class = 'Math::PlanePath::FractionsTree';
   $path_class = 'Math::PlanePath::R5DragonCurve';
-  $path_class = 'Math::PlanePath::CfracFractions';
   $path_class = 'Math::PlanePath::GcdRationals';
   $path_class = 'Math::PlanePath::PythagoreanTree';
+  $path_class = 'Math::PlanePath::Diagonals';
+  $path_class = 'Math::PlanePath::LToothpickTree';
   $path_class = 'Math::PlanePath::RationalsTree';
+  $path_class = 'Math::PlanePath::ChanTree';
+  $path_class = 'Math::PlanePath::CfracDigits';
 
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     # radix => 12,
+     # x_start => 5,
+     # y_start => 2,
+     #  k => 3,
+     #  reduced => 1,
+     # points => 'all_mul',
+     # n_start => 37,
+      radix => 5,
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_up',
-      tree_type => 'L',
+     # tree_type => 'CS',
      # parts => '3/4',
      # start => 'snowflake',
      # align => 'left',
@@ -182,7 +190,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 256; $i+=1) {
+  for (my $i = $n_start+0; $i <= 40; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
@@ -193,7 +201,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     my ($dx, $dy) = $path->n_to_dxdy($i);
     if (defined $dx && defined $dy) {
       my $d = Math::Libm::hypot($dx,$dy);
-      $dxdy = sprintf "%.3f,%.3f(%.4f)", $dx,$dy,$d;
+      $dxdy = sprintf "%.3f,%.3f(%.3f)", $dx,$dy,$d;
     } else {
       $dxdy='[undef]';
     }
@@ -234,31 +242,41 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
       $range = 'Range';
     }
 
-    my @n_children = $path->tree_n_children ($i);
     my $n_children = '';
+    my @n_children = $path->tree_n_children ($i);
     if (@n_children) {
       $n_children = " c=";
       foreach my $n_child (@n_children) {
-        $n_children .= $n_child;
         my $n_parent = $path->tree_n_parent($n_child);
         if (! defined $n_parent || $n_parent != $i) {
           $n_children .= "***";
         }
+        $n_children .= $n_child;
         $n_children .= ",";
       }
       $n_children =~ s/,$//;
     }
 
+    my $baddepth = '';
+    if ($path->can('tree_n_to_depth')
+        != Math::PlanePath->can('tree_n_to_depth')) {
+      my $depth = $path->tree_n_to_depth($i);
+      my $calc_depth = $path->Math::PlanePath::tree_n_to_depth($i);
+      if (! defined $depth || $calc_depth != $depth) {
+        $baddepth .= "depth=$depth,calc=$calc_depth";
+      }
+    }
+
     my $flag = '';
-    if ($rev || $range || $diffdxdy) {
-      $flag = "  ***$rev$range$diffdxdy";
+    if ($rev || $range || $diffdxdy || $baddepth) {
+      $flag .= "  ***$rev$range$diffdxdy$baddepth";
     }
 
     if (! defined $n_lo) { $n_lo = 'undef'; }
     if (! defined $n_hi) { $n_hi = 'undef'; }
 
     my $iwidth = ($i == int($i) ? 0 : 2);
-    printf "%.*f %8.4f,%8.4f   %3s  %s  %s%s %s %s\n",
+    printf "%.*f %7.3f,%7.3f   %3s  %s  %s%s %s %s\n",
       $iwidth,$i,  $x,$y,
         $n_rev,
           "${n_lo}_${n_hi}",

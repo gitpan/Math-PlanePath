@@ -36,7 +36,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 89;
+$VERSION = 90;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -53,6 +53,7 @@ use constant n_frac_discontinuity => 0;
 use constant parameter_info_array =>
   [{ name        => 'step',
      share_key   => 'step_6',
+     display     => 'Step',
      type        => 'integer',
      minimum     => 0,
      default     => 6,
@@ -62,6 +63,7 @@ use constant parameter_info_array =>
 
    { name        => 'ring_shape',
      type        => 'enum',
+     display     => 'Ring Shape',
      default     => 'circle',
      choices     => ['circle','polygon'],
      choices_display => ['Circle','Polygon'],

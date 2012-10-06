@@ -42,7 +42,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -55,6 +55,7 @@ use constant n_start => 0;
 use constant parameter_info_array =>
   [ { name      => 'arms',
       share_key => 'arms_6',
+      display   => 'Arms',
       type      => 'integer',
       minimum   => 1,
       maximum   => 6,

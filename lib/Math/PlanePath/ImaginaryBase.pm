@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -320,9 +320,6 @@ sub _negaradix_range_level {
   ### _negaradix_range_level(): "$x1,$x2  radix=$radix"
   ### assert: $x1 <= $x2
 
-  my $radix_minus_1 = $radix - 1;
-  my $rsquared = $radix*$radix;
-
   my ($len, $level)
     = round_down_pow (max($radix - $x1*($radix + 1),
                           (($radix+1)*$x2 - 1) * $radix),
@@ -347,7 +344,7 @@ sub _negaradix_range_level {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal NX negaradix Nmin Nmax
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal NX negaradix Nmin Nmax Nmin,Nmax NX
 
 =head1 NAME
 

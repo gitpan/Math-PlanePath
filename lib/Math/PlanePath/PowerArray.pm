@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -286,23 +286,24 @@ path include
     http://oeis.org/A007814  (etc)
 
     radix=2
-      A007814    X coordinate, count low 0 bits of N
-      A006519    2^X power
+      A007814    X coordinate, count low 0-bits of N
+      A006519    2^X
 
       A025480    Y coordinate of N-1, ie. seq starts from N=0
-      A003602    Y+1 coordinate, k for which N=(2k-1)*2^m
-      A153733    2*Y coordinate of N-1, strip low 1 bits
-      A000265    2*Y+1 coordinate, strip low 0 bits
+      A003602    Y+1, being k for which N=(2k-1)*2^m
+      A153733    2*Y of N-1, strip low 1 bits
+      A000265    2*Y+1, strip low 0 bits
 
-      A094267    dX, change in X coordinate
+      A094267    dX, change count low 0-bits
       A108715    dY, change in Y coordinate
 
       A000079    N on X axis, powers 2^X
       A005408    N on Y axis, the odd numbers
       A057716    N not on X axis, the non-powers-of-2
 
-      A014480    N on X=Y diagonal
-      A118417    N on X=Y+1 diagonal (just below X=Y diagonal)
+      A014480    N on X=Y diagonal, (2n+1)*2^n
+      A118417    N on X=Y+1 diagonal, (2n-1)*2^n
+                   (just below X=Y diagonal)
 
       A054582    N by diagonals, upwards
       A075300    N-1 by diagonals, upwards
@@ -320,6 +321,7 @@ path include
 
     radix=10
       A011557    N on X axis, powers 10^X
+      A067251    N on Y axis, no trailing 0 digits
 
 =head1 SEE ALSO
 

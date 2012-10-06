@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -275,7 +275,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix RxR OEIS ZOrderCurve
+=for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix radix-1 RxR OEIS ZOrderCurve
 
 =head1 NAME
 

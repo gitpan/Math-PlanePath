@@ -16,6 +16,8 @@ devel/bigint-lite.pl
 devel/bignums.pl
 devel/biguv.pl
 devel/c-curve.pl
+devel/cfrac-digits.pl
+devel/chan-tree.pl
 devel/complex-minus.pl
 devel/complex-revolving.pl
 devel/cont-frac.pl
@@ -58,14 +60,13 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
-devel/lib/EToothpickTree-oeis.t
-devel/lib/EToothpickTree.pm
 devel/lib/Math/PlanePath/BoxFractalQuarter.pm
-devel/lib/Math/PlanePath/cfrac-fractions.pl
-devel/lib/Math/PlanePath/CfracFractions.pm
-devel/lib/Math/PlanePath/CfracFractions.t
+devel/lib/Math/PlanePath/EToothpickTree-oeis.t
+devel/lib/Math/PlanePath/EToothpickTree.pm
 devel/lib/Math/PlanePath/FibonacciSquareSpiral.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
+devel/lib/Math/PlanePath/LToothpickTree-oeis.t
+devel/lib/Math/PlanePath/LToothpickTree.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
 devel/lib/Math/PlanePath/NxN.pm
 devel/lib/Math/PlanePath/NxNinv.pm
@@ -107,6 +108,8 @@ devel/sacks.pl
 devel/sierpinski-arrowhead-stars.pl
 devel/sierpinski-arrowhead.pl
 devel/sierpinski-curve.pl
+devel/sierpinski-triangle.gnuplot
+devel/sierpinski-triangle.logo
 devel/sierpinski-triangle.pl
 devel/square-spiral.gnuplot
 devel/square-spiral.pl
@@ -151,6 +154,8 @@ lib/Math/PlanePath/CellularRule.pm
 lib/Math/PlanePath/CellularRule190.pm
 lib/Math/PlanePath/CellularRule54.pm
 lib/Math/PlanePath/CellularRule57.pm
+lib/Math/PlanePath/CfracDigits.pm
+lib/Math/PlanePath/ChanTree.pm
 lib/Math/PlanePath/CincoCurve.pm
 lib/Math/PlanePath/Columns.pm
 lib/Math/PlanePath/ComplexMinus.pm
@@ -270,6 +275,8 @@ t/bigint_common.pm
 t/CCurve.t
 t/CellularRule.t
 t/CellularRule190.t
+t/CfracDigits.t
+t/ChanTree.t
 t/CincoCurve.t
 t/Columns-load.t
 t/Columns.t
@@ -379,6 +386,7 @@ xt/0-Test-Pod.t
 xt/0-Test-Synopsis.t
 xt/0-Test-YAML-Meta.t
 xt/bigrat.t
+xt/ChanTree-slow.t
 xt/DragonCurve-more.t
 xt/GrayCode-oseq.t
 xt/KochCurve-more.t
@@ -390,6 +398,7 @@ xt/oeis/CCurve-oeis.t
 xt/oeis/CellularRule-oeis.t
 xt/oeis/CellularRule190-oeis.t
 xt/oeis/CellularRule54-oeis.t
+xt/oeis/CfracDigits-oeis.t
 xt/oeis/ComplexMinus-oeis.t
 xt/oeis/CoprimeColumns-oeis.t
 xt/oeis/Corner-oeis.t

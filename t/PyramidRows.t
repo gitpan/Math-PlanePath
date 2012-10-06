@@ -36,7 +36,7 @@ require Math::PlanePath::PyramidRows;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::PyramidRows::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PyramidRows->VERSION,  $want_version,
@@ -73,7 +73,7 @@ require Math::PlanePath::PyramidRows;
   ok ($path->class_y_negative, 0, 'class_y_negative() instance method');
 
   my @pnames = map {$_->{'name'}} $path->parameter_info_list;
-  ok (join(',',@pnames), 'step,align');
+  ok (join(',',@pnames), 'step,align,n_start');
 }
 {
   my $path = Math::PlanePath::PyramidRows->new (step => 0);

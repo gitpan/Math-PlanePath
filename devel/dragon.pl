@@ -40,7 +40,196 @@ use lib 'xt';
 #use Smart::Comments;
 
 
+{
+  # Midpoint tiling, text lines
 
+  require Math::PlanePath::DragonMidpoint;
+  require Image::Base::Text;
+  my $scale = 1;
+  my $arms = 4;
+  my $path = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+
+  my $width = 64;
+  my $height = 32;
+  my $xoffset = $width/2;
+  my $yoffset = $height/2;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+  my ($nlo,$nhi) = $path->rect_to_n_range(-$xoffset,-$yoffset,
+                                          $xoffset,$yoffset);
+  $nhi = 16384;
+  print "nhi $nhi\n";
+  for (my $n = 0; $n <= $nhi; $n++) {
+    # next if int($n/$arms) % 2;
+    next unless int($n/$arms) % 2;
+    my ($x1,$y1) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+$arms);
+    my $colour = ($x1 == $x2 ? '|' : '-');
+    $x1 *= $scale;
+    $x2 *= $scale;
+    $y1 *= $scale;
+    $y2 *= $scale;
+    $x1 += $xoffset;
+    $x2 += $xoffset;
+    $y1 += $yoffset;
+    $y2 += $yoffset;
+    $image->line($x1,$y1,$x2,$y2,$colour);
+  }
+  $image->save('/dev/stdout');
+  exit 0;
+}
+
+{
+  # Midpoint tiling, text grid
+
+  require Math::PlanePath::DragonMidpoint;
+  require Image::Base::Text;
+  my $scale = 2;
+  my $arms = 4;
+  my $path = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+
+  my $width = 64;
+  my $height = 32;
+  my $xoffset = $width/2 - 9;
+  my $yoffset = $height/2 - 10;
+  my $image = Image::Base::Text->new (-width => $width,
+                                      -height => $height);
+  my ($nlo,$nhi) = $path->rect_to_n_range(-$xoffset,-$yoffset,
+                                          $xoffset,$yoffset);
+  $nhi = 16384;
+  print "nhi $nhi\n";
+  for (my $n = 0; $n <= $nhi; $n++) {
+    # next if int($n/$arms) % 2;
+    next unless int($n/$arms) % 2;
+    my ($x1,$y1) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+$arms);
+    $y1 = -$y1;
+    $y2 = -$y2;
+    my $colour = ($x1 == $x2 ? '|' : '-');
+    ($x1,$x2) = (min($x1,$x2),max($x1,$x2));
+    ($y1,$y2) = (min($y1,$y2),max($y1,$y2));
+    $x1 *= $scale;
+    $x2 *= $scale;
+    $y1 *= $scale;
+    $y2 *= $scale;
+
+    $x1 -= $scale/2;
+    $x2 += $scale/2;
+    $y1 -= $scale/2;
+    $y2 += $scale/2;
+
+    $x1 += $xoffset;
+    $x2 += $xoffset;
+    $y1 += $yoffset;
+    $y2 += $yoffset;
+
+    ### rect: $x1,$y1,$x2,$y2
+    $image->rectangle($x1,$y1,$x2,$y2,'*');
+  }
+  $image->save('/dev/stdout');
+  exit 0;
+}
+
+{
+  # Midpoint tiling, PNG
+
+  require Math::PlanePath::DragonMidpoint;
+  require Image::Base::Text;
+  require Image::Base::PNGwriter;
+
+  my $scale = 4;
+  my $arms = 1;
+  my $path = Math::PlanePath::DragonMidpoint->new (arms => $arms);
+
+  # my $width = 78;
+  # my $height = 48;
+  # my $xoffset = $width/2;
+  # my $yoffset = $height/2;
+  # my $image = Image::Base::Text->new (-width => $width,
+  #                                     -height => $height);
+
+  my $width = 1000;
+  my $height = 800;
+  my $xoffset = $width/2;
+  my $yoffset = $height/2;
+  my $image = Image::Base::PNGwriter->new (-width => $width,
+                                           -height => $height);
+  my $colour = '#00FF00';
+  my ($nlo,$nhi) = $path->rect_to_n_range(-$xoffset,-$yoffset,
+                                          $xoffset,$yoffset);
+  $nhi = 16384*2;
+  print "nhi $nhi\n";
+  for (my $n = 0; $n <= $nhi; $n++) {
+    # next if int($n/$arms) % 2;
+     next unless int($n/$arms) % 2;
+    my ($x1,$y1) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+$arms);
+    $x1 *= $scale;
+    $y1 *= $scale;
+    $x2 *= $scale;
+    $y2 *= $scale;
+    $x1 += $xoffset;
+    $x2 += $xoffset;
+    $y1 += $yoffset;
+    $y2 += $yoffset;
+    $image->line($x1,$y1,$x2,$y2,$colour);
+  }
+  # $image->save('/dev/stdout');
+  $image->save('/tmp/x.png');
+  system('xzgv /tmp/x.png');
+  exit 0;
+}
+{
+  # drawing with Language::Logo
+
+  require Language::Logo;
+  require Math::NumSeq::PlanePathTurn;
+  my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve',
+                                             turn_type => 'Right');
+
+  my $lo = Logo->new(update => 20);
+  $lo->command("pendown");
+  foreach my $n (0 .. 256) {
+    my ($i,$value) = $seq->next;
+    my $turn_angle = ($value ? 90 : -90);
+    $lo->command("forward 10; right $turn_angle");
+  }
+  $lo->disconnect("Finished...");
+  exit 0;
+}
+
+{
+  require Math::NumSeq::PlanePathTurn;
+  my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve',
+                                             turn_type => 'Right');
+  foreach my $n (0 .. 16) {
+    my $dn = dseq($n);
+    my $turn = $seq->ith($n) // 'undef';
+    print "$n  $turn $dn\n";
+  }
+  exit 0;
+
+  # Knuth vol 2 answer to 4.5.3 question 41, page 607
+  sub dseq {
+    my ($n) = @_;
+    for (;;) {
+      if ($n == 0) {
+        return 1;
+      }
+      if (($n % 2) == 0) {
+        $n >>= 1;
+        next;
+      }
+      if (($n % 4) == 1) {
+        return 0;   # bit above lowest 1-bit
+      }
+      if (($n % 4) == 3) {
+        return 1;   # bit above lowest 1-bit
+      }
+    }
+  }
+
+}
 
 
 {

@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -77,10 +77,6 @@ sub characteristic_integer {
 }
 
 #------------------------------------------------------------------------------
-# Suspect not in OEIS:
-#
-# Left or Right according to lowest non-zero ternary digit 1 or 2
-#
 
 sub oeis_anum {
   my ($self) = @_;
@@ -318,6 +314,14 @@ sub characteristic_non_decreasing {
   my $planepath_object = $self->{'planepath_object'};
   if (my $func = $planepath_object->can("_NumSeq_Turn_$self->{'turn_type'}_non_decreasing")) {
     return $planepath_object->$func();
+  }
+  if (defined (my $values_min = $self->values_min)) {
+    if (defined (my $values_max = $self->values_max)) {
+      if ($values_min == $values_max) {
+        # constant seq is non-decreasing
+        return 1;
+      }
+    }
   }
   # increasing means non_decreasing too
   return $self->characteristic_increasing;
@@ -691,6 +695,27 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::FractionsTree;
 # }
+{ package Math::PlanePath::ChanTree;
+  # FIXME: k=4,5,6 are Right-only, maybe
+  # sub _NumSeq_Turn_Left_max {
+  #   my ($self) = @_;
+  #   return ($self->{'k'} >= 4
+  #           ? 0 # never Left
+  #           : 1);
+  # }
+  # sub _NumSeq_Turn_Right_min {
+  #   my ($self) = @_;
+  #   return ($self->{'k'} >= 4
+  #           ? 1 # always Right
+  #           : 0);
+  # }
+  # sub _NumSeq_Turn_LSR_max {
+  #   my ($self) = @_;
+  #   return ($self->{'k'} >= 4
+  #           ? -1 # always Right
+  #           : 1);
+  # }
+}
 # { package Math::PlanePath::DiagonalRationals;
 # }
 # { package Math::PlanePath::FactorRationals;
@@ -844,16 +869,21 @@ sub characteristic_non_decreasing {
 # },
 # }
 { package Math::PlanePath::GosperSide;
-  use constant _NumSeq_Turn_oeis_anum =>
-    { '' => { 'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
-              # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
-              # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
 
-              # Not quite, A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
-              # Right => 'A080846',
-              # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
-              # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
-            } };
+  # Suspect not in OEIS:
+  # Left or Right according to lowest non-zero ternary digit 1 or 2
+  #
+  use constant _NumSeq_Turn_oeis_anum =>
+    { '' =>
+      { 'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
+        # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
+        # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
+
+        # Not quite, A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
+        # Right => 'A080846',
+        # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
+        # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
+      } };
 }
 { package Math::PlanePath::TerdragonCurve;
   # GosperSide and TerdragonCurve same turn sequence, by diff angles
@@ -920,7 +950,7 @@ sub characteristic_non_decreasing {
 
   use constant _NumSeq_Turn_oeis_anum =>
     {
-     'width=0' => # Rows width=0 is trivial X=N,Y=0
+     'n_start=1,width=0' => # Rows width=0 is trivial X=N,Y=0
      { Left => 'A000004',  # all-zeros
        LSR  => 'A000004',  # all zeros, straight
        # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=Left
@@ -960,7 +990,7 @@ sub characteristic_non_decreasing {
 
   use constant _NumSeq_Turn_oeis_anum =>
     {
-     'height=0' => # Columns height=0 is trivial X=N,Y=0
+     'n_start=1,height=0' => # Columns height=0 is trivial X=N,Y=0
      { Left => 'A000004',  # all-zeros
        LSR  => 'A000004',  # all zeros, straight
        # OEIS-Other: A000004 planepath=Columns,height=0 turn_type=Left
@@ -970,20 +1000,20 @@ sub characteristic_non_decreasing {
 }
 { package Math::PlanePath::Diagonals;
   use constant _NumSeq_Turn_oeis_anum =>
-    { 'direction=down,n_start=0' =>
+    { 'direction=down,n_start=0,x_start=0,y_start=0' =>
       { Left => 'A129184', # shift of triangle
         # OEIS-Catalogue: A129184 planepath=Diagonals,n_start=0 turn_type=Left
       },
-      'direction=down,n_start=-1' =>
+      'direction=down,n_start=-1,x_start=0,y_start=0' =>
       { Right => 'A023531', # 1 at m(m+3)/2
         # OEIS-Other: A023531 planepath=Diagonals,n_start=-1 turn_type=Right
       },
 
-      'direction=up,n_start=0' =>
+      'direction=up,n_start=0,x_start=0,y_start=0' =>
       { Right => 'A129184', # shift of triangle
         # OEIS-Other: A129184 planepath=Diagonals,direction=up,n_start=0 turn_type=Right
       },
-      'direction=up,n_start=-1' =>
+      'direction=up,n_start=-1,x_start=0,y_start=0' =>
       { Left => 'A023531', # 1 at m(m+3)/2
         # OEIS-Other: A023531 planepath=Diagonals,direction=up,n_start=-1 turn_type=Left
       },
@@ -1053,9 +1083,9 @@ sub characteristic_non_decreasing {
        my $href= { Left => 'A000004',  # all-zeros
                    LSR  => 'A000004',  # all zeros, straight
                  };
-       ('step=0,align=centre' => $href,
-        'step=0,align=right'  => $href,
-        'step=0,align=left'   => $href,
+       ('step=0,align=centre,n_start=1' => $href,
+        'step=0,align=right,n_start=1'  => $href,
+        'step=0,align=left,n_start=1'   => $href,
        );
        # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=Left
        # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=LSR

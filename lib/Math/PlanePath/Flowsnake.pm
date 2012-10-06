@@ -27,7 +27,7 @@
 #
 # http://www.mathcurve.com/fractals/gosper/gosper.shtml
 #
-# cf hexagonal tiling http://tilingsearch.org/HTML/data136/F666.html
+# plain hexagonal tiling http://tilingsearch.org/HTML/data136/F666.html
 #
 
 
@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array()

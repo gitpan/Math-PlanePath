@@ -102,11 +102,12 @@ sub check_class {
   ### $class
   ### $parameters
 
-  # return unless $class =~ /PlanePath/;
-  # return unless $class =~ /Koch/;
-  # return unless $anum =~ 'A174981';
-  # return unless $anum eq 'A061347';
-  # return unless $anum eq 'A074330';
+  my %parameters = @$parameters;
+  # return unless $class =~ /PlanePathN/;
+  return unless $parameters{'planepath'} =~ /Chan/;
+  # return unless $anum =~ 'A076938';
+  # return unless $anum eq 'A067251';
+  # return unless $anum =~ /A0039/;
 
 
   eval "require $class" or die;

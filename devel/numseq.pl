@@ -47,6 +47,8 @@ use strict;
   $planepath = "FractionsTree";
   $planepath = "PowerArray";
   $planepath = "RationalsTree,tree_type=CS";
+  $planepath = "ChanTree,k=2";
+  $planepath = "CfracDigits,radix=2";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                delta_type => 'Dir4');
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
@@ -58,7 +60,7 @@ use strict;
     my ($i, $value) = $seq->next;
 
     # neg for minimum
-    # $value = -$value; next unless $value;
+     $value = -$value; next unless $value;
 
     if ($value > $max) {
       my $dx = $dx_seq->ith($i);
@@ -72,6 +74,39 @@ use strict;
     }
   }
 
+  exit 0;
+}
+
+{
+  # max turn Left etc
+
+  require Math::NumSeq::PlanePathTurn;
+  require Math::NumSeq::PlanePathDelta;
+  my $planepath;
+  $planepath = "TriangularHypot,points=hex";
+  $planepath = "TriangularHypot,points=hex_centred";
+  $planepath = "TriangularHypot,points=hex_rotated";
+  $planepath = "ChanTree,k=4";
+  my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
+                                              turn_type => 'LSR');
+
+  # $planepath = "FractionsTree";
+  # my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+  #                                             delta_type => 'Dir4');
+  my $max = -99;
+  my $min = 99;
+  for (1 .. 1000000) {
+    my ($i, $value) = $seq->next;
+    # $value = -$value; next unless $value;
+    if ($value > $max) {
+      printf "%d %.5f new max\n", $i, $value;
+      $max = $value;
+    }
+    if ($value < $min) {
+      printf "%d %.5f new min\n", $i, $value;
+      $min = $value;
+    }
+  }
   exit 0;
 }
 
@@ -339,38 +374,6 @@ use strict;
 
 }
 
-
-{
-  # max turn Left etc
-
-  require Math::NumSeq::PlanePathTurn;
-  require Math::NumSeq::PlanePathDelta;
-  my $planepath;
-  $planepath = "TriangularHypot,points=hex";
-  $planepath = "TriangularHypot,points=hex_centred";
-  $planepath = "TriangularHypot,points=hex_rotated";
-  # my $seq = Math::NumSeq::PlanePathTurn->new (planepath => $planepath,
-  #                                             turn_type => 'Right');
-
-  $planepath = "FractionsTree";
-  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                              delta_type => 'Dir4');
-  my $max = -99;
-  my $min = 99;
-  for (1 .. 1000000) {
-    my ($i, $value) = $seq->next;
-    # $value = -$value; next unless $value;
-    if ($value > $max) {
-      printf "%d %.5f new max\n", $i, $value;
-      $max = $value;
-    }
-    if ($value < $min) {
-      printf "%d %.5f new min\n", $i, $value;
-      $min = $value;
-    }
-  }
-  exit 0;
-}
 
 
 {

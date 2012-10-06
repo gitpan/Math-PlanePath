@@ -39,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,6 +53,8 @@ use Math::PlanePath::Base::Generic
 
 use constant parameter_info_array =>
   [ { name            => 'points',
+      share_key       => 'points_aeo',
+      display         => 'Points',
       type            => 'enum',
       default         => 'all',
       choices         => ['all','even','odd'],

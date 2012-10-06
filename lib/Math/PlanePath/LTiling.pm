@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -50,6 +50,7 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ { name            => 'L_fill',
+      display         => 'L Fill',
       type            => 'enum',
       default         => 'middle',
       choices         => ['middle','left','upper','ends','all'],

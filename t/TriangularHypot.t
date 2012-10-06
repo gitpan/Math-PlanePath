@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,
@@ -71,7 +71,7 @@ require Math::PlanePath::TriangularHypot;
   ok ($path->y_negative, 1, 'y_negative()');
 
   my @pnames = map {$_->{'name'}} $path->parameter_info_list;
-  ok (join(',',@pnames), 'points');
+  ok (join(',',@pnames), 'points,n_start');
 }
 
 

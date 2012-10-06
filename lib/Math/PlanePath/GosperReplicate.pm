@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -287,7 +287,10 @@ edges.
 =head2 Complex Base
 
 The path corresponds to expressing complex integers X+i*Y in a base
-b=5/2+i*sqrt(3)/2 with some scaling to put equilateral triangles on a square
+
+    b = 5/2 + i*sqrt(3)/2 
+
+with some scaling to put equilateral triangles on a square
 grid.  So for integer X,Y with X and Y either both odd or both even,
 
     X/2 + i*Y*sqrt(3)/2 = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
@@ -295,15 +298,18 @@ grid.  So for integer X,Y with X and Y either both odd or both even,
 where each digit a[i] is either 0 or a sixth root of unity encoded into N as
 base 7 digits,
 
+     r = e^(i*pi/3)
+       = 1/2 + i*sqrt(3)/2      sixth root of unity
+
      N digit     a[i] complex number
      -------     -------------------
        0          0
-       1         e^(0/3 * pi * i) = 1
-       2         e^(1/3 * pi * i) = 1/2 + i*sqrt(3)/2
-       3         e^(2/3 * pi * i) = -1/2 + i*sqrt(3)/2
-       4         e^(3/3 * pi * i) = -1
-       5         e^(4/3 * pi * i) = -1/2 - i*sqrt(3)/2
-       6         e^(5/3 * pi * i) = 1/2 - i*sqrt(3)/2
+       1         r^0 = 1
+       2         r^2 = 1/2 + i*sqrt(3)/2
+       3         r^3 = -1/2 + i*sqrt(3)/2
+       4         r^4 = -1
+       5         r^5 = -1/2 - i*sqrt(3)/2
+       6         r^6 = 1/2 - i*sqrt(3)/2
 
 7 digits suffice because
 

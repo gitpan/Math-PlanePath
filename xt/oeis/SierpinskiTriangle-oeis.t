@@ -29,6 +29,9 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 use Math::PlanePath::SierpinskiTriangle;
 
+use Math::PlanePath::Base::Digits
+  'digit_join_lowtohigh';
+
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
@@ -58,6 +61,212 @@ sub diff_nums {
   }
   return undef;
 }
+
+
+
+
+#------------------------------------------------------------------------------
+# Dyck coded breath-wise
+#
+# A080268 decimal 2,  56,     968,        249728,             3996680,
+# A080269 binary 10, 111000, 1111001000, 111100111110000000, 1111001111110000001000,
+#                            (( (()) () ))
+#
+# A063171 dyck all words ascending
+#
+# A080318 decimal
+# A080319 binary
+#         10,
+#         111000,
+#         11111110000000,
+#         1111111110000110000000,
+#         11111111100001111111111000000000000000,
+#
+#                                    *   *   *   *
+#                                     \ /     \ /
+#                    *  . .  *         *  . .  *  
+#                     \     /           \     /   
+#        *   *         *   *             *   *    
+#         \ /           \ /               \ /     
+#   *      *             *                 *      
+#
+# A080320 positions in A014486 list of balanced
+# A080270 position in list of all balanced binary A014486
+
+{
+  # decimal
+  my $anum = 'A080268';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = dyck_breadth_bits($path, $depth);
+      push @got, Math::BigInt->new("0b".join('',@bits));
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+{
+  # binary
+  my $anum = 'A080269';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = dyck_breadth_bits($path, $depth);
+      push @got, join('',@bits);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+
+# Return a list of 0,1 bits.
+# No-such node = 0.
+# Node = 1,left,right with those children breadth-wise across.
+# Drop very last 0 at end.
+#
+sub dyck_breadth_bits {
+  my ($path, $limit) = @_;
+  my @pending_x = (0);
+  my @pending_y = (0);
+  my @ret;
+  foreach (1 .. $limit) {
+    my @new_x;
+    my @new_y;
+    foreach my $i (0 .. $#pending_x) {
+      my $x = $pending_x[$i];
+      my $y = $pending_y[$i];
+      if (defined($path->xy_to_n($x,$y))) {
+        push @ret, 1;
+        push @new_x, $x-1;
+        push @new_y, $y+1;
+        push @new_x, $x+1;
+        push @new_y, $y+1;
+      } else {
+        push @ret, 0;
+      }
+    }
+    @pending_x = @new_x;
+    @pending_y = @new_y;
+  }
+  push @ret, (0) x (scalar(@pending_x)-1);
+  return @ret;
+}
+
+#------------------------------------------------------------------------------
+# Dyck coded, depth-first
+
+# A080263 sierpinski 2, 50, 906, 247986
+# A080264 binary    10, 110010, 1110001010, 111100100010110010
+#                       (    )
+#
+#                                    *   *   *   *
+#                                     \ /     \ /
+#                    *       *         *       *  
+#                     \     /           \     /   
+#        *   *         *   *             *   *    
+#         \ /           \ /               \ /     
+#   *      *             *                 *      
+#  10   110010   1,1100,0101,0   11,110010,0010,110010
+#  10,  110010,   1110001010,    111100100010110010
+#       (())()
+#      [(())()]
+#
+# cf A080265 position in list of all balanced binary A014486
+
+{
+  # binary
+  my $anum = 'A080264';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = dyck_tree_bits($path, 0,0, $depth);
+      push @got, join('',@bits);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+
+{
+  # decimal
+  my $anum = 'A080263';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = dyck_tree_bits($path, 0,0, $depth);
+      push @got, Math::BigInt->new("0b".join('',@bits));
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+
+# No-such node = 0.
+# Node = 1,left,right.
+# Drop very last 0 at end.
+#
+sub dyck_tree_bits {
+  my ($path, $x,$y, $limit) = @_;
+  my @ret = dyck_tree_bits_z ($path, $x,$y, $limit);
+  pop @ret;
+  return @ret;
+}
+sub dyck_tree_bits_z {
+  my ($path, $x,$y, $limit) = @_;
+  if ($limit > 0 && path_xy_is_visited($path,$x,$y)) {
+    return (1,
+            dyck_tree_bits_z($path, $x-1,$y+1, $limit-1),
+            dyck_tree_bits_z($path, $x+1,$y+1, $limit-1));
+  } else {
+    return (0);
+  }
+}
+sub path_xy_is_visited {
+  my ($path, $x,$y) = @_;
+  return defined($path->xy_to_n($x,$y));
+}
+
 
 
 #------------------------------------------------------------------------------

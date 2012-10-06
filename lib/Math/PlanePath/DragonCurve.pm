@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -70,6 +70,7 @@ use constant n_start => 0;
 
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_4',
+                                         display   => 'Arms',
                                          type      => 'integer',
                                          minimum   => 1,
                                          maximum   => 4,
@@ -628,7 +629,7 @@ __END__
 
 #------------------------------------------------------------------------------
 
-=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook DragonMidpoint versa PlanePath Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns DragonCurve Shallit Kmosek SquareSpiral
+=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook DragonMidpoint versa PlanePath Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns DragonCurve Shallit Kmosek SquareSpiral Seminumerical dX dY bitwise lookup dx dy ie
 
 =head1 NAME
 
@@ -943,15 +944,16 @@ when two Ns are found.
 
 Only the "leaving" edges will convert back to the target N, so only two of
 the four edges actually need to be considered.  Is there a way to identify
-them?  For arms 1 and 3 the leaving edges are up,down on odd points (meaning
+them?  For arm 1 and 3 the leaving edges are up,down on odd points (meaning
 sum X+Y odd) and right,left for even points (meaning sum X+Y even).  But for
-arms 2 and 4 it's the other way around.  Without an easy way to determine
-the arm this doesn't seem to help.
+arm 2 and 4 it's the other way around.  Without an easy way to determine the
+arm this doesn't seem to help.
 
 =head2 Turn
 
 At each point the curve always turns either left or right, it never goes
-straight ahead.  The bit above the lowest 1 in N gives the turn direction.
+straight ahead.  The bit above the lowest 1-bit in N gives the turn
+direction.
 
     N = 0b...z10000   (possibly no trailing 0s)
 
@@ -971,10 +973,19 @@ This z bit can be picked out with some bit twiddling
     $z = $n & ($mask << 1);    # the bit above it
     $turn = ($z == 0 ? 'left' : 'right');
 
+This sequence is mentioned too in Knuth volume 2 "Seminumerical Algorithms"
+answer to section 4.5.3 question 41 as the "dragon sequence".  It's
+expressed there recursively as
+
+    d(0) = 1       # unused, the first turn being at N=1
+    d(2N) = d(N)   # shift down looking for low 1-bit
+    d(4N+1) = 0    # bit above lowest 1-bit is 0
+    d(4N+3) = 1    # bit above lowest 1-bit is 1
+
 =head2 Next Turn
 
 The bits also give the turn after next by looking at the bit above the
-lowest 0.  This works because 011..11 + 1 = 100..00 so the bit above the
+lowest 0-bit.  This works because 011..11 + 1 = 100..00 so the bit above the
 lowest 0 becomes the bit above the lowest 1.
 
     N = 0b...w01111    (possibly no trailing 1s)
@@ -1092,20 +1103,22 @@ various forms (and see DragonMidpoint for its forms too),
 
     http://oeis.org/A014577  (etc)
 
-    A014577 -- turn, 0=left,1=right
-    A014707 -- turn, 1=left,0=right
-    A014709 -- turn, 2=left,1=right
-    A014710 -- turn, 1=left,2=right
-    A038189 -- turn, 0=left,1=right, bit above lowest 1, extra initial 0
+    A038189 -- turn, 0=left,1=right, bit above lowest 1, extra 0
+    A082410 -- turn, 1=left,0=right, reversing complement, extra 0
     A099545 -- turn, 1=left,3=right, as [odd part n] mod 4
-    A082410 -- turn, 1=left,0=right, reversing complement, extra initial 0
-    A034947 -- turn, 1=left,-1=right, being Jacobi (-1/n)
-    A112347 -- turn, 1=left,-1=right, Jacobi (-1/n), extra initial 0
+    A034947 -- turn, 1=left,-1=right, Jacobi (-1/n)
+    A112347 -- turn, 1=left,-1=right, Kronecker (-1/n), extra 0
     A121238 -- turn, 1=left,-1=right, -1^(n + some partitions) extra 1
+    A014577 -- next turn, 0=left,1=right
+    A014707 -- next turn, 1=left,0=right
+    A014709 -- next turn, 2=left,1=right
+    A014710 -- next turn, 1=left,2=right
 
 The above turn sequences differ only in having left or right represented as
-0, 1, -1, etc, and possible extra initial 0 or 1 arising from the
-definitions.
+0, 1, -1, etc.  The "extra" values are a possible extra initial 0 or 1 at
+n=0 arising from the definitions, with the first turn being at n=N=1.  The
+"next turn" sequences begin at n=0 for the turn at N=1, ie. the turn at
+N=n+1.
 
     A005811 -- total turn
     A088748 -- total turn + 1
@@ -1127,11 +1140,19 @@ of an infinite sum
     1 + - + - + -- + --- + ----- + ... + ------- + ...
         2   4   16   256   65536         2^(2^k)
 
-X<Shallit, Jeffrey>X<Kmosek>Jeffrey Shallit, and independently M. Kmosek,
-show how continued fraction terms which are repeated in reverse give rise to
-this sort of sum,
+X<Shallit, Jeffrey>X<Kmosek>Jeffrey Shallit and independently M. Kmosek show
+how continued fraction terms which are repeated in reverse give rise to this
+sort of power sum,
 
+    "Simple Continued Fractions for Some Irrational Numbers"
     http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps
+
+=cut
+
+# Also in Knuth vol 2 section 4.5.3 exercise 41, from Jeffery Shallit's 1979
+# paper.
+
+=pod
 
 The A126937 SquareSpiral numbering has the dragon curve and square
 spiralling with their Y axes in opposite directions, as shown in its
@@ -1145,7 +1166,7 @@ PlanePath code for this starting at C<$i=0> would be
       my $A126937_of_i = $square->xy_to_n ($x, -$y);
 
 For reference, "dragon-like" A059125 is similar to the turn sequence
-A014707, but differs in having the "middle" value for each replication come
+A014707, but differs in having the "middle" values for each replication come
 from successive values of the sequence itself, or something like that.
 
 =head1 SEE ALSO

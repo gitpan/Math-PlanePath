@@ -45,6 +45,26 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['cfrac-digits-small.png',
+    'math-image --path=CfracDigits --lines --scale=4 --size=32 --offset=-4,-8'],
+   ['cfrac-digits-big.png',
+    'math-image --path=CfracDigits --lines --scale=10 --size=200'],
+   ['cfrac-digits-radix3.png',
+    'math-image --path=CfracDigits,radix=3 --lines --scale=10 --size=200'],
+   ['cfrac-digits-radix4.png',
+    'math-image --path=CfracDigits,radix=4 --lines --scale=10 --size=200'],
+
+   ['chan-tree-small.png',
+    'math-image --path=ChanTree --all --scale=2 --size=32'],
+   ['chan-tree-big.png',
+    'math-image --path=ChanTree --all --scale=3 --size=200'],
+   ['chan-tree-lines.png',
+    'math-image --path=ChanTree --values=LinesTree --scale=8 --size=200'],
+   ['chan-tree-k4.png',
+    'math-image --path=ChanTree,k=4 --all --scale=3 --size=200'],
+   ['chan-tree-k5.png',
+    'math-image --path=ChanTree,k=5 --all --scale=3 --size=200'],
+
    ['h-indexing-small.png',
     'math-image --path=HIndexing --scale=3 --size=32 --lines --figure=point'],
    ['h-indexing-big.png',

@@ -25,6 +25,51 @@ use strict;
 
 
 {
+  # tree_n_to_depth()
+  require Math::PlanePath::ToothpickTree;
+  my $path = Math::PlanePath::ToothpickTree->new;
+  my $prev = 0;
+  my $count = 0;
+  my $total = 0;
+  for (my $n = 1; $n <= 256; $n++) {
+    my $depth = $path->tree_n_to_depth($n);
+    if ($depth > $prev) {
+      print "$prev  $count  $total\n";
+      $count = 0;
+      $prev = $depth;
+    }
+    $count++;
+    $total++;
+  }
+  exit 0;
+}
+
+{
+  my @added = (0, 1, 2, 4);
+  print "0,1,\n2,4,\n";
+  for (my $len = 4; $len <= 16; $len *= 2) {
+    my $add = $len;
+    push @added, $add;
+    print "$add,";
+    for my $i (1 .. $len-1) {
+      my $add = $added[$i+1] + 2*$added[$i];
+      print "$add,";
+      push @added, $add;
+    }
+    my $asize = scalar(@added);
+    print "  [asize=$asize]\n";
+  }
+  exit 0;
+}
+{
+  #  0;
+  #  1;
+  #  2,4;
+  #  4,4,8,12;
+  #  8,4,8,12,12,16,28,32;
+  # 16,4,8,12,12,16,28,32,20,16,28,36,40,60,88,80;
+  # 32,4,8,12,12,16,28,32,20,16,28,36,40,60,88,80,36,16,28,36,40,60,88,84,56,..
+
   # 1, 1,
   # 1, 2, 3, 2,
   # 1, 2, 3, 3, 4, 7, 8, 4,

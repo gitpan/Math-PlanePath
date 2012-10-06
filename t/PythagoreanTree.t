@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 295;
+plan tests => 301;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -59,6 +59,67 @@ require Math::PlanePath::PythagoreanTree;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# ab_to_pq()
+{
+  require Math::PlanePath::CoprimeColumns;
+  require Math::PlanePath::GcdRationals;
+
+  my $bad = 0;
+  foreach my $a (-2 .. 50) {
+    foreach my $b (-2 .. 50) {
+      my ($p,$q) = Math::PlanePath::PythagoreanTree::_ab_to_pq($a,$b);
+
+      if (defined $p || defined $q) {
+        unless ($p > $q) {
+          MyTestHelpers::diag ("bad, a=$a,b=$b gives p=$p,q=$q not p>q");
+          $bad++;
+        }
+        unless ($q >= 1) {
+          MyTestHelpers::diag ("bad, a=$a,b=$b gives p=$p,q=$q not q>=1");
+          $bad++;
+        }
+        # unless (Math::PlanePath::CoprimeColumns::_coprime($p,$q)) {
+        #   my $gcd = Math::PlanePath::GcdRationals::_gcd($p,$q);
+        #   MyTestHelpers::diag ("bad, a=$a,b=$b gives p=$p,q=$q not coprime, gcd=$gcd");
+        #   $bad++;
+        # }
+      }
+
+      if (ab_is_primitive_triple($a,$b)) {
+        unless (defined $p && defined $q) {
+          MyTestHelpers::diag ("bad, a=$a,b=$b doesn't give p,q");
+          $bad++;
+        }
+      } else {
+        # Some non-primitive pass _ab_to_pq(), some do not.
+        # if (defined $p || defined $q) {
+        #   my $gcd = Math::PlanePath::GcdRationals::_gcd($p,$q);
+        #   MyTestHelpers::diag ("bad, a=$a,b=$b not primitive triple but gives p=$p,q=$q (with gcd=$gcd)");
+        #   $bad++;
+        # }
+      }
+    }
+  }
+  ok ($bad, 0);
+
+  sub ab_is_primitive_triple {
+    my ($a,$b) = @_;
+    if ($a < 3 || $b < 3) {
+      return 0;
+    }
+    unless ($a & 1 && !($b & 1)) {
+      return 0;
+    }
+    my $csquared = $a*$a + $b*$b;
+    my $c = int(sqrt($csquared));
+    if ($c*$c != $csquared) {
+      return 0;
+    }
+    return Math::PlanePath::CoprimeColumns::_coprime($a,$b);
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -127,7 +188,7 @@ require Math::PlanePath::PythagoreanTree;
 #------------------------------------------------------------------------------
 # n_to_xy(),  xy_to_n()
 
-# UAD, AB
+# tree_type=UAD, coordinates=AB
 {
   my @data = ([ 1, 3,4 ],
 
@@ -144,10 +205,17 @@ require Math::PlanePath::PythagoreanTree;
               [ 11,  33,56 ],
               [ 12,  65,72 ],
               [ 13,  35,12 ],
+
+              [ undef, 27,36 ],
+              [ undef, 45,108 ],
+              [ undef, 63,216 ],
+              [ undef, 75,100 ],
+              [ undef, 81,360 ],
              );
   my $path = Math::PlanePath::PythagoreanTree->new;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
+    next unless defined $n;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
     ok ($got_x, $want_x, "x at n=$n");
     ok ($got_y, $want_y, "y at n=$n");
@@ -161,13 +229,14 @@ require Math::PlanePath::PythagoreanTree;
 
   foreach my $elem (@data) {
     my ($n, $x, $y) = @$elem;
+    next unless defined $n;
     my ($got_nlo, $got_nhi) = $path->rect_to_n_range (0,0, $x,$y);
     ok ($got_nlo <= $n, 1, "rect_to_n_range() nlo=$got_nlo at n=$n,x=$x,y=$y");
     ok ($got_nhi >= $n, 1, "rect_to_n_range() nhi=$got_nhi at n=$n,x=$x,y=$y");
   }
 }
 
-# UAD, PQ
+# tree_type=UAD, coordinates=PQ
 {
   my @data = ([ 1,  2,1 ],
 
@@ -208,7 +277,7 @@ require Math::PlanePath::PythagoreanTree;
   }
 }
 
-# FB, AB
+# tree_type=FB, coordinates=AB
 {
   my @data = ([ 1, 3,4 ],
 
@@ -249,7 +318,7 @@ require Math::PlanePath::PythagoreanTree;
   }
 }
 
-# FB, PQ
+# tree_type=FB, coordinates=PQ
 {
   my @data = ([ 1,  2,1 ],
 

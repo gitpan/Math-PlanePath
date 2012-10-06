@@ -38,7 +38,7 @@ my $path = Math::PlanePath::Hypot->new;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::Hypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Hypot->VERSION,  $want_version,
@@ -75,7 +75,7 @@ my $path = Math::PlanePath::Hypot->new;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Hypot->parameter_info_list;
-  ok (join(',',@pnames), 'points');
+  ok (join(',',@pnames), 'points,n_start');
 }
 
 

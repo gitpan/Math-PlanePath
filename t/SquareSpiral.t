@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,
@@ -280,7 +280,7 @@ require Math::PlanePath::SquareSpiral;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::SquareSpiral->parameter_info_list;
-  ok (join(',',@pnames), 'wider');
+  ok (join(',',@pnames), 'wider,n_start');
 }
 
 #------------------------------------------------------------------------------

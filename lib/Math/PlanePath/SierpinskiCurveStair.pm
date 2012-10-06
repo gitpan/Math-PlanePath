@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -57,6 +57,7 @@ sub y_negative {
 use constant parameter_info_array =>
   [
    { name        => 'diagonal_length',
+     display     => 'Diagonal Length',
      type        => 'integer',
      minimum     => 1,
      default     => 1,
@@ -65,6 +66,7 @@ use constant parameter_info_array =>
    },
    { name      => 'arms',
      share_key => 'arms_8',
+     display   => 'Arms',
      type      => 'integer',
      minimum   => 1,
      maximum   => 8,

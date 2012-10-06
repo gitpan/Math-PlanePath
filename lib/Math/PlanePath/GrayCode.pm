@@ -41,7 +41,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -64,6 +64,8 @@ use constant class_y_negative => 0;
 use constant parameter_info_array =>
   [
    { name            => 'apply_type',
+     share_key       => 'apply_type_TsF',
+     display         => 'Apply Type',
      type            => 'enum',
      default         => 'TsF',
      choices         => ['TsF','Ts','Fs','FsT','sT','sF'],
@@ -71,6 +73,7 @@ use constant parameter_info_array =>
      description     => 'How to apply the Gray coding to/from and split.',
    },
    { name             => 'gray_type',
+     display          => 'Gray Type',
      type             => 'enum',
      default          => 'reflected',
      choices          => ['reflected','modular'],

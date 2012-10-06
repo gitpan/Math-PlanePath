@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 565;
+plan tests => 575;
 
 use lib 't';
 use MyTestHelpers;
@@ -42,13 +42,55 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
-               'RationalsTree,tree_type=CS',
+               'CfracDigits,radix=1',
+               'CfracDigits',
+               'CfracDigits,radix=3',
+               'CfracDigits,radix=4',
+               'CfracDigits,radix=10',
+               'CfracDigits,radix=37',
+
+               'ChanTree',
+               'ChanTree,n_start=1234',
+               'ChanTree,k=2',
+               'ChanTree,k=2,n_start=1234',
+               'ChanTree,k=4',
+               'ChanTree,k=5',
+               'ChanTree,k=7',
+               'ChanTree,reduced=1',
+               'ChanTree,reduced=1,k=2',
+               'ChanTree,reduced=1,k=4',
+               'ChanTree,reduced=1,k=5',
+               'ChanTree,reduced=1,k=7',
+
                'RationalsTree',
                'RationalsTree,tree_type=CW',
                'RationalsTree,tree_type=AYT',
                'RationalsTree,tree_type=Bird',
                'RationalsTree,tree_type=Drib',
                'RationalsTree,tree_type=L',
+               'RationalsTree,tree_type=CS',
+
+               'DiagonalsAlternating',
+               'DiagonalsAlternating,n_start=0',
+               'DiagonalsAlternating,n_start=37',
+               'DiagonalsAlternating,x_start=5',
+               'DiagonalsAlternating,x_start=2,y_start=5',
+
+               'Diagonals',
+               'Diagonals,direction=up',
+               'Diagonals,n_start=0',
+               'Diagonals,direction=up,n_start=0',
+               'Diagonals,n_start=37',
+               'Diagonals,direction=up,n_start=37',
+               'Diagonals,x_start=5',
+               'Diagonals,direction=up,x_start=5',
+               'Diagonals,x_start=2,y_start=5',
+               'Diagonals,direction=up,x_start=2,y_start=5',
+
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
                'GcdRationals',
                'GcdRationals,pairs_order=rows_reverse',
@@ -272,11 +314,6 @@ my @modules = (
                'FactorRationals',
                'DiagonalRationals',
 
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
-
                'SierpinskiTriangle',
                'SierpinskiTriangle,n_start=37',
                'SierpinskiTriangle,align=left',
@@ -369,10 +406,6 @@ my @modules = (
 
                'MPeaks',
 
-               'DiagonalsAlternating',
-               'DiagonalsAlternating,n_start=0',
-               'DiagonalsAlternating,n_start=37',
-
                'PyramidRows,align=right',
                'PyramidRows,align=right,step=0',
                'PyramidRows,align=right,step=1',
@@ -406,13 +439,6 @@ my @modules = (
                'DiagonalsOctant,direction=up,n_start=0',
                'DiagonalsOctant,n_start=37',
                'DiagonalsOctant,direction=up,n_start=37',
-
-               'Diagonals',
-               'Diagonals,direction=up',
-               'Diagonals,n_start=0',
-               'Diagonals,direction=up,n_start=0',
-               'Diagonals,n_start=37',
-               'Diagonals,direction=up,n_start=37',
 
                'Corner',
                'Corner,wider=1',
@@ -541,7 +567,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 89;
+my $want_version = 90;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -895,18 +921,18 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-  
+
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-    
+
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-    
+
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-    
+
     my $dxdy_allowed = $class_dxdy_allowed{$class};
     if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
         && $parameters{'radix'}
@@ -917,11 +943,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-    
+
     #
     # MyTestHelpers::diag ($mod);
     #
-    
+
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -938,26 +964,26 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-    
+
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' ', @_);
       $good = 0;
       # exit 1;
     };
-    
+
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-    
+
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-    
+
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
@@ -987,14 +1013,14 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     {
       my $saw_warning = 0;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
       $path->n_to_xy(undef);
       $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
     }
-    
+
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -1034,7 +1060,7 @@ sub pythagorean_diag {
           or &$report("n_to_dxdy($pos_infinity) dy is $dy");
       }
     }
-    
+
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1072,7 +1098,7 @@ sub pythagorean_diag {
           or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
     }
-    
+
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1511,8 +1537,9 @@ sub pythagorean_diag {
       }
       {
         my $num_children = $path->tree_n_num_children($n);
-        ($num_children == 0)
-          or &$report ("tree_n_num_children($n) before n_start=$n_start unexpectedly got $num_children values");
+        if (defined $num_children) {
+          &$report ("tree_n_num_children($n) before n_start=$n_start unexpectedly $num_children not undef");
+        }
       }
     }
 

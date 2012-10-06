@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -58,6 +58,7 @@ sub y_negative {
 
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_8',
+                                         display   => 'Arms',
                                          type      => 'integer',
                                          minimum   => 1,
                                          maximum   => 8,

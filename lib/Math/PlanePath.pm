@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 89;
+$VERSION = 90;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -89,8 +89,12 @@ use constant tree_n_parent => undef;
 use constant tree_n_children => ();
 sub tree_n_num_children {
   my ($self, $n) = @_;
-  my @n_list = $self->tree_n_children($n);
-  return scalar(@n_list);
+  if ($n >= $self->n_start) {
+    my @n_list = $self->tree_n_children($n);
+    return scalar(@n_list);
+  } else {
+    return undef;
+  }
 }
 sub tree_n_to_depth {
   my ($self, $n) = @_;
@@ -269,7 +273,7 @@ __END__
 
 
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY dX,dY
 
 =head1 NAME
 
@@ -409,6 +413,8 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
     GcdRationals           rationals X/Y by rows with GCD integer
     RationalsTree          rationals X/Y by tree
     FractionsTree          fractions 0<X/Y<1 by tree
+    ChanTree               rationals X/Y multi-child tree
+    CfracDigits            continued fraction 0<X/Y<1 by digits
     CoprimeColumns         coprime X,Y
     DivisibleColumns       X divisible by Y
     WythoffArray           Fibonacci recurrences
@@ -653,13 +659,14 @@ particular C<$n>.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return the number of children of C<$n>, or 0 if C<$n> has no children.
+Return the number of children of C<$n>, or 0 if C<$n> has no children, or
+C<undef> if S<C<$n E<lt> n_start()>> (ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
-Return the parent node of C<$n>, or C<undef> if it has no parent.  There
-could be no parent either because C<$path> is not a tree or because C<$n> is
-the top of the tree (or one of the tops).
+Return the parent node of C<$n>, or C<undef> if it has no parent.  There is
+no parent at the top of the tree (or one of multiple tops), or if C<$path>
+is not a tree.
 
 =item C<$depth = $path-E<gt>tree_n_to_depth($n)>
 
@@ -1002,6 +1009,9 @@ radial distance.
 
 =head1 FORMULAS
 
+The formulas section in the POD of each class describes some of the
+calculations.  This might be of interest even if the code is not.
+
 =head2 Triangular Calculations
 
 For a triangular lattice the rotation formulas above allow calculations to
@@ -1180,6 +1190,8 @@ L<Math::PlanePath::FactorRationals>,
 L<Math::PlanePath::GcdRationals>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::FractionsTree>,
+L<Math::PlanePath::ChanTree>,
+L<Math::PlanePath::CfracDigits>,
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::DivisibleColumns>,
 L<Math::PlanePath::WythoffArray>,

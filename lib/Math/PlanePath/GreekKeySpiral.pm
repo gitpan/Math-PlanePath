@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -42,6 +42,7 @@ use Math::PlanePath::Base::Generic
 use constant parameter_info_array =>
   [ { name      => 'turns',
       share_key => 'turns_2',
+      display   => 'Turns',
       type      => 'integer',
       minimum   => 0,
       default   => 2,

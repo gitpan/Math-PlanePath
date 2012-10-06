@@ -65,7 +65,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -79,7 +79,8 @@ use Math::PlanePath::Base::Generic
 
 use constant parameter_info_array =>
   [ { name            => 'points',
-      share_type      => 'points_eoa',
+      share_type      => 'points_eoahrc',
+      display         => 'Points',
       type            => 'enum',
       default         => 'even',
       choices         => ['even','odd', 'all',
@@ -90,6 +91,7 @@ use constant parameter_info_array =>
                          ],
       description     => 'Which X,Y points visit, either X+Y even or odd, or all points, or hexagonal grid points.',
     },
+    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
 
 sub new {
@@ -566,15 +568,15 @@ the X axis.  For example N=14 at X=4,Y=0 is sqrt(4) from the origin, and so
 are the rotated X=2,Y=2 and X=-2,Y=2 etc in other sixth segments, for a
 total 6 points N=14 to N=19 all the same distance.
 
-Symmetry makes either 6 or 12 points with the same distance so the count of
-those same-distance points is always multiple of 6 or 12.  There are 6
-symmetric points when on the six radial lines X=0, X=Y or X=-Y, or on the
-lines Y=0, X=3*Y or X=-3*Y which are midway between them.  And there's 12
+Symmetry means there's a set of 6 or 12 points with the same distance, so
+the count of same-distance points is always a multiple of 6 or 12.  There
+are 6 symmetric points when on the six radial lines X=0, X=Y or X=-Y, and on
+the lines Y=0, X=3*Y or X=-3*Y which are midway between them.  There's 12
 symmetric points for anything else, ie. anything in the twelve slices
-between those twelve lines.  For example the first 12 equal is N=20 to N=31
-all at sqrt(28).
+between those twelve lines.  The first set of 12 equal is N=20 to N=31 all
+at sqrt(28).
 
-There can also be further ways for the same distance to arise, multiple
+There can also be further ways for the same distance to arise, as multiple
 solutions to X^2+3*Y^3=d^2, but the 6-way or 12-way symmetry means there's
 always a multiple of 6 or 12 in total.
 
@@ -590,7 +592,6 @@ odd, which is X,Y one odd the other even.
 =pod
 
     points => "odd"
-
                          69                              5
           66    50    45    44    49    65               4
        58    40    28    25    27    39    57            3
@@ -667,13 +668,13 @@ Option C<points =E<gt> "hex"> visits X,Y points making a hexagonal grid,
        -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
 N=1 is at the origin X=0,Y=0, then N=2,3,4 are all at X^2+3Y^2=4 away from
-the origin, etc.  (The joining lines show the grid pattern, but points are
-still taken in order of distance from the origin, not following the line
-segments.)
+the origin, etc.  The joining lines drawn above show the grid pattern, but
+points are in order of distance from the origin, not following the line
+segments.
 
 The points are all integer X,Y with X+3Y mod 6 == 0 or 2.  This is a subset
-of the "even" points in that X+Y is even but with 1 of each 3 points skipped
-to make the hexagonal outline.
+of the default "even" points in that X+Y is even but with 1 of each 3 points
+skipped to make the hexagonal outline.
 
 =head2 Hex Rotated Points
 
@@ -746,7 +747,7 @@ above, but with the origin X=0,Y=0 in the centre of a hexagon,
       \        /        \        /        \        /
        30----18           3-----2          13----25            1
       /        \        /        \        /        \
-    40          10-----4           1-----7          37    <- Y=0
+    40          10-----4     .     1-----7          37    <- Y=0
       \        /        \        /        \        /
        31----19           5-----6          24----36           -1
       /        \        /        \        /        \
@@ -832,7 +833,8 @@ is related to the "even" X,Y on the path here by a -45 degree rotation,
          = (X^2 + 3*Y^2) / 4
 
 X^2+3*Y^2 is the dist^2 described above for equilateral triangles of unit
-side.  The factor of /4 doesn't affect the count of how many points.
+side.  The factor of /4 scales the distance, but of course doesn't change
+the sets of points of the same distance.
 
     points="all"
       A092572  norms X^2+3*Y^2 which occur

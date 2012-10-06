@@ -64,11 +64,12 @@
 package Math::PlanePath::ToothpickTree;
 use 5.004;
 use strict;
-#use List::Util 'max';
+#use List::Util 'max','min';
 *max = \&Math::PlanePath::_max;
+*min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -292,9 +293,104 @@ sub tree_n_parent {
   }
 }
 
+my @tree_n_to_depth = (undef, 0, 1,1, 2,2,2,2);
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+  if ($n < 0) {
+    return undef;
+  }
+  if ($n < @tree_n_to_depth) {
+    return $tree_n_to_depth[$n];
+  }
+  $n -= 8;
+
+  if (is_infinite($n)) {
+    return $n;
+  }
+  my ($depth,$rem) = _n_to_depth_and_rem($n);
+  return $depth;
+}
+
+sub _n_to_depth_and_rem {
+  my ($n) = @_;
+
+  my $zero = $n*0;
+  my @added = ($zero, 1+$zero, 2+$zero, 4+$zero);
+
+  for (my $len = 4; $len <= 16; $len *= 2) {
+    ### at: "n=$n len=$len"
+    push @added, $len;
+    if ($n < $len) {
+      return ($len, $n);
+    }
+    $n -= $len;
+
+    for my $i (1 .. $len-1) {
+      my $add = $added[$i+1] + 2*$added[$i];
+      push @added, $add;
+      if ($n < $add) {
+        return ($len+$i, $n);
+      }
+      $n -= $add;
+    }
+  }
+}
+
+
+# sub _UNTESTED__n_to_xy {
+#   my ($n) = @_;
+# 
+#   my $zero = $n*0;
+#   my @added = ($zero, 1+$zero, 2+$zero, 4+$zero);
+# 
+#   for (my $len = 4; $len <= 16; $len *= 2) {
+#     ### at: "n=$n len=$len"
+#     push @added, $len;
+#     if ($n < $len) {
+#       return ($len, $n);
+#     }
+#     $n -= $len;
+# 
+#     for my $i (1 .. $len-1) {
+#       my $add = $added[$i+1] + 2*$added[$i];
+#       push @added, $add;
+#       if ($n < $add) {
+#         return ($len+$i, $n);
+#       }
+#       $n -= $add;
+#     }
+#   }
+# }
+
 1;
 __END__
 
+
+# no good
+# cumulative total a(2^k) = (2^(2n+1) + 1)/3 = 3,11,43,171
+# N = (2^(2n+1) + 1)/3
+# 3N = 2^(2n+1) + 1
+# 2^(2n+1) = 3N - 1
+# 2^(2n+2) = 6N-2
+# len = 4^(n+1) = 6N-2
+# cumul = (len/2 + 1)/3
+#       = (len+2)/6
+# my ($len,$level) = round_down_pow(6*$n-8);
+# my @depth_bits;
+# while ($level-- >= 0) {
+#   my $cumul = ($len+2)/6;
+#
+#   if ($n >= $cumul) {
+#     $n -= $cumul;
+#     _divrem_mutate($n,4);
+#     my $cumul = ($len/4+2)/6;
+#     $n += $cumul;
+#     push @depth_bits, 1;
+#   } else {
+#     push @depth_bits, 0;
+#   }
+#   $len /= 4;
+# }
 
 
 =for stopwords eg Ryde Math-PlanePath Nstart Nend
@@ -406,7 +502,8 @@ are numbered means when there's two children they're consecutive N values.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return the number of children of C<$n>, or 0 if C<$n> has no children.
+Return the number of children of C<$n>, or return C<undef> if C<$nE<lt>1>
+(ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

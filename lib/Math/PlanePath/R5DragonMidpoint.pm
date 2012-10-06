@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 89;
+$VERSION = 90;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,6 +46,7 @@ use Math::PlanePath::Base::Generic
 use constant n_start => 0;
 use constant parameter_info_array => [ { name        => 'arms',
                                          share_key   => 'arms_6',
+                                         display     => 'Arms',
                                          type        => 'integer',
                                          minimum     => 1,
                                          maximum     => 6,
@@ -218,7 +219,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde R5Dragon Math-PlanePath Nlevel et al R5DragonCurve R5DragonMidpoint terdragon ie Xmod10 Ymod10
+=for stopwords eg Ryde R5Dragon Math-PlanePath Nlevel et al R5DragonCurve R5DragonMidpoint terdragon ie Xmod10 Ymod10 Jorg Arndt
 
 =head1 NAME
 

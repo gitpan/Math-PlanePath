@@ -162,7 +162,10 @@ foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
                   [ 'A022087', 4, extra_initial=>[0,4,4,8] ],
                   [ 'A000285', 5, extra_initial=>[1,4,5,9] ],
                   [ 'A022095', 6, extra_initial=>[1,5,6,11] ],
+
+                  # sum of Fibonacci and Lucas numbers
                   [ 'A013655', 7, extra_initial=>[3,2,5,7,12] ],
+
                   [ 'A022112', 8, extra_initial=>[2,6,8,14] ],
                   [ 'A022113', 9, extra_initial=>[2,7,9,16] ],
                   [ 'A022120', 10, extra_initial=>[3,7,10,17] ],

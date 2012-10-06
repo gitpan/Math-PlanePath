@@ -33,7 +33,7 @@ require Math::PlanePath::HexSpiralSkewed;
 # VERSION
 
 {
-  my $want_version = 89;
+  my $want_version = 90;
   ok ($Math::PlanePath::HexSpiralSkewed::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexSpiralSkewed->VERSION,  $want_version,
@@ -68,7 +68,7 @@ require Math::PlanePath::HexSpiralSkewed;
   ok ($path->y_negative, 1, 'y_negative()');
 
   my @pnames = map {$_->{'name'}} $path->parameter_info_list;
-  ok (join(',',@pnames), 'wider');
+  ok (join(',',@pnames), 'wider,n_start');
 }
 
 #------------------------------------------------------------------------------
