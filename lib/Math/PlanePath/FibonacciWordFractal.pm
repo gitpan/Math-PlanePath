@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,6 +42,13 @@ use Math::PlanePath::Base::Generic
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 my @rot_to_sx = (0,-1,0,1);
 my @rot_to_sy = (1,0,-1,0);
@@ -92,21 +99,21 @@ sub n_to_xy {
       $x = $yend[-2];     # T
       $y = $xend[-2];
     } elsif ($m == 2) {
-      $x = $yend[-2];      # -90
+      $x = $yend[-2];     # -90
       $y = - $xend[-2];
     } elsif ($m == 3) {
       $x = $xend[-2];     # T -90
       $y = - $yend[-2];
 
     } elsif ($m == 4) {
-      ### T
+      ### T ...
       $x = $yend[-2];     # T
       $y = $xend[-2];
     } elsif ($m == 5) {
-      $x = - $yend[-2];     # +90
+      $x = - $yend[-2];   # +90
       $y = $xend[-2];
     } elsif ($m == 0) {
-      $x = - $xend[-2];     # T +90
+      $x = - $xend[-2];   # T +90
       $y = $yend[-2];
     }
 

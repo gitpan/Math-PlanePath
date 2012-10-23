@@ -37,7 +37,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 460)[1];
+my $test_count = (tests => 462)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::BigRat; 1 }) {
@@ -418,6 +418,7 @@ my @modules = (
 
                'RationalsTree',
                'RationalsTree,tree_type=L',
+               'RationalsTree,tree_type=HCS',
                'FractionsTree',
 
                'DekkingCurve',

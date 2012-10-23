@@ -161,11 +161,11 @@ sub diff_nums {
 
 
 #------------------------------------------------------------------------------
-# A154436 -- permutation Bird->CS, lamplighter inverse
+# A154436 -- permutation Bird->HCS, lamplighter inverse
 
 {
   my $anum = 'A154436';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
   my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got = (0);  # initial 0
@@ -185,11 +185,11 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A003188 -- permutation SB->CS, Gray code shift+xor
+# A003188 -- permutation SB->HCS, Gray code shift+xor
 
 {
   my $anum = 'A003188';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
   my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got = (0);  # initial 0
@@ -209,11 +209,11 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A006068 -- permutation CS->SB, Gray code inverse
+# A006068 -- permutation HCS->SB, Gray code inverse
 
 {
   my $anum = 'A006068';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
   my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got = (0);  # initial 0
@@ -233,11 +233,11 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A154435 -- permutation CS->Bird, lamplighter
+# A154435 -- permutation HCS->Bird, lamplighter
 
 {
   my $anum = 'A154435';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
   my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got = (0);  # initial 0
@@ -341,10 +341,10 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A071585 -- CS num+den
+# A071585 -- HCS num+den
 
 {
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
   my $anum = 'A071585';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
@@ -364,10 +364,10 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
-# A071766 -- CS denominators
+# A071766 -- HCS denominators
 
 {
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
   my $anum = 'A071766';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;

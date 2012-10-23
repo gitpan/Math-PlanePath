@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 275;
+plan tests => 284;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::UlamWarburtonQuarter;
 # VERSION
 
 {
-  my $want_version = 90;
+  my $want_version = 91;
   ok ($Math::PlanePath::UlamWarburtonQuarter::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::UlamWarburtonQuarter->VERSION,  $want_version,
@@ -59,6 +59,28 @@ require Math::PlanePath::UlamWarburtonQuarter;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# tree_depth_to_n()
+
+{
+  my $path = Math::PlanePath::UlamWarburtonQuarter->new;
+  my @data = ([ 0,  1 ],
+              [ 1,  2 ],
+              [ 2,  3 ],
+              [ 3,  6 ],
+              [ 4,  7 ],
+              [ 5, 10 ],
+              [ 6, 13 ],
+              [ 7, 22 ],
+              [ 8, 23 ],
+             );
+  foreach my $elem (@data) {
+    my ($depth, $want_n) = @$elem;
+    my $got_n = $path->tree_depth_to_n ($depth);
+    ok ($got_n, $want_n, "tree_depth_to_n() depth=$depth");
+  }
 }
 
 #------------------------------------------------------------------------------

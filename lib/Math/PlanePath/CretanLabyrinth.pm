@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,7 +38,13 @@ use Math::PlanePath::Base::Generic
 #use Smart::Comments;
 
 
-use constant n_start => 1;
+use constant xy_is_visited => 1;
+use constant dx_minimum => -1;  # NSEW
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 #      81-80-79 78 77 76 75 74 73 72 71 70 69
 #       |

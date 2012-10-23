@@ -19,7 +19,6 @@
 
 use 5.004;
 use strict;
-use Math::BigInt try=>'GMP';
 use Test;
 plan tests => 46;
 

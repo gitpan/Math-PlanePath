@@ -98,12 +98,12 @@ sub dxdy_to_dir {
 # }
 
 #------------------------------------------------------------------------------
-# A020985 - Golay/Rudin/Shapiro dX and dY
+# A020985 - Golay/Rudin/Shapiro dX
 
 {
-  my $anum = 'A020985';
+  # cf dSum in Math::NumSeq::PlanePathDelta
+  my $anum = q{A020985};
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
   my @got;
   if ($bvalues) {
     my $prev_x = 0;

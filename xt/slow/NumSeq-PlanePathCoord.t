@@ -395,7 +395,7 @@ my @modules = (
                'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
                'RationalsTree,tree_type=L',
-               'RationalsTree,tree_type=CS',
+               'RationalsTree,tree_type=HCS',
                'RationalsTree',
                'RationalsTree,tree_type=CW',
                'RationalsTree,tree_type=AYT',

@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -68,6 +68,19 @@ use constant parameter_info_array =>
 }
 use constant n_start => 0;
 use constant class_y_negative => 0;
+
+sub dx_minimum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'triangular' ? -2 : -1);
+}
+sub dx_maximum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'triangular' ? 2 : 1);
+}
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);

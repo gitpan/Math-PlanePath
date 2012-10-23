@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 920;
+plan tests => 927;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::RationalsTree;
 # VERSION
 
 {
-  my $want_version = 90;
+  my $want_version = 91;
   ok ($Math::PlanePath::RationalsTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::RationalsTree->VERSION,  $want_version,
@@ -109,6 +109,24 @@ require Math::PlanePath::RationalsTree;
     ok ($got_n_children, $want_n_children, "tree_n_children($n)");
   }
 }
+{
+  my @data = ([ 0, '1,2' ],
+
+              [ 1,  '3,4' ],
+              [ 2,  '5,6' ],
+
+              [ 3,  '7,8' ],
+              [ 4,  '9,10' ],
+              [ 5,  '11,12' ],
+              [ 6,  '13,14' ],
+             );
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'L');
+  foreach my $elem (@data) {
+    my ($n, $want_n_children) = @$elem;
+    my $got_n_children = join(',',$path->tree_n_children($n));
+    ok ($got_n_children, $want_n_children, "tree_n_children($n)");
+  }
+}
 
 #------------------------------------------------------------------------------
 # n_start, x_negative, y_negative
@@ -151,7 +169,7 @@ foreach my $topelem
      [ 14, 3,1 ],
    ],
 
-   [ 'CS',
+   [ 'HCS',
      [ 1, 1,1 ],
 
      [ 2, 2,1 ],
@@ -173,8 +191,7 @@ foreach my $topelem
 
      [ 581,  49,22 ],
 
-     # Example in "Numeri" by Valerio Bioglio, Umberto
-     # Cerruti, Nadir Murru.
+     # Example in "Numeri" by Valerio Bioglio, Umberto Cerruti, Nadir Murru.
      # http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf
      [ 194,  3,16 ],
    ],

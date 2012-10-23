@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;

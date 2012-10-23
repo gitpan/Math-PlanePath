@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,6 +47,12 @@ use Math::PlanePath::QuadricCurve;
 
 
 use constant n_frac_discontinuity => 0;
+use constant rsquared_minimum => 0.5; # minimum X=1/2,Y=1/2
+
+use constant dx_maximum => 1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 # N=1 to 4      4 of, level=0
 # N=5 to 36    12 of, level=1
@@ -327,8 +333,6 @@ sub rect_to_n_range {
   ### $level
   return (1,
           (32*8**$level - 4)/7);
-
-
 }
 
 #    ymax = ypos(l) + 4^(l-1) + width(l-1)

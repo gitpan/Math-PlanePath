@@ -56,7 +56,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -75,6 +75,8 @@ use Math::PlanePath::CoprimeColumns;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant x_minimum => 1;
+use constant y_minimum => 1;
 
 use constant parameter_info_array =>
   [ { name        => 'pairs_order',

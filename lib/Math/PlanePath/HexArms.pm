@@ -25,11 +25,11 @@
 # 26-gonal near vertical x2
 # 152 near horizontal
 #
-# 2  
+# 2
 # 164  +162
 # 542  +378  +216
 # 1136 +594  +216
-# 
+#
 
 package Math::PlanePath::HexArms;
 use 5.004;
@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -51,6 +51,14 @@ use Math::PlanePath::Base::Generic
 
 
 use constant arms_count => 6;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_even;
+
+use constant dx_minimum => -2;
+use constant dx_maximum => 2;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 # [ 0, 1, 2, 3,],
 # [ 0, 1, 3, 6 ],

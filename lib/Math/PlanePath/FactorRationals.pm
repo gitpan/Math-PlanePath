@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -62,6 +62,12 @@ use Math::PlanePath::CoprimeColumns;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant x_minimum => 1;
+use constant y_minimum => 1;
+
+# all rationals X,Y >= 1 no common factor
+use Math::PlanePath::DiagonalRationals;
+*xy_is_visited = \&Math::PlanePath::DiagonalRationals::xy_is_visited;
 
 sub n_to_xy {
   my ($self, $n) = @_;

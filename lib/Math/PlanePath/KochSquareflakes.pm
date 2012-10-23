@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -62,6 +62,13 @@ use constant parameter_info_array =>
       default     => 0,
       description => 'Whether to direct the sides of the square inward, rather than outward.',
     } ];
+
+use constant rsquared_minimum => 0.5; # minimum X=0.5,Y=0.5
+
+use constant dx_maximum => 1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 # level 0 inner square
 # sidelen = 4^level

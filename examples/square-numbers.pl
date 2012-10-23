@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -46,7 +46,7 @@ my $x_max = 0;
 my $y_min = 0;
 my $y_max = 0;
 
-foreach my $n (1 .. $n_max) {
+foreach my $n ($path->n_start .. $n_max) {
   my ($x, $y) = $path->n_to_xy ($n);
   $rows{$x}{$y} = $n;
 

@@ -16,22 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# line_type
-#    "TreeRow_Start"
-#    "TreeRow_End"
-#    "RowStart"
-#    "RowEnd"
-#    "Depth_start"
-#    "Depth_end"
-#    "Depth_first"
-#    "Depth_last"
-#    "Depth_num"
-#    $n = tree_depth_to_n($depth)
-#    $n = tree_depth_to_n_last($depth)
-#    $n = tree_depth_to_n_first($depth)
-#    $n = tree_depth_to_n_range($depth)
-
-
 package Math::NumSeq::PlanePathN;
 use 5.004;
 use strict;
@@ -39,7 +23,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -68,8 +52,10 @@ use constant::defer parameter_info_array =>
               display => 'Line Type',
               type    => 'enum',
               default => 'X_axis',
-              choices => ['X_axis','Y_axis',
-                          'X_neg','Y_neg',
+              choices => ['X_axis',
+                          'Y_axis',
+                          'X_neg',
+                          'Y_neg',
                           'Diagonal',
                           'Diagonal_NW',
                           'Diagonal_SW',
@@ -84,310 +70,6 @@ use constant::defer parameter_info_array =>
 
 my %oeis_anum =
   (
-   # PeanoCurve
-   do {
-     my $href =
-       { X_axis   => 'A163480', # axis same as initial direction
-         Y_axis   => 'A163481', # axis opp to initial direction
-         Diagonal => 'A163343',
-       };
-     ('Math::PlanePath::PeanoCurve,radix=3' => $href,
-      'Math::PlanePath::GrayCode,apply_type=TsF,gray_type=reflected,radix=3' => $href,
-      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=reflected,radix=3' => $href,
-     );
-     # OEIS-Catalogue: A163480 planepath=PeanoCurve
-     # OEIS-Catalogue: A163481 planepath=PeanoCurve line_type=Y_axis
-     # OEIS-Catalogue: A163343 planepath=PeanoCurve line_type=Diagonal
-
-     # OEIS-Other: A163480 planepath=GrayCode,apply_type=TsF,radix=3
-     # OEIS-Other: A163481 planepath=GrayCode,apply_type=TsF,radix=3 line_type=Y_axis
-     # OEIS-Other: A163343 planepath=GrayCode,apply_type=TsF,radix=3 line_type=Diagonal
-
-     # OEIS-Other: A163480 planepath=GrayCode,apply_type=FsT,radix=3
-     # OEIS-Other: A163481 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Y_axis
-     # OEIS-Other: A163343 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Diagonal
-   },
-
-   # GrayCode radix=2 TsF==Fs reflected==modular
-   do {
-     my $href =
-       { Y_axis => 'A001196',  # base 4 digits 0,3 only
-       };
-     ('Math::PlanePath::GrayCode,apply_type=TsF,gray_type=reflected,radix=2' => $href,
-      'Math::PlanePath::GrayCode,apply_type=Fs,gray_type=reflected,radix=2' => $href,
-      'Math::PlanePath::GrayCode,apply_type=TsF,gray_type=modular,radix=2' => $href,
-      'Math::PlanePath::GrayCode,apply_type=Fs,gray_type=modular,radix=2' => $href,
-     );
-     # OEIS-Other: A001196 planepath=GrayCode,apply_type=TsF line_type=Y_axis
-     # OEIS-Other: A001196 planepath=GrayCode,apply_type=Fs line_type=Y_axis
-     # OEIS-Other: A001196 planepath=GrayCode,apply_type=TsF,gray_type=modular line_type=Y_axis
-     # OEIS-Other: A001196 planepath=GrayCode,apply_type=Fs,gray_type=modular line_type=Y_axis
-   },
-   # GrayCode radix=2 Ts==FsT reflected==modular
-   do {
-     my $href =
-       { Diagonal => 'A062880',  # base 4 digits 0,2 only
-       };
-     ('Math::PlanePath::GrayCode,apply_type=Ts,gray_type=reflected,radix=2' => $href,
-      'Math::PlanePath::GrayCode,apply_type=Ts,gray_type=modular,radix=2' => $href,
-      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=reflected,radix=2' => $href,
-      'Math::PlanePath::GrayCode,apply_type=FsT,gray_type=modular,radix=2' => $href,
-     );
-     # OEIS-Other: A062880 planepath=GrayCode,apply_type=Ts line_type=Diagonal
-     # OEIS-Other: A062880 planepath=GrayCode,apply_type=Ts,gray_type=modular line_type=Diagonal
-     # OEIS-Other: A062880 planepath=GrayCode,apply_type=FsT line_type=Diagonal
-     # OEIS-Other: A062880 planepath=GrayCode,apply_type=FsT,gray_type=modular line_type=Diagonal
-   },
-
-   # GrayCode radix=3 sT==sF reflected
-   # N split then toGray giving Y=0 means N ternary 010202 etc
-   # N split then toGray giving X=Y means N ternary pairs 112200
-   do {
-     my $href =
-       { X_axis   => 'A163344',  # central Peano/4, base9 digits 0,1,2 only
-         Diagonal => 'A163343',  # central diagonal of Peano, base9 0,4,8
-       };
-     ('Math::PlanePath::GrayCode,apply_type=sT,gray_type=reflected,radix=3' => $href,
-      'Math::PlanePath::GrayCode,apply_type=sF,gray_type=reflected,radix=3' => $href,
-     );
-     # OEIS-Catalogue: A163344 planepath=GrayCode,apply_type=sT,radix=3 line_type=X_axis
-     # OEIS-Other:     A163344 planepath=GrayCode,apply_type=sF,radix=3 line_type=X_axis
-
-     # OEIS-Other: A163343 planepath=GrayCode,apply_type=sT,radix=3 line_type=Diagonal
-     # OEIS-Other: A163343 planepath=GrayCode,apply_type=sF,radix=3 line_type=Diagonal
-   },
-
-   do {
-     my $squarespiral
-       = { X_axis      => 'A054552', # spoke E, 4n^2 - 3n + 1
-           Y_neg       => 'A033951', # spoke S, 4n^2 + 3n + 1
-           Diagonal_NW => 'A053755', # 4n^2 + 1
-           Diagonal_SE => 'A016754', # (2n+1)^2
-           # OEIS-Catalogue: A054552 planepath=SquareSpiral
-           # OEIS-Catalogue: A033951 planepath=SquareSpiral line_type=Y_neg
-           # OEIS-Catalogue: A053755 planepath=SquareSpiral line_type=Diagonal_NW
-           # OEIS-Catalogue: A016754 planepath=SquareSpiral line_type=Diagonal_SE
-           #
-           # OEIS-Other: A054552 planepath=GreekKeySpiral,turns=0
-           # OEIS-Other: A033951 planepath=GreekKeySpiral,turns=0 line_type=Y_neg
-           # OEIS-Other: A053755 planepath=GreekKeySpiral,turns=0 line_type=Diagonal_NW
-           # OEIS-Other: A016754 planepath=GreekKeySpiral,turns=0 line_type=Diagonal_SE
-
-           # Not quite, these have OFFSET=1 whereas based from X=0 here
-           # # Y_axis   => 'A054556', # spoke N
-           # # X_neg   => 'A054567', # spoke W
-           # # Diagonal => 'A054554', # spoke NE
-           # # Diagonal_SW => 'A054569', # spoke NE
-           # # # OEIS-Catalogue: A054556 planepath=SquareSpiral line_type=Y_axis
-           # # # OEIS-Catalogue: A054554 planepath=SquareSpiral line_type=Diagonal
-         };
-     ('Math::PlanePath::SquareSpiral,wider=0,n_start=1' => $squarespiral,
-      'Math::PlanePath::GreekKeySpiral,turns=0' => $squarespiral,
-     );
-   },
-   do {
-     my $squarespiral
-       = { X_axis      => 'A001107',
-           Y_axis      => 'A033991',
-           Y_neg       => 'A033954', # second 10-gonals
-           Diagonal    => 'A002939',
-           Diagonal_NW => 'A016742', # 10-gonals average, 4*n^2
-           Diagonal_SW => 'A002943',
-           # OEIS-Other: A001107 planepath=SquareSpiral,n_start=0 line_type=X_axis
-           # OEIS-Catalogue: A033991 planepath=SquareSpiral,n_start=0 line_type=Y_axis
-           # OEIS-Other: A033954 planepath=SquareSpiral,n_start=0 line_type=Y_neg
-           # OEIS-Catalogue: A002939 planepath=SquareSpiral,n_start=0 line_type=Diagonal
-           # OEIS-Other: A016742 planepath=SquareSpiral,n_start=0 line_type=Diagonal_NW
-           # OEIS-Catalogue: A002943 planepath=SquareSpiral,n_start=0 line_type=Diagonal_SW
-         };
-     ('Math::PlanePath::SquareSpiral,wider=0,n_start=0' => $squarespiral,
-     ) },
-   'Math::PlanePath::SquareSpiral,wider=1,n_start=1' =>
-   { Diagonal_SW => 'A069894',
-     # OEIS-Catalogue: A069894 planepath=SquareSpiral,wider=1 line_type=Diagonal_SW
-   },
-   'Math::PlanePath::SquareSpiral,wider=1,n_start=0' =>
-   { Diagonal_SW => 'A016754', # odd squares
-     # OEIS-Other: A016754 planepath=SquareSpiral,wider=1,n_start=0 line_type=Diagonal_SW
-   },
-
-   'Math::PlanePath::Columns,n_start=0,height=1' =>
-   { X_axis   => 'A001477',  # integers 0,1,2,3,etc
-     # OEIS-Other: A001477 planepath=Columns,height=1,n_start=0 line_type=X_axis
-   },
-   'Math::PlanePath::Rows,n_start=0,width=1' =>
-   { X_axis   => 'A001477',  # integers 0,1,2,3,etc
-     # OEIS-Other: A001477 planepath=Rows,width=1,n_start=0 line_type=X_axis
-   },
-
-   'Math::PlanePath::Columns,n_start=1,height=2' =>
-   { X_axis   => 'A005408',  # odd 2n+1
-     # OEIS-Other: A005408 planepath=Columns,height=2 line_type=X_axis
-   },
-   'Math::PlanePath::Rows,n_start=1,width=2' =>
-   { Y_axis   => 'A005408',  # odd 2n+1
-     # OEIS-Other: A005408 planepath=Rows,width=2 line_type=Y_axis
-   },
-
-   'Math::PlanePath::Columns,n_start=1,height=3' =>
-   { X_axis   => 'A016777',  # 3n+1
-     # OEIS-Other: A016777 planepath=Columns,height=3 line_type=X_axis
-   },
-   'Math::PlanePath::Rows,n_start=1,width=3' =>
-   { Y_axis   => 'A016777',  # 3n+1
-     # OEIS-Catalogue: A016777 planepath=Rows,width=3 line_type=Y_axis
-   },
-
-   'Math::PlanePath::Columns,n_start=1,height=4' =>
-   { X_axis   => 'A016813',  # 4n+1
-     # OEIS-Other: A016813 planepath=Columns,height=4 line_type=X_axis
-   },
-   'Math::PlanePath::Rows,n_start=1,width=4' =>
-   { Y_axis   => 'A016813',  # 4n+1
-     # OEIS-Catalogue: A016813 planepath=Rows,width=4 line_type=Y_axis
-   },
-
-   'Math::PlanePath::Columns,n_start=1,height=5' =>
-   { X_axis   => 'A016861',  # 5n+1
-     # OEIS-Other: A016861 planepath=Columns,height=5 line_type=X_axis
-   },
-   'Math::PlanePath::Rows,n_start=1,width=5' =>
-   { Y_axis   => 'A016861',  # 5n+1
-     # OEIS-Catalogue: A016861 planepath=Rows,width=5 line_type=Y_axis
-   },
-
-   'Math::PlanePath::Columns,n_start=1,height=6' =>
-   { X_axis   => 'A016921',  # 6n+1
-     # OEIS-Other: A016921 planepath=Columns,height=6 line_type=X_axis
-   },
-   'Math::PlanePath::Rows,n_start=1,width=6' =>
-   { Y_axis   => 'A016921',  # 6n+1
-     # OEIS-Catalogue: A016921 planepath=Rows,width=6 line_type=Y_axis
-   },
-
-   'Math::PlanePath::Columns,n_start=1,height=7' =>
-   { X_axis   => 'A016993',  # 7n+1
-     # OEIS-Other: A016993 planepath=Columns,height=7 line_type=X_axis
-   },
-   'Math::PlanePath::Rows,n_start=1,width=7' =>
-   { Y_axis   => 'A016993',  # 7n+1
-     # OEIS-Catalogue: A016993 planepath=Rows,width=7 line_type=Y_axis
-   },
-
-
-   'Math::PlanePath::CellularRule,rule=5' =>
-   { Y_axis   => 'A061925',  # ceil(n^2/2)+1
-     # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
-   },
-   #
-   # rule 84,116,212,244 two-wide right line
-   do {
-     my $tworight
-       = { Diagonal   => 'A005408',  # odds 2n+1
-         };
-     ('Math::PlanePath::CellularRule,rule=84' => $tworight,
-      'Math::PlanePath::CellularRule,rule=116' => $tworight,
-      'Math::PlanePath::CellularRule,rule=212' => $tworight,
-      'Math::PlanePath::CellularRule,rule=244' => $tworight,
-     );
-
-     # OEIS-Other: A005408 planepath=CellularRule,rule=84 line_type=Diagonal
-     # OEIS-Other: A005408 planepath=CellularRule,rule=116 line_type=Diagonal
-     # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
-     # OEIS-Other: A005408 planepath=CellularRule,rule=244 line_type=Diagonal
-   },
-   #
-   # rule=50,58,114,122,178,179,186,242,250 pyramid every second point
-   'Math::PlanePath::CellularRule::OddSolid' =>
-   { Diagonal_NW => 'A000124',  # triangular+1
-     # OEIS-Other: A000124 planepath=CellularRule,rule=50 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=58 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=114 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=122 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=178 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=179 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=186 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=242 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=250 line_type=Diagonal_NW
-     #
-     # Not quite, starts value=0
-     # Diagonal => 'A000217', # triangular numbers but diff start
-   },
-   'Math::PlanePath::CellularRule,rule=77' =>
-   { Y_axis   => 'A000124',  # triangular+1
-     # OEIS-Other: A000124 planepath=CellularRule,rule=77 line_type=Y_axis
-   },
-   'Math::PlanePath::CellularRule,rule=177' =>
-   { Diagonal   => 'A000124',  # triangular+1
-     # OEIS-Other: A000124 planepath=CellularRule,rule=177 line_type=Diagonal
-   },
-   'Math::PlanePath::CellularRule,rule=185' =>
-   { Diagonal   => 'A002522',  # n^2+1
-     # OEIS-Other: A002522 planepath=CellularRule,rule=185 line_type=Diagonal
-   },
-   'Math::PlanePath::CellularRule,rule=189' =>
-   { Y_axis   => 'A002522',  # n^2+1
-     # OEIS-Other: A002522 planepath=CellularRule,rule=189 line_type=Y_axis
-   },
-   # PyramidRows step=1,align=left
-   # OEIS-Other: A000124 planepath=CellularRule,rule=206 line_type=Diagonal_NW
-   # OEIS-Other: A000124 planepath=CellularRule,rule=238 line_type=Diagonal_NW
-
-   do {
-     my $solidgapright
-       = { Diagonal   => 'A002522',  # n^2+1
-         };
-     ('Math::PlanePath::CellularRule,rule=209' => $solidgapright,
-      'Math::PlanePath::CellularRule,rule=241' => $solidgapright,
-     );
-     # OEIS-Other: A002522 planepath=CellularRule,rule=209 line_type=Diagonal
-     # OEIS-Other: A002522 planepath=CellularRule,rule=241 line_type=Diagonal
-   },
-   'Math::PlanePath::CellularRule,rule=29' =>
-   { Y_axis   => 'A000124',  # triangular+1
-     # OEIS-Other: A000124 planepath=CellularRule,rule=29 line_type=Y_axis
-   },
-   'Math::PlanePath::CellularRule,rule=221' =>
-   { Y_axis   => 'A002522',  # n^2+1
-     # OEIS-Other: A002522 planepath=CellularRule,rule=221 line_type=Y_axis
-   },
-   'Math::PlanePath::CellularRule,rule=229' =>
-   { Y_axis   => 'A002522',  # n^2+1
-     # OEIS-Other: A002522 planepath=CellularRule,rule=229 line_type=Y_axis
-   },
-   #
-   # rule=6,38,134,166 left line 1,2
-   # Not quite,  OFFSET=1 vs start Y=0 here
-   # Diagonal_NW => 'A001651',
-   #
-   # rule=13 Y axis
-   #
-   # rule=20,52,148,180 (mirror image of rule 6)
-   # Not quite, A032766  0 or 1 mod 3, but it starts OFFSET=0 value=0
-   # Diagonal => 'A032766',
-   #
-   # rule=28,156
-   # Y_axis => 'A002620',  quarter squares floor(n^2/4) but diff start
-   # Diagonal => 'A024206', quarter squares - 1, but diff start
-   #
-   # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
-   # # central column only
-   # 'Math::PlanePath::CellularRule,rule=4' =>
-   # { Y_axis   => 'A000027', # 1 upwards
-   #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
-   # },
-   #
-   # # right line only rule=16,24,48,56,80,88,112,120,144,152,176,184,208,216,240,248
-   # Not quite A000027 OFFSET=1 vs start X=Y=0 here
-   # 'Math::PlanePath::CellularRule,rule=16' =>
-   # { Y_axis   => 'A000027', # 1 upwards
-   #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
-   # },
-
-
-   # CellularRule190 -- A006578 triangular+quarter square, but starts
-   # OFFSET=0 value=0 cf value N=1 here
-
    # MultipleRings,step=0 -- integers 1,2,3, etc, but starting i=0
   );
 
@@ -564,7 +246,7 @@ sub i_func_Diagonal_SE {
 sub i_func_Depth_start {
   my ($self, $i) = @_;
   my $path_object = $self->{'planepath_object'};
-  my ($n_lo, $n_hi) = $path_object->_NumSeq_tree_depth_to_n_range ($i);
+  my ($n_lo, $n_hi) = $path_object->tree_depth_to_n ($i);
   return $n_lo;
 }
 sub i_func_Depth_end {
@@ -623,8 +305,7 @@ sub pred_func_Depth_start {
   my ($self, $x,$y, $n) = @_;
   my $planepath_object = $self->{'planepath_object'};
   my $depth = $planepath_object->tree_n_to_depth($n);
-  my ($nstart, $nend) = $planepath_object->_NumSeq_tree_depth_to_n_range($depth);
-  return ($n == $nstart);
+  return ($n == $planepath_object->tree_depth_to_n($depth));
 }
 sub pred_func_Depth_end {
   my ($self, $x,$y, $n) = @_;
@@ -697,62 +378,27 @@ sub default_i_start {
 }
 sub values_min {
   my ($self) = @_;
+  ### PlanePathN values_min() ...
   my $method = "_NumSeq_$self->{'line_type'}_min";
-  return $self->{'planepath_object'}->$method($self);
+  my $planepath_object = $self->{'planepath_object'};
+  if (my $coderef = $planepath_object->can($method)) {
+    ### $coderef
+    return $planepath_object->$coderef();
+  }
+  ### value at i_start ...
+  return $self->ith($self->i_start);
 }
 sub values_max {
   my ($self) = @_;
   my $method = "_NumSeq_$self->{'line_type'}_max";
   my $planepath_object = $self->{'planepath_object'};
-  if (my $func = $planepath_object->can($method)) {
-    return $self->{'planepath_object'}->$func($self);
+  if (my $coderef = $planepath_object->can($method)) {
+    return $planepath_object->$coderef();
   }
   return undef;
 }
 
 { package Math::PlanePath;
-  sub _NumSeq_X_axis_min {
-    my ($path,$self) = @_;
-    ### _NumSeq_X_axis_min() ...
-    return $path->xy_to_n($self->i_start,
-                          $path->_NumSeq_X_axis_at_Y);
-  }
-  sub _NumSeq_Y_axis_min {
-    my ($path,$self) = @_;
-    return $path->xy_to_n($path->_NumSeq_Y_axis_at_X,
-                          $self->i_start);
-  }
-  *_NumSeq_X_neg_min = \&_NumSeq_X_axis_min;
-  *_NumSeq_Y_neg_min = \&_NumSeq_Y_axis_min;
-
-  sub _NumSeq_Diagonal_min {
-    my ($path,$self) = @_;
-    return $self->i_func_Diagonal ($self->i_start);
-  }
-  sub _NumSeq_Diagonal_NW_min {
-    my ($path,$self) = @_;
-    return $self->i_func_Diagonal_NW ($self->i_start);
-  }
-  sub _NumSeq_Diagonal_SW_min {
-    my ($path,$self) = @_;
-    return $self->i_func_Diagonal_SW ($self->i_start);
-  }
-  sub _NumSeq_Diagonal_SE_min {
-    my ($path,$self) = @_;
-    return $self->i_func_Diagonal_SE ($self->i_start);
-  }
-
-  sub _NumSeq_Depth_start_min {
-    my ($path,$self) = @_;
-    my ($nstart, $nend) = $path->_NumSeq_tree_depth_to_n_range(0);
-    return $nstart;
-  }
-  sub _NumSeq_Depth_end_min {
-    my ($path,$self) = @_;
-    my ($nstart, $nend) = $path->_NumSeq_tree_depth_to_n_range(0);
-    return $nend;
-  }
-
   use constant _NumSeq_X_axis_i_start => 0;
   use constant _NumSeq_Y_axis_i_start => 0;
   use constant _NumSeq_X_axis_at_Y => 0;
@@ -773,21 +419,6 @@ sub values_max {
   # }
 
   use constant _NumSeq_tree_depth_to_n_range => ();
-  # use Math::PlanePath::Base::Generic;
-  # sub _NumSeq_tree_depth_to_n_range {
-  #   my ($self, $depth) = @_;
-  #   if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
-  #     return $depth;
-  #   }
-  #   if ($depth < 0) {
-  #     return undef;
-  #   }
-  #   my $n = $self->n_start;
-  #   while ($depth-- > 0) {
-  #     ($n) = $self->tree_n_children($n)
-  #     
-  #   }
-  # }
 }
 
 { package Math::PlanePath::SquareSpiral;
@@ -815,6 +446,55 @@ sub values_max {
     my ($self) = @_;
     return $self->n_start;
   }
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'wider=0,n_start=1' =>
+      { X_axis      => 'A054552', # spoke E, 4n^2 - 3n + 1
+        Y_neg       => 'A033951', # spoke S, 4n^2 + 3n + 1
+        Diagonal_NW => 'A053755', # 4n^2 + 1
+        Diagonal_SE => 'A016754', # (2n+1)^2
+        # OEIS-Catalogue: A054552 planepath=SquareSpiral
+        # OEIS-Catalogue: A033951 planepath=SquareSpiral line_type=Y_neg
+        # OEIS-Catalogue: A053755 planepath=SquareSpiral line_type=Diagonal_NW
+        # OEIS-Catalogue: A016754 planepath=SquareSpiral line_type=Diagonal_SE
+        #
+        # OEIS-Other: A054552 planepath=GreekKeySpiral,turns=0
+        # OEIS-Other: A033951 planepath=GreekKeySpiral,turns=0 line_type=Y_neg
+        # OEIS-Other: A053755 planepath=GreekKeySpiral,turns=0 line_type=Diagonal_NW
+        # OEIS-Other: A016754 planepath=GreekKeySpiral,turns=0 line_type=Diagonal_SE
+
+        # Not quite, these have OFFSET=1 whereas based from X=0 here
+        # # Y_axis   => 'A054556', # spoke N
+        # # X_neg   => 'A054567', # spoke W
+        # # Diagonal => 'A054554', # spoke NE
+        # # Diagonal_SW => 'A054569', # spoke NE
+        # # # OEIS-Catalogue: A054556 planepath=SquareSpiral line_type=Y_axis
+        # # # OEIS-Catalogue: A054554 planepath=SquareSpiral line_type=Diagonal
+      },
+      'wider=0,n_start=0' =>
+      { X_axis      => 'A001107',
+        Y_axis      => 'A033991',
+        Y_neg       => 'A033954', # second 10-gonals
+        Diagonal    => 'A002939',
+        Diagonal_NW => 'A016742', # 10-gonals average, 4*n^2
+        Diagonal_SW => 'A002943',
+        # OEIS-Other: A001107 planepath=SquareSpiral,n_start=0 line_type=X_axis
+        # OEIS-Catalogue: A033991 planepath=SquareSpiral,n_start=0 line_type=Y_axis
+        # OEIS-Other: A033954 planepath=SquareSpiral,n_start=0 line_type=Y_neg
+        # OEIS-Catalogue: A002939 planepath=SquareSpiral,n_start=0 line_type=Diagonal
+        # OEIS-Other: A016742 planepath=SquareSpiral,n_start=0 line_type=Diagonal_NW
+        # OEIS-Catalogue: A002943 planepath=SquareSpiral,n_start=0 line_type=Diagonal_SW
+      },
+
+      'wider=1,n_start=1' =>
+      { Diagonal_SW => 'A069894',
+        # OEIS-Catalogue: A069894 planepath=SquareSpiral,wider=1 line_type=Diagonal_SW
+      },
+      'wider=1,n_start=0' =>
+      { Diagonal_SW => 'A016754', # odd squares
+        # OEIS-Other: A016754 planepath=SquareSpiral,wider=1,n_start=0 line_type=Diagonal_SW
+      },
+    };
 }
 { package Math::PlanePath::GreekKeySpiral;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -837,6 +517,13 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'turns'} <= 2);
   }
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'turns=0' =>
+      (Math::PlanePath::SquareSpiral
+       ->_NumSeq_N_oeis_anum->{'wider=0,n_start=1'}
+       || die "Oops, SquareSpiral NumSeq PlanePathN not found")
+    };
 }
 { package Math::PlanePath::PyramidSpiral;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1364,30 +1051,50 @@ sub values_max {
   }
 
   use constant _NumSeq_N_oeis_anum =>
-    { 'tree_type=Bird' =>
-      { X_axis   => 'A081254', # local max sumdisttopow2(m)/m^2
-        # OEIS-Catalogue: A081254 planepath=RationalsTree,tree_type=Bird
+    { 'tree_type=SB' =>
+      { Depth_start => 'A000079', # powers-of-2
+        # RationalsTree SB -- X_axis 2^n-1 but starting X=1
+        # RationalsTree SB,CW -- Y_axis A000079 2^n but starting Y=1
       },
+
+      'tree_type=CW' =>
+      { Depth_start => 'A000079', # powers-of-2
+      },
+
+      'tree_type=Bird' =>
+      { X_axis      => 'A081254', # local max sumdisttopow2(m)/m^2
+        Depth_start => 'A000079', # powers-of-2
+        # OEIS-Catalogue: A081254 planepath=RationalsTree,tree_type=Bird
+        # OEIS-Other:     A000079 planepath=RationalsTree,tree_type=Bird line_type=Depth_start
+
+        # RationalsTree Bird -- Y_axis almost A000975 10101 101010 no
+        # consecutive equal bits, but start=1
+      },
+
       'tree_type=Drib' =>
-      { X_axis   => 'A086893', # pos of fibonacci F(n+1)/F(n) in Stern diatomic
+      { X_axis      => 'A086893', # pos of fibonacci F(n+1)/F(n) in Stern diatomic
+        Depth_start => 'A000079', # powers-of-2
         # OEIS-Catalogue: A086893 planepath=RationalsTree,tree_type=Drib
 
         # Drib Y_axis
         # Not quite, A061547 OFFSET=1 value=0 cf here Y=1 N=1
         # Y_axis => 'A061547'# derangements or alternating bits plus pow4
       },
-      #
-      # RationalsTree CS
-      # Not quite, A000079 OFFSET=0 value=1 cf here X=1 N=1
-      # X_axis => 'A000079',  # powers 2^X
-      # Not quite, A007283 OFFSET=0 and doesn't have extra N=1 at Y=1
-      # Y_axis => 'A007283', # 3*2^n starting OFFSET=0 value=3
-      #
-      # RationalsTree SB -- X_axis 2^n-1 but starting X=1
-      # RationalsTree SB,CW -- Y_axis A000079 2^n but starting Y=1
-      # RationalsTree AYT -- Y_axis A083318 2^n+1 but starting Y=1
-      # RationalsTree Bird -- Y_axis almost A000975 no consecutive equal bits,
-      #   but start=1
+
+      'tree_type=AYT' =>
+      { Depth_start => 'A000079', # powers-of-2
+        # RationalsTree AYT -- Y_axis A083318 2^n+1 but starting Y=1
+      },
+
+      'tree_type=HCS' =>
+      { Depth_start => 'A000079', # powers-of-2
+
+        # RationalsTree HCS
+        # Not quite, A000079 OFFSET=0 value=1 cf here X=1 N=1
+        # X_axis => 'A000079',  # powers 2^X
+        # Not quite, A007283 OFFSET=0 and doesn't have extra N=1 at Y=1
+        # Y_axis => 'A007283', # 3*2^n starting OFFSET=0 value=3
+      },
     };
 }
 { package Math::PlanePath::FractionsTree;
@@ -1401,6 +1108,58 @@ sub values_max {
 
   *_NumSeq_tree_depth_to_n_range
     = \&Math::PlanePath::RationalsTree::_NumSeq_tree_depth_to_n_range;
+}
+{ package Math::PlanePath::ChanTree;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_X_axis_at_Y => 1;
+  use constant _NumSeq_X_axis_i_start => 1;
+
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_min => 1;
+  use constant _NumSeq_Y_axis_at_X => 1;
+  use constant _NumSeq_Y_axis_i_start => 1;
+
+  use constant _NumSeq_Diagonal_increasing => 1;
+
+  use Math::PlanePath::Base::Generic;
+  sub _NumSeq_tree_depth_to_n_range {
+    my ($self, $depth) = @_;
+    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
+      return $depth;
+    }
+    if ($depth < 0) {
+      return undef;
+    }
+    return ($self->tree_depth_to_n($depth),
+            $self->tree_depth_to_n($depth+1)-1);
+  }
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'k=2,n_start=1' =>
+      { Depth_start => 'A000079', # powers-of-2
+        # OEIS-Other: A000079 planepath=ChanTree,n_start=1,k=2 line_type=Depth_start
+      },
+      'k=2,n_start=0' =>
+      { Depth_start => 'A000225', # 2^k-1
+        # OEIS-Other: A000225 planepath=ChanTree,k=2 line_type=Depth_start
+      },
+      'k=3,n_start=1' =>
+      { Depth_start => 'A000244', # powers-of-3
+        # OEIS-Other: A000244 planepath=ChanTree,n_start=1 line_type=Depth_start
+      },
+      'k=4,n_start=1' =>
+      { Depth_start => 'A000302', # powers-of-4
+        # OEIS-Other: A000302 planepath=ChanTree,n_start=1,k=4 line_type=Depth_start
+      },
+      'k=5,n_start=1' =>
+      { Depth_start => 'A000351', # powers-of-5
+        # OEIS-Other: A000351 planepath=ChanTree,n_start=1,k=5 line_type=Depth_start
+      },
+      'k=10,n_start=1' =>
+      { Depth_start => 'A011557', # powers-of-10
+        # OEIS-Other: A011557 planepath=ChanTree,n_start=1,k=10 line_type=Depth_start
+      },
+    };
 }
 { package Math::PlanePath::DiagonalRationals;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1481,6 +1240,25 @@ sub values_max {
     return ($self->{'radix'} % 2);
   }
   *_NumSeq_Y_axis_increasing = \&_NumSeq_X_axis_increasing;
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'radix=3' =>
+      { X_axis   => 'A163480', # axis same as initial direction
+        Y_axis   => 'A163481', # axis opp to initial direction
+        Diagonal => 'A163343',
+      },
+      # OEIS-Catalogue: A163480 planepath=PeanoCurve
+      # OEIS-Catalogue: A163481 planepath=PeanoCurve line_type=Y_axis
+      # OEIS-Catalogue: A163343 planepath=PeanoCurve line_type=Diagonal
+
+      # OEIS-Other: A163480 planepath=GrayCode,apply_type=TsF,radix=3
+      # OEIS-Other: A163481 planepath=GrayCode,apply_type=TsF,radix=3 line_type=Y_axis
+      # OEIS-Other: A163343 planepath=GrayCode,apply_type=TsF,radix=3 line_type=Diagonal
+
+      # OEIS-Other: A163480 planepath=GrayCode,apply_type=FsT,radix=3
+      # OEIS-Other: A163481 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Y_axis
+      # OEIS-Other: A163343 planepath=GrayCode,apply_type=FsT,radix=3 line_type=Diagonal
+    };
 }
 { package Math::PlanePath::WunderlichSerpentine;
   sub _NumSeq_X_axis_increasing {
@@ -1597,6 +1375,65 @@ sub values_max {
       return ($self->{'apply_type'} eq 'FsT');  # even modular
     }
   }
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 
+      'apply_type=TsF,gray_type=reflected,radix=3' =>
+     (Math::PlanePath::PeanoCurve->_NumSeq_N_oeis_anum->{'radix=3'}
+      || die "Oops, SquareSpiral NumSeq PlanePathN not found"),
+     'apply_type=FsT,gray_type=reflected,radix=3' =>
+     (Math::PlanePath::PeanoCurve->_NumSeq_N_oeis_anum->{'radix=3'}
+      || die "Oops, SquareSpiral NumSeq PlanePathN not found"),
+
+     # GrayCode radix=2 TsF==Fs reflected==modular
+     do {
+       my $href =
+         { Y_axis => 'A001196',  # base 4 digits 0,3 only
+         };
+       ('apply_type=TsF,gray_type=reflected,radix=2' => $href,
+        'apply_type=Fs,gray_type=reflected,radix=2' => $href,
+        'apply_type=TsF,gray_type=modular,radix=2' => $href,
+        'apply_type=Fs,gray_type=modular,radix=2' => $href,
+       );
+       # OEIS-Other: A001196 planepath=GrayCode,apply_type=TsF line_type=Y_axis
+       # OEIS-Other: A001196 planepath=GrayCode,apply_type=Fs line_type=Y_axis
+       # OEIS-Other: A001196 planepath=GrayCode,apply_type=TsF,gray_type=modular line_type=Y_axis
+       # OEIS-Other: A001196 planepath=GrayCode,apply_type=Fs,gray_type=modular line_type=Y_axis
+     },
+     # GrayCode radix=2 Ts==FsT reflected==modular
+     do {
+       my $href =
+         { Diagonal => 'A062880',  # base 4 digits 0,2 only
+         };
+       ('apply_type=Ts,gray_type=reflected,radix=2' => $href,
+        'apply_type=Ts,gray_type=modular,radix=2' => $href,
+        'apply_type=FsT,gray_type=reflected,radix=2' => $href,
+        'apply_type=FsT,gray_type=modular,radix=2' => $href,
+       );
+       # OEIS-Other: A062880 planepath=GrayCode,apply_type=Ts line_type=Diagonal
+       # OEIS-Other: A062880 planepath=GrayCode,apply_type=Ts,gray_type=modular line_type=Diagonal
+       # OEIS-Other: A062880 planepath=GrayCode,apply_type=FsT line_type=Diagonal
+       # OEIS-Other: A062880 planepath=GrayCode,apply_type=FsT,gray_type=modular line_type=Diagonal
+     },
+
+     # GrayCode radix=3 sT==sF reflected
+     # N split then toGray giving Y=0 means N ternary 010202 etc
+     # N split then toGray giving X=Y means N ternary pairs 112200
+     do {
+       my $href =
+         { X_axis   => 'A163344',  # central Peano/4, base9 digits 0,1,2 only
+           Diagonal => 'A163343',  # central diagonal of Peano, base9 0,4,8
+         };
+       ('apply_type=sT,gray_type=reflected,radix=3' => $href,
+        'apply_type=sF,gray_type=reflected,radix=3' => $href,
+       );
+       # OEIS-Catalogue: A163344 planepath=GrayCode,apply_type=sT,radix=3 line_type=X_axis
+       # OEIS-Other:     A163344 planepath=GrayCode,apply_type=sF,radix=3 line_type=X_axis
+
+       # OEIS-Other: A163343 planepath=GrayCode,apply_type=sT,radix=3 line_type=Diagonal
+       # OEIS-Other: A163343 planepath=GrayCode,apply_type=sF,radix=3 line_type=Diagonal
+     },
+    };
 }
 # { package Math::PlanePath::ImaginaryBase;
 # }
@@ -1698,8 +1535,6 @@ sub values_max {
   # low 10111=23 increment to 11000=24
   # 10111 ones=4 width=2^4
 
-  # Depth_start => 'A006046', # Nleft
-  # Depth_end => 'A074330', # Nright  but starting OFFSET=1 value=2
   use Math::PlanePath::Base::Generic;
   sub _NumSeq_tree_depth_to_n_range {
     my ($self, $depth) = @_;
@@ -1725,41 +1560,54 @@ sub values_max {
     return ($n, $n+$width-1);
   }
 
+  # Not quite, starts OFFSET=1 value=2
+  #
   use constant _NumSeq_N_oeis_anum =>
-    { 'align=triangular,n_start=0' =>
-      { Diagonal_NW => 'A006046',
-        # OEIS-Other: A006046 planepath=SierpinskiTriangle line_type=Diagonal_NW
-      },
-      'align=right,n_start=0' =>
-      { Y_axis => 'A006046',
-        # OEIS-Catalogue: A006046 planepath=SierpinskiTriangle,align=diagonal line_type=Y_axis
-      },
-      'align=left,n_start=0' =>
-      { Diagonal_NW => 'A006046',
-        # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=left line_type=Diagonal_NW
-      },
-      'align=diagonal,n_start=0' =>
-      { Y_axis => 'A006046',
-        # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=diagonal line_type=Y_axis
-      },
+    {
+     'align=triangular,n_start=0' =>
+     { Diagonal_NW => 'A006046',
+       Depth_start => 'A006046',
+       # OEIS-Other: A006046 planepath=SierpinskiTriangle line_type=Diagonal_NW
+       # OEIS-Other: A006046 planepath=SierpinskiTriangle line_type=Depth_start
+     },
+     'align=right,n_start=0' =>
+     { Y_axis      => 'A006046',
+       Depth_start => 'A006046',
+       # OEIS-Catalogue: A006046 planepath=SierpinskiTriangle,align=diagonal line_type=Y_axis
+     },
+     'align=left,n_start=0' =>
+     { Diagonal_NW => 'A006046',
+       Depth_start => 'A006046',
+       # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=left line_type=Diagonal_NW
+     },
+     'align=diagonal,n_start=0' =>
+     { Y_axis      => 'A006046',
+       Depth_start => 'A006046',
+       # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=diagonal line_type=Y_axis
+     },
 
-      # starting OFFSET=1 value=2,4,8,10 so missing N=0 at Y=0, hence i_start=1
-      'align=triangular,n_start=0,i_start=1' =>
-      { Diagonal => 'A074330',
-        # OEIS-Catalogue: A074330 planepath=SierpinskiTriangle line_type=Diagonal i_start=1
-      },
-      'align=right,n_start=0,i_start=1' =>
-      { Diagonal => 'A074330',
-        # OEIS-Other: A074330 planepath=SierpinskiTriangle,align=right line_type=Diagonal i_start=1
-      },
-      'align=left,n_start=0,i_start=1' =>
-      { Y_axis => 'A074330',
-        # OEIS-Other: A074330 planepath=SierpinskiTriangle,align=left line_type=Y_axis i_start=1
-      },
-      'align=diagonal,n_start=0,i_start=1' =>
-      { X_axis => 'A074330',
-        # OEIS-Other: A074330 planepath=SierpinskiTriangle,align=diagonal line_type=X_axis i_start=1
-      },
+     # starting OFFSET=1 value=2,4,8,10 so missing N=0 at Y=0, hence i_start=1
+     'align=triangular,n_start=0,i_start=1' =>
+     { Diagonal  => 'A074330',
+       Depth_end => 'A074330',
+       # OEIS-Catalogue: A074330 planepath=SierpinskiTriangle line_type=Diagonal i_start=1
+       # OEIS-Other:     A074330 planepath=SierpinskiTriangle line_type=Depth_end i_start=1
+     },
+     'align=right,n_start=0,i_start=1' =>
+     { Diagonal  => 'A074330',
+       Depth_end => 'A074330',
+       # OEIS-Other: A074330 planepath=SierpinskiTriangle,align=right line_type=Diagonal i_start=1
+     },
+     'align=left,n_start=0,i_start=1' =>
+     { Y_axis    => 'A074330',
+       Depth_end => 'A074330',
+       # OEIS-Other: A074330 planepath=SierpinskiTriangle,align=left line_type=Y_axis i_start=1
+     },
+     'align=diagonal,n_start=0,i_start=1' =>
+     { X_axis    => 'A074330',
+       Depth_end => 'A074330',
+       # OEIS-Other: A074330 planepath=SierpinskiTriangle,align=diagonal line_type=X_axis i_start=1
+     },
     };
 }
 { package Math::PlanePath::SierpinskiArrowhead;
@@ -1874,6 +1722,39 @@ sub values_max {
     my ($self) = @_;
     return ($self->{'width'}-2)*$self->{'width'};
   }
+
+  use constant _NumSeq_N_oeis_anum =>
+    {
+     'n_start=0,width=1' =>
+     { X_axis   => 'A001477',  # integers 0,1,2,3,etc
+       # OEIS-Other: A001477 planepath=Rows,width=1,n_start=0 line_type=X_axis
+     },
+     'n_start=1,width=2' =>
+     { Y_axis   => 'A005408',  # odd 2n+1
+       # OEIS-Other: A005408 planepath=Rows,width=2 line_type=Y_axis
+     },
+     'n_start=1,width=3' =>
+     { Y_axis   => 'A016777',  # 3n+1
+       # OEIS-Catalogue: A016777 planepath=Rows,width=3 line_type=Y_axis
+     },
+     'n_start=1,width=4' =>
+     { Y_axis   => 'A016813',  # 4n+1
+       # OEIS-Catalogue: A016813 planepath=Rows,width=4 line_type=Y_axis
+     },
+
+     'n_start=1,width=5' =>
+     { Y_axis   => 'A016861',  # 5n+1
+       # OEIS-Catalogue: A016861 planepath=Rows,width=5 line_type=Y_axis
+     },
+     'n_start=1,width=6' =>
+     { Y_axis   => 'A016921',  # 6n+1
+       # OEIS-Catalogue: A016921 planepath=Rows,width=6 line_type=Y_axis
+     },
+     'n_start=1,width=7' =>
+     { Y_axis   => 'A016993',  # 7n+1
+       # OEIS-Catalogue: A016993 planepath=Rows,width=7 line_type=Y_axis
+     },
+    };
 }
 { package Math::PlanePath::Columns;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1887,6 +1768,37 @@ sub values_max {
     # secret negatives
     return ($self->{'height'}-2)*$self->{'height'};
   }
+  use constant _NumSeq_N_oeis_anum =>
+    {
+     'n_start=0,height=1' =>
+     { X_axis   => 'A001477',  # integers 0,1,2,3,etc
+       # OEIS-Other: A001477 planepath=Columns,height=1,n_start=0 line_type=X_axis
+     },
+     'n_start=1,height=2' =>
+     { X_axis   => 'A005408',  # odd 2n+1
+       # OEIS-Other: A005408 planepath=Columns,height=2 line_type=X_axis
+     },
+     'n_start=1,height=3' =>
+     { X_axis   => 'A016777',  # 3n+1
+       # OEIS-Other: A016777 planepath=Columns,height=3 line_type=X_axis
+     },
+     'n_start=1,height=4' =>
+     { X_axis   => 'A016813',  # 4n+1
+       # OEIS-Other: A016813 planepath=Columns,height=4 line_type=X_axis
+     },
+     'n_start=1,height=5' =>
+     { X_axis   => 'A016861',  # 5n+1
+       # OEIS-Other: A016861 planepath=Columns,height=5 line_type=X_axis
+     },
+     'n_start=1,height=6' =>
+     { X_axis   => 'A016921',  # 6n+1
+       # OEIS-Other: A016921 planepath=Columns,height=6 line_type=X_axis
+     },
+     'n_start=1,height=7' =>
+     { X_axis   => 'A016993',  # 7n+1
+       # OEIS-Other: A016993 planepath=Columns,height=7 line_type=X_axis
+     },
+    };
 }
 { package Math::PlanePath::Diagonals;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -2199,6 +2111,123 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing   => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
+
+  use constant _NumSeq_N_oeis_anum =>
+    {
+     'rule=5' =>
+     { Y_axis   => 'A061925',  # ceil(n^2/2)+1
+       # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
+     },
+     #
+     # rule 84,116,212,244 two-wide right line
+     do {
+       my $tworight
+         = { Diagonal   => 'A005408',  # odds 2n+1
+           };
+       ('rule=84' => $tworight,
+        'rule=116' => $tworight,
+        'rule=212' => $tworight,
+        'rule=244' => $tworight,
+       );
+
+       # OEIS-Other: A005408 planepath=CellularRule,rule=84 line_type=Diagonal
+       # OEIS-Other: A005408 planepath=CellularRule,rule=116 line_type=Diagonal
+       # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
+       # OEIS-Other: A005408 planepath=CellularRule,rule=244 line_type=Diagonal
+     },
+     #
+     # rule=50,58,114,122,178,179,186,242,250 pyramid every second point
+     'Math::PlanePath::CellularRule::OddSolid' =>
+     { Diagonal_NW => 'A000124',  # triangular+1
+       # OEIS-Other: A000124 planepath=CellularRule,rule=50 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=58 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=114 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=122 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=178 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=179 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=186 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=242 line_type=Diagonal_NW
+       # OEIS-Other: A000124 planepath=CellularRule,rule=250 line_type=Diagonal_NW
+       #
+       # Not quite, starts value=0
+       # Diagonal => 'A000217', # triangular numbers but diff start
+     },
+     'rule=77' =>
+     { Y_axis   => 'A000124',  # triangular+1
+       # OEIS-Other: A000124 planepath=CellularRule,rule=77 line_type=Y_axis
+     },
+     'rule=177' =>
+     { Diagonal   => 'A000124',  # triangular+1
+       # OEIS-Other: A000124 planepath=CellularRule,rule=177 line_type=Diagonal
+     },
+     'rule=185' =>
+     { Diagonal   => 'A002522',  # n^2+1
+       # OEIS-Other: A002522 planepath=CellularRule,rule=185 line_type=Diagonal
+     },
+     'rule=189' =>
+     { Y_axis   => 'A002522',  # n^2+1
+       # OEIS-Other: A002522 planepath=CellularRule,rule=189 line_type=Y_axis
+     },
+     # PyramidRows step=1,align=left
+     # OEIS-Other: A000124 planepath=CellularRule,rule=206 line_type=Diagonal_NW
+     # OEIS-Other: A000124 planepath=CellularRule,rule=238 line_type=Diagonal_NW
+
+     do {
+       my $solidgapright
+         = { Diagonal   => 'A002522',  # n^2+1
+           };
+       ('rule=209' => $solidgapright,
+        'rule=241' => $solidgapright,
+       );
+       # OEIS-Other: A002522 planepath=CellularRule,rule=209 line_type=Diagonal
+       # OEIS-Other: A002522 planepath=CellularRule,rule=241 line_type=Diagonal
+     },
+     'rule=29' =>
+     { Y_axis   => 'A000124',  # triangular+1
+       # OEIS-Other: A000124 planepath=CellularRule,rule=29 line_type=Y_axis
+     },
+     'rule=221' =>
+     { Y_axis   => 'A002522',  # n^2+1
+       # OEIS-Other: A002522 planepath=CellularRule,rule=221 line_type=Y_axis
+     },
+     'rule=229' =>
+     { Y_axis   => 'A002522',  # n^2+1
+       # OEIS-Other: A002522 planepath=CellularRule,rule=229 line_type=Y_axis
+     },
+     #
+     # rule=6,38,134,166 left line 1,2
+     # Not quite,  OFFSET=1 vs start Y=0 here
+     # Diagonal_NW => 'A001651',
+     #
+     # rule=13 Y axis
+     #
+     # rule=20,52,148,180 (mirror image of rule 6)
+     # Not quite, A032766  0 or 1 mod 3, but it starts OFFSET=0 value=0
+     # Diagonal => 'A032766',
+     #
+     # rule=28,156
+     # Y_axis => 'A002620',  quarter squares floor(n^2/4) but diff start
+     # Diagonal => 'A024206', quarter squares - 1, but diff start
+     #
+     # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
+     # # central column only
+     # 'rule=4' =>
+     # { Y_axis   => 'A000027', # 1 upwards
+     #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
+     # },
+     #
+     # # right line only rule=16,24,48,56,80,88,112,120,144,152,176,184,208,216,240,248
+     # Not quite A000027 OFFSET=1 vs start X=Y=0 here
+     # 'rule=16' =>
+     # { Y_axis   => 'A000027', # 1 upwards
+     #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
+     # },
+
+
+     # CellularRule190 -- A006578 triangular+quarter square, but starts
+     # OFFSET=0 value=0 cf value N=1 here
+
+    };
 }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Y_axis_increasing => 1;
@@ -2225,15 +2254,20 @@ sub values_max {
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-  # Not quite, A147562 has OFFSET=0 value=0 whereas depth=0 Nend=1 here
-  # Depth_end => 'A147562'
   sub _NumSeq_tree_depth_to_n_range {
     my ($self, $depth) = @_;
     my ($nstart, $nend) = Math::PlanePath::UlamWarburtonQuarter::_NumSeq_tree_depth_to_n_range($self, $depth)
       or return;
-    return (4*$nstart-3,
-            4*$nend-3);
+    return (4*$nstart-3 + $self->{'n_start'}-1,
+            4*$nend-3 + $self->{'n_start'}-1);
   }
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'n_start=0' =>
+      { Depth_start => 'A147562',  # cells ON after n stages
+        # OEIS-Catalogue: A147562 planepath=UlamWarburton,n_start=0 line_type=Depth_start
+      },
+    };
 }
 { package Math::PlanePath::UlamWarburtonQuarter;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -2254,40 +2288,17 @@ sub values_max {
     if ($depth < 0) {
       return undef;
     }
-    my @bits = Math::PlanePath::Base::Digits::bit_split_lowtohigh($depth);
-    return (_NumSeq_tree_depth_to_n_start($self,$depth),
-            _NumSeq_tree_depth_to_n_start($self,$depth+1) - 1);
+    return (tree_depth_to_n($self,$depth),
+            tree_depth_to_n($self,$depth+1) - 1);
   }
-  sub _NumSeq_tree_depth_to_n_start {
-    my ($self, $depth) = @_;
-    ### _NumSeq_tree_depth_to_n_start(): $depth
-    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
-      return $depth;
-    }
-    if ($depth < 0) {
-      return undef;
-    }
-    my $zero = $depth*0;
-    my @bits = Math::PlanePath::Base::Digits::bit_split_lowtohigh($depth+1)
-      or return 1;
-    ### @bits
 
-    my $level = $#bits;
-    my $four = 4+$zero;  # bignum 4
-    my $pow3 = 1+$zero;  # bignum 1
-    my $n = $zero + ($four**$level + 2)/3;
-
-    while (--$level >= 0) {
-      ### at: "level=$level pow3=$pow3"
-      if ($bits[$level]) {
-        ### add: $pow3 * $four**$level
-        $n += $pow3 * $four**$level;
-        $pow3 *= 3;
-      }
-    }
-    ### $n
-    return $n;
-  }
+  # Not quite, OFFSET=0 starts 1,2,5,6,9,12,21,22,25,28,37,40, which is
+  # depth=1 value=1 etc
+  # use constant _NumSeq_N_oeis_anum =>
+  #   { 'n_start=0' =>
+  #     { Depth_start => 'A151920',
+  #     },
+  #   };
 }
 { package Math::PlanePath::CoprimeColumns;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -2418,11 +2429,62 @@ sub values_max {
       },
       'radix=10' =>
       { X_axis   => 'A011557',  # powers 10^X
-        # OEIS-Other:     A011557 planepath=PowerArray,radix=10
+        # OEIS-Other: A011557 planepath=PowerArray,radix=10
 
         # Not quite, A067251 OFFSET=1 value=1 whereas Y=0 N=value=1 here
         # Y_axis   => 'A067251', # no trailing 0 digits
         # # OEIS-Catalogue: A067251 planepath=PowerArray,radix=10 line_type=Y_axis
+      },
+    };
+}
+
+{ package Math::PlanePath::LCornerTree;
+  use constant _NumSeq_Diagonal_increasing => 1;
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'parts=1' =>
+      { Depth_end => 'A130665', # cumulative 3^count1bits(n), starting a(0)=1
+        # OEIS-Other: A130665 planepath=LCornerTree,parts=1 line_type=Depth_end
+      },
+      'parts=4' =>
+      { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
+        # OEIS-Other: A160410 planepath=LCornerTree line_type=Depth_start
+      },
+    };
+}
+{ package Math::PlanePath::LCornerReplicate;
+  use constant _NumSeq_Diagonal_increasing => 1;
+
+  use constant _NumSeq_N_oeis_anum =>
+    { '' =>
+      { Diagonal => 'A062880', # base 4 digits 0,2 only
+        # OEIS-Other: A062880 planepath=LCornerReplicate line_type=Diagonal
+      },
+    };
+}
+{ package Math::PlanePath::ToothpickTree;
+  use constant _NumSeq_Diagonal_increasing => 1;
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'parts=1' =>
+      { Depth_start => 'A153000',
+        # not yet
+        # OEIS-Other: A153000 planepath=ToothpickTree,parts=1 line_type=Depth_start
+      },
+      'parts=2' =>
+      { Depth_start => 'A152998',
+        # not yet
+        # OEIS-Other: A152998 planepath=ToothpickTree,parts=2 line_type=Depth_start
+      },
+      'parts=3' =>
+      { Depth_start => 'A153006',
+        # not yet
+        # OEIS-Other: A153006 planepath=ToothpickTree,parts=3 line_type=Depth_start
+      },
+      'parts=4' =>
+      { Depth_start => 'A139250',
+        # not yet
+        # OEIS-Other: A139250 planepath=ToothpickTree,parts=4 line_type=Depth_start
       },
     };
 }
@@ -2478,6 +2540,8 @@ among
     "Diagonal_NW"   north-west diagonal X=-i, Y=i
     "Diagonal_SW"   south-west diagonal X=-i, Y=-i
     "Diagonal_SE"   south-east diagonal X=i, Y=-i
+    "Depth_start"   first N at depth=i
+    "Depth_end"     last N at depth=i
 
 For example the SquareSpiral X axis starts i=0 with values 1, 2, 11, 28, 53,
 86, etc.

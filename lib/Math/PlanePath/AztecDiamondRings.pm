@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -37,6 +37,15 @@ use Math::PlanePath::Base::Generic
 #use Devel::Comments;
 
 use constant n_frac_discontinuity => 0;
+use constant xy_is_visited => 1;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+
+#------------------------------------------------------------------------------
 
 # d = [ 1, 2, 3, 4 ]
 # n = [ 1,5,13,25 ]

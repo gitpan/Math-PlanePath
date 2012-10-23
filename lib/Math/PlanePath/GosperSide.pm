@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -59,6 +59,13 @@ use constant n_start => 0;
 #                                          width     => 1,
 #                                          description => 'Arms',
 #                                        } ];
+
+use constant dx_minimum => -2;
+use constant dx_maximum => 2;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

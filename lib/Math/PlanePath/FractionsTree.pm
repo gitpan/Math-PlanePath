@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,6 +38,9 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh',
   'digit_join_lowtohigh';
 use Math::PlanePath::RationalsTree;
+
+use Math::PlanePath::CoprimeColumns;
+*_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -56,6 +59,11 @@ use constant parameter_info_array =>
      choices    => ['Kepler'],
    },
   ];
+
+use constant x_minimum => 1;
+use constant y_minimum => 2;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;
@@ -137,6 +145,16 @@ sub n_to_xy {
     # (c d) (2)   (c+d)
     return ($a+2*$b, $c+2*$d);
   }
+}
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if ($x < 1 || $y < 2 || $x >= $y || ! _coprime($x,$y)) {
+    return 0;
+  }
+  return 1;
 }
 
 sub xy_to_n {
@@ -245,6 +263,7 @@ sub _bingcd_max {
 *tree_n_num_children = \&Math::PlanePath::RationalsTree::tree_n_num_children;
 *tree_n_parent       = \&Math::PlanePath::RationalsTree::tree_n_parent;
 *tree_n_to_depth     = \&Math::PlanePath::RationalsTree::tree_n_to_depth;
+*tree_depth_to_n     = \&Math::PlanePath::RationalsTree::tree_depth_to_n;
 
 1;
 __END__

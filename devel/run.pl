@@ -49,12 +49,10 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
   $path_class = 'Math::PlanePath::KochSquareflakes';
-  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::TerdragonRounded';
   $path_class = 'Math::PlanePath::CornerReplicate';
   $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HilbertSpiral';
-  $path_class = 'Math::PlanePath::HilbertCurve';
   $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::GreekKeySpiral';
   $path_class = 'Math::PlanePath::ComplexMinus';
@@ -66,7 +64,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::GrayCode';
   $path_class = 'Math::PlanePath::ZOrderCurve';
   $path_class = 'Math::PlanePath::ImaginaryBase';
-  $path_class = 'Math::PlanePath::ImaginaryHalf';
   $path_class = 'Math::PlanePath::KochCurve';
   $path_class = 'Math::PlanePath::PixelRings';
   $path_class = 'Math::PlanePath::PeanoCurve';
@@ -75,7 +72,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::HypotOctant';
   $path_class = 'Math::PlanePath::SquareSpiral';
   $path_class = 'Math::PlanePath::CellularRule';
-  $path_class = 'Math::PlanePath::SierpinskiTriangle';
   $path_class = 'Math::PlanePath::PowerArray';
   $path_class = 'Math::PlanePath::ParabolicRuns';
   $path_class = 'Math::PlanePath::DiagonalsOctant';
@@ -101,7 +97,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DragonCurve';
   $path_class = 'Math::PlanePath::KochelCurve';
   $path_class = 'Math::PlanePath::WythoffArray';
-  $path_class = 'Math::PlanePath::FibonacciWordKnott';
   $path_class = 'Math::PlanePath::FibonacciWordFractal';
   $path_class = 'Math::PlanePath::CincoCurve';
   $path_class = 'Math::PlanePath::WunderlichMeander';
@@ -117,21 +112,31 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::RationalsTree';
   $path_class = 'Math::PlanePath::ChanTree';
   $path_class = 'Math::PlanePath::CfracDigits';
-
+  $path_class = 'Math::PlanePath::BalancedArray';
+  $path_class = 'Math::PlanePath::FibonacciWordKnott';
+  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
+  $path_class = 'Math::PlanePath::UlamWarburton';
+  $path_class = 'Math::PlanePath::SierpinskiTriangle';
+  $path_class = 'Math::PlanePath::LCornerReplicate';
+  $path_class = 'Math::PlanePath::HilbertCurve';
+  $path_class = 'Math::PlanePath::LCornerTree';
+  $path_class = 'Math::PlanePath::ImaginaryHalf';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+     digit_order => 'XnYX',
+     radix => 2,
+     # parts => 3,
      # x_start => 5,
      # y_start => 2,
      #  k => 3,
      #  reduced => 1,
      # points => 'all_mul',
-     # n_start => 37,
-      radix => 5,
+     # n_start => 0,
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_up',
-     # tree_type => 'CS',
+     # tree_type => 'HCS',
      # parts => '3/4',
      # start => 'snowflake',
      # align => 'left',
@@ -140,7 +145,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # n_start => 37,
      # align => 'diagonal',
      # offset => -0.5,
-     # points => 'hex',
      # turns => 1,
      # arms => 8,
      # base => 7,
@@ -256,6 +260,10 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
       }
       $n_children =~ s/,$//;
     }
+    my $num_children = $path->tree_n_num_children($i);
+    if (! defined $num_children || $num_children != scalar(@n_children)) {
+      $n_children .= "numchildren***";
+    }
 
     my $baddepth = '';
     if ($path->can('tree_n_to_depth')
@@ -263,7 +271,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
       my $depth = $path->tree_n_to_depth($i);
       my $calc_depth = $path->Math::PlanePath::tree_n_to_depth($i);
       if (! defined $depth || $calc_depth != $depth) {
-        $baddepth .= "depth=$depth,calc=$calc_depth";
+        $baddepth .= "ntodepth=$depth,parentcalc=$calc_depth";
       }
     }
 

@@ -17,53 +17,16 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#------------------------------------------------------------------------------
-# triangle(y,limit) returns a string of stars, spaces and newlines
-# which is the Sierpinski triangle rows from y to limit inclusive.
-# The first row is y=0.
-#
-triangle(y,limit) = (y <= limit ? row(-limit,y).triangle(y+1,limit) : "")
-
-# Return a string which is row y of the triangle, from characters x
-# through to the right end.
-row(x,y) = (x<=y ? char(x,y).row(x+1,y) : "\n")
-
-# Return a space or star string to print at x,y.
-# Must have x<y.  Can have x<0, any x<-y is before the start of the
-# triangle and gives a space.
-char(x,y) = (y+x>=0 && ((y+x)%2)==0 && ((y+x)&(y-x))==0 ? "*" : " ")
-
-# Print rows 0 to 15 which is the order 4 triangle per the task.
-print triangle(0,15)
-
-exit
-
-
-
 #------------------------------------------------------------------------------
 
-triangle_x(n) = (n > 0                                           \
-                 ? 2*triangle_x(int(n/3)) + digit_to_x(int(n)%3) \
-                 : 0)
-triangle_y(n) = (n > 0                                           \
-                 ? 2*triangle_y(int(n/3)) + digit_to_y(int(n)%3) \
-                 : 0)
-digit_to_x(d) = (d==0 ? 0 : d==1 ? -1 : 1)
-digit_to_y(d) = (d==0 ? 0 : 1)
-
-# Plot the Sierpinski triangle to "level" many replications.
-# trange and samples are chosen so that the parameter t runs through
-# integers 0 to 3**level-1 inclusive.
-#
-level=6
-set trange [0:3**level-1]      # 
-set samples 3**level           # making t integers
-set parametric
+set xrange [0:16]; set yrange [0:16]
 set key off
-plot triangle_x(t), triangle_y(t) with points
-
+set samples 256
+splot (int(x)&int(y))==0 ? 1 : NaN with points
 pause 100
+
+
+
 
 #------------------------------------------------------------------------------
 

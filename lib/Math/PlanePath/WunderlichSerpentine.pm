@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -53,6 +53,11 @@ use Math::PlanePath::Base::Digits
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+use constant n_start => 0;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
 
 use constant parameter_info_array =>
   [ { name      => 'serpentine_type',
@@ -74,9 +79,11 @@ use constant parameter_info_array =>
     },
   ];
 
-use constant n_start => 0;
-use constant class_x_negative => 0;
-use constant class_y_negative => 0;
+
+use Math::PlanePath::PeanoCurve;
+*dx_minimum = *dy_minimum = \&Math::PlanePath::PeanoCurve::dx_minimum;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

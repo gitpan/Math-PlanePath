@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,8 +23,8 @@
 # This is a bit of fun printing the HilbertCurve path in ascii.  It follows
 # the terminal width if you've got Term::Size, otherwise 79x23.
 #
-# Enough of the curve is drawn to fill the whole output size, clipped when
-# the path goes outside the output bounds.  You could instead stop at say
+# Enough curve is drawn to fill the whole output size, clipped when the path
+# goes outside the output bounds.  You could instead stop at say
 #
 #     $n_hi = 2**6;
 #
@@ -33,9 +33,8 @@
 # The $scale variable spaces out the points.  3 apart is good, or tighten it
 # up to 2 to fit more on the screen.
 #
-# The output has Y increasing down the screen.  Taking the Y's in reverse
-# order in the final output (ie. $height-1 down to 0) would show it going up
-# the screen.
+# The output has Y increasing down the screen.  It could be instead printed
+# up the screen in the final output by going $y from $height-1 down to 0.
 #
 
 use 5.004;

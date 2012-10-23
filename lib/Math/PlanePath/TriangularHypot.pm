@@ -65,7 +65,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -93,6 +93,17 @@ use constant parameter_info_array =>
     },
     Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ($self->{'points'} eq 'odd'
+          ? 1     # odd at X=1,Y=0
+          : $self->{'points'} eq 'hex_centred'
+          ? 2     # hex_centred at X=1,Y=1
+          : 0);   # even,all at X=0,Y=0
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   ### TriangularHypot new() ...

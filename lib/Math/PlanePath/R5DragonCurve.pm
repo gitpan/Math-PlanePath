@@ -32,7 +32,7 @@ use List::Util 'first','sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -56,6 +56,17 @@ use constant parameter_info_array =>
       width       => 1,
       description => 'Arms',
     } ];
+
+# whole plane when arms==4
+use Math::PlanePath::DragonCurve;
+*xy_is_visited = \&Math::PlanePath::DragonCurve::xy_is_visited;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

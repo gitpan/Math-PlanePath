@@ -20,14 +20,14 @@
 
 # Usage: perl cellular-rules.pl
 #
-# Print the patterns from the CellularRule paths with "*"s.  Rules with the
-# same output are listed together.
+# Print the patterns from the CellularRule paths with "*"s.
+# Rules with the same output are listed together.
 #
 # Implementation:
 #
-# Points are plotted by looping $n until its $y is beyond the desired
-# maximum rows.  @rows is an array of strings of length 2*size+1 spaces each
-# in which "*"s are set to plot points.
+# Points are plotted by looping $n until its $y coordinate is beyond the
+# desired maximum rows.  @rows is an array of strings of length 2*size+1
+# spaces each in which "*"s are applied to plot points.
 #
 # Another way to plot would be to loop over $x,$y for the desired rectangle
 # and look at $n=$path->xy_to_n($x,$y) to see which cells have defined($n).
@@ -35,15 +35,15 @@
 # case.  Going by $n should be fastest for sparse patterns, though
 # CellularRule is not blindingly quick either way.
 #
-# See Cellular::Automata::Wolfram for the same but with many more options
-# and a graphics file output.
+# See Cellular::Automata::Wolfram for the same but with more options and a
+# graphics file output.
 #
 
 use 5.004;
 use strict;
 use Math::PlanePath::CellularRule;
 
-my $numrows = 15;
+my $numrows = 15;    # size of each printout
 
 my %seen;
 my $count = 0;

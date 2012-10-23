@@ -44,24 +44,28 @@ foreach my $tree_type (@$tree_type_choices_arrayref) {
   }
   print "\n";
 
+  print "                 /------------- -------------\\\n";
   foreach (1 .. 2) {
     my ($x,$y) = $path->n_to_xy($n++);
     print centre("$x/$y",32);
   }
   print "\n";
 
+  print "         /----   ----\\                   /----   ----\\\n";
   foreach (1 .. 4) {
     my ($x,$y) = $path->n_to_xy($n++);
     print centre("$x/$y",16);
   }
   print "\n";
 
+  print "     /   \\           /   \\           /   \\           /   \\\n";
   foreach (1 .. 8) {
     my ($x,$y) = $path->n_to_xy($n++);
     print centre("$x/$y",8);
   }
   print "\n";
 
+  print " /   \\   /   \\   /   \\   /   \\   /   \\   /   \\   /   \\   /   \\\n";
   foreach (16 .. 31) {
     my ($x,$y) = $path->n_to_xy($n++);
     print centre("$x/$y",4);
@@ -107,18 +111,21 @@ foreach my $tree_type (@$tree_type_choices_arrayref) {
   }
   print "\n";
 
+  print "                   /---------------  ---------------\\\n";
   foreach (1 .. 2) {
     my ($x,$y) = $path->n_to_xy($n++);
     print centre(xy_to_cfrac_str($x,$y), 36);
   }
   print "\n";
 
+  print "          /-----   -----\\                     /-----   -----\\\n";
   foreach (1 .. 4) {
     my ($x,$y) = $path->n_to_xy($n++);
     print centre(xy_to_cfrac_str($x,$y), 18);
   }
   print "\n";
 
+  print "      /   \\             /   \\             /   \\             /   \\\n";
   foreach (1 .. 8) {
     my ($x,$y) = $path->n_to_xy($n++);
     print centre(xy_to_cfrac_str($x,$y), 9);

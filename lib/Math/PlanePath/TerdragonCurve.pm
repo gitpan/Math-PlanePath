@@ -37,12 +37,13 @@ use Math::PlanePath;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
-  'round_nearest';
+  'round_nearest',
+  'xy_is_visited_even';
 use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -63,6 +64,13 @@ use constant parameter_info_array =>
       width     => 1,
       description => 'Arms',
     } ];
+
+use constant dx_minimum => -2;
+use constant dx_maximum => 2;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;
@@ -139,6 +147,16 @@ sub n_to_xy {
   return (2*$i + $j - $k, $j+$k);
 }
 
+
+# all even points when arms==6
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  if ($self->{'arms'} == 6) {
+    return xy_is_visited_even($self,$x,$y);
+  } else {
+    return defined($self->xy_to_n($x,$y));
+  }
+}
 
 # maximum extent -- no, not quite right
 #

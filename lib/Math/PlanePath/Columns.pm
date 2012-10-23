@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,6 +38,33 @@ use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
+
+sub y_maximum {
+  my ($self) = @_;
+  return $self->{'height'} - 1;
+}
+
+sub dx_minimum {
+  my ($self) = @_;
+  return ($self->{'height'} <= 1
+          ? 1   # single row only
+          : 0);
+}
+use constant dx_maximum => 1;
+
+sub dy_minimum {
+  my ($self) = @_;
+  return - ($self->{'height'}-1);
+}
+sub dy_maximum {
+  my ($self) = @_;
+  return ($self->{'height'} <= 1
+          ? 0   # single row only
+          : 1);
+}
+
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new (@_);

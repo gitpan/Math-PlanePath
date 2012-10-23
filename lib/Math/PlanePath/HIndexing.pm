@@ -26,11 +26,11 @@
 # |
 # | *--*  *  *-
 # | |  |  |  |
-# | *  *--*  *   
-# | |        |   
-# | *  *--*  *   
+# | *  *--*  *
+# | |        |
+# | *  *--*  *
 # | |  |  |  |
-# | O  *  *--* 
+# | O  *  *--*
 # |
 # +------------
 #
@@ -48,7 +48,7 @@
 # *--*--*--*  *  *  *--*
 #             |  |  |
 # *--*--*--*  *  *  *-
-# |           |  |  
+# |           |  |
 # *--*  *--*  *  *  *-
 #    |  |  |  |  |  |
 #          *--*  *--*
@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -75,6 +75,12 @@ use Math::PlanePath::Base::Digits
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -456,9 +462,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# Local variables:
-# compile-command: "math-image --path=HIndexing --lines --scale=20"
-# End:
-#
-# math-image --path=HIndexing --all --output=numbers_dash

@@ -44,7 +44,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -71,6 +71,18 @@ use constant parameter_info_array =>
     },
   ];
 
+# X=2,Y=1 when proper
+# X=1,Y=1 when not
+sub x_minimum {
+  my ($self) = @_;
+  return ($self->{'proper'} ? 2 : 1);
+}
+use constant y_minimum => 1;
+
+use constant dx_minimum => 0;
+use constant dx_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 my @x_to_n = (0,0,1);
 sub _extend {
@@ -206,6 +218,28 @@ sub _count_divisors {
     $ret *= 2;
   }
   return $ret;
+}
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if ($self->{'proper'}) {
+    if ($x < 2
+        || $y < 1
+        || $y > int($x/2)
+        || ($x%$y)) {
+      return 0;
+    }
+  } else {
+    if ($x < 1
+        || $y < 1
+        || $y > $x
+        || ($x%$y)) {
+      return 0;
+    }
+  }
+  return 1;
 }
 
 sub xy_to_n {

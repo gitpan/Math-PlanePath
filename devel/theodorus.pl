@@ -29,22 +29,72 @@ use Smart::Comments;
 
 
 {
-  my $path = Math::PlanePath::TheodorusSpiral->new;
-  my $prev_x = 0;
-  my $prev_y = 0;
-  #for (my $n = 10; $n < 100000000; $n = int($n * 1.2)) {
-  foreach my $n (2000, 2010, 2020, 2010, 2000, 2010, 2000, 2010) {
-    my ($x,$y) = $path->n_to_xy($n);
-    my $rsq = $x*$x+$y*$y;
+  # Euler summation
 
-    my $dx = $x - $prev_x;
-    my $dy = $y - $prev_y;
-    my $dxy_dist = hypot($dx,$dy);
+  # k<n           n                               n
+  # sum f(k)  = integ f(x) dx - (f(n)-f(1))/2 + integ B1(frac(x))*f'(x) dx
+  # k=1           1                               1
+  #
+  # B1(x) = x-1/2
+  #
+  # k<n           n
+  # sum f(k)  = integ f(x) dx
+  # k=1           1
+  #
+  #             - (f(n)-f(1))/2
+  #
+  #             + B2/2! (f'(n) - f'(1))
+  #               ...
+  #               (-1)^m*Bm     (m-1)       (m-1)
+  #             + --------- * (f     (n) - f     (1))
+  #                  m!
+  #               ...
+  # B0=1
+  # B1=-1/2
+  my $B2 = 1/6;
+  my $B3 = 0;
+  my $B4 = -1/30;
 
-    printf "%d   %.2f,%.2f  %.2f  %.4f\n", $n, $x,$y, $rsq, $dxy_dist;
+  # f(x) = arctan 1/sqrt(x)
+  # f'(x) = 1/(1+x^2)
+  # f'2(x) = (-1 * (2 * x)) / (((x ^ 2) + 1) ^ 2)
+  #        = -2x / (x^2 + 1)^2
 
-    ($prev_x, $prev_y) = ($x,$y);
+  foreach my $x (1 .. 40) {
+    my $sum = fsum($x);
+    my $ifx = ifx($x) - ifx(1) - (fx($x)-fx(1))/2;
+    my $t1 = $B2/2 * (dfx($x) - dfx(1));
+    my $if2 = $ifx + $t1;
+    printf "%.4f %.4f[%.4f] %.4f[%.4f]\n",
+      $sum, $ifx, $ifx-$sum, $if2, $if2-$sum;
   }
+
+  sub ifx {
+    my ($x) = @_;
+    return sqrt($x) + $x*fx($x) - atan2($x,1);
+  }
+  sub fx {
+    my ($x) = @_;
+    return atan2(1, sqrt($x));
+  }
+  sub dfx {
+    my ($x) = @_;
+    return 1/($x*$x+1);
+  }
+  sub ddfx {
+    my ($x) = @_;
+    return -2*$x/(($x*$x+1)**2);
+  }
+
+  sub fsum {
+    my ($x) = @_;
+    my $ret = 0;
+    foreach my $i (1 .. $x-1) {
+      $ret += fx($x);
+    }
+    return $ret;
+  }
+
   exit 0;
 }
 
@@ -83,9 +133,8 @@ use Smart::Comments;
     sub simplify {
       my $tree = shift;
       ### simplify(): "$tree"
-      ### traf: $trafo->apply_recursive($tree).''
+      ### traf: ($trafo->apply_recursive($tree)//'').''
       return $trafo->apply_recursive($tree) || $tree;
-
 
       # if (my $m = $pattern->match($tree)) {
       #   $m = $m->{'trees'};
@@ -101,28 +150,52 @@ use Smart::Comments;
   }
 
   require Math::Symbolic;
-  use Math::Symbolic::Derivative;
-  # {
-  #   my $t = Math::Symbolic->parse_from_string('a * (b/c)');
-  #   $t = $t->simplify;
-  #   print "$t\n";
-  #   exit 0;
-  # }
+  require Math::Symbolic::Derivative;
+  {
+    my $t = Math::Symbolic->parse_from_string('1/(x^2+1)');
+    $t = Math::Symbolic::Derivative::total_derivative($t, 'x');
+    
+    $t = $t->simplify;
+    print "$t\n";
+    exit 0;
+  }
 
-  my $a = Math::Symbolic->parse_from_string(
-                                            '(x+y)/(1-x*y)'
-                                           );
-  my $z = Math::Symbolic->parse_from_string(
-                                            'z'
-                                           );
+  {
+    my $a = Math::Symbolic->parse_from_string(
+                                              '(x+y)/(1-x*y)'
+                                             );
+    my $z = Math::Symbolic->parse_from_string(
+                                              'z'
+                                             );
 
-  my $t = ($a + $z) / (1 - $a*$z);
-  $t = $t->simplify;
+    my $t = ($a + $z) / (1 - $a*$z);
+    $t = $t->simplify;
+    print $t;
+    exit 0;
+  }
+}
 
-  print $t;
+{
+  my $path = Math::PlanePath::TheodorusSpiral->new;
+  my $prev_x = 0;
+  my $prev_y = 0;
+  #for (my $n = 10; $n < 100000000; $n = int($n * 1.2)) {
+  foreach my $n (2000, 2010, 2020, 2010, 2000, 2010, 2000, 2010) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $rsq = $x*$x+$y*$y;
 
+    my $dx = $x - $prev_x;
+    my $dy = $y - $prev_y;
+    my $dxy_dist = hypot($dx,$dy);
+
+    printf "%d   %.2f,%.2f  %.2f  %.4f\n", $n, $x,$y, $rsq, $dxy_dist;
+
+    ($prev_x, $prev_y) = ($x,$y);
+  }
   exit 0;
 }
+
+
 
 
 sub integral {

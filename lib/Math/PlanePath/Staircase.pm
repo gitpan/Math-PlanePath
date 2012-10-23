@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -38,6 +38,12 @@ use Math::PlanePath::Base::Generic
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
+
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+
+#------------------------------------------------------------------------------
 
 # start from 0.5 back
 #     d = [ 0, 1,  2, 3 ]

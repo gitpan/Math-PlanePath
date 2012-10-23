@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -71,6 +71,31 @@ sub x_negative {
   return (($self->{'rule'} & 2)
           || ($self->{'rule'} & 3) == 1);
 }
+
+sub dx_minimum {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x17) == 0        # single cell only
+          || ($self->{'rule'} & 0x5F) == 0x14  # right line 1,2
+          || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
+          ? 0
+
+          : (($self->{'rule'} & 0x5F) == 0x0E     # left line 2
+             || ($self->{'rule'} & 0x5F) == 0x06) # left line 1,2
+          ? -2
+
+          : undef);
+}
+sub dx_maximum {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x17) == 0        # single cell only
+          || ($self->{'rule'} & 0x5F) == 0x14  # right line 1,2
+          || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
+          ? 1
+          : undef);
+}
+
+
+#------------------------------------------------------------------------------
 
 # cf 60 is right half Sierpinski
 #    129 is inverse Sierpinski, except for initial N=1 cell
@@ -503,7 +528,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 90;
+  $VERSION = 91;
   @ISA = ('Math::PlanePath::CellularRule');
 
   use Math::PlanePath::Base::Generic
@@ -518,6 +543,19 @@ sub rect_to_n_range {
 
   use constant parameter_info_array => [];
   *new = \&Math::PlanePath::new;
+
+  sub x_maximum {
+    my ($path) = @_;
+    return ($path->{'sign'} <= 0 ? 0 : undef);
+  }
+  sub dx_minimum {
+    my ($path) = @_;
+    return $path->{'sign'};
+  }
+  *dx_maximum = \&dx_minimum;
+
+  use constant dy_minimum => 1;
+  use constant dy_maximum => 1;
 
   sub n_to_xy {
     my ($self, $n) = @_;
@@ -580,7 +618,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 90;
+  $VERSION = 91;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 
@@ -592,6 +630,9 @@ sub rect_to_n_range {
   use constant n_start => 1;
   use constant x_negative => 1; # not the PyramidRows from step
   use constant parameter_info_array => []; # not the PyramidRows params
+  use constant dx_maximum => 2;
+  use constant dy_minimum => 0;
+  use constant dy_maximum => 1;
 
   sub new {
     my ($class) = @_;

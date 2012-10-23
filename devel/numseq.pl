@@ -46,7 +46,7 @@ use strict;
   $planepath = "QuintetReplicate";
   $planepath = "FractionsTree";
   $planepath = "PowerArray";
-  $planepath = "RationalsTree,tree_type=CS";
+  $planepath = "RationalsTree,tree_type=HCS";
   $planepath = "ChanTree,k=2";
   $planepath = "CfracDigits,radix=2";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,

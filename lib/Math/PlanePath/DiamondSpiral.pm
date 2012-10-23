@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -31,9 +31,16 @@ use Math::PlanePath::Base::Generic
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+use constant xy_is_visited => 1;
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
 
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new (@_);
   if (! defined $self->{'n_start'}) {

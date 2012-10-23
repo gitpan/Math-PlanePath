@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,6 +50,7 @@ use Math::PlanePath::SacksSpiral;
 
 
 use constant n_frac_discontinuity => 0;
+use constant rsquared_minimum => 2; # minimum X=1,Y=1
 
 # innermost hexagon level 0
 #     level 0    len=6

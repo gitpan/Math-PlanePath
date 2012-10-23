@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -54,7 +54,7 @@ my $hilbert = Math::PlanePath::HilbertCurve->new;
 my $diagonal  = Math::PlanePath::Diagonals->new;
 
 print "A163359: ";
-foreach my $n (1 .. 19) {  # Diagonals starts at N=1
+foreach my $n ($diagonal->n_start .. 19) {
   my ($x, $y) = $diagonal->n_to_xy ($n);
   my $hilbert_n = $hilbert->xy_to_n ($x, $y);
   print "$hilbert_n, ";

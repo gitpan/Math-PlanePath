@@ -58,6 +58,11 @@ sub streq_array {
   return (@$a1 == @$a2);
 }
 
+sub path_xy_is_visited {
+  my ($path, $x,$y) = @_;
+  return defined($path->xy_to_n($x,$y));
+}
+
 
 #------------------------------------------------------------------------------
 
@@ -498,7 +503,7 @@ sub bignum {
       my $b = Math::BigInt->new(0);
       foreach my $x (($half eq 'right' ? 0 : -$y)
                      .. ($half eq 'left' ? 0 : $y)) {
-        my $bit = (defined($path->xy_to_n($x,$y)) ? 1 : 0);
+        my $bit = (path_xy_is_visited($path,$x,$y) ? 1 : 0);
         if ($inverse eq 'inverse') { $bit ^= 1; }
         $b = 2*$b + $bit;
       }

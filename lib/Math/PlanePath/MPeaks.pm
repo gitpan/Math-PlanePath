@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -36,6 +36,7 @@ use Math::PlanePath::Base::Generic
 
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
 
 # starting each left side at 0.5 before
 # [ 1,2,3 ],

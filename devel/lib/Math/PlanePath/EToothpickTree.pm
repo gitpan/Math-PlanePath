@@ -23,6 +23,8 @@
 # http://blog.barabel.net/cgi-bin/toothpick.cgi?maxNumberOfTooths=2012
 # https://p.twimg.com/AiMexOHCEAAeONg.png
 #
+# A161206 V-toothpick 120deg
+#
 # E-toothpick 
 #    A161328 total cells at level
 #    A161329 cells added at level
@@ -202,7 +204,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

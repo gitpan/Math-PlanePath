@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -55,6 +55,11 @@ use constant parameter_info_array =>
     },
   ];
 
+use constant dx_maximum => 3;
+use constant dy_minimum => 0;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 #            left
 # even  y=3     5

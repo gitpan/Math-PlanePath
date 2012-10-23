@@ -27,7 +27,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -41,7 +41,12 @@ use Math::PlanePath::Base::Generic
 
 use constant n_start => 0;
 use constant figure => 'circle';
+use constant dx_minimum => -1; # supremum when straight
+use constant dx_maximum => 1;  # at N=0
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;  # at N=1
 
+#------------------------------------------------------------------------------
 
 # This adding up of unit steps isn't very good.  The last x,y,n is kept
 # anticipating successively higher n, not necessarily consecutive, plus past
@@ -81,7 +86,7 @@ sub new {
 sub n_to_rsquared {
   my ($self, $n) = @_;
   my $int = int($n);
-  $n -= $int;
+  $n -= $int;  # fractional part
   return $n*$n + $int;
 }
 

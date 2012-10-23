@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -95,9 +95,9 @@ foreach my $n ($n_lo .. $n_hi) {
 #
 if ($scale > 1) {
   foreach (@rows) {
-    s{(.)}{$1 x $scale}eg;  # horizontally
+    s{(.)}{$1 x $scale}eg;             # expand horizontally
   }
-  @rows = map { ($_) x $scale} @rows;        # vertically
+  @rows = map { ($_) x $scale} @rows;  # expand vertically
 
   $size *= $scale;
 }

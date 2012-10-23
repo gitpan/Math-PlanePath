@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,6 +46,14 @@ use Math::PlanePath::Base::Digits
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+
+#------------------------------------------------------------------------------
 
 use Math::PlanePath::DekkingCentres;
 use vars '@_next_state','@_digit_to_x','@_digit_to_y','@_yx_to_digit';

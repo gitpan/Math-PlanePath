@@ -33,10 +33,28 @@ use Math::PlanePath::KochCurve;
 
 
 
+
+{
+  require Math::PlanePath::CfracDigits;
+  require Number::Fraction;
+  my $path = Math::PlanePath::CfracDigits->new (radix => 1);
+  my $rat = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+  my $nf = Number::Fraction->new(1,7);
+  $nf = 1 / (4 + 1 / (2 + Number::Fraction->new(1,7)));
+  print "$nf\n";
+  my $x = $nf->{num};
+  my $y = $nf->{den};
+  my $n = $path->xy_to_n($x,$y);
+  printf "%5d  %17b\n", $n, $n;
+  $n = $rat->xy_to_n($y-$x,$x);
+  printf "%5d  %17b\n", $n, $n;
+  exit 0;
+}
+
 {
   # +1 at low end to turn 1111 into 10000
   require Math::PlanePath::CfracDigits;
-  my $rat = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
+  my $rat = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
   my $cf = Math::PlanePath::CfracDigits->new (radix => 1);
   for (my $n = $rat->n_start; $n < 200; $n++) {
     my ($cx,$cy) = $cf->n_to_xy($n);
@@ -80,22 +98,6 @@ use Math::PlanePath::KochCurve;
   exit 0;
 }
 
-{
-  require Math::PlanePath::CfracDigits;
-  require Number::Fraction;
-  my $path = Math::PlanePath::CfracDigits->new (radix => 1);
-  my $rat = Math::PlanePath::RationalsTree->new (tree_type => 'CS');
-  my $nf = Number::Fraction->new(1,7);
-  $nf = 1 / (4 + 1 / (2 + Number::Fraction->new(1,7)));
-  print "$nf\n";
-  my $x = $nf->{num};
-  my $y = $nf->{den};
-  my $n = $path->xy_to_n($x,$y);
-  printf "%d  %b\n", $n, $n;
- $n = $rat->xy_to_n($x,$y);
-  printf "%d  %b\n", $n, $n;
-  exit 0;
-}
 
 {
   # range vs GcdRationals

@@ -98,6 +98,145 @@ sub diff_nums {
   }
 }
 
+
+#------------------------------------------------------------------------------
+# A152998 - parts=2 total cells
+
+{
+  my $anum = 'A152998';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::ToothpickTree->new (parts => 2);
+    my @got;
+    my $total = 0;
+    for (my $depth = 0; @got < @$bvalues; $depth++) {
+      push @got, $path->tree_depth_to_n($depth);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A152999 primes among parts=2 total cells
+
+{
+  my $anum = 'A152999';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::ToothpickTree->new (parts => 2);
+    my @got;
+    my $total = 0;
+    for (my $depth = 0; @got < @$bvalues; $depth++) {
+      my $n = $path->tree_depth_to_n($depth);
+      if (is_prime ($n)) {
+        push @got, $n;
+      }
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# A139250 - parts=4 total cells
+
+{
+  my $anum = 'A139250';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 500);
+
+  {
+    my $diff;
+    if ($bvalues) {
+      my $path = Math::PlanePath::ToothpickTree->new (parts => 4);
+      my @got;
+      my $total = 0;
+      for (my $depth = 0; @got < @$bvalues; $depth++) {
+        push @got, $path->tree_depth_to_n($depth);
+      }
+      $diff = diff_nums(\@got, $bvalues);
+      if ($diff) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          $diff,
+          undef,
+          "$anum");
+  }
+  # {
+  # my $diff;
+  # if ($bvalues) {
+  #   my @got;
+  #   my $total = 0;
+  #   for (my $level = 0; @got < @$bvalues; $level++) {
+  #     my @children = tree_level_children($level);
+  #     $total += scalar(@children);
+  #     push @got, $total;
+  #   }
+  #   $diff = diff_nums(\@got, $bvalues);
+  #   if ($diff) {
+  #     MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+  #     MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+  #   }
+  # }
+  # skip (! $bvalues,
+  #       $diff,
+  #       undef,
+  #       "$anum");
+  # }
+}
+
+
+#------------------------------------------------------------------------------
+# A153000 - parts=1 total cells
+
+{
+  my $anum = 'A153000';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::ToothpickTree->new (parts => 1);
+    my @got;
+    my $total = 0;
+    for (my $depth = 0; @got < @$bvalues; $depth++) {
+      push @got, $path->tree_depth_to_n($depth);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+exit 0;
+
+
 #------------------------------------------------------------------------------
 # A139253 - primes in A139250 total cells
 
@@ -253,34 +392,6 @@ sub diff_nums {
         "$anum");
 }
 
-
-#------------------------------------------------------------------------------
-# A139250 - total cells
-
-{
-  my $anum = 'A139250';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 100);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $total = 0;
-    for (my $level = 0; @got < @$bvalues; $level++) {
-      my @children = tree_level_children($level);
-      $total += scalar(@children);
-      push @got, $total;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
 
 #------------------------------------------------------------------------------
 # A139251 - cells added

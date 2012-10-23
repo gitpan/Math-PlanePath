@@ -20,6 +20,42 @@
 use strict;
 use Math::PlanePath::CellularRule;
 
+# uncomment this to run the ### lines
+use Smart::Comments;
+
+
+{
+  # compare path against Cellular::Automata::Wolfram values
+
+  require Cellular::Automata::Wolfram;
+  my $width = 50;
+  my $x_offset = int($width/2)-1;
+  my $num_of_gens = $x_offset - 1;
+ RULE: foreach my $rule (0 .. 255) {
+    my $path = Math::PlanePath::CellularRule->new(rule=>$rule);
+    my $auto = Cellular::Automata::Wolfram->new
+      (rule=>$rule, width=>$width, num_of_gens=>$num_of_gens);
+    my $gens = $auto->{'gens'};
+    foreach my $y (0 .. $#$gens) {
+      my $auto_str = $gens->[$y];
+      my $path_str = '';
+      foreach my $i (0 .. length($auto_str)-1) {
+        my $x = $i - $x_offset;
+        $path_str .= ($x < -$y || $x > $y ? substr($auto_str,$i,1)
+                      : $path->xy_is_visited($x,$y) ? '1' : '0');
+      }
+      if ($auto_str ne $path_str) {
+        print "$rule y=$y\n";
+        print "auto $auto_str\n";
+        print "path $path_str\n";
+        print "\n";
+        next RULE;
+      }
+    }
+  }
+  exit 0;
+
+}
 {
   my $rule = 124;
   my $path = Math::PlanePath::CellularRule->new(rule=>$rule);

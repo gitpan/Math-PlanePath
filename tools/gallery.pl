@@ -45,6 +45,26 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['rationals-tree-lines-hcs.png',
+    'math-image --path=RationalsTree,tree_type=HCS --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-l.png',
+    'math-image --path=RationalsTree,tree_type=L --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-small.png',
+    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
+   ['rationals-tree-big.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=200'],
+   ['rationals-tree-lines-sb.png',
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-cw.png',
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-bird.png',
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-drib.png',
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
+   ['rationals-tree-lines-ayt.png',
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
+
+
    ['cfrac-digits-small.png',
     'math-image --path=CfracDigits --lines --scale=4 --size=32 --offset=-4,-8'],
    ['cfrac-digits-big.png',
@@ -69,24 +89,6 @@ foreach my $elem
     'math-image --path=HIndexing --scale=3 --size=32 --lines --figure=point'],
    ['h-indexing-big.png',
     'math-image --path=HIndexing --lines --scale=5 --size=200 --figure=point'],
-
-   ['rationals-tree-lines-l.png',
-    'math-image --path=RationalsTree,tree_type=L --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-small.png',
-    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
-   ['rationals-tree-big.png',
-    'math-image --path=RationalsTree --all --scale=3 --size=200'],
-   ['rationals-tree-lines-sb.png',
-    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-cw.png',
-    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-bird.png',
-    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-drib.png',
-    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
-   ['rationals-tree-lines-ayt.png',
-    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
-
 
    ['sierpinski-curve-small.png',
     'math-image --path=SierpinskiCurve,arms=2 --scale=3 --size=32 --lines --figure=point'],

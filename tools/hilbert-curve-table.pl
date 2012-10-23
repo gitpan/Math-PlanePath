@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -76,7 +76,7 @@ sub print_table {
     my @next_state;
     my @digit_to_x;
     my @digit_to_y;
-    my @xy_to_digit;
+    my @yx_to_digit;
     my @min_digit;
     my @max_digit;
 
@@ -205,10 +205,9 @@ sub print_table {
 
           $digit_to_x[$state+$orig_digit] = $xo;
           $digit_to_y[$state+$orig_digit] = $yo;
-          $xy_to_digit[$state + $xo*2+$yo] = $orig_digit;
+          $yx_to_digit[$state + 2*$yo + $xo] = $orig_digit;
 
-          my $next_state = make_state
-            ($new_rot, $new_transpose);
+          my $next_state = make_state ($new_rot, $new_transpose);
           $next_state[$state+$orig_digit] = $next_state;
         }
       }
@@ -223,7 +222,7 @@ sub print_table {
     print_table ("next_state", \@next_state);
     print_table ("digit_to_x", \@digit_to_x);
     print_table ("digit_to_y", \@digit_to_y);
-    # print_table ("xy_to_digit", \@xy_to_digit);
+    print_table ("yx_to_digit", \@yx_to_digit);
     print_table12 ("min_digit", \@min_digit);
     print_table12 ("max_digit", \@max_digit);
 

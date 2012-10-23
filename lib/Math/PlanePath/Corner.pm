@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,10 +39,15 @@ use Math::PlanePath::Base::Generic
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
 
 use Math::PlanePath::SquareSpiral;
 *parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
 
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+
+#------------------------------------------------------------------------------
 
 # same as PyramidSides, just 45 degress around
 

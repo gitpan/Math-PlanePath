@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -66,6 +66,34 @@ use constant parameter_info_array =>
     },
     Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
+
+sub x_maximum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 || $self->{'align'} eq 'left'
+          ? 0    # X=0 vertical, or left X<=0
+          : undef);
+}
+
+
+sub dx_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? 0 : undef);
+}
+sub dx_maximum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          ? 0    # vertical only
+          : 1);  # East
+}
+
+sub dy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? 1 : 0);
+}
+use constant dy_maximum => 1;
+
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,7 +43,12 @@ use Math::PlanePath::KochCurve;
 
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+use constant rsquared_minimum => 1; # minimum X=1,Y=0
 
+use constant dx_maximum => 2;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 # N=1 to 3      3 of, level=0
 # N=4 to 12     9 of, level=1

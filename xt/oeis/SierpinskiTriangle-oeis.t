@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 14;
+plan tests => 16;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -62,47 +62,173 @@ sub diff_nums {
   return undef;
 }
 
-
+sub path_xy_is_visited {
+  my ($path, $x,$y) = @_;
+  return defined($path->xy_to_n($x,$y));
+}
 
 
 #------------------------------------------------------------------------------
-# Dyck coded breath-wise
-#
-# A080268 decimal 2,  56,     968,        249728,             3996680,
-# A080269 binary 10, 111000, 1111001000, 111100111110000000, 1111001111110000001000,
-#                            (( (()) () ))
-#
-# A063171 dyck all words ascending
+# A067771 - number of vertices to order=n ...
+
+# {
+#   my $anum = 'A067771';
+#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+#   my $diff;
+#   if ($bvalues) {
+#     my $path = Math::PlanePath::SierpinskiTriangle->new;
+#     my @got;
+#     my $depth = 0;
+#     my $count = 0;
+#     my $n = $path->n_start;
+#     while (@got < @$bvalues) {
+#       my $next_n_depth = $path->tree_depth_to_n($depth++);
+#       for ( ; $n < $next_n_depth; $n++) {
+#         $count += path_n_is_leaf($path,$n);
+#       }
+#       push @got, $count;
+#       $depth++;
+#     }
+#     $diff = diff_nums(\@got, $bvalues);
+#     if ($diff) {
+#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+#       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+#     }
+#   }
+#   skip (! $bvalues,
+#         $diff,
+#         undef,
+#         "$anum");
+# }
+# 
+# sub path_n_is_leaf {
+#   my ($path, $n) = @_;
+#   my $num_children = $path->tree_n_num_children($n);
+#   return defined($num_children) && $num_children == 0;
+# }
+
+#------------------------------------------------------------------------------
+# A001317 - rows as binary bignums, without the skipped (x^y)&1==1 points of
+# triangular lattice
+{
+  my $anum = 'A001317';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if ($bvalues) {
+    my $path = Math::PlanePath::SierpinskiTriangle->new (align => 'right');
+    my @got;
+    require Math::BigInt;
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      my $b = 0;
+      foreach my $x (0 .. $y) {
+        if (path_xy_is_visited($path,$x,$y)) {
+          $b += Math::BigInt->new(2) ** $x;
+        }
+      }
+      push @got, "$b";
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
+# breadth-first,
+# bit-doubled because each leaf extended to a pair, as described in A080293
 #
 # A080318 decimal
 # A080319 binary
+# A080320 positions in A014486 list of balanced
 #         10,
 #         111000,
 #         11111110000000,
-#         1111111110000110000000,
+#         1111111-11000011-0000000,
 #         11111111100001111111111000000000000000,
 #
-#                                    *   *   *   *
+#                                   . . . . . . . .
+#                   . .     . .      *   *   *   *
 #                                     \ /     \ /
-#                    *  . .  *         *  . .  *  
-#                     \     /           \     /   
-#        *   *         *   *             *   *    
-#         \ /           \ /               \ /     
-#   *      *             *                 *      
+#       . . . .      *  . .  *         *  . .  *
+#                     \     /           \     /
+#        *   *         *   *             *   *
+#  . .    \ /           \ /               \ /
+#   *      *             *                 *
 #
-# A080320 positions in A014486 list of balanced
-# A080270 position in list of all balanced binary A014486
+#
+# 70239893062016
+# 1111111110000111111111111000000000000110000000
+# . .             . .
+#  *               *
+#   \ . . . . . . /
+#    *   *   *   *
+#     \ /     \ /
+#      *  . .  *
+#       \     /
+#        *   *
+#         \ /
+#          *
+#
+# 4603241631720636416
+# 11111111100001111111111110000000000001111111111000000000000000
+#   [9]     [4]     [12]        [12]      [10]      [15]#
+# . . . .         . . . .
+#  *   *           *   *
+#   \ /             \ /
+#    *               *
+#     \ . . . . . . /
+#      *   *   *   *
+#       \ /     \ /
+#        *  . .  *
+#         \     /
+#          *   *
+#           \ /
+#            *
+#
+# 331698516757016399905370236824584576
+# 11111111100001111111111110000000000001111111111110000111100001111111\
+# 11111111111110000000000000000000000000000110000000
+
+
+
+
+{
+  # double-up
+  my ($one) = MyOEIS::read_values('A080268');
+  my ($two) = MyOEIS::read_values('A080318');
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  for (my $i = 0; $i <= $#$one && $i+1 <= $#$two; $i++) {
+    my $o = $one->[$i];
+    my $t = $two->[$i+1];
+    my $ob = Math::BigInt->new("$o")->as_bin;
+    $ob =~ s/^0b//;
+    my $o2 = $ob;
+    $o2 =~ s/(.)/$1$1/g;  # double
+    $o2 = "1".$o2."0";
+    my $tb = Math::BigInt->new("$t")->as_bin;
+    $tb =~ s/^0b//;
+    # print "o  $o\nob $ob\no2 $o2\ntb $tb\n\n";
+    $tb eq $o2 or die "x";
+  }
+}
+
 
 {
   # decimal
-  my $anum = 'A080268';
+  my $anum = 'A080318';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $path = Math::PlanePath::SierpinskiTriangle->new;
   my $diff;
   if ($bvalues) {
     my @got;
-    for (my $depth = 1; @got < @$bvalues; $depth++) {
-      my @bits = dyck_breadth_bits($path, $depth);
+    for (my $depth = 0; @got < @$bvalues; $depth++) {
+      my @bits = nest_breadth_bits($path, $depth);
       push @got, Math::BigInt->new("0b".join('',@bits));
     }
     $diff = diff_nums(\@got, $bvalues);
@@ -118,20 +244,53 @@ sub diff_nums {
 }
 {
   # binary
-  my $anum = 'A080269';
+  my $anum = 'A080319';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $path = Math::PlanePath::SierpinskiTriangle->new;
   my $diff;
+
+  # foreach my $depth (0 .. 11) {
+  #   my @bits = nest_breadth_bits($path, $depth);
+  #   print @bits,"\n";
+  # }
+
   if ($bvalues) {
     my @got;
-    for (my $depth = 1; @got < @$bvalues; $depth++) {
-      my @bits = dyck_breadth_bits($path, $depth);
+    for (my $depth = 0; @got < @$bvalues; $depth++) {
+      my @bits = nest_breadth_bits($path, $depth);
       push @got, join('',@bits);
     }
     $diff = diff_nums(\@got, $bvalues);
     if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..5]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..5]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+{
+  # position in list of all balanced binary (A014486)
+  my $anum = 'A080320';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    require Math::NumSeq::BalancedBinary;
+    require Math::BigInt;
+    my $bal = Math::NumSeq::BalancedBinary->new;
+    my @got;
+    for (my $depth = 0; @got < @$bvalues; $depth++) {
+      my @bits = nest_breadth_bits($path, $depth);
+      my $value = Math::BigInt->new("0b".join('',@bits));
+      push @got, $bal->value_to_i($value);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..9]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..9]));
     }
   }
   skip (! $bvalues,
@@ -141,36 +300,35 @@ sub diff_nums {
 }
 
 # Return a list of 0,1 bits.
-# No-such node = 0.
-# Node = 1,left,right with those children breadth-wise across.
-# Drop very last 0 at end.
 #
-sub dyck_breadth_bits {
+sub nest_breadth_bits {
   my ($path, $limit) = @_;
   my @pending_x = (0);
   my @pending_y = (0);
-  my @ret;
+  my @ret = (1);
+  my $open = 1;
   foreach (1 .. $limit) {
     my @new_x;
     my @new_y;
     foreach my $i (0 .. $#pending_x) {
       my $x = $pending_x[$i];
       my $y = $pending_y[$i];
-      if (defined($path->xy_to_n($x,$y))) {
-        push @ret, 1;
+      if (path_xy_is_visited($path,$x,$y)) {
+        push @ret, 1,1;
+        $open += 2;
         push @new_x, $x-1;
         push @new_y, $y+1;
         push @new_x, $x+1;
         push @new_y, $y+1;
       } else {
-        push @ret, 0;
+        push @ret, 0,0;
+        $open -= 2;
       }
     }
     @pending_x = @new_x;
     @pending_y = @new_y;
   }
-  push @ret, (0) x (scalar(@pending_x)-1);
-  return @ret;
+  return @ret, ((0) x $open);
 }
 
 #------------------------------------------------------------------------------
@@ -191,8 +349,6 @@ sub dyck_breadth_bits {
 #  10,  110010,   1110001010,    111100100010110010
 #       (())()
 #      [(())()]
-#
-# cf A080265 position in list of all balanced binary A014486
 
 {
   # binary
@@ -208,8 +364,35 @@ sub dyck_breadth_bits {
     }
     $diff = diff_nums(\@got, $bvalues);
     if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..4]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..4]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+{
+  # position in list of all balanced binary (A014486)
+  my $anum = 'A080265';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    require Math::NumSeq::BalancedBinary;
+    require Math::BigInt;
+    my $bal = Math::NumSeq::BalancedBinary->new;
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = dyck_tree_bits($path, 0,0, $depth);
+      my $value = Math::BigInt->new("0b".join('',@bits));
+      push @got, $bal->value_to_i($value);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..11]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..11]));
     }
   }
   skip (! $bvalues,
@@ -256,18 +439,146 @@ sub dyck_tree_bits_z {
   my ($path, $x,$y, $limit) = @_;
   if ($limit > 0 && path_xy_is_visited($path,$x,$y)) {
     return (1,
-            dyck_tree_bits_z($path, $x-1,$y+1, $limit-1),
-            dyck_tree_bits_z($path, $x+1,$y+1, $limit-1));
+            dyck_tree_bits_z($path, $x-1,$y+1, $limit-1),  # left
+            dyck_tree_bits_z($path, $x+1,$y+1, $limit-1)); # right
   } else {
     return (0);
   }
 }
-sub path_xy_is_visited {
-  my ($path, $x,$y) = @_;
-  return defined($path->xy_to_n($x,$y));
+
+# Doesn't distinguish left and right.
+# sub parens_bits_z {
+#   my ($path, $x,$y, $limit) = @_;
+#   if ($limit > 0 && path_xy_is_visited($path,$x,$y)) {
+#     return (1,
+#             parens_bits_z($path, $x-1,$y+1, $limit-1),  # left
+#             parens_bits_z($path, $x+1,$y+1, $limit-1),  # right
+#             0);
+#   } else {
+#     return ();
+#   }
+# }
+
+#------------------------------------------------------------------------------
+# breath-wise "level-order"
+#
+# A080268 decimal 2,  56,     968,        249728,             3996680,
+# A080269 binary 10, 111000, 1111001000, 111100111110000000, 1111001111110000001000,
+#                            (( (()) () ))
+#
+# 111100111111000000111111001100111111111000000000000000
+#
+# cf A057118 permute depth<->breadth
+#
+
+{
+  # position in list of all balanced binary (A014486)
+  my $anum = 'A080270';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    require Math::NumSeq::BalancedBinary;
+    require Math::BigInt;
+    my $bal = Math::NumSeq::BalancedBinary->new;
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = level_order_bits($path, $depth);
+      my $value = Math::BigInt->new("0b".join('',@bits));
+      push @got, $bal->value_to_i($value);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
 }
 
+{
+  # decimal
+  my $anum = 'A080268';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = level_order_bits($path, $depth);
+      push @got, Math::BigInt->new("0b".join('',@bits));
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
+{
+  # binary
+  my $anum = 'A080269';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  my $diff;
+  if ($bvalues) {
+    my @got;
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my @bits = level_order_bits($path, $depth);
+      push @got, join('',@bits);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..5]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..5]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum by path");
+}
 
+# Return a list of 0,1 bits.
+# No-such node = 0.
+# Node = 1.
+# Nodes descend to left,right breadth-wise in next level.
+# Drop very last 0 at end.
+#
+sub level_order_bits {
+  my ($path, $limit) = @_;
+  my @pending_x = (0);
+  my @pending_y = (0);
+  my @ret;
+  foreach (1 .. $limit) {
+    my @new_x;
+    my @new_y;
+    foreach my $i (0 .. $#pending_x) {
+      my $x = $pending_x[$i];
+      my $y = $pending_y[$i];
+      if (path_xy_is_visited($path,$x,$y)) {
+        push @ret, 1;
+        push @new_x, $x-1;
+        push @new_y, $y+1;
+        push @new_x, $x+1;
+        push @new_y, $y+1;
+      } else {
+        push @ret, 0;
+      }
+    }
+    @pending_x = @new_x;
+    @pending_y = @new_y;
+  }
+  push @ret, (0) x (scalar(@pending_x)-1);
+  return @ret;
+}
 
 #------------------------------------------------------------------------------
 # A106344 - by dX=-3,dY=+1 slopes upwards
@@ -600,7 +911,7 @@ sub binomial_mod2 {
       my $x = 0;
       my $y = 0;
       foreach my $n (1 .. @$bvalues) {
-        push @got, (defined($path->xy_to_n($x,$y)) ? 1 : 0);
+        push @got, (path_xy_is_visited($path,$x,$y) ? 1 : 0);
         $x += 2;
         if ($x > $y) {
           $y++;
@@ -621,7 +932,7 @@ sub binomial_mod2 {
       my $x = 0;
       my $y = 0;
       foreach my $n (1 .. @$bvalues) {
-        push @got, (defined($path->xy_to_n($x,$y)) ? 1 : 0);
+        push @got, (path_xy_is_visited($path,$x,$y) ? 1 : 0);
         $x++;
         if ($x > $y) {
           $y++;
@@ -650,7 +961,7 @@ sub binomial_mod2 {
       my $x = 0;
       my $y = 0;
       foreach my $n (1 .. @$bvalues) {
-        push @got, (defined($path->xy_to_n($x,$y)) ? 1 : 0);
+        push @got, (path_xy_is_visited($path,$x,$y) ? 1 : 0);
         $x++;
         if ($x > $y) {
           $y++;
@@ -663,37 +974,6 @@ sub binomial_mod2 {
           undef,
           "$anum");
   }
-}
-
-#------------------------------------------------------------------------------
-# A001317 - rows as binary bignums, without the skipped (x^y)&1==1 points of
-# triangular lattice
-{
-  my $anum = 'A001317';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::SierpinskiTriangle->new;
-    my @got;
-    require Math::BigInt;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      my $b = 0;
-      foreach my $i (0 .. $y) {
-        my $x = $y-2*$i;
-        if (defined ($path->xy_to_n($x,$y))) {
-          $b += Math::BigInt->new(2) ** $i;
-        }
-      }
-      push @got, "$b";
-      $y++;
-    }
-    ### @got
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
 }
 
 #------------------------------------------------------------------------------

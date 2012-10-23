@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -692,6 +692,9 @@ sub characteristic_non_decreasing {
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
 }
 # { package Math::PlanePath::RationalsTree;
+#   HCS turn left close to A010059 thue-morse or A092436
+#            right A010060
+#            lsr  A106400
 # }
 # { package Math::PlanePath::FractionsTree;
 # }

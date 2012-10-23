@@ -2,9 +2,12 @@
 # order within 3/4 form ?
 # name 3/4 form
 #
+# default parts=1 ?
+#
 # 3/4 as 3 of 4 quads without rotate ?
 #
 # 3/4 half toothpick transpose to 2nd quad the different orientation
+
 
 
 # Copyright 2012 Kevin Ryde
@@ -37,7 +40,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -52,18 +55,15 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 use constant default_n_start => 1;
-use constant class_x_negative => 1;
-use constant class_y_negative => 1;
-
-use constant parameter_info_array =>
-  [ { name      => 'parts',
-      share_key => 'parts_a321',
-      display   => 'Parts',
-      type      => 'enum',
-      default   => 'all',
-      choices   => ['all','3/4','half','quarter'],
-    },
-  ];
+# use constant parameter_info_array =>
+#   [ { name      => 'parts',
+#       share_key => 'parts_a321',
+#       display   => 'Parts',
+#       type      => 'enum',
+#       default   => 'all',
+#       choices   => ['all','3/4','half','quarter'],
+#     },
+#   ];
 
 sub x_negative {
   my ($self) = @_;
@@ -224,7 +224,7 @@ sub y_negative {
 
 sub new {
   my $self = shift->SUPER::new(@_);
-  $self->{'parts'} ||= 'all';
+  $self->{'parts'} ||= 'quarter';
   return $self;
 }
 

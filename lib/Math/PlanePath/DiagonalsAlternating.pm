@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,6 +35,14 @@ use constant parameter_info_array =>
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -110,8 +118,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
 
-  $x -= $self->{'x_start'};
-  $y -= $self->{'y_start'};
+  $x = $x - $self->{'x_start'};   # "-" operator to provoke warning if x==undef
+  $y = $y - $self->{'y_start'};
   $x = round_nearest ($x);
   $y = round_nearest ($y);
   if ($x < 0 || $y < 0) {

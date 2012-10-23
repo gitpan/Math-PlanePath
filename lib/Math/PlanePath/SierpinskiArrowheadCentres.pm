@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -55,6 +55,19 @@ use Math::PlanePath::SierpinskiArrowhead;
 use constant n_start => 0;
 use constant class_y_negative => 0;
 *x_negative = \&Math::PlanePath::SierpinskiArrowhead::x_negative;
+
+sub dx_minimum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'triangular' ? -2 : -1);
+}
+sub dx_maximum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'triangular' ? 2 : 1);
+}
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 # States as multiples of 3 so that state+digit is the lookup for next state
 # and x,y bit.

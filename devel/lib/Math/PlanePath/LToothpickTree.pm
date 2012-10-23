@@ -19,6 +19,7 @@
 # math-image --wx --path=LToothpickTree --values=LinesTree --scale=10 --figure=toothpick_L
 
 # A172310
+# L-toothpic A172310 A172311 A172312 A172313
 
 
 package Math::PlanePath::LToothpickTree;             
@@ -29,7 +30,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

@@ -42,7 +42,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,15 +56,9 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
-use constant n_start => 1;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
-
-sub new {
-  my $self = shift->SUPER::new (@_);
-  $self->{'base'} = max (2, $self->{'base'}||0); # default and minimum 2
-  return $self;
-}
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
 
 #   4  |  12   20   32   52   84  136  220  356  576  932 1508
 #   3  |   9   15   24   39   63  102  165  267  432  699 1131

@@ -33,6 +33,59 @@ use Math::ContinuedFraction;
 
 
 {
+  # HCS runs
+  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+  my ($x,$y) = $path->n_to_xy(0b10000001001001000);
+  #                             \-----/\-/\-/\--/
+  #                                7    3  3  4
+  #  is [6, 3, 3, 5]
+
+  ($x,$y) = $path->n_to_xy(0b11000001);
+  #                          |\----/|
+  #                          1   6  1
+  #  is [0, 6, 2]
+
+  my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
+  my $cfrac_str = $cfrac->to_ascii;
+  say $cfrac_str;
+  exit 0;
+}
+
+{
+  # A072726 numerator of rationals >= 1 with continued fractions even terms
+  # A072727 denominator
+
+  # A072728 numerator of rationals >= 1 with continued fraction terms 1,2 only
+  # A072729 denominator
+
+  require Math::NumSeq::OEIS;
+  require Math::PlanePath::RationalsTree;
+  my $num = Math::NumSeq::OEIS->new (anum => 'A072726');
+  my $den = Math::NumSeq::OEIS->new (anum => 'A072727');
+  my $tree_types = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  my @paths = map { Math::PlanePath::RationalsTree->new (tree_type => $_) }
+    @$tree_types;
+  print "    ",join('   ',@$tree_types),"\n";
+
+  foreach (1 .. 120) {
+    (undef, my $x) = $num->next;
+    (undef, my $y) = $den->next;
+    print "$x/$y";
+    foreach my $path (@paths) {
+      print "  ";
+      my $n = $path->xy_to_n($x,$y);
+      if (! defined $n) {
+        print "undef";
+        next;
+      }
+      printf '%b', $n;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   # L-tree OFFSET=0 for 0/1
   #                  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
   # A174981(n)   num 0, 1, 1, 2, 3, 1, 2, 3, 5, 2, 5, 3, 4, 1, 3,
@@ -258,7 +311,7 @@ use Math::ContinuedFraction;
   # ###                   '1'
   # ###                 ]
 
-  # CS
+  # HCS
   # 49/22
   # 27/22  X
   # 5/22   X
@@ -295,7 +348,7 @@ use Math::ContinuedFraction;
   # 5/2 4/3 5/3 1/4 2/5 3/4 3/5  4    1000 .. 1111     SB 1/4 .. 4/1
 
   # CW: 224 11100000  3/16  [0, 5, 3]
-  # CS: 194   3.0000, 16.0000   194  1_4096  0.000,1.000(1.0000) c=388,389
+  # HCS: 194   3.0000, 16.0000   194  1_4096  0.000,1.000(1.0000) c=388,389
   # 194 = binary 11000010
   #              0 5   3
   # 1.1.0.0.0.0.1.0. = .1.....1.. = 1,5,2 -> 0,5,3 = 0+1/(5+1/3) = 3/16

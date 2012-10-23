@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 90;
+$VERSION = 91;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -29,7 +29,8 @@ use Exporter;
 
               # not documented yet
               'is_infinite',
-              'floor');
+              'floor',
+              'xy_is_visited_even');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -75,6 +76,7 @@ sub round_nearest {
 # returns, so floor() in fact increases the value of what was an integer
 # already.
 #
+# not documented yet
 sub floor {
   my ($x) = @_;
   ### floor(): "$x", $x
@@ -94,6 +96,7 @@ sub floor {
   }
 }
 
+# not documented yet
 use constant 1.02 _parameter_info_nstart1 => { name        => 'n_start',
                                                share_key   => 'n_start_1',
                                                type        => 'integer',
@@ -101,6 +104,26 @@ use constant 1.02 _parameter_info_nstart1 => { name        => 'n_start',
                                                width       => 3,
                                                description => 'Starting N.',
                                              };
+
+# not documented yet
+sub xy_is_visited_quad1 {
+  my ($self, $x, $y) = @_;
+  return ! (2*$x < -1 || 2*$y < -1);
+}
+# not documented yet
+sub xy_is_visited_quad12 {
+  my ($self, $x, $y) = @_;
+  return ! (2*$y < -1);
+}
+# not documented yet
+sub xy_is_visited_quad14 {
+  my ($self, $x, $y) = @_;
+  return ! (2*$x < -1);
+}
+sub xy_is_visited_even {
+  my ($self, $x, $y) = @_;
+  return (((round_nearest($x) + round_nearest($y)) % 2) == 0);
+}
 
 1;
 __END__
@@ -129,7 +152,7 @@ some special support for C<Math::BigInt>.
 Nothing is exported by default but each function below can be as in the
 usual L<Exporter> style,
 
-    use Math::PlanePath::Base::Generic 'round_down_pow';
+    use Math::PlanePath::Base::Generic 'round_nearest';
 
 =head1 FUNCTIONS
 

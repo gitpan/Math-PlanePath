@@ -30,6 +30,7 @@ use MyOEIS;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
 # use POSIX ();
 # use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
 # use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
@@ -103,9 +104,10 @@ sub check_class {
   ### $parameters
 
   my %parameters = @$parameters;
-  # return unless $class =~ /PlanePathN/;
-  return unless $parameters{'planepath'} =~ /Chan/;
-  # return unless $anum =~ 'A076938';
+  return unless $class =~ /PlanePathN/;
+  return unless $parameters{'planepath'} =~ /ToothpickTree/;
+  #return unless $parameters{'planepath'} =~ /LCorner/;
+  # return unless $anum =~ 'A147562';
   # return unless $anum eq 'A067251';
   # return unless $anum =~ /A0039/;
 

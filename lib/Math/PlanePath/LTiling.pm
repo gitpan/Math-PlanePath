@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -58,6 +58,15 @@ use constant parameter_info_array =>
       description     => 'Which points to number with each "L".',
     },
   ];
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ($self->{'L_fill'} eq 'middle' || $self->{'L_fill'} eq 'all'
+          ? 0    # X=0,Y=0
+          : 1);  # X=1,Y=0 or X=0,Y=1 for ends,left,upper
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

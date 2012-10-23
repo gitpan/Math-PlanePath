@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 435)[1];
+my $test_count = (tests => 437)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -262,6 +262,7 @@ my @modules = (
 
                'RationalsTree',
                'RationalsTree,tree_type=L',
+               'RationalsTree,tree_type=HCS',
                'FractionsTree',
 
                'DekkingCurve',

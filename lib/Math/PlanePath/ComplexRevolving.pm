@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,6 +43,7 @@ use Math::PlanePath::Base::Digits
 
 
 use constant n_start => 0;
+use constant xy_is_visited => 1;
 
 # b=i+1
 # X+iY = b^e0 + i*b^e1 + ... + i^t * b^et

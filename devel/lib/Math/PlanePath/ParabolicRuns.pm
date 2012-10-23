@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -38,7 +38,6 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
-use constant n_start => 1;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 

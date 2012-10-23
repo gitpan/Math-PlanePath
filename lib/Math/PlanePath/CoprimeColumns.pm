@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,6 +40,13 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 
+use constant x_minimum => 1;
+use constant y_minimum => 1;
+
+use constant dx_minimum => 0;
+use constant dx_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 # shared with DiagonalRationals
 @_x_to_n = (0,0,1);
@@ -123,6 +130,19 @@ sub n_to_xy {
       return;
     }
   }
+}
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if ($x < 1
+      || $y < 1
+      || $y >= $x+($x==1)
+      || ! _coprime($x,$y)) {
+    return 0;
+  }
+  return 1;
 }
 
 sub xy_to_n {

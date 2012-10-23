@@ -36,7 +36,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 90;
+$VERSION = 91;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -94,6 +94,104 @@ sub x_negative {
   return ($self->{'step'} > 0);
 }
 *y_negative = \&x_negative;
+
+
+# step <= 6
+# R=base_r+d
+# theta = 2*$n * $pi / ($d * $step)
+#       = 2pi/(d*step)
+# dX -> R*sin(theta)
+#    -> R*theta
+#     = (base_r+d)*2pi/(d*step)
+#    -> 2pi/step
+#
+# step=5 across first ring
+# N=6 at X=base_r+2, Y=0
+# N=5 at R=base_r+1 theta = 2pi/5
+#   X=(base_r+1)*cos(theta)
+#   dX = base_r+2 - (base_r+1)*cos(theta)
+#
+# step=6 across first ring
+# base_r = 0.5/sin(_PI/6) - 1
+#        = 0.5/0.5 - 1
+#        = 0
+# N=7 at X=base_r+2, Y=0
+# N=6 at R=base_r+1 theta = 2pi/6
+#   X=(base_r+1)*cos(theta)
+#   dX = base_r+2 - (base_r+1)*cos(theta)
+#      = base_r+2 - (base_r+1)*0.5
+#      = 1.5*base_r + 1.5
+#      = 1.5
+#
+# step > 6
+# R = 0.5 / sin($pi / ($d*$step))
+# diff = 0.5 / sin($pi / ($d*$step)) - 0.5 / sin($pi / (($d-1)*$step))
+#     -> 0.5 / ($pi / ($d*$step)) - 0.5 / ($pi / (($d-1)*$step))
+#      = 0.5 * ($d*$step) / $pi - 0.5 * (($d-1)*$step) / $pi
+#      = step*0.5/pi * ($d - ($d-1))
+#      = step*0.5/pi
+# and extra from N=step to N=step+1
+#     * (1-cos(2pi/step))
+#
+sub dx_minimum {
+  my ($self) = @_;
+  if ($self->{'step'} == 0) {
+    return 1;   # horizontal only
+  }
+
+  if ($self->{'step'} >= 6) {
+    return -1; # supremum, unless polygon and step even
+  }
+  if ($self->{'ring_shape'} eq 'polygon'
+      && $self->{'step'} >= 3) {
+    # step=3,4,5
+    return (-2*_PI()) / $self->{'step'};  # FIXME
+  } else {
+    return (-2*_PI()) / $self->{'step'};
+  }
+}
+
+sub dx_maximum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          ? 1   # horizontal only
+
+          : $self->{'step'} == 5
+          ? $self->{'base_r'}+2 - ($self->{'base_r'}+1)*cos(2*_PI()/5)
+
+          : $self->{'step'} == 6
+          ? 1.5
+
+          : $self->{'step'} <= 6
+          ? (2*_PI()) / $self->{'step'}
+
+          # step > 6, between rings
+          : (0.5/_PI()) * $self->{'step'}
+          * (2-cos(2*_PI()/$self->{'step'})));
+}
+
+sub dy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          ? 0    # horizontal only
+
+          : $self->{'step'} <= 6
+          ? (-8*atan2(1,1)) / $self->{'step'}
+
+          : -1); # supremum
+}
+sub dy_maximum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          ? 0    # horizontal only
+
+          : $self->{'step'} <= 6
+          ? (8*atan2(1,1)) / $self->{'step'}
+
+          : 1); # supremum
+}
+
+#------------------------------------------------------------------------------
 
 # v1.02 for leading underscore
 # this used in PlanePathDelta.pm too

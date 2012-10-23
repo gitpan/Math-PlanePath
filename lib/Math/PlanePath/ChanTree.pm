@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -87,6 +87,19 @@ use constant parameter_info_array =>
       description     => 'Starting N.',
     }
   ];
+
+use constant x_minimum => 1;
+use constant y_minimum => 1;
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ($self->{'k'} == 2
+          || ($self->{'reduced'} && ($self->{'k'} & 1) == 0)
+          ? 2    # X=1,Y=1 reduced k even, or k=2 top 1/1
+          : 5);  # X=1,Y=2
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;
@@ -651,13 +664,19 @@ sub tree_n_parent {
 sub tree_n_to_depth {
   my ($self, $n) = @_;
   ### ChanTree tree_n_to_depth(): $n
-  $n -= $self->{'n_start'}-1;
-  if ($n >= 1) {
-    my ($len, $level) = round_down_pow ($n, $self->{'k'});
-    return $level;     # floor(log base k (N-Nstart+1))
-  } else {
+  $n = $n - $self->{'n_start'} + 1;
+  unless ($n >= 1) {
     return undef;
   }
+  my ($len, $level) = round_down_pow ($n, $self->{'k'});
+  return $level;     # floor(log base k (N-Nstart+1))
+}
+sub tree_depth_to_n {
+  my ($self, $depth) = @_;
+  unless ($depth >= 0) {
+    return undef;
+  }
+  return $self->{'k'} ** $depth + ($self->{'n_start'}-1);
 }
 
 1;
@@ -881,6 +900,13 @@ because it's a top node or before C<n_start()>.
 
 Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
 tree tops are depth=0, then their children depth=1, etc.
+
+=item C<$n = $path-E<gt>tree_depth_to_n($depth)>
+
+=item C<$n = $path-E<gt>tree_depth_to_n_end($depth)>
+
+Return the first or last N at tree level C<$depth> in the path.  The top of
+the tree is depth=0.
 
 =back
 

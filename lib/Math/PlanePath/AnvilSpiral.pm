@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,11 +40,19 @@ use Math::PlanePath::Base::Generic
 # Np = (3k-1)*k/2 - 1
 #    = (3k^2 - k - 2)/2
 #    = (3k+2)(k-1)/2
-#      
+#
 
 
 use Math::PlanePath::SquareSpiral;
 *parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
+use constant xy_is_visited => 1;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new (@_);

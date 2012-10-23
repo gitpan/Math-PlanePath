@@ -17,6 +17,13 @@
 
 
 # Maybe:
+#
+# Xor for pattern
+#   cf A003987  X>=0 xor Y>=0 by anti-diagonals
+#      A051775,A051776  gf(2) product
+#      A003986  bitor
+#      A004198  bitand
+#
 # NumOverlap       xy_to_n_list()  n_overlap_list()  n_num_overlap()
 # NumSurround
 # NumSurround4     NSEW
@@ -36,6 +43,12 @@
 # LCM
 # Theta360 angle matching Radius,RSquared
 # Ttheta360 angle matching TRadius,TRSquared
+#
+# A003987 X xor Y by anti-diagonals   A051776 x,y>=1
+# A006582 X xor Y diagonal totals
+# A003986 X bitor Y     A006583 diagonal totals
+# A004198 X bitand Y
+# A051775 X multiply Y GF(2)
 
 package Math::NumSeq::PlanePathCoord;
 use 5.004;
@@ -44,7 +57,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -185,7 +198,10 @@ sub oeis_anum {
   if (defined (my $values_min = $self->values_min)) {
     if (defined (my $values_max = $self->values_max)) {
       if ($values_min == 0 && $values_max == 0) {
-        return 'A000004';
+        return 'A000004';  # all 0s
+      }
+      if ($values_min == 2 && $values_max == 2) {
+        return 'A007395';  # all 2s
       }
     }
   }
@@ -489,6 +505,24 @@ sub _coordinate_func_GCD {
   return Math::PlanePath::GcdRationals::_gcd($x,$y);
 }
 
+sub _coordinate_func_Xor {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+
+  my $neg = 0;
+  if ($x < 0) {
+    $x = -1-$x;
+    $neg = 1;
+  }
+  if ($y < 0) {
+    $y = -1-$y;
+    $neg ^= 1;
+  }
+  my $ret = $x ^ $y;
+  return ($neg ? $ret : $ret);
+}
+
 
 #------------------------------------------------------------------------------
 
@@ -556,24 +590,34 @@ sub characteristic_non_decreasing {
   return $self->characteristic_increasing;
 }
 
-sub values_min {
-  my ($self) = @_;
-  ### PlanePathCoord values_min(): "_NumSeq_Coord_$self->{'coordinate_type'}_min"
-  ### func: $self->{'planepath_object'}->can("_NumSeq_Coord_$self->{'coordinate_type'}_min")
-
-  my $planepath_object = $self->{'planepath_object'};
-  my $func;
-  return (($func = $planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_min"))
-          ? $planepath_object->$func()
-          : undef);
+{
+  my %values_min = (X        => 'x_minimum',
+                    Y        => 'y_minimum',
+                    RSquared => 'rsquared_minimum',
+                   );
+  sub values_min {
+    my ($self) = @_;
+    my $planepath_object = $self->{'planepath_object'};
+    if (my $method = ($values_min{$self->{'coordinate_type'}}
+                      || $planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_min"))) {
+      return $planepath_object->$method();
+    }
+    return undef;
+  }
 }
-sub values_max {
-  my ($self) = @_;
-  my $planepath_object = $self->{'planepath_object'};
-  my $func;
-  return (($func = $planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_max"))
-          ? $planepath_object->$func()
-          : undef);
+{
+  my %values_max = (X => 'x_maximum',
+                    Y => 'y_maximum',
+                   );
+  sub values_max {
+    my ($self) = @_;
+    my $planepath_object = $self->{'planepath_object'};
+    if (my $method = ($values_max{$self->{'coordinate_type'}}
+                      || $planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_max"))) {
+      return $planepath_object->$method();
+    }
+    return undef;
+  }
 }
 
 { package Math::PlanePath;
@@ -595,18 +639,6 @@ sub values_max {
   use constant _NumSeq_Coord_GCD_integer => 1;
   use constant _NumSeq_Coord_oeis_anum => {};
 
-  sub _NumSeq_Coord_X_min {
-    my ($self) = @_;
-    return ($self->x_negative ? undef : 0);
-  }
-  sub _NumSeq_Coord_Y_min {
-    my ($self) = @_;
-    ### _NumSeq_Coord_Y_min() y_negative: $self->y_negative
-    return ($self->y_negative ? undef : 0);
-  }
-  use constant _NumSeq_Coord_X_max => undef;
-  use constant _NumSeq_Coord_Y_max => undef;
-
   use constant _NumSeq_Coord_X_integer => 1;  # usually
   use constant _NumSeq_Coord_Y_integer => 1;
   sub _NumSeq_Coord_Sum_integer {
@@ -626,62 +658,62 @@ sub values_max {
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
     ### _NumSeq_Coord_Sum_min() ...
-    if (defined (my $x_min = $self->_NumSeq_Coord_X_min)
-        && defined (my $y_min = $self->_NumSeq_Coord_Y_min)) {
-      return $x_min + $y_min;
+    if (defined (my $x_minimum = $self->x_minimum)
+        && defined (my $y_minimum = $self->y_minimum)) {
+      return $x_minimum + $y_minimum;
     } else {
       return undef;
     }
   }
   sub _NumSeq_Coord_SumAbs_min {
     my ($self) = @_;
-    my $x_min = $self->_NumSeq_Coord_X_min || 0;
-    if ($x_min < 0) { $x_min = 0; }
-    my $y_min = $self->_NumSeq_Coord_Y_min || 0;
-    if ($y_min < 0) { $y_min = 0; }
-    return abs($x_min) + abs($y_min);
+    my $x_minimum = $self->x_minimum || 0;
+    if ($x_minimum < 0) { $x_minimum = 0; }
+    my $y_minimum = $self->y_minimum || 0;
+    if ($y_minimum < 0) { $y_minimum = 0; }
+    return abs($x_minimum) + abs($y_minimum);
   }
 
   sub _NumSeq_Coord_Product_min {
     my ($self) = @_;
-    my ($x_min, $y_min);
-    if (defined ($x_min = $self->_NumSeq_Coord_X_min)
-        && defined ($y_min = $self->_NumSeq_Coord_Y_min)
-        && $x_min >= 0
-        && $y_min >= 0) {
-      return $x_min * $y_min;
+    my ($x_minimum, $y_minimum);
+    if (defined ($x_minimum = $self->x_minimum)
+        && defined ($y_minimum = $self->y_minimum)
+        && $x_minimum >= 0
+        && $y_minimum >= 0) {
+      return $x_minimum * $y_minimum;
     }
     return undef;
   }
   sub _NumSeq_Coord_Product_max {
     my ($self) = @_;
-    my ($x_max, $y_min);
-    ### X_max: $self->_NumSeq_Coord_X_max
-    ### Y_min: $self->_NumSeq_Coord_Y_min
-    if (defined ($x_max = $self->_NumSeq_Coord_X_max)
-        && defined ($y_min = $self->_NumSeq_Coord_Y_min)
+    my ($x_max, $y_minimum);
+    ### X_max: $self->x_maximum
+    ### Y_min: $self->y_minimum
+    if (defined ($x_max = $self->x_maximum)
+        && defined ($y_minimum = $self->y_minimum)
         && $x_max <= 0
-        && $y_min >= 0) {
+        && $y_minimum >= 0) {
       # X all negative, Y all positive
-      return $y_min * $x_max;
+      return $y_minimum * $x_max;
     }
     return undef;
   }
 
   sub _NumSeq_Coord_DiffXY_min {
     my ($self) = @_;
-    if (defined (my $y_max = $self->_NumSeq_Coord_Y_max)
-        && defined (my $x_min = $self->_NumSeq_Coord_X_min)) {
-      return $x_min - $y_max;
+    if (defined (my $y_maximum = $self->y_maximum)
+        && defined (my $x_minimum = $self->x_minimum)) {
+      return $x_minimum - $y_maximum;
     } else {
       return undef;
     }
   }
   sub _NumSeq_Coord_DiffXY_max {
     my ($self) = @_;
-    if (defined (my $y_min = $self->_NumSeq_Coord_Y_min)
-        && defined (my $x_max = $self->_NumSeq_Coord_X_max)) {
-      return $x_max - $y_min;
+    if (defined (my $y_minimum = $self->y_minimum)
+        && defined (my $x_max = $self->x_maximum)) {
+      return $x_max - $y_minimum;
     } else {
       return undef;
     }
@@ -730,16 +762,7 @@ sub values_max {
 
   sub _NumSeq_Coord_Radius_min {
     my ($path) = @_;
-    return sqrt($path->_NumSeq_Coord_RSquared_min);
-  }
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    if (defined (my $x_min = $self->_NumSeq_Coord_X_min)
-        && defined (my $y_min = $self->_NumSeq_Coord_Y_min)) {
-      return ($x_min*$x_min + $y_min*$y_min);
-    } else {
-      return 0; # _coordinate_func_RSquared($self->n_to_xy($self->n_start));
-    }
+    return sqrt($path->rsquared_minimum);
   }
   # Radius and RSquare max normally infinite
   # sub _NumSeq_Coord_Radius_max {
@@ -758,9 +781,9 @@ sub values_max {
   }
   sub _NumSeq_Coord_TRSquared_min {
     my ($self) = @_;
-    if (defined (my $x_min = $self->_NumSeq_Coord_X_min)
-        && defined (my $y_min = $self->_NumSeq_Coord_Y_min)) {
-      return $x_min*$x_min + 3*$y_min*$y_min;
+    if (defined (my $x_minimum = $self->x_minimum)
+        && defined (my $y_minimum = $self->y_minimum)) {
+      return $x_minimum*$x_minimum + 3*$y_minimum*$y_minimum;
     } else {
       return 0; # _coordinate_func_TRSquared($self->n_to_xy($self->n_start));
     }
@@ -853,16 +876,9 @@ sub values_max {
 # { package Math::PlanePath::PentSpiralSkewed;
 # }
 { package Math::PlanePath::HexSpiral;
-  sub _NumSeq_Coord_AbsDiff_min {
-    my ($self) = @_;
-    return ($self->{'wider'} % 2
-            ? 1   # odd "wider" excludes X=Y
-            : 0); # even "wider" includes X=Y
-  }
-  *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_AbsDiff_min;
-  # minimum 1 at X=1,Y=0 when wider odd
-  *_NumSeq_Coord_RSquared_min = \&_NumSeq_Coord_AbsDiff_min;
-  *_NumSeq_Coord_TRSquared_min = \&_NumSeq_Coord_AbsDiff_min;
+  *_NumSeq_Coord_SumAbs_min = \&rsquared_minimum;
+  *_NumSeq_Coord_AbsDiff_min = \&rsquared_minimum;
+  *_NumSeq_Coord_TRSquared_min = \&rsquared_minimum;
   sub _NumSeq_Coord_GCD_min {
     my ($self) = @_;
     return $self->{'wider'} & 1;  # 1 if 0,0 not visited
@@ -915,11 +931,6 @@ sub values_max {
     # starting N=1 at R=radius_factor*sqrt(1), theta=something
     return $self->{'radius_factor'};
   }
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    # starting N=1 at R=radius_factor*sqrt(1), theta=something
-    return $self->{'radius_factor'} ** 2;
-  }
   sub _NumSeq_Coord_TRSquared_min {
     my ($self) = @_;
     # starting N=1 at R=radius_factor*sqrt(1), theta=something
@@ -969,7 +980,7 @@ sub values_max {
 { package Math::PlanePath::MultipleRings;
   sub _NumSeq_Coord_Radius_min {
     my ($self) = @_;
-    ### MultipleRings _NumSeq_Coord_RSquared_min() ...
+    ### MultipleRings _NumSeq_Coord_Radius_min() ...
     my $step = $self->{'step'};
     if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
       return $self->{'base_r'};
@@ -981,7 +992,7 @@ sub values_max {
             : $self->{'base_r'} + 1);
   }
   *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_Radius_min;
-  sub _NumSeq_Coord_RSquared_min {
+  sub rsquared_minimum {
     my ($self) = @_;
     return $self->_NumSeq_Coord_Radius_min ** 2;
   }
@@ -991,7 +1002,7 @@ sub values_max {
   }
   sub _NumSeq_Coord_TRSquared_min {
     my ($self) = @_;
-    return $self->_NumSeq_Coord_RSquared_min;
+    return $self->rsquared_minimum;
   }
 
   sub _NumSeq_Coord_X_increasing {
@@ -1083,39 +1094,21 @@ sub values_max {
             ? 1     # odd, line X=Y not included
             : 0);   # even,all includes X=Y
   }
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    return ($self->{'points'} eq 'odd'
-            ? 1     # odd at X=1,Y=0
-            : 0);   # even,all at X=0,Y=0
-  }
-  *_NumSeq_Coord_TRSquared_min = \&_NumSeq_Coord_RSquared_min;
-  *_NumSeq_Coord_GCD_min       = \&_NumSeq_Coord_RSquared_min;
+  *_NumSeq_Coord_TRSquared_min = \&rsquared_minimum;
+  *_NumSeq_Coord_GCD_min       = \&rsquared_minimum;
 
   # in order of radius so monotonic, but always have 4x duplicates or more
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
 }
 { package Math::PlanePath::HypotOctant;
-  sub _NumSeq_Coord_X_min {
-    my ($self) = @_;
-    return ($self->{'points'} eq 'odd'
-            ? 1    # odd, line X=Y not included
-            : 0);  # octant Y<=X so X-Y>=0
-  }
-  *_NumSeq_Coord_Sum_min = \&_NumSeq_Coord_X_min;
-  *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_X_min;
-  *_NumSeq_Coord_DiffXY_min = \&_NumSeq_Coord_X_min;
-  *_NumSeq_Coord_AbsDiff_min = \&_NumSeq_Coord_X_min;
+  *_NumSeq_Coord_Sum_min = \&x_minimum;
+  *_NumSeq_Coord_SumAbs_min = \&x_minimum;
+  *_NumSeq_Coord_DiffXY_min = \&x_minimum;
+  *_NumSeq_Coord_AbsDiff_min = \&x_minimum;
   use constant _NumSeq_Coord_Int_min => 1;  # triangular X>=Y so X/Y >= 1
 
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    return ($self->{'points'} eq 'odd'
-            ? 1     # odd at X=1,Y=0
-            : 0);   # even,all at X=0,Y=0
-  }
-  *_NumSeq_Coord_TRSquared_min = \&_NumSeq_Coord_RSquared_min;
-  *_NumSeq_Coord_GCD_min       = \&_NumSeq_Coord_RSquared_min;
+  *_NumSeq_Coord_TRSquared_min = \&rsquared_minimum;
+  *_NumSeq_Coord_GCD_min       = \&rsquared_minimum;
 
   # in order of radius so monotonic, but can have duplicates
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
@@ -1136,14 +1129,6 @@ sub values_max {
             : 0);   # even,all includes X=Y
   }
 
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    return ($self->{'points'} eq 'odd'
-            ? 1     # odd at X=1,Y=0
-            : $self->{'points'} eq 'hex_centred'
-            ? 2     # hex_centred at X=1,Y=1
-            : 0);   # even,all at X=0,Y=0
-  }
   sub _NumSeq_Coord_TRSquared_min {
     my ($self) = @_;
     return ($self->{'points'} eq 'odd'
@@ -1166,26 +1151,6 @@ sub values_max {
   use constant _NumSeq_Coord_TRadius_non_decreasing => 1;
 }
 { package Math::PlanePath::PythagoreanTree;
-  {
-    my %_NumSeq_Coord_X_min = (PQ => 2,
-                               AB => 3,
-                               BA => 4,
-                              );
-    sub _NumSeq_Coord_X_min {
-      my ($self) = @_;
-      return $_NumSeq_Coord_X_min{$self->{'coordinates'}};
-    }
-  }
-  {
-    my %_NumSeq_Coord_Y_min = (PQ => 1,
-                               AB => 4,
-                               BA => 3,
-                              );
-    sub _NumSeq_Coord_Y_min {
-      my ($self) = @_;
-      return $_NumSeq_Coord_Y_min{$self->{'coordinates'}};
-    }
-  }
   {
     my %_NumSeq_Coord_DiffXY_min = (PQ => 1, # octant X>=Y+1 so X-Y>=1
                                    );
@@ -1234,11 +1199,6 @@ sub values_max {
   use constant _NumSeq_Coord_Depth_max => undef;
 }
 { package Math::PlanePath::RationalsTree;
-  sub _NumSeq_Coord_X_min {
-    my ($self) = @_;
-    return ($self->{'tree_type'} eq 'L' ? 0 : 1);
-  }
-  use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_NumChildren_min => 2;
   use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_Depth_max => undef;
@@ -1287,16 +1247,16 @@ sub values_max {
         # DiffYX almost A070990 Stern diatomic first differences, but we have
         # an extra 0 at the start, and we start i=1 rather than n=0 too
       },
-      'tree_type=CS' =>
+      'tree_type=HCS' =>
       {
        Depth  => 'A000523', # floor(log2(n)) starting OFFSET=1
-       # OEIS-Other: A000523 planepath=RationalsTree,tree_type=CS coordinate_type=Depth
+       # OEIS-Other: A000523 planepath=RationalsTree,tree_type=HCS coordinate_type=Depth
 
        # # Not quite, OFFSET=0 value=1/1 corresponding to N=0 X=0/Y=1 here
-       # Sum    => 'A071585', # rats>=1 is CS num+den
-       # Y      => 'A071766', # rats>=1 CS denominator
-       # # OEIS-Catalogue: A071585 planepath=RationalsTree,tree_type=CS coordinate_type=X
-       # # OEIS-Catalogue: A071766 planepath=RationalsTree,tree_type=CS coordinate_type=Y
+       # Sum    => 'A071585', # rats>=1 is HCS num+den
+       # Y      => 'A071766', # rats>=1 HCS denominator
+       # # OEIS-Catalogue: A071585 planepath=RationalsTree,tree_type=HCS coordinate_type=X
+       # # OEIS-Catalogue: A071766 planepath=RationalsTree,tree_type=HCS coordinate_type=Y
       },
       'tree_type=Bird' =>
       { X   => 'A162909', # Bird tree numerators
@@ -1321,7 +1281,7 @@ sub values_max {
 
        # # Not quite, A002487 extra initial, so n=2 is denominator at N=0
        # Y    => 'A002487', # denominator, stern diatomic
-       # # OEIS-Catalogue: A071585 planepath=RationalsTree,tree_type=CS coordinate_type=Y
+       # # OEIS-Catalogue: A071585 planepath=RationalsTree,tree_type=HCS coordinate_type=Y
 
        # Not quite, A000523 is OFFSET=0
        # Depth  => 'A000523', # floor(log2(n)) starting OFFSET=1
@@ -1329,8 +1289,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::FractionsTree;
-  use constant _NumSeq_Coord_X_min => 1;
-  use constant _NumSeq_Coord_Y_min => 2;
   use constant _NumSeq_Coord_DiffXY_max => -1; # upper octant X<=Y-1 so X-Y<=-1
   use constant _NumSeq_Coord_NumChildren_min => 2;
   use constant _NumSeq_Coord_NumChildren_max => 2;
@@ -1361,8 +1319,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::CfracDigits;
-  use constant _NumSeq_Coord_X_min => 1;
-  use constant _NumSeq_Coord_Y_min => 2;
   use constant _NumSeq_Coord_DiffXY_max => -1; # upper octant X<=Y-1 so X-Y<=-1
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
@@ -1374,8 +1330,6 @@ sub values_max {
   # };
 }
 { package Math::PlanePath::ChanTree;
-  use constant _NumSeq_Coord_X_min => 1;
-  use constant _NumSeq_Coord_Y_min => 1;
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
     return ($self->{'reduced'} || $self->{'k'} == 2
@@ -1396,13 +1350,6 @@ sub values_max {
     return ($self->{'reduced'} || $self->{'k'} == 2
             ? 1    # X=1,Y=1 reduced or k=2 X=1,Y=1
             : 2);  # X=1,Y=2
-  }
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    return ($self->{'k'} == 2
-            || ($self->{'reduced'} && ($self->{'k'} & 1) == 0)
-            ? 2    # X=1,Y=1 reduced k even, or k=2 top 1/1
-            : 5);  # X=1,Y=2
   }
   sub _NumSeq_Coord_TRSquared_min {
     my ($self) = @_;
@@ -1592,7 +1539,6 @@ sub values_max {
 # }
 { package Math::PlanePath::GosperIslands;
   use constant _NumSeq_Coord_SumAbs_min => 2; # minimum X=2,Y=0 or X=1,Y=1
-  use constant _NumSeq_Coord_RSquared_min => 2; # minimum X=1,Y=1
   use constant _NumSeq_Coord_TRSquared_min => 4; # minimum X=1,Y=1
 }
 # { package Math::PlanePath::GosperSide;
@@ -1603,7 +1549,6 @@ sub values_max {
 { package Math::PlanePath::KochPeaks;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y never occurs
   use constant _NumSeq_Coord_SumAbs_min => 1; # minimum X=1,Y=0
-  use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 }
@@ -1611,7 +1556,6 @@ sub values_max {
   use constant _NumSeq_Coord_Y_integer => 0;
   use constant _NumSeq_Coord_SumAbs_min => 2/3; # minimum X=0,Y=2/3
   use constant _NumSeq_Coord_Radius_min   => 2/3; # minimum X=0,Y=2/3
-  use constant _NumSeq_Coord_RSquared_min => 4/9; # minimum X=0,Y=2/3
   use constant _NumSeq_Coord_TRSquared_min => 3*4/9; # minimum X=0,Y=2/3
   use constant _NumSeq_Coord_TRadius_min => sqrt(_NumSeq_Coord_TRSquared_min);
 }
@@ -1624,7 +1568,6 @@ sub values_max {
   use constant _NumSeq_Coord_DiffYX_integer => 1;
   use constant _NumSeq_Coord_AbsDiff_integer => 1;
   use constant _NumSeq_Coord_SumAbs_min => 1;
-  use constant _NumSeq_Coord_RSquared_min => 0.5; # minimum X=0.5,Y=0.5
   use constant _NumSeq_Coord_TRSquared_min => 1; # X=0.5,Y=0.5
   use constant _NumSeq_Coord_TRSquared_integer => 1;
 }
@@ -1637,7 +1580,6 @@ sub values_max {
   use constant _NumSeq_Coord_X_integer => 0;
   use constant _NumSeq_Coord_Y_integer => 0;
   use constant _NumSeq_Coord_SumAbs_min => 1; # minimum X=1/2,Y=1/2
-  use constant _NumSeq_Coord_RSquared_min => 0.5; # minimum X=1/2,Y=1/2
   use constant _NumSeq_Coord_TRSquared_min => 1; # X=1/2,Y=1/2
 }
 { package Math::PlanePath::SierpinskiTriangle;
@@ -1680,16 +1622,6 @@ sub values_max {
 }
 { package Math::PlanePath::SierpinskiCurve;
   {
-    my @X_min = (undef,
-                 1,  # 1 arm
-                 0,  # 2 arms
-                );   # more than 2 arm, X goes negative
-    sub _NumSeq_Coord_X_min {
-      my ($self) = @_;
-      return $X_min[$self->arms_count];
-    }
-  }
-  {
     my @Sum_min = (undef,
                    1,  # 1 arm, octant and X>=1 so X+Y>=1
                    1,  # 2 arms, X>=1 or Y>=1 so X+Y>=1
@@ -1716,19 +1648,16 @@ sub values_max {
 
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
-  use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 }
 { package Math::PlanePath::SierpinskiCurveStair;
-  *_NumSeq_Coord_X_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_X_min;
   *_NumSeq_Coord_Sum_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Sum_min;
   *_NumSeq_Coord_DiffXY_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_DiffXY_min;
   *_NumSeq_Coord_Int_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Int_min;
   *_NumSeq_Coord_Int_is_infimum = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Int_is_infimum;
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
-  use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 }
@@ -1744,7 +1673,6 @@ sub values_max {
 { package Math::PlanePath::DragonRounded;
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y doesn't occur
-  use constant _NumSeq_Coord_RSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 }
@@ -1764,23 +1692,11 @@ sub values_max {
 # }
 { package Math::PlanePath::TerdragonRounded;
   use constant _NumSeq_Coord_SumAbs_min => 2; # X=2,Y=0
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    return ($self->arms_count < 2
-            ? 4   # 1 arm, minimum X=2,Y=0
-            : 2); # 2 or more arms, minimum X=1,Y=1
-  }
   use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 }
 { package Math::PlanePath::TerdragonMidpoint;
   use constant _NumSeq_Coord_SumAbs_min => 2; # X=2,Y=0 or X=1,Y=1
-  sub _NumSeq_Coord_RSquared_min {
-    my ($self) = @_;
-    return ($self->arms_count < 2
-            ? 4   # 1 arm, minimum X=2,Y=0
-            : 2); # 2 or more arms, minimum X=1,Y=1
-  }
   use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 }
@@ -1801,11 +1717,7 @@ sub values_max {
     { name => 'width',
       type => 'integer',
     };
-  sub _NumSeq_Coord_X_max {
-    my ($self) = @_;
-    return $self->{'width'} - 1;
-  }
-  *_NumSeq_Coord_Int_max = \&_NumSeq_Coord_X_max;
+  *_NumSeq_Coord_Int_max = \&x_maximum;
 
   sub _NumSeq_Coord_Y_increasing {
     my ($self) = @_;
@@ -1879,10 +1791,6 @@ sub values_max {
     { name => 'height',
       type => 'integer',
     };
-  sub _NumSeq_Coord_Y_max {
-    my ($self) = @_;
-    return $self->{'height'} - 1;
-  }
 
   sub _NumSeq_Coord_X_increasing {
     my ($self) = @_;
@@ -2077,12 +1985,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::PyramidRows;
-  sub _NumSeq_Coord_X_max {
-    my ($self) = @_;
-    return ($self->{'step'} == 0 || $self->{'align'} eq 'left'
-            ? 0    # X=0 vertical, or left X<=0
-            : undef);
-  }
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
     # for align=right X>=0 so X+Y >= 0
@@ -2370,11 +2272,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::CellularRule::Line;
-  sub _NumSeq_Coord_X_max {  # cf X_min from x_negative()
-    my ($path) = @_;
-    return ($path->{'sign'} <= 0 ? 0 : undef);
-  }
-
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
   sub _NumSeq_Coord_Sum_max {
     my ($path) = @_;
@@ -2503,8 +2400,6 @@ sub values_max {
   use constant _NumSeq_Coord_Depth_max => undef;
 }
 { package Math::PlanePath::DiagonalRationals;
-  use constant _NumSeq_Coord_X_min => 1;
-  use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
   use constant _NumSeq_Coord_SumAbs_non_decreasing => 1; # X+Y diagonals
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
@@ -2527,8 +2422,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::FactorRationals;
-  use constant _NumSeq_Coord_X_min => 1;
-  use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 
@@ -2544,8 +2437,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::GcdRationals;
-  use constant _NumSeq_Coord_X_min => 1;
-  use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 
@@ -2561,8 +2452,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::CoprimeColumns;
-  use constant _NumSeq_Coord_X_min => 1;
-  use constant _NumSeq_Coord_Y_min => 1;
   use constant _NumSeq_Coord_DiffXY_min => 0; # octant Y<=X so X-Y>=0
   use constant _NumSeq_Coord_X_non_decreasing => 1; # columns across
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
@@ -2585,14 +2474,6 @@ sub values_max {
     };
 }
 { package Math::PlanePath::DivisibleColumns;
-  # X=2,Y=1 when proper
-  # X=1,Y=1 when not
-  sub _NumSeq_Coord_X_min {
-    my ($self) = @_;
-    return ($self->{'proper'} ? 2 : 1);
-  }
-  use constant _NumSeq_Coord_Y_min => 1;
-
   sub _NumSeq_Coord_DiffXY_min {
     my ($self) = @_;
     # octant Y<=X so X-Y>=0
@@ -2658,15 +2539,9 @@ sub values_max {
 # { package Math::PlanePath::FibonacciWordFractal;
 # }
 { package Math::PlanePath::LTiling;
-  sub _NumSeq_Coord_Sum_min {
-    my ($self) = @_;
-    return ($self->{'L_fill'} eq 'middle' || $self->{'L_fill'} eq 'all'
-            ? 0    # X=0,Y=0
-            : 1);  # X=1,Y=0 or X=0,Y=1 for ends,left,upper
-  }
-  *_NumSeq_Coord_SumAbs_min   = \&_NumSeq_Coord_Sum_min;
-  *_NumSeq_Coord_AbsDiff_min  = \&_NumSeq_Coord_Sum_min;
-  *_NumSeq_Coord_RSquared_min = \&_NumSeq_Coord_Sum_min;
+  *_NumSeq_Coord_SumAbs_min   = \&rsquared_minimum;
+  *_NumSeq_Coord_AbsDiff_min  = \&rsquared_minimum;
+  *_NumSeq_Coord_Sum_min = \&rsquared_minimum;
   sub _NumSeq_Coord_TRSquared_min {
     my ($self) = @_;
     return ($self->{'L_fill'} eq 'upper' ? 3    # X=0,Y=1
@@ -2722,6 +2597,13 @@ sub values_max {
         # OEIS-Other: A112765 planepath=PowerArray,radix=5
       },
     };
+}
+
+{ package Math::PlanePath::LCornerTree;
+  use constant _NumSeq_Coord_Depth_max => undef;
+}
+{ package Math::PlanePath::ToothpickTree;
+  use constant _NumSeq_Coord_Depth_max => undef;
 }
 
 

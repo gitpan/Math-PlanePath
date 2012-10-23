@@ -23,11 +23,12 @@
 package Math::PlanePath::ImaginaryHalf;
 use 5.004;
 use strict;
+use Carp;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -36,7 +37,6 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'parameter_info_array',
   'round_down_pow',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
@@ -51,6 +51,39 @@ use Math::PlanePath::ImaginaryBase;
 
 use constant n_start => 0;
 use constant class_y_negative => 0;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
+
+use constant parameter_info_array =>
+  [ Math::PlanePath::Base::Digits::parameter_info_radix2(),
+
+    # Not yet ...
+    # { name      => 'digit_order',
+    #   share_key => 'digit_order_XYX',
+    #   display   => 'Digit Order',
+    #   type      => 'enum',
+    #   default   => 'XYX',
+    #   choices   => ['XYX',
+    #                 'XXY',
+    #                 'YXX',
+    # 
+    #                 # Not sure if these would be merely negatives, or
+    #                 # keep the Xneg scaling
+    #                 #
+    #                 #  'XnYX',
+    #                 #  'XnXY',
+    #                 #  'YXnX',
+    #                ],
+    # },
+  ];
+
+my %digit_positions = (XYX => [0,2,1],
+                       YXX => [2,0,1],
+                       XXY => [0,1,2],
+
+                       XnYX => [1,2,0],
+                       YXnX => [2,1,0],
+                       XnXY => [1,0,2],
+                      );
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -58,6 +91,10 @@ sub new {
   my $radix = $self->{'radix'};
   if (! defined $radix || $radix <= 2) { $radix = 2; }
   $self->{'radix'} = $radix;
+
+  my $digit_order = ($self->{'digit_order'} ||= 'XYX');
+  $self->{'digit_positions'} = $digit_positions{$digit_order}
+    || croak "Unrecognised digit_order: ",$digit_order;
 
   return $self;
 }
@@ -69,7 +106,6 @@ sub n_to_xy {
   if ($n < 0) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  # is this sort of midpoint worthwhile? not documented yet
   {
     my $int = int($n);
     ### $int
@@ -86,30 +122,20 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my $xlen = my $ylen = ($n*0) + 1; # inherit bignum 1
-  my $x = 0;
-  my $y = 0;
+  my $zero = ($n*0); # inherit bignum 0
 
-  if (my @digits = digit_split_lowtohigh($n, $radix)) {
-    for (;;) {
-      ### at: "x=$x,y=$y  digits=".join(',',@digits)
-
-      $x += (shift @digits) * $xlen;  # $n digits low to high
-      @digits || last;
-      $xlen *= $radix;
-
-      $y += (shift @digits) * $ylen;
-      @digits || last;
-      $ylen *= $radix;
-
-      $x -= (shift @digits) * $xlen;
-      @digits || last;
-      $xlen *= $radix;
-    }
+  my @xydigits = ([],[0],[]);
+  my $digit_positions = $digit_positions{$self->{'digit_order'}};
+  my @ndigits = digit_split_lowtohigh($n, $radix);
+  my $i = 0;
+  foreach my $i (0 .. $#ndigits) {
+    my $p = $digit_positions->[$i%3];
+    push @{$xydigits[$p]}, $ndigits[$i], ($p < 2 ? (0) : ());
   }
 
-  ### final: "$x,$y"
-  return ($x,$y);
+  return (digit_join_lowtohigh ($xydigits[0], $radix, $zero)
+          - digit_join_lowtohigh ($xydigits[1], $radix, $zero),
+          digit_join_lowtohigh ($xydigits[2], $radix, $zero));
 }
 
 sub xy_to_n {
@@ -123,20 +149,24 @@ sub xy_to_n {
   $x = round_nearest ($x);
   if (is_infinite($x)) { return $x; }
 
-  my $radix = $self->{'radix'};
   my $zero = ($x * 0 * $y);  # inherit bignum 0
-  my @ndigits; # digits low to high
+  my $radix = $self->{'radix'};
   my @ydigits = digit_split_lowtohigh($y, $radix);
+  my $digit_positions = $digit_positions{$self->{'digit_order'}};
 
-
+  my @ndigits; # digits low to high
+  my @nd;
   while ($x || @ydigits) {
-    push @ndigits, _divrem_mutate ($x, $radix);
+    $nd[0] = _divrem_mutate ($x, $radix);
     $x = -$x;
-
-    push @ndigits, shift @ydigits || 0;
-
-    push @ndigits, _divrem_mutate ($x, $radix);
+    $nd[1] = _divrem_mutate ($x, $radix);
     $x = -$x;
+    $nd[2] = shift @ydigits || 0;
+
+    push @ndigits,
+      $nd[$digit_positions->[0]],
+        $nd[$digit_positions->[1]],
+          $nd[$digit_positions->[2]];
   }
   return digit_join_lowtohigh (\@ndigits, $radix, $zero);
 }
@@ -217,22 +247,30 @@ sub rect_to_n_range {
   my @min_ydigits = digit_split_lowtohigh ($y1, $radix);
   my @max_ydigits = digit_split_lowtohigh ($y2, $radix);
 
-  my @min_digits
-    = _digit_interleave_xyx_lowtohigh ($min_xdigits, \@min_ydigits);
-  my @max_digits
-    = _digit_interleave_xyx_lowtohigh ($max_xdigits, \@max_ydigits);
+  my $digit_positions = $digit_positions{$self->{'digit_order'}};
+  my @min_ndigits
+    = _digit_positions_interleave ($digit_positions,
+                                   $min_xdigits, \@min_ydigits);
+  my @max_ndigits
+    = _digit_positions_interleave ($digit_positions,
+                                   $max_xdigits, \@max_ydigits);
 
-  return (digit_join_lowtohigh (\@min_digits, $radix, $zero),
-          digit_join_lowtohigh (\@max_digits, $radix, $zero));
+  return (digit_join_lowtohigh (\@min_ndigits, $radix, $zero),
+          digit_join_lowtohigh (\@max_ndigits, $radix, $zero));
 }
 
-sub _digit_interleave_xyx_lowtohigh {
-  my ($xaref, $yaref) = @_;
+sub _digit_positions_interleave {
+  my ($digit_positions, $xaref, $yaref) = @_;
   my @ret;
+  my @d;
   foreach my $i (0 .. max($#$xaref,2*$#$yaref)) {
-    push @ret, $xaref->[2*$i] || 0;
-    push @ret, $yaref->[$i] || 0;
-    push @ret, $xaref->[2*$i+1] || 0;
+    $d[0] = shift @$xaref || 0;
+    $d[1] = shift @$xaref || 0;
+    $d[2] = shift @$yaref || 0;
+    push @ret,
+      $d[$digit_positions->[0]],
+        $d[$digit_positions->[1]],
+          $d[$digit_positions->[2]];
   }
   return @ret;
 }
@@ -267,7 +305,7 @@ This is a half-plane variation on the ImaginaryBase path.
     -------------------------------------------------
     -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5
 
-The pattern can be seen by dividing into the following blocks,
+The pattern can be seen by dividing into blocks,
 
     +---------------------------------+
     | 22  23  18  19   30  31  26  27 |
@@ -281,20 +319,21 @@ The pattern can be seen by dividing into the following blocks,
                ^
               X=0
 
-N=0 is at the origin, then N=1 replicates that point to the right.  Those
-two repeat above as N=2 and N=3.  Then that 2x2 repeats to the left as N=4
-to N=7, then 4x2 repeats to the right as N=8 to N=15, and 8x2 above as N=16
-to N=31, etc.  The repetitions are successively to the right, above, left.
-The relative layout within a replication is unchanged.
+N=0 is at the origin, then N=1 replicates it to the right.  Those two repeat
+above as N=2 and N=3.  Then that 2x2 repeats to the left as N=4 to N=7, then
+4x2 repeats to the right as N=8 to N=15, and 8x2 above as N=16 to N=31, etc.
+The replications are successively to the right, above, left.  The relative
+layout within a replication is unchanged.
 
 This is similar to the ImaginaryBase, but where it repeats in 4 directions
-there's only 3 here.  The ZOrderCurve is a 2 direction replication.
+there's just 3 directions here.  The ZOrderCurve is a 2 direction
+replication.
 
 =head2 Radix
 
-The C<radix> parameter controls the "r" used to break N into X,Y.  For
-example C<radix =E<gt> 4> gives 4x4 blocks, with r-1 copies of the preceding
-level at each stage.
+The C<radix> parameter controls the radix used to break N into X,Y.  For
+example C<radix =E<gt> 4> gives 4x4 blocks, with radix-1 replications of the
+preceding level at each stage.
 
      radix => 4  
 
@@ -313,7 +352,7 @@ and N=64 at X=-16 (not shown).
 =head2 Axis Values
 
 N=0,1,4,5,8,9,etc on the X axis (positive and negative) are those integers
-with a 0 at every third bit, starting from the second least significant bit.
+with a 0 at every third bit starting from the second least significant bit.
 This is simply demanding that the bits going to the Y coordinate must be 0.
 
     X axis Ns = binary ...__0__0__0_     with _ either 0 or 1
@@ -331,26 +370,28 @@ slot of a 3-bit group.  Or N=0,4,5,etc on the X negative axis have the high
     X pos Ns in octal have high octal digit 1
     X neg Ns in octal high octal digit 4 or 5
 
-N=0,2,16,18,etc on the Y axis are conversely those integers with a 0s in
-each two of three bits, again simply demanding the bits going to the X
-coordinate must be 0.
+N=0,2,16,18,etc on the Y axis are conversely those integers with a 0 in two
+of each three bits, demanding the bits going to the X coordinate must be 0.
 
     Y axis Ns = binary ..._00_00_00_0    with _ either 0 or 1
     in octal has digits 0,2 only
 
 For a radix other than binary the pattern is the same.  Each "_" is any
 digit of the given radix, and each 0 must be 0.  The high 1 bit for X
-positive and negative becomes high non-zero digit 1 to radix-1.
+positive and negative become a high non-zero digit.
 
 =head2 Level Ranges
 
 Because the X direction replicates twice for each once in the Y direction
-the width grows at twice the rate, so width = height*height, after each 3
-replications.  For this reason N values for a given Y grow quite rapidly.
+the width grows at twice the rate, so after each 3 replications
+
+    width = height*height
+
+For this reason N values for a given Y grow quite rapidly.
 
 =head2 Proth Numbers
 
-The Proth numbers fall in columns on the path.
+The Proth numbers, k*2^n+1 for S<kE<lt>2^n>, fall in columns on the path.
 
 =cut
 
@@ -388,10 +429,9 @@ The Proth numbers fall in columns on the path.
     -----------------------------------------------------------------
     -31    -23     -15     -7  -3-1 0 3 5   9      17       25     33
 
-The height of the column follows the position of the number of zeros in X
-ending ...1000..0001 in binary as this limits the "k" part of the Proth
-numbers which can have N ending suitably.  Or for X negative the ending
-...10111...11.
+The height of the column is from the zeros in X ending binary ...1000..0001
+since this limits the "k" part of the Proth numbers which can have N ending
+suitably.  Or for X negative ending ...10111...11.
 
 =head1 FUNCTIONS
 

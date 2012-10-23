@@ -31,14 +31,15 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
-  'round_nearest';
+  'round_nearest',
+  'xy_is_visited_even';
 use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
@@ -61,8 +62,12 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          width     => 1,
                                          description => 'Arms',
                                        } ];
+use constant dx_minimum => -2;
+use constant dx_maximum => 2;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
 
-
+#------------------------------------------------------------------------------
 #         *
 #        / \
 #       /   \
@@ -240,6 +245,16 @@ sub n_to_xy {
 
   ### final: "$x,$y"
   return ($x,$y);
+}
+
+# all even points when arms==3
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  if ($self->{'arms'} == 3) {
+    return xy_is_visited_even($self,$x,$y);
+  } else {
+    return defined($self->xy_to_n($x,$y));
+  }
 }
 
 #       4-->5

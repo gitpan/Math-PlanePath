@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -34,6 +34,12 @@ use Math::PlanePath::Base::Generic
 #use Smart::Comments;
 
 
+use constant dx_minimum => -2;
+use constant dx_maximum => 2;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 # start at diagonal to bottom right
 #   d = [ 1, 2,  3 ]
 #   n = [ 2, 7, 17 ]

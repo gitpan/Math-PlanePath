@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -18,12 +18,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Usage: perl sacks-xpm.pl >/tmp/foo.xpm
-#        xgzv /tmp/foo.xpm
+# Usage: perl sacks-xpm.pl >/tmp/foo.xpm     # write image file
+#        xgzv /tmp/foo.xpm                   # view file
 #
-# This spot of code generates a big .xpm file showing all the points of the
+# This spot of code generates a big .xpm file showing all points of the
 # SacksSpiral.  XPM is a text format and can be generated quite easily as
-# row strings, but use a graphics viewer program to look at it.
+# row strings.  Use a graphics viewer program to look at it.
 # 
 
 use 5.004;
@@ -42,7 +42,7 @@ my $n_max = ($x_origin/$spacing+2)**2 + ($y_origin/$spacing+2)**2;
 
 my @rows = (' ' x $width) x $height;
 
-foreach my $n (1 .. $n_max) {
+foreach my $n ($path->n_start .. $n_max) {
   my ($x, $y) = $path->n_to_xy ($n);
   $x *= $spacing;
   $y *= $spacing;

@@ -33,8 +33,6 @@ use Math::PlanePath::UlamWarburton;
 #use Devel::Comments '###';
 
 
-MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
-
 my $path = Math::PlanePath::UlamWarburton->new;
 
 sub streq_array {
@@ -99,38 +97,18 @@ my @levelcells = (1, map {$n_start[$_]-$n_start[$_-1]} 1 .. $#n_start);
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    @got = @levelcells;
-    if ($#$bvalues > $#got) { $#$bvalues = $#got; }
-    if ($#got > $#$bvalues) { $#got = $#$bvalues; }
-    ### $bvalues
+    my $prev = $path->tree_depth_to_n(0);
+    for (my $depth = 1; @got < @$bvalues; $depth++) {
+      my $n = $path->tree_depth_to_n($depth);
+      push @got, $n - $prev;
+      $prev = $n;
+    }
   }
-  ### bvalues: join(',',@{$bvalues}[0..10])
-  ### got: '    '.join(',',@got[0..10])
   skip (! $bvalues,
         streq_array(\@got, $bvalues),
         1, "$anum");
 }
 
 #------------------------------------------------------------------------------
-# A147562 - total cells at end of level
-
-{
-  my $anum = 'A147562';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    @got = @n_end;
-    unshift @got, 0;
-    if ($#$bvalues > $#got) { $#$bvalues = $#got; }
-    if ($#got > $#$bvalues) { $#got = $#$bvalues; }
-    ### $bvalues
-  }
-  ### bvalues: join(',',@{$bvalues}[0..10])
-  ### got: '    '.join(',',@got[0..10])
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
 
 exit 0;

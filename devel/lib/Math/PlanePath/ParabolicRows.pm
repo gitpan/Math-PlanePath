@@ -26,7 +26,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

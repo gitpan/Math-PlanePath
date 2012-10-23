@@ -35,7 +35,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -101,6 +101,34 @@ use constant parameter_info_array =>
 #      =  4^level / (9*4^(level-1)
 #      =  4/9 = 0.444
 
+{
+  # shared by Math::PlanePath::SierpinskiCurveStair
+  my @X_min = (undef,
+               1,  # 1 arm
+               0,  # 2 arms
+              );   # more than 2 arm, X goes negative
+  sub x_minimum {
+    my ($self) = @_;
+    return $X_min[$self->arms_count];
+  }
+}
+use constant rsquared_minimum => 1; # minimum X=1,Y=0
+
+sub dx_minimum {
+  my ($self) = @_;
+  return - max($self->{'straight_spacing'},
+               $self->{'diagonal_spacing'});
+}
+*dy_minimum = \&dx_minimum;
+
+sub dx_maximum {
+  my ($self) = @_;
+  return max($self->{'straight_spacing'},
+             $self->{'diagonal_spacing'});
+}
+*dy_maximum = \&dx_maximum;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

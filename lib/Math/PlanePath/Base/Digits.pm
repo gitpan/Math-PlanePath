@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 90;
+$VERSION = 91;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -178,7 +178,6 @@ sub round_down_pow {
 
 use constant 1.02 _UV_MAX_PLUS_1 => ((~0 >> 1) + 1) * 2.0;
 
-# not documented yet ...
 sub bit_split_lowtohigh {
   my ($n) = @_;
   my @ret;
@@ -271,7 +270,10 @@ Return the power of C<$radix> which is at or less than C<$n>.  For example
 
 =item C<@digits = digit_split_lowtohigh ($n, $radix)>
 
-Return a list of digits from C<$n> in base C<$radix>.  For example,
+=item C<@bits = bit_split_lowtohigh ($n)>
+
+Return a list of digits from C<$n> in base C<$radix>, or in binary.  For
+example,
 
    @digits = digit_split_lowtohigh (12345, 10);
    # @digits = (5,4,3,2,1)   # decimal digits low to high
@@ -282,6 +284,9 @@ should be E<gt>=0.
 "lowtohigh" in the name tries to make it clear which way the digits are
 returned.  A C<reverse> can be used to get high to low instead
 (L<perlfunc/reverse>).
+
+C<bit_split_lowtohigh()> is the same as C<digit_split_lowtohigh()> called
+with radix=2.
 
 =item C<$n = digit_join_lowtohigh ($arrayref, $radix)>
 

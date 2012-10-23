@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,6 +53,12 @@ use Math::PlanePath::Base::Digits
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
+
+use constant dx_maximum => 1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);

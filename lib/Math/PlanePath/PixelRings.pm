@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -58,6 +58,13 @@ use Math::PlanePath::Base::Generic
 #    },
 #   ];
 use constant n_frac_discontinuity => 0;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 2;  # jump N=5 to N=6
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);

@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -74,6 +74,17 @@ use constant parameter_info_array =>
      width     => 1,
    },
   ];
+
+use Math::PlanePath::SierpinskiCurve;
+*x_minimum = \&Math::PlanePath::SierpinskiCurve::x_minimum;
+use constant rsquared_minimum => 1; # minimum X=1,Y=0
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;

@@ -16,14 +16,21 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# dX_minimum
+# dY_minimum
+# dSum_minimum
+# sum_minimum
+# ddiffxy_minimum
+# diffxy_minimum
+
 # Math::PlanePath::Base::Generic
 # divrem
 # divrem_mutate
 
 # $level = $path->tree_depth_start;
 # ($n_lo,$n_hi) = $path->tree_depth_to_n_range($level);
-
-
+#
+# $path->xy_is_visited($x,$y) 1,0
 # $path->n_to_dir4
 # $path->n_to_dist
 # $path->xy_to_dir4_list
@@ -37,6 +44,9 @@
 # $path->xy_integer
 # $path->xy_integer_n_start
 #
+# ($xlo,$xhi) = $path->x_range()
+# ($xlo,$xhi) = $path->y_range()
+# ($xlo,$xhi) = $path->sum_range()
 # $path->x_range('integer')
 # $path->x_range('all')
 # use constant x_range => (1, undef);
@@ -59,7 +69,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 90;
+$VERSION = 91;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -85,37 +95,47 @@ use constant class_y_negative => 1;
 sub x_negative { $_[0]->class_x_negative }
 sub y_negative { $_[0]->class_y_negative }
 use constant n_frac_discontinuity => undef;
-use constant tree_n_parent => undef;
-use constant tree_n_children => ();
-sub tree_n_num_children {
-  my ($self, $n) = @_;
-  if ($n >= $self->n_start) {
-    my @n_list = $self->tree_n_children($n);
-    return scalar(@n_list);
-  } else {
-    return undef;
-  }
-}
-sub tree_n_to_depth {
-  my ($self, $n) = @_;
-  if ($n < $self->n_start) {
-    return undef;
-  }
-  my $depth = 0;
-  while (defined ($n = $self->tree_n_parent($n))) {
-    $depth++;
-  }
-  return $depth;
-}
-
-sub new {
-  my $class = shift;
-  return bless { @_ }, $class;
-}
 
 use constant parameter_info_array => [];
 sub parameter_info_list {
   return @{$_[0]->parameter_info_array};
+}
+
+sub x_minimum {
+  my ($self) = @_;
+  return ($self->x_negative ? undef : 0);
+}
+sub y_minimum {
+  my ($self) = @_;
+  ### y_minimum() y_negative: $self->y_negative
+  return ($self->y_negative ? undef : 0);
+}
+use constant x_maximum => undef;
+use constant y_maximum => undef;
+use constant dx_minimum => undef;
+use constant dy_minimum => undef;
+use constant dx_maximum => undef;
+use constant dy_maximum => undef;
+
+# default from x_minimum,y_minimum
+sub rsquared_minimum {
+  my ($self) = @_;
+  if (defined (my $x_minimum = $self->x_minimum)
+      && defined (my $y_minimum = $self->y_minimum)) {
+    return ($x_minimum*$x_minimum + $y_minimum*$y_minimum);
+  }
+
+  # Maybe _coordinate_func_RSquared($self->n_to_xy($self->n_start)),
+  # but that's wrong on "wider" paths.
+  return 0;
+}
+
+
+#------------------------------------------------------------------------------
+
+sub new {
+  my $class = shift;
+  return bless { @_ }, $class;
 }
 
 {
@@ -138,6 +158,10 @@ sub xy_to_n_list {
   ### empty ...
   return;
 }
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  return defined($self->xy_to_n($x,$y));
+}
 
 sub n_to_dxdy {
   my ($self, $n) = @_;
@@ -153,6 +177,45 @@ sub n_to_rsquared {
   my ($x,$y) = $self->n_to_xy($n) or return undef;
   return $x*$x + $y*$y;
 }
+
+#------------------------------------------------------------------------------
+# tree
+
+use constant tree_n_parent => undef;
+use constant tree_n_children => ();
+sub tree_n_num_children {
+  my ($self, $n) = @_;
+  if ($n >= $self->n_start) {
+    my @n_list = $self->tree_n_children($n);
+    return scalar(@n_list);
+  } else {
+    return undef;
+  }
+}
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+  if ($n < $self->n_start) {
+    return undef;
+  }
+  my $depth = 0;
+  while (defined ($n = $self->tree_n_parent($n))) {
+    $depth++;
+  }
+  return $depth;
+}
+use constant tree_depth_to_n => undef;
+sub tree_depth_to_n_end {
+  my ($self, $depth) = @_;
+  unless ($depth >= 0) {
+    return undef;
+  }
+  if (defined (my $n = $self->tree_depth_to_n($depth+1))) {
+    return $n-1;
+  } else {
+    return undef;
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # shared internals
@@ -588,7 +651,8 @@ according to what is most natural for the path.  Some paths have an
 C<n_start> parameter to control the numbering.
 
 Some classes have secret dubious undocumented support for N values below
-this (zero or negative), but C<n_start()> is the intended starting point.
+this start (zero or negative), but C<n_start()> is the intended starting
+point.
 
 =item C<$f = $path-E<gt>n_frac_discontinuity()>
 
@@ -648,6 +712,20 @@ itself.  A figure like a diamond for instance can look good too.
 
 =head2 Tree Methods
 
+Some paths are structured like a tree where each N has a parent and possibly
+some children.
+
+                 123
+                / | \
+             456 999 458
+            /        / \
+          1000    1001 1005
+
+The numbering and any relation to X,Y positions varies among the paths.
+Some are numbered by rows (breadth-first style) and some have the children
+with X,Y positions adjacent to their parent, but that shouldn't be assumed,
+only that there's a parent-child relation up to some set of top nodes.
+
 =over
 
 =item C<@n_children = $path-E<gt>tree_n_children($n)>
@@ -677,6 +755,16 @@ The depth is a count of how many parent, grandparent, etc, are above C<$n>,
 ie. until reaching C<tree_n_to_parent()> returning C<undef>.  For non-tree
 paths C<tree_n_to_parent()> is always C<undef> and C<tree_n_to_depth()> is
 always 0.
+
+=item C<$n = $path-E<gt>tree_depth_to_n($depth)>
+
+=item C<$n = $path-E<gt>tree_depth_to_n_end($depth)>
+
+Return the first or last N at tree level C<$depth> in the path, or C<undef>
+if nothing at that depth or not a tree.  The top of the tree is depth=0.
+
+Trees numbered by rows have the end of one row immediately followed by the
+start of the next, but that may not be so for all paths.
 
 =back
 
@@ -1015,9 +1103,9 @@ calculations.  This might be of interest even if the code is not.
 =head2 Triangular Calculations
 
 For a triangular lattice the rotation formulas above allow calculations to
-be done in the rectangular X,Y coordinates, those being the inputs and
-outputs of the PlanePath functions.  Another way is to number vertically on
-a 60 degree angle with coordinates i,j,
+be done in the rectangular X,Y coordinates which are the inputs and outputs
+of the PlanePath functions.  Another way is to number vertically on a 60
+degree angle with coordinates i,j,
 
           ...
           *   *   *      2
@@ -1025,7 +1113,7 @@ a 60 degree angle with coordinates i,j,
       *   *   *      j=0
     i=0  1   2
 
-Such coordinates are sometimes used for hexagonal grids in board games etc.
+These coordinates are sometimes used for hexagonal grids in board games etc.
 Using this internally can simplify rotations a little,
 
     -j, i+j         rotate +60   (anti-clockwise)
@@ -1063,6 +1151,135 @@ but with k worked in too.
     X = 2i + j - k        i = (X-Y)/2        i = (X+Y)/2
     Y = j + k             j = Y         or   j = 0
                           k = 0              k = Y
+
+=head2 N to dX,dY -- Fractional
+
+C<n_to_dxdy()> is the change from N to N+1, and is designed both for integer
+N and fractional N.  For fractional N it can be convenient to calculate a
+dX,dY at floor(N) and at floor(N)+1 and then combine the two in proportion
+to frac(N).
+
+                     int+2
+                      |
+                      |
+                      N+1    \
+                     /|       |
+                    / |       |
+                   /  |       | frac
+                  /   |       |
+                 /    |       |
+                /     |      /
+       int-----N------int+1
+    this_dX  dX,dY     next_dX
+    this_dY            next_dY
+
+       |-------|------|
+         frac   1-frac
+               
+
+    int = int(N)
+    frac = N - int    0 <= frac < 1
+
+    this_dX,this_dY  at int
+    next_dX,next_dY  at int+1
+
+    at fractional N
+      dX = this_dX * (1-frac) + next_dX * frac
+      dY = this_dY * (1-frac) + next_dY * frac
+
+This is combination of this_dX,this_dY and next_dX,next_dY in proportion to
+the distances from positions N to int+1 and from int+1 to N+1.
+
+The formulas can be rearranged to
+
+    dX = this_dX + frac*(next_dX - this_dX)
+    dY = this_dY + frac*(next_dY - this_dY)
+
+which is like dX,dY at the integer position plus fractional part of a turn
+or change to the next dX,dY.
+
+=head2 N to dX,dY -- Self-Similar
+
+For most of the self-similar paths such as HilbertCurve the change dX,dY is
+determined by following the state table transitions down through either all
+digits of N, or to the last non-9 digit, ie. drop any low digits equal to
+radix-1.
+
+Generally paths which are the edges of some tiling use all digits, and those
+which are the centres of a tiling stop at the lowest non-9.  This can be
+seen for example in the DekkingCurve using all digits, whereas its
+DekkingCentres variant stops at the lowest non-24.
+
+Perhaps this all-digits vs low-non-9 even characterizes path style as edges
+or centres of a tiling, when a path is specified in some way that a tiling
+is not quite obvious.
+
+=head1 SUBCLASSING
+
+The mandatory methods for a PlanePath subclass are
+
+    n_to_xy()
+    xy_to_n()
+    xy_to_n_list()     if multiple N's map to an X,Y
+    rect_to_n_range()
+
+It sometimes happens that one of C<n_to_xy()> or C<xy_to_n()> is easier than
+the other, but both should be implemented.
+
+C<n_to_xy()> should do something sensible on fractional N.  The suggestion
+is to make it an X,Y proportionally between integer N positions.  That can
+initially be done simply with two calculations of those integer points,
+until it's clear how to get work the fraction into the result directly.
+
+The base implementation of C<xy_to_n_list()> is designed for paths with a
+single N at any given X,Y.  It calls plain C<xy_to_n()> to get that N.  If a
+path has multiple Ns visiting an X,Y (eg. DragonCurve) then it should
+implement C<xy_to_n_list()> to return all those Ns, and also a plain
+C<xy_to_n()> returning the first of them.
+
+C<rect_to_n_range()> can be initially implemented with any convenient
+over-estimate.  It amounts to asking from what N onwards are all points
+certain to be beyond a given X,Y rectangle.
+
+The following descriptive methods have base implementations
+
+    n_start()           1
+    class_x_negative()  \ 1, so whole plane
+    class_y_negative()  /
+    x_negative()        calls class_x_negative()
+    y_negative()        calls class_x_negative()
+
+The base C<n_start()> is to start at N=1.  Paths which treat N as digits of
+some radix or where there's self-similar replication are usually best
+started from N=0 instead so as to put nice powers-of-2 etc on the axes or
+diagonals.
+
+Paths which use only parts of the plane should define C<class_x_negative()>
+and/or C<class_y_negative()> to false.  For example if always
+XE<gt>=0,YE<gt>=0 then
+
+    use constant class_x_negative => 0;
+    use constant class_y_negative => 0;
+
+If negativeness varies with path parameters then C<x_negative()> and/or
+C<y_negative()> follow those parameters, and the C<class_()> forms are
+whether any set of parameters ever gives negative.
+
+The following methods have base implementations calling C<n_to_xy()>.
+A subclass can implement them directly if they can be done more efficiently.
+
+    n_to_dxdy()           calls n_to_xy() twice
+    n_to_rsquared()       calls n_to_xy()
+
+SacksSpiral is an example of an easy C<n_to_rsquared()>.  Or TheodorusSpiral
+is only slightly trickier.  Unless a path has some sort of easy X^2+Y^2 then
+it may as well be left to the base implementation calling C<n_to_xy()>.
+
+The way C<n_to_dxdy()> supports fractional N can be a little tricky.  One
+way is to calculate on the integers below and above and combine per L</N to
+dX,dY -- Fractional> above.  For some paths the calculation of turn or
+direction at ceil(N) can be worked into a calculation of the direction at
+floor(N) so taking not much more work.
 
 =head1 SEE ALSO
 

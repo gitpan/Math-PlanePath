@@ -16,6 +16,7 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+
 # Maybe
 # @EXPORT_OK = ('ab_to_pq','pq_to_ab');
 #
@@ -59,7 +60,7 @@
 # http://www.math.ou.edu/~dmccullough/teaching/pythagoras2.pdf
 #
 # B. Berggren 1934, "Pytagoreiska trianglar", Tidskrift
-# for elementar matematik, fysik och kemi 17: 129-139.
+# for elementar matematik, fysik och kemi 17 (1934): 129-139.
 #
 # http://arxiv.org/abs/math/0406512
 # http://www.mendeley.com/research/dynamics-pythagorean-triples/
@@ -86,7 +87,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -121,6 +122,29 @@ use constant parameter_info_array =>
       choices_display => ['AB','PQ'], # 'Octant'
     },
   ];
+
+{
+  my %x_minimum = (PQ => 2,
+                   AB => 3,
+                   BA => 4,
+                  );
+  sub x_minimum {
+    my ($self) = @_;
+    return $x_minimum{$self->{'coordinates'}};
+  }
+}
+{
+  my %y_minimum = (PQ => 1,
+                   AB => 4,
+                   BA => 3,
+                  );
+  sub y_minimum {
+    my ($self) = @_;
+    return $y_minimum{$self->{'coordinates'}};
+  }
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;
@@ -421,12 +445,11 @@ sub rect_to_n_range {
 
 sub tree_n_children {
   my ($self, $n) = @_;
-  if ($n >= 1) {
-    $n *= 3;
-    return ($n-1, $n, $n+1);
-  } else {
+  unless ($n >= 1) {
     return;
   }
+  $n *= 3;
+  return ($n-1, $n, $n+1);
 }
 sub tree_n_num_children {
   my ($self, $n) = @_;
@@ -434,21 +457,28 @@ sub tree_n_num_children {
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
-  if ($n >= 2) {
-    return int(($n+1)/3);
-  } else {
+  unless ($n >= 2) {
     return undef;
   }
+  return int(($n+1)/3);
 }
 sub tree_n_to_depth {
   my ($self, $n) = @_;
   ### PythagoreanTree tree_n_to_depth(): $n
-  if ($n >= 1) {
-    my ($len, $level) = round_down_pow (2*$n-1, 3);
-    return $level;
-  } else {
+  unless ($n >= 1) {
     return undef;
   }
+  my ($len, $level) = round_down_pow (2*$n-1, 3);
+  return $level;
+}
+sub tree_depth_to_n {
+  my ($self, $depth) = @_;
+  return ($depth >= 0 ? (3**$depth + 1)/2 : undef);
+}
+# (3^(d+1)+1)/2-1 = (3^(d+1)-1)/2
+sub tree_depth_to_n_end {
+  my ($self, $depth) = @_;
+  return ($depth >= 0 ? (3**($depth+1) - 1)/2 : undef);
 }
 
 #------------------------------------------------------------------------------
@@ -609,8 +639,8 @@ Math::PlanePath::PythagoreanTree -- primitive Pythagorean triples by tree
 
 This path enumerates primitive Pythagorean triples by a breadth-first
 traversal of a ternary tree, either a "UAD" or "FB" tree.  Each point is an
-integer X,Y = A,B with integer hypotenuse and primitive in the sense that A
-and B have no common factor.
+integer X,Y=A,B with an integer hypotenuse, and primitive in the sense that
+A and B have no common factor.
 
      A^2 + B^2 = C^2
      gcd(A,B)=1  ie. no common factor
@@ -875,6 +905,13 @@ top of the tree at N=1 is depth=0, then its children depth=1, etc.
 
 The structure of the tree with 3 nodes per point means the depth is
 floor(log3(2N-1)), so for example N=5 through N=13 all have depth=2.
+
+=item C<$n = $path-E<gt>tree_depth_to_n($depth)>
+
+=item C<$n = $path-E<gt>tree_depth_to_n_end($depth)>
+
+Return the first or last N at tree level C<$depth> in the path, or C<undef>
+if nothing at that depth or not a tree.  The top of the tree is depth=0.
 
 =back
 

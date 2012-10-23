@@ -57,7 +57,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -124,6 +124,14 @@ use Math::PlanePath::SacksSpiral;
 # *parameter_info_array = \&Math::PlanePath::PixelRings::parameter_info_array;
 
 use constant n_frac_discontinuity => 0;
+use constant xy_is_visited => 1;
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);

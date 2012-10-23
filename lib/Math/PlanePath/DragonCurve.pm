@@ -37,8 +37,6 @@
 #
 #    A060833 not adding to 2^k+2,
 #            superset of positions of left turns ...
-#
-# A106147 levy+heighway something
 
 package Math::PlanePath::DragonCurve;
 use 5.004;
@@ -47,7 +45,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -78,6 +76,14 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          width     => 1,
                                          description => 'Arms',
                                        } ];
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
+
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
@@ -186,6 +192,13 @@ sub new {
     return ($state_to_dxdy[$state]   + $n * $state_to_dxdy[$state+2],
             $state_to_dxdy[$state+1] + $n * $state_to_dxdy[$state+3]);
   }
+}
+
+# shared by QuintetCurve
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  return ($self->{'arms'} == 4
+          || defined($self->xy_to_n($x,$y)));
 }
 
 # point N=2^(2k) at XorY=+/-2^k  radius 2^k

@@ -56,7 +56,7 @@ use Math::PlanePath::SquareSpiral;
 my $knights = Math::PlanePath::KnightSpiral->new;
 my $square  = Math::PlanePath::SquareSpiral->new;
 
-foreach my $n (1 .. 20) {
+foreach my $n ($knights->n_start .. 20) {
   my ($x, $y) = $knights->n_to_xy ($n);
   my $sq_n = $square->xy_to_n ($x, $y);
   print "$sq_n, ";

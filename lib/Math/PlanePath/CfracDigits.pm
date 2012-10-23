@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -35,6 +35,9 @@ use Math::PlanePath::Base::Digits
 
 use Math::PlanePath::RationalsTree;
 *_xy_to_quotients = \&Math::PlanePath::RationalsTree::_xy_to_quotients;
+
+use Math::PlanePath::CoprimeColumns;
+*_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -54,6 +57,11 @@ use constant parameter_info_array =>
       width     => 3,
     },
   ];
+
+use constant x_minimum => 1;
+use constant y_minimum => 2;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new (@_);
@@ -185,6 +193,14 @@ sub _digit_join_1toR_destructive {
   return digit_join_lowtohigh($aref, $radix, $zero);
 }
 
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  return (! ($x < 1 || $y < 2 || $x >= $y)
+          && _coprime($x,$y));
+}
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = round_nearest ($x);
@@ -285,7 +301,6 @@ sub _log_phi_estimate {
   my ($pow,$exp) = round_down_pow ($x, 2);
   return int ($exp * (log(2) / log((1+sqrt(5))/2)));
 }
-
 
 1;
 __END__
@@ -447,12 +462,56 @@ means no 0 digit in base 6.
 
 The radix=1 case encodes continued fraction terms using only digit 1, which
 means runs of q many "1"s (ie. adding up to q), and "2" digits as
-separators.  The result is similar to the run-length encoding in
-RationalsTree.  In ordinary digit 0,1 binary the result is "10000" runs for
-the high q terms and a "1111" run for the lowest.
+separators.
 
-    1000001000010000111111
-    ^     ^    ^    ^
+    N =  11111 2 1111 2 ... 2 1111 2 11111     base2 digits 1,2
+         \---/   \--/         \--/   \---/
+         q[1]-1  q[2]-1     q[k-1]-1 q[k]-2
+
+which becomes in plain binary
+
+    N = 100000  10000   ...  10000  011111     binary
+        \----/  \---/        \---/  \----/
+         q[1]    q[2]       q[k-1]  q[k]-1
+
+Each "2" becomes "0" in plain binary plus a carry into the 1s above which
+turn them into zeros and each "0" above the first into "1".
+
+=cut
+
+# math-image --path=CfracDigits,radix=1 --output=numbers_xy --all --size=60x12
+
+=pod
+
+    radix => 1
+
+    11  |   511  32  18  21  39  55  29  26  48 767
+    10  |   255      17              25     383
+     9  |   127  16      19  27      24 191
+     8  |    63      10      14      95
+     7  |    31   8   9  13  12  47
+     6  |    15              23
+     5  |     7   4   6  11
+     4  |     3       5
+     3  |     1   2
+     2  |     0
+     1  |
+    Y=0 |
+         -------------------------------------------
+        X=0   1   2   3   4   5   6   7   8   9  10
+
+The result is similar to the HCS encoding of
+L<Math::PlanePath::RationalsTree/Continued Fraction High to Low>.  Except
+the lowest run is 0111 here, instead of 1000, ie. N-1, and a flip (Y-X)/X to
+map from X/YE<lt>1 here to instead all rationals in the HCS tree.  For
+example
+
+    CfracDigits radix=1       RationalsTree tree_type=HCS
+
+    X/Y = 5/6                 (Y-X)/X = 1/5
+    is at                     is at
+    N = 23 = 0b10111          N = 24 = 0b11000
+                ^^^^                      ^^^^
 
 =head1 FUNCTIONS
 

@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,10 +46,14 @@ use Math::PlanePath::MultipleRings;
 
 use constant figure => 'circle';
 use constant n_start => 0;
+use constant dx_minimum => -1; # infimum when straight
+use constant dx_maximum => 1;  # at N=0
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
 
-use constant 1.02; # for leading underscore
-use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
+#------------------------------------------------------------------------------
 
+use constant 1.02 _PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 # Starting at polar angle position t in radians,
 #
@@ -98,7 +102,7 @@ use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
 # Newton's method
 #                           */    <- f(x) high
 #                          */|
-#                        * / | 
+#                        * / |
 #                      *  /  |
 #          ---------*------------------
 #                        +---+  <- subtract

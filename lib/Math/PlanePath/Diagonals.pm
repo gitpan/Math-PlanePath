@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -49,6 +49,21 @@ use constant parameter_info_array =>
     },
     Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
+
+sub dx_maximum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? 1       # down at most +1 across
+          : undef); # up jumps back across unlimited at top
+}
+sub dy_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? -1      # down at most -1
+          : undef); # up jumps down unlimited at top
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -139,8 +154,8 @@ sub n_to_xy {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### xy_to_n(): $x, $y
-  $x -= $self->{'x_start'};
-  $y -= $self->{'y_start'};
+  $x = $x - $self->{'x_start'};   # "-" operator to provoke warning if x==undef
+  $y = $y - $self->{'y_start'};
   if ($self->{'direction'} eq 'up') {
     ($x,$y) = ($y,$x);
   }

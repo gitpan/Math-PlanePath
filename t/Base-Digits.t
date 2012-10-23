@@ -119,17 +119,25 @@ ok (join(',',digit_split_lowtohigh(13,2)), '1,0,1,1');
   foreach my $radix (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
     my @digits = digit_split_lowtohigh($n,$radix);
     my $lowtwo = $n % ($radix * $radix);
-    ok ($digits[0], $lowtwo % $radix);
-    ok ($digits[1], int($lowtwo / $radix));
+    ok ($digits[0], $lowtwo % $radix,
+       "$n mod $radix lowest digit");
+    ok ($digits[1], int($lowtwo / $radix),
+       "$n mod $radix second lowest digit");
   }
 }
 {
   my $uv_max = ~0;
   my $ones = 1;
-  foreach my $bit (digit_split_lowtohigh($uv_max,2)) {
+  my @bits = digit_split_lowtohigh($uv_max,2);
+  foreach my $bit (@bits) {
     $ones &&= $bit;
   }
-  ok ($ones, 1);
+  ok ($ones, 1,
+      "~0 uv_max $uv_max should be all 1s");
+  if (! $ones) {
+    MyTestHelpers::diag ("~0 uv_max $uv_max is: ",
+                         @bits);
+  }
 }
 #------------------------------------------------------------------------------
 # bit_split_lowtohigh()

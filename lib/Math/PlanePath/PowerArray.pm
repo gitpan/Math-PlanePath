@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -34,9 +34,9 @@ use Math::PlanePath::Base::Digits
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-use constant n_start => 1;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
 
 sub new {
   my $self = shift->SUPER::new (@_);
@@ -310,6 +310,7 @@ path include
       A135764    N by diagonals, downwards
 
     radix=3
+      A007949    X coordinate, power-of-3 dividing N
       A000244    N on X axis, powers 3^X
       A135765    odd N by diagonals, delete the Y=1,2mod4 rows
 
@@ -317,7 +318,11 @@ path include
       A000302    N on X axis, powers 4^X
 
     radix=5
+      A112765    X coordinate, power-of-5 dividing N
       A000351    N on X axis, powers 5^X
+
+    radix=6
+      A122841    X coordinate, power-of-6 dividing N
 
     radix=10
       A011557    N on X axis, powers 10^X

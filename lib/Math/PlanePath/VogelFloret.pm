@@ -35,7 +35,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -162,6 +162,14 @@ use constant parameter_info_array =>
      when_value => 'custom',
    },
   ];
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  # starting N=1 at R=radius_factor*sqrt(1), theta=something
+  return $self->{'radius_factor'} ** 2;
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new (@_);

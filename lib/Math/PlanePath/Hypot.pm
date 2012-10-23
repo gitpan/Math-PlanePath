@@ -43,7 +43,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -67,6 +67,15 @@ use constant parameter_info_array =>
     },
     Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ($self->{'points'} eq 'odd'
+          ? 1     # odd at X=1,Y=0
+          : 0);   # even,all at X=0,Y=0
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -232,6 +241,16 @@ sub n_to_xy {
   my $y = $n_to_y->[$int];
   return ($x + $n * ($n_to_x->[$int+1] - $x),
           $y + $n * ($n_to_y->[$int+1] - $y));
+}
+
+sub _UNTESTED__xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
+    return 0;
+  }
+  return 1;
 }
 
 sub xy_to_n {

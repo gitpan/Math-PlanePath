@@ -17,7 +17,14 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-Version 90, September 2012
+Version 91, October 2012
+    - new tree_depth_to_n(), tree_depth_to_n_end()
+    - RationalsTree new tree_type "HCS"
+    - UlamWarburton,UlamWarburtonQuarter new "n_start" parameter
+    - PlanePathN new line_type=>"Depth_start","Depth_end"
+    - Math::PlanePath::Base::Digits new bit_split_lowtohigh()
+
+Version 90, October 2012
     - new CfracDigits, ChanTree
     - tree_n_num_children() return undef when no such N
     - Diagonals new x_start,y_start parameters

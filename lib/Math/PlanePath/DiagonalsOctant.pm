@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,6 +48,28 @@ use constant parameter_info_array =>
     },
     Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
+
+
+sub dx_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'up' ? -1 : undef);
+}
+sub dx_maximum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down' ? 1 : undef);
+}
+
+sub dy_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down' ? -1 : undef);
+}
+sub dy_maximum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'up' ? 1 : undef);
+}
+
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);

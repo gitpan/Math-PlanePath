@@ -51,7 +51,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -59,8 +59,6 @@ $VERSION = 90;
 
 
 use constant n_start => 0;
-use constant class_x_negative => 1;
-use constant class_y_negative => 1;
 sub x_negative {
   my ($self) = @_;
   return ($self->{'arms'} >= 3);
@@ -80,6 +78,13 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          width     => 1,
                                          description => 'Arms',
                                        } ];
+
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new(@_);

@@ -29,8 +29,8 @@
 #
 #     perl numbers.pl SquareSpiral,wider=4
 #
-# With option "all" print all classes and a selection of their parameters
-# (per the table in the code below),
+# With option "all" print all classes and a selection of their parameters,
+# per the table in the code below
 #
 #     perl numbers.pl all
 #
@@ -53,9 +53,10 @@
 # rounded to character positions.  There's some hard-coded fudge factors to
 # try to make them come out nicely.
 #
-# When an X,Y position is visited more than once, such as the DragonCurve or
-# when rounding means that happens for a few initial points such as
-# KochSquareflakes, the two N's are shown with a comma like "9,24".
+# When an X,Y position is visited more than once multiple N's are shown with
+# a comma like "9,24".  This can happen for example in the DragonCurve where
+# points are visited twice, or when rounding gives the same X,Y for a few
+# initial points such as in KochSquareflakes.
 #
 
 use 5.004;
@@ -293,6 +294,7 @@ my @all_classes = ('SquareSpiral',
                    'RationalsTree,tree_type=SB',
                    'RationalsTree,tree_type=CW',
                    'RationalsTree,tree_type=AYT',
+                   'RationalsTree,tree_type=HCS',
                    'RationalsTree,tree_type=Bird',
                    'RationalsTree,tree_type=Drib',
                    'RationalsTree,tree_type=L',

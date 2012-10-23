@@ -36,10 +36,10 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
-#          parameter_info_array()
+#          parameter_info_array(), xy_is_visited()
 use Math::PlanePath::FlowsnakeCentres 55; # v.55 inheritance switch-around
 @ISA = ('Math::PlanePath::FlowsnakeCentres');
 use Math::PlanePath;

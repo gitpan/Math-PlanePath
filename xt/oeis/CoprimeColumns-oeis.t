@@ -49,6 +49,12 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
+sub path_xy_is_visited {
+  my ($path, $x,$y) = @_;
+  return defined($path->xy_to_n($x,$y));
+}
+
+
 #------------------------------------------------------------------------------
 # A127368 - Y coordinate of coprimes, 0 for non-coprimes
 
@@ -85,7 +91,7 @@ sub numeq_array {
     if ($bvalues) {
     OUTER: for (my $x = 1; ; $x++) {
         foreach my $y (1 .. $x) {
-          if (defined ($path->xy_to_n($x,$y))) {
+          if (path_xy_is_visited($path,$x,$y)) {
             push @got, $y;
           } else {
             push @got, 0;
@@ -202,7 +208,7 @@ sub delete_second_highest_bit {
   if ($bvalues) {
     OUTER: for (my $x = 2; ; $x++) {
       for (my $y = 1; $y <= $x; $y++) {
-        if (! defined ($path->xy_to_n($x,$y))) {
+        if (! path_xy_is_visited($path,$x,$y)) {
           push @got, $y;
           last OUTER unless @got < @$bvalues;
         }
@@ -307,7 +313,7 @@ sub delete_second_highest_bit {
     if ($bvalues) {
     OUTER: for (my $x = 1; ; $x++) {
         foreach my $y (1 .. $x) {
-          if (defined ($path->xy_to_n($x,$y))) {
+          if (path_xy_is_visited($path,$x,$y)) {
             push @got, 1;
           } else {
             push @got, 0;

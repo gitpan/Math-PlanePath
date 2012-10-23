@@ -15,11 +15,18 @@
 ;; You should have received a copy of the GNU General Public License along
 ;; with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+;; =={{header|Emacs Lisp}}==
+;; Drawing ascii art characters into a buffer using <code>picture-mode</code>.
+;; 
+;; <lang lisp>
+
+
 ;;-----------------------------------------------------------------------------
 ;; by turns
 ;;
 
-(require 'cl) ;; for `ignore-errors' in Emacs 22 and earlier
+(require 'cl) ;; Emacs 22 and earlier for `ignore-errors'
 
 (defun dragon-ensure-line-above ()
   "If point is in the first line of the buffer then insert a new line above."
@@ -41,13 +48,12 @@ This is designed for use in `picture-mode'."
 
 (defun dragon-insert-char (char len)
   "Insert CHAR repeated LEN many times.
-After each CHAR, point is moved in the current `picture-mode'
-direction, as set by `picture-set-motion' etc.
+After each CHAR point move in the current `picture-mode'
+direction, as per `picture-set-motion' etc.
 
-This is the same as `picture-insert' except that when in column 0
-or row 0 a new row or column is inserted so that there's room to
-move up or left, with existing buffer contents shifted down or
-right."
+This is the same as `picture-insert' except in column 0 or row 0
+a new row or column is inserted so that there's room to move up
+or left, with existing buffer contents shifted down or right."
 
   (dotimes (i len)
     (dragon-ensure-line-above)
@@ -57,14 +63,14 @@ right."
 (defun dragon-bit-above-lowest-0bit (n)
   "Return the bit above the lowest 0-bit in N.
 For example N=43 binary \"101011\" has lowest 0-bit at \"...0..\"
-and the bit above that is a \"..1...\" so the return is 8 which
-is that bit."
+and the bit above that is \"..1...\" so return 8 which is that
+bit."
   (logand n (1+ (logxor n (1+ n)))))
 
 (defun dragon-next-turn-right-p (n)
   "Return non-nil if the dragon curve should turn right after segment N.
 Segments are numbered from N=0 for the first, so calling with N=0
-is the turn to make after drawing that first segment."
+is whether to turn right after drawing that first segment."
   (zerop (dragon-bit-above-lowest-0bit n)))
 
 (defun dragon-picture (len step)
@@ -72,10 +78,12 @@ is the turn to make after drawing that first segment."
 LEN is the number of segments of the curve to draw.  STEP is the
 length of each segment.
 
-If LEN is a power-of-2 it shows self-similar nature of the curve,
-but any length can be given.  If STEP >= 2 then the segments have
-lines with \"|\" or \"-\" characters.  If STEP=1 then only \"+\"
-corners.
+Any LEN can be given, but a power-of-2 such as 256 shows the
+self-similar nature of the curve.
+
+If STEP >= 2 then the segments are lines using \"-\" or \"|\"
+characters (`picture-rectangle-h' and `picture-rectangle-v').
+If STEP=1 then only \"+\" corners.
 
 There's a `sit-for' delay in the drawing loop to draw
 progressively on screen."
@@ -87,7 +95,8 @@ progressively on screen."
 
   (switch-to-buffer "*dragon*")
   (erase-buffer)
-  (ignore-errors (picture-mode))
+  (ignore-errors ;; if already in picture-mode
+    (picture-mode))
 
   (dotimes (n len)  ;; n=0 to len-1, inclusive
     (dragon-insert-char ?+ 1)  ;; corner char
@@ -108,7 +117,7 @@ progressively on screen."
   (picture-mode-exit)
   (goto-char (point-min)))
 
-(dragon-picture 256 3)
+(dragon-picture 128 2)
 
 
 

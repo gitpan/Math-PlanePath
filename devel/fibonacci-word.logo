@@ -18,22 +18,23 @@
 ;; with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-;; overlapping but slowly expanding hexagons
+;; hexagons overlapping much but slowly expanding
 
-
-to print.binary :n
-  do.while [
-     type  bitand :n 1
-     make "n  lshift :n -1
-  ] [:n <> 0] 
-  print "
-end
 
 to fibbinary.next :n
   localmake "filled  bitor :n (lshift :n -1)
   localmake "mask    lshift (bitxor :filled (:filled + 1)) -1
   output (bitor :n :mask) + 1
 end
+
+
+; to print.binary :n
+;   do.while [
+;      type  bitand :n 1
+;      make "n  lshift :n -1
+;   ] [:n <> 0] 
+;   print "
+; end
 
 ; make "n 0
 ; for [i 0 21 1] [

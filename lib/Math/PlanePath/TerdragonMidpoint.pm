@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,6 +54,25 @@ use constant parameter_info_array => [ { name        => 'arms',
                                          width       => 1,
                                          description => 'Arms',
                                        } ];
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ($self->arms_count < 2
+          ? 4   # 1 arm, minimum X=2,Y=0
+          : 2); # 2 or more arms, minimum X=1,Y=1
+}
+
+use constant dx_minimum => -2;
+use constant dx_maximum => 2;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
+
+# Not quite.
+# # all even points when arms==3
+# use Math::PlanePath::TerdragonCurve;
+# *xy_is_visited = \&Math::PlanePath::TerdragonCurve::xy_is_visited;
 
 sub new {
   my $class = shift;

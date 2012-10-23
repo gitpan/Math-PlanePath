@@ -27,14 +27,16 @@
 # A160796 with initial single 1
 # A160797   first diffs
 # A188343
-
+# A151922 - num first-quadrant cells
+# A079314 first diffs
+# A079316
 
 package Math::PlanePath::UlamWarburton;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -46,9 +48,23 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'round_down_pow';
 
+use Math::PlanePath::UlamWarburtonQuarter;
+
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+use constant parameter_info_array =>
+  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+  ];
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 # 1+3+3+9=16
 #
@@ -109,10 +125,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### UlamWarburton n_to_xy(): $n
 
-  if ($n < 1) { return; }
+  if ($n < $self->{'n_start'}) { return; }
   if (is_infinite($n)) { return ($n,$n); }
-  if ($n == 1) { return (0,0); }
-
   {
     my $int = int($n);
     ### $int
@@ -128,6 +142,10 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
+  $n = $n - $self->{'n_start'} + 1;  # N=1 basis
+  if (is_infinite($n)) { return ($n,$n); }
+  if ($n == 1) { return (0,0); }
+
   my ($power, $exp) = round_down_pow (3*$n-2, 4);
   $exp -= 1;
   $power /= 4;
@@ -140,21 +158,17 @@ sub n_to_xy {
   ### n less pow base: $n
 
   my @levelbits = (2**$exp);
-  $power = 3**$exp;
 
   # find the cumulative levelpoints total <= $n, being the start of the
   # level containing $n
   #
   my $factor = 4;
   while (--$exp >= 0) {
-    $power /= 3;
     my $sub = 4**$exp * $factor;
     ### $sub
-    # $power*$factor;
     my $rem = $n - $sub;
 
     ### $n
-    ### $power
     ### $factor
     ### consider subtract: $sub
     ### $rem
@@ -219,7 +233,7 @@ sub xy_to_n {
   $x = round_nearest ($x);
   $y = round_nearest ($y);
   if ($x == 0 && $y == 0) {
-    return 1;
+    return $self->{'n_start'};
   }
 
   my $quad;
@@ -302,14 +316,12 @@ sub xy_to_n {
 
   ### $n
   ### $level
-  ### level n: _n_start($level)
   ### $ndigits
   ### npower: 3**$ndigits
   ### $quad
   ### quad powered: $quad*3**$ndigits
-  ### xy_to_n: $n + ($zero+3)**$ndigits*$quad + _n_start($level)
 
-  return $n + $quad*3**$ndigits + _n_start($level);
+  return $n + $quad*3**$ndigits + $self->tree_depth_to_n($level);
 }
 
 # not exact
@@ -330,7 +342,8 @@ sub rect_to_n_range {
 
   ### rounded to pow2: "$dlo  ".(2*$dhi)
 
-  return (_n_start($dlo), _n_start(2*$dhi));
+  return ($self->tree_depth_to_n($dlo),
+          $self->tree_depth_to_n(2*$dhi) - 1);
 }
 
 #     x1       |       x2
@@ -366,49 +379,13 @@ sub _rect_to_diamond_range {
           $x2+$y2);
 }
 
-sub _n_start {
-  my ($level) = @_;
-  ### _n_start: $level
-
-  my ($power, $exp) = round_down_pow ($level, 2);
-  if (is_infinite($power)) {
-    return $power;
-  }
-  my $n = 2 + 4*($power*$power - 1)/3  - ($level==0);
-
-  ### $power
-  ### $exp
-  ### $n
-
-  $level -= $power;
-  my $factor = 4;
-  while ($exp--) {
-    $power /= 2;
-    if ($level >= $power) {
-      $level -= $power;
-      $n += $power*$power*$factor;
-      ### add: $power*$factor
-      $factor *= 3;
-    }
-  }
-  ### n_level: $n
-  return $n;
-}
-### assert: _n_start(1) == 2
-### assert: _n_start(2) == 6
-### assert: _n_start(3) == 10
-### assert: _n_start(4) == 22
-### assert: _n_start(5) == 26
-### assert: _n_start(6) == 38
-### assert: _n_start(7) == 50
-### assert: _n_start(8) == 86
-
 # ENHANCE-ME: step by the bits, not by X,Y
+# ENHANCE-ME: tree_n_to_depth() by probe
 sub tree_n_children {
   my ($self, $n) = @_;
   ### UlamWarburton tree_n_children(): $n
 
-  if ($n < 1) {
+  if ($n < $self->{'n_start'}) {
     return;
   }
   my ($x,$y) = $self->n_to_xy($n);
@@ -429,7 +406,7 @@ sub tree_n_parent {
   my ($self, $n) = @_;
   ### UlamWarburton tree_n_parent(): $n
 
-  if ($n <= 1) {
+  if ($n <= $self->{'n_start'}) {
     return undef;
   }
   my ($x,$y) = $self->n_to_xy($n);
@@ -493,11 +470,25 @@ sub tree_n_parent {
 #   }
 # }
 
+# Converting quarter ...
+# (N-start)*4+1+start = 4*N-4*start+1+start
+#                     = 4*N-3*start+1
+#
+sub tree_depth_to_n {
+  my ($self, $depth) = @_;
+  if ($depth == 0) {
+    return $self->{'n_start'};
+  }
+  if (defined (my $n = $self->Math::PlanePath::UlamWarburtonQuarter::tree_depth_to_n($depth-1))) {
+    return 4*$n - 3*$self->{'n_start'} + 1;
+  }
+  return undef;
+}
 
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Ulam Warburton Nstart OEIS ie
+=for stopwords eg Ryde Math-PlanePath Ulam Warburton Ndepth OEIS ie
 
 =head1 NAME
 
@@ -547,41 +538,41 @@ cell "a" is N=1,
 The next level "b" cells are numbered N=2 to N=5 anti-clockwise from the
 right,
 
-                b   
-             b  a  b               level 1 
-                b    
+                b
+             b  a  b               level 1
+                b
 
 Likewise the next level "c" cells N=6 to N=9.  The "b" cells only grow
 outwards as 4 "c"s since the other positions would have neighbours in the
 existing "b"s.
 
-                c      
-                b        
-          c  b  a  b  c            level 2  
-                b        
-                c        
+                c
+                b
+          c  b  a  b  c            level 2
+                b
+                c
 
 The "d" cells are then N=10 to N=21, numbered following the previous level
 "c" cell order and then anti-clockwise around each.
 
                 d
-             d  c  d      
-          d     b     d   
-       d  c  b  a  b  c  d         level 3  
-          d     b     d   
-             d  c  d  
+             d  c  d
+          d     b     d
+       d  c  b  a  b  c  d         level 3
+          d     b     d
+             d  c  d
                 d
 
 There's only 4 "e" cells since among the "d"s only the X,Y axes won't have
 existing neighbours (the "b"s and "d"s).
 
-                e                
+                e
                 d
-             d  c  d     
-          d     b     d   
+             d  c  d
+          d     b     d
     e  d  c  b  a  b  c  d  e      level 4
-          d     b     d   
-             d  c  d  
+          d     b     d
+             d  c  d
                 d
                 e
 
@@ -599,30 +590,30 @@ generation, the number of new cells added in a growth level is
     levelcells(level) = 4 * 3^((count 1 bits in level) - 1)
 
 So level 1 has 4*3^0=4 cells, as does level 2 N=6,7,8,9.  Then level 3 has
-4*3^1=12 cells N=10 to N=21 because 3=0b11 has two 1 bits in binary.  The N
+4*3^1=12 cells N=10 to N=21 because 3=0b11 has two 1-bits in binary.  The N
 start and end for a level is the cumulative total of those before it,
 
-    Nstart(level) = 1 + (levelcells(0) + ... + levelcells(level-1))
+    Ndepth(level) = 1 + (levelcells(0) + ... + levelcells(level-1))
 
     Nend(level) = levelcells(0) + ... + levelcells(level)
 
 For example level 3 ends at N=(1+4+4)=9.
 
-    level    Nstart   levelcells     Nend    
-      0          1         1           1   
-      1          2         4           5   
+    level    Ndepth   levelcells     Nend
+      0          1         1           1
+      1          2         4           5
       2          6         4           9
-      3         10        12          21   
-      4         22         4          25   
-      5         26        12          37   
-      6         38        12          49   
-      7         50        36          85   
-      8         86         4          89   
-      9         90        12         101   
+      3         10        12          21
+      4         22         4          25
+      5         26        12          37
+      6         38        12          49
+      7         50        36          85
+      8         86         4          89
+      9         90        12         101
 
-For a power-of-2 level the Nstart is
+For a power-of-2 level the Ndepth is
 
-    Nstart(2^a) = 2 + 4*(4^a-1)/3
+    Ndepth(2^a) = 2 + 4*(4^a-1)/3
 
 For example level=4=2^2 starts at N=2+4*(4^2-1)/3=22, or level=8=2^3 starts
 N=2+4*(4^3-1)/3=86.
@@ -632,13 +623,14 @@ each bit above.  So if the level number has bits a,b,c,d,etc in descending
 order,
 
     level = 2^a + 2^b + 2^c + 2^d ...       a>b>c>d...
-    Nstart = 2 + 4*(4^a-1)/3
-               +       4^(b+1)
-               +   3 * 4^(c+1)
-               + 3^2 * 4^(d+1) + ...
+    Ndepth = 2 + 4*(-1 
+                    +       4^a
+                    +   3 * 4^b
+                    + 3^2 * 4^c
+                    + 3^3 * 4^d + ... ) / 3
 
-For example level=6 = 2^2+2^1 is Nstart = 1 + (1+4*(4^2-1)/3) + 4^(1+1) =
-38.  Or level=7 = 2^2+2^1+2^0 is Nstart = 1 + (1+4*(4^2-1)/3) + 4^(1+1) +
+For example level=6 = 2^2+2^1 is Ndepth = 2 + (1+4*(4^2-1)/3) + 4^(1+1) =
+38.  Or level=7 = 2^2+2^1+2^0 is Ndepth = 1 + (1+4*(4^2-1)/3) + 4^(1+1) +
 3*4^(0+1) = 50.
 
 =head2 Self-Similar Replication
@@ -651,7 +643,7 @@ an "a" part going to the right,
       a   d   c
     a a a * c c c ...
       a   b   c
-        b b b 
+        b b b
           b
 
 The 2x2 diamond shaped "a" repeats pointing up, down and right as "b", "c"
@@ -659,6 +651,35 @@ and "d".  This resulting 4x4 diamond then likewise repeats up, down and
 right.  The points in the path here are numbered by growth level rather than
 in this sort of replication, but the replication helps to see the structure
 of the pattern.
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=UlamWarburton,n_start=0 --expression='i<38?i:0' --output=numbers
+
+=pod
+
+    n_start => 0
+
+                   29                       5
+                30 22 28                    4
+                   13                       3
+                14  6 12                    2
+       31    15     2    11    27           1
+    32 23 16  7  3  0  1  5 10 21 26    <- Y=0
+       33    17     4     9    25          -1
+                18  8 20       37          -2
+                   19                      -3
+                34 24 36                   -4
+                   35                      -5
+
+                    ^
+    -5 -4 -3 -2 -1 X=0 1  2  3  4  5
 
 =head1 FUNCTIONS
 
@@ -668,12 +689,9 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::UlamWarburton-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::UlamWarburton-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new path object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.  Points begin
-at 1 and if C<$n E<lt> 0> then the return is an empty list.
 
 =back
 
@@ -718,12 +736,13 @@ single cell as level n=1, then N=2,3,4,5 as level n=2 with 5 cells, etc.
 This makes the formula a binary 1-bits count on n-1 rather than on N the way
 levelcells() above is expressed.
 
-The 1bits-count power 3^(count 1 bits in level) part of the levelcells() is
+The 1bits-count power 3^(count 1-bits in level) part of the levelcells() is
 also separately in A048883, and as n-1 in A147610.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::UlamWarburtonQuarter>,
 L<Math::PlanePath::CellularRule>
 
 L<Math::PlanePath::SierpinskiTriangle> (a similar binary ones-count related

@@ -39,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -65,6 +65,21 @@ use constant parameter_info_array =>
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+
+sub x_minimum {
+  my ($self) = @_;
+  return ($self->{'points'} eq 'odd'
+          ? 1    # odd, line X=Y not included
+          : 0);  # octant Y<=X so X-Y>=0
+}
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ($self->{'points'} eq 'odd'
+          ? 1     # odd at X=1,Y=0
+          : 0);   # even,all at X=0,Y=0
+}
+
+#------------------------------------------------------------------------------
 
 # my @n_to_x = (undef, 0);
 # my @n_to_y = (undef, 0);

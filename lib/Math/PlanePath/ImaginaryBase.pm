@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -72,6 +72,7 @@ use Math::PlanePath::ZOrderCurve;
 
 
 use constant n_start => 0;
+use constant xy_is_visited => 1;
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -531,6 +532,8 @@ If the NX,NY ranges are exact then the resulting Nmin,Nmax range is exact.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
+L<Math::PlanePath::ImaginaryHalf>,
+L<Math::PlanePath::CubicBase>,
 L<Math::PlanePath::ZOrderCurve>
 
 =head1 HOME PAGE

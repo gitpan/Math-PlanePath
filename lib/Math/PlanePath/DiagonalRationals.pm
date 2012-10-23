@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -52,6 +52,7 @@ use vars '@_x_to_n';
 BEGIN {
   *_x_to_n = \@Math::PlanePath::CoprimeColumns::_x_to_n;
   *_extend = \&Math::PlanePath::CoprimeColumns::_extend;
+  *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 }
 
 
@@ -94,6 +95,8 @@ BEGIN {
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+use constant x_minimum => 1;
+use constant y_minimum => 1;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -105,6 +108,18 @@ sub n_to_xy {
   my ($x,$y) = Math::PlanePath::CoprimeColumns::n_to_xy($self,$n)
     or return;
   return ($y,$x-$y);
+}
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  if ($x < 1
+      || $y < 1
+      || ! _coprime($x,$y)) {
+    return 0;
+  }
+  return 1;
 }
 
 sub xy_to_n {

@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -65,6 +65,20 @@ use Math::PlanePath::Base::Generic
 
 use Math::PlanePath::SquareSpiral;
 *parameter_info_array = \&Math::PlanePath::SquareSpiral::parameter_info_array;
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ($self->{'wider'} % 2
+          ? 1   # odd "wider" minimum X=1,Y=0
+          : 0); # even "wider" includes X=0,Y=0
+}
+
+use constant dx_minimum => -2;
+use constant dx_maximum => 2;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new (@_);
@@ -153,6 +167,13 @@ sub n_to_xy {
   $n -= $d;
   return ($n - 2*$d - $w,
           -$n);
+}
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  return ! (($x ^ $y ^ $self->{'wider'}) & 1);  # nothing on odd squares
 }
 
 sub xy_to_n {

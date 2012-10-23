@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,6 +45,20 @@ sub n_frac_discontinuity {
   return $n_frac_discontinuity{$self->{'end_type'}};
 }
 
+use constant dx_minimum => -1;
+use constant dy_minimum => -1;
+{
+  my %dx_maximum = (jump   => 2,
+                    square => 1);
+  sub dx_maximum {
+    my ($self) = @_;
+    return $dx_maximum{$self->{'end_type'}};
+  }
+}
+*dy_maximum = \&dx_maximum;
+
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new(@_);
   $self->{'end_type'} ||= 'jump';

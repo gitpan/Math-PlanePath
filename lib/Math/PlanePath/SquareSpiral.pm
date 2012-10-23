@@ -26,7 +26,12 @@
 # including image highlighting the lines
 
 # cf sides alternately prime and fibonacci
-# A160790 A160791 A160792 A160793 A160794 A160795
+# A160790 corner N
+# A160791 side lengths, alternately integer and triangular adding that integer
+# A160792 corner N
+# A160793 side lengths, alternately integer and sum primes
+# A160794 corner N
+# A160795 side lengths, alternately primes and fibonaccis
 
 
 package Math::PlanePath::SquareSpiral;
@@ -36,7 +41,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 90;
+$VERSION = 91;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,6 +50,7 @@ use Math::PlanePath::Base::Generic
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
+
 
 # http://d4maths.lowtech.org/mirage/ulam.htm
 # http://d4maths.lowtech.org/mirage/img/ulam.gif
@@ -69,6 +75,14 @@ use constant parameter_info_array =>
     },
     Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
   ];
+
+use constant xy_is_visited => 1;
+use constant dx_minimum => -1;
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $self = shift->SUPER::new (@_);

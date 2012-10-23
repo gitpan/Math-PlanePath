@@ -19,6 +19,7 @@
 
 use 5.004;
 use strict;
+use List::Util 'min', 'max';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -27,14 +28,14 @@ use strict;
 {
   # tree_n_to_depth()
   require Math::PlanePath::ToothpickTree;
-  my $path = Math::PlanePath::ToothpickTree->new;
-  my $prev = 0;
+  my $path = Math::PlanePath::ToothpickTree->new (parts => 2);
+  my $prev = -999;
   my $count = 0;
   my $total = 0;
-  for (my $n = 1; $n <= 256; $n++) {
+  for (my $n = 0; $n <= 256; $n++) {
     my $depth = $path->tree_n_to_depth($n);
-    if ($depth > $prev) {
-      print "$prev  $count  $total\n";
+    if ($depth != $prev) {
+      print "$depth n=$n  added=$count  $total\n";
       $count = 0;
       $prev = $depth;
     }
@@ -45,6 +46,85 @@ use strict;
 }
 
 {
+  #         |               |
+  # 6|     23--19--  --18--22
+  #  |      |   |       |   |
+  # 5|         16--13--15
+  #  |              |   |
+  # 4|-10--  ---9--11
+  #  |  |       |   |   |
+  # 3|  8---5---7 -12--14
+  #  |      |   |       |   |
+  # 2| -2---3      20--17--21
+  #  |  |   |   |   |       |
+  # 1|--1 --4---6
+  #  |  |       |
+  # 0|
+  #  +--------------------
+  #     0
+
+  #         |               |
+  # 6|     10---9--  ---9--10
+  #  |      |   |       |   |
+  # 5|          8---7---8
+  #  |              |   |
+  # 4|--5--  ---5---6
+  #  |  |       |   |   |
+  # 3|  4---3---4 --7---8
+  #  |      |   |       |   |
+  # 2| -1---2      10---9--10
+  #  |  |   |   |   |       |
+  # 1|--0 --3---4
+  #  |  |       |
+  # 0|
+  #  +--------------------
+  #     0
+
+  # total 1-quad A153000 OFFSET=0
+  #   0,1,2, 3,5,8,10, 11,13,16,19,23,30,38,42,
+  #   0 1 2  3 4 5 6   7  8  9  10 11 12 13 14
+  #
+  #   43,45,48,51,55,62,70,75,79,86,95,105,120,142,162,170, 171,173,176,
+  #   15 16 17 18 19 20 21 22 23 24 25 26  27  28  29  30   31  32  33
+  #      +2 +3 +3 +4 +7 +8 +5 +4 +7 +9 +10 +15 +22 +20 +18  +1  +2  +
+  #
+  #  43 = 
+  #  45 = 44 + 1
+  #  48 = 44 + 2*0+1 = +4      
+  #  51 = 44 + 2*2+3 = +7  +3  
+  #  55   44 + 2*3+5 = +11 +4  
+  #  62 = 44   2*5+8 = +18 +7  
+  #  70 = 44 + 2*8+10 = +26 +8 
+  #  75 = 44 + 2*10+11 = +31 +5
+  #  79 = 44 + 2*11+13
+  # 162 = 44 + 2*38+42
+  # 170 = 44 + 2*42+42
+  # 171
+  #
+  my @total = (0,0,1,2,3,5,8,10);
+  print join(',',@total),"\n";
+ OUTER: for (my $len = 8; ; $len *= 2) {
+    my $t = $total[-1] + $len/8;
+    # push @total, $t;
+    print "[t=$t] ";
+    for my $i (0 .. $len-1) {
+      my $nt = $t + 2*$total[max($i,0)] + $total[min($i+1,$len-1)];
+      # print "<$total[$i+1],$total[$i]>";
+      print "$nt,";
+      push @total, $nt;
+
+      last OUTER if $#total > 33;
+    }
+
+    my $tsize = scalar(@total);
+    print "  [tsize=$tsize]\n";
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  # added 4-quads
   my @added = (0, 1, 2, 4);
   print "0,1,\n2,4,\n";
   for (my $len = 4; $len <= 16; $len *= 2) {
