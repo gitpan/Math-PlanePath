@@ -34,6 +34,8 @@ devel/dragon.el
 devel/dragon.gnuplot
 devel/dragon.logo
 devel/dragon.pl
+devel/EToothpickTree-oeis.t
+devel/EToothpickTree.pm
 devel/exe-atan2.c
 devel/exe-complex-minus.c
 devel/exe-complex-plus.c
@@ -65,8 +67,6 @@ devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
 devel/lib/Math/PlanePath/BalancedArray.pm
-devel/lib/Math/PlanePath/EToothpickTree-oeis.t
-devel/lib/Math/PlanePath/EToothpickTree.pm
 devel/lib/Math/PlanePath/FibonacciSquareSpiral.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
 devel/lib/Math/PlanePath/lcorner-replicate-table.pl
@@ -102,6 +102,7 @@ devel/multiple-rings.pl
 devel/number-fraction.pl
 devel/numseq.pl
 devel/peano.pl
+devel/permutations.pl
 devel/pixel-rings.pl
 devel/pythagorean-area.pl
 devel/pythagorean.pl
@@ -419,6 +420,7 @@ xt/oeis/CoprimeColumns-oeis.t
 xt/oeis/Corner-oeis.t
 xt/oeis/CornerReplicate-oeis.t
 xt/oeis/DiagonalRationals-oeis.t
+xt/oeis/Diagonals-oeis.t
 xt/oeis/DiagonalsAlternating-oeis.t
 xt/oeis/DiagonalsOctant-more.t
 xt/oeis/DiagonalsOctant-oeis.t
@@ -438,9 +440,10 @@ xt/oeis/HilbertCurve-oeis.t
 xt/oeis/Hypot-more.t
 xt/oeis/Hypot-oeis.t
 xt/oeis/HypotOctant-oeis.t
-xt/oeis/ImaginaryBase-other.t
+xt/oeis/ImaginaryBase-oeis.t
 xt/oeis/KnightSpiral-oeis.t
 xt/oeis/KochCurve-oeis.t
+xt/oeis/LTiling-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
 xt/oeis/PeanoCurve-oeis.t
 xt/oeis/PowerArray-oeis.t

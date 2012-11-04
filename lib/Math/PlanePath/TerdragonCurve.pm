@@ -43,7 +43,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;

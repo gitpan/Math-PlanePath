@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 23;
+plan tests => 35;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -91,6 +91,79 @@ sub diff_nums {
   return $diff;
 }
 
+
+#------------------------------------------------------------------------------
+# A004442 -- AYT N at transpose Y,X, flip low bit
+
+{
+  my $anum = 'A004442';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if ($bvalues) {
+    my @got = (1,0);
+    my $path = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+    for (my $n = 2; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $path->xy_to_n ($y, $x);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef,
+        "$anum transpose AYT");
+}
+
+#------------------------------------------------------------------------------
+# A063946 -- HCS N at transpose Y,X, flip second lowest bit
+
+{
+  my $anum = 'A063946';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if ($bvalues) {
+    my @got = (0);
+    my $path = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      push @got, $path->xy_to_n ($y, $x);
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
+    }
+  }
+  skip (! $bvalues,
+        $diff, undef,
+        "$anum transpose HCS");
+}
+
+#------------------------------------------------------------------------------
+# A054429 -- N at transpose Y,X, row right to left
+
+{
+  my $anum = 'A054429';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  foreach my $tree_type ('SB','CW','Bird','Drib') {
+    my $diff;
+    if ($bvalues) {
+      my @got;
+      my $path = Math::PlanePath::RationalsTree->new (tree_type => $tree_type);
+      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+        my ($x, $y) = $path->n_to_xy ($n);
+        push @got, $path->xy_to_n ($y, $x);
+      }
+      $diff = diff_nums(\@got, $bvalues);
+    }
+    skip (! $bvalues,
+          $diff, undef,
+          "$anum transpose $tree_type");
+  }
+}
 
 #------------------------------------------------------------------------------
 # A072030 - subtraction steps for gcd(x,y) by triangle rows

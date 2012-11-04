@@ -45,7 +45,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',

@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -528,6 +528,41 @@ The X and Y ranges can be treated separately and then interleaved,
     Nmax = interleave digits NXmax, NYmax
 
 If the NX,NY ranges are exact then the resulting Nmin,Nmax range is exact.
+
+An exact negaradix range can be calculated by digits high to low by
+considering the range taken by the negaradix form.  For example two
+negaternary digits,
+
+    N digit              2         1         0
+                   +---------+---------+---------+
+    N index        | 6  7  8 | 3  4  5 | 0  1  2 |
+                   +---------+---------+---------+
+    X negaternary   -6 -5 -4  -3 -2 -1   0  1  2
+                    ^
+                   base
+
+Taking the base=-90909...90 which is the lowest taken (where 9 is the radix
+digit R-1), then the next digit of N is the position from X-base, taken
+alternately reverse 2,1,0 as shown here or forward 0,1,2.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include,
+
+    http://oeis.org/A057300  (etc)
+
+    radix=2
+      A057300    permutation N at transpose Y,X (swap bit pairs)
+
+    radix=3
+      A163327    permutation N at transpose Y,X (swap trit pairs)
+
+    radix=4
+      A126006    permutation N at transpose Y,X (swap digit pairs)
+
+    radix=16
+      A217558    permutation N at transpose Y,X (swap digit pairs)
 
 =head1 SEE ALSO
 

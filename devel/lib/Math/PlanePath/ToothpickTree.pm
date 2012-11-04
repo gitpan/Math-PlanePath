@@ -24,8 +24,17 @@
 # math-image --path=ToothpickTree --all --output=numbers --size=80x50
 # math-image --path=ToothpickTree --all --figure=eobar
 #
+# A160740 toothpick starting from 4 as cross
+#
 # A153001 toothpick converge of parts=3 added
 #         endless row without exceptions at 2^k points
+# A162795 number parallel to initial
+# A162796 number opposite to initial
+# A162797  opp/par difference
+# A162793 added at an odd depth
+# A162794 added at an even depth
+#
+# A160160,A160161,A162798 3-D toothpicks
 #
 # cf A160172 T-tooth
 #
@@ -70,6 +79,10 @@
 #
 #    A151567 another rule toothpicks
 
+# "Q"
+# A187210, A210838, A210841, A211001-A211003, A211010, A211020-A211024.
+# A211000  A211011
+
 
 package Math::PlanePath::ToothpickTree;
 use 5.004;
@@ -79,7 +92,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -456,7 +456,9 @@ path include
     http://oeis.org/A062880  (etc)
 
     L_fill=middle
-      A062880     N on X=Y diagonal, base 4 digits 0,2 only
+      A062880    N on X=Y diagonal, base 4 digits 0,2 only
+      A048647    permutation N at transpose Y,X
+                   base4 digits 1<->3 and 0,2 unchanged
 
 =head1 SEE ALSO
 

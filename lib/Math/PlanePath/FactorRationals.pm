@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -349,12 +349,15 @@ Integer Sequences in the following forms
 
     http://oeis.org/A071974   (etc)
 
-    A071974 - X coordinate, numerators
-    A071975 - Y coordinate, denominators
-    A019554 - X*Y product
-    A102631 - N in column X=1, n^2/squarefreekernel(n)
-    A060837 - permutation DiagonalRationals -> FactorRationals
-    A071970 - permutation RationalsTree CW -> FactorRationals
+    A071974  X coordinate, numerators
+    A071975  Y coordinate, denominators
+    A019554  X*Y product
+    A102631  N in column X=1, n^2/squarefreekernel(n)
+
+    A011262  permutation N at transpose Y/X (exponents mangle odd<->even)
+
+    A060837  permutation DiagonalRationals -> FactorRationals
+    A071970  permutation RationalsTree CW -> FactorRationals
 
 The last A071970 is rationals taken in order of the Stern diatomic sequence
 stern[i]/stern[i+1], which is also the order of the Calkin-Wilf tree rows

@@ -37,7 +37,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -298,6 +298,9 @@ path include
     http://oeis.org/A062880    (etc)
 
     A062880    N values on diagonal X=Y (digits 0,2 in base 4)
+
+    A048647    permutation N at transpose Y,X
+                 base4 digits 1<->3 and 0,2 unchanged
 
 =head1 SEE ALSO
 

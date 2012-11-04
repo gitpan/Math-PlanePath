@@ -57,7 +57,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -1175,6 +1175,13 @@ various forms,
     A006068  permutation HCS->SB, Gray code inverse
     A154435  permutation HCS->Bird, Lamplighter bit flips
     A154436  permutation Bird->HCS, Lamplighter variant
+
+    A054429  permutation SB,CW,Bird,Drib N at transpose Y/X, 
+               (mirror binary tree, runs 0b11..11 down to 0b10..00)
+    A004442  permutation AYT N at transpose Y/X, from N=2 onwards
+               (xor 1, ie. flip least significant bit)
+    A063946  permutation HCS N at transpose Y/X, extra initial 0
+               (xor 2, ie. flip second least significant bit)
 
     A054424  permutation DiagonalRationals -> SB
     A054426  permutation SB -> DiagonalRationals

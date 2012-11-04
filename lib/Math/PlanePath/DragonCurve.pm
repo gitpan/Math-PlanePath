@@ -37,6 +37,8 @@
 #
 #    A060833 not adding to 2^k+2,
 #            superset of positions of left turns ...
+#
+#    A166242 double or half according to dragon turn
 
 package Math::PlanePath::DragonCurve;
 use 5.004;
@@ -45,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

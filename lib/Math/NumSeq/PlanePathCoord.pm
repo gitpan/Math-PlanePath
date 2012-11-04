@@ -57,7 +57,7 @@ use Carp;
 use constant 1.02; # various underscore constants below
 
 use vars '$VERSION','@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

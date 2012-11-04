@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 8;
+plan tests => 10;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -246,6 +246,56 @@ sub diff_nums {
   my @got;
   if ($bvalues) {
     my $path = Math::PlanePath::ZOrderCurve->new (radix => 3);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      ($x, $y) = ($y, $x);
+      my $n = $path->xy_to_n ($x, $y);
+      push @got, $n;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1);
+}
+
+#------------------------------------------------------------------------------
+# A126006 -- N at transpose Y,X, radix=4
+
+{
+  my $anum = 'A126006';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::ZOrderCurve->new (radix => 4);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      ($x, $y) = ($y, $x);
+      my $n = $path->xy_to_n ($x, $y);
+      push @got, $n;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1);
+}
+
+#------------------------------------------------------------------------------
+# A217558 -- N at transpose Y,X, radix=16
+
+{
+  my $anum = 'A217558';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::ZOrderCurve->new (radix => 16);
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
       ($x, $y) = ($y, $x);

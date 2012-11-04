@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -458,6 +458,7 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
       A196199    X-Y, being runs -n to +n
       A053615    abs(X-Y), distance to next pronic
       A002522    N on Y axis (N=Y^2+1)
+      A020703    permutation N at transpose Y,X
     wider=0,n_start=0
       A005563    N on X_axis, (X+1)^2-1
       A000290    N on Y axis, perfect squares

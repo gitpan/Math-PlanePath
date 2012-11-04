@@ -41,6 +41,22 @@ use lib 'xt';
 
 
 {
+  # X,Y recursion
+  my $w = 8;
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $offset (0 .. $w-1) {
+    my $n = $path->n_start + $offset;
+    foreach (1 .. 10) {
+      my ($x,$y) = $path->n_to_xy($n);
+      print "$x ";
+      $n += $w;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   # Midpoint tiling, text lines
 
   require Math::PlanePath::DragonMidpoint;

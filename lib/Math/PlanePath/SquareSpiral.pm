@@ -41,7 +41,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -777,7 +777,8 @@ And various sequences,
       A068225    permutation N to the N to its right at X+1,Y
       A121496      run lengths of consecutive N in that permutation
       A068226    permutation N to the N at its left X-1,Y
-      A020703    permutation N transposing X,Y
+      A020703    permutation N at transpose Y,X
+                   (so clockwise <-> anti-clockwise)
 
       A033952    digits on negative Y axis
       A033953    digits on negative Y axis, starting 0

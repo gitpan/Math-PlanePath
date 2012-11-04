@@ -30,13 +30,15 @@
 # A151922 - num first-quadrant cells
 # A079314 first diffs
 # A079316
+# A165345 1 or 3 adjacent
+#     http://www.math.vt.edu/people/layman/sequences/A165345.html
 
 package Math::PlanePath::UlamWarburton;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;

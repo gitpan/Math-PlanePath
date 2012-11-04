@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -263,15 +263,18 @@ Sequences in the following forms
 
     http://oeis.org/A020652   (etc)
 
-    A020652  - numerators, X
-    A020653  - denominators, Y
-    A157806  - difference, abs(X-Y)
-    A054431  - by diagonals 1=coprime, 0=not
-                 (excluding X=0 row and Y=0 column)
+    A020652   numerators, X
+    A020653   denominators, Y
+    A157806   difference, abs(X-Y)
+    A054431   by diagonals 1=coprime, 0=not
+                (excluding X=0 row and Y=0 column)
 
-    A054424  - permutation DiagonalRationals -> RationalsTree SB
-    A054425  -   padded with 0s at non-coprimes
-    A054426  -   inverse SB -> DiagonalRationals
+    A061579   permutation N at transpose Y/X
+                reverse runs of phi(k) integers
+
+    A054424   permutation DiagonalRationals -> RationalsTree SB
+    A054425     padded with 0s at non-coprimes
+    A054426     inverse SB -> DiagonalRationals
 
 =head1 FUNCTIONS
 

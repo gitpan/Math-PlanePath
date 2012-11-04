@@ -69,7 +69,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 91;
+$VERSION = 92;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -129,7 +129,7 @@ sub rsquared_minimum {
   # but that's wrong on "wider" paths.
   return 0;
 }
-
+use constant rsquared_maximum => undef;
 
 #------------------------------------------------------------------------------
 
@@ -528,6 +528,8 @@ at least prevents bad inputs going unnoticed.
 In the following C<Foo> is one of the various subclasses, see the list above
 and under L</SEE ALSO>.
 
+=head2 Constructor
+
 =over 4
 
 =item C<$path = Math::PlanePath::Foo-E<gt>new (key=E<gt>value, ...)>
@@ -545,6 +547,12 @@ C<$n> then the return is an empty list.  For example
 
 Paths start from C<$path-E<gt>n_start()> below, though some will give a
 position for N=0 or N=-0.5 too.
+
+=back
+
+=head2 Coordinate Methods
+
+=over
 
 =item C<($dx,$dy) = $path-E<gt>n_to_dxdy ($n)>
 
@@ -644,6 +652,12 @@ range like C<$n_lo=1>, C<$n_hi=0> (which makes a C<foreach> do no loops).
 But C<rect_to_n_range()> might not always notice there's no points in the
 rectangle and instead return some over-estimate.
 
+=back
+
+=head2 Descriptive Methods
+
+=over
+
 =item C<$n = $path-E<gt>n_start()>
 
 Return the first N in the path.  The start is usually either 0 or 1
@@ -688,6 +702,29 @@ Return true if any paths made by this class extend into negative X
 coordinates and/or negative Y coordinates, respectively.
 
 For some classes the X or Y extent may depend on parameter values.
+
+=item C<$x = $path-E<gt>x_minimum()>
+
+=item C<$y = $path-E<gt>y_minimum()>
+
+=item C<$x = $path-E<gt>x_maximum()>
+
+=item C<$y = $path-E<gt>y_maximum()>
+
+Return the minimum or maximum X or Y coordinate reached by integer N values
+in the path.
+
+=item C<$x = $path-E<gt>dx_minimum()>
+
+=item C<$y = $path-E<gt>dy_minimum()>
+
+=item C<$x = $path-E<gt>dx_maximum()>
+
+=item C<$y = $path-E<gt>dy_maximum()>
+
+Return the minimum or maximum change dX or dY between integer N to N+1 in
+the path.  For a multi-arm path the change is to N+arms so it's the change
+along the same arm.
 
 =item C<$arms = $path-E<gt>arms_count()>
 

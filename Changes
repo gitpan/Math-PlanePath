@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 92, October 2012
+    - new x_minimum(),y_minimum(), x_maximum(),y_maximum(),
+      dx_minimum(),dy_minimum(), dx_maximum(),dy_maximum()
+
 Version 91, October 2012
     - new tree_depth_to_n(), tree_depth_to_n_end()
     - RationalsTree new tree_type "HCS"

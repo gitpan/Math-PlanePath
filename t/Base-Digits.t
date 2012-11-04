@@ -20,17 +20,28 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 51;
+plan tests => 57;
 
 use lib 't','xt';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 use Math::PlanePath::Base::Digits
-  'round_down_pow',
+  'parameter_info_array',
   'bit_split_lowtohigh',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh',
+  'round_down_pow';
 
+
+#------------------------------------------------------------------------------
+# parameter_info_array()
+
+{
+  my $aref = parameter_info_array();
+  ok (scalar(@$aref), 1);
+  ok ($aref->[0], Math::PlanePath::Base::Digits::parameter_info_radix2());
+}
 
 #------------------------------------------------------------------------------
 # round_down_pow()
@@ -139,6 +150,7 @@ ok (join(',',digit_split_lowtohigh(13,2)), '1,0,1,1');
                          @bits);
   }
 }
+
 #------------------------------------------------------------------------------
 # bit_split_lowtohigh()
 
@@ -153,6 +165,17 @@ ok (join(',',bit_split_lowtohigh(13)), '1,0,1,1');
   }
   ok ($ones, 1);
 }
+
+#------------------------------------------------------------------------------
+# digit_join_lowtohigh()
+
+ok (digit_join_lowtohigh([1,2,3],10), 321);
+
+# high zeros ok
+ok (digit_join_lowtohigh([1,1,0],2), 3);
+ok (digit_join_lowtohigh([1,1,0],8), 9);
+ok (digit_join_lowtohigh([1,1,0],10), 11);
+
 
 #------------------------------------------------------------------------------
 1;

@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -886,6 +886,7 @@ sub characteristic_non_decreasing {
         # Right => 'A080846',
         # # OEIS-Catalogue: A080846 planepath=GosperSide turn_type=Right
         # # OEIS-Other: A080846 planepath=TerdragonCurve turn_type=Right
+        # Or A189640 has extra initial 0.
       } };
 }
 { package Math::PlanePath::TerdragonCurve;

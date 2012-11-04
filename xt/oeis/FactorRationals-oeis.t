@@ -50,6 +50,93 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      return "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    $got =~ /^[0-9.-]+$/
+      or return "not a number pos=$i got='$got'";
+    $want =~ /^[0-9.-]+$/
+      or return "not a number pos=$i want='$want'";
+    if ($got != $want) {
+      return "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return undef;
+}
+
+
+#------------------------------------------------------------------------------
+# A011262 -- N at transpose Y/X
+# cf A011264
+
+{
+  my $anum = 'A011262';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  {
+    my $diff;
+    if ($bvalues) {
+      my @got;
+      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+        my ($x, $y) = $path->n_to_xy ($n);
+        ($x, $y) = ($y, $x);
+        my $n = $path->xy_to_n ($x, $y);
+        push @got, $n;
+      }
+      $diff = diff_nums(\@got, $bvalues);
+    }
+    skip (! $bvalues,
+          $diff, undef,
+          "$anum");
+  }
+  sub calc_A011262 {
+    my ($n) = @_;
+    my $ret = 1;
+    for (my $p = 2; $p <= $n; $p++) {
+      if (($n % $p) == 0) {
+        my $count = 0;
+        while (($n % $p) == 0) {
+          $n /= $p;
+          $count++;
+        }
+        $count = ($count & 1 ? $count+1 : $count-1);
+        # $count++;
+        # $count ^= 1;
+        # $count--;
+        $ret *= $p ** $count;
+      }
+    }
+    return $ret;
+  }
+  {
+    my $diff;
+    if ($bvalues) {
+      my @got;
+      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+        push @got, calc_A011262($n);
+      }
+      $diff = diff_nums(\@got, $bvalues);
+      if ($diff) {
+        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+      }
+    }
+    skip (! $bvalues,
+          $diff, undef,
+          "$anum -- calculated");
+  }
+}
 
 #------------------------------------------------------------------------------
 # A102631 - n^2/squarefreekernel(n), is column at X=1

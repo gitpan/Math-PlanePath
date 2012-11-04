@@ -55,6 +55,17 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,coordinates=PQ,tree_type=FB',
+
+               'DigitGroups',
+               'DigitGroups,radix=3',
+               'DigitGroups,radix=4',
+               'DigitGroups,radix=5',
+               'DigitGroups,radix=37',
+
                'HilbertCurve',
 
                'SierpinskiTriangle',
@@ -95,11 +106,6 @@ my @modules = (
                'RationalsTree,tree_type=Drib',
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=HCS',
-
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
                'CubicBase',
                'CubicBase,radix=3',
@@ -228,12 +234,6 @@ my @modules = (
                'FibonacciWordFractal',
 
                'CornerReplicate',
-               'DigitGroups',
-               'DigitGroups,radix=3',
-               'DigitGroups,radix=4',
-               'DigitGroups,radix=5',
-               'DigitGroups,radix=37',
-
                'HeptSpiralSkewed',
                'PyramidSpiral',
 
@@ -585,7 +585,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 91;
+my $want_version = 92;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

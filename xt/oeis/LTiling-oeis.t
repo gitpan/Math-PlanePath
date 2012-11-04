@@ -20,18 +20,19 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 1;
 
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::PlanePath::Corner;
+use Math::PlanePath::LTiling;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+my $path = Math::PlanePath::LTiling->new;
 
 sub numeq_array {
   my ($a1, $a2) = @_;
@@ -50,16 +51,18 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A020703 -- permutation transpose Y,X
+# A048647 -- N at transpose Y,X
+
 {
-  my $anum = 'A020703';
+  my $anum = 'A048647';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $path = Math::PlanePath::Corner->new;
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $path->xy_to_n ($y, $x);
+      ($x, $y) = ($y, $x);
+      my $n = $path->xy_to_n ($x, $y);
+      push @got, $n;
     }
     if (! numeq_array(\@got, $bvalues)) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
@@ -68,32 +71,8 @@ sub numeq_array {
   }
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
-        1, "$anum -- permutation Y,X");
+        1);
 }
-
-#------------------------------------------------------------------------------
-# A053188 -- abs(X-Y), distance to next higher pronic, wider=1, extra 0
-{
-  my $anum = 'A053188';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # extra initial 0
-  if ($bvalues) {
-    my $path = Math::PlanePath::Corner->new (wider => 1);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, abs($x-$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
 
 #------------------------------------------------------------------------------
 exit 0;

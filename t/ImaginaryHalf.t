@@ -42,7 +42,7 @@ require Math::PlanePath::ImaginaryHalf;
 # VERSION
 
 {
-  my $want_version = 91;
+  my $want_version = 92;
   ok ($Math::PlanePath::ImaginaryHalf::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ImaginaryHalf->VERSION,  $want_version,

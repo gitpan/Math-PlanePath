@@ -295,7 +295,7 @@ sub dxdy_to_dir4_1 {
 }
 
 #------------------------------------------------------------------------------
-# A020703 -- permutation read clockwise, ie. negative Y
+# A020703 -- permutation read clockwise, ie. transpose Y,X
 {
   my $anum = 'A020703';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);

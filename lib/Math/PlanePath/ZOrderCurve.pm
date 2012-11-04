@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -522,32 +522,44 @@ forms,
 
     http://oeis.org/A059905  (etc)
 
-    A059905    X coordinate of radix=2
-    A059906    Y coordinate of radix=2
-    A163325    X coordinate of radix=3
-    A163326    Y coordinate of radix=3
-    A080463    X+Y of radix=10 (from N=1 onwards)
-    A080464    X*Y of radix=10 (from N=10 onwards)
-    A080465    abs(X-Y) of radix=10 (from N=10 onwards)
+    radix=2
+      A059905    X coordinate
+      A059906    Y coordinate
 
-    A000695    N on X axis radix=2,   is base 4 digits 0,1 only
-    A062880    N on Y axis radix=2,   is base 4 digits 0,2 only
-    A001196    N on diagonal radix=2, is base 4 digits 0,3 only
-    A037314    N on X axis radix=3,   is base 9 digits 0,1,2
-    A051022    N on X axis radix=10,  is base 100 digits 0to9
+      A000695    N on X axis       (base 4 digits 0,1 only)
+      A062880    N on Y axis       (base 4 digits 0,2 only)
+      A001196    N on X=Y diagonal (base 4 digits 0,3 only)
 
-    A057300    N at transpose Y,X, is swap adjacent bits
-    A163327    N at transpose Y,X radix=3, swap adjacent digits
+      A057300    permutation N at transpose Y,X (swap bit pairs)
+
+    radix=3
+      A163325    X coordinate
+      A163326    Y coordinate
+      A037314    N on X axis (base 9 digits 0,1,2)
+      A163327    permutation N at transpose Y,X (swap trit pairs)
+
+    radix=4
+      A126006    permutation N at transpose Y,X (swap digit pairs)
+
+    radix=10
+      A080463    X+Y of radix=10 (from N=1 onwards)
+      A080464    X*Y of radix=10 (from N=10 onwards)
+      A080465    abs(X-Y), from N=10 onwards
+      A051022    N on X axis (base 100 digits 0 to 9)
+
+    radix=16
+      A217558    permutation N at transpose Y,X (swap digit pairs)
 
 And taking X,Y points in the Diagonals sequence then the value of the
 following sequences is the N of the ZOrderCurve at those positions.
 
-    A054238    numbering by diagonals, from same axis as first step
-    A054239      inverse permutation
-    A163328    numbering radix=3 by diagonals, same axis as first step
-    A163329      inverse permutation
-    A163330    numbering radix=3 by diagonals, opp axis as first step
-    A163331      inverse permutation
+    radix=2
+      A054238    numbering by diagonals, from same axis as first step
+      A054239      inverse permutation
+      A163328    numbering radix=3 by diagonals, same axis as first step
+      A163329      inverse permutation
+      A163330    numbering radix=3 by diagonals, opp axis as first step
+      A163331      inverse permutation
 
 C<Math::PlanePath::Diagonals> numbers points from the Y axis down, which is
 the opposite axis to the ZOrderCurve first step along the X axis, so a
@@ -590,12 +602,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-
-
-
-
-

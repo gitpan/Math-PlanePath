@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -397,6 +397,14 @@ path include
 
     direction=up
       Likewise but swapping X,Y.
+
+    n_start=1 (either direction)
+      A038722    permutation N at transpose Y,X
+                   which is direction=down <-> direction=up
+
+    n_start=0 (either direction)
+      A061579    permutation N at transpose Y,X
+                   which is direction=down <-> direction=up
 
 =head1 SEE ALSO
 

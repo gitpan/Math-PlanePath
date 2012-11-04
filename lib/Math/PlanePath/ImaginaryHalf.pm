@@ -16,10 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=ImaginaryHalf --lines --scale=10
-# math-image --path=ImaginaryHalf --all --output=numbers_dash --size=80x50
-#
-
 package Math::PlanePath::ImaginaryHalf;
 use 5.004;
 use strict;
@@ -28,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -55,24 +51,19 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Digits::parameter_info_radix2(),
-
-    # Not yet ...
-    # { name      => 'digit_order',
-    #   share_key => 'digit_order_XYX',
-    #   display   => 'Digit Order',
-    #   type      => 'enum',
-    #   default   => 'XYX',
-    #   choices   => ['XYX',
-    #                 'XXY',
-    #                 'YXX',
-    # 
-    #                 # Not sure if these would be merely negatives, or
-    #                 # keep the Xneg scaling
-    #                 #
-    #                 #  'XnYX',
-    #                 #  'XnXY',
-    #                 #  'YXnX',
-    #                ],
+    # {
+    #  name      => 'digit_order',
+    #  share_key => 'digit_order_XYX',
+    #  display   => 'Digit Order',
+    #  type      => 'enum',
+    #  default   => 'XYX',
+    #  choices   => ['XYX',
+    #                'XXY',
+    #                'YXX',
+    #                'XnYX',
+    #                'XnXY',
+    #                'YXnX',
+    #               ],
     # },
   ];
 
@@ -294,6 +285,12 @@ Math::PlanePath::ImaginaryHalf -- half-plane replications in three directions
 
 This is a half-plane variation on the ImaginaryBase path.
 
+=cut
+
+# math-image --path=ImaginaryHalf --all --output=numbers_dash --size=85x10
+
+=pod
+
      54-55 50-51 62-63 58-59 22-23 18-19 30-31 26-27       3
        \     \     \     \     \     \     \     \
      52-53 48-49 60-61 56-57 20-21 16-17 28-29 24-25       2
@@ -395,8 +392,7 @@ The Proth numbers, k*2^n+1 for S<kE<lt>2^n>, fall in columns on the path.
 
 =cut
 
-# the following image generated with
-#   math-image --path=ImaginaryHalf --values=ProthNumbers --text --size=70x25
+# math-image --path=ImaginaryHalf --values=ProthNumbers --text --size=70x25
 
 =pod
 

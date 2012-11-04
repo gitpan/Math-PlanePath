@@ -25,12 +25,11 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 91;
+$VERSION = 92;
 
 use Exporter;
 @ISA = ('Exporter');
 @EXPORT_OK = ('parameter_info_array',
-              # 'parameter_info_hash',
               'bit_split_lowtohigh',
               'digit_split_lowtohigh',
               'digit_join_lowtohigh',
@@ -50,8 +49,6 @@ use constant parameter_info_radix2 => { name      => 'radix',
                                         description => 'Radix (number base).',
                                       };
 use constant parameter_info_array => [ parameter_info_radix2() ];
-# maybe ...
-# use constant parameter_info_hash => { radix => parameter_info_radix2() };
 
 
 #------------------------------------------------------------------------------
@@ -114,10 +111,6 @@ sub round_down_pow {
                          '10' => '2',
                          '11' => '3');
   my @bigint_coderef;
-  $bigint_coderef[2] = sub {
-    (my $str = $_[0]->as_bin) =~ s/^0b//;  # strip leading 0b
-    return reverse split //, $str;
-  };
   $bigint_coderef[4] = sub {
     (my $str = $_[0]->as_bin) =~ s/^0b//; # strip leading 0b
     if (length($str) & 1) {
@@ -147,6 +140,9 @@ sub round_down_pow {
     ### _digit_split_lowtohigh(): $n
 
     $n || return; # don't return '0' from BigInt stringize
+    if ($radix == 2) {
+      return bit_split_lowtohigh($n);
+    }
 
     my @ret;
     if (ref $n && $n->isa('Math::BigInt')) {
@@ -201,6 +197,7 @@ sub bit_split_lowtohigh {
 
 #------------------------------------------------------------------------------
 # $aref->[0] low digit
+# ENHANCE-ME: BigInt new(), from_bin(), from_oct(), from_hex()
 
 sub digit_join_lowtohigh {
   my ($aref, $radix, $zero) = @_;
@@ -253,6 +250,8 @@ usual L<Exporter> style,
 
     use Math::PlanePath::Base::Digits 'round_down_pow';
 
+(But not C<parameter_info_radix2()>, for the reason given below.)
+
 =head1 FUNCTIONS
 
 =head2 Generic
@@ -261,12 +260,12 @@ usual L<Exporter> style,
 
 =item C<($power, $exponent) = round_down_pow ($n, $radix)>
 
-Return the power of C<$radix> which is at or less than C<$n>.  For example
+Return the power of C<$radix> equal to or less than C<$n>.  For example
 
    ($pow, $exp) = round_down_pow (260, 2);
    # $pow==256  # the next lower power
    # $exp==8    # the exponent in that power
-   # since 2**8=256 is next below 260
+   # 2**8=256 is next below 260
 
 =item C<@digits = digit_split_lowtohigh ($n, $radix)>
 
@@ -278,12 +277,12 @@ example,
    @digits = digit_split_lowtohigh (12345, 10);
    # @digits = (5,4,3,2,1)   # decimal digits low to high
 
-If C<$n==0> then the return is an empty list.  For the current code C<$n>
-should be E<gt>=0.
+If C<$n==0> then the return is an empty list.  The current code expects C<$n
+E<gt>= 0>.
 
 "lowtohigh" in the name tries to make it clear which way the digits are
-returned.  A C<reverse> can be used to get high to low instead
-(L<perlfunc/reverse>).
+returned.  C<reverse()> can be used to get high to low instead (see
+L<perlfunc/reverse>).
 
 C<bit_split_lowtohigh()> is the same as C<digit_split_lowtohigh()> called
 with radix=2.
@@ -310,8 +309,9 @@ C<Math::BigInt> to give a returned C<$n> of that type.
 
 =item C<$aref = parameter_info_array()>
 
-Return an arrayref of a C<radix> parameter.  This is designed to be imported
-into a PlanePath subclass for use as its C<parameter_info_array> method.
+Return an arrayref of a C<radix> parameter, default 2.  This is designed to
+be imported into a PlanePath subclass as its C<parameter_info_array()>
+method.
 
     package Math::PlanePath::MySubclass;
     use Math::PlanePath::Base::Digits 'parameter_info_array';
@@ -344,8 +344,8 @@ be used when a subclass wants the radix parameter and other parameters too,
        Math::PlanePath::Base::Digits::parameter_info_radix2(),
       ];
 
-If a specific or more detailed "description" part is wanted then it could be
-overridden with for example
+If the "description" part should be more specific or more detailed then it
+could be overridden with for example
 
    { %{Math::PlanePath::Base::Digits::parameter_info_radix2()},
      description => 'Radix, for both something and something.',

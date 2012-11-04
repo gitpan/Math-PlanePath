@@ -27,20 +27,24 @@
 #     P = sqrt((C+A)/2)    where C=sqrt(A^2+B^2)
 #     Q = sqrt((C-A)/2)
 #
-# If C<$a,$b> are not a Pythagorean triple with integer P,Q then return no
-# values.
+# The returned P,Q are integers PE<gt>=0,QE<gt>=0, but the further
+# conditions for the path (namely PE<gt>QE<gt>=1 and no common factor) are
+# not enforced.
 #
-# Noticing P,Q not integers detects some non-primitive triples, but not all
-# of them.  If C<$a,$b> have a square common factor gcd(A,B)=K^2 then P,Q
-# are integers with common factor K and therefore a non-primitive triple.
+# If P,Q are not integers or if BE<lt>0 then return an empty list.  This
+# ensures A,B is a Pythagorean triple, ie. that C=sqrt(A^2+B^2) is an
+# integer, but it might not be a primitive triple and might not have A odd B
+# even.
 #
 # =item C<($a,$b) = Math::PlanePath::PythagoreanTree::pq_to_ab($p,$q)>
 #
 # Return the A,B coordinates for C<$p,$q>.  This is simply
-# S<C<$p*$p - $q*$q>> and C<2*$p*$q>.
+#
+#     $a = $p*$p - $q*$q
+#     $b = 2*$p*$q
 #
 # This is intended for use with C<$p,$q> satisfying PE<gt>QE<gt>=1 and no
-# common factor, but that's not checked.
+# common factor, but that's not enforced.
 
 
 # math-image --path=PythagoreanTree --all --scale=3
@@ -87,7 +91,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -515,13 +519,22 @@ sub _pq_to_ab {
 # p^2 = (a+c)/2
 #     = (a + sqrt(a^2+b^2))/2
 # 2p^2 = a + sqrt(a^2+b^2)
+#
+# p>q so a>0
+# a+c even is a odd, c odd or a even, c even
+# if a odd then c=a^2+b^2 is opp of b parity, must have b even to make c+a even
+# if a even then c=a^2+b^2 is same as b parity, must have b even to c+a even
+#
+# a=6,b=8 is c=sqrt(6^2+8^2)=10
+# a=0,b=4 is c=sqrt(0+4^4)=4 p^2=(a+c)/2 = 2 not a square
+# a+c even, then (a+c)/2 == 0,1 mod 4 so a+c==0,2 mod 4
 # 
 sub _ab_to_pq {
   my ($a, $b) = @_;
   ### _ab_to_pq(): "A=$a, B=$b"
 
-  unless ($a >= 3 && $b >= 4 && ($a % 2) && !($b % 2)) {
-    ### don't have A odd, B even ...
+  unless ($b >= 0) {
+    ### B is negative ...
     return;
   }
 
@@ -546,10 +559,9 @@ sub _ab_to_pq {
     }
   }
 
-  # A odd and B even means C^2 is odd and so C is odd
-  # if B==0 then C=A, otherwise C>A
-  ### assert: $c+1==$c || ($c % 2)
-  ### assert: $c+1==$c || $c >= $a
+  # B even means C^2 is same parity as A and so C+A is even
+  ### assert: ! ($c < $a)
+  ### assert: $c+1==$c || (($c+$a) % 2) == 0
 
   my $p;
   {
@@ -558,7 +570,7 @@ sub _ab_to_pq {
     # perfect square.  So notice that here.
     #
     my $psquared = ($c+$a)/2;
-    $p = sqrt(($c+$a)/2);
+    $p = int(sqrt($psquared));
     ### $psquared
     ### $p
     if ($psquared != $p*$p) {

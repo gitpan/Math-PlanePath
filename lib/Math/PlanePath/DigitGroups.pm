@@ -23,20 +23,23 @@
 # X bits change 01111 to 000, no carry, decreasing by number of low 1s
 # Y bits change 011 to 100, plain +1
 #
-# cf A084473 0->0000
-#    A088698 1->11
-#    A175047 0000run->0
+# cf A084473 binary 0->0000
+#    A088698 binary 1->11
+#    A175047 binary 0000run->0
 #
-# G. Cantor, Ein Beitrag zur Mannigfaltigkeitslehre, Journal für die reine
+# G. Cantor, "Ein Beitrag zur Mannigfaltigkeitslehre", Journal für die reine
 # und angewandte Mathematik (Crelle's Journal), Vol. 84, 242-258, 1878.
 # http://www.digizeitschriften.de/dms/img/?PPN=PPN243919689_0084&DMDID=dmdlog15
 
 package Math::PlanePath::DigitGroups;
 use 5.004;
 use strict;
+#use List::Util 'max','min';
+*max = \&Math::PlanePath::_max;
+*min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -44,7 +47,7 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'parameter_info_array',   # "radix" parameter
+  'parameter_info_array',    # "radix" parameter
   'round_down_pow',
   'digit_split_lowtohigh',
   'digit_join_lowtohigh';
@@ -184,35 +187,22 @@ sub rect_to_n_range {
 
   my $radix = $self->{'radix'};
 
-  my ($power, $x2_level) = round_down_pow ($x2, $radix);
-  if (is_infinite($x2_level)) {
-    return (0,$x2_level);
+  my ($power, my $lo_level) = round_down_pow (min($x1,$y1), $radix);
+  if (is_infinite($lo_level)) {
+    return (0,$lo_level);
   }
 
-  ($power, my $y2_level) = round_down_pow ($y2, $radix);
-  if (is_infinite($y2_level)) {
-    return (0,$y2_level);
+  ($power, my $hi_level) = round_down_pow (max($x2,$y2), $radix);
+  if (is_infinite($hi_level)) {
+    return (0,$hi_level);
   }
 
-  ($power, my $x1_level) = round_down_pow ($x1, $radix);
-  if (is_infinite($x1_level)) {
-    return (0,$x1_level);
-  }
+  return ($lo_level == 0 ? 0
+          : ($radix*$radix + 1) * $radix ** (2*$lo_level),
 
-  ($power, my $y1_level) = round_down_pow ($y1, $radix);
-  if (is_infinite($y1_level)) {
-    return (0,$y1_level);
-  }
-
-  ### $x1_level
-  ### $y1_level
-  ### $x2_level
-  ### $y2_level
-
-  my $lo_level = ($x1_level < $y1_level ? $x1_level : $y1_level);
-  my $hi_level = ($x2_level > $y2_level ? $x2_level : $y2_level);
-  return ($lo_level == 0 ? 0 : ($radix*$radix + 1) * $radix ** (2*$lo_level),
-          ($radix-1)*$radix**(3*$hi_level+2) + $radix**($hi_level+1) - 1);
+          ($radix-1)*$radix**(3*$hi_level+2)
+          + $radix**($hi_level+1)
+          - 1);
 }
 
 1;
@@ -238,14 +228,14 @@ default is binary so for example
 
     N = 110111001011
 
-is split into groups with a leading high 0 digit, and those groups go to X
-and Y alternately,
+is split into groups with a leading high 0 bit, and those groups then go to
+X and Y alternately,
 
     N = 11 0111 0 01 011
          X   Y  X  Y  X
 
     X = 11      0    011 = 110011
-    Y =    0111   01     = 11101
+    Y =    0111   01     =  11101
 
 The result is a one-to-one mapping between numbers NE<gt>=0 and pairs
 XE<gt>=0,YE<gt>=0.
@@ -269,10 +259,10 @@ The default binary is
 
 N=0,1,4,3,16,9,etc along the X axis is X with zero bits doubled.  For
 example X=9 is binary 1001, double up the zero bits to 100001 for N=33 at
-X=9,Y=0.  This is because in the digit grouping Y=0 so when X is grouped by
-its zero bits there's a single extra 0 from Y in between each group.
+X=9,Y=0.  This is because in the digit groups Y=0 so when X is grouped by
+its zero bits there's an extra 0 from Y in between each group.
 
-Similarly N=0,2,8,6,32,etc along the Y axis is the Y with zero bits doubled,
+Similarly N=0,2,8,6,32,etc along the Y axis is Y with zero bits doubled,
 plus an extra zero bit at the low end coming from the first X=0 group.  For
 example Y=9 is again binary 1001, doubled zeros to 100001, and an extra zero
 at the low end 1000010 is N=66 at X=0,Y=9.
@@ -302,15 +292,17 @@ For example radix 5 gives
 
 =head2 Real Line and Plane
 
-This split is inspired by the digit grouping in the proof (was it by
-Cantor?) that the real line is the same cardinality as the plane.
+X<KE<246>nig, Julius>This split is inspired by the digit grouping in the
+proof by Julius KE<246>nig that the real line is the same cardinality as the
+plane.  (Cantor's original proof was a ZOrderCurve style digit
+interleaving.)
 
-In that proof a bijection between interval n=(0,1) and pairs x=(0,1),y=(0,1)
-is made by taking groups of digits stopping at a non-zero digit.
+In KE<246>nig's proof a bijection between interval n=(0,1) and pairs
+x=(0,1),y=(0,1) is made by taking groups of digits stopping at a non-zero.
 Non-terminating fractions like 0.49999... are chosen over terminating
-0.5000... so there's infinitely many non-zero digits going lower.  For the
-integer form here the groupings are towards higher digits and there's
-infinitely many zero digits going higher, hence the grouping by zeros
+0.5000... so there's always infinitely many non-zero digits going downwards.
+For the integer form here the groupings are digit going upwards and there's
+infinitely many zero digits above the top, hence the grouping by zeros
 instead of non-zeros.
 
 =head1 FUNCTIONS

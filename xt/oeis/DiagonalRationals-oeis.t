@@ -53,6 +53,30 @@ sub streq_array {
 
 
 #------------------------------------------------------------------------------
+# A054430 -- N at transpose Y,X
+
+{
+  my $anum = 'A054430';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    for (my $n = $diagrat->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $diagrat->n_to_xy ($n);
+      ($x, $y) = ($y, $x);
+      my $n = $diagrat->xy_to_n ($x, $y);
+      push @got, $n;
+    }
+    if (! streq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        streq_array(\@got, $bvalues),
+        1);
+}
+
+#------------------------------------------------------------------------------
 # A054431 - by anti-diagonals 1 if coprime, 0 if not
 {
   my $anum = 'A054431';

@@ -25,6 +25,43 @@ use Smart::Comments;
 
 
 {
+  # A169707 rule 750
+  my %grid;
+  my $width = 40;
+  my $height = 40;
+  $grid{0,0} = 1;
+  foreach my $level (0 .. 40) {
+
+    print "level $level\n";
+    foreach my $y (reverse -$height .. $height) {
+      foreach my $x (-$width .. $width) {
+        print $grid{$x,$y} // ' ';
+      }
+      print "\n";
+    }
+
+    my %new_grid = %grid;
+    my $count_new = 0;
+    foreach my $y (-$height .. $height) {
+      foreach my $x (-$width .. $width) {
+        my $count = (($grid{$x-1,$y} || 0)
+                     + ($grid{$x+1,$y} || 0)
+                     + ($grid{$x,$y-1} || 0)
+                     + ($grid{$x,$y+1} || 0));
+        # print "$level  $x,$y  count=$count\n";
+        if ($count == 1 || $count == 3) {
+          $new_grid{$x,$y} = 1;
+          $count_new++;
+        }
+      }
+    }
+    print "count new $count_new\n";
+        %grid = %new_grid;
+  }
+  exit 0;
+}
+
+{
   # compare path against Cellular::Automata::Wolfram values
 
   require Cellular::Automata::Wolfram;

@@ -36,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 91;
+  my $want_version = 92;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -63,22 +63,52 @@ require Math::PlanePath::PythagoreanTree;
 
 #------------------------------------------------------------------------------
 # ab_to_pq()
+
+# P,Q integers
+# A = P^2 - Q^2
+# B = 2*P*Q           B even
+
 {
   require Math::PlanePath::CoprimeColumns;
   require Math::PlanePath::GcdRationals;
 
   my $bad = 0;
-  foreach my $a (-2 .. 50) {
-    foreach my $b (-2 .. 50) {
-      my ($p,$q) = Math::PlanePath::PythagoreanTree::_ab_to_pq($a,$b);
+  foreach my $a (-16 .. 50) {
+    foreach my $b (-4 .. 50) {
+      my @pq = Math::PlanePath::PythagoreanTree::_ab_to_pq($a,$b);
+      unless (@pq == 0 || @pq == 2) {
+        MyTestHelpers::diag ("bad, return not 0 or 2 values");
+        $bad++;
+      }
+      my $have_pq = (scalar(@pq) ? 1 : 0);
+      my ($p,$q) = @pq;
 
-      if (defined $p || defined $q) {
-        unless ($p > $q) {
-          MyTestHelpers::diag ("bad, a=$a,b=$b gives p=$p,q=$q not p>q");
+      if ($have_pq && ! ab_is_triple_with_b_even($a,$b)) {
+        MyTestHelpers::diag ("oops, a=$a,b=$b not b-even triple, gives p=",$p,",q=",$q);
+        $bad++;
+      }
+
+      # if ($have_pq != ab_is_triple_with_b_even($a,$b)) {
+      #   MyTestHelpers::diag ("ahh, a=$a,b=$b gives p=",$p,",q=",$q);
+      #   $bad++;
+      # }
+
+      if ($have_pq) {
+        # unless ($p >= $q) {
+        #   MyTestHelpers::diag ("bad, a=$a,b=$b gives p=$p,q=$q not p>=q");
+        #   $bad++;
+        # }
+        unless ($q >= 0) {
+          MyTestHelpers::diag ("bad, a=$a,b=$b gives p=$p,q=$q not q>=0");
           $bad++;
         }
-        unless ($q >= 1) {
-          MyTestHelpers::diag ("bad, a=$a,b=$b gives p=$p,q=$q not q>=1");
+
+        unless ($p == int($p)) {
+          MyTestHelpers::diag ("bad, a=$a,b=$b gives non-integer p=$p");
+          $bad++;
+        }
+        unless ($q == int($q)) {
+          MyTestHelpers::diag ("bad, a=$a,b=$b gives non-integer q=$q");
           $bad++;
         }
         # unless (Math::PlanePath::CoprimeColumns::_coprime($p,$q)) {
@@ -88,7 +118,7 @@ require Math::PlanePath::PythagoreanTree;
         # }
       }
 
-      if (ab_is_primitive_triple($a,$b)) {
+      if ($a >= 0 && ab_is_oddeven_primitive_triple($a,$b)) {
         unless (defined $p && defined $q) {
           MyTestHelpers::diag ("bad, a=$a,b=$b doesn't give p,q");
           $bad++;
@@ -105,20 +135,28 @@ require Math::PlanePath::PythagoreanTree;
   }
   ok ($bad, 0);
 
-  sub ab_is_primitive_triple {
+  sub ab_is_oddeven_primitive_triple {
     my ($a,$b) = @_;
-    if ($a < 3 || $b < 3) {
+    unless (($a & 1) && !($b & 1)) {   # must have A odd, B even
       return 0;
     }
-    unless ($a & 1 && !($b & 1)) {
+    unless (ab_is_triple($a,$b)) {
+      return 0;
+    }
+    return Math::PlanePath::CoprimeColumns::_coprime($a,$b);
+  }
+  sub ab_is_triple {
+    my ($a,$b) = @_;
+    if ($b < 0) {
       return 0;
     }
     my $csquared = $a*$a + $b*$b;
     my $c = int(sqrt($csquared));
-    if ($c*$c != $csquared) {
-      return 0;
-    }
-    return Math::PlanePath::CoprimeColumns::_coprime($a,$b);
+    return ($c*$c == $csquared);
+  }
+  sub ab_is_triple_with_b_even {
+    my ($a,$b) = @_;
+    return ab_is_triple($a,$b) && (($b & 1) == 0);
   }
 }
 

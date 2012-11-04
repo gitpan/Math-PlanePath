@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -368,6 +368,9 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
     A062880    N on diagonal, base 4 digits 0,2 only
     A163241    base-4 flip 2<->3,
                  converts N to ZOrderCurve N (and back)
+
+    A048647    permutation N at transpose Y,X
+                 base4 digits 1<->3 and 0,2 unchanged
 
 =head1 SEE ALSO
 

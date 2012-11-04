@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -242,11 +242,14 @@ path include
 
     http://oeis.org/A131179  (etc)
 
-    A131179    N on X axis (extra initial 0)
-    A128918    N on Y axis (extra initial 1)
-    A001844    N on X=Y diagonal
+    n_start=1
+      A131179    N on X axis (extra initial 0)
+      A128918    N on Y axis (extra initial 1)
+      A001844    N on X=Y diagonal
+      A038722    permutation N at transpose Y,X
 
-Similar for direction=up but transposing X,Y.
+    n_start=0
+      A061579    permutation N at transpose Y,X
 
 =head1 SEE ALSO
 

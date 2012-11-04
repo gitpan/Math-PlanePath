@@ -36,6 +36,9 @@
 # bn = a[2n-1] comp a2+a4+...+a[2n-2]
 # cn = a[2n] comp a1+a3+...+a[2n-1]
 #
+# Brouwer(?) no continuous one-to-one between R and RxR, so line and plane
+# are distinguished.
+#
 
 
 package Math::PlanePath::PeanoCurve;
@@ -45,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 91;
+$VERSION = 92;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

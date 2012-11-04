@@ -32,6 +32,37 @@ use Math::PlanePath::Base::Digits
 use Smart::Comments;
 
 {
+  # P,Q by rows
+  require Math::BaseCnv;
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');
+  my $fb = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ',
+                                                  tree_type => 'FB');
+
+  my $level = 8;
+  my $prev_depth = -1;
+  for (my $n = $path->n_start; ; $n++) {
+    my $depth = $path->tree_n_to_depth($n);
+    last if $depth > 4;
+    if ($depth != $prev_depth) {
+      print "\n";
+      $prev_depth = $depth;
+    }
+    my ($x,$y) = $path->n_to_xy($n);
+    printf " %2d/%-2d", $x,$y;
+
+    my ($fx,$fy) = $fb->n_to_xy($n);
+    printf " %2d/%-2d", $fx,$fy;
+
+    my $fn = $path->xy_to_n($fx,$fy);
+    print "  ",n_to_treedigits_str($n);
+    print "  ",n_to_treedigits_str($fn);
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   require Math::BigInt::Lite;
   my $x = Math::BigInt::Lite->new(3);
   my $y = Math::BigInt::Lite->new(4);
@@ -121,7 +152,6 @@ use Smart::Comments;
   require Math::PlanePath::PythagoreanTree;
   my $path = Math::PlanePath::PythagoreanTree->new
     (
-      tree_type => 'Chan',
      # tree_type => 'FB',
      # tree_type => 'UAD',
      # coordinates => 'AB',
@@ -173,7 +203,7 @@ use Smart::Comments;
   require Math::BaseCnv;
   require Math::ContinuedFraction;
   require Math::PlanePath::PythagoreanTree;
-  my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQT');
+  my $path = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ');
 
   my $level = 8;
   foreach my $n (1 .. 3**$level) {
@@ -188,7 +218,7 @@ use Smart::Comments;
 
   sub n_to_treedigits_str {
     my ($n) = @_;
-    return join('',n_to_treedigits($n));
+    return "~".join('',n_to_treedigits($n));
   }
   sub n_to_treedigits {
     my ($n) = @_;
