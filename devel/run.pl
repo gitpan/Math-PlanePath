@@ -121,12 +121,13 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::HilbertCurve';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ImaginaryHalf';
+  $path_class = 'Math::PlanePath::R7DragonCurve';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     digit_order => 'XnYX',
-     radix => 2,
+     # digit_order => 'XnYX',
+     # radix => 2,
      # parts => 3,
      # x_start => 5,
      # y_start => 2,
@@ -146,7 +147,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # align => 'diagonal',
      # offset => -0.5,
      # turns => 1,
-     # arms => 8,
+      arms => 4,
      # base => 7,
      # direction => 'up',
      # step => 6,
@@ -194,7 +195,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 40; $i+=1) {
+  for (my $i = $n_start+0; $i <= 140; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

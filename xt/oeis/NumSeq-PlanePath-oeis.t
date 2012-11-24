@@ -104,9 +104,10 @@ sub check_class {
   ### $parameters
 
   my %parameters = @$parameters;
-  return unless $class =~ /PlanePathN/;
-  return unless $parameters{'planepath'} =~ /ToothpickTree/;
-  #return unless $parameters{'planepath'} =~ /LCorner/;
+  # return unless $class =~ /PlanePathCoord/;
+  return unless ($parameters{'coordinate_type'}||'') =~ /^M/;
+  # return unless $parameters{'planepath'} =~ /ToothpickTree/;
+  # return unless $parameters{'planepath'} =~ /SquareSpiral/;
   # return unless $anum =~ 'A147562';
   # return unless $anum eq 'A067251';
   # return unless $anum =~ /A0039/;
@@ -186,14 +187,17 @@ sub check_class {
 
   {
     my $got_i_start = $seq->i_start;
-    if ($got_i_start != $want_i_start
+    if (! defined $want_i_start) {
+      MyTestHelpers::diag ("skip i_start check: \"stripped\" values only");
+
+    } elsif ($got_i_start != $want_i_start
         && $anum ne 'A000004' # offset=0, but allow other i_start here
         && $anum ne 'A000012' # offset=0, but allow other i_start here
        ) {
       $good = 0;
       MyTestHelpers::diag ("bad: $name");
-      MyTestHelpers::diag ("got  i_start  $got_i_start");
-      MyTestHelpers::diag ("want i_start  $want_i_start");
+      MyTestHelpers::diag ("got  i_start  ",$got_i_start);
+      MyTestHelpers::diag ("want i_start  ",$want_i_start);
     }
   }
 

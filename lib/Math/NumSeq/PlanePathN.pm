@@ -23,7 +23,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1114,10 +1114,9 @@ sub values_max {
   use constant _NumSeq_X_axis_at_Y => 1;
   use constant _NumSeq_X_axis_i_start => 1;
 
+  use constant _NumSeq_Y_axis_at_X => 1;     # column at X=1
+  use constant _NumSeq_Y_axis_i_start => 1;  # start at Y=1
   use constant _NumSeq_Y_axis_increasing => 1;
-  use constant _NumSeq_Y_axis_min => 1;
-  use constant _NumSeq_Y_axis_at_X => 1;
-  use constant _NumSeq_Y_axis_i_start => 1;
 
   use constant _NumSeq_Diagonal_increasing => 1;
 
@@ -2135,23 +2134,6 @@ sub values_max {
        # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
        # OEIS-Other: A005408 planepath=CellularRule,rule=244 line_type=Diagonal
      },
-     #
-     # rule=50,58,114,122,178,179,186,242,250 pyramid every second point
-     'Math::PlanePath::CellularRule::OddSolid' =>
-     { Diagonal_NW => 'A000124',  # triangular+1
-       # OEIS-Other: A000124 planepath=CellularRule,rule=50 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=58 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=114 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=122 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=178 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=179 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=186 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=242 line_type=Diagonal_NW
-       # OEIS-Other: A000124 planepath=CellularRule,rule=250 line_type=Diagonal_NW
-       #
-       # Not quite, starts value=0
-       # Diagonal => 'A000217', # triangular numbers but diff start
-     },
      'rule=77' =>
      { Y_axis   => 'A000124',  # triangular+1
        # OEIS-Other: A000124 planepath=CellularRule,rule=77 line_type=Y_axis
@@ -2227,6 +2209,28 @@ sub values_max {
      # CellularRule190 -- A006578 triangular+quarter square, but starts
      # OFFSET=0 value=0 cf value N=1 here
 
+    };
+}
+{
+  package Math::PlanePath::CellularRule::OddSolid;
+  # rule=50,58,114,122,178,179,186,242,250 pyramid every second point
+
+  use constant _NumSeq_N_oeis_anum =>
+    { '' =>
+      { Diagonal_NW => 'A000124',  # triangular+1
+        # OEIS-Other: A000124 planepath=CellularRule,rule=50 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=58 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=114 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=122 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=178 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=179 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=186 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=242 line_type=Diagonal_NW
+        # OEIS-Other: A000124 planepath=CellularRule,rule=250 line_type=Diagonal_NW
+        #
+        # Not quite, starts value=0
+        # Diagonal => 'A000217', # triangular numbers but diff start
+      },
     };
 }
 { package Math::PlanePath::CellularRule54;
@@ -2465,28 +2469,28 @@ sub values_max {
 { package Math::PlanePath::ToothpickTree;
   use constant _NumSeq_Diagonal_increasing => 1;
 
-  use constant _NumSeq_N_oeis_anum =>
-    { 'parts=1' =>
-      { Depth_start => 'A153000',
-        # not yet
-        # OEIS-Other: A153000 planepath=ToothpickTree,parts=1 line_type=Depth_start
-      },
-      'parts=2' =>
-      { Depth_start => 'A152998',
-        # not yet
-        # OEIS-Other: A152998 planepath=ToothpickTree,parts=2 line_type=Depth_start
-      },
-      'parts=3' =>
-      { Depth_start => 'A153006',
-        # not yet
-        # OEIS-Other: A153006 planepath=ToothpickTree,parts=3 line_type=Depth_start
-      },
-      'parts=4' =>
-      { Depth_start => 'A139250',
-        # not yet
-        # OEIS-Other: A139250 planepath=ToothpickTree,parts=4 line_type=Depth_start
-      },
-    };
+  # use constant _NumSeq_N_oeis_anum =>
+  #   { 'parts=1' =>
+  #     { Depth_start => 'A153000',
+  #       # not yet
+  #       # OEIS-Other: A153000 planepath=ToothpickTree,parts=1 line_type=Depth_start
+  #     },
+  #     'parts=2' =>
+  #     { Depth_start => 'A152998',
+  #       # not yet
+  #       # OEIS-Other: A152998 planepath=ToothpickTree,parts=2 line_type=Depth_start
+  #     },
+  #     'parts=3' =>
+  #     { Depth_start => 'A153006',
+  #       # not yet
+  #       # OEIS-Other: A153006 planepath=ToothpickTree,parts=3 line_type=Depth_start
+  #     },
+  #     'parts=4' =>
+  #     { Depth_start => 'A139250',
+  #       # not yet
+  #       # OEIS-Other: A139250 planepath=ToothpickTree,parts=4 line_type=Depth_start
+  #     },
+  #   };
 }
 
 #------------------------------------------------------------------------------

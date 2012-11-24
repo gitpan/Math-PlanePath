@@ -43,7 +43,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -243,12 +243,15 @@ sub n_to_xy {
           $y + $n * ($n_to_y->[$int+1] - $y));
 }
 
-sub _UNTESTED__xy_is_visited {
+sub xy_is_visited {
   my ($self, $x, $y) = @_;
-  $x = round_nearest ($x);
-  $y = round_nearest ($y);
-  if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
-    return 0;
+
+  if ($self->{'opposite_parity'} >= 0) {
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
+    if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
+      return 0;
+    }
   }
   return 1;
 }

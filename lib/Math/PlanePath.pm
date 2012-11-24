@@ -30,7 +30,6 @@
 # $level = $path->tree_depth_start;
 # ($n_lo,$n_hi) = $path->tree_depth_to_n_range($level);
 #
-# $path->xy_is_visited($x,$y) 1,0
 # $path->n_to_dir4
 # $path->n_to_dist
 # $path->xy_to_dir4_list
@@ -69,7 +68,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 92;
+$VERSION = 93;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -621,6 +620,16 @@ nothing at C<$x,$y> then return an empty list.
 Most paths have just a single N for a given X,Y but some such as DragonCurve
 and TerdragonCurve have multiple N's at a given X,Y and method returns all
 of them.
+
+=item C<$bool = $path-E<gt>xy_is_visited ($x,$y)>
+
+Return true if C<$x,$y> is visited.  This is equivalent to
+
+    defined($path->xy_to_n($x,$y))
+
+Some paths cover the plane and for them C<xy_is_visited()> is always true.
+For others it might be possible to test whether a point is visited with less
+work than calculating its C<$n>.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
@@ -1261,20 +1270,19 @@ The mandatory methods for a PlanePath subclass are
     rect_to_n_range()
 
 It sometimes happens that one of C<n_to_xy()> or C<xy_to_n()> is easier than
-the other, but both should be implemented.
+the other but both should be implemented.
 
 C<n_to_xy()> should do something sensible on fractional N.  The suggestion
 is to make it an X,Y proportionally between integer N positions.  That can
-initially be done simply with two calculations of those integer points,
-until it's clear how to get work the fraction into the result directly.
+be done simply with two calculations of those integer points, until it's
+clear how to work the fraction into the result directly.
 
-The base implementation of C<xy_to_n_list()> is designed for paths with a
-single N at any given X,Y.  It calls plain C<xy_to_n()> to get that N.  If a
-path has multiple Ns visiting an X,Y (eg. DragonCurve) then it should
-implement C<xy_to_n_list()> to return all those Ns, and also a plain
-C<xy_to_n()> returning the first of them.
+The base implementation of C<xy_to_n_list()> calls plain C<xy_to_n()> for a
+single N at any X,Y.  If a path has multiple Ns visiting an X,Y
+(eg. DragonCurve) then it should implement C<xy_to_n_list()> to return all
+those Ns and also a plain C<xy_to_n()> returning the first of them.
 
-C<rect_to_n_range()> can be initially implemented with any convenient
+C<rect_to_n_range()> can initially be implemented with any convenient
 over-estimate.  It amounts to asking from what N onwards are all points
 certain to be beyond a given X,Y rectangle.
 
@@ -1286,20 +1294,20 @@ The following descriptive methods have base implementations
     x_negative()        calls class_x_negative()
     y_negative()        calls class_x_negative()
 
-The base C<n_start()> is to start at N=1.  Paths which treat N as digits of
-some radix or where there's self-similar replication are usually best
-started from N=0 instead so as to put nice powers-of-2 etc on the axes or
+The base C<n_start()> starts at N=1.  Paths which treat N as digits of some
+radix or where there's self-similar replication are often best started from
+N=0 instead, since doing so puts nice powers-of-2 etc on the axes or
 diagonals.
 
 Paths which use only parts of the plane should define C<class_x_negative()>
-and/or C<class_y_negative()> to false.  For example if always
+and/or C<class_y_negative()> to false.  For example if always first quadrant
 XE<gt>=0,YE<gt>=0 then
 
     use constant class_x_negative => 0;
     use constant class_y_negative => 0;
 
 If negativeness varies with path parameters then C<x_negative()> and/or
-C<y_negative()> follow those parameters, and the C<class_()> forms are
+C<y_negative()> follow those parameters and the C<class_()> forms are
 whether any set of parameters ever gives negative.
 
 The following methods have base implementations calling C<n_to_xy()>.
@@ -1317,6 +1325,16 @@ way is to calculate on the integers below and above and combine per L</N to
 dX,dY -- Fractional> above.  For some paths the calculation of turn or
 direction at ceil(N) can be worked into a calculation of the direction at
 floor(N) so taking not much more work.
+
+The following method has a base implementation calling C<xy_to_n()>.
+A subclass can implement is directly if it can be done more efficiently.
+
+    xy_is_visited()     defined(xy_to_n($x,$y))
+
+Paths such as SquareSpiral which fill the plane have C<xy_is_visited()>
+always true, so for them
+
+    use constant xy_is_visited => 1;
 
 =head1 SEE ALSO
 

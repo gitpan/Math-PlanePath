@@ -41,7 +41,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -408,9 +408,9 @@ sub _digit_join_hightolow {
 
 
 my @digit_to_dir = (0, 1, -1, 0);
-my @tdir6_to_dx = (2, 1,-1,-2, -1, 1);
-my @tdir6_to_dy = (0, 1, 1, 0, -1,-1);
-my @digit_to_turn = (1,  # digit=1
+my @dir6_to_dx = (2, 1,-1,-2, -1, 1);
+my @dir6_to_dy = (0, 1, 1, 0, -1,-1);
+my @digit_to_turn = (1,  # digit=1 (with +1 for "next" N)
                      -2, # digit=2
                      1); # digit=3
 sub n_to_dxdy {
@@ -429,9 +429,9 @@ sub n_to_dxdy {
   my @digits = digit_split_lowtohigh($int,4);
   ### @digits
 
-  my $tdir6 = sum(0, map {$digit_to_dir[$_]} @digits) % 6;
-  my $dx = $tdir6_to_dx[$tdir6];
-  my $dy = $tdir6_to_dy[$tdir6];
+  my $dir6 = sum(0, map {$digit_to_dir[$_]} @digits) % 6;
+  my $dx = $dir6_to_dx[$dir6];
+  my $dy = $dir6_to_dy[$dir6];
 
   if ($n) {
     # fraction part
@@ -439,20 +439,20 @@ sub n_to_dxdy {
     # lowest non-3 digit
     my $digit;
     do {
-      $digit = shift @digits || 0;  # zero if no digits or all 3s
+      $digit = shift @digits || 0;  # zero if all 3s or no digits at all
     } until ($digit != 3);
 
-    $tdir6 += $digit_to_turn[$digit];
-    $tdir6 %= 6;
-    $dx += $n*($tdir6_to_dx[$tdir6] - $dx);
-    $dy += $n*($tdir6_to_dy[$tdir6] - $dy);
+    $dir6 += $digit_to_turn[$digit];
+    $dir6 %= 6;
+    $dx += $n*($dir6_to_dx[$dir6] - $dx);
+    $dy += $n*($dir6_to_dy[$dir6] - $dy);
   }
   return ($dx, $dy);
 }
 
 # UNTESTED
 #
-# sub _n_to_tdir6 {
+# sub _n_to_dir6 {
 #   my ($self, $n) = @_;
 #   if ($n < 0) {
 #     return undef;  # first direction at N=0

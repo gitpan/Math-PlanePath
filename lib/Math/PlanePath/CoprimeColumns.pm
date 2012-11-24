@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -138,7 +138,7 @@ sub xy_is_visited {
   $y = round_nearest ($y);
   if ($x < 1
       || $y < 1
-      || $y >= $x+($x==1)
+      || $y >= $x+($x==1)   # Y<X except X=Y=1 included
       || ! _coprime($x,$y)) {
     return 0;
   }
@@ -154,7 +154,7 @@ sub xy_to_n {
   if (is_infinite($y)) { return $y; }
   if ($x < 1
       || $y < 1
-      || $y >= $x+($x==1)
+      || $y >= $x+($x==1)   # Y<X except X=Y=1 included
       || ! _coprime($x,$y)) {
     return undef;
   }
@@ -271,8 +271,8 @@ Math::PlanePath::CoprimeColumns -- coprime X,Y by columns
 
 =head1 DESCRIPTION
 
-This path visits points X,Y which are coprime, meaning gcd(X,Y)=1, in
-columns from Y=0 to YE<lt>=X.
+This path visits points X,Y which are coprime, ie. no common factor so
+gcd(X,Y)=1, in columns from Y=0 to YE<lt>=X.
 
     13 |                                          63
     12 |                                       57
@@ -295,8 +295,8 @@ Since gcd(X,0)=0 the X axis itself is never visited, and since gcd(K,K)=K
 the leading diagonal X=Y is not visited except X=1,Y=1.
 
 The number of coprime pairs in each column is Euler's totient function
-phi(X), and starting N=0 at X=1,Y=1 means the values 0,1,2,4,6,10,etc
-horizontally along Y=1 are the totient sums
+phi(X).  Starting N=0 at X=1,Y=1 means N=0,1,2,4,6,10,etc horizontally along
+row Y=1 are the cumulative totients
 
                           i=K
     cumulative totient = sum   phi(i)
@@ -327,6 +327,12 @@ Create and return a new path object.
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
 at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
+=item C<$bool = $path-E<gt>xy_is_visited ($x,$y)>
+
+Return true if C<$x,$y> is visited.  This means C<$x> and C<$y> have no
+common factor.  This is tested with a GCD and is much faster than the full
+C<xy_to_n()>.
+
 =back
 
 =head1 BUGS
@@ -351,6 +357,8 @@ couple of forms,
     A054427    permutation columns N -> RationalsTree SB N X/Y<1
     A054428      inverse, SB X/Y<1 -> columns
     A121998    Y of skipped X,Y among 2<=Y<=X, those not coprime
+
+    A179594    X column position of KxK square unvisited
 
 =head1 SEE ALSO
 

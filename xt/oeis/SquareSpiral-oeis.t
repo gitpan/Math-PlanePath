@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 29;
+plan tests => 33;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -67,6 +67,96 @@ sub dxdy_to_dir4_1 {
   if ($dx < 0) { return 3; }  # west
   if ($dy > 0) { return 2; }  # north
   if ($dy < 0) { return 4; }  # south
+}
+
+
+#------------------------------------------------------------------------------
+# A214664 -- X coord of prime N
+{
+  my $anum = 'A214664';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  require Math::Prime::XS;
+  if ($bvalues) {
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      next unless Math::Prime::XS::is_prime($n);
+      my ($x,$y) = $path->n_to_xy ($n);
+      push @got, $x;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+# A214665 -- Y coord of prime N
+{
+  my $anum = 'A214665';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  require Math::Prime::XS;
+  if ($bvalues) {
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      next unless Math::Prime::XS::is_prime($n);
+      my ($x,$y) = $path->n_to_xy ($n);
+      push @got, $y;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+# A214666 -- X coord of prime N, first to west
+{
+  my $anum = 'A214666';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  require Math::Prime::XS;
+  if ($bvalues) {
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      next unless Math::Prime::XS::is_prime($n);
+      my ($x,$y) = $path->n_to_xy ($n);
+      push @got, -$x;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+# A214667 -- Y coord of prime N, first to west
+{
+  my $anum = 'A214667';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  require Math::Prime::XS;
+  if ($bvalues) {
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      next unless Math::Prime::XS::is_prime($n);
+      my ($x,$y) = $path->n_to_xy ($n);
+      push @got, -$y;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
 
 
@@ -187,7 +277,7 @@ sub dxdy_to_dir4_1 {
 # A141481 -- plot sum of existing eight surrounding values entered
 
 {
-  my $anum = 'A141481';
+  my $anum = q{A141481};  # not in POD
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
                                                       max_value => 'unlimited');
   my @got;

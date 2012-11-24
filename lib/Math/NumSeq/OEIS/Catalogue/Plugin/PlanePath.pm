@@ -22,16 +22,26 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 132 A-numbers in 4 modules
+# total 141 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
+  {
+    'anum' => 'A174344',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'SquareSpiral',
+      'coordinate_type',
+      'X'
+    ]
+  },
   {
     'anum' => 'A180714',
     'class' => 'Math::NumSeq::PlanePathCoord',
@@ -325,36 +335,6 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A003991',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'Diagonals,x_start=1,y_start=1',
-      'coordinate_type',
-      'Product'
-    ]
-  },
-  {
-    'anum' => 'A003989',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'Diagonals,x_start=1,y_start=1',
-      'coordinate_type',
-      'GCD'
-    ]
-  },
-  {
-    'anum' => 'A003988',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'Diagonals,direction=up,x_start=1,y_start=1',
-      'coordinate_type',
-      'Int'
-    ]
-  },
-  {
     'anum' => 'A004247',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
@@ -395,6 +375,36 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A004198',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'BitAnd'
+    ]
+  },
+  {
+    'anum' => 'A003986',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'BitOr'
+    ]
+  },
+  {
+    'anum' => 'A003987',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'BitXor'
+    ]
+  },
+  {
     'anum' => 'A109004',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
@@ -402,6 +412,86 @@ use constant info_arrayref =>
       'Diagonals,n_start=0',
       'coordinate_type',
       'GCD'
+    ]
+  },
+  {
+    'anum' => 'A004197',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'Min'
+    ]
+  },
+  {
+    'anum' => 'A003984',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'Max'
+    ]
+  },
+  {
+    'anum' => 'A101080',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,n_start=0',
+      'coordinate_type',
+      'HammingDist'
+    ]
+  },
+  {
+    'anum' => 'A003991',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,x_start=1,y_start=1',
+      'coordinate_type',
+      'Product'
+    ]
+  },
+  {
+    'anum' => 'A003989',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,x_start=1,y_start=1',
+      'coordinate_type',
+      'GCD'
+    ]
+  },
+  {
+    'anum' => 'A003983',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,x_start=1,y_start=1',
+      'coordinate_type',
+      'Min'
+    ]
+  },
+  {
+    'anum' => 'A051125',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,x_start=1,y_start=1',
+      'coordinate_type',
+      'Max'
+    ]
+  },
+  {
+    'anum' => 'A003988',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,direction=up,x_start=1,y_start=1',
+      'coordinate_type',
+      'Int'
     ]
   },
   {

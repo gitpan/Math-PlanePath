@@ -30,7 +30,7 @@ use MyOEIS;
 use Math::PlanePath::CoprimeColumns;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
 my $path = Math::PlanePath::CoprimeColumns->new;
 
@@ -49,10 +49,62 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
-sub path_xy_is_visited {
-  my ($path, $x,$y) = @_;
-  return defined($path->xy_to_n($x,$y));
+
+#------------------------------------------------------------------------------
+# A179594 - column of nxn unvisited block
+
+{
+  my $anum = 'A179594';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
+                                                      max_count => 3);
+  my @got;
+  if ($bvalues) {
+    my $x = 1;
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      for ( ; ! have_unvisited_square($x,$n); $x++) {
+      }
+      push @got, $x;
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
+    }
+  }
+
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
 }
+
+sub have_unvisited_square {
+  my ($x, $n) = @_;
+  ### have_unvisited_square(): $x,$n
+  my $count = 0;
+  foreach my $y (2 .. $x) {
+    if (have_unvisited_line($x,$y,$n)) {
+      $count++;
+      if ($count >= $n) {
+        ### found at: "x=$x, y=$y  count=$count"
+        return 1;
+      }
+    } else {
+      $count = 0;
+    }
+  }
+  return 0;
+}
+
+sub have_unvisited_line {
+  my ($x,$y, $n) = @_;
+  foreach my $i (0 .. $n-1) {
+    if ($path->xy_is_visited($x,$y)) {
+      return 0;
+    }
+    $x++;
+  }
+  return 1;
+}
+  
 
 
 #------------------------------------------------------------------------------
@@ -91,7 +143,7 @@ sub path_xy_is_visited {
     if ($bvalues) {
     OUTER: for (my $x = 1; ; $x++) {
         foreach my $y (1 .. $x) {
-          if (path_xy_is_visited($path,$x,$y)) {
+          if ($path->xy_is_visited($x,$y)) {
             push @got, $y;
           } else {
             push @got, 0;
@@ -208,7 +260,7 @@ sub delete_second_highest_bit {
   if ($bvalues) {
     OUTER: for (my $x = 2; ; $x++) {
       for (my $y = 1; $y <= $x; $y++) {
-        if (! path_xy_is_visited($path,$x,$y)) {
+        if (! $path->xy_is_visited($x,$y)) {
           push @got, $y;
           last OUTER unless @got < @$bvalues;
         }
@@ -313,7 +365,7 @@ sub delete_second_highest_bit {
     if ($bvalues) {
     OUTER: for (my $x = 1; ; $x++) {
         foreach my $y (1 .. $x) {
-          if (path_xy_is_visited($path,$x,$y)) {
+          if ($path->xy_is_visited($x,$y)) {
             push @got, 1;
           } else {
             push @got, 0;

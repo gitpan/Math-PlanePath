@@ -23,6 +23,18 @@ use warnings;
 use Math::PlanePath::KochSnowflakes;
 
 {
+  # area
+  print sqrt(48)/10,"\n";
+  my $sum = 0;
+  foreach my $level (1 .. 10) {
+    my $area = (1 + 3/9*$sum) * sqrt(3)/4;
+    print "$level $area\n";
+    $sum += (4/9)**$level;
+  }
+  exit 0;
+}
+
+{
   # X axis N increasing
   my $path = Math::PlanePath::KochSnowflakes->new;
   my $prev_n = 0;

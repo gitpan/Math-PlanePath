@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -643,7 +643,7 @@ integer points.
 
 =back
 
-=head2 OEIS
+=head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,

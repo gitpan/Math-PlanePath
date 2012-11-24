@@ -91,6 +91,32 @@ sub diff_nums {
 }
 
 #------------------------------------------------------------------------------
+# A004201 -- N for which X>=0, step=2
+
+{
+  my $anum = 'A004201';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  if ($bvalues) {
+    my $path = Math::PlanePath::PyramidRows->new (step => 2);
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      if ($x >= 0) {
+        push @got, $n;
+      }
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1,
+        "$anum");
+}
+
+#------------------------------------------------------------------------------
 # A079824 -- diagonal sums
 # cf A079825 with rows numbered alternately left and right
 # a(21)=(n/6)*(7*n^2-6*n+5)

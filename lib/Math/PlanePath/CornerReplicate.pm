@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -212,19 +212,19 @@ __END__
 # sub xy_to_n {
 #   my ($self, $x, $y) = @_;
 #   ### CornerReplicate xy_to_n(): "$x, $y"
-# 
+#
 #   $x = round_nearest ($x);
 #   $y = round_nearest ($y);
 #   if ($x < 0 || $y < 0) {
 #     return undef;
 #   }
-# 
+#
 #   my ($len, $level) = round_down_pow (max($x,$y),
 #                                        2);
 #   if (is_infinite($level)) {
 #     return $level;
 #   }
-# 
+#
 #   my $n = ($x * 0 * $y);  # inherit bignum 0
 #   while ($level-- >= 0) {
 #     ### $level
@@ -236,7 +236,7 @@ __END__
 #     ### assert: $y >= 0
 #     ### assert: $x < 2*$len
 #     ### assert: $x < 2*$len
-# 
+#
 #     $n *= 4;
 #     if ($x < $len) {
 #       # left
@@ -275,23 +275,23 @@ Math::PlanePath::CornerReplicate -- replicating U parts
 =head1 DESCRIPTION
 
 This path is a self-similar replicating corner fill with 2x2 blocks.  It's
-sometimes called a "U order".
+sometimes called a "U order" since the base N=0 to N=3 is like a "U".
 
-     7  | 63--62  59--58  47--46  43--42  
-        |      |       |       |       |  
-     6  | 60--61  56--57  44--45  40--41  
-        |          |               |      
-     5  | 51--50  55--54  35--34  39--38  
-        |      |       |       |       |  
-     4  | 48--49  52--53  32--33  36--37  
-        |                  |              
-     3  | 15--14  11--10  31--30  27--26  
-        |      |       |       |       |  
-     2  | 12--13   8-- 9  28--29  24--25  
-        |          |               |      
-     1  |  3-- 2   7-- 6  19--18  23--22  
-        |      |       |       |       |  
-    Y=0 |  0-- 1   4-- 5  16--17  20--21  
+     7  | 63--62  59--58  47--46  43--42
+        |      |       |       |       |
+     6  | 60--61  56--57  44--45  40--41
+        |          |               |
+     5  | 51--50  55--54  35--34  39--38
+        |      |       |       |       |
+     4  | 48--49  52--53  32--33  36--37
+        |                  |
+     3  | 15--14  11--10  31--30  27--26
+        |      |       |       |       |
+     2  | 12--13   8-- 9  28--29  24--25
+        |          |               |
+     1  |  3-- 2   7-- 6  19--18  23--22
+        |      |       |       |       |
+    Y=0 |  0-- 1   4-- 5  16--17  20--21
         +--------------------------------
           X=0  1   2   3   4   5   6   7
 
@@ -307,8 +307,8 @@ The pattern is the initial N=0 to N=3 section,
     |       |       |
     +-------+-------+
 
-It then repeats as 2x2 blocks arranged in the same pattern, then 4x4 blocks,
-etc.
+It repeats as 2x2 blocks arranged in the same pattern, then 4x4 blocks, etc.
+There's no rotations or reflections within sub-parts.
 
 The X axis N=0,1,4,5,16,17,etc is all the integers which use only
 digits 0 and 1 in base 4.  For example N=17 is 101 in base 4.
@@ -316,14 +316,22 @@ digits 0 and 1 in base 4.  For example N=17 is 101 in base 4.
 The Y axis N=0,3,12,15,48,etc is all the integers which use only digits 0
 and 3 in base 4.  For example N=51 is 303 in base 4.
 
-And the X=Y diagonal values N=0,2,8,10,32,34,etc is all the integers which
-use only digits 0 and 2 in base 4.
+The X=Y diagonal  N=0,2,8,10,32,34,etc is all the integers which use only
+digits 0 and 2 in base 4.
 
 The X axis is the same as the ZOrderCurve, and the Y axis here is the X=Y
 diagonal of the ZOrderCurve, and conversely the X=Y diagonal here is the Y
-axis of the ZOrderCurve.  In general the N value at a given X,Y is converted
-to or from the ZOrderCurve by changing base 4 digit values 2 to 3 and 3
-to 2.
+axis of the ZOrderCurve.
+
+The N value at a given X,Y is converted to or from the ZOrderCurve by
+transforming base 4 digit values 2-E<gt>3 and 3-E<gt>2.  This  can be done
+by a bitwise "X xor Y".  When Y has a 1-bit the xor  swaps 2E<lt>-E<gt>3.
+
+    ZOrder X  = Crep X  xor Crep Y
+    ZOrder Y  = Crep Y
+
+    Crep X  = ZOrder X  xor ZOrder Y
+    Crep Y  = ZOrder Y
 
 =head2 Level Ranges
 
@@ -362,6 +370,7 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
     http://oeis.org/A000695  (etc)
 
     A059906    Y coordinate
+    A059905    X bitxor Y (is ZOrderCurve X)
 
     A000695    N on X axis, base 4 digits 0,1 only
     A001196    N on Y axis, base 4 digits 0,3 only

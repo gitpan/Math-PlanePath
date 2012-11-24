@@ -19,7 +19,19 @@
 # math-image --path=KochSnowflakes --lines --scale=10
 
 # area approaches sqrt(48)/10
-
+#     *     height=sqrt(1-1/4)=sqrt(3)/2
+#    /|\    halfbase=1/2
+#   / | \   trianglearea = sqrt(3)/4
+#  *-----*
+# segments = 3*4^level
+# area = 9*prevarea + segments
+#      = 9*prevarea + 3*4^level
+# area = 3*4^level + 9*(3*4^(level-1) + 9*(3*4^(level-2) + (1)))
+#      = 3*4^level + 9*3*4^(level-1) + 9*9*(3*4^(level-2) + (1)))
+# area = 1 + 3*1/9 + 3*4*1/9^2 + 3*4^2*1/9^3 + ... + 3*4^level/9^(level+1)
+#      = 1 + 3/9*(1 + 4/9 + 4^2/9^2 + ... + 4^level/9^level)
+#      = 1 + 3/9*[ ((4/9)^(level+1) - 1) / ((4/9) - 1) ]
+#      = 1 + 
 
 package Math::PlanePath::KochSnowflakes;
 use 5.004;
@@ -28,7 +40,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,11 +52,17 @@ use Math::PlanePath::Base::Digits
 use Math::PlanePath::KochCurve;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant n_frac_discontinuity => 0;
 use constant rsquared_minimum => 4/9; # minimum X=0,Y=2/3
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  $self->{'sides'} ||= 3; # default
+  return $self;
+}
 
 # N=1 to 3      3 of, level=1
 # N=4 to 15    12 of, level=2
@@ -62,6 +80,10 @@ use constant rsquared_minimum => 4/9; # minimum X=0,Y=2/3
 #           = 3*4^level / 3
 #           = 4^level
 #
+# 6 sides
+# n_base = 1 + 2*3*4^0 + ...
+#        = 2*4^level - 1
+# level = log4 (n+1)/2
 
 ### loop 1: 3* 4**1
 ### loop 2: 3* 4**2
@@ -81,43 +103,81 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  my ($base, $level) = round_down_pow ($n, 4);
+  my $sides = $self->{'sides'};
+  my ($sidelen, $level) = round_down_pow (($sides == 6 ? ($n+1)/2 : $n),
+                                          4);
+  my $base = ($sides == 6 ? 2*$sidelen - 1 : $sidelen);
+  my $rem = $n - $base;
+
   ### $level
   ### $base
-  ### next base would be: 4**($level+1)
-
-  my $rem = $n - $base;
+  ### $sidelen
   ### $rem
-
   ### assert: $n >= $base
-  ### assert: $n < 4**($level+1)
-  ### assert: $rem>=0
-  ### assert: $rem < 3 * 4 ** $level
+  ### assert: $rem >= 0
+  ### assert: $rem < $sidelen * $sides
 
-  my $side = int($rem / $base);
+  my $side = int($rem / $sidelen);
   ### $side
   ### $rem
-  $rem -= $side*$base;
+  ### subtract: $side*$sidelen
+  $rem -= $side*$sidelen;
 
-  ### assert: $side >= 0 && $side < 3
+  ### assert: $side >= 0 && $side < $sides
 
   my ($x, $y) = Math::PlanePath::KochCurve->n_to_xy ($rem);
   ### $x
   ### $y
 
-  my $len = 3**($level-1);
-  if ($side < 1) {
-    ### horizontal rightwards
-    return ($x - 3*$len,
-            -$y - $len);
-  } elsif ($side < 2) {
-    ### right slope upwards
-    return (($x-3*$y)/-2 + 3*$len,  # flip vert and rotate +120
-            ($x+$y)/2 - $len);
+  if ($sides == 3) {
+    my $len = 3**($level-1);
+    if ($side < 1) {
+      ### horizontal rightwards
+      return ($x - 3*$len,
+              -$y - $len);
+    } elsif ($side < 2) {
+      ### right slope upwards
+      return (($x-3*$y)/-2 + 3*$len,  # flip vert and rotate +120
+              ($x+$y)/2 - $len);
+    } else {
+      ### left slope downwards
+      return ((-3*$y-$x)/2,  # flip vert and rotate -120
+              ($y-$x)/2 + 2*$len);
+    }
   } else {
-    ### left slope downwards
-    ($x,$y) = ((-3*$y-$x)/2,  # flip vert and rotate -120
-               ($y-$x)/2 + 2*$len);
+
+    #          3
+    #     5-----4
+    #  4 /       \
+    #   /         \ 2
+    #  6     o     3
+    # 5 \   . .   /
+    #    \ .   . / 1
+    #     1-----2
+    #      0
+    #  7
+    #
+    my $len = 3**$level;
+    $x -= $len;    # -y flip vert and offset
+    $y = -$y - $len;
+    if ($side >= 3) {
+      ### rotate 180 ...
+      $x = -$x;   # rotate 180
+      $y = -$y;
+      $side -= 3;
+    }
+    if ($side >= 2) {
+      ### upper right slope upwards ...
+      return (($x+3*$y)/-2,  # rotate +120
+              ($x-$y)/2);
+    }
+    if ($side >= 1) {
+      ### lower right slope upwards ...
+      return (($x-3*$y)/2,  # rotate +60
+              ($x+$y)/2);
+    }
+    ### horizontal ...
+    return ($x,$y);
   }
 }
 
@@ -276,9 +336,15 @@ sub rect_to_n_range {
   ### left: (-$x1+$y2)/2
   ### bottom: -$y1
 
-  my ($len, $level) = round_down_pow (max (int(($x2+$y2)/2),
-                                           int((-$x1+$y2)/2),
-                                           -$y1),
+  my $sides = $self->{'sides'};
+  my ($len, $level) = round_down_pow (max ($sides == 6
+                                           ? ($x1/-2,
+                                              $x2/2,
+                                              -$y1,
+                                              $y2)
+                                           : (int(($x2+$y2)/2),
+                                              int((-$x1+$y2)/2),
+                                              -$y1)),
                                       3);
   ### $level
   # end of $level is 1 before base of $level+1

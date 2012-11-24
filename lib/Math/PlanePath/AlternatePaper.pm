@@ -51,7 +51,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -1281,7 +1281,7 @@ Integer Sequences as
 
     http://oeis.org/A106665  (etc)
 
-    A106665  turn, 1=left,0=right, starting at N=1
+    A106665  next turn, 1=left,0=right, a(0) is turn at N=1
     A020985  Golay/Rudin/Shapiro sequence +1,-1
                 dX and dY, skipping every second value zero
                 dSum, change in X+Y

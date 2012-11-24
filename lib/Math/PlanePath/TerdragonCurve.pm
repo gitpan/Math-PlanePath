@@ -43,7 +43,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -254,6 +254,49 @@ sub rect_to_n_range {
           ($xmax*$xmax + 3*$ymax*$ymax + 1)
           * 2
           * $self->{'arms'});
+}
+
+my @dir6_to_dx   = (2, 1,-1,-2, -1, 1);
+my @dir6_to_dy   = (0, 1, 1, 0, -1,-1);
+my @digit_to_turn = (2,-2);
+sub n_to_dxdy {
+  my ($self, $n) = @_;
+  ### n_to_dxdy(): $n
+
+  if ($n < 0) {
+    return;  # first direction at N=0
+  }
+  if (is_infinite($n)) {
+    return ($n,$n);
+  }
+
+  my $int = int($n);  # integer part
+  $n -= $int;         # fraction part
+
+  # initial direction from arm
+  my $dir6 = _divrem_mutate ($int, $self->{'arms'});
+
+  my @digits = digit_split_lowtohigh($int,3);
+  $dir6 += 2 * scalar(grep {$_==1} @digits);  # count 1s for total turn
+  $dir6 %= 6;
+  my $dx = $dir6_to_dx[$dir6];
+  my $dy = $dir6_to_dy[$dir6];
+
+  if ($n) {
+    # fraction part
+
+    # find lowest non-2 digit, or 0 if all 2s or no digits at all
+    my $digit;
+    do {
+      $digit = shift @digits || 0;
+    } until ($digit != 2);
+
+    $dir6 += $digit_to_turn[$digit];
+    $dir6 %= 6;
+    $dx += $n*($dir6_to_dx[$dir6] - $dx);
+    $dy += $n*($dir6_to_dy[$dir6] - $dy);
+  }
+  return ($dx, $dy);
 }
 
 1;
@@ -641,8 +684,10 @@ At each point N the curve always turns 120 degrees either to the left or
 right, it never goes straight ahead.  If N is written in ternary then the
 lowest non-zero digit gives the turn
 
-    Ndigit      Turn
-    ------      ----
+   ternary
+   lowest
+   non-zero     Turn
+   --------     ----
       1         left
       2         right
 
@@ -654,6 +699,22 @@ direction, so the next level shape gives the turn.
           \
            \
     0-------1*3^k
+
+=head2 Next Turn
+
+The next turn, ie. the turn at position N+1, can be calculated from the
+ternary digits of N similarly.  The lowest non-2 digit gives the turn.
+
+   ternary
+   lowest
+   non-2       Turn
+   -------     ----
+      0        left
+      1        right
+
+If N is all 2s then the lowest non-2 is taken to be a 0 above the high end.
+For example N=8 is 22 ternary so considered 022 for lowest non-2 digit=0 and
+turn left after the segment at N=8, ie. at N=9 turn left.
 
 =head2 Total Turn
 
@@ -672,22 +733,23 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A080846  etc
 
-    A080846 -- next turn 0=left,1=right, by 120 degrees
-                 (numbered n=0 for the first turn, which is at N=1)
     A060236 -- turn 1=left,2=right, by 120 degrees
-    A137893 -- morphism, turn 1=left,0=right
-    A189640 -- morphism, turn 1=left,0=right (extra initial 0)
-    A189673 -- morphism, turn 0=left,1=right (extra initial 0)
+                 (lowest non-zero ternary digit)
+    A137893 -- turn 1=left,0=right (morphism)
+    A189640 -- turn 1=left,0=right (morphism, extra initial 0)
+    A189673 -- turn 0=left,1=right (morphism, extra initial 0)
+    A080846 -- next turn 0=left,1=right, by 120 degrees
+                 (n=0 first turn is for N=1)
     A038502 -- strip trailing ternary 0s,
                  taken mod 3 is turn 1=left,2=right
 
     A026225 -- N positions of left turns,
-                 being (3*i+1)*3^j so lowest non-0 digit is a 1
+                 being (3*i+1)*3^j so lowest non-zero digit is a 1
     A026179 -- N positions of right turns (except initial 1)
-    A060032 -- turn 1=left,2=right as bignums to 3^level
+    A060032 -- bignum turns 1=left,2=right to 3^level
 
     A062756 -- total turn, count ternary 1s
-    A005823 -- N positions where total turn == 0, no ternary 1s
+    A005823 -- N positions where total turn == 0, ternary no 1s
 
 A189673 and A026179 start with extra initial values arising from their
 morphism definition.  That can be skipped to consider the turns starting

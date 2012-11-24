@@ -43,19 +43,34 @@ sub read_values {
 
   my $seq = eval { require Math::NumSeq::OEIS::File;
                    Math::NumSeq::OEIS::File->new (anum => $anum) };
-  if (! $seq) {
-    my $error = $@;
-    MyTestHelpers::diag ("$anum not available: ", $error);
-    return;
-  }
-
   my @bvalues;
-  my $count = 0;
-  my $lo = 0;
-  if (($lo, my $value) = $seq->next) {
-    push @bvalues, $value;
-    while ((undef, $value) = $seq->next) {
+  my $lo;
+  if ($seq) {
+    my $count = 0;
+    if (($lo, my $value) = $seq->next) {
       push @bvalues, $value;
+      while ((undef, $value) = $seq->next) {
+        push @bvalues, $value;
+      }
+    }
+  } else {
+    my $error = $@;
+
+    if (open FH, "< $ENV{HOME}/OEIS/stripped") {
+      (my $num = $anum) =~ s/^A//;
+      if (my $line = bsearch_textfile
+          (\*FH, sub {
+             my ($line) = @_;
+             $line =~ /^A(\d+)/ or return -1;
+             return ($1 <=> $num);
+           })) {
+        $line =~ s/A\d+ *,?//;
+        $line =~ s/\s+$//;
+        @bvalues = split /,/, $line;
+      }
+    } else {
+      MyTestHelpers::diag ("$anum not available: ", $error);
+      return;
     }
   }
 
@@ -93,6 +108,54 @@ sub dxdy_to_direction {
   if ($dx < 0) { return 2; }  # west
   if ($dy > 0) { return 1; }  # south
   if ($dy < 0) { return 3; }  # north
+}
+
+
+sub bsearch_textfile {
+  my ($fh, $cmpfunc) = @_;
+  my $lo = 0;
+  my $hi = -s $fh;
+  for (;;) {
+    my $mid = ($lo+$hi)/2;
+    seek $fh, $mid, 0
+      or last;
+
+    # skip partial line
+    defined(readline $fh)
+      or last; # EOF
+
+    # position start of line
+    $mid = tell($fh);
+    if ($mid >= $hi) {
+      last;
+    }
+
+    my $line = readline $fh;
+    defined $line
+      or last; # EOF
+
+    my $cmp = &$cmpfunc ($line);
+    if ($cmp == 0) {
+      return $line;
+    }
+    if ($cmp < 0) {
+      $lo = tell($fh);  # after
+    } else {
+      $hi = $mid;
+    }
+  }
+
+  seek $fh, $lo, 0;
+  while (defined (my $line = readline $fh)) {
+    my $cmp = &$cmpfunc($line);
+    if ($cmp == 0) {
+      return $line;
+    }
+    if ($cmp > 0) {
+      return undef;
+    }
+  }
+  return undef;
 }
 
 1;

@@ -16,26 +16,20 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-
-# math-image --path=SierpinskiCurve --lines --scale=10
-#
-# math-image --path=SierpinskiCurve --all --output=numbers_dash
-#
 # turn seq from low non-zero or N/2 low bit or something
 # cf A039963
-#
 
 
 package Math::PlanePath::SierpinskiCurve;
 use 5.004;
 use strict;
+use List::Util 'sum';
 #use List::Util 'min','max';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -219,6 +213,152 @@ sub n_to_xy {
   return ($x,$y);
 }
 
+#      ...0    ...1
+#      ...1    ...2
+#      ...2    ...3
+#    ..0333  ..1000    any low 3s
+#      ..02    ..03
+#      ..12    ..13
+#      ..22    ..23
+#   ..03332 ..03333
+#   ..13332 ..13333
+#   ..23332 ..23333
+
+my @lowdigit_to_dir = (1,-2, 1, 0);
+my @digit_to_dir    = (0, 2,-2, 0);
+my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
+my @dir8_to_dy = (0, 1, 1, 1,  0, -1, -1,-1);
+my @digit_to_turn  = (-1,-1,2);
+my @digit_to_turn2 = (2,-1,2);
+sub _WORKING_BUT_HAIRY__n_to_dxdy {
+  my ($self, $n) = @_;
+  ### n_to_dxdy(): $n
+
+  if ($n < 0) {
+    return;  # first direction at N=0
+  }
+  if (is_infinite($n)) {
+    return ($n,$n);
+  }
+
+  my $int = int($n);
+  $n -= $int;
+  my @digits = digit_split_lowtohigh($int,4);
+  ### @digits
+
+  # strip low 3s
+  my $any_low3s;
+  while (($digits[0]||0) == 3) {
+    shift @digits;
+    $any_low3s = 1;
+  }
+
+  my $dir8 = $lowdigit_to_dir[$digits[0] || 0];
+  $dir8 += sum(0, map {$digit_to_dir[$_]} @digits);
+  $dir8 &= 7;
+  my $dx = $dir8_to_dx[$dir8];
+  my $dy = $dir8_to_dy[$dir8];
+
+  if ($n) {
+    # fraction part
+
+    if ($any_low3s) {
+      $dir8 += $digit_to_turn2[$digits[0]||0];
+    } else {
+      my $digit = $digits[0] || 0;
+      if ($digit == 2) {
+        shift @digits;
+        # lowest non-3 digit
+        do {
+          $digit = shift @digits || 0;  # zero if all 3s or no digits at all
+        } until ($digit != 3);
+        $dir8 += $digit_to_turn2[$digit];
+      } else {
+        $dir8 += $digit_to_turn[$digit];
+      }
+    }
+    $dir8 &= 7;
+    $dx += $n*($dir8_to_dx[$dir8] - $dx);
+    $dy += $n*($dir8_to_dy[$dir8] - $dy);
+  }
+  return ($dx, $dy);
+}
+
+# 2| . 3 .
+# 1| 1 . 2
+# 0| . 0 .
+#  +------
+#    0 1 2
+#
+# 4| . . . 3 .          # diagonal_spacing == 3
+# 3| . . . . 2 4        # mod=2*3+1=7
+# 2| . . . . . . .
+# 1| 1 . . . . . . .
+# 0| . 0 . . . . . . 6
+#  +------------------
+#    0 1 2 3 4 5 6 7 8
+#
+sub _NOTWORKING__xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest($x);
+  $y = round_nearest($y);
+  my $mod = 2*$self->{'diagonal_spacing'} + $self->{'straight_spacing'};
+  return (_rect_within_arms($x,$y, $x,$y, $self->{'arms'})
+          && ((($x%3)+($y%3)) & 1));
+}
+
+#   x1    *  x2 *
+#    +-----*-+y2*
+#    |      *|  *
+#    |       *  *
+#    |       |* *
+#    |       | **
+#    +-------+y1*
+#   ----------------
+#
+# arms=5 x1,y2 after X=Y-1 line, so x1 > y2-1, x1 >= y2
+# ************
+#      x1   *   x2
+#      +---*----+y2
+#      |  *     |
+#      | *      |
+#      |*       |
+#      *        |
+#     *+--------+y1
+#    *
+#
+# arms=7 x1,y1 after X=-2-Y line, so x1 > -2-y1
+# ************
+# ** +------+
+# * *|      |
+# *  *      |
+# *  |*     |
+# *  | *    |
+# *y1+--*---+
+# * x1   *
+#
+# _rect_within_arms() returns true if rectangle x1,y1,x2,y2 has some part
+# within the extent of the $arms set of octants.
+#
+sub _rect_within_arms {
+  my ($x1,$y1, $x2,$y2, $arms) = @_;
+  return ($arms <= 4
+          ? ($y2 >= 0  # y2 top edge must be positive
+             && ($arms <= 2
+                 ? ($arms == 1 ? $x2 > $y1   # arms==1  bottom right
+                    :            $x2 >= 0)   # arms==2  right edge
+                 : ($arms == 4               # arms==4  anything
+                    || $x2 >= -$y2)))        # arms==3  top right
+
+          # arms >= 5
+          : ($y2 >= 0  # y2 top edge positive is good, otherwise check
+             || ($arms <= 6
+                 ? ($arms == 5 ? $x1 < $y2   # arms==5  top left
+                    :            $x1 < 0)    # arms==6  left edge
+                 : ($arms == 8               # arms==8  anything
+                    || $x1 <= -2-$y1))));    # arms==7  bottom left
+}
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### SierpinskiCurve xy_to_n(): "$x, $y"
@@ -340,51 +480,9 @@ sub rect_to_n_range {
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  #   x1    *  x2 *
-  #    +-----*-+y2*
-  #    |      *|  *
-  #    |       *  *
-  #    |       |* *
-  #    |       | **
-  #    +-------+y1*
-  #   ----------------
-  #
-  # arms=5 x1,y2 after X=Y-1 line, so x1 > y2-1, x1 >= y2
-  # ************
-  #      x1   *   x2
-  #      +---*----+y2
-  #      |  *     |
-  #      | *      |
-  #      |*       |
-  #      *        |
-  #     *+--------+y1
-  #    *
-  #
-  # arms=7 x1,y1 after X=-2-Y line, so x1 > -2-y1
-  # ************
-  # ** +------+
-  # * *|      |
-  # *  *      |
-  # *  |*     |
-  # *  | *    |
-  # *y1+--*---+
-  # * x1   *
-  #
   my $arms = $self->{'arms'};
-  if (($arms <= 4
-       ? ($y2 < 0  # y2 negative, nothing ...
-          || ($arms == 1 && $x2 <= $y1)
-          || ($arms == 2 && $x2 < 0)
-          || ($arms == 3 && $x2 < -$y2))
-
-       # arms >= 5
-       : ($y2 < 0
-          && (($arms == 5 && $x1 >= $y2)
-              || ($arms == 6 && $x1 >= 0)
-              || ($arms == 7 && $x1 > -2-$y1))))) {
+  unless (_rect_within_arms($x1,$y1, $x2,$y2, $arms)) {
     ### rect outside octants, for arms: $arms
-    ### $x1
-    ### $y2
     return (1,0);
   }
 
@@ -495,6 +593,11 @@ X<Sierpinski, Waclaw>This is an integer version of the self-similar curve by
 Waclaw Sierpinski traversing the plane by right triangles.  The default is a
 single arm of the curve in an eighth of the plane.
 
+=cut
+
+# math-image --path=SierpinskiCurve --all --output=numbers_dash --size=79x26
+
+=pod
 
     10  |                                  31-32
         |                                 /     \
@@ -551,8 +654,8 @@ The points are on a square grid with integer X,Y.  4 points are used in each
     ((X%3)+(Y%3)) % 2 == 1
 
 The X axis N=0,3,12,15,48,etc are all the integers which use only digits 0
-and 3 in base 4.  For example N=51 is 303 base 4.  Or equivalently the
-values all have doubled bits in binary, for example N=48 is 110000 binary.
+and 3 in base 4.  For example N=51 is 303 base4.  Or equivalently the values
+all have doubled bits in binary, for example N=48 is 110000 binary.
 (Compare the CornerReplicate which also has these values along the X axis.)
 
 =head2 Level Ranges
@@ -627,8 +730,7 @@ successively.  For example C<arms =E<gt> 2>,
 The N=0 point is at X=1,Y=0 (in all arms forms) so that the second arm is
 within the first quadrant.
 
-Anywhere between 1 and 8 arms can be done this way.  C<arms=E<gt>8> is as
-follows.
+1 to 8 arms can be done this way.  C<arms=E<gt>8> is as follows.
 
            ...                       ...           6
             |                          |
@@ -663,21 +765,28 @@ follows.
 
 The middle "." is the origin X=0,Y=0.  It would be more symmetrical to make
 the origin the middle of the eight arms, at X=-0.5,Y=-0.5 in the above, but
-that would give fractional X,Y values.  Apply an offset as X+0.5,Y+0.5 if
-desired.
+that would give fractional X,Y values.  Apply an offset with X+0.5,Y+0.5 to
+centre it if desired.
 
 =head2 Spacing
 
 The optional C<diagonal_spacing> and C<straight_spacing> can increase the
-space between points diagonally or vertically/horizontally.  The default for
+space between points diagonally or vertically+horizontally.  The default for
 each is 1.
 
     $path = Math::PlanePath::SierpinskiCurve->new
                (straight_spacing => 2,
                (diagonal_spacing => 1)
 
+=cut
+
+# math-image --path=SierpinskiCurve,straight_spacing=3,diagonal_spacing=1 --all --output=numbers_dash --size=79x26
+# math-image --path=SierpinskiCurve,straight_spacing=3,diagonal_spacing=3 --all --output=numbers_dash --size=79x26
+
+=pod
+
 The effect is only to spread the points.  In the level formulas above the
-"3" factor becomes 2*d+s, effectively being the N=0 to N=3 section being
+"3" factor becomes 2*d+s, effectively being the N=0 to N=3 section sized as
 d+s+d.
 
     d = diagonal_spacing
@@ -718,13 +827,34 @@ ever greater self-similar detail,
     \/ \/ \/ \/ \/ \/ \/ \/
 
 The code here might be pressed into use for this by drawing a mirror image
-of the curve (N=0 through Nlevel above).  Or using the C<arms=E<gt>2> form
-(N=0 to N=4^level, inclusive) and joining up the ends.
+of the curve N=0 through Nlevel (above).  Or using the C<arms=E<gt>2> form
+N=0 to N=4^level, inclusive, and joining up the ends.
 
-The curve is usually conceived as scaling down by quarters.  This can be had
-with C<straight_spacing =E<gt> 2>, and then an offset to X+1,Y+1 to centre
-in a 4*2^level square
+The curve is also usually conceived as scaling down by quarters.  This can
+be had with C<straight_spacing =E<gt> 2> and then an offset to X+1,Y+1 to
+centre in a 4*2^level square
 
+=head2 Koch Curve
+
+The replicating structure is the same as the Koch curve
+(L<Math::PlanePath::KochCurve>), in that the curve is repeated four times to
+make the next level,
+
+    Koch Curve           Sierpinski Curve
+
+                               | |
+         / \                   | |
+        /   \                  | |
+    ---       ---           ---   ---
+
+For example the four blocks N=0to3, 4to7, 8to11, 12to15.
+
+    [u]LRL      [u]RRL
+
+1,  0,  1,  1,  1,  0,  1,  0,  1,0,1,1,1,0,1
+
+0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,
+                                             
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -733,7 +863,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SierpinskiCurve-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::SierpinskiCurve-E<gt>new (arms =E<gt> 8)>
+=item C<$path = Math::PlanePath::SierpinskiCurve-E<gt>new (arms =E<gt> $integer)>
 
 Create and return a new path object.
 
@@ -751,7 +881,7 @@ Return 0, the first N in the path.
 
 =back
 
-=head2 OEIS
+=head1 OEIS
 
 The Sierpinski curve is in Sloane's Online Encyclopedia of Integer Sequences
 as,

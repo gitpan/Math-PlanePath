@@ -62,11 +62,34 @@ sub diff_nums {
   return undef;
 }
 
-sub path_xy_is_visited {
-  my ($path, $x,$y) = @_;
-  return defined($path->xy_to_n($x,$y));
-}
 
+#------------------------------------------------------------------------------
+# A130047 - left half Pascal mod 2
+
+{
+  my $anum = 'A130047';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $diff;
+  if ($bvalues) {
+    splice @$bvalues, 16,0, 1;  # dodgy samples
+    my $path = Math::PlanePath::SierpinskiTriangle->new;
+    my @got;
+    for (my $y = 0; @got < @$bvalues; $y++) {
+      for (my $x = -$y; $x <= 0 && @got < @$bvalues; $x += 2) {
+        push @got, $path->xy_is_visited($x,$y) ? 1 : 0;
+      }
+    }
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join('',@{$bvalues}[0..70]));
+      MyTestHelpers::diag ("got:     ",join('',@got[0..70]));
+    }
+  }
+  skip (! $bvalues,
+        $diff,
+        undef,
+        "$anum");
+}
 
 #------------------------------------------------------------------------------
 # A067771 - number of vertices to order=n ...
@@ -121,7 +144,7 @@ sub path_xy_is_visited {
     for (my $y = 0; @got < @$bvalues; $y++) {
       my $b = 0;
       foreach my $x (0 .. $y) {
-        if (path_xy_is_visited($path,$x,$y)) {
+        if ($path->xy_is_visited($x,$y)) {
           $b += Math::BigInt->new(2) ** $x;
         }
       }
@@ -313,7 +336,7 @@ sub nest_breadth_bits {
     foreach my $i (0 .. $#pending_x) {
       my $x = $pending_x[$i];
       my $y = $pending_y[$i];
-      if (path_xy_is_visited($path,$x,$y)) {
+      if ($path->xy_is_visited($x,$y)) {
         push @ret, 1,1;
         $open += 2;
         push @new_x, $x-1;
@@ -437,7 +460,7 @@ sub dyck_tree_bits {
 }
 sub dyck_tree_bits_z {
   my ($path, $x,$y, $limit) = @_;
-  if ($limit > 0 && path_xy_is_visited($path,$x,$y)) {
+  if ($limit > 0 && $path->xy_is_visited($x,$y)) {
     return (1,
             dyck_tree_bits_z($path, $x-1,$y+1, $limit-1),  # left
             dyck_tree_bits_z($path, $x+1,$y+1, $limit-1)); # right
@@ -449,7 +472,7 @@ sub dyck_tree_bits_z {
 # Doesn't distinguish left and right.
 # sub parens_bits_z {
 #   my ($path, $x,$y, $limit) = @_;
-#   if ($limit > 0 && path_xy_is_visited($path,$x,$y)) {
+#   if ($limit > 0 && $path->xy_is_visited($x,$y)) {
 #     return (1,
 #             parens_bits_z($path, $x-1,$y+1, $limit-1),  # left
 #             parens_bits_z($path, $x+1,$y+1, $limit-1),  # right
@@ -563,7 +586,7 @@ sub level_order_bits {
     foreach my $i (0 .. $#pending_x) {
       my $x = $pending_x[$i];
       my $y = $pending_y[$i];
-      if (path_xy_is_visited($path,$x,$y)) {
+      if ($path->xy_is_visited($x,$y)) {
         push @ret, 1;
         push @new_x, $x-1;
         push @new_y, $y+1;
@@ -911,7 +934,7 @@ sub binomial_mod2 {
       my $x = 0;
       my $y = 0;
       foreach my $n (1 .. @$bvalues) {
-        push @got, (path_xy_is_visited($path,$x,$y) ? 1 : 0);
+        push @got, ($path->xy_is_visited($x,$y) ? 1 : 0);
         $x += 2;
         if ($x > $y) {
           $y++;
@@ -932,7 +955,7 @@ sub binomial_mod2 {
       my $x = 0;
       my $y = 0;
       foreach my $n (1 .. @$bvalues) {
-        push @got, (path_xy_is_visited($path,$x,$y) ? 1 : 0);
+        push @got, ($path->xy_is_visited($x,$y) ? 1 : 0);
         $x++;
         if ($x > $y) {
           $y++;
@@ -961,7 +984,7 @@ sub binomial_mod2 {
       my $x = 0;
       my $y = 0;
       foreach my $n (1 .. @$bvalues) {
-        push @got, (path_xy_is_visited($path,$x,$y) ? 1 : 0);
+        push @got, ($path->xy_is_visited($x,$y) ? 1 : 0);
         $x++;
         if ($x > $y) {
           $y++;

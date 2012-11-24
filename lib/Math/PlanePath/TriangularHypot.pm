@@ -65,7 +65,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -439,6 +439,28 @@ sub n_to_xy {
   my $y = $n_to_y->[$int];
   return ($x + $n * ($n_to_x->[$int+1] - $x),
           $y + $n * ($n_to_y->[$int+1] - $y));
+}
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+
+  if (defined $self->{'skip_parity'}) {
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
+    if ((($x%2) ^ ($y%2)) == $self->{'skip_parity'}) {
+      ### XY wrong parity, no point ...
+      return 0;
+    }
+  }
+  if (defined $self->{'skip_hex'}) {
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
+    if ((($x%6) + 3*($y%6)) % 6 == $self->{'skip_hex'}) {
+      ### XY wrong hex, no point ...
+      return 0;
+    }
+  }
+  return 1;
 }
 
 sub xy_to_n {

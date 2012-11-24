@@ -53,7 +53,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 92;
+  my $want_version = 93;
   ok ($Math::PlanePath::DigitGroups::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DigitGroups->VERSION,  $want_version,

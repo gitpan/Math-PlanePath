@@ -80,8 +80,11 @@
 #    A151567 another rule toothpicks
 
 # "Q"
-# A187210, A210838, A210841, A211001-A211003, A211010, A211020-A211024.
-# A211000  A211011
+# A187210, A211001-A211003, A211010, A211020-A211024.
+# A211011
+# A210838 Coordinates (x,y) of the endpoint
+# A210841 Coordinates (x,y) of the endpoint
+# A211000 Coordinates (x,y) of the endpoint inflection at primes
 
 
 package Math::PlanePath::ToothpickTree;
@@ -92,7 +95,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

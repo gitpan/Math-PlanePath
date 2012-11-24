@@ -89,6 +89,7 @@ devel/lib/Math/PlanePath/PeanoHalf.pm
 devel/lib/Math/PlanePath/PeanoRounded.pm
 devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
+devel/lib/Math/PlanePath/R7DragonCurve.pm
 devel/lib/Math/PlanePath/squares-dispersion.pl
 devel/lib/Math/PlanePath/toothpick.pl
 devel/lib/Math/PlanePath/ToothpickReplicate.pm
@@ -96,6 +97,7 @@ devel/lib/Math/PlanePath/ToothpickReplicate.t
 devel/lib/Math/PlanePath/ToothpickTree-oeis.t
 devel/lib/Math/PlanePath/ToothpickTree.pm
 devel/lib/Math/PlanePath/ToothpickTree.t
+devel/lib/Math/PlanePath/UlamWarburtonAway.pm
 devel/Makefile
 devel/mephisto-waltz.logo
 devel/multiple-rings.pl
@@ -343,6 +345,7 @@ t/LTiling.t
 t/MultipleRings.t
 t/MyTestHelpers.pm
 t/number-fraction.t
+t/NumSeq-PlanePathCoord.t
 t/NumSeq-PlanePathDelta.t
 t/NumSeq-PlanePathN.t
 t/NumSeq-PlanePathTurn.t
@@ -448,6 +451,7 @@ xt/oeis/NumSeq-PlanePath-oeis.t
 xt/oeis/PeanoCurve-oeis.t
 xt/oeis/PowerArray-oeis.t
 xt/oeis/PyramidRows-oeis.t
+xt/oeis/PyramidSides-oeis.t
 xt/oeis/PyramidSpiral-oeis.t
 xt/oeis/R5DragonCurve-oeis.t
 xt/oeis/RationalsTree-oeis.t

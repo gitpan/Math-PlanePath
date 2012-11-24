@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -694,6 +694,7 @@ path include
       A010052    dY,  being 1 at perfect square row end
       A000290    N on X=Y diagonal, extra initial 0
       A002522    N on X=-Y North-West diagonal (n^2+1)
+      A004201    N for which X>=0, ie. right hand half
 
     step=3
       A180447    Y coordinate, n appears 3n+1 times

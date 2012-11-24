@@ -41,7 +41,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -745,7 +745,8 @@ And various sequences,
     http://oeis.org/A180714  (etc)
 
     wider=0 (the default)
-      A079813    abs(dY), k 0s followed by k 1s
+      A174344    X coordinate
+      A079813    abs(dY), being k 0s followed by k 1s
       A063826    direction 1=right,2=up,3=left,4=down
 
       A033638    N positions of the turns (extra initial 1, 1)
@@ -766,6 +767,11 @@ And various sequences,
 
       A143856    N values on ENE slope dX=2,dY=1
       A143861    N values on NNE slope dX=1,dY=2
+
+      A214664    X coordinate of N primes (Ulam's spiral)
+      A214665    Y coordinate of N primes (Ulam's spiral)
+      A214666    -X  \ reckoning spiral starting West
+      A214667    -Y  /
 
       A053999    prime[N] on X=-Y opp diagonal X>=0 (SE)
       A054551    prime[N] on the X axis (E)
@@ -797,8 +803,6 @@ starting from N=0.
     n_start=0
       A180714    X+Y coordinate sum
       A053615    abs(X-Y), being distance to nearest pronic
-
-      A118175    abs(dX), runs of 1s then 0s
 
       A001107    N on X axis
       A033991    N on Y axis

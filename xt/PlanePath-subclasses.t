@@ -55,6 +55,64 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=6',
+
+               'SierpinskiCurve',
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'SierpinskiCurveStair',
+               'SierpinskiCurveStair,diagonal_length=2',
+               'SierpinskiCurveStair,diagonal_length=3',
+               'SierpinskiCurveStair,diagonal_length=4',
+               'SierpinskiCurveStair,arms=2',
+               'SierpinskiCurveStair,arms=3,diagonal_length=2',
+               'SierpinskiCurveStair,arms=4',
+               'SierpinskiCurveStair,arms=5',
+               'SierpinskiCurveStair,arms=6,diagonal_length=5',
+               'SierpinskiCurveStair,arms=7',
+               'SierpinskiCurveStair,arms=8',
+               'HIndexing',
+
+               'Hypot,n_start=37',
+               'Hypot,points=even,n_start=37',
+               'Hypot',
+               'Hypot,points=even',
+               'Hypot,points=odd',
+               'HypotOctant',
+               'HypotOctant,points=even',
+               'HypotOctant,points=odd',
+
+               'TriangularHypot',
+               'TriangularHypot,n_start=0',
+               'TriangularHypot,n_start=37',
+               'TriangularHypot,points=odd',
+               'TriangularHypot,points=all',
+               'TriangularHypot,points=hex',
+               'TriangularHypot,points=hex_rotated',
+               'TriangularHypot,points=hex_centred',
+
                'PythagoreanTree',
                'PythagoreanTree,coordinates=PQ',
                'PythagoreanTree,tree_type=FB',
@@ -111,21 +169,6 @@ my @modules = (
                'CubicBase,radix=3',
                'CubicBase,radix=4',
                'CubicBase,radix=37',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=6',
-
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=6',
 
                'HexSpiral',
                'HexSpiral,wider=1',
@@ -365,52 +408,9 @@ my @modules = (
                'Columns,height=37,n_start=0',
                'Columns,height=37,n_start=123',
 
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
-               'SierpinskiCurve',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
-               'SierpinskiCurveStair',
-               'SierpinskiCurveStair,diagonal_length=2',
-               'SierpinskiCurveStair,diagonal_length=3',
-               'SierpinskiCurveStair,diagonal_length=4',
-               'SierpinskiCurveStair,arms=2',
-               'SierpinskiCurveStair,arms=3,diagonal_length=2',
-               'SierpinskiCurveStair,arms=4',
-               'SierpinskiCurveStair,arms=5',
-               'SierpinskiCurveStair,arms=6,diagonal_length=5',
-               'SierpinskiCurveStair,arms=7',
-               'SierpinskiCurveStair,arms=8',
-               'HIndexing',
-
                'PentSpiral',
                'PentSpiralSkewed',
                'KnightSpiral',
-
-               'TriangularHypot',
-               'TriangularHypot,n_start=0',
-               'TriangularHypot,n_start=37',
-               'TriangularHypot,points=odd',
-               'TriangularHypot,points=all',
-               'TriangularHypot,points=hex',
-               'TriangularHypot,points=hex_rotated',
-               'TriangularHypot,points=hex_centred',
-
-               'Hypot,n_start=37',
-               'Hypot,points=even,n_start=37',
-               'Hypot',
-               'Hypot,points=even',
-               'Hypot,points=odd',
-               'HypotOctant',
-               'HypotOctant,points=even',
-               'HypotOctant,points=odd',
 
                'SierpinskiArrowhead',
                'SierpinskiArrowhead,align=right',
@@ -585,7 +585,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 92;
+my $want_version = 93;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

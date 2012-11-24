@@ -42,7 +42,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -404,7 +404,7 @@ N and the upper right is the maximum N.
     |   N min
     +-------------------
 
-=head2 OEIS
+=head1 OEIS
 
 The Wythoff array is in Sloane's Online Encyclopedia of Integer Sequences
 in various forms,

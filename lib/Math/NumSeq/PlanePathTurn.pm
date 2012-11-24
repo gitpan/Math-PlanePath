@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -46,7 +46,16 @@ use Math::PlanePath::Base::Generic
 
 
 use constant characteristic_smaller => 1;
-use constant description => 'Turns from a PlanePath';
+
+sub description {
+  my ($self) = @_;
+  if (ref $self) {
+    return "Turn values $self->{'turn_type'} from path $self->{'planepath'}";
+  } else {
+    # class method
+    return 'Turns from a PlanePath';
+  }
+}
 
 use constant::defer parameter_info_array =>
   sub {
@@ -1128,7 +1137,8 @@ sub characteristic_non_decreasing {
 { package Math::PlanePath::CellularRule;
   sub _NumSeq_Turn_Left_increasing {
     my ($self) = @_;
-    return (($self->{'rule'} & 0x17) == 0    # single cell only
+    return (defined $self->{'rule'}
+            && ($self->{'rule'} & 0x17) == 0    # single cell only
             ? 1
             : 0);
   }
@@ -1136,7 +1146,8 @@ sub characteristic_non_decreasing {
 
   sub _NumSeq_Turn_LSR_increasing {
     my ($self) = @_;
-    return (($self->{'rule'} & 0x17) == 0    # single cell only
+    return (defined $self->{'rule'}
+            && ($self->{'rule'} & 0x17) == 0    # single cell only
             ? 1
             : 0);
   }

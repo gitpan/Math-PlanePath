@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -52,6 +52,12 @@ use Math::PlanePath::SacksSpiral;
 use constant n_frac_discontinuity => 0;
 use constant rsquared_minimum => 2; # minimum X=1,Y=1
 
+sub new {
+  my $self = shift->SUPER::new (@_);
+  $self->{'sides'} ||= 6; # default
+  return $self;
+}
+
 # innermost hexagon level 0
 #     level 0    len=6
 #     level 1    len=18
@@ -68,6 +74,17 @@ use constant rsquared_minimum => 2; # minimum X=1,Y=1
 # 3^(level+1) = N+2
 # level+1 = log3(N+2)
 # level = log3(N+2) - 1
+#
+# sides=3
+# ringlen = 3*3^level
+# Nstart(level) = 1 + 3* [ 3^0 + ... + 3^(level-1) ]
+#               = 1 + 3* [ (3^level - 1) / 2 ]
+#               = 1 + 3*(3^level - 1)/2
+#               = 1 + (3*3^level - 3)/2
+#               = (3*3^level - 3 + 2)/2
+#               = (3^(level+1) - 1)/2
+# 3^(level+1) - 1 = 2*N
+# 3^(level+1) = 2*N+1
 
 my @_xend = (2, 5);
 my @_yend = (0, 1);
@@ -102,35 +119,59 @@ sub n_to_xy {
     return ($n,$n);
   }
 
-  my ($pow, $level) = round_down_pow ($n+2, 3);
+  my $sides = $self->{'sides'};
+  my ($pow, $level) = round_down_pow (($sides == 6 ? $n+2 : 2*$n+1),
+                                      3);
+  my $base = ($sides == 6 ? $pow-2 : ($pow-1)/2);
   ### $level
-  ### base: $pow - 2
-  ### assert: $pow == 3 ** $level
+  ### $base
 
-  $n -= $pow-2;  # remainder
+  $n -= $base;  # remainder
   my $sidelen = $pow / 3;
   $level--;
-  my $sixth = int ($n / $sidelen);
-  my ($x, $y) = _side_n_to_xy ($n - $sixth*$sidelen);
+  my $side = int ($n / $sidelen);
+  my ($x, $y) = _side_n_to_xy ($n - $side*$sidelen);
 
   _ends_for_level($level);
   ### raw xy: "$x,$y"
   ### pos: "$_xend[$level],$_yend[$level]"
-  ($x,$y) = (($x+3*$y)/-2 + $_xend[$level],             # rotate +120
-             ($x-$y)/2    + $_yend[$level]);
-  ### rotate and position xy: "$x,$y"
+  ($x,$y) = (($x+3*$y)/-2,             # rotate +120
+             ($x-$y)/2);
+  ### rotate xy: "$x,$y"
 
-  if ($sixth >= 3) {
-    $x = -$x;   # rotate 180
-    $y = -$y;
-    $sixth -= 3;
-  }
-  if ($sixth == 1) {
-    ($x,$y) = (($x-3*$y)/2,   # rotate +60
-               ($x+$y)/2);
-  } elsif ($sixth == 2) {
-    ($x,$y) = (($x+3*$y)/-2,  # rotate +120
-               ($x-$y)/2);
+  if ($sides == 6) {
+    $x += $_xend[$level];
+    $y += $_yend[$level];
+    if ($side >= 3) {
+      $x = -$x;   # rotate 180
+      $y = -$y;
+      $side -= 3;
+    }
+    if ($side == 1) {
+      ($x,$y) = (($x-3*$y)/2,   # rotate +60
+                 ($x+$y)/2);
+    } elsif ($side == 2) {
+      ($x,$y) = (($x+3*$y)/-2,  # rotate +120
+                 ($x-$y)/2);
+    }
+  } else {
+    my $xend = $_xend[$level];
+    my $yend = $_yend[$level];
+    my $xp = $_xend[$level-1] || 0;
+    my $yp = $_yend[$level-1] || 0;
+    $x += $xend + $xp;
+    $y += $yend - $yp;
+    if ($side == 0) {
+      $x += $xend;
+      $y += $xend;
+    } elsif ($side == 1) {
+      ($x,$y) = (($x+3*$y)/-2,  # rotate +120
+                 ($x-$y)/2);
+    } elsif ($side == 2) {
+      return;
+      ($x,$y) = (($x-3*$y)/-2,   # rotate -120
+                 ($x+$y)/-2);
+    }
   }
   return ($x,$y);
 }
@@ -469,7 +510,7 @@ next level.
                                     *---*
 
 The shapes here and at higher level are like hexagons with wiggly sides.
-The sides are symmetric, so they mate on opposite sides, but the join
+The sides are symmetric, so they mate on opposite sides but the join
 "corner" is not on the X axis (after the first level).  For example the
 point marked "C" (N=7) is above the axis at X=5,Y=1.  The next replication
 joins at point "D" (N=25) at X=11,Y=5.

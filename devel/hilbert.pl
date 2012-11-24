@@ -25,6 +25,27 @@ use Math::PlanePath::HilbertCurve;
 
 
 {
+  require Math::NumSeq::PlanePathCoord;
+  require Math::PlanePath::AR2W2Curve;
+  foreach my $start_shape (@{Math::PlanePath::AR2W2Curve
+      ->parameter_info_hash->{'start_shape'}->{'choices'}}) {
+
+    my $hseq = Math::NumSeq::PlanePathCoord->new (planepath => 'HilbertCurve',
+                                                  coordinate_type => 'RSquared');
+    my $aseq = Math::NumSeq::PlanePathCoord->new
+      (planepath => "AR2W2Curve,start_shape=$start_shape",
+       coordinate_type => 'RSquared');
+    foreach my $i ($hseq->i_start .. 10000) {
+      if ($hseq->ith($i) != $aseq->ith($i)) {
+        print "$start_shape different at $i\n";
+        last;
+      }
+    }
+  }
+  exit 0;
+}
+
+{
   require Math::PlanePath::ZOrderCurve;
   my $hilbert  = Math::PlanePath::HilbertCurve->new;
   my $zorder   = Math::PlanePath::ZOrderCurve->new;

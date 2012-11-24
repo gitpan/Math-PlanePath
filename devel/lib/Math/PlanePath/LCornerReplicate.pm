@@ -33,11 +33,11 @@
 package Math::PlanePath::LCornerReplicate;
 use 5.004;
 use strict;
-#use List::Util 'max','min';
+#use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;

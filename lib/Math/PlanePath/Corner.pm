@@ -16,16 +16,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=Corner --output=numbers_dash --all
-# math-image --path=Corner,wider=1 --all --output=numbers
-
-
 package Math::PlanePath::Corner;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -266,6 +262,12 @@ Math::PlanePath::Corner -- points shaped around in a corner
 This path puts points in layers working outwards from the corner of the
 first quadrant.
 
+=cut
+
+# math-image --path=Corner --output=numbers --all --size=30x6
+
+=pod
+
       5  |  26 ...
       4  |  17  18  19  20  21
       3  |  10  11  12  13  22
@@ -285,7 +287,7 @@ each further row/column stripe makes a one-bigger square,
 
      2x2        3x3           4x4
 
-The diagonal 2,6,12,20,etc upwards from X=0,Y=1 is the pronic numbers
+N=2,6,12,20,etc on the diagonal upwards from X=0,Y=1 is the pronic numbers
 k*(k+1), half way between those squares.
 
 Each row/column stripe is 2 longer than the previous, similar to the
@@ -302,15 +304,21 @@ becoming a rectangle.  For example
 
 gives
 
+=cut
+
+# math-image --path=Corner,wider=3 --all --output=numbers_dash --size=38x12
+
+=pod
+
      4  |  29--30--31--...
         |
      3  |  19--20--21--22--23--24--25
         |                           |
      2  |  11--12--13--14--15--16  26
         |                       |   |
-     1  |   5-- 6-- 7-- 8-- 9  17  27
+     1  |   5---6---7---8---9  17  27
         |                   |   |   |
-    Y=0 |   1-- 2-- 3-- 4  10  18  28
+    Y=0 |   1---2---3---4  10  18  28
         |
          -----------------------------
             ^
@@ -353,7 +361,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::Corner-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::Corner-E<gt>new (wider =E<gt> $w)>
+=item C<$path = Math::PlanePath::Corner-E<gt>new (wider =E<gt> $w, n_start =E<gt> $n)>
 
 Create and return a new path object.
 
@@ -382,10 +390,9 @@ and biggest in the rectangle.
 
 =head2 N to X,Y
 
-Counting d=0 for the first row at Y=0, then the start of that row
-N=1,2,5,10,17,etc is
+Counting d=0 for the first L-shaped row at Y=0, then the start of that row is
 
-    StartN(d) = d^2 + 1
+    StartN(d) = d^2 + 1 = 1,2,5,10,17,etc
 
 The current C<n_to_xy()> code extends to the left by an extra 0.5 for
 fractional N, so for example N=9.5 is at X=-0.5,Y=3.  With this the starting
@@ -393,54 +400,88 @@ N for each d row is
 
     StartNfrac(d) = d^2 + 0.5
 
-Inverting gives the row for an N,
+Inverting gives the row d for an N,
 
     d = floor(sqrt(N - 0.5))
 
-And subtracting that start gives an offset into the row
+Subtracting the row start gives an offset into the row
 
-    RemStart = N - StartNfrac(d)
+    OffStart = N - StartNfrac(d)
 
 The corner point 1,3,7,13,etc where the row turns down is at d+0.5 into that
-remainder, and it's convenient to subtract that, giving a negative for the
+remainder, and it's convenient to subtract that so negative for the
 horizontal or positive for the vertical,
 
-    Rem = RemStart - (d+0.5)
+    Off = OffStart - (d+0.5)
         = N - (d*(d+1) + 1)
 
 And the X,Y coordinates thus
 
-    if (Rem < 0)  then X=d+Rem, Y=d
-    if (Rem >= 0) then X=d, Y=d-Rem
+    if (Off < 0)  then  X=d+Off, Y=d
+    if (Off >= 0) then  X=d,     Y=d-Off
 
 =head2 X,Y to N
 
-For a given X,Y the bigger of X or Y determines the d row.  If YE<gt>=X then
-X,Y is on the horizontal part with d=Y and in that case StartN(d) above is
-the N for X=0, and the given X can be added to that,
+For a given X,Y the bigger of X or Y determines the d row.
 
-    N = StartN(d) + X
-      = Y^2 + 1 + X
+If YE<gt>=X then X,Y is on the horizontal part.  At X=0 have N=StartN(d) per
+the Start(N) formula above, and any further X is an offset from there.
 
-Or otherwise if YE<lt>X then X,Y is on the vertical and d=X.  In that case
-the Y=0 is the last point on the row and is one back from the start of the
-following row,
+    if Y >= X then
+      d=Y
+      N = StartN(d) + X
+        = Y^2 + 1 + X
 
-    LastN(d) = StartN(d+1) - 1
-             = (d+1)^2
+Otherwise if YE<lt>X then X,Y is on the vertical part.  At Y=0 N is the last
+point on the row, and one back from the start of the following row,
 
-    N = LastN(d) - Y
-      = (X+1)^2 - Y
+    if Y <= X then
+      d=X
+      LastN(d) = StartN(d+1) - 1
+               = (d+1)^2
+      N = LastN(d) - Y
+        = (X+1)^2 - Y
 
 =head2 Rectangle N Range
 
-For C<rect_to_n_range()>, in each row X increasing is N increasing so the
-smallest N is in the leftmost column and the biggest in the rightmost.
+For C<rect_to_n_range()>, in each row increasing X is increasing N so the
+smallest N is in the leftmost column and the biggest N in the rightmost
+column.
 
-Going up a column, N values decrease until reaching X=Y, and then increase,
-with the values above X=Y all bigger than the ones below.  This means the
-biggest N is the top right corner if it has YE<gt>=X, otherwise the bottom
-right corner.
+    |
+    |
+    |  N decreasing       N increasing
+    |     <-----  X coord  ----->
+    |
+    |
+     ---------------------------------
+
+Going up a column, N values are increasing down from the X=Y diagonal, and
+up from the X=Y diagonal, with all N values above X=Y bigger than the ones
+below.
+
+    |    ^  N increasing up from X=Y diagonal
+    |    |
+    |    |/      
+    |    /
+    |   /|
+    |  / |  N increasing down from X=Y diagonal
+    | /  v
+    |/
+     -----------------------
+
+This means the biggest N is the top right corner if that corner it has
+YE<gt>=X, otherwise the bottom right corner.
+
+                                           max N at top right
+    |      /                          | --+     if corner Y>=X
+    |     / --+                       |   | /
+    |    /    |                       |   |/
+    |   /     |                       |   |
+    |  /  ----v                       |  /|
+    | /     max N at bottom right     | --+
+    |/        if corner Y<=X          |/                            
+     ----------                        -------
 
 For the smallest N, if the bottom left corner has YE<gt>X then it's in the
 "increasing" part and that bottom left corner is the smallest N.  Otherwise
@@ -458,19 +499,20 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
       A196199    X-Y, being runs -n to +n
       A053615    abs(X-Y), distance to next pronic
       A002522    N on Y axis (N=Y^2+1)
+      A004201    N for which X>=Y, ie. on and below X=Y diagonal
       A020703    permutation N at transpose Y,X
-    wider=0,n_start=0
+    wider=0, n_start=0
       A005563    N on X_axis, (X+1)^2-1
       A000290    N on Y axis, perfect squares
       A002378    N on X=Y diagonal, pronic
 
     wider=1
       A053188    abs(X-Y), dist to nearest square, extra initial 0
-    wider=1,n_start=0
+    wider=1, n_start=0
       A002378    N on Y_axis, pronic
       A005563    N on X=Y diagonal, (k+1)^2-1
 
-    wider=2,n_start=0
+    wider=2, n_start=0
       A005563    N on Y axis, (Y+1)^2-1
 
 =head1 SEE ALSO

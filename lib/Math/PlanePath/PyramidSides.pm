@@ -16,14 +16,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# n_start=0 for A196199 X coord
-
 package Math::PlanePath::PyramidSides;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -170,16 +168,17 @@ upwards.
                          ^
     ... -4  -3  -2  -1  X=0  1   2   3   4 ...
 
-The 1,4,9,16,etc along the X axis to the right are the perfect squares.  The
-vertical 2,6,12,20,etc at X=-1 is the pronic numbers k*(k+1) half way
+N=1,4,9,16,etc along the positive X axis is the perfect squares.
+N=2,6,12,20,etc in the X=-1 vertical is the pronic numbers k*(k+1) half way
 between those successive squares.
 
 The pattern is the same as the Corner path but turned and spread so the
 single quadrant in the Corner becomes a half-plane here.
 
-The pattern is similar to PyramidRows, just with the columns dropped down
-vertically to start at the X axis.  Any pattern occurring within a column is
-unchanged, but what was a row becomes a diagonal and vice versa.
+The pattern is similar to PyramidRows (with its default step=2), just with
+the columns dropped down vertically to start at the X axis.  Any pattern
+occurring within a column is unchanged, but what was a row becomes a
+diagonal and vice versa.
 
 =head2 Lucky Numbers of Euler
 
@@ -194,7 +193,7 @@ Y=40, and in the Corner path it's a diagonal.
 =head2 N Start
 
 The default is to number points starting N=1 as shown above.  An optional
-C<n_start> can give a different start, in the same pyramid sequence.  For
+C<n_start> can give a different start, in the same pyramid pattern.  For
 example to start at 0,
 
 =cut
@@ -257,9 +256,9 @@ In each row N increases along the sequence X=0,-1,1,-2,2,-3,3, etc.  So the
 biggest N is at the X of biggest absolute value and preferring the positive
 X=k over the negative X=-k.
 
-The smallest X conversely is at the X of smallest absolute value.  When the
-range C<$x1> to C<$x2> crosses 0, ie. C<$x1> and C<$x2> have different
-signs, then X=0 is the smallest.
+The smallest N conversely is at the X of smallest absolute value.  If the X
+range crosses 0, ie. C<$x1> and C<$x2> have different signs, then X=0 is the
+smallest.
 
 =head1 OEIS
 
@@ -271,6 +270,7 @@ path include
     n_start=1 (the default)
       A002522    N on X negative axis, x^2+1
       A033951    N on X=Y diagonal, 4d^2+3d+1
+      A004201    N for which X>=0, ie. right hand half
 
     n_start=0
       A196199    X coordinate, runs -n to +n

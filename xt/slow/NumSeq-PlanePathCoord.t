@@ -376,18 +376,28 @@ foreach my $elem
 my @modules = (
                # module list begin
 
-               'CfracDigits,radix=1',
-               'CfracDigits',
-               'CfracDigits,radix=3',
-               'CfracDigits,radix=4',
-               'CfracDigits,radix=37',
-
+               'ChanTree,k=2,n_start=1',
+               'ChanTree,n_start=1',
+               'ChanTree,k=4,n_start=1',
+               'ChanTree,k=5,n_start=1',
                'ChanTree,k=2',
                'ChanTree',
                'ChanTree,k=4',
                'ChanTree,k=5',
                'ChanTree,k=6',
                'ChanTree,k=7',
+
+               'LTiling',
+               'LTiling,L_fill=left',
+               'LTiling,L_fill=upper',
+               'LTiling,L_fill=ends',
+               'LTiling,L_fill=all',
+
+               'CfracDigits,radix=1',
+               'CfracDigits',
+               'CfracDigits,radix=3',
+               'CfracDigits,radix=4',
+               'CfracDigits,radix=37',
 
                'PythagoreanTree',
                'PythagoreanTree,coordinates=PQ',
@@ -719,12 +729,6 @@ my @modules = (
                'GrayCode,radix=6,gray_type=modular,apply_type=FsT',
                'GrayCode,radix=6,gray_type=modular,apply_type=sT',
                'GrayCode,radix=6,gray_type=modular,apply_type=sF',
-
-               'LTiling',
-               'LTiling,L_fill=left',
-               'LTiling,L_fill=upper',
-               'LTiling,L_fill=ends',
-               'LTiling,L_fill=all',
 
                'SierpinskiCurve,diagonal_spacing=5',
                'SierpinskiCurve,straight_spacing=5',

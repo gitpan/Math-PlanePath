@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -17,17 +17,18 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 6;
 
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::PlanePath::Corner;
+use Math::PlanePath::PyramidSides;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -48,19 +49,18 @@ sub numeq_array {
   return (@$a1 == @$a2);
 }
 
-
 #------------------------------------------------------------------------------
-# A004201 -- N for which Y<=X, half on and below diagonal
+# A004201 -- N for which X>=0
 
 {
   my $anum = 'A004201';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    my $path = Math::PlanePath::Corner->new;
+    my $path = Math::PlanePath::PyramidSides->new;
     for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $path->n_to_xy ($n);
-      if ($x >= $y) {
+      if ($x >= 0) {
         push @got, $n;
       }
     }
@@ -74,52 +74,6 @@ sub numeq_array {
         1,
         "$anum");
 }
-
-#------------------------------------------------------------------------------
-# A020703 -- permutation transpose Y,X
-{
-  my $anum = 'A020703';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::Corner->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $path->xy_to_n ($y, $x);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- permutation Y,X");
-}
-
-#------------------------------------------------------------------------------
-# A053188 -- abs(X-Y), distance to next higher pronic, wider=1, extra 0
-{
-  my $anum = 'A053188';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # extra initial 0
-  if ($bvalues) {
-    my $path = Math::PlanePath::Corner->new (wider => 1);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, abs($x-$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
 
 #------------------------------------------------------------------------------
 exit 0;

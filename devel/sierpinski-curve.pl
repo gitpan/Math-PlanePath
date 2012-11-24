@@ -27,6 +27,46 @@ use Math::PlanePath::SierpinskiArrowhead;
 use Smart::Comments;
 
 {
+  # dX,dY
+  require Math::PlanePath::SierpinskiCurve;
+  my $path = Math::PlanePath::SierpinskiCurve->new;
+  foreach my $n (0 .. 32) {
+#    my $n = $n + 1/256;
+    my ($x,$y) = $path->n_to_xy($n);
+    my ($x2,$y2) = $path->n_to_xy($n+1);
+    my $sx = $x2-$x;
+    my $sy = $y2-$y;
+    my $sdir = dxdy_to_dir8($sx,$sy);
+    my ($dx,$dy) = $path->_WORKING_BUT_HAIRY__n_to_dxdy($n);
+    my $ddir = dxdy_to_dir8($dx,$dy);
+    my $diff = ($dx != $sx || $dy != $sy ? '  ***' : '');
+    print "$n $x,$y  $sx,$sy\[$sdir]  $dx,$dy\[$ddir]$diff\n";
+  }
+
+  # return 0..7
+  sub dxdy_to_dir8 {
+    my ($dx, $dy) = @_;
+    return atan2($dy,$dx) / atan2(1,1);
+    if ($dx == 1) {
+      if ($dy == 1) { return 1; }
+      if ($dy == 0) { return 0; }
+      if ($dy == -1) { return 7; }
+    }
+    if ($dx == 0) {
+      if ($dy == 1) { return 2; }
+      if ($dy == -1) { return 6; }
+    }
+    if ($dx == -1) {
+      if ($dy == 1) { return 3; }
+      if ($dy == 0) { return 4; }
+      if ($dy == -1) { return 5; }
+    }
+    die 'oops';
+  }
+  exit 0;
+}
+
+{
   # A156595 Mephisto Waltz first diffs xor as turns
   require Tk;
   require Tk::CanvasLogo;

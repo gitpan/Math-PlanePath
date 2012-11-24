@@ -20,9 +20,7 @@
 # math-image --path=R5DragonCurve --lines --scale=20
 #
 # math-image --path=R5DragonCurve --all --output=numbers
-#
-# cf A176405 R7 turns
-#    A176416 R7B turns
+
 
 package Math::PlanePath::R5DragonCurve;
 use 5.004;
@@ -32,7 +30,7 @@ use List::Util 'first','sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

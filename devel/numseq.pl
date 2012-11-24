@@ -24,6 +24,47 @@ use strict;
 #use Smart::Comments;
 
 
+{
+  # PlanePathCoord increasing
+  require Math::NumSeq::PlanePathCoord;
+  my $planepath;
+  $planepath = "SierpinskiTriangle,align=right";
+ COORDINATE_TYPE: foreach my $coordinate_type ('BitAnd',
+                                               'BitOr',
+                                               'BitXor',
+                                              ) {
+    my $seq = Math::NumSeq::PlanePathCoord->new
+      (
+       planepath => $planepath,
+       coordinate_type => $coordinate_type,
+      );
+    ### $seq
+
+    my $i_start = $seq->i_start;
+    my $prev_value;
+    my $prev_i;
+    my $i_limit = 100000;
+    my $i_end = $i_start + $i_limit;
+    for my $i ($i_start .. $i_end) {
+      my $value = $seq->ith($i);
+      next if ! defined $value;
+      ### $i
+      ### $value
+      if (defined $prev_value && $value < $prev_value) {
+        # print "$coordinate_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
+        my $path = $seq->{'planepath_object'};
+        my ($prev_x,$prev_y) = $path->n_to_xy($prev_value);
+        my ($x,$y) = $path->n_to_xy($value);
+        print "$coordinate_type not i=$i value=$value cf prev_value=$prev_value\n";
+        next COORDINATE_TYPE;
+      }
+      $prev_i = $i;
+      $prev_value = $value;
+    }
+    print "$coordinate_type   all increasing (to i=$prev_i)\n";
+  }
+  exit 0;
+}
 
 
 {
@@ -111,6 +152,30 @@ use strict;
 }
 
 {
+  require Math::BigInt;
+  my $x = Math::BigInt->new(8);
+  my $y = Math::BigInt->new(-2);
+  $x = (8);
+  $y = (-2);
+  my $z = $x ^ $y;
+  print "$z\n";
+  printf "%b\n", $z & 0xFFF;
+  if ((($x<0) ^ ($y<0)) != ($z<0)) {
+    $z = Math::BigInt->new("$z");
+    $z = ($z - (1<<63)) + -(1<<63);
+  }
+  print "$z\n";
+  printf "%b\n", $z & 0xFFF;
+
+  sub sign_extend {
+    my ($n) = @_;
+    return ($n - (1<<63)) + -(1<<63);
+  }
+  exit 0;
+}
+
+
+{
   # axis increasing
   my $radix = 4;
   my $rsquared = $radix * $radix;
@@ -158,48 +223,6 @@ use strict;
       $prev_value = $value;
     }
     print "$line_type   all increasing (to i=$prev_i)\n";
-  }
-  exit 0;
-}
-
-
-{
-  # PlanePathCoord increasing
-  require Math::NumSeq::PlanePathCoord;
-  my $planepath;
-  $planepath = "DekkingCurve";
- COORDINATE_TYPE: foreach my $coordinate_type ('X',
-                                               'Y',
-                                              ) {
-    my $seq = Math::NumSeq::PlanePathCoord->new
-      (
-       planepath => $planepath,
-       coordinate_type => $coordinate_type,
-      );
-    ### $seq
-
-    my $i_start = $seq->i_start;
-    my $prev_value;
-    my $prev_i;
-    my $i_limit = 100000;
-    my $i_end = $i_start + $i_limit;
-    for my $i ($i_start .. $i_end) {
-      my $value = $seq->ith($i);
-      next if ! defined $value;
-      ### $i
-      ### $value
-      if (defined $prev_value && $value < $prev_value) {
-        # print "$coordinate_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
-        my $path = $seq->{'planepath_object'};
-        my ($prev_x,$prev_y) = $path->n_to_xy($prev_value);
-        my ($x,$y) = $path->n_to_xy($value);
-        print "$coordinate_type not i=$i value=$value cf prev_value=$prev_value\n";
-        next COORDINATE_TYPE;
-      }
-      $prev_i = $i;
-      $prev_value = $value;
-    }
-    print "$coordinate_type   all increasing (to i=$prev_i)\n";
   }
   exit 0;
 }

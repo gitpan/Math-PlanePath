@@ -50,7 +50,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -576,10 +576,10 @@ uses the whole of the first quadrant, with gaps according to the pattern.
         +-------------------------------------------------
          X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
 
-These diagonals visit all points X,Y where X and Y written in binary don't
-have any 1-bits in the same bit positions, ie. where S<X bitand Y> == 0.
-For example X=13,Y=3 is not visited because 13=0b1011 and 6=0b0110 both have
-bit 0b0010 set.
+These diagonals visit all points X,Y where X and Y written in binary have no
+1-bits in the same bit positions, ie. where S<X bitand Y> == 0.  For example
+X=13,Y=3 is not visited because 13=0b1011 and 6=0b0110 both have bit 0b0010
+set.
 
 This bit rule is an easy way to test for visited or not visited cells of the
 pattern.  It can be calculated by this diagonal X,Y but then plotted X,X+Y
@@ -871,7 +871,7 @@ For example Y=11, level=floor(log2(11))+1=4, so Nmax=3^4-1=80, which is the
 end of the Y=15 row, ie. rounded up to the top of the Y=8 to Y=15
 replication.
 
-=head2 OEIS
+=head1 OEIS
 
 The Sierpinski Triangle is in Sloane's Online Encyclopedia of Integer
 Sequences in various forms,

@@ -56,7 +56,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -509,6 +509,11 @@ sub _gcd {
     return Math::BigInt::bgcd($x,$y);
   }
 
+  $x = abs(int($x));
+  $y = abs(int($y));
+  unless ($x > 0) {
+    return $y;
+  }
   if ($y > $x) {
     $y %= $x;
   }

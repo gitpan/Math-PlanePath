@@ -45,7 +45,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -1575,7 +1575,7 @@ sub characteristic_non_decreasing {
 
   # 'Math::PlanePath::HilbertCurve' =>
   # {
-  #  # Not quite, OFFSET=1 at origin, cf path instead N=0
+  #  # Not quite, OFFSET=1 at origin, cf path N=0
   #  # # A163540 is 0=east,1=south,2=west,3=north for drawing down the page,
   #  # # which corresponds to 1=north,3=south per the HilbertCurve planepath
   #  # Dir4 => 'A163540',

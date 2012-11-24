@@ -33,7 +33,7 @@ require Math::PlanePath::Rows;
 # VERSION
 
 {
-  my $want_version = 92;
+  my $want_version = 93;
   ok ($Math::PlanePath::Rows::VERSION, $want_version, 'VERSION variable');
   ok (Math::PlanePath::Rows->VERSION,  $want_version, 'VERSION class method');
 

@@ -32,13 +32,15 @@
 # A079316
 # A165345 1 or 3 adjacent
 #     http://www.math.vt.edu/people/layman/sequences/A165345.html
+# A160720,A160721 diagonal adjacent and not nearer the origin
+#     differs from A147562 ulam-warbuton first at depth=8
 
 package Math::PlanePath::UlamWarburton;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 92;
+$VERSION = 93;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;

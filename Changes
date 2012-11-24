@@ -17,6 +17,10 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 93, November 2012
+    - new xy_is_visited()
+    - PlanePathCoord new coordinate_type "Min","Max","BitAnd","BitOr","BitXor"
+
 Version 92, October 2012
     - new x_minimum(),y_minimum(), x_maximum(),y_maximum(),
       dx_minimum(),dy_minimum(), dx_maximum(),dy_maximum()
