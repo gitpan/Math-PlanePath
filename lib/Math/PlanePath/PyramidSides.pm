@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -37,7 +37,7 @@ use constant n_frac_discontinuity => .5;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
 
 use constant parameter_info_array =>
-  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
+  [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
 
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;

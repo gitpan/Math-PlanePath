@@ -30,7 +30,7 @@
 # A151922 - num first-quadrant cells
 # A079314 first diffs
 # A079316
-# A165345 1 or 3 adjacent
+# A165345 turn ON if 1 or 3 adjacent neighbours
 #     http://www.math.vt.edu/people/layman/sequences/A165345.html
 # A160720,A160721 diagonal adjacent and not nearer the origin
 #     differs from A147562 ulam-warbuton first at depth=8
@@ -38,9 +38,10 @@
 package Math::PlanePath::UlamWarburton;
 use 5.004;
 use strict;
+use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -59,7 +60,7 @@ use Math::PlanePath::UlamWarburtonQuarter;
 
 
 use constant parameter_info_array =>
-  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+  [ Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 sub new {
@@ -150,44 +151,7 @@ sub n_to_xy {
   if (is_infinite($n)) { return ($n,$n); }
   if ($n == 1) { return (0,0); }
 
-  my ($power, $exp) = round_down_pow (3*$n-2, 4);
-  $exp -= 1;
-  $power /= 4;
-
-  ### $power
-  ### $exp
-  ### pow base: 2 + 4*(4**$exp - 1)/3
-
-  $n -= ($power - 1)/3 * 4 + 2;
-  ### n less pow base: $n
-
-  my @levelbits = (2**$exp);
-
-  # find the cumulative levelpoints total <= $n, being the start of the
-  # level containing $n
-  #
-  my $factor = 4;
-  while (--$exp >= 0) {
-    my $sub = 4**$exp * $factor;
-    ### $sub
-    my $rem = $n - $sub;
-
-    ### $n
-    ### $factor
-    ### consider subtract: $sub
-    ### $rem
-
-    if ($rem >= 0) {
-      $n = $rem;
-      push @levelbits, 2**$exp;
-      $factor *= 3;
-    }
-  }
-
-  ### @levelbits
-  ### remaining n: $n
-  ### assert: $n >= 0
-  ### assert: $n < $factor
+  (my $depthsum, my $factor, $n) = _n1_to_depthsum_factor_rem($n);
 
   $factor /= 4;
   (my $quad, $n) = _divrem ($n, $factor);
@@ -200,13 +164,13 @@ sub n_to_xy {
 
   my $x = 0;
   my $y = 0;
-  while (@levelbits) {
+  while (@$depthsum) {
     my $digit = _divrem_mutate ($n, 3);
-    ### levelbits: $levelbits[-1]
+    ### $depthsum: $$depthsum[-1]
     ### $digit
 
-    $x += pop @levelbits;
-    if (@levelbits) {
+    $x += pop @$depthsum;
+    if (@$depthsum) {
       if ($digit == 0) {
         ($x,$y) = ($y,-$x);   # rotate -90
       } elsif ($digit == 2) {
@@ -439,7 +403,7 @@ sub tree_n_parent {
 #   $n -= ($power - 1)/3 * 4 + 2;
 #   ### n less pow base: $n
 #
-#   my @levelbits = (2**$exp);
+#   my @$depthsum = (2**$exp);
 #   $power = 3**$exp;
 #
 #   # find the cumulative levelpoints total <= $n, being the start of the
@@ -461,7 +425,7 @@ sub tree_n_parent {
 #
 #     if ($rem >= 0) {
 #       $n = $rem;
-#       push @levelbits, 2**$exp;
+#       push @$depthsum, 2**$exp;
 #       $factor *= 3;
 #     }
 #   }
@@ -487,6 +451,74 @@ sub tree_depth_to_n {
     return 4*$n - 3*$self->{'n_start'} + 1;
   }
   return undef;
+}
+
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+
+  $n = $n - $self->{'n_start'} + 1;  # N=1 basis
+  if ($n < 1) {
+    return undef;
+  }
+  $n = int($n);
+  if ($n == 1) {
+    return 0;
+  }
+  if (is_infinite($n)) {
+    return $n;
+  }
+  my ($depthsum) = _n1_to_depthsum_factor_rem($n);
+  return sum(@$depthsum);
+}
+
+# Return ($aref, $remaining_n).
+# sum(@$aref) = depth starting depth=1
+#
+sub _n1_to_depthsum_factor_rem {
+  my ($n) = @_;
+  ### _n1_to_depth_and_depthsum(): $n
+
+  my ($power, $exp) = round_down_pow (3*$n-2, 4);
+  $exp -= 1;
+  $power /= 4;
+
+  ### $power
+  ### $exp
+  ### pow base: ($power - 1)/3 * 4 + 2
+
+  $n -= ($power - 1)/3 * 4 + 2;
+  ### n less pow base: $n
+
+  my @depthsum = (2**$exp);
+
+  # find the cumulative levelpoints total <= $n, being the start of the
+  # level containing $n
+  #
+  my $factor = 4;
+  while (--$exp >= 0) {
+    $power /= 4;
+    my $sub = $power * $factor;
+    ### $sub
+    my $rem = $n - $sub;
+
+    ### $n
+    ### $factor
+    ### consider subtract: $sub
+    ### $rem
+
+    if ($rem >= 0) {
+      $n = $rem;
+      push @depthsum, 2**$exp;
+      $factor *= 3;
+    }
+  }
+
+  ### @depthsum
+  ### remaining n: $n
+  ### assert: $n >= 0
+  ### assert: $n < $factor
+
+  return \@depthsum, $factor, $n;
 }
 
 1;
@@ -747,9 +779,10 @@ also separately in A048883, and as n-1 in A147610.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::UlamWarburtonQuarter>,
+L<Math::PlanePath::LCornerTree>,
 L<Math::PlanePath::CellularRule>
 
-L<Math::PlanePath::SierpinskiTriangle> (a similar binary ones-count related
+L<Math::PlanePath::SierpinskiTriangle> (a similar binary 1s-count related
 level calculation)
 
 =head1 HOME PAGE

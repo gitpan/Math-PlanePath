@@ -35,32 +35,6 @@ use MyOEIS;
 # use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
 # use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
 sub _delete_duplicates {
   my ($arrayref) = @_;
   my %seen;
@@ -105,8 +79,9 @@ sub check_class {
 
   my %parameters = @$parameters;
   # return unless $class =~ /PlanePathCoord/;
-  return unless ($parameters{'coordinate_type'}||'') =~ /^M/;
-  # return unless $parameters{'planepath'} =~ /ToothpickTree/;
+  # return unless ($parameters{'coordinate_type'}||'') =~ /^SumAbs/;
+  # return unless ($parameters{'line_type'}||'') =~ /^Depth/;
+  return unless $parameters{'planepath'} =~ /tooth|lcorner/i;
   # return unless $parameters{'planepath'} =~ /SquareSpiral/;
   # return unless $anum =~ 'A147562';
   # return unless $anum eq 'A067251';
@@ -212,7 +187,7 @@ sub check_class {
       }
     }
 
-    my $diff = diff_nums($got, $want);
+    my $diff = MyOEIS::diff_nums($got, $want);
     if (defined $diff) {
       $good = 0;
       MyTestHelpers::diag ("bad: $name by next() hi=$hi");
@@ -241,7 +216,7 @@ sub check_class {
       }
     }
 
-    my $diff = diff_nums($got, $want);
+    my $diff = MyOEIS::diff_nums($got, $want);
     if (defined $diff) {
       $good = 0;
       MyTestHelpers::diag ("bad: $name by rewind next() hi=$hi");
@@ -301,7 +276,7 @@ sub check_class {
     }
     my $got = \@got;
 
-    my $diff = diff_nums($got, $want);
+    my $diff = MyOEIS::diff_nums($got, $want);
     if (defined $diff) {
       $good = 0;
       MyTestHelpers::diag ("bad: $name by pred() hi=$hi");

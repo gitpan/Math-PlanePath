@@ -17,6 +17,7 @@
 
 package MyOEIS;
 use strict;
+use Carp;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -156,6 +157,108 @@ sub bsearch_textfile {
     }
   }
   return undef;
+}
+
+sub compare_values {
+  my %option = @_;
+  require MyTestHelpers;
+  my $anum = $option{'anum'} || croak "Missing anum parameter";
+  my $func = $option{'func'} || croak "Missing func parameter";
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values
+    ($anum,
+     max_count => $option{'max_count'});
+  my $diff;
+  if ($bvalues) {
+    if (my $fixup = $option{'fixup'}) {
+      &$fixup($bvalues);
+    }
+    my ($got,@rest) = &$func(scalar(@$bvalues));
+    if (@rest) {
+      croak "Oops, func return more than just an arrayref";
+    }
+    if (ref $got ne 'ARRAY') {
+      croak "Oops, func return not an arrayref";
+    }
+    $diff = diff_nums($got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join_values($bvalues));
+      MyTestHelpers::diag ("got:     ",join_values($got));
+    }
+  }
+  local $Test::TestLevel = $Test::TestLevel + 1;
+  Test::skip (! $bvalues, $diff, undef, "$anum");
+}
+
+sub join_values {
+  my ($aref) = @_;
+  if (! @$aref) { return ''; }
+  my $str = $aref->[0];
+  foreach my $i (1 .. $#$aref) {
+    my $value = $aref->[$i];
+    if (! defined $value) { $value = 'undef'; }
+    last if length($str)+1+length($value) >= 75;
+    $str .= ',';
+    $str .= $value;
+  }
+  return $str;
+}
+
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  my $diff;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (defined $got != defined $want) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    unless ($got =~ /^[0-9.-]+$/) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "not a number pos=$i got='$got'";
+    }
+    unless ($want =~ /^[0-9.-]+$/) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "not a number pos=$i want='$want'";
+    }
+    if ($got != $want) {
+      if (defined $diff) {
+        return "$diff, and more diff";
+      }
+      $diff = "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return $diff;
+}
+
+# counting from 1 for prime=2
+sub ith_prime {
+  my ($i) = @_;
+  if ($i < 1) {
+    croak "Oops, ith_prime() i=$i";
+  }
+  require Math::Prime::XS;
+  my $to = 100;
+  for (;;) {
+    my @primes = Math::Prime::XS::primes($to);
+    if (@primes >= $i) {
+      return $primes[$i-1];
+    }
+    $to *= 2;
+  }
 }
 
 1;

@@ -27,78 +27,55 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::PlanePath::CellularRule54;
-
 # uncomment this to run the ### lines
 #use Devel::Comments '###';
 
-
-MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
-
+use Math::PlanePath::CellularRule54;
 my $path = Math::PlanePath::CellularRule54->new;
-
-sub streq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
-      MyTestHelpers::diag ("differ: ", $a1->[0], ' ', $a2->[0]);
-      return 0;
-    }
-    shift @$a1;
-    shift @$a2;
-  }
-  return (@$a1 == @$a2);
-}
 
 #------------------------------------------------------------------------------
 # A118109 - 0/1 by rows
-{
-  my $anum = 'A118109';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $x = 0;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
-      $x++;
-      if ($x > $y) {
-        $y++;
-        $x = -$y;
-      }
-    }
-  }
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A118109',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $x = 0;
+     my $y = 0;
+     foreach my $n (1 .. $count) {
+       push @got, ($path->xy_is_visited($x,$y) ? 1 : 0);
+       $x++;
+       if ($x > $y) {
+         $y++;
+         $x = -$y;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A118108 - rows as bignum bits
-{
-  my $anum = 'A118108';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::BigInt;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      my $b = 0;
-      foreach my $i (0 .. 2*$y+1) {
-        if ($path->xy_to_n ($y-$i, $y)) {
-          $b += Math::BigInt->new(2) ** $i;
-        }
-      }
-      push @got, "$b";
-      $y++;
-    }
-  }
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
 
+MyOEIS::compare_values
+  (anum => 'A118108',
+   func => sub {
+     my ($count) = @_;
+     require Math::BigInt;
+     my @got;
+     my $y = 0;
+     foreach my $n (1 .. $count) {
+       my $b = 0;
+       foreach my $i (0 .. 2*$y+1) {
+         if ($path->xy_to_n ($y-$i, $y)) {
+           $b += Math::BigInt->new(2) ** $i;
+         }
+       }
+       push @got, "$b";
+       $y++;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 exit 0;

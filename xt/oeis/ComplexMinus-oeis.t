@@ -27,75 +27,45 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::PlanePath::ComplexMinus;
-
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
 
+use Math::PlanePath::ComplexMinus;
 my $path = Math::PlanePath::ComplexMinus->new;
-
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0;
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
 
 #------------------------------------------------------------------------------
 # A066322 - N on X axis, diffs at 16k+3,16k+4
 
-{
-  my $anum = 'A066322';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      my $x = 16*$i+3;
-      my $x_next = 16*$i+4;
-      my $n = $path->xy_to_n ($x,0);
-      my $n_next = $path->xy_to_n ($x_next,0);
-      push @got, $n_next - $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- N on X axis, diffs");
-}
+MyOEIS::compare_values
+  (anum => 'A066322',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $i = 0; @got < $count; $i++) {
+       my $x = 16*$i+3;
+       my $x_next = 16*$i+4;
+       my $n = $path->xy_to_n ($x,0);
+       my $n_next = $path->xy_to_n ($x_next,0);
+       push @got, $n_next - $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A066323 - N on X axis, count 1 bits
 
-{
-  my $anum = 'A066323';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $x = 1; @got < @$bvalues; $x++) {
-      my $n = $path->xy_to_n ($x,0);
-      push @got, count_1_bits($n);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- N on X axis, count 1 bits");
-}
+MyOEIS::compare_values
+  (anum => 'A066323',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     for (my $x = 1; @got < $count; $x++) {
+       my $n = $path->xy_to_n ($x,0);
+       push @got, count_1_bits($n);
+     }
+     return \@got;
+   });
 
 sub count_1_bits {
   my ($n) = @_;

@@ -29,7 +29,7 @@ use List::Util 'sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -837,7 +837,7 @@ centre in a 4*2^level square
 =head2 Koch Curve
 
 The replicating structure is the same as the Koch curve
-(L<Math::PlanePath::KochCurve>), in that the curve is repeated four times to
+(L<Math::PlanePath::KochCurve>), in that the curve repeats four times to
 make the next level,
 
     Koch Curve           Sierpinski Curve
@@ -847,13 +847,8 @@ make the next level,
         /   \                  | |
     ---       ---           ---   ---
 
-For example the four blocks N=0to3, 4to7, 8to11, 12to15.
-
-    [u]LRL      [u]RRL
-
-1,  0,  1,  1,  1,  0,  1,  0,  1,0,1,1,1,0,1
-
-0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,
+The turns in the Sierpinski curve are by 90 degrees and 180 degrees, done in
+two steps 45+45=90 and 90+90=180.  See L</Turn and Koch Curve> below.
                                              
 =head1 FUNCTIONS
 
@@ -863,7 +858,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SierpinskiCurve-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::SierpinskiCurve-E<gt>new (arms =E<gt> $integer)>
+=item C<$path = Math::PlanePath::SierpinskiCurve-E<gt>new (arms =E<gt> $integer, diagonal_spacing =E<gt> $integer, straight_spacing =E<gt> $integer)>
 
 Create and return a new path object.
 
@@ -880,6 +875,23 @@ integer positions.
 Return 0, the first N in the path.
 
 =back
+
+=head1 FORMULAS
+
+=head2 Turn and Koch Curve
+
+The turn sequence left or right is the same as the Koch curve
+(L<Math::PlanePath::KochCurve/N to Turn> except each turn is doubled, and
+mirrored to swap LE<lt>-E<gt>R.
+
+           N=1    2    3    4    5     6      7      8
+    Koch     L    R    L    L    L     R      L      R
+
+           N=1,2  3,4  5,6  7,8  9,10  11,12  13,14  15,16
+    Sierp    R R  L L  R R  R R  R R   L  L   R  R   L  L
+
+In the Koch curve each turn is 60 degrees but in the Sierpinski curve a
+right turn is 45 degrees and a left turn 90 degrees.
 
 =head1 OEIS
 

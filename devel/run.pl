@@ -27,11 +27,10 @@ use Module::Load;
 use Math::PlanePath::Base::Digits 'round_down_pow';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 {
   my $path_class;
-  $path_class = 'Math::PlanePath::GosperIslands';
   $path_class = 'Math::PlanePath::QuadricCurve';
   $path_class = 'Math::PlanePath::SierpinskiCurve';
   $path_class = 'Math::PlanePath::LTiling';
@@ -81,9 +80,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ComplexRevolving';
   $path_class = 'Math::PlanePath::MPeaks';
   $path_class = 'Math::PlanePath::DragonMidpoint';
-  $path_class = 'Math::PlanePath::EToothpickTree';
-  $path_class = 'Math::PlanePath::ToothpickTree';
-  $path_class = 'Math::PlanePath::ToothpickFractal';
   $path_class = 'Math::PlanePath::ParabolicRows';
   $path_class = 'Math::PlanePath::QuintetCurve';
   $path_class = 'Math::PlanePath::Hypot';
@@ -114,18 +110,25 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::CfracDigits';
   $path_class = 'Math::PlanePath::BalancedArray';
   $path_class = 'Math::PlanePath::FibonacciWordKnott';
-  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
-  $path_class = 'Math::PlanePath::UlamWarburton';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
   $path_class = 'Math::PlanePath::LCornerReplicate';
   $path_class = 'Math::PlanePath::HilbertCurve';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ImaginaryHalf';
   $path_class = 'Math::PlanePath::R7DragonCurve';
+  $path_class = 'Math::PlanePath::GosperIslands';
+  $path_class = 'Math::PlanePath::ToothpickReplicate';
+  $path_class = 'Math::PlanePath::ToothpickTree';
+  $path_class = 'Math::PlanePath::UlamWarburton';
+  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
+  $path_class = 'Math::PlanePath::EToothpickTree';
+  $path_class = 'Math::PlanePath::ToothpickUpist';
+  $path_class = 'Math::PlanePath::SurroundOneEight';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+     # sides=>3,
      # digit_order => 'XnYX',
      # radix => 2,
      # parts => 3,
@@ -138,7 +141,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_up',
      # tree_type => 'HCS',
-     # parts => '3/4',
      # start => 'snowflake',
      # align => 'left',
      # n_start=>37,
@@ -147,7 +149,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # align => 'diagonal',
      # offset => -0.5,
      # turns => 1,
-      arms => 4,
+     # arms => 4,
      # base => 7,
      # direction => 'up',
      # step => 6,
@@ -195,7 +197,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 140; $i+=1) {
+  for (my $i = $n_start+0; $i <= 18; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;
@@ -270,7 +272,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     if ($path->can('tree_n_to_depth')
         != Math::PlanePath->can('tree_n_to_depth')) {
       my $depth = $path->tree_n_to_depth($i);
-      my $calc_depth = $path->Math::PlanePath::tree_n_to_depth($i);
+      my $calc_depth = path_tree_n_to_depth_by_parents($path,$i);
       if (! defined $depth || $calc_depth != $depth) {
         $baddepth .= "ntodepth=$depth,parentcalc=$calc_depth";
       }
@@ -298,6 +300,25 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   }
   exit 0;
 }
+
+sub path_tree_n_to_depth_by_parents {
+  my ($path, $n) = @_;
+  if ($n < $path->n_start) {
+    return undef;
+  }
+  my $depth = 0;
+  for (;;) {
+    my $parent_n = $path->tree_n_parent($n);
+    last if ! defined $parent_n;
+    if ($parent_n >= $n) {
+      die "Oops, tree parent $parent_n >= child $n in ", ref $path;
+    }
+    $n = $parent_n;
+    $depth++;
+  }
+  return $depth;
+}
+
 
 __END__
 {
@@ -523,6 +544,3 @@ __END__
   ### n: $path->xy_to_n(3,3)
   exit 0;
 }
-
-
-

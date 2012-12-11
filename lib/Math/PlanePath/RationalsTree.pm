@@ -57,7 +57,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -1154,6 +1154,8 @@ various forms,
     A162912  Drib Y
     A174981  L-tree X
     A002487  L-tree Y, same as CW X,Y, Stern diatomic
+
+    A000523  tree_n_to_depth(), being floor(log2(n))
 
     A086893  position Fibonacci F[n+1],F[n] in Stern diatomic,
                CW N of F[n+1]/F[n]

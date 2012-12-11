@@ -34,26 +34,46 @@ require Math::PlanePath;
 
 my $verbose = 1;
 
-               # 'ToothpickReplicate,parts=all',
-               # 'ToothpickReplicate,parts=quarter',
-               # 'ToothpickReplicate,parts=half',
-               # 'ToothpickReplicate,parts=3/4',
+my @modules = (
+               # 'ToothpickUpist',
 
+               # 'ToothpickTree',
+               # 'ToothpickTree,parts=1',
+               # 'ToothpickTree,parts=2',
+               # 'ToothpickTree,parts=3',
+               # 
+               # 'ToothpickReplicate',
+               # 'ToothpickReplicate,parts=1',
+               # 'ToothpickReplicate,parts=2',
+               # 'ToothpickReplicate,parts=3',
+               # 
                # 'LCornerTree',
                # 'LCornerTree,parts=1',
                # 'LCornerTree,parts=2',
                # 'LCornerTree,parts=3',
-               # 'LCornerTree,n_start=37',
-               # 'LCornerTree,parts=1,n_start=37',
-               # 'LCornerTree,parts=2,n_start=37',
-               # 'LCornerTree,parts=3,n_start=37',
+               # 
                # 'LCornerReplicate',
 
-               # 'ToothpickTree,parts=4',
-
-
-my @modules = (
                # module list begin
+
+               'ImaginaryHalf',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=4',
+               'ImaginaryHalf,radix=5',
+               'ImaginaryHalf,radix=37',
+               'ImaginaryHalf,digit_order=XXY',
+               'ImaginaryHalf,digit_order=YXX',
+               'ImaginaryHalf,digit_order=XnXY',
+               'ImaginaryHalf,digit_order=XnYX',
+               'ImaginaryHalf,digit_order=YXnX',
+               'ImaginaryHalf,digit_order=XXY,radix=3',
+
+               'UlamWarburton',
+               'UlamWarburton,n_start=0',
+               'UlamWarburton,n_start=37',
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,n_start=0',
+               'UlamWarburtonQuarter,n_start=37',
 
                'TerdragonCurve',
                'TerdragonCurve,arms=2',
@@ -149,13 +169,6 @@ my @modules = (
                'ChanTree,reduced=1,k=4',
                'ChanTree,reduced=1,k=5',
                'ChanTree,reduced=1,k=7',
-
-               'UlamWarburton',
-               'UlamWarburton,n_start=0',
-               'UlamWarburton,n_start=37',
-               'UlamWarburtonQuarter',
-               'UlamWarburtonQuarter,n_start=0',
-               'UlamWarburtonQuarter,n_start=37',
 
                'RationalsTree',
                'RationalsTree,tree_type=CW',
@@ -517,12 +530,6 @@ my @modules = (
                'ImaginaryBase,radix=5',
                'ImaginaryBase,radix=37',
 
-               'ImaginaryHalf',
-               'ImaginaryHalf,radix=3',
-               'ImaginaryHalf,radix=4',
-               'ImaginaryHalf,radix=5',
-               'ImaginaryHalf,radix=37',
-
                'GreekKeySpiral',
                'GreekKeySpiral,turns=0',
                'GreekKeySpiral,turns=1',
@@ -585,7 +592,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 93;
+my $want_version = 94;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -606,20 +613,21 @@ foreach my $class (@classes) {
 
   ok (eval { $class->VERSION($want_version); 1 },
       1,
-      "VERSION class check $want_version");
+      "VERSION class check $want_version in $class");
   ok (! eval { $class->VERSION($check_version); 1 },
       1,
-      "VERSION class check $check_version");
+      "VERSION class check $check_version in $class");
 
   my $path = $class->new;
-  ok ($path->VERSION, $want_version, 'VERSION object method');
+  ok ($path->VERSION, $want_version,
+      "VERSION object method in $class");
 
   ok (eval { $path->VERSION($want_version); 1 },
       1,
-      "VERSION object check $want_version");
+      "VERSION object check $want_version in $class");
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
-      "VERSION object check $check_version");
+      "VERSION object check $check_version in $class");
 }
 
 #------------------------------------------------------------------------------
@@ -1649,7 +1657,7 @@ sub pythagorean_diag {
         != Math::PlanePath->can('tree_n_to_depth')) {
       # MyTestHelpers::diag ($mod, ' tree_n_to_depth()');
       foreach my $n ($n_start .. $n_start+$limit) {
-        my $want_depth = $path->Math::PlanePath::tree_n_to_depth($n);
+        my $want_depth = path_tree_n_to_depth_by_parents($path,$n);
         my $got_depth = $path->tree_n_to_depth($n);
         if (! defined $got_depth || ! defined $want_depth
             || $got_depth != $want_depth) {
@@ -1696,6 +1704,24 @@ sub pythagorean_diag {
     ### done mod: $mod
   }
   ok ($good, 1);
+}
+
+sub path_tree_n_to_depth_by_parents {
+  my ($path, $n) = @_;
+  if ($n < $path->n_start) {
+    return undef;
+  }
+  my $depth = 0;
+  for (;;) {
+    my $parent_n = $path->tree_n_parent($n);
+    last if ! defined $parent_n;
+    if ($parent_n >= $n) {
+      die "Oops, tree parent $parent_n >= child $n in ", ref $path;
+    }
+    $n = $parent_n;
+    $depth++;
+  }
+  return $depth;
 }
 
 exit 0;

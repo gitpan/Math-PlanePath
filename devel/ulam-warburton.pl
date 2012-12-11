@@ -32,9 +32,15 @@ use warnings;
   require Math::PlanePath::UlamWarburtonQuarter;
   # my $path = Math::PlanePath::UlamWarburton->new;
   my $path = Math::PlanePath::UlamWarburtonQuarter->new;
-  for (my $n = $path->n_start+1; $n < 40; $n++) {
-    my @n_children = $path->tree_n_children($n);
-    my $num_children = scalar(@n_children);
+  my $prev_depth = 0;
+  for (my $n = $path->n_start; ; $n++) {
+    my $depth = $path->tree_n_to_depth($n);
+    if ($depth != $prev_depth) {
+      $prev_depth = $depth;
+      print "\n";
+      last if $depth > 40;
+    }
+    my $num_children = $path->tree_n_num_children($n);
     print "$num_children,";
   }
   print "\n";

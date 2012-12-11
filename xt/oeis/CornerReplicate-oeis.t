@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1;
+plan tests => 2;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -36,70 +36,38 @@ use Math::PlanePath::ZOrderCurve;
 my $crep = Math::PlanePath::CornerReplicate->new;
 my $zorder = Math::PlanePath::ZOrderCurve->new;
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
-
 #------------------------------------------------------------------------------
 # A048647 -- N at transpose Y,X
 
-{
-  my $anum = 'A048647';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $crep->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $crep->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $crep->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+MyOEIS::compare_values
+  (anum => 'A048647',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $crep->n_start; @got < $count; $n++) {
+       my ($x, $y) = $crep->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $crep->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A163241 -- flip base-4 digits 2,3, map to ZOrderCurve
+# A163241 -- flip base-4 digits 2,3 maps to ZOrderCurve
 
-{
-  my $anum = 'A163241';
-  my $radix = 2;
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $crep->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $crep->n_to_xy ($n);
-      my $n = $zorder->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
+MyOEIS::compare_values
+  (anum => 'A163241',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $crep->n_start; @got < $count; $n++) {
+       my ($x, $y) = $crep->n_to_xy ($n);
+       my $n = $zorder->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

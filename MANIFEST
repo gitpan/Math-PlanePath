@@ -34,8 +34,6 @@ devel/dragon.el
 devel/dragon.gnuplot
 devel/dragon.logo
 devel/dragon.pl
-devel/EToothpickTree-oeis.t
-devel/EToothpickTree.pm
 devel/exe-atan2.c
 devel/exe-complex-minus.c
 devel/exe-complex-plus.c
@@ -69,16 +67,6 @@ devel/koch-squareflakes.pl
 devel/lib/Math/PlanePath/BalancedArray.pm
 devel/lib/Math/PlanePath/FibonacciSquareSpiral.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
-devel/lib/Math/PlanePath/lcorner-replicate-table.pl
-devel/lib/Math/PlanePath/lcorner-single.pl
-devel/lib/Math/PlanePath/lcorner-tree-triplets.pl
-devel/lib/Math/PlanePath/LCornerReplicate.pm
-devel/lib/Math/PlanePath/LCornerSingle.pm
-devel/lib/Math/PlanePath/LCornerTree-oeis.t
-devel/lib/Math/PlanePath/LCornerTree.pm
-devel/lib/Math/PlanePath/LCornerTree.t
-devel/lib/Math/PlanePath/LToothpickTree-oeis.t
-devel/lib/Math/PlanePath/LToothpickTree.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
 devel/lib/Math/PlanePath/NxN.pm
 devel/lib/Math/PlanePath/NxNinv.pm
@@ -91,13 +79,6 @@ devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
 devel/lib/Math/PlanePath/R7DragonCurve.pm
 devel/lib/Math/PlanePath/squares-dispersion.pl
-devel/lib/Math/PlanePath/toothpick.pl
-devel/lib/Math/PlanePath/ToothpickReplicate.pm
-devel/lib/Math/PlanePath/ToothpickReplicate.t
-devel/lib/Math/PlanePath/ToothpickTree-oeis.t
-devel/lib/Math/PlanePath/ToothpickTree.pm
-devel/lib/Math/PlanePath/ToothpickTree.t
-devel/lib/Math/PlanePath/UlamWarburtonAway.pm
 devel/Makefile
 devel/mephisto-waltz.logo
 devel/multiple-rings.pl
@@ -425,7 +406,6 @@ xt/oeis/CornerReplicate-oeis.t
 xt/oeis/DiagonalRationals-oeis.t
 xt/oeis/Diagonals-oeis.t
 xt/oeis/DiagonalsAlternating-oeis.t
-xt/oeis/DiagonalsOctant-more.t
 xt/oeis/DiagonalsOctant-oeis.t
 xt/oeis/DigitGroups-oeis.t
 xt/oeis/DivisibleColumns-oeis.t
@@ -449,6 +429,7 @@ xt/oeis/KochCurve-oeis.t
 xt/oeis/LTiling-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
 xt/oeis/PeanoCurve-oeis.t
+xt/oeis/PentSpiralSkewed-oeis.t
 xt/oeis/PowerArray-oeis.t
 xt/oeis/PyramidRows-oeis.t
 xt/oeis/PyramidSides-oeis.t

@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -31,7 +31,7 @@ use Math::PlanePath::Base::Generic
 #use Smart::Comments;
 
 use constant parameter_info_array =>
-  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
+  [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -249,7 +249,23 @@ path include
       A038722    permutation N at transpose Y,X
 
     n_start=0
+      A003056    X+Y
+      A004247    X*Y
+      A049581    abs(X-Y)
+      A048147    X^2+Y^2
+      A004198    X bit-and Y
+      A003986    X bit-or Y
+      A003987    X bit-xor Y
+      A004197    min(X,Y)
+      A003984    max(X,Y)
+      A023531    dSum = dX+dY, being 1 at N=triangular+1 (and 0)
+      A046092    N on X=Y diagonal
       A061579    permutation N at transpose Y,X
+
+The various coordinate forms such as A003056 X+Y is the same here as in the
+Diagonals path.  The alternating directions here transposes X,Y -E<gt> Y,X
+in every second diagonal.  Sequences such as X+Y are unchanged by swapping
+to Y+X etc.
 
 =head1 SEE ALSO
 

@@ -17,9 +17,7 @@
 
 
 
-# Local variables:
-# compile-command: "math-image --path=ComplexPlus --all --scale=5"
-# End:
+# math-image --path=ComplexPlus --all --scale=5
 #
 # math-image --path=ComplexPlus --expression='i<128?i:0' --output=numbers --size=132x40
 #
@@ -38,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');

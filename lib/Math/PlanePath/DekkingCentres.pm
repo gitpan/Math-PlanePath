@@ -1,7 +1,3 @@
-# working
-# combine edges version ?
-
-
 # Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
@@ -20,9 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=DekkingCentres --all --output=numbers_dash
-
-
 package Math::PlanePath::DekkingCentres;
 use 5.004;
 use strict;
@@ -30,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -273,6 +266,12 @@ Math::PlanePath::DekkingCentres -- 5x5 self-similar
 This is a variation of a 5x5 self-similar curve by F. M. Dekking.  This form
 visits the "centres" of the 5x5 self-similar blocks.  The result is diagonal
 steps, but replications wholly within 5x5 areas.
+
+=cut
+
+# math-image --path=DekkingCentres --all --output=numbers_dash --size=75x26
+
+=pod
 
                               ...
         |                     /

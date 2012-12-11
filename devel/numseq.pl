@@ -25,6 +25,59 @@ use strict;
 
 
 {
+  # max Dir4
+
+  require Math::BaseCnv;
+
+  # print 4-atan2(2,1)/atan2(1,1)/2,"\n";
+
+  require Math::NumSeq::PlanePathDelta;
+  my $realpart = 3;
+  my $radix = $realpart*$realpart + 1;
+  my $planepath = "HypotOctant,points=odd";
+  $planepath = "FactorRationals";
+  $planepath = "RationalsTree,tree_type=Drib";
+  $planepath = "PythagoreanTree,coordinates=PQ,tree_type=FB";
+  $planepath = "UlamWarburtonQuarter";
+  $planepath = "UlamWarburton";
+  $planepath = "GosperReplicate";
+  $planepath = "QuintetReplicate";
+  $planepath = "FractionsTree";
+  $planepath = "PowerArray";
+  $planepath = "RationalsTree,tree_type=HCS";
+  $planepath = "ChanTree,k=2";
+  $planepath = "CfracDigits,radix=2";
+  $planepath = "ImaginaryHalf,digit_order=XnXY";
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+                                               delta_type => 'Dir4');
+  my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+                                                  delta_type => 'dX');
+  my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+                                                  delta_type => 'dY');
+  my $max = -99;
+  for (1 .. 10000000) {
+    my ($i, $value) = $seq->next;
+
+    # neg for minimum
+     $value = -$value; next unless $value;
+
+    if ($value > $max) {
+      my $dx = $dx_seq->ith($i);
+      my $dy = $dy_seq->ith($i);
+      my $ri = Math::BaseCnv::cnv($i,10,$radix);
+      my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
+      my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
+      my $f = $dy && $dx/$dy;
+      printf "%d %s %.5f  %s %s   %.3f\n", $i, $ri, $value, $rdx,$rdy, $f;
+      $max = $value;
+    }
+  }
+
+  exit 0;
+}
+
+
+{
   # PlanePathCoord increasing
   require Math::NumSeq::PlanePathCoord;
   my $planepath;
@@ -63,58 +116,6 @@ use strict;
     }
     print "$coordinate_type   all increasing (to i=$prev_i)\n";
   }
-  exit 0;
-}
-
-
-{
-  # max Dir4
-
-  require Math::BaseCnv;
-
-  # print 4-atan2(2,1)/atan2(1,1)/2,"\n";
-
-  require Math::NumSeq::PlanePathDelta;
-  my $realpart = 3;
-  my $radix = $realpart*$realpart + 1;
-  my $planepath = "HypotOctant,points=odd";
-  $planepath = "FactorRationals";
-  $planepath = "RationalsTree,tree_type=Drib";
-  $planepath = "PythagoreanTree,coordinates=PQ,tree_type=FB";
-  $planepath = "UlamWarburtonQuarter";
-  $planepath = "UlamWarburton";
-  $planepath = "GosperReplicate";
-  $planepath = "QuintetReplicate";
-  $planepath = "FractionsTree";
-  $planepath = "PowerArray";
-  $planepath = "RationalsTree,tree_type=HCS";
-  $planepath = "ChanTree,k=2";
-  $planepath = "CfracDigits,radix=2";
-  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                               delta_type => 'Dir4');
-  my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                                  delta_type => 'dX');
-  my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                                  delta_type => 'dY');
-  my $max = -99;
-  for (1 .. 10000000) {
-    my ($i, $value) = $seq->next;
-
-    # neg for minimum
-     $value = -$value; next unless $value;
-
-    if ($value > $max) {
-      my $dx = $dx_seq->ith($i);
-      my $dy = $dy_seq->ith($i);
-      my $ri = Math::BaseCnv::cnv($i,10,$radix);
-      my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
-      my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
-      my $f = $dy && $dx/$dy;
-      printf "%d %s %.5f  %s %s   %.3f\n", $i, $ri, $value, $rdx,$rdy, $f;
-      $max = $value;
-    }
-  }
-
   exit 0;
 }
 

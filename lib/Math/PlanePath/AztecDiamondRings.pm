@@ -19,6 +19,8 @@
 
 # math-image --path=AztecDiamondRings --all --output=numbers --size=60x14
 
+# cute groupings
+# AztecDiamondRings, FibonacciWord fibonacci_word_type plain, 10x10 scale 15
 
 
 package Math::PlanePath::AztecDiamondRings;
@@ -26,7 +28,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

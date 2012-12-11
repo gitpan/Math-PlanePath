@@ -26,6 +26,48 @@ use Math::PlanePath::SierpinskiArrowhead;
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  # A156595 Mephisto Waltz first diffs xor as turns
+  require Tk;
+  require Tk::CanvasLogo;
+  require Math::NumSeq::MephistoWaltz;
+  my $top = MainWindow->new;
+  my $width = 1200;
+  my $height = 800;
+  my $logo = $top->CanvasLogo(-width => $width, -height => $height)->pack;
+  my $turtle = $logo->NewTurtle('foo');
+  $turtle->LOGO_PU();
+  $turtle->LOGO_FD(- $height/2*.9);
+  $turtle->LOGO_PD();
+
+  my $step = 5;
+  $turtle->LOGO_FD($step);
+  my $seq = Math::NumSeq::MephistoWaltz->new;
+  my ($i,$prev) = $seq->next;
+  for (;;) {
+    my ($i,$value) = $seq->next;
+    my $turn = $value ^ $prev;
+    $prev = $value;
+    last if $i > 10000;
+    if ($turn) {
+      $turtle->LOGO_FD($step);
+      if ($i & 1) {
+        $turtle->LOGO_RT(120);
+      } else {
+        $turtle->LOGO_LT(120);
+      }
+    } else {
+      $turtle->LOGO_FD($step);
+    }
+    $logo->createArc($turtle->{x}+2, $turtle->{y}+2,
+                       $turtle->{x}-2, $turtle->{y}-2);
+  }
+
+  Tk::MainLoop();
+  exit;
+}
+
 {
   # dX,dY
   require Math::PlanePath::SierpinskiCurve;
@@ -66,46 +108,6 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  # A156595 Mephisto Waltz first diffs xor as turns
-  require Tk;
-  require Tk::CanvasLogo;
-  require Math::NumSeq::MephistoWaltz;
-  my $top = MainWindow->new;
-  my $width = 1000;
-  my $height = 800;
-  my $logo = $top->CanvasLogo(-width => $width, -height => $height)->pack;
-  my $turtle = $logo->NewTurtle('foo');
-  $turtle->LOGO_PU();
-  $turtle->LOGO_FD(- $height/2*.9);
-  $turtle->LOGO_PD();
-
-  my $step = 20;
-  $turtle->LOGO_FD($step);
-  my $seq = Math::NumSeq::MephistoWaltz->new;
-  my ($i,$prev) = $seq->next;
-  for (;;) {
-    my ($i,$value) = $seq->next;
-    my $turn = $value ^ $prev;
-    $prev = $value;
-    last if $i > 10000;
-    if ($turn) {
-      $turtle->LOGO_FD($step);
-      if ($i & 1) {
-        $turtle->LOGO_RT(120);
-      } else {
-        $turtle->LOGO_LT(120);
-      }
-    } else {
-      $turtle->LOGO_FD($step);
-    }
-    $logo->createArc($turtle->{x}+2, $turtle->{y}+2,
-                       $turtle->{x}-2, $turtle->{y}-2);
-  }
-
-  Tk::MainLoop();
-  exit;
-}
 
 {
   # Mephisto Waltz 1/12 slice of plane

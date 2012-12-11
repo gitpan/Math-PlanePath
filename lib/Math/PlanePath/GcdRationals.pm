@@ -56,7 +56,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -626,8 +626,8 @@ Fortnow taking a greatest common divisor out of a triangular position.
           X=0   1   2   3   4   5   6   7   8   9  10  11  12  13
 
 The attraction of this approach is that it's both efficient to calculate and
-it traverses blocks of X/Y rationals with a modest range of N values,
-roughly a square N=2*max(num,den)^2 in the default rows style.
+it traverses blocks of X/Y rationals using a modest range of N values,
+roughly a square N=2*max(num,den)^2 in the default i,j by rows.
 
 The mapping from N to rational is
 
@@ -641,7 +641,7 @@ which means
     Y = j/gcd
 
 The i,j position is a numbering of points above the X=Y diagonal by rows (in
-the style of PyramidRows step=1).
+the style of L<Math::PlanePath::PyramidRows> with step=1).
 
     j=4  |  7  8  9 10
     j=3  |  4  5  6
@@ -651,19 +651,23 @@ the style of PyramidRows step=1).
           i=1  2  3  4
 
 If GCD(i,j)=1 then X/Y is simply X=i,Y=j unchanged.  This means fractions
-S<X/Y E<lt> 1> are numbered by rows with increasing numerator, skipping
+S<X/Y E<lt> 1> are numbered by rows with increasing numerator skipping
 positions where i,j have a common factor.
 
 The skipped positions where i,j have a common factor become rationals
-S<X/YE<gt>1>, ie. below the X=Y diagonal.  GCD(i,j)-1 is the integer part so
-S<rational = (gcd-1) + i/j>.  For example N=51 is at i=6,j=10 by rows and
-that i,j has common factor gcd(6,10)=2 so becomes rational R = (2-1) + 6/10
-= 1+3/5 = 8/5, ie. X=8,Y=5.
+S<X/YE<gt>1>, ie. below the X=Y diagonal.  The integer part is GCD(i,j)-1 so
+S<rational = gcd-1 + i/j>.  For example
+
+    N=51 is at i=6,j=10 by rows
+    common factor gcd(6,10)=2
+    so rational R = 2-1 + 6/10 = 1+3/5 = 8/5
+    ie. X=8,Y=5
 
 =head2 Triangular Numbers
 
-The bottom row Y=1 is the triangular numbers N=1,3,6,10,etc, k*(k-1)/2.
-Such an N is at i=k,j=k and thus gcd(i,j)=k which divides out to Y=1.
+N=1,3,6,10,etc along the bottom Y=1 row is the triangular numbers
+N=k*(k-1)/2.  Such an N is at i=k,j=k and has gcd(i,j)=k which divides out
+to Y=1.
 
     Y = j/gcd
       = 1       on the bottom row
@@ -672,8 +676,8 @@ Such an N is at i=k,j=k and thus gcd(i,j)=k which divides out to Y=1.
       = (k + k*(k-1)) / k
       = k-1     successive points on that bottom row
 
-N=1,2,4,7,11,etc in the vertical at X=1 immediately following those
-triangulars on the bottom row, ie.
+N=1,2,4,7,11,etc in the column at X=1 immediately follows each of those
+bottom row triangulars, ie. N+1.
 
     N on X=1 column = Y*(Y-1)/2 + 1
 
@@ -703,11 +707,12 @@ the table with dots "..." marking the X=2*Y line.
 
 Values below X=2*Y such as 39 and 42 are always composite.  Values above
 such as 19 and 30 are either prime or composite.  Only X=2,Y=1 is exactly on
-the line, which is prime N=3 as it happens.  Other X=2*k,Y=k are not an X/Y
-rational in least terms due to common factor k.
+the line, which is prime N=3 as it happens.  Others on the line X=2*k,Y=k
+are not visited since common factor k means X/Y is not a rational in least
+terms.
 
 This pattern of primes and composites occurs because N is a multiple of
-gcd(i,j) when gcd odd, or a multiple of gcd/2 when gcd even.
+gcd(i,j) when that gcd is odd, or a multiple of gcd/2 when that gcd is even.
 
     N = i + j*(j-1)/2
     gcd = gcd(i,j)
@@ -715,26 +720,26 @@ gcd(i,j) when gcd odd, or a multiple of gcd/2 when gcd even.
     N = gcd   * (i/gcd + j/gcd * (j-1)/2)  when gcd odd
         gcd/2 * (2i/gcd + j/gcd * (j-1))   when gcd even
 
-If gcd odd then either j/gcd or j-1 is even, taking the "/2" factor.  If gcd
-even then only gcd/2 can come out as a factor since the full gcd might leave
-both j/gcd and j-1 odd and so the "/2" not an integer.  That happens for
-example to N=70
+If gcd odd then either j/gcd or j-1 is even, to take the "/2" divisor.  If
+gcd even then only gcd/2 can come out as a factor since the full gcd might
+leave both j/gcd and j-1 odd and so the "/2" not an integer.  That happens
+for example to N=70
 
     N = 70
     i = 4, j = 12     for 4 + 12*11/2 = 70 = N
     gcd(i,j) = 4
     but N is not a multiple of 4, only of 4/2=2
 
-Of course knowing gcd or gcd/2 is a factor is only useful when that factor
-is 2 or more, so
+Of course knowing gcd or gcd/2 is a factor of N is only useful when that
+factor is 2 or more, so
 
-    odd gcd with gcd >= 2       means gcd >= 3
+    odd gcd >= 2                means gcd >= 3
     even gcd with gcd/2 >= 2    means gcd >= 4
 
     so N composite when gcd(i,j) >= 3
 
 If gcdE<lt>3 then the "factor" coming out is only 1 and says nothing about
-whether N is prime or composite.  There are both prime and composite N for
+whether N is prime or composite.  There are both prime and composite N with
 gcdE<lt>3, as can be seen among the values above the X=2*Y line in the table
 above.
 
@@ -750,7 +755,7 @@ within the rows of i,j pairs,
         +------------
          i=1  2  3  4
 
-The point numbering becomes
+The X,Y numbering becomes
 
 =cut
 
@@ -776,27 +781,27 @@ The point numbering becomes
           X=0   1   2   3   4   5   6   7   8   9  10  11
 
 The triangular numbers per L</Triangular Numbers> are now in the X=1 column,
-ie. at the left rather than the bottom.  The Y=1 bottom row is the next
-after each triangular, ie. T(X)+1.
+ie. at the left rather than at the Y=1 bottom row.  That bottom row is now
+the next after each triangular, ie. T(X)+1.
 
 =head2 Diagonals
 
 Option C<pairs_order =E<gt> "diagonals_down"> takes the i,j pairs by
 diagonals down from the Y axis.  C<pairs_order =E<gt> "diagonals_up">
 likewise but upwards from the X=Y centre up to the Y axis.  (These
-numberings as per L<Math::PlanePath::DiagonalsOctant>.)
+numberings are in the style of L<Math::PlanePath::DiagonalsOctant>.)
 
-    diagonals_down                  diagonals_up
+    diagonals_down            diagonals_up
 
-    j=7 | 13                         j=7 | 16
-    j=6 | 10 14                      j=6 | 12 15
-    j=5 |  7 11 15                   j=5 |  9 11 14
-    j=4 |  5  8 12 16                j=4 |  6  8 10 13
-    j=3 |  3  6  9                   j=3 |  4  5  7
-    j=2 |  2  4                      j=2 |  2  3
-    j=1 |  1                         j=1 |  1
-        +------------                    +------------
-         i=1  2  3  4                     i=1  2  3  4
+    j=7 | 13                   j=7 | 16
+    j=6 | 10 14                j=6 | 12 15
+    j=5 |  7 11 15             j=5 |  9 11 14
+    j=4 |  5  8 12 16          j=4 |  6  8 10 13
+    j=3 |  3  6  9             j=3 |  4  5  7
+    j=2 |  2  4                j=2 |  2  3
+    j=1 |  1                   j=1 |  1
+        +------------              +------------
+         i=1  2  3  4               i=1  2  3  4
 
 The resulting path becomes
 
@@ -879,7 +884,7 @@ The line of "2"s is when gcd=2 so X=(i+j)/2,Y=j/2.  Since i+j=d is constant
 within the diagonal this makes X=d fixed, ie. vertical.
 
 Then gcd=3 becomes X=(i+2j)/3 which slopes across by +1 for each i, or gcd=4
-X=(i+3j)/4 slope +2, etc.
+has X=(i+3j)/4 slope +2, etc.
 
 Of course only some of the points in an i,j diagonal have a given gcd, but
 those which do are transformed this way.  The effect is that for N up to a
@@ -897,8 +902,8 @@ extras in wedge shaped arms out to the side.
      | * * * * *--
      +--------------
 
-In terms of the rationals X/Y the effect is that up to N=d^2 diagonal d=2j
-the fractions enumerated are
+In terms of the rationals X/Y the effect is that up to N=d^2 with diagonal
+d=2j the fractions enumerated are
 
     N=d^2
     enumerates all num/den where num <= d and num+den <= 2*d
@@ -928,14 +933,22 @@ Create and return a new path object.  The C<pairs_order> option can be
 
 The defining formula above for X,Y can be inverted to give i,j and N.  This
 calculation doesn't notice if X,Y have a common factor, so a coprime(X,Y)
-test must be made separately, if desired.
+test must be made separately if necessary (which for C<xy_to_n()> it is).
 
     X/Y = g-1 + (i/g)/(j/g)
 
-The g-1 integer part is recovered by a division
+The g-1 integer part is recovered by a division X divide Y,
 
-    X = p*Y + r
-      where 0<=r<Y, unless Y=1 in which case use r=1, p=X-1
+=cut
+
+# This is "p" for the quotient since q is a bit too close to g.
+# Would some other letter be better.  
+
+=pod
+
+    X = Y*p + r        division by Y to p=quotient r=remainder
+      where 0<=r<Y
+      unless Y=1 in which case use r=1, p=X-1
     g-1 = p
     g = p+1
 
@@ -946,33 +959,35 @@ gives the correct N.  It's as if the i=g,j=g point at the end of a row is
 moved to i=0,j=g+1 just before the start of the next row.  If only N is of
 interest not the i,j as such then it can be left r=0.
 
-Equating the denominators in the X/Y formula above gives j
+Equating the denominators in the X/Y formula above gives j by
 
-    Y = j/g
+    Y = j/g          the definition above
+
     j = g*Y
       = (p+1)*Y
     j = X+Y-r        per the division X=p*Y+r
 
-And the numerators give i
+And equating the numerators gives i by
 
-    X = (g-1)*Y + i/g
+    X = (g-1)*Y + i/g     the definition above
+
     i = X*g - (g-1)*Y*g
       = X*g - p*Y*g
       = X*g - (X-r)*g     per the division X=p*Y+r
     i = r*g
     i = r*(p+1)
 
-Then N from i,j by the definition
+Then N from i,j by the definition above
 
     N = i + j*(j-1)/2
 
-For example X=11,Y=4 divides as 11=2*4+3 for p=2,r=3 so i=3*(2+1)=9
+For example X=11,Y=4 divides X/Y as 11=4*2+3 for p=2,r=3 so i=3*(2+1)=9
 j=11+4-3=12 and so N=9+12*11/2=75 (as shown in the first table above).
 
-It's possible to use only the quotient p by taking j=(p+1)*Y instead of
-j=X+Y-r, but usually a division operation gives the remainder at no extra
-cost, or a cost small enough that it's worth it to swap a multiply for an
-add or two.
+It's possible to use only the quotient p, not the remainder r, by taking
+j=(p+1)*Y instead of j=X+Y-r, but usually a division operation gives the
+remainder at no extra cost, or a cost small enough that it's worth it to
+swap a multiply for an add or two.
 
 =head2 X,Y to N -- Rows Reverse
 
@@ -986,8 +1001,8 @@ The Y=1 case described above cannot be left to go through with r=0 giving
 i=0 and j+1 since the reversal j-i+1 is then not correct.  Either use r=1 as
 described, or if not then compensate at the end,
 
-    if r=0 then j += 2
-    Nrrev = j*(j+1)/2 - i + 1
+    if r=0 then j -= 2            adjust
+    Nrrev = j*(j+1)/2 - i + 1     same Nrrev as above
 
 For example X=5,Y=1 is r=0,p=5 gives i=0*(5+1)=0 j=5+1-0=6.  Without
 adjustment it would be Nrrev=6*7/2-0+1=22 which is wrong.  But adjusting
@@ -1030,7 +1045,18 @@ Sequences in the following forms
 
     http://oeis.org/A054531   (etc)
 
-    A054531  - Y coordinate, being N/GCD(i,j)
+    pairs_order="rows" (the default)
+      A054531  Y coordinate, being N/GCD(i,j)
+      A000124  N in X=1 column, triangular+1
+
+    pairs_order="diagonals_down"
+      A033638  N in X=1 column, quartersquares+1 and pronic+1
+      A000290  N in Y=1 row, perfect squares
+
+    pairs_order="diagonals_up"
+      A002620  N in X=1 column, squares and pronics
+      A002061  N in Y=1 row, central polygonals (extra initial 1)
+      A002522  N at Y=X+1 above leading diagonal, squares+1
 
 =head1 SEE ALSO
 

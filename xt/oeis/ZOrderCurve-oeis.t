@@ -34,283 +34,179 @@ use Math::PlanePath::Diagonals;
 #use Smart::Comments '###';
 
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
-
 #------------------------------------------------------------------------------
 # A163328 -- radix=3 diagonals same axis
-{
-  my $anum = 'A163328';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
-                                                    n_start => 0);
-    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $diagonal->n_to_xy ($n);
-      push @got, $zorder->xy_to_n ($x, $y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+
+MyOEIS::compare_values
+  (anum => 'A163328',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                     n_start => 0);
+     for (my $n = $diagonal->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagonal->n_to_xy ($n);
+       push @got, $zorder->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 # A163329 -- radix=3 diagonals same axis, inverse
-{
-  my $anum = 'A163329';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
-                                                    n_start => 0);
-    for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $zorder->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n ($x, $y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
+MyOEIS::compare_values
+  (anum => 'A163329',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                     n_start => 0);
+     for (my $n = $zorder->n_start; @got < $count; $n++) {
+       my ($x, $y) = $zorder->n_to_xy ($n);
+       push @got, $diagonal->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A163330 -- radix=3 diagonals opposite axis
-{
-  my $anum = 'A163330';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
-                                                    n_start => 0);
-    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $diagonal->n_to_xy ($n);
-      push @got, $zorder->xy_to_n ($x, $y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+
+MyOEIS::compare_values
+  (anum => 'A163330',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                     n_start => 0);
+     for (my $n = $diagonal->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagonal->n_to_xy ($n);
+       push @got, $zorder->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 # A163331 -- radix=3 diagonals same axis, inverse
-{
-  my $anum = 'A163331';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
-                                                    n_start => 0);
-    for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $zorder->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n ($x, $y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
+MyOEIS::compare_values
+  (anum => 'A163331',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $zorder   = Math::PlanePath::ZOrderCurve->new (radix => 3);
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down',
+                                                     n_start => 0);
+     for (my $n = $zorder->n_start; @got < $count; $n++) {
+       my ($x, $y) = $zorder->n_to_xy ($n);
+       push @got, $diagonal->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A054238 -- diagonals same axis
-{
-  my $anum = 'A054238';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $zorder   = Math::PlanePath::ZOrderCurve->new;
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
-                                                    n_start => 0);
-    for (my $n = $diagonal->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $diagonal->n_to_xy ($n);
-      push @got, $zorder->xy_to_n ($x, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+
+MyOEIS::compare_values
+  (anum => 'A054238',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $zorder   = Math::PlanePath::ZOrderCurve->new;
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                     n_start => 0);
+     for (my $n = $diagonal->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagonal->n_to_xy ($n);
+       push @got, $zorder->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 # A054239 -- diagonals same axis, inverse
-{
-  my $anum = 'A054239';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $zorder   = Math::PlanePath::ZOrderCurve->new;
-    my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
-                                                    n_start => 0);
-    for (my $n = $zorder->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $zorder->n_to_xy ($n);
-      push @got, $diagonal->xy_to_n ($x, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
-
+MyOEIS::compare_values
+  (anum => 'A054239',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $zorder   = Math::PlanePath::ZOrderCurve->new;
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                     n_start => 0);
+     for (my $n = $zorder->n_start; @got < $count; $n++) {
+       my ($x, $y) = $zorder->n_to_xy ($n);
+       push @got, $diagonal->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A057300 -- N at transpose Y,X, radix=2
 
-{
-  my $anum = 'A057300';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::ZOrderCurve->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+MyOEIS::compare_values
+  (anum => 'A057300',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ZOrderCurve->new;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A163327 -- N at transpose Y,X, radix=3
 
-{
-  my $anum = 'A163327';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::ZOrderCurve->new (radix => 3);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+MyOEIS::compare_values
+  (anum => 'A163327',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ZOrderCurve->new (radix => 3);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A126006 -- N at transpose Y,X, radix=4
 
-{
-  my $anum = 'A126006';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::ZOrderCurve->new (radix => 4);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+MyOEIS::compare_values
+  (anum => 'A126006',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ZOrderCurve->new (radix => 4);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A217558 -- N at transpose Y,X, radix=16
 
-{
-  my $anum = 'A217558';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::ZOrderCurve->new (radix => 16);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+MyOEIS::compare_values
+  (anum => 'A217558',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ZOrderCurve->new (radix => 16);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 

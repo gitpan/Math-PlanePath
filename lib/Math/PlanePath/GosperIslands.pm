@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,7 +46,7 @@ use Math::PlanePath::Base::Digits
 use Math::PlanePath::SacksSpiral;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant n_frac_discontinuity => 0;
@@ -135,11 +135,12 @@ sub n_to_xy {
   _ends_for_level($level);
   ### raw xy: "$x,$y"
   ### pos: "$_xend[$level],$_yend[$level]"
-  ($x,$y) = (($x+3*$y)/-2,             # rotate +120
-             ($x-$y)/2);
-  ### rotate xy: "$x,$y"
 
   if ($sides == 6) {
+    ($x,$y) = (($x+3*$y)/-2,             # rotate +120
+               ($x-$y)/2);
+    ### rotate xy: "$x,$y"
+
     $x += $_xend[$level];
     $y += $_yend[$level];
     if ($side >= 3) {
@@ -157,20 +158,38 @@ sub n_to_xy {
   } else {
     my $xend = $_xend[$level];
     my $yend = $_yend[$level];
-    my $xp = $_xend[$level-1] || 0;
-    my $yp = $_yend[$level-1] || 0;
-    $x += $xend + $xp;
-    $y += $yend - $yp;
+    my $xp = 0;
+    my $yp = 0;
+    foreach (0 .. $level-1) {
+      $xp +=$_xend[$_];
+      $yp +=$_yend[$_];
+    }
+    ### ends: "$xend,$yend prev $xp,$yp"
+    ($xp,$yp) = (($xp-3*$yp)/-2,   # rotate -120
+                 ($xp+$yp)/-2);
+    # ($xp,$yp) = (($xp-3*$yp)/2,   # rotate +60
+    #              ($xp+$yp)/2);
     if ($side == 0) {
-      $x += $xend;
-      $y += $xend;
+      $x += $xp;
+      $y += $yp;
     } elsif ($side == 1) {
       ($x,$y) = (($x+3*$y)/-2,  # rotate +120
                  ($x-$y)/2);
+      $x += $xp;
+      $y += $yp;
+      $x += $xend;
+      $y += $yend;
     } elsif ($side == 2) {
-      return;
-      ($x,$y) = (($x-3*$y)/-2,   # rotate -120
+      ($x,$y) = (($x-3*$y)/-2,   # rotate +240==-120
                  ($x+$y)/-2);
+      $x += $xp;
+      $y += $yp;
+      $x += $xend;
+      $y += $yend;
+      ($xend,$yend) = (($xend+3*$yend)/-2,  # rotate +120
+                       ($xend-$yend)/2);
+      $x += $xend;
+      $y += $yend;
     }
   }
   return ($x,$y);

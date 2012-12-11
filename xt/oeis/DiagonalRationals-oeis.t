@@ -28,177 +28,127 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 
 use Math::PlanePath::DiagonalRationals;
+my $diagrat = Math::PlanePath::DiagonalRationals->new;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
 
-my $diagrat = Math::PlanePath::DiagonalRationals->new;
-
-sub streq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  while (@$a1 && @$a2) {
-    if ($a1->[0] ne $a2->[0]) {
-      MyTestHelpers::diag ("differ: ", $a1->[0], ' ', $a2->[0]);
-      return 0;
-    }
-    shift @$a1;
-    shift @$a2;
-  }
-  return (@$a1 == @$a2);
-}
-
-
 #------------------------------------------------------------------------------
 # A054430 -- N at transpose Y,X
 
-{
-  my $anum = 'A054430';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $diagrat->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $diagrat->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $diagrat->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! streq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1);
-}
+MyOEIS::compare_values
+  (anum => 'A054430',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $diagrat->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagrat->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $diagrat->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A054431 - by anti-diagonals 1 if coprime, 0 if not
-{
-  my $anum = 'A054431';
-  my ($bvalues, $lo) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
 
-    my $prev_n = $diagrat->n_start - 1;
-  OUTER: for (my $y = 1; ; $y ++) {
-      foreach my $x (1 .. $y-1) {
-        my $n = $diagrat->xy_to_n($x,$y-$x);
-        if (defined $n) {
-          push @got, 1;
-          if ($n != $prev_n + 1) {
-            die "oops, not n+1";
-          }
-          $prev_n = $n;
-        } else {
-          push @got, 0;
-        }
-        last OUTER if @got >= @$bvalues;
-      }
-    }
-    if (! streq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A054431',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $prev_n = $diagrat->n_start - 1;
+   OUTER: for (my $y = 1; ; $y ++) {
+       foreach my $x (1 .. $y-1) {
+         my $n = $diagrat->xy_to_n($x,$y-$x);
+         if (defined $n) {
+           push @got, 1;
+           if ($n != $prev_n + 1) {
+             die "oops, not n+1";
+           }
+           $prev_n = $n;
+         } else {
+           push @got, 0;
+         }
+         last OUTER if @got >= $count;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A157806 - abs(num-den)
-{
-  my $anum = 'A157806';
-  my ($bvalues, $lo) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $diagrat->n_to_xy ($n);
-      push @got, abs($x-$y);
-    }
-  }
 
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A157806',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     foreach my $n (1 .. $count) {
+       my ($x,$y) = $diagrat->n_to_xy ($n);
+       push @got, abs($x-$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A054424 - permutation diagonal N -> SB N 
-# A054426 - inverse SB N -> Cantor N 
+# A054424 - permutation diagonal N -> SB N
+# A054426 - inverse SB N -> Cantor N
 
-{
-  my $anum = 'A054424';
-  my ($bvalues, $lo) = MyOEIS::read_values($anum, max_count => 5000);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::RationalsTree;
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-    foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $diagrat->n_to_xy ($n);
-      push @got, $sb->xy_to_n($x,$y);
-    }
-  }
+MyOEIS::compare_values
+  (anum => 'A054424',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::RationalsTree;
+     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got;
+     foreach my $n (1 .. $count) {
+       my ($x,$y) = $diagrat->n_to_xy ($n);
+       push @got, $sb->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
-{
-  my $anum = 'A054426';
-  my ($bvalues, $lo) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::RationalsTree;
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-    foreach my $n (1 .. @$bvalues) {
-      my ($x,$y) = $sb->n_to_xy ($n);
-      push @got, $diagrat->xy_to_n($x,$y);
-    }
-  }
-
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A054426',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::RationalsTree;
+     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got;
+     foreach my $n (1 .. $count) {
+       my ($x,$y) = $sb->n_to_xy ($n);
+       push @got, $diagrat->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A054425 - A054424 mapping expanded out to 0s at common-factor X,Y
 
-{
-  my $anum = 'A054425';
-  my ($bvalues, $lo) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::Diagonals;
-    require Math::PlanePath::RationalsTree;
-    my $diag = Math::PlanePath::Diagonals->new;
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-    my $n = 1;
-    while (@got < @$bvalues) {
-      my ($x,$y) = $diag->n_to_xy($n++);
-      $x++;
-      $y++;
-      ### frac: "$x/$y"
-      my $cn = $diagrat->xy_to_n ($x,$y);
-      if (defined $cn) {
-        push @got, $sb->xy_to_n($x,$y);
-      } else {
-        push @got, 0;
-      }
-    }
-  }
-
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A054425',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     require Math::PlanePath::RationalsTree;
+     my $diag = Math::PlanePath::Diagonals->new (x_start=>1, y_start=>1);
+     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got;
+     for (my $n = $diag->n_start; @got < $count; $n++) {
+       my ($x,$y) = $diag->n_to_xy($n);
+       ### frac: "$x/$y"
+       my $cn = $diagrat->xy_to_n ($x,$y);
+       if (defined $cn) {
+         push @got, $sb->xy_to_n($x,$y);
+       } else {
+         push @got, 0;
+       }
+     }
+     return \@got;
+   });
 
 
 exit 0;

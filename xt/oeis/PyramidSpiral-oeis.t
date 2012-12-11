@@ -74,5 +74,64 @@ sub numeq_array {
         "$anum");
 }
 
+# Not quite, it goes from N=1 to a baseline
+#
+# #------------------------------------------------------------------------------
+# # A214227 -- sum of 4 neighbours
+# {
+#   my $anum = 'A214227';
+#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+#   my @got;
+#   require Math::Prime::XS;
+#   if ($bvalues) {
+#     for (my $n = 1; @got < @$bvalues; $n++) {
+#       my ($x,$y) = $path->n_to_xy ($n);
+#       push @got, ($path->xy_to_n($x+1,$y)
+#                   + $path->xy_to_n($x-1,$y)
+#                   + $path->xy_to_n($x,$y+1)
+#                   + $path->xy_to_n($x,$y-1)
+#                  );
+#     }
+#     if (! numeq_array(\@got, $bvalues)) {
+#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+#       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+#     }
+#   }
+#   skip (! $bvalues,
+#         numeq_array(\@got, $bvalues),
+#         1, "$anum");
+# }
+
+#------------------------------------------------------------------------------
+# A214250 -- sum of 8 neighbours
+{
+  my $anum = 'A214250';
+  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my @got;
+  require Math::Prime::XS;
+  if ($bvalues) {
+    for (my $n = 1; @got < @$bvalues; $n++) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      push @got, ($path->xy_to_n($x+1,$y)
+                  + $path->xy_to_n($x-1,$y)
+                  + $path->xy_to_n($x,$y+1)
+                  + $path->xy_to_n($x,$y-1)
+                  + $path->xy_to_n($x+1,$y+1)
+                  + $path->xy_to_n($x-1,$y-1)
+                  + $path->xy_to_n($x-1,$y+1)
+                  + $path->xy_to_n($x+1,$y-1)
+                 );
+    }
+    if (! numeq_array(\@got, $bvalues)) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    }
+  }
+  skip (! $bvalues,
+        numeq_array(\@got, $bvalues),
+        1, "$anum");
+}
+
+
 #------------------------------------------------------------------------------
 exit 0;

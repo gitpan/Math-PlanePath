@@ -41,7 +41,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -73,7 +73,7 @@ use constant parameter_info_array =>
       width       => 3,
       description => 'Wider path.',
     },
-    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 use constant xy_is_visited => 1;
@@ -434,6 +434,12 @@ Math::PlanePath::SquareSpiral -- integer points drawn around a square (or rectan
 
 This path makes a square spiral,
 
+=cut
+
+# math-image --path=SquareSpiral --all --output=numbers_dash --size=40x16
+
+=pod
+
     37--36--35--34--33--32--31              3
      |                       |
     38  17--16--15--14--13  30              2
@@ -455,10 +461,14 @@ See F<examples/square-numbers.pl> in the sources for a simple program
 printing these numbers.
 
 This path is well known from Stanislaw Ulam finding interesting straight
-lines when plotting the prime numbers on it.  See
-F<examples/ulam-spiral-xpm.pl> in the sources for a program generating that,
-or see L<math-image> using this SquareSpiral to draw Ulam's pattern and
-more.
+lines when plotting the prime numbers on it.  The cover of Scientific
+American March 1964 featured this spiral,
+
+    http://www.nature.com/scientificamerican/journal/v210/n3/covers/index.html
+    http://oeis.org/A143861/a143861.jpg
+
+See F<examples/ulam-spiral-xpm.pl> in the sources for a standalone program,
+or see L<math-image> using this SquareSpiral to draw this pattern and more.
 
 =head2 Straight Lines
 
@@ -742,15 +752,18 @@ forms.  Summary at
 
 And various sequences,
 
-    http://oeis.org/A180714  (etc)
+    http://oeis.org/A174344  (etc)
+    https://oeis.org/wiki/Ulam's_spiral
 
     wider=0 (the default)
       A174344    X coordinate
+      A214526    abs(X)+abs(Y) "Manhattan" distance
+
       A079813    abs(dY), being k 0s followed by k 1s
       A063826    direction 1=right,2=up,3=left,4=down
 
-      A033638    N positions of the turns (extra initial 1, 1)
-      A172979      those positions which are primes too
+      A033638    N of the turns (extra initial 1, 1)
+      A172979     turn positions which are primes too
 
       A054552    N values on X axis (East)
       A054554    N values on X=Y diagonal (NE)
@@ -768,8 +781,8 @@ And various sequences,
       A143856    N values on ENE slope dX=2,dY=1
       A143861    N values on NNE slope dX=1,dY=2
 
-      A214664    X coordinate of N primes (Ulam's spiral)
-      A214665    Y coordinate of N primes (Ulam's spiral)
+      A214664    X coordinate of prime N (Ulam's spiral)
+      A214665    Y coordinate of prime N (Ulam's spiral)
       A214666    -X  \ reckoning spiral starting West
       A214667    -Y  /
 
@@ -780,11 +793,11 @@ And various sequences,
       A054564    prime[N] on X=-Y opp diagonal X<=0 (NW)
       A054566    prime[N] on negative X axis (W)
 
-      A068225    permutation N to the N to its right at X+1,Y
-      A121496      run lengths of consecutive N in that permutation
-      A068226    permutation N to the N at its left X-1,Y
+      A068225    permutation N to the N to its right, X+1,Y
+      A121496     run lengths of consecutive N in that permutation
+      A068226    permutation N to the N to its left, X-1,Y
       A020703    permutation N at transpose Y,X
-                   (so clockwise <-> anti-clockwise)
+                   (clockwise <-> anti-clockwise)
 
       A033952    digits on negative Y axis
       A033953    digits on negative Y axis, starting 0
@@ -810,6 +823,7 @@ starting from N=0.
       A002939    N on X=Y diagonal North-East
       A016742    N on North-West diagonal, 4*k^2
       A002943    N on South-West diagonal
+      A156859    N on Y axis positive and negative
 
 =head1 SEE ALSO
 

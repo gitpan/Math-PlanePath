@@ -52,32 +52,6 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
 sub to_binary_gray {
   my ($n, $radix) = @_;
   my $digits = [ digit_split_lowtohigh($n,2) ];
@@ -210,7 +184,7 @@ sub triangular {
       next unless is_prime($gray);
       push @got, $gray;
     }
-    $diff = diff_nums(\@got, $bvalues);
+    $diff = MyOEIS::diff_nums(\@got, $bvalues);
     if ($diff) {
       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..45]));
       MyTestHelpers::diag ("got:     ",join(',',@got[0..45]));

@@ -191,8 +191,15 @@ my @all_classes = ('SquareSpiral',
 
                    'ImaginaryBase',
                    'ImaginaryBase,radix=4',
+
                    'ImaginaryHalf',
                    'ImaginaryHalf,radix=4',
+                   'ImaginaryHalf,digit_order=XXY',
+                   'ImaginaryHalf,digit_order=YXX',
+                   'ImaginaryHalf,digit_order=XnXY',
+                   'ImaginaryHalf,digit_order=XnYX',
+                   'ImaginaryHalf,digit_order=YXnX',
+
                    'CubicBase',
                    'CubicBase,radix=4',
                    'SquareReplicate',
@@ -317,6 +324,27 @@ my @all_classes = ('SquareSpiral',
                    'PowerArray',
                    'PowerArray,radix=3',
                    'PowerArray,radix=4',
+
+                   # in separate Math-PlanePath-Toothpick
+
+                   '*ToothpickTree',
+                   '*ToothpickTree,parts=3',
+                   '*ToothpickTree,parts=2',
+                   '*ToothpickTree,parts=1',
+                   
+                   '*ToothpickReplicate',
+                   '*ToothpickReplicate,parts=3',
+                   '*ToothpickReplicate,parts=2',
+                   '*ToothpickReplicate,parts=1',
+
+                   '*ToothpickUpist',
+                   
+                   '*LCornerTree',
+                   '*LCornerTree,parts=3',
+                   '*LCornerTree,parts=2',
+                   '*LCornerTree,parts=1',
+                   
+                   '*LCornerReplicate',
                   );
 # expand arg "all" to full list
 @ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;
@@ -332,6 +360,9 @@ foreach my $class (@ARGV) {
 sub print_class {
   my ($name) = @_;
 
+  # secret leading "*Foo" means print if available
+  my $if_available = ($name =~ s/^\*//);
+
   my $class = $name;
   unless ($class =~ /::/) {
     $class = "Math::PlanePath::$class";
@@ -339,7 +370,13 @@ sub print_class {
   ($class, my @parameters) = split /\s*,\s*/, $class;
 
   $class =~ /^[a-z_][:a-z_0-9]*$/i or die "Bad class name: $class";
-  eval "require $class" or die $@;
+  if (! eval "require $class") {
+    if ($if_available) {
+      next;
+    } else {
+      die $@;
+    }
+  }
 
   @parameters = map { /(.*?)=(.*)/ or die "Missing value for parameter \"$_\"";
                       $1,$2 } @parameters;

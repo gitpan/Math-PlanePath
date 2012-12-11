@@ -45,24 +45,76 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['toothpick-upist-small.png',
+    'math-image --path=ToothpickUpist --values=LinesTree --scale=4 --size=32 --figure=toothpick --offset=0,5'],
+   ['toothpick-upist-big.png',
+    'math-image --path=ToothpickUpist --values=LinesTree --scale=5 --size=300x150 --figure=toothpick'],
+
+   ['lcorner-tree-small.png',
+    'math-image --path=LCornerTree --values=LinesTree --scale=4 --size=32'],
+   ['lcorner-tree-big.png',
+    'math-image --path=LCornerTree --values=LinesTree --scale=7 --size=200'],
+
+   ['lcorner-replicate-small.png',
+    'math-image --path=LCornerReplicate --lines --scale=4 --size=32'],
+   ['lcorner-replicate-big.png',
+    'math-image --path=LCornerReplicate --lines --scale=7 --size=200'],
+
+   ['toothpick-tree-small.png',
+    'math-image --path=ToothpickTree --values=LinesTree --scale=4 --size=32'],
+   ['toothpick-tree-big.png',
+    'math-image --path=ToothpickTree --values=LinesTree --scale=6 --size=200'],
+
+   ['toothpick-replicate-small.png',
+    'math-image --path=ToothpickReplicate --lines --scale=4 --size=32 --figure=toothpick'],
+   ['toothpick-replicate-big.png',
+    'math-image --path=ToothpickReplicate --all --scale=6 --size=200 --figure=toothpick'],
+
+
+   ['imaginaryhalf-small.png',
+    'math-image --path=ImaginaryHalf --lines --scale=7 --size=32'],
+   ['imaginaryhalf-big.png',
+    'math-image --path=ImaginaryHalf --lines --scale=18 --size=200'],
+   ['imaginaryhalf-radix5-big.png',
+    'math-image --path=ImaginaryHalf,radix=5 --lines --scale=18 --size=200'],
+   ['imaginaryhalf-xxy-big.png',
+    'math-image --path=ImaginaryHalf,digit_order=XXY --lines --scale=10 --size=75'],
+   ['imaginaryhalf-yxx-big.png',
+    'math-image --path=ImaginaryHalf,digit_order=YXX --lines --scale=10 --size=75'],
+   ['imaginaryhalf-xnyx-big.png',
+    'math-image --path=ImaginaryHalf,digit_order=XnYX --lines --scale=10 --size=75'],
+   ['imaginaryhalf-xnxy-big.png',
+    'math-image --path=ImaginaryHalf,digit_order=XnXY --lines --scale=10 --size=75'],
+   ['imaginaryhalf-yxnx-big.png',
+    'math-image --path=ImaginaryHalf,digit_order=YXnX --lines --scale=10 --size=75'],
+
+
+   ['imaginarybase-small.png',
+    'math-image --path=ImaginaryBase --lines --scale=7 --size=32'],
+   ['imaginarybase-big.png',
+    'math-image --path=ImaginaryBase --lines --scale=18 --size=200'],
+   ['imaginarybase-radix5-big.png',
+    'math-image --path=ImaginaryBase,radix=5 --lines --scale=18 --size=200'],
+
+
    ['rationals-tree-lines-hcs.png',
-    'math-image --path=RationalsTree,tree_type=HCS --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=RationalsTree,tree_type=HCS --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-l.png',
-    'math-image --path=RationalsTree,tree_type=L --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=RationalsTree,tree_type=L --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-small.png',
     'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
    ['rationals-tree-big.png',
     'math-image --path=RationalsTree --all --scale=3 --size=200'],
    ['rationals-tree-lines-sb.png',
-    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-cw.png',
-    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-bird.png',
-    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-drib.png',
-    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-ayt.png',
-    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree --scale=20 --size=200'],
 
 
    ['cfrac-digits-small.png',
@@ -341,22 +393,6 @@ foreach my $elem
     'math-image --path=CubicBase,radix=5 --lines --scale=18 --size=200'],
 
 
-   ['imaginaryhalf-small.png',
-    'math-image --path=ImaginaryHalf --lines --scale=7 --size=32'],
-   ['imaginaryhalf-big.png',
-    'math-image --path=ImaginaryHalf --lines --scale=18 --size=200'],
-   ['imaginaryhalf-radix5-big.png',
-    'math-image --path=ImaginaryHalf,radix=5 --lines --scale=18 --size=200'],
-
-
-   ['imaginarybase-small.png',
-    'math-image --path=ImaginaryBase --lines --scale=7 --size=32'],
-   ['imaginarybase-big.png',
-    'math-image --path=ImaginaryBase --lines --scale=18 --size=200'],
-   ['imaginarybase-radix5-big.png',
-    'math-image --path=ImaginaryBase,radix=5 --lines --scale=18 --size=200'],
-
-
    ['peano-small.png',
     'math-image --path=PeanoCurve --lines --scale=3 --size=32'],
    ['peano-big.png',
@@ -570,7 +606,7 @@ foreach my $elem
    ['fractions-tree-big.png',
     'math-image --path=FractionsTree --all --scale=3 --size=200'],
    ['fractions-tree-lines-kepler.png',
-    'math-image --path=FractionsTree,tree_type=Kepler --values=LinesTree,branches=2 --scale=20 --size=200'],
+    'math-image --path=FractionsTree,tree_type=Kepler --values=LinesTree --scale=20 --size=200'],
 
    ['factor-rationals-small.png',
     'math-image --path=FactorRationals --lines --scale=6 --size=32 --offset=-4,-4'],

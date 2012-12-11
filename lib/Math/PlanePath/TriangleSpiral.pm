@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -36,7 +36,7 @@ use Math::PlanePath::Base::Generic
 
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_even;
 use constant parameter_info_array =>
-  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
+  [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
 
 use constant dx_minimum => -1;
 use constant dx_maximum => 2;

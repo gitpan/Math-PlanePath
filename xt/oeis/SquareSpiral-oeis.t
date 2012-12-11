@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 33;
+plan tests => 42;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,7 +32,7 @@ use List::Util 'min', 'max';
 use Math::PlanePath::SquareSpiral;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
 
 my $path = Math::PlanePath::SquareSpiral->new;
@@ -50,6 +50,31 @@ sub numeq_array {
     $i++;
   }
   return (@$a1 == @$a2);
+}
+sub diff_nums {
+  my ($gotaref, $wantaref) = @_;
+  for (my $i = 0; $i < @$gotaref; $i++) {
+    if ($i > @$wantaref) {
+      return "want ends prematurely pos=$i";
+    }
+    my $got = $gotaref->[$i];
+    my $want = $wantaref->[$i];
+    if (! defined $got && ! defined $want) {
+      next;
+    }
+    if (! defined $got || ! defined $want) {
+      return "different pos=$i got=".(defined $got ? $got : '[undef]')
+        ." want=".(defined $want ? $want : '[undef]');
+    }
+    $got =~ /^[0-9.-]+$/
+      or return "not a number pos=$i got='$got'";
+    $want =~ /^[0-9.-]+$/
+      or return "not a number pos=$i want='$want'";
+    if ($got != $want) {
+      return "different pos=$i numbers got=$got want=$want";
+    }
+  }
+  return undef;
 }
 
 # return 1,2,3,4
@@ -71,134 +96,339 @@ sub dxdy_to_dir4_1 {
 
 
 #------------------------------------------------------------------------------
-# A214664 -- X coord of prime N
+# A059428 -- Prime[N] for N=corner
+
+MyOEIS::compare_values
+  (anum => q{A059428},
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'LSR');
+     my @got = (2);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if ($value) {
+         push @got, MyOEIS::ith_prime($i); # i=2 as first turn giving prime=3
+       }
+     }
+     return \@got;
+   });
+
+# #------------------------------------------------------------------------------
+# # A048851 -- x^2+y^2 of prime N
+# # WRONG
+# {
+#   my $anum = q{A048851};
+#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+#   my $diff;
+#   if ($bvalues) {
+#     require Math::Prime::XS;
+#     my @got;
+#     for (my $n = $path->n_start; @got < $count; $n++) {
+#       next unless Math::Prime::XS::is_prime($n);
+#       push @got, $path->n_to_rsquared($n);
+#     }
+#     $diff = diff_nums(\@got, $bvalues);
+#     if ($diff) {
+#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..45]));
+#       MyTestHelpers::diag ("got:     ",join(',',@got[0..45]));
+#     }
+#
+#   }
+#   skip (! $bvalues,
+#         $diff, undef,
+#         "$anum");
+# }
+
+#------------------------------------------------------------------------------
+# A123663 -- count total shared edges
+
+MyOEIS::compare_values
+  (anum => q{A123663},
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $edges = 0;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       foreach my $sn ($path->xy_to_n($x+1,$y),
+                       $path->xy_to_n($x-1,$y),
+                       $path->xy_to_n($x,$y+1),
+                       $path->xy_to_n($x,$y-1)) {
+         if ($sn < $n) {
+           $edges++;
+         }
+       }
+       push @got, $edges;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A136626 -- count surrounding primes
+
 {
-  my $anum = 'A214664';
+  my $anum = q{A136626};
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  require Math::Prime::XS;
+  my $diff;
+  $bvalues->[31] = 3;  # DODGY-DATA: 3 primes 13,31,59 surrounding 32
   if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      next unless Math::Prime::XS::is_prime($n);
+    require Math::Prime::XS;
+    my @got;
+    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
       my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $x;
+      push @got, ((!! Math::Prime::XS::is_prime   ($path->xy_to_n($x+1,$y)))
+                  + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y)))
+                  + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y+1)))
+                  + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y-1)))
+                  + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y+1)))
+                  + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y-1)))
+                  + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y+1)))
+                  + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y-1)))
+                 );
     }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
+    $diff = diff_nums(\@got, $bvalues);
+    if ($diff) {
+      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..45]));
+      MyTestHelpers::diag ("got:     ",join(',',@got[0..45]));
     }
+
   }
   skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
+        $diff, undef,
+        "$anum");
 }
+
+#------------------------------------------------------------------------------
+# A141481 -- values as sum of eight surrounding
+
+MyOEIS::compare_values
+  (anum => q{A141481},
+   func => sub {
+     my ($count) = @_;
+     require Math::BigInt;
+     my $path = Math::PlanePath::SquareSpiral->new (n_start => 0);
+     my @got = (1);
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       my $sum = Math::BigInt->new(0);
+       foreach my $sn ($path->xy_to_n($x+1,$y),
+                       $path->xy_to_n($x-1,$y),
+                       $path->xy_to_n($x,$y+1),
+                       $path->xy_to_n($x,$y-1),
+                       $path->xy_to_n($x+1,$y+1),
+                       $path->xy_to_n($x-1,$y-1),
+                       $path->xy_to_n($x-1,$y+1),
+                       $path->xy_to_n($x+1,$y-1)) {
+         if ($sn < $n) {
+           $sum += $got[$sn]; # @got is 0-based
+         }
+       }
+       push @got, $sum;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A156859 Y axis positive and negative
+
+MyOEIS::compare_values
+  (anum => 'A156859',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::SquareSpiral->new (n_start => 0);
+     my @got = (0);
+     for (my $y = 1; @got < $count; $y++) {
+       push @got, $path->xy_to_n(0, $y);
+       last unless @got < $count;
+       push @got, $path->xy_to_n(0, -$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A172294 -- jewels, composite surrounded by 4 primes, starting N=0
+
+MyOEIS::compare_values
+  (anum => 'A172294',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::SquareSpiral->new (n_start => 0);
+     require Math::Prime::XS;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       next if Math::Prime::XS::is_prime($n);
+       my ($x,$y) = $path->n_to_xy ($n);
+       if (Math::Prime::XS::is_prime    ($path->xy_to_n($x+1,$y))
+           && Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y))
+           && Math::Prime::XS::is_prime ($path->xy_to_n($x,$y+1))
+           && Math::Prime::XS::is_prime ($path->xy_to_n($x,$y-1))
+          ) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A115258 -- isolated primes
+
+MyOEIS::compare_values
+  (anum => 'A115258',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::Prime::XS;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       next unless Math::Prime::XS::is_prime($n);
+       my ($x,$y) = $path->n_to_xy ($n);
+       if (! Math::Prime::XS::is_prime    ($path->xy_to_n($x+1,$y))
+           && ! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y))
+           && ! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y+1))
+           && ! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y-1))
+           && ! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y+1))
+           && ! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y-1))
+           && ! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y+1))
+           && ! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y-1))
+          ) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A214177 -- sum of 4 neighbours
+
+MyOEIS::compare_values
+  (anum => 'A214177',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, ($path->xy_to_n($x+1,$y)
+                   + $path->xy_to_n($x-1,$y)
+                   + $path->xy_to_n($x,$y+1)
+                   + $path->xy_to_n($x,$y-1)
+                  );
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A214176 -- sum of 8 neighbours
+
+MyOEIS::compare_values
+  (anum => 'A214176',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, ($path->xy_to_n($x+1,$y)
+                   + $path->xy_to_n($x-1,$y)
+                   + $path->xy_to_n($x,$y+1)
+                   + $path->xy_to_n($x,$y-1)
+                   + $path->xy_to_n($x+1,$y+1)
+                   + $path->xy_to_n($x-1,$y-1)
+                   + $path->xy_to_n($x-1,$y+1)
+                   + $path->xy_to_n($x+1,$y-1)
+                  );
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A214664 -- X coord of prime N
+
+MyOEIS::compare_values
+  (anum => 'A214664',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::Prime::XS;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       next unless Math::Prime::XS::is_prime($n);
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
 
 # A214665 -- Y coord of prime N
-{
-  my $anum = 'A214665';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  require Math::Prime::XS;
-  if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      next unless Math::Prime::XS::is_prime($n);
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A214665',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::Prime::XS;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       next unless Math::Prime::XS::is_prime($n);
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
 # A214666 -- X coord of prime N, first to west
-{
-  my $anum = 'A214666';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  require Math::Prime::XS;
-  if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      next unless Math::Prime::XS::is_prime($n);
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, -$x;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A214666',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::Prime::XS;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       next unless Math::Prime::XS::is_prime($n);
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, -$x;
+     }
+     return \@got;
+   });
 
 # A214667 -- Y coord of prime N, first to west
-{
-  my $anum = 'A214667';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  require Math::Prime::XS;
-  if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      next unless Math::Prime::XS::is_prime($n);
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, -$y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
+MyOEIS::compare_values
+  (anum => 'A214667',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::Prime::XS;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       next unless Math::Prime::XS::is_prime($n);
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, -$y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A143856 -- N values ENE slope=2
-{
-  my $anum = 'A143856';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n (2*$i, $i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- ENE");
-}
+
+MyOEIS::compare_values
+  (anum => 'A143856',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, $path->xy_to_n (2*$i, $i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A143861 -- N values NNE slope=2
-{
-  my $anum = 'A143861';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n ($i, 2*$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- NNE");
-}
+
+MyOEIS::compare_values
+  (anum => 'A143861',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, $path->xy_to_n ($i, 2*$i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A063826 -- direction 1,2,3,4 = E,N,W,S

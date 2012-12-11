@@ -57,7 +57,7 @@ my $manifest = ExtUtils::Manifest::maniread ($manifest_file);
 my $bad = 0;
 
 
-my $anum_re = qr/A\d{6,7}/;
+my $RE_OEIS_anum = qr/A\d{6,7}/;
 
 
 #------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ sub path_pod_anums {
     or die "Oops, cannot open module filename $filename";
   my @ret;
   while (<$fh>) {
-    if (/^ +($anum_re)/) {
+    if (/^ +($RE_OEIS_anum)/) {
       push @ret, $1;
     }
   }
@@ -119,7 +119,10 @@ sub path_xt_anums {
   my @ret;
   if (open my $fh, '<', "xt/oeis/$path_name-oeis.t") {
     while (<$fh>) {
-      if (/^[^#]*\$anum = '($anum_re)'/mg) {
+      if (/^[^#]*\$anum = '($RE_OEIS_anum)'/mg) {
+        push @ret, $1;
+      }
+      if (/^[^#]*anum => '($RE_OEIS_anum)'/mg) {
         push @ret, $1;
       }
     }

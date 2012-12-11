@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,7 +46,7 @@ use constant parameter_info_array =>
       choices_display => ['Down','Up'],
       description => 'Number points downwards or upwards along the diagonals.',
     },
-    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 93;
+$VERSION = 94;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -96,14 +96,13 @@ sub floor {
   }
 }
 
-# not documented yet
-use constant 1.02 _parameter_info_nstart1 => { name        => 'n_start',
-                                               share_key   => 'n_start_1',
-                                               type        => 'integer',
-                                               default     => 1,
-                                               width       => 3,
-                                               description => 'Starting N.',
-                                             };
+use constant parameter_info_nstart1 => { name        => 'n_start',
+                                         share_key   => 'n_start_1',
+                                         type        => 'integer',
+                                         default     => 1,
+                                         width       => 3,
+                                         description => 'Starting N.',
+                                       };
 
 # not documented yet
 sub xy_is_visited_quad1 {
@@ -154,6 +153,8 @@ usual L<Exporter> style,
 
     use Math::PlanePath::Base::Generic 'round_nearest';
 
+(But not C<parameter_info_nstart1()>, for the reason described below.)
+
 =head1 FUNCTIONS
 
 =head2 Generic
@@ -166,6 +167,30 @@ Return C<$x> rounded to the nearest integer.  If C<$x> is half way, such as
 2.5 then it's round upwards to 3.
 
    $x = round_nearest($x);
+
+=item C<$href = Math::PlanePath::Base::Generic::parameter_info_nstart1()>
+
+Return an C<n_start> parameter hashref suitable for use in a
+C<parameter_info_array()>.  For example,
+
+    # alone
+    package Math::PlanePath::MySubclass;
+    use constant parameter_info_array =>
+      [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
+
+    # or with other parameters too
+    package Math::PlanePath::MySubclass;
+    use constant parameter_info_array =>
+      [
+       { name            => 'something',
+         type            => 'integer',
+         default         => '123',
+       },
+       Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+      ];
+
+This function is not exportable since it's meant for a one-off call in an
+initializer and so no need to import it for repeated use.
 
 =back
 

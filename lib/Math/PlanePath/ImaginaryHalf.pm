@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -51,30 +51,30 @@ use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Digits::parameter_info_radix2(),
-    # {
-    #  name      => 'digit_order',
-    #  share_key => 'digit_order_XYX',
-    #  display   => 'Digit Order',
-    #  type      => 'enum',
-    #  default   => 'XYX',
-    #  choices   => ['XYX',
-    #                'XXY',
-    #                'YXX',
-    #                'XnYX',
-    #                'XnXY',
-    #                'YXnX',
-    #               ],
-    # },
+    {
+     name      => 'digit_order',
+     share_key => 'digit_order_XYX',
+     display   => 'Digit Order',
+     type      => 'enum',
+     default   => 'XYX',
+     choices   => ['XYX',
+                   'XXY',
+                   'YXX',
+                   'XnYX',
+                   'XnXY',
+                   'YXnX',
+                  ],
+    },
   ];
 
-my %digit_positions = (XYX => [0,2,1],
-                       YXX => [2,0,1],
-                       XXY => [0,1,2],
+my %digit_permutation = (XYX => [0,2,1],
+                         YXX => [2,0,1],
+                         XXY => [0,1,2],
 
-                       XnYX => [1,2,0],
-                       YXnX => [2,1,0],
-                       XnXY => [1,0,2],
-                      );
+                         XnYX => [1,2,0],
+                         YXnX => [2,1,0],
+                         XnXY => [1,0,2],
+                        );
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -84,7 +84,7 @@ sub new {
   $self->{'radix'} = $radix;
 
   my $digit_order = ($self->{'digit_order'} ||= 'XYX');
-  $self->{'digit_positions'} = $digit_positions{$digit_order}
+  $self->{'digit_permutation'} = $digit_permutation{$digit_order}
     || croak "Unrecognised digit_order: ",$digit_order;
 
   return $self;
@@ -116,11 +116,11 @@ sub n_to_xy {
   my $zero = ($n*0); # inherit bignum 0
 
   my @xydigits = ([],[0],[]);
-  my $digit_positions = $digit_positions{$self->{'digit_order'}};
+  my $digit_permutation = $digit_permutation{$self->{'digit_order'}};
   my @ndigits = digit_split_lowtohigh($n, $radix);
   my $i = 0;
   foreach my $i (0 .. $#ndigits) {
-    my $p = $digit_positions->[$i%3];
+    my $p = $digit_permutation->[$i%3];
     push @{$xydigits[$p]}, $ndigits[$i], ($p < 2 ? (0) : ());
   }
 
@@ -143,7 +143,7 @@ sub xy_to_n {
   my $zero = ($x * 0 * $y);  # inherit bignum 0
   my $radix = $self->{'radix'};
   my @ydigits = digit_split_lowtohigh($y, $radix);
-  my $digit_positions = $digit_positions{$self->{'digit_order'}};
+  my $digit_permutation = $digit_permutation{$self->{'digit_order'}};
 
   my @ndigits; # digits low to high
   my @nd;
@@ -155,9 +155,9 @@ sub xy_to_n {
     $nd[2] = shift @ydigits || 0;
 
     push @ndigits,
-      $nd[$digit_positions->[0]],
-        $nd[$digit_positions->[1]],
-          $nd[$digit_positions->[2]];
+      $nd[$digit_permutation->[0]],
+        $nd[$digit_permutation->[1]],
+          $nd[$digit_permutation->[2]];
   }
   return digit_join_lowtohigh (\@ndigits, $radix, $zero);
 }
@@ -238,20 +238,20 @@ sub rect_to_n_range {
   my @min_ydigits = digit_split_lowtohigh ($y1, $radix);
   my @max_ydigits = digit_split_lowtohigh ($y2, $radix);
 
-  my $digit_positions = $digit_positions{$self->{'digit_order'}};
+  my $digit_permutation = $digit_permutation{$self->{'digit_order'}};
   my @min_ndigits
-    = _digit_positions_interleave ($digit_positions,
-                                   $min_xdigits, \@min_ydigits);
+    = _digit_permutation_interleave ($digit_permutation,
+                                     $min_xdigits, \@min_ydigits);
   my @max_ndigits
-    = _digit_positions_interleave ($digit_positions,
-                                   $max_xdigits, \@max_ydigits);
+    = _digit_permutation_interleave ($digit_permutation,
+                                     $max_xdigits, \@max_ydigits);
 
   return (digit_join_lowtohigh (\@min_ndigits, $radix, $zero),
           digit_join_lowtohigh (\@max_ndigits, $radix, $zero));
 }
 
-sub _digit_positions_interleave {
-  my ($digit_positions, $xaref, $yaref) = @_;
+sub _digit_permutation_interleave {
+  my ($digit_permutation, $xaref, $yaref) = @_;
   my @ret;
   my @d;
   foreach my $i (0 .. max($#$xaref,2*$#$yaref)) {
@@ -259,9 +259,9 @@ sub _digit_positions_interleave {
     $d[1] = shift @$xaref || 0;
     $d[2] = shift @$yaref || 0;
     push @ret,
-      $d[$digit_positions->[0]],
-        $d[$digit_positions->[1]],
-          $d[$digit_positions->[2]];
+      $d[$digit_permutation->[0]],
+        $d[$digit_permutation->[1]],
+          $d[$digit_permutation->[2]];
   }
   return @ret;
 }
@@ -345,6 +345,54 @@ preceding level at each stage.
 Notice for X negative the parts replicate successively towards -infinity, so
 the block N=16 to N=31 is first at X=-4, then N=32 at X=-8, N=48 at X=-12,
 and N=64 at X=-16 (not shown).
+
+=head2 Digit Order
+
+The C<digit_order> parameter controls the order digits from N are applied to
+X and Y.  The default above is "XYX" so the replications go X then Y then
+negative X.
+
+"XXY" goes to negative X before Y, so N=2,N=3 goes to negative X before
+repeating N=4 to N=7 in the Y direction.
+
+=cut
+
+# math-image --path=ImaginaryHalf,digit_order=XXY --all --output=numbers --size=55x4
+
+=pod
+
+    digit_order => "XXY"
+
+    38  39  36  37  46  47  44  45
+    34  35  32  33  42  43  40  41
+     6   7   4   5  14  15  12  13
+     2   3   0   1  10  11   8   9
+    ---------^--------------------
+    -2  -1  X=0  1   2   3   4   5
+
+The further options are as follows, for six permutations of each 3 digits
+from N.
+
+=cut
+
+# math-image --path=ImaginaryHalf,digit_order=YXX --all --output=numbers --size=55x4
+
+=pod
+
+    digit_order => "YXX"               digit_order => "XnYX"   
+    38 39 36 37 46 47 44 45            19 23 18 22 51 55 50 54
+    34 35 32 33 42 43 40 41            17 21 16 20 49 53 48 52
+     6  7  4  5 14 15 12 13             3  7  2  6 35 39 34 38
+     2  3  0  1 10 11  8  9             1  5  0  4 33 37 32 36
+
+    digit_order => "XnXY"              digit_order => "YXnX"   
+    37 39 36 38 53 55 52 54            11 15  9 13 43 47 41 45
+    33 35 32 34 49 51 48 50            10 14  8 12 42 46 40 44
+     5  7  4  6 21 23 20 22             3  7  1  5 35 39 33 37
+     1  3  0  2 17 19 16 18             2  6  0  4 34 38 32 36
+
+"Xn" means the X negative direction.  It's still spaced 2 apart (or whatever
+radix), so the result is not simply a -X,Y.
 
 =head2 Axis Values
 
@@ -437,9 +485,16 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::ImaginaryBase-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::ImaginaryBase-E<gt>new (radix =E<gt> $r)>
+=item C<$path = Math::PlanePath::ImaginaryBase-E<gt>new (radix =E<gt> $r, digit_order =E<gt> $str)>
 
-Create and return a new path object.
+Create and return a new path object.  The choices for C<digit_order> are
+
+    "XYX"
+    "XXY"
+    "YXX"
+    "XnYX"
+    "XnXY"
+    "YXnX"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 

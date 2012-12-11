@@ -1,7 +1,3 @@
-# working
-# combine with DekkingCentres ?
-
-
 # Copyright 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
@@ -27,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

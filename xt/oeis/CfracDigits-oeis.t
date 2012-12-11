@@ -36,137 +36,65 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments '###';
 
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
-
-
-
 #------------------------------------------------------------------------------
 # A032924 - N in X=1 column, ternary no digit 0
 
-{
-  my $anum = 'A032924';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path = Math::PlanePath::CfracDigits->new;
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    for (my $y = 3; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(1,$y);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum by path");
-}
-
-
+MyOEIS::compare_values
+  (anum => 'A032924',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CfracDigits->new;
+     my @got;
+     for (my $y = 3; @got < $count; $y++) {
+       push @got, $path->xy_to_n(1,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A023705 - N in X=1 column, base4 no digit 0
 
-{
-  my $anum = 'A023705';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path = Math::PlanePath::CfracDigits->new (radix => 3);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    for (my $y = 3; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(1,$y);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum by path");
-}
+MyOEIS::compare_values
+  (anum => 'A023705',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CfracDigits->new (radix => 3);
+     my @got;
+     for (my $y = 3; @got < $count; $y++) {
+       push @got, $path->xy_to_n(1,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A023721 - N in X=1 column, base5 no digit 0
 
-{
-  my $anum = 'A023721';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path = Math::PlanePath::CfracDigits->new (radix => 4);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    for (my $y = 3; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(1,$y);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum by path");
-}
+MyOEIS::compare_values
+  (anum => 'A023721',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CfracDigits->new (radix => 4);
+     my @got;
+     for (my $y = 3; @got < $count; $y++) {
+       push @got, $path->xy_to_n(1,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A052382 - N in X=1 column, base5 no digit 0
 
-{
-  my $anum = 'A052382';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path = Math::PlanePath::CfracDigits->new (radix => 9);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    for (my $y = 3; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(1,$y);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum by path");
-}
-
+MyOEIS::compare_values
+  (anum => 'A052382',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CfracDigits->new (radix => 9);
+     my @got;
+     for (my $y = 3; @got < $count; $y++) {
+       push @got, $path->xy_to_n(1,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

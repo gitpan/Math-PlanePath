@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 93;
+$VERSION = 94;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -250,7 +250,7 @@ usual L<Exporter> style,
 
     use Math::PlanePath::Base::Digits 'round_down_pow';
 
-(But not C<parameter_info_radix2()>, for the reason given below.)
+(But not C<parameter_info_radix2()>, for the reason described below.)
 
 =head1 FUNCTIONS
 
@@ -337,7 +337,7 @@ be used when a subclass wants the radix parameter and other parameters too,
     package Math::PlanePath::MySubclass;
     use constant parameter_info_array =>
       [
-       { name            => 'somethig_else',
+       { name            => 'something_else',
          type            => 'integer',
          default         => '123',
        },

@@ -16,6 +16,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Maybe:
+# "Turn"   N of turn positions
+#
+
+
 package Math::NumSeq::PlanePathN;
 use 5.004;
 use strict;
@@ -23,14 +28,14 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
 use Math::NumSeq::PlanePathCoord;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 sub description {
@@ -60,6 +65,8 @@ use constant::defer parameter_info_array =>
                           'Diagonal_NW',
                           'Diagonal_SW',
                           'Diagonal_SE',
+                          'Depth_start',
+                          'Depth_end',
                          ],
               description => 'The axis or line to take path N values from.',
             },
@@ -158,7 +165,7 @@ sub rewind {
 
 sub next {
   my ($self) = @_;
-  ### NumSeq-PlanePath next(): $self->{'i'}
+  ### NumSeq-PlanePathN next(): $self->{'i'}
 
   my $i = $self->{'i'};
   my $n = &{$self->{'i_func'}} ($self, $i);
@@ -189,7 +196,7 @@ use constant::defer _bigint => sub {
 
 sub ith {
   my ($self, $i) = @_;
-  ### NumSeq-PlanePath ith(): $i
+  ### NumSeq-PlanePathN ith(): $i
   return &{$self->{'i_func'}}($self, $i);
 }
 
@@ -245,15 +252,15 @@ sub i_func_Diagonal_SE {
 
 sub i_func_Depth_start {
   my ($self, $i) = @_;
-  my $path_object = $self->{'planepath_object'};
-  my ($n_lo, $n_hi) = $path_object->tree_depth_to_n ($i);
-  return $n_lo;
+  return $self->{'planepath_object'}->tree_depth_to_n($i);
 }
 sub i_func_Depth_end {
   my ($self, $i) = @_;
-  my $path_object = $self->{'planepath_object'};
-  my ($n_lo, $n_hi) = $path_object->_NumSeq_tree_depth_to_n_range ($i);
-  return $n_hi;
+  return $self->{'planepath_object'}->tree_depth_to_n_end($i);
+}
+sub path_tree_depth_to_n_end {
+  my ($path, $depth) = @_;
+  return $path->tree_depth_to_n($depth+1) - 1;
 }
 
 #------------------------------------------------------------------------------
@@ -305,19 +312,16 @@ sub pred_func_Depth_start {
   my ($self, $x,$y, $n) = @_;
   my $planepath_object = $self->{'planepath_object'};
   my $depth = $planepath_object->tree_n_to_depth($n);
-  return ($n == $planepath_object->tree_depth_to_n($depth));
+  return (defined $depth
+          && $n == $planepath_object->tree_depth_to_n($depth));
 }
 sub pred_func_Depth_end {
   my ($self, $x,$y, $n) = @_;
   ### pred_func_Depth_end(): $n
   my $planepath_object = $self->{'planepath_object'};
   my $depth = $planepath_object->tree_n_to_depth($n);
-  ### $depth
-  my ($nstart, $nend)
-    = $planepath_object->_NumSeq_tree_depth_to_n_range($depth);
-  ### $nstart
-  ### $nend
-  return ($n == $nend);
+  return (defined $depth
+          && $n == $planepath_object->tree_depth_to_n_end($depth));
 }
 
 #------------------------------------------------------------------------------
@@ -406,6 +410,8 @@ sub values_max {
   use constant _NumSeq_Diagonal_i_start => 0;
   use constant _NumSeq_Diagonal_X_offset => 0;
   use constant _NumSeq_N_oeis_anum => {};
+  use constant _NumSeq_Depth_start_increasing => 1;
+  use constant _NumSeq_Depth_end_increasing => 1;
 
   # sub _NumSeq_pred_X_axis {
   #   my ($path, $value) = @_;
@@ -417,8 +423,6 @@ sub values_max {
   #   return ($value == int($value)
   #           && ($path->y_negative || $value >= 0));
   # }
-
-  use constant _NumSeq_tree_depth_to_n_range => ();
 }
 
 { package Math::PlanePath::SquareSpiral;
@@ -1559,7 +1563,8 @@ sub values_max {
     return ($n, $n+$width-1);
   }
 
-  # Not quite, starts OFFSET=1 value=2
+  # cf A160722 is 3*A006046 = 3*Ndepth, drawing three Sierpinski triangles
+  #    http://www.polprimos.com/imagenespub/polca722.jpg
   #
   use constant _NumSeq_N_oeis_anum =>
     {
@@ -2442,22 +2447,89 @@ sub values_max {
     };
 }
 
-{ package Math::PlanePath::LCornerTree;
-  use constant _NumSeq_Diagonal_increasing => 1;
+{ package Math::PlanePath::ToothpickTree;
+  use constant _NumSeq_Y_axis_increasing => 1;  # N=0,N=1 only
+  use constant _NumSeq_Y_neg_increasing => 1;  # N=0,N=2 only
+
+  use constant _NumSeq_Diagonal_increasing => 1; # growth steps along diags
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+  use constant _NumSeq_Diagonal_SE_increasing => 1;
+  use constant _NumSeq_Diagonal_SW_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
     { 'parts=1' =>
-      { Depth_end => 'A130665', # cumulative 3^count1bits(n), starting a(0)=1
-        # OEIS-Other: A130665 planepath=LCornerTree,parts=1 line_type=Depth_end
+      { Depth_start => 'A153000',
+        # not yet
+        # OEIS-Other: A153000 planepath=ToothpickTree,parts=1 line_type=Depth_start
+      },
+      'parts=2' =>
+      { Depth_start => 'A152998',
+        # not yet
+        # OEIS-Other: A152998 planepath=ToothpickTree,parts=2 line_type=Depth_start
+      },
+      'parts=3' =>
+      { Depth_start => 'A153006',
+        # not yet
+        # OEIS-Other: A153006 planepath=ToothpickTree,parts=3 line_type=Depth_start
       },
       'parts=4' =>
-      { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
-        # OEIS-Other: A160410 planepath=LCornerTree line_type=Depth_start
+      { Depth_start => 'A139250',
+        # not yet
+        # OEIS-Other: A139250 planepath=ToothpickTree,parts=4 line_type=Depth_start
       },
     };
 }
-{ package Math::PlanePath::LCornerReplicate;
+{ package Math::PlanePath::ToothpickReplicate;
+  use constant _NumSeq_Y_axis_increasing => 1;  # N=0,N=1 only
+
+  sub _NumSeq_Y_neg_increasing {
+    my ($self) = @_;
+    return ($self->{'parts'} == 3 ? 0  # replication twist
+            : 1) # N=0,N=2 only
+  }
+  use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+  use constant _NumSeq_Diagonal_SE_increasing => 1;
+  use constant _NumSeq_Diagonal_SW_increasing => 1;
+}
+{ package Math::PlanePath::ToothpickUpist;
+  use constant _NumSeq_Y_axis_increasing => 1;  # rows increasing
   use constant _NumSeq_Diagonal_increasing => 1;
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+}
+
+{ package Math::PlanePath::LCornerTree;
+  use constant _NumSeq_X_axis_increasing => 1;  # clockwise around depth
+  use constant _NumSeq_Y_neg_increasing => 1;  # clockwise around depth
+  use constant _NumSeq_Diagonal_increasing => 1; # growth along diags
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+  use constant _NumSeq_Diagonal_SE_increasing => 1;
+  use constant _NumSeq_Diagonal_SW_increasing => 1;
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'parts=4' =>
+      { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
+        # OEIS-Other: A160410 planepath=LCornerTree line_type=Depth_start
+      },
+
+      'parts=3' =>
+      { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
+        # OEIS-Other: A160410 planepath=LCornerTree line_type=Depth_start
+      },
+
+      # Not quite, A130665=1,4,7,16 offset=0 whereas Nend=0,1,4,7,16 depth=0
+      # has extra initial 0.
+      # 'parts=1' =>
+      # { Depth_end => 'A130665', # cumulative 3^count1bits(n), starting a(0)=1
+      #   # OEIS-Other: A130665 planepath=LCornerTree,parts=1 line_type=Depth_end
+      # },
+    };
+}
+{ package Math::PlanePath::LCornerReplicate;
+  use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+  use constant _NumSeq_Diagonal_SE_increasing => 1;
+  use constant _NumSeq_Diagonal_SW_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
     { '' =>
@@ -2466,32 +2538,7 @@ sub values_max {
       },
     };
 }
-{ package Math::PlanePath::ToothpickTree;
-  use constant _NumSeq_Diagonal_increasing => 1;
 
-  # use constant _NumSeq_N_oeis_anum =>
-  #   { 'parts=1' =>
-  #     { Depth_start => 'A153000',
-  #       # not yet
-  #       # OEIS-Other: A153000 planepath=ToothpickTree,parts=1 line_type=Depth_start
-  #     },
-  #     'parts=2' =>
-  #     { Depth_start => 'A152998',
-  #       # not yet
-  #       # OEIS-Other: A152998 planepath=ToothpickTree,parts=2 line_type=Depth_start
-  #     },
-  #     'parts=3' =>
-  #     { Depth_start => 'A153006',
-  #       # not yet
-  #       # OEIS-Other: A153006 planepath=ToothpickTree,parts=3 line_type=Depth_start
-  #     },
-  #     'parts=4' =>
-  #     { Depth_start => 'A139250',
-  #       # not yet
-  #       # OEIS-Other: A139250 planepath=ToothpickTree,parts=4 line_type=Depth_start
-  #     },
-  #   };
-}
 
 #------------------------------------------------------------------------------
 { package Math::PlanePath;

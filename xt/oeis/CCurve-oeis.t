@@ -84,122 +84,78 @@ sub dxdy_to_dir {
   if ($dy < 0) { return 3; }  # south
 }
 
-
 #------------------------------------------------------------------------------
 # A003159 - ending even 0 bits, is turn left or right
 
-{
-  my $anum = 'A003159';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn($path,$n);
-      if ($turn == 1 || $turn == 3) { # left or right
-        push @got, $n;
-      }
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A003159',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       my $turn = path_n_turn($path,$n);
+       if ($turn == 1 || $turn == 3) { # left or right
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A036554 - ending odd 0 bits, is turn straight or reverse
 
-{
-  my $anum = 'A036554';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn($path,$n);
-      if ($turn == 0 || $turn == 2) { # straight or reverse
-        push @got, $n;
-      }
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A036554',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       my $turn = path_n_turn($path,$n);
+       if ($turn == 0 || $turn == 2) { # straight or reverse
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A007814 - count low 0s, is turn right - 1
 
-{
-  my $anum = 'A007814';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    @$bvalues = map {$_ % 4} @$bvalues;
-    my @got;
-    my $total_turn = 0;
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      push @got, (1 - path_n_turn($path,$n)) % 4;  # negate to right
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
-
+MyOEIS::compare_values
+  (anum => 'A007814',
+   fixup => sub {
+     my ($bvalues) = @_;
+     @$bvalues = map {$_ % 4} @$bvalues;
+   },
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $total_turn = 0;
+     for (my $n = 1; @got < $count; $n++) {
+       push @got, (1 - path_n_turn($path,$n)) % 4;  # negate to right
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A000120 - count 1 bits total turn
 
-{
-  my $anum = 'A000120';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    @$bvalues = map {$_ % 4} @$bvalues;
-    my @got = (0);
-    my $total_turn = 0;
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      $total_turn += path_n_turn($path,$n);
-      push @got, $total_turn % 4;
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A000120',
+   fixup => sub {
+     my ($bvalues) = @_;
+     @$bvalues = map {$_ % 4} @$bvalues;
+   },
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $total_turn = 0;
+     for (my $n = 1; @got < $count; $n++) {
+       $total_turn += path_n_turn($path,$n);
+       push @got, $total_turn % 4;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

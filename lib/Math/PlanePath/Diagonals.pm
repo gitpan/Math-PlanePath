@@ -16,6 +16,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Leading diagonal 2,8,18 = 2*d^2
+
 package Math::PlanePath::Diagonals;
 use 5.004;
 use strict;
@@ -23,7 +25,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,7 +49,7 @@ use constant parameter_info_array =>
       choices_display => ['Down','Up'],
       description => 'Number points downwards or upwards along the diagonals.',
     },
-    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 sub dx_maximum {
@@ -355,6 +357,22 @@ The d*(d+1)/2 shows how the triangular numbers fall on the Y axis when X=0
 and Nstart=0.  For the default Nstart=1 it's 1 more than the triangulars, as
 noted above.
 
+=cut
+
+# N = (X+Y)*(X+Y+1)/2 + X + Nstart
+#   = [ (X+Y)*(X+Y+1) + 2X ]/2 + Nstart
+#   = [ X^2 + XY + X + XY + Y^2 + Y + 2X ]/2 + Nstart
+#   = [ X^2 + 3X + 2XY + Y + Y^2 ]/2 + Nstart
+
+=pod
+
+d can be expanded out to a quite symmetric form, but one which looks more
+parabolic than straight line diagonals.
+
+        X^2 + 3X + 2XY + Y + Y^2 
+    N = ------------------------ + Nstart
+                   2
+
 =head2 Rectangle to N Range
 
 Within each row increasing X is increasing N, and in each column increasing
@@ -375,16 +393,13 @@ and the upper right is the maximum N.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include
 
-    http://oeis.org/A023531  (etc)
+    http://oeis.org/A002262  (etc)
 
     direction=down
       A002262    X coordinate, runs 0 to k
       A025581  	 Y coordinate, runs k to 0
       A003056  	 X+Y coordinate sum, k repeated k+1 times
       A114327  	 Y-X coordinate diff
-      A049581    abs(X-Y) coordinate diff
-      A004247    X*Y coordinate product
-      A048147    X^2+Y^2
 
       A127949    dY, change in Y coordinate
 
@@ -395,14 +410,29 @@ path include
       A023531    dSum = dX+dY, being 1 at N=triangular+1 (and 0)
       A129184    turn 1=left,0=right
 
-    direction=up
-      Likewise but swapping X,Y.
+    direction=up likewise but swapping X,Y.
 
-    n_start=1 (either direction)
+    n_start=1, either direction
       A038722    permutation N at transpose Y,X
                    which is direction=down <-> direction=up
 
+    n_start=1, x_start=1, y_start+1, either direction
+      A003991    X*Y coordinate product
+      A003989    GCD(X,Y) greatest common divisor
+      A003983    min(X,Y)
+      A051125    max(X,Y)
+
     n_start=0 (either direction)
+      A049581    abs(X-Y) coordinate diff
+      A004197    min(X,Y)
+      A003984    max(X,Y)
+      A004247    X*Y coordinate product
+      A048147    X^2+Y^2
+      A109004    GCD(X,Y) greatest common divisor
+      A004198    X bit-and Y
+      A003986    X bit-or Y
+      A003987    X bit-xor Y
+
       A061579    permutation N at transpose Y,X
                    which is direction=down <-> direction=up
 

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 10;
+plan tests => 11;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -34,47 +34,23 @@ use Math::PlanePath::CoprimeColumns;
 
 my $path = Math::PlanePath::CoprimeColumns->new;
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
-
 #------------------------------------------------------------------------------
 # A179594 - column of nxn unvisited block
 
-{
-  my $anum = 'A179594';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
-                                                      max_count => 3);
-  my @got;
-  if ($bvalues) {
-    my $x = 1;
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      for ( ; ! have_unvisited_square($x,$n); $x++) {
-      }
-      push @got, $x;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A179594',
+   max_count => 3,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $x = 1;
+     for (my $n = 1; @got < $count; $n++) {
+       for ( ; ! have_unvisited_square($x,$n); $x++) {
+       }
+       push @got, $x;
+     }
+     return \@got;
+   });
 
 sub have_unvisited_square {
   my ($x, $n) = @_;
@@ -113,85 +89,71 @@ sub have_unvisited_line {
 {
   my $anum = 'A127368';
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  {
-    my $good = 1;
-    my $count = 0;
-    if ($bvalues) {
-      my $x = 1;
-      my $y = 1;
-      for (my $i = 0; $i < @$bvalues; $i++) {
-        my $want = $bvalues->[$i];
-        my $got = (Math::PlanePath::CoprimeColumns::_coprime($x,$y)
-                   ? $y : 0);
-        if ($got != $want) {
-          MyTestHelpers::diag ("wrong _coprime($x,$y)=$got want=$want at i=$i of $filename");
-          $good = 0;
-        }
-        $y++;
-        if ($y > $x) {
-          $x++;
-          $y = 1;
-        }
-        $count++;
+  my $good = 1;
+  my $count = 0;
+  if ($bvalues) {
+    my $x = 1;
+    my $y = 1;
+    for (my $i = 0; $i < @$bvalues; $i++) {
+      my $want = $bvalues->[$i];
+      my $got = (Math::PlanePath::CoprimeColumns::_coprime($x,$y)
+                 ? $y : 0);
+      if ($got != $want) {
+        MyTestHelpers::diag ("wrong _coprime($x,$y)=$got want=$want at i=$i of $filename");
+        $good = 0;
       }
+      $y++;
+      if ($y > $x) {
+        $x++;
+        $y = 1;
+      }
+      $count++;
     }
-    ok ($good, 1, "$anum count $count");
   }
-
-  {
-    my @got;
-    if ($bvalues) {
-    OUTER: for (my $x = 1; ; $x++) {
-        foreach my $y (1 .. $x) {
-          if ($path->xy_is_visited($x,$y)) {
-            push @got, $y;
-          } else {
-            push @got, 0;
-          }
-          last OUTER if @got >= @$bvalues;
-        }
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
-  }
+  ok ($good, 1, "$anum count $count");
 }
+
+MyOEIS::compare_values
+  (anum => q{A179594},
+   func => sub {
+     my ($count) = @_;
+     my @got;
+   OUTER: for (my $x = 1; ; $x++) {
+       foreach my $y (1 .. $x) {
+         if ($path->xy_is_visited($x,$y)) {
+           push @got, $y;
+         } else {
+           push @got, 0;
+         }
+         last OUTER if @got >= $count;
+       }
+     }
+     return \@got;
+   });
+
 
 #------------------------------------------------------------------------------
 # A054428 - inverse, permutation SB N -> coprime columns N
 
-{
-  my $anum = 'A054428';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::RationalsTree;
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-    for (my $n = 0; @got < @$bvalues; $n++) {
-      my $sn = insert_second_highest_bit_one($n);
-      my ($x,$y) = $sb->n_to_xy ($sn);
-      ### sb: "$x/$y"
-      my $cn = $path->xy_to_n($x,$y);
-      if (! defined $cn) {
-        die "oops, SB $x,$y";
-      }
-      push @got, $cn+1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A054428',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::RationalsTree;
+     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     for (my $n = 0; @got < $count; $n++) {
+       my $sn = insert_second_highest_bit_one($n);
+       my ($x,$y) = $sb->n_to_xy ($sn);
+       ### sb: "$x/$y"
+       my $cn = $path->xy_to_n($x,$y);
+       if (! defined $cn) {
+         die "oops, SB $x,$y";
+       }
+       push @got, $cn+1;
+     }
+     return \@got;
+   });
 
 sub insert_second_highest_bit_one {
   my ($n) = @_;
@@ -206,28 +168,24 @@ sub insert_second_highest_bit_one {
 
 
 #------------------------------------------------------------------------------
-# A054427 - permutation coprime columns N -> SB N 
+# A054427 - permutation coprime columns N -> SB N
 
-{
-  my $anum = 'A054427';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::RationalsTree;
-    my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-    my $n = 0;
-    while (@got < @$bvalues) {
-      my ($x,$y) = $path->n_to_xy ($n++);
-      ### frac: "$x/$y"
-      my $sn = $sb->xy_to_n($x,$y);
-      push @got, delete_second_highest_bit($sn) + 1;
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A054427',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::RationalsTree;
+     my $sb = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my $n = 0;
+     while (@got < $count) {
+       my ($x,$y) = $path->n_to_xy ($n++);
+       ### frac: "$x/$y"
+       my $sn = $sb->xy_to_n($x,$y);
+       push @got, delete_second_highest_bit($sn) + 1;
+     }
+     return \@got;
+   });
 
 sub delete_second_highest_bit {
   my ($n) = @_;
@@ -253,81 +211,57 @@ sub delete_second_highest_bit {
 #------------------------------------------------------------------------------
 # A121998 - list of <=k with a common factor
 
-{
-  my $anum = 'A121998';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    OUTER: for (my $x = 2; ; $x++) {
-      for (my $y = 1; $y <= $x; $y++) {
-        if (! $path->xy_is_visited($x,$y)) {
-          push @got, $y;
-          last OUTER unless @got < @$bvalues;
-        }
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A121998',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+   OUTER: for (my $x = 2; ; $x++) {
+       for (my $y = 1; $y <= $x; $y++) {
+         if (! $path->xy_is_visited($x,$y)) {
+           push @got, $y;
+           last OUTER unless @got < $count;
+         }
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A038567 - X coordinate
 
-{
-  my $anum = 'A038567';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
-                                                      max_count => 10000);
-  my @got;
-  if ($bvalues) {
-    my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
-    my $n = 0;
-    while (@got < @$bvalues) {
-      my ($x,$y) = $path->n_to_xy ($n++);
-      push @got, $x;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A038567',
+   max_count => 10000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
+     my $n = 0;
+     while (@got < $count) {
+       my ($x,$y) = $path->n_to_xy ($n++);
+       push @got, $x;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A038566 - Y coordinate
 
-{
-  my $anum = 'A038566';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
-                                                      max_count => 10000);
-  my @got;
-  if ($bvalues) {
-    my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
-    my $n = 0;
-    while (@got < @$bvalues) {
-      my ($x,$y) = $path->n_to_xy ($n++);
-      push @got, $y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A038566',
+   max_count => 10000,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
+     my $n = 0;
+     while (@got < $count) {
+       my ($x,$y) = $path->n_to_xy ($n++);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A054521 - by columns 1 if coprimes, 0 if not
@@ -359,31 +293,25 @@ sub delete_second_highest_bit {
     }
     ok ($good, 1, "$anum count $count");
   }
-
-  {
-    my @got;
-    if ($bvalues) {
-    OUTER: for (my $x = 1; ; $x++) {
-        foreach my $y (1 .. $x) {
-          if ($path->xy_is_visited($x,$y)) {
-            push @got, 1;
-          } else {
-            push @got, 0;
-          }
-          last OUTER if @got >= @$bvalues;
-        }
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
-  }
 }
 
+MyOEIS::compare_values
+  (anum => q{A054521},
+   func => sub {
+     my ($count) = @_;
+     my @got;
+   OUTER: for (my $x = 1; ; $x++) {
+       foreach my $y (1 .. $x) {
+         if ($path->xy_is_visited($x,$y)) {
+           push @got, 1;
+         } else {
+           push @got, 0;
+         }
+         last OUTER if @got >= $count;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A002088 - totient sum along X axis

@@ -41,7 +41,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -51,7 +51,8 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'digit_split_lowtohigh';
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -398,12 +399,8 @@ sub _rect_to_n_range_rot {
 # $aref->[0] high digit
 sub _digit_join_hightolow {
   my ($aref, $radix, $zero) = @_;
-  my $n = (defined $zero ? $zero : 0);
-  foreach my $digit (@$aref) {
-    $n *= $radix;
-    $n += $digit;
-  }
-  return $n;
+  my @lowtohigh = reverse @$aref;
+  return digit_join_lowtohigh(\@lowtohigh, $radix, $zero);
 }
 
 

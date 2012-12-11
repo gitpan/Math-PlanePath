@@ -32,6 +32,7 @@
 # http://www.numdam.org/item?id=BSMF_1981__109__207_0
 # http://archive.numdam.org/article/BSMF_1981__109__207_0.pdf
 
+
 package Math::PlanePath::AlternatePaper;
 use 5.004;
 use strict;
@@ -51,7 +52,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -1291,7 +1292,7 @@ Integer Sequences as
     A020990  Golay/Rudin/Shapiro * (-1)^n cumulative
                 Y coordinate undoubled
                 X-Y diff, starting from N=1
-    A020987  GRS with values 0,1
+    A020987  GRS with values 0,1 instead of +1,-1
 
 Since the X and Y coordinates each change alternately, each coordinate
 appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990

@@ -26,8 +26,8 @@ use Math::Polynomial::Horner;
 
 #use Devel::Comments;
 
-my_interpolate ([ 0,1,2,3 ],
-                [ 1,2,6,15 ]
+my_interpolate ([ 1,2,3 ],
+                [ 2,8,18 ]
                );
 # my_interpolate ([  reverse 0,1,2,3,4,5 ],
 #                 [  map {$_-16} 0,5,9,12,14,15         ]

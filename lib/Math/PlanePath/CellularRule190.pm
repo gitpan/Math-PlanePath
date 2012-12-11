@@ -19,14 +19,14 @@
 # http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
 #
 # Loeschian numbers strips on the right ...
-#
+
 
 package Math::PlanePath::CellularRule190;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

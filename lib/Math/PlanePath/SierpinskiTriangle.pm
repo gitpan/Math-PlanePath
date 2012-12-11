@@ -50,7 +50,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -75,7 +75,7 @@ use constant parameter_info_array =>
       choices   => ['triangular', 'right', 'left','diagonal'],
       choices_display => ['Triangular', 'Right', 'Left','Diagonal'],
     },
-    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 my %x_negative = (triangular => 1,
@@ -496,13 +496,10 @@ For example level 2 is from N=0 to N=3^2-1=9.  Each level doubles in size,
                0  <= Y <= 2^level - 1
     - 2^level + 1 <= X <= 2^level - 1
 
-=head2 Align Parameter
+=head2 Align Right
 
-The optional C<align> parameter controls how points are arranged relative to
-the Y axis.  The default shown above is "triangular".
-
-C<align=E<gt>"right"> means points to the right of the axis, packed next to
-each other and so using an eighth of the plane.
+Optional C<align=E<gt>"right"> puts points to the right of the Y axis,
+packed next to each other and so using an eighth of the plane.
 
 =cut
 
@@ -512,20 +509,22 @@ each other and so using an eighth of the plane.
 
     align => "right"
 
-    19 20 21 22 23 24 25 26       7
-    15    16    17    18          6
-    11 12       13 14             5
-     9          10                4
-     5  6  7  8                   3
-     3     4                      2
-     1  2                         1
-     0                        <- Y=0
+      7  | 19 20 21 22 23 24 25 26 
+      6  | 15    16    17    18    
+      5  | 11 12       13 14       
+      4  |  9          10          
+      3  |  5  6  7  8             
+      2  |  3     4                
+      1  |  1  2                   
+    Y=0  |  0                      
+         +-------------------------
+          X=0  1  2  3  4  5  6  7
 
-    X=0 1  2  3  4  5  6  7
+=head2 Align Left
 
-C<align=E<gt>"left"> is similar but to the left of the Y axis, ie. into
-negative X.  The rows are still numbered starting from the left (so it's a
-shift across, not a negate of X).
+Optional C<align=E<gt>"left"> puts points to the left of the Y axis,
+ie. into negative X.  The rows are still numbered starting from the left, so
+it's a shift across, not a negate of X.
 
 =cut
 
@@ -535,19 +534,22 @@ shift across, not a negate of X).
 
     align => "left"
 
-    19 20 21 22 23 24 25 26        7
-       15    16    17    18        6
-          11 12       13 14        5
-              9          10        4
-                 5  6  7  8        3
-                    3     4        2
-                       1  2        1
-                          0    <- Y=0
-
+    19 20 21 22 23 24 25 26  |     7
+       15    16    17    18  |     6
+          11 12       13 14  |     5
+              9          10  |     4
+                 5  6  7  8  |     3
+                    3     4  |     2
+                       1  2  |     1
+                          0  | <- Y=0
+    -------------------------+
     -7 -6 -5 -4 -3 -2 -1 X=0
 
-"diagonal" put rows on diagonals down from the Y axis to the X axis.  This
-uses the whole of the first quadrant, with gaps according to the pattern.
+=head2 Align Diagonal
+
+Optional C<align=E<gt>"diagonal"> puts rows on diagonals down from the Y
+axis to the X axis.  This uses the whole of the first quadrant, with gaps
+according to the pattern.
 
 =cut
 
@@ -576,19 +578,20 @@ uses the whole of the first quadrant, with gaps according to the pattern.
         +-------------------------------------------------
          X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
 
-These diagonals visit all points X,Y where X and Y written in binary have no
+This form visits all points X,Y where X and Y written in binary have no
 1-bits in the same bit positions, ie. where S<X bitand Y> == 0.  For example
 X=13,Y=3 is not visited because 13=0b1011 and 6=0b0110 both have bit 0b0010
 set.
 
 This bit rule is an easy way to test for visited or not visited cells of the
-pattern.  It can be calculated by this diagonal X,Y but then plotted X,X+Y
-for the "right" align or X-Y,X+Y for "triangular", as desired.
+pattern.  The visited cells can be calculated by this diagonal X,Y bit-and,
+but then plotted X,X+Y for the "right" align or X-Y,X+Y for "triangular", as
+desired.
 
 =head2 Cellular Automaton
 
-The triangle arises in Stephen Wolfram's CellularRule style 1-D cellular
-automaton (per L<Math::PlanePath::CellularRule>).
+The triangle arises in Stephen Wolfram's 1-D cellular automatons (per
+L<Math::PlanePath::CellularRule> and L<Cellular::Automata::Wolfram>).
 
     align           rule
     -----           ----
@@ -613,11 +616,25 @@ In each row the rule 18 etc pattern turns a cell "on" in the next row if one
 but not both its diagonal predecessors are "on".  This is a mod 2 sum giving
 Pascal's triangle mod 2.
 
-Some other cellular rules make variations on the triangle.  Rule 22 is
-"triangular" but filling the gap between leaf points such as N=5 and N=6.
-Or rule 126 adds an extra point on the inward side of each visited.  And
-rule 182 fills in the big gaps leaving just a single-cell empty border
-delimiting them.
+Some other cellular rules are variations on the triangle,
+
+=over
+
+=item *
+
+Rule 22 is "triangular" but filling the gap between leaf points such as N=5
+and N=6.
+
+=item *
+
+Rule 126 adds an extra point on the inward side of each visited.
+
+=item *
+
+Rule 182 fills in the big gaps leaving just a single-cell
+empty border delimiting them.
+
+=back
 
 =head2 N Start
 
@@ -724,14 +741,16 @@ alignment it's the same as C<xy_to_n(-$depth,$depth)>.
 =head2 X,Y to N
 
 For calculation it's convenient to turn the X,Y coordinates into the "right"
-alignment style, so that Y is the depth and X in the range 0E<lt>=XE<lt>=Y.
+alignment style, so that Y is the depth and X is in the range
+0E<lt>=XE<lt>=Y.
 
-The starting position of each row of the triangle is given turning bits of
-the depth into powers-of-3.
+The starting position of each row of the triangle is given by turning 1-bits
+of the depth into powers-of-3.
 
     Y = depth = 2^a + 2^b + 2^c + 2^d ...       a>b>c>d...
 
-    Ndepth =         3^a      first N at this depth
+    Ndepth = first N at this depth
+           =         3^a
              +   2 * 3^b
              + 2^2 * 3^c
              + 2^3 * 3^d
@@ -739,37 +758,38 @@ the depth into powers-of-3.
 
 For example depth=6=2^2+2^1 starts at Ndepth=3^2+2*3^1=15.  The powers-of-3
 are the three parts of the triangle replication.  The power-of-2 doubling is
-the doubling of the width of the row on replicating.
+the doubling of the row when replicated.
 
-Then the bits of X at the positions of the 1-bits in the depth become the
-Noffset offset into the row.
+Then the bits of X at the positions of the 1-bits of the depth become an N
+offset into the row.
 
                a  b  c  d
     depth    = 10010010010     binary
     X        = m00n00p00q0
-    Noffset  =        mnpq
+    Noffset  =        mnpq     binary
 
     N = Ndepth + Noffset
 
 For example in depth=6 binary 110 then at X=4=100 take the bits of X where
-depth has 1s, which is X=10_ so Noffset=10 binary and N=15+2=17, as per the
-"right" table above at X=4,Y=6.
+depth has 1-bits, which is X=10_ so Noffset=10 binary and N=15+2=17, as per
+the "right" table above at X=4,Y=6.
 
 If X has any 1-bits which don't coincide with 1-bits in the depth then that
-X,Y is not visited.  For example depth=6=0b110 X=3=0b11 is not visited
-because the low bit X=..1 but at that position depth=..0 is not a 1-bit.
+X,Y is not visited.  For example if depth=6=0b110 then X=3=0b11 is not
+visited because the low bit X=__1 has depth=__0 at that position which is
+not a 1-bit.
 
 =head2 N to Depth
 
-The row containing N can be found by the Ndepth formula shown above.  The
-"a" term is the highest 3^a E<lt>= N, thus giving a bit 2^a for the depth.
-Then the remainder Nrem = N - 3^a see the highest "b" where 2*3^b E<lt>=
-Nrem.  And so on until reaching an Nrem which is too small to subtract any
-more terms.
+The row containing N can be found by working down the Ndepth formula shown
+above.  The "a" term is the highest 3^a E<lt>= N, thus giving a bit 2^a for
+the depth.  Then for the remaining Nrem = N - 3^a find the highest "b" where
+2*3^b E<lt>= Nrem.  And so on until reaching an Nrem which is too small to
+subtract any more terms.
 
-It's convenient to go by bits high to low the prospective depth, deciding at
-each bit whether Nrem is big enough that the depth can have a 1-bit there,
-or whether it must be a 0-bit.
+It's convenient to go by bits high to low of the prospective depth, deciding
+at each bit whether Nrem is big enough to give the depth a 1-bit there, or
+whether it must be a 0-bit.
 
     a = floor(log3(N))     round down to power-of-3
     pow = 3^a
@@ -795,11 +815,11 @@ style is formed by spreading the bits of Noffset out according to the 1-bits
 of the depth.
 
     depth   = 100110  binary
-    Noffset =    abc
+    Noffset =    abc  binary
     Xright  = a00bc0
 
-For example in depth=5 this spreads out the Noffset bits to give Xright =
-000, 001, 100, 101 in binary.
+For example in depth=5 this spreads an Noffset=0to3 to make X=000, 001, 100,
+101 in binary and in "right" alignment style.
 
 From an X,Y in "right" alignment the other alignments are formed
 
@@ -814,24 +834,24 @@ From an X,Y in "right" alignment the other alignments are formed
 
 The number of children follows a pattern based on the depth.
 
-    depth     number of children
-    -----     ------------------
+    depth      number of children
+    -----      ------------------
 
-     11    1 0 0 1         1 0 0 1
-     10     2   2           2   2
-      9      1 1             1 1
-      8       2               2
-      7        1 0 0 0 0 0 0 1   
-      6         2   2   2   2 
-      5          1 1     1 1  
-      4           2       2   
-      3            1 0 0 1   
-      2             2   2
-      1              1 1
-      0               2   
+     11     1 0 0 1         1 0 0 1
+     10      2   2           2   2
+      9       1 1             1 1
+      8        2               2
+      7         1 0 0 0 0 0 0 1   
+      6          2   2   2   2 
+      5           1 1     1 1  
+      4            2       2   
+      3             1 0 0 1   
+      2              2   2
+      1               1 1
+      0                2   
 
-At even depth all points have 2 children.  For example the depth=6 row has
-four points all with 2 children each.
+If depth is even then all points have 2 children.  For example the depth=6
+row has four points all with 2 children each.
 
 At odd depth the number of children is either 1 or 0 according to how the
 Noffset into the row matches the trailing 1-bits of the depth.
@@ -840,17 +860,18 @@ Noffset into the row matches the trailing 1-bits of the depth.
 
     Noffset = ...00000   \ num children = 1
             = ...11111   /
-            =    other   num children = 0
+            = ...other   num children = 0
 
 For example depth=11 is binary 1011 which has low 1-bits "11".  Those bits
-of Noffset must be either 00 or 11, so Noffset=..00 or ..11, but not 01 or
-10.  Hence the pattern 1,0,0,1,1,0,0,1 reading across the row.
+of Noffset must be either 00 or 11, so Noffset=..00 or ..11, but not ..01 or
+..10.  Hence the pattern 1,0,0,1,1,0,0,1 reading across the row.
 
 In general when the depth doubles the triangle is replicated twice and the
-number of children is carried with it, but not the middle two points.  For
-example the triangle of depth=0to3 is replicated twice to make depth=4to7,
-but the depth=7 row is not 10011001 of a plain doubling of the depth=3 row,
-but instead 10000001 which is the middle two points becoming 0.
+number of children is carried with the replications, but not the middle two
+points.  For example the triangle of depth=0to3 is repeated twice to make
+depth=4to7, but the depth=7 row is not children 10011001 of a plain doubling
+from the depth=3 row, but instead 10000001 which is the middle two points
+becoming 0.
 
 =head2 Rectangle to N Range
 
@@ -858,18 +879,25 @@ An easy range can be had just from the Y range by noting the diagonals X=Y
 and X=-Y are always visited, so just take the Ndepth of Ymin and Nend of
 Ymax,
 
-    Nmin = N at -Ymin,Ymin
+    # align="triangular"
+    Nmin = N at X=-Ymin,Y=Ymin
+    Nmax = N at X=Ymax,Y=Ymax
+
+Or in "right" style the left end is at X=0 instead,
+
+    # align="right"
+    Nmin = N at X=0,Ymin
     Nmax = N at Ymax,Ymax
 
-Or for less work but a bigger over-estimate, invert the Nlevel formulas
-given in L</Row Ranges> above.
+For less work but a bigger over-estimate, invert the Nlevel formulas given
+in L</Row Ranges> above to round up to the end of a depth=2^k replication,
 
     level = floor(log2(Ymax)) + 1
     Nmax = 3^level - 1
 
 For example Y=11, level=floor(log2(11))+1=4, so Nmax=3^4-1=80, which is the
-end of the Y=15 row, ie. rounded up to the top of the Y=8 to Y=15
-replication.
+end of the Y=15 row, ie. rounded up to the top of the replication block Y=8
+to Y=15.
 
 =head1 OEIS
 
@@ -878,26 +906,30 @@ Sequences in various forms,
 
     http://oeis.org/A001316    etc
 
-    A001316   number of cells in each row (Gould's sequence)
-    A001317   rows encoded as numbers with bits 0,1
-    A006046   Ndepth, cumulative number of cells up to row N
-    A074330   Nend, right hand end of each row (starting Y=1)
+    align="triangular" (the default)
+      A001316   number of cells in each row (Gould's sequence)
+      A001317   rows encoded as numbers with bits 0,1
+      A006046   Ndepth, cumulative number of cells up to row N
+      A074330   Nend, right hand end of each row (starting Y=1)
 
-A001316 is the "rowpoints" noted above.  A006046 is the cumulative total of
-that sequence which is the "Ndepth" above, and A074330 is 1 less for "Nend".
+A001316 is the "rowpoints" described above.  A006046 is the cumulative total
+of that sequence which is the "Ndepth", and A074330 is 1 less for "Nend".
 
-    A047999   0,1 cells by rows
-    A106344   0,1 cells by upwards sloping dX=3,dY=1
+    align="triangular"
+      A047999   0,1 cells by rows
+      A106344   0,1 cells by upwards sloping dX=3,dY=1
+      A130047   0,1 cells of half X<=0 by rows
 
     align="right"
       A075438   0,1 cells by rows including 0 blanks at left of pyramid
 
-A047999 is every second point in the default triangular lattice, or all
+A047999 etc is every second point in the default triangular lattice, or all
 points in align="right" or "left".
 
-    A002487   count points along dX=3,dY=1 slopes
-                is the Stern diatomic sequence
-    A106345   count points along dX=5,dY=1 slopes
+    align="triangular"
+      A002487   count points along dX=3,dY=1 slopes
+                  is the Stern diatomic sequence
+      A106345   count points along dX=5,dY=1 slopes
 
 dX=3,dY=1 sloping lines are equivalent to opposite-diagonals dX=-1,dY=1 in
 "right" alignment.
@@ -905,19 +937,32 @@ dX=3,dY=1 sloping lines are equivalent to opposite-diagonals dX=-1,dY=1 in
     A080263   Dyck encoding of the tree structure
     A080264     same in binary
     A080265     position in list of all balanced binary
+
     A080268   Dyck encoding breadth-first
     A080269     same in binary
     A080270     position in list of all balanced binary
 
-(See for example L<Math::NumSeq::BalancedBinary/Binary Trees> on encoding
-trees as balanced binary.)
+    A080318   Dyck encoding breadth-first of branch-reduced
+                (duplicate each bit)
+    A080319     same in binary
+    A080320     position in list of all balanced binary
+
+See for example L<Math::NumSeq::BalancedBinary/Binary Trees> on encoding
+trees as "balanced binary".  The "position in all balanced binary" of
+A080265 etc corresponds to C<value_to_i()> in that NumSeq.
+
+A branch-reduced tree has any single-child node collapsed out, so that all
+remaining nodes are either a leaf node or have 2 (or more) children.  The
+effect of this on the Sierpinski triangle breadth-first encoding is to
+duplicate each bit, so A080269 with each bit duplicated gives A080319.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::SierpinskiArrowhead>,
 L<Math::PlanePath::SierpinskiArrowheadCentres>,
-L<Math::PlanePath::CellularRule>
+L<Math::PlanePath::CellularRule>,
+L<Math::PlanePath::ToothpickUpist>
 
 L<Math::NumSeq::SternDiatomic>,
 L<Math::NumSeq::BalancedBinary>

@@ -33,122 +33,95 @@ use Math::PlanePath::CellularRule190;
 #use Smart::Comments '###';
 
 
-MyTestHelpers::diag ("OEIS dir ",MyOEIS::oeis_dir());
-
-sub streq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  for (my $i = 0; $i < @$a1 && $i < @$a2; $i++) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      MyTestHelpers::diag ("differ: $a1->[$i] $a2->[$i] at $i");
-      return 0;
-    }
-  }
-  return (@$a1 == @$a2);
-}
-
 #------------------------------------------------------------------------------
 # A071039 - 0/1 by rows rule 190
 
-{
-  my $anum = 'A071039';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path = Math::PlanePath::CellularRule190->new;
-  my @got;
-  if ($bvalues) {
-    my $x = 0;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
-      $x++;
-      if ($x > $y) {
-        $y++;
-        $x = -$y;
-      }
-    }
-  }
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A071039',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CellularRule190->new;
+     my @got;
+     my $x = 0;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, ($path->xy_is_visited($x,$y) ? 1 : 0);
+       $x++;
+       if ($x > $y) {
+         $y++;
+         $x = -$y;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A118111 - 0/1 by rows rule 190 (duplicate)
 
-{
-  my $anum = 'A118111';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path = Math::PlanePath::CellularRule190->new;
-  my @got;
-  if ($bvalues) {
-    my $x = 0;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
-      $x++;
-      if ($x > $y) {
-        $y++;
-        $x = -$y;
-      }
-    }
-  }
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A118111',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CellularRule190->new;
+     my @got;
+     my $x = 0;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, ($path->xy_is_visited($x,$y) ? 1 : 0);
+       $x++;
+       if ($x > $y) {
+         $y++;
+         $x = -$y;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A037576 - rows as rule 190 binary bignums (base 4 periodic ...)
-{
-  my $anum = 'A037576';
-  my $path = Math::PlanePath::CellularRule190->new;
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::BigInt;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      my $b = 0;
-      foreach my $i (0 .. 2*$y+1) {
-        if ($path->xy_to_n ($y-$i, $y)) {
-          $b += Math::BigInt->new(2) ** $i;
-        }
-      }
-      push @got, "$b";
-      $y++;
-    }
-  }
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A037576',
+   func => sub {
+     my ($count) = @_;
+     require Math::BigInt;
+     my $path = Math::PlanePath::CellularRule190->new;
+     my @got;
+     my $y = 0;
+     while (@got < $count) {
+       my $b = 0;
+       foreach my $i (0 .. 2*$y+1) {
+         if ($path->xy_is_visited ($y-$i, $y)) {
+           $b += Math::BigInt->new(2) ** $i;
+         }
+       }
+       push @got, "$b";
+       $y++;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A071041 - 0/1 rule 246
 
-{
-  my $anum = 'A071041';
-  my $path = Math::PlanePath::CellularRule190->new (mirror => 1);
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $x = 0;
-    my $y = 0;
-    foreach my $n (1 .. @$bvalues) {
-      push @got, ($path->xy_to_n ($x, $y) ? 1 : 0);
-      $x++;
-      if ($x > $y) {
-        $y++;
-        $x = -$y;
-      }
-    }
-  }
-  skip (! $bvalues,
-        streq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A071041',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CellularRule190->new (mirror => 1);
+     my @got;
+     my $x = 0;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, ($path->xy_is_visited($x,$y) ? 1 : 0);
+       $x++;
+       if ($x > $y) {
+         $y++;
+         $x = -$y;
+       }
+     }
+     return \@got;
+   });
 
-
+#------------------------------------------------------------------------------
 exit 0;

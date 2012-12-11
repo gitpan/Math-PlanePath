@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,36 +20,49 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1;
+plan tests => 2;
 
 use lib 't','xt';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::PlanePath::R5DragonCurve;
+use Math::PlanePath::PentSpiralSkewed;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
 
 #------------------------------------------------------------------------------
-# A175337 -- turn 0=left,1=right
+# A140066 - N on Y axis
 
 MyOEIS::compare_values
-  (anum => 'A175337',
+  (anum => 'A140066',
    func => sub {
      my ($count) = @_;
-     require Math::NumSeq::PlanePathTurn;
-     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'R5DragonCurve',
-                                                 turn_type => 'Right');
+     my $path = Math::PlanePath::PentSpiralSkewed->new;
      my @got;
-     while (@got < $count) {
-       my ($i,$value) = $seq->next;
-       push @got, $value;
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n(0,$y);
      }
      return \@got;
    });
 
 #------------------------------------------------------------------------------
+# A134238 - N on Y negative axis
+
+MyOEIS::compare_values
+  (anum => 'A134238',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PentSpiralSkewed->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y--) {
+       push @got, $path->xy_to_n(0,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+
 exit 0;

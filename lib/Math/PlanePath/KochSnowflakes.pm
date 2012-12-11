@@ -17,7 +17,9 @@
 
 
 # math-image --path=KochSnowflakes --lines --scale=10
-
+#
+# A178789 number of angles in level n
+#
 # area approaches sqrt(48)/10
 #     *     height=sqrt(1-1/4)=sqrt(3)/2
 #    /|\    halfbase=1/2
@@ -40,7 +42,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

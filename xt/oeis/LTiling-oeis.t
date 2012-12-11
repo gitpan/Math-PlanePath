@@ -32,47 +32,24 @@ use Math::PlanePath::LTiling;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-my $path = Math::PlanePath::LTiling->new;
-
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
 
 #------------------------------------------------------------------------------
 # A048647 -- N at transpose Y,X
 
-{
-  my $anum = 'A048647';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1);
-}
+MyOEIS::compare_values
+  (anum => 'A048647',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::LTiling->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

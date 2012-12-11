@@ -35,6 +35,10 @@
 # A057961 hypot count as radius increases
 #
 
+# points="square_horiz"
+# points="square_vert"
+# points="square_centre"
+# 
 
 
 package Math::PlanePath::Hypot;
@@ -43,7 +47,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -63,9 +67,9 @@ use constant parameter_info_array =>
       default         => 'all',
       choices         => ['all','even','odd'],
       choices_display => ['All','Even','Odd'],
-      description     => 'Which X,Y points visit, either all of them or just X+Y even or X+Y odd.',
+      description     => 'Which X,Y points visit, either all of them or just X+Y=even or odd.',
     },
-    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 sub rsquared_minimum {

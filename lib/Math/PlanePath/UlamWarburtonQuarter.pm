@@ -25,9 +25,10 @@
 package Math::PlanePath::UlamWarburtonQuarter;
 use 5.004;
 use strict;
+use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -37,16 +38,17 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow',
-  'bit_split_lowtohigh';
+  'bit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant parameter_info_array =>
-  [ Math::PlanePath::Base::Generic::_parameter_info_nstart1() ];
+  [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -132,58 +134,19 @@ sub n_to_xy {
   if (is_infinite($n)) { return ($n,$n); }
   if ($n == 1) { return (0,0); }
 
-  my ($power, $exp) = round_down_pow (3*$n-2, 4);
-
-  ### $power
-  ### $exp
-  ### pow base: 1 + (4**$exp - 1)/3
-
-  $n -= ($power - 1)/3 + 1;
-  ### n less pow base: $n
-
-  my @levelbits = (2**$exp);
-  $power = 3**$exp;
-
-  # find the cumulative levelpoints total <= $n, being the start of the
-  # level containing $n
-  #
-  my $factor = 1;
-  while (--$exp >= 0) {
-    $power /= 3;
-    my $sub = 4**$exp * $factor;
-    ### $sub
-    # $power*$factor;
-    my $rem = $n - $sub;
-
-    ### $n
-    ### $power
-    ### $factor
-    ### consider subtract: $sub
-    ### $rem
-
-    if ($rem >= 0) {
-      $n = $rem;
-      push @levelbits, 2**$exp;
-      $factor *= 3;
-    }
-  }
-
-  ### @levelbits
-  ### remaining n: $n
-  ### assert: $n >= 0
-  ### assert: $n < $factor
+  (my $depthsum, $n) = _n1_to_depthsum_and_rem($n);
 
   my $x = 0;
   my $y = 0;
-  while (@levelbits) {
+  while (@$depthsum) {
     my $digit = _divrem_mutate ($n, 3);
-    ### levelbits: $levelbits[-1]
+    ### depthsum: $depthsum->[-1]
     ### $digit
 
-    my $lbit = pop @levelbits;
+    my $lbit = pop @$depthsum;
     $x += $lbit;
     $y += $lbit;
-    if (@levelbits) {
+    if (@$depthsum) {
       if ($digit == 0) {
         ($x,$y) = ($y,-$x);   # rotate -90
       } elsif ($digit == 2) {
@@ -273,8 +236,6 @@ sub xy_to_n {
 
   ### $n
   ### $level
-  ### level n: _n_start($level)
-  ### xy_to_n: $n + _n_start($level)
 
   return $n + $self->tree_depth_to_n($level-1);
 }
@@ -381,6 +342,70 @@ sub tree_depth_to_n {
     }
   }
   return ($n-1)/3 + $self->{'n_start'};
+}
+
+sub tree_n_to_depth {
+  my ($self, $n) = @_;
+
+  $n = int($n - $self->{'n_start'} + 1);  # N=1 basis
+  if ($n < 1) {
+    return undef;
+  }
+  if (is_infinite($n)) {
+    return $n;
+  }
+  (my $depthsum, $n) = _n1_to_depthsum_and_rem($n);
+  return sum(@$depthsum, -1);
+}
+
+# Return ($aref, $remaining_n).
+# sum(@$aref) = depth starting depth=1
+#
+sub _n1_to_depthsum_and_rem {
+  my ($n) = @_;
+  ### _n1_to_depth_and_depthsum(): $n
+
+  my ($power, $exp) = round_down_pow (3*$n-2, 4);
+
+  ### $power
+  ### $exp
+  ### pow base: ($power - 1)/3 + 1
+
+  $n -= ($power - 1)/3 + 1;
+  ### n less pow base: $n
+
+  my @depthsum = (2**$exp);
+
+  # find the cumulative levelpoints total <= $n, being the start of the
+  # level containing $n
+  #
+  my $factor = 1;
+  while (--$exp >= 0) {
+    $power /= 4;
+    my $sub = $power * $factor;
+    ### $sub
+    my $rem = $n - $sub;
+
+    ### $n
+    ### $power
+    ### $factor
+    ### consider subtract: $sub
+    ### $rem
+
+    if ($rem >= 0) {
+      $n = $rem;
+      push @depthsum, 2**$exp;
+      $factor *= 3;
+    }
+  }
+
+  ### _n1_to_depth_and_depthsum result ...
+  ### @depthsum
+  ### remaining n: $n
+  ### assert: $n >= 0
+  ### assert: $n < $factor
+
+  return \@depthsum, $n;
 }
 
 1;
@@ -629,6 +654,7 @@ path includes
 
 L<Math::PlanePath>,
 L<Math::PlanePath::UlamWarburton>,
+L<Math::PlanePath::LCornerTree>,
 L<Math::PlanePath::CellularRule>
 
 L<Math::PlanePath::SierpinskiTriangle> (a similar binary ones-count related

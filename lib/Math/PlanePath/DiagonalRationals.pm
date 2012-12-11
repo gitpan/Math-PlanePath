@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -269,7 +269,7 @@ Sequences in the following forms
     A054431   by diagonals 1=coprime, 0=not
                 (excluding X=0 row and Y=0 column)
 
-    A061579   permutation N at transpose Y/X
+    A054430   permutation N at transpose Y/X
                 reverse runs of phi(k) integers
 
     A054424   permutation DiagonalRationals -> RationalsTree SB

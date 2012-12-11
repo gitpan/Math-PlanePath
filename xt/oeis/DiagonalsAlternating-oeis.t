@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 4;
+plan tests => 6;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -34,189 +34,67 @@ use Math::PlanePath::DiagonalsAlternating;
 #use Smart::Comments '###';
 
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  my $diff;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    unless ($got =~ /^[0-9.-]+$/) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "not a number pos=$i got='$got'";
-    }
-    unless ($want =~ /^[0-9.-]+$/) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "not a number pos=$i want='$want'";
-    }
-    if ($got != $want) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return $diff;
-}
-
 #------------------------------------------------------------------------------
 # A038722 -- permutation N at transpose Y,X n_start=1
-{
-  my $anum = 'A038722';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  {
-    my @got;
-    if ($bvalues) {
-      my $path = Math::PlanePath::DiagonalsAlternating->new;
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $path->xy_to_n ($y, $x);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- permutation transpose");
-  }
-  {
-    my @got;
-    if ($bvalues) {
-      my $path = Math::PlanePath::DiagonalsAlternating->new (direction => 'up');
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $path->xy_to_n ($y, $x);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- permutation transpose");
-  }
-}
+
+MyOEIS::compare_values
+  (anum => 'A038722',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DiagonalsAlternating->new;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n ($y, $x);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A061579 -- permutation N at transpose Y,X
-{
-  my $anum = 'A061579';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  {
-    my @got;
-    if ($bvalues) {
-      my $path = Math::PlanePath::DiagonalsAlternating->new (n_start => 0);
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $path->xy_to_n ($y, $x);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- permutation transpose");
-  }
-  {
-    my @got;
-    if ($bvalues) {
-      my $path = Math::PlanePath::DiagonalsAlternating->new (n_start => 0,
-                                                             direction => 'up');
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $path->xy_to_n ($y, $x);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- permutation transpose");
-  }
-}
+
+MyOEIS::compare_values
+  (anum => 'A061579',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DiagonalsAlternating->new (n_start => 0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n ($y, $x);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A131179 -- X axis, extra 0
 
-{
-  my $anum = 'A131179';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    my $path = Math::PlanePath::DiagonalsAlternating->new;
-    for (my $x = 0; @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x, 0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A131179',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::DiagonalsAlternating->new;
+     for (my $x = 0; @got < $count; $x++) {
+       push @got, $path->xy_to_n ($x, 0);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A128918 -- Y axis, extra 0
 
-{
-  my $anum = 'A128918';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (1);
-  if ($bvalues) {
-    my $path = Math::PlanePath::DiagonalsAlternating->new;
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n (0, $y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A128918',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $path = Math::PlanePath::DiagonalsAlternating->new;
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n (0, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

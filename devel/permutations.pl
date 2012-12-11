@@ -27,6 +27,40 @@ use Module::Load;
 
 
 {
+  # transpose
+  require Math::NumSeq::PlanePathCoord;
+  my $choices = Math::NumSeq::PlanePathCoord->parameter_info_hash
+    ->{'planepath'}->{'choices'};
+  my %seen;
+  foreach my $path_name (@$choices) {
+    my $path_class = "Math::PlanePath::$path_name";
+    Module::Load::load($path_class);
+    my $parameters = parameter_info_list_to_parameters($path_class->parameter_info_list);
+  PATH: foreach my $p (@$parameters) {
+      print "$path_name  ",join(',',@$p),"\n";
+      my $path = $path_class->new (@$p);
+      my $str = '';
+      my @values;
+      foreach my $n ($path->n_start+1 .. 50) {
+        my ($x,$y) = $path->n_to_xy($n) or next PATH;
+        my $pn = $path->xy_to_n($y,$x);
+        next PATH if ! defined $pn;
+        $str .= "$pn,";
+        push @values, $pn;
+      }
+      print "  (",substr($str,0,20),"...)\n";
+      if (defined (my $diff = constant_diff(@values))) {
+        print "  constant diff $diff\n";
+        next PATH;
+      }
+      print stripped_grep($str);
+      print "\n";
+    }
+  }
+  exit 0;
+}
+
+{
   # between two paths
   require Math::NumSeq::PlanePathCoord;
   my $choices = Math::NumSeq::PlanePathCoord->parameter_info_hash
@@ -72,40 +106,6 @@ use Module::Load;
           }
         }
       }
-    }
-  }
-  exit 0;
-}
-
-{
-  # transpose
-  require Math::NumSeq::PlanePathCoord;
-  my $choices = Math::NumSeq::PlanePathCoord->parameter_info_hash
-    ->{'planepath'}->{'choices'};
-  my %seen;
-  foreach my $path_name (@$choices) {
-    my $path_class = "Math::PlanePath::$path_name";
-    Module::Load::load($path_class);
-    my $parameters = parameter_info_list_to_parameters($path_class->parameter_info_list);
-  PATH: foreach my $p (@$parameters) {
-      print "$path_name  ",join(',',@$p),"\n";
-      my $path = $path_class->new (@$p);
-      my $str = '';
-      my @values;
-      foreach my $n ($path->n_start+1 .. 50) {
-        my ($x,$y) = $path->n_to_xy($n) or next PATH;
-        my $pn = $path->xy_to_n($y,$x);
-        next PATH if ! defined $pn;
-        $str .= "$pn,";
-        push @values, $pn;
-      }
-      print "  (",substr($str,0,20),"...)\n";
-      if (defined (my $diff = constant_diff(@values))) {
-        print "  constant diff $diff\n";
-        next PATH;
-      }
-      print stripped_grep($str);
-      print "\n";
     }
   }
   exit 0;

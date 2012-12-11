@@ -22,7 +22,7 @@ use strict;
 use ExtUtils::MakeMaker;
 
 WriteMakefile
-  (NAME         => 'Math::PlanePath',
+  (NAME         => 'Math-PlanePath',
    ABSTRACT     => 'Mathematical paths through the 2-D plane.',
    VERSION_FROM => 'lib/Math/PlanePath.pm',
    PREREQ_PM    => {

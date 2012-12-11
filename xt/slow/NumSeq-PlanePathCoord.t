@@ -374,6 +374,25 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
+               'ToothpickTree',
+               'ToothpickTree,parts=1',
+               'ToothpickTree,parts=2',
+               'ToothpickTree,parts=3',
+               
+               'ToothpickUpist',
+
+               'ToothpickReplicate',
+               'ToothpickReplicate,parts=1',
+               'ToothpickReplicate,parts=2',
+               'ToothpickReplicate,parts=3',
+               
+               'LCornerTree',
+               'LCornerTree,parts=1',
+               'LCornerTree,parts=2',
+               'LCornerTree,parts=3',
+               
+               'LCornerReplicate',
+
                # module list begin
 
                'ChanTree,k=2,n_start=1',
@@ -386,6 +405,19 @@ my @modules = (
                'ChanTree,k=5',
                'ChanTree,k=6',
                'ChanTree,k=7',
+
+               'ImaginaryHalf',
+               'ImaginaryHalf,digit_order=XXY',
+               'ImaginaryHalf,digit_order=YXX',
+               'ImaginaryHalf,digit_order=XnXY',
+               'ImaginaryHalf,digit_order=XnYX',
+               'ImaginaryHalf,digit_order=YXnX',
+               'ImaginaryHalf,digit_order=XXY,radix=3',
+               'ImaginaryHalf,radix=37',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=4',
+               'ImaginaryHalf,radix=5',
+               'ImaginaryHalf,radix=6',
 
                'LTiling',
                'LTiling,L_fill=left',
@@ -451,13 +483,6 @@ my @modules = (
                'ImaginaryBase,radix=4',
                'ImaginaryBase,radix=5',
                'ImaginaryBase,radix=6',
-
-               'ImaginaryHalf,radix=37',
-               'ImaginaryHalf',
-               'ImaginaryHalf,radix=3',
-               'ImaginaryHalf,radix=4',
-               'ImaginaryHalf,radix=5',
-               'ImaginaryHalf,radix=6',
 
                'QuintetReplicate',
                'QuintetCurve',
@@ -946,6 +971,7 @@ my @modules = (
 
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
+        # next unless $param =~ /Leaf/;
         MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param
@@ -966,8 +992,8 @@ my @modules = (
         my $saw_values_max_at = 'sentinel';
         my $saw_increasing = 1;
         my $saw_non_decreasing = 1;
-        my $saw_increasing_at = '';
-        my $saw_non_decreasing_at = '';
+        my $saw_increasing_at = '[default]';
+        my $saw_non_decreasing_at = '[default]';
         my $prev_value;
 
         my $count = 0;
@@ -1295,12 +1321,12 @@ my @modules = (
 
 
         if (abs ($values_min - $saw_values_min) > 0.001) {
-          MyTestHelpers::diag ("$mod $param values_min=$values_min vs saw_values_min=$saw_values_min at $saw_values_min_at");
+          MyTestHelpers::diag ("$mod $param values_min=$values_min vs saw_values_min=$saw_values_min at $saw_values_min_at (to i_end=$i_end)");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
         if (abs ($values_max - $saw_values_max) > 0.001) {
-          MyTestHelpers::diag ("$mod $param values_max=$values_max vs saw_values_max=$saw_values_max at $saw_values_max_at");
+          MyTestHelpers::diag ("$mod $param values_max=$values_max vs saw_values_max=$saw_values_max at $saw_values_max_at (to i_end=$i_end)");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
@@ -1339,6 +1365,7 @@ my @modules = (
             )
             && ($param eq 'Y'
                 || $param eq 'Product')) {
+          $saw_increasing_at = 'override';
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
         }
@@ -1373,6 +1400,7 @@ my @modules = (
                 || $param =~ /Diagonal/
                )) {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
 
@@ -1380,12 +1408,14 @@ my @modules = (
             && $i_end < 5938  # first decrease
             && $param eq 'Diagonal_SE') {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
         if ($mod eq 'QuintetCentres'
             && $i_end < 5931 # first decreasing
             && $param eq 'Diagonal_SE') {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
 
@@ -1393,6 +1423,7 @@ my @modules = (
             && $i_end < 1369  # N of first Y coordinate decrease
             && $param eq 'Y') {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
         # if ($mod eq 'ImaginaryBase,radix=37'
@@ -1402,6 +1433,7 @@ my @modules = (
         #         || $param eq 'Diagonal_SE')
         #     && $i_end < 74) {
         #   $saw_increasing = 0;
+          # $saw_increasing_at = 'override';
         #   $saw_non_decreasing = 0;
         # }
 
@@ -1409,18 +1441,21 @@ my @modules = (
             && $i_end < 1369  # N of first Y coordinate decrease
             && $param eq 'Y') {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
         if ($mod eq 'ImaginaryHalf,radix=37'
             && $i_end < 99974  # first decrease
             && $param eq 'Diagonal') {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
         if ($mod eq 'ImaginaryHalf,radix=37'
             && $i_end < 2702  # first decreasing
             && $param eq 'Diagonal_NW') {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
 
@@ -1431,6 +1466,7 @@ my @modules = (
                 || $param eq 'Y_axis'
                )) {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
 
@@ -1443,6 +1479,7 @@ my @modules = (
             && ($param eq 'Diagonal'
                )) {
           $saw_increasing = 0;
+          $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
 
@@ -1465,12 +1502,12 @@ my @modules = (
         }
 
         if ($count > 1 && $increasing ne $saw_increasing) {
-          MyTestHelpers::diag ("$mod $param increasing=$increasing vs saw_increasing=$saw_increasing at $saw_increasing_at");
+          MyTestHelpers::diag ("$mod $param increasing=$increasing vs saw_increasing=$saw_increasing at $saw_increasing_at (to i_end=$i_end)");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
         if ($count > 1 && $non_decreasing ne $saw_non_decreasing) {
-          MyTestHelpers::diag ("$mod $param non_decreasing=$non_decreasing vs saw_non_decreasing=$saw_non_decreasing at $saw_non_decreasing_at");
+          MyTestHelpers::diag ("$mod $param non_decreasing=$non_decreasing vs saw_non_decreasing=$saw_non_decreasing at $saw_non_decreasing_at (to i_end=$i_end)");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }

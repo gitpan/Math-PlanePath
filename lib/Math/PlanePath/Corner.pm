@@ -16,12 +16,30 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# cf atthew Szudzik ElegantPairing.pdf going inwardly.
+#
+#   5 | 25--...
+#     |
+#   4 | 16--17--18--19  24
+#     |                  |
+#   3 |  9--10--11  15  23
+#     |              |   |
+#   2 |  4-- 5   8  14  22
+#     |          |   |   |
+#   1 |  1   4   7  13  21
+#     |      |   |   |   |
+# Y=0 |  0   2   6  12  20
+#     +---------------------
+#      X=0   1   2   3   4
+
+
+
 package Math::PlanePath::Corner;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -264,18 +282,23 @@ first quadrant.
 
 =cut
 
-# math-image --path=Corner --output=numbers --all --size=30x6
+# math-image --path=Corner --output=numbers_dash --all --size=30x14
 
 =pod
 
-      5  |  26 ...
-      4  |  17  18  19  20  21
-      3  |  10  11  12  13  22
-      2  |   5   6   7  14  23
-      1  |   2   3   8  15  24
-    Y=0  |   1   4   9  16  25
-          ----------------------
-           X=0   1   2   3   4
+      5 | 26--...
+        |
+      4 | 17--18--19--20--21
+        |                  |
+      3 | 10--11--12--13  22
+        |              |   |
+      2 |  5-- 6-- 7  14  23
+        |          |   |   |
+      1 |  2-- 3   8  15  24
+        |  |   |   |   |   |
+    Y=0 |  1   4   9  16  25
+        +---------------------
+         X=0   1   2   3   4
 
 The horizontal 1,4,9,16,etc along Y=0 is the perfect squares.  This is since
 each further row/column stripe makes a one-bigger square,
@@ -449,20 +472,16 @@ smallest N is in the leftmost column and the biggest N in the rightmost
 column.
 
     |
+    |  ------>  N increasing
     |
-    |  N decreasing       N increasing
-    |     <-----  X coord  ----->
-    |
-    |
-     ---------------------------------
+     -----------------------
 
-Going up a column, N values are increasing down from the X=Y diagonal, and
-up from the X=Y diagonal, with all N values above X=Y bigger than the ones
-below.
+Going up a column, N values are increasing away from the X=Y diagonal up or
+down, and all N values above X=Y are bigger than the ones below.
 
     |    ^  N increasing up from X=Y diagonal
     |    |
-    |    |/      
+    |    |/
     |    /
     |   /|
     |  / |  N increasing down from X=Y diagonal
@@ -470,8 +489,8 @@ below.
     |/
      -----------------------
 
-This means the biggest N is the top right corner if that corner it has
-YE<gt>=X, otherwise the bottom right corner.
+This means the biggest N is the top right corner if that corner is YE<gt>=X,
+otherwise the bottom right corner.
 
                                            max N at top right
     |      /                          | --+     if corner Y>=X
@@ -480,7 +499,7 @@ YE<gt>=X, otherwise the bottom right corner.
     |   /     |                       |   |
     |  /  ----v                       |  /|
     | /     max N at bottom right     | --+
-    |/        if corner Y<=X          |/                            
+    |/        if corner Y<=X          |/
      ----------                        -------
 
 For the smallest N, if the bottom left corner has YE<gt>X then it's in the
@@ -488,6 +507,28 @@ For the smallest N, if the bottom left corner has YE<gt>X then it's in the
 YE<lt>=X means some of the "decreasing" part is covered and the smallest N
 is at Y=min(X,Ymax), ie. either the Y=X diagonal if it's in the rectangle or
 the top right corner otherwise.
+
+    |      /
+    | |   /
+    | |  /  min N at bottom left
+    | +----  if corner Y>X
+    |  /
+    | /
+    |/
+     ----------
+
+    |      /                           |      /
+    |   | /                            |     /
+    |   |/  min N at X=Y               |    /
+    |   *    if diagonal crossed       |   / +-- min N at top left
+    |  /|                              |  /  |    if corner Y<X
+    | / +-----                         | /   |
+    |/                                 |/    
+     ----------                         ----------
+
+    min N at Xmin,Ymin            if Ymin >= Xmin
+             Xmin,min(Xmin,Ymax)  if Ymin <= Xmin
+
 
 =head1 OEIS
 
@@ -501,15 +542,18 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
       A002522    N on Y axis (N=Y^2+1)
       A004201    N for which X>=Y, ie. on and below X=Y diagonal
       A020703    permutation N at transpose Y,X
+
     wider=0, n_start=0
-      A005563    N on X_axis, (X+1)^2-1
+      A000196    max(X,Y), being floor(sqrt(N))
+      A005563    N on X axis, (X+1)^2-1
       A000290    N on Y axis, perfect squares
       A002378    N on X=Y diagonal, pronic
 
     wider=1
       A053188    abs(X-Y), dist to nearest square, extra initial 0
+
     wider=1, n_start=0
-      A002378    N on Y_axis, pronic
+      A002378    N on Y axis, pronic
       A005563    N on X=Y diagonal, (k+1)^2-1
 
     wider=2, n_start=0

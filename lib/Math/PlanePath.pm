@@ -42,17 +42,8 @@
 #
 # $path->xy_integer
 # $path->xy_integer_n_start
-#
-# ($xlo,$xhi) = $path->x_range()
-# ($xlo,$xhi) = $path->y_range()
-# ($xlo,$xhi) = $path->sum_range()
 # $path->x_range('integer')
 # $path->x_range('all')
-# use constant x_range => (1, undef);
-# x_minimum
-# x_maximum
-# y_minimum
-# y_maximum
 #
 # lattice_type square,triangular,triangular_odd,pentagonal,fractional
 #
@@ -68,10 +59,11 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 93;
+$VERSION = 94;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
+
 
 # defaults
 use constant figure => 'square';
@@ -106,7 +98,6 @@ sub x_minimum {
 }
 sub y_minimum {
   my ($self) = @_;
-  ### y_minimum() y_negative: $self->y_negative
   return ($self->y_negative ? undef : 0);
 }
 use constant x_maximum => undef;
@@ -116,16 +107,20 @@ use constant dy_minimum => undef;
 use constant dx_maximum => undef;
 use constant dy_maximum => undef;
 
-# default from x_minimum,y_minimum
+# experimental default from x_minimum(),y_minimum()
+# FIXME: should use xabs_minimum, yabs_minimum, for paths outside first quadrant
 sub rsquared_minimum {
   my ($self) = @_;
+  ### rsquared_minimum() ...
+  ### x_minimum: $self->x_minimum
+  ### y_minimum: $self->y_minimum
   if (defined (my $x_minimum = $self->x_minimum)
       && defined (my $y_minimum = $self->y_minimum)) {
     return ($x_minimum*$x_minimum + $y_minimum*$y_minimum);
   }
 
-  # Maybe _coordinate_func_RSquared($self->n_to_xy($self->n_start)),
-  # but that's wrong on "wider" paths.
+  # Maybe initial point $self->n_to_xy($self->n_start)) as the default,
+  # but that's not the minimum on "wider" paths.
   return 0;
 }
 use constant rsquared_maximum => undef;
@@ -191,24 +186,12 @@ sub tree_n_num_children {
     return undef;
   }
 }
-sub tree_n_to_depth {
-  my ($self, $n) = @_;
-  if ($n < $self->n_start) {
-    return undef;
-  }
-  my $depth = 0;
-  while (defined ($n = $self->tree_n_parent($n))) {
-    $depth++;
-  }
-  return $depth;
-}
+use constant tree_n_to_depth => undef;
 use constant tree_depth_to_n => undef;
 sub tree_depth_to_n_end {
   my ($self, $depth) = @_;
-  unless ($depth >= 0) {
-    return undef;
-  }
-  if (defined (my $n = $self->tree_depth_to_n($depth+1))) {
+  if ($depth >= 0
+      && defined (my $n = $self->tree_depth_to_n($depth+1))) {
     return $n-1;
   } else {
     return undef;
@@ -716,12 +699,21 @@ For some classes the X or Y extent may depend on parameter values.
 
 =item C<$y = $path-E<gt>y_minimum()>
 
+=item C<$y = $path-E<gt>rsquared_minimum()>
+
 =item C<$x = $path-E<gt>x_maximum()>
 
 =item C<$y = $path-E<gt>y_maximum()>
 
-Return the minimum or maximum X or Y coordinate reached by integer N values
-in the path.
+=item C<$y = $path-E<gt>rsquared_maximum()>
+
+Return the minimum or maximum of the X or Y coordinate or R squared X^2+Y^2,
+reached by integer N values in the path.
+
+If there's no minimum or maximum then the return is C<undef>.  For X,Y
+there's no minimum for paths which go to into ever bigger negatives.
+Rsquared = X^2+Y^2 is always E<gt>= 0 so it has a minimum 0 or more, but
+generally never has a maximum.
 
 =item C<$x = $path-E<gt>dx_minimum()>
 
@@ -1336,6 +1328,26 @@ always true, so for them
 
     use constant xy_is_visited => 1;
 
+For a tree path the mandatory methods are
+
+    tree_n_parent()
+    tree_n_children()
+    tree_n_to_depth()
+    tree_depth_to_n()
+
+The following have base implementations
+
+    tree_n_num_children()      calls tree_n_children()
+    tree_depth_to_n_end()      calls tree_depth_to_n(d+1)-1
+
+The base C<tree_n_num_children()> counts the return values from
+C<tree_n_children()>.  The ensures consistency between the two but many
+trees can count with less work than calculating outright, for example
+RationalsTree is simply always 2 for NE<gt>=Nstart.
+
+The base C<tree_depth_to_n_end()> assumes that one level ends where the next
+begins, so Nend(depth) = Nstart(depth+1)-1.
+
 =head1 SEE ALSO
 
 =for my_pod see_also begin
@@ -1471,6 +1483,12 @@ L<Math::PlanePath::PowerArray>,
 L<Math::PlanePath::File>
 
 =for my_pod see_also end
+
+L<Math::PlanePath::LCornerTree>,
+L<Math::PlanePath::LCornerReplicate>
+L<Math::PlanePath::ToothpickTree>,
+L<Math::PlanePath::ToothpickReplicate>,
+L<Math::PlanePath::ToothpickUpist>
 
 L<Math::NumSeq::PlanePathCoord>,
 L<Math::NumSeq::PlanePathDelta>,

@@ -33,99 +33,48 @@ use Math::PlanePath::UlamWarburtonQuarter;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
 #------------------------------------------------------------------------------
 # A147610 - 3^(count 1-bits)
 
-{
-  my $anum = 'A147610';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::UlamWarburtonQuarter->new;
-    my @got;
-    my $prev_depth = 0;
-    my $count = 0;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my $depth = $path->tree_n_to_depth($n);
-      if ($depth != $prev_depth) {
-        push @got, $count;    # N end of $prev_depth
-        $count = 0;
-        $prev_depth = $depth;
-      }
-      $count++;
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A147610',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::UlamWarburtonQuarter->new;
+     my @got;
+     my $prev_depth = 0;
+     my $count = 0;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my $depth = $path->tree_n_to_depth($n);
+       if ($depth != $prev_depth) {
+         push @got, $count;    # N end of $prev_depth
+         $count = 0;
+         $prev_depth = $depth;
+       }
+       $count++;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A151920 - cumulative 3^(count 1-bits)
 
-{
-  my $anum = 'A151920';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
+MyOEIS::compare_values
+  (anum => 'A151920',
+   func => sub {
+     my ($count) = @_;
     my $path = Math::PlanePath::UlamWarburtonQuarter->new;
     my @got;
     my $prev_depth = 0;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
+    for (my $n = $path->n_start; @got < $count; $n++) {
       my $depth = $path->tree_n_to_depth($n);
       if ($depth != $prev_depth) {
         push @got, $n-1;    # N end of $prev_depth
         $prev_depth = $depth;
       }
     }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

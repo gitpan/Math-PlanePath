@@ -158,7 +158,7 @@ sub diff_nums {
 #------------------------------------------------------------------------------
 # A039724 -- negabinary positives -> index, written in binary
 {
-  my $anum = 'A039724';
+  my $anum = q{A039724};
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my $diff;
   if ($bvalues) {

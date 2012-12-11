@@ -17,6 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 94, December 2012
+    - new rsquared_minimum(), rsquared_maximum()
+    - PlanePathCoord new coordinate_type "IsLeaf,"IsNonLeaf
+    - ImaginaryHalf new option "digit_order"
+    - Math::PlanePath::Base::Generic new parameter_info_nstart1()
+
 Version 93, November 2012
     - new xy_is_visited()
     - PlanePathCoord new coordinate_type "Min","Max","BitAnd","BitOr","BitXor"

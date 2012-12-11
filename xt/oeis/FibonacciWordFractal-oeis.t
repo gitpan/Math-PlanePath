@@ -35,21 +35,6 @@ use Math::PlanePath::FibonacciWordFractal;
 
 my $path  = Math::PlanePath::FibonacciWordFractal->new;
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
 # return true if the three X,Y's are on a straight line ... but assumed to
 # be equal distance steps
 sub xy_is_straight {
@@ -94,42 +79,36 @@ sub xy_turn_021 {
 
 #------------------------------------------------------------------------------
 # A003849 - Fibonacci word 0/1
-{
-  my $anum = 'A003849';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    # $#$bvalues = 50; # shorten for testing ...
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      push @got, (xy_is_straight($path->n_to_xy($n-1),
-                                 $path->n_to_xy($n),
-                                 $path->n_to_xy($n+1))
-                  ? 1 : 0);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - 0/1 Fibonacci word");
-}
+
+MyOEIS::compare_values
+  (anum => 'A003849',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       push @got, (xy_is_straight($path->n_to_xy($n-1),
+                                  $path->n_to_xy($n),
+                                  $path->n_to_xy($n+1))
+                   ? 1 : 0);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A156596 - turns 0=straight,1=right,2=left
-{
-  my $anum = 'A156596';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    # $#$bvalues = 50; # shorten for testing ...
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      push @got, xy_turn_021($path->n_to_xy($n-1),
-                             $path->n_to_xy($n),
-                             $path->n_to_xy($n+1));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - 0,1,2 turns");
-}
+
+MyOEIS::compare_values
+  (anum => 'A156596',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       push @got, xy_turn_021($path->n_to_xy($n-1),
+                              $path->n_to_xy($n),
+                              $path->n_to_xy($n+1));
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 

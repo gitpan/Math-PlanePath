@@ -28,12 +28,22 @@
 # A055664 - norms of Eisenstein-Jacobi primes
 # A008458 - hex coordination sequence, 1 and multiples of 6
 #
+# A2 centred at lattice point:
 # A014201 - x*x+x*y+y*y solutions excluding 0,0
-# A038587 - centred deep hole
-# A038588 - centred deep hole, uniques of A038587
 # A038589 - lattice sizes, =A014201+1
 # A038590 - sizes, uniques of A038589
 # A038591 - 3fold symmetry, union A038588 and A038590
+#
+# A2 centred at hole
+# A038587 - centred deep hole
+# A038588 - centred deep hole uniques of A038587
+# A005882 - theta relative hole
+#           3,3,6,0,6,3,6,0,3,6,6,0,6,0,6,0,9,6,0,0,6,3,6,0,6,6,6,0,0,0,12,
+# A033685 - theta series of hexagonal lattice A_2 with respect to deep hole.
+#           1/3 steps of norm, so extra zeros
+#           0,3,0,0,3,0,0,6,0,0,0,0,0,6,0,0,3,0,0,6,0,0,0,0,0,3,0,0,6,0,0,6,
+#
+# A005929 Theta series of hexagonal net with respect to mid-point of edge.
 
 #                          [27] [28] [31]
 #                          [12] [13] [16] [21] [28]
@@ -65,7 +75,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -91,7 +101,7 @@ use constant parameter_info_array =>
                          ],
       description     => 'Which X,Y points visit, either X+Y even or odd, or all points, or hexagonal grid points.',
     },
-    Math::PlanePath::Base::Generic::_parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 sub rsquared_minimum {
@@ -701,9 +711,8 @@ Option C<points =E<gt> "hex"> visits X,Y points making a hexagonal grid,
        -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
 N=1 is at the origin X=0,Y=0, then N=2,3,4 are all at X^2+3Y^2=4 away from
-the origin, etc.  The joining lines drawn above show the grid pattern, but
-points are in order of distance from the origin, not following the line
-segments.
+the origin, etc.  The joining lines drawn above show the grid pattern but
+points are in order of distance from the origin.
 
 The points are all integer X,Y with X+3Y mod 6 == 0 or 2.  This is a subset
 of the default "even" points in that X+Y is even but with 1 of each 3 points
@@ -847,7 +856,7 @@ and if C<$x,$y> is a position not covered then the return is C<undef>.
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
 path include,
 
-    http://oeis.org/A035019
+    http://oeis.org/A003136
 
     points="even" (the default)
       A003136  norms (X^2+3*Y^2)/4 which occur
@@ -865,9 +874,9 @@ is related to the "even" X,Y on the path here by a -45 degree rotation,
          = ((Y-X)/2)^2 + (Y-X)/2 * (X+Y)/2 + ((X+Y)/2)^2
          = (X^2 + 3*Y^2) / 4
 
-X^2+3*Y^2 is the dist^2 described above for equilateral triangles of unit
-side.  The factor of /4 scales the distance, but of course doesn't change
-the sets of points of the same distance.
+The X^2+3*Y^2 is the dist^2 described above for equilateral triangles of
+unit side.  The factor of /4 scales the distance but of course doesn't
+change the sets of points of the same distance.
 
     points="all"
       A092572  norms X^2+3*Y^2 which occur
@@ -883,6 +892,15 @@ the sets of points of the same distance.
 # ((Y-X)/2)^2 + (Y-X)/2 * (X+Y)/2 + ((X+Y)/2)^2
 #  = YY-2XY+XX + YY-XX + XX+2XY+YY   / 4
 #  = 3YY + XX
+
+=pod
+
+    points="hex"
+      A113062  count of points norm=X^2+3*Y^2=4*n (theta series)
+      A113063   divided by 3
+
+    points="hex_centred"
+      A217219  count of points norm=X^2+3*Y^2=4*n (theta series)
 
 =head1 SEE ALSO
 

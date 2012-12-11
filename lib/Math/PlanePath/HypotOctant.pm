@@ -16,11 +16,18 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# circular ring splashes from 
+# Circle drop splash rings from 
 # math-image --path=HypotOctant --values=DigitProductSteps,values_type=count
-# math-image --path=Hypot --values=DigitProduct,values_type=count
+# math-image --path=Hypot --values=DigitProduct
 # math-image --path=Hypot --values=DigitCount
+# math-image --path=Hypot --values=Modulo,modulus=1000
+# http://stefan.guninski.com/oeisposter/
 #
+# pi*r^2 - pi*(r-1)^2 = pi*(2r-1)
+# octant is 1/8 of that pi*(2x-1)/8
+# pi*(2x-1)/8=100k
+# 2x-1 = 100k*8/pi
+# x = 100*4/pi*k
 #
 # A000328 Number of points of norm <= n^2 in square lattice.
 # 1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441, 529, 613, 709, 797
@@ -39,7 +46,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -294,6 +301,12 @@ Math::PlanePath::HypotOctant -- octant of points in order of hypotenuse distance
 
 This path visits an octant of integer points X,Y in order of their distance
 from the origin 0,0.  The points are a rising triangle 0E<lt>=YE<lt>=X,
+
+=cut
+
+# math-image --all --path=HypotOctant --output=numbers --size=60x9
+
+=pod
 
      8  |                                61
      7  |                            47  54

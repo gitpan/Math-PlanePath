@@ -29,66 +29,24 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 use Math::PlanePath::AnvilSpiral;
 
-use Math::PlanePath::Base::Digits
-  'digit_join_lowtohigh';
-
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
-
-
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
-
 
 
 #------------------------------------------------------------------------------
 # A033581 - N on Y axis (6*n^2) except for initial N=2
 
-{
-  my $anum = 'A033581';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path = Math::PlanePath::AnvilSpiral->new (wider => 2);
-  my $diff;
-  if ($bvalues) {
-    my @got = (0);
-    for (my $y = 1; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n(0,$y);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..3]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..3]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum by path");
-}
+MyOEIS::compare_values
+  (anum => 'A033581',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::AnvilSpiral->new (wider => 2);
+     my @got = (0);
+     for (my $y = 1; @got < @$bvalues; $y++) {
+       push @got, $path->xy_to_n(0,$y);
+     }
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------

@@ -45,7 +45,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 93;
+$VERSION = 94;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -163,7 +163,7 @@ sub i_start {
 # }
 # sub next {
 #   my ($self) = @_;
-#   ### NumSeq-PlanePath next(): $self->{'i'}
+#   ### NumSeq-PlanePathDelta next(): $self->{'i'}
 #   ### n_next: $self->{'n_next'}
 #
 #   my $planepath_object = $self->{'planepath_object'};
@@ -191,7 +191,7 @@ sub i_start {
 
 sub ith {
   my ($self, $i) = @_;
-  ### NumSeq-PlanePath ith(): $i
+  ### NumSeq-PlanePathDelta ith(): $i
 
   my $planepath_object = $self->{'planepath_object'};
   if (my ($dx, $dy) = $planepath_object->n_to_dxdy ($i)) {
@@ -1738,7 +1738,57 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_TDir6_max_is_supremum => 1;
 }
 { package Math::PlanePath::ImaginaryHalf;
-  use constant _NumSeq_Delta_AbsdX_min => 1;
+  {
+    my %_NumSeq_Delta_AbsdX_min = (XYX => 1,
+                                   XXY => 1,
+                                   YXX => 0,   # dX=0 at N=0
+                                   XnYX => 2,  # dX=-2 at N=0
+                                   XnXY => 1,
+                                   YXnX => 0,  # dX=0 at N=0
+                                  );
+    sub _NumSeq_Delta_AbsdX_min {
+      my ($self) = @_;
+      return $_NumSeq_Delta_AbsdX_min{$self->{'digit_order'}};
+    }
+  }
+  {
+    my %_NumSeq_Delta_AbsdY_min = (XYX => 0,   # dY=0 at N=0
+                                   XXY => 0,   # dY=0 at N=0
+                                   YXX => 1,
+                                   XnYX => 0,   # dY=0 at N=0
+                                   XnXY => 0,   # dY=0 at N=0
+                                   YXnX => 1,
+                                  );
+    sub _NumSeq_Delta_AbsdY_min {
+      my ($self) = @_;
+      return $_NumSeq_Delta_AbsdY_min{$self->{'digit_order'}};
+    }
+  }
+
+  sub _NumSeq_Delta_Dir4_min {
+    my ($self) = @_;
+    if ($self->{'digit_order'} eq 'zzXYX') {
+      return Math::NumSeq::PlanePathDelta::_delta_func_Dir4
+        ($self->{'radix'}-1,-2);
+    } else {
+      return 0;
+    }
+  }
+  {
+    my %_NumSeq_Dir4_min_is_infimum = (XYX => 0,
+                                       XXY => 0,
+                                       YXX => 1,  # dX=big,dY=1
+                                       XnYX => 1,  # dX=big,dY=1
+                                       XnXY => 0,  # dX=1,dY=0 at N=1
+                                       YXnX =>  1,  # dX=big,dY=1
+                                      );
+    sub _NumSeq_Dir4_min_is_infimum {
+      my ($self) = @_;
+      return $_NumSeq_Dir4_min_is_infimum{$self->{'digit_order'}};
+    }
+    *_NumSeq_TDir6_min_is_infimum = \&_NumSeq_Dir4_min_is_infimum;
+  }
+
   use constant _NumSeq_Delta_Dir4_max => 4; # supremum
   use constant _NumSeq_Delta_TDir6_max => 6; # supremum
   use constant _NumSeq_Dir4_max_is_supremum => 1;
@@ -3526,6 +3576,19 @@ sub characteristic_non_decreasing {
   #  # dY => 'A108715', # first diffs of odd part of n
   #  # # OEIS-Catalogue: A108715 planepath=PowerArray,radix=2 delta_type=dY
   # },
+}
+
+{ package Math::PlanePath::ToothpickTree;
+  use constant _NumSeq_Delta_Dir4_max => 3;  # south
+  use constant _NumSeq_Delta_TDir6_max => 4.5;
+}
+{ package Math::PlanePath::ToothpickUpist;
+  use constant _NumSeq_Delta_Dir4_max => 2;  # N=1 west dX=1,dY=0
+  use constant _NumSeq_Delta_TDir6_max => 3;
+}
+{ package Math::PlanePath::LCornerTree;
+  use constant _NumSeq_Delta_Dir4_max => 3.5;  # South-West
+  use constant _NumSeq_Delta_TDir6_max => 5;
 }
 
 1;

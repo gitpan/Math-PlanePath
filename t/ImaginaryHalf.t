@@ -42,7 +42,7 @@ require Math::PlanePath::ImaginaryHalf;
 # VERSION
 
 {
-  my $want_version = 93;
+  my $want_version = 94;
   ok ($Math::PlanePath::ImaginaryHalf::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ImaginaryHalf->VERSION,  $want_version,
@@ -82,8 +82,7 @@ require Math::PlanePath::ImaginaryHalf;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::ImaginaryHalf->parameter_info_list;
-  ok (join(',',@pnames), 'radix');
-  # ok (join(',',@pnames), 'radix,digit_order');
+  ok (join(',',@pnames), 'radix,digit_order');
 }
 
 
