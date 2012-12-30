@@ -16,7 +16,7 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# cf atthew Szudzik ElegantPairing.pdf going inwardly.
+# cf Matthew Szudzik ElegantPairing.pdf going inwardly.
 #
 #   5 | 25--...
 #     |
@@ -31,15 +31,17 @@
 # Y=0 |  0   2   6  12  20
 #     +---------------------
 #      X=0   1   2   3   4
-
-
+#
+# cf A185728 where diagonal is last in each gnomon
+#    A185725 gnomon sides alternately starting from ends
+#    A185726 gnomon sides alternately starting from diagonal
 
 package Math::PlanePath::Corner;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -300,8 +302,9 @@ first quadrant.
         +---------------------
          X=0   1   2   3   4
 
-The horizontal 1,4,9,16,etc along Y=0 is the perfect squares.  This is since
-each further row/column stripe makes a one-bigger square,
+X<Gnomon>The horizontal 1,4,9,16,etc along Y=0 is the perfect squares.  This
+is since each further row/column "gnomon" added to a square makes a
+one-bigger square,
 
                             10 11 12 13
                5  6  7       5  6  7 14
@@ -310,13 +313,13 @@ each further row/column stripe makes a one-bigger square,
 
      2x2        3x3           4x4
 
-N=2,6,12,20,etc on the diagonal upwards from X=0,Y=1 is the pronic numbers
-k*(k+1), half way between those squares.
+N=2,6,12,20,etc on the diagonal upwards from X=0,Y=1 is the
+X<Pronic Numbers>pronic numbers k*(k+1), half way between those squares.
 
-Each row/column stripe is 2 longer than the previous, similar to the
-PyramidRows, PyramidSides and SacksSpiral paths.  The Corner and the
-PyramidSides are the same, just the PyramidSides stretched out to two
-quadrants instead of one for this Corner.
+Each gnomon is 2 longer than the previous, similar to the PyramidRows,
+PyramidSides and SacksSpiral paths.  The Corner and the PyramidSides are the
+same, just the PyramidSides stretched out to two quadrants instead of one
+for this Corner.
 
 =head2 Wider
 
@@ -350,8 +353,8 @@ gives
 The initial N=1 is C<wider> many further places to the right before going up
 to the Y axis, then the path makes corners around that shape.
 
-Each loop is still 2 longer than the previous, as the widening is a constant
-amount in each loop.
+Each gnomon is still 2 longer than the previous, as the widening is a
+constant amount in each successively bigger one.
 
 =head2 N Start
 
@@ -413,39 +416,40 @@ and biggest in the rectangle.
 
 =head2 N to X,Y
 
-Counting d=0 for the first L-shaped row at Y=0, then the start of that row is
+Counting d=0 for the first L-shaped gnomon at Y=0, then the start of the
+gnomon is
 
     StartN(d) = d^2 + 1 = 1,2,5,10,17,etc
 
 The current C<n_to_xy()> code extends to the left by an extra 0.5 for
 fractional N, so for example N=9.5 is at X=-0.5,Y=3.  With this the starting
-N for each d row is
+N for each gnomon d is
 
     StartNfrac(d) = d^2 + 0.5
 
-Inverting gives the row d for an N,
+Inverting gives the gnomon d number for an N,
 
     d = floor(sqrt(N - 0.5))
 
-Subtracting the row start gives an offset into the row
+Subtracting the gnomon start gives an offset into that gnomon
 
     OffStart = N - StartNfrac(d)
 
-The corner point 1,3,7,13,etc where the row turns down is at d+0.5 into that
-remainder, and it's convenient to subtract that so negative for the
-horizontal or positive for the vertical,
+The corner point 1,3,7,13,etc where the gnomon turns down is at d+0.5 into
+that remainder, and it's convenient to subtract that so negative for the
+horizontal and positive for the vertical,
 
     Off = OffStart - (d+0.5)
         = N - (d*(d+1) + 1)
 
-And the X,Y coordinates thus
+Then the X,Y coordinates are
 
     if (Off < 0)  then  X=d+Off, Y=d
     if (Off >= 0) then  X=d,     Y=d-Off
 
 =head2 X,Y to N
 
-For a given X,Y the bigger of X or Y determines the d row.
+For a given X,Y the bigger of X or Y determines the d gnomon.
 
 If YE<gt>=X then X,Y is on the horizontal part.  At X=0 have N=StartN(d) per
 the Start(N) formula above, and any further X is an offset from there.
@@ -456,7 +460,7 @@ the Start(N) formula above, and any further X is an offset from there.
         = Y^2 + 1 + X
 
 Otherwise if YE<lt>X then X,Y is on the vertical part.  At Y=0 N is the last
-point on the row, and one back from the start of the following row,
+point on the gnomon, and one back from the start of the following gnomon,
 
     if Y <= X then
       d=X
@@ -542,6 +546,10 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
       A002522    N on Y axis (N=Y^2+1)
       A004201    N for which X>=Y, ie. on and below X=Y diagonal
       A020703    permutation N at transpose Y,X
+      A060734    permutation N by diagonals up from X axis
+      A064790     inverse
+      A060736    permutation N by diagonals down from Y axis
+      A064788     inverse
 
     wider=0, n_start=0
       A000196    max(X,Y), being floor(sqrt(N))

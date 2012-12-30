@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 3;
+plan tests => 7;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -32,6 +32,78 @@ use Math::PlanePath::Corner;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A060736 -- permutation, N by diagonals down
+
+MyOEIS::compare_values
+  (anum => 'A060736',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $corner = Math::PlanePath::Corner->new;
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
+     my @got;
+     for (my $n = $diagonal->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagonal->n_to_xy($n);
+       push @got, $corner->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A064788 -- permutation, inverse of N by diagonals down
+
+MyOEIS::compare_values
+  (anum => 'A064788',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $corner = Math::PlanePath::Corner->new;
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'down');
+     my @got;
+     for (my $n = $corner->n_start; @got < $count; $n++) {
+       my ($x, $y) = $corner->n_to_xy($n);
+       push @got, $diagonal->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A060734 -- permutation, N by diagonals upwards
+
+MyOEIS::compare_values
+  (anum => 'A060734',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $corner = Math::PlanePath::Corner->new;
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
+     my @got;
+     for (my $n = $diagonal->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagonal->n_to_xy($n);
+       push @got, $corner->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A064790 -- permutation, inverse of N by diagonals upwards
+
+MyOEIS::compare_values
+  (anum => 'A064790',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $corner = Math::PlanePath::Corner->new;
+     my $diagonal = Math::PlanePath::Diagonals->new (direction => 'up');
+     my @got;
+     for (my $n = $corner->n_start; @got < $count; $n++) {
+       my ($x, $y) = $corner->n_to_xy($n);
+       push @got, $diagonal->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A004201 -- N for which Y<=X, half below diagonal

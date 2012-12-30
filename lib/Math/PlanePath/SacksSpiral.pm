@@ -32,7 +32,7 @@ use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 @ISA = ('Math::PlanePath');
 
 
@@ -260,7 +260,11 @@ X<Sacks, Robert>The Sacks spiral by Robert Sacks is an Archimedean spiral
 with points N placed on the spiral so the perfect squares fall on a line
 going to the right.  Read more at
 
-    http://www.numberspiral.com
+=over
+
+http://www.numberspiral.com
+
+=back
 
 An Archimedean spiral means each loop is a constant distance from the
 preceding, in this case 1 unit.  The polar coordinates are
@@ -289,10 +293,10 @@ points, at 1 unit apart.  Other points are a little further apart.
 
 The arms going to the right like N=5,10,17,etc or N=8,15,24,etc are constant
 offsets from the perfect squares, ie. S<d^2 + c> for positive or negative
-integer c.  To the left the central arm N=2,6,12,20,etc is the pronic
-numbers S<d^2 + d> = S<d*(d+1)>, half way between the successive perfect
-squares.  Other arms going to the left are offsets from that,
-ie. S<d*(d+1) + c> for integer c.
+integer c.  To the left the central arm N=2,6,12,20,etc is the
+X<Pronic Numbers>pronic numbers S<d^2 + d> = S<d*(d+1)>, half way between
+the successive perfect squares.  Other arms going to the left are offsets
+from that, ie. S<d*(d+1) + c> for integer c.
 
 Euler's quadratic d^2+d+41 is one such arm going left.  Low values loop
 around a few times before straightening out at about y=-127.  This quadratic

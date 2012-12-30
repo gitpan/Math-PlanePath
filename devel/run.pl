@@ -32,7 +32,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 {
   my $path_class;
   $path_class = 'Math::PlanePath::QuadricCurve';
-  $path_class = 'Math::PlanePath::SierpinskiCurve';
   $path_class = 'Math::PlanePath::LTiling';
   $path_class = 'Math::PlanePath::TerdragonCurve';
   $path_class = 'Math::PlanePath::TerdragonMidpoint';
@@ -40,7 +39,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::QuintetCentres';
   $path_class = 'Math::PlanePath::HIndexing';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
-  $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
   $path_class = 'Math::PlanePath::CCurve';
 
@@ -52,7 +50,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::CornerReplicate';
   $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HilbertSpiral';
-  $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::GreekKeySpiral';
   $path_class = 'Math::PlanePath::ComplexMinus';
   $path_class = 'Math::PlanePath::QuintetReplicate';
@@ -82,7 +79,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DragonMidpoint';
   $path_class = 'Math::PlanePath::ParabolicRows';
   $path_class = 'Math::PlanePath::QuintetCurve';
-  $path_class = 'Math::PlanePath::Hypot';
   $path_class = 'Math::PlanePath::TriangularHypot';
   $path_class = 'Math::PlanePath::KnightSpiral';
   $path_class = 'Math::PlanePath::AlternatePaper';
@@ -102,7 +98,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::FractionsTree';
   $path_class = 'Math::PlanePath::R5DragonCurve';
   $path_class = 'Math::PlanePath::GcdRationals';
-  $path_class = 'Math::PlanePath::PythagoreanTree';
   $path_class = 'Math::PlanePath::Diagonals';
   $path_class = 'Math::PlanePath::LToothpickTree';
   $path_class = 'Math::PlanePath::RationalsTree';
@@ -123,11 +118,23 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::EToothpickTree';
   $path_class = 'Math::PlanePath::ToothpickUpist';
-  $path_class = 'Math::PlanePath::SurroundOneEight';
+  $path_class = 'Math::PlanePath::Hypot';
+  $path_class = 'Math::PlanePath::SierpinskiCurve';
+  $path_class = 'Math::PlanePath::FlowsnakeCentres';
+  $path_class = 'Math::PlanePath::Flowsnake';
+  $path_class = 'Math::PlanePath::SurroundOneEightByCells';
+  $path_class = 'Math::PlanePath::LToothpickTree';
+  $path_class = 'Math::PlanePath::SurroundOneVHbyCells';
+  $path_class = 'Math::PlanePath::PeninsulaBridge';
+  $path_class = 'Math::PlanePath::PythagoreanTree';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+      coordinates => 'PQ',
+     reverse => 1,
+      tree_type => 'FB',
+     # arms => 2,
      # sides=>3,
      # digit_order => 'XnYX',
      # radix => 2,
@@ -136,7 +143,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # y_start => 2,
      #  k => 3,
      #  reduced => 1,
-     # points => 'all_mul',
+     # points => 'square_centred',
      # n_start => 0,
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_up',
@@ -149,7 +156,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # align => 'diagonal',
      # offset => -0.5,
      # turns => 1,
-     # arms => 4,
      # base => 7,
      # direction => 'up',
      # step => 6,
@@ -165,8 +171,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # realpart => 1,
      # mirror => 1,
      # divisor_type => 'proper',
-     # coordinates => 'PQ',
-     # tree_type => 'FB',
     );
   ### $path
   my %seen;
@@ -197,7 +201,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 18; $i+=1) {
+  for (my $i = $n_start+0; $i <= 41; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

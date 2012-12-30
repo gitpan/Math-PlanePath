@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -271,7 +271,7 @@ numbers 0,1,3,6,10,15,21,etc, k*(k+1)/2, on the X axis alternately positive
 and negative.
 
 N=0,2,8,18,etc on the Y axis is 2*squares, 2*Y^2.  N=0,4,12,24,etc on the
-negative Y axis is 2*pronic, 2*Y*(Y+1).
+negative Y axis is X<Pronic Numbers>2*pronic, 2*Y*(Y+1).
 
 =head1 FUNCTIONS
 
@@ -357,6 +357,12 @@ this path include
       A058331    N on Y axis, 2*n^2 + 1
       A084849    N on X negative axis, 2*n^2+n+1
       A001844    N on Y negative axis, centred squares 2*n^2+2n+1
+      A215471    N with >=5 primes among its 8 neighbours
+      A215468    sum 8 neighbours N
+
+      A217015    N permutation points order SquareSpiral rotate -90,
+                   value DiamondSpiral N at each
+      A217296    inverse permutation
 
     n_start=0
       A010751    X coordinate, runs 1 inc, 2 dec, 3 inc, etc
@@ -364,6 +370,10 @@ this path include
       A001105    N on Y axis, 2*squares
       A014105    N on X negative axis, second hexagonals
       A046092    N on Y negative axis, 2*pronic
+
+    n_start=-1
+      A188551    N positions of turns, from N=1 up
+      A188552      and which are primes
 
 =head1 SEE ALSO
 

@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 142 A-numbers in 4 modules
+# total 143 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -1073,6 +1073,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A007051',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PythagoreanTree',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
     'anum' => 'A081254',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -1197,7 +1207,7 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
       'planepath',
-      'SierpinskiTriangle,align=diagonal',
+      'SierpinskiTriangle,align=diagonal,n_start=0',
       'line_type',
       'Y_axis'
     ]

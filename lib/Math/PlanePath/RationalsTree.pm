@@ -57,7 +57,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -79,6 +79,7 @@ use Math::PlanePath::CoprimeColumns;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant tree_any_leaf => 0;  # no leaves, complete tree
 
 use constant parameter_info_array =>
   [ { name            => 'tree_type',
@@ -440,8 +441,8 @@ sub tree_n_to_depth {
   unless ($n >= 0) {
     return undef;
   }
-  my ($len, $level) = round_down_pow ($n+1, 2);
-  return $level;
+  my ($pow, $exp) = round_down_pow ($n+1, 2);
+  return $exp;
 }
 sub tree_depth_to_n {
   my ($self, $depth) = @_;
@@ -470,7 +471,7 @@ __END__
   # }
 
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped FractionsTree GCD Luschny Jerzy Czyz Minkowski Nstart
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings PlanePath Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped FractionsTree GCD Luschny Jerzy Czyz Minkowski Nstart Shallit's HCS Ndepth Nparent
 
 =head1 NAME
 
@@ -570,9 +571,14 @@ The Y=1 horizontal is the X/1 integers at the end each row which is
 =head2 Calkin-Wilf Tree
 
 X<Calkin, Neil>X<Wilf, Herbert>C<tree_type=E<gt>"CW"> selects the tree of
-Neil Calkin and Herbert Wilf, "Recounting the Rationals",
+Neil Calkin and Herbert Wilf,
 
-    http://www.math.upenn.edu/%7Ewilf/website/recounting.pdf
+=over
+
+"Recounting the Rationals",
+http://www.math.upenn.edu/~wilf/website/recounting.pdf
+
+=back
 
 As noted above, the values within each row are the same as the Stern-Brocot,
 but in a different order.
@@ -646,12 +652,16 @@ calculate the SB tree by taking the bits of N from low to high instead.
 X<Andreev, D.N.>X<Yu-Ting, Shen>C<tree_type=E<gt>"AYT"> selects the tree
 described (independently is it?) by D. N. Andreev and Shen Yu-Ting.
 
-   http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf
+=over
 
-   Shen Yu-Ting, "A Natural Enumeration of Non-Negative Rational Numbers
-   -- An Informal Discussion", American Mathematical Monthly, 87, 1980,
-   pages 25-29.
-   http://www.jstor.org/stable/2320374
+http://files.school-collection.edu.ru/dlrstore/d62f7b96-a780-11dc-945c-d34917fee0be/i2126134.pdf
+
+Shen Yu-Ting, "A Natural Enumeration of Non-Negative Rational Numbers
+-- An Informal Discussion", American Mathematical Monthly, 87, 1980,
+pages 25-29.
+http://www.jstor.org/stable/2320374
+
+=back
 
 Their constructions are a one-to-one mapping between integer N and
 rational X/Y as a way of enumerating the rationals.  It's not designed
@@ -683,9 +693,10 @@ which means
 The left leg (X+Y)/Y is the same as in the CW has on the right.  But Y/(X+Y)
 is not the same as the CW (the other there being X/(X+Y)).
 
-The Y/(X+Y) right leg forms the Fibonacci numbers F(k)/F(k+1) at the end of
-each row, ie. at Nend=2^(level+1)-1.  And as noted by Andreev, successive
-right leg fractions N=4k+1 and N=4k+3 add up to 1, ie.
+X<Fibonacci Numbers>The Y/(X+Y) right leg forms the Fibonacci numbers
+F(k)/F(k+1) at the end of each row, ie. at Nend=2^(level+1)-1.  And as noted
+by Andreev, successive right leg fractions N=4k+1 and N=4k+3 add up to 1,
+ie.
 
     X/Y at N=4k+1  +  X/Y at N=4k+3  =  1
     Eg. 2/5 at N=13 and 3/5 at N=15 add up to 1
@@ -817,8 +828,12 @@ and then final group length Y-1, so bits N=11000...00.
 
 X<Hinze, Ralf>C<tree_type=E<gt>"Bird"> selects the Bird tree by Ralf Hinze
 
-    "Functional Pearls: The Bird tree",
-    http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf
+=over
+
+"Functional Pearls: The Bird tree",
+http://www.cs.ox.ac.uk/ralf.hinze/publications/Bird.pdf
+
+=back
 
 It's expressed recursively, illustrating Haskell programming features.  The
 subtrees are tree plus one reciprocal on the left, and tree reciprocal plus
@@ -876,7 +891,11 @@ back to the ordinary way on even rows.
 
 X<Hinze, Ralf>C<tree_type=E<gt>"Drib"> selects the Drib tree by Ralf Hinze.
 
-    http://oeis.org/A162911
+=over
+
+http://oeis.org/A162911
+
+=back
 
 It reverses the bits of N in the Bird tree (in a similar way that the SB and
 CW are bit reversals of each other).
@@ -895,8 +914,8 @@ The descendants of each node are
         /     \
     Y/(X+Y)  (X+Y)/X
 
-The endmost fractions of each row are Fibonacci numbers, F(k)/F(k+1) on the
-left and F(k+1)/F(k) on the right.
+X<Fibonacci Numbers>The endmost fractions of each row are Fibonacci numbers,
+F(k)/F(k+1) on the left and F(k+1)/F(k) on the right.
 
 =cut
 
@@ -933,7 +952,11 @@ Xor with 0010 for 1101 N=13 which is 4/1 in the Drib tree.
 
 X<Luschny, Peter>C<tree_type=E<gt>"L"> selects the L-tree by Peter Luschny.
 
-    http://www.oeis.org/wiki/User:Peter_Luschny/SternsDiatomic
+=over
+
+http://www.oeis.org/wiki/User:Peter_Luschny/SternsDiatomic
+
+=back
 
 It's a row-reversal of the CW tree with a shift to include zero as 0/1.
 

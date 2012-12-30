@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -260,7 +260,7 @@ __END__
 # }
 
 
-=for stopwords eg Ryde Math-PlanePath SierpinskiCurve ZOrderCurve OEIS
+=for stopwords eg Ryde Math-PlanePath SierpinskiCurve ZOrderCurve OEIS bitwise
 
 =head1 NAME
 

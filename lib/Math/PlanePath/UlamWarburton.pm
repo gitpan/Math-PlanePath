@@ -16,24 +16,10 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=UlamWarburton --all --output=numbers --size=80x50
-#
-# A147610 - 3^(ones(n-1) - 1)
-# A048883 - 3^(ones n)
-
-# A160117 peninsula and bridges
-# A160118 similar but all 8 directions around single-touching peninsula
-# A160415   first diffs
-# A160796 with initial single 1
-# A160797   first diffs
-# A188343
-# A151922 - num first-quadrant cells
-# A079314 first diffs
-# A079316
-# A165345 turn ON if 1 or 3 adjacent neighbours
-#     http://www.math.vt.edu/people/layman/sequences/A165345.html
-# A160720,A160721 diagonal adjacent and not nearer the origin
-#     differs from A147562 ulam-warbuton first at depth=8
+# A151922 num first-quadrant cells
+# A079314  added
+# A079316 num first-quadrant cells, maybe
+# A079317 Ulam/Warburton with cells turning off too
 
 package Math::PlanePath::UlamWarburton;
 use 5.004;
@@ -41,7 +27,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -542,6 +528,13 @@ X<Ulam, Stanislaw>X<Warburton>This is the pattern of a cellular automaton
 studied by Ulam and Warburton, numbering cells by growth level and
 anti-clockwise within their level.
 
+=cut
+
+# math-image --path=UlamWarburton --expression='i<100?i:0' --output=numbers
+# and add N=100,N=101 manually
+
+=pod
+
                                94                                  9
                             95 87 93                               8
                                63                                  7
@@ -764,15 +757,18 @@ Sequences as
 
     http://oeis.org/A147582    (etc)
 
-    A147582 - number of new cells in level n
-    A147562 - Nend, total cells to level n
+    A147582   total cells to depth=n-1 (tree_depth_to_n())
+    A147562   added cells at depth=n-1
+
+    A151922   total cells to depth=n with X>=0,Y>=0
+    A079314   added cells at depth=n with X>=0,Y>=0
 
 The A147582 new cells sequence starts from n=1, so takes the innermost N=1
 single cell as level n=1, then N=2,3,4,5 as level n=2 with 5 cells, etc.
 This makes the formula a binary 1-bits count on n-1 rather than on N the way
 levelcells() above is expressed.
 
-The 1bits-count power 3^(count 1-bits in level) part of the levelcells() is
+The 1-bits-count power 3^(count 1-bits in level) part of the levelcells() is
 also separately in A048883, and as n-1 in A147610.
 
 =head1 SEE ALSO

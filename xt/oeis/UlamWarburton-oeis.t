@@ -39,7 +39,7 @@ my $path = Math::PlanePath::UlamWarburton->new;
 # my @grid;
 # my $offset = 30;
 # my @n_start;
-# 
+#
 # my $prev = 0;
 # $grid[0+$offset][0+$offset] = 0;
 # foreach my $n (1 .. 300) {
@@ -58,7 +58,7 @@ my $path = Math::PlanePath::UlamWarburton->new;
 # ### @n_start
 # my @n_end = map {$_-1} @n_start;
 # ### @n_end
-# 
+#
 # my @levelcells = (1, map {$n_start[$_]-$n_start[$_-1]} 1 .. $#n_start);
 # ### @levelcells
 
@@ -71,6 +71,53 @@ my $path = Math::PlanePath::UlamWarburton->new;
 #   print "\n";
 # }
 
+
+#------------------------------------------------------------------------------
+# A151922 - count total cells in first quadrant, incl X,Y axes
+
+MyOEIS::compare_values
+  (anum => 'A151922',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $n = $path->n_start;
+     my $total = 0;
+     for (my $depth = 0; @got < $count; $depth++) {
+       my $n_end = $path->tree_depth_to_n_end($depth);
+       for ( ; $n <= $n_end; $n++) {
+         my ($x,$y) = $path->n_to_xy($n);
+         if ($x >= 0 && $y >= 0) {
+           $total++;
+         }
+       }
+       push @got, $total;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A079314 - count added cells in first quadrant, incl X,Y axes
+#   is added(depth)/4 + 1, the +1 being for two axes
+#
+MyOEIS::compare_values
+  (anum => 'A079314',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $n = $path->n_start;
+     for (my $depth = 0; @got < $count; $depth++) {
+       my $n_end = $path->tree_depth_to_n_end($depth);
+       my $added = 0;
+       for ( ; $n <= $n_end; $n++) {
+         my ($x,$y) = $path->n_to_xy($n);
+         if ($x >= 0 && $y >= 0) {
+           $added++;
+         }
+       }
+       push @got, $added;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A147582 - count new cells in each level

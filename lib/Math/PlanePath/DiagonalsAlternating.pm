@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -153,7 +153,7 @@ use Math::PlanePath::Diagonals;
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath hexagonals OEIS
+=for stopwords PlanePath Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -170,6 +170,12 @@ Math::PlanePath::DiagonalsAlternating -- points in diagonal stripes of alternati
 This path follows successive diagonals going from the Y axis down to the X
 axis and then back again,
 
+=cut
+
+# math-image --path=DiagonalsAlternating --expression='i<=31?i:0' --output=numbers
+
+=pod
+
       7  |  29 
       6  |  28  30
       5  |  16  27  31
@@ -181,20 +187,20 @@ axis and then back again,
          +----------------------------
            X=0   1   2   3   4   5   6
 
-The triangular numbers 1,3,6,10,etc, k*(k+1)/2, fall alternately on the X
-axis and Y axis.  So 1,6,15,28,etc on the Y axis, and 3,10,21,36,etc on the
-X axis.  Those on the Y axis are the hexagonal numbers j*(2j-1) and those on
-the X axis are the hexagonals of the second kind j*(2j+1).
+The triangular numbers 1,3,6,10,etc k*(k+1)/2 are the start of each run up
+or down alternately on the X axis and Y axis.  N=1,6,15,28,etc on the Y axis
+(Y even) are the hexagonal numbers j*(2j-1).  N=3,10,21,36,etc on the X axis
+(X odd) are the hexagonal numbers of the second kind j*(2j+1).
 
 =head2 N Start
 
 The default is to number points starting N=1 as shown above.  An optional
-C<n_start> can give a different start, in the same sequence.  For example to
+C<n_start> can give a different start, in the same pattern.  For example to
 start at 0,
 
 =cut
 
-# math-image --path=DiagonalsAlternating,n_start=0 --all --output=numbers --size=35x5
+# math-image --path=DiagonalsAlternating,n_start=0 --expression='i<=14?i:0' --output=numbers --size=35x5
 
 =pod
 
@@ -216,6 +222,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::DiagonalsAlternating-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::DiagonalsAlternating-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new path object.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
@@ -234,6 +242,15 @@ begins at 1.
 Within each row increasing X is increasing N, and in each column increasing
 Y is increasing N.  So in a rectangle the lower left corner is the minimum N
 and the upper right is the maximum N.
+
+    |               N max
+    |     ----------+
+    |    |  ^       |
+    |    |  |       |
+    |    |   ---->  |
+    |    +----------
+    |   N min
+    +-------------------
 
 =head1 OEIS
 
@@ -262,10 +279,13 @@ path include
       A046092    N on X=Y diagonal
       A061579    permutation N at transpose Y,X
 
-The various coordinate forms such as A003056 X+Y is the same here as in the
-Diagonals path.  The alternating directions here transposes X,Y -E<gt> Y,X
-in every second diagonal.  Sequences such as X+Y are unchanged by swapping
-to Y+X etc.
+      A056011    permutation N at points by Diagonals,direction=up order
+      A056023    permutation N at points by Diagonals,direction=down
+         runs alternately up and down, both are self-inverse
+
+The coordinates such as A003056 X+Y are the same here as in the Diagonals
+path.  DiagonalsAlternating transposes X,Y -E<gt> Y,X in every second
+diagonal but forms such as X+Y are unchanged by swapping to Y+X.
 
 =head1 SEE ALSO
 
@@ -297,10 +317,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=DiagonalsAlternating --lines --scale=20"
-# End:
-#
-# math-image --path=DiagonalsAlternating --all --output=numbers_dash

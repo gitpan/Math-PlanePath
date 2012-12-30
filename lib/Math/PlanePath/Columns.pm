@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -156,7 +156,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PyramidSides PlanePath Math-PlanePath Ryde
+=for stopwords PlanePath Math-PlanePath Ryde
 
 =head1 NAME
 

@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -240,10 +240,10 @@ sub rect_to_n_range {
     return (1, 0);
   }
 
-  my ($len, $level) = round_down_pow (max($x2,$y2), 5);
-  ### $len
+  my ($pow, $level) = round_down_pow (max($x2,$y2), 5);
+  ### $pow
   ### $level
-  return (0, 25*$len*$len-1);
+  return (0, 25*$pow*$pow-1);
 }
 
 1;

@@ -251,8 +251,8 @@ use lib 'xt';
 {
   # rect range exact
 
-  my @rot_to_dx = (1,0,-1,0);
-  my @rot_to_dy = (0,1,0,-1);
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
   my @digit_to_rev = (0,5,0,5,undef,
                       5,0,5,0);
   my @min_digit_to_rot = (-1,1,1,-1,0,
@@ -298,8 +298,8 @@ use lib 'xt';
       $len = $initial_len;
       if ($initial_rev) {
         $rot += 2;
-        $x = 2*$len * $rot_to_dx[($rot+2)&3];
-        $y = 2*$len * $rot_to_dy[($rot+2)&3];
+        $x = 2*$len * $dir4_to_dx[($rot+2)&3];
+        $y = 2*$len * $dir4_to_dy[($rot+2)&3];
       } else {
         $x = $zero;
         $y = $zero;
@@ -318,8 +318,8 @@ use lib 'xt';
           ### nlo: "nlo=$nlo xy=$nx,$ny  next xy=$nextx,$nexty"
           ### assert: $x == $nx
           ### assert: $y == $ny
-          # ### assert: $nextx == $nx + ($rot_to_dx[$rot&3] * $len)
-          # ### assert: $nexty == $ny + ($rot_to_dy[$rot&3] * $len)
+          # ### assert: $nextx == $nx + ($dir4_to_dx[$rot&3] * $len)
+          # ### assert: $nexty == $ny + ($dir4_to_dy[$rot&3] * $len)
         }
 
         $rot += $min_digit_to_rot[$digit+$rev];
@@ -365,8 +365,8 @@ use lib 'xt';
         } else {
           ### no overlap, next digit ...
           $rot &= 3;
-          $x += $rot_to_dx[$rot] * $len;
-          $y += $rot_to_dy[$rot] * $len;
+          $x += $dir4_to_dx[$rot] * $len;
+          $y += $dir4_to_dy[$rot] * $len;
         }
       }
       ### digits: join(',',@digits)

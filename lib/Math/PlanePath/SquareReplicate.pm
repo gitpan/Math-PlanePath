@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -165,8 +165,8 @@ sub rect_to_n_range {
     my $m = abs(round_nearest($_));
     if ($m > $max) { $max = $m }
   }
-  my ($len,$level) = round_down_pow (2*($max||1)-1, 3);
-  return (0, 9*$len*$len - 1);  # 9^level-1
+  my ($pow) = round_down_pow (2*($max||1)-1, 3);
+  return (0, 9*$pow*$pow - 1);  # 9^level-1
 }
 
 1;

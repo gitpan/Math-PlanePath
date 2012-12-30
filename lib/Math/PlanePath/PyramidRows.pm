@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -386,8 +386,8 @@ than the preceding, an extra point at the left and the right,
     -4  -3  -2  -1  x=0  1   2   3   4 ...
 
 The right end N=1,4,9,16,etc is the perfect squares.  The vertical
-2,6,12,20,etc at x=-1 is the pronic numbers s*(s+1), half way between those
-successive squares.
+2,6,12,20,etc at x=-1 is the X<Pronic Numbers>pronic numbers s*(s+1), half
+way between those successive squares.
 
 The step 2 is the same as the PyramidSides, Corner and SacksSpiral paths.
 For the SacksSpiral, spiral arms going to the right correspond to diagonals

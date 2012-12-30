@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -445,7 +445,11 @@ beginning to go around the outside of the 5x5 square.
 An attractive traced out picture of the path can be seen at the following
 page (quarter way down under "Open Knight's Tour"),
 
-    http://www.borderschess.org/KTart.htm
+=over
+
+http://www.borderschess.org/KTart.htm
+
+=back
 
 See L<math-image> to draw the path lines too.
 

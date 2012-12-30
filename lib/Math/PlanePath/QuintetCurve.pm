@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -45,8 +45,8 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
-my @rot_to_dx = (1,0,-1,0);
-my @rot_to_dy = (0,1,0,-1);
+my @dir4_to_dx = (1,0,-1,0);
+my @dir4_to_dy = (0,1,0,-1);
 my @digit_reverse = (0,1,0,0,1,0);
 
 sub n_to_xy {
@@ -173,8 +173,8 @@ sub n_to_xy {
   ### final: "$x,$y"
   ### $rot
   $rot &= 3;
-  return ($n * $rot_to_dx[$rot] + $x,
-          $n * $rot_to_dy[$rot] + $y);
+  return ($n * $dir4_to_dx[$rot] + $x,
+          $n * $dir4_to_dy[$rot] + $y);
 }
 
 #                  up  upl left

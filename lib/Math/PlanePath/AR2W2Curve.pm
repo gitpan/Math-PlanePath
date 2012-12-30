@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -620,7 +620,11 @@ in the Design of Geometric Data Structures", Theoretical Computer Science,
 181(1):3-15, 1997.  And LATIN'95 Theoretical Informatics which is at Google
 Books
 
-    http://books.google.com.au/books?id=_aKhJUJunYwC&pg=PA36
+=over
+
+http://books.google.com.au/books?id=_aKhJUJunYwC&pg=PA36
+
+=back
 
 =head1 HOME PAGE
 

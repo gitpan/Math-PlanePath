@@ -30,143 +30,106 @@ use MyOEIS;
 
 use List::Util 'min', 'max';
 use Math::PlanePath::TriangleSpiral;
+use Math::PlanePath::TriangleSpiralSkewed;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-
 my $path = Math::PlanePath::TriangleSpiral->new;
-
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0;
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
 
 
 #------------------------------------------------------------------------------
 # A081589 -- N on slope=3 ENE
-{
-  my $anum = 'A081589';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::TriangleSpiral->new;
-    my $x = 0;
-    my $y = 0;
-    while (@got < @$bvalues) {
-      push @got, $path->xy_to_n ($x,$y);
-      $x += 3;
-      $y += 1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A081589',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::TriangleSpiral->new;
+     my $x = 0;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, $path->xy_to_n ($x,$y);
+       $x += 3;
+       $y += 1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A038764 -- N on slope=2 WSW
-{
-  my $anum = 'A038764';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::TriangleSpiral->new;
-    my $x = 0;
-    my $y = 0;
-    while (@got < @$bvalues) {
-      push @got, $path->xy_to_n ($x,$y);
-      $x += -3;
-      $y += -1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A038764',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::TriangleSpiral->new;
+     my $x = 0;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, $path->xy_to_n ($x,$y);
+       $x += -3;
+       $y += -1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A063177 -- a(n) is sum of existing numbers in row of a(n-1)
 
-{
-  my $anum = 'A063177';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
-                                                      max_value => 'unlimited');
-  my @got;
-  if ($bvalues) {
-    require Math::BigInt;
-    my %plotted;
-    $plotted{0,0} = Math::BigInt->new(1);
-    my $xmin = 0;
-    my $ymin = 0;
-    my $xmax = 0;
-    my $ymax = 0;
-    push @got, 1;
+MyOEIS::compare_values
+  (anum => 'A063177',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::BigInt;
+     my %plotted;
+     $plotted{0,0} = Math::BigInt->new(1);
+     my $xmin = 0;
+     my $ymin = 0;
+     my $xmax = 0;
+     my $ymax = 0;
+     push @got, 1;
 
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my ($prev_x, $prev_y) = $path->n_to_xy ($n-1);
-      my ($x, $y) = $path->n_to_xy ($n);
-      ### at: "$x,$y  prev $prev_x,$prev_y"
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       my ($prev_x, $prev_y) = $path->n_to_xy ($n-1);
+       my ($x, $y) = $path->n_to_xy ($n);
+       ### at: "$x,$y  prev $prev_x,$prev_y"
 
-      my $total = 0;
-      if ($x > $prev_x) {
-        ### forward diagonal ...
-        foreach my $y ($ymin .. $ymax) {
-          my $delta = $y - $prev_y;
-          my $x = $prev_x + $delta;
-          $total += $plotted{$x,$y} || 0;
-        }
-      } elsif ($y > $prev_y) {
-        ### row: "$xmin .. $xmax at y=$prev_y"
-        foreach my $x ($xmin .. $xmax) {
-          $total += $plotted{$x,$prev_y} || 0;
-        }
-      } else {
-        ### opp diagonal ...
-        foreach my $y ($ymin .. $ymax) {
-          my $delta = $y - $prev_y;
-          my $x = $prev_x - $delta;
-          $total += $plotted{$x,$y} || 0;
-        }
-      }
-      ### total: "$total"
+       my $total = 0;
+       if ($x > $prev_x) {
+         ### forward diagonal ...
+         foreach my $y ($ymin .. $ymax) {
+           my $delta = $y - $prev_y;
+           my $x = $prev_x + $delta;
+           $total += $plotted{$x,$y} || 0;
+         }
+       } elsif ($y > $prev_y) {
+         ### row: "$xmin .. $xmax at y=$prev_y"
+         foreach my $x ($xmin .. $xmax) {
+           $total += $plotted{$x,$prev_y} || 0;
+         }
+       } else {
+         ### opp diagonal ...
+         foreach my $y ($ymin .. $ymax) {
+           my $delta = $y - $prev_y;
+           my $x = $prev_x - $delta;
+           $total += $plotted{$x,$y} || 0;
+         }
+       }
+       ### total: "$total"
 
-      $plotted{$x,$y} = $total;
-      $xmin = min($xmin,$x);
-      $xmax = max($xmax,$x);
-      $ymin = min($ymin,$y);
-      $ymax = max($ymax,$y);
-      push @got, $total;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- sum of rows");
-}
+       $plotted{$x,$y} = $total;
+       $xmin = min($xmin,$x);
+       $xmax = max($xmax,$x);
+       $ymin = min($ymin,$y);
+       $ymax = max($ymax,$y);
+       push @got, $total;
+     }
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------

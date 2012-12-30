@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -169,8 +169,8 @@ upwards.
     ... -4  -3  -2  -1  X=0  1   2   3   4 ...
 
 N=1,4,9,16,etc along the positive X axis is the perfect squares.
-N=2,6,12,20,etc in the X=-1 vertical is the pronic numbers k*(k+1) half way
-between those successive squares.
+N=2,6,12,20,etc in the X=-1 vertical is the X<Pronic Numbers>pronic numbers
+k*(k+1) half way between those successive squares.
 
 The pattern is the same as the Corner path but turned and spread so the
 single quadrant in the Corner becomes a half-plane here.

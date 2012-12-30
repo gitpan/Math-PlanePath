@@ -24,6 +24,15 @@
 # Print the Sierpinski triangle pattern with spaces and stars using
 # bitwise-and to decide whether or not to plot each X,Y.
 #
+#            *
+#           * *
+#          *   *
+#         * * * *
+#        *       *
+#       * *     * *
+#      *   *   *   *
+#     * * * * * * * *
+#
 
 
 # Return a space or star string to print at x,y.

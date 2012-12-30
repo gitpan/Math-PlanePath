@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -299,15 +299,16 @@ path include
       A060544     N on ESE slope dX=2,dY=-1
       A081272     N on SSE slope dX=1,dY=-2
 
+      A217010     permutation N values of points by SquareSpiral order
+      A217291      inverse
+
     n_start=0
       A051682     N on X axis (11-gonal numbers)
       A081268     N on X=1 vertical (next to Y axis)
       A062728     N on South-East diagonal (11-gonal second kind)
       A081266     N on X=Y negative South-West diagonal
       A081270     N on X=1-Y North-West diagonal, starting N=3
-
-
-A081271
+      A081271     N on dX=-1,dY=2 NNW slope up from N=1 at X=1,Y=0
 
 
 =head1 SEE ALSO

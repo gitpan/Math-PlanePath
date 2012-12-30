@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -78,9 +78,6 @@ sub new {
   return $self;
 }
 
-
-my @rot_to_sx = (1,0,-1,0);
-my @rot_to_sy = (0,1,0,-1);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -345,8 +342,8 @@ sub _rect_to_k {
 
 
 
-my @dir_to_dx = (1,0,-1,0);
-my @dir_to_dy = (0,1,0,-1);
+my @dir4_to_dx = (1,0,-1,0);
+my @dir4_to_dy = (0,1,0,-1);
 
 sub n_to_dxdy {
   my ($self, $n) = @_;
@@ -357,8 +354,8 @@ sub n_to_dxdy {
 
   my @digits = bit_split_lowtohigh($int);
   my $dir = (sum(@digits)||0) & 3;  # count of 1-bits
-  my $dx = $dir_to_dx[$dir];
-  my $dy = $dir_to_dy[$dir];
+  my $dx = $dir4_to_dx[$dir];
+  my $dy = $dir4_to_dy[$dir];
 
   if ($n) {
     # apply fraction part $n
@@ -369,16 +366,16 @@ sub n_to_dxdy {
     }
 
     # this with turn=count-1 turn which is dir++ worked into swap and negate
-    # of dir_to_dy parts
+    # of dir4_to_dy parts
     $dir &= 3;
-    $dx -= $n*($dir_to_dy[$dir] + $dx);  # with rot-90 instead of $dir+1
-    $dy += $n*($dir_to_dx[$dir] - $dy);
+    $dx -= $n*($dir4_to_dy[$dir] + $dx);  # with rot-90 instead of $dir+1
+    $dy += $n*($dir4_to_dx[$dir] - $dy);
 
     # this the equivalent with explicit dir++ for turn=count-1
     # $dir++;
     # $dir &= 3;
-    # $dx += $n*($dir_to_dx[$dir] - $dx);
-    # $dy += $n*($dir_to_dy[$dir] - $dy);
+    # $dx += $n*($dir4_to_dx[$dir] - $dx);
+    # $dy += $n*($dir4_to_dy[$dir] - $dy);
   }
 
   ### result: "$dx, $dy"

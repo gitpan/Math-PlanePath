@@ -49,6 +49,7 @@ devel/gcd-rationals-integer.pl
 devel/gcd-rationals.pl
 devel/gosper-islands-stars.pl
 devel/gosper-side.pl
+devel/graph.pl
 devel/gray.pl
 devel/greek-key.pl
 devel/grid.pl
@@ -121,6 +122,7 @@ examples/hilbert-path.pl
 examples/knights-oeis.pl
 examples/koch-svg.pl
 examples/numbers.pl
+examples/other/dragon-curve.el
 examples/other/dragon-curve.gnuplot
 examples/other/dragon-curve.logo
 examples/other/sierpinski-triangle-bitand.gnuplot
@@ -368,6 +370,8 @@ tools/dekking-centres-table.pl
 tools/dekking-curve-table.pl
 tools/dragon-curve-dxdy.pl
 tools/dragon-curve-table.pl
+tools/flowsnake-centres-table.pl
+tools/flowsnake-table.pl
 tools/gallery.pl
 tools/hilbert-curve-table.pl
 tools/hilbert-spiral-table.pl
@@ -407,6 +411,7 @@ xt/oeis/DiagonalRationals-oeis.t
 xt/oeis/Diagonals-oeis.t
 xt/oeis/DiagonalsAlternating-oeis.t
 xt/oeis/DiagonalsOctant-oeis.t
+xt/oeis/DiamondSpiral-oeis.t
 xt/oeis/DigitGroups-oeis.t
 xt/oeis/DivisibleColumns-oeis.t
 xt/oeis/DragonCurve-oeis.t
@@ -434,6 +439,7 @@ xt/oeis/PowerArray-oeis.t
 xt/oeis/PyramidRows-oeis.t
 xt/oeis/PyramidSides-oeis.t
 xt/oeis/PyramidSpiral-oeis.t
+xt/oeis/PythagoreanTree-oeis.t
 xt/oeis/R5DragonCurve-oeis.t
 xt/oeis/RationalsTree-oeis.t
 xt/oeis/SierpinskiArrowhead-oeis.t
@@ -443,6 +449,7 @@ xt/oeis/SquareSpiral-oeis.t
 xt/oeis/TerdragonCurve-oeis.t
 xt/oeis/TheodorusSpiral-oeis.t
 xt/oeis/TriangleSpiral-oeis.t
+xt/oeis/TriangleSpiralSkewed-oeis.t
 xt/oeis/TriangularHypot-oeis.t
 xt/oeis/UlamWarburton-oeis.t
 xt/oeis/UlamWarburtonQuarter-oeis.t

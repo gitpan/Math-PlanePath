@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -305,7 +305,7 @@ sub _log_phi_estimate {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime RationalsTree octant onwards decrement
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime RationalsTree octant onwards decrement Shallit FractionsTree GcdRationals radix Radix HCS
 
 =head1 NAME
 
@@ -323,11 +323,15 @@ X<Shallit, Jeffrey>This path enumerates fractions S<0 E<lt> X/Y E<lt> 1>
 with X,Y no common factor, using a method by Jeffrey Shallit encoding
 continued fraction terms in digit strings.
 
-    "Number Theory and Formal Languages" part 3
-    https://cs.uwaterloo.ca/~shallit/Papers/ntfl.ps
+=over
+
+"Number Theory and Formal Languages", part 3,
+https://cs.uwaterloo.ca/~shallit/Papers/ntfl.ps
+
+=back
 
 Fractions up to a given denominator are covered by roughly N=den^2.28.  This
-is a much smaller range than the run-length encoding in RationalsTree and
+is a much smaller N range than the run-length encoding in RationalsTree and
 FractionsTree (but is more than GcdRationals).
 
 =cut

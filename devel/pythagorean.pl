@@ -31,6 +31,185 @@ use Math::PlanePath::Base::Digits
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  # X,Y list
+
+  # PQ
+  # N=1  2 / 1
+  #
+  # N=2  3 / 2
+  # N=3  5 / 2
+  # N=4  4 / 1
+  #
+  # N=5  4 / 3
+  # N=6  8 / 3
+  # N=7  7 / 2
+  # N=8  8 / 5
+  # N=9  12 / 5
+  # N=10  9 / 2
+  # N=11  7 / 4
+  # N=12  9 / 4
+  # N=13  6 / 1
+
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+     # tree_type => 'FB',
+     # tree_type => 'UAD',
+     # coordinates => 'BC',
+     coordinates => 'PQ',
+    );
+  my $n = $path->n_start;
+  foreach my $level (0 .. 5) {
+    foreach (1 .. 3**$level) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $flag = '';
+      if ($x <= $y) {
+        $flag = '  ***';
+      }
+      print "N=$n  $x,$y$flag\n";
+      $n++;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+{
+  # repeated "U" or "K1" on initial P=2,Q=1
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+     # tree_type => 'UAD',
+     tree_type => 'FB',
+     coordinates => 'PQ',
+    );
+  foreach my $depth (0 .. 5) {
+    my $n = $path->tree_depth_to_n($depth);
+    my ($x,$y) = $path->n_to_xy($n);
+    print "depth=$depth N=$n  P=$x / Q=$y\n";
+  }
+  exit 0;
+}
+{
+  # repeated "K1" as p,q matrix
+  # P+(2^k-1)*Q, 2^k*Q
+  # applied to P=2,Q=1
+  # 2+(2^k-1) = 2^k + 1, 2^k
+  my $u = Math::Matrix->new ([1,1],
+                             [0,2]);
+  my $m = $u;
+  foreach (1 .. 5) {
+    print "$m\n";
+    $m *= $u;
+  }
+  exit 0;
+}
+{
+  # repeated "U" as p,q matrix
+  my $u = Math::Matrix->new ([2,-1],
+                             [1,0]);
+  my $m = $u;
+  foreach (1 .. 5) {
+    print "$m\n";
+    $m *= $u;
+  }
+  exit 0;
+}
+
+
+
+{
+  # high bit 1 in ternary
+  require Math::BaseCnv;
+  for (my $n = 1; $n < 65536; $n *= 2) {
+    my $n3 = Math::BaseCnv::cnv($n,10,3);
+    my $n2 = Math::BaseCnv::cnv($n,10,2);
+    printf "$n $n2 $n3\n";
+  }
+  exit 0;
+}
+
+{
+  # numbers in a grid
+
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+     # tree_type => 'FB',
+     # tree_type => 'UAD',
+     # coordinates => 'AB',
+     coordinates => 'BC',
+    );
+  my @rows;
+  foreach my $n (1 .. 100000) {
+    my ($x,$y) = $path->n_to_xy($n);
+    $y /= 4;
+    $x /= 2;
+    next if $y > 40;
+    next if $x > 80;
+    print "$x,$y\n";
+    $rows[$y] ||= ' 'x80;
+    substr($rows[$y],$x,length($n)) = $n;
+  }
+  for (my $y = $#rows; $y >= 0; $y--) {
+    $rows[$y] ||= '';
+    $rows[$y] =~ s/ +$//;
+    print $rows[$y],"\n";
+  }
+  exit 0;
+}
+
+{
+  # Fibonacci's method for primitive triples.
+  # odd numbers 1,3,5,7,...,k being n terms n=(k+1)/2 with k square
+  # sum 1+3+5+7+...+k = n^2  the gnomons around a square
+  # a^2 = k                      = 2n-1
+  # b^2 = sum 1+3+5+...+k-2      = (n-1)^2
+  # c^2 = sum 1+3+5+...+k-2+k    = n^2
+  # so a^2+b^2 = c^2
+  # (n-1)^2 + 2n-1 = n^2-2n+1 + 2n-1 = n^2
+  #
+  # i=3
+  # o=2i-1=5
+  # k=o^2 = 5^2 = 25
+  # n=(k+1)/2 = (25+1)/2=13
+  # a=o = 5
+  # b = n-1 = 12
+  #
+  # i=4
+  # o=2i-1=7
+  # k=o^2 = 7^2 = 49
+  # n=(k+1)/2 = (49+1)/2=25
+  # a=o = 7
+  # b = n-1 = 24
+
+  sub fibonacci_ab {
+    my ($i) = @_;
+    $i = 2*$i+1;   # odd integer
+    my $k = $i**2; # a^2 = k = odd square
+    my $n = ($k+1)/2;
+    return ($i,     # a=sqrt(k)
+            $n-1);  # b=n-1
+  }
+
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new (tree_type => 'FB');
+  foreach my $i (1 .. 30) {
+    my ($a,$b) = fibonacci_ab($i);
+    my $c = sqrt($a*$a+$b*$b);
+
+    # my $n = $path->tree_depth_to_n($i-1);
+    # my ($pa,$pb) = $path->n_to_xy($n);
+    # print "$i  $a,$b,$c   $n $pa,$pb\n";
+
+    my $n = $path->xy_to_n($a,$b);
+    my $depth = $path->tree_n_to_depth($n);
+    print "$i  $a,$b,$c   $n depth=$depth\n";
+  }
+  exit 0;
+}
+
 {
   # P,Q by rows
   require Math::BaseCnv;
@@ -147,56 +326,7 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  # X/Y list
-  require Math::PlanePath::PythagoreanTree;
-  my $path = Math::PlanePath::PythagoreanTree->new
-    (
-     # tree_type => 'FB',
-     # tree_type => 'UAD',
-     # coordinates => 'AB',
-     coordinates => 'PQ',
-    );
-  my $n = $path->n_start;
-  foreach my $level (0 .. 4) {
-    foreach (1 .. 3**$level) {
-      my ($x,$y) = $path->n_to_xy($n++);
-      my $flag = '';
-      if ($x <= $y) {
-        $flag = '  ***';
-      }
-      print "$x / $y$flag\n";
-    }
-    print "\n";
-  }
-  exit 0;
-}
 
-{
-  # graphical N values
-  require Math::PlanePath::PythagoreanTree;
-  my $path = Math::PlanePath::PythagoreanTree->new
-    (
-     # tree_type => 'FB',
-      tree_type => 'UAD',
-     # coordinates => 'AB',
-     coordinates => 'PQ',
-    );
-  my @rows;
-  foreach my $n (1 .. 18) {
-    my ($x,$y) = $path->n_to_xy($n);
-    $y /= 3;
-    print "$x,$y\n";
-    $rows[$y] ||= ' 'x1000;
-    substr($rows[$y],$x,length($n)) = $n;
-  }
-  for (my $y = $#rows; $y >= 0; $y--) {
-    $rows[$y] ||= '';
-    $rows[$y] =~ s/ +$//;
-    print $rows[$y],"\n";
-  }
-  exit 0;
-}
 
 {
   # P,Q continued fraction quotients

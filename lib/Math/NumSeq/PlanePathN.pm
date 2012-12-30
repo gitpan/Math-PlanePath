@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -84,7 +84,6 @@ sub oeis_anum {
   my ($self) = @_;
   ### PlanePathN oeis_anum() ...
 
-
   my $planepath_object = $self->{'planepath_object'};
   {
     my $key = Math::NumSeq::PlanePathCoord::_planepath_oeis_anum_key($self->{'planepath_object'});
@@ -101,6 +100,9 @@ sub oeis_anum {
     ### key href: $planepath_object->_NumSeq_N_oeis_anum->{$key}
 
     if (my $anum = $planepath_object->_NumSeq_N_oeis_anum->{$key}->{$self->{'line_type'}}) {
+      return $anum;
+    }
+    if (my $anum = $planepath_object->_NumSeq_N_oeis_all_anum->{$self->{'line_type'}}) {
       return $anum;
     }
   }
@@ -410,6 +412,7 @@ sub values_max {
   use constant _NumSeq_Diagonal_i_start => 0;
   use constant _NumSeq_Diagonal_X_offset => 0;
   use constant _NumSeq_N_oeis_anum => {};
+  use constant _NumSeq_N_oeis_all_anum => {};
   use constant _NumSeq_Depth_start_increasing => 1;
   use constant _NumSeq_Depth_end_increasing => 1;
 
@@ -526,7 +529,7 @@ sub values_max {
     { 'turns=0' =>
       (Math::PlanePath::SquareSpiral
        ->_NumSeq_N_oeis_anum->{'wider=0,n_start=1'}
-       || die "Oops, SquareSpiral NumSeq PlanePathN not found")
+       || die "Oops, SquareSpiral NumSeq PlanePathN not found"),
     };
 }
 { package Math::PlanePath::PyramidSpiral;
@@ -1021,6 +1024,13 @@ sub values_max {
     my $nstart = (3**$depth + 1) / 2;
     return ($nstart, 3*$nstart-2);
   }
+  use constant _NumSeq_N_oeis_all_anum =>
+    { Depth_start => 'A007051', # (3^n+1)/2
+      # OEIS-Catalogue: A007051 planepath=PythagoreanTree line_type=Depth_start
+
+      # Not quite, Depth_end=(3^(n+1)-1)/2, so is n+1
+      # Depth_end   => 'A003462', # (3^n-1)/2
+    };
 }
 { package Math::PlanePath::RationalsTree;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1380,7 +1390,7 @@ sub values_max {
   }
 
   use constant _NumSeq_N_oeis_anum =>
-    { 
+    {
       'apply_type=TsF,gray_type=reflected,radix=3' =>
      (Math::PlanePath::PeanoCurve->_NumSeq_N_oeis_anum->{'radix=3'}
       || die "Oops, SquareSpiral NumSeq PlanePathN not found"),
@@ -1563,11 +1573,14 @@ sub values_max {
     return ($n, $n+$width-1);
   }
 
-  # cf A160722 is 3*A006046 = 3*Ndepth, drawing three Sierpinski triangles
+  # cf A160722 is 3*A006046-2*n, drawing three Sierpinski triangles
   #    http://www.polprimos.com/imagenespub/polca722.jpg
   #
   use constant _NumSeq_N_oeis_anum =>
     {
+     #---------
+     # i_start=0, n_start=0
+
      'align=triangular,n_start=0' =>
      { Diagonal_NW => 'A006046',
        Depth_start => 'A006046',
@@ -1577,18 +1590,21 @@ sub values_max {
      'align=right,n_start=0' =>
      { Y_axis      => 'A006046',
        Depth_start => 'A006046',
-       # OEIS-Catalogue: A006046 planepath=SierpinskiTriangle,align=diagonal line_type=Y_axis
+       # OEIS-Catalogue: A006046 planepath=SierpinskiTriangle,align=diagonal,n_start=0 line_type=Y_axis
      },
      'align=left,n_start=0' =>
      { Diagonal_NW => 'A006046',
        Depth_start => 'A006046',
-       # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=left line_type=Diagonal_NW
+       # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=left,n_start=0 line_type=Diagonal_NW
      },
      'align=diagonal,n_start=0' =>
      { Y_axis      => 'A006046',
        Depth_start => 'A006046',
-       # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=diagonal line_type=Y_axis
+       # OEIS-Other: A006046 planepath=SierpinskiTriangle,align=diagonal,n_start=0 line_type=Y_axis
      },
+
+     #---------
+     # i_start=1, n_start=0
 
      # starting OFFSET=1 value=2,4,8,10 so missing N=0 at Y=0, hence i_start=1
      'align=triangular,n_start=0,i_start=1' =>
@@ -1825,6 +1841,17 @@ sub values_max {
        # OEIS-Other: A000124 planepath=Diagonals,direction=up line_type=X_axis
        # OEIS-Other: A001844 planepath=Diagonals,direction=up line_type=Diagonal
       },
+
+      'direction=down,n_start=0,x_start=0,y_start=0' =>
+      {
+       Y_axis   => 'A000217',  # triangular n*(n+1)/2
+       # OEIS-Other: A000217 planepath=Diagonals,n_start=0 line_type=Y_axis
+      },
+      'direction=up,n_start=0,x_start=0,y_start=0' =>
+      {
+       Y_axis   => 'A000096',  # n*(n+3)/2
+       # OEIS-Other: A000096 planepath=Diagonals,direction=up,n_start=0 line_type=Y_axis
+      },
     };
 }
 { package Math::PlanePath::DiagonalsAlternating;
@@ -1858,7 +1885,8 @@ sub values_max {
         # OEIS-Other: A005563 planepath=DiagonalsOctant,n_start=0 line_type=Diagonal
       },
       'direction=up,n_start=0' =>
-      { Diagonal => 'A002378', # pronic n*(n+1)
+      { Y_axis   => 'A024206',
+        Diagonal => 'A002378', # pronic n*(n+1)
         # OEIS-Other: A002378 planepath=DiagonalsOctant,direction=up,n_start=0 line_type=Diagonal
       },
       # 'direction=down' =>
@@ -2485,7 +2513,7 @@ sub values_max {
   sub _NumSeq_Y_neg_increasing {
     my ($self) = @_;
     return ($self->{'parts'} == 3 ? 0  # replication twist
-            : 1) # N=0,N=2 only
+            : 1); # N=0,N=2 only
   }
   use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
   use constant _NumSeq_Diagonal_NW_increasing => 1;
@@ -2526,10 +2554,8 @@ sub values_max {
     };
 }
 { package Math::PlanePath::LCornerReplicate;
+  use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
-  use constant _NumSeq_Diagonal_NW_increasing => 1;
-  use constant _NumSeq_Diagonal_SE_increasing => 1;
-  use constant _NumSeq_Diagonal_SW_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
     { '' =>

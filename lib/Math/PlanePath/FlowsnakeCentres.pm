@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -89,6 +89,81 @@ sub new {
   return $self;
 }
 
+
+# # next_state length 84
+# my @next_state = (0, 35,49,14, 0,70, 7,  0,21, 7,21,42,28, 7,  # 0,7
+#                   14,49,63,28,14, 0,21, 14,35,21,35,56,42,21,  # 14,21
+#                   28,63,77,42,28,14,35, 28,49,35,49,70,56,35,  # 28,35
+#                   42,77, 7,56,42,28,49, 42,63,49,63, 0,70,49,  # 42,49
+#                   56, 7,21,70,56,42,63, 56,77,63,77,14, 0,63,  # 56,63
+#                   70,21,35, 0,70,56,77, 70, 7,77, 7,28,14,77);  # 70,77
+# my @digit_to_i = (0,  1, 0,-1,-1, 0, 1,  0, 1, 2, 3, 3, 2, 1,  # 0,7
+#                   0,  0,-1,-1,-2,-2,-1,  0, 0, 1, 1, 0, 0,-1,  # 14,21
+#                   0, -1,-1, 0,-1,-2,-2,  0,-1,-1,-2,-3,-2,-2,  # 28,35
+#                   0, -1, 0, 1, 1, 0,-1,  0,-1,-2,-3,-3,-2,-1,  # 42,49
+#                   0,  0, 1, 1, 2, 2, 1,  0, 0,-1,-1, 0, 0, 1,  # 56,63
+#                   0,  1, 1, 0, 1, 2, 2,  0, 1, 1, 2, 3, 2,2);  # 70,77
+# my @digit_to_j = (0,  0, 1, 1, 2, 2, 1,  0, 0,-1,-1, 0, 0, 1,  # 0,7
+#                   0,  1, 1, 0, 1, 2, 2,  0, 1, 1, 2, 3, 2, 2,  # 14,21
+#                   0,  1, 0,-1,-1, 0, 1,  0, 1, 2, 3, 3, 2, 1,  # 28,35
+#                   0,  0,-1,-1,-2,-2,-1,  0, 0, 1, 1, 0, 0,-1,  # 42,49
+#                   0, -1,-1, 0,-1,-2,-2,  0,-1,-1,-2,-3,-2,-2,  # 56,63
+#                   0, -1, 0, 1, 1, 0,-1,  0,-1,-2,-3,-3,-2,-1);  # 70,77
+# my @state_to_di = ( 1, 1, 0, 0,-1,-1,  -1,-1, 0, 0, 1,1);
+# my @state_to_dj = ( 0, 0, 1, 1, 1, 1,   0, 0,-1,-1,-1,-1);
+# 
+# 
+# sub n_to_xy {
+#   my ($self, $n) = @_;
+#   ### Flowsnake n_to_xy(): $n
+# 
+#   if ($n < 0) { return; }
+#   if (is_infinite($n)) { return ($n,$n); }
+# 
+#   my $int = int($n);
+#   $n -= $int;  # fraction part
+#   ### $int
+#   ### frac: $n
+# 
+#   my $state;
+#   {
+#     my $arm = _divrem_mutate ($int, $self->{'arms'});
+#     $state = 28 * $arm;  # initial rotation
+# 
+#     # adjust so that for arms=2 point N=1 has $int==1
+#     # or for arms=3 then points N=1 and N=2 have $int==1
+#     if ($arm) { $int += 1; }
+#   }
+#   ### initial state: $state
+# 
+#   my $i = my $j = $int*0;  # bignum zero
+# 
+#   foreach my $digit (reverse digit_split_lowtohigh($int,7)) { # high to low
+#     ### at: "state=$state digit=$digit  i=$i,j=$j  di=".$digit_to_i[$state+$digit]." dj=".$digit_to_j[$state+$digit]
+# 
+#     # i,j * (2+w), being 2*(i,j)+rot60(i,j)
+#     # then add low digit position
+#     #
+#     $state += $digit;
+#     ($i, $j) = (2*$i - $j + $digit_to_i[$state],
+#                 3*$j + $i + $digit_to_j[$state]);
+#     $state = $next_state[$state];
+#   }
+#   ### integer: "i=$i, j=$j"
+# 
+#   # fraction in final $state direction
+#   if ($n) {
+#     ### apply: "frac=$n  state=$state"
+#     $state /= 7;
+#     $i = $n * $state_to_di[$state] + $i;
+#     $j = $n * $state_to_dj[$state] + $j;
+#   }
+# 
+#   ### ret: "$i, $j  x=".(2*$i+$j)." y=$j"
+#   return (2*$i+$j,
+#           $j);
+# 
+# }
 
 #       4-->5
 #       ^    ^
@@ -798,7 +873,11 @@ simple over-estimate.)
 
 The C<n_to_xy()> calculation follows Ed Schouten's method
 
-    http://80386.nl/projects/flowsnake/
+=over
+
+http://80386.nl/projects/flowsnake/
+
+=back
 
 breaking N into base-7 digits, applying reversals from high to low according
 to digits 1, 2, or 6, then applying rotation and position according to the

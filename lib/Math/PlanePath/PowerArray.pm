@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -271,9 +271,9 @@ and the upper right is the maximum N.
 
     |               N max
     |     ----------+
-    |    |          |
-    |    |          |
-    |    |          |
+    |    |  ^       |
+    |    |  |       |
+    |    |   ---->  |
     |    +----------
     |   N min
     +-------------------
@@ -305,14 +305,17 @@ path include
       A118417    N on X=Y+1 diagonal, (2n-1)*2^n
                    (just below X=Y diagonal)
 
-      A054582    N by diagonals, upwards
-      A075300    N-1 by diagonals, upwards
-      A135764    N by diagonals, downwards
+      A054582    permutation N by diagonals, upwards
+      A135764    permutation N by diagonals, downwards
+      A075300    permutation N-1 by diagonals, upwards
 
     radix=3
       A007949    X coordinate, power-of-3 dividing N
       A000244    N on X axis, powers 3^X
-      A135765    odd N by diagonals, delete the Y=1,2mod4 rows
+      A001651    N on Y axis, not divisible by 3
+      A141396    permutation, N by diagonals down from Y axis
+      A191449    permutation, N by diagonals up from X axis
+      A135765    odd N by diagonals, deletes the Y=1,2mod4 rows
 
     radix=4
       A000302    N on X axis, powers 4^X
@@ -326,7 +329,7 @@ path include
 
     radix=10
       A011557    N on X axis, powers 10^X
-      A067251    N on Y axis, no trailing 0 digits
+      A067251    N on Y axis, not a multiple of 10
 
 =head1 SEE ALSO
 

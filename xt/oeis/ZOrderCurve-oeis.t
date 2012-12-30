@@ -103,7 +103,7 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A054238 -- diagonals same axis
+# A054238 -- permutation, diagonals same axis
 
 MyOEIS::compare_values
   (anum => 'A054238',

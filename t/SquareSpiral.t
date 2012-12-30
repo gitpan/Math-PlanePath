@@ -33,7 +33,7 @@ require Math::PlanePath::SquareSpiral;
 # VERSION
 
 {
-  my $want_version = 94;
+  my $want_version = 95;
   ok ($Math::PlanePath::SquareSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SquareSpiral->VERSION,  $want_version,

@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -556,9 +556,11 @@ following sequences is the N of the ZOrderCurve at those positions.
     radix=2
       A054238    numbering by diagonals, from same axis as first step
       A054239      inverse permutation
-      A163328    numbering radix=3 by diagonals, same axis as first step
+
+    radix=3
+      A163328    numbering by diagonals, same axis as first step
       A163329      inverse permutation
-      A163330    numbering radix=3 by diagonals, opp axis as first step
+      A163330    numbering by diagonals, opp axis as first step
       A163331      inverse permutation
 
 C<Math::PlanePath::Diagonals> numbers points from the Y axis down, which is

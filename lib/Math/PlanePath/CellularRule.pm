@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -528,7 +528,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 94;
+  $VERSION = 95;
   @ISA = ('Math::PlanePath::CellularRule');
 
   use Math::PlanePath::Base::Generic
@@ -618,7 +618,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 94;
+  $VERSION = 95;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 
@@ -704,7 +704,11 @@ Math::PlanePath::CellularRule -- cellular automaton points of binary rule
 X<Wolfram, Stephen>This is the patterns of Stephen Wolfram's bit-rule based
 cellular automatons
 
-    http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+=over
+
+http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
+
+=back
 
 Points are numbered left to right in rows so for example
 

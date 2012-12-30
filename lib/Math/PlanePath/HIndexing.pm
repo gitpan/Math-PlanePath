@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -312,9 +312,13 @@ X<Niedermeier, Rolf>X<Reinhardt, Klaus>X<Sanders, Peter>This is an infinite
 integer version of the H-indexing by Rolf Niedermeier, Klaus Reinhardt and
 Peter Sanders.
 
-    "Towards Optimal Locality In Mesh Indexings", Discrete Applied
-    Mathematics, vol 117, March 2002
-    http://theinf1.informatik.uni-jena.de/publications/dam01a.pdf
+=over
+
+"Towards Optimal Locality In Mesh Indexings", Discrete Applied Mathematics,
+volume 117, March 2002
+http://theinf1.informatik.uni-jena.de/publications/dam01a.pdf
+
+=back
 
 It traverses an octant of the plane by self-similar right triangles.  Notice
 the "H" shapes that arise from the backtracking, for example N=8 to N=23,

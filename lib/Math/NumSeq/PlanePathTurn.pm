@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -707,27 +707,27 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::FractionsTree;
 # }
-{ package Math::PlanePath::ChanTree;
-  # FIXME: k=4,5,6 are Right-only, maybe
-  # sub _NumSeq_Turn_Left_max {
-  #   my ($self) = @_;
-  #   return ($self->{'k'} >= 4
-  #           ? 0 # never Left
-  #           : 1);
-  # }
-  # sub _NumSeq_Turn_Right_min {
-  #   my ($self) = @_;
-  #   return ($self->{'k'} >= 4
-  #           ? 1 # always Right
-  #           : 0);
-  # }
-  # sub _NumSeq_Turn_LSR_max {
-  #   my ($self) = @_;
-  #   return ($self->{'k'} >= 4
-  #           ? -1 # always Right
-  #           : 1);
-  # }
-}
+# { package Math::PlanePath::ChanTree;
+#   # FIXME: k=4,5,6 are Right-only, maybe
+#   # sub _NumSeq_Turn_Left_max {
+#   #   my ($self) = @_;
+#   #   return ($self->{'k'} >= 4
+#   #           ? 0 # never Left
+#   #           : 1);
+#   # }
+#   # sub _NumSeq_Turn_Right_min {
+#   #   my ($self) = @_;
+#   #   return ($self->{'k'} >= 4
+#   #           ? 1 # always Right
+#   #           : 0);
+#   # }
+#   # sub _NumSeq_Turn_LSR_max {
+#   #   my ($self) = @_;
+#   #   return ($self->{'k'} >= 4
+#   #           ? -1 # always Right
+#   #           : 1);
+#   # }
+# }
 # { package Math::PlanePath::DiagonalRationals;
 # }
 # { package Math::PlanePath::FactorRationals;

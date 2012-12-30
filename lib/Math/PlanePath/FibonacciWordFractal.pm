@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,8 +50,8 @@ use constant dy_maximum => 1;
 
 #------------------------------------------------------------------------------
 
-my @rot_to_sx = (0,-1,0,1);
-my @rot_to_sy = (1,0,-1,0);
+my @dir4_to_dx = (0,-1,0,1);
+my @dir4_to_dy = (1,0,-1,0);
 
 my $moffset = 0;
 
@@ -196,8 +196,8 @@ sub n_to_xy {
   # mod 6 twist ?
   # ### final rot: "$rot  transpose=$transpose gives ".(($rot^$transpose)&3)
   # $rot = ($rot ^ $transpose) & 3;
-  # $x = $frac * $rot_to_sx[$rot] + $x;
-  # $y = $frac * $rot_to_sy[$rot] + $y;
+  # $x = $frac * $dir4_to_dx[$rot] + $x;
+  # $y = $frac * $dir4_to_dy[$rot] + $y;
 
   ### final with frac: "$x,$y"
   return ($x,$y);
@@ -404,9 +404,10 @@ Math::PlanePath::FibonacciWordFractal -- turns by Fibonacci word bits
 
 =head1 DESCRIPTION
 
-X<Monnerot-Dumaine, Alexis>This is an integer version of the Fibonacci word
-fractal by Alexis Monnerot-Dumaine.  It makes turns controlled by the
-"Fibonacci word" sequence, sometimes called the "golden string".
+X<Monnerot-Dumaine, Alexis>X<Fibonacci Word>This is an integer version of
+the Fibonacci word fractal by Alexis Monnerot-Dumaine.  It makes turns
+controlled by the "Fibonacci word" sequence, sometimes called the "golden
+string".
 
     11  | 27-28-29    33-34-35          53-54-55    59-60-61
         |  |     |     |     |           |     |     |     |
@@ -509,11 +510,10 @@ Return 0, the first N in the path.
 
 =head1 OEIS
 
-The Fibonacci word sequence itself is in Sloane's OEIS as sequence A003849,
-and A156596 is the odd/even 0s turned into turns 1 or 2 to give the turn
-sequence directly
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include,
 
-    http://oeis.org/A156596
+    http://oeis.org/A156596  (etc)
 
     A156596  - turn sequence, 0=straight,1=right,2=left
     A003849  - Fibonacci word, values 0,1

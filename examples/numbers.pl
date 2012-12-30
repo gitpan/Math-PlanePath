@@ -287,8 +287,12 @@ my @all_classes = ('SquareSpiral',
                    'ComplexRevolving',
 
                    'PythagoreanTree,tree_type=UAD',
+                   'PythagoreanTree,tree_type=UAD,coordinates=AC',
+                   'PythagoreanTree,tree_type=UAD,coordinates=BC',
                    'PythagoreanTree,tree_type=UAD,coordinates=PQ',
                    'PythagoreanTree,tree_type=FB',
+                   'PythagoreanTree,tree_type=FB,coordinates=AC',
+                   'PythagoreanTree,tree_type=FB,coordinates=BC',
                    'PythagoreanTree,tree_type=FB,coordinates=PQ',
 
                    'DiagonalRationals',

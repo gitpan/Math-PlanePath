@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -718,7 +718,7 @@ The DragonMidpoint is in Sloane's Online Encyclopedia of Integer Sequences as
 
     http://oeis.org/A073089
 
-    A073089 -- direction 0=horizontal,1=vertical (extra initial 0)
+    A073089   direction 0=horizontal,1=vertical (extra initial 0)
 
 The midpoint curve is vertical when the DragonCurve has a vertical followed
 by a left turn, or horizontal followed by a right turn.  DragonCurve

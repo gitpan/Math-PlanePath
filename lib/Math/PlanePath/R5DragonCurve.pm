@@ -30,7 +30,7 @@ use List::Util 'first','sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -133,8 +133,8 @@ sub n_to_xy {
 }
 
 my @digit_to_dir = (0,1,2,1,0);
-my @dir_to_dx = (1,0,-1,0);
-my @dir_to_dy = (0,1,0,-1);
+my @dir4_to_dx = (1,0,-1,0);
+my @dir4_to_dy = (0,1,0,-1);
 my @digit_to_nextturn = (1,1,-1,-1);
 
 sub n_to_dxdy {
@@ -156,17 +156,17 @@ sub n_to_dxdy {
   $dir = sum($dir, map {$digit_to_dir[$_]} @ndigits) & 3;
 
   ### direction: $dir
-  my $dx = $dir_to_dx[$dir];
-  my $dy = $dir_to_dy[$dir];
+  my $dx = $dir4_to_dx[$dir];
+  my $dy = $dir4_to_dy[$dir];
 
   # fractional $n incorporated using next turn
   if ($n) {
     # lowest non-4 digit, or 0 if all 4s (implicit 0 above high digit)
-    $dir += $digit_to_nextturn[(first {$_!=4} @ndigits) || 0];
+    $dir += $digit_to_nextturn[ first {$_!=4} @ndigits, 0 ];
     $dir &= 3;
     ### next direction: $dir
-    $dx += $n*($dir_to_dx[$dir] - $dx);
-    $dy += $n*($dir_to_dy[$dir] - $dy);
+    $dx += $n*($dir4_to_dx[$dir] - $dx);
+    $dy += $n*($dir4_to_dy[$dir] - $dy);
   }
   return ($dx, $dy);
 }
@@ -393,10 +393,14 @@ possibly a brick on another arm of the curve.
 
 This tiling is also for example
 
-    http://tilingsearch.org/HTML/data182/AL04.html
+=over
 
-    Or with enlarged square part,
-    http://tilingsearch.org/HTML/data149/L3010.html
+http://tilingsearch.org/HTML/data182/AL04.html
+
+Or with enlarged square part,
+http://tilingsearch.org/HTML/data149/L3010.html
+
+=back
 
 =head1 FUNCTIONS
 

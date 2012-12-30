@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -395,11 +395,19 @@ a transpose, an invert, or both, being four states altogether.  A bit pair
 and a new state which is the orientation of that sub-part.  William Gosper's
 HAKMEM item 115 has this with tables for the state and X,Y bits,
 
-    http://www.inwap.com/pdp10/hbaker/hakmem/topology.html#item115
+=over
+
+http://www.inwap.com/pdp10/hbaker/hakmem/topology.html#item115
+
+=back
 
 And C++ code based on that in Jorg Arndt's book,
 
-    http://www.jjj.de/fxt/#fxtbook   (section 1.31.1)
+=over
+
+http://www.jjj.de/fxt/#fxtbook   (section 1.31.1)
+
+=back
 
 It also works to process N from low to high, at each stage applying any
 transpose (swap X,Y) and/or invert (bitwise NOT) to the low X,Y bits
@@ -525,31 +533,34 @@ This path is in Sloane's OEIS in many forms,
     A163541    absolute direction, swapped X,Y
     A163542    relative direction (ahead=0,right=1,left=2)
     A163543    relative direction, swapped X,Y
+
     A163900    distance dX^2+dY^2 between Hilbert and ZOrder
+    A165464    distance dX^2+dY^2 between Hilbert and PeanoCurve
+    A165465    N where Hilbert and Peano have same X,Y
 
 The following take points of the plane in various orders, each value in the
 sequence being the N of the Hilbert curve at those positions.
 
-    A163355    in the ZOrderCurve sequence
-    A163357    in diagonals like Math::PlanePath::Diagonals with
+    A163355    N by the ZOrderCurve points sequence
+    A163356      inverse, ZOrderCurve by Hilbert points order
+    A166041    N by the PeanoCurve points sequence
+    A166042      inverse, PeanoCurve N by Hilbert points order
+    A163357    N by diagonals like Math::PlanePath::Diagonals with
                first Hilbert step along same axis the diagonals start
-    A163359    in diagonals, transposed start along the opposite axis
+    A163358      inverse
+    A163359    N by diagonals, transposed start along the opposite axis
+    A163360      inverse
     A163361    A163357 + 1, numbering the Hilbert N's from N=1
+    A163362      inverse
     A163363    A163355 + 1, numbering the Hilbert N's from N=1
+    A163364     inverse
 
-These sequences are in each case permutations of the integers since all X,Y
-positions of the first quadrant are covered by each path.  The inverse
-permutations are as follows.  They can be thought of taking X,Y positions in
-the Hilbert order and asking what N the ZOrderCurve or Diagonals path would
-put there.
+These sequences are permutations of the integers since all X,Y positions of
+the first quadrant are covered by each path (Hilbert, ZOrder, Peano).  The
+inverse permutations can be thought of taking X,Y positions in the Hilbert
+order and asking what N the ZOrder, Peano or Diagonals path would put there.
 
-    A163356    inverse of A163355  (ZOrderCurve)
-    A163358    inverse of A163357  (Diagonals same axis)
-    A163360    inverse of A163359  (Diagonals opposite)
-    A163362    inverse of A163361  (Diagonals N=1)
-    A163364    inverse of A163363  (Diagonals N=1 opposite)
-
-The A163355 permutation by ZOrderCurve can be considered for  repeats or
+The A163355 permutation by ZOrderCurve can be considered for repeats or
 cycles,
 
     A163905    ZOrderCurve permutation A163355 applied twice

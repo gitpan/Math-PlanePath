@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011 Kevin Ryde
+# Copyright 2010, 2011, 2012 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,6 +21,7 @@ use 5.010;
 use strict;
 use warnings;
 use POSIX 'fmod';
+use List::Util 'min', 'max';
 use Math::Libm 'M_PI', 'hypot';
 use Math::Trig 'pi';
 use POSIX;
@@ -28,6 +29,143 @@ use POSIX;
 use Smart::Comments;
 
 use constant PHI => (1 + sqrt(5)) / 2;
+
+
+{
+  require Math::PlanePath::VogelFloret;
+  require Math::NumSeq::OEIS;
+
+  my $width = 79;
+  my $height = 21;
+
+  my $seq = Math::NumSeq::OEIS->new(anum => 'A000201');
+  print_class('Math::PlanePath::VogelFloret');
+
+  sub print_class {
+    my ($name) = @_;
+
+    # secret leading "*Foo" means print if available
+    my $if_available = ($name =~ s/^\*//);
+
+    my $class = $name;
+    unless ($class =~ /::/) {
+      $class = "Math::PlanePath::$class";
+    }
+    ($class, my @parameters) = split /\s*,\s*/, $class;
+
+    $class =~ /^[a-z_][:a-z_0-9]*$/i or die "Bad class name: $class";
+    if (! eval "require $class") {
+      if ($if_available) {
+        next;
+      } else {
+        die $@;
+      }
+    }
+
+    @parameters = map { /(.*?)=(.*)/ or die "Missing value for parameter \"$_\"";
+                        $1,$2 } @parameters;
+
+    my %rows;
+    my $x_min = 0;
+    my $x_max = 0;
+    my $y_min = 0;
+    my $y_max = 0;
+    my $cellwidth = 1;
+
+    my $path = $class->new (width  => POSIX::ceil($width / 4),
+                            height => POSIX::ceil($height / 2),
+                            @parameters);
+    my $x_limit_lo;
+    my $x_limit_hi;
+    if ($path->x_negative) {
+      my $w_cells = int ($width / $cellwidth);
+      my $half = int(($w_cells - 1) / 2);
+      $x_limit_lo = -$half;
+      $x_limit_hi = +$half;
+    } else {
+      my $w_cells = int ($width / $cellwidth);
+      $x_limit_lo = 0;
+      $x_limit_hi = $w_cells - 1;
+    }
+
+    my $y_limit_lo = 0;
+    my $y_limit_hi = $height-1;
+    if ($path->y_negative) {
+      my $half = int(($height-1)/2);
+      $y_limit_lo = -$half;
+      $y_limit_hi = +$half;
+    }
+
+    my $n_start = $path->n_start;
+    my $n = 0;
+    for (;;) {
+      my ($x, $y) = $path->n_to_xy ($n);
+
+      # stretch these out for better resolution
+      if ($class =~ /Sacks/) { $x *= 1.5; $y *= 2; }
+      if ($class =~ /Archimedean/) { $x *= 2; $y *= 3; }
+      if ($class =~ /Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }
+      if ($class =~ /Vogel/) { $x *= 1.4; $y *= 2; }
+
+      # nearest integers
+      $x = POSIX::floor ($x + 0.5);
+      $y = POSIX::floor ($y + 0.5);
+
+      my $cell = $rows{$x}{$y};
+      if (defined $cell) { $cell .= ','; }
+      $cell .= $n;
+      my $new_cellwidth = max ($cellwidth, length($cell) + 1);
+
+      my $new_x_limit_lo;
+      my $new_x_limit_hi;
+      if ($path->x_negative) {
+        my $w_cells = int ($width / $new_cellwidth);
+        my $half = int(($w_cells - 1) / 2);
+        $new_x_limit_lo = -$half;
+        $new_x_limit_hi = +$half;
+      } else {
+        my $w_cells = int ($width / $new_cellwidth);
+        $new_x_limit_lo = 0;
+        $new_x_limit_hi = $w_cells - 1;
+      }
+
+      my $new_x_min = min($x_min, $x);
+      my $new_x_max = max($x_max, $x);
+      my $new_y_min = min($y_min, $y);
+      my $new_y_max = max($y_max, $y);
+      if ($new_x_min < $new_x_limit_lo
+          || $new_x_max > $new_x_limit_hi
+          || $new_y_min < $y_limit_lo
+          || $new_y_max > $y_limit_hi) {
+        last;
+      }
+
+      $rows{$x}{$y} = $cell;
+      $cellwidth = $new_cellwidth;
+      $x_limit_lo = $new_x_limit_lo;
+      $x_limit_hi = $new_x_limit_hi;
+      $x_min = $new_x_min;
+      $x_max = $new_x_max;
+      $y_min = $new_y_min;
+      $y_max = $new_y_max;
+
+      (my $i, $n) = $seq->next;
+      last if $n > 99;
+    }
+    $n--; # the last N actually plotted
+
+    print "$name   N=$n_start to N=$n\n\n";
+    foreach my $y (reverse $y_min .. $y_max) {
+      foreach my $x ($x_limit_lo .. $x_limit_hi) {
+        my $cell = $rows{$x}{$y};
+        if (! defined $cell) { $cell = ''; }
+        printf ('%*s', $cellwidth, $cell);
+      }
+      print "\n";
+    }
+  }
+    exit 0;
+}
 
 
 sub cont {

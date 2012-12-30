@@ -50,7 +50,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -415,7 +415,7 @@ sub _n0_to_depthbits {
 1;
 __END__
 
-=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax SierpinskiArrowheadCentres OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand CellularRule Noffset
+=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax SierpinskiArrowheadCentres OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand CellularRule Noffset Ndepth Nrem NumSeq
 
 =head1 NAME
 
@@ -702,7 +702,7 @@ Return the children of C<$n>, or an empty list if C<$n E<lt> n_start>
 The children are the points diagonally up left and right on the next row.
 There can be 0, 1 or 2 such points.  At even depth there's 2, on depth=1mod4
 there's 1.  On other depths there's some 0s and some 1s (see L</N to Number
-of Children>) below).
+of Children> below).
 
 For example N=3 has two children N=5,N=6.  Then in turn N=5 has just one
 child N=9.  And N=6 has no children.  The way points are numbered across a
@@ -920,9 +920,6 @@ of that sequence which is the "Ndepth", and A074330 is 1 less for "Nend".
       A106344   0,1 cells by upwards sloping dX=3,dY=1
       A130047   0,1 cells of half X<=0 by rows
 
-    align="right"
-      A075438   0,1 cells by rows including 0 blanks at left of pyramid
-
 A047999 etc is every second point in the default triangular lattice, or all
 points in align="right" or "left".
 
@@ -933,6 +930,16 @@ points in align="right" or "left".
 
 dX=3,dY=1 sloping lines are equivalent to opposite-diagonals dX=-1,dY=1 in
 "right" alignment.
+
+    align="right"
+      A075438   0,1 cells by rows including 0 blanks at left of pyramid
+
+    align="right", n_start=0
+      A006046   N on Y axis, being Ndepth
+      A074330   N on Diagonal starting from Y=1, being Nend
+    align="left", n_start=0
+      A006046   N on NW diagonal, being Ndepth
+      A074330   N on Y axis starting from Y=1, being Nend
 
     A080263   Dyck encoding of the tree structure
     A080264     same in binary

@@ -42,7 +42,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -339,7 +339,7 @@ sub rect_to_n_range {
   ### bottom: -$y1
 
   my $sides = $self->{'sides'};
-  my ($len, $level) = round_down_pow (max ($sides == 6
+  my ($pow, $level) = round_down_pow (max ($sides == 6
                                            ? ($x1/-2,
                                               $x2/2,
                                               -$y1,

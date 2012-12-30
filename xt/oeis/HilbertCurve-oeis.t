@@ -131,27 +131,92 @@ sub zorder_is_3cycle {
 
 
 #------------------------------------------------------------------------------
+# A166041 - N in Peano order
+
+MyOEIS::compare_values
+  (anum => 'A166041',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $peano->n_start; @got < $count; $n++) {
+       my ($x, $y) = $peano->n_to_xy($n);
+       push @got, $hilbert->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# inverse Peano in Hilbert order
+MyOEIS::compare_values
+  (anum => 'A166042',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($x, $y) = $hilbert->n_to_xy($n);
+       push @got, $peano->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A165465 -- N where Hilbert and Peano same X,Y
+
+MyOEIS::compare_values
+  (anum => 'A165465',
+   max_value => 100000,
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($hx,$hy) = $hilbert->n_to_xy($n);
+       my ($px,$py) = $peano->n_to_xy($n);
+       if ($hx == $px && $hy == $py) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A165464 -- dx^2+dy^2 of Hilbert->Peano
+
+MyOEIS::compare_values
+  (anum => 'A165464',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $peano  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($hx,$hy) = $hilbert->n_to_xy($n);
+       my ($px,$py) = $peano->n_to_xy($n);
+       push @got, ($px-$hx)**2 + ($py-$hy)**2;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A163540 -- absolute direction 0=east, 1=south, 2=west, 3=north
 # Y coordinates reckoned down the page, so south is Y increasing
 
-{
-  my $anum = 'A163540';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
-      push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- absolute direction");
-}
+MyOEIS::compare_values
+  (anum => 'A163540',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
+       push @got, MyOEIS::dxdy_to_direction ($dx, $dy);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A163538 -- delta X
@@ -706,19 +771,16 @@ sub lcm {
 #------------------------------------------------------------------------------
 # A163355 - in Z order sequence
 
-{
-  my $anum = 'A163355';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = 0; @got < @$bvalues; $n++) {
-      push @got, zorder_perm($n);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - ZOrder");
-}
+MyOEIS::compare_values
+  (anum => 'A163355',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 0; @got < $count; $n++) {
+       push @got, zorder_perm($n);
+     }
+     return \@got;
+   });
 
 # A163356 - inverse
 {
@@ -1040,8 +1102,8 @@ sub lcm {
     my ($p_dx, $p_dy) = ($p_x - $n0_x, $p_y - $n0_y);
     foreach my $n (2 .. @$bvalues + 1) {
       my ($x, $y) = $hilbert->n_to_xy ($n);
-      my $dx = ($x - $p_x);
-      my $dy = ($y - $p_y);
+      my $dx = $x - $p_x;
+      my $dy = $y - $p_y;
 
       if ($p_dx) {
         if ($dx) {

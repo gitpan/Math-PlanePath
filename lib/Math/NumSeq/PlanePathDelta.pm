@@ -36,6 +36,8 @@
 # dTDist dTDSquared
 # Dist DSquared
 # TDist TDSquared
+# StepDist StepSquared
+# StepTDist StepTSquared
 
 
 package Math::NumSeq::PlanePathDelta;
@@ -45,7 +47,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -1097,6 +1099,10 @@ sub characteristic_non_decreasing {
   {
     my %AbsdX_min = ('AB,UAD' => 2,
                      'AB,FB'  => 2,
+                     'AC,UAD' => 2,
+                     'AC,FB'  => 2,
+                     'BC,UAD' => 4,  # at N=37
+                     'BC,FB'  => 4,  # at N=2 X=12,Y=13
                      'PQ,UAD' => 0,
                      'PQ,FB'  => 0,
                     );
@@ -1108,6 +1114,10 @@ sub characteristic_non_decreasing {
   {
     my %AbsdY_min = ('AB,UAD' => 4,
                      'AB,FB'  => 4,
+                     'AC,UAD' => 4,
+                     'AC,FB'  => 4,
+                     'BC,UAD' => 4,
+                     'BC,FB'  => 4,
                      'PQ,UAD' => 0,
                      'PQ,FB'  => 1,
                     );
@@ -1117,14 +1127,19 @@ sub characteristic_non_decreasing {
     }
   }
   {
-    # AB apparent minimum dX=16,dY=8
-    my %Dir4_min = ('AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (16,8),
+    my %Dir4_min = (# AB apparent minimum dX=16,dY=8
+                    'AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (16,8),
+                    'AC,UAD' => 0.5, # it seems
                    );
     my %TDir6_min = (
                      'AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (16,8),
+                     'AC,UAD' => 1, # it seems
                     );
-    my %Dir4_is_infimum = ('AB,FB' => 1,
-                           'PQ,FB' => 1);
+    my %Dir4_min_is_infimum = ('BC,UAD' => 1,
+                               'AB,FB' => 1,
+                               'AC,FB' => 1,
+                               'BC,FB' => 1,
+                               'PQ,FB' => 1);
     sub _NumSeq_Delta_Dir4_min {
       my ($self) = @_;
       return $Dir4_min{"$self->{'coordinates'},$self->{'tree_type'}"} || 0;
@@ -1135,25 +1150,36 @@ sub characteristic_non_decreasing {
     }
     sub _NumSeq_Dir4_min_is_infimum {
       my ($self) = @_;
-      return $Dir4_is_infimum{"$self->{'coordinates'},$self->{'tree_type'}"};
+      return $Dir4_min_is_infimum{"$self->{'coordinates'},$self->{'tree_type'}"};
     }
     *_NumSeq_TDir6_min_is_infimum = \&_NumSeq_Dir4_min_is_infimum;
   }
   {
-    # AB apparent minimum dX=-6,dY=-12
+    # AB apparent maximum dX=-6,dY=-12 at N=3
+    # AC apparent maximum dX=-6,dY=-12 at N=3 same
     # PQ apparent maximum dX=-1,dY=-1
     my %Dir4_max = ('AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (-6,-12),
+                    'AC,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_Dir4 (-6,-12),
+                    'BC,UAD' => 4,
                     'PQ,UAD' => 2.5,
                     'AB,FB'  => 4,
+                    'AC,FB'  => 4,
+                    'BC,FB'  => 3.5,
                     'PQ,FB'  => 4,
                    );
     my %TDir6_max = ('AB,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (-6,-12),
+                     'AC,UAD' => Math::NumSeq::PlanePathDelta::_delta_func_TDir6 (-6,-12),
+                     'BC,UAD' => 6,
                      'PQ,UAD' => 4,
                      'AB,FB'  => 6,
+                     'AC,FB'  => 6,
+                     'BC,FB'  => 5,
                      'PQ,FB'  => 6,
                     );
-    my %Dir4_is_supremum = ('AB,FB' => 1,
-                            'PQ,FB' => 1);
+    my %Dir4_max_is_supremum = ('BC,UAD' => 1,
+                                'AB,FB'  => 1,
+                                'AC,FB'  => 1,
+                                'PQ,FB'  => 1);
     sub _NumSeq_Delta_Dir4_max {
       my ($self) = @_;
       return $Dir4_max{"$self->{'coordinates'},$self->{'tree_type'}"} || 3;
@@ -1164,7 +1190,7 @@ sub characteristic_non_decreasing {
     }
     sub _NumSeq_Dir4_max_is_supremum {
       my ($self) = @_;
-      return $Dir4_is_supremum{"$self->{'coordinates'},$self->{'tree_type'}"};
+      return $Dir4_max_is_supremum{"$self->{'coordinates'},$self->{'tree_type'}"};
     }
     *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
   }
@@ -1208,10 +1234,10 @@ sub characteristic_non_decreasing {
     }
   }
   {
-    my %Dir4_is_infimum = (Drib => 1);
+    my %Dir4_min_is_infimum = (Drib => 1);
     sub _NumSeq_Dir4_min_is_infimum {
       my ($self) = @_;
-      return $Dir4_is_infimum{$self->{'tree_type'}};
+      return $Dir4_min_is_infimum{$self->{'tree_type'}};
     }
     *_NumSeq_TDir6_min_is_infimum = \&_NumSeq_Dir4_min_is_infimum;
   }
@@ -1246,13 +1272,13 @@ sub characteristic_non_decreasing {
     }
   }
   {
-    my %Dir4_is_supremum = (CW   => 1,
+    my %Dir4_max_is_supremum = (CW   => 1,
                             AYT  => 1,
                             Drib => 1,
                             L    => 1);
     sub _NumSeq_Dir4_max_is_supremum {
       my ($self) = @_;
-      return $Dir4_is_supremum{$self->{'tree_type'}};
+      return $Dir4_max_is_supremum{$self->{'tree_type'}};
     }
     *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
   }
@@ -1352,7 +1378,7 @@ sub characteristic_non_decreasing {
   sub _NumSeq_Delta_AbsdY_min {
     my ($self) = @_;
     return ($self->{'radix'} < 3 ? 0
-            : 1);                    
+            : 1);
   }
 
   # FIXME: believe approaches 360 degrees, eventually
@@ -3579,16 +3605,121 @@ sub characteristic_non_decreasing {
 }
 
 { package Math::PlanePath::ToothpickTree;
-  use constant _NumSeq_Delta_Dir4_max => 3;  # south
-  use constant _NumSeq_Delta_TDir6_max => 4.5;
+  # parts=1 Dir4 max 5,-4
+  #                 14,-9
+  #                 62,-33
+  #                126,-65
+  #            2*2^k-2, -2^k+1   -> 2,-1
+  #
+  # parts=2 dX=big,dY=-1 approaches 3.9999
+  #
+  # parts=3 same as parts=1
+  {
+    my @_NumSeq_Delta_Dir4_max
+      = (undef,
+         Math::NumSeq::PlanePathDelta::_delta_func_Dir4(2,-1),  # 1
+         4,                                                     # 2
+         Math::NumSeq::PlanePathDelta::_delta_func_Dir4(2,-1),  # 3
+         3,                                                     # parts=4
+        );
+    sub _NumSeq_Delta_Dir4_max {
+      my ($self) = @_;
+      return $_NumSeq_Delta_Dir4_max[$self->{'parts'}];
+    }
+  }
+  {
+    my @_NumSeq_Delta_TDir6_max
+      = (undef,
+         Math::NumSeq::PlanePathDelta::_delta_func_TDir6(2,-1), # 1
+         6,                                                     # 2
+         Math::NumSeq::PlanePathDelta::_delta_func_TDir6(2,-1), # 3
+         4.5,                                                   # parts=4
+        );
+    sub _NumSeq_Delta_TDir6_max {
+      my ($self) = @_;
+      return $_NumSeq_Delta_TDir6_max[$self->{'parts'}];
+    }
+  }
+  sub _NumSeq_Dir4_max_is_supremum {
+    my ($self) = @_;
+    return $self->{'parts'} != 4;
+  }
+  *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
+}
+{ package Math::PlanePath::ToothpickReplicate;
+  # parts=1 same as parts=4
+  # parts=2 same as parts=4
+  # parts=3 same as parts=4
+  # parts=4    33,-12
+  #           133,-30
+  #           333,-112
+  #          1333,-230
+  #          3332,-1112    -> 3,-1
+  use constant _NumSeq_Delta_Dir4_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_Dir4(3,-1);
+  use constant _NumSeq_Delta_TDir6_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_TDir6(3,-1);
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
+  use constant _NumSeq_TDir6_max_is_supremum => 1;
 }
 { package Math::PlanePath::ToothpickUpist;
   use constant _NumSeq_Delta_Dir4_max => 2;  # N=1 west dX=1,dY=0
   use constant _NumSeq_Delta_TDir6_max => 3;
 }
 { package Math::PlanePath::LCornerTree;
-  use constant _NumSeq_Delta_Dir4_max => 3.5;  # South-West
-  use constant _NumSeq_Delta_TDir6_max => 5;
+  # parts=1 Dir4 max 12,-11
+  #                 121,-110
+  #                 303,-213
+  #                1212,-1031
+  #               12121,-10310      -> 12,-10
+  #               30303,-21213      -> 3,-2
+  # parts=2  dX=big,dY=-1
+  # parts=3  dX=big,dY=-1
+  # parts=3
+  {
+    my @_NumSeq_Delta_Dir4_max
+      = (undef,
+         Math::NumSeq::PlanePathDelta::_delta_func_Dir4(3,-2),  # 1
+         4,                                                     # 2
+         4,                                                     # 3
+         3,                                                     # parts=4
+        );
+    sub _NumSeq_Delta_Dir4_max {
+      my ($self) = @_;
+      return $_NumSeq_Delta_Dir4_max[$self->{'parts'}];
+    }
+  }
+  {
+    my @_NumSeq_Delta_TDir6_max
+      = (undef,
+         Math::NumSeq::PlanePathDelta::_delta_func_TDir6(3,-2), # 1
+         6,                                                     # 2
+         6,                                                     # 3
+         4.5,                                                   # parts=4
+        );
+    sub _NumSeq_Delta_TDir6_max {
+      my ($self) = @_;
+      return $_NumSeq_Delta_TDir6_max[$self->{'parts'}];
+    }
+  }
+  sub _NumSeq_Dir4_max_is_supremum {
+    my ($self) = @_;
+    return $self->{'parts'} != 4;
+  }
+  *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
+}
+{ package Math::PlanePath::LCornerReplicate;
+  # Dir4 max 21,-10
+  #         103,-13
+  #         212,-31
+  #        2121,-310
+  # FIXME: slightly more or less than 20,-3 ?
+  use constant _NumSeq_Delta_Dir4_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_Dir4(20,-3);
+  use constant _NumSeq_Delta_TDir6_max =>
+    Math::NumSeq::PlanePathDelta::_delta_func_TDir6(20,-3);
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
+  use constant _NumSeq_TDir6_max_is_supremum => 1;
 }
 
 1;

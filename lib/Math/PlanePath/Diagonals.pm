@@ -25,7 +25,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -197,7 +197,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath DiagonalsOctant OEIS
+=for stopwords PlanePath Ryde Math-PlanePath DiagonalsOctant OEIS triangulars
 
 =head1 NAME
 
@@ -267,15 +267,19 @@ example to start at 0,
 
 =pod
 
-    n_start => 0                 n_start=>0, direction=>"up"
+    n_start => 0,                    n_start=>0
+    direction=>"down"                direction=>"up"
 
-      4  |  10                        |  14
-      3  |   6 11                     |   9 13
-      2  |   3  7 12                  |   5  8 12
-      1  |   1  4  8 13               |   2  4  7 11
-    Y=0  |   0  2  5  9 14            |   0  1  3  6 10
-         +-----------------           +-----------------
-           X=0  1  2  3  4              X=0  1  2  3  4
+      4  |  10                       |  14
+      3  |   6 11                    |   9 13
+      2  |   3  7 12                 |   5  8 12
+      1  |   1  4  8 13              |   2  4  7 11
+    Y=0  |   0  2  5  9 14           |   0  1  3  6 10
+         +-----------------          +-----------------
+           X=0  1  2  3  4             X=0  1  2  3  4
+
+N=0,1,3,6,10,etc on the Y axis of "down" or the X axis of "up" is the
+triangular numbers Y*(Y+1)/2.
 
 =head2 X,Y Start
 

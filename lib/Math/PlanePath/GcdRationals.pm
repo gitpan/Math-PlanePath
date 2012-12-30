@@ -56,7 +56,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -589,7 +589,7 @@ sub _gcd {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd gcds PyramidRows Fortnow coprime triangulars DiagonalsOctant numberings pronics
+=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd gcds gcd/2 j/gcd PyramidRows Fortnow coprime triangulars DiagonalsOctant numberings pronics
 
 =head1 NAME
 
@@ -606,7 +606,15 @@ Math::PlanePath::GcdRationals -- rationals by triangular GCD
 X<Fortnow, Lance>This path enumerates X/Y rationals using a method by Lance
 Fortnow taking a greatest common divisor out of a triangular position.
 
-    http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
+=over
+
+http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
+
+=back
+
+The attraction of this approach is that it's both efficient to calculate and
+it traverses blocks of X/Y rationals using a modest range of N values,
+roughly a square N=2*max(num,den)^2 in the default i,j by rows.
 
     13  |      79  80  81  82  83  84  85  86  87  88  89  90
     12  |      67              71      73              77     278
@@ -624,10 +632,6 @@ Fortnow taking a greatest common divisor out of a triangular position.
     Y=0 |
          --------------------------------------------------------
           X=0   1   2   3   4   5   6   7   8   9  10  11  12  13
-
-The attraction of this approach is that it's both efficient to calculate and
-it traverses blocks of X/Y rationals using a modest range of N values,
-roughly a square N=2*max(num,den)^2 in the default i,j by rows.
 
 The mapping from N to rational is
 

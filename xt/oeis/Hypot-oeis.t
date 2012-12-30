@@ -35,6 +35,135 @@ use Math::PlanePath::Hypot;
 
 
 #------------------------------------------------------------------------------
+# A199015 -- partial sums of A008441
+
+MyOEIS::compare_values
+  (anum => 'A199015',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Hypot->new(points=>'square_centred');
+     my @got;
+     my $n = $path->n_start;
+     my $num = 0;
+     my $want_norm = 2;
+     while (@got < $count) {
+       my ($x,$y) = $path->n_to_xy($n);
+       my $norm = $x*$x + $y*$y;
+       if ($norm > $want_norm) {
+         ### push: $num
+         push @got, $num/4;
+         $want_norm += 8;
+       } else {
+         ### point: "$n at $x,$y norm=$norm  total num=$num"
+         $n++;
+         $num++;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A005883 -- count points with norm==4*n+1
+#            Theta series of square lattice with respect to deep hole.
+#
+# same as "odd" turned 45-degrees
+#
+#    3   .   2   .   2   .   3
+#
+#    .   .   .   .   .   .   .
+#            
+#    2   .   1   .   1   .   2
+#            
+#    .   .   .   o   .   .   .
+#
+#    2   .   1   .   1   .   2
+#            
+#    .   .   .   .   .   .   .
+#
+#    3   .   2   .   2   .   3
+#
+#   4, 8, 4, 8,8,0,12,8,0,8,8,8,4,8,0,8,16,0,8,0,4
+
+
+MyOEIS::compare_values
+  (anum => 'A005883',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Hypot->new(points=>'square_centred');
+     my @got;
+     my $n = $path->n_start;
+     my $num = 0;
+     my $want_norm = 2;
+     while (@got < $count) {
+       my ($x,$y) = $path->n_to_xy($n);
+       my $norm = $x*$x + $y*$y;
+       if ($norm > $want_norm) {
+         ### push: $num
+         push @got, $num;
+         $want_norm += 8;
+         $num = 0;
+       } else {
+         ### point: "$n at $x,$y norm=$norm  total num=$num"
+         $n++;
+         $num++;
+       }
+     }
+     return \@got;
+   });
+
+# A008441 = A005883/4
+# how many ways to write n = x(x+1)/2 + y(y+1)/2 sum two triangulars
+MyOEIS::compare_values
+  (anum => 'A008441',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Hypot->new(points=>'square_centred');
+     my @got;
+     my $n = $path->n_start;
+     my $num = 0;
+     my $want_norm = 2;
+     while (@got < $count) {
+       my ($x,$y) = $path->n_to_xy($n);
+       my $norm = $x*$x + $y*$y;
+       if ($norm > $want_norm) {
+         ### push: $num
+         push @got, $num/4;
+         $want_norm += 8;
+         $num = 0;
+       } else {
+         ### point: "$n at $x,$y norm=$norm  total num=$num"
+         $n++;
+         $num++;
+       }
+     }
+     return \@got;
+   });
+
+# MyOEIS::compare_values
+#   (anum => 'A005883',
+#    func => sub {
+#      my ($count) = @_;
+#      my @got;
+#      my $path = Math::PlanePath::Hypot->new (points => 'square_centred');
+#      my $n = $path->n_start;
+#      my $i = 0;
+#      for (my $i = 0; @got < $count; $i++) {
+#        my $points = 0;
+#        for (;;) {
+#          my $h = $path->n_to_rsquared($n);
+#          if ($h > 4*$i+1) {
+#            last;
+#          }
+#          $points++;
+#          $n++;
+#        }
+#        ### $points
+#        push @got, $points;
+#      }
+#      return \@got;
+#    });
+
+#------------------------------------------------------------------------------
 # A004020 Theta series of square lattice with respect to edge.
 #         2,4,2,4,4
 
@@ -89,53 +218,6 @@ MyOEIS::compare_values
    });
 
 
-
-#------------------------------------------------------------------------------
-# A005883 -- count points with norm==4*n+1
-#            Theta series of square lattice with respect to deep hole.
-#
-# same as "odd" turned 45-degrees
-#
-#    3   .   2   .   2   .   3
-#
-#    .   .   .   .   .   .   .
-#            
-#    2   .   1   .   1   .   2
-#            
-#    .   .   .   o   .   .   .
-#
-#    2   .   1   .   1   .   2
-#            
-#    .   .   .   .   .   .   .
-#
-#    3   .   2   .   2   .   3
-#
-
-#   4, 8, 4, 8,8,0,12,8,0,8,8,8,4,8,0,8,16,0,8,0,4
-
-MyOEIS::compare_values
-  (anum => 'A005883',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     my $path = Math::PlanePath::Hypot->new (points => 'odd');
-     my $n = $path->n_start;
-     my $i = 0;
-     for (my $i = 0; @got < $count; $i++) {
-       my $points = 0;
-       for (;;) {
-         my $h = $path->n_to_rsquared($n);
-         if ($h > 4*$i+1) {
-           last;
-         }
-         $points++;
-         $n++;
-       }
-       ### $points
-       push @got, $points;
-     }
-     return \@got;
-   });
 
 #------------------------------------------------------------------------------
 # A093837 - denominators N(r) / r^2

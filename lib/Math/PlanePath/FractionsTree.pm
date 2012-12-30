@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,6 +48,7 @@ use Math::PlanePath::CoprimeColumns;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant tree_any_leaf => 0;  # no leaves, complete tree
 
 use constant parameter_info_array =>
   [

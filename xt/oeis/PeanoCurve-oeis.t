@@ -455,8 +455,8 @@ sub numeq_array {
     my ($p_dx, $p_dy) = ($p_x - $n0_x, $p_y - $n0_y);
     foreach my $n (2 .. @$bvalues + 1) {
       my ($x, $y) = $peano->n_to_xy ($n);
-      my $dx = ($x - $p_x);
-      my $dy = ($y - $p_y);
+      my $dx = $x - $p_x;
+      my $dy = $y - $p_y;
 
       if ($p_dx) {
         if ($dx) {
@@ -510,8 +510,8 @@ sub transpose {
     my ($p_dx, $p_dy) = ($p_x - $n0_x, $p_y - $n0_y);
     foreach my $n (2 .. @$bvalues + 1) {
       my ($x, $y) = transpose ($peano->n_to_xy ($n));
-      my $dx = ($x - $p_x);
-      my $dy = ($y - $p_y);
+      my $dx = $x - $p_x;
+      my $dy = $y - $p_y;
 
       if ($p_dx) {
         if ($dx) {

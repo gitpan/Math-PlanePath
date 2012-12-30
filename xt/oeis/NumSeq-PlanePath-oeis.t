@@ -17,6 +17,11 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Check PlanePathCoord etc sequences against OEIS data.
+#
+
+
 use 5.004;
 use strict;
 use Test;
@@ -81,7 +86,7 @@ sub check_class {
   # return unless $class =~ /PlanePathCoord/;
   # return unless ($parameters{'coordinate_type'}||'') =~ /^SumAbs/;
   # return unless ($parameters{'line_type'}||'') =~ /^Depth/;
-  return unless $parameters{'planepath'} =~ /tooth|lcorner/i;
+  # return unless $parameters{'planepath'} =~ /pythag/i;
   # return unless $parameters{'planepath'} =~ /SquareSpiral/;
   # return unless $anum =~ 'A147562';
   # return unless $anum eq 'A067251';

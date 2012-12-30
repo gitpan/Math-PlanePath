@@ -16,20 +16,16 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# turn seq from low non-zero or N/2 low bit or something
-# cf A039963
-
-
 package Math::PlanePath::SierpinskiCurve;
 use 5.004;
 use strict;
-use List::Util 'sum';
+use List::Util 'sum','first';
 #use List::Util 'min','max';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -42,7 +38,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -213,74 +209,73 @@ sub n_to_xy {
   return ($x,$y);
 }
 
-#      ...0    ...1
-#      ...1    ...2
-#      ...2    ...3
-#    ..0333  ..1000    any low 3s
-#      ..02    ..03
-#      ..12    ..13
-#      ..22    ..23
-#   ..03332 ..03333
-#   ..13332 ..13333
-#   ..23332 ..23333
-
-my @lowdigit_to_dir = (1,-2, 1, 0);
-my @digit_to_dir    = (0, 2,-2, 0);
+my @digit_to_dir = (0, -2, 2, 0);
 my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
 my @dir8_to_dy = (0, 1, 1, 1,  0, -1, -1,-1);
-my @digit_to_turn  = (-1,-1,2);
-my @digit_to_turn2 = (2,-1,2);
-sub _WORKING_BUT_HAIRY__n_to_dxdy {
+my @digit_to_nextturn = (-1,   # after digit=0
+                         2,    #       digit=1
+                         -1);  #       digit=2
+sub n_to_dxdy {
   my ($self, $n) = @_;
   ### n_to_dxdy(): $n
 
   if ($n < 0) {
     return;  # first direction at N=0
   }
-  if (is_infinite($n)) {
-    return ($n,$n);
-  }
 
   my $int = int($n);
   $n -= $int;
-  my @digits = digit_split_lowtohigh($int,4);
-  ### @digits
 
-  # strip low 3s
-  my $any_low3s;
-  while (($digits[0]||0) == 3) {
-    shift @digits;
-    $any_low3s = 1;
+  my $arm = _divrem_mutate($int,$self->{'arms'});
+  my $lowbit = _divrem_mutate($int,2);
+  ### $lowbit
+  ### $int
+
+  if (is_infinite($int)) {
+    return ($int,$int);
+  }
+  my @ndigits = digit_split_lowtohigh($int,4);
+  ### @ndigits
+
+  my $dir8 = sum(0, map {$digit_to_dir[$_]} @ndigits);
+  if ($arm & 1) {
+    $dir8 = - $dir8;  # mirrored on second,fourth,etc arm
+  }
+  $dir8 += ($arm|1);  # NE,NW,SW, or SE
+
+  my $turn;
+  if ($n || $lowbit) {
+    # next turn
+
+    # lowest non-3 digit, or zero if all 3s (implicit 0 above high digit)
+    $turn = $digit_to_nextturn[ first {$_!=3} @ndigits, 0 ];
+    if ($arm & 1) {
+      $turn = - $turn;  # mirrored on second,fourth,etc arm
+    }
   }
 
-  my $dir8 = $lowdigit_to_dir[$digits[0] || 0];
-  $dir8 += sum(0, map {$digit_to_dir[$_]} @digits);
+  if ($lowbit) {
+    $dir8 += $turn;
+  }
+
+  my $s = $self->{'straight_spacing'};
+  my $d = $self->{'diagonal_spacing'};
+
   $dir8 &= 7;
-  my $dx = $dir8_to_dx[$dir8];
-  my $dy = $dir8_to_dy[$dir8];
+  my $spacing = ($dir8 & 1 ? $d : $s);
+  my $dx = $spacing * $dir8_to_dx[$dir8];
+  my $dy = $spacing * $dir8_to_dy[$dir8];
 
   if ($n) {
-    # fraction part
-
-    if ($any_low3s) {
-      $dir8 += $digit_to_turn2[$digits[0]||0];
-    } else {
-      my $digit = $digits[0] || 0;
-      if ($digit == 2) {
-        shift @digits;
-        # lowest non-3 digit
-        do {
-          $digit = shift @digits || 0;  # zero if all 3s or no digits at all
-        } until ($digit != 3);
-        $dir8 += $digit_to_turn2[$digit];
-      } else {
-        $dir8 += $digit_to_turn[$digit];
-      }
-    }
+    $dir8 += $turn;
     $dir8 &= 7;
-    $dx += $n*($dir8_to_dx[$dir8] - $dx);
-    $dy += $n*($dir8_to_dy[$dir8] - $dy);
+    $spacing = ($dir8 & 1 ? $d : $s);
+    $dx += $n*($spacing * $dir8_to_dx[$dir8]
+               - $dx);
+    $dy += $n*($spacing * $dir8_to_dy[$dir8]
+               - $dy);
   }
+
   return ($dx, $dy);
 }
 
@@ -304,7 +299,7 @@ sub _NOTWORKING__xy_is_visited {
   $y = round_nearest($y);
   my $mod = 2*$self->{'diagonal_spacing'} + $self->{'straight_spacing'};
   return (_rect_within_arms($x,$y, $x,$y, $self->{'arms'})
-          && ((($x%3)+($y%3)) & 1));
+          && ((($x%$mod)+($y%$mod)) & 1));
 }
 
 #   x1    *  x2 *
@@ -526,6 +521,78 @@ __END__
 
 
 
+# #      ...0    ...1
+# #      ...1    ...2
+# #      ...2    ...3
+# #    ..0333  ..1000    any low 3s
+# #      ..02    ..03
+# #      ..12    ..13
+# #      ..22    ..23
+# #   ..03332 ..03333
+# #   ..13332 ..13333
+# #   ..23332 ..23333
+# 
+# my @lowdigit_to_dir = (1,-2, 1, 0);
+# my @digit_to_dir    = (0, 2,-2, 0);
+# my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
+# my @dir8_to_dy = (0, 1, 1, 1,  0, -1, -1,-1);
+# my @digit_to_nextturn  = (-1,-1,2);
+# my @digit_to_nextturn2 = (2,-1,2);
+#
+# sub _WORKING_BUT_HAIRY__n_to_dxdy {
+#   my ($self, $n) = @_;
+#   ### n_to_dxdy(): $n
+# 
+#   if ($n < 0) {
+#     return;  # first direction at N=0
+#   }
+#   if (is_infinite($n)) {
+#     return ($n,$n);
+#   }
+# 
+#   my $int = int($n);
+#   $n -= $int;
+#   my @digits = digit_split_lowtohigh($int,4);
+#   ### @digits
+# 
+#   # strip low 3s
+#   my $any_low3s;
+#   while (($digits[0]||0) == 3) {
+#     shift @digits;
+#     $any_low3s = 1;
+#   }
+# 
+#   my $dir8 = $lowdigit_to_dir[$digits[0] || 0];
+#   $dir8 += sum(0, map {$digit_to_dir[$_]} @digits);
+#   $dir8 &= 7;
+#   my $dx = $dir8_to_dx[$dir8];
+#   my $dy = $dir8_to_dy[$dir8];
+# 
+#   if ($n) {
+#     # fraction part
+# 
+#     if ($any_low3s) {
+#       $dir8 += $digit_to_nextturn2[$digits[0]||0];
+#     } else {
+#       my $digit = $digits[0] || 0;
+#       if ($digit == 2) {
+#         shift @digits;
+#         # lowest non-3 digit
+#         do {
+#           $digit = shift @digits || 0;  # zero if all 3s or no digits at all
+#         } until ($digit != 3);
+#         $dir8 += $digit_to_nextturn2[$digit];
+#       } else {
+#         $dir8 += $digit_to_nextturn[$digit];
+#       }
+#     }
+#     $dir8 &= 7;
+#     $dx += $n*($dir8_to_dx[$dir8] - $dx);
+#     $dy += $n*($dir8_to_dy[$dir8] - $dy);
+#   }
+#   return ($dx, $dy);
+# }
+
 
 
 
@@ -575,7 +642,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel OEIS
+=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel OEIS dX dY nextturn
 
 =head1 NAME
 
@@ -774,16 +841,30 @@ The optional C<diagonal_spacing> and C<straight_spacing> can increase the
 space between points diagonally or vertically+horizontally.  The default for
 each is 1.
 
-    $path = Math::PlanePath::SierpinskiCurve->new
-               (straight_spacing => 2,
-               (diagonal_spacing => 1)
-
 =cut
 
-# math-image --path=SierpinskiCurve,straight_spacing=3,diagonal_spacing=1 --all --output=numbers_dash --size=79x26
+# math-image --path=SierpinskiCurve,straight_spacing=2,diagonal_spacing=1 --all --output=numbers_dash --size=79x26
 # math-image --path=SierpinskiCurve,straight_spacing=3,diagonal_spacing=3 --all --output=numbers_dash --size=79x26
 
 =pod
+
+    straight_spacing => 2
+    diagonal_spacing => 1
+
+                        7 ----- 8
+                     /           \
+                    6               9
+                    |               |
+                    |               |
+                    |               |
+                    5              10              ...
+                     \           /                   \
+        1 ----- 2       4      11      13 ---- 14      16
+     /           \   /           \   /           \   /
+    0               3              12              15
+
+   X=0  1   2   3   4   5   6   7   8   9  10  11  12  13 ...
+
 
 The effect is only to spread the points.  In the level formulas above the
 "3" factor becomes 2*d+s, effectively being the N=0 to N=3 section sized as
@@ -841,6 +922,7 @@ The replicating structure is the same as the Koch curve
 make the next level,
 
     Koch Curve           Sierpinski Curve
+                          (mirror image)
 
                                | |
          / \                   | |
@@ -848,8 +930,20 @@ make the next level,
     ---       ---           ---   ---
 
 The turns in the Sierpinski curve are by 90 degrees and 180 degrees, done in
-two steps 45+45=90 and 90+90=180.  See L</Turn and Koch Curve> below.
-                                             
+two steps 45+45=90 when turning right or 90+90=180 when turning left.
+
+The turn sequence left or right is the same as the Koch curve
+(L<Math::PlanePath::KochCurve/N to Turn>) except the Sierpinski curve makes
+each turn in two steps, and mirrored to swap LE<lt>-E<gt>R.  For example the
+Koch curve starts with Left at N=1 which for the Sierpinski curve becomes
+two turns Right,Right at N=1,N=2.
+
+           N=1    2    3    4    5     6      7      8
+    Koch     L    R    L    L    L     R      L      R     ...
+
+           N=1,2  3,4  5,6  7,8  9,10  11,12  13,14  15,16
+    Sierp    R R  L L  R R  R R  R R   L  L   R  R   L  L  ...
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -878,20 +972,94 @@ Return 0, the first N in the path.
 
 =head1 FORMULAS
 
-=head2 Turn and Koch Curve
+=head2 N to dX,dY
 
-The turn sequence left or right is the same as the Koch curve
-(L<Math::PlanePath::KochCurve/N to Turn> except each turn is doubled, and
-mirrored to swap LE<lt>-E<gt>R.
+The curve direction at an even N can be calculated from the base-4 digits of
+N/2 in a fashion similar to the Koch curve (L<Math::PlanePath::KochCurve/N
+to Direction>).  Counting direction in eighths so 0=east, 1=north-east,
+2=north, etc,
 
-           N=1    2    3    4    5     6      7      8
-    Koch     L    R    L    L    L     R      L      R
+    digit     direction
+    -----     ---------
+      0           0
+      1          -2
+      2           2
+      3           0
 
-           N=1,2  3,4  5,6  7,8  9,10  11,12  13,14  15,16
-    Sierp    R R  L L  R R  R R  R R   L  L   R  R   L  L
+    direction = 1 + sum direction[base-4 digits of N/2]
 
-In the Koch curve each turn is 60 degrees but in the Sierpinski curve a
-right turn is 45 degrees and a left turn 90 degrees.
+For example the direction at N=10 has N/2=5 which is "11" in base-4, so
+direction = 1+(-2)+(-2) = -3 = south-west.
+
+The 1 in 1+sum is direction north-east for N=0, then -2 or +2 for the digits
+follow the curve.  For an odd arm the curve is mirrored and the sign of each
+digit direction is flipped, so a subtract instead of add,
+
+    direction
+    mirrored  = 1 - sum direction[base-4 digits of N/2]
+
+For odd N=2k+1 the direction at N=2k is calculated and then also the turn
+which is made from N=2k to N=2(k+1).  This is similar to the Koch curve next
+turn (L<Math::PlanePath::KochCurve/N to Next Turn>).
+
+   lowest non-3     next turn
+   digit of N/2   (at N=2k+1,N=2k+2)
+   ------------   ----------------
+        0           -1 (right)
+        1           +2 (left)
+        2           -1 (right)
+
+Again the turn is in eighths, so -1 means -45 degrees (to the right).  For
+example at N=14 has N/2=7 which is "13" in base-4 so lowest non-3 is "1"
+which is turn +2, so at N=15 and N=16 turn by 90 degrees left.
+
+   N=2k or 2k+1
+
+   direction = 1 + sum direction[base-4 digits of k]
+                 + if N odd then nextturn[low-non-3 of k]
+
+   dX,dY = direction to 1,0 1,1 0,1 etc
+
+For fractional N the same nextturn is applied to calculate the direction of
+the next segment, and combined with the integer dX,dY as per
+L<Math::PlanePath/N to dX,dY -- Fractional>.
+
+   N=2k or 2k+1 + frac
+
+   direction = 1 + sum direction[base-4 digits of k]
+
+   if (frac != 0 or N odd)
+     turn = nextturn[low-non-3 of k]
+
+   if N odd then direction += turn
+   dX,dY = direction to 1,0 1,1 0,1 etc
+
+   if frac!=0 then
+     direction += turn
+     next_dX,next_dY = direction to 1,0 1,1 0,1 etc
+
+     dX += frac*(next_dX - dX)
+     dY += frac*(next_dY - dY)
+
+For the C<straight_spacing> and C<diagonal_spacing> options the dX,dY values
+are not units like dX=1,dY=0 but instead are the spacing amount, either
+straight or diagonal so
+
+    direction      delta with spacing
+    ---------    -------------------------
+        0        dX=straight_spacing, dY=0
+        1        dX=diagonal_spacing, dY=diagonal_spacing
+        2        dX=0, dY=straight_spacing
+        3        dX=-diagonal_spacing, dY=diagonal_spacing
+       etc
+
+As an alternative, it's possible to take just base-4 digits of N, without
+separate handling for the low-bit of N, but it requires an adjustment for on
+the low base-4 digit, and the next turn calculation for fractional N becomes
+hairier.  A little state table could no doubt encode the cumulative and
+lowest whatever if desired, to take N by base-4 digits high to low, or
+equivalently by bits high to low with an initial state based on high bit at
+an odd or even bit position.
 
 =head1 OEIS
 
@@ -902,7 +1070,8 @@ as,
 
     A039963   turn 1=right,0=left, doubling the KochCurve turns
     A081706   N-1 of left turn positions
-    A127254   abs(dY), so 0=horizontal 1=diagonal or vertical,
+               (first values 2,3 whereas N=3,4 here)
+    A127254   abs(dY), so 0=horizontal, 1=vertical or diagonal,
                 except extra initial 1
 
 A039963 is numbered starting n=0 for the first turn, which is at the point

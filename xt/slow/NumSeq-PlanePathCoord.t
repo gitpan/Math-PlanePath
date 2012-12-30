@@ -374,6 +374,18 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
+               'LCornerReplicate',
+
+               'LCornerTree',
+               'LCornerTree,parts=1',
+               'LCornerTree,parts=2',
+               'LCornerTree,parts=3',
+               
+               'ToothpickReplicate',
+               'ToothpickReplicate,parts=1',
+               'ToothpickReplicate,parts=2',
+               'ToothpickReplicate,parts=3',
+
                'ToothpickTree',
                'ToothpickTree,parts=1',
                'ToothpickTree,parts=2',
@@ -381,19 +393,16 @@ my @modules = (
                
                'ToothpickUpist',
 
-               'ToothpickReplicate',
-               'ToothpickReplicate,parts=1',
-               'ToothpickReplicate,parts=2',
-               'ToothpickReplicate,parts=3',
-               
-               'LCornerTree',
-               'LCornerTree,parts=1',
-               'LCornerTree,parts=2',
-               'LCornerTree,parts=3',
-               
-               'LCornerReplicate',
-
                # module list begin
+
+               'PythagoreanTree,coordinates=AC',
+               'PythagoreanTree,coordinates=BC',
+               'PythagoreanTree,tree_type=FB,coordinates=AC',
+               'PythagoreanTree,tree_type=FB,coordinates=BC',
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,tree_type=FB,coordinates=PQ',
 
                'ChanTree,k=2,n_start=1',
                'ChanTree,n_start=1',
@@ -430,11 +439,6 @@ my @modules = (
                'CfracDigits,radix=3',
                'CfracDigits,radix=4',
                'CfracDigits,radix=37',
-
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=HCS',

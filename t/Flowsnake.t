@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 359;
+plan tests => 373;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::Flowsnake;
 # VERSION
 
 {
-  my $want_version = 94;
+  my $want_version = 95;
   ok ($Math::PlanePath::Flowsnake::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Flowsnake->VERSION,  $want_version,
@@ -82,10 +82,6 @@ require Math::PlanePath::Flowsnake;
 
 {
   my @data = (
-              # arms=2
-              [ 2,  46,    -2,4 ],
-              [ 2,   1,    -1,1 ],
-
               # arms=1
               [ 1,   0,    0,0 ],
               [ 1,   1,    2,0 ],
@@ -96,10 +92,17 @@ require Math::PlanePath::Flowsnake;
               [ 1,   6,    4,2 ],
 
               [ 1,   7,    5,1 ],
+              [ 1,   8,    7,1 ],
+              [ 1,   9,    8,2 ],
 
               [ 1,   .25,   .5, 0 ],
               [ 1,   .5,     1, 0 ],
               [ 1,   1.75,   2.75, .75 ],
+
+              # arms=2
+              [ 2,  46,    -2,4 ],
+              [ 2,   1,    -1,1 ],
+
              );
   foreach my $elem (@data) {
     my ($arms, $n, $x, $y) = @$elem;
@@ -109,8 +112,8 @@ require Math::PlanePath::Flowsnake;
       my ($got_x, $got_y) = $path->n_to_xy ($n);
       if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
       if ($got_y == 0) { $got_y = 0 }
-      ok ($got_x, $x, "n_to_xy() x at n=$n");
-      ok ($got_y, $y, "n_to_xy() y at n=$n");
+      ok ($got_x, $x, "arms=$arms  n_to_xy() x at n=$n");
+      ok ($got_y, $y, "arms=$arms  n_to_xy() y at n=$n");
     }
     if ($n==int($n)) {
       # xy_to_n()
@@ -165,8 +168,8 @@ require Math::PlanePath::Flowsnake;
       my $nf = $n + $frac;
       my ($got_xf,$got_yf) = $path->n_to_xy ($nf);
 
-      ok ($got_xf, $want_xf, "n_to_xy($n) frac $frac, x");
-      ok ($got_yf, $want_yf, "n_to_xy($n) frac $frac, y");
+      ok ($got_xf, $want_xf, "n_to_xy($n) random frac $frac, x");
+      ok ($got_yf, $want_yf, "n_to_xy($n) random frac $frac, y");
     }
   }
 }

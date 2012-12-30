@@ -397,8 +397,8 @@ use Smart::Comments;
   my $pow = 3;
   for ( ; $n < 128; $n++) {
     # my ($x, $y) = $path->n_to_xy ($n);
-    # my $dx = ($x - $prev_x);
-    # my $dy = ($y - $prev_y);
+    # my $dx = $x - $prev_x;
+    # my $dy = $y - $prev_y;
     # my $dir = dxdy_to_dir ($dx, $dy);
     # my $turn = ($dir - $prev_dir) % 3;
     # 

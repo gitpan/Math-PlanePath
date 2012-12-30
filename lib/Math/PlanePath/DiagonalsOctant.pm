@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -292,8 +292,8 @@ X=Y centre line, traversing the eighth of the plane on and above X=Y.
         X=0  1  2  3  4  5  6  7  8
 
 N=1,4,9,16,etc on the X=Y leading diagonal are the perfect squares.
-N=2,6,12,20,etc at the ends of the other diagonals are the pronic numbers
-k*(k+1).
+N=2,6,12,20,etc at the ends of the other diagonals are the
+X<Pronic Numbers>pronic numbers k*(k+1).
 
 =head2 Pyramid Rows
 
@@ -510,20 +510,22 @@ this path include
     direction=up
       A055086    X+Y, k repeating floor(k/2)+1 times
       A002620    N on Y axis, end of each run, quarter squares
+    direction=up, n_start=0
+      A024206    N on Y axis
 
-A055086 sum X+Y is the same for direction=down or direction=up, it
-effectively counts which diagonal a given N falls in, ignoring whereabouts
-along it.
+A055086 sum X+Y is the same for direction=down or direction=up.  It counts
+which diagonal a given N falls in, ignoring where along it.
 
-    A004652    N start and end of each even-numbered diagonal
+    A004652      N start and end of each even-numbered diagonal
 
-    A056536    N of PyramidRows at X,Y in DiagonalsOctant order
-    A091995      N with DiagonalsOctant direction=up
-    A091018      N-1, ie. starting from 0
-    A090894      N-1 and DiagonalsOctant direction=up
+    permutations
+      A056536     N of PyramidRows in DiagonalsOctant order
+      A091995      with DiagonalsOctant direction=up
+      A091018      N-1, ie. starting from 0
+      A090894      N-1 and DiagonalsOctant direction=up
 
-    A056537    N of DiagonalsOctant at X,Y in PyramidRows order
-                 inverse of the A056536 permutation
+      A056537     N of DiagonalsOctant at X,Y in PyramidRows order
+                   inverse of A056536
 
 =head1 SEE ALSO
 

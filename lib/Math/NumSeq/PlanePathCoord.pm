@@ -19,7 +19,7 @@
 # Maybe:
 #
 # I,J,K   TI,TJ,TK  Ti,Tj,Tk
-# GF2Prod A051775,A051776  multiply with xor no carry
+# GF2Product A051775,A051776  multiply with xor no carry
 # NumOverlap       xy_to_n_list()  n_overlap_list()  n_num_overlap()
 # NumSurround
 # NumSurround4     NSEW
@@ -39,12 +39,12 @@
 # DivXY = X/Y fractional
 # DivYX = Y/X fractional
 # ExactDivXY = X/Y if X divisible by Y, or 0 if not A126988 X,Y>=1
-# Numerator = X / gcd(X,Y)         X/Y in least terms
-# Denominator = Y / gcd(X,Y)
+# Numerator = X*sgn(Y) / gcd(X,Y)         X/Y in least terms
+# Denominator = abs(Y / gcd(X,Y))
 # LCM
 # Theta360 angle matching Radius,RSquared
 # Ttheta360 angle matching TRadius,TRSquared
-# Chi(x) = 1 if x rational, 0 if irrational
+# IsRational Chi(x) = 1 if x rational, 0 if irrational
 # Dirichlet function D(x) = 1/b if rational x=a/b least terms, 0 if irrational
 # Multiplicative distance A130836 X,Y>=1
 #     sum abs(exponent-exponent) of each prime
@@ -61,7 +61,7 @@ use constant 1.02; # various underscore constants below
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -100,6 +100,7 @@ use constant::defer parameter_info_array =>
                    'Depth',
                    'NumChildren','IsLeaf','IsNonLeaf',
 
+                   'ToLeaf',
                    # 'ModXY',
                    # 'Int',
                    # 'Numerator',
@@ -465,18 +466,47 @@ sub _coordinate_func_GCD {
 }
 
 #------------------------------------------------------------------------------
-# UNTESTED
+# UNTESTED/EXPERIMENTAL
+
+sub _coordinate_func_ToLeaf {
+  my ($self, $n) = @_;
+  return path_tree_n_to_leaf_distance($self->{'planepath_object'},$n);
+}
+sub path_tree_n_to_leaf_distance {
+  my ($path, $n) = @_;
+  ### path_tree_n_to_leaf_distance(): $n
+
+  if ($n < $path->n_start || ! path_tree_any_leaf($path)) {
+    return undef;
+  }
+  if (is_infinite($n)) {
+    return $n;
+  }
+  my @pending = ($n);
+  for (my $distance = 0; ; $distance++) {
+    ### $distance
+    ### @pending
+
+    @pending = map {
+      my @children = $path->tree_n_children($_)
+        or return $distance;
+      ### @children
+      @children
+    } @pending;
+  }
+}
+
 # math-image --values=PlanePathCoord,coordinate_type=NumSurround4,planepath=DragonCurve --path=DragonCurve --scale=10
 sub _coordinate_func_NumSurround4 {
-  my ($self, $n, $points) = @_;
+  my ($self, $n) = @_;
   return _path_n_surround_count ($self->{'planepath_object'}, $n, 4);
 }
 sub _coordinate_func_NumSurround6 {
-  my ($self, $n, $points) = @_;
+  my ($self, $n) = @_;
   return _path_n_surround_count ($self->{'planepath_object'}, $n, 6);
 }
 sub _coordinate_func_NumSurround8 {
-  my ($self, $n, $points) = @_;
+  my ($self, $n) = @_;
   return _path_n_surround_count ($self->{'planepath_object'}, $n, 8);
 }
 { my @surround;
@@ -486,10 +516,10 @@ sub _coordinate_func_NumSurround8 {
   $surround[8] = [ 1,0, 0,1, -1,0, 0,-1,
                    1,1, -1,1, 1,-1, -1,-1 ];
   sub _path_n_surround_count {
-    my ($path, $n, $points) = @_;
-    ### _path_n_surround_count(): $n, $points
-    my $aref = $surround[$points]
-      || croak "_path_n_surround_count() unrecognised points ",$points;
+    my ($path, $n, $num_points) = @_;
+    ### _path_n_surround_count(): $n, $num_points
+    my $aref = $surround[$num_points]
+      || croak "_path_n_surround_count() unrecognised number of points ",$num_points;
     my ($x, $y) = $path->n_to_xy($n) or return undef;
     my $count = 0;
     for (my $i = 0; $i < @$aref; $i+=2) {
@@ -1128,9 +1158,15 @@ sub characteristic_non_decreasing {
 
   sub _NumSeq_Coord_IsLeaf_min {
     my ($path) = @_;
+    # if n_start() is a non-leaf, ie. has children, then IsLeaf=0 occurs,
+    # otherwise all nodes are leafs and IsLeaf=1 always
     return ($path->tree_n_num_children($path->n_start) ? 0 : 1);
   }
-  use constant _NumSeq_Coord_IsLeaf_max => 1;
+  sub _NumSeq_Coord_IsLeaf_max {
+    my ($path) = @_;
+    return ($path->tree_any_leaf() ? 1 : 0);
+  }
+  #IsNonLeaf is opposite of IsLeaf
   sub _NumSeq_Coord_IsNonLeaf_min {
     my ($path) = @_;
     return $path->_NumSeq_Coord_IsLeaf_max ? 0 : 1;
@@ -1471,9 +1507,20 @@ sub characteristic_non_decreasing {
     }
   }
   {
+    my %_NumSeq_Coord_DiffXY_max = (AC => -2, # C>=A+2 so X-Y<=-2
+                                    BC => -1, # C>=B+1 so X-Y<=-1
+                                   );
+    sub _NumSeq_Coord_DiffXY_max {
+      my ($self) = @_;
+      return $_NumSeq_Coord_DiffXY_max{$self->{'coordinates'}};
+    }
+  }
+  {
     my %_NumSeq_Coord_AbsDiff_min = (PQ => 1,
                                      AB => 1, # X=Y never occurs
                                      BA => 1, # X=Y never occurs
+                                     AC => 2, # C>=A+2 so abs(X-Y)>=2
+                                     BC => 1,
                                     );
     sub _NumSeq_Coord_AbsDiff_min {
       my ($self) = @_;
@@ -1489,7 +1536,28 @@ sub characteristic_non_decreasing {
     }
     *_NumSeq_Int_min_is_infimum = \&_NumSeq_Coord_Int_min;
   }
-  use constant _NumSeq_Coord_BitXor_min => 1; # AB at X=21,Y=20,  PQ at X=3,Y=2
+  {
+    my %_NumSeq_Coord_BitXor_min = (AB => 1, # at X=21,Y=20
+                                    AC => 6, # at X=3,Y=5
+                                    BC => 1, # at X=4,Y=5
+                                    PQ => 1, # at X=3,Y=2
+                                );
+    sub _NumSeq_Coord_BitXor_min {
+      my ($self) = @_;
+      return $_NumSeq_Coord_BitXor_min{$self->{'coordinates'}};
+    }
+  }
+  {
+    my %_NumSeq_Coord_BitAnd_min = (AB => 0,  # at X=3,Y=4
+                                    AC => 1,  # at X=3,Y=5
+                                    BC => 0,  # at X=8,Y=17
+                                    PQ => 0,  # at X=2,Y=1
+                                );
+    sub _NumSeq_Coord_BitAnd_min {
+      my ($self) = @_;
+      return $_NumSeq_Coord_BitAnd_min{$self->{'coordinates'}};
+    }
+  }
 
   sub _NumSeq_Coord_Radius_integer {
     my ($self) = @_;
@@ -1509,7 +1577,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_NumChildren_min => 3;
   use constant _NumSeq_Coord_NumChildren_max => 3;
   use constant _NumSeq_Coord_Depth_max => undef;
-  use constant _NumSeq_Coord_IsLeaf_max => 0;  # no leaves
+  use constant _NumSeq_Coord_ToLeaf_max => undef;
 }
 { package Math::PlanePath::RationalsTree;
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
@@ -1519,7 +1587,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_NumChildren_min => 2;
   use constant _NumSeq_Coord_NumChildren_max => 2;
-  use constant _NumSeq_Coord_IsLeaf_max => 0;  # no leaves
+  use constant _NumSeq_Coord_ToLeaf_max => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=SB' =>
@@ -1613,7 +1681,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_NumChildren_min => 2;
   use constant _NumSeq_Coord_NumChildren_max => 2;
-  use constant _NumSeq_Coord_IsLeaf_max => 0;  # no leaves
+  use constant _NumSeq_Coord_ToLeaf_max => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=Kepler' =>
@@ -1707,7 +1775,7 @@ sub characteristic_non_decreasing {
             : $self->{'k'} & 1 ? 1  # k odd  X=2,Y=3
             : 0);                   # k even X=2,Y=2
   }
-  use constant _NumSeq_Coord_IsLeaf_max => 0;  # no leaves
+  use constant _NumSeq_Coord_ToLeaf_max => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     {
@@ -1961,6 +2029,7 @@ sub characteristic_non_decreasing {
 
   use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_Depth_max => undef;
+  use constant _NumSeq_Coord_ToLeaf_max => 4;
   sub _NumSeq_Coord_Int_max {
     my ($self) = @_;
     return ($self->{'align'} eq 'diagonal' ? undef
@@ -2233,7 +2302,7 @@ sub characteristic_non_decreasing {
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'direction=down,n_start=1,x_start=0,y_start=0' =>
-      { 
+      {
       },
 
       'direction=down,n_start=0,x_start=0,y_start=0' =>
@@ -2825,10 +2894,12 @@ sub characteristic_non_decreasing {
 { package Math::PlanePath::UlamWarburton;
   use constant _NumSeq_Coord_NumChildren_max => 4;
   use constant _NumSeq_Coord_Depth_max => undef;
+  use constant _NumSeq_Coord_ToLeaf_max => 4;
 }
 { package Math::PlanePath::UlamWarburtonQuarter;
   use constant _NumSeq_Coord_NumChildren_max => 3;
   use constant _NumSeq_Coord_Depth_max => undef;
+  use constant _NumSeq_Coord_ToLeaf_max => 4;
 }
 { package Math::PlanePath::DiagonalRationals;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
@@ -3084,6 +3155,7 @@ sub characteristic_non_decreasing {
   }
   use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_NumChildren_max => 2;
+  use constant _NumSeq_Coord_ToLeaf_max => 7;
 }
 { package Math::PlanePath::ToothpickReplicate;
   *_NumSeq_Coord_Sum_min
@@ -3105,15 +3177,20 @@ sub characteristic_non_decreasing {
 
   use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_Depth_max => undef;
+  use constant _NumSeq_Coord_ToLeaf_max => 9;
   use constant _NumSeq_Coord_Int_max => 1; # triangular X<=Y so X/Y<=1
 }
 
 { package Math::PlanePath::LCornerTree;
   use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_NumChildren_max => 3;
+  use constant _NumSeq_Coord_ToLeaf_max => 2;
 }
 # { package Math::PlanePath::LCornerReplicate;
 # }
+{ package Math::PlanePath::PeninsulaBridge;
+  use constant _NumSeq_Coord_Depth_max => undef;
+}
 
 #------------------------------------------------------------------------------
 1;
@@ -3161,7 +3238,7 @@ __END__
 # }
 
 
-=for stopwords Ryde Math-PlanePath DiffXY OEIS PlanePath NumSeq SquareSpiral PlanePath SumAbs Manhatten ie TRadius TRSquared HexSpiral RSquared KochPeaks CoprimeColumns DiffYX CellularRule
+=for stopwords Ryde Math-PlanePath DiffXY OEIS PlanePath NumSeq SquareSpiral PlanePath SumAbs Manhatten ie TRadius TRSquared HexSpiral RSquared KochPeaks CoprimeColumns DiffYX CellularRule BitAnd BitOr BitXor bitand bitwise
 
 =head1 NAME
 

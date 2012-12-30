@@ -35,7 +35,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -382,9 +382,9 @@ Math::PlanePath::VogelFloret -- circular pattern like a sunflower
 
 =head1 DESCRIPTION
 
-X<Vogel, Helmut>The is an implementation of Helmut Vogel's model for the
-arrangement of seeds in the head of a sunflower.  Integer points are on a
-spiral at multiples of the golden ratio phi = (1+sqrt(5))/2,
+X<Vogel, Helmut>X<Golden Ratio>The is an implementation of Helmut Vogel's
+model for the arrangement of seeds in the head of a sunflower.  Integer
+points are on a spiral at multiples of the golden ratio phi = (1+sqrt(5))/2,
 
                 27       19
                                   24
@@ -511,11 +511,12 @@ sqrt(3) is 1,2 repeating.  sqrt(13) is 3s repeating.
 
 =head2 Fibonacci and Lucas Numbers
 
-The Fibonacci numbers F(k) = 1,1,2,3,5,8,13,21, etc and Lucas number L(k) =
-2,1,3,4,7,11,18, etc form almost straight lines on the X axis of the phi
-floret.  This occurs because N*-phi is close to an integer for those N.  For
-example N=13 has angle 13*-phi = -21.0344, the fractional part -0.0344 puts
-it just below the X axis.
+X<Fibonacci Numbers>X<Lucas Numbers>The Fibonacci numbers F(k) =
+1,1,2,3,5,8,13,21, etc and Lucas number L(k) = 2,1,3,4,7,11,18, etc form
+almost straight lines on the X axis of the phi floret.  This occurs because
+N*-phi is close to an integer for those N.  For example N=13 has angle
+13*-phi = -21.0344, the fractional part -0.0344 puts it just below the X
+axis.
 
 Both F(k) and L(k) grow exponentially (as phi^k) which soon outstrips the
 sqrt in the R radial distance so they become widely spaced apart along the X
@@ -579,6 +580,55 @@ instead of -(beta^k) and an extra factor sqrt(5).
             = 2*pi * sqrt(phi^k + 1/(-phi)^k) * sqrt(5)*beta^k
             = (-1)*k * 2*pi * sqrt(5) * sqrt((-beta)^2k * phi^k + beta^3k)
             = (-1)*k * 2*pi * sqrt(5) * sqrt((-beta)^k + beta^3k)
+
+=head2 Spectrum
+
+The spectrum of a real number is its multiples, each rounded down to an
+integer.
+
+    floor(phi), floor(2*phi), floor(3*phi), floor(4*phi), ...
+    1,          3,            4,            6, ...
+
+When plotted on the Vogel floret these integers are all in the first 1/phi
+fraction of the circle.
+
+
+=cut
+
+# math-image --oeis=A000201 --output=numbers   # but vogel.pl scaled
+A001950    floor(N*phi^2)
+A000201    floor(N*phi)
+
+=pod
+
+                   61    53                                    
+             69       40       45    58                        
+                48          32          71                     
+          56       27                37                        
+             35          19    24       50                     
+          43       14       11             63                  
+    64          22     6          16 29                        
+          30                 3          42                     
+       51           9  1        8    21                        
+    72       17     4     .                55                  
+          38                                                   
+    59       25 12                                             
+                                                               
+          46 33                                                
+                                                               
+       67                                                      
+
+This works because
+
+    angle = N * 1/phi^2
+          = floor(i*phi) * (1-1/phi)      # N=spectrum
+          = floor(i*phi) * -1/phi         # modulo 1
+          = (i*phi - frac) * -1/phi       # 0<frac<1
+          = i + frac*1/phi                
+          = frac*1/phi                    # modulo 1
+
+So the angle is a fraction from 0 to 1/phi=0.618 of a revolution.  Similar
+works for other C<rotation_type>.
 
 =head2 Repdigits in Decimal
 
@@ -675,6 +725,19 @@ covering C<$x,$y>, but perhaps that will change.
 Return "circle".
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A059285  (etc)
+
+    A059285    X-Y coordinate diff
+
+The difference X-Y is the same as the HilbertCurve, since the "negative"
+spiral parts are mirrored across the X=-Y anti-diagonal, which means
+coordinates (-Y,-X) and -Y-(-X) = X-Y.
 
 =head1 SEE ALSO
 

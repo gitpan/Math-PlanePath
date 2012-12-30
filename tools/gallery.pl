@@ -21,9 +21,7 @@
 # Usage: perl gallery.pl
 #
 # Create the .png files in $target_dir = "$ENV{HOME}/tux/web/math-planepath"
-# as shown at
-#
-#   http://user42.tuxfamily.org/math-planepath/gallery.html
+# as appearing at http://user42.tuxfamily.org/math-planepath/gallery.html
 #
 
 use 5.004;
@@ -45,6 +43,58 @@ my %seen_filename;
 
 foreach my $elem
   (
+
+   ['rationals-tree-lines-ayt.png',
+    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree --scale=20 --size=200'],
+   ['rationals-tree-lines-hcs.png',
+    'math-image --path=RationalsTree,tree_type=HCS --values=LinesTree --scale=20 --size=200'],
+   ['rationals-tree-lines-l.png',
+    'math-image --path=RationalsTree,tree_type=L --values=LinesTree --scale=20 --size=200'],
+   ['rationals-tree-small.png',
+    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
+   ['rationals-tree-big.png',
+    'math-image --path=RationalsTree --all --scale=3 --size=200'],
+   ['rationals-tree-lines-sb.png',
+    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree --scale=20 --size=200'],
+   ['rationals-tree-lines-cw.png',
+    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree --scale=20 --size=200'],
+   ['rationals-tree-lines-bird.png',
+    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree --scale=20 --size=200'],
+   ['rationals-tree-lines-drib.png',
+    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree --scale=20 --size=200'],
+
+
+   ['koch-curve-small.png',
+    'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8'],
+   ['koch-curve-big.png',
+    'math-image --path=KochCurve --lines --scale=5 --size=250x100 --offset=0,5'],
+
+   ['ulam-warburton-tree-big.png',
+    "math-image --path=UlamWarburton --values=LinesTree --scale=7 --figure=point --size=150"],
+   ['ulam-warburton-quarter-small.png',
+    "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],
+   ['ulam-warburton-quarter-big.png',
+    "math-image --path=UlamWarburtonQuarter --expression='i<233?i:0' --scale=4 --size=150"],
+
+   ['ulam-warburton-small.png',
+    "math-image --path=UlamWarburton --expression='i<50?i:0' --scale=2 --size=32"],
+   ['ulam-warburton-big.png',
+    "math-image --path=UlamWarburton --expression='i<233?i:0' --scale=4 --size=150"],
+
+
+   ['pythagorean-tree-fb-big.png',
+    'math-image --path=PythagoreanTree,tree_type=FB --values=LinesTree --scale=4 --size=200'],
+   ['pythagorean-tree-big.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
+   ['pythagorean-points-bc-big.png',
+    'math-image --path=PythagoreanTree,coordinates=BC --all --scale=1 --size=200'],
+   ['pythagorean-points-ac-big.png',
+    'math-image --path=PythagoreanTree,coordinates=AC --all --scale=1 --size=200'],
+   ['pythagorean-small.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
+   ['pythagorean-points-big.png',
+    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
+
    ['toothpick-upist-small.png',
     'math-image --path=ToothpickUpist --values=LinesTree --scale=4 --size=32 --figure=toothpick --offset=0,5'],
    ['toothpick-upist-big.png',
@@ -95,26 +145,6 @@ foreach my $elem
     'math-image --path=ImaginaryBase --lines --scale=18 --size=200'],
    ['imaginarybase-radix5-big.png',
     'math-image --path=ImaginaryBase,radix=5 --lines --scale=18 --size=200'],
-
-
-   ['rationals-tree-lines-hcs.png',
-    'math-image --path=RationalsTree,tree_type=HCS --values=LinesTree --scale=20 --size=200'],
-   ['rationals-tree-lines-l.png',
-    'math-image --path=RationalsTree,tree_type=L --values=LinesTree --scale=20 --size=200'],
-   ['rationals-tree-small.png',
-    'math-image --path=RationalsTree --values=LinesTree --scale=8 --size=32 --offset=-8,-8'],
-   ['rationals-tree-big.png',
-    'math-image --path=RationalsTree --all --scale=3 --size=200'],
-   ['rationals-tree-lines-sb.png',
-    'math-image --path=RationalsTree,tree_type=SB --values=LinesTree --scale=20 --size=200'],
-   ['rationals-tree-lines-cw.png',
-    'math-image --path=RationalsTree,tree_type=CW --values=LinesTree --scale=20 --size=200'],
-   ['rationals-tree-lines-bird.png',
-    'math-image --path=RationalsTree,tree_type=Bird --values=LinesTree --scale=20 --size=200'],
-   ['rationals-tree-lines-drib.png',
-    'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree --scale=20 --size=200'],
-   ['rationals-tree-lines-ayt.png',
-    'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree --scale=20 --size=200'],
 
 
    ['cfrac-digits-small.png',
@@ -453,13 +483,6 @@ foreach my $elem
    ['pixel-lines-big.png',
     'math-image --path=PixelRings --lines --scale=10 --size=200'],
 
-   ['pythagorean-small.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
-   ['pythagorean-points-big.png',
-    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
-   ['pythagorean-tree-big.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
-
    ['staircase-small.png',
     'math-image --path=Staircase --lines --scale=4 --size=32'],
    ['staircase-big.png',
@@ -693,17 +716,6 @@ foreach my $elem
    ['corner-replicate-big.png',
     'math-image --path=CornerReplicate --lines --scale=10 --size=200'],
 
-   ['ulam-warburton-quarter-small.png',
-    "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],
-   ['ulam-warburton-quarter-big.png',
-    "math-image --path=UlamWarburtonQuarter --expression='i<233?i:0' --scale=4 --size=150"],
-
-   ['ulam-warburton-small.png',
-    "math-image --path=UlamWarburton --expression='i<50?i:0' --scale=2 --size=32"],
-   ['ulam-warburton-big.png',
-    "math-image --path=UlamWarburton --expression='i<233?i:0' --scale=4 --size=150"],
-
-
    ['aztec-diamond-rings-small.png',
     'math-image --path=AztecDiamondRings --lines --scale=4 --size=32 --offset=3,3'],
    ['aztec-diamond-rings-big.png',
@@ -772,11 +784,6 @@ foreach my $elem
     'math-image --path=KochSquareflakes --lines --scale=1 --size=32'],
    ['koch-squareflakes-big.png',
     'math-image --path=KochSquareflakes --lines --scale=2 --size=150x150'],
-
-   ['koch-curve-small.png',
-    'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8'],
-   ['koch-curve-big.png',
-    'math-image --path=KochCurve --lines --scale=5 --size=250x100 --offset=0,20'],
 
    ['koch-snowflakes-small.png',
     'math-image --path=KochSnowflakes --lines --scale=2 --size=32'],

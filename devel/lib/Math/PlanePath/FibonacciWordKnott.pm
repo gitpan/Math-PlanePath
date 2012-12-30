@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -44,8 +44,8 @@ use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 
-my @rot_to_sx = (0,-1,0,1);
-my @rot_to_sy = (1,0,-1,0);
+my @dir4_to_dx = (0,-1,0,1);
+my @dir4_to_dy = (1,0,-1,0);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -189,8 +189,8 @@ sub n_to_xy {
   # mod 6 twist ?
   # ### final rot: "$rot  transpose=$transpose gives ".(($rot^$transpose)&3)
   # $rot = ($rot ^ $transpose) & 3;
-  # $x = $frac * $rot_to_sx[$rot] + $x;
-  # $y = $frac * $rot_to_sy[$rot] + $y;
+  # $x = $frac * $dir4_to_dx[$rot] + $x;
+  # $y = $frac * $dir4_to_dy[$rot] + $y;
 
   ### final with frac: "$x,$y"
   return ($x,$y);

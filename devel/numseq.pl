@@ -24,6 +24,7 @@ use strict;
 #use Smart::Comments;
 
 
+
 {
   # max Dir4
 
@@ -37,7 +38,6 @@ use strict;
   my $planepath = "HypotOctant,points=odd";
   $planepath = "FactorRationals";
   $planepath = "RationalsTree,tree_type=Drib";
-  $planepath = "PythagoreanTree,coordinates=PQ,tree_type=FB";
   $planepath = "UlamWarburtonQuarter";
   $planepath = "UlamWarburton";
   $planepath = "GosperReplicate";
@@ -48,18 +48,24 @@ use strict;
   $planepath = "ChanTree,k=2";
   $planepath = "CfracDigits,radix=2";
   $planepath = "ImaginaryHalf,digit_order=XnXY";
+  $planepath = "ToothpickReplicate,parts=1";
+  $planepath = "LCornerTree,parts=4";
+  $planepath = "LCornerReplicate";
+  $planepath = "PythagoreanTree,coordinates=AC,tree_type=UAD";
+  $radix = 4;
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                delta_type => 'Dir4');
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dX');
   my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dY');
+  my $min = 99;
   my $max = -99;
   for (1 .. 10000000) {
     my ($i, $value) = $seq->next;
 
     # neg for minimum
-     $value = -$value; next unless $value;
+    # $value = -$value; next unless $value;
 
     if ($value > $max) {
       my $dx = $dx_seq->ith($i);
@@ -68,11 +74,78 @@ use strict;
       my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
       my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
       my $f = $dy && $dx/$dy;
-      printf "%d %s %.5f  %s %s   %.3f\n", $i, $ri, $value, $rdx,$rdy, $f;
+      printf "max i=%d[%s] %.5f  dx=%s,dy=%s   %.3f\n", $i,$ri, $value, $dx,$dy, $f;
       $max = $value;
+    }
+
+    if ($value < $min) {
+      my $dx = $dx_seq->ith($i);
+      my $dy = $dy_seq->ith($i);
+      my $ri = Math::BaseCnv::cnv($i,10,$radix);
+      my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
+      my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
+      my $f = $dy && $dx/$dy;
+      printf " min i=%d[%s] %.5f  dx=%s,dy=%s   %.3f\n", $i,$ri, $value, $dx,$dy, $f;
+      $min = $value;
     }
   }
 
+  exit 0;
+}
+
+{
+  # axis increasing
+  my $radix = 4;
+  my $rsquared = $radix * $radix;
+  my $re = '.' x $radix;
+
+  require Math::NumSeq::PlanePathN;
+  my $planepath;
+  $planepath = "AlternatePaperMidpoint,arms=7";
+  $planepath = "ImaginaryBase,radix=37";
+  $planepath = "ImaginaryHalf,radix=37";
+  $planepath = "DekkingCurve";
+  $planepath = "DekkingCentres";
+  $planepath = "LCornerReplicate";
+  $planepath = "LCornerTree,parts=3";
+ LINE_TYPE: foreach my $line_type ('X_axis',
+                                   'Y_axis',
+                                   'X_neg',
+                                   'Y_neg',
+                                   'Diagonal_SE',
+                                   'Diagonal_SW',
+                                   'Diagonal_NW',
+                                   'Diagonal',
+                                  ) {
+    my $seq = Math::NumSeq::PlanePathN->new
+      (
+       planepath => $planepath,
+       line_type => $line_type,
+      );
+    ### $seq
+
+    my $i_start = $seq->i_start;
+    my $prev_value = -1;
+    my $prev_i = -1;
+    my $i_limit = 10000;
+    my $i_end = $i_start + $i_limit;
+    for my $i ($i_start .. $i_end) {
+      my $value = $seq->ith($i);
+      next if ! defined $value;
+      ### $value
+      if ($value <= $prev_value) {
+        # print "$line_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
+        my $path = $seq->{'planepath_object'};
+        my ($prev_x,$prev_y) = $path->n_to_xy($prev_value);
+        my ($x,$y) = $path->n_to_xy($value);
+        print "$line_type not   N=$prev_value $prev_x,$prev_y  N=$value $x,$y\n";
+        next LINE_TYPE;
+      }
+      $prev_i = $i;
+      $prev_value = $value;
+    }
+    print "$line_type   all increasing (to i=$prev_i)\n";
+  }
   exit 0;
 }
 
@@ -176,57 +249,6 @@ use strict;
 }
 
 
-{
-  # axis increasing
-  my $radix = 4;
-  my $rsquared = $radix * $radix;
-  my $re = '.' x $radix;
-
-  require Math::NumSeq::PlanePathN;
-  my $planepath;
-  $planepath = "AlternatePaperMidpoint,arms=7";
-  $planepath = "ImaginaryBase,radix=37";
-  $planepath = "ImaginaryHalf,radix=37";
-  $planepath = "DekkingCurve";
-  $planepath = "DekkingCentres";
- LINE_TYPE: foreach my $line_type ('X_axis',
-                                   'Y_axis',
-                                   # 'Diagonal_SE',
-                                   # 'Diagonal_SW',
-                                   # 'Diagonal_NW',
-                                   'Diagonal',
-                                  ) {
-    my $seq = Math::NumSeq::PlanePathN->new
-      (
-       planepath => $planepath,
-       line_type => $line_type,
-      );
-    ### $seq
-
-    my $i_start = $seq->i_start;
-    my $prev_value = -1;
-    my $prev_i = -1;
-    my $i_limit = 1000;
-    my $i_end = $i_start + $i_limit;
-    for my $i ($i_start .. $i_end) {
-      my $value = $seq->ith($i);
-      next if ! defined $value;
-      ### $value
-      if ($value <= $prev_value) {
-        # print "$line_type_type   decrease at i=$i  value=$value cf prev=$prev\n";
-        my $path = $seq->{'planepath_object'};
-        my ($prev_x,$prev_y) = $path->n_to_xy($prev_value);
-        my ($x,$y) = $path->n_to_xy($value);
-        print "$line_type not   N=$prev_value $prev_x,$prev_y  N=$value $x,$y\n";
-        next LINE_TYPE;
-      }
-      $prev_i = $i;
-      $prev_value = $value;
-    }
-    print "$line_type   all increasing (to i=$prev_i)\n";
-  }
-  exit 0;
-}
 
 {
   require Math::NumSeq::PlanePathCoord;

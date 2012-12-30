@@ -33,15 +33,26 @@
 #
 # Thue-Morse count 1s mod 2 is net direction
 # Toeplitz first diffs is turn sequence +1 or -1
+#
+# J. Ma and J.A. Holdener. When Thue­Morse Meets Koch. In Fractals:
+# Complex Geometry, Patterns, and Scaling in Nature and Society, volume 13,
+# pages 191­206, 2005.
+# http://personal.kenyon.edu/holdenerj/StudentResearch/WhenThueMorsemeetsKochJan222005.pdf
+#
+# F.M. Dekking. On the distribution of digits in arithmetic sequences. In
+# Seminaire de Theorie des Nombres de Bordeaux, volume 12, pages 3201-3212,
+# 1983.
+#
+
 
 
 package Math::PlanePath::KochCurve;
 use 5.004;
 use strict;
-use List::Util 'sum';
+use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -55,7 +66,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 # undocumented previous name for this ...
 *_round_down_pow = \&round_down_pow;
@@ -216,8 +227,8 @@ sub rect_to_n_range {
 }
 
 
-my @rot_to_dx = (2,1,-1,-2,-1,1);
-my @rot_to_dy = (0,1,1,0,-1,-1);
+my @dir6_to_dx = (2, 1,-1,-2, -1, 1);
+my @dir6_to_dy = (0, 1, 1, 0, -1,-1);
 my @max_digit_to_rot = (1, -2, 1, 0);
 my @min_digit_to_rot = (0, 1, -2, 1);
 my @max_digit_to_offset = (-1, -1, -1, 2);
@@ -329,8 +340,8 @@ sub _rect_to_n_range_rot {
 
     my $offset = $max_digit_to_offset[$digit];
     $rot = ($rot - $max_digit_to_rot[$digit]) % 6;
-    $x += $rot_to_dx[$rot] * $offset * $len;
-    $y += $rot_to_dy[$rot] * $offset * $len;
+    $x += $dir6_to_dx[$rot] * $offset * $len;
+    $y += $dir6_to_dy[$rot] * $offset * $len;
 
     ### $offset
     ### $rot
@@ -390,8 +401,8 @@ sub _rect_to_n_range_rot {
 
     } else {
       ### no overlap, next digit ...
-      $x += $rot_to_dx[$rot] * $len;
-      $y += $rot_to_dy[$rot] * $len;
+      $x += $dir6_to_dx[$rot] * $len;
+      $y += $dir6_to_dy[$rot] * $len;
     }
   }
 }
@@ -405,11 +416,9 @@ sub _digit_join_hightolow {
 
 
 my @digit_to_dir = (0, 1, -1, 0);
-my @dir6_to_dx = (2, 1,-1,-2, -1, 1);
-my @dir6_to_dy = (0, 1, 1, 0, -1,-1);
-my @digit_to_turn = (1,  # digit=1 (with +1 for "next" N)
-                     -2, # digit=2
-                     1); # digit=3
+my @digit_to_nextturn = (1,  # digit=1 (with +1 for "next" N)
+                         -2, # digit=2
+                         1); # digit=3
 sub n_to_dxdy {
   my ($self, $n) = @_;
   ### n_to_dxdy(): $n
@@ -423,23 +432,17 @@ sub n_to_dxdy {
 
   my $int = int($n);
   $n -= $int;
-  my @digits = digit_split_lowtohigh($int,4);
-  ### @digits
+  my @ndigits = digit_split_lowtohigh($int,4);
 
-  my $dir6 = sum(0, map {$digit_to_dir[$_]} @digits) % 6;
+  my $dir6 = sum(0, map {$digit_to_dir[$_]} @ndigits) % 6;
   my $dx = $dir6_to_dx[$dir6];
   my $dy = $dir6_to_dy[$dir6];
 
   if ($n) {
     # fraction part
 
-    # lowest non-3 digit
-    my $digit;
-    do {
-      $digit = shift @digits || 0;  # zero if all 3s or no digits at all
-    } until ($digit != 3);
-
-    $dir6 += $digit_to_turn[$digit];
+    # lowest non-3 digit, or zero if all 3s (0 above high digit)
+    $dir6 += $digit_to_nextturn[ first {$_!=3} @ndigits, 0 ];
     $dir6 %= 6;
     $dx += $n*($dir6_to_dx[$dir6] - $dx);
     $dy += $n*($dir6_to_dy[$dir6] - $dy);
@@ -782,13 +785,13 @@ various forms,
 
     http://oeis.org/A035263  (etc)
 
-    A035263 -- turn 1=left,0=right, by morphism
-    A096268 -- turn 0=left,1=right, by morphism
-    A029883 -- turn +/-1=left,0=right, Thue-Morse first differences
-    A089045 -- turn +/-1=left,0=right, by +/- something
+    A035263   turn 1=left,0=right, by morphism
+    A096268   turn 0=left,1=right, by morphism
+    A029883   turn +/-1=left,0=right, Thue-Morse first differences
+    A089045   turn +/-1=left,0=right, by +/- something
 
-    A003159 -- N positions of left turns, ending even number 0 bits
-    A036554 -- N positions of right turns, ending odd number 0 bits
+    A003159   N positions of left turns, ending even number 0 bits
+    A036554   N positions of right turns, ending odd number 0 bits
 
 =head1 SEE ALSO
 

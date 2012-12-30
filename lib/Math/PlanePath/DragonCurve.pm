@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -490,8 +490,8 @@ __END__
 
 # n_to_xy() old code based on i+1 multiply up.
 #
-# my @rot_to_sx = (1,0,-1,0);
-# my @rot_to_sy = (0,1,0,-1);
+# my @dir4_to_dx = (1,0,-1,0);
+# my @dir4_to_dy = (0,1,0,-1);
 #
 # sub n_to_xy {
 #   my ($self, $n) = @_;
@@ -564,8 +564,8 @@ __END__
 #   }
 #
 #   $rot &= 3;
-#   $x = $n * $rot_to_sx[$rot] + $x;
-#   $y = $n * $rot_to_sy[$rot] + $y;
+#   $x = $n * $dir4_to_dx[$rot] + $x;
+#   $y = $n * $dir4_to_dy[$rot] + $y;
 #
 #   ### final: "$x,$y"
 #   return ($x,$y);
@@ -573,8 +573,8 @@ __END__
 
 # n_to_dxdy() by separate direction and frac next turn.
 #
-# my @dir_to_dx = (1,0,-1,0);
-# my @dir_to_dy = (0,1,0,-1);
+# my @dir4_to_dx = (1,0,-1,0);
+# my @dir4_to_dy = (0,1,0,-1);
 #
 # sub n_to_dxdy {
 #   my ($self, $n) = @_;
@@ -597,8 +597,8 @@ __END__
 #     $prev = $digit;
 #   }
 #   $dir &= 3;
-#   my $dx = $dir_to_dx[$dir];
-#   my $dy = $dir_to_dy[$dir];
+#   my $dx = $dir4_to_dx[$dir];
+#   my $dy = $dir4_to_dy[$dir];
 #   ### $dx
 #   ### $dy
 #
@@ -614,8 +614,8 @@ __END__
 #
 #     $dir += ($digits[0] ? -1 : 1); # bit above lowest 0-bit, 1=right,0=left
 #     $dir &= 3;
-#     $dx += $n*($dir_to_dx[$dir] - $dx);
-#     $dy += $n*($dir_to_dy[$dir] - $dy);
+#     $dx += $n*($dir4_to_dx[$dir] - $dx);
+#     $dy += $n*($dir4_to_dy[$dir] - $dy);
 #
 #     # my $sign = ($digits[0] ? 1 : -1); # bit above lowest 0-bit
 #     # ($dx,$dy) = ($dx - $n*($dx - $sign*$dy),
@@ -644,7 +644,7 @@ __END__
 
 #------------------------------------------------------------------------------
 
-=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook DragonMidpoint versa PlanePath Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns DragonCurve Shallit Kmosek SquareSpiral Seminumerical dX dY bitwise lookup dx dy ie
+=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook DragonMidpoint versa PlanePath Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns DragonCurve Shallit Kmosek SquareSpiral Seminumerical dX,dY bitwise lookup dx dy ie
 
 =head1 NAME
 
@@ -1118,35 +1118,35 @@ various forms (and see DragonMidpoint for its forms too),
 
     http://oeis.org/A014577  (etc)
 
-    A038189 -- turn, 0=left,1=right, bit above lowest 1, extra 0
-    A082410 -- turn, 1=left,0=right, reversing complement, extra 0
-    A099545 -- turn, 1=left,3=right, as [odd part n] mod 4
-    A034947 -- turn, 1=left,-1=right, Jacobi (-1/n)
-    A112347 -- turn, 1=left,-1=right, Kronecker (-1/n), extra 0
-    A121238 -- turn, 1=left,-1=right, -1^(n + some partitions) extra 1
-    A014577 -- next turn, 0=left,1=right
-    A014707 -- next turn, 1=left,0=right
-    A014709 -- next turn, 2=left,1=right
-    A014710 -- next turn, 1=left,2=right
+    A038189   turn, 0=left,1=right, bit above lowest 1, extra 0
+    A082410   turn, 1=left,0=right, reversing complement, extra 0
+    A099545   turn, 1=left,3=right, as [odd part n] mod 4
+    A034947   turn, 1=left,-1=right, Jacobi (-1/n)
+    A112347   turn, 1=left,-1=right, Kronecker (-1/n), extra 0
+    A121238   turn, 1=left,-1=right, -1^(n + some partitions) extra 1
+    A014577   next turn, 0=left,1=right
+    A014707   next turn, 1=left,0=right
+    A014709   next turn, 2=left,1=right
+    A014710   next turn, 1=left,2=right
 
 The above turn sequences differ only in having left or right represented as
 0, 1, -1, etc.  The "extra" values are a possible extra initial 0 or 1 at
 n=0 arising from the definitions, with the first turn being at n=N=1.  The
-"next turn" sequences begin at n=0 for the turn at N=1, ie. the turn at
+"next turn" forms begin at n=0 for the turn at N=1 and so are the turn at
 N=n+1.
 
-    A005811 -- total turn
-    A088748 -- total turn + 1
-    A164910 -- cumulative [total turn + 1]
-    A166242 -- 2^(total turn), by double/halving
+    A005811   total turn
+    A088748   total turn + 1
+    A164910   cumulative [total turn + 1]
+    A166242   2^(total turn), by double/halving
 
-    A088431 -- turn sequence run lengths
-    A007400 --   2*runlength
+    A088431   turn sequence run lengths
+    A007400     2*runlength
 
-    A091072 -- N positions of the left turns, being odd part form 4K+1
-    A126937 -- points numbered like SquareSpiral (start N=0 and flip Y)
-    A003460 -- turns N=1 to N=2^n-1 packed as bits 1=left,0=right
-                 low to high, then written in octal
+    A091072   N positions of the left turns, being odd part form 4K+1
+    A126937   points numbered like SquareSpiral (start N=0 and flip Y)
+    A003460   turns N=1 to N=2^n-1 packed as bits 1=left,0=right
+                low to high, then written in octal
 
 The run lengths A088431 and A007400 are from a continued fraction expansion
 of an infinite sum
@@ -1159,8 +1159,12 @@ X<Shallit, Jeffrey>X<Kmosek>Jeffrey Shallit and independently M. Kmosek show
 how continued fraction terms which are repeated in reverse give rise to this
 sort of power sum,
 
-    "Simple Continued Fractions for Some Irrational Numbers"
-    http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps
+=over
+
+Jeffrey Shallit, "Simple Continued Fractions for Some Irrational Numbers",
+http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps
+
+=back
 
 =cut
 

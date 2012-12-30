@@ -42,7 +42,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -257,8 +257,8 @@ Math::PlanePath::WythoffArray -- table of Fibonacci recurrences
 
 =head1 DESCRIPTION
 
-This path is the Wythoff array of Fibonacci recurrences, or Zeckendorf
-Fibonacci base trailing zeros.
+X<Wythoff>This path is the Wythoff array of Fibonacci recurrences, or
+Zeckendorf Fibonacci base trailing zeros.
 
 =cut
 
@@ -285,15 +285,16 @@ Fibonacci base trailing zeros.
          +-------------------------------------------------------
            X=0    1    2    3    4    5    6    7    8    9   10
 
-N=1,2,3,5,8,etc on the X axis is the Fibonacci numbers.  N=4,7,11,18,etc in
-the row Y=1 above it is the Lucas numbers.
+X<Fibonacci Numbers>N=1,2,3,5,8,etc on the X axis is the Fibonacci numbers.
+X<Lucas Numbers>N=4,7,11,18,etc in the row Y=1 above it is the Lucas
+numbers.
 
 All rows have the Fibonacci style recurrence F(X+1) = F(X)+F(X-1).  For
 example at X=4,Y=2 the N=42 is 16+26, the sum of the two values to its left.
 
-N=1,4,6,9,12,etc on the Y axis is the "spectrum" of the golden ratio,
-meaning its rounded down integer multiples.  For example at Y=5
-N=5+floor((5+1)*phi)=14.
+X<Golden Ratio>N=1,4,6,9,12,etc on the Y axis is the "spectrum" of the
+golden ratio, meaning its rounded down integer multiples.  For example at
+Y=5 N=5+floor((5+1)*phi)=14.
 
     phi = (sqrt(5)+1)/2
     spectrum(k) = floor(phi*k)
@@ -313,9 +314,10 @@ Fibonacci numbers, so they become large quite quickly.
 
 =head2 Zeckendorf Base
 
-The N values are arranged according to trailing zero bits when N is
-represented in the Zeckendorf base.  This base makes N a sum of Fibonacci
-numbers, choosing at each stage the largest possible Fibonacci.  For example
+X<Zeckendorf Base>The N values are arranged according to trailing zero bits
+when N is represented in the Zeckendorf base.  This base makes N a sum of
+Fibonacci numbers, choosing at each stage the largest possible Fibonacci.
+For example
 
     Fibonacci F[0]=1, F[1]=2, F[2]=3, F[3]=5, etc
 
@@ -397,9 +399,9 @@ N and the upper right is the maximum N.
 
     |               N max
     |     ----------+
-    |    |          |
-    |    |          |
-    |    |          |
+    |    |  ^       |
+    |    |  |       |
+    |    |   ---->  |
     |    +----------
     |   N min
     +-------------------
@@ -409,7 +411,7 @@ N and the upper right is the maximum N.
 The Wythoff array is in Sloane's Online Encyclopedia of Integer Sequences
 in various forms,
 
-    http://oeis.org/A035614    etc
+    http://oeis.org/A035614   (etc)
 
     A035614     X coordinate
     A035612     X+1 coordinate, columns numbered starting X=1
@@ -431,8 +433,8 @@ in various forms,
     A035336     N in column X=1
     A020941     N on X=Y diagonal
 
-    A083412     N by Diagonals from Y axis downwards
-    A035513     N by Diagonals from X axis upwards
+    A083412     permutation N by Diagonals from Y axis downwards
+    A035513     permutation N by Diagonals from X axis upwards
     A064274       inverse permutation
 
 =head1 SEE ALSO

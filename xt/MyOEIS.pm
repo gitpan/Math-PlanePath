@@ -166,7 +166,8 @@ sub compare_values {
   my $func = $option{'func'} || croak "Missing func parameter";
   my ($bvalues, $lo, $filename) = MyOEIS::read_values
     ($anum,
-     max_count => $option{'max_count'});
+     max_count => $option{'max_count'},
+     max_value => $option{'max_value'});
   my $diff;
   if ($bvalues) {
     if (my $fixup = $option{'fixup'}) {

@@ -28,7 +28,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -78,8 +78,8 @@ sub new {
 
 my @rot_to_x = (0,0,-1,-1);
 my @rot_to_y = (0,1,1,0);
-my @rot_to_sx = (1,0,-1,0);
-my @rot_to_sy = (0,1,0,-1);
+my @dir4_to_dx = (1,0,-1,0);
+my @dir4_to_dy = (0,1,0,-1);
 my @digit_reverse = (0,1,0,0,1);
 
 sub n_to_xy {
@@ -114,8 +114,8 @@ sub n_to_xy {
   my @sx;
   my @sy;
   {
-    my $sx = $zero + $rot_to_sx[$rot];
-    my $sy = $zero + $rot_to_sy[$rot];
+    my $sx = $zero + $dir4_to_dx[$rot];
+    my $sy = $zero + $dir4_to_dy[$rot];
     foreach (@digits) {
       push @sx, $sx;
       push @sy, $sy;

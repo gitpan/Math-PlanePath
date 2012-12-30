@@ -26,12 +26,119 @@ use Math::PlanePath::Base::Digits
   'round_down_pow',
   'digit_split_lowtohigh';
 use Math::PlanePath::RationalsTree;
-use Math::ContinuedFraction;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
 
+{
+  # X,Y list CW
+
+  # 1,1,3, 5,11,21,43
+  # 1,2,5,10,21,42,85
+  # P = X+Y Q=X      X=Q Y=P-Q
+  #
+  #              X,Y                                   X+Y,X
+  #           /        \                            /         \
+  #    X,(X+Y)           (X+Y),Y             2X+Y,X             X+2Y,X+Y
+  #   /     \            /      \           /      \            /          \
+  # X,(2X+Y) 2X+Y,X+Y X+Y,X+2Y X+2Y,Y  3X+Y,2X+Y 3X+2Y,2X+Y 2X+3Y,X+Y X+3Y,X+2Y
+  #
+  #              1,1          
+  #    1,2                 2,1            
+  # 1,3  3,2            2,3    3,1  
+  # 1/4  4/3  3/5 5/2  2/5 5/3  3/4 4/1
+  #
+  # X+Y,X                                         2,1 T
+  #                        3,1                                          3,2*U
+  #           4,1*D                   5,3                   5,2*A                    4,3*UU
+  #       5,1      7,4*DU     8,3*UA        7,5      7,2*UD        8,5*AU        7,3         5,4*UUU
+  #
+  #  6,1*DD 9,5 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,5 11,8*   10,3* 11,7  9,4*DA 6,5*
+  #
+  # X+Y,Y                                         2,1 T
+  #                        3,2*U                                         3,1
+  #           4,3*UU                  5,2                   5,3*A                    4,1*D
+  #       5,4*UUU  7,3*DU     8,5*UA        7,2      7,5*UD        8,3*AU        7,4         5,1*UUU
+  #
+  #  6,5*DD 9,4 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,8 11,3*   10,7* 11,4* 9,5*DA 6,1*
+
+  require Math::PlanePath::RationalsTree;
+  require Math::PlanePath::PythagoreanTree;
+  my $pythag = Math::PlanePath::PythagoreanTree->new (coordinates=>'PQ');
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+  my $oe_total = 0;
+  foreach my $depth (0 .. 6) {
+    my $oe = 0;
+    foreach my $n ($path->tree_depth_to_n($depth) ..
+                   $path->tree_depth_to_n_end($depth)) {
+      my ($x,$y) = $path->n_to_xy($n);
+      my $flag = '';
+      ($x,$y) = ($x+$y, $y);
+      if ($x%2 != $y%2) {
+        $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
+        $oe += $flag ? 1 : 0;
+      }
+      my $octant = '';
+      if ($y < $x) {
+        $octant = 'octant';
+      }
+      my $pn = $pythag->xy_to_n($x,$y);
+      if ($pn) {
+        $pn = n_to_pythagstr($pn);
+      }
+      printf "N=%2d %2d / %2d   %10s %10s %s\n", $n, $x,$y,
+        $flag, $octant, $pn||'';
+      $n++;
+    }
+    $oe_total += $oe;
+    print "$oe   $oe_total\n";
+  }
+
+  sub n_to_pythagstr {
+    my ($n) = @_;
+    if ($n < 1) { return undef; }
+    my ($pow, $exp) = round_down_pow (2*$n-1, 3);
+    $n -= ($pow+1)/2;  # offset into row
+    my @digits = digit_split_lowtohigh($n,3);
+    push @digits, (0) x ($exp - scalar(@digits));  # high pad to $exp many
+    return '1+'.join('',reverse @digits);
+  }
+
+  exit 0;
+}
+
+{
+  # X,Y list  cf pythag odd,even
+  require Math::PlanePath::RationalsTree;
+  foreach my $path
+    (Math::PlanePath::RationalsTree->new(tree_type => 'SB'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'CW'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'HCS'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'AYT'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'Drib'),
+     Math::PlanePath::RationalsTree->new(tree_type => 'Bird')) {
+    print "tree_type $path->{'tree_type'}\n";
+    foreach my $depth (0 .. 5) {
+      foreach my $n ($path->tree_depth_to_n($depth) ..
+                     $path->tree_depth_to_n_end($depth)) {
+        my ($x,$y) = $path->n_to_xy($n);
+        my $flag = '';
+        if ($x%2 != $y%2) {
+          $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
+        }
+        my $octant = '';
+        if ($y < $x) {
+          $octant = 'octant';
+        }
+        printf "N=%2d %2d / %2d   %10s %10s\n", $n, $x,$y, $flag, $octant;
+        $n++;
+      }
+      print "\n";
+    }
+  }
+  exit 0;
+}
 {
   # HCS runs
   my $path = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
@@ -45,6 +152,7 @@ use Math::ContinuedFraction;
   #                          1   6  1
   #  is [0, 6, 2]
 
+  require Math::ContinuedFraction;
   my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
   my $cfrac_str = $cfrac->to_ascii;
   say $cfrac_str;
@@ -195,6 +303,7 @@ use Math::ContinuedFraction;
 
   sub try {
     my ($x,$y) = @_;
+    require Math::ContinuedFraction;
     my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
     my $cfrac_str = $cfrac->to_ascii;
     my $n = $path->xy_to_n($x,$y);
@@ -230,6 +339,7 @@ use Math::ContinuedFraction;
   #      k  2^(q0+q1+...qk - 1)
   sub minkowski_by_cfrac {
     my ($x,$y) = @_;
+    require Math::ContinuedFraction;
     my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
     my $aref = $cfrac->to_array;
     ### $aref
@@ -261,6 +371,7 @@ use Math::ContinuedFraction;
   #      k  2^(q0+q1+...qk)
   sub F_by_cfrac {
     my ($x,$y) = @_;
+    require Math::ContinuedFraction;
     my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
     my $aref = $cfrac->to_array;
     ### $aref
@@ -376,6 +487,7 @@ use Math::ContinuedFraction;
   #   }
   # }
   print "$x,$y\n";
+  require Math::ContinuedFraction;
   my $cfrac = Math::ContinuedFraction->from_ratio($x,$y);
   my $cfrac_str = $cfrac->to_ascii;
   print "$cfrac_str\n";
@@ -384,6 +496,7 @@ use Math::ContinuedFraction;
 
 {
   # AYT vs continued fraction
+  require Math::ContinuedFraction;
   require Math::BaseCnv;
   my $ayt = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
 
@@ -399,6 +512,7 @@ use Math::ContinuedFraction;
 }
 
 {
+  require Math::ContinuedFraction;
   my $cfrac = Math::ContinuedFraction->from_ratio(29,42);
   my $cfrac_str = $cfrac->to_ascii;
   print "$cfrac_str\n";
@@ -509,6 +623,7 @@ use Math::ContinuedFraction;
   }
 }
 {
+  require Math::ContinuedFraction;
   {
     my $cf = Math::ContinuedFraction->new([0,10,2,1,8]);
     print $cf->to_ascii,"\n";

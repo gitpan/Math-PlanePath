@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -191,8 +191,8 @@ This path makes a pyramid shaped spiral,
     -5 -4 -3  -2  -1  X=0 1  2  3  4  5  6  7
 
 The perfect squares 1,4,9,16 fall one before the bottom left corner of each
-loop, and the pronic numbers 2,6,12,20,30,etc are the vertical upwards from
-X=1,Y=0.
+loop, and the X<Pronic Numbers>pronic numbers 2,6,12,20,30,etc are the
+vertical upwards from X=1,Y=0.
 
 =head2 Square Spiral
 

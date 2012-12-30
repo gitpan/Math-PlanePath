@@ -38,6 +38,7 @@
 # points="square_horiz"
 # points="square_vert"
 # points="square_centre"
+# A199015 square_centred partial sums
 # 
 
 
@@ -47,7 +48,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,7 +57,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant parameter_info_array =>
@@ -98,6 +99,7 @@ sub new {
     $self->{'x_inc'} = 1;
     $self->{'x_inc_factor'} = 2;
     $self->{'x_inc_squared'} = 1;
+    $self->{'y_factor'} = 2;
     $self->{'opposite_parity'} = -1;
 
   } elsif ($points eq 'even') {
@@ -109,6 +111,7 @@ sub new {
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;
     $self->{'x_inc_squared'} = 4;
+    $self->{'y_factor'} = 2;
     $self->{'opposite_parity'} = 1;
 
   } elsif ($points eq 'odd') {
@@ -120,7 +123,21 @@ sub new {
     $self->{'x_inc'} = 2;
     $self->{'x_inc_factor'} = 4;
     $self->{'x_inc_squared'} = 4;
+    $self->{'y_factor'} = 2;
     $self->{'opposite_parity'} = 0;
+
+  } elsif ($points eq 'square_centred') {
+    $self->{'n_to_x'} = [];
+    $self->{'n_to_y'} = [];
+    $self->{'hypot_to_n'} = [];
+    $self->{'y_next_x'} = [undef,1];
+    $self->{'y_next_hypot'} = [undef,2];
+    $self->{'x_inc'} = 2;
+    $self->{'x_inc_factor'} = 4;  # ((x+2)^2 - x^2) = 4*x+4
+    $self->{'x_inc_squared'} = 4;
+    $self->{'y_start'} = 1;
+    $self->{'y_inc'} = 2;
+    $self->{'opposite_parity'} = -1;
 
   } else {
     croak "Unrecognised points option: ", $points;
@@ -130,50 +147,60 @@ sub new {
 
 sub _extend {
   my ($self) = @_;
-  ### _extend() n: scalar(@n_to_x)
+  ### _extend() n: scalar(@{$self->{'n_to_x'}})
+  ### y_next_x: $self->{'y_next_x'}
 
   my $n_to_x       = $self->{'n_to_x'};
   my $n_to_y       = $self->{'n_to_y'};
   my $hypot_to_n   = $self->{'hypot_to_n'};
   my $y_next_x     = $self->{'y_next_x'};
   my $y_next_hypot = $self->{'y_next_hypot'};
+  my $y_start      = $self->{'y_start'} || 0;
+  my $y_inc        = $self->{'y_inc'} || 1;
 
   # set @y to the Y with the smallest $y_next_hypot[$y], and if there's some
   # Y's with equal smallest hypot then all those Y's
-  my @y = (0);
-  my $hypot = $y_next_hypot->[0];
-  for (my $i = 1; $i < @$y_next_x; $i++) {
-    if ($hypot == $y_next_hypot->[$i]) {
-      push @y, $i;
-    } elsif ($hypot > $y_next_hypot->[$i]) {
-      @y = ($i);
-      $hypot = $y_next_hypot->[$i];
+  my @y = ($y_start);
+  my $hypot = $y_next_hypot->[$y_start] || 99;
+  for (my $y = $y_start+$y_inc; $y < @$y_next_x; $y += $y_inc) {
+    if ($hypot == $y_next_hypot->[$y]) {
+      push @y, $y;
+    } elsif ($hypot > $y_next_hypot->[$y]) {
+      @y = ($y);
+      $hypot = $y_next_hypot->[$y];
     }
   }
+
+  ### chosen y list: @y
 
   # if the endmost of the @$y_next_x, @$y_next_hypot arrays are used then
   # extend them by one
   if ($y[-1] == $#$y_next_x) {
-    my $y = scalar(@$y_next_x);
+    ### grow y_next_x ...
+    my $y = $#$y_next_x + $y_inc;
     my $x = $y + ($self->{'points'} eq 'odd');
     $y_next_x->[$y] = $x;
     $y_next_hypot->[$y] = $x*$x+$y*$y;
-    ### assert: $y_next_hypot->[$y] == $y**2 + $y_next_x->[$y]**2
+    ### $y_next_x
+    ### $y_next_hypot
+    ### assert: $y_next_hypot->[$y] == $y**2 + $x*$x
   }
 
   # @x is the $y_next_x[$y] for each of the @y smallests, and step those
   # selected elements next X and hypot for that new X,Y
   my @x = map {
-    my $x = $y_next_x->[$_];
-    $y_next_x->[$_] += $self->{'x_inc'};
-    $y_next_hypot->[$_]
+    my $y = $_;
+    my $x = $y_next_x->[$y];
+    $y_next_x->[$y] += $self->{'x_inc'};
+    $y_next_hypot->[$y]
       += $self->{'x_inc_factor'} * $x + $self->{'x_inc_squared'};
-    ### assert: $y_next_hypot->[$_] == $_**2 + $y_next_x->[$_]**2
+    ### assert: $y_next_hypot->[$y] == ($x+$self->{'x_inc'})**2 + $y**2
     $x
   } @y;
   ### $hypot
   ### base octant: join(' ',map{"$x[$_],$y[$_]"} 0 .. $#x)
 
+  # transpose X,Y to Y,X
   {
     my @base_x = @x;
     my @base_y = @y;
@@ -257,6 +284,11 @@ sub xy_is_visited {
       return 0;
     }
   }
+  if ($self->{'points'} eq 'square_centred') {
+    unless (($y%2) && ($x%2)) {
+      return 0;
+    }
+  }
   return 1;
 }
 
@@ -270,6 +302,11 @@ sub xy_to_n {
 
   if ((($x%2) ^ ($y%2)) == $self->{'opposite_parity'}) {
     return undef;
+  }
+  if ($self->{'points'} eq 'square_centred') {
+    unless (($y%2) && ($x%2)) {
+      return undef;
+    }
   }
 
   my $hypot = $x*$x + $y*$y;

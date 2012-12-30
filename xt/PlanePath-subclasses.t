@@ -56,39 +56,21 @@ my @modules = (
 
                # module list begin
 
-               'ImaginaryHalf',
-               'ImaginaryHalf,radix=3',
-               'ImaginaryHalf,radix=4',
-               'ImaginaryHalf,radix=5',
-               'ImaginaryHalf,radix=37',
-               'ImaginaryHalf,digit_order=XXY',
-               'ImaginaryHalf,digit_order=YXX',
-               'ImaginaryHalf,digit_order=XnXY',
-               'ImaginaryHalf,digit_order=XnYX',
-               'ImaginaryHalf,digit_order=YXnX',
-               'ImaginaryHalf,digit_order=XXY,radix=3',
+               'PythagoreanTree,coordinates=BC',
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=AC',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,tree_type=FB,coordinates=AC',
+               'PythagoreanTree,tree_type=FB,coordinates=BC',
+               'PythagoreanTree,tree_type=FB,coordinates=PQ',
 
-               'UlamWarburton',
-               'UlamWarburton,n_start=0',
-               'UlamWarburton,n_start=37',
-               'UlamWarburtonQuarter',
-               'UlamWarburtonQuarter,n_start=0',
-               'UlamWarburtonQuarter,n_start=37',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=6',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=6',
+               'Flowsnake',
+               'Flowsnake,arms=2',
+               'Flowsnake,arms=3',
+               'FlowsnakeCentres',
+               'FlowsnakeCentres,arms=2',
+               'FlowsnakeCentres,arms=3',
 
                'SierpinskiCurve',
                'SierpinskiCurve,diagonal_spacing=5',
@@ -115,6 +97,56 @@ my @modules = (
                'SierpinskiCurveStair,arms=8',
                'HIndexing',
 
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=6',
+
+               'KochCurve',
+               'KochPeaks',
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+
+               'ImaginaryHalf',
+               'ImaginaryHalf,radix=3',
+               'ImaginaryHalf,radix=4',
+               'ImaginaryHalf,radix=5',
+               'ImaginaryHalf,radix=37',
+               'ImaginaryHalf,digit_order=XXY',
+               'ImaginaryHalf,digit_order=YXX',
+               'ImaginaryHalf,digit_order=XnXY',
+               'ImaginaryHalf,digit_order=XnYX',
+               'ImaginaryHalf,digit_order=YXnX',
+               'ImaginaryHalf,digit_order=XXY,radix=3',
+
+               'UlamWarburton',
+               'UlamWarburton,n_start=0',
+               'UlamWarburton,n_start=37',
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,n_start=0',
+               'UlamWarburtonQuarter,n_start=37',
+
                'Hypot,n_start=37',
                'Hypot,points=even,n_start=37',
                'Hypot',
@@ -132,11 +164,6 @@ my @modules = (
                'TriangularHypot,points=hex',
                'TriangularHypot,points=hex_rotated',
                'TriangularHypot,points=hex_centred',
-
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,coordinates=PQ,tree_type=FB',
 
                'DigitGroups',
                'DigitGroups,radix=3',
@@ -227,16 +254,6 @@ my @modules = (
                'GcdRationals,pairs_order=diagonals_down',
                'GcdRationals,pairs_order=diagonals_up',
 
-               'R5DragonCurve',
-               'R5DragonCurve,arms=2',
-               'R5DragonCurve,arms=3',
-               'R5DragonCurve,arms=4',
-
-               'R5DragonMidpoint',
-               'R5DragonMidpoint,arms=2',
-               'R5DragonMidpoint,arms=3',
-               'R5DragonMidpoint,arms=4',
-
                'ZOrderCurve,radix=5',
                'ZOrderCurve',
                'ZOrderCurve,radix=3',
@@ -292,13 +309,6 @@ my @modules = (
                'CornerReplicate',
                'HeptSpiralSkewed',
                'PyramidSpiral',
-
-               'Flowsnake',
-               'Flowsnake,arms=2',
-               'Flowsnake,arms=3',
-               'FlowsnakeCentres',
-               'FlowsnakeCentres,arms=2',
-               'FlowsnakeCentres,arms=3',
 
                'GosperReplicate',
                'GosperSide',
@@ -490,12 +500,6 @@ my @modules = (
 
                'File',
 
-               'KochCurve',
-               'KochPeaks',
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-
                'SquareSpiral,n_start=0',
                'SquareSpiral,n_start=37',
                'SquareSpiral,wider=5,n_start=0',
@@ -592,7 +596,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 94;
+my $want_version = 95;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

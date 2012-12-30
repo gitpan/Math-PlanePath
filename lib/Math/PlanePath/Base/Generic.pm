@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 94;
+$VERSION = 95;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -112,22 +112,22 @@ sub xy_is_visited_quad1 {
 # not documented yet
 sub xy_is_visited_quad12 {
   my ($self, $x, $y) = @_;
-  return ! (2*$y < -1);
+  return (2*$y >= -1);
 }
 # not documented yet
 sub xy_is_visited_quad14 {
   my ($self, $x, $y) = @_;
-  return ! (2*$x < -1);
+  return (2*$x >= -1);
 }
 sub xy_is_visited_even {
   my ($self, $x, $y) = @_;
-  return (((round_nearest($x) + round_nearest($y)) % 2) == 0);
+  return (round_nearest($x)%2 == round_nearest($y)%2);
 }
 
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath PlanePath
+=for stopwords Ryde Math-PlanePath PlanePath hashref initializer
 
 =head1 NAME
 

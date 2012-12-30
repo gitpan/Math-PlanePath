@@ -39,7 +39,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -87,9 +87,9 @@ sub new {
   return $self;
 }
 
-my @rot_to_si = (1,0,0, -1,0,0);
-my @rot_to_sj = (0,1,0, 0,-1,0);
-my @rot_to_sk = (0,0,1, 0,0,-1);
+my @dir6_to_si = (1,0,0, -1,0,0);
+my @dir6_to_sj = (0,1,0, 0,-1,0);
+my @dir6_to_sk = (0,0,1, 0,0,-1);
 
 # F0F1F1F0F0F1F, 0->0, 1->1
 #

@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -118,7 +118,6 @@ sub n_to_xy {
   my @xydigits = ([],[0],[]);
   my $digit_permutation = $digit_permutation{$self->{'digit_order'}};
   my @ndigits = digit_split_lowtohigh($n, $radix);
-  my $i = 0;
   foreach my $i (0 .. $#ndigits) {
     my $p = $digit_permutation->[$i%3];
     push @{$xydigits[$p]}, $ndigits[$i], ($p < 2 ? (0) : ());
@@ -254,7 +253,7 @@ sub _digit_permutation_interleave {
   my ($digit_permutation, $xaref, $yaref) = @_;
   my @ret;
   my @d;
-  foreach my $i (0 .. max($#$xaref,2*$#$yaref)) {
+  foreach (0 .. max($#$xaref,2*$#$yaref)) {
     $d[0] = shift @$xaref || 0;
     $d[1] = shift @$xaref || 0;
     $d[2] = shift @$yaref || 0;
@@ -269,7 +268,7 @@ sub _digit_permutation_interleave {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve radix Radix ie ImaginaryBase radix-1 Proth
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve radix Radix ie ImaginaryBase radix-1 Proth gnomon
 
 =head1 NAME
 

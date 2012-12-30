@@ -16,12 +16,15 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# dX_minimum
-# dY_minimum
-# dSum_minimum
+# tree_any_leaf()
+# tree_num_children_minimum()
+# tree_num_children_maximum()
+#
 # sum_minimum
-# ddiffxy_minimum
 # diffxy_minimum
+# rsquared_minimum
+# dsum_minimum
+# ddiffxy_minimum
 
 # Math::PlanePath::Base::Generic
 # divrem
@@ -31,7 +34,11 @@
 # ($n_lo,$n_hi) = $path->tree_depth_to_n_range($level);
 #
 # $path->n_to_dir4
-# $path->n_to_dist
+# $path->n_to_turn4
+# $path->n_to_turn6
+# $path->n_to_turn8
+# $path->n_to_ddist
+# $path->n_to_drsquared
 # $path->xy_to_dir4_list
 # $path->xy_to_dxdy_list
 # $path->xy_to_n_list_maxcount
@@ -59,7 +66,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 94;
+$VERSION = 95;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -177,6 +184,7 @@ sub n_to_rsquared {
 
 use constant tree_n_parent => undef;
 use constant tree_n_children => ();
+use constant tree_any_leaf => 1;
 sub tree_n_num_children {
   my ($self, $n) = @_;
   if ($n >= $self->n_start) {
@@ -318,7 +326,7 @@ __END__
 
 
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY dX,dY
+=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY dX,dY Rsquared HilbertCurve radix DekkingCurve DekkingCentres SUBCLASSING Ns onwards TheodorusSpiral RationalsTree
 
 =head1 NAME
 
@@ -707,13 +715,13 @@ For some classes the X or Y extent may depend on parameter values.
 
 =item C<$y = $path-E<gt>rsquared_maximum()>
 
-Return the minimum or maximum of the X or Y coordinate or R squared X^2+Y^2,
-reached by integer N values in the path.
+Return the minimum or maximum of the X or Y coordinate, or Rsquared =
+X^2+Y^2, reached by integer N values in the path.  If there's no minimum or
+maximum then return C<undef>.
 
-If there's no minimum or maximum then the return is C<undef>.  For X,Y
-there's no minimum for paths which go to into ever bigger negatives.
-Rsquared = X^2+Y^2 is always E<gt>= 0 so it has a minimum 0 or more, but
-generally never has a maximum.
+For X,Y there's no minimum if the path goes into ever bigger negatives.
+Rsquared is always E<gt>= 0 so its minimum is 0, or more if the origin
+X=0,Y=0 is not visited.  Generally Rsquared has no maximum.
 
 =item C<$x = $path-E<gt>dx_minimum()>
 
@@ -783,6 +791,11 @@ C<undef> if S<C<$n E<lt> n_start()>> (ie. before the start of the path).
 Return the parent node of C<$n>, or C<undef> if it has no parent.  There is
 no parent at the top of the tree (or one of multiple tops), or if C<$path>
 is not a tree.
+
+=item C<$bool = $path-E<gt>tree_any_leaf()>
+
+Return true if there are any leaf nodes in the tree, meaning any N for which
+C<tree_n_num_children()> is 0.
 
 =item C<$depth = $path-E<gt>tree_n_to_depth($n)>
 
@@ -1339,14 +1352,21 @@ The following have base implementations
 
     tree_n_num_children()      calls tree_n_children()
     tree_depth_to_n_end()      calls tree_depth_to_n(d+1)-1
+    tree_any_leaf()            always true
 
 The base C<tree_n_num_children()> counts the return values from
-C<tree_n_children()>.  The ensures consistency between the two but many
-trees can count with less work than calculating outright, for example
-RationalsTree is simply always 2 for NE<gt>=Nstart.
+C<tree_n_children()>.  Many trees can count the children with less work than
+calculating outright, for example RationalsTree is simply always 2 for
+NE<gt>=Nstart.
 
 The base C<tree_depth_to_n_end()> assumes that one level ends where the next
 begins, so Nend(depth) = Nstart(depth+1)-1.
+
+The default C<tree_any_leaf()> always true suits trees like UlamWarburton
+where there are terminating parts of the tree.  Trees like RationalTrees
+where every node continues on infinitely so there's no leafs should have
+
+    use constant tree_any_leaf => 0;  # no leaves, complete tree
 
 =head1 SEE ALSO
 
@@ -1485,7 +1505,7 @@ L<Math::PlanePath::File>
 =for my_pod see_also end
 
 L<Math::PlanePath::LCornerTree>,
-L<Math::PlanePath::LCornerReplicate>
+L<Math::PlanePath::LCornerReplicate>,
 L<Math::PlanePath::ToothpickTree>,
 L<Math::PlanePath::ToothpickReplicate>,
 L<Math::PlanePath::ToothpickUpist>

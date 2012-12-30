@@ -52,7 +52,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -451,8 +451,8 @@ sub rect_to_n_range {
 }
 
 
-my @dir_to_dx = (1,0,-1,0);
-my @dir_to_dy = (0,1,0,-1);
+my @dir4_to_dx = (1,0,-1,0);
+my @dir4_to_dy = (0,1,0,-1);
 
 sub n_to_dxdy {
   my ($self, $n) = @_;
@@ -488,8 +488,8 @@ sub n_to_dxdy {
     $inc = -$inc;   # opposite at each bit
   }
   $dir &= 3;
-  my $dx = $dir_to_dx[$dir];
-  my $dy = $dir_to_dy[$dir];
+  my $dx = $dir4_to_dx[$dir];
+  my $dy = $dir4_to_dy[$dir];
   ### $dx
   ### $dy
 
@@ -511,8 +511,8 @@ sub n_to_dxdy {
     }
     $dir += $inc;   # apply turn to give $dir at $n+1
     $dir &= 3;
-    $dx += $n*($dir_to_dx[$dir] - $dx);
-    $dy += $n*($dir_to_dy[$dir] - $dy);
+    $dx += $n*($dir4_to_dx[$dir] - $dx);
+    $dy += $n*($dir4_to_dy[$dir] - $dy);
   }
 
   ### result: "$dx, $dy"
@@ -712,8 +712,8 @@ __END__
 
 # Old code with explicit rotation etc rather than state table.
 #
-# my @rot_to_sx = (1,0,-1,0);
-# my @rot_to_sy = (0,1,0,-1);
+# my @dir4_to_dx = (1,0,-1,0);
+# my @dir4_to_dy = (0,1,0,-1);
 #
 # my @arm_to_x = (0,0, 0,0, -1,-1, -1,-1);
 # my @arm_to_y = (0,0, 1,1,   1,1,  0,0);
@@ -861,8 +861,8 @@ __END__
 #   }
 #
 #   $rot &= 3;
-#   $x = $frac * $rot_to_sx[$rot] + $x + $arm_to_x[$arm];
-#   $y = $frac * $rot_to_sy[$rot] + $y + $arm_to_y[$arm];
+#   $x = $frac * $dir4_to_dx[$rot] + $x + $arm_to_x[$arm];
+#   $y = $frac * $dir4_to_dy[$rot] + $y + $arm_to_y[$arm];
 #
 #   ### final: "$x,$y"
 #   return ($x,$y);
@@ -1336,7 +1336,11 @@ Michel MendE<232>s France and G. Tenenbaum, "Dimension des Courbes Planes,
 Papiers Plies et Suites de Rudin-Shapiro", Bulletin de la S.M.F., volume
 109, 1981, pages 207-215.
 
-    http://www.numdam.org/item?id=BSMF_1981__109__207_0
+=over
+
+http://www.numdam.org/item?id=BSMF_1981__109__207_0
+
+=back
 
 =head1 HOME PAGE
 

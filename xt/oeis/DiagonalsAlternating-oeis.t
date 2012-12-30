@@ -35,6 +35,70 @@ use Math::PlanePath::DiagonalsAlternating;
 
 
 #------------------------------------------------------------------------------
+# A056011 -- permutation N at points by Diagonals,direction=up order
+
+MyOEIS::compare_values
+  (anum => 'A056011',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DiagonalsAlternating->new;
+     my $diag = Math::PlanePath::Diagonals->new (direction => 'up');
+     for (my $n = $diag->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diag->n_to_xy ($n);
+       push @got, $path->xy_to_n ($x,$y);
+     }
+     return \@got;
+   });
+
+# is self-inverse
+MyOEIS::compare_values
+  (anum => 'A056011',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::Diagonals->new (direction => 'up');
+     my $diag = Math::PlanePath::DiagonalsAlternating->new;
+     for (my $n = $diag->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diag->n_to_xy ($n);
+       push @got, $path->xy_to_n ($x,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A056023 -- permutation N at points by Diagonals,direction=up order
+
+MyOEIS::compare_values
+  (anum => 'A056023',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DiagonalsAlternating->new;
+     my $diag = Math::PlanePath::Diagonals->new (direction => 'down');
+     for (my $n = $diag->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diag->n_to_xy ($n);
+       push @got, $path->xy_to_n ($x,$y);
+     }
+     return \@got;
+   });
+
+# is self-inverse
+MyOEIS::compare_values
+  (anum => 'A056023',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::Diagonals->new (direction => 'down');
+     my $diag = Math::PlanePath::DiagonalsAlternating->new;
+     for (my $n = $diag->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diag->n_to_xy ($n);
+       push @got, $path->xy_to_n ($x,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A038722 -- permutation N at transpose Y,X n_start=1
 
 MyOEIS::compare_values

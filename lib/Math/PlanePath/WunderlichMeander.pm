@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -442,9 +442,13 @@ L<Math::PlanePath::PeanoCurve>
 Walter Wunderlich "Uber Peano-Kurven", Elemente der Mathematik, 28(1):1-10,
 1973.
 
-    http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/
-    http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/pdf/125.pdf
-    (scanned copy, in German)
+=over
+
+http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/
+http://sodwana.uni-ak.ac.at/geom/mitarbeiter/wallner/wunderlich/pdf/125.pdf
+(scanned copy, in German)
+
+=back
 
 =head1 HOME PAGE
 

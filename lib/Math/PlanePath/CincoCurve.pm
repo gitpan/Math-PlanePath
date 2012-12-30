@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -729,15 +729,16 @@ L<Math::PlanePath>,
 L<Math::PlanePath::PeanoCurve>
 
 John Dennis "Inverse Space-Filling Curve Partitioning of a Global Ocean
-Model"
+Model", and source code from COSIM
 
-    http://www.cecs.uci.edu/~papers/ipdps07/pdfs/IPDPS-1569010963-paper-2.pdf
+=over
 
-And source code from COSIM
+http://www.cecs.uci.edu/~papers/ipdps07/pdfs/IPDPS-1569010963-paper-2.pdf
 
-    http://oceans11.lanl.gov/trac/POP/browser/trunk/pop/source/spacecurve_mod.F90
-    http://oceans11.lanl.gov/svn/POP/trunk/pop/source/spacecurve_mod.F90
+http://oceans11.lanl.gov/trac/POP/browser/trunk/pop/source/spacecurve_mod.F90
+http://oceans11.lanl.gov/svn/POP/trunk/pop/source/spacecurve_mod.F90
 
+=back
 
 =head1 HOME PAGE
 

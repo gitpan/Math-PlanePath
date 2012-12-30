@@ -29,6 +29,7 @@
 package Math::PlanePath::TerdragonCurve;
 use 5.004;
 use strict;
+use List::Util 'first';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
@@ -43,7 +44,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -84,9 +85,9 @@ sub new {
   return $self;
 }
 
-my @rot_to_si = (1,0,0, -1,0,0);
-my @rot_to_sj = (0,1,0, 0,-1,0);
-my @rot_to_sk = (0,0,1, 0,0,-1);
+my @dir6_to_si = (1,0,0, -1,0,0);
+my @dir6_to_sj = (0,1,0, 0,-1,0);
+my @dir6_to_sk = (0,0,1, 0,0,-1);
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -258,7 +259,7 @@ sub rect_to_n_range {
 
 my @dir6_to_dx   = (2, 1,-1,-2, -1, 1);
 my @dir6_to_dy   = (0, 1, 1, 0, -1,-1);
-my @digit_to_turn = (2,-2);
+my @digit_to_nextturn = (2,-2);
 sub n_to_dxdy {
   my ($self, $n) = @_;
   ### n_to_dxdy(): $n
@@ -276,8 +277,8 @@ sub n_to_dxdy {
   # initial direction from arm
   my $dir6 = _divrem_mutate ($int, $self->{'arms'});
 
-  my @digits = digit_split_lowtohigh($int,3);
-  $dir6 += 2 * scalar(grep {$_==1} @digits);  # count 1s for total turn
+  my @ndigits = digit_split_lowtohigh($int,3);
+  $dir6 += 2 * scalar(grep {$_==1} @ndigits);  # count 1s for total turn
   $dir6 %= 6;
   my $dx = $dir6_to_dx[$dir6];
   my $dy = $dir6_to_dy[$dir6];
@@ -285,13 +286,8 @@ sub n_to_dxdy {
   if ($n) {
     # fraction part
 
-    # find lowest non-2 digit, or 0 if all 2s or no digits at all
-    my $digit;
-    do {
-      $digit = shift @digits || 0;
-    } until ($digit != 2);
-
-    $dir6 += $digit_to_turn[$digit];
+    # find lowest non-2 digit, or zero if all 2s or no digits at all
+    $dir6 += $digit_to_nextturn[ first {$_!=2} @ndigits, 0];
     $dir6 %= 6;
     $dx += $n*($dir6_to_dx[$dir6] - $dx);
     $dy += $n*($dir6_to_dy[$dir6] - $dy);
@@ -366,9 +362,9 @@ __END__
 # }
 #
 # $rot %= 6;
-# $i = $frac * $rot_to_si[$rot] + $i;
-# $j = $frac * $rot_to_sj[$rot] + $j;
-# $k = $frac * $rot_to_sk[$rot] + $k;
+# $i = $frac * $dir6_to_si[$rot] + $i;
+# $j = $frac * $dir6_to_sj[$rot] + $j;
+# $k = $frac * $dir6_to_sk[$rot] + $k;
 #
 # ### final: "$i,$j,$k"
 # return (2*$i + $j - $k, $j+$k);
@@ -548,7 +544,11 @@ parallelograms
 
 As per for example
 
-    http://tilingsearch.org/HTML/data23/C07A.html
+=over
+
+http://tilingsearch.org/HTML/data23/C07A.html
+
+=back
 
 =head2 Arms
 
@@ -733,23 +733,23 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A080846  etc
 
-    A060236 -- turn 1=left,2=right, by 120 degrees
-                 (lowest non-zero ternary digit)
-    A137893 -- turn 1=left,0=right (morphism)
-    A189640 -- turn 1=left,0=right (morphism, extra initial 0)
-    A189673 -- turn 0=left,1=right (morphism, extra initial 0)
-    A080846 -- next turn 0=left,1=right, by 120 degrees
-                 (n=0 first turn is for N=1)
-    A038502 -- strip trailing ternary 0s,
-                 taken mod 3 is turn 1=left,2=right
+    A060236   turn 1=left,2=right, by 120 degrees
+                (lowest non-zero ternary digit)
+    A137893   turn 1=left,0=right (morphism)
+    A189640   turn 1=left,0=right (morphism, extra initial 0)
+    A189673   turn 0=left,1=right (morphism, extra initial 0)
+    A080846   next turn 0=left,1=right, by 120 degrees
+                (n=0 first turn is for N=1)
+    A038502   strip trailing ternary 0s,
+                taken mod 3 is turn 1=left,2=right
 
-    A026225 -- N positions of left turns,
-                 being (3*i+1)*3^j so lowest non-zero digit is a 1
-    A026179 -- N positions of right turns (except initial 1)
-    A060032 -- bignum turns 1=left,2=right to 3^level
+    A026225   N positions of left turns,
+                being (3*i+1)*3^j so lowest non-zero digit is a 1
+    A026179   N positions of right turns (except initial 1)
+    A060032   bignum turns 1=left,2=right to 3^level
 
-    A062756 -- total turn, count ternary 1s
-    A005823 -- N positions where total turn == 0, ternary no 1s
+    A062756   total turn, count ternary 1s
+    A005823   N positions where total turn == 0, ternary no 1s
 
 A189673 and A026179 start with extra initial values arising from their
 morphism definition.  That can be skipped to consider the turns starting

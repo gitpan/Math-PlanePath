@@ -26,6 +26,16 @@
 ; :limit determines the padding at the left, and within that limit the
 ; range of :y to print is arbitrary.
 ; Print rows of the triangle from 0 to :limit inclusive.
+;
+;            *
+;           * *
+;          *   *
+;         * * * *
+;        *       *
+;       * *     * *
+;      *   *   *   *
+;     * * * * * * * *
+;
 
 make "limit 15
 for [y 0 :limit] [

@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -286,7 +286,11 @@ Math::PlanePath::CellularRule190 -- cellular automaton 190 and 246 points
 X<Wolfram, Stephen>This is the pattern of Stephen Wolfram's "rule 190"
 cellular automaton
 
-    http://mathworld.wolfram.com/Rule190.html
+=over
+
+http://mathworld.wolfram.com/Rule190.html
+
+=back
 
 arranged as rows,
 

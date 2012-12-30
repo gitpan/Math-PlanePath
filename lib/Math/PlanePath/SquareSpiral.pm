@@ -25,6 +25,17 @@
 # http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/index.html
 # including image highlighting the lines
 
+# S. M. Ellerstein, The square spiral, J. Recreational
+# Mathematics 29 (#3, 1998) 188; 30 (#4, 1999-2000), 246-250.
+#
+# Stein, M. and Ulam, S. M. "An Observation on the
+# Distribution of Primes." Amer. Math. Monthly 74, 43-44,
+# 1967.
+#
+# Stein, M. L.; Ulam, S. M.; and Wells, M. B. "A Visual
+# Display of Some Properties of the Distribution of Primes."
+# Amer. Math. Monthly 71, 516-520, 1964.
+
 # cf sides alternately prime and fibonacci
 # A160790 corner N
 # A160791 side lengths, alternately integer and triangular adding that integer
@@ -41,7 +52,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -464,8 +475,12 @@ This path is well known from Stanislaw Ulam finding interesting straight
 lines when plotting the prime numbers on it.  The cover of Scientific
 American March 1964 featured this spiral,
 
-    http://www.nature.com/scientificamerican/journal/v210/n3/covers/index.html
-    http://oeis.org/A143861/a143861.jpg
+=over
+
+http://www.nature.com/scientificamerican/journal/v210/n3/covers/index.html
+http://oeis.org/A143861/a143861.jpg
+
+=back
 
 See F<examples/ulam-spiral-xpm.pl> in the sources for a standalone program,
 or see L<math-image> using this SquareSpiral to draw this pattern and more.
@@ -474,9 +489,10 @@ or see L<math-image> using this SquareSpiral to draw this pattern and more.
 
 The perfect squares 1,4,9,16,25 fall on two diagonals with the even perfect
 squares going to the upper left and the odd squares to the lower right.  The
-pronic numbers 2,6,12,20,30,42 etc k^2+k half way between the squares fall
-on similar diagonals to the upper right and lower left.  The decagonal
-numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right at Y=-1.
+X<Pronic Numbers>pronic numbers 2,6,12,20,30,42 etc k^2+k half way between
+the squares fall on similar diagonals to the upper right and lower left.
+The decagonal numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right
+at Y=-1.
 
 In general straight lines and diagonals are 4*k^2 + b*k + c.  b=0 is the
 even perfect squares up to the left, then incrementing b is an eighth turn
@@ -766,13 +782,14 @@ And various sequences,
       A172979     turn positions which are primes too
 
       A054552    N values on X axis (East)
-      A054554    N values on X=Y diagonal (NE)
       A054556    N values on Y axis (North)
       A054567    N values on negative X axis (West)
-      A054569    N values on negative X=Y diagonal (SW)
       A033951    N values on negative Y axis (South)
+      A054554    N values on X=Y diagonal (NE)
+      A054569    N values on negative X=Y diagonal (SW)
       A053755    N values on X=-Y opp diagonal X<=0 (NW)
       A016754    N values on X=-Y opp diagonal X>=0 (SE)
+      A200975    N values on all four diagonals
 
       A137928    N values on X=-Y+1 opposite diagonal
       A002061    N values on X=Y diagonal pos and neg
@@ -780,6 +797,7 @@ And various sequences,
 
       A143856    N values on ENE slope dX=2,dY=1
       A143861    N values on NNE slope dX=1,dY=2
+      A215470    N prime and >=4 primes among its 8 neighbours
 
       A214664    X coordinate of prime N (Ulam's spiral)
       A214665    Y coordinate of prime N (Ulam's spiral)

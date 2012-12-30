@@ -40,7 +40,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -209,7 +209,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath undrawn Radix cardinality bijection radix OEIS
+=for stopwords Ryde Math-PlanePath undrawn Radix cardinality bijection radix OEIS ZOrderCurve KE<246>nig KE<246>nig's
 
 =head1 NAME
 

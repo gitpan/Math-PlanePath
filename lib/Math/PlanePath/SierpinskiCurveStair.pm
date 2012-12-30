@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -491,15 +491,14 @@ sub rect_to_n_range {
   #     = (Nlast(level + 1)) * arms - 1
   #     = ((4^(level+2) - 4) / 3 + 1) * arms - 1
   #     = ((4^(level+2) - 1) / 3) * arms - 1
-  # my ($len, $level) = round_down_pow ($max, 2);
-
+  #
   # len(level) = = (L+2)*2^(level-1) - 2
   # points(level) = ((3*P+1)*4^level - 1) / 3
   #
-  my ($len,$level) = round_down_pow ($max/($self->{'diagonal_length'}+2),
+  my ($pow,$level) = round_down_pow ($max/($self->{'diagonal_length'}+2),
                                      2);
   return (0,
-          ((6*$self->{'diagonal_length'}+4)*4*$len*$len - 1) / 3
+          ((6*$self->{'diagonal_length'}+4)*4*$pow*$pow - 1) / 3
           * $arms - 1);
 }
 

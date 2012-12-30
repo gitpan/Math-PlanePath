@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 94;
+$VERSION = 95;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -371,8 +371,7 @@ L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>
 
 David M. Bradley, "Counting the Positive Rationals: A Brief Survey",
-
-    http://arxiv.org/abs/math/0509025
+http://arxiv.org/abs/math/0509025
 
 =head1 HOME PAGE
 
