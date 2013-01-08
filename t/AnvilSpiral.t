@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 19;
+plan tests => 31;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::AnvilSpiral;
 # VERSION
 
 {
-  my $want_version = 95;
+  my $want_version = 96;
   ok ($Math::PlanePath::AnvilSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AnvilSpiral->VERSION,  $want_version,
@@ -77,41 +77,43 @@ require Math::PlanePath::AnvilSpiral;
 
 #------------------------------------------------------------------------------
 
-foreach my $wider (0, 1, 2, 3, 9, 17) {
-  my $path = Math::PlanePath::AnvilSpiral->new (wider => $wider);
-  my $bad_count = 0;
+foreach my $n_start (undef, 0, -37) {
+  foreach my $wider (0, 1, 2, 3, 9, 17) {
+    my $path = Math::PlanePath::AnvilSpiral->new (n_start => $n_start,
+                                                  wider => $wider);
+    my $bad_count = 0;
 
-  my %seen_xy;
-  foreach my $n ($path->n_start .. 500) {
-    my ($x, $y) = $path->n_to_xy ($n);
-    if ($seen_xy{"$x,$y"}++) {
-      MyTestHelpers::diag ("wider=$wider n_to_xy($n) duplicate xy $x,$y");
-      last if ++$bad_count > 10;
-    }
-
-    my $rev_n = $path->xy_to_n ($x, $y);
-    if ($rev_n != $n) {
-      MyTestHelpers::diag ("wider=$wider xy_to_n($x,$y) got $rev_n want $n");
-      last if ++$bad_count > 10;
-    }
-
-    {
-      my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, 0,0);
-      if ($n_lo > $n || $n_hi < $n) {
-        MyTestHelpers::diag ("wider=$wider rect_to_n_range($x,$y,0,0) got $n_lo,$n_hi but n=$n");
+    my %seen_xy;
+    foreach my $n ($path->n_start .. 500) {
+      my ($x, $y) = $path->n_to_xy ($n);
+      if ($seen_xy{"$x,$y"}++) {
+        MyTestHelpers::diag ("wider=$wider n_to_xy($n) duplicate xy $x,$y");
         last if ++$bad_count > 10;
       }
-    }
-    {
-      my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-      if ($n_lo > $n || $n_hi < $n) {
-        MyTestHelpers::diag ("wider=$wider rect_to_n_range($x,$y) got $n_lo,$n_hi but n=$n");
+
+      my $rev_n = $path->xy_to_n ($x, $y);
+      if ($rev_n != $n) {
+        MyTestHelpers::diag ("wider=$wider xy_to_n($x,$y) got $rev_n want $n");
         last if ++$bad_count > 10;
       }
+
+      {
+        my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, 0,0);
+        if ($n_lo > $n || $n_hi < $n) {
+          MyTestHelpers::diag ("wider=$wider rect_to_n_range($x,$y,0,0) got $n_lo,$n_hi but n=$n");
+          last if ++$bad_count > 10;
+        }
+      }
+      {
+        my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+        if ($n_lo > $n || $n_hi < $n) {
+          MyTestHelpers::diag ("wider=$wider rect_to_n_range($x,$y) got $n_lo,$n_hi but n=$n");
+          last if ++$bad_count > 10;
+        }
+      }
     }
+    ok ($bad_count, 0);
   }
-
-  ok ($bad_count, 0);
 }
 
 exit 0;

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -355,6 +355,7 @@ this path include
     n_start=1
       A130883    N on X axis, 2*n^2-n+1
       A058331    N on Y axis, 2*n^2 + 1
+      A001105    N on column X=1, 2*n^2
       A084849    N on X negative axis, 2*n^2+n+1
       A001844    N on Y negative axis, centred squares 2*n^2+2n+1
       A215471    N with >=5 primes among its 8 neighbours
@@ -367,7 +368,7 @@ this path include
     n_start=0
       A010751    X coordinate, runs 1 inc, 2 dec, 3 inc, etc
       A000384    N on X axis, hexagonal numbers
-      A001105    N on Y axis, 2*squares
+      A001105    N on Y axis, 2*n^2 (and cf similar A184636)
       A014105    N on X negative axis, second hexagonals
       A046092    N on Y negative axis, 2*pronic
 

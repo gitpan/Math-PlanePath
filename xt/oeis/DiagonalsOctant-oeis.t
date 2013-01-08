@@ -24,7 +24,7 @@ use Math::BigInt;
 use Math::PlanePath::DiagonalsOctant;
 
 use Test;
-plan tests => 11;
+plan tests => 12;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -36,20 +36,48 @@ use MyOEIS;
 
 
 #------------------------------------------------------------------------------
+# A014616 -- N in column X=1
+
+MyOEIS::compare_values
+  (anum => 'A014616',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DiagonalsOctant->new (direction => 'up',
+                                                       n_start => 0);
+     for (my $y = 1; @got < $count; $y++) {
+       push @got, $path->xy_to_n (1,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A079826 -- concat of rows numbers in diagonals octant order
 #            rows numbered alternately left and right
 
 MyOEIS::compare_values
   (anum => q{A079826}, # not xreffed
+   max_count => 10,  # various dodginess from a(11)=785753403227
+
+   # fixup => sub {
+   #   my ($bvalues) = @_;
+   #   # typo 76 where should be 78
+   #   if ($bvalues->[11] eq '785753403227') {
+   #     MyTestHelpers::diag ("apply fixup 76 -> 78");
+   #     $bvalues->[11]    = '765753403227';
+   #   }
+   # },
+
    func => sub {
      my ($count) = @_;
      my @got;
      require Math::PlanePath::PyramidRows;
+     require Math::BigInt;
      my $diag = Math::PlanePath::DiagonalsOctant->new;
      my $rows = Math::PlanePath::PyramidRows->new(step=>1);
      my $prev_d = 0;
      my $str = '';
-     for (my $n = $diag->n_start; @got < $count; $n++) {
+     for (my $n = Math::BigInt->new($diag->n_start); @got < $count; $n++) {
        my ($x,$y) = $diag->n_to_xy($n);
        my $d = $x+$y;
        if ($d != $prev_d) {

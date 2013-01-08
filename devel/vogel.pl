@@ -33,12 +33,22 @@ use constant PHI => (1 + sqrt(5)) / 2;
 
 {
   require Math::PlanePath::VogelFloret;
-  require Math::NumSeq::OEIS;
 
   my $width = 79;
   my $height = 21;
 
+  my $x_factor = 1.4;
+  my $y_factor = 2;
+  my $n_hi = 99;
+
+  require Math::NumSeq::OEIS;
   my $seq = Math::NumSeq::OEIS->new(anum => 'A000201');
+  print_class('Math::PlanePath::VogelFloret');
+
+  require Math::NumSeq::FibonacciWord;
+  $seq = Math::NumSeq::FibonacciWord->new;
+   $y_factor = 1.2;
+  $n_hi = 73;
   print_class('Math::PlanePath::VogelFloret');
 
   sub print_class {
@@ -96,8 +106,14 @@ use constant PHI => (1 + sqrt(5)) / 2;
       $y_limit_hi = +$half;
     }
 
+    my $is_01 = $seq->characteristic('smaller');
+    ### seq: ref $seq
+    ### $is_01
+
+    $rows{0}{0} = '.';
+
     my $n_start = $path->n_start;
-    my $n = 0;
+    my $n = $n_start;
     for (;;) {
       my ($x, $y) = $path->n_to_xy ($n);
 
@@ -105,7 +121,7 @@ use constant PHI => (1 + sqrt(5)) / 2;
       if ($class =~ /Sacks/) { $x *= 1.5; $y *= 2; }
       if ($class =~ /Archimedean/) { $x *= 2; $y *= 3; }
       if ($class =~ /Theodorus|MultipleRings/) { $x *= 2; $y *= 2; }
-      if ($class =~ /Vogel/) { $x *= 1.4; $y *= 2; }
+      if ($class =~ /Vogel/) { $x *= $x_factor; $y *= $y_factor; }
 
       # nearest integers
       $x = POSIX::floor ($x + 0.5);
@@ -113,7 +129,11 @@ use constant PHI => (1 + sqrt(5)) / 2;
 
       my $cell = $rows{$x}{$y};
       if (defined $cell) { $cell .= ','; }
-      $cell .= $n;
+      if ($is_01) {
+        $cell .= $seq->ith($n);
+      } else {
+        $cell .= $n;
+      }
       my $new_cellwidth = max ($cellwidth, length($cell) + 1);
 
       my $new_x_limit_lo;
@@ -149,8 +169,12 @@ use constant PHI => (1 + sqrt(5)) / 2;
       $y_min = $new_y_min;
       $y_max = $new_y_max;
 
-      (my $i, $n) = $seq->next;
-      last if $n > 99;
+      if ($is_01) {
+        $n++;
+      } else {
+        (my $i, $n) = $seq->next;
+      }
+      last if $n > $n_hi;
     }
     $n--; # the last N actually plotted
 

@@ -18,8 +18,6 @@
 
 
 # math-image --path=GrayCode,apply_type=N --all --output=numbers_dash --size=28x19
-# math-image --path=GrayCode,radix=3 --all --output=numbers_dash
-# math-image --path=GrayCode,apply_type=Ts --all --output=numbers_dash
 
 
 # A055975 gray code first diffs
@@ -41,7 +39,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -375,6 +373,12 @@ and X,Y.  It can be one of
 transformation.  For example the following is "Ts" which means N to Gray
 then split, leaving Gray coded values for X,Y.
 
+=cut
+
+# math-image --path=GrayCode,apply_type=Ts --all --output=numbers_dash
+
+=pod
+
     apply_type => "Ts"
 
      7  |  51--50  52--53  44--45  43--42
@@ -528,6 +532,12 @@ In C<radix =E<gt> 3> and other odd radices the "reflected" Gray type gives
 the Peano curve (see L<Math::PlanePath::PeanoCurve>).  The "reflected"
 encoding is equivalent to Peano's "xk" and "yk" complementing.
 
+=cut
+
+# math-image --path=GrayCode,radix=3,gray_type=reflected --all --output=numbers_dash
+
+=pod
+
     radix => 3, gray_type => "reflected"
 
      |
@@ -628,6 +638,9 @@ which is the same undoubled turn sequence.
       A163238     inverse permutation
       A163239    N values by diagonals, opp axis, flip digits 2,3
       A163240     inverse permutation
+
+      A099896    N values by PeanoCurve radix=2 order
+      A100280     inverse permutation
 
 Gray code conversions themselves (not directly offered by the PlanePath code
 here) are variously

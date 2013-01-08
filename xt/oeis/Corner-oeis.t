@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,6 +32,36 @@ use Math::PlanePath::Corner;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A000290 -- N on X axis, perfect squares starting from 1
+
+MyOEIS::compare_values
+  (anum => 'A000290',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::Corner->new;
+     for (my $x = 0; @got < $count; $x++) {
+       push @got, $path->xy_to_n ($x, 0);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A002061 -- N on X=Y diagonal, extra initial 1
+
+MyOEIS::compare_values
+  (anum => 'A002061',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $path = Math::PlanePath::Corner->new;
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, $path->xy_to_n ($i, $i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A060736 -- permutation, N by diagonals down

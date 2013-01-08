@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,13 +35,25 @@
 # cf A185728 where diagonal is last in each gnomon
 #    A185725 gnomon sides alternately starting from ends
 #    A185726 gnomon sides alternately starting from diagonal
+#
+# corner going alternately up and down
+#    A081344,A194280 by diagonals
+#    A081345 X axis, A081346 Y axis
+#
+# corner alternately up and down, starting with 3-wide
+#   A080335  N on diagonal
+#   A081347  N on axis
+#   A081348  N on axis
+#
+# cf A004120 ??
+#
 
 package Math::PlanePath::Corner;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -313,13 +325,14 @@ one-bigger square,
 
      2x2        3x3           4x4
 
-N=2,6,12,20,etc on the diagonal upwards from X=0,Y=1 is the
-X<Pronic Numbers>pronic numbers k*(k+1), half way between those squares.
+N=2,6,12,20,etc on the diagonal X=Y-1 up from X=0,Y=1 is the
+X<Pronic Numbers>pronic numbers k*(k+1) which are half way between the
+squares.
 
-Each gnomon is 2 longer than the previous, similar to the PyramidRows,
-PyramidSides and SacksSpiral paths.  The Corner and the PyramidSides are the
-same, just the PyramidSides stretched out to two quadrants instead of one
-for this Corner.
+Each gnomon is 2 longer than the previous.  This is similar to the
+PyramidRows, PyramidSides and SacksSpiral paths.  The Corner and the
+PyramidSides are the same, just the PyramidSides stretched out to two
+quadrants instead of one for the Corner here.
 
 =head2 Wider
 
@@ -350,17 +363,15 @@ gives
             ^
            X=0  1   2   3   4   5   6
 
-The initial N=1 is C<wider> many further places to the right before going up
-to the Y axis, then the path makes corners around that shape.
-
-Each gnomon is still 2 longer than the previous, as the widening is a
-constant amount in each successively bigger one.
+Each gnomon has the horiziontal part C<wider> many steps longer.  Each
+gnomon is still 2 longer than the previous, since this widening is a
+constant amount in each.
 
 =head2 N Start
 
 The default is to number points starting N=1 as shown above.  An optional
-C<n_start> can give a different start, in the same sequence.  For example to
-start at 0,
+C<n_start> can give a different start with the same shape etc.  For example
+to start at 0,
 
 =cut
 
@@ -378,6 +389,9 @@ start at 0,
     Y=0  |   0  3  8 15 24
           -----------------
            X=0   1   2   3
+
+In this numbering the squares are on the Y axis and the pronic numbers are
+on the X=Y leading diagonal.
 
 =head1 FUNCTIONS
 
@@ -540,32 +554,47 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A196199  (etc)
 
-    wider=0 (the default)
-      A196199    X-Y, being runs -n to +n
+    wider=0, n_start=1 (the defaults)
+      A213088    X+Y sum
+      A196199    X-Y diff, being runs -n to +n
       A053615    abs(X-Y), distance to next pronic
-      A002522    N on Y axis (N=Y^2+1)
-      A004201    N for which X>=Y, ie. on and below X=Y diagonal
+
+      A000290    N on X axis, perfect squares starting from 1
+      A002522    N on Y axis, Y^2+1
+      A002061    N on X=Y diagonal, extra initial 1
+      A004201    N on and below X=Y diagonal, so X>=Y
+
       A020703    permutation N at transpose Y,X
       A060734    permutation N by diagonals up from X axis
       A064790     inverse
       A060736    permutation N by diagonals down from Y axis
       A064788     inverse
 
-    wider=0, n_start=0
+    n_start=0
       A000196    max(X,Y), being floor(sqrt(N))
-      A005563    N on X axis, (X+1)^2-1
+
+      A005563    N on X axis, n*(n+2)
       A000290    N on Y axis, perfect squares
-      A002378    N on X=Y diagonal, pronic
+      A002378    N on X=Y diagonal, pronic numbers
+
+    n_start=2
+      A059100    N on Y axis, Y^2+2
+      A014206    N on X=Y diagonal, pronic+2
 
     wider=1
       A053188    abs(X-Y), dist to nearest square, extra initial 0
-
     wider=1, n_start=0
-      A002378    N on Y axis, pronic
-      A005563    N on X=Y diagonal, (k+1)^2-1
+      A002378    N on Y axis, pronic numbers
+      A005563    N on X=Y diagonal, n*(n+2)
+    wider=1, n_start=2
+      A014206    N on Y axis, pronic+2
 
     wider=2, n_start=0
       A005563    N on Y axis, (Y+1)^2-1
+      A028552    N on X=Y diagonal, k*(k+3)
+
+    wider=3, n_start=0
+      A028552    N on Y axis, k*(k+3)
 
 =head1 SEE ALSO
 
@@ -581,7 +610,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

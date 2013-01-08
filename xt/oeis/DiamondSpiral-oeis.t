@@ -36,7 +36,7 @@ my $path = Math::PlanePath::DiamondSpiral->new;
 
 
 #------------------------------------------------------------------------------
-# A184636 -- N on Y axis, from Y=2 onwards (??)
+# A184636 -- N on Y axis, from Y=2 onwards, if this really is 2*n^2
 
 MyOEIS::compare_values
   (anum => 'A184636',

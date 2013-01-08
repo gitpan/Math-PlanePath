@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -307,8 +307,10 @@ this path include
     n_start=0
       A051682     N on X axis (11-gonal numbers)
       A062741     N on Y axis
-      A081268     N on X=Y+2 diagonal (next to NE diagonal)
+      A062708     N on X=Y leading diagonal
+      A081268     N on X=Y+2 diagonal (right of leading diagonal)
       A062728     N on South-East diagonal (11-gonal second kind)
+      A081275     N on ENE slope from X=2,Y=0 then dX=+3,dY=+1
       A081266     N on WSW slope dX=-3,dY=-1
       A081271     N on X=2 vertical
 
@@ -324,7 +326,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -16,6 +16,16 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# http://d4maths.lowtech.org/mirage/ulam.htm
+# http://d4maths.lowtech.org/mirage/img/ulam.gif
+#     sample gif of primes made by APL or something
+#
+# http://www.sciencenews.org/view/generic/id/2696/title/Prime_Spirals
+#     Ulam's spiral of primes
+#
+# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/primeSpiral.htm
+# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
+#     Pulchritudinous Primes of Ulam spiral.
 
 # http://mathworld.wolfram.com/PrimeSpiral.html
 #
@@ -52,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -63,28 +73,18 @@ use Math::PlanePath::Base::Generic
 #use Smart::Comments '###';
 
 
-# http://d4maths.lowtech.org/mirage/ulam.htm
-# http://d4maths.lowtech.org/mirage/img/ulam.gif
-#     sample gif of primes made by APL or something
-#
-# http://www.sciencenews.org/view/generic/id/2696/title/Prime_Spirals
-#     Ulam's spiral of primes
-#
-# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/primeSpiral.htm
-# http://yoyo.cc.monash.edu.au/%7Ebunyip/primes/triangleUlam.htm
-#     Pulchritudinous Primes of Ulam spiral.
-
-# Note: shared by others with "wider"
+# Note: this shared by other paths
 use constant parameter_info_array =>
-  [ { name        => 'wider',
-      display     => 'Wider',
-      type        => 'integer',
-      minimum     => 0,
-      default     => 0,
-      width       => 3,
-      description => 'Wider path.',
-    },
-    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  [
+   { name        => 'wider',
+     display     => 'Wider',
+     type        => 'integer',
+     minimum     => 0,
+     default     => 0,
+     width       => 3,
+     description => 'Wider path.',
+   },
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 use constant xy_is_visited => 1;
@@ -97,10 +97,13 @@ use constant dy_maximum => 1;
 
 sub new {
   my $self = shift->SUPER::new (@_);
+
+  # parameters
+  $self->{'wider'} ||= 0;  # default
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
-  $self->{'wider'} ||= 0;  # default
+
   return $self;
 }
 
@@ -541,7 +544,7 @@ a constant amount in each loop.
 =head2 N Start
 
 The default is to number points starting N=1 as shown above.  An optional
-C<n_start> can give a different start, with the same shape etc.  For example
+C<n_start> can give a different start with the same shape,.  For example
 to start at 0,
 
 =cut
@@ -811,6 +814,16 @@ And various sequences,
       A054564    prime[N] on X=-Y opp diagonal X<=0 (NW)
       A054566    prime[N] on negative X axis (W)
 
+      A090925    permutation N at rotate +90
+      A090928    permutation N at rotate +180
+      A090929    permutation N at rotate +270
+      A090930    permutation N at clockwise spiralling
+      A020703    permutation N at rotate +90 and clockwise
+      A090861    permutation N at rotate +180 and clockwise
+      A090915    permutation N at rotate +270 and clockwise
+      A185413    permutation N at 1-X,Y
+                   being rotate +180, offset X+1, clockwise
+
       A068225    permutation N to the N to its right, X+1,Y
       A121496     run lengths of consecutive N in that permutation
       A068226    permutation N to the N to its left, X-1,Y
@@ -866,7 +879,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

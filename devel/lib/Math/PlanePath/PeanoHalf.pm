@@ -16,12 +16,11 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=PeanoHalf --all --output=numbers_dash
 # math-image --path=PeanoHalf,arms=2 --all --output=numbers_dash
 
-# www.nahee.com/spanky/www/fractint/lsys/variations.html
-# William McWorter mcworter@midohio.net
+# http://www.nahee.com/spanky/www/fractint/lsys/variations.html
 # http://www.nahee.com/spanky/www/fractint/lsys/moore.gif
+# William McWorter mcworter@midohio.net
 
 package Math::PlanePath::PeanoHalf;
 use 5.004;
@@ -30,10 +29,10 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
-*_divrem = \&Math::PlanePath::_divrem;
+*_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
 
 use Math::PlanePath::PeanoCurve;
 
@@ -42,7 +41,6 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 use Math::PlanePath::Base::Digits
   'round_down_pow';
-
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -96,8 +94,8 @@ sub n_to_xy {
   my $x_reverse;
   if ($arms > 1) {
     my $int = int($n);
-    ($n, my $x_reverse) = _divrem($int,2);
-    $n = -$n;
+    my $x_reverse = _divrem_mutate($int,2);
+    $int = -$int;
   } else {
     $x_reverse = 0;
   }
@@ -112,7 +110,7 @@ sub n_to_xy {
   my $half = ($len-1)/2;
 
   my $y_reverse;
-  if ($radix & 2) {
+  if ($radix % 2) {
     $x_reverse ^= ($level & 1);
     $y_reverse = $x_reverse ^ 1;
   } else {
@@ -182,25 +180,26 @@ Math::PlanePath::PeanoHalf -- 9-segment self-similar spiral
 
 This is an integer version of a 9-segment self-similar curve by ...
 
-      4
+=cut
 
-      3
+# math-image --path=PeanoHalf --expression='i<=44?i:0' --output=numbers_dash
 
-      2
+=pod
 
-      1
+     7-- 6-- 5-- 4-- 3-- 2                                 1 
+     |                   |                                   
+     8-- 9--10       0-- 1                            <- Y=0 
+             |                                               
+    13--12--11                                            -1 
+     |                                                       
+    14--15--16  29--30--31--32--33--34                    -2 
+             |   |                   |                       
+    19--18--17  28--27--26  37--36--35     ...--44        -3 
+     |                   |   |                   |           
+    20--21--22--23--24--25  38--39--40--41--42--43        -4 
 
- <- Y=0
-
-     -1
-
-     -2
-
-     -3
-
-     -4
-
-    -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10 11 12
+                     ^
+    -4  -3  -2  -1  X=0  1   2   3   4   5   6   7 
 
     ******************************************************
     ******************************************************

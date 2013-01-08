@@ -98,7 +98,7 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A002620 - diagonals_up Y axis squares+pronic
+# A002620 - diagonals_up Y axis squares and pronic
 
 MyOEIS::compare_values
   (anum => 'A002620',

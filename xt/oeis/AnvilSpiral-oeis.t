@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 14;
+plan tests => 2;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -42,7 +42,23 @@ MyOEIS::compare_values
      my ($count) = @_;
      my $path = Math::PlanePath::AnvilSpiral->new (wider => 2);
      my @got = (0);
-     for (my $y = 1; @got < @$bvalues; $y++) {
+     for (my $y = 1; @got < $count; $y++) {
+       push @got, $path->xy_to_n(0,$y);
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A136392 - N on Y negative, with offset making n=-Y+1
+
+MyOEIS::compare_values
+  (anum => 'A136392',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::AnvilSpiral->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y--) {
        push @got, $path->xy_to_n(0,$y);
      }
      return \@got;

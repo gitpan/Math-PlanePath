@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,7 +33,7 @@ require Math::PlanePath::HexSpiralSkewed;
 # VERSION
 
 {
-  my $want_version = 95;
+  my $want_version = 96;
   ok ($Math::PlanePath::HexSpiralSkewed::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexSpiralSkewed->VERSION,  $want_version,
@@ -85,15 +85,15 @@ require Math::PlanePath::HexSpiralSkewed;
   foreach my $elem (@data) {
     my ($n, $want_x, $want_y) = @$elem;
     my ($got_x, $got_y) = $path->n_to_xy ($n);
-    ok ($got_x, $want_x, "x at n=$n");
-    ok ($got_y, $want_y, "y at n=$n");
+    ok ($got_x == $want_x, 1, "x at n=$n");
+    ok ($got_y == $want_y, 1, "y at n=$n");
   }
 
   foreach my $elem (@data) {
     my ($want_n, $x, $y) = @$elem;
     $want_n = int ($want_n + 0.5);
     my $got_n = $path->xy_to_n ($x, $y);
-    ok ($got_n, $want_n, "n at x=$x,y=$y");
+    ok ($got_n == $want_n, 1, "n at x=$x,y=$y");
   }
 }
 

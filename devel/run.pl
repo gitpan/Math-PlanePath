@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -48,7 +48,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::KochSquareflakes';
   $path_class = 'Math::PlanePath::TerdragonRounded';
   $path_class = 'Math::PlanePath::CornerReplicate';
-  $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HilbertSpiral';
   $path_class = 'Math::PlanePath::GreekKeySpiral';
   $path_class = 'Math::PlanePath::ComplexMinus';
@@ -122,15 +121,23 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::SierpinskiCurve';
   $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::Flowsnake';
-  $path_class = 'Math::PlanePath::SurroundOneEightByCells';
   $path_class = 'Math::PlanePath::LToothpickTree';
   $path_class = 'Math::PlanePath::SurroundOneVHbyCells';
   $path_class = 'Math::PlanePath::PeninsulaBridge';
   $path_class = 'Math::PlanePath::PythagoreanTree';
+  $path_class = 'Math::PlanePath::AnvilSpiral';
+  $path_class = 'Math::PlanePath::FilledRings';
+  $path_class = 'Math::PlanePath::HexSpiral';
+  $path_class = 'Math::PlanePath::HexSpiralSkewed';
+  $path_class = 'Math::PlanePath::SurroundTwoEightByCells';
+  $path_class = 'Math::PlanePath::SurroundOneEightByCells';
+  $path_class = 'Math::PlanePath::SurroundOneEight';
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+      n_start => 37,
+     wider => 3,
       coordinates => 'PQ',
      reverse => 1,
       tree_type => 'FB',
@@ -138,13 +145,12 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # sides=>3,
      # digit_order => 'XnYX',
      # radix => 2,
-     # parts => 3,
+      parts => 1,
      # x_start => 5,
      # y_start => 2,
      #  k => 3,
      #  reduced => 1,
      # points => 'square_centred',
-     # n_start => 0,
      # pairs_order => 'rows_reverse',
      # pairs_order => 'diagonals_up',
      # tree_type => 'HCS',
@@ -201,7 +207,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 41; $i+=1) {
+  for (my $i = $n_start+0; $i <= 61; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

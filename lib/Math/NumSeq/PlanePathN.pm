@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -576,9 +576,13 @@ sub values_max {
       },
       'n_start=0' =>
       { Y_axis      => 'A062741', # 3*pentagonal, Y even
+        Diagonal    => 'A062708', # reading in direction 0,2,...
+        Diagonal_SW => 'A062725', # reading in direction 0,7,...
         Diagonal_SE => 'A062728', # 11-gonal "second" per Math::NumSeq::Polygonal
         # OEIS-Catalogue: A062741 planepath=TriangleSpiral,n_start=0 line_type=Y_axis
-        # OEIS-Other: A062728 planepath=TriangleSpiral,n_start=0 line_type=Diagonal_SE
+        # OEIS-Catalogue: A062708 planepath=TriangleSpiral,n_start=0 line_type=Diagonal
+        # OEIS-Catalogue: A062725 planepath=TriangleSpiral,n_start=0 line_type=Diagonal_SW
+        # OEIS-Other:     A062728 planepath=TriangleSpiral,n_start=0 line_type=Diagonal_SE
 
         # but spaced 2 apart ...
         # X_axis      => 'A051682', # 11-gonals per Math::NumSeq::Polygonal
@@ -618,10 +622,14 @@ sub values_max {
       },
       'n_start=0' =>
       { X_axis      => 'A051682', # 11-gonals per Math::NumSeq::Polygonal
+        Y_axis      => 'A062708', # reading in direction 0,2,...
+        Y_neg       => 'A062725', # reading in direction 0,7,...
         Diagonal_SE => 'A062728', # 11-gonal "second" per Math::NumSeq::Polygonal
         Diagonal_SW => 'A081266',
-        # OEIS-Other: A051682 planepath=TriangleSpiralSkewed,n_start=0 # X_axis
-        # OEIS-Other: A062728 planepath=TriangleSpiralSkewed,n_start=0 line_type=Diagonal_SE
+        # OEIS-Other:     A051682 planepath=TriangleSpiralSkewed,n_start=0 # X_axis
+        # OEIS-Other:     A062708 planepath=TriangleSpiralSkewed,n_start=0 line_type=Y_axis
+        # OEIS-Other:     A062725 planepath=TriangleSpiralSkewed,n_start=0 line_type=Y_neg
+        # OEIS-Other:     A062728 planepath=TriangleSpiralSkewed,n_start=0 line_type=Diagonal_SE
         # OEIS-Catalogue: A081266 planepath=TriangleSpiralSkewed,n_start=0 line_type=Diagonal_SW
       },
     };
@@ -745,28 +753,42 @@ sub values_max {
     = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_increasing;
   *_NumSeq_X_neg_increasing_from_i
     = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_increasing_from_i;
+  *_NumSeq_X_neg_min
+    = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_min;
   use constant _NumSeq_Y_neg_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-  use constant _NumSeq_X_neg_min => 1; # not at X=0,Y=0 when wider
-
   use constant _NumSeq_N_oeis_anum =>
-    { 'wider=0' =>
+    { 'wider=0,n_start=1' =>
       { X_axis      => 'A056105', # first spoke 3n^2-2n+1
         Diagonal    => 'A056106', # second spoke 3n^2-n+1
         Diagonal_NW => 'A056107', # third spoke 3n^2+1
         X_neg       => 'A056108', # fourth spoke 3n^2+n+1
         Diagonal_SW => 'A056109', # fifth spoke 3n^2+2n+1
         Diagonal_SE => 'A003215', # centred hexagonal numbers
-        # OEIS-Other: A056105 planepath=HexSpiral
-        # OEIS-Other: A056106 planepath=HexSpiral line_type=Diagonal
-        # OEIS-Other: A056107 planepath=HexSpiral line_type=Diagonal_NW
-        # OEIS-Other: A056108 planepath=HexSpiral line_type=X_neg
-        # OEIS-Other: A056109 planepath=HexSpiral line_type=Diagonal_SW
-        # OEIS-Other: A003215 planepath=HexSpiral line_type=Diagonal_SE
+        # OEIS-Other:     A056105 planepath=HexSpiral
+        # OEIS-Other:     A056106 planepath=HexSpiral line_type=Diagonal
+        # OEIS-Other:     A056107 planepath=HexSpiral line_type=Diagonal_NW
+        # OEIS-Other:     A056108 planepath=HexSpiral line_type=X_neg
+        # OEIS-Other:     A056109 planepath=HexSpiral line_type=Diagonal_SW
+        # OEIS-Other:     A003215 planepath=HexSpiral line_type=Diagonal_SE
+      },
+      'wider=0,n_start=0' =>
+      { X_axis      => 'A000567', # octagonal numbers
+        X_neg       => 'A049451',
+        Diagonal    => 'A049450',
+        Diagonal_NW => 'A033428', # octagonal numbers first,second average
+        Diagonal_SW => 'A045944', # octagonal numbers second
+        Diagonal_SE => 'A028896',
+        # OEIS-Other:     A000567 planepath=HexSpiral,n_start=0 line_type=X_axis
+        # OEIS-Other:     A049451 planepath=HexSpiral,n_start=0 line_type=X_neg
+        # OEIS-Catalogue: A049450 planepath=HexSpiral,n_start=0 line_type=Diagonal
+        # OEIS-Other:     A033428 planepath=HexSpiral,n_start=0 line_type=Diagonal_NW
+        # OEIS-Other:     A045944 planepath=HexSpiral,n_start=0 line_type=Diagonal_SW
+        # OEIS-Catalogue: A028896 planepath=HexSpiral,n_start=0 line_type=Diagonal_SE
       },
     };
 }
@@ -777,17 +799,16 @@ sub values_max {
     = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_increasing;
   *_NumSeq_X_neg_increasing_from_i
     = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_increasing_from_i;
+  *_NumSeq_X_neg_min
+    = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_min;
   use constant _NumSeq_Y_neg_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-  use constant _NumSeq_X_neg_min => 1; # not at X=0,Y=0 when wider
-
-
   use constant _NumSeq_N_oeis_anum =>
-    { 'wider=0' =>
+    { 'wider=0,n_start=1' =>
       { X_axis      => 'A056105', # first spoke 3n^2-2n+1
         Y_axis      => 'A056106', # second spoke 3n^2-n+1
         Diagonal_NW => 'A056107', # third spoke 3n^2+1
@@ -799,8 +820,26 @@ sub values_max {
         # OEIS-Catalogue: A056107 planepath=HexSpiralSkewed line_type=Diagonal_NW
         # OEIS-Catalogue: A056108 planepath=HexSpiralSkewed line_type=X_neg
         # OEIS-Catalogue: A056109 planepath=HexSpiralSkewed line_type=Y_neg
-        # OEIS-Catalogue: A003215 planepath=HexSpiralSkewed line_type=Diagonal_SE
       },
+      'wider=0,n_start=0' =>
+      { X_axis      => 'A000567', # octagonal numbers
+        Y_axis      => 'A049450',
+        X_neg       => 'A049451',
+        Y_neg       => 'A045944', # octagonal numbers second
+        Diagonal    => 'A062783',
+        Diagonal_NW => 'A033428', # octagonal numbers first,second average
+        Diagonal_SW => 'A063436',
+        Diagonal_SE => 'A028896',
+        # OEIS-Other:     A000567 planepath=HexSpiralSkewed,n_start=0 line_type=X_axis
+        # OEIS-Other:     A049450 planepath=HexSpiralSkewed,n_start=0 line_type=Y_axis
+        # OEIS-Catalogue: A049451 planepath=HexSpiralSkewed,n_start=0 line_type=X_neg
+        # OEIS-Other:     A045944 planepath=HexSpiralSkewed,n_start=0 line_type=Y_neg
+        # OEIS-Catalogue: A062783 planepath=HexSpiralSkewed,n_start=0 line_type=Diagonal
+        # OEIS-Other:     A033428 planepath=HexSpiralSkewed,n_start=0 line_type=Diagonal_NW
+        # OEIS-Catalogue: A063436 planepath=HexSpiralSkewed,n_start=0 line_type=Diagonal_SW
+        # OEIS-Other:     A028896 planepath=HexSpiralSkewed,n_start=0 line_type=Diagonal_SE
+      },
+
       # wider=1 X_axis almost 3*n^2 but not initial X=0 value
       # wider=1 Y_axis almost A049451 twice pentagonal but not initial X=0
       # wider=2 Y_axis almost A028896 6*triangular but not initial Y=0
@@ -854,31 +893,55 @@ sub values_max {
     = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_increasing;
   *_NumSeq_X_neg_increasing_from_i
     = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_increasing_from_i;
+  *_NumSeq_X_neg_min
+    = \&Math::PlanePath::SquareSpiral::_NumSeq_X_neg_min;
   use constant _NumSeq_Y_neg_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-  use constant _NumSeq_X_neg_min => 1; # not at X=0,Y=0 when wider
-
   use constant _NumSeq_N_oeis_anum =>
-    { 'wider=0' =>
-      { X_axis   => 'A033570', # odd pentagonals (2n+1)*(3n+1)
-        Diagonal => 'A033568', # odd second pentagonals
+    { 'wider=0,n_start=1' =>
+      { X_axis      => 'A033570', # odd pentagonals (2n+1)*(3n+1)
+        Diagonal    => 'A033568', # odd second pentagonals
+        Diagonal_SE => 'A085473',
         # OEIS-Catalogue: A033570 planepath=AnvilSpiral
         # OEIS-Catalogue: A033568 planepath=AnvilSpiral line_type=Diagonal
+        # OEIS-Catalogue: A085473 planepath=AnvilSpiral line_type=Diagonal_SE
+
+        # Not quite, A136392 OFFSET=1 value=1 whereas Y=0 value=1 here
+        # Y_neg       => 'A136392', # 1,9,29,61, 6n^2-10n+5
       },
-      'wider=0,i_start=1' =>
+      'wider=0,n_start=1,i_start=1' =>
       { Y_axis   => 'A126587', # points within 3,4,5 triangle, starting value=3
         # OEIS-Catalogue: A126587 planepath=AnvilSpiral line_type=Y_axis i_start=1
       },
-      # 'wider=2' =>
+      # 'wider=2,n_start=1' =>
       # {
       #   Not quite, A033581 initial value=2 whereas path N=0
       #   #   Y_axis => 'A033581', # 6*n^2 is 14-gonals pairs average in Math::NumSeq::Polygonal
       #   #   # OEIS-Other: A033581 planepath=AnvilSpiral,wider=2 line_type=Y_axis
       # },
+
+      'wider=0,n_start=0' =>
+      { X_axis      => 'A211014', # 14-gonal second
+        Y_axis      => 'A139267', # 2*octagonal
+        X_neg       => 'A049452', # alternate pentagonals
+        Y_neg       => 'A033580', # 4*second pentagonals
+        Diagonal    => 'A051866', # 14-gonals
+        Diagonal_NW => 'A094159', # 3*hexagonal
+        Diagonal_SW => 'A049453',
+        Diagonal_SE => 'A195319', # 3*second hexagonal
+        # OEIS-Other:     A211014 planepath=AnvilSpiral,n_start=0
+        # OEIS-Other:     A051866 planepath=AnvilSpiral,n_start=0 line_type=Diagonal
+        # OEIS-Catalogue: A139267 planepath=AnvilSpiral,n_start=0 line_type=Y_axis
+        # OEIS-Catalogue: A049452 planepath=AnvilSpiral,n_start=0 line_type=X_neg
+        # OEIS-Catalogue: A033580 planepath=AnvilSpiral,n_start=0 line_type=Y_neg
+        # OEIS-Catalogue: A094159 planepath=AnvilSpiral,n_start=0 line_type=Diagonal_NW
+        # OEIS-Catalogue: A049453 planepath=AnvilSpiral,n_start=0 line_type=Diagonal_SW
+        # OEIS-Catalogue: A195319 planepath=AnvilSpiral,n_start=0 line_type=Diagonal_SE
+      },
     };
 }
 { package Math::PlanePath::KnightSpiral;
@@ -971,6 +1034,14 @@ sub values_max {
   use constant _NumSeq_Diagonal_NW_increasing => 1;
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
+
+  # use constant _NumSeq_N_oeis_anum =>
+  #   {
+  #    # Not quite, A036704 OFFSET=0 value=1,9,21 vs X=0 value=0,1,9,21
+  #    'n_start=0' =>
+  #    { X_axis => 'A036704', # count points norm <= n+1/2
+  #    },
+  #   };
 }
 { package Math::PlanePath::Hypot;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1844,12 +1915,16 @@ sub values_max {
 
       'direction=down,n_start=0,x_start=0,y_start=0' =>
       {
+       X_axis   => 'A000096',  # n*(n+3)/2
        Y_axis   => 'A000217',  # triangular n*(n+1)/2
+       # OEIS-Other: A000096 planepath=Diagonals,n_start=0 line_type=X_axis
        # OEIS-Other: A000217 planepath=Diagonals,n_start=0 line_type=Y_axis
       },
       'direction=up,n_start=0,x_start=0,y_start=0' =>
       {
+       X_axis   => 'A000217',  # triangular n*(n+1)/2
        Y_axis   => 'A000096',  # n*(n+3)/2
+       # OEIS-Other: A000217 planepath=Diagonals,direction=up,n_start=0 line_type=X_axis
        # OEIS-Other: A000096 planepath=Diagonals,direction=up,n_start=0 line_type=Y_axis
       },
     };
@@ -1880,31 +1955,37 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
-    { 'direction=down,n_start=0' =>
-      { Diagonal => 'A005563', # n*(n+2)  0,3,8,15,24
-        # OEIS-Other: A005563 planepath=DiagonalsOctant,n_start=0 line_type=Diagonal
-      },
-      'direction=up,n_start=0' =>
-      { Y_axis   => 'A024206',
-        Diagonal => 'A002378', # pronic n*(n+1)
-        # OEIS-Other: A002378 planepath=DiagonalsOctant,direction=up,n_start=0 line_type=Diagonal
-      },
-      # 'direction=down' =>
-      # {
-      # Not quite, starting i=0 for square=1 cf A000290 starts 0
-      # # Diagonal => 'A000290', # squares
-      #
-      # Not quite, A033638 extra initial 1
-      # # Diagonal => 'A033638', # quarter squares + 1
-      # }
-      # 'direction=up,n_start=0' =>
-      # {
-      # # Not quite, extra initial 0
-      # # Y_axis => 'A002620', # quarter squares
-      #
-      # # Not quite, A002061 extra initial 1
-      # # Diagonal => 'A002061', # central polygonal n^2-n+1
-      # }
+    {
+     # 'direction=down,n_start=1' =>
+     # {
+     # Not quite, starting i=0 for square=1 cf A000290 starts 0
+     # # Diagonal => 'A000290', # squares
+     #
+     # Not quite, A033638 extra initial 1
+     # # Y_axis => 'A033638', # quarter squares + 1, 1,1,2,3,5,7,10,13
+     # }
+
+     # 'direction=up,n_start=1' =>
+     # {
+     # # Not quite, A002061 extra initial 1
+     # # Diagonal => 'A002061', # 1,1,3,7,13,21,31,43
+     # }
+
+     'direction=down,n_start=0' =>
+     { Diagonal => 'A005563', # n*(n+2)  0,3,8,15,24
+       # OEIS-Other: A005563 planepath=DiagonalsOctant,n_start=0 line_type=Diagonal
+
+       # # Not quite, extra initial 0
+       # # Y_axis => 'A002620', # quarter squares 0,0,1,2,4,6,9,12,
+     },
+
+     'direction=up,n_start=0' =>
+     { Diagonal => 'A002378', # pronic 0,2,6,12,20
+       # OEIS-Other: A002378 planepath=DiagonalsOctant,direction=up,n_start=0 line_type=Diagonal
+
+       # # Not quite, starts n=1 value=0 whereas start Y=0 value=0 here
+       # # Y_axis   => 'A024206',  # 0,1,3,5,8,11,15
+     },
     };
 }
 { package Math::PlanePath::MPeaks;
@@ -1953,15 +2034,38 @@ sub values_max {
         # OEIS-Other: A000290 planepath=Corner,n_start=0 line_type=Y_axis
         # OEIS-Other: A002378 planepath=Corner,n_start=0 line_type=Diagonal
       },
+      'wider=0,n_start=2' =>
+      { Y_axis   => 'A059100',  # n^2+2
+        Diagonal => 'A014206',  # pronic+2
+        # OEIS-Catalogue: A059100 planepath=Corner,n_start=2 line_type=Y_axis
+        # OEIS-Catalogue: A014206 planepath=Corner,n_start=2 line_type=Diagonal
+      },
+      
       'wider=1,n_start=0' =>
       { Y_axis   => 'A002378',  # pronic
         Diagonal => 'A005563',  # (n+1)^2-1
         # OEIS-Other: A002378 planepath=Corner,wider=1,n_start=0 line_type=Y_axis
         # OEIS-Other: A005563 planepath=Corner,wider=1,n_start=0 line_type=Diagonal
       },
+      'wider=1,n_start=2' =>
+      { Y_axis   => 'A014206',  # pronic+2
+        # OEIS-Other: A014206 planepath=Corner,wider=1,n_start=2 line_type=Y_axis
+      },
+
       'wider=2,n_start=0' =>
       { Y_axis   => 'A005563',  # (n+1)^2-1
-        # OEIS-Other: A005563 planepath=Corner,wider=2,n_start=0 line_type=Y_axis
+        Diagonal => 'A028552',  # n(n+3)
+        # OEIS-Other:     A005563 planepath=Corner,wider=2,n_start=0 line_type=Y_axis
+        # OEIS-Catalogue: A028552 planepath=Corner,wider=2,n_start=0 line_type=Diagonal
+      },
+      'wider=2,n_start=1' =>
+      { Diagonal => 'A028387',  # n(n+3)+1 = n + (n+1)^2
+        # OEIS-Catalogue: A028387 planepath=Corner,wider=2,n_start=1 line_type=Diagonal
+      },
+
+      'wider=3,n_start=0' =>
+      { Y_axis   => 'A028552',  # n(n+3)
+        # OEIS-Other: A028552 planepath=Corner,wider=3,n_start=0 line_type=Y_axis
       },
     };
 }
@@ -2024,7 +2128,7 @@ sub values_max {
      },
      'step=2,align=centre,n_start=2' =>
      { Diagonal_NW => 'A059100', # n^2+2
-       # OEIS-Catalogue: A059100 planepath=PyramidRows,step=2,n_start=2 line_type=Diagonal_NW
+       # OEIS-Other: A059100 planepath=PyramidRows,step=2,n_start=2 line_type=Diagonal_NW
      },
      'step=2,align=right,n_start=2' =>
      { Y_axis => 'A059100', # n^2+2
@@ -2082,13 +2186,15 @@ sub values_max {
      'step=4,align=centre,n_start=0' =>
      { Y_axis      => 'A014105', # second hexagonal
        Diagonal    => 'A046092', # 4*triangular
-       Diagonal_NW => 'A001105',
+       Diagonal_NW => 'A001105', # 2*n^2
        # OEIS-Other:     A014105 planepath=PyramidRows,step=4,n_start=0 line_type=Y_axis
        # OEIS-Catalogue: A046092 planepath=PyramidRows,step=4,n_start=0 line_type=Diagonal
        # OEIS-Other:     A001105 planepath=PyramidRows,step=4,n_start=0 line_type=Diagonal_NW
      },
      'step=4,align=right,n_start=0' =>
-     { Diagonal => 'A001105',
+     { Y_axis   => 'A000384', # 2*n^2-n, hexagonal numbers
+       Diagonal => 'A001105',
+       # OEIS-Other: A000384 planepath=PyramidRows,step=4,align=right,n_start=0 line_type=Y_axis
        # OEIS-Other: A001105 planepath=PyramidRows,step=4,align=right,n_start=0 line_type=Diagonal
      },
      'step=4,align=left,n_start=0' =>
@@ -2684,7 +2790,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

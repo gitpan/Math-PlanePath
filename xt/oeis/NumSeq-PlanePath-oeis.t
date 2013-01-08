@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -88,7 +88,10 @@ sub check_class {
   # return unless ($parameters{'line_type'}||'') =~ /^Depth/;
   # return unless $parameters{'planepath'} =~ /pythag/i;
   # return unless $parameters{'planepath'} =~ /SquareSpiral/;
-  # return unless $anum =~ 'A147562';
+  # return unless $parameters{'planepath'} =~ /DiagonalsOctant/;
+  return unless $parameters{'planepath'} =~ /Hex|Anvil/;
+  # return unless $parameters{'planepath'} =~ /Anvil/;
+  # return unless $anum =~ /A211014|A036704/;
   # return unless $anum eq 'A067251';
   # return unless $anum =~ /A0039/;
 

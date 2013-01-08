@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -56,6 +56,143 @@ sub dxdy_to_dir4_1 {
 
 
 #------------------------------------------------------------------------------
+# A078784 -- primes on any axis positive or negative
+
+MyOEIS::compare_values
+  (anum => 'A078784',
+   func => sub {
+     my ($count) = @_;
+     require Math::Prime::XS;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       next unless Math::Prime::XS::is_prime($n);
+       my ($x,$y) = $path->n_to_xy ($n);
+       if ($x == 0 || $y == 0) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A090925 -- permutation rotate +90
+
+MyOEIS::compare_values
+  (anum => 'A090925',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x,$y) = (-$y,$x);  # rotate +90
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# A090928 -- permutation rotate +180
+MyOEIS::compare_values
+  (anum => 'A090928',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x,$y) = (-$x,-$y);  # rotate +180
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# A090929 -- permutation rotate +270
+MyOEIS::compare_values
+  (anum => 'A090929',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x,$y) = ($y,-$x);  # rotate -90
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# A090861 -- permutation rotate +180, opp direction
+MyOEIS::compare_values
+  (anum => 'A090861',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       $y = -$y; # opp direction
+       ($x,$y) = (-$x,-$y);  # rotate 180
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# A020703 -- permutation rotate +90, opp direction
+MyOEIS::compare_values
+  (anum => 'A020703',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       $y = -$y; # opp direction
+       ($x,$y) = (-$y,$x);  # rotate +90
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# A090915 -- permutation rotate +270, opp direction
+MyOEIS::compare_values
+  (anum => 'A090915',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       $y = -$y; # opp direction
+       ($x,$y) = ($y,-$x);  # rotate -90
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# A090930 -- permutation opp direction
+MyOEIS::compare_values
+  (anum => 'A090930',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       $y = -$y; # opp direction
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+# A185413 -- rotate 180, offset X+1,Y
+MyOEIS::compare_values
+  (anum => 'A185413',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       $x = 1 - $x;
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
 # A078765 -- primes at integer radix sqrt(x^2+y^2), and not on axis
 
 MyOEIS::compare_values
@@ -79,25 +216,6 @@ sub is_perfect_square {
   my $sqrt = int(sqrt($n));
   return ($sqrt*$sqrt == $n);
 }
-
-#------------------------------------------------------------------------------
-# A078784 -- primes on axis
-
-MyOEIS::compare_values
-  (anum => 'A078784',
-   func => sub {
-     my ($count) = @_;
-     require Math::Prime::XS;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       next unless Math::Prime::XS::is_prime($n);
-       my ($x,$y) = $path->n_to_xy ($n);
-       if ($x == 0 || $y == 0) {
-         push @got, $n;
-       }
-     }
-     return \@got;
-   });
 
 #------------------------------------------------------------------------------
 # A200975 -- all four diagonals

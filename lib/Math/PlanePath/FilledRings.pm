@@ -1,4 +1,4 @@
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -57,7 +57,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -136,7 +136,13 @@ use constant dy_maximum => 1;
 sub new {
   my $self = shift->SUPER::new(@_);
 
-  $self->{'cumul'} = [ 2 ];
+  # parameters
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+
+  # internals
+  $self->{'cumul'} = [ 1 ];  # N=0 basis
   $self->{'offset'} ||= 0;
 
   return $self;
@@ -152,7 +158,7 @@ sub _cumul_extend {
   for (my $d = 1; $d <= $r2; $d += 4) {
     $c += int($r2/$d) - int($r2/($d+2));
   }
-  push @$cumul, 4*$c + 2;
+  push @$cumul, 4*$c + 1;
   ### $cumul
 }
 
@@ -160,9 +166,13 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### FilledRings n_to_xy(): $n
 
-  if ($n < 2) {
-    if ($n < 1) { return; }
-    return ($n-1, 0);
+  $n = $n - $self->{'n_start'};  # to N=0 basis, warning if $n==undef
+  if ($n <= 1) {
+    if ($n < 0) {
+      return;
+    } else {
+      return ($n, 0);   # 0<=N<=1
+    }
   }
   if (is_infinite($n)) {
     return ($n,$n);
@@ -173,8 +183,8 @@ sub n_to_xy {
     my $int = int($n);
     if ($n != $int) {
       my $frac = $n - $int;
-      my ($x1,$y1) = $self->n_to_xy($int);
-      my ($x2,$y2) = $self->n_to_xy($int+1);
+      my ($x1,$y1) = $self->n_to_xy($int + $self->{'n_start'});
+      my ($x2,$y2) = $self->n_to_xy($int+1 + $self->{'n_start'});
       if ($y2 == 0 && $x2 > 0) { $x2 -= 1; }
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
@@ -284,7 +294,7 @@ sub xy_to_n {
   $y = round_nearest ($y);
 
   if ($x == 0 && $y == 0) {
-    return 1;
+    return $self->{'n_start'};
   }
 
   my $r = int ((sqrt(4*($x*$x+$y*$y)) + 1) / 2);
@@ -358,6 +368,7 @@ sub xy_to_n {
     }
   }
 
+  $n += $self->{'n_start'};
   if ($rev) {
     return $n + $len - $offset;
   } else {
@@ -378,8 +389,8 @@ sub rect_to_n_range {
   $x2 += 1;
   $y2 += 1;
 
-  return (int((21*($x1*$x1 + $y1*$y1)) / 7) + 1,
-          int((22*($x2*$x2 + $y2*$y2)) / 7));
+  return (int((21*($x1*$x1 + $y1*$y1)) / 7) + $self->{'n_start'},
+          int((22*($x2*$x2 + $y2*$y2)) / 7) + $self->{'n_start'} - 1);
 }
 
 1;
@@ -436,6 +447,35 @@ For example the ring N=22 to N=37 is all the points
     2.5 < hypot(X,Y) < 3.5
     where hypot(X,Y) = sqrt(X^2+Y^2)
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start with the same shape.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=FilledRings,n_start=0 --all --output=numbers_dash --size=37x16
+
+=pod
+
+          26-25-24          n_start => 0
+         /        \
+       27 13-12-11 23
+      /  /        \  \
+    28 14  4--3--2 10 22
+     |  |  |     |  |  |
+    29 15  5  0--1  9 21
+     |  |  |
+    30 16  6--7--8 20 36
+      \  \        /  /
+       31 17-18-19 35
+         \        /
+        8 32-33-34
+
+The only effect is to push the N values by a constant amount but can help
+match N on the axes to counts of X,Y points E<lt> R or similar.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for the behaviour common to all path
@@ -463,8 +503,6 @@ path include,
 
     http://oeis.org/A036704  (etc)
 
-    A036704  N-1 along X axis,
-               being count of X,Y points norm <= n+1/2
     A036705  first diffs of N on X axis,
                being count of X,Y points n-1/2 < norm <= n+1/2
     A036706  1/4 of those diffs
@@ -473,6 +511,10 @@ path include,
                being count norm <= n+1/2 in half plane Y>=0
     A036708  (N(X,0)-N(X-1,0))/2+1,
                first diffs of the half plane count
+
+    n_start=0
+      A036704  N on X axis, from X=1 onwards
+                 count of X,Y points norm <= n+1/2
 
 =head1 SEE ALSO
 
@@ -487,7 +529,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2012 Kevin Ryde
+Copyright 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

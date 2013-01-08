@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -17,7 +17,7 @@
 
 
 
-# Kanga "Number Mosaics" has rotated to
+# Kanga "Number Mosaics" rotated to
 #
 #                ...-16---15
 #                           \
@@ -31,14 +31,14 @@
 #
 #
 # Could go pointy end with same loop/step, or point to the right
-#                                                  
-#                    13--12--11                    
-#                   /         |                    
-#                 14  4---3  10                    
-#                /  /     |   |    
-#              15  5  1---2   9    
-#                \  \         |    
-#                 16  6---7---8    
+#
+#                    13--12--11
+#                   /         |
+#                 14  4---3  10
+#                /  /     |   |
+#              15  5  1---2   9
+#                \  \         |
+#                 16  6---7---8
 #                   \             |
 #                    17--18--19--20
 #
@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -82,7 +82,13 @@ use constant dy_maximum => 1;
 
 sub new {
   my $self = shift->SUPER::new (@_);
+
+  # parameters
   $self->{'wider'} ||= 0;  # default
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+
   return $self;
 }
 
@@ -118,16 +124,16 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: "$n   wider=$self->{'wider'}"
-  if ($n < 1) { return; }
-  my $w = $self->{'wider'};
-  if ($n == 1) {
-    #### centre horizontal: $n-1-$w
-    return ($n-1-$w, 0);   # n=1 at -$w
-  }
 
-  my $d = int((sqrt(int(3*$n) + ($w+2)*$w - 2) - 1 - $w) / 3);
-  #### d frac: (sqrt(int(3*$n) + ($w+2)*$w - 2) - 1 - $w) / 3
+  $n = $n - $self->{'n_start'};  # N=0 basis
+  if ($n < 0) { return; }
+  my $w = $self->{'wider'};
+
+  my $d = int((sqrt(int(3*$n) + ($w+2)*$w + 1) - 1 - $w) / 3);
+  #### d frac: (sqrt(int(3*$n) + ($w+2)*$w + 1) - 1 - $w) / 3
   #### $d
+
+  $n += 1; # N=1 basis
 
   $n -= (3*$d + 2 + 2*$w)*$d + 1;
   #### remainder: $n
@@ -195,12 +201,15 @@ sub xy_to_n {
     if ($x > 0) {
       ### right ends
       ### $d
-      return ((3*$d - 2 + 2*$w)*$d - $w + 1 # horizontal to the right
-              + $y);                        # offset up or down
+      return ((3*$d - 2 + 2*$w)*$d - $w  # horizontal to the right
+              + $y                       # offset up or down
+              + $self->{'n_start'});
+
     } else {
       ### left ends
-      return ((3*$d + 1 + 2*$w)*$d + 1  # horizontal to the left
-              - $y);                    # offset up or down
+      return ((3*$d + 1 + 2*$w)*$d    # horizontal to the left
+              - $y                    # offset up or down
+              + $self->{'n_start'});
     }
 
   } else {
@@ -209,14 +218,16 @@ sub xy_to_n {
     if ($y > 0) {
       ### top horizontal
       ### $d
-      return ((3*$d + 2*$w)*$d + 1  # diagonal up to the left
-              + (-$d - $x-$w) / 2); # negative offset rightwards
+      return ((3*$d + 2*$w)*$d      # diagonal up to the left
+              + (-$d - $x-$w) / 2   # negative offset rightwards
+              + $self->{'n_start'});
     } else {
       ### bottom horizontal, and centre horizontal
       ### $d
       ### offset: $d
-      return ((3*$d + 2 + 2*$w)*$d + 1  # diagonal down to the left
-              + ($x + $w + $d)/2);      # offset rightwards
+      return ((3*$d + 2 + 2*$w)*$d   # diagonal down to the left
+              + ($x + $w + $d)/2     # offset rightwards
+              + $self->{'n_start'});
     }
   }
 }
@@ -254,8 +265,8 @@ sub rect_to_n_range {
   # ### gives: "sum $d is " . (3*$d*$d + 3*$d + 1)
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
-  return (1,
-          (3*$d + 3 + 2*$w)*$d + 1);
+  return ($self->{'n_start'},
+          (3*$d + 3 + 2*$w)*$d + $self->{'n_start'});
 }
 
 1;
@@ -339,6 +350,33 @@ X=0,Y=0.  Each horizontal gap is still 2.
 Each loop is still 6 longer than the previous, since the widening is
 basically a constant amount added into each loop.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start with the same shape etc.  For example
+to start at 0,
+
+=cut
+
+# math-image --path=HexSpiral,n_start=0 --all --output=numbers --size=70x9
+
+=pod
+
+    n_start => 0
+
+             27    26    25    24                    3
+          28    12    11    10    23                 2
+       29    13     3     2     9    22              1
+    30    14     4     0     1     8    21      <- Y=0
+       31    15     5     6     7    20   ...       -1
+          32    16    17    18    19    38          -2
+             33    34    35    36    37             -3
+                       ^
+    -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+
+In this numbering the X axis N=0,1,8,21,etc is the octagonal numbers
+3*X*(X+1).
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -387,6 +425,14 @@ this path include
 
     A063178    total sum previous row or diagonal
 
+    n_start=0
+      A000567    N on X axis, octagonal numbers
+      A049450    N on X=Y diagonal north-east
+      A033428    N on north-west diagonal
+      A045944    N on south-west diagonal, octagonal numbers second kind
+      A063436    N on WSW slope dX=-3,dY=-1
+      A028896    N on south-east diagonal
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
@@ -401,7 +447,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

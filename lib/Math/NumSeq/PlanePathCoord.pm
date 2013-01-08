@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -18,7 +18,14 @@
 
 # Maybe:
 #
+# NumSiblings -- including or exlcuding self ?
+#
 # I,J,K   TI,TJ,TK  Ti,Tj,Tk
+#   i=(x-y)/2 is DiffXY
+#   j=Y
+#   k=(-X-Y)/2 is Sum
+# but div 2 for points=even paths?
+#
 # GF2Product A051775,A051776  multiply with xor no carry
 # NumOverlap       xy_to_n_list()  n_overlap_list()  n_num_overlap()
 # NumSurround
@@ -41,7 +48,9 @@
 # ExactDivXY = X/Y if X divisible by Y, or 0 if not A126988 X,Y>=1
 # Numerator = X*sgn(Y) / gcd(X,Y)         X/Y in least terms
 # Denominator = abs(Y / gcd(X,Y))
-# LCM
+#
+# KroneckerSymbol(a,b)     (a/2)=(2/a), or (a/2)=0 if a even
+# LCM -- but grows quickly
 # Theta360 angle matching Radius,RSquared
 # Ttheta360 angle matching TRadius,TRSquared
 # IsRational Chi(x) = 1 if x rational, 0 if irrational
@@ -61,7 +70,7 @@ use constant 1.02; # various underscore constants below
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -97,8 +106,11 @@ use constant::defer parameter_info_array =>
                    'BitAnd', 'BitOr', 'BitXor',
                    'Min','Max',
                    'GCD',
+                   # 'KroneckerSymbol',
                    'Depth',
-                   'NumChildren','IsLeaf','IsNonLeaf',
+                   'NumChildren',
+                   # 'NumSiblings',
+                   'IsLeaf','IsNonLeaf',
 
                    'ToLeaf',
                    # 'ModXY',
@@ -468,6 +480,88 @@ sub _coordinate_func_GCD {
 #------------------------------------------------------------------------------
 # UNTESTED/EXPERIMENTAL
 
+sub _coordinate_func_KroneckerSymbol {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  $x = int($x);
+  $y = int($y);
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
+
+  if ($x == 0) {
+    # (0/b)=1 if b=+/-1, (0/b)=0 otherwise
+    return ($y == 1 || $y == -1 ? 1 : 0);
+  }
+
+  if ($y == 0) {
+    # (a/0)=1 if a=+/-1, (a/0)=0 otherwise
+    return ($x == 1 || $x == -1 ? 1 : 0);
+  }
+
+  my $ret = 0;
+
+  # (a/-1)=1 if a>=0, (a/-1)=-1 if a<0
+  if ($y < 0) {
+    $y = abs($y);
+    if ($x < 0) {
+      $ret = 2;
+    }
+  }
+
+  if ($y % 2 == 0) {
+    return 0;
+
+    if ($x % 2 == 0) {
+      return 0;  # (even/even)=0
+    }
+    # (a/2) = (2/a)
+    while ($y % 4 == 0) { # (a/2)*(a/2)=1
+      $y /= 4;
+    }
+    # (2/b) with b odd is (-1)^((b^2-1)/8) which is 1 if b==1,7mod8 or -1 if
+    # b==3,5mod8
+    if ($y % 2 == 0) {
+      $ret ^= ($x-3) % 4;
+    }
+  }
+
+  for (;;) {
+    ### assert: $y%2 != 0
+    ### assert: $y > 0
+
+    $x %= $y;
+    if ($x <= 1) {
+      last;  # (1/b) = 1
+    }
+
+    # (2/b) with b odd is (-1)^((b^2-1)/8)
+    # is (2/b)=1 if b==1,7mod8 or (2/b)=-1 if b==3,5mod8
+    while ($x % 4 == 0) {
+      $x /= 4;
+    }
+    if ($x % 2 == 0) {
+      $ret ^= ($x-3) % 4;
+      $x /= 2;
+    }
+
+    $ret ^= ($x % 4) & ($y % 4);
+    ($x,$y) = ($y,$x);
+  }
+
+  return ($ret & 2 ? -1 : 1);
+}
+
+sub _coordinate_func_NumSiblings {
+  my ($self, $n) = @_;
+  return path_tree_n_num_siblings($self->{'planepath_object'}, $n);
+}
+sub path_tree_n_num_siblings {
+  my ($path, $n) = @_;
+  $n = $path->tree_n_parent($n);
+  return (defined $n ? $path->tree_n_num_children($n) : 0);
+}
+
 sub _coordinate_func_ToLeaf {
   my ($self, $n) = @_;
   return path_tree_n_to_leaf_distance($self->{'planepath_object'},$n);
@@ -476,7 +570,7 @@ sub path_tree_n_to_leaf_distance {
   my ($path, $n) = @_;
   ### path_tree_n_to_leaf_distance(): $n
 
-  if ($n < $path->n_start || ! path_tree_any_leaf($path)) {
+  if ($n < $path->n_start || ! $path->tree_any_leaf($path)) {
     return undef;
   }
   if (is_infinite($n)) {
@@ -1035,6 +1129,10 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_max => undef;
   use constant _NumSeq_Coord_GCD_integer => 1;
 
+  use constant _NumSeq_Coord_KroneckerSymbol_min => -1;
+  use constant _NumSeq_Coord_KroneckerSymbol_max => 1;
+  use constant _NumSeq_Coord_KroneckerSymbol_integer => 1;
+
   sub _NumSeq_Coord_BitAnd_min {
     my ($self) = @_;
     if (defined (my $x_minimum = $self->x_minimum)
@@ -1155,6 +1253,14 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_NumChildren_min => 0;
   use constant _NumSeq_Coord_NumChildren_max => 0;
   use constant _NumSeq_Coord_NumChildren_integer => 1;
+
+  use constant _NumSeq_Coord_NumSiblings_min => 0;
+  sub _NumSeq_Coord_NumSiblings_max {
+    my ($self) = @_;
+    Math::NumSeq::PlanePathCoord::max ($self->_NumSeq_Coord_NumChildren_max,
+                                       0);
+  }
+  use constant _NumSeq_Coord_NumSiblings_integer => 1;
 
   sub _NumSeq_Coord_IsLeaf_min {
     my ($path) = @_;
@@ -2465,7 +2571,13 @@ sub characteristic_non_decreasing {
 # }
 { package Math::PlanePath::Corner;
   use constant _NumSeq_Coord_oeis_anum =>
-    { 'wider=0,n_start=0' =>
+    { 'wider=0,n_start=1' =>
+      { Sum     => 'A213088', # manhatten X+Y
+        SumAbs  => 'A213088',
+        # OEIS-Catalogue: A213088 planepath=Corner coordinate_type=Sum
+        # OEIS-Other:     A213088 planepath=Corner coordinate_type=SumAbs
+      },
+      'wider=0,n_start=0' =>
       { DiffXY  => 'A196199', # runs -n to n
         AbsDiff => 'A053615', # runs 0..n..0
         Max     => 'A000196', # n repeated 2n+1 times, floor(sqrt(N))
@@ -2575,27 +2687,41 @@ sub characteristic_non_decreasing {
      # cf A050873 GCD triangle starting (1,1) n=1
      #    A051173 LCM triangle starting (1,1) n=1
      #    A003991 X*Y product starting (1,1) n=1
-     #
+     #    A001316 count of occurrences of n as BitOr
      do {
        my $href =
          { X        => 'A002262',  # 0, 0,1, 0,1,2, etc (Diagonals)
+           Min      => 'A002262',  # X<=Y always
            Y        => 'A003056',  # 0, 1,1, 2,2,2, 3,3,3,3 (Diagonals)
+           Max      => 'A003056',  # Y>=X always
            DiffYX   => 'A025581',  # descending N to 0 (Diagonals)
            AbsDiff  => 'A025581',  #   absdiff same
            Sum      => 'A051162',  # triangle X+Y for X=0 to Y inclusive
            SumAbs   => 'A051162',  #   sumabs same
+           Product  => 'A079904',
            RSquared => 'A069011',  # triangle X^2+Y^2 for X=0 to Y inclusive
+           GCD      => 'A109004',  # same as by diagonals
+           BitAnd   => 'A080099',
+           BitOr    => 'A080098',
+           BitXor   => 'A051933',
          };
        ('step=1,align=centre,n_start=0' => $href,
         'step=1,align=right,n_start=0'  => $href,
        );
        # OEIS-Other: A002262 planepath=PyramidRows,step=1,n_start=0 coordinate_type=X
+       # OEIS-Other: A002262 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Min
        # OEIS-Other: A003056 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Y
+       # OEIS-Other: A003056 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Max
        # OEIS-Other: A025581 planepath=PyramidRows,step=1,n_start=0 coordinate_type=DiffYX
        # OEIS-Other: A025581 planepath=PyramidRows,step=1,n_start=0 coordinate_type=AbsDiff
        # OEIS-Other: A051162 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Sum
        # OEIS-Other: A051162 planepath=PyramidRows,step=1,n_start=0 coordinate_type=SumAbs
+       # OEIS-Catalogue: A079904 planepath=PyramidRows,step=1,n_start=0 coordinate_type=Product
        # OEIS-Catalogue: A069011 planepath=PyramidRows,step=1,n_start=0 coordinate_type=RSquared
+       # OEIS-Other:     A109004 planepath=PyramidRows,step=1,n_start=0 coordinate_type=GCD
+       # OEIS-Catalogue: A080099 planepath=PyramidRows,step=1,n_start=0 coordinate_type=BitAnd
+       # OEIS-Catalogue: A080098 planepath=PyramidRows,step=1,n_start=0 coordinate_type=BitOr
+       # OEIS-Catalogue: A051933 planepath=PyramidRows,step=1,n_start=0 coordinate_type=BitXor
 
        # OEIS-Other: A002262 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=X
        # OEIS-Other: A003056 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=Y
@@ -2603,17 +2729,29 @@ sub characteristic_non_decreasing {
        # OEIS-Other: A025581 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=AbsDiff
        # OEIS-Other: A051162 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=Sum
        # OEIS-Other: A051162 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=SumAbs
+       # OEIS-Other: A079904 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=Product
        # OEIS-Other: A069011 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=RSquared
+       # OEIS-Other: A080099 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=BitAnd
+       # OEIS-Other: A080098 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=BitOr
+       # OEIS-Other: A051933 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=BitXor
      },
 
      # PyramidRows step=2
      'step=2,align=centre,n_start=0' =>
-     { X   => 'A196199',  # runs -n to n
-       Y   => 'A000196',  # n appears 2n+1 times, starting 0
-       Sum => 'A053186',  # runs 0 to 2n
+     { X       => 'A196199',  # runs -n to n
+       Min     => 'A196199',  # X since X<Y
+       Y       => 'A000196',  # n appears 2n+1 times, starting 0
+       Max     => 'A000196',  # Y since X<Y
+       Sum     => 'A053186',  # runs 0 to 2n
        # OEIS-Catalogue: A196199 planepath=PyramidRows,n_start=0 coordinate_type=X
+       # OEIS-Other:     A196199 planepath=PyramidRows,n_start=0 coordinate_type=Min
        # OEIS-Catalogue: A000196 planepath=PyramidRows,n_start=0 coordinate_type=Y
+       # OEIS-Other:     A000196 planepath=PyramidRows,n_start=0 coordinate_type=Max
        # OEIS-Other:     A053186 planepath=PyramidRows,n_start=0 coordinate_type=Sum
+
+       # # Not quite, extra initial 0
+       # DiffYX  => 'A068527',  # dist to next square
+       # AbsDiff => 'A068527',  # same since Y-X>0
      },
      'step=2,align=right,n_start=0' =>
      { X       => 'A053186',  # runs 0 to 2n
@@ -2639,13 +2777,23 @@ sub characteristic_non_decreasing {
          { Y   => 'A180447',  # n appears 3n+1 times, starting 0
          };
        ('step=3,align=centre,n_start=0' => $href,
-        'step=3,align=left,n_start=0'   => $href,
         'step=3,align=right,n_start=0'  => $href,
        );
        # OEIS-Catalogue: A180447 planepath=PyramidRows,step=3,n_start=0 coordinate_type=Y
-       # OEIS-Other: A180447 planepath=PyramidRows,step=3,align=right,n_start=0 coordinate_type=Y
-       # OEIS-Other: A180447 planepath=PyramidRows,step=3,align=left,n_start=0 coordinate_type=Y
+       # OEIS-Other:     A180447 planepath=PyramidRows,step=3,align=right,n_start=0 coordinate_type=Y
      },
+     'step=3,align=left,n_start=0' =>
+     { Y   => 'A180447',  # n appears 3n+1 times, starting 0
+       Max => 'A180447',  # Y since X<Y
+     },
+     # OEIS-Other: A180447 planepath=PyramidRows,step=3,align=left,n_start=0 coordinate_type=Y
+     # OEIS-Other: A180447 planepath=PyramidRows,step=3,align=left,n_start=0 coordinate_type=Max
+
+     # PyramidRows step=4
+     'step=4,align=right,n_start=0' =>
+     { X   => 'A060511',  # amount exceeding hexagonal number
+     },
+     # OEIS-Catalogue: A060511 planepath=PyramidRows,step=4,align=right,n_start=0 coordinate_type=X
     };
 }
 { package Math::PlanePath::PyramidSides;
@@ -3413,7 +3561,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

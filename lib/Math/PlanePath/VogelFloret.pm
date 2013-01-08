@@ -16,6 +16,8 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# n_start=>0 to include N=0 at the origin, but that not a documented feature
+# yet.
 
 # http://algorithmicbotany.org/papers/#abop
 #
@@ -26,26 +28,6 @@
 #
 # http://www.ms.unimelb.edu.au/~segerman/papers/sunflower_spiral_fibonacci_metric.pdf
 # Zeckendorf/Fibbinary with N bits makes radial spokes.  cf FibbinaryBitCount
-
-
-package Math::PlanePath::VogelFloret;
-use 5.004;
-use strict;
-use Carp;
-use Math::Libm 'hypot';
-
-use vars '$VERSION', '@ISA';
-$VERSION = 95;
-use Math::PlanePath;
-@ISA = ('Math::PlanePath');
-
-use Math::PlanePath::Base::Generic
-  'is_infinite';
-use Math::PlanePath::SacksSpiral;
-
-# uncomment this to run the ### lines
-#use Smart::Comments '###';
-
 
 # http://artemis.wszib.edu.pl/~sloot/2_1.html
 #
@@ -93,8 +75,24 @@ use Math::PlanePath::SacksSpiral;
 #   2e    e + sqrt(1+e^2)  even
 
 
-# is N=1 the proper start?
-# use constant n_start => 0;
+
+package Math::PlanePath::VogelFloret;
+use 5.004;
+use strict;
+use Carp;
+use Math::Libm 'hypot';
+
+use vars '$VERSION', '@ISA';
+$VERSION = 96;
+use Math::PlanePath;
+@ISA = ('Math::PlanePath');
+
+use Math::PlanePath::Base::Generic
+  'is_infinite';
+use Math::PlanePath::SacksSpiral;
+
+# uncomment this to run the ### lines
+#use Smart::Comments '###';
 
 use constant figure => 'circle';
 
@@ -313,7 +311,7 @@ sub xy_to_n {
 # N = (R+0.5)^2 / rfactor^2
 #   = (R^2 + R + 1/4) / rfactor^2
 #   <= (X^2+Y^2 + X+Y + 1/4) / rfactor^2
-#   <= (X(X+1) + Y(Y+1) + 1) / rfactor^2 
+#   <= (X(X+1) + Y(Y+1) + 1) / rfactor^2
 #
 # min corner at R
 # R-0.5 = sqrt(N) * radius_factor
@@ -321,7 +319,7 @@ sub xy_to_n {
 # N = (R-0.5)^2 / rfactor^2
 #   = (R^2 - R + 1/4) / rfactor^2
 #   >= (X^2+Y^2 - (X+Y)) / rfactor^2      because x+y >= r
-#   = (X(X-1) + Y(Y-1)) / rfactor^2 
+#   = (X(X-1) + Y(Y-1)) / rfactor^2
 
 # not exact
 sub rect_to_n_range {
@@ -416,11 +414,11 @@ The polar coordinates for a point N are
           = N * -phi            modulo 1, with since 1/phi^2 = 2-phi
     theta = 2*pi * angle        in radians
 
-Each point N+1 is at an angle +0.382 revolutions around (anti-clockwise)
-from the preceding N, which means just over 1/3 of a circle.  Or
-equivalently it's -0.618 back (clockwise) which is phi=1.618 ignoring the
-integer part since that's a full circle -- only the fractional part
-determines the position.
+Going from point N to N+1 adds an angle 0.382 revolutions around
+(anti-clockwise, the usual spiralling direction), which means just over 1/3
+of a circle.  Or equivalently it's -0.618 back (clockwise) which is
+phi=1.618 ignoring the integer part since that's a full circle -- only the
+fractional part determines the position.
 
 C<radius_factor> is a scaling 0.6242 designed to put the closest points 1
 apart.  The closest are N=1 and N=4.  See L</Packing> below.
@@ -436,10 +434,10 @@ The current types are as follows.  The C<radius_factor> for each keeps
 points at least 1 apart so unit circles don't overlap.
 
     rotation_type   rotation_factor   radius_factor
-      phi          2-phi   = 0.3820     0.624
-      sqrt2        sqrt(2) = 0.4142     0.680
-      sqrt3        sqrt(3) = 0.7321     0.756
-      sqrt5        sqrt(5) = 0.2361     0.853
+      "phi"        2-phi   = 0.3820     0.624
+      "sqrt2"      sqrt(2) = 0.4142     0.680
+      "sqrt3"      sqrt(3) = 0.7321     0.756
+      "sqrt5"      sqrt(5) = 0.2361     0.853
 
 The "sqrt2" floret is quite similar to phi, but doesn't pack as tightly.
 Custom rotations can be made with C<rotation_factor> and C<rotation_factor>
@@ -468,7 +466,7 @@ for large N.
 
 =head2 Packing
 
-Each point is at an increasing distance sqrt(N) from the origin.  This is
+Each point is at an increasing distance sqrt(N) from the origin.  This sqrt
 based on how many unit figures will fit within that distance.  The area
 within radius R is
 
@@ -480,21 +478,22 @@ is proportional to sqrt(N),
     N*A = T = pi * R^2
     R = sqrt(N) * sqrt(A/pi)
 
-The tightest possible packing for unit circles is a hexagonal honeycomb grid
-each of area A = sqrt(3)/2 = 0.866, which would be factor sqrt(A/pi) =
+The tightest possible packing for unit circles is a hexagonal honeycomb
+grid, each of area A = sqrt(3)/2 = 0.866.  That would be factor sqrt(A/pi) =
 0.525.  The phi floret packing is not as tight as that, needing radius
 factor 0.624 as described above.
 
-Generally the tightness of the packing for a given rotation factor depends
-on what fractions closely approximate that factor.  If the terms of the
-continued fraction expansion are large then there's large regions of spiral
-arcs with gaps between.  The density in such regions is low and a big radius
-factor is needed to keep the points apart.  If the continued fraction terms
-are ever increasing then there may be no radius factor big enough to always
-keep the points a minimum distance apart ... or something like that.
+Generally the tightness of the packing depends on the fractions which
+closely approximate the roation factor.  If the terms of the continued
+fraction expansion are large then there's large regions of spiral arcs with
+gaps between.  The density in such regions is low and a big radius factor is
+needed to keep the points apart.  If the continued fraction terms are ever
+increasing then there may be no radius factor big enough to always keep the
+points a minimum distance apart ... or something like that.
 
-The terms of the continued fraction for phi are all 1 and is, in that sense,
-among all irrationals, the value least well approximated by rationals.
+The terms of the continued fraction for phi are all 1 and is therefore, in
+that sense, among all irrationals, the value least well approximated by
+rationals.
 
                 1
     phi = 1 + ------
@@ -502,9 +501,9 @@ among all irrationals, the value least well approximated by rationals.
                   ------
               ^   1 +  1
               |       ---
-              |   ^   1 +  1
-              |   |       ----
-              |   |   ^   ...
+              |   ^   1 + 1
+              |   |      ----
+              |   |   ^  ...
        terms -+---+---+
 
 sqrt(3) is 1,2 repeating.  sqrt(13) is 3s repeating.
@@ -535,7 +534,7 @@ approaches zero.  This can be calculated as follows, writing
 
     beta = -1/phi =-0.618
 
-and since abs(beta)<1 the powers beta^k go to zero.
+Since abs(beta)<1 the powers beta^k go to zero.
 
     F(k) = (phi^k - beta^k) / (phi - beta)    # an integer
 
@@ -558,9 +557,9 @@ coordinate vertical distance is a little less than the arc distance.
             = - (-1)^k * 2*pi * sqrt((1/phi^k - 1/(-phi)^3k)/sqrt(5))
                 -> 0 as k -> infinity
 
-Basically the radius increases as phi^(k/2) but the angle frac decreases as
-(1/phi)^k so their product goes to zero.  The (-1)^k in the formula puts the
-points alternately just above and just below the X axis.
+Essentially the radius increases as phi^(k/2) but the angle frac decreases
+as (1/phi)^k so their product goes to zero.  The (-1)^k in the formula puts
+the points alternately just above and just below the X axis.
 
 The calculation for the Lucas numbers is very similar, with term +(beta^k)
 instead of -(beta^k) and an extra factor sqrt(5).
@@ -584,51 +583,111 @@ instead of -(beta^k) and an extra factor sqrt(5).
 =head2 Spectrum
 
 The spectrum of a real number is its multiples, each rounded down to an
-integer.
+integer.  For example the spectrum of phi is
 
     floor(phi), floor(2*phi), floor(3*phi), floor(4*phi), ...
     1,          3,            4,            6, ...
 
-When plotted on the Vogel floret these integers are all in the first 1/phi
-fraction of the circle.
+When plotted on the Vogel floret these integers are all in the first 1/phi =
+0.618 of the circle.
 
 
 =cut
 
-# math-image --oeis=A000201 --output=numbers   # but vogel.pl scaled
-A001950    floor(N*phi^2)
-A000201    floor(N*phi)
+# math-image --oeis=A000201 --output=numbers   # but better scaled in vogel.pl
+# A001950    floor(N*phi^2) spectrum of 1+1/phi
+# A000201    floor(N*phi)   spectrum of phi
 
 =pod
 
-                   61    53                                    
-             69       40       45    58                        
-                48          32          71                     
-          56       27                37                        
-             35          19    24       50                     
-          43       14       11             63                  
-    64          22     6          16 29                        
-          30                 3          42                     
-       51           9  1        8    21                        
-    72       17     4     .                55                  
-          38                                                   
-    59       25 12                                             
-                                                               
-          46 33                                                
-                                                               
-       67                                                      
+                   61    53
+             69       40       45    58
+                48          32          71
+          56       27                37
+             35          19    24       50
+          43       14       11             63
+    64          22     6          16 29
+          30                 3          42
+       51           9  1        8    21
+    72       17     4     .                55
+          38
+    59       25 12
 
-This works because
+          46 33
+
+       67
+
+This occurs because
 
     angle = N * 1/phi^2
-          = floor(i*phi) * (1-1/phi)      # N=spectrum
-          = floor(i*phi) * -1/phi         # modulo 1
-          = (i*phi - frac) * -1/phi       # 0<frac<1
-          = i + frac*1/phi                
-          = frac*1/phi                    # modulo 1
+          = N * (1-1/phi)
+          = N * -1/phi                   # modulo 1
+          = floor(int*phi) * -1/phi      # N=spectrum
+          = (int*phi - frac) * -1/phi    # 0<frac<1
+          = int + frac*1/phi
+          = frac * 1/phi                 # modulo 1
 
-So the angle is a fraction from 0 to 1/phi=0.618 of a revolution.  Similar
-works for other C<rotation_type>.
+So the angle is a fraction from 0 to 1/phi=0.618 of a revolution.  In
+general for a C<rotation_factor=t> with 0E<lt>tE<lt>1 the spectrum of 1/t
+falls within the first 0 to t angle.
+
+=head2 Fibonacci Word
+
+The Fibonacci word 0,1,0,0,1,0,1,0,0,1,etc is the least significant bit of
+the Zeckendorf base representation of i, starting from i=0.  Plotted at N=i
+on the VogelFloret gives
+
+              1       0
+          1     1 1   0   0            Fibonacci word
+        1   1 1     0       0
+          1       1   0   0 0
+    1   1   1 1 1   0   0 0   0
+      1 1     1 1   0 0     0
+    1   1 1   1   .       0 0 0
+    1     1 1     0   0 0       0
+        1       0   0   0 0   0
+      1   1 0     0       0   0
+        0   0 0   0 0   0 0   0
+            0   0     0 0
+                0   0
+
+This pattern occurs because the Fibonacci word, among its various possible
+definitions, is 0 or 1 according to whether i+1 occurs in the spectrum of
+phi (1,3,4,6,8,etc) or not.  So for example at i=5 the value is 0 because
+i+1=6 is in the spectrum of phi, then at i=6 the value is 1 because i+1=7 is
+not.
+
+The "+1" for i to spectrum has the effect of rotating the spectrum pattern
+described above by -0.381 (one rotation factor back).  So the Fibonacci word
+"0"s are from angle -0.381 to -0.381+0.618=0.236 and the rest "1"s.  0.236
+is close to 1/4, hence the "0"s to "1"s line just before the Y axis.
+
+=cut
+
+# math-image--path=VogelFloret --values=FibonacciWord --output=numbers
+
+# 1*phi = 1.61  1   1       0
+#               2   0       1
+# 2*phi = 3.23  3   1       0
+# 3*phi = 4.85  4   1       0
+#                   0       1
+# 4*phi = 6.47  6   1       0
+#                   0       1
+# 5*phi = 8.09      1       0
+# 6*phi = 9.70      1       0
+
+=pod
+
+
+=cut
+
+# angle = N * t
+# N = s*i - frac    spectrum of s
+# angle = t*(s*i-frac)
+#       = t*s*i - t*frac
+# s=1/t is spectrum s>1
+
+=pod
 
 =head2 Repdigits in Decimal
 
@@ -650,17 +709,19 @@ X axis.
 A separate spiral arm arises from 11111 falling moderately close to the X
 axis since 11111*-phi = -17977.9756, or about 0.024 of a circle upwards.
 The subsequent 22222, 33333, 44444, etc make a little arc of nine values
-going about a quarter turn (9*0.024 = 0.219) upwards.
+going upwards that much each time for a total about a quarter turn 9*0.024 =
+0.219.
 
 =head2 Repdigits in Other Bases
 
-By choosing a radix so that "11" (or similar repunit) is close to the X
-axis, spirals like the decimal 11111 above can be created.  This includes
-when "11" in the base is a Fibonacci number or Lucas number, such as base 12
-making "11" equal to 13.  If "11" is near the negative X axis then there's
-two spiral arms, one going out on the X negative side and one X positive,
-eg. base 16 has 0x11=17 which is near the negative X axis.  A four-arm shape
-can be formed similarly if "11" is near the Y axis, eg. base 107.
+By choosing a radix so that "11" (or similar repunit) in that radix is close
+to the X axis, spirals like the decimal 11111 above can be created.  This
+includes when "11" in the base is a Fibonacci number or Lucas number, such
+as base 12 so "11" base 12 is 13.  If "11" is near the negative X axis then
+there's two spiral arms, one going out on the X negative side and one X
+positive, eg. base 16 has 0x11=17 which is near the negative X axis.
+A four-arm shape can be formed similarly if "11" is near the Y axis,
+eg. base 107.
 
 =head1 FUNCTIONS
 
@@ -682,12 +743,12 @@ pattern,
     radius_factor   => number
 
 The available C<rotation_type> values are listed above (see L</Other
-Rotation Types>).  C<radius_factor> can be given on top of a type to scale
-it differently.
+Rotation Types>).  C<radius_factor> can be given together with
+C<rotation_type> to have its rotation, but scale the radius differently.
 
 If a C<rotation_factor> is given then the default C<radius_factor> is not
-yet quite settled.  Currently it's 1.0, but perhaps something suiting at
-least the first few N positions would be better.
+specified yet.  Currently it's 1.0, but perhaps something suiting at least
+the first few N positions would be better.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -702,8 +763,10 @@ negative points in the spiral.
 
 =item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
 
-Return the radial distance R^2 of point C<$n>, or C<undef> if there's
-no point C<$n>.  This is C<$n * $radius_factor**2>.
+Return the radial distance R^2 of point C<$n>, or C<undef> if there's no
+point C<$n>.  As per the formulas above this is simply
+
+    $n * $radius_factor**2
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -731,19 +794,19 @@ Return "circle".
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
 this path include
 
-    http://oeis.org/A059285  (etc)
+    http://oeis.org/A000201  (etc)
 
-    A059285    X-Y coordinate diff
-
-The difference X-Y is the same as the HilbertCurve, since the "negative"
-spiral parts are mirrored across the X=-Y anti-diagonal, which means
-coordinates (-Y,-X) and -Y-(-X) = X-Y.
+    A000201    spectrum of phi, N in first 0.618 of circle
+    A003849    Fibonacci word, values 0,1
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::TheodorusSpiral>
+
+L<Math::NumSeq::FibonacciWord>,
+L<Math::NumSeq::Fibbinary>
 
 =head1 HOME PAGE
 

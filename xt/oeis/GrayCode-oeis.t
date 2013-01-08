@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use Test;
-plan tests => 29;
+plan tests => 33;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -42,7 +42,7 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  my $i = 0; 
+  my $i = 0;
   while ($i < @$a1 && $i < @$a2) {
     if ($a1->[$i] ne $a2->[$i]) {
       return 0;
@@ -77,6 +77,174 @@ sub diff_nums {
   return undef;
 }
 
+
+#------------------------------------------------------------------------------
+# A003188 -- Gray code radix=2 is ZOrder -> Gray TsF
+
+MyOEIS::compare_values
+  (anum => 'A003188',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::ZOrderCurve;
+     my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'TsF');
+     my $zorder_path = Math::PlanePath::ZOrderCurve->new;
+     my @got;
+     for (my $n = $zorder_path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $zorder_path->n_to_xy ($n);
+       my $n = $gray_path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
+
+# A006068 -- ungray, inverse Gray FsT X,Y -> ZOrder N
+MyOEIS::compare_values
+  (anum => 'A006068',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::ZOrderCurve;
+     my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'TsF');
+     my $zorder_path = Math::PlanePath::ZOrderCurve->new;
+     my @got;
+     for (my $n = $gray_path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $gray_path->n_to_xy ($n);
+       my $n = $zorder_path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
+
+# A006068 -- ungray, ZOrder X,Y -> Gray FsT N
+MyOEIS::compare_values
+  (anum => 'A006068',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::ZOrderCurve;
+     my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'FsT');
+     my $zorder_path = Math::PlanePath::ZOrderCurve->new;
+     my @got;
+     for (my $n = $zorder_path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $zorder_path->n_to_xy ($n);
+       my $n = $gray_path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A064707 -- permutation radix=2 TsF -> FsT
+#   inverse square of A003188 Gray code
+
+MyOEIS::compare_values
+  (anum => q{A064707},
+   func => sub {
+     my ($count) = @_;
+     my $TsF_path = Math::PlanePath::GrayCode->new (apply_type => 'TsF');
+     my $FsT_path = Math::PlanePath::GrayCode->new (apply_type => 'FsT');
+     my @got;
+     for (my $n = $TsF_path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $TsF_path->n_to_xy ($n);
+       my $n = $FsT_path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
+
+# ???
+#
+# A100281 -- inverse, equals A099896(A099896(n))
+# MyOEIS::compare_values
+#   (anum => q{A100281},
+#    func => sub {
+#      my ($count) = @_;
+#      my $TsF_path = Math::PlanePath::GrayCode->new (apply_type => 'TsF');
+#      my $FsT_path = Math::PlanePath::GrayCode->new (apply_type => 'FsT');
+#      my @got;
+#      for (my $n = $FsT_path->n_start; @got < $count; $n++) {
+#        my ($x, $y) = $FsT_path->n_to_xy ($n);
+#        my $n = $TsF_path->xy_to_n ($x, $y);
+#        push @got, $n;
+#      }
+#      return \@got;
+#    });
+
+#------------------------------------------------------------------------------
+# A099896 -- permutation Peano radix=2 -> Gray sF, from N=1 onwards
+#  n XOR [n/2] XOR [n/4]
+#  1, 3, 2, 7, 6, 4, 5, 14, 15, 13, 12, 9, 8, 10, 11, 28, 29, 31, 30, 27,
+# to_gray = n xor n/2
+
+# PeanoCurve radix=2
+#
+#        54--55  49--48  43--42  44--45  64--65  71--70  93--92  90--91 493-492
+#         |       |           |       |       |       |   |       |       |
+#        53--52  50--51  40--41  47--46  67--66  68--69  94--95  89--88 494-495
+#
+#        56--57  63--62  37--36  34--35  78--79  73--72  83--82  84--85 483-482
+#             |       |   |       |       |       |           |       |       |
+#        59--58  60--61  38--39  33--32  77--76  74--75  80--81  87--86 480-481
+#
+#        13--12  10--11  16--17  23--22 123-122 124-125 102-103  97--96 470-471
+#         |       |           |       |       |       |   |       |       |
+#        14--15   9-- 8  19--18  20--21 120-121 127-126 101-100  98--99 469-468
+#
+#         3-- 2   4-- 5  30--31  25--24 117-116 114-115 104-105 111-110 472-473
+#             |       |   |       |       |       |           |       |       |
+#         0-- 1   7-- 6  29--28  26--27 118-119 113-112 107-106 108-109 475-474
+
+# apply_type => "sF"
+#
+#  7  |  32--33  37--36  52--53  49--48
+#     |    /       \       /       \
+#  6  |  34--35  39--38  54--55  51--50
+#     |
+#  5  |  42--43  47--46  62--63  59--58
+#     |    \       /       \       /
+#  4  |  40--41  45--44  60--61  57--56
+#     |
+#  3  |   8-- 9  13--12  28--29  25--24
+#     |    /       \       /       \
+#  2  |  10--11  15--14  30--31  27--26
+#     |
+#  1  |   2-- 3   7-- 6  22--23  19--18
+#     |    \       /       \       /
+# Y=0 |   0-- 1   5-- 4  20--21  17--16
+#     |
+#     +---------------------------------
+#       X=0   1   2   3   4   5   6   7
+
+MyOEIS::compare_values
+  (anum => 'A099896',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+     my $peano_path = Math::PlanePath::PeanoCurve->new (radix => 2);
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       my ($x, $y) = $peano_path->n_to_xy ($n);
+       my $n = $gray_path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
+
+# A100280 -- inverse
+MyOEIS::compare_values
+  (anum => 'A100280',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PeanoCurve;
+     my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
+     my $peano_path = Math::PlanePath::PeanoCurve->new (radix => 2);
+     my @got;
+     for (my $n = $gray_path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $gray_path->n_to_xy ($n);
+       my $n = $peano_path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A003159 -- (N+1)/2 of positions of Left turns
@@ -287,12 +455,13 @@ sub dxdy_to_dir {
   if ($bvalues) {
     my @got;
     my $gray_path = Math::PlanePath::GrayCode->new (apply_type => 'sF');
-    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'up');
+    my $diagonal_path = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                         n_start => 0);
 
     for (my $n = $gray_path->n_start; @got < @$bvalues; $n++) {
       my ($x, $y) = $gray_path->n_to_xy ($n);
       my $n = $diagonal_path->xy_to_n ($x, $y);
-      push @got, $n + $gray_path->n_start - $diagonal_path->n_start;
+      push @got, $n;
     }
 
     $diff = diff_nums(\@got, $bvalues);

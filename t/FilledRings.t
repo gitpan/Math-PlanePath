@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,7 +35,7 @@ use Math::PlanePath::FilledRings;
 # VERSION
 
 {
-  my $want_version = 95;
+  my $want_version = 96;
   ok ($Math::PlanePath::FilledRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FilledRings->VERSION,  $want_version,
@@ -81,7 +81,7 @@ sub cumul_calc {
       $count += ($x2 + $y*$y <= $sq);
     }
   }
-  return $count + 1;
+  return $count;
 }
 
 {

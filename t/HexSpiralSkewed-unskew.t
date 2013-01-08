@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 80;
+plan tests => 168;
 
 use lib 't';
 use MyTestHelpers;
@@ -30,22 +30,25 @@ use Math::PlanePath::HexSpiral;
 use Math::PlanePath::HexSpiralSkewed;
 
 
-my $plain  = Math::PlanePath::HexSpiral->new;
-my $skewed = Math::PlanePath::HexSpiralSkewed->new;
+foreach my $n_start (1, 0) {
+  my $plain  = Math::PlanePath::HexSpiral->new (n_start => $n_start);
+  my $skewed = Math::PlanePath::HexSpiralSkewed->new (n_start => $n_start);
 
-foreach my $n (1 .. 20) {
-  my ($plain_x, $plain_y)   = $plain->n_to_xy ($n);
-  my ($skewed_x, $skewed_y) = $skewed->n_to_xy ($n);
-  {
-    my ($conv_x,$conv_y) = (($plain_x-$plain_y)/2, $plain_y);
-    ok ($conv_x, $skewed_x,
-        "plain->skewed x at n=$n plain $plain_x,$plain_y skewed $skewed_x,$skewed_y");
-    ok ($conv_y, $skewed_y, "plain->skewed y at n=$n");
-  }
-  {
-    my ($conv_x,$conv_y) = ((2*$skewed_x+$skewed_y), $plain_y);
-    ok ($conv_x, $plain_x, "skewed->plain x at n=$n");
-    ok ($conv_y, $plain_y, "skewed->plain y at n=$n");
+  foreach my $n ($n_start .. $n_start+20) {
+    my ($plain_x, $plain_y)   = $plain->n_to_xy ($n);
+    my ($skewed_x, $skewed_y) = $skewed->n_to_xy ($n);
+    {
+      my ($conv_x,$conv_y) = (($plain_x-$plain_y)/2, $plain_y);
+      ok ($conv_x == $skewed_x, 1,
+          "plain->skewed x at n=$n plain $plain_x,$plain_y skewed $skewed_x,$skewed_y");
+      ok ($conv_y == $skewed_y, 1,
+          "plain->skewed y at n=$n");
+    }
+    {
+      my ($conv_x,$conv_y) = ((2*$skewed_x+$skewed_y), $plain_y);
+      ok ($conv_x == $plain_x, 1, "skewed->plain x at n=$n");
+      ok ($conv_y == $plain_y, 1, "skewed->plain y at n=$n");
+    }
   }
 }
 

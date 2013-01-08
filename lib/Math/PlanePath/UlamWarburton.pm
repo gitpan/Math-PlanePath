@@ -19,7 +19,12 @@
 # A151922 num first-quadrant cells
 # A079314  added
 # A079316 num first-quadrant cells, maybe
-# A079317 Ulam/Warburton with cells turning off too
+
+# Ulam/Warburton with cells turning off too
+# A079315 cells OFF -> ON
+# A079317 cells ON at stage n
+# A079316 cells ON at stage n, in first quadrant
+# A151921 net gain ON cells
 
 package Math::PlanePath::UlamWarburton;
 use 5.004;
@@ -27,7 +32,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;

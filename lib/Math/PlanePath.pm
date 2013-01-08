@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -66,7 +66,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 95;
+$VERSION = 96;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -1304,6 +1304,8 @@ radix or where there's self-similar replication are often best started from
 N=0 instead, since doing so puts nice powers-of-2 etc on the axes or
 diagonals.
 
+    use constant n_start => 0;    # digit or replication style
+
 Paths which use only parts of the plane should define C<class_x_negative()>
 and/or C<class_y_negative()> to false.  For example if always first quadrant
 XE<gt>=0,YE<gt>=0 then
@@ -1536,7 +1538,7 @@ http://user42.tuxfamily.org/math-planepath/gallery.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

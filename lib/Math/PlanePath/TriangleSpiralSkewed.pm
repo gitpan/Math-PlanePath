@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -296,8 +296,8 @@ path include
       A081589     N on X=Y leading diagonal
       A038764     N on X=Y negative South-West diagonal
       A081267     N on X=-Y negative South-East diagonal
-      A060544     N on ESE slope dX=2,dY=-1
-      A081272     N on SSE slope dX=1,dY=-2
+      A060544     N on ESE slope dX=+2,dY=-1
+      A081272     N on SSE slope dX=+1,dY=-2
 
       A217010     permutation N values of points by SquareSpiral order
       A217291      inverse
@@ -305,6 +305,8 @@ path include
     n_start=0
       A051682     N on X axis (11-gonal numbers)
       A081268     N on X=1 vertical (next to Y axis)
+      A062725     N on Y negative
+      A081275     N on X=Y+1 North-East diagonal
       A062728     N on South-East diagonal (11-gonal second kind)
       A081266     N on X=Y negative South-West diagonal
       A081270     N on X=1-Y North-West diagonal, starting N=3
@@ -322,7 +324,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

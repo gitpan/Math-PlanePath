@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -214,11 +214,16 @@ sub ith {
 #        /
 #       /
 #      /
+#     O
 #
 # cmpy = dx2 * dy1/dx1
 # left if dy2 > cmpy
 #         dy2 > dx2 * dy1/dx1
 #         dy2 * dx1 > dx2 * dy1
+#
+# if dx1=0, dy1 > 0 then left if dx2 < 0
+#    dy2 * 0 > dx2 * dy1
+#          0 > dx2*dy1     good
 #
 sub _turn_func_Left {
   my ($dx,$dy, $next_dx,$next_dy) = @_;
@@ -243,7 +248,7 @@ sub _turn_func_Right {
 sub _turn_func_LSR {
   my ($dx,$dy, $next_dx,$next_dy) = @_;
   ### _turn_func_LSR() ...
-  return ($next_dy * $dx <=> $next_dx * $dy || 0);
+  return (($next_dy * $dx <=> $next_dx * $dy) || 0);
 }
 # sub _turn_func_LR_01 {
 #   my ($dx,$dy, $next_dx,$next_dy) = @_;
@@ -671,31 +676,31 @@ sub characteristic_non_decreasing {
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_min;
 }
 { package Math::PlanePath::PythagoreanTree;
-  # UAD always turns right, it seems, both in PQ and XY
-  sub _NumSeq_Turn_Left_max {
+  my %UAD_coordinates_always_right = (PQ => 1,
+                                      AB => 1,
+                                      AC => 1);
+  sub _NumSeq_Turn_always_Right {
     my ($self) = @_;
     return ($self->{'tree_type'} eq 'UAD'
-            ? 0 # always 0
-            : 1);
+            && $UAD_coordinates_always_right{$self->{'coordinates'}});
+  }
+
+  sub _NumSeq_Turn_Left_max {
+    my ($self) = @_;
+    return (_NumSeq_Turn_always_Right($self) ? 0 : 1);
   }
   sub _NumSeq_Turn_Right_min {
     my ($self) = @_;
-    return ($self->{'tree_type'} eq 'UAD'
-            ? 1 # always 1
-            : 0);
+    return (_NumSeq_Turn_always_Right($self) ? 1 : 0);
   }
   sub _NumSeq_Turn_LSR_max {
     my ($self) = @_;
-    return ($self->{'tree_type'} eq 'UAD'
-            ? -1 # always -1
-            : 1);
+    return (_NumSeq_Turn_always_Right($self) ? -1 : 1);
   }
 
   sub _NumSeq_Turn_Left_non_decreasing {
     my ($self) = @_;
-    return ($self->{'tree_type'} eq 'UAD'
-            ? 1 # constant
-            : 0);
+    return (_NumSeq_Turn_always_Right($self) ? 1 : 0);
   }
   *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
@@ -1052,6 +1057,29 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_Left_max => 0; # right or straight always
   use constant _NumSeq_Turn_Left_non_decreasing => 1; # right or straight
   use constant _NumSeq_Turn_LSR_max => 0; # right or straight
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'wider=1,n_start=-1' =>
+      { Left => 'A000007', # turn Left=1 at N=0 only
+        # catalogued only unless/until a better implementation
+        # OEIS-Catalogue: A000007 planepath=Corner,wider=1,n_start=-1 turn_type=Left
+      },
+      'wider=2,n_start=-1' =>
+      { Left => 'A063524', # turn Left=1 at N=1 only
+        # catalogued only unless/until a better implementation
+        # OEIS-Catalogue: A063524 planepath=Corner,wider=2,n_start=-1 turn_type=Left
+      },
+      'wider=3,n_start=-1' =>
+      { Left => 'A185012', # turn Left=1 at N=2 only
+        # catalogued only unless/until a better implementation
+        # OEIS-Catalogue: A185012 planepath=Corner,wider=3,n_start=-1 turn_type=Left
+      },
+      # A185013 Characteristic function of three.
+      # A185014 Characteristic function of four.
+      # A185015 Characteristic function of 5.
+      # A185016 Characteristic function of 6.
+      # A185017 Characteristic function of 7.
+    };
 }
 { package Math::PlanePath::PyramidRows;
   # if step==0 then always straight ahead
@@ -1130,10 +1158,10 @@ sub characteristic_non_decreasing {
     };
 }
 { package Math::PlanePath::PyramidSides;
-    use constant _NumSeq_Turn_Left_max => 0; # right or straight
-    use constant _NumSeq_Turn_Left_non_decreasing => 1; # right or straight
-    use constant _NumSeq_Turn_LSR_max => 0; # right or straight
-  }
+  use constant _NumSeq_Turn_Left_max => 0; # right or straight
+  use constant _NumSeq_Turn_Left_non_decreasing => 1; # right or straight
+  use constant _NumSeq_Turn_LSR_max => 0; # right or straight
+}
 { package Math::PlanePath::CellularRule;
   sub _NumSeq_Turn_Left_increasing {
     my ($self) = @_;
@@ -1240,9 +1268,11 @@ The C<turn_type> choices are
 In each case the value at i is the turn which occurs at N=i,
 
             i+1
+             ^
              |
              |
-    i-1 ---- i    turn at i
+    i-1 ---> i    turn at i
+                  first turn at i = n_start + 1
 
 For multiple "arms" the turn follows that particular arm so it's
 i-arms, i, i+arms.  i values start C<n_start()+arms_count()> so that
@@ -1302,7 +1332,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

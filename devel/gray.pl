@@ -157,7 +157,7 @@ use Smart::Comments;
 }
 
 {
-  # to_gray() same as from_gray()
+  # to_gray() same as from_gray() in some radices
 
   for (my $radix = 2; $radix < 20; $radix++) {
     my $result = "same";

@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -464,6 +464,12 @@ points is the difference in their N values (as given by C<xy_to_n()>).
 The C<radix> parameter can do the calculation in a base other than 3, using
 the same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 
+=cut
+
+# math-image --path=PeanoCurve,radix=5 --expression='i<=50?i:0' --output=numbers_dash
+
+=pod
+
      radix => 5
 
       4  |  20--21--22--23--24--25--26--27--28--29
@@ -482,7 +488,14 @@ the same kind of direction reversals.  For example radix 5 gives 5x5 groups,
 If the radix is even then the ends of each group don't join up.  For example
 in radix 4 N=15 isn't next to N=16, nor N=31 to N=32, etc.
 
-         |
+=cut
+
+# math-image --path=PeanoCurve,radix=4 --expression='i<=33?i:0' --output=numbers_dash
+
+=pod
+
+     radix => 4
+
       3  |  15--14--13--12  16--17--18--19
          |               |               |
       2  |   8-- 9--10--11  23--22--21--20

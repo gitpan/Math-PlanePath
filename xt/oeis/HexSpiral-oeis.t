@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -51,6 +51,26 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
+
+
+#------------------------------------------------------------------------------
+# A063436 -- N on slope=3 WSW
+
+MyOEIS::compare_values
+  (anum => 'A063436',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::HexSpiral->new (n_start => 0);
+     my $x = 0;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, $path->xy_to_n ($x,$y);
+       $x -= 3;
+       $y -= 1;
+     }
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -55,6 +55,42 @@ my @modules = (
                # 'LCornerReplicate',
 
                # module list begin
+
+               'HexSpiral',
+               'HexSpiral,n_start=0',
+               'HexSpiral,n_start=37',
+               'HexSpiral,wider=10,n_start=37',
+               'HexSpiral,wider=1',
+               'HexSpiral,wider=2',
+               'HexSpiral,wider=3',
+               'HexSpiral,wider=4',
+               'HexSpiral,wider=5',
+               'HexSpiral,wider=37',
+
+               'HexSpiralSkewed',
+               'HexSpiralSkewed,n_start=0',
+               'HexSpiralSkewed,n_start=37',
+               'HexSpiralSkewed,wider=10,n_start=37',
+               'HexSpiralSkewed,wider=1',
+               'HexSpiralSkewed,wider=2',
+               'HexSpiralSkewed,wider=3',
+               'HexSpiralSkewed,wider=4',
+               'HexSpiralSkewed,wider=5',
+               'HexSpiralSkewed,wider=37',
+
+               'FilledRings',
+               'FilledRings,n_start=0',
+               'FilledRings,n_start=37',
+
+               'AnvilSpiral,n_start=0',
+               'AnvilSpiral,n_start=37',
+               'AnvilSpiral,n_start=37,wider=9',
+               'AnvilSpiral,wider=17',
+               'AnvilSpiral',
+               'AnvilSpiral,wider=1',
+               'AnvilSpiral,wider=2',
+               'AnvilSpiral,wider=9',
+               'AnvilSpiral,wider=17',
 
                'PythagoreanTree,coordinates=BC',
                'PythagoreanTree',
@@ -210,21 +246,6 @@ my @modules = (
                'CubicBase,radix=4',
                'CubicBase,radix=37',
 
-               'HexSpiral',
-               'HexSpiral,wider=1',
-               'HexSpiral,wider=2',
-               'HexSpiral,wider=3',
-               'HexSpiral,wider=4',
-               'HexSpiral,wider=5',
-               'HexSpiral,wider=37',
-               'HexSpiralSkewed',
-               'HexSpiralSkewed,wider=1',
-               'HexSpiralSkewed,wider=2',
-               'HexSpiralSkewed,wider=3',
-               'HexSpiralSkewed,wider=4',
-               'HexSpiralSkewed,wider=5',
-               'HexSpiralSkewed,wider=37',
-
                'CfracDigits,radix=1',
                'CfracDigits',
                'CfracDigits,radix=3',
@@ -291,11 +312,6 @@ my @modules = (
                'ComplexMinus,realpart=5',
 
                'OctagramSpiral',
-               'AnvilSpiral',
-               'AnvilSpiral,wider=1',
-               'AnvilSpiral,wider=2',
-               'AnvilSpiral,wider=9',
-               'AnvilSpiral,wider=17',
 
                'CoprimeColumns',
                'DivisibleColumns',
@@ -324,7 +340,6 @@ my @modules = (
                'PowerArray,radix=4',
 
                'PixelRings',
-               'FilledRings',
                'MultipleRings',
                'MultipleRings,step=0',
                'MultipleRings,step=1',
@@ -596,7 +611,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 95;
+my $want_version = 96;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

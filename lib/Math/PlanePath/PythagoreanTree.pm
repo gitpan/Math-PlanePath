@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -17,49 +17,6 @@
 
 
 # math-image --path=PythagoreanTree --all --scale=3
-
-# AB,AC,PQ always turn right in UAD
-
-# U     P -> 2P-Q
-#       Q -> P
-#
-# A     P -> 2P+Q
-#       Q -> P
-#
-# D     P -> P+2Q
-#       Q -> Q unchanged
-#
-# 2P-Q,P to 2P+Q,P to P+2Q,Q  P>Q>=1
-#
-#           right at first "U"
-#                 3P-2Q,2P-Q ----- 5P-2Q,2P-Q
-#                   |
-#                   |
-#           2P-Q,P ---- 2P+Q,P right at "A"
-#                   |    /
-#                   |   /
-#    P,Q           P+2Q,Q
-#
-#                                           3P+2Q,2P+Q
-#
-#
-#              "U" 3P-2Q,2P-Q ----- 5P-2Q,2P-Q "A"
-#                                    /
-#                                   /
-#                                4P-Q,P "D"
-#
-#
-#    P,Q
-#
-#                     / U 4P-2Q-P,2P-Q = 3P-2Q,2P-Q
-#           U 2P-Q,P -- A 4P-2Q+P,2P-Q = 5P-2Q,2P-Q
-#         /           \ D 2P-Q+2P,P    = 4P-Q, P
-#        /            / U 4P+2Q-P,2P+Q = 3P+2Q,2P+Q
-#    P,Q -- A 2P+Q,P -- A
-#        \            \ D
-#         \           / U
-#           D P+2Q,Q -- A
-#                     \ D
 
 # Daniel Shanks. Solved and Unsolved Problems in Number Theory, pp. 121 and
 # 141, 1993.
@@ -96,6 +53,9 @@
 #
 # http://www.microscitech.com/pythag_eigenvectors_invariants.pdf
 #
+# L. Palmer, M. Ahuja, and M. Tikoo, "Finding Pythagorean Triple Preserving
+# Matrices". Missouri Journal of Mathematical Sciences, 10 (1998), 99-105.
+# www.math-cs.ucmo.edu/~mjms/1998.2/palmer.ps
 
 
 package Math::PlanePath::PythagoreanTree;
@@ -104,7 +64,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -860,7 +820,7 @@ Hall (1970), and several others, uses three matrices U, A and D which can be
 multiplied onto an existing primitive triple to form three new primitive
 triples.  See L</UAD Matrices> below for details of the descent.
 
-    tree_type => "UAD"   (the default
+    tree_type => "UAD"   (the default)
 
     Y=40 |          14
          |
@@ -1243,6 +1203,199 @@ The letters P and Q here are a little bit arbitrary.  They're often written
 m,n or u,v, but don't want "n" to be confused that with the N point
 numbering or "u" to be confused with the U matrix in UAD.
 
+=head2 Turn Right -- UAD Coordinates AB, AC, PQ
+
+In the UAD tree with coordinates AB, AC or PQ the path always turns to the
+right at each point.  For example AB coordinates as shown above at N=2 the
+path turns to the right to go towards N=3.
+
+    Y=20 |                      3
+         |
+    Y=12 |      2
+         |
+         |
+     Y=4 |    1
+         |
+         +-------------------------
+            X=3               X=20
+
+This can be proved from the transformations applied to eight cases, an
+initial N=1,2,3, a plain triplet U,A,D then four crossing a gap within a
+level and two wrapping around at the end of a level.
+
+    U        triplet U,A,D
+    A
+    D
+
+    U.D^k.A       A.D^k.A       crossing A,D to U
+    U.D^k.D       A.D^k.D       across U->A or A->D gap
+    A.U^k.U       D.U^k.U        k>=0
+
+    U.D^k.D       A.D^k.D       crossing D to U,A
+    U.U^k.U       A.U^k.U        k>=0
+    A.U^k.A       D.U^k.A
+
+    D^k    .A     wraparound A,D to U
+    D^k    .D      k>=0
+    U^(k+1).U
+
+    D^k           wraparound D to U,A
+    U^k.U          k>=0
+    U^k.A          (k=0 is initial N=1,N=2,N=3 for none,U,A)
+
+The powers U^k and D^k are an arbitrary number of descents U or D.  In P,Q
+coordinates these powers are
+
+    U^k    P,Q   ->  (k+1)*P-k*Q, k*P-(k-1)*Q
+    D^k    P,Q   ->  P+2k*Q, Q
+
+For AC coordinates squaring to stretch G=P^2,H=Q^2 doesn't change the turns.
+Then a rotate by -45 degrees to G-H,G+H also doesn't change the turns and is
+A=P^2-Q^2 and C=P^2+Q^2.
+
+=cut
+
+# U     P -> 2P-Q
+#       Q -> P
+#
+# A     P -> 2P+Q
+#       Q -> P
+#
+# D     P -> P+2Q
+#       Q -> Q unchanged
+#
+# ------------------------------------
+# none  (P,Q)
+# U     (2P-Q,P)     dx1=P-Q  dy1=P-Q
+# A     (2P+Q,P)     dx2=P+Q  dy2=P-Q
+# dx2*dy1 - dx1*dy2
+#    = (P+Q)*(P-Q) - (P-Q)*(P-Q)
+#    = (P-Q) * (P+Q - (P-Q))
+#    = (P-Q) * 2Q  > 0 so Right
+#
+# ------------------------------------
+# U    (2P-Q,P)
+# A    (2P+Q,P)     dx1=2Q    dy1=0
+# D    (P+2Q,Q)     dx2=-P+3Q dy2=Q-P
+# dx2*dy1 - dx1*dy2
+#    = (-P+3Q)*0 - 2Q * (Q-P)
+#    = 2Q*(P-Q) > 0  so Right
+#
+# ------------------------------------
+# crossing A,D to U   from gap U,A
+# U.D^k.A = (2*P-Q,P) . D^k . A
+#         = (2*P-Q + 2*k*P, P) . A
+#         = ((2*k+2)*P-Q, P) . A
+#         = 2*((2*k+2)*P-Q) + P,   (2*k+2)*P-Q
+#         = (4*k+4)*P - 2*Q + P,  (2*k+2)*P-Q
+#         = (4*k+5)*P - 2*Q,      (2*k+2)*P-Q
+# U.D^k.D = ((2*k+2)*P-Q, P) . D
+#         = (2*k+2)*P-Q + 2*P,  P
+#         = (2*k+4)*P-Q,        P
+# A.U^k.U = (2*P+Q, P) . U^(k+1)
+#         = (k+2)*(2*P+Q) - (k+1)*P,      (k+1)*(2*P+Q) - k*P
+#         = (k+3)*P + (k+2)*Q,            (k+2)*P + (k+1)*Q
+#  dx1 = (2*k+4)*P-Q       - ((4*k+5)*P - 2*Q)
+#  dy1 = P                 - ((2*k+2)*P-Q)
+#  dx2 = (k+3)*P + (k+2)*Q - ((4*k+5)*P - 2*Q)
+#  dy2 = (k+2)*P + (k+1)*Q - ((2*k+2)*P-Q)
+# dx2*dy1 - dx1*dy2
+#    =  4*P^2*k^2 + (6*P^2 - 6*Q*P)*k + (2*P^2 - 4*Q*P + 2*Q^2)
+#    =  4*P^2*k^2 + 6*P*(P-Q)*k       + 2*(P-Q)^2
+#       > 0  turn right
+#
+# ------------------------------------
+# wraparound A,D to U
+# D^k    .A  = (P+2kQ, Q) . A
+#            = 2*(P+2*k*Q)+Q, P+2*k*Q
+#            = 2*P+(4*k+1)*Q, P+2*k*Q
+# D^k    .D  = D^(k+1) = P+(2*k+2)*Q, Q
+# U^(k+1).U  = U^(k+1) = (k+3)*P-(k+2)*Q, (k+2)*P-(k+1)*Q
+#  dx1 = P+(2*k+2)*Q - (2*P+(4*k+1)*Q)
+#       = -P + (-2*k+1)*Q
+#  dy1 = Q - (P+2*k*Q)
+#      = -P + (-2k+1)Q
+#  dx2 = (k+3)*P-(k+2)*Q - (2*P+(4*k+1)*Q)
+#      = (k+1)*P + (-5*k-3)*Q
+#  dy2 = (k+2)*P-(k+1)*Q - (P+2*k*Q)
+#      = (k+1)P + (-k-1 -2k)Q
+#      = (k+1)*P + (-3k-1)*Q
+# dx2*dy1 - dx1*dy2
+#    = ((k+1)P + (-5k-3)Q) * (-P + (-2k+1)Q) - (-P + (-2k+1)) * ((k+1)P + (-3k-1)Q)
+#    = (2*Q*k + 2*Q)*P + (4*Q^2*k^2 + 2*Q^2*k - 2*Q^2)
+#    = (2*k + 2)*P*Q + (4*k^2 + 2*k - 2)*Q^2
+#     > 0  turn Right
+#
+# eg. P=2,Q=1 k=0
+# D^k  .A   = 5,2
+# D^k  .D   = 4,1
+# U^k+1.U   = 4,3
+# dx1 = -1
+# dy1 = -1
+# dx2 = -1
+# dy2 = 1
+# dx2*dy1 - dx1*dy2 = 2
+#
+# ------------------------------------
+# wraparound D to U,A
+# D^k     = P+2*k*Q, Q
+# U^k.U   = U^(k+1)
+#         = (k+2)*P-(k+1)*Q, (k+1)*P-k*Q
+# U^k.A   = (k+1)*P-k*Q, k*P-(k-1)*Q  . A
+#         = 2*((k+1)*P-k*Q) + k*P-(k-1)*Q, (k+1)*P-k*Q
+#         = (3*k+2)*P + (-3*k+1)*Q,        (k+1)*P-k*Q
+#  dx1 = (k+2)*P-(k+1)*Q - (P+2*k*Q)
+#      = (k+1)*P + (-3*k-1)*Q
+#  dy1 = (k+1)*P-k*Q - Q
+#      = (k+1)*P-(k+1)*Q
+#  dx2 = (3*k+2)*P + (-3*k+1)*Q - (P+2*k*Q)
+#      = (3*k+1)*P + (-5*k+1)*Q
+#  dy2 = (k+1)*P-k*Q - Q
+#      = (k+1)*P-(k+1)*Q
+# dx2*dy1 - dx1*dy2
+#   = (2*P^2 - 4*Q*P + 2*Q^2)*k^2 + (2*P^2 - 2*Q*P)*k + (2*Q*P - 2*Q^2)
+#   = 2*(P-Q)^2*k^2               + 2*P*(P-Q)*k       + 2*Q*(P-Q)
+#     > 0  turn Right
+#
+# eg. P=2;Q=1;k=1
+#  4,1
+#  4,3
+#  8,3
+
+
+# 2P-Q,P to 2P+Q,P to P+2Q,Q  P>Q>=1
+#
+#           right at first "U"
+#                 3P-2Q,2P-Q ----- 5P-2Q,2P-Q
+#                   |
+#                   |
+#           2P-Q,P ---- 2P+Q,P right at "A"
+#                   |    /
+#                   |   /
+#    P,Q           P+2Q,Q
+#
+#                                           3P+2Q,2P+Q
+#
+#
+#              "U" 3P-2Q,2P-Q ----- 5P-2Q,2P-Q "A"
+#                                    /
+#                                   /
+#                                4P-Q,P "D"
+#
+#
+#    P,Q
+#
+#                     / U 4P-2Q-P,2P-Q = 3P-2Q,2P-Q
+#           U 2P-Q,P -- A 4P-2Q+P,2P-Q = 5P-2Q,2P-Q
+#         /           \ D 2P-Q+2P,P    = 4P-Q, P
+#        /            / U 4P+2Q-P,2P+Q = 3P+2Q,2P+Q
+#    P,Q -- A 2P+Q,P -- A
+#        \            \ D
+#         \           / U
+#           D P+2Q,Q -- A
+#                     \ D
+
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -1520,7 +1673,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

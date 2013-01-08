@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 4;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -29,11 +29,46 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 
 use List::Util 'min', 'max';
-use Math::PlanePath::TriangleSpiral;
 use Math::PlanePath::TriangleSpiralSkewed;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
+
+
+#------------------------------------------------------------------------------
+# A081272 -- N on slope=2 SSE
+
+MyOEIS::compare_values
+  (anum => 'A081272',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::TriangleSpiralSkewed->new;
+     my $x = 0;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, $path->xy_to_n ($x,$y);
+       $x += 1;
+       $y -= 2;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A081275 -- N on X=Y+1 diagonal
+
+MyOEIS::compare_values
+  (anum => 'A081275',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::TriangleSpiralSkewed->new (n_start => 0);
+     for (my $y = 0; @got < $count; $y++) {
+       my $x = $y + 1;
+       push @got, $path->xy_to_n ($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A217010 -- N values by SquareSpiral order

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 67)[1];
+my $test_count = (tests => 76)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -45,9 +45,34 @@ require Math::NumSeq::PlanePathTurn;
 #------------------------------------------------------------------------------
 # _turn_func_Left()
 
-ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, 0,1),  1); # left 90
-ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, 1,0),  0); # straight
-ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, 0,-1), 0); # right 90
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, 0,1),  1,
+    'left 90 from X axis');
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, -5,5),  1,
+    'left 135 from X axis');
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, 1,0),  0,
+    'straight along X axis');
+
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(0,1, -1,0), 1,
+    'left 90 from Y axis');
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(0,1, -2,2), 1,
+    'left 45 from Y axis');
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(0,1, -4,-4), 1,
+    'left 135 from Y axis');
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(0,1, 0,1),  0,
+    'straight along Y axis');
+
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(-1,0, 0,-1),  1,
+    'left 90 from X neg axis');
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(-1,0, -1,0),  0,
+    'straight along X neg axis');
+
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(0,-1, 1,0), 1,
+    'left 90 from Y neg axis');
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(0,-1, 0,-1),  0,
+    'straight along Y neg axis');
+
+ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, 0,-1), 0,
+    'right 90 from X axis');
 ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(1,0, -1,0), 1); # straight opposite 180
 ok (Math::NumSeq::PlanePathTurn::_turn_func_Left(0,1, 0,-1), 1); # straight opposite 180
 

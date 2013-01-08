@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,6 +37,40 @@ use Math::PlanePath::TriangleSpiralSkewed;
 
 my $path = Math::PlanePath::TriangleSpiral->new;
 
+
+#------------------------------------------------------------------------------
+# A081272 -- N on Y axis
+
+MyOEIS::compare_values
+  (anum => 'A081272',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::TriangleSpiral->new;
+     for (my $y = 0; @got < $count; $y -= 2) {
+       push @got, $path->xy_to_n (0,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A081275 -- N on slope=3 ENE
+
+MyOEIS::compare_values
+  (anum => 'A081275',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::TriangleSpiral->new (n_start => 0);
+     my $x = 2;
+     my $y = 0;
+     while (@got < $count) {
+       push @got, $path->xy_to_n ($x,$y);
+       $x += 3;
+       $y += 1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A081589 -- N on slope=3 ENE

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 8;
 
 use lib 't','xt';
 use MyTestHelpers;

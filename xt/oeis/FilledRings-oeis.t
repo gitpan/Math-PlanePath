@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use Math::BigInt;
 use Math::PlanePath::FilledRings;
 
 use Test;
-plan tests => 2;
+plan tests => 5;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,53 +33,20 @@ use MyOEIS;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
 #------------------------------------------------------------------------------
 # A036704 -- count |z|<=n+1/2
-{
-  my $anum = 'A036704';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::FilledRings->new;
-    for (my $x = 1; @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,0)-1;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A036704',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::FilledRings->new (n_start => 0);
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,0);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A036708 -- half plane count n-1/2 < |z|<=n+1/2, b>=0
@@ -87,93 +54,65 @@ sub diff_nums {
 # N(X)/2+X-1 - (N(X-1)/2+X-1-1)
 # = (N(X)-N(X-1))/2 + X-1 - X + 2
 # = (N(X)-N(X-1))/2 + 1
-{
-  my $anum = 'A036708';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (1);
-    my $path = Math::PlanePath::FilledRings->new;
-    for (my $x = 2; @got < @$bvalues; $x++) {
-      push @got, ($path->xy_to_n($x,0)-$path->xy_to_n($x-1,0))/2 + 1;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A036708',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $path = Math::PlanePath::FilledRings->new;
+     for (my $x = 2; @got < $count; $x++) {
+       push @got, ($path->xy_to_n($x,0)-$path->xy_to_n($x-1,0))/2 + 1;
+     }
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------
 # A036707 -- half plane count |z|<=n+1/2, b>=0
-{
-  my $anum = 'A036707';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::FilledRings->new;
-    for (my $x = 1; @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,0)/2 + $x-1;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A036707',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::FilledRings->new;
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,0)/2 + $x-1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A036706 -- 1/4 of first diffs of N along X axis,
-{
-  my $anum = 'A036706';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::FilledRings->new;
-    for (my $x = 1; @got < @$bvalues; $x++) {
-      push @got, int (($path->xy_to_n($x,0) - $path->xy_to_n($x-1,0)) / 4);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A036706',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::FilledRings->new;
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, int (($path->xy_to_n($x,0) - $path->xy_to_n($x-1,0)) / 4);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A036705 -- first diffs of N along X axis,
 #    count of z=a+bi satisfying n-1/2 < |z| <= n+1/2
-{
-  my $anum = 'A036705';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::FilledRings->new;
-    for (my $x = 1; @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n($x,0) - $path->xy_to_n($x-1,0);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A036705',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::FilledRings->new;
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,0) - $path->xy_to_n($x-1,0);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

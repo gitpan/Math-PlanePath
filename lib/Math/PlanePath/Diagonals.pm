@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,7 +25,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -407,16 +407,18 @@ path include
 
       A127949    dY, change in Y coordinate
 
-      A000124    N on Y axis
+      A000124    N on Y axis, triangular numbers + 1
       A001844    N on X=Y diagonal
 
     direction=down, n_start=0
       A023531    dSum = dX+dY, being 1 at N=triangular+1 (and 0)
       A129184    turn 1=left,0=right
+      A000096    N on X axis, X*(X+3)/2
+      A000217    N on Y axis, the triangular numbers
 
-    direction=up likewise but swapping X,Y.
+    likewise direction=up swapping X,Y
 
-    n_start=1, either direction
+    either direction, n_start=1
       A038722    permutation N at transpose Y,X
                    which is direction=down <-> direction=up
 
@@ -455,7 +457,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

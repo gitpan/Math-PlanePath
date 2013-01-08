@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -315,7 +315,7 @@ counts upward from the centre to the Y axis.
 
 =pod
 
-    8 |  25 29 34 39 45 51 58 65 73
+    8 |  25 29 34 39 45 51 58 65 73 
       |    \  \  \  \  \  \  \
     7 |  20 24 28 33 38 44 50 57
       |    \  \  \  \  \  \
@@ -323,7 +323,7 @@ counts upward from the centre to the Y axis.
       |    \  \  \  \  \
     5 |  12 15 18 22 26 31
       |    \  \  \  \
-    4 |   9 11 14 17 21
+    4 |   9 11 14 17 21             direction => "up"
       |    \  \  \
     3 |   6  8 10 13
       |    \  \
@@ -352,7 +352,8 @@ example to start at 0,
 
 =pod
 
-    n_start => 0                 n_start=>0, direction=>"up"
+    n_start => 0                    n_start=>0
+    direction => "down"             direction=>"up"
 
       6  | 12                        | 15
       5  |  9 13                     | 11 14
@@ -504,17 +505,16 @@ this path include
       A002620    N at end each run X=k,Y=k and X=k,Y=k+1
     direction=down, n_start=0
       A055087    X coord, runs 0 to k twice
-      A055086    X+Y, k repeating floor(k/2)+1 times
       A082375    Y-X, runs k to 0 or 1 stepping by 2
 
     direction=up
-      A055086    X+Y, k repeating floor(k/2)+1 times
       A002620    N on Y axis, end of each run, quarter squares
     direction=up, n_start=0
-      A024206    N on Y axis
+      A024206    N on Y axis (starting from n=1 is Y=0, so Y=n-1)
+      A014616    N in column X=1 (is Y axis N-1, from N=3)
 
-A055086 sum X+Y is the same for direction=down or direction=up.  It counts
-which diagonal a given N falls in, ignoring where along it.
+    either direction, n_start=0
+      A055086    X+Y, k repeating floor(k/2)+1 times
 
     A004652      N start and end of each even-numbered diagonal
 

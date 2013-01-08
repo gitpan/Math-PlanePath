@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -681,8 +681,14 @@ path include
       A002262    X coordinate, runs 0 to k
       A003056  	 Y coordinate, k repeated k+1 times
       A025581  	 Y-X coordinate diff, runs k to 0
+      A079904    X*Y product
+      A080099    X bitwise-AND Y
+      A080098    X bitwise-OR  Y
+      A051933    X bitwise-XOR Y
+
       A023531    dY, being 1 at triangular numbers (but starting n=0)
       A167407    dX-dY, change in X-Y (extra initial 0)
+
       A079824    N total along each opposite diagonal
       A000124    N on Y axis (triangular+1)
       A000217    N on X=Y diagonal, extra initial 0
@@ -705,6 +711,11 @@ path include
       A084849    N on Y axis
       A001844    N on X=Y diagonal (North-East)
       A058331    N on X=-Y North-West diagonal
+    step=4, n_start=0
+      A014105    N on Y axis, the second hexagonal numbers
+    step=4, align=right, n_start=0
+      A060511    X coordinate, amount n exceeds hexagonal number
+      A000384    N on Y axis, the hexagonal numbers
 
     step=5
       A116668    N on Y axis
@@ -739,7 +750,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

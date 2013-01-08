@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -263,7 +263,7 @@ path include
 
     http://oeis.org/A045944  (etc)
 
-    A045944    N on X axis, except initial 0
+    A045944    N on X axis except initial 0, octagonal numbers second kind
     A056106    N on Y axis, except initial 1
     A056109    N on X negative axis, from Y=-1
 
@@ -278,7 +278,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

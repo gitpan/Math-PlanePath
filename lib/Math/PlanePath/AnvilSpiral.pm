@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 95;
+$VERSION = 96;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,7 +56,13 @@ use constant dy_maximum => 1;
 
 sub new {
   my $self = shift->SUPER::new (@_);
+
+  # parameters
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   $self->{'wider'} ||= 0;  # default
+
   return $self;
 }
 
@@ -104,7 +110,8 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### AnvilSpiral n_to_xy(): $n
 
-  if ($n < 1) { return; }
+  $n = $n - $self->{'n_start'};  # to N=0 basis, warning if $n==undef
+  if ($n < 0) { return; }
   my $w = $self->{'wider'};
   my $w_right = int($w/2);
   my $w_left = $w - $w_right;
@@ -112,16 +119,16 @@ sub n_to_xy {
   ### $w_left
   ### $w_right
 
-  if ($n <= $w+1) {
+  if ($n <= $w) {
     ### centre horizontal
-    return ($n-1 - $w_left,  # n=1 at $w_left
+    return ($n - $w_left,  # N=0 at $w_left
             0);
   }
 
-  my $d = int((sqrt(int(24*$n) + (2*$w-1)**2) + 7-2*$w) / 12);
-  ### $n
+  my $d = int((sqrt(int(24*($n+1)) + (2*$w-1)**2) + 7-2*$w) / 12);
+  ### ($n+1)
   ### $d
-  ### d frac: ((sqrt(int(24*$n) + (2*$w-1)**2) + 7-2*$w) / 12)
+  ### d frac: ((sqrt(int(24*($n+1)) + (2*$w-1)**2) + 7-2*$w) / 12)
   ### d sqrt add: ($w-1)*($w-1)
   ### d const part: 7-2*$w
 
@@ -129,22 +136,20 @@ sub n_to_xy {
   ### base: (6*$d - 7 + 2*$w)*$d + 2-$w
   ### remainder: $n
 
-  if ($n <= 5*$d+$w-1) {
-
-    if ($n <= $d) {
+  if ($n <= 5*$d+$w-2) {
+    if ($n+1 <= $d) {
       ### upper right slope ...
-      return ($n + $d + $w_right - 1,
-              $n);
+      return ($n + $d + $w_right,
+              $n+1);
     } else {
       ### top ...
-      return (-$n + 3*$d + $w_right - 1,
+      return (-$n + 3*$d + $w_right - 2,
               $d);
     }
   }
 
-  $n -= 7*$d + $w - 1;
-
-  if ($n < 0) {
+  $n -= 7*$d + $w - 2;
+  if ($n <= 0) {
     ### left slopes: $n
     return (-abs($n+$d) - $d - $w_left,
             -$n - $d);
@@ -180,26 +185,30 @@ sub xy_to_n {
   if ($x-$w_right >= 2*$abs_y) {
     ### right slopes: "d=".($x-$w_right - $abs_y)
     my $d = $x-$w_right - $abs_y;  # zero based
-    return ((6*$d + 5 + 2*$w)*$d + 1 + $w
-            + $y);
+    return ((6*$d + 5 + 2*$w)*$d + $w
+            + $y
+            + $self->{'n_start'});
   }
 
   if ($x+$w_left < -2*$abs_y) {
     ### left slopes: "d=".($x+$w_left + $abs_y)
     my $d = $x+$w_left + $abs_y;  # negative, and zero based
-    return ((6*$d + 1 - 2*$w)*$d + 1
-            - $y);
+    return ((6*$d + 1 - 2*$w)*$d
+            - $y
+            + $self->{'n_start'});
   }
 
   if ($y > 0) {
     ### top horizontal ...
-    return ((6*$y - 4 + 2*$w)*$y + 1 - $w
-            + $w_right-$x);
+    return ((6*$y - 4 + 2*$w)*$y - $w
+            + $w_right-$x
+            + $self->{'n_start'});
   } else {
     ### bottom horizontal ...
     # y negative
-    return ((6*$y - 2 - 2*$w)*$y + 1
-            + $x+$w_left);
+    return ((6*$y - 2 - 2*$w)*$y
+            + $x+$w_left
+            + $self->{'n_start'});
   }
 }
 
@@ -297,7 +306,7 @@ sub rect_to_n_range {
   # d=y     on the top horizontal
   #
   my $d1 = min ($x1-$w - min($y2,int(($x1-$w+1)/2)) - 1,
-                 $y2);
+                $y2);
   my $d2 = 1 + max ($x2-$w - $y1,
                     $y2);
   ### $d1
@@ -306,8 +315,12 @@ sub rect_to_n_range {
 
   # d1==0 is the centre horizontal
   #
-  return ($d1 <= 0 ? 1 : (6*$d1 - 7 + 2*$w)*$d1 + 2-$w,
-          (6*$d2 - 6 + 2*$w)*$d2 + 1-$w);
+
+  return ($d1 <= 0
+          ? $self->{'n_start'}
+          : (6*$d1 - 7 + 2*$w)*$d1 + 1-$w + $self->{'n_start'},
+
+          (6*$d2 - 6 + 2*$w)*$d2 - $w + $self->{'n_start'});
 }
 
 1;
@@ -376,6 +389,13 @@ horizontal section of given width.  For example
 
 gives
 
+=cut
+
+# math-image --path=AnvilSpiral,wider=3 --all --output=numbers_dash --size=60x12
+# but 2 chars per cell
+
+=pod
+
     33-32-31-30-29-28-27-26-25-24-23 ...            2
       \                          /  /                
        34 11-10--9--8--7--6--5 22 51                1
@@ -397,6 +417,33 @@ Widening doesn't change the nature of the straight lines which arise, it
 just rotates them around.  Each loop is still 12 longer than the previous,
 since the widening is essentially a constant amount in each loop.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start with the same shape.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=AnvilSpiral,n_start=0 --all --output=numbers_dash --size=37x12
+
+=pod
+
+    n_start => 0
+
+    20-19-18-17-16-15-14-13 ...
+      \                 /  /
+       21  4--3--2--1 12 35
+         \  \     /  /  /
+          22  5  0 11 34
+         /  /        \  \
+       23  6--7--8--9-10 33
+      /                    \ 
+    24-25-26-27-28-29-30-31-32
+
+The only effect is to push the N values around by a constant amount.  It
+might help match coordinates with something else zero-based.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -405,7 +452,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::AnvilSpiral-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::AnvilSpiral-E<gt>new (wider =E<gt> $integer)>
+=item C<$path = Math::PlanePath::AnvilSpiral-E<gt>new (wider =E<gt> $integer, n_start =E<gt> $n)>
 
 Create and return a new anvil spiral object.  An optional C<wider> parameter
 widens the spiral path, it defaults to 0 which is no widening.
@@ -426,13 +473,25 @@ path include
 
     http://oeis.org/A033581  (etc)
 
-    wider=0 (the default)
+    default wider=0, n_start=1
       A033570    N on X axis, alternate pentagonals (2n+1)*(3n+1)
       A126587    N on Y axis
+      A136392    N on Y negative (n=-Y+1)
       A033568    N on X=Y diagonal, alternate second pents (2*n-1)*(3*n-1)
+      A085473    N on south-east diagonal
 
     wider=2
       A033581    N on Y axis (6*n^2) except for initial N=2
+
+    n_start=0
+      A211014    N on X axis, 14-gonal numbers of the second kind
+      A139267    N on Y axis, 2*octagonal
+      A049452    N on X negative, alternate pentagonals
+      A033580    N on Y negative, 4*pentagonals
+      A051866    N on X=Y diagonal, 14-gonal numbers
+      A094159    N on north-west diagonal, 3*hexagonals
+      A049453    N on south-west diagonal, alternate second pentagonal
+      A195319    N on south-east diagonal, 3*second hexagonals
 
 =head1 SEE ALSO
 
@@ -447,7 +506,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
