@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 97, January 2013
+    - new tree_num_children_minimum(), tree_num_children_maximum()
+
 Version 96, January 2013
     - AnvilSpiral,HexSpiral,HexSpiralSkewed new n_start, which was in
       parameter_info but did nothing

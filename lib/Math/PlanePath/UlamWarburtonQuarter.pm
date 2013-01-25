@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -28,7 +28,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -45,10 +45,12 @@ use Math::PlanePath::Base::Digits
 # use Smart::Comments;
 
 
-use constant class_x_negative => 0;
-use constant class_y_negative => 0;
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
+
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
+use constant tree_num_children_maximum => 3;
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -666,7 +668,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

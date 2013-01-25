@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 206;
+plan tests => 340;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 96;
+  my $want_version = 97;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -130,8 +130,51 @@ foreach my $elem (
     ok ($got_x, $x, "step=$step n_to_xy() x at n=$n");
     ok ($got_y, $y, "step=$step n_to_xy() y at n=$n");
   }
+  {
+    # n_to_rsquared()
+    my $rsquared = $x*$x + $y*$y;
+    my @got_rsquared = $path->n_to_rsquared($n);
+    my $got_rsquared = $got_rsquared[0];
+    ok (scalar(@got_rsquared), 1);
+    ok (defined $got_rsquared, 1);
+    ok ($got_rsquared == $rsquared,
+        1,
+        "step=$step n_to_rsquared() at n=$n  want $rsquared got $got_rsquared");
+  }
 }
 
+
+#------------------------------------------------------------------------------
+# step=1 n_to_rsquared()
+
+{
+  my $path = Math::PlanePath::MultipleRings->new (step => 1);
+  foreach my $elem (
+                    [ 1, 0 ],
+                    [ 1, 0 ],
+
+                    [ 2,   1 ],
+                    [ 2.5, 1 ],
+                    [ 3,   1 ],
+                    [ 3.5, 1 ],
+
+                    [ 4,   2*2 ],
+                    [ 4.5, 2*2 ],
+                    [ 6,   2*2 ],
+                    [ 6.5, 2*2 ],
+
+                    [ 7,    3*3 ],
+                    [ 7.5,  3*3 ],
+                    [ 10,   3*3 ],
+                    [ 10.5, 3*3 ],
+
+                   ) {
+    my ($n, $want_rsquared) = @$elem;
+    my $got_rsquared = $path->n_to_rsquared($n);
+    ok ($got_rsquared == $want_rsquared, 1,
+        "n_to_rsquared() at n=$n  got $got_rsquared want $want_rsquared");
+  }
+}
 
 #------------------------------------------------------------------------------
 # _xy_to_angle_frac()

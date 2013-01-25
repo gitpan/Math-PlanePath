@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 265;;
+plan tests => 269;;
 
 use lib 't';
 use MyTestHelpers;
@@ -42,7 +42,7 @@ require Math::PlanePath::ChanTree;
 # VERSION
 
 {
-  my $want_version = 96;
+  my $want_version = 97;
   ok ($Math::PlanePath::ChanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ChanTree->VERSION,  $want_version,
@@ -84,9 +84,16 @@ require Math::PlanePath::ChanTree;
     Math::PlanePath::ChanTree->parameter_info_list;
   ok (join(',',@pnames), 'k,n_start');
 }
-
-
-
+{
+  my $path = Math::PlanePath::ChanTree->new;
+  ok ($path->tree_num_children_minimum, 3, 'tree_num_children_minimum()');
+  ok ($path->tree_num_children_maximum, 3, 'tree_num_children_maximum()');
+}
+{
+  my $path = Math::PlanePath::ChanTree->new (k => 123);
+  ok ($path->tree_num_children_minimum, 123, 'tree_num_children_minimum()');
+  ok ($path->tree_num_children_maximum, 123, 'tree_num_children_maximum()');
+}
 
 #------------------------------------------------------------------------------
 

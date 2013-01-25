@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,7 +48,11 @@ use Math::PlanePath::CoprimeColumns;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant x_minimum => 1;
+use constant y_minimum => 2;
 use constant tree_any_leaf => 0;  # no leaves, complete tree
+use constant tree_num_children_minimum => 2; # complete binary tree
+use constant tree_num_children_maximum => 2;
 
 use constant parameter_info_array =>
   [
@@ -60,9 +64,6 @@ use constant parameter_info_array =>
      choices    => ['Kepler'],
    },
   ];
-
-use constant x_minimum => 1;
-use constant y_minimum => 2;
 
 #------------------------------------------------------------------------------
 
@@ -449,7 +450,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

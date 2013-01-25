@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

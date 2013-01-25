@@ -36,13 +36,14 @@
 # NumPrev4
 #
 # Int = int(X/Y) cf A153036 SB integer part
-# IntXY      towards 0  A004199 X>=0,Y>=0
+# IntXY      towards 0  A004199 X>=0,Y>=0    wedge of given slope
+# IntX/Y
 # IntYX
-# RemXY X mod Y 0<=R<Y + or -
+# RemXY X mod Y 0<=R<Y + or -; if Y=0 then R=0, or inf?
 # ModXY = X mod Y range 0 to abs(Y)-1
 # ModYX
-# Frac = XmodY/Y fractional
-# FracNum = abs(X) mod abs(Y)
+# FracXY = XmodY/Y fractional part which would go with IntXY
+# FracNum = abs(X) mod abs(Y), numerator of reduced fraction
 # DivXY = X/Y fractional
 # DivYX = Y/X fractional
 # ExactDivXY = X/Y if X divisible by Y, or 0 if not A126988 X,Y>=1
@@ -70,7 +71,7 @@ use constant 1.02; # various underscore constants below
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -106,13 +107,14 @@ use constant::defer parameter_info_array =>
                    'BitAnd', 'BitOr', 'BitXor',
                    'Min','Max',
                    'GCD',
-                   # 'KroneckerSymbol',
                    'Depth',
                    'NumChildren',
-                   # 'NumSiblings',
                    'IsLeaf','IsNonLeaf',
 
-                   'ToLeaf',
+                   'Height',
+                   # 'KroneckerSymbol',
+                   # 'NumSiblings',
+                   # 'ToLeaf',
                    # 'ModXY',
                    # 'Int',
                    # 'Numerator',
@@ -362,10 +364,17 @@ sub next {
 }
 sub ith {
   my ($self, $i) = @_;
-  ### NumSeq-PlanePathCoord ith(): $i
+  ### NumSeq-PlanePathCoord ith(): "$i"
   return &{$self->{'coordinate_func'}}($self,$i);
 }
 
+use constant _INFINITY => do {
+  my $x = 999;
+  foreach (1 .. 20) {
+    $x *= $x;
+  }
+  $x;
+};
 sub _coordinate_func_X {
   my ($self, $n) = @_;
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
@@ -590,6 +599,32 @@ sub path_tree_n_to_leaf_distance {
   }
 }
 
+# math-image --values=PlanePathCoord,coordinate_type=Height,planepath=ThisPath --path=SierpinskiTriangle --scale=10
+sub _coordinate_func_Height {
+  my ($self, $n) = @_;
+  my $height = $self->{'planepath_object'}->_NumSeq_tree_n_to_height($n);
+  return (defined $height ? $height : _INFINITY);
+}
+# sub path_tree_n_to_height {   # generic
+#   my ($path, $n) = @_;
+#   ### path_tree_n_to_height(): "$n"
+# 
+#   if (is_infinite($n)) {
+#     return $n;
+#   }
+#   my $max = $path->tree_n_to_depth($n) + 10;
+#   my @n = ($n);
+#   my $height = 0;
+#   do {
+#     @n = map {$path->tree_n_children($_)} @n
+#       or return $height;
+#     $height++;
+#   } while (@n && $height < $max);
+# 
+#   ### height infinite ...
+#   return undef;
+# }
+
 # math-image --values=PlanePathCoord,coordinate_type=NumSurround4,planepath=DragonCurve --path=DragonCurve --scale=10
 sub _coordinate_func_NumSurround4 {
   my ($self, $n) = @_;
@@ -622,13 +657,6 @@ sub _coordinate_func_NumSurround8 {
     return $count;
   }
 }
-use constant _INFINITY => do {
-  my $x = 999;
-  foreach (1 .. 20) {
-    $x *= $x;
-  }
-  $x;
-};
 sub _coordinate_func_Int {
   my ($self, $n) = @_;
   ### _coordinate_func_Int(): $n
@@ -923,6 +951,7 @@ sub characteristic_non_decreasing {
                     RSquared    => 'rsquared_minimum',
                     Numerator   => 'x_minimum',
                     Denominator => 'y_minimum',
+                    NumChildren => 'tree_num_children_minimum',
                    );
   sub values_min {
     my ($self) = @_;
@@ -935,8 +964,9 @@ sub characteristic_non_decreasing {
   }
 }
 {
-  my %values_max = (X => 'x_maximum',
-                    Y => 'y_maximum',
+  my %values_max = (X           => 'x_maximum',
+                    Y           => 'y_maximum',
+                    NumChildren => 'tree_num_children_maximum',
                    );
   sub values_max {
     my ($self) = @_;
@@ -1246,19 +1276,30 @@ sub characteristic_non_decreasing {
   }
 
   use constant _NumSeq_Coord_Depth_min => 0;
-  use constant _NumSeq_Coord_Depth_max => 0;
+  sub _NumSeq_Coord_Depth_max {
+    my ($path, $value) = @_;
+    return ($path->tree_n_num_children($path->n_start)
+            ? undef  # is a tree, default infinite max depth
+            : 0);    # not a tree, depth always 0
+  }
   use constant _NumSeq_Coord_Depth_integer => 1;
   use constant _NumSeq_Coord_Depth_non_decreasing => 1; # usually
-
-  use constant _NumSeq_Coord_NumChildren_min => 0;
-  use constant _NumSeq_Coord_NumChildren_max => 0;
   use constant _NumSeq_Coord_NumChildren_integer => 1;
+
+  use constant _NumSeq_Coord_Height_integer => 1;
+  use constant _NumSeq_Coord_Height_min => 0; # at a leaf
+  sub _NumSeq_Coord_Height_max {
+    my ($path) = @_;
+    return ($path->tree_n_num_children($path->n_start)
+            ? undef  # is a tree, default infinite max height
+            : 0);    # not a tree, height always 0
+  }
+  use constant _NumSeq_tree_n_to_height => 0;
 
   use constant _NumSeq_Coord_NumSiblings_min => 0;
   sub _NumSeq_Coord_NumSiblings_max {
-    my ($self) = @_;
-    Math::NumSeq::PlanePathCoord::max ($self->_NumSeq_Coord_NumChildren_max,
-                                       0);
+    my ($path) = @_;
+    return $path->tree_num_children_maximum;  # including self
   }
   use constant _NumSeq_Coord_NumSiblings_integer => 1;
 
@@ -1430,25 +1471,6 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Radius_increasing => 1; # spiralling outwards
 }
 { package Math::PlanePath::MultipleRings;
-  sub _NumSeq_Coord_Radius_min {
-    my ($self) = @_;
-    ### MultipleRings _NumSeq_Coord_Radius_min() ...
-    my $step = $self->{'step'};
-    if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
-      return $self->{'base_r'};
-    }
-    return ($step == 0
-            ? 0  # step=0 along X axis starting X=0,Y=0
-            : $step > 6
-            ? 0.5 / sin((4*atan2(1,1)) / $step)  # pi/step
-            : $self->{'base_r'} + 1);
-  }
-  *_NumSeq_Coord_SumAbs_min = \&_NumSeq_Coord_Radius_min;
-  sub rsquared_minimum {
-    # FIXME: this belongs in Math::PlanePath::MultipleRings
-    my ($self) = @_;
-    return $self->_NumSeq_Coord_Radius_min ** 2;
-  }
   sub _NumSeq_Coord_TRadius_min {
     my ($self) = @_;
     return $self->_NumSeq_Coord_Radius_min;
@@ -1463,16 +1485,25 @@ sub characteristic_non_decreasing {
     # step==0 trivial on X axis
     return ($self->{'step'} == 0 ? 1 : 0);
   }
+  *_NumSeq_Coord_X_integer              = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_Y_integer              = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Sum_increasing         = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_SumAbs_increasing      = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_DiffXY_increasing      = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_AbsDiff_increasing     = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Radius_increasing      = \&_NumSeq_Coord_X_increasing;
-  *_NumSeq_Coord_Radius_integer         = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_TRadius_increasing     = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_TRadius_integer        = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_TRSquared_integer      = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Y_non_decreasing       = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Product_non_decreasing = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_Product_integer        = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_BitAnd_non_decreasing  = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_BitOr_increasing       = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_BitXor_increasing      = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_Min_non_decreasing     = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_Max_increasing         = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_GCD_increasing         = \&_NumSeq_Coord_X_increasing;
 
   sub _NumSeq_Coord_SumAbs_non_decreasing {
     my ($self) = @_;
@@ -1483,12 +1514,21 @@ sub characteristic_non_decreasing {
             ? 1
             : 0);
   }
+
+  sub _NumSeq_Coord_Radius_integer {
+    my ($self) = @_;
+    # step==0 on X axis R=N
+    # step==1 start X=0,Y=0, spaced 1 apart on X axis, same radius for others
+    return ($self->{'step'} <= 1);
+  }
   sub _NumSeq_Coord_Radius_non_decreasing {
     my ($self) = @_;
-    # step==0 trivial on X axis
     # circle is non-decreasing, polygon varies
-    return ($self->{'step'} == 0 || $self->{'ring_shape'} eq 'circle');
+    return ! ($self->{'ring_shape'} eq 'polygon' && $self->{'step'} >= 3);
   }
+  *_NumSeq_Coord_RSquared_integer = \&_NumSeq_Coord_Radius_integer;
+  *_NumSeq_Coord_RSquared_non_decreasing = \&_NumSeq_Coord_Radius_non_decreasing;
+
   sub _NumSeq_Coord_TRadius_non_decreasing {
     my ($self) = @_;
     # step==0 trivial on X axis
@@ -1604,6 +1644,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_TRadius_non_decreasing => 1;
 }
 { package Math::PlanePath::PythagoreanTree;
+  use constant _NumSeq_tree_n_to_height => undef; # complete tree, all infinity
+  use constant _NumSeq_Coord_Height_min => undef;
+
   {
     my %_NumSeq_Coord_DiffXY_min = (PQ => 1, # octant X>=Y+1 so X-Y>=1
                                    );
@@ -1680,9 +1723,6 @@ sub characteristic_non_decreasing {
 
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
-  use constant _NumSeq_Coord_NumChildren_min => 3;
-  use constant _NumSeq_Coord_NumChildren_max => 3;
-  use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_ToLeaf_max => undef;
 }
 { package Math::PlanePath::RationalsTree;
@@ -1690,10 +1730,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
   use constant _NumSeq_Coord_BitAnd_min => 0;  # X=1,Y=2
   use constant _NumSeq_Coord_BitXor_min => 0;  # X=1,Y=1
-  use constant _NumSeq_Coord_Depth_max => undef;
-  use constant _NumSeq_Coord_NumChildren_min => 2;
-  use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_ToLeaf_max => undef;
+  use constant _NumSeq_tree_n_to_height => undef; # complete tree, all infinity
+  use constant _NumSeq_Coord_Height_min => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=SB' =>
@@ -1784,10 +1823,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
   use constant _NumSeq_Coord_BitXor_min => 1;  # X=2,Y=3
-  use constant _NumSeq_Coord_Depth_max => undef;
-  use constant _NumSeq_Coord_NumChildren_min => 2;
-  use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_ToLeaf_max => undef;
+  use constant _NumSeq_tree_n_to_height => undef; # complete tree, all infinity
+  use constant _NumSeq_Coord_Height_min => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=Kepler' =>
@@ -1823,6 +1861,8 @@ sub characteristic_non_decreasing {
   # };
 }
 { package Math::PlanePath::ChanTree;
+  use constant _NumSeq_tree_n_to_height => undef; # complete trees, all inf
+  use constant _NumSeq_Coord_Height_min => undef;
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
     return ($self->{'reduced'} || $self->{'k'} == 2
@@ -1860,13 +1900,6 @@ sub characteristic_non_decreasing {
             ? 1
             : undef);  # other, unlimited
   }
-
-  sub _NumSeq_Coord_NumChildren_min {
-    my ($self) = @_;
-    return $self->{'k'};
-  }
-  *_NumSeq_Coord_NumChildren_max = \&_NumSeq_Coord_NumChildren_min;
-  use constant _NumSeq_Coord_Depth_max => undef; # unlimited
 
   use constant _NumSeq_Coord_BitAnd_min => 0; # X=1,Y=2
   sub _NumSeq_Coord_BitOr_min {
@@ -2133,13 +2166,33 @@ sub characteristic_non_decreasing {
             || $self->{'align'} eq 'diagonal');
   }
 
-  use constant _NumSeq_Coord_NumChildren_max => 2;
-  use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_ToLeaf_max => 4;
   sub _NumSeq_Coord_Int_max {
     my ($self) = @_;
     return ($self->{'align'} eq 'diagonal' ? undef
            : 1); # triangular X<=Y so X/Y<=1
+  }
+
+  sub _NumSeq_tree_n_to_height {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) {
+      return $n;
+    }
+    {
+      # infinite depth on row ends
+      local $self->{'align'} = 'right';
+      my ($x,$y) = $self->n_to_xy($n);
+      if ($x == 0 || $x == $y) {
+        return undef;
+      }
+    }
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+    }
   }
 }
 { package Math::PlanePath::SierpinskiArrowhead;
@@ -3040,14 +3093,59 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
 }
 { package Math::PlanePath::UlamWarburton;
-  use constant _NumSeq_Coord_NumChildren_max => 4;
-  use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_ToLeaf_max => 4;
+  sub _NumSeq_Coord_NumChildren_pred {
+    my ($self, $value) = @_;
+    return ($value==0 || $value==1 || $value==3 || $value==4);
+  }
+  sub _NumSeq_tree_n_to_height {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) {
+      return $n;
+    }
+    {
+      # infinite depth on axes
+      my ($x,$y) = $self->n_to_xy($n);
+      if ($x == 0 || $y == 0) {
+        return undef;
+      }
+    }
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+    }
+  }
 }
 { package Math::PlanePath::UlamWarburtonQuarter;
-  use constant _NumSeq_Coord_NumChildren_max => 3;
-  use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_ToLeaf_max => 4;
+
+  sub _NumSeq_Coord_NumChildren_pred {
+    my ($self, $value) = @_;
+    return ($value==0 || $value==1 || $value==3);
+  }
+  sub _NumSeq_tree_n_to_height {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) {
+      return $n;
+    }
+    {
+      # infinite depth on X=Y diagonal
+      my ($x,$y) = $self->n_to_xy($n);
+      if ($x == $y) {
+        return undef;
+      }
+    }
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+    }
+  }
 }
 { package Math::PlanePath::DiagonalRationals;
   use constant _NumSeq_Coord_Sum_non_decreasing => 1; # X+Y diagonals
@@ -3273,6 +3371,26 @@ sub characteristic_non_decreasing {
 }
 
 { package Math::PlanePath::ToothpickTree;
+  sub _NumSeq_tree_n_to_height {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) {
+      return $n;
+    }
+    {
+      # infinite depth on X=Y, X=Y-1 spines
+      my ($x,$y) = $self->n_to_xy($n);
+      if (abs($y)-abs($x) <= 1) {
+        return undef;
+      }
+    }
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+    }
+  }
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
     ### $self
@@ -3301,8 +3419,6 @@ sub characteristic_non_decreasing {
             : $self->{'parts'} == 2 ? 3   # X=0,Y=1
             : 0);
   }
-  use constant _NumSeq_Coord_Depth_max => undef;
-  use constant _NumSeq_Coord_NumChildren_max => 2;
   use constant _NumSeq_Coord_ToLeaf_max => 7;
 }
 { package Math::PlanePath::ToothpickReplicate;
@@ -3323,21 +3439,105 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # X<=Y so max=Y
 
-  use constant _NumSeq_Coord_NumChildren_max => 2;
-  use constant _NumSeq_Coord_Depth_max => undef;
   use constant _NumSeq_Coord_ToLeaf_max => 9;
   use constant _NumSeq_Coord_Int_max => 1; # triangular X<=Y so X/Y<=1
+
+  sub _NumSeq_tree_n_to_height {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) {
+      return $n;
+    }
+    {
+      # infinite depth on X=Y, X=Y-1 sides
+      my ($x,$y) = $self->n_to_xy($n);
+      if ($y-abs($x) <= 1) {
+        return undef;
+      }
+    }
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+    }
+  }
 }
 
 { package Math::PlanePath::LCornerTree;
-  use constant _NumSeq_Coord_Depth_max => undef;
-  use constant _NumSeq_Coord_NumChildren_max => 3;
   use constant _NumSeq_Coord_ToLeaf_max => 2;
+  sub _NumSeq_Coord_NumChildren_pred {
+    my ($self, $value) = @_;
+    return ($value==0 || $value==3);
+  }
+  sub _NumSeq_tree_n_to_height {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) {
+      return $n;
+    }
+    {
+      # infinite depth on X=Y spines
+      my ($x,$y) = $self->n_to_xy($n);
+      if ($x == $y || $x == -1-$y) {
+        return undef;
+      }
+    }
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+    }
+  }
 }
 # { package Math::PlanePath::LCornerReplicate;
 # }
-{ package Math::PlanePath::PeninsulaBridge;
-  use constant _NumSeq_Coord_Depth_max => undef;
+# { package Math::PlanePath::PeninsulaBridge;
+# }
+
+{ package Math::PlanePath::SurroundOneEight;
+  sub _NumSeq_tree_n_to_height {
+    my ($self, $n) = @_;
+    if (is_infinite($n)) {
+      return $n;
+    }
+    {
+      # infinite depth on X=Y spines
+      my ($x,$y) = $self->n_to_xy($n);
+      if (abs($y) == abs($x)) {
+        return undef;
+      }
+    }
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+    }
+  }
+  # use constant _NumSeq_Coord_ToLeaf_max => 7;
+  {
+    my %_NumSeq_Coord_NumChildren_pred = (4       => [ 0, 1, 2, 3, 5, 8 ],
+                                          1       => [ 0, 1, 2, 3, 5    ],
+                                          octant  => [ 0, 1, 2, 3       ],
+                                          '3mid'  => [ 0, 1, 2, 3, 5    ],
+                                          '3side' => [ 0,    2, 3       ],
+                                          side    => [ 0,    2, 3       ],
+                                         );
+    # compare with "==" to be numeric style, just in case some overloaded
+    # class stringizes to "1.0" or some such nonsense
+    sub _NumSeq_Coord_NumChildren_pred {
+      my ($self, $value) = @_;
+      foreach my $num (@{$_NumSeq_Coord_NumChildren_pred{$self->{'parts'}}}) {
+        if ($value == $num) {
+          return 1;
+        }
+      }
+      return 0;
+    }
+  }
 }
 
 #------------------------------------------------------------------------------

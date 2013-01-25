@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,7 +32,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -53,6 +53,8 @@ use Math::PlanePath::UlamWarburtonQuarter;
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
+
+use constant tree_num_children_maximum => 4;
 
 sub new {
   my $self = shift->SUPER::new(@_);
@@ -739,9 +741,9 @@ Return the children of C<$n>, or an empty list if C<$n> has no children
 (including when C<$n E<lt> 1>, ie. before the start of the path).
 
 The children are the cells turned on adjacent to C<$n> at the next level.
-This can be 0, 1 or 3 points; or 4 at the initial N=1.  The way points are
-numbered means that when there's multiple children they're consecutive N
-values, for example at N=6 the children are 10,11,12.
+This can be 0, 1 or 3 points; or 4 at the initial C<n_start> at the origin.
+The way points are numbered means that when there's multiple children
+they're consecutive N values, for example at N=6 the children are 10,11,12.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
@@ -792,7 +794,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

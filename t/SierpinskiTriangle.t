@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 196;
+plan tests => 198;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiTriangle;
 # VERSION
 
 {
-  my $want_version = 96;
+  my $want_version = 97;
   ok ($Math::PlanePath::SierpinskiTriangle::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiTriangle->VERSION,  $want_version,
@@ -67,6 +67,8 @@ require Math::PlanePath::SierpinskiTriangle;
 {
   my $path = Math::PlanePath::SierpinskiTriangle->new;
   ok ($path->n_start, 0, 'n_start()');
+  ok ($path->class_x_negative, 1, 'class_x_negative()');
+  ok ($path->class_y_negative, 0, 'class_y_negative()');
   ok ($path->x_negative, 1, 'x_negative()');
   ok ($path->y_negative, 0, 'y_negative()');
 }

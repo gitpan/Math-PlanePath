@@ -64,7 +64,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -86,6 +86,8 @@ use Math::PlanePath::Base::Digits
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant tree_any_leaf => 0;  # no leaves, complete tree
+use constant tree_num_children_minimum => 3; # complete ternary tree
+use constant tree_num_children_maximum => 3;
 
 use constant parameter_info_array =>
   [ { name            => 'tree_type',

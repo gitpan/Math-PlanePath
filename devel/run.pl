@@ -99,7 +99,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::GcdRationals';
   $path_class = 'Math::PlanePath::Diagonals';
   $path_class = 'Math::PlanePath::LToothpickTree';
-  $path_class = 'Math::PlanePath::RationalsTree';
   $path_class = 'Math::PlanePath::ChanTree';
   $path_class = 'Math::PlanePath::CfracDigits';
   $path_class = 'Math::PlanePath::BalancedArray';
@@ -130,22 +129,26 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::HexSpiral';
   $path_class = 'Math::PlanePath::HexSpiralSkewed';
   $path_class = 'Math::PlanePath::SurroundTwoEightByCells';
+  $path_class = 'Math::PlanePath::RationalsTree';
   $path_class = 'Math::PlanePath::SurroundOneEightByCells';
   $path_class = 'Math::PlanePath::SurroundOneEight';
+
+  my $lo = 51;
+  my $hi = 60;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-      n_start => 37,
-     wider => 3,
-      coordinates => 'PQ',
-     reverse => 1,
-      tree_type => 'FB',
+     parts => '3mid',
+     # n_start => 37,
+     # wider => 3,
+     # coordinates => 'PQ',
+     # reverse => 1,
+      tree_type => 'L',
      # arms => 2,
      # sides=>3,
      # digit_order => 'XnYX',
      # radix => 2,
-      parts => 1,
      # x_start => 5,
      # y_start => 2,
      #  k => 3,
@@ -207,7 +210,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     $path->rect_to_n_range(0,$nan,0,0);
   }
 
-  for (my $i = $n_start+0; $i <= 61; $i+=1) {
+  for (my $i = $n_start+$lo; $i <= $hi; $i+=1) {
     #for (my $i = $n_start; $i <= $n_start + 800000; $i=POSIX::ceil($i*2.01+1)) {
 
     my ($x, $y) = $path->n_to_xy($i) or next;

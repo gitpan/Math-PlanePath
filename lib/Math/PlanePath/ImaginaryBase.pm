@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -418,8 +418,9 @@ and N is the a[i] digits in base r
 X<Knuth, Donald>The factor sqrt(r) makes the generated Y an integer.  For
 actual use as a number base that factor can be omitted and instead
 fractional digits a[-1]*r^-1 etc used to reach smaller Y values, as for
-example in Knuth's "quater-imaginary" system of base 2*i, ie. i*sqrt(4),
-with digits 0,1,2,3.
+example in Knuth's "quater-imaginary" system of base 2*i, being i*sqrt(4),
+with digits 0,1,2,3.  (Knuth Seminumerical Algorithms section 4.1 and CACM
+1960 pp245-247.)
 
 The powers of i in the base give the replication direction, so i^0=1 right,
 i^1=i up, i^2=-1 right, i^3=-i down, etc.  The power of sqrt(r) then spreads
@@ -577,7 +578,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

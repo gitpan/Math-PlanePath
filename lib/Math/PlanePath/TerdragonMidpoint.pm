@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -455,8 +455,8 @@ Math::PlanePath::TerdragonMidpoint -- dragon curve midpoints
 
 =head1 DESCRIPTION
 
-This is midpoints of an integer version of the terdragon curve by Davis and
-Knuth.
+X<Davis>X<Knuth, Donald>This is midpoints of an integer version of the
+terdragon curve by Davis and Knuth.
 
                       30----29----28----27                      13
                         \              /
@@ -516,16 +516,16 @@ The points are the middle of each edge of a double-size TerdragonCurve.
               ^
              X=0 1  2  3  4  5  6
 
-For example the TerdragonCurve segment N=3 to N=4 is X=3,Y=1 to X=2,Y=2
-which is doubled out to X=6,Y=2 and X=4,Y=4, then the midpoint of those is
-X=5,Y=3 for N=3 here.
+For example in the TerdragonCurve N=3 to N=4 is X=3,Y=1 to X=2,Y=2 and
+that's doubled out here to X=6,Y=2 and X=4,Y=4 then the midpoint of those
+positions is X=5,Y=3 for N=3 in the TerdragonMidpoint.
 
 The result is integer X,Y coordinates on every second point per
 L<Math::PlanePath/Triangular Lattice>, but visiting only 3 of every 4 such
-triangular points, which is 3 of 8 all integer X,Y points.  The points used
-are a pattern of alternate rows with 1 of 2 points (such as the Y=7 row) and
-1 of 4 points (such as the Y=8 row).  Notice the pattern is the same when
-turned by 60 degrees or 120 degrees.
+triangular points, which in turn is 3 of 8 all integer X,Y points.  The
+points used are a pattern of alternate rows with 1 of 2 points and 1 of 4
+points.  For example the Y=7 row is 1 of 2 and the Y=8 row is 1 of 4.
+Notice the pattern is the same when turned by 60 degrees.
 
     * * * * * * * * * * * * * * * * * * * *
      *   *   *   *   *   *   *   *   *   *
@@ -548,6 +548,8 @@ turned by 60 degrees or 120 degrees.
 Multiple copies of the curve can be selected, each advancing successively.
 Like the main TerdragonCurve the midpoint curve covers 1/6 of the plane and
 6 arms rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
+With 6 arms all the alternating "1of2" and "1of4" points described above are
+visited.
 
 C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (like
 the single curve above), then N=1,7,13,19 the second copy rotated 60
@@ -610,15 +612,16 @@ Return 0, the first N in the path.
 An X,Y point can be turned into N by dividing out digits of a complex base
 w+1 where
 
-    w = 1/2 + i * sqrt(3)/2 = 6th root of unity
+    w = 1/2 + i * sqrt(3)/2
+      = 6th root of unity
 
 At each step the low ternary digit is formed from X,Y and an adjustment
 applied to move X,Y onto a multiple of w+1 ready to divide out w+1.
 
 In the N points above it can be seen that each group of three N values make
 a straight line, such as N=0,1,2, or N=3,4,5 etc.  The adjustment moves the
-two ends of these N=0 mod 3 or N=2 mod 3 to the centre N=1 mod 3.  The
-centre N=1 mod 3 position is always a multiple of w+1.
+two ends N=0mod3 or N=2mod3 to the centre N=1mod3.  The centre N=1mod3
+position is always a multiple of w+1.
 
 The angles and positions for the N triple groups follow a 12-point pattern
 as follows, where each / \ or - is a point on the path (any arm).
@@ -649,10 +652,7 @@ as follows, where each / \ or - is a point on the path (any arm).
     \ - - - \ / \ - - - \ / \ - - - \ / \ - - - \ / \
 
 In the current code a 12x12 table is used, indexed by X mod 12 and Y mod 12.
-Is there a good aX+bY mod 12 or mod 24 for a smaller table?  Maybe X+3Y like
-the digit?  Taking C=(X-Y)/2 in triangular coordinate style can get the
-table down to 6x6.  But in any case once the adjustment is found the result
-is
+With Xadj and Yadj from there
 
     Ndigit = (X + 3Y + 1) mod 3    # 0,1,2 low ternary digit
 
@@ -663,15 +663,19 @@ is
             = (Xm,Ym) * (2-w) / 3
             = ((Xm+Ym)/2, (3*Ym-Xm)/6)
 
-Points not reached by the curve (ie. not the 3 of 4 triangular or 3 of 8
-rectangular described above) can be detected with blank or tagged entries in
-the adjustment table.
+Is there a good aX+bY mod 12 or mod 24 for a smaller table?  Maybe X+3Y like
+the digit?  Taking C=(X-Y)/2 in triangular coordinate style can reduce the
+table to 6x6.
 
-The X,Y reduction stops at the midpoint of the first triple of each arm.  So
-X=3,Y=1 which is N=1 for the first arm or point rotated by
-60,120,180,240,300 degrees for the others.  If only some of the arms are of
-interest then reaching one of the others means the original X,Y was outside
-the desired region.
+Points not reached by the curve (ie. not the 3 of 4 triangular or 3 of 8
+rectangular described above) can be detected with undef or suitably tagged
+entries in the adjustment table.
+
+The X,Y reduction stops at the midpoint of the first triple of the
+originating arm.  So X=3,Y=1 which is N=1 for the first arm, and that point
+rotated by 60,120,180,240,300 degrees for the others.  If only some of the
+arms are of interest then reaching one of the others means the original X,Y
+was outside the desired region.
 
     Arm     X,Y stop
      0        3,1
@@ -702,7 +706,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

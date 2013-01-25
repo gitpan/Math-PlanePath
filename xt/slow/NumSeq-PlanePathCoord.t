@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -394,6 +394,31 @@ my @modules = (
                'ToothpickUpist',
 
                # module list begin
+
+               'MultipleRings,step=0',
+               'MultipleRings,ring_shape=polygon,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,ring_shape=polygon,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,ring_shape=polygon,step=2',
+
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=4',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings,ring_shape=polygon',
+               'MultipleRings',
+
 
                'PythagoreanTree,coordinates=AC',
                'PythagoreanTree,coordinates=BC',
@@ -927,30 +952,6 @@ my @modules = (
                'CellularRule57,mirror=1',
                'CellularRule190',
                'CellularRule190,mirror=1',
-
-               'MultipleRings,step=0',
-               'MultipleRings,ring_shape=polygon,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,ring_shape=polygon,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,ring_shape=polygon,step=2',
-
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=4',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings,ring_shape=polygon',
-               'MultipleRings',
 
                # module list end
 

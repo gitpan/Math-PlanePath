@@ -1,4 +1,4 @@
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -52,7 +52,6 @@ use Math::PlanePath::GcdRationals;
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
-use constant tree_any_leaf => 0;  # no leaves, complete tree
 
 use constant parameter_info_array =>
   [ { name            => 'k',
@@ -99,6 +98,14 @@ sub rsquared_minimum {
           ? 2    # X=1,Y=1 reduced k even, or k=2 top 1/1
           : 5);  # X=1,Y=2
 }
+
+use constant tree_any_leaf => 0;  # no leaves, complete tree
+sub tree_num_children_minimum {
+  my ($self) = @_;
+  return $self->{'k'};
+}
+*tree_num_children_maximum = \&tree_num_children_minimum;
+
 
 #------------------------------------------------------------------------------
 
@@ -1052,7 +1059,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2012 Kevin Ryde
+Copyright 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

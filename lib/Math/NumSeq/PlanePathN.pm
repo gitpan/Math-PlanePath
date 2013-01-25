@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -2581,6 +2581,9 @@ sub values_max {
     };
 }
 
+#------------------------------------------------------------------------------
+# Math-PlanePath-Toothpick
+
 { package Math::PlanePath::ToothpickTree;
   use constant _NumSeq_Y_axis_increasing => 1;  # N=0,N=1 only
   use constant _NumSeq_Y_neg_increasing => 1;  # N=0,N=2 only
@@ -2590,26 +2593,23 @@ sub values_max {
   use constant _NumSeq_Diagonal_SE_increasing => 1;
   use constant _NumSeq_Diagonal_SW_increasing => 1;
 
+  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
   use constant _NumSeq_N_oeis_anum =>
-    { 'parts=1' =>
-      { Depth_start => 'A153000',
-        # not yet
-        # OEIS-Other: A153000 planepath=ToothpickTree,parts=1 line_type=Depth_start
-      },
-      'parts=2' =>
-      { Depth_start => 'A152998',
-        # not yet
-        # OEIS-Other: A152998 planepath=ToothpickTree,parts=2 line_type=Depth_start
+    { 'parts=4' =>
+      { Depth_start => 'A139250',
+        # OEIS-Other: A139250 planepath=ToothpickTree,parts=4 line_type=Depth_start
       },
       'parts=3' =>
       { Depth_start => 'A153006',
-        # not yet
         # OEIS-Other: A153006 planepath=ToothpickTree,parts=3 line_type=Depth_start
       },
-      'parts=4' =>
-      { Depth_start => 'A139250',
-        # not yet
-        # OEIS-Other: A139250 planepath=ToothpickTree,parts=4 line_type=Depth_start
+      'parts=2' =>
+      { Depth_start => 'A152998',
+        # OEIS-Other: A152998 planepath=ToothpickTree,parts=2 line_type=Depth_start
+      },
+      'parts=1' =>
+      { Depth_start => 'A153000',
+        # OEIS-Other: A153000 planepath=ToothpickTree,parts=1 line_type=Depth_start
       },
     };
 }
@@ -2630,6 +2630,14 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;  # rows increasing
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
+
+  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
+  use constant _NumSeq_N_oeis_anum =>
+    { '' =>
+      { Depth_start => 'A151566',
+        # OEIS-Other: A151566 planepath=ToothpickUpist line_type=Depth_start
+      },
+    };
 }
 
 { package Math::PlanePath::LCornerTree;
@@ -2640,6 +2648,7 @@ sub values_max {
   use constant _NumSeq_Diagonal_SE_increasing => 1;
   use constant _NumSeq_Diagonal_SW_increasing => 1;
 
+  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
   use constant _NumSeq_N_oeis_anum =>
     { 'parts=4' =>
       { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
@@ -2663,6 +2672,7 @@ sub values_max {
   use constant _NumSeq_X_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
 
+  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
   use constant _NumSeq_N_oeis_anum =>
     { '' =>
       { Diagonal => 'A062880', # base 4 digits 0,2 only

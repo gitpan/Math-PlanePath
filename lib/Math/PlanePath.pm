@@ -16,10 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# tree_any_leaf()
-# tree_num_children_minimum()
-# tree_num_children_maximum()
-#
 # sum_minimum
 # diffxy_minimum
 # rsquared_minimum
@@ -66,7 +62,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 96;
+$VERSION = 97;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -182,9 +178,11 @@ sub n_to_rsquared {
 #------------------------------------------------------------------------------
 # tree
 
-use constant tree_n_parent => undef;
-use constant tree_n_children => ();
-use constant tree_any_leaf => 1;
+use constant tree_n_parent => undef;  # default always no parent
+use constant tree_n_children => ();   # default no children
+use constant tree_num_children_minimum => 0;
+use constant tree_num_children_maximum => 0;
+use constant tree_any_leaf => 1; # default all no children so all leaves
 sub tree_n_num_children {
   my ($self, $n) = @_;
   if ($n >= $self->n_start) {
@@ -476,6 +474,15 @@ related things are further down like C<Math::PlanePath::Base::Xyzzy>.
 
 =for my_pod list end
 
+And in the separate Math-PlanePath-Toothpick distribution
+
+    ToothpickTree          pattern of toothpicks
+    ToothpickReplicate     same by replication rather than tree
+    ToothpickUpist         toothpicks only growing upwards
+
+    LCornerTree            L-shape corner growth
+    LCornerReplicate       same by replication rather than tree
+
 The paths are object oriented to allow parameters, though many have none.
 See C<examples/numbers.pl> in the Math-PlanePath sources for a sample
 printout of numbers from selected paths or all paths.
@@ -488,8 +495,7 @@ rounding-off for big floating point exponents.
 
 Floating point infinities (when available) give nan or infinite returns of
 some kind (some unspecified kind as yet).  C<n_to_xy()> on negative infinity
-is an empty return, the same as other negative C<$n>.  Calculations which
-split an input into digits of some base don't loop infinitely on infinities.
+is an empty return, the same as other negative C<$n>.
 
 Floating point nans (when available) give nan, infinite, or empty/undef
 returns, but again of some unspecified kind as yet, but in any case not
@@ -504,9 +510,10 @@ give corresponding outputs.
     Number::Fraction    1.14 or higher for abs()
 
 A few classes might truncate a bignum or a fraction to a float as yet.  In
-general the intention is to make the calculations generic to act on any
-sensible number type.  Recent enough versions of the bignum modules might be
-required, perhaps Perl 5.8 or higher for C<**> exponentiation operator.
+general the intention is to make the calculations generic enough to act on
+any sensible number type.  Recent enough versions of the bignum modules
+might be required, perhaps Perl 5.8 or higher for C<**> exponentiation
+operator.
 
 For reference, an C<undef> input as C<$n>, C<$x>, C<$y>, etc, is meant to
 provoke an uninitialized value warning when warnings are enabled, but
@@ -576,9 +583,8 @@ a little less work.
 
 =item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
 
-Return the radial distance X^2+Y^2 of point C<$n>, this being the radial
-distance R=hypot(X,Y).  If there's no point C<$n> then the return is
-C<undef>.
+Return the radial distance X^2+Y^2 of point C<$n>, ie. hypotenuse squared.
+If there's no point C<$n> then the return is C<undef>.
 
 For a few paths this can be calculated with less work than C<n_to_xy()>.
 For example the SacksSpiral is simply R^2==N.
@@ -609,8 +615,8 @@ nothing at C<$x,$y> then return an empty list.
     my @n_list = $path->xy_to_n(20,20);
 
 Most paths have just a single N for a given X,Y but some such as DragonCurve
-and TerdragonCurve have multiple N's at a given X,Y and method returns all
-of them.
+and TerdragonCurve have multiple N's at a given X,Y and this method returns
+all of them.
 
 =item C<$bool = $path-E<gt>xy_is_visited ($x,$y)>
 
@@ -619,8 +625,8 @@ Return true if C<$x,$y> is visited.  This is equivalent to
     defined($path->xy_to_n($x,$y))
 
 Some paths cover the plane and for them C<xy_is_visited()> is always true.
-For others it might be possible to test whether a point is visited with less
-work than calculating its C<$n>.
+For others it might be less work to just test a point than to calculate its
+C<$n>.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
@@ -634,14 +640,15 @@ C<$x1>,C<$y1> and C<$x2>,C<$y2>.  The range is inclusive.  For example,
      }
 
 The return might be an over-estimate of the N range required to cover the
-rectangle, and many of the points between C<$n_lo> and C<$n_hi> might be
-outside the rectangle even when the range is exact.  But the range is at
-least an lower and upper bound on the N values which occur in the rectangle.
-Classes which can guarantee an exact lo/hi range say so in their docs.
+rectangle.  Even if the range is exact the nature of the path may mean many
+points between C<$n_lo> and C<$n_hi> are outside the rectangle.  But the
+range is at least a lower and upper bound on the N values which occur in the
+rectangle.  Classes which can guarantee an exact lo/hi range say so in their
+docs.
 
 C<$n_hi> is usually no more than an extra partial row, revolution, or
 self-similar level.  C<$n_lo> might be merely the starting
-C<$path-E<gt>n_start()> -- which is fine if the origin is in the desired
+C<$path-E<gt>n_start()>, which is fine if the origin is in the desired
 rectangle but away from the origin might actually start higher.
 
 C<$x1>,C<$y1> and C<$x2>,C<$y2> can be fractional.  If they partly overlap
@@ -649,8 +656,8 @@ some N figures then those N's are included in the return.
 
 If there's no points in the rectangle then the return can be a "crossed"
 range like C<$n_lo=1>, C<$n_hi=0> (which makes a C<foreach> do no loops).
-But C<rect_to_n_range()> might not always notice there's no points in the
-rectangle and instead return some over-estimate.
+But C<rect_to_n_range()> may not always notice there's no points in the
+rectangle and might instead return some over-estimate.
 
 =back
 
@@ -770,16 +777,17 @@ some children.
 The numbering and any relation to X,Y positions varies among the paths.
 Some are numbered by rows (breadth-first style) and some have the children
 with X,Y positions adjacent to their parent, but that shouldn't be assumed,
-only that there's a parent-child relation up to some set of top nodes.
+only that there's a parent-child relation down from some set of top nodes.
 
 =over
 
 =item C<@n_children = $path-E<gt>tree_n_children($n)>
 
 Return a list of N values which are the child nodes of C<$n>, or return an
-empty list if C<$n> has no children.  The could be no children either
-because C<$path> is not a tree or because there's no children at a
-particular C<$n>.
+empty list if C<$n> has no children.
+
+The could be no children either because C<$path> is not a tree or because
+there's no children at a particular C<$n>.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
@@ -788,19 +796,15 @@ C<undef> if S<C<$n E<lt> n_start()>> (ie. before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
-Return the parent node of C<$n>, or C<undef> if it has no parent.  There is
-no parent at the top of the tree (or one of multiple tops), or if C<$path>
-is not a tree.
+Return the parent node of C<$n>, or C<undef> if it has no parent.
 
-=item C<$bool = $path-E<gt>tree_any_leaf()>
-
-Return true if there are any leaf nodes in the tree, meaning any N for which
-C<tree_n_num_children()> is 0.
+There is no parent at the top of the tree, or one of multiple tops, or if
+C<$path> is not a tree.
 
 =item C<$depth = $path-E<gt>tree_n_to_depth($n)>
 
 Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
-top of the tree is depth=0, then its children depth=1, etc.
+top of the tree is depth=0, then its children are depth=1, etc.
 
 The depth is a count of how many parent, grandparent, etc, are above C<$n>,
 ie. until reaching C<tree_n_to_parent()> returning C<undef>.  For non-tree
@@ -814,8 +818,25 @@ always 0.
 Return the first or last N at tree level C<$depth> in the path, or C<undef>
 if nothing at that depth or not a tree.  The top of the tree is depth=0.
 
-Trees numbered by rows have the end of one row immediately followed by the
-start of the next, but that may not be so for all paths.
+Trees numbered by depth have the N end of one depth level immediately
+followed by the start N of the next, but that may not be so for all paths.
+
+=back
+
+=head2 Tree Descriptive Methods
+
+=over
+
+=item C<$num = $path-E<gt>tree_num_children_minimum()>
+
+=item C<$num = $path-E<gt>tree_num_children_maximum()>
+
+Return the minimum or maximum number of children of any node in the path.
+
+=item C<$bool = $path-E<gt>tree_any_leaf()>
+
+Return true if there are any leaf nodes in the tree, meaning any N for which
+C<tree_n_num_children()> is 0.
 
 =back
 

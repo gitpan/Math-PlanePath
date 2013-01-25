@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -278,10 +278,10 @@ The effect is to map a signed s to positive k,
 
 For example (and other primes multiply similarly),
 
-   N=3   ->  3^-1 = 1/3
-   N=9   ->  3^1  = 3/1
-   N=27  ->  3^-2 = 1/9
-   N=81  ->  3^2  = 9/1
+    N=3   ->  3^-1 = 1/3
+    N=9   ->  3^1  = 3/1
+    N=27  ->  3^-2 = 1/9
+    N=81  ->  3^2  = 9/1
 
 Thinking in terms of X and Y values, the key is that since X and Y have no
 common factor any prime p appears in one of X or Y but not both.  The
@@ -298,12 +298,12 @@ N=1,4,9,16,etc in row Y=1 is the perfect squares.  That row is the
 integers X/1 so the s exponents there are all positive and thus in N become
 2*s, giving simply N=X^2.
 
-As noted by David M. Bradley, other mappings of signed E<lt>-E<gt> unsigned
-powers could give other enumerations.  The "negabinary" a[k]*(-2)^k is one
-possibility, or the "reversing binary representation" (-1)^k*2^ek of Knuth
-vol 2 section 4.1 exercise 27.  But the alternating + and - here keeps the
-growth of N down to roughly X^2*Y^2, per the N=X^2*Y^2/Yprimes formula
-above.
+X<Bradley, David M>As noted by David M. Bradley, other mappings of signed
+E<lt>-E<gt> unsigned powers could give other enumerations.  The "negabinary"
+a[k]*(-2)^k is one possibility, or the "reversing binary representation"
+(-1)^k*2^ek of Knuth vol 2 section 4.1 exercise 27.  But the alternating "+"
+and "-" here keeps the growth of N down to roughly X^2*Y^2, per the
+N=X^2*Y^2/Yprimes formula above.
 
 =head1 FUNCTIONS
 
@@ -379,7 +379,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -50,7 +50,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 96;
+$VERSION = 97;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -98,6 +98,7 @@ sub dy_maximum {
   my ($self) = @_;
   return ($self->{'align'} eq 'diagonal' ? undef : 1);
 }
+use constant tree_num_children_maximum => 2;
 
 #------------------------------------------------------------------------------
 sub new {
@@ -699,19 +700,14 @@ C<n_start> parameter.
 Return the children of C<$n>, or an empty list if C<$n E<lt> n_start>
 (ie. before the start of the path).
 
-The children are the points diagonally up left and right on the next row.
-There can be 0, 1 or 2 such points.  At even depth there's 2, on depth=1mod4
-there's 1.  On other depths there's some 0s and some 1s (see L</N to Number
-of Children> below).
+The children are the points diagonally up left and right on the next row
+(Y+1).  There can be 0, 1 or 2 such points.  At even depth there's 2, on
+depth=1mod4 there's 1.  On depth=3mod4 there's some 0s and some 1s (see L</N
+to Number of Children> below).
 
 For example N=3 has two children N=5,N=6.  Then in turn N=5 has just one
-child N=9.  And N=6 has no children.  The way points are numbered across a
-row means that when there's two children they're consecutive N values.
-
-=item C<$num = $path-E<gt>tree_n_num_children($n)>
-
-Return the number of children of C<$n>, or return C<undef> if
-C<$nE<lt>n_start> (ie. before the start of the path).
+child N=9 and N=6 has no children.  The way points are numbered across a row
+means that when there's two children they're consecutive N values.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -980,7 +976,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2011, 2012 Kevin Ryde
+Copyright 2011, 2012, 2013 Kevin Ryde
 
 Math-PlanePath is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

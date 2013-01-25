@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,7 +36,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 96;
+$VERSION = 97;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -189,6 +189,22 @@ sub dy_maximum {
           ? (8*atan2(1,1)) / $self->{'step'}
 
           : 1); # supremum
+}
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  my $step = $self->{'step'};
+  my $r;
+  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+    $r = $self->{'base_r'};
+  } elsif ($step == 0) {
+    $r = 0;  # step=0 along X axis starting X=0,Y=0
+  } elsif ($step > 6) {
+    $r = 0.5 / sin((4*atan2(1,1)) / $step);  # pi/step
+  } else {
+    $r = $self->{'base_r'} + 1;
+  }
+  return $r*$r;
 }
 
 #------------------------------------------------------------------------------
@@ -355,6 +371,25 @@ sub n_to_xy {
 
   return ($r * cos($theta),
           $r * sin($theta));
+}
+
+sub n_to_rsquared {
+  my ($self, $n) = @_;
+  my $step = $self->{'step'};
+  if ($step <= 1) {
+    if ($n < 1) { return; }
+    if (is_infinite($n)) { return $n; }
+    $n -= 1;
+    if ($step == 0) {
+      # step=0 along X axis starting X=0,Y=0
+      return $n*$n;
+    } else { # $step == 1
+      # step=1 exact integer radius
+      my $r = int((-1 + sqrt(int(8*$n)+1)) / 2);
+      return $r*$r;
+    }
+  }
+  return $self->SUPER::n_to_rsquared($n);
 }
 
 # From above
@@ -773,7 +808,7 @@ http://user42.tuxfamily.org/math-planepath/index.html
 
 =head1 LICENSE
 
-Copyright 2010, 2011, 2012 Kevin Ryde
+Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 This file is part of Math-PlanePath.
 
