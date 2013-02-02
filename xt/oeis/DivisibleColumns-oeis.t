@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,123 +32,38 @@ use Math::PlanePath::DivisibleColumns;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
+
+#------------------------------------------------------------------------------
+# A077597 - N on X=Y diagonal, being cumulative count divisors - 1
+
+MyOEIS::compare_values
+  (anum => 'A077597',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DivisibleColumns->new;
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,$x);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A027751 - Y coord, proper divisors, extra initial 1
 
-{
-  my $anum = 'A027751';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    push @got, 1;
-    my $path = Math::PlanePath::DivisibleColumns->new
-      (divisor_type => 'proper');
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      push @got, $y;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A061017 - X coord
-
-{
-  my $anum = 'A061017';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::DivisibleColumns->new;
-    for (my $n = $path->n_start; $n < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      push @got, $x;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A027750 - Y coord
-
-{
-  my $anum = 'A027750';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::DivisibleColumns->new;
-    for (my $n = $path->n_start; $n < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      push @got, $y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-
+MyOEIS::compare_values
+  (anum => 'A027751',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $path = Math::PlanePath::DivisibleColumns->new
+       (divisor_type => 'proper');
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A006218 - cumulative count of divisors

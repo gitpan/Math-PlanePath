@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -30,83 +30,117 @@ use Math::PlanePath::RationalsTree;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-
 {
-  # X,Y list CW
+  # count 0-bits below high 1
+  # 1 2 3 4 5 6 7 8
+  # 0,1,0,2,1,0,0,3,2,1,1,0,0,0,0,4,3,2,2,1,1,1,1,0,0,0,0,0,0,0,0,5,
+  
+  #             1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+  # SB int(x/y) 1,0,2,0,0,1,3,0,0,0, 0, 1, 1, 2, 4,  0, 0, 0, 0, 0, 0, 0, 0, 1
+  # count 
 
-  # 1,1,3, 5,11,21,43
-  # 1,2,5,10,21,42,85
-  # P = X+Y Q=X      X=Q Y=P-Q
-  #
-  #              X,Y                                   X+Y,X
-  #           /        \                            /         \
-  #    X,(X+Y)           (X+Y),Y             2X+Y,X             X+2Y,X+Y
-  #   /     \            /      \           /      \            /          \
-  # X,(2X+Y) 2X+Y,X+Y X+Y,X+2Y X+2Y,Y  3X+Y,2X+Y 3X+2Y,2X+Y 2X+3Y,X+Y X+3Y,X+2Y
-  #
-  #              1,1          
-  #    1,2                 2,1            
-  # 1,3  3,2            2,3    3,1  
-  # 1/4  4/3  3/5 5/2  2/5 5/3  3/4 4/1
-  #
-  # X+Y,X                                         2,1 T
-  #                        3,1                                          3,2*U
-  #           4,1*D                   5,3                   5,2*A                    4,3*UU
-  #       5,1      7,4*DU     8,3*UA        7,5      7,2*UD        8,5*AU        7,3         5,4*UUU
-  #
-  #  6,1*DD 9,5 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,5 11,8*   10,3* 11,7  9,4*DA 6,5*
-  #
-  # X+Y,Y                                         2,1 T
-  #                        3,2*U                                         3,1
-  #           4,3*UU                  5,2                   5,3*A                    4,1*D
-  #       5,4*UUU  7,3*DU     8,5*UA        7,2      7,5*UD        8,3*AU        7,4         5,1*UUU
-  #
-  #  6,5*DD 9,4 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,8 11,3*   10,7* 11,4* 9,5*DA 6,1*
+  # count high 1-bits, is +1 except at n=2^k
+  #           0,1,1,2,1,1,2,3,1,1,1, 1, 2, 2, 3, 4,  1, 1, 1, 1, 1, 1, 1, 1, 2,
 
-  require Math::PlanePath::RationalsTree;
-  require Math::PlanePath::PythagoreanTree;
-  my $pythag = Math::PlanePath::PythagoreanTree->new (coordinates=>'PQ');
-  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
-  my $oe_total = 0;
-  foreach my $depth (0 .. 6) {
-    my $oe = 0;
-    foreach my $n ($path->tree_depth_to_n($depth) ..
-                   $path->tree_depth_to_n_end($depth)) {
-      my ($x,$y) = $path->n_to_xy($n);
-      my $flag = '';
-      ($x,$y) = ($x+$y, $y);
-      if ($x%2 != $y%2) {
-        $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
-        $oe += $flag ? 1 : 0;
-      }
-      my $octant = '';
-      if ($y < $x) {
-        $octant = 'octant';
-      }
-      my $pn = $pythag->xy_to_n($x,$y);
-      if ($pn) {
-        $pn = n_to_pythagstr($pn);
-      }
-      printf "N=%2d %2d / %2d   %10s %10s %s\n", $n, $x,$y,
-        $flag, $octant, $pn||'';
-      $n++;
+  foreach my $n (1 .. 32) {
+    my $k = $n;
+    while (! is_pow2($k)) {
+      $k >>= 1;
     }
-    $oe_total += $oe;
-    print "$oe   $oe_total\n";
+    my ($pow,$exp) = round_down_pow($k,2);
+    print "$exp,";
   }
-
-  sub n_to_pythagstr {
-    my ($n) = @_;
-    if ($n < 1) { return undef; }
-    my ($pow, $exp) = round_down_pow (2*$n-1, 3);
-    $n -= ($pow+1)/2;  # offset into row
-    my @digits = digit_split_lowtohigh($n,3);
-    push @digits, (0) x ($exp - scalar(@digits));  # high pad to $exp many
-    return '1+'.join('',reverse @digits);
-  }
-
+  print "\n";
   exit 0;
+
+  sub is_pow2 {
+    my ($n) = @_;
+    while ($n > 1) {
+      if ($n & 1) {
+        return 0;
+      }
+      $n >>= 1;
+    }
+    return ($n == 1);
+  }
 }
+
+  {
+    # X,Y list CW
+
+    # 1,1,3, 5,11,21,43
+    # 1,2,5,10,21,42,85
+    # P = X+Y Q=X      X=Q Y=P-Q
+    #
+    #              X,Y                                   X+Y,X
+    #           /        \                            /         \
+    #    X,(X+Y)           (X+Y),Y             2X+Y,X             X+2Y,X+Y
+    #   /     \            /      \           /      \            /          \
+    # X,(2X+Y) 2X+Y,X+Y X+Y,X+2Y X+2Y,Y  3X+Y,2X+Y 3X+2Y,2X+Y 2X+3Y,X+Y X+3Y,X+2Y
+    #
+    #              1,1
+    #    1,2                 2,1
+    # 1,3  3,2            2,3    3,1
+    # 1/4  4/3  3/5 5/2  2/5 5/3  3/4 4/1
+    #
+    # X+Y,X                                         2,1 T
+    #                        3,1                                          3,2*U
+    #           4,1*D                   5,3                   5,2*A                    4,3*UU
+    #       5,1      7,4*DU     8,3*UA        7,5      7,2*UD        8,5*AU        7,3         5,4*UUU
+    #
+    #  6,1*DD 9,5 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,5 11,8*   10,3* 11,7  9,4*DA 6,5*
+    #
+    # X+Y,Y                                         2,1 T
+    #                        3,2*U                                         3,1
+    #           4,3*UU                  5,2                   5,3*A                    4,1*D
+    #       5,4*UUU  7,3*DU     8,5*UA        7,2      7,5*UD        8,3*AU        7,4         5,1*UUU
+    #
+    #  6,5*DD 9,4 11,4* 10,7* 11,3 13,8* 12,5*AA 9,7 9,2*AD 12,7* 13,8 11,3*   10,7* 11,4* 9,5*DA 6,1*
+
+    require Math::PlanePath::RationalsTree;
+    require Math::PlanePath::PythagoreanTree;
+    my $pythag = Math::PlanePath::PythagoreanTree->new (coordinates=>'PQ');
+    my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+    my $oe_total = 0;
+    foreach my $depth (0 .. 6) {
+      my $oe = 0;
+      foreach my $n ($path->tree_depth_to_n($depth) ..
+                     $path->tree_depth_to_n_end($depth)) {
+        my ($x,$y) = $path->n_to_xy($n);
+        my $flag = '';
+        ($x,$y) = ($x+$y, $y);
+        if ($x%2 != $y%2) {
+          $flag = ($x%2?'odd':'even').','.($y%2?'odd':'even');
+          $oe += $flag ? 1 : 0;
+        }
+        my $octant = '';
+        if ($y < $x) {
+          $octant = 'octant';
+        }
+        my $pn = $pythag->xy_to_n($x,$y);
+        if ($pn) {
+          $pn = n_to_pythagstr($pn);
+        }
+        printf "N=%2d %2d / %2d   %10s %10s %s\n", $n, $x,$y,
+          $flag, $octant, $pn||'';
+        $n++;
+      }
+      $oe_total += $oe;
+      print "$oe   $oe_total\n";
+    }
+
+    sub n_to_pythagstr {
+      my ($n) = @_;
+      if ($n < 1) { return undef; }
+      my ($pow, $exp) = round_down_pow (2*$n-1, 3);
+      $n -= ($pow+1)/2;  # offset into row
+      my @digits = digit_split_lowtohigh($n,3);
+      push @digits, (0) x ($exp - scalar(@digits));  # high pad to $exp many
+      return '1+'.join('',reverse @digits);
+    }
+
+    exit 0;
+  }
 
 {
   # X,Y list  cf pythag odd,even

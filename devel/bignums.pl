@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,6 +25,13 @@ use POSIX ();
 # uncomment this to run the ### lines
 use Devel::Comments;
 
+
+# my $inf = 2**99999;
+# my $nan = $inf/$inf;
+# print "$inf, $nan","\n";
+# print $nan==$nan,"\n";
+# print $nan<=>0,"\n";
+# print 0<=>$nan,"\n";
 
 {
   use Math::BigFloat;

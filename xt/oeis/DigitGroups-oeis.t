@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,69 +33,21 @@ use Math::PlanePath::DigitGroups;
 #use Smart::Comments '###';
 
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
 #------------------------------------------------------------------------------
 # A084472 - X axis in binary, excluding 0
 
-{
-  my $anum = 'A084472';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::DigitGroups->new;
-    for (my $x = 1; @got < @$bvalues; $x++) {
-      my $n = $path->xy_to_n ($x,0);
-      push @got, to_binary($n);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A084472',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DigitGroups->new;
+     for (my $x = 1; @got < $count; $x++) {
+       my $n = $path->xy_to_n ($x,0);
+       push @got, to_binary($n);
+     }
+     return \@got;
+   });
 
 sub to_binary {
   my ($n) = @_;
@@ -105,31 +57,19 @@ sub to_binary {
 #------------------------------------------------------------------------------
 # A060142 - X axis sorted
 
-{
-  my $anum = 'A060142';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::DigitGroups->new;
-    for (my $x = 0; @got < 16 * @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x,0);
-    }
-    @got = sort {$a<=>$b} @got;
-    $#got = $#$bvalues;
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A060142',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DigitGroups->new;
+     for (my $x = 0; @got < 16 * $count; $x++) {
+       push @got, $path->xy_to_n ($x,0);
+     }
+     @got = sort {$a<=>$b} @got;
+     $#got = $count-1;
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------

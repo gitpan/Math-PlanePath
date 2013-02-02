@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1425;
+plan tests => 1426;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::DivisibleColumns;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::DivisibleColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DivisibleColumns->VERSION,  $want_version,
@@ -66,14 +66,18 @@ require Math::PlanePath::DivisibleColumns;
 
 {
   my $path = Math::PlanePath::DivisibleColumns->new;
-  ok ($path->n_start, 0, 'n_start()');
+  ok ($path->n_start, 0, 'n_start() 0');
   ok ($path->x_negative, 0, 'x_negative()');
   ok ($path->y_negative, 0, 'y_negative()');
 }
 {
+  my $path = Math::PlanePath::DivisibleColumns->new (n_start => 123);
+  ok ($path->n_start, 123, 'n_start() 123');
+}
+{
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::DivisibleColumns->parameter_info_list;
-  ok (join(',',@pnames), 'divisor_type');
+  ok (join(',',@pnames), 'divisor_type,n_start');
 }
 
 

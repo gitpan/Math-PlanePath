@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -427,6 +427,7 @@ this path include
 
     n_start=0
       A000567    N on X axis, octagonal numbers
+      A049451    N on X negative axis
       A049450    N on X=Y diagonal north-east
       A033428    N on north-west diagonal
       A045944    N on south-west diagonal, octagonal numbers second kind

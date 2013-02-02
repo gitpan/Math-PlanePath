@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -470,7 +470,7 @@ sub values_max {
         # OEIS-Other: A053755 planepath=GreekKeySpiral,turns=0 line_type=Diagonal_NW
         # OEIS-Other: A016754 planepath=GreekKeySpiral,turns=0 line_type=Diagonal_SE
 
-        # Not quite, these have OFFSET=1 whereas based from X=0 here
+        # Not quite, these have OFFSET=1 whereas path start X=0
         # # Y_axis   => 'A054556', # spoke N
         # # X_neg   => 'A054567', # spoke W
         # # Diagonal => 'A054554', # spoke NE
@@ -571,7 +571,7 @@ sub values_max {
         # OEIS-Other: A064225 planepath=TriangleSpiral line_type=Diagonal_SW
         # OEIS-Other: A081267 planepath=TriangleSpiral line_type=Diagonal_SE
 
-        # # Not quite, starts value=3 at n=0 which is Y=1 here
+        # # Not quite, starts value=3 at n=0 which is path Y=1
         # Diagonal => 'A064226', # and duplicate in A081269
       },
       'n_start=0' =>
@@ -614,10 +614,9 @@ sub values_max {
         # OEIS-Catalogue: A081589 planepath=TriangleSpiralSkewed line_type=Diagonal
         # OEIS-Catalogue: A038764 planepath=TriangleSpiralSkewed line_type=Diagonal_SW
         # OEIS-Catalogue: A081267 planepath=TriangleSpiralSkewed line_type=Diagonal_SE
-        # duplicate,
         # OEIS-Catalogue: A081274 planepath=TriangleSpiralSkewed line_type=Diagonal_SW
-        #
-        # # Not quite, starts OFFSET=0 value=3 but that is at Y=1 here
+
+        # # Not quite, starts OFFSET=0 value=3 but that is at path Y=1
         # Y_axis      => 'A064226', # and duplicate in A081269
       },
       'n_start=0' =>
@@ -740,7 +739,7 @@ sub values_max {
         # OEIS-Catalogue: A158187 planepath=PentSpiralSkewed line_type=Diagonal_NW
         # OEIS-Catalogue: A005891 planepath=PentSpiralSkewed line_type=Diagonal_SE
 
-        # Not quite, OFFSET=1 but here start Y=0
+        # Not quite, OFFSET=1 but path start Y=0
         # Y_axis => 'A140066', # (5n^2-11n+8)/2 but from Y=0 so using (n-1)
         # Y_neg  => 'A134238',
       },
@@ -817,9 +816,10 @@ sub values_max {
         Diagonal_SE => 'A003215', # centred hexagonal numbers
         # OEIS-Catalogue: A056105 planepath=HexSpiralSkewed
         # OEIS-Catalogue: A056106 planepath=HexSpiralSkewed line_type=Y_axis
-        # OEIS-Catalogue: A056107 planepath=HexSpiralSkewed line_type=Diagonal_NW
         # OEIS-Catalogue: A056108 planepath=HexSpiralSkewed line_type=X_neg
         # OEIS-Catalogue: A056109 planepath=HexSpiralSkewed line_type=Y_neg
+        # OEIS-Catalogue: A056107 planepath=HexSpiralSkewed line_type=Diagonal_NW
+        # OEIS-Other:     A003215 planepath=HexSpiralSkewed line_type=Diagonal_SE
       },
       'wider=0,n_start=0' =>
       { X_axis      => 'A000567', # octagonal numbers
@@ -867,7 +867,7 @@ sub values_max {
 
   # 'wider=0' =>
   # {
-  #  # Not quite, OFFSET=1 vs start X=Y=0 here
+  #  # Not quite, OFFSET=1 vs path start X=Y=0
   #  # Y_axis => 'A140065', # (7n^2 - 17n + 12)/2 but starting Y=0 not n=1
   #  # Diagonal_NW => 'A140063',
   #  # Diagonal_SE => 'A069099',
@@ -910,7 +910,7 @@ sub values_max {
         # OEIS-Catalogue: A033568 planepath=AnvilSpiral line_type=Diagonal
         # OEIS-Catalogue: A085473 planepath=AnvilSpiral line_type=Diagonal_SE
 
-        # Not quite, A136392 OFFSET=1 value=1 whereas Y=0 value=1 here
+        # Not quite, A136392 OFFSET=1 value=1 whereas path start Y=0 value=1
         # Y_neg       => 'A136392', # 1,9,29,61, 6n^2-10n+5
       },
       'wider=0,n_start=1,i_start=1' =>
@@ -919,7 +919,7 @@ sub values_max {
       },
       # 'wider=2,n_start=1' =>
       # {
-      #   Not quite, A033581 initial value=2 whereas path N=0
+      #   Not quite, A033581 initial value=2 whereas path start N=0
       #   #   Y_axis => 'A033581', # 6*n^2 is 14-gonals pairs average in Math::NumSeq::Polygonal
       #   #   # OEIS-Other: A033581 planepath=AnvilSpiral,wider=2 line_type=Y_axis
       # },
@@ -1162,7 +1162,7 @@ sub values_max {
         # OEIS-Catalogue: A086893 planepath=RationalsTree,tree_type=Drib
 
         # Drib Y_axis
-        # Not quite, A061547 OFFSET=1 value=0 cf here Y=1 N=1
+        # Not quite, A061547 OFFSET=1 value=0 cf path Y=1 value N=1
         # Y_axis => 'A061547'# derangements or alternating bits plus pow4
       },
 
@@ -2462,8 +2462,8 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_i_start => 1;
 
-  # DivisibleColumns X_axis => 'A006218' but start X=1 cf OFFSET=0,
-  #   Diagonal nearly A077597 but start X=1 cf OFFSET=0
+  # Not quite, X_axis => 'A006218' but path start X=1 cf OFFSET=0,
+  # Not quite, Diagonal => 'A077597' but path start X=1 cf OFFSET=0
 }
 # { package Math::PlanePath::File;
 #   # File                   points from a disk file
@@ -2526,11 +2526,11 @@ sub values_max {
        # Not quite, extra initial 0,1 in A000045
        # X_axis   => 'A000045', # Fibonaccis
 
-       # Not quite, OFFSET=1 vs start X=Y=0 here
+       # Not quite, OFFSET=1 vs path start X=Y=0
        # Diagonal => 'A020941', # diagonal
        # # OEIS-Catalogue: A020941 planepath=WythoffArray line_type=Diagonal
 
-       # Not quite, OFFSET=1 vs start here Y=0
+       # Not quite, OFFSET=1 vs path start Y=0
        # Y_axis   => 'A003622', # spectrum of phi 1,4,6,9
        # # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
 
@@ -2544,8 +2544,8 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 
   # cf Not quite A168183 non-multiples-of-9, A168186 non-multiples-of-12
-  # are values on Y axis, except OFFSET=1 value=1, whereas start Y=0
-  # value=1 here
+  # are values on Y axis, except OFFSET=1 value=1, whereas path start Y=0
+  # value=1
   use constant _NumSeq_N_oeis_anum =>
     { 'radix=2' =>
       { X_axis   => 'A000079',  # powers 2^X
@@ -2559,7 +2559,7 @@ sub values_max {
       { X_axis   => 'A000244',  # powers 3^X
         # OEIS-Other: A000244 planepath=PowerArray,radix=3
         #
-        # Not quite, OFFSET=1 cf start Y=0 here
+        # Not quite, OFFSET=1 cf path start Y=0
         # Y_axis => 'A001651', # non multiples of 3
       },
       'radix=4' =>
@@ -2574,7 +2574,7 @@ sub values_max {
       { X_axis   => 'A011557',  # powers 10^X
         # OEIS-Other: A011557 planepath=PowerArray,radix=10
 
-        # Not quite, A067251 OFFSET=1 value=1 whereas Y=0 N=value=1 here
+        # Not quite, A067251 OFFSET=1 value=1 whereas path Y=0 N=value=1
         # Y_axis   => 'A067251', # no trailing 0 digits
         # # OEIS-Catalogue: A067251 planepath=PowerArray,radix=10 line_type=Y_axis
       },

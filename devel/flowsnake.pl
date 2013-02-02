@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -245,7 +245,7 @@ use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
       my $pos = '?';
       if ($hy > $y) {
         $pos = 'T';
-      } if ($hx > $x) {
+      } elsif ($hx > $x) {
         $pos = '.';
       } else {
         $pos = '*';

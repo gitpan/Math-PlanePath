@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -44,7 +44,16 @@ WriteMakefile
      { homepage => 'http://user42.tuxfamily.org/math-planepath/index.html',
        license  => 'http://www.gnu.org/licenses/gpl.html',
      },
-     no_index => { directory=>['devel','xt'] },
+     no_index => { directory=>['devel','xt'],
+                   # in Math-PlanePath-Toothpick but added to by
+                   # Math::NumSeq::PlanePathCoord etc
+                   package   => [ 'Math::PlanePath::ToothpickTree',
+                                  'Math::PlanePath::ToothpickReplicate',
+                                  'Math::PlanePath::ToothpickUpist',
+                                  'Math::PlanePath::LCornerTree',
+                                  'Math::PlanePath::LCornerReplicate',
+                                ],
+                 },
 
      optional_features =>
      { maximum_tests =>

@@ -32,7 +32,7 @@ use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 @ISA = ('Math::PlanePath');
 
 
@@ -69,6 +69,7 @@ use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
 
 sub n_to_rsquared {
   my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
   return $n;  # exactly RSquared=$n
 }
 

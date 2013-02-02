@@ -28,7 +28,7 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath;
 
@@ -41,20 +41,67 @@ my @modules = (
                # 'ToothpickTree,parts=1',
                # 'ToothpickTree,parts=2',
                # 'ToothpickTree,parts=3',
-               # 
+               #
                # 'ToothpickReplicate',
                # 'ToothpickReplicate,parts=1',
                # 'ToothpickReplicate,parts=2',
                # 'ToothpickReplicate,parts=3',
-               # 
+               #
                # 'LCornerTree',
                # 'LCornerTree,parts=1',
                # 'LCornerTree,parts=2',
                # 'LCornerTree,parts=3',
-               # 
+               #
                # 'LCornerReplicate',
 
                # module list begin
+
+               'VogelFloret',
+
+               'Rows',
+               'Rows,width=1',
+               'Rows,width=2',
+               'Rows,n_start=0',
+               'Rows,width=37,n_start=0',
+               'Rows,width=37,n_start=123',
+               'Columns',
+               'Columns,height=1',
+               'Columns,height=2',
+               'Columns,n_start=0',
+               'Columns,height=37,n_start=0',
+               'Columns,height=37,n_start=123',
+
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'ChanTree',
+               'ChanTree,n_start=1234',
+               'ChanTree,k=2',
+               'ChanTree,k=2,n_start=1234',
+               'ChanTree,k=4',
+               'ChanTree,k=5',
+               'ChanTree,k=7',
+               'ChanTree,reduced=1',
+               'ChanTree,reduced=1,k=2',
+               'ChanTree,reduced=1,k=4',
+               'ChanTree,reduced=1,k=5',
+               'ChanTree,reduced=1,k=7',
+
+               'CoprimeColumns',
+               'CoprimeColumns,n_start=37',
+               'DiagonalRationals',
+               'DiagonalRationals,n_start=37',
+               'DivisibleColumns',
+               'DivisibleColumns,n_start=37',
+               'DivisibleColumns,divisor_type=proper',
 
                'HexSpiral',
                'HexSpiral,n_start=0',
@@ -220,19 +267,6 @@ my @modules = (
                'SierpinskiArrowheadCentres,align=left',
                'SierpinskiArrowheadCentres,align=diagonal',
 
-               'ChanTree',
-               'ChanTree,n_start=1234',
-               'ChanTree,k=2',
-               'ChanTree,k=2,n_start=1234',
-               'ChanTree,k=4',
-               'ChanTree,k=5',
-               'ChanTree,k=7',
-               'ChanTree,reduced=1',
-               'ChanTree,reduced=1,k=2',
-               'ChanTree,reduced=1,k=4',
-               'ChanTree,reduced=1,k=5',
-               'ChanTree,reduced=1,k=7',
-
                'RationalsTree',
                'RationalsTree,tree_type=CW',
                'RationalsTree,tree_type=AYT',
@@ -297,7 +331,6 @@ my @modules = (
                'SacksSpiral',
                'TheodorusSpiral',
                'ArchimedeanChords',
-               'VogelFloret',
 
                'ComplexRevolving',
                'ComplexPlus',
@@ -312,10 +345,6 @@ my @modules = (
                'ComplexMinus,realpart=5',
 
                'OctagramSpiral',
-
-               'CoprimeColumns',
-               'DivisibleColumns',
-               'DivisibleColumns,divisor_type=proper',
 
                'LTiling',
                'LTiling,L_fill=ends',
@@ -340,17 +369,6 @@ my @modules = (
                'PowerArray,radix=4',
 
                'PixelRings',
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
                'HilbertSpiral',
 
                'CCurve',
@@ -422,7 +440,6 @@ my @modules = (
 
                'FractionsTree',
                'FactorRationals',
-               'DiagonalRationals',
 
                'AlternatePaper,arms=2',
                'AlternatePaper',
@@ -432,19 +449,6 @@ my @modules = (
                'AlternatePaper,arms=6',
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
-
-               'Rows',
-               'Rows,width=1',
-               'Rows,width=2',
-               'Rows,n_start=0',
-               'Rows,width=37,n_start=0',
-               'Rows,width=37,n_start=123',
-               'Columns',
-               'Columns,height=1',
-               'Columns,height=2',
-               'Columns,n_start=0',
-               'Columns,height=37,n_start=0',
-               'Columns,height=37,n_start=123',
 
                'PentSpiral',
                'PentSpiralSkewed',
@@ -611,7 +615,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 97;
+my $want_version = 98;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -966,18 +970,18 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-  
+
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-    
+
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-    
+
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-    
+
     my $dxdy_allowed = $class_dxdy_allowed{$class};
     if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
         && $parameters{'radix'}
@@ -988,11 +992,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-    
+
     #
     # MyTestHelpers::diag ($mod);
     #
-    
+
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -1009,26 +1013,26 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-    
+
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' oops ', @_);
       $good = 0;
       # exit 1;
     };
-    
+
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-    
+
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-    
+
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
@@ -1045,27 +1049,69 @@ sub pythagorean_diag {
           }
         }
       }
-      if ($n_start != 0
-          # VogelFloret has a secret undocumented return for N=0
-          && ! $path->isa('Math::PlanePath::VogelFloret')
-          # Rows/Columns secret undocumented extend into negatives ...
-          && ! $path->isa('Math::PlanePath::Rows')
-          && ! $path->isa('Math::PlanePath::Columns')) {
-        my $n = $n_start - 1;
-        my ($x,$y) = $path->n_to_xy($n);
-        if (defined $x) {
-          &$report("n_start()-1==$n has an n_to_xy() but should not");
+    }
+
+    if (# VogelFloret has a secret undocumented return for N=0
+        ! $path->isa('Math::PlanePath::VogelFloret')
+        # Rows/Columns secret undocumented extend into negatives ...
+        && ! $path->isa('Math::PlanePath::Rows')
+        && ! $path->isa('Math::PlanePath::Columns')) {
+      my $n = $n_start - 1;
+      {
+        my @xy = $path->n_to_xy($n);
+        if (scalar @xy) {
+          &$report("n_to_xy() at n_start()-1 has X,Y but should not");
+        }
+      }
+      {
+        my @rsquared = $path->n_to_rsquared($n);
+        if (scalar(@rsquared) != 1) {
+          &$report("n_to_rsquared() at n_start()-1 return not one value");
+        } elsif (defined $rsquared[0]) {
+          &$report("n_to_rsquared() at n_start()-1 has defined value but should not");
         }
       }
     }
-    
+    foreach my $offset (1, 2, 123) {
+      ### n_to_rsquared(n_start - offset): $offset
+      my $n = $n_start - $offset;
+      my @rsquared = $path->n_to_rsquared($n);
+      if ($path->isa('Math::PlanePath::File')) {
+        @rsquared = (undef);  # all undefs for File
+      }
+      my $num_values = scalar(@rsquared);
+      $num_values == 1
+        or &$report("n_to_rsquared(n_start - $offset) got $num_values values, want 1");
+      if ($path->isa('Math::PlanePath::Rows')
+          || $path->isa('Math::PlanePath::Columns')) {
+        ### Rows,Columns has secret values for negative N, pretend not ...
+        @rsquared = (undef);
+      }
+      if ($offset == 1 && $path->isa('Math::PlanePath::VogelFloret')) {
+        ### VogelFloret has a secret undocumented return for N=0 ...
+        @rsquared = (undef);
+      }
+      my ($rsquared) = @rsquared;
+      if (defined $rsquared) {
+        &$report("n_to_rsquared($n) n_start-$offset is $rsquared expected undef");
+      }
+    }
+
     {
       my $saw_warning;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
-      {
+      foreach my $method ('n_to_xy','n_to_dxdy',
+                          'n_to_rsquared',
+                          ($path->tree_n_num_children($n_start)
+                           ? ('tree_n_to_depth',
+                              'tree_depth_to_n','tree_depth_to_n_end',
+                              'tree_n_parent','tree_n_children',
+                              'tree_n_num_children',
+                             )
+                           : ())){
         $saw_warning = 0;
-        $path->n_to_xy(undef);
-        $saw_warning or &$report("n_to_xy(undef) doesn't give a warning");
+        $path->$method(undef);
+        $saw_warning or &$report("$method(undef) doesn't give a warning");
       }
       {
         $saw_warning = 0;
@@ -1077,17 +1123,7 @@ sub pythagorean_diag {
         $path->xy_to_n(undef,0);
         $saw_warning or &$report("xy_to_n(undef,0) doesn't give a warning");
       }
-      if (defined ($path->tree_n_to_depth($n_start))) {
-        $saw_warning = 0;
-        my $depth = $path->tree_n_to_depth(undef);
-        $saw_warning or &$report("tree_n_to_depth(undef) doesn't give a warning, return is ",$depth);
-      }
-      if (defined ($path->tree_depth_to_n(0))) {
-        $saw_warning = 0;
-        my $n = $path->tree_depth_to_n(undef);
-        $saw_warning or &$report("tree_depth_to_n(undef) doesn't give a warning, return is ",$n);
-      }
-      
+
       # No warning if xy_is_visited() is a constant.
       # {
       #   $saw_warning = 0;
@@ -1100,7 +1136,7 @@ sub pythagorean_diag {
       #   $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
       # }
     }
-    
+
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -1139,8 +1175,23 @@ sub pythagorean_diag {
         (is_pos_infinity($dy) || is_neg_infinity($dy) || &$is_nan($dy))
           or &$report("n_to_dxdy($pos_infinity) dy is $dy");
       }
+      {
+        ### n_to_rsquared($pos_infinity) ...
+        my @rsquared = $path->n_to_rsquared($pos_infinity);
+        if ($path->isa('Math::PlanePath::File')) {
+          # all undefs for File
+          @rsquared = ($pos_infinity);
+        }
+        my $num_values = scalar(@rsquared);
+        $num_values == 1
+          or &$report("n_to_rsquared(pos_infinity) got $num_values values, want 1");
+        my ($rsquared) = @rsquared;
+        # allow NaN too, since sqrt(+inf) in various classes gives nan
+        (is_pos_infinity($rsquared) || &$is_nan($rsquared))
+          or &$report("n_to_rsquared($pos_infinity) ",$rsquared," expected +infinity");
+      }
     }
-    
+
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1171,14 +1222,33 @@ sub pythagorean_diag {
         if (($path->isa('Math::PlanePath::Rows')
              || $path->isa('Math::PlanePath::Columns'))
             && $num_values == 2) {
-          # secret N negative for Rows,Columns
+          # Rows,Columns has secret values for negative N, pretend not
           $num_values = 0;
         }
         $num_values == 0
           or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
+      {
+        ### n_to_rsquared(neg_infinity) ...
+        my @rsquared = $path->n_to_rsquared($neg_infinity);
+        if ($path->isa('Math::PlanePath::File')) {
+          @rsquared = (undef);  # all undefs for File
+        }
+        my $num_values = scalar(@rsquared);
+        $num_values == 1
+          or &$report("n_to_rsquared($neg_infinity) got $num_values values, want 1");
+        if ($path->isa('Math::PlanePath::Rows')
+            || $path->isa('Math::PlanePath::Columns')) {
+          ### Rows,Columns has secret values for negative N, pretend not ...
+          @rsquared = (undef);
+        }
+        my ($rsquared) = @rsquared;
+        if (defined $rsquared) {
+          &$report("n_to_rsquared($neg_infinity) $rsquared expected undef");
+        }
+      }
     }
-    
+
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1209,9 +1279,9 @@ sub pythagorean_diag {
         &$is_nan($dx) or &$report("n_to_dxdy($nan) dx not nan, got ", $dx);
         &$is_nan($dy) or &$report("n_to_dxdy($nan) dy not nan, got ", $dy);
       }
-      
+
     }
-    
+
     foreach my $x
       (0,
        pos_infinity_maybe(),
@@ -1232,7 +1302,7 @@ sub pythagorean_diag {
         # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
       }
     }
-    
+
     foreach my $x1 (0,
                     pos_infinity_maybe(),
                     neg_infinity_maybe(),
@@ -1253,7 +1323,7 @@ sub pythagorean_diag {
                           neg_infinity_maybe(),
                           dbl_max_for_class_rect($path),
                           dbl_max_neg_for_class_rect($path)) {
-            
+
             my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
             scalar(@nn) == 2
               or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));
@@ -1262,7 +1332,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     my %saw_n_to_xy;
     my %count_n_to_xy;
     my $got_x_negative = 0;
@@ -1277,10 +1347,10 @@ sub pythagorean_diag {
       $n_to_y[$n] = $y;
       defined $x or &$report("n_to_xy($n) X undef");
       defined $y or &$report("n_to_xy($n) Y undef");
-      
+
       if ($x < 0) { $got_x_negative = 1; }
       if ($y < 0) { $got_y_negative = 1; }
-      
+
       my $xystr = (int($x) == $x && int($y) == $y
                    ? sprintf('%d,%d', $x,$y)
                    : sprintf('%.3f,%.3f', $x,$y));
@@ -1291,7 +1361,7 @@ sub pythagorean_diag {
         }
       }
       $saw_n_to_xy{$xystr} = $n;
-      
+
       if ($dxdy_allowed) {
         if (defined $prev_x) {
           my $dx = $x - $prev_x;
@@ -1628,7 +1698,7 @@ sub pythagorean_diag {
         $is_a_tree = 1;
       }
     }
-      
+
 
     ### tree_n_children before n_start ...
     foreach my $n ($n_start-5 .. $n_start-1) {

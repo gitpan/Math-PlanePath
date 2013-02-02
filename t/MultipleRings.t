@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 340;
+plan tests => 375;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -118,6 +118,12 @@ foreach my $elem (
                   [ 4, 9, -($base_r4+2), 0 ],
                   [ 4, 11, 0, -($base_r4+2) ],
 
+                  # step=6
+                  [ 6,  1,   1, 0 ],
+                  [ 6,  4,  -1, 0 ],
+                  [ 6,  7,   2, 0 ],
+                  [ 6, 13,  -2, 0 ],
+
                  ) {
   my ($step, $n, $x, $y) = @$elem;
   my $path = Math::PlanePath::MultipleRings->new (step => $step);
@@ -145,35 +151,56 @@ foreach my $elem (
 
 
 #------------------------------------------------------------------------------
-# step=1 n_to_rsquared()
+# n_to_rsquared()
 
-{
-  my $path = Math::PlanePath::MultipleRings->new (step => 1);
-  foreach my $elem (
-                    [ 1, 0 ],
-                    [ 1, 0 ],
+foreach my $elem (
+                  # step=0
+                  [ 0, 1,  0*0 ],
+                  [ 0, 2,  1*1 ],
+                  [ 0, 3,  2*2 ],
+                  [ 0, 4,  3*3 ],
 
-                    [ 2,   1 ],
-                    [ 2.5, 1 ],
-                    [ 3,   1 ],
-                    [ 3.5, 1 ],
+                  # step=1
+                  [ 1, 1,  0*0 ],
+                  [ 1, 1,  0*0 ],
 
-                    [ 4,   2*2 ],
-                    [ 4.5, 2*2 ],
-                    [ 6,   2*2 ],
-                    [ 6.5, 2*2 ],
+                  [ 1, 2,    1*1 ],
+                  [ 1, 2.5,  1*1 ],
+                  [ 1, 3,    1*1 ],
+                  [ 1, 3.5,  1*1 ],
 
-                    [ 7,    3*3 ],
-                    [ 7.5,  3*3 ],
-                    [ 10,   3*3 ],
-                    [ 10.5, 3*3 ],
+                  [ 1, 4,    2*2 ],
+                  [ 1, 4.5,  2*2 ],
+                  [ 1, 6,    2*2 ],
+                  [ 1, 6.5,  2*2 ],
 
-                   ) {
-    my ($n, $want_rsquared) = @$elem;
-    my $got_rsquared = $path->n_to_rsquared($n);
-    ok ($got_rsquared == $want_rsquared, 1,
-        "n_to_rsquared() at n=$n  got $got_rsquared want $want_rsquared");
-  }
+                  [ 1, 7,     3*3 ],
+                  [ 1, 7.5,   3*3 ],
+                  [ 1, 10,    3*3 ],
+                  [ 1, 10.5,  3*3 ],
+
+
+                  # step=6
+                  [ 6, 1,     1*1 ],  # 1..6 inclusive
+                  [ 6, 6,     1*1 ],
+                  [ 6, 6.75,  1*1 ],
+
+                  [ 6, 7,     2*2 ],  # 7..18 inclusive
+                  [ 6, 7.5,   2*2 ],
+                  [ 6, 18,    2*2 ],
+                  [ 6, 18.5,  2*2 ],
+
+                  [ 6, 19,    3*3 ],  # 19..36 inclusive
+                  [ 6, 19.5,  3*3 ],
+                  [ 6, 36,    3*3 ],
+                  [ 6, 36.5,  3*3 ],
+
+                 ) {
+  my ($step, $n, $want_rsquared) = @$elem;
+  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  my $got_rsquared = $path->n_to_rsquared($n);
+  ok ($got_rsquared == $want_rsquared, 1,
+      "step=$step n_to_rsquared() at n=$n  got $got_rsquared want $want_rsquared");
 }
 
 #------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ require Math::PlanePath::GosperSide;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::GosperSide::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GosperSide->VERSION,  $want_version,
@@ -205,8 +205,9 @@ require Math::PlanePath::GosperSide;
     $dy = $y - $prev_y;
     my $dir = dxdy_to_dir($dx,$dy);
 
-    my $got_turn = ($dir - $prev_dir) % 6;
+    my $got_turn = ($dir - $prev_dir + 6) % 6;
     my $want_turn = n_to_turn_calculated($n-1) % 6;
+    if ($want_turn < 0) { $want_turn += 6; }
 
     if ($got_turn != $want_turn) {
       MyTestHelpers::diag ("n=$n turn got=$got_turn want=$want_turn");

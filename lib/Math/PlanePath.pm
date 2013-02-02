@@ -17,17 +17,18 @@
 
 
 # sum_minimum
+# sumxy_minimum
+# sumabsxy_minimum
 # diffxy_minimum
-# rsquared_minimum
 # dsum_minimum
 # ddiffxy_minimum
 
 # Math::PlanePath::Base::Generic
-# divrem
-# divrem_mutate
+#   divrem
+#   divrem_mutate
 
-# $level = $path->tree_depth_start;
-# ($n_lo,$n_hi) = $path->tree_depth_to_n_range($level);
+# ($n_lo,$n_hi) = $path->tree_depth_to_n_range($depth);
+# $width = $path->tree_depth_to_n_width($depth);  # number of N at depth
 #
 # $path->n_to_dir4
 # $path->n_to_turn4
@@ -49,6 +50,8 @@
 # $path->x_range('all')
 #
 # lattice_type square,triangular,triangular_odd,pentagonal,fractional
+# $path->xy_any_odd
+# $path->xy_any_even
 #
 # xy_unique_n_start
 # figures_disjoint
@@ -62,7 +65,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 97;
+$VERSION = 98;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -498,8 +501,7 @@ some kind (some unspecified kind as yet).  C<n_to_xy()> on negative infinity
 is an empty return, the same as other negative C<$n>.
 
 Floating point nans (when available) give nan, infinite, or empty/undef
-returns, but again of some unspecified kind as yet, but in any case not
-going into infinite loops.
+returns, but again of some unspecified kind as yet.
 
 Many of the classes can operate on overloaded number types as inputs and
 give corresponding outputs.
@@ -512,8 +514,8 @@ give corresponding outputs.
 A few classes might truncate a bignum or a fraction to a float as yet.  In
 general the intention is to make the calculations generic enough to act on
 any sensible number type.  Recent enough versions of the bignum modules
-might be required, perhaps Perl 5.8 or higher for C<**> exponentiation
-operator.
+might be required, perhaps C<BigInt> of Perl 5.8 or higher for C<**>
+exponentiation operator.
 
 For reference, an C<undef> input as C<$n>, C<$x>, C<$y>, etc, is meant to
 provoke an uninitialized value warning when warnings are enabled, but
@@ -534,6 +536,12 @@ and under L</SEE ALSO>.
 Create and return a new path object.  Optional key/value parameters may
 control aspects of the object.
 
+=back
+
+=head2 Coordinate Methods
+
+=over
+
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
 Return X,Y coordinates of point C<$n> on the path.  If there's no point
@@ -545,20 +553,14 @@ C<$n> then the return is an empty list.  For example
 Paths start from C<$path-E<gt>n_start()> below, though some will give a
 position for N=0 or N=-0.5 too.
 
-=back
-
-=head2 Coordinate Methods
-
-=over
-
 =item C<($dx,$dy) = $path-E<gt>n_to_dxdy ($n)>
 
 Return the change in X and Y going from point C<$n> to point C<$n+1>, or for
-paths with multiple arms from C<$n> to C<$n+$arms_count> (thus advancing by
-one along the arm of C<$n>).
+paths with multiple arms from C<$n> to C<$n+$arms_count> (thus advancing one
+point along the arm of C<$n>).
 
     +  $n+1 == $next_x,$next_y
-    |
+    ^
     |
     |                    $dx = $next_x - $x
     +  $n == $x,$y       $dy = $next_y - $y

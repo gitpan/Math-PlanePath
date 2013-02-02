@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 168 A-numbers in 4 modules
+# total 177 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -71,6 +71,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A153036',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'RationalsTree',
+      'coordinate_type',
+      'IntXY'
+    ]
+  },
+  {
     'anum' => 'A000523',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
@@ -108,6 +118,16 @@ use constant info_arrayref =>
       'RationalsTree,tree_type=AYT',
       'coordinate_type',
       'Y'
+    ]
+  },
+  {
+    'anum' => 'A135523',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'RationalsTree,tree_type=AYT',
+      'coordinate_type',
+      'IntXY'
     ]
   },
   {
@@ -495,13 +515,23 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A004199',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'Diagonals,x_start=1,y_start=1',
+      'coordinate_type',
+      'IntXY'
+    ]
+  },
+  {
     'anum' => 'A003988',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
       'planepath',
       'Diagonals,direction=up,x_start=1,y_start=1',
       'coordinate_type',
-      'Int'
+      'IntXY'
     ]
   },
   {
@@ -702,6 +732,66 @@ use constant info_arrayref =>
       'GcdRationals',
       'coordinate_type',
       'Y'
+    ]
+  },
+  {
+    'anum' => 'A038567',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'CoprimeColumns',
+      'coordinate_type',
+      'X'
+    ]
+  },
+  {
+    'anum' => 'A038566',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'CoprimeColumns,n_start=1',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A061017',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DivisibleColumns,n_start=1',
+      'coordinate_type',
+      'X'
+    ]
+  },
+  {
+    'anum' => 'A027750',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DivisibleColumns,n_start=1',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A056538',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DivisibleColumns,n_start=1',
+      'coordinate_type',
+      'IntXY'
+    ]
+  },
+  {
+    'anum' => 'A208460',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'DivisibleColumns,divisor_type=proper,n_start=2',
+      'coordinate_type',
+      'DiffXY'
     ]
   },
   {
@@ -1085,16 +1175,6 @@ use constant info_arrayref =>
     ]
   },
   {
-    'anum' => 'A056107',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'HexSpiralSkewed',
-      'line_type',
-      'Diagonal_NW'
-    ]
-  },
-  {
     'anum' => 'A056108',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -1112,6 +1192,16 @@ use constant info_arrayref =>
       'HexSpiralSkewed',
       'line_type',
       'Y_neg'
+    ]
+  },
+  {
+    'anum' => 'A056107',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HexSpiralSkewed',
+      'line_type',
+      'Diagonal_NW'
     ]
   },
   {

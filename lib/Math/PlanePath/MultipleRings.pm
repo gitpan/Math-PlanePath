@@ -36,7 +36,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 97;
+$VERSION = 98;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -44,7 +44,7 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::SacksSpiral; # for _bigfloat()
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant figure => 'circle';
@@ -87,7 +87,7 @@ use constant parameter_info_array =>
 #     r = 0.5 / sin(pi/points)
 # And with points = d*step, starting from d=1
 #     r = 0.5 / sin(pi/(d*step))
-#
+
 # step==0 is a straight line y==0 x=0,1,2,..., anything else whole plane
 sub x_negative {
   my ($self) = @_;
@@ -209,9 +209,9 @@ sub rsquared_minimum {
 
 #------------------------------------------------------------------------------
 
-# v1.02 for leading underscore
-# this used in PlanePathDelta.pm too
-use constant 1.02 _PI => 4 * atan2(1,1);  # similar to Math::Complex
+# same in Math::NumSeq::PlanePathDelta too
+use constant 1.02; # for leading underscore
+use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 sub new {
   my $class = shift;
@@ -226,13 +226,19 @@ sub new {
                              : $step);
 
   if ($ring_shape eq 'polygon' && $step >= 3) {
+    ### polygon ...
     $self->{'base_r'} = 0.5/sin(_PI/$step);
-  } else {
-    # circles
-    if ($step <= 6) {
-      $self->{'base_r'} = ($step == 6 ? 1
-                           : $step > 1 && 0.5/sin(_PI/$step)) - 1;
-    }
+
+  } elsif ($step == 6) {
+    ### 0.5/sin(PI/6)=1 exactly ...
+    $self->{'base_r'} = 0;
+
+  } elsif ($step == 4) {
+    ### 0.5/sin(PI/4)=sqrt(2)/2 ...
+    $self->{'base_r'} = sqrt(2)/2 - 1;
+
+  } elsif ($step < 6) {
+    $self->{'base_r'} = ($step > 1 && 0.5/sin(_PI/$step)) - 1;
   }
   ### base r: $self->{'base_r'}
 
@@ -285,9 +291,9 @@ sub n_to_xy {
     return ($n, 0);
   }
 
-  my $d = int((1 + sqrt(int(8*$n/$step) + 1)) / 2);
+  my $d = int((sqrt(int(8*$n/$step) + 1) + 1) / 2);
 
-  ### d frac: (1 + sqrt(int(8*$n) + 1)) / 2
+  ### d frac: (sqrt(int(8*$n) + 1) + 1) / 2
   ### d int: "$d"
   ### base: ($d*($d-1)/2).''
   ### next base: (($d+1)*$d/2).''
@@ -373,23 +379,54 @@ sub n_to_xy {
           $r * sin($theta));
 }
 
+# for step=4
+#   R   = sqrt(2)/2 + d
+#   R^2 = (sqrt(2)/2 + d)^2
+#       = 2/4 + 2*sqrt(2)/2*d + d^2
+#       = 1/2 + d*sqrt(2) + d^2
+#
 sub n_to_rsquared {
   my ($self, $n) = @_;
+  if ($n < 1) { return undef; }
+  if (is_infinite($n)) { return $n; }
+
   my $step = $self->{'step'};
-  if ($step <= 1) {
-    if ($n < 1) { return; }
-    if (is_infinite($n)) { return $n; }
+  if ($step == 0) {
+    # step=0 along X axis starting X=0,Y=0
     $n -= 1;
-    if ($step == 0) {
-      # step=0 along X axis starting X=0,Y=0
-      return $n*$n;
-    } else { # $step == 1
-      # step=1 exact integer radius
-      my $r = int((-1 + sqrt(int(8*$n)+1)) / 2);
-      return $r*$r;
+
+  } elsif ($step == 1 || $step == 6) {
+    # step=1 or step=6 exact integer radius
+    $n = int((sqrt(int(8*($n-1)/$step) + 1) + 1) / 2);
+    if ($step == 1) {
+      $n -= 1;
     }
+
+  } else {
+    return $self->SUPER::n_to_rsquared($n);
   }
-  return $self->SUPER::n_to_rsquared($n);
+
+  return $n*$n;
+}
+
+sub _UNTESTED__n_to_radius {
+  my ($self, $n) = @_;
+
+  if ($n < 1) { return undef; }
+  if (is_infinite($n)) { return $n; }
+
+  my $step = $self->{'step'};
+  if ($step == 0) {
+    # step=0 along X axis starting X=0,Y=0
+    return $n - 1;
+  }
+
+  if ($step == 1 || $step == 6) {
+    # step=1 or step=6 exact integer radius
+    return int((sqrt(int(8*($n-1)/$step) + 1) + ($step == 1 ? -1 : 1)) / 2)
+  }
+
+  return $self->SUPER::n_to_radius($n);
 }
 
 # From above

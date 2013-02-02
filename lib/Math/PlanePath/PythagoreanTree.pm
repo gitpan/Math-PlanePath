@@ -18,6 +18,14 @@
 
 # math-image --path=PythagoreanTree --all --scale=3
 
+# Diophantus III, 22
+# http://archive.org/details/diophantusofalex00heatiala
+#
+# Dickson History of the Theory of Numbers vol 2 chapter iv page 165
+# Diophantus knew that if the sides of a right triangle are 
+# expressed by rational numbers they are proportional to 2mn, m 2 n 2 , 
+#
+#
 # Daniel Shanks. Solved and Unsolved Problems in Number Theory, pp. 121 and
 # 141, 1993.
 #     http://books.google.com.au/books?id=KjhM9pZEGCkC&lpg=PR1&dq=Solved%20and%20Unsolved%20Problems%20in%20Number%20Theory&pg=PA122#v=onepage&q&f=false
@@ -64,7 +72,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

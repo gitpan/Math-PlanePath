@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -660,7 +660,7 @@ sub tree_n_num_children {
 sub tree_n_parent {
   my ($self, $n) = @_;
   my $k = $self->{'k'};
-  $n -= $self->{'n_start'}-1;
+  $n = $n - $self->{'n_start'} + 1;   # and warn if $n==undef
   if ($n >= $k) {
     _divrem_mutate ($n, $k);
     return $n + $self->{'n_start'}-1;
@@ -671,7 +671,7 @@ sub tree_n_parent {
 sub tree_n_to_depth {
   my ($self, $n) = @_;
   ### ChanTree tree_n_to_depth(): $n
-  $n = $n - $self->{'n_start'} + 1;
+  $n = $n - $self->{'n_start'} + 1;   # and warn if $n==undef
   unless ($n >= 1) {
     return undef;
   }

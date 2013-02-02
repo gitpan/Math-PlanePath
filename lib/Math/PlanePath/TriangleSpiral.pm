@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -310,6 +310,7 @@ this path include
       A062708     N on X=Y leading diagonal
       A081268     N on X=Y+2 diagonal (right of leading diagonal)
       A062728     N on South-East diagonal (11-gonal second kind)
+      A062725     N on South-West diagonal
       A081275     N on ENE slope from X=2,Y=0 then dX=+3,dY=+1
       A081266     N on WSW slope dX=-3,dY=-1
       A081271     N on X=2 vertical

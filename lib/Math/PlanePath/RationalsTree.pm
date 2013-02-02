@@ -57,7 +57,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -430,10 +430,12 @@ sub tree_n_num_children {
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
-  unless (($n -= $self->{'n_start'}) > 0) {
+  $n = $n - $self->{'n_start'}; # and warn if $n==undef
+  if ($n > 0) {
+    return int(($n-1)/2) + $self->{'n_start'};
+  } else {
     return undef;
   }
-  return int(($n-1)/2) + $self->{'n_start'};
 }
 sub tree_n_to_depth {
   my ($self, $n) = @_;
@@ -634,14 +636,29 @@ re-ordered.
          -------------------------------------------------------------
            X=0   1    2    3    4    5    6    7    8    9   10
 
-In each node left leg is X/(X+Y) E<lt> 1 and the right leg is (X+Y)/Y E<gt>
-1, which means even N is above the X=Y diagonal and odd N is below.
+At each node the left leg is S<X/(X+Y) E<lt> 1> and the right leg is
+S<(X+Y)/Y E<gt> 1>, which means even N is above the X=Y diagonal and odd N
+is below.  In general each right leg increments the integer part of the
+fraction,
 
-N values for the SB and CW trees are converted by reversing bits.  At a
-given X,Y position if N = binary "1abcde" in the SB tree then at that same
-X,Y in the CW has N = binary "1edcba".  For example at X=3,Y=4 the SB tree
-has N=11=0b1011 and the CW has N=14=0b1110, a reversal of the bits below the
-high 1.
+     X/Y                       right leg each time
+     (X+Y)/Y   = 1 + X/Y
+     (X+2Y)/Y  = 2 + X/Y
+     (X+3Y)/Y  = 3 + X/Y
+     etc
+
+This means the integer part floor(X/Y) is given by the number of trailing
+1-bits of N.  For example 7/2 is at N=23 binary "10111" which has 3 trailing
+1-bits for floor(7/2)=3.
+
+N values for the SB and CW trees are converted by reversing bits.  So at a
+given X,Y position
+
+    SB  N = 1abcde      SB <-> CW by reversing bits
+    CW  N = 1edcba      except the high 1-bit
+
+For example at X=3,Y=4 the SB tree has N=11 = "1011" binary and the CW has
+N=14 binary "1110", a reversal of the bits below the high 1.
 
 N to X/Y in the CW tree can be calculated keeping track of just an X,Y pair
 and descending to X/(X+Y) or (X+Y)/Y using the bits of N from high to low.
@@ -664,11 +681,11 @@ http://www.jstor.org/stable/2320374
 
 =back
 
-Their constructions are a one-to-one mapping between integer N and
-rational X/Y as a way of enumerating the rationals.  It's not designed
-to be a tree as such, but the result is the same sort of 2^level rows
-as the above trees.  The X/Y values within each row are again the
-same, but in a further different order.
+Their constructions are a one-to-one mapping between integer N and rational
+X/Y as a way of enumerating the rationals.  It's not designed to be a tree
+as such, but the result is the same 2^level rows as the above trees.  The
+X/Y values within each row are again the same, but in a further different
+order.
 
     N=1                             1/1
                               ------   ------
@@ -679,7 +696,7 @@ same, but in a further different order.
     N=8 to N=15     4/1  1/4  4/3 3/4  5/2 2/5  5/3 3/5
 
 Each fraction descends as follows.  The left is an increment and the right
-is the reciprocal of the increment.
+is reciprocal of the increment.
 
             X/Y
           /     \
@@ -693,6 +710,15 @@ which means
 
 The left leg (X+Y)/Y is the same as in the CW has on the right.  But Y/(X+Y)
 is not the same as the CW (the other there being X/(X+Y)).
+
+As per the CW tree right leg, the AYT left leg increments the integer part,
+so
+
+    floor(X/Y) = count trailing 0-bits of N
+                 plus one extra if N=2^k
+
+N=2^k is one extra because its trailing 0-bits started from N=1 where
+floor(1/1)=1 whereas any other odd N has floor(X/Y)=0.
 
 X<Fibonacci Numbers>The Y/(X+Y) right leg forms the Fibonacci numbers
 F(k)/F(k+1) at the end of each row, ie. at Nend=2^(level+1)-1.  And as noted
@@ -751,13 +777,20 @@ X<Hanna, Paul D.>X<Czyz, Jerzy>X<Self, Will>C<tree_type=E<gt>"HCS"> selects
 continued fraction terms coded as bit runs 1000...00 from high to low, as
 per Paul D. Hanna and independently Jerzy Czyz and Will Self.
 
-    http://oeis.org/A071766
-    http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml
-    http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf
+=over
 
-This arises too in a radix=1 variation of Jeffrey Shallit's digit-based
-continued fraction encoding too (see L<Math::PlanePath::CfracDigits/Radix
-1>).
+http://oeis.org/A071766
+http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml
+http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf
+
+Jerzy Czyz and William Self, "The Rationals Are Countable: Euclid's
+Proof", The College Mathematics Journal, volume 34, number 5,
+November 2003, page 367.
+
+=back
+
+This arises also in a radix=1 variation of Jeffrey Shallit's digit-based
+continued fraction encoding (see L<Math::PlanePath::CfracDigits/Radix 1>).
 
 If the continued fraction of X/Y is
 
@@ -778,8 +811,8 @@ then the N value is bit runs of lengths a,b,c etc.
          a+1   b    c       z-1
 
 Each group is 1 or more bits.  Using a+1 for the first group makes it 1 or
-more, since a=0 occurs for any X/YE<lt>=1.  Using z-1 in the last ensures
-it's 1 or more since zE<gt>=2.
+more, since a=0 occurs for any X/YE<lt>=1.  Using z-1 in the last group
+ensures it's 1 or more since zE<gt>=2.
 
     N=1                             1/1
                               ------   ------
@@ -789,10 +822,13 @@ it's 1 or more since zE<gt>=2.
                        | |      | |      | |      | |
     N=8 to N=15      4/1 5/2  4/3 5/3  1/4 2/5  3/4 3/5
 
-The result is a bit reversal of the AYT tree N values.  If N = binary
-"1abcde" in the AYT tree then at that same X,Y the HCS has N = binary
-"1edcba".  For example at X=4,Y=7 the AYT tree has N=11=0b10111 and the HCS
-has N=30=0b11110, a reversal of the bits below the high 1.
+The result is a bit reversal of the AYT tree N values.
+
+    AYT  N = binary "1abcde"      AYT <-> HCS by bit reversal
+    HCS  N = binary "1edcba"
+
+For example at X=4,Y=7 the AYT tree has N=11 binary "10111" and the HCS has
+N=30 binary "11110", a reversal of the bits below the high 1.
 
 Plotting by X,Y gives
 
@@ -1163,13 +1199,17 @@ various forms,
     A007305  SB X numerators, Farey fractions (extra 0,1)
     A047679  SB Y denominators
     A007306  SB X+Y sum, Farey 0 to 1 part (extra 1,1)
-    A153036  SB floor(X/Y), ie. integer part
+    A153036  SB int(X/Y), integer part
     A002487  CW X and Y, Stern diatomic sequence (extra 0)
     A070990  CW Y-X diff, Stern diatomic first diffs (less 0)
     A070871  CW X*Y product
+    A007814  CW int(X/Y), integer part, count trailing 1-bits
+                which is count trailing 0-bits of N+1
     A020650  AYT X
     A020651  AYT Y (Kepler X)
     A086592  AYT X+Y sum (Kepler denominators)
+    A135523  AYT int(X/Y), integer part,
+                count trailing 0-bits plus 1 extra if N=2^k
     A071766  HCS Y
     A071585  HCS X+Y sum (sum giving rationals >= 1)
     A162909  Bird X
@@ -1232,10 +1272,6 @@ L<Math::PlanePath::PythagoreanTree>
 
 L<Math::NumSeq::SternDiatomic>,
 L<Math::ContinuedFraction>
-
-Jerzy Czyz and William Self, "The Rationals Are Countable: Euclid's Proof",
-The College Mathematics Journal, volume 34, number 5, November 2003, page
-367.
 
 =head1 HOME PAGE
 

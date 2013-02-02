@@ -52,7 +52,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines

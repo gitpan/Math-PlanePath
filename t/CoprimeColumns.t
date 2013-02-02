@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 205;
+plan tests => 206;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::CoprimeColumns;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::CoprimeColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CoprimeColumns->VERSION,  $want_version,
@@ -73,9 +73,13 @@ require Math::PlanePath::CoprimeColumns;
   ok ($path->class_y_negative, 0, 'class_y_negative() instance method');
 }
 {
+  my $path = Math::PlanePath::CoprimeColumns->new (n_start => 37);
+  ok ($path->n_start, 37, 'n_start() 37');
+}
+{
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::CoprimeColumns->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'n_start');
 }
 
 

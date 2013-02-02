@@ -20,14 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 147;
+plan tests => 148;
 
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::DiagonalRationals;
 
@@ -39,7 +39,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::DiagonalRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiagonalRationals->VERSION,  $want_version,
@@ -72,9 +72,13 @@ my $n_start = $path->n_start;
   ok ($path->y_negative, 0, 'y_negative()');
 }
 {
+  my $path = Math::PlanePath::DiagonalRationals->new (n_start => 37);
+  ok ($path->n_start, 37, 'n_start() 37');
+}
+{
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::DiagonalRationals->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'n_start');
 }
 
 

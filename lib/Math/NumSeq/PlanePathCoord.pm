@@ -19,6 +19,9 @@
 # Maybe:
 #
 # NumSiblings -- including or exlcuding self ?
+# CfracLength -- terms in cfrac(X/Y)
+# EuclidSteps
+# GcdSteps
 #
 # I,J,K   TI,TJ,TK  Ti,Tj,Tk
 #   i=(x-y)/2 is DiffXY
@@ -28,6 +31,7 @@
 #
 # GF2Product A051775,A051776  multiply with xor no carry
 # NumOverlap       xy_to_n_list()  n_overlap_list()  n_num_overlap()
+# NumAround
 # NumSurround
 # NumSurround4     NSEW
 # NumSurroundDiag  diagonals
@@ -35,15 +39,12 @@
 # NumSurround8
 # NumPrev4
 #
-# Int = int(X/Y) cf A153036 SB integer part
-# IntXY      towards 0  A004199 X>=0,Y>=0    wedge of given slope
-# IntX/Y
-# IntYX
+# FracXY = XmodY/Y fractional part which would go with IntXY
+# FracNum = abs(X) mod abs(Y), numerator of reduced fraction
+# #
 # RemXY X mod Y 0<=R<Y + or -; if Y=0 then R=0, or inf?
 # ModXY = X mod Y range 0 to abs(Y)-1
 # ModYX
-# FracXY = XmodY/Y fractional part which would go with IntXY
-# FracNum = abs(X) mod abs(Y), numerator of reduced fraction
 # DivXY = X/Y fractional
 # DivYX = Y/X fractional
 # ExactDivXY = X/Y if X divisible by Y, or 0 if not A126988 X,Y>=1
@@ -71,7 +72,7 @@ use constant 1.02; # various underscore constants below
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -107,16 +108,16 @@ use constant::defer parameter_info_array =>
                    'BitAnd', 'BitOr', 'BitXor',
                    'Min','Max',
                    'GCD',
-                   'Depth',
-                   'NumChildren',
-                   'IsLeaf','IsNonLeaf',
+                   # 'GcdDivisions',
+                   'Depth', 'NumChildren',
+                   'IsLeaf', 'IsNonLeaf',
 
-                   'Height',
+                   # 'Height',
+                   # 'ToLeaf',
                    # 'KroneckerSymbol',
                    # 'NumSiblings',
-                   # 'ToLeaf',
                    # 'ModXY',
-                   # 'Int',
+                   # 'IntXY',
                    # 'Numerator',
                    # 'Denominator',
                    # 'MinAbs',
@@ -486,6 +487,30 @@ sub _coordinate_func_GCD {
   return Math::PlanePath::GcdRationals::_gcd($x,$y);
 }
 
+use Math::PlanePath::GcdRationals;
+sub _coordinate_func_GcdDivisions {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  $x = abs(int($x));
+  $y = abs(int($y));
+  if ($x == 0) {
+    return $y;
+  }
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
+
+  if ($x < $y) { ($x,$y) = ($y,$x); }
+  my $count = 0;
+  for (;;) {
+    if ($y <= 1) {
+      return $count;
+    }
+    ($x,$y) = ($y, $x % $y);
+    $count++;
+  }
+}
+
 #------------------------------------------------------------------------------
 # UNTESTED/EXPERIMENTAL
 
@@ -602,13 +627,13 @@ sub path_tree_n_to_leaf_distance {
 # math-image --values=PlanePathCoord,coordinate_type=Height,planepath=ThisPath --path=SierpinskiTriangle --scale=10
 sub _coordinate_func_Height {
   my ($self, $n) = @_;
-  my $height = $self->{'planepath_object'}->_NumSeq_tree_n_to_height($n);
+  my $height = $self->{'planepath_object'}->_NumSeq__tree_n_to_height($n);
   return (defined $height ? $height : _INFINITY);
 }
 # sub path_tree_n_to_height {   # generic
 #   my ($path, $n) = @_;
 #   ### path_tree_n_to_height(): "$n"
-# 
+#
 #   if (is_infinite($n)) {
 #     return $n;
 #   }
@@ -620,7 +645,7 @@ sub _coordinate_func_Height {
 #       or return $height;
 #     $height++;
 #   } while (@n && $height < $max);
-# 
+#
 #   ### height infinite ...
 #   return undef;
 # }
@@ -657,14 +682,14 @@ sub _coordinate_func_NumSurround8 {
     return $count;
   }
 }
-sub _coordinate_func_Int {
+
+# rounding towards zero
+sub _coordinate_func_IntXY {
   my ($self, $n) = @_;
-  ### _coordinate_func_Int(): $n
+  ### _coordinate_func_IntXY(): $n
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
     or return undef;
-  ### $x
-  ### $y
-  $y = abs($y) || return _INFINITY;   # X/0
+  $y = abs($y) || return _INFINITY;   # X/0 = infinity
   $x = abs($x);
   if ($y == int($y)) {
     my ($q) = _divrem($x,$y);
@@ -990,9 +1015,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_NumSurround4_integer => 1;  # always integers
   use constant _NumSeq_Coord_NumSurround6_integer => 1;
   use constant _NumSeq_Coord_NumSurround8_integer => 1;
-  use constant _NumSeq_Coord_Int_min => 0;
-  use constant _NumSeq_Coord_Int_max => undef;
-  use constant _NumSeq_Coord_Int_integer => 1;
+  use constant _NumSeq_Coord_IntXY_min => 0;
+  use constant _NumSeq_Coord_IntXY_max => undef;
+  use constant _NumSeq_Coord_IntXY_integer => 1;
   use constant _NumSeq_Coord_oeis_anum => {};
 
   use constant _NumSeq_Coord_X_integer => 1;  # usually
@@ -1159,6 +1184,10 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_max => undef;
   use constant _NumSeq_Coord_GCD_integer => 1;
 
+  use constant _NumSeq_Coord_GcdDivisions_min => 0;
+  use constant _NumSeq_Coord_GcdDivisions_max => undef;
+  use constant _NumSeq_Coord_GcdDivisions_integer => 1;
+
   use constant _NumSeq_Coord_KroneckerSymbol_min => -1;
   use constant _NumSeq_Coord_KroneckerSymbol_max => 1;
   use constant _NumSeq_Coord_KroneckerSymbol_integer => 1;
@@ -1294,7 +1323,7 @@ sub characteristic_non_decreasing {
             ? undef  # is a tree, default infinite max height
             : 0);    # not a tree, height always 0
   }
-  use constant _NumSeq_tree_n_to_height => 0;
+  use constant _NumSeq__tree_n_to_height => 0;
 
   use constant _NumSeq_Coord_NumSiblings_min => 0;
   sub _NumSeq_Coord_NumSiblings_max {
@@ -1598,7 +1627,7 @@ sub characteristic_non_decreasing {
   *_NumSeq_Coord_SumAbs_min = \&x_minimum;
   *_NumSeq_Coord_DiffXY_min = \&x_minimum;
   *_NumSeq_Coord_AbsDiff_min = \&x_minimum;
-  use constant _NumSeq_Coord_Int_min => 1;  # triangular X>=Y so X/Y >= 1
+  use constant _NumSeq_Coord_IntXY_min => 1;  # triangular X>=Y so X/Y >= 1
 
   *_NumSeq_Coord_TRSquared_min = \&rsquared_minimum;
   *_NumSeq_Coord_GCD_min       = \&rsquared_minimum;
@@ -1644,7 +1673,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_TRadius_non_decreasing => 1;
 }
 { package Math::PlanePath::PythagoreanTree;
-  use constant _NumSeq_tree_n_to_height => undef; # complete tree, all infinity
+  use constant _NumSeq__tree_n_to_height => undef; # complete tree, all infinity
   use constant _NumSeq_Coord_Height_min => undef;
 
   {
@@ -1677,13 +1706,13 @@ sub characteristic_non_decreasing {
     }
   }
   {
-    my %_NumSeq_Coord_Int_min = (PQ => 1, # octant X>=Y+1 so X/Y>=1
+    my %_NumSeq_Coord_IntXY_min = (PQ => 1, # octant X>=Y+1 so X/Y>=1
                                 );
-    sub _NumSeq_Coord_Int_min {
+    sub _NumSeq_Coord_IntXY_min {
       my ($self) = @_;
-      return $_NumSeq_Coord_Int_min{$self->{'coordinates'}};
+      return $_NumSeq_Coord_IntXY_min{$self->{'coordinates'}};
     }
-    *_NumSeq_Int_min_is_infimum = \&_NumSeq_Coord_Int_min;
+    *_NumSeq_IntXY_min_is_infimum = \&_NumSeq_Coord_IntXY_min;
   }
   {
     my %_NumSeq_Coord_BitXor_min = (AB => 1, # at X=21,Y=20
@@ -1731,12 +1760,14 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_BitAnd_min => 0;  # X=1,Y=2
   use constant _NumSeq_Coord_BitXor_min => 0;  # X=1,Y=1
   use constant _NumSeq_Coord_ToLeaf_max => undef;
-  use constant _NumSeq_tree_n_to_height => undef; # complete tree, all infinity
+  use constant _NumSeq__tree_n_to_height => undef; # complete tree, all infinity
   use constant _NumSeq_Coord_Height_min => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=SB' =>
-      { Depth => 'A000523', # floor(log2(n)) starting OFFSET=1
+      { IntXY => 'A153036',
+        Depth => 'A000523', # floor(log2(n)) starting OFFSET=1
+        # OEIS-Catalogue: A153036 planepath=RationalsTree coordinate_type=IntXY
         # OEIS-Catalogue: A000523 planepath=RationalsTree coordinate_type=Depth
 
         # Not quite, OFFSET n=0 cf N=1 here
@@ -1756,11 +1787,17 @@ sub characteristic_non_decreasing {
        # OEIS-Catalogue: A070871 planepath=RationalsTree,tree_type=CW coordinate_type=Product
        # OEIS-Other:     A000523 planepath=RationalsTree,tree_type=CW coordinate_type=Depth
 
-       # CW X and Y is Stern diatomic A002487, but RationalsTree starts N=0
-       #    X=1,1,2 or Y=1,2 rather than from 0
-       # CW DiffYX is A070990 stern diatomic first diffs, but RationalsTree
-       #    starts N=0 diff=0, whereas A070990 starts n=0 diff=1 one less term
-       #
+       # Not quite, A007814 has extra initial 0, OFFSET=0 "0,1,0,2,0"
+       # whereas path CW IntXY starts N=1 "1,0,2,0,1"
+       # IntXY   => 'A007814', # countlow1bits(N)
+       # # OEIS-Other:     A007814 planepath=RationalsTree,tree_type=CW coordinate_type=IntXY
+
+       # Not quite, CW X and Y is Stern diatomic A002487, but RationalsTree
+       # starts N=0 X=1,1,2 or Y=1,2 rather than from 0
+
+       # Not quite, CW DiffYX is A070990 stern diatomic first diffs, but
+       # path starts N=1 diff="0,1,-1,2,-1,1,-2", whereas A070990 starts n=0
+       # "1,-1,2,-1,1,-2" one less term
       },
       'tree_type=AYT' =>
       { X      => 'A020650', # AYT numerator
@@ -1768,13 +1805,16 @@ sub characteristic_non_decreasing {
         Sum    => 'A086592', # Kepler's tree denominators
         SumAbs => 'A086592', # Kepler's tree denominators
         Depth  => 'A000523', # floor(log2(n)) starting OFFSET=1
+        IntXY  => 'A135523',
         # OEIS-Catalogue: A020650 planepath=RationalsTree,tree_type=AYT coordinate_type=X
         # OEIS-Catalogue: A020651 planepath=RationalsTree,tree_type=AYT coordinate_type=Y
-        # OEIS-Other: A086592 planepath=RationalsTree,tree_type=AYT coordinate_type=Sum
-        # OEIS-Other: A000523 planepath=RationalsTree,tree_type=AYT coordinate_type=Depth
+        # OEIS-Other:     A086592 planepath=RationalsTree,tree_type=AYT coordinate_type=Sum
+        # OEIS-Other:     A000523 planepath=RationalsTree,tree_type=AYT coordinate_type=Depth
+        # OEIS-Catalogue: A135523 planepath=RationalsTree,tree_type=AYT coordinate_type=IntXY
 
-        # DiffYX almost A070990 Stern diatomic first differences, but we have
-        # an extra 0 at the start, and we start i=1 rather than n=0 too
+        # Not quite, DiffYX almost A070990 Stern diatomic first differences,
+        # but we have an extra 0 at the start, and we start i=1 rather than
+        # n=0 too
       },
       'tree_type=HCS' =>
       {
@@ -1819,12 +1859,12 @@ sub characteristic_non_decreasing {
 }
 { package Math::PlanePath::FractionsTree;
   use constant _NumSeq_Coord_DiffXY_max => -1; # upper octant X<=Y-1 so X-Y<=-1
-  use constant _NumSeq_Coord_Int_max => 0;  # 0 < X/Y < 1
+  use constant _NumSeq_Coord_IntXY_max => 0;  # 0 < X/Y < 1
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
   use constant _NumSeq_Coord_BitXor_min => 1;  # X=2,Y=3
   use constant _NumSeq_Coord_ToLeaf_max => undef;
-  use constant _NumSeq_tree_n_to_height => undef; # complete tree, all infinity
+  use constant _NumSeq__tree_n_to_height => undef; # complete tree, all infinity
   use constant _NumSeq_Coord_Height_min => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
@@ -1841,7 +1881,7 @@ sub characteristic_non_decreasing {
         # OEIS-Other:     A000523 planepath=FractionsTree coordinate_type=Depth
 
         # Not quite, Sum is from 1/2 value=3 skipping the initial value=2 in
-        # A086593 (which would be 1/1).  Also is every second denominator, but
+        # A086593 which would be 1/1.  Also is every second denominator, but
         # again no initial value=2.
         # Sum => 'A086593',
         # Y_odd => 'A086593',   # at N=1,3,5,etc
@@ -1861,7 +1901,7 @@ sub characteristic_non_decreasing {
   # };
 }
 { package Math::PlanePath::ChanTree;
-  use constant _NumSeq_tree_n_to_height => undef; # complete trees, all inf
+  use constant _NumSeq__tree_n_to_height => undef; # complete trees, all inf
   use constant _NumSeq_Coord_Height_min => undef;
   sub _NumSeq_Coord_Sum_min {
     my ($self) = @_;
@@ -2086,7 +2126,7 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::GosperSide;
 # }
 { package Math::PlanePath::KochCurve;
-  use constant _NumSeq_Coord_Int_min => 0;  # X>Y so X/Y>1
+  use constant _NumSeq_Coord_IntXY_min => 0;  # X>Y so X/Y>1
 }
 { package Math::PlanePath::KochPeaks;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y never occurs
@@ -2118,7 +2158,7 @@ sub characteristic_non_decreasing {
 { package Math::PlanePath::QuadricCurve;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   use constant _NumSeq_Coord_DiffXY_min => 0; # triangular Y<=X so X-Y>=0
-  use constant _NumSeq_Coord_Int_min => 1;  # X>=Y so X/Y>=1
+  use constant _NumSeq_Coord_IntXY_min => 1;  # X>=Y so X/Y>=1
 }
 { package Math::PlanePath::QuadricIslands;
   use constant _NumSeq_Coord_X_integer => 0;
@@ -2167,19 +2207,19 @@ sub characteristic_non_decreasing {
   }
 
   use constant _NumSeq_Coord_ToLeaf_max => 4;
-  sub _NumSeq_Coord_Int_max {
+  sub _NumSeq_Coord_IntXY_max {
     my ($self) = @_;
     return ($self->{'align'} eq 'diagonal' ? undef
            : 1); # triangular X<=Y so X/Y<=1
   }
 
-  sub _NumSeq_tree_n_to_height {
+  sub _NumSeq__tree_n_to_height {
     my ($self, $n) = @_;
     if (is_infinite($n)) {
       return $n;
     }
     {
-      # infinite depth on row ends
+      # infinite height on row ends
       local $self->{'align'} = 'right';
       my ($x,$y) = $self->n_to_xy($n);
       if ($x == 0 || $x == $y) {
@@ -2199,15 +2239,15 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   *_NumSeq_Coord_DiffXY_max
     = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_DiffXY_max;
-  *_NumSeq_Coord_Int_max
-    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_Int_max;
+  *_NumSeq_Coord_IntXY_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_IntXY_max;
 }
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y
   *_NumSeq_Coord_DiffXY_max
     = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_DiffXY_max;
-  *_NumSeq_Coord_Int_max
-    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_Int_max;
+  *_NumSeq_Coord_IntXY_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_IntXY_max;
 }
 { package Math::PlanePath::SierpinskiCurve;
   {
@@ -2227,13 +2267,13 @@ sub characteristic_non_decreasing {
             ? 1       # octant Y<=X-1 so X-Y>=1
             : undef); # more than 1 arm, DiffXY goes negative
   }
-  sub _NumSeq_Coord_Int_min {
+  sub _NumSeq_Coord_IntXY_min {
     my ($self) = @_;
     return ($self->arms_count == 1
             ? 1       # octant X>Y so X/Y>1
             : undef); # more than 1 arm
   }
-  *_NumSeq_Int_min_is_infimum = \&_NumSeq_Coord_Int_min;
+  *_NumSeq_IntXY_min_is_infimum = \&_NumSeq_Coord_IntXY_min;
 
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
@@ -2243,8 +2283,8 @@ sub characteristic_non_decreasing {
 { package Math::PlanePath::SierpinskiCurveStair;
   *_NumSeq_Coord_Sum_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Sum_min;
   *_NumSeq_Coord_DiffXY_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_DiffXY_min;
-  *_NumSeq_Coord_Int_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Int_min;
-  *_NumSeq_Coord_Int_is_infimum = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_Int_is_infimum;
+  *_NumSeq_Coord_IntXY_min = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_IntXY_min;
+  *_NumSeq_Coord_IntXY_is_infimum = \&Math::PlanePath::SierpinskiCurve::_NumSeq_Coord_IntXY_is_infimum;
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min => 1; # X=Y never occurs
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
@@ -2252,7 +2292,7 @@ sub characteristic_non_decreasing {
 }
 { package Math::PlanePath::HIndexing;
   use constant _NumSeq_Coord_DiffXY_max => 0; # upper octant X<=Y so X-Y<=0
-  use constant _NumSeq_Coord_Int_max => 1; # upper octant X<=Y so X/Y<=1
+  use constant _NumSeq_Coord_IntXY_max => 1; # upper octant X<=Y so X/Y<=1
 }
 { package Math::PlanePath::DragonCurve;
   use constant _NumSeq_Coord_NumSurround4_min => 2;
@@ -2311,7 +2351,7 @@ sub characteristic_non_decreasing {
     { name => 'width',
       type => 'integer',
     };
-  *_NumSeq_Coord_Int_max = \&x_maximum;
+  *_NumSeq_Coord_IntXY_max = \&x_maximum;
 
   sub _NumSeq_Coord_Y_increasing {
     my ($self) = @_;
@@ -2534,12 +2574,14 @@ sub characteristic_non_decreasing {
         MinAbs  => 'A003983',
         Max     => 'A051125', # X,Y>=1
         MaxAbs  => 'A051125',
+        IntXY   => 'A004199', # X>=0,Y>=0, X/Y round towards zero
         # OEIS-Catalogue: A003991 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=Product
         # OEIS-Catalogue: A003989 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=GCD
         # OEIS-Catalogue: A003983 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=Min
         # OEIS-Other:     A003983 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=MinAbs
         # OEIS-Catalogue: A051125 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=Max
         # OEIS-Other:     A051125 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=MaxAbs
+        # OEIS-Catalogue: A004199 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=IntXY
 
         # cf A003990 LCM starting (1,1) n=1
         #    A003992 X^Y power starting (1,1) n=1
@@ -2548,10 +2590,10 @@ sub characteristic_non_decreasing {
       'direction=up,n_start=1,x_start=1,y_start=1' =>
       { Product => 'A003991', # X*Y starting (1,1) n=1
         GCD     => 'A003989', # GCD by diagonals starting (1,1) n=1
-        Int     => 'A003988', # Int(X/Y) starting (1,1) n=1
+        IntXY   => 'A003988', # Int(X/Y) starting (1,1) n=1
         # OEIS-Other:     A003991 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=Product
         # OEIS-Other:     A003989 planepath=Diagonals,x_start=1,y_start=1 coordinate_type=GCD
-        # OEIS-Catalogue: A003988 planepath=Diagonals,direction=up,x_start=1,y_start=1 coordinate_type=Int
+        # OEIS-Catalogue: A003988 planepath=Diagonals,direction=up,x_start=1,y_start=1 coordinate_type=IntXY
       },
     };
 }
@@ -2668,7 +2710,7 @@ sub characteristic_non_decreasing {
             ? 0
             : undef);
   }
-  sub _NumSeq_Coord_Int_max {
+  sub _NumSeq_Coord_IntXY_max {
     my ($self) = @_;
     return ($self->{'step'} <= 1 ? 0 : undef);
   }
@@ -2708,32 +2750,32 @@ sub characteristic_non_decreasing {
                     Product  => 'A000004',  # all-zeros
                     # OEIS-Other: A000004 planepath=PyramidRows,step=0 coordinate_type=X
                     # OEIS-Other: A000004 planepath=PyramidRows,step=0 coordinate_type=Product
-
-                    # but OFFSET=0 starting value 0, whereas N=1 for value 0 here
-                    # RSquared => 'A000290',  # squares 0 upwards
-                    # # OEIS-Other: A000290 planepath=PyramidRows,step=0 coordinate_type=RSquared
-
-                    # But A001477 OFFSET=0 where PyramidRows starts N=1
-                    # Y        => 'A001477',  # integers 0 upwards
-                    # Sum      => 'A001477',  # integers 0 upwards
-                    # DiffYX   => 'A001477',  # integers 0 upwards
-                    # AbsDiff  => 'A001477',  # integers 0 upwards
-                    # Radius   => 'A001477',  # integers 0 upwards
-                    # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Y
-                    # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Sum
-                    # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=DiffYX
-                    # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=AbsDiff
-                    # # OEIS-Other: A001477 planepath=PyramidRows,step=0 coordinate_type=Radius
-
-                    # # But A001489 offset=0 where PyramidRows starts N=1
-                    # DiffXY   => 'A001489',  # negative integers 0 downwards
-                    # # OEIS-Other: A001489 planepath=PyramidRows,step=0 coordinate_type=DiffXY
                   };
        ('step=0,align=centre' => $href,
         'step=0,align=right'  => $href,
         'step=0,align=left'   => $href,
        );
-
+     },
+     do {
+       my $href = { Y        => 'A001477',  # integers 0 upwards
+                    Sum      => 'A001477',  # integers 0 upwards
+                    DiffYX   => 'A001477',  # integers 0 upwards
+                    AbsDiff  => 'A001477',  # integers 0 upwards
+                    Radius   => 'A001477',  # integers 0 upwards
+                    DiffXY   => 'A001489',  # negative integers 0 downwards
+                    RSquared => 'A000290',  # squares 0 upwards
+                    # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=Y
+                    # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=Sum
+                    # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=DiffYX
+                    # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=AbsDiff
+                    # OEIS-Other: A001477 planepath=PyramidRows,step=0,n_start=0 coordinate_type=Radius
+                    # OEIS-Other: A001489 planepath=PyramidRows,step=0,n_start=0 coordinate_type=DiffXY
+                    # OEIS-Other: A000290 planepath=PyramidRows,step=0,n_start=0 coordinate_type=RSquared
+                  };
+       ('step=0,align=centre,n_start=0' => $href,
+        'step=0,align=right,n_start=0'  => $href,
+        'step=0,align=left,n_start=0'   => $href,
+       );
      },
 
      # PyramidRows step=1
@@ -2865,7 +2907,7 @@ sub characteristic_non_decreasing {
   # ENHANCE-ME: more restrictive than this for many rules
   use constant _NumSeq_Coord_Sum_min => 0;  # triangular X>=-Y so X+Y>=0
   use constant _NumSeq_Coord_DiffXY_max => 0; # triangular X<=Y so X-Y<=0
-  use constant _NumSeq_Coord_Int_max => 0;
+  use constant _NumSeq_Coord_IntXY_max => 0;
 
   # single cell
   # 111 -> any
@@ -3094,17 +3136,17 @@ sub characteristic_non_decreasing {
 }
 { package Math::PlanePath::UlamWarburton;
   use constant _NumSeq_Coord_ToLeaf_max => 4;
-  sub _NumSeq_Coord_NumChildren_pred {
+  sub _NumSeq__tree_num_children_pred {
     my ($self, $value) = @_;
     return ($value==0 || $value==1 || $value==3 || $value==4);
   }
-  sub _NumSeq_tree_n_to_height {
+  sub _NumSeq__tree_n_to_height {
     my ($self, $n) = @_;
     if (is_infinite($n)) {
       return $n;
     }
     {
-      # infinite depth on axes
+      # infinite height on axes
       my ($x,$y) = $self->n_to_xy($n);
       if ($x == 0 || $y == 0) {
         return undef;
@@ -3122,17 +3164,17 @@ sub characteristic_non_decreasing {
 { package Math::PlanePath::UlamWarburtonQuarter;
   use constant _NumSeq_Coord_ToLeaf_max => 4;
 
-  sub _NumSeq_Coord_NumChildren_pred {
+  sub _NumSeq__tree_num_children_pred {
     my ($self, $value) = @_;
     return ($value==0 || $value==1 || $value==3);
   }
-  sub _NumSeq_tree_n_to_height {
+  sub _NumSeq__tree_n_to_height {
     my ($self, $n) = @_;
     if (is_infinite($n)) {
       return $n;
     }
     {
-      # infinite depth on X=Y diagonal
+      # infinite height on X=Y diagonal
       my ($x,$y) = $self->n_to_xy($n);
       if ($x == $y) {
         return undef;
@@ -3155,7 +3197,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 
   use constant _NumSeq_Coord_oeis_anum =>
-    { '' =>
+    { 'n_start=1' =>
       { X       => 'A020652',  # numerators
         Y       => 'A020653',  # denominators
         # OEIS-Catalogue: A020652 planepath=DiagonalRationals coordinate_type=X
@@ -3163,10 +3205,10 @@ sub characteristic_non_decreasing {
 
         # Not quite, A038567 has OFFSET=0 to include 0/1
         # Sum => 'A038567', # num+den, is den of fractions X/Y <= 1
-
-        # Not quite, has OFFSET=0 unlike num,den which are OFFSET=1 as per N=1
-        # DiagonalRationals
-        # AbsDiff => 'A157806', # abs(num-den)
+      },
+      'n_start=0' =>
+      { AbsDiff => 'A157806', # abs(num-den), OFFSET=0
+        # OEIS-Other: A157806 planepath=DiagonalRationals,n_start=0 coordinate_type=AbsDiff
       },
     };
 }
@@ -3210,19 +3252,24 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
 
   use constant _NumSeq_Coord_oeis_anum =>
-    { # Not quite, A038566/A038567 starts OFFSET=1 value=1/1 but
-     # CoprimeColumns starts N=0
-     # '' =>
-     # { X => 'A038567',  # fractions denominator
-     #   Y => 'A038566',  # fractions numerator
-     #   # OEIS-Catalogue: A038567 planepath=CoprimeColumns coordinate_type=X
-     #   # OEIS-Catalogue: A038566 planepath=CoprimeColumns coordinate_type=Y
-     # },
+    { 'n_start=0' =>
+      { X      => 'A038567',  # fractions denominator
+        Max    => 'A038567',  # same as X since Y <= X
+        # OEIS-Catalogue: A038567 planepath=CoprimeColumns coordinate_type=X
+        # OEIS-Other:     A038567 planepath=CoprimeColumns coordinate_type=Max
+      },
 
-     'i_start=1' =>
-     {
-      DiffXY => 'A020653', # diagonals denominators, starting n=1
-     },
+      'n_start=0,i_start=1' =>
+      { DiffXY => 'A020653', # diagonals denominators, starting N=1
+        # OEIS-Other: A020653 planepath=CoprimeColumns coordinate_type=DiffXY i_start=1
+      },
+
+      'n_start=1' =>
+      { Y   => 'A038566',  # fractions numerator
+        Min => 'A038566',  # same as Y since Y <= X
+        # OEIS-Catalogue: A038566 planepath=CoprimeColumns,n_start=1 coordinate_type=Y
+        # OEIS-Other:     A038566 planepath=CoprimeColumns,n_start=1 coordinate_type=Min
+      },
     };
 }
 { package Math::PlanePath::DivisibleColumns;
@@ -3241,24 +3288,39 @@ sub characteristic_non_decreasing {
   }
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 
-  # A061017 starts OFFSET=1 value=1, cf DivisibleColumns starts N=0 value=1
-  # A027750 starts OFFSET=1 cf DivisibleColumns starts N=0
-  # '' =>
-  # { X => 'A061017',  # n appears divisors(n) times
-  #   Y => 'A027750',  # triangle divisors of n
-  #   # OEIS-Catalogue: A061017 planepath=DivisibleColumns coordinate_type=X
-  #   # OEIS-Catalogue: A027750 planepath=DivisibleColumns coordinate_type=Y
-  # },
+  use constant _NumSeq_Coord_oeis_anum =>
+    { 'divisor_type=all,n_start=1' =>
+      { X     => 'A061017',  # n appears divisors(n) times
+        Max   => 'A061017',  # X since Y <= X
+        Y     => 'A027750',  # triangle divisors of n
+        Min   => 'A027750',  # Y since Y <= X
+        GCD   => 'A027750',  # Y since Y is a divisor of X
+        IntXY => 'A056538',  # divisors in reverse order, X/Y giving high to low
+        # OEIS-Catalogue: A061017 planepath=DivisibleColumns,n_start=1 coordinate_type=X
+        # OEIS-Other:     A061017 planepath=DivisibleColumns,n_start=1 coordinate_type=Max
+        # OEIS-Catalogue: A027750 planepath=DivisibleColumns,n_start=1 coordinate_type=Y
+        # OEIS-Other:     A027750 planepath=DivisibleColumns,n_start=1 coordinate_type=Min
+        # OEIS-Other:     A027750 planepath=DivisibleColumns,n_start=1 coordinate_type=GCD
+        # OEIS-Catalogue: A056538 planepath=DivisibleColumns,n_start=1 coordinate_type=IntXY
+      },
 
-  # Not quite, A027751 proper divisor Y values, but has an extra 1 at the
-  # start from reckoning by convention 1 as a proper divisor of 1
-  # -- though that's inconsistent with A032741 count of proper divisors
-  # being 0.
-  #
-  # 'divisor_type=proper' =>
-  # { Y => 'A027751',  # proper divisors by rows
-  #   # OEIS-Catalogue: A027751 planepath=DivisibleColumns,divisor_type=proper coordinate_type=Y
-  # },
+      'divisor_type=proper,n_start=2' =>
+      { DiffXY  => 'A208460',  # X-Y
+        AbsDiff => 'A208460',  # abs(X-Y) same since Y<=X so X-Y>=0
+        # OEIS-Catalogue: A208460 planepath=DivisibleColumns,divisor_type=proper,n_start=2 coordinate_type=DiffXY
+        # OEIS-Other:     A208460 planepath=DivisibleColumns,divisor_type=proper,n_start=2 coordinate_type=AbsDiff
+
+        # Not quite, A027751 has an extra 1 at the start from reckoning by
+        # convention 1 as a proper divisor of 1 -- though that's
+        # inconsistent with A032741 count of proper divisors being 0.
+        #
+        # 'divisor_type=proper,n_start=0' =>
+        # { Y,Min,GCD => 'A027751',  # proper divisors by rows
+        #   # OEIS-Catalogue: A027751 planepath=DivisibleColumns,divisor_type=proper coordinate_type=Y
+        # },
+      },
+    };
+
 }
 # { package Math::PlanePath::File;
 #   # File                   points from a disk file
@@ -3310,32 +3372,31 @@ sub characteristic_non_decreasing {
                || $self->{'L_fill'} eq 'ends') ? 1   # X=1,Y=0
             : 0);  # 'middle','all' X=0,Y=0
   }
-  {
-    my %GCD_min = (upper => 1,   # X=0,Y=0 not visited by these
-                   left  => 1,
-                   ends  => 1);
-    sub _NumSeq_Coord_GCD_min {
-      my ($self) = @_;
-      return $GCD_min{$self->{'L_fill'}} || 0;
+      {
+        my %GCD_min = (upper => 1,   # X=0,Y=0 not visited by these
+                       left  => 1,
+                       ends  => 1);
+        sub _NumSeq_Coord_GCD_min {
+          my ($self) = @_;
+          return $GCD_min{$self->{'L_fill'}} || 0;
+        }
+      }
+      {
+        my %BitOr_min = (upper => 1,   # X=0,Y=0 not visited by these
+                         left  => 1,
+                         ends  => 1);
+        sub _NumSeq_Coord_BitOr_min {
+          my ($self) = @_;
+          return $BitOr_min{$self->{'L_fill'}} || 0;
+        }
+      }
+      *_NumSeq_Coord_BitXor_min = \&_NumSeq_Coord_BitOr_min;
     }
-  }
-  {
-    my %BitOr_min = (upper => 1,   # X=0,Y=0 not visited by these
-                     left  => 1,
-                     ends  => 1);
-    sub _NumSeq_Coord_BitOr_min {
-      my ($self) = @_;
-      return $BitOr_min{$self->{'L_fill'}} || 0;
-    }
-  }
-  *_NumSeq_Coord_BitXor_min = \&_NumSeq_Coord_BitOr_min;
-}
 { package Math::PlanePath::WythoffArray;
   use constant _NumSeq_Coord_oeis_anum =>
     { '' =>
-      {
-       Y   => 'A019586', # row containing N
-       # OEIS-Catalogue: A019586 planepath=WythoffArray coordinate_type=Y
+      { Y   => 'A019586', # row containing N
+        # OEIS-Catalogue: A019586 planepath=WythoffArray coordinate_type=Y
       },
     };
 }
@@ -3346,7 +3407,7 @@ sub characteristic_non_decreasing {
         # main generator Math::NumSeq::DigitCountLow
         # OEIS-Other: A007814 planepath=PowerArray,radix=2
 
-        # but A025480 starts OFFSET=0 for the k in n=(2k+1)*2^j-1
+        # Not quite, A025480 starts OFFSET=0 for the k in n=(2k+1)*2^j-1
         # Y => 'A025480',
         # # OEIS-Almost: A025480 i_to_n_offset=-1 planepath=PowerArray,radix=2 coordinate_type=Y
       },
@@ -3371,13 +3432,13 @@ sub characteristic_non_decreasing {
 }
 
 { package Math::PlanePath::ToothpickTree;
-  sub _NumSeq_tree_n_to_height {
+  sub _NumSeq__tree_n_to_height {
     my ($self, $n) = @_;
     if (is_infinite($n)) {
       return $n;
     }
     {
-      # infinite depth on X=Y, X=Y-1 spines
+      # infinite height on X=Y, X=Y-1 spines
       my ($x,$y) = $self->n_to_xy($n);
       if (abs($y)-abs($x) <= 1) {
         return undef;
@@ -3440,15 +3501,15 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # X<=Y so max=Y
 
   use constant _NumSeq_Coord_ToLeaf_max => 9;
-  use constant _NumSeq_Coord_Int_max => 1; # triangular X<=Y so X/Y<=1
+  use constant _NumSeq_Coord_IntXY_max => 1; # triangular X<=Y so X/Y<=1
 
-  sub _NumSeq_tree_n_to_height {
+  sub _NumSeq__tree_n_to_height {
     my ($self, $n) = @_;
     if (is_infinite($n)) {
       return $n;
     }
     {
-      # infinite depth on X=Y, X=Y-1 sides
+      # infinite height on X=Y, X=Y-1 sides
       my ($x,$y) = $self->n_to_xy($n);
       if ($y-abs($x) <= 1) {
         return undef;
@@ -3466,17 +3527,17 @@ sub characteristic_non_decreasing {
 
 { package Math::PlanePath::LCornerTree;
   use constant _NumSeq_Coord_ToLeaf_max => 2;
-  sub _NumSeq_Coord_NumChildren_pred {
+  sub _NumSeq__tree_num_children_pred {
     my ($self, $value) = @_;
     return ($value==0 || $value==3);
   }
-  sub _NumSeq_tree_n_to_height {
+  sub _NumSeq__tree_n_to_height {
     my ($self, $n) = @_;
     if (is_infinite($n)) {
       return $n;
     }
     {
-      # infinite depth on X=Y spines
+      # infinite height on X=Y spines
       my ($x,$y) = $self->n_to_xy($n);
       if ($x == $y || $x == -1-$y) {
         return undef;
@@ -3496,14 +3557,14 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::PeninsulaBridge;
 # }
 
-{ package Math::PlanePath::SurroundOneEight;
-  sub _NumSeq_tree_n_to_height {
+{ package Math::PlanePath::OneOfEight;
+  sub _NumSeq__tree_n_to_height {
     my ($self, $n) = @_;
     if (is_infinite($n)) {
       return $n;
     }
     {
-      # infinite depth on X=Y spines
+      # infinite height on X=Y spines
       my ($x,$y) = $self->n_to_xy($n);
       if (abs($y) == abs($x)) {
         return undef;
@@ -3519,24 +3580,28 @@ sub characteristic_non_decreasing {
   }
   # use constant _NumSeq_Coord_ToLeaf_max => 7;
   {
-    my %_NumSeq_Coord_NumChildren_pred = (4       => [ 0, 1, 2, 3, 5, 8 ],
-                                          1       => [ 0, 1, 2, 3, 5    ],
-                                          octant  => [ 0, 1, 2, 3       ],
-                                          '3mid'  => [ 0, 1, 2, 3, 5    ],
-                                          '3side' => [ 0,    2, 3       ],
-                                          side    => [ 0,    2, 3       ],
-                                         );
-    # compare with "==" to be numeric style, just in case some overloaded
-    # class stringizes to "1.0" or some such nonsense
-    sub _NumSeq_Coord_NumChildren_pred {
-      my ($self, $value) = @_;
-      foreach my $num (@{$_NumSeq_Coord_NumChildren_pred{$self->{'parts'}}}) {
-        if ($value == $num) {
-          return 1;
-        }
-      }
-      return 0;
+    my %_NumSeq__tree_num_children_list = (4       => [ 0, 1, 2, 3, 5, 8 ],
+                                           1       => [ 0, 1, 2, 3, 5    ],
+                                           octant  => [ 0, 1, 2, 3       ],
+                                           '3mid'  => [ 0, 1, 2, 3, 5    ],
+                                           '3side' => [ 0,    2, 3       ],
+                                           side    => [ 0,    2, 3       ],
+                                          );
+    sub _NumSeq__tree_num_children_list {
+      my ($self) = @_;
+      return @{$_NumSeq__tree_num_children_list{$self->{'parts'}}};
     }
+  }
+  # compare with "==" to be numeric style, just in case some overloaded
+  # class stringizes to "1.0" or some such nonsense
+  sub _NumSeq__tree_num_children_pred {
+    my ($self, $value) = @_;
+    foreach my $num ($self->_NumSeq__tree_num_children_list) {
+      if ($value == $num) {
+        return 1;
+      }
+    }
+    return 0;
   }
 }
 
@@ -3615,6 +3680,7 @@ The C<coordinate_type> choices are
     "DiffXY"       X-Y difference
     "DiffYX"       Y-X difference (negative of DiffXY)
     "AbsDiff"      abs(X-Y) difference
+    "IntXY"        int(X/Y) division rounded towards zero
     "Radius"       sqrt(X^2+Y^2) radial distance
     "RSquared"     X^2+Y^2 radius squared
     "TRadius"      sqrt(X^2+3*Y^2) triangular radius
@@ -3627,8 +3693,9 @@ The C<coordinate_type> choices are
     "GCD"          greatest common divisor X,Y
     "Depth"        tree_n_to_depth()
     "NumChildren"  tree_n_num_children()
-    "IsLeaf"       leaf node (no children), 1 or 0
-    "IsNonLeaf"    non-leaf node (has children), 1 or 0
+    "IsLeaf"       0 or 1 whether a leaf node (no children)
+    "IsNonLeaf"    0 or 1 whether a non-leaf node (has children)
+                     also called an "internal" node
 
 "Sum"=X+Y and "DiffXY"=X-Y can be interpreted geometrically as coordinates
 on 45-degree diagonals.  Sum is a measure up along the leading diagonal and
@@ -3662,7 +3729,7 @@ X,Y, or equivalently a projection onto the X=Y leading diagonal.
       \ \ \               0 1 2
 
 
-"SumAbs"=abs(X)+abs(Y) is similar, but a projection onto the diagonal of
+"SumAbs" = abs(X)+abs(Y) is similar, but a projection onto the diagonal of
 whichever quadrant contains the X,Y.  It's also thought of as a "taxi-cab"
 or "Manhatten" distance, being how far to travel through a square-grid city
 to get to X,Y.  If a path uses only the first quadrant (XE<gt>=0,YE<gt>=0)
@@ -3676,10 +3743,31 @@ then Sum and SumAbs are identical.
     |          |          |
     *          *          *
 
-"DiffYX"=Y-X is simply the negative of DiffXY.  It's included to give
+"DiffYX" = Y-X is simply the negative of DiffXY.  It's included to give
 positive values on paths which are above the X=Y leading diagonal.  For
 example DiffXY is positive in CoprimeColumns which is below X=Y, whereas
 DiffYX is positive in CellularRule which is above X=Y.
+
+"IntXY" = int(X/Y) is X divided by Y rounded towards zero to an integer.
+Geometrically this is which wedge of slope 1, 2, 3, etc the point X,Y falls
+in.  For example IntXY is 3 for all points in the wedge 3YE<lt>=XE<lt>4Y.
+
+                               X=Y    X=2Y   X=3Y   X=4Y
+    *  -2  *  -1  *   0  |  0   *  1   *  2   *   3  *
+       *     *     *     |     *     *     *     *
+          *    *    *    |    *    *    *    *
+             *   *   *   |   *   *   *   *
+                *  *  *  |  *  *  *  *
+                   * * * | * * * *
+                      ***|****
+    ---------------------+----------------------------
+                       **|**
+                     * * | * *
+                   *  *  |  *  *
+                 *   *   |   *   *
+               *    *    |    *    *
+         2   *  1  *  0  |  0  * -1  *  -2
+
 
 "TRadius" and "TRSquared" are designed for use with points on a triangular
 lattice such as HexSpiral.  For points on the X axis TRSquared is the same

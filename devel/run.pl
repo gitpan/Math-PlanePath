@@ -121,26 +121,32 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::LToothpickTree';
-  $path_class = 'Math::PlanePath::SurroundOneVHbyCells';
+  $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::PeninsulaBridge';
   $path_class = 'Math::PlanePath::PythagoreanTree';
   $path_class = 'Math::PlanePath::AnvilSpiral';
   $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HexSpiral';
   $path_class = 'Math::PlanePath::HexSpiralSkewed';
-  $path_class = 'Math::PlanePath::SurroundTwoEightByCells';
+  $path_class = 'Math::PlanePath::TwoOfEightByCells';
   $path_class = 'Math::PlanePath::RationalsTree';
-  $path_class = 'Math::PlanePath::SurroundOneEightByCells';
-  $path_class = 'Math::PlanePath::SurroundOneEight';
+  $path_class = 'Math::PlanePath::OneOfEightByCells';
+  $path_class = 'Math::PlanePath::ToothpickTreeByCells';
+  $path_class = 'Math::PlanePath::OneOfEight';
+  $path_class = 'Math::PlanePath::DivisibleColumns';
+  $path_class = 'Math::PlanePath::CoprimeColumns';
+  $path_class = 'Math::PlanePath::DiagonalRationals';
 
-  my $lo = 51;
-  my $hi = 60;
+  my $lo = 0;
+  my $hi = 220;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     parts => '3mid',
-     # n_start => 37,
+     # divisor_type => 'proper',
+      n_start => 37,
+
+     parts => 'side',
      # wider => 3,
      # coordinates => 'PQ',
      # reverse => 1,
@@ -179,7 +185,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # rule => 8,
      # realpart => 1,
      # mirror => 1,
-     # divisor_type => 'proper',
     );
   ### $path
   my %seen;
@@ -279,6 +284,11 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     my $num_children = $path->tree_n_num_children($i);
     if (! defined $num_children || $num_children != scalar(@n_children)) {
       $n_children .= "numchildren***";
+    }
+
+    my $depth = $path->tree_n_to_depth($i);
+    if (defined $depth) {
+      $n_children .= " d=$depth";
     }
 
     my $baddepth = '';

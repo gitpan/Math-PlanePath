@@ -27,7 +27,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -85,6 +85,7 @@ sub new {
 #
 sub n_to_rsquared {
   my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
   my $int = int($n);
   $n -= $int;  # fractional part
   return $n*$n + $int;

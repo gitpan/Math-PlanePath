@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -439,15 +439,15 @@ The initial segment N=0 to N=1 is repeated with a turn +90 degrees left to
 give N=1 to N=2.  Then N=0to2 is repeated likewise turned +90 degrees to
 make N=2to4.  And so on doubling each time.
 
-The 90 degree rotation is relative to the initial N=0to1 direction.  So at
-N=0 the direction is left, and the repeat at N=2^level is turned by +90
-making it upwards at N=1,2,4,8,16,etc.
+The 90 degree rotation is always relative to the initial N=0to1 direction
+along the X axis.  So at any N=2^level the turn is +90 making the direction
+upwards at each of N=1,2,4,8,16,etc.
 
 The curve crosses itself and repeats some X,Y positions.  The first doubled
 point is X=-2,Y=3 which is both N=7 and N=9.  The first tripled point is
 X=18,Y=-7 which is N=189, N=279 and N=281.  The number of repeats at a given
-point is finite, but as N increases there's points where that number of
-repeats becomes ever bigger (is that right?).
+point is always finite, but as N increases there's points where that number
+of repeats becomes ever bigger (is that right?).
 
 =head1 FUNCTIONS
 
@@ -483,8 +483,7 @@ Return 0, the first N in the path.
 
 =head2 Direction
 
-The direction or cumulative net turn of the curve is the count of 1 bits
-in N,
+The direction or net turn of the curve is the count of 1 bits in N,
 
     direction = count_1_bits(N) * 90degrees
 
@@ -494,35 +493,36 @@ degrees, ie. to the south.
 This bit count is because at each power-of-2 position the curve is a copy of
 the lower bits but turned +90 degrees, so +90 for each 1-bit.
 
-For powers-of-2 N=2,4,8,16, etc, there's only one 1 bit so the direction is
-always +90 degrees there, ie. upwards.
+For powers-of-2 N=2,4,8,16, etc, there's only a single 1-bit so the
+direction is always +90 degrees there, ie. upwards.
 
 =head2 Turn
 
 At each point N the curve can turn in any direction: left, right, straight,
-or 180 degrees back.  The turn is given by number of low 0-bits of N,
+or 180 degrees back.  The turn is given by the number of low 0-bits of N,
 
     turn right = (count_low_0_bits(N) - 1) * 90degrees
 
-For example N=8 is binary 0b100 which is 2 low zero bit for turn=(2-1)*90=90
+For example N=8 is binary 0b100 which is 2 low 0-bits for turn=(2-1)*90=90
 degrees to the right.
 
 When N is odd there's no low zero bits and the turn is always (0-1)*90=-90
-to the right there, which means +90 turn to the left.
+to the right in that case, which means every second turn is 90 degrees to
+the left.
 
 =head2 Next Turn
 
 The turn at the point following N, ie. at N+1, can be calculated from the
-bits of N similarly, by counting the low 1-bits,
+bits of N by counting the low 1-bits,
 
-    following turn right = (count_low_1_bits(N) - 1) * 90degrees
+    next turn right = (count_low_1_bits(N) - 1) * 90degrees
 
 For example N=11 is binary 0b1011 which is 2 low one bits for
 nextturn=(2-1)*90=90 degrees to the right at the following point, ie. at
 N=12.
 
-This works simply because low ones like ..0111 increment to low zeros
-..1000.  The low ones at N are the low zeros at N+1.
+This works simply because low 1-bits like ..0111 increment to low 0-bits
+..1000.  The low 1-bits at N are the low 0-bits at N+1.
 
 =head2 N to dX,dY
 
@@ -534,8 +534,9 @@ dX,dY.
     dx = dir_to_dx[dir]    # table 0 to 3
     dy = dir_to_dy[dir]
 
-For fractional N then the direction at int(N) can be modified by the turn at
-int(N)+1 to give the direction at int(N)+1.
+For fractional N the direction at int(N) can be modified by the turn at
+int(N)+1 to give the direction at int(N)+1, as per L<Math::PlanePath/N to
+dX,dY -- Fractional>.
 
     # apply turn to make direction at Nint+1
     turn = count_low_1_bits(N) - 1      # N integer part
@@ -545,8 +546,8 @@ int(N)+1 to give the direction at int(N)+1.
     dx += Nfrac * (dir_to_dx[dir] - dx)
     dy += Nfrac * (dir_to_dy[dir] - dy)
 
-A tiny optimization can be made by working the "-1" from the turn formula
-into a +90 degree rotation of the "dir_to_dx" and "dir_to_dy" parts by a
+A tiny optimization can be made by working the "-1" of the turn formula into
+a +90 degree rotation of the C<dir_to_dx[]> and C<dir_to_dy[]> parts by a
 swap and sign change,
 
     turn_plus_1 = count_low_1_bits(N)     # N integer part
@@ -568,13 +569,13 @@ straight rather than diagonals.  The maximum extent of the curve at a given
 even numbered level is
 
     k = level/2
-    Lmax(level) = 2^k + int(2^(k-1) - 1);
+    Lmax(level) = 2^k + floor(2^(k-1) - 1);
 
 For example k=2 is level=4, N=0 to N=2^4=16 has extent Lmax=2^2+2^1-1=5.
 That extent can be seen at points N=13,N=14,N=15.
 
-The extents width ways or backwards are shorter and using them would tighten
-the traversal, cutting off some unnecessary descending.  But the
+The extents width-ways and backwards are shorter and using them would
+tighten the traversal, cutting off some unnecessary descending.  But the
 calculations are then a little trickier.
 
 The first N found by this traversal is the smallest.  Continuing the search
@@ -587,16 +588,16 @@ this path include
 
     http://oeis.org/A179868  (etc)
 
-    A010059 - abs(dX), count 1-bits mod 2
-    A010060 - abs(dY), [count 1-bits + 1] mod 2, Thue-Morse
+    A010059   abs(dX), count 1-bits mod 2
+    A010060   abs(dY), count1bits + 1 mod 2, Thue-Morse
 
-    A179868 - direction 0to3, count 1-bits mod 4
-    A000120 - direction as total turn, count 1-bits
+    A179868   direction 0to3, count 1-bits mod 4
+    A000120   direction as total turn, count 1-bits
 
-    A007814 - a(n)=turn-1 to the right, being count low 0s
+    A007814   turn-1 to the right, being count low 0s
 
-    A003159 - N positions of left or right turn, ends even num 0 bits
-    A036554 - N positions of straight or 180 turn, ends odd num 0 bits
+    A003159   N positions of left or right turn, ends even num 0 bits
+    A036554   N positions of straight or 180 turn, ends odd num 0 bits
 
 =head1 SEE ALSO
 

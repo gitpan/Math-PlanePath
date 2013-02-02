@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -305,7 +305,8 @@ path include
     n_start=0
       A051682     N on X axis (11-gonal numbers)
       A081268     N on X=1 vertical (next to Y axis)
-      A062725     N on Y negative
+      A062708     N on Y axis
+      A062725     N on Y negative axis
       A081275     N on X=Y+1 North-East diagonal
       A062728     N on South-East diagonal (11-gonal second kind)
       A081266     N on X=Y negative South-West diagonal

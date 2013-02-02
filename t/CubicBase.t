@@ -36,7 +36,7 @@ require Math::PlanePath::CubicBase;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::CubicBase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CubicBase->VERSION,  $want_version,

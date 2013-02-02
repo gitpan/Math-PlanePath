@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -91,6 +91,53 @@ sub diff_nums {
   return $diff;
 }
 
+
+#------------------------------------------------------------------------------
+# A007814 -- CW floor(X/Y) is count trailing 1-bits
+#            A007814 count trailing 0-bits is same, at N+1
+
+MyOEIS::compare_values
+  (anum => 'A007814',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, int($x/$y);
+     }
+     return \@got;
+   });
+
+# A007814 -- AYT floor(X/Y) is count trailing 0-bits,
+#            except at N=2^k where 1 fewer
+MyOEIS::compare_values
+  (anum => 'A007814',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       my $i = int($x/$y);
+       if (is_pow2($n)) {
+         $i--;
+       }
+       push @got, $i;
+     }
+     return \@got;
+   });
+
+sub is_pow2 {
+  my ($n) = @_;
+  while ($n > 1) {
+    if ($n & 1) {
+      return 0;
+    }
+    $n >>= 1;
+  }
+  return ($n == 1);
+}
 
 #------------------------------------------------------------------------------
 # A004442 -- AYT N at transpose Y,X, flip low bit
@@ -327,29 +374,6 @@ sub diff_nums {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A153036 -- SB integer part floor(X/Y)
-
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-  my $anum = 'A153036';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-  my @got;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, int($x/$y);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-      if ($diff) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-      }
-  }
-  skip (! $bvalues, $diff, undef, "$anum -- SB integer part");
 }
 
 #------------------------------------------------------------------------------

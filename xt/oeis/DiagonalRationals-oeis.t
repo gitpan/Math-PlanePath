@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,6 +33,22 @@ my $diagrat = Math::PlanePath::DiagonalRationals->new;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A038567 -- X+Y except no 0/1 in path
+
+MyOEIS::compare_values
+  (anum => 'A038567',
+   max_count => 10000,
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $n = $diagrat->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagrat->n_to_xy ($n);
+       push @got, $x+$y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A054430 -- N at transpose Y,X
@@ -74,21 +90,6 @@ MyOEIS::compare_values
          }
          last OUTER if @got >= $count;
        }
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A157806 - abs(num-den)
-
-MyOEIS::compare_values
-  (anum => 'A157806',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     foreach my $n (1 .. $count) {
-       my ($x,$y) = $diagrat->n_to_xy ($n);
-       push @got, abs($x-$y);
      }
      return \@got;
    });

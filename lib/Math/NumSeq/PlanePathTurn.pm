@@ -20,9 +20,9 @@
 #
 # maybe:
 # Turn4   0,1,2,3  and fractional
-# Turn4pn 0,1,2,-1  Turn4mid Turn4n
+# Turn4pn 0,1,2,-1  Turn4mid Turn4n Turn4s
 # TTurn6   0,1,2,3,4,5
-# TTurn6pn 0,1,2,3, -1,-2,  eg. flowsnake
+# TTurn6pn 0,1,2,3, -1,-2,  eg. flowsnake  TTurn6s
 
 
 
@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

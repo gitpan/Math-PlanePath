@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,
@@ -109,7 +109,7 @@ foreach my $points ('hex_centred','hex','odd','even','all') {
           next;
         }
       } elsif ($points eq 'hex') {
-        if (! (($x+3*$y) % 6 == 0 || ($x+3*$y) % 6 == 2)) {
+        if (! xy_is_hex($x,$y)) {
           if (defined $n) {
             MyTestHelpers::diag ("$points: x=$x,y=$y is not hex should be n=undef");
             last if $bad++ > 10;
@@ -117,17 +117,18 @@ foreach my $points ('hex_centred','hex','odd','even','all') {
           next;
         }
       } elsif ($points eq 'hex_rotated') {
-        if (! (($x+3*$y) % 6 == 4 || ($x+3*$y) % 6 == 0)) {
+        if (! xy_is_hex_rotated($x,$y)) {
           if (defined $n) {
-            MyTestHelpers::diag ("$points: x=$x,y=$y is not hex-centred should be n=undef");
+            MyTestHelpers::diag ("$points: x=$x,y=$y is not hex_rotated should be n=undef");
             last if $bad++ > 10;
           }
           next;
         }
       } elsif ($points eq 'hex_centred') {
-        if (! (($x+3*$y) % 6 == 2 || ($x+3*$y) % 6 == 4)) {
+        if (! xy_is_hex_centred($x,$y)) {
           if (defined $n) {
-            MyTestHelpers::diag ("$points: x=$x,y=$y is not hex-centred should be n=undef");
+            my $m = ($x+3*$y) % 6;
+            MyTestHelpers::diag ("$points: x=$x,y=$y is not hex_centred should be n=undef (m=$m)");
             last if $bad++ > 10;
           }
           next;
@@ -156,6 +157,30 @@ foreach my $points ('hex_centred','hex','odd','even','all') {
     }
   }
   ok ($bad, 0, "$points xy_to_n() coverage and distinct, $count points");
+}
+
+# "hex" is X+3*Y==0or2
+# test against 0 to allow for "%" sign varying under "use integer"
+sub xy_is_hex {
+  my ($x,$y) = @_;
+  return (($x+3*$y) % 6 == 0
+          || ($x+3*$y-2) % 6 == 0);
+}
+
+# "hex_rotated" is X+3*Y==0or4
+# test against 0 to allow for "%" sign varying under "use integer"
+sub xy_is_hex_centred {
+  my ($x,$y) = @_;
+  return (($x+3*$y) % 6 == 0
+          || ($x+3*$y-4) % 6 == 0);
+}
+
+# "hex_centred" is X+3*Y==2or4
+# test against 0 to allow for "%" sign varying under "use integer"
+sub xy_is_hex_centred {
+  my ($x,$y) = @_;
+  return (($x+3*$y-2) % 6 == 0
+          || ($x+3*$y-4) % 6 == 0);
 }
 
 #------------------------------------------------------------------------------

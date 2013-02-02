@@ -83,7 +83,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -192,6 +192,7 @@ sub n_to_rsquared {
   my ($self, $n) = @_;
   ### VogelFloret RSquared: $i, $seq->{'planepath_object'}
 
+  if ($n < 0) { return undef; }
   my $rf = $self->{'radius_factor'};
   $rf *= $rf;  # squared
 
@@ -201,14 +202,13 @@ sub n_to_rsquared {
     require Math::BigFloat;
     $n = Math::BigFloat->new($n);
   }
-
   return $n * $rf;
 }
 
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  return if $n < 0;
+  if ($n < 0) { return; }
 
   my $two_pi = _TWO_PI();
 

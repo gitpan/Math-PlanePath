@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -506,12 +506,14 @@ this path include
     direction=down, n_start=0
       A055087    X coord, runs 0 to k twice
       A082375    Y-X, runs k to 0 or 1 stepping by 2
+      A005563    N on X=Y diagonal, X*(X+2)
 
     direction=up
       A002620    N on Y axis, end of each run, quarter squares
     direction=up, n_start=0
       A024206    N on Y axis (starting from n=1 is Y=0, so Y=n-1)
       A014616    N in column X=1 (is Y axis N-1, from N=3)
+      A002378    N on X=Y diagonal, pronic X*(X+1)
 
     either direction, n_start=0
       A055086    X+Y, k repeating floor(k/2)+1 times

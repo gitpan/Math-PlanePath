@@ -16,19 +16,7 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# cf
-# A038566   fractions numerators  by ascending den
-# A038567   fractions denominators
-# A038568   rationals numerators   X/Y followed by Y/X by ascending Y
-# A038569   rationals denominators
-
-# maybe n_start=0 to include 0/1, or including_zero=>1
-# giving A038567 num+den
-# cf A157806 abs(n-d) starts OFFSET=0 value=0 for num=1,den=1
-
-# math-image --path=DiagonalRationals --all --scale=10
-# math-image --path=DiagonalRationals --output=numbers --all
-
+# including_zero=>1 to have 0/1 for A038567
 
 
 package Math::PlanePath::DiagonalRationals;
@@ -38,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -51,13 +39,15 @@ use Math::PlanePath::CoprimeColumns;
 use vars '@_x_to_n';
 BEGIN {
   *_x_to_n = \@Math::PlanePath::CoprimeColumns::_x_to_n;
+  *new = \&Math::PlanePath::CoprimeColumns::new;
   *_extend = \&Math::PlanePath::CoprimeColumns::_extend;
   *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
+  *parameter_info_array = \&Math::PlanePath::CoprimeColumns::parameter_info_array;
 }
 
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 # R = 1 / (1/F - 1)
@@ -92,6 +82,7 @@ BEGIN {
 #   = R
 
 
+use constant default_n_start => 1;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
@@ -102,11 +93,13 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### DiagonalRationals n_to_xy(): $n
 
-  if (2*$n-1 < 0) {
+  if (2*($n-$self->{'n_start'}) < -1) {
+    ### before n_start ...
     return;
   }
-  my ($x,$y) = Math::PlanePath::CoprimeColumns::n_to_xy($self,$n)
+  my ($x,$y) = $self->Math::PlanePath::CoprimeColumns::n_to_xy($n+1)
     or return;
+  ### CoprimeColumns: "x=$x y=$y"
   return ($y,$x-$y);
 }
 
@@ -128,10 +121,10 @@ sub xy_to_n {
   my $n = Math::PlanePath::CoprimeColumns::xy_to_n($self,$x+$y,$x);
 
   # not the N=0 at Xcol=1,Ycol=1 which is Xdiag=1,Ydiag=0
-  if (defined $n && $n < 1) {
-    return undef;
+  if (defined $n && $n > $self->{'n_start'}) {
+    return $n-1;
   } else {
-    return $n;
+    return undef;
   }
 }
 
@@ -165,8 +158,8 @@ sub rect_to_n_range {
   ### $d1
   ### $d2
 
-  return ($_x_to_n[$d1],
-          $_x_to_n[$d2] - 1);
+  return ($_x_to_n[$d1] - 1 + $self->{'n_start'},
+          $_x_to_n[$d2] + $self->{'n_start'});
 }
 
 1;
@@ -256,6 +249,32 @@ S<0 E<lt> R E<lt> infinity> is
 which is a one-to-one mapping between the fractions S<F E<lt> 1> and all
 rationals.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start with the same shape,  For example
+to start at 0,
+
+=cut
+
+# math-image --path=DiagonalRationals,n_start=0 --all --output=numbers --size=50x10
+
+=pod
+
+    n_start => 0
+
+     8 |   21
+     7 |   17 22
+     6 |   11
+     5 |    9 12 18 23
+     4 |    5    13    24
+     3 |    3  6    14 19
+     2 |    1     7    15    25
+     1 |    0  2  4  8 10 16 20 26
+    Y=0|
+       +---------------------------
+       X=0  1  2  3  4  5  6  7  8
+
 =head1 OEIS
 
 This enumeration of rationals is in Sloane's Online Encyclopedia of Integer
@@ -263,18 +282,22 @@ Sequences in the following forms
 
     http://oeis.org/A020652   (etc)
 
-    A020652   numerators, X
-    A020653   denominators, Y
-    A157806   difference, abs(X-Y)
-    A054431   by diagonals 1=coprime, 0=not
-                (excluding X=0 row and Y=0 column)
+    n_start=1 (the default)
+      A020652   X, numerator
+      A020653   Y, denominator
+      A038567   X+Y sum, starting from X=1,Y=1
+      A054431   by diagonals 1=coprime, 0=not
+                  (excluding X=0 row and Y=0 column)
 
-    A054430   permutation N at transpose Y/X
-                reverse runs of phi(k) integers
+      A054430   permutation N at transpose Y/X
+                  reverse runs of phi(k) integers
 
-    A054424   permutation DiagonalRationals -> RationalsTree SB
-    A054425     padded with 0s at non-coprimes
-    A054426     inverse SB -> DiagonalRationals
+      A054424   permutation DiagonalRationals -> RationalsTree SB
+      A054425     padded with 0s at non-coprimes
+      A054426     inverse SB -> DiagonalRationals
+
+    n_start=0
+      A157806   abs(X-Y) difference
 
 =head1 FUNCTIONS
 

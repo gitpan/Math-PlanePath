@@ -75,7 +75,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -84,7 +84,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant parameter_info_array =>
@@ -106,11 +106,9 @@ use constant parameter_info_array =>
 
 sub rsquared_minimum {
   my ($self) = @_;
-  return ($self->{'points'} eq 'odd'
-          ? 1     # odd at X=1,Y=0
-          : $self->{'points'} eq 'hex_centred'
-          ? 2     # hex_centred at X=1,Y=1
-          : 0);   # even,all at X=0,Y=0
+  return ($self->{'points'} eq 'odd'           ? 1   # at X=1,Y=0
+          : $self->{'points'} eq 'hex_centred' ? 2   # at X=1,Y=1
+          : 0);   # even,all,hex,hex_rotated at X=0,Y=0
 }
 
 #------------------------------------------------------------------------------
@@ -480,6 +478,8 @@ sub xy_to_n {
   $x = round_nearest ($x);
   $y = round_nearest ($y);
 
+  ### parity xor: ($x%2) ^ ($y%2)
+  ### hex modulo: (($x%6) + 3*($y%6)) % 6
   if (defined $self->{'skip_parity'}
       && (($x%2) ^ ($y%2)) == $self->{'skip_parity'}) {
     ### XY wrong parity, no point ...

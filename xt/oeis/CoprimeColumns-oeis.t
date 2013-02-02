@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,6 +33,32 @@ use Math::PlanePath::CoprimeColumns;
 # use Smart::Comments '###';
 
 my $path = Math::PlanePath::CoprimeColumns->new;
+
+#------------------------------------------------------------------------------
+# A002088 - totient sum along X axis, or diagonal of n_start=1
+
+MyOEIS::compare_values
+  (anum => 'A002088',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CoprimeColumns->new (n_start => 1);
+     my @got = (0, 1);
+     for (my $x = 2; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,$x-1);
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => 'A002088',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,1);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A179594 - column of nxn unvisited block
@@ -228,42 +254,6 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A038567 - X coordinate
-
-MyOEIS::compare_values
-  (anum => 'A038567',
-   max_count => 10000,
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
-     my $n = 0;
-     while (@got < $count) {
-       my ($x,$y) = $path->n_to_xy ($n++);
-       push @got, $x;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A038566 - Y coordinate
-
-MyOEIS::compare_values
-  (anum => 'A038566',
-   max_count => 10000,
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     my $sb = Math::PlanePath::CoprimeColumns->new (tree_type => 'SB');
-     my $n = 0;
-     while (@got < $count) {
-       my ($x,$y) = $path->n_to_xy ($n++);
-       push @got, $y;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
 # A054521 - by columns 1 if coprimes, 0 if not
 
 {
@@ -312,29 +302,6 @@ MyOEIS::compare_values
      }
      return \@got;
    });
-
-#------------------------------------------------------------------------------
-# A002088 - totient sum along X axis
-
-{
-  my $anum = 'A002088';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $good = 1;
-  my $count = 0;
-  if ($bvalues) {
-    for (my $i = 0; $i < @$bvalues; $i++) {
-      my $x = $i+1;
-      my $want = $bvalues->[$i];
-      my $got = $path->xy_to_n($x,1);
-      if ($got != $want) {
-        MyTestHelpers::diag ("wrong totient sum xy_to_n($x,1)=$got want=$want at i=$i of $filename");
-        $good = 0;
-      }
-      $count++;
-    }
-  }
-  ok ($good, 1, "$anum count $count");
-}
 
 #------------------------------------------------------------------------------
 exit 0;

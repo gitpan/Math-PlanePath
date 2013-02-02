@@ -33,7 +33,7 @@ MyTestHelpers::nowarnings();
 use MyOEIS;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
 
 # use POSIX ();
@@ -84,12 +84,12 @@ sub check_class {
 
   my %parameters = @$parameters;
   # return unless $class =~ /PlanePathCoord/;
-  # return unless ($parameters{'coordinate_type'}||'') =~ /^SumAbs/;
+   return unless ($parameters{'coordinate_type'}||'') =~ /Int/;
   # return unless ($parameters{'line_type'}||'') =~ /^Depth/;
-  # return unless $parameters{'planepath'} =~ /pythag/i;
+   return unless $parameters{'planepath'} =~ /Rat/i;
   # return unless $parameters{'planepath'} =~ /SquareSpiral/;
   # return unless $parameters{'planepath'} =~ /DiagonalsOctant/;
-  return unless $parameters{'planepath'} =~ /Hex|Anvil/;
+  # return unless $parameters{'planepath'} =~ /Coprime|DiagonalRat/;
   # return unless $parameters{'planepath'} =~ /Anvil/;
   # return unless $anum =~ /A211014|A036704/;
   # return unless $anum eq 'A067251';

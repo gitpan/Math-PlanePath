@@ -36,7 +36,7 @@ require Math::PlanePath::TerdragonCurve;
 # VERSION
 
 {
-  my $want_version = 97;
+  my $want_version = 98;
   ok ($Math::PlanePath::TerdragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TerdragonCurve->VERSION,  $want_version,
@@ -119,7 +119,7 @@ require Math::PlanePath::TerdragonCurve;
     my ($path, $n) = @_;
     my $prev_dir = path_n_dir ($path, $n-1);
     my $dir = path_n_dir ($path, $n);
-    return ($dir - $prev_dir) % 3;
+    return ($dir - $prev_dir + 3) % 3;  # "+3" to stay +ve for "use integer"
   }
 
   # return 1 for left, 2 for right

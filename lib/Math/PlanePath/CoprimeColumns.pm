@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -33,9 +33,10 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
-use constant n_start => 0;
+
+use constant default_n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
@@ -46,7 +47,27 @@ use constant y_minimum => 1;
 use constant dx_minimum => 0;
 use constant dx_maximum => 1;
 
+# shared by DiagonalRationals
+use constant parameter_info_array =>
+  [ { name        => 'n_start',
+      share_key   => 'n_start_0',
+      type        => 'integer',
+      default     => 0,
+      width       => 3,
+      description => 'Starting N.',
+    },
+  ];
+
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
+
 
 # shared with DiagonalRationals
 @_x_to_n = (0,0,1);
@@ -75,6 +96,8 @@ sub _extend {
 sub n_to_xy {
   my ($self, $n) = @_;
   ### CoprimeColumns n_to_xy(): $n
+
+  $n = $n - $self->{'n_start'}; # to N=0 basis, and warn on undef
 
   # $n<-0.5 is ok for Math::BigInt circa Perl 5.12, it seems
   if (2*$n < -1) {
@@ -171,7 +194,7 @@ sub xy_to_n {
       }
     }
   }
-  return $n;
+  return $n + $self->{'n_start'};
 }
 
 # Asymptotically
@@ -204,7 +227,7 @@ sub rect_to_n_range {
     return (1, 0);
   }
   if (is_infinite($x2)) {
-    return (1, $x2);
+    return ($self->{'n_start'}, $x2);
   }
 
   while ($#_x_to_n <= $x2) {
@@ -213,9 +236,11 @@ sub rect_to_n_range {
 
   ### rect use xy_to_n at: "x=".($x2+1)." y=1"
   if ($x1 < 0) { $x1 = 0; }
-  return ($_x_to_n[$x1], $_x_to_n[$x2+1]-1);
+  return ($_x_to_n[$x1]  + $self->{'n_start'},
+          $_x_to_n[$x2+1] - 1 + $self->{'n_start'});
 
-  # return (1, .304*$x2*$x2 + 20);   # asympototically ?
+  # asympototically ?
+  # return ($self->{'n_start'}, $self->{'n_start'} + .304*$x2*$x2 + 20);
 }
 
 # A000010
@@ -300,7 +325,7 @@ row Y=1 are the cumulative totients
 
                           i=K
     cumulative totient = sum   phi(i)
-                          i=1      
+                          i=1
 
 Anything making a straight line etc in the path will probably be related to
 totient sums in some way.
@@ -312,6 +337,32 @@ not coprime since it has common factor 2, from X=4 onwards.  So there's an
 even number of points in each column from X=2 onwards and those cumulative
 totient totals horizontally along X=1 are therefore always even likewise.
 
+=head2 N Start
+
+The default is to number points starting N=0 as shown above.  An optional
+C<n_start> can give a different start with the same shape,  For example
+to start at 1,
+
+=cut
+
+# math-image --path=CoprimeColumns,n_start=1 --all --output=numbers --size=50x16
+
+=pod
+
+    n_start => 1
+
+     8 |                           28
+     7 |                        22 27
+     6 |                     18
+     5 |                  12 17 21 26
+     4 |               10    16    25
+     3 |             6  9    15 20
+     2 |          4     8    14    24
+     1 |    1  2  3  5  7 11 13 19 23
+    Y=0|
+       +------------------------------
+       X=0  1  2  3  4  5  6  7  8  9
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -319,6 +370,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::CoprimeColumns-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::CoprimeColumns-E<gt>new (n_start =E<gt> $n)>
 
 Create and return a new path object.
 
@@ -348,17 +401,24 @@ couple of forms,
 
     http://oeis.org/A002088  (etc)
 
-    A038567    X coordinate, reduced fractions denominator
-    A038566    Y coordinate, reduced fractions numerator
+    n_start=0 (the default)
+      A038567    X coordinate, reduced fractions denominator
+      A020653    X-Y diff, fractions denominator by diagonals
+                   skipping N=0 initial 1/1
 
-    A002088    N on X axis, cumulative totient
-    A127368    by columns Y coordinate if coprime, 0 if not
-    A054521    by columns 1 if coprime, 0 if not
-    A054427    permutation columns N -> RationalsTree SB N X/Y<1
-    A054428      inverse, SB X/Y<1 -> columns
-    A121998    Y of skipped X,Y among 2<=Y<=X, those not coprime
+      A002088    N on X axis, cumulative totient
+      A127368    by columns Y coordinate if coprime, 0 if not
+      A054521    by columns 1 if coprime, 0 if not
 
-    A179594    X column position of KxK square unvisited
+      A054427    permutation columns N -> RationalsTree SB N X/Y<1
+      A054428      inverse, SB X/Y<1 -> columns
+      A121998    Y of skipped X,Y among 2<=Y<=X, those not coprime
+      A179594    X column position of KxK square unvisited
+
+    n_start=1
+      A038566    Y coordinate, reduced fractions numerator
+
+      A002088    N on X=Y+1 diagonal, cumulative totient
 
 =head1 SEE ALSO
 

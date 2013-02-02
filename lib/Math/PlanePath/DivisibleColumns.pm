@@ -44,7 +44,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,9 +53,9 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
-use constant n_start => 0;
+use constant default_n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
@@ -68,6 +68,13 @@ use constant parameter_info_array =>
       choices   => ['all','proper'],
       default   => 'all',
       description => 'Divisor type, with "proper" meaning divisors d<X, so excluding d=X itself.',
+    },
+    { name        => 'n_start',
+      share_key   => 'n_start_0',
+      type        => 'integer',
+      default     => 0,
+      width       => 3,
+      description => 'Starting N.',
     },
   ];
 
@@ -83,6 +90,16 @@ use constant dx_minimum => 0;
 use constant dx_maximum => 1;
 
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  my $divisor_type = ($self->{'divisor_type'} ||= 'all');
+  $self->{'proper'} = ($divisor_type eq 'proper');
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 my @x_to_n = (0,0,1);
 sub _extend {
@@ -107,15 +124,11 @@ sub _extend {
   ### assert: $x_to_n[$#x_to_n-1] - $x_to_n[$#x_to_n-2] == _count_divisors($#x_to_n-2)
 }
 
-sub new {
-  my $self = shift->SUPER::new (@_);
-  $self->{'proper'} = (($self->{'divisor_type'}||'') eq 'proper');
-  return $self;
-}
-
 sub n_to_xy {
   my ($self, $n) = @_;
   ### DivisibleColumns n_to_xy(): "$n"
+
+  $n = $n - $self->{'n_start'}; # to N=0 basis, and warn on undef
 
   # $n<-0.5 works with Math::BigInt circa Perl 5.12, it seems
   if ($n < -0.5) {
@@ -281,7 +294,8 @@ sub xy_to_n {
       $n += 1;
     }
   }
-  return $n;
+  return $n + $self->{'n_start'};
+;
 }
 
 # not exact
@@ -319,7 +333,7 @@ sub rect_to_n_range {
     if ($x1 < 1) { $x1 = 1; }
   }
   if (is_infinite($x2)) {
-    return (1, $x2);
+    return ($self->{'n_start'}, $x2);
   }
 
   my ($n_lo, $n_hi);
@@ -341,7 +355,8 @@ sub rect_to_n_range {
     $n_lo -= $x1-1;
     $n_hi -= $x2;
   }
-  return ($n_lo, $n_hi);
+  return ($n_lo + $self->{'n_start'},
+          $n_hi + $self->{'n_start'});
 }
 
 # Return a total count of all the divisors of all the integers 1 to $x
@@ -434,6 +449,33 @@ that Y=X itself is excluded.
 The pattern is the same, but the X=Y line skipped.  The high line going up
 is at Y=X/2, when X is even, that being the highest proper divisor.
 
+=head2 N Start
+
+The default is to number points starting N=0 as shown above.  An optional
+C<n_start> can give a different start with the same shape,  For example
+to start at 1,
+
+=cut
+
+# math-image --path=DivisibleColumns,n_start=1 --all --output=numbers --size=50x16
+
+=pod
+
+    n_start => 1
+
+     9 |                           23  
+     8 |                        20    
+     7 |                     16       
+     6 |                  14          
+     5 |               10             
+     4 |             8          19    
+     3 |          5       13       22 
+     2 |       3     7    12    18    
+     1 |    1  2  4  6  9 11 15 17 21 
+    Y=0|
+       +------------------------------
+       X=0  1  2  3  4  5  6  7  8  9 
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -442,7 +484,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::DivisibleColumns-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::DivisibleColumns-E<gt>new (divisor_type =E<gt> 'proper')>
+=item C<$path = Math::PlanePath::DivisibleColumns-E<gt>new (divisor_type =E<gt> 'proper', n_start =E<gt> $n)>
 
 Create and return a new path object.
 
@@ -476,12 +518,21 @@ following forms,
 
     http://oeis.org/A061017  (etc)
 
-    A061017    X coord, each n appears countdivisors(n) times
-    A027750    Y coord, list divisors of successive n
+    n_start=0 (the default)
+      A006218    N on Y=1 row, cumulative count of divisors
+      A077597    N on X=Y diagonal, cumulative count divisors - 1
 
-    A027751    Y coord divisor_type=proper, divisors of successive n
+    n_start=1
+      A061017    X coord, each n appears countdivisors(n) times
+      A027750    Y coord, list divisors of successive k
+      A056538    X/Y, list divisors high to low
 
-    A006218    N on Y=1 row, cumulative count of divisors
+    divisor_type=proper (and default n_start=0)
+      A027751    Y coord divisor_type=proper, divisors of successive n
+                   (extra initial 1)
+
+    divisor_type=proper, n_start=2
+      A208460    X-Y diff, k subtract each proper divisor
 
 =head1 SEE ALSO
 

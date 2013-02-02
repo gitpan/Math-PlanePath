@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 47;
+plan tests => 58;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -54,6 +54,60 @@ sub dxdy_to_dir4_1 {
   if ($dy < 0) { return 4; }  # south
 }
 
+
+#------------------------------------------------------------------------------
+# A136626 -- count surrounding primes
+MyOEIS::compare_values
+  (anum => q{A136626},
+   fixup => sub {
+     my ($bvalues) = @_;
+     $bvalues->[31] = 3;  # DODGY-DATA: 3 primes 13,31,59 surrounding 32
+   },
+   func => sub {
+     my ($count) = @_;
+     require Math::Prime::XS;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, ((!! Math::Prime::XS::is_prime   ($path->xy_to_n($x+1,$y)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y+1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y-1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y+1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y-1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y+1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y-1)))
+                  );
+     }
+     return \@got;
+   });
+
+# A136627 -- count self and surrounding primes
+MyOEIS::compare_values
+  (anum => q{A136627},
+   fixup => sub {
+     my ($bvalues) = @_;
+     $bvalues->[31] = 3;  # DODGY-DATA: 3 primes 13,31,59 surrounding 32
+   },
+   func => sub {
+     my ($count) = @_;
+     require Math::Prime::XS;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, (Math::Prime::XS::is_prime($n)
+                   + (!! Math::Prime::XS::is_prime   ($path->xy_to_n($x+1,$y)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y+1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y-1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y+1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y-1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y+1)))
+                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y-1)))
+                  );
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A078784 -- primes on any axis positive or negative
@@ -128,21 +182,6 @@ MyOEIS::compare_values
        my ($x, $y) = $path->n_to_xy ($n);
        $y = -$y; # opp direction
        ($x,$y) = (-$x,-$y);  # rotate 180
-       push @got, $path->xy_to_n ($x, $y);
-     }
-     return \@got;
-   });
-
-# A020703 -- permutation rotate +90, opp direction
-MyOEIS::compare_values
-  (anum => 'A020703',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x, $y) = $path->n_to_xy ($n);
-       $y = -$y; # opp direction
-       ($x,$y) = (-$y,$x);  # rotate +90
        push @got, $path->xy_to_n ($x, $y);
      }
      return \@got;
@@ -449,63 +488,6 @@ sub diagonals_total {
 
   return sum(keys %n);
 }
-
-#------------------------------------------------------------------------------
-# A136627 -- count self and surrounding primes
-
-MyOEIS::compare_values
-  (anum => q{A136627},
-   fixup => sub {
-     my ($bvalues) = @_;
-     $bvalues->[31] = 3;  # DODGY-DATA: 3 primes 13,31,59 surrounding 32
-   },
-   func => sub {
-     my ($count) = @_;
-     require Math::Prime::XS;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x,$y) = $path->n_to_xy ($n);
-       push @got, (Math::Prime::XS::is_prime($n)
-                   + (!! Math::Prime::XS::is_prime   ($path->xy_to_n($x+1,$y)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y+1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y-1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y+1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y-1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y+1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y-1)))
-                  );
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A136626 -- count surrounding primes
-
-MyOEIS::compare_values
-  (anum => q{A136626},
-   fixup => sub {
-     my ($bvalues) = @_;
-     $bvalues->[31] = 3;  # DODGY-DATA: 3 primes 13,31,59 surrounding 32
-   },
-   func => sub {
-     my ($count) = @_;
-     require Math::Prime::XS;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x,$y) = $path->n_to_xy ($n);
-       push @got, ((!! Math::Prime::XS::is_prime   ($path->xy_to_n($x+1,$y)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y+1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x,$y-1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y+1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y-1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x-1,$y+1)))
-                   + (!! Math::Prime::XS::is_prime ($path->xy_to_n($x+1,$y-1)))
-                  );
-     }
-     return \@got;
-   });
 
 #------------------------------------------------------------------------------
 # A059428 -- Prime[N] for N=corner
@@ -876,6 +858,7 @@ MyOEIS::compare_values
 
 #------------------------------------------------------------------------------
 # A020703 -- permutation read clockwise, ie. transpose Y,X
+#       also permutation rotate +90, opp direction
 
 MyOEIS::compare_values
   (anum => 'A020703',

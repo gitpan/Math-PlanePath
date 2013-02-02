@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 97;
+$VERSION = 98;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -544,8 +544,8 @@ a constant amount in each loop.
 =head2 N Start
 
 The default is to number points starting N=1 as shown above.  An optional
-C<n_start> can give a different start with the same shape,.  For example
-to start at 0,
+C<n_start> can give a different start with the same shape.  For example to
+start at 0,
 
 =cut
 
