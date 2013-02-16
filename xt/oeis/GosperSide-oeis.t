@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -88,6 +88,42 @@ sub xy_left_right {
 }
 
 #------------------------------------------------------------------------------
+# A189673 - morphism turn 0=left, 1=right, extra initial 0
+
+MyOEIS::compare_values
+  (anum => 'A189673',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Left');
+     my @got = (0);
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A189640 - morphism turn 0=left, 1=right, extra initial 0
+
+MyOEIS::compare_values
+  (anum => 'A189640',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Right');
+     my @got = (0);
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A060032 - turn 1=left, 2=right as bignums to 3^level
 
 {
@@ -141,55 +177,6 @@ sub xy_left_right {
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1, "$anum - cumulative turn");
-}
-
-#------------------------------------------------------------------------------
-# A189640 - morphism turn 1=left, 0=right, extra initial 0
-
-{
-  my $anum = 'A189640';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my $lr = xy_left_right ($path->n_to_xy($n-1),
-                              $path->n_to_xy($n),
-                              $path->n_to_xy($n+1));
-      push @got, $lr;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - morphism 1=left,0=right");
-}
-
-#------------------------------------------------------------------------------
-# A189673 - morphism turn 0=left, 1=right, extra initial 0
-
-{
-  my $anum = 'A189673';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    push @got, 0;
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my $lr = xy_left_right ($path->n_to_xy($n-1),
-                              $path->n_to_xy($n),
-                              $path->n_to_xy($n+1));
-      push @got, ($lr == 1 ? 0 : 1);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - morphism 1=left,0=right");
 }
 
 #------------------------------------------------------------------------------

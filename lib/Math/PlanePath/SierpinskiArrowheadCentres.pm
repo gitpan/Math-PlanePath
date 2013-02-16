@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -571,7 +571,8 @@ uses the whole of the first quadrant, with gaps.
            X=0 1  2  3  4  5  6  7
 
 These diagonals visit all points X,Y where X and Y written in binary have no
-1-bits in the same places, ie. where S<X bitand Y> = 0.
+1-bits in the same places, ie. where S<X bitand Y> = 0.  This is the same as
+the C<SierpinskiTriangle> with align=diagonal.
 
 =head1 FUNCTIONS
 

@@ -44,7 +44,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -433,14 +433,14 @@ that Y=X itself is excluded.
 
 =pod
 
-     9 |                                                      39   
-     8 |                                                33         
-     7 |                                          26               
-     6 |                                    22                38   
-     5 |                              16             29            
-     4 |                        11          21          32         
-     3 |                   7       13       20       28       37   
-     2 |             3     6    10    15    19    25    31    36   
+     9 |                                                      39
+     8 |                                                33
+     7 |                                          26
+     6 |                                    22                38
+     5 |                              16             29
+     4 |                        11          21          32
+     3 |                   7       13       20       28       37
+     2 |             3     6    10    15    19    25    31    36
      1 |       0  1  2  4  5  8  9 12 14 17 18 23 24 27 30 34 35
     Y=0|
        +---------------------------------------------------------
@@ -463,18 +463,18 @@ to start at 1,
 
     n_start => 1
 
-     9 |                           23  
-     8 |                        20    
-     7 |                     16       
-     6 |                  14          
-     5 |               10             
-     4 |             8          19    
-     3 |          5       13       22 
-     2 |       3     7    12    18    
-     1 |    1  2  4  6  9 11 15 17 21 
+     9 |                           23
+     8 |                        20
+     7 |                     16
+     6 |                  14
+     5 |               10
+     4 |             8          19
+     3 |          5       13       22
+     2 |       3     7    12    18
+     1 |    1  2  4  6  9 11 15 17 21
     Y=0|
        +------------------------------
-       X=0  1  2  3  4  5  6  7  8  9 
+       X=0  1  2  3  4  5  6  7  8  9
 
 =head1 FUNCTIONS
 
@@ -484,9 +484,12 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::DivisibleColumns-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::DivisibleColumns-E<gt>new (divisor_type =E<gt> 'proper', n_start =E<gt> $n)>
+=item C<$path = Math::PlanePath::DivisibleColumns-E<gt>new (divisor_type =E<gt> $str, n_start =E<gt> $n)>
 
-Create and return a new path object.
+Create and return a new path object.  C<divisor_type> (a string) can be
+
+    "all"       (the default)
+    "proper"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -500,16 +503,16 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head2 Rectangle to N Range
 
 The cumulative divisor count up to and including a given X column can be
-calculated from the fairly well-known sqrt formula,
+calculated from the fairly well-known sqrt formula, a sum from 1 to sqrt(X).
 
     S = floor(sqrt(X))
-                           /   i=S             \
-    divs cumulative = 2 * |   sum  floor(X/i)   |  - S^2
-                           \   i=1             /
+                              /   i=S             \
+    numdivs cumulative = 2 * |   sum  floor(X/i)   | - S^2
+                              \   i=1             /
 
-This means the N range for 0 to X can be calculated without needing to work
-out individual columns counts up to X.  In the current code if column counts
-have been worked out then they're used, otherwise this formula.
+This means the N range for 0 to X can be calculated without working out all
+each column count up to X.  In the current code if column counts have been
+worked out then they're used, otherwise this formula.
 
 =head1 OEIS
 
@@ -525,14 +528,17 @@ following forms,
     n_start=1
       A061017    X coord, each n appears countdivisors(n) times
       A027750    Y coord, list divisors of successive k
-      A056538    X/Y, list divisors high to low
+      A056538    X/Y, divisors high to low
 
     divisor_type=proper (and default n_start=0)
       A027751    Y coord divisor_type=proper, divisors of successive n
                    (extra initial 1)
 
     divisor_type=proper, n_start=2
-      A208460    X-Y diff, k subtract each proper divisor
+      A208460    X-Y, being X subtract each proper divisor
+
+A208460 has "offset" 2, hence C<n_start=2> to match that.  The same with
+all divisors would simply insert an extra 0 for the difference at X=Y.
 
 =head1 SEE ALSO
 

@@ -32,7 +32,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -764,7 +764,7 @@ Sequences as
 
     http://oeis.org/A147582    (etc)
 
-    A147582   total cells to depth=n-1 (tree_depth_to_n())
+    A147582   total cells to depth=n-1, tree_depth_to_n()
     A147562   added cells at depth=n-1
 
     A151922   total cells to depth=n with X>=0,Y>=0

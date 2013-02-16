@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,6 +35,46 @@ use MyOEIS;
 
 my $paper = Math::PlanePath::AlternatePaper->new;
 
+
+
+#------------------------------------------------------------------------------
+# A090678 "non-squashing partitions" mod 2
+# and A121241 which is 1,-1
+# almost but not quite arms=2 turn_type=Left
+
+# MyOEIS::compare_values
+#   (anum => 'A090678',
+#    func => sub {
+#      my ($count) = @_;
+#      require Math::NumSeq::PlanePathTurn;
+#      my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'AlternatePaper,arms=2',
+#                                                  turn_type => 'Left');
+#      my @got = (1,1,1,0,0,1,0,1,0,1,1,0,1,0,0,1,0,1);
+#      while (@got < $count) {
+#        my ($i,$value) = $seq->next;
+#        push @got, $value;
+#      }
+#      return \@got;
+#    });
+
+#------------------------------------------------------------------------------
+# A209615 Completely multiplicative with a(p^e) = 1 if p == 1 (mod 4),
+#                                        a(p^e) = (-1)^e otherwise.
+
+MyOEIS::compare_values
+  (anum => 'A209615',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $paper,
+                                                 turn_type => 'LSR');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 # #------------------------------------------------------------------------------
 # # A014081 - count 11 pairs, mod 2 is GRS
@@ -80,7 +120,6 @@ MyOEIS::compare_values
      return \@got;
    });
 
-
 #------------------------------------------------------------------------------
 # A020991 - position of last occurance of n, last time of X+Y=n
 
@@ -91,7 +130,7 @@ MyOEIS::compare_values
      my @got;
      my @occur;
      my $target = 1;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $paper->n_start + 1; @got < $count; $n++) {
        my ($x, $y) = $paper->n_to_xy ($n);
        my $d = $x + $y;
        $occur[$d]++;
@@ -151,7 +190,7 @@ MyOEIS::compare_values
    func => sub {
      my ($count) = @_;
      my @got;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $paper->n_start + 1; @got < $count; $n++) {
        my ($x, $y) = $paper->n_to_xy ($n);
        push @got, $x+$y;
      }
@@ -226,7 +265,7 @@ MyOEIS::compare_values
    func => sub {
      my ($count) = @_;
      my @got;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $paper->n_start + 1; @got < $count; $n++) {
        my ($x, $y) = $paper->n_to_xy ($n);
        push @got, $x-$y;
      }
@@ -264,7 +303,7 @@ MyOEIS::compare_values
      my ($count) = @_;
      my @got;
      my $target = 1;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $paper->n_start + 1; @got < $count; $n++) {
        my ($x, $y) = $paper->n_to_xy ($n);
        my $d = $x + $y;
        if ($d == $target) {

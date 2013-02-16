@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 11;
+plan tests => 10;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,81 +33,6 @@ use Math::PlanePath::CoprimeColumns;
 # use Smart::Comments '###';
 
 my $path = Math::PlanePath::CoprimeColumns->new;
-
-#------------------------------------------------------------------------------
-# A002088 - totient sum along X axis, or diagonal of n_start=1
-
-MyOEIS::compare_values
-  (anum => 'A002088',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::CoprimeColumns->new (n_start => 1);
-     my @got = (0, 1);
-     for (my $x = 2; @got < $count; $x++) {
-       push @got, $path->xy_to_n($x,$x-1);
-     }
-     return \@got;
-   });
-
-MyOEIS::compare_values
-  (anum => 'A002088',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     for (my $x = 1; @got < $count; $x++) {
-       push @got, $path->xy_to_n($x,1);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A179594 - column of nxn unvisited block
-
-MyOEIS::compare_values
-  (anum => 'A179594',
-   max_count => 3,
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     my $x = 1;
-     for (my $n = 1; @got < $count; $n++) {
-       for ( ; ! have_unvisited_square($x,$n); $x++) {
-       }
-       push @got, $x;
-     }
-     return \@got;
-   });
-
-sub have_unvisited_square {
-  my ($x, $n) = @_;
-  ### have_unvisited_square(): $x,$n
-  my $count = 0;
-  foreach my $y (2 .. $x) {
-    if (have_unvisited_line($x,$y,$n)) {
-      $count++;
-      if ($count >= $n) {
-        ### found at: "x=$x, y=$y  count=$count"
-        return 1;
-      }
-    } else {
-      $count = 0;
-    }
-  }
-  return 0;
-}
-
-sub have_unvisited_line {
-  my ($x,$y, $n) = @_;
-  foreach my $i (0 .. $n-1) {
-    if ($path->xy_is_visited($x,$y)) {
-      return 0;
-    }
-    $x++;
-  }
-  return 1;
-}
-  
-
 
 #------------------------------------------------------------------------------
 # A127368 - Y coordinate of coprimes, 0 for non-coprimes
@@ -140,7 +65,7 @@ sub have_unvisited_line {
 }
 
 MyOEIS::compare_values
-  (anum => q{A179594},
+  (anum => q{A127368},
    func => sub {
      my ($count) = @_;
      my @got;
@@ -157,6 +82,85 @@ MyOEIS::compare_values
      return \@got;
    });
 
+
+#------------------------------------------------------------------------------
+# A179594 - column of nxn unvisited block
+#   is X here but Y in A179594 since it goes as rows of coprimes rather than
+#   columns
+
+MyOEIS::compare_values
+  (anum => 'A179594',
+   max_count => 3,
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $x = 1;
+     for (my $size = 1; @got < $count; $size++) {
+       for ( ; ! have_unvisited_square($x,$size); $x++) {
+       }
+       push @got, $x;
+     }
+     return \@got;
+   });
+
+# return true if there's a $size by $size unvisited square somewhere in
+# column $x
+sub have_unvisited_square {
+  my ($x, $size) = @_;
+  ### have_unvisited_square(): $x,$size
+  my $count = 0;
+  foreach my $y (2 .. $x) {
+    if (have_unvisited_line($x,$y,$size)) {
+      $count++;
+      if ($count >= $size) {
+        ### found at: "x=$x, y=$y  count=$count"
+        return 1;
+      }
+    } else {
+      $count = 0;
+    }
+  }
+  return 0;
+}
+
+# return true if $x,$y is the start (the leftmost point) of a $size length
+# line of unvisited points
+sub have_unvisited_line {
+  my ($x,$y, $size) = @_;
+  foreach my $i (0 .. $size-1) {
+    if ($path->xy_is_visited($x,$y)) {
+      return 0;
+    }
+    $x++;
+  }
+  return 1;
+}
+
+#------------------------------------------------------------------------------
+# A002088 - totient sum along X axis, or diagonal of n_start=1
+
+MyOEIS::compare_values
+  (anum => 'A002088',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::CoprimeColumns->new (n_start => 1);
+     my @got = (0, 1);
+     for (my $x = 2; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,$x-1);
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => qq{A002088},
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, $path->xy_to_n($x,1);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A054428 - inverse, permutation SB N -> coprime columns N

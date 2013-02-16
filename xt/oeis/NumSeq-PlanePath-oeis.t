@@ -83,14 +83,14 @@ sub check_class {
   ### $parameters
 
   my %parameters = @$parameters;
-  # return unless $class =~ /PlanePathCoord/;
-   return unless ($parameters{'coordinate_type'}||'') =~ /Int/;
+  return unless $class =~ /PlanePathTurn/;
+  # return unless ($parameters{'coordinate_type'}||'') =~ /Hamm/;
   # return unless ($parameters{'line_type'}||'') =~ /^Depth/;
-   return unless $parameters{'planepath'} =~ /Rat/i;
+  # return unless $parameters{'planepath'} =~ /DiagonalRat/i;
   # return unless $parameters{'planepath'} =~ /SquareSpiral/;
   # return unless $parameters{'planepath'} =~ /DiagonalsOctant/;
   # return unless $parameters{'planepath'} =~ /Coprime|DiagonalRat/;
-  # return unless $parameters{'planepath'} =~ /Anvil/;
+  # return unless $parameters{'planepath'} =~ /One/;
   # return unless $anum =~ /A211014|A036704/;
   # return unless $anum eq 'A067251';
   # return unless $anum =~ /A0039/;
@@ -356,7 +356,15 @@ MyTestHelpers::diag ("\"Other\" uncatalogued sequences:");
 MyTestHelpers::diag ("Catalogue sequences:");
 {
   require Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath;
-  my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath::info_arrayref();
+  my $aref = Math::NumSeq::OEIS::Catalogue::Plugin::PlanePath->info_arrayref();
+
+  {
+    require Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick;
+    my $aref2 = Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick->info_arrayref();
+    $aref = [ @$aref, @$aref2 ];
+  }
+  MyTestHelpers::diag ("total catalogue entries ",scalar(@$aref));
+
   foreach my $info (@$aref) {
     ### $info
     check_class ($info->{'anum'},
@@ -364,7 +372,6 @@ MyTestHelpers::diag ("Catalogue sequences:");
                  $info->{'parameters'});
   }
 }
-
 
 MyTestHelpers::diag ("total checks $total_checks");
 ok ($good);

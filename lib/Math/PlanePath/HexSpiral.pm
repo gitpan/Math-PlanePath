@@ -51,12 +51,13 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
-  'round_nearest';
+  'round_nearest',
+  'xy_is_even';
 
 
 # uncomment this to run the ### lines
@@ -177,9 +178,7 @@ sub n_to_xy {
 
 sub xy_is_visited {
   my ($self, $x, $y) = @_;
-  $x = round_nearest ($x);
-  $y = round_nearest ($y);
-  return ! (($x ^ $y ^ $self->{'wider'}) & 1);  # nothing on odd squares
+  return xy_is_even($self,$x+$self->{'wider'},$y);
 }
 
 sub xy_to_n {

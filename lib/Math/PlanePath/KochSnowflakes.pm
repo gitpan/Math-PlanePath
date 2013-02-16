@@ -42,7 +42,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -59,6 +59,7 @@ use Math::PlanePath::KochCurve;
 
 use constant n_frac_discontinuity => 0;
 use constant rsquared_minimum => 4/9; # minimum X=0,Y=2/3
+# maybe: use constant radius_minimum => 2/3; # minimum X=0,Y=2/3
 
 sub new {
   my $self = shift->SUPER::new (@_);

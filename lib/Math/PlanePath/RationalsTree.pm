@@ -57,7 +57,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -128,7 +128,7 @@ sub n_to_xy {
   if ($n < $self->{'n_start'}) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  # FIXME: what to do for fractional $n?
+  # what to do for fractional $n?
   {
     my $int = int($n);
     if ($n != $int) {
@@ -1143,6 +1143,9 @@ reduces a little to roughly 2**(max/min + min).
 
 =head2 Tree Methods
 
+X<Complete binary tree>Each point has 2 children, so the path is a complete
+binary tree.
+
 =over
 
 =item C<@n_children = $path-E<gt>tree_n_children($n)>
@@ -1150,8 +1153,8 @@ reduces a little to roughly 2**(max/min + min).
 Return the two children of C<$n>, or an empty list if C<$n E<lt> 1>
 (ie. before the start of the path).
 
-This is simply C<2*$n, 2*$n+1>.  The children are C<$n> with an extra bit
-appended, either a 0-bit or a 1-bit.
+This is simply C<2*$n, 2*$n+1>.  Written in binary the children are C<$n>
+with an extra bit appended, either a 0-bit or a 1-bit.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
@@ -1189,6 +1192,23 @@ tree C<2**($depth+1)>.
 
 =back
 
+=head2 Tree Descriptive Methods
+
+=over
+
+=item C<$num = $path-E<gt>tree_num_children_minimum()>
+
+=item C<$num = $path-E<gt>tree_num_children_maximum()>
+
+Return 2 since every node has 2 children, making that both the minimum and
+maximum.
+
+=item C<$bool = $path-E<gt>tree_any_leaf()>
+
+Return false, since there are no leaf nodes in the tree.
+
+=back
+
 =head1 OEIS
 
 The trees are in Sloane's Online Encyclopedia of Integer Sequences in
@@ -1196,8 +1216,8 @@ various forms,
 
     http://oeis.org/A007305   (etc)
 
-    A007305  SB X numerators, Farey fractions (extra 0,1)
-    A047679  SB Y denominators
+    A007305  SB X, Farey fractions (extra 0,1)
+    A047679  SB Y
     A007306  SB X+Y sum, Farey 0 to 1 part (extra 1,1)
     A153036  SB int(X/Y), integer part
     A002487  CW X and Y, Stern diatomic sequence (extra 0)
@@ -1206,12 +1226,12 @@ various forms,
     A007814  CW int(X/Y), integer part, count trailing 1-bits
                 which is count trailing 0-bits of N+1
     A020650  AYT X
-    A020651  AYT Y (Kepler X)
-    A086592  AYT X+Y sum (Kepler denominators)
+    A020651  AYT Y (Kepler numerator)
+    A086592  AYT X+Y sum (Kepler denominator)
     A135523  AYT int(X/Y), integer part,
                 count trailing 0-bits plus 1 extra if N=2^k
     A071766  HCS Y
-    A071585  HCS X+Y sum (sum giving rationals >= 1)
+    A071585  HCS X+Y sum (X+Y giving rationals >= 1)
     A162909  Bird X
     A162910  Bird Y
     A162911  Drib X
@@ -1219,7 +1239,7 @@ various forms,
     A174981  L-tree X
     A002487  L-tree Y, same as CW X,Y, Stern diatomic
 
-    A000523  tree_n_to_depth(), being floor(log2(n))
+    A000523  tree_n_to_depth(), being floor(log2(N))
 
     A086893  position Fibonacci F[n+1],F[n] in Stern diatomic,
                CW N of F[n+1]/F[n]

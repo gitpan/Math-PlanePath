@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -405,9 +405,19 @@ Math::PlanePath::FibonacciWordFractal -- turns by Fibonacci word bits
 =head1 DESCRIPTION
 
 X<Monnerot-Dumaine, Alexis>X<Fibonacci Word>This is an integer version of
-the Fibonacci word fractal by Alexis Monnerot-Dumaine.  It makes turns
-controlled by the "Fibonacci word" sequence, sometimes called the "golden
-string".
+the Fibonacci word fractal by Alexis Monnerot-Dumaine.
+
+=over
+
+"The Fibonacci Word Fractal", February 2009
+
+http://hal.archives-ouvertes.fr/hal-00367972_v1/
+http://hal.archives-ouvertes.fr/docs/00/36/79/72/PDF/The_Fibonacci_word_fractal.pdf
+
+=back
+
+It makes turns controlled by the "Fibonacci word" sequence, sometimes called
+the "golden string".
 
     11  | 27-28-29    33-34-35          53-54-55    59-60-61
         |  |     |     |     |           |     |     |     |
@@ -436,7 +446,7 @@ string".
           X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 
 
 A current direction up,down,left,right is maintained, starting in the up
-direction.  The path moves in the current direction and then turns or goes
+direction.  The path moves in the current direction and then may turn or go
 straight according to the Fibonacci word,
 
     Fib word
@@ -446,34 +456,34 @@ straight according to the Fibonacci word,
 
 In this form the Fibonacci word is reckoned as starting from index=1, so for
 example at N=0 draw a line upwards to N=1 and the first Fibonacci word value
-is 0 and index=1 odd so change direction to the right.
+is 0 and index=1 odd so turn to the right.
 
      N     Fibonacci word
     ---    --------------
-     0       0    turn right
-     1       1    
-     2       0    turn right
-     3       0    turn left
-     4       1
-     5       0    turn left
-     6       1
+     1       0    turn right
+     2       1    
+     3       0    turn right
+     4       0    turn left
+     5       1
+     6       0    turn left
+     7       1
 
 The result is self-similar blocks within the first quadrant
-(XE<gt>=0,YE<gt>=0).  New blocks extend from N values which are Fibonacci
-numbers.  For example at N=21 begins a new block above, then N=34 a new
-block across, N=55 down, N=89 across again, etc.
+(XE<gt>=0,YE<gt>=0).  New blocks extend at N values which are Fibonacci
+numbers.  For example N=21 a new block begins above, then N=34 a new block
+across, N=55 down, N=89 across again, etc.
 
-The new blocks are a copy of the shape starting N=0 rotated and/or
+The new blocks are a copy of the shape starting N=0 but rotated and/or
 transposed according to the replication level mod 6,
 
     level mod 6      new block
     -----------      ---------
-       0              transpose
-       1                         rotate -90
-       2              transpose, rotate -90
-       3              transpose
-       4                         rotate +90
-       5              transpose, rotate +90
+         0           transpose
+         1                         rotate -90
+         2           transpose and rotate -90
+         3           transpose
+         4                         rotate +90
+         5           transpose and rotate +90
 
 =head1 FUNCTIONS
 
@@ -493,14 +503,18 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 Fractional positions give an X,Y position along a straight line between the
 integer positions.
 
-=item C<$n = $path-E<gt>xy_to_n ($x,$y)>
+=cut
 
-Return the point number for coordinates C<$x,$y>.  If there's nothing at
-C<$x,$y> then return C<undef>.
-
-The curve visits an C<$x,$y> twice for various points (all the "inside"
-points).  In the current code the smaller of the two N values is returned.
-Is that the best way?
+# Knott form would overlap, if do that in this same module.
+#
+# =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
+# 
+# Return the point number for coordinates C<$x,$y>.  If there's nothing at
+# C<$x,$y> then return C<undef>.
+# 
+# The curve visits an C<$x,$y> twice for various points (all the "inside"
+# points).  In the current code the smaller of the two N values is returned.
+# Is that the best way?
 
 =item C<$n = $path-E<gt>n_start()>
 
@@ -526,11 +540,6 @@ path include,
 L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::WythoffArray>
-
-Alexis Monnerot-Dumaine "The Fibonacci Word Fractal", February 2009
-
-    http://hal.archives-ouvertes.fr/hal-00367972_v1/
-    http://hal.archives-ouvertes.fr/docs/00/36/79/72/PDF/The_Fibonacci_word_fractal.pdf
 
 L<Math::NumSeq::FibonacciWord>
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,105 +33,64 @@ use Math::PlanePath::DragonMidpoint;
 #use Smart::Comments '###';
 
 
-my $path = Math::PlanePath::DragonMidpoint->new;
-
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
-# with Y reckoned increasing upwards
-sub dxdy_to_direction {
-  my ($dx, $dy) = @_;
-  if ($dx > 0) { return 0; }  # east
-  if ($dx < 0) { return 2; }  # west
-  if ($dy > 0) { return 1; }  # north
-  if ($dy < 0) { return 3; }  # south
-}
-
-
-
 #------------------------------------------------------------------------------
 # A073089 -- abs(dY), so 1 if step vertical, 0 if horizontal
 #            with extra leading 0
 
+MyOEIS::compare_values
+  (anum => 'A073089',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::DragonMidpoint->new;
+     my @got = (0);
+     my ($prev_x, $prev_y) = $path->n_to_xy (0);
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       if ($x == $prev_x) {
+         push @got, 1;  # vertical
+       } else {
+         push @got, 0;  # horizontal
+       }
+       ($prev_x,$prev_y) = ($x,$y);
+     }
+     return \@got;
+   });
+
+# A073089_func vs b-file
+MyOEIS::compare_values
+  (anum => 'A073089',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       push @got, A073089_func($n);
+     }
+     return \@got;
+   });
+
+
+# A073089_func vs path
 {
-  my $anum = 'A073089';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
+  my $path = Math::PlanePath::DragonMidpoint->new;
+  my ($prev_x, $prev_y) = $path->n_to_xy (0);
+  my $n = 0;
+  my $bad = 0;
+  foreach my $n (0 .. 0x2FFF) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my ($nx, $ny) = $path->n_to_xy ($n+1);
+    my $path_value = ($x == $nx
+                      ? 1   # vertical
+                      : 0); # horizontal
 
-  {
-    my @got = (0);
-    if ($bvalues) {
-      my ($prev_x, $prev_y) = $path->n_to_xy (0);
-      for (my $n = 1; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        if ($x == $prev_x) {
-          push @got, 1;  # vertical
-        } else {
-          push @got, 0;  # horizontal
-        }
-        ($prev_x,$prev_y) = ($x,$y);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
+    my $a_value = A073089_func($n+2);
+
+    if ($path_value != $a_value) {
+      MyTestHelpers::diag ("diff n=$n path=$path_value acalc=$a_value");
+      MyTestHelpers::diag ("  xy=$x,$y  nxy=$nx,$ny");
+      last if ++$bad > 10;
     }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
   }
-
-  # A073089_func vs b-file
-  {
-    my @got;
-    if ($bvalues) {
-      for (my $n = 1; @got < @$bvalues; $n++) {
-        push @got, A073089_func($n);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- bvalues against A-func");
-  }
-
-
-  # A073089_func vs path
-  {
-    my ($prev_x, $prev_y) = $path->n_to_xy (0);
-    my $n = 0;
-    my $bad = 0;
-    foreach my $n (0 .. 0x2FFF) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      my ($nx, $ny) = $path->n_to_xy ($n+1);
-      my $path_value = ($x == $nx
-                        ? 1   # vertical
-                        : 0); # horizontal
-
-      my $a_value = A073089_func($n+2);
-
-      if ($path_value != $a_value) {
-        MyTestHelpers::diag ("diff n=$n path=$path_value acalc=$a_value");
-        MyTestHelpers::diag ("  xy=$x,$y  nxy=$nx,$ny");
-        last if ++$bad > 10;
-      }
-    }
-    ok ($bad, 0, "$anum -- calculated");
-  }
+  ok ($bad, 0, "A073089_func()");
 }
 
 sub A073089_func {

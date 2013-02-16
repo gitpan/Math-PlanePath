@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -22,7 +22,6 @@ use strict;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
 
 
 {
@@ -52,7 +51,9 @@ use strict;
   $planepath = "LCornerTree,parts=4";
   $planepath = "LCornerReplicate";
   $planepath = "PythagoreanTree,coordinates=AC,tree_type=UAD";
-  $radix = 4;
+  $planepath = "OneOfEight,parts=3side";
+  $radix = 5;
+  $planepath = "CfracDigits,radix=".($radix-1);
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                delta_type => 'Dir4');
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
@@ -90,6 +91,22 @@ use strict;
     }
   }
 
+  exit 0;
+}
+
+
+{
+  # kronecker cf A215200
+  require Math::NumSeq::PlanePathCoord;
+  foreach my $n (1 .. 10) {
+    foreach my $k (1 .. $n) {
+      my $x = $n - $k;
+      my $y = $k;
+      my $kron = Math::NumSeq::PlanePathCoord::_kronecker_symbol($x,$y);
+      printf "%3d,", $kron;
+    }
+    print "\n";
+  }
   exit 0;
 }
 

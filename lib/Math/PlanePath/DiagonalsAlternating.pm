@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -275,6 +275,7 @@ path include
       A003987    X bit-xor Y
       A004197    min(X,Y)
       A003984    max(X,Y)
+      A101080    HammingDist(X,Y)
       A023531    dSum = dX+dY, being 1 at N=triangular+1 (and 0)
       A046092    N on X=Y diagonal
       A061579    permutation N at transpose Y,X

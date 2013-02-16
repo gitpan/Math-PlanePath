@@ -39,12 +39,12 @@ use Math::PlanePath;
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest',
-  'xy_is_visited_even';
+  'xy_is_even';
 use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -153,7 +153,7 @@ sub n_to_xy {
 sub xy_is_visited {
   my ($self, $x, $y) = @_;
   if ($self->{'arms'} == 6) {
-    return xy_is_visited_even($self,$x,$y);
+    return xy_is_even($self,$x,$y);
   } else {
     return defined($self->xy_to_n($x,$y));
   }
@@ -736,8 +736,8 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
     A060236   turn 1=left,2=right, by 120 degrees
                 (lowest non-zero ternary digit)
     A137893   turn 1=left,0=right (morphism)
-    A189640   turn 1=left,0=right (morphism, extra initial 0)
-    A189673   turn 0=left,1=right (morphism, extra initial 0)
+    A189640   turn 0=left,1=right (morphism, extra initial 0)
+    A189673   turn 1=left,0=right (morphism, extra initial 0)
     A080846   next turn 0=left,1=right, by 120 degrees
                 (n=0 first turn is for N=1)
     A038502   strip trailing ternary 0s,

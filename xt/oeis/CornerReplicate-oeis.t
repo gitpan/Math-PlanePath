@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,7 +37,7 @@ my $crep = Math::PlanePath::CornerReplicate->new;
 my $zorder = Math::PlanePath::ZOrderCurve->new;
 
 #------------------------------------------------------------------------------
-# A048647 -- N at transpose Y,X
+# A048647 -- permutation N at transpose Y,X
 
 MyOEIS::compare_values
   (anum => 'A048647',

@@ -18,6 +18,26 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# A168022 Non-composite numbers in the eastern ray of the Ulam spiral as oriented on the March 1964 cover of Scientific American.
+# A168023 Non-composite numbers in the northern ray of the Ulam spiral as oriented on the March 1964 cover of Scientific American.
+# A168024 Non-composite numbers in the northwestern ray of the Ulam spiral as oriented on the March 1964 cover of Scientific American.
+# A168025 Non-composite numbers in the western ray of the Ulam spiral as oriented on the March 1964 cover of Scientific American.
+# A168026 Non-composite numbers in the southwestern ray of the Ulam spiral as oriented on the March 1964 cover of Scientific American.
+# A168027 Non-composite numbers in the southern ray of the Ulam spiral as oriented on the March 1964 cover of Scientific American.
+
+# A217014 Permutation of natural numbers arising from applying the walk of a square spiral (e.g. A214526) to the data of triangular horizontal-last spiral (defined in A214226).
+# A217015 Permutation of natural numbers arising from applying the walk of a square spiral (e.g. A214526) to the data of rotated-square spiral (defined in A215468).
+
+# A053823 Product of primes in n-th shell of prime spiral.
+# A053997 Sum of primes in n-th shell of prime spiral.
+# A053998 Smallest prime in n-th shell of prime spiral.
+
+# A059924 Write the numbers from 1 to n^2 in a spiraling square; a(n) is the total of the sums of the two diagonals.
+
+# A113688 Isolated semiprimes in the semiprime spiral.
+# A113689 Number of semiprimes in clumps of size >1 through n^2 in the semiprime spiral.
+# A114254 Sum of all terms on the two principal diagonals of a 2n+1 X 2n+1 square spiral.
+
 use 5.004;
 use strict;
 use Test;
@@ -54,6 +74,86 @@ sub dxdy_to_dir4_1 {
   if ($dy < 0) { return 4; }  # south
 }
 
+
+#------------------------------------------------------------------------------
+# A094768 -- cumulative spiro-fibonacci total of 4 neighbours
+
+{
+  my @surround4_dx = (1, 0, -1,  0);
+  my @surround4_dy = (0, 1,  0, -1);
+
+  MyOEIS::compare_values
+      (anum => q{A094768},
+       func => sub {
+         my ($count) = @_;
+         my $path = Math::PlanePath::SquareSpiral->new (n_start => 0);
+         require Math::BigInt;
+         my $total = Math::BigInt->new(1);
+         my @got = ($total);
+         for (my $n = $path->n_start + 1; @got < $count; $n++) {
+           my ($x, $y) = $path->n_to_xy ($n-1);
+           foreach my $i (0 .. $#surround4_dx) {
+             my $sn = $path->xy_to_n ($x+$surround4_dx[$i], $y+$surround4_dy[$i]);
+             if ($sn < $n) {
+               $total += $got[$sn];
+             }
+           }
+           $got[$n] = $total;
+         }
+         return \@got;
+       });
+}
+
+#------------------------------------------------------------------------------
+# A094767 -- cumulative spiro-fibonacci total of 8 neighbours
+
+my @surround8_dx = (1, 1, 0, -1, -1, -1,  0,  1);
+my @surround8_dy = (0, 1, 1,  1,  0, -1, -1, -1);
+
+MyOEIS::compare_values
+  (anum => q{A094767},
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::SquareSpiral->new (n_start => 0);
+     require Math::BigInt;
+     my $total = Math::BigInt->new(1);
+     my @got = ($total);
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n-1);
+       foreach my $i (0 .. $#surround8_dx) {
+         my $sn = $path->xy_to_n ($x+$surround8_dx[$i], $y+$surround8_dy[$i]);
+         if ($sn < $n) {
+           $total += $got[$sn];
+         }
+       }
+       $got[$n] = $total;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A094769 -- cumulative spiro-fibonacci total of 8 neighbours starting 0,1
+
+MyOEIS::compare_values
+  (anum => q{A094769},
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::SquareSpiral->new (n_start => 0);
+     require Math::BigInt;
+     my $total = Math::BigInt->new(1);
+     my @got = (0, $total);
+     for (my $n = $path->n_start + 2; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n-1);
+       foreach my $i (0 .. $#surround8_dx) {
+         my $sn = $path->xy_to_n ($x+$surround8_dx[$i], $y+$surround8_dy[$i]);
+         if ($sn < $n) {
+           $total += $got[$sn];
+         }
+       }
+       $got[$n] = $total;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A136626 -- count surrounding primes
@@ -782,7 +882,6 @@ MyOEIS::compare_values
 
 MyOEIS::compare_values
   (anum => 'A062410',
-   max_value => 'unlimited',
    func => sub {
      my ($count) = @_;
      my @got;
@@ -827,7 +926,6 @@ MyOEIS::compare_values
 
 MyOEIS::compare_values
   (anum => q{A141481},  # not in POD
-   max_value => 'unlimited',
    func => sub {
      my ($count) = @_;
      my @got;

@@ -19,10 +19,10 @@
 # math-image --values=PlanePathTurn
 #
 # maybe:
-# Turn4   0,1,2,3  and fractional
-# Turn4pn 0,1,2,-1  Turn4mid Turn4n Turn4s
-# TTurn6   0,1,2,3,4,5
-# TTurn6pn 0,1,2,3, -1,-2,  eg. flowsnake  TTurn6s
+# Turn4p   0,1,2,3  and fractional
+# Turn4    0,1,2,-1  Turn4mid Turn4n Turn4s
+# TTurn6   0,1,2,3, -1,-2,  eg. flowsnake  TTurn6s
+# TTurn6p  0,1,2,3,4,5
 
 
 
@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -42,7 +42,7 @@ use Math::PlanePath::Base::Generic
   'is_infinite';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant characteristic_smaller => 1;
@@ -108,6 +108,7 @@ sub new {
   my $class = shift;
   ### PlanePathTurn new(): @_
   my $self = $class->SUPER::new(@_);
+  ### self from SUPER: $self
 
   $self->{'planepath_object'}
     ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'});
@@ -228,27 +229,17 @@ sub ith {
 sub _turn_func_Left {
   my ($dx,$dy, $next_dx,$next_dy) = @_;
   ### _turn_func_Left() ...
-  my $a = $next_dy * $dx;
-  my $b = $next_dx * $dy;
-  return ($a > $b
-          || $dx==-$next_dx && $dy==-$next_dy  # straight opposite 180
-          ? 1
-          : 0);
+  return ($next_dy * $dx > $next_dx * $dy ? 1 : 0);
 }
 sub _turn_func_Right {
   my ($dx,$dy, $next_dx,$next_dy) = @_;
-  ### _turn_func_Left() ...
-  my $a = $next_dy * $dx;
-  my $b = $next_dx * $dy;
-  return ($a < $b
-          || $dx==-$next_dx && $dy==-$next_dy  # straight opposite 180
-          ? 1
-          : 0);
+  ### _turn_func_Right() ...
+  return ($next_dy * $dx < $next_dx * $dy ? 1 : 0);
 }
 sub _turn_func_LSR {
   my ($dx,$dy, $next_dx,$next_dy) = @_;
   ### _turn_func_LSR() ...
-  return (($next_dy * $dx <=> $next_dx * $dy) || 0);
+  return (($next_dy * $dx <=> $next_dx * $dy) || 0);  # 1,0,-1
 }
 # sub _turn_func_LR_01 {
 #   my ($dx,$dy, $next_dx,$next_dy) = @_;
@@ -395,16 +386,29 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_Right_max => 0; # left or straight
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
 
-  # Math::PlanePath::TriangleSpiral
-  # Not quite, A010054 starts OFFSET=0 for 1,1,0,1,0,0,1 extra initial 1
-  # cf turns here start N=1 for 1,0,1,0,0,1
-  # Left => 'A010054', # 1 at triangle number
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'n_start=-1' =>
+      { 'Left' => 'A023531',  # 1 at k*(k+3)/2
+        'LSR'  => 'A023531',
+        # OEIS-Other: A023531 planepath=TriangleSpiral,n_start=-1
+        # OEIS-Other: A023531 planepath=TriangleSpiral,n_start=-1 turn_type=LSR
+      },
+    };
 }
 { package Math::PlanePath::TriangleSpiralSkewed;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
   use constant _NumSeq_Turn_LSR_max => 1;
   use constant _NumSeq_Turn_Right_max => 0; # left or straight
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
+
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'n_start=-1' =>
+      { 'Left' => 'A023531',  # 1 at k*(k+3)/2
+        'LSR'  => 'A023531',
+        # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1
+        # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1 turn_type=LSR
+      },
+    };
 }
 { package Math::PlanePath::DiamondSpiral;
   use constant _NumSeq_Turn_LSR_min => 0; # left or straight
@@ -601,14 +605,14 @@ sub characteristic_non_decreasing {
      'step=0,ring_shape=circle' =>
      { Left => 'A000004',  # all-zeros
        LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0
        # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR
      },
      'step=0,ring_shape=polygon' =>
      { Left => 'A000004',  # all-zeros
        LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=Left ring_shape=polygon
-       # OEIS-Other: A000004 planepath=MultipleRings,step=0 turn_type=LSR ring_shape=polygon
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0,ring_shape=polygon
+       # OEIS-Other: A000004 planepath=MultipleRings,step=0,ring_shape=polygon turn_type=LSR
      },
     };
 }
@@ -676,31 +680,61 @@ sub characteristic_non_decreasing {
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_min;
 }
 { package Math::PlanePath::PythagoreanTree;
-  my %UAD_coordinates_always_right = (PQ => 1,
-                                      AB => 1,
-                                      AC => 1);
-  sub _NumSeq_Turn_always_Right {
-    my ($self) = @_;
-    return ($self->{'tree_type'} eq 'UAD'
-            && $UAD_coordinates_always_right{$self->{'coordinates'}});
+  {
+    my %UAD_coordinates_always_right = (PQ => 1,
+                                        AB => 1,
+                                        AC => 1);
+    sub _NumSeq_Turn_always_Right {
+      my ($self) = @_;
+      return ($self->{'tree_type'} eq 'UAD'
+              && $UAD_coordinates_always_right{$self->{'coordinates'}});
+    }
+  }
+  {
+    my %UAD_coordinates_always_left = (BC => 1);
+    sub _NumSeq_Turn_always_Left {
+      my ($self) = @_;
+      return ($self->{'tree_type'} eq 'UAD'
+              && $UAD_coordinates_always_left{$self->{'coordinates'}});
+    }
   }
 
+  sub _NumSeq_Turn_Left_min {
+    my ($self) = @_;
+    return (_NumSeq_Turn_always_Left($self) ? 1
+            : 0);
+  }
   sub _NumSeq_Turn_Left_max {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Right($self) ? 0 : 1);
+    return (_NumSeq_Turn_always_Right($self) ? 0
+            : 1);
   }
   sub _NumSeq_Turn_Right_min {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Right($self) ? 1 : 0);
+    return (_NumSeq_Turn_always_Right($self) ? 1
+            : 0);
+  }
+  sub _NumSeq_Turn_Right_max {
+    my ($self) = @_;
+    return (_NumSeq_Turn_always_Left($self) ? 0
+            : 1);
+  }
+  sub _NumSeq_Turn_LSR_min {
+    my ($self) = @_;
+    return (_NumSeq_Turn_always_Left($self) ? 1
+            : -1);
   }
   sub _NumSeq_Turn_LSR_max {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Right($self) ? -1 : 1);
+    return (_NumSeq_Turn_always_Right($self) ? -1
+            : 1);
   }
 
   sub _NumSeq_Turn_Left_non_decreasing {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Right($self) ? 1 : 0);
+    return (_NumSeq_Turn_always_Left($self)
+            || _NumSeq_Turn_always_Right($self)
+            ? 1 : 0);
   }
   *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
@@ -816,7 +850,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_oeis_anum =>
     { '' =>
       { Left => 'A035263', # OFFSET=1 matches N=1
-        # OEIS-Catalogue: A035263 planepath=KochCurve turn_type=Left
+        # OEIS-Catalogue: A035263 planepath=KochCurve
 
         # Not quite, A096268 OFFSET=0 values 0,1,0,0,0,1
         # whereas here N=1 first turn values 0,1,0,0,0,1
@@ -865,7 +899,7 @@ sub characteristic_non_decreasing {
 
        #  # Not quite, A014707 has OFFSET=0 cf first elem for N=1
        #  'Left' => 'A014707', # turn, 1=left,0=right
-       #  # OEIS-Catalogue: A014707 planepath=DragonCurve turn_type=Left
+       #  # OEIS-Catalogue: A014707 planepath=DragonCurve
 
        #  # Not quite, A014577 has OFFSET=0 cf first elem for N=1
        #  'Right' => 'A014577', # turn, 0=left,1=right
@@ -882,7 +916,7 @@ sub characteristic_non_decreasing {
 # {
 #  # Not quite, A106665 has OFFSET=0 cf first here i=1
 #  'Left' => 'A106665', # turn, 1=left,0=right
-#  # OEIS-Catalogue: A106665 planepath=AlternatePaper turn_type=Left
+#  # OEIS-Catalogue: A106665 planepath=AlternatePaper
 # },
 # }
 { package Math::PlanePath::GosperSide;
@@ -893,8 +927,8 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_oeis_anum =>
     { '' =>
       { 'Left' => 'A137893', # turn, 1=left,0=right, OFFSET=1
-        # OEIS-Catalogue: A137893 planepath=GosperSide turn_type=Left
-        # OEIS-Other: A137893 planepath=TerdragonCurve turn_type=Left
+        # OEIS-Catalogue: A137893 planepath=GosperSide
+        # OEIS-Other:     A137893 planepath=TerdragonCurve
 
         # Not quite, A080846 OFFSET=0 values 0,1,0,0,1 which are N=1 here
         # Right => 'A080846',
@@ -971,7 +1005,7 @@ sub characteristic_non_decreasing {
      'n_start=1,width=0' => # Rows width=0 is trivial X=N,Y=0
      { Left => 'A000004',  # all-zeros
        LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=Rows,width=0
        # OEIS-Other: A000004 planepath=Rows,width=0 turn_type=LSR
      },
     };
@@ -1011,7 +1045,7 @@ sub characteristic_non_decreasing {
      'n_start=1,height=0' => # Columns height=0 is trivial X=N,Y=0
      { Left => 'A000004',  # all-zeros
        LSR  => 'A000004',  # all zeros, straight
-       # OEIS-Other: A000004 planepath=Columns,height=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=Columns,height=0
        # OEIS-Other: A000004 planepath=Columns,height=0 turn_type=LSR
      },
     };
@@ -1020,7 +1054,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_oeis_anum =>
     { 'direction=down,n_start=0,x_start=0,y_start=0' =>
       { Left => 'A129184', # shift of triangle
-        # OEIS-Catalogue: A129184 planepath=Diagonals,n_start=0 turn_type=Left
+        # OEIS-Catalogue: A129184 planepath=Diagonals,n_start=0
       },
       'direction=down,n_start=-1,x_start=0,y_start=0' =>
       { Right => 'A023531', # 1 at m(m+3)/2
@@ -1033,7 +1067,7 @@ sub characteristic_non_decreasing {
       },
       'direction=up,n_start=-1,x_start=0,y_start=0' =>
       { Left => 'A023531', # 1 at m(m+3)/2
-        # OEIS-Other: A023531 planepath=Diagonals,direction=up,n_start=-1 turn_type=Left
+        # OEIS-Other: A023531 planepath=Diagonals,direction=up,n_start=-1
       },
     };
 }
@@ -1054,25 +1088,33 @@ sub characteristic_non_decreasing {
 # { package Math::PlanePath::StaircaseAlternating;
 # }
 { package Math::PlanePath::Corner;
-  use constant _NumSeq_Turn_Left_max => 0; # right or straight always
-  use constant _NumSeq_Turn_Left_non_decreasing => 1; # right or straight
-  use constant _NumSeq_Turn_LSR_max => 0; # right or straight
+  sub _NumSeq_Turn_Left_max {
+    my ($self) = @_;
+    return ($self->{'wider'} == 0 ? 0  # wider=0 right or straight always
+            : 1);
+  }
+  sub _NumSeq_Turn_Left_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'wider'} == 0 ? 1  # wider=0 right or straight so left=0
+            : 0);
+  }
+  *_NumSeq_Turn_LSR_max = \&_NumSeq_Turn_Left_max;
 
   use constant _NumSeq_Turn_oeis_anum =>
     { 'wider=1,n_start=-1' =>
       { Left => 'A000007', # turn Left=1 at N=0 only
         # catalogued only unless/until a better implementation
-        # OEIS-Catalogue: A000007 planepath=Corner,wider=1,n_start=-1 turn_type=Left
+        # OEIS-Catalogue: A000007 planepath=Corner,wider=1,n_start=-1
       },
       'wider=2,n_start=-1' =>
       { Left => 'A063524', # turn Left=1 at N=1 only
         # catalogued only unless/until a better implementation
-        # OEIS-Catalogue: A063524 planepath=Corner,wider=2,n_start=-1 turn_type=Left
+        # OEIS-Catalogue: A063524 planepath=Corner,wider=2,n_start=-1
       },
       'wider=3,n_start=-1' =>
       { Left => 'A185012', # turn Left=1 at N=2 only
         # catalogued only unless/until a better implementation
-        # OEIS-Catalogue: A185012 planepath=Corner,wider=3,n_start=-1 turn_type=Left
+        # OEIS-Catalogue: A185012 planepath=Corner,wider=3,n_start=-1
       },
       # A185013 Characteristic function of three.
       # A185014 Characteristic function of four.
@@ -1128,9 +1170,9 @@ sub characteristic_non_decreasing {
         'step=0,align=right,n_start=1'  => $href,
         'step=0,align=left,n_start=1'   => $href,
        );
-       # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=Left
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0
        # OEIS-Other: A000004 planepath=PyramidRows,step=0 turn_type=LSR
-       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=right turn_type=Left
+       # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=right
        # OEIS-Other: A000004 planepath=PyramidRows,step=0,align=left turn_type=LSR
      },
 
@@ -1142,9 +1184,9 @@ sub characteristic_non_decreasing {
         'step=1,align=right,n_start=0'  => $href,
         'step=1,align=left,n_start=0'   => $href,
        );
-       # OEIS-Other: A129184 planepath=PyramidRows,step=1,n_start=0 turn_type=Left
-       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=right,n_start=0 turn_type=Left
-       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=left,n_start=0 turn_type=Left
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,n_start=0
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=right,n_start=0
+       # OEIS-Other: A129184 planepath=PyramidRows,step=1,align=left,n_start=0
      },
      do {
        my $href= { Right => 'A023531',  # 1 at n==m*(m+3)/2
@@ -1251,7 +1293,7 @@ Math::NumSeq::PlanePathTurn -- turn sequence from PlanePath module
 
  use Math::NumSeq::PlanePathTurn;
  my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'DragonCurve',
-                                                   turn_type => 'Left');
+                                             turn_type => 'Left');
  my ($i, $value) = $seq->next;
 
 =head1 DESCRIPTION
@@ -1261,9 +1303,9 @@ form of a NumSeq sequence.
 
 The C<turn_type> choices are
 
-    "Left"     1=left 0=right or straight
+    "Left"     1=left  0=right or straight
     "Right"    1=right 0=left or straight
-    "LSR"      1=left 0=straight -1=right
+    "LSR"      1=left  0=straight -1=right
 
 In each case the value at i is the turn which occurs at N=i,
 
@@ -1271,13 +1313,20 @@ In each case the value at i is the turn which occurs at N=i,
              ^
              |
              |
-    i-1 ---> i    turn at i
-                  first turn at i = n_start + 1
+    i-1 ---> i     turn at i
+                   first turn at i = n_start + 1
 
-For multiple "arms" the turn follows that particular arm so it's
-i-arms, i, i+arms.  i values start C<n_start()+arms_count()> so that
-i-arms is C<n_start()>, the first N on the path.  A single arm path
-beginning N=0 has its first turn at i=1.
+For multiple "arms" the turn follows that particular arm so it's i-arms, i,
+i+arms.  i values start C<n_start()+arms_count()> so i-arms is C<n_start()>,
+the first N on the path.  A single arm path beginning N=0 has its first turn
+at i=1.
+
+In "LSR" straight means either straight ahead or 180-degree reversal,
+ie. the direction N to N+1 is along the same line as N-1 to N was.
+
+"Left" means to the left side of the N-1 to N line, not straight or right.
+Similarly "Right" means to the right side of the N-1 to N line, not straight
+or left.
 
 =head1 FUNCTIONS
 
@@ -1316,6 +1365,56 @@ This is C<$path-E<gt>n_start() - $path-E<gt>arms_count()> from the
 PlanePath object.
 
 =back
+
+=head1 FORMULAS
+
+=head2 Turn
+
+A turn left or right is identified by considering the dX,dY at N-1 and at N.
+
+    N+1      *
+             |   dx2,dy2
+             |
+             | 
+             | 
+    N        *
+            /   dx1,dy1
+           /
+          /
+    N-1  *
+
+With the two vectors dx1,dy1 and dx2,dy2 at a common origin, if the dx2,dy2
+is above the dx1,dy1 line then it's a turn to the left, or below is a turn
+to the right
+
+    dx2,dy2
+       * 
+       |   * dx1,dy1
+       |  /
+       | /
+       |/
+       o
+
+At dx2 the Y value of the dx1,dy1 vector is
+
+    cmpY = dx2 * dy1/dx1           if dx1 != 0
+
+    left if dy2 > cmpY
+            dy2 > dx2 * dy1/dx1
+       so   dy2 * dx1 > dx2 * dy1
+
+This comparison dy2*dx1 > dx2*dy1 works when dx1=0 too, ie. when dx1,dy1 is
+vertical
+
+    left if dy2 * 0 > dx2 * dy1
+                  0 > dx2*dy1
+    good, left if dx2 and dy1 opposite signs
+
+So
+
+    dy2*dx1 > dx2*dy1      left
+    dy2*dx1 < dx2*dy1      right
+    dy2*dx1 = dx2*dy1      straight, including 180 degree reverse
 
 =head1 SEE ALSO
 

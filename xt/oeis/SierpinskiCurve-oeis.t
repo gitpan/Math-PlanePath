@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,118 +35,61 @@ use Math::NumSeq::PlanePathTurn;
 #use Smart::Comments '###';
 
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
-
 #------------------------------------------------------------------------------
 # A081706 - N-1 positions of left turns
 
-{
-  my $anum = 'A081706';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $seq = Math::NumSeq::PlanePathTurn->new
-      (planepath => 'SierpinskiCurve',
-       turn_type => 'Left');
-    my @got;
-    for (my $n = $seq->i_start; @got < @$bvalues; $n++) {
-      my ($i,$value) = $seq->next;
-      if ($value) {  # if a left turn
-        push @got, $i-1;
-      }
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A081706',
+   func => sub {
+     my ($count) = @_;
+     my $seq = Math::NumSeq::PlanePathTurn->new
+       (planepath => 'SierpinskiCurve',
+        turn_type => 'Left');
+     my @got;
+     for (my $n = $seq->i_start; @got < $count; $n++) {
+       my ($i,$value) = $seq->next;
+       if ($value) {  # if a left turn
+         push @got, $i-1;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A039963 - turn 1=right,0=left
 # R,R L,L R,R
 
-{
-  my $anum = 'A039963';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $seq = Math::NumSeq::PlanePathTurn->new
-      (planepath => 'SierpinskiCurve',
-       turn_type => 'Right');
-    my @got;
-    for (my $n = $seq->i_start; @got < @$bvalues; $n++) {
-      push @got, $seq->ith($n);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A039963',
+   func => sub {
+     my ($count) = @_;
+     my $seq = Math::NumSeq::PlanePathTurn->new
+       (planepath => 'SierpinskiCurve',
+        turn_type => 'Right');
+     my @got;
+     for (my $n = $seq->i_start; @got < $count; $n++) {
+       push @got, $seq->ith($n);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A127254 - abs(dY) extra initial 1
 
-{
-  my $anum = 'A127254';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $seq = Math::NumSeq::PlanePathDelta->new
-      (planepath => 'SierpinskiCurve',
-       delta_type => 'AbsdY');
-    my @got = (1);
-    while (@got < @$bvalues) {
-      my ($i,$value) = $seq->next;
-      push @got, $value;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A127254',
+   func => sub {
+     my ($count) = @_;
+     my $seq = Math::NumSeq::PlanePathDelta->new
+       (planepath => 'SierpinskiCurve',
+        delta_type => 'AbsdY');
+     my @got = (1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 

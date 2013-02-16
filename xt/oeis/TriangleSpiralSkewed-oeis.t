@@ -18,6 +18,30 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# A214251 Sum of the eight nearest neighbors of n in a right triangular type-2 spiral with positive integers.
+# A214252 Sum of the eight nearest neighbors of n in a right triangular type-3 spiral with positive integers.
+
+# A217292 Permutation of natural numbers arising from applying the walk of right triangular type-2 spiral (defined in A214251) to the data of square spiral (e.g. A214526).
+# A217293 Permutation of natural numbers arising from applying the walk of right triangular type-3 spiral (defined in A214252) to the data of square spiral (e.g. A214526).
+
+# A217011 Permutation of natural numbers arising from applying the walk of a square spiral (e.g. A214526) to the data of right triangular type-2 spiral (defined in A214251).
+# A217012 Permutation of natural numbers arising from applying the walk of a square spiral (e.g. A214526) to the data of right triangular type-3 spiral (defined in A214252).
+
+# "type-2" skewed to the right
+#
+#   14   4
+#   13   3   5
+#   12   2   1   6
+#   11  10   9   8   7
+#
+# "type-3" diagonal first
+#    7  
+#    6   8
+#    5   1   9
+#    4   3   2  10
+
+
+
 use 5.004;
 use strict;
 use Test;
@@ -34,6 +58,50 @@ use Math::PlanePath::TriangleSpiralSkewed;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A214231 -- sum of 4 neighbouring N
+
+MyOEIS::compare_values
+  (anum => 'A214231',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::TriangleSpiralSkewed->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, ($path->xy_to_n($x+1,$y)
+                   + $path->xy_to_n($x-1,$y)
+                   + $path->xy_to_n($x,$y+1)
+                   + $path->xy_to_n($x,$y-1)
+                  );
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A214230 -- sum of 8 neighbouring N
+
+MyOEIS::compare_values
+  (anum => 'A214230',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::TriangleSpiralSkewed->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, ($path->xy_to_n($x+1,$y)
+                   + $path->xy_to_n($x-1,$y)
+                   + $path->xy_to_n($x,$y+1)
+                   + $path->xy_to_n($x,$y-1)
+                   + $path->xy_to_n($x+1,$y+1)
+                   + $path->xy_to_n($x-1,$y-1)
+                   + $path->xy_to_n($x-1,$y+1)
+                   + $path->xy_to_n($x+1,$y-1)
+                  );
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A081272 -- N on slope=2 SSE

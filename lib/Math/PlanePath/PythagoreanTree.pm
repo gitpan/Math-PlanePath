@@ -72,7 +72,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -809,26 +809,35 @@ Math::PlanePath::PythagoreanTree -- primitive Pythagorean triples by tree
 =head1 DESCRIPTION
 
 This path enumerates primitive Pythagorean triples by a breadth-first
-traversal of a ternary tree, either a "UAD" or "FB" tree.  Each point is an
-integer X,Y=A,B with integer hypotenuse, and is primitive in the sense that
-A and B have no common factor.
+traversal of a ternary tree, either "UAD" or "FB".  Each point is an integer
+X,Y=A,B with integer hypotenuse and which is primitive in the sense that A
+and B have no common factor.
 
-     A^2 + B^2 = C^2
-     gcd(A,B)=1  ie. no common factor
+     A^2 + B^2 = C^2    gcd(A,B)=1, no common factor
      X=A, Y=B
+
+        ^   *  ^
+       /   /|  |    right triangle
+      C   / |  B    A side, odd
+     /   /  |  |    B side, even
+    v   *---*  v    C hypotenuse
+
+        <-A->
 
 A primitive triple always has one of A,B odd and the other even.  The trees
 here give them ordered as A odd and B even.
 
-The breadth-first traversal goes out to rather large A,B values while yet to
-complete smaller ones.  The UAD tree goes out further than the FB.
+The trees are traversed breadth-first and goes out to rather large A,B
+values while yet to complete smaller ones.  The UAD tree goes out further
+than the FB.
 
 =head2 UAD Tree
 
 The UAD tree by Berggren (1934) and later independently by Barning (1963),
-Hall (1970), and several others, uses three matrices U, A and D which can be
-multiplied onto an existing primitive triple to form three new primitive
-triples.  See L</UAD Matrices> below for details of the descent.
+Hall (1970), and several other authors, uses three matrices U, A and D which
+can be multiplied onto an existing primitive triple to form three further
+new primitive triples.  See L</UAD Matrices> below for details of the
+descent.
 
     tree_type => "UAD"   (the default)
 
@@ -854,7 +863,7 @@ The starting point is N=1 at X=3,Y=4 which is the well-known 3^2 + 4^2 =
 each of those, etc,
 
     depth=0  depth=1    depth=2     depth=3
-     N=1     N=2..4      N=5..13     N=14...
+     N=1     N=2..4     N=5..13     N=14...
 
                       +-> 7,24
           +-> 5,12  --+-> 55,48
@@ -874,17 +883,17 @@ of a level, which is C<tree_depth_to_n()>, is at
     Nstart = 1 + (1 + 3 + 3^2 + ... + 3^(depth-1))
            = (3^depth + 1) / 2
 
-These N levels are like a mixed-radix representation of N where the high
-digit is binary and the digits below are ternary.
+The levels are like a mixed-radix representation of N where the high digit
+is binary and the digits below are ternary.
 
          +--------+---------+---------+--   --+---------+
     N =  | binary | ternary | ternary |  ...  | ternary |
          +--------+---------+---------+--   --+---------+
               1      0,1,2     0,1,2             0,1,2
 
-The high digit is non-zero and so is always 1.  The number of ternary digits
-is the "depth" and their value (dropping the high binary 1) is the position
-within that level.
+The high digit must be non-zero so is always 1.  The number of ternary
+digits is the "depth" and their value dropping the high binary 1 is the
+position within that level.
 
 =head2 A Repeatedly
 
@@ -897,7 +906,8 @@ are 1,3,9,27,etc = 3^depth.
 
 Taking the lower "D" matrix repeatedly gives 3,4 -E<gt> 15,8 -E<gt> 35,12
 -E<gt> 63,16, etc which is the primitives among a sequence of triples known
-to the ancients,
+to the ancients (Dickson's I<History of the Theory of Numbers>, start of
+chapter IV),
 
      A = k^2-1
      B = 2*k
@@ -913,26 +923,31 @@ C<tree_depth_to_n_end()>.
 Taking the upper "U" matrix repeatedly gives 3.4 -E<gt> 5,12 -E<gt> 7,24
 -E<gt> 9,40 etc with C=B+1.  These are the first of each level so at Nstart
 described above.  The resulting triples are a sequence known to Pythagoras
+(Dickson's I<History of the Theory of Numbers>, start of chapter IV).
 
-    x^2 + ((x^2-1)/2)^2  = ((x^2+1)/2)^2
-    so A=x, B=(x^2-1)/2, C=(x^2+1)/2
+           / k^2-1 \       / k^2+1 \
+    k^2 + | ------  |^2 = |  -----  |^2
+           \   2   /       \   2   /
 
-and described by X<Fibonacci>Fibonacci in his X<Liber Quadratorum>I<Liber
-Quadratorum> (X<Book of Squares>I<Book of Squares>) in terms of sums of odd
-numbers
+    A = k               k any odd integer
+    B = (k^2-1)/2         so A^2 any odd square
+    C = (k^2+1)/2
 
-    g = any odd square = A^2
-    B^2 = 1 + 3 + 5 + ... + g-2        = ((g-1)/2)^2
-    C^2 = 1 + 3 + 5 + ... + g-2 + g    = ((g+1)/2)^2
+This is also described by X<Fibonacci>Fibonacci in his
+X<Liber Quadratorum>I<Liber Quadratorum> (X<Book of Squares>I<Book of
+Squares>) in terms of sums of odd numbers
+
+    s = any odd square = A^2
+    B^2 = 1 + 3 + 5 + ... + s-2      = ((s-1)/2)^2
+    C^2 = 1 + 3 + 5 + ... + s-2 + s  = ((s+1)/2)^2
     so C^2 = A^2 + B^2
 
-    eg. g=25=A^2  B^2=((25-1)/2)^2=144  so A=5,B=12
+    eg. s=25=A^2  B^2=((25-1)/2)^2=144  so A=5,B=12
 
 The geometric interpretation is that an existing square of side B is
-extended by a X<Gnomon>"gnomon" around two sides (cf
-L<Math::PlanePath::Corner>) making a new larger square of side C=B+1.  If
-the length of the gnomon is a square then the total area is the sum of two
-squares.
+extended by a X<Gnomon>"gnomon" around two sides making a new larger square
+of side C=B+1.  If the length of the gnomon is a square then the new total
+area is the sum of two squares.
 
        *****gnomon********     gnomon length an odd square = A^2
        +---------------+ *
@@ -941,6 +956,8 @@ squares.
        |    side B     | *
        |               | *
        +---------------+ *
+
+See L<Math::PlanePath::Corner> for a path following such gnomons.
 
 =head2 FB Tree
 
@@ -1033,7 +1050,8 @@ X=A,Y=C.
           X=3 7 9   21      35   45  55   63     77
 
 Since AE<lt>C the coordinates are XE<lt>Y so all above the X=Y diagonal.
-The repeated "D" triples described with C=A+2 are just above the diagonal.
+The repeated "D" triples described with C=A+2 have Y=X+2 just above the
+diagonal.
 
 For the FB tree the set of points visited is the same, but with a different
 N numbering.
@@ -1069,7 +1087,7 @@ N numbering.
 
 Option C<coordinates =E<gt> 'BC'> gives the B and C legs of each triple as
 X=B,Y=C.  This is the B=even and C=long legs of all primitive triples.  This
-combination makes 45-degree straight lines.
+combination has points on 45-degree straight lines.
 
     coordinates => "BC"
 
@@ -1103,9 +1121,8 @@ combination makes 45-degree straight lines.
           X=4  12    24      40        60           84
 
 Since BE<lt>C the coordinates are XE<lt>Y and therefore above the X=Y
-leading diagonal.  N=1,2,5,14,41,etc along the X=Y-1 diagonal are the
-repeated "U" matrix triples C=B+1 which are the start of each depth level
-described above.
+leading diagonal.  N=1,2,5,14,41,etc along the X=Y-1 diagonal are "U"
+repeated making C=B+1 at the start of each depth level described above.
 
 For the FB tree the set of points visited is the same, but with a different
 N numbering.
@@ -1147,31 +1164,35 @@ occurs because a primitive triple A,B,C with A odd and B even can be written
     A^2 = C^2 - B^2
     A^2 = (C+B)*(C-B)
 
-    gcd(C+B,C-B)=1 because gcd(A,B)=1 and hence gcd(B,C)=1
+    gcd(A,B)=1 means gcd(C+B,C-B)=1 in this product,
+    and therefore gcd(B,C)=1
     so
     C+B = s^2     C = (s^2 + t^2)/2
     C-B = t^2     B = (s^2 - t^2)/2
 
-    s = odd integer >= 3
-    t = odd integer, and s > t >= 1
-    gcd(s,t)=1 so that gcd(C+B,C-B)=1
+      s = odd integer >= 3
+      t = odd integer, and s > t >= 1
+      with gcd(s,t)=1 so that gcd(C+B,C-B)=1
 
-If t=1 then any odd integer s gives a primitive triple.  These are the C=B+1
-repeated "U" matrix described above.  Further values of t give primitive
-triples so long as they have no common factor with s.  As t increases the
-B,C coordinate combination makes a line at a 45-degree angle upwards,
+When t=1 this is C=(s^2+1)/2 and B=(s^2-1)/2 which is the "U"-repeated
+points at Y=X+1.
+
+As t increases the B,C coordinate combination makes a line at a 45-degree
+angle upwards,
 
      C = B - t^2
-     so X+Y = t^2   opposite diagonal
+     so X+Y = t^2    line sloping 45-degrees
+                     position along line determined by s
 
-All primitive triples start from a C=B+1 for C=(s^2+1)/2, half an odd
-square, and go up from there for gcd(s,t)=1.
+All primitive triples start from a C=B+1 for C=(s^2+1)/2, which is half an
+odd square, and go up from there.  Must have gcd(s,t)=1 to ensure the
+resulting triple is primitive, and this means there are gaps in the lines.
 
 =head2 PQ Coordinates
 
 Primitive Pythagorean triples can be parameterized as follows for A odd and
 B even.  (As per Diophantus, and anonymous Arabic manuscript for
-constraining to primitive triples.)
+constraining it to primitive triples.)
 
     A = P^2 - Q^2
     B = 2*P*Q
@@ -1210,8 +1231,8 @@ through such coprime P,Q, and those methods would generate triples too, in a
 different order from the trees here.
 
 The letters P and Q here are a little bit arbitrary.  They're often written
-m,n or u,v, but don't want "n" to be confused that with the N point
-numbering or "u" to be confused with the U matrix in UAD.
+m,n or u,v but don't want "n" to be confused that with the N point numbering
+or "u" to be confused with the U matrix in UAD.
 
 =head2 Turn Right -- UAD Coordinates AB, AC, PQ
 
@@ -1229,9 +1250,10 @@ path turns to the right to go towards N=3.
          +-------------------------
             X=3               X=20
 
-This can be proved from the transformations applied to eight cases, an
-initial N=1,2,3, a plain triplet U,A,D then four crossing a gap within a
-level and two wrapping around at the end of a level.
+This can be proved from the transformations applied to seven cases, a
+triplet U,A,D, then four crossing a gap within a level, then two wrapping
+around at the end of a level.  The initial N=1,2,3 can be treated as a
+wrap-around from the end of depth=0.
 
     U        triplet U,A,D
     A
@@ -1260,8 +1282,8 @@ coordinates these powers are
     D^k    P,Q   ->  P+2k*Q, Q
 
 For AC coordinates squaring to stretch G=P^2,H=Q^2 doesn't change the turns.
-Then a rotate by -45 degrees to G-H,G+H also doesn't change the turns and is
-A=P^2-Q^2 and C=P^2+Q^2.
+Then a rotate by -45 degrees to G-H,G+H also doesn't change the turns and
+gives A=P^2-Q^2 and C=P^2+Q^2.
 
 =cut
 
@@ -1460,6 +1482,9 @@ roughly C<3**log2(x)>.
 
 =head2 Tree Methods
 
+X<Complete ternary tree>Each point has 3 children, so the path is a complete
+ternary tree.
+
 =over
 
 =item C<@n_children = $path-E<gt>tree_n_children($n)>
@@ -1467,9 +1492,9 @@ roughly C<3**log2(x)>.
 Return the three children of C<$n>, or an empty list if C<$n E<lt> 1>
 (ie. before the start of the path).
 
-This is simply C<3*$n-1, 3*$n, 3*$n+1>.  This is like appending an extra
-ternary digit to go to the next level, but onto N+1 rather than N and then
-adjusting back.
+This is simply C<3*$n-1, 3*$n, 3*$n+1>.  This is appending an extra ternary
+digit 0, 1 or 2 to the mixed-radix form for N described above.  Or staying
+all in ternary then appending to N+1 rather than N and adjusting back.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
@@ -1482,7 +1507,7 @@ Return the parent node of C<$n>, or C<undef> if C<$n E<lt>= 1> (the top of
 the tree).
 
 This is simply C<floor(($n+1)/3)>, reversing the C<tree_n_children()>
-calculation.
+calculation above.
 
 =item C<$depth = $path-E<gt>tree_n_to_depth($n)>
 
@@ -1498,6 +1523,23 @@ floor(log3(2N-1)), so for example N=5 through N=13 all have depth=2.
 
 Return the first or last N at tree level C<$depth> in the path, or C<undef>
 if nothing at that depth or not a tree.  The top of the tree is depth=0.
+
+=back
+
+=head2 Tree Descriptive Methods
+
+=over
+
+=item C<$num = $path-E<gt>tree_num_children_minimum()>
+
+=item C<$num = $path-E<gt>tree_num_children_maximum()>
+
+Return 3 since every node has 3 children, making that both the minimum and
+maximum.
+
+=item C<$bool = $path-E<gt>tree_any_leaf()>
+
+Return false, since there are no leaf nodes in the tree.
 
 =back
 

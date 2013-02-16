@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -680,18 +680,25 @@ path include
     step=1
       A002262    X coordinate, runs 0 to k
       A003056  	 Y coordinate, k repeated k+1 times
-      A025581  	 Y-X coordinate diff, runs k to 0
+      A051162    X+Y sum
+      A025581  	 Y-X diff, runs k to 0
       A079904    X*Y product
+      A069011    X^2+Y^2, n_to_rsquared()
       A080099    X bitwise-AND Y
       A080098    X bitwise-OR  Y
       A051933    X bitwise-XOR Y
+      A050873    GCD(X+1,Y+1) greatest common divisor by rows
+      A051173    LCM(X+1,Y+1) least common multiple by rows
 
       A023531    dY, being 1 at triangular numbers (but starting n=0)
       A167407    dX-dY, change in X-Y (extra initial 0)
+      A129184    1 at end of each row
 
       A079824    N total along each opposite diagonal
       A000124    N on Y axis (triangular+1)
       A000217    N on X=Y diagonal, extra initial 0
+    step=1, n_start=0
+      A109004    GCD(X,Y) greatest common divisor starting (0,0)
 
     step=2
       A196199    X coordinate, runs -n to +n
@@ -699,13 +706,26 @@ path include
       A053186    X+Y, being distance to next higher square
       A010052    dY,  being 1 at perfect square row end
       A000290    N on X=Y diagonal, extra initial 0
-      A002522    N on X=-Y North-West diagonal (n^2+1)
+      A002522    N on X=-Y North-West diagonal (start row), Y^2+1
       A004201    N for which X>=0, ie. right hand half
-
+    step=2, n_start=0
+      A005563    N on X=Y diagonal, Y*(Y+2)
+      A000290    N on X=-Y North-West diagonal (start row), Y^2
+    step=2, n_start=2
+      A059100    N on north-west diagonal (start each row), Y^2+2
+    step=2, align=right, n_start=0
+      A196199    X-Y, runs -k to +k
+      A053615    abs(X-Y), runs 0..k..0, distance to pronic
+    step=2, align=left, n_start=0
+      A005563    N on Y axis, Y*(Y+2)
+    
     step=3
       A180447    Y coordinate, n appears 3n+1 times
-      A104249    N on Y axis
+      A104249    N on Y axis, Y*(3Y+1)/2+1
       A143689    N on X=-Y North-West diagonal
+    step=3, n_start=0
+      A005449    N on Y axis, second pentagonals Y*(3Y+1)/2
+      A000326    N on diagonal north-west, pentagonals Y*(3Y-1)/2
 
     step=4
       A084849    N on Y axis
@@ -713,9 +733,11 @@ path include
       A058331    N on X=-Y North-West diagonal
     step=4, n_start=0
       A014105    N on Y axis, the second hexagonal numbers
+      A046092    N on X=Y diagonal, 4*triangular numbers
     step=4, align=right, n_start=0
       A060511    X coordinate, amount n exceeds hexagonal number
       A000384    N on Y axis, the hexagonal numbers
+      A001105    N on X=Y diagonal, 2*squares
 
     step=5
       A116668    N on Y axis

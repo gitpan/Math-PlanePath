@@ -25,7 +25,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -41,7 +41,7 @@ use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [ { name        => 'direction',
-      share_key   => 'direction_ud',
+      share_key   => 'direction_downup',
       display     => 'Direction',
       type        => 'enum',
       default     => 'down',
@@ -404,6 +404,7 @@ path include
       A025581  	 Y coordinate, runs k to 0
       A003056  	 X+Y coordinate sum, k repeated k+1 times
       A114327  	 Y-X coordinate diff
+      A101080    HammingDist(X,Y)
 
       A127949    dY, change in Y coordinate
 
@@ -412,19 +413,26 @@ path include
 
     direction=down, n_start=0
       A023531    dSum = dX+dY, being 1 at N=triangular+1 (and 0)
-      A129184    turn 1=left,0=right
       A000096    N on X axis, X*(X+3)/2
       A000217    N on Y axis, the triangular numbers
+      A129184    turn 1=left,0=right
+    direction=up, n_start=0
+      A129184    turn 0=left,1=right
 
-    likewise direction=up swapping X,Y
+    direction=up, n_start=-1
+      A023531    turn 1=left,0=right
+    direction=down, n_start=-1
+      A023531    turn 0=left,1=right
+
+    in direction=up the X,Y coordinate forms are the same but swap X,Y
 
     either direction, n_start=1
       A038722    permutation N at transpose Y,X
                    which is direction=down <-> direction=up
 
-    n_start=1, x_start=1, y_start+1, either direction
+    n_start=1, x_start=1, y_start=1, either direction
       A003991    X*Y coordinate product
-      A003989    GCD(X,Y) greatest common divisor
+      A003989    GCD(X,Y) greatest common divisor starting (1,1)
       A003983    min(X,Y)
       A051125    max(X,Y)
 
@@ -434,7 +442,7 @@ path include
       A003984    max(X,Y)
       A004247    X*Y coordinate product
       A048147    X^2+Y^2
-      A109004    GCD(X,Y) greatest common divisor
+      A109004    GCD(X,Y) greatest common divisor starting (0,0)
       A004198    X bit-and Y
       A003986    X bit-or Y
       A003987    X bit-xor Y

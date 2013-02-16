@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -286,6 +286,17 @@ sub branch_reduced_breadth_bits {
 
   return @ret, ((0) x $#pending_n);
 }
+
+# sub path_tree_n_branch_reduced_children {
+#   my ($path, $n) = @_;
+#   for (;;) {
+#     my @n_children = $path->tree_n_children($n);
+#     if (@n_children != 1) {
+#       return @n_children;
+#     }
+#     $n = $n_children[0];
+#   }
+# }
 
 # If $n has only 1 child then descend through it and any further
 # 1-child nodes to return an N which has 2 or more children.

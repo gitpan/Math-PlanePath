@@ -122,7 +122,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::LToothpickTree';
   $path_class = 'Math::PlanePath::ToothpickTreeByCells';
-  $path_class = 'Math::PlanePath::PeninsulaBridge';
   $path_class = 'Math::PlanePath::PythagoreanTree';
   $path_class = 'Math::PlanePath::AnvilSpiral';
   $path_class = 'Math::PlanePath::FilledRings';
@@ -130,23 +129,24 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::HexSpiralSkewed';
   $path_class = 'Math::PlanePath::TwoOfEightByCells';
   $path_class = 'Math::PlanePath::RationalsTree';
-  $path_class = 'Math::PlanePath::OneOfEightByCells';
   $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::OneOfEight';
   $path_class = 'Math::PlanePath::DivisibleColumns';
   $path_class = 'Math::PlanePath::CoprimeColumns';
   $path_class = 'Math::PlanePath::DiagonalRationals';
+  $path_class = 'Math::PlanePath::OneOfEightByCells';
+  $path_class = 'Math::PlanePath::PeninsulaBridge';
 
   my $lo = 0;
-  my $hi = 220;
+  my $hi = 50;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
      # divisor_type => 'proper',
-      n_start => 37,
+     # n_start => 37,
 
-     parts => 'side',
+     parts => '3side',
      # wider => 3,
      # coordinates => 'PQ',
      # reverse => 1,

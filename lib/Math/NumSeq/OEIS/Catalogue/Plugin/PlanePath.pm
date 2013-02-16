@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 177 A-numbers in 4 modules
+# total 184 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -792,6 +792,16 @@ use constant info_arrayref =>
       'DivisibleColumns,divisor_type=proper,n_start=2',
       'coordinate_type',
       'DiffXY'
+    ]
+  },
+  {
+    'anum' => 'A139351',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'CornerReplicate',
+      'coordinate_type',
+      'HammingDist'
     ]
   },
   {
@@ -1713,13 +1723,71 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A160410',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'LCornerTree',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
+    'anum' => 'A160412',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'LCornerTree,parts=3',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
+    'anum' => 'A151725',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OneOfEight',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
+    'anum' => 'A151735',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OneOfEight,parts=1',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
+    'anum' => 'A170880',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OneOfEight,parts=3mid',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
+    'anum' => 'A170879',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OneOfEight,parts=3side',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
     'anum' => 'A035263',
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'KochCurve',
-      'turn_type',
-      'Left'
+      'KochCurve'
     ]
   },
   {
@@ -1737,9 +1805,7 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'GosperSide',
-      'turn_type',
-      'Left'
+      'GosperSide'
     ]
   },
   {
@@ -1747,9 +1813,7 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'Diagonals,n_start=0',
-      'turn_type',
-      'Left'
+      'Diagonals,n_start=0'
     ]
   },
   {
@@ -1757,9 +1821,7 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'Corner,wider=1,n_start=-1',
-      'turn_type',
-      'Left'
+      'Corner,wider=1,n_start=-1'
     ]
   },
   {
@@ -1767,9 +1829,7 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'Corner,wider=2,n_start=-1',
-      'turn_type',
-      'Left'
+      'Corner,wider=2,n_start=-1'
     ]
   },
   {
@@ -1777,9 +1837,7 @@ use constant info_arrayref =>
     'class' => 'Math::NumSeq::PlanePathTurn',
     'parameters' => [
       'planepath',
-      'Corner,wider=3,n_start=-1',
-      'turn_type',
-      'Left'
+      'Corner,wider=3,n_start=-1'
     ]
   }
 ]

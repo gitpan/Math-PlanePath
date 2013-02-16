@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -945,6 +945,9 @@ C<$x,$y> then return C<undef>.
 
 =head2 Tree Methods
 
+X<Complete n-ary tree>Each point has k children, so the path is a complete
+k-ary tree.
+
 =over
 
 =item C<@n_children = $path-E<gt>tree_n_children($n)>
@@ -976,6 +979,23 @@ the tree is depth=0.
 
 =back
 
+=head2 Tree Descriptive Methods
+
+=over
+
+=item C<$num = $path-E<gt>tree_num_children_minimum()>
+
+=item C<$num = $path-E<gt>tree_num_children_maximum()>
+
+Return k since every node has k many children, making that both the minimum
+and maximum.
+
+=item C<$bool = $path-E<gt>tree_any_leaf()>
+
+Return false, since there are no leaf nodes in the tree.
+
+=back
+
 =head1 FORMULAS
 
 =head2 Tree Children
@@ -984,10 +1004,11 @@ For the default k=3 the children are
 
     3N+2, 3N+3, 3N+4        n_start=0
 
-If C<n_start=E<gt>1> then it instead becomes like appending an extra ternary
-digit, or base-k digit, so
+If C<n_start=E<gt>1> then instead
 
     3N, 3N+1, 3N+2                  n_start=1
+
+which is like appending an extra ternary digit, or base-k digit
 
     k*N, k*N+1, ... , k*N+(k-1)     n_start=1
 
@@ -1013,11 +1034,14 @@ For example in the default k=0 Nstart=1 the parent of N=3 is
 floor((3-1+1)/3).
 
 The post-adjustment can be worked into the formula with a (k-1)*(Nstart-1)
-similar to the children above, though the adjustment style above is more
-convenient to compare N-Nstart+1 E<gt>= k to see that N is past the top
-nodes and therefore has a parent.
+similar to the children above,
 
     parent = floor((N + (k-1)*(Nstart-1)) / k)
+
+The adjustment style is more convenient to compare to see that N is past the
+top nodes and therefore has a parent.
+
+    N-Nstart+1 >= k      to check N is past top-nodes
 
 =head2 Tree Depth
 
@@ -1026,9 +1050,9 @@ The structure of the tree means
     depth = floor(logk(N+1))    for n_start=0
 
 For example if k=3 then N=8 through N=25 all have depth=floor(log3(N+1))=2.
-With an C<n_start> it adjusts to
+With an C<n_start> it becomes
 
-    depth = floor(logk(N+1-Nstart)).
+    depth = floor(logk(N+1-Nstart))
 
 C<n_start=E<gt>1> is the simplest case, being the length of N written in
 base-k digits.
@@ -1041,11 +1065,11 @@ This tree is in Sloane's Online Encyclopedia of Integer Sequences as
 
     http://oeis.org/A191379   (etc)
 
-    n_start=0 k=3 (the defaults)
+    k=3, n_start=0 (the defaults)
       A191379   X coordinate
 
-As described above k=2 is the Calkin-Wilf tree, as per
-L<Math::PlanePath::RationalsTree/OEIS>.
+As noted above, k=2 is the Calkin-Wilf tree.  See
+L<Math::PlanePath::RationalsTree/OEIS> for "CW" related sequences.
 
 =head1 SEE ALSO
 

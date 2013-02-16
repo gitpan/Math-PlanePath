@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,7 +27,6 @@ use MyTestHelpers;
 MyTestHelpers::nowarnings();
 use MyOEIS;
 
-use Math::BigInt try => 'GMP';
 use Math::PlanePath::WythoffArray;
 
 # uncomment this to run the ### lines
@@ -38,90 +37,83 @@ sub BIGINT {
   return Math::NumSeq::PlanePathN::_bigint();
 }
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0;
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
+
+#------------------------------------------------------------------------------
+# A188436 -- [3r]-[nr]-[3r-nr], where r=(1+sqrt(5))/2 and []=floor.
+# positions of right turns
+
+MyOEIS::compare_values
+  (anum => 'A188436',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'WythoffArray',
+                                                 turn_type => 'Right');
+     my @got = (0,0,0,0,0);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+use constant PHI => (1 + sqrt(5)) / 2;
+use POSIX 'floor';
+sub A188436_func {
+  my ($n) = @_;
+  floor(3*PHI) - floor($n*PHI)-floor(3*PHI-$n*PHI);
 }
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
+{
+  require Math::NumSeq::PlanePathTurn;
+  my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'WythoffArray',
+                                              turn_type => 'Right');
+  my $bad = 0;
+  foreach (1 .. 50000) {
+    my ($i,$seq_value) = $seq->next;
+    my $func_value = A188436_func($i+4);
+    if ($func_value != $seq_value) {
+      print "$i  seq=$seq_value func=$func_value\n";
+      last if $bad++ > 20;
     }
   }
-  return undef;
+  ok (0, $bad);
 }
+# [3r]-[(n+4)r]-[3r-(n+4)r]
+# = [3r]-[(n+4)r]-[3r-nr-4r]
+# = [3r]-[nr+4r]-[-r-nr]
+# some of Y axis  4,12,17,25,33,38,46
+  
 
 #------------------------------------------------------------------------------
 # A000045 -- N on X axis, Fibonacci numbers
-{
-  my $anum = 'A000045';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0,1); # initial skipped
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $x = BIGINT()->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x, 0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A000045',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got = (0,1); # initial skipped
+     for (my $x = BIGINT()->new(0); @got < $count; $x++) {
+       push @got, $path->xy_to_n ($x, 0);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A005248 -- every second N on Y=1 row, every second Lucas number
-{
-  my $anum = q{A005248};
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (2,3); # initial skipped
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $x = BIGINT()->new(1); @got < @$bvalues; $x+=2) {
-      push @got, $path->xy_to_n ($x, 1);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => q{A005248},
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got = (2,3); # initial skipped
+     for (my $x = BIGINT()->new(1); @got < $count; $x+=2) {
+       push @got, $path->xy_to_n ($x, 1);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # N on columns
@@ -133,23 +125,18 @@ foreach my $elem ([ 'A035337', 2 ],
                   [ 'A035340', 5 ],
                  ) {
   my ($anum, $x, %options) = @$elem;
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => undef);
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    my @got = @{$options{'extra_initial'}||[]};
-    for (my $y = BIGINT()->new(0); @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n ($x, $y);
-    }
-    $diff = diff_nums(\@got,$bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum column X=$x");
+
+  MyOEIS::compare_values
+      (anum => $anum,
+       func => sub {
+         my ($count) = @_;
+         my $path = Math::PlanePath::WythoffArray->new;
+         my @got = @{$options{'extra_initial'}||[]};
+         for (my $y = BIGINT()->new(0); @got < $count; $y++) {
+           push @got, $path->xy_to_n ($x, $y);
+         }
+         return \@got;
+       });
 }
 
 #------------------------------------------------------------------------------
@@ -187,382 +174,272 @@ foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
                   [ 'A022092', 27, extra_initial=>[0,9,9,18,27,45], ],
                  ) {
   my ($anum, $y, %options) = @$elem;
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => undef);
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    my @got = @{$options{'extra_initial'}||[]};
-    for (my $x = BIGINT()->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x, $y);
-    }
-    $diff = diff_nums(\@got,$bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum row Y=$y");
+
+  MyOEIS::compare_values
+      (anum => $anum,
+       func => sub {
+         my ($count) = @_;
+         my $path = Math::PlanePath::WythoffArray->new;
+         my @got = @{$options{'extra_initial'}||[]};
+         for (my $x = BIGINT()->new(0); @got < $count; $x++) {
+           push @got, $path->xy_to_n ($x, $y);
+         }
+         return \@got;
+       });
 }
 
 #------------------------------------------------------------------------------
 # A064274 -- inverse perm of by diagonals up from X axis
-{
-  my $anum = 'A064274';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (0);  # extra 0
-    require Math::PlanePath::Diagonals;
-    my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
-    my $wythoff = Math::PlanePath::WythoffArray->new;
-    for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $wythoff->n_to_xy ($n);
-      $x = BIGINT()->new($x);
-      $y = BIGINT()->new($y);
-      push @got, $diagonals->xy_to_n($x,$y);
-    }
-    $diff = diff_nums(\@got,$bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A064274',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
+     my $wythoff = Math::PlanePath::WythoffArray->new;
+     my @got = (0);  # extra 0
+     for (my $n = $diagonals->n_start; @got < $count; $n++) {
+       my ($x, $y) = $wythoff->n_to_xy ($n);
+       $x = BIGINT()->new($x);
+       $y = BIGINT()->new($y);
+       push @got, $diagonals->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A035612 -- X coord, starting 1
-{
-  my $anum = 'A035612';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x+1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A035612',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x+1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A035614 -- X coord, starting 0
-{
-  my $anum = 'A035614';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A035614',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A003603 -- Y+1 coord
-{
-  my $anum = 'A003603';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y+1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A003603',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y+1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A139764 -- lowest Zeckendorf term fibonacci value,
 #   is N on X axis for the column containing n
-{
-  my $anum = 'A139764';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $path->xy_to_n($x,0);   # down to axis
-    }
-    $diff = diff_nums(\@got,$bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A139764',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n($x,0);   # down to axis
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A003849 -- Fibonacci word
-{
-  my $anum = 'A003849';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      push @got, ($x == 0 ? 1 : 0);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A003849',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got = (0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy($n);
+       push @got, ($x == 0 ? 1 : 0);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A000201 -- N+1 for N not on Y axis, spectrum of phi
-{
-  my $anum = 'A000201';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (1);
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      if ($x != 0) {
-        push @got, $n+1;
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A000201',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got = (1);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy($n);
+       if ($x != 0) {
+         push @got, $n+1;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A022342 -- N not on Y axis, even Zeckendorfs
-{
-  my $anum = 'A022342';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      if ($x != 0) {
-        push @got, $n;
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A022342',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got = (0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy($n);
+       if ($x != 0) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A001950 -- N+1 of the N's on Y axis, spectrum
-{
-  my $anum = 'A001950';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      my $n = $path->xy_to_n(0,$y);
-      push @got, $n+1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A001950',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y++) {
+       my $n = $path->xy_to_n(0,$y);
+       push @got, $n+1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A083412 -- by diagonals, down from Y axis
-{
-  my $anum = 'A083412';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    require Math::PlanePath::Diagonals;
-    my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'down');
-    my $wythoff = Math::PlanePath::WythoffArray->new;
-    for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $diagonals->n_to_xy ($n);
-      push @got, $wythoff->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A083412',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'down');
+     my $wythoff = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $diagonals->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagonals->n_to_xy ($n);
+       push @got, $wythoff->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A035513 -- by diagonals, up from X axis
-{
-  my $anum = 'A035513';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    require Math::PlanePath::Diagonals;
-    my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
-    my $wythoff = Math::PlanePath::WythoffArray->new;
-    for (my $n = $diagonals->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $diagonals->n_to_xy ($n);
-      $x = BIGINT()->new($x);
-      $y = BIGINT()->new($y);
-      push @got, $wythoff->xy_to_n($x,$y);
-    }
-    $diff = diff_nums(\@got,$bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+
+MyOEIS::compare_values
+  (anum => 'A035513',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $diagonals  = Math::PlanePath::Diagonals->new (direction => 'up');
+     my $wythoff = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $diagonals->n_start; @got < $count; $n++) {
+       my ($x, $y) = $diagonals->n_to_xy ($n);
+       $x = BIGINT()->new($x);
+       $y = BIGINT()->new($y);
+       push @got, $wythoff->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A000204 -- N on Y=1 row, Lucas numbers
 # cf A000032 starting 2,1
-{
-  my $anum = 'A000204';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
-                                                      max_count => 150);
-  my @got = (1, 3); # initial skipped
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $x = BIGINT()->new(0); @got < @$bvalues; $x++) {
-      push @got, $path->xy_to_n ($x, 1);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A000204',
+   max_count => 150,
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got = (1, 3); # initial skipped
+     for (my $x = BIGINT()->new(0); @got < $count; $x++) {
+       push @got, $path->xy_to_n ($x, 1);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A035336 -- N in X=1 column (and A066097 is a duplicate)
-{
-  my $anum = 'A035336';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n (1, $y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => 'A035336',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n (1, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A003622 -- N on Y axis (though OFFSET=1)
-{
-  my $anum = 'A003622';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n (0, $y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+# A003622 -- N on Y axis, but OFFSET=1
+
+MyOEIS::compare_values
+  (anum => 'A003622',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, $path->xy_to_n (0, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A020941 -- N on X=Y diagonal
-{
-  my $anum = 'A020941';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::WythoffArray->new;
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n ($i,$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+# A020941 -- N on X=Y diagonal, but OFFSET=1
+
+MyOEIS::compare_values
+  (anum => 'A020941',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, $path->xy_to_n ($i,$i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

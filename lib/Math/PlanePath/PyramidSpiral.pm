@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -252,6 +252,16 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
     A033951    N on South-East diagonal, 4n^2 + 3n + 1
 
     A214250    sum N of eight surrounding cells
+
+    A217013    permutation N by points in SquareSpiral order
+                 rotated +90 degrees, N value of PyramidSpiral there
+    A217294    permutation N by points in PyramidSpiral order
+                 rotated -90 degrees, N value of SquareSpiral there
+
+In the two permutations the pyramid spiral is conceived as starting to the
+left and the square spiral starting upwards.  The paths here start in the
+same direction (both to the right), hence rotate 90 to adjust the
+orientation.
 
 =head1 SEE ALSO
 

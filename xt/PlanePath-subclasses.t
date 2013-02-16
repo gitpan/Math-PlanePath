@@ -35,6 +35,14 @@ require Math::PlanePath;
 my $verbose = 1;
 
 my @modules = (
+               # 'PeninsulaBridge',
+               # 'OneOfEight',
+               # 'OneOfEight,parts=4',
+               # 'OneOfEight,parts=1',
+               # 'OneOfEight,parts=octant',
+               # 'OneOfEight,parts=3mid',
+               # 'OneOfEight,parts=3side',
+
                # 'ToothpickUpist',
 
                # 'ToothpickTree',
@@ -55,6 +63,28 @@ my @modules = (
                # 'LCornerReplicate',
 
                # module list begin
+
+               'HexSpiral',
+               'HexSpiral,n_start=0',
+               'HexSpiral,n_start=37',
+               'HexSpiral,wider=10,n_start=37',
+               'HexSpiral,wider=1',
+               'HexSpiral,wider=2',
+               'HexSpiral,wider=3',
+               'HexSpiral,wider=4',
+               'HexSpiral,wider=5',
+               'HexSpiral,wider=37',
+
+               'HexSpiralSkewed',
+               'HexSpiralSkewed,n_start=0',
+               'HexSpiralSkewed,n_start=37',
+               'HexSpiralSkewed,wider=10,n_start=37',
+               'HexSpiralSkewed,wider=1',
+               'HexSpiralSkewed,wider=2',
+               'HexSpiralSkewed,wider=3',
+               'HexSpiralSkewed,wider=4',
+               'HexSpiralSkewed,wider=5',
+               'HexSpiralSkewed,wider=37',
 
                'VogelFloret',
 
@@ -102,28 +132,6 @@ my @modules = (
                'DivisibleColumns',
                'DivisibleColumns,n_start=37',
                'DivisibleColumns,divisor_type=proper',
-
-               'HexSpiral',
-               'HexSpiral,n_start=0',
-               'HexSpiral,n_start=37',
-               'HexSpiral,wider=10,n_start=37',
-               'HexSpiral,wider=1',
-               'HexSpiral,wider=2',
-               'HexSpiral,wider=3',
-               'HexSpiral,wider=4',
-               'HexSpiral,wider=5',
-               'HexSpiral,wider=37',
-
-               'HexSpiralSkewed',
-               'HexSpiralSkewed,n_start=0',
-               'HexSpiralSkewed,n_start=37',
-               'HexSpiralSkewed,wider=10,n_start=37',
-               'HexSpiralSkewed,wider=1',
-               'HexSpiralSkewed,wider=2',
-               'HexSpiralSkewed,wider=3',
-               'HexSpiralSkewed,wider=4',
-               'HexSpiralSkewed,wider=5',
-               'HexSpiralSkewed,wider=37',
 
                'FilledRings',
                'FilledRings,n_start=0',
@@ -615,7 +623,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 98;
+my $want_version = 99;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

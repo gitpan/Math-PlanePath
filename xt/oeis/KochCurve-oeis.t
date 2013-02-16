@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -103,7 +103,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 1) {
         push @got, 0; # left
@@ -132,7 +132,7 @@ sub xy_left_right {
   my @got;
   if ($bvalues) {
     @$bvalues = map {abs} @$bvalues;
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 1) {
         push @got, 1; # left
@@ -161,7 +161,7 @@ sub xy_left_right {
   my @got;
   if ($bvalues) {
     @$bvalues = map {abs} @$bvalues;
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 1) {
         push @got, 1; # left
@@ -189,7 +189,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 1) {
         push @got, $n; # left
@@ -213,7 +213,7 @@ sub xy_left_right {
   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
   my @got;
   if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn6($koch,$n);
       if ($turn == 4) {
         push @got, $n; # right

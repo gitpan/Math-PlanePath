@@ -66,7 +66,7 @@ MyOEIS::compare_values
    func => sub {
      my ($count) = @_;
      my @got;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
        my $turn = path_n_turn($path,$n);
        if ($turn == 1 || $turn == 3) { # left or right
          push @got, $n;
@@ -83,7 +83,7 @@ MyOEIS::compare_values
    func => sub {
      my ($count) = @_;
      my @got;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
        my $turn = path_n_turn($path,$n);
        if ($turn == 0 || $turn == 2) { # straight or reverse
          push @got, $n;
@@ -105,7 +105,7 @@ MyOEIS::compare_values
      my ($count) = @_;
      my @got;
      my $total_turn = 0;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
        push @got, (1 - path_n_turn($path,$n)) % 4;  # negate to right
      }
      return \@got;
@@ -124,7 +124,7 @@ MyOEIS::compare_values
      my ($count) = @_;
      my @got = (0);
      my $total_turn = 0;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
        $total_turn += path_n_turn($path,$n);
        push @got, $total_turn % 4;
      }

@@ -34,12 +34,12 @@ use Math::PlanePath;
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest',
-  'xy_is_visited_even';
+  'xy_is_even';
 use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -228,7 +228,7 @@ sub xy_is_visited {
   my ($self, $x, $y) = @_;
   return 0;
   if ($self->{'arms'} == 6) {
-    return xy_is_visited_even($self,$x,$y);
+    return xy_is_even($self,$x,$y);
   } else {
     return defined($self->xy_to_n($x,$y));
   }

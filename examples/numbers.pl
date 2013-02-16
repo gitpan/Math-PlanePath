@@ -349,6 +349,13 @@ my @all_classes = ('SquareSpiral',
                    '*LCornerTree,parts=1',
                    
                    '*LCornerReplicate',
+
+                   '*OneOfEight',
+                   '*OneOfEight,parts=4',
+                   '*OneOfEight,parts=1',
+                   '*OneOfEight,parts=octant',
+                   '*OneOfEight,parts=3mid',
+                   '*OneOfEight,parts=3side',
                   );
 # expand arg "all" to full list
 @ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;

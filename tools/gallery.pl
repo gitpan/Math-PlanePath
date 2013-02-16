@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -43,7 +43,6 @@ my %seen_filename;
 
 foreach my $elem
   (
-
    ['rationals-tree-lines-ayt.png',
     'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-hcs.png',
@@ -63,6 +62,21 @@ foreach my $elem
    ['rationals-tree-lines-drib.png',
     'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree --scale=20 --size=200'],
 
+
+   ['one-of-eight-1-nonleaf.png',
+    'math-image --path=OneOfEight,parts=1 --values=PlanePathCoord,planepath=\"OneOfEight,parts=1\",coordinate_type=IsNonLeaf --scale=3 --size=99'],
+   ['one-of-eight-small.png',
+    'math-image --path=OneOfEight --values=LinesTree --scale=4 --size=32'],
+   ['one-of-eight-big.png',
+    'math-image --path=OneOfEight --values=LinesTree --scale=6 --size=200'],
+   ['one-of-eight-1.png',
+    'math-image --path=OneOfEight,parts=1 --all --scale=3 --size=99'],
+   ['one-of-eight-octant.png',
+    'math-image --path=OneOfEight,parts=octant --all --scale=3 --size=99'],
+   ['one-of-eight-3mid.png',
+    'math-image --path=OneOfEight,parts=3mid --all --scale=3 --size=99'],
+   ['one-of-eight-3side.png',
+    'math-image --path=OneOfEight,parts=3side --all --scale=3 --size=99'],
 
    ['koch-curve-small.png',
     'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8'],

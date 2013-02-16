@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -372,7 +372,7 @@ Math::PlanePath::QuadricIslands -- quadric curve rings
 
 =head1 DESCRIPTION
 
-This is concentric islands made from four sides of the QuadricCurve,
+This is concentric islands made from four sides of the C<QuadricCurve>,
 
                                   27--26                     3
                                    |   |

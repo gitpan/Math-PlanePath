@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 21)[1];
+my $test_count = (tests => 29)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -50,6 +50,35 @@ require Math::NumSeq::PlanePathCoord;
     my ($self, $n) = @_;
     return ($self->{'x'},$self->{'y'});
   }
+}
+
+#------------------------------------------------------------------------------
+# _coordinate_func_IntXY()
+# _coordinate_func_FracXY()
+
+{
+  my $path = MyPlanePath->new;
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath_object => $path);
+
+  $path->{'x'} = 11;
+  $path->{'y'} = 2;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_IntXY($seq,0), 5);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_FracXY($seq,0), 1/2);
+
+  $path->{'x'} = -11;
+  $path->{'y'} = 2;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_IntXY($seq,0), -5);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_FracXY($seq,0), -1/2);
+
+  $path->{'x'} = 11;
+  $path->{'y'} = -2;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_IntXY($seq,0), -5);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_FracXY($seq,0), -1/2);
+
+  $path->{'x'} = -11;
+  $path->{'y'} = -2;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_IntXY($seq,0), 5);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_FracXY($seq,0), 1/2);
 }
 
 #------------------------------------------------------------------------------

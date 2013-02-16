@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -483,7 +483,7 @@ sub dxdy_to_dir {
   my @got;
   if ($bvalues) {
     push @got, 1;
-    for (my $n = 1; @got < @$bvalues; $n++) {
+    for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == 1) {
         push @got, 1;  # left

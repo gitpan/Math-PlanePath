@@ -52,7 +52,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -450,54 +450,52 @@ sub n_to_dxdy {
   return ($dx, $dy);
 }
 
-# UNTESTED
-#
-# sub _n_to_dir6 {
-#   my ($self, $n) = @_;
-#   if ($n < 0) {
-#     return undef;  # first direction at N=0
-#   }
-#   if (is_infinite($n)) {
-#     return ($n,$n);
-#   }
-#   return (sum (map {$digit_to_dir[$_]} digit_split_lowtohigh($n,4))
-#           || 0) # if empty
-#     % 6;
-# }
-#
-# my @digit_to_Turn6 = (undef,
-#                       1,  # +60 degrees
-#                       -2, # -120 degrees
-#                       1); # +60 degrees
-# sub _n_to_Turn6 {
-#   my ($self, $n) = @_;
-#   if (is_infinite($n)) {
-#     return undef;
-#   }
-#   while ($n) {
-#     my $digit = _divrem_mutate($n,4);
-#     if ($digit) {
-#       # lowest non-zero digit
-#       return $digit_to_Turn6[$digit];
-#     }
-#   }
-#   return 0;
-# }
-# sub _n_to_LSR {
-#   my ($self, $n) = @_;
-#   my $turn6 = $self->_n_to_Turn6($n) || return undef;
-#   return ($turn6 > 0 ? 1 : -1);
-# }
-# sub _n_to_Left {
-#   my ($self, $n) = @_;
-#   my $turn6 = $self->_n_to_Turn6($n) || return undef;
-#   return ($turn6 > 0 ? 1 : 0);
-# }
-# sub _n_to_Right {
-#   my ($self, $n) = @_;
-#   my $turn6 = $self->_n_to_Turn6($n) || return undef;
-#   return ($turn6 < 0 ? 1 : 0);
-# }
+sub _UNTESTED__n_to_dir6 {
+  my ($self, $n) = @_;
+  if ($n < 0) {
+    return undef;  # first direction at N=0
+  }
+  if (is_infinite($n)) {
+    return ($n,$n);
+  }
+  return (sum (map {$digit_to_dir[$_]} digit_split_lowtohigh($n,4))
+          || 0) # if empty
+    % 6;
+}
+
+my @n_to_turn6 = (undef,
+                      1,  # +60 degrees
+                      -2, # -120 degrees
+                      1); # +60 degrees
+sub _UNTESTED__n_to_turn6 {
+  my ($self, $n) = @_;
+  if (is_infinite($n)) {
+    return undef;
+  }
+  while ($n) {
+    my $digit = _divrem_mutate($n,4);
+    if ($digit) {
+      # lowest non-zero digit
+      return $n_to_turn6[$digit];
+    }
+  }
+  return 0;
+}
+sub _UNTESTED__n_to_turn_LSR {
+  my ($self, $n) = @_;
+  my $turn6 = $self->_UNTESTED__n_to_turn6($n) || return undef;
+  return ($turn6 > 0 ? 1 : -1);
+}
+sub _UNTESTED__n_to_turn_left {
+  my ($self, $n) = @_;
+  my $turn6 = $self->_UNTESTED__n_to_turn6($n) || return undef;
+  return ($turn6 > 0 ? 1 : 0);
+}
+sub _UNTESTED__n_to_turn_right {
+  my ($self, $n) = @_;
+  my $turn6 = $self->_UNTESTED__n_to_turn6($n) || return undef;
+  return ($turn6 < 0 ? 1 : 0);
+}
 
 1;
 __END__

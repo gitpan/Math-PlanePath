@@ -16,8 +16,21 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# diagonals_down even/odd in wedges, and other modulo
+# A003989 diagonals from (1,1)
+# A109004        0,1,1,2,1,2,3,1,1,3,4,1,2,1,4,5,1,1,1,1
+#  gcd by diagonals (0,0)=0
+#                   (1,0)=1 (0,1)=1
+#                   (2,0)=2 (1,1)=1 (0,2)=2
+# A050873 gcd rows n>=1, k=1..n
+#            1,1,2,1,1,3,1,2,1,4,1,1,1,1,5,1,2,3,2,1,6,1,1,1,
+# add        0,1,0,1,1,0,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0  A023532 0 at m(m+3)/2
+# IntXY      1,0,2,0,0,3,0,1,0,4,0,0,0,0,5,0,1,2,1,0,6,
+# IntXY+1    2,1,3,1,1,4,1,2,1,5,1,1,1,1,6,1,2,3,2,1,7
+# diff       1,0,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1   A023531
+# A178340  1,2,1,3,1,1,4,1,2,1,5,1,1,1,1,6,1,2,3,2,1,7,1,1 Bernoulli
+#   T(n,m) = A003989(n-m+1,m) m>=1, except when factor cancels
 
+# diagonals_down even/odd in wedges, and other modulo
 
 # math-image --path=GcdRationals --expression='i<30*31/2?i:0' --text --size=40
 # math-image --path=GcdRationals --output=numbers --expression='i<100?i:0'
@@ -56,7 +69,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -111,7 +124,7 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  # FIXME: what to do for fractional $n?
+  # what to do for fractional $n?
   {
     my $int = int($n);
     if ($n != $int) {
@@ -937,61 +950,63 @@ Create and return a new path object.  The C<pairs_order> option can be
 
 The defining formula above for X,Y can be inverted to give i,j and N.  This
 calculation doesn't notice if X,Y have a common factor, so a coprime(X,Y)
-test must be made separately if necessary (which for C<xy_to_n()> it is).
+test must be made separately if necessary (for C<xy_to_n()> it is).
 
     X/Y = g-1 + (i/g)/(j/g)
 
 The g-1 integer part is recovered by a division X divide Y,
 
-=cut
-
-# This is "p" for the quotient since q is a bit too close to g.
-# Would some other letter be better.  
-
-=pod
-
-    X = Y*p + r        division by Y to p=quotient r=remainder
-      where 0<=r<Y
-      unless Y=1 in which case use r=1, p=X-1
-    g-1 = p
-    g = p+1
+    X = quot*Y + rem   division by Y rounded towards 0
+      where 0 <= rem < Y
+      unless Y=1 in which case use quot=X-1, rem=1
+    g-1 = quot
+    g = quot+1
 
 The Y=1 special case can instead be left as the usual kind of division
-r=0,p=X, so 0E<lt>=rE<lt>Y.  This ends up i=0 below which is outside the
+quot=X,rem=0, so 0E<lt>=remE<lt>Y.  This will give i=0 which is outside the
 intended 1E<lt>=iE<lt>=j range, but j is 1 bigger and the combination still
 gives the correct N.  It's as if the i=g,j=g point at the end of a row is
 moved to i=0,j=g+1 just before the start of the next row.  If only N is of
-interest not the i,j as such then it can be left r=0.
+interest not the i,j then it can be left rem=0.
 
 Equating the denominators in the X/Y formula above gives j by
 
     Y = j/g          the definition above
 
     j = g*Y
-      = (p+1)*Y
-    j = X+Y-r        per the division X=p*Y+r
+      = (quot+1)*Y
+    j = X+Y-rem      per the division X=quot*Y+rem
 
 And equating the numerators gives i by
 
     X = (g-1)*Y + i/g     the definition above
 
     i = X*g - (g-1)*Y*g
-      = X*g - p*Y*g
-      = X*g - (X-r)*g     per the division X=p*Y+r
-    i = r*g
-    i = r*(p+1)
+      = X*g - quot*Y*g
+      = X*g - (X-rem)*g     per the division X=quot*Y+rem
+    i = rem*g
+    i = rem*(quot+1)
 
 Then N from i,j by the definition above
 
     N = i + j*(j-1)/2
 
-For example X=11,Y=4 divides X/Y as 11=4*2+3 for p=2,r=3 so i=3*(2+1)=9
+For example X=11,Y=4 divides X/Y as 11=4*2+3 for quot=2,rem=3 so i=3*(2+1)=9
 j=11+4-3=12 and so N=9+12*11/2=75 (as shown in the first table above).
 
-It's possible to use only the quotient p, not the remainder r, by taking
-j=(p+1)*Y instead of j=X+Y-r, but usually a division operation gives the
-remainder at no extra cost, or a cost small enough that it's worth it to
-swap a multiply for an add or two.
+It's possible to use only the quotient p, not the remainder rem, by taking
+j=(quot+1)*Y instead of j=X+Y-rem, but usually a division operation gives
+the remainder at no extra cost, or a cost small enough that it's worth
+swapping a multiply for an add or two.
+
+The gcd g can be recovered by rounding up in the division, instead of
+rounding down and then incrementing with g=quot+1.
+
+   g = ceil(X/Y)
+     = cquot for division X=cquot*Y - crem
+
+But division in most programming languages is towards 0 or towards
+-infinity, not upwards towards +infinity.
 
 =head2 X,Y to N -- Rows Reverse
 
@@ -1001,14 +1016,14 @@ can be worked into the triangular part of the N formula as
     Nrrev = (j-i+1) + j*(j-1)/2        for 1<=i<=j
           = j*(j+1)/2 - i + 1
 
-The Y=1 case described above cannot be left to go through with r=0 giving
-i=0 and j+1 since the reversal j-i+1 is then not correct.  Either use r=1 as
-described, or if not then compensate at the end,
+The Y=1 case described above cannot be left to go through with rem=0 giving
+i=0 and j+1 since the reversal j-i+1 is then not correct.  Either use rem=1
+as described, or if not then compensate at the end,
 
     if r=0 then j -= 2            adjust
     Nrrev = j*(j+1)/2 - i + 1     same Nrrev as above
 
-For example X=5,Y=1 is r=0,p=5 gives i=0*(5+1)=0 j=5+1-0=6.  Without
+For example X=5,Y=1 is quot=5,rem=0 gives i=0*(5+1)=0 j=5+1-0=6.  Without
 adjustment it would be Nrrev=6*7/2-0+1=22 which is wrong.  But adjusting
 j-=2 so that j=6-2=4 gives the desired Nrrev=4*5/2-0+1=11 (per the table in
 L</Rows Reverse> above).
@@ -1050,17 +1065,20 @@ Sequences in the following forms
     http://oeis.org/A054531   (etc)
 
     pairs_order="rows" (the default)
-      A054531  Y coordinate, being N/GCD(i,j)
-      A000124  N in X=1 column, triangular+1
+      A054531   Y coordinate, being N/GCD(i,j)
+      A000124   N in X=1 column, triangular+1
+      A050873   ceil(X/Y), gcd by rows
+      A050873-A023532  floor(X/Y)
+                gcd by rows and subtract 1 unless i=j
 
     pairs_order="diagonals_down"
-      A033638  N in X=1 column, quartersquares+1 and pronic+1
-      A000290  N in Y=1 row, perfect squares
+      A033638   N in X=1 column, quartersquares+1 and pronic+1
+      A000290   N in Y=1 row, perfect squares
 
     pairs_order="diagonals_up"
-      A002620  N in X=1 column, squares and pronics
-      A002061  N in Y=1 row, central polygonals (extra initial 1)
-      A002522  N at Y=X+1 above leading diagonal, squares+1
+      A002620   N in X=1 column, squares and pronics
+      A002061   N in Y=1 row, central polygonals (extra initial 1)
+      A002522   N at Y=X+1 above leading diagonal, squares+1
 
 =head1 SEE ALSO
 

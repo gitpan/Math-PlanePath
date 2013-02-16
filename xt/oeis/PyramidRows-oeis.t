@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -89,6 +89,61 @@ sub diff_nums {
   }
   return $diff;
 }
+
+#------------------------------------------------------------------------------
+# A050873 -- step=1 GCD(X+1,Y+1) by rows
+
+MyOEIS::compare_values
+  (anum => 'A050873',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::GcdRationals;
+     my $path = Math::PlanePath::PyramidRows->new (step => 1);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, Math::PlanePath::GcdRationals::_gcd($x+1,$y+1);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A051173 -- step=1 LCM(X+1,Y+1) by rows
+
+MyOEIS::compare_values
+  (anum => 'A051173',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::GcdRationals;
+     my $path = Math::PlanePath::PyramidRows->new (step => 1);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, ($x+1) * ($y+1)
+         / Math::PlanePath::GcdRationals::_gcd($x+1,$y+1);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A215200 -- Kronecker(n-k,k) by rows, n>=1   1<=k<=n
+
+MyOEIS::compare_values
+  (anum => q{A215200},
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidRows->new (step => 1);
+     require Math::NumSeq::PlanePathCoord;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       next if $x == 0 || $y == 0;
+       my $n = $y;
+       my $k = $x;
+       push @got, Math::NumSeq::PlanePathCoord::_kronecker_symbol($n-$k,$k);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A004201 -- N for which X>=0, step=2

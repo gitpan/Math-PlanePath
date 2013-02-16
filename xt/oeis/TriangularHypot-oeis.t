@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -131,7 +131,7 @@ MyOEIS::compare_values
      my @got;
      my $prev_h = 0;
      my $num = 0;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start; @got < $count; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        my $h = ($x*$x + 3*$y*$y) / 4;
 
@@ -686,7 +686,7 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
      my @got;
      my $prev_h = -1;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start; @got < $count; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        next unless ($x > 0 && $y > 0);
 
@@ -709,7 +709,7 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
      my @got;
      my $prev_h = -1;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start; @got < $count; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        next unless ($x > 0 && $y > 0);
 
@@ -730,7 +730,7 @@ MyOEIS::compare_values
      my @got;
      my $prev_h = 0;
      my $num = 0;
-     for (my $n = 1; @got+1 < $count; $n++) {
+     for (my $n = $path->n_start; @got+1 < $count; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        next unless ($x > 0 && $y > 0);
 
@@ -760,7 +760,7 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::TriangularHypot->new (points => 'all');
      my @got;
      my $prev_h = -1;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start; @got < $count; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        next unless ($x > 0 && $y > 0);
        next unless gcd($x,$y) == 1;
@@ -785,7 +785,7 @@ MyOEIS::compare_values
      my @got;
      my $prev_h = 0;
      my $num = 0;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start; @got < $count; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        next unless ($x > 0 && $y > 0);
        next unless gcd($x,$y) == 1;
@@ -832,7 +832,7 @@ MyOEIS::compare_values
      my @got = (0) x scalar($count);
      my $prev_h = 0;
      my $num = 0;
-     for (my $n = 1; ; $n++) {
+     for (my $n = $path->n_start; ; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        # next unless 0 <= $x && $x <= $y;
        next unless 0 <= $y && $y <= $x/3;
@@ -866,7 +866,7 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::TriangularHypot->new;
      my @got;
      my $prev_h = -1;
-     for (my $n = 1; @got < $count; $n++) {
+     for (my $n = $path->n_start; @got < $count; $n++) {
        my ($x,$y) = $path->n_to_xy($n);
        my $h = ($x*$x + 3*$y*$y) / 4;
 
@@ -889,7 +889,7 @@ MyOEIS::compare_values
     my @got;
     my $prev_h = 0;
     my $num = 0;
-    for (my $n = 1; @got < $count; $n++) {
+    for (my $n = $path->n_start; @got < $count; $n++) {
       my ($x,$y) = $path->n_to_xy($n);
       my $h = $x*$x + 3*$y*$y;
       if ($h == $prev_h) {

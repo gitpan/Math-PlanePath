@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,341 +35,7 @@ use Math::PlanePath::TerdragonCurve;
 
 my $path = Math::PlanePath::TerdragonCurve->new;
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-
-my %dxdy_to_dir = ('2,0' => 0,
-                   '1,1' => 1,
-                   '-1,1' => 2,
-                   '-2,0' => 3,
-                   '-1,-1' => 4,
-                   '1,-1' => 5);
-
-# return 0 if X,Y's are straight, 2 if left, 1 if right
-sub xy_turn_6 {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-  my $prev_dx = $x - $prev_x;
-  my $prev_dy = $y - $prev_y;
-  my $dx = $next_x - $x;
-  my $dy = $next_y - $y;
-
-  my $prev_dir = $dxdy_to_dir{"$prev_dx,$prev_dy"};
-  if (! defined $prev_dir) { die "oops, unrecognised $prev_dx,$prev_dy"; }
-
-  my $dir = $dxdy_to_dir{"$dx,$dy"};
-  if (! defined $dir) { die "oops, unrecognised $dx,$dy"; }
-
-  return ($dir - $prev_dir) % 6;
-}
-
-# 0=left, 1=right
-sub xy_left_right {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-  my $turn = xy_turn_6 ($prev_x,$prev_y, $x,$y, $next_x,$next_y);
-  if ($turn == 2) {
-    return 0; # left;
-  }
-  if ($turn == 4) {
-    return 1; # right;
-  }
-  die "unrecognised turn $turn";
-}
-
-#------------------------------------------------------------------------------
-# A005823 - N positions with total turn == 0, no ternary 1s
-
-{
-  my $anum = 'A005823';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $bad = 0;
-  if ($bvalues) {
-    foreach my $n (@$bvalues) {
-      my ($dx,$dy) = $path->n_to_dxdy($n);
-      unless ($dx == 2 && $dy == 0) {
-        $bad++;
-      }
-    }
-  }
-  skip (! $bvalues, $bad,0, "$anum");
-}
-
-#------------------------------------------------------------------------------
-# A060032 - turn 1=left, 2=right as bignums to 3^level
-
-{
-  my $anum = 'A060032';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $level = 0; @got < @$bvalues; $level++) {
-      require Math::BigInt;
-      my $big = Math::BigInt->new(0);
-      foreach my $n (1 .. 3**$level) {
-        my $digit = xy_left_right ($path->n_to_xy($n-1),
-                                   $path->n_to_xy($n),
-                                   $path->n_to_xy($n+1)) + 1;
-        $big = 10*$big + $digit;
-      }
-      push @got, $big;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - 0,1 turns");
-}
-
-#------------------------------------------------------------------------------
-# A062756 - ternary count 1s, is cumulative turn
-
-{
-  my $anum = 'A062756';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $cumulative;
-    push @got, 0;  # bvalues starts with an n=0
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my $turn = xy_left_right ($path->n_to_xy($n-1),
-                                $path->n_to_xy($n),
-                                $path->n_to_xy($n+1));
-      $cumulative += ($turn == 0 ? 1 : -1);
-      push @got, $cumulative;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - cumulative turn");
-}
-
-#------------------------------------------------------------------------------
-# A189640 - morphism turn 1=left, 0=right, extra initial 0
-
-{
-  my $anum = 'A189640';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    push @got, 0;
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my $lr = xy_left_right ($path->n_to_xy($n-1),
-                              $path->n_to_xy($n),
-                              $path->n_to_xy($n+1));
-      push @got, $lr;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - morphism 1=left,0=right");
-}
-
-#------------------------------------------------------------------------------
-# A189673 - morphism turn 0=left, 1=right, extra initial 0
-
-{
-  my $anum = 'A189673';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    push @got, 0;
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      my $lr = xy_left_right ($path->n_to_xy($n-1),
-                              $path->n_to_xy($n),
-                              $path->n_to_xy($n+1));
-      push @got, ($lr == 1 ? 0 : 1);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - morphism 1=left,0=right");
-}
-
-#------------------------------------------------------------------------------
-# A080846 - turn 0=left, 1=right
-
-{
-  my $anum = 'A080846';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      push @got, xy_left_right ($path->n_to_xy($n-1),
-                                $path->n_to_xy($n),
-                                $path->n_to_xy($n+1));
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - turn 0=left,1=right");
-}
-
-#------------------------------------------------------------------------------
-# A060236 - turn 1=left, 2=right
-
-{
-  my $anum = 'A060236';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      push @got, xy_left_right ($path->n_to_xy($n-1),
-                                $path->n_to_xy($n),
-                                $path->n_to_xy($n+1)) + 1;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - turn 1=left,2=right");
-}
-
-#------------------------------------------------------------------------------
-# A038502 - taken mod 3 is 1=left, 2=right
-
-{
-  my $anum = 'A038502';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    @$bvalues = map { $_ % 3 } @$bvalues;
-    for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-      push @got, xy_left_right ($path->n_to_xy($n-1),
-                                $path->n_to_xy($n),
-                                $path->n_to_xy($n+1)) + 1;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum - taken mod 3 for 0,1 turns");
-}
-
-#------------------------------------------------------------------------------
-# A026225 - N positions of left turns
-
-{
-  my $anum = 'A026225';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  {
-    my @got;
-    if ($bvalues) {
-      for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-        if (xy_left_right ($path->n_to_xy($n-1),
-                           $path->n_to_xy($n),
-                           $path->n_to_xy($n+1))
-            == 0) {
-          push @got, $n;
-        }
-      }
-    }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum - left turns");
-  }
-  {
-    my @got;
-    if ($bvalues) {
-      for (my $n = 1; @got < @$bvalues; $n++) {
-        if (digit_above_low_zeros($n) == 1) {
-          push @got, $n;
-        }
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum - N where lowest non-zero 1");
-  }
-}
-
-#------------------------------------------------------------------------------
-# A026179 - positions of right turns
-
-{
-  my $anum = 'A026179';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  {
-    my @got;
-    if ($bvalues) {
-      push @got, 1;     # extra 1 ...
-      for (my $n = $path->n_start + 1; @got < @$bvalues; $n++) {
-        if (xy_left_right ($path->n_to_xy($n-1),
-                           $path->n_to_xy($n),
-                           $path->n_to_xy($n+1))
-            == 1) {
-          push @got, $n;
-        }
-      }
-    }
-    ### bvalues: join(',',@{$bvalues}[0..20])
-    ### got: '    '.join(',',@got[0..20])
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum - right turns");
-  }
-  {
-    my @got = (1);
-    if ($bvalues) {
-      for (my $n = 1; @got < @$bvalues; $n++) {
-        if (digit_above_low_zeros($n) == 2) {
-          push @got, $n;
-        }
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum - N where lowest non-zero 2");
-  }
-}
-
-sub digit_above_low_zeros {
+sub ternary_digit_above_low_zeros {
   my ($n) = @_;
   if ($n == 0) {
     return 0;
@@ -379,6 +45,233 @@ sub digit_above_low_zeros {
   }
   return ($n % 3);
 }
+
+#------------------------------------------------------------------------------
+# A060032 - turn 1=left, 2=right as bignums to 3^level
+
+MyOEIS::compare_values
+  (anum => 'A060032',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'LSR');
+     my @got;
+     for (my $level = 0; @got < $count; $level++) {
+       require Math::BigInt;
+       my $big = Math::BigInt->new(0);
+       foreach my $n (1 .. 3**$level) {
+         my $value = $seq->ith($n);
+         if ($value == -1) { $value = 2; }
+         $big = 10*$big + $value;
+       }
+       push @got, $big;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A189673 - morphism turn 1=left, 0=right, extra initial 0
+
+MyOEIS::compare_values
+  (anum => 'A189673',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Left');
+     my @got = (0);
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A189640 - morphism turn 0=left, 1=right, extra initial 0
+
+MyOEIS::compare_values
+  (anum => 'A189640',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Right');
+     my @got = (0);
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A005823 - N positions with total turn == 0, no ternary 1s
+
+MyOEIS::compare_values
+  (anum => 'A005823',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'LSR');
+     my $total_turn = 0;
+     my @got = (0);
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       $total_turn += $value;
+       if ($total_turn == 0) {
+         push @got, $i;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A062756 - ternary count 1s, is cumulative turn
+
+MyOEIS::compare_values
+  (anum => 'A062756',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'LSR');
+     my @got;
+     my $cumulative = 0;
+     for (;;) {
+       push @got, $cumulative;
+       last if @got >= $count;
+       my ($i, $value) = $seq->next;
+       $cumulative += $value;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A080846 - turn 0=left, 1=right
+
+MyOEIS::compare_values
+  (anum => 'A080846',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A060236 - turn 1=left, 2=right
+
+MyOEIS::compare_values
+  (anum => 'A060236',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       push @got, $value+1;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A038502 - taken mod 3 is 1=left, 2=right
+
+MyOEIS::compare_values
+  (anum => 'A038502',
+   fixup => sub {
+     my ($bvalues) = @_;
+     @$bvalues = map { $_ % 3 } @$bvalues;
+   },
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       push @got, $value+1;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A026225 - N positions of left turns
+
+MyOEIS::compare_values
+  (anum => 'A026225',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Left');
+     my @got;
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       if ($value == 1) {
+         push @got, $i;
+       }
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => 'A026225',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       if (ternary_digit_above_low_zeros($n) == 1) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A026179 - positions of right turns
+
+MyOEIS::compare_values
+  (anum => 'A026179',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);   # extra initial 1 ...
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Right');
+     while (@got < $count) {
+       my ($i, $value) = $seq->next;
+       if ($value == 1) {
+         push @got, $i;
+       }
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => 'A026179',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     for (my $n = 1; @got < $count; $n++) {
+       if (ternary_digit_above_low_zeros($n) == 2) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

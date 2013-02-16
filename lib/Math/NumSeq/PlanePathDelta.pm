@@ -47,7 +47,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -1366,11 +1366,14 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_TDir6_max_is_supremum => 1;
 }
 { package Math::PlanePath::CfracDigits;
-  # FIXME: believe approaches 0, slowly
+  # radix=1 N=1       has dir4=0
+  # radix=2 N=5628    has dir4=0 dx=9,dy=0
+  # radix=3 N=1189140 has dir4=0 dx=1,dy=0
+  # radix=4 N=169405  has dir4=0 dx=2,dy=0
+  # always eventually 0 ?
   sub _NumSeq_Dir4_min_is_infimum {
     my ($self) = @_;
-    return ($self->{'radix'} == 1 ? 0  # radix=1 has 0 at N=1
-            : 1);                      # other radix approaches 0
+    return ($self->{'radix'} > 4);
   }
   *_NumSeq_TDir6_min_is_infimum = \&_NumSeq_Dir4_min_is_infimum;
 
@@ -1381,7 +1384,7 @@ sub characteristic_non_decreasing {
             : 1);
   }
 
-  # FIXME: believe approaches 360 degrees, eventually
+  # ENHANCE-ME: suspect believe approaches 360 degrees, eventually, but proof?
   use constant _NumSeq_Delta_Dir4_max => 4;
   use constant _NumSeq_Delta_TDir6_max => 6;
   use constant _NumSeq_Dir4_max_is_supremum => 1;
@@ -1686,7 +1689,8 @@ sub characteristic_non_decreasing {
             ? 4      # supremum
             : 3);    # South
   }
-  # use constant _NumSeq_Delta_Dir4_integer => 1; # FIXME: some of ...
+  # FIXME: some combinations are always NSEW ...
+  # use constant _NumSeq_Delta_Dir4_integer => 1;
 
   sub _NumSeq_Delta_TDir6_max {
     my ($self) = @_;
@@ -2905,7 +2909,17 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Delta_TDir6_max => 4.5; # vertical
 }
 { package Math::PlanePath::Corner;
-  use constant _NumSeq_Delta_dSum_min => -1; # straight S
+  use List::Util;
+  # dSum minimum either south dX=0,dy=-1 for dSum=-1
+  # or end gnomon up to start of next gnomon is
+  #    X=wider+k,Y=0 to X=0,Y=k+1
+  #    dsum = 0-(wider+k) + (k+1)-0
+  #         = -wider-k + k + 1
+  #         = 1-wider
+  sub _NumSeq_Delta_dSum_min {
+    my ($self) = @_;
+    return List::Util::min(-1, 1-$self->{'wider'});
+  }
   use constant _NumSeq_Delta_dSum_max => 1;  # next row
   use constant _NumSeq_Delta_dDiffXY_max => 1;  # straight S,E
   use constant _NumSeq_Delta_TDir6_max => 4.5; # no SE diagonal
@@ -3720,6 +3734,52 @@ sub characteristic_non_decreasing {
     Math::NumSeq::PlanePathDelta::_delta_func_TDir6(20,-3);
   use constant _NumSeq_Dir4_max_is_supremum => 1;
   use constant _NumSeq_TDir6_max_is_supremum => 1;
+}
+{ package Math::PlanePath::OneOfEight;
+  {
+    # parts=1,3mid dx=2*2^k-3 dy=-2^k, it seems
+    # parts=3side  dx=2*2^k-5 dy=-2^k-2, it seems
+    my %_NumSeq_Delta_Dir4_max
+      = (4       => 3,
+         1       => Math::NumSeq::PlanePathDelta::_delta_func_Dir4(2,-1),
+         octant  => 3.5,
+         '3mid'  => Math::NumSeq::PlanePathDelta::_delta_func_Dir4(2,-1),
+         '3side' => Math::NumSeq::PlanePathDelta::_delta_func_Dir4(2,-1),
+        );
+    sub _NumSeq_Delta_Dir4_max {
+      my ($self) = @_;
+      return $_NumSeq_Delta_Dir4_max{$self->{'parts'}};
+    }
+  }
+  {
+    # parts=1,3mid dx=2*2^k-3 dy=-2^k, it seems
+    # parts=3side  dx=2*2^k-5 dy=-2^k-2, it seems
+    my %_NumSeq_Delta_TDir6_max
+      = (4       => 4.5,
+         1       => Math::NumSeq::PlanePathDelta::_delta_func_TDir6(2,-1),
+         octant  => 5,
+         '3mid'  => Math::NumSeq::PlanePathDelta::_delta_func_TDir6(2,-1),
+         '3side' => Math::NumSeq::PlanePathDelta::_delta_func_TDir6(2,-1),
+        );
+    sub _NumSeq_Delta_TDir6_max {
+      my ($self) = @_;
+      return $_NumSeq_Delta_TDir6_max{$self->{'parts'}};
+    }
+  }
+  {
+    my %_NumSeq_Dir4_max_is_supremum
+      = (4       => 0,
+         1       => 1,
+         octant  => 0,
+         '3mid'  => 1,
+         '3side' => 1,
+        );
+    sub _NumSeq_Dir4_max_is_supremum {
+      my ($self) = @_;
+      return $_NumSeq_Dir4_max_is_supremum{$self->{'parts'}};
+    }
+  }
+  *_NumSeq_TDir6_max_is_supremum = \&_NumSeq_Dir4_max_is_supremum;
 }
 
 1;

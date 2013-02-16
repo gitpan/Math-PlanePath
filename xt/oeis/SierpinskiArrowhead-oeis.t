@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -34,146 +34,79 @@ use Math::NumSeq::PlanePathTurn;
 #use Smart::Comments '###';
 
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
-
 #------------------------------------------------------------------------------
 # A189706 - turn sequence odd positions
 
-{
-  my $anum = 'A189706';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $seq = Math::NumSeq::PlanePathTurn->new
-      (planepath => 'SierpinskiArrowhead',
-       turn_type => 'Right');
-    my @got;
-    for (my $i = 1; @got < @$bvalues; $i+=2) {
-      push @got, $seq->ith($i);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A189706',
+   func => sub {
+     my ($count) = @_;
+     my $seq = Math::NumSeq::PlanePathTurn->new
+       (planepath => 'SierpinskiArrowhead',
+        turn_type => 'Right');
+     my @got;
+     for (my $i = 1; @got < $count; $i+=2) {
+       push @got, $seq->ith($i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A189707 - (N+1)/2 of positions of odd N left turns
 
-{
-  my $anum = 'A189707';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $seq = Math::NumSeq::PlanePathTurn->new
-      (planepath => 'SierpinskiArrowhead',
-       turn_type => 'Left');
-    my @got;
-    for (my $i = 1; @got < @$bvalues; $i+=2) {
-      my $left = $seq->ith($i);
-      if ($left) {
-        push @got, ($i+1)/2; 
-      }
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A189707',
+   func => sub {
+     my ($count) = @_;
+     my $seq = Math::NumSeq::PlanePathTurn->new
+       (planepath => 'SierpinskiArrowhead',
+        turn_type => 'Left');
+     my @got;
+     for (my $i = 1; @got < $count; $i+=2) {
+       my $left = $seq->ith($i);
+       if ($left) {
+         push @got, ($i+1)/2;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A189708 - (N+1)/2 of positions of odd N right turns
 
-{
-  my $anum = 'A189708';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $seq = Math::NumSeq::PlanePathTurn->new
-      (planepath => 'SierpinskiArrowhead',
-       turn_type => 'Right');
-    my @got;
-    for (my $i = 1; @got < @$bvalues; $i+=2) {
-      my $right = $seq->ith($i);
-      if ($right) {
-        push @got, ($i+1)/2; 
-      }
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A189708',
+   func => sub {
+     my ($count) = @_;
+     my $seq = Math::NumSeq::PlanePathTurn->new
+       (planepath => 'SierpinskiArrowhead',
+        turn_type => 'Right');
+     my @got;
+     for (my $i = 1; @got < $count; $i+=2) {
+       my $right = $seq->ith($i);
+       if ($right) {
+         push @got, ($i+1)/2;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A156595 - turn sequence even positions
 
-{
-  my $anum = 'A156595';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my $seq = Math::NumSeq::PlanePathTurn->new
-      (planepath => 'SierpinskiArrowhead',
-       turn_type => 'Right');
-    my @got;
-    for (my $i = 2; @got < @$bvalues; $i+=2) {
-      push @got, $seq->ith($i);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..10]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..10]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A156595',
+   func => sub {
+     my ($count) = @_;
+     my $seq = Math::NumSeq::PlanePathTurn->new
+       (planepath => 'SierpinskiArrowhead',
+        turn_type => 'Right');
+     my @got;
+     for (my $i = 2; @got < $count; $i+=2) {
+       push @got, $seq->ith($i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -465,8 +465,7 @@ means no 0 digit in base 6.
 =head2 Radix 1
 
 The radix=1 case encodes continued fraction terms using only digit 1, which
-means runs of q many "1"s (ie. adding up to q), and "2" digits as
-separators.
+means runs of q many "1"s (so adding up to q), and digit "2" as separator.
 
     N =  11111 2 1111 2 ... 2 1111 2 11111     base2 digits 1,2
          \---/   \--/         \--/   \---/
@@ -478,7 +477,7 @@ which becomes in plain binary
         \----/  \---/        \---/  \----/
          q[1]    q[2]       q[k-1]  q[k]-1
 
-Each "2" becomes "0" in plain binary plus a carry into the 1s above which
+Each "2" becomes "0" in plain binary and a carry into the 1s above which
 turn them into zeros and each "0" above the first into "1".
 
 =cut
@@ -542,7 +541,10 @@ path include
 
     http://oeis.org/A032924  (etc)
 
-    radix=2
+    radix=1
+      A071766    X coordinate (numerator), except extra initial 1
+
+    radix=2 (the default)
       A032924    N in X=1 column, ternary no digit 0 (but lacking N=0)
 
     radix=3

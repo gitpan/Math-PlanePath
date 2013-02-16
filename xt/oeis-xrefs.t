@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -166,6 +166,7 @@ foreach my $path_name (@path_names) {
     next if $anum eq 'A000004'; # all zeros
     next if $anum eq 'A000012'; # all ones
     next if $anum eq 'A001477'; # integers 0,1,2,3
+    next if $anum eq 'A001489'; # negative integers 0,-1,-2,-3
     next if $anum eq 'A081274'; # oeis duplicate
     next if $anum eq 'A000035'; # 0,1 reps
     next if $anum eq 'A059841'; # 1,0 reps

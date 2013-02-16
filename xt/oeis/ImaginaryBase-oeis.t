@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -36,152 +36,98 @@ use Math::PlanePath::Base::Digits
 # use Smart::Comments '###';
 
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
-
 #------------------------------------------------------------------------------
 # A057300 -- N at transpose Y,X, radix=2
 
-{
-  my $anum = 'A057300';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::ImaginaryBase->new;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A057300',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ImaginaryBase->new;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A163327 -- N at transpose Y,X, radix=3
 
-{
-  my $anum = 'A163327';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-  my @got;
-    my $path = Math::PlanePath::ImaginaryBase->new (radix => 3);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A163327',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ImaginaryBase->new (radix => 3);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A126006 -- N at transpose Y,X, radix=4
 
-{
-  my $anum = 'A126006';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-  my @got;
-    my $path = Math::PlanePath::ImaginaryBase->new (radix => 4);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A126006',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ImaginaryBase->new (radix => 4);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A217558 -- N at transpose Y,X, radix=16
 
-{
-  my $anum = 'A217558';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-  my @got;
-    my $path = Math::PlanePath::ImaginaryBase->new (radix => 16);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      ($x, $y) = ($y, $x);
-      my $n = $path->xy_to_n ($x, $y);
-      push @got, $n;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A217558',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::ImaginaryBase->new (radix => 16);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x, $y) = ($y, $x);
+       my $n = $path->xy_to_n ($x, $y);
+       push @got, $n;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A039724 -- negabinary positives -> index, written in binary
-{
-  my $anum = q{A039724};
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    require Math::PlanePath::ZOrderCurve;
-    my $path = Math::PlanePath::ImaginaryBase->new;
-    my $zorder = Math::PlanePath::ZOrderCurve->new;
 
-    for (my $nega = 0; @got < @$bvalues; $nega++) {
-      my $n = $path->xy_to_n ($nega,0);
-      $n = delete_odd_bits($n);
-      push @got, to_binary($n);
-    }
+MyOEIS::compare_values
+  (anum => q{A039724},
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     require Math::PlanePath::ZOrderCurve;
+     my $path = Math::PlanePath::ImaginaryBase->new;
+     my $zorder = Math::PlanePath::ZOrderCurve->new;
 
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+     for (my $nega = 0; @got < $count; $nega++) {
+       my $n = $path->xy_to_n ($nega,0);
+       $n = delete_odd_bits($n);
+       push @got, to_binary($n);
+     }
+
+     return \@got;
+   });
 
 sub delete_odd_bits {
   my ($n) = @_;

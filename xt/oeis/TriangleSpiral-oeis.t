@@ -39,6 +39,25 @@ my $path = Math::PlanePath::TriangleSpiral->new;
 
 
 #------------------------------------------------------------------------------
+# A023531 -- N of turn position, OFFSET=0
+
+MyOEIS::compare_values
+  (anum => 'A023531',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::TriangleSpiral->new;
+     my @got;
+     my $n = $path->n_start;
+     my $prev_dxdy = join(',',$path->n_to_dxdy($n));
+     for ($n++; @got < $count; $n++) {
+       my $dxdy = join(',',$path->n_to_dxdy($n));
+       push @got, ($dxdy eq $prev_dxdy ? 0 : 1);
+       $prev_dxdy = $dxdy;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A081272 -- N on Y axis
 
 MyOEIS::compare_values

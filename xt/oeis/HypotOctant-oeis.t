@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -35,49 +35,23 @@ use Math::PlanePath::HypotOctant;
 #use Smart::Comments '###';
 
 
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
-
 # #------------------------------------------------------------------------------
-# # A001844 
-# 
+# # A001844
+#
 # {
 #   my $anum = 'A001844';
 #   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-# 
+#
 #   my $diff;
 #   if ($bvalues) {
 #     my @got;
 #     my $path = Math::PlanePath::HypotOctant->new;
 #     my $i = 0;
-#     for (my $i = 0; @got < @$bvalues; $i++) {
+#     for (my $i = 0; @got < $count; $i++) {
 #       push @got, $i*$i + ($i+1)*($i+1);
 #     }
-# 
-#     $diff = diff_nums(\@got, $bvalues);
+#
+#     return \@got;
 #     if ($diff) {
 #       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
 #       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
@@ -91,98 +65,62 @@ sub diff_nums {
 
 
 #------------------------------------------------------------------------------
-# A057653 
+# A057653
 
-{
-  my $anum = 'A057653';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::HypotOctant->new (points => 'odd');
-    my $prev = 0;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my $rsquared = $path->n_to_rsquared($n);
-      if ($rsquared != $prev) {
-        $prev = $rsquared;
-        push @got, $rsquared;
-      }
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A057653',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::HypotOctant->new (points => 'odd');
+     my $prev = 0;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my $rsquared = $path->n_to_rsquared($n);
+       if ($rsquared != $prev) {
+         $prev = $rsquared;
+         push @got, $rsquared;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A024507 
+# A024507
 
-{
-  my $anum = 'A024507';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::HypotOctant->new;
-    my $i = 0;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      if ($y != 0 && $x != $y) {
-        push @got, $path->n_to_rsquared($n);
-      }
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A024507',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::HypotOctant->new;
+     my $i = 0;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy($n);
+       if ($y != 0 && $x != $y) {
+         push @got, $path->n_to_rsquared($n);
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A024509 
+# A024509
 
-{
-  my $anum = 'A024509';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::HypotOctant->new;
-    my $i = 0;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy($n);
-      if ($y != 0) {
-        push @got, $path->n_to_rsquared($n);
-      }
-    }
-
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff,
-        undef,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A024509',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::HypotOctant->new;
+     my $i = 0;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy($n);
+       if ($y != 0) {
+         push @got, $path->n_to_rsquared($n);
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

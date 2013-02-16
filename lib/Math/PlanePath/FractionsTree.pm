@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -82,7 +82,7 @@ sub n_to_xy {
   if ($n < 1) { return; }
   if (is_infinite($n)) { return ($n,$n); }
 
-  # FIXME: what to do for fractional $n?
+  # what to do for fractional $n?
   {
     my $int = int($n);
     if ($n != $int) {
@@ -383,12 +383,15 @@ only one new 1/Y fraction.  So if X=1 is included then roughly C<$n_hi =
 
 =head2 Tree Methods
 
+X<Complete binary tree>Each point has 2 children, so the path is a complete
+binary tree.
+
 =over
 
 =item C<@n_children = $path-E<gt>tree_n_children($n)>
 
 Return the two children of C<$n>, or an empty list if C<$n E<lt> 1>
-(ie. before the start of the path).
+(before the start of the path).
 
 This is simply C<2*$n, 2*$n+1>.  The children are C<$n> with an extra bit
 appended, either a 0-bit or a 1-bit.
@@ -396,7 +399,7 @@ appended, either a 0-bit or a 1-bit.
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
 Return 2, since every node has two children, or return C<undef> if
-C<$nE<lt>1> (ie. before the start of the path).
+C<$nE<lt>1> (before the start of the path).
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -413,6 +416,23 @@ top of the tree at N=1 is depth=0, then its children depth=1, etc.
 
 The structure of the tree with 2 nodes per point means the depth is simply
 floor(log2(N)), so for example N=4 through N=7 are all depth=2.
+
+=back
+
+=head2 Tree Descriptive Methods
+
+=over
+
+=item C<$num = $path-E<gt>tree_num_children_minimum()>
+
+=item C<$num = $path-E<gt>tree_num_children_maximum()>
+
+Return 2 since every node has 2 children, making that both the minimum and
+maximum.
+
+=item C<$bool = $path-E<gt>tree_any_leaf()>
+
+Return false, since there are no leaf nodes in the tree.
 
 =back
 

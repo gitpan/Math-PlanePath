@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -130,11 +130,15 @@ sub new {
 
   my $planepath_object = ($self->{'planepath_object'}
                           ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'}));
+  ### $planepath_object
 
   my $line_type = $self->{'line_type'};
+
+  ### i_func name: "i_func_$line_type"
   $self->{'i_func'}
     = $self->can("i_func_$line_type")
       || croak "Unrecognised line_type: ",$line_type;
+
   $self->{'pred_func'}
     = $self->can("pred_func_$line_type")
       || croak "Unrecognised line_type: ",$line_type;
@@ -167,12 +171,12 @@ sub rewind {
 
 sub next {
   my ($self) = @_;
-  ### NumSeq-PlanePathN next(): $self->{'i'}
+  ### NumSeq-PlanePathN next(): "i=$self->{'i'}"
 
   my $i = $self->{'i'};
   my $n = &{$self->{'i_func'}} ($self, $i);
   if (! defined $n) {
-    ### no value ...
+    ### i_func returns undef, no value ...
     return;
   }
   # secret experimental automatic bigint to preserve precision
@@ -254,6 +258,7 @@ sub i_func_Diagonal_SE {
 
 sub i_func_Depth_start {
   my ($self, $i) = @_;
+  ### i_func_Depth_start(): "i=$i"
   return $self->{'planepath_object'}->tree_depth_to_n($i);
 }
 sub i_func_Depth_end {
@@ -1601,6 +1606,7 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1; # two values only
 }
 { package Math::PlanePath::QuadricIslands;
+  # FIXME: pred() on Diagonal_SW doesn't notice 0.5 square
   use constant _NumSeq_X_axis_increasing   => 1; # when touched
   use constant _NumSeq_Y_axis_increasing   => 1;
 
@@ -1609,6 +1615,8 @@ sub values_max {
   use constant _NumSeq_Y_neg_increasing        => 0;
   use constant _NumSeq_Y_neg_increasing_from_i => 1; # after 3,2,8
   use constant _NumSeq_Y_neg_min => 2; # at X=-1,Y=0 rather than X=0,Y=0
+  use constant _NumSeq_Diagonal_SW_increasing => 0;
+  use constant _NumSeq_Diagonal_SW_min => 1;
 }
 { package Math::PlanePath::SierpinskiTriangle;
   use constant _NumSeq_X_axis_increasing   => 1; # for "diagonal" style
@@ -2105,6 +2113,10 @@ sub values_max {
      'step=2,align=centre,n_start=1' =>
      { Diagonal_NW => 'A002522',  # n^2+1
        # OEIS-Other: A002522 planepath=PyramidRows,step=2 line_type=Diagonal_NW
+
+       # Not quite, n_start=1 means squares starting from 1 whereas A000290
+       # starts from 0
+       # Diagonal => 'A000290',
      },
      'step=2,align=centre,n_start=0' =>
      { Y_axis      => 'A002378', # pronic
@@ -2652,19 +2664,19 @@ sub values_max {
   use constant _NumSeq_N_oeis_anum =>
     { 'parts=4' =>
       { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
-        # OEIS-Other: A160410 planepath=LCornerTree line_type=Depth_start
+        # catalogued here pending anything else simpler implementing it
+        # OEIS-Catalogue: A160410 planepath=LCornerTree line_type=Depth_start
       },
-
       'parts=3' =>
-      { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
-        # OEIS-Other: A160410 planepath=LCornerTree line_type=Depth_start
+      { Depth_start => 'A160412', # 4 * cumulative 3^count1bits(n)
+        # OEIS-Catalogue: A160412 planepath=LCornerTree,parts=3 line_type=Depth_start
       },
 
       # Not quite, A130665=1,4,7,16 offset=0 whereas Nend=0,1,4,7,16 depth=0
       # has extra initial 0.
       # 'parts=1' =>
       # { Depth_end => 'A130665', # cumulative 3^count1bits(n), starting a(0)=1
-      #   # OEIS-Other: A130665 planepath=LCornerTree,parts=1 line_type=Depth_end
+      #   # OEIS-Catalogue: A130665 planepath=LCornerTree,parts=1,n_start=-1 line_type=Depth_end i_offset=1
       # },
     };
 }
@@ -2677,6 +2689,36 @@ sub values_max {
     { '' =>
       { Diagonal => 'A062880', # base 4 digits 0,2 only
         # OEIS-Other: A062880 planepath=LCornerReplicate line_type=Diagonal
+      },
+    };
+}
+
+{ package Math::PlanePath::OneOfEight;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_X_neg_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_Y_neg_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+  use constant _NumSeq_Diagonal_SW_increasing => 1;
+  use constant _NumSeq_Diagonal_SE_increasing => 1;
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'parts=4' =>
+      { Depth_start   => 'A151725',
+        # OEIS-Catalogue: A151725 planepath=OneOfEight line_type=Depth_start
+      },
+      'parts=1' =>
+      { Depth_start   => 'A151735',
+        # OEIS-Catalogue: A151735 planepath=OneOfEight,parts=1 line_type=Depth_start
+      },
+      'parts=3mid' =>
+      { Depth_start   => 'A170880',
+        # OEIS-Catalogue: A170880 planepath=OneOfEight,parts=3mid line_type=Depth_start
+      },
+      'parts=3side' =>
+      { Depth_start   => 'A170879',
+        # OEIS-Catalogue: A170879 planepath=OneOfEight,parts=3side line_type=Depth_start
       },
     };
 }

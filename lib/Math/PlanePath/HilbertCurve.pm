@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -338,6 +338,33 @@ to compensate for the alternating transpose in part 0.)  The resulting
 integer N is then divided down by a corresponding multiple-of-4 binary
 places.
 
+=head2 Hamming Distance
+
+The hamming distance between X and Y is the number of bit positions where
+the two numbers differ when written in binary.  For the least   Each bit-pair of N becomes a
+bit of X and a bit of Y,
+
+       N      X   Y
+    ------    -   -
+    0 = 00    0   0
+    1 = 01    1   0     <- difference 1 bit
+    2 = 10    1   1
+    3 = 11    0   1     <- difference 1 bit
+
+So the hamming distance for N=0to3 is 1 at N=1 and N=3.  As higher levels
+these the X,Y bits may be transposed (swapped) or rotated by 180 or both.
+A transpose swapping XE<lt>-E<gt>Y doesn't change the bit difference.
+A rotate by 180 is a flip 0E<lt>-E<gt>1 of the bit in each X and Y, so that
+doesn't change the bit difference either.
+
+On that basis the hamming distance X,Y is the number of base4 digits of N
+which are 01 or 11,
+
+    HammingDist(X,Y) = count 1-bits at even bit positions in N    
+
+See also L<Math::PlanePath::CornerReplicate/Hamming Distance> which has the
+same formula, but arising directly from 01 or 11, no transpose or rotate.
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -522,13 +549,16 @@ This path is in Sloane's OEIS in many forms,
     A059261    X+Y
     A059285    X-Y
     A163547    X^2+Y^2 radius squared
+    A139351    HammingDist(X,Y), count 1-bits at even positions in N
+
     A163365    sum N on diagonal
     A163477    sum N on diagonal, divided by 4
     A163482    N values on X axis
     A163483    N values on Y axis
     A062880    N values on diagonal X=Y (digits 0,2 in base 4)
-    A163538    X change -1,0,1
-    A163539    Y change -1,0,1
+
+    A163538    dX -1,0,1 change in X
+    A163539    dY -1,0,1 change in Y
     A163540    absolute direction of each step (0=E,1=S,2=W,3=N)
     A163541    absolute direction, swapped X,Y
     A163542    relative direction (ahead=0,right=1,left=2)

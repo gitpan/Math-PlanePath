@@ -50,7 +50,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -462,17 +462,18 @@ This is replicated twice in the next row pair, as N=3 to N=8.  Then the
 resulting four-row shape is replicated twice again in the next four-row
 group as N=9 to N=26, etc.
 
-See the SierpinskiArrowheadCentres path to traverse by a connected path,
+See the C<SierpinskiArrowheadCentres> path to traverse by a connected path
 rather than rows jumping across gaps.
 
 =head2 Row Ranges
 
 The number of points in each row is always a power of 2.  The power is the
-count of 1-bits in Y.  For example Y=13 is binary 1101 which has three
-1-bits so in row Y=13 there are 2^3=8 points.  (This count is sometimes
-called Gould's sequence.)
+count of 1-bits in Y.  (This count is sometimes called Gould's sequence.)
 
     rowpoints(Y) = 2^(count of 1 bits in Y)
+
+For example Y=13 is binary 1101 which has three 1-bits so in row Y=13 there
+are 2^3=8 points.
 
 Because the first point is N=0, the N at the left of each row is the
 cumulative count of preceding points,
@@ -480,10 +481,11 @@ cumulative count of preceding points,
     Ndepth(Y) = rowpoints(0) + ... + rowpoints(Y-1)
 
 Since the powers of 2 are always even except for 2^0=1 in row Y=0, this
-Ndepth(Y) total is always odd.  The self-similar nature of the triangle means
-the same is true of the sub-triangles, for example N=31,35,41,47,etc on the
-left of the triangle at X=8,Y=8.  This means in particular the primes fall
-predominately on the left side of the triangles and sub-triangles.
+Ndepth(Y) total is always odd.  The self-similar nature of the triangle
+means the same is true of the sub-triangles, for example odd
+N=31,35,41,47,etc on the left of the triangle at X=8,Y=8.  This means in
+particular the primes (being odd) fall predominately on the left side of the
+triangles and sub-triangles.
 
 =head2 Replication Sizes
 
@@ -584,10 +586,10 @@ This form visits all points X,Y where X and Y written in binary have no
 X=13,Y=3 is not visited because 13=0b1011 and 6=0b0110 both have bit 0b0010
 set.
 
-This bit rule is an easy way to test for visited or not visited cells of the
-pattern.  The visited cells can be calculated by this diagonal X,Y bit-and,
-but then plotted X,X+Y for the "right" align or X-Y,X+Y for "triangular", as
-desired.
+This bit-and rule is an easy way to test for visited or not visited cells of
+the pattern.  The visited cells can be calculated by this diagonal X,Y
+bit-and, but then plotted X,X+Y for the "right" align or X-Y,X+Y for
+"triangular".
 
 =head2 Cellular Automaton
 
@@ -673,7 +675,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 Create and return a new path object.  C<align> is a string, one of the
 following as described above.
 
-    "triangular"   the default
+    "triangular"    (the default)
     "right"
     "left"
     "diagonal"

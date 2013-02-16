@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,7 +46,7 @@ use Math::PlanePath::Base::Digits
 
 
 use constant n_start => 0;
-*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_even;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_even;
 
 # use constant parameter_info_array =>
 #   [ Math::PlanePath::Base::Digits::parameter_info_radix2(),

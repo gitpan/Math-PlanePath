@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-
+use Data::Float 'pos_infinity';
 use lib 't';
 use MyTestHelpers;
 MyTestHelpers::nowarnings();
@@ -374,51 +374,33 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
-               'LCornerReplicate',
+               # 'OneOfEight',
+               # 'OneOfEight,parts=4',
+               # 'OneOfEight,parts=1',
+               # 'OneOfEight,parts=octant',
+               # 'OneOfEight,parts=3mid',
+               # 'OneOfEight,parts=3side',
 
-               'LCornerTree',
-               'LCornerTree,parts=1',
-               'LCornerTree,parts=2',
-               'LCornerTree,parts=3',
-               
-               'ToothpickReplicate',
-               'ToothpickReplicate,parts=1',
-               'ToothpickReplicate,parts=2',
-               'ToothpickReplicate,parts=3',
-
-               'ToothpickTree',
-               'ToothpickTree,parts=1',
-               'ToothpickTree,parts=2',
-               'ToothpickTree,parts=3',
-               
-               'ToothpickUpist',
+               # 'LCornerReplicate',
+               # 
+               # 'LCornerTree',
+               # 'LCornerTree,parts=1',
+               # 'LCornerTree,parts=2',
+               # 'LCornerTree,parts=3',
+               # 
+               # 'ToothpickReplicate',
+               # 'ToothpickReplicate,parts=1',
+               # 'ToothpickReplicate,parts=2',
+               # 'ToothpickReplicate,parts=3',
+               # 
+               # 'ToothpickTree',
+               # 'ToothpickTree,parts=1',
+               # 'ToothpickTree,parts=2',
+               # 'ToothpickTree,parts=3',
+               # 
+               # 'ToothpickUpist',
 
                # module list begin
-
-               'MultipleRings,step=0',
-               'MultipleRings,ring_shape=polygon,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,ring_shape=polygon,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,ring_shape=polygon,step=2',
-
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=4',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings,ring_shape=polygon',
-               'MultipleRings',
-
 
                'PythagoreanTree,coordinates=AC',
                'PythagoreanTree,coordinates=BC',
@@ -428,6 +410,67 @@ my @modules = (
                'PythagoreanTree,coordinates=PQ',
                'PythagoreanTree,tree_type=FB',
                'PythagoreanTree,tree_type=FB,coordinates=PQ',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=diagonal',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,n_start=37,align=right',
+               'SierpinskiTriangle,n_start=37,align=left',
+               'SierpinskiTriangle,n_start=37,align=diagonal',
+
+               'Corner',
+               'Corner,wider=1',
+               'Corner,wider=2',
+               'Corner,wider=5',
+               'Corner,wider=37',
+
+               'PyramidRows',
+               'PyramidRows,step=0',
+               'PyramidRows,step=1',
+               'PyramidRows,step=3',
+               'PyramidRows,step=4',
+               'PyramidRows,step=5',
+               'PyramidRows,step=37',
+               'PyramidRows,align=right',
+               'PyramidRows,align=right,step=0',
+               'PyramidRows,align=right,step=1',
+               'PyramidRows,align=right,step=3',
+               'PyramidRows,align=right,step=4',
+               'PyramidRows,align=right,step=5',
+               'PyramidRows,align=right,step=37',
+               'PyramidRows,align=left',
+               'PyramidRows,align=left,step=0',
+               'PyramidRows,align=left,step=1',
+               'PyramidRows,align=left,step=3',
+               'PyramidRows,align=left,step=4',
+               'PyramidRows,align=left,step=5',
+               'PyramidRows,align=left,step=37',
+
+               'SierpinskiArrowhead',
+               'SierpinskiArrowhead,align=right',
+               'SierpinskiArrowhead,align=left',
+               'SierpinskiArrowhead,align=diagonal',
+
+               'SierpinskiArrowheadCentres',
+               'SierpinskiArrowheadCentres,align=right',
+               'SierpinskiArrowheadCentres,align=left',
+               'SierpinskiArrowheadCentres,align=diagonal',
+
+               'CoprimeColumns',
+               'DivisibleColumns',
+               'DivisibleColumns,divisor_type=proper',
+
+               'FractionsTree',
+               'FactorRationals',
+               'DiagonalRationals',
+
+               'CfracDigits,radix=1',
+               'CfracDigits',
+               'CfracDigits,radix=3',
+               'CfracDigits,radix=4',
+               'CfracDigits,radix=37',
 
                'ChanTree,k=2,n_start=1',
                'ChanTree,n_start=1',
@@ -459,12 +502,6 @@ my @modules = (
                'LTiling,L_fill=ends',
                'LTiling,L_fill=all',
 
-               'CfracDigits,radix=1',
-               'CfracDigits',
-               'CfracDigits,radix=3',
-               'CfracDigits,radix=4',
-               'CfracDigits,radix=37',
-
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=HCS',
                'RationalsTree',
@@ -486,16 +523,6 @@ my @modules = (
                'WunderlichSerpentine,serpentine_type=000_000_001',
                'WunderlichSerpentine,radix=4',
                'WunderlichSerpentine,radix=5,serpentine_type=coil',
-
-               'SierpinskiArrowhead',
-               'SierpinskiArrowhead,align=right',
-               'SierpinskiArrowhead,align=left',
-               'SierpinskiArrowhead,align=diagonal',
-
-               'SierpinskiArrowheadCentres',
-               'SierpinskiArrowheadCentres,align=right',
-               'SierpinskiArrowheadCentres,align=left',
-               'SierpinskiArrowheadCentres,align=diagonal',
 
                'DigitGroups',
                'DigitGroups,radix=3',
@@ -522,15 +549,6 @@ my @modules = (
                'QuintetCentres,arms=2',
                'QuintetCentres,arms=3',
                'QuintetCentres,arms=4',
-
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=diagonal',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,n_start=37,align=right',
-               'SierpinskiTriangle,n_start=37,align=left',
-               'SierpinskiTriangle,n_start=37,align=diagonal',
 
                'TriangleSpiral',
                'TriangleSpiral,n_start=37',
@@ -559,28 +577,6 @@ my @modules = (
                'PowerArray,radix=3',
                'PowerArray,radix=4',
 
-               'PyramidRows',
-               'PyramidRows,step=0',
-               'PyramidRows,step=1',
-               'PyramidRows,step=3',
-               'PyramidRows,step=4',
-               'PyramidRows,step=5',
-               'PyramidRows,step=37',
-               'PyramidRows,align=right',
-               'PyramidRows,align=right,step=0',
-               'PyramidRows,align=right,step=1',
-               'PyramidRows,align=right,step=3',
-               'PyramidRows,align=right,step=4',
-               'PyramidRows,align=right,step=5',
-               'PyramidRows,align=right,step=37',
-               'PyramidRows,align=left',
-               'PyramidRows,align=left,step=0',
-               'PyramidRows,align=left,step=1',
-               'PyramidRows,align=left,step=3',
-               'PyramidRows,align=left,step=4',
-               'PyramidRows,align=left,step=5',
-               'PyramidRows,align=left,step=37',
-
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
@@ -592,10 +588,6 @@ my @modules = (
                'CellularRule,rule=14',  # left 2 cell line
                'CellularRule,rule=20',  # right 1,2 line
                'CellularRule,rule=84',  # right 2 cell line
-
-               'FractionsTree',
-               'FactorRationals',
-               'DiagonalRationals',
 
                'Staircase',
                'StaircaseAlternating',
@@ -708,7 +700,6 @@ my @modules = (
                'R5DragonCurve,arms=3',
                'R5DragonCurve,arms=4',
 
-               'Corner',
                'PyramidSides',
 
                'ComplexMinus',
@@ -846,10 +837,6 @@ my @modules = (
                'KochelCurve',
                'CincoCurve',
 
-               'CoprimeColumns',
-               'DivisibleColumns',
-               'DivisibleColumns,divisor_type=proper',
-
                'HilbertSpiral',
                'HilbertCurve',
 
@@ -908,6 +895,31 @@ my @modules = (
                'DragonCurve,arms=3',
                'DragonCurve,arms=4',
 
+               'MultipleRings,step=0',
+               'MultipleRings,ring_shape=polygon,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,ring_shape=polygon,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,ring_shape=polygon,step=2',
+
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=4',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings,ring_shape=polygon',
+               'MultipleRings',
+
+
                'CellularRule',
                'CellularRule,rule=0',   # single cell
                'CellularRule,rule=8',   # single cell
@@ -963,7 +975,7 @@ my @modules = (
   require Math::NumSeq::PlanePathDelta;
   require Math::NumSeq::PlanePathTurn;
   require Math::NumSeq::PlanePathN;
-
+  
   foreach my $mod (@modules) {
     my $bad = 0;
     foreach my $elem (
@@ -973,20 +985,20 @@ my @modules = (
                       ['Math::NumSeq::PlanePathN','line_type'],
                      ) {
       my ($class, $pname) = @$elem;
-
+      
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
-        # next unless $param =~ /Leaf/;
+        # next unless $param =~ /Int|Frac/;
         MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param
-
+        
         my $seq = $class->new (planepath => $mod,
                                $pname => $param);
-
+        
         my $planepath_object = $seq->{'planepath_object'};
         ### planepath_object: ref $planepath_object
-
+        
         my $i_start = $seq->i_start;
         my $characteristic_integer = $seq->characteristic('integer') || 0;
         my $saw_characteristic_integer = 1;
@@ -1000,7 +1012,7 @@ my @modules = (
         my $saw_increasing_at = '[default]';
         my $saw_non_decreasing_at = '[default]';
         my $prev_value;
-
+        
         my $count = 0;
         my $i_limit = 800;
         if ($mod =~ /Vogel|Theod|Archim/
@@ -1017,21 +1029,21 @@ my @modules = (
         }
         my $i_end = $i_start + $i_limit;
         ### $i_limit
-
+        
         foreach my $i ($i_start .. $i_end) {
           my $value = $seq->ith($i);
           ### $i
           ### $value
           next if ! defined $value;
           $count++;
-
+          
           if ($saw_characteristic_integer) {
             if ($value != int($value)) {
               $saw_characteristic_integer = 0;
               $saw_characteristic_integer_at = "i=$i value=$value";
             }
           }
-
+          
           if ($value < $saw_values_min) {
             $saw_values_min = $value;
             if (my ($x,$y) = $seq->{'planepath_object'}->n_to_xy($i)) {
@@ -1044,7 +1056,7 @@ my @modules = (
             $saw_values_max = $value;
             $saw_values_max_at = "i=$i";
           }
-
+          
           # ### $value
           # ### $prev_value
           if (defined $prev_value) {
@@ -1052,13 +1064,14 @@ my @modules = (
               $prev_value = $value;
             }
             if ($value <= $prev_value
-                && ! is_infinite($prev_value)) {
+                && ! is_nan($prev_value)
+                && ! ($value==pos_infinity() && $prev_value==pos_infinity())) {
               # ### not increasing ...
               if ($saw_increasing) {
                 $saw_increasing = 0;
                 $saw_increasing_at = "i=$i value=$value prev_value=$prev_value";
               }
-
+              
               if ($value < $prev_value) {
                 if ($saw_non_decreasing) {
                   $saw_non_decreasing = 0;
@@ -1071,12 +1084,12 @@ my @modules = (
         }
         ### $count
         next if $count == 0;
-
+        
         ### $saw_values_min
         ### $saw_values_min_at
         ### $saw_values_max
         ### $saw_values_max_at
-
+        
         my $values_min = $seq->values_min;
         my $values_max = $seq->values_max;
         if (! defined $values_min) {
@@ -1085,7 +1098,7 @@ my @modules = (
         if (! defined $values_max) {
           $values_max = $saw_values_max;
         }
-
+        
         if (my $coderef = $planepath_object->can("_NumSeq_${param}_max_is_supremum")) {
           if ($planepath_object->$coderef) {
             if ($saw_values_max == $values_max) {
@@ -1111,9 +1124,9 @@ my @modules = (
             }
           }
         }
-
-
-
+        
+        
+        
         # these come arbitrarily close to dX==dY, in general, probably
         if (($mod eq 'MultipleRings,step=2'
              || $mod eq 'MultipleRings,step=3'
@@ -1126,7 +1139,7 @@ my @modules = (
           $saw_values_min = 0;
           $saw_values_min_at = 'override';
         }
-
+        
         # supremum +/- 1 without ever actually reaching
         if (($mod eq 'MultipleRings'
             )
@@ -1136,7 +1149,7 @@ my @modules = (
           $saw_values_min = -1;
           $saw_values_min_at = 'override';
         }
-
+        
         # # not enough values to see these decreasing
         if (($mod eq 'MultipleRings,step=1'
              #      || $mod eq 'MultipleRings,step=2'
@@ -1162,7 +1175,7 @@ my @modules = (
         #   $saw_values_min = 0;
         #   $saw_values_min_at = 'override';
         # }
-
+        
         # if (($mod eq 'MultipleRings,step=1'
         #      || $mod eq 'MultipleRings,step=2'
         #      || $mod eq 'MultipleRings,step=3'
@@ -1530,4 +1543,10 @@ my @modules = (
 
 
 #------------------------------------------------------------------------------
+
+sub is_nan {
+  my ($x) = @_;
+  return !($x==$x);
+}
+
 exit 0;

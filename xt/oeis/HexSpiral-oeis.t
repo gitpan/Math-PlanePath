@@ -18,6 +18,25 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# A182619 Number of vertices that are connected to two edges in a spiral without holes constructed with n hexagons.
+# A182617 Number of toothpicks in a toothpick spiral around n cells on hexagonal net.
+# A182618 Number of new grid points that are covered by the toothpicks added at n-th-stage to the toothpick spiral of A182617.
+
+# A063178 Hexagonal spiral sequence: sequence is written as a hexagonal spiral around a `dummy' center, each entry is the sum of the row in the previous direction containing the previous entry.
+# A063253 Values of A063178 on folding point positions of the spiral.
+# A063254 Values of A062410 on folding point positions of the spiral.
+# A063255 Values of A063177 on folding point positions of the spiral.
+
+
+# A113519 Semiprimes in first spoke of a hexagonal spiral (A056105).
+# A113524 Semiprimes in second spoke of a hexagonal spiral (A056106).
+# A113525 Semiprimes in third spoke of a hexagonal spiral (A056107).
+# A113527 Semiprimes in fourth spoke of a hexagonal spiral (A056108).
+# A113528 Semiprimes in fifth spoke of a hexagonal spiral (A056109).
+# A113530 Semiprimes in sixth spoke of a hexagonal spiral (A003215). Semiprime hex (or centered hexagonal) numbers.
+# A113653 Isolated semiprimes in the hexagonal spiral.
+
+
 use 5.004;
 use strict;
 use Test;
@@ -33,24 +52,6 @@ use Math::PlanePath::HexSpiral;
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
-
-
-my $path = Math::PlanePath::HexSpiral->new;
-
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0;
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
 
 
 #------------------------------------------------------------------------------
@@ -86,68 +87,60 @@ MyOEIS::compare_values
 #
 #        ^  ^  ^  ^  ^  ^  ^
 
-{
-  my $anum = 'A063178';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum,
-                                                      max_value => 'unlimited');
-  my @got;
-  if ($bvalues) {
-    require Math::BigInt;
-    my %plotted;
-    $plotted{2,0} = Math::BigInt->new(1);
-    my $xmin = 0;
-    my $ymin = 0;
-    my $xmax = 2;
-    my $ymax = 0;
-    push @got, 1;
+MyOEIS::compare_values
+  (anum => 'A063178',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::HexSpiral->new;
+     my @got;
+     require Math::BigInt;
+     my %plotted;
+     $plotted{2,0} = Math::BigInt->new(1);
+     my $xmin = 0;
+     my $ymin = 0;
+     my $xmax = 2;
+     my $ymax = 0;
+     push @got, 1;
 
-    for (my $n = $path->n_start + 2; @got < @$bvalues; $n++) {
-      my ($prev_x, $prev_y) = $path->n_to_xy ($n-1);
-      my ($x, $y) = $path->n_to_xy ($n);
-      ### at: "$x,$y  prev $prev_x,$prev_y"
+     for (my $n = $path->n_start + 2; @got < $count; $n++) {
+       my ($prev_x, $prev_y) = $path->n_to_xy ($n-1);
+       my ($x, $y) = $path->n_to_xy ($n);
+       ### at: "$x,$y  prev $prev_x,$prev_y"
 
-      my $total = 0;
-      if (($y > $prev_y && $x < $prev_x)
-          || ($y < $prev_y && $x > $prev_x)) {
-        ### forward diagonal ...
-        foreach my $y ($ymin .. $ymax) {
-          my $delta = $y - $prev_y;
-          my $x = $prev_x + $delta;
-          $total += $plotted{$x,$y} || 0;
-        }
-      } elsif (($y == $prev_y && $x < $prev_x)
-               || ($y == $prev_y && $x > $prev_x)) {
-        ### opp diagonal ...
-        foreach my $y ($ymin .. $ymax) {
-          my $delta = $y - $prev_y;
-          my $x = $prev_x - $delta;
-          $total += $plotted{$x,$y} || 0;
-        }
-      } else {
-        ### row: "$xmin .. $xmax at y=$prev_y"
-        foreach my $x ($xmin .. $xmax) {
-          $total += $plotted{$x,$prev_y} || 0;
-        }
-      }
-      ### total: "$total"
+       my $total = 0;
+       if (($y > $prev_y && $x < $prev_x)
+           || ($y < $prev_y && $x > $prev_x)) {
+         ### forward diagonal ...
+         foreach my $y ($ymin .. $ymax) {
+           my $delta = $y - $prev_y;
+           my $x = $prev_x + $delta;
+           $total += $plotted{$x,$y} || 0;
+         }
+       } elsif (($y == $prev_y && $x < $prev_x)
+                || ($y == $prev_y && $x > $prev_x)) {
+         ### opp diagonal ...
+         foreach my $y ($ymin .. $ymax) {
+           my $delta = $y - $prev_y;
+           my $x = $prev_x - $delta;
+           $total += $plotted{$x,$y} || 0;
+         }
+       } else {
+         ### row: "$xmin .. $xmax at y=$prev_y"
+         foreach my $x ($xmin .. $xmax) {
+           $total += $plotted{$x,$prev_y} || 0;
+         }
+       }
+       ### total: "$total"
 
-      $plotted{$x,$y} = $total;
-      $xmin = min($xmin,$x);
-      $xmax = max($xmax,$x);
-      $ymin = min($ymin,$y);
-      $ymax = max($ymax,$y);
-      push @got, $total;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- sum of rows");
-}
-
+       $plotted{$x,$y} = $total;
+       $xmin = min($xmin,$x);
+       $xmax = max($xmax,$x);
+       $ymin = min($ymin,$y);
+       $ymax = max($ymax,$y);
+       push @got, $total;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

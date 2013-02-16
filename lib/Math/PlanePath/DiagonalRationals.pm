@@ -16,6 +16,7 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Maybe:
 # including_zero=>1 to have 0/1 for A038567
 
 
@@ -26,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -36,50 +37,13 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 use Math::PlanePath::CoprimeColumns;
+*_extend = \&Math::PlanePath::CoprimeColumns::_extend;
+*_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 use vars '@_x_to_n';
-BEGIN {
-  *_x_to_n = \@Math::PlanePath::CoprimeColumns::_x_to_n;
-  *new = \&Math::PlanePath::CoprimeColumns::new;
-  *_extend = \&Math::PlanePath::CoprimeColumns::_extend;
-  *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
-  *parameter_info_array = \&Math::PlanePath::CoprimeColumns::parameter_info_array;
-}
-
+*_x_to_n = \@Math::PlanePath::CoprimeColumns::_x_to_n;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
-
-
-# R = 1 / (1/F - 1)
-# F = Ycol/Xcol
-# R = 1 / (Xcol/Ycol - 1)
-#   = 1 / (Xcol-Ycol)/Ycol
-#   = Ycol / (Xcol-Ycol)
-#
-# R = 1 / (1/F - 1)
-#   = 1 / (1-F)/F
-#   = F/(1-F)
-#
-# 1/R = 1/F - 1
-# 1/R + 1 = 1/F
-# F = 1 / (1/R + 1)
-#   = 1 / (1+R)/R
-#   = R/(1+R)
-#
-# F = 1 / (1/R + 1)
-# R = Xdiag/Ydiag
-# F = 1 / (Ydiag/Xdiag + 1)
-#   = 1 / (Ydiag+Xdiag)/Xdiag
-#   = Xdiag/(Ydiag+Xdiag)
-#   = Ycol/Xcol
-# Xcol = Ydiag+Xdiag
-# Ycol = Xdiag
-#
-# R = 1 / (1/F - 1)
-#   = 1 / ((1+R)/R - 1)
-#   = 1 / ((1+R-R)/R)
-#   = 1 / (1/R)
-#   = R
 
 
 use constant default_n_start => 1;
@@ -88,6 +52,32 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 use constant x_minimum => 1;
 use constant y_minimum => 1;
+
+use constant parameter_info_array =>
+  [
+   # Maybe ...
+   # { name        => 'direction',
+   #   share_key   => 'direction_downup',
+   #   display     => 'Direction',
+   #   type        => 'enum',
+   #   default     => 'down',
+   #   choices     => ['down','up'],
+   #   choices_display => ['Down','Up'],
+   #   description => 'Number points downwards or upwards along the diagonals.',
+   # },
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
+
+#------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  $self->{'direction'} ||= 'down';
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -100,7 +90,13 @@ sub n_to_xy {
   my ($x,$y) = $self->Math::PlanePath::CoprimeColumns::n_to_xy($n+1)
     or return;
   ### CoprimeColumns: "x=$x y=$y"
-  return ($y,$x-$y);
+
+  $x -= $y;
+  if ($self->{'direction'} eq 'up') {
+    return ($x,$y);
+  } else {
+    return ($y,$x);
+  }
 }
 
 sub xy_is_visited {
@@ -118,6 +114,9 @@ sub xy_is_visited {
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### DiagonalRationals xy_to_n(): "$x,$y"
+  if ($self->{'direction'} eq 'up') {
+    ($x,$y) = ($y,$x);
+  }
   my $n = Math::PlanePath::CoprimeColumns::xy_to_n($self,$x+$y,$x);
 
   # not the N=0 at Xcol=1,Ycol=1 which is Xdiag=1,Ydiag=0
@@ -206,14 +205,20 @@ diagonal order from Y down to X.
 The order is the same as the Diagonals path, but only those X,Y with no
 common factor are numbered.
 
-The N=1,2,4,6,10,etc in the leftmost column (at X=1) is the cumulative
-totient,
+    1/1,                      N = 1
+    1/2, 1/2,                 N = 2 .. 3
+    1/3, 1/3,                 N = 4 .. 5
+    1/4, 2/3, 3/2, 4/1,       N = 6 .. 9
+    1/5, 5/1,                 N = 10 .. 11
 
-    phi(i) = count divisors of i
+N=1,2,4,6,10,etc at the start of each diagonal (in the column at X=1) is the
+cumulative totient,
 
-                    i=K
-    phicumul(K) =  sum   phi(i)
-                    i=1
+    totient(i) = count numbers having no common factor with i
+
+                             i=K
+    cumulative_totient(K) =  sum   totient(i)
+                             i=1
 
 =head2 Coprime Columns
 
@@ -227,7 +232,7 @@ CoprimeColumns vertical at X=8.  In general the correspondence is
    Xcol = Xdiag + Ydiag
    Ycol = Xdiag
 
-The CoprimeColumns has an extra N=0 at X=1,Y=1 which is not present in
+CoprimeColumns has an extra N=0 at X=1,Y=1 which is not present in
 DiagonalRationals.  (It would be Xdiag=1,Ydiag=0 which is 1/0.)
 
 The points numbered or skipped in a column up to X=Y is the same as the
@@ -248,6 +253,39 @@ S<0 E<lt> R E<lt> infinity> is
 
 which is a one-to-one mapping between the fractions S<F E<lt> 1> and all
 rationals.
+
+=cut
+
+# R = 1 / (1/F - 1)
+# F = Ycol/Xcol
+# R = 1 / (Xcol/Ycol - 1)
+#   = 1 / (Xcol-Ycol)/Ycol
+#   = Ycol / (Xcol-Ycol)
+#
+# R = 1 / (1/F - 1)
+#   = 1 / (1-F)/F
+#   = F/(1-F)
+#
+# 1/R = 1/F - 1
+# 1/R + 1 = 1/F
+# F = 1 / (1/R + 1)
+#   = 1 / (1+R)/R
+#   = R/(1+R)
+#
+# F = 1 / (1/R + 1)
+# R = Xdiag/Ydiag
+# F = 1 / (Ydiag/Xdiag + 1)
+#   = 1 / (Ydiag+Xdiag)/Xdiag
+#   = Xdiag/(Ydiag+Xdiag)
+#   = Ycol/Xcol
+# Xcol = Ydiag+Xdiag
+# Ycol = Xdiag
+#
+# R = 1 / (1/F - 1)
+#   = 1 / ((1+R)/R - 1)
+#   = 1 / ((1+R-R)/R)
+#   = 1 / (1/R)
+#   = R
 
 =head2 N Start
 
@@ -275,30 +313,6 @@ to start at 0,
        +---------------------------
        X=0  1  2  3  4  5  6  7  8
 
-=head1 OEIS
-
-This enumeration of rationals is in Sloane's Online Encyclopedia of Integer
-Sequences in the following forms
-
-    http://oeis.org/A020652   (etc)
-
-    n_start=1 (the default)
-      A020652   X, numerator
-      A020653   Y, denominator
-      A038567   X+Y sum, starting from X=1,Y=1
-      A054431   by diagonals 1=coprime, 0=not
-                  (excluding X=0 row and Y=0 column)
-
-      A054430   permutation N at transpose Y/X
-                  reverse runs of phi(k) integers
-
-      A054424   permutation DiagonalRationals -> RationalsTree SB
-      A054425     padded with 0s at non-coprimes
-      A054426     inverse SB -> DiagonalRationals
-
-    n_start=0
-      A157806   abs(X-Y) difference
-
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -321,6 +335,31 @@ at 1 and if C<$n E<lt> 1> then the return is an empty list.
 The current implementation is fairly slack and is slow on medium to large N.
 A table of cumulative totients is built and retained for the diagonal X+Y
 sum used.
+
+=head1 OEIS
+
+This enumeration of rationals is in Sloane's Online Encyclopedia of Integer
+Sequences in the following forms
+
+    http://oeis.org/A020652   (etc)
+
+    n_start=1 (the default)
+      A020652   X, numerator
+      A020653   Y, denominator
+      A038567   X+Y sum, starting from X=1,Y=1
+      A054431   by diagonals 1=coprime, 0=not
+                  (excluding X=0 row and Y=0 column)
+
+      A054430   permutation N at Y/X
+                  reverse runs of phi(k) many integers
+
+      A054424   permutation DiagonalRationals -> RationalsTree SB
+      A054425     padded with 0s at non-coprimes
+      A054426     inverse SB -> DiagonalRationals
+      A060837   permutation DiagonalRationals -> FactorRationals
+
+    n_start=0
+      A157806   abs(X-Y) difference
 
 =head1 SEE ALSO
 

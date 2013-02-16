@@ -17,10 +17,14 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# cf A059893 - bit reverse all but the high 1
+
+
 use 5.004;
 use strict;
 use Test;
-plan tests => 35;
+plan tests => 36;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,64 +37,36 @@ use Math::PlanePath::RationalsTree;
 #use Smart::Comments '###';
 
 
-# cf A059893 - bit reverse all but the high 1
+sub gcd {
+  my ($x, $y) = @_;
+  #### _gcd(): "$x,$y"
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
+  if ($y > $x) {
+    $y %= $x;
   }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
+  for (;;) {
+    if ($y <= 1) {
+      return ($y == 0 ? $x : 1);
     }
-    $i++;
+    ($x,$y) = ($y, $x % $y);
   }
-  return (@$a1 == @$a2);
-}
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  my $diff;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    unless ($got =~ /^[0-9.-]+$/) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "not a number pos=$i got='$got'";
-    }
-    unless ($want =~ /^[0-9.-]+$/) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "not a number pos=$i want='$want'";
-    }
-    if ($got != $want) {
-      if (defined $diff) {
-        # $diff .= ",\n";
-        return "$diff, and more diff";
-      }
-      $diff .= "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return $diff;
 }
 
+#------------------------------------------------------------------------------
+# A070990 -- CW Y-X is Stern diatomic first diffs, starting from N=2
+
+MyOEIS::compare_values
+  (anum => 'A070990',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got;
+     for (my $n = $path->n_start + 1; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y - $x;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A007814 -- CW floor(X/Y) is count trailing 1-bits
@@ -142,535 +118,388 @@ sub is_pow2 {
 #------------------------------------------------------------------------------
 # A004442 -- AYT N at transpose Y,X, flip low bit
 
-{
-  my $anum = 'A004442';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (1,0);
-    my $path = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-    for (my $n = 2; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $path->xy_to_n ($y, $x);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum transpose AYT");
-}
+MyOEIS::compare_values
+  (anum => 'A004442',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1,0);
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     for (my $n = 2; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n ($y, $x);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A063946 -- HCS N at transpose Y,X, flip second lowest bit
 
-{
-  my $anum = 'A063946';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (0);
-    my $path = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $path->xy_to_n ($y, $x);
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum transpose HCS");
-}
+MyOEIS::compare_values
+  (anum => 'A063946',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n ($y, $x);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A054429 -- N at transpose Y,X, row right to left
 
-{
-  my $anum = 'A054429';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  foreach my $tree_type ('SB','CW','Bird','Drib') {
-    my $diff;
-    if ($bvalues) {
-      my @got;
-      my $path = Math::PlanePath::RationalsTree->new (tree_type => $tree_type);
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $path->xy_to_n ($y, $x);
-      }
-      $diff = diff_nums(\@got, $bvalues);
-    }
-    skip (! $bvalues,
-          $diff, undef,
-          "$anum transpose $tree_type");
-  }
+foreach my $tree_type ('SB','CW','Bird','Drib') {
+  MyOEIS::compare_values
+      (anum => 'A054429',
+       func => sub {
+         my ($count) = @_;
+         my @got;
+         my $path = Math::PlanePath::RationalsTree->new (tree_type => $tree_type);
+         for (my $n = $path->n_start; @got < $count; $n++) {
+           my ($x, $y) = $path->n_to_xy ($n);
+           push @got, $path->xy_to_n ($y, $x);
+         }
+         return \@got;
+       });
 }
 
 #------------------------------------------------------------------------------
 # A072030 - subtraction steps for gcd(x,y) by triangle rows
-{
-  my $anum = q{A072030};
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $skip;
-  my @got;
-  my $diff;
-  if ($bvalues) {
-    require Math::PlanePath::PyramidRows;
-    my $path = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-    my $triangle = Math::PlanePath::PyramidRows->new (step => 1);
-    for (my $n = $triangle->n_start; @got < @$bvalues; $n++) {
-      my ($x,$y) = $triangle->n_to_xy ($n);
-      next unless $x < $y;  # so skipping GCD(x,x)==x taking 0 steps
-      $x++;
-      $y++;
-      my $gcd = gcd($x,$y);
-      $x /= $gcd;
-      $y /= $gcd;
-      my $n = $path->xy_to_n($x,$y);
-      die unless defined $n;
-      my $depth = $path->tree_n_to_depth($n);
-      push @got, $depth;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum");
-}
+
+MyOEIS::compare_values
+  (anum => q{A072030},
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PyramidRows;
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my $triangle = Math::PlanePath::PyramidRows->new (step => 1);
+     my @got;
+     for (my $n = $triangle->n_start; @got < $count; $n++) {
+       my ($x,$y) = $triangle->n_to_xy ($n);
+       next unless $x < $y;  # so skipping GCD(x,x)==x taking 0 steps
+       $x++;
+       $y++;
+       my $gcd = gcd($x,$y);
+       $x /= $gcd;
+       $y /= $gcd;
+       my $n = $path->xy_to_n($x,$y);
+       die unless defined $n;
+       my $depth = $path->tree_n_to_depth($n);
+       push @got, $depth;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A072031 - row sums of A072030 subtraction steps for gcd(x,y) by rows
-{
-  my $anum = q{A072031};
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $skip;
-  my @got;
-  my $diff;
-  if ($bvalues) {
-    my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
-    for (my $y = 2; @got < @$bvalues; $y++) {
-      my $total = -1;   # gcd(1,Y) taking 0 steps, maybe
-      for (my $x = 1; $x < $y; $x++) {
-        my $gcd = gcd($x,$y);
-        my $n = $path->xy_to_n($x/$gcd,$y/$gcd);
-        die unless defined $n;
-        $total += $path->tree_n_to_depth($n);
-      }
-      push @got, $total+1;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum");
-}
 
+MyOEIS::compare_values
+  (anum => q{A072031},
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
+     my @got;
+     for (my $y = 2; @got < $count; $y++) {
+       my $total = -1;   # gcd(1,Y) taking 0 steps, maybe
+       for (my $x = 1; $x < $y; $x++) {
+         my $gcd = gcd($x,$y);
+         my $n = $path->xy_to_n($x/$gcd,$y/$gcd);
+         die unless defined $n;
+         $total += $path->tree_n_to_depth($n);
+       }
+       push @got, $total+1;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A154436 -- permutation Bird->HCS, lamplighter inverse
 
-{
-  my $anum = 'A154436';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-  my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $bird->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $bird->n_to_xy($n);
-      push @got, $cs->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A154436',
+   func => sub {
+     my ($count) = @_;
+     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got = (0);  # initial 0
+     for (my $n = $bird->n_start; @got < $count; $n++) {
+       my ($x, $y) = $bird->n_to_xy($n);
+       push @got, $cs->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A003188 -- permutation SB->HCS, Gray code shift+xor
 
-{
-  my $anum = 'A003188';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-  my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $sb->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $sb->n_to_xy($n);
-      push @got, $cs->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A003188',
+   func => sub {
+     my ($count) = @_;
+     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got = (0);  # initial 0
+     for (my $n = $sb->n_start; @got < $count; $n++) {
+       my ($x, $y) = $sb->n_to_xy($n);
+       push @got, $cs->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A006068 -- permutation HCS->SB, Gray code inverse
 
-{
-  my $anum = 'A006068';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-  my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $cs->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $cs->n_to_xy($n);
-      push @got, $sb->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A006068',
+   func => sub {
+     my ($count) = @_;
+     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got = (0);  # initial 0
+     for (my $n = $cs->n_start; @got < $count; $n++) {
+       my ($x, $y) = $cs->n_to_xy($n);
+       push @got, $sb->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A154435 -- permutation HCS->Bird, lamplighter
 
-{
-  my $anum = 'A154435';
-  my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-  my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $cs->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $cs->n_to_xy($n);
-      push @got, $bird->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A154435',
+   func => sub {
+     my ($count) = @_;
+     my $cs  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my $bird  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got = (0);  # initial 0
+     for (my $n = $cs->n_start; @got < $count; $n++) {
+       my ($x, $y) = $cs->n_to_xy($n);
+       push @got, $bird->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # Stern diatomic A002487
 
-{
-  my $anum = 'A002487';
+# A002487 -- L denominators, L doesn't have initial 0,1 of diatomic
+MyOEIS::compare_values
+  (anum => 'A002487',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'L');
+     my @got = (0,1);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
-  # A002487 -- L denominators, L doesn't have initial 0,1 of diatomic
-  {
-    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'L');
-    my $diff;
-    if ($bvalues) {
-      my @got = (0,1);
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $y;
-      }
-      $diff = diff_nums(\@got, $bvalues);
-      if ($diff) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-      }
-    }
-    skip (! $bvalues, $diff, undef, "$anum -- L numerators");
-  }
+# A002487 -- CW numerators, is Stern diatomic
+MyOEIS::compare_values
+  (anum => 'A002487',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got = (0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
 
-  # A002487 -- CW numerators, is Stern diatomic
-  {
-    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-    my @got;
-    if ($bvalues) {
-      shift @$bvalues; # drop initial value=0 from oeis
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $x;
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- CW tree numerators as Stern diatomic");
-  }
+# A002487 -- CW denominators are Stern diatomic
+MyOEIS::compare_values
+  (anum => 'A002487',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got = (0,1);  # extra initial
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
-  # A002487 -- CW denominators are Stern diatomic
-  {
-    my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-    my @got;
-    if ($bvalues) {
-      push @got,0,1; # extra initial
-      for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $path->n_to_xy ($n);
-        push @got, $y;
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum -- CW tree denominators as Stern diatomic");
-  }
-}
 
 #------------------------------------------------------------------------------
 # A071585 -- HCS num+den
 
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-  my $anum = 'A071585';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (1);  # extra initial 1/1 then Rat+1
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x+$y;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues, $diff, undef, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A071585',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my @got = (1);  # extra initial 1/1 then Rat+1
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x+$y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A071766 -- HCS denominators
 
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
-  my $anum = 'A071766';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (1);  # extra initial 1/1
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues, $diff, undef, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A071766',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'HCS');
+     my @got = (1);  # extra initial 1/1
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A059893 -- permutation CW<->SB, bit reversal
 
-{
-  my $anum = 'A059893';
-  my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-  my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  {
-    my @got;
-    if ($bvalues) {
-      for (my $n = $cw->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $cw->n_to_xy($n);
-        push @got, $sb->xy_to_n($x,$y);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
-  }
-  {
-    my @got;
-    if ($bvalues) {
-      for (my $n = $sb->n_start; @got < @$bvalues; $n++) {
-        my ($x, $y) = $sb->n_to_xy($n);
-        push @got, $cw->xy_to_n($x,$y);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
-  }
-}
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got;
+     for (my $n = $cw->n_start; @got < $count; $n++) {
+       my ($x, $y) = $cw->n_to_xy($n);
+       push @got, $sb->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => 'A059893',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $sb  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     for (my $n = $sb->n_start; @got < $count; $n++) {
+       my ($x, $y) = $sb->n_to_xy($n);
+       push @got, $cw->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A153153 -- permutation CW->AYT
 
-{
-  my $anum = 'A153153';
-  my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $cw->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $cw->n_to_xy($n);
-      push @got, $ayt->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A153153',
+   func => sub {
+     my ($count) = @_;
+     my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got = (0);  # initial 0
+     for (my $n = $cw->n_start; @got < $count; $n++) {
+       my ($x, $y) = $cw->n_to_xy($n);
+       push @got, $ayt->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A153154 -- permutation AYT->CW
 
-{
-  my $anum = 'A153154';
-  my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $ayt->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $ayt->n_to_xy($n);
-      push @got, $cw->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
+MyOEIS::compare_values
+  (anum => 'A153154',
+   func => sub {
+     my ($count) = @_;
+     my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     my $cw  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got = (0);  # initial 0
+     for (my $n = $ayt->n_start; @got < $count; $n++) {
+       my ($x, $y) = $ayt->n_to_xy($n);
+       push @got, $cw->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A154437 -- permutation AYT->Drib
 
-{
-  my $anum = 'A154437';
-  my $drib  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
-  my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $ayt->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $ayt->n_to_xy($n);
-      push @got, $drib->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
-
+MyOEIS::compare_values
+  (anum => 'A154437',
+   func => sub {
+     my ($count) = @_;
+     my $drib  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+     my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     my @got = (0);  # initial 0
+     for (my $n = $ayt->n_start; @got < $count; $n++) {
+       my ($x, $y) = $ayt->n_to_xy($n);
+       push @got, $drib->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A154438 -- permutation Drib->AYT
 
-{
-  my $anum = 'A154438';
-  my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
-  my $drib  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);  # initial 0
-  if ($bvalues) {
-    for (my $n = $drib->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $drib->n_to_xy($n);
-      push @got, $ayt->xy_to_n($x,$y);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A154438',
+   func => sub {
+     my ($count) = @_;
+     my $ayt  = Math::PlanePath::RationalsTree->new (tree_type => 'AYT');
+     my $drib  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+     my @got = (0);  # initial 0
+     for (my $n = $drib->n_start; @got < $count; $n++) {
+       my ($x, $y) = $drib->n_to_xy($n);
+       push @got, $ayt->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 
 #------------------------------------------------------------------------------
 # A061547 -- pos of frac F(n)/F(n+1) in Stern diatomic, is CW N
 
 # F(n)/F(n+1) in CW, extra initial 0
-{
-  my $anum = 'A061547';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 100);
-  {
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-    my @got = (0);  # extra initial 0 in seq A061547
-    if ($bvalues) {
-      require Math::BigInt;
-      my $f1 = Math::BigInt->new(1);
-      my $f0 = Math::BigInt->new(1);
-      while (@got < @$bvalues) {
-        push @got, $path->xy_to_n ($f0, $f1);
-        ($f1,$f0) = ($f1+$f0,$f1);
-      }
-      if (! numeq_array(\@got, $bvalues)) {
-        MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-        MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum pos F(n)/F(n+1) in Stern");
-  }
 
-  # Y/1 in Drib, extra initial 0 in A061547
-  {
-    my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
-    my @got = (0); # extra initial 0 in A061547
-    if ($bvalues) {
-      for (my $y = Math::BigInt->new(1); @got < @$bvalues; $y++) {
-        push @got, $path->xy_to_n (1, $y);
-      }
-    }
-    skip (! $bvalues,
-          numeq_array(\@got, $bvalues),
-          1, "$anum");
-  }
-}
+MyOEIS::compare_values
+  (anum => 'A061547',
+   max_count => 100,
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got = (0);  # extra initial 0 in seq A061547
+     require Math::BigInt;
+     my $f1 = Math::BigInt->new(1);
+     my $f0 = Math::BigInt->new(1);
+     while (@got < $count) {
+       push @got, $path->xy_to_n ($f0, $f1);
+       ($f1,$f0) = ($f1+$f0,$f1);
+     }
+     return \@got;
+   });
+
+# Y/1 in Drib, extra initial 0 in A061547
+MyOEIS::compare_values
+  (anum => 'A061547',
+   max_count => 100,
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Drib');
+     my @got = (0); # extra initial 0 in A061547
+     for (my $y = Math::BigInt->new(1); @got < $count; $y++) {
+       push @got, $path->xy_to_n (1, $y);
+     }
+     return \@got;
+   });
 
 # #------------------------------------------------------------------------------
 # # A113881
 # # different as n=49
-# 
+#
 # {
 #   my $anum = 'A113881';
 #   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
@@ -681,7 +510,7 @@ sub is_pow2 {
 #     require Math::PlanePath::Diagonals;
 #     my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
 #     my $diag = Math::PlanePath::Diagonals->new;
-#     for (my $n = $diag->n_start; @got < @$bvalues; $n++) {
+#     for (my $n = $diag->n_start; @got < $count; $n++) {
 #       my ($x,$y) = $diag->n_to_xy ($n);
 #       $x++;
 #       $y++;
@@ -703,208 +532,133 @@ sub is_pow2 {
 #         "$anum");
 # }
 
-sub gcd {
-  my ($x, $y) = @_;
-  #### _gcd(): "$x,$y"
-
-  if ($y > $x) {
-    $y %= $x;
-  }
-  for (;;) {
-    if ($y <= 1) {
-      return ($y == 0 ? $x : 1);
-    }
-    ($x,$y) = ($y, $x % $y);
-  }
-}
-
 #------------------------------------------------------------------------------
 # A088696 -- length of continued fraction of SB fractions
 
-{
-  my $anum = 'A088696';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $skip;
-  my @got;
-  my $diff;
-  if (! $bvalues) {
-    $skip = "$anum not available";
-  } elsif (! eval { require Math::ContinuedFraction; 1 }) {
-    $skip = "$anum - Math::ContinuedFraction not available";
-    MyTestHelpers::diag ($skip);
-  } else {
-    my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
-  OUTER: for (my $k = 1; @got < @$bvalues; $k++) {
-      foreach my $n (2**$k .. 2**$k + 2**($k-1) - 1) {
-        my ($x,$y) = $path->n_to_xy ($n);
-        my $cf = Math::ContinuedFraction->from_ratio($x,$y);
-        my $cfaref = $cf->to_array;
-        my $cflen = scalar(@$cfaref);
-        push @got, $cflen-1;  # -1 to skip initial 0 term in $cf
+if (! eval { require Math::ContinuedFraction; 1 }) {
+  skip ("Math::ContinuedFraction not available",
+        0,0);
+} else {
+  MyOEIS::compare_values
+      (anum => 'A088696',
+       func => sub {
+         my ($count) = @_;
+         my @got;
+         my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
+       OUTER: for (my $k = 1; @got < $count; $k++) {
+           foreach my $n (2**$k .. 2**$k + 2**($k-1) - 1) {
+             my ($x,$y) = $path->n_to_xy ($n);
+             my $cf = Math::ContinuedFraction->from_ratio($x,$y);
+             my $cfaref = $cf->to_array;
+             my $cflen = scalar(@$cfaref);
+             push @got, $cflen-1;  # -1 to skip initial 0 term in $cf
 
-        ### cf: "n=$n xy=$x/$y cflen=$cflen ".$cf->to_ascii
-        last OUTER if @got >= @$bvalues;
-      }
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..30]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..30]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum - SB continued fraction length");
+             ### cf: "n=$n xy=$x/$y cflen=$cflen ".$cf->to_ascii
+             last OUTER if @got >= $count;
+           }
+         }
+         return \@got;
+       });
 }
 
 #------------------------------------------------------------------------------
 # A000975 -- 010101 without consecutive equal bits, Bird tree X=1 column
 
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-  my $anum = 'A000975';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum, max_count => 100);
-  my @got;
-  if ($bvalues) {
-    push @got, 0;  # extra initial 0 in A000975
-    require Math::BigInt;
-    for (my $y = Math::BigInt->new(1); @got < @$bvalues; $y++) {
-      push @got, $path->xy_to_n (1, $y);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A000975',
+   max_count => 100,
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got = (0);  # extra initial 0 in A000975
+     require Math::BigInt;
+     for (my $y = Math::BigInt->new(1); @got < $count; $y++) {
+       push @got, $path->xy_to_n (1, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A086893 -- pos of frac F(n+1)/F(n) in Stern diatomic, is CW N
 
-{
-  my $anum = 'A086893';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-  my @got;
-  if ($bvalues) {
-    my $f1 = 1;
-    my $f0 = 1;
-    while (@got < @$bvalues) {
-      push @got, $path->xy_to_n ($f1, $f0);
-      ($f1,$f0) = ($f1+$f0,$f1);
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A086893',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got;
+     my $f1 = 1;
+     my $f0 = 1;
+     while (@got < $count) {
+       push @got, $path->xy_to_n ($f1, $f0);
+       ($f1,$f0) = ($f1+$f0,$f1);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A007305 -- SB numerators
 
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-  my $anum = 'A007305';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    push @got, 0,1;  # extra initial
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..10])
-  ### got: '    '.join(',',@got[0..10])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- SB tree numerators");
-}
+MyOEIS::compare_values
+  (anum => 'A007305',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got = (0,1);  # extra initial
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A047679 -- SB denominators
 
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-  my $anum = 'A047679';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- SB tree denominators");
-}
+MyOEIS::compare_values
+  (anum => 'A047679',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got;
+     foreach my $n (1 .. $count) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A007306 -- SB num+den
 
-{
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
-  my $anum = 'A007306';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    push @got,1,1; # extra initial
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $x+$y;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- SB tree num+den");
-}
-
-
-#------------------------------------------------------------------------------
-# A070990 -- CW Y-X is Stern diatomic first diffs
-
-{
-  my $path = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
-  my $anum = 'A070990';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    unshift @$bvalues, 0;   # extra 0 in RationalsTree
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, $y - $x;
-    }
-  }
-  ### bvalues: join(',',@{$bvalues}[0..20])
-  ### got: '    '.join(',',@got[0..20])
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- CW tree Y-X as Stern diatomic first diffs");
-}
+MyOEIS::compare_values
+  (anum => 'A007306',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got = (1,1); # extra initial
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x+$y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A162911 -- Drib tree numerators = Bird tree reverse N
 
-{
-  my $anum = q{A162911};
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
-      push @got, $x;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Drib tree numerators by bit reversal");
-}
+MyOEIS::compare_values
+  (anum => q{A162911},
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got;
+     foreach my $n (1 .. $count) {
+       my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
+       push @got, $x;
+     }
+     return \@got;
+   });
 
 sub bit_reverse {
   my ($n) = @_;
@@ -919,22 +673,18 @@ sub bit_reverse {
 #------------------------------------------------------------------------------
 # A162912 -- Drib tree denominators = Bird tree reverse
 
-{
-  my $anum = q{A162912};
-  my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    foreach my $n (1 .. @$bvalues) {
-      my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
-      push @got, $y;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Drib tree denominators by bit reversal");
-}
-
+MyOEIS::compare_values
+  (anum => q{A162912},
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::RationalsTree->new (tree_type => 'Bird');
+     my @got;
+     foreach my $n (1 .. $count) {
+       my ($x, $y) = $path->n_to_xy (bit_reverse ($n));
+       push @got, $y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

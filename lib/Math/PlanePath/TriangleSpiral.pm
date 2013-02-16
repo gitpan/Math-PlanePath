@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -34,7 +34,7 @@ use Math::PlanePath::Base::Generic
 #use Smart::Comments;
 
 
-*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_even;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_even;
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
 
@@ -314,6 +314,14 @@ this path include
       A081275     N on ENE slope from X=2,Y=0 then dX=+3,dY=+1
       A081266     N on WSW slope dX=-3,dY=-1
       A081271     N on X=2 vertical
+
+    n_start=-1
+      A023531     N position of turns (to the left)
+                    1 at N=k*(k+3)/2
+
+A023531 is C<n_start=-1> to match its "offset=0" for the first turn, being
+the second point of the path.  A010054 which is 1 at triangular numbers
+k*(k+1)/2 is the same except for an extra initial 1.
 
 =head1 SEE ALSO
 

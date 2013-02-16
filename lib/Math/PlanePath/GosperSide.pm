@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

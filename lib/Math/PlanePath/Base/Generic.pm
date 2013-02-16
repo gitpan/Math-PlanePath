@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 98;
+$VERSION = 99;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -30,7 +30,7 @@ use Exporter;
               # not documented yet
               'is_infinite',
               'floor',
-              'xy_is_visited_even');
+              'xy_is_even');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -119,7 +119,7 @@ sub xy_is_visited_quad14 {
   my ($self, $x, $y) = @_;
   return (2*$x >= -1);
 }
-sub xy_is_visited_even {
+sub xy_is_even {
   my ($self, $x, $y) = @_;
   return (round_nearest($x)%2 == round_nearest($y)%2);
 }

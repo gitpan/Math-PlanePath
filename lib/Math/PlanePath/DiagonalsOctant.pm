@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,7 +38,7 @@ use constant n_frac_discontinuity => .5;
 
 use constant parameter_info_array =>
   [ { name        => 'direction',
-      share_key   => 'direction_ud',
+      share_key   => 'direction_downup',
       display     => 'Direction',
       type        => 'enum',
       default     => 'down',

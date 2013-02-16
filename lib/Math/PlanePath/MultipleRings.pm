@@ -36,7 +36,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 98;
+$VERSION = 99;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -227,7 +227,15 @@ sub new {
 
   if ($ring_shape eq 'polygon' && $step >= 3) {
     ### polygon ...
-    $self->{'base_r'} = 0.5/sin(_PI/$step);
+    if ($step == 6) {
+      ### 0.5/sin(PI/6)=1 exactly ...
+      $self->{'base_r'} = 1;
+    } elsif ($step == 3) {
+      ### 0.5/sin(PI/3)=sqrt(3)/3 ...
+      $self->{'base_r'} = sqrt(3)/3;
+    } else {
+      $self->{'base_r'} = 0.5/sin(_PI/$step);
+    }
 
   } elsif ($step == 6) {
     ### 0.5/sin(PI/6)=1 exactly ...
@@ -236,6 +244,10 @@ sub new {
   } elsif ($step == 4) {
     ### 0.5/sin(PI/4)=sqrt(2)/2 ...
     $self->{'base_r'} = sqrt(2)/2 - 1;
+
+  } elsif ($step == 3) {
+    ### 0.5/sin(PI/3)=sqrt(3)/3 ...
+    $self->{'base_r'} = sqrt(3)/3 - 1;
 
   } elsif ($step < 6) {
     $self->{'base_r'} = ($step > 1 && 0.5/sin(_PI/$step)) - 1;

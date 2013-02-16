@@ -15,13 +15,34 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# sum_minimum
+# n_ordered_children() $n and undefs
+#   SierpinskiTree,ToothpickTree left and right
+#   OneOfEight 3 from horiz, 5 from diag
+#
+# x_increasing
+# y_increasing
+# xy_sum_minimum
+# xy_sum_non_decreasing
+# xy_sum_increasing
+# xy_sumabs_minimum   abs(X)+abs(Y)
+# xy_diff_minimum     X-Y
+# xy_absdiff_minimum  abs(X-Y)
+# xy_product_minimum
 # sumxy_minimum
 # sumabsxy_minimum
 # diffxy_minimum
+#
+# trsquared_minimum
+# trsquared_minimum
 # dsum_minimum
 # ddiffxy_minimum
+#
+# xy_all_coprime() xy_coprime()   gcd(X,Y)=1 always
+# xy_all_divisible()   X divisible by Y
+# xy_any_even
+# xy_any_odd
+# xy_all_even
+# xy_all_odd
 
 # Math::PlanePath::Base::Generic
 #   divrem
@@ -30,6 +51,7 @@
 # ($n_lo,$n_hi) = $path->tree_depth_to_n_range($depth);
 # $width = $path->tree_depth_to_n_width($depth);  # number of N at depth
 #
+# $path->n_to_turn_lsr
 # $path->n_to_dir4
 # $path->n_to_turn4
 # $path->n_to_turn6
@@ -44,14 +66,16 @@
 # $path->xy_next_in_rect($x,$y, $x1,$y1,$x2,$y2)
 #    return ($x,$y) or empty
 #
-# $path->xy_integer
+# $path->xy_integer() if X,Y both all integer
+# $path->x_integer()  if X all integer
+# $path->y_integer()  if Y all integer
 # $path->xy_integer_n_start
 # $path->x_range('integer')
 # $path->x_range('all')
 #
 # lattice_type square,triangular,triangular_odd,pentagonal,fractional
-# $path->xy_any_odd
-# $path->xy_any_even
+# $path->xy_any_odd()   xy_odd()   xy_all_odd()
+# $path->xy_any_even()  xy_even()  xy_all_even()
 #
 # xy_unique_n_start
 # figures_disjoint
@@ -65,7 +89,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 98;
+$VERSION = 99;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -114,7 +138,7 @@ use constant dx_maximum => undef;
 use constant dy_maximum => undef;
 
 # experimental default from x_minimum(),y_minimum()
-# FIXME: should use xabs_minimum, yabs_minimum, for paths outside first quadrant
+# FIXME: should use absx_minimum, absy_minimum, for paths outside first quadrant
 sub rsquared_minimum {
   my ($self) = @_;
   ### rsquared_minimum() ...
@@ -485,6 +509,7 @@ And in the separate Math-PlanePath-Toothpick distribution
 
     LCornerTree            L-shape corner growth
     LCornerReplicate       same by replication rather than tree
+    OneOfEight
 
 The paths are object oriented to allow parameters, though many have none.
 See C<examples/numbers.pl> in the Math-PlanePath sources for a sample
@@ -795,6 +820,8 @@ there's no children at a particular C<$n>.
 
 Return the number of children of C<$n>, or 0 if C<$n> has no children, or
 C<undef> if S<C<$n E<lt> n_start()>> (ie. before the start of the path).
+
+If the tree is reckoned as a directed graph this is the out-degree.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

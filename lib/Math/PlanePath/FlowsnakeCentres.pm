@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -39,7 +39,7 @@ use Math::PlanePath;
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest',
-  'xy_is_visited_even';
+  'xy_is_even';
 use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
@@ -326,7 +326,7 @@ sub n_to_xy {
 sub xy_is_visited {
   my ($self, $x, $y) = @_;
   if ($self->{'arms'} == 3) {
-    return xy_is_visited_even($self,$x,$y);
+    return xy_is_even($self,$x,$y);
   } else {
     return defined($self->xy_to_n($x,$y));
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -18,10 +18,14 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# A217295 Permutation of natural numbers arising from applying the walk of triangular horizontal-last spiral (defined in A214226) to the data of square spiral (e.g. A214526).
+# A214227 -- sum of 4 neighbours horizontal-last
+
+
 use 5.004;
 use strict;
 use Test;
-plan tests => 1;
+plan tests => 4;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -34,104 +38,88 @@ use Math::PlanePath::PyramidSpiral;
 #use Smart::Comments '###';
 
 
-my $path = Math::PlanePath::PyramidSpiral->new;
+#------------------------------------------------------------------------------
+# A217013 - inverse permutation, SquareSpiral -> PyramidSpiral
+#   X,Y in SquareSpiral order, N of PyramidSpiral
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
+MyOEIS::compare_values
+  (anum => 'A217013',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::SquareSpiral;
+     my $pyramid = Math::PlanePath::PyramidSpiral->new;
+     my $square  = Math::PlanePath::SquareSpiral->new;
+     my @got;
+     for (my $n = $square->n_start; @got < $count; $n++) {
+       my ($x, $y) = $square->n_to_xy($n);
+       ($x,$y) = (-$y,$x);  # rotate +90
+       push @got, $pyramid->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A217294 - permutation PyramidSpiral -> SquareSpiral
+#   X,Y in PyramidSpiral order, N of SquareSpiral
+#   but A217294 conceived by square spiral going up and clockwise
+#                        and pyramid spiral going left and clockwise
+#     which means rotate -90 here
+
+MyOEIS::compare_values
+  (anum => 'A217294',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::SquareSpiral;
+     my $pyramid = Math::PlanePath::PyramidSpiral->new;
+     my $square  = Math::PlanePath::SquareSpiral->new;
+     my @got;
+     for (my $n = $pyramid->n_start; @got < $count; $n++) {
+       my ($x, $y) = $pyramid->n_to_xy($n);
+       ($x,$y) = ($y,-$x);  # rotate -90
+       push @got, $square->xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A053615 -- distance to pronic is abs(X)
 
-{
-  my $anum = 'A053615';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      push @got, abs($x);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
-
-# Not quite, it goes from N=1 to a baseline
-#
-# #------------------------------------------------------------------------------
-# # A214227 -- sum of 4 neighbours
-# {
-#   my $anum = 'A214227';
-#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-#   my @got;
-#   require Math::Prime::XS;
-#   if ($bvalues) {
-#     for (my $n = 1; @got < @$bvalues; $n++) {
-#       my ($x,$y) = $path->n_to_xy ($n);
-#       push @got, ($path->xy_to_n($x+1,$y)
-#                   + $path->xy_to_n($x-1,$y)
-#                   + $path->xy_to_n($x,$y+1)
-#                   + $path->xy_to_n($x,$y-1)
-#                  );
-#     }
-#     if (! numeq_array(\@got, $bvalues)) {
-#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-#       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-#     }
-#   }
-#   skip (! $bvalues,
-#         numeq_array(\@got, $bvalues),
-#         1, "$anum");
-# }
+MyOEIS::compare_values
+  (anum => 'A053615',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidSpiral->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, abs($x);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A214250 -- sum of 8 neighbours
-{
-  my $anum = 'A214250';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  require Math::Prime::XS;
-  if ($bvalues) {
-    for (my $n = 1; @got < @$bvalues; $n++) {
-      my ($x,$y) = $path->n_to_xy ($n);
-      push @got, ($path->xy_to_n($x+1,$y)
-                  + $path->xy_to_n($x-1,$y)
-                  + $path->xy_to_n($x,$y+1)
-                  + $path->xy_to_n($x,$y-1)
-                  + $path->xy_to_n($x+1,$y+1)
-                  + $path->xy_to_n($x-1,$y-1)
-                  + $path->xy_to_n($x-1,$y+1)
-                  + $path->xy_to_n($x+1,$y-1)
-                 );
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
+# A214250 -- sum of 8 neighbours N
 
+MyOEIS::compare_values
+  (anum => 'A214250',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidSpiral->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x,$y) = $path->n_to_xy ($n);
+       push @got, ($path->xy_to_n($x+1,$y)
+                   + $path->xy_to_n($x-1,$y)
+                   + $path->xy_to_n($x,$y+1)
+                   + $path->xy_to_n($x,$y-1)
+                   + $path->xy_to_n($x+1,$y+1)
+                   + $path->xy_to_n($x-1,$y-1)
+                   + $path->xy_to_n($x-1,$y+1)
+                   + $path->xy_to_n($x+1,$y-1)
+                  );
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

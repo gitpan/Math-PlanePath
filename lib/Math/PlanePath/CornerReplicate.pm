@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -274,8 +274,9 @@ Math::PlanePath::CornerReplicate -- replicating U parts
 
 =head1 DESCRIPTION
 
-This path is a self-similar replicating corner fill with 2x2 blocks.  It's
-sometimes called a "U order" since the base N=0 to N=3 is like a "U".
+This path is a self-similar replicating corner fill with 2x2 blocks.
+X<U Order>It's sometimes called a "U order" since the base N=0 to N=3 is
+like a "U".
 
      7  | 63--62  59--58  47--46  43--42
         |      |       |       |       |
@@ -341,6 +342,24 @@ A given replication extends to
     - (2^level - 1) <= X <= (2^level - 1)
     - (2^level - 1) <= Y <= (2^level - 1)
 
+=head2 Hamming Distance
+
+The hamming distance between X and Y is the number of bit positions where
+the two numbers differ when written in binary.  Each bit-pair of N becomes a
+bit of X and a bit of Y,
+
+    N     X   Y
+    --    -   -
+    00    0   0
+    01    1   0     <- difference 1 bit
+    10    1   1
+    11    0   1     <- difference 1 bit
+
+So the hamming distance is the number of base4 bit-pairs of N which are 01
+or 11.  If bits are counted from 0 for the least significant bit then
+
+    HammingDist(X,Y) = count 1-bits at even bit positions in N    
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -371,6 +390,7 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
     A059906    Y coordinate
     A059905    X bitxor Y (is ZOrderCurve X)
+    A139351    HammingDist(X,Y), count 1-bits at even positions in N
 
     A000695    N on X axis, base 4 digits 0,1 only
     A001196    N on Y axis, base 4 digits 0,3 only

@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,7 +45,7 @@ use Math::PlanePath::Base::Digits
 
 
 use constant n_start => 0;
-*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_even;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_even;
 
 sub n_to_xy {
   my ($self, $n) = @_;

@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -819,12 +819,22 @@ L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::PeanoCurve>,
 L<Math::PlanePath::ZOrderCurve>
 
-"New Gosper Space Filling Curves" by Fukuda, Shimizu and Nakamura, on
+"New Gosper Space Filling Curves" by Fukuda, Shimizu and Nakamura.  On
 flowsnake variations in bigger hexagons (with wiggly sides too).
 
-    http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
-      or if down then at archive.org
-    http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
+=over
+
+http://kilin.clas.kitasato-u.ac.jp/museum/gosperex/343-024.pdf
+
+=back
+
+or if down then at archive.org
+
+=over
+
+http://web.archive.org/web/20070630031400/http://kilin.u-shizuoka-ken.ac.jp/museum/gosperex/343-024.pdf
+
+=back
 
 =head1 HOME PAGE
 

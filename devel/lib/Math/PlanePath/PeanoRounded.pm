@@ -34,7 +34,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 98;
+$VERSION = 99;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -501,8 +501,12 @@ L<Math::PlanePath::DragonRounded>
 Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",
 Mathematische Annalen, volume 36, number 1, 1890, p157-160
 
-    http://www.springerlink.com/content/w232301n53960133/
-    DOI 10.1007/BF01199438
+=over
+
+DOI 10.1007/BF01199438
+http://www.springerlink.com/content/w232301n53960133/
+
+=back
 
 =head1 HOME PAGE
 
