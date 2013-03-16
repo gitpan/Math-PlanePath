@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -117,6 +117,11 @@ sub dx_maximum {
              $self->{'diagonal_spacing'});
 }
 *dy_maximum = \&dx_maximum;
+
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+
 
 #------------------------------------------------------------------------------
 
@@ -642,7 +647,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel OEIS dX dY nextturn
+=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel OEIS dX dY dX,dY nextturn
 
 =head1 NAME
 

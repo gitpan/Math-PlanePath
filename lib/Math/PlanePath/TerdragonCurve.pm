@@ -44,7 +44,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -70,6 +70,23 @@ use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1;
+
+# arms=1 curve goes at 0,120,240 degrees
+# arms=2 second +60 to 60,180,300 degrees
+# so when arms==1 dir maximum is 240 degrees
+# sub dir4_maximum {
+#   my ($self) = @_;
+#   return ($self->{'arms'} == 1
+#           ? 2.5    # 0,2,4 only           South-West
+#           : 3.5);  # rotated to 1,3,5 too South-East
+# }
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'arms'} == 1
+          ? (-1,-1)    # 0,2,4 only           South-West
+          : ( 1,-1));  # rotated to 1,3,5 too South-East
+}
 
 #------------------------------------------------------------------------------
 

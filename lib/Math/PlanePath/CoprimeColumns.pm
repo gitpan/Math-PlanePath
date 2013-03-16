@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,9 +43,11 @@ use constant n_frac_discontinuity => .5;
 
 use constant x_minimum => 1;
 use constant y_minimum => 1;
-
 use constant dx_minimum => 0;
 use constant dx_maximum => 1;
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+use constant dir_maximum_dxdy => (1,-1); # South-East
 
 # shared by DiagonalRationals
 use constant parameter_info_array =>

@@ -22,6 +22,10 @@
 #
 # math-image --wx --path=MultipleRings,ring_shape=polygon,step=5  --scale=50 --figure=ring --all
 
+
+# FIXME: polygon ensure horizontal and vertical parts have unchanging X or Y
+
+
 package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
@@ -36,7 +40,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 99;
+$VERSION = 100;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -46,6 +50,9 @@ use Math::PlanePath::SacksSpiral; # for _bigfloat()
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
+
+use constant 1.02; # for leading underscore
+use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 use constant figure => 'circle';
 use constant n_frac_discontinuity => 0;
@@ -71,7 +78,7 @@ use constant parameter_info_array =>
    },
   ];
 
-
+#------------------------------------------------------------------------------
 # Electricity transmission cable in sixes, with one at centre ?
 #    7 poppy
 #    19 hyacinth
@@ -191,6 +198,45 @@ sub dy_maximum {
           : 1); # supremum
 }
 
+sub absdx_minimum {
+  my ($self) = @_;
+  my $step = $self->{'step'};
+  if ($step == 0) {
+    return 1;    # horizontal dX=1 always
+  }
+  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+    if ($step % 2) {
+      return 0;  # polygons with odd num sides have left vertical dX=0
+    } else {
+      return sin(_PI/2 /$step);
+    }
+
+    # if ($self->{'step'} % 2 == 1) {
+    #   
+    #   return 0;
+    # } else {
+    #   return abs($self->dx_minimum);
+    # }
+  }
+  return 0;
+}
+sub absdy_minimum {
+  my ($self) = @_;
+  my $step = $self->{'step'};
+  if ($step == 0) {
+    return 0;    # horizontal dX=1 always
+  }
+  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+    if ($step == 3) {
+      return 0.5;  # sin(30 degrees) innermost polygon
+    }
+    my $frac = ($step+2) % 4;
+    if ($frac == 3) { $frac = 1; }
+    return sin(_PI/2 * $frac/$step);
+  }
+  return 0;
+}
+
 sub rsquared_minimum {
   my ($self) = @_;
   my $step = $self->{'step'};
@@ -207,11 +253,110 @@ sub rsquared_minimum {
   return $r*$r;
 }
 
-#------------------------------------------------------------------------------
+# polygon step many sides
+#   start at vertical angle 1/4 plus 0.5/step, then k*1/step each side
+#   a = 1/4 + (k+1/2)/step
+#     = (1 + 4(k+1/2)/step) / 4
+#     = ((4*k+2)/step + 1) / 4
+#
+# maximum want 1 > a >= 1-1/step
+#   1/4 + (k+1/2)/step >= 1-1/step
+#   (k+1/2)/step >= 3/4-1/step
+#   k+1/2 >= 3*step/4-1
+#   k >= 3*step/4-3/2
+#   k >= (3*step-6)/4
+#   k = ceil((3*step-6)/4)
+#     = floor((3*step-6)/4 + 3/4)
+#     = floor((3*step-3)/4)
+# high side
+#   1/4 + (k+1/2)/step < 1
+#   (k+1/2)/step < 3/4
+#   k+1/2 < 3*step/4
+#   k < (3*step-2)/4
+#   k = floor((3*step-2)/4 - 1/4)
+#     = floor((3*step-3)/4)
+#
+# so
+#   a = 1/4 + (floor((3*step-3)/4) + 1/2)/step
+#     = (1 + 4*(floor((3*step-3)/4) + 1/2)/step) / 4
+#     = ((floor((3*step-3)/4)*4 + 2)/step + 1) / 4
+# step=4   a = 7/8
+# step=5   a = 19/20
+# step=6   a = 5/6
+# step=7   a = 25/28
+# step=8   a = 15/16
+# step=10  a = 9/10
+# return (int((3*$step-3)/4) * 4 + 2)/$step + 1;
+# is full circle less 4,3,2,1 as step-2 mod 4
+#
+# sub dir4_maximum {
+#   my ($self) = @_;
+#   if ($self->{'step'} == 0) {
+#     return 0;   # horizontal only
+#   }
+#   my $step = $self->{'step'};
+#   if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+#     return (($step-2)%4 - 4)/$step + 4;
+#   }
+#   return 4; # supremum, full circle
+# }
 
-# same in Math::NumSeq::PlanePathDelta too
-use constant 1.02; # for leading underscore
-use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
+# want a >= 1
+# 1/4 + (k+1/2)/step >= 1
+# (k+1/2)/step >= 3/4
+# k+1/2 >= 3*step/4
+# k >= 3*step/4 - 1/2
+# k >= (3*step-2)/4
+# k = ceil((3*step-2)/4)
+#   = floor((3*step-2)/4 + 3/4)
+#   = floor((3*step+1)/4)
+# min_a = 1/4 + (floor((3*step+1)/4) + 1/2)/step - 1
+#       = (1 + 4*(floor((3*step+1)/4) + 1/2)/step ) / 4
+#       = ((4*floor((3*step+1)/4) + 2)/step + 1) / 4 - 1
+#       = ((floor((3*step+1)/4)*4 + 2)/step - 3) / 4
+# return (int((3*$step+1)/4) * 4 + 2)/$step - 3;
+# is 0,1,2,3 as step-2 mod 4
+# return (($step-2) % 4) / $step;
+#
+# but last of ring across to first of next may be shallower
+#
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   my $step = $self->{'step'};
+#   if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+#     if ($step % 4 != 2) {   # polygon step=2mod4 includes horizontal ...
+#       my ($dx,$dy) = $self->n_to_dxdy($self->{'step'});
+#       return min (atan2($dy,$dx) * (2/_PI),
+#                   (($step-2) % 4) / $step);
+#     }
+# 
+#   }
+#   return 0; # horizontal
+# }
+
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  my $step = $self->{'step'};
+  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+    return $self->n_to_dxdy($step == 9
+                            ? 9
+                            : int((3*$step+5)/4));
+  }
+  return (1,0); # horizontal
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  if ($self->{'step'} == 0) {
+    return (1,0);   # horizontal only
+  }
+  my $step = $self->{'step'};
+  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+    return $self->n_to_dxdy(int((3*$step+1)/4));  # 1 before the minimum
+  }
+  return (0,0); # supremum, full circle
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my $class = shift;
@@ -283,6 +428,20 @@ sub new {
 # usual polygon formula R = a / 2*sin(pi/n)
 # cf inner radius  r = a / 2*tan(pi/n)
 # along chord
+#
+# polygon horizontal when a=1
+#   1/4 + (k+1/2)/step = 1
+#   (k+1/2)/step = 3/4
+#   k+1/2 = 3*step/4
+#   k = 3*step/4 - 1/2
+#   k = ()/4
+#   4*k = 3*step-2
+# and when a=1/2
+#   1/4 + (k+1/2)/step = 1/2
+#   (k+1/2)/step = 1/4
+#   k+1/2 = step/4
+#   4*k+2 = step
+
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -319,27 +478,45 @@ sub n_to_xy {
 
   my $base_r = $self->{'base_r'};
   if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+    ### polygon ...
     my $r = ($step >= 6 ? $base_r*$d
              # : $step >= 4 ? $d+$base_r-1
              : ($d-1)/cos(_PI/$step) + $base_r);
     $n /= $d;
     my $side = int ($n);
     $n -= $side;
+    ### n frac: $n
+
+    my $side4 = 4*$side + 2;
+    ### $side4
+
+    if ($n == 0 && ($side4-4 == $step || $side4-4 == 3*$step)) {
+      ### end of horizontal drop back to start ...
+      $n = 1;
+      $side -= 1;
+      $side4 -= 4;
+    }
 
     my $theta = $side*2*_PI/$step;
-    my $fx = $r * cos($theta);
-    my $fy = $r * sin($theta);
+    my $from_x = $r * cos($theta);
+    my $from_y = $r * sin($theta);
     $theta = ($side+1)*2*_PI/$step;
-    my $tx = $r * cos($theta);
-    my $ty = $r * sin($theta);
+    my $to_x = $r * cos($theta);
+    my $to_y;
+    if ($side4 == $step || $side4 == 3*$step) {
+      ### horizontal, ensure same Y each time ...
+      $to_y = $from_y;
+    } else {
+      $to_y = $r * sin($theta);
+    }
 
     ### $side
     ### $r
-    ### from: "$fx, $fy"
-    ### to: "$tx, $ty"
+    ### from: "$from_x, $from_y"
+    ### to: "$to_x, $to_y"
 
-    return ($fx + $n*($tx-$fx),
-            $fy + $n*($ty-$fy));
+    return ($from_x + $n*($to_x-$from_x),
+            $from_y + $n*($to_y-$from_y));
   }
 
   my $pi = _PI;
@@ -435,7 +612,7 @@ sub _UNTESTED__n_to_radius {
 
   if ($step == 1 || $step == 6) {
     # step=1 or step=6 exact integer radius
-    return int((sqrt(int(8*($n-1)/$step) + 1) + ($step == 1 ? -1 : 1)) / 2)
+    return int((sqrt(int(8*($n-1)/$step) + 1) + ($step == 1 ? -1 : 1)) / 2);
   }
 
   return $self->SUPER::n_to_radius($n);
@@ -646,7 +823,7 @@ multiple of the triangular numbers, plus 1,
 
     Nstart = step*d*(d-1)/2 + 1
 
-X<Centred Polygonal Numbers>This is the centred polygonal numbers, being the
+X<Centred polygonal numbers>This is the centred polygonal numbers, being the
 cumulative count of points making up concentric polygons or rings of this
 style.
 

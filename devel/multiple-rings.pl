@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,6 +25,52 @@ use Math::Trig 'pi','tan';
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+{
+  # dir_minimum_dxdy() position
+  require Math::PlanePath::MultipleRings;
+  require Math::NumSeq::PlanePathDelta;
+  foreach my $step (3 .. 100) {
+    my $path = Math::PlanePath::MultipleRings->new (step => $step,
+                                                    ring_shape => 'polygon');
+    my $min_dir4 = 99;
+    my $min_n = 1;
+    my $max_dir4 = 0;
+    my $max_n = 1;
+    foreach my $n (1 .. $step) {
+      my ($dx,$dy) = $path->n_to_dxdy($n);
+      my $dir4 = Math::NumSeq::PlanePathDelta::_delta_func_Dir4($dx,$dy);
+      if ($dir4 > $max_dir4) {
+        $max_dir4 = $dir4;
+        $max_n = $n;
+      }
+      if ($dir4 < $min_dir4) {
+        $min_dir4 = $dir4;
+        $min_n = $n;
+      }
+    }
+    my $min_diff = $step - $min_n;
+    my $max_diff = $step - $max_n;
+    print "$step  min N=$min_n $min_diff  max N=$max_n $max_diff\n";
+  }
+  exit 0;
+}
+{
+  # dir4_minimum, dir4_maximum
+  require Math::PlanePath::MultipleRings;
+  foreach my $step (3 .. 20) {
+    my $path = Math::PlanePath::MultipleRings->new (step => $step,
+                                                    ring_shape => 'polygon');
+    my $min = $path->dir4_minimum();
+    my $max = $path->dir4_maximum();
+    my $den = 2*$step;
+    $min *= $den;
+    $max *= $den;
+    my $md = 4*$den - $max;
+    print "$step   $min  $max($md)   / $den\n";
+  }
+  exit 0;
+}
 
 {
   # polygon pack

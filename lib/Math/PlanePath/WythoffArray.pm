@@ -42,7 +42,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,10 +56,54 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
+use constant parameter_info_array =>
+  [ { name        => 'x_start',
+      display     => 'X start',
+      type        => 'integer',
+      default     => 0,
+      width       => 3,
+      description => 'Starting X coordinate.',
+    },
+    { name        => 'y_start',
+      display     => 'Y start',
+      type        => 'integer',
+      default     => 0,
+      width       => 3,
+      description => 'Starting Y coordinate.',
+    },
+  ];
+
+use constant default_n_start => 1;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
-*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
 
+sub x_minimum {
+  my ($self) = @_;
+  return $self->{'x_start'};
+}
+sub y_minimum {
+  my ($self) = @_;
+  return $self->{'y_start'};
+}
+use constant absdx_minimum => 1;
+use constant dir_maximum_dxdy => (3,-1);  # N=4 to N=5 dX=3,dY=-1
+
+#------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  $self->{'x_start'} ||= 0;
+  $self->{'y_start'} ||= 0;
+  return $self;
+}
+
+sub xy_is_visited_quad1 {
+  my ($self, $x, $y) = @_;
+  return ((round_nearest($x) - $self->{'x_start'}) >= 0
+          && (round_nearest($y) - $self->{'y_start'}) >= 0);
+}
+
+#------------------------------------------------------------------------------
 #   4  |  12   20   32   52   84  136  220  356  576  932 1508
 #   3  |   9   15   24   39   63  102  165  267  432  699 1131
 #   2  |   6   10   16   26   42   68  110  178  288  466  754
@@ -138,7 +182,7 @@ sub n_to_xy {
   ### $shift
   ### $y
 
-  return ($x,$y);
+  return ($x+$self->{'x_start'},$y+$self->{'y_start'});
 }
 
 # phi = (sqrt(5)+1)/2
@@ -153,8 +197,8 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### WythoffArray xy_to_n(): "$x, $y"
 
-  $x = round_nearest ($x);
-  $y = round_nearest ($y);
+  $x = round_nearest($x) - $self->{'x_start'};
+  $y = round_nearest($y) - $self->{'y_start'};
   if ($x < 0 || $y < 0) {
     return undef;
   }
@@ -219,22 +263,22 @@ sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
   ### WythoffArray rect_to_n_range(): "$x1,$y1  $x2,$y2"
 
-  $x1 = round_nearest ($x1);
-  $y1 = round_nearest ($y1);
-  $x2 = round_nearest ($x2);
-  $y2 = round_nearest ($y2);
+  $x1 = round_nearest($x1);
+  $y1 = round_nearest($y1);
+  $x2 = round_nearest($x2);
+  $y2 = round_nearest($y2);
 
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  if ($x2 < 0 || $y2 < 0) {
+  if ($x2 < $self->{'x_start'} || $y2 < $self->{'y_start'}) {
     ### all outside first quadrant ...
     return (1, 0);
   }
 
   # bottom left into first quadrant
-  if ($x1 < 0) { $x1 *= 0; }
-  if ($y1 < 0) { $y1 *= 0; }
+  $x1 = max($x1, $self->{'x_start'});
+  $y1 = max($y1, $self->{'y_start'});
 
   return ($self->xy_to_n($x1,$y1),    # bottom left
           $self->xy_to_n($x2,$y2));   # top right
@@ -243,7 +287,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie PeanoHalf Math-PlanePath Moore Wythoff Zeckendorf concecutive fibbinary PowerArray bignum OEIS
+=for stopwords eg Ryde ie Math-PlanePath Wythoff Zeckendorf concecutive fibbinary bignum OEIS Stolarsky Morrison's Knott Generalising
 
 =head1 NAME
 
@@ -257,8 +301,20 @@ Math::PlanePath::WythoffArray -- table of Fibonacci recurrences
 
 =head1 DESCRIPTION
 
-X<Wythoff>This path is the Wythoff array of Fibonacci recurrences, or
-Zeckendorf Fibonacci base trailing zeros.
+X<Morrison, David R.>X<Wythoff array>This path is the Wythoff array by David
+R. Morrison
+
+=over
+
+"A Stolarsky Array of Wythoff Pairs", in Collection of Manuscripts
+Related to the Fibonacci Sequence, pages 134 to 136, The Fibonacci
+Association, 1980.
+http://www.math.ucsb.edu/~drm/papers/stolarsky.pdf
+
+=back
+
+It's an array of Fibonacci recurrences, and positions each N according to
+Zeckendorf base trailing zeros.
 
 =cut
 
@@ -285,78 +341,145 @@ Zeckendorf Fibonacci base trailing zeros.
          +-------------------------------------------------------
            X=0    1    2    3    4    5    6    7    8    9   10
 
-X<Fibonacci Numbers>N=1,2,3,5,8,etc on the X axis is the Fibonacci numbers.
-X<Lucas Numbers>N=4,7,11,18,etc in the row Y=1 above it is the Lucas
-numbers.
+All rows have the Fibonacci style recurrence
 
-All rows have the Fibonacci style recurrence F(X+1) = F(X)+F(X-1).  For
-example at X=4,Y=2 the N=42 is 16+26, the sum of the two values to its left.
+    W(X+1) = W(X) + W(X-1)
+    eg. X=4,Y=2 N=42 is 42=16+26, sum of the two values to its left
 
-X<Golden Ratio>N=1,4,6,9,12,etc on the Y axis is the "spectrum" of the
-golden ratio, meaning its rounded down integer multiples.  For example at
-Y=5 N=5+floor((5+1)*phi)=14.
+X<Fibonacci numbers>X axis N=1,2,3,5,8,etc is the Fibonacci numbers.
+X<Lucas numbers>The row above N=4,7,11,18,etc is the Lucas numbers.
+
+X<Golden Ratio>Y axis N=1,4,6,9,12,etc is the "spectrum" of the golden
+ratio, meaning its multiples rounded down to an integer.
 
     phi = (sqrt(5)+1)/2
     spectrum(k) = floor(phi*k)
     N on Y axis = Y + spectrum(Y+1)
 
-The recurrence in each row starts as if there were two values Y and
-spectrum(Y+1) to the left of the axis, adding together to be Y+spectrum(Y+1)
-on the axis, then Y+2*spectrum(Y+1) in the X=1 column, etc.
+    Eg. Y=5  N=5+floor((5+1)*phi)=14
 
-If there's a common factor in the initial values in a row then that factor
+The recurrence in each row starts as if the row was preceded by two values Y
+and spectrum(Y+1) which can be thought of as adding to be Y+spectrum(Y+1) on
+the Y axis, then Y+2*spectrum(Y+1) in the X=1 column, etc.
+
+If the first two values in a row have a common factor then that factor
 remains in all subsequent sums.  For example the Y=2 row starts with two
-even numbers, and so the whole row is even.
+even numbers N=6,N=10 so all N values in the row are even.
 
 Every N from 1 upwards occurs precisely once in the table.  The recurrence
-means that in each row N grows as roughly a power phi^X, the same as the
-Fibonacci numbers, so they become large quite quickly.
+means that in each row N grows roughly as a power phi^X, the same as the
+Fibonacci numbers.  This means they become large quite quickly.
 
 =head2 Zeckendorf Base
 
 X<Zeckendorf Base>The N values are arranged according to trailing zero bits
-when N is represented in the Zeckendorf base.  This base makes N a sum of
-Fibonacci numbers, choosing at each stage the largest possible Fibonacci.
-For example
+when N is represented in the Zeckendorf base.  The Zeckendorf base expresses
+N as a sum of Fibonacci numbers, choosing at each stage the largest possible
+Fibonacci.  For example
 
-    Fibonacci F[0]=1, F[1]=2, F[2]=3, F[3]=5, etc
+    Fibonacci numbers F[0]=1, F[1]=2, F[2]=3, F[3]=5, etc
 
     45 = 34 + 8 + 3
        = F[7] + F[4] + F[2]
        = 10010100        1-bits at 7,4,2
 
-The array in Zeckendorf base bits is
+The Wythoff array written in Zeckendorf base bits is
 
-      8  |  101010  1010100  10101000 101010000 1010100000
-      7  |  101001  1010010  10100100 101001000 1010010000
-      6  |  100101  1001010  10010100 100101000 1001010000
-      5  |  100001  1000010  10000100 100001000 1000010000
-      4  |   10101   101010   1010100  10101000  101010000
-      3  |   10001   100010   1000100  10001000  100010000
-      2  |    1001    10010    100100   1001000   10010000
-      1  |     101     1010     10100    101000    1010000
-    Y=0  |       1       10       100      1000      10000
-         +--------------------------------------------------
-               X=0        1         2         3          4
+=cut
 
-The X coordinate is the number of trailing zeros, which is the lowest
-Fibonacci used in the sum.
+# This table printed by tools/wythoff-array-zeck.pl
 
-The Y coordinate is formed by stripping any trailing zero bits, then the
-lowest 1, and then one more 0 above that.  For example,
+=pod
+
+      8 | 1000001 10000010 100000100 1000001000 10000010000
+      7 |  101001  1010010  10100100  101001000  1010010000
+      6 |  100101  1001010  10010100  100101000  1001010000
+      5 |  100001  1000010  10000100  100001000  1000010000
+      4 |   10101   101010   1010100   10101000   101010000
+      3 |   10001   100010   1000100   10001000   100010000
+      2 |    1001    10010    100100    1001000    10010000
+      1 |     101     1010     10100     101000     1010000
+    Y=0 |       1       10       100       1000       10000
+        +---------------------------------------------------
+              X=0        1         2          3           4
+
+The X coordinate is the number of trailing zeros.  This is also the index of
+the lowest Fibonacci used in the sum.  For example in the X=3 column all
+the N's there have F[3]=5 as their lowest term.
+
+The Y coordinate is formed by stripping low "0100..00", ie. all trailing
+zeros plus the "01" above them.  For example,
 
     N = 45 = Zeck 10010100
-                      ^^^^ strip low zeros, low 1, and 0 above
+                      ^^^^ strip low zeros and "01" above them
     Y = Zeck(1001) = F[3]+F[0] = 5+1 = 6
 
 The Zeckendorf form never has consecutive "11" bits, because after
 subtracting an F[k] the remainder is smaller than the next lower F[k-1].
-Numbers with no concecutive "11" are also called the fibbinary numbers (see
-L<Math::NumSeq::Fibbinary>).
+Numbers with no concecutive "11" bits are also called the fibbinary numbers
+(see L<Math::NumSeq::Fibbinary>).
 
-Stripping low zeros is similar to what the PowerArray does with low zero
-digits in an ordinary base such as binary.  Doing it in the Zeckendorf base
-is like taking out powers of the golden ratio phi=1.618.
+Stripping low zeros is similar to what the C<PowerArray> does with low zero
+digits in an ordinary base such as binary (see
+L<Math::PlanePath::PowerArray>).  Doing it in the Zeckendorf base is like
+taking out powers of the golden ratio phi=1.618.
+
+=head2 Turn Sequence
+
+The path turns
+
+    straight     at N=2 and N=10
+    right        N="..101" in Zeckendorf base
+    left         otherwise
+
+For example at N=12 the path turns to the right
+
+      4  | 12
+      3  | 
+      2  | 
+      1  |       11   
+    Y=0  |                13
+         +--------------------
+          X=0  1  2  3  4  5  
+
+This happens because N=12 is Zeckendorf "10101" which ends "..101".  For
+such a value N-1 is "..100" and N+1 is "..1000".  So N+1 has more trailing
+zeros which bigger X smaller Y than N-1 has.  The way the curve grows in a
+"concave" fashion means that therefore N+1 is on the right-hand side.  It's
+a turn back almost 180 degrees, but still on the right side of the direction
+N-1 to N was been going.
+
+    | N                        N ending "..101"
+    |  
+    |                          N+1 bigger X smaller Y
+    |      N-1                     than N-1
+    |               N+1   
+    +--------------------
+
+Cases for N ending "..000", "..010" and "..100" can be worked through to see
+that everything else turns left (or initial N=2 and N=10 straight ahead).
+
+On the Y axis all values end "..01", with no trailing 0s.  As noted above
+stripping that "01" gives the Y coordinate, ie. all integers.  The values
+ending "..101" are therefore at Y coordinates which end "..1", so "odd"
+numbers in Zeckendorf base.
+
+=head2 X,Y Start
+
+Options C<x_start =E<gt> $x> and C<y_start =E<gt> $y> give a starting
+position for the array.  For example to start at X=1,Y=1
+
+      4  |    9  15  24  39  63         x_start => 1
+      3  |    6  10  16  26  42         y_start => 1
+      2  |    4   7  11  18  29 
+      1  |    1   2   3   5   8 
+    Y=0  | 
+         +----------------------
+         X=0  1   2   3   4   5
+
+This can be helpful to work in rows and columns numbered from 1 instead of
+from 0.  Numbering from X=1,Y=1 corresponds to the array in Morrison's paper
+above.
 
 =head1 FUNCTIONS
 
@@ -366,6 +489,8 @@ classes.
 =over 4
 
 =item C<$path = Math::PlanePath::WythoffArray-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::WythoffArray-E<gt>new (x_start =E<gt> $x, y_start =E<gt> $y)>
 
 Create and return a new path object.
 
@@ -413,29 +538,40 @@ in various forms,
 
     http://oeis.org/A035614   (etc)
 
-    A035614     X coordinate
-    A035612     X+1 coordinate, columns numbered starting X=1
-    A139764     N dropped down to X axis N value,
-                  being the lowest Fibonacci in Zeckendorf form
+    x_start=0,y_start=0 (the defaults)
+      A035614     X, column number with first column=0
+      A191360     X-Y, the diagonal containing N
+      A019586     Y, the Wythoff row containing N
 
-    A019586     Y coordinate, the Wythoff row containing N
-    A003603     Y+1 coordinate, fractalized Fibonacci numbers
+    x_start=1,y_start=1
+      A035612     X, column number with first column=1
+      A003603     Y, vertical para-budding
+
+    A003622     N on Y axis, odd Zeckendorfs
+    A020941     N on X=Y diagonal
+
+    A139764     N dropped down to X axis, ie. N value on the X axis,
+                  the lowest Fibonacci number in the Zeckendorf form
 
     A000045     N on X axis, Fibonacci numbers skipping initial 0,1
     A000204     N on Y=1 row, Lucas numbers skipping initial 1,3
 
-    A003622     N on Y axis, odd Zeckendorfs
-    A001950     N+1 of those N on Y axis, anti-spectrum of phi
+    A001950     N+1 of N on Y axis, anti-spectrum of phi
     A022342     N not on Y axis, even Zeckendorfs
-    A000201     N+1 of those N not on Y axis, spectrum of phi
-    A003849     1,0 if N on Y axis or not, being the Fibonacci word
+    A000201     N+1 of N not on Y axis, spectrum of phi
+    A003849     bool 1,0 if N on Y axis or not, being the Fibonacci word
 
-    A035336     N in column X=1
-    A020941     N on X=Y diagonal
+    A035336     N in second column
+    A160997     total N along opposite-diagonals X+Y=k
+
+    A134860     N positions of right turns, Zeckendorf "..101"
+    A003622     Y coordinate of right turns, Zeckendorf "..1"
+    A188436     turn 1=right,0=left or straight, skip initial five 0s
 
     A083412     permutation N by Diagonals from Y axis downwards
     A035513     permutation N by Diagonals from X axis upwards
     A064274       inverse permutation
+    A114579     permutation N at transpose Y,X
 
 =head1 SEE ALSO
 
@@ -448,6 +584,12 @@ L<Math::NumSeq::Fibonacci>,
 L<Math::NumSeq::LucasNumbers>,
 L<Math::Fibonacci>,
 L<Math::Fibonacci::Phi>
+
+Ron Knott, "Generalising the Fibonacci Series",
+http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibGen.html#wythoff
+
+OEIS Classic Sequences, "The Wythoff Array and The Para-Fibonacci Sequence",
+http://oeis.org/classic.html
 
 =head1 HOME PAGE
 

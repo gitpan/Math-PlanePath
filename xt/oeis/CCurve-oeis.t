@@ -59,6 +59,25 @@ sub dxdy_to_dir {
 }
 
 #------------------------------------------------------------------------------
+# A104488 -- num Hamiltonian groups
+# No, different at n=67 and more
+#
+# MyOEIS::compare_values
+#   (anum => 'A104488',
+#    func => sub {
+#      my ($count) = @_;
+#      require Math::NumSeq::PlanePathTurn;
+#      my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'CCurve',
+#                                                  turn_type => 'Right');
+#      my @got = (0,0,0,0);;
+#      while (@got < $count) {
+#        my ($i,$value) = $seq->next;
+#        push @got, $value;
+#      }
+#      return \@got;
+#    });
+
+#------------------------------------------------------------------------------
 # A003159 - ending even 0 bits, is turn left or right
 
 MyOEIS::compare_values

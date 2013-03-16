@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,6 +39,11 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1;
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+
 
 #------------------------------------------------------------------------------
 sub new {
@@ -271,7 +276,7 @@ numbers 0,1,3,6,10,15,21,etc, k*(k+1)/2, on the X axis alternately positive
 and negative.
 
 N=0,2,8,18,etc on the Y axis is 2*squares, 2*Y^2.  N=0,4,12,24,etc on the
-negative Y axis is X<Pronic Numbers>2*pronic, 2*Y*(Y+1).
+negative Y axis is X<Pronic numbers>2*pronic, 2*Y*(Y+1).
 
 =head1 FUNCTIONS
 

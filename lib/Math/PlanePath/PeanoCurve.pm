@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -61,7 +61,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant n_start => 0;
@@ -94,6 +94,20 @@ sub dx_maximum {
           : undef);   # even, unlimited
 }
 *dy_maximum = \&dx_maximum;
+
+# sub dir4_maximum {
+#   my ($self) = @_;
+#   return ($self->{'radix'} % 2
+#           ? 3      # odd, South
+#           : 4);    # even, supremum
+# }
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'radix'} % 2
+          ? (0,-1)   # odd, South
+          : (0,0));  # even, supremum
+}
+
 
 #------------------------------------------------------------------------------
 
@@ -134,62 +148,69 @@ sub n_to_xy {
   }
 
   my $radix = $self->{'radix'};
-  my @digits = digit_split_lowtohigh($n,$radix);
+  my @ndigits = digit_split_lowtohigh($n,$radix)
+    or return (0,0);
 
-  # low to high
-  my $x = my $y = ($n * 0);  # inherit bignum 0
-  my $power = $x + 1;        # inherit bignum 1
+  # high to low style
+  #
+  my $radix_minus_1 = $radix - 1;
+  my $xk = 0;
+  my $yk = 0;
+  my @ydigits;
+  my @xdigits;
 
-  while (@digits) {
-    ### $power
+  $#ndigits |= 1;      # ensure even number of entries
+  $ndigits[-1] ||= 0;  # possible 0 as extra high digit
+  ### @ndigits
+
+  foreach my $i (reverse 0 .. ($#ndigits >> 1)) {
+    ### $i
     {
-      my $digit = shift @digits;  # low to high
-      if ($digit & 1) {
-        $y = $power-1 - $y;   # 99..99 - Y
-      }
-      $x += $power * $digit;
+      my $ndigit = pop @ndigits;  # high to low
+      $xk ^= $ndigit;
+      $ydigits[$i] = ($yk & 1 ? $radix_minus_1-$ndigit : $ndigit);
     }
-    @digits || last;
+    @ndigits || last;
     {
-      my $digit = shift @digits;  # low to high
-      $y += $power * $digit;
-      $power *= $radix;
-
-      if ($digit & 1) {
-        $x = $power-1 - $x;
-      }
+      my $ndigit = pop @ndigits;
+      $yk ^= $ndigit;
+      $xdigits[$i] = ($xk & 1 ? $radix_minus_1-$ndigit : $ndigit);
     }
   }
-  return ($x, $y);
+
+  ### @xdigits
+  ### @ydigits
+  my $zero = ($n * 0);  # inherit bignum 0
+  return (digit_join_lowtohigh(\@xdigits, $radix, $zero),
+          digit_join_lowtohigh(\@ydigits, $radix, $zero));
 
 
-  # # high to low
-  # my $radix = $self->{'radix'};
-  # my $radix_minus_1 = $radix - 1;
-  # my (@n);
-  # while ($n) {
-  #   push @n, $n % $radix; $n = int($n/$radix);
-  #   push @n, $n % $radix; $n = int($n/$radix);
-  # }
-  # my $x = 0;
-  # my $y = 0;
-  # my $xk = 0;
-  # my $yk = 0;
-  # while (@n) {
+
+  # low to high style
+  #
+  # my $x = my $y = ($n * 0);  # inherit bignum 0
+  # my $power = 1 + $x;        # inherit bignum 1
+  #
+  # while (@ndigits) {   # N digits low to high
+  #   ### $power
   #   {
-  #     my $digit = pop @n;
-  #     $xk ^= $digit;
-  #     $y *= $radix;
-  #     $y += ($yk & 1 ? $radix_minus_1-$digit : $digit);
+  #     my $ndigit = shift @ndigits;  # low to high
+  #     if ($ndigit & 1) {
+  #       $y = $power-1 - $y;   # 99..99 - Y
+  #     }
+  #     $x += $power * $ndigit;
   #   }
+  #   @ndigits || last;
   #   {
-  #     my $digit = pop @n;
-  #     $yk ^= $digit;
-  #     $x *= $radix;
-  #     $x += ($xk & 1 ? $radix_minus_1-$digit : $digit);
+  #     my $ndigit = shift @ndigits;  # low to high
+  #     $y += $power * $ndigit;
+  #     $power *= $radix;
+  #
+  #     if ($ndigit & 1) {
+  #       $x = $power-1 - $x;
+  #     }
   #   }
   # }
-  # ### is: "$x,$y"
   # return ($x, $y);
 }
 
@@ -390,7 +411,7 @@ __END__
 #          +
 
 
-=for stopwords Guiseppe Peano Peano's there'll HilbertCurve eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ZOrderCurve ie bignums prepending trit PeanoCurve Math-PlanePath versa Online Radix radix Georg representable Mephisto
+=for stopwords Guiseppe Peano Peano's there'll eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ie bignums prepending trit PeanoCurve Math-PlanePath versa Online Radix radix Georg representable Mephisto
 
 =head1 NAME
 
@@ -408,8 +429,20 @@ Math::PlanePath::PeanoCurve -- 3x3 self-similar quadrant traversal
 =head1 DESCRIPTION
 
 X<Peano, Guiseppe>This path is an integer version of the curve described by
-Guiseppe Peano in 1890 for filling a unit square.  It traverses a quadrant
-of the plane one step at a time in a self-similar 3x3 pattern,
+Peano for filling a unit square,
+
+=over
+
+Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",
+Mathematische Annalen, volume 36, number 1, 1890, p157-160
+
+http://www.springerlink.com/content/w232301n53960133/
+DOI 10.1007/BF01199438
+
+=back
+
+It traverses a quadrant of the plane one step at a time in a self-similar
+3x3 pattern,
 
        8    60--61--62--63--64--65  78--79--80--...
              |                   |   |
@@ -452,12 +485,12 @@ so 8 is next to 9, 17 next to 18, etc,
 
 The process repeats, tripling in size each time.
 
-Within a power-of-3 square, 3x3, 9x9, 27x27, 81x81 etc (3^k)x(3^k), at the
+Within a power-of-3 square, 3x3, 9x9, 27x27, 81x81 etc (3^k)x(3^k) at the
 origin, all the N values 0 to 3^(2*k)-1 are within the square.  The top
 right corner 8, 80, 728, etc is the 3^(2*k)-1 maximum in each.
 
 Because each step is by 1, the distance along the curve between two X,Y
-points is the difference in their N values (as given by C<xy_to_n()>).
+points is the difference in their N values as given by C<xy_to_n()>.
 
 =head2 Radix
 
@@ -508,26 +541,26 @@ in radix 4 N=15 isn't next to N=16, nor N=31 to N=32, etc.
            X=0   1   2   4   5   6   7   8   9  10
 
 Even sizes can be made to join using other patterns, but this module is just
-Peano's digit construction.  For 2x2 groupings see HilbertCurve (which is
-essentially the only way to join up in 2x2).  For bigger groupings there's
-various ways.
+Peano's digit construction.  For joining up in 2x2 groupings see
+C<HilbertCurve> (which is essentially the only way to join up in 2x2).  For
+bigger groupings there's various ways.
 
 =head2 Unit Square
 
 Peano's original form was for filling a unit square by mapping a number T in
 the range 0E<lt>TE<lt>1 to a pair of X,Y coordinates 0E<lt>XE<lt>1 and
-0E<lt>YE<lt>1.  The curve is continuous and every X,Y is reached, so it
+0E<lt>YE<lt>1.  The curve is continuous and every such X,Y is reached, so it
 fills the unit square.  A unit cube or higher dimension can be filled
 similarly by developing three or more coordinates X,Y,Z, etc.  Georg Cantor
-had shown a line is equivalent to a surface, Peano's mapping is a continuous
+had shown a line is equivalent to the plane, Peano's mapping is a continuous
 way to do that.
 
-The code here might be pressed into service for a fractional T to X,Y by
+The code here could be pressed into service for a fractional T to X,Y by
 multiplying up by a power of 9 to desired precision then dividing X and Y
 back by the same power of 3 (perhaps swapping X,Y for which one should be
 the first ternary digit).  Note that if T is a binary floating point then a
-power of 3 division will round off in general as 1/3 is not exactly
-representable.  See HilbertCurve or ZOrderCurve for binary mappings.
+power of 3 division will round off in general since 1/3 is not exactly
+representable.  (See C<HilbertCurve> or C<ZOrderCurve> for binary mappings.)
 
 =head2 Diagonal Lines
 
@@ -539,17 +572,24 @@ The Peano curve is sometimes shown as
          |     |
          +-----+
 
-For example E. H. Moore "On Certain Crinkly Curves",
+As for example in
 
-    http://www.ams.org/journals/tran/1900-001-01/S0002-9947-1900-1500526-4/
-    http://www.ams.org/tran/1900-001-01/S0002-9947-1900-1500526-4/S0002-9947-1900-1500526-4.pdf
-    and
-    http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/
-    http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/S0002-9947-1900-1500428-3.pdf
+=over
 
-The base "S" pattern is the same, but turned 45 degrees and line segments
-making on the diagonals through the squares, per the ".." lines in the
-following
+X<Moore, Eliakim Hastings>E. H. Moore, "On Certain Crinkly
+Curves",Trans. Am. Math. Soc., volume 1, number 1, 1900, pages 72-90.
+
+http://www.ams.org/journals/tran/1900-001-01/S0002-9947-1900-1500526-4/
+http://www.ams.org/tran/1900-001-01/S0002-9947-1900-1500526-4/S0002-9947-1900-1500526-4.pdf
+
+http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/
+http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/S0002-9947-1900-1500428-3.pdf
+
+=back
+
+The base "S" pattern in this form is the same, but turned 45 degrees and
+line segments making diagonals through the squares, per the ".." marked
+lines in the following
 
     +--------+--------+--------+        +--------+--------+--------+
     |     .. | ..     |     .. |        |        |        |        |
@@ -591,7 +631,7 @@ show the equivalence,
 Plotting sequences of values with some connection to ternary digits or
 powers of 3 will usually give the most interesting patterns on the Peano
 curve.  For example the Mephisto waltz sequence
-(L<Math::NumSeq::MephistoWaltz>) makes diamond shapes,
+(eg. L<Math::NumSeq::MephistoWaltz>) makes diamond shapes,
 
     **   *  ***   *  *  *** **   *** **   *** ** **   *  *
     *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
@@ -621,8 +661,8 @@ curve.  For example the Mephisto waltz sequence
     *  *   ** ** ***   ** ***  *  *   ** ** ***   ** ***
       *** **   *** ** **   *  ***   *  ***   *  *  *** **
 
-This arises from each 3x3 block being one of two shapes which are then
-flipped by the Peano pattern
+This arises from each 3x3 block in the Mephisto waltz being one of two
+shapes which are then flipped by the Peano pattern
 
     * * _                     _ _ *
     * _ _           or        _ * *    (inverse)
@@ -638,12 +678,12 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PeanoCurve-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::PeanoCurve-E<gt>new (radix =E<gt> $r)>
+=item C<$path = Math::PlanePath::PeanoCurve-E<gt>new (radix =E<gt> $integer)>
 
 Create and return a new path object.
 
 The optional C<radix> parameter gives the base for digit splitting.  The
-default is ternary, C<radix =E<gt> 3>.
+default is ternary C<radix =E<gt> 3>.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
@@ -689,13 +729,14 @@ left, or groups like 9,10,11 then 12,13,14 then 15,16,17 go downwards.
 
 The complement is calculated by adding the digits from N which went to the
 other one of X or Y.  So the X complement is the sum of digits which have
-gone to Y so far, and conversely the Y complement is the sum of digits put
-to X.  If the complement sum is odd then the reversal is done.  An XOR can
-be used instead of a sum, accumulating odd/even-ness the same way as a sum.
+gone to Y so far.  Conversely the Y complement is the sum of digits put
+to X.  If the complement sum is odd then the reversal is done.  A bitwise
+XOR can be used instead of a sum to accumulate odd/even-ness the same way as
+a sum.
 
-When forming the complement it's the original digits from N which are used,
+When forming the complement state the original digits from N are added,
 before applying any complementing for putting them to X or Y.  If the radix
-is odd, like the default 3, then the complement doesn't change it mod 2 so
+is odd, like the default 3, then complementing doesn't change it mod 2 so
 either before or after is fine, but if the radix is even then it's not the
 same.
 
@@ -710,7 +751,7 @@ end.  But the subtract to complement is then more work if using bignums.
 =head2 X,Y to N
 
 The X,Y to N calculation can be done by an inverse of either the high to low
-or low to high methods above, in both cases putting digits alternately from
+or low to high methods above.  In both cases digits are put alternately from
 X and Y onto N, with complement as necessary.
 
 For the low to high approach it's not easy to complement just the X digits
@@ -723,7 +764,27 @@ For the low to high with even radix the complementing is also tricky since
 changing the accumulated X affects the digits of Y below that, and vice
 versa.  What's the rule?  Is it alternate digits which end up complemented?
 In any case the current C<xy_to_n()> code goes high to low which is easier,
-but means breaking the X,Y inputs into arrays of digits.
+but means breaking the X,Y inputs into arrays of digits before beginning.
+
+=head2 N to abs(dX),abs(dY)
+
+The curve goes horizontally or vertically according to the number of trailing "2" digits when N is written in ternary,
+
+    N trailing 2s   direction     abs(dX)     abs(dY)
+    -------------   ---------     -------
+      even          horizontal       1          0
+      odd           vertical         0          1
+
+For example N=5 is "12" in ternary has 1 trailing "2" which is odd so the
+step from N=5 to N=6 is vertical.
+
+This works because when stepping from N to N+1 a carry propagates through
+the trailing 2s to increment the digit above.  Digits go alternately to X or
+Y so odd or even trailing 2s put that carry into an X digit or Y digit.
+
+          X Y X Y X
+    N   ... 2 2 2 2
+    N+1   1 0 0 0 0  carry propagates
 
 =head2 Rectangle to N Range
 
@@ -739,15 +800,15 @@ An exact N range can be found by following the "high to low" N to X,Y
 procedure above.  Start with the easy over-estimate to find a 3^(2k) ternary
 digit position in N bigger than the desired region, then choose a digit
 0,1,2 for X, the biggest which overlaps some of the region.  Or if there's
-an X complement then the smallest digit is the biggest N, again one which
+an X complement then the smallest digit is the biggest N, again whichever
 overlaps the region.  Then likewise for a digit of Y, etc.
 
 Biggest and smallest N must maintain separate complement states as they
-track down different N digits, but a single loop can be used since there's
-them same "2k" many digits of N to consider for both.
+track down different N digits.  A single loop can be used since there's the
+same "2k" many digits of N to consider for both.
 
 The N range of any shape can be done this way, not just a rectangle like
-C<rect_to_n_range()>, since the procedure only depends on asking whether a
+C<rect_to_n_range()>.  The procedure only depends on asking whether a
 one-third sub-part of X or Y overlaps the target region or not.
 
 =head1 OEIS
@@ -761,18 +822,23 @@ forms,
     A163529    Y coordinate
     A163530    X+Y coordinate sum
     A163531    X^2+Y^2 square of distance from origin
-    A163532    X change -1,0,1
-    A163533    Y change -1,0,1
-    A163534    absolute direction of each step (up,down,left,right)
-    A163535    absolute direction, swapped X,Y
-    A163536    relative direction (ahead, left, or right)
-    A163537    relative direction, swapped X,Y
+    A163532    dX, change in X -1,0,1
+    A163533    dY, change in Y -1,0,1
+    A014578    previous abs(dX), from n-1 to n, even trailing 0s
+    A182581    previous abs(dY), from n-1 to n, odd trailing 0s
+    A163534    direction of each step (up,down,left,right)
+    A163535    direction, transposed X,Y
+    A163536    turn 0=straight,1=right,2=left
+    A163537    turn, transposed X,Y
     A163342    diagonal sums
+    A163479    diagonal sums divided by 6
+
     A163480    N on X axis
     A163481    N on Y axis
     A163343    N on X=Y diagonal, 0,4,8,44,40,36,etc
     A163344    N on X=Y diagonal divided by 4
-    A163479    diagonal sums divided by 6
+    A007417    N+1=n positions of horizontals, n even trailing 0s
+    A145204    N+1=n positions of verticals, n odd trailing 0s
 
     A163332    Peano N -> ZOrder radix=3 N mapping
                  and vice versa since is self-inverse
@@ -812,12 +878,6 @@ L<Math::PlanePath::KochelCurve>,
 L<Math::PlanePath::WunderlichMeander>
 
 L<Math::PlanePath::KochCurve>
-
-Guiseppe Peano, "Sur une courbe, qui remplit toute une aire plane",
-Mathematische Annalen, volume 36, number 1, 1890, p157-160
-
-    http://www.springerlink.com/content/w232301n53960133/
-    DOI 10.1007/BF01199438
 
 =head1 HOME PAGE
 

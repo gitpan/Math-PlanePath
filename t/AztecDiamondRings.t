@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 215;;
+plan tests => 216;;
 
 use lib 't';
 use MyTestHelpers;
@@ -33,7 +33,7 @@ require Math::PlanePath::AztecDiamondRings;
 # VERSION
 
 {
-  my $want_version = 99;
+  my $want_version = 100;
   ok ($Math::PlanePath::AztecDiamondRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AztecDiamondRings->VERSION,  $want_version,
@@ -95,7 +95,11 @@ require Math::PlanePath::AztecDiamondRings;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::AztecDiamondRings->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'n_start');
+}
+{
+  my $path = Math::PlanePath::AztecDiamondRings->new (n_start => 0);
+  ok ($path->n_start, 0, 'n_start()');
 }
 
 #------------------------------------------------------------------------------

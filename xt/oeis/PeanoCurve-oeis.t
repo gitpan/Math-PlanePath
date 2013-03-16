@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -42,7 +42,7 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  my $i = 0; 
+  my $i = 0;
   while ($i < @$a1 && $i < @$a2) {
     if ($a1->[$i] ne $a2->[$i]) {
       return 0;
@@ -54,46 +54,82 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# A163532 -- delta X  a(n)-a(n-1)
-{
-  my $anum = 'A163532';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0); # extra initial entry N=0 no change
-  if ($bvalues) {
-    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = $peano->n_to_dxdy ($n);
-      push @got, $dx;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- delta X (transpose)");
-}
+# A014578 -- abs(dX), 1=horizontal 0=vertical, extra initial 0
+MyOEIS::compare_values
+  (anum => 'A014578',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::PeanoCurve->new;
+     my @got = (0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $peano->n_to_dxdy($n);
+       push @got, abs($dx);
+     }
+     return \@got;
+   });
+
+# A182581 -- abs(dY), but OFFSET=1
+MyOEIS::compare_values
+  (anum => 'A182581',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $peano->n_to_dxdy($n);
+       push @got, abs($dy);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
-# A163533 -- delta Y  a(n)-a(n-1)
-{
-  my $anum = 'A163533';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0); # extra initial entry N=0 no change
-  if ($bvalues) {
-    for (my $n = $peano->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = $peano->n_to_dxdy ($n);
-      push @got, $dy;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- delta Y (transpose)");
-}
+# A007417 -- N+1 positions of horizontal step, dY==0, abs(dX)=1
+# N+1 has even num trailing ternary 0-digits
+
+MyOEIS::compare_values
+  (anum => 'A007417',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::PeanoCurve->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $peano->n_to_dxdy($n);
+       if ($dy == 0) {
+         push @got, $n+1;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A163532 -- dX  a(n)-a(n-1) so extra initial 0
+
+MyOEIS::compare_values
+  (anum => 'A163532',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::PeanoCurve->new;
+     my @got = (0); # extra initial entry N=0 no change
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $peano->n_to_dxdy($n);
+       push @got, $dx;
+     }
+     return \@got;
+   });
+
+# A163533 -- dY  a(n)-a(n-1)
+MyOEIS::compare_values
+  (anum => 'A163533',
+   func => sub {
+     my ($count) = @_;
+     my $path  = Math::PlanePath::PeanoCurve->new;
+     my @got = (0); # extra initial entry N=0 no change
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $peano->n_to_dxdy($n);
+       push @got, $dy;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A163333 -- Peano N <-> Z-Order radix=3, with digit swaps

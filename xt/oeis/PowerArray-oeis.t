@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,6 +32,90 @@ use Math::PlanePath::PowerArray;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A050603 -- radix=2 abs(dX), but OFFSET=0
+
+MyOEIS::compare_values
+  (anum => 'A050603',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::PowerArray->new (radix => 2);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx,$dy) = $path->n_to_dxdy($n);
+       push @got, abs($dx);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A003159 -- radix=2, N which is in X even
+
+MyOEIS::compare_values
+  (anum => 'A003159',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PowerArray->new (radix => 2);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy($n);
+       if ($x % 2 == 0) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+# A036554 complement, N which is in X odd
+MyOEIS::compare_values
+  (anum => 'A036554',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PowerArray->new (radix => 2);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy($n);
+       if ($x % 2 == 1) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A007417 -- radix=3, N which is in X even
+
+MyOEIS::compare_values
+  (anum => 'A007417',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PowerArray->new (radix => 3);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy($n);
+       if ($x % 2 == 0) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+# A145204 complement, N which is in X odd, and extra initial 0
+MyOEIS::compare_values
+  (anum => 'A145204',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PowerArray->new (radix => 3);
+     my @got = (0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy($n);
+       if ($x % 2 == 1) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A141396 -- radix=3, permutation, N by diagonals
@@ -167,7 +251,7 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A094267 -- dX
+# A094267 -- dX, but OFFSET=0
 
 MyOEIS::compare_values
   (anum => 'A094267',

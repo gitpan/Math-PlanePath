@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -52,6 +52,14 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 use constant x_minimum => 1;
 use constant y_minimum => 1;
+use constant absdy_minimum => 1;
+
+# use constant dir4_minimum => 1;    # North
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_minimum_360 => 90;  # North
+# use constant dir_maximum_360 => 315; # South-East
+use constant dir_minimum_dxdy => (0,1);  # North
+use constant dir_maximum_dxdy => (1,-1); # South-East
 
 use constant parameter_info_array =>
   [

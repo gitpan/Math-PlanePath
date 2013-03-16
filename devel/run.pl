@@ -61,12 +61,9 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ImaginaryBase';
   $path_class = 'Math::PlanePath::KochCurve';
   $path_class = 'Math::PlanePath::PixelRings';
-  $path_class = 'Math::PlanePath::PeanoCurve';
-  $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
   $path_class = 'Math::PlanePath::TriangleSpiral';
   $path_class = 'Math::PlanePath::HypotOctant';
   $path_class = 'Math::PlanePath::SquareSpiral';
-  $path_class = 'Math::PlanePath::CellularRule';
   $path_class = 'Math::PlanePath::PowerArray';
   $path_class = 'Math::PlanePath::ParabolicRuns';
   $path_class = 'Math::PlanePath::DiagonalsOctant';
@@ -87,7 +84,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DiamondSpiral';
   $path_class = 'Math::PlanePath::DragonCurve';
   $path_class = 'Math::PlanePath::KochelCurve';
-  $path_class = 'Math::PlanePath::WythoffArray';
   $path_class = 'Math::PlanePath::FibonacciWordFractal';
   $path_class = 'Math::PlanePath::CincoCurve';
   $path_class = 'Math::PlanePath::WunderlichMeander';
@@ -112,8 +108,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::GosperIslands';
   $path_class = 'Math::PlanePath::ToothpickReplicate';
   $path_class = 'Math::PlanePath::ToothpickTree';
-  $path_class = 'Math::PlanePath::UlamWarburton';
-  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::EToothpickTree';
   $path_class = 'Math::PlanePath::ToothpickUpist';
   $path_class = 'Math::PlanePath::Hypot';
@@ -122,7 +116,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::LToothpickTree';
   $path_class = 'Math::PlanePath::ToothpickTreeByCells';
-  $path_class = 'Math::PlanePath::PythagoreanTree';
   $path_class = 'Math::PlanePath::AnvilSpiral';
   $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HexSpiral';
@@ -136,27 +129,45 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DiagonalRationals';
   $path_class = 'Math::PlanePath::OneOfEightByCells';
   $path_class = 'Math::PlanePath::PeninsulaBridge';
+  $path_class = 'Math::PlanePath::PythagoreanTree';
+  $path_class = 'Math::PlanePath::PowerRows';
+  $path_class = 'Math::PlanePath::WythoffDifference';
+  $path_class = 'Math::PlanePath::WythoffTriangle';
+  $path_class = 'Math::PlanePath::WythoffPreliminaryTriangle';
+  $path_class = 'Math::PlanePath::WythoffArray';
+  $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
+  $path_class = 'Math::PlanePath::UlamWarburton';
+  $path_class = 'Math::PlanePath::SumFractions';
+  $path_class = 'Math::PlanePath::AztecDiamondRings';
+  $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
+  $path_class = 'Math::PlanePath::CellularRule';
+  $path_class = 'Math::PlanePath::PeanoCurve';
 
   my $lo = 0;
-  my $hi = 50;
+  my $hi = 15;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     # divisor_type => 'proper',
+     rule => 6,
+     # align => 'down',
      # n_start => 37,
+     # shift => -3,
+     # x_start => 5,
+     # y_start => 2,
+      radix => 4,
+     # coordinates => 'BC',
 
-     parts => '3side',
+     # divisor_type => 'proper',
+
+     # parts => '3side',
      # wider => 3,
-     # coordinates => 'PQ',
      # reverse => 1,
-      tree_type => 'L',
+     # tree_type => 'L',
      # arms => 2,
      # sides=>3,
      # digit_order => 'XnYX',
      # radix => 2,
-     # x_start => 5,
-     # y_start => 2,
      #  k => 3,
      #  reduced => 1,
      # points => 'square_centred',
@@ -164,7 +175,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # pairs_order => 'diagonals_up',
      # tree_type => 'HCS',
      # start => 'snowflake',
-     # align => 'left',
      # n_start=>37,
      # step => 5,
      # n_start => 37,
@@ -182,7 +192,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # diagonal_spacing => 7,
      # arms => 7,
      # wider => 3,
-     # rule => 8,
      # realpart => 1,
      # mirror => 1,
     );

@@ -37,7 +37,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -64,9 +64,12 @@ use constant parameter_info_array =>
     } ];
 
 use constant rsquared_minimum => 0.5; # minimum X=0.5,Y=0.5
-
 use constant dx_maximum => 1;
 use constant dy_maximum => 1;
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+
 
 #------------------------------------------------------------------------------
 

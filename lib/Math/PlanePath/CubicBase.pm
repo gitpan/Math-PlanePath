@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -58,6 +58,10 @@ use constant n_start => 0;
 #    # },
 # ];
 
+use constant absdx_minimum => 2;
+use constant dir_maximum_dxdy => (-1, -3);   # supremum
+
+#------------------------------------------------------------------------------
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);

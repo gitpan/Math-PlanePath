@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,6 +53,7 @@ use constant y_minimum => 2;
 use constant tree_any_leaf => 0;  # no leaves, complete tree
 use constant tree_num_children_minimum => 2; # complete binary tree
 use constant tree_num_children_maximum => 2;
+use constant tree_n_to_height => undef; # complete tree, all infinity
 
 use constant parameter_info_array =>
   [
@@ -64,6 +65,9 @@ use constant parameter_info_array =>
      choices    => ['Kepler'],
    },
   ];
+
+use constant dir_maximum_dxdy => (-2, -(sqrt(5)+1)); # phi
+
 
 #------------------------------------------------------------------------------
 

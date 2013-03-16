@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -79,6 +79,28 @@ sub dx_maximum {
 }
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'triangular' ? 1 : 0);
+}
+sub absdx_maximum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'triangular' ? 2 : 1);
+}
+
+# sub dir4_maximum {
+#   my ($self) = @_;
+#   return ($self->{'align'} eq 'right' ? 3  # South
+#           : 3.5); # South-East
+# }
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'right'
+          ? (0,-1)   # South
+          : (1,-1)); # South-East
+}
+
 
 #------------------------------------------------------------------------------
 

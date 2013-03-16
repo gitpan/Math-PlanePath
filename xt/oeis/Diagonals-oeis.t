@@ -35,6 +35,44 @@ use Math::PlanePath::Diagonals;
 
 
 #------------------------------------------------------------------------------
+# A103451 -- turn 1=left or right, 0=straight
+# but has extra n=1 whereas path first turn at starts N=2
+
+MyOEIS::compare_values
+  (anum => 'A103451',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'Diagonals',
+                                                 turn_type => 'LSR');
+     my @got = (1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, abs($value);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A103452 -- turn 1=left,0=straight,-1=right
+# but has extra n=1 whereas path first turn at starts N=2
+
+MyOEIS::compare_values
+  (anum => 'A103452',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'Diagonals',
+                                                 turn_type => 'LSR');
+     my @got = (1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A215200 -- Kronecker(n-k,k) by rows, n>=1   1<=k<=n
 # for n=6 runs n-k=5,4,3,2,1,0      for n=1 runs n-k=0
 #                k=1,2,3,4,5,6                     k=1

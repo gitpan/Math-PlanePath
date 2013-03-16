@@ -62,6 +62,7 @@ use Math::PlanePath::KochCurve;
 # Branch-reduced breadth-wise
 #
 # Nodes with just 1 child are collapsed out.
+# cf Homeomorphic same if dropping/adding single-child nodes
 #
 # A080318 decimal
 # A080319 binary

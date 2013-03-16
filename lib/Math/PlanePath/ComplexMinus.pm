@@ -22,11 +22,12 @@
 package Math::PlanePath::ComplexMinus;
 use 5.004;
 use strict;
+use List::Util 'min';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,6 +54,27 @@ use constant parameter_info_array =>
       description => 'Real part r in the i-r complex base.',
     } ];
 
+
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'realpart'} == 1
+          ? 0   # i-1 N=3 dX=0,dY=-3
+          : 1); # i-r otherwise always diff
+}
+
+# realpart=1
+# dx=1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0 = (6*16^k-2)/15
+# dy=1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,1 = ((9*16^5-1)/15-1)/2+1
+# approaches dx=6/15=12/30, dy=9/15/2=9/30
+
+# FIXME: are others smaller than East ?
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  if ($self->{'realpart'} == 1) { return (12,-9); }
+  else { return (0,0); }
+}
+
+#------------------------------------------------------------------------------
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);

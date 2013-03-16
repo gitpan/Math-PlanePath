@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,6 +40,9 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
 
 
 #------------------------------------------------------------------------------
@@ -285,7 +288,7 @@ path include
          runs alternately up and down, both are self-inverse
 
 The coordinates such as A003056 X+Y are the same here as in the Diagonals
-path.  DiagonalsAlternating transposes X,Y -E<gt> Y,X in every second
+path.  C<DiagonalsAlternating> transposes X,Y -E<gt> Y,X in every second
 diagonal but forms such as X+Y are unchanged by swapping to Y+X.
 
 =head1 SEE ALSO

@@ -43,6 +43,22 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['triangle-spiral-skewed-small.png',
+    'math-image --path=TriangleSpiralSkewed --lines --scale=3 --size=32'],
+   ['triangle-spiral-skewed-big.png',
+    'math-image --path=TriangleSpiralSkewed --lines --scale=13 --size=150'],
+   ['triangle-spiral-skewed-right-big.png',
+    'math-image --path=TriangleSpiralSkewed,skew=right --lines --scale=13 --size=150'],
+   ['triangle-spiral-skewed-up-big.png',
+    'math-image --path=TriangleSpiralSkewed,skew=up --lines --scale=13 --size=150'],
+   ['triangle-spiral-skewed-down-big.png',
+    'math-image --path=TriangleSpiralSkewed,skew=down --lines --scale=13 --size=150'],
+
+   ['triangle-spiral-small.png',
+    'math-image --path=TriangleSpiral --lines --scale=3 --size=32'],
+   ['triangle-spiral-big.png',
+    'math-image --path=TriangleSpiral --lines --scale=13 --size=300x150'],
+
    ['rationals-tree-lines-ayt.png',
     'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-hcs.png',
@@ -821,17 +837,6 @@ foreach my $elem
     'math-image --path=FlowsnakeCentres --lines --scale=4 --size=32 --offset=-5,-13'],
    ['flowsnake-centres-big.png',
     'math-image --path=FlowsnakeCentres --lines --scale=8 --size=200 --offset=-20,-90'],
-
-
-   ['triangle-spiral-small.png',
-    'math-image --path=TriangleSpiral --lines --scale=3 --size=32'],
-   ['triangle-spiral-big.png',
-    'math-image --path=TriangleSpiral --lines --scale=13 --size=300x150'],
-
-   ['triangle-spiral-skewed-small.png',
-    'math-image --path=TriangleSpiralSkewed --lines --scale=3 --size=32'],
-   ['triangle-spiral-skewed-big.png',
-    'math-image --path=TriangleSpiralSkewed --lines --scale=13 --size=150'],
 
 
    ['diamond-arms-small.png',

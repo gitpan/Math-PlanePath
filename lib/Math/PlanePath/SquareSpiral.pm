@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -92,6 +92,10 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant dir_maximum_dxdy => (0,-1); # South
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+
 
 #------------------------------------------------------------------------------
 
@@ -492,7 +496,7 @@ or see L<math-image> using this SquareSpiral to draw this pattern and more.
 
 The perfect squares 1,4,9,16,25 fall on two diagonals with the even perfect
 squares going to the upper left and the odd squares to the lower right.  The
-X<Pronic Numbers>pronic numbers 2,6,12,20,30,42 etc k^2+k half way between
+X<Pronic numbers>pronic numbers 2,6,12,20,30,42 etc k^2+k half way between
 the squares fall on similar diagonals to the upper right and lower left.
 The decagonal numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right
 at Y=-1.
@@ -591,7 +595,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::SquareSpiral-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (wider =E<gt> $integer, n_start =E<gt> $integer)>
+=item C<$path = Math::PlanePath::SquareSpiral-E<gt>new (wider =E<gt> $integer, n_start =E<gt> $n)>
 
 Create and return a new square spiral object.  An optional C<wider>
 parameter widens the spiral path, it defaults to 0 which is no widening.

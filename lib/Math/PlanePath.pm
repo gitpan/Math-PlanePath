@@ -15,9 +15,33 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-# n_ordered_children() $n and undefs
+# use constant dir_minimum_360 => 45;
+# use constant dir_maximum_360 => 360;
+# use constant dir_minimum_dxdy => (1,1);
+# use constant dir_maximum_dxdy => (0,0);
+
+# $path->xy_integer() if X,Y both all integer
+# $path->x_integer()  if X all integer
+# $path->y_integer()  if Y all integer
+# $path->xy_integer_n_start
+#
+# tree_n_ordered_children() $n and undefs
 #   SierpinskiTree,ToothpickTree left and right
 #   OneOfEight 3 from horiz, 5 from diag
+#
+# gcdxy_minimum
+# gcdxy_maximum
+# sumxy_minimum
+# sumabsxy_minimum
+# diffxy_minimum
+# absdiffxy_minimum
+#
+# xy_all_coprime() xy_coprime()   gcd(X,Y)=1 always
+# xy_all_divisible()   X divisible by Y
+# xy_any_even
+# xy_any_odd
+# xy_all_even
+# xy_all_odd
 #
 # x_increasing
 # y_increasing
@@ -28,21 +52,15 @@
 # xy_diff_minimum     X-Y
 # xy_absdiff_minimum  abs(X-Y)
 # xy_product_minimum
-# sumxy_minimum
-# sumabsxy_minimum
-# diffxy_minimum
+# xy_gcd_minimum
+# xy_gcd_maximum
+# sum_minimum
 #
 # trsquared_minimum
 # trsquared_minimum
 # dsum_minimum
 # ddiffxy_minimum
 #
-# xy_all_coprime() xy_coprime()   gcd(X,Y)=1 always
-# xy_all_divisible()   X divisible by Y
-# xy_any_even
-# xy_any_odd
-# xy_all_even
-# xy_all_odd
 
 # Math::PlanePath::Base::Generic
 #   divrem
@@ -66,13 +84,6 @@
 # $path->xy_next_in_rect($x,$y, $x1,$y1,$x2,$y2)
 #    return ($x,$y) or empty
 #
-# $path->xy_integer() if X,Y both all integer
-# $path->x_integer()  if X all integer
-# $path->y_integer()  if Y all integer
-# $path->xy_integer_n_start
-# $path->x_range('integer')
-# $path->x_range('all')
-#
 # lattice_type square,triangular,triangular_odd,pentagonal,fractional
 # $path->xy_any_odd()   xy_odd()   xy_all_odd()
 # $path->xy_any_even()  xy_even()  xy_all_even()
@@ -82,14 +93,17 @@
 # figures_disjoint_n_start
 #         separate
 #         unoverlapped
+#
+# "full binary tree" each node 0 or 2 children
 
 
+#------------------------------------------------------------------------------
 package Math::PlanePath;
 use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 99;
+$VERSION = 100;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -122,6 +136,8 @@ sub parameter_info_list {
   return @{$_[0]->parameter_info_array};
 }
 
+# x_negative(),y_negative() existed first, so default x_minimum(),y_minimum()
+# from those.
 sub x_minimum {
   my ($self) = @_;
   return ($self->x_negative ? undef : 0);
@@ -132,10 +148,34 @@ sub y_minimum {
 }
 use constant x_maximum => undef;
 use constant y_maximum => undef;
+
 use constant dx_minimum => undef;
 use constant dy_minimum => undef;
 use constant dx_maximum => undef;
 use constant dy_maximum => undef;
+
+# If the dx range doesn't cross 0 then its minimum is the absdx minimum.
+# But such a dx range is only for straight line paths so not very interesting.
+use constant absdx_minimum => 0;
+use constant absdy_minimum => 0;
+sub absdx_maximum {
+  my ($self) = @_;
+  if (defined (my $dx_minimum = $self->dx_minimum)
+      && defined (my $dx_maximum = $self->dx_maximum)) {
+    return _max(abs($dx_minimum),abs($dx_maximum));
+  } else {
+    return undef;
+  }
+}
+sub absdy_maximum {
+  my ($self) = @_;
+  if (defined (my $dy_minimum = $self->dy_minimum)
+      && defined (my $dy_maximum = $self->dy_maximum)) {
+    return _max(abs($dy_minimum),abs($dy_maximum));
+  } else {
+    return undef;
+  }
+}
 
 # experimental default from x_minimum(),y_minimum()
 # FIXME: should use absx_minimum, absy_minimum, for paths outside first quadrant
@@ -148,12 +188,94 @@ sub rsquared_minimum {
       && defined (my $y_minimum = $self->y_minimum)) {
     return ($x_minimum*$x_minimum + $y_minimum*$y_minimum);
   }
-
   # Maybe initial point $self->n_to_xy($self->n_start)) as the default,
   # but that's not the minimum on "wider" paths.
   return 0;
 }
 use constant rsquared_maximum => undef;
+
+
+#------------------------------------------------------------------------------
+
+use constant dir_minimum_dxdy => (1,0);
+use constant dir_maximum_dxdy => (0,0);
+
+# use constant 1.02 _PI => 4 * atan2(1,1);  # similar to Math::Complex
+#
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   ### min dxdy: $self->dir_minimum_dxdy
+#   return _dxdy_to_dir4($self->dir_minimum_dxdy);
+# }
+# sub dir4_maximum {
+#   my ($self) = @_;
+#   my ($dx,$dy) = $self->dir_maximum_dxdy;
+#   if ($dx == 0 && $dy == 0) { return 4; }
+#   return _dxdy_to_dir4($dx,$dy);
+# }
+# sub _dxdy_to_dir4 {
+#   my ($dx,$dy) = @_;
+#   ### _dxdy_to_dir4(): "$dx,$dy"
+# 
+#   if ($dy == 0) {
+#     return ($dx >= 0 ? 0 : 2);
+#   }
+#   if ($dx == 0) {
+#     return ($dy > 0 ? 1 : 3);
+#   }
+#   if ($dx > 0) {
+#     if ($dx == $dy) { return 0.5; }
+#     if ($dx == -$dy) { return 3.5; }
+#   } else {
+#     if ($dx == $dy) { return 2.5; }
+#     if ($dx == -$dy) { return 1.5; }
+#   }
+# 
+#   # don't atan2() in bigints
+#   if (ref $dx && $dx->isa('Math::BigInt')) {
+#     $dx = $dx->numify;
+#   }
+#   if (ref $dy && $dy->isa('Math::BigInt')) {
+#     $dy = $dy->numify;
+#   }
+# 
+#   # Crib: atan2() returns -PI <= a <= PI, and perlfunc says atan2(0,0) is
+#   # "not well defined", though glibc gives 0
+#   #
+#   ### atan2: atan2($dy,$dx)
+#   my $dir4 = atan2($dy,$dx) * (2 / _PI);
+#   ### $dir4
+#   return ($dir4 < 0 ? $dir4 + 4 : $dir4);
+# }
+# sub _dxdy_to_tdir6 {
+#   my ($dx,$dy) = @_;
+#   ### _dxdy_to_tdir6(): "$dx,$dy"
+# 
+#   if ($dy == 0) {
+#     return ($dx >= 0 ? 0 : 3);
+#   }
+#   if ($dx == 0) {
+#     return ($dy > 0 ? 1.5 : 4.5);
+#   }
+#   if ($dx > 0) {
+#     if ($dx == 3*$dy) { return 0.5; }
+#     if ($dx == $dy) { return 1; }
+#     if ($dx == -$dy) { return 5; }
+#     if ($dx == -3*$dy) { return 5.5; }
+#   } else {
+#     if ($dx == -$dy) { return 2; }
+#     if ($dx == -3*$dy) { return 2.5; }
+#     if ($dx == 3*$dy) { return 3.5; }
+#     if ($dx == $dy) { return 4; }
+#   }
+# 
+#   # Crib: atan2() returns -PI <= a <= PI, and is supposedly "not well
+#   # defined", though glibc gives 0
+#   #
+#   my $tdir6 = atan2($dy*sqrt(3), $dx) * (3 / _PI);
+#   ### $tdir6
+#   return ($tdir6 < 0 ? $tdir6 + 6 : $tdir6);
+# }
 
 #------------------------------------------------------------------------------
 
@@ -209,7 +331,8 @@ use constant tree_n_parent => undef;  # default always no parent
 use constant tree_n_children => ();   # default no children
 use constant tree_num_children_minimum => 0;
 use constant tree_num_children_maximum => 0;
-use constant tree_any_leaf => 1; # default all no children so all leaves
+use constant tree_any_leaf => 1;    # default all leaf node
+use constant tree_n_to_height => 0; # default all leaf node
 sub tree_n_num_children {
   my ($self, $n) = @_;
   if ($n >= $self->n_start) {
@@ -231,6 +354,29 @@ sub tree_depth_to_n_end {
   }
 }
 
+# Generic search for where no more children.
+# But must watch out for infinite lets, and might also watch out for
+# rounding or overflow.
+#
+# sub path_tree_n_to_height {
+#   my ($path, $n) = @_;
+#   ### path_tree_n_to_height(): "$n"
+#
+#   if (is_infinite($n)) {
+#     return $n;
+#   }
+#   my $max = $path->tree_n_to_depth($n) + 10;
+#   my @n = ($n);
+#   my $height = 0;
+#   do {
+#     @n = map {$path->tree_n_children($_)} @n
+#       or return $height;
+#     $height++;
+#   } while (@n && $height < $max);
+#
+#   ### height infinite ...
+#   return undef;
+# }
 
 #------------------------------------------------------------------------------
 # shared internals
@@ -351,7 +497,7 @@ __END__
 
 
 
-=for stopwords SquareSpiral SacksSpiral VogelFloret PlanePath Ryde Math-PlanePath 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY dX,dY Rsquared HilbertCurve radix DekkingCurve DekkingCentres SUBCLASSING Ns onwards TheodorusSpiral RationalsTree
+=for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick SquareSpiral SacksSpiral VogelFloret 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix
 
 =head1 NAME
 
@@ -717,6 +863,14 @@ This is mainly of interest for drawing line segments between N points.  If
 there's discontinuities then the idea is to draw from say N=7.0 to N=7.499
 and then another line from N=7.5 to N=8.
 
+=item C<$arms = $path-E<gt>arms_count()>
+
+Return the number of arms in a "multi-arm" path.
+
+For example in SquareArms this is 4 and each arm increments in turn, so the
+first arm is N=1,5,9,13,etc starting from C<$path-E<gt>n_start()> and
+incrementing by 4 each time.
+
 =item C<$bool = $path-E<gt>x_negative()>
 
 =item C<$bool = $path-E<gt>y_negative()>
@@ -757,25 +911,66 @@ For X,Y there's no minimum if the path goes into ever bigger negatives.
 Rsquared is always E<gt>= 0 so its minimum is 0, or more if the origin
 X=0,Y=0 is not visited.  Generally Rsquared has no maximum.
 
-=item C<$x = $path-E<gt>dx_minimum()>
+=item C<$dx = $path-E<gt>dx_minimum()>
 
-=item C<$y = $path-E<gt>dy_minimum()>
+=item C<$dy = $path-E<gt>dy_minimum()>
 
-=item C<$x = $path-E<gt>dx_maximum()>
+=item C<$adx = $path-E<gt>absdx_minimum()>
 
-=item C<$y = $path-E<gt>dy_maximum()>
+=item C<$ady = $path-E<gt>absdy_minimum()>
 
-Return the minimum or maximum change dX or dY between integer N to N+1 in
-the path.  For a multi-arm path the change is to N+arms so it's the change
-along the same arm.
+=item C<$dx = $path-E<gt>dx_maximum()>
 
-=item C<$arms = $path-E<gt>arms_count()>
+=item C<$dy = $path-E<gt>dy_maximum()>
 
-Return the number of arms in a "multi-arm" path.
+=item C<$adx = $path-E<gt>absdx_maximum()>
 
-For example in SquareArms this is 4 and each arm increments in turn, so the
-first arm is N=1,5,9,13,etc starting from C<$path-E<gt>n_start()> and
-incrementing by 4 each time.
+=item C<$ady = $path-E<gt>absdy_maximum()>
+
+Return the minimum or maximum change dX, dY, abs(dX) or abs(dY) occurring in
+the path from integer N to N+1.  For a multi-arm path the change is to
+N+arms so it's the change along the same arm.
+
+C<absdx_maximum()> is simply max(dXmax,-dXmin), the biggest change either
+positive or negative.  C<absdy_maximum()> similarly.
+
+C<absdx_minimum()> is 0 if dX=0 occurs anywhere in the path, which means any
+vertical step.  If X always changes then C<absdx_minimum()> will be
+something bigger than 0.  C<absdy_minimum()> likewise 0 if any dY=0
+horizontal, or bigger if Y is never unchanged.
+
+=item C<($dx,$dy) = $path-E<gt>dir_minimum_dxdy()>
+
+=item C<($dx,$dy) = $path-E<gt>dir_maximum_dxdy()>
+
+Return a vector which is the minimum or maximum angle taken by a step
+between integer N to N+1, or for a multi-arm path from N to N+arms so it's
+the change along the same arm.  Directions are reckoned anti-clockwise
+around from the X axis.
+
+    dX=-1,dY=1 *  |  *  dX=1,dY=1
+                \ | / 
+                 \|/   
+            ------+----*  dX=1,dY=0
+                  |
+                  |
+                  * dX=0,dY=-1
+
+A path which is always goes N,S,E,W such as the C<SquareSpiral> has minimum
+East dX=1,dY=0 and maximum South dX=0,dY=-1.
+
+Paths which go diagonally may have different limits.  For example the
+C<KnightSpiral> which goes in 2x1 steps has minimum East-North-East
+dX=2,dY=1 and maximum East-South-East dX=2,dY=-1.
+
+If the path has directions approaching 360 degrees then
+C<dir_maximum_dxdy()> is 0,0 to mean a full circle as a supremum.  For
+example C<MultipleRings>.
+
+It's also possible for the maximum to be East dX=1,dY=0.  That means both
+minimum and maximum are East, ie. that the path always goes Eastwards.  This
+isn't particularly interesting, but arises for example in the C<Columns>
+path with height=0.
 
 =item C<$str = $path-E<gt>figure()>
 
@@ -1276,7 +1471,7 @@ to frac(N).
 
        |-------|------|
          frac   1-frac
-               
+
 
     int = int(N)
     frac = N - int    0 <= frac < 1
@@ -1301,15 +1496,15 @@ or change to the next dX,dY.
 
 =head2 N to dX,dY -- Self-Similar
 
-For most of the self-similar paths such as HilbertCurve the change dX,dY is
-determined by following the state table transitions down through either all
-digits of N, or to the last non-9 digit, ie. drop any low digits equal to
-radix-1.
+For most of the self-similar paths such as C<HilbertCurve> the change dX,dY
+is determined by following the state table transitions down through either
+all digits of N, or to the last non-9 digit, ie. drop any low digits equal
+to radix-1.
 
 Generally paths which are the edges of some tiling use all digits, and those
 which are the centres of a tiling stop at the lowest non-9.  This can be
-seen for example in the DekkingCurve using all digits, whereas its
-DekkingCentres variant stops at the lowest non-24.
+seen for example in the C<DekkingCurve> using all digits, whereas its
+C<DekkingCentres> variant stops at the lowest non-24.
 
 Perhaps this all-digits vs low-non-9 even characterizes path style as edges
 or centres of a tiling, when a path is specified in some way that a tiling
@@ -1373,9 +1568,10 @@ A subclass can implement them directly if they can be done more efficiently.
     n_to_dxdy()           calls n_to_xy() twice
     n_to_rsquared()       calls n_to_xy()
 
-SacksSpiral is an example of an easy C<n_to_rsquared()>.  Or TheodorusSpiral
-is only slightly trickier.  Unless a path has some sort of easy X^2+Y^2 then
-it may as well be left to the base implementation calling C<n_to_xy()>.
+SacksSpiral is an example of an easy C<n_to_rsquared()>.  Or
+C<TheodorusSpiral> is only slightly trickier.  Unless a path has some sort
+of easy X^2+Y^2 then it may as well be left to the base implementation
+calling C<n_to_xy()>.
 
 The way C<n_to_dxdy()> supports fractional N can be a little tricky.  One
 way is to calculate on the integers below and above and combine per L</N to
@@ -1414,8 +1610,8 @@ NE<gt>=Nstart.
 The base C<tree_depth_to_n_end()> assumes that one level ends where the next
 begins, so Nend(depth) = Nstart(depth+1)-1.
 
-The default C<tree_any_leaf()> always true suits trees like UlamWarburton
-where there are terminating parts of the tree.  Trees like RationalTrees
+The default C<tree_any_leaf()> always true suits trees like C<UlamWarburton>
+where there are terminating parts of the tree.  Trees like C<RationalTrees>
 where every node continues on infinitely so there's no leafs should have
 
     use constant tree_any_leaf => 0;  # no leaves, complete tree
@@ -1470,7 +1666,7 @@ L<Math::PlanePath::BetaOmega>,
 L<Math::PlanePath::KochelCurve>,
 L<Math::PlanePath::DekkingCurve>,
 L<Math::PlanePath::DekkingCentres>,
-L<Math::PlanePath::CincoCurve>,
+L<Math::PlanePath::CincoCurve>
 
 L<Math::PlanePath::ImaginaryBase>,
 L<Math::PlanePath::ImaginaryHalf>,

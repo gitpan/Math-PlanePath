@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -122,6 +122,19 @@ sub oeis_anum {
 
 #------------------------------------------------------------------------------
 
+sub default_i_start {
+  my ($self) = @_;
+
+  my $planepath_object = $self->{'planepath_object'}
+    # nasty hack allow no 'planepath_object' when SUPER::new() calls rewind()
+    || return 0;
+
+  my $method = "_NumSeq_$self->{'line_type'}_i_start";
+  if (my $func = $planepath_object->can($method)) {
+    return $planepath_object->$func();
+  }
+  return 0;
+}
 sub new {
   my $class = shift;
   ### NumSeq-PlanePathN new(): @_
@@ -175,6 +188,7 @@ sub next {
 
   my $i = $self->{'i'};
   my $n = &{$self->{'i_func'}} ($self, $i);
+  ### $n
   if (! defined $n) {
     ### i_func returns undef, no value ...
     return;
@@ -214,6 +228,9 @@ sub i_func_X_axis {
 }
 sub i_func_Y_axis {
   my ($self, $i) = @_;
+  ### i_func_Y_axis(): "i=$i"
+  ### X: $self->{'planepath_object'}->_NumSeq_Y_axis_at_X
+  ### Y: $i * $self->{'i_step'}
   my $path_object = $self->{'planepath_object'};
   return $path_object->xy_to_n ($path_object->_NumSeq_Y_axis_at_X,
                                 $i * $self->{'i_step'});
@@ -284,11 +301,13 @@ sub pred {
 }
 sub pred_func_X_axis {
   my ($self, $x,$y) = @_;
-  return ($x >= $self->{'i_start'} && $y == 0);
+  return ($x >= $self->{'i_start'}
+          && $y == $self->{'planepath_object'}->_NumSeq_X_axis_at_Y);
 }
 sub pred_func_Y_axis {
   my ($self, $x,$y) = @_;
-  return ($x == 0 && $y >= $self->{'i_start'});
+  return ($x == $self->{'planepath_object'}->_NumSeq_Y_axis_at_X
+          && $y >= $self->{'i_start'});
 }
 sub pred_func_X_neg {
   my ($self, $x,$y) = @_;
@@ -375,18 +394,6 @@ sub characteristic_non_decreasing {
           || $self->characteristic_increasing);
 }
 
-sub default_i_start {
-  my ($self) = @_;
-  my $method = "_NumSeq_$self->{'line_type'}_i_start";
-  my $planepath_object = $self->{'planepath_object'}
-    # nasty hack allow no 'planepath_object' when SUPER::new() calls rewind()
-    || return 0;
-  if (my $func = $planepath_object->can($method)) {
-    return $planepath_object->$func();
-  } else {
-    return 0; # default start i=0
-  }
-}
 sub values_min {
   my ($self) = @_;
   ### PlanePathN values_min() ...
@@ -410,11 +417,47 @@ sub values_max {
 }
 
 { package Math::PlanePath;
-  use constant _NumSeq_X_axis_i_start => 0;
-  use constant _NumSeq_Y_axis_i_start => 0;
-  use constant _NumSeq_X_axis_at_Y => 0;
-  use constant _NumSeq_Y_axis_at_X => 0;
-  use constant _NumSeq_Diagonal_i_start => 0;
+  sub _NumSeq_X_axis_i_start {
+    my ($self) = @_;
+    if (defined (my $x_minimum = $self->x_minimum)) {
+      return int($x_minimum);
+    }
+    return 0;
+  }
+  sub _NumSeq_Y_axis_i_start {
+    my ($self) = @_;
+    ### _NumSeq_Y_axis_i_start() ...
+    if (defined (my $y_minimum = $self->y_minimum)) {
+      ### $y_minimum
+      return int($y_minimum);
+    }
+    return 0;
+  }
+  sub _NumSeq_Y_axis_at_X {
+    my ($self) = @_;
+    if (defined (my $x_minimum = $self->x_minimum)) {
+      return int($x_minimum);
+    }
+    return 0;
+  }
+  sub _NumSeq_X_axis_at_Y {
+    my ($self) = @_;
+    if (defined (my $y_minimum = $self->y_minimum)) {
+      return int($y_minimum);
+    }
+    return 0;
+  }
+
+  sub _NumSeq_Diagonal_i_start {
+    my ($self) = @_;
+    if (defined (my $x_minimum = $self->x_minimum)) {
+      return int($x_minimum);
+    }
+    if (defined (my $y_minimum = $self->y_minimum)) {
+      return int($y_minimum);
+    }
+    return 0;
+  }
   use constant _NumSeq_Diagonal_X_offset => 0;
   use constant _NumSeq_N_oeis_anum => {};
   use constant _NumSeq_N_oeis_all_anum => {};
@@ -605,8 +648,9 @@ sub values_max {
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
+  # ENHANCE-ME: All these variously rotated for skew=right,up,down
   use constant _NumSeq_N_oeis_anum =>
-    { 'n_start=1' =>
+    { 'skew=left,n_start=1' =>
       { X_axis      => 'A117625',
         X_neg       => 'A006137',
         Y_neg       => 'A064225',
@@ -624,7 +668,7 @@ sub values_max {
         # # Not quite, starts OFFSET=0 value=3 but that is at path Y=1
         # Y_axis      => 'A064226', # and duplicate in A081269
       },
-      'n_start=0' =>
+      'skew=left,n_start=0' =>
       { X_axis      => 'A051682', # 11-gonals per Math::NumSeq::Polygonal
         Y_axis      => 'A062708', # reading in direction 0,2,...
         Y_neg       => 'A062725', # reading in direction 0,7,...
@@ -692,7 +736,7 @@ sub values_max {
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
-    { '' =>
+    { 'n_start=1' =>
       { X_axis => 'A001844',  # centred squares 2n(n+1)+1
         # OEIS-Other: A001844 planepath=AztecDiamondRings
 
@@ -2048,7 +2092,7 @@ sub values_max {
         # OEIS-Catalogue: A059100 planepath=Corner,n_start=2 line_type=Y_axis
         # OEIS-Catalogue: A014206 planepath=Corner,n_start=2 line_type=Diagonal
       },
-      
+
       'wider=1,n_start=0' =>
       { Y_axis   => 'A002378',  # pronic
         Diagonal => 'A005563',  # (n+1)^2-1
@@ -2264,11 +2308,12 @@ sub values_max {
 
   use constant _NumSeq_N_oeis_anum =>
     {
+
      'rule=5' =>
      { Y_axis   => 'A061925',  # ceil(n^2/2)+1
        # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
      },
-     #
+
      # rule 84,116,212,244 two-wide right line
      do {
        my $tworight
@@ -2432,28 +2477,23 @@ sub values_max {
   # 4^2*3+4*3^2+1*3^3 = 111     123
   # 4^3*3 = 192                 150 +27 = 3^3
 
-  # Depth_end => 'A151920', # starting OFFSET=0 for value=1
   use Math::PlanePath::Base::Generic;
     use Math::PlanePath::Base::Digits;
   sub _NumSeq_tree_depth_to_n_range {
     my ($self, $depth) = @_;
-    if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
-      return $depth;
-    }
     if ($depth < 0) {
-      return undef;
+      return;
     }
     return (tree_depth_to_n($self,$depth),
             tree_depth_to_n($self,$depth+1) - 1);
   }
 
-  # Not quite, OFFSET=0 starts 1,2,5,6,9,12,21,22,25,28,37,40, which is
-  # depth=1 value=1 etc
-  # use constant _NumSeq_N_oeis_anum =>
-  #   { 'n_start=0' =>
-  #     { Depth_start => 'A151920',
-  #     },
-  #   };
+  use constant _NumSeq_N_oeis_anum =>
+    { 'n_start=1' =>
+      { Depth_end => 'A151920', # 3^count1bits(n), OFFSET=0 1,2,5,6,9
+        # OEIS-Catalogue: A151920 planepath=UlamWarburtonQuarter line_type=Depth_end
+      },
+    };
 }
 { package Math::PlanePath::CoprimeColumns;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -2533,21 +2573,20 @@ sub values_max {
   use constant _NumSeq_Diagonal_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
-    { '' =>
-      {
-       # Not quite, extra initial 0,1 in A000045
-       # X_axis   => 'A000045', # Fibonaccis
-
-       # Not quite, OFFSET=1 vs path start X=Y=0
-       # Diagonal => 'A020941', # diagonal
-       # # OEIS-Catalogue: A020941 planepath=WythoffArray line_type=Diagonal
-
-       # Not quite, OFFSET=1 vs path start Y=0
-       # Y_axis   => 'A003622', # spectrum of phi 1,4,6,9
-       # # OEIS-Catalogue: A003622 planepath=WythoffArray line_type=Y_axis
+    {
+     'x_start=1,y_start=1' =>
+     { Y_axis   => 'A003622', # spectrum of phi 1,4,6,9
+       Diagonal => 'A020941', # diagonal, OFFSET=1
+       # OEIS-Catalogue: A003622 planepath=WythoffArray,x_start=1,y_start=1 line_type=Y_axis
+       # OEIS-Catalogue: A020941 planepath=WythoffArray,x_start=1,y_start=1 line_type=Diagonal
 
        # Y=1 every second => 'A005248', # every second Lucas number
-      },
+     },
+
+     # # Not quite, extra initial 0,1 in A000045 Fibonaccis
+     # # X_axis   => 'A000045',
+     #
+     # # Y=1 row X=0,2,4,etc => 'A005248', # every second Lucas number
     };
 }
 { package Math::PlanePath::PowerArray;
@@ -2675,7 +2714,7 @@ sub values_max {
       # Not quite, A130665=1,4,7,16 offset=0 whereas Nend=0,1,4,7,16 depth=0
       # has extra initial 0.
       # 'parts=1' =>
-      # { Depth_end => 'A130665', # cumulative 3^count1bits(n), starting a(0)=1
+      # { Depth_end => 'A130665', # cumulative 3^count1bits(d), starting a(0)=1
       #   # OEIS-Catalogue: A130665 planepath=LCornerTree,parts=1,n_start=-1 line_type=Depth_end i_offset=1
       # },
     };

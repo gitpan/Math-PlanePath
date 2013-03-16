@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,6 +43,10 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1;
+use constant dir_maximum_dxdy => (-1,-1);  # South-West
+# use constant dir4_maximum => 2.5; # at most SW diagonal
+
 
 #------------------------------------------------------------------------------
 
@@ -191,7 +195,7 @@ This path makes a pyramid shaped spiral,
     -5 -4 -3  -2  -1  X=0 1  2  3  4  5  6  7
 
 The perfect squares 1,4,9,16 fall one before the bottom left corner of each
-loop, and the X<Pronic Numbers>pronic numbers 2,6,12,20,30,etc are the
+loop, and the X<Pronic numbers>pronic numbers 2,6,12,20,30,etc are the
 vertical upwards from X=1,Y=0.
 
 =head2 Square Spiral
@@ -253,10 +257,9 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as
 
     A214250    sum N of eight surrounding cells
 
-    A217013    permutation N by points in SquareSpiral order
-                 rotated +90 degrees, N value of PyramidSpiral there
-    A217294    permutation N by points in PyramidSpiral order
-                 rotated -90 degrees, N value of SquareSpiral there
+    A217013    permutation N of points in SquareSpiral order
+                 rotated +90 degrees
+    A217294    inverse
 
 In the two permutations the pyramid spiral is conceived as starting to the
 left and the square spiral starting upwards.  The paths here start in the
@@ -267,7 +270,9 @@ orientation.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::SquareSpiral>,
-L<Math::PlanePath::PyramidRows>
+L<Math::PlanePath::PyramidRows>,
+L<Math::PlanePath::TriangleSpiral>,
+L<Math::PlanePath::TriangleSpiralSkewed>
 
 =head1 HOME PAGE
 

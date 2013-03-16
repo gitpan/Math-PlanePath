@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,6 +56,10 @@ use constant dy_minimum => -1;
   }
 }
 *dy_maximum = \&dx_maximum;
+
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+use constant dir_maximum_dxdy => (0,-1); # South
 
 
 #------------------------------------------------------------------------------

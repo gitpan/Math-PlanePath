@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 5;
+plan tests => 8;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,200 +33,298 @@ use Math::PlanePath::KochCurve;
 #use Smart::Comments '###';
 
 
-my $koch  = Math::PlanePath::KochCurve->new;
+#------------------------------------------------------------------------------
+# A217586
+# Not quite turn sequence ...
+# differs 0<->1 at n=2^k
+#
+# a(1) = 1
+# if a(n) = 0 then a(2*n) = 1 and a(2*n+1) = 0     # opposite low bit
+# if a(n) = 1 then a(2*n) = 0 and a(2*n+1) = 0     # both 0
+#
+# a(2n+1)=0           # odd always left
+# a(2n) = 1-a(n)      # even 0 or 1 as odd or even
+# a(4n) = 1-a(2n) = 1-(1-a(n)) = a(n)
+# a(4n+2) = 1-a(2n+1) = 1-0 = 1       # 4n+2 always right
+# except a(0+2) = 1-a(1) = 1-1 = 0
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
+
+# A  Right    N    differ
+# 1  0         1    *
+# 0  1        10    *
+# 0  0        11
+# 1  0       100    *
+# 0  0       101
+# 1  1       110
+# 0  0       111
+# 0  1      1000    *
+# 0  0      1001
+# 1  1      1010
+# 0  0      1011
+# 0  0      1100
+# 0  0      1101
+# 1  1      1110
+# 0  0      1111
+# 1  0     10000    *
+# 0  0
+# 1  1
+# 0  0
+# 0  0
+# 0  0
+# 1  1
+# 0  0
+# 1  1
+
+MyOEIS::compare_values
+  (anum => q{A217586},
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       # $seq->next;
+       my ($i,$value) = $seq->next;
+       if (is_pow2($i)) { $value ^= 1; }
+       push @got, $value;
+       # push @got, A217586_func($i)
+     }
+     return \@got;
+   });
+
+sub A217586_func {
+  my ($n) = @_;
+  if ($n < 1) {
+    die "A217586_func() must have n>=1";
   }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
+
+  {
+    while (($n & 3) == 0) {
+      $n >>= 2;
+    }
+    if ($n == 1) {
+      return 1;
+    }
+    if (($n & 3) == 2) {
+      if ($n == 2) { return 0; }
+      else { return 1; }
+    }
+    if ($n & 1) {
       return 0;
     }
-    $i++;
   }
-  return (@$a1 == @$a2);
+
+  # {
+  #   if ($n == 1) {
+  #     return 1;
+  #   }
+  #   if (A217586_func($n >> 1)) {
+  #     if ($n & 1) {
+  #       return 0;
+  #     } else {
+  #       return 0;
+  #     }
+  #   } else {
+  #     if ($n & 1) {
+  #       return 0;
+  #     } else {
+  #       return 1;
+  #     }
+  #   }
+  # }
+  # 
+  # {
+  #   if ($n == 1) {
+  #     return 1;
+  #   }
+  #   my $bit = $n & 1;
+  #   if (A217586_func($n >> 1)) {
+  #     return 0;
+  #   } else {
+  #     return $bit ^ 1;
+  #   }
+  # }
 }
 
-# return 1 for left, 0 for right
-sub path_n_turn6 {
-  my ($path, $n) = @_;
-  return xy_turn_6 ($path->n_to_xy($n-1),
-                    $path->n_to_xy($n),
-                    $path->n_to_xy($n+1));
-}
-
-my %dxdy_to_dir = ('2,0' => 0,
-                   '1,1' => 1,
-                   '-1,1' => 2,
-                   '-2,0' => 3,
-                   '-1,-1' => 4,
-                   '1,-1' => 5);
-
-# return 0 if X,Y's are straight, 2 if left, 1 if right
-sub xy_turn_6 {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-  my $prev_dx = $x - $prev_x;
-  my $prev_dy = $y - $prev_y;
-  my $dx = $next_x - $x;
-  my $dy = $next_y - $y;
-
-  my $prev_dir = $dxdy_to_dir{"$prev_dx,$prev_dy"};
-  if (! defined $prev_dir) { die "oops, unrecognised $prev_dx,$prev_dy"; }
-
-  my $dir = $dxdy_to_dir{"$dx,$dy"};
-  if (! defined $dir) { die "oops, unrecognised $dx,$dy"; }
-
-  return ($dir - $prev_dir) % 6;
-}
-
-# 0=left, 1=right
-sub xy_left_right {
-  my ($prev_x,$prev_y, $x,$y, $next_x,$next_y) = @_;
-  my $turn = xy_turn_6 ($prev_x,$prev_y, $x,$y, $next_x,$next_y);
-  if ($turn == 2) {
-    return 0; # left;
+sub is_pow2 {
+  my ($n) = @_;
+  while ($n > 1) {
+    if ($n & 1) {
+      return 0;
+    }
+    $n >>= 1;
   }
-  if ($turn == 4) {
-    return 1; # right;
-  }
-  die "unrecognised turn $turn";
+  return ($n == 1);
 }
 
 #------------------------------------------------------------------------------
-# A096268 - morphism turn 1=right,0=left
+# A035263 is turn left=1,right=0 at OFFSET=1
+# morphism 1 -> 10, 0 -> 11
 
-{
-  my $anum = 'A096268';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn6($koch,$n);
-      if ($turn == 1) {
-        push @got, 0; # left
-      } elsif ($turn == 4) {
-        push @got, 1; # right
-      } else {
-        die "unrecognised turn $turn";
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- morphism");
-}
+MyOEIS::compare_values
+  (anum => 'A035263',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Left');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+# also left=0,right=1 at even N
+MyOEIS::compare_values
+  (anum => 'A035263',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if (($i & 1) == 0) {
+         push @got, $value;
+       }
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A073059 a(4k+3)= 1                      ..11       = 1
+#         a(4k+2) = a(4k+4) = 0           ..00 ..10  = 0
+#         a(16k+13) = 1                   1101
+#         a(4n+1) = a(n)                  ..01       = base4 above
+# a(n) = 1-A035263(n-1)  is Koch 1=left,0=right by morphism OFFSET=1
+# so A073059 is next turn 0=left,1=right
+
+# ???
+#
+# MyOEIS::compare_values
+#   (anum => q{A073059},
+#    func => sub {
+#      my ($count) = @_;
+#      require Math::NumSeq::PlanePathTurn;
+#      my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+#                                                  turn_type => 'Left');
+#      my @got = (0);
+#      while (@got < $count) {
+#        $seq->next;
+#        my ($i,$value) = $seq->next;
+#        push @got, $value;
+#      }
+#      return \@got;
+#    });
+
+
+#------------------------------------------------------------------------------
+# A096268 - morphism turn 1=right,0=left
+#   but OFFSET=0 is turn at N=1
+
+MyOEIS::compare_values
+  (anum => 'A096268',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A029883 - Thue-Morse first diffs
 
-{
-  my $anum = 'A029883';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    @$bvalues = map {abs} @$bvalues;
-    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn6($koch,$n);
-      if ($turn == 1) {
-        push @got, 1; # left
-      } elsif ($turn == 4) {
-        push @got, 0; # right
-      } else {
-        die "unrecognised turn $turn";
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- Thue-Morse first diffs");
-}
+MyOEIS::compare_values
+  (anum => 'A029883',
+   fixup => sub {
+     my ($bvalues) = @_;
+     @$bvalues = map {abs} @$bvalues;
+   },
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Left');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A089045 - +/- increment
 
-{
-  my $anum = 'A089045';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    @$bvalues = map {abs} @$bvalues;
-    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn6($koch,$n);
-      if ($turn == 1) {
-        push @got, 1; # left
-      } elsif ($turn == 4) {
-        push @got, 0; # right
-      } else {
-        die "unrecognised turn $turn";
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- increment");
-}
+MyOEIS::compare_values
+  (anum => 'A089045',
+   fixup => sub {
+     my ($bvalues) = @_;
+     @$bvalues = map {abs} @$bvalues;
+   },
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Left');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A003159 - N end in even number of 0 bits, is positions of left turn
 
-{
-  my $anum = 'A003159';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn6($koch,$n);
-      if ($turn == 1) {
-        push @got, $n; # left
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- even number of low 0 bits");
-}
+MyOEIS::compare_values
+  (anum => 'A003159',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Left');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if ($value == 1) {  # left
+         push @got, $i;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A036554 - N end in odd number of 0 bits, position of right turns
 
-{
-  my $anum = 'A036554';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    for (my $n = $koch->n_start + 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn6($koch,$n);
-      if ($turn == 4) {
-        push @got, $n; # right
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- even number of low 0 bits");
-}
+MyOEIS::compare_values
+  (anum => 'A036554',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'KochCurve',
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if ($value == 1) {  # right
+         push @got, $i;
+       }
+     }
+     return \@got;
+   });
 
+#------------------------------------------------------------------------------
 exit 0;

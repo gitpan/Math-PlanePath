@@ -40,7 +40,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -61,7 +61,9 @@ use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
+use constant absdx_minimum => 1;
 
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new(@_);
 

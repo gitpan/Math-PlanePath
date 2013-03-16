@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -63,6 +63,34 @@ sub dy_minimum {
           : 0);
 }
 use constant dy_maximum => 1;
+
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'width'} <= 1 ? 0 : 1);
+}
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'width'} <= 1
+          ? 1   # single column only
+          : 0);
+}
+
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'width'} == 1
+#           ? 1   # north only
+#           : 0); # E to NW
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'width'} == 1
+          ? (0,1)   # width=1 North only
+          : (1,0)); # width>1 East
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return (1-$self->{'width'}, 1);
+}
 
 #------------------------------------------------------------------------------
 

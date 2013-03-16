@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -45,6 +45,12 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+use constant dir_maximum_dxdy => (0,-1); # South
+
+
+#------------------------------------------------------------------------------
 my @dir4_to_dx = (1,0,-1,0);
 my @dir4_to_dy = (0,1,0,-1);
 my @digit_reverse = (0,1,0,0,1,0);

@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,6 +38,15 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
 
+# use constant dir4_minimum  => 0.5; # North-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_minimum_360 => 45;  # North-East
+# use constant dir_maximum_360 => 315; # South-East
+use constant dir_minimum_dxdy => (1,1);  # North-East
+use constant dir_maximum_dxdy => (1,-1); # South-East
+
+
+#------------------------------------------------------------------------------
 # starting each left side at 0.5 before
 # [ 1,2,3 ],
 # [ 1-0.5, 6-0.5, 17-0.5 ]

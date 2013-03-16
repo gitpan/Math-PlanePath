@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -283,6 +283,7 @@ sub xy_to_n {
 # dirrev[0] since digit=2 goes to rev
 # N=23=32[7]
 
+#            0  1  2  3  4  5
 my @turn6 = (1, 2,-1,-2, 0,-1,  # forward
              1, 0, 2, 1,-2,-1,  # reverse
              #

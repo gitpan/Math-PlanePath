@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -64,6 +64,10 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+use constant dir_maximum_dxdy => (0,-1); # South
+
 
 #------------------------------------------------------------------------------
 
@@ -243,7 +247,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for :stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein FlE<228>chenstE<252>ck Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
+=for :stopwords Ryde Math-PlanePath PlanePaths OEIS ZOrderCurve ZOrder Peano Gosper's HAKMEM Jorg Arndt's bitwise bignums fxtbook Ueber stetige Abbildung einer Linie auf ein FlE<228>chenstE<252>ck Mathematische Annalen DOI ascii lookup Arndt PlanePath ie
 
 =head1 NAME
 
@@ -340,25 +344,26 @@ places.
 
 =head2 Hamming Distance
 
-The hamming distance between X and Y is the number of bit positions where
-the two numbers differ when written in binary.  For the least   Each bit-pair of N becomes a
-bit of X and a bit of Y,
+The Hamming distance between integers X and Y is the number of bit positions
+where the two values differ when written in binary.  On the Hilbert curve
+each bit-pair of N becomes a bit of X and a bit of Y,
 
        N      X   Y
-    ------    -   -
+    ------   --- ---
     0 = 00    0   0
     1 = 01    1   0     <- difference 1 bit
     2 = 10    1   1
     3 = 11    0   1     <- difference 1 bit
 
-So the hamming distance for N=0to3 is 1 at N=1 and N=3.  As higher levels
+So the Hamming distance for N=0to3 is 1 at N=1 and N=3.  As higher levels
 these the X,Y bits may be transposed (swapped) or rotated by 180 or both.
 A transpose swapping XE<lt>-E<gt>Y doesn't change the bit difference.
 A rotate by 180 is a flip 0E<lt>-E<gt>1 of the bit in each X and Y, so that
 doesn't change the bit difference either.
 
-On that basis the hamming distance X,Y is the number of base4 digits of N
-which are 01 or 11,
+On that basis the Hamming distance X,Y is the number of base4 digits of N
+which are 01 or 11.  If bit positions are counted from 0 for the least
+significant bit then
 
     HammingDist(X,Y) = count 1-bits at even bit positions in N    
 

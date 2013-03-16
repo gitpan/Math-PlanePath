@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,6 +47,10 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+use constant dir_maximum_dxdy => (0,-1); # South
+
 
 #------------------------------------------------------------------------------
 
@@ -530,6 +534,8 @@ path include,
     http://oeis.org/A156596  (etc)
 
     A156596  - turn sequence, 0=straight,1=right,2=left
+    A171587  - abs(dY), so 1=vertical,0=horizontal
+
     A003849  - Fibonacci word, values 0,1
     A005614  - Fibonacci word, values 1,0
     A003842  - Fibonacci word, values 1,2

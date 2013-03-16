@@ -18,13 +18,10 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# cf A059893 - bit reverse all but the high 1
-
-
 use 5.004;
 use strict;
 use Test;
-plan tests => 36;
+plan tests => 39;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -51,6 +48,170 @@ sub gcd {
     ($x,$y) = ($y, $x % $y);
   }
 }
+
+#------------------------------------------------------------------------------
+# A104106  AYT 2*N Left -- not quite
+# a(1) = 1
+# if A(k) = sequence of first 2^k -1 terms, then
+#       A(k+1) = A(k), 1, A(k) if a(k) = 0
+#       A(k+1) = A(k), 0, A(k) if a(k) = 1
+# A104106 ,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,
+
+# sub A104106_func {
+#   my ($n) = @_;
+#   my @array;
+#   $array[1] = 1;
+#   my $k = 1;  # initially 2^1-1 = 2-1 = 1 term
+#   while ($#array < $n) {
+#     my $last = $#array;
+#     push @array,
+#       $array[$k] ? 0 : 1,
+#         @array[1 .. $last]; # array slice
+#     # print "\n$k array ",join(',',@array[1..$#array]),"\n";
+#     $k++;
+#   }
+#   return $array[$n];
+# }
+# print "A104106_func: ";
+# foreach my $i (1 .. 20) {
+#   print A104106_func($i),",";
+# }
+# print "\n";
+#
+# {
+#   require Math::NumSeq::PlanePathTurn;
+#   my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'RationalsTree,tree_type=AYT',
+#                                               turn_type => 'Left');
+#   print "seq: ";
+#   foreach my $i (1 .. 20) {
+#     print $seq->ith(2*$i),",";
+#   }
+#   print "\n";
+#
+#   foreach my $k (1 .. 100) {
+#     my $i = 2*$k;
+#     my $s = $seq->ith($i);
+#     my $a = A104106_func($k+10);
+#     my $diff = ($s != $a ? '  ***' : '');
+#     print "$i  $s $a$diff\n";
+#   }
+# }
+
+#------------------------------------------------------------------------------
+# HCS num=A071585 den=A071766
+# A010060 is 1=right or straight, 0=left
+# straight only at i=2  1,1, 2,1, 3,1
+
+{
+  require Math::NumSeq::OEIS::File;
+  require Math::NumberCruncher;
+  require Math::BaseCnv;
+  my $num = Math::NumSeq::OEIS::File->new(anum=>'A071585'); # OFFSET=0
+  my $den = Math::NumSeq::OEIS::File->new(anum=>'A071766'); # OFFSET=0
+  my $seq_A010060 = Math::NumSeq::OEIS->new(anum=>'A010060');
+  (undef, my $n1) = $num->next;
+  (undef, my $n2) = $num->next;
+  (undef, my $d1) = $den->next;
+  (undef, my $d2) = $den->next;
+  # $n1 += $d1; $n2 += $d2;
+  my $count = 0;
+  for (;;) {
+    (my $i, my $n3) = $num->next or last;
+    (undef, my $d3) = $den->next;
+
+    # Clockwise() positive for clockwise=right, negative for anti=left
+    my $turn = Math::NumberCruncher::Clockwise($n1,$d1, $n2,$d2, $n3,$d3);
+    if ($turn > 0) { $turn = 1; }  # 1=right
+    elsif ($turn < 0) { $turn = 0; }  # 0=left, 1=right
+    else { $turn = 1;
+           MyTestHelpers::diag ("straight i=$i   $n1,$d1, $n2,$d2, $n3,$d3");
+         }
+    # print "$turn,"; next;
+
+    my $turn_by_A010060 = $seq_A010060->ith($i);  # n of third of triplet
+
+    if ($turn != $turn_by_A010060) {
+      die "oops, wrong at i=$i";
+    }
+
+    # if (is_pow2($i)) { print "\n"; }
+    # my $i2 = Math::BaseCnv::cnv($i,10,2);
+    # printf "%2s %5s %2s,%-2s  %d %d\n", $i,$i2, $n3,$d3, $turn, $turn_by_A010060;
+
+    $n1 = $n2; $n2 = $n3;
+    $d1 = $d2; $d2 = $d3;
+    $count++;
+  }
+
+  MyTestHelpers::diag ("HCS OEIS vs A010060 count $count");
+  ok (1,1);
+}
+
+#------------------------------------------------------------------------------
+# A010060 -- HCS turn right is (-1)^count1bits of N+1, Thue-Morse +/-1
+# OFFSET=0, extra initial n=0,1,2 then n=3 is N=2
+MyOEIS::compare_values
+  (anum => 'A010060',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'RationalsTree,tree_type=HCS',
+                                                 turn_type => 'Right');
+     my @got = (0,1,1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+# A106400 -- HCS left +/-1 thue-morse parity, OFFSET=0
+MyOEIS::compare_values
+  (anum => 'A106400',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'RationalsTree,tree_type=HCS',
+                                                 turn_type => 'Left');
+     my @got = (1,-1,-1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, 2*$value-1;
+     }
+     return \@got;
+   });
+
+# +/-1 OFFSET=1, extra initial n=1,n=2 then n=3 is N=2
+MyOEIS::compare_values
+  (anum => 'A108784',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'RationalsTree,tree_type=HCS',
+                                                 turn_type => 'Right');
+     my @got = (1,1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, 2*$value-1;
+     }
+     return \@got;
+   });
+
+# A010059 -- HCS Left, count0bits mod 2 of N+1
+MyOEIS::compare_values
+  (anum => 'A010059',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'RationalsTree,tree_type=HCS',
+                                                 turn_type => 'Left');
+     my @got = (1,0,0);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A070990 -- CW Y-X is Stern diatomic first diffs, starting from N=2

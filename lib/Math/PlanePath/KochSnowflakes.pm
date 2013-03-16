@@ -42,7 +42,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -61,6 +61,13 @@ use constant n_frac_discontinuity => 0;
 use constant rsquared_minimum => 4/9; # minimum X=0,Y=2/3
 # maybe: use constant radius_minimum => 2/3; # minimum X=0,Y=2/3
 
+use constant absdx_minimum => 1; # never vertical
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new (@_);
   $self->{'sides'} ||= 3; # default

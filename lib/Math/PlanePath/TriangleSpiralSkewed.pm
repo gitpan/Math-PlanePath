@@ -19,11 +19,12 @@
 package Math::PlanePath::TriangleSpiralSkewed;
 use 5.004;
 use strict;
-#use List::Util 'max';
+#use List::Util 'max','min';
 *max = \&Math::PlanePath::_max;
+*min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -31,16 +32,47 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 use constant xy_is_visited => 1;
 use constant parameter_info_array =>
-  [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
+  [
+   { name            => 'skew',
+     type            => 'enum',
+     share_key       => 'skew_lru',
+     display         => 'Skew',
+     default         => 'left',
+     choices         => ['left', 'right','up','down' ],
+     choices_display => ['Left', 'Right','Up','Down' ],
+   },
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
 
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+{
+  my %dir_minimum_dxdy = (left  => [1,0],  # East
+                          right => [1,0],  # East
+                          up    => [1,1],  # NE
+                          down  => [0,1]); # North
+  sub dir_minimum_dxdy {
+    my ($self) = @_;
+    return @{$dir_minimum_dxdy{$self->{'skew'}}};
+  }
+}
+{
+  my %dir_maximum_dxdy = (left  => [0,-1],   # South
+                          right => [-1,-1],  # South-West
+                          up    => [0,-1],   # South
+                          down  => [1,-1]);  # South-East
+  sub dir_maximum_dxdy {
+    my ($self) = @_;
+    return @{$dir_maximum_dxdy{$self->{'skew'}}};
+  }
+}
+
 
 #------------------------------------------------------------------------------
 
@@ -49,99 +81,122 @@ sub new {
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
+  $self->{'skew'} ||= 'left';
   return $self;
 }
 
-# base at bottom right corner
-#   r = [ 1,  2,  3 ]
-#   n = [ 2,  11, 29 ]
-#   $d = 1/2 + sqrt(2/9 * $n + -7/36)
-#      = ( 3 + 6*sqrt(8/36 * $n + -7/36) ) / 6
-#      = ( 3 + sqrt(8 * $n + -7) ) / 6
-#      = (3 + sqrt(8*$n - 7)) / 6
+# base at bottom left corner, N=0 basis, first loop d=1
+#   d = [ 1,  2,  3 ]
+#   n = [ 0,  6, 21 ]
+#   d = 5/6 + sqrt(2/9 * $n + 1/36)
+#     = (5 + sqrt(8N + 1))/6
+# N = (9/2 d^2 - 15/2 d + 3)
+#   = (9/2*$d**2 - 15/2*$d + 3)
+#   = ((9/2*$d - 15/2)*$d + 3)
+#   = (9*$d - 15)*$d/2 + 3
 #
-#   $n = (9/2*$d**2 + -9/2*$d + 2)
-#
-# top corner is further 3*$d-1 along, so
-#   rem = $n - (9/2*$d**2 + -9/2*$d + 2) - (3*$d - 1)
-#       = $n - (9/2*$d**2 + -3/2*$d + 1)
-#       = $n - (9/2*$d + -3/2)*$d + 1
-#       = $n - (9*$d - 3)*$d/2 + 1
-#   so go rem-2*$r rightwards from x=-2*$r, is x = rem - 4*$r
+# bottom right corner is further 3*$d along, so
+#   rem = $n - (9/2 d^2 - 15/2 d + 3) - 3*d
+#       = $n - (9/2 d^2 - 9/2 d + 3)
+#       = $n - (9/2*$d + -9/2)*$d - 3
+#       = $n - (9*$d + -9)*$d/2 - 3
+#       = $n - ($d - 1)*$d*9/2 - 3
+# is rem < 0       bottom horizontal
+#    rem <= 3*d-1  right slope
+#    rem >= 3*d-1  left vertical
 #
 sub n_to_xy {
   my ($self, $n) = @_;
   #### TriangleSpiralSkewed n_to_xy: $n
 
-  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  $n = $n - $self->{'n_start'};  # starting N==0, and warning if $n==undef
   if ($n < 0) { return; }
 
-  my $d = int ((3 + sqrt(8*$n + 1)) / 6);
+  my $d = int((sqrt(8*$n + 1) + 5) / 6);  # first loop d=1 at n=0
   #### $d
 
-  $n -= (9*$d - 3)*$d/2;
+  $n -= ($d-1)*$d/2 * 9;
   #### remainder: $n
 
-  if ($n <= 3*$d) {
-    ### right slope and left vertical
-    my $x = - ($d + $n);
-    return (max($x,-$d),
-            2*$d - abs($n));
+  my $zero = $n*0; # inherit BigFloat frac rather than $d=BigInt
+  my ($x,$y);
+
+  if ($n <= 1) {
+    ### bottom horizontal: "nrem=$n"
+    $d -= 1;
+    $y = $zero - $d;
+    $x = $n + 2*$d;
+  } elsif (($n -= 3*$d) <= 0) {
+    ### right slope: "nrem=$n"
+    $x = -$n - $d;
+    $y = $n + 2*$d;
   } else {
-    ### bottom horizontal
-    return ($n - 4*$d,
-            -$d);
+    ### left vertical: "nrem=$n"
+    $x = $zero - $d;
+    $y = - $n + 2*$d;
   }
+  ### xy skew=left: "$x,$y"
+
+  if ($self->{'skew'} eq 'right') {
+    $x += $y;
+  } elsif ($self->{'skew'} eq 'up') {
+    $y += $x;
+  } elsif ($self->{'skew'} eq 'down') {
+    ($x,$y) = ($x+$y, -$x);
+  }
+  return ($x,$y);
 }
 
-# vertical x=0
-#   [ 1,  2,  3 ]
-#   [ 3, 14, 34 ]
-#   n = (9/2*$d**2 + -5/2*$d + 1)
-#     = 4.5*$d*$d - 2.5*$d + 1
-#
-# positive y, x=0 centres
-#   [ 1,  2,  3 ]
-#   [ 3, 13, 31 ]
-#   n = (4*$d*$d + -2*$d + 1)
-#
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = round_nearest ($x);
   $y = round_nearest ($y);
   ### xy_to_n(): "$x,$y"
 
+  if ($self->{'skew'} eq 'right') {
+    $x -= $y;
+  } elsif ($self->{'skew'} eq 'up') {
+    $y -= $x;
+  } elsif ($self->{'skew'} eq 'down') {
+    ($x,$y) = (-$y, $x+$y);
+  }
+  # now $x,$y in skew="left" style
+
+  my $n;
   if ($y < 0 && $y <= $x && $x <= -2*$y) {
-    ### bottom horizontal
+    ### bottom horizontal ...
 
     # negative y, vertical at x=0
     #   [ -1, -2, -3, -4 ]
     #   [  8, 24, 49, 83 ]
     #   n = (9/2*$d**2 + -5/2*$d + 1)
     #
-    return (9*$y - 5)*$y/2 + $x + $self->{'n_start'};
-  }
-  if ($x < 0 && $x <= $y && $y <= 2*-$x) {
-    ### left vertical
+    $n = (9*$y - 5)*$y/2 + $x;
+
+  } elsif ($x < 0 && $x <= $y && $y <= -2*$x) {
+    ### upper left vertical ...
 
     # negative x, horizontal at y=0
     #   [ -1, -2, -3, -4 ]
     #   [  6, 20, 43, 75 ]
     #   n = (9/2*$d**2 + -1/2*$d + 1)
     #
-    return (9*$x - 1)*$x/2 - $y + $self->{'n_start'};
+    $n = (9*$x - 1)*$x/2 - $y;
+
+  } else {
+    my $d = $x + $y;
+    ### upper right slope ...
+    ### $d
+
+    # positive y, vertical at x=0
+    #   [ 1,  2,  3,  4 ]
+    #   [ 3, 14, 34, 63 ]
+    #   n = (9/2*$d**2 + -5/2*$d + 1)
+    #
+    $n = (9*$d - 5)*$d/2 - $x;
   }
 
-  my $d = $x + $y;
-  ### right slope
-  ### $d
-
-  # positive y, vertical at x=0
-  #   [ 1,  2,  3,  4 ]
-  #   [ 3, 14, 34, 63 ]
-  #   n = (9/2*$d**2 + -5/2*$d + 1)
-  #
-  return (9*$d - 5)*$d/2 - $x + $self->{'n_start'};
+  return $n + $self->{'n_start'};
 }
 
 # n_hi exact, n_lo not
@@ -176,7 +231,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral TriangleSpiralSkewed PlanePath Ryde Math-PlanePath 11-polygonals hendecagonal hendecagonals OEIS
+=for stopwords TriangleSpiral TriangleSpiralSkewed PlanePath Ryde Math-PlanePath 11-gonals hendecagonal hendecagonals OEIS
 
 =head1 NAME
 
@@ -221,6 +276,98 @@ numbers fall on straight lines as the do in the TriangleSpiral but the skew
 means the top corner goes up at an angle to the vertical and the left and
 right downwards are different angles plotted (but are symmetric by N count).
 
+=head2 Skew Right
+
+Option C<skew =E<gt> 'right'> directs the skew towards the right, giving
+
+=cut
+
+# math-image --path=TriangleSpiralSkewed,skew=right --expression='i<=31?i:0' --output=numbers_dash
+
+=pod
+
+      4                  16      skew="right"
+                        / |
+      3               17 15
+                     /    |
+      2            18  4 14
+                  /  / |  |
+      1        ...  5  3 13
+                  /    |  |
+    Y=0 ->       6  1--2 12
+               /          |
+     -1       7--8--9-10-11
+
+                    ^
+             -2 -1 X=0 1  2
+
+This is a shear "X -E<gt> X+Y" of the default skew="left" shown above.  The
+coordinates are related by
+
+    Xright = Xleft + Yleft         Xleft = Xright - Yright
+    Yright = Yleft                 Yleft = Yright          
+
+=head2 Skew Up
+
+=cut
+
+# math-image --path=TriangleSpiralSkewed,skew=up --expression='i<=31?i:0' --output=numbers_dash
+
+=pod
+
+      2       16-15-14-13-12-11      skew="up"
+               |            /   
+      1       17  4--3--2 10
+               |  |   /  /  
+    Y=0 ->    18  5  1  9 
+               |  |   /  
+     -1      ...  6  8 
+                  |/  
+     -2           7 
+
+                    ^
+             -2 -1 X=0 1  2
+
+This is a shear "Y -E<gt> X+Y" of the default skew="left" shown above.  The
+coordinates are related by
+
+    Xup = Xleft                 Xleft = Xup
+    Yup = Yleft + Xleft         Yleft = Yup - Xup
+
+=head2 Skew Down
+
+=cut
+
+# math-image --path=TriangleSpiralSkewed,skew=down --expression='i<=31?i:0' --output=numbers_dash
+
+=pod
+
+      2          ..-18-17-16       skew="down"
+                           |  
+      1        7--6--5--4 15 
+                \       |  | 
+    Y=0 ->        8  1  3 14 
+                   \  \ |  | 
+     -1              9  2 13 
+                      \    | 
+     -2                10 12 
+                         \ | 
+                          11 
+
+                     ^
+              -2 -1 X=0 1  2
+
+This is a rotate by -90 degrees of the skew="up" above.  The coordinates are
+related
+
+    Xdown = Yup          Xup = - Ydown
+    Ydown = - Xup        Yup = Xdown
+
+Or related to the default skew="left" by
+
+    Xdown = Yleft + Xleft        Xleft = - Ydown
+    Ydown = - Xleft              Yleft = Xdown + Ydown
+
 =head2 N Start
 
 The default is to number points starting N=1 as shown above.  An optional
@@ -247,9 +394,9 @@ to start at 0,
      |                  \
     21-22-23-24-25-26-27-28
 
-With this adjustment for example the X axis N=0,1,11,30,etc is (9k-7)*k/2,
-the hendecagonal numbers (11-polygonals).  And N=0,8,25,etc is the
-hendecagonals of the second kind, (9k-7)*k/2 for k negative.
+With this adjustment for example the X axis N=0,1,11,30,etc is (9X-7)*X/2,
+the hendecagonal numbers (11-gonals).  And South-East N=0,8,25,etc is the
+hendecagonals of the second kind, (9Y-7)*Y/2 with Y negative.
 
 =head1 FUNCTIONS
 
@@ -259,16 +406,15 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::TriangleSpiralSkewed-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::TriangleSpiralSkewed-E<gt>new (n_start =E<gt> $n)>
+=item C<$path = Math::PlanePath::TriangleSpiralSkewed-E<gt>new (skew =E<gt> $str, n_start =E<gt> $n)>
 
-Create and return a new skewed triangle spiral object.
+Create and return a new skewed triangle spiral object.  The C<skew>
+parameter can be
 
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.
-
-For C<$n < 1> the return is an empty list, it being considered the path
-starts at 1.
+    "left"    (the default)
+    "right"
+    "up"
+    "down"
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -279,6 +425,24 @@ covered.
 
 =back
 
+=head1 FORMULAS
+
+=head2 Rectangle to N Range
+
+Within each row there's a minimum N and the N values then increase
+monotonically away from that minimum point.  Likewise in each column.  This
+means in a rectangle the maximum N is at one of the four corners of the
+rectangle.
+
+              |
+    x1,y2 M---|----M x2,y2        maximum N at one of
+          |   |    |              the four corners
+       -------O---------          of the rectangle
+          |   |    |
+          |   |    |
+    x1,y1 M---|----M x1,y1
+              |
+
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
@@ -286,7 +450,9 @@ path include
 
     http://oeis.org/A117625  (etc)
 
-    n_start=1 (default)
+    n_start=1, skew="left" (the defaults)
+      A204439     abs(dX)
+      A204437     abs(dY)
       A010054     turn 1=left,0=straight, extra initial 1
 
       A117625     N on X axis
@@ -299,7 +465,7 @@ path include
       A060544     N on ESE slope dX=+2,dY=-1
       A081272     N on SSE slope dX=+1,dY=-2
 
-      A217010     permutation N values of points by SquareSpiral order
+      A217010     permutation N values of points in SquareSpiral order
       A217291      inverse
       A214230     sum of 8 surrounding N
       A214231     sum of 4 surrounding N
@@ -316,13 +482,40 @@ path include
       A081271     N on dX=-1,dY=2 NNW slope up from N=1 at X=1,Y=0
 
     n_start=-1
-      A023531     N position of turns (to the left)
-                    1 at N=k*(k+3)/2
+      A023531     turn sequence 1=left,0=straight, being 1 at N=k*(k+3)/2
+
+    n_start=1, skew="right"
+      A204435     abs(dX)
+      A204437     abs(dY)
+      A217011     permutation N values of points in SquareSpiral order
+                    but with 90-degree rotation
+      A217292     inverse
+      A214251     sum of 8 surrounding N
+
+    n_start=1, skew="up"
+      A204439     abs(dX)
+      A204435     abs(dY)
+      A217012     permutation N values of points in SquareSpiral order
+                    but with 90-degree rotation
+      A217293     inverse
+      A214252     sum of 8 surrounding N
+
+    n_start=1, skew="down"
+      A204435     abs(dX)
+      A204439     abs(dY)
+
+The square spiral order in A217011,A217012 and their inverses has first step
+at 90-degrees to the first step of the triangle spiral, hence the rotation
+by 90 degrees when relating to the C<SquareSpiral> path.  A217010 on the
+other hand has no such rotation, it reckoning the square and triangle
+spirals starting both in the same direction.
 
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::TriangleSpiral>
+L<Math::PlanePath::TriangleSpiral>,
+L<Math::PlanePath::PyramidSpiral>,
+L<Math::PlanePath::SquareSpiral>
 
 =head1 HOME PAGE
 

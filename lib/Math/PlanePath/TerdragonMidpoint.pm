@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -66,6 +66,27 @@ use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1;
+
+# arms=1 curve goes at 60,180,300 degrees
+# arms=2 second +60 to 120,240,0 degrees
+# so when arms==1 dir minimum is 60 degrees
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'arms'} == 1
+#           ? 0.5
+#           : 0);
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'arms'} == 1
+          ? (1,1)     # North-East
+          : (1,0));   # East
+}
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+use constant dir_maximum_dxdy => (1,-1); # South-East
+
 
 #------------------------------------------------------------------------------
 
@@ -441,7 +462,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al TerdragonCurve TerdragonMidpoint terdragon ie
+=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al TerdragonCurve TerdragonMidpoint terdragon ie Xadj Yadj
 
 =head1 NAME
 
@@ -668,8 +689,8 @@ the digit?  Taking C=(X-Y)/2 in triangular coordinate style can reduce the
 table to 6x6.
 
 Points not reached by the curve (ie. not the 3 of 4 triangular or 3 of 8
-rectangular described above) can be detected with undef or suitably tagged
-entries in the adjustment table.
+rectangular described above) can be detected with C<undef> or suitably
+tagged entries in the adjustment table.
 
 The X,Y reduction stops at the midpoint of the first triple of the
 originating arm.  So X=3,Y=1 which is N=1 for the first arm, and that point

@@ -76,10 +76,18 @@ devel/lib/Math/PlanePath/ParabolicRows.pm
 devel/lib/Math/PlanePath/ParabolicRuns.pm
 devel/lib/Math/PlanePath/PeanoHalf.pm
 devel/lib/Math/PlanePath/PeanoRounded.pm
+devel/lib/Math/PlanePath/PowerRows.pm
 devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
 devel/lib/Math/PlanePath/R7DragonCurve.pm
 devel/lib/Math/PlanePath/squares-dispersion.pl
+devel/lib/Math/PlanePath/SumFractions.pm
+devel/lib/Math/PlanePath/WythoffDifference-oeis.t
+devel/lib/Math/PlanePath/WythoffDifference.pm
+devel/lib/Math/PlanePath/WythoffPreliminaryTriangle-oeis.t
+devel/lib/Math/PlanePath/WythoffPreliminaryTriangle.pm
+devel/lib/Math/PlanePath/WythoffTriangle-oeis.t
+devel/lib/Math/PlanePath/WythoffTriangle.pm
 devel/Makefile
 devel/mephisto-waltz.logo
 devel/multiple-rings.pl
@@ -262,7 +270,7 @@ SIGNATURE
 t/AlternatePaper.t
 t/AlternatePaperMidpoint.t
 t/AnvilSpiral.t
-t/ArchimedeanSpiral.t
+t/ArchimedeanChords.t
 t/AztecDiamondRings.t
 t/Base-Digits.t
 t/Base-Generic.t
@@ -380,6 +388,7 @@ tools/moore-spiral-table.pl
 tools/r5dragon-midpoint-offset.pl
 tools/terdragon-midpoint-offset.pl
 tools/wunderlich-meander-table.pl
+tools/wythoff-array-zeck.pl
 xt/0-examples-xrefs.t
 xt/0-file-is-part-of.t
 xt/0-META-read.t
@@ -425,7 +434,6 @@ xt/oeis/GosperSide-oeis.t
 xt/oeis/GrayCode-oeis.t
 xt/oeis/HexSpiral-oeis.t
 xt/oeis/HilbertCurve-oeis.t
-xt/oeis/Hypot-more.t
 xt/oeis/Hypot-oeis.t
 xt/oeis/HypotOctant-oeis.t
 xt/oeis/ImaginaryBase-oeis.t

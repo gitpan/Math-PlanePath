@@ -22,8 +22,15 @@
 # http://archive.org/details/diophantusofalex00heatiala
 #
 # Dickson History of the Theory of Numbers vol 2 chapter iv page 165
-# Diophantus knew that if the sides of a right triangle are 
-# expressed by rational numbers they are proportional to 2mn, m 2 n 2 , 
+# Diophantus knew that if the sides of a right triangle are
+# expressed by rational numbers they are proportional to 2mn, m 2 n 2 ,
+#
+# http://www.cut-the-knot.org/htdocs/dcforum/DCForumID4/745.shtml
+# Horadam "Fibonacci Number Triples" Amer. Math. Monthly 68(1961) 751-753
+# F(0), F(1), F(2) and F(3) are 4 sequential numbers of a Fibonacci type
+# sequence then P = (2F(1)*F(2),F(0)*F(3),2F(1)F(2)+F(0)^2) is a Pythagorean
+# triplet.
+# (2F(1)*F(2))^2 + (F(0)*F(3))^2 = (2F(1)*F(2)+F(0)^2)^2.
 #
 #
 # Daniel Shanks. Solved and Unsolved Problems in Number Theory, pp. 121 and
@@ -72,7 +79,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -96,6 +103,7 @@ use constant class_y_negative => 0;
 use constant tree_any_leaf => 0;  # no leaves, complete tree
 use constant tree_num_children_minimum => 3; # complete ternary tree
 use constant tree_num_children_maximum => 3;
+use constant tree_n_to_height => undef; # complete tree, all infinity
 
 use constant parameter_info_array =>
   [ { name            => 'tree_type',
@@ -132,6 +140,68 @@ sub x_minimum {
 sub y_minimum {
   my ($self) = @_;
   return $coordinate_minimum{substr($self->{'coordinates'},1)};
+}
+
+{
+  my %absdx_minimum = ('AB,UAD' => 2,
+                       'AB,FB'  => 2,
+                       'AC,UAD' => 2,
+                       'AC,FB'  => 2,
+                       'BC,UAD' => 4,  # at N=37
+                       'BC,FB'  => 4,  # at N=2 X=12,Y=13
+                       'PQ,UAD' => 0,
+                       'PQ,FB'  => 0,
+                      );
+  sub absdx_minimum {
+    my ($self) = @_;
+    return $absdx_minimum{"$self->{'coordinates'},$self->{'tree_type'}"} || 0;
+  }
+}
+{
+  my %absdy_minimum = ('AB,UAD' => 4,
+                       'AB,FB'  => 4,
+                       'AC,UAD' => 4,
+                       'AC,FB'  => 4,
+                       'BC,UAD' => 4,
+                       'BC,FB'  => 4,
+                       'PQ,UAD' => 0,
+                       'PQ,FB'  => 1,
+                      );
+  sub absdy_minimum {
+    my ($self) = @_;
+    return $absdy_minimum{"$self->{'coordinates'},$self->{'tree_type'}"} || 0;
+  }
+}
+
+{
+  my %dir_minimum_dxdy = (# AB apparent minimum dX=16,dY=8
+                          'AB,UAD' => [16,8],
+                          'AC,UAD' => [1,1], # it seems
+                         );
+  sub dir_minimum_dxdy {
+    my ($self) = @_;
+    return @{$dir_minimum_dxdy{"$self->{'coordinates'},$self->{'tree_type'}"}
+               || [1,0] };
+  }
+}
+{
+  # AB apparent maximum dX=-6,dY=-12 at N=3
+  # AC apparent maximum dX=-6,dY=-12 at N=3 same
+  # PQ apparent maximum dX=-1,dY=-1
+  my %dir_maximum_dxdy = ('AB,UAD'   => [-6,-12],
+                          'AC,UAD'   => [-6,-12],
+                          # 'BC,UAD' => [0,0],
+                          'PQ,UAD'   => [-1,-1],
+                          # 'AB,FB'  => [0,0],
+                          # 'AC,FB'  => [0,0],
+                          'BC,FB'    => [1,-1],
+                          # 'PQ,FB'  => [0,0],
+                         );
+  sub dir_maximum_dxdy {
+    my ($self) = @_;
+    return @{$dir_maximum_dxdy{"$self->{'coordinates'},$self->{'tree_type'}"}
+               || [0,0]};
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -284,7 +354,7 @@ sub n_to_xy {
   return &{$self->{'pq_to_xy'}}($p,$q);
 }
 
-# Nstart(depth+1) - Nstart(depth)
+# Nrow(depth+1) - Nrow(depth)
 #   = (3*pow+1)/2 - (pow+1)/2
 #   = (3*pow + 1 - pow - 1)/2
 #   = (2*pow)/2
@@ -792,7 +862,7 @@ __END__
 
 
 
-=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's coprime mixed-radix Nstart Liber Quadratorum gnomon Diophantus
+=for stopwords eg Ryde UAD FB Berggren Barning ie PQ parameterized parameterization Math-PlanePath someP someQ Q's coprime mixed-radix Nrow N-Nrow Liber Quadratorum gnomon gnomons Diophantus Nrem
 
 =head1 NAME
 
@@ -880,8 +950,8 @@ each of those, etc,
 Counting N=1 as depth=0, each level has 3^depth many points and the first N
 of a level, which is C<tree_depth_to_n()>, is at
 
-    Nstart = 1 + (1 + 3 + 3^2 + ... + 3^(depth-1))
-           = (3^depth + 1) / 2
+    Nrow = 1 + (1 + 3 + 3^2 + ... + 3^(depth-1))
+         = (3^depth + 1) / 2
 
 The levels are like a mixed-radix representation of N where the high digit
 is binary and the digits below are ternary.
@@ -921,7 +991,7 @@ C<tree_depth_to_n_end()>.
 =head2 U Repeatedly
 
 Taking the upper "U" matrix repeatedly gives 3.4 -E<gt> 5,12 -E<gt> 7,24
--E<gt> 9,40 etc with C=B+1.  These are the first of each level so at Nstart
+-E<gt> 9,40 etc with C=B+1.  These are the first of each level so at Nrow
 described above.  The resulting triples are a sequence known to Pythagoras
 (Dickson's I<History of the Theory of Numbers>, start of chapter IV).
 
@@ -1191,8 +1261,8 @@ resulting triple is primitive, and this means there are gaps in the lines.
 =head2 PQ Coordinates
 
 Primitive Pythagorean triples can be parameterized as follows for A odd and
-B even.  (As per Diophantus, and anonymous Arabic manuscript for
-constraining it to primitive triples.)
+B even.  This is per Diophantus, and anonymous Arabic manuscript for
+constraining it to primitive triples.
 
     A = P^2 - Q^2
     B = 2*P*Q
@@ -1208,27 +1278,36 @@ Option C<coordinates =E<gt> 'PQ'> gives these X=P,Y=Q as the returned X,Y
 coordinates (for either C<tree_type>).  Because PE<gt>QE<gt>=1 the values
 fall in the eighth of the plane below the X=Y diagonal,
 
-    coordinates => "PQ"
+=cut
 
-     11 |                         *
-     10 |                       *
-      9 |                     *
-      8 |                   *   *
-      7 |                 *   *   *
-      6 |               *       *
-      5 |             *   *       *
-      4 |           *   *   *   *
-      3 |         *       *   *
-      2 |       *   *   *   *   *
-      1 |     *   *   *   *   *   *
+# math-image --path=PythagoreanTree,coordinates=PQ --all --output=numbers_xy --size=75x14
+
+=pod
+
+    tree_type => "UAD", coordinates => "PQ"
+
+     10 |                                                   9842
+      9 |                                              3281
+      8 |                                         1094        23
+      7 |                                     365        32
+      6 |                                122                  38
+      5 |                            41         8
+      4 |                       14        11        12        15
+      3 |                   5                   6        16
+      2 |              2         3         7        10        22
+      1 |         1         4        13        40       121
     Y=0 |
-        +------------------------
-        X=0 1 2 3 4 5 6 7 8 9 ...
+        +--------------------------------------------------------
+        X=0  1    2    3    4    5    6    7    8    9   10   11
 
-The correspondence between P,Q and A,B means the trees visit all P,Q pairs
-with no common factor and one of them even.  There's other ways to iterate
-through such coprime P,Q, and those methods would generate triples too, in a
-different order from the trees here.
+The diagonal N=1,2,5,14,41,etc is P=Q+1 giving the U matrix steps of L</U
+Repeatedly> above.
+
+The one-to-one correspondence between P,Q and A,B means both tree types
+trees visit all P,Q pairs, so all X,Y with no common factor and one odd one
+even.  There's other ways to iterate through such coprime pairs.  Any such
+method would generate Pythagorean triples too, in a different order from the
+trees here.
 
 The letters P and Q here are a little bit arbitrary.  They're often written
 m,n or u,v but don't want "n" to be confused that with the N point numbering
@@ -1237,43 +1316,53 @@ or "u" to be confused with the U matrix in UAD.
 =head2 Turn Right -- UAD Coordinates AB, AC, PQ
 
 In the UAD tree with coordinates AB, AC or PQ the path always turns to the
-right at each point.  For example AB coordinates as shown above at N=2 the
-path turns to the right to go towards N=3.
+right.  For example in AB coordinates at N=2 the path turns to the right to
+go towards N=3.
 
-    Y=20 |                      3
-         |
-    Y=12 |      2
-         |
-         |
-     Y=4 |    1
-         |
-         +-------------------------
-            X=3               X=20
+    coordinates => "AB"
+
+    20 |                      3           N    X,Y
+       |                                 --   ------
+    12 |      2                           1    3,4
+       |                                  2    5,12
+       |                                  3   21,20
+     4 |    1
+       |                               turn towards the
+       +-------------------------        right at N=2
+            3 5              21
 
 This can be proved from the transformations applied to seven cases, a
 triplet U,A,D, then four crossing a gap within a level, then two wrapping
 around at the end of a level.  The initial N=1,2,3 can be treated as a
-wrap-around from the end of depth=0.
+wrap-around from the end of depth=0 (the last case D to U,A).
 
-    U        triplet U,A,D
+    U              triplet U,A,D
     A
     D
 
-    U.D^k.A       A.D^k.A       crossing A,D to U
-    U.D^k.D       A.D^k.D       across U->A or A->D gap
-    A.U^k.U       D.U^k.U        k>=0
+    U.D^k.A        crossing A,D to U
+    U.D^k.D        across U->A gap
+    A.U^k.U         k>=0
 
-    U.D^k.D       A.D^k.D       crossing D to U,A
-    U.U^k.U       A.U^k.U        k>=0
-    A.U^k.A       D.U^k.A
+    A.D^k.A        crossing A,D to U
+    A.D^k.D        across A->D gap
+    D.U^k.U         k>=0
 
-    D^k    .A     wraparound A,D to U
-    D^k    .D      k>=0
+    U.D^k.D        crossing D to U,A
+    U.U^k.U        across U->A gap
+    A.U^k.A         k>=0
+
+    A.D^k.D        crossing D to U,A
+    A.U^k.U        across A->D gap
+    D.U^k.A         k>=0
+
+    D^k    .A      wraparound A,D to U
+    D^k    .D       k>=0
     U^(k+1).U
 
-    D^k           wraparound D to U,A
-    U^k.U          k>=0
-    U^k.A          (k=0 is initial N=1,N=2,N=3 for none,U,A)
+    D^k            wraparound D to U,A
+    U^k.U           k>=0
+    U^k.A           (k=0 is initial N=1,N=2,N=3 for none,U,A)
 
 The powers U^k and D^k are an arbitrary number of descents U or D.  In P,Q
 coordinates these powers are
@@ -1284,6 +1373,30 @@ coordinates these powers are
 For AC coordinates squaring to stretch G=P^2,H=Q^2 doesn't change the turns.
 Then a rotate by -45 degrees to G-H,G+H also doesn't change the turns and
 gives A=P^2-Q^2 and C=P^2+Q^2.
+
+=head2 Turn Left -- UAD Coordinates BC
+
+In the UAD tree with coordinates BC the path always turns to the left.  For
+example in AB coordinates at N=2 the path turns to the right to go towards
+N=3.
+
+    coordinates => "BC"
+
+    29 |           3                N    X,Y
+       |                           --   ------
+       |                            1    4,5
+       |                            2   12,13
+    13 |       2                    3   20,29
+       |
+     5 |   1                     turn towards the
+       |                           left at N=2
+       +---------------
+           4  12   20
+
+As per above A,C turns to the right, which squared is A^2,C^2 to the right
+too, which equals C^2-B^2,C^2.  Negating the X coordinate to B^2-C^2,C^2
+mirrors to be a left turn always, and addition to X+Y,Y doesn't change that,
+giving B^2,C^2 always left and so B,C always left.
 
 =cut
 
@@ -1590,7 +1703,7 @@ Repeatedly applying "U" gives
     U^k     (k+1)P-kQ, kP-(k-1)Q
           = P+k(P-Q),  Q+k*(P-Q)
 
-If there's a run of k many high zeros in the Nrem = N-Nstart position in the
+If there's a run of k many high zeros in the Nrem = N-Nrow position in the
 level then they can be applied to the initial P=2,Q=1 as
 
     U^k    P=k+2, Q=k+1       start for k high zeros
@@ -1614,22 +1727,24 @@ just the p and q are enough for the calculation.
 
 =head2 X,Y to N -- UAD
 
-C<xy_to_n()> works in P,Q coordinates.  An A,B input is converted per the
-formulas in L</PQ Coordinates> above.  A P,Q point can be reversed up the
-UAD tree to its parent point
+C<xy_to_n()> works in P,Q coordinates.  An A,B or other input is converted
+per the formulas in L</PQ Coordinates> above.  A P,Q point can be reversed
+up the UAD tree to its parent point
 
     if P > 3Q    reverse "D"   P -> P-2Q
-                               Q -> unchanged
+                  digit=2      Q -> unchanged
+
     if P > 2Q    reverse "A"   P -> Q
-                               Q -> P-2Q
+                  digit=1      Q -> P-2Q
+
     otherwise    reverse "U"   P -> Q
-                               Q -> 2Q-P
+                  digit=0      Q -> 2Q-P
 
 This gives a ternary digit 2, 1, 0 respectively from low to high.  Those
 plus a high "1" bit make N.  The number of steps is the "depth" level.
 
-If at any stage P,Q doesn't satisfy PE<gt>Q, one odd, the other even, then
-it means the original point, whether it was an A,B or a P,Q, was not a
+If at any stage P,Q doesn't satisfy PE<gt>QE<gt>=1, one odd, the other even,
+then it means the original point, whether it was an A,B or a P,Q, was not a
 primitive triple.  For a primitive triple the endpoint is always P=2,Q=1.
 
 =head2 X,Y to N -- FB
@@ -1648,8 +1763,8 @@ tree to its parent
 
 This is a little like the binary greatest common divisor algorithm, but
 designed for one value odd and the other even.  Like the UAD ascent above if
-at any stage P,Q doesn't satisfy PE<gt>Q, one odd, the other even, then the
-initial point wasn't a primitive triple.
+at any stage P,Q doesn't satisfy PE<gt>QE<gt>=1, one odd, the other even,
+then the initial point wasn't a primitive triple.
 
 =head2 Rectangle to N Range -- UAD
 

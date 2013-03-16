@@ -83,7 +83,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -362,7 +362,7 @@ sub _ceil {
 1;
 __END__
 
-=for stopwords Helmut Vogel PlanePaths VogelFloret fibonacci sqrt sqrt2 PlanePath Ryde Math-PlanePath frac repdigits straightish Vogel's builtin repunit eg phi-ness radix
+=for stopwords Helmut Vogel PlanePaths VogelFloret fibonacci sqrt sqrt2 PlanePath Ryde Math-PlanePath frac repdigits straightish Vogel's builtin repunit eg phi-ness radix Zeckendorf OEIS
 
 =head1 NAME
 
@@ -484,7 +484,7 @@ grid, each of area A = sqrt(3)/2 = 0.866.  That would be factor sqrt(A/pi) =
 factor 0.624 as described above.
 
 Generally the tightness of the packing depends on the fractions which
-closely approximate the roation factor.  If the terms of the continued
+closely approximate the rotation factor.  If the terms of the continued
 fraction expansion are large then there's large regions of spiral arcs with
 gaps between.  The density in such regions is low and a big radius factor is
 needed to keep the points apart.  If the continued fraction terms are ever
@@ -510,7 +510,7 @@ sqrt(3) is 1,2 repeating.  sqrt(13) is 3s repeating.
 
 =head2 Fibonacci and Lucas Numbers
 
-X<Fibonacci Numbers>X<Lucas Numbers>The Fibonacci numbers F(k) =
+X<Fibonacci numbers>X<Lucas numbers>The Fibonacci numbers F(k) =
 1,1,2,3,5,8,13,21, etc and Lucas number L(k) = 2,1,3,4,7,11,18, etc form
 almost straight lines on the X axis of the phi floret.  This occurs because
 N*-phi is close to an integer for those N.  For example N=13 has angle

@@ -32,7 +32,7 @@ use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 @ISA = ('Math::PlanePath');
 
 
@@ -295,7 +295,7 @@ points, at 1 unit apart.  Other points are a little further apart.
 The arms going to the right like N=5,10,17,etc or N=8,15,24,etc are constant
 offsets from the perfect squares, ie. S<d^2 + c> for positive or negative
 integer c.  To the left the central arm N=2,6,12,20,etc is the
-X<Pronic Numbers>pronic numbers S<d^2 + d> = S<d*(d+1)>, half way between
+X<Pronic numbers>pronic numbers S<d^2 + d> = S<d*(d+1)>, half way between
 the successive perfect squares.  Other arms going to the left are offsets
 from that, ie. S<d*(d+1) + c> for integer c.
 

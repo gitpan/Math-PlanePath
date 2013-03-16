@@ -38,9 +38,33 @@ my $paper = Math::PlanePath::AlternatePaper->new;
 
 
 #------------------------------------------------------------------------------
-# A090678 "non-squashing partitions" mod 2
+# A106665 -- turn 1=left, 0=right
+#   OFFSET=0 cf first turn at N=1 here
+
+MyOEIS::compare_values
+  (anum => 'A106665',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'AlternatePaper',
+                                                 turn_type => 'Left');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A090678 "non-squashing partitions" A088567 mod 2
 # and A121241 which is 1,-1
 # almost but not quite arms=2 turn_type=Left
+# A121241 1,-1
+# A110036 2,0,-2
+# A110037 1,0,-1
+
 
 # MyOEIS::compare_values
 #   (anum => 'A090678',
@@ -268,25 +292,6 @@ MyOEIS::compare_values
      for (my $n = $paper->n_start + 1; @got < $count; $n++) {
        my ($x, $y) = $paper->n_to_xy ($n);
        push @got, $x-$y;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A106665 -- turn 1=left, 0=right
-#   OFFSET=0 cf first turn at N=1 here
-
-MyOEIS::compare_values
-  (anum => 'A106665',
-   func => sub {
-     my ($count) = @_;
-     require Math::NumSeq::PlanePathTurn;
-     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'AlternatePaper',
-                                                 turn_type => 'Left');
-     my @got;
-     while (@got < $count) {
-       my ($i,$value) = $seq->next;
-       push @got, $value;
      }
      return \@got;
    });

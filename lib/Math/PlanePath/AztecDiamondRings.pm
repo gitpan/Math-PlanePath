@@ -17,8 +17,6 @@
 
 
 
-# math-image --path=AztecDiamondRings --all --output=numbers --size=60x14
-
 # cute groupings
 # AztecDiamondRings, FibonacciWord fibonacci_word_type plain, 10x10 scale 15
 
@@ -28,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,9 +43,25 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+use constant dir_maximum_dxdy => (1,-1); # South-East
+
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
 
 
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 # d = [ 1, 2, 3, 4 ]
 # n = [ 1,5,13,25 ]
@@ -59,6 +73,9 @@ use constant dy_maximum => 1;
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
   if ($n < 1) { return; }
 
   my $frac;
@@ -134,14 +151,14 @@ sub xy_to_n {
 
   if ($x >= 0) {
     my $d = $x + abs($y);
-    return (2*$d + 2)*$d + 1 + $y;
+    return (2*$d + 2)*$d + $y + $self->{'n_start'};
   } else {
     if ($y >= 0) {
       my $d = $y - $x;
-      return 2*$d*$d - $y;
+      return 2*$d*$d - $y - 1 + $self->{'n_start'};
     } else {
       my $d = $y + $x;
-      return (2*$d + 4)*$d + 2 - $y;
+      return (2*$d + 4)*$d + 1 - $y + $self->{'n_start'};
     }
   }
 }
@@ -235,6 +252,12 @@ Math::PlanePath::AztecDiamondRings -- rings around an Aztec diamond shape
 
 This path makes rings around an Aztec diamond shape,
 
+=cut
+
+# math-image --path=AztecDiamondRings --all --output=numbers --size=60x14
+
+=pod
+
                  46-45                       4
                 /     \                       
               47 29-28 44                    3
@@ -263,15 +286,16 @@ This is similar to the DiamondSpiral, but has all four corners flattened to
 only a small change to the alignment of numbers in the sides, but is more
 symmetric.
 
-The hexagonal numbers 1,6,15,28,45,66,etc, k*(2k-1), are the vertical up
-along the Y axis.  The hexagonal numbers of the "second kind"
-3,10,21,36,55,78, etc k*(2k+1), are the vertical at X=-1 going downwards.
-Combining those two is the triangular numbers 3,6,10,15,21,etc, k*(k+1)/2,
-alternately on one line and the other.
+Y axis N=1,6,15,28,45,66,etc are the hexagonal numbers k*(2k-1).  The
+hexagonal numbers of the "second kind" 3,10,21,36,55,78, etc k*(2k+1), are
+the vertical at X=-1 going downwards.  Combining those two is the triangular
+numbers 3,6,10,15,21,etc, k*(k+1)/2, alternately on one line and the other.
+Those are the positions of all the horizontal steps, ie. where dY=0.
 
-The X axis 1,5,13,25,etc is the centred square numbers.  Those numbers are
-from drawing concentric squares with an extra point on each side each time,
-the same as the path here grows.
+X axis N=1,5,13,25,etc is the centred square numbers.  Those numbers are
+made by drawing concentric squares with an extra point on each side each
+time.  The path here grows the same way, adding one extra point to each of
+the four sides.
 
     *---*---*---*
     |           |
@@ -279,13 +303,38 @@ the same as the path here grows.
     | |       | |     centred square numbers
     * | *---* | *
     | | |   | | |
-    | * | * | * |
+    | * | * | * |     
     | | |   | | |
     | | *---* | |
     * |       | *
     | *---*---* |
     |           |
     *---*---*---*
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=AztecDiamondRings,n_start=0 --expression='i<=59?i:0' --output=numbers --size=50x10
+
+=pod
+
+    n_start => 0
+
+                45 44            
+             46 28 27 43         
+          47 29 15 14 26 42      
+       48 30 16  6  5 13 25 41   
+    49 31 17  7  1  0  4 12 24 40
+    50 32 18  8  2  3 11 23 39 59
+       51 33 19  9 10 22 38 58   
+          52 34 20 21 37 57      
+             53 35 36 56         
+                54 55            
 
 =head1 FUNCTIONS
 
@@ -294,6 +343,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::AztecDiamondRings-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::AztecDiamondRings-E<gt>new (n_start =E<gt> $n)>
 
 Create and return a new Aztec diamond spiral object.
 
@@ -411,7 +462,11 @@ this path include
 
     http://oeis.org/A001844  (etc)
 
-    A001844    N on X axis, the centred squares 2n(n+1)+1
+    n_start=1 (the default)
+      A001844    N on X axis, the centred squares 2n(n+1)+1
+
+    n_start=0
+      A023532    abs(dY), being 0 if N=k*(k+3)/2
 
 =head1 SEE ALSO
 

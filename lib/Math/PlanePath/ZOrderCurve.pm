@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -57,6 +57,12 @@ use constant class_y_negative => 0;
 
 use constant dx_maximum => 1;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1;   # X coord always changes
+
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return (1, 1 - $self->{'radix'});  # SE diagonal
+}
 
 #------------------------------------------------------------------------------
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -66,6 +66,32 @@ sub dy_minimum {
 sub dy_maximum {
   my ($self) = @_;
   return ($self->{'direction'} eq 'up' ? 1 : undef);
+}
+
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? 1   # 'down' always changes
+          : 0); # 'up' N=2 dY=0
+}
+
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'direction'} eq 'down'
+#           ? 1   # vertical N=1to2
+#           : 0); # horizontal N=2to3
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? (0,1)   # vertical N=1to2
+          : (1,0)); # horizontal N=2to3
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? (1,-1)   # South-East diagonal
+          : (2,-1)); # N=6 to N=7
 }
 
 
@@ -293,7 +319,7 @@ X=Y centre line, traversing the eighth of the plane on and above X=Y.
 
 N=1,4,9,16,etc on the X=Y leading diagonal are the perfect squares.
 N=2,6,12,20,etc at the ends of the other diagonals are the
-X<Pronic Numbers>pronic numbers k*(k+1).
+X<Pronic numbers>pronic numbers k*(k+1).
 
 =head2 Pyramid Rows
 
@@ -373,7 +399,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::DiagonalsOctant-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::DiagonalsOctant-E<gt>new (n_start =E<gt> $integer)>
+=item C<$path = Math::PlanePath::DiagonalsOctant-E<gt>new (direction =E<gt> $str, n_start =E<gt> $n)>
 
 Create and return a new path object.
 

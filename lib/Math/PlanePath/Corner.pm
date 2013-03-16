@@ -53,7 +53,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -74,6 +74,10 @@ use Math::PlanePath::SquareSpiral;
 
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
+use constant dir_maximum_dxdy => (0,-1); # South
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+
 
 #------------------------------------------------------------------------------
 
@@ -277,7 +281,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PyramidSides PyramidRows PlanePath Ryde Math-PlanePath ie OEIS
+=for stopwords pronic SacksSpiral PyramidSides PyramidRows PlanePath Ryde Math-PlanePath ie OEIS gnomon
 
 =head1 NAME
 
@@ -326,7 +330,7 @@ one-bigger square,
      2x2        3x3           4x4
 
 N=2,6,12,20,etc on the diagonal X=Y-1 up from X=0,Y=1 is the
-X<Pronic Numbers>pronic numbers k*(k+1) which are half way between the
+X<Pronic numbers>pronic numbers k*(k+1) which are half way between the
 squares.
 
 Each gnomon is 2 longer than the previous.  This is similar to the
@@ -363,7 +367,7 @@ gives
             ^
            X=0  1   2   3   4   5   6
 
-Each gnomon has the horiziontal part C<wider> many steps longer.  Each
+Each gnomon has the horizontal part C<wider> many steps longer.  Each
 gnomon is still 2 longer than the previous, since this widening is a
 constant amount in each.
 

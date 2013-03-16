@@ -33,7 +33,7 @@ require Math::PlanePath::DekkingCurve;
 # VERSION
 
 {
-  my $want_version = 99;
+  my $want_version = 100;
   ok ($Math::PlanePath::DekkingCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DekkingCurve->VERSION,  $want_version,

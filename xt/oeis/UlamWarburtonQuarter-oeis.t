@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -34,7 +34,7 @@ use Math::PlanePath::UlamWarburtonQuarter;
 #use Smart::Comments '###';
 
 #------------------------------------------------------------------------------
-# A147610 - 3^(count 1-bits)
+# A147610 - 3^(count 1-bits), width of depth level
 
 MyOEIS::compare_values
   (anum => 'A147610',
@@ -44,35 +44,11 @@ MyOEIS::compare_values
      my @got;
      my $prev_depth = 0;
      my $count = 0;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my $depth = $path->tree_n_to_depth($n);
-       if ($depth != $prev_depth) {
-         push @got, $count;    # N end of $prev_depth
-         $count = 0;
-         $prev_depth = $depth;
-       }
-       $count++;
+     for (my $depth = 0; @got < $count; $depth++) {
+       push @got,
+         $path->tree_depth_to_n($depth+1)
+           - $path->tree_depth_to_n($depth);
      }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A151920 - cumulative 3^(count 1-bits)
-
-MyOEIS::compare_values
-  (anum => 'A151920',
-   func => sub {
-     my ($count) = @_;
-    my $path = Math::PlanePath::UlamWarburtonQuarter->new;
-    my @got;
-    my $prev_depth = 0;
-    for (my $n = $path->n_start; @got < $count; $n++) {
-      my $depth = $path->tree_n_to_depth($n);
-      if ($depth != $prev_depth) {
-        push @got, $n-1;    # N end of $prev_depth
-        $prev_depth = $depth;
-      }
-    }
      return \@got;
    });
 

@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,6 +38,39 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
 
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'radix'} == 2
+          ? 1
+          : 0); # at N=1 dX=0,dY=1
+}
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'radix'} == 2
+          ? 0   # at N=1 dX=1,dY=0
+          : 1); # always different Y
+}
+
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'radix'} == 2
+#           ? 0   # East
+#           : 1); # North
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'radix'} == 2
+          ? (1,0)   # East
+          : (0,1)); # North
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  my $radix = $self->{'radix'};
+  return $self->n_to_dxdy($radix==2 ? 3 : $radix-1);
+}
+
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new (@_);
   $self->{'radix'} = max ($self->{'radix'} || 0, 2); # default 2
@@ -295,11 +328,15 @@ path include
       A000265    2*Y+1, strip low 0 bits
 
       A094267    dX, change count low 0-bits
+      A050603    abs(dX)
       A108715    dY, change in Y coordinate
 
       A000079    N on X axis, powers 2^X
-      A005408    N on Y axis, the odd numbers
       A057716    N not on X axis, the non-powers-of-2
+
+      A005408    N on Y axis (X=0), the odd numbers
+      A003159    N in X=even columns, even trailing 0 bits
+      A036554    N in X=odd columns
 
       A014480    N on X=Y diagonal, (2n+1)*2^n
       A118417    N on X=Y+1 diagonal, (2n-1)*2^n
@@ -312,7 +349,9 @@ path include
     radix=3
       A007949    X coordinate, power-of-3 dividing N
       A000244    N on X axis, powers 3^X
-      A001651    N on Y axis, not divisible by 3
+      A001651    N on Y axis (X=0), not divisible by 3
+      A007417    N in X=even columns, even trailing 0 digits
+      A145204    N in X=odd columns (extra initial 0)
       A141396    permutation, N by diagonals down from Y axis
       A191449    permutation, N by diagonals up from X axis
       A135765    odd N by diagonals, deletes the Y=1,2mod4 rows

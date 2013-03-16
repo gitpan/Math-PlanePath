@@ -39,7 +39,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -84,6 +84,84 @@ use constant parameter_info_array =>
    },
   ];
 
+{
+  # Ror sT and sF the split X coordinate changes from N to N+1 and so does
+  # the to-gray or from-gray transformation, so X always changes.
+  #
+  my %absdx_minimum = (
+                      reflected => {
+                                    # TsF => 0,
+                                    # FsT => 0,
+                                    # Ts  => 0,
+                                    # Fs  => 0,
+                                    sT    => 1,
+                                    sF    => 1,
+                                   },
+                      modular   => {
+                                    # TsF => 0,
+                                    # Ts  => 0,
+                                    Fs    => 1,
+                                    FsT   => 1,
+                                    sT    => 1,
+                                    sF    => 1,
+                                   },
+                     );
+  sub absdx_minimum {
+    my ($self) = @_;
+    my $gray_type = ($self->{'radix'} == 2
+                     ? 'reflected'
+                     : $self->{'gray_type'});
+    return ($absdx_minimum{$gray_type}->{$self->{'apply_type'}} || 0);
+  }
+}
+{
+  my %dir4_maximum = (
+                      # # radix==2 always "reflected"
+                      # # TsF => 0,
+                      # # FsT => 0,
+                      # # Ts => 0,
+                      # # Fs => 0,
+                      # sT => 4,
+                      # sF => 4,
+
+                      reflected => {
+                                    # TsF => 0,
+                                    # FsT => 0,
+                                    # Ts  => 0,
+                                    # Fs  => 0,
+                                    sT    => 4,
+                                    sF    => 4,
+                                   },
+                      modular   => {
+                                    # TsF => 0,
+                                    # Ts  => 0,
+                                    Fs    => 4,
+                                    FsT   => 4,
+                                    sT    => 4,
+                                    sF    => 4,
+                                   },
+                     );
+  # sub dir4_maximum {
+  #   my ($self) = @_;
+  #   my $gray_type = ($self->{'radix'} == 2
+  #                    ? 'reflected'
+  #                    : $self->{'gray_type'});
+  #   return $dir4_maximum{$gray_type}->{$self->{'apply_type'}}
+  #     || 3; # South
+  # }
+  sub dir_maximum_dxdy {
+    my ($self) = @_;
+    my $gray_type = ($self->{'radix'} == 2
+                     ? 'reflected'
+                     : $self->{'gray_type'});
+    return ($dir4_maximum{$gray_type}->{$self->{'apply_type'}}
+            ? (0,0)    # supremum
+            : (0,-1)); # South
+  }
+}
+
+
+#------------------------------------------------------------------------------
 my %funcbase = (T  => '_digits_to_gray',
                 F  => '_digits_from_gray',
                 '' => '_noop');

@@ -52,7 +52,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -79,6 +79,11 @@ use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1; # never vertical
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+use constant dir_maximum_dxdy => (1,-1); # South-East
+
 
 #------------------------------------------------------------------------------
 
@@ -630,7 +635,8 @@ either +60 degrees or -120 degrees, it never goes straight ahead.  In the
 base 4 representation of N the lowest non-zero digit gives the turn.  The
 first turn is at N=1 so there's always a non-zero digit in N.
 
-   low digit       turn
+   low digit
+    base 4         turn
    ---------   ------------
       1         +60 degrees (left)
       2        -120 degrees (right)
@@ -645,6 +651,18 @@ next level up is in control, eg. N=0,4,8,12,16, making a turn according to
 the base shape again at that higher level.  The first and last segments of
 the base shape are "straight" so there's no extra adjustment to apply in
 those higher digits.
+
+This base 4 digit rule is equivalent to counting low 0-bits.  A low base-4
+digit 1 or 3 is an even number of low 0-bits and a low digit 2 is an odd
+number of low 0-bits.
+
+    count low 0-bits         turn
+    ----------------     ------------
+         even             +60 degrees (left)
+         odd             -120 degrees (right)
+
+For example N=8 in binary "1000" has 3 low 0-bits and 3 is odd so turn -120
+degrees (right).
 
 See L<Math::PlanePath::GrayCode/Turn> for a similar turn sequence arising
 from binary Gray code.
@@ -685,7 +703,7 @@ direction 0 to 5 if desired.
 
 #   It also
 # works to map each digit to an amount to add
-# 
+#
 #     digit   add
 #     -----   ---
 #       0      0
@@ -783,6 +801,7 @@ various forms,
 
     http://oeis.org/A035263  (etc)
 
+    A011655   abs(dY), 0,1,1 repeating
     A035263   turn 1=left,0=right, by morphism
     A096268   turn 0=left,1=right, by morphism
     A029883   turn +/-1=left,0=right, Thue-Morse first differences
@@ -790,6 +809,10 @@ various forms,
 
     A003159   N positions of left turns, ending even number 0 bits
     A036554   N positions of right turns, ending odd number 0 bits
+
+For reference, the recurrence in A217586 not quite the same as the right
+turn of A096268.  A217586 differs by a 0E<lt>-E<gt>1 flip at N=2^k due to
+different initial a(1)=1.
 
 =head1 SEE ALSO
 

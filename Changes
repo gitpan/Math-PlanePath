@@ -17,6 +17,14 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 100, March 2013
+    - new absdx_minimum(),absdy_minimum(), absdx_maximum(),absdy_maximum(),
+      dir_minimum_dxdy(),dir_maximum_dxdy()
+    - AztecDiamondRings new parameter n_start
+    - TriangleSpiralSkewed new parameter skew=right,up,down
+    - WythoffArray new parameters x_start,y_start
+    - PlanePathDelta new delta_type=>"dAbsDiff"
+
 Version 99, February 2013
     - oops, correction to IntXY on negatives
 

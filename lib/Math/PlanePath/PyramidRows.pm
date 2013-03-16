@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -74,7 +74,6 @@ sub x_maximum {
           : undef);
 }
 
-
 sub dx_minimum {
   my ($self) = @_;
   return ($self->{'step'} == 0 ? 0 : undef);
@@ -92,6 +91,43 @@ sub dy_minimum {
 }
 use constant dy_maximum => 1;
 
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          || $self->{'align'} eq 'right' # dX=0 at N=1
+          || ($self->{'step'} == 1 && $self->{'align'} eq 'centre')
+          ? 0 : 1);
+}
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? 1 : 0);
+}
+
+# if step==0 then always north, otherwise E to NW
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'step'} == 0
+#           ? 1    # north only
+#           : 0);  # east
+# }
+# sub dir4_maximum {
+#   my ($self) = @_;
+#   return ($self->{'step'} == 0
+#           ? 1    # north only
+#           : 2);  # supremum, west and 1 up
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          ? (0,1)    # north only
+          : (1,0));  # east
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          ? (0,1)    # north only
+          : (-1,0)); # supremum, west and 1 up
+}
 
 #------------------------------------------------------------------------------
 
@@ -386,7 +422,7 @@ than the preceding, an extra point at the left and the right,
     -4  -3  -2  -1  x=0  1   2   3   4 ...
 
 The right end N=1,4,9,16,etc is the perfect squares.  The vertical
-2,6,12,20,etc at x=-1 is the X<Pronic Numbers>pronic numbers s*(s+1), half
+2,6,12,20,etc at x=-1 is the X<Pronic numbers>pronic numbers s*(s+1), half
 way between those successive squares.
 
 The step 2 is the same as the PyramidSides, Corner and SacksSpiral paths.
@@ -638,7 +674,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PyramidRows-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::PyramidRows-E<gt>new (step =E<gt> $integer, align =E<gt> $str, n_start =E<gt> $integer)>
+=item C<$path = Math::PlanePath::PyramidRows-E<gt>new (step =E<gt> $integer, align =E<gt> $str, n_start =E<gt> $n)>
 
 Create and return a new path object.  The default C<step> is 2.  C<align> is
 a string, one of
@@ -692,13 +728,15 @@ path include
 
       A023531    dY, being 1 at triangular numbers (but starting n=0)
       A167407    dX-dY, change in X-Y (extra initial 0)
-      A129184    1 at end of each row
+      A129184    turn 1=left, 0=right or straight
 
       A079824    N total along each opposite diagonal
       A000124    N on Y axis (triangular+1)
       A000217    N on X=Y diagonal, extra initial 0
     step=1, n_start=0
       A109004    GCD(X,Y) greatest common divisor starting (0,0)
+      A103451    turn 1=left or right,0=straight, but extra initial 1
+      A103452    turn 1=left,0=straight,-1=right, but extra initial 1
 
     step=2
       A196199    X coordinate, runs -n to +n

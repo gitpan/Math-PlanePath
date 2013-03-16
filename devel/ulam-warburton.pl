@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,6 +25,48 @@ use warnings;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+{
+  # height
+  require Math::PlanePath::UlamWarburton;
+  require Math::PlanePath::UlamWarburtonQuarter;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::UlamWarburton->new;
+  # my $path = Math::PlanePath::UlamWarburtonQuarter->new;
+  my $prev_depth = 0;
+  for (my $n = $path->n_start; ; $n++) {
+    my $depth = $path->tree_n_to_depth($n);
+    my $n_depth = $path->tree_depth_to_n($depth);
+    if ($depth != $prev_depth) {
+      print "\n";
+      last if $depth > 33;
+      $prev_depth = $depth;
+    }
+    my $calc_height = $path->tree_n_to_height($n);
+    my $search_height = path_tree_n_to_height_by_search($path,$n);
+    my $n3 = Math::BaseCnv::cnv($n - $n_depth, 10,3);
+    $search_height //= 'undef';
+    $calc_height //= 'undef';
+    my $diff = ($search_height eq $calc_height ? '' : '  ***');
+    printf "%2d %2d %3s  %5s %5s%s\n",
+      $depth, $n, $n3, $search_height, $calc_height, $diff;
+  }
+  exit 0;
+
+  sub path_tree_n_to_height_by_search {
+    my ($self, $n) = @_;
+    my @n = ($n);
+    my $height = 0;
+    for (;;) {
+      @n = map {$self->tree_n_children($_)} @n
+        or return $height;
+      $height++;
+      if (@n > 200 || $height > 200) {
+        return undef;  # presumed infinite
+      }
+    }
+  }
+}
 
 {
   # number of children

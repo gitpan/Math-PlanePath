@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 1086;
+plan tests => 1146;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule;
 # VERSION
 
 {
-  my $want_version = 99;
+  my $want_version = 100;
   ok ($Math::PlanePath::CellularRule::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule->VERSION,  $want_version,
@@ -100,6 +100,23 @@ foreach my $relem ([ 50, # solid odd
                      [ 5.75,  2-.25, 2 ],
                      [ 6.25,  2+.25, 2 ],
                    ],
+
+                   [ 6, # one,two left
+                     [ 1, 0,0 ],
+                     [ 2, -1,1 ],
+                     [ 3,  0,1 ],
+                     [ 4, -2,2 ],
+                     [ 5, -3,3 ],
+                     [ 6, -2,3 ],
+                   ],
+                   [ 20, # one,two right
+                     [ 1, 0,0 ],
+                     [ 2, 0,1 ],
+                     [ 3, 1,1 ],
+                     [ 4, 2,2 ],
+                     [ 5, 2,3 ],
+                     [ 6, 3,3 ],
+                   ],
                   ) {
   my ($rule, @elements) = @$relem;
   my $path = Math::PlanePath::CellularRule->new (rule => $rule);
@@ -110,8 +127,8 @@ foreach my $relem ([ 50, # solid odd
       my ($got_x, $got_y) = $path->n_to_xy ($n);
       if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
       if ($got_y == 0) { $got_y = 0 }
-      ok ($got_x, $x, "n_to_xy() x at n=$n");
-      ok ($got_y, $y, "n_to_xy() y at n=$n");
+      ok ($got_x, $x, "rule=$rule n_to_xy() x at n=$n");
+      ok ($got_y, $y, "rule=$rule n_to_xy() y at n=$n");
     }
     if ($n==int($n)) {
       # xy_to_n()

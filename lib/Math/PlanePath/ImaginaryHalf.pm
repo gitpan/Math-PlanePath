@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -67,6 +67,46 @@ use constant parameter_info_array =>
     },
   ];
 
+{
+  my %absdx_minimum = (XYX => 1,
+                       XXY => 1,
+                       YXX => 0,   # dX=0 at N=0
+                       XnYX => 2,  # dX=-2 at N=0
+                       XnXY => 1,
+                       YXnX => 0,  # dX=0 at N=0
+                      );
+  sub absdx_minimum {
+    my ($self) = @_;
+    return $absdx_minimum{$self->{'digit_order'}};
+  }
+}
+{
+  my %absdy_minimum = (XYX => 0,   # dY=0 at N=0
+                       XXY => 0,   # dY=0 at N=0
+                       YXX => 1,
+                       XnYX => 0,   # dY=0 at N=0
+                       XnXY => 0,   # dY=0 at N=0
+                       YXnX => 1,
+                      );
+  sub absdy_minimum {
+    my ($self) = @_;
+    return $absdy_minimum{$self->{'digit_order'}};
+  }
+}
+
+# was this anything?
+#
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   if ($self->{'digit_order'} eq 'zzXYX') {
+#     return Math::NumSeq::PlanePathDelta::_delta_func_Dir4
+#       ($self->{'radix'}-1,-2);
+#   } else {
+#     return 0;
+#   }
+# }
+
+#------------------------------------------------------------------------------
 my %digit_permutation = (XYX => [0,2,1],
                          YXX => [2,0,1],
                          XXY => [0,1,2],
@@ -268,7 +308,7 @@ sub _digit_permutation_interleave {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve radix Radix ie ImaginaryBase radix-1 Proth gnomon
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve radix Radix ie ImaginaryBase radix-1 Proth XYX XXY Xn
 
 =head1 NAME
 

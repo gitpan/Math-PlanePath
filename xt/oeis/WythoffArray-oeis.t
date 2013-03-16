@@ -17,8 +17,29 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+# A166310 Wythoff Triangle, T.
+# A165357 Left-justified Wythoff Array.
+
+# A173028 Partition of the row numbers of the Wythoff array W: two numbers are in the same row if and only if their rows in W have (essentially) a common divisor greater than 1.
+
+# A185737 Accumulation array of the Wythoff array, by antidiagonals.
+# A186007 Array by antidiagonals:  R(i,j)=number of the row of the Wythoff array which includes row(i+j)-row(i).
+
+# A141104 Lower Even Swappage of Upper Wythoff Sequence.
+# A141105 Upper Even Swappage of Upper Wythoff Sequence.
+# A141106 Lower Odd Swappage of Upper Wythoff Sequence.
+# A141107 Upper Odd Swappage of Upper Wythoff Sequence.
+
+
+# cf
+# A134561 triangle T(n,k) = k-th number whose Zeckendorf has exactly n terms
+
+
 use 5.004;
 use strict;
+use List::Util 'max';
 use Test;
 plan tests => 46;
 
@@ -30,17 +51,247 @@ use MyOEIS;
 use Math::PlanePath::WythoffArray;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
 sub BIGINT {
   require Math::NumSeq::PlanePathN;
   return Math::NumSeq::PlanePathN::_bigint();
 }
 
+# P+A=B P=B-A
+sub pair_left_justify {
+  my ($a,$b) = @_;
+  my $count = 0;
+  while ($a <= $b) {
+    ($a,$b) = ($b-$a,$a);
+    if ($count > 10) {
+      die "oops cannot left justify $a,$b";
+    }
+  }
+  return ($a,$b);
+}
+
+# path_find_row_with_pair() returns the row Y which contains the Fibonacci
+# sequence which includes $a,$b somewhere, W(X,Y)=$a and W(X+1,Y)=$b.
+#
+# If $a,$b are before the start of a row then the pair are stepped forward
+# as necessary.  So they specify a Fibonacci-type recurrent sequence which
+# is sought.
+#
+sub path_find_row_with_pair {
+  my ($path, $a, $b) = @_;
+
+  for (my $count = 0; $count < 100; ($a,$b) = ($b,$a+$b)) {
+    ### at: "a=$a b=$b"
+    my ($x,$y) = $path->n_to_xy($a) or next;
+    if ($path->xy_to_n($x+1,$y) == $b) {
+      ### found: " $a $b at X=$x, Y=$y"
+      return $y;
+    }
+  }
+  die "oops, pair $a,$b not found";
+}
+
+#------------------------------------------------------------------------------
+# A185735 -- row(i)+row(j)
+# not described but sum is of left-justified array
+# 1 0 1 1 2 3
+# 2 1 3 4 7 11
+# 2 0 2 2 4 6
+# 3 0 3 3 6 9
+# 4 0 4 4 8 12
+# 3 1 4 5 9 14
+# row1+row2= 1,0+2,1 = 3,1 = row6
+# row1+row3= 1,0+2,0 = 4,0 = row4
+
+MyOEIS::compare_values
+  (anum => 'A185735',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+
+     # Y>=1, 0<=X<Y
+     my $diag = Math::PlanePath::Diagonals->new (x_start=>1, y_start=>1);
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($i,$j) = $diag->n_to_xy($d);  # by anti-diagonals
+       # if ($i > $j) { ($i,$j) = ($j,$i); }
+
+       my $ia = $path->xy_to_n(1,$i) or die;
+       my $ib = $path->xy_to_n(2,$i) or die;
+       my $ja = $path->xy_to_n(1,$j) or die;
+       my $jb = $path->xy_to_n(2,$j) or die;
+       # ($ia,$ib) = pair_left_justify($ia,$ib);
+       # ($ja,$jb) = pair_left_justify($ja,$jb);
+       push @got, path_find_row_with_pair($path, $ia+$ja, $ib+$jb);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A139764 -- lowest Zeckendorf term fibonacci value,
+#   is N on X axis for the column containing n
+
+MyOEIS::compare_values
+  (anum => 'A139764',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $path->xy_to_n($x,0);   # down to axis
+
+       # Across to Y axis, not in OEIS
+       # push @got, $path->xy_to_n(0,$y);   # across to axis
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A114579 -- N at transpose Y,X
+
+MyOEIS::compare_values
+  (anum => 'A114579',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy (BIGINT()->new($n));
+       my $t = $path->xy_to_n ($y, $x);
+       push @got, $t;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A220249 -- which row is n * Lucas numbers
+
+MyOEIS::compare_values
+  (anum => 'A220249',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+     my @got;
+     for (my $k = 1; @got < $count; $k++) {
+       # Lucas numbers starting 1, 3
+       push @got, path_find_row_with_pair($path, $k, $k*3);
+                                                  }
+       return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A173027 -- which row is n * Fibonacci numbers
+
+MyOEIS::compare_values
+  (anum => 'A173027',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+     my @got;
+     for (my $k = 1; @got < $count; $k++) {
+       # Fibonacci numbers starting 1, 1
+       push @got, path_find_row_with_pair($path, $k, $k);
+                                                  }
+       return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A035614 -- X coord, starting 0
+#   but is OFFSET=0 so start N=0
+
+MyOEIS::compare_values
+  (anum => 'A035614',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A186007 -- row(i+j) - row(i)
+
+# R(4,1) row 4+1=5 sub row 1
+# row=5  |  12   20   32   52   84  136  220  356  576  932 1508
+# row=1  |   1    2    3    5    8   13   21   34   55   89  144
+#           11   18   29
+# tail of row2
+
+# R(4,3) row 4+3=7 sub row 4
+# row=7  |  17   28   45   73  118  191  309  500  809 1309 2118
+# row=4  |   9   15   24   39   63  102  165  267  432  699 1131
+#            8   13
+# tail of row=1 fibs
+
+# row=7  |  17   28   45   73  118  191  309  500  809 1309 2118
+# row=3  |   6   10   16   26   42   68  110  178  288  466  754
+#           11   18
+# tail of row=2 lucas
+
+MyOEIS::compare_values
+  (anum => 'A186007',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+     my $diag = Math::PlanePath::Diagonals->new (direction => 'up',
+                                                 x_start=>1, y_start=>1);
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($i,$j) = $diag->n_to_xy($d);  # by anti-diagonals
+       $i += $j;
+
+       # my ($ia,$ib) = pair_left_justify($path->xy_to_n(1,$i),
+       #                                  $path->xy_to_n(2,$i));
+       # # ($ia,$ib) = ($ib,$ia+$ib);
+       # my ($ja,$jb) = pair_left_justify($path->xy_to_n(1,$j),
+       #                                  $path->xy_to_n(2,$j));
+       # # ($ja,$jb) = ($jb,$ja+$jb);
+
+       my ($ia,$ib) = ($path->xy_to_n(1,$i), $path->xy_to_n(2,$i));
+       my ($ja,$jb) = ($path->xy_to_n(1,$j), $path->xy_to_n(2,$j));
+
+       my $da = $ia-$ja;
+       my $db = $ib-$jb;
+       # if ($da < 0 && $db < 0 && $da < $db) {
+       #   $da = -$da; $db = -$db;
+       # }
+       my $d = path_find_row_with_pair($path, $da,$db);
+       my $pos = scalar(@got);
+       # print "pos=$pos i=$i $ia,$ib j=$j $ja,$jb diff=$da,$db at d=$d\n";
+       push @got, $d;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A188436 -- [3r]-[nr]-[3r-nr], where r=(1+sqrt(5))/2 and []=floor.
 # positions of right turns
+# Y axis turn right: 0 1 00 101 00 1 00 101
+# Fibonacci word:    0 1 00 101 00 1 00 101
+#
+# N on Y axis
+# 101010
+# 101001
+# 100101
+# 100001
+#  10101
+#  10001
+#   1001
+#    101
+#      1
+
+# A188436: 00000 001000000010000100000001000000010000100000001000010000000100000
+# path:          001000000010000100000001000000010000100000001000010000000100000
 
 MyOEIS::compare_values
   (anum => 'A188436',
@@ -65,6 +316,22 @@ sub A188436_func {
 }
 
 {
+  require Math::NumSeq::Fibbinary;
+  my $seq = Math::NumSeq::Fibbinary->new;
+  my $bad = 0;
+  foreach (1 .. 50000) {
+    my ($i,$seq_value) = $seq->next;
+    $seq_value = ($seq_value % 8 == 5 ? 1 : 0);
+    # if ($seq_value) { print "$i," }
+    my $func_value = A188436_func($i+4);
+    if ($func_value != $seq_value) {
+      print "$i  fibbinary seq=$seq_value func=$func_value\n";
+      last if $bad++ > 20;
+    }
+  }
+  ok (0, $bad);
+}
+{
   require Math::NumSeq::PlanePathTurn;
   my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'WythoffArray',
                                               turn_type => 'Right');
@@ -73,7 +340,7 @@ sub A188436_func {
     my ($i,$seq_value) = $seq->next;
     my $func_value = A188436_func($i+4);
     if ($func_value != $seq_value) {
-      print "$i  seq=$seq_value func=$func_value\n";
+      print "$i  turn seq=$seq_value func=$func_value\n";
       last if $bad++ > 20;
     }
   }
@@ -86,43 +353,169 @@ sub A188436_func {
   
 
 #------------------------------------------------------------------------------
-# A000045 -- N on X axis, Fibonacci numbers
+# A003622 -- Y coordinate of right turns is "odd" Zeckendorf base
 
 MyOEIS::compare_values
-  (anum => 'A000045',
+  (anum => 'A003622',
    func => sub {
      my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
      my $path = Math::PlanePath::WythoffArray->new;
-     my @got = (0,1); # initial skipped
-     for (my $x = BIGINT()->new(0); @got < $count; $x++) {
-       push @got, $path->xy_to_n ($x, 0);
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if ($value) {
+         my ($x,$y) = $path->n_to_xy($i);
+         $x == 0 or die "oops, right turn supposed to be at X=0";
+         push @got, $y;
+       }
      }
      return \@got;
    });
 
 #------------------------------------------------------------------------------
-# A005248 -- every second N on Y=1 row, every second Lucas number
+# A134860 -- Wythoff AAB numbers
+#   N position of right turns, being Zeckendorf ending "...101"
 
 MyOEIS::compare_values
-  (anum => q{A005248},
+  (anum => 'A134860',
    func => sub {
      my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got = (2,3); # initial skipped
-     for (my $x = BIGINT()->new(1); @got < $count; $x+=2) {
-       push @got, $path->xy_to_n ($x, 1);
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'WythoffArray',
+                                                 turn_type => 'Right');
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       if ($value) {
+         push @got, $i;
+       }
      }
      return \@got;
    });
 
 #------------------------------------------------------------------------------
-# N on columns
-# per list in A035513
+# Y axis 0=left,1=right is Fibonacci word
 
-foreach my $elem ([ 'A035337', 2 ],
-                  [ 'A035338', 3 ],
-                  [ 'A035339', 4 ],
-                  [ 'A035340', 5 ],
+{
+  require Math::NumSeq::PlanePathTurn;
+  require Math::NumSeq::FibonacciWord;
+  my $path = Math::PlanePath::WythoffArray->new;
+  my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                              turn_type => 'Right');
+  my $fw = Math::NumSeq::FibonacciWord->new;
+  my $bad = 0;
+  foreach my $y (1 .. 1000) {
+    my $n = $path->xy_to_n(0, BIGINT()->new($y));
+    my $seq_value = $seq->ith($n);
+    my $fw_value = $fw->ith($y);
+    if ($fw_value != $seq_value) {
+      print "y=$y n=$n  seq=$seq_value fw=$fw_value\n";
+      last if $bad++ > 20;
+    }
+  }
+  ok (0, $bad);
+}
+
+#------------------------------------------------------------------------------
+# A080164 -- Wythoff difference array
+#   diff(x,y) = wythoff(2x+1,y) - wythoff(2x,y)
+
+MyOEIS::compare_values
+  (anum => 'A080164',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my $diag = Math::PlanePath::Diagonals->new (direction => 'up');
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($x,$y) = $diag->n_to_xy($d);  # by anti-diagonals
+       push @got, $path->xy_to_n(2*$x+1,$y) - $path->xy_to_n(2*$x,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A143299 number of Zeckendorf 1-bits in row Y
+# cf A007895 which is the fibbinary bit count
+
+MyOEIS::compare_values
+  (anum => 'A143299',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::FibbinaryBitCount;
+     my $seq = Math::NumSeq::FibbinaryBitCount->new;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y++) {
+       my $n = $path->xy_to_n(0,$y);
+       push @got, $seq->ith($n);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A137707 secondary Wythoff array ???
+
+# A137707 Secondary Wythoff Array read by antidiagonals.
+# A137708 Secondary Lower Wythoff Sequence.
+# A137709 Secondary Upper Wythoff Sequence.
+
+# MyOEIS::compare_values
+#   (anum => 'A137707',
+#    func => sub {
+#      my ($count) = @_;
+#      require Math::PlanePath::Diagonals;
+#      my $path = Math::PlanePath::WythoffArray->new;
+#      my $diag = Math::PlanePath::Diagonals->new;
+#      my @got;
+#      for (my $d = $diag->n_start; @got < $count; $d++) {
+#        my ($x,$y) = $diag->n_to_xy($d);  # by anti-diagonals
+#        if ($y % 2) {
+#          push @got, $path->xy_to_n($x,$y-1) + 1;
+#        } else {
+#          push @got, $path->xy_to_n($x,$y);
+#        }
+#      }
+#      return \@got;
+#    });
+
+
+#------------------------------------------------------------------------------
+# A083398 -- anti-diagonals needed to cover numbers 1 to n
+# maybe n_range_to_rect() ...
+# max(X+Y) for 1 to n
+
+MyOEIS::compare_values
+  (anum => 'A083398',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got;
+     my @diag;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       $diag[$n] = $x+$y + 1;  # +1 to count first diagonal as 1
+       push @got, max(@diag[1..$n]);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# N in columns
+
+foreach my $elem ([ 'A003622', 0 ], # N on Y axis,    OFFSET=1
+                  [ 'A035336', 1 ], # N in X=1 column OFFSET=1
+                  [ 'A066097', 1 ], # N in X=1 column, duplicate OFFSET=0
+
+                  # per list in A035513
+                  [ 'A035337', 2 ], # OFFSET=0
+                  [ 'A035338', 3 ], # OFFSET=0
+                  [ 'A035339', 4 ], # OFFSET=0
+                  [ 'A035340', 5 ], # OFFSET=0
                  ) {
   my ($anum, $x, %options) = @$elem;
 
@@ -140,24 +533,62 @@ foreach my $elem ([ 'A035337', 2 ],
 }
 
 #------------------------------------------------------------------------------
+# A160997 Antidiagonal sums of the Wythoff array A035513
+
+MyOEIS::compare_values
+  (anum => 'A160997',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my $d = 0;
+     my @got;
+     for (my $d = 0; @got < $count; $d++) {
+       my $total = 0;
+       foreach my $x (0 .. $d) {
+         $total += $path->xy_to_n($x,$d-$x);
+       }
+       push @got, $total;
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A005248 -- every second N on Y=1 row, every second Lucas number
+
+MyOEIS::compare_values
+  (anum => q{A005248},
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     my @got = (2,3); # initial skipped
+     for (my $x = BIGINT()->new(1); @got < $count; $x+=2) {
+       push @got, $path->xy_to_n ($x, 1);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # N on rows
 # per list in A035513
 
-foreach my $elem ([ 'A006355', 2, extra_initial=>[1,0,2,2,4] ],
-                  [ 'A022086', 3, extra_initial=>[0,3,3,6] ],
-                  [ 'A022087', 4, extra_initial=>[0,4,4,8] ],
-                  [ 'A000285', 5, extra_initial=>[1,4,5,9] ],
-                  [ 'A022095', 6, extra_initial=>[1,5,6,11] ],
+foreach my $elem ([ 'A000045',  0, extra_initial=>[0,1] ], # X axis Fibonaccis
+
+                  [ 'A006355',  2, extra_initial=>[1,0,2,2,4] ],
+                  [ 'A022086',  3, extra_initial=>[0,3,3,6]   ],
+                  [ 'A022087',  4, extra_initial=>[0,4,4,8]   ],
+                  [ 'A000285',  5, extra_initial=>[1,4,5,9]   ],
+                  [ 'A022095',  6, extra_initial=>[1,5,6,11]  ],
 
                   # sum of Fibonacci and Lucas numbers
-                  [ 'A013655', 7, extra_initial=>[3,2,5,7,12] ],
+                  [ 'A013655',  7, extra_initial=>[3,2,5,7,12] ],
 
-                  [ 'A022112', 8, extra_initial=>[2,6,8,14] ],
-                  [ 'A022113', 9, extra_initial=>[2,7,9,16] ],
-                  [ 'A022120', 10, extra_initial=>[3,7,10,17] ],
-                  [ 'A022121', 11, extra_initial=>[3,8,11,19] ],
-                  [ 'A022379', 12, extra_initial=>[3,9,12,21] ],
-                  [ 'A022130', 13, extra_initial=>[4,9,13,22] ],
+                  [ 'A022112',  8, extra_initial=>[2,6,8,14]   ],
+                  [ 'A022113',  9, extra_initial=>[2,7,9,16]   ],
+                  [ 'A022120', 10, extra_initial=>[3,7,10,17]  ],
+                  [ 'A022121', 11, extra_initial=>[3,8,11,19]  ],
+                  [ 'A022379', 12, extra_initial=>[3,9,12,21]  ],
+                  [ 'A022130', 13, extra_initial=>[4,9,13,22]  ],
                   [ 'A022382', 14, extra_initial=>[4,10,14,24] ],
                   [ 'A022088', 15, extra_initial=>[0,5,5,10,15,25] ],
                   [ 'A022136', 16, extra_initial=>[5,11,16,27] ],
@@ -204,71 +635,6 @@ MyOEIS::compare_values
        $x = BIGINT()->new($x);
        $y = BIGINT()->new($y);
        push @got, $diagonals->xy_to_n($x,$y);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A035612 -- X coord, starting 1
-
-MyOEIS::compare_values
-  (anum => 'A035612',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x, $y) = $path->n_to_xy ($n);
-       push @got, $x+1;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A035614 -- X coord, starting 0
-
-MyOEIS::compare_values
-  (anum => 'A035614',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x, $y) = $path->n_to_xy ($n);
-       push @got, $x;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A003603 -- Y+1 coord
-
-MyOEIS::compare_values
-  (anum => 'A003603',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x, $y) = $path->n_to_xy ($n);
-       push @got, $y+1;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A139764 -- lowest Zeckendorf term fibonacci value,
-#   is N on X axis for the column containing n
-
-MyOEIS::compare_values
-  (anum => 'A139764',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got;
-     for (my $n = $path->n_start; @got < $count; $n++) {
-       my ($x, $y) = $path->n_to_xy ($n);
-       push @got, $path->xy_to_n($x,0);   # down to axis
      }
      return \@got;
    });
@@ -375,53 +741,6 @@ MyOEIS::compare_values
        $x = BIGINT()->new($x);
        $y = BIGINT()->new($y);
        push @got, $wythoff->xy_to_n($x,$y);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A000204 -- N on Y=1 row, Lucas numbers
-# cf A000032 starting 2,1
-
-MyOEIS::compare_values
-  (anum => 'A000204',
-   max_count => 150,
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got = (1, 3); # initial skipped
-     for (my $x = BIGINT()->new(0); @got < $count; $x++) {
-       push @got, $path->xy_to_n ($x, 1);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A035336 -- N in X=1 column (and A066097 is a duplicate)
-
-MyOEIS::compare_values
-  (anum => 'A035336',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got;
-     for (my $y = 0; @got < $count; $y++) {
-       push @got, $path->xy_to_n (1, $y);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A003622 -- N on Y axis, but OFFSET=1
-
-MyOEIS::compare_values
-  (anum => 'A003622',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got;
-     for (my $y = 0; @got < $count; $y++) {
-       push @got, $path->xy_to_n (0, $y);
      }
      return \@got;
    });

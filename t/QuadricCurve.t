@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 12;
+plan tests => 14;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::QuadricCurve;
 # VERSION
 
 {
-  my $want_version = 99;
+  my $want_version = 100;
   ok ($Math::PlanePath::QuadricCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::QuadricCurve->VERSION,  $want_version,
@@ -69,6 +69,8 @@ require Math::PlanePath::QuadricCurve;
   ok ($path->n_start, 0, 'n_start()');
   ok ($path->x_negative, 0, 'x_negative()');
   ok ($path->y_negative, 1, 'y_negative()');
+  ok ($path->x_minimum, 0, 'x_minimum()');
+  ok ($path->y_minimum, undef, 'y_minimum()');
 }
 
 #------------------------------------------------------------------------------

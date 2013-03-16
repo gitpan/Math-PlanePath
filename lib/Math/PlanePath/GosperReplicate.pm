@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -47,6 +47,10 @@ use Math::PlanePath::Base::Digits
 use constant n_start => 0;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_even;
 
+use constant absdx_minimum => 1;
+use constant dir_maximum_dxdy => (3,-1);
+
+#------------------------------------------------------------------------------
 sub n_to_xy {
   my ($self, $n) = @_;
   ### GosperReplicate n_to_xy(): $n

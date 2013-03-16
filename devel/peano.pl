@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,6 +25,46 @@ use constant 1.02 PI => 4 * atan2(1,1);  # similar to Math::Complex
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+{
+  # abs(dY) = count low 2-digits, mod 2
+  # abs(dX) = opposite, 1-abs(dY)
+  #                                        x x
+  # vertical when odd number of low 2s  ..0222
+  # N+1 carry propagates to change      ..1000
+  #                                       y y
+  # high y+1 complements x from 0->2 so X unchanged
+  # Y becomes Y+1 02 -> 10, or if complement then Y-1 20 -> 12
+  #
+  my $radix = 3;
+  require Math::PlanePath::PeanoCurve;
+  require Math::NumSeq::PlanePathDelta;
+  require Math::NumSeq::DigitCountLow;
+  require Math::BigInt;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::PeanoCurve->new (radix => $radix);
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath_object => $path,
+                                               delta_type => 'AbsdX');
+  my $cnt = Math::NumSeq::DigitCountLow->new (radix => 3, digit => 2);
+  foreach my $n (0 .. 40) {
+    my ($dx,$dy) = $path->n_to_dxdy($n);
+    my $absdx = abs($dx);
+    my $absdy = abs($dy);
+    my $c = $cnt->ith($n);
+    my $by_c = $c & 1;
+    my $diff = $absdy == $by_c ? '' : '  ***';
+
+    # my $n = $n+1;
+    my $nr = Math::BaseCnv::cnv($n,10,$radix);
+
+    printf "%3d %7s  %2d,%2d  low=%d%s\n",
+      $n, $nr, abs($dx),abs($dy), $c, $diff;
+    # print "$n,";
+    if ($absdx != 0) {
+    }
+  }
+  exit 0;
+}
 
 {
   # Dir4 maximum

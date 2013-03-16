@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -51,6 +51,10 @@ use constant rsquared_minimum => 0.5; # minimum X=1/2,Y=1/2
 
 use constant dx_maximum => 1;
 use constant dy_maximum => 1;
+use constant dir_maximum_dxdy => (0,-1); # South
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+
 
 #------------------------------------------------------------------------------
 

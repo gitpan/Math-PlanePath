@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -77,6 +77,18 @@ use constant parameter_info_array =>
     },
   ];
 
+
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'realpart'} == 1
+          ? 0   # i+1 N=1 dX=0,dY=1
+          : 1); # i+r otherwise always diff
+}
+# use constant dir4_maximum => 4;  # supremum, almost full way
+# use constant dir_maximum_dxdy => (0,0);  # supremum, almost full way
+
+
+#------------------------------------------------------------------------------
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);

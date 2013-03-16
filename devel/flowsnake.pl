@@ -23,12 +23,69 @@ use warnings;
 use Math::Libm 'M_PI', 'hypot';
 use Math::PlanePath;;
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
-use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
+{
+  require Math::NumSeq::PlanePathDelta;
+  require Math::PlanePath::Flowsnake;
+  my $class = 'Math::PlanePath::Flowsnake';
+  my $path = $class->new;
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath_object=>$path,
+                                               delta_type => 'TDir6');
+
+  sub path_n_to_tturn6 {
+    my ($n) = @_;
+    if ($n < 1) { return undef; }
+    my $turn6 = $seq->ith($n) - $seq->ith($n-1);
+    if ($turn6 > 3) { $turn6 -= 6; }
+    return $turn6;
+  }
+
+  # N to Turn by recurrence
+  sub calc_n_to_tturn6 {           # not working
+    my ($n) = @_;
+    if ($n < 1) { return undef; }
+    if ($n % 49 == 0) {
+      return calc_n_to_tturn6($n/7);
+    }
+    if (int($n/7) % 7 == 3) {  # "_3_"
+      return calc_n_to_tturn6(($n%7) + int($n/49));
+    }
+    return path_n_to_tturn6($n);
+
+    if ($n == 1) { return 1; }
+    if ($n == 2) { return 2; }
+    if ($n == 3) { return -1; }
+    if ($n == 4) { return -2; }
+    if ($n == 5) { return 0; }
+    if ($n == 6) { return -1; }
+    my @digits = digit_split_lowtohigh($n,7);
+    my $high = pop @digits;
+    if ($digits[-1]) {
+    }
+    $n = digit_join_lowtohigh(\@digits,7,0);
+    if ($n == 0) {
+      return 0;
+    }
+    return calc_n_to_tturn6($n);
+  }
+  {
+    for (my $n = 1; $n < 7**3; $n+=1) {
+      my $value = path_n_to_tturn6($n);
+      my $calc = calc_n_to_tturn6($n);
+      my $diff = ($value != $calc ? '   ***' : '');
+      print "$n  $value $calc$diff\n";
+    }
+    exit 0;
+  }
+  exit 0;
+}
 {
   # N to Dir6 -- working for integers
 

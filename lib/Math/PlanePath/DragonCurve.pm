@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -83,6 +83,10 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+use constant dir_maximum_dxdy => (0,-1); # South
+
 
 #------------------------------------------------------------------------------
 

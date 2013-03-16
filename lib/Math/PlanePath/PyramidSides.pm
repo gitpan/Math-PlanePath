@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,6 +42,14 @@ use constant parameter_info_array =>
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1;
+
+use constant dir_minimum_dxdy => (1,1);  # North-East
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_minimum  => 0.5; # North-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
+
 
 #------------------------------------------------------------------------------
 
@@ -169,7 +177,7 @@ upwards.
     ... -4  -3  -2  -1  X=0  1   2   3   4 ...
 
 N=1,4,9,16,etc along the positive X axis is the perfect squares.
-N=2,6,12,20,etc in the X=-1 vertical is the X<Pronic Numbers>pronic numbers
+N=2,6,12,20,etc in the X=-1 vertical is the X<Pronic numbers>pronic numbers
 k*(k+1) half way between those successive squares.
 
 The pattern is the same as the Corner path but turned and spread so the
@@ -220,7 +228,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PyramidSides-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::PyramidSides-E<gt>new (n_start =E<gt> $integer)>
+=item C<$path = Math::PlanePath::PyramidSides-E<gt>new (n_start =E<gt> $n)>
 
 Create and return a new path object.
 
@@ -268,6 +276,7 @@ path include
     http://oeis.org/A196199  (etc)
 
     n_start=1 (the default)
+      A049240    abs(dY), being 0=horizontal step at N=square
       A002522    N on X negative axis, x^2+1
       A033951    N on X=Y diagonal, 4d^2+3d+1
       A004201    N for which X>=0, ie. right hand half

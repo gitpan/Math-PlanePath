@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,7 +40,7 @@ use Math::PlanePath::CellularRule54;
 
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant class_y_negative => 0;
@@ -93,6 +93,104 @@ sub dx_maximum {
           || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
           ? 1
           : undef);
+}
+
+
+# left 2 cell line 14,46,142,174
+# 111 -> any, doesn't occur
+# 110 -> 0
+# 101 -> any, doesn't occur
+# 100 -> 0
+# 011 -> 1
+# 010 -> 1
+# 001 -> 1
+# 000 -> 0
+# so (rule & 0x5F) == 0x0E
+#
+# left 1,2 cell line 6,38,134,166
+# 111 -> any, doesn't occur
+# 110 -> 0
+# 101 -> any, doesn't occur
+# 100 -> 0
+# 011 -> 0
+# 010 -> 1
+# 001 -> 1
+# 000 -> 0
+# so (rule & 0x5F) == 0x06
+#
+
+sub absdx_minimum {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x17) == 0        # single cell only
+          || ($self->{'rule'} & 0x5F) == 0x14  # right line 1,2
+          || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
+          || ($self->{'rule'} & 0xDF) == 1     # 1,33 alternate rows
+          || $self->{'rule'} == 5              # alternate rows
+          || $self->{'rule'} == 9
+          || $self->{'rule'} == 13
+          || $self->{'rule'} == 21
+          || $self->{'rule'} == 27
+          || $self->{'rule'} == 28
+          || $self->{'rule'} == 29
+          || $self->{'rule'} == 37
+          || $self->{'rule'} == 41
+          || $self->{'rule'} == 45
+          || $self->{'rule'} == 53
+          || $self->{'rule'} == 61
+          || $self->{'rule'} == 67
+          || $self->{'rule'} == 69
+          || $self->{'rule'} == 71
+          || $self->{'rule'} == 75
+          || $self->{'rule'} == 79
+          || $self->{'rule'} == 81
+          || $self->{'rule'} == 85
+          || $self->{'rule'} == 92
+          || $self->{'rule'} == 93
+          || $self->{'rule'} == 101
+          || $self->{'rule'} == 103
+          || $self->{'rule'} == 107
+          || $self->{'rule'} == 109
+          || $self->{'rule'} == 111
+          || $self->{'rule'} == 113
+          || $self->{'rule'} == 117
+          || $self->{'rule'} == 124
+          || $self->{'rule'} == 125
+          || $self->{'rule'} == 129
+          || $self->{'rule'} == 133
+          || $self->{'rule'} == 137
+          || $self->{'rule'} == 141
+          || $self->{'rule'} == 149
+          || $self->{'rule'} == 156
+          || $self->{'rule'} == 157
+          || $self->{'rule'} == 161
+          || $self->{'rule'} == 169
+          || $self->{'rule'} == 173
+          || $self->{'rule'} == 181
+          || $self->{'rule'} == 188
+          || $self->{'rule'} == 189
+          || $self->{'rule'} == 197
+          || $self->{'rule'} == 205
+          || $self->{'rule'} == 213
+          || $self->{'rule'} == 221
+          || $self->{'rule'} == 229
+          || $self->{'rule'} == 237
+          || $self->{'rule'} == 245
+          || $self->{'rule'} == 253
+          ? 0
+          : 1);
+}
+
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x5F) == 0x14     # right line 1,2
+          || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
+          ? (0,1)    # north
+
+          : (($self->{'rule'} & 0x5F) == 0x0E     # left line 2
+             || ($self->{'rule'} & 0x5F) == 0x06) # left line 1,2
+          ? (-2,1)
+
+          : (-1,0));  # supremum, west and 1 up
 }
 
 
@@ -261,6 +359,43 @@ my @rule_to_class;
       $store->(($i&0xE8)|0x04, $centre_line);
     }
   }
+
+  {
+    # 1,2 alternating line left  rule=6,38,134,166
+    # 111      any, doesn't occur
+    # 110 -> 0
+    # 101      any, doesn't occur
+    # 100 -> 0 initial
+    # 011 -> 0
+    # 010 -> 1 initial
+    # 001 -> 1 angle towards left
+    # 000 -> 0 for outsides
+    #
+    my $left_onetwo = [ 'Math::PlanePath::CellularRule::OneTwo',
+                        sign => -1 ];
+    foreach my $i (0 .. 255) {
+      $store->(($i&0xA0)|0x06, $left_onetwo);
+    }
+  }
+  {
+    # 1,2 alternating line right  rule=20,52,148,180 = 0x14,34,94,B4
+    # 111      any, doesn't occur
+    # 110 -> 0
+    # 101      any, doesn't occur
+    # 100 -> 1 angle towards right
+    # 011 -> 0
+    # 010 -> 1 vertical
+    # 001 -> 0 not to left
+    # 000 -> 0 for outsides
+    # so (rule & 0x5F) == 0x14
+    #
+    my $left_onetwo = [ 'Math::PlanePath::CellularRule::OneTwo',
+                        sign => 1 ];
+    foreach my $i (0 .. 255) {
+      $store->(($i&0xA0)|0x14, $left_onetwo);
+    }
+  }
+
   {
     # solid every second cell, 50,58,114,122,178,186,242,250, 179
     # http://mathworld.wolfram.com/Rule250.html
@@ -529,29 +664,47 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::Line;
   use vars '$VERSION', '@ISA';
-  $VERSION = 99;
+  $VERSION = 100;
   @ISA = ('Math::PlanePath::CellularRule');
 
   use Math::PlanePath::Base::Generic
     'is_infinite',
       'round_nearest';
 
-  use constant class_y_negative => 0;
+  # don't recurse
+  *new = Math::PlanePath->can('new');
+
   sub x_negative {
     my ($self) = @_;
     return $self->{'sign'} < 0;
   }
+  sub absdx_minimum {
+    my ($self) = @_;
+    return ($self->{'sign'} ? 1 : 0);
+  }
+  use constant absdy_minimum => 1; # dY=1 always
 
-  use constant parameter_info_array => [];
-  *new = \&Math::PlanePath::new;
+  # sub dir4_minimum {
+  #   my ($self) = @_;
+  #   # 1  -> 0.5 right
+  #   # 0  -> 1 vertical
+  #   # -1 -> 1.5 left
+  #   return 1 - $self->{'sign'}/2;
+  # }
+  # *dir4_maximum = \&dir4_minimum;
+  sub dir_minimum_dxdy {
+    my ($self) = @_;
+    return ($self->dx_minimum, 1);
+  }
+  *dir_maximum_dxdy = \&dir_minimum_dxdy;
 
   sub x_maximum {
-    my ($path) = @_;
-    return ($path->{'sign'} <= 0 ? 0 : undef);
+    my ($self) = @_;
+    return ($self->{'sign'} <= 0 ? 0 : undef);
   }
   sub dx_minimum {
-    my ($path) = @_;
-    return $path->{'sign'};
+    my ($self) = @_;
+    return $self->{'sign'};
   }
   *dx_maximum = \&dx_minimum;
 
@@ -579,7 +732,8 @@ sub rect_to_n_range {
     }
     if (is_infinite($int)) { return ($int,$int); }
 
-    return ($n + $int*$self->{'sign'}, $int);
+    return ($n + $int*$self->{'sign'},
+            $int);
   }
 
   sub xy_to_n {
@@ -619,7 +773,7 @@ sub rect_to_n_range {
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use vars '$VERSION', '@ISA';
-  $VERSION = 99;
+  $VERSION = 100;
   use Math::PlanePath::PyramidRows;
   @ISA = ('Math::PlanePath::PyramidRows');
 
@@ -628,12 +782,17 @@ sub rect_to_n_range {
       'round_nearest',
         'floor';
 
+  # not the PyramidRows params
+  *parameter_info_array = \&Math::PlanePath::CellularRule::parameter_info_array;
+
   use constant n_start => 1;
   use constant x_negative => 1; # not the PyramidRows from step
-  use constant parameter_info_array => []; # not the PyramidRows params
   use constant dx_maximum => 2;
   use constant dy_minimum => 0;
   use constant dy_maximum => 1;
+  use constant absdx_minimum => 1;
+  use constant dir_maximum_dxdy => (-1,0); # West
+  # use constant dir4_maximum => 2; # west and up
 
   sub new {
     my ($class) = @_;
@@ -666,6 +825,133 @@ sub rect_to_n_range {
     if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
     return ($y1*($y1+1)/2+1,     # start of row, triangular+1
             ($y2+1)*($y2+2)/2);  # end of row, triangular
+  }
+}
+
+{
+  # rule=6,38,134,166   sign=-1
+  #    **
+  #     *
+  #      **
+  #       *
+
+  # rule=20,52,148,180   sign=1
+  #      **
+  #      *
+  #    **
+  #    *
+
+  package Math::PlanePath::CellularRule::OneTwo;
+  use vars '$VERSION', '@ISA';
+  $VERSION = 100;
+  @ISA = ('Math::PlanePath::CellularRule');
+
+  use Math::PlanePath;
+  *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
+
+  use Math::PlanePath::Base::Generic
+    'is_infinite',
+      'round_nearest';
+
+  # don't recurse
+  *new = Math::PlanePath->can('new');
+
+  sub x_negative {
+    my ($self) = @_;
+    return $self->{'sign'} < 0;
+  }
+  sub dir_maximum_dxdy {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0
+            ? (-2,1) 
+            : (0,1)); # North
+  }
+  sub x_maximum {
+    my ($self) = @_;
+    return ($self->{'sign'} <= 0 ? 0 : undef);
+  }
+  sub dx_minimum {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0 ? -2 : 0);
+  }
+  use constant dx_maximum => 1;
+  use constant dy_minimum => 0;
+  use constant dy_maximum => 1;
+
+  sub n_to_xy {
+    my ($self, $n) = @_;
+    ### CellularRule-OneTwo n_to_xy(): $n
+
+    my $int = int($n);
+    $n -= $int;   # $n now fraction part
+    if (2*$n >= 1) {
+      $n -= 1;
+      $int += 1;
+    }
+    # -0.5 <= $n < 0.5 fractional part
+    ### assert: $n!=$n || 2*$n >= -1
+    ### assert: $n!=$n || 2*$n < 1
+
+    $int -= 1;
+    ### int zero-based: $int
+    if ($int < 0) {
+      return;
+    }
+    if (is_infinite($int)) { return ($int,$int); }
+
+    my $x = _divrem_mutate($int,3);
+    $int *= 2;
+    if ($x == 0) {
+
+    } else {
+      $int += 1;
+      $x += ($self->{'sign'} < 0 ? -1 : -2);
+    }
+    return ($n + ($x + $int*$self->{'sign'}),
+            $int);
+  }
+
+  sub xy_to_n {
+    my ($self, $x, $y) = @_;
+    ### CellularRule-OneTwo xy_to_n(): "$x,$y"
+
+    $x = round_nearest ($x);
+    $y = round_nearest ($y);
+    if ($y < 0) { return undef; }
+    if (is_infinite($y)) { return $y; }
+
+    $x -= $y*$self->{'sign'};
+    if ($y % 2) {
+      ### odd row: "x=$x y=$y"
+      if ($self->{'sign'} > 0) { $x += 1; }
+      if ($x < 0 || $x > 1) { return undef; }
+      return (3*$y+1)/2 + $x;
+    } else {
+      ### even row: "x=$x y=$y"
+      if ($x != 0) { return undef; }
+      return ($y/2)*3 + 1;
+    }
+  }
+
+  # not exact
+  sub rect_to_n_range {
+    my ($self, $x1,$y1, $x2,$y2) = @_;
+
+    $x1 = round_nearest ($x1);
+    $y1 = round_nearest ($y1);
+    $x2 = round_nearest ($x2);
+    $y2 = round_nearest ($y2);
+    if ($y1 > $y2) { ($y1,$y2) = ($y2,$y1); } # swap to y1<=y2
+    if ($y2 < 0) {
+      return (1, 0);
+    }
+    if ($y1 < 0) { $y1 *= 0; }
+    if (is_infinite($y1)) { return (1, $y1+1); }
+    if (is_infinite($y2)) { return (1, $y2+1); }
+    $y1 -= ($y1%2);
+    $y2 += ($y2%2);
+    return ($y1/2*3 + 1,
+            $y2/2*3 + 1);
   }
 }
 

@@ -48,9 +48,11 @@
 package Math::PlanePath::SierpinskiTriangle;
 use 5.004;
 use strict;
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -64,7 +66,7 @@ use Math::PlanePath::Base::Digits
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 use constant parameter_info_array =>
   [ { name      => 'align',
@@ -89,6 +91,7 @@ sub x_negative {
 use constant class_y_negative => 0;
 use constant default_n_start => 0;
 use constant n_frac_discontinuity => .5;
+use constant tree_num_children_maximum => 2;
 
 sub dy_minimum {
   my ($self) = @_;
@@ -98,7 +101,51 @@ sub dy_maximum {
   my ($self) = @_;
   return ($self->{'align'} eq 'diagonal' ? undef : 1);
 }
-use constant tree_num_children_maximum => 2;
+{
+  my %absdx_minimum = (triangular => 1,
+                       left       => 1,
+                       right      => 0,  # at N=0
+                       diagonal   => 0); # at N=0
+  sub absdx_minimum {
+    my ($self) = @_;
+    return $absdx_minimum{$self->{'align'}};
+  }
+}
+{
+  my %absdy_minimum = (triangular => 0,  # rows
+                       left       => 0,  # rows
+                       right      => 0,  # rows
+                       diagonal   => 1); # diagonal always moves
+  sub absdy_minimum {
+    my ($self) = @_;
+    return $absdy_minimum{$self->{'align'}};
+  }
+}
+
+
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'align'} eq 'diagonal' ? 1 # North
+#           : 0); # East
+# }
+# sub dir4_maximum {
+#   my ($self) = @_;
+#   return ($self->{'align'} eq 'diagonal' ? 3.5 # South-Eest
+#           : 2);  # supremum, West and 1 up
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'diagonal'
+          ? (0,1)   # North
+          : (1,0)); # East
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'diagonal'
+          ? (1,-1)   # South-Eest
+          : (-1,0)); # supremum, West and 1 up
+}
+
 
 #------------------------------------------------------------------------------
 sub new {
@@ -107,6 +154,7 @@ sub new {
     $self->{'n_start'} = $self->default_n_start;
   }
   $self->{'align'} ||= 'triangular';
+  ### SierpinskiTriangle new() result: $self
   return $self;
 }
 
@@ -123,10 +171,10 @@ sub n_to_xy {
   {
     my $int = int($n);
     $frac = $n - $int;
-    if ($frac >= 0.5) {
+    if (2*$frac >= 1) {        # $frac>=0.5 and BigInt friendly
       $frac -= 1;
       $int += 1;
-    } elsif ($frac < -0.5) {
+    } elsif (2*$frac < -1) {   # $frac<0.5 and BigInt friendly
       $frac += 1;
       $int -= 1;
     }
@@ -138,11 +186,13 @@ sub n_to_xy {
   if ($n < 0) {
     return;
   }
-  if ($n == 0 || is_infinite($n)) {
+  if ($n == 0) {
     return ($n,$n);
   }
 
-  my ($depthbits, $ndepth) = _n0_to_depthbits($n);
+  my ($depthbits, $ndepth) = _n0_to_depthbits($n)
+    or return ($n,$n); # infinite
+
   ### $depthbits
   ### $ndepth
 
@@ -290,26 +340,28 @@ sub tree_n_num_children {
   if ($n < 0) {
     return undef;
   }
-  my ($depthbits, $ndepth) = _n0_to_depthbits($n);
+  my ($depthbits, $ndepth) = _n0_to_depthbits($n)
+    or return 1;  # infinite
   $n -= $ndepth;  # Noffset into row
 
   unless (shift @$depthbits) {  # low bit
-    # Depth even (or zero), two children under every point.
+    # Depth even or zero, two children under every point.
     return 2;
   }
 
-  # Depth odd, single child under some or all points.
-  # When depth==1mod4 it's all points, when depth has more than one
-  # trailing 1-bit then it's only some points.
+  # Depth odd, either 0 or 1 child.
+  # If depth==1mod4 then 1-child, when depth has more than one
+  # trailing 1-bit then some 0-child and some 1-child.
   #
-  my $repbit = _divrem_mutate($n,2);
-  while (shift @$depthbits) {  # low to high
-    if (_divrem_mutate($n,2) != $repbit) {
+  my $repbit = _divrem_mutate($n,2); # low bit of $n 
+  while (shift @$depthbits) {               # bits of depth low to high
+    if (_divrem_mutate($n,2) != $repbit) {  # bits of $n offset low to high
       return 0;
     }
   }
   return 1;
 }
+
 sub tree_n_children {
   my ($self, $n) = @_;
 
@@ -317,7 +369,9 @@ sub tree_n_children {
   if ($n < 0) {
     return;
   }
-  my ($depthbits, $ndepth, $nwidth) = _n0_to_depthbits($n);
+  my ($depthbits, $ndepth, $nwidth) = _n0_to_depthbits($n)
+    or return $n;  # infinite
+
   $n -= $ndepth;  # Noffset into row
 
   if (shift @$depthbits) {
@@ -368,10 +422,8 @@ sub tree_n_to_depth {
   if ($n < 0) {
     return undef;
   }
-  if (is_infinite($n)) {
-    return $n;
-  }
-  my ($depthbits) = _n0_to_depthbits($n);
+  my ($depthbits) = _n0_to_depthbits($n)
+    or return $n;  # infinite
   return digit_join_lowtohigh ($depthbits, 2, $n*0);
 }
 sub tree_depth_to_n {
@@ -379,9 +431,91 @@ sub tree_depth_to_n {
   return ($depth >= 0 ? _right_xy_to_n($self,0,$depth) : undef);
 }
 
+# In align=diagonal style, height is following a straight line X increment
+# until hit bit in common with Y, meaning the end of Y low 0s.  Or follow
+# straight line Y until hit bit in common with X, meaning end of X low 0s.
+#
+# If X,Y both even then X or Y lines are the same.
+# If X odd then follow X to limit of Y low 0s.
+# If Y odd then follow Y to limit of X low 0s.
+#
+#  | 65       ...
+#  | 57 66
+#  | 49    67
+#  | 45 50 58 68
+#  | 37          69
+#  | 33 38       59 70
+#  | 29    39    51    71
+#  | 27 30 34 40 46 52 60 72
+#  | 19                      73
+#  |  |                       |    
+#  | 15-20                   61-74
+#  |  |                       |    
+#  | 11    21                53    75
+#  |  |     |                 |     |               
+#  |  9-12-16-22             47-54-62-76
+#  |  |                       |
+#  |  5          23          41          77 
+#  |  |           |           |           |      
+#  |  3--6       17-24       35-42       63-78
+#  |  |           |           |           |      
+#  |  1     7    13    25    31    43    55    79
+#  |  |     |     |     |     |     |     |     |
+#  |  0--2--4--8-10-14-18-26-28-32-36-44-48-56-64-80
+#  +-------------------------------------------------
+#   X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+#
+# depthbits   1 0 0 0 1   Y of "right"
+# nbits             n n
+# xbits       n 0 0 0 n
+# ybits      1-n     1-n  of Y-X for "diagonal"
+#
+# Y odd when ylow==1,nlow==0
+#       follow its X low 0s by nbit==0 and invert of ybits==1
+# X odd when ylow==1,nlow==1
+#       follow its Y low 0s by nbit==1 and invert of xbits=nbits==1
+#
+# At a given depth<=2^k can go at most to its 2^k-1 limit, which means
+# height = 2^k-1 - depth which is depth with bits flipped.
+# Then bits of Noffset may put it in the middle of somewhere which limits
+# the height to a sub-part 2^j < 2^k.
+#
+sub tree_n_to_height {
+  my ($self, $n) = @_;
+  ### SierpinskiTriangle tree_n_to_height(): $n
+
+  $n = $n - $self->{'n_start'};
+  if ($n < 0) {
+    return undef;
+  }
+  my ($depthbits, $ndepth) = _n0_to_depthbits($n)
+    or return $n;  # infinite
+  $n -= $ndepth;      # offset into row
+  my @nbits = bit_split_lowtohigh($n);
+
+  my $target = $nbits[0] || 0;
+  foreach my $i (0 .. $#$depthbits) {
+    unless ($depthbits->[$i] ^= 1) {  # flip 0<->1, at original==1 take nbit
+      if ((shift @nbits || 0) != $target) {
+        $#$depthbits = $i-1;
+        return digit_join_lowtohigh($depthbits, 2, $n*0);
+      }
+    }
+  }
+  return undef; # first or last of row, infinite
+}
+
+# Return ($depthbits, $ndepth, $nwidth).
+# $depthbits is an arrayref of bits which give the tree depth of $n.
+# $ndepth is first N of the row.
+# $nwidth is the number of points in the row.
+#
 sub _n0_to_depthbits {
   my ($n) = @_;
 
+  if (is_infinite($n)) {
+    return;
+  }
   if ($n == 0) {
     return ([], 0, 1);
   }
@@ -416,7 +550,7 @@ sub _n0_to_depthbits {
 1;
 __END__
 
-=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax SierpinskiArrowheadCentres OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand CellularRule Noffset Ndepth Nrem NumSeq
+=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax SierpinskiArrowheadCentres OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand CellularRule Noffset Ndepth Nrem NumSeq Dyck
 
 =head1 NAME
 
@@ -927,7 +1061,7 @@ points in align="right" or "left".
       A106345   count points along dX=5,dY=1 slopes
 
 dX=3,dY=1 sloping lines are equivalent to opposite-diagonals dX=-1,dY=1 in
-"right" alignment.
+align="right".
 
     align="right"
       A075438   0,1 cells by rows including 0 blanks at left of pyramid
@@ -952,13 +1086,13 @@ dX=3,dY=1 sloping lines are equivalent to opposite-diagonals dX=-1,dY=1 in
     A080319     same in binary
     A080320     position in list of all balanced binary
 
-See for example L<Math::NumSeq::BalancedBinary/Binary Trees> on encoding
-trees as "balanced binary".  The "position in all balanced binary" of
-A080265 etc corresponds to C<value_to_i()> in that NumSeq.
+For the Dyck encoding see for example L<Math::NumSeq::BalancedBinary/Binary
+Trees>.  The position in all balanced binary which is A080265 etc
+corresponds to C<value_to_i()> in that NumSeq.
 
 A branch-reduced tree has any single-child node collapsed out, so that all
 remaining nodes are either a leaf node or have 2 (or more) children.  The
-effect of this on the Sierpinski triangle breadth-first encoding is to
+effect of this on the Sierpinski triangle in breadth-first encoding is to
 duplicate each bit, so A080269 with each bit duplicated gives A080319.
 
 =head1 SEE ALSO

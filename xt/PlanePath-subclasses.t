@@ -64,6 +64,64 @@ my @modules = (
 
                # module list begin
 
+               'PeanoCurve',
+               'PeanoCurve,radix=2',
+               'PeanoCurve,radix=4',
+               'PeanoCurve,radix=5',
+               'PeanoCurve,radix=17',
+
+               'CellularRule',
+               'CellularRule,rule=6',   # left one,two
+               'CellularRule,rule=20',  # right one,two
+               'CellularRule,rule=0',   # blank
+               'CellularRule,rule=57',
+               'CellularRule,rule=60',
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=206', # left half solid
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=222', # full solid
+               'CellularRule54',
+               'CellularRule57',
+               'CellularRule57,mirror=1',
+               'CellularRule190',
+               'CellularRule190,mirror=1',
+
+               'TriangleSpiralSkewed',
+               'TriangleSpiralSkewed,n_start=0',
+               'TriangleSpiralSkewed,n_start=37',
+               'TriangleSpiralSkewed,skew=right',
+               'TriangleSpiralSkewed,skew=right,n_start=0',
+               'TriangleSpiralSkewed,skew=right,n_start=37',
+               'TriangleSpiralSkewed,skew=up',
+               'TriangleSpiralSkewed,skew=up,n_start=0',
+               'TriangleSpiralSkewed,skew=up,n_start=37',
+               'TriangleSpiralSkewed,skew=down',
+               'TriangleSpiralSkewed,skew=down,n_start=0',
+               'TriangleSpiralSkewed,skew=down,n_start=37',
+
+               'TriangleSpiral',
+               'TriangleSpiral,n_start=0',
+               'TriangleSpiral,n_start=37',
+
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,n_start=0',
+               'UlamWarburtonQuarter,n_start=37',
+               'UlamWarburton',
+               'UlamWarburton,n_start=0',
+               'UlamWarburton,n_start=37',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=diagonal',
+
+               'WythoffArray',
+               'WythoffArray,x_start=1',
+               'WythoffArray,y_start=1',
+               'WythoffArray,x_start=1,y_start=1',
+               'WythoffArray,x_start=5,y_start=7',
+
                'HexSpiral',
                'HexSpiral,n_start=0',
                'HexSpiral,n_start=37',
@@ -231,13 +289,6 @@ my @modules = (
                'ImaginaryHalf,digit_order=YXnX',
                'ImaginaryHalf,digit_order=XXY,radix=3',
 
-               'UlamWarburton',
-               'UlamWarburton,n_start=0',
-               'UlamWarburton,n_start=37',
-               'UlamWarburtonQuarter',
-               'UlamWarburtonQuarter,n_start=0',
-               'UlamWarburtonQuarter,n_start=37',
-
                'Hypot,n_start=37',
                'Hypot,points=even,n_start=37',
                'Hypot',
@@ -263,12 +314,6 @@ my @modules = (
                'DigitGroups,radix=37',
 
                'HilbertCurve',
-
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=diagonal',
 
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowheadCentres,align=right',
@@ -371,7 +416,6 @@ my @modules = (
                'QuadricCurve',
                'QuadricIslands',
 
-               'WythoffArray',
                'PowerArray',
                'PowerArray,radix=3',
                'PowerArray,radix=4',
@@ -403,20 +447,6 @@ my @modules = (
                'WunderlichSerpentine,radix=2',
                'WunderlichSerpentine,radix=4',
                'WunderlichSerpentine,radix=5,serpentine_type=coil',
-
-               'CellularRule',
-               'CellularRule,rule=0',   # blank
-               'CellularRule,rule=57',
-               'CellularRule,rule=60',
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=206', # left half solid
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=222', # full solid
-               'CellularRule54',
-               'CellularRule57',
-               'CellularRule57,mirror=1',
-               'CellularRule190',
-               'CellularRule190,mirror=1',
 
                'DragonMidpoint',
                'DragonMidpoint,arms=2',
@@ -542,19 +572,6 @@ my @modules = (
                'SquareSpiral,wider=6',
                'SquareSpiral,wider=37',
 
-               'TriangleSpiral',
-               'TriangleSpiral,n_start=0',
-               'TriangleSpiral,n_start=37',
-               'TriangleSpiralSkewed',
-               'TriangleSpiralSkewed,n_start=0',
-               'TriangleSpiralSkewed,n_start=37',
-
-               'PeanoCurve',
-               'PeanoCurve,radix=2',
-               'PeanoCurve,radix=4',
-               'PeanoCurve,radix=5',
-               'PeanoCurve,radix=17',
-
                'ImaginaryBase',
                'ImaginaryBase,radix=3',
                'ImaginaryBase,radix=4',
@@ -623,7 +640,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 99;
+my $want_version = 100;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -784,6 +801,18 @@ my %class_dxdy_allowed
                                                   '0,-1' => 1, # S
                                                   '1,0'  => 1, # E
                                                 },
+     'Math::PlanePath::TriangleSpiralSkewed,skew=right' => { '0,1' => 1, # N
+                                                             '-1,-1' => 1, # SW
+                                                             '1,0'  => 1, # E
+                                                           },
+     'Math::PlanePath::TriangleSpiralSkewed,skew=up' => { '1,1' => 1, # NE
+                                                          '-1,0' => 1, # W
+                                                          '0,-1' => 1, # S
+                                                        },
+     'Math::PlanePath::TriangleSpiralSkewed,skew=down' => { '1,-1' => 1, # SE
+                                                            '0,1'   => 1, # N
+                                                            '-1,0'  => 1, # W
+                                                          },
 
      'Math::PlanePath::DiamondSpiral' => { '1,0' => 1,   # E at bottom
                                            %$dxdy_diagonal,
@@ -944,11 +973,11 @@ sub dbl_max_neg_for_class_rect {
 
 sub is_pos_infinity {
   my ($n) = @_;
-  return defined $pos_infinity && $n == $pos_infinity;
+  return defined $n && defined $pos_infinity && $n == $pos_infinity;
 }
 sub is_neg_infinity {
   my ($n) = @_;
-  return defined $neg_infinity && $n == $neg_infinity;
+  return defined $n && defined $neg_infinity && $n == $neg_infinity;
 }
 
 sub pythagorean_diag {
@@ -978,19 +1007,21 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-
+  
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-
+    
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-
+    
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-
-    my $dxdy_allowed = $class_dxdy_allowed{$class};
+    
+    my $dxdy_allowed
+      = $class_dxdy_allowed{$class.",skew=".($parameters{'skew'}||'')}
+        || $class_dxdy_allowed{$class};
     if ($mod =~ /^PeanoCurve|^WunderlichSerpentine/
         && $parameters{'radix'}
         && ($parameters{'radix'} % 2) == 0) {
@@ -1000,11 +1031,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-
+    
     #
     # MyTestHelpers::diag ($mod);
     #
-
+    
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -1021,26 +1052,26 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-
+    
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' oops ', @_);
       $good = 0;
       # exit 1;
     };
-
+    
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-
+    
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-
+    
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
@@ -1058,7 +1089,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     if (# VogelFloret has a secret undocumented return for N=0
         ! $path->isa('Math::PlanePath::VogelFloret')
         # Rows/Columns secret undocumented extend into negatives ...
@@ -1104,7 +1135,7 @@ sub pythagorean_diag {
         &$report("n_to_rsquared($n) n_start-$offset is $rsquared expected undef");
       }
     }
-
+    
     {
       my $saw_warning;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
@@ -1112,8 +1143,10 @@ sub pythagorean_diag {
                           'n_to_rsquared',
                           ($path->tree_n_num_children($n_start)
                            ? ('tree_n_to_depth',
-                              'tree_depth_to_n','tree_depth_to_n_end',
-                              'tree_n_parent','tree_n_children',
+                              'tree_depth_to_n',
+                              'tree_depth_to_n_end',
+                              'tree_n_parent',
+                              'tree_n_children',
                               'tree_n_num_children',
                              )
                            : ())){
@@ -1131,7 +1164,7 @@ sub pythagorean_diag {
         $path->xy_to_n(undef,0);
         $saw_warning or &$report("xy_to_n(undef,0) doesn't give a warning");
       }
-
+      
       # No warning if xy_is_visited() is a constant.
       # {
       #   $saw_warning = 0;
@@ -1144,7 +1177,7 @@ sub pythagorean_diag {
       #   $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
       # }
     }
-
+    
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -1198,8 +1231,29 @@ sub pythagorean_diag {
         (is_pos_infinity($rsquared) || &$is_nan($rsquared))
           or &$report("n_to_rsquared($pos_infinity) ",$rsquared," expected +infinity");
       }
+      {
+        ### tree_n_children($pos_infinity) ...
+        my @children = $path->tree_n_children($pos_infinity);
+      }
+      {
+        ### tree_n_num_children($pos_infinity) ...
+        my $num_children = $path->tree_n_num_children($pos_infinity);
+      }
+      {
+        ### tree_n_to_height($pos_infinity) ...
+        my $height = $path->tree_n_to_height($pos_infinity);
+        if ($path->tree_n_num_children($n_start)) {
+          unless (! defined $height || is_pos_infinity($height)) {
+            &$report("tree_n_to_height($pos_infinity) ",$height," expected +inf");
+          }
+        } else {
+          unless (equal(0,$height)) {
+            &$report("tree_n_to_height($pos_infinity) ",$height," expected 0");
+          }
+        }
+      }
     }
-
+    
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1255,8 +1309,31 @@ sub pythagorean_diag {
           &$report("n_to_rsquared($neg_infinity) $rsquared expected undef");
         }
       }
+      {
+        ### tree_n_children($neg_infinity) ...
+        my @children = $path->tree_n_children($neg_infinity);
+        if (@children) {
+          &$report("tree_n_children($neg_infinity) ",@children," expected none");
+        }
+      }
+      {
+        ### tree_n_num_children($neg_infinity) ...
+        my $num_children = $path->tree_n_num_children($neg_infinity);
+        if (defined $num_children) {
+          &$report("tree_n_children($neg_infinity) ",$num_children," expected undef");
+        }
+      }
+      {
+        ### tree_n_to_height($neg_infinity) ...
+        my $height = $path->tree_n_to_height($neg_infinity);
+        if ($path->tree_n_num_children($n_start)) {
+          if (defined $height) {
+            &$report("tree_n_to_height($neg_infinity) ",$height," expected undef");
+          }
+        }
+      }
     }
-
+    
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1287,9 +1364,31 @@ sub pythagorean_diag {
         &$is_nan($dx) or &$report("n_to_dxdy($nan) dx not nan, got ", $dx);
         &$is_nan($dy) or &$report("n_to_dxdy($nan) dy not nan, got ", $dy);
       }
-
+      {
+        ### tree_n_children($nan) ...
+        my @children = $path->tree_n_children($nan);
+        # ENHANCE-ME: what should nan return?
+        # if (@children) {
+        #   &$report("tree_n_children($nan) ",@children," expected none");
+        # }
+      }
+      {
+        ### tree_n_num_children($nan) ...
+        my $num_children = $path->tree_n_num_children($nan);
+        # ENHANCE-ME: what should nan return?
+        # &$is_nan($num_children)
+        #   or &$report("tree_n_children($nan) ",$num_children," expected nan");
+      }
+      {
+        ### tree_n_to_height($nan) ...
+        my $height = $path->tree_n_to_height($nan);
+        if ($path->tree_n_num_children($n_start)) {
+          (! defined $height || &$is_nan($height))
+            or &$report("tree_n_to_height($nan) ",$height," expected nan");
+        }
+      }
     }
-
+    
     foreach my $x
       (0,
        pos_infinity_maybe(),
@@ -1310,7 +1409,7 @@ sub pythagorean_diag {
         # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
       }
     }
-
+    
     foreach my $x1 (0,
                     pos_infinity_maybe(),
                     neg_infinity_maybe(),
@@ -1331,7 +1430,7 @@ sub pythagorean_diag {
                           neg_infinity_maybe(),
                           dbl_max_for_class_rect($path),
                           dbl_max_neg_for_class_rect($path)) {
-
+            
             my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
             scalar(@nn) == 2
               or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));
@@ -1340,7 +1439,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     my %saw_n_to_xy;
     my %count_n_to_xy;
     my $got_x_negative = 0;
@@ -1355,10 +1454,10 @@ sub pythagorean_diag {
       $n_to_y[$n] = $y;
       defined $x or &$report("n_to_xy($n) X undef");
       defined $y or &$report("n_to_xy($n) Y undef");
-
+      
       if ($x < 0) { $got_x_negative = 1; }
       if ($y < 0) { $got_y_negative = 1; }
-
+      
       my $xystr = (int($x) == $x && int($y) == $y
                    ? sprintf('%d,%d', $x,$y)
                    : sprintf('%.3f,%.3f', $x,$y));
@@ -1369,7 +1468,7 @@ sub pythagorean_diag {
         }
       }
       $saw_n_to_xy{$xystr} = $n;
-
+      
       if ($dxdy_allowed) {
         if (defined $prev_x) {
           my $dx = $x - $prev_x;
@@ -1380,7 +1479,7 @@ sub pythagorean_diag {
         }
         ($prev_x, $prev_y) = ($x, $y);
       }
-
+      
       {
         my ($n_lo, $n_hi) = $path->rect_to_n_range
           (0,0,
@@ -1410,7 +1509,7 @@ sub pythagorean_diag {
         $n_lo >= $n_start
           or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
       }
-
+      
       unless ($xy_maximum_duplication > 0) {
         foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
           foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {
@@ -1425,7 +1524,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     ### n_to_xy() fractional ...
     unless ($non_linear_frac{$class}
             || defined $n_frac_discontinuity) {
@@ -1449,7 +1548,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     ### n_to_dxdy() ...
     if ($path->can('n_to_dxdy') != Math::PlanePath->can('n_to_dxdy')) {
       MyTestHelpers::diag ($mod, ' n_to_dxdy()');
@@ -1467,7 +1566,7 @@ sub pythagorean_diag {
         $want_dy == $got_dy
           or &$report ("n_to_dxdy($n) got_dy=$got_dy want_dy=$want_dy");
       }
-
+      
       foreach my $n ($n_start .. $n_start + $limit) {
         foreach my $offset (0.25, 0.75) {
           my $n = $n + $offset;
@@ -1483,8 +1582,8 @@ sub pythagorean_diag {
         }
       }
     }
-
-
+    
+    
     ### various bogus values only have to return 0 or 2 values and not crash ...
     foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
                    0, 0.4, 0.5, 0.6) {
@@ -1492,7 +1591,7 @@ sub pythagorean_diag {
       (@xy == 0 || @xy == 2)
         or &$report ("n_to_xy() n=$n got ",scalar(@xy)," values");
     }
-
+    
     foreach my $elem ([-1,-1, -1,-1],
                      ) {
       my ($x1,$y1,$x2,$y2) = @$elem;
@@ -1504,7 +1603,7 @@ sub pythagorean_diag {
           or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
       }
     }
-
+    
     ### x negative xy_to_n() ...
     foreach my $x (-100, -99) {
       ### $x
@@ -1513,11 +1612,11 @@ sub pythagorean_diag {
       (scalar(@n) == 1)
         or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
     }
-
+    
     {
       my $path_x_negative = ($path->x_negative ? 1 : 0);
       $got_x_negative = ($got_x_negative ? 1 : 0);
-
+      
       if ($path->isa('Math::PlanePath::GosperSide')
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || $path->isa('Math::PlanePath::QuintetCentres')
@@ -1540,14 +1639,14 @@ sub pythagorean_diag {
         # these don't get to X negative in small rectangle
         $got_x_negative = 1;
       }
-
+      
       ($path_x_negative == $got_x_negative)
         or &$report ("x_negative() $path_x_negative but in rect to n=$limit got $got_x_negative");
     }
     {
       my $path_y_negative = ($path->y_negative ? 1 : 0);
       $got_y_negative = ($got_y_negative ? 1 : 0);
-
+      
       if ($path->isa('Math::PlanePath::GosperSide')
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || ($mod eq 'GreekKeySpiral' && $limit < 55)
@@ -1763,6 +1862,18 @@ sub pythagorean_diag {
       }
     }
 
+    if ($path->can('tree_n_to_height')
+        != Math::PlanePath->can('tree_n_to_height')) {
+      # MyTestHelpers::diag ($mod, ' tree_n_to_height()');
+      foreach my $n ($n_start .. $n_start+$limit) {
+        my $want_height = path_tree_n_to_height_by_search($path,$n);
+        my $got_height = $path->tree_n_to_height($n);
+        if (! equal($got_height,$want_height)) {
+          &$report ("tree_n_to_height($n) got ",$got_height," want ",$want_height);
+        }
+      }
+    }
+
     ### tree_depth_to_n() on depth<0 ...
     foreach my $depth (-2 .. -1) {
       my $n = $path->tree_depth_to_n($depth);
@@ -1819,6 +1930,26 @@ sub path_tree_n_to_depth_by_parents {
     $depth++;
   }
   return $depth;
+}
+
+sub path_tree_n_to_height_by_search {
+  my ($self, $n) = @_;
+  my @n = ($n);
+  my $height = 0;
+  for (;;) {
+    @n = map {$self->tree_n_children($_)} @n
+      or return $height;
+    $height++;
+    if (@n > 200 || $height > 200) {
+      return undef;  # presumed infinite
+    }
+  }
+}
+
+sub equal {
+  my ($x,$y) = @_;
+  return ((! defined $x && ! defined $y)
+          || (defined $x && defined $y && $x == $y));
 }
 
 exit 0;

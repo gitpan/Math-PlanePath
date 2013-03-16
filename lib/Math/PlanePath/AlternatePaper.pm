@@ -16,21 +16,15 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=AlternatePaper --output=numbers --all
+# A014081 count 11 pairs -- does this arise? total turn?
 
-# sum X+Y A020986 partial sums of golay-rudin-shapiro
-#   A020985 +/-1 parity of count of 11 bit pairs
-#   (except initial 0)
-# diff X-Y A020990 sum 0 to k of (-1)^k * GolayRudinShapiro(k)
-#   (except initial 0)
-#
-# A134452 dX balanced ternary digital root
-#            sum of digits (keeping sign)
-# A056594
-# A014081 count 11 pairs -- does this arise?
-#
-# http://www.numdam.org/item?id=BSMF_1981__109__207_0
-# http://archive.numdam.org/article/BSMF_1981__109__207_0.pdf
+# FIXME: cross ref Tenenbaum
+
+# Explanation ...
+# 'arms=4' =>
+# { dSum  => 'A020985', # GRS
+#   # OEIS-Other: A020985 planepath=AlternatePaper,arms=4 delta_type=dSum
+# },
 
 
 package Math::PlanePath::AlternatePaper;
@@ -52,7 +46,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -84,6 +78,10 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+# use constant dir4_maximum  => 3; # South
+# use constant dir_maximum_360  => 270;    # South
+use constant dir_maximum_dxdy => (0,-1); # South
+
 
 #------------------------------------------------------------------------------
 
@@ -1282,16 +1280,17 @@ Integer Sequences as
 
     http://oeis.org/A106665  (etc)
 
-    A106665  next turn, 1=left,0=right, a(0) is turn at N=1
+    A106665  next turn 1=left,0=right, a(0) is turn at N=1
+    A209615  turn 1=left,-1=right
     A020985  Golay/Rudin/Shapiro sequence +1,-1
-                dX and dY, skipping every second value zero
-                dSum, change in X+Y
+               dX and dY, skipping every second value zero
+               dSum, change in X+Y
     A020986  Golay/Rudin/Shapiro cumulative
-                X coordinate undoubled
-                X+Y coordinate sum
+               X coordinate undoubled
+               X+Y coordinate sum
     A020990  Golay/Rudin/Shapiro * (-1)^n cumulative
-                Y coordinate undoubled
-                X-Y diff, starting from N=1
+               Y coordinate undoubled
+               X-Y diff, starting from N=1
     A020987  GRS with values 0,1 instead of +1,-1
 
 Since the X and Y coordinates each change alternately, each coordinate

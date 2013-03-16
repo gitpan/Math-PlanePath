@@ -69,7 +69,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -84,7 +84,6 @@ use Math::PlanePath::CoprimeColumns;
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
-
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -104,6 +103,39 @@ use constant parameter_info_array =>
       description => 'Order in the i,j pairs.',
     } ];
 
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'pairs_order'} eq 'diagonals_down'
+          ? 1
+          : 0);
+}
+
+{
+  my %dir_minimum_dxdy
+    = (rows           => [1,0],  # N=4 to N=5 horiz
+       rows_reverse   => [1,0],  # N=1 to N=2 horiz
+       diagonals_down => [0,1],  # N=1 to N=2 vertical, nothing less
+       diagonals_up   => [1,0],  # N=4 to N=5 horiz
+      );
+  sub dir_minimum_dxdy {
+    my ($self) = @_;
+    return @{$dir_minimum_dxdy{$self->{'pairs_order'}}};
+  }
+}
+{
+  my %dir_maximum_dxdy
+    = (rows           => [1,-1], # N=2 to N=3 SE diagonal
+       rows_reverse   => [2,-1], # N=3 to N=4 dX=2,dY=-1
+       diagonals_down => [1,-1], # N=5 to N=6 SE diagonal
+       diagonals_up   => [2,-1], # N=9 to N=10 dX=2,dY=-1
+      );
+  sub dir_maximum_dxdy {
+    my ($self) = @_;
+    return @{$dir_maximum_dxdy{$self->{'pairs_order'}}};
+  }
+}
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new(@_);
 
@@ -525,14 +557,18 @@ sub _gcd {
   $x = abs(int($x));
   $y = abs(int($y));
   unless ($x > 0) {
-    return $y;
+    return $y;  # gcd(0,y)=y for y>=0, giving gcd(0,0)=0
   }
   if ($y > $x) {
     $y %= $x;
   }
   for (;;) {
+    ### assert: $x >= 1
+
     if ($y <= 1) {
-      return ($y == 0 ? $x : 1);
+      return ($y == 0
+              ? $x   # gcd(x,0)=x
+              : 1);  # gcd(x,1)=1
     }
     ($x,$y) = ($y, $x % $y);
   }
@@ -602,7 +638,7 @@ sub _gcd {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd gcds gcd/2 j/gcd PyramidRows Fortnow coprime triangulars DiagonalsOctant numberings pronics
+=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd gcds gcd/2 gcd-1 j/gcd PyramidRows Fortnow coprime triangulars DiagonalsOctant numberings pronics
 
 =head1 NAME
 
@@ -626,8 +662,8 @@ http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
 =back
 
 The attraction of this approach is that it's both efficient to calculate and
-it traverses blocks of X/Y rationals using a modest range of N values,
-roughly a square N=2*max(num,den)^2 in the default i,j by rows.
+it visits blocks of X/Y rationals using a modest range of N values, roughly
+a square N=2*max(num,den)^2 in the default i,j rows style.
 
     13  |      79  80  81  82  83  84  85  86  87  88  89  90
     12  |      67              71      73              77     278
@@ -652,13 +688,13 @@ The mapping from N to rational is
     gcd = GCD(i,j)
     rational = i/j + gcd-1
 
-which means
+which means X=numerator Y=denominator are
 
     X = (i + j*(gcd-1)) / gcd
     Y = j/gcd
 
-The i,j position is a numbering of points above the X=Y diagonal by rows (in
-the style of L<Math::PlanePath::PyramidRows> with step=1).
+The i,j position is a numbering of points above the X=Y diagonal by rows in
+the style of L<Math::PlanePath::PyramidRows> with step=1.
 
     j=4  |  7  8  9 10
     j=3  |  4  5  6
@@ -668,7 +704,7 @@ the style of L<Math::PlanePath::PyramidRows> with step=1).
           i=1  2  3  4
 
 If GCD(i,j)=1 then X/Y is simply X=i,Y=j unchanged.  This means fractions
-S<X/Y E<lt> 1> are numbered by rows with increasing numerator skipping
+S<X/Y E<lt> 1> are numbered by rows with increasing numerator but skipping
 positions where i,j have a common factor.
 
 The skipped positions where i,j have a common factor become rationals
@@ -696,7 +732,7 @@ to Y=1.
 N=1,2,4,7,11,etc in the column at X=1 immediately follows each of those
 bottom row triangulars, ie. N+1.
 
-    N on X=1 column = Y*(Y-1)/2 + 1
+    N in X=1 column = Y*(Y-1)/2 + 1
 
 =head2 Primes
 

@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,6 +39,9 @@ use constant n_frac_discontinuity => .5;
 use constant dx_maximum => 4;
 use constant dy_minimum => 0;
 use constant dy_maximum => 1;
+use constant absdx_minimum => 1;
+# use constant dir4_maximum => 2;  # supremum, west and 1 up
+use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 
 #------------------------------------------------------------------------------
@@ -102,7 +105,7 @@ sub n_to_xy {
     my $int = int($n);
     $frac = $n - $int;
     $n = $int;       # BigFloat int() gives BigInt, use that
-    if ($frac >= 0.5) {
+    if (2*$frac >= 1) {  # $frac>=0.5 and BigInt friendly
       $frac -= 1;
       $n += 1;
     }
@@ -118,7 +121,7 @@ sub n_to_xy {
   # d is the two-row group number, d=2*y, where n belongs
   # start of the two-row group is nbase = 2 d^2 + 2 d + 1
   #
-  my $d = int ((sqrt(2*$n-1) - 1) / 2);
+  my $d = int((sqrt(2*$n-1) - 1) / 2);
   $n -= ((2*$d + 2)*$d + 1);   # remainder within two-row
   ### $d
   ### remainder: $n

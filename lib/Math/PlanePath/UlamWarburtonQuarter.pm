@@ -19,7 +19,6 @@
 # A147610 - 3^(ones(n-1) - 1)
 # A048883 - 3^(ones n)
 
-# math-image --path=UlamWarburtonQuarter --all --output=numbers --size=80x50
 
 
 package Math::PlanePath::UlamWarburtonQuarter;
@@ -28,7 +27,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -39,6 +38,7 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::Base::Digits
   'round_down_pow',
   'bit_split_lowtohigh',
+  'digit_split_lowtohigh',
   'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
@@ -52,6 +52,12 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant tree_num_children_maximum => 3;
 
+# Minimum dir=0 at N=13 dX=2,dY=0.
+# Maximum dir seems dX=13,dY=-9 at N=149 going top-left part to new bottom
+# right diagonal.
+use constant dir_maximum_dxdy => (13,-9);
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new(@_);
   if (! defined $self->{'n_start'}) {
@@ -133,34 +139,37 @@ sub n_to_xy {
   }
 
   $n = $n - $self->{'n_start'} + 1;  # N=1 basis
-  if (is_infinite($n)) { return ($n,$n); }
   if ($n == 1) { return (0,0); }
 
-  (my $depthsum, $n) = _n1_to_depthsum_and_rem($n);
+  my ($depthsum, $nrem) = _n1_to_depthsum_and_rem($n)
+    or return ($n,$n); # N==nan or N==+inf
 
+  my @ndigits = digit_split_lowtohigh($nrem,3);
+  my $dhigh = shift(@$depthsum) - 1;  # highest term
   my $x = 0;
   my $y = 0;
-  while (@$depthsum) {
-    my $digit = _divrem_mutate ($n, 3);
-    ### depthsum: $depthsum->[-1]
-    ### $digit
+  foreach my $depthsum (reverse @$depthsum) { # depth terms low to high
+    my $ndigit = shift @ndigits;              # N digits low to high
+    ### $depthsum
+    ### $ndigit
 
-    my $lbit = pop @$depthsum;
-    $x += $lbit;
-    $y += $lbit;
-    if (@$depthsum) {
-      if ($digit == 0) {
-        ($x,$y) = ($y,-$x);   # rotate -90
-      } elsif ($digit == 2) {
+    $x += $depthsum;
+    $y += $depthsum;
+    ### depthsum to xy: "$x,$y"
+
+    if ($ndigit) {
+      if ($ndigit == 2) {
         ($x,$y) = (-$y,$x);   # rotate +90
       }
+    } else {
+      # digit==0 (or undef when run out of @ndigits)
+      ($x,$y) = ($y,-$x);   # rotate -90
     }
     ### rotate to: "$x,$y"
-    ### bit to x: "$x,$y"
   }
 
   ### final: "$x,$y"
-  return $x-1,$y-1;
+  return ($dhigh + $x, $dhigh + $y);
 }
 
 sub xy_to_n {
@@ -191,8 +200,8 @@ sub xy_to_n {
     # first quadrant square
     ### assert: $x >= 0
     ### assert: $y >= 0
-    ### assert: $x < 2*$len
-    ### assert: $y < 2*$len
+    # ### assert: $x < 2*$len
+    # ### assert: $y < 2*$len
 
     if ($x >= $len || $y >= $len) {
       # one of three quarters away from origin
@@ -353,11 +362,9 @@ sub tree_n_to_depth {
   if ($n < 1) {
     return undef;
   }
-  if (is_infinite($n)) {
-    return $n;
-  }
-  (my $depthsum, $n) = _n1_to_depthsum_and_rem($n);
-  return sum(@$depthsum, -1);
+  (my $depthsum, $n) = _n1_to_depthsum_and_rem($n)
+    or return $n;  # N==nan or N==+infinity
+  return sum(-1, @$depthsum);
 }
 
 # Return ($aref, $remaining_n).
@@ -365,9 +372,12 @@ sub tree_n_to_depth {
 #
 sub _n1_to_depthsum_and_rem {
   my ($n) = @_;
-  ### _n1_to_depth_and_depthsum(): $n
+  ### _n1_to_depthsum_and_rem(): $n
 
   my ($power, $exp) = round_down_pow (3*$n-2, 4);
+  if (is_infinite($exp)) {
+    return;
+  }
 
   ### $power
   ### $exp
@@ -401,13 +411,42 @@ sub _n1_to_depthsum_and_rem {
     }
   }
 
-  ### _n1_to_depth_and_depthsum result ...
+  ### _n1_to_depthsum_and_rem() result ...
   ### @depthsum
   ### remaining n: $n
   ### assert: $n >= 0
   ### assert: $n < $factor
 
   return \@depthsum, $n;
+}
+
+
+# at 0,2 turn and new height limit
+# at 1 keep existing depth limit
+# N=30 rem=1 = 0,1 depth=11=8+2+1=1011 width=9
+# 
+sub tree_n_to_height {
+  my ($self, $n) = @_;
+  ### tree_n_to_height(): $n
+
+  $n = int($n - $self->{'n_start'} + 1);  # N=1 basis
+  if ($n < 1) {
+    return undef;
+  }
+  my ($depthsum, $nrem) = _n1_to_depthsum_and_rem($n)
+    or return $n;  # N==nan or N==+infinity
+  ### $depthsum
+  ### $nrem
+
+  my $sub = pop @$depthsum;
+  while (@$depthsum && _divrem_mutate($nrem,3) == 1) {
+    $sub += pop @$depthsum;
+  }
+  if (@$depthsum) {
+    return $depthsum->[-1] - 1 - $sub;
+  } else {
+    return undef; # $nrem all 1-digits
+  }
 }
 
 1;
@@ -432,6 +471,12 @@ studied by Ulam and Warburton, confined to a quarter of the plane and
 oriented diagonally.  Cells are numbered by growth level and anti-clockwise
 within the level.
 
+=cut
+
+# math-image --path=UlamWarburtonQuarter --all --output=numbers --size=70x15
+
+=pod
+
     14 |  81    80    79    78    75    74    73    72
     13 |     57          56          55          54
     12 |  82    48    47    77    76    46    45    71
@@ -451,18 +496,18 @@ within the level.
          X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
 The rule is a given cell grows diagonally NE, NW, SE and SW, but only if the
-new cell has no neighbours and only within the first quadrant.  So the
-initial cell "a" is N=1,
+new cell has no neighbours and is within the first quadrant.  So the initial
+cell "a" is N=1,
 
 
     |
-    | a                    initial level 1 cell
+    | a                    initial cell, depth=0
     +----
 
-The next level "b" cell can only go NE (confined to the first quadrant),
+It's confined to the first quadrant so can only grow NE as "b",
 
     |   b
-    | a                    level 2
+    | a                    "b" depth=1
     +------
 
 Then the next level "c" cells can go in three directions SE, NE, NW.  These
@@ -470,21 +515,21 @@ cells are numbered anti-clockwise around from the SE as N=3,N=4,N=5.
 
     | c   c
     |   b
-    | a   c                level 3
+    | a   c                "c" depth=2
     +---------
 
 The "d" cell is then only a single on the leading diagonal, since the other
 diagonals all already have neighbours (the existing "c" cells).
 
     |       d
-    | c   c                level 4
+    | c   c                depth=3
     |   b
     | a   c
     +---------
 
     |     e   e
     |       d
-    | c   c   e            level 5
+    | c   c   e            depth=4
     |   b
     | a   c
     +-----------
@@ -492,7 +537,7 @@ diagonals all already have neighbours (the existing "c" cells).
     |   f       f
     |     e   e
     |       d
-    | c   c   e            level 6
+    | c   c   e            depth=5
     |   b       f
     | a   c
     +-------------
@@ -501,14 +546,14 @@ diagonals all already have neighbours (the existing "c" cells).
     |   f       f
     | g   e   e   g
     |       d
-    | c   c   e   g        level 7
+    | c   c   e   g        depth=6
     |   b       f
     | a   c   g   g
     +-------------
 
-In general each level always grows by 1 along the X=Y leading diagonal and
+In general each level always grows by 1 along the X=Y leading diagonal, and
 travels into the sides with a self-similar diamond shaped pattern filling 6
-of 16 cells in each 4x4 square block.
+of 16 cells any 4x4 square block.
 
 =head2 Level Ranges
 
@@ -649,8 +694,11 @@ path includes
 
     http://oeis.org/A151920    (etc)
 
-    A147610   num cells in level, being 3^(count 1-bits)
-    A151920   Nend, total cells to level n, cumulative 3^(count 1s)
+    A147610     num cells in level, being 3^count1bits(depth)
+
+    n_start=1 (the default)
+      A151920   total cells to depth, being cumulative 3^(count 1-bits)
+                  tree_depth_to_n_end()
 
 =head1 SEE ALSO
 

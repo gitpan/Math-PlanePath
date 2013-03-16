@@ -29,7 +29,7 @@ use Math::PlanePath::Base::Generic
   'is_infinite';
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
 
 my $test_count = (tests => 1045)[1];
@@ -374,13 +374,20 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
+               # 'ToothpickTree',
+               # 'ToothpickTree,parts=1',
+               # 'ToothpickTree,parts=2',
+               # 'ToothpickTree,parts=3',
+               # 
+               # 'ToothpickUpist',
+               # 
                # 'OneOfEight',
                # 'OneOfEight,parts=4',
                # 'OneOfEight,parts=1',
                # 'OneOfEight,parts=octant',
                # 'OneOfEight,parts=3mid',
                # 'OneOfEight,parts=3side',
-
+               # 
                # 'LCornerReplicate',
                # 
                # 'LCornerTree',
@@ -392,15 +399,168 @@ my @modules = (
                # 'ToothpickReplicate,parts=1',
                # 'ToothpickReplicate,parts=2',
                # 'ToothpickReplicate,parts=3',
-               # 
-               # 'ToothpickTree',
-               # 'ToothpickTree,parts=1',
-               # 'ToothpickTree,parts=2',
-               # 'ToothpickTree,parts=3',
-               # 
-               # 'ToothpickUpist',
-
+               
                # module list begin
+
+               'CellularRule,rule=6',   # left 1,2 line
+               'CellularRule,rule=20',  # right 1,2 line
+               'CellularRule,rule=14',  # left 2 cell line
+               'CellularRule,rule=84',  # right 2 cell line
+
+               'SierpinskiCurveStair',
+               'SierpinskiCurveStair,diagonal_length=2',
+               'SierpinskiCurveStair,diagonal_length=3',
+               'SierpinskiCurveStair,diagonal_length=4',
+               'SierpinskiCurveStair,arms=2',
+               'SierpinskiCurveStair,arms=3,diagonal_length=2',
+               'SierpinskiCurveStair,arms=4',
+               'SierpinskiCurveStair,arms=5',
+               'SierpinskiCurveStair,arms=6,diagonal_length=5',
+               'SierpinskiCurveStair,arms=7',
+               'SierpinskiCurveStair,arms=8',
+
+               'SierpinskiCurve',
+               'SierpinskiCurve,arms=2',
+               'SierpinskiCurve,arms=3',
+               'SierpinskiCurve,diagonal_spacing=5',
+               'SierpinskiCurve,straight_spacing=5',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
+               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
+               'SierpinskiCurve,arms=4',
+               'SierpinskiCurve,arms=5',
+               'SierpinskiCurve,arms=6',
+               'SierpinskiCurve,arms=7',
+               'SierpinskiCurve,arms=8',
+               'HIndexing',
+
+               'QuadricCurve',
+               'QuadricIslands',
+
+               'ArchimedeanChords',
+
+               'WythoffArray',
+               'WythoffArray,x_start=1',
+               'WythoffArray,y_start=1',
+               'WythoffArray,x_start=1,y_start=1',
+               'WythoffArray,x_start=5,y_start=7',
+
+
+               'TriangleSpiralSkewed',
+               'TriangleSpiralSkewed,n_start=37',
+               'TriangleSpiralSkewed,skew=right',
+               'TriangleSpiralSkewed,skew=right,n_start=37',
+               'TriangleSpiralSkewed,skew=up',
+               'TriangleSpiralSkewed,skew=up,n_start=37',
+               'TriangleSpiralSkewed,skew=down',
+               'TriangleSpiralSkewed,skew=down,n_start=37',
+
+               'PowerArray',
+               'PowerArray,radix=3',
+               'PowerArray,radix=4',
+
+
+
+               'GrayCode,apply_type=TsF',
+               'GrayCode,apply_type=FsT',
+               'GrayCode,apply_type=Ts',
+               'GrayCode,apply_type=Fs',
+               'GrayCode,apply_type=sT',
+               'GrayCode,apply_type=sF',
+
+               'GrayCode,radix=3,apply_type=TsF',
+               'GrayCode,radix=3,apply_type=FsT',
+               'GrayCode,radix=3,apply_type=Ts',
+               'GrayCode,radix=3,apply_type=Fs',
+               'GrayCode,radix=3,apply_type=sT',
+               'GrayCode,radix=3,apply_type=sF',
+
+               'GrayCode,radix=3,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=3,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=3,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=3,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=3,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=3,gray_type=modular,apply_type=sF',
+
+               'GrayCode,radix=4,apply_type=TsF',
+               'GrayCode,radix=4,apply_type=FsT',
+               'GrayCode,radix=4,apply_type=Ts',
+               'GrayCode,radix=4,apply_type=Fs',
+               'GrayCode,radix=4,apply_type=sT',
+               'GrayCode,radix=4,apply_type=sF',
+
+               'GrayCode,radix=4,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=4,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=4,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=4,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=4,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=4,gray_type=modular,apply_type=sF',
+
+               'GrayCode,radix=5,apply_type=TsF',
+               'GrayCode,radix=5,apply_type=FsT',
+               'GrayCode,radix=5,apply_type=Ts',
+               'GrayCode,radix=5,apply_type=Fs',
+               'GrayCode,radix=5,apply_type=sT',
+               'GrayCode,radix=5,apply_type=sF',
+
+               'GrayCode,radix=5,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=5,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=5,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=5,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=5,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=5,gray_type=modular,apply_type=sF',
+
+               'GrayCode,radix=6,apply_type=TsF',
+               'GrayCode,radix=6,apply_type=FsT',
+               'GrayCode,radix=6,apply_type=Ts',
+               'GrayCode,radix=6,apply_type=Fs',
+               'GrayCode,radix=6,apply_type=sT',
+               'GrayCode,radix=6,apply_type=sF',
+
+               'GrayCode,radix=6,gray_type=modular,apply_type=TsF',
+               'GrayCode,radix=6,gray_type=modular,apply_type=Ts',
+               'GrayCode,radix=6,gray_type=modular,apply_type=Fs',
+               'GrayCode,radix=6,gray_type=modular,apply_type=FsT',
+               'GrayCode,radix=6,gray_type=modular,apply_type=sT',
+               'GrayCode,radix=6,gray_type=modular,apply_type=sF',
+
+               'DiagonalsOctant',
+               'DiagonalsOctant,direction=up',
+
+               'Diagonals',
+               'Diagonals,direction=up',
+               'Diagonals,x_start=1',
+               'Diagonals,y_start=1',
+               'Diagonals,x_start=1,y_start=1',
+               'Diagonals,x_start=7,y_start=5',
+
+               'Rows',
+               'Rows,width=1',
+               'Rows,width=2',
+               'Columns',
+               'Columns,height=1',
+               'Columns,height=2',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=4',
+               'TerdragonCurve,arms=5',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=4',
+               'TerdragonMidpoint,arms=5',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
+
 
                'PythagoreanTree,coordinates=AC',
                'PythagoreanTree,coordinates=BC',
@@ -552,8 +712,6 @@ my @modules = (
 
                'TriangleSpiral',
                'TriangleSpiral,n_start=37',
-               'TriangleSpiralSkewed',
-               'TriangleSpiralSkewed,n_start=37',
 
                'SquareSpiral',
                'SquareSpiral,wider=1',
@@ -572,11 +730,6 @@ my @modules = (
                'SquareSpiral,n_start=37,wider=6',
                'SquareSpiral,n_start=37,wider=37',
 
-               'WythoffArray',
-               'PowerArray',
-               'PowerArray,radix=3',
-               'PowerArray,radix=4',
-
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
@@ -584,16 +737,10 @@ my @modules = (
                'UlamWarburton',
                'UlamWarburtonQuarter',
 
-               'CellularRule,rule=6',   # left 1,2 line
-               'CellularRule,rule=14',  # left 2 cell line
-               'CellularRule,rule=20',  # right 1,2 line
-               'CellularRule,rule=84',  # right 2 cell line
-
                'Staircase',
                'StaircaseAlternating',
                'StaircaseAlternating,end_type=square',
 
-               'ArchimedeanChords',
                'SacksSpiral',
                'TheodorusSpiral',
 
@@ -607,33 +754,6 @@ my @modules = (
                'PeanoCurve,radix=17',
 
                'KnightSpiral',
-               'Rows',
-               'Rows,width=1',
-               'Rows,width=2',
-               'Columns',
-               'Columns,height=1',
-               'Columns,height=2',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=4',
-               'TerdragonCurve,arms=5',
-               'TerdragonCurve,arms=6',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=4',
-               'TerdragonMidpoint,arms=5',
-               'TerdragonMidpoint,arms=6',
-
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=4',
-               'TerdragonRounded,arms=5',
-               'TerdragonRounded,arms=6',
 
                'HypotOctant',
                'HypotOctant,points=even',
@@ -678,10 +798,6 @@ my @modules = (
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
 
-               'Diagonals',
-               'Diagonals,direction=up',
-               'DiagonalsOctant',
-               'DiagonalsOctant,direction=up',
                'DiagonalsAlternating',
 
                'GcdRationals',
@@ -708,98 +824,6 @@ my @modules = (
                'ComplexMinus,realpart=4',
                'ComplexMinus,realpart=5',
                'ComplexRevolving',
-
-               'QuadricCurve',
-               'QuadricIslands',
-
-               'GrayCode,apply_type=TsF',
-               'GrayCode,apply_type=FsT',
-               'GrayCode,apply_type=Ts',
-               'GrayCode,apply_type=Fs',
-               'GrayCode,apply_type=sT',
-               'GrayCode,apply_type=sF',
-
-               'GrayCode,radix=3,apply_type=TsF',
-               'GrayCode,radix=3,apply_type=FsT',
-               'GrayCode,radix=3,apply_type=Ts',
-               'GrayCode,radix=3,apply_type=Fs',
-               'GrayCode,radix=3,apply_type=sT',
-               'GrayCode,radix=3,apply_type=sF',
-
-               'GrayCode,radix=3,gray_type=modular,apply_type=TsF',
-               'GrayCode,radix=3,gray_type=modular,apply_type=Ts',
-               'GrayCode,radix=3,gray_type=modular,apply_type=Fs',
-               'GrayCode,radix=3,gray_type=modular,apply_type=FsT',
-               'GrayCode,radix=3,gray_type=modular,apply_type=sT',
-               'GrayCode,radix=3,gray_type=modular,apply_type=sF',
-
-               'GrayCode,radix=4,apply_type=TsF',
-               'GrayCode,radix=4,apply_type=FsT',
-               'GrayCode,radix=4,apply_type=Ts',
-               'GrayCode,radix=4,apply_type=Fs',
-               'GrayCode,radix=4,apply_type=sT',
-               'GrayCode,radix=4,apply_type=sF',
-
-               'GrayCode,radix=4,gray_type=modular,apply_type=TsF',
-               'GrayCode,radix=4,gray_type=modular,apply_type=Ts',
-               'GrayCode,radix=4,gray_type=modular,apply_type=Fs',
-               'GrayCode,radix=4,gray_type=modular,apply_type=FsT',
-               'GrayCode,radix=4,gray_type=modular,apply_type=sT',
-               'GrayCode,radix=4,gray_type=modular,apply_type=sF',
-
-               'GrayCode,radix=5,apply_type=TsF',
-               'GrayCode,radix=5,apply_type=FsT',
-               'GrayCode,radix=5,apply_type=Ts',
-               'GrayCode,radix=5,apply_type=Fs',
-               'GrayCode,radix=5,apply_type=sT',
-               'GrayCode,radix=5,apply_type=sF',
-
-               'GrayCode,radix=5,gray_type=modular,apply_type=TsF',
-               'GrayCode,radix=5,gray_type=modular,apply_type=Ts',
-               'GrayCode,radix=5,gray_type=modular,apply_type=Fs',
-               'GrayCode,radix=5,gray_type=modular,apply_type=FsT',
-               'GrayCode,radix=5,gray_type=modular,apply_type=sT',
-               'GrayCode,radix=5,gray_type=modular,apply_type=sF',
-
-               'GrayCode,radix=6,apply_type=TsF',
-               'GrayCode,radix=6,apply_type=FsT',
-               'GrayCode,radix=6,apply_type=Ts',
-               'GrayCode,radix=6,apply_type=Fs',
-               'GrayCode,radix=6,apply_type=sT',
-               'GrayCode,radix=6,apply_type=sF',
-
-               'GrayCode,radix=6,gray_type=modular,apply_type=TsF',
-               'GrayCode,radix=6,gray_type=modular,apply_type=Ts',
-               'GrayCode,radix=6,gray_type=modular,apply_type=Fs',
-               'GrayCode,radix=6,gray_type=modular,apply_type=FsT',
-               'GrayCode,radix=6,gray_type=modular,apply_type=sT',
-               'GrayCode,radix=6,gray_type=modular,apply_type=sF',
-
-               'SierpinskiCurve,diagonal_spacing=5',
-               'SierpinskiCurve,straight_spacing=5',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7',
-               'SierpinskiCurve,diagonal_spacing=3,straight_spacing=7,arms=7',
-               'SierpinskiCurve',
-               'SierpinskiCurve,arms=2',
-               'SierpinskiCurve,arms=3',
-               'SierpinskiCurve,arms=4',
-               'SierpinskiCurve,arms=5',
-               'SierpinskiCurve,arms=6',
-               'SierpinskiCurve,arms=7',
-               'SierpinskiCurve,arms=8',
-               'HIndexing',
-
-               'SierpinskiCurveStair',
-               'SierpinskiCurveStair,diagonal_length=2',
-               'SierpinskiCurveStair,diagonal_length=3',
-               'SierpinskiCurveStair,diagonal_length=4',
-               'SierpinskiCurveStair,arms=2',
-               'SierpinskiCurveStair,arms=3,diagonal_length=2',
-               'SierpinskiCurveStair,arms=4',
-               'SierpinskiCurveStair,arms=5',
-               'SierpinskiCurveStair,arms=6,diagonal_length=5',
-               'SierpinskiCurveStair,arms=7',
-               'SierpinskiCurveStair,arms=8',
 
                # 'File',
 
@@ -895,31 +919,6 @@ my @modules = (
                'DragonCurve,arms=3',
                'DragonCurve,arms=4',
 
-               'MultipleRings,step=0',
-               'MultipleRings,ring_shape=polygon,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,ring_shape=polygon,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,ring_shape=polygon,step=2',
-
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=4',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings,ring_shape=polygon',
-               'MultipleRings',
-
-
                'CellularRule',
                'CellularRule,rule=0',   # single cell
                'CellularRule,rule=8',   # single cell
@@ -965,6 +964,45 @@ my @modules = (
                'CellularRule190',
                'CellularRule190,mirror=1',
 
+
+
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=4',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=9',
+               'MultipleRings,ring_shape=polygon,step=10',
+               'MultipleRings,ring_shape=polygon,step=11',
+               'MultipleRings,ring_shape=polygon,step=12',
+               'MultipleRings,ring_shape=polygon,step=13',
+               'MultipleRings,ring_shape=polygon,step=14',
+               'MultipleRings,ring_shape=polygon,step=15',
+               'MultipleRings,ring_shape=polygon,step=16',
+               'MultipleRings,ring_shape=polygon,step=17',
+               'MultipleRings,ring_shape=polygon,step=18',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings,ring_shape=polygon',
+
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,ring_shape=polygon,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,ring_shape=polygon,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,ring_shape=polygon,step=2',
+
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+
+
+
                # module list end
 
                # cellular 0 to 255
@@ -988,7 +1026,7 @@ my @modules = (
       
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
-        # next unless $param =~ /Int|Frac/;
+        # next unless $param =~ /Dir4/;
         MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param
@@ -1000,6 +1038,9 @@ my @modules = (
         ### planepath_object: ref $planepath_object
         
         my $i_start = $seq->i_start;
+        if (! defined $i_start) {
+          die "Oops, i_start=undef";
+        }
         my $characteristic_integer = $seq->characteristic('integer') || 0;
         my $saw_characteristic_integer = 1;
         my $saw_characteristic_integer_at = '';
@@ -1304,28 +1345,6 @@ my @modules = (
           $saw_values_min = -2;
           $saw_values_min_at = 'override';
         }
-        if (($mod eq 'TerdragonCurve'
-             || $mod eq 'TerdragonMidpoint'
-            )
-            && ($param eq 'Dir4')) {
-          $saw_values_min = 0;
-          $saw_values_min_at = 'override';
-          $saw_values_max = 3.5;
-          $saw_values_max_at = 'override';
-        }
-        # if (($mod eq 'TerdragonMidpoint'
-        #     )
-        #     && ($param eq 'TDir6')) {
-        #   $saw_values_min = 0;
-        #   $saw_values_min_at = 'override';
-        # }
-        # if (($mod eq 'TerdragonCurve'
-        #      || $mod eq 'TerdragonMidpoint'
-        #     )
-        #     && ($param eq 'TDir6')) {
-        #   $saw_values_min = 0;
-        #   $saw_values_min_at = 'override';
-        # }
 
         # not enough values to see near supremum
         if (($mod eq 'ZOrderCurve,radix=37'

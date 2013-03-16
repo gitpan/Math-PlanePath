@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 437)[1];
+my $test_count = (tests => 443)[1];
 plan tests => $test_count;
 
 # version 1.14 for abs() overload
@@ -427,6 +427,9 @@ my @modules = (
                'PyramidSpiral',
                'TriangleSpiral',
                'TriangleSpiralSkewed',
+               'TriangleSpiralSkewed,skew=right',
+               'TriangleSpiralSkewed,skew=up',
+               'TriangleSpiralSkewed,skew=down',
 
                # 'SacksSpiral',         # sin/cos
                # 'TheodorusSpiral',     # counting by N

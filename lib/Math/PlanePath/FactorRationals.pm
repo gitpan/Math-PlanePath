@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -64,7 +64,16 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant x_minimum => 1;
 use constant y_minimum => 1;
+use constant absdy_minimum => 1;
 
+# dir4_minimum() suspect dir approaches 0.
+# Eg. N=642735 to 642735 Dir4=0.05644  dX=45 dY=4.
+#
+# dir4_maximum() suspect approaches 360 degrees
+# use constant dir4_maximum => 4;  # the defaults
+# use constant dir_maximum_dxdy => (0,0);  # the default
+
+#------------------------------------------------------------------------------
 # all rationals X,Y >= 1 no common factor
 use Math::PlanePath::DiagonalRationals;
 *xy_is_visited = \&Math::PlanePath::DiagonalRationals::xy_is_visited;

@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -51,7 +51,13 @@ use Math::PlanePath::SacksSpiral;
 
 use constant n_frac_discontinuity => 0;
 use constant rsquared_minimum => 2; # minimum X=1,Y=1
+use constant absdx_minimum => 1;
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
 
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new (@_);
   $self->{'sides'} ||= 6; # default

@@ -45,17 +45,22 @@ use strict;
   $planepath = "PowerArray";
   $planepath = "RationalsTree,tree_type=HCS";
   $planepath = "ChanTree,k=2";
-  $planepath = "CfracDigits,radix=2";
   $planepath = "ImaginaryHalf,digit_order=XnXY";
   $planepath = "ToothpickReplicate,parts=1";
-  $planepath = "LCornerTree,parts=4";
   $planepath = "LCornerReplicate";
   $planepath = "PythagoreanTree,coordinates=AC,tree_type=UAD";
   $planepath = "OneOfEight,parts=3side";
+  $planepath = "CfracDigits,radix=2";
+  $planepath = "LCornerTree,parts=4";
+  $planepath = "ToothpickTree,parts=4";
+  $planepath = "TerdragonCurve";
+  $planepath = "MultipleRings,step=8,ring_shape=polygon";
   $radix = 5;
   $planepath = "CfracDigits,radix=".($radix-1);
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                               delta_type => 'Dir4');
+                                               delta_type => 'Dir4',
+                                               # delta_type => 'TDir6',
+                                              );
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dX');
   my $dy_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
@@ -91,6 +96,14 @@ use strict;
     }
   }
 
+  exit 0;
+}
+
+{
+  require Math::NumSeq::PlanePathDelta;
+  for (my $a = 0; $a <= 360; $a += 5) {
+    print "$a  ",Math::NumSeq::PlanePathDelta::_dir360_to_tdir6($a),"\n";
+  }
   exit 0;
 }
 

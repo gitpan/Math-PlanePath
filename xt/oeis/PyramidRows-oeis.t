@@ -35,60 +35,43 @@ use Math::PlanePath::PyramidRows;
 #use Smart::Comments '###';
 
 
-sub numeq_array {
-  my ($a1, $a2) = @_;
-  if (! ref $a1 || ! ref $a2) {
-    return 0;
-  }
-  my $i = 0; 
-  while ($i < @$a1 && $i < @$a2) {
-    if ($a1->[$i] ne $a2->[$i]) {
-      return 0;
-    }
-    $i++;
-  }
-  return (@$a1 == @$a2);
-}
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  my $diff;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    unless ($got =~ /^[0-9.-]+$/) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "not a number pos=$i got='$got'";
-    }
-    unless ($want =~ /^[0-9.-]+$/) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "not a number pos=$i want='$want'";
-    }
-    if ($got != $want) {
-      if (defined $diff) {
-        return "$diff, and more diff";
-      }
-      $diff = "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return $diff;
-}
+#------------------------------------------------------------------------------
+# A103451 -- turn 1=left or right, 0=straight
+# but has extra n=1 whereas path first turn at starts N=2
+
+MyOEIS::compare_values
+  (anum => 'A103451',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'PyramidRows,step=1',
+                                                 turn_type => 'LSR');
+     my @got = (1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, abs($value);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A103452 -- turn 1=left,0=straight,-1=right
+# but has extra n=1 whereas path first turn at starts N=2
+
+MyOEIS::compare_values
+  (anum => 'A103452',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'PyramidRows,step=1',
+                                                 turn_type => 'LSR');
+     my @got = (1);
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A050873 -- step=1 GCD(X+1,Y+1) by rows
@@ -148,160 +131,111 @@ MyOEIS::compare_values
 #------------------------------------------------------------------------------
 # A004201 -- N for which X>=0, step=2
 
-{
-  my $anum = 'A004201';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 2);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      if ($x >= 0) {
-        push @got, $n;
-      }
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A004201',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::PyramidRows->new (step => 2);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       if ($x >= 0) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A079824 -- diagonal sums
 # cf A079825 with rows numbered alternately left and right
 # a(21)=(n/6)*(7*n^2-6*n+5)
-{
-  my $anum = 'A079824';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got;
-    my $path = Math::PlanePath::PyramidRows->new(step=>1);
-    for (my $y = 0; @got < @$bvalues; $y++) {
-      my @diag;
-      foreach my $i (0 .. $y) {
-        my $n = $path->xy_to_n($i,$y-$i);
-        next if ! defined $n;
-        push @diag, $n;
-      }
-      my $total = sum(@diag);
-      push @got, $total;
 
-      # if ($y <= 21) {
-      #   MyTestHelpers::diag (join('+',@diag)," = $total");
-      # }
-    }
-    $diff = diff_nums(\@got, $bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef);
-}
+MyOEIS::compare_values
+  (anum => 'A079824',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::PyramidRows->new(step=>1);
+     for (my $y = 0; @got < $count; $y++) {
+       my @diag;
+       foreach my $i (0 .. $y) {
+         my $n = $path->xy_to_n($i,$y-$i);
+         next if ! defined $n;
+         push @diag, $n;
+       }
+       my $total = sum(@diag);
+       push @got, $total;
+
+       # if ($y <= 21) {
+       #   MyTestHelpers::diag (join('+',@diag)," = $total");
+       # }
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A000217 -- step=1 X=Y diagonal, the triangular numbers from 1
 
-{
-  my $anum = 'A000217';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 1);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n($i,$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A000217',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::PyramidRows->new (step => 1);
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, $path->xy_to_n($i,$i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A000290 -- step=2 X=Y diagonal, the squares from 1
 
-{
-  my $anum = 'A000290';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 2);
-    for (my $i = 0; @got < @$bvalues; $i++) {
-      push @got, $path->xy_to_n($i,$i);
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A000290',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     my $path = Math::PlanePath::PyramidRows->new (step => 2);
+     for (my $i = 0; @got < $count; $i++) {
+       push @got, $path->xy_to_n($i,$i);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A167407 -- dDiffXY step=1, extra initial 0
 
-{
-  my $anum = 'A167407';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 1);
-    @got = (0);
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = $path->n_to_dxdy ($n);
-      push @got, $dx-$dy;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A167407',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidRows->new (step => 1);
+     my @got = (0);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($dx, $dy) = $path->n_to_dxdy ($n);
+       push @got, $dx-$dy;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A010052 -- step=2 dY, 1 at squares
 
-{
-  my $anum = 'A010052';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    my $path = Math::PlanePath::PyramidRows->new (step => 2);
-    push @got, 1;
-    for (my $n = $path->n_start; @got < @$bvalues; $n++) {
-      my ($x, $y) = $path->n_to_xy ($n);
-      my ($next_x, $next_y) = $path->n_to_xy ($n+1);
-      push @got, $next_y - $y;
-    }
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1,
-        "$anum");
-}
+MyOEIS::compare_values
+  (anum => 'A010052',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $path = Math::PlanePath::PyramidRows->new (step => 2);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       my ($next_x, $next_y) = $path->n_to_xy ($n+1);
+       push @got, $next_y - $y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 exit 0;

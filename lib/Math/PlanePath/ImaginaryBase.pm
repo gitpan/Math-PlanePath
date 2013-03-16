@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -73,7 +73,14 @@ use Math::PlanePath::ZOrderCurve;
 
 use constant n_start => 0;
 use constant xy_is_visited => 1;
+use constant absdx_minimum => 1;   # X coord always changes
 
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'radix'}-1, -2);
+}
+
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new(@_);
 
@@ -345,7 +352,7 @@ sub _negaradix_range_level {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal NX negaradix Nmin Nmax Nmin,Nmax NX NX,NY OEIS
+=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal NX negaradix Nmin Nmax Nmin,Nmax NX NX,NY OEIS Seminumerical CACM
 
 =head1 NAME
 

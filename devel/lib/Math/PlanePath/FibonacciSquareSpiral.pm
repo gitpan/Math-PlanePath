@@ -22,6 +22,35 @@
 # math-image --path=FibonacciSquareSpiral --output=numbers
 
 
+# #------------------------------------------------------------------------------
+# # A138710 - abs(dX) but OFFSET=1
+# 
+# MyOEIS::compare_values
+#   (anum => 'A138710',
+#    func => sub {
+#      my ($count) = @_;
+#      my @got;
+#      for (my $n = $path->n_start; @got < $count; $n++) {
+#        my ($dx,$dy) = $path->n_to_dxdy($n);
+#        push @got, abs($dx);
+#      }
+#      return \@got;
+#    });
+# 
+# # A138709 - abs(dY) but OFFSET=1
+# MyOEIS::compare_values
+#   (anum => 'A138709',
+#    func => sub {
+#      my ($count) = @_;
+#      my @got;
+#      for (my $n = $path->n_start; @got < $count; $n++) {
+#        my ($dx,$dy) = $path->n_to_dxdy($n);
+#        push @got, abs($dy);
+#      }
+#      return \@got;
+#    });
+
+
 package Math::PlanePath::FibonacciSquareSpiral;
 use 5.004;
 use strict;
@@ -29,7 +58,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath 37;
 @ISA = ('Math::PlanePath');
 

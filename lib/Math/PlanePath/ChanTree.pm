@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -99,12 +99,38 @@ sub rsquared_minimum {
           : 5);  # X=1,Y=2
 }
 
-use constant tree_any_leaf => 0;  # no leaves, complete tree
-sub tree_num_children_minimum {
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'k'} & 1
+          ? 1    # k odd
+          : 0);  # k even, dX=0 across middle
+}
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'k'} == 2 || ($self->{'k'} & 1)
+          ? 1    # k=2 or k odd
+          : 0);  # k even, dX=0 across middle
+}
+
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'k'} == 2 ? 1 # k=2, per CW above, North
+#           : 0);                 # other, East
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'k'} == 2
+          ? (0,1)   # k=2, per CW above, North
+          : (1,0)); # other, East
+}
+
+use constant tree_any_leaf => 0;  # no leaves
+sub tree_num_children_minimum {   # complete tree, always k children
   my ($self) = @_;
   return $self->{'k'};
 }
 *tree_num_children_maximum = \&tree_num_children_minimum;
+use constant tree_n_to_height => undef; # complete trees, all inf
 
 
 #------------------------------------------------------------------------------
@@ -689,7 +715,7 @@ sub tree_depth_to_n {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath Heng coeffs GCD Calkin Wilf ie Nstart OEIS
+=for stopwords Ryde Math-PlanePath Heng coeffs GCD Calkin-Wilf ie Nstart OEIS k-ary
 
 =head1 NAME
 

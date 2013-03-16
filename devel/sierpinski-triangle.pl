@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,6 +20,7 @@
 
 use 5.004;
 use strict;
+use List::Util 'min', 'max';
 use Math::PlanePath::SierpinskiTriangle;
 
 use Math::PlanePath;
@@ -32,6 +33,94 @@ use Math::PlanePath::Base::Digits
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  # height
+
+  use constant _INFINITY => do {
+    my $x = 999;
+    foreach (1 .. 20) {
+      $x *= $x;
+    }
+    $x;
+  };
+
+  my $path = Math::PlanePath::SierpinskiTriangle->new (align => 'diagonal');
+  require Math::NumSeq::PlanePathCoord;
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath_object => $path,
+                                               coordinate_type => 'Height');
+
+  for (my $n = $path->n_start; $n < 500; $n++) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $s = $seq->ith($n);
+    # my $c = $path->_UNTESTED__NumSeq__tree_n_to_leaflen($n);
+    my $c = n_to_subheight($n);
+    if (! defined $c) { $c = _INFINITY; }
+    my $diff = ($s == $c ? '' : ' ***');
+    print "$x,$y  $s  $c$diff\n";
+  }
+  print "\n";
+  exit 0;
+
+  sub n_to_subheight {
+    my ($n) = @_;
+
+    # this one correct based on diagonal X,Y bits
+    my ($x,$y) = $path->n_to_xy($n);
+    if ($x == 0 || $y == 0) {
+      return _INFINITY();
+    }
+    my $mx = ($x ^ ($x-1)) >> 1;
+    my $my = ($y ^ ($y-1)) >> 1;
+    return max ($mx - ($y & $mx),
+                $my - ($x & $my));
+
+
+    # Must stretch out $n remainder to make X.
+    # my ($depthbits, $ndepth, $nwidth) = Math::PlanePath::SierpinskiTriangle::_n0_to_depthbits($n);
+    # $n -= $ndepth;  # X
+    # my $y = digit_join_lowtohigh ($depthbits, 2, $n*0) - $n;
+    #
+    # if ($n == 0 || $y == 0) {
+    #   return undef;
+    # }
+    # my $mx = ($n ^ ($n-1)) >> 1;
+    # my $my = ($y ^ ($y-1)) >> 1;
+    # return max ($mx - ($y & $mx),
+    #             $my - ($n & $my));
+
+    # my $h = high_bit($y);
+    # my $m = ($h<<1)-1;
+    # return $y ^ $m;
+    # # return count_0_bits($y); # - count_0_bits($x);
+  }
+  sub high_bit {
+    my ($n) = @_;
+    my $bit = 1;
+    while ($bit <= $n) {
+      $bit <<= 1;
+    }
+    return $bit >> 1;
+  }
+  sub count_0_bits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += ($n & 1) ^ 1;
+      $n >>= 1;
+    }
+    return $count;
+  }
+  sub count_1_bits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += ($n & 1);
+      $n >>= 1;
+    }
+    return $count;
+  }
+}
 
 {
   # number of children

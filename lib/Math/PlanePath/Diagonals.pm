@@ -25,7 +25,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,7 +50,30 @@ use constant parameter_info_array =>
       description => 'Number points downwards or upwards along the diagonals.',
     },
     Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+    { name        => 'x_start',
+      display     => 'X start',
+      type        => 'integer',
+      default     => 0,
+      width       => 3,
+      description => 'Starting X coordinate.',
+    },
+    { name        => 'y_start',
+      display     => 'Y start',
+      type        => 'integer',
+      default     => 0,
+      width       => 3,
+      description => 'Starting Y coordinate.',
+    },
   ];
+
+sub x_minimum {
+  my ($self) = @_;
+  return $self->{'x_start'};
+}
+sub y_minimum {
+  my ($self) = @_;
+  return $self->{'y_start'};
+}
 
 sub dx_maximum {
   my ($self) = @_;
@@ -65,6 +88,38 @@ sub dy_minimum {
           : undef); # up jumps down unlimited at top
 }
 
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? 0   # N=1 dX=0,dY=1
+          : 1); # otherwise always changes
+}
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? 1   # otherwise always changes
+          : 0); # N=1 dX=1,dY=0
+}
+
+# sub dir4_minimum {
+#   my ($self) = @_;
+#   return ($self->{'direction'} eq 'down'
+#           ? 1   # down, vertical or more
+#           : 0); # up, horiz at N=1
+# }
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? (0,1)   # down, vertical or more
+          : (1,0)); # up, horiz at N=1
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? (1,-1)    # South-East
+          : (2,-1));  # ESE
+}
+
 #------------------------------------------------------------------------------
 
 sub new {
@@ -74,7 +129,6 @@ sub new {
   }
   $self->{'direction'} ||= 'down';
 
-  # secret undocumented options
   $self->{'x_start'} ||= 0;
   $self->{'y_start'} ||= 0;
   return $self;
@@ -120,13 +174,15 @@ sub n_to_xy {
   my $int = int($n);  # BigFloat int() gives BigInt, use that
   $n -= $int;         # frac, preserving any BigFloat
 
-  if (2*$n >= 1) {  # if $frac >= 0.5
+  if (2*$n >= 1) {  # $frac>=0.5 and BigInt friendly
     $n -= 1;
     $int += 1;
   }
   ### $int
   ### $n
-  return if $int < 1;
+  if ($int < 1) {
+    return;
+  }
 
   ### sqrt of: (8*$int - 7).''
   my $d = int((sqrt(8*$int-7) - 1) / 2);
@@ -283,7 +339,7 @@ triangular numbers Y*(Y+1)/2.
 
 =head2 X,Y Start
 
-Options C<x_start =E<gt> $x> and C<x_start =E<gt> $y> give a starting
+Options C<x_start =E<gt> $x> and C<y_start =E<gt> $y> give a starting
 position for the diagonals.  For example to start at X=1,Y=1
 
       7  |   22               x_start => 1,
@@ -309,7 +365,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::Diagonals-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::Diagonals-E<gt>new (direction =E<gt> $str, n_start =E<gt> $integer)>
+=item C<$path = Math::PlanePath::Diagonals-E<gt>new (direction =E<gt> $str, n_start =E<gt> $n, x_start =E<gt> $x, y_start =E<gt> $y)>
 
 Create and return a new path object.  The C<direction> option (a string) can
 be
@@ -416,6 +472,8 @@ path include
       A000096    N on X axis, X*(X+3)/2
       A000217    N on Y axis, the triangular numbers
       A129184    turn 1=left,0=right
+      A103451    turn 1=left or right,0=straight, but extra initial 1
+      A103452    turn 1=left,0=straight,-1=right, but extra initial 1
     direction=up, n_start=0
       A129184    turn 0=left,1=right
 

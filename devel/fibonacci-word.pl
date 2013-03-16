@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,7 +25,38 @@ use strict;
 use Smart::Comments;
 
 {
-  # DFW turns
+  # Knot overlapping points
+  # 0,1,  4,16,68,288,1220,5168
+  # each next = this*4 + prev
+  # cf A006131  a(n) = a(n-1) + 4*a(n-2) starting 1,1
+
+  require Math::PlanePath::FibonacciWordKnott;
+  require Math::BaseCnv;
+  require Math::NumSeq::BalancedBinary;
+  my $path = Math::PlanePath::FibonacciWordKnott->new;
+  my %seen;
+  my %diffs; require Tie::IxHash; tie %diffs, 'Tie::IxHash';
+
+  foreach my $n ($path->n_start .. 10000) {
+    my ($x,$y) = $path->n_to_xy($n);
+    if (my $p = $seen{$x,$y}) {
+      my $d = $n - $p;
+      # print "$x,$y  $p $n  diff $d\n";
+      $diffs{$d} ||= 1;
+    }
+    $seen{$x,$y} = $n;
+  }
+  my $bal = Math::NumSeq::BalancedBinary->new;
+  foreach my $d (keys %diffs) {
+    my $b = Math::BaseCnv::cnv($d,10,2);
+    my $z = $bal->ith($d);
+    $z = Math::BaseCnv::cnv($z,10,2);
+    print "$d  bin=$b  zeck=$z\n";
+  }
+  exit 0;
+}
+{
+  # Dense Fibonacci Word turns
   require Math::NumSeq::FibonacciWord;
 
   require Image::Base::Text;

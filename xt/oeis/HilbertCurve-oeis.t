@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -53,31 +53,6 @@ sub numeq_array {
   }
   return (@$a1 == @$a2);
 }
-sub diff_nums {
-  my ($gotaref, $wantaref) = @_;
-  for (my $i = 0; $i < @$gotaref; $i++) {
-    if ($i > @$wantaref) {
-      return "want ends prematurely pos=$i";
-    }
-    my $got = $gotaref->[$i];
-    my $want = $wantaref->[$i];
-    if (! defined $got && ! defined $want) {
-      next;
-    }
-    if (! defined $got || ! defined $want) {
-      return "different pos=$i got=".(defined $got ? $got : '[undef]')
-        ." want=".(defined $want ? $want : '[undef]');
-    }
-    $got =~ /^[0-9.-]+$/
-      or return "not a number pos=$i got='$got'";
-    $want =~ /^[0-9.-]+$/
-      or return "not a number pos=$i want='$want'";
-    if ($got != $want) {
-      return "different pos=$i numbers got=$got want=$want";
-    }
-  }
-  return undef;
-}
 
 #------------------------------------------------------------------------------
 
@@ -129,6 +104,38 @@ sub zorder_is_3cycle {
   return ($p3 == $n);
 }
 
+
+#------------------------------------------------------------------------------
+# A163538 -- dX
+# extra first entry for N=0 no change
+
+MyOEIS::compare_values
+  (anum => 'A163538',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
+       push @got, $dx;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A163539 -- dY
+# extra first entry for N=0 no change
+
+MyOEIS::compare_values
+  (anum => 'A163539',
+   func => sub {
+     my ($count) = @_;
+     my @got = (0);
+     for (my $n = $hilbert->n_start; @got < $count; $n++) {
+       my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
+       push @got, $dy;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A166041 - N in Peano order
@@ -219,48 +226,6 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A163538 -- delta X
-# extra first entry for N=0 no change
-{
-  my $anum = 'A163538';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my $diff;
-  if ($bvalues) {
-    my @got = (0);
-    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
-      push @got, $dx;
-    }
-    $diff = diff_nums(\@got,$bvalues);
-    if ($diff) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        $diff, undef,
-        "$anum -- delta X (transpose)");
-}
-
-#------------------------------------------------------------------------------
-# A163539 -- delta Y
-# extra first entry for N=0 no change
-{
-  my $anum = 'A163539';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got = (0);
-  if ($bvalues) {
-    for (my $n = $hilbert->n_start; @got < @$bvalues; $n++) {
-      my ($dx, $dy) = $hilbert->n_to_dxdy ($n);
-      push @got, $dy;
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum -- delta Y (transpose)");
-}
-
-#------------------------------------------------------------------------------
 # A163891 - positions where cycle length some new previously unseen value
 #
 # len: 1, 1, 2, 2, 6, 3, 3, 6, 6, 6, 3, 3, 6, 3, 6, 3, 1, 3, 3, 3, 1, 1, 2, 2,
@@ -287,7 +252,7 @@ MyOEIS::compare_values
   skip (! $bvalues,
         numeq_array(\@got, $bvalues),
         1,
-       "$anum - cycle length by N");
+        "$anum - cycle length by N");
 }
 
 #------------------------------------------------------------------------------
@@ -1194,5 +1159,5 @@ sub transpose {
         1, "$anum -- relative direction transposed");
 }
 
-
+#------------------------------------------------------------------------------
 exit 0;

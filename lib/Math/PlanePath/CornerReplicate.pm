@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,6 +48,9 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad1;
 
+use constant dir_maximum_dxdy => (2,-1);  # ESE
+
+#------------------------------------------------------------------------------
 my @digit_to_x = (0,1,1,0);
 my @digit_to_y = (0,0,1,1);
 
@@ -344,19 +347,20 @@ A given replication extends to
 
 =head2 Hamming Distance
 
-The hamming distance between X and Y is the number of bit positions where
-the two numbers differ when written in binary.  Each bit-pair of N becomes a
-bit of X and a bit of Y,
+The Hamming distance between integers X and Y is the number of bit positions
+where the two values differ when written in binary.  In this corner
+replicate each bit-pair of N becomes a bit of X and a bit of Y,
 
-    N     X   Y
-    --    -   -
-    00    0   0
-    01    1   0     <- difference 1 bit
-    10    1   1
-    11    0   1     <- difference 1 bit
+       N      X   Y
+    ------   --- ---
+    0 = 00    0   0
+    1 = 01    1   0     <- difference 1 bit
+    2 = 10    1   1
+    3 = 11    0   1     <- difference 1 bit
 
-So the hamming distance is the number of base4 bit-pairs of N which are 01
-or 11.  If bits are counted from 0 for the least significant bit then
+So the Hamming distance is the number of base4 bit-pairs of N which are 01
+or 11.  If bit positions are counted from 0 for the least significant bit
+then
 
     HammingDist(X,Y) = count 1-bits at even bit positions in N    
 

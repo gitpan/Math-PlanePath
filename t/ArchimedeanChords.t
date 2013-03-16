@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 67;
+plan tests => 68;
 
 use lib 't';
 use MyTestHelpers;
@@ -52,7 +52,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 99;
+  my $want_version = 100;
   ok ($Math::PlanePath::ArchimedeanChords::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ArchimedeanChords->VERSION,  $want_version,
@@ -92,6 +92,8 @@ sub numeq_array {
 
   my @pnames = map {$_->{'name'}} $path->parameter_info_list;
   ok (join(',',@pnames), '');
+
+  ok (!! $path->xy_is_visited(0,0), 1, 'xy_is_visited(0,0)');
 }
 
 #------------------------------------------------------------------------------

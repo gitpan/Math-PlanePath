@@ -32,7 +32,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -42,20 +42,26 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'round_down_pow';
+  'round_down_pow',
+  'digit_split_lowtohigh';
 
 use Math::PlanePath::UlamWarburtonQuarter;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
+use constant absdx_minimum => 1;
 use constant tree_num_children_maximum => 4;
+use constant dir_maximum_dxdy => (1,-1); # South-East
+# use constant dir4_maximum  => 3.5; # South-East
+# use constant dir_maximum_360  => 315;    # South-East
 
+#------------------------------------------------------------------------------
 sub new {
   my $self = shift->SUPER::new(@_);
   if (! defined $self->{'n_start'}) {
@@ -144,37 +150,43 @@ sub n_to_xy {
   if (is_infinite($n)) { return ($n,$n); }
   if ($n == 1) { return (0,0); }
 
-  (my $depthsum, my $factor, $n) = _n1_to_depthsum_factor_rem($n);
+  my ($depthsum, $factor, $nrem) = _n1_to_depthsum_factor_rem($n)
+    or return $n;  # N=nan or +inf
 
   $factor /= 4;
-  (my $quad, $n) = _divrem ($n, $factor);
+  (my $quad, $nrem) = _divrem ($nrem, $factor);
 
   ### mod: $factor
   ### $quad
-  ### n within quad: $n
+  ### n within quad: $nrem
   ### assert: $quad >= 0
   ### assert: $quad <= 3
 
+  my $dhigh = shift @$depthsum;  # highest term
+  my @ndigits = digit_split_lowtohigh($nrem,3);
   my $x = 0;
   my $y = 0;
-  while (@$depthsum) {
-    my $digit = _divrem_mutate ($n, 3);
-    ### $depthsum: $$depthsum[-1]
-    ### $digit
+  foreach my $depthsum (reverse @$depthsum) { # depth terms low to high
+    my $ndigit = shift @ndigits;              # N digits low to high
+    ### $depthsum
+    ### $ndigit
 
-    $x += pop @$depthsum;
-    if (@$depthsum) {
-      if ($digit == 0) {
-        ($x,$y) = ($y,-$x);   # rotate -90
-      } elsif ($digit == 2) {
+    $x += $depthsum;
+    ### bit to x: "$x,$y"
+
+    if ($ndigit) {
+      if ($ndigit == 2) {
         ($x,$y) = (-$y,$x);   # rotate +90
       }
+    } else {
+      # $ndigit==0 (or undef when @ndigits shorter than @$depthsum)
+      ($x,$y) = ($y,-$x);   # rotate -90
     }
     ### rotate to: "$x,$y"
-    ### bit to x: "$x,$y"
   }
+  $x += $dhigh;
 
-  ### xy no quad: "$x,$y"
+  ### xy before quad: "$x,$y"
   if ($quad & 2) {
     $x = -$x;
     $y = -$y;
@@ -223,8 +235,8 @@ sub xy_to_n {
   }
   ### $quad
   ### quad rotated xy: "$x,$y"
-  ### assert: $x >= $y
-  ### assert: $x >= -$y
+  ### assert: ! ($y > $x)
+  ### assert: ! ($y < -$x)
 
   my ($len, $exp) = round_down_pow ($x + abs($y), 2);
   if (is_infinite($exp)) { return ($exp); }
@@ -457,10 +469,8 @@ sub tree_n_to_depth {
   if ($n == 1) {
     return 0;
   }
-  if (is_infinite($n)) {
-    return $n;
-  }
-  my ($depthsum) = _n1_to_depthsum_factor_rem($n);
+  my ($depthsum) = _n1_to_depthsum_factor_rem($n)
+    or return $n;  # N=nan or +inf
   return sum(@$depthsum);
 }
 
@@ -478,6 +488,10 @@ sub _n1_to_depthsum_factor_rem {
   ### $power
   ### $exp
   ### pow base: ($power - 1)/3 * 4 + 2
+
+  if (is_infinite($exp)) {
+    return;
+  }
 
   $n -= ($power - 1)/3 * 4 + 2;
   ### n less pow base: $n
@@ -512,6 +526,34 @@ sub _n1_to_depthsum_factor_rem {
   ### assert: $n < $factor
 
   return \@depthsum, $factor, $n;
+}
+
+sub tree_n_to_height {
+  my ($self, $n) = @_;
+  ### tree_n_to_height(): $n
+
+  $n = int($n - $self->{'n_start'} + 1);  # N=1 basis
+  if ($n < 1) {
+    return undef;
+  }
+  my ($depthsum, $factor, $nrem) = _n1_to_depthsum_factor_rem($n)
+    or return $n;  # N=nan or +inf
+  $factor /= 4;
+  (my $quad, $nrem) = _divrem ($nrem, $factor);
+  my @ndigits = digit_split_lowtohigh($nrem,3);
+  ### $depthsum
+  ### $nrem
+  ### @ndigits
+
+  my $sub = pop @$depthsum;
+  while ((shift @ndigits || 0) == 1) {
+    $sub += pop @$depthsum;
+  }
+  if (@$depthsum) {
+    return $depthsum->[-1] - 1 - $sub;
+  } else {
+    return undef; # N all 1-digits
+  }
 }
 
 1;
@@ -764,8 +806,8 @@ Sequences as
 
     http://oeis.org/A147582    (etc)
 
-    A147582   total cells to depth=n-1, tree_depth_to_n()
-    A147562   added cells at depth=n-1
+    A147582   total cells to depth, tree_depth_to_n(d+1)
+    A147562   added cells at depth, extra initial 0
 
     A151922   total cells to depth=n with X>=0,Y>=0
     A079314   added cells at depth=n with X>=0,Y>=0

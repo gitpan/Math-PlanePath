@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 99;
+$VERSION = 100;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -402,12 +402,21 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Turn_Right_non_decreasing => 1;
 
   use constant _NumSeq_Turn_oeis_anum =>
-    { 'n_start=-1' =>
-      { 'Left' => 'A023531',  # 1 at k*(k+3)/2
-        'LSR'  => 'A023531',
-        # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1
-        # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1 turn_type=LSR
-      },
+    {
+     do {
+       my $href = { 'Left' => 'A023531',  # 1 at k*(k+3)/2
+                    'LSR'  => 'A023531',
+                  };
+       ('skew=left,n_start=-1' => $href,
+        'skew=right,n_start=-1' => $href,
+        'skew=up,n_start=-1' => $href,
+        'skew=down,n_start=-1' => $href)
+         # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1
+         # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1 turn_type=LSR
+         # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1,skew=right
+         # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1,skew=up
+         # OEIS-Other: A023531 planepath=TriangleSpiralSkewed,n_start=-1,skew=down
+     },
     };
 }
 { package Math::PlanePath::DiamondSpiral;
@@ -701,33 +710,27 @@ sub characteristic_non_decreasing {
 
   sub _NumSeq_Turn_Left_min {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Left($self) ? 1
-            : 0);
+    return (_NumSeq_Turn_always_Left($self) ? 1 : 0);
   }
   sub _NumSeq_Turn_Left_max {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Right($self) ? 0
-            : 1);
+    return (_NumSeq_Turn_always_Right($self) ? 0 : 1);
   }
   sub _NumSeq_Turn_Right_min {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Right($self) ? 1
-            : 0);
+    return (_NumSeq_Turn_always_Right($self) ? 1 : 0);
   }
   sub _NumSeq_Turn_Right_max {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Left($self) ? 0
-            : 1);
+    return (_NumSeq_Turn_always_Left($self) ? 0 : 1);
   }
   sub _NumSeq_Turn_LSR_min {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Left($self) ? 1
-            : -1);
+    return (_NumSeq_Turn_always_Left($self) ? 1 : -1);
   }
   sub _NumSeq_Turn_LSR_max {
     my ($self) = @_;
-    return (_NumSeq_Turn_always_Right($self) ? -1
-            : 1);
+    return (_NumSeq_Turn_always_Right($self) ? -1 : 1);
   }
 
   sub _NumSeq_Turn_Left_non_decreasing {
@@ -738,11 +741,19 @@ sub characteristic_non_decreasing {
   }
   *_NumSeq_Turn_Right_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
   *_NumSeq_Turn_LSR_non_decreasing = \&_NumSeq_Turn_Left_non_decreasing;
+
+  # A000004 all-zeros and A000012 all-ones are OFFSET=0 which doesn't match
+  # start N=1 here for always turn left or right in UAD.
 }
 # { package Math::PlanePath::RationalsTree;
+#   SB turn cf A021913 0,0,1,1
+#              A133872 1,1,0,0
+#              A057077 1,1,-1,-1
+#              A087960 1,-1,-1,1
 #   HCS turn left close to A010059 thue-morse or A092436
 #            right A010060
-#            lsr  A106400
+#            LSR => 'A106400',  # thue-morse +/-1
+#   CfracDigits radix=1 likewise
 # }
 # { package Math::PlanePath::FractionsTree;
 # }
@@ -911,14 +922,24 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::DragonMidpoint;
 # }
-# { package Math::PlanePath::AlternatePaper;
-# 'Math::PlanePath::AlternatePaper,arms=1' =>
-# {
-#  # Not quite, A106665 has OFFSET=0 cf first here i=1
-#  'Left' => 'A106665', # turn, 1=left,0=right
-#  # OEIS-Catalogue: A106665 planepath=AlternatePaper
-# },
-# }
+{ package Math::PlanePath::AlternatePaper;
+
+  # A209615 is (-1)^e for each p^e prime=4k+3 or prime=2
+  # 3*3 mod 4 = 1 mod 4
+  # so picks out bit above lowest 1-bit, and factor -1 if an odd power-of-2
+  # which is the AlternatePaper turn formula
+  #
+  use constant _NumSeq_Turn_oeis_anum =>
+    { 'arms=1' =>
+      { LSR => 'A209615',
+        # OEIS-Catalogue: A209615 planepath=AlternatePaper turn_type=LSR
+
+        # # Not quite, A106665 has OFFSET=0 cf first here i=1
+        # 'Left' => 'A106665', # turn, 1=left,0=right
+        # # OEIS-Catalogue: A106665 planepath=AlternatePaper i_offset=1
+      },
+    };
+}
 { package Math::PlanePath::GosperSide;
 
   # Suspect not in OEIS:
@@ -1163,8 +1184,8 @@ sub characteristic_non_decreasing {
     {
      # PyramidRows step=0 is trivial X=N,Y=0
      do {
-       my $href= { Left => 'A000004',  # all-zeros
-                   LSR  => 'A000004',  # all zeros, straight
+       my $href= { Left => 'A000004',  # all-zeros, OFFSET=0
+                   LSR  => 'A000004',  # all zeros straight
                  };
        ('step=0,align=centre,n_start=1' => $href,
         'step=0,align=right,n_start=1'  => $href,
@@ -1283,7 +1304,7 @@ sub characteristic_non_decreasing {
 __END__
 
 
-=for stopwords Ryde Math-PlanePath NumSeq PlanePath SquareSpiral ie
+=for stopwords Ryde Math-PlanePath NumSeq PlanePath SquareSpiral ie LSR dX,dY dx1,dy1 dx2,dy2
 
 =head1 NAME
 
@@ -1368,7 +1389,7 @@ PlanePath object.
 
 =head1 FORMULAS
 
-=head2 Turn
+=head2 Turn Left or Right
 
 A turn left or right is identified by considering the dX,dY at N-1 and at N.
 
