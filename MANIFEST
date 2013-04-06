@@ -76,6 +76,7 @@ devel/lib/Math/PlanePath/ParabolicRows.pm
 devel/lib/Math/PlanePath/ParabolicRuns.pm
 devel/lib/Math/PlanePath/PeanoHalf.pm
 devel/lib/Math/PlanePath/PeanoRounded.pm
+devel/lib/Math/PlanePath/PeanoVertices.pm
 devel/lib/Math/PlanePath/PowerRows.pm
 devel/lib/Math/PlanePath/PyramidReplicate.pm
 devel/lib/Math/PlanePath/QuintetSide.pm
@@ -368,6 +369,7 @@ t/TriangularHypot.t
 t/UlamWarburton.t
 t/UlamWarburtonQuarter.t
 t/VogelFloret.t
+t/WythoffArray.t
 t/ZOrderCurve.t
 tools/alternate-paper-dxdy.pl
 tools/ar2w2-curve-table.pl

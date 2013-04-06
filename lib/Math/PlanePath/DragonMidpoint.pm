@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -73,6 +73,11 @@ use Math::PlanePath::Base::Digits
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
+
+
+# whole plane when arms==4
+use Math::PlanePath::DragonCurve;
+*xy_is_visited = \&Math::PlanePath::DragonCurve::xy_is_visited;
 
 
 use constant n_start => 0;
@@ -248,12 +253,6 @@ sub n_to_xy {
 
   ### rotated return: "$x,$y"
   return ($x,$y);
-}
-
-sub xy_is_visited {
-  my ($self, $x, $y) = @_;
-  return ($self->{'arms'} == 4
-          || defined($self->xy_to_n($x,$y)));
 }
 
 # or tables arithmetically,
@@ -722,7 +721,8 @@ The DragonMidpoint is in Sloane's Online Encyclopedia of Integer Sequences as
 
     http://oeis.org/A073089
 
-    A073089   direction 0=horizontal,1=vertical (extra initial 0)
+    A073089   previous abs(dY), 0=horizontal,1=vertical from N=n-1 to N=n
+                (extra initial 0)
 
 The midpoint curve is vertical when the DragonCurve has a vertical followed
 by a left turn, or horizontal followed by a right turn.  DragonCurve

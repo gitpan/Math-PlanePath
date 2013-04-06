@@ -26,7 +26,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -137,7 +137,6 @@ sub rect_to_n_range {
   if ($y1 < 0) {
     $y1 *= 0;
   }
-
   if ($x1 < 0) {
     $x1 *= 0;
   } elsif ($x1 >= ($y1+1)*($y1+1)) {

@@ -18,6 +18,13 @@
 
 # math-image --path=PythagoreanTree --all --scale=3
 
+# A022344:
+# Horadam "Fibonacci Number Triples" Amer. Math. Monthly 68(1961)
+# 751-753. That paper showed that if F(0), F(1), F(2), F(3)
+# are 4 sequential numbers in a row of the Wythoff array, then
+# P = (2F(1)*F(2),F(0)*F(1),2F(1)*F(2) + F(0)^2) is a
+# Pythagorean triple (a,b,c) i.e. a^2 + b^2 = c^2.
+
 # Diophantus III, 22
 # http://archive.org/details/diophantusofalex00heatiala
 #
@@ -79,7 +86,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

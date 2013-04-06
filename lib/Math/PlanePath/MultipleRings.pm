@@ -40,12 +40,11 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 100;
+$VERSION = 101;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
-
-use Math::PlanePath::SacksSpiral; # for _bigfloat()
+use Math::PlanePath::SacksSpiral;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -59,8 +58,8 @@ use constant n_frac_discontinuity => 0;
 
 use constant parameter_info_array =>
   [{ name        => 'step',
-     share_key   => 'step_6',
      display     => 'Step',
+     share_key   => 'step_3default6',
      type        => 'integer',
      minimum     => 0,
      default     => 6,
@@ -69,8 +68,8 @@ use constant parameter_info_array =>
    },
 
    { name        => 'ring_shape',
-     type        => 'enum',
      display     => 'Ring Shape',
+     type        => 'enum',
      default     => 'circle',
      choices     => ['circle','polygon'],
      choices_display => ['Circle','Polygon'],
@@ -85,7 +84,6 @@ use constant parameter_info_array =>
 #    37 marigold
 #    61 cowslip
 #    127 bluebonnet
-
 
 # An n-gon of points many vertices has each angle
 #     alpha = 2*pi/points
@@ -146,13 +144,12 @@ sub dx_minimum {
     return 1;   # horizontal only
   }
 
-  if ($self->{'step'} >= 6) {
+  if ($self->{'step'} > 6) {
     return -1; # supremum, unless polygon and step even
   }
-  if ($self->{'ring_shape'} eq 'polygon'
-      && $self->{'step'} >= 3) {
+  if ($self->{'ring_shape'} eq 'polygon') {
     # step=3,4,5
-    return (-2*_PI()) / $self->{'step'};  # FIXME
+    return (-2*_PI()) / $self->{'step'};
   } else {
     return (-2*_PI()) / $self->{'step'};
   }
@@ -179,23 +176,15 @@ sub dx_maximum {
 
 sub dy_minimum {
   my ($self) = @_;
-  return ($self->{'step'} == 0
-          ? 0    # horizontal only
-
-          : $self->{'step'} <= 6
-          ? (-8*atan2(1,1)) / $self->{'step'}
-
-          : -1); # supremum
+  return ($self->{'step'} == 0    ? 0    # horizontal only
+          : $self->{'step'} <= 6  ? (-2*_PI) / $self->{'step'}
+          :                         -1); # supremum
 }
 sub dy_maximum {
   my ($self) = @_;
-  return ($self->{'step'} == 0
-          ? 0    # horizontal only
-
-          : $self->{'step'} <= 6
-          ? (8*atan2(1,1)) / $self->{'step'}
-
-          : 1); # supremum
+  return ($self->{'step'} == 0    ? 0    # horizontal only
+          : $self->{'step'} <= 6  ? (2*_PI) / $self->{'step'}
+          :                         1); # supremum
 }
 
 sub absdx_minimum {
@@ -204,7 +193,7 @@ sub absdx_minimum {
   if ($step == 0) {
     return 1;    # horizontal dX=1 always
   }
-  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+  if ($self->{'ring_shape'} eq 'polygon') {
     if ($step % 2) {
       return 0;  # polygons with odd num sides have left vertical dX=0
     } else {
@@ -226,7 +215,7 @@ sub absdy_minimum {
   if ($step == 0) {
     return 0;    # horizontal dX=1 always
   }
-  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+  if ($self->{'ring_shape'} eq 'polygon') {
     if ($step == 3) {
       return 0.5;  # sin(30 degrees) innermost polygon
     }
@@ -240,13 +229,29 @@ sub absdy_minimum {
 sub rsquared_minimum {
   my ($self) = @_;
   my $step = $self->{'step'};
+  if ($step <= 1) {
+    # step=0 along X axis starting X=0,Y=0
+    # step=1 start at origin
+    return 0;
+  }
+  if ($step == 3) {
+    # radius = sqrt(3)/2, rsquared=3/4
+    return 0.75;
+  }
+  if ($step == 4) {
+    # radius = sqrt(2)/2, rsquared=1/2
+    return 0.5;
+  }
+
+  # _numsides_to_r() returns 1, no need for a special case here
+  # if ($step == 6) {
+  #   # hexagon
+  #   return 1;
+  # }
+
   my $r;
-  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
-    $r = $self->{'base_r'};
-  } elsif ($step == 0) {
-    $r = 0;  # step=0 along X axis starting X=0,Y=0
-  } elsif ($step > 6) {
-    $r = 0.5 / sin((4*atan2(1,1)) / $step);  # pi/step
+  if ($step >= 6 || $self->{'ring_shape'} eq 'polygon') {
+    $r = _numsides_to_r($step,_PI);
   } else {
     $r = $self->{'base_r'} + 1;
   }
@@ -295,7 +300,7 @@ sub rsquared_minimum {
 #     return 0;   # horizontal only
 #   }
 #   my $step = $self->{'step'};
-#   if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+#   if ($self->{'ring_shape'} eq 'polygon') {
 #     return (($step-2)%4 - 4)/$step + 4;
 #   }
 #   return 4; # supremum, full circle
@@ -323,7 +328,7 @@ sub rsquared_minimum {
 # sub dir4_minimum {
 #   my ($self) = @_;
 #   my $step = $self->{'step'};
-#   if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+#   if ($self->{'ring_shape'} eq 'polygon') {
 #     if ($step % 4 != 2) {   # polygon step=2mod4 includes horizontal ...
 #       my ($dx,$dy) = $self->n_to_dxdy($self->{'step'});
 #       return min (atan2($dy,$dx) * (2/_PI),
@@ -337,7 +342,7 @@ sub rsquared_minimum {
 sub dir_minimum_dxdy {
   my ($self) = @_;
   my $step = $self->{'step'};
-  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+  if ($self->{'ring_shape'} eq 'polygon') {
     return $self->n_to_dxdy($step == 9
                             ? 9
                             : int((3*$step+5)/4));
@@ -347,10 +352,10 @@ sub dir_minimum_dxdy {
 sub dir_maximum_dxdy {
   my ($self) = @_;
   if ($self->{'step'} == 0) {
-    return (1,0);   # horizontal only
+    return (1,0);   # step=0 horizontal always
   }
   my $step = $self->{'step'};
-  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+  if ($self->{'ring_shape'} eq 'polygon') {
     return $self->n_to_dxdy(int((3*$step+1)/4));  # 1 before the minimum
   }
   return (0,0); # supremum, full circle
@@ -363,14 +368,18 @@ sub new {
   ### MultipleRings new(): @_
   my $self = $class->SUPER::new (@_);
 
-  my $ring_shape = ($self->{'ring_shape'} ||= 'circle');
-
   my $step = $self->{'step'};
   $step = $self->{'step'} = (! defined $step ? 6  # default
                              : $step < 0     ? 0  # minimum
                              : $step);
 
-  if ($ring_shape eq 'polygon' && $step >= 3) {
+  my $ring_shape = ($self->{'ring_shape'} ||= 'circle');
+  if ($step < 3) {
+    # polygon shape only for step >= 3
+    $self->{'ring_shape'} = 'circle';
+  }
+
+  if ($ring_shape eq 'polygon') {
     ### polygon ...
     if ($step == 6) {
       ### 0.5/sin(PI/6)=1 exactly ...
@@ -442,11 +451,17 @@ sub new {
 #   k+1/2 = step/4
 #   4*k+2 = step
 
+# 1/2 / R = sin(2pi/sides)
+# 1/2 / (R^2 - 1/4) = tan(2pi/sides)
+# f(x) = 1/2 / R - sin(2pi/sides)     = $f
+# f'(x) = -1/2 / R^2 - cos(2pi/sides) = $slope
+# $r-$f/$slope better approx
+# (1/2 / R - sin(2pi/sides)) / (-1/2 / R^2 - cos(2pi/sides))
+#   = (R/2 - R^2 sin(2pi/sides)) / (-1/2 - R^2 * cos(2pi/sides))
 
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### MultipleRings n_to_xy(): "$n"
-  ### step: $self->{'step'}
+  ### MultipleRings n_to_xy(): "n=$n  step=$self->{'step'} shape=$self->{'ring_shape'}"
 
   # "$n<1" separate test from decrement so as to warn on undef
   # don't have anything sensible for infinity, and _PI / infinity would
@@ -458,7 +473,7 @@ sub n_to_xy {
   ### decremented n: $n
   my $step = $self->{'step'};
   if (! $step) {
-    # step==0 goes along X axis
+    ### step==0 goes along X axis ...
     return ($n, 0);
   }
 
@@ -477,11 +492,29 @@ sub n_to_xy {
   ### assert: $n < $d*$step
 
   my $base_r = $self->{'base_r'};
-  if ($self->{'ring_shape'} eq 'polygon' && $step >= 3) {
+  my $pi = _PI;
+  if (ref $n) {
+    if ($n->isa('Math::BigInt')) {
+      $n = Math::PlanePath::SacksSpiral::_bigfloat()->new($n);
+    } elsif ($n->isa('Math::BigRat')) {
+      $n = $n->as_float;
+    }
+    if ($n->isa('Math::BigFloat')) {
+      $d = Math::BigFloat->new($d);
+      $pi = Math::BigFloat->bpi;
+      $base_r = Math::BigFloat->new($base_r);
+    }
+  }
+
+  if ($self->{'ring_shape'} eq 'polygon') {
     ### polygon ...
-    my $r = ($step >= 6 ? $base_r*$d
-             # : $step >= 4 ? $d+$base_r-1
-             : ($d-1)/cos(_PI/$step) + $base_r);
+    my $r;
+    $base_r = _numsides_to_r($step,$pi);
+    if ($step > 6) {
+      $r = $base_r*$d;
+    } else {
+      $r = $base_r + ($d-1)/cos($pi/$step);
+    }
     $n /= $d;
     my $side = int ($n);
     $n -= $side;
@@ -495,12 +528,17 @@ sub n_to_xy {
       $n = 1;
       $side -= 1;
       $side4 -= 4;
+    } elsif ($n == 0 && ($side4-4 == 2*$step)) {
+      ### end of vertical drop back to start ...
+      $n = 1;
+      $side -= 1;
+      $side4 -= 4;
     }
 
-    my $theta = $side*2*_PI/$step;
+    my $theta = 2*$pi * $side/$step;
     my $from_x = $r * cos($theta);
     my $from_y = $r * sin($theta);
-    $theta = ($side+1)*2*_PI/$step;
+    $theta = 2*$pi * ($side+1)/$step;
     my $to_x = $r * cos($theta);
     my $to_y;
     if ($side4 == $step || $side4 == 3*$step) {
@@ -517,20 +555,6 @@ sub n_to_xy {
 
     return ($from_x + $n*($to_x-$from_x),
             $from_y + $n*($to_y-$from_y));
-  }
-
-  my $pi = _PI;
-  if (ref $n) {
-    if ($n->isa('Math::BigInt')) {
-      $n = Math::PlanePath::SacksSpiral::_bigfloat()->new($n);
-    } elsif ($n->isa('Math::BigRat')) {
-      $n = $n->as_float;
-    }
-    if ($n->isa('Math::BigFloat')) {
-      $d = Math::BigFloat->new($d);
-      $pi = Math::BigFloat->bpi;
-      $base_r = Math::BigFloat->new($base_r);
-    }
   }
 
   # && $d != 0 # watch out for overflow making d==0 ??
@@ -568,6 +592,35 @@ sub n_to_xy {
           $r * sin($theta));
 }
 
+# my $numsides = $step;
+# if ($self->{'ring_shape'} eq 'polygon') {
+#   $n /= $d;
+#   my $base_r = _numsides_to_r($step,$pi);
+#   if ($step > 6) {
+#     $r = $base_r*$d;
+#   } else {
+#     $r = $base_r + ($d-1)/cos($pi/$step);
+#   }
+# } else {
+#   $numsides *= $d;
+#   if ($step > 6) {
+#     $r = _numsides_to_r($numsides,$pi);
+#   } else {
+#     $r = _numsides_to_r($step,$pi) + $d;
+#   }
+# }
+# my $side = int($n);
+# $n -= $side;
+
+sub _numsides_to_r {
+  my ($numsides, $pi) = @_;
+  if ($numsides == 3) { return sqrt(0.75 + $pi*0); }
+  if ($numsides == 4) { return sqrt(0.5 + $pi*0); }
+  if ($numsides == 6) { return 1 + $pi*0; }
+  return 0.5 / sin($pi/$numsides);
+}
+
+
 # for step=4
 #   R   = sqrt(2)/2 + d
 #   R^2 = (sqrt(2)/2 + d)^2
@@ -576,31 +629,39 @@ sub n_to_xy {
 #
 sub n_to_rsquared {
   my ($self, $n) = @_;
+  ### MultipleRings n_to_rsquared(): "n=$n"
+
   if ($n < 1) { return undef; }
   if (is_infinite($n)) { return $n; }
 
-  my $step = $self->{'step'};
-  if ($step == 0) {
-    # step=0 along X axis starting X=0,Y=0
-    $n -= 1;
-
-  } elsif ($step == 1 || $step == 6) {
-    # step=1 or step=6 exact integer radius
-    $n = int((sqrt(int(8*($n-1)/$step) + 1) + 1) / 2);
-    if ($step == 1) {
-      $n -= 1;
-    }
-
+  my $r = _n_to_radius_exact($self,$n);
+  if (defined $r) {
+    return $r*$r;
   } else {
     return $self->SUPER::n_to_rsquared($n);
   }
-
-  return $n*$n;
 }
-
 sub _UNTESTED__n_to_radius {
   my ($self, $n) = @_;
+  if ($n < 1) { return undef; }
+  if (is_infinite($n)) { return $n; }
 
+  my $r = _n_to_radius_exact($self,$n);
+  if (defined $r) {
+    return $r;
+  }
+
+  return sqrt($self->SUPER::n_to_rsquared($n));
+}
+
+# step=6 shape=polygon exact integer for some of second ring too
+# sub n_to_trsquared {
+#   my ($self, $n) = @_;
+#   ### MultipleRings n_to_rsquared(): "n=$n"
+# }
+
+sub _n_to_radius_exact {
+  my ($self, $n) = @_;
   if ($n < 1) { return undef; }
   if (is_infinite($n)) { return $n; }
 
@@ -608,14 +669,35 @@ sub _UNTESTED__n_to_radius {
   if ($step == 0) {
     # step=0 along X axis starting X=0,Y=0
     return $n - 1;
+
+  } elsif ($step == 1) {
+    # step=1 X=d-1 along X axis
+    my $n0 = $n - 1;
+    my $d = _n0_to_d($self,$n0);
+    if ($n0 == _d_to_n0base($self,$d)) {
+      return $d - 1;
+    }
+
+  } elsif ($n == int($n) && $step == 6) {
+    if ($n <= 6) {
+      # step=6 innermost ring unit radius
+      return 1;
+    }
+    if ($self->{'ring_shape'} eq 'circle') {
+      # step=6 circle exact integer radius for all integer $n
+      return _n0_to_d($self,$n-1);
+    }
   }
 
-  if ($step == 1 || $step == 6) {
-    # step=1 or step=6 exact integer radius
-    return int((sqrt(int(8*($n-1)/$step) + 1) + ($step == 1 ? -1 : 1)) / 2);
-  }
-
-  return $self->SUPER::n_to_radius($n);
+  return undef;
+}
+sub _n0_to_d {
+  my ($self, $n) = @_;
+  return int((sqrt(int(8*$n/$self->{'step'}) + 1) + 1) / 2);
+}
+sub _d_to_n0base {
+  my ($self, $d) = @_;
+  return $d*($d-1)/2 * $self->{'step'};
 }
 
 # From above
@@ -633,6 +715,7 @@ sub _UNTESTED__n_to_radius {
 
 sub _xy_to_d {
   my ($self, $x, $y) = @_;
+  ### _xy_to_d(): "x=$x y=$y"
 
   my $r = hypot ($x, $y);
   if ($r < 0.5) {
@@ -649,10 +732,27 @@ sub _xy_to_d {
   ### $r
 
   my $step = $self->{'step'};
-  if ($self->{'ring_shape'} eq 'polygon' && $step >= 6) {
-    my $a = _xy_to_angle_frac($x,$y);
-    $a -= int($a/$step) * $step;
-    return $r / ($self->{'base_r'} * cos($a*2*_PI));
+  if ($self->{'ring_shape'} eq 'polygon') {
+    my $theta_frac = _xy_to_angle_frac($x,$y);
+    $theta_frac -= int($theta_frac*$step) / $step;  # modulo 1/step
+
+    my $r = hypot ($x, $y);
+    my $alpha = 2*_PI/$step;
+    my $theta = 2*_PI * $theta_frac;
+    ### $r
+    ### x=r*cos(theta): $r*cos($theta)
+    ### y=r*sin(theta): $r*sin($theta)
+
+    my $p = $r*cos($theta) + $r*sin($theta) * sin($alpha/2)/cos($alpha/2);
+    ### $p
+    ### base_r: $self->{'base_r'}
+    ### p - base_r: $p - $self->{'base_r'}
+
+    if ($step >= 6) {
+      return $p / $self->{'base_r'};
+    } else {
+      return ($p - $self->{'base_r'}) * cos(_PI/$step) + 1;
+    }
   }
 
   if ($step > 6) {
@@ -667,42 +767,84 @@ sub _xy_to_d {
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
-  ### MultipleRings xy_to_n(): "$x, $y  step=$self->{'step'}"
+  ### MultipleRings xy_to_n(): "$x, $y  step=$self->{'step'}  shape=$self->{'ring_shape'}"
 
   my $n;
-  my $step;
-  if (($step = $self->{'step'})) {
-    # formula above with r=hypot(x,y)
-    my $d = int (0.5 + _xy_to_d ($self, $x, $y));
+  my $step = $self->{'step'};
+  if ($step == 0) {
+    # step==0
+    $n = int ($x + 1.5);
 
+  } else {
     my $theta_frac = _xy_to_angle_frac($x,$y);
-    ### assert: 0 <= $theta_frac && $theta_frac < 1
+    ### $theta_frac
+    ### assert: (0 <= $theta_frac && $theta_frac < 1)  || $theta_frac!=$theta_frac
 
-    my $theta_n = int (0.5 + $theta_frac * $d*$step);
-    if ($theta_n >= $d*$step) { $theta_n = 0; }
+    my $d;
+    if ($self->{'ring_shape'} eq 'polygon') {
+      $n = int($theta_frac*$step);
+      $theta_frac -= $n/$step;
+      ### theta modulo 1/step: $theta_frac
+      ### $n
 
-    $n = 1 + $theta_n + $step * 0.5*$d*($d-1);
+      my $r = hypot ($x, $y);
+      my $alpha = 2*_PI/$step;
+      my $theta = 2*_PI * $theta_frac;
+      ### $r
+      ### so x=r*cos(theta): $r*cos($theta)
+      ### so y=r*sin(theta): $r*sin($theta)
+
+      my $pi = _PI;
+      my $p = $r*cos($theta) + $r*sin($theta) * sin($alpha/2)/cos($alpha/2);
+      my $base_r = Math::PlanePath::MultipleRings::_numsides_to_r($step,$pi);
+      ### $p
+      ### $base_r
+
+      if ($step > 6) {
+        $d = $p / $base_r;
+      } else {
+        $d = ($p - $base_r) * cos($pi/$step) + 1;
+      }
+      ### d frac: $d
+      $d = int($d+0.5);
+      ### $d
+      ### cf _xy_to_d(): _xy_to_d($self,$x,$y)
+
+      my $f = ($p == 0 ? 0 : $r*sin($theta) / ($p*sin($alpha)));
+      $n = int(($n+$f)*$d + 0.5);
+
+      ### e: $r*sin($theta) * sin($alpha/2)/cos($alpha/2)
+      ### $f
+      ### $n
+
+    } else {
+      $d = int(_xy_to_d($self,$x,$y) + 0.5);
+      ### $d
+      $n = int (0.5 + $theta_frac * $d*$step);
+      if ($n >= $d*$step) { $n = 0; }
+    }
+
+    ### n within ring: $n
+    ### n ring start: _d_to_n0base($self,$d) + 1
+
+    $n += _d_to_n0base($self,$d) + 1;
     ### $d
     ### d base: 0.5*$d*($d-1)
     ### d base M: $step * 0.5*$d*($d-1)
     ### $theta_frac
     ### theta offset: $theta_frac*$d
-    ### $theta_n
-    ### theta_n frac: $theta_frac * $d*$step
     ### $n
-  } else {
-    # step==0
-    $n = int ($x + 1.5);
   }
 
   ### trial n: $n
-  my ($nx, $ny);
-  if ((($nx, $ny) = $self->n_to_xy($n))
-      && hypot($x-$nx, $y-$ny) <= 0.5) {
-    return $n;
-  } else {
-    return undef;
+  if (my ($nx, $ny) = $self->n_to_xy($n)) {
+    ### nxy: "nx=$nx ny=$ny  hypot=".hypot($x-$nx,$y-$ny)
+    ### cf orig xy: "x=$x y=$y"
+    if (hypot($x-$nx, $y-$ny) <= 0.5) {
+      return $n;
+    }
   }
+  return undef;
 }
 
 # ENHANCE-ME: step>=3 small rectangles around 0,0 don't cover any pixels
@@ -713,25 +855,49 @@ sub rect_to_n_range {
   ### MultipleRings rect_to_n_range(): "$x1,$y1, $x2,$y2  step=$self->{'step'}"
 
   my $zero = ($x1<0) != ($x2<0) || ($y1<0) != ($y2<0);
+  my $step = $self->{'step'};
 
-  $x1 = abs($x1);
-  $x2 = abs($x2);
-  $y1 = abs($y1);
-  $y2 = abs($y2);
+  my ($r_lo, $r_hi) = Math::PlanePath::SacksSpiral::_rect_to_radius_range
+    ($x1,$y1, $x2,$y2);
+  ### $r_lo
+  ### $r_hi
+  if (is_infinite($r_hi)) {
+    return (1,$r_hi);
+  }
+  if ($r_hi < 1) { $r_hi = 1; }
+  if ($self->{'ring_shape'} eq 'polygon') {
+    $r_hi /= cos(_PI/$self->{'step'});
+    ### poly increase r_hi: $r_hi
+  }
 
-  # if x1,x2 pos and neg then 0 is covered and it's the minimum
-  # ENHANCE-ME: might be able to be a little tighter on $d_lo
-  my $d_lo = ($zero
-              ? 1
-              : max (1, -2 + int (_xy_to_d ($self,
-                                            min($x1,$x2),
-                                            min($y1,$y2)))));
-  my $d_hi = 1 + int (_xy_to_d ($self,
-                                max($x1,$x2),
-                                max($y1,$y2)));
+  my ($d_lo, $d_hi);
+  if ($self->{'ring_shape'} eq 'polygon') {
+    if ($step >= 6) {
+      $d_lo = $r_lo / $self->{'base_r'};
+      $d_hi = $r_hi / $self->{'base_r'};
+    } else {
+      $d_lo = ($r_lo - $self->{'base_r'}) * cos(_PI/$step) + 1;
+      $d_hi = ($r_hi - $self->{'base_r'}) * cos(_PI/$step) + 1;
+    }
+  } else {
+    if ($step > 6) {
+      $d_lo = ($r_lo > 0
+               ? _PI / ($step * asin(0.5/$r_lo))
+               : 0);
+      $d_hi = _PI / ($step * asin(0.5/$r_hi));
+    } else {
+      $d_lo = $r_lo - $self->{'base_r'};
+      $d_hi = $r_hi - $self->{'base_r'};
+    }
+  }
   ### $d_lo
   ### $d_hi
-  if ((my $step = $self->{'step'})) {
+
+  $d_lo = int($d_lo - 1);
+  $d_hi = int($d_hi + 2);
+  if ($d_lo < 1) { $d_lo = 1; }
+
+  if ($step) {
     # start of ring is N= 0.5*$d*($d-1) * $step + 1
     ### n_lo: 0.5*$d_lo*($d_lo-1) * $step + 1
     ### n_hi: 0.5*$d_hi*($d_hi+1) * $step
@@ -741,28 +907,63 @@ sub rect_to_n_range {
     # $step == 0
     return ($d_lo, $d_hi);
   }
+
+
+
+
+
+  # # if x1,x2 pos and neg then 0 is covered and it's the minimum
+  # # ENHANCE-ME: might be able to be a little tighter on $d_lo
+  # my $d_lo = ($zero
+  #             ? 1
+  #             : max (1, -2 + int (_xy_to_d ($self,
+  #                                           min($x1,$x2),
+  #                                           min($y1,$y2)))));
+  # my $d_hi = 1 + int (_xy_to_d ($self,
+  #                               max($x1,$x2),
+  #                               max($y1,$y2)));
+  # ### $d_lo
+  # ### $d_hi
+  # if ((my $step = $self->{'step'})) {
+  #   # start of ring is N= 0.5*$d*($d-1) * $step + 1
+  #   ### n_lo: 0.5*$d_lo*($d_lo-1) * $step + 1
+  #   ### n_hi: 0.5*$d_hi*($d_hi+1) * $step
+  #   return ($d_lo*($d_lo-1)/2 * $step + 1,
+  #           $d_hi*($d_hi+1)/2 * $step);
+  # } else {
+  #   # $step == 0
+  #   return ($d_lo, $d_hi);
+  # }
 }
 
 #------------------------------------------------------------------------------
 # generic
 
-# perlfunc.pod warns atan2(0,0) is implementation dependent.
-# The c99 spec is atan2(+/-0, -0) returns +/-pi, which would come out 0.5 here
-# Prefer 0 for any +/-0,+/-0.
+# _xy_to_angle_frac() returns the angle of X,Y as a fraction 0 <= angle < 1
+# measured anti-clockwise around from the X axis.
+#
 sub _xy_to_angle_frac {
   my ($x, $y) = @_;
+
+  # perlfunc.pod warns atan2(0,0) is implementation dependent.  The C99 spec
+  # is atan2(+/-0, -0) returns +/-pi, both of which would come out 0.5 here.
+  # Prefer 0 for any +/-0,+/-0.
   if ($x == 0 && $y == 0) {
     return 0;
   }
-  my $frac = atan2($y,$x) * (1 / (2 * _PI));
-  return ($frac + ($frac < 0));
+
+  my $frac = atan2($y,$x) * (0.5 / _PI);
+  ### $frac
+  if ($frac < 0) { $frac += 1; }
+  elsif ($frac >= 1) { $frac -= 1; }
+  return $frac;
 }
 
 
 1;
 __END__
 
-=for stopwords Ryde HexSpiral DiamondSpiral SquareSpiral PyramidRows MultipleRings Math-PlanePath Pentagonals Nstart ie OEIS
+=for stopwords Ryde Math-PlanePath Pentagonals Nring ie OEIS
 
 =head1 NAME
 
@@ -776,15 +977,14 @@ Math::PlanePath::MultipleRings -- rings of multiples
 
 =head1 DESCRIPTION
 
-This path puts points on concentric rings.  Each ring is "step" many points
-more than the previous, and the first is also "step" so a successively
-increasing multiple of that many points.  For example with the default
-step==6,
+This path puts points on concentric rings.  Each ring has "step" many points
+more than the previous and the first is also "step".  For example with the
+default step==6,
 
-                24  23
-             25        22
-                  10
-          26   11     9  21  ...
+                24  23                    innermost ring  6
+             25        22                 next ring      12
+                  10                      next ring      18
+          26   11     9  21  ...                    ringnum*step
 
         27  12   3  2   8  20  38
 
@@ -800,44 +1000,49 @@ step==6,
                   ^
                  X=0
 
-X,Y positions returned are fractional.  The innermost ring like the
-1,2,...,6 above has points 1 unit apart.  Subsequent rings are either packed
-similarly or spread out to ensure the X axis points like 1,7,19,37 above are
-1 unit apart.  The latter happens for step <= 6.  For step >= 7 the rings
-are big enough to separate those X points.
+X,Y positions are not integers, except on the axes.  The innermost ring like
+N=1to6 above has points 1 unit apart.  Subsequent rings are a unit chord or
+unit radial, whichever ensures no overlap.
 
-The layout is similar to the spiral paths of corresponding step.  For
-example step=6 is like the HexSpiral, but rounded out to circles instead of
-a hexagonal grid.  Similarly step=4 the DiamondSpiral or step=8 the
-SquareSpiral.
+      step <= 6      unit spacing radially
+      step >= 6      unit chords around the rings
 
-The step parameter is similar to the PyramidRows with the rows stretched
-around circles, though PyramidRows starts from a 1-wide initial row and
-increases by the step, whereas for MultipleRings there's no initial.
+For step=6 the two spacings are the same.  Unit radial spacing ensures the X
+axis points N=1,7,19,37,etc shown above are 1 unit apart.  Unit chord
+spacing ensures adjacent points such as N=7,8,0,etc don't over.ap.
+
+The layout is similar to the various spiral paths of corresponding step.
+For example step=6 is like the C<HexSpiral>, but rounded out to circles
+instead of a hexagonal grid.  Similarly step=4 the C<DiamondSpiral> or
+step=8 the C<SquareSpiral>.
+
+The step parameter is also similar to the C<PyramidRows> with the rows
+stretched around circles, but C<PyramidRows> starts from a 1-wide initial
+row whereas for C<MultipleRings> here the first is "step" many.
 
 =head2 X Axis
 
-The starting N=1,7,19,37 etc on the X axis for the default step=6 is
-S<6*d*(d-1)/2 + 1>, counting the innermost ring as d=1.  In general it's a
-multiple of the triangular numbers, plus 1,
+The starting Nring=1,7,19,37 etc on the X axis for the default step=6 is
+S<6*d*(d-1)/2 + 1>, counting the innermost ring as d=1.  In general Nring is
+a multiple of the triangular numbers d*(d-1)/2, plus 1,
 
-    Nstart = step*d*(d-1)/2 + 1
+    Nring = step*d*(d-1)/2 + 1
 
 X<Centred polygonal numbers>This is the centred polygonal numbers, being the
-cumulative count of points making up concentric polygons or rings of this
-style.
+cumulative count of points making concentric polygons or rings in the style
+of this path.
 
-Straight line radials further around have arise from adding multiples of d,
-so for example in step=6 shown above the line N=3,11,25,etc is
-S<Nstart + 2*d>.  Multiples of d bigger than the step give lines which are
-in between the base ones extending out from the innermost ring.
+Straight line radials further around arise from adding multiples of d, so
+for example in step=6 shown above the line N=3,11,25,etc is S<Nring + 2*d>.
+Multiples k*d with kE<gt>=step give lines which are in between the base ones
+from the innermost ring.
 
 =head2 Ring Shape
 
 Option C<ring_shape =E<gt> 'polygon'> puts the points on concentric polygons
-of "step" many sides, so successive polygons have 1 more point on each side
-than the previous polygon.  For example step=4 gives 4-sided polygons,
-ie. diamonds,
+of "step" many sides, so each concentric polygon has 1 more point on each of
+its sides than the previous polygon.  For example step=4 gives 4-sided
+polygons, ie. diamonds,
 
     ring_shape=>'polygon', step=>4
 
@@ -846,24 +1051,25 @@ ie. diamonds,
              17    7   15    
            /    /     \   \   
         18    8    2    6   14 
-      /    /    /     \    \   \ 
+      /     /   /    \    \    \ 
     19   9    3         1    5   13 
-      \     \   \    /     /   /
+      \     \   \    /    /    /
         20   10    4   12   24
-           \     \    /   /
+           \    \    /    /
              21   11   23
                 \    /
                   22
 
 The polygons are scaled to keep points 1 unit apart.  For stepE<gt>=6 this
 means 1 unit apart sideways.  step=6 is in fact a honeycomb grid where each
-points is 1 away its six neighbours.
+points is 1 away from all six of its neighbours.
 
 For step=3, 4 and 5 the polygon sides are 1 apart radially, as measured in
-the centre of each side.  This makes points a little more than 1 apart.
-Squeezing them up to make the closest points exactly 1 apart is possible,
-but may require iterating a square root for each ring.  step=3 squeezed down
-would in fact become a variable spacing with four close then one wider.
+the centre of each side.  This makes points a little more than 1 apart along
+the sides.  Squeezing them up to make the closest points exactly 1 apart is
+possible, but may require iterating a square root for each ring.  step=3
+squeezed down would in fact become a variable spacing with successively four
+close then one wider.
 
 For step=2 and step=1 in the current code the default circle shape is used.
 Should that change?  Is there a polygon style with 2 sides or 1 side?
@@ -881,7 +1087,7 @@ S(k) = (3k+1)*k/2 are a radial going down to the left, respectively 1/3 and
 
 As described in L<Math::PlanePath::PyramidRows/Step 3 Pentagonals>, those
 P(k) and preceding P(k)-1, P(k)-2, and S(k) and preceding S(k)-1, S(k)-2 are
-all composites, so plotting the primes on a step=3 MultipleRings has two
+all composites, so plotting the primes on a step=3 C<MultipleRings> has two
 radial gaps where there's no primes.
 
 =head1 FUNCTIONS
@@ -932,56 +1138,87 @@ Return "circle".
 
 =head2 N to X,Y - Circle
 
-Points on the rings are spaced so they're at least 1 unit apart.  The
-innermost ring has "step" many points which means the vertices of a polygon
-with "step" many sides each of length 1.  The "base_r" radius to such a
-vertex is
+As per above, each ring begins at 
 
-      base_r     ___---*
-           ___---      |
-     ___--- alpha      | 1/2 = half the polygon side
+    Nring = step*d*(d-1)/2 + 1
+
+This can be inverted to get the ring number d for a given N, and then
+subtract Nring for a remainder into the ring.  (N-1)/step in the formula
+effectively converts into triangular number style.
+
+    d = floor((sqrt(8*(N-1)/step + 1) + 1) / 2)
+    Nrem = N - Nring
+
+Rings are sized so that points are spaced 1 unit apart.  There are three
+cases,
+
+    circle,  step<=6     unit radially on X axis
+    polygon, step<=6     unit radially on sides centre
+             step>=7     unit chord between points
+
+For the circle shape the integer points are on a circle and fractional N is
+on a straight line between those integer points.  This means it's a polygon
+too, but one with ever more sides whereas ring_shape=polygon is a fixed
+"step" many sides.
+
+    circle       numsides = d*step
+    polygon      numsides = step
+
+The radial distance to a polygon corner is calculated as
+
+                           base               varying with d
+    ----------------     ---------------------------------------
+    circle,  step<=6     0.5/sin(pi/step) + d-1
+    polygon, step<=6     0.5/sin(pi/step) + (d-1)/cos(pi/step)
+    circle,  step>=7     0                + 0.5/sin(pi/(d*step))
+    polygon, step>=7     0                + d * 0.5/sin(pi/step)
+
+The stepE<lt>=6 cases are an initial polygon of "step" many unit sides, then
+unit spacing d-1 for circle, or for polygon (d-1)/cos(pi/step) which is
+bigger and ensures the middle of the sides have unit spacing radially.
+
+The 0.5/sin(pi/step) for radius of a unit sided polygon arises from
+
+          r      ___---*
+           ___---      | 1/2 = half the polygon side
+     ___--- alpha      |
     o------------------+
 
-    alpha = 2pi/step * 1/2      # "step" many sides
+    alpha = (2pi/numsides) / 2 = pi/numsides
     sin(alpha) = (1/2) / base_r
+    r = 0.5 / sin(pi/numsides)
 
-    base_r = 0.5 / sin(pi/step)
+The angle theta to a polygon vertex is simply a full circle divided by
+numsides.
 
-Subsequent rings are then either 1 bigger to keep the points on the X axis 1
-unit apart, or they're at the vertices of a polygon with d*step many sides
-so as to keep the points 1 apart sideways.  Reckoning the innermost ring as
-d=1 (at base_r), the second as d=2, etc, this means
+    side = circle   Nrem
+           polygon  floor(Nrem / step)
+    theta = side * (2pi / numsides)
+    vertex X = r * cos(theta)
+           Y = r * sin(theta)
 
-    r = max /  base_r + (d-1)
-            \  0.5 / sin(pi/(d*step))
+    next_theta = (side+1) * (2pi / numsides)
+    next_vertex X = r * cos(next_theta)
+                Y = r * sin(next_theta)
 
-The sin() polygon case is the maximum whenever stepE<gt>6, so
+    frac into side
+    f = circle   frac(Nrem)    = Nrem modulo 1
+        polygon  Nrem - side*d = Nrem modulo d
 
-    if step<=6   r = base_r + (d-1)
-    if step>6    r = 0.5 / sin(pi/(d*step))
+    X = vertex_X + f * (next_vertex_X - vertex_X)
+    Y = vertex_Y + f * (next_vertex_Y - vertex_Y)
 
-The angle theta around the ring for N is determined by how much N exceeds
-the Nstart of that ring (Nstart as described above).  d can be found by a
-square root.  (N-1)/step in the formula effectively converts the start into
-triangular number style.
-
-    d = floor (1 + sqrt(8*(N-1)/step + 1)) / 2
-
-Then the remainder into the ring is
-
-    Nrem = N - Nstart
-    theta = 2pi * Nrem / (d*step)
-
-    X = r * cos(theta)
-    Y = r * sin(theta)
+If Nrem is an integer for circle, or multiple of d for polygon, then the
+vertex X,Y is the final X,Y, otherwise a fractional distance between the
+vertex X,Y and next vertex X,Y.
 
 For a few cases X or Y are exact integers.  Special case code for these
-cases ensures floating point rounding of pi doesn't give small offsets from
-integers.
+cases can ensure floating point rounding of pi doesn't give small offsets
+from integers.
 
-If step=6 then base_r=1 exactly since the innermost ring is a little hexagon
-in this case.  This means the points on the X axis are all integers
-X=1,2,3,etc.
+For step=6 the base r is r=1 exactly since the innermost ring is a little
+hexagon.  This means for the circle step=6 case the points on the X axis
+(positive and negative) are all integers X=1,2,3,etc.
 
        P-----P
       /   1 / \ 1  <-- innermost points 1 apart
@@ -991,22 +1228,22 @@ X=1,2,3,etc.
       \       /
        P-----P
 
-If theta=pi, which is 2*Nrem==d*step, then the point is on the negative X
-axis.  Returning Y=0 exactly for that avoids sin(pi) generally being some
-small non-zero due to rounding.
+If theta=pi, which is when 2*Nrem==d*step, then the point is on the negative
+X axis.  Returning Y=0 exactly for that avoids sin(pi) giving some small
+non-zero due to rounding.
 
 If theta=pi/2 or theta=3pi/2, which is 4*Nrem==d*step or 4*Nrem==3*d*step,
 then N is on the positive or negative Y axis (respectively).  Returning X=0
-exactly avoids cos(pi/2) or cos(3pi/2) generally being some small non-zero.
+exactly avoids cos(pi/2) or cos(3pi/2) giving some small non-zero.
 
 Points on the negative X axis points occur when the step is even.  Points on
 the Y axis points occur when the step is a multiple of 4.
 
-If theta=pi/4, 3pi/4, 5pi/4 or 7pi/4, which is 8*Nrem==d*step, 3*d*step,
+If theta=pi/4, 3*pi/4, 5*pi/4 or 7*pi/4, which is 8*Nrem==d*step, 3*d*step,
 5*d*step or 7*d*step then the points are on the 45-degree lines X=Y or X=-Y.
 The current code doesn't try to ensure X==Y in these cases.  The values are
-not integers and floating point rounding might make them them unequal due to
-sin(pi/4)!=cos(pi/4).
+not integers and floating point rounding might mean sin(pi/4)!=cos(pi/4)
+resulting in X!=Y.
 
 =head1 OEIS
 
@@ -1019,7 +1256,7 @@ this path include
     A016754 A060544 A062786 A069125 A003154     8 to 12
     A069126 A069127 A069128 A069129 A069130    13 to 17
     A069131 A069132 A069133                    18 to 20
-        centred pentagonals, N on X axis of step=k
+        N on X axis of step=k, being the centred pentagonals
 
 =head1 SEE ALSO
 

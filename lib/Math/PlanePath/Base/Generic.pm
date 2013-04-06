@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 100;
+$VERSION = 101;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -35,12 +35,6 @@ use Exporter;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-
-sub is_infinite {
-  my ($x) = @_;
-  return ($x != $x         # nan
-          || ($x != 0 && $x == 2*$x));  # inf
-}
 
 # with a view to being friendly to BigRat/BigFloat
 sub round_nearest {
@@ -67,6 +61,23 @@ sub round_nearest {
   }
   ### within +/- .5 ...
   return $int;
+}
+
+use constant parameter_info_nstart1 => { name        => 'n_start',
+                                         share_key   => 'n_start_1',
+                                         type        => 'integer',
+                                         default     => 1,
+                                         width       => 3,
+                                         description => 'Starting N.',
+                                       };
+
+#------------------------------------------------------------------------------
+# these not documented ...
+
+sub is_infinite {
+  my ($x) = @_;
+  return ($x != $x         # nan
+          || ($x != 0 && $x == 2*$x));  # inf
 }
 
 # With a view to being friendly to BigRat/BigFloat.
@@ -96,14 +107,6 @@ sub floor {
   }
 }
 
-use constant parameter_info_nstart1 => { name        => 'n_start',
-                                         share_key   => 'n_start_1',
-                                         type        => 'integer',
-                                         default     => 1,
-                                         width       => 3,
-                                         description => 'Starting N.',
-                                       };
-
 # not documented yet
 sub xy_is_visited_quad1 {
   my ($self, $x, $y) = @_;
@@ -119,6 +122,7 @@ sub xy_is_visited_quad14 {
   my ($self, $x, $y) = @_;
   return (2*$x >= -1);
 }
+# not documented yet
 sub xy_is_even {
   my ($self, $x, $y) = @_;
   return (round_nearest($x)%2 == round_nearest($y)%2);

@@ -22,27 +22,29 @@
 # Clark Kimberling
 # http://faculty.evansville.edu/ck6/integer/intersp.html
 #
-# A175004 similar to wythoff but rows recurrence
-#         r(n-1)+r(n-2)+1 extra +1 in each step
-#         floor(n*phi+2/phi)
+# cf A175004 similar to wythoff but rows recurrence
+#            r(n-1)+r(n-2)+1 extra +1 in each step
+#            floor(n*phi+2/phi)
 #
-# Stolarsky round_nearest(n*phi)
-# A035506 stolarsky by diagonals
-# A035507   inverse
-# A007067 stolarsky first column
-# A019586 or, for the original form, A003603
-# A135766 not divisible by 2,3,5, times 5^k, by triangle
+# cf Stolarsky round_nearest(n*phi)
+#    A035506 stolarsky by diagonals
+#    A035507   inverse
+#    A007067 stolarsky first column
 
-# Fib(k+1)*floor[n*tau] + Fib(k)*(n-1)
+# Maybe:
+# my ($x,$y) = $path->pair_to_xy($a,$b);
+# Return the $x,$y which has ($a,$b).
+# Advance $a,$b if before start of row.
 
 
 package Math::PlanePath::WythoffArray;
 use 5.004;
 use strict;
-use List::Util 'max';
+#use List::Util 'max';
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -432,7 +434,8 @@ The path turns
     right        N="..101" in Zeckendorf base
     left         otherwise
 
-For example at N=12 the path turns to the right
+For example at N=12 the path turns to the right, since N=13 is on the right
+hand side of the vector from N=11 to N=12.
 
       4  | 12
       3  | 
@@ -443,11 +446,11 @@ For example at N=12 the path turns to the right
           X=0  1  2  3  4  5  
 
 This happens because N=12 is Zeckendorf "10101" which ends "..101".  For
-such a value N-1 is "..100" and N+1 is "..1000".  So N+1 has more trailing
-zeros which bigger X smaller Y than N-1 has.  The way the curve grows in a
-"concave" fashion means that therefore N+1 is on the right-hand side.  It's
-a turn back almost 180 degrees, but still on the right side of the direction
-N-1 to N was been going.
+such an ending N-1 is "..100" and N+1 is "..1000".  So N+1 has more trailing
+zeros and hence bigger X smaller Y than N-1 has.  The way the curve grows in
+a "concave" fashion means that therefore N+1 is on the right-hand side.  The
+turn is back almost 180 degrees, but still on the right side of the
+direction N-1 to N was going.
 
     | N                        N ending "..101"
     |  
@@ -457,7 +460,8 @@ N-1 to N was been going.
     +--------------------
 
 Cases for N ending "..000", "..010" and "..100" can be worked through to see
-that everything else turns left (or initial N=2 and N=10 straight ahead).
+that everything else turns left (or the initial N=2 and N=10 go straight
+ahead).
 
 On the Y axis all values end "..01", with no trailing 0s.  As noted above
 stripping that "01" gives the Y coordinate, ie. all integers.  The values
@@ -519,8 +523,8 @@ and biggest in the rectangle.
 =head2 Rectangle to N Range
 
 Within each row increasing X is increasing N, and in each column increasing
-Y is increasing N.  So for a rectangle the lower left corner is the minimum
-N and the upper right is the maximum N.
+Y is increasing N.  So for a rectangle the minimum N is in the lower left
+corner and the maximum N is in the upper right corner.
 
     |               N max
     |     ----------+
@@ -539,25 +543,25 @@ in various forms,
     http://oeis.org/A035614   (etc)
 
     x_start=0,y_start=0 (the defaults)
-      A035614     X, column number with first column=0
+      A035614     X, column numbered from 0
       A191360     X-Y, the diagonal containing N
       A019586     Y, the Wythoff row containing N
 
     x_start=1,y_start=1
-      A035612     X, column number with first column=1
-      A003603     Y, vertical para-budding
+      A035612     X, column numbered from 1
+      A003603     Y, vertical para-budding sequence
 
-    A003622     N on Y axis, odd Zeckendorfs
+    A003622     N on Y axis, odd Zeckendorfs "..1"
     A020941     N on X=Y diagonal
 
     A139764     N dropped down to X axis, ie. N value on the X axis,
-                  the lowest Fibonacci number in the Zeckendorf form
+                  being lowest Fibonacci used in the Zeckendorf form
 
     A000045     N on X axis, Fibonacci numbers skipping initial 0,1
     A000204     N on Y=1 row, Lucas numbers skipping initial 1,3
 
     A001950     N+1 of N on Y axis, anti-spectrum of phi
-    A022342     N not on Y axis, even Zeckendorfs
+    A022342     N not on Y axis, even Zeckendorfs "..0"
     A000201     N+1 of N not on Y axis, spectrum of phi
     A003849     bool 1,0 if N on Y axis or not, being the Fibonacci word
 
@@ -568,10 +572,10 @@ in various forms,
     A003622     Y coordinate of right turns, Zeckendorf "..1"
     A188436     turn 1=right,0=left or straight, skip initial five 0s
 
+    A114579     permutation N at transpose Y,X
     A083412     permutation N by Diagonals from Y axis downwards
     A035513     permutation N by Diagonals from X axis upwards
     A064274       inverse permutation
-    A114579     permutation N at transpose Y,X
 
 =head1 SEE ALSO
 

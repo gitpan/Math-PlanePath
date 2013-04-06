@@ -41,7 +41,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::WunderlichSerpentine';
   $path_class = 'Math::PlanePath::R5DragonMidpoint';
   $path_class = 'Math::PlanePath::CCurve';
-
   $path_class = 'Math::PlanePath::NxN';
   $path_class = 'Math::PlanePath::NxNinv';
   $path_class = 'Math::PlanePath::Dispersion';
@@ -123,11 +122,9 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::TwoOfEightByCells';
   $path_class = 'Math::PlanePath::RationalsTree';
   $path_class = 'Math::PlanePath::ToothpickTreeByCells';
-  $path_class = 'Math::PlanePath::OneOfEight';
   $path_class = 'Math::PlanePath::DivisibleColumns';
   $path_class = 'Math::PlanePath::CoprimeColumns';
   $path_class = 'Math::PlanePath::DiagonalRationals';
-  $path_class = 'Math::PlanePath::OneOfEightByCells';
   $path_class = 'Math::PlanePath::PeninsulaBridge';
   $path_class = 'Math::PlanePath::PythagoreanTree';
   $path_class = 'Math::PlanePath::PowerRows';
@@ -140,27 +137,36 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::SumFractions';
   $path_class = 'Math::PlanePath::AztecDiamondRings';
   $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
-  $path_class = 'Math::PlanePath::CellularRule';
   $path_class = 'Math::PlanePath::PeanoCurve';
+  $path_class = 'Math::PlanePath::CellularRule190';
+  $path_class = 'Math::PlanePath::CellularRule54';
+  $path_class = 'Math::PlanePath::CellularRule';
+  $path_class = 'Math::PlanePath::PeanoVertices';
+  $path_class = 'Math::PlanePath::MultipleRings';
+  $path_class = 'Math::PlanePath::OneOfEightByCells';
+  $path_class = 'Math::PlanePath::OneOfEight';
 
   my $lo = 0;
-  my $hi = 15;
+  my $hi = 29;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     rule => 6,
+     #  ring_shape => 'polygon',
+     # step => 9,
+
+     # rule => 6,
      # align => 'down',
-     # n_start => 37,
+     # n_start => 0,
      # shift => -3,
      # x_start => 5,
      # y_start => 2,
-      radix => 4,
+     # radix => 4,
      # coordinates => 'BC',
 
      # divisor_type => 'proper',
 
-     # parts => '3side',
+      parts => 'wedge',
      # wider => 3,
      # reverse => 1,
      # tree_type => 'L',
@@ -183,8 +189,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # turns => 1,
      # base => 7,
      # direction => 'up',
-     # step => 6,
-     # ring_shape => 'polygon',
      # diagonal_length => 5,
      # apply_type => 'FS',
      # serpentine_type => '010_000',

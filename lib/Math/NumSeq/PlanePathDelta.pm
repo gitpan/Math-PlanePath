@@ -45,7 +45,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -963,6 +963,60 @@ sub _dxdy_to_dir4 {
 }
 { package Math::PlanePath::MultipleRings;
 
+  #---------
+  # dX
+  sub _NumSeq_dX_min_is_infimum {
+    my ($self) = @_;
+    if ($self->{'step'} == 0) {
+      return 0;    # horizontal only, exact
+    }
+    return 1;  # infimum
+  }
+  sub _NumSeq_dX_max_is_supremum {
+    my ($self) = @_;
+    return ($self->{'step'} <= 6
+            ? 0
+            : 1); # supremum
+  }
+  sub _NumSeq_Delta_dX_non_decreasing {
+    my ($self) = @_;
+    return ($self->{'step'} == 0);  # constant dX=1,dY=0
+  }
+  *_NumSeq_Delta_dX_integer             = \&_NumSeq_Delta_dX_non_decreasing;
+
+  #---------
+  # dY
+  *_NumSeq_dY_max_is_supremum      = \&_NumSeq_dX_min_is_infimum;
+  *_NumSeq_dY_min_is_infimum       = \&_NumSeq_dX_min_is_infimum;
+  *_NumSeq_Delta_dY_non_decreasing      = \&_NumSeq_Delta_dX_non_decreasing;
+  *_NumSeq_Delta_dY_integer             = \&_NumSeq_Delta_dX_non_decreasing;
+
+  #---------
+  # AbsdX
+  sub _NumSeq_AbsdX_min_is_infimum {
+    my ($self) = @_;
+    if ($self->{'step'} == 1) {
+      return 0; # horizontal only
+    }
+    if ($self->{'step'} % 2 == 1) {
+      return 0; # any odd num sides has left vertical dX=0 exactly
+    }
+    return $self->_NumSeq_dX_min_is_infimum;
+  }
+  *_NumSeq_Delta_AbsdX_non_decreasing   = \&_NumSeq_Delta_dX_non_decreasing;
+
+  #---------
+  # AbsdY
+  sub _NumSeq_Delta_AbsdY_non_decreasing {
+    my ($self) = @_;
+    if ($self->{'ring_shape'} eq 'polygon' && $self->{'step'} == 4) {
+      return 1;   # abs(dY) constant
+    }
+    return $self->_NumSeq_Delta_dY_non_decreasing;
+  }
+
+  #---------
+  # dSum
   sub _NumSeq_Delta_dSum_min {
     my ($self) = @_;
     return ($self->{'step'} == 0
@@ -970,7 +1024,12 @@ sub _dxdy_to_dir4 {
             : -1); # infimum
   }
   use constant _NumSeq_Delta_dSum_max => 1;
+  *_NumSeq_dSum_max_is_supremum    = \&_NumSeq_dX_min_is_infimum;
+  *_NumSeq_dSum_min_is_infimum     = \&_NumSeq_dX_min_is_infimum;
+  *_NumSeq_Delta_dSum_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
 
+  #---------
+  # dDiffXY
   # FIXME: for step=1 is there a supremum at 9 or thereabouts?
   # and for other step<6 too?
   # 2*dXmax * sqrt(2) ?
@@ -986,38 +1045,20 @@ sub _dxdy_to_dir4 {
             : $self->{'step'} <= 6 ? $self->dx_maximum * sqrt(2)
             : 1); # supremum
   }
-
-  sub _NumSeq_dX_max_is_supremum {
-    my ($self) = @_;
-    return ($self->{'step'} <= 6
-            ? 0
-            : 1); # supremum
-  }
-  sub _NumSeq_dX_min_is_infimum {
-    my ($self) = @_;
-    if ($self->{'step'} == 0) {
-      return 0;    # horizontal only, exact
-    }
-    return 1;  # infimum
-  }
-  *_NumSeq_dSum_max_is_supremum    = \&_NumSeq_dX_min_is_infimum;
   *_NumSeq_dDiffXY_min_is_infimum  = \&_NumSeq_dX_min_is_infimum;
   *_NumSeq_dDiffXY_max_is_supremum = \&_NumSeq_dX_min_is_infimum;
-  *_NumSeq_dSum_min_is_infimum     = \&_NumSeq_dX_min_is_infimum;
-  *_NumSeq_dY_max_is_supremum      = \&_NumSeq_dX_min_is_infimum;
-  *_NumSeq_dY_min_is_infimum       = \&_NumSeq_dX_min_is_infimum;
+  *_NumSeq_Delta_dDiffXY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
 
-  sub _NumSeq_AbsdX_min_is_infimum {
-    my ($self) = @_;
-    if ($self->{'step'} == 1) {
-      return 0; # horizontal only
-    }
-    if ($self->{'step'} % 2 == 1) {
-      return 0; # any odd num sides has left vertical dX=0 exactly
-    }
-    return $self->_NumSeq_dX_min_is_infimum;
-  }
+  #---------
+  # dDiffYX
+  *_NumSeq_Delta_dDiffYX_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
 
+  #---------
+  # dAbsDiff
+  *_NumSeq_Delta_dAbsDiff_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
+
+  #---------
+  # DSquared
   sub _NumSeq_Delta_DSquared_max {
     my ($self) = @_;
     return ($self->{'step'} == 0
@@ -1030,32 +1071,15 @@ sub _dxdy_to_dir4 {
             : ((0.5/_PI()) * $self->{'step'}) ** 2);
   }
 
-  sub _NumSeq_Delta_dX_non_decreasing {
-    my ($self) = @_;
-    return ($self->{'step'} == 0);  # constant dX=1,dY=0
-  }
-  *_NumSeq_Delta_dY_non_decreasing      = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_AbsdX_non_decreasing   = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_dSum_non_decreasing    = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_dDiffXY_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_dDiffYX_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_dAbsDiff_non_decreasing = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dist_non_decreasing    = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDist_non_decreasing   = \&_NumSeq_Delta_dX_non_decreasing;
+
+  #-----------
+  # Dir4,TDir6
   *_NumSeq_Delta_Dir4_non_decreasing    = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDir6_non_decreasing   = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_dX_integer             = \&_NumSeq_Delta_dX_non_decreasing;
-  *_NumSeq_Delta_dY_integer             = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_Dir4_integer           = \&_NumSeq_Delta_dX_non_decreasing;
   *_NumSeq_Delta_TDir6_integer          = \&_NumSeq_Delta_dX_non_decreasing;
-
-  sub _NumSeq_Delta_AbsdY_non_decreasing {
-    my ($self) = @_;
-    if ($self->{'ring_shape'} eq 'polygon' && $self->{'step'} == 4) {
-      return 1;   # abs(dY) constant
-    }
-    return $self->_NumSeq_Delta_dY_non_decreasing;
-  }
 
   use constant _NumSeq_Delta_oeis_anum =>
     {
@@ -1749,8 +1773,10 @@ sub _dxdy_to_dir4 {
 
   use constant _NumSeq_Delta_oeis_anum =>
     { 'arms=1' =>
-      { AbsdY => 'A166486', # 0,1,1,1 repeating
+      { AbsdX => 'A152822', # 1,1,0,1 repeating
+        AbsdY => 'A166486', # 0,1,1,1 repeating
         # OEIS-Catalogue: A166486 planepath=DragonRounded delta_type=AbsdY
+        # OEIS-Catalogue: A152822 planepath=DragonRounded delta_type=AbsdX
       },
     };
 }
@@ -2121,16 +2147,16 @@ sub _dxdy_to_dir4 {
       },
       'direction=up,n_start=1,x_start=0,y_start=0' =>
       { dX => 'A127949',
+        AbsdX => 'A051340',
         # OEIS-Other: A127949 planepath=Diagonals,direction=up delta_type=dX
+        # OEIS-Other: A051340 planepath=Diagonals,direction=up delta_type=AbsdX
 
         # Almost AbsdY=>'A051340' too, but path starts initial 0,1,1 whereas
         # A051340 starts 1,1,2
-        AbsdX => 'A051340',
-        # OEIS-Other: A051340 planepath=Diagonals,direction=up delta_type=AbsdX
       },
       'direction=down,n_start=0,x_start=0,y_start=0' =>
       { AbsdY => 'A051340',
-        dSum => 'A023531', # characteristic "1" at triangulars
+        dSum  => 'A023531', # characteristic "1" at triangulars
         # OEIS-Catalogue: A051340 planepath=Diagonals,n_start=0 delta_type=AbsdY
         # OEIS-Other:     A023531 planepath=Diagonals,n_start=0 delta_type=dSum
       },
@@ -2474,23 +2500,21 @@ sub _dxdy_to_dir4 {
   use constant _NumSeq_Delta_dSum_max => 2; # straight E dX=+2
   use constant _NumSeq_Delta_dDiffXY_max => 2; # straight E dX=+2
   use constant _NumSeq_Delta_DSquared_min => 2;
+  use constant _NumSeq_Dir4_max_is_supremum => 1;
 }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Delta_dSum_max => 4; # straight E dX=+4
   use constant _NumSeq_Delta_dDiffXY_max => 4; # straight E dX=+4
-
   use constant _NumSeq_Dir4_max_is_supremum => 1;
 }
 { package Math::PlanePath::CellularRule57;
   use constant _NumSeq_Delta_dSum_max => 3; # straight E dX=+3
   use constant _NumSeq_Delta_dDiffXY_max => 3; # straight E dX=+3
-
   use constant _NumSeq_Dir4_max_is_supremum => 1;
 }
 { package Math::PlanePath::CellularRule190;
   use constant _NumSeq_Delta_dSum_max => 2; # straight E dX=+2
   use constant _NumSeq_Delta_dDiffXY_max => 2; # straight E dX=+2
-
   use constant _NumSeq_Dir4_max_is_supremum => 1;
 }
 { package Math::PlanePath::UlamWarburton;

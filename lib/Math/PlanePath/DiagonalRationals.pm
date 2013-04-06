@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -52,29 +52,40 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 use constant x_minimum => 1;
 use constant y_minimum => 1;
-use constant absdy_minimum => 1;
-
-# use constant dir4_minimum => 1;    # North
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_minimum_360 => 90;  # North
-# use constant dir_maximum_360 => 315; # South-East
-use constant dir_minimum_dxdy => (0,1);  # North
-use constant dir_maximum_dxdy => (1,-1); # South-East
 
 use constant parameter_info_array =>
-  [
-   # Maybe ...
-   # { name        => 'direction',
-   #   share_key   => 'direction_downup',
-   #   display     => 'Direction',
-   #   type        => 'enum',
-   #   default     => 'down',
-   #   choices     => ['down','up'],
-   #   choices_display => ['Down','Up'],
-   #   description => 'Number points downwards or upwards along the diagonals.',
-   # },
-   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  [ { name        => 'direction',
+      share_key   => 'direction_downup',
+      display     => 'Direction',
+      type        => 'enum',
+      default     => 'down',
+      choices     => ['down','up'],
+      choices_display => ['Down','Up'],
+      description => 'Number points downwards or upwards along the diagonals.',
+    },
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
+
+sub absdx_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down' ? 0 : 1);
+}
+sub absdy_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down' ? 1 : 0);
+}
+sub dir_minimum_dxdy {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? (0,1)   # North
+          : (1,0)); # East
+}
+sub dir_maximum_dxdy {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? (1,-1)    # South-East
+          : (2,-1));  # ESE at N=3 down to X axis
+}
 
 #------------------------------------------------------------------------------
 
@@ -172,7 +183,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde coprime coprimes coprimeness totient totients Math-PlanePath Euler's onwards CoprimeColumns DiagonalRationals OEIS
+=for stopwords Ryde Math-PlanePath coprime coprimes coprimeness totient totients Euler's onwards OEIS
 
 =head1 NAME
 
@@ -210,7 +221,7 @@ diagonal order from Y down to X.
         +---------------------------------------------------
          X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
 
-The order is the same as the Diagonals path, but only those X,Y with no
+The order is the same as the C<Diagonals> path, but only those X,Y with no
 common factor are numbered.
 
     1/1,                      N = 1
@@ -228,11 +239,62 @@ cumulative totient,
     cumulative_totient(K) =  sum   totient(i)
                              i=1
 
+=head2 Direction
+
+Option C<direction =E<gt> 'up'> reverses the order within each diagonal to
+count upward from the X axis.
+
+=cut
+
+# math-image --path=DiagonalRationals,direction=up --all --output=numbers --size=50x10
+
+=pod
+
+    direction => "up"
+
+     8 |   27    
+     7 |   21 26 
+     6 |   17         
+     5 |   11 16 20 25   
+     4 |    9    15    24 
+     3 |    5  8    14 19   
+     2 |    3     7    13    23  
+     1 |    1  2  4  6 10 12 18 22
+    Y=0|                                 
+       +---------------------------
+       X=0  1  2  3  4  5  6  7  8
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start with the same shape,  For example
+to start at 0,
+
+=cut
+
+# math-image --path=DiagonalRationals,n_start=0 --all --output=numbers --size=50x10
+
+=pod
+
+    n_start => 0
+
+     8 |   21
+     7 |   17 22
+     6 |   11
+     5 |    9 12 18 23
+     4 |    5    13    24
+     3 |    3  6    14 19
+     2 |    1     7    15    25
+     1 |    0  2  4  8 10 16 20 26
+    Y=0|
+       +---------------------------
+       X=0  1  2  3  4  5  6  7  8
+
 =head2 Coprime Columns
 
-The diagonals are the same as the columns in CoprimeColumns.  For example
+The diagonals are the same as the columns in C<CoprimeColumns>.  For example
 the diagonal N=18 to N=21 from X=0,Y=8 down to X=8,Y=0 is the same as the
-CoprimeColumns vertical at X=8.  In general the correspondence is
+C<CoprimeColumns> vertical at X=8.  In general the correspondence is
 
    Xdiag = Ycol
    Ydiag = Xcol - Ycol
@@ -240,14 +302,14 @@ CoprimeColumns vertical at X=8.  In general the correspondence is
    Xcol = Xdiag + Ydiag
    Ycol = Xdiag
 
-CoprimeColumns has an extra N=0 at X=1,Y=1 which is not present in
-DiagonalRationals.  (It would be Xdiag=1,Ydiag=0 which is 1/0.)
+C<CoprimeColumns> has an extra N=0 at X=1,Y=1 which is not present in
+C<DiagonalRationals>.  (It would be Xdiag=1,Ydiag=0 which is 1/0.)
 
 The points numbered or skipped in a column up to X=Y is the same as the
 points numbered or skipped on a diagonal, simply because X,Y no common
 factor is the same as Y,X+Y no common factor.
 
-Taking the CoprimeColumns as enumerating fractions F = Ycol/Xcol with
+Taking the C<CoprimeColumns> as enumerating fractions F = Ycol/Xcol with
 S<0 E<lt> F E<lt> 1> the corresponding diagonal rational
 S<0 E<lt> R E<lt> infinity> is
 
@@ -295,32 +357,6 @@ rationals.
 #   = 1 / (1/R)
 #   = R
 
-=head2 N Start
-
-The default is to number points starting N=1 as shown above.  An optional
-C<n_start> can give a different start with the same shape,  For example
-to start at 0,
-
-=cut
-
-# math-image --path=DiagonalRationals,n_start=0 --all --output=numbers --size=50x10
-
-=pod
-
-    n_start => 0
-
-     8 |   21
-     7 |   17 22
-     6 |   11
-     5 |    9 12 18 23
-     4 |    5    13    24
-     3 |    3  6    14 19
-     2 |    1     7    15    25
-     1 |    0  2  4  8 10 16 20 26
-    Y=0|
-       +---------------------------
-       X=0  1  2  3  4  5  6  7  8
-
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -328,6 +364,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::DiagonalRationals-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::DiagonalRationals-E<gt>new (n_start =E<gt> $n)>
 
 Create and return a new path object.
 
@@ -341,8 +379,7 @@ at 1 and if C<$n E<lt> 1> then the return is an empty list.
 =head1 BUGS
 
 The current implementation is fairly slack and is slow on medium to large N.
-A table of cumulative totients is built and retained for the diagonal X+Y
-sum used.
+A table of cumulative totients is built and retained for the diagonal d=X+Y.
 
 =head1 OEIS
 
@@ -359,7 +396,7 @@ Sequences in the following forms
                   (excluding X=0 row and Y=0 column)
 
       A054430   permutation N at Y/X
-                  reverse runs of phi(k) many integers
+                  reverse runs of totient(k) many integers
 
       A054424   permutation DiagonalRationals -> RationalsTree SB
       A054425     padded with 0s at non-coprimes

@@ -19,13 +19,8 @@
 
 
 
-# A166310 Wythoff Triangle, T.
-# A165357 Left-justified Wythoff Array.
-
-# A173028 Partition of the row numbers of the Wythoff array W: two numbers are in the same row if and only if their rows in W have (essentially) a common divisor greater than 1.
-
-# A185737 Accumulation array of the Wythoff array, by antidiagonals.
 # A186007 Array by antidiagonals:  R(i,j)=number of the row of the Wythoff array which includes row(i+j)-row(i).
+#    dodgy data ?
 
 # A141104 Lower Even Swappage of Upper Wythoff Sequence.
 # A141105 Upper Even Swappage of Upper Wythoff Sequence.
@@ -39,6 +34,7 @@
 
 use 5.004;
 use strict;
+use Carp;
 use List::Util 'max';
 use Test;
 plan tests => 46;
@@ -50,8 +46,12 @@ use MyOEIS;
 
 use Math::PlanePath::WythoffArray;
 
+use Math::PlanePath::CoprimeColumns;
+*_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
+
 # uncomment this to run the ### lines
 # use Smart::Comments '###';
+
 
 sub BIGINT {
   require Math::NumSeq::PlanePathN;
@@ -80,7 +80,9 @@ sub pair_left_justify {
 #
 sub path_find_row_with_pair {
   my ($path, $a, $b) = @_;
-
+  if ($a == 0 && $b == 0) {
+    croak "path_find_row_with_pair $a,$b";
+  }
   for (my $count = 0; $count < 100; ($a,$b) = ($b,$a+$b)) {
     ### at: "a=$a b=$b"
     my ($x,$y) = $path->n_to_xy($a) or next;
@@ -91,6 +93,143 @@ sub path_find_row_with_pair {
   }
   die "oops, pair $a,$b not found";
 }
+
+#------------------------------------------------------------------------------
+# A185737 -- accumulation array, by antidiagonals
+# accumulation being total sum N in rectangle 0,0 to X,Y
+
+MyOEIS::compare_values
+  (anum => 'A185737',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new;
+     require Math::PlanePath::Diagonals;
+     my $diag = Math::PlanePath::Diagonals->new (direction => 'up');
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($x,$y) = $diag->n_to_xy($d);  # by anti-diagonals
+       push @got, path_rect_to_accumulation($path, 0,0, $x,$y)
+     }
+     return \@got;
+   });
+
+sub path_rect_to_accumulation {
+  my ($path, $x1,$y1, $x2,$y2) = @_;
+  # $x1 = round_nearest ($x1);
+  # $y1 = round_nearest ($y1);
+  # $x2 = round_nearest ($x2);
+  # $y2 = round_nearest ($y2);
+
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+
+  my $accumulation = 0;
+  foreach my $x ($x1 .. $x2) {
+    foreach my $y ($y1 .. $y2) {
+      $accumulation += $path->xy_to_n($x,$y);
+    }
+  }
+  return $accumulation;
+}
+
+#------------------------------------------------------------------------------
+# A173028 -- row number which is x * row(y), by diagonals
+
+# Return pair ($a,$b) which is in the $k'th coprime row of WythoffArray $path
+# First pair at $k==1.
+sub coprime_pair {
+  my ($path, $k) = @_;  
+  my $x = $path->x_minimum;
+  for (my $y = $path->y_minimum; ; $y++) {
+    my $a = $path->xy_to_n($x,  $y);
+    my $b = $path->xy_to_n($x+1,$y);
+    if (_coprime($a,$b)) {
+      $k--;
+      if ($k <= 0) {
+        return ($a,$b);
+      }
+    }
+  }
+}
+
+# Return the row number Y of WythoffArray $path which contains $multiple
+# times the $k'th coprime row.
+sub path_y_of_multiple {
+  my ($path, $multiple, $k) = @_;
+  ### path_y_of_multiple: "$multiple,$k"
+  if ($multiple < 1) {
+    croak "path_y_of_multiple multiple=$multiple";
+  }
+  ($a,$b) = coprime_pair($path,$k);
+  return path_find_row_with_pair($path, $a*$multiple, $b*$multiple);
+}
+# {
+#   my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+#   foreach my $y (1 .. 5) {
+#     foreach my $x (1 .. 10) {
+#       printf "%3d ", path_y_of_multiple($path,$x,$y)//-1;
+#     }
+#     print "\n";
+#   }
+# }
+
+MyOEIS::compare_values
+  (anum => 'A173028',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+     require Math::PlanePath::Diagonals;
+     my $diag = Math::PlanePath::Diagonals->new (x_start => $path->x_minimum,
+                                                 y_start => $path->y_minimum,
+                                                 direction => 'up');
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($x,$y) = $diag->n_to_xy($d);  # by anti-diagonals
+       push @got, path_y_of_multiple($path,$x,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A165357 - Left-justified Wythoff Array by diagonals
+
+{
+  my $path = Math::PlanePath::WythoffArray->new;
+  sub left_justified_row_start {
+    my ($y) = @_;
+    return pair_left_justify($path->xy_to_n(0,$y),
+                             $path->xy_to_n(1,$y));
+  }
+  sub left_justified_xy_to_n {
+    my ($x,$y) = @_;
+    my ($a,$b) = left_justified_row_start($y);
+    foreach (1 .. $x) {
+      ($a,$b) = ($b,$a+$b);
+    }
+    return $a;
+  }
+
+  # foreach my $y (0 .. 5) {
+  #   foreach my $x (0 .. 10) {
+  #     printf "%3d ", left_justified_xy_to_n($x,$y);
+  #   }
+  #   print "\n";
+  # }
+}
+
+MyOEIS::compare_values
+  (anum => 'A165357',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $diag = Math::PlanePath::Diagonals->new (direction => 'up');
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($x,$y) = $diag->n_to_xy($d);  # by anti-diagonals
+       push @got, left_justified_xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A185735 -- row(i)+row(j)
@@ -122,8 +261,8 @@ MyOEIS::compare_values
        my $ib = $path->xy_to_n(2,$i) or die;
        my $ja = $path->xy_to_n(1,$j) or die;
        my $jb = $path->xy_to_n(2,$j) or die;
-       # ($ia,$ib) = pair_left_justify($ia,$ib);
-       # ($ja,$jb) = pair_left_justify($ja,$jb);
+       ($ia,$ib) = pair_left_justify($ia,$ib);
+       ($ja,$jb) = pair_left_justify($ja,$jb);
        push @got, path_find_row_with_pair($path, $ia+$ja, $ib+$jb);
      }
      return \@got;

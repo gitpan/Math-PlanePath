@@ -89,7 +89,7 @@ sub check_class {
   # return unless $parameters{'planepath'} =~ /DiagonalRat/i;
   # return unless $parameters{'planepath'} =~ /AlternateP/;
   # return unless $parameters{'planepath'} =~ /Peano/;
-  # return unless $parameters{'planepath'} =~ /Cellular/;
+  return unless $parameters{'planepath'} =~ /PyramidRows/;
   # return unless $parameters{'planepath'} =~ /Fib/;
   # return unless $parameters{'planepath'} =~ /TriangleSpiralSkewed/;
   # return unless $anum =~ /A211014|A036704/;

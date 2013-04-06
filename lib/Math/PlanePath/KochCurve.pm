@@ -52,7 +52,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -699,19 +699,37 @@ a spiralling around which occurs at progressively higher replication levels.
 The direction can be taken mod 360 degrees, or the count mod 6, for a
 direction 0 to 5 if desired.
 
-=cut
+=head2 N to abs(dX),abs(dY)
 
-#   It also
-# works to map each digit to an amount to add
-#
-#     digit   add
-#     -----   ---
-#       0      0
-#       1      1
-#       2     -1
-#       3      0
+The direction expressed as abs(dX) and abs(dY) can be calculated simply from
+N modulo 3.  abs(dX) is a repeating pattern 2,1,1 and abs(dY) repeating
+0,1,1.
 
-=pod
+    N mod 3     abs(dX),abs(dY)
+    -------     ---------------
+       0             2,0            horizontal, East or West
+       1             1,1            slope North-East or South-West
+       2             1,1            slope North-West or South-East
+
+This works because the direction calculation above corresponds to N mod 3.
+Each N digit in base 4 becomes
+ 
+    N digit
+    base 4    direction add
+    -------   -------------
+       0            0
+       1            1
+       2           -1
+       3            0
+
+Notice that direction == Ndigit mod 3.  Then because 4==1 mod 3 the
+power-of-4 for each digit reduces down to 1,
+
+    N = 4^k * digit_k + ... 4^0 * digit_0
+    N mod 3 = 1 * digit_k + ... 1 * digit_0
+            = digit_k + ... digit_0
+    same as 
+    direction = digit_k + ... + digit_0    taken mod 3
 
 =head2 Rectangle to N Range -- Level
 
@@ -801,7 +819,8 @@ various forms,
 
     http://oeis.org/A035263  (etc)
 
-    A011655   abs(dY), 0,1,1 repeating
+    A177702   abs(dX) from N=1 onwards, being 1,1,2 repeating
+    A011655   abs(dY), being 0,1,1 repeating
     A035263   turn 1=left,0=right, by morphism
     A096268   turn 0=left,1=right, by morphism
     A029883   turn +/-1=left,0=right, Thue-Morse first differences

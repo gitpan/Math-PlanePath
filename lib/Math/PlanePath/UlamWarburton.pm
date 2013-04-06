@@ -32,7 +32,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -540,19 +540,18 @@ sub tree_n_to_height {
     or return $n;  # N=nan or +inf
   $factor /= 4;
   (my $quad, $nrem) = _divrem ($nrem, $factor);
-  my @ndigits = digit_split_lowtohigh($nrem,3);
   ### $depthsum
   ### $nrem
   ### @ndigits
 
   my $sub = pop @$depthsum;
-  while ((shift @ndigits || 0) == 1) {
+  while (_divrem_mutate($nrem,3) == 1) {  # low "1" ternary digits of Nrem
     $sub += pop @$depthsum;
   }
   if (@$depthsum) {
     return $depthsum->[-1] - 1 - $sub;
   } else {
-    return undef; # N all 1-digits
+    return undef;  # N all 1-digits, on central infinite spine
   }
 }
 

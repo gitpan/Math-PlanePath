@@ -25,16 +25,17 @@
 # http://dx.doi.org/10.1016/0025-5564(79)90080-4 Helmut Vogel, "A Better Way
 # to Construct the Sunflower Head", Volume 44, Issues 3-4, June 1979, Pages
 # 179-189
-#
-# http://www.ms.unimelb.edu.au/~segerman/papers/sunflower_spiral_fibonacci_metric.pdf
-# Zeckendorf/Fibbinary with N bits makes radial spokes.  cf FibbinaryBitCount
 
 # http://artemis.wszib.edu.pl/~sloot/2_1.html
 #
 # http://www.csse.monash.edu.au/publications/2003/tr-2003-149-full.pdf
 #     on 3D surfaces of revolution or some such maybe
 #     14 Mbytes (or preview with google)
-#
+
+# Count of Zeckendorf bits plotted on Vogel floret.
+# Zeckendorf/Fibbinary with N bits makes radial spokes.  cf FibbinaryBitCount
+# http://www.ms.unimelb.edu.au/~segerman/papers/sunflower_spiral_fibonacci_metric.pdf
+# private copy ?
 
 # closest two for phi are 1 and 4
 #     n=1   r=sqrt(1) = 1
@@ -83,7 +84,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

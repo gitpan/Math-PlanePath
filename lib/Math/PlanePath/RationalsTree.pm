@@ -66,7 +66,7 @@
 #     +-----------------------------------------------------
 #       X=0   1    2    3    4    5    6    7    8    9   10
 #
-#                               1/1                               
+#                               1/1
 #                  /------------- -------------\
 #               2/1                             1/2               2,3 L,R
 #          /----   ----\                   /----   ----\
@@ -74,7 +74,7 @@
 #      /   \           /   \           /   \           /   \      8        12
 #   4/1     5/2     4/3     5/3     1/4     2/5     3/4     3/5   L,L,R,L, R,R,L,R
 #  /   \   /   \   /   \   /   \   /   \   /   \   /   \   /   \
-# 5/1 7/2 7/3 8/3 5/4 7/5 7/4 8/5 1/5 2/7 3/7 3/8 4/5 5/7 4/7 5/8 
+# 5/1 7/2 7/3 8/3 5/4 7/5 7/4 8/5 1/5 2/7 3/7 3/8 4/5 5/7 4/7 5/8
 #
 #         *
 #        / \                        U=0 = X+Y, Y           shear
@@ -107,7 +107,7 @@
 # c1Y = X+Y
 # c2X = Y + k*(X+Y) = k*X + (k+1)*Y
 # c2Y = X+Y
-# cX = X+Y                                      
+# cX = X+Y
 # cY = k*X + (k+1)*Y + X+Y = (k+1)X + (k+2)Y    near X=Y
 
 #
@@ -130,7 +130,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -634,32 +634,22 @@ X<Stern, Moritz>X<Brocot, Achille>The default C<tree_type=E<gt>"SB"> is the
 tree of Moritz Stern and Achille Brocot.  The rows are fractions of
 increasing value.
 
-    N=1                             1/1
-                              ------   ------
-    N=2 to N=3             1/2               2/1
-                          /    \            /   \
-    N=4 to N=7         1/3      2/3      3/2      3/1
-                       | |      | |      | |      | |
-    N=8 to N=15     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1
+                                               N       depth
+                    1/1                        1         0
+              ------   ------
+           1/2               2/1              2,3        1
+          /    \            /   \
+       1/3      2/3      3/2      3/1        4 to 7      2
+       | |      | |      | |      | |
+    1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1      8 to 15     3
 
-Writing the parents between the children as an "in-order" tree traversal to
-a given depth has all values in increasing order too,
+Each row of the tree is a repeat of the previous row, first as X/(X+Y) and
+then (X+Y)/Y.  For example
 
-                 1/1
-         1/2      |      2/1
-     1/3  |  2/3  |  3/2  |  3/1
-      |   |   |   |   |   |   |
+    depth=1 row 1/2, 2/1
 
-     1/3 1/2 2/3 1/1 3/2 2/1 3/1
-                    ^
-                    |
-                    next level (1+3)/(1+2) = 4/3
-
-New values are a "mediant" (x1+x2)/(y1+y2) formed from the left and right
-parent in this flattening.  So the next level 4/3 is left parent 1/1 and
-right parent 3/2 forming mediant (1+3)/(1+2)=4/3.  At the left end is
-imagined a preceding 0/1 and at the right a following 1/0, so as to add
-1/level and level/1 at the ends for a total 2^level new values.
+    depth=2 row 1/3, 2/3    X/(X+Y) of previous row
+            and 3/2, 3/1    (X+Y)/Y of previous row
 
 Plotting the N values by X,Y is as follows.  The unused X,Y positions are
 where X and Y have a common factor.  For example X=6,Y=2 has common factor 2
@@ -689,6 +679,76 @@ at N value
 The Y=1 horizontal is the X/1 integers at the end each row which is
 
     Nend = 2^(level+1)-1
+
+Each row makes a path from the Y axis down to the X which is outside the
+previous row and doesn't intersect any other row.  The effect of X/(X+Y)
+described above is to apply a "shear" to the X,Y points of a given row,
+making a copy of those points pushed up by Y -E<gt> X+Y.
+
+                               N=8 to N=11
+                              previous row
+                              sheared up X,X+Y
+      depth=2 N=4to7                              depth=3 N=8to15
+                          |      9--10      .
+                          |    /     |    .
+    |                     |  8      11  .
+    |                     |           .          
+    |   4---5             |         .   12--13    N=12 to N=15
+    |         \           |       .          |    previous row
+    |           6         |     .           14    sheared across
+    |           |         |   .            /      as X+Y,Y
+    |           7         |             15       
+    |                     |
+     ----------------      ----------------
+
+The sequence of turns left or right is unchanged by the shear.  So at N=5
+and N=6 the path turns towards the right and this is unchanged in the copies
+at N=9 and N=10 and at N=13 and N=14.  The angle of the turn is different,
+but it's still to the right.
+
+The first and last points of each row are always a turn to the right.  For
+example the turn at N=4 (going N=3 to 4 to 5) is to the right, and likewise
+at N=7.
+
+The middle two points in each row are always a turn to the left for
+depthE<gt>=3.  For example N=11 and N=12 shown above both turn to the left.
+Those lefts are copied into successive rows and the result is a pattern
+"LRRL" repeating except the first and last in the row are R instead of L.
+
+    N=3                   turn left
+    N=2^k or N=2^k-1      turn right
+    N=0 or 3 mod 4        turn left
+    N=1 or 2 mod 4        turn right
+
+In these conditions the adjacent N-1,N values can be treated together by
+taking floor((N+1)/2),
+
+    N=3                   turn left
+    Nhalf = floor((N+1)/2)
+    Nhalf=2^k             turn right
+    NHalf=0 mod 2         turn left
+    NHalf=1 mod 2         turn right
+
+Writing the parents between the children as an "in-order" tree traversal to
+some depth has all values in increasing order, the same as each row is in
+increasing order.
+
+                 1/1
+         1/2      |      2/1
+     1/3  |  2/3  |  3/2  |  3/1
+      |   |   |   |   |   |   |
+
+     1/3 1/2 2/3 1/1 3/2 2/1 3/1
+                    ^
+                    |
+                    next level (1+3)/(1+2) = 4/3 mediant
+
+New values at the next level of this flattening are a "mediant"
+(x1+x2)/(y1+y2) formed from the left and right parent.  So the next level
+4/3 is left parent 1/1 and right parent 3/2 forming mediant (1+3)/(1+2)=4/3.
+At the left end is imagined a preceding 0/1 and at the right a following
+1/0, so as to have 1/(depth+1) and (depth+1)/1 at the ends for a total
+2^depth many new values.
 
 =head2 Calkin-Wilf Tree
 
@@ -756,19 +816,21 @@ re-ordered.
            X=0   1    2    3    4    5    6    7    8    9   10
 
 At each node the left leg is S<X/(X+Y) E<lt> 1> and the right leg is
-S<(X+Y)/Y E<gt> 1>, which means even N is above the X=Y diagonal and odd N
-is below.  In general each right leg increments the integer part of the
+S<(X+Y)/Y E<gt> 1>, which means N is even above the X=Y diagonal and odd
+below.  In general each right leg increments the integer part of the
 fraction,
 
-     X/Y                       right leg each time
-     (X+Y)/Y   = 1 + X/Y
-     (X+2Y)/Y  = 2 + X/Y
-     (X+3Y)/Y  = 3 + X/Y
-     etc
+    X/Y                       right leg each time
+    (X+Y)/Y   = 1 + X/Y
+    (X+2Y)/Y  = 2 + X/Y
+    (X+3Y)/Y  = 3 + X/Y
+    etc
 
-This means the integer part floor(X/Y) is given by the number of trailing
-1-bits of N.  For example 7/2 is at N=23 binary "10111" which has 3 trailing
-1-bits for floor(7/2)=3.
+This means the integer part is the trailing 1-bits of N,
+
+    floor(X/Y) = count trailing 1-bits of N
+    eg. 7/2 is at N=23 binary "10111"
+        which has 3 trailing 1-bits for floor(7/2)=3
 
 N values for the SB and CW trees are converted by reversing bits except the
 highest.  So at a given X,Y position
@@ -830,14 +892,14 @@ which means
 The left leg (X+Y)/Y is the same the CW has on its right leg.  But Y/(X+Y)
 is not the same as the CW (the other there being X/(X+Y)).
 
-As per the CW tree right leg, the AYT left leg increments the integer part,
-so
+TheT left leg increments the integer part, so the integer part is given by
+(in a fashion similar to CW 1-bits above)
 
     floor(X/Y) = count trailing 0-bits of N
                  plus one extra if N=2^k
 
 N=2^k is one extra because its trailing 0-bits started from N=1 where
-floor(1/1)=1 whereas any other odd N has floor(X/Y)=0.
+floor(1/1)=1 whereas any other odd N starts from some floor(X/Y)=0.
 
 X<Fibonacci numbers>The Y/(X+Y) right leg forms the Fibonacci numbers
 F(k)/F(k+1) at the end of each row, ie. at Nend=2^(level+1)-1.  And as noted
@@ -881,7 +943,8 @@ which means odd N is above the X=Y diagonal and even N is below.
 X<Kepler, Johannes>The tree structure corresponds to Johannes Kepler's tree
 of fractions (see L<Math::PlanePath::FractionsTree>).  That tree starts from
 1/2 and makes fractions A/B with AE<lt>B by descending to A/(A+B) and
-B/(A+B).  Those descents are the same as the AYT tree with
+B/(A+B).  Those descents are the same as the AYT tree and the two are
+related simply by
 
     A = Y        AYT denominator is Kepler numerator
     B = X+Y      AYT sum num+den is the Kepler denominator
@@ -898,6 +961,7 @@ per Paul D. Hanna and independently Jerzy Czyz and Will Self.
 =over
 
 http://oeis.org/A071766
+
 http://www.cut-the-knot.org/do_you_know/countRatsCF.shtml
 http://www.dm.unito.it/~cerruti/doc-html/tremattine/tre_mattine.pdf
 
@@ -913,13 +977,13 @@ continued fraction encoding.  See L<Math::PlanePath::CfracDigits/Radix 1>.
 If the continued fraction of X/Y is
 
                  1
-    X/Y = a + ------------
+    X/Y = a + ------------             a >= 0
                      1
-              b + -----------
+              b + -----------         b,c,etc >= 1
                         1
                   c + -------
                     ... +  1
-                          ---
+                          ---          z >= 2
                            z
 
 then the N value is bit runs of lengths a,b,c etc.
@@ -928,9 +992,9 @@ then the N value is bit runs of lengths a,b,c etc.
         \--/ \--/ \--/     \--/
          a+1   b    c       z-1
 
-Each group is 1 or more bits.  a+1 for the first group ensures it has 1 or
-more bits, since a=0 occurs for any X/YE<lt>=1.  z-1 in the last group
-ensures it's 1 or more since zE<gt>=2.
+Each group is 1 or more bits.  Adding 1 to "a" for the first group ensures
+that group has 1 or more bits, since a=0 occurs for any X/YE<lt>=1.  z-1 for
+the last group ensures it's 1 or more since zE<gt>=2.
 
     N=1                             1/1
                               ------   ------
@@ -1160,13 +1224,13 @@ The SB, CW, Bird, Drib, AYT and HCS trees have the same set of rationals in
 each row, just in different orders.  The properties of Stern's diatomic
 sequence mean that within a row the totals are
 
-    row N=2^level to N=2^(level+1)-1 inclusive
+    row N=2^depth to N=2^(depth+1)-1 inclusive
 
-      sum X/Y     = (3 * 2^level - 1) / 2
-      sum X       = 3^level
+      sum X/Y     = (3 * 2^depth - 1) / 2
+      sum X       = 3^depth
       sum 1/(X*Y) = 1
 
-For example the SB tree level=2, N=4 to N=7,
+For example the SB tree depth=2, N=4 to N=7,
 
     sum X/Y     = 1/3 + 2/3 + 3/2 + 3/1 = 11/2 = (3*2^2-1)/2
     sum X       = 1+2+3+3 = 9 = 3^2
@@ -1176,20 +1240,20 @@ Many permutations are conceivable within a row, but the ones here have some
 relationship to X/Y descendants, tree sub-forms or continued fractions.  As
 an encoding of continued fraction terms by bit runs the combinations are
 
-     bit encoding       high to low    low to high
-    ----------------    -----------    -----------
-    runs 000 or 111         SB             CW
-    alternating 0101       Bird           Drib
-    runs 10000              HCS            AYT
+     bit encoding           high to low    low to high
+    ----------------        -----------    -----------
+    0000,1111 runs              SB             CW
+    0101,1010 alternating       Bird           Drib
+    1000,1000 runs              HCS            AYT
 
-Each run of alternating 101010 ends at what an electrical engineer would
-think of as a phase shift.  The next bit is not the expected alternate 0,1
-but instead its opposite, and which makes a doubled 00 or 11.
+A run of alternating 101010 ends where the next bit is the oppose of the
+expected alternating 0,1.  This is a doubled bit 00 or 11.  An electrical
+engineer would think of it as a phase shift.
 
 =head2 Minkowski Question Mark
 
 The Minkowski question mark function is a sum of the terms in the continued
-fraction representation of a real number.  If q0,q1,q2,etc are the terms
+fraction representation of a real number.  If q0,q1,q2,etc are those terms
 then the question mark function "?(r)" is
 
                      1           1           1
@@ -1200,10 +1264,10 @@ then the question mark function "?(r)" is
          = 2 * (1 - ---- + --------- - ------------ + ... )
                     2^q0   2^(q0+q1)   2^(q0+q1+q2)
 
-For rational r the continued fraction q0,q1,q2,etc is finite and so the sum
-is finite and rational.  The pattern of + and - in the terms gives runs of
-bits the same as the N values in the Stern-Brocot tree.  The RationalsTree
-code can calculate the ?(r) function by
+For rational r the continued fraction q0,q1,q2,etc is finite and so the ?(r)
+sum is finite and rational.  The pattern of + and - in the terms gives runs
+of bits the same as the N values in the Stern-Brocot tree.  The
+RationalsTree code can calculate the ?(r) function by
 
     rational r=X/Y
     N = xy_to_n(X,Y) tree_type=>"SB"
@@ -1214,22 +1278,22 @@ code can calculate the ?(r) function by
     ?(r) = ----------------
                 Ndepth
 
-The effect of N-Ndepth is to remove the high 1-bit.  2*(..)+1 appends an
-extra 1-bit at the end.  The division /Ndepth scales down from integer N to
-a fraction.
+The effect of N-Ndepth is to remove the high 1-bit, leaving an offset into
+the row.  2*(..)+1 appends an extra 1-bit at the end.  The division by
+Ndepth scales down from integer N to a fraction.
 
     N    = 1abcdef      integer, in binary
     ?(r) = a.bcdef1     binary fraction
 
-For example ?(2/3) is X=2,Y=3 which is N=5 in the SB tree.  It has depth=2,
-Ndepth=2^2=4, and so ?(2/3)=(2*(5-4)+1)/4=3/4.  Or written in binary N=101
-gives Ndepth=100 and N-Ndepth=01 so 2*(N-Ndepth)+1=011 and divide by
-Ndepth=100 for ?=0.11.
+For example ?(2/3) is X=2,Y=3 which is N=5 in the SB tree.  It is at
+depth=2, Ndepth=2^2=4, and so ?(2/3)=(2*(5-4)+1)/4=3/4.  Or written in
+binary N=101 gives Ndepth=100 and N-Ndepth=01 so 2*(N-Ndepth)+1=011 and
+divide by Ndepth=100 for ?=0.11.
 
-In practice this is not an efficient way to handle the question function,
-since the bit runs in the N values may become quite large for relatively
-modest continued fraction terms.  (L<Math::ContinuedFraction> may be better,
-and also allows repeating terms from quadratic irrationals to be represented
+In practice this is not a very efficient way to handle the question
+function, since the bit runs in the N values may become quite large for
+relatively modest fractions.  (L<Math::ContinuedFraction> may be better, and
+also allows repeating terms from quadratic irrationals to be represented
 exactly.)
 
 =head1 FUNCTIONS
@@ -1282,12 +1346,12 @@ Return the two children of C<$n>, or an empty list if C<$n E<lt> 1>
 (ie. before the start of the path).
 
 This is simply C<2*$n, 2*$n+1>.  Written in binary the children are C<$n>
-with an extra bit appended, either a 0-bit or a 1-bit.
+with an extra bit appended, a 0-bit or a 1-bit.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return 2, since every node has two children.  If C<$nE<lt>1> (ie. before the
-start of the path) then return C<undef>.
+Return 2, since every node has two children.  If C<$nE<lt>1>, ie. before the
+start of the path, then return C<undef>.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -1295,7 +1359,7 @@ Return the parent node of C<$n>.  Or return C<undef> if C<$n E<lt>= 1> (the
 top of the tree).
 
 This is simply Nparent = floor(N/2), ie. strip the least significant bit
-from C<$n> (undoing what C<tree_n_children()> appends).
+from C<$n>.  (Undo what C<tree_n_children()> appends.)
 
 =item C<$depth = $path-E<gt>tree_n_to_depth($n)>
 
@@ -1328,7 +1392,7 @@ tree C<2**($depth+1)>.
 
 =item C<$num = $path-E<gt>tree_num_children_maximum()>
 
-Return 2 since every node has 2 children, so that is both the minimum and
+Return 2 since every node has 2 children, making that both the minimum and
 maximum.
 
 =item C<$bool = $path-E<gt>tree_any_leaf()>
@@ -1391,7 +1455,7 @@ various forms,
     A154435  permutation HCS->Bird, Lamplighter bit flips
     A154436  permutation Bird->HCS, Lamplighter variant
 
-    A054429  permutation SB,CW,Bird,Drib N at transpose Y/X, 
+    A054429  permutation SB,CW,Bird,Drib N at transpose Y/X,
                (mirror binary tree, runs 0b11..11 down to 0b10..00)
     A004442  permutation AYT N at transpose Y/X, from N=2 onwards
                (xor 1, ie. flip least significant bit)

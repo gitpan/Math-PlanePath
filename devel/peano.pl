@@ -27,6 +27,56 @@ use constant 1.02 PI => 4 * atan2(1,1);  # similar to Math::Complex
 
 
 {
+  # dx,dy on even radix
+  require Math::PlanePath::PeanoCurve;
+  require Math::BigInt;
+  require Math::BaseCnv;
+  foreach my $radix (4, 2, 6, 8) {
+    print "radix=$radix\n";
+    my $path = Math::PlanePath::PeanoCurve->new (radix => $radix);
+    my $limit = 4000000000;
+    {
+      my %seen_dx;
+      for my $len (0 .. 8) {
+        for my $high (1 .. $radix-1) {
+          my $n = Math::BigInt->new($high);
+          foreach (1 .. $len) { $n *= $radix; $n += $radix-1; }
+
+          my ($dx,$dy) = $path->n_to_dxdy($n);
+          $dx = abs($dx);
+            my ($x,$y) = $path->n_to_xy($n);
+            my $xr = Math::BaseCnv::cnv($x,10,$radix);
+            my $dr = Math::BaseCnv::cnv($dx,10,$radix);
+            my $nr = Math::BaseCnv::cnv($n,10,$radix);
+            print "N=$n [$nr]  dx=$dx [$dr]  x=[$xr]\n";
+          unless ($seen_dx{$dx}++) {
+          }
+        }
+      }
+    }
+    {
+      my %seen_dy;
+      for my $len (0 .. 8) {
+        for my $high (1 .. $radix-1) {
+          my $n = Math::BigInt->new($high);
+          foreach (1 .. $len) { $n *= $radix; $n += $radix-1; }
+
+          my ($dx,$dy) = $path->n_to_dxdy($n);
+          $dy = abs($dy);
+          unless ($seen_dy{$dy}++) {
+            my $dr = Math::BaseCnv::cnv($dy,10,$radix);
+            my $nr = Math::BaseCnv::cnv($n,10,$radix);
+            print "N=$n [$nr]  dy=$dy [$dr]\n";
+          }
+        }
+      }
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
   # abs(dY) = count low 2-digits, mod 2
   # abs(dX) = opposite, 1-abs(dY)
   #                                        x x

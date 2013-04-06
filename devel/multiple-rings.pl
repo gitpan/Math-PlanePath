@@ -21,10 +21,63 @@ use 5.004;
 use strict;
 use Math::Libm 'hypot';
 use Math::Trig 'pi','tan';
+use Math::PlanePath::MultipleRings;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
+
+{
+  use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
+  my $pi = _PI();
+
+  my $offset = 0.0;
+
+  foreach my $step (3,4,5,6,7,8) {
+    my $path = Math::PlanePath::MultipleRings->new (step => $step,
+                                                    ring_shape => 'polygon');
+    my $d = 1;
+    my $n0base = Math::PlanePath::MultipleRings::_d_to_n0base($path,$d);
+    my $next_n0base = Math::PlanePath::MultipleRings::_d_to_n0base($path,$d+10);
+
+    my ($pbase, $pinc);
+    if ($step > 6) {
+      $pbase = 0;
+      $pinc = Math::PlanePath::MultipleRings::_numsides_to_r($step,$pi);
+    } else {
+      $pbase = Math::PlanePath::MultipleRings::_numsides_to_r($step,$pi);
+      $pinc = 1/cos(_PI/$step);
+    }
+    print "step=$step  pbase=$pbase  pinc=$pinc\n";
+
+    for (my $n = $n0base+$path->n_start; $n < $next_n0base; $n += 1.0) {
+      my ($x, $y) = $path->n_to_xy($n);
+      my $revn = $path->xy_to_n($x-$offset,$y) // 'undef';
+      my $r = hypot ($x, $y);
+
+      my $theta_frac = Math::PlanePath::MultipleRings::_xy_to_angle_frac($x,$y);
+      $theta_frac -= int($theta_frac*$step) / $step;  # modulo 1/step
+
+      my $alpha = 2*_PI/$step;
+      my $theta = 2*_PI * $theta_frac;
+      ### $r
+      ### x=r*cos(theta): $r*cos($theta)
+      ### y=r*sin(theta): $r*sin($theta)
+
+      my $p = $r*cos($theta) + $r*sin($theta) * sin($alpha/2)/cos($alpha/2);
+      $d = ($p - $pbase) / $pinc + 1;
+
+      printf "%5.1f  thetafrac=%.4f  r=%.4f p=%.4f d=%.2f  revn=%s\n",
+        $n, $theta_frac, $r, $p, $d, $revn;
+      if ($n==int($n) && (! defined $revn || $revn != $n)) {
+        print "\n";
+        die "oops, revn=$revn != n=$n";
+      }
+    }
+    print "\n";
+  }
+  exit 0;
+}
 
 {
   # dir_minimum_dxdy() position

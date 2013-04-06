@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -37,7 +37,7 @@ use Math::PlanePath::CellularRule54;
 *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant class_y_negative => 0;
@@ -50,17 +50,26 @@ use constant parameter_info_array =>
       default     => 0,
       description => 'Mirror to "rule 246" instead.',
     },
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 use constant dx_maximum => 2; # across gap
 use constant dy_minimum => 0;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
-# use constant dir4_maximum => 2;  # 
+# use constant dir4_maximum => 2;  #
 use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 # 31 32 33   34 35 36    37 38 39    40
 #    22 23 24   25 26 27    28 29 30
@@ -95,6 +104,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### CellularRule190 n_to_xy(): $n
 
+  $n = $n - $self->{'n_start'} + 1; # to N=1 basis
   my $frac;
   {
     my $int = int($n);
@@ -105,8 +115,8 @@ sub n_to_xy {
       $n += 1;
     }
     # now -0.5 <= $frac < 0.5
-    ### assert: 2*$frac >= -1
-    ### assert: 2*$frac < 1
+    ### assert: 2*$frac >= -1   || $n!=$n || $n+1==$n
+    ### assert: 2*$frac < 1     || $n!=$n || $n+1==$n
   }
 
   if ($n < 1) {
@@ -155,14 +165,21 @@ sub xy_to_n {
     if (($x % 4) == 3) {
       return undef;
     }
-    return $x-int($x/4) + ((3*$y+2)*$y+3)/4;
+    # 3y^2+2y-1 = (3y-1)*(y+1)
+    return ($x
+            - int($x/4)
+            + ((3*$y+2)*$y-1)/4
+            + $self->{'n_start'});
   } else {
     ### even row, 3s then 1 sep, or mirror 1 sep start ...
     my $mirror = $self->{'mirror'};
     if (($x % 4) == ($mirror ? 1 : 3)) {
       return undef;
     }
-    return $x-int(($x+($mirror ? 2 : 1))/4) + ((3*$y+2)*$y+4)/4;
+    return ($x
+            - int(($x+($mirror ? 2 : 1))/4)
+            + (3*$y+2)*$y/4
+            + $self->{'n_start'});
   }
 }
 
@@ -315,10 +332,16 @@ Each row is 3 out of 4 cells.  Even numbered rows have one point on its own
 at the end.  Each two-row group has a step of 6 more points than the
 previous two-row.
 
+The of rightmost N=1,4,8,14,21,etc are triangular plus quarter
+square, ie.
 
-On even rows Y=0,2,4,6,etc the rightmost N=1,8,21,40,65,etc is the octagonal
-numbers k*(3k-2).  The octagonal numbers of the "second kind" 5,16,33,56,85,
-etc, k*(3k+2) are a straight-ish line upwards to the left.
+    Nright = triangular(Y+1) + quartersquare(Y+1)
+      triangular(t)    = t*(t+1)/2
+      quartersquare(t) = floor(t^2/4)
+
+The rightmost N=1,8,21,40,65,etc on even rows Y=0,2,4,6,etc are the
+octagonal numbers k*(3k-2).  The octagonal numbers of the "second kind"
+N=5,16,33,56,85, etc, k*(3k+2) are a straight-ish line upwards to the left.
 
 =head2 Mirror
 
@@ -387,6 +410,36 @@ in the row too
 #     = [ 6Y + 6]/4
 #     = 3(Y+1)/2
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=CellularRule190,n_start=0 --all --output=numbers --size=75x6
+
+=pod
+
+    n_start => 0
+
+    21 22 23    24 25 26    27 28 29          5 
+       14 15 16    17 18 19    20             4 
+           8  9 10    11 12 13                3 
+              4  5  6     7                   2 
+                 1  2  3                      1 
+                    0                     <- Y=0
+
+    -5 -4 -3 -2 -1 X=0 1  2  3  4  5
+
+The effect is to push each N rightwards by 1, and wrapping around.  So the
+N=0,1,4,8,14,etc on the left were on the right of the default n_start=1.
+This also has the effect of removing the +1 in the Nright formula given
+above, so
+
+    Nleft = triangular(Y) + quartersquare(Y)
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -395,7 +448,7 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::CellularRule190-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::CellularRule190-E<gt>new (mirror =E<gt> 1)>
+=item C<$path = Math::PlanePath::CellularRule190-E<gt>new (mirror =E<gt> 1, n_start =E<gt> $n)>
 
 Create and return a new path object.
 
@@ -424,10 +477,15 @@ couple of forms,
 
     http://oeis.org/A037576  (etc)
 
-    A037576    whole-row used cells as bits of a bignum
-    A071039    \ 1/0 used and unused cells across rows
-    A118111    /
-    A071041    1/0 used and unused of mirrored rule 246 
+    A037576     whole-row used cells as bits of a bignum
+    A071039     \ 1/0 used and unused cells across rows
+    A118111     /
+    A071041     1/0 used and unused of mirrored rule 246 
+
+    n_start=0
+      A006578   N at left of each row (X=-Y),
+                  and at right of each row when mirrored,
+                  being triangular+quartersquare
 
 =head1 SEE ALSO
 

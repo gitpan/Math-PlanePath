@@ -202,7 +202,7 @@ foreach my $elem
    [0,undef, planepath => 'CoprimeColumns', coordinate_type => 'DiffXY' ],
    [undef,0, planepath => 'CoprimeColumns', coordinate_type => 'DiffYX' ],
    [0,undef, planepath => 'CoprimeColumns', coordinate_type => 'AbsDiff' ],
-
+   
    [1,undef, planepath => 'RationalsTree', coordinate_type => 'X' ],
    [1,undef, planepath => 'RationalsTree', coordinate_type => 'Y' ],
    # X>=1 and Y>=1 always so Sum>=2
@@ -214,7 +214,7 @@ foreach my $elem
    [undef,undef, planepath => 'RationalsTree', coordinate_type => 'DiffXY' ],
    [undef,undef, planepath => 'RationalsTree', coordinate_type => 'DiffYX' ],
    [0,undef,     planepath => 'RationalsTree', coordinate_type => 'AbsDiff' ],
-
+   
    [0,undef, planepath => 'QuadricCurve', coordinate_type => 'X' ],
    [undef,undef, planepath => 'QuadricCurve', coordinate_type => 'Y' ],
    [0,undef, planepath => 'QuadricCurve', coordinate_type => 'Sum' ],
@@ -224,7 +224,7 @@ foreach my $elem
    [0,undef, planepath => 'QuadricCurve', coordinate_type => 'DiffXY' ],
    [undef,0, planepath => 'QuadricCurve', coordinate_type => 'DiffYX' ],
    [0,undef, planepath => 'QuadricCurve', coordinate_type => 'AbsDiff' ],
-
+   
    [0,5,      planepath => 'Rows,width=6', coordinate_type => 'X' ],
    [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'Y' ],
    [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'Sum' ],
@@ -234,7 +234,7 @@ foreach my $elem
    [undef,5,  planepath => 'Rows,width=6', coordinate_type => 'DiffXY' ],
    [-5,undef, planepath => 'Rows,width=6', coordinate_type => 'DiffYX' ],
    [0,undef,  planepath => 'Rows,width=6', coordinate_type => 'AbsDiff' ],
-
+   
    [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'X' ],
    [0,5,      planepath => 'Columns,height=6', coordinate_type => 'Y' ],
    [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'Sum' ],
@@ -244,7 +244,7 @@ foreach my $elem
    [-5,undef, planepath => 'Columns,height=6', coordinate_type => 'DiffXY' ],
    [undef,5,  planepath => 'Columns,height=6', coordinate_type => 'DiffYX' ],
    [0,undef,  planepath => 'Columns,height=6', coordinate_type => 'AbsDiff' ],
-
+   
    # step=0 vertical on Y axis only
    [0,0,     planepath=>'PyramidRows,step=0', coordinate_type => 'X' ],
    [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'Y' ],
@@ -255,7 +255,7 @@ foreach my $elem
    [undef,0, planepath=>'PyramidRows,step=0', coordinate_type => 'DiffXY' ],
    [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'DiffYX' ],
    [0,undef, planepath=>'PyramidRows,step=0', coordinate_type => 'AbsDiff' ],
-
+   
    [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'X' ],
    [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'Y' ],
    [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'Sum' ],
@@ -265,7 +265,7 @@ foreach my $elem
    [undef,0, planepath=>'PyramidRows,step=1', coordinate_type => 'DiffXY' ],
    [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'DiffYX' ],
    [0,undef, planepath=>'PyramidRows,step=1', coordinate_type => 'AbsDiff' ],
-
+   
    [undef,undef, planepath=>'PyramidRows,step=2', coordinate_type=>'X' ],
    [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'Y' ],
    [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'Sum' ],
@@ -275,7 +275,7 @@ foreach my $elem
    [undef,0,     planepath=>'PyramidRows,step=2', coordinate_type=>'DiffXY' ],
    [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'DiffYX' ],
    [0,undef,     planepath=>'PyramidRows,step=2', coordinate_type=>'AbsDiff' ],
-
+   
    [undef,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'X' ],
    [0,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'Y' ],
    [undef,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'Sum' ],
@@ -285,13 +285,13 @@ foreach my $elem
    [undef,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'DiffXY' ],
    [undef,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'DiffYX' ],
    [0,undef, planepath => 'PyramidRows,step=3', coordinate_type => 'AbsDiff' ],
-
+   
    # Y <= X-1, so X-Y >= 1
    #              Y-X <= -1
    [1,undef, planepath => 'SierpinskiCurve', coordinate_type => 'DiffXY' ],
    [undef,-1, planepath => 'SierpinskiCurve', coordinate_type => 'DiffYX' ],
    [1,undef, planepath => 'SierpinskiCurve', coordinate_type => 'AbsDiff' ],
-
+   
    [0,undef, planepath => 'HIndexing', coordinate_type => 'X' ],
    [0,undef, planepath => 'HIndexing', coordinate_type => 'Y' ],
    [0,undef, planepath => 'HIndexing', coordinate_type => 'Sum' ],
@@ -301,7 +301,7 @@ foreach my $elem
    [undef,0, planepath => 'HIndexing', coordinate_type => 'DiffXY' ],
    [0,undef, planepath => 'HIndexing', coordinate_type => 'DiffYX' ],
    [0,undef, planepath => 'HIndexing', coordinate_type => 'AbsDiff' ],
-
+   
    # right line
    [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'X' ],
    [0,undef, planepath=>'CellularRule,rule=16', coordinate_type=>'Y' ],
@@ -312,7 +312,7 @@ foreach my $elem
    [0,0,     planepath=>'CellularRule,rule=16', coordinate_type=>'DiffXY' ],
    [0,0,     planepath=>'CellularRule,rule=16', coordinate_type=>'DiffYX' ],
    [0,0,     planepath=>'CellularRule,rule=16', coordinate_type=>'AbsDiff' ],
-
+   
    # centre line Y axis only
    [0,0,     planepath=>'CellularRule,rule=4', coordinate_type => 'X' ],
    [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'Y' ],
@@ -323,7 +323,7 @@ foreach my $elem
    [undef,0, planepath=>'CellularRule,rule=4', coordinate_type => 'DiffXY' ],
    [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'DiffYX' ],
    [0,undef, planepath=>'CellularRule,rule=4', coordinate_type => 'AbsDiff' ],
-
+   
    # left line
    [undef,0, planepath=>'CellularRule,rule=2', coordinate_type=>'X' ],
    [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'Y' ],
@@ -334,7 +334,7 @@ foreach my $elem
    [undef,0, planepath=>'CellularRule,rule=2', coordinate_type=>'DiffXY' ],
    [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'DiffYX' ],
    [0,undef, planepath=>'CellularRule,rule=2', coordinate_type=>'AbsDiff' ],
-
+   
    # left solid
    [undef,0, planepath=>'CellularRule,rule=206', coordinate_type=>'X' ],
    [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'Y' ],
@@ -345,7 +345,7 @@ foreach my $elem
    [undef,0, planepath=>'CellularRule,rule=206', coordinate_type=>'DiffXY' ],
    [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'DiffYX' ],
    [0,undef, planepath=>'CellularRule,rule=206', coordinate_type=>'AbsDiff' ],
-
+   
    # odd solid
    [undef,undef, planepath=>'CellularRule,rule=50',coordinate_type=>'X' ],
    [0,undef,     planepath=>'CellularRule,rule=50',coordinate_type=>'Y' ],
@@ -361,7 +361,7 @@ foreach my $elem
   ### @parameters
   ### $want_min
   ### $want_max
-
+  
   my $seq = Math::NumSeq::PlanePathCoord->new (@parameters);
   ok ($seq->values_min, $want_min,
       "values_min() ".join(',',@parameters));
@@ -402,11 +402,109 @@ my @modules = (
                
                # module list begin
 
-               'CellularRule,rule=6',   # left 1,2 line
-               'CellularRule,rule=20',  # right 1,2 line
-               'CellularRule,rule=14',  # left 2 cell line
-               'CellularRule,rule=84',  # right 2 cell line
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=4',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=9',
+               'MultipleRings,ring_shape=polygon,step=10',
+               'MultipleRings,ring_shape=polygon,step=11',
+               'MultipleRings,ring_shape=polygon,step=12',
+               'MultipleRings,ring_shape=polygon,step=13',
+               'MultipleRings,ring_shape=polygon,step=14',
+               'MultipleRings,ring_shape=polygon,step=15',
+               'MultipleRings,ring_shape=polygon,step=16',
+               'MultipleRings,ring_shape=polygon,step=17',
+               'MultipleRings,ring_shape=polygon,step=18',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings,ring_shape=polygon',
 
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,ring_shape=polygon,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,ring_shape=polygon,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,ring_shape=polygon,step=2',
+
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+
+               'DiagonalRationals',
+               'DiagonalRationals,direction=up',
+               
+               'CellularRule,rule=50',  # solid every second cell
+               'CellularRule,rule=50,n_start=0',
+               'CellularRule,rule=50,n_start=37',
+               'CellularRule,rule=58',  # solid every second cell
+
+               'CellularRule54',
+               'CellularRule54,n_start=0',
+               'CellularRule54,n_start=37',
+               'CellularRule57',
+               'CellularRule57,n_start=0',
+               'CellularRule57,n_start=37',
+               'CellularRule57,mirror=1',
+               'CellularRule190,n_start=0',
+               'CellularRule190',
+               'CellularRule190',
+               'CellularRule190,mirror=1',
+               'CellularRule190,mirror=1,n_start=0',
+
+               'CellularRule,rule=16', # right line
+               'CellularRule,rule=16,n_start=0',
+               'CellularRule,rule=16,n_start=37',
+               'CellularRule,rule=24', # right line
+               'CellularRule,rule=48', # right line
+
+               'CellularRule,rule=2',  # left line
+               'CellularRule,rule=2,n_start=0',
+               'CellularRule,rule=2,n_start=37',
+               'CellularRule,rule=10', # left line
+               'CellularRule,rule=34', # left line
+
+               'CellularRule,rule=4',  # centre line
+               'CellularRule,rule=4,n_start=0',
+               'CellularRule,rule=4,n_start=37',
+               'CellularRule,rule=12', # centre line
+               'CellularRule,rule=36', # centre line
+
+               'CellularRule,rule=206', # left solid
+               'CellularRule,rule=206,n_start=0',
+               'CellularRule,rule=206,n_start=37',
+
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+
+               'CellularRule,rule=60',
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=220,n_start=0',
+               'CellularRule,rule=220,n_start=37',
+               'CellularRule,rule=222', # solid
+
+               'CellularRule,rule=6',   # left 1,2 line
+               'CellularRule,rule=6,n_start=0',
+               'CellularRule,rule=6,n_start=37',
+               'CellularRule,rule=20',  # right 1,2 line
+               'CellularRule,rule=20,n_start=0',
+               'CellularRule,rule=20,n_start=37',
+               'CellularRule,rule=14',  # left 2 cell line
+               'CellularRule,rule=14,n_start=0',
+               'CellularRule,rule=14,n_start=37',
+               'CellularRule,rule=84',  # right 2 cell line
+               'CellularRule,rule=84,n_start=0',
+               'CellularRule,rule=84,n_start=37',
+               
                'SierpinskiCurveStair',
                'SierpinskiCurveStair,diagonal_length=2',
                'SierpinskiCurveStair,diagonal_length=3',
@@ -418,7 +516,7 @@ my @modules = (
                'SierpinskiCurveStair,arms=6,diagonal_length=5',
                'SierpinskiCurveStair,arms=7',
                'SierpinskiCurveStair,arms=8',
-
+               
                'SierpinskiCurve',
                'SierpinskiCurve,arms=2',
                'SierpinskiCurve,arms=3',
@@ -432,19 +530,19 @@ my @modules = (
                'SierpinskiCurve,arms=7',
                'SierpinskiCurve,arms=8',
                'HIndexing',
-
+               
                'QuadricCurve',
                'QuadricIslands',
-
+               
                'ArchimedeanChords',
-
+               
                'WythoffArray',
                'WythoffArray,x_start=1',
                'WythoffArray,y_start=1',
                'WythoffArray,x_start=1,y_start=1',
                'WythoffArray,x_start=5,y_start=7',
-
-
+               
+               
                'TriangleSpiralSkewed',
                'TriangleSpiralSkewed,n_start=37',
                'TriangleSpiralSkewed,skew=right',
@@ -453,115 +551,115 @@ my @modules = (
                'TriangleSpiralSkewed,skew=up,n_start=37',
                'TriangleSpiralSkewed,skew=down',
                'TriangleSpiralSkewed,skew=down,n_start=37',
-
+               
                'PowerArray',
                'PowerArray,radix=3',
                'PowerArray,radix=4',
-
-
-
+               
+               
+               
                'GrayCode,apply_type=TsF',
                'GrayCode,apply_type=FsT',
                'GrayCode,apply_type=Ts',
                'GrayCode,apply_type=Fs',
                'GrayCode,apply_type=sT',
                'GrayCode,apply_type=sF',
-
+               
                'GrayCode,radix=3,apply_type=TsF',
                'GrayCode,radix=3,apply_type=FsT',
                'GrayCode,radix=3,apply_type=Ts',
                'GrayCode,radix=3,apply_type=Fs',
                'GrayCode,radix=3,apply_type=sT',
                'GrayCode,radix=3,apply_type=sF',
-
+               
                'GrayCode,radix=3,gray_type=modular,apply_type=TsF',
                'GrayCode,radix=3,gray_type=modular,apply_type=Ts',
                'GrayCode,radix=3,gray_type=modular,apply_type=Fs',
                'GrayCode,radix=3,gray_type=modular,apply_type=FsT',
                'GrayCode,radix=3,gray_type=modular,apply_type=sT',
                'GrayCode,radix=3,gray_type=modular,apply_type=sF',
-
+               
                'GrayCode,radix=4,apply_type=TsF',
                'GrayCode,radix=4,apply_type=FsT',
                'GrayCode,radix=4,apply_type=Ts',
                'GrayCode,radix=4,apply_type=Fs',
                'GrayCode,radix=4,apply_type=sT',
                'GrayCode,radix=4,apply_type=sF',
-
+               
                'GrayCode,radix=4,gray_type=modular,apply_type=TsF',
                'GrayCode,radix=4,gray_type=modular,apply_type=Ts',
                'GrayCode,radix=4,gray_type=modular,apply_type=Fs',
                'GrayCode,radix=4,gray_type=modular,apply_type=FsT',
                'GrayCode,radix=4,gray_type=modular,apply_type=sT',
                'GrayCode,radix=4,gray_type=modular,apply_type=sF',
-
+               
                'GrayCode,radix=5,apply_type=TsF',
                'GrayCode,radix=5,apply_type=FsT',
                'GrayCode,radix=5,apply_type=Ts',
                'GrayCode,radix=5,apply_type=Fs',
                'GrayCode,radix=5,apply_type=sT',
                'GrayCode,radix=5,apply_type=sF',
-
+               
                'GrayCode,radix=5,gray_type=modular,apply_type=TsF',
                'GrayCode,radix=5,gray_type=modular,apply_type=Ts',
                'GrayCode,radix=5,gray_type=modular,apply_type=Fs',
                'GrayCode,radix=5,gray_type=modular,apply_type=FsT',
                'GrayCode,radix=5,gray_type=modular,apply_type=sT',
                'GrayCode,radix=5,gray_type=modular,apply_type=sF',
-
+               
                'GrayCode,radix=6,apply_type=TsF',
                'GrayCode,radix=6,apply_type=FsT',
                'GrayCode,radix=6,apply_type=Ts',
                'GrayCode,radix=6,apply_type=Fs',
                'GrayCode,radix=6,apply_type=sT',
                'GrayCode,radix=6,apply_type=sF',
-
+               
                'GrayCode,radix=6,gray_type=modular,apply_type=TsF',
                'GrayCode,radix=6,gray_type=modular,apply_type=Ts',
                'GrayCode,radix=6,gray_type=modular,apply_type=Fs',
                'GrayCode,radix=6,gray_type=modular,apply_type=FsT',
                'GrayCode,radix=6,gray_type=modular,apply_type=sT',
                'GrayCode,radix=6,gray_type=modular,apply_type=sF',
-
+               
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
-
+               
                'Diagonals',
                'Diagonals,direction=up',
                'Diagonals,x_start=1',
                'Diagonals,y_start=1',
                'Diagonals,x_start=1,y_start=1',
                'Diagonals,x_start=7,y_start=5',
-
+               
                'Rows',
                'Rows,width=1',
                'Rows,width=2',
                'Columns',
                'Columns,height=1',
                'Columns,height=2',
-
+               
                'TerdragonCurve',
                'TerdragonCurve,arms=2',
                'TerdragonCurve,arms=3',
                'TerdragonCurve,arms=4',
                'TerdragonCurve,arms=5',
                'TerdragonCurve,arms=6',
-
+               
                'TerdragonMidpoint',
                'TerdragonMidpoint,arms=2',
                'TerdragonMidpoint,arms=3',
                'TerdragonMidpoint,arms=4',
                'TerdragonMidpoint,arms=5',
                'TerdragonMidpoint,arms=6',
-
+               
                'TerdragonRounded',
                'TerdragonRounded,arms=2',
                'TerdragonRounded,arms=3',
                'TerdragonRounded,arms=4',
                'TerdragonRounded,arms=5',
                'TerdragonRounded,arms=6',
-
-
+               
+               
                'PythagoreanTree,coordinates=AC',
                'PythagoreanTree,coordinates=BC',
                'PythagoreanTree,tree_type=FB,coordinates=AC',
@@ -570,7 +668,7 @@ my @modules = (
                'PythagoreanTree,coordinates=PQ',
                'PythagoreanTree,tree_type=FB',
                'PythagoreanTree,tree_type=FB,coordinates=PQ',
-
+               
                'SierpinskiTriangle',
                'SierpinskiTriangle,align=right',
                'SierpinskiTriangle,align=left',
@@ -579,13 +677,13 @@ my @modules = (
                'SierpinskiTriangle,n_start=37,align=right',
                'SierpinskiTriangle,n_start=37,align=left',
                'SierpinskiTriangle,n_start=37,align=diagonal',
-
+               
                'Corner',
                'Corner,wider=1',
                'Corner,wider=2',
                'Corner,wider=5',
                'Corner,wider=37',
-
+               
                'PyramidRows',
                'PyramidRows,step=0',
                'PyramidRows,step=1',
@@ -607,31 +705,30 @@ my @modules = (
                'PyramidRows,align=left,step=4',
                'PyramidRows,align=left,step=5',
                'PyramidRows,align=left,step=37',
-
+               
                'SierpinskiArrowhead',
                'SierpinskiArrowhead,align=right',
                'SierpinskiArrowhead,align=left',
                'SierpinskiArrowhead,align=diagonal',
-
+               
                'SierpinskiArrowheadCentres',
                'SierpinskiArrowheadCentres,align=right',
                'SierpinskiArrowheadCentres,align=left',
                'SierpinskiArrowheadCentres,align=diagonal',
-
+               
                'CoprimeColumns',
                'DivisibleColumns',
                'DivisibleColumns,divisor_type=proper',
-
+               
                'FractionsTree',
                'FactorRationals',
-               'DiagonalRationals',
-
+               
                'CfracDigits,radix=1',
                'CfracDigits',
                'CfracDigits,radix=3',
                'CfracDigits,radix=4',
                'CfracDigits,radix=37',
-
+               
                'ChanTree,k=2,n_start=1',
                'ChanTree,n_start=1',
                'ChanTree,k=4,n_start=1',
@@ -642,7 +739,7 @@ my @modules = (
                'ChanTree,k=5',
                'ChanTree,k=6',
                'ChanTree,k=7',
-
+               
                'ImaginaryHalf',
                'ImaginaryHalf,digit_order=XXY',
                'ImaginaryHalf,digit_order=YXX',
@@ -655,13 +752,13 @@ my @modules = (
                'ImaginaryHalf,radix=4',
                'ImaginaryHalf,radix=5',
                'ImaginaryHalf,radix=6',
-
+               
                'LTiling',
                'LTiling,L_fill=left',
                'LTiling,L_fill=upper',
                'LTiling,L_fill=ends',
                'LTiling,L_fill=all',
-
+               
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=HCS',
                'RationalsTree',
@@ -669,37 +766,37 @@ my @modules = (
                'RationalsTree,tree_type=AYT',
                'RationalsTree,tree_type=Bird',
                'RationalsTree,tree_type=Drib',
-
+               
                'KochSnowflakes',
                'KochSquareflakes',
                'KochSquareflakes,inward=>1',
-
+               
                'DekkingCurve',
                'DekkingCentres',
-
+               
                'WunderlichSerpentine,radix=2',
                'WunderlichSerpentine',
                'WunderlichSerpentine,serpentine_type=100_000_000',
                'WunderlichSerpentine,serpentine_type=000_000_001',
                'WunderlichSerpentine,radix=4',
                'WunderlichSerpentine,radix=5,serpentine_type=coil',
-
+               
                'DigitGroups',
                'DigitGroups,radix=3',
                'DigitGroups,radix=4',
                'DigitGroups,radix=5',
                'DigitGroups,radix=37',
-
+               
                'KochCurve',
                'KochPeaks',
-
+               
                'ImaginaryBase,radix=37',
                'ImaginaryBase',
                'ImaginaryBase,radix=3',
                'ImaginaryBase,radix=4',
                'ImaginaryBase,radix=5',
                'ImaginaryBase,radix=6',
-
+               
                'QuintetReplicate',
                'QuintetCurve',
                'QuintetCurve,arms=2',
@@ -709,10 +806,10 @@ my @modules = (
                'QuintetCentres,arms=2',
                'QuintetCentres,arms=3',
                'QuintetCentres,arms=4',
-
+               
                'TriangleSpiral',
                'TriangleSpiral,n_start=37',
-
+               
                'SquareSpiral',
                'SquareSpiral,wider=1',
                'SquareSpiral,wider=2',
@@ -729,46 +826,46 @@ my @modules = (
                'SquareSpiral,n_start=37,wider=5',
                'SquareSpiral,n_start=37,wider=6',
                'SquareSpiral,n_start=37,wider=37',
-
+               
                'GosperReplicate',
                'GosperSide',
                'GosperIslands',
-
+               
                'UlamWarburton',
                'UlamWarburtonQuarter',
-
+               
                'Staircase',
                'StaircaseAlternating',
                'StaircaseAlternating,end_type=square',
-
+               
                'SacksSpiral',
                'TheodorusSpiral',
-
+               
                'VogelFloret',
                'CubicBase',
-
+               
                'PeanoCurve',
                'PeanoCurve,radix=2',
                'PeanoCurve,radix=4',
                'PeanoCurve,radix=5',
                'PeanoCurve,radix=17',
-
+               
                'KnightSpiral',
-
+               
                'HypotOctant',
                'HypotOctant,points=even',
                'HypotOctant,points=odd',
                'Hypot',
                'Hypot,points=even',
                'Hypot,points=odd',
-
+               
                'TriangularHypot',
                'TriangularHypot,points=odd',
                'TriangularHypot,points=all',
                'TriangularHypot,points=hex',
                'TriangularHypot,points=hex_rotated',
                'TriangularHypot,points=hex_centred',
-
+               
                'GreekKeySpiral',
                'GreekKeySpiral,turns=0',
                'GreekKeySpiral,turns=1',
@@ -779,7 +876,7 @@ my @modules = (
                'GreekKeySpiral,turns=7',
                'GreekKeySpiral,turns=8',
                'GreekKeySpiral,turns=37',
-
+               
                'AlternatePaperMidpoint',
                'AlternatePaperMidpoint,arms=2',
                'AlternatePaperMidpoint,arms=3',
@@ -788,7 +885,7 @@ my @modules = (
                'AlternatePaperMidpoint,arms=6',
                'AlternatePaperMidpoint,arms=7',
                'AlternatePaperMidpoint,arms=8',
-
+               
                'AlternatePaper',
                'AlternatePaper,arms=2',
                'AlternatePaper,arms=3',
@@ -797,16 +894,16 @@ my @modules = (
                'AlternatePaper,arms=6',
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
-
+               
                'DiagonalsAlternating',
-
+               
                'GcdRationals',
                'GcdRationals,pairs_order=rows_reverse',
                'GcdRationals,pairs_order=diagonals_down',
                'GcdRationals,pairs_order=diagonals_up',
-
+               
                'CCurve',
-
+               
                'R5DragonMidpoint',
                'R5DragonMidpoint,arms=2',
                'R5DragonMidpoint,arms=3',
@@ -815,42 +912,42 @@ my @modules = (
                'R5DragonCurve,arms=2',
                'R5DragonCurve,arms=3',
                'R5DragonCurve,arms=4',
-
+               
                'PyramidSides',
-
+               
                'ComplexMinus',
                'ComplexMinus,realpart=2',
                'ComplexMinus,realpart=3',
                'ComplexMinus,realpart=4',
                'ComplexMinus,realpart=5',
                'ComplexRevolving',
-
+               
                # 'File',
-
-
+               
+               
                'PixelRings',
                'FilledRings',
-
+               
                'ZOrderCurve',
                'ZOrderCurve,radix=3',
                'ZOrderCurve,radix=9',
                'ZOrderCurve,radix=37',
-
+               
                'CretanLabyrinth',
-
+               
                'ComplexPlus',
                'ComplexPlus,realpart=2',
                'ComplexPlus,realpart=3',
                'ComplexPlus,realpart=4',
                'ComplexPlus,realpart=5',
-
+               
                'OctagramSpiral',
                'AnvilSpiral',
                'AnvilSpiral,wider=1',
                'AnvilSpiral,wider=2',
                'AnvilSpiral,wider=9',
                'AnvilSpiral,wider=17',
-
+               
                'AR2W2Curve',
                'AR2W2Curve,start_shape=D2',
                'AR2W2Curve,start_shape=B2',
@@ -860,10 +957,10 @@ my @modules = (
                'BetaOmega',
                'KochelCurve',
                'CincoCurve',
-
+               
                'HilbertSpiral',
                'HilbertCurve',
-
+               
                'MPeaks',
                'WunderlichMeander',
                'FibonacciWordFractal',
@@ -937,76 +1034,13 @@ my @modules = (
                'CellularRule,rule=224', # single cell
                'CellularRule,rule=232', # single cell
 
-               'CellularRule,rule=2',  # left line
-               'CellularRule,rule=10', # left line
-               'CellularRule,rule=34', # left line
-
-               'CellularRule,rule=4',  # centre line
-               'CellularRule,rule=12', # centre line
-               'CellularRule,rule=36', # centre line
-
-               'CellularRule,rule=16', # right line
-               'CellularRule,rule=24', # right line
-               'CellularRule,rule=48', # right line
-
-               'CellularRule,rule=206', # left solid
-               'CellularRule,rule=50',  # solid every second cell
-               'CellularRule,rule=58',  # solid every second cell
-
-               'CellularRule,rule=57',
-               'CellularRule,rule=60',
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=222', # solid
-               'CellularRule54',
-               'CellularRule57',
-               'CellularRule57,mirror=1',
-               'CellularRule190',
-               'CellularRule190,mirror=1',
-
-
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=4',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=9',
-               'MultipleRings,ring_shape=polygon,step=10',
-               'MultipleRings,ring_shape=polygon,step=11',
-               'MultipleRings,ring_shape=polygon,step=12',
-               'MultipleRings,ring_shape=polygon,step=13',
-               'MultipleRings,ring_shape=polygon,step=14',
-               'MultipleRings,ring_shape=polygon,step=15',
-               'MultipleRings,ring_shape=polygon,step=16',
-               'MultipleRings,ring_shape=polygon,step=17',
-               'MultipleRings,ring_shape=polygon,step=18',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings,ring_shape=polygon',
-
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,ring_shape=polygon,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,ring_shape=polygon,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,ring_shape=polygon,step=2',
-
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
-
-
 
                # module list end
 
                # cellular 0 to 255
-               (map {"CellularRule,rule=$_"} 0..255),
+               (map {("CellularRule,rule=$_",
+                      "CellularRule,rule=$_,n_start=0",
+                      "CellularRule,rule=$_,n_start=37")} 0..255),
               );
 
 {
@@ -1026,7 +1060,7 @@ my @modules = (
       
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
-        # next unless $param =~ /Dir4/;
+        # next unless $param =~ /d/;
         MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param

@@ -28,18 +28,20 @@ use warnings;
 
 {
   # height
-  require Math::PlanePath::UlamWarburton;
-  require Math::PlanePath::UlamWarburtonQuarter;
+  # my $class = 'Math::PlanePath::UlamWarburton';
+  # my $class = 'Math::PlanePath::UlamWarburtonQuarter';
+  # my $class = 'Math::PlanePath::ToothpickUpist';
+   my $class = 'Math::PlanePath::LCornerTree';
+  eval "require $class";
   require Math::BaseCnv;
-  my $path = Math::PlanePath::UlamWarburton->new;
-  # my $path = Math::PlanePath::UlamWarburtonQuarter->new;
+  my $path = $class->new (parts => 1);
   my $prev_depth = 0;
-  for (my $n = $path->n_start; ; $n++) {
+  for (my $n = $path->n_start;; $n++) {
     my $depth = $path->tree_n_to_depth($n);
     my $n_depth = $path->tree_depth_to_n($depth);
     if ($depth != $prev_depth) {
       print "\n";
-      last if $depth > 33;
+      last if $depth > 65;
       $prev_depth = $depth;
     }
     my $calc_height = $path->tree_n_to_height($n);
@@ -61,7 +63,7 @@ use warnings;
       @n = map {$self->tree_n_children($_)} @n
         or return $height;
       $height++;
-      if (@n > 200 || $height > 200) {
+      if (@n > 400 || $height > 70) {
         return undef;  # presumed infinite
       }
     }

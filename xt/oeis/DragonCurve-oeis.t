@@ -40,7 +40,7 @@ sub numeq_array {
   if (! ref $a1 || ! ref $a2) {
     return 0;
   }
-  my $i = 0; 
+  my $i = 0;
   while ($i < @$a1 && $i < @$a2) {
     if ($a1->[$i] ne $a2->[$i]) {
       return 0;
@@ -85,6 +85,40 @@ sub dxdy_to_dir {
   if ($dy < 0) { return 3; }  # south
 }
 
+
+#------------------------------------------------------------------------------
+# A038189 -- bit above lowest 1, is 0=left,1=right
+
+MyOEIS::compare_values
+  (anum => 'A038189',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'DragonCurve',
+                                                 turn_type => 'Right');
+     my @got = (0);  # extra initial 0
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+# A089013=A038189 but initial extra 1
+MyOEIS::compare_values
+  (anum => 'A089013',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathTurn;
+     my $seq = Math::NumSeq::PlanePathTurn->new (planepath => 'DragonCurve',
+                                                 turn_type => 'Right');
+     my @got = (1);  # extra initial 1
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A126937 -- points numbered as SquareSpiral, starting N=0
@@ -214,7 +248,7 @@ sub dxdy_to_dir {
   if ($bvalues) {
     my $prev_turn = path_n_turn($dragon,1);
     my $run = 1; # count for initial $prev_turn
-    push @got, 0,1; 
+    push @got, 0,1;
     for (my $n = 2; @got < @$bvalues; $n++) {
       my $turn = path_n_turn($dragon,$n);
       if ($turn == $prev_turn) {
@@ -474,8 +508,13 @@ sub dxdy_to_dir {
 #------------------------------------------------------------------------------
 # A121238 - -1 power something is 1=left,-1=right, extra initial 1
 # A088585
-# A088567
 # A088575
+
+# A088567 a(0)=1, a(1)=1;
+#   for m >= 1, a(2m)   = a(2m-1) + a(m) - 1,
+#               a(2m+1) = a(2m) + 1
+# A090678 = A088567 mod 2.
+# 
 
 {
   my $anum = 'A121238';
@@ -538,36 +577,6 @@ sub dxdy_to_dir {
 }
 
 
-
-#------------------------------------------------------------------------------
-# A038189 -- bit above lowest 1, is 0=left,1=right
-
-{
-  my $anum = 'A038189';
-  my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-  my @got;
-  if ($bvalues) {
-    push @got, 0;
-    for (my $n = $dragon->n_start + 1; @got < @$bvalues; $n++) {
-      my $turn = path_n_turn($dragon,$n);
-      if ($turn == 1) { # left
-        push @got, 0;
-      } elsif ($turn == 0) { # right
-        push @got, 1;
-      } else {
-        die "Oops, unrecognised turn $turn";
-      }
-    }
-
-    if (! numeq_array(\@got, $bvalues)) {
-      MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-      MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-    }
-  }
-  skip (! $bvalues,
-        numeq_array(\@got, $bvalues),
-        1, "$anum");
-}
 
 #------------------------------------------------------------------------------
 # A091072 -- N positions of left turns

@@ -31,9 +31,10 @@ use File::Compare ();
 use File::Copy;
 use File::Temp;
 use Image::Base::GD;
+use POSIX 'floor';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 my $target_dir = "$ENV{HOME}/tux/web/math-planepath";
 my $tempfh = File::Temp->new (SUFFIX => '.png');
@@ -43,22 +44,8 @@ my %seen_filename;
 
 foreach my $elem
   (
-   ['triangle-spiral-skewed-small.png',
-    'math-image --path=TriangleSpiralSkewed --lines --scale=3 --size=32'],
-   ['triangle-spiral-skewed-big.png',
-    'math-image --path=TriangleSpiralSkewed --lines --scale=13 --size=150'],
-   ['triangle-spiral-skewed-right-big.png',
-    'math-image --path=TriangleSpiralSkewed,skew=right --lines --scale=13 --size=150'],
-   ['triangle-spiral-skewed-up-big.png',
-    'math-image --path=TriangleSpiralSkewed,skew=up --lines --scale=13 --size=150'],
-   ['triangle-spiral-skewed-down-big.png',
-    'math-image --path=TriangleSpiralSkewed,skew=down --lines --scale=13 --size=150'],
-
-   ['triangle-spiral-small.png',
-    'math-image --path=TriangleSpiral --lines --scale=3 --size=32'],
-   ['triangle-spiral-big.png',
-    'math-image --path=TriangleSpiral --lines --scale=13 --size=300x150'],
-
+   ['rationals-tree-rows-sb.png', \&special_sb_rows,
+    title => 'RationalsTree,tree_type=SB rows' ],
    ['rationals-tree-lines-ayt.png',
     'math-image --path=RationalsTree,tree_type=AYT --values=LinesTree --scale=20 --size=200'],
    ['rationals-tree-lines-hcs.png',
@@ -78,6 +65,22 @@ foreach my $elem
    ['rationals-tree-lines-drib.png',
     'math-image --path=RationalsTree,tree_type=Drib --values=LinesTree --scale=20 --size=200'],
 
+
+   ['triangle-spiral-skewed-small.png',
+    'math-image --path=TriangleSpiralSkewed --lines --scale=3 --size=32'],
+   ['triangle-spiral-skewed-big.png',
+    'math-image --path=TriangleSpiralSkewed --lines --scale=13 --size=150'],
+   ['triangle-spiral-skewed-right-big.png',
+    'math-image --path=TriangleSpiralSkewed,skew=right --lines --scale=13 --size=150'],
+   ['triangle-spiral-skewed-up-big.png',
+    'math-image --path=TriangleSpiralSkewed,skew=up --lines --scale=13 --size=150'],
+   ['triangle-spiral-skewed-down-big.png',
+    'math-image --path=TriangleSpiralSkewed,skew=down --lines --scale=13 --size=150'],
+
+   ['triangle-spiral-small.png',
+    'math-image --path=TriangleSpiral --lines --scale=3 --size=32'],
+   ['triangle-spiral-big.png',
+    'math-image --path=TriangleSpiral --lines --scale=13 --size=300x150'],
 
    ['one-of-eight-1-nonleaf.png',
     'math-image --path=OneOfEight,parts=1 --values=PlanePathCoord,planepath=\"OneOfEight,parts=1\",coordinate_type=IsNonLeaf --scale=3 --size=99'],
@@ -897,11 +900,15 @@ foreach my $elem
     die "Duplicate filename $filename";
   }
 
-  $command .= " --png >$tempfile";
-  ### $command
-  my $status = system $command;
-  if ($status) {
-    die "Exit $status";
+  if (ref $command) {
+    &$command ($tempfile);
+  } else {
+    $command .= " --png >$tempfile";
+    ### $command
+    my $status = system $command;
+    if ($status) {
+      die "Exit $status";
+    }
   }
 
   if ($option{'border'}) {
@@ -912,13 +919,19 @@ foreach my $elem
   system('pngtextadd','--keyword=Generator','--text=Math-PlanePath tools/gallery.pl running math-image',$tempfile) == 0
     or die "system(pngtextadd)";
 
-  $command =~ /--path=([^ ]+)/ or die "Oops no --path in command: $command";
-  my $title = $1;
-  if ($command =~ /--values=(Fibbinary)/) {
-    $title .= " $1";
+  {
+    my $title = $option{'title'};
+    if (! defined $title) {
+      $command =~ /--path=([^ ]+)/
+        or die "Oops no --path in command: $command";
+      $title = $1;
+      if ($command =~ /--values=(Fibbinary)/) {
+        $title .= " $1";
+      }
+    }
+    system('pngtextadd','--keyword=Title',"--text=$title",$tempfile) == 0
+      or die "system(pngtextadd)";
   }
-  system('pngtextadd','--keyword=Title',"--text=$title",$tempfile) == 0
-    or die "system(pngtextadd)";
 
   my $targetfile = "$target_dir/$filename";
   if (File::Compare::compare($tempfile,$targetfile) == 0) {
@@ -957,4 +970,133 @@ sub png_border {
                      $image->get('-height') - 1,
                      'black');
   $image->save;
+}
+
+sub special_sb_rows {
+  my ($filename) = @_;
+
+  my $scale = 14;
+  my $width = 200;
+  my $height = 200;
+  my $margin = int($scale * .2);
+  my $xhi = int($width/$scale) + 3;
+  my $yhi = int($height/$scale) + 3;
+
+  require Geometry::AffineTransform;
+  my $affine = Geometry::AffineTransform->new;
+  $affine->scale ($scale, -$scale);
+  $affine->translate (-$scale+$margin, $height-1 - (-$scale+$margin));
+  {
+    my ($x,$y) = $affine->transform (0,0);
+    ### $x
+    ### $y
+  }
+
+  require Image::Base::GD;
+  my $image = Image::Base::GD->new (-width => $width, -height => $height);
+  $image->rectangle (0,0, $width-1,$height-1, 'black');
+
+  require Math::PlanePath::RationalsTree;
+  my $path = Math::PlanePath::RationalsTree->new;
+
+  foreach my $y (0 .. $yhi) {
+    foreach my $x (0 .. $xhi) {
+      my $n = $path->xy_to_n($x,$y) // next;
+      my $depth = $path->tree_n_to_depth($n);
+      foreach my $n2 ($n + 1, $n - 1) {
+        next unless $n2 >= 1;
+        next unless $path->tree_n_to_depth($n2) == $depth;
+        my ($x2,$y2) = $path->n_to_xy($n2);
+        my ($sx1,$sy1) = $affine->transform($x,$y);
+        my ($sx2,$sy2) = $affine->transform($x2,$y2);
+        _image_line_clipped ($image, $sx1,$sy1, $sx2,$sy2,
+                             $width,$height, 'white');
+      }
+    }
+  }
+
+  $image->save($filename);
+}
+sub _image_line_clipped {
+  my ($image, $x1,$y1, $x2,$y2, $width,$height, $colour) = @_;
+  ### _image_line_clipped(): "$x1,$y1 $x2,$y2  ${width}x${height}"
+  if (($x1,$y1, $x2,$y2) = line_clipper ($x1,$y1, $x2,$y2, $width,$height)) {
+    ### clipped draw: "$x1,$y1 $x2,$y2"
+    $image->line ($x1,$y1, $x2,$y2, $colour);
+    return 1;
+  } else {
+    return 0;
+  }
+}
+sub line_clipper {
+  my ($x1,$y1, $x2,$y2, $width, $height) = @_;
+
+  return if ($x1 < 0 && $x2 < 0)
+    || ($x1 >= $width && $x2 >= $width)
+      || ($y1 < 0 && $y2 < 0)
+        || ($y1 >= $height && $y2 >= $height);
+
+  my $x1new = $x1;
+  my $y1new = $y1;
+  my $x2new = $x2;
+  my $y2new = $y2;
+  my $xlen = ($x1 - $x2);
+  my $ylen = ($y1 - $y2);
+
+  if ($x1new < 0) {
+    $x1new = 0;
+    $y1new = floor (0.5 + ($y1 * (-$x2)
+                                  + $y2 * ($x1)) / $xlen);
+    ### x1 neg: "y1new to $x1new,$y1new"
+  } elsif ($x1new >= $width) {
+    $x1new = $width-1;
+    $y1new = floor (0.5 + ($y1 * ($x1new-$x2)
+                                  + $y2 * ($x1 - $x1new)) / $xlen);
+    ### x1 big: "y1new to $x1new,$y1new"
+  }
+  if ($y1new < 0) {
+    $y1new = 0;
+    $x1new = floor (0.5 + ($x1 * (-$y2)
+                                  + $x2 * ($y1)) / $ylen);
+    ### y1 neg: "x1new to $x1new,$y1new   left ".($y1new-$y2)." right ".($y1-$y1new)
+    ### x1new to: $x1new
+  } elsif ($y1new >= $height) {
+    $y1new = $height-1;
+    $x1new = floor (0.5 + ($x1 * ($y1new-$y2)
+                                  + $x2 * ($y1 - $y1new)) / $ylen);
+    ### y1 big: "x1new to $x1new,$y1new   left ".($y1new-$y2)." right ".($y1-$y1new)
+  }
+  if ($x1new < 0 || $x1new >= $width) {
+    ### x1new outside
+    return;
+  }
+
+  if ($x2new < 0) {
+    $x2new = 0;
+    $y2new = floor (0.5 + ($y2 * ($x1)
+                                  + $y1 * (-$x2)) / $xlen);
+    ### x2 neg: "y2new to $x2new,$y2new"
+  } elsif ($x2new >= $width) {
+    $x2new = $width-1;
+    $y2new = floor (0.5 + ($y2 * ($x1-$x2new)
+                                  + $y1 * ($x2new-$x2)) / $xlen);
+    ### x2 big: "y2new to $x2new,$y2new"
+  }
+  if ($y2new < 0) {
+    $y2new = 0;
+    $x2new = floor (0.5 + ($x2 * ($y1)
+                                  + $x1 * (-$y2)) / $ylen);
+    ### y2 neg: "x2new to $x2new,$y2new"
+  } elsif ($y2new >= $height) {
+    $y2new = $height-1;
+    $x2new = floor (0.5 + ($x2 * ($y1-$y2new)
+                                  + $x1 * ($y2new-$y2)) / $ylen);
+    ### y2 big: "x2new $x2new,$y2new"
+  }
+  if ($x2new < 0 || $x2new >= $width) {
+    ### x2new outside
+    return;
+  }
+
+  return ($x1new,$y1new, $x2new,$y2new);
 }

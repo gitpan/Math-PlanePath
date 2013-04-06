@@ -39,7 +39,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 100;
+  my $want_version = 101;
   ok ($Math::PlanePath::DiagonalRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiagonalRationals->VERSION,  $want_version,
@@ -78,7 +78,7 @@ my $n_start = $path->n_start;
 {
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::DiagonalRationals->parameter_info_list;
-  ok (join(',',@pnames), 'n_start');
+  ok (join(',',@pnames), 'direction,n_start');
 }
 
 

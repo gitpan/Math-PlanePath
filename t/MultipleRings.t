@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 375;
+plan tests => 365;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 100;
+  my $want_version = 101;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -155,45 +155,46 @@ foreach my $elem (
 
 foreach my $elem (
                   # step=0
-                  [ 0, 1,  0*0 ],
-                  [ 0, 2,  1*1 ],
-                  [ 0, 3,  2*2 ],
-                  [ 0, 4,  3*3 ],
+                  [ 0, 1,   0*0 ],
+                  [ 0, 2,   1*1 ],
+                  [ 0, 2.5, 1.5*1.5 ],
+                  [ 0, 3,   2*2 ],
+                  [ 0, 4,   3*3 ],
 
                   # step=1
                   [ 1, 1,  0*0 ],
                   [ 1, 1,  0*0 ],
 
                   [ 1, 2,    1*1 ],
-                  [ 1, 2.5,  1*1 ],
+                  # [ 1, 2.5,  1*1 ],
                   [ 1, 3,    1*1 ],
-                  [ 1, 3.5,  1*1 ],
+                  # [ 1, 3.5,  1*1 ],
 
                   [ 1, 4,    2*2 ],
-                  [ 1, 4.5,  2*2 ],
+                  # [ 1, 4.5,  2*2 ],
                   [ 1, 6,    2*2 ],
-                  [ 1, 6.5,  2*2 ],
+                  # [ 1, 6.5,  2*2 ],
 
                   [ 1, 7,     3*3 ],
-                  [ 1, 7.5,   3*3 ],
+                  # [ 1, 7.5,   3*3 ],
                   [ 1, 10,    3*3 ],
-                  [ 1, 10.5,  3*3 ],
+                  # [ 1, 10.5,  3*3 ],
 
 
                   # step=6
                   [ 6, 1,     1*1 ],  # 1..6 inclusive
                   [ 6, 6,     1*1 ],
-                  [ 6, 6.75,  1*1 ],
+                  # [ 6, 6.75,  1*1 ],
 
                   [ 6, 7,     2*2 ],  # 7..18 inclusive
-                  [ 6, 7.5,   2*2 ],
+                  # [ 6, 7.5,   2*2 ],
                   [ 6, 18,    2*2 ],
-                  [ 6, 18.5,  2*2 ],
+                  # [ 6, 18.5,  2*2 ],
 
                   [ 6, 19,    3*3 ],  # 19..36 inclusive
-                  [ 6, 19.5,  3*3 ],
+                  # [ 6, 19.5,  3*3 ],
                   [ 6, 36,    3*3 ],
-                  [ 6, 36.5,  3*3 ],
+                  # [ 6, 36.5,  3*3 ],
 
                  ) {
   my ($step, $n, $want_rsquared) = @$elem;

@@ -34,6 +34,26 @@ use Math::PlanePath::KochCurve;
 
 
 #------------------------------------------------------------------------------
+# A177702 - abs(dX) from N=1 onwards, repeating 1,1,2
+
+MyOEIS::compare_values
+  (anum => 'A177702',
+   func => sub {
+     my ($count) = @_;
+     require Math::NumSeq::PlanePathDelta;
+     my $seq = Math::NumSeq::PlanePathDelta->new (planepath => 'KochCurve',
+                                                  delta_type => 'AbsdX');
+     $seq->seek_to_i(1);
+     my @got;
+     while (@got < $count) {
+       my ($i,$value) = $seq->next;
+       push @got, $value;
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
 # A217586
 # Not quite turn sequence ...
 # differs 0<->1 at n=2^k
@@ -133,7 +153,7 @@ sub A217586_func {
   #     }
   #   }
   # }
-  # 
+  #
   # {
   #   if ($n == 1) {
   #     return 1;

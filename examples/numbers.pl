@@ -299,6 +299,7 @@ my @all_classes = ('SquareSpiral',
                    'PythagoreanTree,tree_type=FB,coordinates=PQ',
 
                    'DiagonalRationals',
+                   'DiagonalRationals,direction=up',
                    'CoprimeColumns',
                    'FactorRationals',
                    'GcdRationals',

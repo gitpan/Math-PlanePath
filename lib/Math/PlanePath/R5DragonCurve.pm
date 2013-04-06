@@ -30,7 +30,7 @@ use List::Util 'first','sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -63,8 +63,6 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
 use constant dir_maximum_dxdy => (0,-1); # South
 
 
@@ -519,8 +517,15 @@ The R5 dragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A175337
 
-    A175337 -- next turn 0=left,1=right
-                (n=0 is the first turn, which is at N=1)
+    A175337    next turn 0=left,1=right
+                (n=0 is the turn at N=1)
+
+    arms=1 and arms=3
+      A059841    abs(dX), being 1,0 repeating
+      A000035    abs(dY), being 0,1 repeating
+
+    arms=4
+      A165211    abs(dY), being 0,1,0,1,1,0,1,0 repeating
 
 =head1 SEE ALSO
 

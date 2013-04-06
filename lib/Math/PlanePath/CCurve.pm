@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -609,6 +609,9 @@ L<Math::PlanePath>,
 L<Math::PlanePath::DragonCurve>,
 L<Math::PlanePath::AlternatePaper>,
 L<Math::PlanePath::KochCurve>
+
+L<ccurve(6x)> back end of L<xscreensaver(1)> displaying the C curve (and
+various other dragon curve and Koch curves).
 
 =head1 HOME PAGE
 

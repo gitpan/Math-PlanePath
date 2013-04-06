@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -66,11 +66,6 @@ use constant dir_maximum_dxdy => (1,-1); # South-East
 
 
 #------------------------------------------------------------------------------
-
-# ENHANCE-ME: Not quite.
-# # all even points when arms==3
-# use Math::PlanePath::TerdragonCurve;
-# *xy_is_visited = \&Math::PlanePath::TerdragonCurve::xy_is_visited;
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -143,6 +138,16 @@ sub xy_to_n {
     }
   }
   return undef;
+}
+
+# arms==6 is all "hex_centred" points X+3Y mod 6 == 2 or 4
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  if ($self->{'arms'} == 6) {
+    my $mod = (3*$y + $x) % 6;
+    return ($mod == 2 || $mod == 4);
+  }
+  return defined($self->xy_to_n($x,$y));
 }
 
 # not exact
@@ -311,6 +316,15 @@ Fractional positions give an X,Y position along a straight line between the
 integer positions.
 
 =back
+
+=head1 FORMULAS
+
+=head2 X,Y Visited
+
+When arms=6 all "hex centred" points of the plane are visited, being those
+points with
+
+    X+3Y mod 6 == 2 or 4        "hex_centred"
 
 =head1 SEE ALSO
 

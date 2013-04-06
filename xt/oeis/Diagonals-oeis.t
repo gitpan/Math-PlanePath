@@ -21,7 +21,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 2;
+plan tests => 12;
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,6 +33,109 @@ use Math::PlanePath::Diagonals;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+
+# A079824
+
+#------------------------------------------------------------------------------
+# A185787 -- total N in row up to Y=X diagonal
+
+MyOEIS::compare_values
+  (anum => 'A185787',
+   max_count => 1000,
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Diagonals->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y++) {
+       push @got, path_rect_to_accumulation ($path, 0,$y, $y,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A100182 -- total N in column to X=Y leading diagonal
+#  tetragonal anti-prism numbers (7*n^3 - 3*n^2 + 2*n)/6
+
+MyOEIS::compare_values
+  (anum => 'A100182',
+   max_count => 1000,
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Diagonals->new;
+     my @got;
+     for (my $x = 0; @got < $count; $x++) {
+       push @got, path_rect_to_accumulation ($path, $x,0, $x,$x);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A185788 -- total N in row to X=Y-1 before leading diagonal
+
+MyOEIS::compare_values
+  (anum => 'A185788',
+   max_count => 1000,
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Diagonals->new;
+     my @got = (0);
+     for (my $y = 1; @got < $count; $y++) {
+       push @got, path_rect_to_accumulation ($path, 0,$y, $y-1,$y);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A101165 -- total N in column up to Y=X-1 before leading diagonal
+
+MyOEIS::compare_values
+  (anum => 'A101165',
+   max_count => 1000,
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Diagonals->new;
+     my @got = (0);
+     for (my $x = 1; @got < $count; $x++) {
+       push @got, path_rect_to_accumulation ($path, $x,0, $x,$x-1);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A185506 -- accumulation array, by antidiagonals
+# accumulation being total sum N in rectangle 0,0 to X,Y
+
+MyOEIS::compare_values
+  (anum => 'A185506',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Diagonals->new;
+     my @got;
+     for (my $d = $path->n_start; @got < $count; $d++) {
+       my ($x,$y) = $path->n_to_xy($d);  # by anti-diagonals
+       push @got, path_rect_to_accumulation($path, 0,0, $x,$y)
+     }
+     return \@got;
+   });
+
+sub path_rect_to_accumulation {
+  my ($path, $x1,$y1, $x2,$y2) = @_;
+  # $x1 = round_nearest ($x1);
+  # $y1 = round_nearest ($y1);
+  # $x2 = round_nearest ($x2);
+  # $y2 = round_nearest ($y2);
+
+  ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
+  ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
+
+  my $accumulation = 0;
+  foreach my $x ($x1 .. $x2) {
+    foreach my $y ($y1 .. $y2) {
+      $accumulation += $path->xy_to_n($x,$y);
+    }
+  }
+  return $accumulation;
+}
 
 #------------------------------------------------------------------------------
 # A103451 -- turn 1=left or right, 0=straight

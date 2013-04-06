@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -200,7 +200,7 @@ sub new {
   }
 }
 
-# shared by QuintetCurve
+# shared by DragonMidpoint,R5DragonCurve,QuintetCurve
 sub xy_is_visited {
   my ($self, $x, $y) = @_;
   return ($self->{'arms'} == 4
@@ -1123,6 +1123,7 @@ various forms (and see DragonMidpoint for its forms too),
     http://oeis.org/A014577  (etc)
 
     A038189   turn, 0=left,1=right, bit above lowest 1, extra 0
+    A089013    same as A038189, but initial extra 1
     A082410   turn, 1=left,0=right, reversing complement, extra 0
     A099545   turn, 1=left,3=right, as [odd part n] mod 4
     A034947   turn, 1=left,-1=right, Jacobi (-1/n)

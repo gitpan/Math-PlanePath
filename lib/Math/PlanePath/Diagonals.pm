@@ -17,6 +17,8 @@
 
 
 # Leading diagonal 2,8,18 = 2*d^2
+#
+# cf A185787 lists numerous seqs for rows,columns,diagonals
 
 package Math::PlanePath::Diagonals;
 use 5.004;
@@ -25,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -455,7 +457,7 @@ path include
 
     http://oeis.org/A002262  (etc)
 
-    direction=down
+    direction=down (the default)
       A002262    X coordinate, runs 0 to k
       A025581  	 Y coordinate, runs k to 0
       A003056  	 X+Y coordinate sum, k repeated k+1 times
@@ -466,6 +468,12 @@ path include
 
       A000124    N on Y axis, triangular numbers + 1
       A001844    N on X=Y diagonal
+
+      A185787    total N in row to X=Y diagonal
+      A185788    total N in row to X=Y-1
+      A100182    total N in column to Y=X diagonal
+      A101165    total N in column to Y=X-1
+      A185506    total N in rectangle 0,0 to X,Y
 
     direction=down, n_start=0
       A023531    dSum = dX+dY, being 1 at N=triangular+1 (and 0)

@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiTriangle;
 # VERSION
 
 {
-  my $want_version = 100;
+  my $want_version = 101;
   ok ($Math::PlanePath::SierpinskiTriangle::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiTriangle->VERSION,  $want_version,

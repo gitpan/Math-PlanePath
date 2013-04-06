@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 505;
+plan tests => 506;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule190;
 # VERSION
 
 {
-  my $want_version = 100;
+  my $want_version = 101;
   ok ($Math::PlanePath::CellularRule190::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule190->VERSION,  $want_version,
@@ -76,9 +76,12 @@ require Math::PlanePath::CellularRule190;
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::CellularRule190->parameter_info_list;
   ok (join(',',@pnames),
-      'mirror');
+      'mirror,n_start');
 }
-
+{
+  my $path = Math::PlanePath::CellularRule190->new (n_start => 123);
+  ok ($path->n_start, 123, 'n_start()');
+}
 
 #------------------------------------------------------------------------------
 # first few points

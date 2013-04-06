@@ -29,7 +29,7 @@ MyTestHelpers::nowarnings();
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 29)[1];
+my $test_count = (tests => 41)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -50,6 +50,45 @@ require Math::NumSeq::PlanePathCoord;
     my ($self, $n) = @_;
     return ($self->{'x'},$self->{'y'});
   }
+}
+
+#------------------------------------------------------------------------------
+# _coordinate_func_Numerator()
+# _coordinate_func_Denominator()
+
+{
+  my $path = MyPlanePath->new;
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath_object => $path);
+
+  $path->{'x'} = 0;
+  $path->{'y'} = 1;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 1);
+
+  $path->{'x'} = -2;
+  $path->{'y'} = 4;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),  -1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 2);
+
+  $path->{'x'} = -2;
+  $path->{'y'} = -5;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   2);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 5);
+
+  $path->{'x'} = 10;
+  $path->{'y'} = 0;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 0);
+
+  $path->{'x'} = -10;
+  $path->{'y'} = 0;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   -1);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 0);
+
+  $path->{'x'} = 0;
+  $path->{'y'} = 10;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Numerator($seq,0),   0);
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Denominator($seq,0), 1);
 }
 
 #------------------------------------------------------------------------------

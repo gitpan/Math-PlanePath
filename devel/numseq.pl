@@ -41,7 +41,6 @@ use strict;
   $planepath = "UlamWarburton";
   $planepath = "GosperReplicate";
   $planepath = "QuintetReplicate";
-  $planepath = "FractionsTree";
   $planepath = "PowerArray";
   $planepath = "RationalsTree,tree_type=HCS";
   $planepath = "ChanTree,k=2";
@@ -54,12 +53,14 @@ use strict;
   $planepath = "LCornerTree,parts=4";
   $planepath = "ToothpickTree,parts=4";
   $planepath = "TerdragonCurve";
-  $planepath = "MultipleRings,step=8,ring_shape=polygon";
+  $planepath = "MultipleRings,step=6,ring_shape=polygon";
   $radix = 5;
   $planepath = "CfracDigits,radix=".($radix-1);
+  $planepath = "DiagonalRationals,direction=up";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                               delta_type => 'Dir4',
+                                               # delta_type => 'Dir4',
                                                # delta_type => 'TDir6',
+                                               delta_type => 'dX',
                                               );
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dX');

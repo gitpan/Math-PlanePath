@@ -44,7 +44,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -682,19 +682,6 @@ sixth root of unity.  i is the real part, j in the w direction (60 degrees),
 and k in the w^2 direction (120 degrees).  si,sj,sk increase as if
 multiplied by w+1.
 
-=head2 X,Y to N
-
-The current code applies TerdragonMidpoint C<xy_to_n()> to calculate six
-candidate N from the six edges around a point.  Those N values which convert
-back to the target X,Y by C<n_to_xy()> are the results for
-C<xy_to_n_list()>.
-
-The six edges are three going towards the point and three going away.  The
-midpoint calculation gives N-1 for the towards and N for the away.  Is there
-a good way to tell which edge is the smallest?  Or just which 3 edges lead
-away?  It might be directions 0,2,4 for the even arms and 1,3,5 for the odd
-ones, but the boundary of those areas is tricky.
-
 =head2 Turn
 
 At each point N the curve always turns 120 degrees either to the left or
@@ -744,6 +731,26 @@ For example N=12 is ternary 110 which has two 1s so the cumulative turn at
 that point is 2*120=240 degrees, ie. the segment N=16 to N=17 is at angle
 240.
 
+=head2 X,Y to N
+
+The current code applies TerdragonMidpoint C<xy_to_n()> to calculate six
+candidate N from the six edges around a point.  Those N values which convert
+back to the target X,Y by C<n_to_xy()> are the results for
+C<xy_to_n_list()>.
+
+The six edges are three going towards the point and three going away.  The
+midpoint calculation gives N-1 for the towards and N for the away.  Is there
+a good way to tell which edge is the smallest?  Or just which 3 edges lead
+away?  It might be directions 0,2,4 for the even arms and 1,3,5 for the odd
+ones, but the boundary of those areas is tricky.
+
+=head2 X,Y Visited
+
+When arms=6 all "even" points of the plane are visited.  As per the
+triangular representation of X,Y this means
+
+    X+Y mod 2 == 0        "even" points
+
 =head1 OEIS
 
 The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
@@ -756,7 +763,7 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
     A189640   turn 0=left,1=right (morphism, extra initial 0)
     A189673   turn 1=left,0=right (morphism, extra initial 0)
     A080846   next turn 0=left,1=right, by 120 degrees
-                (n=0 first turn is for N=1)
+                (n=0 is turn at N=1)
     A038502   strip trailing ternary 0s,
                 taken mod 3 is turn 1=left,2=right
 

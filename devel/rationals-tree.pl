@@ -29,27 +29,9 @@ use Math::PlanePath::Base::Digits
 use Math::PlanePath::RationalsTree;
 
 # uncomment this to run the ### lines
-# use Smart::Comments;
+use Smart::Comments;
 
 
-{
-  # turn list with levels
-  require Math::NumSeq::PlanePathTurn;
-  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
-  my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
-                                              turn_type => 'Right');
-  for (my $n = $seq->i_start; $n <= 16384; $n+=1) {
-    # next if $n % 2;
-    if (is_pow2($n)) {
-      printf "\n%5d ", $n;
-    }
-    my $turn = $seq->ith($n);
-    if ($n % 8 == 0) { print " "; }
-    print "$turn";
-  }
-  print "\n";
-  exit 0;
-}
 {
   # HCS turn left,right
   require Math::NumSeq::PlanePathTurn;
@@ -67,39 +49,68 @@ use Math::PlanePath::RationalsTree;
     my $n2 = Math::BaseCnv::cnv($n,10,2);
     if (is_pow2($n)) { print "\n"; }
     my ($x,$y) = $path->n_to_xy($n);
-    my $parity = bird_turn_right($n);
+    my $parity = sb_turn_right($n) ? 1 : 0;
     my $diff = ($parity == $turn ? '' : '  ***');
     printf "%2s %5s %2s,%-2s  %d %s%s\n", $n, $n2, $x,$y,
       $turn, $parity, $diff;
   }
 
-  # 0 1 2 3 4 5 6 7 8 9 A B C D E F
-  # 1,1,0,1,0,1,0,0,1,1,0,0,1,1,0,0
-  #
-  sub ayt_turn_right {   # wrong
+  # X/(X+Y), (X+Y)/Y high to low both shear only so no change
+  # SB Right when floor((N+1)/2 is odd or power 2^k.
+  # Right at first and last of row, otherwise LRRL repeat.
+  sub Zsb_turn_right {     # bad
     my ($n) = @_;
+    $n += ($n&1);
+    return (($n & 2) == 1 || ($n & ($n-1)) == 0);
+  }
+  sub Ysb_turn_right {     # good
+    my ($n) = @_;
+    if ($n == 3) { return 0; }
+    $n = ($n+1) >> 1;
+    return (($n & 1) || is_pow2($n));
+  }
+  # N is 1or2 mod 4, or N=1111or10000 is N or N+1 is pow2
+  sub sb_turn_right {     # good
+    my ($n) = @_;
+    if ($n == 3) {
+      return 0;
+    }
     if (($n & 3) == 1 || ($n & 3) == 2) {
       return 1;
     }
+    return is_pow2($n) || is_pow2($n+1);
+  }
+  sub XXsb_turn {     # good
+    my ($n) = @_;
+    ### sb_turn(): "$n  binary ".sprintf('%b',$n)
     my $bit = high_bit($n);
-    if (bit_length($n) & 1) {
-      return ($n == $bit+$bit/2 || $n == $bit+$bit/2-1 ? 1 : 0);
-    } else {
-      return ($n == $bit || $n == 2*$bit-1 ? 0 : 1);
+    ### high: "bit=".sprintf('%b',$bit)
+    $n -= $bit;
+    for ($bit >>= 1; $bit > 2; $bit >>= 1) {
+      ### at: "n=".sprintf('%b',$n)." bit=".sprintf('%b',$bit)
+      if ($n & $bit) {
+        $n -= $bit;
+        $n ^= ($bit-1);
+      }
+      if ($n == $bit-1) {
+        return 0;
+      }
     }
+    return 1;
   }
 
-  sub drib_turn_right {   # wrong
+  sub hcs_turn_right {  # good
     my ($n) = @_;
-    if (($n & 3) == 1 || ($n & 3) == 2) {
-      return 1;
+    return count_1_bits($n) & 1;
+  }
+  sub count_1_bits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += ($n & 1);
+      $n >>= 1;
     }
-    my $bit = high_bit($n);
-    if (bit_length($n) & 1) {
-      return ($n == $bit+$bit/2 || $n == $bit+$bit/2-1 ? 1 : 0);
-    } else {
-      return ($n == $bit || $n == 2*$bit-1 ? 0 : 1);
-    }
+    return $count;
   }
 
   # Y/(X+Y) and (X+Y)/X high to low
@@ -139,6 +150,35 @@ use Math::PlanePath::RationalsTree;
     return $count;
   }
 
+  # 0 1 2 3 4 5 6 7 8 9 A B C D E F
+  # 1,1,0,1,0,1,0,0,1,1,0,0,1,1,0,0
+  #
+  sub ayt_turn_right {   # wrong
+    my ($n) = @_;
+    if (($n & 3) == 1 || ($n & 3) == 2) {
+      return 1;
+    }
+    my $bit = high_bit($n);
+    if (bit_length($n) & 1) {
+      return ($n == $bit+$bit/2 || $n == $bit+$bit/2-1 ? 1 : 0);
+    } else {
+      return ($n == $bit || $n == 2*$bit-1 ? 0 : 1);
+    }
+  }
+
+  sub drib_turn_right {   # wrong
+    my ($n) = @_;
+    if (($n & 3) == 1 || ($n & 3) == 2) {
+      return 1;
+    }
+    my $bit = high_bit($n);
+    if (bit_length($n) & 1) {
+      return ($n == $bit+$bit/2 || $n == $bit+$bit/2-1 ? 1 : 0);
+    } else {
+      return ($n == $bit || $n == 2*$bit-1 ? 0 : 1);
+    }
+  }
+
   #            C 3,5 R
   #     A 1,4                                P->A X/X+Y shear North
   #     P 1,3         B 4,3 L                P->B X+Y/Y shear East
@@ -161,56 +201,6 @@ use Math::PlanePath::RationalsTree;
     }
     return 1;
     return 0;
-  }
-
-  # X/(X+Y), (X+Y)/Y high to low both shear only so no change
-  # SB Right when floor((N+1)/2 is odd or power 2^k
-  # right at first and last of row, otherwise LRRL repeat
-  sub sb_turn_right {     # good
-    my ($n) = @_;
-    $n++;
-    $n >>= 1;
-    return (($n & 1) || is_pow2($n));
-  }
-  # N is 1or2 mod 4, or N=1111or10000 is N or N+1 is pow2
-  sub Ysb_turn {     # good
-    my ($n) = @_;
-    if (($n & 3) == 1 || ($n & 3) == 2) {
-      return 1;
-    }
-    return is_pow2($n) || is_pow2($n+1);
-  }
-  sub XXsb_turn {     # good
-    my ($n) = @_;
-    ### sb_turn(): "$n  binary ".sprintf('%b',$n)
-    my $bit = high_bit($n);
-    ### high: "bit=".sprintf('%b',$bit)
-    $n -= $bit;
-    for ($bit >>= 1; $bit > 2; $bit >>= 1) {
-      ### at: "n=".sprintf('%b',$n)." bit=".sprintf('%b',$bit)
-      if ($n & $bit) {
-        $n -= $bit;
-        $n ^= ($bit-1);
-      }
-      if ($n == $bit-1) {
-        return 0;
-      }
-    }
-    return 1;
-  }
-
-  sub hcs_turn_right {  # good
-    my ($n) = @_;
-    return count_1_bits($n) & 1;
-  }
-  sub count_1_bits {
-    my ($n) = @_;
-    my $count = 0;
-    while ($n) {
-      $count += ($n & 1);
-      $n >>= 1;
-    }
-    return $count;
   }
 
   sub to_gray {
@@ -238,6 +228,24 @@ use Math::PlanePath::RationalsTree;
     return $bit >> 1;
   }
 
+  exit 0;
+}
+{
+  # turn list with levels
+  require Math::NumSeq::PlanePathTurn;
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
+  my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                              turn_type => 'Right');
+  for (my $n = $seq->i_start; $n <= 16384; $n+=1) {
+    # next if $n % 2;
+    if (is_pow2($n)) {
+      printf "\n%5d ", $n;
+    }
+    my $turn = $seq->ith($n);
+    if ($n % 8 == 0) { print " "; }
+    print "$turn";
+  }
+  print "\n";
   exit 0;
 }
 {

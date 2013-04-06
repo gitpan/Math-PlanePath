@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -424,6 +424,16 @@ block of DragonMidpoint.  There's no rotations or anything.
 The Xadj,Yadj tables are a handy place to notice X,Y points not on the
 DragonRounded style 4 of 9 points.  Or 16 of 36 points since the tables are
 6x6.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include the various C<DragonCurve> sequences at even N, and in addition
+
+    http://oeis.org/A152822  (etc)
+
+    A152822   abs(dX), so 0=vertical,1=not, being 1,1,0,1 repeating
+    A166486   abs(dY), so 0=horizontal,1=not, being 0,1,1,1 repeating
 
 =head1 SEE ALSO
 

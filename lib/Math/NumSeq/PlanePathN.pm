@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -2307,112 +2307,127 @@ sub values_max {
   use constant _NumSeq_Diagonal_NW_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
-    {
+    { 'rule=5,n_start=1' =>
+      { Y_axis   => 'A061925',  # ceil(n^2/2)+1
+        # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
+      },
 
-     'rule=5' =>
-     { Y_axis   => 'A061925',  # ceil(n^2/2)+1
-       # OEIS-Catalogue: A061925 planepath=CellularRule,rule=5 line_type=Y_axis
-     },
+      # rule 84,116,212,244 two-wide right line
+      do {
+        my $tworight
+          = { Diagonal   => 'A005408',  # odds 2n+1
+            };
+        ('rule=84,n_start=1'  => $tworight,
+         'rule=116,n_start=1' => $tworight,
+         'rule=212,n_start=1' => $tworight,
+         'rule=244,n_start=1' => $tworight,
+        );
 
-     # rule 84,116,212,244 two-wide right line
-     do {
-       my $tworight
-         = { Diagonal   => 'A005408',  # odds 2n+1
-           };
-       ('rule=84' => $tworight,
-        'rule=116' => $tworight,
-        'rule=212' => $tworight,
-        'rule=244' => $tworight,
-       );
+        # OEIS-Other: A005408 planepath=CellularRule,rule=84 line_type=Diagonal
+        # OEIS-Other: A005408 planepath=CellularRule,rule=116 line_type=Diagonal
+        # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
+        # OEIS-Other: A005408 planepath=CellularRule,rule=244 line_type=Diagonal
+      },
+      'rule=77,n_start=1' =>
+      { Y_axis   => 'A000124',  # triangular+1
+        # OEIS-Other: A000124 planepath=CellularRule,rule=77 line_type=Y_axis
+      },
+      'rule=177,n_start=1' =>
+      { Diagonal   => 'A000124',  # triangular+1
+        # OEIS-Other: A000124 planepath=CellularRule,rule=177 line_type=Diagonal
+      },
+      'rule=185,n_start=1' =>
+      { Diagonal   => 'A002522',  # n^2+1
+        # OEIS-Other: A002522 planepath=CellularRule,rule=185 line_type=Diagonal
+      },
+      'rule=189,n_start=1' =>
+      { Y_axis   => 'A002522',  # n^2+1
+        # OEIS-Other: A002522 planepath=CellularRule,rule=189 line_type=Y_axis
+      },
+      # PyramidRows step=1,align=left
+      # OEIS-Other: A000124 planepath=CellularRule,rule=206 line_type=Diagonal_NW
+      # OEIS-Other: A000124 planepath=CellularRule,rule=238 line_type=Diagonal_NW
 
-       # OEIS-Other: A005408 planepath=CellularRule,rule=84 line_type=Diagonal
-       # OEIS-Other: A005408 planepath=CellularRule,rule=116 line_type=Diagonal
-       # OEIS-Other: A005408 planepath=CellularRule,rule=212 line_type=Diagonal
-       # OEIS-Other: A005408 planepath=CellularRule,rule=244 line_type=Diagonal
-     },
-     'rule=77' =>
-     { Y_axis   => 'A000124',  # triangular+1
-       # OEIS-Other: A000124 planepath=CellularRule,rule=77 line_type=Y_axis
-     },
-     'rule=177' =>
-     { Diagonal   => 'A000124',  # triangular+1
-       # OEIS-Other: A000124 planepath=CellularRule,rule=177 line_type=Diagonal
-     },
-     'rule=185' =>
-     { Diagonal   => 'A002522',  # n^2+1
-       # OEIS-Other: A002522 planepath=CellularRule,rule=185 line_type=Diagonal
-     },
-     'rule=189' =>
-     { Y_axis   => 'A002522',  # n^2+1
-       # OEIS-Other: A002522 planepath=CellularRule,rule=189 line_type=Y_axis
-     },
-     # PyramidRows step=1,align=left
-     # OEIS-Other: A000124 planepath=CellularRule,rule=206 line_type=Diagonal_NW
-     # OEIS-Other: A000124 planepath=CellularRule,rule=238 line_type=Diagonal_NW
-
-     do {
-       my $solidgapright
-         = { Diagonal   => 'A002522',  # n^2+1
-           };
-       ('rule=209' => $solidgapright,
-        'rule=241' => $solidgapright,
-       );
-       # OEIS-Other: A002522 planepath=CellularRule,rule=209 line_type=Diagonal
-       # OEIS-Other: A002522 planepath=CellularRule,rule=241 line_type=Diagonal
-     },
-     'rule=29' =>
-     { Y_axis   => 'A000124',  # triangular+1
-       # OEIS-Other: A000124 planepath=CellularRule,rule=29 line_type=Y_axis
-     },
-     'rule=221' =>
-     { Y_axis   => 'A002522',  # n^2+1
-       # OEIS-Other: A002522 planepath=CellularRule,rule=221 line_type=Y_axis
-     },
-     'rule=229' =>
-     { Y_axis   => 'A002522',  # n^2+1
-       # OEIS-Other: A002522 planepath=CellularRule,rule=229 line_type=Y_axis
-     },
-     #
-     # rule=6,38,134,166 left line 1,2
-     # Not quite,  OFFSET=1 vs start Y=0 here
-     # Diagonal_NW => 'A001651',
-     #
-     # rule=13 Y axis
-     #
-     # rule=20,52,148,180 (mirror image of rule 6)
-     # Not quite, A032766  0 or 1 mod 3, but it starts OFFSET=0 value=0
-     # Diagonal => 'A032766',
-     #
-     # rule=28,156
-     # Y_axis => 'A002620',  quarter squares floor(n^2/4) but diff start
-     # Diagonal => 'A024206', quarter squares - 1, but diff start
-     #
-     # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
-     # # central column only
-     # 'rule=4' =>
-     # { Y_axis   => 'A000027', # 1 upwards
-     #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
-     # },
-     #
-     # # right line only rule=16,24,48,56,80,88,112,120,144,152,176,184,208,216,240,248
-     # Not quite A000027 OFFSET=1 vs start X=Y=0 here
-     # 'rule=16' =>
-     # { Y_axis   => 'A000027', # 1 upwards
-     #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
-     # },
-
-
-     # CellularRule190 -- A006578 triangular+quarter square, but starts
-     # OFFSET=0 value=0 cf value N=1 here
-
+      do {
+        my $solidgapright
+          = { Diagonal   => 'A002522',  # n^2+1
+            };
+        ('rule=209,n_start=1' => $solidgapright,
+         'rule=241,n_start=1' => $solidgapright,
+        );
+        # OEIS-Other: A002522 planepath=CellularRule,rule=209 line_type=Diagonal
+        # OEIS-Other: A002522 planepath=CellularRule,rule=241 line_type=Diagonal
+      },
+      'rule=29,n_start=1' =>
+      { Y_axis   => 'A000124',  # triangular+1
+        # OEIS-Other: A000124 planepath=CellularRule,rule=29 line_type=Y_axis
+      },
+      'rule=221,n_start=1' =>
+      { Y_axis   => 'A002522',  # n^2+1
+        # OEIS-Other: A002522 planepath=CellularRule,rule=221 line_type=Y_axis
+      },
+      'rule=229,n_start=1' =>
+      { Y_axis   => 'A002522',  # n^2+1
+        # OEIS-Other: A002522 planepath=CellularRule,rule=229 line_type=Y_axis
+      },
+      #
+      # rule=13 Y axis
+      #
+      # rule=28,156
+      # Y_axis => 'A002620',  quarter squares floor(n^2/4) but diff start
+      # Diagonal => 'A024206', quarter squares - 1, but diff start
+      #
+      # A000027 naturals integers 1 upwards, but OFFSET=1 cf start Y=0  here
+      # # central column only
+      # 'rule=4' =>
+      # { Y_axis   => 'A000027', # 1 upwards
+      #   # OEIS-Other: A000027 planepath=CellularRule,rule=4 line_type=Y_axis
+      # },
+      #
+      # # right line only rule=16,24,48,56,80,88,112,120,144,152,176,184,208,216,240,248
+      # Not quite A000027 OFFSET=1 vs start X=Y=0 here
+      # 'rule=16' =>
+      # { Y_axis   => 'A000027', # 1 upwards
+      #   # OEIS-Other: A000027 planepath=CellularRule,rule=16 line_type=Diagonal
+      # },
     };
+}
+{
+  package Math::PlanePath::CellularRule::Line;
+  use constant _NumSeq_Y_axis_increasing  => 1;
+  use constant _NumSeq_Diagonal_increasing  => 1;
+  use constant _NumSeq_Diagonal_NW_increasing  => 1;
+}
+{
+  package Math::PlanePath::CellularRule::OneTwo;
+  use constant _NumSeq_Y_axis_increasing   => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+
+  # use constant _NumSeq_N_oeis_anum =>
+  #   { 'align=left,n_start=1' =>
+  #     {
+  # Not quite, OFFSET=1 cf coordinate X=0 here
+  # Diagonal_NW => 'A001651', # not divisible by 3
+  #     },
+
+  #   { 'align=right,n_start=1' =>
+  # Not quite, A032766  0 or 1 mod 3, but it starts OFFSET=0 value=0
+  # whereas path start 1,3,4,etc without initial 0
+  # Diagonal => 'A032766',
+  #
+  #   };
 }
 {
   package Math::PlanePath::CellularRule::OddSolid;
   # rule=50,58,114,122,178,179,186,242,250 pyramid every second point
 
+  use constant _NumSeq_Y_axis_increasing   => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+
   use constant _NumSeq_N_oeis_anum =>
-    { '' =>
+    { 'n_start=1' =>
       { Diagonal_NW => 'A000124',  # triangular+1
         # OEIS-Other: A000124 planepath=CellularRule,rule=50 line_type=Diagonal_NW
         # OEIS-Other: A000124 planepath=CellularRule,rule=58 line_type=Diagonal_NW
@@ -2443,6 +2458,17 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
   use constant _NumSeq_Diagonal_NW_increasing => 1;
+
+  use constant _NumSeq_N_oeis_anum =>
+    { 'mirror=0,n_start=0' =>
+      { Diagonal_NW => 'A006578',  # triangular and quarter square
+        # OEIS-Catalogue: A006578 planepath=CellularRule190,n_start=0 line_type=Diagonal_NW
+      },
+      'mirror=1,n_start=0' =>
+      { Diagonal => 'A006578',  # triangular and quarter square
+        # OEIS-Other: A006578 planepath=CellularRule190,mirror=1,n_start=0 line_type=Diagonal
+      },
+    };
 }
 { package Math::PlanePath::UlamWarburton;
   use constant _NumSeq_X_axis_increasing => 1;

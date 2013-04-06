@@ -35,6 +35,7 @@ require Math::PlanePath;
 my $verbose = 1;
 
 my @modules = (
+
                # 'PeninsulaBridge',
                # 'OneOfEight',
                # 'OneOfEight,parts=4',
@@ -64,27 +65,101 @@ my @modules = (
 
                # module list begin
 
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'DiagonalRationals',
+               'DiagonalRationals,n_start=37',
+               'DiagonalRationals,direction=up',
+               'DiagonalRationals,direction=up,n_start=37',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
+
+               'CellularRule,rule=6',   # left 1,2 line
+               'CellularRule,rule=6,n_start=0',
+               'CellularRule,rule=6,n_start=37',
+               'CellularRule,rule=20',  # right 1,2 line
+               'CellularRule,rule=20,n_start=0',
+               'CellularRule,rule=20,n_start=37',
+
+               'CellularRule54',
+               'CellularRule54,n_start=0',
+               'CellularRule54,n_start=37',
+
+               'CellularRule57',
+               'CellularRule57,n_start=0',
+               'CellularRule57,n_start=37',
+               'CellularRule57,mirror=1',
+               'CellularRule57,mirror=1,n_start=0',
+               'CellularRule57,mirror=1,n_start=37',
+
+               'CellularRule190',
+               'CellularRule190,n_start=0',
+               'CellularRule190,n_start=37',
+               'CellularRule190,mirror=1',
+               'CellularRule190,mirror=1,n_start=0',
+               'CellularRule190,mirror=1,n_start=37',
+
+               'CellularRule',
+               'CellularRule,n_start=0',
+               'CellularRule,n_start=37',
+
+               'CellularRule,rule=2',  # left line
+               'CellularRule,rule=2,n_start=0',
+               'CellularRule,rule=2,n_start=37',
+
+               'CellularRule,rule=4',  # centre line
+               'CellularRule,rule=4,n_start=0',
+               'CellularRule,rule=4,n_start=37',
+
+               'CellularRule,rule=16', # right line
+               'CellularRule,rule=16,n_start=0',
+               'CellularRule,rule=16,n_start=37',
+
+               'CellularRule,rule=206', # left solid
+               'CellularRule,rule=206,n_start=0',
+               'CellularRule,rule=206,n_start=37',
+
+               'CellularRule,rule=18',  # Sierpinski
+               'CellularRule,rule=18,n_start=0',
+               'CellularRule,rule=18,n_start=37',
+
+               'CellularRule,rule=14',  # left 2 cell line
+               'CellularRule,rule=14,n_start=0',
+               'CellularRule,rule=14,n_start=37',
+               'CellularRule,rule=84',  # right 2 cell line
+               'CellularRule,rule=84,n_start=0',
+               'CellularRule,rule=84,n_start=37',
+               
+               'CellularRule,rule=0',   # blank
+               'CellularRule,rule=60',
+               'CellularRule,rule=220', # right half solid
+               'CellularRule,rule=222', # full solid
+
                'PeanoCurve',
                'PeanoCurve,radix=2',
                'PeanoCurve,radix=4',
                'PeanoCurve,radix=5',
                'PeanoCurve,radix=17',
-
-               'CellularRule',
-               'CellularRule,rule=6',   # left one,two
-               'CellularRule,rule=20',  # right one,two
-               'CellularRule,rule=0',   # blank
-               'CellularRule,rule=57',
-               'CellularRule,rule=60',
-               'CellularRule,rule=18',  # Sierpinski
-               'CellularRule,rule=206', # left half solid
-               'CellularRule,rule=220', # right half solid
-               'CellularRule,rule=222', # full solid
-               'CellularRule54',
-               'CellularRule57',
-               'CellularRule57,mirror=1',
-               'CellularRule190',
-               'CellularRule190,mirror=1',
 
                'TriangleSpiralSkewed',
                'TriangleSpiralSkewed,n_start=0',
@@ -159,17 +234,6 @@ my @modules = (
                'Columns,height=37,n_start=0',
                'Columns,height=37,n_start=123',
 
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
-
                'ChanTree',
                'ChanTree,n_start=1234',
                'ChanTree,k=2',
@@ -185,8 +249,6 @@ my @modules = (
 
                'CoprimeColumns',
                'CoprimeColumns,n_start=37',
-               'DiagonalRationals',
-               'DiagonalRationals,n_start=37',
                'DivisibleColumns',
                'DivisibleColumns,n_start=37',
                'DivisibleColumns,divisor_type=proper',
@@ -265,11 +327,6 @@ my @modules = (
                'TerdragonMidpoint,arms=2',
                'TerdragonMidpoint,arms=3',
                'TerdragonMidpoint,arms=6',
-
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=6',
 
                'KochCurve',
                'KochPeaks',
@@ -605,6 +662,11 @@ my @modules = (
                'CretanLabyrinth',
 
                # module list end
+
+               # cellular 0 to 255
+               (map {("CellularRule,rule=$_",
+                      "CellularRule,rule=$_,n_start=0",
+                      "CellularRule,rule=$_,n_start=37")} 0..255),
               );
 my @classes = map {(module_parse($_))[0]} @modules;
 { my %seen; @classes = grep {!$seen{$_}++} @classes } # uniq
@@ -640,7 +702,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 100;
+my $want_version = 101;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1007,18 +1069,18 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-  
+
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-    
+
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-    
+
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-    
+
     my $dxdy_allowed
       = $class_dxdy_allowed{$class.",skew=".($parameters{'skew'}||'')}
         || $class_dxdy_allowed{$class};
@@ -1031,11 +1093,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-    
+
     #
     # MyTestHelpers::diag ($mod);
     #
-    
+
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -1052,44 +1114,43 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-    
+
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' oops ', @_);
       $good = 0;
       # exit 1;
     };
-    
+
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-    
+
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-    
+
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
     {
-      { my ($x,$y) = $path->n_to_xy($n_start);
-        if (! defined $x) {
-          unless ($path->isa('Math::PlanePath::File')) {
-            &$report("n_start()==$n_start doesn't have an n_to_xy()");
-          }
-        } else {
-          my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
-          if ($n_lo > $n_start || $n_hi < $n_start) {
-            &$report("n_start()==$n_start outside rect_to_n_range() $n_lo..$n_hi");
-          }
+      my ($x,$y) = $path->n_to_xy($n_start);
+      if (! defined $x) {
+        unless ($path->isa('Math::PlanePath::File')) {
+          &$report("n_start()==$n_start doesn't have an n_to_xy()");
+        }
+      } else {
+        my ($n_lo, $n_hi) = $path->rect_to_n_range ($x,$y, $x,$y);
+        if ($n_lo > $n_start || $n_hi < $n_start) {
+          &$report("n_start()==$n_start outside rect_to_n_range() $n_lo..$n_hi");
         }
       }
     }
-    
+
     if (# VogelFloret has a secret undocumented return for N=0
         ! $path->isa('Math::PlanePath::VogelFloret')
         # Rows/Columns secret undocumented extend into negatives ...
@@ -1135,7 +1196,7 @@ sub pythagorean_diag {
         &$report("n_to_rsquared($n) n_start-$offset is $rsquared expected undef");
       }
     }
-    
+
     {
       my $saw_warning;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
@@ -1164,7 +1225,7 @@ sub pythagorean_diag {
         $path->xy_to_n(undef,0);
         $saw_warning or &$report("xy_to_n(undef,0) doesn't give a warning");
       }
-      
+
       # No warning if xy_is_visited() is a constant.
       # {
       #   $saw_warning = 0;
@@ -1177,7 +1238,7 @@ sub pythagorean_diag {
       #   $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
       # }
     }
-    
+
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -1253,7 +1314,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1333,7 +1394,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1388,7 +1449,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     foreach my $x
       (0,
        pos_infinity_maybe(),
@@ -1409,7 +1470,7 @@ sub pythagorean_diag {
         # &$is_infinity($n) or &$report("xy_to_n($x,$y) n not inf, got ",$n);
       }
     }
-    
+
     foreach my $x1 (0,
                     pos_infinity_maybe(),
                     neg_infinity_maybe(),
@@ -1430,7 +1491,7 @@ sub pythagorean_diag {
                           neg_infinity_maybe(),
                           dbl_max_for_class_rect($path),
                           dbl_max_neg_for_class_rect($path)) {
-            
+
             my @nn = $path->rect_to_n_range($x1,$y1, $x2,$y2);
             scalar(@nn) == 2
               or &$report("rect_to_n_range($x1,$y1, $x2,$y2) want 2 values, got ",scalar(@nn));
@@ -1439,7 +1500,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     my %saw_n_to_xy;
     my %count_n_to_xy;
     my $got_x_negative = 0;
@@ -1454,10 +1515,10 @@ sub pythagorean_diag {
       $n_to_y[$n] = $y;
       defined $x or &$report("n_to_xy($n) X undef");
       defined $y or &$report("n_to_xy($n) Y undef");
-      
+
       if ($x < 0) { $got_x_negative = 1; }
       if ($y < 0) { $got_y_negative = 1; }
-      
+
       my $xystr = (int($x) == $x && int($y) == $y
                    ? sprintf('%d,%d', $x,$y)
                    : sprintf('%.3f,%.3f', $x,$y));
@@ -1468,7 +1529,7 @@ sub pythagorean_diag {
         }
       }
       $saw_n_to_xy{$xystr} = $n;
-      
+
       if ($dxdy_allowed) {
         if (defined $prev_x) {
           my $dx = $x - $prev_x;
@@ -1479,7 +1540,7 @@ sub pythagorean_diag {
         }
         ($prev_x, $prev_y) = ($x, $y);
       }
-      
+
       {
         my ($n_lo, $n_hi) = $path->rect_to_n_range
           (0,0,
@@ -1509,7 +1570,7 @@ sub pythagorean_diag {
         $n_lo >= $n_start
           or &$report ("rect_to_n_range() n_lo=$n_lo is before n_start=$n_start");
       }
-      
+
       unless ($xy_maximum_duplication > 0) {
         foreach my $x_offset (0) { # bit slow: , -0.2, 0.2) {
           foreach my $y_offset (0, +0.2) { # bit slow: , -0.2) {
@@ -1524,8 +1585,10 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
+    #--------------------------------------------------------------------------
     ### n_to_xy() fractional ...
+
     unless ($non_linear_frac{$class}
             || defined $n_frac_discontinuity) {
       foreach my $n ($n_start .. $#n_to_x - $arms_count) {
@@ -1548,8 +1611,10 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
+    #--------------------------------------------------------------------------
     ### n_to_dxdy() ...
+
     if ($path->can('n_to_dxdy') != Math::PlanePath->can('n_to_dxdy')) {
       MyTestHelpers::diag ($mod, ' n_to_dxdy()');
       foreach my $n ($n_start .. $#n_to_x - $arms_count) {
@@ -1566,7 +1631,7 @@ sub pythagorean_diag {
         $want_dy == $got_dy
           or &$report ("n_to_dxdy($n) got_dy=$got_dy want_dy=$want_dy");
       }
-      
+
       foreach my $n ($n_start .. $n_start + $limit) {
         foreach my $offset (0.25, 0.75) {
           my $n = $n + $offset;
@@ -1582,16 +1647,32 @@ sub pythagorean_diag {
         }
       }
     }
-    
-    
-    ### various bogus values only have to return 0 or 2 values and not crash ...
+
+    #--------------------------------------------------------------------------
+    ### n_to_rsquared() vs X^2,Y^2 ...
+
+    if ($path->can('n_to_rsquared') != Math::PlanePath->can('n_to_rsquared')) {
+      foreach my $n ($n_start .. $#n_to_x) {
+        my $x = $n_to_x[$n];
+        my $y = $n_to_y[$n];
+        my ($n_to_rsquared) = $path->n_to_rsquared($n);
+        my $xy_to_rsquared = $x*$x + $y*$y;
+        if (abs($n_to_rsquared - $xy_to_rsquared) > 0.0000001) {
+          &$report ("n_to_rsquared() at n=$n,x=$x,y=$y got $n_to_rsquared whereas x^2+y^2=$xy_to_rsquared");
+        }
+      }
+    }
+
+    #--------------------------------------------------------------------------
+    ### n_to_xy() various bogus values return 0 or 2 values and not crash ...
+
     foreach my $n (-100, -2, -1, -0.6, -0.5, -0.4,
                    0, 0.4, 0.5, 0.6) {
       my @xy = $path->n_to_xy ($n);
       (@xy == 0 || @xy == 2)
         or &$report ("n_to_xy() n=$n got ",scalar(@xy)," values");
     }
-    
+
     foreach my $elem ([-1,-1, -1,-1],
                      ) {
       my ($x1,$y1,$x2,$y2) = @$elem;
@@ -1603,8 +1684,10 @@ sub pythagorean_diag {
           or &$report ("rect_to_n_range() got_lo=$got_lo is before n_start=$n_start");
       }
     }
-    
+
+    #--------------------------------------------------------------------------
     ### x negative xy_to_n() ...
+
     foreach my $x (-100, -99) {
       ### $x
       my @n = $path->xy_to_n ($x,-1);
@@ -1612,11 +1695,11 @@ sub pythagorean_diag {
       (scalar(@n) == 1)
         or &$report ("xy_to_n($x,-1) array context got ",scalar(@n)," values but should be 1, possibly undef");
     }
-    
+
     {
       my $path_x_negative = ($path->x_negative ? 1 : 0);
       $got_x_negative = ($got_x_negative ? 1 : 0);
-      
+
       if ($path->isa('Math::PlanePath::GosperSide')
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || $path->isa('Math::PlanePath::QuintetCentres')
@@ -1639,14 +1722,14 @@ sub pythagorean_diag {
         # these don't get to X negative in small rectangle
         $got_x_negative = 1;
       }
-      
+
       ($path_x_negative == $got_x_negative)
         or &$report ("x_negative() $path_x_negative but in rect to n=$limit got $got_x_negative");
     }
     {
       my $path_y_negative = ($path->y_negative ? 1 : 0);
       $got_y_negative = ($got_y_negative ? 1 : 0);
-      
+
       if ($path->isa('Math::PlanePath::GosperSide')
           || $path->isa('Math::PlanePath::FlowsnakeCentres')
           || ($mod eq 'GreekKeySpiral' && $limit < 55)

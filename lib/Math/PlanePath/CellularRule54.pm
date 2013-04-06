@@ -23,9 +23,10 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
+*_divrem = \&Math::PlanePath::_divrem;
 
 use Math::PlanePath::Base::Generic
   'round_nearest';
@@ -33,6 +34,10 @@ use Math::PlanePath::Base::Generic
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
+
+use constant parameter_info_array =>
+  [ Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
 
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
@@ -46,6 +51,13 @@ use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 #------------------------------------------------------------------------------
 
+sub new {
+  my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 #            left   add
 # even  y=0    0     1
 #         2    1     2
@@ -100,6 +112,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### CellularRule54 n_to_xy(): $n
 
+  $n = $n - $self->{'n_start'}; # to N=0 basis
   my $frac;
   {
     my $int = int($n);
@@ -114,15 +127,15 @@ sub n_to_xy {
     ### assert: $frac < 0.5
   }
 
-  if ($n < 1) {
+  if ($n < 0) {
     return;
   }
 
   # d is the two-row group number, d=2*y, where n belongs
-  # start of the two-row group is nbase = 2 d^2 + 2 d + 1
+  # start of the two-row group is nbase = 2 d^2 + 2 d starting from N=0 
   #
-  my $d = int((sqrt(2*$n-1) - 1) / 2);
-  $n -= ((2*$d + 2)*$d + 1);   # remainder within two-row
+  my $d = int((sqrt(2*$n+1) - 1) / 2);
+  $n -= (2*$d + 2)*$d;   # remainder within two-row
   ### $d
   ### remainder: $n
   if ($n <= $d) {
@@ -134,7 +147,8 @@ sub n_to_xy {
     # 3*d many points in the Y=1,3,5,7 etc odd row, using 3 in 4 cells
     $n -= $d+1;    # remainder 0 upwards into odd row
     $d = 2*$d+1;   # y=2*d+1
-    return ($frac + $n + int($n/3) - $d,
+    my ($q) = _divrem($n,3);
+    return ($frac + $n + $q - $d,
             $d);
   }
 }
@@ -157,13 +171,13 @@ sub xy_to_n {
     if (($x % 4) == 3) {
       return undef;
     }
-    return $x - int($x/4) + $y*($y+1)/2 + 1;
+    return $x - int($x/4) + $y*($y+1)/2 + $self->{'n_start'};
   } else {
     ## even row, sparse ...
     if ($x % 4) {
       return undef;
     }
-    return $x/4 + $y*($y+2)/2  + 1;
+    return $x/4 + $y*($y+2)/2 + $self->{'n_start'};
   }
 }
 
@@ -183,8 +197,11 @@ sub rect_to_n_range {
   # y odd end  (y+1)*(y+3)/2
 
   $y2 += 1;
-  return ($zero + $y1*($y1 + 1 + ! ($y1 % 2))/2 + 1,  # even/odd left end
-          $zero + $y2*($y2 + 1 + ! ($y2 % 2))/2);     # even/odd right end
+  return (# even/odd left end
+          $zero + $y1*($y1 + 2-($y1%2))/2 + $self->{'n_start'},
+
+          # even/odd right end
+          $zero + $y2*($y2 + 2-($y2%2))/2 + $self->{'n_start'} - 1);
 }
 
 # Return ($x1,$y1, $x2,$y2) which is the rectangle part chopped to the top
@@ -370,6 +387,29 @@ in the row too
 
     rowpoints = Nright - Nleft + 1
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=CellularRule54,n_start=0 --all --output=numbers --size=75x6
+
+=pod
+
+    n_start => 0
+
+    15 16 17    18 19 20    21 22 23           5 
+       12          13          14              4 
+           6  7  8     9 10 11                 3 
+              4           5                    2 
+                 1  2  3                       1 
+                    0                      <- Y=0
+
+    -5 -4 -3 -2 -1 X=0 1  2  3  4  5
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -377,6 +417,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::CellularRule54-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::CellularRule54-E<gt>new (n_start =E<gt> $n)>
 
 Create and return a new path object.
 

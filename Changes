@@ -17,6 +17,12 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 101, March 2013
+    - MultipleRings fixes for ring_shape=polygon xy_to_n(), rect_to_n_range()
+    - CellularRule,CellularRule54,CellularRule57,CellularRule190
+      new parameter n_start
+    - DiagonalRationals new parameter direction=up
+
 Version 100, March 2013
     - new absdx_minimum(),absdy_minimum(), absdx_maximum(),absdy_maximum(),
       dir_minimum_dxdy(),dir_maximum_dxdy()

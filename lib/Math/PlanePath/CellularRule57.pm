@@ -17,19 +17,12 @@
 
 
 
-# math-image --path=CellularRule57 --all
-#
-# math-image --path=CellularRule57 --all --output=numbers --size=132x50
-# math-image --path=CellularRule57,mirror=1 --all --output=numbers --size=132x50
-#
-
-
 package Math::PlanePath::CellularRule57;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,6 +46,7 @@ use constant parameter_info_array =>
       default     => 0,
       description => 'Mirror to "rule 99" instead.',
     },
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 use constant dx_maximum => 3;
@@ -69,6 +63,14 @@ use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new (@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 #            left
 # even  y=3     5
@@ -129,6 +131,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### CellularRule57 n_to_xy(): $n
 
+  $n = $n - $self->{'n_start'} + 1; # to N=1 basis
   my $frac;
   {
     my $int = int($n);
@@ -261,20 +264,20 @@ sub xy_to_n {
       ### odd row, solids, d: $d
 
       if ($x < -$d) {
-        return ($y+1)*$y/2 + $x + 2;
+        return ($y+1)*$y/2 + $x + 1 + $self->{'n_start'};
       }
       if ($x < 0) {
         ### mirror left 2 of 3 ...
         if (($x += $d+2) % 3) {
-          return ($y+1)*$y/2 + $x-int($x/3) - $d;
+          return ($y+1)*$y/2 + $x-int($x/3) - $d + $self->{'n_start'} - 1;
         }
       } elsif ($x > $d) {
-        return ($y+1)*$y/2 + $x - $d + 1;
+        return ($y+1)*$y/2 + $x - $d + $self->{'n_start'};
       } else {
         ### mirror right 1 of 3 ...
         $x += 2-$d;
         unless ($x % 3) {
-          return ($y+1)*$y/2 + $x/3 + 1;
+          return ($y+1)*$y/2 + $x/3 + $self->{'n_start'};
         }
       }
 
@@ -285,13 +288,13 @@ sub xy_to_n {
         ### mirror sparse right 1 of 3 ...
         if ($x <= $d  # only to half way
             && (($x -= $d) % 3) == 0) {
-          return ($y+1)*$y/2 + $x/3 + 1;
+          return ($y+1)*$y/2 + $x/3 + $self->{'n_start'};
         }
       } else { # $x < 0
         ### mirror sparse left 2 of 3 ...
         if ($x >= -$d  # only to half way
             && (($x += $d+1) % 3)) {
-          return ($y+1)*$y/2 + $x-int($x/3) - $d;
+          return ($y+1)*$y/2 + $x-int($x/3) - $d + $self->{'n_start'} - 1;
         }
       }
     }
@@ -305,21 +308,21 @@ sub xy_to_n {
       if ($x <= -$d) {
         ### solid left ...
         if ($x < -$d) {  # always skip the -$d cell
-          return ($y+1)*$y/2 + $x + 2;
+          return ($y+1)*$y/2 + $x + 1 + $self->{'n_start'};
         }
       } elsif ($x <= 0) {
         ### 1 of 3 ...
         unless (($x += $d+1) % 3) {
-          return ($y+1)*$y/2 + $x/3 - $d + 1;
+          return ($y+1)*$y/2 + $x/3 - $d + $self->{'n_start'};
         }
       } elsif ($x >= $d) {
         ### solid right ...
-        return ($y+1)*$y/2 + $x - $d + 1;
+        return ($y+1)*$y/2 + $x - $d + $self->{'n_start'};
       } else {
         ### 2 of 3 ...
         $x += 1-$d;
         if ($x % 3) {
-          return ($y+1)*$y/2 + $x-int($x/3) + 1;
+          return ($y+1)*$y/2 + $x-int($x/3) + $self->{'n_start'};
         }
       }
 
@@ -331,13 +334,13 @@ sub xy_to_n {
         ### right 2 of 3 ...
         if ($x <= $d  # goes to half way only
             && (($x -= $d+1) % 3)) {
-          return ($y+1)*$y/2 + $x-int($x/3) + 2;
+          return ($y+1)*$y/2 + $x-int($x/3) + 1 + $self->{'n_start'};
         }
       } else { # $x <= 0
         ### left 1 of 3 ...
         if (($x += $d) >= 0   # goes to half way only
             && ! ($x % 3)) {
-          return ($y+1)*$y/2 + $x/3 - $d + 1;
+          return ($y+1)*$y/2 + $x/3 - $d + $self->{'n_start'};
         }
       }
     }
@@ -365,9 +368,9 @@ sub rect_to_n_range {
   $y1 -= ! ($y1 % 2);
   $y2 -= ! ($y2 % 2);
   return ($zero + ($y1 < 1
-                   ? 1
-                   : ($y1-1)*$y1/2 + 2),
-          $zero + ($y2+2)*($y2+1)/2 + 1);
+                   ? $self->{'n_start'}
+                   : ($y1-1)*$y1/2 + 1 + $self->{'n_start'}),
+          $zero + ($y2+2)*($y2+1)/2 + $self->{'n_start'});
 }
 
 1;
@@ -398,6 +401,12 @@ http://mathworld.wolfram.com/ElementaryCellularAutomaton.html
 
 arranged as rows
 
+=cut
+
+# math-image --path=CellularRule57 --all --output=numbers --size=132x50
+
+=pod
+
                 51       52       53 54    55 56                 10
     38 39 40 41       42       43    44 45    46 47 48 49 50      9
                    33       34    35    36 37                     8
@@ -417,6 +426,12 @@ the left and 2 of 3 to the right of the centre.  On even Y rows there's
 similar 1 of 3 and 2 of 3 middle parts, but without the solid ends.  Those 1
 of 3 and 2 of 3 are successively offset so as to make lines going up towards
 the centre as can be seen in the following plot.
+
+=cut
+
+# math-image --text --path=CellularRule57 --all
+
+=pod
 
     ***********  *  *  *  * * ** ** ** ************
                 *  *  *  *  ** ** ** **
@@ -449,6 +464,12 @@ The C<mirror =E<gt> 1> option gives the mirror image pattern which is "rule
 99".  The point numbering shifts but the total points on each row is the
 same.
 
+=cut
+
+# math-image --path=CellularRule57,mirror=1 --all --output=numbers --size=132x50
+
+=pod
+
                 51 52    53 54       55       56                  10
     38 39 40 41 42    43 44    45       46       47 48 49 50       9 
                    33 34    35    36       37                      8 
@@ -463,6 +484,30 @@ same.
 
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=CellularRule57,n_start=0 --all --output=numbers --size=75x8
+# math-image --path=CellularRule57,n_start=0,mirror=1 --all --output=numbers --size=75x8
+
+=pod
+
+    n_start => 0
+
+    22 23 24       25       26 27    28 29 30 31
+                18       19    20 21            
+          11 12       13    14    15 16 17      
+                    8        9 10               
+                 4        5     6  7            
+                       2     3                  
+                             1                  
+                          0                     
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -470,6 +515,8 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 =over 4
 
 =item C<$path = Math::PlanePath::CellularRule57-E<gt>new ()>
+
+=item C<$path = Math::PlanePath::CellularRule57-E<gt>new (mirror =E<gt> $bool, n_start =E<gt> $n)>
 
 Create and return a new path object.
 

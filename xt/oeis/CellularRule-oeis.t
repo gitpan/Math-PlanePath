@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -219,7 +219,7 @@ foreach my $elem
    [ 'A000012', 228, 'bignum', 'left' ],
    [ 'A000012', 236, 'bignum', 'left' ],
    #
-   # central column only, central values 1,2,3,etc
+   # central column only, central values N=1,2,3,etc all integers
    [ 'A000027', 4, 'central_column_N' ],
    [ 'A000027', 12, 'central_column_N' ],
    [ 'A000027', 36, 'central_column_N' ],

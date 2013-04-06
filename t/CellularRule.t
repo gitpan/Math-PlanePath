@@ -36,7 +36,7 @@ require Math::PlanePath::CellularRule;
 # VERSION
 
 {
-  my $want_version = 100;
+  my $want_version = 101;
   ok ($Math::PlanePath::CellularRule::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CellularRule->VERSION,  $want_version,
@@ -68,7 +68,7 @@ require Math::PlanePath::CellularRule;
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::CellularRule->parameter_info_list;
   ok (join(',',@pnames),
-      'rule');
+      'rule,n_start');
 }
 
 #------------------------------------------------------------------------------
@@ -175,17 +175,12 @@ foreach my $rule (0 .. 255) {
     }
   }
 
-  if (! $path->isa('Math::PlanePath::CellularRule')) {
+  if (ref $path ne 'Math::PlanePath::CellularRule') {
     MyTestHelpers::diag ("bitwise check rule=$rule");
     $bitwise_count++;
     # copy of CellularRule guts
-    my $bitwise = bless { rows => [ "\001" ],
-                          row_end_n => [1],
-                          left => 0,
-                          right => 0,
-                          rule_table => [ map { ($rule >> $_) & 1 } 0 .. 7 ],
-                        }, 'Math::PlanePath::CellularRule';
-
+    my $bitwise = Math::PlanePath::CellularRule->new (rule => $rule,
+                                                      use_bitwise => 1);
     foreach my $x (-15 .. 15) {
       foreach my $y (0 .. 15) {
         my $path_n = $path->xy_to_n($x,$y);

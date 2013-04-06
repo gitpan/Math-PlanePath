@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 100;
+$VERSION = 101;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 203 A-numbers in 4 modules
+# total 209 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -715,6 +715,46 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A004396',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=6,n_start=0',
+      'coordinate_type',
+      'Y'
+    ]
+  },
+  {
+    'anum' => 'A131452',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=6,n_start=0',
+      'coordinate_type',
+      'SumAbs'
+    ]
+  },
+  {
+    'anum' => 'A004523',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=20,n_start=0',
+      'coordinate_type',
+      'X'
+    ]
+  },
+  {
+    'anum' => 'A004773',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=20,n_start=0',
+      'coordinate_type',
+      'SumAbs'
+    ]
+  },
+  {
     'anum' => 'A020652',
     'class' => 'Math::NumSeq::PlanePathCoord',
     'parameters' => [
@@ -960,6 +1000,16 @@ use constant info_arrayref =>
       'DragonRounded',
       'delta_type',
       'AbsdY'
+    ]
+  },
+  {
+    'anum' => 'A152822',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'DragonRounded',
+      'delta_type',
+      'AbsdX'
     ]
   },
   {
@@ -1838,6 +1888,16 @@ use constant info_arrayref =>
       'CellularRule,rule=5',
       'line_type',
       'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A006578',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'CellularRule190,n_start=0',
+      'line_type',
+      'Diagonal_NW'
     ]
   },
   {
