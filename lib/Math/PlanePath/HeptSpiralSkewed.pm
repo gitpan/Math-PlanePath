@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -173,7 +173,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords HeptSpiralSkewed PlanePath Ryde Math-PlanePath
+=for stopwords PlanePath Ryde Math-PlanePath
 
 =head1 NAME
 

@@ -38,7 +38,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -131,7 +131,7 @@ sub xy_to_n {
   $y = round_nearest ($y);
   ### HexArms xy_to_n: "x=$x, y=$y"
   if (($x ^ $y) & 1) {
-    return undef;  # nothing on odd squares
+    return undef;  # nothing on odd points
   }
   if ($x == 0 && $y == 0) {
     return 1;
@@ -220,7 +220,7 @@ sub _rect_to_hex_radius {
 1;
 __END__
 
-=for stopwords HexArms Math-PlanePath Ryde
+=for stopwords Math-PlanePath Ryde
 
 =head1 NAME
 

@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -77,17 +77,30 @@ sub y_minimum {
   return $self->{'y_start'};
 }
 
+sub dx_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? undef  # down jumps back unlimited at bottom
+          : -1);   # up at most -1 across
+}
 sub dx_maximum {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down'
           ? 1       # down at most +1 across
           : undef); # up jumps back across unlimited at top
 }
+
 sub dy_minimum {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down'
           ? -1      # down at most -1
           : undef); # up jumps down unlimited at top
+}
+sub dy_maximum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? undef  # down jumps up unlimited at bottom
+          : 1);    # up at most +1
 }
 
 sub absdx_minimum {
@@ -255,7 +268,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath DiagonalsOctant OEIS triangulars
+=for stopwords PlanePath Ryde Math-PlanePath OEIS triangulars
 
 =head1 NAME
 
@@ -282,9 +295,9 @@ axis.
          +-------------------------
            X=0   1   2   3   4   5
 
-N=1,3,6,10,etc on the X axis is the triangular numbers.  N=1,2,4,7,11,etc on
-the Y axis is the triangular plus 1, the next point visited after the X
-axis.
+X<Triangular numbers>N=1,3,6,10,etc on the X axis is the triangular numbers.
+N=1,2,4,7,11,etc on the Y axis is the triangular plus 1, the next point
+visited after the X axis.
 
 =head2 Direction
 
@@ -309,8 +322,8 @@ count upward from the X axis.
            X=0   1   2   3   4   5   6
 
 This is merely a transpose changing X,Y to Y,X, but it's the same as in
-DiagonalsOctant and can be handy to control the direction when combining
-Diagonals with some other path or calculation.
+C<DiagonalsOctant> and can be handy to control the direction when combining
+C<Diagonals> with some other path or calculation.
 
 =head2 N Start
 
@@ -336,8 +349,8 @@ example to start at 0,
          +-----------------          +-----------------
            X=0  1  2  3  4             X=0  1  2  3  4
 
-N=0,1,3,6,10,etc on the Y axis of "down" or the X axis of "up" is the
-triangular numbers Y*(Y+1)/2.
+X<Triangular numbers>N=0,1,3,6,10,etc on the Y axis of "down" or the X axis
+of "up" is the triangular numbers Y*(Y+1)/2.
 
 =head2 X,Y Start
 

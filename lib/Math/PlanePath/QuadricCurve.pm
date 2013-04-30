@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,12 +40,12 @@ use Math::PlanePath::Base::Digits
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
+use constant sumxy_minimum => 0;  # triangular X>=-Y
+use constant diffxy_minimum => 0; # triangular Y<=X so X-Y>=0
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
 use constant dir_maximum_dxdy => (0,-1); # South
 
 

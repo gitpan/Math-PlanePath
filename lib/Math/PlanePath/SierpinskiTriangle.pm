@@ -52,7 +52,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -93,6 +93,22 @@ use constant default_n_start => 0;
 use constant n_frac_discontinuity => .5;
 use constant tree_num_children_maximum => 2;
 
+sub x_maximum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'left'
+          ? 0       # left all X<=0
+          : undef); # others X unbounded
+}
+use constant sumxy_minimum => 0;  # triangular X>=-Y or all X>=0
+
+# Note: this method shared by SierpinskiArrowhead, SierpinskiArrowheadCentres
+sub diffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'diagonal'
+          ? undef
+          : 0);    # triangular X<=Y so X-Y<=0
+}
+
 sub dy_minimum {
   my ($self) = @_;
   return ($self->{'align'} eq 'diagonal' ? undef : 0);
@@ -122,17 +138,6 @@ sub dy_maximum {
   }
 }
 
-
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'align'} eq 'diagonal' ? 1 # North
-#           : 0); # East
-# }
-# sub dir4_maximum {
-#   my ($self) = @_;
-#   return ($self->{'align'} eq 'diagonal' ? 3.5 # South-Eest
-#           : 2);  # supremum, West and 1 up
-# }
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'align'} eq 'diagonal'
@@ -550,7 +555,7 @@ sub _n0_to_depthbits {
 1;
 __END__
 
-=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax SierpinskiArrowheadCentres OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand CellularRule Noffset Ndepth Nrem NumSeq Dyck
+=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand Noffset Ndepth Nrem NumSeq Dyck
 
 =head1 NAME
 
@@ -777,7 +782,7 @@ empty border delimiting them.
 
 The default is to number points starting N=0 as shown above.  An optional
 C<n_start> parameter can give a different start, with the same shape.  For
-example starting at 1 (which is the numbering of CellularRule rule=60),
+example starting at 1 (which is the numbering of C<CellularRule> rule=60),
 
 =cut
 

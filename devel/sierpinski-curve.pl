@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,12 +21,28 @@
 use 5.004;
 use strict;
 use POSIX ();
+use Math::Trig 'pi';
 use Math::PlanePath::SierpinskiArrowhead;
 
 # uncomment this to run the ### lines
 use Smart::Comments;
 
 
+
+{
+  # dSumAbs
+  require Math::NumSeq::PlanePathDelta;
+  my $seq = Math::NumSeq::PlanePathDelta->new (planepath => 'SierpinskiCurveStair,arms=6',
+                                               delta_type => 'dSumAbs');
+  for (1 .. 300) {
+    my ($i,$value) = $seq->next;
+    print "$value,";
+    if ($i % 6 == 5) {
+      print "\n";
+    }
+  }
+  exit 0;
+}
 {
   # A156595 Mephisto Waltz first diffs xor as turns
   require Tk;

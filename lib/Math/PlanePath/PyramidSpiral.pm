@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -161,7 +161,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PyramidSpiral pronic PlanePath Ryde Math-PlanePath SquareSpiral DiamondSpiral OctagramSpiral OEIS
+=for stopwords pronic PlanePath Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -194,16 +194,16 @@ This path makes a pyramid shaped spiral,
                        ^
     -5 -4 -3  -2  -1  X=0 1  2  3  4  5  6  7
 
-The perfect squares 1,4,9,16 fall one before the bottom left corner of each
-loop, and the X<Pronic numbers>pronic numbers 2,6,12,20,30,etc are the
-vertical upwards from X=1,Y=0.
+X<Square numbers>The perfect squares 1,4,9,16 fall one before the bottom
+left corner of each loop, and the X<Pronic numbers>pronic numbers
+2,6,12,20,30,etc are the vertical upwards from X=1,Y=0.
 
 =head2 Square Spiral
 
-This spiral goes around at the same rate as the SquareSpiral.  It's as if
-two corners are cut off (like the DiamondSpiral) and two others extended
-(like the OctagramSpiral).  The net effect is the same looping rate but the
-points pushed around a bit.
+This spiral goes around at the same rate as the C<SquareSpiral>.  It's as if
+two corners are cut off (like the C<DiamondSpiral>) and two others extended
+(like the C<OctagramSpiral>).  The net effect is the same looping rate but
+the points pushed around a bit.
 
 Taking points up to a perfect square shows the similarity.  The two
 triangular cut-off corners marked by "."s are matched by the two triangular

@@ -24,7 +24,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -148,7 +148,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PentSpiral SquareSpiral DiamondSpiral PlanePath Ryde Math-PlanePath OEIS
+=for stopwords Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -178,9 +178,9 @@ fit a square grid and fully cover the plane.
      ^  ^  ^  ^  ^  ^ 
     -2 -1 x=0 1  2  3 ...
 
-The pattern is similar to the SquareSpiral but cuts three corners which
+The pattern is similar to the C<SquareSpiral> but cuts three corners which
 makes each cycle is faster.  Each cycle is just 5 steps longer than the
-previous (where it's 8 for a SquareSpiral).
+previous (where it's 8 for a C<SquareSpiral>).
 
 =head1 FUNCTIONS
 

@@ -339,6 +339,9 @@ my @all_classes = ('SquareSpiral',
                    '*ToothpickTree,parts=3',
                    '*ToothpickTree,parts=2',
                    '*ToothpickTree,parts=1',
+                   '*ToothpickTree,parts=octant',
+                   '*ToothpickTree,parts=octant_up',
+                   '*ToothpickTree,parts=wedge',
                    
                    '*ToothpickReplicate',
                    '*ToothpickReplicate,parts=3',
@@ -351,6 +354,9 @@ my @all_classes = ('SquareSpiral',
                    '*LCornerTree,parts=3',
                    '*LCornerTree,parts=2',
                    '*LCornerTree,parts=1',
+                   '*LCornerTree,parts=octant',
+                   '*LCornerTree,parts=octant_up',
+                   '*LCornerTree,parts=wedge',
                    
                    '*LCornerReplicate',
 
@@ -358,8 +364,10 @@ my @all_classes = ('SquareSpiral',
                    '*OneOfEight,parts=4',
                    '*OneOfEight,parts=1',
                    '*OneOfEight,parts=octant',
+                   '*OneOfEight,parts=octant_up',
                    '*OneOfEight,parts=3mid',
                    '*OneOfEight,parts=3side',
+                   '*OneOfEight,parts=wedge',
                   );
 # expand arg "all" to full list
 @ARGV = map {$_ eq 'all' ? @all_classes : $_} @ARGV;

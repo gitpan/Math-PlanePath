@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -112,7 +112,7 @@ sub xy_to_n {
   $x = round_nearest ($x);
   $y = round_nearest ($y);
 
-  # nothing on odd squares
+  # nothing on odd points
   # when y>=0 any odd x is not covered
   # when y<0 the uncovered alternates, x even on y=-1, x odd on y=-2, x even
   # y=-3 etc
@@ -197,7 +197,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PentSpiral PentSpiralSkewed PlanePath Ryde Math-PlanePath OEIS
+=for stopwords Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -239,7 +239,7 @@ so n=20 is x=4,y=1 then n=21 is x=2,y=2.
 
 The effect is to make the sides equal length, except for a kink at the lower
 right corner.  Only every second square in the plane is used.  In the top
-half (y>=0) those squares line up, in the lower half (y<0) they're offset on
+half (y>=0) those points line up, in the lower half (y<0) they're offset on
 alternate rows.
 
 =head1 FUNCTIONS

@@ -24,7 +24,7 @@ plan tests => 23;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::HexSpiralSkewed;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::HexSpiralSkewed;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::HexSpiralSkewed::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HexSpiralSkewed->VERSION,  $want_version,

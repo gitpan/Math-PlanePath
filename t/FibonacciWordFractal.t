@@ -24,7 +24,7 @@ plan tests => 6;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 use Math::PlanePath::FibonacciWordFractal;
 
@@ -32,7 +32,7 @@ use Math::PlanePath::FibonacciWordFractal;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::FibonacciWordFractal::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FibonacciWordFractal->VERSION,  $want_version,

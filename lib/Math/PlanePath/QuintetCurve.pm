@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -209,7 +209,7 @@ sub xy_to_n {
 1;
 __END__
 
-=for stopwords eg Ryde Mandelbrot Math-PlanePath Nlevel QuintetCurve QuintetCentres
+=for stopwords eg Ryde Mandelbrot Math-PlanePath Nlevel
 
 =head1 NAME
 
@@ -404,13 +404,13 @@ simple over-estimate.)
 
 =head2 X,Y to N
 
-The current approach uses the QuintetCentres C<xy_to_n()>.  Because the
-tiling in QuintetCurve and QuintetCentres is the same, the X,Y coordinates
-for a given N are no more than 1 away in the grid.
+The current approach uses the C<QuintetCentres> C<xy_to_n()>.  Because the
+tiling in C<QuintetCurve> and C<QuintetCentres> is the same, the X,Y
+coordinates for a given N are no more than 1 away in the grid.
 
 The way the two lowest shapes are arranged in fact means that for a
-QuintetCurve N at X,Y then the same N on the QuintetCentres is at one of
-three locations
+C<QuintetCurve> N at X,Y then the same N on the C<QuintetCentres> is at one
+of three locations
 
     X, Y          same
     X, Y+1        up
@@ -421,8 +421,8 @@ This is so even when the "arms" multiple paths are in use (the same arms in
 both coordinates).
 
 Is there an easy way to know which of the four offsets is right?  The
-current approach is to give each to QuintetCentres to make an N, put that N
-back through C<n_to_xy()> to see if it's the target C<$n>.
+current approach is to give each to C<QuintetCentres> to make an N, put that
+N back through C<n_to_xy()> to see if it's the target C<$n>.
 
 =head1 SEE ALSO
 

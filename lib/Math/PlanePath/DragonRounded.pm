@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -249,7 +249,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices multi-arm DragonMidpoint DragonRounded Xadj,Yadj
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al vertices multi-arm Xadj,Yadj OEIS
 
 =head1 NAME
 
@@ -351,7 +351,7 @@ each.
 
 =head2 Midpoint
 
-The points of this rounded curve correspond to the DragonMidpoint with a
+The points of this rounded curve correspond to the C<DragonMidpoint> with a
 little squish to turn each 6x6 block into a 4x4 block.  For instance in the
 following N=2,3 are pushed to the left, and N=6 through N=11 shift down and
 squashes up horizontally.
@@ -403,15 +403,15 @@ Return 0, the first N in the path.
 
 =head2 X,Y to N
 
-The correspondence with the DragonMidpoint noted above allows the method
+The correspondence with the C<DragonMidpoint> noted above allows the method
 from that module to be used for the rounded C<xy_to_n()>.
 
 The correspondence essentially reckons each point on the rounded curve as
 the midpoint of a dragon curve of one greater level of detail, and segments
 on 45-degree angles.
 
-The coordinate conversion turns each 6x6 block of DragonRounded to a 4x4
-block of DragonMidpoint.  There's no rotations or anything.
+The coordinate conversion turns each 6x6 block of C<DragonRounded> to a 4x4
+block of C<DragonMidpoint>.  There's no rotations or anything.
 
     Xmid = X - floor(X/3) - Xadj[X%6][Y%6]
     Ymid = Y - floor(Y/3) - Yadj[X%6][Y%6]
@@ -422,8 +422,8 @@ block of DragonMidpoint.  There's no rotations or anything.
     Yadj[][] is a 6x6 table of -1 or 0 or undef
 
 The Xadj,Yadj tables are a handy place to notice X,Y points not on the
-DragonRounded style 4 of 9 points.  Or 16 of 36 points since the tables are
-6x6.
+C<DragonRounded> style 4 of 9 points.  Or 16 of 36 points since the tables
+are 6x6.
 
 =head1 OEIS
 

@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -150,7 +150,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic PyramidRows versa PlanePath Ryde Math-PlanePath ie Euler's OEIS
+=for stopwords pronic versa PlanePath Ryde Math-PlanePath ie Euler's OEIS
 
 =head1 NAME
 
@@ -176,16 +176,17 @@ upwards.
                          ^
     ... -4  -3  -2  -1  X=0  1   2   3   4 ...
 
-N=1,4,9,16,etc along the positive X axis is the perfect squares.
-N=2,6,12,20,etc in the X=-1 vertical is the X<Pronic numbers>pronic numbers
-k*(k+1) half way between those successive squares.
+X<Square numbers>N=1,4,9,16,etc along the positive X axis is the perfect
+squares.  N=2,6,12,20,etc in the X=-1 vertical is the
+X<Pronic numbers>pronic numbers k*(k+1) half way between those successive
+squares.
 
-The pattern is the same as the Corner path but turned and spread so the
-single quadrant in the Corner becomes a half-plane here.
+The pattern is the same as the C<Corner> path but turned and spread so the
+single quadrant in the C<Corner> becomes a half-plane here.
 
-The pattern is similar to PyramidRows (with its default step=2), just with
-the columns dropped down vertically to start at the X axis.  Any pattern
-occurring within a column is unchanged, but what was a row becomes a
+The pattern is similar to C<PyramidRows> (with its default step=2), just
+with the columns dropped down vertically to start at the X axis.  Any
+pattern occurring within a column is unchanged, but what was a row becomes a
 diagonal and vice versa.
 
 =head2 Lucky Numbers of Euler
@@ -195,8 +196,8 @@ are spread around a bit, but from N=1763 (k=41) they're the vertical at
 X=40.  There's quite a few primes in this quadratic and when plotting primes
 that vertical stands out a little denser than its surrounds (at least for up
 to the first 2500 or so values).  The line shows in other step==2 paths too,
-but not as clearly.  In the PyramidRows for instance the beginning is up at
-Y=40, and in the Corner path it's a diagonal.
+but not as clearly.  In the C<PyramidRows> for instance the beginning is up
+at Y=40, and in the C<Corner> path it's a diagonal.
 
 =head2 N Start
 

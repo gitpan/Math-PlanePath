@@ -20,8 +20,6 @@
 use 5.004;
 use strict;
 
-use constant 1.02 PI => 4 * atan2(1,1);  # similar to Math::Complex
-
 # uncomment this to run the ### lines
 #use Smart::Comments;
 

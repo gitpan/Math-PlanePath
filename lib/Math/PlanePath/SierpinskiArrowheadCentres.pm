@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -55,6 +55,10 @@ use Math::PlanePath::SierpinskiArrowhead;
 use constant n_start => 0;
 use constant class_y_negative => 0;
 *x_negative = \&Math::PlanePath::SierpinskiArrowhead::x_negative;
+*x_maximum  = \&Math::PlanePath::SierpinskiArrowhead::x_maximum;
+use constant sumxy_minimum => 0;  # triangular X>=-Y
+use Math::PlanePath::SierpinskiTriangle;
+*diffxy_maximum = \&Math::PlanePath::SierpinskiTriangle::diffxy_maximum;
 
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
@@ -367,7 +371,7 @@ __END__
 
 #------------------------------------------------------------------------------
 
-=for stopwords eg Ryde Sierpinski Nlevel ie SierpinskiTriangle Math-PlanePath bitand dX,dY
+=for stopwords eg Ryde Sierpinski Nlevel ie Math-PlanePath bitand dX,dY
 
 =head1 NAME
 
@@ -383,7 +387,7 @@ Math::PlanePath::SierpinskiArrowheadCentres -- self-similar triangular path trav
 
 X<Sierpinski, Waclaw>This is a version of the Sierpinski arrowhead path
 taking the centres of each triangle represented by the arrowhead segments.
-The effect is to traverse the SierpinskiTriangle points in a connected
+The effect is to traverse the C<SierpinskiTriangle> points in a connected
 sequence.
 
               ...                                 ...
@@ -453,7 +457,7 @@ steps of either 2 across or 1 diagonal.
                   * *
                    *
 
-See the SierpinskiTriangle path to traverse by rows instead.
+See the C<SierpinskiTriangle> path to traverse by rows instead.
 
 =head2 Level Ranges
 
@@ -482,7 +486,7 @@ through the level, which is after two replications of the previous level,
 
 An optional C<align> parameter controls how the points are arranged relative
 to the Y axis.  The default shown above is "triangular".  The choices are
-the same as for the SierpinskiTriangle path.
+the same as for the C<SierpinskiTriangle> path.
 
 "right" means points to the right of the axis, packed next to each other and
 so using an eighth of the plane.

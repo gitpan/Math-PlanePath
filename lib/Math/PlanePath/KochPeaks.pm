@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -295,7 +295,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath Nlast KochPeaks Xlo Xhi Xlo=-9 Xhi=+9 Ypeak Xlo,Xhi KochCurve
+=for stopwords eg Ryde Math-PlanePath Nlast Xlo Xhi Xlo=-9 Xhi=+9 Ypeak Xlo,Xhi
 
 =head1 NAME
 
@@ -310,7 +310,7 @@ Math::PlanePath::KochPeaks -- Koch curve peaks
 =head1 DESCRIPTION
 
 This path traces out concentric peaks made from integer versions of the
-self-similar KochCurve at successively greater replication levels.
+self-similar C<KochCurve> at successively greater replication levels.
 
                                29                                 9
                               /  \
@@ -358,7 +358,7 @@ N=5 to N=6 becomes N=17 to N=21.
 The X,Y coordinates are arranged as integers on a square grid.  The result
 is flattened triangular segments with diagonals at a 45 degree angle.
 
-Unlike other triangular grid paths KochPeaks uses the "odd" squares, with
+Unlike other triangular grid paths C<KochPeaks> uses the "odd" squares, with
 one of X,Y odd and the other even.  This means the rotation formulas etc
 described in L<Math::PlanePath/Triangular Lattice> don't apply directly.
 
@@ -475,10 +475,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=KochPeaks --lines --scale=20"
-# End:
-#
-# math-image --path=KochPeaks --all --output=numbers_dash

@@ -19,10 +19,10 @@
 # math-image --values=PlanePathTurn
 #
 # maybe:
-# Turn4p   0,1,2,3  and fractional
-# Turn4    0,1,2,-1  Turn4mid Turn4n Turn4s
-# TTurn6   0,1,2,3, -1,-2,  eg. flowsnake  TTurn6s
-# TTurn6p  0,1,2,3,4,5
+# Turn4    0,1,2,3  and fractional
+# Turn4n   0,1,2,-1  negatives    Turn4mid Turn4n Turn4s
+# TTurn6n   0,1,2,3, -1,-2,  eg. flowsnake  TTurn6s
+# TTurn6   0,1,2,3,4,5
 
 
 
@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1304,7 +1304,7 @@ sub characteristic_non_decreasing {
 __END__
 
 
-=for stopwords Ryde Math-PlanePath NumSeq PlanePath SquareSpiral ie LSR dX,dY dx1,dy1 dx2,dy2
+=for stopwords Ryde Math-PlanePath NumSeq PlanePath SquareSpiral ie LSR dX,dY dx1,dy1 dx2,dy2 dx1 dx2
 
 =head1 NAME
 

@@ -40,7 +40,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -211,7 +211,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath undrawn Radix cardinality bijection radix OEIS ZOrderCurve KE<246>nig KE<246>nig's
+=for stopwords Ryde Math-PlanePath undrawn Radix cardinality bijection radix OEIS KE<246>nig KE<246>nig's
 
 =head1 NAME
 
@@ -297,7 +297,7 @@ For example radix 5 gives
 
 X<KE<246>nig, Julius>This split is inspired by the digit grouping in the
 proof by Julius KE<246>nig that the real line is the same cardinality as the
-plane.  (Cantor's original proof was a ZOrderCurve style digit
+plane.  (Cantor's original proof was a C<ZOrderCurve> style digit
 interleaving.)
 
 In KE<246>nig's proof a bijection between interval n=(0,1) and pairs

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,7 +25,7 @@ plan tests => 1;
 
 use lib 't','xt';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
 use Math::PlanePath::Hypot;
@@ -255,7 +255,7 @@ MyOEIS::compare_values
 #------------------------------------------------------------------------------
 # A093832 - N(r) / r^2 > pi
 
-use constant 1.02 PI => 4 * atan2(1,1);  # similar to Math::Complex
+use Math::Trig 'pi';
 
 MyOEIS::compare_values
   (anum => q{A093832},
@@ -266,7 +266,7 @@ MyOEIS::compare_values
      for (my $r = 1; @got < $count; $r++) {
        my $Nr = Nr($r);
        my $rsquared = $r*$r;
-       if ($Nr / $rsquared > PI) {
+       if ($Nr / $rsquared > pi) {
          push @got, $r;
        }
      }

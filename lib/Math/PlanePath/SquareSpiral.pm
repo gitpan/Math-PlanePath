@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -436,7 +436,7 @@ sub n_to_dxdy {
 __END__
 
 
-=for stopwords Stanislaw Ulam SquareSpiral pronic PlanePath Ryde Math-PlanePath Ulam's VogelFloret PyramidSides PyramidRows PyramidSpiral Honaker's decagonal OEIS Nbase sqrt BigRat Nrem wl wr Nsig incrementing
+=for stopwords Stanislaw Ulam pronic PlanePath Ryde Math-PlanePath Ulam's Honaker's decagonal OEIS Nbase sqrt BigRat Nrem wl wr Nsig incrementing
 
 =head1 NAME
 
@@ -490,16 +490,17 @@ http://oeis.org/A143861/a143861.jpg
 =back
 
 See F<examples/ulam-spiral-xpm.pl> in the sources for a standalone program,
-or see L<math-image> using this SquareSpiral to draw this pattern and more.
+or see L<math-image> using this C<SquareSpiral> to draw this pattern and
+more.
 
 =head2 Straight Lines
 
-The perfect squares 1,4,9,16,25 fall on two diagonals with the even perfect
-squares going to the upper left and the odd squares to the lower right.  The
-X<Pronic numbers>pronic numbers 2,6,12,20,30,42 etc k^2+k half way between
-the squares fall on similar diagonals to the upper right and lower left.
-The decagonal numbers 10,27,52,85 etc 4*k^2-3*k go horizontally to the right
-at Y=-1.
+X<Square numbers>The perfect squares 1,4,9,16,25 fall on two diagonals with
+the even perfect squares going to the upper left and the odd squares to the
+lower right.  The X<Pronic numbers>pronic numbers 2,6,12,20,30,42 etc k^2+k
+half way between the squares fall on similar diagonals to the upper right
+and lower left.  The decagonal numbers 10,27,52,85 etc 4*k^2-3*k go
+horizontally to the right at Y=-1.
 
 In general straight lines and diagonals are 4*k^2 + b*k + c.  b=0 is the
 even perfect squares up to the left, then incrementing b is an eighth turn
@@ -584,8 +585,8 @@ around faster.  See the following modules,
          3        PentSpiralSkewed
          4        DiamondSpiral
 
-The PyramidSpiral is a re-shaped SquareSpiral looping at the same rate.  It
-shifts corners but doesn't cut them.
+The C<PyramidSpiral> is a re-shaped C<SquareSpiral> looping at the same
+rate.  It shifts corners but doesn't cut them.
 
 =head1 FUNCTIONS
 

@@ -24,7 +24,7 @@ plan tests => 1568;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::DiamondArms;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::DiamondArms;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::DiamondArms::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiamondArms->VERSION,  $want_version,

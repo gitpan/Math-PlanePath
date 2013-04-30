@@ -53,7 +53,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -281,7 +281,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PyramidSides PyramidRows PlanePath Ryde Math-PlanePath ie OEIS gnomon
+=for stopwords pronic PlanePath Ryde Math-PlanePath ie OEIS gnomon
 
 =head1 NAME
 
@@ -318,9 +318,9 @@ first quadrant.
         +---------------------
          X=0   1   2   3   4
 
-X<Gnomon>The horizontal 1,4,9,16,etc along Y=0 is the perfect squares.  This
-is since each further row/column "gnomon" added to a square makes a
-one-bigger square,
+X<Gnomon>X<Square numbers>The horizontal 1,4,9,16,etc along Y=0 is the
+perfect squares.  This is since each further row/column "gnomon" added to a
+square makes a one-bigger square,
 
                             10 11 12 13
                5  6  7       5  6  7 14
@@ -334,9 +334,9 @@ X<Pronic numbers>pronic numbers k*(k+1) which are half way between the
 squares.
 
 Each gnomon is 2 longer than the previous.  This is similar to the
-PyramidRows, PyramidSides and SacksSpiral paths.  The Corner and the
-PyramidSides are the same, just the PyramidSides stretched out to two
-quadrants instead of one for the Corner here.
+C<PyramidRows>, C<PyramidSides> and C<SacksSpiral> paths.  The C<Corner> and
+the C<PyramidSides> are the same, just the C<PyramidSides> stretched out to
+two quadrants instead of one for the C<Corner> here.
 
 =head2 Wider
 
@@ -603,8 +603,8 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::PyramidSides>,
+L<Math::PlanePath::PyramidRows>,
 L<Math::PlanePath::SacksSpiral>,
 L<Math::PlanePath::Diagonals>
 

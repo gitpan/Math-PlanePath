@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -423,7 +423,7 @@ __END__
 
 
 
-=for stopwords Ryde pixellated DiamondSpiral SquareSpiral Math-PlanePath
+=for stopwords Ryde pixellated Math-PlanePath
 
 =head1 NAME
 
@@ -471,7 +471,7 @@ longer, for example N=54 to N=80 ring.  The average extra is approximately
 4*sqrt(2).
 
 The rings can be thought of as part-way between the diagonals like
-DiamondSpiral and the corners like SquareSpiral.
+C<DiamondSpiral> and the corners like C<SquareSpiral>.
 
 
      *           **           *****

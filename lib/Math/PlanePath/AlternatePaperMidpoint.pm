@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -45,6 +45,17 @@ use Math::PlanePath::AlternatePaper;
 #use Smart::Comments;
 
 
+use constant parameter_info_array => [ { name      => 'arms',
+                                         share_key => 'arms_8',
+                                         display   => 'Arms',
+                                         type      => 'integer',
+                                         minimum   => 1,
+                                         maximum   => 8,
+                                         default   => 1,
+                                         width     => 1,
+                                         description => 'Arms',
+                                       } ];
+
 use constant n_start => 0;
 
 sub x_negative {
@@ -56,16 +67,18 @@ sub y_negative {
   return ($self->{'arms'} >= 5);
 }
 
-use constant parameter_info_array => [ { name      => 'arms',
-                                         share_key => 'arms_8',
-                                         display   => 'Arms',
-                                         type      => 'integer',
-                                         minimum   => 1,
-                                         maximum   => 8,
-                                         default   => 1,
-                                         width     => 1,
-                                         description => 'Arms',
-                                       } ];
+sub sumxy_minimum {
+  my ($self) = @_;
+  return ($self->arms_count <= 3
+          ? 0        # 1,2,3 arms above X=-Y diagonal
+          : undef);
+}
+sub diffxy_minimum {
+  my ($self) = @_;
+  return ($self->arms_count == 1
+          ? 0        # 1 arms right of X=Y diagonal
+          : undef);
+}
 
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
@@ -384,7 +397,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Math-PlanePath eg Ryde AlternatePaper AlternatePaperMidpoint OEIS
+=for stopwords Math-PlanePath eg Ryde OEIS
 
 =head1 NAME
 
@@ -421,7 +434,7 @@ This is the midpoints of each alternate paper folding curve
         +----------------------------------------------
         X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
 
-The AlternatePaper curve begins as follows and the midpoints are numbered
+The C<AlternatePaper> curve begins as follows and the midpoints are numbered
 from 0,
 
                       |
@@ -438,9 +451,9 @@ from 0,
     *--0--       --4--
 
 These midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  For this
-AlternatePaperMidpoint they're turned 45 degrees and mirrored so the 0,1,2
-upward diagonal becomes horizontal along the X axis, and the 2,3,4 downward
-diagonal becomes a vertical at X=2, extending to X=2,Y=2 at N=4.
+C<AlternatePaperMidpoint> they're turned 45 degrees and mirrored so the
+0,1,2 upward diagonal becomes horizontal along the X axis, and the 2,3,4
+downward diagonal becomes a vertical at X=2, extending to X=2,Y=2 at N=4.
 
 The midpoints are distinct X,Y positions because the alternate paper curve
 traverses each edge only once.
@@ -492,14 +505,14 @@ N=2,10,18,26 the third, etc.
     -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
 
 With eight arms like this every X,Y point is visited exactly once, because
-the 8-arm AlternatePaper traverses every edge exactly once
+the 8-arm C<AlternatePaper> traverses every edge exactly once
 (L<Math::PlanePath::AlternatePaper/Arms>).
 
-The arm numbering doesn't correspond to the AlternatePaper, due to the
+The arm numbering doesn't correspond to the C<AlternatePaper>, due to the
 rotate and reflect of the first arm.  It ends up arms 0 and 1 of the
-AlternatePaper corresponding to arms 7 and 0 of the midpoints here, those
+C<AlternatePaper> corresponding to arms 7 and 0 of the midpoints here, those
 two being a pair going horizontally corresponding to a pair in the
-AlternatePaper going diagonally into a quadrant.
+C<AlternatePaper> going diagonally into a quadrant.
 
 =head1 FUNCTIONS
 

@@ -23,11 +23,12 @@
 package Math::PlanePath::LTiling;
 use 5.004;
 use strict;
+use Carp;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -59,19 +60,28 @@ use constant parameter_info_array =>
     },
   ];
 
-sub rsquared_minimum {
+my %sumxy_minimum = (middle => 0, # X=0,Y=0
+                     left   => 1, # X=1,Y=0
+                     upper  => 1, # X=0,Y=1
+                     ends   => 1, # X=1,Y=0  and X=0,Y=1
+                     all    => 0, # X=0,Y=0
+                    );
+sub sumxy_minimum {
   my ($self) = @_;
-  return ($self->{'L_fill'} eq 'middle' || $self->{'L_fill'} eq 'all'
-          ? 0    # X=0,Y=0
-          : 1);  # X=1,Y=0 or X=0,Y=1 for ends,left,upper
+  return $sumxy_minimum{$self->{'L_fill'}};
 }
+*rsquared_minimum = \&sumxy_minimum;
 
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new (L_fill => 'middle',
-                                 @_);
+  my $self = shift->SUPER::new (@_);
+  my $L_fill = $self->{'L_fill'};
+  if (! defined $L_fill) {
+    $self->{'L_fill'} = 'middle';
+  } elsif (! exists $sumxy_minimum{$L_fill}) {
+    croak "Unrecognised L_fill option: ",$L_fill;
+  }
   return $self;
 }
 
@@ -247,7 +257,7 @@ sub rect_to_n_range {
 __END__
 
 
-=for stopwords eg Ryde ie LTiling Math-PlanePath Asano Ranjan Roos Welzl Widmayer HilbertCurve ZOrderCurve Informatics Nlevel OEIS
+=for stopwords eg Ryde ie Math-PlanePath Asano Ranjan Roos Welzl Widmayer Informatics Nlevel OEIS
 
 =head1 NAME
 

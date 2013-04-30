@@ -20,11 +20,11 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 365;
+plan tests => 510;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -69,72 +69,81 @@ my $base_r4 = Math::PlanePath::MultipleRings->new(step=>4)->{'base_r'};
 
 foreach my $elem (
                   # step=0 horizontal
-                  [ 0, 1, 0,0 ],
-                  [ 0, 2, 1,0 ],
-                  [ 0, 3, 2,0 ],
+                  [ [step=>0], 1, 0,0 ],
+                  [ [step=>0], 2, 1,0 ],
+                  [ [step=>0], 3, 2,0 ],
 
                   # step=1
-                  [ 1, 1, 0,0 ],
-                  [ 1, 2, 1,0 ],
-                  [ 1, 3, -1,0 ],
-                  [ 1, 4, 2,0 ],
-                  [ 1, 7, 3,0 ],
-                  [ 1, 8, 0,3 ],
-                  [ 1, 9, -3,0 ],
-                  [ 1, 10, 0,-3 ],
-                  [ 1, 11, 4,0 ],
-                  [ 1, 16, 5,0 ],
-                  [ 1, 19, -5,0 ],
+                  [ [step=>1], 1, 0,0 ],
+                  [ [step=>1], 1.25, 0,0 ],
+                  [ [step=>1], 2, 1,0 ],
+                  [ [step=>1], 2.25, 0.5,0 ],
+                  [ [step=>1], 2.75, -0.5,0 ],
+                  [ [step=>1], 3, -1,0 ],
+                  [ [step=>1], 3.25, -0.5,0 ],
+                  [ [step=>1], 3.75, 0.5,0 ],
+                  [ [step=>1], 4, 2,0 ],
+                  [ [step=>1], 7, 3,0 ],
+                  [ [step=>1], 8, 0,3 ],
+                  [ [step=>1], 9, -3,0 ],
+                  [ [step=>1], 10, 0,-3 ],
+                  [ [step=>1], 11, 4,0 ],
+                  [ [step=>1], 16, 5,0 ],
+                  [ [step=>1], 19, -5,0 ],
 
                   # step=2
-                  [ 2, 1, 0.5, 0 ],
-                  [ 2, 2, -0.5, 0 ],
-                  [ 2, 3, 1.5, 0 ],
-                  [ 2, 4, 0, 1.5 ],
-                  [ 2, 5, -1.5, 0 ],
-                  [ 2, 6, 0,-1.5 ],
-                  [ 2, 7, 2.5, 0 ],
-                  [ 2, 10, -2.5, 0 ],
-                  [ 2, 13, 3.5, 0 ],
-                  [ 2, 17, -3.5, 0 ],
-                  [ 2, 21, 4.5, 0 ],
-                  [ 2, 26, -4.5, 0 ],
+                  [ [step=>2], 1, 0.5, 0 ],
+                  [ [step=>2], 2, -0.5, 0 ],
+                  [ [step=>2], 3, 1.5, 0 ],
+                  [ [step=>2], 4, 0, 1.5 ],
+                  [ [step=>2], 5, -1.5, 0 ],
+                  [ [step=>2], 6, 0,-1.5 ],
+                  [ [step=>2], 7, 2.5, 0 ],
+                  [ [step=>2], 10, -2.5, 0 ],
+                  [ [step=>2], 13, 3.5, 0 ],
+                  [ [step=>2], 17, -3.5, 0 ],
+                  [ [step=>2], 21, 4.5, 0 ],
+                  [ [step=>2], 26, -4.5, 0 ],
 
                   # step=3
-                  [ 3, 1, $base_r3+1, 0 ],
-                  [ 3, 4, $base_r3+2, 0 ],
-                  [ 3, 7, -($base_r3+2), 0 ],
-                  [ 3, 10, $base_r3+3, 0 ],
-                  [ 3, 19, $base_r3+4, 0 ],
-                  [ 3, 25, -($base_r3+4), 0 ],
+                  [ [step=>3], 1, $base_r3+1, 0 ],
+                  [ [step=>3], 4, $base_r3+2, 0 ],
+                  [ [step=>3], 7, -($base_r3+2), 0 ],
+                  [ [step=>3], 10, $base_r3+3, 0 ],
+                  [ [step=>3], 19, $base_r3+4, 0 ],
+                  [ [step=>3], 25, -($base_r3+4), 0 ],
 
                   # step=4
-                  [ 4, 1, $base_r4+1, 0 ],
-                  [ 4, 2, 0, $base_r4+1 ],
-                  [ 4, 3, -($base_r4+1), 0 ],
-                  [ 4, 4, 0, -($base_r4+1) ],
-                  [ 4, 5, $base_r4+2, 0 ],
-                  [ 4, 7, 0, $base_r4+2 ],
-                  [ 4, 9, -($base_r4+2), 0 ],
-                  [ 4, 11, 0, -($base_r4+2) ],
+                  [ [step=>4], 1, $base_r4+1, 0 ],
+                  [ [step=>4], 2, 0, $base_r4+1 ],
+                  [ [step=>4], 3, -($base_r4+1), 0 ],
+                  [ [step=>4], 4, 0, -($base_r4+1) ],
+                  [ [step=>4], 5, $base_r4+2, 0 ],
+                  [ [step=>4], 7, 0, $base_r4+2 ],
+                  [ [step=>4], 9, -($base_r4+2), 0 ],
+                  [ [step=>4], 11, 0, -($base_r4+2) ],
 
                   # step=6
-                  [ 6,  1,   1, 0 ],
-                  [ 6,  4,  -1, 0 ],
-                  [ 6,  7,   2, 0 ],
-                  [ 6, 13,  -2, 0 ],
+                  [ [step=>6],  1,   1, 0 ],
+                  [ [step=>6],  4,  -1, 0 ],
+                  [ [step=>6],  7,   2, 0 ],
+                  [ [step=>6], 13,  -2, 0 ],
+
+                  [ [step=>6,ring_shape=>'polygon'],  1,   1, 0 ],
+                  [ [step=>6,ring_shape=>'polygon'],  4,  -1, 0 ],
 
                  ) {
-  my ($step, $n, $x, $y) = @$elem;
-  my $path = Math::PlanePath::MultipleRings->new (step => $step);
+  my ($parameters, $n, $x, $y) = @$elem;
+  my $path = Math::PlanePath::MultipleRings->new (@$parameters);
+  my $name = join(',',@$parameters);
 
   {
     # n_to_xy()
     my ($got_x, $got_y) = $path->n_to_xy ($n);
     if ($got_x == 0) { $got_x = 0 }  # avoid "-0"
     if ($got_y == 0) { $got_y = 0 }
-    ok ($got_x, $x, "step=$step n_to_xy() x at n=$n");
-    ok ($got_y, $y, "step=$step n_to_xy() y at n=$n");
+    ok ($got_x, $x, "$name n_to_xy() x at n=$n");
+    ok ($got_y, $y, "$name n_to_xy() y at n=$n");
   }
   {
     # n_to_rsquared()
@@ -145,7 +154,7 @@ foreach my $elem (
     ok (defined $got_rsquared, 1);
     ok ($got_rsquared == $rsquared,
         1,
-        "step=$step n_to_rsquared() at n=$n  want $rsquared got $got_rsquared");
+        "$name n_to_rsquared() at n=$n  want $rsquared got $got_rsquared");
   }
 }
 
@@ -155,53 +164,105 @@ foreach my $elem (
 
 foreach my $elem (
                   # step=0
-                  [ 0, 1,   0*0 ],
-                  [ 0, 2,   1*1 ],
-                  [ 0, 2.5, 1.5*1.5 ],
-                  [ 0, 3,   2*2 ],
-                  [ 0, 4,   3*3 ],
+                  [ [step=>0], 1,   0*0 ],
+                  [ [step=>0], 2,   1*1 ],
+                  [ [step=>0], 2.5, 1.5*1.5 ],
+                  [ [step=>0], 3,   2*2 ],
+                  [ [step=>0], 4,   3*3 ],
 
+                  #-------------------------------------------
                   # step=1
-                  [ 1, 1,  0*0 ],
-                  [ 1, 1,  0*0 ],
+                  [ [step=>1], 1,  0*0 ],        # origin    R=0
 
-                  [ 1, 2,    1*1 ],
-                  # [ 1, 2.5,  1*1 ],
-                  [ 1, 3,    1*1 ],
-                  # [ 1, 3.5,  1*1 ],
+                  [ [step=>1], 2,    1*1 ],      # horiz, right    R=1
+                  [ [step=>1], 2.25,  0.5*0.5 ],
+                  [ [step=>1], 2.5,  0 ],
+                  [ [step=>1], 2.75,  0.5*0.5 ],
+                  [ [step=>1], 3,    1*1 ],      # left
+                  [ [step=>1], 3.25,  0.5*0.5 ],
+                  [ [step=>1], 3.5,  0 ],
+                  [ [step=>1], 3.75,  0.5*0.5 ],
 
-                  [ 1, 4,    2*2 ],
-                  # [ 1, 4.5,  2*2 ],
-                  [ 1, 6,    2*2 ],
-                  # [ 1, 6.5,  2*2 ],
+                  [ [step=>1], 4,    2*2 ],      # triangle, right    R=2
+                  [ [step=>1], 4.5,  1*1 ],
+                  [ [step=>1], 4.25, 7/4 ],
+                  [ [step=>1], 4.75, 7/4 ],
+                  [ [step=>1], 5,    2*2 ],      # up    R=2 at 120deg
+                  [ [step=>1], 5.25, 7/4 ],
+                  [ [step=>1], 5.75, 7/4 ],
+                  [ [step=>1], 6,    2*2 ],      # down  R=2 at 240deg
+                  [ [step=>1], 6.25, 7/4 ],
+                  [ [step=>1], 6.75, 7/4 ],
 
-                  [ 1, 7,     3*3 ],
-                  # [ 1, 7.5,   3*3 ],
-                  [ 1, 10,    3*3 ],
-                  # [ 1, 10.5,  3*3 ],
+                  [ [step=>1], 7,     3*3 ],     # square
+                  [ [step=>1], 7.5,   4.5 ],
+                  [ [step=>1], 7.25,  45/8 ],
+                  [ [step=>1], 10,    3*3 ],
+                  [ [step=>1], 10.5,  4.5 ],
+                  [ [step=>1], 10.75,  45/8 ],
 
+                  [ [step=>1], 16,    5*5 ],     # hexagon
+                  [ [step=>1], 16.25,  325/16 ],
+                  [ [step=>1], 16.5,  75/4 ],
+                  [ [step=>1], 21,    5*5 ],
+                  [ [step=>1], 21.75,  325/16 ],
 
+                  #-------------------------------------------
                   # step=6
-                  [ 6, 1,     1*1 ],  # 1..6 inclusive
-                  [ 6, 6,     1*1 ],
-                  # [ 6, 6.75,  1*1 ],
+                  [ [step=>6], 1,     1*1 ],  # 1..6 inclusive
+                  [ [step=>6], 6,     1*1 ],
+                  # [ [step=>6], 6.75, undef ],
 
-                  [ 6, 7,     2*2 ],  # 7..18 inclusive
-                  # [ 6, 7.5,   2*2 ],
-                  [ 6, 18,    2*2 ],
-                  # [ 6, 18.5,  2*2 ],
+                  [ [step=>6], 7,     2*2 ],  # 7..18 inclusive
+                  [ [step=>6], 18,    2*2 ],
 
-                  [ 6, 19,    3*3 ],  # 19..36 inclusive
-                  # [ 6, 19.5,  3*3 ],
-                  [ 6, 36,    3*3 ],
-                  # [ 6, 36.5,  3*3 ],
+                  [ [step=>6], 19,    3*3 ],  # 19..36 inclusive
+                  [ [step=>6], 36,    3*3 ],
+
+                  [ [step=>6,ring_shape=>'polygon'], 1,     1*1 ],
+                  [ [step=>6,ring_shape=>'polygon'], 6,     1*1 ],
+                  # [ [step=>6,ring_shape=>'polygon'], 7,    undef ],
 
                  ) {
-  my ($step, $n, $want_rsquared) = @$elem;
-  my $path = Math::PlanePath::MultipleRings->new (step => $step);
-  my $got_rsquared = $path->n_to_rsquared($n);
-  ok ($got_rsquared == $want_rsquared, 1,
-      "step=$step n_to_rsquared() at n=$n  got $got_rsquared want $want_rsquared");
+  my ($parameters, $n, $want_rsquared) = @$elem;
+  my $path = Math::PlanePath::MultipleRings->new (@$parameters);
+  my $name = join(',',@$parameters);
+
+  {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $xy_rsquared = $x*$x + $y*$y;
+    ok (abs($xy_rsquared-$want_rsquared) < 0.0001);
+  }
+  {
+    my $got_rsquared = $path->n_to_rsquared($n);
+    my $got_rsquared_str = (defined $got_rsquared
+                            ? sprintf('%.22f', $got_rsquared)
+                            : '[undef]');
+    my $want_rsquared_str = (defined $want_rsquared
+                             ? sprintf('%.22f', $want_rsquared)
+                             : '[undef]');
+    ok (equal($got_rsquared,$want_rsquared), 1,
+        "$name n_to_rsquared() at n=$n  got $got_rsquared_str want $want_rsquared_str");
+  }
+  {
+    my $got_radius = $path->_UNTESTED__n_to_radius($n);
+    my $got_radius_str = sprintf('%.22f', $got_radius);
+    my $want_radius = sqrt($want_rsquared);
+    my $want_radius_str = sprintf('%.22f', $want_radius);
+    if ($want_radius*$want_radius == $want_rsquared) {
+      ok (equal($got_radius,$want_radius), 1,
+          "$name n_to_radius() at n=$n  got $got_radius_str want $want_radius_str");
+    } else {
+      ok (abs($got_radius-$want_radius) < 0.0001, 1,
+          "$name n_to_radius() at n=$n  got $got_radius_str want $want_radius_str");
+    }
+  }
+}
+
+sub equal {
+  my ($x,$y) = @_;
+  return ((! defined $x && ! defined $y)
+          || (defined $x && defined $y && $x == $y));
 }
 
 #------------------------------------------------------------------------------

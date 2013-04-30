@@ -25,7 +25,7 @@ plan tests => 575;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -37,30 +37,39 @@ my $verbose = 1;
 my @modules = (
 
                # 'PeninsulaBridge',
+
+               # 'ToothpickTree,parts=3',
+               # 'ToothpickTree,parts=octant',
+               # 'ToothpickTree,parts=octant_up',
+               # 'ToothpickTree,parts=wedge',
+               # 'ToothpickTree',
+               # 'ToothpickTree,parts=1',
+               # 'ToothpickTree,parts=2',
+               
+               # 'ToothpickReplicate',
+               # 'ToothpickReplicate,parts=1',
+               # 'ToothpickReplicate,parts=2',
+               # 'ToothpickReplicate,parts=3',
+               
+               # 'OneOfEight,parts=octant_up',
+               # 'OneOfEight,parts=wedge',
                # 'OneOfEight',
                # 'OneOfEight,parts=4',
                # 'OneOfEight,parts=1',
                # 'OneOfEight,parts=octant',
                # 'OneOfEight,parts=3mid',
                # 'OneOfEight,parts=3side',
-
-               # 'ToothpickUpist',
-
-               # 'ToothpickTree',
-               # 'ToothpickTree,parts=1',
-               # 'ToothpickTree,parts=2',
-               # 'ToothpickTree,parts=3',
-               #
-               # 'ToothpickReplicate',
-               # 'ToothpickReplicate,parts=1',
-               # 'ToothpickReplicate,parts=2',
-               # 'ToothpickReplicate,parts=3',
-               #
-               # 'LCornerTree',
+               # 
+               # 'LCornerTree,parts=wedge',
+               # 'LCornerTree,parts=octant_up',
+               # 'LCornerTree,parts=octant',
+               # 'LCornerTree', # parts=4
                # 'LCornerTree,parts=1',
                # 'LCornerTree,parts=2',
                # 'LCornerTree,parts=3',
-               #
+
+               # 'ToothpickUpist',
+
                # 'LCornerReplicate',
 
                # module list begin
@@ -149,7 +158,7 @@ my @modules = (
                'CellularRule,rule=84',  # right 2 cell line
                'CellularRule,rule=84,n_start=0',
                'CellularRule,rule=84,n_start=37',
-               
+
                'CellularRule,rule=0',   # blank
                'CellularRule,rule=60',
                'CellularRule,rule=220', # right half solid
@@ -702,7 +711,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 101;
+my $want_version = 102;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

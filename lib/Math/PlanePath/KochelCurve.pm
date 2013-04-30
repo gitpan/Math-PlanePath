@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -470,7 +470,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie KochelCurve Math-PlanePath Haverkort Haverkort's Rrev Frev Kochel Tilings
+=for stopwords eg Ryde ie Math-PlanePath Haverkort Haverkort's Rrev Frev Kochel Tilings
 
 =head1 NAME
 

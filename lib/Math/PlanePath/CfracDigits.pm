@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,10 +43,6 @@ use Math::PlanePath::CoprimeColumns;
 #use Smart::Comments;
 
 
-use constant n_start => 0;
-use constant class_x_negative => 0;
-use constant class_y_negative => 0;
-
 use constant parameter_info_array =>
   [ { name      => 'radix',
       share_key => 'radix2_1toR',
@@ -58,8 +54,12 @@ use constant parameter_info_array =>
     },
   ];
 
+use constant n_start => 0;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 use constant x_minimum => 1;
 use constant y_minimum => 2;
+use constant diffxy_maximum => -1; # upper octant X<=Y-1 so X-Y<=-1
 
 # FIXME: believe this is right, but check N+1 always changes Y
 sub absdy_minimum {
@@ -90,7 +90,7 @@ sub absdy_minimum {
   # #           ? 3      # odd, South
   # #           : 4);    # even, supremum
   # # }
-  # 
+  #
   # # radix=1 N=4    dX=1,dY=-1 for dir4=3.5
   # # radix=2 N=4413 dX=9,dY=-1
   # # radix=3 N=9492 dX=3,dY=-1
@@ -345,7 +345,7 @@ sub _log_phi_estimate {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime RationalsTree octant onwards decrement Shallit FractionsTree GcdRationals radix-1 Radix HCS
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime octant onwards decrement Shallit radix-1 Radix radix HCS
 
 =head1 NAME
 
@@ -359,9 +359,9 @@ Math::PlanePath::CfracDigits -- continued fraction terms encoded by digits
 
 =head1 DESCRIPTION
 
-X<Shallit, Jeffrey>This path enumerates fractions S<0 E<lt> X/Y E<lt> 1>
-with X,Y no common factor, using a method by Jeffrey Shallit encoding
-continued fraction terms in digit strings.
+X<Shallit, Jeffrey>This path enumerates reduced fractions
+S<0 E<lt> X/Y E<lt> 1> with X,Y no common factor using a method by Jeffrey
+Shallit encoding continued fraction terms in digit strings, as per
 
 =over
 
@@ -371,8 +371,8 @@ https://cs.uwaterloo.ca/~shallit/Papers/ntfl.ps
 =back
 
 Fractions up to a given denominator are covered by roughly N=den^2.28.  This
-is a much smaller N range than the run-length encoding in RationalsTree and
-FractionsTree (but is more than GcdRationals).
+is a much smaller N range than the run-length encoding in C<RationalsTree>
+and C<FractionsTree> (but is more than C<GcdRationals>).
 
 =cut
 
@@ -399,7 +399,8 @@ FractionsTree (but is more than GcdRationals).
          ----------------------------------------------------------
         X=0   1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
-A fraction S<0 E<lt> X/Y E<lt> 1> has a finite continued fraction
+A fraction S<0 E<lt> X/Y E<lt> 1> has a finite continued fraction of the
+form
 
                       1
     X/Y = 0 + ---------------------
@@ -417,25 +418,25 @@ A fraction S<0 E<lt> X/Y E<lt> 1> has a finite continued fraction
 
 
 The terms are collected up as a sequence of integers E<gt>=0 by subtracting
-1 from each, or 2 from the last.
+1 from each and 2 from the last.
 
     # each >= 0
     q[1]-1,  q[2]-1, ..., q[k-2]-1, q[k-1]-1, q[k]-2
 
-These integers are written in base-2 using digits 1,2 and a digit 3 is
-written between each term as a separator.
+These integers are written in base-2 using digits 1,2.  A digit 3 is written
+between each term as a separator.
 
     base2(q[1]-1), 3, base2(q[2]-1), 3, ..., 3, base2(q[k]-2)
 
-If a term q[i]-1 = 0 then its base-2 form is empty and there's adjacent 3s
-in that case.  If the high q[1]-1 is zero then a bare high 3, or similarly a
-bare final 3 if the last q[k]-2 is zero.  If there's just a single term q[1]
-with q[1]-2=0 then the string is completely empty.  This occurs for X/Y=1/2.
+If a term q[i]-1 is zero then its base-2 form is empty and there's adjacent
+3s in that case.  If the high q[1]-1 is zero then a bare high 3, and if the
+last q[k]-2 is zero then a bare final 3.  If there's just a single term q[1]
+and q[1]-2=0 then the string is completely empty.  This occurs for X/Y=1/2.
 
 The resulting string of 1s,2s,3s is reckoned as a base-3 value with digits
-1,2,3 and the result is N.  All possible strings of 1s,2s,3s occur and so
-all integers NE<gt>=0 correspond one-to-one with an X/Y fraction, with no
-common factor.
+1,2,3 and the result is N.  All possible strings of 1s,2s,3s occur
+(including the empty string) and so all integers NE<gt>=0 correspond
+one-to-one with an X/Y fraction with no common factor.
 
 Digits 1,2 in base-2 means writing an integer in the form
 
@@ -447,22 +448,23 @@ Similarly digits 1,2,3 in base-3 which is used for N,
     d[k]*3^k + d[k-1]*3^(k-1) + ... + d[2]*3^2 + d[1]*3 + d[0]
     where each digit d[i]=1, 2 or 3
 
-This is not the same as the conventional radix representation by digits 0,1
-or 0,1,2 (ie. 0 to radix-1).  The effect of digits 1 to R is to change any 0
-digit to instead R and decrement the value above that position to
-compensate.
+This is not the same as the conventional binary and ternary radix
+representations by digits 0,1 or 0,1,2 (ie. 0 to radix-1).  The effect of
+digits 1 to R is to change any 0 digit to instead R and decrement the value
+above that position to compensate.
 
 =head2 Axis Values
 
-N=0,1,2,4,5,7,etc in the X=1 column is integers with no digit 0 in ternary
-(with N=0 considered no digits at all and hence no digit 0).  This is
+N=0,1,2,4,5,7,etc in the X=1 column is integers with no digit 0s in ternary.
+N=0 is considered no digits at all and so no digit 0.  These points are
 fractions 1/Y which are a single term q[1]=Y-1 and hence no "3" separators,
-only digits 1,2.  These N values are also those which are the same when
-written in digits 0,1,2 as when written in digits 1,2,3, since there's no 0s
-or 3s.
+only a run of digits 1,2.  These N values are also those which are the same
+when written in digits 0,1,2 as when written in digits 1,2,3, since there's
+no 0s or 3s.
 
-N=0,3,10,11,31,etc along the diagonal Y=X+1 are no digit 0 in ternary except
-for an initial "10".  Those points are Y/(Y+1) which is continued fraction
+N=0,3,10,11,31,etc along the diagonal Y=X+1 are integers with no digit 0s in
+ternary except for an initial "10".  Those points are Y/(Y+1) which is
+continued fraction
 
                      1
     Y/(Y+1) =  0 + -----
@@ -477,8 +479,9 @@ and then Y-1=7 ternary "21".
 =head2 Radix
 
 The optional C<radix> parameter can select another base for the continued
-fraction terms, and corresponding radix+1 for N.  The default above is
-radix=2.  Any integer radixE<gt>=1 can be selected.  For example,
+fraction terms, and corresponding radix+1 for the resulting N.  The default
+is radix=2 as described above.  Any integer radixE<gt>=1 can be selected.
+For example,
 
 =cut
 
@@ -488,8 +491,6 @@ radix=2.  Any integer radixE<gt>=1 can be selected.  For example,
 
     radix => 5
 
-    13  |    13   36  145  110  474   76  256 1554 1370 1405  246  227
-    12  |    11                 444      1524                 226
     11  |    10   30  114  469   75  255 1549 1374  240  225
     10  |     9       109                1369       224
      9  |     8   24        74  254       234  223
@@ -502,16 +503,16 @@ radix=2.  Any integer radixE<gt>=1 can be selected.  For example,
      2  |     0
      1  |
     Y=0 |
-         -------------------------------------------------------------
-        X=0   1    2    3    4    5    6    7    8    9   10   11   12
+         ----------------------------------------------------
+        X=0   1    2    3    4    5    6    7    8    9   10
 
-The X=1 column is integers with no digit 0 in base radix+1, so here radix=5
+The X=1 column is integers with no digit 0 in base radix+1, so in radix=5
 means no 0 digit in base-6.
 
 =head2 Radix 1
 
 The radix=1 case encodes continued fraction terms using only digit 1, which
-means runs of q many "1"s to add up to q, and digit "2" as separator.
+means runs of q many "1"s to add up to q, and then digit "2" as separator.
 
     N =  11111 2 1111 2 ... 2 1111 2 11111     base2 digits 1,2
          \---/   \--/         \--/   \---/
@@ -523,10 +524,10 @@ which becomes in plain binary
         \----/  \---/        \---/  \----/
          q[1]    q[2]       q[k-1]  q[k]-1
 
-Each "2" becomes "0" in plain binary and a carry +1 into the run of 1s above
-it.  That carry propagates through the run of 1s, turning them into 0s, and
-stops at the "0" which had been a "2".  The low run of 1s from q[k]-2 is
-unchanged, only the runs above the lowest "2".
+Each "2" becomes "0" in plain binary and carry +1 into the run of 1s above
+it.  That carry propagates through those 1s, turning them into 0s, and stops
+at the "0" above them (which had been a "2").  The low run of 1s from q[k]-2
+has no "2" below it and is therefore unchanged.
 
 =cut
 
@@ -551,11 +552,10 @@ unchanged, only the runs above the lowest "2".
          -------------------------------------------
         X=0   1   2   3   4   5   6   7   8   9  10
 
-The result is similar to the HCS encoding per
-L<Math::PlanePath::RationalsTree/Continued Fraction High to Low>.  But the
-lowest run is "0111" here, instead of "1000" as it is in the HCS.  Ie. N-1
-here, and a flip (Y-X)/X to map from X/YE<lt>1 here to instead all rationals
-for the HCS tree.  For example
+The result is similar to L<Math::PlanePath::RationalsTree/HCS Continued
+Fraction>.  But the lowest run is "0111" here, instead of "1000" as it is in
+the HCS.  So N-1 here, and a flip (Y-X)/X to map from X/YE<lt>1 here to
+instead all rationals for the HCS tree.  For example
 
     CfracDigits radix=1       RationalsTree tree_type=HCS
 

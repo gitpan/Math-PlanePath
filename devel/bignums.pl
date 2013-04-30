@@ -35,6 +35,40 @@ use Devel::Comments;
 
 {
   use Math::BigFloat;
+  Math::BigFloat->accuracy(15);
+  my $n = Math::BigFloat->new(1);
+  $n->accuracy(50);
+  $n->batan2(.00000000, 100);
+  print "$n\n";
+  exit 0;
+}
+{
+  use Math::BigFloat;
+  my $n = Math::BigFloat->new('1.234567892345678923456789');
+  $n->accuracy(15);
+  # my $pi = $n->bpi(undef);
+  # my $pi = Math::BigFloat->bpi;
+
+   $n = Math::BigFloat->new(1);
+  print "$n\n";
+  $n->accuracy(10);
+  my $pi = $n->batan2(.0000001);
+  print "$pi\n";
+  exit 0;
+}
+{
+  use Math::BigFloat;
+  # Math::BigFloat->precision(5);
+  # Math::BigFloat->precision(-5);
+  Math::BigFloat->accuracy(13);
+  # my $n = Math::BigFloat->new('123456789.987654321');
+  my $n = Math::BigFloat->bpi(50);
+  print "$n\n";
+  exit 0;
+}
+
+{
+  use Math::BigFloat;
   my $n = Math::BigFloat->new(1234);
   ### accuracy: $n->accuracy()
   ### precision: $n->precision()

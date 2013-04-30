@@ -44,7 +44,7 @@ plan tests => 1;
 
 use lib 't','xt';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
 use List::Util 'min', 'max';

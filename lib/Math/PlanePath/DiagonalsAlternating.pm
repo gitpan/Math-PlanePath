@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -190,10 +190,11 @@ axis and then back again,
          +----------------------------
            X=0   1   2   3   4   5   6
 
-The triangular numbers 1,3,6,10,etc k*(k+1)/2 are the start of each run up
-or down alternately on the X axis and Y axis.  N=1,6,15,28,etc on the Y axis
-(Y even) are the hexagonal numbers j*(2j-1).  N=3,10,21,36,etc on the X axis
-(X odd) are the hexagonal numbers of the second kind j*(2j+1).
+X<Triangular numbers>The triangular numbers 1,3,6,10,etc k*(k+1)/2 are the
+start of each run up or down alternately on the X axis and Y axis.
+X<Hexagonal numbers>N=1,6,15,28,etc on the Y axis (Y even) are the hexagonal
+numbers j*(2j-1).  N=3,10,21,36,etc on the X axis (X odd) are the hexagonal
+numbers of the second kind j*(2j+1).
 
 =head2 N Start
 

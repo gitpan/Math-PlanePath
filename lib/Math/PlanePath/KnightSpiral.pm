@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -407,7 +407,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords versa PlanePath Ryde Math-PlanePath SquareSpiral OEIS
+=for stopwords versa Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -486,7 +486,7 @@ covered.
 =head1 OEIS
 
 This Knight's tour is in Sloane's OEIS following the Knight spiral and
-giving the resulting X,Y location by the SquareSpiral numbering.  There's
+giving the resulting X,Y location by the C<SquareSpiral> numbering.  There's
 eight forms for 4 rotations and spiralling the same or opposite directions.
 
     http://oeis.org/A068608

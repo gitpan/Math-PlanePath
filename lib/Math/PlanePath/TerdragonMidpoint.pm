@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -462,7 +462,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al TerdragonCurve TerdragonMidpoint terdragon ie Xadj Yadj
+=for stopwords eg Ryde Terdragon Math-PlanePath Nlevel Davis Knuth et al terdragon ie Xadj Yadj
 
 =head1 NAME
 
@@ -510,7 +510,7 @@ terdragon curve by Davis and Knuth.
         ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
       -12-11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5 ...
 
-The points are the middle of each edge of a double-size TerdragonCurve.
+The points are the middle of each edge of a double-size C<TerdragonCurve>.
 
                             ...
                               \
@@ -537,9 +537,9 @@ The points are the middle of each edge of a double-size TerdragonCurve.
               ^
              X=0 1  2  3  4  5  6
 
-For example in the TerdragonCurve N=3 to N=4 is X=3,Y=1 to X=2,Y=2 and
+For example in the C<TerdragonCurve> N=3 to N=4 is X=3,Y=1 to X=2,Y=2 and
 that's doubled out here to X=6,Y=2 and X=4,Y=4 then the midpoint of those
-positions is X=5,Y=3 for N=3 in the TerdragonMidpoint.
+positions is X=5,Y=3 for N=3 in the C<TerdragonMidpoint>.
 
 The result is integer X,Y coordinates on every second point per
 L<Math::PlanePath/Triangular Lattice>, but visiting only 3 of every 4 such
@@ -567,10 +567,10 @@ Notice the pattern is the same when turned by 60 degrees.
 =head2 Arms
 
 Multiple copies of the curve can be selected, each advancing successively.
-Like the main TerdragonCurve the midpoint curve covers 1/6 of the plane and
-6 arms rotated by 60, 120, 180, 240 and 300 degrees mesh together perfectly.
-With 6 arms all the alternating "1of2" and "1of4" points described above are
-visited.
+Like the main C<TerdragonCurve> the midpoint curve covers 1/6 of the plane
+and 6 arms rotated by 60, 120, 180, 240 and 300 degrees mesh together
+perfectly.  With 6 arms all the alternating "1of2" and "1of4" points
+described above are visited.
 
 C<arms =E<gt> 6> begins as follows.  N=0,6,12,18,etc is the first arm (like
 the single curve above), then N=1,7,13,19 the second copy rotated 60

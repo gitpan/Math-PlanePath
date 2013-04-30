@@ -20,25 +20,23 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 13;
+plan tests => 21;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
 
 require Math::PlanePath::HypotOctant;
 
-my $path = Math::PlanePath::HypotOctant->new;
-
 
 #------------------------------------------------------------------------------
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::HypotOctant::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::HypotOctant->VERSION,  $want_version,
@@ -52,8 +50,8 @@ my $path = Math::PlanePath::HypotOctant->new;
       1,
       "VERSION class check $check_version");
 
+  my $path = Math::PlanePath::HypotOctant->new;
   ok ($path->VERSION,  $want_version, 'VERSION object method');
-
   ok (eval { $path->VERSION($want_version); 1 },
       1,
       "VERSION object check $want_version");
@@ -66,11 +64,23 @@ my $path = Math::PlanePath::HypotOctant->new;
 # n_start, x_negative, y_negative
 
 {
+  my $path = Math::PlanePath::HypotOctant->new;
   ok ($path->n_start, 1, 'n_start()');
   ok ($path->x_negative, 0, 'x_negative() instance method');
   ok ($path->y_negative, 0, 'y_negative() instance method');
   ok ($path->class_x_negative, 0, 'class_x_negative()');
   ok ($path->class_y_negative, 0, 'class_y_negative()');
+  ok ($path->x_minimum, 0, 'x_minimum()');
+  ok ($path->y_minimum, 0, 'y_minimum()');
+  ok ($path->sumxy_minimum,  0, 'sumxy_minimum()');
+  ok ($path->diffxy_minimum, 0, 'diffxy_minimum()');
+}
+{
+  my $path = Math::PlanePath::HypotOctant->new (points => 'odd');
+  ok ($path->x_minimum, 1, 'x_minimum()');
+  ok ($path->y_minimum, 0, 'y_minimum()');
+  ok ($path->sumxy_minimum,  1, 'sumxy_minimum()');
+  ok ($path->diffxy_minimum, 1, 'diffxy_minimum()');
 }
 {
   my @pnames = map {$_->{'name'}}

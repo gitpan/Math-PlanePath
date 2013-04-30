@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -57,7 +57,7 @@ MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
   }
 }
 
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require bigint_common;
 bigint_common::bigint_checks ('Math::BigInt');

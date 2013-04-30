@@ -24,7 +24,7 @@ plan tests => 31;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::AnvilSpiral;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::AnvilSpiral;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::AnvilSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AnvilSpiral->VERSION,  $want_version,

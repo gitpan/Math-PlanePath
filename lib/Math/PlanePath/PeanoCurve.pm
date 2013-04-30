@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -411,7 +411,7 @@ __END__
 #          +
 
 
-=for stopwords Guiseppe Peano Peano's there'll eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ie bignums prepending trit PeanoCurve Math-PlanePath versa Online Radix radix Georg representable Mephisto
+=for stopwords Guiseppe Peano Peano's there'll eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online Radix radix Georg representable Mephisto DOI bitwise
 
 =head1 NAME
 
@@ -589,7 +589,7 @@ http://www.ams.org/journals/tran/1900-001-04/S0002-9947-1900-1500428-3/S0002-994
 
 The base "S" pattern in this form is the same, but turned 45 degrees and
 line segments making diagonals through the squares, per the ".." marked
-lines in the following
+lines in the following.
 
     +--------+--------+--------+        +--------+--------+--------+
     |     .. | ..     |     .. |        |        |        |        |
@@ -604,6 +604,9 @@ lines in the following
     |0  ..   |1  ..   |2  ..   |        |    0--------1--------2   |
     | ..     |     .. | ..     |        |        |        |        |
     +--------+--------+--------+        +--------+--------+--------+
+
+    X==Y mod 2 "even" points leading-diagonal  "/"
+    X!=Y mod 2 "odd"  points opposite-diagonal "\"
 
 Rounding off the corners of the diagonal form so they don't touch can help
 show the equivalence,
@@ -854,7 +857,7 @@ following sequences is the N of the Peano curve at those positions.
 
 C<Math::PlanePath::Diagonals> numbers points from the Y axis down, which is
 the opposite axis to the Peano curve first step along the X axis, so a plain
-Diagonals -> PeanoCurve is the "opposite axis" form A163336.
+C<Diagonals> -> C<PeanoCurve> is the "opposite axis" form A163336.
 
 These sequences are permutations of the integers since all X,Y positions of
 the first quadrant are reached eventually.  The inverses are as follows.

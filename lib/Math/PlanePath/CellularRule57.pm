@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -49,6 +49,8 @@ use constant parameter_info_array =>
     Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
+use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
 use constant dx_maximum => 3;
 use constant dy_minimum => 0;
 use constant dy_maximum => 1;
@@ -57,8 +59,6 @@ sub absdx_minimum {
   my ($self) = @_;
   return ($self->{'mirror'} ? 0 : 1);
 }
-
-# use constant dir4_maximum => 2;  # supremum, west and 1 up
 use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 
@@ -376,7 +376,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright OEIS
+=for stopwords straight-ish Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright OEIS
 
 =head1 NAME
 
@@ -420,6 +420,9 @@ arranged as rows
                                 1                             <- Y=0
 
     -9 -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9
+
+X<Triangular numbers>The triangular numbers N=10,15,21,28,etc, k*(k+1)/2,
+make a 1/2 sloping diagonal upwards.
 
 On rows with odd Y there's a solid block at either end then 1 of 3 cells to
 the left and 2 of 3 to the right of the centre.  On even Y rows there's

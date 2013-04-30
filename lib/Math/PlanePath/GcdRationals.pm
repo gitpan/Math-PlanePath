@@ -69,7 +69,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -638,7 +638,7 @@ sub _gcd {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd gcds gcd/2 gcd-1 j/gcd PyramidRows Fortnow coprime triangulars DiagonalsOctant numberings pronics
+=for stopwords eg Ryde OEIS ie Math-PlanePath GCD gcd gcds gcd/2 gcd-1 j/gcd Fortnow coprime triangulars numberings pronics incrementing
 
 =head1 NAME
 
@@ -718,9 +718,9 @@ S<rational = gcd-1 + i/j>.  For example
 
 =head2 Triangular Numbers
 
-N=1,3,6,10,etc along the bottom Y=1 row is the triangular numbers
-N=k*(k-1)/2.  Such an N is at i=k,j=k and has gcd(i,j)=k which divides out
-to Y=1.
+X<Triangular numbers>N=1,3,6,10,etc along the bottom Y=1 row is the
+triangular numbers N=k*(k-1)/2.  Such an N is at i=k,j=k and has gcd(i,j)=k
+which divides out to Y=1.
 
     Y = j/gcd
       = 1       on the bottom row
@@ -879,8 +879,8 @@ The resulting path becomes
          --------------------------------
           X=0  1  2  3  4  5  6  7  8  9
 
-The Y=1 bottom row is the perfect squares which are at i=j in the
-DiagonalsOctant and have gcd(i,j)=i thus becoming X=i,Y=1.
+X<Square numbers>The Y=1 bottom row is the perfect squares which are at i=j
+in the C<DiagonalsOctant> and have gcd(i,j)=i thus becoming X=i,Y=1.
 
 =cut
 
@@ -903,10 +903,11 @@ DiagonalsOctant and have gcd(i,j)=i thus becoming X=i,Y=1.
          --------------------------------
           X=0  1  2  3  4  5  6  7  8  9
 
-N=1,2,4,6,9 etc in the X=1 column is the perfect squares k*k and the pronics
-k*(k+1) interleaved, also called the quarter-squares.  N=2,5,10,17,etc on
-Y=X+1 above the leading diagonal are the squares+1, and N=3,8,15,24,etc
-below on Y=X-1 below the diagonal are the squares-1.
+X<Square numbers>X<Pronic numbers>N=1,2,4,6,9 etc in the X=1 column is the
+perfect squares k*k and the pronics k*(k+1) interleaved, also called the
+X<Quarter square numbers>quarter-squares.  N=2,5,10,17,etc on Y=X+1 above
+the leading diagonal are the squares+1, and N=3,8,15,24,etc below on Y=X-1
+below the diagonal are the squares-1.
 
 The GCD division moves points downwards and shears them across horizontally.
 The effect on diagonal lines of i,j points is as follows

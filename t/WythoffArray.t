@@ -24,7 +24,7 @@ plan tests => 15;;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::WythoffArray;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::WythoffArray;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::WythoffArray::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::WythoffArray->VERSION,  $want_version,

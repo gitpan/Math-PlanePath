@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -234,7 +234,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde R5Dragon Math-PlanePath Nlevel et al R5DragonCurve R5DragonMidpoint terdragon ie Xmod10 Ymod10 Jorg Arndt
+=for stopwords eg Ryde Math-PlanePath Nlevel et al terdragon ie Xmod10 Ymod10 Jorg Arndt
 
 =head1 NAME
 
@@ -277,7 +277,7 @@ X<Arndt, Jorg>This is midpoints of the R5 dragon curve by Jorg Arndt,
         ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
       -10  -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1   2   3
 
-The points are the middle of each edge of the R5DragonCurve, rotated -45
+The points are the middle of each edge of the C<R5DragonCurve>, rotated -45
 degrees, shrunk by sqrt(2). and shifted to the origin.
 
               *--11--*     *--7--*     R5DragonCurve
@@ -297,9 +297,9 @@ degrees, shrunk by sqrt(2). and shifted to the origin.
 =head2 Arms
 
 Multiple copies of the curve can be selected, each advancing successively.
-Like the main R5DragonCurve this midpoint curve covers 1/4 of the plane and
-4 arms rotated by 0, 90, 180, 270 degrees mesh together perfectly.  With 4
-arms all integer X,Y points are visited.
+Like the main C<R5DragonCurve> this midpoint curve covers 1/4 of the plane
+and 4 arms rotated by 0, 90, 180, 270 degrees mesh together perfectly.  With
+4 arms all integer X,Y points are visited.
 
 C<arms =E<gt> 4> begins as follows.  N=0,4,8,12,16,etc is the first arm (the
 same shape as the plain curve above), then N=1,5,9,13,17 the second,

@@ -24,7 +24,7 @@ plan tests => 308;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 use Math::PlanePath::GrayCode;
@@ -48,7 +48,7 @@ sub binary_to_decimal {
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::GrayCode::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GrayCode->VERSION,  $want_version,

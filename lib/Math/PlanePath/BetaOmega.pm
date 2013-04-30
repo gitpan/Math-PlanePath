@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -415,7 +415,7 @@ __END__
 
 
 
-=for stopwords HilbertCurve eg Ryde OEIS ZOrderCurve ie bignums prepending BetaOmega Math-PlanePath Jens-Michael Wierum Ymin Ymax Wierum's PlanePath Paderborn CCCG'02 MERCHANTABILITY 14th
+=for stopwords eg Ryde OEIS ie bignums prepending Math-PlanePath Jens-Michael Wierum Ymin Ymax Wierum's Paderborn CCCG'02 MERCHANTABILITY 14th
 
 =head1 NAME
 
@@ -659,7 +659,7 @@ N=3 downwards, N=15 upwards, N=63 downwards, etc.
 
 This curve direction calculation might be of interest in its own right, not
 merely to apply a fractional N as done in the code here.  There's nothing
-offered for that in the PlanePath modules as such.  For it the X,Y values
+offered for that in the C<PlanePath> modules as such.  For it the X,Y values
 can be ignored just follow the state or orientations changes using the base
 4 digits of N.
 

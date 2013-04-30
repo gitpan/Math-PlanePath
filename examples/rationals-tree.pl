@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -27,15 +27,10 @@ use 5.004;
 use strict;
 use List::Util 'max';
 use Math::PlanePath::RationalsTree;
+use Math::PlanePath::FractionsTree;
 
-my $tree_type_choices_arrayref
-  = Math::PlanePath::RationalsTree->parameter_info_hash()->{'tree_type'}->{'choices'};
-
-foreach my $tree_type (@$tree_type_choices_arrayref) {
-  print "$tree_type tree\n";
-
-  my $path = Math::PlanePath::RationalsTree->new
-    (tree_type => $tree_type);
+sub print_as_fractions {
+  my ($path) = @_;
 
   my $n = $path->n_start;
   foreach (1) {
@@ -94,15 +89,8 @@ sub xy_to_cfrac_str {
   return "[".join(',',@quotients)."]";
 }
 
-print "-----------------------------------------------------------------------\n";
-print "Or as continued fraction quotients.\n";
-print "\n";
-
-foreach my $tree_type (@$tree_type_choices_arrayref) {
-  print "$tree_type tree\n";
-
-  my $path = Math::PlanePath::RationalsTree->new
-    (tree_type => $tree_type);
+sub print_as_cfracs {
+  my ($path) = @_;
 
   my $n = $path->n_start;
   foreach (1) {
@@ -134,5 +122,65 @@ foreach my $tree_type (@$tree_type_choices_arrayref) {
 
   print "\n";
 }
+
+#------------------------------------------------------------------------------
+
+my $rationals_type_arrayref
+  = Math::PlanePath::RationalsTree->parameter_info_hash()->{'tree_type'}->{'choices'};
+my $fractions_type_arrayref
+  = Math::PlanePath::FractionsTree->parameter_info_hash()->{'tree_type'}->{'choices'};
+
+print "RationalsTree\n";
+print "-------------\n\n";
+
+foreach my $tree_type (@$rationals_type_arrayref) {
+  print "$tree_type tree\n";
+
+  my $path = Math::PlanePath::RationalsTree->new
+    (tree_type => $tree_type);
+  print_as_fractions ($path);
+}
+
+print "\n";
+print "FractionsTree\n";
+print "-------------\n\n";
+
+foreach my $tree_type (@$fractions_type_arrayref) {
+  print "$tree_type tree\n";
+
+  my $path = Math::PlanePath::FractionsTree->new
+    (tree_type => $tree_type);
+  print_as_fractions ($path);
+}
+
+
+print "\n";
+print "-----------------------------------------------------------------------\n";
+print "Or written as continued fraction quotients.\n";
+print "\n";
+
+print "RationalsTree\n";
+print "-------------\n\n";
+
+foreach my $tree_type (@$rationals_type_arrayref) {
+  print "$tree_type tree\n";
+
+  my $path = Math::PlanePath::RationalsTree->new
+    (tree_type => $tree_type);
+  print_as_cfracs ($path);
+}
+
+print "\n";
+print "FractionsTree\n";
+print "-------------\n\n";
+
+foreach my $tree_type (@$fractions_type_arrayref) {
+  print "$tree_type tree\n";
+
+  my $path = Math::PlanePath::FractionsTree->new
+    (tree_type => $tree_type);
+  print_as_cfracs ($path);
+}
+
 
 exit 0;

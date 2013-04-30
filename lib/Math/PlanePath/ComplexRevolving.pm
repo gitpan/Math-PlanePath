@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -160,7 +160,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel Seminumerical et ComplexPlus
+=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel Seminumerical et
 
 =head1 NAME
 
@@ -207,7 +207,7 @@ the whole exponent.
 
 A single bit N=2^k is the simplest and is X+iY=(i+1)^k.  These
 N=1,2,4,8,16,etc are at successive angles 45, 90, 135, etc degrees (the same
-as in ComplexPlus).  But points N=2^k+1 with two bits means X+iY=(i+1) +
+as in C<ComplexPlus>).  But points N=2^k+1 with two bits means X+iY=(i+1) +
 i*(i+1)^k and that factor "i*" is a rotation by 90 degrees so points
 N=3,5,9,17,33,etc are in the next quadrant around from their preceding
 2,4,8,16,32.

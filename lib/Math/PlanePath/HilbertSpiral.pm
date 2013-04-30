@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -300,7 +300,7 @@ sub rect_to_n_range {
 __END__
 
 
-=for stopwords HilbertCurve eg Ryde ie BetaOmega Math-PlanePath HilbertSpiral OEIS
+=for stopwords eg Ryde ie Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -335,13 +335,13 @@ into negative X,Y on every second replication level.
 
         -2  -1  X=0  1   2   3   4   5
 
-The curve starts with the same N=0 to N=3 as the HilbertCurve, then the
+The curve starts with the same N=0 to N=3 as the C<HilbertCurve>, then the
 following 2x2 blocks N=4 to N=15 go around in negative X,Y.  The top-left
 corner for this negative direction is at Ntopleft=4^level-1 for an odd
 numbered level.
 
 The parts of the curve in the X,Y negative parts are the same as the plain
-HilbertCurve, just mirrored along the anti-diagonal.  For example. N=4 to
+C<HilbertCurve>, just mirrored along the anti-diagonal.  For example. N=4 to
 N=15
 
     HilbertSpiral             HilbertCurve
@@ -399,8 +399,8 @@ going alternately to the max or min, starting with the max for level 1.
 The power-of-4 formulas above for Ymin/Ymax have the effect of producing
 alternating bit patterns like this.
 
-This is the same sort of level range as BetaOmega has on its Y coordinate,
-but on this HilbertSpiral it applies to both X and Y.
+This is the same sort of level range as C<BetaOmega> has on its Y
+coordinate, but on this C<HilbertSpiral> it applies to both X and Y.
 
 =head1 FUNCTIONS
 
@@ -433,7 +433,7 @@ this path include
 
     A059285    X-Y coordinate diff
 
-The difference X-Y is the same as the HilbertCurve, since the "negative"
+The difference X-Y is the same as the C<HilbertCurve>, since the "negative"
 spiral parts are mirrored across the X=-Y anti-diagonal, which means
 coordinates (-Y,-X) and -Y-(-X) = X-Y.
 

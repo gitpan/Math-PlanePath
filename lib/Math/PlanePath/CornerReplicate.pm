@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -263,7 +263,7 @@ __END__
 # }
 
 
-=for stopwords eg Ryde Math-PlanePath SierpinskiCurve ZOrderCurve OEIS bitwise
+=for stopwords eg Ryde Math-PlanePath OEIS bitwise
 
 =head1 NAME
 
@@ -323,13 +323,13 @@ and 3 in base 4.  For example N=51 is 303 in base 4.
 The X=Y diagonal  N=0,2,8,10,32,34,etc is all the integers which use only
 digits 0 and 2 in base 4.
 
-The X axis is the same as the ZOrderCurve, and the Y axis here is the X=Y
-diagonal of the ZOrderCurve, and conversely the X=Y diagonal here is the Y
-axis of the ZOrderCurve.
+The X axis is the same as the C<ZOrderCurve>, and the Y axis here is the X=Y
+diagonal of the C<ZOrderCurve>, and conversely the X=Y diagonal here is the
+Y axis of the C<ZOrderCurve>.
 
-The N value at a given X,Y is converted to or from the ZOrderCurve by
-transforming base 4 digit values 2-E<gt>3 and 3-E<gt>2.  This  can be done
-by a bitwise "X xor Y".  When Y has a 1-bit the xor  swaps 2E<lt>-E<gt>3.
+The N value at a given X,Y is converted to or from the C<ZOrderCurve> by
+transforming base 4 digit values 2-E<gt>3 and 3-E<gt>2.  This can be done by
+a bitwise "X xor Y".  When Y has a 1-bit the xor swaps 2E<lt>-E<gt>3.
 
     ZOrder X  = Crep X  xor Crep Y
     ZOrder Y  = Crep Y

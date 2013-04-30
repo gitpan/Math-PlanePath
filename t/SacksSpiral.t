@@ -24,7 +24,7 @@ plan tests => 153;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -51,7 +51,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::SacksSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SacksSpiral->VERSION,  $want_version,

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -39,7 +39,7 @@ if (! eval { require Math::BigInt::Lite; 1 }) {
   exit 0;
 }
 
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require bigint_common;
 bigint_common::bigint_checks ('Math::BigInt::Lite');

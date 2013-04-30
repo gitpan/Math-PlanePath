@@ -32,7 +32,7 @@ use Math::PlanePath;
 use Math::PlanePath::MultipleRings;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 @ISA = ('Math::PlanePath');
 
 
@@ -43,6 +43,21 @@ $VERSION = 101;
 use constant n_start => 0;
 use constant figure => 'circle';
 
+use constant 1.02; # for leading underscore
+use constant _TWO_PI => 4*atan2(1,0);
+
+# at N=k^2 polygon of 2k+1 sides R=k
+# dX -> sin(2pi/(2k+1))*k
+#    -> 2pi/(2k+1) * k
+#    -> pi
+
+use constant dx_minimum => - 2*atan2(1,0);  # -pi
+use constant dx_maximum =>   2*atan2(1,0);  # +pi
+use constant dy_minimum => - 2*atan2(1,0);
+use constant dy_maximum =>   2*atan2(1,0);
+
+
+#------------------------------------------------------------------------------
 # sub _as_float {
 #   my ($x) = @_;
 #   if (ref $x) {
@@ -63,15 +78,6 @@ use constant::defer _bigfloat => sub {
   eval "use Math::BigFloat; 1" or die $@;
   return "Math::BigFloat";
 };
-
-use constant 1.02; # for leading underscore
-use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
-
-sub n_to_rsquared {
-  my ($self, $n) = @_;
-  if ($n < 0) { return undef; }
-  return $n;  # exactly RSquared=$n
-}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -99,6 +105,12 @@ sub n_to_xy {
   return ($r * cos($theta),
           $r * sin($theta));
 
+}
+
+sub n_to_rsquared {
+  my ($self, $n) = @_;
+  if ($n < 0) { return undef; }
+  return $n;  # exactly RSquared=$n
 }
 
 sub xy_to_n {
@@ -243,7 +255,7 @@ sub _rect_to_radius_range {
 1;
 __END__
 
-=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM Euler's TheodorusSpiral arctan Theodorus
+=for stopwords Archimedean ie pronic PlanePath Ryde Math-PlanePath XPM Euler's arctan Theodorus
 
 =head1 NAME
 
@@ -257,9 +269,9 @@ Math::PlanePath::SacksSpiral -- circular spiral squaring each revolution
 
 =head1 DESCRIPTION
 
-X<Sacks, Robert>The Sacks spiral by Robert Sacks is an Archimedean spiral
-with points N placed on the spiral so the perfect squares fall on a line
-going to the right.  Read more at
+X<Sacks, Robert>X<Square numbers>The Sacks spiral by Robert Sacks is an
+Archimedean spiral with points N placed on the spiral so the perfect squares
+fall on a line going to the right.  Read more at
 
 =over
 
@@ -305,8 +317,8 @@ has relatively many primes and in a plot of primes on the spiral it can be
 seen standing out from its surrounds.
 
 Plotting various quadratic sequences of points can form attractive patterns.
-For example the triangular numbers k*(k+1)/2 come out as spiral arcs going
-clockwise and anti-clockwise.
+For example the X<Triangular numbers>triangular numbers k*(k+1)/2 come out
+as spiral arcs going clockwise and anti-clockwise.
 
 See F<examples/sacks-xpm.pl> in the Math-PlanePath sources for a complete
 program plotting the spiral points to an XPM image.
@@ -346,6 +358,28 @@ The unit spacing of the spiral means those circles don't overlap, but they
 also don't cover the plane and if C<$x,$y> is not within one then the
 return is C<undef>.
 
+=back
+
+=head2 Descriptive Methods
+
+=over
+
+=item C<$dx = $path-E<gt>dx_minimum()>
+
+=item C<$dx = $path-E<gt>dx_maximum()>
+
+=item C<$dy = $path-E<gt>dy_minimum()>
+
+=item C<$dy = $path-E<gt>dy_maximum()>
+
+dX and dY have minimum -pi=-3.14159 and maximum pi=3.14159.  The loop
+beginning at N=2^k is approximately a polygon of 2k+1 many sides and radius
+R=k.  Each side is therefore
+
+    side = sin(2pi/(2k+1)) * k
+        -> 2pi/(2k+1) * k
+        -> pi
+
 =item C<$str = $path-E<gt>figure ()>
 
 Return "circle".
@@ -356,8 +390,8 @@ Return "circle".
 
 =head2 Rectangle to N Range
 
-R=sqrt(N) here is the same as in the TheodorusSpiral and the code is shared
-here.  See L<Math::PlanePath::TheodorusSpiral/Rectangle to N Range>.
+R=sqrt(N) here is the same as in the C<TheodorusSpiral> and the code is
+shared here.  See L<Math::PlanePath::TheodorusSpiral/Rectangle to N Range>.
 
 The accuracy could be improved here by taking into account the polar angle
 of the corners which are candidates for the maximum radius.  On the X axis

@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -46,13 +46,6 @@ use vars '@_x_to_n';
 # use Smart::Comments;
 
 
-use constant default_n_start => 1;
-use constant class_x_negative => 0;
-use constant class_y_negative => 0;
-use constant n_frac_discontinuity => .5;
-use constant x_minimum => 1;
-use constant y_minimum => 1;
-
 use constant parameter_info_array =>
   [ { name        => 'direction',
       share_key   => 'direction_downup',
@@ -65,6 +58,13 @@ use constant parameter_info_array =>
     },
     Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
+
+use constant default_n_start => 1;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
+use constant n_frac_discontinuity => .5;
+use constant x_minimum => 1;
+use constant y_minimum => 1;
 
 sub absdx_minimum {
   my ($self) = @_;

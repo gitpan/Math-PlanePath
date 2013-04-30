@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -546,10 +546,18 @@ in various forms,
       A035614     X, column numbered from 0
       A191360     X-Y, the diagonal containing N
       A019586     Y, the Wythoff row containing N
+      A083398     max diagonal X+Y+1 for points 1 to N
 
     x_start=1,y_start=1
       A035612     X, column numbered from 1
       A003603     Y, vertical para-budding sequence
+
+      A143299     Zeckendorf bit count in row Y
+      A185735     left-justified row addition
+      A186007     row subtraction
+      A173028     row multiples
+      A173027     row of n * Fibonacci numbers
+      A220249     row of n * Lucas numbers
 
     A003622     N on Y axis, odd Zeckendorfs "..1"
     A020941     N on X=Y diagonal

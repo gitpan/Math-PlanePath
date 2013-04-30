@@ -27,7 +27,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -77,11 +77,12 @@ sub new {
                              @_);
 }
 
-# r = sqrt(N)
-# hypot(r, frac)^2
+# r = sqrt(int)
+# (frac r)^2
+#   = hypot(r, frac)^2   frac at right angle to radial
 #   = r^2 + $frac^2
-#   = sqrt(N)^2 + $frac^2
-#   = N + $frac^2
+#   = sqrt(int)^2 + $frac^2
+#   = $int + $frac^2
 #
 sub n_to_rsquared {
   my ($self, $n) = @_;
@@ -330,7 +331,7 @@ within one of the unit circles then the return is C<undef>.
 
 =item C<$str = $path-E<gt>figure ()>
 
-Return "circle".
+Return string "circle".
 
 =back
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -25,9 +25,9 @@ use lib 't';
 use MyTestHelpers;
 
 # uncomment this to run the ### lines
-#use Devel::Comments '###';
+# use Smart::Comments '###';
 
-my $test_count = (tests => 55)[1];
+my $test_count = (tests => 59)[1];
 plan tests => $test_count;
 
 require Math::BigFloat;
@@ -74,8 +74,112 @@ MyTestHelpers::diag ('Math::BigInt version ', Math::BigInt->VERSION);
   }
 }
 
-MyTestHelpers::nowarnings();
-Math::BigFloat->precision(-20);  # digits right of decimal point
+MyTestHelpers::nowarnings(); # after exponentiation test warnings
+Math::BigFloat->accuracy(150);  # significant digits
+
+# Something dodgy in BigFloat 1.997 in perl 5.14.3 makes bpi() give NaN if
+# precision() is set, so don't do that.
+# Math::BigFloat->precision(-20);  # digits right of decimal point
+#
+# {
+#   my $pi = Math::BigFloat->bpi;
+#   ### bpi(): $pi
+# }
+
+
+#------------------------------------------------------------------------------
+# MultipleRings
+
+{
+  require Math::PlanePath::MultipleRings;
+  my $width = 5;
+  my $path = Math::PlanePath::MultipleRings->new (step => 6);
+
+  {
+    my $n = Math::BigFloat->new(4);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok (!! (ref $got_x && $got_x->isa('Math::BigFloat')), 1);
+    ok ($got_x >= -1.01 && $got_x <= -0.99,
+        1,
+       "MultipleRings n_to_xy($n) got_x $got_x");
+    ok ($got_y == 0, 1);
+  }
+
+  {
+    my $pi = Math::PlanePath::MultipleRings::_pi(0);
+    ok ($pi > 3);
+    ok ($pi < 4);
+  }
+  {
+    my $n = Math::BigFloat->new(4);
+    my $pi = Math::PlanePath::MultipleRings::_pi($n);
+    ok ($pi > 3);
+    ok ($pi < 4);
+  }
+}
+
+#------------------------------------------------------------------------------
+# Diagonals
+
+{
+  require Math::PlanePath::Diagonals;
+  my $path = Math::PlanePath::Diagonals->new;
+  {
+    my $x = Math::BigFloat->new(2) ** 128 - 1;
+    my $n = ($x+1)*($x+2)/2;  # triangular numbers on Y=0 horizontal
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    $got_x = $x->copy;
+    ok ($got_x == $x, 1,
+        "got x=$got_x want x=$x");
+    ### $x
+    ### $got_x
+    ### diff: ($x-$got_x).""
+    ### diff: ($x-$got_x)==0
+    ok ($got_y == 0);
+
+    my $got_n = $path->xy_to_n($x,0);
+    ok ($got_n == $n, 1);
+  }
+  {
+    my $x = Math::BigFloat->new(2) ** 128 - 1;
+    my $n = ($x+1)*($x+2)/2;  # Y=0 horizontal
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == $x, 1);
+    ok ($got_y == 0, 1);
+
+    my $got_n = $path->xy_to_n($x,0);
+    ok ($got_n == $n, 1);
+  }
+  {
+    my $y = Math::BigFloat->new(2) ** 128 - 1;
+    my $n = $y*($y+1)/2 + 1;  # X=0 vertical
+
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x == 0, 1, "Diagonals x of n_to_xy for x=0 y=2^128-1");
+    ok ($got_y == $y, 1, "Diagonals x of n_to_xy for x=0 y=2^128-1");
+
+    my $got_n = $path->xy_to_n(0,$y);
+    ok ($got_n, $n, "Diagonals xy_to_n() at x=0 y=2^128-1");
+  }
+  {
+    my $n = Math::BigFloat->new(-1);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ok ($got_x, undef);
+    ok ($got_y, undef);
+  }
+  {
+    my $n = Math::BigFloat->new(0.5);
+    my ($got_x,$got_y) = $path->n_to_xy($n);
+    ### $got_x
+    ### $got_y
+    ok (!! $got_x->isa('Math::BigFloat'), 1);
+    ok (!! $got_y->isa('Math::BigFloat'), 1);
+    ok ($got_x == -0.5, 1);
+    ok ($got_y == 0.5, 1);
+  }
+}
 
 #------------------------------------------------------------------------------
 # is_infinite()
@@ -128,25 +232,6 @@ ok (floor(Math::BigFloat->new('1.75')) == 1,  1);
 ok (floor(Math::BigFloat->new('2'))    == 2,  1);
 
 #------------------------------------------------------------------------------
-# MultipleRings
-
-{
-  require Math::PlanePath::MultipleRings;
-  my $width = 5;
-  my $path = Math::PlanePath::MultipleRings->new (step => 6);
-
-  {
-    my $n = Math::BigFloat->new(4);
-    my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok (!! (ref $got_x && $got_x->isa('Math::BigFloat')), 1);
-    ok ($got_x >= -1.01 && $got_x <= -0.99,
-        1,
-       "MultipleRings n_to_xy($n) got_x $got_x");
-    ok ($got_y == 0, 1);
-  }
-}
-
-#------------------------------------------------------------------------------
 # Rows
 
 {
@@ -160,7 +245,7 @@ ok (floor(Math::BigFloat->new('2'))    == 2,  1);
     my $n = $y*$width + $x + 1;
 
     my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x == $x, 1, "got $got_x want $x");
+    ok ($got_x == $x, 1, "got x=$got_x want x=$x");
     ok ($got_y == $y);
   
     my $got_n = $path->xy_to_n($x,$y);
@@ -177,63 +262,6 @@ ok (floor(Math::BigFloat->new('2'))    == 2,  1);
     my ($got_x,$got_y) = $path->n_to_xy($n);
     ok ($got_x == 0.5, 1);
     ok ($got_y == 3, 1);
-  }
-}
-
-#------------------------------------------------------------------------------
-# Diagonals
-
-{
-  require Math::PlanePath::Diagonals;
-  my $path = Math::PlanePath::Diagonals->new;
-  {
-    my $x = Math::BigFloat->new(2) ** 128 - 1;
-    my $n = ($x+1)*($x+2)/2;  # triangular numbers on Y=0 horizontal
-
-    my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x == $x);
-    ok ($got_y == 0);
-
-    my $got_n = $path->xy_to_n($x,0);
-    ok ($got_n == $n, 1);
-  }
-  {
-    my $x = Math::BigFloat->new(2) ** 128 - 1;
-    my $n = ($x+1)*($x+2)/2;  # Y=0 horizontal
-
-    my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x == $x, 1);
-    ok ($got_y == 0, 1);
-
-    my $got_n = $path->xy_to_n($x,0);
-    ok ($got_n == $n, 1);
-  }
-  {
-    my $y = Math::BigFloat->new(2) ** 128 - 1;
-    my $n = $y*($y+1)/2 + 1;  # X=0 vertical
-
-    my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x == 0, 1, "Diagonals x of n_to_xy for x=0 y=2^128-1");
-    ok ($got_y == $y, 1, "Diagonals x of n_to_xy for x=0 y=2^128-1");
-
-    my $got_n = $path->xy_to_n(0,$y);
-    ok ($got_n, $n, "Diagonals xy_to_n() at x=0 y=2^128-1");
-  }
-  {
-    my $n = Math::BigFloat->new(-1);
-    my ($got_x,$got_y) = $path->n_to_xy($n);
-    ok ($got_x, undef);
-    ok ($got_y, undef);
-  }
-  {
-    my $n = Math::BigFloat->new(0.5);
-    my ($got_x,$got_y) = $path->n_to_xy($n);
-    ### $got_x
-    ### $got_y
-    ok (!! $got_x->isa('Math::BigFloat'), 1);
-    ok (!! $got_y->isa('Math::BigFloat'), 1);
-    ok ($got_x == -0.5, 1);
-    ok ($got_y == 0.5, 1);
   }
 }
 

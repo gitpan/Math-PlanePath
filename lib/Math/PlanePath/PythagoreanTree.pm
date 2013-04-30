@@ -86,7 +86,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -147,6 +147,23 @@ sub x_minimum {
 sub y_minimum {
   my ($self) = @_;
   return $coordinate_minimum{substr($self->{'coordinates'},1)};
+}
+{
+  my %diffxy_minimum = (PQ => 1, # octant X>=Y+1 so X-Y>=1
+                       );
+  sub diffxy_minimum {
+    my ($self) = @_;
+    return $diffxy_minimum{$self->{'coordinates'}};
+  }
+}
+{
+  my %diffxy_maximum = (AC => -2, # C>=A+2 so X-Y<=-2
+                        BC => -1, # C>=B+1 so X-Y<=-1
+                       );
+  sub diffxy_maximum {
+    my ($self) = @_;
+    return $diffxy_maximum{$self->{'coordinates'}};
+  }
 }
 
 {
@@ -359,6 +376,16 @@ sub n_to_xy {
   ### $q
 
   return &{$self->{'pq_to_xy'}}($p,$q);
+}
+
+sub _UNTESTED__n_to_radius {
+  my ($self, $n) = @_;
+  if (($self->{'coordinates'} eq 'AB' || $self->{'coordinates'} eq 'BA')
+      && $n == int($n)) {
+    my ($p,$q) = _n_to_pq($self,$n);
+    return $p*$p + $q*$q;  # C=P^2+Q^2
+  }
+  return $self->SUPER::n_to_radius($n);
 }
 
 # Nrow(depth+1) - Nrow(depth)
@@ -1021,10 +1048,10 @@ Squares>) in terms of sums of odd numbers
 
     eg. s=25=A^2  B^2=((25-1)/2)^2=144  so A=5,B=12
 
-The geometric interpretation is that an existing square of side B is
-extended by a X<Gnomon>"gnomon" around two sides making a new larger square
-of side C=B+1.  If the length of the gnomon is a square then the new total
-area is the sum of two squares.
+X<Gnomon>The geometric interpretation is that an existing square of side B
+is extended by a X<Gnomon>"gnomon" around two sides making a new larger
+square of side C=B+1.  If the length of the gnomon is a square then the new
+total area is the sum of two squares.
 
        *****gnomon********     gnomon length an odd square = A^2
        +---------------+ *

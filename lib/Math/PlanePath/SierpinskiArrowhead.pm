@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -55,6 +55,8 @@ use constant parameter_info_array =>
     },
   ];
 
+use constant n_start => 0;
+use constant class_y_negative => 0;
 {
   my %x_negative = (triangular => 1,
                     left       => 1,
@@ -66,8 +68,11 @@ use constant parameter_info_array =>
     return $x_negative{$self->{'align'}};
   }
 }
-use constant n_start => 0;
-use constant class_y_negative => 0;
+
+use constant sumxy_minimum => 0;  # triangular X>=-Y
+use Math::PlanePath::SierpinskiTriangle;
+*x_maximum      = \&Math::PlanePath::SierpinskiTriangle::x_maximum;
+*diffxy_maximum = \&Math::PlanePath::SierpinskiTriangle::diffxy_maximum;
 
 sub dx_minimum {
   my ($self) = @_;
@@ -373,7 +378,7 @@ __END__
 # 81
 
 
-=for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND ZOrderCurve Math-PlanePath OEIS SierpinskiTriangle
+=for stopwords eg Ryde Sierpinski Nlevel ie bitwise-AND Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -485,7 +490,7 @@ bitwise-AND,
     ($x & $y) == 0
 
 which gives the shape in the first quadrant XE<gt>=0,YE<gt>=0.  The same can
-be had with the ZOrderCurve path by plotting all numbers N which have no
+be had with the C<ZOrderCurve> path by plotting all numbers N which have no
 digit 3 in their base-4 representation (see
 L<Math::PlanePath::ZOrderCurve/Power of 2 Values>), since digit 3s in that
 case are X,Y points with a 1 bit in common.
@@ -521,7 +526,7 @@ level, ie. after two replications of the previous level,
 
 An optional C<align> parameter controls how the points are arranged relative
 to the Y axis.  The default shown above is "triangular".  The choices are
-the same as for the SierpinskiTriangle path.
+the same as for the C<SierpinskiTriangle> path.
 
 "right" means points to the right of the axis, packed next to each other and
 so using an eighth of the plane.

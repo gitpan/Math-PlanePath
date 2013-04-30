@@ -24,7 +24,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -231,7 +231,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral TriangleSpiralSkewed PlanePath Ryde Math-PlanePath 11-gonals hendecagonal hendecagonals OEIS
+=for stopwords Ryde Math-PlanePath 11-gonals hendecagonal hendecagonals OEIS
 
 =head1 NAME
 
@@ -271,10 +271,11 @@ same length), but skewed to the left to fit on a square grid,
            ^
     -2 -1 X=0 1  2  3  4  5
 
-The properties are the same as the spread-out TriangleSpiral.  The triangle
-numbers fall on straight lines as the do in the TriangleSpiral but the skew
-means the top corner goes up at an angle to the vertical and the left and
-right downwards are different angles plotted (but are symmetric by N count).
+The properties are the same as the spread-out C<TriangleSpiral>.  The
+triangle numbers fall on straight lines as the do in the C<TriangleSpiral>
+but the skew means the top corner goes up at an angle to the vertical and
+the left and right downwards are different angles plotted (but are symmetric
+by N count).
 
 =head2 Skew Right
 
@@ -507,8 +508,8 @@ path include
 The square spiral order in A217011,A217012 and their inverses has first step
 at 90-degrees to the first step of the triangle spiral, hence the rotation
 by 90 degrees when relating to the C<SquareSpiral> path.  A217010 on the
-other hand has no such rotation, it reckoning the square and triangle
-spirals starting both in the same direction.
+other hand has no such rotation since it reckons the square and triangle
+spirals starting in the same direction.
 
 =head1 SEE ALSO
 

@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -308,7 +308,7 @@ sub _digit_permutation_interleave {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve radix Radix ie ImaginaryBase radix-1 Proth XYX XXY Xn
+=for stopwords eg Ryde Math-PlanePath quater-imaginary radix Radix ie radix-1 Proth XYX XXY Xn
 
 =head1 NAME
 
@@ -322,7 +322,7 @@ Math::PlanePath::ImaginaryHalf -- half-plane replications in three directions
 
 =head1 DESCRIPTION
 
-This is a half-plane variation on the ImaginaryBase path.
+This is a half-plane variation on the C<ImaginaryBase> path.
 
 =cut
 
@@ -361,9 +361,9 @@ above as N=2 and N=3.  Then that 2x2 repeats to the left as N=4 to N=7, then
 The replications are successively to the right, above, left.  The relative
 layout within a replication is unchanged.
 
-This is similar to the ImaginaryBase, but where it repeats in 4 directions
-there's just 3 directions here.  The ZOrderCurve is a 2 direction
-replication.
+This is similar to the C<ImaginaryBase>, but where it repeats in 4
+directions there's just 3 directions here.  The C<ZOrderCurve> is a 2
+direction replication.
 
 =head2 Radix
 

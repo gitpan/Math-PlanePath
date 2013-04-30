@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -717,7 +717,7 @@ __END__
 
 
 
-=for stopwords eg Ryde flowsnake Gosper Schouten's lookup Math-PlanePath DragonCurve multi-arm
+=for stopwords eg Ryde flowsnake Gosper Schouten's lookup Math-PlanePath multi-arm
 
 =head1 NAME
 
@@ -944,7 +944,7 @@ The key to this approach is that the base figure is symmetric around a
 central point, so the tiling can be broken down first, and the rotations or
 reversals in the path applied afterwards.  Can it work on a non-symmetric
 base figure like the "across" style of the main Flowsnake, or something like
-the DragonCurve for that matter?
+the C<DragonCurve> for that matter?
 
 =head1 SEE ALSO
 

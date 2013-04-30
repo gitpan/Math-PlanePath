@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -539,7 +539,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords GreekKeySpiral Ryde Math-PlanePath SquareSpiral Edkins
+=for stopwords Ryde Math-PlanePath Edkins
 
 =head1 NAME
 
@@ -589,7 +589,7 @@ The repeating figure is a 3x3 pattern
 
 The turn excursion is to the outside of the 3-wide channel and forward in
 the direction of the spiral.  The overall spiraling is the same as the
-SquareSpiral, but composed of 3x3 sub-parts.
+C<SquareSpiral>, but composed of 3x3 sub-parts.
 
 =head2 Sub-Part Joining
 
@@ -646,7 +646,7 @@ C<turns=E<gt>4> begins
              ..-152-151
 
 The count of turns is chosen to make C<turns=E<gt>0> a straight line, the
-same as the SquareSpiral.  C<turns=E<gt>1> is a single wiggle,
+same as the C<SquareSpiral>.  C<turns=E<gt>1> is a single wiggle,
 
 =cut
 

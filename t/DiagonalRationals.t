@@ -24,7 +24,7 @@ plan tests => 148;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -39,7 +39,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::DiagonalRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiagonalRationals->VERSION,  $want_version,

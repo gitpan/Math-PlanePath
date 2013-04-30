@@ -59,7 +59,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -75,6 +75,7 @@ use Math::PlanePath::Base::Digits
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant diffxy_maximum => 0; # upper octant X<=Y so X-Y<=0
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
@@ -298,7 +299,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie HIndexing Math-PlanePath Rolf Niedermeier octant SierpinskiCurve Indexings
+=for stopwords eg Ryde ie Math-PlanePath Rolf Niedermeier octant Indexings
 
 =head1 NAME
 
@@ -394,7 +395,7 @@ further divided to have one point each, a little skewed.
     |  /
     +/
 
-The correspondence to the SierpinskiCurve is as follows.  The 4-point
+The correspondence to the C<SierpinskiCurve> is as follows.  The 4-point
 verticals like N=0 to N=3 are a Sierpinski horizontal, and the 4-point "U"
 parts like N=4 to N=7 are a Sierpinski vertical.  In both cases there's an
 X,Y transpose and bit of stretching.

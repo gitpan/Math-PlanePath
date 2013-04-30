@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,6 +53,8 @@ use constant parameter_info_array =>
     Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
+use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
 use constant dx_maximum => 2; # across gap
 use constant dy_minimum => 0;
 use constant dy_maximum => 1;
@@ -290,7 +292,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright Klaner-Rado unplotted OEIS
+=for stopwords straight-ish Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright Klaner-Rado unplotted OEIS
 
 =head1 NAME
 

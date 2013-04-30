@@ -19,6 +19,7 @@
 
 use 5.004;
 use strict;
+use Math::Trig 'pi';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -46,21 +47,27 @@ use strict;
   $planepath = "ChanTree,k=2";
   $planepath = "ImaginaryHalf,digit_order=XnXY";
   $planepath = "ToothpickReplicate,parts=1";
-  $planepath = "LCornerReplicate";
   $planepath = "PythagoreanTree,coordinates=AC,tree_type=UAD";
-  $planepath = "OneOfEight,parts=3side";
   $planepath = "CfracDigits,radix=2";
-  $planepath = "LCornerTree,parts=4";
-  $planepath = "ToothpickTree,parts=4";
   $planepath = "TerdragonCurve";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
-  $radix = 5;
+  $radix = 4;
   $planepath = "CfracDigits,radix=".($radix-1);
   $planepath = "DiagonalRationals,direction=up";
+  $planepath = "LCornerTree,parts=wedge";
+  $planepath = "LCornerReplicate";
+  $planepath = "OneOfEight,parts=wedge";
+  $planepath = "QuadricIslands";
+  $planepath = "WunderlichSerpentine";
+  $planepath = "ToothpickTreeByCells,parts=octant";
+  $planepath = "ToothpickTree,parts=octant";
+  $planepath = "SacksSpiral";
+  $planepath = "ComplexMinus,realpart=3";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
+                                                delta_type => 'dY',
                                                # delta_type => 'Dir4',
                                                # delta_type => 'TDir6',
-                                               delta_type => 'dX',
+                                               # delta_type => 'dAbsDiff',
                                               );
   my $dx_seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                   delta_type => 'dX');
@@ -81,7 +88,8 @@ use strict;
       my $rdx = Math::BaseCnv::cnv($dx,10,$radix);
       my $rdy = Math::BaseCnv::cnv($dy,10,$radix);
       my $f = $dy && $dx/$dy;
-      printf "max i=%d[%s] %.5f  dx=%s,dy=%s   %.3f\n", $i,$ri, $value, $dx,$dy, $f;
+      printf "max i=%d[%s] %.5f  dx=%s,dy=%s[%s,%s]   %.3f\n",
+        $i,$ri, $value, $dx,$dy, $rdx,$rdy, $f;
       $max = $value;
     }
 
@@ -454,7 +462,7 @@ use strict;
 
 
 {
-  my $pi = 4 * atan2(1,1);
+  my $pi = pi();
   my %seen;
   foreach my $x (0 .. 100) {
     foreach my $y (0 .. 100) {

@@ -24,7 +24,7 @@ plan tests => 28;;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::TheodorusSpiral;
 my $path = Math::PlanePath::TheodorusSpiral->new;
@@ -34,7 +34,7 @@ my $path = Math::PlanePath::TheodorusSpiral->new;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::TheodorusSpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TheodorusSpiral->VERSION,  $want_version,

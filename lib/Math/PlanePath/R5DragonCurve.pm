@@ -30,7 +30,7 @@ use List::Util 'first','sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -242,7 +242,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint radix Jorg Arndt Arndt's fxtbook TerdragonCurve
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel et al vertices doublings OEIS Online terdragon ie morphism R5DragonMidpoint radix Jorg Arndt Arndt's fxtbook
 
 =head1 NAME
 
@@ -292,7 +292,7 @@ which then repeats in self-similar style, so N=5 to N=10 is a copy rotated
                |
           0----1
 
-This replication is similar to the TerdragonCurve in that there's no
+This replication is similar to the C<TerdragonCurve> in that there's no
 reversals or mirroring.  Each replication is the plain base curve.
 
 The shape of N=0,5,10,15,20,25 repeats the initial N=0 to N=5,

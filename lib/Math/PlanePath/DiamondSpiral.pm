@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -200,7 +200,7 @@ __END__
     # -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5   6
 
 
-=for stopwords SquareSpiral ie eg DiamondSpiral PlanePath Ryde Math-PlanePath HexSpiralSkewed PentSpiralSkewed HeptSpiralSkewed OEIS
+=for stopwords ie eg PlanePath Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -233,15 +233,18 @@ This path makes a diamond shaped spiral.
                  ^
     -3  -2  -1  X=0  1   2   3
 
-This is not simply the SquareSpiral rotated, it spirals around faster, with
-side lengths following a pattern 1,1,1,1, 2,2,2,2, 3,3,3,3, etc, if the flat
-kink at the bottom (like N=13 to N=14) is treated as part of the lower right
-diagonal.
+This is not simply the C<SquareSpiral> rotated, it spirals around faster,
+with side lengths following a pattern 1,1,1,1, 2,2,2,2, 3,3,3,3, etc, if the
+flat kink at the bottom (like N=13 to N=14) is treated as part of the lower
+right diagonal.
 
 Going diagonally on the sides as done here is like cutting the corners of
-the SquareSpiral, which is how it gets around in fewer steps than the
-SquareSpiral.  See PentSpiralSkewed, HexSpiralSkewed and HeptSpiralSkewed
-for similar cutting just 3, 2 or 1 of the corners.
+the C<SquareSpiral>, which is how it gets around in fewer steps than the
+C<SquareSpiral>.  See C<PentSpiralSkewed>, C<HexSpiralSkewed> and
+C<HeptSpiralSkewed> for similar cutting just 3, 2 or 1 of the corners.
+
+X<Centred square numbers>N=1,5,13,25,etc on the Y negative axis is the
+"centred square numbers" 2*k*(k+1)+1.
 
 =head2 N Start
 
@@ -269,14 +272,15 @@ to start at 0,
                        \       / 
                          24--25 
 
-N=0,1,6,15,28,etc on the X axis is the hexagonal numbers k*(2k-1).
-N=0,3,10,21,36,etc on the negative X axis is the hexagonal numbers of the
-"second kind" k*(2k-1) for kE<lt>0.  Combining those two is the triangular
-numbers 0,1,3,6,10,15,21,etc, k*(k+1)/2, on the X axis alternately positive
-and negative.
+X<Hexagonal numbers>N=0,1,6,15,28,etc on the X axis is the hexagonal numbers
+k*(2k-1).  N=0,3,10,21,36,etc on the negative X axis is the hexagonal
+numbers of the "second kind" k*(2k-1) for kE<lt>0.  Combining those two is
+the triangular numbers 0,1,3,6,10,15,21,etc, k*(k+1)/2, on the X axis
+alternately positive and negative.
 
-N=0,2,8,18,etc on the Y axis is 2*squares, 2*Y^2.  N=0,4,12,24,etc on the
-negative Y axis is X<Pronic numbers>2*pronic, 2*Y*(Y+1).
+X<Square numbers>N=0,2,8,18,etc on the Y axis is 2*squares, 2*Y^2.
+N=0,4,12,24,etc on the negative Y axis is X<Pronic numbers>2*pronic,
+2*Y*(Y+1).
 
 =head1 FUNCTIONS
 
@@ -376,6 +380,9 @@ this path include
       A001105    N on Y axis, 2*n^2 (and cf similar A184636)
       A014105    N on X negative axis, second hexagonals
       A046092    N on Y negative axis, 2*pronic
+      A003982    1,0 according as N on Y negative axis,
+                   being delta abs(X)+abs(Y) which is 1 when move
+                   "outward" to next ring
 
     n_start=-1
       A188551    N positions of turns, from N=1 up

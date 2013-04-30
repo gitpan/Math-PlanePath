@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -188,7 +188,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Guiseppe Terdragon terdragon eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS ZOrderCurve ie TerdragonCurve TerdragonRounded Math-PlanePath versa Online Radix radix HilbertCurve Jorg Arndt Hexdragon hexdragon
+=for stopwords Guiseppe Terdragon terdragon eg Sur une courbe qui remplit toute aire Mathematische Annalen Ryde OEIS ie Math-PlanePath versa Online Radix radix Jorg Arndt Hexdragon hexdragon
 
 =head1 NAME
 
@@ -246,8 +246,8 @@ This is a version of the terdragon curve with rounded-off corners,
      ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
     -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8
 
-The plain TerdragonCurve is tripled in size and two points on each edge are
-visited by the TerdragonRounded here.
+The plain C<TerdragonCurve> is tripled in size and two points on each edge
+are visited by the C<TerdragonRounded> here.
 
 =head2 Arms
 

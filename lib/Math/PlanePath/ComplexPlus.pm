@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -254,7 +254,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel DragonCurve
+=for stopwords eg Ryde Math-PlanePath ie Nstart Nlevel
 
 =head1 NAME
 
@@ -270,7 +270,7 @@ Math::PlanePath::ComplexPlus -- points in complex base i+r
 
 This path traverses points by a complex number base i+r with integer
 rE<gt>=1.  The default is base i+1 which gives a shape similar to the
-DragonCurve,
+C<DragonCurve>,
 
                          30  31          14  15                 5
                      28  29          12  13                     4

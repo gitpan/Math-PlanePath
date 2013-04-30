@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,7 +50,8 @@ use constant class_x_negative => 0;
 use constant class_y_negative => 0;
 use constant x_minimum => 1;
 use constant y_minimum => 2;
-use constant tree_any_leaf => 0;  # no leaves, complete tree
+use constant diffxy_maximum => -1; # upper octant X<=Y-1 so X-Y<=-1
+use constant tree_any_leaf => 0;   # no leaves, complete tree
 use constant tree_num_children_minimum => 2; # complete binary tree
 use constant tree_num_children_maximum => 2;
 use constant tree_n_to_height => undef; # complete tree, all infinity
@@ -274,7 +275,7 @@ sub _bingcd_max {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime RationalsTree Harmonices Mundi octant onwards Aiton
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime Harmonices Mundi octant onwards Aiton
 
 =head1 NAME
 
@@ -305,8 +306,8 @@ X<Kepler, Johannes>The default and only tree currently is by Johannes Kepler.
     Excerpt of translation by Aiton, Duncan and Field at
     http://ndirty.cute.fi/~karttu/Kepler/a086592.htm
 
-In principle similar bit reversal etc variations as in RationalsTree would
-be possible.
+In principle similar bit reversal etc variations as in C<RationalsTree>
+would be possible.
 
     N=1                             1/2
                               ------   ------

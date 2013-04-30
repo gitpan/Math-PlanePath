@@ -24,7 +24,7 @@ plan tests => 269;;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
@@ -42,7 +42,7 @@ require Math::PlanePath::ChanTree;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::ChanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ChanTree->VERSION,  $want_version,

@@ -101,12 +101,10 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
   $path_class = 'Math::PlanePath::LCornerReplicate';
   $path_class = 'Math::PlanePath::HilbertCurve';
-  $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ImaginaryHalf';
   $path_class = 'Math::PlanePath::R7DragonCurve';
   $path_class = 'Math::PlanePath::GosperIslands';
   $path_class = 'Math::PlanePath::ToothpickReplicate';
-  $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::EToothpickTree';
   $path_class = 'Math::PlanePath::ToothpickUpist';
   $path_class = 'Math::PlanePath::Hypot';
@@ -114,14 +112,12 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::FlowsnakeCentres';
   $path_class = 'Math::PlanePath::Flowsnake';
   $path_class = 'Math::PlanePath::LToothpickTree';
-  $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::AnvilSpiral';
   $path_class = 'Math::PlanePath::FilledRings';
   $path_class = 'Math::PlanePath::HexSpiral';
   $path_class = 'Math::PlanePath::HexSpiralSkewed';
   $path_class = 'Math::PlanePath::TwoOfEightByCells';
   $path_class = 'Math::PlanePath::RationalsTree';
-  $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::DivisibleColumns';
   $path_class = 'Math::PlanePath::CoprimeColumns';
   $path_class = 'Math::PlanePath::DiagonalRationals';
@@ -142,18 +138,27 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::CellularRule54';
   $path_class = 'Math::PlanePath::CellularRule';
   $path_class = 'Math::PlanePath::PeanoVertices';
-  $path_class = 'Math::PlanePath::MultipleRings';
   $path_class = 'Math::PlanePath::OneOfEightByCells';
   $path_class = 'Math::PlanePath::OneOfEight';
+  $path_class = 'Math::PlanePath::LCornerTree';
+  $path_class = 'Math::PlanePath::ZeckendorfTerms';
+  $path_class = 'Math::PlanePath::BinaryTerms';
+  $path_class = 'Math::PlanePath::LCornerTreeByCells';
+  $path_class = 'Math::PlanePath::ToothpickTreeByCells';
+  $path_class = 'Math::PlanePath::ToothpickTree';
+  $path_class = 'Math::PlanePath::MultipleRings';
 
   my $lo = 0;
-  my $hi = 29;
+  my $hi = 30;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
+     #radix => 4,
+     
+     # parts => '3',
      #  ring_shape => 'polygon',
-     # step => 9,
+      step => 1,
 
      # rule => 6,
      # align => 'down',
@@ -161,12 +166,10 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # shift => -3,
      # x_start => 5,
      # y_start => 2,
-     # radix => 4,
      # coordinates => 'BC',
 
      # divisor_type => 'proper',
 
-      parts => 'wedge',
      # wider => 3,
      # reverse => 1,
      # tree_type => 'L',
@@ -339,6 +342,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 
 sub path_tree_n_to_depth_by_parents {
   my ($path, $n) = @_;
+
   if ($n < $path->n_start) {
     return undef;
   }

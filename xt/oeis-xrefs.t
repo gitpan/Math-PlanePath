@@ -42,7 +42,7 @@ use List::MoreUtils;
 
 use lib 't','xt';
 use MyTestHelpers;
-BEGIN { MyTestHelpers::nowarnings() }
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Smart::Comments;

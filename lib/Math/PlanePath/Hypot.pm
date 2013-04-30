@@ -48,7 +48,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -395,7 +395,7 @@ __END__
 
 
 
-=for stopwords Ryde Math-PlanePath ie HypotOctant hypot octant onwards TriangularHypot DiamondSpiral PyrmaidSides OEIS hypots
+=for stopwords Ryde Math-PlanePath ie hypot octant onwards OEIS hypots
 
 =head1 NAME
 
@@ -436,8 +436,8 @@ origin 0,0, or anti-clockwise from the X axis among those of equal distance,
 For example N=58 is at X=4,Y=-1 is sqrt(4*4+1*1) = sqrt(17) from the origin.
 The next furthest from the origin is X=3,Y=3 at sqrt(18).
 
-See TriangularHypot for points in order of X^2+3*Y^2, or DiamondSpiral and
-PyrmaidSides in order of plain sum X+Y.
+See C<TriangularHypot> for points in order of X^2+3*Y^2, or C<DiamondSpiral>
+and C<PyrmaidSides> in order of plain sum X+Y.
 
 =head2 Equal Distances
 
@@ -603,8 +603,8 @@ and if C<$x,$y> is a position not covered then the return is C<undef>.
 =head1 FORMULAS
 
 The calculations are not particularly efficient currently.  Private arrays
-are built similar to what's described for HypotOctant, but with replication
-for negative and swapped X,Y.
+are built similar to what's described for C<HypotOctant>, but with
+replication for negative and swapped X,Y.
 
 =head1 OEIS
 

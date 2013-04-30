@@ -39,7 +39,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -83,6 +83,25 @@ use constant parameter_info_array =>
      description => 'Radix, for both the Gray code and splitting.',
    },
   ];
+
+sub _is_peano {
+  my ($self) = @_;
+  return ($self->{'radix'} % 2 == 1
+          && $self->{'gray_type'} eq 'reflected'
+          && ($self->{'apply_type'} eq 'TsF'
+              || $self->{'apply_type'} eq 'FsT'));
+}
+sub dx_minimum {
+  my ($self) = @_;
+  return (_is_peano($self) ? -1 : undef);
+}
+*dy_minimum = \&dx_minimum;
+
+sub dx_maximum {
+  my ($self) = @_;
+  return (_is_peano($self) ? 1 : undef);
+}
+*dy_maximum = \&dx_maximum;
 
 {
   # Ror sT and sF the split X coordinate changes from N to N+1 and so does

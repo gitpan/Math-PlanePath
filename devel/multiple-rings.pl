@@ -28,9 +28,18 @@ use Math::PlanePath::MultipleRings;
 
 
 {
-  use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
-  my $pi = _PI();
+  require Math::BigFloat;
+  # Math::BigFloat->precision(-3);
+  my $n = Math::BigFloat->new(4);
+  # $n->accuracy(5);
+   $n->precision(-3);
+  my $pi = Math::PlanePath::MultipleRings::_pi($n);
+  print "$pi\n";
+  exit 0;
+}
 
+{
+  my $pi = pi();
   my $offset = 0.0;
 
   foreach my $step (3,4,5,6,7,8) {
@@ -46,7 +55,7 @@ use Math::PlanePath::MultipleRings;
       $pinc = Math::PlanePath::MultipleRings::_numsides_to_r($step,$pi);
     } else {
       $pbase = Math::PlanePath::MultipleRings::_numsides_to_r($step,$pi);
-      $pinc = 1/cos(_PI/$step);
+      $pinc = 1/cos($pi/$step);
     }
     print "step=$step  pbase=$pbase  pinc=$pinc\n";
 
@@ -58,8 +67,8 @@ use Math::PlanePath::MultipleRings;
       my $theta_frac = Math::PlanePath::MultipleRings::_xy_to_angle_frac($x,$y);
       $theta_frac -= int($theta_frac*$step) / $step;  # modulo 1/step
 
-      my $alpha = 2*_PI/$step;
-      my $theta = 2*_PI * $theta_frac;
+      my $alpha = 2*$pi/$step;
+      my $theta = 2*$pi * $theta_frac;
       ### $r
       ### x=r*cos(theta): $r*cos($theta)
       ### y=r*sin(theta): $r*sin($theta)

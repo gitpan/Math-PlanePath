@@ -46,22 +46,12 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-
-use constant n_start => 0;
-sub x_negative {
-  my ($self) = @_;
-  return ($self->{'arms'} >= 3);
-}
-sub y_negative {
-  my ($self) = @_;
-  return ($self->{'arms'} >= 5);
-}
 
 use constant parameter_info_array => [ { name      => 'arms',
                                          share_key => 'arms_8',
@@ -74,12 +64,33 @@ use constant parameter_info_array => [ { name      => 'arms',
                                          description => 'Arms',
                                        } ];
 
+use constant n_start => 0;
+sub x_negative {
+  my ($self) = @_;
+  return ($self->{'arms'} >= 3);
+}
+sub y_negative {
+  my ($self) = @_;
+  return ($self->{'arms'} >= 5);
+}
+
+sub sumxy_minimum {
+  my ($self) = @_;
+  return ($self->arms_count <= 3
+          ? 0        # 1,2,3 arms above X=-Y diagonal
+          : undef);
+}
+sub diffxy_minimum {
+  my ($self) = @_;
+  return ($self->arms_count == 1
+          ? 0        # 1 arms right of X=Y diagonal
+          : undef);
+}
+
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
 use constant dir_maximum_dxdy => (0,-1); # South
 
 

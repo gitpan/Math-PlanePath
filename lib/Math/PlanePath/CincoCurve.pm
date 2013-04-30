@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -729,7 +729,8 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::PeanoCurve>
+L<Math::PlanePath::PeanoCurve>,
+L<Math::PlanePath::DekkingCurve>
 
 John Dennis "Inverse Space-Filling Curve Partitioning of a Global Ocean
 Model", and source code from COSIM
@@ -765,13 +766,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-# when ready ...
-# L<Math::PlanePath::DekkingCurve>
-
-
-# Local variables:
-# compile-command: "math-image --path=CincoCurve --lines --scale=20"
-# End:
-#
-# math-image --path=CincoCurve --all --output=numbers_dash

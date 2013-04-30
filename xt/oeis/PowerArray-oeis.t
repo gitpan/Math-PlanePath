@@ -24,7 +24,7 @@ plan tests => 18;
 
 use lib 't','xt';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
 use Math::PlanePath::PowerArray;

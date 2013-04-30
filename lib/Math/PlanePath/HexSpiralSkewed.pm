@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -223,7 +223,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords HexSpiralSkewed HexSpiral SquareSpiral DiamondSpiral PlanePath Ryde Math-PlanePath OEIS
+=for stopwords PlanePath Ryde Math-PlanePath OEIS
 
 =head1 NAME
 
@@ -254,12 +254,12 @@ grid and fully cover the plane.
     -2  -1  X=0  1   2   3  ...
 
 The kinds of N=3*k^2 numbers which fall on straight lines in the plain
-HexSpiral also fall on straight lines when skewed.  See
+C<HexSpiral> also fall on straight lines when skewed.  See
 L<Math::PlanePath::HexSpiral> for notes on this.
 
 =head2 Skew
 
-The skewed path is the same shape as the plain HexSpiral, but fits more
+The skewed path is the same shape as the plain C<HexSpiral>, but fits more
 points on a square grid.  The skew pushes the top horizontal to the left, as
 shown by the following parts, and the bottom horizontal is similarly skewed
 but to the right.
@@ -282,9 +282,9 @@ In general the coordinates can be converted each way by
 
 =head1 Corners
 
-HexSpiralSkewed is similar to the SquareSpiral but cuts off the top-right
-and bottom-left corners so that each loop is 6 steps longer than the
-previous, whereas for the SquareSpiral it's 8.  See
+C<HexSpiralSkewed> is similar to the C<SquareSpiral> but cuts off the
+top-right and bottom-left corners so that each loop is 6 steps longer than
+the previous, whereas for the C<SquareSpiral> it's 8.  See
 L<Math::PlanePath::SquareSpiral/Corners> for other corner cutting.
 
 =head2 Wider
@@ -316,8 +316,8 @@ centred on the origin X=0,Y=0.
 
 Each loop is still 6 longer than the previous, since the widening is
 basically a constant amount added into each loop.  The result is the same as
-the plain HexSpiral of the same widening too.  The effect looks better in
-the plain HexSpiral.
+the plain C<HexSpiral> of the same widening too.  The effect looks better in
+the plain C<HexSpiral>.
 
 =head2 N Start
 

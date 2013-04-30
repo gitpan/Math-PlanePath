@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -116,7 +116,7 @@ sub xy_to_n {
   ### xy_to_n(): "$x,$y"
 
   if (($x ^ $y) & 1) {
-    return undef;  # nothing on odd squares
+    return undef;  # nothing on odd points
   }
 
   if ($y < 0 && 3*$y <= $x && $x <= -3*$y) {
@@ -172,7 +172,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords TriangleSpiral PlanePath Ryde Math-PlanePath HexSpiral hendecagonal 11-gonal (s+2)-gonal OEIS hendecagonals
+=for stopwords Ryde Math-PlanePath hendecagonal 11-gonal (s+2)-gonal OEIS hendecagonals
 
 =head1 NAME
 
@@ -212,14 +212,14 @@ instance n=1 is at x=0,y=0 then n=2 is at x=2,y=0.  The diagonals are 1
 across and 1 up or down, so n=3 is at x=1,y=1.  Each alternate row is offset
 from the one above or below.
 
-This grid is the same as the HexSpiral and the path is like that spiral
+This grid is the same as the C<HexSpiral> and the path is like that spiral
 except instead of a flat top and SE,SW sides it extends to triangular peaks.
 The result is a longer loop and each successive loop is step=9 longer than
-the previous (whereas the HexSpiral is step=6 more).
+the previous (whereas the C<HexSpiral> is step=6 more).
 
-The triangular numbers 1, 3, 6, 10, 15, 21, 28, 36 etc, k*(k+1)/2, fall one
-before the successive corners of the triangle, so when plotted make three
-lines going vertically and angled down left and right.
+X<Triangular numbers>The triangular numbers 1, 3, 6, 10, 15, 21, 28, 36 etc,
+k*(k+1)/2, fall one before the successive corners of the triangle, so when
+plotted make three lines going vertically and angled down left and right.
 
 The 11-gonal "hendecagonal" numbers 11, 30, 58, etc, k*(9k-7)/2 fall on a
 straight line horizontally to the right.  (As per the general rule that a

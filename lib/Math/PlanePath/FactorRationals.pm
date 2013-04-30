@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -220,7 +220,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf FactorRationals McCrimmon Freilich Yoram Sagher negabinary
+=for stopwords eg Ryde OEIS ie Math-PlanePath Calkin-Wilf McCrimmon Freilich Yoram Sagher negabinary
 
 =head1 NAME
 
@@ -303,11 +303,11 @@ N=1,2,3,8,5,6,etc in the column X=1 is integers with odd powers of prime
 factors.  This is the fractions 1/Y so the s exponents of the primes are all
 negative and thus all exponents in N are odd.
 
-N=1,4,9,16,etc in row Y=1 is the perfect squares.  That row is the
-integers X/1 so the s exponents there are all positive and thus in N become
-2*s, giving simply N=X^2.
+X<Square numbers>N=1,4,9,16,etc in row Y=1 is the perfect squares.  That row
+is the integers X/1 so the s exponents there are all positive and thus in N
+become 2*s, giving simply N=X^2.
 
-X<Bradley, David M>As noted by David M. Bradley, other mappings of signed
+X<Bradley, David M.>As noted by David M. Bradley, other mappings of signed
 E<lt>-E<gt> unsigned powers could give other enumerations.  The "negabinary"
 a[k]*(-2)^k is one possibility, or the "reversing binary representation"
 (-1)^k*2^ek of Knuth vol 2 section 4.1 exercise 27.  But the alternating "+"

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use List::Util 'min', 'max';
-use constant PI => 4 * atan2(1,1);  # similar to Math::Complex
+use Math::Trig 'pi';
 use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 # uncomment this to run the ### lines
@@ -89,7 +89,7 @@ use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 {
   # sum/sqrt(n) goes below pi/4
- print "pi/4 ",PI/4,"\n";
+ print "pi/4 ",pi/4,"\n";
   require Math::PlanePath::AlternatePaper;
   my $path = Math::PlanePath::AlternatePaper->new;
   my $min = 999;

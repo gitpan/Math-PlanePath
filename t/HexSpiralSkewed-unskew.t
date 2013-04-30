@@ -24,7 +24,7 @@ plan tests => 168;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 use Math::PlanePath::HexSpiral;
 use Math::PlanePath::HexSpiralSkewed;

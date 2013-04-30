@@ -17,14 +17,18 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-Version 101, March 2013
+Version 102, April 2013
+    - new sumxy_minimum(),sumxy_maximum(), diffxy_minimum(),diffxy_maximum(),
+    - PlanePathDelta new delta_type=>"dSumAbs"
+
+Version 101, April 2013
     - MultipleRings fixes for ring_shape=polygon xy_to_n(), rect_to_n_range()
     - CellularRule,CellularRule54,CellularRule57,CellularRule190
       new parameter n_start
     - DiagonalRationals new parameter direction=up
 
 Version 100, March 2013
-    - new absdx_minimum(),absdy_minimum(), absdx_maximum(),absdy_maximum(),
+    - new absdx_minimum(),absdx_maximum(), absdy_minimum(),absdy_maximum(),
       dir_minimum_dxdy(),dir_maximum_dxdy()
     - AztecDiamondRings new parameter n_start
     - TriangleSpiralSkewed new parameter skew=right,up,down
@@ -61,8 +65,8 @@ Version 93, November 2012
     - PlanePathCoord new coordinate_type "Min","Max","BitAnd","BitOr","BitXor"
 
 Version 92, October 2012
-    - new x_minimum(),y_minimum(), x_maximum(),y_maximum(),
-      dx_minimum(),dy_minimum(), dx_maximum(),dy_maximum()
+    - new x_minimum(),x_maximum(), y_minimum(),y_maximum(),
+      dx_minimum(),dx_maximum(), dy_minimum(),dy_maximum()
 
 Version 91, October 2012
     - new tree_depth_to_n(), tree_depth_to_n_end()

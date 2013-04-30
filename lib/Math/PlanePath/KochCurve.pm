@@ -52,7 +52,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -75,13 +75,12 @@ use Math::PlanePath::Base::Digits
 use constant n_start => 0;
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
+use constant diffxy_minimum => 0;  # X>=Y octant so X-Y>=0
 use constant dx_minimum => -2;
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1; # never vertical
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
 
@@ -505,7 +504,7 @@ sub _UNTESTED__n_to_turn_right {
 1;
 __END__
 
-=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie OEIS Xlevel floorlevel Nhi Nlo
+=for stopwords eg Ryde Helge von Koch Math-PlanePath Nlevel differentiable ie OEIS Xlevel floorlevel Nhi Nlo Ndigit
 
 =head1 NAME
 
@@ -713,7 +712,7 @@ N modulo 3.  abs(dX) is a repeating pattern 2,1,1 and abs(dY) repeating
 
 This works because the direction calculation above corresponds to N mod 3.
 Each N digit in base 4 becomes
- 
+
     N digit
     base 4    direction add
     -------   -------------
@@ -728,7 +727,7 @@ power-of-4 for each digit reduces down to 1,
     N = 4^k * digit_k + ... 4^0 * digit_0
     N mod 3 = 1 * digit_k + ... 1 * digit_0
             = digit_k + ... digit_0
-    same as 
+    same as
     direction = digit_k + ... + digit_0    taken mod 3
 
 =head2 Rectangle to N Range -- Level

@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -287,7 +287,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix radix-1 RxR OEIS ZOrderCurve
+=for stopwords Ryde Math-PlanePath Karatsuba undrawn fibbinary eg Radix radix radix-1 RxR OEIS
 
 =head1 NAME
 
@@ -557,7 +557,7 @@ forms,
       A217558    permutation N at transpose Y,X (swap digit pairs)
 
 And taking X,Y points in the Diagonals sequence then the value of the
-following sequences is the N of the ZOrderCurve at those positions.
+following sequences is the N of the C<ZOrderCurve> at those positions.
 
     radix=2
       A054238    numbering by diagonals, from same axis as first step
@@ -570,7 +570,7 @@ following sequences is the N of the ZOrderCurve at those positions.
       A163331      inverse permutation
 
 C<Math::PlanePath::Diagonals> numbers points from the Y axis down, which is
-the opposite axis to the ZOrderCurve first step along the X axis, so a
+the opposite axis to the C<ZOrderCurve> first step along the X axis, so a
 transpose is needed to give A054238.
 
 =head1 SEE ALSO

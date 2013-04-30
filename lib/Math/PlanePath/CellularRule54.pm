@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -41,11 +41,12 @@ use constant parameter_info_array =>
 
 use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
+use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
 use constant dx_maximum => 4;
 use constant dy_minimum => 0;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
-# use constant dir4_maximum => 2;  # supremum, west and 1 up
 use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 
@@ -312,7 +313,7 @@ sub _rect_for_V {
 1;
 __END__
 
-=for stopwords straight-ish PyramidRows Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright OEIS
+=for stopwords straight-ish Ryde Math-PlanePath ie hexagonals 18-gonal Xmax-Xmin Nleft Nright OEIS
 
 =head1 NAME
 
@@ -352,11 +353,11 @@ The initial figure N=1,2,3,4 repeats in two-row groups with 1 cell gap
 between figures.  Each two-row group has one extra figure, for a step of 4
 more points than the previous two-row.
 
-The rightmost N on the even rows Y=0,2,4,6 etc is the hexagonal numbers
-N=1,6,15,28, etc k*(2k-1).  The hexagonal numbers of the "second kind" 1, 3,
-10, 21, 36, etc j*(2j+1) are a steep sloping line upwards in the middle too.
-Those two taken together are the triangular numbers 1,3,6,10,15 etc,
-k*(k+1)/2.
+X<Hexagonal numbers>The rightmost N on the even rows Y=0,2,4,6 etc is the
+hexagonal numbers N=1,6,15,28, etc k*(2k-1).  The hexagonal numbers of the
+"second kind" 1, 3, 10, 21, 36, etc j*(2j+1) are a steep sloping line
+upwards in the middle too.  Those two taken together are the
+X<Triangular numbers>triangular numbers 1,3,6,10,15 etc, k*(k+1)/2.
 
 The 18-gonal numbers 18,51,100,etc are the vertical line at X=-3 on every
 fourth row Y=5,9,13,etc.

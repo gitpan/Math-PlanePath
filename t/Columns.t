@@ -24,7 +24,7 @@ plan tests => 42;;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::Columns;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::Columns;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::Columns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Columns->VERSION,  $want_version,

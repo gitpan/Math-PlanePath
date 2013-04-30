@@ -24,7 +24,7 @@ plan tests => 99;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 use Math::PlanePath::FilledRings;
 
@@ -35,7 +35,7 @@ use Math::PlanePath::FilledRings;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::FilledRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::FilledRings->VERSION,  $want_version,

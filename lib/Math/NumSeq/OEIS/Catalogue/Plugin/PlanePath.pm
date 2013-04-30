@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 209 A-numbers in 4 modules
+# total 214 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -1053,6 +1053,16 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A131561',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'Rows,width=3,n_start=0',
+      'delta_type',
+      'dSum'
+    ]
+  },
+  {
     'anum' => 'A127949',
     'class' => 'Math::NumSeq::PlanePathDelta',
     'parameters' => [
@@ -1090,6 +1100,46 @@ use constant info_arrayref =>
       'PyramidSides',
       'delta_type',
       'AbsdY'
+    ]
+  },
+  {
+    'anum' => 'A062157',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=14',
+      'delta_type',
+      'dSum'
+    ]
+  },
+  {
+    'anum' => 'A177702',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=20,n_start=0',
+      'delta_type',
+      'dSumAbs'
+    ]
+  },
+  {
+    'anum' => 'A102283',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=6,n_start=0',
+      'delta_type',
+      'dSum'
+    ]
+  },
+  {
+    'anum' => 'A131756',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'CellularRule,rule=6,n_start=0',
+      'delta_type',
+      'dSumAbs'
     ]
   },
   {

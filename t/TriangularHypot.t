@@ -24,7 +24,7 @@ plan tests => 22;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -36,7 +36,7 @@ require Math::PlanePath::TriangularHypot;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::TriangularHypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TriangularHypot->VERSION,  $want_version,
@@ -169,7 +169,7 @@ sub xy_is_hex {
 
 # "hex_rotated" is X+3*Y==0or4
 # test against 0 to allow for "%" sign varying under "use integer"
-sub xy_is_hex_centred {
+sub xy_is_hex_rotated {
   my ($x,$y) = @_;
   return (($x+3*$y) % 6 == 0
           || ($x+3*$y-4) % 6 == 0);

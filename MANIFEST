@@ -66,6 +66,8 @@ devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
 devel/lib/Math/PlanePath/BalancedArray.pm
+devel/lib/Math/PlanePath/BinaryTerms-oeis.t
+devel/lib/Math/PlanePath/BinaryTerms.pm
 devel/lib/Math/PlanePath/FibonacciSquareSpiral.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
@@ -89,6 +91,8 @@ devel/lib/Math/PlanePath/WythoffPreliminaryTriangle-oeis.t
 devel/lib/Math/PlanePath/WythoffPreliminaryTriangle.pm
 devel/lib/Math/PlanePath/WythoffTriangle-oeis.t
 devel/lib/Math/PlanePath/WythoffTriangle.pm
+devel/lib/Math/PlanePath/ZeckendorfTerms-oeis.t
+devel/lib/Math/PlanePath/ZeckendorfTerms.pm
 devel/Makefile
 devel/mephisto-waltz.logo
 devel/multiple-rings.pl
@@ -442,6 +446,7 @@ xt/oeis/ImaginaryBase-oeis.t
 xt/oeis/KnightSpiral-oeis.t
 xt/oeis/KochCurve-oeis.t
 xt/oeis/LTiling-oeis.t
+xt/oeis/MultipleRings-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
 xt/oeis/PeanoCurve-oeis.t
 xt/oeis/PentSpiralSkewed-oeis.t

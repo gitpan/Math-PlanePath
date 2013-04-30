@@ -36,7 +36,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -442,7 +442,7 @@ __END__
     #      \ /
 
 
-=for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath FlowsnakeCentres Ns
+=for stopwords eg Ryde flowsnake Gosper ie Fukuda Shimizu Nakamura Math-PlanePath Ns
 
 =head1 NAME
 
@@ -712,13 +712,13 @@ states, and for each there's 7 digit values (0 to 6) for a total 84 i,j.
 
 =head2 X,Y to N
 
-The current approach uses the FlowsnakeCentres code.  The tiling in
-Flowsnake and FlowsnakeCentres is the same so the X,Y of a given N are no
-more than 1 away in the grid of the two forms.
+The current approach uses the C<FlowsnakeCentres> code.  The tiling in
+C<Flowsnake> and C<FlowsnakeCentres> is the same so the X,Y of a given N are
+no more than 1 away in the grid of the two forms.
 
 The way the two lowest shapes are arranged in fact means that if the
-Flowsnake N is at X,Y then the same N in FlowsnakeCentres is at one of three
-locations
+Flowsnake N is at X,Y then the same N in C<FlowsnakeCentres> is at one of
+three locations
 
     X, Y         same
     X-2, Y       left      (+180 degrees)
@@ -728,8 +728,8 @@ This is true even when the rotated "arms" multiple paths (the same number of
 arms in both paths).
 
 Is there an easy way to know which of the three offsets is right?  The
-current approach is to put each through FlowsnakeCentres to make an N, and
-put that N back through Flowsnake C<n_to_xy()> to see if it's the target
+current approach is to put each through C<FlowsnakeCentres> to make an N,
+and put that N back through Flowsnake C<n_to_xy()> to see if it's the target
 C<$n>.
 
 =head2 Rectangle to N Range

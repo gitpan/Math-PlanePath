@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -447,7 +447,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al DragonCurve DragonMidpoint bignum Xadj,Yadj lookup OEIS 0b.zz111 0b..zz11 ie
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Heighway Harter et al bignum Xadj,Yadj lookup OEIS 0b.zz111 0b..zz11 ie
 
 =head1 NAME
 
@@ -515,7 +515,7 @@ numbered from 0,
               ...
 
 These midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  For this
-DragonMidpoint path they're turned clockwise 45 degrees and shrunk by
+C<DragonMidpoint> path they're turned clockwise 45 degrees and shrunk by
 sqrt(2) to be integer X,Y values 1 apart and initial direction to the right.
 
 The midpoints are distinct X,Y positions because the dragon curve traverses
@@ -523,12 +523,38 @@ each edge only once.
 
 The dragon curve is self-similar in 2^level sections due to its unfolding.
 This can be seen in the midpoints too as for example above N=0 to N=16 is
-the same shape as N=16 to N=32, the latter rotated 90 degrees and in
+the same shape as N=16 to N=32, with the latter rotated 90 degrees and in
 reverse.
+
+Since the dragon curve always turns left or right, never straight ahead or
+reverse, the segments are alternately horizontal and vertical.  With the
+rotate -45 degrees for the midpoints done here this means alternately
+"opposite diagonal" segment and "leading diagonal" segment.  They fall on
+X,Y alternately even or odd.  So the original dragon curve can be recovered
+by choosing either a leading or opposite diagonal segment according to
+either X,Y even/odd or N even/odd.
+
+    DragonMidpoint                  dragon segment
+    --------------                 -----------------
+    "even" N==0 mod 2              opposite diagonal
+      which is X+Y==0 mod 2 too
+
+    "odd"  N==1 mod 2              leading diagonal
+      which is X+Y==1 mod 2 too
+
+               /
+              3         0 at X=0,Y=0 "even", opposite slope
+             /          1 at X=1,Y=0 "odd", leading slope
+             \          etc
+              2
+               \
+         \     /
+          0   1
+           \ /
 
 =head2 Arms
 
-Like the DragonCurve the midpoints fill a quarter of the plane and four
+Like the C<DragonCurve> the midpoints fill a quarter of the plane and four
 copies mesh together perfectly when rotated by 90, 180 and 270 degrees.  The
 C<arms> parameter can choose 1 to 4 curve arms, successively advancing.
 
@@ -564,7 +590,7 @@ N=2,6,10,14 the third and N=3,7,11,15 the fourth.
      -6  -5  -4  -3  -2  -1  X=0  1   2   3   4   5
 
 With four arms like this every X,Y point is visited exactly once, because
-four arms of the DragonCurve traverse every edge exactly once.
+four arms of the C<DragonCurve> traverse every edge exactly once.
 
 =head2 Tiling
 
@@ -598,7 +624,7 @@ following tiling of the plane repeating in 4x4 blocks.
 The pairs follow this pattern both for the main curve N=0 etc shown, and
 also for the rotated copies per L</Arms> above.
 
-Taking pairs N=2k+1 and N=2k+2, so an odd N and its successor, gives a
+Taking pairs N=2k+1 and N=2k+2, being odd N and its successor, gives a
 regular pattern too, but this time repeating in blocks of 16x16.
 
     |||--||||||--||--||--||||||--||||||--||||||--||||||--||||||--|||
@@ -663,16 +689,16 @@ Return 0, the first N in the path.
 =head2 X,Y to N
 
 An X,Y point is turned into N by dividing out digits of a complex base i+1.
-This base is per the doubling of the DragonCurve at each level.  In midpoint
-coordinates an adjustment subtracting 0 or 1 must be applied to move an X,Y
-for N=2k or N=2k+1 to the point where dividing out i+1 gives the N=k
-position.
+This base is per the doubling of the C<DragonCurve> at each level.  In
+midpoint coordinates an adjustment subtracting 0 or 1 must be applied to
+move an X,Y for N=2k or N=2k+1 to the point where dividing out i+1 gives the
+N=k position.
 
 The adjustment is in a repeating pattern of 4x4 blocks.  Points N=2k and
 N=2k+1 both move to the same place corresponding to N=k multiplied by i+1.
-The adjustment pattern is related to the pair tiling shown above, except for
-some pairs both the N=2k and N=2k+1 positions must move, it's not just a
-matter of shifting the N=2k+1 to the N=2k.
+The adjustment pattern is a little like the pair tiling shown above, but for
+some pairs both the N=2k and N=2k+1 positions must move, it's not enough
+just to shift the N=2k+1 to the N=2k.
 
            Xadj               Yadj
     Ymod4              Ymod4
@@ -717,17 +743,19 @@ or 64 or whatever.
 
 =head1 OEIS
 
-The DragonMidpoint is in Sloane's Online Encyclopedia of Integer Sequences as
+The C<DragonMidpoint> is in Sloane's Online Encyclopedia of Integer
+Sequences as
 
     http://oeis.org/A073089
 
     A073089   previous abs(dY), 0=horizontal,1=vertical from N=n-1 to N=n
                 (extra initial 0)
 
-The midpoint curve is vertical when the DragonCurve has a vertical followed
-by a left turn, or horizontal followed by a right turn.  DragonCurve
-verticals are whenever N is odd, and the turn is the bit above the lowest 0
-in N, as described in L<Math::PlanePath::DragonCurve/Turn>.
+The midpoint curve is vertical when the C<DragonCurve> has a vertical
+followed by a left turn, or horizontal followed by a right turn.
+C<DragonCurve> verticals are whenever N is odd, and the turn is the bit
+above the lowest 0 in N, as described in
+L<Math::PlanePath::DragonCurve/Turn>.
 
 The n of A073089 is offset by 2 from the N numbering of the path here, so
 n=N+2.  The initial value at n=1 in A073089 has no corresponding N (it would
@@ -737,9 +765,9 @@ The mod-16 definitions in A073089 express combinations of N odd/even and
 bit-above-low-0 which are the vertical midpoint segments.  The recursion
 a(8n+1)=a(4n+1) works to reduce an N=0b.zz111 to 0b..zz11 in order to bring
 a lowest 0 into range of the mod-16 conditions.  n=1 mod 8 corresponds to
-N=7 mod 8.  In terms of N it could be expressed as stripping low 1 bits down
-to at most 2 of them.  In terms of n it's a strip of zeros above a low 1
-bit, ie. n=0b...00001 -E<gt> 0b...01.
+path N=7 mod 8.  In terms of path N it would be expressed as stripping low 1
+bits down to at most 2 of them.  In terms of OEIS n it's a strip of zeros
+above a low 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
 
 =head1 SEE ALSO
 

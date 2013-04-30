@@ -24,7 +24,7 @@ plan tests => 140;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::KochSnowflakes;
 my $path = Math::PlanePath::KochSnowflakes->new;
@@ -33,7 +33,7 @@ my $path = Math::PlanePath::KochSnowflakes->new;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::KochSnowflakes::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochSnowflakes->VERSION,  $want_version,

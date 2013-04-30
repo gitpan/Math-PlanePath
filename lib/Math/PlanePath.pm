@@ -31,9 +31,7 @@
 #
 # gcdxy_minimum
 # gcdxy_maximum
-# sumxy_minimum
 # sumabsxy_minimum
-# diffxy_minimum
 # absdiffxy_minimum
 #
 # xy_all_coprime() xy_coprime()   gcd(X,Y)=1 always
@@ -103,7 +101,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 101;
+$VERSION = 102;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -136,8 +134,8 @@ sub parameter_info_list {
   return @{$_[0]->parameter_info_array};
 }
 
-# x_negative(),y_negative() existed first, so default x_minimum(),y_minimum()
-# from those.
+# x_negative(),y_negative() existed before x_minimum(),y_minimum(), so
+# default x_minimum(),y_minimum() from those.
 sub x_minimum {
   my ($self) = @_;
   return ($self->x_negative ? undef : 0);
@@ -163,9 +161,8 @@ sub absdx_maximum {
   if (defined (my $dx_minimum = $self->dx_minimum)
       && defined (my $dx_maximum = $self->dx_maximum)) {
     return _max(abs($dx_minimum),abs($dx_maximum));
-  } else {
-    return undef;
   }
+  return undef;
 }
 sub absdy_maximum {
   my ($self) = @_;
@@ -176,6 +173,50 @@ sub absdy_maximum {
     return undef;
   }
 }
+
+sub sumxy_minimum {
+  my ($self) = @_;
+  ### PlanePath sumxy_minimum() ...
+  if (defined (my $x_minimum = $self->x_minimum)
+      && defined (my $y_minimum = $self->y_minimum)) {
+    ### $x_minimum
+    ### $y_minimum
+    return $x_minimum + $y_minimum;
+  }
+  return undef;
+}
+use constant sumxy_maximum => undef;
+
+# If the path is confined to the fourth quadrant, so X>=something and
+# Y<=something then a minimum X-Y exists.  But fourth-quadrant-only path is
+# not usual, so don't bother with code checking that.
+#
+use constant diffxy_minimum => undef;
+#
+# sub diffxy_minimum {
+#   my ($self) = @_;
+#   if (defined (my $y_maximum = $self->y_maximum)
+#       && defined (my $x_minimum = $self->x_minimum)) {
+#     return $x_minimum - $y_maximum;
+#   } else {
+#     return undef;
+#   }
+# }
+
+# If the path is confined to the second quadrant, so X<=something and
+# Y>=something, then has a maximum X-Y.  Presume that the x_maximum() and
+# y_minimum() occur together.
+#
+sub diffxy_maximum {
+  my ($self) = @_;
+  if (defined (my $y_minimum = $self->y_minimum)
+      && defined (my $x_max = $self->x_maximum)) {
+    return $x_max - $y_minimum;
+  } else {
+    return undef;
+  }
+}
+
 
 # experimental default from x_minimum(),y_minimum()
 # FIXME: should use absx_minimum, absy_minimum, for paths outside first quadrant
@@ -200,7 +241,7 @@ use constant rsquared_maximum => undef;
 use constant dir_minimum_dxdy => (1,0);
 use constant dir_maximum_dxdy => (0,0);
 
-# use constant 1.02 _PI => 4 * atan2(1,1);  # similar to Math::Complex
+# use constant 1.02 _PI => 2*atan2(1,0);
 #
 # sub dir4_minimum {
 #   my ($self) = @_;
@@ -216,7 +257,7 @@ use constant dir_maximum_dxdy => (0,0);
 # sub _dxdy_to_dir4 {
 #   my ($dx,$dy) = @_;
 #   ### _dxdy_to_dir4(): "$dx,$dy"
-# 
+#
 #   if ($dy == 0) {
 #     return ($dx >= 0 ? 0 : 2);
 #   }
@@ -230,7 +271,7 @@ use constant dir_maximum_dxdy => (0,0);
 #     if ($dx == $dy) { return 2.5; }
 #     if ($dx == -$dy) { return 1.5; }
 #   }
-# 
+#
 #   # don't atan2() in bigints
 #   if (ref $dx && $dx->isa('Math::BigInt')) {
 #     $dx = $dx->numify;
@@ -238,7 +279,7 @@ use constant dir_maximum_dxdy => (0,0);
 #   if (ref $dy && $dy->isa('Math::BigInt')) {
 #     $dy = $dy->numify;
 #   }
-# 
+#
 #   # Crib: atan2() returns -PI <= a <= PI, and perlfunc says atan2(0,0) is
 #   # "not well defined", though glibc gives 0
 #   #
@@ -250,7 +291,7 @@ use constant dir_maximum_dxdy => (0,0);
 # sub _dxdy_to_tdir6 {
 #   my ($dx,$dy) = @_;
 #   ### _dxdy_to_tdir6(): "$dx,$dy"
-# 
+#
 #   if ($dy == 0) {
 #     return ($dx >= 0 ? 0 : 3);
 #   }
@@ -268,7 +309,7 @@ use constant dir_maximum_dxdy => (0,0);
 #     if ($dx == 3*$dy) { return 3.5; }
 #     if ($dx == $dy) { return 4; }
 #   }
-# 
+#
 #   # Crib: atan2() returns -PI <= a <= PI, and is supposedly "not well
 #   # defined", though glibc gives 0
 #   #
@@ -497,7 +538,7 @@ __END__
 
 
 
-=for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick SquareSpiral SacksSpiral VogelFloret 7-gonals 8-gonal (step+2)-gonal heptagonals PentSpiral octagonals HexSpiral PyramidSides PyramidRows ArchimedeanChords PeanoCurve KochPeaks GosperIslands TriangularHypot bignum multi-arm SquareArms eg PerlMagick nan nans subclasses incrementing arrayref hashref filename enum radix DragonCurve TerdragonCurve NumSeq ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix
+=for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick 7-gonals 8-gonal (step+2)-gonal heptagonals octagonals bignum multi-arm eg PerlMagick NaN NaNs subclasses incrementing arrayref hashref filename enum radix NumSeq ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix radix-1
 
 =head1 NAME
 
@@ -667,11 +708,11 @@ The C<$n> and C<$x,$y> parameters can be either integers or floating point.
 The paths are meant to do something sensible with fractions but expect
 rounding-off for big floating point exponents.
 
-Floating point infinities (when available) give nan or infinite returns of
+Floating point infinities (when available) give NaN or infinite returns of
 some kind (some unspecified kind as yet).  C<n_to_xy()> on negative infinity
 is an empty return, the same as other negative C<$n>.
 
-Floating point nans (when available) give nan, infinite, or empty/undef
+Floating point NaNs (when available) give NaN, infinite, or empty/undef
 returns, but again of some unspecified kind as yet.
 
 Many of the classes can operate on overloaded number types as inputs and
@@ -760,7 +801,7 @@ Return the radial distance X^2+Y^2 of point C<$n>, ie. hypotenuse squared.
 If there's no point C<$n> then the return is C<undef>.
 
 For a few paths this can be calculated with less work than C<n_to_xy()>.
-For example the SacksSpiral is simply R^2==N.
+For example the C<SacksSpiral> is simply R^2==N.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -787,9 +828,9 @@ nothing at C<$x,$y> then return an empty list.
 
     my @n_list = $path->xy_to_n(20,20);
 
-Most paths have just a single N for a given X,Y but some such as DragonCurve
-and TerdragonCurve have multiple N's at a given X,Y and this method returns
-all of them.
+Most paths have just a single N for a given X,Y but some such as
+C<DragonCurve> and C<TerdragonCurve> have multiple N's at a given X,Y and
+this method returns all of them.
 
 =item C<$bool = $path-E<gt>xy_is_visited ($x,$y)>
 
@@ -867,8 +908,8 @@ and then another line from N=7.5 to N=8.
 
 Return the number of arms in a "multi-arm" path.
 
-For example in SquareArms this is 4 and each arm increments in turn, so the
-first arm is N=1,5,9,13,etc starting from C<$path-E<gt>n_start()> and
+For example in C<SquareArms> this is 4 and each arm increments in turn, so
+the first arm is N=1,5,9,13,etc starting from C<$path-E<gt>n_start()> and
 incrementing by 4 each time.
 
 =item C<$bool = $path-E<gt>x_negative()>
@@ -895,35 +936,82 @@ For some classes the X or Y extent may depend on parameter values.
 
 =item C<$y = $path-E<gt>y_minimum()>
 
-=item C<$y = $path-E<gt>rsquared_minimum()>
-
 =item C<$x = $path-E<gt>x_maximum()>
 
 =item C<$y = $path-E<gt>y_maximum()>
 
+Return the minimum or maximum of the X or Y coordinate reached by integer N
+values in the path.  If there's no minimum or maximum then return C<undef>.
+
+=item C<$x = $path-E<gt>sumxy_minimum()>
+
+=item C<$x = $path-E<gt>sumxy_maximum()>
+
+Return the minimum or maximum values taken by coordinate sum X+Y reached by
+integer N values in the path.  If there's no minimum or maximum then return
+C<undef>.
+
+S=X+Y is an anti-diagonal.  A path which is always above and right of some
+anti-diagonal has a minimum.  Some paths may be entirely below such an
+anti-diagonal and so have a maximum but that's unusual.
+
+                          \        Path always above
+                           \ |     has minimum S=X+Y
+                            \|
+                          ---o----
+      Path always below      |\
+      has maximum S=X+Y      | \
+                                \  S=X+Y
+
+
+=item C<$y = $path-E<gt>diffxy_minimum()>
+
+=item C<$y = $path-E<gt>diffxy_maximum()>
+
+Return the minimum or maximum values taken by coordinate difference X-Y
+reached by integer N values in the path.  If there's no minimum or maximum
+then return C<undef>.
+
+D=X-Y is a leading diagonal.  A path which is always below and right of such
+a diagonal has a minimum, for example C<HypotOctant>.  A path which is
+always above and left of some diagonal has a maximum D=X-Y.  This happens
+for various wedge-like paths such as C<PyramidRows> in its default step=2,
+and "upper octant" paths.
+
+                                 /   D=X-Y
+        Path always below     | /
+        has maximum D=X-Y     |/
+                           ---o----
+                             /|
+                            / |      Path always above
+                           /         has minimum D=X-Y
+
+=item C<$y = $path-E<gt>rsquared_minimum()>
+
 =item C<$y = $path-E<gt>rsquared_maximum()>
 
-Return the minimum or maximum of the X or Y coordinate, or Rsquared =
-X^2+Y^2, reached by integer N values in the path.  If there's no minimum or
-maximum then return C<undef>.
+Return the minimum or maximum Rsquared = X^2+Y^2 reached by integer N values
+in the path.  If there's no minimum or maximum then return C<undef>.
 
-For X,Y there's no minimum if the path goes into ever bigger negatives.
-Rsquared is always E<gt>= 0 so its minimum is 0, or more if the origin
-X=0,Y=0 is not visited.  Generally Rsquared has no maximum.
+Rsquared is always E<gt>= 0 so it always has a minimum.  The minimum will be
+more than 0 for paths which don't include the origin X=0,Y=0.
+
+RSquared generally has no maximum since the paths usually extend infinitely
+in some direction.  C<rsquared_maximum()> returns C<undef> in that case.
 
 =item C<$dx = $path-E<gt>dx_minimum()>
 
-=item C<$dy = $path-E<gt>dy_minimum()>
-
-=item C<$adx = $path-E<gt>absdx_minimum()>
-
-=item C<$ady = $path-E<gt>absdy_minimum()>
-
 =item C<$dx = $path-E<gt>dx_maximum()>
+
+=item C<$dy = $path-E<gt>dy_minimum()>
 
 =item C<$dy = $path-E<gt>dy_maximum()>
 
+=item C<$adx = $path-E<gt>absdx_minimum()>
+
 =item C<$adx = $path-E<gt>absdx_maximum()>
+
+=item C<$ady = $path-E<gt>absdy_minimum()>
 
 =item C<$ady = $path-E<gt>absdy_maximum()>
 
@@ -949,8 +1037,8 @@ the change along the same arm.  Directions are reckoned anti-clockwise
 around from the X axis.
 
     dX=-1,dY=1 *  |  *  dX=1,dY=1
-                \ | / 
-                 \|/   
+                \ | /
+                 \|/
             ------+----*  dX=1,dY=0
                   |
                   |
@@ -1133,9 +1221,9 @@ C<$info> records.
 The classes are mostly based on integer C<$n> positions and those designed
 for a square grid turn an integer C<$n> into integer C<$x,$y>.  Usually they
 give in-between positions for fractional C<$n> too.  Classes not on a square
-grid but instead giving fractional X,Y such as SacksSpiral and VogelFloret
-are designed for a unit circle at each C<$n> but they too can give
-in-between positions on request.
+grid but instead giving fractional X,Y such as C<SacksSpiral> and
+C<VogelFloret> are designed for a unit circle at each C<$n> but they too can
+give in-between positions on request.
 
 All X,Y positions are calculated by separate C<n_to_xy()> calls.  To follow
 a path use successive C<$n> values starting from C<$path-E<gt>n_start()>.
@@ -1196,8 +1284,8 @@ as well see L<Geometry::AffineTransform>.
 =head2 Loop Step
 
 The paths can be characterized by how much longer each loop or repetition is
-than the preceding one.  For example each cycle around the SquareSpiral is 8
-more N points than the preceding.
+than the preceding one.  For example each cycle around the C<SquareSpiral>
+is 8 more N points than the preceding.
 
 =for my_pod step begin
 
@@ -1250,8 +1338,8 @@ In general straight lines on stepped paths are quadratics
 
 The polygonal numbers are like this, with the (step+2)-gonal numbers making
 a straight line on a "step" path.  For example the 7-gonals (heptagonals)
-are 5/2*k^2-3/2*k and make a straight line on the step=5 PentSpiral.  Or the
-8-gonal octagonal numbers 6/2*k^2-4/2*k on the step=6 HexSpiral.
+are 5/2*k^2-3/2*k and make a straight line on the step=5 C<PentSpiral>.  Or
+the 8-gonal octagonal numbers 6/2*k^2-4/2*k on the step=6 C<HexSpiral>.
 
 There are various interesting properties of primes in quadratic
 progressions.  Some quadratics seem to have more primes than others.  For
@@ -1263,17 +1351,17 @@ factorization on the roots making a no-primes gap.
 
 A 4*step path splits a straight line in two, so for example the perfect
 squares are a straight line on the step=2 "Corner" path, and then on the
-step=8 SquareSpiral they instead fall on two lines (lower left and upper
+step=8 C<SquareSpiral> they instead fall on two lines (lower left and upper
 right).  In the bigger step there's one line of the even squares (2k)^2 ==
 4*k^2 and another of the odd squares (2k+1)^2.  The gap between successive
 even squares increases by 8 each time and likewise between odd squares.
 
 =head2 Self-Similar Powers
 
-The self-similar patterns such as PeanoCurve generally have a base pattern
-which repeats at powers N=base^level or squares N=(base*base)^level.  Or
-some multiple or relationship to such a power for things like KochPeaks and
-GosperIslands.
+The self-similar patterns such as C<PeanoCurve> generally have a base
+pattern which repeats at powers N=base^level or squares N=(base*base)^level.
+Or some multiple or relationship to such a power for things like
+C<KochPeaks> and C<GosperIslands>.
 
 =for my_pod base begin
 
@@ -1388,8 +1476,8 @@ calculation as follows if comparing distances from the origin.
 
     hypot = sqrt(X*X + 3*Y*Y)
 
-See for instance TriangularHypot which is triangular points ordered by this
-radial distance.
+See for instance C<TriangularHypot> which is triangular points ordered by
+this radial distance.
 
 =head1 FORMULAS
 
@@ -1529,8 +1617,8 @@ clear how to work the fraction into the result directly.
 
 The base implementation of C<xy_to_n_list()> calls plain C<xy_to_n()> for a
 single N at any X,Y.  If a path has multiple Ns visiting an X,Y
-(eg. DragonCurve) then it should implement C<xy_to_n_list()> to return all
-those Ns and also a plain C<xy_to_n()> returning the first of them.
+(eg. C<DragonCurve>) then it should implement C<xy_to_n_list()> to return
+all those Ns and also a plain C<xy_to_n()> returning the first of them.
 
 C<rect_to_n_range()> can initially be implemented with any convenient
 over-estimate.  It amounts to asking from what N onwards are all points
@@ -1568,7 +1656,7 @@ A subclass can implement them directly if they can be done more efficiently.
     n_to_dxdy()           calls n_to_xy() twice
     n_to_rsquared()       calls n_to_xy()
 
-SacksSpiral is an example of an easy C<n_to_rsquared()>.  Or
+C<SacksSpiral> is an example of an easy C<n_to_rsquared()>.  Or
 C<TheodorusSpiral> is only slightly trickier.  Unless a path has some sort
 of easy X^2+Y^2 then it may as well be left to the base implementation
 calling C<n_to_xy()>.
@@ -1584,7 +1672,7 @@ A subclass can implement is directly if it can be done more efficiently.
 
     xy_is_visited()     defined(xy_to_n($x,$y))
 
-Paths such as SquareSpiral which fill the plane have C<xy_is_visited()>
+Paths such as C<SquareSpiral> which fill the plane have C<xy_is_visited()>
 always true, so for them
 
     use constant xy_is_visited => 1;
@@ -1604,7 +1692,7 @@ The following have base implementations
 
 The base C<tree_n_num_children()> counts the return values from
 C<tree_n_children()>.  Many trees can count the children with less work than
-calculating outright, for example RationalsTree is simply always 2 for
+calculating outright, for example C<RationalsTree> is simply always 2 for
 NE<gt>=Nstart.
 
 The base C<tree_depth_to_n_end()> assumes that one level ends where the next

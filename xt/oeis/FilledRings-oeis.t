@@ -27,7 +27,7 @@ plan tests => 5;
 
 use lib 't','xt';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
 # uncomment this to run the ### lines

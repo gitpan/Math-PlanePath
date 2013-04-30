@@ -84,7 +84,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -99,7 +99,7 @@ use constant figure => 'circle';
 
 use constant 1.02; # for leading underscore
 use constant _PHI => (1 + sqrt(5)) / 2;
-use constant _TWO_PI => 8 * atan2(1,1);  # similar to Math::Complex
+use constant _TWO_PI => 4*atan2(1,0);
 
 # not documented yet ...
 use constant rotation_types =>
@@ -363,7 +363,7 @@ sub _ceil {
 1;
 __END__
 
-=for stopwords Helmut Vogel PlanePaths VogelFloret fibonacci sqrt sqrt2 PlanePath Ryde Math-PlanePath frac repdigits straightish Vogel's builtin repunit eg phi-ness radix Zeckendorf OEIS
+=for stopwords Helmut Vogel fibonacci sqrt sqrt2 Ryde Math-PlanePath frac repdigits straightish Vogel's builtin repunit eg phi-ness radix Zeckendorf OEIS
 
 =head1 NAME
 
@@ -636,7 +636,7 @@ falls within the first 0 to t angle.
 
 The Fibonacci word 0,1,0,0,1,0,1,0,0,1,etc is the least significant bit of
 the Zeckendorf base representation of i, starting from i=0.  Plotted at N=i
-on the VogelFloret gives
+on the C<VogelFloret> gives
 
               1       0
           1     1 1   0   0            Fibonacci word

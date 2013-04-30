@@ -27,7 +27,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -333,7 +333,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords AnvilSpiral SquareSpiral Ryde Math-PlanePath pentagonals PyramidRows OctagramSpiral OEIS
+=for stopwords Ryde Math-PlanePath pentagonals OEIS
 
 =head1 NAME
 
@@ -378,14 +378,15 @@ the primes on the spiral has a 3-high horizontal blank line at Y=0,-1,-2 for
 positive X, and Y=1,2,3 for negative X (after the first few values).
 
 Each loop around the spiral is 12 longer than the preceding.  This is 4*
-more than the step=3 PyramidRows so straight lines on a PyramidRows like
-these pentagonals are also straight lines here, but split into two parts.
+more than the step=3 C<PyramidRows> so straight lines on a C<PyramidRows>
+like these pentagonals are also straight lines here, but split into two
+parts.
 
-The outward diagonal excursions are similar to the OctagramSpiral, but
-there's just 4 of them here where the OctagramSpiral has 8.  This is
-reflected in the loop step.  The basic SquareSpiral is step 8, but by taking
-4 excursions here increases that to 12, and in the OctagramSpiral 8
-excursions adds 8 to make step 16.
+The outward diagonal excursions are similar to the C<OctagramSpiral>, but
+there's just 4 of them here where the C<OctagramSpiral> has 8.  This is
+reflected in the loop step.  The basic C<SquareSpiral> is step 8, but by
+taking 4 excursions here increases that to 12, and in the C<OctagramSpiral>
+8 excursions adds 8 to make step 16.
 
 =head2 Wider
 
@@ -418,7 +419,7 @@ gives
 
 The starting point 1 is shifted to the left by ceil(wider/2) places to keep
 the spiral centred on the origin X=0,Y=0.  This is the same starting offset
-as the SquareSpiral C<wider>.
+as the C<SquareSpiral> C<wider>.
 
 Widening doesn't change the nature of the straight lines which arise, it
 just rotates them around.  Each loop is still 12 longer than the previous,

@@ -18,12 +18,9 @@
 
 
 # math-image --path=MultipleRings --lines
-# math-image --path=MultipleRings,step=1 --all --output=numbers --size=80x50
 #
 # math-image --wx --path=MultipleRings,ring_shape=polygon,step=5  --scale=50 --figure=ring --all
 
-
-# FIXME: polygon ensure horizontal and vertical parts have unchanging X or Y
 
 
 package Math::PlanePath::MultipleRings;
@@ -40,7 +37,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 101;
+$VERSION = 102;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -51,7 +48,7 @@ use Math::PlanePath::SacksSpiral;
 
 
 use constant 1.02; # for leading underscore
-use constant _PI => 4 * atan2(1,1);  # similar to Math::Complex
+use constant _PI => 2*atan2(1,0);
 
 use constant figure => 'circle';
 use constant n_frac_discontinuity => 0;
@@ -100,6 +97,47 @@ sub x_negative {
 }
 *y_negative = \&x_negative;
 
+sub sumxy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? 0 : undef);
+}
+*diffxy_minimum = \&sumxy_minimum;
+
+sub rsquared_minimum {
+  my ($self) = @_;
+  my $step = $self->{'step'};
+  if ($step <= 1) {
+    # step=0 along X axis starting X=0,Y=0
+    # step=1 start at origin
+    return 0;
+  }
+  if ($step == 3) {
+    # radius = sqrt(3)/2, rsquared=3/4
+    return 0.75;
+  }
+  if ($step == 4) {
+    # radius = sqrt(2)/2, rsquared=1/2
+    return 0.5;
+  }
+
+  # _numsides_to_r() returns 1, no need for a special case here
+  # if ($step == 6) {
+  #   # hexagon
+  #   return 1;
+  # }
+
+  my $r;
+  if ($step >= 6 || $self->{'ring_shape'} eq 'polygon') {
+    $r = _numsides_to_r($step,_PI);
+  } else {
+    $r = $self->{'base_r'} + 1;
+  }
+  return $r*$r;
+}
+
+
+#------------------------------------------------------------------------------
+# dx_minimum() etc
 
 # step <= 6
 # R=base_r+d
@@ -201,7 +239,7 @@ sub absdx_minimum {
     }
 
     # if ($self->{'step'} % 2 == 1) {
-    #   
+    #
     #   return 0;
     # } else {
     #   return abs($self->dx_minimum);
@@ -226,37 +264,8 @@ sub absdy_minimum {
   return 0;
 }
 
-sub rsquared_minimum {
-  my ($self) = @_;
-  my $step = $self->{'step'};
-  if ($step <= 1) {
-    # step=0 along X axis starting X=0,Y=0
-    # step=1 start at origin
-    return 0;
-  }
-  if ($step == 3) {
-    # radius = sqrt(3)/2, rsquared=3/4
-    return 0.75;
-  }
-  if ($step == 4) {
-    # radius = sqrt(2)/2, rsquared=1/2
-    return 0.5;
-  }
-
-  # _numsides_to_r() returns 1, no need for a special case here
-  # if ($step == 6) {
-  #   # hexagon
-  #   return 1;
-  # }
-
-  my $r;
-  if ($step >= 6 || $self->{'ring_shape'} eq 'polygon') {
-    $r = _numsides_to_r($step,_PI);
-  } else {
-    $r = $self->{'base_r'} + 1;
-  }
-  return $r*$r;
-}
+#------------------------------------------------------------------------------
+# dir_maximum_dxdy()
 
 # polygon step many sides
 #   start at vertical angle 1/4 plus 0.5/step, then k*1/step each side
@@ -334,7 +343,7 @@ sub rsquared_minimum {
 #       return min (atan2($dy,$dx) * (2/_PI),
 #                   (($step-2) % 4) / $step);
 #     }
-# 
+#
 #   }
 #   return 0; # horizontal
 # }
@@ -372,11 +381,12 @@ sub new {
   $step = $self->{'step'} = (! defined $step ? 6  # default
                              : $step < 0     ? 0  # minimum
                              : $step);
+  ### $step
 
   my $ring_shape = ($self->{'ring_shape'} ||= 'circle');
   if ($step < 3) {
     # polygon shape only for step >= 3
-    $self->{'ring_shape'} = 'circle';
+    $ring_shape = $self->{'ring_shape'} = 'circle';
   }
 
   if ($ring_shape eq 'polygon') {
@@ -392,18 +402,19 @@ sub new {
     }
 
   } elsif ($step == 6) {
-    ### 0.5/sin(PI/6)=1 exactly ...
+    ### 0.5/sin(PI/6) = 1 exactly ...
     $self->{'base_r'} = 0;
 
   } elsif ($step == 4) {
-    ### 0.5/sin(PI/4)=sqrt(2)/2 ...
+    ### 0.5/sin(PI/4) = sqrt(2)/2 ...
     $self->{'base_r'} = sqrt(2)/2 - 1;
 
   } elsif ($step == 3) {
-    ### 0.5/sin(PI/3)=sqrt(3)/3 ...
+    ### 0.5/sin(PI/3) = sqrt(3)/3 ...
     $self->{'base_r'} = sqrt(3)/3 - 1;
 
   } elsif ($step < 6) {
+    ### sin: $step>1 && sin(_PI/$step)
     $self->{'base_r'} = ($step > 1 && 0.5/sin(_PI/$step)) - 1;
   }
   ### base r: $self->{'base_r'}
@@ -491,8 +502,7 @@ sub n_to_xy {
   ### assert: $n >= 0
   ### assert: $n < $d*$step
 
-  my $base_r = $self->{'base_r'};
-  my $pi = _PI;
+  my $zero = $n * 0;
   if (ref $n) {
     if ($n->isa('Math::BigInt')) {
       $n = Math::PlanePath::SacksSpiral::_bigfloat()->new($n);
@@ -500,94 +510,201 @@ sub n_to_xy {
       $n = $n->as_float;
     }
     if ($n->isa('Math::BigFloat')) {
+      ### bigfloat ...
       $d = Math::BigFloat->new($d);
-      $pi = Math::BigFloat->bpi;
-      $base_r = Math::BigFloat->new($base_r);
     }
   }
+  my $pi = _pi($n);
+  ### $pi
 
-  if ($self->{'ring_shape'} eq 'polygon') {
-    ### polygon ...
+  # my $base_r = $self->{'base_r'};
+  #     $base_r = Math::BigFloat->new($base_r);
+
+  {
+    my $numsides;
     my $r;
-    $base_r = _numsides_to_r($step,$pi);
-    if ($step > 6) {
-      $r = $base_r*$d;
+    if ($self->{'ring_shape'} eq 'circle')  {
+      ### circle ...
+      $numsides = $d * $step;
+      if ($step > 6) {
+        $r = 0.5 / sin($pi / $numsides);
+      } else {
+        my $base_r;
+        if ($step == 6) {
+          $base_r = 0; # exactly
+        } elsif ($step == 4) {
+          ### 0.5/sin(PI/4)=sqrt(2)/2 ...
+          $base_r = sqrt(0.5 + $zero) - 1;  # sqrt() instead of sin()
+        } elsif ($step == 3) {
+          ### 0.5/sin(PI/3)=sqrt(3)/3 ...
+          $base_r = sqrt(3 + $zero)/3 - 1;  # sqrt() instead of sin()
+        } elsif ($step == 1) {
+          $base_r = -1;             # so initial d=1 at $r=0
+        } else {
+          $base_r = 0.5/sin($pi/$step) - 1;
+        }
+        $r = $base_r + $d;
+      }
     } else {
-      $r = $base_r + ($d-1)/cos($pi/$step);
+      ### polygon ...
+      $numsides = $step;
+      my $base_r = _numsides_to_r($step,$pi);
+      if ($step > 6) {
+        $r = $base_r*$d;
+      } else {
+        $r = $base_r + ($d-1)/cos($pi/$step);
+      }
+      $n /= $d;
     }
-    $n /= $d;
-    my $side = int ($n);
-    $n -= $side;
-    ### n frac: $n
+    ### n with frac: $n
 
-    my $side4 = 4*$side + 2;
-    ### $side4
-
-    if ($n == 0 && ($side4-4 == $step || $side4-4 == 3*$step)) {
-      ### end of horizontal drop back to start ...
-      $n = 1;
-      $side -= 1;
-      $side4 -= 4;
-    } elsif ($n == 0 && ($side4-4 == 2*$step)) {
-      ### end of vertical drop back to start ...
-      $n = 1;
-      $side -= 1;
-      $side4 -= 4;
+    # numsides even N > numsides/2
+    # numsides odd  N >= (numsides+1)/2 = ceil(numsides/2)
+    my $y_neg;
+    if (2*$n >= $numsides) {
+      $n = $numsides - $n;
+      $y_neg = 1;
     }
 
-    my $theta = 2*$pi * $side/$step;
-    my $from_x = $r * cos($theta);
-    my $from_y = $r * sin($theta);
-    $theta = 2*$pi * ($side+1)/$step;
-    my $to_x = $r * cos($theta);
-    my $to_y;
-    if ($side4 == $step || $side4 == 3*$step) {
-      ### horizontal, ensure same Y each time ...
-      $to_y = $from_y;
-    } else {
-      $to_y = $r * sin($theta);
-    }
-
-    ### $side
-    ### $r
-    ### from: "$from_x, $from_y"
-    ### to: "$to_x, $to_y"
-
-    return ($from_x + $n*($to_x-$from_x),
-            $from_y + $n*($to_y-$from_y));
-  }
-
-  # && $d != 0 # watch out for overflow making d==0 ??
-  #
-  my $d_step = $d*$step;
-  my $r = ($step > 6
-           ? 0.5 / sin($pi / $d_step)
-           : $base_r + $d);
-  ### r: "$r"
-
-  my $n2 = 2*$n;
-
-  if ($n2 == int($n2)) {
-    if (($n2 % $d_step) == 0) {
-      ### theta=0 or theta=pi, exactly on X axis ...
-      return ($n ? -$r : $r,  # n remainder 0 means +ve X axis, non-zero -ve
-              0);
-    }
-    if (($d_step % 2) == 0) {
-      my $n2sub = $n2 - $d_step/2;
-      if (($n2sub % $d_step) == 0) {
-        ### theta=pi/2 or theta=3pi/2, exactly on Y axis ...
-        return (0,
-                $n2sub ? -$r : $r);
+    my $x_neg;
+    my $xy_transpose;
+    if ($numsides % 2 == 0) {
+      if (4*$n >= $numsides) {
+        $n = $numsides/2 - $n;
+        $x_neg = 1;
+      }
+      if ($numsides % 4 == 0 && 8*$n >= $numsides) {
+        $n = $numsides/4 - $n;
+        $xy_transpose = 1;
       }
     }
+
+    my $side = int ($n);
+    $n -= $side;
+
+    my ($x, $y) = _circlefrac_to_xy($r, $side, $numsides, $pi);
+
+    if ($n) {
+      # fractional $n offset into side
+
+      my ($to_x, $to_y);
+      $side += 1;
+      if (2*$side == $numsides+1) {
+        # vertical at left, so X unchanged Y negate
+        $to_x = $x;
+        $to_y = - $y;
+
+      } elsif (4*$side == $numsides+2 || 4*$side == 3*$numsides-2) {
+        # horizontal at top or bottom, so Y unchanged X negate
+        $to_x = - $x;
+        $to_y = $y;
+
+      } else {
+        ($to_x, $to_y) = _circlefrac_to_xy($r, $side, $numsides, $pi);
+      }
+
+      ### $side
+      ### $r
+      ### from: "$x, $y"
+      ### to: "$to_x, $to_y"
+
+      $x = $x*(1-$n) + $to_x*$n;
+      $y = $y*(1-$n) + $to_y*$n;
+    }
+
+    if ($xy_transpose) {
+      ($x,$y) = ($y,$x);
+    }
+    if ($x_neg) {
+      $x = -$x;
+    }
+    if ($y_neg) {
+      $y = -$y;
+    }
+
+    ### final: "x=$x y=$y"
+    return ($x, $y);
   }
 
-  my $theta = $n2 * $pi / $d_step;
+  # {
+  #   # && $d != 0 # watch out for overflow making d==0 ??
+  #   #
+  #   my $d_step = $d*$step;
+  #   my $r = ($step > 6
+  #            ? 0.5 / sin($pi / $d_step)
+  #            : $base_r + $d);
+  #   ### r: "$r"
+  #
+  #   my $n2 = 2*$n;
+  #
+  #   if ($n2 == int($n2)) {
+  #     if (($n2 % $d_step) == 0) {
+  #       ### theta=0 or theta=pi, exactly on X axis ...
+  #       return ($n ? -$r : $r,  # n remainder 0 means +ve X axis, non-zero -ve
+  #               0);
+  #     }
+  #     if (($d_step % 2) == 0) {
+  #       my $n2sub = $n2 - $d_step/2;
+  #       if (($n2sub % $d_step) == 0) {
+  #         ### theta=pi/2 or theta=3pi/2, exactly on Y axis ...
+  #         return (0,
+  #                 $n2sub ? -$r : $r);
+  #       }
+  #     }
+  #   }
+  #
+  #   my $theta = $n2 * $pi / $d_step;
+  #
+  #   ### theta frac: (($n - $d*($d-1)/2)/$d).''
+  #   ### theta: "$theta"
+  #
+  #   return ($r * cos($theta),
+  #           $r * sin($theta));
+  # }
+}
 
-  ### theta frac: (($n - $d*($d-1)/2)/$d).''
-  ### theta: "$theta"
+sub _circlefrac_to_xy {
+  my ($r, $side, $numsides, $pi) = @_;
+  ### _circlefrac_to_xy(): "r=$r side=$side numsides=$numsides pi=$pi"
 
+  if (2*$side == $numsides) {
+    ### 180-degrees, so X=R, Y=0 ...
+    return (-$r, 0);
+
+  }
+  if (4*$side == $numsides) {
+    ### 90-degrees, so X=0, Y=R ...
+    return (0, $r);
+  }
+  if (6*$side == $numsides) {
+    ### 60-degrees, so X=R/2, Y=sqrt(3)/2*R ...
+    return ($r / 2,
+            $r * sqrt(3 + $r*0) / 2);
+  }
+  if (8*$side == $numsides) {
+    ### 45-degrees, so X=Y=R/sqrt(2) ...
+    my $x = $r / sqrt(2 + $r*0);
+    return ($x, $x);
+  }
+
+  # my $two_pi = (ref $r && $r->isa('Math::BigFloat')
+  #               ? 2*Math::BigFloat->bpi;
+  #               : 2*_PI);
+  #
+  # if (2*$side == $numsides+1) {
+  #   ### first below X axis ...
+  #   my $theta = 2*$pi * ($side-1)/$numsides;
+  #   return ($r * cos($theta),
+  #           - $r * sin($theta));
+  # }
+  # if (4*$side == $numsides+1) {
+  #   ### first past Y axis ...
+  #   my $theta = 2*$pi * ($side-1)/$numsides;
+  #   return (- $r * cos($theta),
+  #           $r * sin($theta));
+  # }
+
+  my $theta = 2 * $pi * $side/$numsides;
   return ($r * cos($theta),
           $r * sin($theta));
 }
@@ -626,32 +743,90 @@ sub _numsides_to_r {
 #   R^2 = (sqrt(2)/2 + d)^2
 #       = 2/4 + 2*sqrt(2)/2*d + d^2
 #       = 1/2 + d*sqrt(2) + d^2
+#   not an integer
 #
 sub n_to_rsquared {
   my ($self, $n) = @_;
   ### MultipleRings n_to_rsquared(): "n=$n"
-
   if ($n < 1) { return undef; }
   if (is_infinite($n)) { return $n; }
 
-  my $r = _n_to_radius_exact($self,$n);
-  if (defined $r) {
+  if (defined (my $r = _n_to_radius_exact($self,$n))) {
     return $r*$r;
-  } else {
-    return $self->SUPER::n_to_rsquared($n);
   }
+  if ($self->{'step'} == 1) {
+    # $n < 4 covered by _n_to_radius_exact()
+
+    if ($n >= 4 && $n < 7) {
+      # triangle numsides=3
+      #   N=4 at X=2, Y=0
+      #   N=5 at X=-1, Y=sqrt(3)
+      #   N=4+f at X=2-3*f Y=f*sqrt(3)
+      #     R^2 = (2-3f)^2 + 3*f^2
+      #         = 4-12f+9*f^2 + 3*f^2
+      #         = 4-12f+12*f^2
+      #         = 4*(1 - 3f + 3*f^2)
+      #         = 4 - 6*(2*f) + 3*(2*f)^2
+      #     f=1/2 is R^2 = 1
+      #   N=5+f at X=-1 Y = sqrt(3)*(1-2*f)
+      #     R^2 = 1 + 3*(1-2*f)^2
+      #         = 1 + 3 - 3*4*f + 3*4*f^2
+      #         = 4 - 12*f + 12*f^2
+      #         = 4 - 12*(f - f^2)
+      #         = 4 - 12*f*(1 - f)
+
+      $n -= int($n);
+      return 4 - 12*$n*(1-$n);
+    }
+
+    if ($n >= 7 && $n < 11) {
+      ### square numsides=4 ...
+      # X=3-3*f Y=3*f
+      # R^2 = (3-3*f)^2 + (3*f)^2
+      #     = 9*[ (1-f)^2 + f^2) ]
+      #     = 9*[ 1 - 2f + f^2 + f^2) ]
+      #     = 9*[ 1 - 2f + 2f^2 ]
+      #     = 9*[ 1 - 2(f - f^2) ]
+      #     = 9 - 18*f*(1 - f)
+      # eg f=1/2 R^2 = (sqrt(2)/2*3)^2 = 2/4*9 = 9/2
+
+      $n -= int($n);
+      return 9 - 18*$n*(1-$n);
+    }
+
+    if ($n >= 16 && $n < 22) {
+      ### hexagon numsides=6 ...
+      # X=5 Y=0  to X=5*1/2 Y=5*sqrt(3)/2
+      # R^2 = (5 - 5/2*f)^2 + (5*sqrt(3)/2*f)^2
+      #     = 25 - 25*f + 25*f^2
+      #     = 25 - 25*f*(1-f)
+      # eg f=1/2 R^2 = 18.75
+      # or f=1/5 R^2 = 21 exactly, though 1/5 not exact in binary floats
+
+      $n -= int($n);
+      return 25 - 25*$n*(1-$n);
+    }
+
+    # other numsides don't have sin(pi/numsides) an integer or sqrt so
+    # aren't an exact R^2
+  }
+
+  # ENHANCE-ME: step=1 various exact values for ring of 4 and ring of 6
+
+  return $self->SUPER::n_to_rsquared($n);
 }
 sub _UNTESTED__n_to_radius {
   my ($self, $n) = @_;
+  ### n_to_radius(): $n
+
   if ($n < 1) { return undef; }
   if (is_infinite($n)) { return $n; }
 
-  my $r = _n_to_radius_exact($self,$n);
-  if (defined $r) {
+  if (defined (my $r = _n_to_radius_exact($self,$n))) {
     return $r;
   }
-
-  return sqrt($self->SUPER::n_to_rsquared($n));
+  return sqrt($self->n_to_rsquared($n));
+  # return $self->SUPER::n_to_radius($n);
 }
 
 # step=6 shape=polygon exact integer for some of second ring too
@@ -662,33 +837,48 @@ sub _UNTESTED__n_to_radius {
 
 sub _n_to_radius_exact {
   my ($self, $n) = @_;
+  ### _n_to_radius_exact(): "n=$n step=$self->{'step'}"
+
   if ($n < 1) { return undef; }
   if (is_infinite($n)) { return $n; }
 
   my $step = $self->{'step'};
   if ($step == 0) {
-    # step=0 along X axis starting X=0,Y=0
-    return $n - 1;
+    return $n - 1;    # step=0 goes along X axis starting X=0,Y=0
+  }
 
-  } elsif ($step == 1) {
-    # step=1 X=d-1 along X axis
-    my $n0 = $n - 1;
-    my $d = _n0_to_d($self,$n0);
-    if ($n0 == _d_to_n0base($self,$d)) {
-      return $d - 1;
+  if ($step == 1) {
+    if ($n < 4) {
+      if ($n < 2) {
+        return 0;  # 0,0 only, no jump across to next ring
+      }
+      $n -= int($n);
+      return abs(1-2*$n);
     }
-
-  } elsif ($n == int($n) && $step == 6) {
-    if ($n <= 6) {
-      # step=6 innermost ring unit radius
+    if ($n == int($n)) {
+      ### step=1 radius=integer steps for integer N ...
+      return _n0_to_d($self,$n-1) - 1;
+    }
+    my $two_n = 2*$n;
+    if ($two_n == 9 || $two_n == 11 || $two_n == 13) {
+      #  N=4.5 at X=1/2 Y=sqrt(3)/2  R^2 = 1/4 + 3/4 = 1 exactly
+      #  N=5.5 at X=-1, Y=0 so R^2 = 1 exactly
+      #  N=6.5 same as N=4.5
       return 1;
     }
-    if ($self->{'ring_shape'} eq 'circle') {
-      # step=6 circle exact integer radius for all integer $n
-      return _n0_to_d($self,$n-1);
+
+  } elsif ($step == 6) {
+    if ($n == int($n)) {
+      # step=6 circle all integer N has exact integer radius
+      # step=6 polygon only innermost ring N<=6 exact integer radius
+      if ($self->{'ring_shape'} eq 'circle'
+          || $n <= 6) {   # ring_shape=polygon
+        return _n0_to_d($self,$n-1);
+      }
     }
   }
 
+  ### no exact radius ...
   return undef;
 }
 sub _n0_to_d {
@@ -959,11 +1149,42 @@ sub _xy_to_angle_frac {
   return $frac;
 }
 
+# return pi=3.14159 etc, inheriting precision etc from $n if it's a BigFloat
+# or other overload
+sub _pi {
+  my ($n) = @_;
+  if (ref $n) {
+    if ($n->isa('Math::BigFloat')) {
+      my $digits;
+      if (defined($digits = $n->accuracy)) {
+        ### n accuracy ...
+      } elsif (defined($digits = $n->precision)) {
+        ### n precision ...
+        $digits = -$digits + 1;
+      } elsif (defined($digits = Math::BigFloat->accuracy)) {
+        ### global accuracy ...
+      } elsif (defined($digits = Math::BigFloat->precision)) {
+        ### global precision ...
+        $digits = -$digits + 1;
+      } else {
+        ### div_scale ...
+        $digits = Math::BigFloat->div_scale+1;
+      }
+      ### $digits
+      $digits = max (1, $digits);
+      return Math::BigFloat->bpi($digits);
+    }
+    ### other overload n class: ref $n
+    my $zero = $n * 0;
+    return 2*atan2($zero,1+$zero);
+  }
+  return _PI;
+}
 
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath Pentagonals Nring ie OEIS
+=for stopwords Ryde Math-PlanePath Pentagonals Nring ie OEIS spacings numsides Nrem
 
 =head1 NAME
 
@@ -1009,7 +1230,7 @@ unit radial, whichever ensures no overlap.
 
 For step=6 the two spacings are the same.  Unit radial spacing ensures the X
 axis points N=1,7,19,37,etc shown above are 1 unit apart.  Unit chord
-spacing ensures adjacent points such as N=7,8,0,etc don't over.ap.
+spacing ensures adjacent points such as N=7,8,0,etc don't overlap.
 
 The layout is similar to the various spiral paths of corresponding step.
 For example step=6 is like the C<HexSpiral>, but rounded out to circles
@@ -1024,7 +1245,7 @@ row whereas for C<MultipleRings> here the first is "step" many.
 
 The starting Nring=1,7,19,37 etc on the X axis for the default step=6 is
 S<6*d*(d-1)/2 + 1>, counting the innermost ring as d=1.  In general Nring is
-a multiple of the triangular numbers d*(d-1)/2, plus 1,
+a multiple of the X<Triangular numbers>triangular numbers d*(d-1)/2, plus 1,
 
     Nring = step*d*(d-1)/2 + 1
 
@@ -1037,6 +1258,80 @@ for example in step=6 shown above the line N=3,11,25,etc is S<Nring + 2*d>.
 Multiples k*d with kE<gt>=step give lines which are in between the base ones
 from the innermost ring.
 
+=head2 Step 1
+
+For step=1 the first ring is 1 point and each subsequent ring has 1 further
+point.
+
+=cut
+
+# math-image --path=MultipleRings,step=1 --expression='i<29?i:0' --output=numbers --size=80x25
+
+=pod
+
+                24
+                               23
+             18       12    17
+    25              8
+          13     5
+
+    19     9     3  1  2  4  7 11 16 22     <- Y=0
+
+          14     6
+    26             10
+             20       15    21
+                               28
+                27
+
+                    ^
+     -5 -4 -3 -2-1 X=0 1  2  3  4  5  6
+
+The rings are
+
+    polygon        radius     N values
+    ------------   ------     --------
+    single point     0         1
+    two points       1         2, 3
+    triangle         2         4, 5, 6
+    square           3         7, 8, 9,10
+    pentagon         4        11,12,13,14,15
+    hexagon          5        16,17,18,19,20,21
+     etc
+
+The X axis as described above is the triangular numbers plus 1,
+ie. S<k*(k+1)/2 + 1>.
+
+=head2 Step 2
+
+For step=2 the arrangement is roughly
+
+=cut
+
+# math-image --path=MultipleRings,step=2 --expression='i<43?i:0' --output=numbers --size=80x25
+
+=pod
+
+                   34
+          35                33
+                24 15 23
+    36 25                      22 32
+             16  9  4  8 14
+
+    37 26 17 10  5  2  1  3  7 13 21 31
+
+             18 11  6 12 20
+    38 27                      30 42
+                28 19 29
+          39                41
+                   40
+
+The pattern is similar to the C<SacksSpiral> (see
+L<Math::PlanePath::SacksSpiral>).  In C<SacksSpiral> each spiral loop is 2
+more points than the previous the same as here, but the positioning differs.
+Here the X axis is the pronic numbers and the squares are to the left,
+whereas in C<SacksSpiral> rotated around to squares on X axis and pronics to
+the left.
+
 =head2 Ring Shape
 
 Option C<ring_shape =E<gt> 'polygon'> puts the points on concentric polygons
@@ -1048,11 +1343,11 @@ polygons, ie. diamonds,
 
                   16
                 /    \
-             17    7   15    
-           /    /     \   \   
-        18    8    2    6   14 
-      /     /   /    \    \    \ 
-    19   9    3         1    5   13 
+             17    7   15
+           /    /     \   \
+        18    8    2    6   14
+      /     /   /    \    \    \
+    19   9    3         1    5   13
       \     \   \    /    /    /
         20   10    4   12   24
            \    \    /    /
@@ -1138,7 +1433,7 @@ Return "circle".
 
 =head2 N to X,Y - Circle
 
-As per above, each ring begins at 
+As per above, each ring begins at
 
     Nring = step*d*(d-1)/2 + 1
 
@@ -1245,6 +1540,26 @@ The current code doesn't try to ensure X==Y in these cases.  The values are
 not integers and floating point rounding might mean sin(pi/4)!=cos(pi/4)
 resulting in X!=Y.
 
+=head2 N to RSquared - Step 1
+
+For step=1 the rings are point, line, triangle, square, pentagon, etc, with
+vertices at radius=numsides-1.  For fractional N the triangle, square and
+hexagon cases are quadratics in the fraction part, allowing exact values
+from C<n_to_rsquared()>.
+
+           Ring                    R^2
+    ---------------------     --------------
+    triangle   4 <= N < 7      4 - 12*f*(1-f)
+    square     7 <= N < 11     9 - 18*f*(1-f)
+    hexagon   16 <= N < 22    25 - 25*f*(1-f)
+
+    f = N - int(N)  fractional part of N
+
+For example for the square at N=7.5 have f=0.5 and R^2=4.5 exactly.  These
+quadratics arise because sine of 2pi/3, 2pi/4 and 2pi/6 are square roots,
+which on squaring up in R^2=X^2+Y^2 become integer factors for the fraction
+f along the polygon side.
+
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to
@@ -1257,6 +1572,9 @@ this path include
     A069126 A069127 A069128 A069129 A069130    13 to 17
     A069131 A069132 A069133                    18 to 20
         N on X axis of step=k, being the centred pentagonals
+
+    step=1
+      A002024    RSquared+1, runs of n repeated n times
 
 =head1 SEE ALSO
 

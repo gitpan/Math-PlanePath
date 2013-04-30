@@ -19,17 +19,10 @@
 
 
 
-# A186007 Array by antidiagonals:  R(i,j)=number of the row of the Wythoff array which includes row(i+j)-row(i).
-#    dodgy data ?
-
 # A141104 Lower Even Swappage of Upper Wythoff Sequence.
 # A141105 Upper Even Swappage of Upper Wythoff Sequence.
 # A141106 Lower Odd Swappage of Upper Wythoff Sequence.
 # A141107 Upper Odd Swappage of Upper Wythoff Sequence.
-
-
-# cf
-# A134561 triangle T(n,k) = k-th number whose Zeckendorf has exactly n terms
 
 
 use 5.004;
@@ -41,7 +34,7 @@ plan tests => 46;
 
 use lib 't','xt';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
 use Math::PlanePath::WythoffArray;
@@ -80,10 +73,11 @@ sub pair_left_justify {
 #
 sub path_find_row_with_pair {
   my ($path, $a, $b) = @_;
-  if ($a == 0 && $b == 0) {
+  ### path_find_row_with_pair(): "$a, $b"
+  if (($a == 0 && $b == 0) || $b < 0) {
     croak "path_find_row_with_pair $a,$b";
   }
-  for (my $count = 0; $count < 100; ($a,$b) = ($b,$a+$b)) {
+  for (my $count = 0; $count < 50; ($a,$b) = ($b,$a+$b)) {
     ### at: "a=$a b=$b"
     my ($x,$y) = $path->n_to_xy($a) or next;
     if ($path->xy_to_n($x+1,$y) == $b) {
@@ -93,6 +87,188 @@ sub path_find_row_with_pair {
   }
   die "oops, pair $a,$b not found";
 }
+
+#------------------------------------------------------------------------------
+# A186007 -- row(i+j) - row(i)
+
+# R(4,1) row 4+1=5 sub row 1
+# row=5  |  12   20   32   52   84  136  220  356  576  932 1508
+# row=1  |   1    2    3    5    8   13   21   34   55   89  144
+#           11   18   29
+# tail of row2
+
+# R(4,3) row 4+3=7 sub row 4
+# row=7  |  17   28   45   73  118  191  309  500  809 1309 2118
+# row=4  |   9   15   24   39   63  102  165  267  432  699 1131
+#            8   13
+# tail of row=1 fibs
+
+# row=7  |  17   28   45   73  118  191  309  500  809 1309 2118
+# row=3  |   6   10   16   26   42   68  110  178  288  466  754
+#           11   18
+# tail of row=2 lucas
+
+# B-values
+# 1,                    pos=0
+# 1,1,                  pos=1 to 2
+# 1,1, 1,               pos=3 to 5
+# 2,1, 3,1,             pos=6 to 9
+# 1,3, 1,1,1,           pos=10 to 14
+# 3,1, 1,1,1,1,         pos=15 to 20
+# 2,4, 3,3,2,1,1,       pos=21 to 27
+# 1,2, 8,1,3,1,1,1,
+# 4,1, 1,3,1,2,1,3,1,
+# 3,6, 4,2,4,1,3,1,1,1,
+# 2,3,11,1,2,3,1,2,1,1,1,
+# 5
+
+# 1,                 pos=0
+# 1,1,               pos=1 to 2
+# 1,1, 1,             pos=3 to 5
+# 2,1, 3,1,           pos=6 to 9
+# 1,3, 1,1,1,         pos=10 to 14
+# 3,1, 2,1,1,1,       pos=15 to 20     <-
+# 2,4, 1,3,2,1,1,     pos=21 to 27     <-
+# 1,2, 3,1,3,1,1,1,
+# 4,1, 8,3,1,2,1,3,1,
+# 3,6, 1,2,4,1,3,1,1,1,
+# 2,3, 4,1,2,3,1,2,1,1,1,
+# 5
+
+# row 9 of W:      22,36,58,94,...
+# row 3 of W:       6,10,16,26,...
+#
+# (row 9)-(row 3): 16,26,42,68  tail of row 3
+
+# code          1....3....1....2....1....3....8....1....4....
+# data          1....3....1....     1....3....8....1....4....11
+
+
+{
+  require Math::PlanePath::Diagonals;
+  my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+  my $diag = Math::PlanePath::Diagonals->new    (x_start=>1, y_start=>1,
+                                                 direction => 'up',
+                                                 n_start => 1);
+  sub my_A186007 {
+    my ($n) = @_;
+    if ($n < 1) { die; }
+    my ($i,$j) = $diag->n_to_xy($n);  # by anti-diagonals
+    ($i,$j) = ($i+$j, $j);
+
+    my $ia = $path->xy_to_n(1,$i) or die;
+    my $ib = $path->xy_to_n(2,$i) or die;
+    my $ja = $path->xy_to_n(1,$j) or die;
+    my $jb = $path->xy_to_n(2,$j) or die;
+
+    my $da = $ia-$ja;
+    my $db = $ib-$jb;
+    my $d = path_find_row_with_pair($path, $da,$db);
+
+    # print "n=$n i=$i iab=$ia,$ib j=$j jab=$ja,$jb diff=$da,$db at d=$d\n";
+    return $d;
+  }
+
+  # foreach my $y (1 .. 5) {
+  #   print "               ";
+  #   foreach my $x (1 .. 10) {
+  #     my $n = $diag->xy_to_n($x,$y);
+  #     printf "%d....", my_A186007($n);
+  #   }
+  #   print "\n\n";
+  # }
+  # 
+  # print "R(2,6) = ",$diag->xy_to_n(6,2),"\n";
+}
+
+MyOEIS::compare_values
+  (anum => 'A186007',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 1; @got < $count; $n++) {
+       push @got, my_A186007($n);
+     }
+     return \@got;
+   });
+
+
+#------------------------------------------------------------------------------
+# A185735 -- row(i)+row(j) of left-justified array
+# 1 0 1 1 2 3
+# 2 1 3 4 7 11
+# 2 0 2 2 4 6
+# 3 0 3 3 6 9
+# 4 0 4 4 8 12
+# 3 1 4 5 9 14
+# row1+row2= 1,0+2,1 = 3,1 = row6
+# row1+row3= 1,0+2,0 = 4,0 = row4
+
+MyOEIS::compare_values
+  (anum => 'A185735',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
+
+     # Y>=1, 0<=X<Y
+     my $diag = Math::PlanePath::Diagonals->new (x_start=>1, y_start=>1);
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($i,$j) = $diag->n_to_xy($d);  # by anti-diagonals
+       # if ($i > $j) { ($i,$j) = ($j,$i); }
+
+       my $ia = $path->xy_to_n(1,$i) or die;
+       my $ib = $path->xy_to_n(2,$i) or die;
+       my $ja = $path->xy_to_n(1,$j) or die;
+       my $jb = $path->xy_to_n(2,$j) or die;
+       ($ia,$ib) = pair_left_justify($ia,$ib);
+       ($ja,$jb) = pair_left_justify($ja,$jb);
+       push @got, path_find_row_with_pair($path, $ia+$ja, $ib+$jb);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A165357 - Left-justified Wythoff Array by diagonals
+
+{
+  my $path = Math::PlanePath::WythoffArray->new;
+  sub left_justified_row_start {
+    my ($y) = @_;
+    return pair_left_justify($path->xy_to_n(0,$y),
+                             $path->xy_to_n(1,$y));
+  }
+  sub left_justified_xy_to_n {
+    my ($x,$y) = @_;
+    my ($a,$b) = left_justified_row_start($y);
+    foreach (1 .. $x) {
+      ($a,$b) = ($b,$a+$b);
+    }
+    return $a;
+  }
+
+  # foreach my $y (0 .. 5) {
+  #   foreach my $x (0 .. 10) {
+  #     printf "%3d ", left_justified_xy_to_n($x,$y);
+  #   }
+  #   print "\n";
+  # }
+}
+
+MyOEIS::compare_values
+  (anum => 'A165357',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::Diagonals;
+     my $diag = Math::PlanePath::Diagonals->new (direction => 'up');
+     my @got;
+     for (my $d = $diag->n_start; @got < $count; $d++) {
+       my ($x,$y) = $diag->n_to_xy($d);  # by anti-diagonals
+       push @got, left_justified_xy_to_n($x,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A185737 -- accumulation array, by antidiagonals
@@ -191,84 +367,6 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A165357 - Left-justified Wythoff Array by diagonals
-
-{
-  my $path = Math::PlanePath::WythoffArray->new;
-  sub left_justified_row_start {
-    my ($y) = @_;
-    return pair_left_justify($path->xy_to_n(0,$y),
-                             $path->xy_to_n(1,$y));
-  }
-  sub left_justified_xy_to_n {
-    my ($x,$y) = @_;
-    my ($a,$b) = left_justified_row_start($y);
-    foreach (1 .. $x) {
-      ($a,$b) = ($b,$a+$b);
-    }
-    return $a;
-  }
-
-  # foreach my $y (0 .. 5) {
-  #   foreach my $x (0 .. 10) {
-  #     printf "%3d ", left_justified_xy_to_n($x,$y);
-  #   }
-  #   print "\n";
-  # }
-}
-
-MyOEIS::compare_values
-  (anum => 'A165357',
-   func => sub {
-     my ($count) = @_;
-     require Math::PlanePath::Diagonals;
-     my $diag = Math::PlanePath::Diagonals->new (direction => 'up');
-     my @got;
-     for (my $d = $diag->n_start; @got < $count; $d++) {
-       my ($x,$y) = $diag->n_to_xy($d);  # by anti-diagonals
-       push @got, left_justified_xy_to_n($x,$y);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A185735 -- row(i)+row(j)
-# not described but sum is of left-justified array
-# 1 0 1 1 2 3
-# 2 1 3 4 7 11
-# 2 0 2 2 4 6
-# 3 0 3 3 6 9
-# 4 0 4 4 8 12
-# 3 1 4 5 9 14
-# row1+row2= 1,0+2,1 = 3,1 = row6
-# row1+row3= 1,0+2,0 = 4,0 = row4
-
-MyOEIS::compare_values
-  (anum => 'A185735',
-   func => sub {
-     my ($count) = @_;
-     require Math::PlanePath::Diagonals;
-     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
-
-     # Y>=1, 0<=X<Y
-     my $diag = Math::PlanePath::Diagonals->new (x_start=>1, y_start=>1);
-     my @got;
-     for (my $d = $diag->n_start; @got < $count; $d++) {
-       my ($i,$j) = $diag->n_to_xy($d);  # by anti-diagonals
-       # if ($i > $j) { ($i,$j) = ($j,$i); }
-
-       my $ia = $path->xy_to_n(1,$i) or die;
-       my $ib = $path->xy_to_n(2,$i) or die;
-       my $ja = $path->xy_to_n(1,$j) or die;
-       my $jb = $path->xy_to_n(2,$j) or die;
-       ($ia,$ib) = pair_left_justify($ia,$ib);
-       ($ja,$jb) = pair_left_justify($ja,$jb);
-       push @got, path_find_row_with_pair($path, $ia+$ja, $ib+$jb);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
 # A139764 -- lowest Zeckendorf term fibonacci value,
 #   is N on X axis for the column containing n
 
@@ -352,62 +450,6 @@ MyOEIS::compare_values
      for (my $n = $path->n_start; @got < $count; $n++) {
        my ($x, $y) = $path->n_to_xy ($n);
        push @got, $x;
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
-# A186007 -- row(i+j) - row(i)
-
-# R(4,1) row 4+1=5 sub row 1
-# row=5  |  12   20   32   52   84  136  220  356  576  932 1508
-# row=1  |   1    2    3    5    8   13   21   34   55   89  144
-#           11   18   29
-# tail of row2
-
-# R(4,3) row 4+3=7 sub row 4
-# row=7  |  17   28   45   73  118  191  309  500  809 1309 2118
-# row=4  |   9   15   24   39   63  102  165  267  432  699 1131
-#            8   13
-# tail of row=1 fibs
-
-# row=7  |  17   28   45   73  118  191  309  500  809 1309 2118
-# row=3  |   6   10   16   26   42   68  110  178  288  466  754
-#           11   18
-# tail of row=2 lucas
-
-MyOEIS::compare_values
-  (anum => 'A186007',
-   func => sub {
-     my ($count) = @_;
-     require Math::PlanePath::Diagonals;
-     my $path = Math::PlanePath::WythoffArray->new (x_start=>1, y_start=>1);
-     my $diag = Math::PlanePath::Diagonals->new (direction => 'up',
-                                                 x_start=>1, y_start=>1);
-     my @got;
-     for (my $d = $diag->n_start; @got < $count; $d++) {
-       my ($i,$j) = $diag->n_to_xy($d);  # by anti-diagonals
-       $i += $j;
-
-       # my ($ia,$ib) = pair_left_justify($path->xy_to_n(1,$i),
-       #                                  $path->xy_to_n(2,$i));
-       # # ($ia,$ib) = ($ib,$ia+$ib);
-       # my ($ja,$jb) = pair_left_justify($path->xy_to_n(1,$j),
-       #                                  $path->xy_to_n(2,$j));
-       # # ($ja,$jb) = ($jb,$ja+$jb);
-
-       my ($ia,$ib) = ($path->xy_to_n(1,$i), $path->xy_to_n(2,$i));
-       my ($ja,$jb) = ($path->xy_to_n(1,$j), $path->xy_to_n(2,$j));
-
-       my $da = $ia-$ja;
-       my $db = $ib-$jb;
-       # if ($da < 0 && $db < 0 && $da < $db) {
-       #   $da = -$da; $db = -$db;
-       # }
-       my $d = path_find_row_with_pair($path, $da,$db);
-       my $pos = scalar(@got);
-       # print "pos=$pos i=$i $ia,$ib j=$j $ja,$jb diff=$da,$db at d=$d\n";
-       push @got, $d;
      }
      return \@got;
    });

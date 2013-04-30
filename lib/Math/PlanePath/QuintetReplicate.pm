@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -206,7 +206,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath QuintetCurve QuintetCentres
+=for stopwords eg Ryde Math-PlanePath
 
 =head1 NAME
 
@@ -221,8 +221,8 @@ Math::PlanePath::QuintetReplicate -- self-similar "+" tiling
 =head1 DESCRIPTION
 
 This is a self-similar tiling of the plane with "+" shapes.  It's the same
-kind of tiling as the QuintetCurve (and QuintetCentres), but with the middle
-square of the "+" shape centred on the origin.
+kind of tiling as the C<QuintetCurve> (and C<QuintetCentres>), but with the
+middle square of the "+" shape centred on the origin.
 
             12                         3
 

@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -177,7 +177,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords SquareSpiral eg Staircase PlanePath Ryde Math-PlanePath HexSpiralSkewed ascii Legendre's
+=for stopwords eg Ryde Math-PlanePath Legendre's
 
 =head1 NAME
 
@@ -214,11 +214,11 @@ This path makes a staircase pattern down from the Y axis to the X,
              ^   
             X=0   1    2    3    4    5    6
 
-The 1,6,15,28,etc along the X axis at the end of each run are the hexagonal
-numbers k*(2*k-1).  The diagonal 3,10,21,36,etc up from X=0,Y=1 is the
-second hexagonal numbers k*(2*k+1), formed by extending the hexagonal
-numbers to negative k.  The two together are the triangular numbers
-k*(k+1)/2.
+X<Hexagonal numbers>The 1,6,15,28,etc along the X axis at the end of each
+run are the hexagonal numbers k*(2*k-1).  The diagonal 3,10,21,36,etc up
+from X=0,Y=1 is the second hexagonal numbers k*(2*k+1), formed by extending
+the hexagonal numbers to negative k.  The two together are the
+X<Triangular numbers>triangular numbers k*(k+1)/2.
 
 Legendre's prime generating polynomial 2*k^2+29 bounces around for some low
 values then makes a steep diagonal upwards from X=19,Y=1, at a slope 3 up

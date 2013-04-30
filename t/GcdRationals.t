@@ -24,7 +24,7 @@ plan tests => 625;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -38,7 +38,7 @@ my @pairs_order_choices
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::GcdRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GcdRationals->VERSION,  $want_version,

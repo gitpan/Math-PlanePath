@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -211,7 +211,7 @@ sub _xy_to_level_ceil {
 1;
 __END__
 
-=for stopwords eg Ryde Gosper FlowsnakeCentres Flowsnake Math-PlanePath
+=for stopwords eg Ryde Gosper Math-PlanePath
 
 =head1 NAME
 
@@ -284,10 +284,10 @@ The further replications are the same arrangement, but the sides become ever
 wigglier and the centres rotate around.  The rotation can be seen at N=7
 X=5,Y=1 which is up from the X axis.
 
-The FlowsnakeCentres path is this same replicating shape, but starting from
-a side instead of the middle and traversing in such as way as to make each N
-adjacent.  The Flowsnake curve itself is this replication too, but following
-edges.
+The C<FlowsnakeCentres> path is this same replicating shape, but starting
+from a side instead of the middle and traversing in such as way as to make
+each N adjacent.  The C<Flowsnake> curve itself is this replication too, but
+following edges.
 
 =head2 Complex Base
 

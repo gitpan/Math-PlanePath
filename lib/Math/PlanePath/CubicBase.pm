@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -321,7 +321,7 @@ __END__
 # }
 
 
-=for stopwords eg Ryde Math-PlanePath ZOrderCurve Radix ie ImaginaryBase radix
+=for stopwords eg Ryde Math-PlanePath Radix ie radix
 
 =head1 NAME
 
@@ -411,7 +411,7 @@ The radial distance doubles on every second replication, so N=1 and N=2 are
 at 1 unit from the origin, then N=4 and N=8 at 2 units, then N=16 and N=32
 at 4 units.  N=64 is not shown but is then at 8 units away (X=8,Y=0).
 
-This is similar to the ImaginaryBase, but where that path repeats in 4
+This is similar to the C<ImaginaryBase>, but where that path repeats in 4
 directions based on i=squareroot(-1), here it's 3 directions based on
 w=cuberoot(1) = -1/2+i*sqrt(3)/2.
 

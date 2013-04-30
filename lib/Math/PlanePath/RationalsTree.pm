@@ -130,7 +130,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -591,7 +591,7 @@ __END__
   # }
 
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped FractionsTree GCD Luschny Jerzy Czyz Minkowski Nstart Shallit's HCS Ndepth N-Ndepth Nparent subtree
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped GCD Luschny Jerzy Czyz Minkowski Nstart Shallit's HCS Ndepth N-Ndepth Nparent subtree LRRL
 
 =head1 NAME
 
@@ -605,17 +605,18 @@ Math::PlanePath::RationalsTree -- rationals by tree
 
 =head1 DESCRIPTION
 
-This path enumerates rational fractions X/Y in reduced form, ie. X and Y
+This path enumerates reduced rational fractions X/Y E<gt> 0, ie. X and Y
 having no common factor.
 
 The rationals are traversed by rows of a binary tree which effectively
 represents a coprime pair X,Y by steps of a subtraction-only greatest common
-divisor algorithm proving them coprime.  Or equivalently by bit runs with
-lengths which are the quotients in the Euclidean GCD algorithm, which are
-also the terms in the continued fraction representation of X/Y.
+divisor algorithm which proves them coprime.  Or equivalently by bit runs
+with lengths which are the quotients in the division based Euclidean GCD
+algorithm, which are also the terms in the continued fraction representation
+of X/Y.
 
 The SB, CW, AYT, HCS, Bird and Drib trees all have the same set of X/Y
-fractions in a row, but in a different order due to different encodings of
+rationals in a row, but in a different order due to different encodings of
 the N value, either high to low or low to high and some bit flips.  The L
 tree has a shift which visits 0/1 too.
 
@@ -623,7 +624,7 @@ The bit runs mean that N values are quite large for relatively modest sized
 rationals.  For example in the SB tree 167/3 is N=288230376151711741, a
 58-bit number.  The tendency is for the tree to make excursions out to large
 rationals while only slowly filling in small ones.  The worst is the integer
-X/1 which has N with X many bits, and similarly 1/Y has Y bits.
+X/1 which is an N with X many bits, and similarly 1/Y is Y bits.
 
 See F<examples/rationals-tree.pl> in the Math-PlanePath sources for a
 printout of all the trees.
@@ -680,58 +681,71 @@ The Y=1 horizontal is the X/1 integers at the end each row which is
 
     Nend = 2^(level+1)-1
 
-Each row makes a path from the Y axis down to the X which is outside the
-previous row and doesn't intersect any other row.  The effect of X/(X+Y)
-described above is to apply a "shear" to the X,Y points of a given row,
-making a copy of those points pushed up by Y -E<gt> X+Y.
+=head2 Stern-Brocot Turn Sequence
 
-                               N=8 to N=11
-                              previous row
-                              sheared up X,X+Y
-      depth=2 N=4to7                              depth=3 N=8to15
-                          |      9--10      .
-                          |    /     |    .
+Each row makes a path from the Y axis down to the X.  Each row is further
+from the origin than the previous row and doesn't intersect any other row.
+The X/(X+Y) first half described is an upward "shear" to the X,Y points of a
+given row.  Similarly the second half (X+Y)/Y shears to the right.  For
+example,
+
+                                N=8 to N=11
+                               previous row
+      row                      sheared up X,X+Y
+      depth=2 N=4to7                              row
+    |                     |      9--10      .     depth=3 N=8to15
+    |                     |    /     |    .
     |                     |  8      11  .
-    |                     |           .          
-    |   4---5             |         .   12--13    N=12 to N=15
-    |         \           |       .          |    previous row
-    |           6         |     .           14    sheared across
-    |           |         |   .            /      as X+Y,Y
-    |           7         |             15       
+    |                     |           .
+    |  4---5              |         .   12--13    N=12 to N=15
+    |        \            |       .          |    previous row
+    |          6          |     .           14    sheared right
+    |          |          |   .            /      as X+Y,Y
+    |          7          |             15
     |                     |
-     ----------------      ----------------
+    +---------------      +----------------
 
-The sequence of turns left or right is unchanged by the shear.  So at N=5
-and N=6 the path turns towards the right and this is unchanged in the copies
-at N=9 and N=10 and at N=13 and N=14.  The angle of the turn is different,
-but it's still to the right.
+The sequence of turns left or right is unchanged by the shears.  So at N=5
+the path turns towards the right and this is unchanged in the sheared copies
+at N=9 and copy at N=13.  The angle of the turn is different, but it's still
+to the right.
 
 The first and last points of each row are always a turn to the right.  For
-example the turn at N=4 (going N=3 to 4 to 5) is to the right, and likewise
-at N=7.
+example the turn at N=4 (going N=3 to N=4 to N=5) is to the right, and
+likewise at N=7.  This is because the second of the row such as N=5 is above
+a 45-degree line down from N=4, and similarly the second last such as N=6.
 
-The middle two points in each row are always a turn to the left for
-depthE<gt>=3.  For example N=11 and N=12 shown above both turn to the left.
-Those lefts are copied into successive rows and the result is a pattern
-"LRRL" repeating except the first and last in the row are R instead of L.
+The middle two points in each row of depthE<gt>=3 are always a turn to the
+left.  This happens first at N=11 and N=12 shown above which both turn to
+the left.  This is because the middle two make a 45-degree line and the
+second-from-middle points are above that line (N=10 and N=13).
 
-    N=3                   turn left
-    N=2^k or N=2^k-1      turn right
-    N=0 or 3 mod 4        turn left
-    N=1 or 2 mod 4        turn right
+The middle left turns are copied into successive rows and the result is a
+repeating pattern "LRRL" except the first and last in the row always right
+instead of left.
 
-In these conditions the adjacent N-1,N values can be treated together by
-taking floor((N+1)/2),
+    N=3                                left
+    otherwise if N=2^k or N=2^k-1      right
 
-    N=3                   turn left
-    Nhalf = floor((N+1)/2)
-    Nhalf=2^k             turn right
-    NHalf=0 mod 2         turn left
-    NHalf=1 mod 2         turn right
+    otherwise if N=0 mod 4             left
+                 N=1 mod 4             right
+                 N=2 mod 4             right
+                 N=3 mod 4             left
+
+Pairs N=2m and N=2m-1 can be treated together by taking ceil(N/2),
+
+    N=3                                left
+    otherwise if Nhalf=2^k             right
+
+    otherwise if Nhalf=0 mod 2         left
+    otherwise if Nhalf=1 mod 2         right
+      where Nhalf = ceil(N/2)
+
+=head2 Stern-Brocot Mediant
 
 Writing the parents between the children as an "in-order" tree traversal to
-some depth has all values in increasing order, the same as each row is in
-increasing order.
+a given depth has all values in increasing order, the same as each row
+individually is in increasing order.
 
                  1/1
          1/2      |      2/1
@@ -745,10 +759,10 @@ increasing order.
 
 New values at the next level of this flattening are a "mediant"
 (x1+x2)/(y1+y2) formed from the left and right parent.  So the next level
-4/3 is left parent 1/1 and right parent 3/2 forming mediant (1+3)/(1+2)=4/3.
-At the left end is imagined a preceding 0/1 and at the right a following
-1/0, so as to have 1/(depth+1) and (depth+1)/1 at the ends for a total
-2^depth many new values.
+4/3 shown is left parent 1/1 and right parent 3/2 giving mediant
+(1+3)/(1+2)=4/3.  At the left end a preceding 0/1 is imagined.  At the right
+a following 1/0 is imagined, so as to have 1/(depth+1) and (depth+1)/1 at
+the ends for a total 2^depth many new values.
 
 =head2 Calkin-Wilf Tree
 
@@ -892,7 +906,7 @@ which means
 The left leg (X+Y)/Y is the same the CW has on its right leg.  But Y/(X+Y)
 is not the same as the CW (the other there being X/(X+Y)).
 
-TheT left leg increments the integer part, so the integer part is given by
+The left leg increments the integer part, so the integer part is given by
 (in a fashion similar to CW 1-bits above)
 
     floor(X/Y) = count trailing 0-bits of N
@@ -952,7 +966,7 @@ related simply by
     X = B-A      inverse
     Y = A
 
-=head2 Continued Fraction High to Low
+=head2 HCS Continued Fraction
 
 X<Hanna, Paul D.>X<Czyz, Jerzy>X<Self, Will>C<tree_type=E<gt>"HCS"> selects
 continued fraction terms coded as bit runs 1000...00 from high to low, as
@@ -992,9 +1006,9 @@ then the N value is bit runs of lengths a,b,c etc.
         \--/ \--/ \--/     \--/
          a+1   b    c       z-1
 
-Each group is 1 or more bits.  Adding 1 to "a" for the first group ensures
-that group has 1 or more bits, since a=0 occurs for any X/YE<lt>=1.  z-1 for
-the last group ensures it's 1 or more since zE<gt>=2.
+Each group is 1 or more bits.  The +1 in "a+1" makes the first group 1 or
+more bits, since a=0 occurs for any X/YE<lt>=1.  The -1 in "z-1" makes the
+last group 1 or more since zE<gt>=2.
 
     N=1                             1/1
                               ------   ------
@@ -1009,8 +1023,8 @@ The result is a bit reversal of the N values in the AYT tree.
     AYT  N = binary "1abcde"      AYT <-> HCS bit reversal
     HCS  N = binary "1edcba"
 
-For example at X=4,Y=7 the AYT tree has N=11 binary "10111" and the HCS has
-N=30 binary "11110", a reversal of the bits below the high 1.
+For example at X=4,Y=7 the AYT tree is N=11 binary "10111" whereas HCS there
+has N=30 binary "11110", a reversal of the bits below the high 1.
 
 Plotting by X,Y gives
 

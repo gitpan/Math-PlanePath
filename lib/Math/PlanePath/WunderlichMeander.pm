@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -341,7 +341,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie WunderlichMeander Math-PlanePath Wunderlich PeanoCurve Wunderlich's Uber Peano-Kurven Elemente der Mathematik PlanePath
+=for stopwords eg Ryde ie Math-PlanePath Wunderlich Wunderlich's Uber Peano-Kurven Elemente der Mathematik
 
 =head1 NAME
 
@@ -413,7 +413,7 @@ space-filling curve and the transposing in that case applies to ever smaller
 parts.  But for the integer version here the start direction is fixed and
 the successively higher levels alternate.  The first move N=0 to N=1 is
 rightwards per the "Schema" shown in Wunderlich's paper (and which is
-similar to the PeanoCurve and various other PlanePath curves).
+similar to the C<PeanoCurve> and various other C<PlanePath> curves).
 
 =head1 FUNCTIONS
 
@@ -477,10 +477,3 @@ You should have received a copy of the GNU General Public License along with
 Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-# Local variables:
-# compile-command: "math-image --path=WunderlichMeander --lines --scale=20"
-# End:
-#
-# math-image --path=WunderlichMeander --all --output=numbers_dash

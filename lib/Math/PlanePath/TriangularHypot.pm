@@ -75,7 +75,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -547,7 +547,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath hypot HexSpiral ie OEIS TriangularHypot
+=for stopwords Ryde Math-PlanePath hypot ie OEIS
 
 =head1 NAME
 

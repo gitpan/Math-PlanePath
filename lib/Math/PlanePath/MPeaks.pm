@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -196,7 +196,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Ryde Math-PlanePath ie HexSpiral OEIS
+=for stopwords Ryde Math-PlanePath ie OEIS
 
 =head1 NAME
 
@@ -234,7 +234,7 @@ The centre goes half way down.  Reckoning the N=1 to N=5 as layer d=1 then
 
 Each "M" is 6 points longer than the preceding.  The verticals are each 2
 longer, and the centre diagonals each 1 longer.  This step 6 is similar to
-the HexSpiral.
+the C<HexSpiral>.
 
 The octagonal numbers N=1,8,21,40,65,etc k*(3k-2) are a straight line
 of slope 2 going up to the left.  The octagonal numbers of the second

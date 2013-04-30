@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -49,6 +49,7 @@ use constant parameter_info_array =>
     Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
+use constant diffxy_maximum => 0; # octant X<=Y so X-Y<=0
 
 sub dx_minimum {
   my ($self) = @_;
@@ -274,7 +275,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords PlanePath Ryde Math-PlanePath pronic PyramidRows sqrt eg flonums N-Nstart Nrem octant ie OEIS Nstart
+=for stopwords PlanePath Ryde Math-PlanePath pronic sqrt eg flonums N-Nstart Nrem octant ie OEIS Nstart
 
 =head1 NAME
 
@@ -317,18 +318,18 @@ X=Y centre line, traversing the eighth of the plane on and above X=Y.
       + ----------------------------
         X=0  1  2  3  4  5  6  7  8
 
-N=1,4,9,16,etc on the X=Y leading diagonal are the perfect squares.
-N=2,6,12,20,etc at the ends of the other diagonals are the
+X<Square numbers>N=1,4,9,16,etc on the X=Y leading diagonal are the perfect
+squares.  N=2,6,12,20,etc at the ends of the other diagonals are the
 X<Pronic numbers>pronic numbers k*(k+1).
 
 =head2 Pyramid Rows
 
 Taking two diagonals running from k^2+1 to (k+1)^2 is the same as a row of
-the step=2 PyramidRows (see L<Math::PlanePath::PyramidRows>).  Each endpoint
-is the same, but here it's two diagonals instead of one row.  For example in
-the PyramidRows the Y=3 row runs from N=10 to N=16 ending at X=3,Y=3.  Here
-that's in two diagonals N=10 to N=12 and then N=13 to N=16, and that N=16
-endpoint is the same X=3,Y=3.
+the step=2 C<PyramidRows> (see L<Math::PlanePath::PyramidRows>).  Each
+endpoint is the same, but here it's two diagonals instead of one row.  For
+example in the C<PyramidRows> the Y=3 row runs from N=10 to N=16 ending at
+X=3,Y=3.  Here that's in two diagonals N=10 to N=12 and then N=13 to N=16,
+and that N=16 endpoint is the same X=3,Y=3.
 
 =head2 Direction
 

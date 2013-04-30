@@ -28,7 +28,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -466,7 +466,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde Mandelbrot Math-PlanePath QuintetCurve FlowsnakeCentres QuintetReplicate QuintetCentres
+=for stopwords eg Ryde Mandelbrot Math-PlanePath
 
 =head1 NAME
 
@@ -480,8 +480,8 @@ Math::PlanePath::QuintetCentres -- self-similar "plus" shape centres
 
 =head1 DESCRIPTION
 
-This a self-similar curve tracing out a "+" shape like the QuintetCurve but
-taking the centre of each square visited by that curve.
+This a self-similar curve tracing out a "+" shape like the C<QuintetCurve>
+but taking the centre of each square visited by that curve.
 
                                          92                        12
                                        /  |
@@ -629,7 +629,7 @@ simple over-estimate.)
 
 =head2 X,Y to N
 
-The C<xy_to_n()> calculation is similar to the FlowsnakeCentres.  For a
+The C<xy_to_n()> calculation is similar to the C<FlowsnakeCentres>.  For a
 given X,Y a modulo 5 remainder is formed
 
     m = (2*X + Y) mod 5
@@ -660,8 +660,9 @@ shape.
 
 The remainders can then be mapped to base 5 digits of N going from high to
 low and making suitable rotations for the sub-part orientation of the curve.
-The remainders alone give a traversal in the style of QuintetReplicate.
-Applying suitable rotations produces the connected path of QuintetCentres.
+The remainders alone give a traversal in the style of C<QuintetReplicate>.
+Applying suitable rotations produces the connected path of
+C<QuintetCentres>.
 
 =head1 SEE ALSO
 

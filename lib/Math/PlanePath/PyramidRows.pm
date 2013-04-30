@@ -32,7 +32,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -71,6 +71,28 @@ sub x_maximum {
   my ($self) = @_;
   return ($self->{'step'} == 0 || $self->{'align'} eq 'left'
           ? 0    # X=0 vertical, or left X<=0
+          : undef);
+}
+sub sumxy_minimum {
+  my ($self) = @_;
+  # for align=left   step<=1 has X>=-Y so X+Y >= 0
+  # for align=centre step<=3 has X>=-Y so X+Y >= 0
+  # for align=right X>=0 so X+Y >= 0
+  return (($self->{'align'}    eq 'left'   && $self->{'step'} <= 1)
+          || ($self->{'align'} eq 'centre' && $self->{'step'} <= 3)
+          || ($self->{'align'} eq 'right')
+          ? 0
+          : undef);
+}
+sub diffxy_maximum {
+  my ($self) = @_;
+  # for align=left   X<=0 so X-Y<=0 always
+  # for align=centre step<=2 has X<=Y so X-Y<=0
+  # for align=right  step<=1 has X<=Y so X-Y<=0
+  return (($self->{'align'}    eq 'left')
+          || ($self->{'align'} eq 'centre' && $self->{'step'} <= 2)
+          || ($self->{'align'} eq 'right'  && $self->{'step'} <= 1)
+          ? 0
           : undef);
 }
 
@@ -243,6 +265,14 @@ sub n_to_xy {
           $y);
 }
 
+sub _UNTESTED__n_to_radius {
+  my ($self, $n) = @_;
+  if ($self->{'step'} == 0) {
+    return $n - $self->{'n_start'};  # vertical on Y axis
+  }
+  return $self->SUPER::n_to_radius($n);  
+}
+
 # N = ($step * $y*$y - ($step-2)*$y + 1) / 2
 #
 # right polygonal
@@ -395,7 +425,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords pronic SacksSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows ie Pentagonals onwards factorizations OEIS
+=for stopwords pronic PlanePath Ryde Math-PlanePath ie Pentagonals onwards factorizations OEIS
 
 =head1 NAME
 
@@ -421,13 +451,13 @@ than the preceding, an extra point at the left and the right,
 
     -4  -3  -2  -1  x=0  1   2   3   4 ...
 
-The right end N=1,4,9,16,etc is the perfect squares.  The vertical
-2,6,12,20,etc at x=-1 is the X<Pronic numbers>pronic numbers s*(s+1), half
-way between those successive squares.
+X<Square numbers>The right end N=1,4,9,16,etc is the perfect squares.  The
+vertical 2,6,12,20,etc at x=-1 is the X<Pronic numbers>pronic numbers
+s*(s+1), half way between those successive squares.
 
-The step 2 is the same as the PyramidSides, Corner and SacksSpiral paths.
-For the SacksSpiral, spiral arms going to the right correspond to diagonals
-in the pyramid, and arms to the left correspond to verticals.
+The step 2 is the same as the C<PyramidSides>, C<Corner> and C<SacksSpiral>
+paths.  For the C<SacksSpiral>, spiral arms going to the right correspond to
+diagonals in the pyramid, and arms to the left correspond to verticals.
 
 =head2 Step Parameter
 
@@ -573,7 +603,7 @@ They factorize simply as
     S(k)-1 = (3*k-2)*(k+1)/2
     S(k)-2 = (3*k+4)*(k-1)/2
 
-Plotting the primes on a step=3 PyramidRows has the second pentagonal
+Plotting the primes on a step=3 C<PyramidRows> has the second pentagonal
 S(k),S(k)-1,S(k)-2 as a 3-wide vertical gap of no primes at X=-1,-2,-3.  The
 the plain pentagonal P(k),P(k-1),P(k)-2 are the endmost three N of each row
 non-prime.  The vertical is much more noticeable in a plot.
@@ -703,6 +733,46 @@ pyramid the return is C<undef>.
 
 The returned range is exact, meaning C<$n_lo> and C<$n_hi> are the smallest
 and biggest in the rectangle.
+
+=back
+
+=head2 Descriptive Methods
+
+=over
+
+=item C<$x = $path-E<gt>sumxy_minimum()>
+
+=item C<$x = $path-E<gt>sumxy_maximum()>
+
+Return the minimum or maximum values taken by coordinate sum X+Y reached by
+integer N values in the path.  If there's no minimum or maximum then return
+C<undef>.
+
+The path is right and above the X=-Y diagonal, thus giving a minimum sum, in
+the following cases.
+
+    align      condition for sumxy_minimum=0
+    ------     -----------------------------
+    centre              step <= 3
+    right               always
+    left                step <= 1
+
+=item C<$x = $path-E<gt>diffxy_minimum()>
+
+=item C<$x = $path-E<gt>diffxy_maximum()>
+
+Return the minimum or maximum values taken by coordinate difference X-Y
+reached by integer N values in the path.  If there's no minimum or maximum
+then return C<undef>.
+
+The path is left and above the X=Y leading diagonal, thus giving a minimum
+X-Y difference, in the following cases.
+
+    align      condition for diffxy_minimum=0
+    ------     -----------------------------
+    centre              step <= 2
+    right               step <= 1
+    left                always
 
 =back
 

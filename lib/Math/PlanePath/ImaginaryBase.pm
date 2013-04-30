@@ -50,7 +50,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -352,7 +352,7 @@ sub _negaradix_range_level {
 1;
 __END__
 
-=for stopwords eg Ryde Math-PlanePath quater-imaginary ZOrderCurve Radix radix ie Negabinary negabinary ImaginaryBase negaternary negadecimal NX negaradix Nmin Nmax Nmin,Nmax NX NX,NY OEIS Seminumerical CACM
+=for stopwords eg Ryde Math-PlanePath quater-imaginary Radix radix ie Negabinary negabinary negaternary negadecimal NX negaradix Nmin Nmax Nmin,Nmax NX NX,NY OEIS Seminumerical CACM
 
 =head1 NAME
 
@@ -454,17 +454,17 @@ as 6,7,4,5 which the same order with 4 added to each.  Then the resulting
 block of eight repeats to the left similarly, in the same order with 8 added
 to each.
 
-The ImaginaryBase takes the indexes NX and NY of these negabinary forms and
-forms N by interleaving the digits (bits) of NX and NY.  That interleaving
-is in the style of the ZOrderCurve.
+The C<ImaginaryBase> takes the indexes NX and NY of these negabinary forms
+and forms N by interleaving the digits (bits) of NX and NY.  That
+interleaving is in the style of the C<ZOrderCurve>.
 
     zX,zY = ZOrderCurve n_to_xy(N)
     X = to_negabinary(zX)
     Y = to_negabinary(zY)
     X,Y equals ImaginaryBase n_to_xy(N)
 
-The ZOrderCurve replicates blocks alternately right and up, whereas for
-ImaginaryBase here it's right,up,left,down repeating.
+The C<ZOrderCurve> replicates blocks alternately right and up, whereas for
+C<ImaginaryBase> here it's right,up,left,down repeating.
 
 =head2 Radix
 

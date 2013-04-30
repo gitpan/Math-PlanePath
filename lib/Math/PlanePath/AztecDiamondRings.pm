@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -236,7 +236,7 @@ __END__
        #                     78  79                            -6
 
 
-=for stopwords SquareSpiral eg AztecDiamondRings Ryde Math-PlanePath DiamondSpiral ie xbase OEIS
+=for stopwords eg Ryde Math-PlanePath ie xbase OEIS
 
 =head1 NAME
 
@@ -281,21 +281,22 @@ This path makes rings around an Aztec diamond shape,
                      ^
     -5 -4 -3 -2 -1  X=0 1  2  3  4  5
 
-This is similar to the DiamondSpiral, but has all four corners flattened to
-2 vertical or horizontal, instead of just one in the DiamondSpiral.  This is
-only a small change to the alignment of numbers in the sides, but is more
-symmetric.
+This is similar to the C<DiamondSpiral>, but has all four corners flattened
+to 2 vertical or horizontal, instead of just one in the C<DiamondSpiral>.
+This is only a small change to the alignment of numbers in the sides, but is
+more symmetric.
 
-Y axis N=1,6,15,28,45,66,etc are the hexagonal numbers k*(2k-1).  The
-hexagonal numbers of the "second kind" 3,10,21,36,55,78, etc k*(2k+1), are
-the vertical at X=-1 going downwards.  Combining those two is the triangular
-numbers 3,6,10,15,21,etc, k*(k+1)/2, alternately on one line and the other.
-Those are the positions of all the horizontal steps, ie. where dY=0.
+X<Hexagonal numbers>Y axis N=1,6,15,28,45,66,etc are the hexagonal numbers
+k*(2k-1).  The hexagonal numbers of the "second kind" 3,10,21,36,55,78, etc
+k*(2k+1), are the vertical at X=-1 going downwards.  Combining those two is
+the triangular numbers 3,6,10,15,21,etc, k*(k+1)/2, alternately on one line
+and the other.  Those are the positions of all the horizontal steps,
+ie. where dY=0.
 
-X axis N=1,5,13,25,etc is the centred square numbers.  Those numbers are
-made by drawing concentric squares with an extra point on each side each
-time.  The path here grows the same way, adding one extra point to each of
-the four sides.
+X<Centred square numbers>X axis N=1,5,13,25,etc is the "centred square
+numbers".  Those numbers are made by drawing concentric squares with an
+extra point on each side each time.  The path here grows the same way,
+adding one extra point to each of the four sides.
 
     *---*---*---*
     |           |
@@ -463,7 +464,7 @@ this path include
     http://oeis.org/A001844  (etc)
 
     n_start=1 (the default)
-      A001844    N on X axis, the centred squares 2n(n+1)+1
+      A001844    N on X axis, the centred squares 2k(k+1)+1
 
     n_start=0
       A023532    abs(dY), being 0 if N=k*(k+3)/2

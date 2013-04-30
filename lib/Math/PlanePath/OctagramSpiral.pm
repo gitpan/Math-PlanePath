@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -271,7 +271,7 @@ __END__
 
 
 
-=for stopwords OctagramSpiral PlanePath Ryde Math-PlanePath PyramidSides PyramidRows PyramidSpiral octagram SquareSpiral 18-gonal
+=for stopwords Ryde Math-PlanePath octagram 18-gonal
 
 =head1 NAME
 
@@ -311,11 +311,11 @@ This path makes a spiral around an octagram (8-pointed star),
 Each loop is 16 longer than the previous.  The 18-gonal numbers
 18,51,100,etc fall on the horizontal at Y=-1.
 
-The inner corners like 23, 31, 39, 47 are similar to the SquareSpiral path,
-but instead of going directly between them the octagram takes a detour out
-to make the points of the star.  Those excursions make each loops 8 longer
-(1 per excursion), hence a step of 16 here as compared to 8 for the
-SquareSpiral.
+The inner corners like 23, 31, 39, 47 are similar to the C<SquareSpiral>
+path, but instead of going directly between them the octagram takes a detour
+out to make the points of the star.  Those excursions make each loops 8
+longer (1 per excursion), hence a step of 16 here as compared to 8 for the
+C<SquareSpiral>.
 
 =head1 FUNCTIONS
 

@@ -44,6 +44,63 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['toothpick-tree-wedge.png',
+    'math-image --path=ToothpickTree,parts=wedge --values=LinesTree --scale=6 --size=200x104 --figure=toothpick --offset=0,5'],
+   ['toothpick-tree-small.png',
+    'math-image --path=ToothpickTree --values=LinesTree --scale=4 --size=32'],
+   ['toothpick-tree-big.png',
+    'math-image --path=ToothpickTree --values=LinesTree --scale=6 --size=200'],
+   ['toothpick-tree-octant.png',
+    'math-image --path=ToothpickTree,parts=octant --values=LinesTree --scale=6 --size=200 --figure=point'],
+
+   ['toothpick-replicate-small.png',
+    'math-image --path=ToothpickReplicate --lines --scale=4 --size=32 --figure=toothpick'],
+   ['toothpick-replicate-big.png',
+    'math-image --path=ToothpickReplicate --all --scale=6 --size=200 --figure=toothpick'],
+
+
+   ['one-of-eight-wedge.png',
+    'math-image --path=OneOfEight,parts=wedge --all --scale=3 --size=200x99'],
+   ['one-of-eight-1-nonleaf.png',
+    'math-image --path=OneOfEight,parts=1 --values=PlanePathCoord,planepath=\"OneOfEight,parts=1\",coordinate_type=IsNonLeaf --scale=3 --size=99'],
+   ['one-of-eight-small.png',
+    'math-image --path=OneOfEight --values=LinesTree --scale=4 --size=32'],
+   ['one-of-eight-big.png',
+    'math-image --path=OneOfEight --values=LinesTree --scale=6 --size=200'],
+   ['one-of-eight-1.png',
+    'math-image --path=OneOfEight,parts=1 --all --scale=3 --size=99'],
+   ['one-of-eight-octant.png',
+    'math-image --path=OneOfEight,parts=octant --all --scale=3 --size=99'],
+   ['one-of-eight-3mid.png',
+    'math-image --path=OneOfEight,parts=3mid --all --scale=3 --size=99'],
+   ['one-of-eight-3side.png',
+    'math-image --path=OneOfEight,parts=3side --all --scale=3 --size=99'],
+
+   ['lcorner-tree-octant.png',
+    'math-image --path=LCornerTree,parts=octant --values=LinesTree --scale=7 --size=99 --figure=point'],
+   ['lcorner-tree-octant-up.png',
+    'math-image --path=LCornerTree,parts=octant_up --values=LinesTree --scale=7 --size=99 --figure=point'],
+   ['lcorner-tree-wedge.png',
+    'math-image --path=LCornerTree,parts=wedge --values=LinesTree --scale=6 --size=200x95 --figure=point'],
+   ['lcorner-tree-big.png',
+    'math-image --path=LCornerTree --values=LinesTree --scale=7 --size=199'],
+   ['lcorner-tree-small.png',
+    'math-image --path=LCornerTree --values=LinesTree --scale=4 --size=32'],
+
+
+   ['flowsnake-3arm-big.png',
+    'math-image --path=Flowsnake,arms=3 --lines --scale=6 --size=200 --figure=point'],
+   ['flowsnake-small.png',
+    'math-image --path=Flowsnake --lines --scale=4 --size=32 --offset=-5,-13'],
+   ['flowsnake-big.png',
+    'math-image --path=Flowsnake --lines --scale=8 --size=200 --offset=-20,-90'],
+
+   ['flowsnake-centres-small.png',
+    'math-image --path=FlowsnakeCentres --lines --scale=4 --size=32 --offset=-5,-13'],
+   ['flowsnake-centres-big.png',
+    'math-image --path=FlowsnakeCentres --lines --scale=8 --size=200 --offset=-20,-90'],
+
+
    ['rationals-tree-rows-sb.png', \&special_sb_rows,
     title => 'RationalsTree,tree_type=SB rows' ],
    ['rationals-tree-lines-ayt.png',
@@ -82,21 +139,6 @@ foreach my $elem
    ['triangle-spiral-big.png',
     'math-image --path=TriangleSpiral --lines --scale=13 --size=300x150'],
 
-   ['one-of-eight-1-nonleaf.png',
-    'math-image --path=OneOfEight,parts=1 --values=PlanePathCoord,planepath=\"OneOfEight,parts=1\",coordinate_type=IsNonLeaf --scale=3 --size=99'],
-   ['one-of-eight-small.png',
-    'math-image --path=OneOfEight --values=LinesTree --scale=4 --size=32'],
-   ['one-of-eight-big.png',
-    'math-image --path=OneOfEight --values=LinesTree --scale=6 --size=200'],
-   ['one-of-eight-1.png',
-    'math-image --path=OneOfEight,parts=1 --all --scale=3 --size=99'],
-   ['one-of-eight-octant.png',
-    'math-image --path=OneOfEight,parts=octant --all --scale=3 --size=99'],
-   ['one-of-eight-3mid.png',
-    'math-image --path=OneOfEight,parts=3mid --all --scale=3 --size=99'],
-   ['one-of-eight-3side.png',
-    'math-image --path=OneOfEight,parts=3side --all --scale=3 --size=99'],
-
    ['koch-curve-small.png',
     'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8'],
    ['koch-curve-big.png',
@@ -133,25 +175,10 @@ foreach my $elem
    ['toothpick-upist-big.png',
     'math-image --path=ToothpickUpist --values=LinesTree --scale=5 --size=300x150 --figure=toothpick'],
 
-   ['lcorner-tree-small.png',
-    'math-image --path=LCornerTree --values=LinesTree --scale=4 --size=32'],
-   ['lcorner-tree-big.png',
-    'math-image --path=LCornerTree --values=LinesTree --scale=7 --size=200'],
-
    ['lcorner-replicate-small.png',
     'math-image --path=LCornerReplicate --lines --scale=4 --size=32'],
    ['lcorner-replicate-big.png',
     'math-image --path=LCornerReplicate --lines --scale=7 --size=200'],
-
-   ['toothpick-tree-small.png',
-    'math-image --path=ToothpickTree --values=LinesTree --scale=4 --size=32'],
-   ['toothpick-tree-big.png',
-    'math-image --path=ToothpickTree --values=LinesTree --scale=6 --size=200'],
-
-   ['toothpick-replicate-small.png',
-    'math-image --path=ToothpickReplicate --lines --scale=4 --size=32 --figure=toothpick'],
-   ['toothpick-replicate-big.png',
-    'math-image --path=ToothpickReplicate --all --scale=6 --size=200 --figure=toothpick'],
 
 
    ['imaginaryhalf-small.png',
@@ -829,19 +856,6 @@ foreach my $elem
     'math-image --path=KochPeaks --lines --scale=3 --size=200x100'],
 
 
-   ['flowsnake-3arm-big.png',
-    'math-image --path=Flowsnake,arms=4 --lines --scale=6 --size=200'],
-   ['flowsnake-small.png',
-    'math-image --path=Flowsnake --lines --scale=4 --size=32 --offset=-5,-13'],
-   ['flowsnake-big.png',
-    'math-image --path=Flowsnake --lines --scale=8 --size=200 --offset=-20,-90'],
-
-   ['flowsnake-centres-small.png',
-    'math-image --path=FlowsnakeCentres --lines --scale=4 --size=32 --offset=-5,-13'],
-   ['flowsnake-centres-big.png',
-    'math-image --path=FlowsnakeCentres --lines --scale=8 --size=200 --offset=-20,-90'],
-
-
    ['diamond-arms-small.png',
     'math-image --path=DiamondArms --lines --scale=5 --size=32'],
    ['diamond-arms-big.png',
@@ -914,11 +928,9 @@ foreach my $elem
   if ($option{'border'}) {
     png_border($tempfile);
   }
-  system('pngtextadd','--keyword=Author','--text=Kevin Ryde',$tempfile) == 0
-    or die "system(pngtextadd)";
-  system('pngtextadd','--keyword=Generator','--text=Math-PlanePath tools/gallery.pl running math-image',$tempfile) == 0
-    or die "system(pngtextadd)";
-
+  pngtextadd($tempfile, 'Author',    'Kevin Ryde');
+  pngtextadd($tempfile, 'Generator',
+             'Math-PlanePath tools/gallery.pl running math-image');
   {
     my $title = $option{'title'};
     if (! defined $title) {
@@ -929,8 +941,7 @@ foreach my $elem
         $title .= " $1";
       }
     }
-    system('pngtextadd','--keyword=Title',"--text=$title",$tempfile) == 0
-      or die "system(pngtextadd)";
+    pngtextadd ($tempfile, 'Title', $title);
   }
 
   my $targetfile = "$target_dir/$filename";
@@ -962,6 +973,7 @@ print "total gallery bytes $total_gallery_bytes ($gallery_html_bytes html, $big_
 exit 0;
 
 
+# draw a 1-pixel black border around the png image in $filename
 sub png_border {
   my ($filename) = @_;
   my $image = Image::Base::GD->new(-file => $filename);
@@ -970,6 +982,13 @@ sub png_border {
                      $image->get('-height') - 1,
                      'black');
   $image->save;
+}
+
+# add text to the png image in $filename
+sub pngtextadd {
+  my ($filename, $keyword, $value) = @_;
+  system('pngtextadd', "--keyword=$keyword", "--text=$value", $tempfile) == 0
+    or die "system(pngtextadd)";
 }
 
 sub special_sb_rows {

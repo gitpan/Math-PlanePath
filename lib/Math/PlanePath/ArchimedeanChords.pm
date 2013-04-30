@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -53,7 +53,7 @@ use constant dy_maximum => 1;
 
 #------------------------------------------------------------------------------
 
-use constant 1.02 _PI => 4 * atan2(1,1);  # similar to Math::Complex
+use constant 1.02 _PI => 2*atan2(1,0);
 
 # Starting at polar angle position t in radians,
 #
@@ -432,7 +432,7 @@ __END__
 # }
 
 
-=for stopwords Archimedean Ryde TheodorusSpiral ArchimedeanChords ie cartesian Math-PlanePath arcsin
+=for stopwords Archimedean Ryde ie cartesian Math-PlanePath arcsin
 
 =head1 NAME
 
@@ -484,10 +484,10 @@ Because the spacing is by unit chords, adjacent unit circles centred on each
 N position touch but don't overlap.  The spiral spacing of 1 unit per
 revolution means they don't overlap radially either.
 
-The unit chords here are a little like the TheodorusSpiral.  But the
-TheodorusSpiral goes by unit steps at a fixed right-angle and approximates
-an Archimedean spiral (of 3.14 radial spacing).  Whereas this
-ArchimedeanChords is an actual Archimedean spiral (of radial spacing 1),
+The unit chords here are a little like the C<TheodorusSpiral>.  But the
+C<TheodorusSpiral> goes by unit steps at a fixed right-angle and
+approximates an Archimedean spiral (of 3.14 radial spacing).  Whereas this
+C<ArchimedeanChords> is an actual Archimedean spiral (of radial spacing 1),
 with unit steps angling along that.
 
 =head1 FUNCTIONS

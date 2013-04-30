@@ -24,7 +24,7 @@ plan tests => 216;;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::AztecDiamondRings;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::AztecDiamondRings;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::AztecDiamondRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::AztecDiamondRings->VERSION,  $want_version,

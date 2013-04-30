@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -42,6 +42,15 @@ use constant parameter_info_array =>
 sub y_maximum {
   my ($self) = @_;
   return $self->{'height'} - 1;
+}
+
+sub diffxy_minimum {
+  my ($self) = @_;
+  if ($self->{'height'} == 0) {
+    return 0;                       # at X=0,Y=0
+  } else {
+    return 1 - $self->{'height'};   # at X=0,Y=height-1
+  }
 }
 
 sub dx_minimum {

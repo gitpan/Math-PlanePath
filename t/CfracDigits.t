@@ -24,7 +24,7 @@ plan tests => 39;;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::CfracDigits;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::CfracDigits;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::CfracDigits::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CfracDigits->VERSION,  $want_version,

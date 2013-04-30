@@ -29,13 +29,43 @@ plan tests => 1;
 
 use lib 't','xt';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
 # uncomment this to run the ### lines
 # use Smart::Comments '###';
 
 
+sub want_anum {
+  my ($anum) = @_;
+  return 0 unless $anum eq 'A160406';
+  # return 0 unless $anum =~ /A177702|A102283|A131756/;
+  return 1;
+}
+sub want_planepath {
+  my ($planepath) = @_;
+  # return 0 unless $planepath =~ /CellularRule190/;
+  # return 0 unless $planepath =~ /Diamond/;
+  # return 0 unless $planepath =~ /Divis|DiagonalRationals|CoprimeCol/;
+  # return 0 unless $planepath =~ /DiamondSpiral/;
+  # return 0 unless $planepath =~ /LCornerTree$/;
+  # return 0 unless $planepath =~ /LCorn|RationalsTree/;
+  # return 0 unless $planepath =~ /^Corner$/i;
+  # return 0 unless $planepath =~ /SierpinskiArrowheadC/;
+  # return 0 unless $planepath =~ /TriangleSpiralSkewed/;
+  # return 0 unless $planepath =~ /^Rows/;
+  # return 0 unless $planepath =~ /DiagonalRationals/;
+  return 1;
+}
+sub want_coordinate {
+  my ($type) = @_;
+  # return 0 unless $type =~ /IntXY/;
+  # return 0 unless $type =~ /DiffYX/i;
+  # return 0 unless $type =~ /^Depth/;
+  return 1;
+}
+
+#------------------------------------------------------------------------------
 # use POSIX ();
 # use constant DBL_INT_MAX => (POSIX::FLT_RADIX() ** POSIX::DBL_MANT_DIG());
 # use constant MY_MAX => (POSIX::FLT_RADIX() ** (POSIX::DBL_MANT_DIG()-5));
@@ -84,18 +114,21 @@ sub check_class {
 
   my %parameters = @$parameters;
   # return unless $class =~ /PlanePathTurn/;
-  # return unless ($parameters{'coordinate_type'}||'') =~ /Numer|Denom/;
-  # return unless ($parameters{'line_type'}||'') =~ /^Depth/;
   # return unless $parameters{'planepath'} =~ /DiagonalRat/i;
   # return unless $parameters{'planepath'} =~ /AlternateP/;
   # return unless $parameters{'planepath'} =~ /Peano/;
-  return unless $parameters{'planepath'} =~ /PyramidRows/;
+  # return unless $parameters{'planepath'} =~ /PyramidRows/;
   # return unless $parameters{'planepath'} =~ /Fib/;
   # return unless $parameters{'planepath'} =~ /TriangleSpiralSkewed/;
-  # return unless $anum =~ /A211014|A036704/;
-  # return unless $anum eq 'A067251';
-  # return unless $anum =~ /A0039/;
 
+  return unless want_anum($anum);
+  return unless want_planepath($parameters{'planepath'}
+                               || '');
+  return unless want_coordinate($parameters{'coordinate_type'}
+                                || $parameters{'delta_type'}
+                                || $parameters{'line_type'}
+                                || $parameters{'turn_type'}
+                                || '');
 
   eval "require $class" or die;
 
@@ -175,9 +208,9 @@ sub check_class {
       MyTestHelpers::diag ("skip i_start check: \"stripped\" values only");
 
     } elsif ($got_i_start != $want_i_start
-        && $anum ne 'A000004' # offset=0, but allow other i_start here
-        && $anum ne 'A000012' # offset=0, but allow other i_start here
-       ) {
+             && $anum ne 'A000004' # offset=0, but allow other i_start here
+             && $anum ne 'A000012' # offset=0, but allow other i_start here
+            ) {
       $good = 0;
       MyTestHelpers::diag ("bad: $name");
       MyTestHelpers::diag ("got  i_start  ",$got_i_start);

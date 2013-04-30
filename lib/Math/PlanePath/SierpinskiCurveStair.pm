@@ -29,7 +29,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -76,7 +76,9 @@ use constant parameter_info_array =>
   ];
 
 use Math::PlanePath::SierpinskiCurve;
-*x_minimum = \&Math::PlanePath::SierpinskiCurve::x_minimum;
+*x_minimum      = \&Math::PlanePath::SierpinskiCurve::x_minimum;
+*sumxy_minimum  = \&Math::PlanePath::SierpinskiCurve::sumxy_minimum;
+*diffxy_minimum = \&Math::PlanePath::SierpinskiCurve::diffxy_minimum;
 use constant rsquared_minimum => 1; # minimum X=1,Y=0
 
 use constant dx_minimum => -1;
@@ -584,7 +586,7 @@ __END__
      #                          ^
      # -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
-=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel SierpinskiCurve
+=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel Nend Ntop Xlevel
 
 =head1 NAME
 
@@ -598,7 +600,8 @@ Math::PlanePath::SierpinskiCurveStair -- Sierpinski curve with stair-step diagon
 
 =head1 DESCRIPTION
 
-This is a variation on the SierpinskiCurve with stair-step diagonal parts.
+This is a variation on the C<SierpinskiCurve> with stair-step diagonal
+parts.
 
     10  |                                  52-53
         |                                   |  |
@@ -626,8 +629,8 @@ This is a variation on the SierpinskiCurve with stair-step diagonal parts.
            ^
           X=0 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
 
-The tiling is the same as the SierpinskiCurve, but each diagonal is a stair
-step horizontal and vertical.  The correspondence is
+The tiling is the same as the C<SierpinskiCurve>, but each diagonal is a
+stair step horizontal and vertical.  The correspondence is
 
     SierpinskiCurve        SierpinskiCurveStair
 
@@ -641,9 +644,9 @@ step horizontal and vertical.  The correspondence is
      /     \  /               |  |  |
     0        3             0--1  4--5
 
-So the SierpinskiCurve N=0 to N=1 diagonal corresponds to N=0 to N=2 here,
-and N=2 to N=3 corresponds to N=3 to N=5.  The join section N=3 to N=4 gets
-an extra point at N=6 here, and later similar N=19, etc.
+So the C<SierpinskiCurve> N=0 to N=1 diagonal corresponds to N=0 to N=2
+here, and N=2 to N=3 corresponds to N=3 to N=5.  The join section N=3 to N=4
+gets an extra point at N=6 here, and later similar N=19, etc.
 
 =head2 Diagonal Length
 
@@ -731,9 +734,9 @@ For example level 2 in the default L=1 goes to N=((6*1+4)*4^2-4)/3=52 and
 Xlevel=(1+2)*2^2-1=11.  Or in the L=4 sample above level 1 is
 N=((6*4+4)*4^1-4)/3=36 and Xlevel=(4+2)*2^1-1=11.
 
-The power-of-4 in Nlevel is per the plain SierpinskiCurve, with factor 2L+1
-for the points making the diagonal stair.  The "/3" arises from the extra
-points between replications.  They become a power-of-4 series
+The power-of-4 in Nlevel is per the plain C<SierpinskiCurve>, with factor
+2L+1 for the points making the diagonal stair.  The "/3" arises from the
+extra points between replications.  They become a power-of-4 series
 
     Nextras = 1+4+4^2+...+4^(level-1) = (4^level-1)/3
 

@@ -44,7 +44,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -387,7 +387,7 @@ __END__
 # return (2*$i + $j - $k, $j+$k);
 
 
-=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism TerdragonMidpoint GosperSide si,sj,sk
+=for stopwords eg Ryde Dragon Math-PlanePath Nlevel Knuth et al vertices doublings OEIS Online terdragon ie morphism si,sj,sk
 
 =head1 NAME
 
@@ -473,9 +473,9 @@ N=14.
 The curve never crosses itself.  The vertices touch as little triangular
 corners and no edges repeat.
 
-The shape is the same as the GosperSide, but the turns here are by 120
-degrees each whereas the GosperSide is by 60 degrees each.  The extra angle
-here tightens up the shape.
+The shape is the same as the C<GosperSide>, but the turns here are by 120
+degrees each whereas the C<GosperSide> is by 60 degrees each.  The extra
+angle here tightens up the shape.
 
 =head2 Spiralling
 
@@ -733,7 +733,7 @@ that point is 2*120=240 degrees, ie. the segment N=16 to N=17 is at angle
 
 =head2 X,Y to N
 
-The current code applies TerdragonMidpoint C<xy_to_n()> to calculate six
+The current code applies C<TerdragonMidpoint> C<xy_to_n()> to calculate six
 candidate N from the six edges around a point.  Those N values which convert
 back to the target X,Y by C<n_to_xy()> are the results for
 C<xy_to_n_list()>.

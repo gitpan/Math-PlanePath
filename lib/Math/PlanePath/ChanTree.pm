@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -49,9 +49,6 @@ use Math::PlanePath::GcdRationals;
 # uncomment this to run the ### lines
 #use Smart::Comments;
 
-
-use constant class_x_negative => 0;
-use constant class_y_negative => 0;
 
 use constant parameter_info_array =>
   [ { name            => 'k',
@@ -88,8 +85,18 @@ use constant parameter_info_array =>
     },
   ];
 
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
+
 use constant x_minimum => 1;
 use constant y_minimum => 1;
+
+sub sumxy_minimum {
+  my ($self) = @_;
+  return ($self->{'reduced'} || $self->{'k'} == 2
+          ? 2    # X=1,Y=1 reduced or k=2 X=1,Y=1
+          : 3);  # X=1,Y=2
+}
 
 sub rsquared_minimum {
   my ($self) = @_;

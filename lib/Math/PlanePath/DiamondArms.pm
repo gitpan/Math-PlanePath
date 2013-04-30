@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -227,7 +227,7 @@ __END__
       #                   27                        -3
 
 
-=for stopwords DiamondArms Math-PlanePath Ryde ie
+=for stopwords Math-PlanePath Ryde ie
 
 =head1 NAME
 

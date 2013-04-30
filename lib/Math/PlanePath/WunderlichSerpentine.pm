@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -81,7 +81,10 @@ use constant parameter_info_array =>
 
 
 use Math::PlanePath::PeanoCurve;
-*dx_minimum = *dy_minimum = \&Math::PlanePath::PeanoCurve::dx_minimum;
+*dx_minimum = Math::PlanePath::PeanoCurve->can('dx_minimum');
+*dy_minimum = Math::PlanePath::PeanoCurve->can('dy_minimum');
+*dx_maximum = Math::PlanePath::PeanoCurve->can('dx_maximum');
+*dy_maximum = Math::PlanePath::PeanoCurve->can('dy_maximum');
 
 # radix=2 0101 is straight NSEW parts, other evens are diagonal
 # sub dir4_maximum {
@@ -561,7 +564,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords Walter Wunderlich Wunderlich's there'll eg Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online PeanoCurve radix Uber Peano-Kurven Elemente der Mathematik
+=for stopwords Walter Wunderlich Wunderlich's there'll eg Ryde OEIS trit-twiddling ie bignums prepending trit Math-PlanePath versa Online radix Uber Peano-Kurven Elemente der Mathematik
 
 =head1 NAME
 
@@ -579,8 +582,8 @@ Math::PlanePath::WunderlichSerpentine -- transpose parts of PeanoCurve, includin
 =head1 DESCRIPTION
 
 X<Wunderlich, Walter>This is an integer version of Walter Wunderlich's
-variations on the PeanoCurve.  A "serpentine type" controls transposing of
-selected 3x3 sub-parts.  The default is "alternating" 010,101,010 which
+variations on the C<PeanoCurve>.  A "serpentine type" controls transposing
+of selected 3x3 sub-parts.  The default is "alternating" 010,101,010 which
 transposes every second sub-part,
 
        8  | 60--61--62--63  68--69  78--79--80--81
@@ -623,8 +626,8 @@ parts, irrespective of what net reversals and transposes are in force on a
 particular part.
 
 When no parts are transposed, which is a string of all 0s, the result is the
-same as the PeanoCurve.  The special C<serpentine_type =E<gt> "Peano"> gives
-that.
+same as the C<PeanoCurve>.  The special C<serpentine_type =E<gt> "Peano">
+gives that.
 
 =head2 Coil Order
 
@@ -660,7 +663,7 @@ the right, and so on.
 =head2 Radix
 
 The optional C<radix> parameter gives the size of the sub-parts, similar to
-the PeanoCurve C<radix> parameter (see
+the C<PeanoCurve> C<radix> parameter (see
 L<Math::PlanePath::PeanoCurve/Radix>).  For example radix 5 gives
 
      radix => 5
@@ -677,7 +680,7 @@ L<Math::PlanePath::PeanoCurve/Radix>).  For example radix 5 gives
         +---------------------------------------------------------
          X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17
 
-Like the PeanoCurve if the radix is even then the ends of each sub-part
+Like the C<PeanoCurve> if the radix is even then the ends of each sub-part
 don't join up.  For example in radix 4 N=15 isn't next to N=16, nor N=31 to
 N=32, etc.
 

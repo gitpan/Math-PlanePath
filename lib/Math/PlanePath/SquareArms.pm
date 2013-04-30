@@ -30,7 +30,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -211,7 +211,7 @@ sub _rect_square_range {
 1;
 __END__
 
-=for stopwords SquareArms Math-PlanePath Ryde repdigit dlo dlo-1 Nlo Nhi
+=for stopwords Math-PlanePath Ryde repdigit dlo dlo-1 Nlo Nhi
 
 =head1 NAME
 
@@ -244,9 +244,10 @@ This path follows four spiral arms, each advancing successively,
       ^   ^   ^   ^   ^   ^   ^ 
      -3  -2  -1  X=0  1   2   3 ...
 
-Each arm is quadratic, with each loop 128 longer than the preceding.  The
-perfect squares fall in eight straight lines 4, with the even squares on the
-X and Y axes and the odd squares on the diagonals X=Y and X=-Y.
+Each arm is quadratic, with each loop 128 longer than the preceding.
+X<Square numbers>The perfect squares fall in eight straight lines 4, with
+the even squares on the X and Y axes and the odd squares on the diagonals
+X=Y and X=-Y.
 
 Some novel straight lines arise from numbers which are a repdigit in one or
 more bases (Sloane's A167782).  "111" in various bases falls on straight

@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -92,15 +92,36 @@ use constant parameter_info_array =>
 #      =  4/9 = 0.444
 
 {
-  # shared by Math::PlanePath::SierpinskiCurveStair
-  my @X_min = (undef,
+  # Note: shared by Math::PlanePath::SierpinskiCurveStair
+  my @x_minimum = (undef,
                1,  # 1 arm
                0,  # 2 arms
               );   # more than 2 arm, X goes negative
   sub x_minimum {
     my ($self) = @_;
-    return $X_min[$self->arms_count];
+    return $x_minimum[$self->arms_count];
   }
+}
+{
+  # Note: shared by Math::PlanePath::SierpinskiCurveStair
+  my @sumxy_minimum = (undef,
+                       1,  # 1 arm, octant and X>=1 so X+Y>=1
+                       1,  # 2 arms, X>=1 or Y>=1 so X+Y>=1
+                       0,  # 3 arms, Y>=1 and X>=Y, so X+Y>=0
+                      );   # more than 3 arm, Sum goes negative so undef
+  sub sumxy_minimum {
+    my ($self) = @_;
+    return $sumxy_minimum[$self->arms_count];
+  }
+}
+# Note: shared by Math::PlanePath::SierpinskiCurveStair
+#                 Math::PlanePath::AlternatePaper
+#                 Math::PlanePath::AlternatePaperMidpoint
+sub diffxy_minimum {
+  my ($self) = @_;
+  return ($self->arms_count == 1
+          ? 1       # octant Y<=X-1 so X-Y>=1
+          : undef); # more than 1 arm, DiffXY goes negative
 }
 use constant rsquared_minimum => 1; # minimum X=1,Y=0
 
@@ -647,7 +668,7 @@ __END__
 
 
 
-=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel CornerReplicate Nend Ntop Xlevel OEIS dX dY dX,dY nextturn
+=for stopwords eg Ryde Waclaw Sierpinski Sierpinski's Math-PlanePath Nlevel Nend Ntop Xlevel OEIS dX dY dX,dY nextturn
 
 =head1 NAME
 
@@ -728,7 +749,8 @@ The points are on a square grid with integer X,Y.  4 points are used in each
 The X axis N=0,3,12,15,48,etc are all the integers which use only digits 0
 and 3 in base 4.  For example N=51 is 303 base4.  Or equivalently the values
 all have doubled bits in binary, for example N=48 is 110000 binary.
-(Compare the CornerReplicate which also has these values along the X axis.)
+(Compare the C<CornerReplicate> which also has these values along the X
+axis.)
 
 =head2 Level Ranges
 

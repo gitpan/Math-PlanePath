@@ -24,7 +24,7 @@ plan tests => 37;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::StaircaseAlternating;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::StaircaseAlternating;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::StaircaseAlternating::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::StaircaseAlternating->VERSION,  $want_version,

@@ -26,6 +26,113 @@ use Module::Load;
 #use Smart::Comments;
 
 {
+  # row increments
+  require Math::NumSeq::PlanePathCoord;
+  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
+      ->{'planepath'}->{'choices'}};
+
+  # @choices = grep {$_ ne 'CellularRule'} @choices;
+  # @choices = grep {$_ ne 'Rows'} @choices;
+  # @choices = grep {$_ ne 'Columns'} @choices;
+  # @choices = grep {$_ ne 'ArchimedeanChords'} @choices;
+  @choices = grep {$_ ne 'MultipleRings'} @choices;
+  @choices = grep {$_ ne 'VogelFloret'} @choices;
+  # @choices = grep {$_ ne 'PythagoreanTree'} @choices;
+  # @choices = grep {$_ ne 'PeanoHalf'} @choices;
+  # @choices = grep {$_ !~ /EToothpick|LToothpick|Surround|Peninsula/} @choices;
+  #
+  # @choices = grep {$_ ne 'CornerReplicate'} @choices;
+  # @choices = grep {$_ ne 'ZOrderCurve'} @choices;
+  # unshift @choices, 'CornerReplicate', 'ZOrderCurve';
+
+  my $num_choices = scalar(@choices);
+  print "$num_choices choices\n";
+
+  my @path_objects;
+  my %path_fullnames;
+  foreach my $name (@choices) {
+    my $class = "Math::PlanePath::$name";
+    Module::Load::load($class);
+
+    my $parameters = parameter_info_list_to_parameters
+      ($class->parameter_info_list);
+    foreach my $p (@$parameters) {
+      my $path_object = $class->new (@$p);
+      push @path_objects, $path_object;
+      $path_fullnames{$path_object} = "$name ".join(',',@$p);
+    }
+  }
+  my $num_path_objects = scalar(@path_objects);
+  print "total path objects $num_path_objects\n";
+
+  my $start_t = time();
+  my $t = $start_t-8;
+
+  my $i = 0;
+  # until ($path_objects[$i]->isa('Math::PlanePath::DiamondArms')) {
+  #   $i++;
+  # }
+
+  my $start_permutations = $i * ($num_path_objects-1);
+  my $num_permutations = $num_path_objects * ($num_path_objects-1);
+
+  for ( ; $i <= $#path_objects; $i++) {
+    my $path = $path_objects[$i];
+    my $fullname = $path_fullnames{$path};
+    my $n_start = $path->n_start;
+    $path->tree_n_num_children($n_start) or next;
+    print "$fullname\n";
+
+    # if (time()-$t < 0 || time()-$t > 10) {
+    #   my $upto_permutation = $i*$num_path_objects + $j || 1;
+    #   my $rem_permutation = $num_permutations
+    #     - ($start_permutations + $upto_permutation);
+    #   my $done_permutations = ($upto_permutation-$start_permutations);
+    #   my $percent = 100 * $done_permutations / $num_permutations || 1;
+    #   my $t_each = (time() - $start_t) / $done_permutations;
+    #   my $done_per_second = $done_permutations / (time() - $start_t);
+    #   my $eta = int($t_each * $rem_permutation);
+    #   my $s = $eta % 60; $eta = int($eta/60);
+    #   my $m = $eta % 60; $eta = int($eta/60);
+    #   my $h = $eta;
+    #   print "$upto_permutation / $num_permutations  est $h:$m:$s  (each $t_each)\n";
+    #   $t = time();
+    # }
+
+    my $str = '';
+    my @values;
+    foreach my $depth (1 .. 50) {
+      my $width = path_tree_depth_to_width($path,$depth) // next;
+      $str .= "$width,";
+      push @values, $width;
+    }
+    if (defined (my $diff = constant_diff(@values))) {
+      print "$fullname\n";
+      print "  constant diff $diff\n";
+      next;
+    }
+    if (my $found = stripped_grep($str)) {
+      print "$fullname  match\n";
+      print "  (",substr($str,0,20),"...)\n";
+      print $found;
+      print "\n";
+    }
+  }
+  exit 0;
+
+  # Return the number of points at $depth.
+  sub path_tree_depth_to_width {
+    my ($path, $depth) = @_;
+    if (defined (my $n = $path->tree_depth_to_n($depth))
+        && defined (my $n_end = $path->tree_depth_to_n_end($depth))) {
+      return $n_end - $n + 1;
+    } else {
+      return undef;
+    }
+  }
+}
+
+{
   # between two paths
   require Math::NumSeq::PlanePathCoord;
   my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash

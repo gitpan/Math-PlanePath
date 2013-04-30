@@ -24,7 +24,7 @@ plan tests => 2250;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath::GreekKeySpiral;
 
@@ -33,7 +33,7 @@ require Math::PlanePath::GreekKeySpiral;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::GreekKeySpiral::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::GreekKeySpiral->VERSION,  $want_version,

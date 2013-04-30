@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -183,7 +183,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde ie DekkingCurve Math-PlanePath Dekking
+=for stopwords eg Ryde ie Math-PlanePath Dekking
 
 =head1 NAME
 
@@ -284,6 +284,7 @@ at 0 and if C<$n E<lt> 0> then the return is an empty list.
 
 L<Math::PlanePath>,
 L<Math::PlanePath::DekkingCentres>,
+L<Math::PlanePath::CincoCurve>,
 L<Math::PlanePath::PeanoCurve>
 
 =head1 HOME PAGE

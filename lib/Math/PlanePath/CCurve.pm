@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -52,7 +52,7 @@ use Math::PlanePath::Base::Digits
 #                                          display   => 'Arms',
 #                                          type      => 'integer',
 #                                          minimum   => 1,
-#                                          maximum   => 4,
+#                                          maximum   => 2,
 #                                          default   => 1,
 #                                          width     => 1,
 #                                          description => 'Arms',

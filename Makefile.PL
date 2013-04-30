@@ -52,6 +52,7 @@ WriteMakefile
                                   'Math::PlanePath::ToothpickUpist',
                                   'Math::PlanePath::LCornerTree',
                                   'Math::PlanePath::LCornerReplicate',
+                                  'Math::PlanePath::OneOfEight',
                                 ],
                  },
 

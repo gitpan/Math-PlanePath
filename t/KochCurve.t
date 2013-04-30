@@ -24,7 +24,7 @@ plan tests => 146;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Devel::Comments;
@@ -36,7 +36,7 @@ require Math::PlanePath::KochCurve;
 # VERSION
 
 {
-  my $want_version = 101;
+  my $want_version = 102;
   ok ($Math::PlanePath::KochCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::KochCurve->VERSION,  $want_version,

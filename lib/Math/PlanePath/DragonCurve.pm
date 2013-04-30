@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -648,7 +648,7 @@ __END__
 
 #------------------------------------------------------------------------------
 
-=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook DragonMidpoint versa PlanePath Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns DragonCurve Shallit Kmosek SquareSpiral Seminumerical dX,dY bitwise lookup dx dy ie
+=for stopwords eg Ryde Dragon Math-PlanePath Heighway Harter et al vertices doublings OEIS Online Jorg Arndt fxtbook versa Nlevel Nlevel-1 Xlevel,Ylevel lengthways Lmax Lmin Wmin Wmax Ns Shallit Kmosek Seminumerical dX,dY bitwise lookup dx dy ie
 
 =head1 NAME
 
@@ -947,18 +947,18 @@ Return 0, the first N in the path.
 
 =head2 X,Y to N
 
-The current code uses the DragonMidpoint C<xy_to_n()> by rotating -45
+The current code uses the C<DragonMidpoint> C<xy_to_n()> by rotating -45
 degrees and offsetting to the midpoints of the four edges around the target
-X,Y.  The DragonMidpoint algorithm then gives four candidate N values and
-those which convert back to the desired X,Y in the DragonCurve C<n_to_xy()>
-are the results for C<xy_to_n_list()>.
+X,Y.  The C<DragonMidpoint> algorithm then gives four candidate N values and
+those which convert back to the desired X,Y in the C<DragonCurve>
+C<n_to_xy()> are the results for C<xy_to_n_list()>.
 
     Xmid,Ymid = X+Y, Y-X    # rotate -45 degrees
     for dx = 0 or -1
       for dy = 0 or 1
         N candidate = DragonMidpoint xy_to_n(Xmid+dx,Ymid+dy)
 
-Since there's at most two DragonCurve Ns at a given X,Y the loop can stop
+Since there's at most two C<DragonCurve> Ns at a given X,Y the loop can stop
 when two Ns are found.
 
 Only the "leaving" edges will convert back to the target N, so only two of
@@ -1118,7 +1118,7 @@ and can be masked out to lookup the final four dx, dy, next dx, next dy.
 =head1 OEIS
 
 The Dragon curve is in Sloane's Online Encyclopedia of Integer Sequences in
-various forms (and see DragonMidpoint for its forms too),
+various forms (and see C<DragonMidpoint> for its forms too),
 
     http://oeis.org/A014577  (etc)
 
@@ -1178,11 +1178,11 @@ http://www.cs.uwaterloo.ca/~shallit/Papers/scf.ps
 
 =pod
 
-The A126937 SquareSpiral numbering has the dragon curve and square
+The A126937 C<SquareSpiral> numbering has the dragon curve and square
 spiralling with their Y axes in opposite directions, as shown in its
 F<a126937.pdf>.  So the dragon curve turns up towards positive Y but the
 square spiral is numbered down towards negative Y (or vice versa).
-PlanePath code for this starting at C<$i=0> would be
+C<PlanePath> code for this starting at C<$i=0> would be
 
       my $dragon = Math::PlanePath::DragonCurve->new;
       my $square = Math::PlanePath::SquareSpiral->new (n_start => 0);

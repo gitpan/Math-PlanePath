@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -194,7 +194,7 @@ sub rect_to_n_range {
 1;
 __END__
 
-=for stopwords eg Ryde GosperIslands Math-PlanePath Gosper TerdragonCurve
+=for stopwords eg Ryde Math-PlanePath Gosper
 
 =head1 NAME
 
@@ -257,12 +257,12 @@ N=1,162,000,000.
 
 Both ends of such levels are in fact sub-spirals, like an "S" shape.
 
-The path is both the sides and the radial spokes of the GosperIslands path,
-as described in L<Math::PlanePath::GosperIslands/Side and Radial Lines>.
-Each N=3^level point is the start of a GosperIslands ring.
+The path is both the sides and the radial spokes of the C<GosperIslands>
+path, as described in L<Math::PlanePath::GosperIslands/Side and Radial
+Lines>.  Each N=3^level point is the start of a C<GosperIslands> ring.
 
-The path is the same as the TerdragonCurve except the turns here are by 60
-degrees each, whereas TerdragonCurve is by 120 degrees.  See
+The path is the same as the C<TerdragonCurve> except the turns here are by
+60 degrees each, whereas C<TerdragonCurve> is by 120 degrees.  See
 L<Math::PlanePath::TerdragonCurve> for the turn sequence and total direction
 formulas etc.
 

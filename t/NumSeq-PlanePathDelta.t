@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -23,7 +23,7 @@ use Test;
 
 use lib 't';
 use MyTestHelpers;
-MyTestHelpers::nowarnings();
+BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
@@ -56,7 +56,8 @@ ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(-3,-3), 2.5);
 ok (Math::NumSeq::PlanePathDelta::_delta_func_Dir4(2,-2), 3.5);
 
 {
-  my $two_pi = atan2(1,1)*8;
+  require Math::Trig;
+  my $two_pi = 2 * Math::Trig::pi();
   foreach my $degrees (5, 85, 95, 175, 185, 265, 275, 355) {
     my $radians = $degrees/360 * $two_pi;
     my $dx = cos($radians);
@@ -114,7 +115,8 @@ ok (Math::NumSeq::PlanePathDelta::_delta_func_TDir6(3,-1), 5.5);
   ok ($got_6 <= 3.1);
 }
 {
-  my $two_pi = atan2(1,1)*8;
+  require Math::Trig;
+  my $two_pi = 2 * Math::Trig::pi();
   foreach my $degrees (5, 85, 95, 175, 185, 265, 275, 355) {
     my $radians = $degrees/360 * $two_pi;
     my $dx = cos($radians);

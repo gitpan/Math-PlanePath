@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 101;
+$VERSION = 102;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -73,6 +73,24 @@ sub x_negative {
   return (($self->{'rule'} & 2)
           || ($self->{'rule'} & 3) == 1);
 }
+
+use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+sub sumxy_maximum {
+  my ($self) = @_;
+  if (($self->{'rule'} & 0x5F) == 0x0E) {   # left line 2
+    return 1;
+  }
+  return undef;
+}
+
+sub diffxy_minimum {
+  my ($self) = @_;
+  if (($self->{'rule'} & 0x5F) == 0x54) {  # right line 2
+    return -1;
+  }
+  return undef;
+}
+use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
 
 sub dx_minimum {
   my ($self) = @_;
@@ -305,7 +323,7 @@ my @rule_to_class;
                   n_start => 1, align => "left" ]);
 
   {
-    # left negative line, 2,10,...
+    # left negative line, rule=2,10,...
     # 111      any, doesn't occur
     # 110      any, doesn't occur
     # 101      any, doesn't occur
@@ -322,7 +340,7 @@ my @rule_to_class;
     }
   }
   {
-    # right positive line, 16,...
+    # right positive line, rule=16,...
     # 111      any, doesn't occur
     # 110      any, doesn't occur
     # 101      any, doesn't occur
@@ -632,7 +650,6 @@ sub xy_to_n {
     $n -= vec($row,$i,1);
   }
   return $n;
-;
 }
 
 # not exact
@@ -670,12 +687,13 @@ sub rect_to_n_range {
           $row_end_n->[$y2]);
 }
 
+#------------------------------------------------------------------------------
 {
   package Math::PlanePath::CellularRule::Line;
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 101;
+  $VERSION = 102;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -688,7 +706,7 @@ sub rect_to_n_range {
         display     => 'Align',
         type        => 'enum',
         default     => 'left',
-        choices     => ['left','right'],
+        choices     => ['left','centre','right'],
       },
       Math::PlanePath::Base::Generic::parameter_info_nstart1(),
     ];
@@ -696,6 +714,24 @@ sub rect_to_n_range {
   use constant class_y_negative => 0;
   use constant n_frac_discontinuity => .5;
 
+  use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+
+  sub sumxy_maximum {
+    my ($path) = @_;
+    return ($path->{'align'} eq 'left'
+            ? 0       # left X=-Y so X+Y=0 always
+            : undef);
+  }
+
+  sub diffxy_minimum {
+    my ($path) = @_;
+    return ($path->{'align'} eq 'right'
+            ? 0       # right X=Y so X-Y=0 always
+            : undef);
+  }
+  use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
+
+  #-----------------------------------------------------------
   my %align_to_sign = (left   => -1,
                        centre => 0,
                        right  => 1);
@@ -769,6 +805,24 @@ sub rect_to_n_range {
             $int);
   }
 
+  sub _UNTESTED__n_to_radius {
+    my ($self, $n) = @_;
+    $n = $n - $self->{'n_start'};  # to N=0 start
+    if ($self->{'align'} ne 'centre') {
+      $n *= sqrt(2 + $n*0);  # inherit bigfloat etc from $n
+    }
+    return $n;
+  }
+  sub _UNTESTED__n_to_rsquared {
+    my ($self, $n) = @_;
+    $n = $n - $self->{'n_start'};  # to N=0 start
+    $n *= $n;                      # squared
+    if ($self->{'align'} ne 'centre') {
+      $n *= 2;
+    }
+    return $n;
+  }
+
   sub xy_to_n {
     my ($self, $x, $y) = @_;
     ### CellularRule-Line xy_to_n(): "$x,$y"
@@ -803,11 +857,12 @@ sub rect_to_n_range {
   }
 }
 
+#------------------------------------------------------------------------------
 {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 101;
+  $VERSION = 102;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -823,6 +878,8 @@ sub rect_to_n_range {
   use constant class_y_negative => 0;
   use constant n_frac_discontinuity => .5;
 
+  use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+  use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
   use constant dx_maximum => 2;
   use constant dy_minimum => 0;
   use constant dy_maximum => 1;
@@ -880,6 +937,7 @@ sub rect_to_n_range {
   }
 }
 
+#------------------------------------------------------------------------------
 {
   # rule=6,38,134,166   sign=-1
   #    **
@@ -896,7 +954,7 @@ sub rect_to_n_range {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 101;
+  $VERSION = 102;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -918,19 +976,6 @@ sub rect_to_n_range {
   use constant class_y_negative => 0;
   use constant n_frac_discontinuity => .5;
 
-  my %align_to_sign = (left  => -1,
-                       right => 1);
-  sub new {
-    my $self = shift->SUPER::new (@_);
-    if (! defined $self->{'n_start'}) {
-      $self->{'n_start'} = $self->default_n_start;
-    }
-    $self->{'align'} ||= 'left';
-    $self->{'sign'} = $align_to_sign{$self->{'align'}}
-      || croak "Unrecognised align parameter: ",$self->{'align'};
-    return $self;
-  }
-
   sub x_negative {
     my ($self) = @_;
     return ($self->{'align'} eq 'left');
@@ -941,6 +986,22 @@ sub rect_to_n_range {
             ? 0
             : undef);
   }
+
+  use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
+  sub sumxy_maximum {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left'
+            ? 1
+            : undef);
+  }
+  sub diffxy_minimum {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right'
+            ? -1
+            : undef);
+  }
+  use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
+
   sub dx_minimum {
     my ($self) = @_;
     return ($self->{'align'} eq 'left'
@@ -962,6 +1023,20 @@ sub rect_to_n_range {
     return ($self->{'align'} eq 'left'
             ? (-2,1)
             : (0,1)); # North
+  }
+
+  #---------------------------------------------
+  my %align_to_sign = (left  => -1,
+                       right => 1);
+  sub new {
+    my $self = shift->SUPER::new (@_);
+    if (! defined $self->{'n_start'}) {
+      $self->{'n_start'} = $self->default_n_start;
+    }
+    $self->{'align'} ||= 'left';
+    $self->{'sign'} = $align_to_sign{$self->{'align'}}
+      || croak "Unrecognised align parameter: ",$self->{'align'};
+    return $self;
   }
 
   sub n_to_xy {
@@ -1061,7 +1136,7 @@ __END__
 
 
 
-=for stopwords Ryde Math-PlanePath PlanePath ie Xmax-Xmin CellularRule superclass eg
+=for stopwords Ryde Math-PlanePath PlanePath ie Xmax-Xmin superclass eg
 
 =head1 NAME
 
