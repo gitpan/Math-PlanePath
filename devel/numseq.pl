@@ -39,7 +39,6 @@ use Math::Trig 'pi';
   $planepath = "FactorRationals";
   $planepath = "RationalsTree,tree_type=Drib";
   $planepath = "UlamWarburtonQuarter";
-  $planepath = "UlamWarburton";
   $planepath = "GosperReplicate";
   $planepath = "QuintetReplicate";
   $planepath = "PowerArray";
@@ -47,14 +46,12 @@ use Math::Trig 'pi';
   $planepath = "ChanTree,k=2";
   $planepath = "ImaginaryHalf,digit_order=XnXY";
   $planepath = "ToothpickReplicate,parts=1";
-  $planepath = "PythagoreanTree,coordinates=AC,tree_type=UAD";
   $planepath = "CfracDigits,radix=2";
   $planepath = "TerdragonCurve";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
   $radix = 4;
   $planepath = "CfracDigits,radix=".($radix-1);
   $planepath = "DiagonalRationals,direction=up";
-  $planepath = "LCornerTree,parts=wedge";
   $planepath = "LCornerReplicate";
   $planepath = "OneOfEight,parts=wedge";
   $planepath = "QuadricIslands";
@@ -63,9 +60,12 @@ use Math::Trig 'pi';
   $planepath = "ToothpickTree,parts=octant";
   $planepath = "SacksSpiral";
   $planepath = "ComplexMinus,realpart=3";
+  $planepath = "UlamWarburton,parts=4";
+  $planepath = "LCornerTreeByCells,parts=diagonal-1";
+  $planepath = "PythagoreanTree,coordinates=SC,tree_type=UAD";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                                delta_type => 'dY',
-                                               # delta_type => 'Dir4',
+                                               # delta_type => 'dY',
+                                                delta_type => 'Dir4',
                                                # delta_type => 'TDir6',
                                                # delta_type => 'dAbsDiff',
                                               );

@@ -33,6 +33,45 @@ use Math::PlanePath::DigitGroups;
 #use Smart::Comments '###';
 
 
+
+#------------------------------------------------------------------------------
+# parity_bitwise() vs path
+
+# X is low 0111..11 then Y above that, so (X^Y)&1 is
+# Parity = lowbit(N) ^ bit_above_lowest_zero(N)
+{
+  my $path = Math::PlanePath::DigitGroups->new;
+  my $bad = 0;
+  foreach my $n (0 .. 0xFFFF) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my $path_value = ($x + $y) % 2;
+    my $a_value = parity_bitwise($n);
+
+    if ($path_value != $a_value) {
+      MyTestHelpers::diag ("diff n=$n path=$path_value acalc=$a_value");
+      MyTestHelpers::diag ("  xy=$x,$y");
+      last if ++$bad > 10;
+    }
+  }
+  ok ($bad, 0, "parity_bitwise()");
+}
+
+sub parity_bitwise {
+  my ($n) = @_;
+  return ($n & 1) ^ bit_above_lowest_zero($n);
+}
+sub bit_above_lowest_zero {
+  my ($n) = @_;
+  for (;;) {
+    if (($n % 2) == 0) {
+      last;
+    }
+    $n = int($n/2);
+  }
+  $n = int($n/2);
+  return ($n % 2);
+}
+
 #------------------------------------------------------------------------------
 # A084472 - X axis in binary, excluding 0
 

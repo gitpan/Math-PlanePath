@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -66,10 +66,7 @@ use constant::defer parameter_info_array =>
              display => 'Turn Type',
              type    => 'enum',
              default => 'Left',
-             choices => ['Left',
-                         'Right',
-                         'LSR',
-                        ],
+             choices => ['Left','Right','LSR'],
              description => 'Left is 1=left, 0=right or straight.
 Right is 1=right, 0=left or straight.
 LSR is 1=left,0=straight,-1=right.',

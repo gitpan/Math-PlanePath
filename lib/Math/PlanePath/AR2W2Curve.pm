@@ -27,11 +27,12 @@
 package Math::PlanePath::AR2W2Curve;
 use 5.004;
 use strict;
+use Carp;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -300,9 +301,11 @@ my %start_state = (A1    => [0, 224],
                   );
 
 sub new {
-  my $class = shift;
-  return $class->SUPER::new (start_shape => 'A1', # default
-                             @_);
+  my $self = shift->SUPER::new (@_);
+  my $start_shape = ($self->{'start_shape'} ||= 'A1'); # default
+  $start_state{$start_shape}
+    || croak "Unrecognised start_shape option: ",$start_shape;
+  return $self;
 }
 
 sub n_to_xy {

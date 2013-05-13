@@ -122,14 +122,12 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::CoprimeColumns';
   $path_class = 'Math::PlanePath::DiagonalRationals';
   $path_class = 'Math::PlanePath::PeninsulaBridge';
-  $path_class = 'Math::PlanePath::PythagoreanTree';
   $path_class = 'Math::PlanePath::PowerRows';
   $path_class = 'Math::PlanePath::WythoffDifference';
   $path_class = 'Math::PlanePath::WythoffTriangle';
   $path_class = 'Math::PlanePath::WythoffPreliminaryTriangle';
   $path_class = 'Math::PlanePath::WythoffArray';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
-  $path_class = 'Math::PlanePath::UlamWarburton';
   $path_class = 'Math::PlanePath::SumFractions';
   $path_class = 'Math::PlanePath::AztecDiamondRings';
   $path_class = 'Math::PlanePath::TriangleSpiralSkewed';
@@ -140,25 +138,29 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::PeanoVertices';
   $path_class = 'Math::PlanePath::OneOfEightByCells';
   $path_class = 'Math::PlanePath::OneOfEight';
-  $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ZeckendorfTerms';
   $path_class = 'Math::PlanePath::BinaryTerms';
   $path_class = 'Math::PlanePath::LCornerTreeByCells';
   $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::MultipleRings';
+  $path_class = 'Math::PlanePath::ToothpickSpiral';
+  $path_class = 'Math::PlanePath::UlamWarburtonOld';
+  $path_class = 'Math::PlanePath::UlamWarburton';
+  $path_class = 'Math::PlanePath::LCornerTree';
+  $path_class = 'Math::PlanePath::PythagoreanTree';
 
   my $lo = 0;
-  my $hi = 30;
+  my $hi = 200;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
      #radix => 4,
      
-     # parts => '3',
+      parts => 'diagonal-1',
      #  ring_shape => 'polygon',
-      step => 1,
+     # step => 1,
 
      # rule => 6,
      # align => 'down',
@@ -166,7 +168,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # shift => -3,
      # x_start => 5,
      # y_start => 2,
-     # coordinates => 'BC',
+      coordinates => 'PQ',
+      tree_type => 'UAD',
 
      # divisor_type => 'proper',
 

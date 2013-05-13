@@ -27,6 +27,19 @@ use warnings;
 
 
 {
+  require Math::PlanePath::UlamWarburton;
+  my $path = Math::PlanePath::UlamWarburton->new(parts=>1);
+  for (my $depth = 0; $depth < 35; $depth++) {
+    my $n = $path->tree_depth_to_n($depth);
+    my ($x,$y) = $path->n_to_xy($n);
+    my $rn = $path->xy_to_n($x,$y);
+    my $diff = $rn - $n;
+    print "$depth $n  $x,$y     $diff\n";
+  }
+  exit 0;
+}
+
+{
   # height
   # my $class = 'Math::PlanePath::UlamWarburton';
   # my $class = 'Math::PlanePath::UlamWarburtonQuarter';

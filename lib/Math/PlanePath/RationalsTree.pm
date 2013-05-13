@@ -130,7 +130,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -426,9 +426,9 @@ sub xy_to_n {
 # is what the code above requires.  This term is the top-most quotient in
 # for example gcd(7,1) is 7=7*1+0 with q=7 returned as 6.
 #
-# If $x,$y have a common factor then the return is an empty list.  If
-# there's no common factor then returned list is always one or more
-# quotients.
+# If $x,$y have a common factor then the return is an empty list.
+# If $x,$y have no common factor then the returned list is always one or
+# more quotients.
 #
 sub _xy_to_quotients {
   my ($x,$y) = @_;
@@ -547,7 +547,7 @@ sub tree_n_num_children {
 }
 sub tree_n_parent {
   my ($self, $n) = @_;
-  $n = $n - $self->{'n_start'}; # and warn if $n==undef
+  $n = $n - $self->{'n_start'}; # N=0 basis, and warn if $n==undef
   if ($n > 0) {
     return int(($n-1)/2) + $self->{'n_start'};
   } else {
@@ -557,7 +557,7 @@ sub tree_n_parent {
 sub tree_n_to_depth {
   my ($self, $n) = @_;
   ### RationalsTree tree_n_to_depth(): $n
-  $n = $n - $self->{'n_start'};
+  $n = $n - $self->{'n_start'}; # N=0 basis, and warn if $n==undef
   unless ($n >= 0) {
     return undef;
   }
@@ -636,9 +636,10 @@ tree of Moritz Stern and Achille Brocot.  The rows are fractions of
 increasing value.
 
                                                N       depth
+                                             -------   -----
                     1/1                        1         0
               ------   ------
-           1/2               2/1              2,3        1
+           1/2               2/1             2 to 3      1
           /    \            /   \
        1/3      2/3      3/2      3/1        4 to 7      2
        | |      | |      | |      | |
@@ -675,24 +676,30 @@ so is never reached.
 The X=1 vertical is the fractions 1/Y which is at the left of each tree row,
 at N value
 
-    Nstart = 2^level
+    Nstart = 2^depth
 
 The Y=1 horizontal is the X/1 integers at the end each row which is
 
-    Nend = 2^(level+1)-1
+    Nend = 2^(depth+1)-1
+
+Numbering nodes of the tree by rows starting from 1 means N without the high
+1 bit is the offset into the row.  For example binary N="1011" is "011"=3
+into the row.  Those bits after the high 1 are also the directions to follow
+down the tree to a node, with 0=left and 1=right.  So N="1011" binary goes
+from the root 0=left then twice 1=right to reach X/Y=3/4 at N=11 decimal.
 
 =head2 Stern-Brocot Turn Sequence
 
-Each row makes a path from the Y axis down to the X.  Each row is further
-from the origin than the previous row and doesn't intersect any other row.
-The X/(X+Y) first half described is an upward "shear" to the X,Y points of a
-given row.  Similarly the second half (X+Y)/Y shears to the right.  For
-example,
+Each row makes a path from the Y axis across and down to the X.  Each row is
+further from the origin than the previous row and doesn't intersect any
+other row.  The X/(X+Y) first half is an upward "shear" to the X,Y points of
+the previous row.  Similarly the second half (X+Y)/Y shears to the right.
+For example,
 
                                 N=8 to N=11
                                previous row
-      row                      sheared up X,X+Y
-      depth=2 N=4to7                              row
+                               sheared up X,X+Y
+      depth=2 N=4to7
     |                     |      9--10      .     depth=3 N=8to15
     |                     |    /     |    .
     |                     |  8      11  .
@@ -707,22 +714,23 @@ example,
 
 The sequence of turns left or right is unchanged by the shears.  So at N=5
 the path turns towards the right and this is unchanged in the sheared copies
-at N=9 and copy at N=13.  The angle of the turn is different, but it's still
-to the right.
+at N=9 and N=13.  The angle of the turn is different, but it's still to the
+right.
 
 The first and last points of each row are always a turn to the right.  For
 example the turn at N=4 (going N=3 to N=4 to N=5) is to the right, and
 likewise at N=7.  This is because the second of the row such as N=5 is above
 a 45-degree line down from N=4, and similarly the second last such as N=6.
 
-The middle two points in each row of depthE<gt>=3 are always a turn to the
-left.  This happens first at N=11 and N=12 shown above which both turn to
-the left.  This is because the middle two make a 45-degree line and the
-second-from-middle points are above that line (N=10 and N=13).
+The middle two points in each row for depthE<gt>=3 are always a turn to the
+left.  N=11 and N=12 shown above are the first such middle pair, both
+turning to the left.  This is because the middle two are transposes across
+the leading diagonal and so make a 45-degree line.  The second-from-middle
+points are above that line (N=10 and N=13).
 
 The middle left turns are copied into successive rows and the result is a
-repeating pattern "LRRL" except the first and last in the row always right
-instead of left.
+repeating pattern "LRRL" except for the first and last in the row which are
+always right instead of left.
 
     N=3                                left
     otherwise if N=2^k or N=2^k-1      right
@@ -1055,6 +1063,135 @@ single group of bits N=1000..000.
 
 N=1,3,6,12,etc in the column X=1 are 3*2^(Y-1) corresponding to continued
 fraction S<0 + 1/Y> so terms 0,Y making runs 1,Y-1 and so bits N=11000...00.
+
+=head2 HCS Turn Sequence
+
+X<Thue-Morse>The turn sequence left or right following successive X,Y points
+is the Thue-Morse sequence.
+
+    count 1-bits in N+1      turn at N
+    -------------------      ---------
+           odd                 right
+           even                left
+
+This works because each row is two copies of the preceding.  The first copy
+is (X+Y)/Y so just a shear.  This is N=10xxxxx introducing a 0-bit at the
+top of N.  The second copy is Y/(X+Y) so a shear and then transpose.  This
+is N=11xxxxx introducing a further 1-bit at the top of N, so the transpose
+swapping leftE<lt>-E<gt>right corresponds to an extra 1-bit.
+
+For the last point of a row and the first of the next the points are
+
+                    N binary
+                    --------
+    second last       11110     Lucas     L[n]/L[n+1] eg. 4/7
+    last              11111     Fibonacci F[n]/F[n+1] eg. 8/13
+    first            100000     d+1 / 1               eg. 6/1
+    second           100001     2d-1 / 2              eg. 9/2
+
+The second last of a row 11110 is a pair of Lucas numbers and the last of a
+row 11111 is a pair of Fibonacci numbers bigger than those lucas numbers.
+Plotting the examples shows the layout,
+ 
+    13 |                __*  Fib 
+       |             __/  /  [Right]
+       |          __/    /
+       |         /      /
+     7 |        *       /
+       |      Luc      /
+       |              /
+     2 |              /  ___* 2nd
+     1 |         1st *---
+       |        [Left]
+       +--------------------------
+                4    6    8 9
+
+The Lucas and Fibonacci pairs are both on a slope roughly Y=X*phi for
+phi=(1+sqrt(5))/2 the golden ratio.  The first and second points of the next
+row are then off towards X=d+1 and hence a right turn at the last of the
+row, and it corresponds to N+1 = binary "100000" having an odd number of
+1-bits (a single 1-bit).  Then at the first of the next row the turn is left
+corresponding to N=1 = binary "100001" having an even number of 1-bits (two
+1-bits).
+
+The cases for the middle of a row, where the two copies of the previous row
+meet, behave similarly,
+
+    middle prev     1011110    Lucas     L[n+1]/L[n]
+    middle end      1011111    Fibonacci F[n+1]/F[n]
+    middle          1100000    1 / d+1
+    middle second   1100001    2 / 2d-1
+
+These points are like a transpose of the first/last shown above, though the
+Lucas and Fibonacci pairs are one depth further on.  The "middle end"
+1011111 turns to the right, corresponding to N+1=1100000 having even 1-bits,
+and then at the "middle" 1100000 turn left corresponding to N+1=1100001
+having odd 1-bits.
+
+=cut
+
+#       X/Y              low to high
+#     /     \
+# (X+Y)/Y  Y/(X+Y)
+
+#         d=0    d=1    d=2    d=3    d=4    d=5
+#  11110  1/1 -> 2/1 -> 1/3 -> 3/4 -> 4/7           Ld / Ld+1
+#  11111  1/1 -> 1/2 -> 2/3 -> 3/5 -> 5/8           Fd / Fd+1       R
+# 100000  1/1 -> 2/1 -> 3/1 -> 4/1 -> 5/1 -> 6/1    d+1+1 / 1       L
+# 100001  1/1 -> 1/2 -> 3/2 -> 5/2 -> 7/2 -> 9/2    2(d+1)-1 / 2
+
+# 101110  1/1 -> 2/1 -> 1/3 -> 3/4 -> 4/7 -> 11/7   Ld+1 / Ld
+# 101111  1/1 -> 1/2 -> 2/3 -> 3/5 -> 5/8 -> 13/8   Fd+1 / Fd       R
+# 110000  1/1 -> 2/1 -> 3/1 -> 4/1 -> 5/1 -> 1/6    1 / d+1         L
+# 110001  1/1 -> 1/2 -> 3/2 -> 5/2 -> 7/2 -> 2/9    2 / 2d-1
+
+# 9                               9    d
+# 8              b                8                                   b
+# 7           a  R                7  L                          a     R
+# 6                               6  c
+# 5                               5
+# 4                               4
+# 3                               3
+# 2                 L     d       2
+# 1                 c             1
+#    1  2  3  4  5  6  7  9          1  2  3  4  5  6  7  9 10 11 12 13
+
+#  1111110  1/1 -> 2/1 -> 1/3 -> 3/4 -> 4/7 -> 7/11 -> 11/18      Ld / Ld+1
+#  1111111  1/1 -> 1/2 -> 2/3 -> 3/5 -> 5/8 -> 8,13 -> 13/21      Fd / Fd+1
+#
+# L[d+2] = 2*F[d] + F[d+1]
+# L[d] = 2*F[d-2] + F[d-1]
+#      = 2*(F[d]-F[d-1]) + F[d-1]
+#      = 2*F[d] - 2*F[d-1] + F[d-1]
+#      = - F[d-1] + 2*F[d]                       -8+2*13=18
+#      = - (F[d+1]-F[d]) + 2*F[d]
+#      = - F[d+1] + F[d] + 2*F[d]
+#      = 3*F[d] - F[d+1]
+#      = 3*(F[d+2]-F[d+1]) - F[d+1]
+#      = 3*F[d+2] - 3*F[d+1] - F[d+1]
+#      = -4*F[d+1] + 3*F[d+2]
+# L[d]   = -4*F[d] + 3*F[d+1]                   -4*13 + 3*21 = 11
+# L[d+1] = 3*F[d] - F[d+1]                        3*13 - 21 = 18
+# L[d+1] = - F[d] + 2*F[d+1]                     -13 + 2*21
+#
+# F[d]-L[d] = F[d] - (-4*F[d] + 3*F[d+1])
+#           = F[d] + 4*F[d] - 3*F[d+1]
+#           = 5*F[d] - 3*F[d+1]                  dX = 5*13 - 3*21 = 2
+# F[d+1]-L[d+1] = F[d+1] - (3*F[d] - F[d+1])
+#               = F[d+1] - 3*F[d] + F[d+1]
+#               = -3*F[d] + 2*F[d+1]            dY = -3*13+2*21 = 3
+#               = -3*F[d] + 2*(F[d-1]+F[d])
+#               = -3*F[d] + 2*F[d-1] + 2*F[d]
+#               = -F[d] + 2*F[d-1]
+#               = -(F[d-2]+F[d-1]) + 2*F[d-1]
+#               = - F[d-2] - F[d-1] + 2*F[d-1]
+#               = - F[d-2] + F[d-1]
+#               = - F[d-2] + F[d-3] + F[d-2]
+#               = F[d-3]
+# dX = F[d-4]
+# dY = F[d-3]
+
+=pod
 
 =head2 Bird Tree
 
@@ -1406,7 +1543,7 @@ tree C<2**($depth+1)>.
 
 =item C<$num = $path-E<gt>tree_num_children_maximum()>
 
-Return 2 since every node has 2 children, making that both the minimum and
+Return 2 since every node has 2 children so that's both the minimum and
 maximum.
 
 =item C<$bool = $path-E<gt>tree_any_leaf()>
@@ -1422,41 +1559,50 @@ various forms,
 
     http://oeis.org/A007305   (etc)
 
-    A007305  SB X, Farey fractions (extra 0,1)
-    A047679  SB Y
-    A007306  SB X+Y sum, Farey 0 to 1 part (extra 1,1)
-    A153036  SB int(X/Y), integer part
-    A002487  CW X and Y, Stern diatomic sequence (extra 0)
-    A070990  CW Y-X diff, Stern diatomic first diffs (less 0)
-    A070871  CW X*Y product
-    A007814  CW int(X/Y), integer part, count trailing 1-bits
-                which is count trailing 0-bits of N+1
-    A020650  AYT X
-    A020651  AYT Y (Kepler numerator)
-    A086592  AYT X+Y sum (Kepler denominator)
-    A135523  AYT int(X/Y), integer part,
-                count trailing 0-bits plus 1 extra if N=2^k
-    A071585  HCS X+Y sum (X+Y giving rationals >= 1)
-    A071766  HCS Y
-    A162909  Bird X
-    A162910  Bird Y
-    A162911  Drib X
-    A162912  Drib Y
-    A174981  L-tree X
-    A002487  L-tree Y, same as CW X,Y, Stern diatomic
+    tree_type=SB
+      A007305   X, Farey fractions (extra 0,1)
+      A047679   Y
+      A007306   X+Y sum, Farey 0 to 1 part (extra 1,1)
+      A153036   int(X/Y), integer part
+      A088696  length of continued fraction SB left half (X/Y<1)
+
+    tree_type=CW
+      A002487   X and Y, Stern diatomic sequence (extra 0)
+      A070990   Y-X diff, Stern diatomic first diffs (less 0)
+      A070871   X*Y product
+      A007814   int(X/Y), integer part, count trailing 1-bits
+                  which is count trailing 0-bits of N+1
+      A086893   N position of Fibonacci F[n+1]/F[n], N = binary 1010..101
+      A061547   N position of Fibonacci F[n]/F[n+1], N = binary 11010..10
+
+    tree_type=AYT
+      A020650   X
+      A020651   Y (Kepler numerator)
+      A086592   X+Y sum (Kepler denominator)
+      A135523   int(X/Y), integer part,
+                   count trailing 0-bits plus 1 extra if N=2^k
+
+    tree_type=HCS
+      A071585   X+Y sum (X+Y giving rationals >= 1)
+      A071766   Y
+
+    tree_type=Bird
+      A162909   X
+      A162910   Y
+      A081254   N of row Y=1,    N = binary 1101010...10
+      A000975   N of column X=1, N = binary  101010...10
+
+    tree_type=Drib
+      A162911   X
+      A162912   Y
+      A086893   N of row Y=1,    N = binary 1101010...101
+      A000975   N of column X=1, N = binary  101010..1010
+
+    tree_type=L
+      A174981   X
+      A002487   Y, same as CW X,Y, Stern diatomic
 
     A000523  tree_n_to_depth(), being floor(log2(N))
-
-    A086893  position Fibonacci F[n+1],F[n] in Stern diatomic,
-               CW N of F[n+1]/F[n]
-               Drib N on row Y=1, being X/1
-    A061547  position Fibonacci F[n],F[n+1] in Stern diatomic,
-               CW N of F[n]/F[n+1]
-               Drib N in column X=1, being 1/Y
-
-    A081254  Bird N in row Y=1, binary 110101010...10
-    A000975  Bird N in column X=1, binary 1010..1010
-    A088696  length of continued fraction SB left half (X/Y<1)
 
     A059893  permutation SB<->CW, AYT<->HCS, Bird<->Drib
                reverse bits below highest

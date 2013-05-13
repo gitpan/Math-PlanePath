@@ -23,7 +23,7 @@ use strict;
 use Module::Load;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 {
   # row increments
@@ -37,6 +37,7 @@ use Module::Load;
   # @choices = grep {$_ ne 'ArchimedeanChords'} @choices;
   @choices = grep {$_ ne 'MultipleRings'} @choices;
   @choices = grep {$_ ne 'VogelFloret'} @choices;
+  @choices = grep {$_ !~ /ByCells/} @choices;
   # @choices = grep {$_ ne 'PythagoreanTree'} @choices;
   # @choices = grep {$_ ne 'PeanoHalf'} @choices;
   # @choices = grep {$_ !~ /EToothpick|LToothpick|Surround|Peninsula/} @choices;
@@ -52,6 +53,7 @@ use Module::Load;
   my %path_fullnames;
   foreach my $name (@choices) {
     my $class = "Math::PlanePath::$name";
+    ### $class
     Module::Load::load($class);
 
     my $parameters = parameter_info_list_to_parameters
@@ -102,9 +104,10 @@ use Module::Load;
     my $str = '';
     my @values;
     foreach my $depth (1 .. 50) {
-      my $width = path_tree_depth_to_width($path,$depth) // next;
-      $str .= "$width,";
-      push @values, $width;
+      # my $value = path_tree_depth_to_width($path,$depth) // next;
+      my $value = $path->tree_depth_to_n($depth) % 2;
+      $str .= "$value,";
+      push @values, $value;
     }
     if (defined (my $diff = constant_diff(@values))) {
       print "$fullname\n";
@@ -113,7 +116,7 @@ use Module::Load;
     }
     if (my $found = stripped_grep($str)) {
       print "$fullname  match\n";
-      print "  (",substr($str,0,20),"...)\n";
+      print "  (",substr($str,0,60),"...)\n";
       print $found;
       print "\n";
     }

@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 315;
+plan tests => 319;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 102;
+  my $want_version = 103;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,
@@ -59,6 +59,20 @@ require Math::PlanePath::PythagoreanTree;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# _sc_to_pq()
+
+{
+  my ($p,$q) = Math::PlanePath::PythagoreanTree::_sc_to_pq(3,5);
+  ok($p,2);
+  ok($q,1);
+}
+{
+  my ($p,$q) = Math::PlanePath::PythagoreanTree::_sc_to_pq(4,5);
+  ok($p,undef);
+  ok($q,undef);
 }
 
 #------------------------------------------------------------------------------

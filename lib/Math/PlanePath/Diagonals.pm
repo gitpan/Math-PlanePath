@@ -23,11 +23,12 @@
 package Math::PlanePath::Diagonals;
 use 5.004;
 use strict;
+use Carp;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -142,7 +143,11 @@ sub new {
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
-  $self->{'direction'} ||= 'down';
+
+  my $direction = ($self->{'direction'} ||= 'down');
+  if (! ($direction eq 'up' || $direction eq 'down')) {
+    croak "Unrecognised direction option: ", $direction;
+  }
 
   $self->{'x_start'} ||= 0;
   $self->{'y_start'} ||= 0;

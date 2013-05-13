@@ -81,7 +81,7 @@ use constant 1.02; # various underscore constants below
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -120,16 +120,16 @@ use constant::defer parameter_info_array =>
                    'GCD',
                    'Depth', 'NumChildren', 'IsLeaf', 'IsNonLeaf',
 
+                   # 'Parity',
                    # 'Numerator','Denominator',
                    # 'Height',
                    # 'ToLeaf',
                    # 'GcdDivisions',
                    # 'KroneckerSymbol',
                    # 'NumSiblings',
-                   # 'ModXY',
-                   # 'MinAbs',
-                   # 'MaxAbs',
-                   # 'MulDist',
+                   # # 'MinAbs',
+                   # # 'MaxAbs',
+                   # # 'MulDist',
                    # 'HammingDist',
                   ];
     return [
@@ -955,6 +955,21 @@ sub _coordinate_func_HammingDist {
   return $ret;
 }
 
+sub _coordinate_func_Parity {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  $x += $y;
+  $y = _floor($x);
+  $y -= ($y % 2);
+  return $x - $y;
+}
+sub _floor {
+  my ($x) = @_;
+  my $int = int($x);
+  return ($x < $int ? $int-1 : $int);
+}
+
 sub _coordinate_func_Numerator {
   my ($self, $n) = @_;
   ### _coordinate_func_Numerator(): $n
@@ -1284,6 +1299,19 @@ sub characteristic_non_decreasing {
   *_NumSeq_FracXY_min_is_infimum = \&_NumSeq_Coord_FracXY_min; # if non-zero
   use constant _NumSeq_Coord_FracXY_integer => 0;
 
+  use constant _NumSeq_Coord_Parity_min => 0;
+  sub _NumSeq_Coord_Parity_integer { $_[0]->_NumSeq_Coord_Sum_integer }
+  sub _NumSeq_Coord_Parity_max {
+    my ($self) = @_;
+    return ($self->_NumSeq_Coord_Parity_integer
+            ? 1
+            : 2);
+  }
+  sub _NumSeq_Parity_max_is_supremum {
+    my ($self) = @_;
+    return ($self->_NumSeq_Coord_Parity_integer ? 0 : 1);
+  }
+
   sub _NumSeq_Coord_Numerator_min {
     my ($self) = @_;
     if (defined (my $gcd_maximum = $self->_NumSeq_Coord_GCD_max)) {
@@ -1391,17 +1419,6 @@ sub characteristic_non_decreasing {
     return undef;
   }
 
-  sub _NumSeq_Coord_MinAbs_min {
-    my ($self) = @_;
-    if (defined (my $x_minimum = $self->x_minimum)
-        && defined (my $y_minimum = $self->y_minimum)
-        && defined (my $x_maximum = $self->x_maximum)
-        && defined (my $y_maximum = $self->y_maximum)) {
-      return Math::NumSeq::PlanePathCoord::min
-        ($x_minimum, $y_minimum, -$x_maximum, -$y_maximum);
-    }
-    return undef;
-  }
   sub _NumSeq_Coord_Max_min {
     my ($self) = @_;
     my $x_minimum = $self->x_minimum;
@@ -1421,21 +1438,43 @@ sub characteristic_non_decreasing {
     }
     return undef;
   }
-  sub _NumSeq_Coord_MaxAbs_max {
-    my ($self) = @_;
-    if (defined (my $x_minimum = $self->x_minimum)
-        && defined (my $y_minimum = $self->y_minimum)
-        && defined (my $x_maximum = $self->x_maximum)
-        && defined (my $y_maximum = $self->y_maximum)) {
-      return Math::NumSeq::PlanePathCoord::max
-        (-$x_minimum, -$y_minimum, $x_maximum, $y_maximum);
-    }
-    return undef;
-  }
   *_NumSeq_Coord_Min_integer    = \&_NumSeq_Coord_Sum_integer;
-  *_NumSeq_Coord_MinAbs_integer = \&_NumSeq_Coord_Sum_integer;
   *_NumSeq_Coord_Max_integer    = \&_NumSeq_Coord_Sum_integer;
+
+  use constant _NumSeq_Coord_HammingDist_min => 0;
+  use constant _NumSeq_Coord_HammingDist_integer => 1;
+  # sub _NumSeq_Coord_HammingDist_min {
+  #   my ($self) = @_;
+  #   return ($self->x_negative || $self->y_negative ? undef : 0);
+  # }
+
+  sub _NumSeq_Coord_MinAbs_min {
+    my ($self) = @_;
+    my $x_minimum = $self->x_minimum;
+    my $y_minimum = $self->y_minimum;
+    my $x_maximum = $self->x_maximum;
+    my $y_maximum = $self->y_maximum;
+    return Math::NumSeq::PlanePathCoord::min
+      (0,
+       (defined $x_minimum && $x_minimum > 0 ? $x_minimum : ()),
+       (defined $y_minimum && $y_minimum > 0 ? $y_minimum : ()),
+       (defined $x_maximum && $x_maximum < 0 ? -$x_maximum : ()),
+       (defined $y_maximum && $y_maximum < 0 ? -$y_maximum : ()));
+  }
+  *_NumSeq_Coord_MinAbs_integer = \&_NumSeq_Coord_Sum_integer;
+
   *_NumSeq_Coord_MaxAbs_integer = \&_NumSeq_Coord_Sum_integer;
+  sub _NumSeq_Coord_MaxAbs_max {
+     my ($self) = @_;
+     if (defined (my $x_minimum = $self->x_minimum)
+         && defined (my $y_minimum = $self->y_minimum)
+         && defined (my $x_maximum = $self->x_maximum)
+         && defined (my $y_maximum = $self->y_maximum)) {
+       return Math::NumSeq::PlanePathCoord::max
+         (-$x_minimum, -$y_minimum, $x_maximum, $y_maximum);
+     }
+     return undef;
+   }
 
   sub _NumSeq_Coord_pred_X {
     my ($path, $value) = @_;
@@ -1490,6 +1529,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_Depth_non_decreasing => 1; # usually
   use constant _NumSeq_Coord_NumChildren_integer => 1;
 
+  use constant _NumSeq_Coord_ToLeaf_integer => 1;
+  use constant _NumSeq_Coord_ToLeaf_min => 0;
+ 
   use constant _NumSeq_Coord_Height_integer => 1;
   use constant _NumSeq_Coord_Height_min => 0; # at a leaf
   sub _NumSeq_Coord_Height_max {
@@ -1554,8 +1596,9 @@ sub characteristic_non_decreasing {
 #    #  AbsX => 'A053615', # runs 0..n..0
 #    # },
 # }
-# { package Math::PlanePath::TriangleSpiral;
-# }
+{ package Math::PlanePath::TriangleSpiral;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
 # { package Math::PlanePath::TriangleSpiralSkewed;
 # }
 { package Math::PlanePath::DiamondSpiral;
@@ -1579,11 +1622,22 @@ sub characteristic_non_decreasing {
     my ($self) = @_;
     return $self->{'wider'} & 1;  # 1 if 0,0 not visited
   }
+
+  # always odd/even according to wider odd/even
+  sub _NumSeq_Coord_Parity_min {
+    my ($self) = @_;
+    return $self->{'wider'} & 1;
+  }
+  *_NumSeq_Coord_Parity_max = \&_NumSeq_Coord_Parity_min;
+
+  # X!=Y when wider odd
+  *_NumSeq_Coord_HammingDist_min = \&_NumSeq_Coord_Parity_min;
 }
 # { package Math::PlanePath::HexSpiralSkewed;
 # }
-# { package Math::PlanePath::HexArms;
-# }
+{ package Math::PlanePath::HexArms;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
 # { package Math::PlanePath::HeptSpiralSkewed;
 # }
 # { package Math::PlanePath::AnvilSpiral;
@@ -1791,6 +1845,11 @@ sub characteristic_non_decreasing {
   *_NumSeq_Coord_FracXY_non_decreasing  = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_FracXY_integer         = \&_NumSeq_Coord_X_increasing;
 
+  sub _NumSeq_Parity_min_is_infimum {
+    my ($self) = @_;
+    return $self->{'ring_shape'} eq 'polygon';
+  }
+
   use constant _NumSeq_Coord_oeis_anum =>
     {
      # MultipleRings step=0 is trivial X=N,Y=0
@@ -1840,6 +1899,19 @@ sub characteristic_non_decreasing {
 
   # in order of radius so monotonic, but always have 4x duplicates or more
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
+
+  sub _NumSeq_Coord_HammingDist_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd' ? 1 : 0);
+  }
+  sub _NumSeq_Coord_Parity_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd' ? 1 : 0);
+  }
+  sub _NumSeq_Coord_Parity_max {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'even' ? 0 : 1);
+  }
 }
 { package Math::PlanePath::HypotOctant;
   *_NumSeq_Coord_SumAbs_min = \&x_minimum;
@@ -1856,6 +1928,20 @@ sub characteristic_non_decreasing {
 
   # in order of radius so monotonic, but can have duplicates
   use constant _NumSeq_Coord_Radius_non_decreasing => 1;
+
+  sub _NumSeq_Coord_HammingDist_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd' ? 1 : 0);
+  }
+
+  sub _NumSeq_Coord_Parity_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd' ? 1 : 0);
+  }
+  sub _NumSeq_Coord_Parity_max {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'even' ? 0 : 1);
+  }
 }
 { package Math::PlanePath::TriangularHypot;
   sub _NumSeq_Coord_SumAbs_min {
@@ -1893,6 +1979,19 @@ sub characteristic_non_decreasing {
   # in order of triangular radius so monotonic, but can have duplicates so
   # non-decreasing
   use constant _NumSeq_Coord_TRadius_non_decreasing => 1;
+
+  sub _NumSeq_Coord_HammingDist_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd' ? 1 : 0);
+  }
+  sub _NumSeq_Coord_Parity_min {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd' ? 1 : 0);
+  }
+  sub _NumSeq_Coord_Parity_max {
+    my ($self) = @_;
+    return ($self->{'points'} eq 'odd' || $self->{'points'} eq 'all' ? 1 : 0);
+  }
 }
 { package Math::PlanePath::PythagoreanTree;
   use constant _NumSeq_Coord_Height_min => undef;
@@ -1903,6 +2002,9 @@ sub characteristic_non_decreasing {
                                      BA => 1, # X=Y never occurs
                                      AC => 2, # C>=A+2 so abs(X-Y)>=2
                                      BC => 1,
+                                     SM => 1, # X=Y never occurs
+                                     SC => 2, # X<=Y-2
+                                     MC => 1, # X=Y never occurs
                                     );
     sub _NumSeq_Coord_AbsDiff_min {
       my ($self) = @_;
@@ -1915,6 +2017,9 @@ sub characteristic_non_decreasing {
                                    AC => 0, # A<C so int(A/C)==0 always
                                    BC => 0, # B<C so int(A/C)==0 always
                                    PQ => 1, # octant X>=Y+1 so X/Y>1
+                                   SM => 0, # A>=1,B>=1 so int(A/B)>=0
+                                   SC => 0,
+                                   MC => 0,
                                   );
     sub _NumSeq_Coord_IntXY_min {
       my ($self) = @_;
@@ -1924,6 +2029,9 @@ sub characteristic_non_decreasing {
   {
     my %_NumSeq_Coord_IntXY_max = (AC => 0, # A<C so int(A/C)==0 always
                                    BC => 0, # B<C so int(A/C)==0 always
+                                   SM => 0, # X<Y so int(X/Y)<1
+                                   SC => 0, # X<Y so int(X/Y)<1
+                                   MC => 0, # X<Y so int(X/Y)<1
                                   );
     sub _NumSeq_Coord_IntXY_max {
       my ($self) = @_;
@@ -1955,7 +2063,10 @@ sub characteristic_non_decreasing {
                                     AC => 1,  # at X=3,Y=5
                                     BC => 0,  # at X=8,Y=17
                                     PQ => 0,  # at X=2,Y=1
-                                );
+                                    SM => 0,  # at X=3,Y=4
+                                    SC => 0,  # at X=3,Y=5
+                                    MC => 0,  # at X=4,Y=5
+                                   );
     sub _NumSeq_Coord_BitAnd_min {
       my ($self) = @_;
       return $_NumSeq_Coord_BitAnd_min{$self->{'coordinates'}};
@@ -1966,6 +2077,9 @@ sub characteristic_non_decreasing {
                                    AC => 7,  # at A=3,C=5
                                    BC => 5,  # at B=4,C=5
                                    PQ => 3,  # at P=2,Q=1
+                                   SM => 7,  # at X=3,Y=4
+                                   SC => 7,  # at X=3,Y=5
+                                   MC => 5,  # at X=4,Y=5
                                   );
     sub _NumSeq_Coord_BitOr_min {
       my ($self) = @_;
@@ -1977,6 +2091,9 @@ sub characteristic_non_decreasing {
                                     AC => 6, # at X=3,Y=5
                                     BC => 1, # at X=4,Y=5
                                     PQ => 1, # at X=3,Y=2
+                                    SM => 1, # at X=3,Y=4
+                                    SC => 6,  # at X=3,Y=5
+                                    MC => 1,  # at X=4,Y=5
                                 );
     sub _NumSeq_Coord_BitXor_min {
       my ($self) = @_;
@@ -1986,7 +2103,28 @@ sub characteristic_non_decreasing {
 
   sub _NumSeq_Coord_Radius_integer {
     my ($self) = @_;
-    return ($self->{'coordinates'} eq 'AB'); # hypot
+    return ($self->{'coordinates'} eq 'AB'     # hypot
+           || $self->{'coordinates'} eq 'SM'); # hypot
+  }
+
+  use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
+  
+  {
+    my %_NumSeq_Coord_Parity_min = (PQ => 1, # one odd one even, so odd always
+                                    AB => 1, # odd,even so odd always
+                                    BA => 1,
+                                    BC => 1, # even,odd so odd always
+                                   );
+    sub _NumSeq_Coord_Parity_min {
+      my ($self) = @_;
+      return $_NumSeq_Coord_Parity_min{$self->{'coordinates'}} || 0;
+    }
+  }
+  sub _NumSeq_Coord_Parity_max {
+    my ($self) = @_;
+    return ($self->{'coordinates'} eq 'AC'
+            ? 0   # odd,odd so even always
+            : 1);
   }
 
   # Not quite right.
@@ -2115,6 +2253,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_BitXor_min => 1;  # X=2,Y=3
   use constant _NumSeq_Coord_ToLeaf_max => undef;
   use constant _NumSeq_Coord_Height_min => undef;
+  use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=Kepler' =>
@@ -2144,6 +2283,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_min => 1;  # no common factor
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
   use constant _NumSeq_Coord_BitXor_min => 1; # X=2,Y=3
+  use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
 
   # use constant _NumSeq_Coord_oeis_anum =>
   #   { 'radix=2' =>
@@ -2199,6 +2339,15 @@ sub characteristic_non_decreasing {
             : 0);                   # k even X=2,Y=2
   }
   use constant _NumSeq_Coord_ToLeaf_max => undef;
+
+  sub _NumSeq_Coord_Parity_min {
+    my ($self) = @_;
+    return ($self->{'k'} % 2
+            ? 1  # k odd has one odd, one even, so odd
+            : 0);
+  }
+  # X!=Y when k odd
+  *_NumSeq_Coord_HammingDist_min = \&_NumSeq_Coord_Parity_min;
 
   use constant _NumSeq_Coord_oeis_anum =>
     {
@@ -2362,23 +2511,38 @@ sub characteristic_non_decreasing {
 # }
 # { package Math::PlanePath::ImaginaryHalf;
 # }
-# { package Math::PlanePath::CubicBase;
-# }
+{ package Math::PlanePath::CubicBase;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
+{ package Math::PlanePath::Flowsnake;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
+{ package Math::PlanePath::FlowsnakeCentres;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
 { package Math::PlanePath::GosperIslands;
   use constant _NumSeq_Coord_SumAbs_min => 2; # minimum X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_TRSquared_min => 4; # minimum X=1,Y=1
   use constant _NumSeq_Coord_GCD_min => 1; # X=0,Y=0 not visited
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
 }
-# { package Math::PlanePath::GosperSide;
-# }
+{ package Math::PlanePath::GosperReplicate;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
+{ package Math::PlanePath::GosperSide;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
 { package Math::PlanePath::KochCurve;
   use constant _NumSeq_Coord_IntXY_min => 3;  # at X=3,Y=1 among the Y>0 points
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
 }
 { package Math::PlanePath::KochPeaks;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y never occurs
   use constant _NumSeq_Coord_SumAbs_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
+  use constant _NumSeq_Coord_Parity_min => 1;  # odd always
+  use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
 }
 { package Math::PlanePath::KochSnowflakes;
   use constant _NumSeq_Coord_Y_integer => 0;
@@ -2459,6 +2623,13 @@ sub characteristic_non_decreasing {
     return ($self->{'align'} eq 'diagonal');
   }
 
+  sub _NumSeq_Coord_Parity_max {
+    my ($self) = @_;
+    return ($self->{'align'} eq 'triangular'
+            ? 0   # triangular always even points
+            : 1);
+  }
+
   use constant _NumSeq_Coord_ToLeaf_max => 4;
   sub _UNTESTED__NumSeq__tree_n_to_leaflen {
     my ($self, $n) = @_;
@@ -2472,13 +2643,17 @@ sub characteristic_non_decreasing {
     return $d;
   }
 }
-# { package Math::PlanePath::SierpinskiArrowhead;
-# }
+{ package Math::PlanePath::SierpinskiArrowhead;
+  *_NumSeq_Coord_Parity_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_Parity_max;
+}
 { package Math::PlanePath::SierpinskiArrowheadCentres;
   *_NumSeq_Coord_BitAnd_max
     = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_BitAnd_max;
   *_NumSeq_Coord_BitAnd_non_decreasing
     = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_BitAnd_non_decreasing;
+  *_NumSeq_Coord_Parity_max
+    = \&Math::PlanePath::SierpinskiTriangle::_NumSeq_Coord_Parity_max;
 }
 { package Math::PlanePath::SierpinskiCurve;
   {
@@ -2546,6 +2721,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_SumAbs_min => 1;
   use constant _NumSeq_Coord_AbsDiff_min  => 1; # X=Y doesn't occur
   use constant _NumSeq_Coord_TRSquared_min => 1; # minimum X=1,Y=0
+  use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
 }
 # { package Math::PlanePath::DragonMidpoint;
 # }
@@ -2587,17 +2763,20 @@ sub characteristic_non_decreasing {
     }
   }
 }
-# { package Math::PlanePath::TerdragonCurve;
-# }
+{ package Math::PlanePath::TerdragonCurve;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
+}
 { package Math::PlanePath::TerdragonRounded;
   use constant _NumSeq_Coord_SumAbs_min => 2; # X=2,Y=0
   use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
 }
 { package Math::PlanePath::TerdragonMidpoint;
   use constant _NumSeq_Coord_SumAbs_min => 2; # X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_TRSquared_min => 4; # either X=2,Y=0 or X=1,Y=1
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
 }
 # { package Math::PlanePath::R5DragonCurve;
 # }
@@ -3338,6 +3517,14 @@ sub characteristic_non_decreasing {
             : undef);
   }
 
+  sub _NumSeq_Coord_Parity_max {
+    my ($self) = @_;
+    return (($self->{'rule'} & 0x17) == 0    # single cell only
+            ? 0                              # X=0,Y=0 even
+
+            : 1);
+  }
+
   use constant _NumSeq_Coord_oeis_anum =>
     {
      # rule=14,46,142,174 left 2
@@ -3481,6 +3668,11 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_DiffYX_non_decreasing  => 1; # Y-X >= 0 always
   use constant _NumSeq_Coord_AbsDiff_non_decreasing => 1; # Y-X >= 0 always
   use constant _NumSeq_Coord_GCD_increasing => 1; # GCD==Y
+
+  sub _NumSeq_Coord_Parity_max {
+    my ($path) = @_;
+    return ($path->{'align'} eq 'centre' ? 1 : 0);
+  }
 
   sub _NumSeq_Coord_Numerator_min {
     my ($path) = @_;
@@ -3630,6 +3822,7 @@ sub characteristic_non_decreasing {
 { package Math::PlanePath::CellularRule::OddSolid;
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # Max=Y
+  use constant _NumSeq_Coord_Parity_max => 0; # always even points
 }
 { package Math::PlanePath::CellularRule54;
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
@@ -3652,6 +3845,7 @@ sub characteristic_non_decreasing {
 }
 { package Math::PlanePath::UlamWarburtonQuarter;
   use constant _NumSeq_Coord_ToLeaf_max => 4;
+  use constant _NumSeq_Coord_Parity_max => 0;  # even always
 
   sub _NumSeq__tree_num_children_pred {
     my ($self, $value) = @_;
@@ -3797,6 +3991,8 @@ sub characteristic_non_decreasing {
   }
   use constant _NumSeq_Coord_GCD_min => 1;  # X=0,Y=0 not visited
 
+  use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
+
   use constant _NumSeq_Coord_oeis_anum =>
     { 'divisor_type=all,n_start=1' =>
       { X     => 'A061017',  # n appears divisors(n) times
@@ -3871,6 +4067,13 @@ sub characteristic_non_decreasing {
     };
 }
 # { package Math::PlanePath::DigitGroups;
+#   # Not quite, A073089 is OFFSET=1 not N=0, also A073089 has extra initial 0
+#   # use constant _NumSeq_Coord_oeis_anum =>
+#   #   { 'radix=2' =>
+#   #     { Parity => 'A073089',  # DragonMidpoint AbsdY Nodd ^ bit-above-low-0
+#   #       # OEIS-Other: A073089 planepath=DigitGroups coordinate_type=Parity
+#   #     },
+#   #   };
 # }
 # { package Math::PlanePath::FibonacciWordFractal;
 # }
@@ -3903,6 +4106,24 @@ sub characteristic_non_decreasing {
     }
   }
   *_NumSeq_Coord_BitXor_min = \&_NumSeq_Coord_BitOr_min;
+
+  {
+    my %_NumSeq_Coord_HammingDist_min = (upper => 1,  # X!=Y for these
+                                         left  => 1,
+                                         ends  => 1);
+    sub _NumSeq_Coord_HammingDist_min {
+      my ($self) = @_;
+      return $_NumSeq_Coord_HammingDist_min{$self->{'L_fill'}} || 0;
+    }
+  }
+
+  # Not quite, A112539 OFFSET=1 versus start N=0 here
+  # use constant _NumSeq_Coord_oeis_anum =>
+  #   { 'L_fill=left' =>
+  #     { Parity => 'A112539',  # thue-morse count1bits mod 2
+  #       # OEIS-Catalogue: A112539 planepath=LTiling,L_fill=left coordinate_type=Parity
+  #     },
+  #   };
 }
 { package Math::PlanePath::WythoffArray;
   # FIXME: if x_start=1 but y_start=0 then want corresponding mixture of

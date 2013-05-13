@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -755,7 +755,9 @@ The midpoint curve is vertical when the C<DragonCurve> has a vertical
 followed by a left turn, or horizontal followed by a right turn.
 C<DragonCurve> verticals are whenever N is odd, and the turn is the bit
 above the lowest 0 in N, as described in
-L<Math::PlanePath::DragonCurve/Turn>.
+L<Math::PlanePath::DragonCurve/Turn>.  So
+
+    abs(dY) = lowbit(N) XOR bit-above-lowest-zero(N)
 
 The n of A073089 is offset by 2 from the N numbering of the path here, so
 n=N+2.  The initial value at n=1 in A073089 has no corresponding N (it would

@@ -46,9 +46,16 @@ if (! eval { require Math::NumSeq; 1 }) {
 require Math::NumSeq::PlanePathCoord;
 
 
+sub want_planepath {
+  my ($planepath) = @_;
+  # return 0 unless $planepath =~ /DiagonalRationals/;
+  # return 0 unless $planepath =~ /Ulam/;
+  return 1;
+}
 sub want_coordinate {
   my ($type) = @_;
-   return 0 unless $type =~ /IntXY/;
+  # return 0 unless $type =~ /Parity/;
+  # return 0 unless $type =~ /Hamming/;
   return 1;
 }
 
@@ -379,6 +386,8 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
+               #  'LCornerTree,parts=diagonal-1',
+               #  'LCornerTree,parts=diagonal',
                # 'LCornerTree,parts=3',
                # 'LCornerTree',
                # 'LCornerTree,parts=2',
@@ -415,6 +424,21 @@ my @modules = (
                
                # module list begin
               
+               'PythagoreanTree,coordinates=SM',
+               'PythagoreanTree,coordinates=SC',
+               'PythagoreanTree,coordinates=MC',
+               'PythagoreanTree,tree_type=FB,coordinates=SM',
+               'PythagoreanTree,tree_type=FB,coordinates=SC',
+               'PythagoreanTree,tree_type=FB,coordinates=MC',
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=AC',
+               'PythagoreanTree,coordinates=BC',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,tree_type=FB,coordinates=AC',
+               'PythagoreanTree,tree_type=FB,coordinates=BC',
+               'PythagoreanTree,tree_type=FB,coordinates=PQ',
+               
                'Diagonals,x_start=12,y_start=37',
                'Diagonals,x_start=-5,y_start=1',
                'Diagonals',
@@ -670,6 +694,8 @@ my @modules = (
                'GosperIslands',
                
                'UlamWarburton',
+               'UlamWarburton,parts=2',
+               'UlamWarburton,parts=1',
                'UlamWarburtonQuarter',
                
                'Staircase',
@@ -731,15 +757,6 @@ my @modules = (
                'ComplexMinus,realpart=4',
                'ComplexMinus,realpart=5',
                'ComplexRevolving',
-               
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=AC',
-               'PythagoreanTree,coordinates=BC',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,tree_type=FB,coordinates=AC',
-               'PythagoreanTree,tree_type=FB,coordinates=BC',
-               'PythagoreanTree,tree_type=FB,coordinates=PQ',
                
                'SierpinskiCurve',
                'SierpinskiCurve,arms=2',
@@ -835,16 +852,16 @@ my @modules = (
                'CfracDigits,radix=4',
                'CfracDigits,radix=37',
                
-               'ChanTree,k=2,n_start=1',
-               'ChanTree,n_start=1',
-               'ChanTree,k=4,n_start=1',
-               'ChanTree,k=5,n_start=1',
                'ChanTree,k=2',
                'ChanTree',
                'ChanTree,k=4',
                'ChanTree,k=5',
                'ChanTree,k=6',
                'ChanTree,k=7',
+               'ChanTree,k=2,n_start=1',
+               'ChanTree,n_start=1',
+               'ChanTree,k=4,n_start=1',
+               'ChanTree,k=5,n_start=1',
                
                'ImaginaryHalf',
                'ImaginaryHalf,digit_order=XXY',
@@ -1076,6 +1093,8 @@ my @modules = (
   require Math::NumSeq::PlanePathN;
   
   foreach my $mod (@modules) {
+    next unless want_planepath($mod);
+
     my $bad = 0;
     foreach my $elem (
                       ['Math::NumSeq::PlanePathDelta','delta_type'],

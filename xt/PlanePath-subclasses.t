@@ -60,6 +60,8 @@ my @modules = (
                # 'OneOfEight,parts=3mid',
                # 'OneOfEight,parts=3side',
                # 
+               # 'LCornerTree,parts=diagonal-1',
+               # 'LCornerTree,parts=diagonal',
                # 'LCornerTree,parts=wedge',
                # 'LCornerTree,parts=octant_up',
                # 'LCornerTree,parts=octant',
@@ -73,6 +75,45 @@ my @modules = (
                # 'LCornerReplicate',
 
                # module list begin
+
+               'PythagoreanTree,coordinates=SM',
+               'PythagoreanTree,coordinates=SC',
+               'PythagoreanTree,coordinates=MC',
+               'PythagoreanTree,tree_type=FB,coordinates=SM',
+               'PythagoreanTree,tree_type=FB,coordinates=SC',
+               'PythagoreanTree,tree_type=FB,coordinates=MC',
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=AC',
+               'PythagoreanTree,coordinates=BC',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,tree_type=FB,coordinates=AC',
+               'PythagoreanTree,tree_type=FB,coordinates=BC',
+               'PythagoreanTree,tree_type=FB,coordinates=PQ',
+
+               # Math::PlanePath::CellularRule::Line
+               'CellularRule,rule=2',  # left line
+               'CellularRule,rule=2,n_start=0',
+               'CellularRule,rule=2,n_start=37',
+               'CellularRule,rule=4',  # centre line
+               'CellularRule,rule=4,n_start=0',
+               'CellularRule,rule=4,n_start=37',
+               'CellularRule,rule=16', # right line
+               'CellularRule,rule=16,n_start=0',
+               'CellularRule,rule=16,n_start=37',
+
+               'UlamWarburton,parts=1',
+               'UlamWarburton,parts=2',
+               'UlamWarburton',
+               'UlamWarburton,n_start=0',
+               'UlamWarburton,n_start=0,parts=2',
+               'UlamWarburton,n_start=0,parts=1',
+               'UlamWarburton,n_start=37',
+               'UlamWarburton,n_start=37,parts=2',
+               'UlamWarburton,n_start=37,parts=1',
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,n_start=0',
+               'UlamWarburtonQuarter,n_start=37',
 
                'MultipleRings,ring_shape=polygon,step=3',
                'MultipleRings,ring_shape=polygon,step=5',
@@ -132,18 +173,6 @@ my @modules = (
                'CellularRule,n_start=0',
                'CellularRule,n_start=37',
 
-               'CellularRule,rule=2',  # left line
-               'CellularRule,rule=2,n_start=0',
-               'CellularRule,rule=2,n_start=37',
-
-               'CellularRule,rule=4',  # centre line
-               'CellularRule,rule=4,n_start=0',
-               'CellularRule,rule=4,n_start=37',
-
-               'CellularRule,rule=16', # right line
-               'CellularRule,rule=16,n_start=0',
-               'CellularRule,rule=16,n_start=37',
-
                'CellularRule,rule=206', # left solid
                'CellularRule,rule=206,n_start=0',
                'CellularRule,rule=206,n_start=37',
@@ -186,13 +215,6 @@ my @modules = (
                'TriangleSpiral',
                'TriangleSpiral,n_start=0',
                'TriangleSpiral,n_start=37',
-
-               'UlamWarburtonQuarter',
-               'UlamWarburtonQuarter,n_start=0',
-               'UlamWarburtonQuarter,n_start=37',
-               'UlamWarburton',
-               'UlamWarburton,n_start=0',
-               'UlamWarburton,n_start=37',
 
                'SierpinskiTriangle',
                'SierpinskiTriangle,n_start=37',
@@ -275,15 +297,6 @@ my @modules = (
                'AnvilSpiral,wider=2',
                'AnvilSpiral,wider=9',
                'AnvilSpiral,wider=17',
-
-               'PythagoreanTree,coordinates=BC',
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=AC',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,tree_type=FB,coordinates=AC',
-               'PythagoreanTree,tree_type=FB,coordinates=BC',
-               'PythagoreanTree,tree_type=FB,coordinates=PQ',
 
                'Flowsnake',
                'Flowsnake,arms=2',
@@ -711,7 +724,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 102;
+my $want_version = 103;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

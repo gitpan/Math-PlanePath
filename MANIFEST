@@ -65,6 +65,7 @@ devel/iterator.pl
 devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
+devel/l-tiling.pl
 devel/lib/Math/PlanePath/BalancedArray.pm
 devel/lib/Math/PlanePath/BinaryTerms-oeis.t
 devel/lib/Math/PlanePath/BinaryTerms.pm
@@ -122,7 +123,6 @@ devel/staircase-alternating.pl
 devel/terdragon.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
-devel/tiling.pl
 devel/tree.pl
 devel/ulam-warburton.pl
 devel/vertical.pl

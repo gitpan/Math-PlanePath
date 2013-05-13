@@ -27,12 +27,13 @@
 package Math::PlanePath::PyramidRows;
 use 5.004;
 use strict;
+use Carp;
 #use List::Util 'min','max';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -67,12 +68,23 @@ use constant parameter_info_array =>
     Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
+{
+  my %align_x_negative_step = (left   => 1,
+                               centre => 2);
+  sub x_negative {
+    my ($self) = @_;
+    my $align = $self->{'align'};
+    return ($align ne 'right'
+            && $self->{'step'} >= $align_x_negative_step{$align});
+  }
+}
 sub x_maximum {
   my ($self) = @_;
   return ($self->{'step'} == 0 || $self->{'align'} eq 'left'
           ? 0    # X=0 vertical, or left X<=0
           : undef);
 }
+
 sub sumxy_minimum {
   my ($self) = @_;
   # for align=left   step<=1 has X>=-Y so X+Y >= 0
@@ -153,6 +165,10 @@ sub dir_maximum_dxdy {
 
 #------------------------------------------------------------------------------
 
+my %align_known = (left   => 1,
+                   right  => 1,
+                   centre => 1);
+
 sub new {
   my $class = shift;
   ### PyramidRows new(): @_
@@ -163,6 +179,8 @@ sub new {
   }
 
   my $align = ($self->{'align'} ||= 'centre');
+  $align_known{$align}
+    or croak "Unrecognised align option: ",$align;
 
   my $step = $self->{'step'};
   $step = $self->{'step'} =
@@ -172,7 +190,7 @@ sub new {
 
   my $left_slope = $self->{'left_slope'} = ($align eq 'left' ? $step
                                             : $align eq 'right' ? 0
-                                            : int($step/2));
+                                            : int($step/2));  # 'centre'
   my $right_slope = $self->{'right_slope'} = $step - $left_slope;
 
   # "b" term in the quadratic giving N on the Y axis
@@ -184,15 +202,6 @@ sub new {
   ### right_slope: $self->{'right_slope'}
 
   return $self;
-}
-
-my %align_x_negative_step = (left  => 1,
-                             centre => 2);
-sub x_negative {
-  my ($self) = @_;
-  my $align = $self->{'align'};
-  return ($align ne 'right'
-          && $self->{'step'} >= $align_x_negative_step{$align});
 }
 
 # step==2 row line beginning at x=-0.5,

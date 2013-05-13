@@ -44,19 +44,78 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['toothpick-tree-3.png',
+    'math-image --path=ToothpickTree,parts=3 --values=LinesTree --scale=6 --size=200 --figure=point'],
+   ['toothpick-tree-octant.png',
+    'math-image --path=ToothpickTree,parts=octant --values=LinesTree --scale=6 --size=200 --figure=point'],
    ['toothpick-tree-wedge.png',
     'math-image --path=ToothpickTree,parts=wedge --values=LinesTree --scale=6 --size=200x104 --figure=toothpick --offset=0,5'],
    ['toothpick-tree-small.png',
     'math-image --path=ToothpickTree --values=LinesTree --scale=4 --size=32'],
    ['toothpick-tree-big.png',
     'math-image --path=ToothpickTree --values=LinesTree --scale=6 --size=200'],
-   ['toothpick-tree-octant.png',
-    'math-image --path=ToothpickTree,parts=octant --values=LinesTree --scale=6 --size=200 --figure=point'],
 
    ['toothpick-replicate-small.png',
     'math-image --path=ToothpickReplicate --lines --scale=4 --size=32 --figure=toothpick'],
    ['toothpick-replicate-big.png',
     'math-image --path=ToothpickReplicate --all --scale=6 --size=200 --figure=toothpick'],
+
+
+   ['pythagorean-points-sm-big.png',
+    'math-image --path=PythagoreanTree,coordinates=SM --all --scale=1 --size=150'],
+   ['pythagorean-points-sc-big.png',
+    'math-image --path=PythagoreanTree,coordinates=SC --all --scale=1 --size=150'],
+   ['pythagorean-points-mc-big.png',
+    'math-image --path=PythagoreanTree,coordinates=MC --all --scale=1 --size=150'],
+   ['pythagorean-points-bc-big.png',
+    'math-image --path=PythagoreanTree,coordinates=BC --all --scale=1 --size=200'],
+   ['pythagorean-points-ac-big.png',
+    'math-image --path=PythagoreanTree,coordinates=AC --all --scale=1 --size=200'],
+   ['pythagorean-tree-fb-big.png',
+    'math-image --path=PythagoreanTree,tree_type=FB --values=LinesTree --scale=4 --size=200'],
+   ['pythagorean-tree-big.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
+   ['pythagorean-small.png',
+    'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
+   ['pythagorean-points-big.png',
+    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
+
+
+
+   ['lcorner-tree-diagonal.png',
+    'math-image --path=LCornerTree,parts=diagonal --values=LinesTree --scale=7 --size=99 --figure=point'],
+   ['lcorner-tree-diagonal-1.png',
+    'math-image --path=LCornerTree,parts=diagonal-1 --values=LinesTree --scale=7 --size=99'],
+   ['lcorner-tree-octant.png',
+    'math-image --path=LCornerTree,parts=octant --values=LinesTree --scale=7 --size=99 --figure=point'],
+   ['lcorner-tree-octant-up.png',
+    'math-image --path=LCornerTree,parts=octant_up --values=LinesTree --scale=7 --size=99 --figure=point'],
+   ['lcorner-tree-wedge.png',
+    'math-image --path=LCornerTree,parts=wedge --values=LinesTree --scale=6 --size=200x95 --figure=point'],
+   ['lcorner-tree-big.png',
+    'math-image --path=LCornerTree --values=LinesTree --scale=7 --size=199'],
+   ['lcorner-tree-small.png',
+    'math-image --path=LCornerTree --values=LinesTree --scale=4 --size=32'],
+
+
+   ['ulam-warburton-1.png',
+    "math-image --path=UlamWarburton,parts=1 --values=LinesTree --figure=diamond --scale=8 --size=150"],
+   ['ulam-warburton-2.png',
+    "math-image --path=UlamWarburton,parts=2 --values=Lines --figure=point --scale=6 --size=360x130"],
+
+   ['ulam-warburton-tree-big.png',
+    "math-image --path=UlamWarburton --values=LinesTree --scale=7 --figure=point --size=150"],
+
+   ['ulam-warburton-small.png',
+    "math-image --path=UlamWarburton --expression='i<50?i:0' --scale=2 --size=32"],
+   ['ulam-warburton-big.png',
+    "math-image --path=UlamWarburton --expression='i<233?i:0' --scale=4 --size=150"],
+
+
+   ['ulam-warburton-quarter-small.png',
+    "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],
+   ['ulam-warburton-quarter-big.png',
+    "math-image --path=UlamWarburtonQuarter --expression='i<233?i:0' --scale=4 --size=150"],
 
 
    ['one-of-eight-wedge.png',
@@ -75,18 +134,6 @@ foreach my $elem
     'math-image --path=OneOfEight,parts=3mid --all --scale=3 --size=99'],
    ['one-of-eight-3side.png',
     'math-image --path=OneOfEight,parts=3side --all --scale=3 --size=99'],
-
-   ['lcorner-tree-octant.png',
-    'math-image --path=LCornerTree,parts=octant --values=LinesTree --scale=7 --size=99 --figure=point'],
-   ['lcorner-tree-octant-up.png',
-    'math-image --path=LCornerTree,parts=octant_up --values=LinesTree --scale=7 --size=99 --figure=point'],
-   ['lcorner-tree-wedge.png',
-    'math-image --path=LCornerTree,parts=wedge --values=LinesTree --scale=6 --size=200x95 --figure=point'],
-   ['lcorner-tree-big.png',
-    'math-image --path=LCornerTree --values=LinesTree --scale=7 --size=199'],
-   ['lcorner-tree-small.png',
-    'math-image --path=LCornerTree --values=LinesTree --scale=4 --size=32'],
-
 
    ['flowsnake-3arm-big.png',
     'math-image --path=Flowsnake,arms=3 --lines --scale=6 --size=200 --figure=point'],
@@ -143,32 +190,6 @@ foreach my $elem
     'math-image --path=KochCurve --lines --scale=2 --size=32 --offset=0,8'],
    ['koch-curve-big.png',
     'math-image --path=KochCurve --lines --scale=5 --size=250x100 --offset=0,5'],
-
-   ['ulam-warburton-tree-big.png',
-    "math-image --path=UlamWarburton --values=LinesTree --scale=7 --figure=point --size=150"],
-   ['ulam-warburton-quarter-small.png',
-    "math-image --path=UlamWarburtonQuarter --expression='i<50?i:0' --scale=2 --size=32"],
-   ['ulam-warburton-quarter-big.png',
-    "math-image --path=UlamWarburtonQuarter --expression='i<233?i:0' --scale=4 --size=150"],
-
-   ['ulam-warburton-small.png',
-    "math-image --path=UlamWarburton --expression='i<50?i:0' --scale=2 --size=32"],
-   ['ulam-warburton-big.png',
-    "math-image --path=UlamWarburton --expression='i<233?i:0' --scale=4 --size=150"],
-
-
-   ['pythagorean-tree-fb-big.png',
-    'math-image --path=PythagoreanTree,tree_type=FB --values=LinesTree --scale=4 --size=200'],
-   ['pythagorean-tree-big.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=4 --size=200'],
-   ['pythagorean-points-bc-big.png',
-    'math-image --path=PythagoreanTree,coordinates=BC --all --scale=1 --size=200'],
-   ['pythagorean-points-ac-big.png',
-    'math-image --path=PythagoreanTree,coordinates=AC --all --scale=1 --size=200'],
-   ['pythagorean-small.png',
-    'math-image --path=PythagoreanTree --values=LinesTree --scale=1 --size=32'],
-   ['pythagorean-points-big.png',
-    'math-image --path=PythagoreanTree --all --scale=1 --size=200'],
 
    ['toothpick-upist-small.png',
     'math-image --path=ToothpickUpist --values=LinesTree --scale=4 --size=32 --figure=toothpick --offset=0,5'],

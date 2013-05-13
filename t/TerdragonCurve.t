@@ -36,7 +36,7 @@ require Math::PlanePath::TerdragonCurve;
 # VERSION
 
 {
-  my $want_version = 102;
+  my $want_version = 103;
   ok ($Math::PlanePath::TerdragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::TerdragonCurve->VERSION,  $want_version,

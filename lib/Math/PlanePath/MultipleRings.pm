@@ -26,6 +26,7 @@
 package Math::PlanePath::MultipleRings;
 use 5.004;
 use strict;
+use Carp;
 #use List::Util 'min','max';
 *min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
@@ -37,7 +38,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 102;
+$VERSION = 103;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -384,6 +385,9 @@ sub new {
   ### $step
 
   my $ring_shape = ($self->{'ring_shape'} ||= 'circle');
+  if (! ($ring_shape eq 'circle' || $ring_shape eq 'polygon')) {
+    croak "Unrecognised ring_shape option: ", $ring_shape;
+  }
   if ($step < 3) {
     # polygon shape only for step >= 3
     $ring_shape = $self->{'ring_shape'} = 'circle';
@@ -1574,7 +1578,7 @@ this path include
         N on X axis of step=k, being the centred pentagonals
 
     step=1
-      A002024    RSquared+1, runs of n repeated n times
+      A002024    Radius+1, runs of n repeated n times
 
 =head1 SEE ALSO
 

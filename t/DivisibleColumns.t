@@ -36,7 +36,7 @@ require Math::PlanePath::DivisibleColumns;
 # VERSION
 
 {
-  my $want_version = 102;
+  my $want_version = 103;
   ok ($Math::PlanePath::DivisibleColumns::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DivisibleColumns->VERSION,  $want_version,

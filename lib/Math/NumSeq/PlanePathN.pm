@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -338,18 +338,25 @@ sub pred_func_Diagonal_SE {
 
 sub pred_func_Depth_start {
   my ($self, $x,$y, $n) = @_;
-  my $planepath_object = $self->{'planepath_object'};
-  my $depth = $planepath_object->tree_n_to_depth($n);
-  return (defined $depth
-          && $n == $planepath_object->tree_depth_to_n($depth));
+  return path_tree_n_is_depth_start($self->{'planepath_object'}, $n);
 }
 sub pred_func_Depth_end {
   my ($self, $x,$y, $n) = @_;
-  ### pred_func_Depth_end(): $n
-  my $planepath_object = $self->{'planepath_object'};
-  my $depth = $planepath_object->tree_n_to_depth($n);
-  return (defined $depth
-          && $n == $planepath_object->tree_depth_to_n_end($depth));
+  return path_tree_n_is_depth_end($self->{'planepath_object'}, $n);
+}
+
+# Return true if $n is the start of a depth level.
+sub path_tree_n_is_depth_start {
+  my ($path, $n) = @_;
+  my $depth = $path->tree_n_to_depth($n);
+  return (defined $depth && $n == $path->tree_depth_to_n($depth));
+}
+
+# Return true if $n is the end of a depth level.
+sub path_tree_n_is_depth_end {
+  my ($path, $n) = @_;
+  my $depth = $path->tree_n_to_depth($n);
+  return (defined $depth && $n == $path->tree_depth_to_n_end($depth));
 }
 
 #------------------------------------------------------------------------------
@@ -1701,10 +1708,10 @@ sub values_max {
   #   if ($depth < 0) {
   #     return undef;
   #   }
-  # 
+  #
   #   my $zero = my $n = ($depth * 0);    # inherit bignum 0
   #   my $width = my $npower = $zero+1;   # inherit bignum 1
-  # 
+  #
   #   foreach my $dbit (bit_split_lowtohigh($depth)) {
   #     if ($dbit) {
   #       $n = 2*$n + $npower;
@@ -1713,7 +1720,7 @@ sub values_max {
   #     $npower *= 3;
   #   }
   #   $n += $self->{'n_start'};
-  # 
+  #
   #   return ($n, $n+$width-1);
   # }
 
@@ -2516,9 +2523,21 @@ sub values_max {
   # }
 
   use constant _NumSeq_N_oeis_anum =>
-    { 'n_start=0' =>
+    { 'parts=4,n_start=0' =>
       { Depth_start => 'A147562',  # cells ON after n stages
         # OEIS-Catalogue: A147562 planepath=UlamWarburton,n_start=0 line_type=Depth_start
+      },
+      'parts=2,n_start=0' =>
+      { Depth_start => 'A183060',  # num cells ON, starting from 0
+        X_axis      => 'A183060',  # X_axis == Depth_start
+        # OEIS-Catalogue: A183060 planepath=UlamWarburton,parts=2,n_start=0 line_type=Depth_start
+        # OEIS-Other:     A183060 planepath=UlamWarburton,parts=2,n_start=0 line_type=X_axis
+      },
+      'parts=1,n_start=1' =>
+      { Depth_end => 'A151922',  # num cells ON at end of depth=n
+        Y_axis    => 'A151922',  # Y_axis == Depth_end
+        # OEIS-Catalogue: A151922 planepath=UlamWarburton,parts=1,n_start=1 line_type=Depth_end
+        # OEIS-Other:     A151922 planepath=UlamWarburton,parts=1,n_start=1 line_type=Y_axis
       },
     };
 }
@@ -2753,12 +2772,23 @@ sub values_max {
 }
 
 { package Math::PlanePath::LCornerTree;
-  use constant _NumSeq_X_axis_increasing => 1;  # clockwise around depth
+  sub _NumSeq_X_axis_increasing {
+    my ($self) = @_;
+    return $self->{'parts'} ne 'diagonal-1';
+  }
   sub _NumSeq_X_neg_increasing {
     my ($self) = @_;
-    return $self->{'parts'} eq 'wedge'; # two points N=0,N=1
+    return ($self->{'parts'} eq 'wedge'  # two points N=0,N=1
+            || $self->{'parts'} eq 'diagonal');
   }
-  use constant _NumSeq_Y_neg_increasing => 1;  # clockwise around depth
+  sub _NumSeq_Y_axis_increasing {
+    my ($self) = @_;
+    return $self->{'parts'} eq 'diagonal-1';
+  }
+  sub _NumSeq_Y_neg_increasing {
+    my ($self) = @_;
+    return $self->{'parts'} ne 'diagonal';
+  }
   use constant _NumSeq_Diagonal_increasing => 1; # growth along diags
   use constant _NumSeq_Diagonal_NW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
@@ -2768,12 +2798,15 @@ sub values_max {
   use constant _NumSeq_N_oeis_anum =>
     { 'parts=4' =>
       { Depth_start => 'A160410', # 4 * cumulative 3^count1bits(n)
-        # catalogued here pending anything else simpler implementing it
-        # OEIS-Catalogue: A160410 planepath=LCornerTree line_type=Depth_start
+        # OEIS-Other: A160410 planepath=LCornerTree line_type=Depth_start
       },
       'parts=3' =>
-      { Depth_start => 'A160412', # 4 * cumulative 3^count1bits(n)
-        # OEIS-Catalogue: A160412 planepath=LCornerTree,parts=3 line_type=Depth_start
+      { Depth_start => 'A160412', # 3 * cumulative 3^count1bits(n)
+        # OEIS-Other: A160412 planepath=LCornerTree,parts=3 line_type=Depth_start
+      },
+      'parts=diagonal-1' =>
+      { Depth_start => 'A183148', # half-plane triplet toothpicks
+        # OEIS-Other: A183148 planepath=LCornerTree,parts=diagonal-1 line_type=Depth_start
       },
 
       # Not quite, A130665=1,4,7,16 offset=0 whereas Nend=0,1,4,7,16 depth=0
@@ -2784,54 +2817,55 @@ sub values_max {
       # },
     };
 }
-{ package Math::PlanePath::LCornerReplicate;
-  use constant _NumSeq_X_axis_increasing => 1;
-  use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
+  { package Math::PlanePath::LCornerReplicate;
+    use constant _NumSeq_X_axis_increasing => 1;
+    use constant _NumSeq_Diagonal_increasing => 1; # replicate along diags
 
-  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
-  use constant _NumSeq_N_oeis_anum =>
-    { '' =>
-      { Diagonal => 'A062880', # base 4 digits 0,2 only
-        # OEIS-Other: A062880 planepath=LCornerReplicate line_type=Diagonal
-      },
-    };
-}
+    # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
+    use constant _NumSeq_N_oeis_anum =>
+      { '' =>
+        { Diagonal => 'A062880', # base 4 digits 0,2 only
+          # OEIS-Other: A062880 planepath=LCornerReplicate line_type=Diagonal
+        },
+      };
+  }
 
-{ package Math::PlanePath::OneOfEight;
-  use constant _NumSeq_X_axis_increasing => 1;
-  use constant _NumSeq_X_neg_increasing => 1;
-  use constant _NumSeq_Y_axis_increasing => 1;
-  use constant _NumSeq_Y_neg_increasing => 1;
-  use constant _NumSeq_Diagonal_increasing => 1;
-  use constant _NumSeq_Diagonal_NW_increasing => 1;
-  use constant _NumSeq_Diagonal_SW_increasing => 1;
-  use constant _NumSeq_Diagonal_SE_increasing => 1;
+    { package Math::PlanePath::OneOfEight;
+      use constant _NumSeq_X_axis_increasing => 1;
+      use constant _NumSeq_X_neg_increasing => 1;
+      use constant _NumSeq_Y_axis_increasing => 1;
+      use constant _NumSeq_Y_neg_increasing => 1;
+      use constant _NumSeq_Diagonal_increasing => 1;
+      use constant _NumSeq_Diagonal_NW_increasing => 1;
+      use constant _NumSeq_Diagonal_SW_increasing => 1;
+      use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-  use constant _NumSeq_N_oeis_anum =>
-    { 'parts=4' =>
-      { Depth_start   => 'A151725',
-        # OEIS-Catalogue: A151725 planepath=OneOfEight line_type=Depth_start
-      },
-      'parts=1' =>
-      { Depth_start   => 'A151735',
-        # OEIS-Catalogue: A151735 planepath=OneOfEight,parts=1 line_type=Depth_start
-      },
-      'parts=3mid' =>
-      { Depth_start   => 'A170880',
-        # OEIS-Catalogue: A170880 planepath=OneOfEight,parts=3mid line_type=Depth_start
-      },
-      'parts=3side' =>
-      { Depth_start   => 'A170879',
-        # OEIS-Catalogue: A170879 planepath=OneOfEight,parts=3side line_type=Depth_start
-      },
-    };
-}
+      # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
+      use constant _NumSeq_N_oeis_anum =>
+        { 'parts=4' =>
+          { Depth_start   => 'A151725',
+            # OEIS-Other: A151725 planepath=OneOfEight line_type=Depth_start
+          },
+          'parts=1' =>
+          { Depth_start   => 'A151735',
+            # OEIS-Other: A151735 planepath=OneOfEight,parts=1 line_type=Depth_start
+          },
+          'parts=3mid' =>
+          { Depth_start   => 'A170880',
+            # OEIS-Other: A170880 planepath=OneOfEight,parts=3mid line_type=Depth_start
+          },
+          'parts=3side' =>
+          { Depth_start   => 'A170879',
+            # OEIS-Other: A170879 planepath=OneOfEight,parts=3side line_type=Depth_start
+          },
+        };
+    }
 
 
-#------------------------------------------------------------------------------
-{ package Math::PlanePath;
-  use constant _NumSeq_A2 => 0;
-}
+    #------------------------------------------------------------------------------
+    { package Math::PlanePath;
+      use constant _NumSeq_A2 => 0;
+    }
 { package Math::PlanePath::TriangleSpiral;
   use constant _NumSeq_A2 => 1;
 }

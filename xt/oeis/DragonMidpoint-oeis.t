@@ -73,7 +73,6 @@ MyOEIS::compare_values
 {
   my $path = Math::PlanePath::DragonMidpoint->new;
   my ($prev_x, $prev_y) = $path->n_to_xy (0);
-  my $n = 0;
   my $bad = 0;
   foreach my $n (0 .. 0x2FFF) {
     my ($x, $y) = $path->n_to_xy ($n);
@@ -112,6 +111,45 @@ sub A073089_func {
     }
     die "oops";
   }
+}
+
+# absdy_bitwise() vs path
+{
+  my $path = Math::PlanePath::DragonMidpoint->new;
+  my ($prev_x, $prev_y) = $path->n_to_xy (0);
+  my $bad = 0;
+  foreach my $n (0 .. 0x2FFF) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my ($nx, $ny) = $path->n_to_xy ($n+1);
+    my $path_value = ($x == $nx
+                      ? 1   # vertical
+                      : 0); # horizontal
+
+    my $a_value = absdy_bitwise($n);
+
+    if ($path_value != $a_value) {
+      MyTestHelpers::diag ("diff n=$n path=$path_value acalc=$a_value");
+      MyTestHelpers::diag ("  xy=$x,$y  nxy=$nx,$ny");
+      last if ++$bad > 10;
+    }
+  }
+  ok ($bad, 0, "absdy_bitwise()");
+}
+
+sub absdy_bitwise {
+  my ($n) = @_;
+  return ($n & 1) ^ bit_above_lowest_zero($n);
+}
+sub bit_above_lowest_zero {
+  my ($n) = @_;
+  for (;;) {
+    if (($n % 2) == 0) {
+      last;
+    }
+    $n = int($n/2);
+  }
+  $n = int($n/2);
+  return ($n % 2);
 }
 
 #------------------------------------------------------------------------------

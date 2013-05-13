@@ -29,7 +29,7 @@ BEGIN { MyTestHelpers::nowarnings(); }
 #use Smart::Comments '###';
 
 
-my $test_count = (tests => 41)[1];
+my $test_count = (tests => 46)[1];
 plan tests => $test_count;
 
 if (! eval { require Math::NumSeq; 1 }) {
@@ -50,6 +50,34 @@ require Math::NumSeq::PlanePathCoord;
     my ($self, $n) = @_;
     return ($self->{'x'},$self->{'y'});
   }
+}
+
+#------------------------------------------------------------------------------
+# _coordinate_func_Parity()
+
+{
+  my $path = MyPlanePath->new;
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath_object => $path);
+
+  $path->{'x'} = 0;
+  $path->{'y'} = 10;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   0);
+
+  $path->{'x'} = -10;
+  $path->{'y'} = 0;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   0);
+
+  $path->{'x'} = -11;
+  $path->{'y'} = 0;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   1);
+
+  $path->{'x'} = 1.5;
+  $path->{'y'} = 11;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   0.5);
+
+  $path->{'x'} = 1.5;
+  $path->{'y'} = -20;
+  ok (Math::NumSeq::PlanePathCoord::_coordinate_func_Parity($seq,0),   1.5);
 }
 
 #------------------------------------------------------------------------------

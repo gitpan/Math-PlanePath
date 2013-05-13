@@ -27,7 +27,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -343,8 +343,8 @@ sub tree_depth_to_n {
   unless ($depth >= 0) {
     return undef;
   }
-  my $n = 0 + ($depth*0);    # inherit bignum 0
-  my $pow3 = 1 + $n;         # inherit bignum 1
+  my $n = $depth*0;        # inherit bignum 0
+  my $pow3 = 1 + $n;       # inherit bignum 1
   foreach my $bit (reverse bit_split_lowtohigh($depth+1)) {  # high to low
     $n *= 4;
     if ($bit) {

@@ -37,7 +37,7 @@ use Smart::Comments;
   require Math::NumSeq::PlanePathTurn;
   require Math::BaseCnv;
   require Math::PlanePath::GrayCode;
-  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'HCS');
   my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
                                               turn_type => 'Right');
   foreach my $n ($path->n_start+1 .. 255) {
@@ -49,10 +49,10 @@ use Smart::Comments;
     my $n2 = Math::BaseCnv::cnv($n,10,2);
     if (is_pow2($n)) { print "\n"; }
     my ($x,$y) = $path->n_to_xy($n);
-    my $parity = sb_turn_right($n) ? 1 : 0;
+    my $parity = hcs_turn_right($n) ? 1 : 0;
     my $diff = ($parity == $turn ? '' : '  ***');
-    printf "%2s %5s %2s,%-2s  %d %s%s\n", $n, $n2, $x,$y,
-      $turn, $parity, $diff;
+    printf "%2s %5s %2s,%-2s  %d %s%s\n",
+      $n, $n2, $x,$y,  $turn, $parity, $diff;
   }
 
   # X/(X+Y), (X+Y)/Y high to low both shear only so no change
@@ -101,7 +101,7 @@ use Smart::Comments;
 
   sub hcs_turn_right {  # good
     my ($n) = @_;
-    return count_1_bits($n) & 1;
+    return count_1_bits($n+1) & 1;
   }
   sub count_1_bits {
     my ($n) = @_;
@@ -228,6 +228,35 @@ use Smart::Comments;
     return $bit >> 1;
   }
 
+  exit 0;
+}
+{
+  # parity search
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $mult (1,2) {
+    foreach my $add (0, ($mult==2 ? -1 : ())) {
+      foreach my $neg (0, 1) {
+        print "$mult*N+$add neg=$neg\n";
+
+        foreach my $tree_type (@$tree_type_aref) {
+          my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
+          # foreach my $n (1030 .. 1080) {
+          my $str = '';
+          foreach my $n (2 .. 50) {
+            my ($x,$y) = $path->n_to_xy($n);
+            my $value = ($x ^ $y) & 1;
+            $value *= $mult;
+            $value += $add;
+            if ($neg) { $value = -$value; }
+            $str .= "$value,";
+          }
+          print "$tree_type  $str\n";
+          system "grep -e '$str' ~/OEIS/stripped";
+          print "\n";
+        }
+      }
+    }
+  }
   exit 0;
 }
 {

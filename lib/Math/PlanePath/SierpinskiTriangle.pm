@@ -48,11 +48,12 @@
 package Math::PlanePath::SierpinskiTriangle;
 use 5.004;
 use strict;
+use Carp;
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -158,8 +159,10 @@ sub new {
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
-  $self->{'align'} ||= 'triangular';
-  ### SierpinskiTriangle new() result: $self
+  my $align = ($self->{'align'} ||= 'triangular');
+  if (! exists $x_negative{$align}) {
+    croak "Unrecognised align option: ", $align;
+  }
   return $self;
 }
 

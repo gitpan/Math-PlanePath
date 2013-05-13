@@ -43,7 +43,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -1322,10 +1322,18 @@ sub _dxdy_to_dir4 {
 { package Math::PlanePath::PythagoreanTree;
   {
     my %Dir4_min_is_infimum = ('BC,UAD' => 1,
+                               'SM,UAD' => 1,
+                               'SC,UAD' => 1,
+                               'MC,UAD' => 1,
+
                                'AB,FB' => 1,
                                'AC,FB' => 1,
                                'BC,FB' => 1,
-                               'PQ,FB' => 1);
+                               'PQ,FB' => 1,
+                               'SM,FB' => 1,
+                               'SC,FB' => 1,
+                               'MC,FB' => 1,
+                              );
     sub _NumSeq_Dir4_min_is_infimum {
       my ($self) = @_;
       return $Dir4_min_is_infimum{"$self->{'coordinates'},$self->{'tree_type'}"};
@@ -1333,9 +1341,17 @@ sub _dxdy_to_dir4 {
   }
   {
     my %Dir4_max_is_supremum = ('BC,UAD' => 1,
+                                'SM,UAD' => 1,
+                                'SC,UAD' => 1,
+                                'MC,UAD' => 1,
+
                                 'AB,FB'  => 1,
                                 'AC,FB'  => 1,
-                                'PQ,FB'  => 1);
+                                'PQ,FB'  => 1,
+                                'SM,FB' => 1,
+                                'SC,FB' => 1,
+                                'MC,FB' => 1,
+                               );
     sub _NumSeq_Dir4_max_is_supremum {
       my ($self) = @_;
       return $Dir4_max_is_supremum{"$self->{'coordinates'},$self->{'tree_type'}"};
@@ -3209,6 +3225,13 @@ sub _dxdy_to_dir4 {
   # minimum dir=0 at N=1
   use constant _NumSeq_Delta_DSquared_min => 2;  # diagonal
   use constant _NumSeq_Delta_TDSquared_min => 4;  # diagonal
+
+  # always diagonal slope=+/-1 within depth level.  parts=2 is horizontal
+  # between levels, but parts=1 or parts=4 are other slopes between levels.
+  sub _NumSeq_Delta_TDir6_integer {
+    my ($self) = @_;
+    return ($self->{'parts'} eq '2');
+  }
 }
 # { package Math::PlanePath::UlamWarburtonQuarter;
 # }

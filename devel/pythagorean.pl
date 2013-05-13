@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -32,6 +32,35 @@ use Math::PlanePath::Base::Digits
 use Smart::Comments;
 
 
+{
+  # numbers in a grid
+
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+     # tree_type => 'FB',
+     # tree_type => 'UAD',
+     # coordinates => 'AB',
+     coordinates => 'MC',
+    );
+  my @rows;
+  foreach my $n (1 .. 100000) {
+    my ($orig_x,$orig_y) = $path->n_to_xy($n);
+    my $x = $orig_x / 2;
+    my $y = $orig_y / 4;
+    next if $y > 25;
+    next if $x > 80;
+    print "$n      $orig_x,$orig_y\n";
+    $rows[$y] ||= ' 'x80;
+    substr($rows[$y],$x,length($n)) = $n;
+  }
+  for (my $y = $#rows; $y >= 0; $y--) {
+    $rows[$y] ||= '';
+    $rows[$y] =~ s/ +$//;
+    print $rows[$y],"\n";
+  }
+  exit 0;
+}
 {
   # X,Y list
 
@@ -105,6 +134,9 @@ use Smart::Comments;
   }
   exit 0;
 }
+
+
+
 {
   # repeated "U" as p,q matrix
   my $u = Math::Matrix->new ([2,-1],
@@ -117,8 +149,6 @@ use Smart::Comments;
   exit 0;
 }
 
-
-
 {
   # high bit 1 in ternary
   require Math::BaseCnv;
@@ -126,36 +156,6 @@ use Smart::Comments;
     my $n3 = Math::BaseCnv::cnv($n,10,3);
     my $n2 = Math::BaseCnv::cnv($n,10,2);
     printf "$n $n2 $n3\n";
-  }
-  exit 0;
-}
-
-{
-  # numbers in a grid
-
-  require Math::PlanePath::PythagoreanTree;
-  my $path = Math::PlanePath::PythagoreanTree->new
-    (
-     # tree_type => 'FB',
-     # tree_type => 'UAD',
-     # coordinates => 'AB',
-     coordinates => 'BC',
-    );
-  my @rows;
-  foreach my $n (1 .. 100000) {
-    my ($x,$y) = $path->n_to_xy($n);
-    $y /= 4;
-    $x /= 2;
-    next if $y > 40;
-    next if $x > 80;
-    print "$x,$y\n";
-    $rows[$y] ||= ' 'x80;
-    substr($rows[$y],$x,length($n)) = $n;
-  }
-  for (my $y = $#rows; $y >= 0; $y--) {
-    $rows[$y] ||= '';
-    $rows[$y] =~ s/ +$//;
-    print $rows[$y],"\n";
   }
   exit 0;
 }

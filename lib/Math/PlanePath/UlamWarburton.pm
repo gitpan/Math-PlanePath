@@ -16,23 +16,53 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# A151922 num first-quadrant cells
-# A079314  added
-# A079316 num first-quadrant cells, maybe
+#------------------------------------------------------------------------------
+# U-W in half plane
+#
+# A183060 total
+# A183061 added
+#
+#        8
+#       878
+#      8 6 8
+#     8765678
+#    8 8 4 8 8
+#   878 434 878
+#  8 6 4 2 4 6 8
+# 876543212345678
 
+#------------------------------------------------------------------------------
+# U-W in first quadrant, incl X,Y axes
+#
+# A151922 total num first-quadrant cells
+# A079314  added
+#
+# 0  1, 3, 5,   9, 11, 15, 19,   29, 31, 35, 39, 49, 53, 63, 73,  101,103,107,
+# 1, 2, 2, 4,   2,  4,  4, 10,   2,  4,  4,  10, 4,  10, 10, 28,    2,  4,
+# 0  1  2  3    4   5   6   7    8   9  10   11  12  13  14  15    16  17
+#
+# 0, 1, 5, 9,  21, 25, 37, 49,  85, 89,101,113, 149,161,197,233,  341,
+# 1, 4, 4, 12,  4, 12, 12, 36,   4, 12, 12, 36,  12, 36, 36,108,    4, 12, 12,
+
+#------------------------------------------------------------------------------
+# cf
 # Ulam/Warburton with cells turning off too
 # A079315 cells OFF -> ON
 # A079317 cells ON at stage n
 # A079316 cells ON at stage n, in first quadrant
 # A151921 net gain ON cells
 
+
+#------------------------------------------------------------------------------
+
 package Math::PlanePath::UlamWarburton;
 use 5.004;
 use strict;
+use Carp;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -52,14 +82,50 @@ use Math::PlanePath::UlamWarburtonQuarter;
 
 
 use constant parameter_info_array =>
-  [ Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  [
+   { name            => 'parts',
+     share_key       => 'parts_ulamwarburton',
+     display         => 'Parts',
+     type            => 'enum',
+     default         => '4',
+     choices         => ['4','2','1',
+                        ],
+     description     => 'Which parts of the plane to fill.',
+   },
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 use constant absdx_minimum => 1;
-use constant tree_num_children_maximum => 4;
-use constant dir_maximum_dxdy => (1,-1); # South-East
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
+
+my %x_negative = (4         => 1,
+                  2         => 1,
+                  1         => 0,
+                 );
+sub x_negative {
+  my ($self) = @_;
+  return $x_negative{$self->{'parts'}};
+}
+
+sub y_negative {
+  my ($self) = @_;
+  return $self->{'parts'} eq '4';
+}
+
+{
+  my %dir_maximum_dxdy = (4         => [1,-1], # N=4  South-East
+                          2         => [1,-1], # N=44 South-East
+                          1         => [2,-1], # N=3  ESE
+                         );
+  sub dir_maximum_dxdy {
+    my ($self) = @_;
+    return @{$dir_maximum_dxdy{$self->{'parts'}}};
+  }
+}
+
+sub tree_num_children_maximum {
+  my ($self) = @_;
+  return ($self->{'parts'} eq '4' ? 4 : 3);
+}
 
 #------------------------------------------------------------------------------
 sub new {
@@ -67,67 +133,16 @@ sub new {
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
+  my $parts = ($self->{'parts'} ||= '4');
+  if (! exists $x_negative{$parts}) {
+    croak "Unrecognised parts option: ", $parts;
+  }
   return $self;
 }
 
-# 1+3+3+9=16
-#
-# 0 +1
-# 1 +4        <- 0
-# 5 +4        <- 1
-# 9 +12
-# 21 +4     <- 5 + 4+12 = 21 = 5 + 4*(1+3)
-# 25 +12
-# 37 +12
-# 49 +36
-# 85 +4     <- 21 + 4+12+12+36  = 21 + 4*(1+3+3+9)
-# 89 +12      <- 8   +64
-# 101 +12
-# 113 +36
-# 149
-# 161
-# 197
-# 233
-# 341
-# 345         <- 16  +256
-# 357
-# 369
-
-# 1+3 = 4  power 2
-# 1+3+3+9 = 16    power 3
-# 1+3+3+9+3+9+9+27 = 64    power 4
-#
-# 4*(1+4+...+4^(l-1)) = 4*(4^l-1)/3
-#    l=1 total=4*(4-1)/3 = 4
-#    l=2 total=4*(16-1)/3=4*5 = 20
-#    l=3 total=4*(64-1)/3=4*63/3 = 4*21 = 84
-#
-# n = 2 + 4*(4^l-1)/3
-# (n-2) = 4*(4^l-1)/3
-# 3*(n-2) = 4*(4^l-1)
-# 3n-6 = 4^(l+1)-4
-# 3n-2 = 4^(l+1)
-#
-# 3^0+3^1+3^1+3^2 = 1+3+3+9=16
-# x+3x+3x+9x = 16x = 256
-# 4 quads is 4*16=64
-#
-# 1+1+3 = 5
-# 1+1+3 +1+1+3 +3+3+9 = 25
-
-# 1+4 = 5
-# 1+4+4+12 = 21 = 1 + 4*(1+1+3)
-# 2  +1
-# 3  +3
-# 6  +1
-# 7  +1
-# 10 +3
-# 13
-
-
 sub n_to_xy {
   my ($self, $n) = @_;
-  ### UlamWarburton n_to_xy(): $n
+  ### UlamWarburton n_to_xy(): "$n  parts=$self->{'parts'}"
 
   if ($n < $self->{'n_start'}) { return; }
   if (is_infinite($n)) { return ($n,$n); }
@@ -146,32 +161,41 @@ sub n_to_xy {
     $n = $int;       # BigFloat int() gives BigInt, use that
   }
 
-  $n = $n - $self->{'n_start'} + 1;  # N=1 basis
-  if (is_infinite($n)) { return ($n,$n); }
-  if ($n == 1) { return (0,0); }
+  $n = $n - $self->{'n_start'};  # N=0 basis
+  if ($n == 0) { return (0,0); }
 
-  my ($depthsum, $factor, $nrem) = _n1_to_depthsum_factor_rem($n)
+  my $parts = $self->{'parts'};
+  my ($depthsum, $factor, $nrem) = _n0_to_depthsum_factor_rem($n, $parts)
     or return $n;  # N=nan or +inf
+  ### depthsum: join(',',@$depthsum)
+  ### $factor
+  ### n rem within row: $nrem
 
-  $factor /= 4;
+  $factor /= $parts;
+  if ($parts ne '4') {
+    $nrem += ($factor-1)/2;
+  }
   (my $quad, $nrem) = _divrem ($nrem, $factor);
 
-  ### mod: $factor
+  ### factor modulus: $factor
   ### $quad
-  ### n within quad: $nrem
+  ### n rem within quad: $nrem
   ### assert: $quad >= 0
   ### assert: $quad <= 3
 
   my $dhigh = shift @$depthsum;  # highest term
   my @ndigits = digit_split_lowtohigh($nrem,3);
+  ### $dhigh
+  ### ndigits low to high: join(',',@ndigits)
+
   my $x = 0;
   my $y = 0;
-  foreach my $depthsum (reverse @$depthsum) { # depth terms low to high
+  foreach my $depthterm (reverse @$depthsum) { # depth terms low to high
     my $ndigit = shift @ndigits;              # N digits low to high
-    ### $depthsum
+    ### $depthterm
     ### $ndigit
 
-    $x += $depthsum;
+    $x += $depthterm;
     ### bit to x: "$x,$y"
 
     if ($ndigit) {
@@ -198,6 +222,7 @@ sub n_to_xy {
   ### final: "$x,$y"
   return $x,$y;
 }
+# no Smart::Comments;
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
@@ -209,26 +234,53 @@ sub xy_to_n {
     return $self->{'n_start'};
   }
 
+  my $parts = $self->{'parts'};
+  if ($parts ne '4'
+      && ($y < 0
+          || ($parts eq '1' && $x < 0))) {
+    return undef;
+  }
+
   my $quad;
   if ($y > $x) {
     ### quad above leading diagonal ...
+    #        /
+    # above /
+    #      /
     if ($y > -$x) {
       ### quad above opposite diagonal, top quarter ...
+      #  top
+      # \  /
+      #  \/
       $quad = 1;
       ($x,$y) = ($y,-$x);  # rotate -90
     } else  {
       ### quad below opposite diagonal, left quarter ...
+      #      \
+      # left  \
+      #       /
+      #      /
       $quad = 2;
       $x = -$x;  # rotate -180
       $y = -$y;
     }
   } else {
     ### quad below leading diagonal ...
+    #   /
+    #  / below
+    # /
     if ($y > -$x) {
       ### quad above opposite diagonal, right quarter ...
+      #   /
+      #  / right
+      #  \
+      #   \
       $quad = 0;
     } else {
       ### quad below opposite diagonal, bottom quarter ...
+      #  /\
+      # /  \
+      # bottom
       $quad = 3;
       ($x,$y) = (-$y,$x);  # rotate +90
     }
@@ -242,7 +294,7 @@ sub xy_to_n {
   if (is_infinite($exp)) { return ($exp); }
 
 
-  my $level =
+  my $depth =
     my $ndigits =
       my $n = ($x * 0 * $y);  # inherit bignum 0
 
@@ -264,7 +316,7 @@ sub xy_to_n {
       $x -= $len;
       ### shift to: "$x,$y"
 
-      $level += $len;
+      $depth += $len;
       if ($x || $y) {
         $n *= 3;
         $ndigits++;
@@ -288,13 +340,18 @@ sub xy_to_n {
   }
 
   ### $n
-  ### $level
+  ### $depth
   ### $ndigits
   ### npower: 3**$ndigits
   ### $quad
   ### quad powered: $quad*3**$ndigits
 
-  return $n + $quad*3**$ndigits + $self->tree_depth_to_n($level);
+  my $npower = 3**$ndigits;
+  if ($parts ne '4') {
+     $n -= ($npower-1)/2;
+  }
+
+  return $n + $quad*$npower + $self->tree_depth_to_n($depth);
 }
 
 # not exact
@@ -371,7 +428,7 @@ sub tree_n_children {
         push @ret, $n_child;
       }
     }
-    ($dx,$dy) = (-$dy,$dx); # rotate +90
+    ($dx,$dy) = (-$dy,$dx);  # rotate +90
   }
   return sort {$a<=>$b} @ret;
 }
@@ -452,78 +509,191 @@ sub tree_depth_to_n {
   if ($depth == 0) {
     return $self->{'n_start'};
   }
-  if (defined (my $n = $self->Math::PlanePath::UlamWarburtonQuarter::tree_depth_to_n($depth-1))) {
-    return 4*$n - 3*$self->{'n_start'} + 1;
+  my $n = $self->Math::PlanePath::UlamWarburtonQuarter::tree_depth_to_n($depth-1);
+  if (! defined $n) {
+    return undef;
   }
-  return undef;
+  my $parts = $self->{'parts'};
+  if ($parts eq '2') {
+    return 2*$n - $self->{'n_start'} + $depth;
+  }
+  if ($parts eq '1') {
+    return $n + $depth;
+  }
+  if ($parts eq 'octant' || $parts eq 'octant_up') {
+    return ($n + $depth + 1) / 2;
+  }
+  ### assert: $parts eq '4'
+  return 4*$n - 3*$self->{'n_start'} + 1;
 }
 
 sub tree_n_to_depth {
   my ($self, $n) = @_;
 
-  $n = $n - $self->{'n_start'} + 1;  # N=1 basis
-  if ($n < 1) {
+  $n = $n - $self->{'n_start'};  # N=0 basis
+  if ($n < 0) {
     return undef;
   }
   $n = int($n);
-  if ($n == 1) {
+  if ($n == 0) {
     return 0;
   }
-  my ($depthsum) = _n1_to_depthsum_factor_rem($n)
+  my ($depthsum) = _n0_to_depthsum_factor_rem($n, $self->{'parts'})
     or return $n;  # N=nan or +inf
   return sum(@$depthsum);
 }
 
-# Return ($aref, $remaining_n).
+
+# 1+3+3+9=16
+#
+# 0 +1
+# 1 +4        <- 0
+# 5 +4        <- 1
+# 9 +12
+# 21 +4     <- 5 + 4+12 = 21 = 5 + 4*(1+3)
+# 25 +12
+# 37 +12
+# 49 +36
+# 85 +4     <- 21 + 4+12+12+36  = 21 + 4*(1+3+3+9)
+# 89 +12      <- 8   +64
+# 101 +12
+# 113 +36
+# 149
+# 161
+# 197
+# 233
+# 341
+# 345         <- 16  +256
+# 357
+# 369
+
+# 1+3 = 4  power 2
+# 1+3+3+9 = 16    power 3
+# 1+3+3+9+3+9+9+27 = 64    power 4
+#
+# 4*(1+4+...+4^(l-1)) = 4*(4^l-1)/3
+#    l=1 total=4*(4-1)/3 = 4
+#    l=2 total=4*(16-1)/3=4*5 = 20
+#    l=3 total=4*(64-1)/3=4*63/3 = 4*21 = 84
+#
+# n = 2 + 4*(4^l-1)/3
+# (n-2) = 4*(4^l-1)/3
+# 3*(n-2) = 4*(4^l-1)
+# 3n-6 = 4^(l+1)-4
+# 3n-2 = 4^(l+1)
+#
+# 3^0+3^1+3^1+3^2 = 1+3+3+9=16
+# x+3x+3x+9x = 16x = 256
+# 4 quads is 4*16=64
+#
+# 1+1+3 = 5
+# 1+1+3 +1+1+3 +3+3+9 = 25
+
+# 1+4 = 5
+# 1+4+4+12 = 21 = 1 + 4*(1+1+3)
+# 2  +1
+# 3  +3
+# 6  +1
+# 7  +1
+# 10 +3
+# 13
+
+
+# parts=1
+#   1+4+...+4^(l-1) + 2^l
+#     = (4^l-1)/3 + 2^l
+#     = (4^l-1 + 3*2^l)/3
+#     = (2^l*(2^l + 3) - 1)/3
+#   l=1 total= 3
+#   l=2 total= 9
+#   l=3 total= 29
+#   l=4 total= 101
+#
+#   N = (4^l-1)/3 + 2^l
+#   3*(N-2^l)+1 = 4^l
+#   12*(N-2^l)+1 = 4 * 4^l
+#
+# parts=2
+#   N = 2*(4^l-1)/3 + 2^l
+#   3/2*(N-2^l)+1 = 4^l
+#   6*(N-2^l)+1 = 4 * 4^l
+#
+# parts=4
+#   N = (4^l-1)/3
+#   3*N+1 = 4 * 4^l
+
+# use Smart::Comments;
+
+# Return ($aref, $factor, $remaining_n).
 # sum(@$aref) = depth starting depth=1
 #
-sub _n1_to_depthsum_factor_rem {
-  my ($n) = @_;
-  ### _n1_to_depth_and_depthsum(): $n
+sub _n0_to_depthsum_factor_rem {
+  my ($n, $parts) = @_;
+  ### _n0_to_depthsum_factor_rem(): "$n  parts=$parts"
 
-  my ($power, $exp) = round_down_pow (3*$n-2, 4);
-  $exp -= 1;
-  $power /= 4;
+  if ($n == 0) {
+    return ([], $parts, 0);
+  }
 
+  my $n3 = 3*$n+1;
+  my $ndepth = 0;
+  my $power = $n3;
+  my $exp;
+  if ($parts eq '4') {
+    $power /= 4;
+  } elsif ($parts eq '2') {
+    $power /= 2;
+    $ndepth = -1;
+  }
+  ($power, $exp) = round_down_pow ($power, 4);
+  ### $n3
   ### $power
   ### $exp
-  ### pow base: ($power - 1)/3 * 4 + 2
-
   if (is_infinite($exp)) {
     return;
   }
 
-  $n -= ($power - 1)/3 * 4 + 2;
-  ### n less pow base: $n
+  # ### pow base: ($power - 1)/3 * $factor + 1 + ($parts ne '4' && $exp)
+  # $n -= ($power - 1)/3 * $factor + 1;
+  # if ($parts ne '4') { $n -= $exp; }
+  # ### n less pow base: $n
 
-  my @depthsum = (2**$exp);
+  my $factor = $parts;
+  my $twopow = 2**$exp;
+  my @depthsum;
 
-  # find the cumulative levelpoints total <= $n, being the start of the
-  # level containing $n
-  #
-  my $factor = 4;
-  while (--$exp >= 0) {
-    $power /= 4;
-    my $sub = $power * $factor;
-    ### $sub
-    my $rem = $n - $sub;
+  for (;
+       $exp-- >= 0;
+       $power /= 4, $twopow /= 2) {
+    ### at: "power=$power twopow=$twopow factor=$factor n3=$n3 ndepth=$ndepth depthsum=".join(',',@depthsum)
 
-    ### $n
-    ### $factor
-    ### consider subtract: $sub
-    ### $rem
+    my $nmore = $power * $factor;
+    if ($parts ne '4') { $nmore += 3*$twopow; }
+    my $ncmp = $ndepth + $nmore;
+    ### $nmore
+    ### $ncmp
 
-    if ($rem >= 0) {
-      $n = $rem;
-      push @depthsum, 2**$exp;
+    if ($n3 >= $ncmp) {
+      ### go to ncmp, remainder: $n3-$ncmp
       $factor *= 3;
+      $ndepth = $ncmp;
+      push @depthsum, $twopow;
     }
   }
 
+  if ($parts eq '2') {
+    $n3 += 1;
+  }
+
+  ### assert: ($n3 - $ndepth)%3 == 0
+  $n = ($n3 - $ndepth) / 3;
+  $factor /= 3;
+
+  ### $ndepth
   ### @depthsum
   ### remaining n: $n
   ### assert: $n >= 0
-  ### assert: $n < $factor
+  ### assert: $n < $factor + ($parts ne '4')
 
   return \@depthsum, $factor, $n;
 }
@@ -532,17 +702,22 @@ sub tree_n_to_height {
   my ($self, $n) = @_;
   ### tree_n_to_height(): $n
 
-  $n = int($n - $self->{'n_start'} + 1);  # N=1 basis
-  if ($n < 1) {
+  $n = int($n - $self->{'n_start'});  # N=0 basis
+  if ($n < 0) {
     return undef;
   }
-  my ($depthsum, $factor, $nrem) = _n1_to_depthsum_factor_rem($n)
+  my ($depthsum, $factor, $nrem) = _n0_to_depthsum_factor_rem($n, $self->{'parts'})
     or return $n;  # N=nan or +inf
-  $factor /= 4;
-  (my $quad, $nrem) = _divrem ($nrem, $factor);
   ### $depthsum
+  ### $factor
   ### $nrem
-  ### @ndigits
+
+  my $parts = $self->{'parts'};
+  $factor /= $parts;
+  if ($parts ne '4') {
+    $nrem += ($factor-1)/2;
+  }
+  (my $quad, $nrem) = _divrem ($nrem, $factor);
 
   my $sub = pop @$depthsum;
   while (_divrem_mutate($nrem,3) == 1) {  # low "1" ternary digits of Nrem
@@ -700,7 +875,7 @@ each bit above.  So if the level number has bits a,b,c,d,etc in descending
 order,
 
     level = 2^a + 2^b + 2^c + 2^d ...       a>b>c>d...
-    Ndepth = 2 + 4*(-1 
+    Ndepth = 2 + 4*(-1
                     +       4^a
                     +   3 * 4^b
                     + 3^2 * 4^c
@@ -728,6 +903,99 @@ and "d".  This resulting 4x4 diamond then likewise repeats up, down and
 right.  The points in the path here are numbered by growth level rather than
 in this sort of replication, but the replication helps to see the structure
 of the pattern.
+
+=head2 Half Plane
+
+Option C<parts =E<gt> '2'> confines the pattern to the upper half plane
+C<YE<gt>=0>,
+
+=cut
+
+# math-image --path=UlamWarburton,parts=2 --expression='i<32?i:0' --output=numbers --size=99x16
+
+=pod
+
+    parts => "2"
+
+                      28                           6
+                      21                           5
+                29 22 16 20 27                     4
+                      11                           3
+          30       12  6 10       26               2
+          23    13     3     9    19               1
+    31 24 17 14  7  4  1  2  5  8 15 18 25     <- Y=0
+    --------------------------------------
+    -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6
+
+Points are still numbered anti-clockwise around so X axis N=1,2,5,8,15,etc
+is the first of each level and X negative axis N=1,4,7,14,etc is the last.
+
+Within a row a line from point N to N+1 is always a 45-degree angle.  This
+is true of each 3 direct children, but also across groups of children by
+symmetry.  For this parts=2 the lines from the last of one row to the first
+of the next are horizontal, making an attractive pattern of diagonals and
+then across to the next row horizontally.  For parts=4 or parts=1 the last
+to first lines are at various different slopes and so upsets the pattern.
+
+=head2 One Quadrant
+
+Option C<parts =E<gt> '1'> confines the pattern to the first quadrant,
+
+=cut
+
+# math-image --path=UlamWarburton,parts=1 --expression='i<20?i:0' --output=numbers --size=99x16
+
+=pod
+
+    parts => "1"
+
+    14  |  73
+    13  |  63
+    12  |  53 62 72
+    11  |  49
+    10  |  39 48       71
+     9  |  35    47    61
+     8  |  31 34 38 46 52 60 70
+     7  |  29    45    59
+     6  |  19 28       69          67
+     5  |  15    27                57
+     4  |  11 14 18 26       68 58 51 56 66
+     3  |   9    25    23          43
+     2  |   5  8    24 17 22    44 37 42       65
+     1  |   3     7    13    21    33    41    55
+    Y=0 |   1  2  4  6 10 12 16 20 30 32 36 40 50 54 64
+        +-----------------------------------------------
+          X=0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+
+X axis N=1,2,4,6,10,etc is the first of each depth level and Y axis
+N=1,3,5,9,11,etc is the last.
+
+In this arrangement horizontal arms have even N and vertical arms have
+odd N.  For example the vertical at X=8 N=30,33,37,etc has N odd and when it
+turns to horizontal at N=42 or N=56 it becomes N even.  The children of N=66
+are not shown but the verticals from there are N=79 below and N=81 above and
+so are odd again.
+
+This odd/even pattern is true of N=2 horizontal and N=3 vertical and
+thereafter is true due to each row having an even number of points and the
+self-similar replications in the pattern,
+
+    |\          replication
+    | \            block 0 to 1 and 3
+    |3 \           and block 0 block 2 less sides
+    |----
+    |\ 2|\
+    | \ | \
+    |0 \|1 \
+    ---------
+
+Block 0 is the base and is replicated as block 1 and in reverse as block 3.
+Block 2 is a further copy of block 0, but the two halves of block 0 rotated
+inward 90 degrees, so the X axis of block 0 becomes the vertical of block 2,
+and the Y axis of block 0 the horizontal of block 2.  Those axis parts are
+dropped since they're already covered by block 1 and 3 and dropping them
+flips the odd/even parity to match the vertical/horizontal flip due to the
+90-degree rotation.
 
 =head2 N Start
 
@@ -766,9 +1034,13 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::UlamWarburton-E<gt>new ()>
 
-=item C<$path = Math::PlanePath::UlamWarburton-E<gt>new (n_start =E<gt> $n)>
+=item C<$path = Math::PlanePath::UlamWarburton-E<gt>new (parts =E<gt> $str, n_start =E<gt> $n)>
 
-Create and return a new path object.
+Create and return a new path object.  The C<parts> option (a string) can be
+
+    "4"     the default
+    "2"
+    "1"
 
 =back
 
@@ -782,14 +1054,23 @@ Return the children of C<$n>, or an empty list if C<$n> has no children
 (including when C<$n E<lt> 1>, ie. before the start of the path).
 
 The children are the cells turned on adjacent to C<$n> at the next level.
-This can be 0, 1 or 3 points; or 4 at the initial C<n_start> at the origin.
 The way points are numbered means that when there's multiple children
 they're consecutive N values, for example at N=6 the children are 10,11,12.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
 
-Return the number of children of C<$n>, or return C<undef> if C<$nE<lt>1>
-(ie. before the start of the path).
+Return the number of children of C<$n>, or return C<undef> if
+C<$nE<lt>n_start()> (ie. before the start of the path).
+
+    parts        possible num children
+    -----        ---------------------
+      4          0,    3, 4
+      2          0, 2, 3
+      1          0, 2, 3
+
+parts=4 has 4 children at the origin N=0 and thereafter either 0 or 3.
+parts=2 or parts=1 can have 2 children on the boundaries where what would be
+a 3rd child is chopped off.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -805,11 +1086,17 @@ Sequences as
 
     http://oeis.org/A147582    (etc)
 
-    A147582   total cells to depth, tree_depth_to_n(d+1)
-    A147562   added cells at depth, extra initial 0
+    parts=4
+      A147562   total cells to depth, being tree_depth_to_n() n_start=0
+      A147582   added cells at depth
 
-    A151922   total cells to depth=n with X>=0,Y>=0
-    A079314   added cells at depth=n with X>=0,Y>=0
+    parts=2
+      A183060   total cells to depth=n in half plane
+      A183061   added cells at depth=n
+
+    parts=1
+      A151922   total cells to depth=n in quadrant
+      A079314   added cells at depth=n
 
 The A147582 new cells sequence starts from n=1, so takes the innermost N=1
 single cell as level n=1, then N=2,3,4,5 as level n=2 with 5 cells, etc.

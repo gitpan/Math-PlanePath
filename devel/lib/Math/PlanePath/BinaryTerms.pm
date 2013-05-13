@@ -18,6 +18,8 @@
 
 # cf A134562 base-3 Y=sum digits
 
+# http://cut-the-knot.org/wiki-math/index.php?n=Probability.ComboPlayground
+# combinations
 
 # row
 # Y=1  2^k
@@ -97,7 +99,7 @@ use List::Util 'sum';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;

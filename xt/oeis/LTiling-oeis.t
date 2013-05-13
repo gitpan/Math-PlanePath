@@ -34,6 +34,46 @@ use Math::PlanePath::LTiling;
 
 
 #------------------------------------------------------------------------------
+# A112539 -- X+Y mod 2
+
+MyOEIS::compare_values
+  (anum => 'A112539',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::LTiling->new (L_fill => 'left');
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, ($x+$y)%2;
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A112539',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::LTiling->new (L_fill => 'upper');
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, ($x+$y)%2;
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A112539',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::LTiling->new (L_fill => 'middle');
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, ($x+$y+1)%2;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A048647 -- N at transpose Y,X
 
 MyOEIS::compare_values

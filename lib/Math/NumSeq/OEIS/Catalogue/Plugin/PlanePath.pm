@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 214 A-numbers in 4 modules
+# total 210 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -1961,6 +1961,26 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A183060',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'UlamWarburton,parts=2,n_start=0',
+      'line_type',
+      'Depth_start'
+    ]
+  },
+  {
+    'anum' => 'A151922',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'UlamWarburton,parts=1,n_start=1',
+      'line_type',
+      'Depth_end'
+    ]
+  },
+  {
     'anum' => 'A151920',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -2008,66 +2028,6 @@ use constant info_arrayref =>
       'PowerArray',
       'line_type',
       'Diagonal'
-    ]
-  },
-  {
-    'anum' => 'A160410',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'LCornerTree',
-      'line_type',
-      'Depth_start'
-    ]
-  },
-  {
-    'anum' => 'A160412',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'LCornerTree,parts=3',
-      'line_type',
-      'Depth_start'
-    ]
-  },
-  {
-    'anum' => 'A151725',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'OneOfEight',
-      'line_type',
-      'Depth_start'
-    ]
-  },
-  {
-    'anum' => 'A151735',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'OneOfEight,parts=1',
-      'line_type',
-      'Depth_start'
-    ]
-  },
-  {
-    'anum' => 'A170880',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'OneOfEight,parts=3mid',
-      'line_type',
-      'Depth_start'
-    ]
-  },
-  {
-    'anum' => 'A170879',
-    'class' => 'Math::NumSeq::PlanePathN',
-    'parameters' => [
-      'planepath',
-      'OneOfEight,parts=3side',
-      'line_type',
-      'Depth_start'
     ]
   },
   {

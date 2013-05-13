@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -317,7 +317,7 @@ blocks.
      1  |       2                   6          30                  18
     Y=0 |   0           1   7           4  28          29  19
         +------------------------------------------------------------
-           X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
+          X=0   1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
 On the X=Y leading diagonal N=0,2,8,10,32,etc is the integers made from only
 digits 0 and 2 in base 4.  Or equivalently integers which have zero bits at
@@ -338,7 +338,7 @@ instead at their left end or upper end respectively.
     |  |    2| 1|              1  |           2   1               4    
     |  +--+--+  |             Y=0 |       0               7            
     |    0|     |                 +------------------------------------
-    +-----+-----+                    X=0  1   2   3   4   5   6   7   8
+    +-----+-----+                   X=0   1   2   3   4   5   6   7   8
 
 
     L_fill => 'upper'          8  |          53                  42
@@ -351,10 +351,13 @@ instead at their left end or upper end respectively.
     | 0|     |  |              1  |   0               7   6          28
     |  +--+--+  |             Y=0 |           1               4
     |     | 1   |                 +------------------------------------
-    +-----+-----+                    X=0  1   2   3   4   5   6   7   8
+    +-----+-----+                   X=0   1   2   3   4   5   6   7   8
 
 The effect is to disrupt the pattern a bit though the overall structure of
 the replications is unchanged.
+
+"left" is as viewed looking towards the L from above.  It may have been
+better to call it "right", but won't change that now.
 
 =head2 Ends
 
@@ -390,7 +393,7 @@ above, ie. it visits all the points which the middle option doesn't, and so
       1  |   1       4   2  15  13       8  57      60  58  39  37
      Y=0 |       0   3          14   9          56  59          38  33
          +------------------------------------------------------------
-            X=0  1   2   3   4   5   6   7   8   9  10  11  12  13  14
+           X=0   1   2   3   4   5   6   7   8   9  10  11  12  13  14
 
 =head2 All
 
@@ -407,7 +410,7 @@ quadrant.
     | 2| 6  7| 4|          1  |   2   6   7   4  23  20  18  13
     |  +--+--+  |         Y=0 |   0   1   5   3  21  22  14  12
     | 0  1| 5  3|             +--------------------------------
-    +-----+-----+                X=0  1   2   3   4   5   6   7
+    +-----+-----+               X=0   1   2   3   4   5   6   7
 
 Along the X=Y leading diagonal N=0,6,24,30,96,etc are triples of the values
 from the single-point case, so 3* numbers using digits 0 and 2 in base 4,
@@ -469,6 +472,18 @@ path include
       A062880    N on X=Y diagonal, base 4 digits 0,2 only
       A048647    permutation N at transpose Y,X
                    base4 digits 1<->3 and 0,2 unchanged
+      A112539    X+Y+1 mod 2, parity inverted
+
+    L_fill=left or upper
+      A112539    X+Y mod 2, parity
+
+A112539 is a parity of bits at even positions in N, ie. count 1-bits at even
+bit positions (least significant is bit position 0), then add 1 and take
+mod 2.  This works because in the pattern sub-blocks 0 and 2 are unchanged
+and 1 and 3 are turned so as to be on opposite X,Y odd/even parity, so a
+flip for every even position 1-bit.  L_fill=middle starts on a 0 even
+parity, and L_fill=left and upper start on 1 odd parity.  The latter is the
+form in A112539 and L_fill=middle is the bitwise 0E<lt>-E<gt>1 inverse.
 
 =head1 SEE ALSO
 

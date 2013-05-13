@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 788;
+plan tests => 1022;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::UlamWarburton;
 # VERSION
 
 {
-  my $want_version = 102;
+  my $want_version = 103;
   ok ($Math::PlanePath::UlamWarburton::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::UlamWarburton->VERSION,  $want_version,
@@ -62,25 +62,100 @@ require Math::PlanePath::UlamWarburton;
 }
 
 #------------------------------------------------------------------------------
-# tree_depth_to_n()
+# tree_depth_to_n(), tree_n_to_depth()
+
+# 25
+# 23
+# 19   22
+# 15        61
+# 11   14   18   60
+#  9        59        57
+#  5    8        58   17   56
+#  3         7        13        19
+#  1    2    4    6   10   12   16   18  24
+
+# 1, 3, 5, 9, 11, 15, 19, 29, 31, 35, 39, 49, 53, 63, 73, 101, 103, 107,
+# 2  4  6 10  12  16  20  30
 
 {
-  my $path = Math::PlanePath::UlamWarburton->new;
-  my @data = ([ 0,  1 ],
-              [ 1,  2 ],
-              [ 2,  6 ],
-              [ 3, 10 ],
-              [ 4, 22 ],
-              [ 5, 26 ],
-              [ 6, 38 ],
-              [ 7, 50 ],
-              [ 8, 86 ],
-              [ 9, 90 ],
+  my @groups = ([ [ parts => 1 ],
+                  [ 8, 30 ], # +1+1
+
+                  [ 0,  1 ], #
+                  [ 1,  2 ], # +1+1
+                  [ 2,  4 ], # +1+1
+                  [ 3,  6 ], # +3+1
+
+                  [ 4, 10 ], # +1+1
+                  [ 5, 12 ], # +3+1
+                  [ 6, 16 ], # +3+1
+                  [ 7, 20 ], # +9+1
+
+                  [ 8, 30 ], # +1+1
+                  [ 9, 32 ],
+                ],
+
+                [ [ ], # default parts=4
+                  [ 0,  1 ], # +1
+                  [ 1,  2 ], # +4
+                  [ 2,  6 ], # +4
+                  [ 3, 10 ], # +12
+                  [ 4, 22 ], # +4
+                  [ 5, 26 ], # +12
+                  [ 6, 38 ], # +12
+                  [ 7, 50 ], # +36
+                  [ 8, 86 ], # +4
+                  [ 9, 90 ],
+                ],
+               );
+  foreach my $n_start (1, 0, 37, -3) {
+    foreach my $group (@groups) {
+      my ($options, @data) = @$group;
+      my $path = Math::PlanePath::UlamWarburton->new (@$options,
+                                                      n_start => $n_start);
+      foreach my $elem (@data) {
+        my ($depth, $n) = @$elem;
+        $n = $n - 1 + $n_start;  # table is in N=1 basis, adjust
+        {
+          my $want_n = $n;
+          my $got_n = $path->tree_depth_to_n ($depth);
+          ok ($got_n, $want_n, "n_start=$n_start tree_depth_to_n() depth=$depth");
+        }
+        {
+          my $want_depth = $depth;
+          my $got_depth = $path->tree_n_to_depth ($n);
+          ok ($got_depth, $want_depth, "@$options n_start=$n_start tree_n_to_depth() n=$n");
+        }
+        if ($depth > 0) {
+          my $want_depth = $depth - 1;
+          my $got_depth = $path->tree_n_to_depth ($n-1);
+          ok ($got_depth, $want_depth, "@$options n_start=$n_start tree_n_to_depth() n=$n");
+        }
+      }
+    }
+  }
+}
+
+#------------------------------------------------------------------------------
+# tree_n_children()
+{
+  my @data = ([ 1, '2,3,4,5' ],
+
+              [ 2,  '6' ],
+              [ 3,  '7' ],
+              [ 4,  '8' ],
+              [ 5,  '9' ],
+
+              [ 6,  '10,11,12' ],
+              [ 7,  '13,14,15' ],
+              [ 8,  '16,17,18' ],
+              [ 9,  '19,20,21' ],
              );
+  my $path = Math::PlanePath::UlamWarburton->new;
   foreach my $elem (@data) {
-    my ($depth, $want_n) = @$elem;
-    my $got_n = $path->tree_depth_to_n ($depth);
-    ok ($got_n, $want_n, "tree_depth_to_n() depth=$depth");
+    my ($n, $want_n_children) = @$elem;
+    my $got_n_children = join(',',$path->tree_n_children($n));
+    ok ($got_n_children, $want_n_children, "tree_n_children($n)");
   }
 }
 
@@ -111,29 +186,6 @@ require Math::PlanePath::UlamWarburton;
     my ($n, $want_n_parent) = @$elem;
     my $got_n_parent = $path->tree_n_parent ($n);
     ok ($got_n_parent, $want_n_parent);
-  }
-}
-
-#------------------------------------------------------------------------------
-# tree_n_children()
-{
-  my @data = ([ 1, '2,3,4,5' ],
-
-              [ 2,  '6' ],
-              [ 3,  '7' ],
-              [ 4,  '8' ],
-              [ 5,  '9' ],
-
-              [ 6,  '10,11,12' ],
-              [ 7,  '13,14,15' ],
-              [ 8,  '16,17,18' ],
-              [ 9,  '19,20,21' ],
-             );
-  my $path = Math::PlanePath::UlamWarburton->new;
-  foreach my $elem (@data) {
-    my ($n, $want_n_children) = @$elem;
-    my $got_n_children = join(',',$path->tree_n_children($n));
-    ok ($got_n_children, $want_n_children, "tree_n_children($n)");
   }
 }
 

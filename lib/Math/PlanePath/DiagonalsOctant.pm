@@ -19,9 +19,10 @@
 package Math::PlanePath::DiagonalsOctant;
 use 5.004;
 use strict;
+use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -103,7 +104,12 @@ sub new {
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;
   }
-  $self->{'direction'} ||= 'down';
+
+  my $direction = ($self->{'direction'} ||= 'down');
+  if (! ($direction eq 'up' || $direction eq 'down')) {
+    croak "Unrecognised direction option: ", $direction;
+  }
+
   return $self;
 }
 
@@ -321,6 +327,11 @@ X=Y centre line, traversing the eighth of the plane on and above X=Y.
 X<Square numbers>N=1,4,9,16,etc on the X=Y leading diagonal are the perfect
 squares.  N=2,6,12,20,etc at the ends of the other diagonals are the
 X<Pronic numbers>pronic numbers k*(k+1).
+
+Incidentally "octant" usually refers to an eighth of a 3-dimensional
+coordinate space.  Since C<PlanePath> is only 2 dimensions there's no
+confusion and at the risk of abusing nomenclature half a quadrant is
+reckoned as an "octant".
 
 =head2 Pyramid Rows
 

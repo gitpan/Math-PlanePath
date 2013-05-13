@@ -25,9 +25,10 @@
 package Math::PlanePath::CellularRule;
 use 5.004;
 use strict;
+use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -693,7 +694,7 @@ sub rect_to_n_range {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 102;
+  $VERSION = 103;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -808,14 +809,16 @@ sub rect_to_n_range {
   sub _UNTESTED__n_to_radius {
     my ($self, $n) = @_;
     $n = $n - $self->{'n_start'};  # to N=0 start
+    if ($n < 0) { return undef; }
     if ($self->{'align'} ne 'centre') {
       $n *= sqrt(2 + $n*0);  # inherit bigfloat etc from $n
     }
     return $n;
   }
-  sub _UNTESTED__n_to_rsquared {
+  sub n_to_rsquared {
     my ($self, $n) = @_;
     $n = $n - $self->{'n_start'};  # to N=0 start
+    if ($n < 0) { return undef; }
     $n *= $n;                      # squared
     if ($self->{'align'} ne 'centre') {
       $n *= 2;
@@ -862,7 +865,7 @@ sub rect_to_n_range {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 102;
+  $VERSION = 103;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -954,7 +957,7 @@ sub rect_to_n_range {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 102;
+  $VERSION = 103;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

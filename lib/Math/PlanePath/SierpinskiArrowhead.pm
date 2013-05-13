@@ -23,12 +23,13 @@
 package Math::PlanePath::SierpinskiArrowhead;
 use 5.004;
 use strict;
+use Carp;
 
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 102;
+$VERSION = 103;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -43,7 +44,7 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
-# shared by SierpinskiArrowheadCentres
+# Note: shared by SierpinskiArrowheadCentres
 use constant parameter_info_array =>
   [ { name      => 'align',
       share_key => 'align_trld',
@@ -57,16 +58,15 @@ use constant parameter_info_array =>
 
 use constant n_start => 0;
 use constant class_y_negative => 0;
-{
-  my %x_negative = (triangular => 1,
-                    left       => 1,
-                    right      => 0,
-                    diagonal   => 0);
-  # shared by SierpinskiArrowheadCentres
-  sub x_negative {
-    my ($self) = @_;
-    return $x_negative{$self->{'align'}};
-  }
+
+my %x_negative = (triangular => 1,
+                  left       => 1,
+                  right      => 0,
+                  diagonal   => 0);
+# Note: shared by SierpinskiArrowheadCentres
+sub x_negative {
+  my ($self) = @_;
+  return $x_negative{$self->{'align'}};
 }
 
 use constant sumxy_minimum => 0;  # triangular X>=-Y
@@ -109,9 +109,13 @@ sub dir_maximum_dxdy {
 
 #------------------------------------------------------------------------------
 
+# Note: shared by SierpinskiArrowheadCentres
 sub new {
   my $self = shift->SUPER::new(@_);
-  $self->{'align'} ||= 'triangular';
+  my $align = ($self->{'align'} ||= 'triangular');
+  if (! exists $x_negative{$align}) {
+    croak "Unrecognised align option: ", $align;
+  }
   return $self;
 }
 
