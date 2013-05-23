@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -274,12 +274,14 @@ sub n_to_xy {
           $y);
 }
 
-sub _UNTESTED__n_to_radius {
+sub n_to_radius {
   my ($self, $n) = @_;
   if ($self->{'step'} == 0) {
-    return $n - $self->{'n_start'};  # vertical on Y axis
+    $n = $n - $self->{'n_start'};  # to N=0 basis
+    if ($n < 0) { return undef; }
+    return $n;  # vertical on Y axis, including $n=+infinity or nan
   }
-  return $self->SUPER::n_to_radius($n);  
+  return $self->SUPER::n_to_radius($n);
 }
 
 # N = ($step * $y*$y - ($step-2)*$y + 1) / 2

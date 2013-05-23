@@ -33,6 +33,68 @@ use Smart::Comments;
 
 
 {
+  # X,Y list
+
+  # PQ UAD
+  # N=1  2 / 1
+  #
+  # N=2  3 / 2
+  # N=3  5 / 2
+  # N=4  4 / 1
+  #
+  # N=5  4 / 3
+  # N=6  8 / 3
+  # N=7  7 / 2
+  # N=8  8 / 5
+  # N=9  12 / 5
+  # N=10  9 / 2
+  # N=11  7 / 4
+  # N=12  9 / 4
+  # N=13  6 / 1
+
+  # PQ FB
+  # N=1  2,1
+  #
+  # N=2  3,2
+  # N=3  4,1
+  # N=4  4,3
+  #
+  # N=5  5,4
+  # N=6  6,1
+  # N=7  6,5
+  # N=8  5,2
+  # N=9  8,3
+  # N=10  8,5
+  # N=11  7,6
+  # N=12  8,1
+  # N=13  8,7
+
+
+  require Math::PlanePath::PythagoreanTree;
+  my $path = Math::PlanePath::PythagoreanTree->new
+    (
+     tree_type => 'FB',
+     # tree_type => 'UAD',
+     # coordinates => 'BC',
+     coordinates => 'PQ',   # P>Q one odd other even
+    );
+  my $n = $path->n_start;
+  foreach my $level (0 .. 5) {
+    foreach (1 .. 3**$level) {
+      my ($x,$y) = $path->n_to_xy($n);
+      #  $x -= $y;
+      my $flag = '';
+      if ($x <= $y) {
+        $flag = '  ***';
+      }
+      print "N=$n  $x,$y$flag\n";
+      $n++;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+{
   # numbers in a grid
 
   require Math::PlanePath::PythagoreanTree;
@@ -58,49 +120,6 @@ use Smart::Comments;
     $rows[$y] ||= '';
     $rows[$y] =~ s/ +$//;
     print $rows[$y],"\n";
-  }
-  exit 0;
-}
-{
-  # X,Y list
-
-  # PQ
-  # N=1  2 / 1
-  #
-  # N=2  3 / 2
-  # N=3  5 / 2
-  # N=4  4 / 1
-  #
-  # N=5  4 / 3
-  # N=6  8 / 3
-  # N=7  7 / 2
-  # N=8  8 / 5
-  # N=9  12 / 5
-  # N=10  9 / 2
-  # N=11  7 / 4
-  # N=12  9 / 4
-  # N=13  6 / 1
-
-  require Math::PlanePath::PythagoreanTree;
-  my $path = Math::PlanePath::PythagoreanTree->new
-    (
-     # tree_type => 'FB',
-     # tree_type => 'UAD',
-     # coordinates => 'BC',
-     coordinates => 'PQ',
-    );
-  my $n = $path->n_start;
-  foreach my $level (0 .. 5) {
-    foreach (1 .. 3**$level) {
-      my ($x,$y) = $path->n_to_xy($n);
-      my $flag = '';
-      if ($x <= $y) {
-        $flag = '  ***';
-      }
-      print "N=$n  $x,$y$flag\n";
-      $n++;
-    }
-    print "\n";
   }
   exit 0;
 }

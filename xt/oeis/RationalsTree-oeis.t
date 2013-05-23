@@ -50,6 +50,49 @@ sub gcd {
 }
 
 #------------------------------------------------------------------------------
+# A047270 -- 3or5 mod 6, is CW positions of X>Y not both odd
+
+MyOEIS::compare_values
+  (anum => 'A047270',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'CW');
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       if (xy_is_pythagorean($x,$y)) {
+         push @got, $n;
+       }
+     }
+     return \@got;
+   });
+
+sub xy_is_pythagorean {
+  my ($x,$y) = @_;
+  return ($x>$y && ($x%2)!=($y%2));
+}
+
+
+#------------------------------------------------------------------------------
+# A057431 -- SB num then den, initial 0/1, 1/0 too
+
+MyOEIS::compare_values
+  (anum => 'A057431',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::RationalsTree->new (tree_type => 'SB');
+     my @got = (0,1, 1,0);
+     for (my $n = $path->n_start; ; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       last if @got >= $count;
+       push @got, $x;
+       last if @got >= $count;
+       push @got, $y;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A104106  AYT 2*N Left -- not quite
 # a(1) = 1
 # if A(k) = sequence of first 2^k -1 terms, then

@@ -76,6 +76,50 @@ my @modules = (
 
                # module list begin
 
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'PyramidRows,align=right',
+               'PyramidRows,align=right,step=0',
+               'PyramidRows,align=right,step=1',
+               'PyramidRows,align=right,step=3',
+               'PyramidRows,align=right,step=4',
+               'PyramidRows,align=right,step=5',
+               'PyramidRows,align=right,step=37',
+               'PyramidRows,align=left',
+               'PyramidRows,align=left,step=0',
+               'PyramidRows,align=left,step=1',
+               'PyramidRows,align=left,step=3',
+               'PyramidRows,align=left,step=4',
+               'PyramidRows,align=left,step=5',
+               'PyramidRows,align=left,step=37',
+               'PyramidRows',
+               'PyramidRows,step=0',
+               'PyramidRows,step=1',
+               'PyramidRows,step=3',
+               'PyramidRows,step=4',
+               'PyramidRows,step=5',
+               'PyramidRows,step=37',
+               'PyramidRows,step=0,n_start=37',
+               'PyramidRows,step=1,n_start=37',
+               'PyramidRows,step=2,n_start=37',
+               'PyramidRows,align=right,step=5,n_start=37',
+               'PyramidRows,align=left,step=3,n_start=37',
+
                'PythagoreanTree,coordinates=SM',
                'PythagoreanTree,coordinates=SC',
                'PythagoreanTree,coordinates=MC',
@@ -114,23 +158,6 @@ my @modules = (
                'UlamWarburtonQuarter',
                'UlamWarburtonQuarter,n_start=0',
                'UlamWarburtonQuarter,n_start=37',
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
 
                'DiagonalRationals',
                'DiagonalRationals,n_start=37',
@@ -583,33 +610,6 @@ my @modules = (
 
                'MPeaks',
 
-               'PyramidRows,align=right',
-               'PyramidRows,align=right,step=0',
-               'PyramidRows,align=right,step=1',
-               'PyramidRows,align=right,step=3',
-               'PyramidRows,align=right,step=4',
-               'PyramidRows,align=right,step=5',
-               'PyramidRows,align=right,step=37',
-               'PyramidRows,align=left',
-               'PyramidRows,align=left,step=0',
-               'PyramidRows,align=left,step=1',
-               'PyramidRows,align=left,step=3',
-               'PyramidRows,align=left,step=4',
-               'PyramidRows,align=left,step=5',
-               'PyramidRows,align=left,step=37',
-               'PyramidRows',
-               'PyramidRows,step=0',
-               'PyramidRows,step=1',
-               'PyramidRows,step=3',
-               'PyramidRows,step=4',
-               'PyramidRows,step=5',
-               'PyramidRows,step=37',
-               'PyramidRows,step=0,n_start=37',
-               'PyramidRows,step=1,n_start=37',
-               'PyramidRows,step=2,n_start=37',
-               'PyramidRows,align=right,step=5,n_start=37',
-               'PyramidRows,align=left,step=3,n_start=37',
-
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
                'DiagonalsOctant,n_start=0',
@@ -724,7 +724,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 103;
+my $want_version = 104;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1185,37 +1185,37 @@ sub pythagorean_diag {
           &$report("n_to_xy() at n_start()-1 has X,Y but should not");
         }
       }
-      {
-        my @rsquared = $path->n_to_rsquared($n);
-        if (scalar(@rsquared) != 1) {
-          &$report("n_to_rsquared() at n_start()-1 return not one value");
-        } elsif (defined $rsquared[0]) {
-          &$report("n_to_rsquared() at n_start()-1 has defined value but should not");
+      foreach my $method ('n_to_rsquared', 'n_to_radius') {
+        my @ret = $path->$method($n);
+        if (scalar(@ret) != 1) {
+          &$report("$method() at n_start()-1 return not one value");
+        } elsif (defined $ret[0]) {
+          &$report("$method() at n_start()-1 has defined value but should not");
         }
-      }
-    }
-    foreach my $offset (1, 2, 123) {
-      ### n_to_rsquared(n_start - offset): $offset
-      my $n = $n_start - $offset;
-      my @rsquared = $path->n_to_rsquared($n);
-      if ($path->isa('Math::PlanePath::File')) {
-        @rsquared = (undef);  # all undefs for File
-      }
-      my $num_values = scalar(@rsquared);
-      $num_values == 1
-        or &$report("n_to_rsquared(n_start - $offset) got $num_values values, want 1");
-      if ($path->isa('Math::PlanePath::Rows')
-          || $path->isa('Math::PlanePath::Columns')) {
-        ### Rows,Columns has secret values for negative N, pretend not ...
-        @rsquared = (undef);
-      }
-      if ($offset == 1 && $path->isa('Math::PlanePath::VogelFloret')) {
-        ### VogelFloret has a secret undocumented return for N=0 ...
-        @rsquared = (undef);
-      }
-      my ($rsquared) = @rsquared;
-      if (defined $rsquared) {
-        &$report("n_to_rsquared($n) n_start-$offset is $rsquared expected undef");
+        foreach my $offset (1, 2, 123) {
+          ### n_to_r (n_start - offset): $offset
+          my $n = $n_start - $offset;
+          my @ret = $path->$method($n);
+          if ($path->isa('Math::PlanePath::File')) {
+            @ret = (undef);  # all undefs for File
+          }
+          my $num_values = scalar(@ret);
+          $num_values == 1
+            or &$report("$method(n_start - $offset) got $num_values values, want 1");
+          if ($path->isa('Math::PlanePath::Rows')
+              || $path->isa('Math::PlanePath::Columns')) {
+            ### Rows,Columns has secret values for negative N, pretend not ...
+            @ret = (undef);
+          }
+          if ($offset == 1 && $path->isa('Math::PlanePath::VogelFloret')) {
+            ### VogelFloret has a secret undocumented return for N=0 ...
+            @ret = (undef);
+          }
+          my ($ret) = @ret;
+          if (defined $ret) {
+            &$report("$method($n) n_start-$offset is ",$ret," expected undef");
+          }
+        }
       }
     }
 
@@ -1224,6 +1224,7 @@ sub pythagorean_diag {
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
       foreach my $method ('n_to_xy','n_to_dxdy',
                           'n_to_rsquared',
+                          'n_to_radius',
                           ($path->tree_n_num_children($n_start)
                            ? ('tree_n_to_depth',
                               'tree_depth_to_n',
@@ -1299,20 +1300,20 @@ sub pythagorean_diag {
         (is_pos_infinity($dy) || is_neg_infinity($dy) || &$is_nan($dy))
           or &$report("n_to_dxdy($pos_infinity) dy is $dy");
       }
-      {
-        ### n_to_rsquared($pos_infinity) ...
-        my @rsquared = $path->n_to_rsquared($pos_infinity);
+      foreach my $method ('n_to_rsquared','n_to_radius') {
+        ### n_to_r pos_infinity ...
+        my @ret = $path->$method($pos_infinity);
         if ($path->isa('Math::PlanePath::File')) {
           # all undefs for File
-          @rsquared = ($pos_infinity);
+          @ret = ($pos_infinity);
         }
-        my $num_values = scalar(@rsquared);
+        my $num_values = scalar(@ret);
         $num_values == 1
-          or &$report("n_to_rsquared(pos_infinity) got $num_values values, want 1");
-        my ($rsquared) = @rsquared;
+          or &$report("$method(pos_infinity) got $num_values values, want 1");
+        my ($ret) = @ret;
         # allow NaN too, since sqrt(+inf) in various classes gives nan
-        (is_pos_infinity($rsquared) || &$is_nan($rsquared))
-          or &$report("n_to_rsquared($pos_infinity) ",$rsquared," expected +infinity");
+        (is_pos_infinity($ret) || &$is_nan($ret))
+          or &$report("$method($pos_infinity) ",$ret," expected +infinity");
       }
       {
         ### tree_n_children($pos_infinity) ...
@@ -1373,23 +1374,24 @@ sub pythagorean_diag {
         $num_values == 0
           or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
-      {
-        ### n_to_rsquared(neg_infinity) ...
-        my @rsquared = $path->n_to_rsquared($neg_infinity);
+
+      foreach my $method ('n_to_rsquared','n_to_radius') {
+        ### n_to_r (neg_infinity) ...
+        my @ret = $path->$method($neg_infinity);
         if ($path->isa('Math::PlanePath::File')) {
-          @rsquared = (undef);  # all undefs for File
+          @ret = (undef);  # all undefs for File
         }
-        my $num_values = scalar(@rsquared);
+        my $num_values = scalar(@ret);
         $num_values == 1
-          or &$report("n_to_rsquared($neg_infinity) got $num_values values, want 1");
+          or &$report("$method($neg_infinity) got $num_values values, want 1");
         if ($path->isa('Math::PlanePath::Rows')
             || $path->isa('Math::PlanePath::Columns')) {
           ### Rows,Columns has secret values for negative N, pretend not ...
-          @rsquared = (undef);
+          @ret = (undef);
         }
-        my ($rsquared) = @rsquared;
-        if (defined $rsquared) {
-          &$report("n_to_rsquared($neg_infinity) $rsquared expected undef");
+        my ($ret) = @ret;
+        if (defined $ret) {
+          &$report("$method($neg_infinity) $ret expected undef");
         }
       }
       {
@@ -1681,6 +1683,21 @@ sub pythagorean_diag {
         my $xy_to_rsquared = $x*$x + $y*$y;
         if (abs($n_to_rsquared - $xy_to_rsquared) > 0.0000001) {
           &$report ("n_to_rsquared() at n=$n,x=$x,y=$y got $n_to_rsquared whereas x^2+y^2=$xy_to_rsquared");
+        }
+      }
+    }
+
+    #--------------------------------------------------------------------------
+    ### n_to_radius() vs X^2,Y^2 ...
+
+    if ($path->can('n_to_radius') != Math::PlanePath->can('n_to_radius')) {
+      foreach my $n ($n_start .. $#n_to_x) {
+        my $x = $n_to_x[$n];
+        my $y = $n_to_y[$n];
+        my ($n_to_radius) = $path->n_to_radius($n);
+        my $xy_to_radius = sqrt($x*$x + $y*$y);
+        if (abs($n_to_radius - $xy_to_radius) > 0.0000001) {
+          &$report ("n_to_radius() at n=$n,x=$x,y=$y got $n_to_radius whereas x^2+y^2=$xy_to_radius");
         }
       }
     }

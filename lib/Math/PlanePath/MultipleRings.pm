@@ -38,7 +38,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 103;
+$VERSION = 104;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -819,7 +819,7 @@ sub n_to_rsquared {
 
   return $self->SUPER::n_to_rsquared($n);
 }
-sub _UNTESTED__n_to_radius {
+sub n_to_radius {
   my ($self, $n) = @_;
   ### n_to_radius(): $n
 

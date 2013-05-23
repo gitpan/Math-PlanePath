@@ -17,6 +17,9 @@ with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Version 104, May 2013
+    - new n_to_radius()
+
 Version 103, May 2013
     - UlamWarburton new parts=2,1
     - PythagoreanTree new coordinates="SM","SC","MC"

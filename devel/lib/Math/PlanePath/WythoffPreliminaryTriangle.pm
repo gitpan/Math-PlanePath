@@ -16,13 +16,28 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# x=45,y=10 x=59,y=19  dx=14,dy=9 14/9=1.55
+#
+# x=42,y=8 x=113,y=52 dx=71,dy=44 71/44=1.613
+#
+# below
+# 32,12 to 36,4 sqrt((32-36)^2+(12-4)^2) = 9
+# 84,34 to 99,14 sqrt((84-99)^2+(34-14)^2) = 25
+# 180,64 to 216,11 sqrt((180-216)^2+(64-11)^2) = 64
+#
+# above
+# 14,20 to 5,32 sqrt((14-5)^2+(20-32)^2) = 15 = 9*1.618               3
+# 34,50 to 14,85 sqrt((34-14)^2+(50-85)^2) = 40 = 25*1.618            5
+# 132,158 to 77,247 sqrt((132-77)^2+(158-247)^2) = 104 = 64*1.618     8
+# 8,525 to 133,280  sqrt((8-133)^2+(525-280)^2) = 275 = 169*1.618    13
+
 package Math::PlanePath::WythoffPreliminaryTriangle;
 use 5.004;
 use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

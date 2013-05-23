@@ -16,9 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# FIXME: ensure dY=0 when horizontal
-
-
 # maybe:
 #
 # dRadius, dRSquared,
@@ -34,6 +31,8 @@
 # TDist TDSquared
 # StepDist StepSquared
 # StepTDist StepTSquared
+# StepRadius
+# StepRSquared
 
 
 package Math::NumSeq::PlanePathDelta;
@@ -43,7 +42,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',

@@ -44,10 +44,9 @@
 # GF2Product A051775,A051776  multiply with xor no carry
 # NumOverlap       xy_to_n_list()  n_overlap_list()  n_num_overlap()
 # NumAround
-# NumSurround
-# NumSurround4     NSEW
-# NumSurroundDiag  diagonals
-# NumSurround6     triangular
+# NumSurround4    NSEW
+# NumSurround4d   diagonals
+# NumSurround6    triangular
 # NumSurround8
 # NumPrev4
 #
@@ -63,7 +62,7 @@
 # Theta360 angle matching Radius,RSquared
 # TTheta360 angle matching TRadius,TRSquared
 #
-# IsRational Chi(x) = 1 if x rational, 0 if irrational
+# IsRational -- Chi(x) = 1 if x rational, 0 if irrational
 # Dirichlet function D(x) = 1/b if rational x=a/b least terms, 0 if irrational
 # Multiplicative distance A130836 X,Y>=1
 #     sum abs(exponent-exponent) of each prime
@@ -81,7 +80,7 @@ use constant 1.02; # various underscore constants below
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -131,6 +130,10 @@ use constant::defer parameter_info_array =>
                    # # 'MaxAbs',
                    # # 'MulDist',
                    # 'HammingDist',
+                   # 'NumSurround4',
+                   # 'NumSurround4d',
+                   # 'NumSurround6',
+                   # 'NumSurround8',
                   ];
     return [
             _parameter_info_planepath(),
@@ -437,14 +440,11 @@ sub _coordinate_func_AbsDiff {
   return abs($x - $y);
 }
 sub _coordinate_func_Radius {
-  my $rsquared;
-  return (defined ($rsquared = _coordinate_func_RSquared(@_))
-          ? sqrt($rsquared)
-          : undef);
+  my ($self, $n) = @_;
+  return $self->{'planepath_object'}->n_to_radius($n);
 }
 sub _coordinate_func_RSquared {
   my ($self, $n) = @_;
-  ### _coordinate_func_RSquared(): $n, $self->{'planepath_object'}->n_to_xy($n)
   return $self->{'planepath_object'}->n_to_rsquared($n);
 }
 
@@ -678,36 +678,47 @@ sub _coordinate_func_Height {
 }
 
 # math-image --values=PlanePathCoord,coordinate_type=NumSurround4,planepath=DragonCurve --path=DragonCurve --scale=10
-sub _coordinate_func_NumSurround4 {
-  my ($self, $n) = @_;
-  return _path_n_surround_count ($self->{'planepath_object'}, $n, 4);
-}
-sub _coordinate_func_NumSurround6 {
-  my ($self, $n) = @_;
-  return _path_n_surround_count ($self->{'planepath_object'}, $n, 6);
-}
-sub _coordinate_func_NumSurround8 {
-  my ($self, $n) = @_;
-  return _path_n_surround_count ($self->{'planepath_object'}, $n, 8);
-}
-{ my @surround;
-  $surround[4] = [ 1,0, 0,1, -1,0, 0,-1 ];
-  $surround[6] = [ 2,0, 1,1, -1,1,
-                   -2,0, -1,-1, 1,-1 ];
-  $surround[8] = [ 1,0, 0,1, -1,0, 0,-1,
-                   1,1, -1,1, 1,-1, -1,-1 ];
-  sub _path_n_surround_count {
-    my ($path, $n, $num_points) = @_;
-    ### _path_n_surround_count(): $n, $num_points
-    my $aref = $surround[$num_points]
-      || croak "_path_n_surround_count() unrecognised number of points ",$num_points;
-    my ($x, $y) = $path->n_to_xy($n) or return undef;
-    my $count = 0;
-    for (my $i = 0; $i < @$aref; $i+=2) {
-      $count += $path->xy_is_visited($x+$aref->[$i], $y+$aref->[$i+1]);
-    }
-    return $count;
+{
+  my $surround = [ 1,0, 0,1, -1,0, 0,-1 ];
+  sub _coordinate_func_NumSurround4 {
+    my ($self, $n) = @_;
+    return _path_n_surround_count ($self->{'planepath_object'}, $n, $surround);
   }
+}
+{
+  my $surround = [ 1,1, -1,1, -1,-1, 1,-1 ];
+  sub _coordinate_func_NumSurround4d {
+    my ($self, $n) = @_;
+    return _path_n_surround_count ($self->{'planepath_object'}, $n, $surround);
+  }
+  }
+{
+  my $surround = [ 2,0,   1,1,  -1,1,
+                   -2,0, -1,-1, 1,-1 ];
+  sub _coordinate_func_NumSurround6 {
+    my ($self, $n) = @_;
+    return _path_n_surround_count ($self->{'planepath_object'}, $n, $surround);
+  }
+}
+{
+  my $surround = [ 1,0, 0,1, -1,0, 0,-1,
+                   1,1, -1,1, 1,-1, -1,-1 ];
+  sub _coordinate_func_NumSurround8 {
+    my ($self, $n) = @_;
+    return _path_n_surround_count ($self->{'planepath_object'}, $n, $surround);
+  }
+}
+sub _path_n_surround_count {
+  my ($path, $n, $surround_aref) = @_;
+  # my $aref = $surround[$num_points]
+  #   || croak "_path_n_surround_count() unrecognised number of points ",$num_points;
+  my ($x, $y) = $path->n_to_xy($n) or return undef;
+  my $count = 0;
+  for (my $i = 0; $i < @$surround_aref; $i+=2) {
+    $count += $path->xy_is_visited($x + $surround_aref->[$i],
+                                   $y + $surround_aref->[$i+1]);
+  }
+  return $count;
 }
 
 # rounding towards zero
@@ -936,6 +947,10 @@ sub _coordinate_func_MulDist {
 
 # Count of differing bit positions.
 # Infinite if twos-comp negative.
+# 1111 -1   1
+# 1101 -2  10
+# 1110 -3  11
+#
 use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 sub _coordinate_func_HammingDist {
@@ -944,8 +959,20 @@ sub _coordinate_func_HammingDist {
     or return undef;
   if (is_infinite($x)) { return $x; }
   if (is_infinite($y)) { return $y; }
-  $x = abs(int($x));
-  $y = abs(int($y));
+
+  # twos complement
+  if ($x<0) {
+    if ($y >= 0) { return _INFINITY; }
+    $x = -$x;
+    $y = -$y;
+  } else {
+    if ($y < 0) { return _INFINITY; }
+  }
+
+  # abs values
+  # $x = abs(int($x));
+  # $y = abs(int($y));
+
   my @xbits = bit_split_lowtohigh($x);
   my @ybits = bit_split_lowtohigh($y);
   my $ret = 0;
@@ -4536,8 +4563,8 @@ then AbsDiff is the same as DiffYX.
 
 =head2 Radius and RSquared
 
-RSquared is per C<$path-E<gt>n_to_rsquared()> and Radius is the square root
-of that.
+Radius and RSquared are per C<$path-E<gt>n_to_radius()> and
+C<$path-E<gt>n_to_rsquared()> respectively.
 
 =head2 TRadius and TRSquared
 

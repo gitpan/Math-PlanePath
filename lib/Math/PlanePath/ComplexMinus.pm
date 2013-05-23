@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

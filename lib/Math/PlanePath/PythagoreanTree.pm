@@ -86,7 +86,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -315,6 +315,29 @@ sub n_to_xy {
     }
   }
 
+  return &{$self->{'pq_to_xy'}}(_n_to_pq($self,$n));
+}
+
+# maybe similar n_to_rsquared() as C^2=(P^2+Q^2)^2
+sub n_to_radius {
+  my ($self, $n) = @_;
+
+  if (($self->{'coordinates'} eq 'AB'
+       || $self->{'coordinates'} eq 'BA'
+       || $self->{'coordinates'} eq 'SM')
+      && $n == int($n)) {
+    if ($n < 1) { return undef; }
+    if (is_infinite($n)) { return $n; }
+    my ($p,$q) = _n_to_pq($self,$n);
+    return $p*$p + $q*$q;  # C=P^2+Q^2
+  }
+
+  return $self->SUPER::n_to_radius($n);
+}
+
+sub _n_to_pq {
+  my ($self, $n) = @_;
+
   # @ndigits list of ternary digits 0,1,2 which are the position of $n within
   # its row of the tree.  This is like a mixed-radix form where the high
   # digit is binary (and so always 1, and not in @ndigits) and the rest are
@@ -410,22 +433,8 @@ sub n_to_xy {
   ### $p
   ### $q
 
-  return &{$self->{'pq_to_xy'}}($p,$q);
+  return ($p, $q);
 }
-
-# and maybe similar n_to_rsquared() as C^2=(P^2+Q^2)^2
-sub _UNTESTED__n_to_radius {
-  my ($self, $n) = @_;
-  if (($self->{'coordinates'} eq 'AB'
-       || $self->{'coordinates'} eq 'BA'
-       || $self->{'coordinates'} eq 'SM')
-      && $n == int($n)) {
-    my ($p,$q) = _n_to_pq($self,$n);
-    return $p*$p + $q*$q;  # C=P^2+Q^2
-  }
-  return $self->SUPER::n_to_radius($n);
-}
-
 
 #------------------------------------------------------------------------------
 # xy_to_n()
@@ -591,7 +600,7 @@ sub rect_to_n_range {
       $depth = min($xdepth,$ydepth);
     }
   } else {
-    ### FB
+    ### FB ...
     if ($self->{'coordinates'} eq 'PQ') {
       $x2 *= 3;
     }
@@ -1803,6 +1812,14 @@ C<$x,$y> then return C<undef>.
 The return is C<undef> if C<$x,$y> is not a primitive Pythagorean triple,
 per the C<coordinates> option.
 
+=item C<$rsquared = $path-E<gt>n_to_radius ($n)>
+
+Return the radial distance R=sqrt(X^2+Y^2) of point C<$n>.  If there's no
+point C<$n> then return C<undef>.
+
+For coordinates=AB or SM this is the hypotenuse C and therefore an integer,
+for integer C<$n>.
+
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
 Return a range of N values which occur in a rectangle with corners at
@@ -2050,6 +2067,7 @@ path include,
 
     A007051   N start of depth=n, (3^n+1)/2, ie. tree_depth_to_n()
     A003462   N end of depth=n-1, (3^n-1)/2, ie. tree_depth_to_n_end()
+    A000244   N of "A repeatedly", 3^n
 
 =head1 SEE ALSO
 

@@ -15,11 +15,9 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
-# use constant dir_minimum_360 => 45;
-# use constant dir_maximum_360 => 360;
-# use constant dir_minimum_dxdy => (1,1);
-# use constant dir_maximum_dxdy => (0,0);
 
+# Maybe:
+#
 # $path->xy_integer() if X,Y both all integer
 # $path->x_integer()  if X all integer
 # $path->y_integer()  if Y all integer
@@ -43,20 +41,17 @@
 #
 # x_increasing
 # y_increasing
-# xy_sum_minimum
-# xy_sum_non_decreasing
-# xy_sum_increasing
-# xy_sumabs_minimum   abs(X)+abs(Y)
-# xy_diff_minimum     X-Y
+# sumxy_non_decreasing
+# sumxy_increasing
+# sumabsxy_minimum   abs(X)+abs(Y)
 # xy_absdiff_minimum  abs(X-Y)
-# xy_product_minimum
-# xy_gcd_minimum
-# xy_gcd_maximum
-# sum_minimum
+# productxy_minimum
+# gcdxy_minimum
+# gcdxy_maximum
 #
 # trsquared_minimum
 # trsquared_minimum
-# dsum_minimum
+# dsumxy_minimum
 # ddiffxy_minimum
 #
 
@@ -77,8 +72,8 @@
 # $path->xy_to_dir4_list
 # $path->xy_to_dxdy_list
 # $path->xy_to_n_list_maxcount
-# $path->xy_to_n_list_maximum
 # $path->xy_to_n_list_maxnum
+# $path->xy_to_n_list_maximum
 # $path->xy_next_in_rect($x,$y, $x1,$y1,$x2,$y2)
 #    return ($x,$y) or empty
 #
@@ -91,8 +86,6 @@
 # figures_disjoint_n_start
 #         separate
 #         unoverlapped
-#
-# "full binary tree" each node 0 or 2 children
 
 
 #------------------------------------------------------------------------------
@@ -101,7 +94,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 103;
+$VERSION = 104;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -363,6 +356,11 @@ sub n_to_rsquared {
   my ($self, $n) = @_;
   my ($x,$y) = $self->n_to_xy($n) or return undef;
   return $x*$x + $y*$y;
+}
+sub n_to_radius {
+  my ($self, $n) = @_;
+  my $rsquared = $self->n_to_rsquared($n);
+  return (defined $rsquared ? sqrt($rsquared) : undef);
 }
 
 #------------------------------------------------------------------------------
@@ -795,13 +793,17 @@ $dy=$next_y-$y>.  Currently for most paths it's merely two C<n_to_xy()>
 calls to calculate the two points, but some paths can calculate a dX,dY with
 a little less work.
 
+=item C<$rsquared = $path-E<gt>n_to_radius ($n)>
+
 =item C<$rsquared = $path-E<gt>n_to_rsquared ($n)>
 
-Return the radial distance X^2+Y^2 of point C<$n>, ie. hypotenuse squared.
-If there's no point C<$n> then the return is C<undef>.
+Return the radial distance R=sqrt(X^2+Y^2) of point C<$n>, or the radius
+squared R^2=X^2+Y^2.  If there's no point C<$n> then the return is C<undef>.
 
-For a few paths this can be calculated with less work than C<n_to_xy()>.
-For example the C<SacksSpiral> is simply R^2==N.
+For a few paths these might be calculated with less work than C<n_to_xy()>.
+For example the C<SacksSpiral> is simply R^2=N, or for example the
+C<MultipleRings> path with its default step=6 has an integer radius for
+integer C<$n> whereas C<$x,$y> are fractional (and inexact).
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

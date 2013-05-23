@@ -36,7 +36,7 @@ require Math::PlanePath::MultipleRings;
 # VERSION
 
 {
-  my $want_version = 103;
+  my $want_version = 104;
   ok ($Math::PlanePath::MultipleRings::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::MultipleRings->VERSION,  $want_version,
@@ -245,7 +245,7 @@ foreach my $elem (
         "$name n_to_rsquared() at n=$n  got $got_rsquared_str want $want_rsquared_str");
   }
   {
-    my $got_radius = $path->_UNTESTED__n_to_radius($n);
+    my $got_radius = $path->n_to_radius($n);
     my $got_radius_str = sprintf('%.22f', $got_radius);
     my $want_radius = sqrt($want_rsquared);
     my $want_radius_str = sprintf('%.22f', $want_radius);

@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1134,11 +1134,10 @@ various forms (and see C<DragonMidpoint> for its forms too),
     A014709   next turn, 2=left,1=right
     A014710   next turn, 1=left,2=right
 
-The above turn sequences differ only in having left or right represented as
-0, 1, -1, etc.  The "extra" values are a possible extra initial 0 or 1 at
-n=0 arising from the definitions, with the first turn being at n=N=1.  The
-"next turn" forms begin at n=0 for the turn at N=1 and so are the turn at
-N=n+1.
+These numerous turn sequences differ only in having left or right
+represented as 0, 1, -1, etc, and possibly "extra" initial 0 or 1 at n=0
+arising from the definitions and the first turn being at n=N=1.  The "next
+turn" forms begin at n=0 for the turn at N=1 and so are the turn at N=n+1.
 
     A005811   total turn
     A088748   total turn + 1

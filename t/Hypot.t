@@ -38,7 +38,7 @@ my $path = Math::PlanePath::Hypot->new;
 # VERSION
 
 {
-  my $want_version = 103;
+  my $want_version = 104;
   ok ($Math::PlanePath::Hypot::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Hypot->VERSION,  $want_version,

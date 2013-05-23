@@ -32,6 +32,196 @@ use Math::PlanePath::RationalsTree;
 use Smart::Comments;
 
 
+
+{
+  # Pythagorean N in binary
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $tree_type (@$tree_type_aref) {
+    print "$tree_type\n";
+    my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
+    for (my $n = 2; $n < 70; $n += 1) {
+      my ($x,$y) = $path->n_to_xy($n);
+      next unless xy_is_pythagorean($x,$y);
+      # next unless (($x^$y)&1) == 0;  # odd/odd
+      # next unless (($x^$y)&1) == 1;  # odd/even or even/odd
+      # next unless ($x%2==1 && $y%2==0);
+      printf "%7b\n", $n;
+    }
+    print "\n";
+  }
+  exit 0;
+
+  sub xy_is_pythagorean {
+    my ($x,$y) = @_;
+    return ($x>$y && ($x%2)!=($y%2));
+  }
+}
+{
+  # Pythagorean N search
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $offset (0 .. 3, -3 .. -1) {
+    print "offset=$offset\n";
+    foreach my $tree_type (@$tree_type_aref) {
+      my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
+      my $str = '';
+      for (my $n = 2; length($str) < 60; $n += 1) {
+        my ($x,$y) = $path->n_to_xy($n);
+
+        # next unless xy_is_pythagorean($x,$y);
+        # next unless (($x^$y)&1) == 0;  # odd/odd
+        # next unless (($x^$y)&1) == 1;  # odd/even or even/odd
+        next unless ($x%2==1 && $y%2==0);
+        $str .= ($n+$offset).",";
+      }
+      print "$tree_type  $str\n";
+      if (system("grep -e '$str' ~/OEIS/stripped") == 0) {
+        print "matched\n";
+      }
+      print "\n";
+    }
+  }
+  exit 0;
+
+  sub xy_is_pythagorean {
+    my ($x,$y) = @_;
+    return ($x>$y && ($x%2)!=($y%2));
+  }
+}
+{
+  # parity search
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $mult (1,2) {
+    foreach my $add (0, ($mult==2 ? -1 : ())) {
+      foreach my $neg (0, 1) {
+        print "$mult*N+$add neg=$neg\n";
+
+        foreach my $tree_type (@$tree_type_aref) {
+          my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
+          my $str = '';
+          # for (my $n = 1030; $n < 1080; $n += 1) {
+          for (my $n = 2; $n < 50; $n += 1) {
+            my ($x,$y) = $path->n_to_xy($n);
+            my $value = ($x ^ $y) & 1;
+            $value *= $mult;
+            $value += $add;
+            if ($neg) { $value = -$value; }
+            $str .= "$value,";
+          }
+          print "$tree_type  $str\n";
+          system "grep -e '$str' ~/OEIS/stripped";
+          print "\n";
+        }
+      }
+    }
+  }
+  exit 0;
+}
+{
+  require Math::PlanePath::RationalsTree;
+  # SB 11xxxx and 0 or 2 mod 3
+  # CS 3,5 mod 6
+  # L 0,4 mod 6
+  # groups 1,1,3,5,11,21,43,85,171,341,683,1365,2731
+  # A001045 Jacobsthal a(n-1)+2*a(n-2)
+  # 3*a(n)+(-1)^n = 2^n
+  # Inverse: floor(log_2(a(n))=n-2 for n>=2
+
+  # D. E. Knuth, Art of Computer Programming, Vol. 3, Sect.
+  # 5.3.1, Eq. 13.   On GCD
+  # Arises in study of sorting by merge insertions and in
+  # analysis of a method for computing GCDs - see Knuth
+  # reference.
+
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $tree_type (@$tree_type_aref) {
+    print "$tree_type\n";
+    my $path = Math::PlanePath::RationalsTree->new (tree_type => $tree_type);
+    my $count = 0;
+    my $group = 0;
+    my $prev_high_bit = 0b10;
+    foreach my $n ($path->n_start .. 50000) {
+      my ($x,$y) = $path->n_to_xy($n);
+      next unless $x>$y && ($x%2)!=($y%2); # P>Q not both odd
+
+      if (high_bit($n) != $prev_high_bit) {
+        print "group $group\n";
+        $prev_high_bit = high_bit($n);
+        $group = 0;
+      }
+      $group++;
+
+      #      printf "%7b,   # %d\n", $n, sans_high_bit(sans_high_bit($n))%3;
+      last if $count++ > 9000;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
+  # X,Y list by levels
+  require Math::PlanePath::RationalsTree;
+  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
+  foreach my $tree_type (@$tree_type_aref) {
+    print "$tree_type\n";
+    my $path = Math::PlanePath::RationalsTree->new
+      (
+       # tree_type => 'HCS',
+       tree_type => $tree_type,
+       # tree_type => 'CW',
+       # tree_type => 'SB',
+      );
+
+    my $non_monotonic = '';
+    foreach my $level (0 .. 6) {
+      my $nstart = 2**$level;
+      my $nend = 2**($level+1)-1;
+      my $prev_x = 1;
+      my $prev_y = 0;
+      print "$nstart  ";
+      foreach my $n ($nstart .. $nend) {
+        if ($n != $nstart) { print " "; }
+        my ($x,$y) = $path->n_to_xy($n);
+        next unless $x>$y && ($x%2)!=($y%2); # P>Q not both odd
+
+        print "$x/$y";
+        unless (frac_lt($prev_y,$prev_x, $y,$x)) {
+          $non_monotonic ||= "at $y/$x";
+        }
+        $prev_x = $x;
+        $prev_y = $y;
+      }
+      print "\n";
+      # print " non-monotonic $non_monotonic\n";
+    }
+  }
+  exit 0;
+}
+{
+  # turn list with levels, or parity with levels
+
+  require Math::NumSeq::PlanePathTurn;
+  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'SB');
+  my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                              turn_type => 'Right');
+  for (my $n = $seq->i_start; $n <= 16384; $n+=1) {
+    # next if $n % 2;
+    if (is_pow2($n)) {
+      printf "\n%5d ", $n;
+    }
+
+    # my $turn = $seq->ith($n);
+    my ($x,$y) = $path->n_to_xy($n);
+    # my $turn = ($x ^ $y) & 1;
+    my $turn = ($x&1) + 2*($y&1);
+
+    # if ($n % 8 == 0) { print " "; }
+    print "$turn";
+  }
+  print "\n";
+  exit 0;
+}
+
 {
   # HCS turn left,right
   require Math::NumSeq::PlanePathTurn;
@@ -228,53 +418,6 @@ use Smart::Comments;
     return $bit >> 1;
   }
 
-  exit 0;
-}
-{
-  # parity search
-  my $tree_type_aref = Math::PlanePath::RationalsTree->parameter_info_hash->{'tree_type'}->{'choices'};
-  foreach my $mult (1,2) {
-    foreach my $add (0, ($mult==2 ? -1 : ())) {
-      foreach my $neg (0, 1) {
-        print "$mult*N+$add neg=$neg\n";
-
-        foreach my $tree_type (@$tree_type_aref) {
-          my $path = Math::PlanePath::RationalsTree->new(tree_type => $tree_type);
-          # foreach my $n (1030 .. 1080) {
-          my $str = '';
-          foreach my $n (2 .. 50) {
-            my ($x,$y) = $path->n_to_xy($n);
-            my $value = ($x ^ $y) & 1;
-            $value *= $mult;
-            $value += $add;
-            if ($neg) { $value = -$value; }
-            $str .= "$value,";
-          }
-          print "$tree_type  $str\n";
-          system "grep -e '$str' ~/OEIS/stripped";
-          print "\n";
-        }
-      }
-    }
-  }
-  exit 0;
-}
-{
-  # turn list with levels
-  require Math::NumSeq::PlanePathTurn;
-  my $path = Math::PlanePath::RationalsTree->new(tree_type => 'CW');
-  my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
-                                              turn_type => 'Right');
-  for (my $n = $seq->i_start; $n <= 16384; $n+=1) {
-    # next if $n % 2;
-    if (is_pow2($n)) {
-      printf "\n%5d ", $n;
-    }
-    my $turn = $seq->ith($n);
-    if ($n % 8 == 0) { print " "; }
-    print "$turn";
-  }
-  print "\n";
   exit 0;
 }
 {
@@ -530,39 +673,6 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  # X,Y list
-  require Math::PlanePath::RationalsTree;
-  my $path = Math::PlanePath::RationalsTree->new
-    (
-     tree_type => 'HCS',
-     # tree_type => 'AYT',
-     # tree_type => 'CW',
-     # tree_type => 'SB',
-    );
-
-  my $non_monotonic = '';
-  foreach my $level (0 .. 4) {
-    my $nstart = 2**$level;
-    my $nend = 2**($level+1)-1;
-    my $prev_x = 1;
-    my $prev_y = 0;
-    print "$nstart  ";
-    foreach my $n ($nstart .. $nend) {
-      if ($n != $nstart) { print " "; }
-      my ($x,$y) = $path->n_to_xy($n);
-      print "$y/$x";
-      unless (frac_lt($prev_y,$prev_x, $y,$x)) {
-        $non_monotonic ||= "at $y/$x";
-      }
-      $prev_x = $x;
-      $prev_y = $y;
-    }
-    print "\n";
-    print " non-monotonic $non_monotonic\n";
-  }
-  exit 0;
-}
 
 {
   # X,Y list CW

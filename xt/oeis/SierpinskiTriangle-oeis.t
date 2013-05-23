@@ -59,6 +59,27 @@ use Math::PlanePath::KochCurve;
 
 
 #------------------------------------------------------------------------------
+# A130047 - left half Pascal mod 2
+
+MyOEIS::compare_values
+  (anum => 'A130047',
+   fixup => sub {
+     my ($bvalues) = @_;
+     splice @$bvalues, 16,0, 1;  # dodgy samples
+   },
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::SierpinskiTriangle->new;
+     my @got;
+     for (my $y = 0; @got < $count; $y++) {
+       for (my $x = -$y; $x <= 0 && @got < $count; $x += 2) {
+         push @got, $path->xy_is_visited($x,$y) ? 1 : 0;
+       }
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # Branch-reduced breadth-wise
 #
 # Nodes with just 1 child are collapsed out.
@@ -394,27 +415,6 @@ sub DOUBLEUP_branch_reduced_breadth_bits {
   return (@ret,
           ((0) x $#pending_x));  # pending open nodes
 }
-
-#------------------------------------------------------------------------------
-# A130047 - left half Pascal mod 2
-
-MyOEIS::compare_values
-  (anum => 'A130047',
-   fixup => sub {
-     my ($bvalues) = @_;
-     splice @$bvalues, 16,0, 1;  # dodgy samples
-   },
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::SierpinskiTriangle->new;
-     my @got;
-     for (my $y = 0; @got < $count; $y++) {
-       for (my $x = -$y; $x <= 0 && @got < $count; $x += 2) {
-         push @got, $path->xy_is_visited($x,$y) ? 1 : 0;
-       }
-     }
-     return \@got;
-   });
 
 #------------------------------------------------------------------------------
 # A001317 - rows as binary bignums, without the skipped (x^y)&1==1 points of

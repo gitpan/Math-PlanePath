@@ -130,7 +130,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -591,7 +591,7 @@ __END__
   # }
 
 
-=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped GCD Luschny Jerzy Czyz Minkowski Nstart Shallit's HCS Ndepth N-Ndepth Nparent subtree LRRL
+=for stopwords eg Ryde OEIS ie Math-PlanePath coprime encodings Moritz Achille Brocot Stern-Brocot mediant Calkin Wilf Calkin-Wilf 1abcde 1edcba Andreev Yu-Ting Shen AYT Ralf Hinze Haskell subtrees xoring Drib RationalsTree unflipped GCD Luschny Jerzy Czyz Minkowski Nstart Shallit's HCS Ndepth N-Ndepth Nparent subtree LRRL parameterization parameterized Jacobsthal
 
 =head1 NAME
 
@@ -608,12 +608,12 @@ Math::PlanePath::RationalsTree -- rationals by tree
 This path enumerates reduced rational fractions X/Y E<gt> 0, ie. X and Y
 having no common factor.
 
-The rationals are traversed by rows of a binary tree which effectively
-represents a coprime pair X,Y by steps of a subtraction-only greatest common
-divisor algorithm which proves them coprime.  Or equivalently by bit runs
-with lengths which are the quotients in the division based Euclidean GCD
-algorithm, which are also the terms in the continued fraction representation
-of X/Y.
+The rationals are traversed by rows of a binary tree which represents a
+coprime pair X,Y by steps of a subtraction-only greatest common divisor
+algorithm which proves them coprime.  Or equivalently by bit runs with
+lengths which are the quotients in the division based Euclidean GCD
+algorithm and which are also the terms in the continued fraction
+representation of X/Y.
 
 The SB, CW, AYT, HCS, Bird and Drib trees all have the same set of X/Y
 rationals in a row, but in a different order due to different encodings of
@@ -632,8 +632,7 @@ printout of all the trees.
 =head2 Stern-Brocot Tree
 
 X<Stern, Moritz>X<Brocot, Achille>The default C<tree_type=E<gt>"SB"> is the
-tree of Moritz Stern and Achille Brocot.  The rows are fractions of
-increasing value.
+tree of Moritz Stern and Achille Brocot.
 
                                                N       depth
                                              -------   -----
@@ -645,8 +644,8 @@ increasing value.
        | |      | |      | |      | |
     1/4  2/5  3/5 3/4  4/3 5/3  5/2 4/1      8 to 15     3
 
-Each row of the tree is a repeat of the previous row, first as X/(X+Y) and
-then (X+Y)/Y.  For example
+Within a row the fractions increase in value.  Each row of the tree is a
+repeat of the previous row first as X/(X+Y) and then (X+Y)/Y.  For example
 
     depth=1 row 1/2, 2/1
 
@@ -688,13 +687,20 @@ into the row.  Those bits after the high 1 are also the directions to follow
 down the tree to a node, with 0=left and 1=right.  So N="1011" binary goes
 from the root 0=left then twice 1=right to reach X/Y=3/4 at N=11 decimal.
 
+=cut
+
+# O/O O/E E/O   X/(X+Y) -> O/E O/O E/O        A B C -> B A C
+#               (X+Y)/Y -> E/O O/E O/O              -> C B A
+
+=pod
+
 =head2 Stern-Brocot Turn Sequence
 
-Each row makes a path from the Y axis across and down to the X.  Each row is
-further from the origin than the previous row and doesn't intersect any
-other row.  The X/(X+Y) first half is an upward "shear" to the X,Y points of
-the previous row.  Similarly the second half (X+Y)/Y shears to the right.
-For example,
+Since each row is fractions of increasing value the path goes from the Y
+axis across and down to the X.  Each row is further from the origin than the
+previous row and doesn't intersect any other row.  The X/(X+Y) first half is
+an upward "shear" to the X,Y points of the previous row.  The second half
+(X+Y)/Y shears to the right.  For example,
 
                                 N=8 to N=11
                                previous row
@@ -720,19 +726,20 @@ right.
 The first and last points of each row are always a turn to the right.  For
 example the turn at N=4 (going N=3 to N=4 to N=5) is to the right, and
 likewise at N=7.  This is because the second of the row such as N=5 is above
-a 45-degree line down from N=4, and similarly the second last such as N=6.
+a 45-degree line down from N=4, and similarly the second last such as N=6
+since the row is symmetric.
 
 The middle two points in each row for depthE<gt>=3 are always a turn to the
-left.  N=11 and N=12 shown above are the first such middle pair, both
-turning to the left.  This is because the middle two are transposes across
-the leading diagonal and so make a 45-degree line.  The second-from-middle
-points are above that line (N=10 and N=13).
+left.  N=11 and N=12 shown above are the first such middle pair both turning
+to the left.  The middle two are transposes across the leading diagonal and
+so make a 45-degree line.  The second-from-middle points are above that line
+(N=10 and N=13).
 
 The middle left turns are copied into successive rows and the result is a
 repeating pattern "LRRL" except for the first and last in the row which are
-always right instead of left.
+always right instead of left.  So,
 
-    N=3                                left
+    if N=3                             left
     otherwise if N=2^k or N=2^k-1      right
 
     otherwise if N=0 mod 4             left
@@ -740,14 +747,14 @@ always right instead of left.
                  N=2 mod 4             right
                  N=3 mod 4             left
 
-Pairs N=2m and N=2m-1 can be treated together by taking ceil(N/2),
+Pairs N=2m-1 and N=2m can be treated together by taking ceil(N/2),
 
-    N=3                                left
+    if N=3                             left
     otherwise if Nhalf=2^k             right
 
     otherwise if Nhalf=0 mod 2         left
-    otherwise if Nhalf=1 mod 2         right
-      where Nhalf = ceil(N/2)
+                 Nhalf=1 mod 2         right
+    where Nhalf = ceil(N/2)
 
 =head2 Stern-Brocot Mediant
 
@@ -857,8 +864,8 @@ This means the integer part is the trailing 1-bits of N,
 N values for the SB and CW trees are converted by reversing bits except the
 highest.  So at a given X,Y position
 
-    SB  N = 1abcde      SB <-> CW by reversing bits
-    CW  N = 1edcba      except the high 1-bit
+    SB  N = 1abcde         SB <-> CW by reversing bits
+    CW  N = 1edcba         except the high 1-bit
 
 For example at X=3,Y=4 the SB tree has N=11 = "1011" binary and the CW has
 N=14 binary "1110", a reversal of the bits below the high 1.
@@ -867,6 +874,9 @@ N to X/Y in the CW tree can be calculated keeping track of just an X,Y pair
 and descending to X/(X+Y) or (X+Y)/Y using the bits of N from high to low.
 The relationship between the SB and CW N's means the same can be used to
 calculate the SB tree by taking the bits of N from low to high instead.
+
+See also L<Math::PlanePath::ChanTree> for a generalization of CW to ternary
+or higher trees, ie. descending to 3 or more children at each node.
 
 =head2 Andreev and Yu-Ting Tree
 
@@ -1447,6 +1457,73 @@ relatively modest fractions.  (L<Math::ContinuedFraction> may be better, and
 also allows repeating terms from quadratic irrationals to be represented
 exactly.)
 
+=head2 Pythagorean Triples
+
+Pythagorean triples A^2+B^2=C^2 can be generated by A=P^2-Q^2, B=2*P*Q.  If
+PE<gt>QE<gt>1 with P,Q no common factor and one odd the other even then this
+gives all primitive triples, being primitive in the sense of A,B,C no common
+factor (L<Math::PlanePath::PythagoreanTree/PQ Coordinates>).
+
+In the Calkin-Wilf tree the parity of X,Y pairs are as follows.  Pairs X,Y
+with one odd the other even are N=0 or 2 mod 3.
+
+    CW tree           X/Y
+                   --------
+    N=0 mod 3      even/odd
+    N=1 mod 3      odd/odd
+    N=2 mod 3      odd/even
+
+This occurs because the numerators are the Stern diatomic sequence and the
+denominators likewise but offset by 1.  The Stern diatomic sequence is a
+repeating pattern even,odd,odd (eg. per L<Math::NumSeq::SternDiatomic/Odd
+and Even>).
+
+The XE<gt>Y pairs in the CW tree are the right leg of each node, which is N
+odd.  so
+
+    CW tree N=3 or 5 mod 6   gives X>Y one odd the other even
+
+    index t=1,2,3,etc to enumerate such pairs
+    N = 3*t   if t odd
+        3*t-1 if t even
+
+X<Jacobsthal numbers>2 of each 6 points are used.  In a given row it's
+width/3 but rounded up or down according to where the 3,5mod6 falls on the
+N=2^depth start, which is either floor or ceil according to depth odd or
+even,
+
+    NumPQ(depth) = floor(2^depth / 3) for depth=even
+                   ceil (2^depth / 3) for depth=odd
+      = 0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341, ...
+
+These are the Jacobsthal numbers, which in binary are 101010...101 and
+1010...1011.
+
+For the other tree types the various bit transformations which map N
+positions between the trees can be applied to the above N=3or5 mod 6.  The
+simplest is the L tree where the N offset and row reversal gives N=0or4
+mod 6.
+
+The SB tree is a bit reversal of the CW, as described above, and for the
+Pythagorean N this gives
+
+    SB tree N=0 or 2 mod 2 and N="11...." in binary
+     gives X>Y one odd the other even
+
+N="11..." binary is the bit reversal of the CW N=odd "1...1" condition.
+This bit pattern is those N in the second half of each row, which is where
+the X/Y E<gt> 1 rationals occur.  The N=0or2 mod 3 condition is unchanged by
+the bit reversal.  N=0or2 mod 3 precisely when bitreverse(N)=0or2 mod 3.
+
+For SB whether it's odd/even or even/odd at N=0or2 mod 3 alternates between
+rows.  The two are both wanted, they just happen to switch in each row.
+
+    SB tree X/Y    depth=even     depth=odd
+                   ----------     ---------
+    N=0 mod 3      odd/even       even/odd
+    N=1 mod 3      odd/odd        odd/odd    <- exclude for Pythagorean
+    N=2 mod 3      even/odd       odd/even
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -1560,8 +1637,9 @@ various forms,
     http://oeis.org/A007305   (etc)
 
     tree_type=SB
-      A007305   X, Farey fractions (extra 0,1)
+      A007305   X (extra 0,1)
       A047679   Y
+      A057431   X,Y pairs (initial extra 0/1,1/0)
       A007306   X+Y sum, Farey 0 to 1 part (extra 1,1)
       A153036   int(X/Y), integer part
       A088696  length of continued fraction SB left half (X/Y<1)
@@ -1574,6 +1652,8 @@ various forms,
                   which is count trailing 0-bits of N+1
       A086893   N position of Fibonacci F[n+1]/F[n], N = binary 1010..101
       A061547   N position of Fibonacci F[n]/F[n+1], N = binary 11010..10
+      A047270   3or5 mod 6, being N positions of X>Y not both odd
+                  which can generate primitive Pythagorean triples
 
     tree_type=AYT
       A020650   X
@@ -1601,6 +1681,8 @@ various forms,
     tree_type=L
       A174981   X
       A002487   Y, same as CW X,Y, Stern diatomic
+      A047233   0or4 mod 6, being N positions of X>Y not both odd
+                  which can generate primitive Pythagorean triples
 
     A000523  tree_n_to_depth(), being floor(log2(N))
 
@@ -1637,6 +1719,8 @@ code here gives.
 L<Math::PlanePath>,
 L<Math::PlanePath::FractionsTree>,
 L<Math::PlanePath::CfracDigits>,
+L<Math::PlanePath::ChanTree> 
+
 L<Math::PlanePath::CoprimeColumns>,
 L<Math::PlanePath::DiagonalRationals>,
 L<Math::PlanePath::FactorRationals>,

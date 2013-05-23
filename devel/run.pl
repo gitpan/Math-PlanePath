@@ -125,7 +125,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::PowerRows';
   $path_class = 'Math::PlanePath::WythoffDifference';
   $path_class = 'Math::PlanePath::WythoffTriangle';
-  $path_class = 'Math::PlanePath::WythoffPreliminaryTriangle';
   $path_class = 'Math::PlanePath::WythoffArray';
   $path_class = 'Math::PlanePath::UlamWarburtonQuarter';
   $path_class = 'Math::PlanePath::SumFractions';
@@ -149,6 +148,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::UlamWarburton';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::PythagoreanTree';
+  $path_class = 'Math::PlanePath::WythoffPreliminaryTriangle';
 
   my $lo = 0;
   my $hi = 200;
@@ -158,7 +158,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
     (
      #radix => 4,
      
-      parts => 'diagonal-1',
+      # parts => 'diagonal-1',
      #  ring_shape => 'polygon',
      # step => 1,
 
@@ -168,8 +168,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # shift => -3,
      # x_start => 5,
      # y_start => 2,
-      coordinates => 'PQ',
-      tree_type => 'UAD',
+      # coordinates => 'PQ',
+      # tree_type => 'UAD',
 
      # divisor_type => 'proper',
 

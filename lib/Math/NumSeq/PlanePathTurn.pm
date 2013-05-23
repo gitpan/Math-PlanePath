@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -66,7 +66,11 @@ use constant::defer parameter_info_array =>
              display => 'Turn Type',
              type    => 'enum',
              default => 'Left',
-             choices => ['Left','Right','LSR'],
+             choices => ['Left','Right','LSR',
+                         # 'Turn4',
+                          'Turn4n',
+                         # 'TTurn6',
+                        ],
              description => 'Left is 1=left, 0=right or straight.
 Right is 1=right, 0=left or straight.
 LSR is 1=left,0=straight,-1=right.',
@@ -243,6 +247,32 @@ sub _turn_func_LSR {
 #   ### _turn_func_LR_01() ...
 #   return ($next_dy * $dx >= $next_dx * $dy || 0);
 # }
+sub _turn_func_Turn4 {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  require Math::NumSeq::PlanePathDelta;
+  return
+    (((Math::NumSeq::PlanePathDelta::_delta_func_Dir360($next_dx,$next_dy)
+       - Math::NumSeq::PlanePathDelta::_delta_func_Dir360($dx,$dy)) % 360)
+     / 90);
+}
+sub _turn_func_Turn4n {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  require Math::NumSeq::PlanePathDelta;
+  my $ret
+    = (((Math::NumSeq::PlanePathDelta::_delta_func_Dir360($next_dx,$next_dy)
+         - Math::NumSeq::PlanePathDelta::_delta_func_Dir360($dx,$dy)) % 360)
+       / 90);
+  if ($ret > 2) { $ret -= 4; }
+  return $ret;
+}
+sub _turn_func_TTurn6 {
+  my ($dx,$dy, $next_dx,$next_dy) = @_;
+  require Math::NumSeq::PlanePathDelta;
+  return
+    (((Math::NumSeq::PlanePathDelta::_delta_func_TDir360($next_dx,$next_dy)
+       - Math::NumSeq::PlanePathDelta::_delta_func_TDir360($dx,$dy)) % 360)
+     / 90);
+}
 
 sub pred {
   my ($self, $value) = @_;
@@ -912,6 +942,8 @@ sub characteristic_non_decreasing {
        #  # Not quite, A014577 has OFFSET=0 cf first elem for N=1
        #  'Right' => 'A014577', # turn, 0=left,1=right
        #  # OEIS-Catalogue: A014577 planepath=DragonCurve turn_type=Right
+
+       # Turn4 => 'A099545',
       },
     };
 }

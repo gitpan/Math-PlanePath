@@ -18,7 +18,7 @@
 
 # Maybe:
 # "Turn"   N of turn positions
-#
+# $path->n_next_turn($n)
 
 
 package Math::NumSeq::PlanePathN;
@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 

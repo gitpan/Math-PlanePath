@@ -20,7 +20,7 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 927;
+plan tests => 988;
 
 use lib 't';
 use MyTestHelpers;
@@ -36,7 +36,7 @@ require Math::PlanePath::RationalsTree;
 # VERSION
 
 {
-  my $want_version = 103;
+  my $want_version = 104;
   ok ($Math::PlanePath::RationalsTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::RationalsTree->VERSION,  $want_version,
@@ -59,6 +59,67 @@ require Math::PlanePath::RationalsTree;
   ok (! eval { $path->VERSION($check_version); 1 },
       1,
       "VERSION object check $check_version");
+}
+
+#------------------------------------------------------------------------------
+# depth pythagorean pairs pairs per POD
+
+{
+  my $path = Math::PlanePath::RationalsTree->new;
+  foreach my $depth (0 .. 10) {
+    my $count = 0;
+    foreach my $n ($path->tree_depth_to_n($depth)
+                   .. $path->tree_depth_to_n_end($depth)) {
+      my ($x,$y) = $path->n_to_xy ($n);
+      if (xy_is_pythagorean($x,$y)) {
+        $count++;
+      }
+    }
+    my $calc_count = depth_to_pythagorean_count($depth);
+
+    ok ($calc_count, $count, "depth=$depth pythagorean count");
+  }
+}
+
+sub xy_is_pythagorean {
+  my ($x,$y) = @_;
+  return ($x>$y && ($x%2)!=($y%2));
+}
+sub depth_to_pythagorean_count {
+  my ($depth) = @_;
+  if ($depth % 2 == 0) {
+    return int(2**$depth / 3);
+  } else {
+    return int((2**$depth + 2) / 3);
+  }
+}
+# foreach my $depth (0 .. 20) {
+#   printf "%b,", depth_to_pythagorean_count($depth);
+# }
+# print "\n";
+
+#------------------------------------------------------------------------------
+# SB odd/odd etc pairs per POD
+
+{
+  my $path = Math::PlanePath::RationalsTree->new;
+  foreach my $n ($path->n_start .. 50) {
+    my $calc_parity;
+    if ($n % 3 == 0) {
+      my $depth = $path->tree_n_to_depth($n);
+      $calc_parity = ($depth % 2 == 0 ? 'OE' : 'EO');
+    } elsif ($n % 3 == 1) {
+      $calc_parity = 'OO';
+    } else {
+      my $depth = $path->tree_n_to_depth($n);
+      $calc_parity = ($depth % 2 == 0 ? 'EO' : 'OE');
+    }
+
+    my ($x,$y) = $path->n_to_xy ($n);
+    my $got_parity = ($x % 2 == 0 ? 'E' : 'O') . ($y % 2 == 0 ? 'E' : 'O');
+
+    ok ($calc_parity, $got_parity, "parity n=$n");
+  }
 }
 
 #------------------------------------------------------------------------------

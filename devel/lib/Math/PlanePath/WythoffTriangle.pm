@@ -22,7 +22,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 103;
+$VERSION = 104;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -65,10 +65,10 @@ sub n_to_xy {
     $n = $int;
   }
 
-  my ($x,$y) = $preliminary->n_to_xy($n);
+  my ($x,$y) = $preliminary->n_to_xy($n) or return;
   $x = 0;
   foreach my $x2 (0 .. $y-1) {
-    my $n2 = $preliminary->xy_to_n($x2,$y);
+    my $n2 = $preliminary->xy_to_n($x2,$y) or return;
     ### cf: "x2=$x2 n2=$n2"
     if ($n2 < $n) {
       ### is below ...
