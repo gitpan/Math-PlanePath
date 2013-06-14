@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2010, 2011, 2012 Kevin Ryde
+# Copyright 2010, 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,6 +26,45 @@ use List::Util 'min', 'max';
 # uncomment this to run the ### lines
 use Smart::Comments;
 
+
+{
+  require Math::PlanePath::PyramidRows;
+  my $path = Math::PlanePath::GcdRationals->new;
+  my $rows = Math::PlanePath::PyramidRows->new (step => 1);
+
+  require Math::NumSeq::OEIS;
+  my $A167192 = Math::NumSeq::OEIS->new (anum => 'A167192');
+  my $A002260 = Math::NumSeq::OEIS->new (anum => 'A002260');
+  my $A002024 = Math::NumSeq::OEIS->new (anum => 'A002024');
+
+  foreach my $n (1 .. 40) {
+    my ($x,$y) = $path->n_to_xy($n);
+
+    # my ($i,$j) = $rows->n_to_xy($n);
+    # $i++, $j++;
+    my $i = $A002260->ith($n);
+    my $j = $A002024->ith($n);
+
+    my $g = Math::PlanePath::GcdRationals::_gcd($i,$j);
+    my $jy = $j/$g;
+
+    # my $ix = $j + ($i-$j)/$g;
+    # my $ix = $j - $A167192->ith($n);
+     my $ix = $A002024->ith($n) - $A167192->ith($n);
+    my $diff = ($ix==$x && $jy==$y ? '' : '  ***');
+
+    print "$n   $i,$j  $x,$y  $ix,$jy$diff\n";
+
+    # print "$x/$y, ";
+    # print(($j-$i)/$g,",");
+  }
+  exit 0;
+
+  # X = (i + j*(gcd-1)) / gcd
+  #   = (i + j*gcd-j) / gcd
+  #   = j + (i -j) / gcd
+
+}
 
 {
   # nhi roughly max(num,den)**2

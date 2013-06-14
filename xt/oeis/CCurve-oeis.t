@@ -78,6 +78,38 @@ sub dxdy_to_dir {
 #    });
 
 #------------------------------------------------------------------------------
+# A146559 - (i+1)^k is X+iY at N=2^k
+# A009545 - Im
+
+    # A146559   X at N=2^k, being Re((i+1)^k)
+    # A009545   Y at N=2^k, being Im((i+1)^k)
+
+MyOEIS::compare_values
+  (anum => 'A146559',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $n = 1;
+     for (my $n = 1; @got < $count; $n *= 2) {
+       my ($x,$y) = $path->n_to_xy($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
+MyOEIS::compare_values
+  (anum => 'A009545',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $n = 1;
+     for (my $n = 1; @got < $count; $n *= 2) {
+       my ($x,$y) = $path->n_to_xy($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A003159 - ending even 0 bits, is turn left or right
 
 MyOEIS::compare_values

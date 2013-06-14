@@ -34,6 +34,98 @@ use Math::PlanePath::Base::Digits
 use Smart::Comments;
 
 
+
+{
+  # number of children
+  my $path = Math::PlanePath::SierpinskiTriangle->new;
+  for (my $n = $path->n_start; $n < 180; $n++) {
+    my @n_children = $path->tree_n_children($n);
+    my $num_children = scalar(@n_children);
+    print "$num_children,";
+    print "\n" if path_tree_n_is_depth_end($path,$n);
+  }
+  print "\n";
+  exit 0;
+
+  sub path_tree_n_is_depth_end {
+    my ($path, $n) = @_;
+    my $depth = $path->tree_n_to_depth($n);
+    return defined($depth) && $n == $path->tree_depth_to_n_end($depth);
+  }
+}
+{
+  # Pascal's triangle
+  require Math::BigInt;
+  my @array;
+  my $rows = 10;
+  my $width = 0;
+  foreach my $y (0 .. $rows) {
+    foreach my $x (0 .. $y) {
+      my $n = Math::BigInt->new($y);
+      my $k = Math::BigInt->new($x);
+      $n->bnok($k);
+      my $str = "$n";
+      $array[$x][$y] = $str;
+      $width = max($width,length($str));
+    }
+  }
+  $width += 2;
+  if ($width & 1) { $width++; }
+  # $width |= 1;
+  foreach my $y (0 .. $rows) {
+    print ' ' x (($rows-$y) * int($width/2));
+    foreach my $x (0 .. $y) {
+      my $value = $array[$x][$y];
+      unless ($value & 1) { $value = ''; }
+      printf "%*s", $width, $value;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+{
+  # NumSiblings run lengths
+  # lowest 1-bit of pos k
+
+  # NumChildren run lengths
+  # is same lowest 1-bit if NumChildren=0 leaf coalesced with NumChildren=1
+
+  my $path = Math::PlanePath::SierpinskiTriangle->new (align => 'diagonal');
+  require Math::NumSeq::PlanePathCoord;
+  my $seq = Math::NumSeq::PlanePathCoord->new (planepath_object => $path,
+                                               # coordinate_type => 'NumChildren',
+                                               coordinate_type => 'NumSiblings',
+                                              );
+
+  my $prev = 0;
+  my $run = 1;
+  for (my $n = $path->n_start+1; $n < 500; $n++) {
+    my ($i,$value) = $seq->next;
+    $value = 1-$value;
+    # if ($value == 1) { $value = 0; }
+    # if ($value == $prev) {
+    #   $run++;
+    # } else {
+    #   print "$run,";
+    #   $run = 1;
+    #   $prev = $value;
+    # }
+    # printf "%4b  %d\n", $i, $value;
+    print "$value,";
+  }
+  print "\n";
+  exit 0;
+
+  sub path_tree_n_num_siblings {
+    my ($path, $n) = @_;
+    $n = $path->tree_n_parent($n);
+    return (defined $n
+            ? $path->tree_n_num_children($n) - 1  # not including self
+            : 0);  # any tree root considered to have no siblings
+  }
+}
+
 {
   # height
 
@@ -48,7 +140,7 @@ use Smart::Comments;
   my $path = Math::PlanePath::SierpinskiTriangle->new (align => 'diagonal');
   require Math::NumSeq::PlanePathCoord;
   my $seq = Math::NumSeq::PlanePathCoord->new (planepath_object => $path,
-                                               coordinate_type => 'Height');
+                                               coordinate_type => 'SubHeight');
 
   for (my $n = $path->n_start; $n < 500; $n++) {
     my ($x,$y) = $path->n_to_xy($n);
@@ -122,17 +214,6 @@ use Smart::Comments;
   }
 }
 
-{
-  # number of children
-  my $path = Math::PlanePath::SierpinskiTriangle->new;
-  for (my $n = $path->n_start+1; $n < 40; $n++) {
-    my @n_children = $path->tree_n_children($n);
-    my $num_children = scalar(@n_children);
-    print "$num_children,";
-  }
-  print "\n";
-  exit 0;
-}
 
 {
   # number of children in replicate style

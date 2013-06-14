@@ -53,7 +53,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -304,42 +304,50 @@ sub rect_to_n_range {
   $x2 = round_nearest ($x2);
   if ($x1 > $x2) { ($x1,$x2) = ($x2,$x1) }
 
+  # $y1 to $y2 is the depth range for "triangular", "right" and "left".
+  # For "diagonal" must use X+Y to reckon by anti-diagonals.
+  #
   if ($self->{'align'} eq 'diagonal') {
     $y2 += $x2;
     $y1 += $x1;
   }
+
   if ($y2 < 0) {
     return (1, 0);
   }
   if ($y1 < 0) {
-    $y1 = 0;
+    $y1 *= 0;  # preserve any bignum $y1
   }
-  return (_right_xy_to_n($self,0,$y1),
-          _right_xy_to_n($self,$y2,$y2));
-
-
-  # use Math::PlanePath::CellularRule54;
-  # *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
-  #
-  # if ($self->{'align'} eq 'diagonal') {
-  #   if ($x2 < 0 || $y2 < 0) {
-  #     return (1,0);
-  #   }
-  #   if ($x1 < 0) { $x1 *= 0; }
-  #   if ($y1 < 0) { $y1 *= 0; }
-  #
-  #   return ($self->xy_to_n(0, $x1+$y1),
-  #           $self->xy_to_n($x2+$y2, 0));
-  # }
-  #
-  # ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
-  #   or return (1,0); # rect outside pyramid
-  #
-  # return ($self->xy_to_n($self->{'align'} eq 'right' ? 0 : -$y1,
-  #                        $y1),
-  #         $self->xy_to_n($self->{'align'} eq 'left' ? 0 : $y2,
-  #                        $y2));
+  return ($self->tree_depth_to_n($y1),
+          $self->tree_depth_to_n_end($y2));
 }
+
+# To get N within a triangle row, based on the X range ...
+#
+# use Math::PlanePath::CellularRule54;
+# *_rect_for_V = \&Math::PlanePath::CellularRule54::_rect_for_V;
+#
+# if ($self->{'align'} eq 'diagonal') {
+#   if ($x2 < 0 || $y2 < 0) {
+#     return (1,0);
+#   }
+#   if ($x1 < 0) { $x1 *= 0; }
+#   if ($y1 < 0) { $y1 *= 0; }
+#
+#   return ($self->xy_to_n(0, $x1+$y1),
+#           $self->xy_to_n($x2+$y2, 0));
+# }
+#
+# ($x1,$y1, $x2,$y2) = _rect_for_V ($x1,$y1, $x2,$y2)
+#   or return (1,0); # rect outside pyramid
+#
+# return ($self->xy_to_n($self->{'align'} eq 'right' ? 0 : -$y1,
+#                        $y1),
+#         $self->xy_to_n($self->{'align'} eq 'left' ? 0 : $y2,
+#                        $y2));
+
+
+#------------------------------------------------------------------------------
 
 sub tree_n_num_children {
   my ($self, $n) = @_;
@@ -361,7 +369,7 @@ sub tree_n_num_children {
   # If depth==1mod4 then 1-child, when depth has more than one
   # trailing 1-bit then some 0-child and some 1-child.
   #
-  my $repbit = _divrem_mutate($n,2); # low bit of $n 
+  my $repbit = _divrem_mutate($n,2); # low bit of $n
   while (shift @$depthbits) {               # bits of depth low to high
     if (_divrem_mutate($n,2) != $repbit) {  # bits of $n offset low to high
       return 0;
@@ -488,9 +496,9 @@ sub tree_depth_to_n {
 # Then bits of Noffset may put it in the middle of somewhere which limits
 # the height to a sub-part 2^j < 2^k.
 #
-sub tree_n_to_height {
+sub tree_n_to_subheight {
   my ($self, $n) = @_;
-  ### SierpinskiTriangle tree_n_to_height(): $n
+  ### SierpinskiTriangle tree_n_to_subheight(): $n
 
   $n = $n - $self->{'n_start'};
   if ($n < 0) {
@@ -558,7 +566,7 @@ sub _n0_to_depthbits {
 1;
 __END__
 
-=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand Noffset Ndepth Nrem NumSeq Dyck
+=for stopwords eg Ryde Sierpinski Nlevel ie Ymin Ymax OEIS Online rowpoints Nleft Math-PlanePath Gould's Nend bitand Noffset Ndepth Nrem Dyck
 
 =head1 NAME
 
@@ -600,12 +608,12 @@ The base figure is the first two rows shape N=0 to N=2.  Notice the middle
     1  .  2
        0
 
-This is replicated twice in the next row pair, as N=3 to N=8.  Then the
+This is replicated twice in the next row pair as N=3 to N=8.  Then the
 resulting four-row shape is replicated twice again in the next four-row
 group as N=9 to N=26, etc.
 
-See the C<SierpinskiArrowheadCentres> path to traverse by a connected path
-rather than rows jumping across gaps.
+See the C<SierpinskiArrowheadCentres> path to traverse by a connected
+sequence rather than rows jumping across gaps.
 
 =head2 Row Ranges
 
@@ -725,7 +733,7 @@ according to the pattern.
 
 This form visits all points X,Y where X and Y written in binary have no
 1-bits in the same bit positions, ie. where S<X bitand Y> == 0.  For example
-X=13,Y=3 is not visited because 13=0b1011 and 6=0b0110 both have bit 0b0010
+X=13,Y=3 is not visited because 13="1011" and 6="0110" both have bit "0010"
 set.
 
 This bit-and rule is an easy way to test for visited or not visited cells of
@@ -785,7 +793,7 @@ empty border delimiting them.
 
 The default is to number points starting N=0 as shown above.  An optional
 C<n_start> parameter can give a different start, with the same shape.  For
-example starting at 1 (which is the numbering of C<CellularRule> rule=60),
+example starting at 1, which is the numbering of C<CellularRule> rule=60,
 
 =cut
 
@@ -846,8 +854,8 @@ Return the children of C<$n>, or an empty list if C<$n E<lt> n_start>
 
 The children are the points diagonally up left and right on the next row
 (Y+1).  There can be 0, 1 or 2 such points.  At even depth there's 2, on
-depth=1mod4 there's 1.  On depth=3mod4 there's some 0s and some 1s (see L</N
-to Number of Children> below).
+depth=1mod4 there's 1.  On depth=3mod4 there's some 0s and some 1s.  See
+L</N to Number of Children> below.
 
 For example N=3 has two children N=5,N=6.  Then in turn N=5 has just one
 child N=9 and N=6 has no children.  The way points are numbered across a row
@@ -898,7 +906,7 @@ of the depth into powers-of-3.
 
 For example depth=6=2^2+2^1 starts at Ndepth=3^2+2*3^1=15.  The powers-of-3
 are the three parts of the triangle replication.  The power-of-2 doubling is
-the doubling of the row when replicated.
+the doubling of the row Y when replicated.
 
 Then the bits of X at the positions of the 1-bits of the depth become an N
 offset into the row.
@@ -910,14 +918,13 @@ offset into the row.
 
     N = Ndepth + Noffset
 
-For example in depth=6 binary 110 then at X=4=100 take the bits of X where
-depth has 1-bits, which is X=10_ so Noffset=10 binary and N=15+2=17, as per
-the "right" table above at X=4,Y=6.
+For example in depth=6 binary "110" then at X=4="100" take the bits of X
+where depth has 1-bits, which is X="10_" so Noffset="10" binary and
+N=15+2=17, as per the "right" table above at X=4,Y=6.
 
-If X has any 1-bits which don't coincide with 1-bits in the depth then that
-X,Y is not visited.  For example if depth=6=0b110 then X=3=0b11 is not
-visited because the low bit X=__1 has depth=__0 at that position which is
-not a 1-bit.
+If X has any 1-bits which are a 0-bits in the depth depth then that X,Y is
+not visited.  For example if depth=6="110" then X=3="11" is not visited
+because the low bit X="__1" has depth="__0" at that position.
 
 =head2 N to Depth
 
@@ -977,6 +984,7 @@ The number of children follows a pattern based on the depth.
     depth      number of children
     -----      ------------------
 
+     12    2       2       2       2   
      11     1 0 0 1         1 0 0 1
      10      2   2           2   2
       9       1 1             1 1
@@ -990,28 +998,62 @@ The number of children follows a pattern based on the depth.
       1               1 1
       0                2   
 
-If depth is even then all points have 2 children.  For example the depth=6
-row has four points all with 2 children each.
+If depth is even then all points have 2 children.  For example row depth=6
+has 4 points all with 2 children each.
 
-At odd depth the number of children is either 1 or 0 according to how the
-Noffset into the row matches the trailing 1-bits of the depth.
+At odd depth the number of children is either 1 or 0 according to Noffset
+masked down by the trailing 1-bits of the depth.
 
-    depth=...011111 in binary
+    depth  = ...011111 in binary, its trailing 1s
 
     Noffset = ...00000   \ num children = 1
             = ...11111   /
             = ...other   num children = 0
 
-For example depth=11 is binary 1011 which has low 1-bits "11".  Those bits
-of Noffset must be either 00 or 11, so Noffset=..00 or ..11, but not ..01 or
-..10.  Hence the pattern 1,0,0,1,1,0,0,1 reading across the row.
+For example depth=11 is binary 1011 which has low 1-bits "11".  If those two
+low bits of Noffset are "00" or "11" then 1 child.  Any other bit pattern in
+Noffset ("01" or "10" in this case) is 0 children.  Hence the pattern
+1,0,0,1,1,0,0,1 reading across the depth=11 row.
 
 In general when the depth doubles the triangle is replicated twice and the
-number of children is carried with the replications, but not the middle two
-points.  For example the triangle of depth=0to3 is repeated twice to make
-depth=4to7, but the depth=7 row is not children 10011001 of a plain doubling
-from the depth=3 row, but instead 10000001 which is the middle two points
-becoming 0.
+number of children is carried with the replications, except the middle two
+points are 0 children.  For example the triangle of depth=0to3 is repeated
+twice to make depth=4to7, but the depth=7 row is not children 10011001 of a
+plain doubling from the depth=3 row, but instead 10000001 which is the
+middle two points becoming 0.
+
+=head2 N to Number of Siblings
+
+The number of siblings of a given node is determined by its depth,
+
+    depth      number of siblings
+    -----      ------------------
+
+      4            0       0   
+      3             1 1 1 1   
+      2              0   0
+      1               1 1
+      0                0   
+
+    depth     number of siblings
+    -----     ------------------
+     odd             1
+     even            0
+
+In an even row the points are all spread apart so there are no siblings.
+The points in such a row are cousins or second cousins, etc, but none share
+a parent.
+
+In an odd row each parent node (an even row) has 2 children and so each of
+those point has 1 sibling.
+
+The effect is to conflate the NumChildren=1 and NumChildren=0 cases in the
+picture above, those two becoming a single sibling.
+
+    num children of N      num siblings of N
+    -----------------      -----------------
+          0 or 1                   1
+            2                      0
 
 =head2 Rectangle to N Range
 
@@ -1046,16 +1088,15 @@ Sequences in various forms,
 
     http://oeis.org/A001316    etc
 
-    align="triangular" (the default)
-      A001316   number of cells in each row (Gould's sequence)
-      A001317   rows encoded as numbers with bits 0,1
-      A006046   Ndepth, cumulative number of cells up to row N
-      A074330   Nend, right hand end of each row (starting Y=1)
+    A001316   number of cells in each row (Gould's sequence)
+    A001317   rows encoded as numbers with bits 0,1
+    A006046   Ndepth, cumulative number of cells up to row N
+    A074330   Nend, right hand end of each row (starting Y=1)
 
 A001316 is the "rowpoints" described above.  A006046 is the cumulative total
 of that sequence which is the "Ndepth", and A074330 is 1 less for "Nend".
 
-    align="triangular"
+    align="triangular" (the default)
       A047999   0,1 cells by rows
       A106344   0,1 cells by upwards sloping dX=3,dY=1
       A130047   0,1 cells of half X<=0 by rows
@@ -1063,7 +1104,7 @@ of that sequence which is the "Ndepth", and A074330 is 1 less for "Nend".
 A047999 etc is every second point in the default triangular lattice, or all
 points in align="right" or "left".
 
-    align="triangular"
+    align="triangular" (the default)
       A002487   count points along dX=3,dY=1 slopes
                   is the Stern diatomic sequence
       A106345   count points along dX=5,dY=1 slopes
@@ -1096,12 +1137,13 @@ align="right".
 
 For the Dyck encoding see for example L<Math::NumSeq::BalancedBinary/Binary
 Trees>.  The position in all balanced binary which is A080265 etc
-corresponds to C<value_to_i()> in that NumSeq.
+corresponds to C<value_to_i()> in that C<NumSeq>.
 
 A branch-reduced tree has any single-child node collapsed out, so that all
 remaining nodes are either a leaf node or have 2 (or more) children.  The
 effect of this on the Sierpinski triangle in breadth-first encoding is to
-duplicate each bit, so A080269 with each bit duplicated gives A080319.
+duplicate each bit, so A080269 with each bit repeated gives the
+branch-reduced A080319.
 
 =head1 SEE ALSO
 

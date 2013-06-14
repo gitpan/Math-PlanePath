@@ -62,6 +62,7 @@ devel/imaginary-base.pl
 devel/imaginary-half.pl
 devel/interpolate.pl
 devel/iterator.pl
+devel/junk/FibonacciSquareSpiral.pm
 devel/koch-curve.pl
 devel/koch-snowflakes.pl
 devel/koch-squareflakes.pl
@@ -69,7 +70,6 @@ devel/l-tiling.pl
 devel/lib/Math/PlanePath/BalancedArray.pm
 devel/lib/Math/PlanePath/BinaryTerms-oeis.t
 devel/lib/Math/PlanePath/BinaryTerms.pm
-devel/lib/Math/PlanePath/FibonacciSquareSpiral.pm
 devel/lib/Math/PlanePath/FibonacciWordKnott.pm
 devel/lib/Math/PlanePath/MooreSpiral.pm
 devel/lib/Math/PlanePath/NxN.pm
@@ -124,6 +124,7 @@ devel/terdragon.pl
 devel/theodorus.gnuplot
 devel/theodorus.pl
 devel/tree.pl
+devel/triangule-spiral.pl
 devel/ulam-warburton.pl
 devel/vertical.pl
 devel/vogel.pl
@@ -412,6 +413,7 @@ xt/MyOEIS.pm
 xt/oeis-duplicate.t
 xt/oeis-xrefs.t
 xt/oeis/AlternatePaper-oeis.t
+xt/oeis/AlternatePaperMidpoint-oeis.t
 xt/oeis/AnvilSpiral-oeis.t
 xt/oeis/CCurve-oeis.t
 xt/oeis/CellularRule-oeis.t
@@ -440,6 +442,7 @@ xt/oeis/GosperSide-oeis.t
 xt/oeis/GrayCode-oeis.t
 xt/oeis/HexSpiral-oeis.t
 xt/oeis/HilbertCurve-oeis.t
+xt/oeis/HIndexing-oeis.t
 xt/oeis/Hypot-oeis.t
 xt/oeis/HypotOctant-oeis.t
 xt/oeis/ImaginaryBase-oeis.t
@@ -455,6 +458,7 @@ xt/oeis/PyramidRows-oeis.t
 xt/oeis/PyramidSides-oeis.t
 xt/oeis/PyramidSpiral-oeis.t
 xt/oeis/PythagoreanTree-oeis.t
+xt/oeis/QuadricCurve-oeis.t
 xt/oeis/R5DragonCurve-oeis.t
 xt/oeis/RationalsTree-oeis.t
 xt/oeis/SierpinskiArrowhead-oeis.t

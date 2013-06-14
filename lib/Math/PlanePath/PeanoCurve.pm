@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -827,8 +827,10 @@ forms,
     A163531    X^2+Y^2 square of distance from origin
     A163532    dX, change in X -1,0,1
     A163533    dY, change in Y -1,0,1
-    A014578    previous abs(dX), from n-1 to n, even trailing 0s
-    A182581    previous abs(dY), from n-1 to n, odd trailing 0s
+    A014578    abs(dX) from n-1 to n, 1=horiz 0=vertical
+                 thue-morse count low 0-bits + 1 mod 2
+    A182581    abs(dY) from n-1 to n, 0=horiz 1=vertical
+                 thue-morse count low 0-bits mod 2
     A163534    direction of each step (up,down,left,right)
     A163535    direction, transposed X,Y
     A163536    turn 0=straight,1=right,2=left

@@ -44,7 +44,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -757,13 +757,14 @@ The terdragon is in Sloane's Online Encyclopedia of Integer Sequences as,
 
     http://oeis.org/A080846  etc
 
+    A080846   next turn 0=left,1=right, by 120 degrees
+                (n=0 is turn at N=1)
+
     A060236   turn 1=left,2=right, by 120 degrees
                 (lowest non-zero ternary digit)
     A137893   turn 1=left,0=right (morphism)
     A189640   turn 0=left,1=right (morphism, extra initial 0)
     A189673   turn 1=left,0=right (morphism, extra initial 0)
-    A080846   next turn 0=left,1=right, by 120 degrees
-                (n=0 is turn at N=1)
     A038502   strip trailing ternary 0s,
                 taken mod 3 is turn 1=left,2=right
 

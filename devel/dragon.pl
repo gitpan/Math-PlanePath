@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -37,7 +37,420 @@ use lib 'xt';
 
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+use Smart::Comments;
+
+
+
+{
+  # drawing two towards centre with Language::Logo
+
+  require Language::Logo;
+  require Math::NumSeq::PlanePathTurn;
+  my $lo = Logo->new(update => 20, port => 8200 + (time % 100));
+  my $draw;
+  $lo->command("backward 130; hideturtle");
+  $draw = sub {
+    my ($level, $length) = @_;
+    if (--$level < 0) {
+      $lo->command("pendown; forward $length; penup; backward $length");
+      return;
+    }
+    my $sidelen = $length / sqrt(2);
+    $lo->command("right 45");
+    $draw->($level,$sidelen);
+    $lo->command("left 45");
+    $lo->command("penup; forward $length");
+    $lo->command("right 135");
+    $draw->($level,$sidelen);
+    $lo->command("left 135");
+    $lo->command("penup; backward $length");
+  };
+  $draw->(8, 300);
+  $lo->disconnect("Finished...");
+  exit 0;
+}
+{
+  # count repeated points
+  # diff 4-term feedback 1/(1-2x)(1-x-2x^3)
+  # = 4*x^4 - 2*x^3 + 2*x^2 - 3*x + 1
+  # total 1/((1-x)*(1-2x)*(1-x-2x^3)).
+
+  # A003476 diff of unrepeated a(n) = a(n-1) + 2a(n-3).
+  # A003479 overlap points by next 2^n section,  x^4
+
+  # position of first/last across 2^k
+  # A155803 A023001 interleaved with 2*A023001 and 4*A023001.
+  # A023001 (8^n - 1)/7.
+  # ternary 100100100
+
+  $|=1;
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $count = 0;
+  my $prev = 0;
+  my $prev_diff = 0;
+  my $last_pos = 0;
+  foreach my $n (0 .. 2**20) {
+    if (is_pow2($n)) {
+      my $diff = $count - $prev;
+      my $diff_diff = $diff - $prev_diff;
+
+      # printf "%d count=%d[%b] diff=%d[%b]   dd=%d\n",
+      #   $n, $count,$count, $diff,$diff, $diff_diff;
+      # print "$n  $count $diff\n";
+      # print "$count,";
+      # print "$diff,";
+      # print "$last_pos,";
+      $prev = $count;
+      $prev_diff = $diff;
+      $last_pos = 0;
+    }
+    my ($x, $y) = $path->n_to_xy ($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    $count += (@n_list == 2 && $n_list[1] >= next_pow2($n));
+    if (@n_list == 2 && $n_list[1] >= next_pow2($n)) {
+      $last_pos = next_pow2($n) - $n;
+       print "$n_list[0] $n_list[1]  at $n  last=$last_pos\n";
+    }
+  }
+  exit 0;
+
+  sub is_pow2 {
+    my ($n) = @_;
+    while ($n > 1) {
+      if ($n & 1) {
+        return 0;
+      }
+      $n >>= 1;
+    }
+    return ($n == 1);
+  }
+  sub next_pow2 {
+    my ($n) = @_;
+    return 2*high_bit($n);
+  }
+}
+
+{
+  # (i-1)^k
+  use lib 'xt';
+  require MyOEIS;
+  require Math::Complex;
+  my $b = Math::Complex->make(-1,1);
+  my $c = Math::Complex->make(1);
+  my @values;
+  foreach (0 .. 16) {
+    push @values, $c->Re;
+    $c *= $b;
+  }
+  print join(',',@values),"\n";
+  print MyOEIS->grep_for_values_aref(\@values);
+  print "\n";
+  exit 0;
+}
+
+{
+  # unrepeated points
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $n (0 .. 256) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    next unless @n_list == 1;
+    printf "%9b\n", $n;
+    #print "$n,";
+  }
+  exit 0;
+}
+
+{
+  # repeat points
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my %seen;
+  my %first;
+  foreach my $n (0 .. 2**10 - 1) {
+    my ($x, $y) = $path->n_to_xy ($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    next unless $n_list[0] == $n;
+    next unless @n_list >= 2;
+    my $dn = abs($n_list[0] - $n_list[1]);
+    ++$seen{$dn};
+    $first{$dn} ||= "$x,$y";
+  }
+
+  foreach my $dn (sort {$a<=>$b} keys %seen) {
+    my $dn2 = sprintf '%b', $dn;
+    print "dN=${dn}[$dn2]  first at $first{$dn}  count $seen{$dn}\n";
+  }
+
+  my @seen = sort {$a<=>$b} keys %seen;
+  print join(',',@seen),"\n";
+  foreach (@seen) { $_ /= 4; }
+  print join(',',@seen),"\n";
+  exit 0;
+}
+
+# {
+#   # X,Y recurrence n = 2^k + rem
+#   # X+iY(n) = (i+1)^k + (i+1)^k + 
+#   my $w = 8;
+#   my $path = Math::PlanePath::DragonCurve->new;
+#   foreach my $n (0 .. 1000) {
+#     my ($x,$y) = $path->n_to_xy($n);
+#     
+#   }
+#   exit 0;
+# 
+sub high_bit {
+  my ($n) = @_;
+  my $bit = 1;
+  while ($bit <= $n) {
+    $bit <<= 1;
+  }
+  return $bit >> 1;
+}
+# }
+
+{
+  # d(2n)   = d(n)*(i+1)
+  # d(2n+1) = d(2n) + 1-(transitions(2*$n) % 4)
+  # 2n to 2n+1 is always horizontal
+  # transitions(2n) is always even since return to 0 at the low end
+  #
+  # X(2n-1) \ = X(n)
+  # X(2n)   /
+  # X(2n+1) \ = X(2n) + (-1) ** count_runs_1bits($n)
+  # X(2n+2) /
+
+  #
+  # X(2n-1) \ = X(n)
+  # X(2n)   /
+  # X(2n+1) \ = X(2n) + (-1) ** count_runs_1bits($n)
+  # X(2n+2) /
+  # X(n) = cumulative dx = (-1) ** count_runs_1bits(2n)
+  # Y(n) = cumulative dy = (-1) ** count_runs_1bits(2n+1)
+  # Dragon    delta = bisection of count runs 1s
+  # Alternate delta = bisection of count even runs 1s
+  {
+    require Math::NumSeq::OEIS;
+    my $seq = Math::NumSeq::OEIS->new(anum=>'A005811'); # num runs
+    my @array;
+    sub A005811 {
+      my ($i) = @_;
+      while ($#array < $i) {
+        my ($i,$value) = $seq->next;
+        $array[$i] = $value;
+      }
+      return $array[$i];
+    }
+  }
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $n (0 .. 32) {
+    my ($x,$y) = $path->n_to_xy(2*$n+1);
+    my ($x1,$y1) = $path->n_to_xy(2*$n+2);
+    my $dx = $x1-$x;
+    my $dy = $y1-$y;
+    # my $transitions = transitions(2*$n);
+    # my $c = 1 - (A005811(2*$n) % 4);
+    # my $c = 1 - 2*(count_runs_1bits(2*$n) % 2);
+    # my $c = (count_runs_1bits($n)%2 ? -1 : 1);
+    #  my $c = 2-(transitions(2*$n+1) % 4);  # Y
+    # my $c = (-1) ** count_runs_1bits(2*$n);   # X
+    my $c = - (-1) ** count_runs_1bits(2*$n+1); # Y
+    printf "%6b  %2d,%2d   %d\n", $n, $dx,$dy, $c;
+  }
+  print "\n";
+  exit 0;
+}
+
+{
+  # d(2^k + rem) = (i+1)^(k+1) - i*d(2^k-rem)
+  #   = (i+1) * (i+1)^k - i*d(2^k-rem)
+  #   = (i+1)^k + i*(i+1)^k - i*d(2^k-rem)
+  #   = (i+1)^k + i*((i+1)^k - d(2^k-rem))
+
+  require Math::Complex;
+
+  # print mirror_across_k(Math::Complex->make(2,0),3);
+  # exit 0;
+
+  my $path = Math::PlanePath::DragonCurve->new;
+  foreach my $n (0 .. 32) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my $p = Math::Complex->make($x,$y);
+
+    my $d = calc_d_by_high($n);
+
+    printf "%6b  %8s %8s   %s\n", $n, $p,$d, $p-$d;
+  }
+  print "\n";
+  exit 0;
+
+  sub calc_d_by_high {
+    my ($n) = @_;
+    if ($n == 0) { return 0; }
+    my $k = high_bit_pos($n);
+    my $pow = 1<<$k;
+    my $rem = $n - $pow;
+    ### $k
+    ### $rem
+    if ($rem == 0) {
+      return i_plus_1_pow($k);
+    } else {
+      return i_plus_1_pow($k+1)
+        + Math::Complex->make(0,-1) * calc_d_by_high($pow-$rem);
+
+      # # no, not symmetric lengthwise
+      # return i_plus_1_pow($k)
+      #   + Math::Complex->make(0,1) * mirror_across_k(calc_d_by_high($rem),
+      #                                                4-$k);
+    }
+  }
+
+  sub high_bit_pos {
+    my ($n) = @_;
+    die "high_bit_pos $n" if $n <= 0;
+    my $bit = 1;
+    my $pos = 0;
+    while ($n > 1) {
+      $n >>= 1;
+      $pos++;
+    }
+    return $pos;
+  }
+
+  sub i_plus_1_pow {
+    my ($k) = @_;
+    my $b = Math::Complex->make(1,1);
+    my $c = Math::Complex->make(1);
+    for (1 .. $k) { $c *= $b; }
+    return $c;
+  }
+
+  sub mirror_across_k {
+    my ($c,$k) = @_;
+    $k %= 8;
+    $c *= i_plus_1_pow(8-$k);
+    # ### c: "$c"
+    $c = ~$c; # conjugate
+    # ### conj: "$c"
+    $c *= i_plus_1_pow($k);
+    # ### mult: "$c"
+     $c /= 16;  # i_plus_1_pow(8) == 16
+    # ### ret: "$c"
+    return $c;
+  }
+}
+
+{
+  # total turn = count 0<->1 transitions of N bits
+
+  sub count_runs_1bits {
+    my ($n) = @_;
+    my $count = 0;
+    for (;;) {
+      last unless $n;
+      while ($n % 2 == 0) { $n/=2; }
+      $count++;
+      while ($n % 2 == 1) { $n-=1; $n/=2; }
+    }
+    return $count;
+  }
+
+  sub transitions {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += (($n & 3) == 1 || ($n & 3) == 2);
+      $n >>= 1;
+    }
+    return $count
+  }
+  sub transitions2 {
+    my ($n) = @_;
+
+    my $m = low_ones_mask($n);
+    $n ^= $m;  # zap to zeros
+    my $count = ($m!=0);
+
+    while ($n) {
+      ### assert: ($n&1)==0
+      $m = low_zeros_mask($n);
+      $n |= $m;  # fill to ones
+      $count++;
+
+      $m = low_ones_mask($n);
+      $n ^= $m;  # zap to zeros
+      $count++;
+      last unless $n;
+    }
+    return $count
+  }
+  sub transitions3 {
+    my ($n) = @_;
+    my $count = 0;
+    return count_1_bits($n^($n>>1));
+  }
+  sub low_zeros_mask {
+    my ($n) = @_;
+    die if $n == 0;
+    return ($n ^ ($n-1)) >> 1;
+  }
+  ### assert: low_zeros_mask(1)==0
+  ### assert: low_zeros_mask(2)==1
+  ### assert: low_zeros_mask(3)==0
+  ### assert: low_zeros_mask(4)==3
+  ### assert: low_zeros_mask(12)==3
+  ### assert: low_zeros_mask(10)==1
+  sub low_ones_mask {
+    my ($n) = @_;
+    return ($n ^ ($n+1)) >> 1;
+  }
+  ### assert: low_ones_mask(1)==1
+  ### assert: low_ones_mask(2)==0
+  ### assert: low_ones_mask(3)==3
+  ### assert: low_ones_mask(5)==1
+  sub count_1_bits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += ($n&1);
+      $n >>= 1;
+    }
+    return $count;
+  }
+
+  my $path = Math::PlanePath::DragonCurve->new;
+
+  require Math::NumSeq::PlanePathDelta;
+  my $dir4_seq = Math::NumSeq::PlanePathDelta->new (planepath_object => $path,
+                                                    delta_type => 'Dir4');
+
+  require Math::NumSeq::PlanePathTurn;
+  my $turn_seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+                                                   turn_type => 'LSR');
+
+  my $total_turn = 0;
+  for (my $n = 0; $n < 16; ) {
+    my $t = transitions($n);
+    my $t2 = transitions2($n);
+    my $t3 = transitions3($n);
+    my $good = ($t == $t2 && $t2 == $t3 && $t == $total_turn
+                ? 'good'
+                : '');
+    my $dir4 = $dir4_seq->ith($n);
+    my ($x,$y) = $path->n_to_xy($n);
+    my $turn = $turn_seq->ith($n+1);
+
+    printf "%2d  xy=%2d,%2d  d=%d   total=%d turn=%+d   %d,%d,%d   %s\n",
+      $n,$x,$y, $dir4, $total_turn, $turn, $t,$t2,$t3, $good;
+
+    $total_turn += $turn;
+    $n++;
+  }
+  exit 0;
+}
 
 
 {
@@ -1497,115 +1910,6 @@ use lib 'xt';
   exit 0;
 }
 
-{
-  # total turn
-  require Math::PlanePath::DragonCurve;
-
-  sub transitions {
-    my ($n) = @_;
-    my $count = 0;
-    while ($n) {
-      $count += (($n & 3) == 1 || ($n & 3) == 2);
-      $n >>= 1;
-    }
-    return $count
-  }
-  sub transitions2 {
-    my ($n) = @_;
-
-    my $m = low_ones_mask($n);
-    $n ^= $m;  # zap to zeros
-    my $count = ($m!=0);
-
-    while ($n) {
-      ### assert: ($n&1)==0
-      $m = low_zeros_mask($n);
-      $n |= $m;  # fill to ones
-      $count++;
-
-      $m = low_ones_mask($n);
-      $n ^= $m;  # zap to zeros
-      $count++;
-      last unless $n;
-    }
-    return $count
-  }
-  sub transitions3 {
-    my ($n) = @_;
-    my $count = 0;
-    return ones_count($n^($n>>1));
-  }
-  sub low_zeros_mask {
-    my ($n) = @_;
-    die if $n == 0;
-    return ($n ^ ($n-1)) >> 1;
-  }
-  ### assert: low_zeros_mask(1)==0
-  ### assert: low_zeros_mask(2)==1
-  ### assert: low_zeros_mask(3)==0
-  ### assert: low_zeros_mask(4)==3
-  ### assert: low_zeros_mask(12)==3
-  ### assert: low_zeros_mask(10)==1
-  sub low_ones_mask {
-    my ($n) = @_;
-    return ($n ^ ($n+1)) >> 1;
-  }
-  ### assert: low_ones_mask(1)==1
-  ### assert: low_ones_mask(2)==0
-  ### assert: low_ones_mask(3)==3
-  ### assert: low_ones_mask(5)==1
-  sub ones_count {
-    my ($n) = @_;
-    my $count;
-    while ($n) {
-      $count += ($n&1);
-      $n >>= 1;
-    }
-    return $count;
-  }
-
-  # with Y reckoned increasing upwards
-  sub dxdy_to_dir {
-    my ($dx, $dy) = @_;
-    if ($dx > 0) { return 0; }  # east
-    if ($dx < 0) { return 2; }  # west
-    if ($dy > 0) { return 1; }  # north
-    if ($dy < 0) { return 3; }  # south
-  }
-
-  sub path_n_dir {
-    my ($path, $n) = @_;
-    return dxdy_to_dir ($path->n_to_xy($n+1));
-  }
-
-  # return 1 for left, -1 for right
-  sub path_n_turn {
-    my ($path, $n) = @_;
-    my $prev_dir = path_n_dir ($path, $n-1);
-    my $dir = path_n_dir ($path, $n);
-    my $turn = ($dir - $prev_dir) % 4;
-    if ($turn == 1) { return 1; }
-    if ($turn == 3) { return -1; }
-    die "Oops, unrecognised turn";
-  }
-
-  my $path = Math::PlanePath::DragonCurve->new;
-  my $total_turn = 0;
-  for (my $n = 0; $n < 16; ) {
-    my $t = transitions($n);
-    my $t2 = transitions2($n);
-    my $t3 = transitions3($n);
-    my $good = ($t == $t2 && $t2 == $t3 && $t == $total_turn
-                ? 'good'
-                : '');
-    printf "%2d %d  %d,%d,%d   %s\n", $n, $total_turn, $t,$t2,$t3, $good;
-
-    $n++;
-    my $turn = path_n_turn($path,$n);
-    $total_turn += $turn;
-  }
-  exit 0;
-}
 
 
 {

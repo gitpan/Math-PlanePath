@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,7 +54,7 @@ use Math::PlanePath::Base::Digits
 
 use constant n_start => 0;
 use constant class_x_negative => 0;
-*xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad14;
+*xy_is_visited = \&Math::PlanePath::Base::Generic::_xy_is_visited_x_positive;
 
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
@@ -472,6 +472,8 @@ The beta is made from three betas and an omega sub-parts.  The omega is made
 from four betas.  In each case the sub-parts are suitably rotated,
 transposed or reversed, so expanding to
 
+    Beta = 3*Beta+Omega      Omega = 4*Beta
+
       *---*---*---*            *---*---*---*
       |           |            |           |
       *---*   *---*            *---*   *---*
@@ -481,10 +483,10 @@ transposed or reversed, so expanding to
       *---*   *---*            *---*   *---*
               |
 
-The sub-parts represent -smaller substitutions, which has the effect of
-making the start a beta going alternately up or down.  For this integer
-version the start direction is kept fixed as a beta going upwards and the
-higher levels then alternate up and down from there.
+The sub-parts represent successive ever-smaller substitutions.  They have
+the effect of making the start a beta going alternately up or down.  For
+this integer version the start direction is kept fixed as a beta going
+upwards and the higher levels then alternate up and down from there.
 
 =head2 Level Ranges
 

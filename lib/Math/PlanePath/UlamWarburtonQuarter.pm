@@ -27,7 +27,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -425,9 +425,9 @@ sub _n1_to_depthsum_and_rem {
 # at 1 keep existing depth limit
 # N=30 rem=1 = 0,1 depth=11=8+2+1=1011 width=9
 # 
-sub tree_n_to_height {
+sub tree_n_to_subheight {
   my ($self, $n) = @_;
-  ### tree_n_to_height(): $n
+  ### tree_n_to_subheight(): $n
 
   $n = int($n - $self->{'n_start'} + 1);  # N=1 basis
   if ($n < 1) {

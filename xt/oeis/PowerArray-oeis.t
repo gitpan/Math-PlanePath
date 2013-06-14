@@ -32,6 +32,45 @@ use Math::PlanePath::PowerArray;
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
+require Math::NumSeq::PlanePathN;
+my $bigclass = Math::NumSeq::PlanePathN::_bigint();
+
+
+#------------------------------------------------------------------------------
+# A151754 -- radix=10, Y at N=2^k starting k=1 N=2, floor(2^k*9/10)
+
+MyOEIS::compare_values
+  (anum => 'A151754',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PowerArray->new (radix => 10);
+     my @got;
+     for (my $n = $bigclass->new(2); @got < $count; $n *= 2) {
+       my ($x,$y) = $path->n_to_xy($n);
+       $x == 0 or die;
+       push @got, $y;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A000975 -- radix=3, Y at N=2^k, being Y=1010101..101 in binary
+
+MyOEIS::compare_values
+  (anum => 'A000975',
+   max_count => 1000,
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PowerArray->new (radix => 3);
+     my @got;
+     for (my $n = $bigclass->new(1); @got < $count; $n *= 2) {
+       my ($x,$y) = $path->n_to_xy($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
+
+
 
 #------------------------------------------------------------------------------
 # A050603 -- radix=2 abs(dX), but OFFSET=0

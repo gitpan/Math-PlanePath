@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -376,13 +376,13 @@ this path include
 
     n_start=0
       A010751    X coordinate, runs 1 inc, 2 dec, 3 inc, etc
+      A053616    abs(Y), runs k to 0 to k
       A000384    N on X axis, hexagonal numbers
       A001105    N on Y axis, 2*n^2 (and cf similar A184636)
       A014105    N on X negative axis, second hexagonals
       A046092    N on Y negative axis, 2*pronic
-      A003982    1,0 according as N on Y negative axis,
-                   being delta abs(X)+abs(Y) which is 1 when move
-                   "outward" to next ring
+      A003982    delta(abs(X)+abs(Y)), 1 when N on Y negative axis
+                   which is where move "outward" to next ring
 
     n_start=-1
       A188551    N positions of turns, from N=1 up
@@ -395,7 +395,8 @@ L<Math::PlanePath::DiamondArms>,
 L<Math::PlanePath::AztecDiamondRings>,
 L<Math::PlanePath::SquareSpiral>,
 L<Math::PlanePath::HexSpiralSkewed>,
-L<Math::PlanePath::PyramidSides>
+L<Math::PlanePath::PyramidSides>,
+L<Math::PlanePath::ToothpickSpiral>
 
 =head1 HOME PAGE
 

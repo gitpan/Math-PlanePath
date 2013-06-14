@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -33,6 +33,34 @@ use Math::PlanePath::KochCurve;
 
 
 
+# 121313322
+
+{
+  require Math::PlanePath::CfracDigits;
+  my $path = Math::PlanePath::CfracDigits->new;
+  foreach my $n (0 .. 120) {
+    my ($x,$y) = $path->n_to_xy($n);
+    print "$x,";
+  }
+  print "\n";
+  print "\n";
+
+  foreach my $n (0 .. 120) {
+    my ($x,$y) = $path->n_to_xy($n);
+    print "$y,";
+  }
+  print "\n";
+  print "\n";
+
+  foreach my $n (0 .. 120) {
+    my ($x,$y) = $path->n_to_xy($n);
+    print "$x/$y, ";
+  }
+  print "\n";
+  print "\n";
+
+  exit 0;
+}
 
 {
   require Math::PlanePath::CfracDigits;

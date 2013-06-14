@@ -57,8 +57,8 @@ use warnings;
       last if $depth > 65;
       $prev_depth = $depth;
     }
-    my $calc_height = $path->tree_n_to_height($n);
-    my $search_height = path_tree_n_to_height_by_search($path,$n);
+    my $calc_height = $path->tree_n_to_subheight($n);
+    my $search_height = path_tree_n_to_subheight_by_search($path,$n);
     my $n3 = Math::BaseCnv::cnv($n - $n_depth, 10,3);
     $search_height //= 'undef';
     $calc_height //= 'undef';
@@ -68,7 +68,7 @@ use warnings;
   }
   exit 0;
 
-  sub path_tree_n_to_height_by_search {
+  sub path_tree_n_to_subheight_by_search {
     my ($self, $n) = @_;
     my @n = ($n);
     my $height = 0;

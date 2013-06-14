@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -519,6 +519,9 @@ path include
       A003989    GCD(X,Y) greatest common divisor starting (1,1)
       A003983    min(X,Y)
       A051125    max(X,Y)
+    n_start=1, x_start=1, y_start=1, direction=down
+      A057046    X for N=2^k
+      A057047    Y for N=2^k
 
     n_start=0 (either direction)
       A049581    abs(X-Y) coordinate diff

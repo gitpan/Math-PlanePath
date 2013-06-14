@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1100,6 +1100,7 @@ as,
                (first values 2,3 whereas N=3,4 here)
     A127254   abs(dY), so 0=horizontal, 1=vertical or diagonal,
                 except extra initial 1
+    A081026   X at N=2^k, being successively 3*2^j-1, 3*2^j
 
 A039963 is numbered starting n=0 for the first turn, which is at the point
 N=1 in the path here.

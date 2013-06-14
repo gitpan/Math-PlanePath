@@ -60,7 +60,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -748,8 +748,9 @@ Sequences as
 
     http://oeis.org/A073089
 
-    A073089   previous abs(dY), 0=horizontal,1=vertical from N=n-1 to N=n
+    A073089   abs(dY) of n-1 to n, so 0=horizontal,1=vertical
                 (extra initial 0)
+    A077860   Y at N=2^k, being Re(-(i+1)^k + i-1)
 
 The midpoint curve is vertical when the C<DragonCurve> has a vertical
 followed by a left turn, or horizontal followed by a right turn.

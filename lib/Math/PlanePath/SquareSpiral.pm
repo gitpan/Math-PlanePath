@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -93,8 +93,6 @@ use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
 
 
 #------------------------------------------------------------------------------
@@ -786,8 +784,8 @@ And various sequences,
       A079813    abs(dY), being k 0s followed by k 1s
       A063826    direction 1=right,2=up,3=left,4=down
 
-      A033638    N of the turns (extra initial 1, 1)
-      A172979     turn positions which are primes too
+      A033638    N turn positions (extra initial 1, 1)
+      A172979    N turn positions which are primes too
 
       A054552    N values on X axis (East)
       A054556    N values on Y axis (North)
@@ -851,7 +849,7 @@ starting from N=0.
 
     n_start=0
       A180714    X+Y coordinate sum
-      A053615    abs(X-Y), being distance to nearest pronic
+      A053615    abs(X-Y), runs n to 0 to n, distance to nearest pronic
 
       A001107    N on X axis
       A033991    N on Y axis

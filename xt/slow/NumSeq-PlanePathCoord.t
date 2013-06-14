@@ -48,12 +48,14 @@ require Math::NumSeq::PlanePathCoord;
 
 sub want_planepath {
   my ($planepath) = @_;
+# return 0 unless $planepath =~ /LCorner/;
   # return 0 unless $planepath =~ /DiagonalRationals/;
   # return 0 unless $planepath =~ /Ulam/;
   return 1;
 }
 sub want_coordinate {
   my ($type) = @_;
+   return 0 unless $type =~ /RootN/;
   # return 0 unless $type =~ /Parity/;
   # return 0 unless $type =~ /Hamming/;
   return 1;
@@ -386,16 +388,23 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
-               #  'LCornerTree,parts=diagonal-1',
-               #  'LCornerTree,parts=diagonal',
-               # 'LCornerTree,parts=3',
-               # 'LCornerTree',
-               # 'LCornerTree,parts=2',
-               # 'LCornerTree,parts=1',
-               # 'LCornerTree,parts=wedge',
-               # 'LCornerTree,parts=octant_up',
-               # 'LCornerTree,parts=octant',
-               # 
+                'ToothpickSpiral',
+                'ToothpickSpiral,n_start=0',
+                'ToothpickSpiral,n_start=37',
+
+               'LCornerTree,parts=wedge+1',
+               'LCornerTree,parts=octant_up+1',
+               'LCornerTree,parts=octant+1',
+               'LCornerTree,parts=diagonal-1',
+               'LCornerTree,parts=diagonal',
+               'LCornerTree,parts=3',
+               'LCornerTree',
+               'LCornerTree,parts=2',
+               'LCornerTree,parts=1',
+               'LCornerTree,parts=wedge',
+               'LCornerTree,parts=octant_up',
+               'LCornerTree,parts=octant',
+               
                # 'OneOfEight,parts=wedge',
                # 'OneOfEight,parts=octant_up',
                # 'OneOfEight',
@@ -423,7 +432,7 @@ my @modules = (
                # 'ToothpickReplicate,parts=3',
                
                # module list begin
-              
+               
                'PythagoreanTree,coordinates=SM',
                'PythagoreanTree,coordinates=SC',
                'PythagoreanTree,coordinates=MC',
@@ -512,7 +521,7 @@ my @modules = (
                'GrayCode,radix=6,gray_type=modular,apply_type=sT',
                'GrayCode,radix=6,gray_type=modular,apply_type=sF',
                
-
+               
                'PyramidRows',
                'PyramidRows,step=0',
                'PyramidRows,step=1',
@@ -540,7 +549,7 @@ my @modules = (
                'PyramidRows,align=left,step=6',
                'PyramidRows,align=left,step=7',
                'PyramidRows,align=left,step=37',
-
+               
                'Rows',
                'Rows,width=1',
                'Rows,width=2',
@@ -569,12 +578,12 @@ my @modules = (
                'CellularRule,rule=200', # single cell
                'CellularRule,rule=224', # single cell
                'CellularRule,rule=232', # single cell
-
+               
                'CellularRule,rule=50',  # solid every second cell
                'CellularRule,rule=50,n_start=0',
                'CellularRule,rule=50,n_start=37',
                'CellularRule,rule=58',  # solid every second cell
-
+               
                'CellularRule54',
                'CellularRule54,n_start=0',
                'CellularRule54,n_start=37',
@@ -587,33 +596,33 @@ my @modules = (
                'CellularRule190',
                'CellularRule190,mirror=1',
                'CellularRule190,mirror=1,n_start=0',
-
+               
                'CellularRule,rule=16', # right line
                'CellularRule,rule=16,n_start=0',
                'CellularRule,rule=16,n_start=37',
                'CellularRule,rule=24', # right line
                'CellularRule,rule=48', # right line
-
+               
                'CellularRule,rule=2',  # left line
                'CellularRule,rule=2,n_start=0',
                'CellularRule,rule=2,n_start=37',
                'CellularRule,rule=10', # left line
                'CellularRule,rule=34', # left line
-
+               
                'CellularRule,rule=4',  # centre line
                'CellularRule,rule=4,n_start=0',
                'CellularRule,rule=4,n_start=37',
                'CellularRule,rule=12', # centre line
                'CellularRule,rule=36', # centre line
-
+               
                'CellularRule,rule=206', # left solid
                'CellularRule,rule=206,n_start=0',
                'CellularRule,rule=206,n_start=37',
-
+               
                'CellularRule,rule=18',  # Sierpinski
                'CellularRule,rule=18,n_start=0',
                'CellularRule,rule=18,n_start=37',
-
+               
                'CellularRule,rule=60',
                'CellularRule,rule=18,n_start=0',
                'CellularRule,rule=18,n_start=37',
@@ -621,7 +630,7 @@ my @modules = (
                'CellularRule,rule=220,n_start=0',
                'CellularRule,rule=220,n_start=37',
                'CellularRule,rule=222', # solid
-
+               
                'CellularRule,rule=6',   # left 1,2 line
                'CellularRule,rule=6,n_start=0',
                'CellularRule,rule=6,n_start=37',
@@ -635,7 +644,7 @@ my @modules = (
                'CellularRule,rule=84,n_start=0',
                'CellularRule,rule=84,n_start=37',
                
-
+               
                'SierpinskiTriangle',
                'SierpinskiTriangle,align=right',
                'SierpinskiTriangle,align=left',
@@ -770,7 +779,7 @@ my @modules = (
                'SierpinskiCurve,arms=6',
                'SierpinskiCurve,arms=7',
                'SierpinskiCurve,arms=8',
-
+               
                'TriangleSpiralSkewed',
                'TriangleSpiralSkewed,n_start=37',
                'TriangleSpiralSkewed,skew=right',
@@ -1043,7 +1052,7 @@ my @modules = (
                'DragonCurve,arms=2',
                'DragonCurve,arms=3',
                'DragonCurve,arms=4',
-
+               
                'MultipleRings,ring_shape=polygon,step=3',
                'MultipleRings,ring_shape=polygon,step=4',
                'MultipleRings,ring_shape=polygon,step=5',
@@ -1062,7 +1071,7 @@ my @modules = (
                'MultipleRings,ring_shape=polygon,step=18',
                'MultipleRings,ring_shape=polygon,step=37',
                'MultipleRings,ring_shape=polygon',
-
+               
                'MultipleRings',
                'MultipleRings,step=0',
                'MultipleRings,ring_shape=polygon,step=0',
@@ -1070,21 +1079,21 @@ my @modules = (
                'MultipleRings,ring_shape=polygon,step=1',
                'MultipleRings,step=2',
                'MultipleRings,ring_shape=polygon,step=2',
-
+               
                'MultipleRings,step=3',
                'MultipleRings,step=5',
                'MultipleRings,step=6',
                'MultipleRings,step=7',
                'MultipleRings,step=8',
                'MultipleRings,step=37',
-
+               
                # module list end
-
+               
                # cellular 0 to 255
                (map {("CellularRule,rule=$_",
                       "CellularRule,rule=$_,n_start=0",
                       "CellularRule,rule=$_,n_start=37")} 0..255),
-
+               
               );
 
 {
@@ -1094,7 +1103,7 @@ my @modules = (
   
   foreach my $mod (@modules) {
     next unless want_planepath($mod);
-
+    
     my $bad = 0;
     foreach my $elem (
                       ['Math::NumSeq::PlanePathDelta','delta_type'],
@@ -1107,7 +1116,7 @@ my @modules = (
       foreach my $param (@{$class->parameter_info_hash
                              ->{$pname}->{'choices'}}) {
         next unless want_coordinate($param);
-
+        
         MyTestHelpers::diag ("$mod $param");
         ### $mod
         ### $param
@@ -1356,7 +1365,7 @@ my @modules = (
             $saw_values_min_at = 'override';
           }
         }
-
+        
         # approach 360 without ever actually reaching
         if (($mod eq 'SacksSpiral'
              || $mod eq 'TheodorusSpiral'
@@ -1383,7 +1392,7 @@ my @modules = (
           $saw_values_max = 6;
           $saw_values_max_at = 'override';
         }
-
+        
         # approach 0 without ever actually reaching
         if (($mod eq 'MultipleRings,step=8'
              || $mod eq 'MultipleRings,step=37'
@@ -1401,7 +1410,7 @@ my @modules = (
           $saw_values_min = 0;
           $saw_values_min_at = 'override';
         }
-
+        
         # not enough values to see these decreasing
         if (($mod eq 'SquareSpiral,wider=37'
             )
@@ -1421,7 +1430,7 @@ my @modules = (
           $saw_values_max = 4.5;
           $saw_values_max_at = 'override';
         }
-
+        
         # not enough values to see these decreasing
         if (($mod eq 'TerdragonCurve'
              || $mod eq 'TerdragonMidpoint'
@@ -1432,7 +1441,7 @@ my @modules = (
           $saw_values_min = -2;
           $saw_values_min_at = 'override';
         }
-
+        
         # not enough values to see near supremum
         if (($mod eq 'ZOrderCurve,radix=37'
             )
@@ -1442,8 +1451,8 @@ my @modules = (
           $saw_values_max = $values_max;
           $saw_values_max_at = 'override';
         }
-
-
+        
+        
         if (abs ($values_min - $saw_values_min) > 0.001) {
           MyTestHelpers::diag ("$mod $param values_min=$values_min vs saw_values_min=$saw_values_min at $saw_values_min_at (to i_end=$i_end)");
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
@@ -1454,23 +1463,23 @@ my @modules = (
           MyTestHelpers::diag ("  (planepath_object ",ref $seq->{'planepath_object'},")");
           $bad++;
         }
-
-
+        
+        
         #-------------------
-
-
+        
+        
         my $increasing = $seq->characteristic('increasing');
         my $non_decreasing = $seq->characteristic('non_decreasing');
         $increasing ||= 0;
         $non_decreasing ||= 0;
-
+        
         # not enough values to see these decreasing
         if ($mod eq 'DigitGroups,radix=37'
             && $param eq 'Radius'
             && $i_end < 37*37) {
           $saw_characteristic_integer = 0;
         }
-
+        
         # not enough values to see these decreasing
         if (($mod eq 'ZOrderCurve,radix=9'
              || $mod eq 'ZOrderCurve,radix=37'
@@ -1493,7 +1502,7 @@ my @modules = (
           $saw_increasing = 0;
           $saw_non_decreasing = 0;
         }
-
+        
         # not enough values to see these decreasing
         if (($mod eq 'ComplexPlus,realpart=2'
              || $mod eq 'ComplexPlus,realpart=3'
@@ -1527,7 +1536,7 @@ my @modules = (
           $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
-
+        
         if ($mod eq 'QuintetCurve'
             && $i_end < 5938  # first decrease
             && $param eq 'Diagonal_SE') {
@@ -1542,7 +1551,7 @@ my @modules = (
           $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
-
+        
         if ($mod eq 'ImaginaryBase,radix=37'
             && $i_end < 1369  # N of first Y coordinate decrease
             && $param eq 'Y') {
@@ -1557,10 +1566,10 @@ my @modules = (
         #         || $param eq 'Diagonal_SE')
         #     && $i_end < 74) {
         #   $saw_increasing = 0;
-          # $saw_increasing_at = 'override';
+        # $saw_increasing_at = 'override';
         #   $saw_non_decreasing = 0;
         # }
-
+        
         if ($mod eq 'ImaginaryHalf,radix=37'
             && $i_end < 1369  # N of first Y coordinate decrease
             && $param eq 'Y') {
@@ -1582,7 +1591,7 @@ my @modules = (
           $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
-
+        
         # not enough values to see these decreasing
         if (($mod eq 'DigitGroups,radix=37'
             )
@@ -1593,7 +1602,7 @@ my @modules = (
           $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
-
+        
         # not enough values to see these decreasing
         if (($mod eq 'PeanoCurve,radix=2'
              || $mod eq 'PeanoCurve,radix=4'
@@ -1606,7 +1615,7 @@ my @modules = (
           $saw_increasing_at = 'override';
           $saw_non_decreasing = 0;
         }
-
+        
         if (($mod eq 'SquareSpiral,wider=37'
             )
             && ($param eq 'Dir4'

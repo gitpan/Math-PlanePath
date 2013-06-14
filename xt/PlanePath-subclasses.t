@@ -35,6 +35,9 @@ require Math::PlanePath;
 my $verbose = 1;
 
 my @modules = (
+                # 'ToothpickSpiral',
+                # 'ToothpickSpiral,n_start=0',
+                # 'ToothpickSpiral,n_start=37',
 
                # 'PeninsulaBridge',
 
@@ -60,6 +63,9 @@ my @modules = (
                # 'OneOfEight,parts=3mid',
                # 'OneOfEight,parts=3side',
                # 
+               # 'LCornerTree,parts=octant_up+1',
+               # 'LCornerTree,parts=octant+1',
+               # 'LCornerTree,parts=wedge+1',
                # 'LCornerTree,parts=diagonal-1',
                # 'LCornerTree,parts=diagonal',
                # 'LCornerTree,parts=wedge',
@@ -75,6 +81,33 @@ my @modules = (
                # 'LCornerReplicate',
 
                # module list begin
+
+               'ChanTree',
+               'ChanTree,n_start=1234',
+               'ChanTree,k=2',
+               'ChanTree,k=2,n_start=1234',
+               'ChanTree,k=4',
+               'ChanTree,k=5',
+               'ChanTree,k=7',
+               'ChanTree,reduced=1',
+               'ChanTree,reduced=1,k=2',
+               'ChanTree,reduced=1,k=4',
+               'ChanTree,reduced=1,k=5',
+               'ChanTree,reduced=1,k=7',
+
+               'DiagonalRationals',
+               'DiagonalRationals,n_start=37',
+               'DiagonalRationals,direction=up',
+               'DiagonalRationals,direction=up,n_start=37',
+
+               'FactorRationals,pn_encoding=negabinary',
+               'FactorRationals',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=diagonal',
 
                'MultipleRings,ring_shape=polygon,step=3',
                'MultipleRings,ring_shape=polygon,step=5',
@@ -159,11 +192,6 @@ my @modules = (
                'UlamWarburtonQuarter,n_start=0',
                'UlamWarburtonQuarter,n_start=37',
 
-               'DiagonalRationals',
-               'DiagonalRationals,n_start=37',
-               'DiagonalRationals,direction=up',
-               'DiagonalRationals,direction=up,n_start=37',
-
                'TerdragonRounded',
                'TerdragonRounded,arms=2',
                'TerdragonRounded,arms=3',
@@ -243,12 +271,6 @@ my @modules = (
                'TriangleSpiral,n_start=0',
                'TriangleSpiral,n_start=37',
 
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=diagonal',
-
                'WythoffArray',
                'WythoffArray,x_start=1',
                'WythoffArray,y_start=1',
@@ -291,19 +313,6 @@ my @modules = (
                'Columns,n_start=0',
                'Columns,height=37,n_start=0',
                'Columns,height=37,n_start=123',
-
-               'ChanTree',
-               'ChanTree,n_start=1234',
-               'ChanTree,k=2',
-               'ChanTree,k=2,n_start=1234',
-               'ChanTree,k=4',
-               'ChanTree,k=5',
-               'ChanTree,k=7',
-               'ChanTree,reduced=1',
-               'ChanTree,reduced=1,k=2',
-               'ChanTree,reduced=1,k=4',
-               'ChanTree,reduced=1,k=5',
-               'ChanTree,reduced=1,k=7',
 
                'CoprimeColumns',
                'CoprimeColumns,n_start=37',
@@ -583,7 +592,6 @@ my @modules = (
                'DiamondSpiral,n_start=37',
 
                'FractionsTree',
-               'FactorRationals',
 
                'AlternatePaper,arms=2',
                'AlternatePaper',
@@ -724,7 +732,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 104;
+my $want_version = 105;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1149,6 +1157,19 @@ sub pythagorean_diag {
                             %parameters);
     my $got_arms = $path->arms_count;
 
+    foreach my $pinfo ($path->parameter_info_list) {
+      if ($pinfo->{'type'} eq 'enum') {
+        my $choices = $pinfo->{'choices'};
+        my $num_choices = scalar(@$choices);
+        if (my $choices_display = $pinfo->{'choices_display'}) {
+          my $num_choices_display = scalar(@$choices_display);
+          if ($num_choices != $num_choices_display) {
+            &$report("parameter info $pinfo->{'name'} choices $num_choices but choices_display $num_choices_display");
+          }
+        }
+      }
+    }    
+
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
@@ -1324,15 +1345,15 @@ sub pythagorean_diag {
         my $num_children = $path->tree_n_num_children($pos_infinity);
       }
       {
-        ### tree_n_to_height($pos_infinity) ...
-        my $height = $path->tree_n_to_height($pos_infinity);
+        ### tree_n_to_subheight($pos_infinity) ...
+        my $height = $path->tree_n_to_subheight($pos_infinity);
         if ($path->tree_n_num_children($n_start)) {
           unless (! defined $height || is_pos_infinity($height)) {
-            &$report("tree_n_to_height($pos_infinity) ",$height," expected +inf");
+            &$report("tree_n_to_subheight($pos_infinity) ",$height," expected +inf");
           }
         } else {
           unless (equal(0,$height)) {
-            &$report("tree_n_to_height($pos_infinity) ",$height," expected 0");
+            &$report("tree_n_to_subheight($pos_infinity) ",$height," expected 0");
           }
         }
       }
@@ -1409,11 +1430,11 @@ sub pythagorean_diag {
         }
       }
       {
-        ### tree_n_to_height($neg_infinity) ...
-        my $height = $path->tree_n_to_height($neg_infinity);
+        ### tree_n_to_subheight($neg_infinity) ...
+        my $height = $path->tree_n_to_subheight($neg_infinity);
         if ($path->tree_n_num_children($n_start)) {
           if (defined $height) {
-            &$report("tree_n_to_height($neg_infinity) ",$height," expected undef");
+            &$report("tree_n_to_subheight($neg_infinity) ",$height," expected undef");
           }
         }
       }
@@ -1465,11 +1486,11 @@ sub pythagorean_diag {
         #   or &$report("tree_n_children($nan) ",$num_children," expected nan");
       }
       {
-        ### tree_n_to_height($nan) ...
-        my $height = $path->tree_n_to_height($nan);
+        ### tree_n_to_subheight($nan) ...
+        my $height = $path->tree_n_to_subheight($nan);
         if ($path->tree_n_num_children($n_start)) {
           (! defined $height || &$is_nan($height))
-            or &$report("tree_n_to_height($nan) ",$height," expected nan");
+            or &$report("tree_n_to_subheight($nan) ",$height," expected nan");
         }
       }
     }
@@ -1984,14 +2005,14 @@ sub pythagorean_diag {
       }
     }
 
-    if ($path->can('tree_n_to_height')
-        != Math::PlanePath->can('tree_n_to_height')) {
-      # MyTestHelpers::diag ($mod, ' tree_n_to_height()');
+    if ($path->can('tree_n_to_subheight')
+        != Math::PlanePath->can('tree_n_to_subheight')) {
+      # MyTestHelpers::diag ($mod, ' tree_n_to_subheight()');
       foreach my $n ($n_start .. $n_start+$limit) {
-        my $want_height = path_tree_n_to_height_by_search($path,$n);
-        my $got_height = $path->tree_n_to_height($n);
+        my $want_height = path_tree_n_to_subheight_by_search($path,$n);
+        my $got_height = $path->tree_n_to_subheight($n);
         if (! equal($got_height,$want_height)) {
-          &$report ("tree_n_to_height($n) got ",$got_height," want ",$want_height);
+          &$report ("tree_n_to_subheight($n) got ",$got_height," want ",$want_height);
         }
       }
     }
@@ -2054,7 +2075,7 @@ sub path_tree_n_to_depth_by_parents {
   return $depth;
 }
 
-sub path_tree_n_to_height_by_search {
+sub path_tree_n_to_subheight_by_search {
   my ($self, $n) = @_;
   my @n = ($n);
   my $height = 0;

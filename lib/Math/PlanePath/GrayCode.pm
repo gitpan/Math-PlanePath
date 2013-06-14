@@ -39,7 +39,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -708,7 +708,7 @@ forms,
     http://oeis.org/A163233  (etc)
 
     apply_type="TsF", radix=2  (the defaults)
-      A039963    turn sequence, 1=+90left,0=180reverse
+      A039963    turn sequence, 1=+90 left, 0=180 reverse
       A035263    turn undoubled, at N=2n and N=2n+1
       A065882    base4 lowest non-zero,
                    turn undoubled 1,3=left 2=180rev at N=2n,2n+1

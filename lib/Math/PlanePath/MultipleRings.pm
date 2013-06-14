@@ -38,7 +38,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 104;
+$VERSION = 105;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -57,7 +57,7 @@ use constant n_frac_discontinuity => 0;
 use constant parameter_info_array =>
   [{ name        => 'step',
      display     => 'Step',
-     share_key   => 'step_3default6',
+     share_key   => 'step_6_min3',
      type        => 'integer',
      minimum     => 0,
      default     => 6,

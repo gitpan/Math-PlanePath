@@ -36,36 +36,36 @@ use Math::Trig 'pi';
   my $realpart = 3;
   my $radix = $realpart*$realpart + 1;
   my $planepath = "HypotOctant,points=odd";
-  $planepath = "FactorRationals";
   $planepath = "RationalsTree,tree_type=Drib";
   $planepath = "UlamWarburtonQuarter";
   $planepath = "GosperReplicate";
   $planepath = "QuintetReplicate";
   $planepath = "PowerArray";
   $planepath = "RationalsTree,tree_type=HCS";
-  $planepath = "ChanTree,k=2";
   $planepath = "ImaginaryHalf,digit_order=XnXY";
   $planepath = "ToothpickReplicate,parts=1";
   $planepath = "CfracDigits,radix=2";
   $planepath = "TerdragonCurve";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
   $radix = 4;
-  $planepath = "CfracDigits,radix=".($radix-1);
   $planepath = "DiagonalRationals,direction=up";
   $planepath = "LCornerReplicate";
   $planepath = "OneOfEight,parts=wedge";
   $planepath = "QuadricIslands";
   $planepath = "WunderlichSerpentine";
-  $planepath = "ToothpickTreeByCells,parts=octant";
   $planepath = "ToothpickTree,parts=octant";
   $planepath = "SacksSpiral";
   $planepath = "ComplexMinus,realpart=3";
   $planepath = "UlamWarburton,parts=4";
-  $planepath = "LCornerTreeByCells,parts=diagonal-1";
   $planepath = "PythagoreanTree,coordinates=SC,tree_type=UAD";
+  $planepath = "ToothpickTreeByCells,parts=two_horiz";
+  $planepath = "LCornerTreeByCells,parts=octant_up+1";
+  $planepath = "FactorRationals,sign_encoding=negabinary";
+  $planepath = "CfracDigits,radix=".($radix-1);
+  $planepath = "ChanTree,k=5";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
-                                               # delta_type => 'dY',
-                                                delta_type => 'Dir4',
+                                               # delta_type => 'AbsdY',
+                                               delta_type => 'Dir4',
                                                # delta_type => 'TDir6',
                                                # delta_type => 'dAbsDiff',
                                               );

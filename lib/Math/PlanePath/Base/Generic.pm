@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 104;
+$VERSION = 105;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -118,7 +118,7 @@ sub xy_is_visited_quad12 {
   return (2*$y >= -1);
 }
 # not documented yet
-sub xy_is_visited_quad14 {
+sub _xy_is_visited_x_positive {
   my ($self, $x, $y) = @_;
   return (2*$x >= -1);
 }

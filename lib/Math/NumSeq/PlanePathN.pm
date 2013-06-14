@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1309,11 +1309,15 @@ sub values_max {
     { 'k=2,n_start=1' =>
       { Depth_start => 'A000079', # powers-of-2
         # OEIS-Other: A000079 planepath=ChanTree,n_start=1,k=2 line_type=Depth_start
+
+        # Depth_end is 2^k-1 A000225, or 2^k-2 A000918, but without initial
+        # 0 or -1.
       },
       'k=2,n_start=0' =>
       { Depth_start => 'A000225', # 2^k-1
         # OEIS-Other: A000225 planepath=ChanTree,k=2 line_type=Depth_start
       },
+
       'k=3,n_start=1' =>
       { Depth_start => 'A000244', # powers-of-3
         # OEIS-Other: A000244 planepath=ChanTree,n_start=1 line_type=Depth_start
@@ -2742,6 +2746,10 @@ sub values_max {
       { Depth_start => 'A160406',
         # OEIS-Other: A160406 planepath=ToothpickTree,parts=wedge line_type=Depth_start
       },
+      'parts=two_horiz' =>
+      { Depth_start => 'A160158',
+        # OEIS-Other: A160158 planepath=ToothpickTree,parts=two_horiz line_type=Depth_start
+      },
     };
 }
 { package Math::PlanePath::ToothpickReplicate;
@@ -2770,21 +2778,63 @@ sub values_max {
       },
     };
 }
+{ package Math::PlanePath::ToothpickSpiral;
+  use constant _NumSeq_X_axis_increasing => 1;
+  use constant _NumSeq_Y_axis_increasing => 1;
+  use constant _NumSeq_X_neg_increasing => 1;
+  use constant _NumSeq_Diagonal_increasing => 1;
+  use constant _NumSeq_Diagonal_NW_increasing => 1;
+  use constant _NumSeq_Diagonal_SW_increasing => 1;
+  use constant _NumSeq_Diagonal_SE_increasing => 1;
+
+  # catalogued in Math::NumSeq::OEIS::Catalogue::Plugin::PlanePathToothpick
+  use constant _NumSeq_N_oeis_anum =>
+    { 'n_start=1' =>
+      { Diagonal    => 'A014634',  # odd-index hexagonals
+        Diagonal_NW => 'A033567',  #
+        Diagonal_SW => 'A185438',  #
+        Diagonal_SE => 'A188135',  #
+        # OEIS-Other: A014634 planepath=ToothpickSpiral line_type=Diagonal
+        # OEIS-Other: A033567 planepath=ToothpickSpiral line_type=Diagonal_NW
+        # OEIS-Other: A185438 planepath=ToothpickSpiral line_type=Diagonal_SW
+        # OEIS-Other: A188135 planepath=ToothpickSpiral line_type=Diagonal_SE
+      },
+      'n_start=0' =>
+      { Diagonal    => 'A033587',  # 
+        Diagonal_SW => 'A014635',  # even-index hexagonals
+        Diagonal_SE => 'A033585',  #
+        # OEIS-Other: A033587 planepath=ToothpickSpiral,n_start=0 line_type=Diagonal
+        # OEIS-Other: A014635 planepath=ToothpickSpiral,n_start=0 line_type=Diagonal_SW
+        # OEIS-Other: A033585 planepath=ToothpickSpiral,n_start=0 line_type=Diagonal_SE
+      },
+    };
+}
 
 { package Math::PlanePath::LCornerTree;
   sub _NumSeq_X_axis_increasing {
     my ($self) = @_;
     return $self->{'parts'} ne 'diagonal-1';
   }
+
+  {
+    my %_NumSeq_Y_axis_increasing = ('octant+1'    => 1, # two points only
+                                     'diagonal-1'  => 1,
+                                  );
+    sub _NumSeq_Y_axis_increasing {
+      my ($self) = @_;
+      return $_NumSeq_Y_axis_increasing{$self->{'parts'}};
+    }
+  }
+
   sub _NumSeq_X_neg_increasing {
     my ($self) = @_;
-    return ($self->{'parts'} eq 'wedge'  # two points N=0,N=1
+    return ($self->{'parts'} eq 'wedge'       # two points N=0,N=1
+            || $self->{'parts'} eq 'wedge+1'  # three points N=0,1,7
             || $self->{'parts'} eq 'diagonal');
   }
-  sub _NumSeq_Y_axis_increasing {
-    my ($self) = @_;
-    return $self->{'parts'} eq 'diagonal-1';
-  }
+
+  # parts=diagonal has minimum N=0 at X=0,Y=-1, so explicit Y_neg minimum
+  use constant _NumSeq_Y_neg_min => 0;
   sub _NumSeq_Y_neg_increasing {
     my ($self) = @_;
     return $self->{'parts'} ne 'diagonal';

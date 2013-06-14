@@ -37,6 +37,41 @@ use Math::PlanePath::Diagonals;
 # A079824
 
 #------------------------------------------------------------------------------
+# A057046 -- X at N=2^k
+
+require Math::NumSeq::PlanePathN;
+my $bigclass = Math::NumSeq::PlanePathN::_bigint();
+
+{
+  my $path = Math::PlanePath::Diagonals->new (n_start => 1,
+                                              x_start => 1, y_start => 1);
+
+  MyOEIS::compare_values
+    (anum => 'A057046',
+     func => sub {
+       my ($count) = @_;
+       my @got;
+       for (my $n = $bigclass->new(1); @got < $count; $n *= 2) {
+         my ($x,$y) = $path->n_to_xy($n);
+         push @got, $x;
+       }
+       return \@got;
+     });
+
+  MyOEIS::compare_values
+    (anum => 'A057047',
+     func => sub {
+       my ($count) = @_;
+       my @got;
+       for (my $n = $bigclass->new(1); @got < $count; $n *= 2) {
+         my ($x,$y) = $path->n_to_xy($n);
+         push @got, $y;
+       }
+       return \@got;
+     });
+}
+
+#------------------------------------------------------------------------------
 # A185787 -- total N in row up to Y=X diagonal
 
 MyOEIS::compare_values

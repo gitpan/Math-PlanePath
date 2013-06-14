@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -576,9 +576,9 @@ in various forms,
     A035336     N in second column
     A160997     total N along opposite-diagonals X+Y=k
 
+    A188436     turn 1=right,0=left or straight, skip initial five 0s
     A134860     N positions of right turns, Zeckendorf "..101"
     A003622     Y coordinate of right turns, Zeckendorf "..1"
-    A188436     turn 1=right,0=left or straight, skip initial five 0s
 
     A114579     permutation N at transpose Y,X
     A083412     permutation N by Diagonals from Y axis downwards

@@ -29,14 +29,13 @@
 #   X/0 keep as numerator=X ?   or reduce to 1/0 ?
 #   0/Y keep as denominator=Y ? or reduce to 0/1 ?
 #
-# NumSiblings -- including or excluding self ?
 # ParentDegree -- including self
 #
 # CfracLength,GcdDivisions,GcdSteps,EuclidSteps
 #   -- terms in cfrac(X/Y), excluding int=0 if X<Y
 #
 # I,J,K   TI,TJ,TK  Ti,Tj,Tk
-#   i=(x-y)/2 is DiffXY
+#   i=(x-y)/2 is DiffXY/2
 #   j=Y
 #   k=(-X-Y)/2 is Sum
 # but div 2 for points=even paths?
@@ -80,7 +79,7 @@ use constant 1.02; # various underscore constants below
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -117,15 +116,22 @@ use constant::defer parameter_info_array =>
                    'BitAnd', 'BitOr', 'BitXor',
                    'Min','Max',
                    'GCD',
-                   'Depth', 'NumChildren', 'IsLeaf', 'IsNonLeaf',
+                   'Depth', 'NumChildren','NumSiblings',
+                   'IsLeaf','IsNonLeaf',
 
+                   # Maybe:
+                   # 'RootN',
+                   # 'AbsX',
+                   # 'AbsY',
+                   # 'DiffXY/2',
+                   # 'DiffXYsquares',
+                   # 'DiffYXsquares',
+                   # 'SubHeight',
                    # 'Parity',
                    # 'Numerator','Denominator',
-                   # 'Height',
                    # 'ToLeaf',
                    # 'GcdDivisions',
                    # 'KroneckerSymbol',
-                   # 'NumSiblings',
                    # # 'MinAbs',
                    # # 'MaxAbs',
                    # # 'MulDist',
@@ -205,6 +211,12 @@ sub oeis_anum {
 
   my $planepath_object = $self->{'planepath_object'};
   my $coordinate_type = $self->{'coordinate_type'};
+
+  if ($coordinate_type eq 'AbsX') {
+    if (! $planepath_object->x_negative) { $coordinate_type = 'X'; }
+  } elsif ($coordinate_type eq 'AbsY') {
+    if (! $planepath_object->y_negative) { $coordinate_type = 'Y'; }
+  }
 
   if ($planepath_object->isa('Math::PlanePath::Rows')) {
     if ($coordinate_type eq 'X') {
@@ -324,10 +336,14 @@ sub new {
                           ||= _planepath_name_to_object($self->{'planepath'}));
 
   ### coordinate func: '_coordinate_func_'.$self->{'coordinate_type'}
-  $self->{'coordinate_func'}
-    = $planepath_object->can("_NumSeq_Coord_$self->{'coordinate_type'}_func")
-      || $self->can("_coordinate_func_$self->{'coordinate_type'}")
-        || croak "Unrecognised coordinate_type: ",$self->{'coordinate_type'};
+  {
+    my $key = $self->{'coordinate_type'};
+    $key =~ s{/}{div};
+    $self->{'coordinate_func'}
+      = $planepath_object->can("_NumSeq_Coord_${key}_func")
+        || $self->can("_coordinate_func_$key")
+          || croak "Unrecognised coordinate_type: ",$self->{'coordinate_type'};
+  }
   $self->rewind;
 
   ### $self
@@ -403,6 +419,18 @@ sub _coordinate_func_Y {
     or return undef;
   return $y;
 }
+sub _coordinate_func_AbsX {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return abs($x);
+}
+sub _coordinate_func_AbsY {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return abs($y);
+}
 sub _coordinate_func_Sum {
   my ($self, $n) = @_;
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
@@ -427,6 +455,12 @@ sub _coordinate_func_DiffXY {
     or return undef;
   return $x - $y;
 }
+sub _coordinate_func_DiffXYdiv2 {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return ($x - $y) / 2;
+}
 sub _coordinate_func_DiffYX {
   my ($self, $n) = @_;
   my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
@@ -446,6 +480,18 @@ sub _coordinate_func_Radius {
 sub _coordinate_func_RSquared {
   my ($self, $n) = @_;
   return $self->{'planepath_object'}->n_to_rsquared($n);
+}
+sub _coordinate_func_DiffXYsquares {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return $x*$x - $y*$y;
+}
+sub _coordinate_func_DiffYXsquares {
+  my ($self, $n) = @_;
+  my ($x, $y) = $self->{'planepath_object'}->n_to_xy($n)
+    or return undef;
+  return $y*$y - $x*$x;
 }
 
 sub _coordinate_func_TRadius {
@@ -635,10 +681,35 @@ sub _coordinate_func_NumSiblings {
   my ($self, $n) = @_;
   return path_tree_n_num_siblings($self->{'planepath_object'}, $n);
 }
+# ENHANCE-ME: if $n==NaN would like to return NaN, maybe
 sub path_tree_n_num_siblings {
   my ($path, $n) = @_;
   $n = $path->tree_n_parent($n);
-  return (defined $n ? $path->tree_n_num_children($n) : 0);
+  return (defined $n
+          ? $path->tree_n_num_children($n) - 1  # not including self
+          : 0);  # any tree root considered to have no siblings
+}
+
+sub _coordinate_func_RootN {
+  my ($self, $n) = @_;
+  return path_tree_n_to_root_n($self->{'planepath_object'}, $n);
+}
+# by search upwards
+sub path_tree_n_to_root_n {
+  my ($path, $n) = @_;
+  my $n_start = $path->n_start;
+  if (! $path->tree_n_num_children($n_start)) {
+    return undef;
+  }
+  for (;;) {
+    if ($n < $n_start) { return undef; }
+    if (is_infinite($n)) { return $n; }  # +inf or NaN
+    if (defined (my $n_parent = $path->tree_n_parent($n))) {
+      $n = $n_parent;
+    } else {
+      return $n;
+    }
+  }
 }
 
 sub _coordinate_func_ToLeaf {
@@ -669,11 +740,11 @@ sub path_tree_n_to_leaf_distance {
   }
 }
 
-# math-image --values=PlanePathCoord,coordinate_type=Height,planepath=ThisPath --path=SierpinskiTriangle --scale=10
-sub _coordinate_func_Height {
+# math-image --values=PlanePathCoord,coordinate_type=SubHeight,planepath=ThisPath --path=SierpinskiTriangle --scale=10
+sub _coordinate_func_SubHeight {
   my ($self, $n) = @_;
-  ### _coordinate_func_Height(): $n
-  my $height = $self->{'planepath_object'}->tree_n_to_height($n);
+  ### _coordinate_func_SubHeight(): $n
+  my $height = $self->{'planepath_object'}->tree_n_to_subheight($n);
   return (defined $height ? $height : _INFINITY);
 }
 
@@ -1176,6 +1247,8 @@ sub characteristic_non_decreasing {
   *_NumSeq_Coord_AbsDiff_integer   = \&_NumSeq_Coord_Sum_integer;
   *_NumSeq_Coord_RSquared_integer  = \&_NumSeq_Coord_Sum_integer;
   *_NumSeq_Coord_TRSquared_integer = \&_NumSeq_Coord_Sum_integer;
+  *_NumSeq_Coord_DiffXYsquares_integer  = \&_NumSeq_Coord_Sum_integer;
+  *_NumSeq_Coord_DiffYXsquares_integer  = \&_NumSeq_Coord_Sum_integer;
 
   sub _NumSeq_Coord_SumAbs_min {
     my ($self) = @_;
@@ -1559,9 +1632,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_ToLeaf_integer => 1;
   use constant _NumSeq_Coord_ToLeaf_min => 0;
  
-  use constant _NumSeq_Coord_Height_integer => 1;
-  use constant _NumSeq_Coord_Height_min => 0; # at a leaf
-  sub _NumSeq_Coord_Height_max {
+  use constant _NumSeq_Coord_SubHeight_integer => 1;
+  use constant _NumSeq_Coord_SubHeight_min => 0; # at a leaf
+  sub _NumSeq_Coord_SubHeight_max {
     my ($path) = @_;
     return ($path->tree_n_num_children($path->n_start)
             ? undef  # is a tree, default infinite max height
@@ -1571,9 +1644,34 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_NumSiblings_min => 0;
   sub _NumSeq_Coord_NumSiblings_max {
     my ($path) = @_;
-    return $path->tree_num_children_maximum;  # including self
+    return List::Util::max(0,
+                           # not including self
+                           $path->tree_num_children_maximum - 1);
   }
   use constant _NumSeq_Coord_NumSiblings_integer => 1;
+
+  sub _NumSeq_Coord_RootN_min {
+    my ($path) = @_;
+    return $path->n_start;
+  }
+  sub _NumSeq_Coord_RootN_max {
+    my ($path) = @_;
+    return $path->n_start + List::Util::max(0, path_tree_num_roots($path) - 1);
+  }
+  use constant _NumSeq_Coord_RootN_integer => 1;
+  sub path_tree_num_roots {
+    my ($path) = @_;
+    my $n_start = $path->n_start;
+    if (! $path->tree_n_num_children($n_start)) {
+      return 0;
+    }
+    for (my $n = $n_start; ; $n++) {
+      if (defined $path->tree_n_parent($n)) {
+        ### num_roots: $n - $n_start
+        return $n - $n_start;
+      }
+    }
+  }
 
   sub _NumSeq_Coord_IsLeaf_min {
     my ($path) = @_;
@@ -1608,7 +1706,7 @@ sub characteristic_non_decreasing {
       },
       'wider=0,n_start=0' =>
       { Sum     => 'A180714', # X+Y of square spiral
-        AbsDiff => 'A053615', # 0..n..0, distance to pronic
+        AbsDiff => 'A053615', # n..0..n, distance to pronic
         # OEIS-Catalogue: A180714 planepath=SquareSpiral,n_start=0 coordinate_type=Sum
         # OEIS-Other:     A053615 planepath=SquareSpiral,n_start=0 coordinate_type=AbsDiff
       },
@@ -1620,7 +1718,7 @@ sub characteristic_non_decreasing {
 #    # '' =>
 #    # {
 #    #  # Not quite, starts OFFSET=0 not N=1
-#    #  AbsX => 'A053615', # runs 0..n..0
+#    #  AbsX => 'A053615', # runs n..0..n
 #    # },
 # }
 { package Math::PlanePath::TriangleSpiral;
@@ -1633,7 +1731,9 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_oeis_anum =>
     { 'n_start=0' =>
       { X => 'A010751', # up 1, down 2, up 3, down 4, etc
+        AbsY => 'A053616',
         # OEIS-Catalogue: A010751 planepath=DiamondSpiral,n_start=0
+        # OEIS-Other:     A053616 planepath=DiamondSpiral,n_start=0 coordinate_type=AbsY
       },
     };
 }
@@ -1773,6 +1873,7 @@ sub characteristic_non_decreasing {
 
   *_NumSeq_Coord_Sum_increasing         = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_DiffXY_increasing      = \&_NumSeq_Coord_X_increasing;
+  *_NumSeq_Coord_DiffXYdiv2_increasing  = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_AbsDiff_increasing     = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_TRSquared_integer      = \&_NumSeq_Coord_X_increasing;
   *_NumSeq_Coord_Product_non_decreasing = \&_NumSeq_Coord_X_increasing;
@@ -2021,7 +2122,7 @@ sub characteristic_non_decreasing {
   }
 }
 { package Math::PlanePath::PythagoreanTree;
-  use constant _NumSeq_Coord_Height_min => undef;
+  use constant _NumSeq_Coord_SubHeight_min => undef;
 
   {
     my %_NumSeq_Coord_AbsDiff_min = (PQ => 1,
@@ -2172,7 +2273,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_BitAnd_min => 0;  # X=1,Y=2
   use constant _NumSeq_Coord_BitXor_min => 0;  # X=1,Y=1
   use constant _NumSeq_Coord_ToLeaf_max => undef;
-  use constant _NumSeq_Coord_Height_min => undef;
+  use constant _NumSeq_Coord_SubHeight_min => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=SB' =>
@@ -2279,7 +2380,7 @@ sub characteristic_non_decreasing {
   use constant _NumSeq_Coord_GCD_max => 1;  # no common factor
   use constant _NumSeq_Coord_BitXor_min => 1;  # X=2,Y=3
   use constant _NumSeq_Coord_ToLeaf_max => undef;
-  use constant _NumSeq_Coord_Height_min => undef;
+  use constant _NumSeq_Coord_SubHeight_min => undef;
   use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
 
   use constant _NumSeq_Coord_oeis_anum =>
@@ -2319,7 +2420,7 @@ sub characteristic_non_decreasing {
   # };
 }
 { package Math::PlanePath::ChanTree;
-  use constant _NumSeq_Coord_Height_min => undef;
+  use constant _NumSeq_Coord_SubHeight_min => undef;
   *_NumSeq_Coord_SumAbs_min = \&sumxy_minimum;
 
   sub _NumSeq_Coord_AbsDiff_min {
@@ -2768,7 +2869,8 @@ sub characteristic_non_decreasing {
       { DiffXY  => 'A020990', # GRS*(-1)^n cumulative
         AbsDiff => 'A020990',
 
-        # Not quite, OFFSET=0 whereas start at N=1 in path
+        # Not quite, OFFSET=0 value=1 which corresponds to N=1 Sum=1, so
+        # A020986 doesn't have N=0 Sum=0.
         # Sum     => 'A020986', # GRS cumulative
         # # OEIS-Catalogue: A020986 planepath=AlternatePaper coordinate_type=Sum i_start=1
 
@@ -3195,7 +3297,7 @@ sub characteristic_non_decreasing {
       },
       'wider=0,n_start=0' =>
       { DiffXY  => 'A196199', # runs -n to n
-        AbsDiff => 'A053615', # runs 0..n..0
+        AbsDiff => 'A053615', # runs n..0..n
         Max     => 'A000196', # n repeated 2n+1 times, floor(sqrt(N))
         MaxAbs  => 'A000196',
         # OEIS-Other:     A196199 planepath=Corner,n_start=0 coordinate_type=DiffXY
@@ -3395,6 +3497,10 @@ sub characteristic_non_decreasing {
        # OEIS-Other: A051933 planepath=PyramidRows,step=1,align=right,n_start=0 coordinate_type=BitXor
      },
 
+     # 'step=1,align=left,n_start=0' =>
+     # { AbsX => 'A025581', # descending runs n to 0
+     # },
+
      # PyramidRows step=2
      'step=2,align=centre,n_start=0' =>
      { X       => 'A196199',  # runs -n to n
@@ -3402,11 +3508,13 @@ sub characteristic_non_decreasing {
        Y       => 'A000196',  # n appears 2n+1 times, starting 0
        Max     => 'A000196',  # Y since X<Y
        Sum     => 'A053186',  # runs 0 to 2n
+       AbsX    => 'A053615',  # runs n to 0 to n
        # OEIS-Catalogue: A196199 planepath=PyramidRows,n_start=0 coordinate_type=X
        # OEIS-Other:     A196199 planepath=PyramidRows,n_start=0 coordinate_type=Min
        # OEIS-Catalogue: A000196 planepath=PyramidRows,n_start=0 coordinate_type=Y
        # OEIS-Other:     A000196 planepath=PyramidRows,n_start=0 coordinate_type=Max
        # OEIS-Other:     A053186 planepath=PyramidRows,n_start=0 coordinate_type=Sum
+       # OEIS-Other:     A053615 planepath=PyramidRows,n_start=0 coordinate_type=AbsX
 
        # # Not quite, extra initial 0
        # DiffYX  => 'A068527',  # dist to next square
@@ -3416,18 +3524,22 @@ sub characteristic_non_decreasing {
      { X       => 'A053186',  # runs 0 to 2n
        Y       => 'A000196',  # n appears 2n+1 times, starting 0
        DiffXY  => 'A196199',  # runs -n to n
-       AbsDiff => 'A053615',  # 0..n..0, distance to pronic
+       AbsDiff => 'A053615',  # n..0..n, distance to pronic
        # OEIS-Other: A053186 planepath=PyramidRows,align=right,n_start=0 coordinate_type=X
        # OEIS-Other: A000196 planepath=PyramidRows,align=right,n_start=0 coordinate_type=Y
        # OEIS-Other: A196199 planepath=PyramidRows,align=right,n_start=0 coordinate_type=DiffXY
        # OEIS-Other: A053615 planepath=PyramidRows,align=right,n_start=0 coordinate_type=AbsDiff
      },
      'step=2,align=left,n_start=0' =>
-     { X   => '',  # runs -2n+1 to 0
-       Y   => 'A000196',  # n appears 2n+1 times, starting 0
-       Sum => 'A196199',  # -n to n
+     { X    => '',  # runs -2n+1 to 0
+       Y    => 'A000196',  # n appears 2n+1 times, starting 0
+       Sum  => 'A196199',  # -n to n
        # OEIS-Other: A000196 planepath=PyramidRows,align=left,n_start=0 coordinate_type=Y
        # OEIS-Other: A196199 planepath=PyramidRows,align=left,n_start=0 coordinate_type=Sum
+
+       # Not quite, A068527 doesn't have two initial 0s
+       # AbsX => 'A068527',  # dist to next square
+       # # OEIS-Other: A068527 planepath=PyramidRows,align=left,n_start=0 coordinate_type=AbsX
      },
 
      # PyramidRows step=3
@@ -3464,6 +3576,9 @@ sub characteristic_non_decreasing {
         SumAbs => 'A000196',  # n appears 2n+1 times, starting 0
         # OEIS-Other: A196199 planepath=PyramidSides,n_start=0 coordinate_type=X
         # OEIS-Other: A000196 planepath=PyramidSides,n_start=0 coordinate_type=SumAbs
+
+        AbsX   => 'A053615',  # runs n to 0 to n
+        # OEIS-Other: A053615 planepath=PyramidSides,n_start=0 coordinate_type=AbsX
       },
     };
 }
@@ -3948,7 +4063,9 @@ sub characteristic_non_decreasing {
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'pairs_order=rows' =>
-      { Y => 'A054531',  # T(n,k) = n/GCD(n,k), being denominators
+      { X => 'A226314',
+        Y => 'A054531',  # T(n,k) = n/GCD(n,k), being denominators
+        # OEIS-Catalogue: A226314 planepath=GcdRationals coordinate_type=X
         # OEIS-Catalogue: A054531 planepath=GcdRationals coordinate_type=Y
       },
       'pairs_order=rows_reverse' =>
@@ -4295,10 +4412,15 @@ sub characteristic_non_decreasing {
     return ($self->{'parts'} eq '4' ? undef : 0);
   }
   {
-    my %_NumSeq_Coord_IntXY_min = (1      => 0,
-                                   octant => 0,  # X>=Y so X/Y>=1, and 0/0
-                                   wedge  => -2, # X>=-Y-1 so X/Y>=-2
-                                  );
+    my %_NumSeq_Coord_IntXY_min
+      = (1             => 0,
+         octant        => 0,  # X>=Y so X/Y>=1, and 0/0
+         'octant+1'    => 0,  # X>=Y-1 so int(X/Y)>=0
+         octant_up     => 0,  # X>=0 so X/Y>=1, and 0/0
+         'octant_up+1' => 0,  # X>=0 so X/Y>=1, and 0/0
+         wedge         => -2, # X>=-Y-1 so X/Y>=-2
+         'wedge+1'     => -3, # X>=-Y-2 so X/Y>=-3
+        );
     sub _NumSeq_Coord_IntXY_min {
       my ($self) = @_;
       return $_NumSeq_Coord_IntXY_min{$self->{'parts'}};
@@ -4447,6 +4569,7 @@ sort of geometric interpretation, or are related to fractions X/Y.
     "GCD"          greatest common divisor X,Y
     "Depth"        tree_n_to_depth()
     "NumChildren"  tree_n_num_children()
+    "NumSiblings"  not including self
     "IsLeaf"       0 or 1 whether a leaf node (no children)
     "IsNonLeaf"    0 or 1 whether a non-leaf node (has children)
                      also called an "internal" node
@@ -4454,9 +4577,9 @@ sort of geometric interpretation, or are related to fractions X/Y.
 =head2 Min and Max
 
 "Min" and "Max" are the minimum or maximum of X and Y.  The geometric
-interpretation of "Max" is to select Y at any X,Y point above the X=Y
-diagonal or X for any X,Y point below.  Conversely "Min" is X above and Y
-below.  On the X=Y diagonal itself X=Y=Min=Max, a single value.
+interpretation of "Max" is to select Y at any point above the X=Y diagonal
+or X for any point below.  Conversely "Min" is X above and Y below.  On the
+X=Y diagonal itself X=Y=Min=Max.
 
     Max=Y       / X=Y diagonal
     Min=X      /
@@ -4510,12 +4633,12 @@ DiffYX is positive in C<CellularRule> which is above X=Y.
 =head2 SumAbs
 
 "SumAbs" = abs(X)+abs(Y) is similar to the projection described above for
-Sum or Diff, but SumAbs projects onto the diagonal of whichever quadrant
-contains the X,Y, or a numbering of anti-diagonals within that quadrant.
-Those anti-diagonals make a diamond shape,
+Sum or Diff, but SumAbs projects onto the central diagonal of whichever
+quadrant contains the X,Y, or equivalently is a numbering of anti-diagonals
+within that quadrant.  Those anti-diagonals make a diamond shape,
 
          |
-        /|\       SumAbs = which size diamond X,Y falls on
+        /|\       SumAbs = which diamond X,Y falls on
        / | \
       /  |  \
     -----o-----
@@ -4524,8 +4647,9 @@ Those anti-diagonals make a diamond shape,
         \|/
          |
 
-For example the C<DiamondSpiral> path follows around such diamonds, thus
-keeping SumAbs unchanged until stepping out to the next bigger diamond.
+As an example, the C<DiamondSpiral> path follows around such diamonds, thus
+keeping SumAbs unchanged until completing a loop and stepping out to the
+next bigger one.
 
 SumAbs is also a "taxi-cab" or "Manhatten" distance, being how far to travel
 through a square-grid city to get to X,Y.
@@ -4538,8 +4662,8 @@ through a square-grid city to get to X,Y.
     |          |          |
     *          *          *
 
-If a path is entirely within the first quadrant XE<gt>=0,YE<gt>=0 then Sum
-and SumAbs are identical.
+If a path is entirely XE<gt>=0,YE<gt>=0 in the first quadrant then Sum and
+SumAbs are identical.
 
 =head2 AbsDiff
 
@@ -4564,13 +4688,15 @@ then AbsDiff is the same as DiffYX.
 =head2 Radius and RSquared
 
 Radius and RSquared are per C<$path-E<gt>n_to_radius()> and
-C<$path-E<gt>n_to_rsquared()> respectively.
+C<$path-E<gt>n_to_rsquared()> respectively (see L<Math::PlanePath/Coordinate
+Methods>).
 
 =head2 TRadius and TRSquared
 
 "TRadius" and "TRSquared" are designed for use with points on a triangular
-lattice such as C<HexSpiral>.  For points on the X axis TRSquared is the
-same as RSquared, but off the axis Y is scaled up by factor sqrt(3).
+lattice as per L<Math::PlanePath/Triangular Lattice>.  For points on the X
+axis TRSquared is the same as RSquared but off the axis Y is scaled up by
+factor sqrt(3).
 
 Most triangular paths use "even" points X==Y mod 2 and for them TRSquared is
 always even.  Some triangular paths such as C<KochPeaks> have an offset from
@@ -4583,8 +4709,9 @@ towards zero.  This is like the integer part of a fraction, for example
 X=9,Y=4 is 9/4 = 2+1/4 so IntXY=2.  Negatives are reckoned with the fraction
 part negated too, so -2 1/4 is -2-1/4 and thus IntXY=-2.
 
-Geometrically IntXY is which wedge of slope 1, 2, 3, etc the point X,Y falls
-in.  For example IntXY is 3 for all points in the wedge 3YE<lt>=XE<lt>4Y.
+Geometrically IntXY gives which wedge of slope 1, 2, 3, etc the point X,Y
+falls in.  For example IntXY is 3 for all points in the wedge
+3YE<lt>=XE<lt>4Y.
 
                                X=Y    X=2Y   X=3Y   X=4Y
     *  -2  *  -1  *   0  |  0   *  1   *  2   *   3  *
@@ -4606,8 +4733,8 @@ in.  For example IntXY is 3 for all points in the wedge 3YE<lt>=XE<lt>4Y.
 
     X/Y = IntXY + FracXY
 
-Since IntXY rounds towards zero the remaining FracXY has the same sign as
-that integer part.
+IntXY rounds towards zero so the remaining FracXY has the same sign as
+IntXY.
 
 =head2 BitAnd, BitOr, BitXor
 

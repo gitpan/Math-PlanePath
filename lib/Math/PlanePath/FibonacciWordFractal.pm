@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -458,9 +458,9 @@ straight according to the Fibonacci word,
        0      turn left if even index, right if odd index
        1      straight ahead
 
-In this form the Fibonacci word is reckoned as starting from index=1, so for
-example at N=0 draw a line upwards to N=1 and the first Fibonacci word value
-is 0 and index=1 odd so turn to the right.
+The Fibonacci word is reckoned as starting from index=1, so for example at
+N=0 draw a line upwards to N=1 and the first Fibonacci word value is 0 and
+its position index=1 is odd so turn to the right.
 
      N     Fibonacci word
     ---    --------------
@@ -473,7 +473,7 @@ is 0 and index=1 odd so turn to the right.
      7       1
 
 The result is self-similar blocks within the first quadrant
-(XE<gt>=0,YE<gt>=0).  New blocks extend at N values which are Fibonacci
+XE<gt>=0,YE<gt>=0.  New blocks extend at N values which are Fibonacci
 numbers.  For example N=21 a new block begins above, then N=34 a new block
 across, N=55 down, N=89 across again, etc.
 
@@ -534,12 +534,12 @@ path include,
     http://oeis.org/A156596  (etc)
 
     A156596  - turn sequence, 0=straight,1=right,2=left
-    A171587  - abs(dY), so 1=vertical,0=horizontal
+    A171587  - abs(dX), so 1=horizontal,0=vertical
 
-    A003849  - Fibonacci word, values 0,1
-    A005614  - Fibonacci word, values 1,0
-    A003842  - Fibonacci word, values 1,2
-    A014675  - Fibonacci word, values 2,1
+    A003849  - Fibonacci word with values 0,1
+    A005614  - Fibonacci word with values 1,0
+    A003842  - Fibonacci word with values 1,2
+    A014675  - Fibonacci word with values 2,1
 
 =head1 SEE ALSO
 

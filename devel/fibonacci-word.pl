@@ -27,8 +27,9 @@ use Smart::Comments;
 {
   # Knot overlapping points
   # 0,1,  4,16,68,288,1220,5168
+  #    /4 1,4,17,72,305,1292 = A001076 a(n) = 4a(n-1) + a(n-2)
+  #       denom continued fract converg to sqrt(5), 4-Fibonacci
   # each next = this*4 + prev
-  # cf A006131  a(n) = a(n-1) + 4*a(n-2) starting 1,1
 
   require Math::PlanePath::FibonacciWordKnott;
   require Math::BaseCnv;

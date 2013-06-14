@@ -22,8 +22,129 @@ use 5.010;
 use strict;
 use Module::Load;
 
+use lib 'xt';
+use MyOEIS;
+
 # uncomment this to run the ### lines
 # use Smart::Comments;
+
+
+{
+  require Math::PlanePath::DragonCurve;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my @values;
+  foreach my $n (3 .. 32) {
+    my ($x,$y) = $path->n_to_xy(2*$n);
+    # push @values,-$x-1;
+    my $transitions = transitions($n);
+    push @values, (($transitions%4)/2);
+    # push @values, $transitions;
+  }
+  my $values = join(',',@values);
+  print "$values\n";
+  print MyOEIS->grep_for_values_aref(\@values);
+  exit 0;
+
+  # transitions(2n)/2 = A069010 Number of runs of 1's
+  sub transitions {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += (($n & 3) == 1 || ($n & 3) == 2);
+      $n >>= 1;
+    }
+    return $count
+  }
+}
+
+
+{
+  # X,Y at N=2^k
+  require Math::NumSeq::PlanePathCoord;
+  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
+      ->{'planepath'}->{'choices'}};
+  @choices = grep {$_ ne 'CellularRule'} @choices;
+  # @choices = grep {$_ ne 'Rows'} @choices;
+  # @choices = grep {$_ ne 'Columns'} @choices;
+  @choices = grep {$_ ne 'ArchimedeanChords'} @choices;
+  @choices = grep {$_ ne 'TheodorusSpiral'} @choices;
+  @choices = grep {$_ ne 'MultipleRings'} @choices;
+  @choices = grep {$_ ne 'VogelFloret'} @choices;
+  @choices = grep {$_ ne 'UlamWarburtonAway'} @choices;
+  @choices = grep {$_ !~ /Hypot|ByCells|SumFractions|WythoffTriangle/} @choices;
+  # @choices = grep {$_ ne 'PythagoreanTree'} @choices;
+  # @choices = grep {$_ ne 'PeanoHalf'} @choices;
+  @choices = grep {$_ !~ /EToothpick|LToothpick|Surround|Peninsula/} @choices;
+  #
+  # @choices = grep {$_ ne 'CornerReplicate'} @choices;
+  # @choices = grep {$_ ne 'ZOrderCurve'} @choices;
+  # unshift @choices, 'CornerReplicate', 'ZOrderCurve';
+
+  my $num_choices = scalar(@choices);
+  print "$num_choices choices\n";
+
+  my @path_objects;
+  my %path_fullnames;
+  foreach my $name (@choices) {
+    my $class = "Math::PlanePath::$name";
+    ### $class
+    Module::Load::load($class);
+
+    my $parameters = parameter_info_list_to_parameters
+      ($class->parameter_info_list);
+    foreach my $p (@$parameters) {
+      my $path_object = $class->new (@$p);
+      push @path_objects, $path_object;
+      $path_fullnames{$path_object} = "$name ".join(',',@$p);
+    }
+  }
+  my $num_path_objects = scalar(@path_objects);
+  print "total path objects $num_path_objects\n";
+
+  my $start_t = time();
+  my $t = $start_t-8;
+
+  my $i = 0;
+  until ($path_objects[$i]->isa('Math::PlanePath::DragonCurve')) {
+    $i++;
+  }
+  my $start_permutations = $i * ($num_path_objects-1);
+  my $num_permutations = $num_path_objects * ($num_path_objects-1);
+
+  for ( ; $i <= $#path_objects; $i++) {
+    my $path = $path_objects[$i];
+    my $fullname = $path_fullnames{$path};
+    print "$fullname\n";
+    foreach my $coord_idx (0, 1) {
+      my $fullname = $fullname." ".($coord_idx?'Y':'X');
+      HALF: foreach my $half (0,1) {
+        my $fullname = $fullname.($half?'/2':'');
+        my $str = '';
+        my @values;
+        foreach my $k (1 .. 20) {
+          my @coords = $path->n_to_xy(2**$k);
+          my $value = $coords[$coord_idx];
+          if ($half) { $value /= 2; }
+          $str .= "$value,";
+          push @values, $value;
+        }
+        shift @values;
+        if (defined (my $diff = constant_diff(@values))) {
+          print "$fullname\n";
+          print "  constant diff $diff\n";
+          next;
+        }
+        if (my $found = stripped_grep($str)) {
+          print "$fullname  match\n";
+          print "  (",substr($str,0,60),"...)\n";
+          print $found;
+          print "\n";
+        }
+      }
+    }
+  }
+  exit 0;
+}
 
 {
   # row increments
@@ -630,25 +751,6 @@ sub p_radix {
     }
   }
   return undef;
-}
-
-sub grep_for_values {
-  my ($name, $values) = @_;
-  # unless (system 'zgrep', '-F', '-e', $values, "$ENV{HOME}/OEIS/stripped.gz") {
-  #   print "  match $values\n";
-  #   print "  $name\n";
-  #   print "\n"
-  # }
-  # unless (system 'fgrep', '-e', $values, "$ENV{HOME}/OEIS/oeis-grep.txt") {
-  #   print "  match $values\n";
-  #   print "  $name\n";
-  #   print "\n"
-  # }
-  unless (system 'fgrep', '-e', $values, "$ENV{HOME}/OEIS/stripped") {
-    print "  match $values\n";
-    print "  $name\n";
-    print "\n"
-  }
 }
 
 # constant_diff($a,$b,$c,...)

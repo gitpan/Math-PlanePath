@@ -357,14 +357,18 @@ my @all_classes = ('SquareSpiral',
                    '*ToothpickReplicate,parts=1',
 
                    '*ToothpickUpist',
+                   '*ToothpickSpiral',
                    
                    '*LCornerTree',
                    '*LCornerTree,parts=3',
                    '*LCornerTree,parts=2',
                    '*LCornerTree,parts=1',
                    '*LCornerTree,parts=octant',
+                   '*LCornerTree,parts=octant+1',
                    '*LCornerTree,parts=octant_up',
+                   '*LCornerTree,parts=octant_up+1',
                    '*LCornerTree,parts=wedge',
+                   '*LCornerTree,parts=wedge+1',
                    '*LCornerTree,parts=diagonal',
                    '*LCornerTree,parts=diagonal-1',
                    

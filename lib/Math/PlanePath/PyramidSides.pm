@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -284,6 +284,7 @@ path include
 
     n_start=0
       A196199    X coordinate, runs -n to +n
+      A053615    abs(X), runs n to 0 to n
       A000196    abs(X)+abs(Y), floor(sqrt(N)),
                    k repeated 2k+1 times starting 0
 

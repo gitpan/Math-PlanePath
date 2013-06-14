@@ -69,7 +69,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -136,6 +136,11 @@ sub absdy_minimum {
 }
 
 #------------------------------------------------------------------------------
+
+# all rationals X,Y >= 1 no common factor
+use Math::PlanePath::DiagonalRationals;
+*xy_is_visited = Math::PlanePath::DiagonalRationals->can('xy_is_visited');
+
 sub new {
   my $self = shift->SUPER::new(@_);
 
@@ -166,10 +171,6 @@ sub n_to_xy {
       my ($x2,$y2) = $self->n_to_xy($int+1);
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
-      ### x1,y1: "$x1, $y1"
-      ### x2,y2: "$x2, $y2"
-      ### dx,dy: "$dx, $dy"
-      ### result: ($frac*$dx + $x1).', '.($frac*$dy + $y1)
       return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
     $n = $int;
@@ -690,11 +691,12 @@ The mapping from N to rational is
 
 which means X=numerator Y=denominator are
 
-    X = (i + j*(gcd-1)) / gcd
+    X = (i + j*(gcd-1))/gcd  = j + (i-j)/gcd
     Y = j/gcd
 
 The i,j position is a numbering of points above the X=Y diagonal by rows in
-the style of L<Math::PlanePath::PyramidRows> with step=1.
+the style of L<Math::PlanePath::PyramidRows> with step=1, but starting from
+i=1,j=1.
 
     j=4  |  7  8  9 10
     j=3  |  4  5  6
@@ -704,7 +706,7 @@ the style of L<Math::PlanePath::PyramidRows> with step=1.
           i=1  2  3  4
 
 If GCD(i,j)=1 then X/Y is simply X=i,Y=j unchanged.  This means fractions
-S<X/Y E<lt> 1> are numbered by rows with increasing numerator but skipping
+S<X/Y E<lt> 1> are numbered by rows with increasing numerator, but skipping
 positions where i,j have a common factor.
 
 The skipped positions where i,j have a common factor become rationals
@@ -721,6 +723,8 @@ S<rational = gcd-1 + i/j>.  For example
 X<Triangular numbers>N=1,3,6,10,etc along the bottom Y=1 row is the
 triangular numbers N=k*(k-1)/2.  Such an N is at i=k,j=k and has gcd(i,j)=k
 which divides out to Y=1.
+
+    N=k*(k-1)/2  i=k,j=k
 
     Y = j/gcd
       = 1       on the bottom row
@@ -760,9 +764,9 @@ the table with dots "..." marking the X=2*Y line.
 
 Values below X=2*Y such as 39 and 42 are always composite.  Values above
 such as 19 and 30 are either prime or composite.  Only X=2,Y=1 is exactly on
-the line, which is prime N=3 as it happens.  Others on the line X=2*k,Y=k
-are not visited since common factor k means X/Y is not a rational in least
-terms.
+the line, which is prime N=3 as it happens.  The rest of the line X=2*k,Y=k
+is not visited since common factor k would mean X/Y is not a rational in
+least terms.
 
 This pattern of primes and composites occurs because N is a multiple of
 gcd(i,j) when that gcd is odd, or a multiple of gcd/2 when that gcd is even.
@@ -774,9 +778,9 @@ gcd(i,j) when that gcd is odd, or a multiple of gcd/2 when that gcd is even.
         gcd/2 * (2i/gcd + j/gcd * (j-1))   when gcd even
 
 If gcd odd then either j/gcd or j-1 is even, to take the "/2" divisor.  If
-gcd even then only gcd/2 can come out as a factor since the full gcd might
-leave both j/gcd and j-1 odd and so the "/2" not an integer.  That happens
-for example to N=70
+gcd even then only gcd/2 can come out as a factor since taking out the full
+gcd might leave both j/gcd and j-1 odd and so the "/2" not an integer.  That
+happens for example to N=70
 
     N = 70
     i = 4, j = 12     for 4 + 12*11/2 = 70 = N
@@ -833,9 +837,9 @@ The X,Y numbering becomes
          ------------------------------------------------
           X=0   1   2   3   4   5   6   7   8   9  10  11
 
-The triangular numbers per L</Triangular Numbers> are now in the X=1 column,
-ie. at the left rather than at the Y=1 bottom row.  That bottom row is now
-the next after each triangular, ie. T(X)+1.
+The triangular numbers, per L</Triangular Numbers> above, are now in the X=1
+column, ie. at the left rather than at the Y=1 bottom row.  That bottom row
+is now the next after each triangular, ie. T(X)+1.
 
 =head2 Diagonals
 
@@ -1102,6 +1106,7 @@ Sequences in the following forms
     http://oeis.org/A054531   (etc)
 
     pairs_order="rows" (the default)
+      A226314   X coordinate
       A054531   Y coordinate, being N/GCD(i,j)
       A000124   N in X=1 column, triangular+1
       A050873   ceil(X/Y), gcd by rows

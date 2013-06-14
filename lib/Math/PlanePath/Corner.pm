@@ -53,7 +53,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -561,7 +561,7 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
     wider=0, n_start=1 (the defaults)
       A213088    X+Y sum
       A196199    X-Y diff, being runs -n to +n
-      A053615    abs(X-Y), distance to next pronic
+      A053615    abs(X-Y), runs n to 0 to n, distance to next pronic
 
       A000290    N on X axis, perfect squares starting from 1
       A002522    N on Y axis, Y^2+1

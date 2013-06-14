@@ -29,7 +29,7 @@ use strict;
 use List::Util 'max','sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -403,7 +403,7 @@ Math::PlanePath::CCurve -- Levy C curve
 
 =head1 DESCRIPTION
 
-This is an integer version of the "C" curve.
+This is an integer version of the Levy "C" curve.
 
 
                           11-----10-----9,7-----6------5               3
@@ -450,7 +450,7 @@ upwards at each of N=1,2,4,8,16,etc.
 The curve crosses itself and repeats some X,Y positions.  The first doubled
 point is X=-2,Y=3 which is both N=7 and N=9.  The first tripled point is
 X=18,Y=-7 which is N=189, N=279 and N=281.  The number of repeats at a given
-point is always finite, but as N increases there's points where that number
+point is always finite but as N increases there's points where that number
 of repeats becomes ever bigger (is that right?).
 
 =head1 FUNCTIONS
@@ -498,7 +498,7 @@ This bit count is because at each power-of-2 position the curve is a copy of
 the lower bits but turned +90 degrees, so +90 for each 1-bit.
 
 For powers-of-2 N=2,4,8,16, etc, there's only a single 1-bit so the
-direction is always +90 degrees there, ie. upwards.
+direction is always +90 degrees there, ie. always upwards.
 
 =head2 Turn
 
@@ -526,21 +526,21 @@ nextturn=(2-1)*90=90 degrees to the right at the following point, ie. at
 N=12.
 
 This works simply because low 1-bits like ..0111 increment to low 0-bits
-..1000.  The low 1-bits at N are the low 0-bits at N+1.
+..1000 to become N+1.  The low 1-bits at N are thus the low 0-bits at N+1.
 
 =head2 N to dX,dY
 
 C<n_to_dxdy()> is implemented using the direction described above.  If N is
-an integer then direction = count_1_bits mod 4 gives the direction for
-dX,dY.
+an integer then count mod 4 gives the direction for dX,dY.
 
     dir = count_1_bits(N) mod 4
     dx = dir_to_dx[dir]    # table 0 to 3
     dy = dir_to_dy[dir]
 
-For fractional N the direction at int(N) can be modified by the turn at
-int(N)+1 to give the direction at int(N)+1, as per L<Math::PlanePath/N to
-dX,dY -- Fractional>.
+For fractional N the direction at int(N)+1 can be obtained from the
+direction at int(N) by applying the turn at int(N)+1, that being the low
+1-bits of N per L</Next Turn> above.  Those two directions can then be
+combined per L<Math::PlanePath/N to dX,dY -- Fractional>.
 
     # apply turn to make direction at Nint+1
     turn = count_low_1_bits(N) - 1      # N integer part
@@ -554,7 +554,7 @@ A tiny optimization can be made by working the "-1" of the turn formula into
 a +90 degree rotation of the C<dir_to_dx[]> and C<dir_to_dy[]> parts by a
 swap and sign change,
 
-    turn_plus_1 = count_low_1_bits(N)     # N integer part
+    turn_plus_1 = count_low_1_bits(N)     # on N integer part
     dir = (dir - turn_plus_1) mod 4       # direction-1 at N+1
 
     # adjustment including extra +90 degrees on dir
@@ -568,7 +568,7 @@ given digit position if X,Y is within the curve extents at that level and
 position then descend to consider the next lower digit position, otherwise
 step to the next digit at the current digit position.
 
-It's convenient to consider base-4 digits since that keeps the digit steps
+It's convenient to work in base-4 digits since that keeps the digit steps
 straight rather than diagonals.  The maximum extent of the curve at a given
 even numbered level is
 
@@ -592,16 +592,19 @@ this path include
 
     http://oeis.org/A179868  (etc)
 
-    A010059   abs(dX), count 1-bits mod 2
-    A010060   abs(dY), count1bits + 1 mod 2, Thue-Morse
+    A010059   abs(dX), count1bits(N) mod 2
+    A010060   abs(dY), count1bits(N)+1 mod 2, being Thue-Morse
 
+    A000120   total turn, being count 1-bits
     A179868   direction 0to3, count 1-bits mod 4
-    A000120   direction as total turn, count 1-bits
 
-    A007814   turn-1 to the right, being count low 0s
+    A007814   turn-1 to the right, being count low 0-bits
 
     A003159   N positions of left or right turn, ends even num 0 bits
     A036554   N positions of straight or 180 turn, ends odd num 0 bits
+
+    A146559   X at N=2^k, being Re((i+1)^k)
+    A009545   Y at N=2^k, being Im((i+1)^k)
 
 =head1 SEE ALSO
 

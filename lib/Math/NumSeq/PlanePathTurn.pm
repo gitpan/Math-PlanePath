@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -68,7 +68,7 @@ use constant::defer parameter_info_array =>
              default => 'Left',
              choices => ['Left','Right','LSR',
                          # 'Turn4',
-                          'Turn4n',
+                         # 'Turn4n',
                          # 'TTurn6',
                         ],
              description => 'Left is 1=left, 0=right or straight.

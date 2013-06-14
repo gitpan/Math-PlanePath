@@ -32,33 +32,52 @@
 #
 # http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
 #
-# pn_encoding => 'alternate'
-# pn_encoding => 'negabinary'
-# maybe Umberto Cerruti B(2k)=-k odd B(2k-1)=k which is Y/X invert
+# maybe Umberto Cerruti 
+# in "Ordinare i razionali Gli alberi di Keplero e di Calkin - Wilf"
+#   B(2k)=-k   even=negative and zero
+#   B(2k-1)=k  odd=positive
+#   which is Y/X invert
+
+# sign_encoding => 'even_odd'
+# sign_encoding => 'negabinary'
 
 
 package Math::PlanePath::FactorRationals;
 use 5.004;
 use strict;
+use Carp;
+use List::Util 'min';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_join_lowtohigh';
 
 use Math::PlanePath::CoprimeColumns;
 *_coprime = \&Math::PlanePath::CoprimeColumns::_coprime;
 
-
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
+
+# Not yet.
+# use constant parameter_info_array =>
+#   [ { name      => 'sign_encoding',
+#       display   => 'Sign Encoding',
+#       type      => 'enum',
+#       default   => 'even_odd',
+#       choices         => ['even_odd','negabinary',],
+#       choices_display => ['Even/Odd','Negabinary',],
+#     },
+#   ];
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
@@ -66,17 +85,76 @@ use constant x_minimum => 1;
 use constant y_minimum => 1;
 use constant absdy_minimum => 1;
 
-# dir4_minimum() suspect dir approaches 0.
-# Eg. N=642735 to 642735 Dir4=0.05644  dX=45 dY=4.
+# even_odd
+#   dir_minimum_dxdy() suspect dir approaches 0.
+#   Eg. N=5324   = 2^2.11^3     dx=3,dy=92   0.97925
+#       N=642735 = 3^5.23^2     dX=45 dY=4    Dir4=0.05644  
+#         642736 = 2^4.17^2.139
+#   dir_maximum_dxdy() suspect approaches 360 degrees
+#   use constant dir_maximum_dxdy => (0,0);  # the default
 #
-# dir4_maximum() suspect approaches 360 degrees
-# use constant dir4_maximum => 4;  # the defaults
-# use constant dir_maximum_dxdy => (0,0);  # the default
+# negabinary
+#   dir_minimum_dxdy() = East 1,0 at N=1
+#   dir_maximum_dxdy() believe approaches 360 degrees
+#   Eg. N=40=2^3.5 X=5, Y=2
+#       N=41=41    X=41, Y=1
+#   N=multiple 8 and solitary primes, followed by N+1=prime is dX=big, dY=-1 
+#
+
 
 #------------------------------------------------------------------------------
+
 # all rationals X,Y >= 1 no common factor
 use Math::PlanePath::DiagonalRationals;
-*xy_is_visited = \&Math::PlanePath::DiagonalRationals::xy_is_visited;
+*xy_is_visited = Math::PlanePath::DiagonalRationals->can('xy_is_visited');
+
+sub _pn_to_pos_even_odd {
+  my ($n) = @_;
+  if ($n >= 0) {
+    return 2*$n;
+  } else {
+    return -1-2*$n;
+  }
+}
+sub _pos_to_pn_even_odd {
+  my ($n) = @_;
+  if ($n % 2) {
+    return (-1-$n)/2;
+  } else {
+    return $n/2;
+  }
+}
+
+sub _pn_to_pos_negabinary {
+  my ($n) = @_;
+  my @bits;
+  while ($n) {
+    my $bit = ($n % 2);
+    push @bits, $bit;
+    $n -= $bit;
+    $n /= 2;
+    $n = -$n;
+  }
+  return digit_join_lowtohigh(\@bits, 2,
+                              $n); # zero
+}
+sub _pos_to_pn_negabinary {
+  my ($n) = @_;
+  return (($n & 0x55555555) - ($n & 0xAAAAAAAA));
+}
+
+my %sign_encoding_known = (even_odd   => 1,
+                         negabinary => 1,
+                        );
+sub new {
+  my $self = shift->SUPER::new(@_);
+
+  my $sign_encoding = ($self->{'sign_encoding'} ||= 'even_odd');
+  $sign_encoding_known{$sign_encoding}
+    or croak "Unrecognised sign_encoding: ",$sign_encoding;
+
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
@@ -95,20 +173,19 @@ sub n_to_xy {
       my ($x2,$y2) = $self->n_to_xy($int+1);
       my $dx = $x2-$x1;
       my $dy = $y2-$y1;
-      ### x1,y1: "$x1, $y1"
-      ### x2,y2: "$x2, $y2"
-      ### dx,dy: "$dx, $dy"
-      ### result: ($frac*$dx + $x1).', '.($frac*$dy + $y1)
       return ($frac*$dx + $x1, $frac*$dy + $y1);
     }
     $n = $int;
   }
 
+  my $zero = $n * 0;
+  my $pos_to_pn = $self->can("_pos_to_pn_$self->{'sign_encoding'}");
   my $x = my $y = ($n * 0) + 1;  # inherit bignum 1
-  my $prime = 2;
   my ($limit,$overflow) = _limit($n);
   ### $limit
 
+  my $prime = 2;
+  my $step = 1;
   while ($prime <= $limit) {
     if (($n % $prime) == 0) {
       my $count = 0;
@@ -116,27 +193,41 @@ sub n_to_xy {
         $count++;
         $n /= $prime;
         if ($n % $prime) {
-          ### odd, denominator ...
-          $y *= $prime ** $count;
-          last;
-        }
-        $n /= $prime;
-        if ($n % $prime) {
-          ### even, numerator ...
-          $x *= $prime ** $count;
+          my $pn = &$pos_to_pn($count);
+          ### $count
+          ### $pn
+          my $pow = ($prime+$zero) ** abs($pn);
+          if ($pn >= 0) {
+            $x *= $pow;
+          } else {
+            $y *= $pow;
+          }
           last;
         }
       }
       ($limit,$overflow) = _limit($n);
       ### $limit
     }
-    $prime += 1 + ($prime&1);
+    $prime += $step;
+    $step = 2;
   }
   if ($overflow) {
     ### n too big ...
     return;
   }
-  return ($x, $y*$n);
+
+  ### remaining N is prime, count=1: "n=$n"
+  my $pn = &$pos_to_pn(1);
+  ### $pn
+  my $pow = $n ** abs($pn);
+  if ($pn >= 0) {
+    $x *= $pow;
+  } else {
+    $y *= $pow;
+  }
+
+  ### result: "$x, $y"
+  return ($x, $y);
 }
 
 sub xy_to_n {
@@ -144,40 +235,120 @@ sub xy_to_n {
 
   $x = round_nearest ($x);
   $y = round_nearest ($y);
-  ### FactorRationals xy_to_n(): "$x,$y"
+  ### FactorRationals xy_to_n(): "x=$x y=$y"
 
-  if (is_infinite($x)) { return $x; }
-  if (is_infinite($y)) { return $y; }
-
-  if ($x < 1 || $y < 1 || ! _coprime($x,$y)) {
-    return undef;
+  if ($x < 1 || $y < 1) {
+    return undef;  # negatives and -infinity
   }
+  if (is_infinite($x)) { return $x; } # +infinity or nan
+  if (is_infinite($y)) { return $y; } # +infinity or nan
 
-  my $ychop = my $ymult = $y;
-  unless ($ychop % 2) {
-    $ymult /= 2;
-    do {
-      $ychop /= 2;
-    } until ($ychop % 2);
-  }
-  my ($limit,$overflow) = _limit($ychop);
-  for (my $prime = 3; $prime <= $limit; $prime += 2) {
-    unless ($ychop % $prime) {
-      $ymult /= $prime;
-      do {
-        $ychop /= $prime;
-      } until ($ychop % $prime);
-      ($limit,$overflow) = _limit($ychop);
+  if ($self->{'sign_encoding'} eq 'even_odd') {
+    if (! _coprime($x,$y)) {
+      return undef;
     }
-  }
-  if ($overflow) {
-    return undef; # too big
-  }
 
-  $ymult /= $ychop; # remainder is a prime
-  return $x*$x * $y*$ymult;
+    # Factorize $y so as to make an odd power of its primes.  Only need to
+    # divide out one copy of each prime, but by dividing out them all the
+    # $limit to search up to is reduced, usually by a lot.
+    #
+    # $ymult is $y with one copy of each prime factor divided out.
+    # $ychop is $y with all primes divided out as they're found.
+    # $y itself is unchanged.
+    #
+    my $ychop = my $ymult = $y;
+
+    my ($limit,$overflow) = _limit($ychop);
+    my $pstep = 1;
+    for (my $prime = 2; $prime <= $limit; $prime += $pstep, $pstep=2) {
+      unless ($ychop % $prime) {
+        $ymult /= $prime;           # one of $prime divided out
+        do {
+          $ychop /= $prime;         # all of $prime divided out
+        } until ($ychop % $prime);
+        ($limit,$overflow) = _limit($ychop);  # new lower $limit, perhaps
+      }
+    }
+
+    if ($overflow) {
+      return undef; # Y too big to find all primes
+    }
+    $ymult /= $ychop; # remainder is a prime
+    return $x*$x * $y*$ymult;
+
+  } else {
+    ### negabinary ...
+    my $n = 1;
+    my $zero = $x * 0 * $y;
+
+    # Factorize both $x and $y and apply their negabinary encoded powers to
+    # make $n.  A common factor between $x and $y is noticed if $prime
+    # divides both.
+
+    my ($limit,$overflow) = _limit(max($x,$y));
+    my $pstep = 1;
+    for (my $prime = 2; $prime <= $limit; $prime += $pstep, $pstep=2) {
+      my $count = 0;
+      if ($x % $prime == 0) {
+        if ($y % $prime == 0) {
+          return undef;  # common factor
+        }
+        while ($x % $prime == 0) {
+          $count++;
+          $x /= $prime;  # mutate loop variable
+        }
+      } elsif ($y % $prime == 0) {
+        while ($y % $prime == 0) {
+          $count--;
+          $y /= $prime;  # mutate loop variable
+        }
+      } else {
+        next;
+      }
+
+      # Here $count > 0 if from $x or $count < 0 if from $y.
+      ### $count
+      ### negabinary: _pn_to_pos_negabinary($count)
+
+      $count = _pn_to_pos_negabinary($count);
+      $n *= ($prime+$zero) ** $count;
+
+      # new search limit, perhaps smaller than before
+      ($limit,$overflow) = _limit(max($x,$y));
+    }
+
+    if ($overflow) {
+      ### x,y too big to find all primes ...
+      return undef;
+    }
+
+    # Here $x and $y are primes.
+    if ($x > 1 && $x == $y) {
+      ### common factor final remaining prime x,y ...
+      return undef;
+    }
+
+    # $x is power p^1 which is negabinary=1 so multiply into $n.  $y is
+    # power p^-1 and -1 is negabinary=3 so cube and multiply into $n.
+    $n *= $x;
+    $n *= $y*$y*$y;
+
+    return $n;
+  }
 }
 
+# _limit() returns ($limit,$overflow).
+#
+# $limit is the biggest divisor to attempt trial division of $n.  If $n <
+# 2^32 then $limit=sqrt($n) and that will find all primes.  If $n is bigger
+# than $limit is smaller, based on the length of $n so as to make a roughly
+# constant amount of time doing divisions.  But $limit is always at least 50
+# so as to divide by primes up to 50.
+#
+# $overflow is a boolean, true if $n is too big to search for all primes and
+# $limit is something smaller than sqrt($n).  $overflow is false if $limit
+# has not been capped and is enough to find all primes.
+#
 sub _limit {
   my ($n) = @_;
   my $limit = int(sqrt($n));
@@ -190,12 +361,19 @@ sub _limit {
   }
 }
 
-# X=2^10 -> N=2^20 is X*X
-# Y=3 -> N=3
-# Y=3^2 -> N=3^3
-# Y=3^3 -> N=3^5
-# Y=3^4 -> N=3^7
-# Y*Y / distinct prime factors
+# even_odd
+#   X=2^10 -> N=2^20 is X*X
+#   Y=3 -> N=3
+#   Y=3^2 -> N=3^3
+#   Y=3^3 -> N=3^5
+#   Y=3^4 -> N=3^7
+#   Y*Y / distinct prime factors
+#
+# negabinary
+#   X=prime^2 -> N=prime^6       is X^3
+#   X=prime^6 -> N=prime^26      is X^4.33
+#   maximum 101010...10110 -> 1101010...10 approaches factor 5
+#   same for negatives
 
 # not exact
 sub rect_to_n_range {
@@ -212,8 +390,13 @@ sub rect_to_n_range {
   ### $x2
   ### $y2
 
+  my $n = $x2 * $y2;
+  my $n_squared = $n * $n;
   return (1,
-          $x2*$x2 * $y2*$y2);
+          ($self->{'sign_encoding'} eq 'even_odd'
+           ? $n_squared                      # X^2*Y^2
+           : $n_squared*$n_squared * $n));   # X^5*Y^5
+
 }
 
 
@@ -362,6 +545,7 @@ Integer Sequences in the following forms
     A071975   Y coordinate, denominators
     A019554   X*Y product
     A102631   N in column X=1, n^2/squarefreekernel(n)
+    A072345   X and Y at N=2^k, being alternately 1 and 2^k
 
     A011262   permutation N at transpose Y/X (exponents mangle odd<->even)
 

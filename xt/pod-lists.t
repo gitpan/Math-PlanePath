@@ -130,6 +130,7 @@ diag "module count ",scalar(@lib_modules);
       next if $elem eq 'Path';
       next if $elem eq 'Step';
       next if $elem eq 'Fibonacci';
+      next if $elem eq 'ToothpickSpiral'; # separate Math-PlanePath-Toothpick
       $elem =~ s/,//;
       next if $seen{$elem}++;
       push @list, $elem;

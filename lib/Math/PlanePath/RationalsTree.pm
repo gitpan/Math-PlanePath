@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+# www.math.bas.bg/bantchev/articles/fractions.pdf
 
 # cf A054429 permutation reverse within binary row
 #    A065249 - permutation SB X -> X/2
@@ -130,7 +131,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -171,7 +172,7 @@ use constant y_minimum => 1;
 use constant tree_any_leaf => 0;  # no leaves, complete tree
 use constant tree_num_children_minimum => 2; # complete binary tree
 use constant tree_num_children_maximum => 2;
-use constant tree_n_to_height => undef; # complete tree, all infinity
+use constant tree_n_to_subheight => undef; # complete tree, all infinity
 
 {
   my %absdy_minimum = (# SB   => 0,
@@ -1403,9 +1404,9 @@ an encoding of continued fraction terms by bit runs the combinations are
 
      bit encoding           high to low    low to high
     ----------------        -----------    -----------
-    0000,1111 runs              SB             CW
-    0101,1010 alternating       Bird           Drib
-    1000,1000 runs              HCS            AYT
+    0000 1111 runs              SB             CW
+    0101 1010 alternating       Bird           Drib
+    1000 1000 runs              HCS            AYT
 
 A run of alternating 101010 ends where the next bit is the oppose of the
 expected alternating 0,1.  This is a doubled bit 00 or 11.  An electrical

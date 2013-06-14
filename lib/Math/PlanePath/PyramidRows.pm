@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -832,9 +832,10 @@ path include
       A000290    N on X=-Y North-West diagonal (start row), Y^2
     step=2, n_start=2
       A059100    N on north-west diagonal (start each row), Y^2+2
+      A053615    abs(X), runs k..0..k
     step=2, align=right, n_start=0
       A196199    X-Y, runs -k to +k
-      A053615    abs(X-Y), runs 0..k..0, distance to pronic
+      A053615    abs(X-Y), runs k..0..k
     step=2, align=left, n_start=0
       A005563    N on Y axis, Y*(Y+2)
     

@@ -86,7 +86,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -110,7 +110,7 @@ use constant class_y_negative => 0;
 use constant tree_any_leaf => 0;  # no leaves, complete tree
 use constant tree_num_children_minimum => 3; # complete ternary tree
 use constant tree_num_children_maximum => 3;
-use constant tree_n_to_height => undef; # complete tree, all infinity
+use constant tree_n_to_subheight => undef; # complete tree, all infinity
 
 use constant parameter_info_array =>
   [ { name            => 'tree_type',
@@ -121,7 +121,7 @@ use constant parameter_info_array =>
       choices         => ['UAD','FB'],
     },
     { name            => 'coordinates',
-      share_key       => 'coordinates_abacbcpq',
+      share_key       => 'coordinates_abcpqsm',
       display         => 'Coordinates',
       type            => 'enum',
       default         => 'AB',

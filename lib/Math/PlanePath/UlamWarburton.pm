@@ -62,7 +62,7 @@ use Carp;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -698,9 +698,9 @@ sub _n0_to_depthsum_factor_rem {
   return \@depthsum, $factor, $n;
 }
 
-sub tree_n_to_height {
+sub tree_n_to_subheight {
   my ($self, $n) = @_;
-  ### tree_n_to_height(): $n
+  ### tree_n_to_subheight(): $n
 
   $n = int($n - $self->{'n_start'});  # N=0 basis
   if ($n < 0) {

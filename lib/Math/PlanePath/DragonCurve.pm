@@ -47,7 +47,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -1027,22 +1027,25 @@ This too can be found with some bit twiddling, as for example
 
 =head2 Total Turn
 
-The total turn can be calculated from the segment replacements resulting
-from the bits of N,
+The total turn is the count of 0E<lt>-E<gt>1 transitions in the runs of bits
+of N, which is the same as how many bit pairs of N (including overlaps) are
+different so "01" or "10".
+
+This can be seen from the segment replacements resulting from bits of N,
 
     N bits from high to low, start in "plain" state
 
     plain state
      0 bit -> no change
-     1 bit -> turn left, go to reversed state
+     1 bit -> count left, and go to reversed state
 
     reversed state
+     0 bit -> count left, and go to plain state
      1 bit -> no change
-     0 bit -> turn left, go to plain state
 
-The 0 or 1 counting arises from the different side a segment expands on in
-plain or reversed state.  Segment A to B expands to an "L" shape bend which
-is on the right in plain state, but on the left in reversed state.
+The 0 or 1 counts are from the different side a segment expands on in plain
+or reversed state.  Segment A to B expands to an "L" shape bend which is on
+the right in plain state, but on the left in reversed state.
 
       plain state             reverse state
 
@@ -1055,7 +1058,7 @@ is on the right in plain state, but on the left in reversed state.
 
 In both cases a rotate of +45 degrees keeps the very first segment of the
 whole curve in a fixed direction (along the X axis), which means the
-south-east slope shown is no-change, which is the 0 of plain or the 1 of
+south-east slope shown is no-change.  This is the 0 of plain or the 1 of
 reversed.  And the north-east slope which is the other new edge is a turn
 towards the left.
 
@@ -1163,6 +1166,9 @@ X<Shallit, Jeffrey>X<Kmosek>Jeffrey Shallit and independently M. Kmosek show
 how continued fraction terms which are repeated in reverse give rise to this
 sort of power sum,
 
+    A146559   X at N=2^k, for k>=1, being Re((i+1)^k)
+    A009545   Y at N=2^k, for k>=1, being Im((i+1)^k)
+
 =over
 
 Jeffrey Shallit, "Simple Continued Fractions for Some Irrational Numbers",
@@ -1202,7 +1208,8 @@ L<Math::PlanePath::TerdragonCurve>
 
 L<Math::PlanePath::ComplexMinus>,
 L<Math::PlanePath::ComplexPlus>,
-L<Math::PlanePath::CCurve>
+L<Math::PlanePath::CCurve>,
+L<Math::PlanePath::AlternatePaper>
 
 =head1 HOME PAGE
 

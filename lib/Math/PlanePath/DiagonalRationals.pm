@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -124,6 +124,7 @@ sub n_to_xy {
   }
 }
 
+# Note: shared by FactorRationals
 sub xy_is_visited {
   my ($self, $x, $y) = @_;
   $x = round_nearest ($x);
@@ -394,7 +395,7 @@ Sequences in the following forms
 
     http://oeis.org/A020652   (etc)
 
-    n_start=1 (the default)
+    direction=down, n_start=1  (the defaults)
       A020652   X, numerator
       A020653   Y, denominator
       A038567   X+Y sum, starting from X=1,Y=1
@@ -409,8 +410,10 @@ Sequences in the following forms
       A054426     inverse SB -> DiagonalRationals
       A060837   permutation DiagonalRationals -> FactorRationals
 
-    n_start=0
+    direction=down, n_start=0
       A157806   abs(X-Y) difference
+
+direction=up swaps X,Y.
 
 =head1 SEE ALSO
 

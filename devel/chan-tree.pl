@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -30,30 +30,91 @@ use Math::PlanePath::Base::Digits
 use Smart::Comments;
 
 {
-  # X/Y list
+  # gcd vs count ternary 1 digits
+
+  # ternary n_start=>1
+  #            1           2
+  #          / | \       / | \
+  #       10  11 12    20 21 22
+  #     /  | \
+  #  100 101 102
   require Math::PlanePath::GcdRationals;
+  require Math::NumSeq::DigitCount;
   require Math::BaseCnv;
-  my $k = 10;
+  my $seq = Math::NumSeq::DigitCount->new (digit => 1, radix => 3);
+  my $k = 3;
   my $path = Math::PlanePath::ChanTree->new
     (k => $k,
      n_start => 1,
     );
   my $n = $path->n_start;
   my $prevlen = 1;
-  for (;;) {
+  my $prev_gcd = 0;
+  for (;; $n++) {
     my $nk = Math::BaseCnv::cnv($n,10,$k);
     my $len = length($nk);
-    last if $len > 3;
+    last if $len > 11;
     if ($len > $prevlen) {
       print "\n";
       $prevlen = $len;
     }
     my ($x,$y) = $path->n_to_xy($n);
     my $gcd = Math::PlanePath::GcdRationals::_gcd($x,$y);
+
+    my $offset3 = substr($nk,1);
+    my $offset = Math::BaseCnv::cnv($offset3,$k,10);
+    my $count = $seq->ith($offset);
+    my $pow = 3 ** max($count,0);
+    my $above = ($gcd == $pow && $count>0 ? "  ===$pow"
+                 : $gcd > $pow ? '  ***' : '');
+
+    if ($gcd > $prev_gcd) {
+      print "$n $nk  $x / $y   $gcd $pow (offset $offset) $above\n";
+      $prev_gcd = $gcd;
+    }
+  }
+  exit 0;
+}
+{
+  # X/Y list
+  require Math::PlanePath::GcdRationals;
+  require Math::PlanePath::PythagoreanTree;
+  my $pyth = Math::PlanePath::PythagoreanTree->new (coordinates => 'PQ',
+                                                   tree_type => 'UAD');
+  require Math::BaseCnv;
+  my $k = 3;
+  my $path = Math::PlanePath::ChanTree->new
+    (k => $k,
+     n_start => 1,
+    );
+  my $n = $path->n_start;
+  my $prevlen = 1;
+  for (;; $n++) {
+    # my $depth = $path->tree_n_to_depth($n);
+    # my $n_row = $path->tree_depth_to_n($depth);
+    # my $n_end = $path->tree_depth_to_n_end($depth);
+    # my $n_half = ($n_row + $n_end + 1)/2;
+    # next unless $n >= $n_half;
+
+    my $nk = Math::BaseCnv::cnv($n,10,$k);
+    my $len = length($nk);
+    last if $len > 5;
+    if ($len > $prevlen) {
+      print "\n";
+      $prevlen = $len;
+    }
+    my ($x,$y) = $path->n_to_xy($n);
+    my $pyth_n = $pyth->xy_to_n($x,$y);
+    my $pyth_n3;
+    if (defined $pyth_n) {
+      $pyth_n3 = Math::BaseCnv::cnv($pyth_n,10,$k);
+    }
+    $pyth_n //= 'none';
+    $pyth_n3 //= 'none';
+    my $gcd = Math::PlanePath::GcdRationals::_gcd($x,$y);
     my $xg = $x/$gcd;
     my $yg = $y/$gcd;
-    print "$n $nk  $x / $y   $gcd  reduced $xg,$yg\n";
-    $n++;
+    print "$n $nk  $x / $y   $gcd  reduced $xg,$yg   $pyth_n3\n";
   }
   exit 0;
 }

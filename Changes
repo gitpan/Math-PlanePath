@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+Version 105, June 2013
+    - PlanePathCoord new coordinate_type "NumSiblings"
 
 Version 104, May 2013
     - new n_to_radius()

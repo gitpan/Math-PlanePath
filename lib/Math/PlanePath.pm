@@ -18,10 +18,13 @@
 
 # Maybe:
 #
-# $path->xy_integer() if X,Y both all integer
-# $path->x_integer()  if X all integer
-# $path->y_integer()  if Y all integer
-# $path->xy_integer_n_start
+# $root_n = $path->tree_n_to_root_n($n) $n and undefs
+# @root_n_list = $path->tree_root_n_list()  list or empty
+# $num = $path->tree_num_roots()
+# $bool = $path->is_tree()
+# $width = $path->tree_depth_to_width($depth)  or undef
+# ($n_lo,$n_hi) = $path->tree_depth_to_n_range($depth);   or empty
+# $width = $path->tree_depth_to_n_width($depth);  # number of N at depth
 #
 # tree_n_ordered_children() $n and undefs
 #   SierpinskiTree,ToothpickTree left and right
@@ -32,6 +35,11 @@
 # sumabsxy_minimum
 # absdiffxy_minimum
 #
+# $path->xy_integer() if X,Y both all integer
+# $path->x_integer()  if X all integer
+# $path->y_integer()  if Y all integer
+# $path->xy_integer_n_start
+#
 # xy_all_coprime() xy_coprime()   gcd(X,Y)=1 always
 # xy_all_divisible()   X divisible by Y
 # xy_any_even
@@ -41,6 +49,7 @@
 #
 # x_increasing
 # y_increasing
+# y_non_decreasing
 # sumxy_non_decreasing
 # sumxy_increasing
 # sumabsxy_minimum   abs(X)+abs(Y)
@@ -53,14 +62,6 @@
 # trsquared_minimum
 # dsumxy_minimum
 # ddiffxy_minimum
-#
-
-# Math::PlanePath::Base::Generic
-#   divrem
-#   divrem_mutate
-
-# ($n_lo,$n_hi) = $path->tree_depth_to_n_range($depth);
-# $width = $path->tree_depth_to_n_width($depth);  # number of N at depth
 #
 # $path->n_to_turn_lsr
 # $path->n_to_dir4
@@ -86,6 +87,11 @@
 # figures_disjoint_n_start
 #         separate
 #         unoverlapped
+#
+# Math::PlanePath::Base::Generic
+#   divrem
+#   divrem_mutate
+#
 
 
 #------------------------------------------------------------------------------
@@ -94,7 +100,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 104;
+$VERSION = 105;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -371,7 +377,7 @@ use constant tree_n_children => ();   # default no children
 use constant tree_num_children_minimum => 0;
 use constant tree_num_children_maximum => 0;
 use constant tree_any_leaf => 1;    # default all leaf node
-use constant tree_n_to_height => 0; # default all leaf node
+use constant tree_n_to_subheight => 0; # default all leaf node
 sub tree_n_num_children {
   my ($self, $n) = @_;
   if ($n >= $self->n_start) {
@@ -397,9 +403,9 @@ sub tree_depth_to_n_end {
 # But must watch out for infinite lets, and might also watch out for
 # rounding or overflow.
 #
-# sub path_tree_n_to_height {
+# sub path_tree_n_to_subheight {
 #   my ($path, $n) = @_;
-#   ### path_tree_n_to_height(): "$n"
+#   ### path_tree_n_to_subheight(): "$n"
 #
 #   if (is_infinite($n)) {
 #     return $n;
@@ -536,7 +542,7 @@ __END__
 
 
 
-=for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick 7-gonals 8-gonal (step+2)-gonal heptagonals octagonals bignum multi-arm eg PerlMagick NaN NaNs subclasses incrementing arrayref hashref filename enum radix NumSeq ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix radix-1
+=for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick 7-gonals 8-gonal (step+2)-gonal heptagonals octagonals bignum multi-arm eg PerlMagick NaN NaNs subclasses incrementing arrayref hashref filename enum radix ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix radix-1
 
 =head1 NAME
 
@@ -691,6 +697,7 @@ And in the separate Math-PlanePath-Toothpick distribution
     ToothpickTree          pattern of toothpicks
     ToothpickReplicate     same by replication rather than tree
     ToothpickUpist         toothpicks only growing upwards
+    ToothpickSpiral        toothpicks around the origin
 
     LCornerTree            L-shape corner growth
     LCornerReplicate       same by replication rather than tree
@@ -945,17 +952,17 @@ For some classes the X or Y extent may depend on parameter values.
 Return the minimum or maximum of the X or Y coordinate reached by integer N
 values in the path.  If there's no minimum or maximum then return C<undef>.
 
-=item C<$x = $path-E<gt>sumxy_minimum()>
+=item C<$sumxy = $path-E<gt>sumxy_minimum()>
 
-=item C<$x = $path-E<gt>sumxy_maximum()>
+=item C<$sumxy = $path-E<gt>sumxy_maximum()>
 
 Return the minimum or maximum values taken by coordinate sum X+Y reached by
 integer N values in the path.  If there's no minimum or maximum then return
 C<undef>.
 
-S=X+Y is an anti-diagonal.  A path which is always above and right of some
-anti-diagonal has a minimum.  Some paths may be entirely below such an
-anti-diagonal and so have a maximum but that's unusual.
+S=X+Y is an anti-diagonal.  A path which is always right and above some
+anti-diagonal has a minimum.  Some paths might be entirely left and below
+and so have a maximum, though that's unusual.
 
                           \        Path always above
                            \ |     has minimum S=X+Y
@@ -966,19 +973,19 @@ anti-diagonal and so have a maximum but that's unusual.
                                 \  S=X+Y
 
 
-=item C<$y = $path-E<gt>diffxy_minimum()>
+=item C<$diffxy = $path-E<gt>diffxy_minimum()>
 
-=item C<$y = $path-E<gt>diffxy_maximum()>
+=item C<$diffxy = $path-E<gt>diffxy_maximum()>
 
 Return the minimum or maximum values taken by coordinate difference X-Y
 reached by integer N values in the path.  If there's no minimum or maximum
 then return C<undef>.
 
-D=X-Y is a leading diagonal.  A path which is always below and right of such
-a diagonal has a minimum, for example C<HypotOctant>.  A path which is
-always above and left of some diagonal has a maximum D=X-Y.  This happens
-for various wedge-like paths such as C<PyramidRows> in its default step=2,
-and "upper octant" paths.
+D=X-Y is a leading diagonal.  A path which is always right and below such a
+diagonal has a minimum, for example C<HypotOctant>.  A path which is always
+left and above some diagonal has a maximum D=X-Y.  For example various
+wedge-like paths such as C<PyramidRows> in its default step=2, and "upper
+octant" paths have a maximum.
 
                                  /   D=X-Y
         Path always below     | /
@@ -988,9 +995,9 @@ and "upper octant" paths.
                             / |      Path always above
                            /         has minimum D=X-Y
 
-=item C<$y = $path-E<gt>rsquared_minimum()>
+=item C<$rsquared = $path-E<gt>rsquared_minimum()>
 
-=item C<$y = $path-E<gt>rsquared_maximum()>
+=item C<$rsquared = $path-E<gt>rsquared_maximum()>
 
 Return the minimum or maximum Rsquared = X^2+Y^2 reached by integer N values
 in the path.  If there's no minimum or maximum then return C<undef>.
@@ -1018,7 +1025,7 @@ in some direction.  C<rsquared_maximum()> returns C<undef> in that case.
 =item C<$ady = $path-E<gt>absdy_maximum()>
 
 Return the minimum or maximum change dX, dY, abs(dX) or abs(dY) occurring in
-the path from integer N to N+1.  For a multi-arm path the change is to
+the path for integer N to N+1.  For a multi-arm path the change is N to
 N+arms so it's the change along the same arm.
 
 C<absdx_maximum()> is simply max(dXmax,-dXmin), the biggest change either
@@ -1026,20 +1033,20 @@ positive or negative.  C<absdy_maximum()> similarly.
 
 C<absdx_minimum()> is 0 if dX=0 occurs anywhere in the path, which means any
 vertical step.  If X always changes then C<absdx_minimum()> will be
-something bigger than 0.  C<absdy_minimum()> likewise 0 if any dY=0
-horizontal, or bigger if Y is never unchanged.
+something bigger than 0.  C<absdy_minimum()> likewise 0 if any horizontal
+dY=0, or bigger if Y always changes.
 
 =item C<($dx,$dy) = $path-E<gt>dir_minimum_dxdy()>
 
 =item C<($dx,$dy) = $path-E<gt>dir_maximum_dxdy()>
 
 Return a vector which is the minimum or maximum angle taken by a step
-between integer N to N+1, or for a multi-arm path from N to N+arms so it's
-the change along the same arm.  Directions are reckoned anti-clockwise
-around from the X axis.
+integer N to N+1, or for a multi-arm path N to N+arms so it's the change
+along the same arm.  Directions are reckoned anti-clockwise around from the
+X axis.
 
-    dX=-1,dY=1 *  |  *  dX=1,dY=1
-                \ | /
+                  |  *  dX=2,dY=2
+    dX=-1,dY=1  * | /
                  \|/
             ------+----*  dX=1,dY=0
                   |
@@ -1050,17 +1057,16 @@ A path which is always goes N,S,E,W such as the C<SquareSpiral> has minimum
 East dX=1,dY=0 and maximum South dX=0,dY=-1.
 
 Paths which go diagonally may have different limits.  For example the
-C<KnightSpiral> which goes in 2x1 steps has minimum East-North-East
+C<KnightSpiral> goes in 2x1 steps and so has minimum East-North-East
 dX=2,dY=1 and maximum East-South-East dX=2,dY=-1.
 
 If the path has directions approaching 360 degrees then
 C<dir_maximum_dxdy()> is 0,0 to mean a full circle as a supremum.  For
 example C<MultipleRings>.
 
-It's also possible for the maximum to be East dX=1,dY=0.  That means both
-minimum and maximum are East, ie. that the path always goes Eastwards.  This
-isn't particularly interesting, but arises for example in the C<Columns>
-path with height=0.
+If the path only ever goes East then the maximum is East dX=1,dY=0, and the
+minimum the same.  This isn't particularly interesting, but arises for
+example in the C<Columns> path height=0.
 
 =item C<$str = $path-E<gt>figure()>
 
@@ -1086,10 +1092,10 @@ some children.
             /        / \
           1000    1001 1005
 
-The numbering and any relation to X,Y positions varies among the paths.
-Some are numbered by rows (breadth-first style) and some have the children
-with X,Y positions adjacent to their parent, but that shouldn't be assumed,
-only that there's a parent-child relation down from some set of top nodes.
+The N numbering and any relation to X,Y positions varies among the paths.
+Some are numbered by rows in breadth-first style and some have children with
+X,Y positions adjacent to their parent, but that shouldn't be assumed, only
+that there's a parent-child relation down from some set of top nodes.
 
 =over
 
@@ -1098,7 +1104,7 @@ only that there's a parent-child relation down from some set of top nodes.
 Return a list of N values which are the child nodes of C<$n>, or return an
 empty list if C<$n> has no children.
 
-The could be no children either because C<$path> is not a tree or because
+There could be no children either because C<$path> is not a tree or because
 there's no children at a particular C<$n>.
 
 =item C<$num = $path-E<gt>tree_n_num_children($n)>
@@ -1106,7 +1112,8 @@ there's no children at a particular C<$n>.
 Return the number of children of C<$n>, or 0 if C<$n> has no children, or
 C<undef> if S<C<$n E<lt> n_start()>> (ie. before the start of the path).
 
-If the tree is reckoned as a directed graph this is the out-degree.
+If the tree is considered as a directed graph then this is the "out-degree"
+of C<$n>.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 
@@ -1120,10 +1127,10 @@ C<$path> is not a tree.
 Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
 top of the tree is depth=0, then its children are depth=1, etc.
 
-The depth is a count of how many parent, grandparent, etc, are above C<$n>,
-ie. until reaching C<tree_n_to_parent()> returning C<undef>.  For non-tree
-paths C<tree_n_to_parent()> is always C<undef> and C<tree_n_to_depth()> is
-always 0.
+The depth is a count of how many parent, grandparent, etc, levels are above
+C<$n>, ie. until reaching C<tree_n_to_parent()> returning C<undef>.  For
+non-tree paths C<tree_n_to_parent()> is always C<undef> and
+C<tree_n_to_depth()> is always 0.
 
 =item C<$n = $path-E<gt>tree_depth_to_n($depth)>
 
@@ -1134,6 +1141,10 @@ if nothing at that depth or not a tree.  The top of the tree is depth=0.
 
 Trees numbered by depth have the N end of one depth level immediately
 followed by the start N of the next, but that may not be so for all paths.
+
+C<n_end> can only exist if the row has a finite number of points.  That's
+true of all current paths, but maybe allowance should be made for C<n_end>
+as C<undef> or some such if there is no maximum N for some row.
 
 =back
 
@@ -1151,6 +1162,9 @@ Return the minimum or maximum number of children of any node in the path.
 
 Return true if there are any leaf nodes in the tree, meaning any N for which
 C<tree_n_num_children()> is 0.
+
+Some trees may have no leaf nodes, for example in the complete binary tree
+of C<RationalsTree> every node always has further children.
 
 =back
 
@@ -1200,10 +1214,11 @@ For "enum" the C<choices> field is the possible values, such as
 C<minimum> and/or C<maximum> are omitted if there's no hard limit on the
 parameter.
 
-C<share_key> is designed to indicate when parameters from different NumSeq
-classes can done by a single control widget in a GUI etc.  Normally the
-C<name> is enough, but when the same name has slightly different meanings in
-different classes a C<share_key> allows the same meanings to be matched up.
+C<share_key> is designed to indicate when parameters from different
+C<PlanePath> classes can done by a single control widget in a GUI etc.
+Normally the C<name> is enough, but when the same name has slightly
+different meanings in different classes a C<share_key> allows the same
+meanings to be matched up.
 
 =item C<$hashref = Math::PlanePath::Foo-E<gt>parameter_info_hash()>
 
@@ -1312,7 +1327,7 @@ is 8 more N points than the preceding.
       16/2      StaircaseAlternating (up and back for +16)
         9       TriangleSpiral, TriangleSpiralSkewed
        12       AnvilSpiral
-       16       OctagramSpiral
+       16       OctagramSpiral, ToothpickSpiral
       19.74     TheodorusSpiral (approaching 2*pi^2)
       32/4      KnightSpiral (4 loops 2-wide for +32)
        64       DiamondArms (each arm)
@@ -1424,8 +1439,8 @@ Some paths are on triangular or "A2" lattice points like
     *---*---*---*---*---*
 
 This is done in integer X,Y on a square grid by using every second square
-and offsetting alternate rows.  This means sum X+Y even, ie. X and Y either
-both even or both odd, not of opposite parity.
+and offsetting alternate rows.  This means sum X+Y even, ie. X,Y either both
+even or both odd, not of opposite parity.
 
     . * . * . * . * . * . *
     * . * . * . * . * . * .
@@ -1461,8 +1476,8 @@ Integer Y values have the advantage of fitting pixels on the usual kind of
 raster computer screen, and not losing precision in floating point results.
 
 If doing a general-purpose coordinate rotation then be sure to apply the
-sqrt(3) scale factor before rotating, or it will be skewed.  60 degree
-rotations can be made within the integer X,Y coordinates directly as
+sqrt(3) scale factor before rotating or the result will be skewed.  60
+degree rotations can be made within the integer X,Y coordinates directly as
 follows, all giving integer X,Y results.
 
     (X-3Y)/2, (X+Y)/2       rotate +60   (anti-clockwise)
@@ -1846,7 +1861,8 @@ L<Math::PlanePath::LCornerTree>,
 L<Math::PlanePath::LCornerReplicate>,
 L<Math::PlanePath::ToothpickTree>,
 L<Math::PlanePath::ToothpickReplicate>,
-L<Math::PlanePath::ToothpickUpist>
+L<Math::PlanePath::ToothpickUpist>,
+L<Math::PlanePath::ToothpickSpiral>
 
 L<Math::NumSeq::PlanePathCoord>,
 L<Math::NumSeq::PlanePathDelta>,

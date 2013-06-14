@@ -42,7 +42,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -285,6 +285,7 @@ sub _delta_func_TDSquared {
 sub _delta_func_Dir4 {
   my ($dx,$dy) = @_;
   ### _delta_func_Dir4(): "$dx,$dy"
+  ### 360 is: _delta_func_Dir360($dx,$dy)
   return _delta_func_Dir360($dx,$dy) / 90;
 }
 sub _delta_func_TDir6 {
@@ -305,9 +306,11 @@ sub _delta_func_Dir360 {
   ### _delta_func_Dir360(): "$dx,$dy"
 
   if ($dy == 0) {
+    ### dy=0 ...
     return ($dx >= 0 ? 0 : 180);
   }
   if ($dx == 0) {
+    ### dx=0 ...
     return ($dy > 0 ? 90 : 270);
   }
   if ($dx > 0) {
@@ -433,9 +436,11 @@ sub _dxdy_to_dir4 {
   ### _dxdy_to_dir4(): "$dx,$dy"
 
   if ($dy == 0) {
+    ### dy=0 ...
     return ($dx == 0 ? 4 : $dx > 0 ? 0 : 2);
   }
   if ($dx == 0) {
+    ### dx=0 ...
     return ($dy > 0 ? 1 : 3);
   }
   if ($dx > 0) {
@@ -3478,6 +3483,24 @@ sub _dxdy_to_dir4 {
     }
   }
 }
+{ package Math::PlanePath::ToothpickSpiral;
+  use constant _NumSeq_Delta_dSum_min => -1; # straight only
+  use constant _NumSeq_Delta_dSum_max => 1;
+  use constant _NumSeq_Delta_dSumAbs_min => -1;
+  use constant _NumSeq_Delta_dSumAbs_max => 1;
+  use constant _NumSeq_Delta_dDiffXY_min => -1;
+  use constant _NumSeq_Delta_dDiffXY_max => 1;
+  use constant _NumSeq_Delta_dAbsDiff_min => -1;
+  use constant _NumSeq_Delta_dAbsDiff_max => 1;
+  use constant _NumSeq_Delta_Dir4_integer => 1;
+
+  use constant _NumSeq_Delta_oeis_anum =>
+    { 'n_start=0' =>
+      { AbsdX => 'A000035',  # 0,1 repeating
+        AbsdY => 'A059841',  # 1,0 repeating
+      },
+    };
+}
 { package Math::PlanePath::LCornerReplicate;
   use constant _NumSeq_Dir4_max_is_supremum => 1;
 }
@@ -3622,30 +3645,32 @@ or 0 if a step stays within the same diagonal.
     dSumAbs = (abs(Xnext)+abs(Ynext)) - (abs(X)+abs(Y))
 
 As described in L<Math::NumSeq::PlanePathCoord/SumAbs>, SumAbs is a
-"taxi-cab" distance from the origin, or equivalently a step between diamond
-rings.
+"taxi-cab" distance from the origin, or equivalently a move between diamond
+shaped rings.
 
-A path such as C<DiamondSpiral> follows the diamond around and has dSumAbs=0
-until stepping out to the next diamond with dSumAbs=1.
+As an example, a path such as C<DiamondSpiral> follows a diamond shape ring
+around and so has dSumAbs=0 until stepping out to the next diamond with
+dSumAbs=1.
 
-The path might make a big jump which is only a small change in SumAbs.  For
-example C<PyramidRows> (its default step=2) going from the end of one row to
-the start of the next has dSumAbs=2.
+A path might make a big jump which is only a small change in SumAbs.  For
+example C<PyramidRows> in its default step=2 going from the end of one row
+to the start of the next has dSumAbs=2.
 
 =head2 dDiffXY and dDiffYX
 
-"dDiffXY" is the change in DiffXY = X-Y and is also simply dX-dY since
+"dDiffXY" is the change in DiffXY = X-Y, which is also simply dX-dY since
 
     dDiffXY = (Xnext-Ynext) - (X-Y)
             = (Xnext-X) - (Ynext-Y)
             = dX - dY
 
 The difference X-Y counts diagonals downwards to the south-east as described
-in L<Math::NumSeq::PlanePathCoord>.  dDiffXY is therefore movement between
-those diagonals, or 0 if a step stays within the same diagonal.
+in L<Math::NumSeq::PlanePathCoord/Sum and Diff>.  dDiffXY is therefore
+movement between those diagonals, or 0 if a step stays within the same
+diagonal.
 
     dDiffXY < 0       /
-                  ^  /             dDiffXY = step dist to South-East
+                  \  /             dDiffXY = step dist to South-East
                    \/
                    /\
                   /  v
@@ -3661,14 +3686,14 @@ upwards to the North-West.
 "dAbsDiff" is the change in AbsDiff = abs(X-Y).  AbsDiff can be interpreted
 geometrically as distance from the leading diagonal, as described in
 L<Math::NumSeq::PlanePathCoord/AbsDiff>.  dAbsDiff is therefore movement
-closer to or further away from the leading diagonal, measured perpendicular
+closer to or further away from that leading diagonal, measured perpendicular
 to it.
 
                 / X=Y line
                /
               /  ^
              /    \
-            /      *  dAbsDiff towards or away from X=Y line
+            /      *  dAbsDiff move towards or away from X=Y line
           |/        \
         --o--        v
          /|
@@ -3679,15 +3704,15 @@ still the change in distance from the diagonal.  So for example if X,Y is
 followed by the mirror point Y,X then dAbsDiff=0.  That sort of thing
 happens for example in the C<Diagonals> path when jumping from the end of
 one run to the start of the next.  In the C<Diagonals> case it's a move just
-1 further away from the X=Y centre line, even though it's a big jump in
+1 further away from the X=Y centre line even though it's a big jump in
 overall distance.
 
 =head2 Dir4
 
-"Dir4" is a direction angle scaled so a full circle ranges 0 to 4.  The
-cardinal directions N,S,E,W are 0,1,2,3.  Angles in between are a fraction.
+"Dir4" is the curve step direction as an angle scaled to range 0 to 4.  The
+cardinal directions E,N,W,S are 0,1,2,3.  Angles in between are a fraction.
 
-    Dir4 = atan2(dY,dX)    in range to 0 <= Dir4 < 4
+    Dir4 = atan2(dY,dX)  scaled as range 0 <= Dir4 < 4
 
     1.5   1   0.5
         \ | /
@@ -3699,38 +3724,38 @@ cardinal directions N,S,E,W are 0,1,2,3.  Angles in between are a fraction.
 
 =head2 TDir6
 
-"TDir6" is a direction in triangular style per L<Math::PlanePath/Triangular
-Lattice>.  So dX=1,dY=1 is 60 degrees and then scaled to range 0 to 6
-gives 1.
+"TDir6" is the curve step direction in the triangular style of
+L<Math::PlanePath/Triangular Lattice>.  So dX=1,dY=1 is 60 degrees and a
+full circle ranges 0 to 6.
 
-       2  1.5  1
+      2   1.5   1        TDir6
          \ | /        
           \|/         
-    3 -----o----- 0
+      3 ---o--- 0
           /|\
          / | \
-       4  4.5  5
+      4   4.5   5
 
-Angles in between the six cardinal directions are fractions, in particular
-North is 1.5 and South is 4.5.
+Angles in between the six cardinal directions are fractions.  North is 1.5
+and South is 4.5.
 
-The angle is calculated as if dY was scaled by a factor sqrt(3) to make the
-lattice into equilateral triangles.  Or equivalently as a circle stretched
-vertcially to become an ellipse.
+The direction angle is calculated as if dY was scaled by a factor sqrt(3) to
+make the lattice into equilateral triangles, or equivalently as a circle
+stretched vertically to become an ellipse.
 
     TDir6 = atan2(dY*sqrt(3), dX)      in range 0 <= TDir6 < 6
 
-Notice that angles dX=0 or dY=0 on the axes are unchanged by the sqrt(3)
-factor.  So TDir4 has ENWS 0, 1.5, 3, 4.5 which is in steps of 1.5.
-Verticals North and South normally doesn't occur in the triangular lattice
-paths, but TDir6 can be applied to other paths.
+Notice that angles for dX=0 or dY=0 which are the axes are not changed by
+the sqrt(3) factor.  So TDir6 has ENWS 0, 1.5, 3, 4.5 which is in steps of
+1.5.  Verticals North and South normally doesn't occur in the triangular
+lattice paths but TDir6 can be applied to other paths.
 
-The sqrt(3) factor increases angles in the middle of the quadrants, off the
-axes.  For example dX=1,dY=1 becomes TDir6=1 whereas a plain angle would be
-only 45/360*6=0.75 in the same 0 to 6 range.  The sqrt(3) is a continuous
-scaling, so a plain angle and a TDir6 are a one-to-one mapping.  TDir6 grows
-a bit faster and then a bit slower than the plain angle as the direction
-progresses through the quadrant.
+The sqrt(3) factor increases angles in the middle of the quadrants away from
+the axes.  For example dX=1,dY=1 becomes TDir6=1 whereas a plain angle would
+be only 45/360*6=0.75 in the same 0 to 6 scale.  The sqrt(3) is a continuous
+scaling, so a plain angle and a TDir6 are a one-to-one mapping.  As the
+direction progresses through the quadrant TDir6 grows first faster and then
+slower than the plain angle.
 
 =head1 FUNCTIONS
 

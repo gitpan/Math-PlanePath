@@ -36,6 +36,22 @@ use Math::PlanePath::PyramidRows;
 
 
 #------------------------------------------------------------------------------
+# A053615 -- distance to pronic is abs(X)
+
+MyOEIS::compare_values
+  (anum => 'A053615',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::PyramidRows->new (n_start => 0);
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, abs($x);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A103451 -- turn 1=left or right, 0=straight
 # but has extra n=1 whereas path first turn at starts N=2
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -343,6 +343,9 @@ sub print_table {
   ### next_state length: 4*(4*2*2 + 4*2)
   ### next_state length: scalar(@next_state)
 
+  my $next_state_size = scalar(@next_state);
+  my $state_count = $next_state_size/4;
+  print "# next_state table has $next_state_size entries, is $state_count states\n";
   print_table ("next_state", \@next_state);
   print_table ("digit_to_x", \@digit_to_x);
   print_table ("digit_to_y", \@digit_to_y);
@@ -358,4 +361,35 @@ sub print_table {
   ### $invert_state
 
   print "\n";
+
+  {
+    my @pending_state = (0);
+    my $count = 0;
+    my @seen_state;
+    my $depth = 0;
+    $seen_state[0] = $depth;
+    while (@pending_state) {
+      $depth++;
+      my @new_pending_state;
+      foreach my $state (@pending_state) {
+        $count++;
+        ### consider state: $state
+
+        foreach my $digit (0 .. 3) {
+          my $next_state = $next_state[$state+$digit];
+          if (! defined $seen_state[$next_state]) {
+            $seen_state[$next_state] = $depth;
+            push @new_pending_state, $next_state;
+            ### push: "$next_state  depth $depth"
+          }
+        }
+      }
+      @pending_state = @new_pending_state;
+    }
+    for (my $state = 0; $state < @next_state; $state += 4) {
+      print "# used state $state   depth $seen_state[$state]\n";
+    }
+    print "used state count $count\n";
+  }
+
   exit 0;

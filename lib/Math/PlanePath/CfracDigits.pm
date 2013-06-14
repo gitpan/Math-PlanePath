@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,7 +45,7 @@ use Math::PlanePath::CoprimeColumns;
 
 use constant parameter_info_array =>
   [ { name      => 'radix',
-      share_key => 'radix2_1toR',
+      share_key => 'radix2_min1',
       display   => 'Radix',
       type      => 'integer',
       minimum   => 1,
@@ -462,19 +462,19 @@ only a run of digits 1,2.  These N values are also those which are the same
 when written in digits 0,1,2 as when written in digits 1,2,3, since there's
 no 0s or 3s.
 
-N=0,3,10,11,31,etc along the diagonal Y=X+1 are integers with no digit 0s in
-ternary except for an initial "10".  Those points are Y/(Y+1) which is
-continued fraction
+N=0,3,10,11,31,etc along the diagonal Y=X+1 are integers which are ternary
+"10www..." where the w's are digits 1 or 2, so no digit 0s except the
+initial "10".  These points Y=X+1 points are X/(X+1) with continued fraction
 
                      1
-    Y/(Y+1) =  0 + -----
+    X/(X+1) =  0 + -------
                         1
                    1 + ---
-                        Y
+                        X
 
-so q0=1 and q1=Y, giving N="3,Y-1" in digits 1,2,3, which is N="1,0,Y-1" in
+so q0=1 and q1=X, giving N="3,X-1" in digits 1,2,3, which is N="1,0,X-1" in
 normal ternary.  For example N=34 is ternary "1021" which is leading "10"
-and then Y-1=7 ternary "21".
+and then X-1=7 ternary "21".
 
 =head2 Radix
 

@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -212,32 +212,42 @@ Math::PlanePath::ComplexMinus -- twindragon and other complex number base i-r
 
 =head1 DESCRIPTION
 
-This path traverses points by a complex number base i-r for given integer r.
-The default is base i-1 which is the "twindragon" shape.
+X<Twindragon>This path traverses points by a complex number base i-r for
+given integer r.  The default is base i-1 which is the "twindragon" shape.
 
-           26  27          10  11                             3
-               24  25           8   9                         2
-   18  19  30  31   2   3  14  15                             1
-       16  17  28  29   0   1  12  13                     <- Y=0
-   22  23           6   7  58  59          42  43            -1
-       20  21           4   5  56  57          40  41        -2
-                   50  51  62  63  34  35  46  47            -3
-                       48  49  60  61  32  33  44  45        -4
-                   54  55          38  39                    -5
-                       52  53          36  37                -6
+=cut
 
-                        ^
-    -5  -4  -3  -2 -1  X=0  1   2   3   4   5   6   7
+# math-image --path=ComplexMinus --expression='i<64?i:0' --output=numbers
 
-In base b=i-1 a complex integer can be represented
+=pod
+
+          26 27       10 11                       3
+             24 25        8  9                    2
+    18 19 30 31  2  3 14 15                       1
+       16 17 28 29  0  1 12 13                <- Y=0
+    22 23        6  7 58 59       42 43          -1
+       20 21        4  5 56 57       40 41       -2
+                50 51 62 63 34 35 46 47          -3
+                   48 49 60 61 32 33 44 45       -4
+                54 55       38 39                -5
+                   52 53       36 37             -6
+
+                    ^
+    -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
+
+A complex integer can be represented uniquely as a set of powers,
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
+    base b=i-1
+    digits a[n] to a[0] either 0 or 1
 
-The digits a[n] to a[0] are all either 0 or 1.  N is those a[i] digits as
-bits and X,Y is the resulting complex number.  It can be shown that this is
-a one-to-one mapping so every integer X,Y of the plane is visited.
+    N = a[n]*2^n + ... + a[2]*2^2 + a[1]*2 + a[0]
 
-The shape of points N=0 to N=2^level-1 is repeats as N=2^level to
+N is those a[i] digits as bits and X,Y is the resulting complex number.  It
+can be shown that this is a one-to-one mapping so every integer X,Y of the
+plane is visited.
+
+The shape of points N=0 to N=2^level-1 repeats as N=2^level to
 N=2^(level+1)-1.  For example N=0 to N=7 is repeated as N=8 to N=15, but
 starting at X=2,Y=2 instead of the origin.  That position 2,2 is because b^3
 = 2+2i.  There's no rotations or mirroring etc in this replication, just
@@ -245,9 +255,9 @@ position offsets.
 
     N=0 to N=7          N=8 to N=15 repeat shape
 
-    2   3                    10  11    
+    2   3                    10  11
         0   1                     8   9
-    6   7                    14  15                       
+    6   7                    14  15
         4   5                    12  13
 
 For b=i-1 each N=2^level point starts at b^level.  The powering of that b
@@ -277,10 +287,10 @@ integer rE<gt>=1.  For example C<realpart =E<gt> 2> is
                              ^
     -8 -7 -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7  8  9 10
 
-N is broken into digits of base norm=r*r+1, ie. digits 0 to r*r inclusive.
-This makes horizontal runs of r*r+1 many points, such as N=0 to N=4 then N=5
-to N=9 etc above.  In the default r=1 these runs are 2 long, whereas for r=2
-they're 2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
+N is broken into digits of base=norm=r*r+1, ie. digits 0 to r*r inclusive.
+This makes horizontal runs of r*r+1 many points, such as N=5 to N=9 etc
+above.  In the default r=1 these runs are 2 long whereas for r=2 they're
+2*2+1=5 long, or r=3 would be 3*3+1=10, etc.
 
 The offset back for each run like N=5 shown is the r in i-r, then the next
 level is (i-r)^2 = (-2r*i + r^2-1) so N=25 begins at Y=-2*2=-4, X=2*2-1=3.
@@ -290,16 +300,16 @@ needed to rotate around and do so become large if norm=r*r+1 is large.
 
 =head2 X Axis Values
 
-For base i-1, N=0,1,12,13,16,17,etc on the X axis is integers using only
-digits 0,1,0xC,0xD in hexadecimal.  Those on the positive X axis have an odd
-number of such digits and on the X negative axis an even number of digits.
+For base i-1, the X axis N=0,1,12,13,16,17,etc is integers using only digits
+0,1,0xC,0xD in hexadecimal.  Those on the positive X axis have an odd number
+of digits and on the X negative axis an even number of digits.
 
-On the X axis the imaginary parts of the base powers b^k must cancel out to
-leave just a real part.  The powers repeat in an 8-long cycle
+To be on the X axis the imaginary parts of the base powers b^k must cancel
+out to leave just a real part.  The powers repeat in an 8-long cycle
 
     k    b^k for b=i-1
     0        +1
-    1      i -1      
+    1      i -1
     2    -2i +0   \ pair cancel
     3     2i +2   /
     4        -4
@@ -307,24 +317,27 @@ leave just a real part.  The powers repeat in an 8-long cycle
     6     8i +0   \ pair cancel
     7    -8i -8   /
 
-The k=0 and k=4 bits are always reals and can always be included.  Bits pair
-k=2 and k=3 have imaginary parts -2i and 2i which cancel out, so they can be
+The k=0 and k=4 bits are always reals and can always be included.  Bits k=2
+and k=3 have imaginary parts -2i and 2i which cancel out, so they can be
 included together.  Similarly k=6 and k=7 with 8i and -8i.  The two blocks
 k=0to3 and k=4to7 differ only in a negation so the bits can be reckoned in
-groups of 4 (rather than 8), ie. hexadecimal.  Bit 1 is 1 and bits 2,3
-together are 0xC, so the possible combinations are 0,1,0xC,0xD.
+groups of 4, which is hexadecimal.  Bit 1 is digit value 1 and bits 2,3
+together are digit value 0xC, so adding one or both of those gives
+combinations are 0,1,0xC,0xD.
 
 The high hex digit determines the sign, positive or negative, of the total
-real part.  k=0 or k=2,3 are positive.  k=4 or k=6,7 are negative, so
+real part.  Bits k=0 or k=2,3 are positive.  Bits k=4 or k=6,7 are negative,
+so
 
     N for X>0   N for X<0
 
-       0x01        0x1_     even number of hex 0,1,C,D following
-       0x0C        0xC_     ("_" digit any of 0,1,C,D)
-       0x0D        0xD_
+      0x01..     0x1_..     even number of hex 0,1,C,D following
+      0x0C..     0xC_..     "_" digit any of 0,1,C,D
+      0x0D..     0xD_..
 
-which is equivalent to XE<gt>0 an odd number of hex digits or XE<lt>0 an
-even number.  For example N=28=0x1C at X=-2 is the XE<lt>0 form "0x1_".
+which is equivalent to XE<gt>0 is an odd number of hex digits or XE<lt>0 is
+an even number.  For example N=28=0x1C is at X=-2 since that N is XE<lt>0
+form "0x1_".
 
 The order of the values on the positive X axis is obtained by taking the
 digits in reverse order on alternate positions
@@ -339,35 +352,35 @@ digits in reverse order on alternate positions
 For example in the following notice the first and third digit increases, but
 the middle digit decreases,
 
-    X=4to7   N=0x1D0,0x1D1,0x1DC,0x1DD
-    X=8to11  N=0x1C0,0x1C1,0x1CC,0x1CD
-    X=12to15 N=0x110,0x111,0x11C,0x11D
-    X=16to19 N=0x100,0x101,0x10C,0x10D
-    X=20to23 N=0xCD0,0xCD1,0xCDC,0xCDD
+    X=4to7     N=0x1D0,0x1D1,0x1DC,0x1DD
+    X=8to11    N=0x1C0,0x1C1,0x1CC,0x1CD
+    X=12to15   N=0x110,0x111,0x11C,0x11D
+    X=16to19   N=0x100,0x101,0x10C,0x10D
+    X=20to23   N=0xCD0,0xCD1,0xCDC,0xCDD
 
 For the negative X axis it's the same if reading by increasing X,
 ie. upwards toward +infinity, or the opposite way around if reading
-decreasing X, ie. downwards toward -infinity.
+decreasing X, ie. more negative downwards toward -infinity.
 
 =head2 Fractal
 
 The i-1 twindragon is usually conceived as taking fractional N like 0.abcde
 in binary and giving fractional complex X+iY.  The twindragon is then all
-the points of the complex plane reached by such fractional N.  The set of
-points can be shown to be connected and completely cover a certain radius
+the points of the complex plane reached by such fractional N.  This set of
+points can be shown to be connected and to completely cover a certain radius
 around the origin.
 
 The code here might be pressed into use for that up to some finite number of
-bits by multiplying up to an integer N with a desired power k
+bits by multiplying up to make an integer N with a desired power k
 
     Nint = Nfrac * 256^k
     Xfrac = Xint / 16^k
     Yfrac = Yint / 16^k
 
-256 is a good power because b^8=16 is a positive real and means there's no
-rotations to apply to the resulting X,Y, just a division by (b^8)^k=16^k
-each.  b^4=-4 for multiplier 16^k and divisor (-4)^k would be almost as
-easy.
+256 is a good power because b^8=16 is a positive real and so there's no
+rotations to apply to the resulting X,Y, just a power-of-16 division
+(b^8)^k=16^k each.  Using b^4=-4 for a multiplier 16^k and divisor (-4)^k
+would be almost as easy too, requiring just a sign change if k odd.
 
 =head1 FUNCTIONS
 
@@ -396,22 +409,22 @@ fraction.
 =head2 X,Y to N
 
 A given X,Y representing X+Yi can be turned into digits of N by successive
-complex divisions by i-r, with each digit being a remainder 0 to r*r
-inclusive from that division.
+complex divisions by i-r.  Each is a remainder 0 to r*r inclusive from that
+division.
 
 As per the base formula above
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-and the target is the a[0] digit 0 to r*r.  Subtracting a[0] and dividing by
-b will give
+and we want the a[0] digit 0 to r*r.  Subtracting a[0] and dividing by b
+will give
 
     (X+Yi - digit) / (i-r)
     = - (X-digit + Y*i) * (i+r) / norm
     = (Y - (X-digit)*r)/norm
       + i * - ((X-digit) + Y*r)/norm
 
-ie.
+which is
 
     X   <-   Y - (X-digit)*r)/norm
     Y   <-   -((X-digit) + Y*r)/norm
@@ -425,7 +438,8 @@ so
 
     digit = X + Y*r mod norm
 
-That digit value makes the real part a multiple of norm too,
+This digit value makes the real part a multiple of norm too, as can be seen
+from
 
     Y - (X-digit)*r
     = Y - X*r - (X+Y*r)*r
@@ -434,22 +448,22 @@ That digit value makes the real part a multiple of norm too,
     = Y*norm
 
 Notice the new Y is the quotient from (X+Y*r)/norm, rounded towards negative
-infinity.  Ie. in the division "X+Y*r mod norm" calculating the digit the
-quotient is the new Y and the remainder is the digit.
+infinity.  Ie. in the division "X+Y*r mod norm" which calculates the digit
+the quotient is the new Y and the remainder is the digit.
 
 =cut
 
 # Is this quite right ? ...
 #
 # =head2 Radius Range
-# 
+#
 # In general for base i-1 after the first few innermost levels each
 # N=2^level increases the covered radius around by a factor sqrt(2), ie.
-# 
+#
 #     N = 0 to 2^level-1
 #     Xmin,Ymin closest to origin
 #     Xmin^2+Ymin^2 approx 2^(level-7)
-# 
+#
 # The "level-7" is since the innermost few levels take a while to cover the
 # points surrounding the origin.  Notice for example X=1,Y=-1 is not reached
 # until N=58.  But after that it grows like N approx = pi*R^2.
@@ -461,7 +475,7 @@ this path include
 
     http://oeis.org/A066321  (etc)
 
-    A066321    N on X axis, being base i-1 positive reals
+    A066321    N on X axis, being the base i-1 positive reals
     A066323    N on X axis, in binary
     A066322    diffs (N at X=16k+4) - (N at X=16k+3)
 

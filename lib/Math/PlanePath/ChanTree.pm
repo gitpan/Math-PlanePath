@@ -17,7 +17,14 @@
 
 
 # points=all wrong
-
+#
+# Chan corollary 3 taking frac(2n)   = b(2n)   /   b(2n+1)
+#                         frac(2n+1) = b(2n+1) / 2*b(2n+2)
+# at N odd multiply 2 into denominator,
+# which is divide out 2 from numerator since b(2n+1) odd terms are even
+#
+# reduced = 0,1
+# points = even, all_mul, all_div
 
 package Math::PlanePath::ChanTree;
 use 5.004;
@@ -26,7 +33,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -94,7 +101,7 @@ use constant y_minimum => 1;
 sub sumxy_minimum {
   my ($self) = @_;
   return ($self->{'reduced'} || $self->{'k'} == 2
-          ? 2    # X=1,Y=1 reduced or k=2 X=1,Y=1
+          ? 2    # X=1,Y=1 if reduced or k=2
           : 3);  # X=1,Y=2
 }
 
@@ -102,7 +109,7 @@ sub rsquared_minimum {
   my ($self) = @_;
   return ($self->{'k'} == 2
           || ($self->{'reduced'} && ($self->{'k'} & 1) == 0)
-          ? 2    # X=1,Y=1 reduced k even, or k=2 top 1/1
+          ? 2    # X=1,Y=1 reduced k even, including k=2 top 1/1
           : 5);  # X=1,Y=2
 }
 
@@ -110,25 +117,24 @@ sub absdx_minimum {
   my ($self) = @_;
   return ($self->{'k'} & 1
           ? 1    # k odd
-          : 0);  # k even, dX=0 across middle
+          : 0);  # k even, dX=0,dY=-1 at N=k/2 middle of roots
 }
 sub absdy_minimum {
   my ($self) = @_;
   return ($self->{'k'} == 2 || ($self->{'k'} & 1)
           ? 1    # k=2 or k odd
-          : 0);  # k even, dX=0 across middle
+          : 0);  # k even, dX=1,dY=0 at N=k/2-1 middle of roots
 }
 
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'k'} == 2 ? 1 # k=2, per CW above, North
-#           : 0);                 # other, East
-# }
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'k'} == 2
-          ? (0,1)   # k=2, per CW above, North
-          : (1,0)); # other, East
+          ? (0,1)   # k=2, per RationalsTree CW
+
+          # otherwise East
+          # k even exact  dX=1,dY=0 middle of roots
+          # k odd infimum dX=big,dY=-1 eg k=5 N="2222220"
+          : (1,0));
 }
 
 use constant tree_any_leaf => 0;  # no leaves
@@ -137,7 +143,7 @@ sub tree_num_children_minimum {   # complete tree, always k children
   return $self->{'k'};
 }
 *tree_num_children_maximum = \&tree_num_children_minimum;
-use constant tree_n_to_height => undef; # complete trees, all inf
+use constant tree_n_to_subheight => undef; # complete trees, all infinite
 
 
 #------------------------------------------------------------------------------
@@ -295,15 +301,16 @@ sub n_to_xy {
   if ($self->{'reduced'}) {
     ### unreduced: "x=$x y=$y"
     if ($k & 1) {
-      # k odd, gcd(x,y)=k^m for some m
+      # k odd, gcd(x,y)=k^m for some m, divide out factors of k as possible
       foreach (0 .. scalar(@digits)) {
         last if ($x % $k) || ($y % $k);
         $x /= $k;
         $y /= $k;
       }
     } else {
-      # k even, gcd(x,y) divides (k/2)^m for some m, but gcd isn't necessarily
-      # equal to such a power, only dividing into it
+      # k even, gcd(x,y) divides (k/2)^m for some m, but gcd isn't
+      # necessarily equal to such a power, only a divisor of it, so must do
+      # full gcd calculation
       my $g = _gcd($x,$y);
       $x /= $g;
       $y /= $g;
@@ -772,10 +779,9 @@ The default k=3 visits X,Y with one odd one even and perhaps a common factor
         +--------------------------------------------------------
          X=0   1   2   3   4   5   6   7   8   9  10  11  12  13
 
-The tree has 2 roots (so technically it's a "forest") and has 3 children
-under each node.  The points are numbered by rows starting from N=0.  (This
-numbering corresponds to powers in a polynomial product generating
-function.)
+There are 2 roots (so technically it's a "forest") and each node has 3
+children.  The points are numbered by rows starting from N=0.  This
+numbering corresponds to powers in a polynomial product generating function.
 
     N=0 to 1             1/2                     2/1
                        /  |  \                 /  |  \
@@ -792,15 +798,35 @@ The children of each node are
       |              |             |
     X/(2X+Y)   (2X+Y)/(X+2Y)   (X+2Y)/Y
 
-Chan shows that the two top nodes and these children visit all rationals X/Y
-with X,Y one odd one even.  But X,Y are not in least terms, they may have a
-power-of-3 common factor GCD(X,Y)=3^m for integer m.  The first such factor
-for example is at N=10 where X=6,Y=9 represents 2/3 but has common factor 3.
-
 The slowest growth is on the far left of the tree 1/2, 1/4, 1/6, 1/8, etc
 advancing by just 2 at each level.  Similarly on the far right inverses 2/1,
 4/1, 6/1, etc.  This means that to cover such an X or Y requires N growing
 as a power of 3, N=3^(max(X,Y)/2).
+
+=head2 GCD
+
+Chan shows that the top nodes and children visit all rationals X/Y with X,Y
+one odd one even.  But X,Y are not in least terms, they may have a
+power-of-3 common factor GCD(X,Y)=3^m.
+
+The GCD is unchanged in the first and third children but the middle child
+might gain an extra power-of-3.  This means the power is at most a count of
+ternary 1-digits of its position in the row.
+
+    GCD(X,Y) = 3^m   
+    m <= count ternary 1-digits of N+1, except high digit
+
+As per L</N Start> below, N+1 in ternary has high digit 1 or 2 for which
+tree root.  Ignoring that high digit gives an offset into the row and its
+digits are 0,1,2 for left,middle,right.
+
+For example the first GCD is at N=9 with X=6,Y=9 common factor GCD=3.
+N+1=10="101" ternary, which without the high digit is "01" which has a
+single "1" so GCD <= 3^1.  The mirror image of this point is X=9,Y=6 at N=24
+and there N+1=24+1=25="221" ternary which without the high digit is "21"
+with a single 1-digit likewise.
+
+For various points the power m is equal to the count 1-digits.
 
 =head2 k Parameter
 
@@ -809,15 +835,15 @@ nodes.  There are k-1 top nodes and each node has k children.  The top nodes
 are
 
     k odd, list of k-1 tops, with h=ceil(k/2)
-     1/2  2/3  3/4  ... (h-1)/h       h/(h-1) ...  4/3  3/2  2/1
+    1/2  2/3  3/4  ... (h-1)/h       h/(h-1) ...  4/3  3/2  2/1
 
     k even, list of k-1 tops, with h=k/2
-     1/2  2/3  3/4  ... (h-1)/h  h/h  h/(h-1) ...  4/3  3/2  2/1
+    1/2  2/3  3/4  ... (h-1)/h  h/h  h/(h-1) ...  4/3  3/2  2/1
 
 Notice the list for k odd or k even is the same except that when k even
-there's an extra middle term h/h.  The first few k are as follows, spreading
-the list in each row to show how successive bigger h adds terms in the
-middle.
+there's an extra middle term h/h.  The first few tops are as follows,
+spreading the list in each row to show how successive bigger h adds terms in
+the middle.
 
      k                 X/Y top nodes
     ---    ---------------------------------
@@ -832,8 +858,8 @@ middle.
     k=7    1/2  2/3  3/4       4/3  3/2  2/1
     k=8    1/2  2/3  3/4  4/4  4/3  3/2  2/1
 
-As X,Y coordinates these are a run up along X=Y-1 and back down along X=Y+1,
-with a middle X=Y if k even.
+As X,Y coordinates these tops are a run up along X=Y-1 and back down along
+X=Y+1, with a middle X=Y if k even.  For example,
 
 =cut
 
@@ -895,11 +921,11 @@ Chan shows that this combination of top nodes and children visits
     if k even:   all rationals X/Y
                   possible GCD(X,Y) a divisor of (k/2)^m
 
-When k odd GCD(X,Y) is a power of k.  As noted above for instance k=3 is a
+When k odd GCD(X,Y) is a power of k.  As noted above k=3 is a possible
 power-of-3.  When k even GCD(X,Y) is a divisor of (k/2)^m, but not
-necessarily a full such power.  For example in k=12 the first such non-power
-GCD is at N=17 where X=16,Y=18 has GCD(16,18)=2 which is only a divisor of
-k/2=6, not a full power of 6.
+necessarily a full such power.  For example with k=12 the first such
+non-power GCD is at N=17 where X=16,Y=18 has GCD(16,18)=2 which is only a
+divisor of k/2=6, not a full power of 6.
 
 =head2 N Start
 
@@ -916,7 +942,7 @@ base-k.  For example k=10 with N in decimal,
 
     N=100 to 999    1/6 6/11   ...          ...   11/6 6/1
 
-In general
+In general C<n_start=E<gt>1> makes the tree
 
     N in base-k digits
     depth = numdigits(N)-1
@@ -939,15 +965,17 @@ so
 
 Each denominator Y becomes the numerator X in the next point, and the last Y
 of a row becomes the first X of the next row.  This is a generalization of
-Stern's diatomic sequence and of the Calkin-Wilf tree of rationals (see
-L<Math::PlanePath::RationalsTree/Calkin-Wilf Tree>).
+Stern's diatomic sequence and of the Calkin-Wilf tree of rationals.  (See
+L<Math::::NumSeq::SternDiatomic> and
+L<Math::PlanePath::RationalsTree/Calkin-Wilf Tree>.)
 
 The case k=2 is in fact precisely the Calkin-Wilf tree.  There's just one
 top node 1/1, being the even k "middle" form h/h with h=k/2=1 described
-above.  Then there's two children of each node, being the "middle" pair for
-even k,
+above.  Then there's two children of each node ("middle" pair of even k),
 
-                     X/Y            k=2, Calkin-Wilf tree
+    k=2, Calkin-Wilf tree
+
+                     X/Y
                    /     \
     (1X+0Y)/(1X+1Y)       (1X+1Y)/(0X+1Y)
        = X/(X+Y)             = (X+Y)/Y
@@ -1041,14 +1069,14 @@ If C<n_start=E<gt>1> then instead
 
     3N, 3N+1, 3N+2                  n_start=1
 
-which is like appending an extra ternary digit, or base-k digit
+This latter is like appending an extra ternary digit, or base-k digit
 
     k*N, k*N+1, ... , k*N+(k-1)     n_start=1
 
 In general for k and Nstart the children are
 
     kN - (k-1)*(Nstart-1)  + 0
-    ...
+                            ...
     kN - (k-1)*(Nstart-1)  + k-1
 
 =head2 Tree Parent
@@ -1061,20 +1089,20 @@ digit
 
 For other C<n_start> adjust before and after to an Nstart=1 basis,
 
-    parent = floor((N-Nstart+1) / k) + Nstart-1
+    parent = floor((N-(Nstart-1)) / k) + Nstart-1
 
 For example in the default k=0 Nstart=1 the parent of N=3 is
-floor((3-1+1)/3).
+floor((3-(1-1))/3)=1.
 
 The post-adjustment can be worked into the formula with a (k-1)*(Nstart-1)
 similar to the children above,
 
     parent = floor((N + (k-1)*(Nstart-1)) / k)
 
-The adjustment style is more convenient to compare to see that N is past the
-top nodes and therefore has a parent.
+The first style is more convenient to compare to see that N is past the top
+nodes and therefore has a parent.
 
-    N-Nstart+1 >= k      to check N is past top-nodes
+    N-(Nstart-1) >= k      to check N is past top-nodes
 
 =head2 Tree Depth
 
@@ -1085,7 +1113,7 @@ The structure of the tree means
 For example if k=3 then N=8 through N=25 all have depth=floor(log3(N+1))=2.
 With an C<n_start> it becomes
 
-    depth = floor(logk(N+1-Nstart))
+    depth = floor(logk(N-(Nstart-1)))
 
 C<n_start=E<gt>1> is the simplest case, being the length of N written in
 base-k digits.
@@ -1099,9 +1127,9 @@ This tree is in Sloane's Online Encyclopedia of Integer Sequences as
     http://oeis.org/A191379   (etc)
 
     k=3, n_start=0 (the defaults)
-      A191379   X coordinate
+      A191379   X coordinate, and Y=X(N+n)
 
-As noted above, k=2 is the Calkin-Wilf tree.  See
+As noted above k=2 is the Calkin-Wilf tree.  See
 L<Math::PlanePath::RationalsTree/OEIS> for "CW" related sequences.
 
 =head1 SEE ALSO

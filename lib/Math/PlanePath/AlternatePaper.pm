@@ -46,7 +46,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -1193,10 +1193,15 @@ bit position of the transition, instead of always left for the DragonCurve.
 =head2 dX,dY
 
 Since there's always a turn either left or right, never straight ahead, the
-X coordinate changes, then the Y, alternately.  X changes when N is even, Y
-changes when N is odd.  Each change is either +1 or -1.  The changes are the
-Golay-Rudin-Shapiro sequence, which is a parity of the count of adjacent 11
-bit pairs.
+X coordinate changes, then the Y, alternately.
+
+        N=0
+    dX   1  0  1  0  1  0 -1  0  1  0  1  0 -1  0  1  0  ...
+    dY   0  1  0 -1  0  1  0  1  0  1  0 -1  0 -1  0 -1  ...
+
+X changes when N is even, Y changes when N is odd.  Each change is either +1
+or -1.  The changes are the Golay-Rudin-Shapiro sequence, which is a parity
+of the count of adjacent 11 bit pairs.
 
 In the total turn above it can be seen that if the 0-E<gt>1 transition is at
 an odd position and 1-E<gt>0 transition at an even position then there's a
@@ -1206,8 +1211,8 @@ have no effect on the direction.  Runs of even length on the other hand are
 a left followed by a left, or a right followed by a right, for 180 degrees,
 which negates the dX change.  Thus
 
-    dX = /  (-1)^(count even length runs of 1 bits in N), if N even
-         \  0, if N odd
+    if N even then dX = (-1)^(count even length runs of 1 bits in N)
+    if N odd  then dX = 0
 
 This (-1)^count is related to the Golay-Rudin-Shapiro sequence,
 
@@ -1221,8 +1226,8 @@ The GRS is +1 on an odd length run of 1 bits, for example a run 111 has two
 three 11 bit pairs.  So modulo 2 the power in the GRS is the same as the
 count of even length runs and therefore
 
-    dX = /  GRS(N) if N even
-         \  0      if N odd
+    dX = /  GRS(N)  if N even
+         \  0       if N odd
 
 For dY the total turn and odd/even runs of 1s is the same 180 degree
 changes, except N is odd for a Y change so the least significant bit is 1
@@ -1232,8 +1237,8 @@ Conversely if the run started at an odd position (an even number of 1s) then
 a turn right for -1.  The result for this last run is the same "negate if
 even length" as the rest of the GRS, just for a slightly different reason.
 
-    dY = /  0      if N even
-         \  GRS(N) if N odd
+    dY = /  0       if N even
+         \  GRS(N)  if N odd
 
 =head2 dX,dY Pair
 
@@ -1294,13 +1299,13 @@ Integer Sequences as
     A106665  next turn 1=left,0=right, a(0) is turn at N=1
     A209615  turn 1=left,-1=right
     A020985  Golay/Rudin/Shapiro sequence +1,-1
-               dX and dY, skipping every second value zero
+               dX and dY alternately
                dSum, change in X+Y
     A020986  Golay/Rudin/Shapiro cumulative
-               X coordinate undoubled
+               X coordinate (undoubled)
                X+Y coordinate sum
     A020990  Golay/Rudin/Shapiro * (-1)^n cumulative
-               Y coordinate undoubled
+               Y coordinate (undoubled)
                X-Y diff, starting from N=1
     A020987  GRS with values 0,1 instead of +1,-1
 
@@ -1308,6 +1313,8 @@ Since the X and Y coordinates each change alternately, each coordinate
 appears twice, for instance X=0,1,1,2,2,3,3,2,2,etc.  A020986 and A020990
 are "undoubled" X and Y in the sense of just one copy of each of those
 paired values.
+
+    A077957  Y at N=2^k, being alternately 0 and 2^(k/2)
 
     A000695  N on X axis,   base 4 digits 0,1 only
     A062880  N on diagonal, base 4 digits 0,2 only

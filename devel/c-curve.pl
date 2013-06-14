@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,8 +21,55 @@ use 5.004;
 use strict;
 
 # uncomment this to run the ### lines
-use Devel::Comments;
+# use Smart::Comments;
 
+{
+  # drawing with Language::Logo
+
+  require Language::Logo;
+  require Math::NumSeq::PlanePathTurn;
+  my $seq = Math::NumSeq::PlanePathTurn->new(planepath=>'DragonCurve',
+                                             turn_type => 'Right');
+  require Math::NumSeq::Fibbinary;
+  my $fibbinary = Math::NumSeq::Fibbinary->new;
+
+  my $lo = Logo->new(update => 20, port=>8222);
+  $lo->command("pendown");
+  foreach my $n (1 .. 2560) {
+    my $b = $n;
+     $b = $fibbinary->ith($b);
+
+    # my $turn4 = count_low_0_bits($b) - 1;
+    # my $turn360 = $turn4 * 90;
+    # $lo->command("forward 3; right $turn360");
+
+    my $dir4 = count_1_bits($b) - 1;
+    my $dir360 = $dir4 * 90;
+    $lo->command("forward 3; seth $dir360");
+  }
+  $lo->disconnect("Finished...");
+  exit 0;
+
+  sub count_1_bits {
+    my ($n) = @_;
+    my $count = 0;
+    while ($n) {
+      $count += ($n & 1);
+      $n >>= 1;
+    }
+    return $count;
+  }
+  sub count_low_0_bits {
+    my ($n) = @_;
+    if ($n == 0) { die; }
+    my $count = 0;
+    until ($n % 2) {
+      $count++;
+      $n /= 2;
+    }
+    return $count;
+  }
+}
 {
   # repeat points
   require Math::PlanePath::CCurve;

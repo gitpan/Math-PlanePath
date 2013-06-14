@@ -30,8 +30,46 @@ use MyOEIS;
 use Math::PlanePath::DragonMidpoint;
 
 # uncomment this to run the ### lines
-#use Smart::Comments '###';
+# use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A077860 -- Y at N=2^k, starting k=1 N=2
+
+require Math::NumSeq::PlanePathN;
+my $bigclass = Math::NumSeq::PlanePathN::_bigint();
+
+# Re -(i+1)^k + i-1
+{
+  require Math::Complex;
+  my $path = Math::PlanePath::DragonMidpoint->new;
+  my $b = Math::Complex->make(1,1);
+  foreach my $k (1 .. 10) {
+    my $n = 2**$k;
+    my ($x,$y) = $path->n_to_xy($n);
+    my $c = $b; foreach (1 .. $k) { $c *= $b; }
+    $c *= Math::Complex->make(0,-1);
+    $c += Math::Complex->make(-1,1);
+    ok ($c->Re, $x);
+    ok ($c->Im, $y);
+    # print $x,",";
+    # print $c->Re,",";
+    # print $c->Im,",";
+  }
+}
+
+MyOEIS::compare_values
+  (anum => 'A077860',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::DragonMidpoint->new;
+     my @got;
+     for (my $n = $bigclass->new(2); @got < $count; $n *= 2) {
+       my ($x,$y) = $path->n_to_xy($n);
+       push @got, $y;
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A073089 -- abs(dY), so 1 if step vertical, 0 if horizontal

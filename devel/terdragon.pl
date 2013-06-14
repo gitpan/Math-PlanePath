@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -31,6 +31,40 @@ use Smart::Comments;
 
 # 1*3^k  left
 # 2*3^k  right
+
+{
+  # A+Yw  A=X-Y
+  use lib 'xt';
+  require MyOEIS;
+  require Math::PlanePath::TerdragonCurve;
+  my $path = Math::PlanePath::TerdragonCurve->new;
+  my @values;
+  foreach my $n (1 .. 20) {
+    my ($x,$y) = $path->n_to_xy($n);
+    push @values, ($x-$y);
+  }
+  print MyOEIS->grep_for_values_aref(\@values);
+  exit 0;    
+}
+{
+  # powers (1+w)^k
+  # w^2 = -1+w
+  # (a+bw)*(1+w) = a+bw + aw+bw^2
+  #              = a + bw + aw - b + bw
+  #              = (a-b) + (a+2b)w
+  # a+bw = (a+b) + bw^2
+  use lib 'xt';
+  require MyOEIS;
+  my $a = 1;
+  my $b = 0;
+  my @values;
+  for (1 .. 10) {
+    push @values, -($a+$b);
+    ($a,$b) = ($a-$b, $a+2*$b);
+  }
+  print MyOEIS->grep_for_values_aref(\@values);
+  exit 0;    
+}
 
 {
   # TerdragonCurve direction away from a point

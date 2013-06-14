@@ -36,37 +36,12 @@ use MyOEIS;
 
 
 #------------------------------------------------------------------------------
-# A014616 -- N in column X=1
-
-MyOEIS::compare_values
-  (anum => 'A014616',
-   func => sub {
-     my ($count) = @_;
-     my @got;
-     my $path = Math::PlanePath::DiagonalsOctant->new (direction => 'up',
-                                                       n_start => 0);
-     for (my $y = 1; @got < $count; $y++) {
-       push @got, $path->xy_to_n (1,$y);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
 # A079826 -- concat of rows numbers in diagonals octant order
 #            rows numbered alternately left and right
 
 MyOEIS::compare_values
   (anum => q{A079826}, # not xreffed
    max_count => 10,  # various dodginess from a(11)=785753403227
-
-   # fixup => sub {
-   #   my ($bvalues) = @_;
-   #   # typo 76 where should be 78
-   #   if ($bvalues->[11] eq '785753403227') {
-   #     MyTestHelpers::diag ("apply fixup 76 -> 78");
-   #     $bvalues->[11]    = '765753403227';
-   #   }
-   # },
 
    func => sub {
      my ($count) = @_;
@@ -109,6 +84,22 @@ MyOEIS::compare_values
 #   print "\n";
 # }
 
+
+#------------------------------------------------------------------------------
+# A014616 -- N in column X=1
+
+MyOEIS::compare_values
+  (anum => 'A014616',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::DiagonalsOctant->new (direction => 'up',
+                                                       n_start => 0);
+     for (my $y = 1; @got < $count; $y++) {
+       push @got, $path->xy_to_n (1,$y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A079823 -- concat of rows numbers in diagonals octant order

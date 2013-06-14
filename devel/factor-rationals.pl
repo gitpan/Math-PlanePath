@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -21,14 +21,16 @@
 use 5.010;
 use strict;
 use List::Util 'min', 'max';
+use Math::PlanePath::FactorRationals;
 
 # uncomment this to run the ### lines
-use Devel::Comments;
+use Smart::Comments;
 
 {
   # negabinary
   my %rev;
-  foreach my $n (0 .. 32) {
+  my $max_fac = 0;
+  foreach my $n (0 .. 2**20) {
     my $power = 1;
     my $nega = 0;
     for (my $bit = 1; $bit <= $n; $bit <<= 1) {
@@ -37,10 +39,20 @@ use Devel::Comments;
       }
       $power *= -2;
     }
-    print "$n $nega\n";
+    my $fnega = Math::PlanePath::FactorRationals::_pos_to_pn_negabinary($n);
+    my $ninv = Math::PlanePath::FactorRationals::_pn_to_pos_negabinary($nega);
+
+    my $fac = -$n / ($nega||1);
+    if ($fac > $max_fac) {
+      $max_fac = $fac;
+    print "$n $nega   $fnega $ninv  fac=$fac\n";
+    } else {
+      $fac = '';
+    }
     $rev{$nega} = $n;
   }
   print "\n";
+  exit 0;
   foreach my $nega (sort {$a<=>$b} keys %rev) {
     my $n = $rev{$nega};
     print "$nega $n\n";

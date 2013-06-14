@@ -36,6 +36,25 @@ use Math::NumSeq::PlanePathTurn;
 
 
 #------------------------------------------------------------------------------
+# A081026 -- X at N=2^k
+
+require Math::NumSeq::PlanePathN;
+my $bigclass = Math::NumSeq::PlanePathN::_bigint();
+
+MyOEIS::compare_values
+  (anum => 'A081026',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::SierpinskiCurve->new;
+     my @got = (1);
+     for (my $n = $bigclass->new(1); @got < $count; $n *= 2) {
+       my ($x,$y) = $path->n_to_xy($n);
+       push @got, $x;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A081706 - N-1 positions of left turns
 
 MyOEIS::compare_values

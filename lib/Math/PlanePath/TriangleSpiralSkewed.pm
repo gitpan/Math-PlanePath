@@ -24,7 +24,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -39,7 +39,7 @@ use constant parameter_info_array =>
   [
    { name            => 'skew',
      type            => 'enum',
-     share_key       => 'skew_lru',
+     share_key       => 'skew_lrud',
      display         => 'Skew',
      default         => 'left',
      choices         => ['left', 'right','up','down' ],

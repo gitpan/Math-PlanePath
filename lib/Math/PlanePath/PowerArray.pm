@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -355,6 +355,7 @@ path include
       A141396    permutation, N by diagonals down from Y axis
       A191449    permutation, N by diagonals up from X axis
       A135765    odd N by diagonals, deletes the Y=1,2mod4 rows
+      A000975    Y at N=2^k, being binary "10101..101"
 
     radix=4
       A000302    N on X axis, powers 4^X
@@ -369,6 +370,7 @@ path include
     radix=10
       A011557    N on X axis, powers 10^X
       A067251    N on Y axis, not a multiple of 10
+      A151754    Y coordinate of N=2^k, being floor(2^k*9/10)
 
 =head1 SEE ALSO
 

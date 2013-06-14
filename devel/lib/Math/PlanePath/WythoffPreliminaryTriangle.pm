@@ -37,7 +37,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -102,11 +102,11 @@ sub n_to_xy {
   my $y = $wythoff->xy_to_n(0,$n);
   my $x = $wythoff->xy_to_n(1,$n);
 
-  while ($y <= $x) {
-    ### at: "y=$y x=$x"
-    ($y,$x) = ($x-$y,$y);
-  }
-  ### reduction to: "y=$y x=$x"
+  # while ($y <= $x) {
+  #   ### at: "y=$y x=$x"
+  #   ($y,$x) = ($x-$y,$y);
+  # }
+  # ### reduction to: "y=$y x=$x"
 
   foreach ($self->{'shift'} .. -1) {
     ($y,$x) = ($x-$y,$y);
@@ -226,13 +226,13 @@ A coordinate pair Y and X are the start of a Fibonacci style recurrence,
     F[1]=Y, F[2]=X    F[i+i] = F[i] + F[i-1]
 
 Any such sequence eventually becomes a row of the Wythoff array
-(L<Math::PlanePath::WythoffArray>), after some number of initial iterations.
+(L<Math::PlanePath::WythoffArray>) after some number of initial iterations.
 The N value at X,Y is the row number of the Wythoff array containing
 sequence beginning Y and X.  Rows are numbered starting from 1.  Eg.
 
-    Y=4,X=1 sequence:    4, 1, 5, 6, 11, 17, 28, 45, ...
-    row 7 of the WythoffArray:           17, 28, 45, ...
-    so N=7
+    Y=4,X=1 sequence:       4, 1, 5, 6, 11, 17, 28, 45, ...
+    row 7 of WythoffArray:                  17, 28, 45, ...
+    so N=7 at Y=4,X=1
 
 Conversely a given N is positioned in the triangle according to where row
 number N of the Wythoff array "precurses" by running the recurrence in
@@ -244,14 +244,41 @@ It can be shown that such a precurse always reaches a pair Y and X with
 YE<gt>=1 and 0E<lt>=XE<lt>Y, hence making the triangular X,Y arrangement
 above.
 
-    N=7 WythoffArray row 17, 28, ...
-    go backwards by subtracting
+    N=7 WythoffArray row 7 is 17,28,45,73,...
+    go backwards from 17,28 by subtraction
        11 = 28 - 17
         6 = 17 - 11
         5 = 11 - 6
         1 = 6 - 5
         4 = 5 - 1
-    stop on reaching Y=4,X=1 which are Y>=1 and 0<=X<Y
+    stop on reaching 4,1 which is Y=4,X=1 satisfying Y>=1 and 0<=X<Y
+
+=head2 Phi Slope Blocks
+
+The effect of each step backwards is to move to successive blocks of values,
+with slope golden ratio phi=(sqrt(5)+1)/2.
+
+Suppose no backwards steps were applied, so Y,X were the first two values of
+Wythoff row N.  In the example above that would be N=7 at Y=17,X=28.  The
+first two values of the Wythoff array are
+
+    Y = W[0,r] = r-1 + floor(r*phi)       # r = row numbered from 1
+    X = W[1,r] = r-1 + 2*floor(r*phi)
+
+So this would put N values on a line of slope Y/X = 1/phi = 0.618.  The
+portion of that line which falls within 0E<lt>=XE<lt>Y
+
+=cut
+
+# (r-1 + floor(r*phi)) / (r-1 + 2*floor(r*phi))
+#   ~= (r-1+r*phi)/(r-1+2*r*phi)
+#    = (r*(phi+1) - 1) / (r*(2phi+1) - 1)
+#   -> r*(phi+1) / r*(2*phi+1)
+#    = (phi+1) / (2*phi+1)
+#    = 1/phi = 0.618
+
+
+=pod
 
 =head1 FUNCTIONS
 

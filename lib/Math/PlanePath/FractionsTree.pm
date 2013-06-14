@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 104;
+$VERSION = 105;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,12 +54,12 @@ use constant diffxy_maximum => -1; # upper octant X<=Y-1 so X-Y<=-1
 use constant tree_any_leaf => 0;   # no leaves, complete tree
 use constant tree_num_children_minimum => 2; # complete binary tree
 use constant tree_num_children_maximum => 2;
-use constant tree_n_to_height => undef; # complete tree, all infinity
+use constant tree_n_to_subheight => undef; # complete tree, all infinity
 
 use constant parameter_info_array =>
   [
    { name       => 'tree_type',
-     share_key  => 'tree_type_fractions',
+     share_key  => 'tree_type_fractionstree',
      display    => 'Tree Type',
      type       => 'enum',
      default    => 'Kepler',
@@ -448,10 +448,11 @@ following forms
 
     http://oeis.org/A020651   (etc)
 
-    A020651  - Kepler numerators (RationalsTree AYT denominators)
-    A086592  - Kepler denominators
-    A086593  - Kepler sum X+Y, and every second denominator
-    A020650  - Kepler difference Y-X (RationalsTree AYT numerators)
+    tree_type=Kepler
+      A020651  - X numerator (RationalsTree AYT denominators)
+      A086592  - Y denominators
+      A086593  - X+Y sum, and every second denominator
+      A020650  - Y-X difference (RationalsTree AYT numerators)
 
 The tree descends as X/(X+Y) and Y/(X+Y) so the denominators are two copies
 of X+Y time after the initial 1/2.  A086593 is every second, starting at 2,
