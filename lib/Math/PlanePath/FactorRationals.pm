@@ -51,7 +51,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

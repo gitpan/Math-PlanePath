@@ -225,7 +225,7 @@ use MyOEIS;
     my $str = '';
     my @values;
     foreach my $depth (1 .. 50) {
-      # my $value = path_tree_depth_to_width($path,$depth) // next;
+      # my $value = $path->tree_depth_to_width($depth) // next;
       my $value = $path->tree_depth_to_n($depth) % 2;
       $str .= "$value,";
       push @values, $value;
@@ -244,16 +244,6 @@ use MyOEIS;
   }
   exit 0;
 
-  # Return the number of points at $depth.
-  sub path_tree_depth_to_width {
-    my ($path, $depth) = @_;
-    if (defined (my $n = $path->tree_depth_to_n($depth))
-        && defined (my $n_end = $path->tree_depth_to_n_end($depth))) {
-      return $n_end - $n + 1;
-    } else {
-      return undef;
-    }
-  }
 }
 
 {

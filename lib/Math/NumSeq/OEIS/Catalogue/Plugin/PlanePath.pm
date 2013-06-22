@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 211 A-numbers in 4 modules
+# total 212 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -60,6 +60,16 @@ use constant info_arrayref =>
       'SquareSpiral,n_start=0',
       'coordinate_type',
       'Sum'
+    ]
+  },
+  {
+    'anum' => 'A053615',
+    'class' => 'Math::NumSeq::PlanePathCoord',
+    'parameters' => [
+      'planepath',
+      'PyramidSpiral,n_start=0',
+      'coordinate_type',
+      'AbsX'
     ]
   },
   {
@@ -612,16 +622,6 @@ use constant info_arrayref =>
       'Corner',
       'coordinate_type',
       'Sum'
-    ]
-  },
-  {
-    'anum' => 'A053615',
-    'class' => 'Math::NumSeq::PlanePathCoord',
-    'parameters' => [
-      'planepath',
-      'Corner,n_start=0',
-      'coordinate_type',
-      'AbsDiff'
     ]
   },
   {
@@ -1238,6 +1238,16 @@ use constant info_arrayref =>
       'SquareSpiral,wider=1',
       'line_type',
       'Diagonal_SW'
+    ]
+  },
+  {
+    'anum' => 'A185669',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PyramidSpiral,n_start=2',
+      'line_type',
+      'Diagonal_SE'
     ]
   },
   {

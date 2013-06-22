@@ -29,7 +29,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -63,9 +63,11 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 2;  # jump N=5 to N=6
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant dsumxy_minimum => -2; # diagonals
+use constant dsumxy_maximum => 3;  # dx=2,dy=1 at jump N=5 to N=6
+use constant ddiffxy_minimum => -2;
+use constant ddiffxy_maximum => 2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
 
 
 #------------------------------------------------------------------------------

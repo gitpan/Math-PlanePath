@@ -62,7 +62,7 @@ use Carp;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -122,9 +122,11 @@ sub y_negative {
   }
 }
 
-sub tree_num_children_maximum {
+sub tree_num_children_list {
   my ($self) = @_;
-  return ($self->{'parts'} eq '4' ? 4 : 3);
+  return ($self->{'parts'} eq '4'
+          ? (0, 1,    3, 4)
+          : (0, 1, 2, 3   ));
 }
 
 #------------------------------------------------------------------------------
@@ -409,6 +411,10 @@ sub _rect_to_diamond_range {
           $x2+$y2);
 }
 
+
+#------------------------------------------------------------------------------
+use constant tree_num_roots => 1;
+
 # ENHANCE-ME: step by the bits, not by X,Y
 # ENHANCE-ME: tree_n_to_depth() by probe
 sub tree_n_children {
@@ -526,6 +532,14 @@ sub tree_depth_to_n {
   ### assert: $parts eq '4'
   return 4*$n - 3*$self->{'n_start'} + 1;
 }
+# sub _NOTWORKING__tree_depth_to_n_range {
+#   my ($self, $depth) = @_;
+#   my ($nstart, $nend) = $self->Math::PlanePath::UlamWarburtonQuarter::tree_depth_to_n_range($self, $depth)
+#     or return;
+#   return (4*$nstart-3 + $self->{'n_start'}-1,
+#           4*$nend-3 + $self->{'n_start'}-1);
+# }
+
 
 sub tree_n_to_depth {
   my ($self, $n) = @_;
@@ -1057,20 +1071,21 @@ The children are the cells turned on adjacent to C<$n> at the next level.
 The way points are numbered means that when there's multiple children
 they're consecutive N values, for example at N=6 the children are 10,11,12.
 
-=item C<$num = $path-E<gt>tree_n_num_children($n)>
+=item C<@nums = $path-E<gt>tree_num_children_list($n)>
 
-Return the number of children of C<$n>, or return C<undef> if
-C<$nE<lt>n_start()> (ie. before the start of the path).
+Return a list of the possible number of children at the nodes of C<$path>.
+This is the set of possible return values from C<tree_n_num_children()>.
+This list varies with the pattern parts,
 
-    parts        possible num children
-    -----        ---------------------
-      4          0,    3, 4
-      2          0, 2, 3
-      1          0, 2, 3
+    parts     tree_num_children_list()
+    -----     ------------------------
+      4             0, 1,    3, 4
+      2             0, 1, 2, 3
+      1             0, 1, 2, 3
 
-parts=4 has 4 children at the origin N=0 and thereafter either 0 or 3.
-parts=2 or parts=1 can have 2 children on the boundaries where what would be
-a 3rd child is chopped off.
+parts=4 has 4 children at the origin N=0 and thereafter either 0, 1 or 3.
+parts=2 or parts=1 can have 2 children on the boundaries where the 3rd child
+is chopped off.
 
 =item C<$n_parent = $path-E<gt>tree_n_parent($n)>
 

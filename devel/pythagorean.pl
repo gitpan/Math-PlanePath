@@ -33,6 +33,34 @@ use Smart::Comments;
 
 
 {
+  require Devel::TimeThis;
+  require Math::PlanePath::FractionsTree;
+  my $path = Math::PlanePath::FractionsTree->new
+    (
+     # tree_type => 'FB',
+     # tree_type => 'UAD',
+     # coordinates => 'BC',
+     # coordinates => 'PQ',   # P>Q one odd other even
+    );
+  {
+    my $t = Devel::TimeThis->new('xy_is_visited');
+    foreach my $x (0 .. 200) {
+      foreach my $y (0 .. 200) {
+        $path->xy_is_visited($x,$y);
+      }
+    }
+  }
+  {
+    my $t = Devel::TimeThis->new('xy_to_n');
+    foreach my $x (0 .. 200) {
+      foreach my $y (0 .. 200) {
+        $path->xy_to_n($x,$y);
+      }
+    }
+  }
+  exit 0;
+}
+{
   # X,Y list
 
   # PQ UAD

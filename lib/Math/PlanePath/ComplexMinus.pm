@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -212,8 +212,18 @@ Math::PlanePath::ComplexMinus -- twindragon and other complex number base i-r
 
 =head1 DESCRIPTION
 
-X<Twindragon>This path traverses points by a complex number base i-r for
-given integer r.  The default is base i-1 which is the "twindragon" shape.
+X<Penney, Walter>X<Twindragon>This path traverses points by a complex number
+base i-r for given integer r.  The default is base i-1 as per
+
+=over
+
+Walter Penny, A "Binary" System for Complex Numbers, Journal of the ACM,
+volume 12, number 2, April 1965, pages 247-248.
+
+=back
+
+When continued to a power-of-2 extent this has come to be called the
+"twindragon" shape.
 
 =cut
 

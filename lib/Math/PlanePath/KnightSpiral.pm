@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -41,6 +41,10 @@ use constant dy_minimum => -2;
 use constant dy_maximum => 2;
 use constant absdx_minimum => 1;
 use constant absdy_minimum => 1;
+use constant dsumxy_minimum => -3; # -2,-1
+use constant dsumxy_maximum => 3;  # +2,+1
+use constant ddiffxy_minimum => -3;
+use constant ddiffxy_maximum => 3;
 use constant dir_minimum_dxdy => (2,1);  # X=2,Y=1 angle
 use constant dir_maximum_dxdy => (2,-1);
 

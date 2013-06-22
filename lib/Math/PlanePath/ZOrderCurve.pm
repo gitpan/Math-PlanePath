@@ -33,7 +33,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -58,6 +58,7 @@ use constant class_y_negative => 0;
 use constant dx_maximum => 1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;   # X coord always changes
+use constant dsumxy_maximum => 1; # forward straight only
 
 sub dir_maximum_dxdy {
   my ($self) = @_;

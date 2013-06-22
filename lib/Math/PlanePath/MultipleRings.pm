@@ -38,7 +38,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 105;
+$VERSION = 106;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -263,6 +263,30 @@ sub absdy_minimum {
     return sin(_PI/2 * $frac/$step);
   }
   return 0;
+}
+
+sub dsumxy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0
+          ? 1    # horizontal only
+          : -1); # infimum
+}
+use constant dsumxy_maximum => 1;
+
+# FIXME: for step=1 is there a supremum at 9 or thereabouts?
+# and for other step<6 too?
+# 2*dXmax * sqrt(2) ?
+sub ddiffxy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0  ? 1     # horizontal only
+          : $self->{'step'} <= 6 ? $self->dx_minimum * sqrt(2)
+          : -1); # infimum
+}
+sub ddiffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0   ? 1     # horizontal only
+          : $self->{'step'} <= 6 ? $self->dx_maximum * sqrt(2)
+          : 1); # supremum
 }
 
 #------------------------------------------------------------------------------

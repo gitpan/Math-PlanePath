@@ -40,6 +40,17 @@
 #
 #    A166242 double or half according to dragon turn
 
+#
+# connection points
+#   N = 26 = 11010
+#     = 27 = 11011
+#   N = 51 = 110011 = (3*16^k-1)/15 -> 1/5
+#     = 52 = 110100
+#   N = 101 = 1100101
+#     = 102 = 1100110 = 2*(3*16^k-1)/15 -> 2/5
+#   N
+
+
 package Math::PlanePath::DragonCurve;
 use 5.004;
 use strict;
@@ -47,7 +58,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -83,8 +94,10 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
+use constant dsumxy_minimum => -1; # straight only
+use constant dsumxy_maximum => 1;
+use constant ddiffxy_minimum => -1;
+use constant ddiffxy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
 
 

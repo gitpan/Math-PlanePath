@@ -42,12 +42,10 @@ use Math::Trig 'pi';
   $planepath = "QuintetReplicate";
   $planepath = "PowerArray";
   $planepath = "RationalsTree,tree_type=HCS";
-  $planepath = "ImaginaryHalf,digit_order=XnXY";
   $planepath = "ToothpickReplicate,parts=1";
   $planepath = "CfracDigits,radix=2";
   $planepath = "TerdragonCurve";
   $planepath = "MultipleRings,step=6,ring_shape=polygon";
-  $radix = 4;
   $planepath = "DiagonalRationals,direction=up";
   $planepath = "LCornerReplicate";
   $planepath = "OneOfEight,parts=wedge";
@@ -61,11 +59,19 @@ use Math::Trig 'pi';
   $planepath = "ToothpickTreeByCells,parts=two_horiz";
   $planepath = "LCornerTreeByCells,parts=octant_up+1";
   $planepath = "FactorRationals,sign_encoding=negabinary";
-  $planepath = "CfracDigits,radix=".($radix-1);
   $planepath = "ChanTree,k=5";
+  $planepath = "ComplexPlus,realpart=2";
+  $planepath = "CfracDigits,radix=".($radix-1);
+  $radix = 3;
+  $planepath = "GosperIslands";
+  $planepath = "ImaginaryHalf"; # ,digit_order=XnXY";
+  $planepath = "SquareReplicate";
+  $planepath = "GrayCode,radix=$radix,apply_type=Ts";
   my $seq = Math::NumSeq::PlanePathDelta->new (planepath => $planepath,
                                                # delta_type => 'AbsdY',
-                                               delta_type => 'Dir4',
+                                               # delta_type => 'Dir4',
+                                               delta_type => 'dY',
+                                               # delta_type => 'dDiffXY',
                                                # delta_type => 'TDir6',
                                                # delta_type => 'dAbsDiff',
                                               );

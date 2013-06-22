@@ -31,13 +31,14 @@
 # 132,158 to 77,247 sqrt((132-77)^2+(158-247)^2) = 104 = 64*1.618     8
 # 8,525 to 133,280  sqrt((8-133)^2+(525-280)^2) = 275 = 169*1.618    13
 
+
 package Math::PlanePath::WythoffPreliminaryTriangle;
 use 5.004;
 use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -51,19 +52,9 @@ use Math::PlanePath::Base::Digits
 # use Smart::Comments;
 
 
-use constant class_x_negative => 1;
-use constant class_y_negative => 1;
+use constant class_x_negative => 0;
+use constant class_y_negative => 0;
 use constant y_minimum => 1;
-use constant xy_is_visited => 1;
-
-use constant parameter_info_array =>
-  [ { name      => 'shift',
-      display   => 'Shift',
-      type      => 'integer',
-      default   => 0,
-      width     => 3,
-    },
-  ];
 
 use Math::PlanePath::WythoffArray;
 my $wythoff = Math::PlanePath::WythoffArray->new;
@@ -102,21 +93,21 @@ sub n_to_xy {
   my $y = $wythoff->xy_to_n(0,$n);
   my $x = $wythoff->xy_to_n(1,$n);
 
-  # while ($y <= $x) {
-  #   ### at: "y=$y x=$x"
-  #   ($y,$x) = ($x-$y,$y);
-  # }
-  # ### reduction to: "y=$y x=$x"
-
-  foreach ($self->{'shift'} .. -1) {
+  while ($y <= $x) {
+    ### at: "y=$y x=$x"
     ($y,$x) = ($x-$y,$y);
   }
-  foreach (1 .. $self->{'shift'}) {
-    ($y,$x) = ($x,$x+$y);
-  }
+  ### reduction to: "y=$y x=$x"
 
   ### return: "y=$y x=$x"
   return ($x, $y);
+}
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  $x = round_nearest ($x);
+  $y = round_nearest ($y);
+  return $x >= 0 && $x < $y;
 }
 
 sub xy_to_n {
@@ -127,10 +118,11 @@ sub xy_to_n {
   $y = round_nearest ($y);
   my $orig_x = $x;
   my $orig_y = $y;
-  # if ($y < 1) { return undef; }
   if (is_infinite($y)) { return $y; }
 
-  # unless ($x >= 0 && $x < $y) { return undef; }
+  unless ($x >= 0 && $x < $y) {
+    return undef;
+  }
 
   ($y,$x) = ($x,$x+$y);
   foreach (0 .. 500) {
@@ -167,15 +159,13 @@ sub rect_to_n_range {
   ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
   ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
 
-  # if (# $x2 < 0 || 
-  #     $y2 < 1) {
-  #   ### all outside first quadrant ...
-  #   return (1, 0);
-  # }
+  if ($x2 < 0 || $y2 < 1) {
+    ### all outside first quadrant ...
+    return (1, 0);
+  }
 
   return (1,
-          100000);
-#           $self->xy_to_n(0,2*abs($y2)));
+          $self->xy_to_n(0,2*abs($y2)));
 }
 
 1;

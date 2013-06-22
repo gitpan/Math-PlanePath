@@ -26,7 +26,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,10 +46,11 @@ use constant n_frac_discontinuity => .5;
 use constant rsquared_minimum => 1; # minimum X=1,Y=0
 
 use constant dx_maximum => 2;
+use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1; # never vertical
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
+use constant dsumxy_maximum => 2; # diagonal NE
+use constant ddiffxy_maximum => 2; # diagonal NW
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
 

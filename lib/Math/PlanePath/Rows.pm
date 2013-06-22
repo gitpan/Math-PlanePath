@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -75,12 +75,23 @@ sub absdy_minimum {
           : 0);
 }
 
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'width'} == 1
-#           ? 1   # north only
-#           : 0); # E to NW
-# }
+sub dsumxy_minimum {
+  my ($self) = @_;
+  return 2 - $self->{'width'}; # dX=-(width-1) dY=+1
+}
+use constant dsumxy_maximum => 1;
+sub ddiffxy_minimum {
+  my ($self) = @_;
+  # dX=-(width-1) dY=+1 gives dDiffXY=-width+1-1=-width
+  return - $self->{'width'};
+}
+sub ddiffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'width'} == 1
+          ? -1  # constant dY=-1
+          : 1); # straight E
+}
+
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'width'} == 1

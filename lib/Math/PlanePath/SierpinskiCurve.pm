@@ -25,7 +25,7 @@ use List::Util 'sum','first';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -139,9 +139,20 @@ sub dx_maximum {
 }
 *dy_maximum = \&dx_maximum;
 
+sub dsumxy_minimum {
+  my ($self) = @_;
+  return - max($self->{'straight_spacing'},
+               2*$self->{'diagonal_spacing'});
+}
+sub dsumxy_maximum {
+  my ($self) = @_;
+  return max($self->{'straight_spacing'},
+             2*$self->{'diagonal_spacing'});
+}
+*ddiffxy_minimum = \&dsumxy_minimum;
+*ddiffxy_maximum = \&dsumxy_maximum;
+
 use constant dir_maximum_dxdy => (1,-1); # South-East
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
 
 
 #------------------------------------------------------------------------------

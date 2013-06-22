@@ -118,7 +118,7 @@ use Math::PlanePath::MultipleRings;
   exit 0;
 }
 {
-  # dir4_minimum, dir4_maximum
+  # Dir4 minimum, maximum
   require Math::PlanePath::MultipleRings;
   foreach my $step (3 .. 20) {
     my $path = Math::PlanePath::MultipleRings->new (step => $step,

@@ -52,7 +52,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 105;
+  my $want_version = 106;
   ok ($Math::PlanePath::CincoCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CincoCurve->VERSION,  $want_version,

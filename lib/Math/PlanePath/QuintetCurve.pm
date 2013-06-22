@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 
 # inherit: new(), rect_to_n_range(), arms_count(), n_start(),
 #          parameter_info_array(), xy_is_visited()
@@ -45,8 +45,10 @@ use Math::PlanePath::Base::Digits
 #use Smart::Comments;
 
 
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
+use constant dsumxy_minimum => -1;  # NSEW only
+use constant dsumxy_maximum => 1;
+use constant ddiffxy_minimum => -1;
+use constant ddiffxy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
 
 

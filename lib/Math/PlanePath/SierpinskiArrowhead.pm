@@ -29,7 +29,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -94,11 +94,52 @@ sub absdx_maximum {
   return ($self->{'align'} eq 'triangular' ? 2 : 1);
 }
 
-# sub dir4_maximum {
-#   my ($self) = @_;
-#   return ($self->{'align'} eq 'right' ? 3  # South
-#           : 3.5); # South-East
-# }
+{
+  my %dsumxy_minimum = (triangular => -2,
+                        left       => -1,
+                        right      => -2,
+                        diagonal   => -1,
+                       );
+  sub dsumxy_minimum {
+    my ($self) = @_;
+    return $dsumxy_minimum{$self->{'align'}};
+  }
+}
+{
+  my %dsumxy_maximum = (triangular => 2,
+                        left       => 1,
+                        right      => 2,
+                        diagonal   => 1,
+                       );
+  sub dsumxy_maximum {
+    my ($self) = @_;
+    return $dsumxy_maximum{$self->{'align'}};
+  }
+}
+
+{
+  my %ddiffxy_minimum = (triangular => -2,
+                         left       => -2,
+                         right      => -1,
+                         diagonal   => -2,
+                        );
+  sub ddiffxy_minimum {
+    my ($self) = @_;
+    return $ddiffxy_minimum{$self->{'align'}};
+  }
+}
+{
+  my %ddiffxy_maximum = (triangular => 2,
+                        left       => 2,
+                        right      => 1,
+                        diagonal   => 2,
+                       );
+  sub ddiffxy_maximum {
+    my ($self) = @_;
+    return $ddiffxy_maximum{$self->{'align'}};
+  }
+}
+
 sub dir_maximum_dxdy {
   my ($self) = @_;
   return ($self->{'align'} eq 'right'

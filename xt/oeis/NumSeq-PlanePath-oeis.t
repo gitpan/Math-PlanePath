@@ -38,7 +38,7 @@ use MyOEIS;
 
 sub want_anum {
   my ($anum) = @_;
-   return 0 unless $anum =~ /A226314/;
+  # return 0 unless $anum =~ /A226314/;
   # return 0 unless $anum =~ /A151922|A183060/;
   # return 0 unless $anum =~ /A177702|A102283|A131756/;
   return 1;
@@ -46,7 +46,7 @@ sub want_anum {
 sub want_planepath {
   my ($planepath) = @_;
   # return 0 unless $planepath =~ /CellularRule190/;
-  # return 0 unless $planepath =~ /Diamond/;
+   return 0 unless $planepath =~ /PyramidSpiral/;
   # return 0 unless $planepath =~ /Divis|DiagonalRationals|CoprimeCol/;
   # return 0 unless $planepath =~ /DiamondSpiral/;
   # return 0 unless $planepath =~ /LCorner/;

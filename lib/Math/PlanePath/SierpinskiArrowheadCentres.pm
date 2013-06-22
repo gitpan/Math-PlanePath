@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -66,14 +66,17 @@ use constant dy_maximum => 1;
 *dx_maximum = \&Math::PlanePath::SierpinskiArrowhead::dx_maximum;
 *absdx_minimum = \&Math::PlanePath::SierpinskiArrowhead::absdx_minimum;
 *absdx_maximum = \&Math::PlanePath::SierpinskiArrowhead::absdx_maximum;
+*dsumxy_minimum = \&Math::PlanePath::SierpinskiArrowhead::dsumxy_minimum;
+*dsumxy_maximum = \&Math::PlanePath::SierpinskiArrowhead::dsumxy_maximum;
+sub ddiffxy_minimum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'right' ? -1 : -2);
+}
+sub ddiffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'right' ? 1 : 2);
+}
 *dir_maximum_dxdy = \&Math::PlanePath::SierpinskiArrowhead::dir_maximum_dxdy;
-
-# sub dir4_maximum {   # same as plain SierpinskiArrowhead
-#   my ($self) = @_;
-#   return ($self->{'align'} eq 'right'
-#           ? 3  # South
-#           : 3.5); # South-East
-# }
 
 #------------------------------------------------------------------------------
 

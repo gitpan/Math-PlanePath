@@ -33,7 +33,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -54,7 +54,7 @@ use Math::PlanePath::GcdRationals;
 *_gcd = \&Math::PlanePath::GcdRationals::_gcd;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant parameter_info_array =>
@@ -80,6 +80,13 @@ use constant parameter_info_array =>
     #   choices_display => ['Even','All Mul','All Div'],
     #   when_name       => 'k',
     #   when_condition  => 'odd',
+    # },
+    # { name            => 'digit_direction',
+    #   display         => 'Digit Direction',
+    #   type            => 'enum',
+    #   default         => 'HtoL',
+    #   choices         => ['HtoL','LtoH'],
+    #   choices_display => ['High to Low','Low to High'],
     # },
 
     { name            => 'n_start',
@@ -137,12 +144,10 @@ sub dir_minimum_dxdy {
           : (1,0));
 }
 
-use constant tree_any_leaf => 0;  # no leaves
-sub tree_num_children_minimum {   # complete tree, always k children
+sub tree_num_children_list {
   my ($self) = @_;
-  return $self->{'k'};
+  return ($self->{'k'});   # complete tree, always k children
 }
-*tree_num_children_maximum = \&tree_num_children_minimum;
 use constant tree_n_to_subheight => undef; # complete trees, all infinite
 
 
@@ -152,11 +157,15 @@ sub new {
   my $class = shift;
   my $self = $class->SUPER::new (@_);
 
-  my $k = ($self->{'k'} ||= 3);  # default 3
+  $self->{'digit_direction'} ||= 'HtoL'; # default
+
+  my $k = ($self->{'k'} ||= 3);  # default
   $self->{'half_k'} = int($k / 2);
+
   if (! defined $self->{'n_start'}) {
-    $self->{'n_start'} = 0;
+    $self->{'n_start'} = 0;      # default
   }
+
   $self->{'points'} ||= 'even';
   return $self;
 }
@@ -271,7 +280,10 @@ sub n_to_xy {
   #    2*(x+y) + y / 1*(x+y) + y     3    2x+3y / 1x+2y    >3/2
   #    1*(x+y) + y / 0*(x+y) + y     4    1x+2y / 0x+1y    >2/1
 
-  foreach my $digit (reverse @digits) {  # high to low
+  if ($self->{'digit_direction'} eq 'HtoL') {
+    @digits = reverse @digits;   # high to low is the default
+  }
+  foreach my $digit (@digits) {
     # c1 = 1,2,3,3,2,1 or 1,2,3,2,1
     my $c0 = ($digit <= $half_ceil ? $digit : $k-$digit+1);
     my $c1 = ($digit < $half_ceil ? $digit+1 : $k-$digit);
@@ -618,20 +630,25 @@ sub xy_to_n {
     }
   }
 
-  my $n = digit_join_lowtohigh (\@digits, $k, $zero) + $self->{'n_start'}-1;
   ### @digits
+  if ($self->{'digit_direction'} eq 'LtoH') {
+    my $high = pop @digits;
+    @digits = (reverse(@digits), $high);
+    ### reverse digits to: @digits
+  }
+  my $n = digit_join_lowtohigh (\@digits, $k, $zero) + $self->{'n_start'}-1;
   ### $n
 
   # if (! $self->{'reduced'})
   {
     my ($nx,$ny) = $self->n_to_xy($n);
-    ### $nx
-    ### $ny
+    ### reversed to: "$nx, $ny  cf orig $orig_x, $orig_y"
     if ($nx != $orig_x || $ny != $orig_y) {
       return undef;
     }
   }
 
+  ### xy_to_n result: "n=$n"
   return $n;
 }
 
@@ -666,6 +683,7 @@ sub rect_to_n_range {
           $self->{'n_start'}-2 + ($self->{'k'}+$zero)**$level);
 }
 
+#------------------------------------------------------------------------------
 # (N - (Nstart-1))*k + Nstart   run -1 to k-2
 #   = N*k - (Nstart-1)*k + Nstart   run -1 to k-2
 #   = N*k - k*Nstart + k + Nstart   run -1 to k-2
@@ -676,13 +694,13 @@ sub rect_to_n_range {
 #
 sub tree_n_children {
   my ($self, $n) = @_;
-  if ($n >= $self->{'n_start'}) {
-    my $k = $self->{'k'};
-    $n = $n*$k - ($k-1)*($self->{'n_start'}-1);
-    return map {$n+$_} 0 .. $k-1;
-  } else {
+  my $n_start = $self->{'n_start'};
+  unless ($n >= $n_start) {
     return;
   }
+  my $k = $self->{'k'};
+  $n = $n*$k - ($k-1)*($n_start-1);
+  return map {$n+$_} 0 .. $k-1;
 }
 sub tree_n_num_children {
   my ($self, $n) = @_;
@@ -699,31 +717,59 @@ sub tree_n_num_children {
 # N >= k+Nstart-1
 sub tree_n_parent {
   my ($self, $n) = @_;
+  ### ChanTree tree_n_parent(): $n
+  my $n_start = $self->{'n_start'};
+  $n = $n - ($n_start-1);   # to N=1 basis, and warn if $n undef
   my $k = $self->{'k'};
-  $n = $n - $self->{'n_start'} + 1;   # and warn if $n==undef
-  if ($n >= $k) {
-    _divrem_mutate ($n, $k);
-    return $n + $self->{'n_start'}-1;
-  } else {
+  unless ($n >= $k) {
+    ### root node, no parent ...
     return undef;
   }
+  _divrem_mutate ($n, $k);   # delete low digit ...
+  return $n + ($n_start-1);
 }
 sub tree_n_to_depth {
   my ($self, $n) = @_;
   ### ChanTree tree_n_to_depth(): $n
-  $n = $n - $self->{'n_start'} + 1;   # and warn if $n==undef
+  $n = $n - $self->{'n_start'} + 1;   # N=1 basis, and warn if $n==undef
   unless ($n >= 1) {
     return undef;
   }
-  my ($len, $level) = round_down_pow ($n, $self->{'k'});
-  return $level;     # floor(log base k (N-Nstart+1))
+  my ($pow, $exp) = round_down_pow ($n, $self->{'k'});
+  return $exp;     # floor(log base k (N-Nstart+1))
 }
 sub tree_depth_to_n {
   my ($self, $depth) = @_;
-  unless ($depth >= 0) {
-    return undef;
-  }
-  return $self->{'k'} ** $depth + ($self->{'n_start'}-1);
+  return ($depth >= 0
+          ? $self->{'k'}**$depth + ($self->{'n_start'}-1)
+          : undef);
+}
+
+sub tree_num_roots {
+  my ($self) = @_;
+  return $self->{'k'} - 1;
+}
+sub tree_root_n_list {
+  my ($self) = @_;
+  my $n_start = $self->{'n_start'};
+  return $n_start .. $n_start + $self->{'k'} - 2;
+}
+
+sub tree_n_root {
+  my ($self, $n) = @_;
+  my $n_start_offset = $self->{'n_start'} - 1;
+  $n = $n - $n_start_offset;   # N=1 basis, and warn if $n==undef
+  return ($n >= 1
+          ? _high_digit($n,$self->{'k'}) + $n_start_offset
+          : undef);
+}
+# Return the most significant digit of $n written in base $radix.
+sub _high_digit {
+  my ($n, $radix) = @_;
+  ### assert: ! ($n < 1)
+  my ($pow, $exp) = round_down_pow ($n, $radix);
+  _divrem_mutate($n,$pow);  # $n=quotient
+  return $n;
 }
 
 1;
@@ -783,13 +829,13 @@ There are 2 roots (so technically it's a "forest") and each node has 3
 children.  The points are numbered by rows starting from N=0.  This
 numbering corresponds to powers in a polynomial product generating function.
 
-    N=0 to 1             1/2                     2/1
-                       /  |  \                 /  |  \
-    N=2 to 7        1/4  4/5   5/2          2/5  5/4  4/1
-                   / | \  ...   ...       ...   ...  / | \
-    N=8 to 25   1/6 6/9 9/4  ...             ...  5/9 9/6 6/1
+    N=0 to 1               1/2                    2/1
+                         /  |  \                /  |  \
+    N=2 to 7          1/4  4/5   5/2         2/5  5/4  4/1
+                     / | \  ...   ...      ...   ...  / | \
+    N=8 to 25     1/6 6/9 9/4  ...            ...  5/9 9/6 6/1
 
-    N=26 ...
+    N=26 ...        
 
 The children of each node are
 
@@ -798,27 +844,36 @@ The children of each node are
       |              |             |
     X/(2X+Y)   (2X+Y)/(X+2Y)   (X+2Y)/Y
 
+Which as X,Y coordinates means vertical, 45-degree diagonal, and horizontal.
+
+    X,Y+2X      X+(X+Y),Y+(X+Y)
+      |       /
+      |     /
+      |   /
+      | /
+     X,Y------- X+2Y,Y
+
 The slowest growth is on the far left of the tree 1/2, 1/4, 1/6, 1/8, etc
-advancing by just 2 at each level.  Similarly on the far right inverses 2/1,
-4/1, 6/1, etc.  This means that to cover such an X or Y requires N growing
-as a power of 3, N=3^(max(X,Y)/2).
+advancing by just 2 at each level.  Similarly on the far right 2/1, 4/1,
+6/1, etc.  This means that to cover such an X or Y requires a power-of-3,
+N=3^(max(X,Y)/2).
 
 =head2 GCD
 
-Chan shows that the top nodes and children visit all rationals X/Y with X,Y
-one odd one even.  But X,Y are not in least terms, they may have a
+Chan shows that these top nodes and children visit all rationals X/Y with
+X,Y one odd one even.  But the X,Y are not in least terms, they may have a
 power-of-3 common factor GCD(X,Y)=3^m.
 
-The GCD is unchanged in the first and third children but the middle child
-might gain an extra power-of-3.  This means the power is at most a count of
+The GCD is unchanged in the first and third children.  The middle child GCD
+might gain an extra factor 3.  This means the power is at most the count of
 ternary 1-digits of its position in the row.
 
-    GCD(X,Y) = 3^m   
-    m <= count ternary 1-digits of N+1, except high digit
+    GCD(X,Y) = 3^m
+    m <= count ternary 1-digits of N+1 excluding high digit
 
-As per L</N Start> below, N+1 in ternary has high digit 1 or 2 for which
-tree root.  Ignoring that high digit gives an offset into the row and its
-digits are 0,1,2 for left,middle,right.
+As per L</N Start> below, N+1 in ternary has high digit 1 or 2 which
+indicates the tree root.  Ignoring that high digit gives an offset into the
+row of that tree and the digits are 0,1,2 for left,middle,right.
 
 For example the first GCD is at N=9 with X=6,Y=9 common factor GCD=3.
 N+1=10="101" ternary, which without the high digit is "01" which has a
@@ -870,24 +925,24 @@ X=Y+1, with a middle X=Y if k even.  For example,
 
       7 |                         5         k=13 top nodes N=0 to N=11
       6 |                     4       6        (total 12 top nodes)
-      5 |                 3       7    
-      4 |             2       8        
-      3 |         1       9            
-      2 |     0      10                
-      1 |        11                    
-    Y=0 |                              
+      5 |                 3       7
+      4 |             2       8
+      3 |         1       9
+      2 |     0      10
+      1 |        11
+    Y=0 |
         +------------------------------
         X=0   1   2   3   4   5   6   7
-                                        
-                                            k=14 top nodes N=0 to N=12 
+
+                                            k=14 top nodes N=0 to N=12
       7 |                         5   6        (total 13 top nodes)
       6 |                     4       7
       5 |                 3       8         N=6 is the 7/7 middle term
-      4 |             2       9        
-      3 |         1      10            
-      2 |     0      11                
-      1 |        12                    
-    Y=0 |                              
+      4 |             2       9
+      3 |         1      10
+      2 |     0      11
+      1 |        12
+    Y=0 |
         +------------------------------
         X=0   1   2   3   4   5   6   7
 
@@ -963,8 +1018,8 @@ so
 
 =head2 Diatomic Sequence
 
-Each denominator Y becomes the numerator X in the next point, and the last Y
-of a row becomes the first X of the next row.  This is a generalization of
+Each denominator Y becomes the numerator X in the next point.  The last Y of
+a row becomes the first X of the next row.  This is a generalization of
 Stern's diatomic sequence and of the Calkin-Wilf tree of rationals.  (See
 L<Math::::NumSeq::SternDiatomic> and
 L<Math::PlanePath::RationalsTree/Calkin-Wilf Tree>.)
@@ -990,11 +1045,11 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::ChanTree-E<gt>new (k =E<gt> $k, n_start =E<gt> $n)>
 
-Create and return a new path object.
+Create and return a new path object.  The defaults are k=3 and n_start=0.
 
 =item C<$n = $path-E<gt>n_start()>
 
-Return the first N in the path.  This is N=0 by default, otherwise the
+Return the first N in the path.  This is 0 by default, otherwise the
 C<n_start> parameter.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
@@ -1026,6 +1081,10 @@ n_start()>, ie. before the start of the path.
 Return the parent node of C<$n>, or C<undef> if C<$n> has no parent either
 because it's a top node or before C<n_start()>.
 
+=item C<$n_root = $path-E<gt>tree_n_root ($n)>
+
+Return the N which is root node of C<$n>.
+
 =item C<$depth = $path-E<gt>tree_n_to_depth($n)>
 
 Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
@@ -1043,6 +1102,18 @@ the tree is depth=0.
 =head2 Tree Descriptive Methods
 
 =over
+
+=item C<$num = $path-E<gt>tree_num_roots ()>
+
+Return the number of root nodes in C<$path>, which is k-1.  For example the
+default k=3 return 2 as there are two root nodes.
+
+=item C<@n_list = $path-E<gt>tree_root_n_list ()>
+
+Return a list of the N values which are the root nodes of C<$path>.  This is
+C<n_start()> through C<n_start()+k-2> inclusive, being the first k-1 many
+points.  For example in the default k=2 and Nstart=0 the return is two
+values C<(0,1)>.
 
 =item C<$num = $path-E<gt>tree_num_children_minimum()>
 
@@ -1103,6 +1174,15 @@ The first style is more convenient to compare to see that N is past the top
 nodes and therefore has a parent.
 
     N-(Nstart-1) >= k      to check N is past top-nodes
+
+=head2 Tree Root
+
+As described under L</N Start> above, if Nstart=1 then the tree root is
+simply the most significant base-k digit of N.  For other Nstart an
+adjustment is made to N=1 style and back again.
+
+    adjust = Nstart-1
+    Nroot(N) = high_base_k_digit(N-adjust) + adjust
 
 =head2 Tree Depth
 

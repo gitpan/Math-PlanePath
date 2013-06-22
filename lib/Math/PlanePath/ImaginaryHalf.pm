@@ -24,7 +24,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -66,6 +66,9 @@ use constant parameter_info_array =>
                   ],
     },
   ];
+
+# ENHANCE-ME: prove dY range
+use constant dy_maximum => 1;
 
 {
   my %absdx_minimum = (XYX => 1,

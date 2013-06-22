@@ -22,7 +22,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -59,6 +59,8 @@ sub absdx_minimum {
   my ($self) = @_;
   return ($self->{'mirror'} ? 0 : 1);
 }
+use constant dsumxy_maximum => 3;  # straight East dX=+3
+use constant ddiffxy_maximum => 3; # straight East dX=+3
 use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 
@@ -131,7 +133,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### CellularRule57 n_to_xy(): $n
 
-  $n = $n - $self->{'n_start'} + 1; # to N=1 basis
+  $n = $n - $self->{'n_start'} + 1; # to N=1 basis, and warn if $n undef
   my $frac;
   {
     my $int = int($n);

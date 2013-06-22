@@ -33,7 +33,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,12 +56,14 @@ use constant n_start => 0;
 use constant class_x_negative => 0;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::_xy_is_visited_x_positive;
 
-use constant dx_minimum => -1;
+use constant dx_minimum => -1; # NSEW only
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
+use constant dsumxy_minimum => -1;
+use constant dsumxy_maximum => 1;
+use constant ddiffxy_minimum => -1;
+use constant ddiffxy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
 
 

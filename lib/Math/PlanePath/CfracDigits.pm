@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -72,34 +72,14 @@ sub absdy_minimum {
 # radix=3 N=1189140 has dir4=0 dx=1,dy=0
 # radix=4 N=169405  has dir4=0 dx=2,dy=0
 # always eventually 0 ?
-# use constant dir_minimum_360 => 0;  # the default
+# use constant dir_minimum_dxdy => (1,0);  # the default
 
+# radix=1 N=4    dX=1,dY=-1 for dir4=3.5
+# radix=2 N=4413 dX=9,dY=-1
+# radix=3 N=9492 dX=3,dY=-1
 # ENHANCE-ME: suspect believe approaches 360 degrees, eventually, but proof?
-# use constant dir4_maximum => 4;  # the default
 # use constant dir_maximum_dxdy => (0,0);  # the default
 
-# was this right?
-  # # radix=1 N=3    dX=1,dY=1
-  # # radix=2 N=2307 dX=20,dY=1
-  # # radix=3 N=1108 dX=34,dY=6
-  # # radix=4 N=1905 dX=18,dY=2
-  # # radix=5 N=1338 dX=28,dY=1
-  # # sub dir4_minimum {
-  # #   my ($self) = @_;
-  # #   return ($self->{'radix'} % 2
-  # #           ? 3      # odd, South
-  # #           : 4);    # even, supremum
-  # # }
-  #
-  # # radix=1 N=4    dX=1,dY=-1 for dir4=3.5
-  # # radix=2 N=4413 dX=9,dY=-1
-  # # radix=3 N=9492 dX=3,dY=-1
-  # # sub dir4_maximum {
-  # #   my ($self) = @_;
-  # #   return ($self->{'radix'} % 2
-  # #           ? 3      # odd, South
-  # #           : 4);    # even, supremum
-  # # }
 
 #------------------------------------------------------------------------------
 

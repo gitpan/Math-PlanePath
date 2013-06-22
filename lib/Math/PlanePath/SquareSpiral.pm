@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -88,10 +88,14 @@ use constant parameter_info_array =>
   ];
 
 use constant xy_is_visited => 1;
-use constant dx_minimum => -1;
+use constant dx_minimum => -1; # NSEW straight only
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+use constant dsumxy_minimum => -1; # NSEW straight only
+use constant dsumxy_maximum => 1;
+use constant ddiffxy_minimum => -1;
+use constant ddiffxy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
 
 

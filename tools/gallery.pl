@@ -44,6 +44,9 @@ my %seen_filename;
 
 foreach my $elem
   (
+   ['chan-tree-rows-ltoh.png', \&special_chan_rows,
+    title => 'ChanTree,digit_direction=LtoH rows' ],
+
    ['cfrac-digits-growth.png',
     "math-image --path=CfracDigits --expression='i<=3**7?i:0' --scale=1 --size=100x200"],
    ['cfrac-digits-small.png',
@@ -1027,6 +1030,55 @@ sub pngtextadd {
   my ($filename, $keyword, $value) = @_;
   system('pngtextadd', "--keyword=$keyword", "--text=$value", $tempfile) == 0
     or die "system(pngtextadd)";
+}
+
+sub special_chan_rows {
+  my ($filename) = @_;
+
+  my $scale = 8;
+  my $width = 400;
+  my $height = 200;
+  my $margin = int($scale * .2);
+  my $xhi = int($width/$scale) + 3;
+  my $yhi = int($height/$scale) + 3;
+
+  require Geometry::AffineTransform;
+  my $affine = Geometry::AffineTransform->new;
+  $affine->scale ($scale, -$scale);
+  $affine->translate (-$scale+$margin, $height-1 - (-$scale+$margin));
+  {
+    my ($x,$y) = $affine->transform (0,0);
+    ### $x
+    ### $y
+  }
+
+  require Image::Base::GD;
+  my $image = Image::Base::GD->new (-width => $width, -height => $height);
+  $image->rectangle (0,0, $width-1,$height-1, 'black');
+
+  require Math::PlanePath::ChanTree;
+  my $path = Math::PlanePath::ChanTree->new (digit_direction => 'LtoH',
+                                            reduced => 0);
+
+  foreach my $y (0 .. $yhi) {
+    foreach my $x (0 .. $xhi) {
+      my $n = $path->xy_to_n($x,$y) // next;
+      next unless $path->tree_n_root($n) == 0; # first root only
+      my $depth = $path->tree_n_to_depth($n);
+      foreach my $n2 ($n + 1, $n - 1) {
+        next unless $n2 >= 1;
+        next unless $path->tree_n_to_depth($n2) == $depth; # within same depth
+        next unless $path->tree_n_root($n2) == 0; # first root only
+        my ($x2,$y2) = $path->n_to_xy($n2);
+        my ($sx1,$sy1) = $affine->transform($x,$y);
+        my ($sx2,$sy2) = $affine->transform($x2,$y2);
+        _image_line_clipped ($image, $sx1,$sy1, $sx2,$sy2,
+                             $width,$height, 'white');
+      }
+    }
+  }
+
+  $image->save($filename);
 }
 
 sub special_sb_rows {

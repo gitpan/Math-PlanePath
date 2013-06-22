@@ -46,7 +46,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::Dispersion';
   $path_class = 'Math::PlanePath::KochSquareflakes';
   $path_class = 'Math::PlanePath::TerdragonRounded';
-  $path_class = 'Math::PlanePath::CornerReplicate';
   $path_class = 'Math::PlanePath::HilbertSpiral';
   $path_class = 'Math::PlanePath::GreekKeySpiral';
   $path_class = 'Math::PlanePath::ComplexMinus';
@@ -115,7 +114,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::HexSpiral';
   $path_class = 'Math::PlanePath::HexSpiralSkewed';
   $path_class = 'Math::PlanePath::TwoOfEightByCells';
-  $path_class = 'Math::PlanePath::RationalsTree';
   $path_class = 'Math::PlanePath::DivisibleColumns';
   $path_class = 'Math::PlanePath::CoprimeColumns';
   $path_class = 'Math::PlanePath::DiagonalRationals';
@@ -143,25 +141,32 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::UlamWarburtonOld';
   $path_class = 'Math::PlanePath::UlamWarburton';
   $path_class = 'Math::PlanePath::PythagoreanTree';
-  $path_class = 'Math::PlanePath::WythoffPreliminaryTriangle';
   $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ToothpickSpiral';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
-  $path_class = 'Math::PlanePath::ChanTree';
   $path_class = 'Math::PlanePath::FactorRationals';
+  $path_class = 'Math::PlanePath::ChanTree';
+  $path_class = 'Math::PlanePath::RationalsTree';
+  $path_class = 'Math::PlanePath::PyramidSpiral';
+  $path_class = 'Math::PlanePath::CornerReplicate';
+  $path_class = 'Math::PlanePath::WythoffPreliminaryTriangle';
+  $path_class = 'Math::PlanePath::WythoffLines';
 
   my $lo = 0;
-  my $hi = 41;
+  my $hi = 3;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     pn_encoding => 'negabinary',
-      points => 'all_mul',
-      k => 4,
+     shift => 6,
+     # pn_encoding => 'negabinary',
+     #  points => 'all_mul',
+      # k => 4,
+     # digit_direction => 'HtoL',
+     # digit_direction => 'LtoH',
      # reduced => 1,
-     # n_start => 0,
+     # n_start => 10,
      #radix => 4,
      
      # parts => 'wedge+1',
@@ -170,7 +175,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 
      # rule => 6,
      # align => 'down',
-     # shift => -3,
      # x_start => 5,
      # y_start => 2,
       # coordinates => 'PQ',

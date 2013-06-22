@@ -32,7 +32,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -52,10 +52,18 @@ use Math::PlanePath::SacksSpiral;
 use constant n_frac_discontinuity => 0;
 use constant rsquared_minimum => 2; # minimum X=1,Y=1
 
+# jump across rings is upwards, so dY maximum unbounded but minimum=-1
+use constant dy_minimum => -1;
+
 # dX and dY unbounded jumping between rings, with the jump position rotating
-# around slowly with the twistiness of the ring
-#
+# around slowly with the twistiness of the ring.
 use constant absdx_minimum => 1;
+
+# jump across rings is ENE, so dSum maximum unbounded but minimum=-2
+use constant dsumxy_minimum => -2;
+
+# jump across rings is ENE, so dDiffXY minimum unbounded but maximum=+2
+use constant ddiffxy_maximum => 2;
 
 use constant dir_maximum_dxdy => (1,-1); # South-East
 

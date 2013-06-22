@@ -39,7 +39,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -133,8 +133,14 @@ sub dx_maximum {
     return ($absdx_minimum{$gray_type}->{$self->{'apply_type'}} || 0);
   }
 }
+
+*dsumxy_minimum = \&dx_minimum;
+*dsumxy_maximum = \&dx_maximum;
+*ddiffxy_minimum = \&dx_minimum;
+*ddiffxy_maximum = \&dx_maximum;
+
 {
-  my %dir4_maximum = (
+  my %dir_maximum_supremum = (
                       # # radix==2 always "reflected"
                       # # TsF => 0,
                       # # FsT => 0,
@@ -160,20 +166,12 @@ sub dx_maximum {
                                     sF    => 4,
                                    },
                      );
-  # sub dir4_maximum {
-  #   my ($self) = @_;
-  #   my $gray_type = ($self->{'radix'} == 2
-  #                    ? 'reflected'
-  #                    : $self->{'gray_type'});
-  #   return $dir4_maximum{$gray_type}->{$self->{'apply_type'}}
-  #     || 3; # South
-  # }
   sub dir_maximum_dxdy {
     my ($self) = @_;
     my $gray_type = ($self->{'radix'} == 2
                      ? 'reflected'
                      : $self->{'gray_type'});
-    return ($dir4_maximum{$gray_type}->{$self->{'apply_type'}}
+    return ($dir_maximum_supremum{$gray_type}->{$self->{'apply_type'}}
             ? (0,0)    # supremum
             : (0,-1)); # South
   }

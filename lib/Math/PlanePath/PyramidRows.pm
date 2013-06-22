@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -137,19 +137,24 @@ sub absdy_minimum {
   return ($self->{'step'} == 0 ? 1 : 0);
 }
 
-# if step==0 then always north, otherwise E to NW
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'step'} == 0
-#           ? 1    # north only
-#           : 0);  # east
-# }
-# sub dir4_maximum {
-#   my ($self) = @_;
-#   return ($self->{'step'} == 0
-#           ? 1    # north only
-#           : 2);  # supremum, west and 1 up
-# }
+# within row X increasing dSum=1
+# end row decrease by big
+sub dsumxy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? 1 : undef);
+}
+use constant dsumxy_maximum => 1;
+sub ddiffxy_minimum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? -1  # constant North dY=1
+          : undef);
+}
+sub ddiffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'step'} == 0 ? -1  # constant North dY=1
+          : 1);
+}
+
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'step'} == 0

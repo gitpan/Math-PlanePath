@@ -52,7 +52,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -81,6 +81,10 @@ use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1; # never vertical
+use constant dsumxy_minimum => -2; # diagonals
+use constant dsumxy_maximum => 2;
+use constant ddiffxy_minimum => -2;
+use constant ddiffxy_maximum => 2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
 

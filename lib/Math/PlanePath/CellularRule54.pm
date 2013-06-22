@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -47,6 +47,8 @@ use constant dx_maximum => 4;
 use constant dy_minimum => 0;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
+use constant dsumxy_maximum => 4;  # straight East dX=+4
+use constant ddiffxy_maximum => 4; # straight East dX=+4
 use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
 
 

@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -51,12 +51,6 @@ sub absdy_minimum {
           : 1); # always different Y
 }
 
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'radix'} == 2
-#           ? 0   # East
-#           : 1); # North
-# }
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'radix'} == 2

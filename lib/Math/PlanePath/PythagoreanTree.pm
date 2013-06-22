@@ -86,7 +86,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -107,9 +107,7 @@ use Math::PlanePath::Base::Digits
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
-use constant tree_any_leaf => 0;  # no leaves, complete tree
-use constant tree_num_children_minimum => 3; # complete ternary tree
-use constant tree_num_children_maximum => 3;
+use constant tree_num_children_list => (3); # complete ternary tree
 use constant tree_n_to_subheight => undef; # complete tree, all infinity
 
 use constant parameter_info_array =>
@@ -611,6 +609,9 @@ sub rect_to_n_range {
   return (1, $self->tree_depth_to_n_end($zero+$depth));
 }
 
+#------------------------------------------------------------------------------
+use constant tree_num_roots => 1;
+
 sub tree_n_children {
   my ($self, $n) = @_;
   unless ($n >= 1) {
@@ -639,6 +640,7 @@ sub tree_n_to_depth {
   my ($pow, $depth) = round_down_pow (2*$n-1, 3);
   return $depth;
 }
+
 sub tree_depth_to_n {
   my ($self, $depth) = @_;
   return ($depth >= 0
@@ -650,6 +652,21 @@ sub tree_depth_to_n_end {
   my ($self, $depth) = @_;
   return ($depth >= 0
           ? (3**($depth+1) - 1)/2
+          : undef);
+}
+sub tree_depth_to_n_range {
+  my ($self, $depth) = @_;
+  if ($depth >= 0) {
+    my $n_lo = (3**$depth + 1) / 2;  # same as tree_depth_to_n()
+    return ($n_lo, 3*$n_lo-2);
+  } else {
+    return;
+  }
+}
+sub tree_depth_to_width {
+  my ($self, $depth) = @_;
+  return ($depth >= 0
+          ? 3**$depth
           : undef);
 }
 

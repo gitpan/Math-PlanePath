@@ -48,7 +48,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -85,22 +85,22 @@ sub dx_minimum {
           ? -1      # odd
           : undef); # even, unlimited
 }
-*dy_minimum = \&dx_minimum;
-
 sub dx_maximum {
   my ($self) = @_;
   return ($self->{'radix'} % 2
           ? 1         # odd
           : undef);   # even, unlimited
 }
+
+*dy_minimum = \&dx_minimum;
 *dy_maximum = \&dx_maximum;
 
-# sub dir4_maximum {
-#   my ($self) = @_;
-#   return ($self->{'radix'} % 2
-#           ? 3      # odd, South
-#           : 4);    # even, supremum
-# }
+*dsumxy_minimum = \&dx_minimum;
+*dsumxy_maximum = \&dx_maximum;
+
+*ddiffxy_minimum = \&dx_minimum;
+*ddiffxy_maximum = \&dx_maximum;
+
 sub dir_maximum_dxdy {
   my ($self) = @_;
   return ($self->{'radix'} % 2

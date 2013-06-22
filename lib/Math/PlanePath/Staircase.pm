@@ -23,7 +23,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -42,8 +42,9 @@ use constant n_frac_discontinuity => .5;
 
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
+use constant dsumxy_minimum => -1; # straight S
+use constant dsumxy_maximum => 2;  # next row
+use constant ddiffxy_maximum => 1; # straight S,E
 use constant dir_maximum_dxdy => (0,-1); # South
 
 

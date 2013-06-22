@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -117,12 +117,27 @@ sub absdy_minimum {
           : 0); # N=1 dX=1,dY=0
 }
 
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'direction'} eq 'down'
-#           ? 1   # down, vertical or more
-#           : 0); # up, horiz at N=1
-# }
+# within diagonal X+Y=k is dSum=0
+# end of diagonal X=Xstart+k Y=Ystart
+#             to  X=Xstart   Y=Ystart+k+1
+# is (Xstart + Ystart+k+1) - (Xstart+k + Ystart) = 1 always, to next diagonal
+#
+use constant dsumxy_minimum => 0; # advancing diagonals
+use constant dsumxy_maximum => 1;
+
+sub ddiffxy_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? undef  # "down" jumps back unlimited at bottom
+          : -2);   # NW diagonal
+}
+sub ddiffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? 2       # SE diagonal
+          : undef); # "up" jumps down unlimited at top
+}
+
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down'
@@ -135,6 +150,15 @@ sub dir_maximum_dxdy {
           ? (1,-1)    # South-East
           : (2,-1));  # ESE
 }
+
+# If Xstart>0 or Ystart>0 then the origin is not reached.
+sub rsquared_minimum {
+  my ($self) = @_;
+  return ((  $self->{'x_start'} > 0 ? $self->{'x_start'}**2 : 0)
+          + ($self->{'y_start'} > 0 ? $self->{'y_start'}**2 : 0));
+}
+
+
 
 #------------------------------------------------------------------------------
 

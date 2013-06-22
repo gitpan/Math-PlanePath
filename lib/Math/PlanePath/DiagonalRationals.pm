@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -75,6 +75,9 @@ sub absdy_minimum {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down' ? 1 : 0);
 }
+use constant dsumxy_minimum => 0;
+use constant dsumxy_maximum => 1;  # to next diagonal stripe
+
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down'

@@ -51,9 +51,10 @@
 package Math::PlanePath::Corner;
 use 5.004;
 use strict;
+use List::Util 'min';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -74,9 +75,29 @@ use Math::PlanePath::SquareSpiral;
 
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
+
+# dSum east  dX=1,dY=0  for dSum=+1
+#      south dX=0,dY=-1 for dSum=-1
+# gnomon up to start of next gnomon is
+#    X=wider+k,Y=0 to X=0,Y=k+1
+#    dSum = 0-(wider+k) + (k+1)-0
+#         = -wider-k + k + 1
+#         = 1-wider
+sub dsumxy_minimum {
+  my ($self) = @_;
+  return min(-1, 1-$self->{'wider'});
+}
+use constant dsumxy_maximum => 1;  # East along top
+
+# dDiffXY east  dX=1,dY=0  for dDiffXY=1-0    = 1
+#         south dX=0,dY=-1 for dDiffXY=0-(-1) = 1
+# gnomon up to start of next gnomon is
+#    X=wider+k,Y=0 to X=0,Y=k+1
+#    dDiffXY = 0-(wider+k) - ((k+1)-0)
+#            = -wider - 2*k - 1  unbounded negative
+use constant ddiffxy_maximum => 1; # East along top
+
 use constant dir_maximum_dxdy => (0,-1); # South
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
 
 
 #------------------------------------------------------------------------------

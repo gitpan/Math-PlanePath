@@ -32,7 +32,7 @@ use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -65,8 +65,10 @@ use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
+use constant dsumxy_minimum => -2; # diagonals
+use constant dsumxy_maximum => 2;
+use constant ddiffxy_minimum => -2;
+use constant ddiffxy_maximum => 2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
 

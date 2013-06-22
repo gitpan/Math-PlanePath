@@ -26,7 +26,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -59,8 +59,9 @@ use constant dx_maximum => 2; # across gap
 use constant dy_minimum => 0;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
-# use constant dir4_maximum => 2;  #
-use constant dir_maximum_dxdy => (-1,0); # supremum, West and dY=+1 up
+use constant dsumxy_maximum => 2; # straight East dX=+2
+use constant ddiffxy_maximum => 2; # straight East dX=+2
+use constant dir_maximum_dxdy => (-1,0); # supremum, West except dY=+1
 
 
 #------------------------------------------------------------------------------
@@ -106,7 +107,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### CellularRule190 n_to_xy(): $n
 
-  $n = $n - $self->{'n_start'} + 1; # to N=1 basis
+  $n = $n - $self->{'n_start'} + 1; # to N=1 basis, and warn if $n undef
   my $frac;
   {
     my $int = int($n);

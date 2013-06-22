@@ -22,7 +22,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -77,12 +77,21 @@ sub absdy_minimum {
           : 0); # 'up' N=2 dY=0
 }
 
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'direction'} eq 'down'
-#           ? 1   # vertical N=1to2
-#           : 0); # horizontal N=2to3
-# }
+use constant dsumxy_minimum => 0; # advancing diagonals
+use constant dsumxy_maximum => 1;
+sub ddiffxy_minimum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? undef  # "down" jumps back unlimited at bottom
+          : -2);   # NW diagonal
+}
+sub ddiffxy_maximum {
+  my ($self) = @_;
+  return ($self->{'direction'} eq 'down'
+          ? 2       # SE diagonal
+          : undef); # "up" jumps down unlimited at top
+}
+
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'direction'} eq 'down'

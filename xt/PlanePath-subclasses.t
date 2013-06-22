@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 use List::Util;
 use Test;
-plan tests => 575;
+plan tests => 5;
 
 use lib 't';
 use MyTestHelpers;
@@ -35,52 +35,94 @@ require Math::PlanePath;
 my $verbose = 1;
 
 my @modules = (
-                # 'ToothpickSpiral',
-                # 'ToothpickSpiral,n_start=0',
-                # 'ToothpickSpiral,n_start=37',
-
-               # 'PeninsulaBridge',
-
-               # 'ToothpickTree,parts=3',
-               # 'ToothpickTree,parts=octant',
-               # 'ToothpickTree,parts=octant_up',
-               # 'ToothpickTree,parts=wedge',
-               # 'ToothpickTree',
-               # 'ToothpickTree,parts=1',
-               # 'ToothpickTree,parts=2',
-               
-               # 'ToothpickReplicate',
-               # 'ToothpickReplicate,parts=1',
-               # 'ToothpickReplicate,parts=2',
-               # 'ToothpickReplicate,parts=3',
-               
-               # 'OneOfEight,parts=octant_up',
-               # 'OneOfEight,parts=wedge',
-               # 'OneOfEight',
-               # 'OneOfEight,parts=4',
-               # 'OneOfEight,parts=1',
-               # 'OneOfEight,parts=octant',
-               # 'OneOfEight,parts=3mid',
-               # 'OneOfEight,parts=3side',
-               # 
-               # 'LCornerTree,parts=octant_up+1',
-               # 'LCornerTree,parts=octant+1',
-               # 'LCornerTree,parts=wedge+1',
-               # 'LCornerTree,parts=diagonal-1',
-               # 'LCornerTree,parts=diagonal',
-               # 'LCornerTree,parts=wedge',
-               # 'LCornerTree,parts=octant_up',
-               # 'LCornerTree,parts=octant',
-               # 'LCornerTree', # parts=4
-               # 'LCornerTree,parts=1',
-               # 'LCornerTree,parts=2',
-               # 'LCornerTree,parts=3',
-
-               # 'ToothpickUpist',
-
-               # 'LCornerReplicate',
-
                # module list begin
+
+               'CornerReplicate',
+
+               'UlamWarburton',
+               'UlamWarburton,n_start=0',
+               'UlamWarburton,n_start=0,parts=2',
+               'UlamWarburton,n_start=0,parts=1',
+               'UlamWarburton,n_start=37',
+               'UlamWarburton,n_start=37,parts=2',
+               'UlamWarburton,n_start=37,parts=1',
+               'UlamWarburton,parts=2',
+               'UlamWarburton,parts=1',
+               'UlamWarburtonQuarter',
+               'UlamWarburtonQuarter,n_start=0',
+               'UlamWarburtonQuarter,n_start=37',
+
+               'RationalsTree',
+               'RationalsTree,tree_type=CW',
+               'RationalsTree,tree_type=AYT',
+               'RationalsTree,tree_type=Bird',
+               'RationalsTree,tree_type=Drib',
+               'RationalsTree,tree_type=L',
+               'RationalsTree,tree_type=HCS',
+
+               # '*OneOfEight,parts=side',
+               '*OneOfEight',
+               '*OneOfEight,parts=1',
+               '*OneOfEight,parts=octant',
+               '*OneOfEight,parts=octant_up',
+               '*OneOfEight,parts=wedge',
+               '*OneOfEight,parts=3mid',
+               '*OneOfEight,parts=3side',
+
+               'PythagoreanTree,coordinates=SM',
+               'PythagoreanTree,coordinates=SC',
+               'PythagoreanTree,coordinates=MC',
+               'PythagoreanTree,tree_type=FB,coordinates=SM',
+               'PythagoreanTree,tree_type=FB,coordinates=SC',
+               'PythagoreanTree,tree_type=FB,coordinates=MC',
+               'PythagoreanTree',
+               'PythagoreanTree,coordinates=AC',
+               'PythagoreanTree,coordinates=BC',
+               'PythagoreanTree,coordinates=PQ',
+               'PythagoreanTree,tree_type=FB',
+               'PythagoreanTree,tree_type=FB,coordinates=AC',
+               'PythagoreanTree,tree_type=FB,coordinates=BC',
+               'PythagoreanTree,tree_type=FB,coordinates=PQ',
+
+               'PyramidSpiral',
+               'PyramidSpiral,n_start=0',
+               'PyramidSpiral,n_start=37',
+
+               '*LCornerTree,parts=octant_up+1',
+               '*LCornerTree,parts=octant+1',
+               '*LCornerTree,parts=wedge+1',
+               '*LCornerTree,parts=diagonal-1',
+               '*LCornerTree,parts=diagonal',
+               '*LCornerTree,parts=wedge',
+               '*LCornerTree,parts=octant_up',
+               '*LCornerTree,parts=octant',
+               '*LCornerTree', # parts=4
+               '*LCornerTree,parts=1',
+               '*LCornerTree,parts=2',
+               '*LCornerTree,parts=3',
+
+               '*ToothpickUpist',
+
+               '*ToothpickSpiral',
+               '*ToothpickSpiral,n_start=0',
+               '*ToothpickSpiral,n_start=37',
+
+               # '*PeninsulaBridge',
+
+               '*ToothpickTree',
+               '*ToothpickTree,parts=1',
+               '*ToothpickTree,parts=2',
+               '*ToothpickTree,parts=3',
+               '*ToothpickTree,parts=octant',
+               '*ToothpickTree,parts=octant_up',
+               '*ToothpickTree,parts=wedge',
+
+               '*ToothpickReplicate',
+               '*ToothpickReplicate,parts=1',
+               '*ToothpickReplicate,parts=2',
+               '*ToothpickReplicate,parts=3',
+
+               '*LCornerReplicate',
 
                'ChanTree',
                'ChanTree,n_start=1234',
@@ -153,21 +195,6 @@ my @modules = (
                'PyramidRows,align=right,step=5,n_start=37',
                'PyramidRows,align=left,step=3,n_start=37',
 
-               'PythagoreanTree,coordinates=SM',
-               'PythagoreanTree,coordinates=SC',
-               'PythagoreanTree,coordinates=MC',
-               'PythagoreanTree,tree_type=FB,coordinates=SM',
-               'PythagoreanTree,tree_type=FB,coordinates=SC',
-               'PythagoreanTree,tree_type=FB,coordinates=MC',
-               'PythagoreanTree',
-               'PythagoreanTree,coordinates=AC',
-               'PythagoreanTree,coordinates=BC',
-               'PythagoreanTree,coordinates=PQ',
-               'PythagoreanTree,tree_type=FB',
-               'PythagoreanTree,tree_type=FB,coordinates=AC',
-               'PythagoreanTree,tree_type=FB,coordinates=BC',
-               'PythagoreanTree,tree_type=FB,coordinates=PQ',
-
                # Math::PlanePath::CellularRule::Line
                'CellularRule,rule=2',  # left line
                'CellularRule,rule=2,n_start=0',
@@ -178,19 +205,6 @@ my @modules = (
                'CellularRule,rule=16', # right line
                'CellularRule,rule=16,n_start=0',
                'CellularRule,rule=16,n_start=37',
-
-               'UlamWarburton,parts=1',
-               'UlamWarburton,parts=2',
-               'UlamWarburton',
-               'UlamWarburton,n_start=0',
-               'UlamWarburton,n_start=0,parts=2',
-               'UlamWarburton,n_start=0,parts=1',
-               'UlamWarburton,n_start=37',
-               'UlamWarburton,n_start=37,parts=2',
-               'UlamWarburton,n_start=37,parts=1',
-               'UlamWarburtonQuarter',
-               'UlamWarburtonQuarter,n_start=0',
-               'UlamWarburtonQuarter,n_start=37',
 
                'TerdragonRounded',
                'TerdragonRounded,arms=2',
@@ -435,14 +449,6 @@ my @modules = (
                'SierpinskiArrowheadCentres,align=left',
                'SierpinskiArrowheadCentres,align=diagonal',
 
-               'RationalsTree',
-               'RationalsTree,tree_type=CW',
-               'RationalsTree,tree_type=AYT',
-               'RationalsTree,tree_type=Bird',
-               'RationalsTree,tree_type=Drib',
-               'RationalsTree,tree_type=L',
-               'RationalsTree,tree_type=HCS',
-
                'CubicBase',
                'CubicBase,radix=3',
                'CubicBase,radix=4',
@@ -519,9 +525,7 @@ my @modules = (
                'LTiling,L_fill=all',
                'FibonacciWordFractal',
 
-               'CornerReplicate',
                'HeptSpiralSkewed',
-               'PyramidSpiral',
 
                'GosperReplicate',
                'GosperSide',
@@ -698,6 +702,25 @@ my @modules = (
                       "CellularRule,rule=$_,n_start=0",
                       "CellularRule,rule=$_,n_start=37")} 0..255),
               );
+
+@modules = grep { module_exists($_) } @modules;
+sub module_exists {
+  my ($module) = @_;
+  if ($module =~ /^\*([^,]+)/) {
+    require Module::Util;
+    my $filename = Module::Util::find_installed("Math::PlanePath::$1");
+    if ($filename) {
+      return 1;
+    } else {
+      MyTestHelpers::diag ("skip optional $module");
+      return 0;
+    }
+  } else {
+    return 1;  # not optional
+  }
+}
+foreach (@modules) { s/^\*// }
+  
 my @classes = map {(module_parse($_))[0]} @modules;
 { my %seen; @classes = grep {!$seen{$_}++} @classes } # uniq
 
@@ -732,7 +755,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 105;
+my $want_version = 106;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -748,27 +771,27 @@ ok (! eval { Math::PlanePath->VERSION($check_version); 1 },
 #------------------------------------------------------------------------------
 # new and VERSION
 
-foreach my $class (@classes) {
-  eval "require $class" or die;
-
-  ok (eval { $class->VERSION($want_version); 1 },
-      1,
-      "VERSION class check $want_version in $class");
-  ok (! eval { $class->VERSION($check_version); 1 },
-      1,
-      "VERSION class check $check_version in $class");
-
-  my $path = $class->new;
-  ok ($path->VERSION, $want_version,
-      "VERSION object method in $class");
-
-  ok (eval { $path->VERSION($want_version); 1 },
-      1,
-      "VERSION object check $want_version in $class");
-  ok (! eval { $path->VERSION($check_version); 1 },
-      1,
-      "VERSION object check $check_version in $class");
-}
+# foreach my $class (@classes) {
+#   eval "require $class" or die;
+# 
+#   ok (eval { $class->VERSION($want_version); 1 },
+#       1,
+#       "VERSION class check $want_version in $class");
+#   ok (! eval { $class->VERSION($check_version); 1 },
+#       1,
+#       "VERSION class check $check_version in $class");
+# 
+#   my $path = $class->new;
+#   ok ($path->VERSION, $want_version,
+#       "VERSION object method in $class");
+# 
+#   ok (eval { $path->VERSION($want_version); 1 },
+#       1,
+#       "VERSION object check $want_version in $class");
+#   ok (! eval { $path->VERSION($check_version); 1 },
+#       1,
+#       "VERSION object check $check_version in $class");
+# }
 
 #------------------------------------------------------------------------------
 # x_negative, y_negative
@@ -1099,18 +1122,18 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-
+  
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-
+    
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-
+    
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-
+    
     my $dxdy_allowed
       = $class_dxdy_allowed{$class.",skew=".($parameters{'skew'}||'')}
         || $class_dxdy_allowed{$class};
@@ -1123,11 +1146,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-
+    
     #
     # MyTestHelpers::diag ($mod);
     #
-
+    
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -1144,19 +1167,19 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-
+    
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' oops ', @_);
       $good = 0;
       # exit 1;
     };
-
+    
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-
+    
     foreach my $pinfo ($path->parameter_info_list) {
       if ($pinfo->{'type'} eq 'enum') {
         my $choices = $pinfo->{'choices'};
@@ -1168,15 +1191,15 @@ sub pythagorean_diag {
           }
         }
       }
-    }    
-
+    }
+    
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-
+    
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
@@ -1193,7 +1216,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     if (# VogelFloret has a secret undocumented return for N=0
         ! $path->isa('Math::PlanePath::VogelFloret')
         # Rows/Columns secret undocumented extend into negatives ...
@@ -1239,7 +1262,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     {
       my $saw_warning;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
@@ -1250,7 +1273,9 @@ sub pythagorean_diag {
                            ? ('tree_n_to_depth',
                               'tree_depth_to_n',
                               'tree_depth_to_n_end',
+                              'tree_depth_to_n_range',
                               'tree_n_parent',
+                              'tree_n_root',
                               'tree_n_children',
                               'tree_n_num_children',
                              )
@@ -1269,7 +1294,7 @@ sub pythagorean_diag {
         $path->xy_to_n(undef,0);
         $saw_warning or &$report("xy_to_n(undef,0) doesn't give a warning");
       }
-
+      
       # No warning if xy_is_visited() is a constant.
       # {
       #   $saw_warning = 0;
@@ -1282,7 +1307,7 @@ sub pythagorean_diag {
       #   $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
       # }
     }
-
+    
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -1358,7 +1383,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1395,7 +1420,7 @@ sub pythagorean_diag {
         $num_values == 0
           or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
-
+      
       foreach my $method ('n_to_rsquared','n_to_radius') {
         ### n_to_r (neg_infinity) ...
         my @ret = $path->$method($neg_infinity);
@@ -1439,7 +1464,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1494,7 +1519,7 @@ sub pythagorean_diag {
         }
       }
     }
-
+    
     foreach my $x
       (0,
        pos_infinity_maybe(),
@@ -1546,10 +1571,22 @@ sub pythagorean_diag {
       }
     }
 
+    my $x_minimum = $path->x_minimum;
+    my $x_maximum = $path->x_maximum;
+    my $y_minimum = $path->y_minimum;
+    my $y_maximum = $path->y_maximum;
+
+    my $sumxy_minimum = $path->sumxy_minimum;
+    my $sumxy_maximum = $path->sumxy_maximum;
+    my $diffxy_minimum = $path->diffxy_minimum;
+    my $diffxy_maximum = $path->diffxy_maximum;
+
     my %saw_n_to_xy;
     my %count_n_to_xy;
     my $got_x_negative = 0;
     my $got_y_negative = 0;
+    my $got_x_minimum;
+    my $got_y_minimum;
     my ($prev_x, $prev_y);
     my @n_to_x;
     my @n_to_y;
@@ -1564,6 +1601,47 @@ sub pythagorean_diag {
       if ($x < 0) { $got_x_negative = 1; }
       if ($y < 0) { $got_y_negative = 1; }
 
+      if (defined $x_minimum && $x < $x_minimum) {
+        &$report("n_to_xy($n) X=$x below x_minimum=$x_minimum");
+      }
+      if (defined $x_maximum && $x > $x_maximum) {
+        &$report("n_to_xy($n) X=$x below x_maximum=$x_maximum");
+      }
+      if (defined $y_minimum && $y < $y_minimum) {
+        &$report("n_to_xy($n) Y=$y below y_minimum=$y_minimum");
+      }
+      if (defined $y_maximum && $y > $y_maximum) {
+        &$report("n_to_xy($n) Y=$y below y_maximum=$y_maximum");
+      }
+
+      my $sumxy = $x + $y;
+      my $diffxy = $x - $y;
+      if (defined $sumxy_minimum && $sumxy < $sumxy_minimum) {
+        &$report("n_to_xy($n) X+Y=$sumxy below sumxy_minimum=$sumxy_minimum");
+      }
+      if (defined $sumxy_maximum && $sumxy > $sumxy_maximum) {
+        &$report("n_to_xy($n) X+Y=$sumxy above sumxy_maximum=$sumxy_maximum");
+      }
+      if (defined $diffxy_minimum && $diffxy < $diffxy_minimum) {
+        &$report("n_to_xy($n) X+Y=$diffxy below diffxy_minimum=$diffxy_minimum");
+      }
+      if (defined $diffxy_maximum && $diffxy > $diffxy_maximum) {
+        &$report("n_to_xy($n) X+Y=$diffxy above diffxy_maximum=$diffxy_maximum");
+      }
+
+      # if (! defined $got_x_minimum || $x < $got_x_minimum) {
+      #   $got_x_minimum = $x;
+      # }
+      # if (! defined $got_y_minimum || $y < $got_y_minimum) {
+      #   $got_y_minimum = $y;
+      # }
+      # if (! defined $got_x_maximum || $x < $got_x_maximum) {
+      #   $got_x_maximum = $x;
+      # }
+      # if (! defined $got_y_maximum || $y < $got_y_maximum) {
+      #   $got_y_maximum = $y;
+      # }
+
       my $xystr = (int($x) == $x && int($y) == $y
                    ? sprintf('%d,%d', $x,$y)
                    : sprintf('%.3f,%.3f', $x,$y));
@@ -1575,10 +1653,12 @@ sub pythagorean_diag {
       }
       $saw_n_to_xy{$xystr} = $n;
 
+      my ($dx,$dy);
+      if (defined $prev_x) { $dx = $x - $prev_x; }
+      if (defined $prev_y) { $dy = $y - $prev_y; }
+
       if ($dxdy_allowed) {
         if (defined $prev_x) {
-          my $dx = $x - $prev_x;
-          my $dy = $y - $prev_y;
           my $dxdy = "$dx,$dy";
           $dxdy_allowed->{$dxdy}
             or &$report ("n=$n dxdy=$dxdy not allowed");
@@ -1949,6 +2029,75 @@ sub pythagorean_diag {
       }
     }
 
+    my $num_children_minimum = $path->tree_num_children_minimum;
+    my $num_children_maximum = $path->tree_num_children_maximum;
+    ($num_children_maximum >= $num_children_minimum)
+      or &$report ("tree_num_children_maximum() is ",$num_children_maximum,
+                   "expect >= tree_num_children_minimum() is ",$num_children_minimum);
+
+    my @num_children_list = $path->tree_num_children_list;
+    my $num_children_list_str = join(',',@num_children_list);
+    my %num_children_hash;
+    @num_children_hash{@num_children_list} = (); # hash slice
+    @num_children_list >= 1
+      or &$report ("tree_num_children_list() is empty");
+    $num_children_list[0] == $num_children_minimum
+      or &$report ("tree_num_children_list() first != minimum");
+    $num_children_list[-1] == $num_children_maximum
+      or &$report ("tree_num_children_list() last != maximum");
+    join(',',sort {$a<=>$b} @num_children_list) eq $num_children_list_str
+      or &$report ("tree_num_children_list() not sorted");
+
+    # tree_any_leaf() is the same as tree_num_children_minimum()==0
+    my $any_leaf = $path->tree_any_leaf;
+    ((!!$any_leaf) == ($num_children_minimum==0))
+      or &$report ("tree_any_leaf() is ",$any_leaf," but tree_num_children_minimum() is ",$num_children_minimum);
+
+    my $num_roots = $path->tree_num_roots;
+    if ($is_a_tree) {
+      $num_roots > 0
+        or &$report ("tree_num_roots() should be > 0, got ", $num_roots);
+    } else {
+      $num_roots == 0
+        or &$report ("tree_num_roots() should be 0 for non-tree, got ", $num_roots);
+    }
+
+    my @root_n_list = $path->tree_root_n_list;
+    my $root_n_list_str = join(',',@root_n_list);
+    scalar(@root_n_list) == $num_roots
+      or &$report ("tree_root_n_list() $root_n_list_str expected num_roots=$num_roots many values");
+    my %root_n_list;
+    foreach my $root_n (@root_n_list) {
+      if (exists $root_n_list{$root_n}) {
+        &$report ("tree_root_n_list() duplicate $root_n in list $root_n_list_str");
+      }
+      $root_n_list{$root_n} = 1;
+    }
+
+    ### tree_n_root() of each ...
+    my $have_class_tree_n_root
+      = ($path->can('tree_n_root') != Math::PlanePath->can('tree_n_root'));
+    if ($have_class_tree_n_root) {
+      MyTestHelpers::diag ("tree_n_root() specific implementation ...");
+    }
+
+    foreach my $n ($n_start .. $n_start+$limit) {
+      my $root_n = $path->tree_n_root($n);
+      if ($is_a_tree) {
+        if (! defined $root_n || ! $root_n_list{$root_n}) {
+          &$report ("tree_n_root($n) got ",$root_n," is not a root ($root_n_list_str)");
+        }
+        if ($have_class_tree_n_root) {
+          my $root_n_by_search = $path->Math::PlanePath::tree_n_root($n);
+          $root_n == $root_n_by_search
+            or &$report ("tree_n_root($n) got ",$root_n," but by search is ",$root_n_by_search);
+        }
+      } else {
+        if (defined $root_n) {
+          &$report ("tree_n_root($n) got ",$root_n," expected undef for non-tree");
+        }
+      }
+    }
 
     ### tree_n_children before n_start ...
     foreach my $n ($n_start-5 .. $n_start-1) {
@@ -1973,14 +2122,33 @@ sub pythagorean_diag {
       }
     }
     ### tree_n_children() look at tree_n_parent of each ...
-    foreach my $n ($n_start .. $n_start+$limit) {
-      ### $n
-      my @n_children = $path->tree_n_children($n);
-      ### @n_children
-      foreach my $n_child (@n_children) {
-        my $got_n_parent = $path->tree_n_parent($n_child);
-        ($got_n_parent == $n)
-          or &$report ("tree_n_parent($n_child) got $got_n_parent want $n");
+    {
+      my %unseen_num_children = %num_children_hash;
+      foreach my $n ($n_start .. $n_start+$limit,
+                    ($path->isa('Math::PlanePath::OneOfEight')
+                     ? (37, # first with 2 children in parts=4
+                        58) # first with 3 children in parts=4
+                     : ())) {
+        ### $n
+        my @n_children = $path->tree_n_children($n);
+        ### @n_children
+        
+        my $num_children = scalar(@n_children);
+        exists $num_children_hash{$num_children}
+          or &$report ("tree_n_children($n)=$num_children not in tree_num_children_list()=$num_children_list_str");
+        
+        delete $unseen_num_children{$num_children};
+        
+        foreach my $n_child (@n_children) {
+          my $got_n_parent = $path->tree_n_parent($n_child);
+          ($got_n_parent == $n)
+            or &$report ("tree_n_parent($n_child) got $got_n_parent want $n");
+        }
+      }
+      if (%unseen_num_children) {
+        &$report ("tree_num_children_list() values not seen: ",
+                  join(',',sort {$a<=>$b} keys %unseen_num_children),
+                 " of total=$num_children_list_str");
       }
     }
 
@@ -1991,9 +2159,10 @@ sub pythagorean_diag {
         &$report ("tree_n_to_depth($n) < n_start=$n_start unexpectedly got depth ",$depth);
       }
     }
-    ### tree_n_to_depth matching parent count ...
+
     if ($path->can('tree_n_to_depth')
         != Math::PlanePath->can('tree_n_to_depth')) {
+      ### tree_n_to_depth() vs count up by parents ...
       # MyTestHelpers::diag ($mod, ' tree_n_to_depth()');
       foreach my $n ($n_start .. $n_start+$limit) {
         my $want_depth = path_tree_n_to_depth_by_parents($path,$n);
@@ -2007,6 +2176,7 @@ sub pythagorean_diag {
 
     if ($path->can('tree_n_to_subheight')
         != Math::PlanePath->can('tree_n_to_subheight')) {
+      ### tree_n_to_subheight() vs search downwards ...
       # MyTestHelpers::diag ($mod, ' tree_n_to_subheight()');
       foreach my $n ($n_start .. $n_start+$limit) {
         my $want_height = path_tree_n_to_subheight_by_search($path,$n);
@@ -2019,9 +2189,16 @@ sub pythagorean_diag {
 
     ### tree_depth_to_n() on depth<0 ...
     foreach my $depth (-2 .. -1) {
-      my $n = $path->tree_depth_to_n($depth);
-      if (defined $n) {
-        &$report ("tree_depth_to_n($depth) unexpectedly got n=",$n);
+      foreach my $method ('tree_depth_to_n','tree_depth_to_n_end') {
+        my $n = $path->$method($depth);
+        if (defined $n) {
+          &$report ("$method($depth) unexpectedly got n=",$n);
+        }
+      }
+      {
+        my @ret = $path->tree_depth_to_n_range($depth);
+        scalar(@ret) == 0
+          or &$report ("tree_depth_to_n_range($depth) not an empty return");
       }
     }
 
@@ -2037,6 +2214,17 @@ sub pythagorean_diag {
           &$report ("tree_depth_to_n($depth) not an integer: ",$n);
           next;
         }
+
+        my $n_end = $path->tree_depth_to_n_end($depth);
+        $n_end >= $n
+          or &$report ("tree_depth_to_n_end($depth) $n_end less than tree_depth_to_n() start $n");
+
+        my ($n_range_lo, $n_range_hi) = $path->tree_depth_to_n_range($depth);
+        $n_range_lo == $n
+          or &$report ("tree_depth_to_n_range($depth) $n_range_lo != tree_depth_to_n() start $n");
+        $n_range_hi == $n_end
+          or &$report ("tree_depth_to_n_range($depth) $n_range_hi != tree_depth_to_n_end() start $n_end");
+
         {
           my $got_depth = $path->tree_n_to_depth($n);
           if (! defined $got_depth || $got_depth != $depth) {
@@ -2049,6 +2237,28 @@ sub pythagorean_diag {
             &$report ("tree_depth_to_n($depth)=$n reverse of n-1 got_depth=",$got_depth);
           }
         }
+
+        {
+          my $got_depth = $path->tree_n_to_depth($n_end);
+          if (! defined $got_depth || $got_depth != $depth) {
+            &$report ("tree_depth_to_n($depth)=$n reverse n_end got_depth=",$got_depth);
+          }
+        }
+        {
+          my $got_depth = $path->tree_n_to_depth($n_end+1);
+          if (defined $got_depth && $got_depth <= $depth) {
+            &$report ("tree_depth_to_n($depth)=$n reverse of n_end+1 got_depth=",$got_depth);
+          }
+        }
+
+        if ($path->can('tree_depth_to_width') != 
+            Math::PlanePath->can('tree_depth_to_width')) {
+          my $got_width = $path->tree_depth_to_width($depth);
+          my $want_width = $n_end-$n+1;
+          if ($got_width != $want_width) {
+            &$report ("tree_depth_to_width($depth)=$got_width expected by difference $want_width");
+          }
+        }
       }
     }
 
@@ -2057,36 +2267,76 @@ sub pythagorean_diag {
   ok ($good, 1);
 }
 
-sub path_tree_n_to_depth_by_parents {
-  my ($path, $n) = @_;
-  if ($n < $path->n_start) {
-    return undef;
-  }
-  my $depth = 0;
-  for (;;) {
-    my $parent_n = $path->tree_n_parent($n);
-    last if ! defined $parent_n;
-    if ($parent_n >= $n) {
-      die "Oops, tree parent $parent_n >= child $n in ", ref $path;
+  sub path_tree_n_to_depth_by_parents {
+    my ($path, $n) = @_;
+    if ($n < $path->n_start) {
+      return undef;
     }
-    $n = $parent_n;
-    $depth++;
+    my $depth = 0;
+    for (;;) {
+      my $parent_n = $path->tree_n_parent($n);
+      last if ! defined $parent_n;
+      if ($parent_n >= $n) {
+        die "Oops, tree parent $parent_n >= child $n in ", ref $path;
+      }
+      $n = $parent_n;
+      $depth++;
+    }
+    return $depth;
   }
-  return $depth;
-}
 
+# use Smart::Comments;
+use constant SUBHEIGHT_SEARCH_LIMIT => 50;
 sub path_tree_n_to_subheight_by_search {
-  my ($self, $n) = @_;
-  my @n = ($n);
-  my $height = 0;
-  for (;;) {
-    @n = map {$self->tree_n_children($_)} @n
-      or return $height;
-    $height++;
-    if (@n > 200 || $height > 200) {
-      return undef;  # presumed infinite
+  my ($path, $n, $limit) = @_;
+
+  if (! defined $limit) { $limit = SUBHEIGHT_SEARCH_LIMIT; }
+  if ($limit <= 0) {
+    return undef;  # presumed infinite
+  }
+  if (! exists $path->{'path_tree_n_to_subheight_by_search__cache'}->{$n}) {
+    my @children = $path->tree_n_children($n);
+    my $height = 0;
+    foreach my $n_child (@children) {
+      my $h = path_tree_n_to_subheight_by_search($path,$n_child,$limit-1);
+      if (! defined $h) {
+        $height = undef;  # infinite
+        last;
+      }
+      $h++;
+      if ($h >= $height) {
+        $height = $h;  # new bigger subheight among the children
+      }
+    }
+    ### maximum is: $height
+    if (defined $height || $limit >= SUBHEIGHT_SEARCH_LIMIT*4/5) {
+      ### set cache: "n=$n  ".($height//'[undef]')
+      $path->{'path_tree_n_to_subheight_by_search__cache'}->{$n} = $height;
+      ### cache: $path->{'path_tree_n_to_subheight_by_search__cache'}
     }
   }
+  ### path_tree_n_to_subheight_by_search(): "n=$n"
+  return $path->{'path_tree_n_to_subheight_by_search__cache'}->{$n};
+
+
+  # my @n = ($n);
+  # my $height = 0;
+  # my @pending = ($n);
+  # for (;;) {
+  #   my $n = pop @pending;
+  #   @n = map {} @n
+  #     or return $height;
+  #
+  #   if (defined my $h = $path->{'path_tree_n_to_subheight_by_search__cache'}->{$n}) {
+  #     return $height + $h;
+  #   }
+  #   @n = map {$path->tree_n_children($_)} @n
+  #     or return $height;
+  #   $height++;
+  #   if (@n > 200 || $height > 200) {
+  #     return undef;  # presumed infinite
+  #   }
+  # }
 }
 
 sub equal {

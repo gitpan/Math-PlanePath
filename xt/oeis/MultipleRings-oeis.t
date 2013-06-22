@@ -34,7 +34,7 @@ use MyOEIS;
 
 
 #------------------------------------------------------------------------------
-# A002024 - n repeated n times, is step=1 RSquared+1
+# A002024 - n repeated n times, is step=1 Radius+1
 
 MyOEIS::compare_values
   (anum => 'A002024',
@@ -43,7 +43,7 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::MultipleRings->new(step=>1);
      my @got;
      for (my $n = $path->n_start; @got < $count; $n++) {
-       push @got, $path->_UNTESTED__n_to_radius($n) + 1;
+       push @got, $path->n_to_radius($n) + 1;
      }
      return \@got;
    });

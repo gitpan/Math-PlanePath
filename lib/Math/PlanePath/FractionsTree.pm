@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -51,9 +51,7 @@ use constant class_y_negative => 0;
 use constant x_minimum => 1;
 use constant y_minimum => 2;
 use constant diffxy_maximum => -1; # upper octant X<=Y-1 so X-Y<=-1
-use constant tree_any_leaf => 0;   # no leaves, complete tree
-use constant tree_num_children_minimum => 2; # complete binary tree
-use constant tree_num_children_maximum => 2;
+use constant tree_num_children_list => (2); # complete binary tree
 use constant tree_n_to_subheight => undef; # complete tree, all infinity
 
 use constant parameter_info_array =>
@@ -265,12 +263,19 @@ sub _bingcd_max {
   return int($x/$y) + $y + 1;
 }
 
+#------------------------------------------------------------------------------
+use constant tree_num_roots => 1;
+
 # Same structure as RationalsTree
 *tree_n_children     = \&Math::PlanePath::RationalsTree::tree_n_children;
 *tree_n_num_children = \&Math::PlanePath::RationalsTree::tree_n_num_children;
 *tree_n_parent       = \&Math::PlanePath::RationalsTree::tree_n_parent;
 *tree_n_to_depth     = \&Math::PlanePath::RationalsTree::tree_n_to_depth;
 *tree_depth_to_n     = \&Math::PlanePath::RationalsTree::tree_depth_to_n;
+*tree_depth_to_n_end = \&Math::PlanePath::RationalsTree::tree_depth_to_n_end;
+*tree_depth_to_n_range=\&Math::PlanePath::RationalsTree::tree_depth_to_n_range;
+*tree_depth_to_width = \&Math::PlanePath::RationalsTree::tree_depth_to_width;
+
 
 1;
 __END__

@@ -131,7 +131,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -169,9 +169,7 @@ sub x_minimum {
   return ($self->{'tree_type'} eq 'L' ? 0 : 1);
 }
 use constant y_minimum => 1;
-use constant tree_any_leaf => 0;  # no leaves, complete tree
-use constant tree_num_children_minimum => 2; # complete binary tree
-use constant tree_num_children_maximum => 2;
+use constant tree_num_children_list => (2); # complete binary tree
 use constant tree_n_to_subheight => undef; # complete tree, all infinity
 
 {
@@ -529,18 +527,22 @@ sub _bingcd_max {
 #   return $count;
 # }
 
+#------------------------------------------------------------------------------
+use constant tree_num_roots => 1;
+
 # N=1 basis children 2N,2N+1
 # N=S basis 2(N-(S-1))+(S-1)
 #           = 2N - 2(S-1) + (S-1)
 #           = 2N - (S-1)
 sub tree_n_children {
   my ($self, $n) = @_;
-  unless ($n >= $self->{'n_start'}) {
+  my $n_start = $self->{'n_start'};
+  if ($n >= $n_start) {
+    $n = 2*$n - $n_start;
+    return ($n+1, $n+2);
+  } else {
     return;
   }
-  $n *= 2;
-  $n -= $self->{'n_start'} - 1;
-  return ($n, $n+1);
 }
 sub tree_n_num_children {
   my ($self, $n) = @_;
@@ -565,14 +567,33 @@ sub tree_n_to_depth {
   my ($pow, $exp) = round_down_pow ($n+1, 2);
   return $exp;
 }
+
 sub tree_depth_to_n {
   my ($self, $depth) = @_;
-  return ($depth >= 0 ? 2**$depth + $self->{'n_start'}-1 : undef);
+  return ($depth >= 0
+          ? 2**$depth + $self->{'n_start'}-1
+          : undef);
 }
 # (2^(d+1)+s-1)-1 = 2^(d+1)+s-2
 sub tree_depth_to_n_end {
   my ($self, $depth) = @_;
-  return ($depth >= 0 ? 2**($depth+1) + $self->{'n_start'}-2 : undef);
+  return ($depth >= 0
+          ? 2**($depth+1) + $self->{'n_start'}-2
+          : undef);
+}
+sub tree_depth_to_n_range {
+  my ($self, $depth) = @_;
+  if ($depth >= 0) {
+    my $pow = 2**$depth;
+    return ($pow + $self->{'n_start'}-1, 2*$pow + $self->{'n_start'}-2);
+  }
+  return; # no such $depth
+}
+sub tree_depth_to_width {
+  my ($self, $depth) = @_;
+  return ($depth >= 0
+          ? 2**$depth
+          : undef);
 }
 
 1;

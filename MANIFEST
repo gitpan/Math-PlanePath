@@ -26,7 +26,9 @@ devel/complex-minus.pl
 devel/complex-revolving.pl
 devel/cont-frac.pl
 devel/coprime.pl
+devel/corner-replicate.pl
 devel/cubic-base.pl
+devel/diagonals.pl
 devel/digit-groups.pl
 devel/divisible-columns.pl
 devel/dragon-numbers.pl
@@ -86,8 +88,10 @@ devel/lib/Math/PlanePath/QuintetSide.pm
 devel/lib/Math/PlanePath/R7DragonCurve.pm
 devel/lib/Math/PlanePath/squares-dispersion.pl
 devel/lib/Math/PlanePath/SumFractions.pm
+devel/lib/Math/PlanePath/wythoff-lines.pl
 devel/lib/Math/PlanePath/WythoffDifference-oeis.t
 devel/lib/Math/PlanePath/WythoffDifference.pm
+devel/lib/Math/PlanePath/WythoffLines.pm
 devel/lib/Math/PlanePath/WythoffPreliminaryTriangle-oeis.t
 devel/lib/Math/PlanePath/WythoffPreliminaryTriangle.pm
 devel/lib/Math/PlanePath/WythoffTriangle-oeis.t
@@ -379,6 +383,7 @@ t/ZOrderCurve.t
 tools/alternate-paper-dxdy.pl
 tools/ar2w2-curve-table.pl
 tools/beta-omega-table.pl
+tools/cellular-rule-limits.pl
 tools/cinco-curve-table.pl
 tools/corner-replicate-table.pl
 tools/dekking-centres-table.pl

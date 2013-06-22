@@ -46,7 +46,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -90,15 +90,6 @@ sub absdy_minimum {
           ? 0
           : 1);  # never same Y
 }
-
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'points'} eq 'all'
-#           ? 0      # all i=1 to X=1,Y=0
-#           : 0.5);  # odd,even always at least NE
-# }
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
 
 sub dir_minimum_dxdy {
   my ($self) = @_;

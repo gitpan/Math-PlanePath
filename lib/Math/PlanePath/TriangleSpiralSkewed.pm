@@ -24,7 +24,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -52,6 +52,47 @@ use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
+{
+  my %dsumxy_minimum = (left  => -1,  # diagonal only NW across
+                        right => -2,  # SW
+                        up    => -1,  # S
+                        down  => -1); # W
+  sub dsumxy_minimum {
+    my ($self) = @_;
+    return $dsumxy_minimum{$self->{'skew'}};
+  }
+}
+{
+  my %dsumxy_maximum = (left  => 1,  # E
+                        right => 1,  # N
+                        up    => 2,  # NE
+                        down  => 1); # N
+  sub dsumxy_maximum {
+    my ($self) = @_;
+    return $dsumxy_maximum{$self->{'skew'}};
+  }
+}
+{
+  my %ddiffxy_minimum = (left  => -2,  # North-West
+                         right => -1,  # N
+                         up    => -1,  # W
+                         down  => -1); # W
+  sub ddiffxy_minimum {
+    my ($self) = @_;
+    return $ddiffxy_minimum{$self->{'skew'}};
+  }
+}
+{
+  my %ddiffxy_maximum = (left  => 1,  # S
+                         right => 1,  # S
+                         up    => 1,  # S
+                         down  => 2); # South-East
+  sub ddiffxy_maximum {
+    my ($self) = @_;
+    return $ddiffxy_maximum{$self->{'skew'}};
+  }
+}
+
 {
   my %dir_minimum_dxdy = (left  => [1,0],  # East
                           right => [1,0],  # East

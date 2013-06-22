@@ -31,7 +31,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -67,24 +67,20 @@ use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
+use constant dsumxy_minimum => -2; # diagonals
+use constant dsumxy_maximum => 2;
+use constant ddiffxy_minimum => -2;
+use constant ddiffxy_maximum => 2;
 
 # arms=1 curve goes at 60,180,300 degrees
 # arms=2 second +60 to 120,240,0 degrees
 # so when arms==1 dir minimum is 60 degrees
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   return ($self->{'arms'} == 1
-#           ? 0.5
-#           : 0);
-# }
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'arms'} == 1
           ? (1,1)     # North-East
           : (1,0));   # East
 }
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
 

@@ -36,7 +36,7 @@ require Math::PlanePath::PythagoreanTree;
 # VERSION
 
 {
-  my $want_version = 105;
+  my $want_version = 106;
   ok ($Math::PlanePath::PythagoreanTree::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::PythagoreanTree->VERSION,  $want_version,

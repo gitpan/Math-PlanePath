@@ -27,7 +27,7 @@ use strict;
 use List::Util 'sum';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -50,7 +50,7 @@ use constant parameter_info_array =>
 
 use constant class_x_negative => 0;
 use constant class_y_negative => 0;
-use constant tree_num_children_maximum => 3;
+use constant tree_num_children_list => (0, 1, 3);
 
 # Minimum dir=0 at N=13 dX=2,dY=0.
 # Maximum dir seems dX=13,dY=-9 at N=149 going top-left part to new bottom
@@ -288,6 +288,9 @@ sub rect_to_n_range {
   return ($self->tree_depth_to_n($dlo-1),
           $self->tree_depth_to_n(2*$dhi-1));
 }
+
+#------------------------------------------------------------------------------
+use constant tree_num_roots => 1;
 
 # ENHANCE-ME: step by the bits, not by X,Y
 sub tree_n_children {

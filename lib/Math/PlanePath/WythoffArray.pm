@@ -44,7 +44,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -99,10 +99,10 @@ sub new {
   return $self;
 }
 
-sub xy_is_visited_quad1 {
+sub xy_is_visited {
   my ($self, $x, $y) = @_;
-  return ((round_nearest($x) - $self->{'x_start'}) >= 0
-          && (round_nearest($y) - $self->{'y_start'}) >= 0);
+  return ((round_nearest($x) >= $self->{'x_start'})
+          && (round_nearest($y) >= $self->{'y_start'}));
 }
 
 #------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ sub n_to_xy {
   if (is_infinite($n) || $n == 0) { return ($n,$n); }
 
   {
-    # fractions on straight line ?
+    # fractions on straight line between integer points
     my $int = int($n);
     if ($n != $int) {
       my $frac = $n - $int;  # inherit possible BigFloat/BigRat
@@ -214,7 +214,7 @@ sub xy_to_n {
   ### @bits
   pop @bits; # discard high 1-bit
 
-  my $yplus1 = $zero + $y+1; # bigint from $x perhaps
+  my $yplus1 = $zero + $y+1;   # inherit bigint from $x perhaps
 
   # spectrum(Y+1) so Y,Ybefore are notional two values at X=-2 and X=-1
   my $ybefore = int((sqrt(5*$yplus1*$yplus1) + $yplus1) / 2);
@@ -315,7 +315,7 @@ http://www.math.ucsb.edu/~drm/papers/stolarsky.pdf
 
 =back
 
-It's an array of Fibonacci recurrences, and positions each N according to
+It's an array of Fibonacci recurrences which positions each N according to
 Zeckendorf base trailing zeros.
 
 =cut
@@ -346,10 +346,10 @@ Zeckendorf base trailing zeros.
 All rows have the Fibonacci style recurrence
 
     W(X+1) = W(X) + W(X-1)
-    eg. X=4,Y=2 N=42 is 42=16+26, sum of the two values to its left
+    eg. X=4,Y=2 is N=42=16+26, sum of the two values to its left
 
 X<Fibonacci numbers>X axis N=1,2,3,5,8,etc is the Fibonacci numbers.
-X<Lucas numbers>The row above N=4,7,11,18,etc is the Lucas numbers.
+X<Lucas numbers>The row Y=1 above them N=4,7,11,18,etc is the Lucas numbers.
 
 X<Golden Ratio>Y axis N=1,4,6,9,12,etc is the "spectrum" of the golden
 ratio, meaning its multiples rounded down to an integer.
@@ -361,7 +361,7 @@ ratio, meaning its multiples rounded down to an integer.
     Eg. Y=5  N=5+floor((5+1)*phi)=14
 
 The recurrence in each row starts as if the row was preceded by two values Y
-and spectrum(Y+1) which can be thought of as adding to be Y+spectrum(Y+1) on
+and spectrum(Y+1) which can be thought of adding to be Y+spectrum(Y+1) on
 the Y axis, then Y+2*spectrum(Y+1) in the X=1 column, etc.
 
 If the first two values in a row have a common factor then that factor
@@ -405,12 +405,12 @@ The Wythoff array written in Zeckendorf base bits is
         +---------------------------------------------------
               X=0        1         2          3           4
 
-The X coordinate is the number of trailing zeros.  This is also the index of
-the lowest Fibonacci used in the sum.  For example in the X=3 column all
+The X coordinate is the number of trailing zeros, or equivalently the index
+of the lowest Fibonacci used in the sum.  For example in the X=3 column all
 the N's there have F[3]=5 as their lowest term.
 
-The Y coordinate is formed by stripping low "0100..00", ie. all trailing
-zeros plus the "01" above them.  For example,
+The Y coordinate is formed by removing the trailing "0100..00", ie. all
+trailing zeros plus the "01" above them.  For example,
 
     N = 45 = Zeck 10010100
                       ^^^^ strip low zeros and "01" above them
@@ -418,8 +418,8 @@ zeros plus the "01" above them.  For example,
 
 The Zeckendorf form never has consecutive "11" bits, because after
 subtracting an F[k] the remainder is smaller than the next lower F[k-1].
-Numbers with no concecutive "11" bits are also called the fibbinary numbers
-(see L<Math::NumSeq::Fibbinary>).
+Numbers with no concecutive "11" bits are sometimes called the fibbinary
+numbers (see L<Math::NumSeq::Fibbinary>).
 
 Stripping low zeros is similar to what the C<PowerArray> does with low zero
 digits in an ordinary base such as binary (see
@@ -431,11 +431,12 @@ taking out powers of the golden ratio phi=1.618.
 The path turns
 
     straight     at N=2 and N=10
-    right        N="..101" in Zeckendorf base
+    right        N="...101" in Zeckendorf base
     left         otherwise
 
 For example at N=12 the path turns to the right, since N=13 is on the right
-hand side of the vector from N=11 to N=12.
+hand side of the vector from N=11 to N=12.  It's almost 180-degrees around
+and back, but on the right hand side.
 
       4  | 12
       3  | 
@@ -448,9 +449,7 @@ hand side of the vector from N=11 to N=12.
 This happens because N=12 is Zeckendorf "10101" which ends "..101".  For
 such an ending N-1 is "..100" and N+1 is "..1000".  So N+1 has more trailing
 zeros and hence bigger X smaller Y than N-1 has.  The way the curve grows in
-a "concave" fashion means that therefore N+1 is on the right-hand side.  The
-turn is back almost 180 degrees, but still on the right side of the
-direction N-1 to N was going.
+a "concave" fashion means that therefore N+1 is on the right-hand side.
 
     | N                        N ending "..101"
     |  
@@ -463,10 +462,10 @@ Cases for N ending "..000", "..010" and "..100" can be worked through to see
 that everything else turns left (or the initial N=2 and N=10 go straight
 ahead).
 
-On the Y axis all values end "..01", with no trailing 0s.  As noted above
-stripping that "01" gives the Y coordinate, ie. all integers.  The values
-ending "..101" are therefore at Y coordinates which end "..1", so "odd"
-numbers in Zeckendorf base.
+On the Y axis all N values end "..01", with no trailing 0s.  As noted above
+stripping that "01" from N gives the Y coordinate.  Those N ending "..101"
+are therefore at Y coordinates which end "..1", meaning "odd" Y in
+Zeckendorf base.
 
 =head2 X,Y Start
 
@@ -496,17 +495,19 @@ classes.
 
 =item C<$path = Math::PlanePath::WythoffArray-E<gt>new (x_start =E<gt> $x, y_start =E<gt> $y)>
 
-Create and return a new path object.
+Create and return a new path object.  The default C<x_start> and C<y_start>
+are 0.
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
 Return the X,Y coordinates of point number C<$n> on the path.  Points begin
-at 1 and if C<$n E<lt> 0> then the return is an empty list.
+at 1 and if C<$n E<lt> 1> then the return is an empty list.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
 Return the N point number at coordinates C<$x,$y>.  If C<$xE<lt>0> or
-C<$yE<lt>0> then there's no N and the return is C<undef>.
+C<$yE<lt>0> (or the C<x_start> or C<y_start> options) then there's no N and
+the return is C<undef>.
 
 N values grow rapidly with C<$x>.  Pass in a bignum type such as
 C<Math::BigInt> for full precision.
@@ -523,7 +524,7 @@ and biggest in the rectangle.
 =head2 Rectangle to N Range
 
 Within each row increasing X is increasing N, and in each column increasing
-Y is increasing N.  So for a rectangle the minimum N is in the lower left
+Y is increasing N.  So in any rectangle the minimum N is in the lower left
 corner and the maximum N is in the upper right corner.
 
     |               N max
@@ -545,7 +546,7 @@ in various forms,
     x_start=0,y_start=0 (the defaults)
       A035614     X, column numbered from 0
       A191360     X-Y, the diagonal containing N
-      A019586     Y, the Wythoff row containing N
+      A019586     Y, the row containing N
       A083398     max diagonal X+Y+1 for points 1 to N
 
     x_start=1,y_start=1
@@ -561,7 +562,6 @@ in various forms,
 
     A003622     N on Y axis, odd Zeckendorfs "..1"
     A020941     N on X=Y diagonal
-
     A139764     N dropped down to X axis, ie. N value on the X axis,
                   being lowest Fibonacci used in the Zeckendorf form
 
@@ -574,7 +574,7 @@ in various forms,
     A003849     bool 1,0 if N on Y axis or not, being the Fibonacci word
 
     A035336     N in second column
-    A160997     total N along opposite-diagonals X+Y=k
+    A160997     total N along anti-diagonals X+Y=k
 
     A188436     turn 1=right,0=left or straight, skip initial five 0s
     A134860     N positions of right turns, Zeckendorf "..101"

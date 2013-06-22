@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -40,9 +40,11 @@ use constant dx_maximum => 1;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
+use constant dsumxy_minimum => -2; # diagonals
+use constant dsumxy_maximum => 2;
+use constant ddiffxy_minimum => -2;
+use constant ddiffxy_maximum => 2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_maximum_360  => 315;    # South-East
 
 
 #------------------------------------------------------------------------------
@@ -71,7 +73,7 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
 
-  $n = $n - $self->{'n_start'};  # starting $n==0, warn if $n==undef
+  $n = $n - $self->{'n_start'};  # starting $n==0, and warn if $n==undef
   if ($n < 1) {
     if ($n < 0) { return; }
     return ($n, 0);

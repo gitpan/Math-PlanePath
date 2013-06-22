@@ -18,13 +18,7 @@
 
 # Maybe:
 #
-# $root_n = $path->tree_n_to_root_n($n) $n and undefs
-# @root_n_list = $path->tree_root_n_list()  list or empty
-# $num = $path->tree_num_roots()
 # $bool = $path->is_tree()
-# $width = $path->tree_depth_to_width($depth)  or undef
-# ($n_lo,$n_hi) = $path->tree_depth_to_n_range($depth);   or empty
-# $width = $path->tree_depth_to_n_width($depth);  # number of N at depth
 #
 # tree_n_ordered_children() $n and undefs
 #   SierpinskiTree,ToothpickTree left and right
@@ -47,9 +41,9 @@
 # xy_all_even
 # xy_all_odd
 #
-# x_increasing
+# x_increasing = dx>0
 # y_increasing
-# y_non_decreasing
+# y_non_decreasing = dy>=0
 # sumxy_non_decreasing
 # sumxy_increasing
 # sumabsxy_minimum   abs(X)+abs(Y)
@@ -60,8 +54,6 @@
 #
 # trsquared_minimum
 # trsquared_minimum
-# dsumxy_minimum
-# ddiffxy_minimum
 #
 # $path->n_to_turn_lsr
 # $path->n_to_dir4
@@ -100,7 +92,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 105;
+$VERSION = 106;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -145,33 +137,6 @@ sub y_minimum {
 }
 use constant x_maximum => undef;
 use constant y_maximum => undef;
-
-use constant dx_minimum => undef;
-use constant dy_minimum => undef;
-use constant dx_maximum => undef;
-use constant dy_maximum => undef;
-
-# If the dx range doesn't cross 0 then its minimum is the absdx minimum.
-# But such a dx range is only for straight line paths so not very interesting.
-use constant absdx_minimum => 0;
-use constant absdy_minimum => 0;
-sub absdx_maximum {
-  my ($self) = @_;
-  if (defined (my $dx_minimum = $self->dx_minimum)
-      && defined (my $dx_maximum = $self->dx_maximum)) {
-    return _max(abs($dx_minimum),abs($dx_maximum));
-  }
-  return undef;
-}
-sub absdy_maximum {
-  my ($self) = @_;
-  if (defined (my $dy_minimum = $self->dy_minimum)
-      && defined (my $dy_maximum = $self->dy_maximum)) {
-    return _max(abs($dy_minimum),abs($dy_maximum));
-  } else {
-    return undef;
-  }
-}
 
 sub sumxy_minimum {
   my ($self) = @_;
@@ -221,101 +186,76 @@ sub diffxy_maximum {
 # FIXME: should use absx_minimum, absy_minimum, for paths outside first quadrant
 sub rsquared_minimum {
   my ($self) = @_;
-  ### rsquared_minimum() ...
-  ### x_minimum: $self->x_minimum
-  ### y_minimum: $self->y_minimum
-  if (defined (my $x_minimum = $self->x_minimum)
-      && defined (my $y_minimum = $self->y_minimum)) {
-    return ($x_minimum*$x_minimum + $y_minimum*$y_minimum);
-  }
-  # Maybe initial point $self->n_to_xy($self->n_start)) as the default,
-  # but that's not the minimum on "wider" paths.
-  return 0;
+
+  # The X and Y each closest to the origin.  This assumes that point is
+  # actually visited, but is likely to be close.
+  my $x_minimum = $self->x_minimum;
+  my $x_maximum = $self->x_maximum;
+  my $y_minimum = $self->y_minimum;
+  my $y_maximum = $self->y_maximum;
+  my $x = ((  defined $x_minimum && $x_minimum) > 0 ? $x_minimum
+           : (defined $x_maximum && $x_maximum) < 0 ? $x_maximum
+           : 0);
+  my $y = ((  defined $y_minimum && $y_minimum) > 0 ? $y_minimum
+           : (defined $y_maximum && $y_maximum) < 0 ? $y_maximum
+           : 0);
+  return ($x*$x + $y*$y);
+
+  # # Maybe initial point $self->n_to_xy($self->n_start)) as the default,
+  # # but that's not the minimum on "wider" paths.
+  # return 0;
 }
 use constant rsquared_maximum => undef;
-
-
-#------------------------------------------------------------------------------
 
 use constant dir_minimum_dxdy => (1,0);
 use constant dir_maximum_dxdy => (0,0);
 
-# use constant 1.02 _PI => 2*atan2(1,0);
-#
-# sub dir4_minimum {
-#   my ($self) = @_;
-#   ### min dxdy: $self->dir_minimum_dxdy
-#   return _dxdy_to_dir4($self->dir_minimum_dxdy);
-# }
-# sub dir4_maximum {
-#   my ($self) = @_;
-#   my ($dx,$dy) = $self->dir_maximum_dxdy;
-#   if ($dx == 0 && $dy == 0) { return 4; }
-#   return _dxdy_to_dir4($dx,$dy);
-# }
-# sub _dxdy_to_dir4 {
-#   my ($dx,$dy) = @_;
-#   ### _dxdy_to_dir4(): "$dx,$dy"
-#
-#   if ($dy == 0) {
-#     return ($dx >= 0 ? 0 : 2);
-#   }
-#   if ($dx == 0) {
-#     return ($dy > 0 ? 1 : 3);
-#   }
-#   if ($dx > 0) {
-#     if ($dx == $dy) { return 0.5; }
-#     if ($dx == -$dy) { return 3.5; }
-#   } else {
-#     if ($dx == $dy) { return 2.5; }
-#     if ($dx == -$dy) { return 1.5; }
-#   }
-#
-#   # don't atan2() in bigints
-#   if (ref $dx && $dx->isa('Math::BigInt')) {
-#     $dx = $dx->numify;
-#   }
-#   if (ref $dy && $dy->isa('Math::BigInt')) {
-#     $dy = $dy->numify;
-#   }
-#
-#   # Crib: atan2() returns -PI <= a <= PI, and perlfunc says atan2(0,0) is
-#   # "not well defined", though glibc gives 0
-#   #
-#   ### atan2: atan2($dy,$dx)
-#   my $dir4 = atan2($dy,$dx) * (2 / _PI);
-#   ### $dir4
-#   return ($dir4 < 0 ? $dir4 + 4 : $dir4);
-# }
-# sub _dxdy_to_tdir6 {
-#   my ($dx,$dy) = @_;
-#   ### _dxdy_to_tdir6(): "$dx,$dy"
-#
-#   if ($dy == 0) {
-#     return ($dx >= 0 ? 0 : 3);
-#   }
-#   if ($dx == 0) {
-#     return ($dy > 0 ? 1.5 : 4.5);
-#   }
-#   if ($dx > 0) {
-#     if ($dx == 3*$dy) { return 0.5; }
-#     if ($dx == $dy) { return 1; }
-#     if ($dx == -$dy) { return 5; }
-#     if ($dx == -3*$dy) { return 5.5; }
-#   } else {
-#     if ($dx == -$dy) { return 2; }
-#     if ($dx == -3*$dy) { return 2.5; }
-#     if ($dx == 3*$dy) { return 3.5; }
-#     if ($dx == $dy) { return 4; }
-#   }
-#
-#   # Crib: atan2() returns -PI <= a <= PI, and is supposedly "not well
-#   # defined", though glibc gives 0
-#   #
-#   my $tdir6 = atan2($dy*sqrt(3), $dx) * (3 / _PI);
-#   ### $tdir6
-#   return ($tdir6 < 0 ? $tdir6 + 6 : $tdir6);
-# }
+use constant dx_minimum => undef;
+use constant dy_minimum => undef;
+use constant dx_maximum => undef;
+use constant dy_maximum => undef;
+
+sub absdx_minimum {
+  my ($self) = @_;
+  # If dX>=0 then abs(dX)=dX always and absdx_minimum()==dx_minimum().
+  # This happens for column style paths like CoprimeColumns.
+  # dX>0 is only for line paths so not very interesting.
+  if (defined (my $dx_minimum = $self->dx_minimum)) {
+    if ($dx_minimum >= 0) { return $dx_minimum; }
+  }
+  return 0;
+}
+sub absdx_maximum {
+  my ($self) = @_;
+  if (defined (my $dx_minimum = $self->dx_minimum)
+      && defined (my $dx_maximum = $self->dx_maximum)) {
+    return _max(abs($dx_minimum),abs($dx_maximum));
+  }
+  return undef;
+}
+
+sub absdy_minimum {
+  my ($self) = @_;
+  # if dY>=0 then abs(dY)=dY always and absdy_minimum()==dy_minimum()
+  if (defined (my $dy_minimum = $self->dy_minimum)) {
+    if ($dy_minimum >= 0) { return $dy_minimum; }
+  }
+  return 0;
+}
+sub absdy_maximum {
+  my ($self) = @_;
+  if (defined (my $dy_minimum = $self->dy_minimum)
+      && defined (my $dy_maximum = $self->dy_maximum)) {
+    return _max(abs($dy_minimum),abs($dy_maximum));
+  } else {
+    return undef;
+  }
+}
+
+use constant dsumxy_minimum => undef;
+use constant dsumxy_maximum => undef;
+use constant ddiffxy_minimum => undef;
+use constant ddiffxy_maximum => undef;
 
 #------------------------------------------------------------------------------
 
@@ -373,11 +313,8 @@ sub n_to_radius {
 # tree
 
 use constant tree_n_parent => undef;  # default always no parent
+
 use constant tree_n_children => ();   # default no children
-use constant tree_num_children_minimum => 0;
-use constant tree_num_children_maximum => 0;
-use constant tree_any_leaf => 1;    # default all leaf node
-use constant tree_n_to_subheight => 0; # default all leaf node
 sub tree_n_num_children {
   my ($self, $n) = @_;
   if ($n >= $self->n_start) {
@@ -387,6 +324,25 @@ sub tree_n_num_children {
     return undef;
   }
 }
+
+# For non-trees n_num_children() always returns 0 so that's the single
+# return here.
+use constant tree_num_children_list => (0);
+sub tree_num_children_minimum {
+  my ($self) = @_;
+  return ($self->tree_num_children_list)[0];
+}
+sub tree_num_children_maximum {
+  my ($self) = @_;
+  return ($self->tree_num_children_list)[-1];
+}
+sub tree_any_leaf {
+  my ($self) = @_;
+  return ($self->tree_num_children_minimum == 0);
+}
+
+use constant tree_n_to_subheight => 0; # default all leaf node
+
 use constant tree_n_to_depth => undef;
 use constant tree_depth_to_n => undef;
 sub tree_depth_to_n_end {
@@ -396,6 +352,81 @@ sub tree_depth_to_n_end {
     return $n-1;
   } else {
     return undef;
+  }
+}
+sub tree_depth_to_n_range {
+  my ($self, $depth) = @_;
+  if (defined (my $n = $self->tree_depth_to_n($depth))
+      && defined (my $n_end = $self->tree_depth_to_n_end($depth))) {
+    return ($n, $n_end);
+  }
+  return;
+}
+
+sub tree_depth_to_width {
+  my ($self, $depth) = @_;
+  if (defined (my $n = $self->tree_depth_to_n($depth))
+      && defined (my $n_end = $self->tree_depth_to_n_end($depth))) {
+    return $n_end - $n + 1;
+  }
+  return undef;
+}
+
+# =item C<$bool = $path-E<gt>UNTESTED__is_tree()>
+# 
+# Return true if C<$path> is a tree.
+# 
+sub UNTESTED__is_tree {
+  my ($self) = @_;
+  return $self->tree_n_num_children($self->n_start);
+}
+
+sub tree_num_roots {
+  my ($self) = @_;
+  my @root_n_list = $self->tree_root_n_list;
+  return scalar(@root_n_list);
+}
+sub tree_root_n_list {
+  my ($self) = @_;
+  my $n_start = $self->n_start;
+  my @ret;
+  for (my $n = $n_start; ; $n++) {
+    # stop at non-root has a parent, or a non-tree path has no children
+    if (defined($self->tree_n_parent($n))
+        || ! $self->tree_n_num_children($n)) {
+      last;
+    }
+    push @ret, $n;
+  }
+  return @ret;
+}
+
+# Generic search upwards.  Not fast, but works with past Toothpick or
+# anything slack which doesn't have own tree_n_root().  When only one root
+# there's no search.
+sub tree_n_root {
+  my ($self, $n) = @_;
+  my $num_roots = $self->tree_num_roots;
+  if ($num_roots == 0) {
+    return undef;  # not a tree
+  }
+  my $n_start = $self->n_start;
+  unless ($n >= $n_start) {  # and warn if $n==undef
+    return undef;  # -inf or NaN
+  }
+  if ($num_roots == 1) {
+    return $n_start;  # only one root, no search
+  }
+
+  for (;;) {
+    my $n_parent = $self->tree_n_parent($n);
+    if (! defined $n_parent) {
+      return $n; # found root
+    }
+    unless ($n_parent < $n) {
+      return undef;  # +inf or something bad not making progress
+    }
+    $n = $n_parent;
   }
 }
 
@@ -952,6 +983,41 @@ For some classes the X or Y extent may depend on parameter values.
 Return the minimum or maximum of the X or Y coordinate reached by integer N
 values in the path.  If there's no minimum or maximum then return C<undef>.
 
+=item C<$dx = $path-E<gt>dx_minimum()>
+
+=item C<$dx = $path-E<gt>dx_maximum()>
+
+=item C<$dy = $path-E<gt>dy_minimum()>
+
+=item C<$dy = $path-E<gt>dy_maximum()>
+
+Return the minimum or maximum change dX, dY occurring in the path for
+integer N to N+1.  For a multi-arm path the change is N to N+arms so it's
+the change along the same arm.
+
+Various paths which go by rows have non-decreasing Y.  For them
+C<dy_minimum()> is 0.
+
+=item C<$adx = $path-E<gt>absdx_minimum()>
+
+=item C<$adx = $path-E<gt>absdx_maximum()>
+
+=item C<$ady = $path-E<gt>absdy_minimum()>
+
+=item C<$ady = $path-E<gt>absdy_maximum()>
+
+Return the minimum or maximum change abs(dX) or abs(dY) occurring in the
+path for integer N to N+1.  For a multi-arm path the change is N to N+arms
+so it's the change along the same arm.
+
+C<absdx_maximum()> is simply max(dXmax,-dXmin), the biggest change either
+positive or negative.  C<absdy_maximum()> similarly.
+
+C<absdx_minimum()> is 0 if dX=0 occurs anywhere in the path, which means any
+vertical step.  If X always changes then C<absdx_minimum()> will be
+something bigger than 0.  C<absdy_minimum()> likewise 0 if any horizontal
+dY=0, or bigger if Y always changes.
+
 =item C<$sumxy = $path-E<gt>sumxy_minimum()>
 
 =item C<$sumxy = $path-E<gt>sumxy_maximum()>
@@ -995,6 +1061,18 @@ octant" paths have a maximum.
                             / |      Path always above
                            /         has minimum D=X-Y
 
+=item C<$dsumxy = $path-E<gt>dsumxy_minimum()>
+
+=item C<$dsumxy = $path-E<gt>dsumxy_maximum()>
+
+=item C<$ddiffxy = $path-E<gt>ddiffxy_minimum()>
+
+=item C<$ddiffxy = $path-E<gt>ddiffxy_maximum()>
+
+Return the minimum or maximum change dSum or dDiffXY occurring in the path
+for integer N to N+1.  For a multi-arm path the change is N to N+arms so
+it's the change along the same arm.
+
 =item C<$rsquared = $path-E<gt>rsquared_minimum()>
 
 =item C<$rsquared = $path-E<gt>rsquared_maximum()>
@@ -1007,34 +1085,6 @@ more than 0 for paths which don't include the origin X=0,Y=0.
 
 RSquared generally has no maximum since the paths usually extend infinitely
 in some direction.  C<rsquared_maximum()> returns C<undef> in that case.
-
-=item C<$dx = $path-E<gt>dx_minimum()>
-
-=item C<$dx = $path-E<gt>dx_maximum()>
-
-=item C<$dy = $path-E<gt>dy_minimum()>
-
-=item C<$dy = $path-E<gt>dy_maximum()>
-
-=item C<$adx = $path-E<gt>absdx_minimum()>
-
-=item C<$adx = $path-E<gt>absdx_maximum()>
-
-=item C<$ady = $path-E<gt>absdy_minimum()>
-
-=item C<$ady = $path-E<gt>absdy_maximum()>
-
-Return the minimum or maximum change dX, dY, abs(dX) or abs(dY) occurring in
-the path for integer N to N+1.  For a multi-arm path the change is N to
-N+arms so it's the change along the same arm.
-
-C<absdx_maximum()> is simply max(dXmax,-dXmin), the biggest change either
-positive or negative.  C<absdy_maximum()> similarly.
-
-C<absdx_minimum()> is 0 if dX=0 occurs anywhere in the path, which means any
-vertical step.  If X always changes then C<absdx_minimum()> will be
-something bigger than 0.  C<absdy_minimum()> likewise 0 if any horizontal
-dY=0, or bigger if Y always changes.
 
 =item C<($dx,$dy) = $path-E<gt>dir_minimum_dxdy()>
 
@@ -1122,6 +1172,13 @@ Return the parent node of C<$n>, or C<undef> if it has no parent.
 There is no parent at the top of the tree, or one of multiple tops, or if
 C<$path> is not a tree.
 
+=item C<$n_root = $path-E<gt>tree_n_root ($n)>
+
+Return the N which is root node of C<$n>.  This is the top of the tree as
+by following C<tree_n_parent()> repeatedly until no more parent.
+
+The return is C<undef> if there's no such C<$n> or C<$path> is not a tree.
+
 =item C<$depth = $path-E<gt>tree_n_to_depth($n)>
 
 Return the depth of node C<$n>, or C<undef> if there's no point C<$n>.  The
@@ -1132,19 +1189,29 @@ C<$n>, ie. until reaching C<tree_n_to_parent()> returning C<undef>.  For
 non-tree paths C<tree_n_to_parent()> is always C<undef> and
 C<tree_n_to_depth()> is always 0.
 
-=item C<$n = $path-E<gt>tree_depth_to_n($depth)>
+=item C<$n_lo = $path-E<gt>tree_depth_to_n($depth)>
 
-=item C<$n = $path-E<gt>tree_depth_to_n_end($depth)>
+=item C<$n_hi = $path-E<gt>tree_depth_to_n_end($depth)>
 
-Return the first or last N at tree level C<$depth> in the path, or C<undef>
-if nothing at that depth or not a tree.  The top of the tree is depth=0.
+=item C<($n_lo, $n_hi) = $path-E<gt>tree_depth_to_n_range ($depth)>
 
-Trees numbered by depth have the N end of one depth level immediately
-followed by the start N of the next, but that may not be so for all paths.
+Return the first or last N, or both those N, for tree level C<$depth> in the
+path.  If there's no such C<$depth> or C<$path> is not a tree then return
+C<undef>, or for C<tree_depth_to_n_range()> return an empty list.
 
-C<n_end> can only exist if the row has a finite number of points.  That's
-true of all current paths, but maybe allowance should be made for C<n_end>
+The points C<$n_lo> through C<$n_hi> might not necessarily all be at
+C<$depth>.  It's possible for depths to be interleaved or intermixed in the
+point numbering.  But many paths go breadth-wise by successive rows and for
+them C<$n_lo> to C<$n_hi> inclusive is all C<$depth>.
+
+C<$n_hi> can only exist if the row has a finite number of points.  That's
+true of all current paths, but perhaps allowance should be made for C<$n_hi>
 as C<undef> or some such if there is no maximum N for some row.
+
+=item C<$num = $path-E<gt>tree_depth_to_width ($depth)>
+
+Return the number of points at C<$depth> in the tree.  If there's no such
+C<$depth> or C<$path> is not a tree then return C<undef>.
 
 =back
 
@@ -1152,19 +1219,36 @@ as C<undef> or some such if there is no maximum N for some row.
 
 =over
 
+=item C<$num = $path-E<gt>tree_num_roots()>
+
+Return the number of root nodes in C<$path>.  If C<$path> is not a tree then
+return 0.  Many tree paths have a single root and for them the return is 1.
+
+=item C<@n_list = $path-E<gt>tree_root_n_list()>
+
+Return a list of the N values which are the root nodes in C<$path>.  If
+C<$path> is not a tree then this is an empty list.  In all cases there are
+C<tree_num_roots()> many return values.
+
 =item C<$num = $path-E<gt>tree_num_children_minimum()>
 
 =item C<$num = $path-E<gt>tree_num_children_maximum()>
 
-Return the minimum or maximum number of children of any node in the path.
+=item C<@nums = $path-E<gt>tree_num_children_list()>
+
+Return a the possible number of children at the nodes of C<$path>, either
+the minimum, maximum, or a list of all possible number of children.
 
 =item C<$bool = $path-E<gt>tree_any_leaf()>
 
 Return true if there are any leaf nodes in the tree, meaning any N for which
 C<tree_n_num_children()> is 0.
 
-Some trees may have no leaf nodes, for example in the complete binary tree
-of C<RationalsTree> every node always has further children.
+This is the same as C<tree_num_children_minimum()==0>.  If NumChildren=0
+occurs then there are leaf nodes.
+
+Some trees may have no leaf nodes, for example in the complete
+binary tree of C<RationalsTree> every node always has further children.
 
 =back
 
@@ -1694,32 +1778,53 @@ always true, so for them
 
     use constant xy_is_visited => 1;
 
-For a tree path the mandatory methods are
+For a tree path the following methods are mandatory
 
     tree_n_parent()
     tree_n_children()
     tree_n_to_depth()
     tree_depth_to_n()
+    tree_num_children_list()
 
-The following have base implementations
+The other methods have base implementations,
 
-    tree_n_num_children()      calls tree_n_children()
-    tree_depth_to_n_end()      calls tree_depth_to_n(d+1)-1
-    tree_any_leaf()            always true
+=over
 
-The base C<tree_n_num_children()> counts the return values from
-C<tree_n_children()>.  Many trees can count the children with less work than
-calculating outright, for example C<RationalsTree> is simply always 2 for
-NE<gt>=Nstart.
+=item C<tree_n_num_children()>
 
-The base C<tree_depth_to_n_end()> assumes that one level ends where the next
-begins, so Nend(depth) = Nstart(depth+1)-1.
+Calls C<tree_n_children()> and counts the number of return values.  Many
+trees can count the children with less work than calculating outright, for
+example C<RationalsTree> is simply always 2 for NE<gt>=Nstart.
 
-The default C<tree_any_leaf()> always true suits trees like C<UlamWarburton>
-where there are terminating parts of the tree.  Trees like C<RationalTrees>
-where every node continues on infinitely so there's no leafs should have
+=item C<tree_depth_to_n_end()>
 
-    use constant tree_any_leaf => 0;  # no leaves, complete tree
+Calls C<tree_depth_to_n($depth+1)-1>.  This assumes that the depth level
+ends where the next begins.  This is true for the various breadth-wise tree
+traversals, but anything interleaved etc will need its own implementation.
+
+=item C<tree_depth_to_n_range()>
+
+Calls C<tree_depth_to_n()> and C<tree_depth_to_n_end()>.  For some paths the
+row start and end, or start and width, might be calculated together more
+efficiently.
+
+=item C<tree_depth_to_width()>
+
+Returns C<tree_depth_to_n_end() - tree_depth_to_n() + 1>.  This suits
+breadth-wise style paths where all points at C<$depth> are in a contiguous
+block.  Any path not like that will need its own C<tree_depth_to_width()>.
+
+=item C<tree_num_children_minimum()>, C<tree_num_children_maximum()>
+
+Return the first and last values of C<tree_num_children_list()> as the
+minimum and maximum.
+
+=item C<tree_any_leaf()>
+
+Calls C<tree_num_children_minimum()>.  If the minimum C<num_children> is 0
+then there's leaf nodes.
+
+=back
 
 =head1 SEE ALSO
 

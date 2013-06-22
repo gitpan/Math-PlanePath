@@ -19,11 +19,12 @@
 package Math::PlanePath::MPeaks;
 use 5.004;
 use strict;
+use List::Util 'min';
 #use List::Util 'max';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -38,10 +39,12 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
 
-# use constant dir4_minimum  => 0.5; # North-East
-# use constant dir4_maximum  => 3.5; # South-East
-# use constant dir_minimum_360 => 45;  # North-East
-# use constant dir_maximum_360 => 315; # South-East
+# dX jumps back unbounded negative, but forward only +1
+use constant dx_maximum => 1;
+use constant dy_minimum => -1;
+use constant dy_maximum => 1;
+use constant dsumxy_maximum => 2; # NE diagonal
+use constant ddiffxy_maximum => 2; # SE diagonal
 use constant dir_minimum_dxdy => (1,1);  # North-East
 use constant dir_maximum_dxdy => (1,-1); # South-East
 

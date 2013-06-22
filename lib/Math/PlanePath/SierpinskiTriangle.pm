@@ -53,7 +53,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -92,7 +92,7 @@ sub x_negative {
 use constant class_y_negative => 0;
 use constant default_n_start => 0;
 use constant n_frac_discontinuity => .5;
-use constant tree_num_children_maximum => 2;
+use constant tree_num_children_list => (0,1,2);
 
 sub x_maximum {
   my ($self) = @_;
@@ -137,6 +137,19 @@ sub dy_maximum {
     my ($self) = @_;
     return $absdy_minimum{$self->{'align'}};
   }
+}
+
+sub dsumxy_minimum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'diagonal'
+          ? 0         # X+Y constant along diagonals
+          : undef);
+}
+sub dsumxy_maximum {
+  my ($self) = @_;
+  return ($self->{'align'} eq 'diagonal'
+          ? 1         # X+Y increase by 1 to next diagonal
+          : undef);
 }
 
 sub dir_minimum_dxdy {
@@ -348,6 +361,7 @@ sub rect_to_n_range {
 
 
 #------------------------------------------------------------------------------
+use constant tree_num_roots => 1;
 
 sub tree_n_num_children {
   my ($self, $n) = @_;
@@ -447,6 +461,32 @@ sub tree_depth_to_n {
   return ($depth >= 0 ? _right_xy_to_n($self,0,$depth) : undef);
 }
 
+# sub _NOTWORKING__tree_depth_to_n_range {
+#   my ($self, $depth) = @_;
+#   if (is_infinite($depth)) {
+#     return $depth;
+#   }
+#   if ($depth < 0) {
+#     return undef;
+#   }
+#
+#   my $zero = my $n = ($depth * 0);    # inherit bignum 0
+#   my $width = my $npower = $zero+1;   # inherit bignum 1
+#
+#   foreach my $dbit (bit_split_lowtohigh($depth)) {
+#     if ($dbit) {
+#       $n = 2*$n + $npower;
+#       $width *= 2;
+#     }
+#     $npower *= 3;
+#   }
+#   $n += $self->{'n_start'};
+#
+#   return ($n, $n+$width-1);
+# }
+
+
+#------------------------------------------------------------------------------
 # In align=diagonal style, height is following a straight line X increment
 # until hit bit in common with Y, meaning the end of Y low 0s.  Or follow
 # straight line Y until hit bit in common with X, meaning end of X low 0s.
@@ -464,17 +504,17 @@ sub tree_depth_to_n {
 #  | 29    39    51    71
 #  | 27 30 34 40 46 52 60 72
 #  | 19                      73
-#  |  |                       |    
+#  |  |                       |
 #  | 15-20                   61-74
-#  |  |                       |    
+#  |  |                       |
 #  | 11    21                53    75
-#  |  |     |                 |     |               
+#  |  |     |                 |     |
 #  |  9-12-16-22             47-54-62-76
 #  |  |                       |
-#  |  5          23          41          77 
-#  |  |           |           |           |      
+#  |  5          23          41          77
+#  |  |           |           |           |
 #  |  3--6       17-24       35-42       63-78
-#  |  |           |           |           |      
+#  |  |           |           |           |
 #  |  1     7    13    25    31    43    55    79
 #  |  |     |     |     |     |     |     |     |
 #  |  0--2--4--8-10-14-18-26-28-32-36-44-48-56-64-80

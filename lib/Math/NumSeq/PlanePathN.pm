@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -282,10 +282,6 @@ sub i_func_Depth_end {
   my ($self, $i) = @_;
   return $self->{'planepath_object'}->tree_depth_to_n_end($i);
 }
-sub path_tree_depth_to_n_end {
-  my ($path, $depth) = @_;
-  return $path->tree_depth_to_n($depth+1) - 1;
-}
 
 #------------------------------------------------------------------------------
 
@@ -351,7 +347,6 @@ sub path_tree_n_is_depth_start {
   my $depth = $path->tree_n_to_depth($n);
   return (defined $depth && $n == $path->tree_depth_to_n($depth));
 }
-
 # Return true if $n is the end of a depth level.
 sub path_tree_n_is_depth_end {
   my ($path, $n) = @_;
@@ -604,11 +599,29 @@ sub values_max {
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
   use constant _NumSeq_N_oeis_anum =>
-    { '' =>
+    { 'n_start=1' =>
       { X_axis      => 'A054552', # square spiral spoke E, 4n^2 - 3n + 1
         Diagonal_SE => 'A033951', # square spiral spoke S, 4n^2 + 3n + 1
         # OEIS-Other: A054552 planepath=PyramidSpiral
         # OEIS-Other: A033951 planepath=PyramidSpiral line_type=Diagonal_SE
+      },
+      'n_start=0' =>
+      { X_axis      => 'A001107', # decagonal
+        Y_axis      => 'A002939',
+        X_neg       => 'A033991',
+        Y_neg       => 'A002943',
+        Diagonal_SW => 'A007742',
+        Diagonal_SE => 'A033954', # decagonal second kind
+        # OEIS-Other: A001107 planepath=PyramidSpiral,n_start=0
+        # OEIS-Other: A002939 planepath=PyramidSpiral,n_start=0 line_type=Y_axis
+        # OEIS-Other: A033991 planepath=PyramidSpiral,n_start=0 line_type=X_neg
+        # OEIS-Other: A002943 planepath=PyramidSpiral,n_start=0 line_type=Y_neg
+        # OEIS-Other: A007742 planepath=PyramidSpiral,n_start=0 line_type=Diagonal_SW
+        # OEIS-Other: A033954 planepath=PyramidSpiral,n_start=0 line_type=Diagonal_SE
+      },
+      'n_start=2' =>
+      { Diagonal_SE      => 'A185669',
+        # OEIS-Catalogue: A185669 planepath=PyramidSpiral,n_start=2 line_type=Diagonal_SE
       },
     };
 }
@@ -1179,18 +1192,6 @@ sub values_max {
 { package Math::PlanePath::PythagoreanTree;
   use constant _NumSeq_X_axis_increasing => 1;
 
-  # use Math::PlanePath::Base::Generic;
-  # sub _NumSeq_tree_depth_to_n_range {
-  #   my ($self, $depth) = @_;
-  #   if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
-  #     return $depth;
-  #   }
-  #   if ($depth < 0) {
-  #     return undef;
-  #   }
-  #   my $nstart = (3**$depth + 1) / 2;
-  #   return ($nstart, 3*$nstart-2);
-  # }
   use constant _NumSeq_N_oeis_all_anum =>
     { Depth_start => 'A007051', # (3^n+1)/2
       # OEIS-Catalogue: A007051 planepath=PythagoreanTree line_type=Depth_start
@@ -1212,19 +1213,6 @@ sub values_max {
   }
   use constant _NumSeq_Y_axis_min => 1;
   use constant _NumSeq_Diagonal_increasing => 1;
-
-  # use Math::PlanePath::Base::Generic;
-  # sub _NumSeq_tree_depth_to_n_range {
-  #   my ($self, $depth) = @_;
-  #   if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
-  #     return $depth;
-  #   }
-  #   if ($depth < 0) {
-  #     return undef;
-  #   }
-  #   my $nstart = 2**$depth;
-  #   return ($nstart, 2*$nstart-1);
-  # }
 
   use constant _NumSeq_N_oeis_anum =>
     { 'tree_type=SB' =>
@@ -1279,9 +1267,6 @@ sub values_max {
 
   use constant _NumSeq_Y_axis_increasing => 1;
   use constant _NumSeq_Y_axis_i_start => 2;
-
-  # *_NumSeq_tree_depth_to_n_range
-  #   = \&Math::PlanePath::RationalsTree::_NumSeq_tree_depth_to_n_range;
 }
 { package Math::PlanePath::ChanTree;
   use constant _NumSeq_X_axis_increasing => 1;
@@ -1291,19 +1276,6 @@ sub values_max {
   use constant _NumSeq_Y_axis_increasing => 1;
 
   use constant _NumSeq_Diagonal_increasing => 1;
-
-  # use Math::PlanePath::Base::Generic;
-  # sub _NumSeq_tree_depth_to_n_range {
-  #   my ($self, $depth) = @_;
-  #   if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
-  #     return $depth;
-  #   }
-  #   if ($depth < 0) {
-  #     return undef;
-  #   }
-  #   return ($self->tree_depth_to_n($depth),
-  #           $self->tree_depth_to_n($depth+1)-1);
-  # }
 
   use constant _NumSeq_N_oeis_anum =>
     { 'k=2,n_start=1' =>
@@ -1702,31 +1674,6 @@ sub values_max {
 
   # low 10111=23 increment to 11000=24
   # 10111 ones=4 width=2^4
-
-  # use Math::PlanePath::Base::Generic;
-  # sub _NumSeq_tree_depth_to_n_range {
-  #   my ($self, $depth) = @_;
-  #   if (Math::PlanePath::Base::Generic::is_infinite($depth)) {
-  #     return $depth;
-  #   }
-  #   if ($depth < 0) {
-  #     return undef;
-  #   }
-  #
-  #   my $zero = my $n = ($depth * 0);    # inherit bignum 0
-  #   my $width = my $npower = $zero+1;   # inherit bignum 1
-  #
-  #   foreach my $dbit (bit_split_lowtohigh($depth)) {
-  #     if ($dbit) {
-  #       $n = 2*$n + $npower;
-  #       $width *= 2;
-  #     }
-  #     $npower *= 3;
-  #   }
-  #   $n += $self->{'n_start'};
-  #
-  #   return ($n, $n+$width-1);
-  # }
 
   # cf A160722 is 3*A006046-2*n, drawing three Sierpinski triangles
   #    http://www.polprimos.com/imagenespub/polca722.jpg
@@ -2518,14 +2465,6 @@ sub values_max {
   use constant _NumSeq_Diagonal_SW_increasing => 1;
   use constant _NumSeq_Diagonal_SE_increasing => 1;
 
-  # sub _NumSeq_tree_depth_to_n_range {
-  #   my ($self, $depth) = @_;
-  #   my ($nstart, $nend) = Math::PlanePath::UlamWarburtonQuarter::_NumSeq_tree_depth_to_n_range($self, $depth)
-  #     or return;
-  #   return (4*$nstart-3 + $self->{'n_start'}-1,
-  #           4*$nend-3 + $self->{'n_start'}-1);
-  # }
-
   use constant _NumSeq_N_oeis_anum =>
     { 'parts=4,n_start=0' =>
       { Depth_start => 'A147562',  # cells ON after n stages
@@ -2552,16 +2491,6 @@ sub values_max {
   # low 10111=23 increment to 11000=24
   # 4^2*3+4*3^2+1*3^3 = 111     123
   # 4^3*3 = 192                 150 +27 = 3^3
-
-  # use Math::PlanePath::Base::Generic;
-  # sub _NumSeq_tree_depth_to_n_range {
-  #   my ($self, $depth) = @_;
-  #   if ($depth < 0) {
-  #     return;
-  #   }
-  #   return (tree_depth_to_n($self,$depth),
-  #           tree_depth_to_n($self,$depth+1) - 1);
-  # }
 
   use constant _NumSeq_N_oeis_anum =>
     { 'n_start=1' =>

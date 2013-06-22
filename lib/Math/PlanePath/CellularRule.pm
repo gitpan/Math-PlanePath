@@ -21,6 +21,17 @@
 #
 # math-image --path=CellularRule --all --output=numbers --size=80x50
 
+# Maybe:
+# @rules = Math::PlanePath::CellularRule->rule_to_list($rule)
+#   list of equivalents
+# $rule = Math::PlanePath::CellularRule->rule_to_first($rule)
+#   first equivalent
+# $bool = Math::PlanePath::CellularRule->rules_are_mirror($rule1,$rule2)
+# $rule = Math::PlanePath::CellularRule->rule_to_mirror($rule)
+#   or undef if no mirror
+# $bool = Math::PlanePath::CellularRule->rule_is_symmetric($rule)
+
+
 
 package Math::PlanePath::CellularRule;
 use 5.004;
@@ -28,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -62,18 +73,41 @@ use constant parameter_info_array =>
    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
+
+#------------------------------------------------------------------------------
+# x,y range
+
 # rule=1 000->1 goes negative if 001->0 to keep left empty
 # so rule&3 == 1
 #
 # any 001->1, rule&2 goes left initially
-#
-#
-#
+
 sub x_negative {
   my ($self) = @_;
   return (($self->{'rule'} & 2)
           || ($self->{'rule'} & 3) == 1);
 }
+sub x_maximum {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x17) == 0         # single cell only
+          || ($self->{'rule'} & 0x5F) == 0x0E   # left line 2
+          || $self->{'rule'}==70 || $self->{'rule'}==198
+          || $self->{'rule'}==78
+          || $self->{'rule'}==110
+          || $self->{'rule'}==230
+          ? 0
+          : undef);
+}
+
+sub y_maximum {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x17) == 0         # single cell only
+          ? 0
+          : undef);
+}
+
+#------------------------------------------------------------------------------
+# sumxy,diffxy range
 
 use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
 sub sumxy_maximum {
@@ -93,6 +127,9 @@ sub diffxy_minimum {
 }
 use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
 
+#------------------------------------------------------------------------------
+# dx range
+
 sub dx_minimum {
   my ($self) = @_;
   return (($self->{'rule'} & 0x17) == 0        # single cell only
@@ -104,14 +141,71 @@ sub dx_minimum {
 
           : undef);
 }
-sub dx_maximum {
-  my ($self) = @_;
-  return (($self->{'rule'} & 0x17) == 0        # single cell only
-          || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
-          ? 1
-          : undef);
+{
+  # Eg. rule=25 jumps +5
+  my @dx_maximum = (
+     undef,     4, undef,     3, undef,     2, undef,     1,
+     undef,     2, undef,     2, undef,     2,     1,     2,
+     undef,     3, undef,     2, undef,     1, undef,     1,
+     undef,     5, undef,     2,     2,     2, undef,     1,
+     undef,     4, undef,     3, undef, undef, undef,     2,
+     undef,     3, undef,     2, undef, undef,     1,     2,
+     undef,     3, undef,     2, undef,     2, undef,     1,
+     undef, undef, undef,     2, undef,     4,     4,     1,
+     undef,     2, undef,     5, undef,     2,     2,     2,
+     undef, undef, undef, undef, undef,     2,     2,     2,
+     undef,     1, undef,     2,     1,     1, undef,     1,
+     undef, undef, undef,     4,     2,     2,     2,     1,
+     undef,     3, undef, undef, undef, undef, undef,     4,
+     undef, undef, undef, undef, undef,     4, undef,     4,
+     undef,     1, undef,     2,     1,     1,     4,     1,
+     undef, undef, undef,     2, undef,     4, undef,     1,
+     undef, undef, undef,     5, undef,     2, undef, undef,
+     undef, undef, undef,     3, undef,     2,     1,     3,
+     undef,     5, undef,     4, undef, undef, undef, undef,
+     undef, undef, undef,     3,     2,     2,     3, undef,
+     undef, undef, undef,     3, undef,     2, undef,     2,
+     undef, undef, undef,     3, undef,     1,     1,     2,
+     undef,     3, undef, undef, undef,     2,     2, undef,
+     undef,     2, undef,     2,     2,     1, undef, undef,
+     undef, undef, undef, undef, undef,     2,     2,     2,
+     undef,     4, undef,     2, undef,     2, undef,     2,
+     undef,     3, undef,     3,     1,     3,     3, undef,
+     undef,     2, undef,     2, undef,     2, undef, undef,
+     undef, undef, undef,     2, undef,     1,     2,     1,
+     undef,     2, undef,     2, undef,     1, undef,     1,
+     undef,     3, undef,     2,     1,     2, undef, undef,
+     undef,     2, undef,     2, undef,     1,
+                   );
+  sub dx_maximum {
+    my ($self) = @_;
+    return $dx_maximum[$self->{'rule'}];
+  }
 }
 
+#------------------------------------------------------------------------------
+# dy range
+
+#   23,  31,  55,  63,87,95, 119, 127
+# 0x17,0x1F,0x37,0x3F,...,  0x77,0x7F alts
+# is rule & 0x98 = 0x17
+# Math::PlanePath::CellularRule::Line handles the dY=+1 always lines,
+# everything else has some row with 2 or more (except the single cell only
+# patterns).
+use constant dy_minimum => 0;
+sub dy_maximum {
+  my ($self) = @_;
+  # 0x1,0x9,0x
+  return (($self->{'rule'} & 0x17) == 1       # single cell only
+          || $self->{'rule'}==7 || $self->{'rule'}==21  # alternating rows
+          || $self->{'rule'}==19              # alternating rows
+          || ($self->{'rule'} & 0x97) == 0x17
+          ? 2
+          : 1);
+}
+
+#------------------------------------------------------------------------------
+# absdx
 
 # left 2 cell line 14,46,142,174
 # 111 -> any, doesn't occur
@@ -135,66 +229,227 @@ sub dx_maximum {
 # 000 -> 0
 # so (rule & 0x5F) == 0x06
 #
-
-sub absdx_minimum {
-  my ($self) = @_;
-  return (($self->{'rule'} & 0x17) == 0        # single cell only
-          || ($self->{'rule'} & 0x5F) == 0x54  # right line 2
-          || ($self->{'rule'} & 0xDF) == 1     # 1,33 alternate rows
-          || $self->{'rule'} == 5              # alternate rows
-          || $self->{'rule'} == 9
-          || $self->{'rule'} == 13
-          || $self->{'rule'} == 21
-          || $self->{'rule'} == 27
-          || $self->{'rule'} == 28
-          || $self->{'rule'} == 29
-          || $self->{'rule'} == 37
-          || $self->{'rule'} == 41
-          || $self->{'rule'} == 45
-          || $self->{'rule'} == 53
-          || $self->{'rule'} == 61
-          || $self->{'rule'} == 67
-          || $self->{'rule'} == 69
-          || $self->{'rule'} == 71
-          || $self->{'rule'} == 75
-          || $self->{'rule'} == 79
-          || $self->{'rule'} == 81
-          || $self->{'rule'} == 85
-          || $self->{'rule'} == 92
-          || $self->{'rule'} == 93
-          || $self->{'rule'} == 101
-          || $self->{'rule'} == 103
-          || $self->{'rule'} == 107
-          || $self->{'rule'} == 109
-          || $self->{'rule'} == 111
-          || $self->{'rule'} == 113
-          || $self->{'rule'} == 117
-          || $self->{'rule'} == 124
-          || $self->{'rule'} == 125
-          || $self->{'rule'} == 129
-          || $self->{'rule'} == 133
-          || $self->{'rule'} == 137
-          || $self->{'rule'} == 141
-          || $self->{'rule'} == 149
-          || $self->{'rule'} == 156
-          || $self->{'rule'} == 157
-          || $self->{'rule'} == 161
-          || $self->{'rule'} == 169
-          || $self->{'rule'} == 173
-          || $self->{'rule'} == 181
-          || $self->{'rule'} == 188
-          || $self->{'rule'} == 189
-          || $self->{'rule'} == 197
-          || $self->{'rule'} == 205
-          || $self->{'rule'} == 213
-          || $self->{'rule'} == 221
-          || $self->{'rule'} == 229
-          || $self->{'rule'} == 237
-          || $self->{'rule'} == 245
-          || $self->{'rule'} == 253
-          ? 0
-          : 1);
+{
+  my @absdx_minimum = (
+     undef,     0, undef,     1, undef,     0, undef,     1,
+     undef,     0, undef,     1, undef,     0,     1,     1,
+     undef,     1, undef,     1, undef,     0,     1,     1,
+     undef,     1, undef,     0,     0,     0,     1,     1,
+     undef,     0, undef,     1, undef,     0, undef,     1,
+     undef,     0, undef,     1, undef,     0,     1,     1,
+     undef,     1, undef,     1, undef,     0, undef,     1,
+     undef, undef, undef,     1, undef,     0,     1,     1,
+     undef,     0, undef,     0, undef,     0,     1,     0,
+     undef,     1, undef,     0, undef,     0,     1,     0,
+     undef,     0, undef,     1,     0,     0,     1,     1,
+     undef,     1, undef,     1,     0,     0,     1,     1,
+     undef,     1, undef, undef, undef,     0, undef,     0,
+     undef,     1, undef,     0, undef,     0,     1,     0,
+     undef,     0, undef,     1,     0,     0,     1,     1,
+     undef,     1, undef,     1,     0,     0,     1,     1,
+     undef,     0, undef,     1, undef,     0, undef,     1,
+     undef,     0, undef,     1, undef,     0,     1,     1,
+     undef,     1, undef,     1, undef,     0,     1, undef,
+     undef,     1, undef,     1,     0,     0,     1, undef,
+     undef,     0, undef,     1, undef,     0, undef,     1,
+     undef,     0, undef,     1, undef,     0,     1,     1,
+     undef,     1, undef, undef, undef,     0,     1, undef,
+     undef,     1, undef,     1,     0,     0, undef, undef,
+     undef,     1, undef,     1, undef,     0,     1,     1,
+     undef,     1, undef,     1, undef,     0, undef,     1,
+     undef,     1, undef,     1,     0,     0,     1, undef,
+     undef,     1, undef,     1, undef,     0, undef, undef,
+     undef,     1, undef,     1, undef,     0,     1,     1,
+     undef,     1, undef,     1, undef,     0, undef,     1,
+     undef,     1, undef,     1,     0,     0, undef, undef,
+     undef,     1, undef,     1, undef,     0,
+                   );
+  sub absdx_minimum {
+    my ($self) = @_;
+    return $absdx_minimum[$self->{'rule'}];
+  }
 }
+
+#------------------------------------------------------------------------------
+# dsumxy
+
+sub dsumxy_minimum {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x5F) == 0x54  # right line 2, const dSum=+1
+          ? 1
+          : ($self->{'rule'} & 0x5F) == 0x0E     # left line 2
+          ? -1
+          : undef);
+}
+{
+  my @dsumxy_maximum = (
+     undef,     4, undef,     3, undef,     2, undef,     1,
+     undef,     3, undef,     3, undef,     2,     1,     3,
+     undef,     3, undef,     2, undef,     1, undef,     1,
+     undef,     5, undef,     2,     2,     2, undef,     1,
+     undef,     4, undef,     3, undef, undef, undef,     2,
+     undef,     4, undef,     3, undef, undef,     1,     3,
+     undef,     3, undef,     2, undef,     2, undef,     1,
+     undef, undef, undef,     2, undef,     4,     4,     1,
+     undef,     3, undef,     5, undef,     2,     2,     2,
+     undef, undef, undef, undef, undef,     2,     2,     2,
+     undef,     2, undef,     2,     1,     1, undef,     1,
+     undef, undef, undef,     4,     2,     2,     2,     1,
+     undef,     3, undef, undef, undef, undef, undef,     4,
+     undef, undef, undef, undef, undef,     4, undef,     4,
+     undef,     2, undef,     2,     1,     1,     4,     1,
+     undef, undef, undef,     2, undef,     4, undef,     1,
+     undef, undef, undef,     5, undef,     2, undef, undef,
+     undef, undef, undef,     3, undef,     2,     1,     3,
+     undef,     5, undef,     4, undef, undef, undef, undef,
+     undef, undef, undef,     3,     2,     2,     3, undef,
+     undef, undef, undef,     3, undef,     2, undef,     2,
+     undef, undef, undef,     3, undef,     1,     1,     2,
+     undef,     3, undef, undef, undef,     2,     2, undef,
+     undef,     2, undef,     2,     2,     1, undef, undef,
+     undef, undef, undef, undef, undef,     2,     2,     2,
+     undef,     4, undef,     2, undef,     2, undef,     2,
+     undef,     3, undef,     3,     1,     3,     3, undef,
+     undef,     2, undef,     2, undef,     2, undef, undef,
+     undef, undef, undef,     2, undef,     1,     2,     1,
+     undef,     2, undef,     2, undef,     1, undef,     1,
+     undef,     3, undef,     2,     1,     2, undef, undef,
+     undef,     2, undef,     2, undef,     1,
+                   );
+  sub dsumxy_maximum {
+    my ($self) = @_;
+    return $dsumxy_maximum[$self->{'rule'}];
+  }
+}
+# sub dsumxy_maximum {
+#   my ($self) = @_;
+#   return (($self->{'rule'} & 0x5F) == 0x54  # right line 2
+#           ? 1                               #   is constant dSum=+1
+#           : ($self->{'rule'} & 0x5F) == 0x0E     # left line 2
+#           ? 1
+#           : $self->{'rule'}==3 || $self->{'rule'}==35 ? 3
+#           : $self->{'rule'} == 5 ? 2
+#           : $self->{'rule'} == 7 ? 1
+#           : $self->{'rule'} == 9 ? 3
+#           : $self->{'rule'}==11 || $self->{'rule'}==43 ? 3
+#           : $self->{'rule'} == 13 ? 2
+#           : $self->{'rule'} == 15 ? 3
+#           : $self->{'rule'}==17 || $self->{'rule'}==49 ? 3
+#           : $self->{'rule'}==19 ? 2
+#           : $self->{'rule'}==21 ? 1
+#           : ($self->{'rule'} & 0x97) == 0x17     # 0x17,...,0x7F
+#           ? 1
+#           : $self->{'rule'}==27 ? 2
+#           : $self->{'rule'}==28 || $self->{'rule'}==156 ? 2
+#           : $self->{'rule'}==29 ? 2
+#           : $self->{'rule'}==31 ? 1
+#           : $self->{'rule'}==39 ? 2
+#           : $self->{'rule'}==47 ? 3
+#           : $self->{'rule'}==51 ? 2
+#           : $self->{'rule'}==53 ? 2
+#           : $self->{'rule'}==59 ? 2
+#           : $self->{'rule'}==65 ? 3
+#           : $self->{'rule'}==69 ? 2
+#           : $self->{'rule'}==70 || $self->{'rule'}==198 ? 2
+#           : $self->{'rule'}==71 ? 2
+#           : $self->{'rule'}==77 ? 2
+#           : $self->{'rule'}==78 ? 2
+#           : $self->{'rule'}==79 ? 2
+#           : $self->{'rule'}==81 || $self->{'rule'}==113 ? 2
+#           : undef);
+# }
+
+#------------------------------------------------------------------------------
+# ddiffxy range
+
+sub ddiffxy_minimum {
+  my ($self) = @_;
+  return (($self->{'rule'} & 0x5F) == 0x54   # right line 2, dDiffXY=-1 or +1
+          ? -1
+          : ($self->{'rule'} & 0x5F) == 0x0E  # left line 2, dDiffXY=-3 or +1
+          ? -3
+          : undef);
+}
+{
+  my @ddiffxy_maximum = (
+     undef,     4, undef,     3, undef,     2, undef,     1,
+     undef,     2, undef,     1, undef,     2,     1,     1,
+     undef,     3, undef,     2, undef,     1, undef,     1,
+     undef,     5, undef,     2,     2,     2, undef,     1,
+     undef,     4, undef,     3, undef, undef, undef,     2,
+     undef,     3, undef,     1, undef, undef,     1,     1,
+     undef,     3, undef,     2, undef,     2, undef,     1,
+     undef, undef, undef,     2, undef,     4,     4,     1,
+     undef,     2, undef,     5, undef,     2,     2,     2,
+     undef, undef, undef, undef, undef,     2,     2,     2,
+     undef,     1, undef,     2,     1,     1, undef,     1,
+     undef, undef, undef,     4,     2,     2,     2,     1,
+     undef,     3, undef, undef, undef, undef, undef,     4,
+     undef, undef, undef, undef, undef,     4, undef,     4,
+     undef,     1, undef,     2,     1,     1,     4,     1,
+     undef, undef, undef,     2, undef,     4, undef,     1,
+     undef, undef, undef,     5, undef,     2, undef, undef,
+     undef, undef, undef,     3, undef,     2,     1,     3,
+     undef,     5, undef,     4, undef, undef, undef, undef,
+     undef, undef, undef,     3,     2,     2,     3, undef,
+     undef, undef, undef,     3, undef,     2, undef,     2,
+     undef, undef, undef,     3, undef,     1,     1,     2,
+     undef,     3, undef, undef, undef,     2,     2, undef,
+     undef,     2, undef,     2,     2,     1, undef, undef,
+     undef, undef, undef, undef, undef,     2,     2,     2,
+     undef,     4, undef,     2, undef,     2, undef,     2,
+     undef,     3, undef,     3,     1,     3,     3, undef,
+     undef,     2, undef,     2, undef,     2, undef, undef,
+     undef, undef, undef,     2, undef,     1,     2,     1,
+     undef,     2, undef,     2, undef,     1, undef,     1,
+     undef,     3, undef,     2,     1,     2, undef, undef,
+     undef,     2, undef,     2, undef,     1,
+                   );
+  sub ddiffxy_maximum {
+    my ($self) = @_;
+    return $ddiffxy_maximum[$self->{'rule'}];
+  }
+}
+# sub ddiffxy_maximum {
+#   my ($self) = @_;
+#   return (($self->{'rule'} & 0x5F) == 0x0E     # left line 2
+#           ? 1
+#           : $self->{'rule'}==3 || $self->{'rule'}==35 ? 3
+#           : $self->{'rule'} == 5 ? 2
+#           : $self->{'rule'} == 7 ? 1
+#           : $self->{'rule'} == 9 ? 2
+#           : $self->{'rule'}==11 || $self->{'rule'}==43 ? 1
+#           : $self->{'rule'} == 13 ? 2
+#           : $self->{'rule'} == 15 ? 1
+#           : $self->{'rule'}==17 || $self->{'rule'}==49 ? 3
+#           : $self->{'rule'}==19 ? 2
+#           : $self->{'rule'}==21 ? 1
+#           : ($self->{'rule'} & 0x97) == 0x17     # 0x17=23,...,0x7F
+#           ? 1
+#           : $self->{'rule'}==27 ? 2
+#           : $self->{'rule'}==28 || $self->{'rule'}==156 ? 2
+#           : $self->{'rule'}==29 ? 2
+#           : $self->{'rule'}==31 ? 1
+#           : $self->{'rule'}==39 ? 2
+#           : $self->{'rule'}==41 ? 3
+#           : $self->{'rule'}==47 ? 1
+#           : $self->{'rule'}==51 ? 2
+#           : $self->{'rule'}==53 ? 2
+#           : $self->{'rule'}==55 ? 1
+#           : $self->{'rule'}==59 ? 2
+#           : $self->{'rule'}==65 ? 2
+#           : $self->{'rule'}==69 ? 2
+#           : $self->{'rule'}==70 || $self->{'rule'}==198 ? 2
+#           : $self->{'rule'}==71 ? 2
+#           : $self->{'rule'}==77 ? 2
+#           : $self->{'rule'}==78 ? 2
+#           : $self->{'rule'}==79 ? 2
+#           : $self->{'rule'}==81 || $self->{'rule'}==113 ? 1
+#           : undef);
+# }
+
+#------------------------------------------------------------------------------
+# dir range
 
 sub dir_maximum_dxdy {
   my ($self) = @_;
@@ -689,12 +944,51 @@ sub rect_to_n_range {
 }
 
 #------------------------------------------------------------------------------
+
+# 000,001,010,100 = 0,1,2,4 used always
+# if 000=1 then 111 used
+
+# $bool = Math::PlanePath::CellularRule->rule_is_symmetric($rule)
+# sub _NOTWORKING__rule_is_symmetric {
+#   my ($class, $rule) = @_;
+# }
+
+# =item C<$mirror_rule = Math::PlanePath::CellularRule-E<gt>rule_mirror ($rule)>
+#
+# Return the rule number which is the horizontal mirror image of C<$rule>.
+# This is a swap of bits 3E<lt>-E<gt>6 and 1E<lt>-E<gt>4.
+
+# If the pattern is symmetric then the returned C<$mirror_rule> will
+# generate the same pattern even though its value is different.  This occurs
+# if the bits never occur in the pattern and so don't affect the result.
+#
+sub _NOTWORKING__rule_mirror {
+  my ($class, $rule) = @_;
+
+  # 7,6,5,4,3,2,1,0
+  # 1 0 1 0 0 1 0 1 = 0xA5
+  return (($rule & 0xA5)
+
+          # swap 1,1,0   ->   bit6
+          #      0,1,1   ->   bit3
+          | (($rule & (1<<6)) >> 3)
+          | (($rule & (1<<3)) << 3)
+
+          # swap 1,0,0   ->   bit4
+          #      0,0,1   ->   bit1
+          | (($rule & (1<<4)) >> 3)
+          | (($rule & (1<<1)) << 3));
+}
+
+
+
+#------------------------------------------------------------------------------
 {
   package Math::PlanePath::CellularRule::Line;
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 105;
+  $VERSION = 106;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -718,19 +1012,33 @@ sub rect_to_n_range {
   use constant sumxy_minimum => 0;  # triangular X>=-Y so X+Y>=0
 
   sub sumxy_maximum {
-    my ($path) = @_;
-    return ($path->{'align'} eq 'left'
+    my ($self) = @_;
+    return ($self->{'align'} eq 'left'
             ? 0       # left X=-Y so X+Y=0 always
             : undef);
   }
 
   sub diffxy_minimum {
-    my ($path) = @_;
-    return ($path->{'align'} eq 'right'
+    my ($self) = @_;
+    return ($self->{'align'} eq 'right'
             ? 0       # right X=Y so X-Y=0 always
             : undef);
   }
   use constant diffxy_maximum => 0; # triangular X<=Y so X-Y<=0
+
+  # always dX=sign,dY=+1 so dSumXY = sign+1
+  sub dsumxy_minimum {
+    my ($self) = @_;
+    return $self->{'sign'}+1;
+  }
+  *dsumxy_maximum = \&dsumxy_minimum;
+
+  # always dX=sign,dY=+1 so dDiffXY = sign-1
+  sub ddiffxy_minimum {
+    my ($self) = @_;
+    return $self->{'sign'}-1;
+  }
+  *ddiffxy_maximum = \&ddiffxy_minimum;
 
   #-----------------------------------------------------------
   my %align_to_sign = (left   => -1,
@@ -865,7 +1173,7 @@ sub rect_to_n_range {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 105;
+  $VERSION = 106;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -887,6 +1195,8 @@ sub rect_to_n_range {
   use constant dy_minimum => 0;
   use constant dy_maximum => 1;
   use constant absdx_minimum => 1;
+  use constant dsumxy_maximum => 2; # straight E dX=+2
+  use constant ddiffxy_maximum => 2; # straight E dX=+2
   use constant dir_maximum_dxdy => (-1,0); # West, supremum
 
   sub new {
@@ -942,22 +1252,11 @@ sub rect_to_n_range {
 
 #------------------------------------------------------------------------------
 {
-  # rule=6,38,134,166   sign=-1
-  #    **
-  #     *
-  #      **
-  #       *
-
-  # rule=20,52,148,180   sign=1
-  #      **
-  #      *
-  #    **
-  #    *
   package Math::PlanePath::CellularRule::OneTwo;
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 105;
+  $VERSION = 106;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -966,6 +1265,18 @@ sub rect_to_n_range {
     'is_infinite',
       'round_nearest';
 
+  # rule=6,38,134,166   sign=-1
+  #    **
+  #     *
+  #      **
+  #       *
+  #
+  # rule=20,52,148,180   sign=1
+  #      **
+  #      *
+  #    **
+  #    *
+  #
   use constant parameter_info_array =>
     [ { name        => 'align',
         display     => 'Align',
@@ -1021,6 +1332,33 @@ sub rect_to_n_range {
             ? 1    # -2 or +1, so minimum abs is 1
             : 0);  # 0 or +1, so minimum abs is 0
   }
+
+  sub dsumxy_minimum {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0
+            ? -1   # left, ENE
+            : 1);  # right, N, going as a stairstep so always increase
+  }
+  sub dsumxy_maximum {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0
+            ? 1   # left, East
+            : 2); # right, NE diagonal
+  }
+
+  sub ddiffxy_minimum {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0
+            ? -3   # left, ENE
+            : -1);  # right, N, going as a stairstep so always increase
+  }
+  sub ddiffxy_maximum {
+    my ($self) = @_;
+    return ($self->{'sign'} < 0
+            ? 1   # left, East
+            : 1); # right, NE diagonal
+  }
+
   sub dir_maximum_dxdy {
     my ($self) = @_;
     return ($self->{'align'} eq 'left'
@@ -1046,7 +1384,7 @@ sub rect_to_n_range {
     my ($self, $n) = @_;
     ### CellularRule-OneTwo n_to_xy(): $n
 
-    $n = $n - $self->{'n_start'} + 1;  # to N=1 basis
+    $n = $n - $self->{'n_start'} + 1;  # to N=1 basis, and warn if $n undef
 
     my $int = int($n);
     $n -= $int;   # $n now fraction part

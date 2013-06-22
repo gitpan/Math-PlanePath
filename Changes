@@ -16,11 +16,18 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+Version 106, June 2013
+    - new methods tree_n_root(), tree_num_roots(), tree_root_n_list(),
+      tree_depth_to_n_range(), tree_depth_to_width(), tree_num_children_list(),
+      dsumxy_minimum(),dsumxy_maximum(), ddiffxy_minimum(),ddiffxy_maximum()
+    - PyramidSpiral new parameter n_start
+    - PlanePathCoord new coordinate_type "RootN"
+
 Version 105, June 2013
     - PlanePathCoord new coordinate_type "NumSiblings"
 
 Version 104, May 2013
-    - new n_to_radius()
+    - new method n_to_radius()
 
 Version 103, May 2013
     - UlamWarburton new parts=2,1

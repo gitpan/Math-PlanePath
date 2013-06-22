@@ -34,17 +34,6 @@ use Math::PlanePath::UlamWarburton;
 my $path = Math::PlanePath::UlamWarburton->new;
 
 
-# Return the number of points at $depth.
-sub path_tree_depth_to_width {
-  my ($path, $depth) = @_;
-  if (defined (my $n = $path->tree_depth_to_n($depth))
-      && defined (my $n_end = $path->tree_depth_to_n_end($depth))) {
-    return $n_end - $n + 1;
-  } else {
-    return undef;
-  }
-}
-
 #------------------------------------------------------------------------------
 
 # my @grid;
@@ -90,7 +79,7 @@ MyOEIS::compare_values
   (anum => 'A183060',
    func => sub {
      my ($count) = @_;
-     my $path = Math::PlanePath::UlamWarburton->new (parts => 'octant',
+     my $path = Math::PlanePath::UlamWarburton->new (parts => '2',
                                                      n_start => 0);
      my @got;
      for (my $depth = 0; @got < $count; $depth++) {
@@ -107,7 +96,7 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::UlamWarburton->new (parts => '2');
      my @got = (0);
      for (my $depth = 0; @got < $count; $depth++) {
-       push @got, path_tree_depth_to_width($path,$depth);
+       push @got, $path->tree_depth_to_width($depth);
      }
      return \@got;
    });
@@ -135,7 +124,7 @@ MyOEIS::compare_values
      my $path = Math::PlanePath::UlamWarburton->new (parts => '1');
      my @got;
      for (my $depth = 0; @got < $count; $depth++) {
-       push @got, path_tree_depth_to_width($path,$depth);
+       push @got, $path->tree_depth_to_width($depth);
      }
      return \@got;
    });

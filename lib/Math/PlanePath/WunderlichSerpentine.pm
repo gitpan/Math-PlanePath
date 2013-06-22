@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -80,20 +80,18 @@ use constant parameter_info_array =>
   ];
 
 
+# same as PeanoCurve
 use Math::PlanePath::PeanoCurve;
 *dx_minimum = Math::PlanePath::PeanoCurve->can('dx_minimum');
-*dy_minimum = Math::PlanePath::PeanoCurve->can('dy_minimum');
 *dx_maximum = Math::PlanePath::PeanoCurve->can('dx_maximum');
+*dy_minimum = Math::PlanePath::PeanoCurve->can('dy_minimum');
 *dy_maximum = Math::PlanePath::PeanoCurve->can('dy_maximum');
+*dsumxy_minimum = \&dx_minimum;
+*dsumxy_maximum = \&dx_maximum;
+*ddiffxy_minimum = \&dy_minimum;
+*ddiffxy_maximum = \&dy_maximum;
 
 # radix=2 0101 is straight NSEW parts, other evens are diagonal
-# sub dir4_maximum {
-#   my ($self) = @_;
-#   return (($self->{'radix'} % 2)
-#           || join('',@{$self->{'serpentine_array'}}) eq '0101'
-#           ? 3      # odd, South
-#           : 4);    # even, supremum
-# }
 sub dir_maximum_dxdy {
   my ($self) = @_;
   return (($self->{'radix'} % 2)

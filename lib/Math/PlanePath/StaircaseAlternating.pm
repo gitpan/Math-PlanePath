@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 105;
+$VERSION = 106;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,7 +46,6 @@ sub n_frac_discontinuity {
 }
 
 use constant dx_minimum => -1;
-use constant dy_minimum => -1;
 {
   my %dx_maximum = (jump   => 2,
                     square => 1);
@@ -55,10 +54,22 @@ use constant dy_minimum => -1;
     return $dx_maximum{$self->{'end_type'}};
   }
 }
+use constant dy_minimum => -1;
 *dy_maximum = \&dx_maximum;
 
-# use constant dir4_maximum  => 3; # South
-# use constant dir_maximum_360  => 270;    # South
+use constant dsumxy_minimum => -1; # straight S
+*dsumxy_maximum = \&dx_maximum;
+
+{
+  my %dDiffXY_max = (jump   => -2,
+                     square => -1);
+  sub ddiffxy_minimum {
+    my ($self) = @_;
+    return $dDiffXY_max{$self->{'end_type'}};
+  }
+}
+*ddiffxy_maximum = \&dx_maximum;
+
 use constant dir_maximum_dxdy => (0,-1); # South
 
 
