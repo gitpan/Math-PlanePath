@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011, 2012 Kevin Ryde
+# Copyright 2011, 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -24,42 +24,230 @@ use POSIX;
 use List::Util 'min', 'max';
 use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 use Math::PlanePath::ComplexMinus;
+use lib 'xt';
+use MyOEIS;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 {
-  # Dir4 maximum
-  my $realpart = 1;
-  my $norm = $realpart*$realpart + 1;
-
-  require Math::NumSeq::PlanePathDelta;
-  require Math::BigInt;
-  require Math::BaseCnv;
-  my $path = Math::PlanePath::ComplexMinus->new (realpart => $realpart);
-  my $seq = Math::NumSeq::PlanePathDelta->new (planepath_object => $path,
-                                               delta_type => 'Dir4');
-  my $dir4_max = 0;
-  # foreach my $n (0 .. 6000000) {
-
-  foreach my $i (0 .. 60000) {
-    my $n = Math::BigInt->new($norm)**$i - 1;
-    my $dir4 = $seq->ith($n);
-    if ($dir4 >= $dir4_max) {
-      $dir4_max = $dir4;
-      my ($dx,$dy) = $path->n_to_dxdy($n);
-      my $nr = Math::BaseCnv::cnv($n,10,$norm);
-      my $dxr = to_radix($dx,$norm);
-      my $dyr = to_radix($dy,$norm);
-      printf "%3d  %s\n     %s\n    %8.6f\n", $i, $dxr,$dyr, $dir4;
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+  sub path_boundary_length {
+    my ($path, $n_below) = @_;
+    ### $n_below
+    my $boundary = 0;
+    my %seen;
+    my @pending_x = (0);
+    my @pending_y = (0);
+    while (@pending_x) {
+      my $x = pop @pending_x;
+      my $y = pop @pending_y;
+      next if $seen{$x}{$y};
+      foreach my $i (0 .. $#dir4_to_dx) {
+        my $ox = $x + $dir4_to_dx[$i];
+        my $oy = $y + $dir4_to_dy[$i];
+        ### consider: "$x,$y   to $ox,$oy"
+        my $n = $path->xy_to_n($ox,$oy);
+        if ($n >= $n_below) {
+          ### outside ...
+          $boundary++;
+        } else {
+          ### inside ...
+          push @pending_x, $ox;
+          push @pending_y, $oy;
+        }
+      }
+      $seen{$x}{$y} = 1;
     }
+    return $boundary;
   }
-  exit 0;
 
-  sub to_radix {
-    my ($n,$radix) = @_;
-    return join(',', reverse digit_split_lowtohigh($n,$radix));
+  # (2n-1      0   2n     ) (a)
+  # (n^2-2n+2  0  (n-1)^2 ) (b)
+  # (0         1   0      ) (c)
+  #
+  # inverse [ (n^2 - 2*n + 1)/(-n^2 - 1)       -2*n/(-n^2 - 1)   0]
+  #         [ 0                               0                  1]
+  #         [(-n^2 + 2*n - 2)/(-n^2 - 1)  (2*n - 1)/(-n^2 - 1)   0]
+  #
+  # c[k] = b[k-1]
+  # a[k] = (2n-1)a[k-1] + 2n*c[k-1]
+  #
+  # m = [2*n-1,0,2*n; n^2-2*n+2,0,(n-1)^2; 0,1,0]
+  # v = [n;n^2+1-n;1]
+  # m^-1*v = [n ; 1; 1-n]
+  # t=[0,0,0;0,0,0;1,1,1]
+  # f=[0,1,0;0,0,1;1,0,0]
+  # s=(t + f*t*m + f^2*t*m^2)
+  # s*abc = l210
+  # s*m*abc = r*l210
+  # s*m*abc = r*s*abc
+  # s*m = r*s
+  # r = s*m*s^-1
+  # r=s*m*s^-1 = [ 2*n-1,   n^2+1 - 2*n,   n^2+1]
+  #              [1 0 0]
+  #              [0 1 0]
+  #
+  #  (1  0  2) (  0    1  0)   r=1     initial (1) prev (1)
+  #  (1  0  0) (  0    0  1)                   (1)      (1)
+  #  (0  1  0) ( 1/2 -1/2 0)                   (1)      (0)
+  # m=[1,0,2;1,0,0;0,1,0]
+  #
+  #  (3  0  4) (-1/5  4/5 0)   r=2     initial (2) prev -2+4*3 = 2
+  #  (2  0  1) (  0    0  1)                   (3)             = 1
+  #  (0  1  0) ( 2/5 -3/5 0)                   (1)             = -1
+  # m=[3,0,4;2,0,1;0,1,0]
+  # 20 21 22 23 24
+  #       15 16 17 18 19
+  #             10 11 12 13 14
+  #                    5  6  7  8  9
+  #                          0  1  2  3  4
+  # 0 -> 4
+  # 5 -> 12
+  # 25 -> (5+8+5)*2 = 36
+  # l2 = 2*(norm          # top
+  #         + r*(norm-1)  # steps
+  #         + norm)       # side
+  #    = 2*(norm + r*norm - r + norm)
+  #    = 2*(2*norm + r*norm - r)
+  #    = 2*((r+2)*norm - r)
+  #    = 2*((r+2)*norm - r-2 +2))
+  #    = 2*((r+2)*norm - (r+2) +2))
+  #    = 2*(r+2)*(norm-1) + 4
+
+  my $r = 2;
+  my $norm = $r*$r+1;
+
+  sub boundary_by_recurrence {
+    my ($k) = @_;
+
+    # my $l2 = 2*$r**3 + 4*$r**2 + 4;
+    my $l2 = 2*($norm-1)*($r+2) + 4;
+    my $l1 = 2*$norm + 2;
+    my $l0 = 4;
+
+    foreach (1 .. $k) {
+      ($l2,$l1,$l0) = ((2*$r-1)         * $l2
+                       + ($norm - 2*$r) * $l1
+                       + $norm          * $l0,
+
+                       $l2, $l1);
+
+      # ($l2,$l1,$l0) = ((2*$r-1)*$l2
+      #                  + ($r**2+1 - 2*$r)*$l1
+      #                  + ($r**2+1)*$l0,
+      #
+      #                  $l2, $l1);
+    }
+    return $l0;
   }
+
+  sub abc_pow {
+    my ($k) = @_;
+
+    # my $a = 2*2;
+    # my $b = 1*2;
+    # my $c = -1*2;
+    # my $a = $r*2;
+    # my $b = ($norm-$r)*2;
+    # my $c = 1*2;
+    # my $a = 2 * $r / ($r*$r+1);
+    # my $b = 2 * ($r*$r+1 - $r) / ($r*$r+1);
+    # my $c = 2 * 1;
+
+    my $a = $r;
+    my $b = 1;
+    my $c = (1-$r);
+
+    foreach (1 .. $k) {
+      ($a,$b,$c) = ((2*$r-1)*$a       + 0  + 2*$r*$c,
+                    ($r*$r-2*$r+2)*$a + 0 + ($r-1)*($r-1)*$c,
+                    0                 + $b);
+    }
+    return ($a,$b,$c);
+  }
+  sub boundary_by_pow {
+    my ($k) = @_;
+    my ($a,$b,$c) = abc_pow($k);
+    return 2*($a+$b+$c);
+  }
+
+  my @values;
+  my $path = Math::PlanePath::ComplexMinus->new (realpart => $r);
+  my $prev_len = 1;
+  my $prev_ratio = 1;
+  foreach my $k (0 .. 30) {
+    my $pow = $norm**$k;
+    my $len = 0; #path_boundary_length($path,$pow);
+    my $len_by_pow = boundary_by_pow($k);
+    my $len_by_rec = boundary_by_recurrence($k);
+    my $ratio = $pow / $len_by_pow;
+    my $f = 2* log($len_by_pow / $prev_len) / log($norm);
+    printf "%2d %s %s %s   %.6f\n", $k, $len, $len_by_pow, $len_by_rec, $f;
+    push @values, $len_by_pow;
+    $prev_len = $len_by_pow;
+    $prev_ratio = $ratio;
+  }
+  print join(', ',@values),"\n";
+  print MyOEIS->grep_for_values_aref(\@values);
+  exit 0;
+}
+
+{
+  # neighbours across 2^k blocks
+
+  # counting all 4 directions, is boundary length
+  # 2 * A003476 a(n) = a(n-1) + 2a(n-3).
+  #                           1, 2, 3,  5,  9, 15, 25, 43,  73, 123, 209, 355,
+  # A203175 nX2 arrays  1, 1, 2, 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710,
+
+  # 4,6,10,18,30,50,86,146,246,418,710,1202,2038,3458
+  #
+  # 30 = 18+2*6
+  #
+
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+  my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
+  my @dir8_to_dy = (0, 1, 1, 1,  0, -1, -1,-1);
+
+  my $path = Math::PlanePath::ComplexMinus->new;
+  my @values;
+  my $prev_count = 0;
+  foreach my $k (0 .. 13) {
+    my $pow = 2**$k;
+    my $count = 0;
+    foreach my $n (2 .. $pow-1) {
+      my ($x,$y) = $path->n_to_xy($n);
+      # foreach my $i (0 .. $#dir4_to_dx) {
+      foreach my $i (0, 2) {
+        my $n2 = $path->xy_to_n($x+$dir4_to_dx[$i],
+                                $y+$dir4_to_dy[$i]);
+        if (defined $n2 && $n2 >= $pow) {  # num boundary
+          $count++;
+          last;
+        }
+        # if (defined $n2 && $n2 >= $pow && $n2 < 2*$pow) {
+        #   $count++;
+        #   last;
+        # }
+      }
+    }
+    # my $value = ($count - $prev_count)/4;
+    # my $value = $count/2;
+    my $value = $count;
+
+    printf "%2d %4d %10b\n", $k, $value, $value;
+    push @values, $value;
+    $prev_count = $count;
+  }
+
+  shift @values;
+  shift @values;
+  print join(',',@values),"\n";
+  print MyOEIS->grep_for_values_aref(\@values);
+  exit 0;
 }
 
 {
@@ -520,4 +708,3 @@ use Math::PlanePath::ComplexMinus;
   print "count $count\n";
   exit 0;
 }
-

@@ -456,7 +456,9 @@ xt/oeis/KochCurve-oeis.t
 xt/oeis/LTiling-oeis.t
 xt/oeis/MultipleRings-oeis.t
 xt/oeis/NumSeq-PlanePath-oeis.t
+xt/oeis/OctagramSpiral-oeis.t
 xt/oeis/PeanoCurve-oeis.t
+xt/oeis/PentSpiral-oeis.t
 xt/oeis/PentSpiralSkewed-oeis.t
 xt/oeis/PowerArray-oeis.t
 xt/oeis/PyramidRows-oeis.t
@@ -470,6 +472,7 @@ xt/oeis/SierpinskiArrowhead-oeis.t
 xt/oeis/SierpinskiCurve-oeis.t
 xt/oeis/SierpinskiTriangle-oeis.t
 xt/oeis/SquareSpiral-oeis.t
+xt/oeis/Staircase-oeis.t
 xt/oeis/TerdragonCurve-oeis.t
 xt/oeis/TheodorusSpiral-oeis.t
 xt/oeis/TriangleSpiral-oeis.t

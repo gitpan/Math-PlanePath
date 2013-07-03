@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -245,7 +245,7 @@ When continued to a power-of-2 extent this has come to be called the
                     ^
     -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
 
-A complex integer can be represented uniquely as a set of powers,
+A complex integer can be represented as a set of powers,
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
     base b=i-1
@@ -381,7 +381,7 @@ points can be shown to be connected and to completely cover a certain radius
 around the origin.
 
 The code here might be pressed into use for that up to some finite number of
-bits by multiplying up to make an integer N with a desired power k
+bits by multiplying by a desired power k to make an integer N
 
     Nint = Nfrac * 256^k
     Xfrac = Xint / 16^k
@@ -391,6 +391,79 @@ bits by multiplying up to make an integer N with a desired power k
 rotations to apply to the resulting X,Y, just a power-of-16 division
 (b^8)^k=16^k each.  Using b^4=-4 for a multiplier 16^k and divisor (-4)^k
 would be almost as easy too, requiring just a sign change if k odd.
+
+=head2 Boundary Length
+
+X<Gilbert, William J.>The length of the boundary of the set of points
+through to a power of the norm can be found in
+
+=over
+
+William J. Gilbert, The Fractal Dimension of Sets Derived From Complex
+Bases, Canadian Math Bulletin, volume 29(4), 1986.
+
+=back
+
+For the twindragon the length is a 3rd-order recurrence
+
+    realpart=1
+    boundary[k] = boundary[k-1] + 2*boundary[k-3]
+
+    4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, ...
+
+The first three are as follows, and then the recurrence gives boundary[3] =
+10+2*4 = 18.
+
+     k      area     boundary
+    ---     ----     ---------
+                                       +---+
+     0     2^k = 1       4             | 0 |
+                                       +---+
+
+                                       +---+---+
+     1     2^k = 2       6             | 0   1 |
+                                       +---+---+
+
+                                   +---+---+
+                                   | 2   3 |
+     2     2^k = 4      10         +---+   +---+
+                                       | 0   1 |
+                                       +---+---+
+
+Gilbert establishes a formula for any real part by taking the boundary in
+three parts A,B,C and showing how in the next replication level those parts
+transform into multiple copies of the preceding level parts.
+
+    A -> A * (2*realpart-1)              + C * 2*realpart
+    B -> A * (realpart^2-2*realpart+2)*A + C * (realpart-1)^2
+    C -> B
+
+    starting from
+      A = 2*realpart
+      B = 2
+      C = 2 - 2*realpart
+
+    total boundary = A+B+C
+
+For the twindragon realpart=1 these A,B,C are already in the form of a
+recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B.  For other real parts a little
+matrix rearrangement gives a recurrence
+
+    boundary[k] = (2*realpart - 1)    * boundary[k-1]
+                + (norm - 2*realpart) * boundary[k-2]
+                + norm                * boundary[k-3]
+
+    starting from
+      boundary[0] = 4
+      boundary[1] = 2*norm + 2
+      boundary[2] = 2*(norm-1)*(realpart+2) + 4
+
+For example
+
+    realpart=2
+    boundary[k] = 3*boundary[k-1] + 1*boundary[k-2] + 5*boundary[k-1]
+
+    4, 12, 36, 140, 516, 1868, 6820, 24908, ...
 
 =head1 FUNCTIONS
 
@@ -419,15 +492,15 @@ fraction.
 =head2 X,Y to N
 
 A given X,Y representing X+Yi can be turned into digits of N by successive
-complex divisions by i-r.  Each is a remainder 0 to r*r inclusive from that
-division.
+complex divisions by i-r.  Each digit of N is a real remainder 0 to r*r
+inclusive from that division.
 
 As per the base formula above
 
     X+Yi = a[n]*b^n + ... + a[2]*b^2 + a[1]*b + a[0]
 
-and we want the a[0] digit 0 to r*r.  Subtracting a[0] and dividing by b
-will give
+and we will want the a[0]=digit to be a real 0 to r*r.  Subtracting a[0] and
+dividing by b will give
 
     (X+Yi - digit) / (i-r)
     = - (X-digit + Y*i) * (i+r) / norm
@@ -439,8 +512,8 @@ which is
     X   <-   Y - (X-digit)*r)/norm
     Y   <-   -((X-digit) + Y*r)/norm
 
-The digit must make both X and Y parts integers.  The easiest to calculate
-from is the imaginary part,
+The a[0] digit must make both X and Y parts integers.  The easiest to
+calculate from is the imaginary part,
 
     - ((X-digit) + Y*r) == 0 mod norm
 
@@ -457,8 +530,8 @@ from
     = Y*(r*r+1)
     = Y*norm
 
-Notice the new Y is the quotient from (X+Y*r)/norm, rounded towards negative
-infinity.  Ie. in the division "X+Y*r mod norm" which calculates the digit
+Notice the new Y is the quotient from (X+Y*r)/norm rounded towards negative
+infinity.  Ie. in the division "X+Y*r mod norm" which calculates the digit,
 the quotient is the new Y and the remainder is the digit.
 
 =cut
@@ -485,9 +558,15 @@ this path include
 
     http://oeis.org/A066321  (etc)
 
-    A066321    N on X axis, being the base i-1 positive reals
-    A066323    N on X axis, in binary
-    A066322    diffs (N at X=16k+4) - (N at X=16k+3)
+    realpart=1 (the default)
+      A066321    N on X axis, being the base i-1 positive reals
+      A066323    N on X axis, in binary
+      A066322    diffs (N at X=16k+4) - (N at X=16k+3)
+     
+      A003476    boundary length / 2
+                   recurrence a(n) = a(n-1) + 2*a(n-3)
+      A203175    boundary length, starting from 4
+                   if its conjectured recurrence is true
 
 =head1 SEE ALSO
 

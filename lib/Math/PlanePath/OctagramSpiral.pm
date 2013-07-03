@@ -28,7 +28,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -50,12 +50,28 @@ use constant ddiffxy_minimum => -2;
 use constant ddiffxy_maximum => 2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
+
 
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 sub n_to_xy {
   my ($self, $n) = @_;
   #### OctagramSpiral n_to_xy: $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   if ($n <= 2) {
     if ($n < 1) {
@@ -194,7 +210,7 @@ sub xy_to_n {
   ### $n
 
   # horiz base 2,19,54,...
-  return $n + (8*$d - 7 + $d_offset)*$d + 1;
+  return $n + (8*$d - 7 + $d_offset)*$d + $self->{'n_start'};
 }
 
 # not exact
@@ -205,8 +221,10 @@ sub rect_to_n_range {
   ### $d
 
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
-  return (1,
-          (8*$d + 7)*$d + 1);  # bottom-right inner corner 16,47,94,...
+  return ($self->{'n_start'},
+
+          # bottom-right inner corner 16,47,94,...
+          $self->{'n_start'} + (8*$d + 7)*$d);
 }
 
 1;
@@ -221,14 +239,14 @@ __END__
 
     #         29              25                      4
     #          |  \         /  |
-    #         30  28      26  24      ...-56--55      3       
+    #         30  28      26  24      ...-56--55      3
     #          |     \   /     |             /
     # 33--32--31   7  27   5  23--22--21  54          2
     #   \          | \   / |         /  /
     #     34   9-- 8   6   4-- 3  20  53              1
     #       \   \            /   /   /
     #         35  10   1---2  19  52             <- y=0
-    #       /   /                \   \  
+    #       /   /                \   \
     #     36  11--12  14  16--17--18  51             -1
     #   /          | /   \ |            \
     # 37--38--39  13  43  15  47--48--49--50         -2
@@ -236,36 +254,36 @@ __END__
     #         40  42      44  46                     -3
     #          | /          \  |
     #         41              45                     -4
-    # 
+    #
     #                  ^
     # -4  -3  -2  -1  x=0  1   2   3   4   5  ...
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
     #         28              24                      4
     #          |  \         /  |
-    #         29  27      25  23      ...-54--53      3       
+    #         29  27      25  23      ...-54--53      3
     #          |     \   /     |            /
     # 32--31--30   7  26   5  22--21--20  52          2
     #   \          | \   / |         /  /
     #     33   9-- 8   6   4-- 3  19  51              1
     #       \   \            /   /  /
     #         34  10   1---2  18  50             <- y=0
-    #       /   /              |   |    
+    #       /   /              |   |
     #     35  11--12  14  16--17  49                 -1
-    #   /          | /   \ |         \   
+    #   /          | /   \ |         \
     # 36--37--38  13  42  15  46--47--48             -2
     #          |    /   \      |
     #         39  41      43  45                     -3
     #          | /          \  |
     #         40              44                     -4
-    # 
+    #
     #                  ^
     # -4  -3  -2  -1  x=0  1   2   3   4   5  ...
 
@@ -291,14 +309,14 @@ This path makes a spiral around an octagram (8-pointed star),
 
           29          25                 4
            | \       / |
-          30 28    26 24    ...56-55     3       
+          30 28    26 24    ...56-55     3
            |   \  /    |         /
     33-32-31  7 27  5 23-22-21 54        2
       \       |\  / |      /  /
        34  9- 8  6  4- 3 20 53           1
          \  \        /  /  /
           35 10  1--2 19 52          <- Y=0
-         /  /           \  \  
+         /  /           \  \
        36 11-12 14 16-17-18 51          -1
       /       |/  \ |         \
     37-38-39 13 43 15 47-48-49-50       -2
@@ -318,6 +336,30 @@ path, but instead of going directly between them the octagram takes a detour
 out to make the points of the star.  Those excursions make each loops 8
 longer (1 per excursion), hence a step of 16 here as compared to 8 for the
 C<SquareSpiral>.
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=OctagramSpiral,n_start=0 --expression='i<=55?i:0' --output=numbers --size=80x13
+
+=pod
+
+    n_start => 0
+
+          28          24
+          29 27    25 23   ... 55 54
+    32 31 30  6 26  4 22 21 20 53
+       33  8  7  5  3  2 19 52
+          34  9  0  1 18 51
+       35 10 11 13 15 16 17 50
+    36 37 38 12 42 14 46 47 48 49
+          39 41    43 45
+          40          44
 
 =head1 FUNCTIONS
 
@@ -356,6 +398,27 @@ then by a further 45 degrees.  Each such rotation, if needed, is counted as
 a multiple of the side-length to be added to the final N.  For example at
 N=19 the side length is 2.  Rotating by 180 degrees is 8 side lengths, by 90
 degrees 4 sides, and by 45 degrees is 2 sides.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A125201  (etc)
+
+    n_start=1 (the default)
+      A125201    N on X axis, from X=1 onwards, 18-gonals + 1
+      A194268    N on diagonal South-East
+
+    n_start=0
+      A051870    N on X axis, 18-gonal numbers
+      A139273    N on Y axis
+      A139275    N on X negative axis
+      A139277    N on Y negative axis
+      A139272    N on diagonal X=Y
+      A139274    N on diagonal North-West
+      A139276    N on diagonal South-West
+      A139278    N on diagonal South-East, second 18-gonals
 
 =head1 SEE ALSO
 

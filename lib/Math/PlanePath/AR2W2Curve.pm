@@ -32,7 +32,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -495,7 +495,22 @@ Math::PlanePath::AR2W2Curve -- 2x2 self-similar curve of four patterns
 =head1 DESCRIPTION
 
 X<Asano>X<Ranjan>X<Roos>X<Welzl>X<Widmayer>This is an integer version of the
-AR2W2 curve by Asano, Ranjan, Roos, Welzl and Widmayer.
+AR2W2 curve per
+
+=over
+
+Asano, Ranjan, Roos, Welzl and Widmayer "Space-Filling Curves and Their Use
+in the Design of Geometric Data Structures", Theoretical Computer Science,
+181(1):3-15, 1997.  And in LATIN'95 Theoretical Informatics which is at
+Google Books
+
+http://books.google.com.au/books?id=_aKhJUJunYwC&pg=PA36
+
+=back
+
+It traverses the first quadrant in self-similar 2x2 blocks which are a
+mixture of "U" and "Z" shapes.  The mixture is designed to improve some
+locality measures (how big the N range for a given region).
 
                                          |
       7     42--43--44  47--48--49  62--63
@@ -515,9 +530,6 @@ AR2W2 curve by Asano, Ranjan, Roos, Welzl and Widmayer.
     Y=0 ->   0-- 1  14--15--16  19--20--21
 
             X=0  1   2   3   4   5   6   7
-
-It makes a 2x2 expanding pattern with a mixture of "U" and "Z" shapes.  The
-mixture is designed to improve some locality measures.
 
 =head2 Shape Parts
 
@@ -552,16 +564,16 @@ of B1, etc.  The start is A1, and above that D2, then A1 again, alternately.
                    |D1    \A2                       /A1   D2|
                    |       v                       /        v
 
-For parts filling on the right such as the B1 and B2 sub-parts of A1, the
-numbering must be reversed..  This doesn't affect the shape of the curve as
+For parts which fill on the right such as the B1 and B2 sub-parts of A1, the
+numbering must be reversed.  This doesn't affect the shape of the curve as
 such, but it matters for enumerating it as done here.
 
 =head2 Start Shape
 
-The default starting shape is the A1 "Z" part, and above that D2.  Notice
-the starting sub-part of D2 is A1 and in turn the starting sub-part of A1 is
-D2, so those two alternate at successive higher levels.  Their sub-parts end
-up reaching all other parts (in all directions, and forward or reverse).
+The default starting shape is the A1 "Z" part, and above it D2.  Notice the
+starting sub-part of D2 is A1 and in turn the starting sub-part of A1 is D2,
+so those two alternate at successive higher levels.  Their sub-parts reach
+all other parts (in all directions, and forward or reverse).
 
 The C<start_shape =E<gt> $str> option can select a different starting shape.
 The choices are
@@ -582,21 +594,21 @@ sub-parts and for that any of the patterns can be a top-level start.  But to
 expand outwards as done here the starting part must be the start of the
 pattern above it, and that's so only for the 6 listed.  The descent graph is
 
-    D2rev ----->  D2<-->A2
-    B2rev ----->
+              D2rev ----->  D2 <--> A1
+              B2rev ----->
 
-    C2rev --> A1rev ----->  B2<-->B1rev   <------ C2
-              C1rev ----->                <------ A2 <-- C1
+    C2rev --> A1rev ----->  B2 <--> B1rev  <----- C2
+              C1rev ----->                 <----- A2 <-- C1
 
-    B1 ----->  D1rev<-->A2rev
-    D1 ----->
+              B1 ----->  D1rev <--> A2rev
+              D1 ----->
 
 So for example B1 is not at the start of anything.  Or A1rev is at the start
 of C2rev, but then nothing starts with C2rev.  Of the 16 total only the
 three pairs shown "E<lt>--E<gt>" are cycles and can thus extend upwards
 indefinitely.
 
-=head1 FUNCTION
+=head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
@@ -623,17 +635,6 @@ and largest in the rectangle.
 L<Math::PlanePath>,
 L<Math::PlanePath::HilbertCurve>,
 L<Math::PlanePath::PeanoCurve>
-
-Asano, Ranjan, Roos, Welzl and Widmayer "Space-Filling Curves and Their Use
-in the Design of Geometric Data Structures", Theoretical Computer Science,
-181(1):3-15, 1997.  And LATIN'95 Theoretical Informatics which is at Google
-Books
-
-=over
-
-http://books.google.com.au/books?id=_aKhJUJunYwC&pg=PA36
-
-=back
 
 =head1 HOME PAGE
 

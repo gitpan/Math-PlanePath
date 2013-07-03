@@ -54,7 +54,7 @@ use strict;
 use List::Util 'min';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -120,7 +120,7 @@ sub n_to_xy {
   # adjust to N=1 at origin X=0,Y=0
   $n = $n - $self->{'n_start'} + 1;
 
-  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
+  # comparing $n<0.5 no good for Math::BigInt circa Perl 5.12, use integers
   if (2*$n < 1) {
     return;
   }
@@ -594,6 +594,9 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
       A064790     inverse
       A060736    permutation N by diagonals down from Y axis
       A064788     inverse
+
+      A027709    boundary length of N points
+      A078633    grid sticks to make N points
 
     n_start=0
       A000196    max(X,Y), being floor(sqrt(N))

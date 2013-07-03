@@ -927,19 +927,4 @@ MyOEIS::compare_values
    });
 
 #------------------------------------------------------------------------------
-# A020941 -- N on X=Y diagonal, but OFFSET=1
-
-MyOEIS::compare_values
-  (anum => 'A020941',
-   func => sub {
-     my ($count) = @_;
-     my $path = Math::PlanePath::WythoffArray->new;
-     my @got;
-     for (my $i = 0; @got < $count; $i++) {
-       push @got, $path->xy_to_n ($i,$i);
-     }
-     return \@got;
-   });
-
-#------------------------------------------------------------------------------
 exit 0;

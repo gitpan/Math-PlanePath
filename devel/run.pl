@@ -69,12 +69,10 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::Corner';
   $path_class = 'Math::PlanePath::DiagonalsAlternating';
   $path_class = 'Math::PlanePath::ComplexRevolving';
-  $path_class = 'Math::PlanePath::MPeaks';
   $path_class = 'Math::PlanePath::DragonMidpoint';
   $path_class = 'Math::PlanePath::ParabolicRows';
   $path_class = 'Math::PlanePath::QuintetCurve';
   $path_class = 'Math::PlanePath::TriangularHypot';
-  $path_class = 'Math::PlanePath::KnightSpiral';
   $path_class = 'Math::PlanePath::AlternatePaper';
   $path_class = 'Math::PlanePath::SierpinskiArrowheadCentres';
   $path_class = 'Math::PlanePath::DekkingCentres';
@@ -152,23 +150,30 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::CornerReplicate';
   $path_class = 'Math::PlanePath::WythoffPreliminaryTriangle';
   $path_class = 'Math::PlanePath::WythoffLines';
+  $path_class = 'Math::PlanePath::OctagramSpiral';
+  $path_class = 'Math::PlanePath::MPeaks';
+  $path_class = 'Math::PlanePath::KnightSpiral';
+  $path_class = 'Math::PlanePath::PentSpiralSkewed';
+  $path_class = 'Math::PlanePath::PentSpiral';
+  $path_class = 'Math::PlanePath::HeptSpiralSkewed';
 
-  my $lo = 0;
-  my $hi = 3;
+  my $lo = 17;
+  my $hi = 36;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     shift => 6,
+     n_start => 0,
+
+     # shift => 6,
      # pn_encoding => 'negabinary',
      #  points => 'all_mul',
-      # k => 4,
+     # k => 4,
      # digit_direction => 'HtoL',
      # digit_direction => 'LtoH',
      # reduced => 1,
-     # n_start => 10,
      #radix => 4,
-     
+
      # parts => 'wedge+1',
      #  ring_shape => 'polygon',
      # step => 1,
@@ -177,8 +182,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
      # align => 'down',
      # x_start => 5,
      # y_start => 2,
-      # coordinates => 'PQ',
-      # tree_type => 'UAD',
+     # coordinates => 'PQ',
+     # tree_type => 'UAD',
 
      # divisor_type => 'proper',
 

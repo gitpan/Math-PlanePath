@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,6 +45,20 @@ sub n_frac_discontinuity {
   return $n_frac_discontinuity{$self->{'end_type'}};
 }
 
+use constant parameter_info_array =>
+  [ { name      => 'end_type',
+      share_key => 'end_type_jumpsquare',
+      display   => 'Type',
+      type      => 'enum',
+      default   => 'jump',
+      choices         => ['jump','square'],
+      choices_display => ['Jump','Wquare'],
+    },
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
+
+
+#------------------------------------------------------------------------------
 use constant dx_minimum => -1;
 {
   my %dx_maximum = (jump   => 2,
@@ -77,9 +91,11 @@ use constant dir_maximum_dxdy => (0,-1); # South
 sub new {
   my $self = shift->SUPER::new(@_);
   $self->{'end_type'} ||= 'jump';
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
   return $self;
 }
-
 
 # --16
 #    |
@@ -143,6 +159,9 @@ sub new {
 sub n_to_xy {
   my ($self, $n) = @_;
   #### StaircaseAlternating n_to_xy: $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   my $d;
   if ($self->{'end_type'} eq 'square') {
@@ -214,10 +233,11 @@ sub xy_to_n {
   }
 
   my $d = int(($x + $y + 1) / 2);
-  return ((2*$d + $jump) * $d + 1
+  return ((2*$d + $jump) * $d
           + ($d % 2
              ? $x - $y
-             : $y - $x));
+             : $y - $x)
+          + $self->{'n_start'});
 }
 
 # 12--11  18--19      14--13  21--22
@@ -415,6 +435,32 @@ point at each end so as to square up the joins.
 The effect is to shorten each diagonal by a constant 1 each time.  The
 lengths of each diagonal still grow by +4 each time (or by +16 up and back).
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=StaircaseAlternating,n_start=0 --expression='i<=53?i:0' --output=numbers --size=80x10
+# math-image --path=StaircaseAlternating,n_start=0,end_type=square --expression='i<=48?i:0' --output=numbers --size=80x10
+
+=pod
+
+    n_start => 0                  n_start => 0, end_type=>"square"
+
+    46 47                            41 42
+    44 48 49                         40 43 44
+    43 42 50 51                      39 38 45 46
+    15 41 40 52 53                      37 36 47 48
+    16 17 39 38 ...                  13 14 35 34 ...
+    14 18 19 37 36                   12 15 16 33 32
+    13 12 20 21 35 34                11 10 17 18 31 30
+     1 11 10 22 23 33 32                 9  8 19 20 29 28
+     2  3  9  8 24 25 31 30           1  2  7  6 21 22 27 26
+     0  4  5  7  6 26 27 29 28        0  3  4  5    23 24 25
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -423,13 +469,37 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::StaircaseAlternating-E<gt>new ()>
 
-Create and return a new path object.
+=item C<$path = Math::PlanePath::StaircaseAlternating-E<gt>new (end_type =E<gt> $str, n_start =E<gt> $n)>
+
+Create and return a new path object.  The C<end_type> choices are
+
+    "jump"        (the default)
+    "square"
 
 =item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
 
 Return the X,Y coordinates of point number C<$n> on the path.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A084849  (etc)
+
+    end_type=jump, n_start=1  (the defaults)
+      A084849    N on diagonal X=Y
+    end_type=jump, n_start=0
+      A014105    N on diagonal X=Y, second hexagonal numbers
+    end_type=jump, n_start=2
+      A096376    N on diagonal X=Y
+
+    end_type=square, n_start=1
+      A058331    N on diagonal X=Y, 2*squares+1
+    end_type=square, n_start=0
+      A001105    N on diagonal X=Y, 2*squares
 
 =head1 SEE ALSO
 

@@ -39,7 +39,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -70,7 +70,7 @@ use constant parameter_info_array =>
       type_hint   => 'cellular_rule',
       description => 'Rule number 0 to 255, encoding how triplets 111 through 000 turn into 0 or 1 in the next row.',
     },
-   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
   ];
 
 
@@ -988,7 +988,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 106;
+  $VERSION = 107;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1173,7 +1173,7 @@ sub _NOTWORKING__rule_mirror {
   package Math::PlanePath::CellularRule::OddSolid;
   use strict;
   use vars '$VERSION', '@ISA';
-  $VERSION = 106;
+  $VERSION = 107;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
 
@@ -1256,7 +1256,7 @@ sub _NOTWORKING__rule_mirror {
   use strict;
   use Carp;
   use vars '$VERSION', '@ISA';
-  $VERSION = 106;
+  $VERSION = 107;
   use Math::PlanePath;
   @ISA = ('Math::PlanePath');
   *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

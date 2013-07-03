@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -457,5 +457,17 @@ HERE
 # check_used (make_state(A1,0,0), make_state(D2,0,0));
 # print "from D1\n";
 # check_used (make_state(D1,0,0));
+
+{
+  print "\n";
+  require Graph::Easy;
+  my $g = Graph::Easy->new;
+  for (my $state = 0; $state < scalar(@next_state); $state += 4) {
+    my $next = $next_state[$state];
+    $g->add_edge("$state: ".state_string($state),
+                 "$next: ".state_string($next));
+  }
+  print $g->as_ascii();
+}
 
 exit 0;

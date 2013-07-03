@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -360,13 +360,6 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 Create and return a new hexagon spiral object.  An optional C<wider>
 parameter widens the spiral path, it defaults to 0 which is no widening.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.
-
-For C<$n < 1> the return is an empty list, it being considered the path
-starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

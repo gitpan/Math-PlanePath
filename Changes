@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+Version 107, July 2013
+    - PentSpiral,PentSpiralSkewed,HeptSpiralSkewed,OctagramSpiral,
+      Staircase,StaircaseAlternating new parameter n_start
+    - FilledRings fix parameter_info_array() missing n_start
+    - StaircaseAlternating fix parameter_info_array() missing end_type
+
 Version 106, June 2013
     - new methods tree_n_root(), tree_num_roots(), tree_root_n_list(),
       tree_depth_to_n_range(), tree_depth_to_width(), tree_num_children_list(),

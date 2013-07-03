@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -45,65 +45,64 @@ use constant ddiffxy_minimum => -3; # NW dX=-2,dY=+1
 use constant ddiffxy_maximum => 2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
 
 #------------------------------------------------------------------------------
-# start at diagonal to bottom right
-#   d = [ 1, 2,  3 ]
-#   n = [ 2, 7, 17 ]
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
+
+# base South-West diagonal
+#   d = [  1,  2,  3,  4 ]
+#   n = [  0,  4, 13, 27 ]
+# N = (5/2 d^2 - 7/2 d + 1)
+#   = (5/2*$d**2 - 7/2*$d + 1)
+#   = ((5/2*$d - 7/2)*$d + 1)
+# d = 7/10 + sqrt(2/5 * $n + 9/100)
+#   = (sqrt(40*$n + 9) + 7) / 10
 #
-#   n = (5/2*$d**2 + -5/2*$d + 2)
-#   d = 1/2 + sqrt(2/5 * $n + -11/20)
-#     = 1/2 + sqrt((8*$n-11)/20)
-#     = (1 + sqrt((8*$n-11)/5)) / 2
-#     = (5 + sqrt(5*(8*$n-11))) / 10
-#     = (5 + sqrt(40*$n-55)) / 10
-#
-#   remainder from base $n - (5/2*$d**2 + -5/2*$d + 2)
-#   then step to vertical x=0 is (2*$d-1) so
-#   rem = $n - (5/2*$d**2 + -5/2*$d + 2) - (2*$d-1)
-#       = $n - (5/2*$d**2 - 1/2*$d + 1)
-#       = $n - (2.5*$d*$d - 0.5*$d + 1)
-#       = $n - (5*$d*$d - $d + 1)/2
-#       = $n - ((5*$d - 1)*$d+ 1)/2
-#
+# split Y axis
+#   d = [  1,  2,  3 ]
+#   n = [  2,  9, 21 ]
+# N = ((5/2*$d - 1/2)*$d)
+
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
 
-  if ($n < 2) {
-    if ($n < 1) { return; }
-    return (2*$n-2,0);
-  }
+  # adjust to N=0 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'};
+  if ($n < 0) { return; }
 
-  my $d = int( (sqrt(40*$n-55)+5) / 10 );
-  #### d frac: .5 + sqrt((8*$n-11)/20)
-  #### d frac: (sqrt(40*$n-55)+5) / 10
-  #### $d
+  my $d = int( (sqrt(40*$n+9)+7) / 10);
+  $n -= (5*$d-1)*$d/2;
 
-  #### remainder from base: $n - (5/2*$d**2 + -5/2*$d + 2)
-  #### remainder from vertical: $n - (2.5*$d*$d - 0.5*$d + 1)
-  ### assert: (((5*$d - 5)*$d + 4) % 2) == 0
-  ### assert: (((5*$d - 1)*$d + 2) % 2) == 0
-  #
-  $n -= (5*$d - 1)*$d/2 + 1;
-
-  if ($n < $d) {
-    #### upper diagonals and right vertical
-    my $nd = $n + $d;
-    return (-2*$n + ($nd < 0 ? 3*$nd : 0),
-            - abs($n) + $d );
-  } else {
-    #### lower left, and bottom horizontal ...
-    $n -= 2*$d;
-    #### relative to bottom left corner: "$n"
-    if ($n <= 0) {
-      ### lower left ...
-      return ($n - $d,
-              -$n - $d);
+  if ($n < -$d) {
+    $n += 2*$d;
+    if ($n < 1) {
+      # bottom horizontal
+      return (2*$n+$d-1, -$d+1);
     } else {
-      ### bottom horizontal: 2*$n - $d
-      return (2*$n - $d,
-              -$d);
+      # lower right diagonal ...
+      return ($n+$d, $n-$d);
+    }
+  } else {
+    if ($n <= $d) {
+      ### top 2,1 slope left and right diagonals ...
+      return (-2*$n,
+              -abs($n) + $d);
+    } else {
+      ### lower left diagonal ...
+      return ($n - 3*$d,
+              -$n + $d);
     }
   }
 }
@@ -132,7 +131,7 @@ sub xy_to_n {
     ### assert: ($x%2)==0
     $x /= 2;
     my $d = abs($x) + $y;
-    return (5*$d - 1)*$d/2 + 1 - $x;
+    return (5*$d - 1)*$d/2 - $x + $self->{'n_start'};
   }
 
   if ($x < $y) {
@@ -143,7 +142,7 @@ sub xy_to_n {
     #   n = (5/2*$d**2 + 1/2*$d + 1)
     #     = (2.5*$d + 0.5)*$d + 1
     my $d = -($x+$y)/2;
-    return (5*$d + 1)*$d/2 + 1 - $y;
+    return (5*$d + 1)*$d/2 - $y + $self->{'n_start'};
   }
 
   if ($x > -$y) {
@@ -154,7 +153,7 @@ sub xy_to_n {
     #   n = (5/2*$d**2 + -3/2*$d + 1)
     #     = (2.5*$d - 1.5)*$d + 1
     my $d = ($x-$y)/2;
-    return (5*$d - 3)*$d/2 + 1 + $y;
+    return (5*$d - 3)*$d/2 + $y + $self->{'n_start'};
   }
 
   ### bottom horizontal
@@ -167,7 +166,7 @@ sub xy_to_n {
   #   N = (2.5*$y - 2)*$y + 1  +  $x/2
   #     = ((5*$y - 4)*$y + $x)/2 + 1
   #
-  return ((5*$y-4)*$y + $x)/2 + 1;
+  return ((5*$y-4)*$y + $x)/2 + $self->{'n_start'};
 }
 
 # not exact
@@ -192,8 +191,8 @@ sub rect_to_n_range {
     }
   }
   ### $d
-  return (1,
-          5*$d*($d-1)/2 + 2);
+  return ($self->{'n_start'},
+          $self->{'n_start'} + 5*$d*($d-1)/2 + 2);
 }
 
 1;
@@ -217,21 +216,21 @@ This path makes a pentagonal (five-sided) spiral with points spread out to
 fit on a square grid.
 
                       22                              3
-                           
+
                 23    10    21                        2
-                                 
+
           24    11     3     9    20                  1
-                                       
+
     25    12     4     1     2     8    19       <- y=0
-                                        
+
        26    13     5     6     7    18    ...       -1
-                                           
+
           27    14    15    16    17    33           -2
-                                        
+
              28    29    30    31    32              -2
 
 
-     ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  
+     ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
     -6 -5 -4 -3 -2 -1 x=0 1  2  3  4  5  6  7
 
 Each horizontal gap is 2, so for instance n=1 is at x=0,y=0 then n=2 is at
@@ -244,6 +243,36 @@ right corner.  Only every second square in the plane is used.  In the top
 half (y>=0) those points line up, in the lower half (y<0) they're offset on
 alternate rows.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=PentSpiral,n_start=0 --expression='i<=57?i:0' --output=numbers --size=120x11
+
+=pod
+
+    n_start => 0            38
+
+                      39    21    37
+                                           ...
+                40    22     9    20    36    57
+
+          41    23    10     2     8    19    35    56
+
+    42    24    11     3     0     1     7    18    34    55
+
+       43    25    12     4     5     6    17    33    54
+
+          44    26    13    14    15    16    32    53
+
+             45    27    28    29    30    31    52
+
+                46    47    48    49    50    51
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -252,14 +281,9 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PentSpiral-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::PentSpiral-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new pentagon spiral object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.
-
-For C<$n < 1> the return is an empty list, it being considered the path
-starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -269,6 +293,37 @@ point in the path as a square of side 1.
 
 =back
 
+=head1 FORMULAS
+
+=head2 N to X,Y
+
+It's convenient to work in terms of Nstart=0 and to take each loop as
+beginning on the South-West diagonal,
+
+                      21                loop d=3
+                   --    --
+                22          20
+             --                --
+          23                      19
+       --                            --
+    24                 0                18
+      \                                /
+       25                            17
+         \                          /
+          26    13----14----15----16
+            \
+             27-->
+
+The SW diagonal is N=0,4,13,27,46,etc which is
+
+    N = (5d-7)*d/2 + 1
+
+and invert for d from N
+
+    d = floor( (sqrt(40*N + 9) + 7) / 10 )
+
+Each side is length d, except the lower right diagonal slope which is d-1.
+
 =head1 OEIS
 
 Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
@@ -276,8 +331,16 @@ path include
 
     http://oeis.org/A140066  (etc)
 
-    A140066    N on Y axis
-    A134238    N on South-West diagonal
+    n_start=1 (the default)
+      A140066    N on Y axis
+      A116668    N on X negative axis
+      A005891    N on South-East diagonal, centred pentagonals
+      A134238    N on South-West diagonal
+
+    n_start=0
+      A000566    N on X axis, heptagonal numbers
+      A005476    N on Y axis
+      A028895    N on South-East diagonal
 
 =head1 SEE ALSO
 

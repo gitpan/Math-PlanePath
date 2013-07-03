@@ -46,8 +46,12 @@
 # NumSurround4    NSEW
 # NumSurround4d   diagonals
 # NumSurround6    triangular
+# NumSurround6v   triangular vertical
 # NumSurround8
 # NumPrev4
+# NumNeighbours4
+# NumNeighbours6
+# NumNeighbours8
 #
 # RemXY X mod Y 0<=R<Y + or -; if Y=0 then R=0, or inf?
 # ModXY = X mod Y range 0 to abs(Y)-1
@@ -80,7 +84,7 @@ use List::Util;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -1326,12 +1330,10 @@ sub characteristic_smaller {
   sub _NumSeq_Coord_AbsDiff_min {
     my ($self) = @_;
     my $m;
-    if (defined ($m = $self->diffxy_minimum)
-        && $m >= 0) {
+    if (defined($m = $self->diffxy_minimum) && $m >= 0) {
       return $m;
     }
-    if (defined ($m = $self->diffxy_maximum)
-        && $m <= 0) {
+    if (defined($m = $self->diffxy_maximum) && $m <= 0) {
       return - $m;
     }
     return 0;
@@ -1349,20 +1351,13 @@ sub characteristic_smaller {
 
   sub _NumSeq_Coord_Radius_min {
     my ($path) = @_;
-    ### _NumSeq_Coord_Radius_min() default ...
-    ### rsquared_minimum is: $path->rsquared_minimum
     return sqrt($path->rsquared_minimum);
   }
-  # Radius and RSquare max normally infinite
-  # sub _NumSeq_Coord_Radius_max {
-  #   my ($path) = @_;
-  #   if (my $coderef = $path->can('_NumSeq_Coord_RSquared_max')) {
-  #     if (defined (my $max = $path->$coderef)) {
-  #       return sqrt($max);
-  #     }
-  #   }
-  #   return undef;
-  # }
+  sub _NumSeq_Coord_Radius_max {
+    my ($path) = @_;
+    my $rsquared_maximum = $path->rsquared_maximum;
+    return (defined $rsquared_maximum ? sqrt($rsquared_maximum) : undef);
+  }
 
   sub _NumSeq_Coord_TRadius_min {
     my ($path) = @_;
@@ -1791,9 +1786,10 @@ sub characteristic_smaller {
 # { package Math::PlanePath::PentSpiralSkewed;
 # }
 { package Math::PlanePath::HexSpiral;
-  *_NumSeq_Coord_SumAbs_min = \&rsquared_minimum;
-  *_NumSeq_Coord_AbsDiff_min = \&rsquared_minimum;
-  *_NumSeq_Coord_TRSquared_min = \&rsquared_minimum;
+  # origin 0,0 if wider even, otherwise only X=1,Y=0 if wider odd
+  sub _NumSeq_Coord_SumAbs_min { $_[0]->rsquared_minimum }
+  *_NumSeq_Coord_AbsDiff_min = \&_NumSeq_Coord_SumAbs_min;
+  *_NumSeq_Coord_TRSquared_min = \&_NumSeq_Coord_SumAbs_min;
   sub _NumSeq_Coord_GCD_min {
     my ($self) = @_;
     return $self->{'wider'} & 1;  # 1 if 0,0 not visited

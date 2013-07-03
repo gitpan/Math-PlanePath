@@ -22,14 +22,15 @@
 #
 # Print the state tables used in BetaOmega.pm.
 #
-# This isn't a thing of beauty, but basically a state incorporates the beta
-# vs omega shape and the orientation of that shape as 4 rotations 90degrees,
-# a transpose swapping X,Y, and a reversal for numbering points the opposite
+# This isn't a thing of beauty.  A state incorporates the beta vs omega
+# shape and the orientation of that shape as 4 rotations by 90-degrees, a
+# transpose swapping X,Y, and a reversal for numbering points the opposite
 # way around.
 #
-# The reversal is only needed for the beta, as noted in the BetaOmega.pm
-# POD.  make_state() collapses a reversed omega down to corresponding plain
-# omega.
+# The reversal is only needed for the beta, as noted in the
+# Math::PlanePath::BetaOmega POD.  For an omega the reverse is the same as
+# the forward.  make_state() collapses a reverse omega down to corresponding
+# plain forward omega.
 #
 # State values are 0, 4, 8, etc.  Having them 4 apart means a base 4 digit
 # from N in n_to_xy() can be added state+digit to make an index into the
@@ -39,7 +40,7 @@
 # those tables the index is "state*3 + input".  3*state puts states 12
 # apart, which is more than the 9 input values needs, but 3*state is a
 # little less work in the code than say (state/4)*9 to change from 4-stride
-# to an exact 9-stride.
+# to exactly 9-stride.
 #
 
 
@@ -106,7 +107,8 @@ sub print_table {
     my $rot = $state % 4; $state = int($state/4);
     my $rev = $state % 2; $state = int($state/2);
     my $omega = $state % 2; $state = int($state/2);
-    return "transpose=$transpose rot=$rot rev=$rev omega=$omega";
+    my $omega_str = ($omega ? 'omega' : 'beta');
+    return "$omega_str transpose=$transpose rot=$rot rev=$rev";
   }
   sub make_state {
     my ($omega, $rev, $rot, $transpose, $digit) = @_;
@@ -390,6 +392,20 @@ sub print_table {
       print "# used state $state   depth $seen_state[$state]\n";
     }
     print "used state count $count\n";
+  }
+
+  {
+    print "\n";
+    print "initial 0:  ",state_string(0),"\n";
+    print "initial 28: ",state_string(28),"\n";
+    require Graph::Easy;
+    my $g = Graph::Easy->new;
+    for (my $state = 0; $state < scalar(@next_state); $state += 4) {
+      my $next = $next_state[$state];
+      $g->add_edge("$state: ".state_string($state),
+                   "$next: ".state_string($next));
+    }
+    print $g->as_ascii();
   }
 
   exit 0;

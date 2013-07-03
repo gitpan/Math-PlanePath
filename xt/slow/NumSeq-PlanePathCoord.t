@@ -51,6 +51,7 @@ sub want_planepath {
 # return 0 unless $planepath =~ /LCorner/;
   # return 0 unless $planepath =~ /DiagonalRationals/;
   # return 0 unless $planepath =~ /Ulam/;
+ return 0 unless $planepath =~ /Stair/;
   return 1;
 }
 sub want_coordinate {
@@ -59,7 +60,8 @@ sub want_coordinate {
   # return 0 unless $type =~ /Parity/;
   # return 0 unless $type =~ /dSum|dDiffXY|Absd|d[XY]/;
   # return 0 unless $type =~ /^(X|Y|Sum|DiffXY|dX|dY|AbsdX|AbsdY|dSum|dDiffXY|Dir4)$/;
-   return 0 unless $type =~ /^(X|Y|Sum|DiffXY|DiffYX)$/;
+
+  # return 0 unless $type =~ /^(X|Y|Sum|DiffXY|DiffYX)$/;
   return 1;
 }
 
@@ -391,7 +393,32 @@ foreach my $elem
 
 my @modules = (
                # module list begin
+              
+               'Staircase',
+               'Staircase,n_start=0',
+               'Staircase,n_start=37',
+               'StaircaseAlternating',
+               'StaircaseAlternating,n_start=0',
+               'StaircaseAlternating,n_start=37',
+               'StaircaseAlternating,end_type=square',
+               'StaircaseAlternating,end_type=square,n_start=0',
+               'StaircaseAlternating,end_type=square,n_start=37',
                
+               'OctagramSpiral',
+               'OctagramSpiral,n_start=0',
+               'OctagramSpiral,n_start=37',
+ 
+               'HeptSpiralSkewed',
+               'HeptSpiralSkewed,n_start=0',
+               'HeptSpiralSkewed,n_start=37',
+               
+               'PentSpiral',
+               'PentSpiral,n_start=0',
+               'PentSpiral,n_start=37',
+               'PentSpiralSkewed',
+               'PentSpiralSkewed,n_start=0',
+               'PentSpiralSkewed,n_start=37',
+
                'ImaginaryHalf',
                'ImaginaryHalf,digit_order=XXY',
                'ImaginaryHalf,digit_order=YXX',
@@ -789,10 +816,6 @@ my @modules = (
                'UlamWarburton,parts=1',
                'UlamWarburtonQuarter',
                
-               'Staircase',
-               'StaircaseAlternating',
-               'StaircaseAlternating,end_type=square',
-               
                'VogelFloret',
                'CubicBase',
                
@@ -1041,7 +1064,6 @@ my @modules = (
                
                'CretanLabyrinth',
                
-               'OctagramSpiral',
                'AnvilSpiral',
                'AnvilSpiral,wider=1',
                'AnvilSpiral,wider=2',
@@ -1065,8 +1087,6 @@ my @modules = (
                'FibonacciWordFractal',
                
                'DiamondSpiral',
-               'PentSpiral',
-               'PentSpiralSkewed',
                
                'HexSpiral',
                'HexSpiral,wider=1',
@@ -1082,8 +1102,6 @@ my @modules = (
                'HexSpiralSkewed,wider=4',
                'HexSpiralSkewed,wider=5',
                'HexSpiralSkewed,wider=37',
-               
-               'HeptSpiralSkewed',
                
                'AztecDiamondRings',
                'DiamondArms',

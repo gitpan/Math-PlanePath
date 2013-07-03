@@ -57,7 +57,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -120,9 +120,6 @@ use Math::PlanePath::SacksSpiral;
 # (r+1/2)^2 = r^2+r+1/4  floor=r*(r+1)
 # (r-1/2)^2 = r^2-r+1/4  ceil=r*(r-1)+1
 
-# use Math::PlanePath::PixelRings;
-# *parameter_info_array = \&Math::PlanePath::PixelRings::parameter_info_array;
-
 use constant n_frac_discontinuity => 0;
 use constant xy_is_visited => 1;
 
@@ -135,6 +132,12 @@ use constant dsumxy_maximum => 2;
 use constant ddiffxy_minimum => -2;
 use constant ddiffxy_maximum => 2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
+
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
+
 
 #------------------------------------------------------------------------------
 
@@ -431,7 +434,7 @@ unit each ring.
     117  83  53  29  15   5-- 4-- 3  11  23  39  71  99        1
       |   |   |   |   |   |       |   |   |   |   |   |
     118  84  54  30  16   6   1-- 2  10  22  38  70  98   <- Y=0
-      |   |   |   |   |   |
+      |   |   |   |   |   |        /   /   /   /   /   /
     119  85  55  31  17   7-- 8-- 9  21  37  69  97 137       -1
       |   |   |    \   \           /   /      |   |   |
     120  86  56--57  32  18--19--20  36  67--68  96 136       -2
@@ -471,7 +474,7 @@ start at 0,
     28 14  4--3--2 10 22
      |  |  |     |  |  |
     29 15  5  0--1  9 21
-     |  |  |
+     |  |  |      /  /  /
     30 16  6--7--8 20 36
       \  \        /  /
        31 17-18-19 35
@@ -490,14 +493,9 @@ classes.
 
 =item C<$path = Math::PlanePath::FilledRings-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::FilledRings-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new path object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-For C<$n < 1> the return is an empty list, it being considered there are no
-negative points.
-
-The behaviour for fractional C<$n> is unspecified as yet.
 
 =back
 
@@ -512,10 +510,11 @@ path include,
                being count of X,Y points n-1/2 < norm <= n+1/2
     A036706  1/4 of those diffs
 
-    A036707  N/2+X-1 along X axis,
-               being count norm <= n+1/2 in half plane Y>=0
-    A036708  (N(X,0)-N(X-1,0))/2+1,
-               first diffs of the half plane count
+    n_start=1 (the default)
+      A036707  N/2+X-1 along X axis,
+                 being count norm <= n+1/2 in half plane
+      A036708  (N(X,0)-N(X-1,0))/2+1,
+                 first diffs of the half plane count
 
     n_start=0
       A036704  N on X axis, from X=1 onwards

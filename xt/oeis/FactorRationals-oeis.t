@@ -35,6 +35,36 @@ use Math::PlanePath::FactorRationals;
 
 my $path = Math::PlanePath::FactorRationals->new;
 
+
+#------------------------------------------------------------------------------
+# A072345 -- X or Y at N=2^k, being alternately 1 and 2^k
+
+MyOEIS::compare_values
+  (anum => 'A072345',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 2; @got < $count; $n *= 2) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $x;
+       # last unless @got < $count;
+       # push @got, $y;
+     }
+     return\@got;
+   });
+
+MyOEIS::compare_values
+  (anum => q{A072345},
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     for (my $n = 1; @got < $count; $n *= 2) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       push @got, $y;
+     }
+     return\@got;
+   });
+
 #------------------------------------------------------------------------------
 # A011262 -- N at transpose Y/X
 # cf A011264

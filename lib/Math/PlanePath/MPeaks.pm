@@ -24,7 +24,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,8 +48,23 @@ use constant ddiffxy_maximum => 2; # SE diagonal
 use constant dir_minimum_dxdy => (1,1);  # North-East
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
+# Maybe ...
+# use constant parameter_info_array =>
+#   [
+#    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+#   ];
+
 
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
+
 # starting each left side at 0.5 before
 # [ 1,2,3 ],
 # [ 1-0.5, 6-0.5, 17-0.5 ]
@@ -78,6 +93,9 @@ use constant dir_maximum_dxdy => (1,-1); # South-East
 sub n_to_xy {
   my ($self, $n) = @_;
   ### MPeaks n_to_xy(): $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
   return if 2*$n < 1;
@@ -123,13 +141,13 @@ sub xy_to_n {
       ### right vertical ...
       # right end [ 5,16,33 ]
       # N = (3 x^2 + 2 x)
-      return (3*$x+2)*$x - $y;
+      return (3*$x+2)*$x - $y + $self->{'n_start'} - 1;
     }
     if ($two_x < -$y) {
       ### left vertical ...
       # Nleftend = (3 d^2 - 4 d + 2)
       #          = (3x+4)x + 2
-      return (3*$x+4)*$x + 2 + $y;
+      return (3*$x+4)*$x + 1 + $y + $self->{'n_start'};
     }
   }
 
@@ -137,7 +155,7 @@ sub xy_to_n {
   # d=Y+abs(x) with d=0 first (not d=1 as above),  N=(3 d^2 + 5 d + 3)
   my $d = $y - abs($x);
   ### $d
-  return (3*$d+5)*$d + 3 + $x;
+  return (3*$d+5)*$d + 2 + $x + $self->{'n_start'};
 }
 
 # not exact
@@ -162,7 +180,7 @@ sub rect_to_n_range {
   # columns X<0 are increasing with increasing Y
   # columns X>0 increase below Y=2*X
   #
-  return (1,
+  return ($self->{'n_start'},
           max (
                # left column
                $self->xy_to_n($x1,

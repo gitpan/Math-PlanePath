@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 212 A-numbers in 4 modules
+# total 227 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -1415,6 +1415,36 @@ use constant info_arrayref =>
     ]
   },
   {
+    'anum' => 'A005476',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PentSpiralSkewed,n_start=0',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A005475',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PentSpiralSkewed,n_start=0',
+      'line_type',
+      'X_neg'
+    ]
+  },
+  {
+    'anum' => 'A028895',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'PentSpiralSkewed,n_start=0',
+      'line_type',
+      'Diagonal_SE'
+    ]
+  },
+  {
     'anum' => 'A049450',
     'class' => 'Math::NumSeq::PlanePathN',
     'parameters' => [
@@ -1508,6 +1538,116 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'HexSpiralSkewed,n_start=0',
+      'line_type',
+      'Diagonal_SW'
+    ]
+  },
+  {
+    'anum' => 'A022265',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HeptSpiralSkewed,n_start=0',
+      'line_type',
+      'X_neg'
+    ]
+  },
+  {
+    'anum' => 'A195023',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HeptSpiralSkewed,n_start=0',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A022264',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HeptSpiralSkewed,n_start=0',
+      'line_type',
+      'Diagonal_NW'
+    ]
+  },
+  {
+    'anum' => 'A186029',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HeptSpiralSkewed,n_start=0',
+      'line_type',
+      'Diagonal_SW'
+    ]
+  },
+  {
+    'anum' => 'A024966',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'HeptSpiralSkewed,n_start=0',
+      'line_type',
+      'Diagonal_SE'
+    ]
+  },
+  {
+    'anum' => 'A139273',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OctagramSpiral,n_start=0',
+      'line_type',
+      'Y_axis'
+    ]
+  },
+  {
+    'anum' => 'A139275',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OctagramSpiral,n_start=0',
+      'line_type',
+      'X_neg'
+    ]
+  },
+  {
+    'anum' => 'A139277',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OctagramSpiral,n_start=0',
+      'line_type',
+      'Y_neg'
+    ]
+  },
+  {
+    'anum' => 'A139272',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OctagramSpiral,n_start=0',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A139274',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OctagramSpiral,n_start=0',
+      'line_type',
+      'Diagonal_NW'
+    ]
+  },
+  {
+    'anum' => 'A139276',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'OctagramSpiral,n_start=0',
       'line_type',
       'Diagonal_SW'
     ]
@@ -1856,6 +1996,16 @@ use constant info_arrayref =>
     'parameters' => [
       'planepath',
       'Diagonals',
+      'line_type',
+      'Diagonal'
+    ]
+  },
+  {
+    'anum' => 'A096376',
+    'class' => 'Math::NumSeq::PlanePathN',
+    'parameters' => [
+      'planepath',
+      'Staircase,n_start=2',
       'line_type',
       'Diagonal'
     ]

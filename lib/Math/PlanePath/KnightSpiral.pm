@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -48,7 +48,21 @@ use constant ddiffxy_maximum => 3;
 use constant dir_minimum_dxdy => (2,1);  # X=2,Y=1 angle
 use constant dir_maximum_dxdy => (2,-1);
 
+# Maybe ...
+# use constant parameter_info_array =>
+#   [
+#    Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+#   ];
+
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 sub _odd {
   my ($n) = @_;
@@ -66,6 +80,9 @@ sub _odd {
 sub n_to_xy {
   my ($self, $n) = @_;
   #### KnightSpiral n_to_xy: $n
+
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
 
   if ($n < 2) {
     if ($n < 1) { return; }
@@ -247,7 +264,9 @@ sub xy_to_n {
   my ($self, $x, $y) = @_;
   $x = round_nearest ($x);
   $y = round_nearest ($y);
-  if ($x == 0 && $y == 0) { return 1; }
+  if ($x == 0 && $y == 0) {
+    return $self->{'n_start'};
+  }
 
   my $r = max(abs($x),abs($y));
   my $d = int (($r+1)/2);  # ring number, counting $x=1,2 as $d==1
@@ -272,15 +291,15 @@ sub xy_to_n {
     my $n = 16*$d*$d - $x;
     if (($x ^ $y ^ $d) & 1) {
       if ($xodd) {
-        return $n -5*$d + 3;
+        return $n -5*$d + 2 + $self->{'n_start'};
       } else {
-        return $n -13*$d + 6;
+        return $n -13*$d + 5 + $self->{'n_start'};
       }
     } else {
       if ($xodd) {
-        return $n -21*$d + 8;
+        return $n -21*$d + 7 + $self->{'n_start'};
       } else {
-        return $n + 3*$d + 1;
+        return $n + 3*$d + $self->{'n_start'};
       }
     }
   }
@@ -307,15 +326,15 @@ sub xy_to_n {
     my $n = 16*$d*$d + $y;
     if (($x ^ $y ^ $d) & 1) {
       if ($yodd) {
-        return $n -15*$d + 7;
+        return $n -15*$d + 6 + $self->{'n_start'};
       } else {
-        return $n -7*$d + 4;
+        return $n -7*$d + 3 + $self->{'n_start'};
       }
     } else {
       if ($yodd) {
-        return $n -23*$d + 10;
+        return $n -23*$d + 9 + $self->{'n_start'};
       } else {
-        return $n + $d + 1;
+        return $n + $d + $self->{'n_start'};
       }
     }
   }
@@ -338,15 +357,15 @@ sub xy_to_n {
     my $n = 16*$d*$d + $x;
     if (($x ^ $y ^ $d) & 1) {
       if ($xodd) {
-        return $n -9*$d + 5;
+        return $n -9*$d + 4 + $self->{'n_start'};
       } else {
-        return $n -1*$d + 2;
+        return $n -1*$d + 1 + $self->{'n_start'};
       }
     } else {
       if ($xodd) {
-        return $n -17*$d + 8;
+        return $n -17*$d + 7 + $self->{'n_start'};
       } else {
-        return $n + 7*$d + 1;
+        return $n + 7*$d + $self->{'n_start'};
       }
     }
   }
@@ -369,15 +388,15 @@ sub xy_to_n {
     my $n = 16*$d*$d - $y;
     if (($x ^ $y ^ $d) & 1) {
       if ($yodd) {
-        return $n -11*$d + 5;
+        return $n -11*$d + 4 + $self->{'n_start'};
       } else {
-        return $n -19*$d + 8;
+        return $n -19*$d + 7 + $self->{'n_start'};
       }
     } else {
       if ($yodd) {
-        return $n -3*$d + 2;
+        return $n -3*$d + 1 + $self->{'n_start'};
       } else {
-        return $n + 5*$d + 1;
+        return $n + 5*$d + $self->{'n_start'};
       }
     }
   }
@@ -404,8 +423,8 @@ sub rect_to_n_range {
 
   $d = 2*$d+1;  # width of whole square
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
-  return (1,
-          1 + $d*$d);
+  return ($self->{'n_start'},
+          $self->{'n_start'} + $d*$d);
 }
 
 1;
@@ -425,7 +444,7 @@ Math::PlanePath::KnightSpiral -- integer points around a square, by chess knight
 
 =head1 DESCRIPTION
 
-This path traverses the plane with an infinite "knight's tour" in the form
+This path traverses the plane by an infinite "knight's tour" in the form
 of a square spiral.
 
                             ...
@@ -456,6 +475,8 @@ page (quarter way down under "Open Knight's Tour"),
 =over
 
 http://www.borderschess.org/KTart.htm
+http://www.borderschess.org/KTinfinity.gif
+http://www.borderschess.org/Infinite.gif
 
 =back
 
@@ -495,14 +516,15 @@ eight forms for 4 rotations and spiralling the same or opposite directions.
 
     http://oeis.org/A068608
 
-    A068608  - same knight and square spiral directions
-    A068609  - rotate 90 degrees
-    A068610  - rotate 180 degrees
-    A068611  - rotate 270 degrees
-    A068612  - rotate 180 degrees, spiral opp dir (X negate)
-    A068613  - rotate 270 degrees, spiral opp dir
-    A068614  - spiral opposite direction (Y negate)
-    A068615  - rotate 90 degrees, spiral opp dir (X,Y transpose)
+    permutations
+      A068608   same knight and square spiral directions
+      A068609   rotate 90 degrees
+      A068610   rotate 180 degrees
+      A068611   rotate 270 degrees
+      A068612   rotate 180 degrees, spiral opp dir (X negate)
+      A068613   rotate 270 degrees, spiral opp dir
+      A068614   spiral opposite direction (Y negate)
+      A068615   rotate 90 degrees, spiral opp dir (X,Y transpose)
 
 See F<examples/knights-oeis.pl> for a sample program printing the values of
 A068608.

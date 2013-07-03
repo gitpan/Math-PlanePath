@@ -26,8 +26,145 @@ use lib 'xt';
 use MyOEIS;
 
 # uncomment this to run the ### lines
-# use Smart::Comments;
+use Smart::Comments;
 
+
+{
+  # boundary length by N
+  require Math::NumSeq::PlanePathCoord;
+  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
+      ->{'planepath'}->{'choices'}};
+  @choices = grep {$_ ne 'CellularRule'} @choices;
+  @choices = grep {$_ ne 'ArchimedeanChords'} @choices;
+  @choices = grep {$_ ne 'TheodorusSpiral'} @choices;
+  @choices = grep {$_ ne 'MultipleRings'} @choices;
+  @choices = grep {$_ ne 'VogelFloret'} @choices;
+  @choices = grep {$_ ne 'UlamWarburtonAway'} @choices;
+  @choices = grep {$_ !~ /Hypot|ByCells|SumFractions|WythoffTriangle/} @choices;
+  @choices = grep {$_ ne 'PythagoreanTree'} @choices;
+  # @choices = grep {$_ ne 'PeanoHalf'} @choices;
+  @choices = grep {$_ !~ /EToothpick|LToothpick|Surround|Peninsula/} @choices;
+  #
+  # @choices = grep {$_ ne 'CornerReplicate'} @choices;
+  # @choices = grep {$_ ne 'ZOrderCurve'} @choices;
+  # unshift @choices, 'CornerReplicate', 'ZOrderCurve';
+
+  my $num_choices = scalar(@choices);
+  print "$num_choices choices\n";
+
+  my @path_objects;
+  my %path_fullnames;
+  foreach my $name (@choices) {
+    my $class = "Math::PlanePath::$name";
+    ### $class
+    Module::Load::load($class);
+
+    my $parameters = parameter_info_list_to_parameters
+      ($class->parameter_info_list);
+    foreach my $p (@$parameters) {
+      my $path_object = $class->new (@$p);
+      push @path_objects, $path_object;
+      $path_fullnames{$path_object} = "$name ".join(',',@$p);
+    }
+  }
+  my $num_path_objects = scalar(@path_objects);
+  print "total path objects $num_path_objects\n";
+
+  my $start_t = time();
+  my $t = $start_t-8;
+
+  my $i = 0;
+  # until ($path_objects[$i]->isa('Math::PlanePath::DragonCurve')) {
+  #   $i++;
+  # }
+  my $start_permutations = $i * ($num_path_objects-1);
+  my $num_permutations = $num_path_objects * ($num_path_objects-1);
+
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  for ( ; $i <= $#path_objects; $i++) {
+    my $path = $path_objects[$i];
+    my $fullname = $path_fullnames{$path};
+    print "$fullname\n";
+
+    my $x_minimum = $path->x_minimum;
+    my $y_minimum = $path->y_minimum;
+
+    my $str = '';
+    my @values;
+    my $boundary = 0;
+    foreach my $n ($path->n_start .. 30) {
+      my ($x,$y) = $path->n_to_xy($n);
+      $boundary += 4;
+      foreach my $d (0 .. $#dir4_to_dx) {
+        my $ax = $x+$dir4_to_dx[$d];
+        my $ay = $y+$dir4_to_dy[$d];
+        my $an = $path->xy_to_n($ax,$ay);
+
+        # not counting quadrant sides
+        if ((defined $x_minimum && $ax < $x_minimum)
+            || (defined $y_minimum && $ay < $y_minimum)) {
+          $boundary--;
+          next;
+        }
+
+        # for grid sticks
+        # $boundary -= (defined $an && $an < $n);
+
+        # for boundary
+        $boundary -= 2*(defined $an && $an < $n);
+      }
+      my $value = $boundary;
+      $str .= "$value,";
+      push @values, $value;
+    }
+    shift @values;
+    if (defined (my $diff = constant_diff(@values))) {
+      print "$fullname\n";
+      print "  constant diff $diff\n";
+      next;
+    }
+    print "$str\n";
+    if (my $found = stripped_grep($str)) {
+      print "$fullname  match\n";
+      print "  (",substr($str,0,60),"...)\n";
+      print $found;
+      print "\n";
+    }
+  }
+  exit 0;
+}
+
+{
+  # with or without n_start
+  require Math::NumSeq::PlanePathCoord;
+  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
+      ->{'planepath'}->{'choices'}};
+
+  my (@with, @without);
+  foreach my $name (@choices) {
+    my $class = "Math::PlanePath::$name";
+    Module::Load::load($class);
+    my $href = $class->parameter_info_hash;
+    if ($href->{'n_start'}) {
+      push @with, $class;
+    } else {
+      push @without, $class;
+    }
+  }
+  foreach my $aref (\@without, \@with) {
+    foreach my $class (@$aref) {
+      my @pnames = map {$_->{'name'}} $class->parameter_info_list;
+      my $href = $class->parameter_info_hash;
+      my $w = ($href->{'n_start'} ? 'with' : 'without');
+      print "  $class [$w] ",join(',',@pnames),"\n";
+      # print "    ",join(', ',keys %$href),"\n";
+    }
+    print "\n\n";
+  }
+  exit 0;
+}
 
 {
   require Math::PlanePath::DragonCurve;

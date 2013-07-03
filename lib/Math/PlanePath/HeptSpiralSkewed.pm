@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -31,7 +31,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Smart::Comments '####';
+# use Smart::Comments;
 
 
 use constant xy_is_visited => 1;
@@ -45,73 +45,72 @@ use constant ddiffxy_minimum => -2; # NW diagonal
 use constant ddiffxy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
 
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
+
 
 #------------------------------------------------------------------------------
 
-# base lower left diagonal
-#   d = [  2,  3, 4 ]
-#   n = [  9, 23, 44 ]
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
+
+# base South-West diagonal
+#   d = [  1,  2,  3,  4 ]
+#   n = [  0,  5, 17, 36 ]
+# N = (7/2 d^2 - 11/2 d + 2)
+#   = (7/2*$d**2 - 11/2*$d + 2)
+#   = ((7/2*$d - 11/2)*$d + 2)
+# d = 11/14 + sqrt(2/7 * $n + 9/196)
+#   = (11 + 14*sqrt(2/7 * $n + 9/196))/14
+#   = (sqrt(56*$n + 9) + 11)/14
 #
-#   n = (7/2*$d**2 + -7/2*$d + 2)
-#     = (3.5*$d - 2.5)*$d + 1
-#   d = 1/2 + sqrt(2/7 * $n + -9/28)
-#     = 0.5 + sqrt(49*2/7 * $n - 49*9/28)/7
-#     = 0.5 + sqrt(14 * $n - 15.75)/7
-#     = (1 + sqrt(14 * $n - 15.75)*2/7) / 2
-#     = (1 + sqrt(56*$n - 63)/7) / 2
-#
-# initial remainder relative to rightwards horizontal y=0
-#   d = [ 1,  2,  3,  4 ]
-#   n = [ 2, 10, 25, 47 ]
-#   n = (7/2*$d**2 + -5/2*$d + 1)
-#     = (3.5*$d - 2.5)*$d + 1
-#
+# split North Y axis
+#   d = [  1,  2,  3 ]
+#   n = [  2, 11, 27 ]
+# N = (7*$d-3)*$d/2
+
 sub n_to_xy {
   my ($self, $n) = @_;
   #### HeptSpiralSkewed n_to_xy: $n
 
-  if ($n < 2) {
-    if ($n < 1) { return; }
-    return ($n-1,0);
-  }
+  $n = $n - $self->{'n_start'};   # adjust to N=0 at origin X=0,Y=0
+  if ($n < 0) { return; }
 
-  my $d = int ((1 + sqrt(56*$n - 63)/7) / 2);
-  #### d frac: (0.5 + sqrt(14 * $n - 15.75)/7)
-  #### $d
+  my $d = int((sqrt(56*$n+9) + 11) / 14);
+  ### $d
+  ### d frac: (sqrt(56*$n+9) + 11) / 14
 
-  # from -$d up to 6*$d-1, inclusive
-  $n -= (7*$d - 5)*$d/2 + 1;
-  #### remainder: $n
+  $n -= (7*$d-3)*$d/2;
+  ### remainder: $n
 
-  if ($n <= 2*$d) {
-    if ($n <= $d) {
-      #### right vertical and slope ...
-      if ($n <= 0) {
-        #### right vertical ...
-        return ($d,
-                $n);
-      } else {
-        #### right slope ...
-        return (-$n + $d,
-                $n);
-      }
-    } else {
-      #### top horizontal of length d
-      return (-$n + $d,
-              $d);
+  if ($n < 0) {  # split at Y axis
+    if ($n >= -$d) {
+      #### right diagonal ...
+      return (-$n,
+              $n + $d);
     }
-  } else {
-    # here $n==2*$d is the top left corner
-    if ($n <= 4*$d) {
-      #### left vertical
-      return (-$d,
-              -$n + 3*$d);
-    } else {
-      #### bottom horizontal
-      return ($n - 5*$d,
-              -$d);
+    $n += $d;
+    if ($n < 1-$d) {
+      ### bottom horizontal ...
+      return ($n + 2*$d-1, 1-$d);
     }
+    ### right vertical ...
+    return ($d, $n);
   }
+  if ($n <= $d) {
+    ### top horizontal ...
+    return (-$n, $d);
+  }
+  #### left vertical ...
+  return (-$d,
+          -$n + 2*$d);
 }
 
 sub xy_to_n {
@@ -128,26 +127,26 @@ sub xy_to_n {
     #     = (3.5*$d - 2.5)*$d + 1
     #
     my $d = $x + $y;
-    return (7*$d - 5)*$d/2 + 1 + $y;
+    return (7*$d - 5)*$d/2 + $y + $self->{'n_start'};
   }
 
   my $d = max(abs($x),abs($y));
-  my $n = (7*$d - 5)*$d/2 + 1;
+  my $n = (7*$d - 5)*$d/2;
   if ($y == $d) {
     ### top horizontal
-    return $n+$d - $x;
+    return $n+$d - $x + $self->{'n_start'};
   }
   if ($y == -$d) {
     ### bottom horizontal
-    return $n + 5*$d + $x;
+    return $n + 5*$d + $x + $self->{'n_start'};
   }
   if ($x == $d) {
     ### right vertical
-    return $n + $y;
+    return $n + $y + $self->{'n_start'};
   }
   # ($x == - $d)
   ### left vertical
-  return $n + 3*$d - $y;
+  return $n + 3*$d - $y + $self->{'n_start'};
 }
 
 # not exact
@@ -168,8 +167,8 @@ sub rect_to_n_range {
     }
   }
   # ENHANCE-ME: find actual minimum if rect doesn't cover 0,0
-  return (1,
-          (7*$d - 5)*$d/2 + 1);
+  return ($self->{'n_start'},
+          $self->{'n_start'} + (7*$d - 5)*$d/2);
 }
 
 1;
@@ -191,19 +190,25 @@ Math::PlanePath::HeptSpiralSkewed -- integer points around a skewed seven sided 
 
 This path makes a seven-sided spiral by cutting one corner of a square
 
-    34-33-32-31                 3
+=cut
+
+# math-image --path=HeptSpiralSkewed --expression='i<=44?i:0' --output=numbers_dash --size=60x18
+
+=pod
+
+    31-30-29-28                       3
      |         \
-    35 14-13-12 30              2
+    32 14-13-12 27                    2
      |  |      \  \
-    36 15  4--3 11 29           1
+    33 15  4--3 11 26                 1
      |  |  |   \  \  \
-    47 16  5  1--2 10 28   <- y=0
+    34 16  5  1--2 10 25         <- Y=0
      |  |  |        |  |
-    38 17  6--7--8- 9 27       -1
+    35 17  6--7--8--9 24             -1
      |  |              |
-    39 18-22-23-24-25-26       -2
+    36 18-19-20-21-22-23             -2
      |
-    40-41-42-43-44-...
+    37-38-39-40-41-...               -3
 
               ^
     -3 -2 -1 x=0 1  2  3
@@ -211,6 +216,26 @@ This path makes a seven-sided spiral by cutting one corner of a square
 The path is as if around a heptagon, with the left and bottom here as two
 sides of the heptagon straightened out, and the flat top here skewed across
 to fit a square grid.
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=HeptSpiralSkewed,n_start=0 --expression='i<=40?i:0' --output=numbers --size=60x11
+
+=pod
+
+    30 29 28 27              n_start => 0
+    31 13 12 11 26
+    32 14  3  2 10 25
+    33 15  4  0  1  9 24
+    34 16  5  6  7  8 23
+    35 17 18 19 20 21 22
+    36 37 38 39 40 ...
 
 =head1 FUNCTIONS
 
@@ -220,14 +245,9 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::HeptSpiralSkewed-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::HeptSpiralSkewed-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new path object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.
-
-For C<$n < 1> the return is an empty list, it being considered the path
-starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -238,10 +258,28 @@ covered.
 
 =back
 
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A192136  (etc)
+
+    n_start=0
+      A001106    N on X axis, 9-gonal numbers
+      A022265    N on X negative axis
+      A179986    N on Y negative axis, second 9-gonals
+      A195023    N on X=Y diagonal
+      A022264    N on North-West diagonal
+      A186029    N on South-West diagonal
+      A024966    N on South-East diagonal
+
 =head1 SEE ALSO
 
 L<Math::PlanePath>,
-L<Math::PlanePath::SquareSpiral>
+L<Math::PlanePath::SquareSpiral>,
+L<Math::PlanePath::PentSpiralSkewed>,
+L<Math::PlanePath::HexSpiralSkewed>
 
 =head1 HOME PAGE
 

@@ -37,6 +37,42 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
+               'PyramidSpiral',
+               'PyramidSpiral,n_start=0',
+               'PyramidSpiral,n_start=37',
+
+               'HeptSpiralSkewed',
+               'HeptSpiralSkewed,n_start=0',
+               'HeptSpiralSkewed,n_start=37',
+               'PentSpiral',
+               'PentSpiral,n_start=0',
+               'PentSpiral,n_start=37',
+               'PentSpiralSkewed',
+               'PentSpiralSkewed,n_start=0',
+               'PentSpiralSkewed,n_start=37',
+
+               'KnightSpiral',
+               'KnightSpiral,n_start=0',
+               'KnightSpiral,n_start=37',
+
+               'Staircase',
+               'Staircase,n_start=0',
+               'Staircase,n_start=37',
+               'StaircaseAlternating',
+               'StaircaseAlternating,n_start=0',
+               'StaircaseAlternating,n_start=37',
+               'StaircaseAlternating,end_type=square',
+               'StaircaseAlternating,end_type=square,n_start=0',
+               'StaircaseAlternating,end_type=square,n_start=37',
+
+               'OctagramSpiral',
+               'OctagramSpiral,n_start=0',
+               'OctagramSpiral,n_start=37',
+
+               'MPeaks',
+               'MPeaks,n_start=0',
+               'MPeaks,n_start=37',
+
                'CornerReplicate',
 
                'UlamWarburton',
@@ -83,10 +119,6 @@ my @modules = (
                'PythagoreanTree,tree_type=FB,coordinates=AC',
                'PythagoreanTree,tree_type=FB,coordinates=BC',
                'PythagoreanTree,tree_type=FB,coordinates=PQ',
-
-               'PyramidSpiral',
-               'PyramidSpiral,n_start=0',
-               'PyramidSpiral,n_start=37',
 
                '*LCornerTree,parts=octant_up+1',
                '*LCornerTree,parts=octant+1',
@@ -518,14 +550,10 @@ my @modules = (
                'ComplexMinus,realpart=4',
                'ComplexMinus,realpart=5',
 
-               'OctagramSpiral',
-
                'LTiling',
                'LTiling,L_fill=ends',
                'LTiling,L_fill=all',
                'FibonacciWordFractal',
-
-               'HeptSpiralSkewed',
 
                'GosperReplicate',
                'GosperSide',
@@ -606,10 +634,6 @@ my @modules = (
                'AlternatePaper,arms=7',
                'AlternatePaper,arms=8',
 
-               'PentSpiral',
-               'PentSpiralSkewed',
-               'KnightSpiral',
-
                'SierpinskiArrowhead',
                'SierpinskiArrowhead,align=right',
                'SierpinskiArrowhead,align=left',
@@ -619,8 +643,6 @@ my @modules = (
                'DragonRounded,arms=2',
                'DragonRounded,arms=3',
                'DragonRounded,arms=4',
-
-               'MPeaks',
 
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
@@ -689,10 +711,6 @@ my @modules = (
                'AlternatePaperMidpoint,arms=7',
                'AlternatePaperMidpoint,arms=8',
 
-               'StaircaseAlternating,end_type=square',
-               'StaircaseAlternating',
-               'Staircase',
-
                'CretanLabyrinth',
 
                # module list end
@@ -755,7 +773,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 106;
+my $want_version = 107;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');

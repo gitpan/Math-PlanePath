@@ -41,13 +41,8 @@
 # xy_all_even
 # xy_all_odd
 #
-# x_increasing = dx>0
-# y_increasing
-# y_non_decreasing = dy>=0
-# sumxy_non_decreasing
-# sumxy_increasing
 # sumabsxy_minimum   abs(X)+abs(Y)
-# xy_absdiff_minimum  abs(X-Y)
+# absdiffxy_minimum  abs(X-Y)
 # productxy_minimum
 # gcdxy_minimum
 # gcdxy_maximum
@@ -92,7 +87,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 106;
+$VERSION = 107;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;

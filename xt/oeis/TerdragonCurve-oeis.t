@@ -47,22 +47,27 @@ sub ternary_digit_above_low_zeros {
 }
 
 #------------------------------------------------------------------------------
+# A136442 1,1,0,1,1,0,1,0,0,1,1,0,1,1,0,1,0,0,1,1,0,1,0,0,
+# OFFSET =0,1,2,3,...
+# left    1,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,0,1,0,1,1,0,0,1,0,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,0,1,0,1,1,0
+#         N=1,2,3,...
 
-
-MyOEIS::compare_values
-  (anum => 'A136442',
-   func => sub {
-     my ($count) = @_;
-     require Math::NumSeq::PlanePathTurn;
-     my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
-                                                 turn_type => 'Left');
-     my @got = (1);
-     while (@got < $count) {
-       my ($i, $value) = $seq->next;
-       push @got, $value;
-     }
-     return \@got;
-   });
+# Not quite
+#
+# MyOEIS::compare_values
+#   (anum => 'A136442',
+#    func => sub {
+#      my ($count) = @_;
+#      require Math::NumSeq::PlanePathTurn;
+#      my $seq = Math::NumSeq::PlanePathTurn->new (planepath_object => $path,
+#                                                  turn_type => 'Left');
+#      my @got = (1);
+#      while (@got < $count) {
+#        my ($i, $value) = $seq->next;
+#        push @got, $value;
+#      }
+#      return \@got;
+#    });
 
 #------------------------------------------------------------------------------
 # A060032 - turn 1=left, 2=right as bignums to 3^level

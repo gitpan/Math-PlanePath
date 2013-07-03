@@ -34,6 +34,72 @@ use Math::PlanePath::Corner;
 
 
 #------------------------------------------------------------------------------
+# A027709 -- boundary length
+
+{
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  sub path_n_to_dboundary {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my $dboundary = 4;
+    foreach my $i (0 .. $#dir4_to_dx) {
+      my $an = $path->xy_to_n($x+$dir4_to_dx[$i], $y+$dir4_to_dy[$i]);
+      $dboundary -= 2*(defined $an && $an < $n);
+    }
+    return $dboundary;
+  }
+}
+
+MyOEIS::compare_values
+  (anum => 'A027709',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Corner->new;
+     my @got;
+     my $boundary = 0;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       push @got, $boundary;
+       $boundary += path_n_to_dboundary($path,$n);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
+# A078633 -- grid sticks
+
+{
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  sub path_n_to_dsticks {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n);
+    my $dsticks = 4;
+    foreach my $i (0 .. $#dir4_to_dx) {
+      my $an = $path->xy_to_n($x+$dir4_to_dx[$i], $y+$dir4_to_dy[$i]);
+      $dsticks -= (defined $an && $an < $n);
+    }
+    return $dsticks;
+  }
+}
+
+MyOEIS::compare_values
+  (anum => 'A078633',
+   func => sub {
+     my ($count) = @_;
+     my $path = Math::PlanePath::Corner->new;
+     my @got;
+     my $boundary = 0;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       $boundary += path_n_to_dsticks($path,$n);
+       push @got, $boundary;
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A000290 -- N on X axis, perfect squares starting from 1
 
 MyOEIS::compare_values

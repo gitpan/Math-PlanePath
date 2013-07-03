@@ -398,6 +398,8 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'PyramidSpiral',
+
                'CfracDigits,radix=1',
                'CfracDigits',
                'CfracDigits,radix=3',
@@ -589,7 +591,6 @@ my @modules = (
                'HexSpiral',
                'HexSpiralSkewed',
                'HeptSpiralSkewed',
-               'PyramidSpiral',
                'TriangleSpiral',
                'TriangleSpiralSkewed',
                'TriangleSpiralSkewed,skew=right',

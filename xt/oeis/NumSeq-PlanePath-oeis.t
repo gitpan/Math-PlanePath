@@ -45,8 +45,8 @@ sub want_anum {
 }
 sub want_planepath {
   my ($planepath) = @_;
-  # return 0 unless $planepath =~ /CellularRule190/;
-   return 0 unless $planepath =~ /PyramidSpiral/;
+  # return 0 unless $planepath =~ /Stair/;
+  # return 0 unless $planepath =~ /Octag|Pent|Hept/;
   # return 0 unless $planepath =~ /Divis|DiagonalRationals|CoprimeCol/;
   # return 0 unless $planepath =~ /DiamondSpiral/;
   # return 0 unless $planepath =~ /LCorner/;

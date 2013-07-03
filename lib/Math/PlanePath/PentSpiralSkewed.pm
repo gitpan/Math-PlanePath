@@ -24,7 +24,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -46,48 +46,52 @@ use constant ddiffxy_minimum => -2; # NW diagonal
 use constant ddiffxy_maximum => 2;  # SE diagonal
 use constant dir_maximum_dxdy => (1,-1); # South-East
 
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
+
 
 #------------------------------------------------------------------------------
 
-# start at diagonal to bottom right
-#   d = [ 1, 2,  3 ]
-#   n = [ 2, 7, 17 ]
-#
-#   n = (5/2*$d**2 + -5/2*$d + 2)
-#   d = 1/2 + sqrt(2/5 * $n + -11/20)
-#     =  .5 + sqrt((8*$n-11)/20)
-#
-#   remainder from base $n - (5/2*$d**2 + -5/2*$d + 2)
-#   then step to vertical x=0 is (2*$d-1) so
-#   rem = $n - (5/2*$d**2 + -5/2*$d + 2) - (2*$d-1)
-#       = $n - (5/2*$d**2 - 1/2*$d + 1)
-#       = $n - (2.5*$d*$d - 0.5*$d + 1)
-#
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
+
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
 
-  if ($n < 2) {
-    if ($n < 1) { return; }
-    return ($n-1,0);
-  }
+  # adjust to N=0 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'};
+  if ($n < 0) { return; }
 
-  my $d = int( (sqrt(40*$n-55)+5) / 10 );
-  #### d frac: .5 + sqrt((8*$n-11)/20)
-  #### $d
+  my $d = int( (sqrt(40*$n+9)+7) / 10);
+  $n -= (5*$d-1)*$d/2;
 
-  #### remainder from base: $n - (5/2*$d**2 + -5/2*$d + 2)
-  #### remainder from vertical: $n - (2.5*$d*$d - 0.5*$d + 1)
-  $n -= (5*$d - 1)*$d/2 + 1;
-
-  if ($n < $d) {
-    #### upper diagonals and right vertical
-    return (min(-$n, $d),
-            - abs($n) + $d);
+  if ($n < -$d) {
+    $n += 2*$d;
+    if ($n < 1) {
+      # bottom horizontal
+      return ($n+$d-1, -$d+1);
+    } else {
+      # lower right vertical ...
+      return ($d, $n-$d);
+    }
   } else {
-    #### lower left and bottom horizontal
-    return ($n - 2*$d,
-            max ($d-$n, -$d));
+    if ($n <= $d) {
+      ### top diagonals left and right ...
+      return (-$n,
+              -abs($n) + $d);
+    } else {
+      ### lower left diagonal ...
+      return ($n - 2*$d,
+              -$n + $d);
+    }
   }
 }
 
@@ -106,9 +110,10 @@ sub xy_to_n {
     my $d = max($x-1, -$y);
     ### lower right square part
     ### $d
-    return ((5*$d + 3)*$d/2 + 1
+    return ((5*$d + 3)*$d/2
             + $x
-            + ($x > $d ? $y+$d : 0));
+            + ($x > $d ? $y+$d : 0)
+            + $self->{'n_start'});
   }
 
   # vertical at x=0
@@ -117,9 +122,10 @@ sub xy_to_n {
   #   n = (5/2*$d**2 + -1/2*$d + 1)
   #
   my $d = abs($x)+abs($y);
-  return ((5*$d - 1)*$d/2 + 1
+  return ((5*$d - 1)*$d/2
           - $x
-          + ($y < 0 ? 2*($d+$x) : 0));
+          + ($y < 0 ? 2*($d+$x) : 0)
+          + $self->{'n_start'});
 }
 
 # not exact
@@ -143,8 +149,8 @@ sub rect_to_n_range {
     }
   }
   ### $d
-  return (1,
-          5*$d*($d-1)/2 + 2);
+  return ($self->{'n_start'},
+          $self->{'n_start'} + 5*$d*($d-1)/2 + 2);
 }
 
 1;
@@ -172,17 +178,39 @@ fit a square grid and fully cover the plane.
        11  3  9 20           1
       /  /  \  \  \
     12  4  1--2  8 19    <- y=0
-      \  \       |  | 
+      \  \       |  |
        13  5--6--7 18       -1
-         \          |    
+         \          |
           14-15-16-17       -2
-               
-     ^  ^  ^  ^  ^  ^ 
+
+     ^  ^  ^  ^  ^  ^
     -2 -1 x=0 1  2  3 ...
 
 The pattern is similar to the C<SquareSpiral> but cuts three corners which
 makes each cycle is faster.  Each cycle is just 5 steps longer than the
 previous (where it's 8 for a C<SquareSpiral>).
+
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=PentSpiralSkewed,n_start=0 --expression='i<=57?i:0' --output=numbers --size=60x11
+
+=pod
+
+                38             n_start => 0
+             39 21 37  ...
+          40 22  9 20 36 57
+       41 23 10  2  8 19 35 56
+    42 24 11  3  0  1  7 18 34 55
+       43 25 12  4  5  6 17 33 54
+          44 26 13 14 15 16 32 53
+             45 27 28 29 30 31 52
+                46 47 48 49 50 51
 
 =head1 FUNCTIONS
 
@@ -192,14 +220,9 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PentSpiral-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::PentSpiral-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new path object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.
-
-For C<$n < 1> the return is an empty list, it being considered the path
-starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -216,12 +239,21 @@ path include
 
     http://oeis.org/A192136  (etc)
 
-    A192136    N on X axis, (5*n^2 - 3*n + 2)/2
-    A140066    N on Y axis
-    A116668    N on X negative axis, (5n^2 + n + 2)/2
-    A134238    N on Y negative axis
-    A158187    N on North-West diagonal, 10*n^2 + 1
-    A005891    N on South-East diagonal, centred pentagonals
+    n_start=1 (the default)
+      A192136    N on X axis, (5*n^2 - 3*n + 2)/2
+      A140066    N on Y axis
+      A116668    N on X negative axis, (5n^2 + n + 2)/2
+      A134238    N on Y negative axis
+      A158187    N on North-West diagonal, 10*n^2 + 1
+      A005891    N on South-East diagonal, centred pentagonals
+
+    n_start=0
+      A000566    N on X axis, heptagonal numbers
+      A005476    N on Y axis
+      A005475    N on X negative axis
+      A147875    N on Y negative axis, second heptagonals
+      A033583    N on North-West diagonal, 10*n^2
+      A028895    N on South-East diagonal, 5*triangular
 
 =head1 SEE ALSO
 

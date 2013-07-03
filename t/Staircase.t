@@ -33,7 +33,7 @@ require Math::PlanePath::Staircase;
 # VERSION
 
 {
-  my $want_version = 106;
+  my $want_version = 107;
   ok ($Math::PlanePath::Staircase::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::Staircase->VERSION,  $want_version,
@@ -71,7 +71,7 @@ require Math::PlanePath::Staircase;
   # width not a parameter as such ...
   my @pnames = map {$_->{'name'}}
     Math::PlanePath::Staircase->parameter_info_list;
-  ok (join(',',@pnames), '');
+  ok (join(',',@pnames), 'n_start');
 }
 
 

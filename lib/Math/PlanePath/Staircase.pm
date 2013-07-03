@@ -16,14 +16,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=Staircase --all --output=numbers_dash --size=70x30
-
 package Math::PlanePath::Staircase;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -47,8 +45,21 @@ use constant dsumxy_maximum => 2;  # next row
 use constant ddiffxy_maximum => 1; # straight S,E
 use constant dir_maximum_dxdy => (0,-1); # South
 
+use constant parameter_info_array =>
+  [
+   Math::PlanePath::Base::Generic::parameter_info_nstart1(),
+  ];
+
 
 #------------------------------------------------------------------------------
+
+sub new {
+  my $self = shift->SUPER::new(@_);
+  if (! defined $self->{'n_start'}) {
+    $self->{'n_start'} = $self->default_n_start;
+  }
+  return $self;
+}
 
 # start from 0.5 back
 #     d = [ 0, 1,  2, 3 ]
@@ -67,15 +78,17 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### Staircase n_to_xy: $n
 
+  # adjust to N=1 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'} + 1;
+
   if (2*$n < 1) { return; }
 
   my $d = int ((1 + sqrt(int(8*$n-3))) / 4);
   ### $d
-  ### d frac: ((1 + sqrt(8*$n-3)) / 4)
   ### base: ((2*$d - 1)*$d + 0.5)
 
   $n -= (2*$d - 1)*$d;
-  ### rem: $n
+  ### fractional: $n
 
   my $int = int($n);
   $n -= $int;
@@ -90,37 +103,6 @@ sub n_to_xy {
     return ($n + $int-1,
             2*$d - $int);
   }
-
-
-
-
-
-  # my $int = int($n);  # BigFloat int() gives BigInt, use that
-  # $n -= $int;         # frac, preserving any BigFloat
-  #
-  # if (2*$n >= 1) {  # $frac >= 0.5
-  #   $n -= 1;
-  #   $int += 1;
-  # }
-  # return if $int < 0;
-  #
-  # my $d = int((sqrt(8*$int-7) + 1) / 4);
-  # #### $d
-  # #### d frac: ((sqrt(8*$int-7) + 1) / 4)
-  # #### base: ((2*$d - 1)*$d + 1)
-  #
-  # $int -= ((2*$d - 1)*$d + 1);
-  # ### rem: $int
-  #
-  # my $r = int($int/2);
-  # ### $r
-  # if ($int & 1) {
-  #   ### down: ($r,  -$n + 2*$d - $r)
-  #   return ($r,  -$n + 2*$d - $r);
-  # } else {
-  #   ### across: ($n + ($r-1),  2*$d - $r)
-  #   return ($n + ($r-1),  2*$d - $r);
-  # }
 }
 
 # d = [ 1  2, 3, 4 ]
@@ -140,7 +122,8 @@ sub xy_to_n {
     return undef;
   }
   my $d = int(($x + $y + 1) / 2);
-  return (2*$d + 1)*$d + 1 - $y + $x;
+  return (2*$d + 1)*$d - $y + $x + $self->{'n_start'};
+;
 }
 
 # exact
@@ -194,6 +177,12 @@ Math::PlanePath::Staircase -- integer points in stair-step diagonal stripes
 
 This path makes a staircase pattern down from the Y axis to the X,
 
+=cut
+
+# math-image --path=Staircase --all --output=numbers_dash --size=70x30
+
+=pod
+
      8      29
              |
      7      30---31
@@ -212,7 +201,7 @@ This path makes a staircase pattern down from the Y axis to the X,
                   |         |         |
     Y=0 ->   1    5--- 6   14---15   27---28
 
-             ^   
+             ^
             X=0   1    2    3    4    5    6
 
 X<Hexagonal numbers>The 1,6,15,28,etc along the X axis at the end of each
@@ -225,6 +214,30 @@ Legendre's prime generating polynomial 2*k^2+29 bounces around for some low
 values then makes a steep diagonal upwards from X=19,Y=1, at a slope 3 up
 for 1 across, but only 2 of each 3 drawn.
 
+=head2 N Start
+
+The default is to number points starting N=1 as shown above.  An optional
+C<n_start> can give a different start, in the same pattern.  For example to
+start at 0,
+
+=cut
+
+# math-image --path=Staircase,n_start=0 --expression='i<=38?i:0' --output=numbers --size=80x10
+
+=pod
+
+    n_start => 0
+
+    28
+    29 30
+    15 31 32
+    16 17 33 34
+     6 18 19 35 36
+     7  8 20 21 37 38
+     1  9 10 22 23 ....
+     2  3 11 12 24 25
+     0  4  5 13 14 26 27
+
 =head1 FUNCTIONS
 
 See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
@@ -233,14 +246,9 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::Staircase-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::AztecDiamondRings-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new staircase path object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.
-
-For C<$n < 0.5> the return is an empty list, it being considered the path
-begins at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
@@ -269,6 +277,23 @@ happens at the lower left corner then it's X,Y+1 which is the smaller N, as
 long as Y+1 is in the rectangle.  Conversely at the top right if
 ((X^Y)&1)==0 then it's X,Y-1 which is the bigger N, again as long as Y-1 is
 in the rectangle.
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to
+this path include
+
+    http://oeis.org/A084849  (etc)
+
+    n_start=1 (the default)
+      A084849    N on diagonal X=Y
+
+    n_start=0
+      A014105    N on diagonal X=Y, second hexagonal numbers
+
+    n_start=2
+      A128918    N on X axis, except initial 1,1
+      A096376    N on diagonal X=Y
 
 =head1 SEE ALSO
 

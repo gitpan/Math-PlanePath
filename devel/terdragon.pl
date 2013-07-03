@@ -34,6 +34,30 @@ use Smart::Comments;
 
 {
   # A+Yw  A=X-Y
+  use lib 'xt'; require MyOEIS;
+  require Math::PlanePath::TerdragonCurve;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::TerdragonCurve->new;
+  my @values;
+  foreach my $n (1 .. 3**6) {
+    my ($x,$y) = $path->n_to_xy($n);
+    my @n_list = $path->xy_to_n_list($x,$y);
+    if (@n_list == 1) {
+      push @values, $n;
+    }
+
+    if (@n_list == 1 && $n == $n_list[0]) {
+      my $n3 = Math::BaseCnv::cnv($n,10,3);
+      printf "%3d  %s\n", $n, $n3;
+    }
+  }
+
+  print join(',',@values),"\n";
+  print MyOEIS->grep_for_values_aref(\@values);
+  exit 0;
+}
+{
+  # A+Yw  A=X-Y
   use lib 'xt';
   require MyOEIS;
   require Math::PlanePath::TerdragonCurve;

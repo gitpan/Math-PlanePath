@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -60,46 +60,33 @@ sub new {
   return $self;
 }
 
-# bottom right corner
-#   d = [ 1,  2,  3,  4 ]
-#   n = [ 2, 10, 26, 50 ]
-#   $d = 1/2 + sqrt(1/4 * $n + -1/4)
-#
-#   $n = 4*$d^2 + -4*$d + 2
-#   and top of pyramid at further +(2*$d-1) so relative to there
-#   rem = $n - (4*$d^2 + -4*$d + 2) - (2*$d - 1)
-#       = $n - (4*$d^2 + -2*$d + 1)
-#
-# bottom left corner is then rem==2*$d,
-#   so go rem-2*$d rightwards from x=-2*$d, is x = rem - 4*$d
-
+# bottom left corner, N=0 basis
+# [  0,  1,  2,  3 ],
+# [  0,  4, 16, 36 ]
+# N = (4 d^2)
+#   = (4*$d**2)
+#   = (4*$d**2)
+# d = 0 + sqrt(1/4 * $n + 0)
+#   = sqrt($n)/2
 #
 sub n_to_xy {
   my ($self, $n) = @_;
   #### PyramidSpiral n_to_xy: $n
 
-  $n = $n - $self->{'n_start'};  # starting $n==0, and warn if $n==undef
-  if ($n < 1) {
-    if ($n < 0) { return; }
-    return ($n, 0);
+  $n = $n - $self->{'n_start'};  # start N=0, and warn if $n==undef
+  if ($n < 0) { return; }
+
+  my $d = int(sqrt(int($n))/2);
+  $n -= (4*$d+2)*$d;  # to $n==0 on Y negative axis
+
+  if ($n <= 2*$d+1) {
+    ### bottom horizontal ...
+    return ($n, -$d);
   }
-
-  my $d = int((sqrt($n)+1) / 2);
-  #### base: 4*$d*$d + -4*$d + 2
-
-  $n -= 4*$d*$d + -2*$d;
-  #### remainder: $n
-
-  if ($n < 2*$d) {
-    ### sides, remainder pos/neg from top ...
-    return (-$n,
-            $d - abs($n));
-  } else {
-    ### rightwards from bottom left corner: $n - 2*$d
-    ### bottom left at: "x=-2*$d"
-    return ($n - 4*$d,
-            -$d);
-  }
+  $n -= 4*$d+2;
+  ### sides, remainder pos/neg from top ...
+  return (-$n,
+          - abs($n) + $d + 1);
 }
 
 # negative y, x=0 centres
@@ -176,19 +163,19 @@ This path makes a pyramid shaped spiral,
 
 =pod
 
-                      31                         3
+                      31                          3
                      /  \
-                   32 13 30                      2
+                   32 13 30                       2
                   /  /  \  \
-                33 14  3 12 29                   1
+                33 14  3 12 29                    1
                /  /  /  \  \  \
-             34 15  4  1--2 11 28 ...        <- Y=0
+             34 15  4  1--2 11 28 ...         <- Y=0
             /  /  /           \  \  \
-          35 16  5--6--7--8--9-10 27 52         -1
+          35 16  5--6--7--8--9-10 27 52          -1
          /  /                       \  \
-       36 17-18-19-20-21-22-23-24-25-26 51      -2
+       36 17-18-19-20-21-22-23-24-25-26 51       -2
       /                                   \
-    37-38-39-40-41-42-43-44-45-46-47-48-49-50   -3
+    37-38-39-40-41-42-43-44-45-46-47-48-49-50    -3
 
                        ^
     -6 -5 -4 -3 -2 -1 X=0 1  2  3  4  5  6  7
@@ -248,14 +235,9 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 
 =item C<$path = Math::PlanePath::PyramidSpiral-E<gt>new ()>
 
+=item C<$path = Math::PlanePath::PyramidSpiral-E<gt>new (n_start =E<gt> $n)>
+
 Create and return a new pyramid spiral object.
-
-=item C<($x,$y) = $path-E<gt>n_to_xy ($n)>
-
-Return the X,Y coordinates of point number C<$n> on the path.
-
-For C<$n < 1> the return is an empty list, it being considered the path
-starts at 1.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 

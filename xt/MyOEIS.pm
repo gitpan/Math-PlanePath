@@ -338,27 +338,35 @@ sub stripped_grep {
 
   my $orig_str = $str;
   my $abs = '';
-  foreach my $mung ('none', 'negate', 'abs') {
-    if ($mung ne 'none') {
-      ### $mung
-      if ($ret) { last; }
-      if ($mung eq 'negate') {
-        $abs = "[NEGATED]\n";
-        $str = $orig_str;
-        $str =~ s{(^|,)(-?)}{$1.($2?'':'-')}ge;
-      } else {
-        # 'abs'
-        $str = $orig_str;
-        if (! ($str =~ s/-//g)) {
-          ### no negatives to absolute ...
-          next;
-        }
-        if ($str =~ /^(\d+)(,\1)*$/) {
-          ### only one value when abs: $1
-          next;
-        }
-        $abs = "[ABSOLUTE VALUES]\n";
+  foreach my $mung ('none', 'negate', 'abs', 'half') {
+    if ($ret) { last; }
+
+    if ($mung eq 'none') {
+
+    }  elsif ($mung eq 'negate') {
+      $abs = "[NEGATED]\n";
+      $str = $orig_str;
+      $str =~ s{(^|,)(-?)}{$1.($2?'':'-')}ge;
+
+    } elsif ($mung eq 'half') {
+      if ($str =~ /[13579](,|$)/) {
+        ### not all even to halve ...
+        next;
       }
+      $str = join (',', map {$_/2} split /,/, $orig_str);
+      $abs = "[HALF]\n";
+
+    } elsif ($mung eq 'abs') {
+      $str = $orig_str;
+      if (! ($str =~ s/-//g)) {
+        ### no negatives to absolute ...
+        next;
+      }
+      if ($str =~ /^(\d+)(,\1)*$/) {
+        ### only one value when abs: $1
+        next;
+      }
+      $abs = "[ABSOLUTE VALUES]\n";
     }
     ### $str
 

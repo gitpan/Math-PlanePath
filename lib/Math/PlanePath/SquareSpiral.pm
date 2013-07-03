@@ -62,7 +62,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 106;
+$VERSION = 107;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -787,6 +787,9 @@ And various sequences,
 
       A079813    abs(dY), being k 0s followed by k 1s
       A063826    direction 1=right,2=up,3=left,4=down
+
+      A027709    boundary length of N points
+      A078633    grid sticks to make N points
 
       A033638    N turn positions (extra initial 1, 1)
       A172979    N turn positions which are primes too
