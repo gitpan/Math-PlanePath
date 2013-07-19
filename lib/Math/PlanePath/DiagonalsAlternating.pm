@@ -20,7 +20,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -28,7 +28,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 use constant parameter_info_array =>
   [ Math::PlanePath::Base::Generic::parameter_info_nstart1() ];
@@ -59,64 +59,77 @@ sub new {
   return $self;
 }
 
-# d= [ 1,2,3 ]
-# N= [ 1,6,15 ]
-# N = (2 d^2 - d)
-#   = (2*$d**2 - $d)
-#   = ((2*$d - 1)*$d)
-# d = 1/4 + sqrt(1/2 * $n + 1/16)
-#   = (1 + sqrt(8*$n + 1)) / 4
+
+#   \
+# 15 26
+#  |\  \
+# 14 16 25
+#      \  \
+#  .  . 17 24
+#         \  \
+#  .  .  . 18 23
+#            \  \
+#  .  .  .  . 19 22
+#               \  \
+#  .  .  .  .  . 20-21
+
+# Basis N=0
+#   d = [  0, 1,  2,  3 ]
+#   n = [  0, 5, 14, 27 ]
+# N = (2 d^2 + 3 d)
+#   = (2*$d**2 + 3*$d)
+#   = ((2*$d + 3)*$d)
+# d = -3/4 + sqrt(1/2 * $n + 9/16)
+#   = (sqrt(8*$n + 9) - 3) / 4
 #
-# relative to midpoint
-# d= [ 1,2,3 ]
-# N= [ 3,10,21 ]
-# N = ((2*$d + 1)*$d)
-#
+# Midpoint
+#   d = [ 0, 1,  2, 3 ]
+#   n = [ 2, 9, 20, 35 ]
+# N = (2 d^2 + 5 d + 2)
+#   = (2*$d**2 + 5*$d + 2)
+#   = ((2*$d + 5)*$d + 2)
+
 sub n_to_xy {
   my ($self, $n) = @_;
   ### DiagonalsAlternating n_to_xy(): "$n   ".(ref $n || '')
 
-  # adjust to N=1 at origin X=0,Y=0
-  $n = $n - $self->{'n_start'} + 1;
+  # adjust to N=0 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'};
+  if ($n < 0) { return; }
 
-  if ($n < 1) {
-    return;
-  }
-  my $int = int($n);  # BigFloat int() gives BigInt, use that
-  $n -= $int;         # frac, preserving any BigFloat
+  my $d = int( (sqrt(8*int($n)+9) - 3)/4 );
+  $n -= (2*$d + 5)*$d + 3;
+  ### remainder: $n
 
-  my $d = int((sqrt(8*$int+7) + 1) / 4);
-  $int -= ((2*$d + 1)*$d);
-
-  ### $d
-  ### remainder: "$int"
-
-  if ($int >= 0) {
-    ### positive, upwards ...
-    if ($int == 0) {
+  my ($x,$y);
+  if ($n >= -1) {
+    if ($n < 0) {
       ### horizontal X axis ...
-      return ($n + 2*$d-1 + $self->{'x_start'},
-              $self->{'y_start'});
+      $x = $n + 2*$d+2;
+      $y = 0;
     } else {
-      $n += $int;
-      return (-$n + 2*$d + 1 + $self->{'x_start'},
-              $n - 1 + $self->{'y_start'});
+      ### diagonal upwards ...
+      $x = -$n + 2*$d+2;
+      $y = $n;
     }
   } else {
-    ### negative remainder, downwards ...
-    if ($int == -2*$d) {
+    $n += 2*$d+2;      # -1 <= $n < ...
+    ### added n: $n
+    ### assert: ! ($n < -1)
+
+    if ($n < 0) {
       ### vertical Y axis ...
-      return ($self->{'x_start'},
-              $n + 2*$d - 2 + $self->{'y_start'});
+      $x = 0;
+      $y = $n + 2*$d+1;
     } else {
-      $n += $int;
-      return ($n + 2*$d - 1 + $self->{'x_start'},
-              -$n + $self->{'y_start'});
+      ### diagonal downwards ...
+      $x = $n;
+      $y = -$n + 2*$d+1;
     }
   }
-  # $n first so BigFloat not BigInt from $d
-  return ($n + $int + $self->{'x_start'},
-          -$n - $int + $d + $self->{'y_start'});
+
+  return ($x + $self->{'x_start'},
+          $y + $self->{'y_start'});
 }
 
 sub xy_to_n {

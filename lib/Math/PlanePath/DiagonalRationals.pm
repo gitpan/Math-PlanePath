@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_rect_for_first_quadrant = \&Math::PlanePath::_rect_for_first_quadrant;
@@ -66,6 +66,7 @@ use constant class_y_negative => 0;
 use constant n_frac_discontinuity => .5;
 use constant x_minimum => 1;
 use constant y_minimum => 1;
+use constant gcdxy_maximum => 1;  # no common factor
 
 sub absdx_minimum {
   my ($self) = @_;

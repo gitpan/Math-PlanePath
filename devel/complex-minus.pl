@@ -31,37 +31,36 @@ use MyOEIS;
 # use Smart::Comments;
 
 {
-  my @dir4_to_dx = (1,0,-1,0);
-  my @dir4_to_dy = (0,1,0,-1);
-  sub path_boundary_length {
-    my ($path, $n_below) = @_;
-    ### $n_below
-    my $boundary = 0;
-    my %seen;
-    my @pending_x = (0);
-    my @pending_y = (0);
-    while (@pending_x) {
-      my $x = pop @pending_x;
-      my $y = pop @pending_y;
-      next if $seen{$x}{$y};
-      foreach my $i (0 .. $#dir4_to_dx) {
-        my $ox = $x + $dir4_to_dx[$i];
-        my $oy = $y + $dir4_to_dy[$i];
-        ### consider: "$x,$y   to $ox,$oy"
-        my $n = $path->xy_to_n($ox,$oy);
-        if ($n >= $n_below) {
-          ### outside ...
-          $boundary++;
-        } else {
-          ### inside ...
-          push @pending_x, $ox;
-          push @pending_y, $oy;
-        }
-      }
-      $seen{$x}{$y} = 1;
-    }
-    return $boundary;
-  }
+  # counting all 4 directions, is boundary length
+  # 2 * A003476 a(n) = a(n-1) + 2a(n-3).
+  #                           1, 2, 3,  5,  9, 15, 25, 43,  73, 123, 209, 355,
+  # A203175 nX2 arrays  1, 1, 2, 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710,
+
+  # 4,6,10,18,30,50,86,146,246,418,710,1202,2038,3458
+  #
+  # 30 = 18+2*6
+  #
+  # A052537 2*A or 2*B or 2*C
+
+
+  # n=5
+  # 0,1   0,1   0,1   0,1   0,1   0,1
+  # 1,0   1,0   1,0   1,0   1,0   1,0
+  # 0,1   0,1   0,1   2,1   2,1   0,1
+  # 1,0   1,2   1,0   0,1   0,2   1,2
+  # 2,1   2,0   0,1   1,0   1,0   0,1
+
+  #  +---+---+
+  #  | 0   1 |     boundary[2^1] = 6
+  #  +---+---+
+
+  #  +---+---+
+  #  | 2   3 |
+  #  +---+   +---+
+  #      | 0   1 |
+  #      +---+---+
+
+
 
   # (2n-1      0   2n     ) (a)
   # (n^2-2n+2  0  (n-1)^2 ) (b)
@@ -116,7 +115,7 @@ use MyOEIS;
   #    = 2*((r+2)*norm - (r+2) +2))
   #    = 2*(r+2)*(norm-1) + 4
 
-  my $r = 2;
+  my $r = 1;
   my $norm = $r*$r+1;
 
   sub boundary_by_recurrence {
@@ -143,7 +142,7 @@ use MyOEIS;
     return $l0;
   }
 
-  sub abc_pow {
+  sub abc_by_pow {
     my ($k) = @_;
 
     # my $a = 2*2;
@@ -156,9 +155,9 @@ use MyOEIS;
     # my $b = 2 * ($r*$r+1 - $r) / ($r*$r+1);
     # my $c = 2 * 1;
 
-    my $a = $r;
-    my $b = 1;
-    my $c = (1-$r);
+    my $a = 2*$r;
+    my $b = 2;
+    my $c = 2*(1-$r);
 
     foreach (1 .. $k) {
       ($a,$b,$c) = ((2*$r-1)*$a       + 0  + 2*$r*$c,
@@ -169,7 +168,7 @@ use MyOEIS;
   }
   sub boundary_by_pow {
     my ($k) = @_;
-    my ($a,$b,$c) = abc_pow($k);
+    my ($a,$b,$c) = abc_by_pow($k);
     return 2*($a+$b+$c);
   }
 
@@ -177,7 +176,7 @@ use MyOEIS;
   my $path = Math::PlanePath::ComplexMinus->new (realpart => $r);
   my $prev_len = 1;
   my $prev_ratio = 1;
-  foreach my $k (0 .. 30) {
+  foreach my $k (1 .. 30) {
     my $pow = $norm**$k;
     my $len = 0; #path_boundary_length($path,$pow);
     my $len_by_pow = boundary_by_pow($k);
@@ -185,27 +184,54 @@ use MyOEIS;
     my $ratio = $pow / $len_by_pow;
     my $f = 2* log($len_by_pow / $prev_len) / log($norm);
     printf "%2d %s %s %s   %.6f\n", $k, $len, $len_by_pow, $len_by_rec, $f;
-    push @values, $len_by_pow;
+
+    my ($a,$b,$c) = abc_by_pow($k);
+    push @values, $a;
     $prev_len = $len_by_pow;
     $prev_ratio = $ratio;
   }
-  print join(', ',@values),"\n";
+  print "seek ",join(', ',@values),"\n";
   print MyOEIS->grep_for_values_aref(\@values);
   exit 0;
 }
 
+BEGIN {
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  sub path_boundary_length {
+    my ($path, $n_below) = @_;
+    ### $n_below
+    my $boundary = 0;
+    my %seen;
+    my @pending_x = (0);
+    my @pending_y = (0);
+    while (@pending_x) {
+      my $x = pop @pending_x;
+      my $y = pop @pending_y;
+      next if $seen{$x}{$y};
+      foreach my $i (0 .. $#dir4_to_dx) {
+        my $ox = $x + $dir4_to_dx[$i];
+        my $oy = $y + $dir4_to_dy[$i];
+        ### consider: "$x,$y   to $ox,$oy"
+        my $n = $path->xy_to_n($ox,$oy);
+        if ($n >= $n_below) {
+          ### outside ...
+          $boundary++;
+        } else {
+          ### inside ...
+          push @pending_x, $ox;
+          push @pending_y, $oy;
+        }
+      }
+      $seen{$x}{$y} = 1;
+    }
+    return $boundary;
+  }
+}
+
 {
   # neighbours across 2^k blocks
-
-  # counting all 4 directions, is boundary length
-  # 2 * A003476 a(n) = a(n-1) + 2a(n-3).
-  #                           1, 2, 3,  5,  9, 15, 25, 43,  73, 123, 209, 355,
-  # A203175 nX2 arrays  1, 1, 2, 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710,
-
-  # 4,6,10,18,30,50,86,146,246,418,710,1202,2038,3458
-  #
-  # 30 = 18+2*6
-  #
 
   my @dir4_to_dx = (1,0,-1,0);
   my @dir4_to_dy = (0,1,0,-1);

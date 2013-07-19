@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -395,27 +395,28 @@ would be almost as easy too, requiring just a sign change if k odd.
 =head2 Boundary Length
 
 X<Gilbert, William J.>The length of the boundary of the set of points
-through to a power of the norm can be found in
+through to a power norm^k is calculated in
 
 =over
 
-William J. Gilbert, The Fractal Dimension of Sets Derived From Complex
-Bases, Canadian Math Bulletin, volume 29(4), 1986.
+William J. Gilbert, "The Fractal Dimension of Sets Derived From Complex
+Bases", Canadian Math Bulletin, volume 29(4), 1986.
+http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf
 
 =back
 
-For the twindragon the length is a 3rd-order recurrence
+The result is a 3rd-order recurrence.  For the twindragon it's
 
     realpart=1
     boundary[k] = boundary[k-1] + 2*boundary[k-3]
 
     4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710, ...
 
-The first three are as follows, and then the recurrence gives boundary[3] =
-10+2*4 = 18.
+The first three boundaries are as follows.  Then the recurrence gives the
+next boundary[3] = 10+2*4 = 18.
 
-     k      area     boundary
-    ---     ----     ---------
+     k      area     boundary[k]
+    ---     ----     -----------
                                        +---+
      0     2^k = 1       4             | 0 |
                                        +---+
@@ -430,9 +431,12 @@ The first three are as follows, and then the recurrence gives boundary[3] =
                                        | 0   1 |
                                        +---+---+
 
-Gilbert establishes a formula for any real part by taking the boundary in
-three parts A,B,C and showing how in the next replication level those parts
-transform into multiple copies of the preceding level parts.
+Gilbert calculates the boundary for any real part by taking it in three
+parts A,B,C and showing how in the next replication level those parts
+transform into multiple copies of the preceding level parts.  The
+replication is a little easier to follow for a bigger real part than in the
+twindragon since the bigger real part makes it clearer how the A, B and C
+parts differ.
 
     A -> A * (2*realpart-1)              + C * 2*realpart
     B -> A * (realpart^2-2*realpart+2)*A + C * (realpart-1)^2
@@ -446,12 +450,12 @@ transform into multiple copies of the preceding level parts.
     total boundary = A+B+C
 
 For the twindragon realpart=1 these A,B,C are already in the form of a
-recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B.  For other real parts a little
-matrix rearrangement gives a recurrence
+recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B, per the formula above.  For
+other real parts a little matrix rearrangement gives a recurrence
 
-    boundary[k] = (2*realpart - 1)    * boundary[k-1]
-                + (norm - 2*realpart) * boundary[k-2]
-                + norm                * boundary[k-3]
+    boundary[k] = boundary[k-1] * (2*realpart - 1)   
+                + boundary[k-2] * (norm - 2*realpart)
+                + boundary[k-3] * norm               
 
     starting from
       boundary[0] = 4
@@ -464,6 +468,9 @@ For example
     boundary[k] = 3*boundary[k-1] + 1*boundary[k-2] + 5*boundary[k-1]
 
     4, 12, 36, 140, 516, 1868, 6820, 24908, ...
+
+As for all such recurrences, values for a large k can be calculated by
+powering up the matrix form.
 
 =head1 FUNCTIONS
 
@@ -567,6 +574,7 @@ this path include
                    recurrence a(n) = a(n-1) + 2*a(n-3)
       A203175    boundary length, starting from 4
                    if its conjectured recurrence is true
+      A052537    boundary length part A, B or C per Gilbert's paper
 
 =head1 SEE ALSO
 

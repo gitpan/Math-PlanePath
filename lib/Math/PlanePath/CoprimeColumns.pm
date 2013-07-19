@@ -24,7 +24,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA', '@_x_to_n';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -44,6 +44,8 @@ use constant n_frac_discontinuity => .5;
 use constant x_minimum => 1;
 use constant y_minimum => 1;
 use constant diffxy_minimum => 0; # octant Y<=X so X-Y>=0
+use constant gcdxy_maximum => 1;  # no common factor
+
 use constant dx_minimum => 0;
 use constant dx_maximum => 1;
 use constant dir_maximum_dxdy => (1,-1); # South-East

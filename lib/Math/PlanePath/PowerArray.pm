@@ -21,7 +21,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -339,6 +339,7 @@ path include
       A054582    permutation N by diagonals, upwards
       A135764    permutation N by diagonals, downwards
       A075300    permutation N-1 by diagonals, upwards
+      A117303    permutation N at transpose X,Y
 
     radix=3
       A007949    X coordinate, power-of-3 dividing N

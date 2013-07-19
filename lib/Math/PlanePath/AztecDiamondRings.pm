@@ -24,9 +24,12 @@
 package Math::PlanePath::AztecDiamondRings;
 use 5.004;
 use strict;
+#use List::Util 'min', 'max';
+*min = \&Math::PlanePath::_min;
+*max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -34,7 +37,7 @@ use Math::PlanePath::Base::Generic
   'round_nearest';
 
 # uncomment this to run the ### lines
-#use Devel::Comments;
+# use Smart::Comments;
 
 use constant n_frac_discontinuity => 0;
 use constant xy_is_visited => 1;
@@ -65,84 +68,55 @@ sub new {
   return $self;
 }
 
-# d = [ 1, 2, 3, 4 ]
-# n = [ 1,5,13,25 ]
-# N = (2 d^2 - 2 d + 1)
-#   = (2*$d**2 - 2*$d + 1)
-#   = ((2*$d - 2)*$d + 1)
-# d = 1/2 + sqrt(1/2 * $n + -1/4)
+# starting from X axis and n_start=0
+# d = [ 1, 2, 3, 4, 5 ]
+# n = [ 0,4,12,24,40 ]
+# N = (2 d^2 - 2 d)
+#   = (2*$d**2 - 2*$d)
+#   = ((2*$d - 2)*$d)
+# d = 1/2 + sqrt(1/2 * $n + 1/4)
+#   = (sqrt(2*$n+1) + 1)/2
 #
+# X negative axis
+# d = [ 1, 2, 3, 4,5 ]
+# n = [ 2, 8, 18, 32, 50 ]
+# N = (2 d^2)
+
 sub n_to_xy {
   my ($self, $n) = @_;
   #### n_to_xy: $n
 
-  # adjust to N=1 at origin X=0,Y=0
-  $n = $n - $self->{'n_start'} + 1;
+  # adjust to N=0 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'};
+  if ($n < 0) { return; }
 
-  if ($n < 1) { return; }
-
-  my $frac;
-  {
-    my $int = int($n);
-    $frac = $n - $int;
-    $n = $int;       # BigFloat int() gives BigInt, use that
-    ### assert: $frac >= 0
-    ### assert: $frac < 1
-  }
-
-  my $d = int( (1 + sqrt(2*$n-1))/2 );
-  #### $d
-  #### d frac: (1 + sqrt(2*$n-1))/2
-  #### base: ((2*$d - 2)*$d + 1)
-  #### base with offset: (2*$d*$d + 1)
-
-  # and base+2d = (2 d^2 - 2d + 1) + 2d
-  #             = 2*d*d + 1
-  $n -= (2*$d*$d + 1);
-  ### rem from left: $n
+  my $d = int( (sqrt(2*int($n)+1) + 1)/2 );
+  $n -= 2*$d*$d;   # to $n=0 half way around at horiz Y=-1 X<-1
 
   if ($n < 0) {
     my $x = -$d-$n-1;
-    if ($n != -1) {
-      $x = -$frac + $x;
-    }
     if ($n < -$d) {
       # top-right
-      my $y = $n+2*$d;
-      if ($n != -$d-1) {
-        $y = $frac + $y;
-      }
-      return ($x, $y);
+      return ($x,
+              min($n+2*$d, $d-1));
     } else {
       # top-left
-      return ($x, -$frac-1-$n);
+      return (max($x, -$d),
+              -1-$n);
     }
   } else {
     my $x = $n-$d;
-    if ($n != 2*$d-1) {
-      $x = $frac + $x;
-    }
     if ($n < $d) {
       # bottom-left
       my $y = -1-$n;
-      if ($n != $d-1) {
-        $y = -$frac + $y;
-      }
-      return ($x, $y);
+      return ($x,
+              max($y, -$d));
     } else {
       # bottom-right
-      return ($x, $frac-2*$d+$n);
+      return (min($x, $d-1),
+              $n-2*$d);
     }
   }
-
-
-  my $y = $d - abs($n);  # y=+$d at the top, down to y=-$d
-  my $x = abs($y) - $d;  # 0 to $d on the right
-  #### uncapped y: $y
-  #### abs x: $x
-
-  return (($n >= 0 ? $x : -$x),  # negate if on the right
-          max ($y, -$d));        # cap for horiz at 5 to 6, 13 to 14 etc
 }
 
 sub xy_to_n {
@@ -155,14 +129,13 @@ sub xy_to_n {
   if ($x >= 0) {
     my $d = $x + abs($y);
     return (2*$d + 2)*$d + $y + $self->{'n_start'};
+  }
+  if ($y >= 0) {
+    my $d = $y - $x;
+    return 2*$d*$d - 1 - $y + $self->{'n_start'};
   } else {
-    if ($y >= 0) {
-      my $d = $y - $x;
-      return 2*$d*$d - $y - 1 + $self->{'n_start'};
-    } else {
-      my $d = $y + $x;
-      return (2*$d + 4)*$d + 1 - $y + $self->{'n_start'};
-    }
+    my $d = $y + $x;
+    return (2*$d + 4)*$d + 1 - $y + $self->{'n_start'};
   }
 }
 
@@ -223,21 +196,6 @@ sub rect_to_n_range {
 
 1;
 __END__
-
-
-       #                     67  66                             5
-       #                 68  46  45  65                         4
-       #             69  47  29  28  44  64                     3
-       #         70  48  30  16  15  27  43  63                 2
-       #     71  49  31  17   7   6  14  26  42  62             1
-       # 72  50  32  18   8   2   1   5  13  25  41  61     <- Y=0
-       # 73  51  33  19   9   3   4  12  24  40  60  84        -1
-       #     74  52  34  20  10  11  23  39  59  83            -2
-       #         75  53  35  21  22  38  58  82                -3
-       #             76  54  36  37  57  81                    -4
-       #                 77  55  56  80                        -5
-       #                     78  79                            -6
-
 
 =for stopwords eg Ryde Math-PlanePath ie xbase OEIS
 
@@ -406,7 +364,7 @@ the next.  For example N=11 to N=15,
        14          1
          \
           13   <- Y=0
-         /
+
        12         -1
       /
     11            -2

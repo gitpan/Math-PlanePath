@@ -54,7 +54,7 @@ use strict;
 use List::Util 'min';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -120,7 +120,7 @@ sub n_to_xy {
   # adjust to N=1 at origin X=0,Y=0
   $n = $n - $self->{'n_start'} + 1;
 
-  # comparing $n<0.5 no good for Math::BigInt circa Perl 5.12, use integers
+  # comparing $n<0.5, but done in integers for the benefit of Math::BigInt
   if (2*$n < 1) {
     return;
   }
@@ -356,8 +356,8 @@ squares.
 
 Each gnomon is 2 longer than the previous.  This is similar to the
 C<PyramidRows>, C<PyramidSides> and C<SacksSpiral> paths.  The C<Corner> and
-the C<PyramidSides> are the same, just the C<PyramidSides> stretched out to
-two quadrants instead of one for the C<Corner> here.
+the C<PyramidSides> are the same but C<PyramidSides> is stretched to two
+quadrants instead of one for the C<Corner> here.
 
 =head2 Wider
 
@@ -388,9 +388,9 @@ gives
             ^
            X=0  1   2   3   4   5   6
 
-Each gnomon has the horizontal part C<wider> many steps longer.  Each
-gnomon is still 2 longer than the previous, since this widening is a
-constant amount in each.
+Each gnomon has the horizontal part C<wider> many steps longer.  Each gnomon
+is still 2 longer than the previous since this widening is a constant amount
+in each.
 
 =head2 N Start
 
@@ -415,8 +415,8 @@ to start at 0,
           -----------------
            X=0   1   2   3
 
-In this numbering the squares are on the Y axis and the pronic numbers are
-on the X=Y leading diagonal.
+In Nstart=0 the squares are on the Y axis and the pronic numbers are on the
+X=Y leading diagonal.
 
 =head1 FUNCTIONS
 
@@ -434,15 +434,16 @@ Create and return a new path object.
 
 Return the X,Y coordinates of point number C<$n> on the path.
 
-For C<$n < 0.5> the return is an empty list, it being considered there are
-no points before 1 in the corner.
+For C<$n < n_start()-0.5> the return is an empty list.  There's an extra 0.5
+before Nstart, but nothing further before there.
 
 =item C<$n = $path-E<gt>xy_to_n ($x,$y)>
 
-Return the point number for coordinates C<$x,$y>.  C<$x> and C<$y> are
-each rounded to the nearest integer, which has the effect of treating each
-point as a square of side 1, so the quadrant x>=-0.5 and y>=-0.5 is entirely
-covered.
+Return the point number for coordinates C<$x,$y>.
+
+C<$x> and C<$y> are each rounded to the nearest integer, which has the
+effect of treating each point as a square of side 1, so the quadrant x>=-0.5
+and y>=-0.5 is entirely covered.
 
 =item C<($n_lo, $n_hi) = $path-E<gt>rect_to_n_range ($x1,$y1, $x2,$y2)>
 
@@ -596,7 +597,7 @@ This path is in Sloane's Online Encyclopedia of Integer Sequences as,
       A064788     inverse
 
       A027709    boundary length of N points
-      A078633    grid sticks to make N points
+      A078633    grid sticks of N points
 
     n_start=0
       A000196    max(X,Y), being floor(sqrt(N))

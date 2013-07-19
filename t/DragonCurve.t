@@ -36,7 +36,7 @@ require Math::PlanePath::DragonCurve;
 # VERSION
 
 {
-  my $want_version = 107;
+  my $want_version = 108;
   ok ($Math::PlanePath::DragonCurve::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DragonCurve->VERSION,  $want_version,

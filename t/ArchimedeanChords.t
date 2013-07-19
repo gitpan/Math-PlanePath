@@ -20,14 +20,14 @@
 use 5.004;
 use strict;
 use Test;
-plan tests => 68;
+plan tests => 74;
 
 use lib 't';
 use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 require Math::PlanePath::ArchimedeanChords;
 
@@ -52,7 +52,7 @@ sub numeq_array {
 # VERSION
 
 {
-  my $want_version = 107;
+  my $want_version = 108;
   ok ($Math::PlanePath::ArchimedeanChords::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::ArchimedeanChords->VERSION,  $want_version,
@@ -80,7 +80,33 @@ sub numeq_array {
 
 
 #------------------------------------------------------------------------------
-# n_start, x_negative, y_negative
+# xy_to_n()
+
+{
+  my @data = ([ 0,0,  0 ],
+              [ 0.001,0.001,  0 ],
+              [ -0.001,0.001,  0 ],
+              [ 0.001,-0.001,  0 ],
+              [ -0.001,-0.001,  0 ],
+             );
+  my $path = Math::PlanePath::ArchimedeanChords->new;
+
+  $path->n_to_xy(600); # provoke some save table filling 
+
+  foreach my $elem (@data) {
+    my ($x, $y, $want_n) = @$elem;
+    my @got_n = $path->xy_to_n ($x,$y);
+    ok (scalar(@got_n), 1, "xy_to_n x=$x y=$y -- return 1 value");
+    my $got_n = $got_n[0];
+    ok ($got_n, $want_n, "xy_to_n x=$x y=$y -- n value");
+
+    ok (!! $path->xy_is_visited($x,$y), 1,
+        "xy_is_visited($x,$y)");
+  }
+}
+
+#------------------------------------------------------------------------------
+# n_start(), x_negative(), y_negative(), etc
 
 {
   my $path = Math::PlanePath::ArchimedeanChords->new;
@@ -94,6 +120,8 @@ sub numeq_array {
   ok (join(',',@pnames), '');
 
   ok (!! $path->xy_is_visited(0,0), 1, 'xy_is_visited(0,0)');
+
+  ok ($path->gcdxy_minimum, 0, 'gcdxy_minimum() is 0 at X=0,Y=0');
 }
 
 #------------------------------------------------------------------------------
@@ -174,25 +202,5 @@ sub numeq_array {
 }
 
 
-#------------------------------------------------------------------------------
-# xy_to_n
 
-{
-  my @data = ([ 0,0,  0 ],
-              [ 0.001,0.001,  0 ],
-              [ -0.001,0.001,  0 ],
-              [ 0.001,-0.001,  0 ],
-              [ -0.001,-0.001,  0 ],
-             );
-  my $path = Math::PlanePath::ArchimedeanChords->new;
-  foreach my $elem (@data) {
-    my ($x, $y, $want_n) = @$elem;
-    my @got_n = $path->xy_to_n ($x,$y);
-    ok (scalar(@got_n), 1, "xy_to_n x=$x y=$y -- return 1 value");
-    my $got_n = $got_n[0];
-    ok ($got_n, $want_n, "xy_to_n x=$x y=$y -- n value");
-  }
-}
-
-
-exit 0;
+#------------------------------------------------------------------------------exit 0;

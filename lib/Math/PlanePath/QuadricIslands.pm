@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -56,6 +56,8 @@ use constant ddiffxy_minimum => -1; # dDiffXY=+1 or -1
 use constant ddiffxy_maximum => 1;
 use constant dir_maximum_dxdy => (0,-1); # South
 
+# N=1,2,3,4  gcd(1/2,1/2) = 1/2
+use constant gcdxy_minimum => 1/2;
 
 #------------------------------------------------------------------------------
 
@@ -442,6 +444,14 @@ N=(4*8^2+3)/7=37 at X=-(4^2)/2=-8,Y=-8.
 The innermost square N=1,2,3,4 is on 0.5 coordinates, for example N=1 at
 X=-0.5,Y=-0.5.  This is centred on the origin and consistent with the
 (4^level)/2.  Points from N=5 onwards are integer X,Y.
+
+       4-------3    Y=+1/2
+       |       |
+       |   o   |
+               |
+       1-------2    Y=-1/2
+
+    X=-1/2   X=+1/2
 
 =head1 FUNCTIONS
 

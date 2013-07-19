@@ -34,6 +34,16 @@ use Math::PlanePath::Base::Digits
   'round_down_pow';
 
 
+my $have_64bits = ((1 << 63) != 0);
+my $modulo_64bit_dodginess = ($have_64bits
+                              && ((~0)%2) != ((~0)&1));
+my $skip_64bit = ($modulo_64bit_dodginess
+                  ? 'due to 64-bit modulo dodginess ((~0)%2) != ((~0)&1)'
+                  : undef);
+MyTestHelpers::diag ("modulo operator dodginess ((~0)%2) != ((~0)&1): ",
+                     $modulo_64bit_dodginess ? "yes" : "no");
+
+
 #------------------------------------------------------------------------------
 # parameter_info_array()
 
@@ -130,10 +140,14 @@ ok (join(',',digit_split_lowtohigh(13,2)), '1,0,1,1');
   foreach my $radix (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
     my @digits = digit_split_lowtohigh($n,$radix);
     my $lowtwo = $n % ($radix * $radix);
-    ok ($digits[0], $lowtwo % $radix,
-       "$n mod $radix lowest digit");
-    ok ($digits[1], int($lowtwo / $radix),
-       "$n mod $radix second lowest digit");
+    my $lowmod = $lowtwo % $radix;
+    skip ($skip_64bit,
+          $digits[0], $lowmod,
+          "$n radix $radix lowest digit");
+    my $secondmod = ($lowtwo - ($lowtwo % $radix)) / $radix;
+    skip ($skip_64bit,
+          $digits[1], $secondmod,
+          "$n radix $radix second lowest digit");
   }
 }
 {
@@ -143,8 +157,9 @@ ok (join(',',digit_split_lowtohigh(13,2)), '1,0,1,1');
   foreach my $bit (@bits) {
     $ones &&= $bit;
   }
-  ok ($ones, 1,
-      "~0 uv_max $uv_max should be all 1s");
+  skip ($skip_64bit,
+        $ones, 1,
+        "~0 uv_max $uv_max should be all 1s");
   if (! $ones) {
     MyTestHelpers::diag ("~0 uv_max $uv_max is: ",
                          @bits);
@@ -159,11 +174,14 @@ ok (join(',',bit_split_lowtohigh(13)), '1,0,1,1');
 
 {
   my $uv_max = ~0;
+  my @bits = bit_split_lowtohigh($uv_max);
   my $ones = 1;
-  foreach my $bit (bit_split_lowtohigh($uv_max)) {
+  foreach my $bit (@bits) {
     $ones &&= $bit;
   }
-  ok ($ones, 1);
+  skip ($skip_64bit,
+        $ones, 1,
+        "bit_split_lowtohigh(uv_max=$uv_max) ".join(',',@bits));
 }
 
 #------------------------------------------------------------------------------

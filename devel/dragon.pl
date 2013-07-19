@@ -265,6 +265,7 @@ sub high_bit {
 }
 
 {
+  # Recurrence high to low.
   # d(2^k + rem) = (i+1)^(k+1) - i*d(2^k-rem)
   #   = (i+1) * (i+1)^k - i*d(2^k-rem)
   #   = (i+1)^k + i*(i+1)^k - i*d(2^k-rem)
@@ -279,9 +280,7 @@ sub high_bit {
   foreach my $n (0 .. 32) {
     my ($x,$y) = $path->n_to_xy($n);
     my $p = Math::Complex->make($x,$y);
-
     my $d = calc_d_by_high($n);
-
     printf "%6b  %8s %8s   %s\n", $n, $p,$d, $p-$d;
   }
   print "\n";
@@ -300,11 +299,6 @@ sub high_bit {
     } else {
       return i_plus_1_pow($k+1)
         + Math::Complex->make(0,-1) * calc_d_by_high($pow-$rem);
-
-      # # no, not symmetric lengthwise
-      # return i_plus_1_pow($k)
-      #   + Math::Complex->make(0,1) * mirror_across_k(calc_d_by_high($rem),
-      #                                                4-$k);
     }
   }
 
@@ -328,6 +322,11 @@ sub high_bit {
     return $c;
   }
 
+
+  # # no, not symmetric lengthwise
+  # return i_plus_1_pow($k)
+  #   + Math::Complex->make(0,1) * mirror_across_k(calc_d_by_high($rem),
+  #                                                4-$k);
   sub mirror_across_k {
     my ($c,$k) = @_;
     $k %= 8;
@@ -337,7 +336,7 @@ sub high_bit {
     # ### conj: "$c"
     $c *= i_plus_1_pow($k);
     # ### mult: "$c"
-     $c /= 16;  # i_plus_1_pow(8) == 16
+    $c /= 16;  # i_plus_1_pow(8) == 16
     # ### ret: "$c"
     return $c;
   }

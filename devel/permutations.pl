@@ -26,11 +26,44 @@ use lib 'xt';
 use MyOEIS;
 
 # uncomment this to run the ### lines
-use Smart::Comments;
+# use Smart::Comments;
 
 
 {
+  # permutation of transpose
+  require MyOEIS;
+  require Math::NumSeq::PlanePathCoord;
+  my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
+    ->{'planepath'}->{'choices'}};
+  @choices = grep {$_ ne 'BinaryTerms'} @choices; # bit slow yet
+  my %seen;
+  foreach my $path_name (@choices) {
+    my $path_class = "Math::PlanePath::$path_name";
+    Module::Load::load($path_class);
+    my $parameters = parameter_info_list_to_parameters($path_class->parameter_info_list);
+  PATH: foreach my $p (@$parameters) {
+      my $name = "$path_name  ".join(',',@$p);
+      my $path = $path_class->new (@$p);
+      my @values;
+      foreach my $n ($path->n_start+1 .. 35) {
+        my $value = (defined $path->tree_n_to_subheight($n) ? 1 : 0);
+
+        # my ($x,$y) = $path->n_to_xy($n) or next PATH;
+        # # my $value = $path->xy_to_n($y,$x);
+        # my $value = $path->xy_to_n(-$y,-$x);
+
+        next PATH if ! defined $value;
+        push @values, $value;
+      }
+      print MyOEIS->grep_for_values(name => $name,
+                                    array => \@values);
+    }
+  }
+  exit 0;
+}
+{
   # boundary length by N
+
   require Math::NumSeq::PlanePathCoord;
   my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
       ->{'planepath'}->{'choices'}};
@@ -51,6 +84,9 @@ use Smart::Comments;
 
   my $num_choices = scalar(@choices);
   print "$num_choices choices\n";
+
+  @choices = ((grep {/Corner|Tri/} @choices),
+              (grep {!/Corner|Tri/} @choices));
 
   my @path_objects;
   my %path_fullnames;
@@ -80,9 +116,6 @@ use Smart::Comments;
   my $start_permutations = $i * ($num_path_objects-1);
   my $num_permutations = $num_path_objects * ($num_path_objects-1);
 
-  my @dir4_to_dx = (1,0,-1,0);
-  my @dir4_to_dy = (0,1,0,-1);
-
   for ( ; $i <= $#path_objects; $i++) {
     my $path = $path_objects[$i];
     my $fullname = $path_fullnames{$path};
@@ -95,26 +128,11 @@ use Smart::Comments;
     my @values;
     my $boundary = 0;
     foreach my $n ($path->n_start .. 30) {
-      my ($x,$y) = $path->n_to_xy($n);
-      $boundary += 4;
-      foreach my $d (0 .. $#dir4_to_dx) {
-        my $ax = $x+$dir4_to_dx[$d];
-        my $ay = $y+$dir4_to_dy[$d];
-        my $an = $path->xy_to_n($ax,$ay);
+      # $boundary += path_n_to_dboundary($path,$n);
+      # $boundary += path_n_to_dsticks($path,$n);
+      # $boundary += path_n_to_dhexboundary($path,$n);
+      $boundary += path_n_to_dhexsticks($path,$n);
 
-        # not counting quadrant sides
-        if ((defined $x_minimum && $ax < $x_minimum)
-            || (defined $y_minimum && $ay < $y_minimum)) {
-          $boundary--;
-          next;
-        }
-
-        # for grid sticks
-        # $boundary -= (defined $an && $an < $n);
-
-        # for boundary
-        $boundary -= 2*(defined $an && $an < $n);
-      }
       my $value = $boundary;
       $str .= "$value,";
       push @values, $value;
@@ -136,8 +154,59 @@ use Smart::Comments;
   exit 0;
 }
 
+BEGIN {
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+
+  sub path_n_to_dboundary {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n) or return 0;
+    my $dboundary = 4;
+    foreach my $i (0 .. $#dir4_to_dx) {
+      my $an = $path->xy_to_n($x+$dir4_to_dx[$i], $y+$dir4_to_dy[$i]);
+      $dboundary -= 2*(defined $an && $an < $n);
+    }
+    return $dboundary;
+  }
+  sub path_n_to_dsticks {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n) or return 0;
+    my $dsticks = 4;
+    foreach my $i (0 .. $#dir4_to_dx) {
+      my $an = $path->xy_to_n($x+$dir4_to_dx[$i], $y+$dir4_to_dy[$i]);
+      $dsticks -= (defined $an && $an < $n);
+    }
+    return $dsticks;
+  }
+}
+BEGIN {
+  my @dir6_to_dx = (2, 1,-1,-2, -1, 1);
+  my @dir6_to_dy = (0, 1, 1, 0, -1,-1);
+
+  sub path_n_to_dhexboundary {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n) or return 0;
+    my $dboundary = 6;
+    foreach my $i (0 .. $#dir6_to_dx) {
+      my $an = $path->xy_to_n($x+$dir6_to_dx[$i], $y+$dir6_to_dy[$i]);
+      $dboundary -= 2*(defined $an && $an < $n);
+    }
+    return $dboundary;
+  }
+  sub path_n_to_dhexsticks {
+    my ($path, $n) = @_;
+    my ($x,$y) = $path->n_to_xy($n) or return 0;
+    my $dboundary = 6;
+    foreach my $i (0 .. $#dir6_to_dx) {
+      my $an = $path->xy_to_n($x+$dir6_to_dx[$i], $y+$dir6_to_dy[$i]);
+      $dboundary -= (defined $an && $an < $n);
+    }
+    return $dboundary;
+  }
+}
+
 {
-  # with or without n_start
+  # path classes with or without n_start
   require Math::NumSeq::PlanePathCoord;
   my @choices = @{Math::NumSeq::PlanePathCoord->parameter_info_hash
       ->{'planepath'}->{'choices'}};
@@ -591,39 +660,6 @@ use Smart::Comments;
   exit 0;
 }
 
-{
-  # transpose
-  require Math::NumSeq::PlanePathCoord;
-  my $choices = Math::NumSeq::PlanePathCoord->parameter_info_hash
-    ->{'planepath'}->{'choices'};
-  my %seen;
-  foreach my $path_name (@$choices) {
-    my $path_class = "Math::PlanePath::$path_name";
-    Module::Load::load($path_class);
-    my $parameters = parameter_info_list_to_parameters($path_class->parameter_info_list);
-  PATH: foreach my $p (@$parameters) {
-      print "$path_name  ",join(',',@$p),"\n";
-      my $path = $path_class->new (@$p);
-      my $str = '';
-      my @values;
-      foreach my $n ($path->n_start+1 .. 50) {
-        my ($x,$y) = $path->n_to_xy($n) or next PATH;
-        my $pn = $path->xy_to_n($y,$x);
-        next PATH if ! defined $pn;
-        $str .= "$pn,";
-        push @values, $pn;
-      }
-      print "  (",substr($str,0,20),"...)\n";
-      if (defined (my $diff = constant_diff(@values))) {
-        print "  constant diff $diff\n";
-        next PATH;
-      }
-      print stripped_grep($str);
-      print "\n";
-    }
-  }
-  exit 0;
-}
 
 # sub stripped_grep {
 #   my ($str) = @_;
@@ -789,6 +825,8 @@ sub info_extend_parameters {
     my @choices;
     if ($info->{'name'} eq 'radix') { @choices = (2,3,10,16); }
     if ($info->{'name'} eq 'n_start') { @choices = (0,1); }
+    if ($info->{'name'} eq 'x_start'
+        || $info->{'name'} eq 'y_start') { @choices = ($info->{'default'}); }
 
     if (! @choices) {
       my $min = $info->{'minimum'} // -5;
@@ -878,24 +916,6 @@ sub p_radix {
     }
   }
   return undef;
-}
-
-# constant_diff($a,$b,$c,...)
-# If all the given values have a constant difference then return that amount.
-# Otherwise return undef.
-#
-sub constant_diff {
-  my $diff = shift;
-  my $value = shift;
-  $diff = $value - $diff;
-  while (@_) {
-    my $next_value = shift;
-    if ($next_value - $value != $diff) {
-      return undef;
-    }
-    $value = $next_value;
-  }
-  return $diff;
 }
 
 __END__

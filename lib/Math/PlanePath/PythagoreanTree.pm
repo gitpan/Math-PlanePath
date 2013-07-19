@@ -86,7 +86,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -166,6 +166,7 @@ sub y_minimum {
     return $diffxy_maximum{$self->{'coordinates'}};
   }
 }
+use constant gcdxy_maximum => 1;  # no common factor
 
 {
   my %absdx_minimum = ('AB,UAD' => 2,

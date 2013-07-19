@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -308,21 +308,22 @@ beginning on the South-West diagonal,
        --                            --
     24                 0                18
       \                                /
-       25                            17
+       25          .                 17
          \                          /
           26    13----14----15----16
             \
-             27-->
+             .
 
 The SW diagonal is N=0,4,13,27,46,etc which is
 
-    N = (5d-7)*d/2 + 1
+    N = (5d-7)*d/2 + 1           # starting d=1 first loop
 
-and invert for d from N
+This can be inverted to get d from N
 
     d = floor( (sqrt(40*N + 9) + 7) / 10 )
 
 Each side is length d, except the lower right diagonal slope which is d-1.
+For the very first loop that lower right is length 0.
 
 =head1 OEIS
 

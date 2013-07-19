@@ -24,7 +24,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -94,14 +94,18 @@ sub n_to_xy {
   my ($self, $n) = @_;
   ### MPeaks n_to_xy(): $n
 
-  # adjust to N=1 at origin X=0,Y=0
-  $n = $n - $self->{'n_start'} + 1;
+  # adjust to N=0 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'};
 
-  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
-  return if 2*$n < 1;
-
-  my $d = int( (sqrt(int(12*$n)-2) + 4) / 6 );
-  $n -= ((3*$d - 1)*$d + 1);   # to $n==0 at centre
+  my $d;
+  {
+    my $r = 12*$n + 10;
+    if ($r < 4) {
+      return;    # N < -0.5, so before start of path
+    }
+    $d = int( (sqrt(int($r)) + 4)/6 );
+  }
+  $n -= (3*$d - 1)*$d;   # to $n==0 at centre
   ### $d
   ### remainder: $n
 

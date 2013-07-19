@@ -16,28 +16,12 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=KochSquareflakes --lines --scale=10
-# math-image --path=KochSquareflakes --all --output=numbers_dash --size=132x50
-
-
-# horiz: 1, 4, 14, 48, 164, 560, 1912, 6528, 22288, 76096, 259808, 887040
-# A007070 a(n+1) = 4*a(n) - 2*a(n-1), starting 1,4
-#
-# diag:  1, 3, 10, 34, 116, 396, 1352, 4616, 15760, 53808, 183712, 627232
-# A007052 a(n+1) = 4*a(n) - 2*a(n-1), starting 1,3
-#
-# Xstart corner: 1, 2,7,24,82,280,
-# A003480 a(n+1) = 4*a(n) - 2*a(n-1), starting 2,7
-#
-# cf A006012 same recurrence, start 1,2
-
-
 package Math::PlanePath::KochSquareflakes;
 use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -72,6 +56,9 @@ use constant dsumxy_maximum => 2; # diagonal NE
 use constant ddiffxy_maximum => 2;
 use constant ddiffxy_minimum => -2;
 use constant dir_maximum_dxdy => (1,-1); # South-East
+
+# N=1,2,3,4  gcd(1/2,1/2) = 1/2
+use constant gcdxy_minimum => 1/2;
 
 
 #------------------------------------------------------------------------------
@@ -111,7 +98,6 @@ sub n_to_xy {
   # 4^(level+1) = 3*N+1
   #
   my ($pow,$level) = round_down_pow (3*$n + 1, 4);
-
   ### $level
   ### $pow
   if (is_infinite($level)) { return ($level,$level); }
@@ -493,6 +479,12 @@ Math::PlanePath::KochSquareflakes -- four-sided Koch snowflakes
 
 This is the Koch curve shape arranged as four-sided concentric snowflakes.
 
+=cut
+
+# math-image --path=KochSquareflakes --all --output=numbers_dash --size=132x50
+
+=pod
+
                                   61                                10
                                  /  \
                             63-62    60-59                           9
@@ -636,6 +628,20 @@ See L<Math::PlanePath/FUNCTIONS> for behaviour common to all path classes.
 Create and return a new path object.
 
 =back
+
+=head1 OEIS
+
+Entries in Sloane's Online Encyclopedia of Integer Sequences related to this
+path include
+
+    http://oeis.org/A003480  (etc)
+
+    A003480    -X,-Y coordinate first point of each ring
+               likewise A020727
+    A007052    X,Y coordinate of axis crossing,
+               and also maximum height of a side
+    A072261    N on Y negative axis (half way along first side)
+    A206374    N on South-East diagonal (end of first side)
 
 =head1 SEE ALSO
 

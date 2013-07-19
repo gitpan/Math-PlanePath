@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -33,7 +33,7 @@ use Math::PlanePath::Base::Generic
 
 
 use constant class_y_negative => 0;
-use constant n_frac_discontinuity => .5;
+use constant n_frac_discontinuity => 0.5;
 *xy_is_visited = \&Math::PlanePath::Base::Generic::xy_is_visited_quad12;
 
 use constant parameter_info_array =>
@@ -60,44 +60,35 @@ sub new {
   return $self;
 }
 
-#                     21
-#                 20  13  22
-#             19  12   7  14  23
-#         18  11   6   3   8  15  24
-#     17  10   5   2   1   4   9  16  25
-#
 # starting each left side at 0.5 before
 #
-# s =   0,   1,   2,   3,    4
-# n = 0.5, 1.5, 4.5, 9.5, 16.5
-# base = $s*$s + 0.5
-# s = sqrt($n - 1/2)
-# peak at +$s+0.5 into the remainder
-# y = $s less the +/- $n from that peak
-# centre n putting 0 as the peak
-#   = n - ($s+0.5) - base
-#   = n - ($s*$s + 0.5 + $s + 0.5)
-#   = n - ($s*($s+1) + 1)
+# d = [  0,   1,   2,   3,    4  ]
+# n = [ 0-0.5, 1-0.5, 4-0.5, 9-0.5, 16-0.5 ]
+# N = (d^2 - 1/2)
+#   = ($d**2 - 1/2)
+# d = 0 + sqrt(1 * $n + 1/2)
+#   = sqrt(4*$n+2)/2
 #
 sub n_to_xy {
   my ($self, $n) = @_;
   ### PyramidSides n_to_xy: $n
 
-  # adjust to N=1 at origin X=0,Y=0
-  $n = $n - $self->{'n_start'} + 1;
+  # adjust to N=0 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'};
 
-  # $n<0.5 no good for Math::BigInt circa Perl 5.12, compare in integers
-  return if 2*$n < 1;
-
-  my $s = int(sqrt (int(4*$n) - 2) / 2);
-  $n -= $s*($s+1) + 1;   # to n=0 at centre, +/- distance from there
-
-  ### s frac: (sqrt (int(4*$n) - 2) / 2)
-  ### $s
+  my $d;
+  {
+    my $r = 4*$n + 2;
+    if ($r < 0) {
+      return;   # N < -0.5
+    }
+    $d = int( sqrt(int($r)) / 2 );
+  }
+  $n -= $d*($d+1);   # to $n=0 on Y axis, so X=$n
   ### remainder: $n
 
   return ($n,
-          - abs($n) + $s);
+          - abs($n) + $d);
 }
 
 sub xy_to_n {
@@ -110,8 +101,8 @@ sub xy_to_n {
   }
   $x = round_nearest ($x);
 
-  my $s = abs($x) + $y;
-  return $s*$s + $x+$s + $self->{'n_start'};
+  my $d = abs($x) + $y;
+  return $d*$d + $x+$d + $self->{'n_start'};
 }
 
 # exact

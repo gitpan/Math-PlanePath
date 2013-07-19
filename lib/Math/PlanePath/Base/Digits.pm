@@ -25,7 +25,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION','@ISA','@EXPORT_OK';
-$VERSION = 107;
+$VERSION = 108;
 
 use Exporter;
 @ISA = ('Exporter');
@@ -36,7 +36,7 @@ use Exporter;
               'round_down_pow');
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant parameter_info_radix2 => { name      => 'radix',
@@ -182,7 +182,7 @@ sub bit_split_lowtohigh {
       (my $str = $n->as_bin) =~ s/^0b//;  # strip leading 0b
       return reverse split //, $str;
     }
-    if ($n < _UV_MAX_PLUS_1) {
+    if ($n <= _UV_MAX_PLUS_1) {
       return reverse split //, sprintf('%b',$n);
     }
     do {

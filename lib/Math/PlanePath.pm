@@ -18,7 +18,10 @@
 
 # Maybe:
 #
+# $bool = $path->rect_to_n_range_is_always_exact()
 # $bool = $path->is_tree()
+# $bool = $path->tree_n_to_subheight_is_infinite()
+#    identifying the infinite spines only
 #
 # tree_n_ordered_children() $n and undefs
 #   SierpinskiTree,ToothpickTree left and right
@@ -87,7 +90,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 107;
+$VERSION = 108;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -202,6 +205,17 @@ sub rsquared_minimum {
 }
 use constant rsquared_maximum => undef;
 
+sub gcdxy_minimum {
+  my ($self) = @_;
+  ### gcdxy_minimum(): "visited=".($self->xy_is_visited(0,0)||0)
+  return ($self->xy_is_visited(0,0)
+          ? 0   # gcd(0,0)=0
+          : 1); # any other has gcd>=1
+}
+use constant gcdxy_maximum => undef;
+
+#------------------------------------------------------------------------------
+
 use constant dir_minimum_dxdy => (1,0);
 use constant dir_maximum_dxdy => (0,0);
 
@@ -281,6 +295,7 @@ sub xy_to_n_list {
 }
 sub xy_is_visited {
   my ($self, $x, $y) = @_;
+  ### xy_is_visited(): "$x,$y is ndefined=".defined($self->xy_to_n($x,$y))
   return defined($self->xy_to_n($x,$y));
 }
 
@@ -368,9 +383,9 @@ sub tree_depth_to_width {
 }
 
 # =item C<$bool = $path-E<gt>UNTESTED__is_tree()>
-# 
+#
 # Return true if C<$path> is a tree.
-# 
+#
 sub UNTESTED__is_tree {
   my ($self) = @_;
   return $self->tree_n_num_children($self->n_start);
@@ -1081,6 +1096,26 @@ more than 0 for paths which don't include the origin X=0,Y=0.
 RSquared generally has no maximum since the paths usually extend infinitely
 in some direction.  C<rsquared_maximum()> returns C<undef> in that case.
 
+=cut
+
+# =item C<$gcd = $path-E<gt>gcdxy_minimum()>
+# 
+# =item C<$gcd = $path-E<gt>gcdxy_maximum()>
+# 
+# Return the minimum or maximum GCD(X,Y) reached by integer N values in the
+# path.  If there's no minimum or maximum then return C<undef>.
+# 
+# C<gcdxy_minimum()> is always 0 or more since the sign of X and Y is ignored
+# for taking the GCD.  GCD(0,0)=0 is the only GCD=0.  X!=0 or Y!=0 gives
+# GCD(X,Y)E<gt>0.  So the minimum is 0 if X=0,Y=0 is visited and E<gt>0 if
+# not.
+# 
+# C<gcdxy_maximum()> is usually C<undef> since there's no limit to the GCD.
+# Paths such as C<CoprimeColumns> where X,Y have no common factor have
+# C<gcdxy_maximum()> returning 1.
+
+=pod
+
 =item C<($dx,$dy) = $path-E<gt>dir_minimum_dxdy()>
 
 =item C<($dx,$dy) = $path-E<gt>dir_maximum_dxdy()>
@@ -1196,7 +1231,7 @@ C<undef>, or for C<tree_depth_to_n_range()> return an empty list.
 
 The points C<$n_lo> through C<$n_hi> might not necessarily all be at
 C<$depth>.  It's possible for depths to be interleaved or intermixed in the
-point numbering.  But many paths go breadth-wise by successive rows and for
+point numbering.  But many paths are breadth-wise successive rows and for
 them C<$n_lo> to C<$n_hi> inclusive is all C<$depth>.
 
 C<$n_hi> can only exist if the row has a finite number of points.  That's
@@ -1207,6 +1242,27 @@ as C<undef> or some such if there is no maximum N for some row.
 
 Return the number of points at C<$depth> in the tree.  If there's no such
 C<$depth> or C<$path> is not a tree then return C<undef>.
+
+=item C<$height = $path-E<gt>tree_n_to_subheight($n)>
+
+Return the height of the sub-tree starting at C<$n>, or C<undef> if
+infinite.  The height of a tree is the longest distance down to a leaf node.
+For example,
+
+    ...                      N     subheight  
+      \                     ---    ---------        
+       6    7   8            0       undef          
+        \    \ /             1       undef          
+         3    4   5          2         2            
+          \    \ /           3       undef          
+           1    2            4         1            
+            \  /             5         0            
+              0             ...    
+
+At N=0 and all the left side the tree continues infinitely so the sub-height
+is infinite (so C<undef>).  For N=2 the sub-height is 2 because the longest
+path down is 2 levels (to N=4 then N=7 or N=8).  For a leaf node such as N=5
+the sub-height is 0.
 
 =back
 
@@ -1222,7 +1278,7 @@ return 0.  Many tree paths have a single root and for them the return is 1.
 =item C<@n_list = $path-E<gt>tree_root_n_list()>
 
 Return a list of the N values which are the root nodes in C<$path>.  If
-C<$path> is not a tree then this is an empty list.  In all cases there are
+C<$path> is not a tree then this is an empty list.  There are
 C<tree_num_roots()> many return values.
 
 =item C<$num = $path-E<gt>tree_num_children_minimum()>
@@ -1231,19 +1287,23 @@ C<tree_num_roots()> many return values.
 
 =item C<@nums = $path-E<gt>tree_num_children_list()>
 
-Return a the possible number of children at the nodes of C<$path>, either
-the minimum, maximum, or a list of all possible number of children.
+Return the possible number of children of the nodes of C<$path>, either the
+minimum, maximum, or a list of all possible number of children.
+
+For C<tree_num_children_list()> the list of values is in increasing order,
+so the first value is C<tree_num_children_minimum()> and the last is
+C<tree_num_children_maximum()>.
 
 =item C<$bool = $path-E<gt>tree_any_leaf()>
 
 Return true if there are any leaf nodes in the tree, meaning any N for which
 C<tree_n_num_children()> is 0.
 
-This is the same as C<tree_num_children_minimum()==0>.  If NumChildren=0
+This is the same as C<tree_num_children_minimum()==0> since if NumChildren=0
 occurs then there are leaf nodes.
 
-Some trees may have no leaf nodes, for example in the complete
-binary tree of C<RationalsTree> every node always has further children.
+Some trees may have no leaf nodes, for example in the complete binary tree
+of C<RationalsTree> every node always has 2 children..
 
 =back
 
@@ -1711,14 +1771,15 @@ is to make it an X,Y proportionally between integer N positions.  That can
 be done simply with two calculations of those integer points, until it's
 clear how to work the fraction into the result directly.
 
-The base implementation of C<xy_to_n_list()> calls plain C<xy_to_n()> for a
-single N at any X,Y.  If a path has multiple Ns visiting an X,Y
+The base implementation of C<xy_to_n_list()> calls plain C<xy_to_n()> giving
+a single N at X,Y.  If a path has multiple Ns visiting an X,Y
 (eg. C<DragonCurve>) then it should implement C<xy_to_n_list()> to return
-all those Ns and also a plain C<xy_to_n()> returning the first of them.
+all those Ns and it should also implement a plain C<xy_to_n()> returning the
+first of them.
 
 C<rect_to_n_range()> can initially be implemented with any convenient
-over-estimate.  It amounts to asking from what N onwards are all points
-certain to be beyond a given X,Y rectangle.
+over-estimate.  It should be an N big enough that from there onwards all
+points are certain to be beyond the given X,Y rectangle.
 
 The following descriptive methods have base implementations
 
@@ -1736,8 +1797,8 @@ diagonals.
     use constant n_start => 0;    # digit or replication style
 
 Paths which use only parts of the plane should define C<class_x_negative()>
-and/or C<class_y_negative()> to false.  For example if always first quadrant
-XE<gt>=0,YE<gt>=0 then
+and/or C<class_y_negative()> to false.  For example if only the first
+quadrant XE<gt>=0,YE<gt>=0 then
 
     use constant class_x_negative => 0;
     use constant class_y_negative => 0;
@@ -1751,15 +1812,16 @@ A subclass can implement them directly if they can be done more efficiently.
 
     n_to_dxdy()           calls n_to_xy() twice
     n_to_rsquared()       calls n_to_xy()
+    n_to_radius()         sqrt of n_to_rsquared()
 
 C<SacksSpiral> is an example of an easy C<n_to_rsquared()>.  Or
 C<TheodorusSpiral> is only slightly trickier.  Unless a path has some sort
-of easy X^2+Y^2 then it may as well be left to the base implementation
-calling C<n_to_xy()>.
+of easy X^2+Y^2 then it might as well let the base implementation call
+C<n_to_xy()>.
 
 The way C<n_to_dxdy()> supports fractional N can be a little tricky.  One
-way is to calculate on the integers below and above and combine per L</N to
-dX,dY -- Fractional> above.  For some paths the calculation of turn or
+way is to calculate on the integers below and above and combine as described
+in L</N to dX,dY -- Fractional>.  For some paths the calculation of turn or
 direction at ceil(N) can be worked into a calculation of the direction at
 floor(N) so taking not much more work.
 
@@ -1780,8 +1842,9 @@ For a tree path the following methods are mandatory
     tree_n_to_depth()
     tree_depth_to_n()
     tree_num_children_list()
+    tree_n_to_subheight()
 
-The other methods have base implementations,
+The other tree methods have base implementations,
 
 =over
 

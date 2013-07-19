@@ -398,6 +398,7 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
 #------------------------------------------------------------------------------
 
 my @modules = (
+               'AztecDiamondRings',     # but not across ring end
                'PyramidSpiral',
 
                'CfracDigits,radix=1',
@@ -568,7 +569,6 @@ my @modules = (
                'HIndexing',
                'SierpinskiCurve',
                'SierpinskiCurveStair',
-               'AztecDiamondRings',     # but not across ring end
                'DiamondArms',
                'SquareArms',
                'HexArms',

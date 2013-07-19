@@ -42,7 +42,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -69,6 +69,11 @@ use constant ddiffxy_maximum => 2;
 
 use constant absdx_minimum => 1; # never vertical
 use constant dir_maximum_dxdy => (1,-1); # South-East
+
+# N=1 gcd(-1, -1/3) = 1/3
+# N=2 gcd( 1, -1/3) = 1/3
+# N=3 gcd( 0, 2/3)  = 2/3
+use constant gcdxy_minimum => 1/3;
 
 
 #------------------------------------------------------------------------------
@@ -430,14 +435,15 @@ The X,Y coordinates are arranged as integers on a square grid per
 L<Math::PlanePath/Triangular Lattice>, except the Y coordinates of the
 innermost triangle which is
 
-                    N=3
-                X=0, Y=+0.666
-               /             \
-              /               \
-             /                 \
-            /                   \
-         N=1                     N=2
-    X=-1, Y=-0.333  ------   X=1, Y=-0.333
+                  N=3     X=0, Y=+2/3
+                   *
+                  / \
+                 /   \
+                /     \
+               /   o   \
+              /         \
+         N=1 *-----------* N=2
+    X=-1, Y=-1/3      X=1, Y=-1/3
 
 These values are not integers, but they're consistent with the
 centring and scaling of the higher levels.  If all-integer is desired

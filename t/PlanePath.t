@@ -31,6 +31,10 @@ BEGIN { MyTestHelpers::nowarnings(); }
 
 require Math::PlanePath;
 
+my $have_64bits = ((1 << 63) != 0);
+my $modulo_64bit_dodginess = ($have_64bits
+                              && ((~0)%2) != ((~0)&1));
+
 #----------------------------------------------------------------------------
 # _divrem()
 
@@ -44,7 +48,11 @@ require Math::PlanePath;
 
 {
   # perl 5.6 did integer divisions in IV or something, exercise only up to ~0>>1
-  my $n = ~0 >> 1;
+  # perl 5.6.2 has some dodginess in % operator, limit to 31 bits there
+  my $n = ($modulo_64bit_dodginess
+           ? (1 << 32) - 1
+           : ~0 >> 1);
+
   foreach my $d (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
     my ($q,$r) = Math::PlanePath::_divrem($n,$d);
     my $m = $q * $d + $r;
@@ -71,7 +79,10 @@ require Math::PlanePath;
 {
   foreach my $d (2,3,4, 5, 6,7,8,9, 10, 16, 37) {
     # perl 5.6 did integer divisions in IV or something, exercise only to ~0>>1
-    my $n = ~0 >> 1;
+    my $n = ($modulo_64bit_dodginess
+             ? (1 << 32) - 1
+             : ~0 >> 1);
+
     my $q = $n;
     my $r = Math::PlanePath::_divrem_mutate($q,$d);
     my $m = $q * $d + $r;

@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -257,6 +257,47 @@ in the path as centred in a square of side 1, so the entire plane is
 covered.
 
 =back
+
+=head1 FORMULAS
+
+=head2 N to X,Y
+
+It's convenient to work in terms of Nstart=0 and to take each loop as
+beginning on the South-West diagonal,
+
+=cut
+
+# math-image --path=HeptSpiralSkewed,n_start=0 --expression='i<=37?i:0' --output=numbers_dash --size=25x16
+
+=pod
+
+              top length = d
+
+              30-29-28-27
+               |         \
+              31          26    diagonal length = d
+   left        |            \
+   length     32             25
+    = 2*d      |               \
+              33        0       24
+               |                 |    right
+              34     .          23    length = d-1
+               |                 |
+              35 17-18-19-20-21-22
+               |
+               .    bottom length = 2*d-1
+
+The SW diagonal is N=0,5,17,36,etc which is
+
+    N = (7d-11)*d/2 + 2           # starting d=1 first loop
+
+This can be inverted to get d from N
+
+    d = floor( (sqrt(56*N+9)+11)/14 )
+
+The side lengths are as shown above.  The first loop is d=1 and for it the
+"right" vertical length is zero, so no such side on that first loop 0 E<lt>=
+N < 5.
 
 =head1 OEIS
 

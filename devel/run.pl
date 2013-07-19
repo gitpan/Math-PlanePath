@@ -67,7 +67,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DiagonalsOctant';
   $path_class = 'Math::PlanePath::PyramidRows';
   $path_class = 'Math::PlanePath::Corner';
-  $path_class = 'Math::PlanePath::DiagonalsAlternating';
   $path_class = 'Math::PlanePath::ComplexRevolving';
   $path_class = 'Math::PlanePath::DragonMidpoint';
   $path_class = 'Math::PlanePath::ParabolicRows';
@@ -134,12 +133,10 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::ZeckendorfTerms';
   $path_class = 'Math::PlanePath::BinaryTerms';
   $path_class = 'Math::PlanePath::LCornerTreeByCells';
-  $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::MultipleRings';
   $path_class = 'Math::PlanePath::UlamWarburtonOld';
   $path_class = 'Math::PlanePath::UlamWarburton';
   $path_class = 'Math::PlanePath::PythagoreanTree';
-  $path_class = 'Math::PlanePath::ToothpickTree';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ToothpickSpiral';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
@@ -156,15 +153,19 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::PentSpiralSkewed';
   $path_class = 'Math::PlanePath::PentSpiral';
   $path_class = 'Math::PlanePath::HeptSpiralSkewed';
+  $path_class = 'Math::PlanePath::FourReplicate';
+  $path_class = 'Math::PlanePath::DiagonalsAlternating';
+  $path_class = 'Math::PlanePath::ToothpickTreeByCells';
+  $path_class = 'Math::PlanePath::ToothpickTree';
 
-  my $lo = 17;
-  my $hi = 36;
+  my $lo = 0;
+  my $hi = 4**4;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
      n_start => 0,
-
+     parts => 'wedge',
      # shift => 6,
      # pn_encoding => 'negabinary',
      #  points => 'all_mul',

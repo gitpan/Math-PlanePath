@@ -28,7 +28,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -178,71 +178,45 @@ sub new {
   return $self;
 }
 
-# start each diagonal at 0.5 earlier
-#
-#     s = [   0,   1,   2,   3,    4 ]
-#     n = [ 0.5, 1.5, 3.5, 6.5, 10.5 ]
-#               +1   +2   +3   +4
-#                  1    1    1
-#
-#     n = 0.5*$s*$s + 0.5*$s + 0.5
-#     s = 1/2 * (-1 + sqrt(4*2n + 1 - 4))
-#     s = -1/2 + sqrt(2n - 3/4)
-#       = [ -1 + sqrt(8n - 3) ] / 2
-#
-#     remainder n - (0.5*$s*$s + 0.5*$s + 0.5)
-#     is dist from x=-0.5 and y=$s+0.5
-#     work the 0.5 in so
-#         n - (0.5*$s*$s + 0.5*$s + 0.5) - 0.5
-#       = n - (0.5*$s*$s + 0.5*$s + 1)
-#       = n - 0.5*$s*($s+1) + 1
-#
-# starting on the integers vertical at X=0
-#
-#     s = [   0,  1, 2, 3,  4 ]
-#     n = [   1,  2, 4, 7, 11 ]
-#
-#     N = (1/2 d^2 + 1/2 d + 1)
-#       = ((1/2*$d + 1/2)*$d + 1)
-#       = (d+1)*d/2 + 1     one past triangular
-#     d = -1/2 + sqrt(2 * $n -7/4)
-#       = [-1 + sqrt(8*$n - 7)] / 2
-#
+# start each diagonal at 0.5 earlier than the integer point
+#   d = [    0,   1,   2,   3,   4 ]
+#   n = [ -0.5, 0.5, 2.5, 5.5, 9.5 ]
+#             +1   +2   +3   +4
+#                1    1    1
+# N = (1/2 d^2 + 1/2 d - 1/2)
+#   = (1/2*$d**2 + 1/2*$d - 1/2)
+#   = ((1/2*$d + 1/2)*$d - 1/2)
+# d = -1/2 + sqrt(2 * $n + 5/4)
+#   = (sqrt(8*$n + 5) -1)/2
+
 sub n_to_xy {
   my ($self, $n) = @_;
   ### Diagonals n_to_xy(): "$n   ".(ref $n || '')
 
-  # adjust to N=1 at origin X=0,Y=0
-  $n = $n - $self->{'n_start'} + 1;
+  # adjust to N=0 at origin X=0,Y=0
+  $n = $n - $self->{'n_start'};
 
-  my $int = int($n);  # BigFloat int() gives BigInt, use that
-  $n -= $int;         # frac, preserving any BigFloat
-
-  if (2*$n >= 1) {  # $frac>=0.5 and BigInt friendly
-    $n -= 1;
-    $int += 1;
-  }
-  ### $int
-  ### $n
-  if ($int < 1) {
-    return;
+  my $d;
+  {
+    my $r = 8*$n + 5;
+    if ($r < 1) {
+      ### which is N < -0.5 ...
+      return;
+    }
+    $d = int((sqrt(int($r)) - 1) / 2);
+    ### assert: $d >= 0
   }
 
-  ### sqrt of: (8*$int - 7).''
-  my $d = int((sqrt(8*$int-7) - 1) / 2);
+  # subtract for offset into diagonal, range -0.5 <= $n < $d+0.5
+  $n -= $d*($d+1)/2;
 
-  $int -= $d*($d+1)/2 + 1;
+  my $y = -$n + $d;  # $n first so BigFloat not BigInt from $d
+  # and X=$n
 
-  ### d: "$d"
-  ### sub: ($d*($d+1)/2 + 1).''
-  ### remainder: "$int"
-
-  my $x = $n + $int;
-  my $y = -$n - $int + $d;  # $n first so BigFloat not BigInt from $d
   if ($self->{'direction'} eq 'up') {
-    ($x,$y) = ($y,$x);
+    ($n,$y) = ($y,$n);
   }
-  return ($x + $self->{'x_start'},
+  return ($n + $self->{'x_start'},
           $y + $self->{'y_start'});
 }
 
@@ -388,12 +362,12 @@ position for the diagonals.  For example to start at X=1,Y=1
 
       7  |   22               x_start => 1,
       6  |   16 23            y_start => 1
-      5  |   11 17 24         
-      4  |    7 12 18 ...     
-      3  |    4  8 13 19      
-      2  |    2  5  9 14 20   
+      5  |   11 17 24
+      4  |    7 12 18 ...
+      3  |    4  8 13 19
+      2  |    2  5  9 14 20
       1  |    1  3  6 10 15 21
-    Y=0  | 
+    Y=0  |
          +------------------
          X=0  1  2  3  4  5
 
@@ -470,12 +444,37 @@ noted above.
 
 =pod
 
-d can be expanded out to a quite symmetric form, but one which looks more
-parabolic than straight line diagonals.
+d can be expanded out to the following quite symmetric form.  This almost
+suggests something parabolic but is still the straight line diagonals.
 
-        X^2 + 3X + 2XY + Y + Y^2 
+        X^2 + 3X + 2XY + Y + Y^2
     N = ------------------------ + Nstart
                    2
+
+=head2 N to X,Y
+
+The above formula N=d*(d+1)/2 can be solved for d as
+
+    d = floor( (sqrt(8*N+1) - 1)/2 )
+    # with n_start=0
+
+For example N=12 is d=floor((sqrt(8*12+1)-1)/2)=4 as that N falls in the
+fifth diagonal.  Then the offset from the Y axis NY=d*(d-1)/2 is the X
+position,
+
+    X = N - d*(d-1)/2
+    Y = d - X
+
+In the code fractional N is handled by imagining each diagonal beginning 0.5
+back from the Y axis.  That's handled by adding 0.5 into the sqrt, which is
++4 onto the 8*N.
+
+    d = floor( (sqrt(8*N+5) - 1)/2 )
+    # N>=-0.5
+
+The X and Y formulas are unchanged, since N=d*(d-1)/2 is still the Y axis.
+But each diagonal d begins up to 0.5 before that and therefor X extends back
+to -0.5.
 
 =head2 Rectangle to N Range
 

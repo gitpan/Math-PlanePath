@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License along
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
+
+# Exercise the various PlanePath subclasses checking for consistency between
+# n_to_xy() and xy_to_n() and the various range methods, etc.
+#
+
+
 use 5.004;
 use strict;
 use List::Util;
@@ -30,12 +36,89 @@ BEGIN { MyTestHelpers::nowarnings(); }
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
-require Math::PlanePath;
+
+use Math::PlanePath;
+use Math::PlanePath::Base::Generic
+  'is_infinite';
 
 my $verbose = 1;
 
 my @modules = (
                # module list begin
+
+               'KochCurve',
+               'KochPeaks',
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+
+               'VogelFloret',
+
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+
+               'ArchimedeanChords',
+
+               # '*OneOfEight,parts=side',
+               '*OneOfEight,parts=3mid',
+               '*OneOfEight,parts=3side',
+               '*OneOfEight',
+               '*OneOfEight,parts=1',
+               '*OneOfEight,parts=octant',
+               '*OneOfEight,parts=octant_up',
+               '*OneOfEight,parts=wedge',
+
+               '*ToothpickTree,parts=wedge',
+               '*ToothpickTree,parts=two_horiz',
+               '*ToothpickTree,parts=octant',
+               '*ToothpickTree,parts=octant_up',
+               '*ToothpickTree',
+               '*ToothpickTree,parts=1',
+               '*ToothpickTree,parts=2',
+               '*ToothpickTree,parts=3',
+
+               'MPeaks',
+               'MPeaks,n_start=0',
+               'MPeaks,n_start=37',
+
+               'PyramidSides',
+               'PyramidSides,n_start=0',
+               'PyramidSides,n_start=37',
+
+               'Diagonals',
+               'Diagonals,direction=up',
+               'Diagonals,n_start=0',
+               'Diagonals,direction=up,n_start=0',
+               'Diagonals,n_start=37',
+               'Diagonals,direction=up,n_start=37',
+               'Diagonals,x_start=5',
+               'Diagonals,direction=up,x_start=5',
+               'Diagonals,x_start=2,y_start=5',
+               'Diagonals,direction=up,x_start=2,y_start=5',
+
+               'DiagonalsAlternating',
+               'DiagonalsAlternating,n_start=0',
+               'DiagonalsAlternating,n_start=37',
+               'DiagonalsAlternating,x_start=5',
+               'DiagonalsAlternating,x_start=2,y_start=5',
+
+               'AztecDiamondRings',
+               'AztecDiamondRings,n_start=0',
+               'AztecDiamondRings,n_start=37',
 
                'PyramidSpiral',
                'PyramidSpiral,n_start=0',
@@ -69,10 +152,6 @@ my @modules = (
                'OctagramSpiral,n_start=0',
                'OctagramSpiral,n_start=37',
 
-               'MPeaks',
-               'MPeaks,n_start=0',
-               'MPeaks,n_start=37',
-
                'CornerReplicate',
 
                'UlamWarburton',
@@ -95,15 +174,6 @@ my @modules = (
                'RationalsTree,tree_type=Drib',
                'RationalsTree,tree_type=L',
                'RationalsTree,tree_type=HCS',
-
-               # '*OneOfEight,parts=side',
-               '*OneOfEight',
-               '*OneOfEight,parts=1',
-               '*OneOfEight,parts=octant',
-               '*OneOfEight,parts=octant_up',
-               '*OneOfEight,parts=wedge',
-               '*OneOfEight,parts=3mid',
-               '*OneOfEight,parts=3side',
 
                'PythagoreanTree,coordinates=SM',
                'PythagoreanTree,coordinates=SC',
@@ -141,14 +211,6 @@ my @modules = (
 
                # '*PeninsulaBridge',
 
-               '*ToothpickTree',
-               '*ToothpickTree,parts=1',
-               '*ToothpickTree,parts=2',
-               '*ToothpickTree,parts=3',
-               '*ToothpickTree,parts=octant',
-               '*ToothpickTree,parts=octant_up',
-               '*ToothpickTree,parts=wedge',
-
                '*ToothpickReplicate',
                '*ToothpickReplicate,parts=1',
                '*ToothpickReplicate,parts=2',
@@ -182,23 +244,6 @@ my @modules = (
                'SierpinskiTriangle,align=left',
                'SierpinskiTriangle,align=right',
                'SierpinskiTriangle,align=diagonal',
-
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
 
                'PyramidRows,align=right',
                'PyramidRows,align=right,step=0',
@@ -345,8 +390,6 @@ my @modules = (
                'HexSpiralSkewed,wider=5',
                'HexSpiralSkewed,wider=37',
 
-               'VogelFloret',
-
                'Rows',
                'Rows,width=1',
                'Rows,width=2',
@@ -432,12 +475,6 @@ my @modules = (
                'TerdragonMidpoint,arms=3',
                'TerdragonMidpoint,arms=6',
 
-               'KochCurve',
-               'KochPeaks',
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
-
                'ImaginaryHalf',
                'ImaginaryHalf,radix=3',
                'ImaginaryHalf,radix=4',
@@ -493,23 +530,6 @@ my @modules = (
                'CfracDigits,radix=10',
                'CfracDigits,radix=37',
 
-               'DiagonalsAlternating',
-               'DiagonalsAlternating,n_start=0',
-               'DiagonalsAlternating,n_start=37',
-               'DiagonalsAlternating,x_start=5',
-               'DiagonalsAlternating,x_start=2,y_start=5',
-
-               'Diagonals',
-               'Diagonals,direction=up',
-               'Diagonals,n_start=0',
-               'Diagonals,direction=up,n_start=0',
-               'Diagonals,n_start=37',
-               'Diagonals,direction=up,n_start=37',
-               'Diagonals,x_start=5',
-               'Diagonals,direction=up,x_start=5',
-               'Diagonals,x_start=2,y_start=5',
-               'Diagonals,direction=up,x_start=2,y_start=5',
-
                'GcdRationals',
                'GcdRationals,pairs_order=rows_reverse',
                'GcdRationals,pairs_order=diagonals_down',
@@ -536,7 +556,6 @@ my @modules = (
 
                'SacksSpiral',
                'TheodorusSpiral',
-               'ArchimedeanChords',
 
                'ComplexRevolving',
                'ComplexPlus',
@@ -572,7 +591,6 @@ my @modules = (
 
                'CCurve',
 
-               'AztecDiamondRings',
                'DiamondArms',
                'SquareArms',
                'HexArms',
@@ -663,10 +681,6 @@ my @modules = (
                'Corner,wider=1,n_start=37',
                'Corner,wider=2,n_start=37',
                'Corner,wider=13,n_start=37',
-
-               'PyramidSides',
-               'PyramidSides,n_start=0',
-               'PyramidSides,n_start=37',
 
                'File',
 
@@ -773,7 +787,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 107;
+my $want_version = 108;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -1140,18 +1154,18 @@ sub pythagorean_diag {
   my $rect_limit = $ENV{'MATH_PLANEPATH_TEST_RECT_LIMIT'} || 4;
   MyTestHelpers::diag ("test limit $default_limit, rect limit $rect_limit");
   my $good = 1;
-  
+
   foreach my $mod (@modules) {
     if ($verbose) {
       MyTestHelpers::diag ($mod);
     }
-    
+
     my ($class, %parameters) = module_parse($mod);
     ### $class
     eval "require $class" or die;
-    
+
     my $xy_maximum_duplication = $xy_maximum_duplication{$class} || 0;
-    
+
     my $dxdy_allowed
       = $class_dxdy_allowed{$class.",skew=".($parameters{'skew'}||'')}
         || $class_dxdy_allowed{$class};
@@ -1164,11 +1178,11 @@ sub pythagorean_diag {
       # ENHANCE-ME: watch for dxdy within each arm
       undef $dxdy_allowed;
     }
-    
+
     #
     # MyTestHelpers::diag ($mod);
     #
-    
+
     my $limit = $default_limit;
     if (defined (my $step = $parameters{'step'})) {
       if ($limit < 6*$step) {
@@ -1185,19 +1199,19 @@ sub pythagorean_diag {
         $limit = 1100;  # bit slow otherwise
       }
     }
-    
+
     my $report = sub {
       my $name = $mod;
       MyTestHelpers::diag ($name, ' oops ', @_);
       $good = 0;
       # exit 1;
     };
-    
+
     my $path = $class->new (width  => 20,
                             height => 20,
                             %parameters);
     my $got_arms = $path->arms_count;
-    
+
     foreach my $pinfo ($path->parameter_info_list) {
       if ($pinfo->{'type'} eq 'enum') {
         my $choices = $pinfo->{'choices'};
@@ -1210,14 +1224,14 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     if ($parameters{'arms'} && $got_arms != $parameters{'arms'}) {
       &$report("arms_count()==$got_arms expect $parameters{'arms'}");
     }
     unless ($got_arms >= 1) {
       &$report("arms_count()==$got_arms should be >=1");
     }
-    
+
     my $arms_count = $path->arms_count;
     my $n_start = $path->n_start;
     my $n_frac_discontinuity = $path->n_frac_discontinuity;
@@ -1234,7 +1248,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     if (# VogelFloret has a secret undocumented return for N=0
         ! $path->isa('Math::PlanePath::VogelFloret')
         # Rows/Columns secret undocumented extend into negatives ...
@@ -1280,7 +1294,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     {
       my $saw_warning;
       local $SIG{'__WARN__'} = sub { $saw_warning = 1; };
@@ -1312,7 +1326,7 @@ sub pythagorean_diag {
         $path->xy_to_n(undef,0);
         $saw_warning or &$report("xy_to_n(undef,0) doesn't give a warning");
       }
-      
+
       # No warning if xy_is_visited() is a constant.
       # {
       #   $saw_warning = 0;
@@ -1325,7 +1339,7 @@ sub pythagorean_diag {
       #   $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
       # }
     }
-    
+
     # undef ok if nothing sensible
     # +/-inf ok
     # nan not intended, but might be ok
@@ -1401,7 +1415,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     if (defined $neg_infinity) {
       {
         ### n_to_xy($neg_infinity) ...
@@ -1438,7 +1452,7 @@ sub pythagorean_diag {
         $num_values == 0
           or &$report("n_to_dxdy(neg_infinity) got $num_values values, want 0");
       }
-      
+
       foreach my $method ('n_to_rsquared','n_to_radius') {
         ### n_to_r (neg_infinity) ...
         my @ret = $path->$method($neg_infinity);
@@ -1482,7 +1496,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     # nan input documented loosely as yet ...
     if (defined $nan) {
       {
@@ -1537,7 +1551,7 @@ sub pythagorean_diag {
         }
       }
     }
-    
+
     foreach my $x
       (0,
        pos_infinity_maybe(),
@@ -1598,6 +1612,8 @@ sub pythagorean_diag {
     my $sumxy_maximum = $path->sumxy_maximum;
     my $diffxy_minimum = $path->diffxy_minimum;
     my $diffxy_maximum = $path->diffxy_maximum;
+    my $gcdxy_minimum = $path->gcdxy_minimum;
+    my $gcdxy_maximum = $path->gcdxy_maximum;
 
     my %saw_n_to_xy;
     my %count_n_to_xy;
@@ -1631,22 +1647,6 @@ sub pythagorean_diag {
       if (defined $y_maximum && $y > $y_maximum) {
         &$report("n_to_xy($n) Y=$y below y_maximum=$y_maximum");
       }
-
-      my $sumxy = $x + $y;
-      my $diffxy = $x - $y;
-      if (defined $sumxy_minimum && $sumxy < $sumxy_minimum) {
-        &$report("n_to_xy($n) X+Y=$sumxy below sumxy_minimum=$sumxy_minimum");
-      }
-      if (defined $sumxy_maximum && $sumxy > $sumxy_maximum) {
-        &$report("n_to_xy($n) X+Y=$sumxy above sumxy_maximum=$sumxy_maximum");
-      }
-      if (defined $diffxy_minimum && $diffxy < $diffxy_minimum) {
-        &$report("n_to_xy($n) X+Y=$diffxy below diffxy_minimum=$diffxy_minimum");
-      }
-      if (defined $diffxy_maximum && $diffxy > $diffxy_maximum) {
-        &$report("n_to_xy($n) X+Y=$diffxy above diffxy_maximum=$diffxy_maximum");
-      }
-
       # if (! defined $got_x_minimum || $x < $got_x_minimum) {
       #   $got_x_minimum = $x;
       # }
@@ -1659,6 +1659,36 @@ sub pythagorean_diag {
       # if (! defined $got_y_maximum || $y < $got_y_maximum) {
       #   $got_y_maximum = $y;
       # }
+
+      {
+        my $sumxy = $x + $y;
+        if (defined $sumxy_minimum && $sumxy < $sumxy_minimum) {
+          &$report("n_to_xy($n) X+Y=$sumxy below sumxy_minimum=$sumxy_minimum");
+        }
+        if (defined $sumxy_maximum && $sumxy > $sumxy_maximum) {
+          &$report("n_to_xy($n) X+Y=$sumxy above sumxy_maximum=$sumxy_maximum");
+        }
+      }
+
+      {
+        my $diffxy = $x - $y;
+        if (defined $diffxy_minimum && $diffxy < $diffxy_minimum) {
+          &$report("n_to_xy($n) X-Y=$diffxy below diffxy_minimum=$diffxy_minimum");
+        }
+        if (defined $diffxy_maximum && $diffxy > $diffxy_maximum) {
+          &$report("n_to_xy($n) X-Y=$diffxy above diffxy_maximum=$diffxy_maximum");
+        }
+      }
+
+      {
+        my $gcdxy = gcd(abs($x),abs($y));
+        if (defined $gcdxy_minimum && $gcdxy < $gcdxy_minimum) {
+          &$report("n_to_xy($n) gcd($x,$y)=$gcdxy below gcdxy_minimum=$gcdxy_minimum");
+        }
+        if (defined $gcdxy_maximum && $gcdxy > $gcdxy_maximum) {
+          &$report("n_to_xy($n) gcd($x,$y)=$gcdxy above gcdxy_maximum=$gcdxy_maximum");
+        }
+      }
 
       my $xystr = (int($x) == $x && int($y) == $y
                    ? sprintf('%d,%d', $x,$y)
@@ -2143,20 +2173,20 @@ sub pythagorean_diag {
     {
       my %unseen_num_children = %num_children_hash;
       foreach my $n ($n_start .. $n_start+$limit,
-                    ($path->isa('Math::PlanePath::OneOfEight')
-                     ? (37, # first with 2 children in parts=4
-                        58) # first with 3 children in parts=4
-                     : ())) {
+                     ($path->isa('Math::PlanePath::OneOfEight')
+                      ? (37, # first with 2 children in parts=4
+                         58) # first with 3 children in parts=4
+                      : ())) {
         ### $n
         my @n_children = $path->tree_n_children($n);
         ### @n_children
-        
+
         my $num_children = scalar(@n_children);
         exists $num_children_hash{$num_children}
           or &$report ("tree_n_children($n)=$num_children not in tree_num_children_list()=$num_children_list_str");
-        
+
         delete $unseen_num_children{$num_children};
-        
+
         foreach my $n_child (@n_children) {
           my $got_n_parent = $path->tree_n_parent($n_child);
           ($got_n_parent == $n)
@@ -2166,7 +2196,7 @@ sub pythagorean_diag {
       if (%unseen_num_children) {
         &$report ("tree_num_children_list() values not seen: ",
                   join(',',sort {$a<=>$b} keys %unseen_num_children),
-                 " of total=$num_children_list_str");
+                  " of total=$num_children_list_str");
       }
     }
 
@@ -2269,7 +2299,7 @@ sub pythagorean_diag {
           }
         }
 
-        if ($path->can('tree_depth_to_width') != 
+        if ($path->can('tree_depth_to_width') !=
             Math::PlanePath->can('tree_depth_to_width')) {
           my $got_width = $path->tree_depth_to_width($depth);
           my $want_width = $n_end-$n+1;
@@ -2361,6 +2391,37 @@ sub equal {
   my ($x,$y) = @_;
   return ((! defined $x && ! defined $y)
           || (defined $x && defined $y && $x == $y));
+}
+
+use POSIX 'fmod';
+sub gcd {
+  my ($x,$y) = @_;
+  $x = abs($x);
+  $y = abs($y);
+  if (is_infinite($x)) { return $x; }
+  if (is_infinite($y)) { return $y; }
+
+  # hack to recognise 1/3 from KochSnowflakes
+  if ($x == 1 && $y == 1/3) {
+    return $y;
+  }
+
+  if ($x == 0) {
+    return $y;
+  }
+  if ($y > $x) {
+    $y = fmod($y,$x);
+  }
+  for (;;) {
+    ### assert: $x >= 1
+    if ($y == 0) {
+      return $x;   # gcd(x,0)=x
+    }
+    if ($y < 0.00001) {
+      return 0;
+    }
+    ($x,$y) = ($y, fmod($x,$y));
+  }
 }
 
 exit 0;

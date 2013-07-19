@@ -16,9 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# math-image --path=KochelCurve --all --output=numbers_dash
-#
-
 package Math::PlanePath::KochelCurve;
 use 5.004;
 use strict;
@@ -26,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -490,6 +487,12 @@ X<Haverkort, Herman>This is an integer version of the Kochel curve by Herman
 Haverkort.  It fills the first quadrant in a 3x3 self-similar pattern made
 from two base shapes.
 
+=cut
+
+# math-image --path=KochelCurve --all --output=numbers_dash
+
+=pod
+
             |
       8    80--79  72--71--70--69  60--59--58
                 |   |           |   |       |
@@ -531,19 +534,19 @@ diagonally across.
 
 "Rrev" means the R pattern followed in reverse, which is
 
-    +------+-----+-----+ 
+    +------+-----+-----+
     | <----| \ 7 |   6 |    Rrev pattern
     |   R  |  F  | Rrev|
     |  8   |   \ |-----|    turned -90 degrees
     +------+-----+-----+    so as to start at
-    |   /  ||    |   / |    bottom left 
-    |  F   || R  |  F  | 
-    | / 1  || 2  | / 5 | 
-    +------+-----+-----+ 
-    | | 0  | \ 3 ||    | 
-    | |Rrev|  F  ||Rrev| 
-    | o    |   \ ||  4 | 
-    +------+-----+-----+ 
+    |   /  ||    |   / |    bottom left
+    |  F   || R  |  F  |
+    | / 1  || 2  | / 5 |
+    +------+-----+-----+
+    | | 0  | \ 3 ||    |
+    | |Rrev|  F  ||Rrev|
+    | o    |   \ ||  4 |
+    +------+-----+-----+
 
 The F pattern is symmetric, the same forward or reverse, including its
 sub-parts taken in reverse, so there's no separate "Frev" pattern.

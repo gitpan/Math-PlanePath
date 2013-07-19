@@ -21,6 +21,7 @@ use 5.004;
 use strict;
 use Test;
 plan tests => 1;
+use Math::BigInt try => 'GMP';
 
 use lib 't','xt';
 use MyTestHelpers;
@@ -33,6 +34,60 @@ use MyOEIS;
 
 use Math::PlanePath::ComplexMinus;
 my $path = Math::PlanePath::ComplexMinus->new;
+
+#------------------------------------------------------------------------------
+# A052537 length A,B or C
+# A003476 total boundary length / 2
+
+MyOEIS::compare_values
+  (anum => 'A003476',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1);
+     my $a = Math::BigInt->new(2);
+     my $b = Math::BigInt->new(2);
+     my $c = Math::BigInt->new(0);
+     while (@got < $count) {
+       push @got, ($a+$b+$c)/2;
+       ($a,$b,$c) = abc_step($a,$b,$c);
+     }
+     return \@got;
+   });
+
+MyOEIS::compare_values
+  (anum => 'A052537',
+   func => sub {
+     my ($count) = @_;
+     my @got = (1,0);
+     for (my $i = 0; @got < $count; $i++) {
+       my ($a,$b,$c) = abc_by_pow($i);
+       push @got, $c;
+     }
+     return \@got;
+   });
+
+sub abc_step {
+  my ($a,$b,$c) = @_;
+  return ($a + 2*$c,
+          $a,
+          $b);
+}
+sub abc_by_pow {
+  my ($k) = @_;
+
+  my $zero = $k*0;
+  my $r = 1;
+  my $a = $zero + 2*$r;
+  my $b = $zero + 2;
+  my $c = $zero + 2*(1-$r);
+
+  foreach (1 .. $k) {
+    ($a,$b,$c) = ((2*$r-1)*$a       + 0  + 2*$r*$c,
+                  ($r*$r-2*$r+2)*$a + 0 + ($r-1)*($r-1)*$c,
+                  0                 + $b);
+  }
+  return ($a,$b,$c);
+}
 
 #------------------------------------------------------------------------------
 # A066322 - N on X axis, diffs at 16k+3,16k+4

@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -41,11 +41,12 @@ use Math::PlanePath::Base::Generic
 use Math::PlanePath::MultipleRings;
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 use constant figure => 'circle';
 use constant n_start => 0;
+use constant gcdxy_maximum => 1;
 use constant dx_minimum => -1; # infimum when straight
 use constant dx_maximum => 1;  # at N=0
 use constant dy_minimum => -1;
@@ -54,6 +55,7 @@ use constant dsumxy_minimum => -sqrt(2); # supremum when diagonal
 use constant dsumxy_maximum => sqrt(2);
 use constant ddiffxy_minimum => -sqrt(2); # supremum when diagonal
 use constant ddiffxy_maximum => sqrt(2);
+
 
 #------------------------------------------------------------------------------
 
@@ -125,6 +127,7 @@ use constant 1.02 _PI => 2*atan2(1,0);
 #
 sub _chord_angle_inc {
   my ($t) = @_;
+  # ### _chord_angle_inc(): $t
 
   my $u = 2*_PI/$t; # estimate
 
@@ -233,12 +236,12 @@ sub xy_to_n {
   my $r_limit = 1.001 * $r;
 
   ### hypot: hypot($x,$y)
-  ### $frac
   ### $r
   ### $r_limit
+  ### save_t: "end index=$#save_t  save_t[0]=".($save_t[0]//'undef')
 
   if (is_infinite($r_limit)) {
-    ### infinite range, r inf or too big
+    ### infinite range, r inf or too big ...
     return undef;
   }
 
@@ -247,6 +250,7 @@ sub xy_to_n {
   foreach my $i (1 .. $#save_t) {
     if ($save_t[$i] > $theta) {
       $n_lo = $save_n[$i-1];
+      if ($n_lo == 1) { $n_lo = 0; } # for finding X=0,Y=0
       last;
     }
   }
@@ -260,14 +264,18 @@ sub xy_to_n {
     # #### $ny
     # #### hypot: hypot ($x-$nx,$y-$ny)
     if (hypot($x-$nx,$y-$ny) <= 0.5) {
+      ### hypot in range ...
       return $n;
     }
     if (hypot($nx,$ny) >= $r_limit) {
       last;
     }
   }
+
+  ### n not found ...
   return undef;
 }
+
   # int (max (0, int(_PI*$r2) - 4*$r));
   #
   #  my $r2 = $r * $r;
@@ -320,6 +328,7 @@ sub xy_to_n {
 # not exact
 sub rect_to_n_range {
   my ($self, $x1,$y1, $x2,$y2) = @_;
+  ### rect_to_n_range() ...
 
   my $rhi = 0;
   foreach my $x ($x1, $x2) {

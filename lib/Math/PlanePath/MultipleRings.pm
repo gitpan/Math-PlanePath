@@ -38,7 +38,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 107;
+$VERSION = 108;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -53,6 +53,7 @@ use constant _PI => 2*atan2(1,0);
 
 use constant figure => 'circle';
 use constant n_frac_discontinuity => 0;
+use constant gcdxy_minimum => 0;
 
 use constant parameter_info_array =>
   [{ name        => 'step',
@@ -1603,6 +1604,9 @@ this path include
 
     step=1
       A002024    Radius+1, runs of n repeated n times
+
+    step=8
+      A090915    permutation N at X,-Y, mirror across X axis
 
 =head1 SEE ALSO
 

@@ -58,7 +58,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -142,15 +142,15 @@ sub new {
     if ($n < 0) { return; }
     if (is_infinite($n)) { return ($n, $n); }
 
-    my $int = int($n);   # integer part
-    $n -= $int;          # fraction part
+    my $int = int($n);      # integer part
+    $n -= $int;             # $n = fraction part
     my $zero = ($int * 0);  # inherit bignum 0
 
     my $arm = _divrem_mutate ($int, $self->{'arms'});
     my @digits = digit_split_lowtohigh($int,4);
     ### @digits
 
-    # initial state for rotation by arm and number of digits
+    # initial state from rotation by arm and number of digits
     my $state = ((scalar(@digits) + $arm) & 3) << 2;
 
     my $len = (2+$zero) ** $#digits;
@@ -197,7 +197,7 @@ sub new {
     my $state = 4 * _divrem_mutate ($int, $self->{'arms'});
     ### arm as initial state: $state
 
-    foreach my $bit (reverse bit_split_lowtohigh($int)) {
+    foreach my $bit (reverse bit_split_lowtohigh($int)) {  # high to low
       $state = $next_state[$state + $bit];
     }
     $state &= 0x1C;  # mask out "prevbit" from state, leaving state==0 mod 4

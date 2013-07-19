@@ -84,7 +84,7 @@ use Carp;
 use Math::Libm 'hypot';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -167,6 +167,7 @@ sub rsquared_minimum {
   # starting N=1 at R=radius_factor*sqrt(1), theta=something
   return $self->{'radius_factor'} ** 2;
 }
+use constant gcdxy_maximum => 0;
 
 #------------------------------------------------------------------------------
 

@@ -51,7 +51,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -429,7 +429,9 @@ this path include
     A056109    N on South-West diagonal
     A003215    N on South-East diagonal
 
-    A063178    total sum previous row or diagonal
+    A063178    total sum N previous row or diagonal
+    A135711    boundary length of N hexagons 
+    A135708    grid sticks of N hexagons 
 
     n_start=0
       A000567    N on X axis, octagonal numbers

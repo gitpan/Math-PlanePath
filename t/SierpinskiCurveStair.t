@@ -36,7 +36,7 @@ require Math::PlanePath::SierpinskiCurveStair;
 # VERSION
 
 {
-  my $want_version = 107;
+  my $want_version = 108;
   ok ($Math::PlanePath::SierpinskiCurveStair::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::SierpinskiCurveStair->VERSION,  $want_version,

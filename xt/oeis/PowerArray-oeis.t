@@ -37,6 +37,23 @@ my $bigclass = Math::NumSeq::PlanePathN::_bigint();
 
 
 #------------------------------------------------------------------------------
+# A117303 -- permutation, N at transpose (2*x-1)*2^(y-1) <--> (2*y-1)*2^(x-1)
+
+MyOEIS::compare_values
+  (anum => 'A117303',
+   func => sub {
+     my ($count) = @_;
+     require Math::PlanePath::PowerArray;
+     my $path = Math::PlanePath::PowerArray->new;
+     my @got;
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy($n);
+       push @got, $path->xy_to_n ($y, $x);
+     }
+     return \@got;
+   });
+
+#------------------------------------------------------------------------------
 # A151754 -- radix=10, Y at N=2^k starting k=1 N=2, floor(2^k*9/10)
 
 MyOEIS::compare_values

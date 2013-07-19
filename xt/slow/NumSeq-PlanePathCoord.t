@@ -51,11 +51,12 @@ sub want_planepath {
 # return 0 unless $planepath =~ /LCorner/;
   # return 0 unless $planepath =~ /DiagonalRationals/;
   # return 0 unless $planepath =~ /Ulam/;
- return 0 unless $planepath =~ /Stair/;
+# return 0 unless $planepath =~ /Four/;
   return 1;
 }
 sub want_coordinate {
   my ($type) = @_;
+   return 0 unless $type =~ /GCD/;
   # return 0 unless $type =~ /RootN/;
   # return 0 unless $type =~ /Parity/;
   # return 0 unless $type =~ /dSum|dDiffXY|Absd|d[XY]/;
@@ -70,7 +71,7 @@ sub want_coordinate {
 # characteristic()
 
 foreach my $elem
-  (['increasing',undef ], # default SquareSpiral X not monotonic
+  (['increasing',0 ], # default SquareSpiral X not monotonic
    ['non_decreasing', 1, planepath => 'Hypot', coordinate_type => 'Radius' ],
    ['non_decreasing', 1, planepath => 'Hypot', coordinate_type => 'Radius' ],
    ['non_decreasing', 1, planepath => 'HypotOctant', coordinate_type => 'Radius' ],
@@ -108,7 +109,7 @@ foreach my $elem
   my ($key, $want, @parameters) = @$elem;
   
   my $seq = Math::NumSeq::PlanePathCoord->new (@parameters);
-  ok ($seq->characteristic($key), $want,
+  ok ($seq->characteristic($key) ? 1 : 0, $want,
       "characteristic($key) on ".join(', ',@parameters));
 }
 
@@ -392,8 +393,53 @@ foreach my $elem
 # values_min(), values_max() by running values
 
 my @modules = (
+               'FourReplicate',
+
                # module list begin
               
+               'VogelFloret',
+               'ArchimedeanChords',
+               'SacksSpiral',
+               'TheodorusSpiral',
+               
+               'KochSnowflakes',
+               'KochSquareflakes',
+               'KochSquareflakes,inward=>1',
+               
+               'MultipleRings,ring_shape=polygon,step=3',
+               'MultipleRings,ring_shape=polygon,step=4',
+               'MultipleRings,ring_shape=polygon,step=5',
+               'MultipleRings,ring_shape=polygon,step=6',
+               'MultipleRings,ring_shape=polygon,step=7',
+               'MultipleRings,ring_shape=polygon,step=8',
+               'MultipleRings,ring_shape=polygon,step=9',
+               'MultipleRings,ring_shape=polygon,step=10',
+               'MultipleRings,ring_shape=polygon,step=11',
+               'MultipleRings,ring_shape=polygon,step=12',
+               'MultipleRings,ring_shape=polygon,step=13',
+               'MultipleRings,ring_shape=polygon,step=14',
+               'MultipleRings,ring_shape=polygon,step=15',
+               'MultipleRings,ring_shape=polygon,step=16',
+               'MultipleRings,ring_shape=polygon,step=17',
+               'MultipleRings,ring_shape=polygon,step=18',
+               'MultipleRings,ring_shape=polygon,step=37',
+               'MultipleRings,ring_shape=polygon',
+               
+               'MultipleRings',
+               'MultipleRings,step=0',
+               'MultipleRings,ring_shape=polygon,step=0',
+               'MultipleRings,step=1',
+               'MultipleRings,ring_shape=polygon,step=1',
+               'MultipleRings,step=2',
+               'MultipleRings,ring_shape=polygon,step=2',
+               
+               'MultipleRings,step=3',
+               'MultipleRings,step=5',
+               'MultipleRings,step=6',
+               'MultipleRings,step=7',
+               'MultipleRings,step=8',
+               'MultipleRings,step=37',
+               
                'Staircase',
                'Staircase,n_start=0',
                'Staircase,n_start=37',
@@ -797,9 +843,6 @@ my @modules = (
                'AlternatePaperMidpoint,arms=7',
                'AlternatePaperMidpoint,arms=8',
                
-               'SacksSpiral',
-               'TheodorusSpiral',
-               
                'HypotOctant',
                'HypotOctant,points=even',
                'HypotOctant,points=odd',
@@ -816,7 +859,6 @@ my @modules = (
                'UlamWarburton,parts=1',
                'UlamWarburtonQuarter',
                
-               'VogelFloret',
                'CubicBase',
                
                'PeanoCurve',
@@ -922,8 +964,6 @@ my @modules = (
                'QuadricCurve',
                'QuadricIslands',
                
-               'ArchimedeanChords',
-               
                'WythoffArray',
                'WythoffArray,x_start=1',
                'WythoffArray,y_start=1',
@@ -990,10 +1030,6 @@ my @modules = (
                'RationalsTree,tree_type=AYT',
                'RationalsTree,tree_type=Bird',
                'RationalsTree,tree_type=Drib',
-               
-               'KochSnowflakes',
-               'KochSquareflakes',
-               'KochSquareflakes,inward=>1',
                
                'DekkingCurve',
                'DekkingCentres',
@@ -1129,40 +1165,6 @@ my @modules = (
                'DragonCurve,arms=2',
                'DragonCurve,arms=3',
                'DragonCurve,arms=4',
-               
-               'MultipleRings,ring_shape=polygon,step=3',
-               'MultipleRings,ring_shape=polygon,step=4',
-               'MultipleRings,ring_shape=polygon,step=5',
-               'MultipleRings,ring_shape=polygon,step=6',
-               'MultipleRings,ring_shape=polygon,step=7',
-               'MultipleRings,ring_shape=polygon,step=8',
-               'MultipleRings,ring_shape=polygon,step=9',
-               'MultipleRings,ring_shape=polygon,step=10',
-               'MultipleRings,ring_shape=polygon,step=11',
-               'MultipleRings,ring_shape=polygon,step=12',
-               'MultipleRings,ring_shape=polygon,step=13',
-               'MultipleRings,ring_shape=polygon,step=14',
-               'MultipleRings,ring_shape=polygon,step=15',
-               'MultipleRings,ring_shape=polygon,step=16',
-               'MultipleRings,ring_shape=polygon,step=17',
-               'MultipleRings,ring_shape=polygon,step=18',
-               'MultipleRings,ring_shape=polygon,step=37',
-               'MultipleRings,ring_shape=polygon',
-               
-               'MultipleRings',
-               'MultipleRings,step=0',
-               'MultipleRings,ring_shape=polygon,step=0',
-               'MultipleRings,step=1',
-               'MultipleRings,ring_shape=polygon,step=1',
-               'MultipleRings,step=2',
-               'MultipleRings,ring_shape=polygon,step=2',
-               
-               'MultipleRings,step=3',
-               'MultipleRings,step=5',
-               'MultipleRings,step=6',
-               'MultipleRings,step=7',
-               'MultipleRings,step=8',
-               'MultipleRings,step=37',
                
                # module list end
 

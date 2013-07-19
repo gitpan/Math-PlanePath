@@ -28,10 +28,26 @@ use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
-
 # uncomment this to run the ### lines
 # use Smart::Comments '###';
 
+
+#------------------------------------------------------------------------------
+# A090915 -- permutation X,-Y mirror across X axis
+
+MyOEIS::compare_values
+  (anum => 'A090915',
+   func => sub {
+     my ($count) = @_;
+     my @got;
+     my $path = Math::PlanePath::MultipleRings->new(step=>8);
+     for (my $n = $path->n_start; @got < $count; $n++) {
+       my ($x, $y) = $path->n_to_xy ($n);
+       ($x,$y) = ($x,-$y);
+       push @got, $path->xy_to_n ($x, $y);
+     }
+     return \@got;
+   });
 
 #------------------------------------------------------------------------------
 # A002024 - n repeated n times, is step=1 Radius+1

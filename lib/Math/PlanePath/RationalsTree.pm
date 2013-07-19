@@ -131,7 +131,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -169,6 +169,7 @@ sub x_minimum {
   return ($self->{'tree_type'} eq 'L' ? 0 : 1);
 }
 use constant y_minimum => 1;
+use constant gcdxy_maximum => 1;  # no common factor
 use constant tree_num_children_list => (2); # complete binary tree
 use constant tree_n_to_subheight => undef; # complete tree, all infinity
 

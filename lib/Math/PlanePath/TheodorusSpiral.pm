@@ -27,7 +27,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -41,6 +41,7 @@ use Math::PlanePath::Base::Generic
 
 use constant n_start => 0;
 use constant figure => 'circle';
+use constant gcdxy_maximum => 1;
 use constant dx_minimum => -1; # supremum when straight
 use constant dx_maximum => 1;  # at N=0
 use constant dy_minimum => -1;

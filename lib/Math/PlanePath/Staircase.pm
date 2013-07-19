@@ -21,7 +21,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -78,12 +78,17 @@ sub n_to_xy {
   my ($self, $n) = @_;
   #### Staircase n_to_xy: $n
 
-  # adjust to N=1 at origin X=0,Y=0
+  # adjust to N=1 start
   $n = $n - $self->{'n_start'} + 1;
 
-  if (2*$n < 1) { return; }
-
-  my $d = int ((1 + sqrt(int(8*$n-3))) / 4);
+  my $d;
+  {
+    my $r = 8*$n - 3;
+    if ($r < 1) {
+      return;   # N < 0.5, so before start of path
+    }
+    $d = int( (sqrt(int($r)) + 1)/4 );
+  }
   ### $d
   ### base: ((2*$d - 1)*$d + 0.5)
 

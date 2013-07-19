@@ -33,7 +33,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -118,6 +118,14 @@ sub rsquared_minimum {
           || ($self->{'reduced'} && ($self->{'k'} & 1) == 0)
           ? 2    # X=1,Y=1 reduced k even, including k=2 top 1/1
           : 5);  # X=1,Y=2
+}
+
+sub gcdxy_maximum {
+  my ($self) = @_;
+  return ($self->{'k'} == 2       # k=2, RationalsTree CW above
+          || $self->{'reduced'}
+          ? 1
+          : undef);  # other, unlimited
 }
 
 sub absdx_minimum {

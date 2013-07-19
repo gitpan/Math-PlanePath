@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 107;
+$VERSION = 108;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -51,6 +51,7 @@ use constant class_y_negative => 0;
 use constant x_minimum => 1;
 use constant y_minimum => 2;
 use constant diffxy_maximum => -1; # upper octant X<=Y-1 so X-Y<=-1
+use constant gcdxy_maximum => 1;  # no common factor
 use constant tree_num_children_list => (2); # complete binary tree
 use constant tree_n_to_subheight => undef; # complete tree, all infinity
 

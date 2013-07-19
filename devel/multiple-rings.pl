@@ -24,8 +24,47 @@ use Math::Trig 'pi','tan';
 use Math::PlanePath::MultipleRings;
 
 # uncomment this to run the ### lines
-# use Smart::Comments;
+use Smart::Comments;
 
+
+{
+  foreach my $step (0 .. 10) {
+    my $path = Math::PlanePath::MultipleRings->new (step => $step,
+                                                    ring_shape => 'polygon');
+    for (my $n = $path->n_start; $n < 10; $n++) {
+      my ($x, $y) = $path->n_to_xy($n);
+      my $g = gcd($x,$y);
+      printf "%2d %6.3f,%6.3f  %.8g\n", $n, $x,$y, $g;
+    }
+    print "\n";
+  }
+  use POSIX 'fmod';
+  sub gcd {
+    my ($x,$y) = @_;
+    $x = abs($x);
+    $y = abs($y);
+    unless ($x > 0) {
+      return $y;
+    }
+    # if (is_infinite($x)) { return $x; }
+    # if (is_infinite($y)) { return $y; }
+    if ($y > $x) {
+      $y = fmod($y,$x);
+    }
+    for (;;) {
+      ### gcd at: "x=$x y=$y"
+      if ($y == 0) {
+        return $x;   # gcd(x,0)=x
+      }
+      if ($y < 0.0001) {
+        return 0.00001;
+      }
+      ($x,$y) = ($y, fmod($x,$y));
+    }
+  }
+
+  exit 0;
+}
 
 {
   require Math::BigFloat;
