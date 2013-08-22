@@ -33,7 +33,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -175,9 +175,7 @@ my %align_known = (left   => 1,
                    centre => 1);
 
 sub new {
-  my $class = shift;
-  ### PyramidRows new(): @_
-  my $self = $class->SUPER::new (@_);
+  my $self = shift->SUPER::new(@_);
 
   if (! defined $self->{'n_start'}) {
     $self->{'n_start'} = $self->default_n_start;

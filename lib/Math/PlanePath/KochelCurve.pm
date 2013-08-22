@@ -23,7 +23,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -519,33 +519,33 @@ diagonally across.
 
           R pattern                      F pattern   ^
     +------+-----+-----+           +------+-----+----|+
-    |    | | \   | 4   |           |    | | \   |    ||
+    |2   | |3\   |4    |           |2   | |3\   |8   ||
     |  R | |  F  |   R |           |  R | |  F  |  R ||
-    | 2  | | 3 \ |-----|           | 2  | | 2 \ | 8  ||
+    |    | |   \ |-----|           |    | |   \ |    ||
     +------+-----+-----+           +------+-----+-----+
-    |   /  |  6  | 5 / |           |   /  | 4 / |   / |
-    |  F 1 | Rrev|  F  |           |  F   |  F  |  F  |
-    | /    |-----| /   |           | / 1  | /   | / 7 |
+    |1  /  |6    |5  / |           |1  /  |4  / |7  / |
+    |  F   | Rrev|  F  |           |  F   |  F  |  F  |
+    | /    |-----| /   |           | /    | /   | /   |
     +------+-----+-----+           +------+-----+-----+
-    | |  0 | \ 7 |   8 |           | | 0  | \ 5 ||    |
+    |0|    |7\   |8    |           |0|    |5\   ||6   |
     | |Rrev|  F  |  R  |           | |Rrev|  F  ||Rrev|
-    | o    |   \ |------>          | o    |   \ || 6  |
+    | o    |   \ |------>          | o    |   \ ||    |
     +------+-----+-----+           +------+-----+-----+
 
 "Rrev" means the R pattern followed in reverse, which is
 
     +------+-----+-----+
-    | <----| \ 7 |   6 |    Rrev pattern
+    |8<----|7\   |6    |    Rrev pattern
     |   R  |  F  | Rrev|
-    |  8   |   \ |-----|    turned -90 degrees
+    |      |   \ |-----|    turned -90 degrees
     +------+-----+-----+    so as to start at
-    |   /  ||    |   / |    bottom left
+    |1  /  ||2   |5  / |    bottom left
     |  F   || R  |  F  |
-    | / 1  || 2  | / 5 |
+    | /    ||    | /   |
     +------+-----+-----+
-    | | 0  | \ 3 ||    |
+    |0|    |3\   ||4   |
     | |Rrev|  F  ||Rrev|
-    | o    |   \ ||  4 |
+    | o    |   \ ||    |
     +------+-----+-----+
 
 The F pattern is symmetric, the same forward or reverse, including its

@@ -45,7 +45,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 

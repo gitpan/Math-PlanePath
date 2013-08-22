@@ -27,17 +27,19 @@
 package Math::PlanePath::R5DragonMidpoint;
 use 5.004;
 use strict;
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -45,19 +47,15 @@ use Math::PlanePath::Base::Generic
 
 use constant n_start => 0;
 use constant parameter_info_array => [ { name        => 'arms',
-                                         share_key   => 'arms_6',
+                                         share_key   => 'arms_4',
                                          display     => 'Arms',
                                          type        => 'integer',
                                          minimum     => 1,
-                                         maximum     => 6,
+                                         maximum     => 4,
                                          default     => 1,
                                          width       => 1,
                                          description => 'Arms',
                                        } ];
-
-# whole plane when arms==4
-use Math::PlanePath::DragonCurve;
-*xy_is_visited = \&Math::PlanePath::DragonCurve::xy_is_visited;
 
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
@@ -73,14 +71,8 @@ use constant dir_maximum_dxdy => (0,-1); # South
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 6) { $arms = 6; }
-  $self->{'arms'} = $arms;
-
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(4, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -124,8 +116,8 @@ sub n_to_xy {
 }
 
 
-#use Smart::Comments;
-my @yx_to_dxdydig # 30 each row
+# table of triplets $ndigit,$dx,$dy for ($y%10)*10+($x%10), total 300 entries
+my @yx_to_digdxdy # 30 each row
   = (0,0,0,   1,-1,0,  1,0,-1,  2,-1,-1, 3,-2,-1,
      3,-1,-2, 4,-2,-2, 0,-2,0,  2,-1,-1, 4,0,-2,
      4,-2,0,  2,-1,-1, 0,0,-2,  4,0,0,   3,-1,0,
@@ -148,6 +140,16 @@ my @yx_to_dxdydig # 30 each row
      2,-1,-1, 0,0,-2,  4,0,0,   3,-1,0,  3,0,-1,
     );
 
+# arm $x $y         2 | 1     Y=1
+#  0   0  0         3 | 0     Y=0
+#  1   0  1       ----+----
+#  2  -1  1       X=-1  X=0
+#  3  -1  0
+my @xy_to_arm = ([0,   # x=0,y=0
+                  1],  # x=0,y=1
+                 [3,   # x=-1,y=0
+                  2]); # x=-1,y=1
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### R5DragonMidpoint xy_to_n(): "$x, $y"
@@ -158,22 +160,19 @@ sub xy_to_n {
   foreach my $overflow (2*$x + 2*$y, 2*$x - 2*$y) {
     if (is_infinite($overflow)) { return $overflow; }
   }
-
-  my $n = ($x * 0 * $y); # inherit bignum 0
-  my $npow = $n + 1;     # inherit bignum 1
+  my $zero = ($x * 0 * $y); # inherit bignum 0
+  my @ndigits;     # low to high;
 
   for (;;) {
     last if ($x <= 0 && $x >= -1 && $y <= 1 && $y >= 0);
 
     my $k = 3*(10*($y%10) + ($x%10));
 
-    ### at: "$x,$y (k=$k)  n=$n  digit=$yx_to_dxdydig[$k]  offset=$yx_to_dxdydig[$k+1],$yx_to_dxdydig[$k+2] to ".($x+$yx_to_dxdydig[$k+1]).",".($y+$yx_to_dxdydig[$k+2])
+    ### at: "$x,$y (k=$k)  n=$n  digit=$yx_to_digdxdy[$k]  offset=$yx_to_digdxdy[$k+1],$yx_to_digdxdy[$k+2] to ".($x+$yx_to_digdxdy[$k+1]).",".($y+$yx_to_digdxdy[$k+2])
 
-    $n += $npow * $yx_to_dxdydig[$k++];  # digit
-    $npow *= 5;
-
-    $x += $yx_to_dxdydig[$k++];  # dx
-    $y += $yx_to_dxdydig[$k];    # dy
+    push @ndigits, $yx_to_digdxdy[$k++]; # ndigit
+    $x += $yx_to_digdxdy[$k++];          # dx
+    $y += $yx_to_digdxdy[$k];            # dy
 
     # (x+iy)/(1+2i)
     # = (x+iy)*(1-2i) / (1+4)
@@ -189,34 +188,31 @@ sub xy_to_n {
   }
 
   ### final: "xy=$x,$y"
-  my $arm;
-  if ($x == 0) {
-    if ($y) {
-      $arm = 1;
-      ### flip ...
-      $n = $npow-1-$n;
-    } else { #  $y == 1
-      $arm = 0;
-    }
-  } else { # $x == -1
-    if ($y) {
-      $arm = 2;
-    } else {
-      $arm = 3;
-      ### flip ...
-      $n = $npow-1-$n;
-    }
-  }
+  my $arm = $xy_to_arm[$x]->[$y];
   ### $arm
 
   my $arms_count = $self->arms_count;
   if ($arm >= $arms_count) {
     return undef;
   }
+  if ($arm & 1) {
+    ### flip ...
+    @ndigits = map {4-$_} @ndigits;
+  }
 
-  ### result: $n * $arms_count + $arm
-  return $n * $arms_count + $arm;
+  return digit_join_lowtohigh(\@ndigits, 5, $zero) * $arms_count + $arm;
 }
+
+#------------------------------------------------------------------------------
+
+# whole plane covered when arms==4
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  return ($self->{'arms'} == 4
+          || defined($self->xy_to_n($x,$y)));
+}
+
+#------------------------------------------------------------------------------
 
 # FIXME: half size of R5DragonCurve ?
 #
@@ -363,16 +359,16 @@ Return 0, the first N in the path.
 =head2 X,Y to N
 
 An X,Y point can be turned into N by dividing out digits of a complex base
-1+2i.  At each step the low base5 digit is formed from X,Y and an adjustment
-applied to move X,Y to a multiple of 1+2i ready to divide out.
+1+2i.  At each step the low base-5 digit is formed from X,Y and an
+adjustment applied to move X,Y to a multiple of 1+2i ready to divide out.
 
 A 10x10 table is used for the digit and adjustments, indexed by Xmod10 and
-Ymod10.  There's probably an aX+bY mod 5 or mod 20 for a smaller table.  But
-in any case once the adjustment is found the result is
+Ymod10.  There's probably an a*X+b*Y mod 5 or mod 20 for a smaller table.
+But in any case once the adjustment is found the result is
 
-    Ndigit = digit_table[X mod 10,Y mod 10]
-    Xm = X + Xadj_table[X mod 10,Y mod 10]
-    Ym = Y + Yadj_table[X mod 10,Y mod 10]
+    Ndigit = digit_table[X mod 10, Y mod 10]  # low to high
+    Xm = X + Xadj_table [X mod 10, Y mod 10]
+    Ym = Y + Yadj_table [X mod 10, Y mod 10]
 
     new X,Y = (Xm,Ym) / (1+2i)
             = (Xm,Ym) * (1-2i) / 5
@@ -381,22 +377,22 @@ in any case once the adjustment is found the result is
 These X,Y reductions eventually reach one of the starting points for the
 four arms
 
-     X,Y      Arm
-    -----     ---
-     0, 0      0
-     0, 1      1
-    -1, 1      2
-    -1, 0      3
+    X,Y endpoint   Arm        +---+---+
+    ------------   ---        | 2 | 1 |  Y=1
+        0, 0        0         +---+---+     
+        0, 1        1         | 3 | 0 |  Y=0
+       -1, 1        2         +---+---+     
+       -1, 0        3         X=-1 X=0      
 
-For arms 1 and 3 the digits must be reversed 0,1,2,3,4 -> 4,3,2,1,0.  The
-arm number and hence whether this flip is needed is not known until reaching
-the endpoint.
+For arms 1 and 3 the digits must be flipped 4-digit, so 0,1,2,3,4 ->
+4,3,2,1,0.  The arm number and hence whether this flip is needed is not
+known until reaching the endpoint.
 
-    if arm mod 2 == 1
+    if arm odd
     then  N = 5^numdigits - 1 - N
 
 If only some of the arms are of interest then reaching one of the other arm
-numbers means the original X,Y was outside the desired curve region.
+numbers means the original X,Y was outside the desired curve.
 
 =head1 SEE ALSO
 

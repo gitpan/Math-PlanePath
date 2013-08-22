@@ -24,11 +24,12 @@ package Math::PlanePath::QuintetCentres;
 use 5.004;
 use strict;
 use POSIX 'ceil';
-#use List::Util 'max';
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -68,17 +69,9 @@ use constant dir_maximum_dxdy => (1,-1);  # South-East
 
 #------------------------------------------------------------------------------
 
-# whole plane when arms==4
-use Math::PlanePath::DragonCurve;
-*xy_is_visited = \&Math::PlanePath::DragonCurve::xy_is_visited;
-
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 4) { $arms = 4; }
-  $self->{'arms'} = $arms;
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(4, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -310,6 +303,17 @@ sub xy_to_n {
 
   return $n*$arms + $arm;
 }
+
+#------------------------------------------------------------------------------
+
+# whole plane covered when arms==4
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  return ($self->{'arms'} == 4
+          || defined($self->xy_to_n($x,$y)));
+}
+
+#------------------------------------------------------------------------------
 
 # exact
 sub rect_to_n_range {

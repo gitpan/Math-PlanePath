@@ -46,6 +46,61 @@ my $verbose = 1;
 my @modules = (
                # module list begin
 
+               'FactorRationals',
+               'FactorRationals,sign_encoding=odd/even',
+               'FactorRationals,sign_encoding=negabinary',
+               'FactorRationals,sign_encoding=spread',
+
+               '*ToothpickUpist',
+
+               'SierpinskiTriangle',
+               'SierpinskiTriangle,n_start=37',
+               'SierpinskiTriangle,align=left',
+               'SierpinskiTriangle,align=right',
+               'SierpinskiTriangle,align=diagonal',
+
+               'DragonCurve',
+               'DragonCurve,arms=2',
+               'DragonCurve,arms=3',
+               'DragonCurve,arms=4',
+
+               'DragonMidpoint',
+               'DragonMidpoint,arms=2',
+               'DragonMidpoint,arms=3',
+               'DragonMidpoint,arms=4',
+
+               'DragonRounded',
+               'DragonRounded,arms=2',
+               'DragonRounded,arms=3',
+               'DragonRounded,arms=4',
+
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=6',
+
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=6',
+
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
+
+               'R5DragonMidpoint',
+               'R5DragonMidpoint,arms=2',
+               'R5DragonMidpoint,arms=3',
+               'R5DragonMidpoint,arms=4',
+
+               'R5DragonCurve',
+               'R5DragonCurve,arms=2',
+               'R5DragonCurve,arms=3',
+               'R5DragonCurve,arms=4',
+
                'KochCurve',
                'KochPeaks',
                'KochSnowflakes',
@@ -203,8 +258,6 @@ my @modules = (
                '*LCornerTree,parts=2',
                '*LCornerTree,parts=3',
 
-               '*ToothpickUpist',
-
                '*ToothpickSpiral',
                '*ToothpickSpiral,n_start=0',
                '*ToothpickSpiral,n_start=37',
@@ -235,15 +288,6 @@ my @modules = (
                'DiagonalRationals,n_start=37',
                'DiagonalRationals,direction=up',
                'DiagonalRationals,direction=up,n_start=37',
-
-               'FactorRationals,pn_encoding=negabinary',
-               'FactorRationals',
-
-               'SierpinskiTriangle',
-               'SierpinskiTriangle,n_start=37',
-               'SierpinskiTriangle,align=left',
-               'SierpinskiTriangle,align=right',
-               'SierpinskiTriangle,align=diagonal',
 
                'PyramidRows,align=right',
                'PyramidRows,align=right,step=0',
@@ -282,13 +326,6 @@ my @modules = (
                'CellularRule,rule=16', # right line
                'CellularRule,rule=16,n_start=0',
                'CellularRule,rule=16,n_start=37',
-
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=4',
-               'TerdragonRounded,arms=5',
-               'TerdragonRounded,arms=6',
 
                'CellularRule,rule=6',   # left 1,2 line
                'CellularRule,rule=6,n_start=0',
@@ -455,26 +492,6 @@ my @modules = (
                'SierpinskiCurveStair,arms=8',
                'HIndexing',
 
-               'R5DragonCurve',
-               'R5DragonCurve,arms=2',
-               'R5DragonCurve,arms=3',
-               'R5DragonCurve,arms=4',
-
-               'R5DragonMidpoint',
-               'R5DragonMidpoint,arms=2',
-               'R5DragonMidpoint,arms=3',
-               'R5DragonMidpoint,arms=4',
-
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=6',
-
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=6',
-
                'ImaginaryHalf',
                'ImaginaryHalf,radix=3',
                'ImaginaryHalf,radix=4',
@@ -613,11 +630,6 @@ my @modules = (
                'WunderlichSerpentine,radix=4',
                'WunderlichSerpentine,radix=5,serpentine_type=coil',
 
-               'DragonMidpoint',
-               'DragonMidpoint,arms=2',
-               'DragonMidpoint,arms=3',
-               'DragonMidpoint,arms=4',
-
                'QuintetCurve',
                'QuintetCurve,arms=2',
                'QuintetCurve,arms=3',
@@ -631,11 +643,6 @@ my @modules = (
 
                'DekkingCurve',
                'DekkingCentres',
-
-               'DragonCurve',
-               'DragonCurve,arms=2',
-               'DragonCurve,arms=3',
-               'DragonCurve,arms=4',
 
                'DiamondSpiral',
                'DiamondSpiral,n_start=0',
@@ -656,11 +663,6 @@ my @modules = (
                'SierpinskiArrowhead,align=right',
                'SierpinskiArrowhead,align=left',
                'SierpinskiArrowhead,align=diagonal',
-
-               'DragonRounded',
-               'DragonRounded,arms=2',
-               'DragonRounded,arms=3',
-               'DragonRounded,arms=4',
 
                'DiagonalsOctant',
                'DiagonalsOctant,direction=up',
@@ -787,7 +789,7 @@ sub module_to_pathobj {
 #------------------------------------------------------------------------------
 # VERSION
 
-my $want_version = 108;
+my $want_version = 109;
 
 ok ($Math::PlanePath::VERSION, $want_version, 'VERSION variable');
 ok (Math::PlanePath->VERSION,  $want_version, 'VERSION class method');
@@ -976,6 +978,8 @@ my %class_dxdy_allowed
      'Math::PlanePath::Flowsnake'         => $dxdy_hex,
      'Math::PlanePath::FlowsnakeCentres'  => $dxdy_hex,
      'Math::PlanePath::GosperSide'        => $dxdy_hex,
+
+     # FIXME: 3 directions for arms==1, 6 directions for arms>=2
      'Math::PlanePath::TerdragonCurve'    => $dxdy_hex,
      'Math::PlanePath::TerdragonMidpoint' => $dxdy_hex,
 
@@ -1036,6 +1040,7 @@ my %class_dxdy_allowed
                                              '0,-2'   => 1,
                                            },
     );
+
 
 #------------------------------------------------------------------------------
 my ($pos_infinity, $neg_infinity, $nan);
@@ -1327,17 +1332,15 @@ sub pythagorean_diag {
         $saw_warning or &$report("xy_to_n(undef,0) doesn't give a warning");
       }
 
-      # No warning if xy_is_visited() is a constant.
-      # {
-      #   $saw_warning = 0;
-      #   $path->xy_is_visited(0,undef);
-      #   $saw_warning or &$report("xy_is_visited(0,undef) doesn't give a warning");
-      # }
-      # {
-      #   $saw_warning = 0;
-      #   $path->xy_is_visited(undef,0);
-      #   $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
-      # }
+      # No warning if xy_is_visited() is a constant, skip test in that case.
+      unless (coderef_is_const($path->can('xy_is_visited'))) {
+        $saw_warning = 0;
+        $path->xy_is_visited(0,undef);
+        $saw_warning or &$report("xy_is_visited(0,undef) doesn't give a warning");
+        $saw_warning = 0;
+        $path->xy_is_visited(undef,0);
+        $saw_warning or &$report("xy_is_visited(undef,0) doesn't give a warning");
+      }
     }
 
     # undef ok if nothing sensible
@@ -1414,6 +1417,19 @@ sub pythagorean_diag {
           }
         }
       }
+      # {
+      #   ### _EXPERIMENTAL__tree_n_to_leafdist($pos_infinity) ...
+      #   my $leafdist = $path->_EXPERIMENTAL__tree_n_to_leafdist($pos_infinity);
+      # #   if ($path->tree_n_num_children($n_start)) {
+      # #     unless (! defined $leafdist || is_pos_infinity($leafdist)) {
+      # #       &$report("_EXPERIMENTAL__tree_n_to_leafdist($pos_infinity) ",$leafdist," expected +inf");
+      # #     }
+      # #   } else {
+      # #     unless (equal(0,$leafdist)) {
+      # #       &$report("_EXPERIMENTAL__tree_n_to_leafdist($pos_infinity) ",$leafdist," expected 0");
+      # #     }
+      # #   }
+      # }
     }
 
     if (defined $neg_infinity) {
@@ -1495,6 +1511,14 @@ sub pythagorean_diag {
           }
         }
       }
+      if ($path->can('_EXPERIMENTAL__tree_n_to_leafdist')) {
+        my $leafdist = $path->_EXPERIMENTAL__tree_n_to_leafdist($neg_infinity);
+        if ($path->tree_n_num_children($n_start)) {
+          if (defined $leafdist) {
+            &$report("_EXPERIMENTAL__tree_n_to_leafdist($neg_infinity) ",$leafdist," expected undef");
+          }
+        }
+      }
     }
 
     # nan input documented loosely as yet ...
@@ -1550,6 +1574,14 @@ sub pythagorean_diag {
             or &$report("tree_n_to_subheight($nan) ",$height," expected nan");
         }
       }
+      # {
+      #   ### _EXPERIMENTAL__tree_n_to_leafdist($nan) ...
+      #   my $leafdist = $path->_EXPERIMENTAL__tree_n_to_leafdist($nan);
+      #   if ($path->tree_n_num_children($n_start)) {
+      #     (! defined $leafdist || &$is_nan($leafdist))
+      #       or &$report("_EXPERIMENTAL__tree_n_to_leafdist($nan) ",$leafdist," expected nan");
+      #   }
+      # }
     }
 
     foreach my $x
@@ -2235,6 +2267,20 @@ sub pythagorean_diag {
       }
     }
 
+    if ($path->can('_EXPERIMENTAL__tree_n_to_leafdist')
+        # != Math::PlanePath->can('_EXPERIMENTAL__tree_n_to_leafdist')
+       ) {
+      ### _EXPERIMENTAL__tree_n_to_leafdist() vs search downwards ...
+      # MyTestHelpers::diag ($mod, ' _EXPERIMENTAL__tree_n_to_leafdist()');
+      foreach my $n ($n_start .. $n_start+$limit) {
+        my $want_height = path_tree_n_to_leafdist_by_search($path,$n);
+        my $got_height = $path->_EXPERIMENTAL__tree_n_to_leafdist($n);
+        if (! equal($got_height,$want_height)) {
+          &$report ("_EXPERIMENTAL__tree_n_to_leafdist($n) got ",$got_height," want ",$want_height);
+        }
+      }
+    }
+
     ### tree_depth_to_n() on depth<0 ...
     foreach my $depth (-2 .. -1) {
       foreach my $method ('tree_depth_to_n','tree_depth_to_n_end') {
@@ -2387,6 +2433,47 @@ sub path_tree_n_to_subheight_by_search {
   # }
 }
 
+# no Smart::Comments;
+sub path_tree_n_to_leafdist_by_search {
+  my ($path, $n, $limit) = @_;
+  if (! defined $limit) { $limit = SUBHEIGHT_SEARCH_LIMIT; }
+  ### path_tree_n_to_leafdist_by_search(): "n=$n  limit=$limit"
+
+  if ($limit <= 0) {
+    return undef;  # presumed infinite
+  }
+  if (! exists $path->{'path_tree_n_to_leafdist_by_search__cache'}->{$n}) {
+    my @children = $path->tree_n_children($n);
+    my $leafdist = 0;
+    if (@children) {
+      my @min;
+      foreach my $child_n (@children) {
+        my $child_leafdist = path_tree_n_to_leafdist_by_search
+          ($path, $child_n, List::Util::min(@min,$limit-1));
+        if (defined $child_leafdist) {
+          if ($child_leafdist == 0) {
+            # child is a leaf, distance to it is 1
+            @min = (1);
+            last;
+          }
+          push @min, $child_leafdist+1;
+        }
+      }
+      $leafdist = List::Util::min(@min);
+      ### for: "n=$n min of ".join(',',@min)."  children=".join(',',@children)." gives ",$leafdist
+    } else {
+      ### for: "n=$n is a leaf node"
+    }
+    if (defined $leafdist || $limit >= SUBHEIGHT_SEARCH_LIMIT*4/5) {
+      $path->{'path_tree_n_to_leafdist_by_search__cache'}->{$n} = $leafdist;
+    }
+  }
+
+  ### path_tree_n_to_leafdist_by_search(): "n=$n"
+  return $path->{'path_tree_n_to_leafdist_by_search__cache'}->{$n};
+}
+# no Smart::Comments;
+
 sub equal {
   my ($x,$y) = @_;
   return ((! defined $x && ! defined $y)
@@ -2422,6 +2509,21 @@ sub gcd {
     }
     ($x,$y) = ($y, fmod($x,$y));
   }
+}
+
+#------------------------------------------------------------------------------
+# generic
+
+sub coderef_is_const {
+  my ($coderef) = @_;
+  # FIXME: is not quite right?  Is XSUBANY present on ALIAS: xsubs too?
+  require B;
+  return defined(B::svref_2object(\&coderef_is_const)->XSUBANY);
+}
+CHECK {
+  # my $coderef_is_const_check = 1;
+  use constant coderef_is_const_check => 1;
+  coderef_is_const(\&coderef_is_const_check) or die;
 }
 
 exit 0;

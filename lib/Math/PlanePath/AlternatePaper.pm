@@ -16,10 +16,6 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# A014081 count 11 pairs -- does this arise? total turn?
-
-# FIXME: cross ref Tenenbaum
-
 # Explanation ...
 # 'arms=4' =>
 # { dSum  => 'A020985', # GRS
@@ -30,7 +26,7 @@
 package Math::PlanePath::AlternatePaper;
 use 5.004;
 use strict;
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
@@ -46,7 +42,7 @@ use Math::PlanePath::Base::Digits
   'bit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -102,12 +98,7 @@ use constant dir_maximum_dxdy => (0,-1); # South
 
 sub new {
   my $self = shift->SUPER::new(@_);
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 8) { $arms = 8; }
-  $self->{'arms'} = $arms;
-
+  $self->{'arms'} = max(1, min(8, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -1356,12 +1347,7 @@ L<Math::NumSeq::GolayRudinShapiroCumulative>
 Michel MendE<232>s France and G. Tenenbaum, "Dimension des Courbes Planes,
 Papiers Plies et Suites de Rudin-Shapiro", Bulletin de la S.M.F., volume
 109, 1981, pages 207-215.
-
-=over
-
 http://www.numdam.org/item?id=BSMF_1981__109__207_0
-
-=back
 
 =head1 HOME PAGE
 

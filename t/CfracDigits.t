@@ -33,7 +33,7 @@ require Math::PlanePath::CfracDigits;
 # VERSION
 
 {
-  my $want_version = 108;
+  my $want_version = 109;
   ok ($Math::PlanePath::CfracDigits::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::CfracDigits->VERSION,  $want_version,

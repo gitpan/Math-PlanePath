@@ -31,7 +31,7 @@ use POSIX 'ceil';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -160,11 +160,10 @@ my @save_t = (2*_PI);
 my $next_save = $save_n[0] + _SAVE;
 
 sub new {
-  my $class = shift;
-  ### ArchimedeanChords new()
-  return $class->SUPER::new (i => $save_n[0],
-                             t => $save_t[0],
-                             @_);
+  ### ArchimedeanChords new() ...
+  return shift->SUPER::new (i => $save_n[0],
+                            t => $save_t[0],
+                            @_);
 }
 
 sub n_to_xy {

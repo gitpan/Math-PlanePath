@@ -131,7 +131,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -228,8 +228,8 @@ my %attributes = (CW   => [ n_start => 1, ],
                  );
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new (@_);
+  my $self = shift->SUPER::new(@_);
+
   my $tree_type = ($self->{'tree_type'} ||= 'SB');
   my $attributes = $attributes{$tree_type}
     || croak "Unrecognised tree type: ",$tree_type;

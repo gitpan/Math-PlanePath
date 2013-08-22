@@ -34,7 +34,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -66,8 +66,8 @@ use constant parameter_info_array =>
     } ];
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
+
   if (! $self->{'radix'} || $self->{'radix'} < 2) {
     $self->{'radix'} = 3;
   }

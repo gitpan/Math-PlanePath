@@ -121,6 +121,12 @@ sub dxdy_to_direction {
 }
 
 
+# Search for a line in text file handle $fh.
+# $cmpfunc is called &$cmpfunc($line) and it should do a
+# comparison $target <=> $line so
+#     0  if $target == $line
+#    -ve if $target < $line  so $line is after the target
+#    +ve if $target > $line  so $line is before the target
 sub bsearch_textfile {
   my ($fh, $cmpfunc) = @_;
   my $lo = 0;
@@ -149,9 +155,9 @@ sub bsearch_textfile {
       return $line;
     }
     if ($cmp < 0) {
-      $lo = tell($fh);  # after
+      $lo = tell($fh);  # $line is before the target, advance $lo
     } else {
-      $hi = $mid;
+      $hi = $mid;       # $line is after the target, reduce $hi
     }
   }
 
@@ -294,7 +300,7 @@ sub grep_for_values {
 
   {
     my $join = $values_aref->[0];
-    for (my $i = 1; $i <= $#$values_aref && length($join) < 20; $i++) {
+    for (my $i = 1; $i <= $#$values_aref && length($join) < 50; $i++) {
       $join .= ','.$values_aref->[$i];
     }
     $name .= "match $join\n";

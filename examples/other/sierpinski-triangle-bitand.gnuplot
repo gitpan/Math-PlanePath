@@ -1,6 +1,6 @@
 #!/usr/bin/gnuplot
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -44,6 +44,5 @@ set parametric
 set trange [0:size*size-1]
 set samples size*size
 set key off
-plot triangle_x(t), triangle_y(t) with points
+plot triangle_x(t),triangle_y(t) with points
 pause 100
-

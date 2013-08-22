@@ -39,7 +39,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -187,9 +187,7 @@ my %inv = (T  => 'F',
            '' => '');
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  ### $self
+  my $self = shift->SUPER::new(@_);
 
   if (! $self->{'radix'} || $self->{'radix'} < 2) {
     $self->{'radix'} = 2;

@@ -27,7 +27,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -76,8 +76,8 @@ sub dir_maximum_dxdy {
 
 #------------------------------------------------------------------------------
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
+
   my $realpart = $self->{'realpart'};
   if (! defined $realpart || $realpart < 1) {
     $self->{'realpart'} = $realpart = 1;
@@ -377,11 +377,11 @@ decreasing X, ie. more negative downwards toward -infinity.
 The i-1 twindragon is usually conceived as taking fractional N like 0.abcde
 in binary and giving fractional complex X+iY.  The twindragon is then all
 the points of the complex plane reached by such fractional N.  This set of
-points can be shown to be connected and to completely cover a certain radius
-around the origin.
+points can be shown to be connected and to fill a certain radius around the
+origin.
 
-The code here might be pressed into use for that up to some finite number of
-bits by multiplying by a desired power k to make an integer N
+The code here might be pressed into use for that to some finite number of
+bits by multiplying up to make an integer N
 
     Nint = Nfrac * 256^k
     Xfrac = Xint / 16^k
@@ -394,8 +394,8 @@ would be almost as easy too, requiring just a sign change if k odd.
 
 =head2 Boundary Length
 
-X<Gilbert, William J.>The length of the boundary of the set of points
-through to a power norm^k is calculated in
+X<Gilbert, William J.>The length of the boundary of the first norm^k many
+points (N=0 to norm^k-1 inclusive) is calculated in
 
 =over
 
@@ -405,7 +405,7 @@ http://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFracDim.pdf
 
 =back
 
-The result is a 3rd-order recurrence.  For the twindragon it's
+The result is a 3rd-order recurrence.  For the twindragon it is
 
     realpart=1
     boundary[k] = boundary[k-1] + 2*boundary[k-3]
@@ -431,15 +431,14 @@ next boundary[3] = 10+2*4 = 18.
                                        | 0   1 |
                                        +---+---+
 
-Gilbert calculates the boundary for any real part by taking it in three
-parts A,B,C and showing how in the next replication level those parts
-transform into multiple copies of the preceding level parts.  The
-replication is a little easier to follow for a bigger real part than in the
-twindragon since the bigger real part makes it clearer how the A, B and C
-parts differ.
+Gilbert calculates the boundary of any i-r by taking it in three parts A,B,C
+and showing how in the next replication level those parts transform into
+multiple copies of the preceding level parts.  The replication is a little
+easier to visualize for a bigger "r" than for the twindragon.  In bigger r
+it's clearer how the A, B and C parts differ.
 
-    A -> A * (2*realpart-1)              + C * 2*realpart
-    B -> A * (realpart^2-2*realpart+2)*A + C * (realpart-1)^2
+    A -> A * (2*realpart-1)             + C * 2*realpart
+    B -> A * (realpart^2-2*realpart+2)  + C * (realpart-1)^2
     C -> B
 
     starting from
@@ -451,7 +450,7 @@ parts differ.
 
 For the twindragon realpart=1 these A,B,C are already in the form of a
 recurrence A-E<gt>A+2*C, B-E<gt>A, C-E<gt>B, per the formula above.  For
-other real parts a little matrix rearrangement gives a recurrence
+other real parts a little matrix rearrangement gives the recurrence
 
     boundary[k] = boundary[k-1] * (2*realpart - 1)   
                 + boundary[k-2] * (norm - 2*realpart)
@@ -469,7 +468,7 @@ For example
 
     4, 12, 36, 140, 516, 1868, 6820, 24908, ...
 
-As for all such recurrences, values for a large k can be calculated by
+As with all such recurrences, for large k values can be calculated by
 powering up the matrix form.
 
 =head1 FUNCTIONS

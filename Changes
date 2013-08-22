@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License along
 with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+Version 109, August 2013
+    - TerdragonCurve correction to dx_minimum()
+    - TerdragonMidpoint correction to dx_maximum()
+
 Version 108, July 2013
     - new tree_n_to_subheight()
     - PlanePathCoord new coordinate_type "SubHeight"

@@ -42,7 +42,7 @@ use Carp;
 use List::Util 'max';
 
 use vars '$VERSION','@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::NumSeq;
 use Math::NumSeq::Base::IterateIth;
 @ISA = ('Math::NumSeq::Base::IterateIth',
@@ -814,7 +814,8 @@ sub _dxdy_to_dir4 {
       },
       'n_start=0' =>
       { dSumAbs => 'A003982',  # characteristic of A001844 Y_neg axis
-        # OEIS-Other: A003982 planepath=DiamondSpiral,n_start=0 delta_type=dSumAbs
+        # catalogue here in absence of anything else in NumSeq
+        # OEIS-Catalogue: A003982 planepath=DiamondSpiral,n_start=0 delta_type=dSumAbs
       },
     };
 }

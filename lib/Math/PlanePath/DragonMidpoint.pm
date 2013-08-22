@@ -56,11 +56,11 @@
 package Math::PlanePath::DragonMidpoint;
 use 5.004;
 use strict;
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -69,15 +69,15 @@ use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
 use Math::PlanePath::Base::Digits
-  'bit_split_lowtohigh';
+  'bit_split_lowtohigh',
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 
 # whole plane when arms==4
 use Math::PlanePath::DragonCurve;
-*xy_is_visited = \&Math::PlanePath::DragonCurve::xy_is_visited;
 
 
 use constant n_start => 0;
@@ -106,12 +106,8 @@ use constant dir_maximum_dxdy => (0,-1); # South
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 4) { $arms = 4; }
-  $self->{'arms'} = $arms;
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(4, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -268,10 +264,21 @@ my @yx_adj_x = ([0,1,1,0],
                 [1,0,0,1],
                 [1,0,0,1],
                 [0,1,1,0]);
+
 my @yx_adj_y = ([0,0,1,1],
                 [0,0,1,1],
                 [1,1,0,0],
                 [1,1,0,0]);
+
+# arm $x $y         2 | 1     Y=1
+#  0   0  0         3 | 0     Y=0
+#  1   0  1       ----+----
+#  2  -1  1       X=-1  X=0
+#  3  -1  0
+my @xy_to_arm = ([0,   # x=0,y=0
+                  1],  # x=0,y=1
+                 [3,   # x=-1,y=0
+                  2]); # x=-1,y=1
 
 sub xy_to_n {
   my ($self, $x, $y) = @_;
@@ -280,15 +287,13 @@ sub xy_to_n {
   $x = round_nearest($x);
   $y = round_nearest($y);
 
-  foreach my $overflow ($x+$y, $x-$y) {
+  { my $overflow = abs($x)+abs($y)+2;
     if (is_infinite($overflow)) { return $overflow; }
   }
+  my $zero = ($x * 0 * $y);
+  my @nbits;  # low to high
 
-  my $n = ($x * 0 * $y); # inherit bignum 0
-  my $npow = $n + 1;     # inherit bignum 1
-
-  while (($x != 0 && $x != -1) || ($y != 0 && $y != 1)) {
-
+  while ($x < -1 || $x > 0 || $y < 0 || $y > 1) {
     my $y4 = $y % 4;
     my $x4 = $x % 4;
     my $ax = $yx_adj_x[$y4]->[$x4];
@@ -296,10 +301,7 @@ sub xy_to_n {
 
     ### at: "$x,$y  n=$n  axy=$ax,$ay  bit=".($ax^$ay)
 
-    if ($ax^$ay) {
-      $n += $npow;
-    }
-    $npow *= 2;
+    push @nbits, $ax^$ay;
 
     $x -= $ax;
     $y -= $ay;
@@ -309,32 +311,57 @@ sub xy_to_n {
   }
 
   ### final: "xy=$x,$y"
-  my $arm;
-  if ($x == 0) {
-    if ($y) {
-      $arm = 1;
-      ### flip ...
-      $n = $npow-1-$n;
-    } else { #  $y == 1
-      $arm = 0;
-    }
-  } else { # $x == -1
-    if ($y) {
-      $arm = 2;
-    } else {
-      $arm = 3;
-      ### flip ...
-      $n = $npow-1-$n;
-    }
-  }
-  ### $arm
 
+  my $arm = $xy_to_arm[$x]->[$y];
+  ### $arm
   my $arms_count = $self->arms_count;
   if ($arm >= $arms_count) {
     return undef;
   }
-  return $n * $arms_count + $arm;
+
+  if ($arm & 1) {
+    ### flip ...
+    @nbits = map {$_^1} @nbits;
+  }
+
+  return digit_join_lowtohigh(\@nbits, 2, $zero) * $arms_count + $arm;
 }
+
+#------------------------------------------------------------------------------
+# xy_is_visited()
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  return ($self->{'arms'} >= 4
+          || _xy_to_arm($x,$y) < $self->{'arms'});
+}
+
+# return arm number 0,1,2,3
+sub _xy_to_arm {
+  my ($x, $y) = @_;
+  ### DragonMidpoint _xy_to_arm(): "$x, $y"
+
+  $x = round_nearest($x);
+  $y = round_nearest($y);
+
+  { my $overflow = abs($x)+abs($y)+2;
+    if (is_infinite($overflow)) { return $overflow; }
+  }
+
+  while ($x < -1 || $x > 0 || $y < 0 || $y > 1) {
+    my $y4 = $y % 4;
+    my $x4 = $x % 4;
+    $x -= $yx_adj_x[$y4]->[$x4];
+    $y -= $yx_adj_y[$y4]->[$x4];
+
+    ### assert: ($x+$y)%2 == 0
+    ($x,$y) = (($x+$y)/2,   # rotate -45 and divide sqrt(2)
+               ($y-$x)/2);
+  }
+  return $xy_to_arm[$x]->[$y];
+}
+
+#------------------------------------------------------------------------------
 
 # not exact
 sub rect_to_n_range {
@@ -463,8 +490,8 @@ Math::PlanePath::DragonMidpoint -- dragon curve midpoints
 
 =head1 DESCRIPTION
 
-This is the midpoint of each segment of the dragon paper folding curve by
-Heighway, Harter, et al, per L<Math::PlanePath::DragonCurve>.
+This is the midpoint of each segment of the dragon curve by Heighway,
+Harter, et al, per L<Math::PlanePath::DragonCurve>.
 
 
                     17--16           9---8                5
@@ -501,24 +528,25 @@ Heighway, Harter, et al, per L<Math::PlanePath::DragonCurve>.
      ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^   ^
     -10 -9  -8  -7  -6  -5  -4  -3  -2  -1  X=0  1
 
-The dragon curve begins as follows and the midpoints of each segment are
-numbered from 0,
+The dragon curve begins as follows.  The midpoints of each segment are
+numbered starting from 0,
 
-               +--8--+     +--4--+
-               |     |     |     |
-               9     7     5     3
-               |     |     |     |
-               +-10--+--6--+     +--2--+
-                     |                 |
-                    11                 1
-                     |                 |
-               +-12--+           *--0--+
-               |
-              ...
+     +--8--+     +--4--+
+     |     |     |     |
+     9     7     5     3
+     |     |     |     |                               |
+     +-10--+--6--+     +--2--+       rotate 45 degrees |
+           |                 |                         v
+          11                 1
+           |                 |
+     +-12--+           *--0--+       * = Origin
+     |
+    ...
 
 These midpoints are on fractions X=0.5,Y=0, X=1,Y=0.5, etc.  For this
 C<DragonMidpoint> path they're turned clockwise 45 degrees and shrunk by
-sqrt(2) to be integer X,Y values 1 apart and initial direction to the right.
+sqrt(2) to be integer X,Y values a unit apart and initial direction to the
+right.
 
 The midpoints are distinct X,Y positions because the dragon curve traverses
 each edge only once.
@@ -529,12 +557,12 @@ the same shape as N=16 to N=32, with the latter rotated 90 degrees and in
 reverse.
 
 Since the dragon curve always turns left or right, never straight ahead or
-reverse, the segments are alternately horizontal and vertical.  With the
-rotate -45 degrees for the midpoints done here this means alternately
-"opposite diagonal" segment and "leading diagonal" segment.  They fall on
-X,Y alternately even or odd.  So the original dragon curve can be recovered
-by choosing either a leading or opposite diagonal segment according to
-either X,Y even/odd or N even/odd.
+reverse, its segments are alternately horizontal and vertical.  Rotated -45
+degrees for the midpoints here this means alternately "opposite diagonal"
+and "leading diagonal".  They fall on X,Y alternately even or odd.  So the
+original dragon curve can be recovered from the midpoints by choosing
+leading/opposite diagonal segment according to either X,Y even/odd, and
+which is the same as N even/odd.
 
     DragonMidpoint                  dragon segment
     --------------                 -----------------
@@ -545,8 +573,8 @@ either X,Y even/odd or N even/odd.
       which is X+Y==1 mod 2 too
 
                /
-              3         0 at X=0,Y=0 "even", opposite slope
-             /          1 at X=1,Y=0 "odd", leading slope
+              3         0 at X=0,Y=0 "even", opposite diagonal
+             /          1 at X=1,Y=0 "odd", leading diagonal
              \          etc
               2
                \
@@ -596,8 +624,8 @@ four arms of the C<DragonCurve> traverse every edge exactly once.
 
 =head2 Tiling
 
-Taking pairs of points N=2k and N=2k+1 gives little rectangles with the
-following tiling of the plane repeating in 4x4 blocks.
+Taking pairs of adjacent points N=2k and N=2k+1 gives little rectangles with
+the following tiling of the plane repeating in 4x4 blocks.
 
          +---+---+---+-+-+---+-+-+---+
          |   | | |   | | |   | | |   |
@@ -693,8 +721,8 @@ Return 0, the first N in the path.
 An X,Y point is turned into N by dividing out digits of a complex base i+1.
 This base is per the doubling of the C<DragonCurve> at each level.  In
 midpoint coordinates an adjustment subtracting 0 or 1 must be applied to
-move an X,Y for N=2k or N=2k+1 to the point where dividing out i+1 gives the
-N=k position.
+move an X,Y which is either N=2k or N=2k+1 to the position where dividing
+out i+1 gives the N=k X,Y.
 
 The adjustment is in a repeating pattern of 4x4 blocks.  Points N=2k and
 N=2k+1 both move to the same place corresponding to N=k multiplied by i+1.
@@ -702,7 +730,7 @@ The adjustment pattern is a little like the pair tiling shown above, but for
 some pairs both the N=2k and N=2k+1 positions must move, it's not enough
 just to shift the N=2k+1 to the N=2k.
 
-           Xadj               Yadj
+            Xadj               Yadj
     Ymod4              Ymod4
       3 | 0 1 1 0        3 | 1 1 0 0
       2 | 1 0 0 1        2 | 1 1 0 0
@@ -715,23 +743,25 @@ just to shift the N=2k+1 to the N=2k.
 The same tables work for both the main curve and for the rotated copies per
 L</Arms> above.
 
-    Xm = X - Xadj(X mod 4, Y mod 4)
-    Ym = Y - Yadj(X mod 4, Y mod 4)
+    until -1<=X<=0 and 0<=Y<=1
 
-    new X,Y = (Xm+i*Ym) / (i+1)
-            = (Xm+i*Ym) * (1-i)/2
-            = (Xm+Ym)/2, (Ym-Xm)/2     # Xm+Ym and Ym-Xm are both even
+      Xm = X - Xadj(X mod 4, Y mod 4)
+      Ym = Y - Yadj(X mod 4, Y mod 4)
 
-    Nbit = Xadj xor Yadj               # new low bit of N
-    new N = N + (Nbit << count++)
+      new X,Y = (Xm+i*Ym) / (i+1)
+              = (Xm+i*Ym) * (1-i)/2
+              = (Xm+Ym)/2, (Ym-Xm)/2     # Xm+Ym and Ym-Xm are both even
+
+      Nbit = Xadj xor Yadj               # bits of N low to high
 
 The X,Y reduction stops at one of the start points for the four arms
 
-    X,Y endpoint   Arm
-        0, 0        0
-        0, 1        1
-       -1, 1        2
-       -1, 0        3
+    X,Y endpoint   Arm        +---+---+
+    ------------   ---        | 2 | 1 |  Y=1
+        0, 0        0         +---+---+     
+        0, 1        1         | 3 | 0 |  Y=0
+       -1, 1        2         +---+---+     
+       -1, 0        3         X=-1 X=0      
 
 For arms 1 and 3 the N bits must be flipped 0E<lt>-E<gt>1.  The arm number
 and hence whether this flip is needed is not known until reaching the
@@ -754,25 +784,23 @@ Sequences as
                 (extra initial 0)
     A077860   Y at N=2^k, being Re(-(i+1)^k + i-1)
 
-The midpoint curve is vertical when the C<DragonCurve> has a vertical
-followed by a left turn, or horizontal followed by a right turn.
+For A073089, the midpoint curve is vertical when the C<DragonCurve> has a
+vertical followed by a left turn, or horizontal followed by a right turn.
 C<DragonCurve> verticals are whenever N is odd, and the turn is the bit
 above the lowest 0 in N, as described in
 L<Math::PlanePath::DragonCurve/Turn>.  So
 
     abs(dY) = lowbit(N) XOR bit-above-lowest-zero(N)
 
-The n of A073089 is offset by 2 from the N numbering of the path here, so
+The n in A073089 is offset by 2 from the N numbering of the path here, being
 n=N+2.  The initial value at n=1 in A073089 has no corresponding N (it would
 be N=-1).
 
 The mod-16 definitions in A073089 express combinations of N odd/even and
-bit-above-low-0 which are the vertical midpoint segments.  The recursion
-a(8n+1)=a(4n+1) works to reduce an N=0b.zz111 to 0b..zz11 in order to bring
-a lowest 0 into range of the mod-16 conditions.  n=1 mod 8 corresponds to
-path N=7 mod 8.  In terms of path N it would be expressed as stripping low 1
-bits down to at most 2 of them.  In terms of OEIS n it's a strip of zeros
-above a low 1 bit, ie. n=0b...00001 -E<gt> 0b...01.
+bit-above-low-0 which are the vertical midpoint segments.  The recurrence
+a(8n+1)=a(4n+1) acts to strip strip of zeros above a low 1 bit,
+ie. n=0b...00001 -E<gt> 0b...01.  In terms of N=n-2 it reduces N=0b.zz111 to
+0b..zz11 in order to seek a lowest 0 in range of the mod-16 conditions.
 
 =head1 SEE ALSO
 

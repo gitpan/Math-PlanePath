@@ -35,6 +35,26 @@ use Smart::Comments;
 {
   # A+Yw  A=X-Y
   use lib 'xt'; require MyOEIS;
+  require Math::BaseCnv;
+  require Math::PlanePath::TerdragonCurve;
+  my $path = Math::PlanePath::TerdragonCurve->new;
+  my $dx_min = 0;
+  my $dx_max = 0;
+  foreach my $n (1 .. 3**10) {
+    my ($dx,$dy) = $path->n_to_dxdy($n);
+    if ($dx == 299) {
+      my $n3 = Math::BaseCnv::cnv($n,10,3);
+      printf "%3d  %s\n", $n, $n3;
+    }
+    $dx_min = min($dx_min,$dx);
+    $dx_max = max($dx_max,$dx);
+  }
+  print "$dx_min $dx_max\n";
+  exit 0;
+}
+{
+  # A+Yw  A=X-Y
+  use lib 'xt'; require MyOEIS;
   require Math::PlanePath::TerdragonCurve;
   require Math::BaseCnv;
   my $path = Math::PlanePath::TerdragonCurve->new;

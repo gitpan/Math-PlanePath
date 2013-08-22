@@ -22,13 +22,13 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::NumSeq::OEIS::Catalogue::Plugin;
 @ISA = ('Math::NumSeq::OEIS::Catalogue::Plugin');
 
 ## no critic (CodeLayout::RequireTrailingCommaAtNewline)
 
-# total 227 A-numbers in 4 modules
+# total 228 A-numbers in 4 modules
 
 use constant info_arrayref =>
 [
@@ -970,6 +970,16 @@ use constant info_arrayref =>
       'TriangleSpiralSkewed,skew=right',
       'delta_type',
       'AbsdX'
+    ]
+  },
+  {
+    'anum' => 'A003982',
+    'class' => 'Math::NumSeq::PlanePathDelta',
+    'parameters' => [
+      'planepath',
+      'DiamondSpiral,n_start=0',
+      'delta_type',
+      'dSumAbs'
     ]
   },
   {

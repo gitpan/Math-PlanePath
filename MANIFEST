@@ -31,6 +31,7 @@ devel/cubic-base.pl
 devel/diagonals.pl
 devel/digit-groups.pl
 devel/divisible-columns.pl
+devel/dragon-iterative.gri
 devel/dragon-numbers.pl
 devel/dragon.el
 devel/dragon.gnuplot
@@ -147,6 +148,7 @@ examples/numbers.pl
 examples/other/dragon-curve.el
 examples/other/dragon-curve.gnuplot
 examples/other/dragon-curve.logo
+examples/other/dragon-recursive.gri
 examples/other/sierpinski-triangle-bitand.gnuplot
 examples/other/sierpinski-triangle-replicate.gnuplot
 examples/other/sierpinski-triangle-text.gnuplot

@@ -25,7 +25,7 @@
 package Math::PlanePath::R7DragonCurve;
 use 5.004;
 use strict;
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
@@ -39,7 +39,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 @ISA = ('Math::PlanePath');
 
 # uncomment this to run the ### lines
@@ -74,16 +74,9 @@ use constant dy_maximum => 1;
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 6) { $arms = 6; }
-  $self->{'arms'} = $arms;
-
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(6, $self->{'arms'} || 1));
   $self->{'type'} ||= 'A';
-
   return $self;
 }
 

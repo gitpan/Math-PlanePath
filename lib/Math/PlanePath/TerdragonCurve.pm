@@ -30,7 +30,7 @@ package Math::PlanePath::TerdragonCurve;
 use 5.004;
 use strict;
 use List::Util 'first';
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use Math::PlanePath;
@@ -44,7 +44,7 @@ use Math::PlanePath::Base::Digits
   'digit_split_lowtohigh';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::TerdragonMidpoint;
@@ -66,7 +66,10 @@ use constant parameter_info_array =>
       description => 'Arms',
     } ];
 
-use constant dx_minimum => -2;
+sub dx_minimum {
+  my ($self) = @_;
+  return ($self->{'arms'} == 1 ? -1 : -2);
+}
 use constant dx_maximum => 2;
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
@@ -89,14 +92,8 @@ sub dir_maximum_dxdy {
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 6) { $arms = 6; }
-  $self->{'arms'} = $arms;
-
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(6, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -628,9 +625,41 @@ smallest of the these N values is returned.  Is that the best way?
 Return a list of N point numbers for coordinates C<$x,$y>.  There can be
 none, one, two or three N's for a given C<$x,$y>.
 
+=back
+
+=head2 Descriptive Methods
+
+=over
+
 =item C<$n = $path-E<gt>n_start()>
 
 Return 0, the first N in the path.
+
+=item C<$dx = $path-E<gt>dx_minimum()>
+
+=item C<$dx = $path-E<gt>dx_maximum()>
+
+=item C<$dy = $path-E<gt>dy_minimum()>
+
+=item C<$dy = $path-E<gt>dy_maximum()>
+
+The dX,dY values, on the first arm, take three possible combinations, at 120
+degree angles.
+
+    dX,dY
+    -----
+     2, 0        dX minimum -1, maximum +2   arms == 1
+    -1, 1        dY minimum -1, maximum +1
+     1,-1
+
+For 2 or more arms the second arm is rotated by 60 degrees so giving
+additional combinations for a total six
+
+    dX,dY also
+    -----
+    -2, 0        dX minimum -2, maximum +2   arms >= 2
+     1, 1        dY minimum -1, maximum +1
+    -1,-1
 
 =back
 

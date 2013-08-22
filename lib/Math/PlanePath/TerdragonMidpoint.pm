@@ -27,17 +27,19 @@
 package Math::PlanePath::TerdragonMidpoint;
 use 5.004;
 use strict;
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
 use Math::PlanePath::Base::Generic
   'is_infinite',
   'round_nearest';
+use Math::PlanePath::Base::Digits
+  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments;
@@ -63,7 +65,10 @@ sub rsquared_minimum {
 }
 
 use constant dx_minimum => -2;
-use constant dx_maximum => 2;
+sub dx_maximum {
+  my ($self) = @_;
+  return ($self->{'arms'} == 1 ? 1 : 2);
+}
 use constant dy_minimum => -1;
 use constant dy_maximum => 1;
 use constant absdx_minimum => 1;
@@ -74,7 +79,8 @@ use constant ddiffxy_maximum => 2;
 
 # arms=1 curve goes at 60,180,300 degrees
 # arms=2 second +60 to 120,240,0 degrees
-# so when arms==1 dir minimum is 60 degrees
+# so when arms==1 dir minimum is 60 degrees North-East
+#
 sub dir_minimum_dxdy {
   my ($self) = @_;
   return ($self->{'arms'} == 1
@@ -92,14 +98,8 @@ use constant dir_maximum_dxdy => (1,-1); # South-East
 # *xy_is_visited = \&Math::PlanePath::TerdragonCurve::xy_is_visited;
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 6) { $arms = 6; }
-  $self->{'arms'} = $arms;
-
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(6, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -343,6 +343,8 @@ my @yx_to_dxdy  # 12 each row
      undef,undef, -1,1, undef,undef, 0,0,  undef,undef, 1,-1,
     );
 
+my @x_to_digit = (1, 2, 0);  # digit = X+1 mod 3
+
 sub xy_to_n {
   my ($self, $x, $y) = @_;
   ### TerdragonMidpoint xy_to_n(): "$x, $y"
@@ -356,14 +358,13 @@ sub xy_to_n {
   if (is_infinite($y)) {
     return $y;  # infinity
   }
-
-  my $n = ($x * 0 * $y); # inherit bignum 0
-  my $npow = $n + 1;     # inherit bignum 1
+  my $zero = ($x * 0 * $y); # inherit bignum 0
+  my @ndigits;     # low to high;
 
   for (;;) {
-    my $digit = (($x + 3*$y) + 1) % 3;
-    my $k = 2*(12*($y%12) + ($x%12));
+    my $digit = $x_to_digit[$x%3];
 
+    my $k = 2*(12*($y%12) + ($x%12));
     my $dx = $yx_to_dxdy[$k++];
     if (! defined $dx) {
       ### not a visited point ...
@@ -372,18 +373,17 @@ sub xy_to_n {
 
     ### at: "$x,$y (k=$k)  n=$n  digit=$digit k=$k  offset=$yx_to_dxdy[$k-1],$yx_to_dxdy[$k] to ".($x+$yx_to_dxdy[$k-1]).",".($y+$yx_to_dxdy[$k])
 
-    $n += $npow * $digit;
-    $npow *= 3;
-
+    push @ndigits, $digit;
     $x += $dx;
     $y += $yx_to_dxdy[$k];
 
     last if ($x <= 3 && $x >= -3 && $y <= 2 && $y >= -2);
 
     ### assert: ($x+$y) % 2 == 0
+    ### assert: $x % 3 == 0
     ### assert: (3 * $y - $x) % 6 == 0
     ($x,$y) = (($x+$y)/2,    # divide w+1
-               (3*$y-$x) / 6);
+               ($y-$x/3)/2);
     ### divide down to: "$x,$y"
   }
 
@@ -392,18 +392,16 @@ sub xy_to_n {
   my $arm = $yx_to_arm[$y+2][$x+3] || 0;   # 0 to 5
   ### $arm
 
-  if ($arm & 1) {
-    ### flip ...
-    $n = $npow-1-$n;
-  }
-
   my $arms_count = $self->arms_count;
   if ($arm >= $arms_count) {
     return undef;
   }
+  if ($arm & 1) {
+    ### flip ...
+    @ndigits = map {2-$_} @ndigits;
+  }
 
-  ### result: $n * $arms_count + $arm
-  return $n * $arms_count + $arm;
+  return digit_join_lowtohigh(\@ndigits, 3, $zero) * $arms_count + $arm;
 }
 
 # quarter size of TerdragonCurve
@@ -629,8 +627,13 @@ Return 0, the first N in the path.
 An X,Y point can be turned into N by dividing out digits of a complex base
 w+1 where
 
-    w = 1/2 + i * sqrt(3)/2
-      = 6th root of unity
+    w = 1/2 + i * sqrt(3)/2            w^2     w
+      = 6th root of unity                 \   /
+                                           \ /
+                                w^3=-1 -----o------ w^0=1
+                                           / \
+                                          /   \
+                                       w^4     w^5
 
 At each step the low ternary digit is formed from X,Y and an adjustment
 applied to move X,Y onto a multiple of w+1 ready to divide out w+1.
@@ -640,8 +643,8 @@ a straight line, such as N=0,1,2, or N=3,4,5 etc.  The adjustment moves the
 two ends N=0mod3 or N=2mod3 to the centre N=1mod3.  The centre N=1mod3
 position is always a multiple of w+1.
 
-The angles and positions for the N triple groups follow a 12-point pattern
-as follows, where each / \ or - is a point on the path (any arm).
+The angles and positions for the N triples follow a 12-point pattern as
+follows, where each / \ or - is a point on the path (any arm).
 
      \   /   /   \   /   /   \   /   /   \   /   /   \
     - \ / \ - - - \ / \ - - - \ / \ - - - \ / \ - - -
@@ -671,14 +674,14 @@ as follows, where each / \ or - is a point on the path (any arm).
 In the current code a 12x12 table is used, indexed by X mod 12 and Y mod 12.
 With Xadj and Yadj from there
 
-    Ndigit = (X + 3Y + 1) mod 3    # 0,1,2 low ternary digit
+    Ndigit = (X + 1) mod 3      # N digits low to high
 
-    Xm = X + Xadj (X mod 12,Y mod 12)
-    Ym = Y + Yadj (X mod 12,Y mod 12)
+    Xm = X + Xadj[X mod 12, Y mod 12]
+    Ym = Y + Yadj[X mod 12, Y mod 12]
 
     new X,Y = (Xm,Ym) / (w+1)
             = (Xm,Ym) * (2-w) / 3
-            = ((Xm+Ym)/2, (3*Ym-Xm)/6)
+            = ((Xm+Ym)/2, (Ym-(Xm/3))/2)
 
 Is there a good aX+bY mod 12 or mod 24 for a smaller table?  Maybe X+3Y like
 the digit?  Taking C=(X-Y)/2 in triangular coordinate style can reduce the
@@ -694,7 +697,8 @@ rotated by 60,120,180,240,300 degrees for the others.  If only some of the
 arms are of interest then reaching one of the others means the original X,Y
 was outside the desired region.
 
-    Arm     X,Y stop
+    Arm     X,Y Endpoint
+    ---     ------------
      0        3,1
      1        0,2
      2       -3,1
@@ -702,10 +706,10 @@ was outside the desired region.
      4        0,-2
      5        3,-1
 
-For the odd arms 1,3,5 each digit of N must be flipped so 0,1,2 becomes
-2,1,0,
+For the odd arms 1,3,5 each digit of N must be flipped 2-digit so 0,1,2
+becomes 2,1,0,
 
-    if arm mod 2 == 1
+    if arm odd
     then  N = 3**numdigits - 1 - N
 
 =head1 SEE ALSO

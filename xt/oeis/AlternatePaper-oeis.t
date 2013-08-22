@@ -28,14 +28,10 @@ use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
-
 # uncomment this to run the ### lines
 #use Smart::Comments '###';
 
-
 my $paper = Math::PlanePath::AlternatePaper->new;
-
-
 
 #------------------------------------------------------------------------------
 # A106665 -- turn 1=left, 0=right
@@ -99,27 +95,6 @@ MyOEIS::compare_values
      }
      return \@got;
    });
-
-# #------------------------------------------------------------------------------
-# # A014081 - count 11 pairs, mod 2 is GRS
-# {
-#   my $anum = 'A014081';
-#   my ($bvalues, $lo, $filename) = MyOEIS::read_values($anum);
-#   my @got;
-#   if ($bvalues) {
-#     foreach ($count) { $_ %= 2 }
-#     for (my $n = $paper->n_start; @got < $count; $n++) {
-#       push @got, path_n_dir($paper,2*$n);;
-#     }
-# return \@got;
-#       MyTestHelpers::diag ("bvalues: ",join(',',@{$bvalues}[0..20]));
-#       MyTestHelpers::diag ("got:     ",join(',',@got[0..20]));
-#     }
-#   }
-#   skip (! $bvalues,
-#         numeq_array(\@got, $bvalues),
-#         1, "$anum");
-# }
 
 #------------------------------------------------------------------------------
 # A020985 - Golay/Rudin/Shapiro is dX and dY alternately

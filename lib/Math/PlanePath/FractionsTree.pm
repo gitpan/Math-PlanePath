@@ -27,7 +27,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -72,8 +72,7 @@ use constant dir_maximum_dxdy => (-2, -(sqrt(5)+1)); # phi
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new (@_);
+  my $self = shift->SUPER::new(@_);
   $self->{'tree_type'} ||= 'Kepler';
   $self->{'n_start'} = 1; # for RationalsTree sharing
   return $self;

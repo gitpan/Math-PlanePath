@@ -28,7 +28,7 @@ use Carp;
 use constant 1.02;
 
 use vars '$VERSION','@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -136,10 +136,7 @@ sub default_i_start {
   return 0;
 }
 sub new {
-  my $class = shift;
-  ### NumSeq-PlanePathN new(): @_
-
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   my $planepath_object = ($self->{'planepath_object'}
                           ||= Math::NumSeq::PlanePathCoord::_planepath_name_to_object($self->{'planepath'}));

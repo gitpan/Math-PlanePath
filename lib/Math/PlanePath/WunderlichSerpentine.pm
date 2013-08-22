@@ -38,7 +38,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem = \&Math::PlanePath::_divrem;
@@ -104,8 +104,7 @@ sub dir_maximum_dxdy {
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   my $radix = $self->{'radix'};
   if (! $self->{'radix'} || $self->{'radix'} < 2) {

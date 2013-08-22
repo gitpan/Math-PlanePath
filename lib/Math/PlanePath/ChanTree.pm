@@ -33,7 +33,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -162,8 +162,7 @@ use constant tree_n_to_subheight => undef; # complete trees, all infinite
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new (@_);
+  my $self = shift->SUPER::new(@_);
 
   $self->{'digit_direction'} ||= 'HtoL'; # default
 

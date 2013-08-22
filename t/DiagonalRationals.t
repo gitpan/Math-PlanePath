@@ -39,7 +39,7 @@ my $n_start = $path->n_start;
 # VERSION
 
 {
-  my $want_version = 108;
+  my $want_version = 109;
   ok ($Math::PlanePath::DiagonalRationals::VERSION, $want_version,
       'VERSION variable');
   ok (Math::PlanePath::DiagonalRationals->VERSION,  $want_version,

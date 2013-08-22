@@ -29,11 +29,11 @@ use MyTestHelpers;
 BEGIN { MyTestHelpers::nowarnings(); }
 use MyOEIS;
 
-use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
+use Math::PlanePath::Base::Digits
+  'digit_split_lowtohigh',
+  'digit_join_lowtohigh';
 use Math::PlanePath::GrayCode;
 use Math::PlanePath::Diagonals;
-use Math::PlanePath::Base::Digits
-  'digit_join_lowtohigh';
 
 # uncomment this to run the ### lines
 #use Smart::Comments '###';

@@ -140,7 +140,6 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::LCornerTree';
   $path_class = 'Math::PlanePath::ToothpickSpiral';
   $path_class = 'Math::PlanePath::SierpinskiTriangle';
-  $path_class = 'Math::PlanePath::FactorRationals';
   $path_class = 'Math::PlanePath::ChanTree';
   $path_class = 'Math::PlanePath::RationalsTree';
   $path_class = 'Math::PlanePath::PyramidSpiral';
@@ -157,15 +156,18 @@ use Math::PlanePath::Base::Digits 'round_down_pow';
   $path_class = 'Math::PlanePath::DiagonalsAlternating';
   $path_class = 'Math::PlanePath::ToothpickTreeByCells';
   $path_class = 'Math::PlanePath::ToothpickTree';
+  $path_class = 'Math::PlanePath::FactorRationals';
 
   my $lo = 0;
-  my $hi = 4**4;
+  my $hi = 22;
 
   Module::Load::load($path_class);
   my $path = $path_class->new
     (
-     n_start => 0,
-     parts => 'wedge',
+     sign_encoding => 'spread',
+
+     # n_start => 0,
+     # parts => 'wedge',
      # shift => 6,
      # pn_encoding => 'negabinary',
      #  points => 'all_mul',

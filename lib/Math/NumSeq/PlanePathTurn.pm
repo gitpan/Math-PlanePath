@@ -32,7 +32,7 @@ use strict;
 use Carp;
 
 use vars '$VERSION','@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -106,9 +106,9 @@ sub oeis_anum {
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
   ### PlanePathTurn new(): @_
-  my $self = $class->SUPER::new(@_);
+
+  my $self = shift->SUPER::new(@_);
   ### self from SUPER: $self
 
   $self->{'planepath_object'}

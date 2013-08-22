@@ -54,11 +54,11 @@
 package Math::PlanePath::DragonCurve;
 use 5.004;
 use strict;
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -104,14 +104,8 @@ use constant dir_maximum_dxdy => (0,-1); # South
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 4) { $arms = 4; }
-  $self->{'arms'} = $arms;
-
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(4, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -213,13 +207,6 @@ sub new {
   }
 }
 
-# shared by DragonMidpoint,R5DragonCurve,QuintetCurve
-sub xy_is_visited {
-  my ($self, $x, $y) = @_;
-  return ($self->{'arms'} == 4
-          || defined($self->xy_to_n($x,$y)));
-}
-
 # point N=2^(2k) at XorY=+/-2^k  radius 2^k
 #       N=2^(2k-1) at X=Y=+/-2^(k-1) radius sqrt(2)*2^(k-1)
 # radius = sqrt(2^level)
@@ -278,6 +265,38 @@ sub xy_to_n_list {
   }
   return @n_list;
 }
+
+#------------------------------------------------------------------------------
+
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+
+  my $arms_count = $self->{'arms'};
+  if ($arms_count == 4) {
+    # yes, whole plane visited
+    return 1;
+  }
+
+  my $xm = $x+$y;
+  my $ym = $y-$x;
+  {
+    my $arm = Math::PlanePath::DragonMidpoint::_xy_to_arm($xm,$ym);
+    if ($arm < $arms_count) {
+      # yes, segment $xm,$ym is on the desired arms
+      return 1;
+    }
+    if ($arm == 2 && $arms_count == 1) {
+      # no, segment $xm,$ym is on arm 2, which means its opposite is only on
+      # arm 1,2,3 not arm 0 so arms_count==1 cannot be visited
+      return 0;
+    }
+  }
+  return (Math::PlanePath::DragonMidpoint::_xy_to_arm($xm-1,$ym+1)
+          < $arms_count);
+}
+
+
+#------------------------------------------------------------------------------
 
 # f = (1 - 1/sqrt(2) = .292
 # 1/f = 3.41
@@ -980,6 +999,50 @@ them?  For arm 1 and 3 the leaving edges are up,down on odd points (meaning
 sum X+Y odd) and right,left for even points (meaning sum X+Y even).  But for
 arm 2 and 4 it's the other way around.  Without an easy way to determine the
 arm this doesn't seem to help.
+
+=head2 X,Y is Visited
+
+Whether a given X,Y is visited by the curve can be determined from one or
+two segments (rather then up to four for X,Y to N).
+
+            |             S midpoint Xmid = X+Y
+            |                        Ymid = Y-X
+    *---T--X,Y--S---*
+            |             T midpoint Xmid-1
+            |                        Ymid+1
+
+Segment S is to the East of X,Y.  The arm it falls on can be determined as
+per L<X,Y to N/Math::PlanePath::DragonMidpoint>.  Numbering arm(S) = 0,1,2,3
+then
+
+                                     X,Y Visited
+                                     -----------
+    if arms_count()==4                  yes     # whole plane
+    if arm(S) < arms_count()            yes
+    if arm(S)==2 and arms_count()==1    no
+    if arm(T) < arms_count()            yes
+
+This works because when two arms touch they approach and leave by a right
+angle, they don't cross.  So two opposite segments S and T identify the two
+possible arms coming to the X,Y point.
+
+           |
+           |
+            \
+      ----   ----
+          \
+           |
+           |
+
+An arm only touches its immediate neighbour, ie. arm-1 or arm+1 mod 4.  This
+means if arm(S)==2 then arm(T) can only be 1,2,3, not 0.  So if
+C<arms_count()> is 1 then arm(T) cannot be on the curve and no need to run
+its segment check.
+
+The only exception to the right-angle touching rule is at the origin X,Y =
+0,0.  In that case Xmid,Ymid = 0,0 is on the first arm and X,Y is correctly
+determined to be on the curve.  If S was not to the East but some other
+direction away from X,Y then this wouldn't be so.
 
 =head2 Turn
 

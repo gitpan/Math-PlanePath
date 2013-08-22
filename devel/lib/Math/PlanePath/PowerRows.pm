@@ -23,7 +23,7 @@ use strict;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -61,10 +61,7 @@ sub x_maximum {
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  ### PyramidRows new(): @_
-  my $self = $class->SUPER::new (@_);
-
+  my $self = shift->SUPER::new(@_);
   $self->{'align'} ||= 'right';
   $self->{'radix'} ||= 2;
   return $self;

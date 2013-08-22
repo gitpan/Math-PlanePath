@@ -26,11 +26,11 @@ package Math::PlanePath::R5DragonCurve;
 use 5.004;
 use strict;
 use List::Util 'first','sum';
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -55,10 +55,6 @@ use constant parameter_info_array =>
       description => 'Arms',
     } ];
 
-# whole plane when arms==4
-use Math::PlanePath::DragonCurve;
-*xy_is_visited = \&Math::PlanePath::DragonCurve::xy_is_visited;
-
 use constant dx_minimum => -1;
 use constant dx_maximum => 1;
 use constant dy_minimum => -1;
@@ -73,14 +69,8 @@ use constant dir_maximum_dxdy => (0,-1); # South
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 6) { $arms = 6; }
-  $self->{'arms'} = $arms;
-
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(4, $self->{'arms'} || 1));
   return $self;
 }
 
@@ -230,6 +220,17 @@ sub xy_to_n_list {
   }
   return @n_list;
 }
+
+#------------------------------------------------------------------------------
+
+# whole plane covered when arms==4
+sub xy_is_visited {
+  my ($self, $x, $y) = @_;
+  return ($self->{'arms'} == 4
+          || defined($self->xy_to_n($x,$y)));
+}
+
+#------------------------------------------------------------------------------
 
 # not exact
 sub rect_to_n_range {

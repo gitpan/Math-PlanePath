@@ -25,11 +25,11 @@
 package Math::PlanePath::PeanoHalf;
 use 5.004;
 use strict;
-#use List::Util 'max';
+use List::Util 'min'; # 'max'
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -69,17 +69,12 @@ use constant parameter_info_array =>
     } ];
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   if (! $self->{'radix'} || $self->{'radix'} < 2) {
     $self->{'radix'} = 3;
   }
-
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 2) { $arms = 2; }
-  $self->{'arms'} = $arms;
+  $self->{'arms'} = max(1, min(2, $self->{'arms'} || 1));
 
   return $self;
 }

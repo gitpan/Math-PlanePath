@@ -18,7 +18,7 @@
 
 # Maybe:
 #
-# SubToLeaf
+# LeafDistance
 # TreeHeight
 # LeafHeight
 #
@@ -85,7 +85,7 @@ use List::Util;
 *min = \&Math::PlanePath::_min;
 
 use vars '$VERSION','@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::NumSeq;
 @ISA = ('Math::NumSeq');
 
@@ -135,7 +135,7 @@ use constant::defer parameter_info_array =>
                    # 'DiffYXsquares',
                    # 'Parity',
                    # 'Numerator','Denominator',
-                   # 'ToLeaf',
+                    'LeafDistance',
                    # 'GcdDivisions',
                    # 'KroneckerSymbol',
                    # 'MinAbs',
@@ -333,10 +333,7 @@ sub _planepath_oeis_anum_parameter_info_list {
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  ### NumSeq-PlanePathCoord new(): @_
-
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   my $planepath_object = ($self->{'planepath_object'}
                           ||= _planepath_name_to_object($self->{'planepath'}));
@@ -726,13 +723,17 @@ sub _coordinate_func_RootN {
   return $self->{'planepath_object'}->tree_n_root($n);
 }
 
-sub _coordinate_func_ToLeaf {
+sub _coordinate_func_LeafDistance {
   my ($self, $n) = @_;
-  return path_tree_n_to_leaf_distance($self->{'planepath_object'},$n);
+  if (my $coderef = $self->{'planepath_object'}
+      ->can('_EXPERIMENTAL__tree_n_to_leafdist')) {
+    return $self->{'planepath_object'}->$coderef($n);
+  }      
+  return path_tree_n_to_leafdist_by_search($self->{'planepath_object'},$n);
 }
-sub path_tree_n_to_leaf_distance {
+sub path_tree_n_to_leafdist_by_search {
   my ($path, $n) = @_;
-  ### path_tree_n_to_leaf_distance(): $n
+  ### path_tree_n_to_leafdist(): $n
 
   if ($n < $path->n_start || ! $path->tree_any_leaf($path)) {
     return undef;
@@ -1714,8 +1715,9 @@ sub characteristic_smaller {
   }
 
   #--------------------------
-  use constant _NumSeq_Coord_ToLeaf_integer => 1;
-  use constant _NumSeq_Coord_ToLeaf_min => 0;
+  use constant _NumSeq_Coord_LeafDistance_integer => 1;
+  use constant _NumSeq_Coord_LeafDistance_min => 0;
+  use constant _NumSeq_Coord_LeafDistance_max => 0;
  
   #--------------------------
   sub _NumSeq_Coord_SubHeight_min {
@@ -2185,6 +2187,7 @@ sub characteristic_smaller {
 }
 { package Math::PlanePath::PythagoreanTree;
   use constant _NumSeq_Coord_SubHeight_min => undef;
+  use constant _NumSeq_Coord_LeafDistance_max => undef;
 
   {
     my %_NumSeq_Coord_AbsDiff_min = (PQ => 1,
@@ -2324,14 +2327,12 @@ sub characteristic_smaller {
   #           && ($path->{'coordinate_type'} ne 'AB'
   #               || $value == int($value)));
   # }
-
-  use constant _NumSeq_Coord_ToLeaf_max => undef;
 }
 { package Math::PlanePath::RationalsTree;
   use constant _NumSeq_Coord_BitAnd_min => 0;  # X=1,Y=2
   use constant _NumSeq_Coord_BitXor_min => 0;  # X=1,Y=1
-  use constant _NumSeq_Coord_ToLeaf_max => undef;
   use constant _NumSeq_Coord_SubHeight_min => undef;
+  use constant _NumSeq_Coord_LeafDistance_max => undef;
 
   use constant _NumSeq_Coord_oeis_anum =>
     { 'tree_type=SB' =>
@@ -2435,8 +2436,8 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_IntXY_non_decreasing => 1;
   use constant _NumSeq_FracXY_min_is_infimum => 1; # no common factor
   use constant _NumSeq_Coord_BitXor_min => 1;  # X=2,Y=3
-  use constant _NumSeq_Coord_ToLeaf_max => undef;
   use constant _NumSeq_Coord_SubHeight_min => undef;
+  use constant _NumSeq_Coord_LeafDistance_max => undef;
   use constant _NumSeq_Coord_HammingDist_min => 1; # X!=Y
 
   use constant _NumSeq_Coord_oeis_anum =>
@@ -2481,9 +2482,10 @@ sub characteristic_smaller {
 { package Math::PlanePath::ChanTree;
   # X=1,Y=1 doesn't occur, only X=1,Y=2 or X=2,Y=1
   use constant _NumSeq_Coord_Max_min => 2;
+  sub _NumSeq_Coord_SumAbs_min { $_[0]->sumxy_minimum }
 
   use constant _NumSeq_Coord_SubHeight_min => undef;
-  *_NumSeq_Coord_SumAbs_min = \&sumxy_minimum;
+  use constant _NumSeq_Coord_LeafDistance_max => undef;
 
   sub _NumSeq_Coord_AbsDiff_min {
     my ($self) = @_;
@@ -2519,7 +2521,6 @@ sub characteristic_smaller {
             : $self->{'k'} & 1 ? 1  # k odd  X=2,Y=3
             : 0);                   # k even X=2,Y=2
   }
-  use constant _NumSeq_Coord_ToLeaf_max => undef;
 
   sub _NumSeq_Coord_Parity_min {
     my ($self) = @_;
@@ -2814,18 +2815,7 @@ sub characteristic_smaller {
             : 1);
   }
 
-  use constant _NumSeq_Coord_ToLeaf_max => 4;
-  sub _UNTESTED__NumSeq__tree_n_to_leaflen {
-    my ($self, $n) = @_;
-    my $d = $self->tree_n_to_depth($n);
-    if (defined $d) {
-      $d = 3 - ($d % 4);
-      if ($d == 0 && $self->tree_n_num_children($n) != 0) {
-        $d = 4;
-      }
-    }
-    return $d;
-  }
+  use constant _NumSeq_Coord_LeafDistance_max => 4;
 }
 { package Math::PlanePath::SierpinskiArrowhead;
   use constant _NumSeq_Coord_IntXY_min => -1; # wedge
@@ -4035,10 +4025,10 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_IntXY_min => -1;
 }
 { package Math::PlanePath::UlamWarburton;
-  use constant _NumSeq_Coord_ToLeaf_max => 4;
+  use constant _NumSeq_Coord_LeafDistance_max => 4;
 }
 { package Math::PlanePath::UlamWarburtonQuarter;
-  use constant _NumSeq_Coord_ToLeaf_max => 4;
+  use constant _NumSeq_Coord_LeafDistance_max => 4;
   use constant _NumSeq_Coord_Parity_max => 0;  # even always
 }
 { package Math::PlanePath::DiagonalRationals;
@@ -4421,8 +4411,17 @@ sub characteristic_smaller {
       return ($_NumSeq_Coord_TRSquared_min{$self->{'parts'}} || 0);
     }
   }
-
-  use constant _NumSeq_Coord_ToLeaf_max => 7;
+  {
+    # usually 7, but in these 8
+    my %_NumSeq_Coord_LeafDistance_max = (octant    => 8,
+                                          octant_up => 8,
+                                          wedge     => 8,
+                                         );
+    sub _NumSeq_Coord_LeafDistance_max {
+      my ($self) = @_;
+      return ($_NumSeq_Coord_LeafDistance_max{$self->{'parts'}} || 7);
+    }
+  }
 }
 { package Math::PlanePath::ToothpickReplicate;
   *_NumSeq_Coord_SumAbs_min
@@ -4436,7 +4435,7 @@ sub characteristic_smaller {
   use constant _NumSeq_Coord_Y_non_decreasing => 1; # rows upwards
   use constant _NumSeq_Coord_Max_non_decreasing => 1; # X<=Y so max=Y
 
-  use constant _NumSeq_Coord_ToLeaf_max => 9;
+  use constant _NumSeq_Coord_LeafDistance_max => 9;
 }
 
 { package Math::PlanePath::LCornerTree;
@@ -4460,7 +4459,7 @@ sub characteristic_smaller {
     }
   }
 
-  use constant _NumSeq_Coord_ToLeaf_max => 2;
+  use constant _NumSeq_Coord_LeafDistance_max => 2;
 }
 # { package Math::PlanePath::LCornerReplicate;
 # }
@@ -4479,7 +4478,15 @@ sub characteristic_smaller {
     return $self->SUPER::_NumSeq_Coord_IntXY_min;
   }
 
-  # use constant _NumSeq_Coord_ToLeaf_max => 7;
+  {
+    # usually 2, but in 3side only 1
+    my %_NumSeq_Coord_LeafDistance_max = ('3side'   => 1,
+                                         );
+    sub _NumSeq_Coord_LeafDistance_max {
+      my ($self) = @_;
+      return $_NumSeq_Coord_LeafDistance_max{$self->{'parts'}} || 2;
+    }
+  }
 }
 
 #------------------------------------------------------------------------------

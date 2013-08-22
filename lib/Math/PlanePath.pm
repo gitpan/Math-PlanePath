@@ -43,6 +43,11 @@
 # xy_any_odd
 # xy_all_even
 # xy_all_odd
+# xy_parity_minimum() X+Y mod 2
+# xy_parity_maximum() X+Y mod 2
+# xy_parity "even" "odd" "both"
+# xy_hexlattice_type "centred" "side_horiz"
+# xy_triangular_lattice "", "even", "odd
 #
 # sumabsxy_minimum   abs(X)+abs(Y)
 # absdiffxy_minimum  abs(X-Y)
@@ -90,7 +95,7 @@ use 5.004;
 use strict;
 
 use vars '$VERSION';
-$VERSION = 108;
+$VERSION = 109;
 
 # uncomment this to run the ### lines
 # use Smart::Comments;
@@ -536,52 +541,6 @@ sub _divrem_mutate {
 
 1;
 __END__
-
-# Maybe:
-#
-# =item C<$branches = $path-E<gt>tree_constant_branches()>
-#
-# If C<$path> is a tree with a constant number of children at each node then
-# return that number.  For example PythagoreanTree has 3 descendants at
-# each N.
-#
-# If C<$path> is not a tree, or it's a tree but the number of children varies
-# with N, then return 0.
-#
-# use constant tree_constant_branches => 0;
-# use constant tree_constant_branches => 3;
-# use constant tree_constant_branches => 2;
-# use constant tree_constant_branches => 2;
-
-# sub tree_n_parent {
-#   my ($self, $n) = @_;
-#   ### tree_n_parent() generic: $n
-#
-#   if (my $branches = $self->tree_constant_branches) {
-#     my $n_start = $self->n_start;
-#     if ($n > $n_start) {
-#       return int(($n - $n_start - 1)/$branches) + $n_start;
-#     }
-#   }
-#   return undef;
-# }
-#
-# sub tree_n_children {
-#   my ($self, $n) = @_;
-#   ### tree_n_children() generic: ref $self, $n
-#   ### branches: $self->tree_constant_branches
-#
-#   if (my $branches = $self->tree_constant_branches) {
-#     my $n_start = $self->n_start;
-#     $n = $branches*($n-$n_start) + $n_start;
-#     return map {$n+$_} 1 .. $branches;
-#   } else {
-#     return;
-#   }
-# }
-
-
-
 
 =for stopwords PlanePath Ryde Math-PlanePath Math-PlanePath-Toothpick 7-gonals 8-gonal (step+2)-gonal heptagonals octagonals bignum multi-arm eg PerlMagick NaN NaNs subclasses incrementing arrayref hashref filename enum radix ie dX dY dX,dY Rsquared radix SUBCLASSING Ns onwards supremum radix radix-1
 

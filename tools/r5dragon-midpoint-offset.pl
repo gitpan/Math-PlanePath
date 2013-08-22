@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2012 Kevin Ryde
+# Copyright 2012, 2013 Kevin Ryde
 
 # This file is part of Math-PlanePath.
 #
@@ -26,7 +26,7 @@ use Math::PlanePath::R5DragonMidpoint;
 
 
 my $path = Math::PlanePath::R5DragonMidpoint->new (arms => 1);
-my @yx_to_dxdydig;
+my @yx_to_digdxdy;
 foreach my $n (0 .. 5**10) {
   my ($x,$y) = $path->n_to_xy($n);
 
@@ -46,20 +46,20 @@ foreach my $n (0 .. 5**10) {
   my $v0 = $digit;
   my $v1 = $dx;
   my $v2 = $dy;
-  if (defined $yx_to_dxdydig[$k+0] && $yx_to_dxdydig[$k+0] != $v0) {
-    die "diff v0 $yx_to_dxdydig[$k+0] $v0  k=$k n=$n";
+  if (defined $yx_to_digdxdy[$k+0] && $yx_to_digdxdy[$k+0] != $v0) {
+    die "diff v0 $yx_to_digdxdy[$k+0] $v0  k=$k n=$n";
   }
-  if (defined $yx_to_dxdydig[$k+1] && $yx_to_dxdydig[$k+1] != $v1) {
-    die "diff v1 $yx_to_dxdydig[$k+1] $v1  k=$k n=$n";
+  if (defined $yx_to_digdxdy[$k+1] && $yx_to_digdxdy[$k+1] != $v1) {
+    die "diff v1 $yx_to_digdxdy[$k+1] $v1  k=$k n=$n";
   }
-  if (defined $yx_to_dxdydig[$k+2] && $yx_to_dxdydig[$k+2] != $v2) {
-    die "diff v2 $yx_to_dxdydig[$k+2] $v2  k=$k n=$n";
+  if (defined $yx_to_digdxdy[$k+2] && $yx_to_digdxdy[$k+2] != $v2) {
+    die "diff v2 $yx_to_digdxdy[$k+2] $v2  k=$k n=$n";
   }
-  $yx_to_dxdydig[$k+0] = $v0;
-  $yx_to_dxdydig[$k+1] = $v1;
-  $yx_to_dxdydig[$k+2] = $v2;
+  $yx_to_digdxdy[$k+0] = $v0;
+  $yx_to_digdxdy[$k+1] = $v1;
+  $yx_to_digdxdy[$k+2] = $v2;
 }
-print_table(\@yx_to_dxdydig);
+print_table(\@yx_to_digdxdy);
 
 sub print_table {
   my ($aref) = @_;

@@ -24,6 +24,12 @@
 # Sur une courbe continue sans tangente, obtenue par une construction
 # géométrique élémentaire
 #
+# Une methode geometrique elementaire pour l'etude de certaines questions de
+# la theorie des courbes planes Acta Arithmetica 30 145-174
+# http://www.nku.edu/~curtin/grenouille.html
+# http://www.nku.edu/~curtin/koch_171.jpg
+# http://archive.org/details/actamathematica11lefgoog
+#
 # Cesàro, "Remarques sur la courbe de von Koch." Atti della
 # R. Accad. della Scienze fisiche e matem. Napoli 12, No. 15, 1-12,
 # 1905. Reprinted as §228 in Opere scelte, a cura dell'Unione matematica
@@ -34,9 +40,9 @@
 # Thue-Morse count 1s mod 2 is net direction
 # Toeplitz first diffs is turn sequence +1 or -1
 #
-# J. Ma and J.A. Holdener. When Thue­Morse Meets Koch. In Fractals:
+# J. Ma and J.A. Holdener. When Thue-Morse Meets Koch. In Fractals:
 # Complex Geometry, Patterns, and Scaling in Nature and Society, volume 13,
-# pages 191­206, 2005.
+# pages 191-206, 2005.
 # http://personal.kenyon.edu/holdenerj/StudentResearch/WhenThueMorsemeetsKochJan222005.pdf
 #
 # F.M. Dekking. On the distribution of digits in arithmetic sequences. In
@@ -52,7 +58,7 @@ use strict;
 use List::Util 'sum','first';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;

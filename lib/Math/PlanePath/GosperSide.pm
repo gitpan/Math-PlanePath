@@ -26,13 +26,13 @@
 package Math::PlanePath::GosperSide;
 use 5.004;
 use strict;
-use List::Util qw(max);
-use POSIX qw(ceil);
+use List::Util 'min','max';
+use POSIX 'ceil';
 use Math::PlanePath::GosperIslands;
 use Math::PlanePath::SacksSpiral;
 
 use vars '$VERSION', '@ISA', '@_xend','@_yend';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -75,12 +75,8 @@ use constant dir_maximum_dxdy => (1,-1); # South-East
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 6) { $arms = 6; }
-  $self->{'arms'} = $arms;
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(6, $self->{'arms'} || 1));
   return $self;
 }
 

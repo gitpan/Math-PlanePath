@@ -16,30 +16,71 @@
 # with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Multiples of prime make grid.
+
+# pn_type => 'even/odd'
+# pn_type => 'odd_even'
+# pn_type => 'negabinary'
+# pn_type => 'neg_zeros'
+
+
 # David M. Bradley http://arxiv.org/abs/math/0509025
-#   19 Yoram Sagher, Counting the rationals, AMM Nov 1989 p823
-#   http://www.jstor.org/stable/2324846
 # earlier inverse
-#   6 Gerald Freilich, A denumerability formula for the rationals AMM Nov
-#   1965 p1013-1014
-#   http://www.jstor.org/stable/2313350
 # prime powers
-#   17 Kevin McCrimmon, Enumeration of the positive rationals AMM Nov 1960 p868
-#   http://www.jstor.org/stable/2309448
 #
 # prime factors q1,..qk of n
 # f(m/n) = m^2*n^2/ (q1q2...qk)
+
+# Kevin McCrimmon, "Enumeration of the Positive Rationals", American Math
+# Monthly, Nov 1960, page 868.  http://www.jstor.org/stable/2309448
 #
-# http://blog.computationalcomplexity.org/2004/03/counting-rationals-quickly.html
+# integer prod p[i]^a[i] -> rational prod p[i]^b[i]
+# b[i] = a[2i-1] if a[2i-1]!=0
+#    b[1]=a[1], b[2]=a[3], b[3]=a[5]
+# b[i] = -a[2k] if a[2i-1]=0 and is kth such
 #
-# maybe Umberto Cerruti 
-# in "Ordinare i razionali Gli alberi di Keplero e di Calkin - Wilf"
+#
+# b[i] = f(a[i]) where f(n) = (-1)^(n+1) * floor((n+1)/2)
+#   f(0) =  0
+#   f(1) =  1
+#   f(2) = -1
+#   f(3) =  2
+#   f(4) = -2
+
+# Gerald Freilich, "A Denumerability Formula for the Rationals", American
+# Math Monthly, Nov 1965, pages 1013-1014.
+# http://www.jstor.org/stable/2313350
+#
+# f(n) = n/2      if n even n>=0
+#      = -(n+1)/2 if n odd n>0
+# f(0)=0/2      =  0
+# f(1)=-(1+1)/2 = -1
+# f(2)=2/2      =  1
+# f(3)=-(3+1)/2 = -2
+# f(4)=4/2      =  2
+
+# Yoram Sagher, "Counting the rationals", American Math Monthly, Nov 1989,
+# page 823.  http://www.jstor.org/stable/2324846
+#
+# m = p1^e1.p2^e2...
+# n = q1^f1.q2^f2...
+# f(m/n) = p1^2e1.p2^2e2... . q1^(2f1-1).q2^(2f2-1)...
+# so     0 -> 0              0 ->  0
+#    num 1 -> 2              1 -> -1
+#        2 -> 4              2 ->  1
+# den -1 1 -> 2*1-1 = 1      3 -> -2
+#     -2 2 -> 2*2-1 = 3      4 ->  2
+
+# Umberto Cerruti, "Ordinare i razionali Gli alberi di Keplero e di
+# Calkin-Wilf"
 #   B(2k)=-k   even=negative and zero
 #   B(2k-1)=k  odd=positive
 #   which is Y/X invert
-
-# sign_encoding => 'even_odd'
-# sign_encoding => 'negabinary'
+# B(0 =2*0)   =  0
+# B(1 =2*1-1) =  1
+# B(2 =2*1)   = -1
+# B(3 =2*2-1) =  2
+# B(4 =2*2)   = -2
 
 
 package Math::PlanePath::FactorRationals;
@@ -51,7 +92,7 @@ use List::Util 'min';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -73,9 +114,9 @@ use Math::PlanePath::CoprimeColumns;
 #   [ { name      => 'sign_encoding',
 #       display   => 'Sign Encoding',
 #       type      => 'enum',
-#       default   => 'even_odd',
-#       choices         => ['even_odd','negabinary',],
-#       choices_display => ['Even/Odd','Negabinary',],
+#       default   => 'even/odd',
+#       choices         => ['even/odd','odd/even','negabinary','spread'],
+#       choices_display => ['Even/Odd','Odd/Even','Negabinary','Spread'],
 #     },
 #   ];
 
@@ -86,7 +127,7 @@ use constant y_minimum => 1;
 use constant gcdxy_maximum => 1;  # no common factor
 use constant absdy_minimum => 1;
 
-# even_odd
+# even/odd
 #   dir_minimum_dxdy() suspect dir approaches 0.
 #   Eg. N=5324   = 2^2.11^3     dx=3,dy=92   0.97925
 #       N=642735 = 3^5.23^2     dX=45 dY=4    Dir4=0.05644  
@@ -103,30 +144,53 @@ use constant absdy_minimum => 1;
 #
 
 
-#------------------------------------------------------------------------------
-
-# all rationals X,Y >= 1 no common factor
-use Math::PlanePath::DiagonalRationals;
-*xy_is_visited = Math::PlanePath::DiagonalRationals->can('xy_is_visited');
-
-sub _pn_to_pos_even_odd {
+# $n>=0, return a positive if even or negative if odd
+#   $n==0  return  0
+#   $n==1  return -1
+#   $n==2  return +1
+#   $n==3  return -2
+#   $n==4  return +2
+sub _pos_to_pn__even_odd {
   my ($n) = @_;
-  if ($n >= 0) {
-    return 2*$n;
-  } else {
-    return -1-2*$n;
-  }
-}
-sub _pos_to_pn_even_odd {
-  my ($n) = @_;
-  if ($n % 2) {
-    return (-1-$n)/2;
-  } else {
-    return $n/2;
-  }
+  return ($n % 2 ? -1-$n : $n) / 2;
 }
 
-sub _pn_to_pos_negabinary {
+# $n>=0, return a positive if even or negative if odd
+#   $n==0  return  0
+#   $n==1  return +1
+#   $n==2  return -1
+#   $n==3  return +2
+#   $n==4  return -2
+sub _pos_to_pn__odd_even {
+  my ($n) = @_;
+  return ($n % 2 ? $n+1 : -$n) / 2;
+}
+
+#----------
+
+# $n is positive or negative, return even for positive or odd for negative.
+#   $n==0   return 0
+#   $n==-1  return 1
+#   $n==+1  return 2
+#   $n==-2  return 3
+#   $n==+2  return 4
+sub _pn_to_pos__even_odd {
+  my ($n) = @_;
+  return ($n >= 0 ? 2*$n : -1-2*$n);
+}
+
+# $n is positive or negative, return odd for positive or even for negative.
+#   $n==0   return 0
+#   $n==+1  return 1
+#   $n==-1  return 2
+#   $n==+2  return 3
+#   $n==-2  return 4
+sub _pn_to_pos__odd_even {
+  my ($n) = @_;
+  return ($n <= 0 ? -2*$n : 2*$n-1);
+}
+
+sub _pn_to_pos__negabinary {
   my ($n) = @_;
   my @bits;
   while ($n) {
@@ -139,19 +203,22 @@ sub _pn_to_pos_negabinary {
   return digit_join_lowtohigh(\@bits, 2,
                               $n); # zero
 }
-sub _pos_to_pn_negabinary {
+sub _pos_to_pn__negabinary {
   my ($n) = @_;
   return (($n & 0x55555555) - ($n & 0xAAAAAAAA));
 }
 
-my %sign_encoding_known = (even_odd   => 1,
-                         negabinary => 1,
-                        );
+my %sign_encoding__pos_to_pn = ('even/odd' => \&_pos_to_pn__even_odd,
+                                'odd/even' => \&_pos_to_pn__odd_even,
+                                negabinary => \&_pos_to_pn__negabinary,
+                                spread     => 1,
+                               );
+
 sub new {
   my $self = shift->SUPER::new(@_);
 
-  my $sign_encoding = ($self->{'sign_encoding'} ||= 'even_odd');
-  $sign_encoding_known{$sign_encoding}
+  my $sign_encoding = ($self->{'sign_encoding'} ||= 'even/odd');
+  $sign_encoding__pos_to_pn{$sign_encoding}
     or croak "Unrecognised sign_encoding: ",$sign_encoding;
 
   return $self;
@@ -180,55 +247,94 @@ sub n_to_xy {
   }
 
   my $zero = $n * 0;
-  my $pos_to_pn = $self->can("_pos_to_pn_$self->{'sign_encoding'}");
-  my $x = my $y = ($n * 0) + 1;  # inherit bignum 1
-  my ($limit,$overflow) = _limit($n);
-  ### $limit
 
-  my $prime = 2;
-  my $step = 1;
-  while ($prime <= $limit) {
-    if (($n % $prime) == 0) {
-      my $count = 0;
-      for (;;) {
-        $count++;
-        $n /= $prime;
-        if ($n % $prime) {
-          my $pn = &$pos_to_pn($count);
-          ### $count
-          ### $pn
-          my $pow = ($prime+$zero) ** abs($pn);
-          if ($pn >= 0) {
-            $x *= $pow;
-          } else {
-            $y *= $pow;
-          }
-          last;
-        }
+  if ($self->{'sign_encoding'} eq 'spread') {
+    # N = 2^e1 * 3^e2 * 5^e3 * 7^e4 * 11^e5 * 13^e6 * 17^e7
+    # X = 2^e1 * 3^e3 * 5^e5 * 7^e7,  Y = 1
+    #
+    # X = 2^e1        * 5^e5          e3=0,e7=0
+    # Y =        3^e2        * 7^e4
+    #
+    # 22 = 1,0,0,0,1
+    # num = 1,0,1 = 2*5 = 10
+    # den = 0
+    #
+    my $nexps = _factors_split($n)
+      or return;  # too big
+    ### $nexps
+    my @dens;
+    my (@xexps, @yexps);
+    while (@$nexps || @dens) {
+      my $exp = shift @$nexps;
+      if (@$nexps)  {
+        push @dens, shift @$nexps;
       }
-      ($limit,$overflow) = _limit($n);
-      ### $limit
+
+      if ($exp) {
+        ### to num: $exp
+        push @xexps, $exp;
+        push @yexps, 0;
+      } else {
+        ### zero take den: $dens[0]
+        push @xexps, 0;
+        push @yexps, shift @dens;
+      }
     }
-    $prime += $step;
-    $step = 2;
-  }
-  if ($overflow) {
-    ### n too big ...
-    return;
-  }
+    ### @xexps
+    ### @yexps
+    return (_factors_join(\@xexps,$zero),
+            _factors_join(\@yexps,$zero));
 
-  ### remaining N is prime, count=1: "n=$n"
-  my $pn = &$pos_to_pn(1);
-  ### $pn
-  my $pow = $n ** abs($pn);
-  if ($pn >= 0) {
-    $x *= $pow;
   } else {
-    $y *= $pow;
-  }
+    my $pos_to_pn = $sign_encoding__pos_to_pn{$self->{'sign_encoding'}};
+    my $x = my $y = ($n * 0) + 1;  # inherit bignum 1
+    my ($limit,$overflow) = _limit($n);
+    ### $limit
+    my $divisor = 2;
+    my $dstep = 1;
+    while ($divisor <= $limit) {
+      if (($n % $divisor) == 0) {
+        my $count = 0;
+        for (;;) {
+          $count++;
+          $n /= $divisor;
+          if ($n % $divisor) {
+            my $pn = &$pos_to_pn($count);
+            ### $count
+            ### $pn
+            my $pow = ($divisor+$zero) ** abs($pn);
+            if ($pn >= 0) {
+              $x *= $pow;
+            } else {
+              $y *= $pow;
+            }
+            last;
+          }
+        }
+        ($limit,$overflow) = _limit($n);
+        ### $limit
+      }
+      $divisor += $dstep;
+      $dstep = 2;
+    }
+    if ($overflow) {
+      ### n too big ...
+      return;
+    }
 
-  ### result: "$x, $y"
-  return ($x, $y);
+    ### remaining $n is prime, count=1: "n=$n"
+    my $pn = &$pos_to_pn(1);
+    ### $pn
+    my $pow = $n ** abs($pn);
+    if ($pn >= 0) {
+      $x *= $pow;
+    } else {
+      $y *= $pow;
+    }
+
+    ### result: "$x, $y"
+    return ($x, $y);
+  }
 }
 
 sub xy_to_n {
@@ -244,64 +350,72 @@ sub xy_to_n {
   if (is_infinite($x)) { return $x; } # +infinity or nan
   if (is_infinite($y)) { return $y; } # +infinity or nan
 
-  if ($self->{'sign_encoding'} eq 'even_odd') {
-    if (! _coprime($x,$y)) {
-      return undef;
-    }
-
-    # Factorize $y so as to make an odd power of its primes.  Only need to
-    # divide out one copy of each prime, but by dividing out them all the
-    # $limit to search up to is reduced, usually by a lot.
+  if ($self->{'sign_encoding'} eq 'spread') {
+    # N = 2^e1 * 3^e2 * 5^e3 * 7^e4 * 11^e5 * 13^e6 * 17^e7
+    # X = 2^e1 * 3^e3 * 5^e5 * 7^e7,  Y = 1
     #
-    # $ymult is $y with one copy of each prime factor divided out.
-    # $ychop is $y with all primes divided out as they're found.
-    # $y itself is unchanged.
+    # X = 2^e1        * 5^e5          e3=0,e7=0
+    # Y =        3^e2        * 7^e4
     #
-    my $ychop = my $ymult = $y;
+    # X=1,0,1
+    # Y=0,0,0
+    # 22 = 1,0,0,0,1
+    # num = 1,0,1 = 2*5 = 10
+    #
+    my $xexps = _factors_split($x)
+      or return undef;  # overflow
+    my $yexps = _factors_split($y)
+      or return undef;  # overflow
+    ### $xexps
+    ### $yexps
 
-    my ($limit,$overflow) = _limit($ychop);
-    my $pstep = 1;
-    for (my $prime = 2; $prime <= $limit; $prime += $pstep, $pstep=2) {
-      unless ($ychop % $prime) {
-        $ymult /= $prime;           # one of $prime divided out
-        do {
-          $ychop /= $prime;         # all of $prime divided out
-        } until ($ychop % $prime);
-        ($limit,$overflow) = _limit($ychop);  # new lower $limit, perhaps
+    my @nexps;
+    my $denpos = -1; # to store first at $nexps[1]
+    while (@$xexps || @$yexps) {
+      my $xexp = shift @$xexps || 0;
+      my $yexp = shift @$yexps || 0;
+      ### @nexps
+      ### $xexp
+      ### $yexp
+      push @nexps, $xexp, 0;
+      if ($xexp) {
+        if ($yexp) {
+          ### X,Y common factor ...
+          return undef;
+        }
+      } else {
+        ### den store to: "denpos=".($denpos+2)."  yexp=$yexp"
+        $nexps[$denpos+=2] = $yexp;
       }
     }
+    ### @nexps
+    return (_factors_join(\@nexps, $x*0*$y));
 
-    if ($overflow) {
-      return undef; # Y too big to find all primes
-    }
-    $ymult /= $ychop; # remainder is a prime
-    return $x*$x * $y*$ymult;
-
-  } else {
+  } elsif ($self->{'sign_encoding'} eq 'negabinary') {
     ### negabinary ...
     my $n = 1;
     my $zero = $x * 0 * $y;
 
     # Factorize both $x and $y and apply their negabinary encoded powers to
-    # make $n.  A common factor between $x and $y is noticed if $prime
+    # make $n.  A common factor between $x and $y is noticed if $divisor
     # divides both.
 
     my ($limit,$overflow) = _limit(max($x,$y));
-    my $pstep = 1;
-    for (my $prime = 2; $prime <= $limit; $prime += $pstep, $pstep=2) {
+    my $dstep = 1;
+    for (my $divisor = 2; $divisor <= $limit; $divisor += $dstep, $dstep=2) {
       my $count = 0;
-      if ($x % $prime == 0) {
-        if ($y % $prime == 0) {
+      if ($x % $divisor == 0) {
+        if ($y % $divisor == 0) {
           return undef;  # common factor
         }
-        while ($x % $prime == 0) {
+        while ($x % $divisor == 0) {
           $count++;
-          $x /= $prime;  # mutate loop variable
+          $x /= $divisor;  # mutate loop variable
         }
-      } elsif ($y % $prime == 0) {
-        while ($y % $prime == 0) {
+      } elsif ($y % $divisor == 0) {
+        while ($y % $divisor == 0) {
           $count--;
-          $y /= $prime;  # mutate loop variable
+          $y /= $divisor;  # mutate loop variable
         }
       } else {
         next;
@@ -309,10 +423,10 @@ sub xy_to_n {
 
       # Here $count > 0 if from $x or $count < 0 if from $y.
       ### $count
-      ### negabinary: _pn_to_pos_negabinary($count)
+      ### negabinary: _pn_to_negabinary($count)
 
-      $count = _pn_to_pos_negabinary($count);
-      $n *= ($prime+$zero) ** $count;
+      $count = _pn_to_pos__negabinary($count);
+      $n *= ($divisor+$zero) ** $count;
 
       # new search limit, perhaps smaller than before
       ($limit,$overflow) = _limit(max($x,$y));
@@ -335,8 +449,63 @@ sub xy_to_n {
     $n *= $y*$y*$y;
 
     return $n;
+
+  } else {
+    ### assert: $self->{'sign_encoding'} eq 'even/odd' || $self->{'sign_encoding'} eq 'odd/even'
+    if ($self->{'sign_encoding'} eq 'odd/even') {
+      ($x,$y) = ($y,$x);
+    }
+
+    # Factorize $y so as to make an odd power of its primes.  Only need to
+    # divide out one copy of each prime, but by dividing out them all the
+    # $limit to search up to is reduced, usually by a lot.
+    #
+    # $ymult is $y with one copy of each prime factor divided out.
+    # $ychop is $y with all primes divided out as they're found.
+    # $y itself is unchanged.
+    #
+    my $ychop = my $ymult = $y;
+
+    my ($limit,$overflow) = _limit($ychop);
+    my $dstep = 1;
+    for (my $divisor = 2; $divisor <= $limit; $divisor += $dstep, $dstep=2) {
+      next if $ychop % $divisor;
+
+      if ($x % $divisor == 0) {
+        ### common factor with X ...
+        return undef;
+      }
+      $ymult /= $divisor;           # one of $divisor divided out
+      do {
+        $ychop /= $divisor;         # all of $divisor divided out
+      } until ($ychop % $divisor);
+      ($limit,$overflow) = _limit($ychop);  # new lower $limit, perhaps
+    }
+
+    if ($overflow) {
+      return undef; # Y too big to find all primes
+    }
+
+    # remaining $ychop is a prime, or $ychop==1
+    if ($ychop > 1) {
+      if ($x % $ychop == 0) {
+        ### common factor with X ...
+        return undef;
+      }
+      $ymult /= $ychop;
+    }
+
+    return $x*$x * $y*$ymult;
   }
 }
+
+#------------------------------------------------------------------------------
+
+# all rationals X,Y >= 1 no common factor
+use Math::PlanePath::DiagonalRationals;
+*xy_is_visited = Math::PlanePath::DiagonalRationals->can('xy_is_visited');
+
+#------------------------------------------------------------------------------
 
 # _limit() returns ($limit,$overflow).
 #
@@ -362,7 +531,73 @@ sub _limit {
   }
 }
 
-# even_odd
+
+my @primes = (2,3,5,7);
+sub _extend_primes {
+  for (my $p = $primes[-1] + 2; ; $p += 2) {
+    if (_is_prime($p)) {
+      push @primes, $p;
+      return;
+    }
+  }
+}
+sub _is_prime {
+  my ($n) = @_;
+  my $limit = int(sqrt($n));
+  for (my $i = 0; ; $i++) {
+    if ($i > $#primes) { _extend_primes(); }
+    my $prime = $primes[$i];
+    if ($n % $prime == 0) { return 0; }
+    if ($prime > $limit) { return 1; }
+  }
+}
+   
+# $aref is an arrayref of prime exponents, [a,b,c,...]      
+# Return their product 2**a * 3**b * 5**c * ...
+#
+sub _factors_join {
+  my ($aref, $zero) = @_;
+  ### _factors_join(): $aref
+  my $n = $zero + 1;
+  for (my $i = 0; $i <= $#$aref; $i++) {
+    if ($i > $#primes) { _extend_primes(); }
+    $n *= ($primes[$i] + $zero) ** $aref->[$i];
+  }
+  ### join: $n
+  return $n;
+}
+
+# Return an arrayref of prime exponents of $n.
+# Eg. [a,b,c,...] for $n == 2**a * 3**b * 5**c * ...
+sub _factors_split {
+  my ($n) = @_;
+  ### _factors_split(): $n
+  my @ret;
+  for (my $i = 0; $n > 1; $i++) {
+    if ($i > 6541) {
+      ### stop, primes too big ...
+      return;
+    }
+    if ($i > $#primes) { _extend_primes(); }
+
+    my $count = 0;
+    while ($n % $primes[$i] == 0) {
+      $n /= $primes[$i];
+      $count++;
+    }
+    push @ret, $count;
+  }
+  return \@ret;
+}
+
+# ### f: 2*3*3*5*19
+# ### f: _factors_split(2*3*3*5*19)
+# ### f: _factors_join(_factors_split(2*3*3*5*19),0)
+
+
+#------------------------------------------------------------------------------
+
+# even/odd
 #   X=2^10 -> N=2^20 is X*X
 #   Y=3 -> N=3
 #   Y=3^2 -> N=3^3
@@ -394,7 +629,7 @@ sub rect_to_n_range {
   my $n = $x2 * $y2;
   my $n_squared = $n * $n;
   return (1,
-          ($self->{'sign_encoding'} eq 'even_odd'
+          ($self->{'sign_encoding'} eq 'even/odd'
            ? $n_squared                      # X^2*Y^2
            : $n_squared*$n_squared * $n));   # X^5*Y^5
 
@@ -420,9 +655,8 @@ Math::PlanePath::FactorRationals -- rationals by prime powers
 
 X<McCrimmon, Kevin>X<Freilich, Gerald>X<Sagher, Yoram>This path enumerates
 rationals X/Y with no common factor, based on the prime powers in numerator
-and denominator.  This idea might have been first by Kevin McCrimmon then
-independently (was it?) by Gerald Freilich in reverse, and again by Yoram
-Sagher.
+and denominator.  This is per Kevin McCrimmon, and independently Gerald
+Freilich, and also Yoram Sagher.
 
     15  |      15   60       240            735  960           1815      
     14  |      14       126       350                1134      1694
@@ -443,53 +677,65 @@ Sagher.
          ----------------------------------------------------------
           X=0   1    2    3    4    5    6    7    8    9   10   11
 
-An X,Y is mapped to N by
+A given fraction X/Y with no common factor has a prime factorization
 
-             X^2 * Y^2
-    N = --------------------
-        distinct primes in Y
+    X/Y = p1^e1 * p2^e2 * ...
 
-The effect is to distinguish prime factors coming from the numerator or
-denominator by making odd or even powers of those primes in N.
+The exponents e[i] are either positive or negative, being positive when the
+prime is in the numerator or negative when in the denominator.  Those
+exponents are represented in an integer N by
 
-A rational X/Y has prime factor p with exponent p^s for positive or
-negative s.  Positive is in the numerator X, negative in the denominator Y.
-This is turned into a power p^k in N,
+    N = p1^f(e1) * p2^f(e2) * ...
 
-    k = /  2*s      if s >= 0
-        \  1-2*s    if s < 0
+    f(e) = 2*e      if e >= 0
+         = 1-2*e    if e < 0
 
-The effect is to map a signed s to positive k,
+    f(e)      e
+    ---      --- 
+     0        0
+     1       -1  
+     2        1  
+     3       -2  
+     4        2  
 
-     s           k
-    ---         ---
-    -1    <->    1
-     1    <->    2
-    -2    <->    3
-     2    <->    4
-    etc
+ For example
 
-For example (and other primes multiply similarly),
+    X/Y = 125/7 = 5^3 * 7^(-1)
+    encoded as N = 5^(2*3) * 7^(1-2*(-1)) = 5^6 * 7^1 = 5359375
 
     N=3   ->  3^-1 = 1/3
     N=9   ->  3^1  = 3/1
     N=27  ->  3^-2 = 1/9
     N=81  ->  3^2  = 9/1
 
-Thinking in terms of X and Y values, the key is that since X and Y have no
-common factor any prime p appears in one of X or Y but not both.  The
-oddness/evenness of the p^k exponent in N can then encode which of the two X
-or Y it came from.
+The effect is to distinguish prime factors of the numerator or denominator
+by odd or even exponents of those primes in N.  Since X and Y have no common
+factor a given prime appears in one and not the other.  The oddness or
+evenness of the p^f exponent in N can then encode which of the two X or Y it
+came from.
+
+The exponent f(e) in N has 2*e in both cases, with those from Y reduced
+by 1.  This can be expressed in the following form, which shows how going
+from X,Y to N doesn't need to factorize X, only Y.
+
+             X^2 * Y^2
+    N = --------------------
+        distinct primes in Y
+
+The exponents mapped positiveE<lt>-E<gt>even and negativeE<lt>->odd is the
+form given by Freilich and Sagher.  McCrimmon has them the opposite, as
+positiveE<lt>-E<gt>odd negativeE<lt>->even.  The only difference in the two
+is to swap Y/X.
 
 =head2 Various Values
 
 N=1,2,3,8,5,6,etc in the column X=1 is integers with odd powers of prime
-factors.  This is the fractions 1/Y so the s exponents of the primes are all
+factors.  These are the fractions 1/Y so the exponents of the primes are all
 negative and thus all exponents in N are odd.
 
-X<Square numbers>N=1,4,9,16,etc in row Y=1 is the perfect squares.  That row
-is the integers X/1 so the s exponents there are all positive and thus in N
-become 2*s, giving simply N=X^2.
+X<Square numbers>N=1,4,9,16,etc in row Y=1 are the perfect squares.  That
+row is the integers X/1 so the s exponents there are all positive and thus
+in N become 2*s, giving simply N=X^2.
 
 X<Bradley, David M.>As noted by David M. Bradley, other mappings of signed
 E<lt>-E<gt> unsigned powers could give other enumerations.  The "negabinary"
@@ -531,7 +777,7 @@ return is C<undef>.
 The current factorizing limits handle anything up to 2^32, and above that
 numbers comprised of small factors, but big numbers with big factors are not
 handled.  Is this a good idea?  For large inputs there's no merit in
-disappearing into a nearly-infinite loop.  But perhaps the limits could be
+disappearing into a nearly-infinite loop.  Perhaps the limits could be
 configurable and/or some advanced factoring modules attempted for a while
 if/when available.
 
@@ -563,6 +809,15 @@ L<Math::PlanePath>,
 L<Math::PlanePath::GcdRationals>,
 L<Math::PlanePath::RationalsTree>,
 L<Math::PlanePath::CoprimeColumns>
+
+Kevin McCrimmon, "Enumeration of the Positive Rationals", American Math
+Monthly, Nov 1960, page 868.  http://www.jstor.org/stable/2309448
+
+Gerald Freilich, "A Denumerability Formula for the Rationals", American Math
+Monthly, Nov 1965, pages 1013-1014.  http://www.jstor.org/stable/2313350
+
+Yoram Sagher, "Counting the rationals", American Math Monthly, Nov 1989,
+page 823.  http://www.jstor.org/stable/2324846
 
 David M. Bradley, "Counting the Positive Rationals: A Brief Survey",
 http://arxiv.org/abs/math/0509025

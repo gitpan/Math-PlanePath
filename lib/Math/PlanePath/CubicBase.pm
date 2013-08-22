@@ -29,7 +29,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -63,8 +63,7 @@ use constant dir_maximum_dxdy => (-1, -3);   # supremum
 
 #------------------------------------------------------------------------------
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   my $radix = $self->{'radix'};
   if (! defined $radix || $radix <= 2) { $radix = 2; }

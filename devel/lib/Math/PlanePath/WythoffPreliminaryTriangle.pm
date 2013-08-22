@@ -38,7 +38,7 @@ use strict;
 use List::Util 'max';
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -60,8 +60,7 @@ use Math::PlanePath::WythoffArray;
 my $wythoff = Math::PlanePath::WythoffArray->new;
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
   $self->{'shift'} ||= 0;
   return $self;
 }

@@ -48,16 +48,17 @@ require Math::NumSeq::PlanePathCoord;
 
 sub want_planepath {
   my ($planepath) = @_;
-# return 0 unless $planepath =~ /LCorner/;
+  # return 0 unless $planepath =~ /LCorner/;
   # return 0 unless $planepath =~ /DiagonalRationals/;
   # return 0 unless $planepath =~ /Ulam/;
-# return 0 unless $planepath =~ /Four/;
+  # return 0 unless $planepath =~ /Four/;
   return 1;
 }
 sub want_coordinate {
   my ($type) = @_;
-   return 0 unless $type =~ /GCD/;
-  # return 0 unless $type =~ /RootN/;
+  # return 0 unless $type =~ /d[XY]/;
+  # return 0 unless $type =~ /GCD/;
+   return 0 unless $type =~ /LeafDistance/;
   # return 0 unless $type =~ /Parity/;
   # return 0 unless $type =~ /dSum|dDiffXY|Absd|d[XY]/;
   # return 0 unless $type =~ /^(X|Y|Sum|DiffXY|dX|dY|AbsdX|AbsdY|dSum|dDiffXY|Dir4)$/;
@@ -397,6 +398,64 @@ my @modules = (
 
                # module list begin
               
+               '*LCornerTree',
+               '*LCornerTree,parts=3',
+               '*LCornerTree,parts=2',
+               '*LCornerTree,parts=1',
+               '*LCornerTree,parts=octant',
+               '*LCornerTree,parts=octant+1',
+               '*LCornerTree,parts=octant_up',
+               '*LCornerTree,parts=octant_up+1',
+               '*LCornerTree,parts=wedge',
+               '*LCornerTree,parts=wedge+1',
+               '*LCornerTree,parts=diagonal-1',
+               '*LCornerTree,parts=diagonal',
+               
+               '*OneOfEight,parts=wedge',
+               '*OneOfEight,parts=octant_up',
+               '*OneOfEight',
+               '*OneOfEight,parts=4',
+               '*OneOfEight,parts=1',
+               '*OneOfEight,parts=octant',
+               '*OneOfEight,parts=3mid',
+               '*OneOfEight,parts=3side',
+               
+               '*ToothpickTree,parts=octant_up',
+               '*ToothpickTree,parts=wedge',
+               '*ToothpickTree,parts=octant',
+               '*ToothpickTree',
+               '*ToothpickTree,parts=1',
+               '*ToothpickTree,parts=2',
+               '*ToothpickTree,parts=3',
+               
+               '*ToothpickUpist',
+               
+               '*ToothpickSpiral',
+               '*ToothpickSpiral,n_start=0',
+               '*ToothpickSpiral,n_start=37',
+               
+               'TerdragonMidpoint',
+               'TerdragonMidpoint,arms=2',
+               'TerdragonMidpoint,arms=3',
+               'TerdragonMidpoint,arms=4',
+               'TerdragonMidpoint,arms=5',
+               'TerdragonMidpoint,arms=6',
+               
+               'TerdragonCurve',
+               'TerdragonCurve,arms=2',
+               'TerdragonCurve,arms=3',
+               'TerdragonCurve,arms=4',
+               'TerdragonCurve,arms=5',
+               'TerdragonCurve,arms=6',
+               
+               'TerdragonRounded',
+               'TerdragonRounded,arms=2',
+               'TerdragonRounded,arms=3',
+               'TerdragonRounded,arms=4',
+               'TerdragonRounded,arms=5',
+               'TerdragonRounded,arms=6',
+               
+               
                'VogelFloret',
                'ArchimedeanChords',
                'SacksSpiral',
@@ -608,42 +667,6 @@ my @modules = (
                'PythagoreanTree,tree_type=FB,coordinates=AC',
                'PythagoreanTree,tree_type=FB,coordinates=BC',
                'PythagoreanTree,tree_type=FB,coordinates=PQ',
-               
-               '*LCornerTree',
-               '*LCornerTree,parts=3',
-               '*LCornerTree,parts=2',
-               '*LCornerTree,parts=1',
-               '*LCornerTree,parts=octant',
-               '*LCornerTree,parts=octant+1',
-               '*LCornerTree,parts=octant_up',
-               '*LCornerTree,parts=octant_up+1',
-               '*LCornerTree,parts=wedge',
-               '*LCornerTree,parts=wedge+1',
-               '*LCornerTree,parts=diagonal-1',
-               '*LCornerTree,parts=diagonal',
-               
-               '*ToothpickSpiral',
-               '*ToothpickSpiral,n_start=0',
-               '*ToothpickSpiral,n_start=37',
-               
-               '*OneOfEight,parts=wedge',
-               '*OneOfEight,parts=octant_up',
-               '*OneOfEight',
-               '*OneOfEight,parts=4',
-               '*OneOfEight,parts=1',
-               '*OneOfEight,parts=octant',
-               '*OneOfEight,parts=3mid',
-               '*OneOfEight,parts=3side',
-               
-               '*ToothpickTree,parts=octant_up',
-               '*ToothpickTree,parts=wedge',
-               '*ToothpickTree,parts=octant',
-               '*ToothpickTree',
-               '*ToothpickTree,parts=1',
-               '*ToothpickTree,parts=2',
-               '*ToothpickTree,parts=3',
-               
-               '*ToothpickUpist',
                
                '*LCornerReplicate',
                
@@ -969,28 +992,6 @@ my @modules = (
                'WythoffArray,y_start=1',
                'WythoffArray,x_start=1,y_start=1',
                'WythoffArray,x_start=5,y_start=7',
-               
-               
-               'TerdragonCurve',
-               'TerdragonCurve,arms=2',
-               'TerdragonCurve,arms=3',
-               'TerdragonCurve,arms=4',
-               'TerdragonCurve,arms=5',
-               'TerdragonCurve,arms=6',
-               
-               'TerdragonMidpoint',
-               'TerdragonMidpoint,arms=2',
-               'TerdragonMidpoint,arms=3',
-               'TerdragonMidpoint,arms=4',
-               'TerdragonMidpoint,arms=5',
-               'TerdragonMidpoint,arms=6',
-               
-               'TerdragonRounded',
-               'TerdragonRounded,arms=2',
-               'TerdragonRounded,arms=3',
-               'TerdragonRounded,arms=4',
-               'TerdragonRounded,arms=5',
-               'TerdragonRounded,arms=6',
                
                
                'CoprimeColumns',
@@ -1509,17 +1510,6 @@ foreach (@modules) { s/^\*// }
             && ($param eq 'TDir6')) {
           $saw_values_max = 4.5;
           $saw_values_max_at = 'override';
-        }
-        
-        # not enough values to see these decreasing
-        if (($mod eq 'TerdragonCurve'
-             || $mod eq 'TerdragonMidpoint'
-            )
-            && ($param eq 'dX')) {
-          $saw_values_max = 2;
-          $saw_values_max_at = 'override';
-          $saw_values_min = -2;
-          $saw_values_min_at = 'override';
         }
         
         # not enough values to see near supremum

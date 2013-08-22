@@ -38,7 +38,7 @@ use Math::Libm 'asin', 'hypot';
 use vars '$VERSION', '@ISA';
 @ISA = ('Math::PlanePath');
 use Math::PlanePath;
-$VERSION = 108;
+$VERSION = 109;
 
 use Math::PlanePath::Base::Generic
   'is_infinite';
@@ -399,9 +399,8 @@ sub dir_maximum_dxdy {
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  ### MultipleRings new(): @_
-  my $self = $class->SUPER::new (@_);
+  ### MultipleRings new() ...
+  my $self = shift->SUPER::new(@_);
 
   my $step = $self->{'step'};
   $step = $self->{'step'} = (! defined $step ? 6  # default

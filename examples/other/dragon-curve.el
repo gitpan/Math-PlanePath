@@ -1,4 +1,4 @@
-;; Copyright 2012 Kevin Ryde
+;; Copyright 2012, 2013 Kevin Ryde
 ;;
 ;; This file is part of Math-PlanePath.
 ;;
@@ -16,7 +16,8 @@
 ;; with Math-PlanePath.  If not, see <http://www.gnu.org/licenses/>.
 
 
-(require 'cl) ;; Emacs 22 and earlier for `ignore-errors'
+(unless (fboundp 'ignore-errors)
+  (require 'cl)) ;; Emacs 22 and earlier `ignore-errors'
 
 (defun dragon-ensure-line-above ()
   "If point is in the first line of the buffer then insert a new line above."
@@ -38,7 +39,7 @@ This is designed for use in `picture-mode'."
 
 (defun dragon-insert-char (char len)
   "Insert CHAR repeated LEN many times.
-After each CHAR point move in the current `picture-mode'
+After each CHAR move point in the current `picture-mode'
 direction (per `picture-set-motion' etc).
 
 This is the same as `picture-insert' except in column 0 or row 0
@@ -60,7 +61,7 @@ bit."
 (defun dragon-next-turn-right-p (n)
   "Return non-nil if the dragon curve should turn right after segment N.
 Segments are numbered from N=0 for the first, so calling with N=0
-is whether to turn right after drawing that N=0 segment."
+is whether to turn right at the end of that N=0 segment."
   (zerop (dragon-bit-above-lowest-0bit n)))
 
 (defun dragon-picture (len step)
@@ -85,7 +86,8 @@ progressively on screen."
 
   (switch-to-buffer "*dragon*")
   (erase-buffer)
-  (ignore-errors ;; if already in picture-mode
+  (setq truncate-lines t)
+  (ignore-errors ;; ignore error if already in picture-mode
     (picture-mode))
 
   (dotimes (n len)  ;; n=0 to len-1, inclusive

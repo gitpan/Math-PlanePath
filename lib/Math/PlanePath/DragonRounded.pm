@@ -24,11 +24,12 @@
 package Math::PlanePath::DragonRounded;
 use 5.004;
 use strict;
-#use List::Util 'max';
+#use List::Util 'min','max';
+*min = \&Math::PlanePath::_min;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -71,12 +72,8 @@ use constant dir_maximum_dxdy => (1,-1); # South-East
 #------------------------------------------------------------------------------
 
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  my $arms = $self->{'arms'};
-  if (! defined $arms || $arms <= 0) { $arms = 1; }
-  elsif ($arms > 4) { $arms = 4; }
-  $self->{'arms'} = $arms;
+  my $self = shift->SUPER::new(@_);
+  $self->{'arms'} = max(1, min(4, $self->{'arms'} || 1));
   return $self;
 }
 

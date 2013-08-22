@@ -36,7 +36,7 @@ use strict;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
@@ -89,8 +89,7 @@ sub absdx_minimum {
 
 #------------------------------------------------------------------------------
 sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
+  my $self = shift->SUPER::new(@_);
 
   my $realpart = $self->{'realpart'};
   if (! defined $realpart || $realpart < 1) {

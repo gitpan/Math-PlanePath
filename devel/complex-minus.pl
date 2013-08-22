@@ -30,11 +30,478 @@ use MyOEIS;
 # uncomment this to run the ### lines
 # use Smart::Comments;
 
+
+
+{
+  # A203181 nxk count endings
+  # distinct 10,33,108,342,1096,3501,11199,35821
+
+  my @distinct;
+  foreach my $k (2 .. 9) {
+    print "k=$k\n";
+
+    my %counts;
+    {
+      my @mats = ([]);
+      @mats = map {mat_extend($_,$k)} @mats;
+      @mats = map {mat_extend($_,$k)} @mats;
+      foreach my $m (@mats) {
+        $counts{mat_end_to_str($m)}++;
+      }
+    }
+
+    my $prev_distinct = 0;
+    for (;;) {
+      {
+        my %new_counts;
+        while (my ($str,$count) = each %counts) {
+          foreach my $m (mat_extend(str_to_mat($str),$k)) {
+            $new_counts{mat_end_to_str($m)} += $count;
+          }
+        }
+        %counts = %new_counts;
+      }
+      my $distinct = scalar(keys %counts);
+      print "distinct $distinct\n";
+
+      if ($distinct == $prev_distinct) {
+        push @distinct, $distinct;
+        last;
+      }
+      $prev_distinct = $distinct;
+    }
+    print "----------\n";
+  }
+
+  print join(',',@distinct),"\n";
+  print MyOEIS->grep_for_values_aref(\@distinct);
+  exit 0;
+}
+{
+  my %str_to_mat;
+  sub str_to_mat {
+    my ($str) = @_;
+    return ($str_to_mat{$str}
+            ||= [ map {[split //,$_]} split /;/, $str ]);
+  }
+}
+{
+  # A203181 nxk count
+  # distinct 10,33,108
+  my $k = 2;
+  # my @mats = ([[map {$_%2} 0 .. $k-1]]);
+  my @mats = ([]);
+  # @mats = [[1,2],[0,1]];
+  foreach my $y (0 .. 20) {
+    ### loop for y: $y
+    
+    @mats = map {mat_extend($_,$k)} @mats;
+    ### mats now: scalar(@mats)
+    
+    # printmats(@mats);
+    
+    # foreach my $m (@mats) {
+    #   print join(';',map{join('',@$_)}@$m),"\n";
+    # }
+    
+    my %count;
+    foreach my $m (@mats) {
+      my $e = mat_end_to_str($m);
+      $count{$e}++;
+    }
+    my $distinct = scalar(keys %count);
+    
+    printf "yn=%2d count %d  (distinct %d)\n", $y+1,scalar(@mats), $distinct;
+    foreach my $e (sort keys %count) {
+      print "$e  $count{$e}\n";
+    }
+  }
+  exit 0;
+}  
+sub mat_extend {
+  my ($input_m,$k) = @_;
+  my $y = scalar(@$input_m);
+  my @mats = ($input_m);
+  foreach my $x (0 .. $k-1) {
+    my @new_mats;
+    foreach my $m (@mats) {
+      foreach my $digit (0, 1, 2) {
+        ### consider: $m
+        ### $y
+        ### $x
+        ### $digit
+
+        if ($digit == 0) {
+          next if $y >= 1 && $m->[$y-1]->[$x] == 0;  # cannot 0 above
+          next if $x >= 1 && $m->[$y]->[$x-1] == 0;  # cannot 0 left
+        } elsif ($digit == 1) {
+          if ($y >= 1 && $m->[$y-1]->[$x] == 0) {
+            # good, 0 above
+          } elsif ($x >= 1 && $m->[$y]->[$x-1] == 0) {
+            # good, 0 left
+          } else {
+            # bad
+            next;
+          }
+        } else { # $digit == 2
+          if ($y >= 2
+              && $m->[$y-1]->[$x] == 1      # 1 above, and
+              && $m->[$y-2]->[$x] == 0) {   # 0 above
+            # good
+          } elsif ($x >= 2
+                   && $m->[$y]->[$x-1] == 1      # 1 above, and
+                   && $m->[$y]->[$x-2] == 0) {   # 0 above
+            # good
+          } else {
+            # bad
+            next;
+          }
+        }
+        ### yes ...
+        my $new_m = copymat($m);
+        $new_m->[$y]->[$x] = $digit;
+        push @new_mats, $new_m;
+      }
+    }
+    @mats = @new_mats;
+  }
+  return @mats;
+}
+sub mat_end_to_str {
+  my ($m) = @_;
+  if (@$m >= 2) {
+    return join('',@{$m->[-2]}) . ';' . join('',@{$m->[-1]});
+  } else {
+    return join('',@{$m->[-1]});
+  }
+}
+sub printmats {
+  foreach my $m (@_) {
+    printaref($m); print "\n";
+  }
+}
+sub printaref {
+  my ($m) = @_;
+  foreach my $row (@$m) {
+    print join('',@$row),"\n";
+  }
+}
+sub copymat {
+  my ($m) = @_;
+  return [ map {[@$_]} @$m ];
+}
+{
+  # 0,1   0,1   0,1   0,1   0,1   0,1
+  # 1,0   1,0   1,0   1,0   1,0   1,0
+  # 0,1   0,1   0,1   2,1   2,1   0,1
+  # 1,0   1,2   1,0   0,1   0,2   1,2
+  # 2,1   2,0   0,1   1,0   1,0   0,1
+
+  #  A      B      C      D      E      F      G      H      I      J
+  # 0,1    1,0    1,0    0,1    2,1    2,1    1,2    0,2    2,0    1,2
+  # 1,0    0,1    2,1    1,2    0,1    0,2    2,0    1,0    0,1    0,1
+  # ---    ---    ---    ---    ---    ---    ---    ---    ---    ---
+  # 0,1=B  1,0=A  0,1=E  0,1=J  1,0=A  1,0=H  0,1=I  0,1=B  1,0=A  1,0=A
+  # 2,1=C  1,2=D  0,2=F  2,0=G            H=A    I=B 2,1=C  1,2=D
+  #                2*E    E,G          F=E           H=A    I=B    J=E
+  #
+  # A -> B+C
+  # B -> A+D   B=I
+  # C -> 2E
+  # D -> E+G
+  # E -> A     E=F=H=J
+  # G -> B
+  #
+  # 4,6,10,18,30,50,86,146,246,418,710,1202,2038,3458
+  require Math::Matrix;
+  #                           A B C D E F G H I J
+  my $m = Math::Matrix->new ([0,1,1,0,0,0,0,0,0,0], # A
+                             [1,0,0,1,0,0,0,0,0,0], # B
+                             [0,0,0,0,1,1,0,0,0,0], # C
+                             [0,0,0,0,0,0,1,0,0,1], # D
+                             [1,0,0,0,0,0,0,0,0,0], # E=J
+                             [0,0,0,0,0,0,0,1,0,0], # F
+                             [0,0,0,0,0,0,0,0,1,0], # G
+                             [0,1,1,0,0,0,0,0,0,0], # H=A
+                             [1,0,0,1,0,0,0,0,0,0], # I=B
+                             [1,0,0,0,0,0,0,0,0,0], # J
+                            );
+  #  print "det ",$m->determinant,"\n";  # too slow
+
+=pod
+
+Pari
+
+  m = [0,1,1,0,0,0,0,0,0,0; \
+       1,0,0,1,0,0,0,0,0,0; \
+       0,0,0,0,1,1,0,0,0,0; \
+       0,0,0,0,0,0,1,0,0,1; \
+       1,0,0,0,0,0,0,0,0,0; \
+       0,0,0,0,0,0,0,1,0,0; \
+       0,0,0,0,0,0,0,0,1,0; \
+       0,1,1,0,0,0,0,0,0,0; \
+       1,0,0,1,0,0,0,0,0,0; \
+       1,0,0,0,0,0,0,0,0,0 ]
+
+=cut
+
+  my $dot = Math::Matrix->new([1,1,1,1,1,1,1,1,1,1,1]);
+  my $v = Math::Matrix->new([1,0,0,0,0,0,0,0,0,0,0]);
+  foreach my $i (0 .. 6) {
+    print "$i\n";
+    my $p = matrix_pow($m,$i);
+    my $pv = $v*$p;
+    print $pv->dot_product($dot),"\n";
+    matrix_print($pv);
+  }
+  # print $v,"\n";
+  #print $v*($m*$m),"\n";
+
+  # print "\nlast\n";
+  # #                               3 2 1 1
+  # $v = Math::Matrix->new([1,2,2,1,2,1,0,0,0,1]);
+  # my $pv = $v*$m;
+  # print $pv->dot_product($dot),"\n";
+  # print vector_str($pv);
+
+
+  # V*dot     = total[i]
+  # V*M*dot   = total[i+1]
+  # V*M^2*dot = total[i+2]
+  # V*M^3*dot = total[i+3]
+  # seek total[i+3] = total[i+2]
+  #               + 0*total[i+1]
+  #               + 2*total[i]
+  # M^3 = M^2 + 2*I
+
+  $v = Math::Matrix->new([1,0,0,0,0,0,0,0,0,0,0]);
+  my $i = 2;
+  $dot = $dot->transpose;
+  my $t0 = ($v * matrix_pow($m,$i)) * $dot;
+  my $t1 = ($v * matrix_pow($m,$i+1)) * $dot;
+  my $t2 = ($v * matrix_pow($m,$i+2)) * $dot;
+  my $t3 = ($v * matrix_pow($m,$i+3)) * $dot;
+  print "$t0 $t1 $t2  $t3\n";
+  # my $d = matrix_pow($m,4) - (matrix_pow($m,3) + $m->multiply_scalar(2));
+  my $d = matrix_pow($m,4) - (matrix_pow($m,3) + $m->multiply_scalar(2));
+  matrix_print($d); print "\n";
+
+  # m^2*dot + 2*dot == m^3*dot
+
+  # + $dot->multiply_scalar(2)
+  {
+    my $diff = $m*$m*$dot + $dot+$dot - $m*$m*$m*$dot;
+    print "diff\n"; matrix_print($diff); print "\n";
+  }
+  foreach my $exp (-1 .. 5) {
+    my $diff = matrix_pow($m,$exp+2)
+      + matrix_pow($m,$exp)
+        + matrix_pow($m,$exp)
+          - matrix_pow($m,$exp+3) ;
+    print "diff\n"; matrix_print(($diff*$dot)->transpose); print "\n";
+  }
+
+  # print "m\n"; matrix_print($m); print "\n";
+  # my $two = $m->multiply_scalar(2);
+  # print "two\n"; matrix_print($two); print "\n";
+  # my $three = matrix_pow($m,3);
+  # print "powthree\n"; matrix_print($three); print "\n";
+  # my $sum = $three + $two;
+  # print "sum\n"; matrix_print($sum*$dot); print "\n";
+  # my $four = matrix_pow($m,4);
+  # print "four\n"; matrix_print($four*$dot); print "\n";
+  # my $diff = $four*$dot - $sum*$dot;
+  # print "four\n"; matrix_print($diff); print "\n";
+
+  exit 0;
+
+  sub matrix_print {
+    my ($m) = @_;
+    my $len = 0;
+    foreach my $row (@$m) {
+      foreach my $value (@$row) {
+        $len = max($len,length($value));
+      }
+    }
+    foreach my $row (@$m) {
+      foreach my $value (@$row) {
+        printf " %*s", $len, $value;
+      }
+      print "\n";
+    }
+  }
+  # sub vector_str {
+  #   my ($v) = @_;
+  #   my $str = "$v";
+  #   $str =~ s{\.00000 *( |$)}{$1}g;
+  #   return $str;
+  # }
+}
+
+{
+  require Math::Matrix;
+  my $m = Math::Matrix->new ([1,0,0],
+                             [0,0,0],
+                             [0,0,0]);
+  print "det ",$m->determinant,"\n";
+  my $inv = $m->invert;
+  print "inverse\n"; matrix_print($inv); print "\n";
+  my $prod = $m * $inv;
+  print "prod\n"; matrix_print($prod); print "\n";
+
+  my $identity = $m->new_identity(3);
+  my $wide = $m->concat($identity);
+  print "wide\n"; matrix_print($wide); print "\n";
+  my $solve = $wide->solve;
+  print "solve\n"; matrix_print($solve); print "\n";
+  exit 0;
+}
+
+
+
+{
+  # print A203181 table
+  require Math::NumSeq::OEIS;
+  my $seq = Math::NumSeq::OEIS->new(anum=>'A203181');
+  my @table;
+  my $len = 0;
+  DD: for (my $d = 0; ; $d++) {
+    foreach my $y (0 .. $d) {
+      my ($i,$value) = $seq->next or last DD;
+      push @{$table[$y]}, $value;
+      $len = max($len,length($value));
+    }
+  }
+  $len++;
+  print "len=$len\n";
+  $len = 15;
+  foreach my $y (0 .. $#table) {
+    my $aref = $table[$y];
+    foreach my $x (0 .. $#$aref) {
+      last if $x > 3;
+      my $value = $aref->[$x];
+      printf "%*d", $len, $value;
+    }
+    print "\n";
+  }
+  exit 0;
+}
+
+
+{
+  require Math::Matrix;
+  my $m = Math::Matrix->new ([1,2,3],
+                             [0,0,0],
+                             [0,0,0],
+                            );
+  print matrix_pow($m,0);
+  exit 0;
+}
+
+# m^(2k) = (m^2)^k
+# m^(2k+1) = (m^2)^k*m
+sub matrix_pow {
+  my ($m, $exp, $swap) = @_;
+
+  if ($swap) { # when called through "**" operator overload.
+    die "Cannot raise scalar to matrix power";
+  }
+  if ($exp != int($exp)) {
+    die "Cannot raise matrix to non-integer power";
+  }
+  if ($exp == 0) {
+    my $size = @$m;
+    if ($size != scalar(@{$m->[0]})) {
+      # non-square matrix, no inverse and so no identity
+      return undef;
+    }
+    return $m->new_identity($m->size);
+  }
+  if ($exp < 0) {
+    $m = $m->invert;
+    if (! defined $m) { return undef; }
+    $exp = -$exp;
+  }
+  unless ($exp / 2 < $exp) {
+    die "Cannot raise matrix to infinite power";
+  }
+  # Result is $low * ($m ** $exp).
+  # When $exp odd,  ($m ** ($e+1)) = ($m**$e)*$m, so $low*=$m then $e even.
+  # When $exp even, ($m ** (2*$k)) = ($m*$m) ** $k, so $m*=$m.
+  # $low is undef if it's the identity matrix and so not needed yet.
+  # If $exp is a power-of-2 then $low is never needed, just $m squared up.
+  # Use $exp%2 rather than $exp&1 since that allows NV powers (NV can be a
+  # 53-bit integer whereas UV might be only 32-bits).
+  my $low;
+  while ($exp > 1) {
+    if ($exp % 2) {
+      if (defined $low) { $low *= $m; }
+      else { $low = $m; }
+      $exp -= 1;
+    }
+    $m *= $m;
+    $exp /= 2;
+  }
+  if (defined $low) { $m *= $low; }
+  return $m;
+}
+
+
+{
+  # neighbours across 2^k blocks
+
+  my @dir4_to_dx = (1,0,-1,0);
+  my @dir4_to_dy = (0,1,0,-1);
+  my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
+  my @dir8_to_dy = (0, 1, 1, 1,  0, -1, -1,-1);
+
+  my $path = Math::PlanePath::ComplexMinus->new;
+  my @values;
+  my $prev_count = 0;
+  foreach my $k (0 .. 13) {
+    my $pow = 2**$k;
+    my $count = 0;
+    foreach my $n (2 .. $pow-1) {
+      my ($x,$y) = $path->n_to_xy($n);
+      # foreach my $i (0 .. $#dir4_to_dx) {
+      foreach my $i (0, 2) {
+        my $n2 = $path->xy_to_n($x+$dir4_to_dx[$i],
+                                $y+$dir4_to_dy[$i]);
+        if (defined $n2 && $n2 >= $pow) {  # num boundary
+          $count++;
+          last;
+        }
+        # if (defined $n2 && $n2 >= $pow && $n2 < 2*$pow) {
+        #   $count++;
+        #   last;
+        # }
+      }
+    }
+    my $value = ($count - $prev_count)/1;
+    # my $value = $count/2;
+    # my $value = $count;
+
+    printf "%2d %4d %10b\n", $k, $value, $value;
+    push @values, $value;
+    $prev_count = $count;
+  }
+
+  shift @values;
+  shift @values;
+  print join(',',@values),"\n";
+  print MyOEIS->grep_for_values_aref(\@values);
+  exit 0;
+}
+
+
 {
   # counting all 4 directions, is boundary length
   # 2 * A003476 a(n) = a(n-1) + 2a(n-3).
   #                           1, 2, 3,  5,  9, 15, 25, 43,  73, 123, 209, 355,
   # A203175 nX2 arrays  1, 1, 2, 4, 6, 10, 18, 30, 50, 86, 146, 246, 418, 710,
+  # 1 immediately preceded by 0 to the left or above
+  # 0 not immediately preceded by a 0
+  # 2 immediately preceded by 0 1 to the left or above
 
   # 4,6,10,18,30,50,86,146,246,418,710,1202,2038,3458
   #
@@ -42,13 +509,27 @@ use MyOEIS;
   #
   # A052537 2*A or 2*B or 2*C
 
-
-  # n=5
+  # n=4 a(4)=4
+  # 0,1   0,1   0,1   0,1
+  # 1,0   1,0   1,0   1,0
+  # 0,1   0,1   2,1   2,1
+  # 1,0   1,2   0,1   0,2
+  # [2]   [2]   [2]   [1]  = 7
+  #
+  # n=5 a(4)=6
   # 0,1   0,1   0,1   0,1   0,1   0,1
   # 1,0   1,0   1,0   1,0   1,0   1,0
   # 0,1   0,1   0,1   2,1   2,1   0,1
   # 1,0   1,2   1,0   0,1   0,2   1,2
   # 2,1   2,0   0,1   1,0   1,0   0,1
+  # [2]   [?]   [2]   [2]   [2]   [2] = 10
+  #
+  # 0,1 -> 1,0 later 1,2
+  # 0,2 -> 1,0
+  # 1,0 -> 0,1 2,1
+  # 1,2 -> 0,1 2,0
+  # 2,0 ->
+  # 2,1 -> 0,1 0,2
 
   #  +---+---+
   #  | 0   1 |     boundary[2^1] = 6
@@ -74,10 +555,12 @@ use MyOEIS;
   # a[k] = (2n-1)a[k-1] + 2n*c[k-1]
   #
   # m = [2*n-1,0,2*n; n^2-2*n+2,0,(n-1)^2; 0,1,0]
-  # v = [n;n^2+1-n;1]
+  # v = [n;n^2+1-n;1]     so m*v transforms to new A,B,C
   # m^-1*v = [n ; 1; 1-n]
-  # t=[0,0,0;0,0,0;1,1,1]
-  # f=[0,1,0;0,0,1;1,0,0]
+  # t=[0,0,0; 0,0,0; 1,1,1]
+  # f=[0,1,0; 0,0,1; 1,0,0]
+  # f*t=[0,0,0; 1,1,1; 0,0,0]
+  # f^2*t=[1,1,1; 0,0,0; 0,0,0]
   # s=(t + f*t*m + f^2*t*m^2)
   # s*abc = l210
   # s*m*abc = r*l210
@@ -115,7 +598,7 @@ use MyOEIS;
   #    = 2*((r+2)*norm - (r+2) +2))
   #    = 2*(r+2)*(norm-1) + 4
 
-  my $r = 1;
+  my $r = 2;
   my $norm = $r*$r+1;
 
   sub boundary_by_recurrence {
@@ -230,51 +713,7 @@ BEGIN {
   }
 }
 
-{
-  # neighbours across 2^k blocks
 
-  my @dir4_to_dx = (1,0,-1,0);
-  my @dir4_to_dy = (0,1,0,-1);
-  my @dir8_to_dx = (1, 1, 0,-1, -1, -1,  0, 1);
-  my @dir8_to_dy = (0, 1, 1, 1,  0, -1, -1,-1);
-
-  my $path = Math::PlanePath::ComplexMinus->new;
-  my @values;
-  my $prev_count = 0;
-  foreach my $k (0 .. 13) {
-    my $pow = 2**$k;
-    my $count = 0;
-    foreach my $n (2 .. $pow-1) {
-      my ($x,$y) = $path->n_to_xy($n);
-      # foreach my $i (0 .. $#dir4_to_dx) {
-      foreach my $i (0, 2) {
-        my $n2 = $path->xy_to_n($x+$dir4_to_dx[$i],
-                                $y+$dir4_to_dy[$i]);
-        if (defined $n2 && $n2 >= $pow) {  # num boundary
-          $count++;
-          last;
-        }
-        # if (defined $n2 && $n2 >= $pow && $n2 < 2*$pow) {
-        #   $count++;
-        #   last;
-        # }
-      }
-    }
-    # my $value = ($count - $prev_count)/4;
-    # my $value = $count/2;
-    my $value = $count;
-
-    printf "%2d %4d %10b\n", $k, $value, $value;
-    push @values, $value;
-    $prev_count = $count;
-  }
-
-  shift @values;
-  shift @values;
-  print join(',',@values),"\n";
-  print MyOEIS->grep_for_values_aref(\@values);
-  exit 0;
-}
 
 {
   # min/max rectangle

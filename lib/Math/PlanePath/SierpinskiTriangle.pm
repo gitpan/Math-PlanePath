@@ -37,8 +37,7 @@
 # Number of cells in a row:
 #    numerator of (2^k)/k!
 #
-# cf A080263
-#    A067771  vertices of sierpinski graph, joins up replications
+# cf A067771  vertices of sierpinski graph, joins up replications
 #             so 1 less each giving 3*(3^k-1)/2
 #
 
@@ -53,7 +52,7 @@ use Carp;
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 *_divrem_mutate = \&Math::PlanePath::_divrem_mutate;
@@ -372,17 +371,18 @@ sub tree_n_num_children {
   }
   my ($depthbits, $ndepth) = _n0_to_depthbits($n)
     or return 1;  # infinite
-  $n -= $ndepth;  # Noffset into row
 
   unless (shift @$depthbits) {  # low bit
-    # Depth even or zero, two children under every point.
+    # Depth even (incl zero), two children under every point.
     return 2;
   }
 
   # Depth odd, either 0 or 1 child.
-  # If depth==1mod4 then 1-child, when depth has more than one
-  # trailing 1-bit then some 0-child and some 1-child.
+  # If depth==1mod4 then 1-child.
+  # If depth==3mod4 so two or more trailing 1-bits then some 0-child and
+  # some 1-child.
   #
+  $n -= $ndepth;  # Noffset into row
   my $repbit = _divrem_mutate($n,2); # low bit of $n
   while (shift @$depthbits) {               # bits of depth low to high
     if (_divrem_mutate($n,2) != $repbit) {  # bits of $n offset low to high
@@ -561,6 +561,80 @@ sub tree_n_to_subheight {
   return undef; # first or last of row, infinite
 }
 
+
+#------------------------------------------------------------------------------
+#   \                             /
+#    4   0   0   0   0   0   0   4
+#     \ /     \ /     \ /     \ /
+#      1       1       1       1
+#       \     /         \     /
+#        2   2           2   2
+#         \ /             \ /
+#          3               3
+#           \             /
+#            4   0   0   4
+#             \ /     \ /
+#              1       1
+#               \     /
+#                2   2
+#                 \ /
+#                  3
+
+# sub _EXPERIMENTAL__tree_n_to_leafdist {
+#   my ($self, $n) = @_;
+#   ### _EXPERIMENTAL__tree_n_to_leafdist() ...
+#   my $d = $self->tree_n_to_depth($n);
+#   if (defined $d) {
+#     $d = 3 - ($d % 4);
+#     if ($d == 0 && $self->tree_n_num_children($n) != 0) {
+#       $d = 4;
+#     }
+#   }
+#   return $d;
+# }
+sub _EXPERIMENTAL__tree_n_to_leafdist {
+  my ($self, $n) = @_;
+  ### _EXPERIMENTAL__tree_n_to_leafdist(): $n
+
+  $n = $n - $self->{'n_start'};   # N=0 basis
+  if ($n < 0) {
+    return undef;
+  }
+  my ($depthbits, $ndepth) = _n0_to_depthbits($n)  # low to high
+    or return 1;  # infinite
+  ### $depthbits
+
+  # depth bits leafdist
+  #   0    0,0    3
+  #   1    0,1    2
+  #   2    1,0    1
+  #   3    1,1    0 or 4
+  #
+  my $ret = 3 - ((shift @$depthbits)||0);
+  if (shift @$depthbits) { $ret -= 2; }
+  ### $ret
+  if ($ret) {
+    return $ret;
+  }
+
+  $n -= $ndepth;
+  ### Noffset into row: $n
+
+  # Low bits of Nrem unchanging while trailing 1-bits in @depthbits,
+  # to distinguish between leaf or non-leaf.  Same as tree_n_children().
+  #
+  my $repbit = _divrem_mutate($n,2); # low bit of $n
+  ### $repbit
+  do {
+    ### next bit: $n%2
+    if (_divrem_mutate($n,2) != $repbit) {  # bits of $n offset low to high
+      return 0;  # is a leaf
+    }
+  } while (shift @$depthbits);
+  return 4; # is a non-leaf
+}
+
+#------------------------------------------------------------------------------
 # Return ($depthbits, $ndepth, $nwidth).
 # $depthbits is an arrayref of bits which give the tree depth of $n.
 # $ndepth is first N of the row.
@@ -1130,7 +1204,7 @@ Sequences in various forms,
 
     A001316   number of cells in each row (Gould's sequence)
     A001317   rows encoded as numbers with bits 0,1
-    A006046   Ndepth, cumulative number of cells up to row N
+    A006046   total cells to depth, being tree_depth_to_n(), 
     A074330   Nend, right hand end of each row (starting Y=1)
 
 A001316 is the "rowpoints" described above.  A006046 is the cumulative total

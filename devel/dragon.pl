@@ -40,7 +40,111 @@ use lib 'xt';
 use Smart::Comments;
 
 
+{
+  foreach my $arms (1 .. 4) {
+    my $path = Math::PlanePath::DragonCurve->new (arms => $arms);
+    foreach my $x (-50 .. 50) {
+      foreach my $y (-50 .. 50) {
+        my $v = !! $path->xy_is_visited($x,$y);
+        my $n = defined($path->xy_to_n($x,$y));
+        $v == $n || die "arms=$arms x=$x,y=$y";
+      }
+    }
+  }
+  exit 0;
+}
+{
+  my @m = ([0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]);
+  foreach my $arms (1 .. 4) {
+    my $path = Math::PlanePath::DragonCurve->new (arms => $arms);
+    foreach my $x (-50 .. 50) {
+      foreach my $y (-50 .. 50) {
+        next if $x == 0 && $y == 0;
+        my $xm = $x+$y;
+        my $ym = $y-$x;
+        my $a1 = Math::PlanePath::DragonMidpoint::_xy_to_arm($xm,$ym);
+        my $a2 = Math::PlanePath::DragonMidpoint::_xy_to_arm($xm-1,$ym+1);
+        $m[$a1]->[$a2] = 1;
+      }
+    }
+  }
+  foreach my $i (0 .. $#m) {
+    my $aref = $m[$i];
+    print "$i  ",@$aref,"\n";
+  }
+  exit 0;
+}
+{
+  require Devel::TimeThis;
+  require Math::PlanePath::DragonMidpoint;
+  foreach my $arms (1 .. 4) {
+    my $path = Math::PlanePath::DragonCurve->new (arms => $arms);
+    {
+      my $t = Devel::TimeThis->new("xy_is_visited() arms=$arms");
+      foreach my $x (0 .. 50) {
+        foreach my $y (0 .. 50) {
+          $path->xy_is_visited($x,$y);
+        }
+      }
+    }
+    {
+      my $t = Devel::TimeThis->new("xy_to_n() arms=$arms");
+      foreach my $x (0 .. 50) {
+        foreach my $y (0 .. 50) {
+          $path->xy_to_n($x,$y);
+        }
+      }
+    }
+  }
+  exit 0;
+}
+{
+  # Dir4 is count_runs_1bits()
+  require Math::NumSeq::PlanePathDelta;
+  my $path = Math::PlanePath::DragonCurve->new;
+  my $dir4_seq = Math::NumSeq::PlanePathDelta->new (planepath_object => $path,
+                                                    delta_type => 'Dir4');
+  foreach my $n (0 .. 64) {
+    my $d = $dir4_seq->ith($n);
+    my $c = count_runs_1bits($n*2+1) % 4;
+    printf "%2d %d %d\n", $n, $d, $c;
+  }
+  my $n = 0b1100111101;
+  print join(',',$path->n_to_dxdy($n)),"\n";
+  exit 0;
+}
+{
+  # drawing two towards centre segment order
+  my @values;
+  print "\n";
 
+  my $draw;
+  $draw = sub {
+    my ($from, $to) = @_;
+      my $mid = ($from + $to) / 2;
+    if ($mid != int($mid)) {
+      push @values, min($from,$to);
+    } else {
+      $draw->($from,$mid);
+      $draw->($to,$mid);
+    }
+  };
+  $draw->(0, 64);
+  print join(',',@values),"\n";
+  my %seen;
+  foreach my $value (@values) {
+    if ($seen{$value}++) {
+      print "duplicate $value\n";
+    }
+  }
+  require MyOEIS;
+  print MyOEIS->grep_for_values(array => \@values);
+
+  foreach my $i (0 .. $#values) {
+    printf "%2d %7b\n", $i, $values[$i];
+  }
+  exit 0;
+}
 {
   # drawing two towards centre with Language::Logo
 
@@ -357,6 +461,7 @@ sub high_bit {
     return $count;
   }
 
+  # return how many places there are where n bits change 0<->1
   sub transitions {
     my ($n) = @_;
     my $count = 0;

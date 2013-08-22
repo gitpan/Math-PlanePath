@@ -28,6 +28,74 @@ use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
 
 
 {
+  # total turn
+  require Math::PlanePath::AlternatePaper;
+  require Math::BaseCnv;
+  my $path = Math::PlanePath::AlternatePaper->new;
+  my $total = 0;
+  my $bits_total = 0;
+  my @values;
+  for (my $n = 1; $n <= 32; $n++) {
+    my $n2 = Math::BaseCnv::cnv($n,10,2);
+    my $n4 = Math::BaseCnv::cnv($n,10,4);
+    printf "%10s %10s  %2d %2d\n", $n2, $n4, $total, $bits_total;
+
+    # print "$total,";
+    push @values, $total;
+    
+    $bits_total = total_turn_by_bits($n);
+
+    my $turn = path_n_turn ($path, $n);
+    if ($turn == 1) { # left
+      $total++;
+    } elsif ($turn == 0) { # right
+      $total--;
+    } else {
+      die;
+    }
+  }
+
+  use lib 'xt'; require MyOEIS;
+  print join(',',@values),"\n";
+  print MyOEIS->grep_for_values_aref(\@values);
+
+  use Math::PlanePath;
+  use Math::PlanePath::GrayCode;
+  sub total_turn_by_bits {
+    my ($n) = @_;
+    my $bits = [ digit_split_lowtohigh($n,2) ];
+    my $rev = 0;
+    my $total = 0;
+    for (my $pos = $#$bits; $pos >= 0; $pos--) { # high bit to low bit
+      my $bit = $bits->[$pos];
+      if ($rev) {
+        if ($bit) {
+        } else {
+          if ($pos & 1) {
+            $total--;
+          } else {
+            $total++;
+          }
+          $rev = 0;
+        }
+      } else {
+        if ($bit) {
+          if ($pos & 1) {
+            $total--;
+          } else {
+            $total++;
+          }
+          $rev = 1;
+        } else {
+        }
+      }
+    }
+    return $total;
+  }
+
+  exit 0;
+}
+{
   require Math::PlanePath::AlternatePaper;
   require Math::PlanePath::AlternatePaperMidpoint;
   my $paper = Math::PlanePath::AlternatePaper->new (arms => 8);
@@ -190,69 +258,7 @@ use Math::PlanePath::Base::Digits 'digit_split_lowtohigh';
   exit 0;
 }
 
-{
-  # total turn
-  require Math::PlanePath::AlternatePaper;
-  require Math::BaseCnv;
-  my $path = Math::PlanePath::AlternatePaper->new;
-  my $total = 0;
-  my $bits_total = 0;
-  for (my $n = 1; $n <= 64; $n++) {
-    my $n2 = Math::BaseCnv::cnv($n,10,2);
-    my $n4 = Math::BaseCnv::cnv($n,10,4);
-    printf "%10s %10s  %2d %2d\n", $n2, $n4, $total, $bits_total;
 
-    # print "$total,";
-
-    
-    $bits_total = total_turn_by_bits($n);
-
-    my $turn = path_n_turn ($path, $n);
-    if ($turn == 1) { # left
-      $total++;
-    } elsif ($turn == 0) { # right
-      $total--;
-    } else {
-      die;
-    }
-  }
-
-  use Math::PlanePath;
-  use Math::PlanePath::GrayCode;
-  sub total_turn_by_bits {
-    my ($n) = @_;
-    my $bits = [ digit_split_lowtohigh($n,2) ];
-    my $rev = 0;
-    my $total = 0;
-    for (my $pos = $#$bits; $pos >= 0; $pos--) { # high bit to low bit
-      my $bit = $bits->[$pos];
-      if ($rev) {
-        if ($bit) {
-        } else {
-          if ($pos & 1) {
-            $total--;
-          } else {
-            $total++;
-          }
-          $rev = 0;
-        }
-      } else {
-        if ($bit) {
-          if ($pos & 1) {
-            $total--;
-          } else {
-            $total++;
-          }
-          $rev = 1;
-        } else {
-        }
-      }
-    }
-    return $total;
-  }
-
-  exit 0;
-}
 
 
 {

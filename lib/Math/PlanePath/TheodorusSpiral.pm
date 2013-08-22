@@ -27,7 +27,7 @@ use Math::Libm 'hypot';
 *max = \&Math::PlanePath::_max;
 
 use vars '$VERSION', '@ISA';
-$VERSION = 108;
+$VERSION = 109;
 use Math::PlanePath;
 @ISA = ('Math::PlanePath');
 
@@ -75,11 +75,10 @@ my @save_y = (0);
 my $next_save = _SAVE;
 
 sub new {
-  my $class = shift;
-  return $class->SUPER::new (i => 1,
-                             x => 1,
-                             y => 0,
-                             @_);
+  return shift->SUPER::new (i => 1,
+                            x => 1,
+                            y => 0,
+                            @_);
 }
 
 # r = sqrt(int)
